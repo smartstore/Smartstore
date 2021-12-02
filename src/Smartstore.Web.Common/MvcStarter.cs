@@ -86,7 +86,6 @@ namespace Smartstore.Web
 
                     // TODO: (core) More MVC config?
                     o.ModelBinderProviders.Insert(0, new InvariantFloatingPointTypeModelBinderProvider());
-                    o.ModelBinderProviders.Insert(0, new SmartModelBinderProvider());
 
                     // Register custom metadata provider
                     o.ModelMetadataDetailsProviders.Add(new AdditionalMetadataProvider());
