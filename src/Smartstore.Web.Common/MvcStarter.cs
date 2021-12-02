@@ -10,7 +10,6 @@ using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.Routing;
@@ -86,9 +85,8 @@ namespace Smartstore.Web
                     o.Filters.AddService<IViewDataAccessor>(int.MinValue);
 
                     // TODO: (core) More MVC config?
-                    var complexBinderProvider = o.ModelBinderProviders.OfType<ComplexObjectModelBinderProvider>().First();
-                    o.ModelBinderProviders.Insert(0, new GridCommandModelBinderProvider(complexBinderProvider));
                     o.ModelBinderProviders.Insert(0, new InvariantFloatingPointTypeModelBinderProvider());
+                    o.ModelBinderProviders.Insert(0, new SmartModelBinderProvider());
 
                     // Register custom metadata provider
                     o.ModelMetadataDetailsProviders.Add(new AdditionalMetadataProvider());

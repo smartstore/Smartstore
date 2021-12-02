@@ -290,14 +290,12 @@ namespace Smartstore
         [DebuggerStepThrough]
         public static bool HasDefaultConstructor(this Type type)
         {
-            if (type == null)
-                throw new ArgumentNullException(nameof(type));
+            Guard.NotNull(type, nameof(type));
 
             if (type.IsValueType)
                 return true;
 
-            return type.GetConstructors(BindingFlags.Instance | BindingFlags.Public)
-                .Any(ctor => ctor.GetParameters().Length == 0);
+            return type.GetConstructor(Type.EmptyTypes) != null;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

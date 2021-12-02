@@ -13,7 +13,7 @@ namespace Smartstore.Web.Models.Search
     }
 
     // TODO: (mc) (core) This may be obsolete. Remove it when not needed.
-    [ModelBinder(typeof(ISearchResultModel))]
+    //[ModelBinder(typeof(ISearchResultModel))]
     public class SearchResultModelBinder : IModelBinder
     {
         public Task BindModelAsync(ModelBindingContext bindingContext)

@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
+using Smartstore.Web.Modelling;
 
 namespace Smartstore.Web.Models.DataGrid
 {
@@ -17,6 +18,7 @@ namespace Smartstore.Web.Models.DataGrid
         public bool Descending { get; set; }
     }
 
+    [ModelBinder(BinderType = typeof(GridCommandModelBinder))]
     public class GridCommand
     {
         [JsonIgnore]
@@ -50,56 +52,25 @@ namespace Smartstore.Web.Models.DataGrid
         public List<object> Aggregates { get; } = new();
     }
 
-    public class GridCommandModelBinderProvider : IModelBinderProvider
+    /// <summary>
+    /// Post-processor for GridCommand model binder.
+    /// </summary>
+    public class GridCommandModelBinder : SmartModelBinder<GridCommand>
     {
-        private readonly ComplexObjectModelBinderProvider _workerProvider;
-
-        public GridCommandModelBinderProvider(ComplexObjectModelBinderProvider workerProvider)
+        protected override async Task OnModelBoundAsync(ModelBindingContext bindingContext, GridCommand model)
         {
-            _workerProvider = workerProvider;
-        }
-
-        public IModelBinder GetBinder(ModelBinderProviderContext context)
-        {
-            Guard.NotNull(context, nameof(context));
-
-            if (context.Metadata.ModelType == typeof(GridCommand))
+            if (model == null)
             {
-                return new GridCommandModelBinder(_workerProvider.GetBinder(context));
+                return;
             }
 
-            return null;
-        }
-
-        /// <summary>
-        /// Post-processor for underlying ComplexObjectModelBinder
-        /// </summary>
-        class GridCommandModelBinder : IModelBinder
-        {
-            private readonly IModelBinder _workerBinder;
-
-            public GridCommandModelBinder(IModelBinder workerBinder)
+            // Preserve command state
+            if (!model.InitialRequest)
             {
-                _workerBinder = workerBinder;
-            }
-
-            public async Task BindModelAsync(ModelBindingContext bindingContext)
-            {
-                await _workerBinder.BindModelAsync(bindingContext);
-                if (!bindingContext.Result.IsModelSet)
+                var stateStore = bindingContext.HttpContext.RequestServices.GetService<IGridCommandStateStore>();
+                if (stateStore != null)
                 {
-                    return;
-                }
-
-                // Preserve command state
-                var command = bindingContext.Result.Model as GridCommand;
-                if (!command.InitialRequest)
-                {
-                    var stateStore = bindingContext.HttpContext.RequestServices.GetService<IGridCommandStateStore>();
-                    if (stateStore != null)
-                    {
-                        await stateStore.SaveStateAsync(command);
-                    }
+                    await stateStore.SaveStateAsync(model);
                 }
             }
         }

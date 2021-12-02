@@ -141,7 +141,7 @@ namespace Smartstore.ComponentModel
                 var instance = scope?.ResolveUnregistered(implType);
                 if (instance != null)
                 {
-                    scope.InjectUnsetProperties(instance);
+                    scope.InjectProperties(instance);
                     return (IMapper<TFrom, TTo>)instance;
                 }
             }
