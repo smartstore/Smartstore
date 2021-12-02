@@ -358,6 +358,8 @@ namespace Smartstore.Core.Data.Migrations
                 "There were {0} product reviews disapproved.",
                 "Es wurden {0} Produkt Rezensionen abgelehnt.");
 
+            builder.AddOrUpdate("Admin.Common.InvalidFileName", "Invalid file name.", "Ungültiger Dateiname.");
+
             #endregion
 
             #region Packaging
@@ -768,7 +770,9 @@ namespace Smartstore.Core.Data.Migrations
                 ["SmartStore.Core.Domain.DataExchange.ExportAttributeValueMerging"] = nameof(ExportAttributeValueMerging),
                 ["SmartStore.Core.Domain.DataExchange.ExportHttpTransmissionType"] = nameof(ExportHttpTransmissionType),
                 ["SmartStore.Core.Domain.DataExchange.ExportOrderStatusChange"] = nameof(ExportOrderStatusChange),
+                ["SmartStore.Core.Domain.DataExchange.RelatedEntityType"] = nameof(RelatedEntityType),
                 ["SmartStore.Core.Domain.DataExchange.ImportFileType"] = nameof(ImportFileType),
+                ["SmartStore.Core.Domain.DataExchange.ImportEntityType"] = nameof(ImportEntityType),
                 ["SmartStore.Core.Domain.Orders.CheckoutNewsletterSubscription"] = nameof(CheckoutNewsletterSubscription),
                 ["SmartStore.Core.Domain.Orders.CheckoutThirdPartyEmailHandOver"] = nameof(CheckoutThirdPartyEmailHandOver),
                 ["SmartStore.Core.Domain.Customers.CustomerNumberMethod"] = nameof(CustomerNumberMethod),
@@ -796,7 +800,6 @@ namespace Smartstore.Core.Data.Migrations
                 ["SmartStore.Core.Domain.Customers.WalletPostingReason"] = nameof(WalletPostingReason),
                 //["SmartStore.AmazonPay.Services.AmazonPayAuthorizeMethod"] = nameof(AmazonPayAuthorizeMethod),
                 ["SmartStore.Core.Domain.Catalog.PriceDisplayStyle"] = nameof(PriceDisplayStyle),
-                ["SmartStore.Core.Domain.DataExchange.RelatedEntityType"] = nameof(RelatedEntityType),
                 ["SmartStore.Core.Domain.Customers.CustomerLoginType"] = nameof(CustomerLoginType),
                 //["SmartStore.PageBuilder.Blocks.CategoryDisplayType"] = nameof(CategoryDisplayType),
                 //["SmartStore.PageBuilder.Blocks.CategoryPickingType"] = nameof(CategoryPickingType),

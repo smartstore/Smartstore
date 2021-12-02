@@ -613,8 +613,11 @@ namespace Smartstore.Forums
                         {
                             if (importPostCount)
                             {
-                                var postCount = row.GetDataValue<int>(ForumService.ForumPostCountKey);
-                                row.Entity.GenericAttributes.Set(ForumService.ForumPostCountKey, postCount);
+                                var rawPostCount = row.GetDataValue<string>(ForumService.ForumPostCountKey);
+                                if (row.IsNew || rawPostCount != null)
+                                {
+                                    row.Entity.GenericAttributes.Set(ForumService.ForumPostCountKey, rawPostCount.ToInt());
+                                }
                             }
 
                             if (importSignature)

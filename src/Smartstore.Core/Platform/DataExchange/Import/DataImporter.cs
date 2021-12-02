@@ -19,6 +19,7 @@ using Smartstore.Engine;
 using Smartstore.IO;
 using Smartstore.Net.Http;
 using Smartstore.Net.Mail;
+using Smartstore.Scheduling;
 using Smartstore.Utilities;
 
 namespace Smartstore.Core.DataExchange.Import
@@ -124,6 +125,17 @@ namespace Smartstore.Core.DataExchange.Import
                             while (context.Abort == DataExchangeAbortion.None && segmenter.ReadNextBatch())
                             {
                                 using var batchScope = _scopeAccessor.LifetimeScope.BeginLifetimeScope();
+
+                                // Apply changes made by TaskContextVirtualizer.VirtualizeAsync (e.g. required for checking permissions).
+                                batchScope.Resolve<IWorkContext>().CurrentCustomer = _services.WorkContext.CurrentCustomer;
+                                batchScope.Resolve<IStoreContext>().CurrentStore = _services.StoreContext.CurrentStore;
+
+                                // ITaskContextVirtualizer does not work here:
+                                //var virtualizer = batchScope.Resolve<ITaskContextVirtualizer>();
+                                //if (virtualizer != null)
+                                //{
+                                //    await virtualizer.VirtualizeAsync(ctx.Request.TaskContext.HttpContext, ctx.Request.TaskContext.Parameters);
+                                //}
 
                                 // It would be nice if we could make all dependencies use our TraceLogger.
                                 var importerFactory = batchScope.Resolve<Func<ImportEntityType, IEntityImporter>>();
@@ -418,12 +430,13 @@ namespace Smartstore.Core.DataExchange.Import
         private async Task<bool> HasPermission()
         {
             var customer = _services.WorkContext.CurrentCustomer;
-            if (customer.SystemName == SystemCustomerNames.BackgroundTask)
+
+            if (customer.IsBackgroundTaskAccount())
             {
                 return true;
             }
 
-            return await _services.Permissions.AuthorizeAsync(Permissions.Configuration.Import.Execute);
+            return await _services.Permissions.AuthorizeAsync(Permissions.Configuration.Import.Execute, customer);
         }
 
         #endregion

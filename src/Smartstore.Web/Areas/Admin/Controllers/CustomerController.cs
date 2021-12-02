@@ -600,8 +600,9 @@ namespace Smartstore.Admin.Controllers
         {
             var customer = await _db.Customers
                 .IncludeCustomerRoles()
+                .Include(x => x.Addresses)
                 .Include(x => x.ExternalAuthenticationRecords)
-                .FindByIdAsync(id, false);
+                .FindByIdAsync(id);
 
             if (customer == null)
             {
@@ -686,10 +687,10 @@ namespace Smartstore.Admin.Controllers
 
             if (allowManagingCustomerRoles)
             {
-                var tuple = await ValidateCustomerRolesAsync(model.SelectedCustomerRoleIds, allCustomerRoleIds);
-                if (tuple.ErrMessage.HasValue())
+                var (_, errMessage) = await ValidateCustomerRolesAsync(model.SelectedCustomerRoleIds, allCustomerRoleIds);
+                if (errMessage.HasValue())
                 {
-                    ModelState.AddModelError(string.Empty, tuple.ErrMessage);
+                    ModelState.AddModelError(string.Empty, errMessage);
                 }
             }
 

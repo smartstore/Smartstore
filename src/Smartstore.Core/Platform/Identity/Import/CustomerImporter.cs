@@ -55,7 +55,7 @@ namespace Smartstore.Core.DataExchange.Import
             var segmenter = context.DataSegmenter;
             var batch = segmenter.GetCurrentBatch<Customer>();
 
-            using (var scope = new DbContextScope(_services.DbContext, autoDetectChanges: false, minHookImportance: HookImportance.Important, deferCommit: true))
+            using (var scope = new DbContextScope(_db, autoDetectChanges: false, minHookImportance: HookImportance.Important, deferCommit: true))
             {
                 await context.SetProgressAsync(segmenter.CurrentSegmentFirstRowIndex - 1, segmenter.TotalRows);
 
@@ -113,11 +113,18 @@ namespace Smartstore.Core.DataExchange.Import
                 {
                     try
                     {
+                        // We need the avatar file ID.
+                        _db.SuppressCommit = false;
+
                         await ProcessAvatarsAsync(context, scope, batch);
                     }
                     catch (Exception ex)
                     {
                         context.Result.AddError(ex, segmenter.CurrentSegment, nameof(ProcessAvatarsAsync));
+                    }
+                    finally
+                    {
+                        _db.SuppressCommit = true;
                     }
                 }
 
@@ -148,8 +155,7 @@ namespace Smartstore.Core.DataExchange.Import
             var currentCustomer = _services.WorkContext.CurrentCustomer;
             var customerQuery = _db.Customers
                 .Include(x => x.Addresses)
-                .Include(x => x.CustomerRoleMappings)
-                .ThenInclude(x => x.CustomerRole);
+                .IncludeCustomerRoles();
 
             foreach (var row in batch)
             {
@@ -208,6 +214,7 @@ namespace Smartstore.Core.DataExchange.Import
                 }
                 else
                 {
+                    await _db.LoadCollectionAsync(customer, x => x.Addresses, false, null, context.CancelToken);
                     await _db.LoadCollectionAsync(customer, x => x.CustomerRoleMappings, false, q => q.Include(x => x.CustomerRole), context.CancelToken);
                 }
 
@@ -308,7 +315,7 @@ namespace Smartstore.Core.DataExchange.Import
             foreach (var row in batch)
             {
                 var customer = row.Entity;
-                var importRoleSystemNames = row.GetDataValue<List<string>>("CustomerRoleSystemNames");
+                var importRoleSystemNames = row.GetDataValue<List<string>>("CustomerRoleSystemNames") ?? new();
 
                 var assignedRoles = customer.CustomerRoleMappings
                     .Where(x => !x.IsSystemMapping)
@@ -447,9 +454,10 @@ namespace Smartstore.Core.DataExchange.Import
                         // Overwriting is probably too dangerous here, because we could overwrite the avatar of another customer, so better rename.
                         var path = _services.MediaService.CombinePaths(SystemAlbumProvider.Customers, image.FileName);
                         var saveFileResult = await _services.MediaService.SaveFileAsync(path, stream, false, DuplicateFileHandling.Rename);
-                        if (saveFileResult.File.Id > 0)
+
+                        if (saveFileResult.Id > 0)
                         {
-                            SetGenericAttribute(SystemCustomerAttributeNames.AvatarPictureId, saveFileResult.File.Id, row);
+                            SetGenericAttribute(SystemCustomerAttributeNames.AvatarPictureId, saveFileResult.Id, row);
                         }
                     }
                 }

@@ -1670,12 +1670,12 @@ namespace Smartstore.Core.DataExchange.Export
 
             var customer = _services.WorkContext.CurrentCustomer;
 
-            if (customer.SystemName == SystemCustomerNames.BackgroundTask)
+            if (customer.IsBackgroundTaskAccount())
             {
                 return true;
             }
 
-            return await _services.Permissions.AuthorizeAsync(Permissions.Configuration.Export.Execute);
+            return await _services.Permissions.AuthorizeAsync(Permissions.Configuration.Export.Execute, customer);
         }
 
         private static async Task SetProgress(string message, DataExporterContext ctx)

@@ -869,6 +869,12 @@ namespace Smartstore.Web.Controllers
             //    }
             //}
 
+            var tenantTempDir = Services.ApplicationContext.GetTenantTempDirectory();
+            var fileName = "1-3-0001-kundencsvexport-einzeln.csv";
+            var file = await tenantTempDir.GetFileAsync(fileName);
+
+            await tenantTempDir.FileSystem.TryDeleteFileAsync(file);
+
 
             var orderId = 32123;
             var order = await _db.Orders.FindByIdAsync(orderId);

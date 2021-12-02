@@ -102,8 +102,8 @@ namespace Smartstore.Admin.Controllers
                 if (model.TempFileName.HasValue() && !PathUtility.HasInvalidFileNameChars(model.TempFileName))
                 {
                     var root = Services.ApplicationContext.TenantRoot;
-                    var tenantTempDir = Services.ApplicationContext.GetTenantTempDirectory();
-                    var importFile = await tenantTempDir.GetFileAsync(model.TempFileName);
+                    var tempDir = Services.ApplicationContext.GetTenantTempDirectory();
+                    var importFile = await tempDir.GetFileAsync(model.TempFileName);
 
                     if (importFile.Exists)
                     {
@@ -111,9 +111,15 @@ namespace Smartstore.Admin.Controllers
                         if (profile?.Id > 0)
                         {
                             var dir = await _importProfileService.GetImportDirectoryAsync(profile, "Content", true);
+                            var targetFile = await dir.GetFileAsync(importFile.Name);
 
-                            await root.CopyFileAsync(importFile.SubPath, root.PathCombine(dir.SubPath, importFile.Name), true);
-                            await root.TryDeleteFileAsync(importFile.SubPath);
+                            using (var sourceStream = importFile.OpenRead())
+                            using (var targetStream = targetFile.OpenWrite())
+                            {
+                                await sourceStream.CopyToAsync(targetStream);
+                            }
+
+                            await tempDir.FileSystem.TryDeleteFileAsync(importFile);
 
                             return RedirectToAction(nameof(Edit), new { id = profile.Id });
                         }
@@ -125,7 +131,7 @@ namespace Smartstore.Admin.Controllers
                 }
                 else
                 {
-                    NotifyError("Invalid file name.");
+                    NotifyError(T("Admin.Common.InvalidFileName"));
                 }
             }
             catch (Exception ex)
@@ -343,9 +349,9 @@ namespace Smartstore.Admin.Controllers
             }
 
             var dir = await _importProfileService.GetImportDirectoryAsync(profile, "Content");
-            var subpath = dir.FileSystem.PathCombine(dir.SubPath, name);
-            
-            await dir.FileSystem.TryDeleteFileAsync(subpath);
+            var file = await dir.GetFileAsync(name);
+
+            await dir.FileSystem.TryDeleteFileAsync(file);
 
             return RedirectToAction(nameof(Edit), new { id });
         }
@@ -450,10 +456,11 @@ namespace Smartstore.Admin.Controllers
             if (id == 0)
             {
                 var root = Services.ApplicationContext.TenantRoot;
-                var tenantTempDir = Services.ApplicationContext.GetTenantTempDirectory();
+                var tempDir = Services.ApplicationContext.GetTenantTempDirectory();
 
-                await tenantTempDir.FileSystem.TryDeleteFileAsync(fileName);
-                var targetFile = await tenantTempDir.GetFileAsync(fileName);
+                await tempDir.FileSystem.TryDeleteFileAsync(await tempDir.GetFileAsync(fileName));
+
+                var targetFile = await tempDir.GetFileAsync(fileName);
 
                 using (var sourceStream = sourceFile.OpenReadStream())
                 using (var targetStream = targetFile.OpenWrite())
@@ -470,7 +477,7 @@ namespace Smartstore.Admin.Controllers
                 else
                 {
                     error = message;
-                    await tenantTempDir.FileSystem.TryDeleteFileAsync(fileName);
+                    await tempDir.FileSystem.TryDeleteFileAsync(await tempDir.GetFileAsync(fileName));
                 }
             }
             else
