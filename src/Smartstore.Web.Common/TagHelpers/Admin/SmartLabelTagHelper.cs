@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Razor.TagHelpers;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Razor.TagHelpers;
 using Smartstore.Web.Rendering;
 
 namespace Smartstore.Web.TagHelpers.Admin
@@ -36,13 +37,13 @@ namespace Smartstore.Web.TagHelpers.Admin
             base.ProcessCore(context, output);
 
             string labelText = Text 
-                ?? For.Metadata.DisplayName.NullEmpty() 
+                ?? For.Metadata.DisplayName
                 ?? For.Metadata.PropertyName.SplitPascalCase();
 
             // Generate main <label/>
             output.TagName = "label";
             output.TagMode = TagMode.StartTagAndEndTag;
-            output.MergeAttribute("for", HtmlHelper.GenerateIdFromName(For.Name), true);
+            output.MergeAttribute("for", HtmlHelper.Id(For.Name), true);
             output.Content.SetContent(labelText);
 
             if (!IgnoreHint)

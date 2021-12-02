@@ -250,9 +250,16 @@ namespace Smartstore.Web.Rendering
 
         #region Labels & Hints
 
+        public static IHtmlContent SmartLabelFor<TModel, TResult>(this IHtmlHelper<TModel> helper,
+            Expression<Func<TModel, TResult>> expression,
+            object htmlAttributes = null)
+        {
+            return SmartLabelFor(helper, expression, true, htmlAttributes);
+        }
+
         public static IHtmlContent SmartLabelFor<TModel, TResult>(this IHtmlHelper<TModel> helper, 
             Expression<Func<TModel, TResult>> expression, 
-            bool displayHint = true,
+            bool displayHint,
             object htmlAttributes = null)
         {
             Guard.NotNull(expression, nameof(expression));
