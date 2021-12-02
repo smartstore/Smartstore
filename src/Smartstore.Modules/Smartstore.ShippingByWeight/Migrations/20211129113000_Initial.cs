@@ -19,13 +19,13 @@ namespace Smartstore.ShippingByWeight.Migrations
                     .WithColumn(nameof(ShippingRateByWeight.StoreId)).AsInt32().NotNullable()
                     .WithColumn(nameof(ShippingRateByWeight.CountryId)).AsInt32().NotNullable()
                     .WithColumn(nameof(ShippingRateByWeight.Zip)).AsString(100).Nullable()
-                    .WithColumn(nameof(ShippingRateByWeight.From)).AsDecimal(18, 4).NotNullable()
-                    .WithColumn(nameof(ShippingRateByWeight.To)).AsDecimal(18, 4).NotNullable()
-                    .WithColumn(nameof(ShippingRateByWeight.UsePercentage)).AsBoolean()
-                    .WithColumn(nameof(ShippingRateByWeight.ShippingChargePercentage)).AsDecimal(18, 4).NotNullable()
-                    .WithColumn(nameof(ShippingRateByWeight.ShippingChargeAmount)).AsDecimal(18, 4).NotNullable()
-                    .WithColumn(nameof(ShippingRateByWeight.SmallQuantitySurcharge)).AsDecimal(18, 4).NotNullable()
-                    .WithColumn(nameof(ShippingRateByWeight.SmallQuantitySurcharge)).AsDecimal(18, 4).NotNullable();
+                    .WithColumn(nameof(ShippingRateByWeight.From)).AsDecimal(2, 18).NotNullable() // INFO: (mh) (core) Be careful!!!!
+                    .WithColumn(nameof(ShippingRateByWeight.To)).AsDecimal(2, 18).NotNullable() // INFO: (mh) (core) Be careful!!!!
+                    .WithColumn(nameof(ShippingRateByWeight.UsePercentage)).AsBoolean().NotNullable()
+                    .WithColumn(nameof(ShippingRateByWeight.ShippingChargePercentage)).AsDecimal(2, 18).NotNullable() // INFO: (mh) (core) Be careful... It's easier to port the old migration class instead of infering the schema from the entity.
+                    .WithColumn(nameof(ShippingRateByWeight.ShippingChargeAmount)).AsDecimal(2, 18).NotNullable()
+                    .WithColumn(nameof(ShippingRateByWeight.SmallQuantitySurcharge)).AsDecimal(2, 18).NotNullable()
+                    .WithColumn(nameof(ShippingRateByWeight.SmallQuantitySurcharge)).AsDecimal(2, 18).NotNullable();
             }
         }
 

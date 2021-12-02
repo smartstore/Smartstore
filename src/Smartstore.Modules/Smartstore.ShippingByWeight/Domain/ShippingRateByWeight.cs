@@ -1,7 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Diagnostics.CodeAnalysis;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Smartstore.Domain;
 
 namespace Smartstore.ShippingByWeight.Domain
@@ -9,15 +7,8 @@ namespace Smartstore.ShippingByWeight.Domain
     [Table("ShippingByWeight")]
     public partial class ShippingRateByWeight : BaseEntity
     {
-        public ShippingRateByWeight()
-        {
-        }
+        // TODO: (mh) (core) This entity does not support lazy loading (therefore the special ctor can be removed). Please fix in other applicable module entities too.
 
-        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
-        private ShippingRateByWeight(ILazyLoader lazyLoader)
-            : base(lazyLoader)
-        {
-        }
         /// <summary>
         /// Gets or sets the store identifier
         /// </summary>

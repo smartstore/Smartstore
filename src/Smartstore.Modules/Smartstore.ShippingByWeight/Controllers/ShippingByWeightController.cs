@@ -54,10 +54,11 @@ namespace Smartstore.ShippingByWeight.Controllers
                 .AsNoTracking()
                 .ApplyStandardFilter(true)
                 .ToDictionaryAsync(x => x.Id);
-
+            
             var baseWeighMeasure = await _db.MeasureWeights.Where(x => x.Id == _measureSettings.BaseWeightId).FirstOrDefaultAsync();
             ViewBag.BaseWeightIn = baseWeighMeasure?.GetLocalized(x => x.Name) ?? string.Empty;
-            ViewBag.PrimaryStoreCurrencyCode = Services.StoreContext.CurrentStore.PrimaryStoreCurrency.CurrencyCode;
+            // INFO: (mh) (core) Be careful!! Currency on store level is obsolete!
+            ViewBag.PrimaryStoreCurrencyCode = Services.CurrencyService.PrimaryCurrency.CurrencyCode;
             ViewBag.AvailableStores = Services.StoreContext.GetAllStores().ToSelectListItems();
             ViewBag.AvailableShippingMethods = shippingMethods.Values.Select(x => new SelectListItem
             {
@@ -200,11 +201,11 @@ namespace Smartstore.ShippingByWeight.Controllers
         [Permission(Permissions.Configuration.Shipping.Create)]
         public async Task<IActionResult> AddShippingRateByWeight(ByWeightModel model)
         {
-            var rate = MiniMapper.Map<ByWeightModel, ShippingRateByWeight>(model);
-            rate.ShippingChargePercentage = model.UsePercentage ? model.ShippingChargePercentage : 0;
-            rate.ShippingChargeAmount = model.UsePercentage ? 0 : model.ShippingChargeAmount;
+            var entity = MiniMapper.Map<ByWeightModel, ShippingRateByWeight>(model);
+            entity.ShippingChargePercentage = model.UsePercentage ? model.ShippingChargePercentage : 0;
+            entity.ShippingChargeAmount = model.UsePercentage ? 0 : model.ShippingChargeAmount;
 
-            _db.ShippingRatesByWeight().Add(rate);
+            _db.ShippingRatesByWeight().Add(entity);
 
             await _db.SaveChangesAsync();
 

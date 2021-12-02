@@ -23,7 +23,7 @@ namespace Smartstore.Shipping
     [SystemName("Smartstore.ShippingByWeight")]
     [FriendlyName("Shipping by weight")]
     [Order(0)]
-    internal class ByWeightProvider : IShippingRateComputationMethod, IConfigurable
+    internal class ShippingByWeightProvider : IShippingRateComputationMethod, IConfigurable
     {
         private readonly SmartDbContext _db;
         private readonly ICommonServices _services;
@@ -34,7 +34,7 @@ namespace Smartstore.Shipping
         private readonly IStoreContext _storeContext;
         private readonly ShippingByWeightSettings _shippingByWeightSettings;
 
-        public ByWeightProvider(SmartDbContext db,
+        public ShippingByWeightProvider(SmartDbContext db,
             ICommonServices services,
             IShippingService shippingService,
             IPriceCalculationService priceCalculationService,
@@ -72,6 +72,7 @@ namespace Smartstore.Shipping
 
             zip = zip.EmptyNull().Trim();
 
+            // TODO: (mh) (core) Missing ordering from classic GetShippingByWeightRecords()
             var shippingByWeightRecords = await _db.ShippingRatesByWeight()
                 .Where(x => x.StoreId == storeId || x.StoreId == 0)
                 .Where(x => x.ShippingMethodId == shippingMethodId)
@@ -85,7 +86,9 @@ namespace Smartstore.Shipping
 
             if (shippingByWeightRecord == null)
             {
-                return _shippingByWeightSettings.LimitMethodsToCreated ? null : decimal.Zero;
+                return _shippingByWeightSettings.LimitMethodsToCreated 
+                    ? null 
+                    : decimal.Zero;
             }
 
             if (shippingByWeightRecord.UsePercentage && shippingByWeightRecord.ShippingChargePercentage <= decimal.Zero)
@@ -104,7 +107,9 @@ namespace Smartstore.Shipping
             }
             else
             {
-                shippingTotal = _shippingByWeightSettings.CalculatePerWeightUnit ? shippingByWeightRecord.ShippingChargeAmount * weight : shippingByWeightRecord.ShippingChargeAmount;
+                shippingTotal = _shippingByWeightSettings.CalculatePerWeightUnit 
+                    ? shippingByWeightRecord.ShippingChargeAmount * weight 
+                    : shippingByWeightRecord.ShippingChargeAmount;
             }
 
             if (shippingTotal < decimal.Zero)
@@ -163,12 +168,12 @@ namespace Smartstore.Shipping
                 return response;
             }
 
-            int storeId = request.StoreId > 0 ? request.StoreId : _storeContext.CurrentStore.Id;
-            decimal subTotalInclTax = decimal.Zero;
-            decimal subTotalExclTax = decimal.Zero;
-            decimal currentSubTotal = decimal.Zero;
-            int countryId = 0;
-            string zip = null;
+            var storeId = request.StoreId > 0 ? request.StoreId : _storeContext.CurrentStore.Id;
+            var subTotalInclTax = decimal.Zero;
+            var subTotalExclTax = decimal.Zero;
+            var currentSubTotal = decimal.Zero;
+            var countryId = 0;
+            var zip = (string)null;
 
             if (request.ShippingAddress != null)
             {
@@ -205,8 +210,12 @@ namespace Smartstore.Shipping
             var weight = await _shippingService.GetCartTotalWeightAsync(cart, _shippingByWeightSettings.IncludeWeightOfFreeShippingProducts);
             var workingCurreny = _services.WorkContext.WorkingCurrency;
             var shippingMethods = await _shippingService.GetAllShippingMethodsAsync(request.StoreId);
-            currentSubTotal = _services.WorkContext.TaxDisplayType == TaxDisplayType.ExcludingTax ? subTotalExclTax : subTotalInclTax;
 
+            currentSubTotal = _services.WorkContext.TaxDisplayType == TaxDisplayType.ExcludingTax 
+                ? subTotalExclTax 
+                : subTotalInclTax;
+
+            // TODO: (mh) (core) See TODO in line 232.
             var shippingByWeightRecords = await _db.ShippingRatesByWeight()
                 .Where(x => x.StoreId == storeId || x.StoreId == 0)
                 .ApplyWeightFilter(weight)
@@ -220,6 +229,7 @@ namespace Smartstore.Shipping
                     .Where(x => ZipMatches(zip, x.Zip))
                     .LastOrDefault();
 
+                // TODO: (mh) (core) GetRateAsync() probably accesses the database with the same query as the above one.
                 decimal? rate = await GetRateAsync(subTotalInclTax, weight, shippingMethod.Id, request.StoreId, countryId, zip);
                 if (rate.HasValue)
                 {
@@ -229,9 +239,10 @@ namespace Smartstore.Shipping
 
                     if (record != null && record.SmallQuantityThreshold > currentSubTotal)
                     {
+                        var taxFormat = _currencyService.GetTaxFormat();
                         string surchargeHint = T("Plugins.Shipping.ByWeight.SmallQuantitySurchargeNotReached",
-                            _currencyService.ConvertToWorkingCurrency(record.SmallQuantitySurcharge).ToString(true, false, _currencyService.GetTaxFormat()),
-                            _currencyService.ConvertToWorkingCurrency(record.SmallQuantitySurcharge).ToString(true, false, _currencyService.GetTaxFormat()));
+                            _currencyService.ConvertToWorkingCurrency(record.SmallQuantitySurcharge).ToString(true, false, taxFormat),
+                            _currencyService.ConvertToWorkingCurrency(record.SmallQuantityThreshold).ToString(true, false, taxFormat));
 
                         shippingOption.Description = shippingMethod.GetLocalized(x => x.Description) + surchargeHint;
                         shippingOption.Rate = rate.Value + record.SmallQuantitySurcharge;
@@ -241,6 +252,7 @@ namespace Smartstore.Shipping
                         shippingOption.Description = shippingMethod.GetLocalized(x => x.Description);
                         shippingOption.Rate = rate.Value;
                     }
+
                     response.ShippingOptions.Add(shippingOption);
                 }
             }
