@@ -114,7 +114,8 @@ namespace Smartstore.Engine.Modularity
             {
                 var content = file.ReadAllText();
                 var lines = content.GetLines(true, true)
-                    .Select(x => isLegacy ? x.Replace("SmartStore", "Smartstore") : x);
+                    .Select(x => isLegacy ? x.Replace("SmartStore", "Smartstore") : x)
+                    .Select(x => isLegacy ? x.Replace("GoogleAnalytics", "Google.Analytics") : x);
 
                 if (isLegacy)
                 {

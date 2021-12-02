@@ -1,4 +1,4 @@
-﻿namespace Smartstore.GoogleAnalytics
+﻿namespace Smartstore.Google.Analytics
 {
     /// <summary>
     /// Provides ready to use scripts for plugin settings. 

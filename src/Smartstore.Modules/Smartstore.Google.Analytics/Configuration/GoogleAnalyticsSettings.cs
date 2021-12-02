@@ -1,6 +1,6 @@
 ﻿using Smartstore.Core.Configuration;
 
-namespace Smartstore.GoogleAnalytics.Settings
+namespace Smartstore.Google.Analytics.Settings
 {
     public class GoogleAnalyticsSettings : ISettings
     {

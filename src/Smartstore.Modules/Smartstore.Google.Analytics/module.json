@@ -2,7 +2,7 @@
   "$schema": "../module.schema.json",
   "Author": "Smartstore AG",
   "Group": "Analytics",
-  "SystemName": "Smartstore.GoogleAnalytics",
+  "SystemName": "Smartstore.Google.Analytics",
   "FriendlyName": "Google Analytics",
   "Description": "Adds Google Analytics tracking scripts to the shop",
   "Version": "5.0",

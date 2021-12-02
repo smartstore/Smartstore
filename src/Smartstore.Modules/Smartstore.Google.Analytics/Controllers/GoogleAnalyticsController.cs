@@ -2,12 +2,12 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.ComponentModel;
-using Smartstore.GoogleAnalytics.Models;
-using Smartstore.GoogleAnalytics.Settings;
+using Smartstore.Google.Analytics.Models;
+using Smartstore.Google.Analytics.Settings;
 using Smartstore.Web.Controllers;
 using Smartstore.Web.Modelling.Settings;
 
-namespace Smartstore.GoogleAnalytics.Controllers
+namespace Smartstore.Google.Analytics.Controllers
 {
     [Area("Admin")]
     public class GoogleAnalyticsController : ModuleController

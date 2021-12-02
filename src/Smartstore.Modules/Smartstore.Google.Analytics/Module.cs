@@ -7,11 +7,11 @@ using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Widgets;
 using Smartstore.Engine.Modularity;
-using Smartstore.GoogleAnalytics.Components;
-using Smartstore.GoogleAnalytics.Settings;
+using Smartstore.Google.Analytics.Components;
+using Smartstore.Google.Analytics.Settings;
 using Smartstore.Http;
 
-namespace Smartstore.GoogleAnalytics
+namespace Smartstore.Google.Analytics
 {
     internal class Module : ModuleBase, IConfigurable, IWidget, ICookiePublisher
     {
@@ -37,7 +37,7 @@ namespace Smartstore.GoogleAnalytics
 
         public Task<IEnumerable<CookieInfo>> GetCookieInfoAsync()
         {
-            var widget = _providerManager.GetProvider<IWidget>("Smartstore.GoogleAnalytics");
+            var widget = _providerManager.GetProvider<IWidget>("Smartstore.Google.Analytics");
             if (!widget.IsWidgetActive(_widgetSettings))
                 return null;
 

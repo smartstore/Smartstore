@@ -13,11 +13,11 @@ using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
-using Smartstore.GoogleAnalytics.Settings;
+using Smartstore.Google.Analytics.Settings;
 using Smartstore.Utilities;
 using Smartstore.Web.Components;
 
-namespace Smartstore.GoogleAnalytics.Components
+namespace Smartstore.Google.Analytics.Components
 {
     public class GoogleAnalyticsViewComponent : SmartViewComponent
     {
