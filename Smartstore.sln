@@ -74,6 +74,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore.Clickatell", "sr
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore.GoogleAnalytics", "src\Smartstore.Modules\Smartstore.GoogleAnalytics\Smartstore.GoogleAnalytics.csproj", "{FB1560D0-8146-4E2C-A4A6-F12B6BCDFAFD}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore.ShippingByWeight", "src\Smartstore.Modules\Smartstore.ShippingByWeight\Smartstore.ShippingByWeight.csproj", "{BEA9D71F-6B39-4B68-909F-868B9E53038E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -180,6 +182,10 @@ Global
 		{FB1560D0-8146-4E2C-A4A6-F12B6BCDFAFD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FB1560D0-8146-4E2C-A4A6-F12B6BCDFAFD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FB1560D0-8146-4E2C-A4A6-F12B6BCDFAFD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BEA9D71F-6B39-4B68-909F-868B9E53038E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BEA9D71F-6B39-4B68-909F-868B9E53038E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BEA9D71F-6B39-4B68-909F-868B9E53038E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BEA9D71F-6B39-4B68-909F-868B9E53038E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -207,6 +213,7 @@ Global
 		{F945B5FE-0B1F-443F-8395-C441A6F84348} = {E5C1AA43-6B44-4EFA-8DE9-6070EE007CE3}
 		{54FBCDEA-FF29-4988-A699-F1592C790DA3} = {E5C1AA43-6B44-4EFA-8DE9-6070EE007CE3}
 		{FB1560D0-8146-4E2C-A4A6-F12B6BCDFAFD} = {E5C1AA43-6B44-4EFA-8DE9-6070EE007CE3}
+		{BEA9D71F-6B39-4B68-909F-868B9E53038E} = {E5C1AA43-6B44-4EFA-8DE9-6070EE007CE3}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A0A0B995-5D0B-458E-BCC0-1071B76949D1}

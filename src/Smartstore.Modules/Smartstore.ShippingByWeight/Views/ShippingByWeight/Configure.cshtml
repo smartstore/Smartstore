@@ -1,0 +1,54 @@
+﻿@using Smartstore.ShippingByWeight.Models
+
+@model ByWeightListModel
+
+@{
+    Layout = "_ConfigureProvider";
+    ViewBag.IsGrid = true;
+}
+
+<widget target-zone="admin_button_toolbar_before">
+    <button data-target="#by-weight-settings" id="SaveConfigButton" type="submit" name="save" value="save" class="btn btn-warning">
+        <i class="fa fa-check"></i>
+        <span>@T("Admin.Common.Save")</span>
+    </button>
+</widget>
+
+<tabstrip id="shipping-by-weight-edit" sm-nav-style="Material" sm-nav-position="Top">
+    <tab sm-title="@T("Plugins.Shipping.ByWeight.TabTitleGrid")" sm-selected="true">
+        <partial name="_Grid.ShippingRates" model="null" />
+    </tab>
+    <tab sm-title="@T("Plugins.Shipping.ByWeight.TabTitleSettings")">
+        <form asp-action="Configure" id="by-weight-settings">
+            <div class="adminContent mb-5">
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CalculatePerWeightUnit" />
+                    </div>
+                    <div class="adminData">
+                        <editor asp-for="CalculatePerWeightUnit" />
+                        <span asp-validation-for="CalculatePerWeightUnit"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="LimitMethodsToCreated" />
+                    </div>
+                    <div class="adminData">
+                        <editor asp-for="LimitMethodsToCreated" />
+                        <span asp-validation-for="LimitMethodsToCreated"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="IncludeWeightOfFreeShippingProducts" />
+                    </div>
+                    <div class="adminData">
+                        <input asp-for="IncludeWeightOfFreeShippingProducts" />
+                        <span asp-validation-for="IncludeWeightOfFreeShippingProducts"></span>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </tab>
+</tabstrip>
