@@ -16,8 +16,7 @@ namespace Smartstore.Shipping
         /// <returns>ShippingByTotalEntity query</returns>
         public static IQueryable<ShippingRateByTotal> ApplyRegionFilter(this IQueryable<ShippingRateByTotal> query, 
             int? countryId, 
-            int? stateProvinceId,
-            string zip)
+            int? stateProvinceId)
         {
             Guard.NotNull(query, nameof(query));
 
@@ -30,9 +29,6 @@ namespace Smartstore.Shipping
             {
                 query = query.Where(x => x.StateProvinceId == stateProvinceId || x.StateProvinceId == 0 || x.StateProvinceId == null);
             }
-
-            var zipIsEmpty = zip.IsEmpty();
-            query = query.Where(x => (zipIsEmpty && string.IsNullOrEmpty(x.Zip)) || (!zipIsEmpty && !string.IsNullOrEmpty(x.Zip)));
 
             return query;
         }

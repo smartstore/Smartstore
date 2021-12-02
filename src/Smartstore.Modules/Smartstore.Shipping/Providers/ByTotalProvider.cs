@@ -62,11 +62,11 @@ namespace Smartstore.Shipping
                 .Where(x => x.StoreId == storeId || x.StoreId == 0)
                 .Where(x => x.ShippingMethodId == shippingMethodId)
                 .ApplySubTotalFilter(subtotal)
-                .ApplyRegionFilter(countryId, stateProvinceId, zip)
+                .ApplyRegionFilter(countryId, stateProvinceId)
                 .ToListAsync();
 
             var shippingByTotalRecord = shippingByTotalRecords
-                .Where(x => ZipMatches(zip, x.Zip))
+                .Where(x => (zip.IsEmpty() && x.Zip.IsEmpty()) || ZipMatches(zip, x.Zip))
                 .LastOrDefault();
 
             if (shippingByTotalRecord == null)
