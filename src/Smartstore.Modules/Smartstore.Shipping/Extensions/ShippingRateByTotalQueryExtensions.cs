@@ -23,17 +23,17 @@ namespace Smartstore.Shipping
 
             if (countryId > 0)
             {
-                query = query.Where(x => x.CountryId == countryId || x.CountryId == 0);
+                query = query.Where(x => x.CountryId == countryId || x.CountryId == 0 || x.CountryId == null);
             }
 
             if (stateProvinceId > 0)
             {
-                query = query.Where(x => x.StateProvinceId == stateProvinceId || x.StateProvinceId == 0);
+                query = query.Where(x => x.StateProvinceId == stateProvinceId || x.StateProvinceId == 0 || x.StateProvinceId == null);
             }
 
             var zipIsEmpty = zip.IsEmpty();
             query = query.Where(x => (zipIsEmpty && string.IsNullOrEmpty(x.Zip)) || (!zipIsEmpty && !string.IsNullOrEmpty(x.Zip)));
-            
+
             return query;
         }
 

@@ -10,12 +10,11 @@
 }
 
 <widget target-zone="admin_button_toolbar_before">
-    <button data-target="by-total-settings" id="SaveConfigButton" type="submit" name="save" value="save" class="btn btn-warning">
+    <button data-target="#by-total-settings" id="SaveConfigButton" type="submit" name="save" value="save" class="btn btn-warning">
         <i class="fa fa-check"></i>
         <span>@T("Admin.Common.Save")</span>
     </button>
 </widget>
-
 <tabstrip id="shipping-method-edit" sm-nav-style="Material" sm-nav-position="Top">
     <tab sm-title="@T("Plugins.Shipping.ByTotal.TabTitleGrid")" sm-selected="true">
         <partial name="_Grid.ShippingRates" model="null" />

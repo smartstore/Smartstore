@@ -64,7 +64,7 @@
                         <smart-label asp-for="StoreId" />
 					</div>
                     <div class="adminData">
-                        <select asp-for="StoreId" asp-items="ViewBag.AvailableStores"></select>
+                        <select asp-for="StoreId" asp-items="ViewBag.AvailableStores" asp-placeholder="*"></select>
                         <span asp-validation-for="StoreId"></span>
                     </div>
 				</div>
@@ -73,7 +73,7 @@
                         <smart-label asp-for="CountryId" />
                     </div>
                     <div class="adminData">
-                        <select asp-for="CountryId" asp-items="ViewBag.AvailableCountries"
+                        <select asp-for="CountryId" asp-items="ViewBag.AvailableCountries" asp-placeholder="*"
                                 class="country-input country-selector"
                                 data-region-control-selector="#@Html.NameFor(x => x.StateProvinceId)"
                                 data-states-ajax-url="@Url.Action("StatesByCountryId", "Common", new { area = string.Empty })"
@@ -87,7 +87,7 @@
                         <smart-label asp-for="StateProvinceId" />
                     </div>
                     <div class="adminData">
-                        <select asp-for="StateProvinceId" asp-items="ViewBag.AvailableStates"></select>
+                        <select asp-for="StateProvinceId" asp-items="ViewBag.AvailableStates" asp-placeholder="*"></select>
                         <span asp-validation-for="StateProvinceId"></span>
                     </div>
                 </div>
