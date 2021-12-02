@@ -16,22 +16,21 @@ namespace Smartstore.GoogleAnalytics
     internal class Module : ModuleBase, IConfigurable, IWidget, ICookiePublisher
     {
         private readonly GoogleAnalyticsSettings _googleAnalyticsSettings;
-        private readonly ILocalizationService _localizationService;
         private readonly IProviderManager _providerManager;
         private readonly WidgetSettings _widgetSettings;
 
-        public Module(GoogleAnalyticsSettings googleAnalyticsSettings, 
-            ILocalizationService localizationService,            
+        public Module(
+            GoogleAnalyticsSettings googleAnalyticsSettings,         
             IProviderManager providerManager,
             WidgetSettings widgetSettings)
         {
             _googleAnalyticsSettings = googleAnalyticsSettings;
-            _localizationService = localizationService;
             _providerManager = providerManager;
             _widgetSettings = widgetSettings;
         }
 
         public ILogger Logger { get; set; } = NullLogger.Instance;
+        public Localizer T { get; set; } = NullLocalizer.Instance;
 
         public RouteInfo GetConfigurationRoute()
             => new("Configure", "GoogleAnalytics", new { area = "Admin" });
@@ -44,8 +43,8 @@ namespace Smartstore.GoogleAnalytics
 
             var cookieInfo = new CookieInfo
             {
-                Name = _localizationService.GetResource("Plugins.FriendlyName.SmartStore.GoogleAnalytics"),
-                Description = _localizationService.GetResource("Plugins.Widgets.GoogleAnalytics.CookieInfo"),
+                Name = T("Plugins.FriendlyName.SmartStore.GoogleAnalytics"),
+                Description = T("Plugins.Widgets.GoogleAnalytics.CookieInfo"),
                 CookieType = CookieType.Analytics
             };
 
@@ -67,9 +66,9 @@ namespace Smartstore.GoogleAnalytics
             await ImportLanguageResourcesAsync();
             await TrySaveSettingsAsync(new GoogleAnalyticsSettings
             {
-                EcommerceDetailScript = AnalyticsScriptUtility.GetEcommerceDetailScript(),
                 TrackingScript = AnalyticsScriptUtility.GetTrackingScript(),
-                EcommerceScript = AnalyticsScriptUtility.GetEcommerceScript()
+                EcommerceScript = AnalyticsScriptUtility.GetEcommerceScript(),
+                EcommerceDetailScript = AnalyticsScriptUtility.GetEcommerceDetailScript()
             });
             await base.InstallAsync(context);
         }
