@@ -147,6 +147,7 @@ namespace Smartstore.Core.Rules.Filters
                 { 
                     LogicalOperator = logicalOperator 
                 };
+
                 return query.Where(compositeFilter).Cast<T>();
             }
         }
