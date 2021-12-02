@@ -15,9 +15,9 @@ namespace Smartstore.Web.Models.Checkout
 {
     public static partial class ShoppingCartMappingExtensions
     {
-        public static async Task MapAsync(this ShoppingCart cart, CheckoutShippingMethodModel model)
+        public static async Task MapAsync(this ShoppingCart cart, CheckoutShippingMethodModel model, dynamic parameters = null)
         {
-            await MapperFactory.MapAsync(cart, model, null);
+            await MapperFactory.MapAsync(cart, model, parameters);
         }
     }
 
@@ -57,7 +57,6 @@ namespace Smartstore.Web.Models.Checkout
             Guard.NotNull(from, nameof(from));
             Guard.NotNull(to, nameof(to));
 
-            // TODO: (mh) (core) Throws, because parameters?.ShippingOptionResponse is always null;
             var shippingOptionResponse = (parameters?.ShippingOptionResponse as ShippingOptionResponse) ?? new ShippingOptionResponse();
             Guard.NotNull(shippingOptionResponse, nameof(shippingOptionResponse));
 

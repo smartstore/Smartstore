@@ -1,7 +1,6 @@
-﻿using Smartstore.Admin.Models.Common;
+﻿using System.ComponentModel.DataAnnotations;
 using Smartstore.Web.Modelling;
 using Smartstore.Web.Models.Common;
-using System.ComponentModel.DataAnnotations;
 
 namespace Smartstore.Admin.Models.Customers
 {

@@ -315,7 +315,7 @@ namespace Smartstore.Web.Controllers
             }
 
             var model = new CheckoutShippingMethodModel();
-            await cart.MapAsync(model);
+            await cart.MapAsync(model, new { ShippingOptionResponse = response });
 
             return View(model);
         }
