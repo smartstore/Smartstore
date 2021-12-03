@@ -50,7 +50,7 @@ namespace Smartstore.Web.TagHelpers.Shared
         {
 			var isHtmlTag = output.TagName != "zone";
 
-			var widgets = await _widgetSelector.GetWidgetsAsync(ZoneName, Model ?? ViewContext.ViewData.Model);
+			var widgets = await _widgetSelector.GetWidgetsAsync(ZoneName, ViewContext, Model ?? ViewContext.ViewData.Model);
 
 			if (!isHtmlTag)
 			{

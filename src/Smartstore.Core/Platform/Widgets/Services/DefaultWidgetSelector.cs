@@ -4,6 +4,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Caching;
 using Smartstore.Collections;
@@ -33,7 +35,7 @@ namespace Smartstore.Core.Widgets
         const string TOPIC_WIDGET_ALL_MODEL_KEY = "pres:topic:widget-all-{0}-{1}-{2}";
         const string TOPIC_WIDGET_PATTERN_KEY = "pres:topic:widget*";
 
-        internal static Dictionary<string, string> LegacyWidgetNames { get; } = new()
+        private readonly static Dictionary<string, string> _legacyWidgetNameMap = new()
         {
             { "body_start_html_tag_after", "start" },
             { "body_end_html_tag_before", "end" },
@@ -48,7 +50,6 @@ namespace Smartstore.Core.Widgets
         private readonly IWorkContext _workContext;
         private readonly IStoreContext _storeContext;
         private readonly IDisplayControl _displayControl;
-        private readonly IHttpContextAccessor _httpContextAccessor;
         
         public DefaultWidgetSelector(
             SmartDbContext db,
@@ -58,8 +59,7 @@ namespace Smartstore.Core.Widgets
             IWidgetProvider widgetProvider,
             IWorkContext workContext,
             IStoreContext storeContext,
-            IDisplayControl displayControl,
-            IHttpContextAccessor httpContextAccessor)
+            IDisplayControl displayControl)
         {
             _db = db;
             _cache = cache;
@@ -69,7 +69,6 @@ namespace Smartstore.Core.Widgets
             _workContext = workContext;
             _storeContext = storeContext;
             _displayControl = displayControl;
-            _httpContextAccessor = httpContextAccessor;
         }
 
         #region Hook
@@ -100,22 +99,22 @@ namespace Smartstore.Core.Widgets
 
         #endregion
 
-        public async Task<IEnumerable<WidgetInvoker>> GetWidgetsAsync(string zone, object model = null)
+        public async Task<IEnumerable<WidgetInvoker>> GetWidgetsAsync(string zone, ViewContext viewContext, object model = null)
         {
             Guard.NotEmpty(zone, nameof(zone));
 
-            if (LegacyWidgetNames.ContainsKey(zone))
+            if (_legacyWidgetNameMap.ContainsKey(zone))
             {
-                LegacyWidgetNames.TryGetValue(zone, out zone);
+                _legacyWidgetNameMap.TryGetValue(zone, out zone);
             }
             
             var storeId = _storeContext.CurrentStore.Id;
-            var isPublicWidget = !_httpContextAccessor.HttpContext.Request.IsAdminArea();
+            var isPublicArea = viewContext.HttpContext.GetRouteData().Values.GetAreaName().IsEmpty();
             var widgets = Enumerable.Empty<WidgetInvoker>();
 
             #region Module Widgets
 
-            if (isPublicWidget)
+            if (isPublicArea)
             {
                 widgets = _widgetService.LoadActiveWidgetsByWidgetZone(zone, storeId)
                     .Select(x => x.Value.GetDisplayWidget(zone, model, storeId))
@@ -126,7 +125,7 @@ namespace Smartstore.Core.Widgets
 
             #region Topic Widgets
 
-            if (isPublicWidget)
+            if (isPublicArea)
             {
                 // Get topic widgets from STATIC cache
                 var allTopicsCacheKey = string.Format(TOPIC_WIDGET_ALL_MODEL_KEY, storeId, _workContext.WorkingLanguage.Id, _workContext.CurrentCustomer.GetRolesIdent());

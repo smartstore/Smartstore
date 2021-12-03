@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Smartstore.Core.Widgets
 {
@@ -13,8 +14,9 @@ namespace Smartstore.Core.Widgets
         /// Resolves all widgets for the given zone.
         /// </summary>
         /// <param name="zone">Widget zone name.</param>
+        /// <param name="viewContext">Current <see cref="ViewContext"/>.</param>
         /// <param name="model">View model</param>
         /// <returns>A list of <see cref="WidgetInvoker"/> instances that should be injected into the zone.</returns>
-        Task<IEnumerable<WidgetInvoker>> GetWidgetsAsync(string zone, object model = null);
+        Task<IEnumerable<WidgetInvoker>> GetWidgetsAsync(string zone, ViewContext viewContext, object model = null);
     }
 }
