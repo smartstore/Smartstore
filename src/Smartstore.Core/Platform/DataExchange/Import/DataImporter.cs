@@ -130,13 +130,6 @@ namespace Smartstore.Core.DataExchange.Import
                                 batchScope.Resolve<IWorkContext>().CurrentCustomer = _services.WorkContext.CurrentCustomer;
                                 batchScope.Resolve<IStoreContext>().CurrentStore = _services.StoreContext.CurrentStore;
 
-                                // ITaskContextVirtualizer does not work here:
-                                //var virtualizer = batchScope.Resolve<ITaskContextVirtualizer>();
-                                //if (virtualizer != null)
-                                //{
-                                //    await virtualizer.VirtualizeAsync(ctx.Request.TaskContext.HttpContext, ctx.Request.TaskContext.Parameters);
-                                //}
-
                                 // It would be nice if we could make all dependencies use our TraceLogger.
                                 var importerFactory = batchScope.Resolve<Func<ImportEntityType, IEntityImporter>>();
                                 var importer = importerFactory(profile.EntityType);

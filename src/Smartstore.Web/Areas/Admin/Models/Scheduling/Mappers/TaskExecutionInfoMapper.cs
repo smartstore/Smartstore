@@ -26,14 +26,12 @@ namespace Smartstore.Admin.Models.Scheduling
                 return Task.CompletedTask;
             }
 
-            var startedOn = _dateTimeHelper.ConvertToUserTime(from.StartedOnUtc, DateTimeKind.Utc);
-
             MiniMapper.Map(from, to);
 
             to.Error = to.Error.EmptyNull();
-            to.StartedOn = startedOn;
-            to.StartedOnString = startedOn.ToString("g");
-            to.StartedOnPretty = startedOn.Humanize(false);
+            to.StartedOn = _dateTimeHelper.ConvertToUserTime(from.StartedOnUtc, DateTimeKind.Utc);
+            to.StartedOnString = to.StartedOn.ToString("g");
+            to.StartedOnPretty = to.StartedOn.Humanize(false);
 
             if (from.FinishedOnUtc.HasValue)
             {

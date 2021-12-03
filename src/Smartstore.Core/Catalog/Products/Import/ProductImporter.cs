@@ -88,11 +88,8 @@ namespace Smartstore.Core.DataExchange.Import
             var segmenter = context.DataSegmenter;
             var batch = segmenter.GetCurrentBatch<Product>();
 
-            // TODO: (mg) (core) this is wrong design. Hooks must not be running during an import. It messes up the import. An importer must not rely on hook execution.
-            // "The property 'LocalizedProperty.Id' has a temporary value while attempting to change the entity's state to 'Deleted'."
-            // "Cannot insert duplicate key row in object 'dbo.UrlRecord' with unique index 'IX_UrlRecord_Slug'."
-            // RE: (info) The IX_UrlRecord_Slug uniqueness violation is a known bug in IUrlService.
-            using (var scope = new DbContextScope(_services.DbContext, autoDetectChanges: false, minHookImportance: HookImportance.Important, deferCommit: true))
+            // TODO: (mg) (core) check if and how far the importer has to work together with hooks.
+            using (var scope = new DbContextScope(_db, autoDetectChanges: false, minHookImportance: HookImportance.Important, deferCommit: true))
             {
                 await context.SetProgressAsync(segmenter.CurrentSegmentFirstRowIndex - 1, segmenter.TotalRows);
 
@@ -196,11 +193,18 @@ namespace Smartstore.Core.DataExchange.Import
                 {
                     try
                     {
+                        // We need the media file ID.
+                        _db.SuppressCommit = false;
+
                         await ProcessProductPicturesAsync(context, scope, batch);
                     }
                     catch (Exception ex)
                     {
                         context.Result.AddError(ex, segmenter.CurrentSegment, nameof(ProcessProductPicturesAsync));
+                    }
+                    finally
+                    {
+                        _db.SuppressCommit = true;
                     }
                 }
 
@@ -354,7 +358,6 @@ namespace Smartstore.Core.DataExchange.Import
                 row.SetProperty(context.Result, (x) => x.DownloadExpirationDays);
                 row.SetProperty(context.Result, (x) => x.DownloadActivationTypeId, 1);
                 row.SetProperty(context.Result, (x) => x.HasSampleDownload);
-                row.SetProperty(context.Result, (x) => x.SampleDownloadId, null, ZeroToNull);    // TODO: global scope
                 row.SetProperty(context.Result, (x) => x.HasUserAgreement);
                 row.SetProperty(context.Result, (x) => x.UserAgreementText);
                 row.SetProperty(context.Result, (x) => x.IsRecurring);
@@ -394,8 +397,8 @@ namespace Smartstore.Core.DataExchange.Import
                 row.SetProperty(context.Result, (x) => x.CustomerEntersPrice);
                 row.SetProperty(context.Result, (x) => x.MinimumCustomerEnteredPrice);
                 row.SetProperty(context.Result, (x) => x.MaximumCustomerEnteredPrice, 1000);
-                // HasTierPrices... ignore as long as no tier prices are imported
-                // LowestAttributeCombinationPrice... ignore as long as no combinations are imported
+                // HasTierPrices: see ProcessTierPricesAsync.
+                // LowestAttributeCombinationPrice: see ProcessAttributeCombinationsAsync.
                 row.SetProperty(context.Result, (x) => x.Weight);
                 row.SetProperty(context.Result, (x) => x.Length);
                 row.SetProperty(context.Result, (x) => x.Width);
@@ -434,6 +437,10 @@ namespace Smartstore.Core.DataExchange.Import
                 if (row.TryGetDataValue("Condition", out int conditionValue))
                 {
                     product.Condition = (ProductCondition)conditionValue;
+                }
+                if (row.TryGetDataValue("SampleDownloadId", out int sampleDownloadId) && cargo.DownloadIds.Contains(sampleDownloadId))
+                {
+                    product.SampleDownloadId = sampleDownloadId;
                 }
 
                 if (row.TryGetDataValue("ProductTemplateViewPath", out string tvp, row.IsTransient))
@@ -662,12 +669,14 @@ namespace Smartstore.Core.DataExchange.Import
                                     if (equalityCheck.Success)
                                     {
                                         AddProductMediaFile(equalityCheck.Value, product);
+
                                         context.Result.AddInfo($"Found equal file in catalog album for '{image.FileName}'. Assigning existing file instead.", row.RowInfo, "ImageUrls");
                                     }
                                     else
                                     {
                                         var path = _services.MediaService.CombinePaths(SystemAlbumProvider.Catalog, image.FileName);
                                         var saveFileResult = await _services.MediaService.SaveFileAsync(path, stream, false, DuplicateFileHandling.Rename);
+
                                         AddProductMediaFile(saveFileResult?.File, product);
                                     }
                                 }
@@ -938,7 +947,7 @@ namespace Smartstore.Core.DataExchange.Import
                 context.Result.NewRecords += batch.Count(x => x.IsNew);
                 context.Result.ModifiedRecords += Math.Max(0, savedEntities - context.Result.NewRecords);
 
-                // TODO: (mg) (core) this is wrong design. An importer must NOT rely on a hook. Hooks must not be running during an import.
+                // TODO: (mg) (core) check if and how far the importer has to work together with hooks.
                 // Updating HasTierPrices property not necessary anymore.
                 // This is done by the TierPriceHook (minHookImportance is set to HookImportance.Important).
             }
@@ -1121,7 +1130,7 @@ namespace Smartstore.Core.DataExchange.Import
                 context.Result.NewRecords += batch.Count(x => x.IsNew);
                 context.Result.ModifiedRecords += Math.Max(0, savedEntities - context.Result.NewRecords);
 
-                // TODO: (mg) (core) this is wrong design. An importer must NOT rely on a hook. Hooks must not be running during an import.
+                // TODO: (mg) (core) check if and how far the importer has to work together with hooks.
                 // Updating LowestAttributeCombinationPrice property not necessary anymore.
                 // This is done by the ProductVariantAttributeCombinationHook (minHookImportance is set to HookImportance.Important).
             }
@@ -1140,7 +1149,6 @@ namespace Smartstore.Core.DataExchange.Import
             }
 
             var segmenter = context.DataSegmenter;
-            var catalogAlbumId = _folderService.GetNodeByPath(SystemAlbumProvider.Catalog).Value.Id;
 
             var productTemplates = await _db.ProductTemplates
                 .AsNoTracking()
@@ -1150,24 +1158,23 @@ namespace Smartstore.Core.DataExchange.Import
             // Do not pass entities here because of batch scope!
             var result = new ImporterCargoData
             {
-                CatalogAlbumId = catalogAlbumId,
-                TemplateViewPaths = productTemplates.ToDictionarySafe(x => x.ViewPath, x => x.Id)
+                TemplateViewPaths = productTemplates.ToDictionarySafe(x => x.ViewPath, x => x.Id),
+                CatalogAlbumId = _folderService.GetNodeByPath(SystemAlbumProvider.Catalog).Value.Id
             };
 
             if (segmenter.HasColumn("CategoryIds"))
             {
-                result.CategoryIds = await _db.Categories
-                    .AsNoTracking()
-                    .Select(x => x.Id)
-                    .ToListAsync(context.CancelToken);
+                result.CategoryIds = await _db.Categories.Select(x => x.Id).ToListAsync(context.CancelToken);
             }
 
             if (segmenter.HasColumn("ManufacturerIds"))
             {
-                result.ManufacturerIds = await _db.Manufacturers
-                    .AsNoTracking()
-                    .Select(x => x.Id)
-                    .ToListAsync(context.CancelToken);
+                result.ManufacturerIds = await _db.Manufacturers.Select(x => x.Id).ToListAsync(context.CancelToken);
+            }
+
+            if (segmenter.HasColumn("SampleDownloadId"))
+            {
+                result.DownloadIds = await _db.Downloads.Select(x => x.Id).ToListAsync(context.CancelToken);
             }
 
             context.CustomProperties[CARGO_DATA_KEY] = result;
@@ -1183,6 +1190,7 @@ namespace Smartstore.Core.DataExchange.Import
             public Dictionary<string, int> TemplateViewPaths { get; init; }
             public List<int> CategoryIds { get; set; }
             public List<int> ManufacturerIds { get; set; }
+            public List<int> DownloadIds { get; set; }
         }
     }
 }

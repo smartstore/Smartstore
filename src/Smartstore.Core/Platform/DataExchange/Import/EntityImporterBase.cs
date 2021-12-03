@@ -102,7 +102,7 @@ namespace Smartstore.Core.DataExchange.Import
 
             var shouldSave = false;
             var collection = await _localizedEntityService.GetLocalizedPropertyCollectionAsync(keyGroup, entityIds);
-
+            
             foreach (var row in batch)
             {
                 foreach (var prop in localizedProps)
@@ -112,7 +112,7 @@ namespace Smartstore.Core.DataExchange.Import
                     {
                         if (row.TryGetDataValue(prop /* ColumnName */, language.UniqueSeoCode, out string value))
                         {
-                            var localizedProperty = collection.Find(language.Id, row.Entity.Id, keyGroup);
+                            var localizedProperty = collection.Find(language.Id, row.Entity.Id, prop);
 
                             if (localizedProperty != null && localizedProperty.Id != 0)
                             {
@@ -254,6 +254,7 @@ namespace Smartstore.Core.DataExchange.Import
             using var scope = _urlService.CreateBatchScope(_db);
 
             // TODO: (core) (perf) IUrlService.ValidateSlugAsync ignores prefetched data.
+            // TODO: (core) throws SqlException "Cannot insert duplicate key row in object 'dbo.UrlRecord' with unique index 'IX_UrlRecord_Slug'" when inserting new categories\products.
 
             foreach (var row in batch)
             {

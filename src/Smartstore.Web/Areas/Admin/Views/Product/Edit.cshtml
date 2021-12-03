@@ -13,7 +13,7 @@
             {
                 <img src="@Url.Content(Model.PictureThumbnailUrl)" />
             }
-            @T("Admin.Catalog.Products.EditProductDetails") - <span title="@Model.Name">@Model.Name.Truncate(45, "...")</span>
+            <span>@ViewBag.Title - <span title="@Model.Name">@Model.Name.Truncate(45, "...")</span></span>
             <a asp-action="List">(@T("Admin.Catalog.Products.BackToList"))</a>
         </div>
         <div class="options">

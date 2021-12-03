@@ -100,6 +100,8 @@
          sm-name="Downloads">
         <partial name="_CreateOrUpdate.Downloads" model="Model" />
     </tab>
+    @*TODO: (mh) (core) throws "Internal Server Error" because there is no partial with the name "_CreateOrUpdate.Orders".
+      What about the idea to simply link to the order grid with pre-set product filter instead of a new order grid?*@
     <tab sm-title="@T("Admin.Orders")"
          sm-icon="fa fa-chart-bar fa-lg fa-fw"
          sm-ajax="true"

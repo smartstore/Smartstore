@@ -191,7 +191,7 @@ namespace Smartstore.Core.DataExchange.Import
                             break;
                         case "Name":
                             if (name.HasValue())
-                                category = await _db.Categories.FirstOrDefaultAsync(x => x.Name == name);
+                                category = await _db.Categories.FirstOrDefaultAsync(x => x.Name == name, context.CancelToken);
                             break;
                     }
 
