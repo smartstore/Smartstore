@@ -8,9 +8,6 @@ namespace Smartstore.Core.Widgets
 {
     public class PartialViewWidgetInvoker : WidgetInvoker
     {
-        private readonly string _partialName;
-        private readonly string _module;
-
         /// <summary>
         /// Creates a new instance of <see cref="PartialViewWidgetInvoker"/>.
         /// </summary>
@@ -20,20 +17,23 @@ namespace Smartstore.Core.Widgets
         {
             Guard.NotEmpty(partialName, nameof(partialName));
 
-            _partialName = partialName;
-            _module = module;
+            PartialName = partialName;
+            Module = module;
         }
+
+        public string PartialName { get; }
+        public string Module { get; }
 
         public override async Task<IHtmlContent> InvokeAsync(ViewContext viewContext)
         {
             var viewInvoker = viewContext.HttpContext.RequestServices.GetRequiredService<IViewInvoker>();
-            return await viewInvoker.InvokePartialViewAsync(_partialName, module: _module, viewData: viewContext.ViewData);
+            return await viewInvoker.InvokePartialViewAsync(PartialName, module: Module, viewData: viewContext.ViewData);
         }
 
         public override async Task<IHtmlContent> InvokeAsync(ViewContext viewContext, object model)
         {
             var viewInvoker = viewContext.HttpContext.RequestServices.GetRequiredService<IViewInvoker>();
-            return await viewInvoker.InvokePartialViewAsync(_partialName, module: _module, model: model);
+            return await viewInvoker.InvokePartialViewAsync(PartialName, module: Module, model: model);
         }
     }
 }

@@ -14,7 +14,7 @@ namespace Smartstore.Test.Common
             }
             watch.Stop();
 
-            Console.WriteLine("{0}: {1} ms.".FormatCurrent(text, watch.ElapsedMilliseconds.ToString()));
+            Debug.WriteLine("{0}: {1} ms.".FormatCurrent(text, watch.ElapsedMilliseconds.ToString()));
         }
     }
 }

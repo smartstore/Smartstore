@@ -8,11 +8,6 @@ namespace Smartstore.Core.Widgets
 {
     public class ComponentWidgetInvoker : WidgetInvoker
     {
-        private readonly string _componentName;
-        private readonly string _module;
-        private readonly Type _componentType;
-        private readonly object _arguments;
-
         public ComponentWidgetInvoker(string componentName, object arguments)
             : this(componentName, null, arguments)
         {
@@ -22,9 +17,9 @@ namespace Smartstore.Core.Widgets
         {
             Guard.NotEmpty(componentName, nameof(componentName));
 
-            _componentName = componentName;
-            _module = module;
-            _arguments = arguments;
+            ComponentName = componentName;
+            Module = module;
+            Arguments = arguments;
         }
 
         public ComponentWidgetInvoker(Type componentType)
@@ -34,9 +29,14 @@ namespace Smartstore.Core.Widgets
 
         public ComponentWidgetInvoker(Type componentType, object arguments)
         {
-            _componentType = Guard.NotNull(componentType, nameof(componentType));
-            _arguments = arguments;
+            ComponentType = Guard.NotNull(componentType, nameof(componentType));
+            Arguments = arguments;
         }
+
+        public string ComponentName { get; }
+        public string Module { get; }
+        public Type ComponentType { get; }
+        public object Arguments { get; }
 
         public override Task<IHtmlContent> InvokeAsync(ViewContext viewContext)
             => InvokeAsync(viewContext, null);
@@ -44,9 +44,9 @@ namespace Smartstore.Core.Widgets
         public override async Task<IHtmlContent> InvokeAsync(ViewContext viewContext, object model)
         {
             var viewInvoker = viewContext.HttpContext.RequestServices.GetService<IViewInvoker>();
-            return _componentType != null
-                ? await viewInvoker.InvokeComponentAsync(_componentType, viewContext.ViewData, model ?? _arguments)
-                : await viewInvoker.InvokeComponentAsync(_componentName, _module, viewContext.ViewData, model ?? _arguments);
+            return ComponentType != null
+                ? await viewInvoker.InvokeComponentAsync(ComponentType, viewContext.ViewData, model ?? Arguments)
+                : await viewInvoker.InvokeComponentAsync(ComponentName, Module, viewContext.ViewData, model ?? Arguments);
         }
     }
 }
