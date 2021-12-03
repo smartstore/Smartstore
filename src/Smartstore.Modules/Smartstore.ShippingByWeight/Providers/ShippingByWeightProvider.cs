@@ -201,9 +201,6 @@ namespace Smartstore.Shipping
                 ? subTotalExclTax 
                 : subTotalInclTax;
 
-            // TODO: (mh) (core) Remove comments after review.
-            // TODO: (mh) (core) Missing ordering from classic GetShippingByWeightRecords()
-            // RE: Not necessary. x.StoreId, x.CountryId, x.ShippingMethodId are unique due applied filters.
             var shippingByWeightRecords = await _db.ShippingRatesByWeight()
                 .Where(x => x.StoreId == storeId || x.StoreId == 0)
                 .ApplyWeightFilter(weight)
@@ -219,11 +216,14 @@ namespace Smartstore.Shipping
                     .LastOrDefault();
 
                 decimal? rate = GetRate(subTotalInclTax, weight, record);
+
                 if (rate.HasValue)
                 {
-                    var shippingOption = new ShippingOption();
-                    shippingOption.ShippingMethodId = shippingMethod.Id;
-                    shippingOption.Name = shippingMethod.GetLocalized(x => x.Name);
+                    var shippingOption = new ShippingOption
+                    {
+                        ShippingMethodId = shippingMethod.Id,
+                        Name = shippingMethod.GetLocalized(x => x.Name)
+                    };
 
                     if (record != null && record.SmallQuantityThreshold > currentSubTotal)
                     {
