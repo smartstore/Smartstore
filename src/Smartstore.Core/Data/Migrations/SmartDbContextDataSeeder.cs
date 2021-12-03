@@ -68,6 +68,12 @@ namespace Smartstore.Core.Data.Migrations
             {
                 gaWidgetZone.Each(x => x.Value = x.Value == "head_html_tag" ? "head" : "end");
             }
+
+            var activeWidgetZone = await settings.Where(x => x.Name == "WidgetSettings.ActiveWidgetSystemNames").ToListAsync(cancellationToken: cancelToken);
+            if (activeWidgetZone.Any())
+            {
+                activeWidgetZone.Each(x => x.Value = x.Value.Replace("SmartStore.GoogleAnalytics", "Smartstore.Google.Analytics"));
+            }
         }
 
         public static void MigrateLocaleResources(LocaleResourcesBuilder builder)
