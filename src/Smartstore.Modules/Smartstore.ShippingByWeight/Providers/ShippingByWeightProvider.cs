@@ -15,6 +15,7 @@ using Smartstore.Core.Stores;
 using Smartstore.Engine.Modularity;
 using Smartstore.Http;
 using Smartstore.ShippingByWeight;
+using Smartstore.ShippingByWeight.Domain;
 using Smartstore.ShippingByWeight.Settings;
 using Smartstore.Utilities;
 
@@ -66,28 +67,12 @@ namespace Smartstore.Shipping
         /// <param name="countryId">Country identifier</param>
         /// <param name="zip">Zip code</param>
         /// <returns>The rate for the shipping method.</returns>
-		private async Task<decimal?> GetRateAsync(decimal subtotal, decimal weight, int shippingMethodId, int storeId, int countryId, string zip)
+		private decimal? GetRate(decimal subtotal, decimal weight, ShippingRateByWeight shippingByWeightRecord)
         {
-            decimal? shippingTotal = null;
-
-            zip = zip.EmptyNull().Trim();
-
-            // TODO: (mh) (core) Missing ordering from classic GetShippingByWeightRecords()
-            var shippingByWeightRecords = await _db.ShippingRatesByWeight()
-                .Where(x => x.StoreId == storeId || x.StoreId == 0)
-                .Where(x => x.ShippingMethodId == shippingMethodId)
-                .ApplyWeightFilter(weight)
-                .ApplyRegionFilter(countryId, zip)
-                .ToListAsync();
-
-            var shippingByWeightRecord = shippingByWeightRecords
-                .Where(x => (zip.IsEmpty() && x.Zip.IsEmpty()) || ZipMatches(zip, x.Zip))
-                .LastOrDefault();
-
             if (shippingByWeightRecord == null)
             {
-                return _shippingByWeightSettings.LimitMethodsToCreated 
-                    ? null 
+                return _shippingByWeightSettings.LimitMethodsToCreated
+                    ? null
                     : decimal.Zero;
             }
 
@@ -95,20 +80,21 @@ namespace Smartstore.Shipping
             {
                 return decimal.Zero;
             }
-            
+
             if (!shippingByWeightRecord.UsePercentage && shippingByWeightRecord.ShippingChargeAmount <= decimal.Zero)
             {
                 return decimal.Zero;
             }
 
+            decimal? shippingTotal;
             if (shippingByWeightRecord.UsePercentage)
             {
                 shippingTotal = Math.Round((decimal)(((float)subtotal) * ((float)shippingByWeightRecord.ShippingChargePercentage) / 100f), 2);
             }
             else
             {
-                shippingTotal = _shippingByWeightSettings.CalculatePerWeightUnit 
-                    ? shippingByWeightRecord.ShippingChargeAmount * weight 
+                shippingTotal = _shippingByWeightSettings.CalculatePerWeightUnit
+                    ? shippingByWeightRecord.ShippingChargeAmount * weight
                     : shippingByWeightRecord.ShippingChargeAmount;
             }
 
@@ -178,7 +164,7 @@ namespace Smartstore.Shipping
             if (request.ShippingAddress != null)
             {
                 countryId = request.ShippingAddress.CountryId ?? 0;
-                zip = request.ShippingAddress.ZipPostalCode;
+                zip = request.ShippingAddress.ZipPostalCode.EmptyNull().Trim();
             }
 
             var allProducts = request.Items
@@ -215,11 +201,14 @@ namespace Smartstore.Shipping
                 ? subTotalExclTax 
                 : subTotalInclTax;
 
-            // TODO: (mh) (core) See TODO in line 232.
+            // TODO: (mh) (core) Remove comments after review.
+            // TODO: (mh) (core) Missing ordering from classic GetShippingByWeightRecords()
+            // RE: Not necessary. x.StoreId, x.CountryId, x.ShippingMethodId are unique due applied filters.
             var shippingByWeightRecords = await _db.ShippingRatesByWeight()
                 .Where(x => x.StoreId == storeId || x.StoreId == 0)
                 .ApplyWeightFilter(weight)
                 .ApplyRegionFilter(countryId, zip)
+                .OrderBy(x => x.From)
                 .ToListAsync();
 
             foreach (var shippingMethod in shippingMethods)
@@ -229,8 +218,7 @@ namespace Smartstore.Shipping
                     .Where(x => ZipMatches(zip, x.Zip))
                     .LastOrDefault();
 
-                // TODO: (mh) (core) GetRateAsync() probably accesses the database with the same query as the above one.
-                decimal? rate = await GetRateAsync(subTotalInclTax, weight, shippingMethod.Id, request.StoreId, countryId, zip);
+                decimal? rate = GetRate(subTotalInclTax, weight, record);
                 if (rate.HasValue)
                 {
                     var shippingOption = new ShippingOption();

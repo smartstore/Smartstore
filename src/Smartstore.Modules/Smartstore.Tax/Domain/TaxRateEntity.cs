@@ -1,7 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Diagnostics.CodeAnalysis;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Smartstore.Domain;
 
 namespace Smartstore.Tax.Domain
@@ -12,16 +10,6 @@ namespace Smartstore.Tax.Domain
     [Table("TaxRate")]
     public partial class TaxRateEntity : BaseEntity
     {
-        public TaxRateEntity()
-        {
-        }
-
-        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
-        private TaxRateEntity(ILazyLoader lazyLoader)
-            : base(lazyLoader)
-        {
-        }
-
         /// <summary>
         /// Gets or sets the tax category identifier.
         /// </summary>

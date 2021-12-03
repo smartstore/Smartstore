@@ -1,7 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Diagnostics.CodeAnalysis;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Smartstore.Domain;
 
 namespace Smartstore.Shipping.Domain
@@ -12,16 +10,6 @@ namespace Smartstore.Shipping.Domain
     [Table("ShippingByTotal")]
     public partial class ShippingRateByTotal : BaseEntity
     {
-        public ShippingRateByTotal()
-        {
-        }
-
-        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
-        private ShippingRateByTotal(ILazyLoader lazyLoader)
-            : base(lazyLoader)
-        {
-        }
-
         /// <summary>
         /// Gets or sets the shipping method identifier.
         /// </summary>

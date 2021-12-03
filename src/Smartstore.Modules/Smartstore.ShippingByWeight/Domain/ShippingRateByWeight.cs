@@ -7,8 +7,6 @@ namespace Smartstore.ShippingByWeight.Domain
     [Table("ShippingByWeight")]
     public partial class ShippingRateByWeight : BaseEntity
     {
-        // TODO: (mh) (core) This entity does not support lazy loading (therefore the special ctor can be removed). Please fix in other applicable module entities too.
-
         /// <summary>
         /// Gets or sets the store identifier
         /// </summary>

@@ -57,7 +57,6 @@ namespace Smartstore.ShippingByWeight.Controllers
             
             var baseWeighMeasure = await _db.MeasureWeights.Where(x => x.Id == _measureSettings.BaseWeightId).FirstOrDefaultAsync();
             ViewBag.BaseWeightIn = baseWeighMeasure?.GetLocalized(x => x.Name) ?? string.Empty;
-            // INFO: (mh) (core) Be careful!! Currency on store level is obsolete!
             ViewBag.PrimaryStoreCurrencyCode = Services.CurrencyService.PrimaryCurrency.CurrencyCode;
             ViewBag.AvailableStores = Services.StoreContext.GetAllStores().ToSelectListItems();
             ViewBag.AvailableShippingMethods = shippingMethods.Values.Select(x => new SelectListItem
