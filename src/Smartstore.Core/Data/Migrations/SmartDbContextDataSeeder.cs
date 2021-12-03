@@ -702,10 +702,10 @@ namespace Smartstore.Core.Data.Migrations
                 {
                     var key = entity.ResourceName;
                     var lastDotIndex = key.LastIndexOf('.');
-                    var lastPart = key.Substring(lastDotIndex + 1);
+                    var lastPart = key[(lastDotIndex + 1)..];
 
                     // Trim "Enums." and last Part
-                    key = key.Substring(6, lastDotIndex - 6);
+                    key = key[6..lastDotIndex];
 
                     if (map.TryGetValue(key, out var newName))
                     {
@@ -807,21 +807,21 @@ namespace Smartstore.Core.Data.Migrations
                 //["SmartStore.AmazonPay.Services.AmazonPayAuthorizeMethod"] = nameof(AmazonPayAuthorizeMethod),
                 ["SmartStore.Core.Domain.Catalog.PriceDisplayStyle"] = nameof(PriceDisplayStyle),
                 ["SmartStore.Core.Domain.Customers.CustomerLoginType"] = nameof(CustomerLoginType),
-                //["SmartStore.PageBuilder.Blocks.CategoryDisplayType"] = nameof(CategoryDisplayType),
-                //["SmartStore.PageBuilder.Blocks.CategoryPickingType"] = nameof(CategoryPickingType),
-                //["SmartStore.PageBuilder.Blocks.IconAlignment"] = nameof(IconAlignment),
-                //["SmartStore.PageBuilder.Blocks.IconDisplayType"] = nameof(IconDisplayType),
-                //["SmartStore.PageBuilder.Blocks.ProductListDisplayType"] = nameof(ProductListDisplayType),
-                //["SmartStore.PageBuilder.Blocks.ProductPickingType"] = nameof(ProductPickingType),
-                //["SmartStore.PageBuilder.Models.MegaSizeTypes"] = nameof(MegaSizeTypes),
-                //["SmartStore.PageBuilder.StoryTemplateGroup"] = nameof(StoryTemplateGroup),
-                //["SmartStore.PageBuilder.Blocks.BrandListDisplayType"] = nameof(BrandListDisplayType),
-                //["SmartStore.PageBuilder.Blocks.ButtonAlignment"] = nameof(ButtonAlignment),
-                //["SmartStore.PageBuilder.Blocks.ButtonIconAlignment"] = nameof(ButtonIconAlignment),
-                //["SmartStore.PageBuilder.Blocks.TitleDisplayType"] = nameof(TitleDisplayType),
-                //["SmartStore.PageBuilder.Models.BoxImagePlacement"] = nameof(BoxImagePlacement),
-                //["SmartStore.PageBuilder.Models.GradientRepeat"] = nameof(GradientRepeat),
-                //["SmartStore.PageBuilder.Blocks.GalleryStyle"] = nameof(GalleryStyle),
+                ["SmartStore.PageBuilder.Blocks.CategoryDisplayType"] = "CategoryDisplayType",
+                ["SmartStore.PageBuilder.Blocks.CategoryPickingType"] = "CategoryPickingType",
+                ["SmartStore.PageBuilder.Blocks.IconAlignment"] = "IconAlignment",
+                ["SmartStore.PageBuilder.Blocks.IconDisplayType"] = "IconDisplayType",
+                ["SmartStore.PageBuilder.Blocks.ProductListDisplayType"] = "ProductListDisplayType",
+                ["SmartStore.PageBuilder.Blocks.ProductPickingType"] = "ProductPickingType",
+                ["SmartStore.PageBuilder.Models.MegaSizeTypes"] = "MegaSizeTypes",
+                ["SmartStore.PageBuilder.StoryTemplateGroup"] = "StoryTemplateGroup",
+                ["SmartStore.PageBuilder.Blocks.BrandListDisplayType"] = "BrandListDisplayType",
+                ["SmartStore.PageBuilder.Blocks.ButtonAlignment"] = "ButtonAlignment",
+                ["SmartStore.PageBuilder.Blocks.ButtonIconAlignment"] = "ButtonIconAlignment",
+                ["SmartStore.PageBuilder.Blocks.TitleDisplayType"] = "TitleDisplayType",
+                ["SmartStore.PageBuilder.Models.BoxImagePlacement"] = "BoxImagePlacement",
+                ["SmartStore.PageBuilder.Models.GradientRepeat"] = "GradientRepeat",
+                ["SmartStore.PageBuilder.Blocks.GalleryStyle"] = "GalleryStyle",
                 ["SmartStore.Core.Domain.Catalog.ProductVisibility"] = nameof(ProductVisibility),
                 ["SmartStore.Rules.RuleScope"] = nameof(RuleScope),
                 ["SmartStore.Core.Domain.Catalog.ProductCondition"] = nameof(ProductCondition),

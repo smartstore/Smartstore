@@ -25,7 +25,7 @@ namespace Smartstore.Blog.Blocks
 
         public override async Task<BlogBlock> LoadAsync(IBlockEntity entity, StoryViewMode viewMode)
         {
-            var block = await base.LoadAsync(entity, viewMode);
+            var block = base.Load(entity, viewMode);
 
             if (viewMode == StoryViewMode.Edit)
             {
