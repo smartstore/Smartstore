@@ -44,9 +44,8 @@
 
 <body class="lyt-cols-1">
     <zone name="start" />
-    <zone name="body_start_html_tag_after" /> @* Legacy compat *@
     @RenderBody()
-    <zone name="aftercontent" />
+    <zone name="aftercontent" />@* Not available via widgetzones.json. Name colides with content_after and it's unnecassary there.*@
 
     <zone name="scripts">
         <script src="~/bundle/js/site.js"></script>

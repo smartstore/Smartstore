@@ -3,8 +3,6 @@
 @{
     Layout = "_Document";
 
-    <zone name="body_start_html_tag_after"></zone>
-
     var hasLeftCol = Display.ZoneHasContent("left");
     var hasRightCol = Display.ZoneHasContent("right");
     var hideLeftCol = ViewBag.HideLeftCol == true;
@@ -93,7 +91,7 @@
                         </aside>
                     }
 
-                    <zone name="content-after"></zone>
+                    <zone name="content_after"></zone>
                 </div>
             </section>
         </div>
@@ -113,5 +111,3 @@
 </div>
 
 <partial name="Notifications" />
-
-<zone name="body_end_html_tag_before"></zone>
