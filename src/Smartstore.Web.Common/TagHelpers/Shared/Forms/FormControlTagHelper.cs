@@ -49,7 +49,7 @@ namespace Smartstore.Web.TagHelpers.Shared
         public override int Order => 100;
 
         [HtmlAttributeName(RequiredAttributeName)]
-        public bool? IsRequired { get; set; } = null;
+        public bool? IsRequired { get; set; };
 
         [HtmlAttributeName(AppendHintAttributeName)]
         public bool AppendHint { get; set; }
