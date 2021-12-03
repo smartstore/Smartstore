@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.Routing;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Mvc.ViewFeatures.Infrastructure;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
@@ -36,6 +37,7 @@ using Smartstore.Web.Modelling.Settings;
 using Smartstore.Web.Modelling.Validation;
 using Smartstore.Web.Models.DataGrid;
 using Smartstore.Web.Razor;
+using Smartstore.Web.Rendering;
 using Smartstore.Web.Routing;
 
 namespace Smartstore.Web
@@ -65,6 +67,10 @@ namespace Smartstore.Web
             // Replace BsonTempDataSerializer that was registered by AddNewtonsoftJson()
             // with our own serializer which is capable of serializing more stuff.
             services.AddSingleton<TempDataSerializer, SmartTempDataSerializer>();
+
+            // Replaces inbuilt IHtmlGenerator with SmartHtmlGenerator
+            // that is capable of applying custom Bootstrap classes to generated html.
+            services.AddSingleton<IHtmlGenerator, SmartHtmlGenerator>();
 
             // Provide custom database related exceptions to DeveloperExceptionPageMiddleware
             services.AddDatabaseDeveloperPageExceptionFilter();

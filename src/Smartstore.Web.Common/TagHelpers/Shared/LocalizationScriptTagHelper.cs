@@ -56,7 +56,7 @@ namespace Smartstore.Web.TagHelpers.Shared
 
         public override void Process(TagHelperContext context, TagHelperOutput output)
         {
-            var src = output.Attributes["src"].Value.ToString();
+            var src = output.Attributes["src"].ValueAsString();
 
             if (src.Length < 11)
             {

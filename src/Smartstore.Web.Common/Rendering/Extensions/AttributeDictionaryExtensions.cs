@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 
@@ -56,46 +55,26 @@ namespace Smartstore.Web.Rendering
         
         public static AttributeDictionary AppendCssClass(this AttributeDictionary attributes, Func<string> cssClass)
         {
-            attributes.AppendInValue("class", ' ', cssClass());
+            attributes.AddInValue("class", ' ', cssClass(), false);
             return attributes;
         }
 
         public static AttributeDictionary PrependCssClass(this AttributeDictionary attributes, Func<string> cssClass)
         {
-            attributes.PrependInValue("class", ' ', cssClass());
+            attributes.AddInValue("class", ' ', cssClass(), true);
             return attributes;
         }
 
         public static AttributeDictionary AppendCssClass(this AttributeDictionary attributes, string cssClass)
         {
-            attributes.AppendInValue("class", ' ', cssClass);
+            attributes.AddInValue("class", ' ', cssClass, false);
             return attributes;
         }
 
         public static AttributeDictionary PrependCssClass(this AttributeDictionary attributes, string cssClass)
         {
-            attributes.PrependInValue("class", ' ', cssClass);
+            attributes.AddInValue("class", ' ', cssClass, true);
             return attributes;
-        }
-
-        public static void AppendCssClass(this TagBuilder builder, Func<string> cssClass)
-        {
-            builder.Attributes.AppendInValue("class", ' ', cssClass());
-        }
-
-        public static void PrependCssClass(this TagBuilder builder, Func<string> cssClass)
-        {
-            builder.Attributes.PrependInValue("class", ' ', cssClass());
-        }
-
-        public static void AppendCssClass(this TagBuilder builder, string cssClass)
-        {
-            builder.Attributes.AppendInValue("class", ' ', cssClass);
-        }
-
-        public static void PrependCssClass(this TagBuilder builder, string cssClass)
-        {
-            builder.Attributes.PrependInValue("class", ' ', cssClass);
         }
     }
 }

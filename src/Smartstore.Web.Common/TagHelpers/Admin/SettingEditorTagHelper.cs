@@ -49,7 +49,7 @@ namespace Smartstore.Web.TagHelpers.Admin
                 if (output.Attributes.TryGetAttribute("data-toggler-for", out var attr))
                 {
                     // TODO: (mh) (core) Find a better solution to pass custom attributes to auto-generated editors.
-                    additionalViewData["htmlAttributes"] = new { data_toggler_for = attr.Value.ToString() };
+                    additionalViewData["htmlAttributes"] = new { data_toggler_for = attr.ValueAsString() };
                 }
 
                 output.Content.SetHtmlContent(HtmlHelper.EditorFor(For, Template, additionalViewData));

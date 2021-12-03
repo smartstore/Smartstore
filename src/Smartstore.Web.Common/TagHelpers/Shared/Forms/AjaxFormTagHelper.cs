@@ -142,8 +142,8 @@ namespace Smartstore.Web.TagHelpers.Shared
 
             output.MergeAttribute("data-ajax", "true", true);
 
-            AddIfSpecified("data-ajax-url", output.Attributes["action"]?.Value?.ToString());
-            AddIfSpecified("data-ajax-method", output.Attributes["method"]?.Value?.ToString() ?? "post");
+            AddIfSpecified("data-ajax-url", output.Attributes["action"]?.ValueAsString());
+            AddIfSpecified("data-ajax-method", output.Attributes["method"]?.ValueAsString() ?? "post");
             AddIfSpecified("data-ajax-confirm", Confirm);
             AddIfSpecified("data-ajax-begin", OnBegin);
             AddIfSpecified("data-ajax-complete", OnComplete);

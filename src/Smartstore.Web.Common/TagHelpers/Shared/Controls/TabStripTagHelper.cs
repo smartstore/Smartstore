@@ -359,7 +359,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             // Copy all attributes from output to div tag
             foreach (var attr in header.Attributes)
             {
-                div.MergeAttribute(attr.Name, attr.Value?.ToString());
+                div.MergeAttribute(attr.Name, attr.ValueAsString());
             }
 
             div.AppendCssClass("tab-content-header");
@@ -414,7 +414,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             // Copy all attributes from output to div tag (except for "id" and "href")
             foreach (var attr in tab.Attributes)
             {
-                li.MergeAttribute(attr.Name, attr.Value?.ToString());
+                li.MergeAttribute(attr.Name, attr.ValueAsString());
             }
             li.Attributes.TryRemove("id", out _);
             li.Attributes.TryRemove("href", out _);
@@ -442,7 +442,7 @@ namespace Smartstore.Web.TagHelpers.Shared
                 else
                 {
                     // No content, create real link instead
-                    var url = tab.Attributes["href"]?.Value?.ToString();
+                    var url = tab.Attributes["href"]?.ValueAsString();
 
                     if (url == null)
                     {
@@ -549,7 +549,7 @@ namespace Smartstore.Web.TagHelpers.Shared
         {
             if (tab.Attributes.TryGetAttribute("data-tab-name", out var attr))
             {
-                return attr.Value?.ToString();
+                return attr.ValueAsString();
             }
 
             return null;

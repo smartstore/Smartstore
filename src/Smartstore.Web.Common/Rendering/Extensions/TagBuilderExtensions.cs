@@ -6,13 +6,33 @@ namespace Smartstore.Web.Rendering
 {
     public static class TagBuilderExtensions
     {
+        public static void AppendCssClass(this TagBuilder builder, Func<string> cssClass)
+        {
+            builder.Attributes.AddInValue("class", ' ', cssClass(), false);
+        }
+
+        public static void PrependCssClass(this TagBuilder builder, Func<string> cssClass)
+        {
+            builder.Attributes.AddInValue("class", ' ', cssClass(), true);
+        }
+
+        public static void AppendCssClass(this TagBuilder builder, string cssClass)
+        {
+            builder.Attributes.AddInValue("class", ' ', cssClass, false);
+        }
+
+        public static void PrependCssClass(this TagBuilder builder, string cssClass)
+        {
+            builder.Attributes.AddInValue("class", ' ', cssClass, true);
+        }
+
         /// <summary>
         /// Creates a DOM-like CSS class list object. Call 'Dispose()' to flush
         /// the result back to <paramref name="builder"/>.
         /// </summary>
         public static CssClassList GetClassList(this TagBuilder builder)
         {
-            return new CssClassList(builder.Attributes);
+            return new CssClassList(builder.Attributes.AppendCssClass("gdfg"));
         }
 
         public static void AddCssStyle(this TagBuilder builder, string expression, object value)

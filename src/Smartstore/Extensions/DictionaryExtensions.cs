@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using Microsoft.Extensions.Primitives;
 using Smartstore.Utilities;
 
 namespace Smartstore
@@ -81,37 +82,6 @@ namespace Smartstore
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IDictionary<string, string> AppendInValue(this IDictionary<string, string> instance, string key, char separator, string value)
-        {
-            return AddInValue(instance, key, separator, value, false);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IDictionary<string, string> PrependInValue(this IDictionary<string, string> instance, string key, char separator, string value)
-        {
-            return AddInValue(instance, key, separator, value, true);
-        }
-
-        private static IDictionary<string, string> AddInValue(IDictionary<string, string> instance, string key, char separator, string value, bool prepend = false)
-        {
-            if (!instance.TryGetValue(key, out var currentValue))
-            {
-                instance[key] = value;
-            }
-            else
-            {
-                var arr = currentValue.Trim().Tokenize(new[] { separator }, StringSplitOptions.RemoveEmptyEntries);
-                var arrValue = value.Trim().Tokenize(new[] { separator }, StringSplitOptions.RemoveEmptyEntries);
-
-                arr = prepend ? arrValue.Union(arr) : arr.Union(arrValue);
-
-                instance[key] = string.Join(separator, arr);
-            }
-
-            return instance;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static TValue Get<TKey, TValue>(this IDictionary<TKey, TValue> instance, TKey key)
         {
             Guard.NotNull(instance, nameof(instance)).TryGetValue(key, out var val);
@@ -170,6 +140,113 @@ namespace Smartstore
             }
 
             return false;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IDictionary<string, string> AppendInValue(this IDictionary<string, string> instance, string key, char separator, string value)
+        {
+            return AddInValue(instance, key, separator, value, false);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IDictionary<string, string> PrependInValue(this IDictionary<string, string> instance, string key, char separator, string value)
+        {
+            return AddInValue(instance, key, separator, value, true);
+        }
+
+        internal static IDictionary<string, string> AddInValue(this IDictionary<string, string> instance, string key, char separator, string value, bool prepend = false)
+        {
+            Guard.NotEmpty(key, nameof(key));
+
+            value = value.Trim(separator);
+
+            if (string.IsNullOrEmpty(value))
+            {
+                return instance;
+            }
+
+            if (!instance.TryGetValue(key, out var currentValue))
+            {
+                instance[key] = value;
+            }
+            else
+            {
+                if (TryAddInValue(value, currentValue, separator, prepend, out var mergedValue))
+                {
+                    instance[key] = mergedValue;
+                }
+            }
+
+            return instance;
+        }
+
+        internal static bool TryAddInValue(string value, string currentValue, char separator, bool prepend, out string mergedValue)
+        {
+            mergedValue = null;
+
+            if (currentValue.IsEmpty())
+            {
+                mergedValue = value;
+            }
+            else
+            {
+                currentValue = currentValue.Trim(separator);
+
+                var manyCurrentValues = currentValue.Contains(separator);
+                var manyValues = value.Contains(separator);
+
+                if (!manyCurrentValues && !manyValues)
+                {
+                    if (value != currentValue)
+                    {
+                        mergedValue = prepend
+                            ? value + separator + currentValue
+                            : currentValue + separator + value;
+                    }
+                }
+                else
+                {
+                    var currentValues = manyCurrentValues
+                        ? currentValue.Split(separator, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                        : new[] { currentValue };
+
+                    var attemptedValues = manyValues
+                        ? value.Split(separator, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                        : new[] { value };
+
+                    var isDirty = false;
+
+                    for (var i = 0; i < attemptedValues.Length; i++)
+                    {
+                        var attemptedValue = attemptedValues[i];
+
+                        if (!currentValues.Contains(attemptedValue))
+                        {
+                            if (prepend)
+                            {
+                                var newCurrentValues = new string[currentValues.Length + 1];
+                                newCurrentValues[0] = attemptedValue;
+                                Array.Copy(currentValues, 0, newCurrentValues, 1, currentValues.Length);
+                                currentValues = newCurrentValues;
+                            }
+                            else
+                            {
+                                Array.Resize(ref currentValues, currentValues.Length + 1);
+                                currentValues[^1] = attemptedValue;
+                            }
+
+                            isDirty = true;
+                        }
+                    }
+
+                    if (isDirty)
+                    {
+                        mergedValue = string.Join(separator, currentValues);
+                    }
+                }
+            }
+            
+            return mergedValue != null;
         }
     }
 

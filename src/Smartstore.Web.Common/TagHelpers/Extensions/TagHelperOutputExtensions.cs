@@ -35,20 +35,20 @@ namespace Smartstore.Web.TagHelpers
             AddInAttributeValue(output.Attributes, "class", ' ', cssClass, true);
         }
 
-        private static void AddInAttributeValue(TagHelperAttributeList attrList, string name, char separator, string value, bool prepend = false)
+        private static void AddInAttributeValue(TagHelperAttributeList attributes, string name, char separator, string value, bool prepend = false)
         {
-            if (!attrList.TryGetAttribute(name, out var attribute))
+            if (!attributes.TryGetAttribute(name, out var attribute))
             {
-                attrList.Add(new TagHelperAttribute(name, value));
+                attributes.Add(new TagHelperAttribute(name, value));
             }
             else
             {
-                var arr = attribute.Value.ToString().Trim().Tokenize(new[] { separator }, StringSplitOptions.RemoveEmptyEntries);
-                var arrValue = value.Trim().Tokenize(new[] { separator }, StringSplitOptions.RemoveEmptyEntries);
+                var currentValue = attribute.ValueAsString();
 
-                arr = prepend ? arrValue.Union(arr) : arr.Union(arrValue);
-
-                attrList.SetAttribute(name, string.Join(separator, arr));
+                if (DictionaryExtensions.TryAddInValue(value, currentValue, separator, prepend, out var mergedValue))
+                {
+                    attributes.SetAttribute(name, mergedValue);
+                }
             }
         }
 
@@ -67,7 +67,7 @@ namespace Smartstore.Web.TagHelpers
 
             if (output.Attributes.TryGetAttribute("style", out var attribute))
             {
-                var currentStyle = attribute.Value.ToString().TrimEnd().EnsureEndsWith("; ");
+                var currentStyle = attribute.ValueAsString().TrimEnd().EnsureEndsWith("; ");
                 output.Attributes.SetAttribute("style", currentStyle + styles);
             }
             else

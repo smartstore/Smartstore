@@ -62,7 +62,7 @@ namespace Smartstore.Web.TagHelpers.Admin
 
                 foreach (var attr in output.Attributes)
                 {
-                    htmlAttributes[attr.Name] = attr.Value;
+                    htmlAttributes[attr.Name] = attr.ValueAsString();
                 }
 
                 viewData["htmlAttributes"] = htmlAttributes;

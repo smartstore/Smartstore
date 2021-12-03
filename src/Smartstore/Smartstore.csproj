@@ -69,6 +69,9 @@
 		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
 			<_Parameter1>Smartstore.Web</_Parameter1>
 		</AssemblyAttribute>
+		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+			<_Parameter1>Smartstore.Web.Common</_Parameter1>
+		</AssemblyAttribute>
 	</ItemGroup>
 
 </Project>

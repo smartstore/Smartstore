@@ -20,17 +20,17 @@ namespace Smartstore.Web.TagHelpers.Shared
             var value = For?.Model?.ToString() ?? string.Empty;
             if (output.Attributes.TryGetAttribute("value", out var attr))
             {
-                value = attr.Value.ToString();
+                value = attr.ValueAsString();
             }
 
             var name = string.Empty;
             if (output.Attributes.TryGetAttribute("name", out attr))
             {
-                name = attr.Value.ToString();
+                name = attr.ValueAsString();
             }
             else if (output.Attributes.TryGetAttribute("id", out attr))
             {
-                name = attr.Value.ToString();
+                name = attr.ValueAsString();
             }
 
             output.SuppressOutput();

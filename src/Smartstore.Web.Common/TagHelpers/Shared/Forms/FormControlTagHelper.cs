@@ -45,11 +45,11 @@ namespace Smartstore.Web.TagHelpers.Shared
             _localizationService = localizationService;
         }
 
-        // Must comer AFTER AspNetCore origin TagHelper (Input | Select | TextArea)
+        // Must comer AFTER AspNetCore original TagHelper (Input | Select | TextArea)
         public override int Order => 100;
 
         [HtmlAttributeName(RequiredAttributeName)]
-        public bool? IsRequired { get; set; }
+        public bool? IsRequired { get; set; } = null;
 
         [HtmlAttributeName(AppendHintAttributeName)]
         public bool AppendHint { get; set; }
@@ -91,7 +91,7 @@ namespace Smartstore.Web.TagHelpers.Shared
                         }
                         else if (typeAttr.Value is ("checkbox" or "radio"))
                         {
-                            ProcessCheckRadio(output, typeAttr.Value.ToString());
+                            ProcessCheckRadio(output, typeAttr.ValueAsString());
                         }
                         else if (typeAttr.Value is not ("file" or "hidden"))
                         {
@@ -104,23 +104,25 @@ namespace Smartstore.Web.TagHelpers.Shared
 
         private void ProcessCheckRadio(TagHelperOutput output, string type)
         {
+            if (IgnoreLabel)
+            {
+                return;
+            }
+            
             output.AppendCssClass("form-check-input");
 
-            if (!IgnoreLabel)
+            var id = output.Attributes["id"]?.ValueAsString();
+            var label = For?.Metadata?.DisplayName;
+
+            if (label.HasValue())
             {
-                var id = output.Attributes["id"]?.Value?.ToString();
-                var label = For?.Metadata?.DisplayName;
-
-                if (label.HasValue())
-                {
-                    output.PostElement.AppendHtml($"<label class=\"form-check-label\" for=\"{id}\">{label}</label>");
-                }
-
-                output.PreElement.AppendHtml("<div class=\"form-check\">");
-                output.PostElement.AppendHtml("</div>");
-
-                ProcessHint(output);
+                output.PostElement.AppendHtml($"<label class=\"form-check-label\" for=\"{id}\">{label}</label>");
             }
+
+            output.PreElement.AppendHtml("<div class=\"form-check\">");
+            output.PostElement.AppendHtml("</div>");
+
+            ProcessHint(output);
         }
 
         private void ProcessSwitch(TagHelperOutput output)
@@ -141,12 +143,13 @@ namespace Smartstore.Web.TagHelpers.Shared
             }
             else
             {
-                isPlainText = output.Attributes.TryGetAttribute("class", out var classAttr) && classAttr.Value.ToString().Contains("form-control-plaintext");
+                isPlainText = output.Attributes.TryGetAttribute("class", out var classAttr) && classAttr.ValueAsString().Contains("form-control-plaintext");
             }
             
             if (!isPlainText)
             {
-                output.AppendCssClass("form-control");
+                // INFO: SmartHtmlGenerator applies .form-control now globally
+                //output.AppendCssClass("form-control");
 
                 // Render "Optional/Unspecified" placeholder
                 if (IsRequired == false && output.TagName != "select" && !output.Attributes.ContainsName("placeholder"))
