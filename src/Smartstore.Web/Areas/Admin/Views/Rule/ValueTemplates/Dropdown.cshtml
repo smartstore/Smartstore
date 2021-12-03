@@ -32,7 +32,7 @@
     }
 }
 
-<select id="@id" name="@id" attrs="attributes">
+<select id="@id" name="@id" attrs="attributes" class="form-control">
     @if (remoteUrl.HasValue())
     {
         var selectedItems = Model.Metadata.TryGetValue("SelectedItems", out var objSelectedItems)

@@ -34,7 +34,7 @@
     attributes["data-select-init-load"] = (Value.Length > 0).ToString().ToLower();
     attributes.Merge("data-placeholder", T("Common.Unspecified").Value);
 }
-<select asp-for="@Model" id="@id" name="@Html.NameForModel()" class="form-control rule-sets edit-control" attrs="attributes" data-editor="rule-sets">
+<select asp-for="@Model" id="@id" name="@Html.NameForModel()" class="rule-sets edit-control" attrs="attributes" data-editor="rule-sets">
     @foreach (var val in Value)
     {
         <option selected value="@val">@val</option>
