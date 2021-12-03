@@ -67,6 +67,26 @@
 
     var m = {
 
+        isEmpty: function (val) {
+            // Overwrite original underscore _.isEmpty to restore legacy behaviour
+            // where a number is NOT treated as empty.
+
+            // Check for null or undefined
+            if (val == null) return true;
+
+            // Check for empty String (bonus check for empty Array)
+            if (val.length === 0) return true;
+
+            const type = typeof val;
+            if (type === 'number') return false;
+            if (type === 'boolean') return false;
+
+            // Check for empty Object
+            if (type === 'object') return !Object.keys(val).length;
+
+            return !val
+        },
+
         provide: function (namespace) {
             // split the input on each dot to provide subnamespaces
             namespace = namespace.split('.');
