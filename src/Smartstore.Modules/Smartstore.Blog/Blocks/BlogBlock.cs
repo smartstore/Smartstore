@@ -9,15 +9,41 @@ using Smartstore.Core.Widgets;
 using Smartstore.Blog.Components;
 using Smartstore.Web.Modelling;
 using Newtonsoft.Json;
+using Smartstore.Blog.Services;
 
 namespace Smartstore.Blog.Blocks
 {
     [Block("blog", Icon = "fa fa-blog", FriendlyName = "Blog", DisplayOrder = 150)]
     public class BlogBlockHandler : BlockHandlerBase<BlogBlock>
     {
-        public override Task<BlogBlock> LoadAsync(IBlockEntity entity, StoryViewMode viewMode)
+        private readonly IBlogService _blogService;
+
+        public BlogBlockHandler(IBlogService blogService)
         {
-            var block = base.LoadAsync(entity, viewMode);
+            _blogService = blogService;
+        }
+
+        public override async Task<BlogBlock> LoadAsync(IBlockEntity entity, StoryViewMode viewMode)
+        {
+            var block = await base.LoadAsync(entity, viewMode);
+
+            if (viewMode == StoryViewMode.Edit)
+            {
+                var allTags = await _blogService.GetAllBlogPostTagsAsync(Services.StoreContext.CurrentStore.Id, Services.WorkContext.WorkingLanguage.Id);
+                block.AvailableTags = new List<SelectListItem>();
+
+                foreach (var tag in allTags)
+                {
+                    block.AvailableTags.Add(
+                        new SelectListItem
+                        {
+                            Text = tag.Name,
+                            Value = tag.Name,
+                            Selected = !block.PostsWithTag.IsEmpty() && block.PostsWithTag.Equals(tag)
+                        });
+                }
+            }
+
             return block;
         }
 
@@ -26,15 +52,15 @@ namespace Smartstore.Blog.Blocks
             return base.SaveAsync(block, entity);
         }
 
-        protected override async Task RenderCoreAsync(IBlockContainer element, IEnumerable<string> templates, IHtmlHelper htmlHelper, TextWriter textWriter)
+        protected override Task RenderCoreAsync(IBlockContainer element, IEnumerable<string> templates, IHtmlHelper htmlHelper, TextWriter textWriter)
         {
             if (templates.First() == "Edit")
             {
-                await base.RenderCoreAsync(element, templates, htmlHelper, textWriter);
+                return base.RenderCoreAsync(element, templates, htmlHelper, textWriter);
             }
             else
             {
-                await RenderByWidgetAsync(element, templates, htmlHelper, textWriter);
+                return RenderByWidgetAsync(element, templates, htmlHelper, textWriter);
             }
         }
 
@@ -50,7 +76,7 @@ namespace Smartstore.Blog.Blocks
                 blogHeading = element.Title,
                 disableCommentCount = block.DisableCommentCount,
                 postsWithTag = block.PostsWithTag
-            }) { };
+            });
         }
     }
 
