@@ -90,6 +90,64 @@ namespace Smartstore.Web.Rendering
 
         #endregion
 
+        #region DropDownList Extensions
+
+        /// <summary>
+        /// Returns a single-selection HTML select element for the enum expression with localized enum values.
+        /// </summary>
+        /// <typeparam name="TEnum">The type of enumeration.</typeparam>
+        public static IHtmlContent DropDownListForEnum<TModel, TEnum>(
+            this IHtmlHelper<TModel> helper,
+            Expression<Func<TModel, TEnum>> expression) where TEnum : struct
+        {
+            return DropDownListForEnum(helper, expression, optionLabel: null, htmlAttributes: null);
+        }
+
+        /// <summary>
+        /// Returns a single-selection HTML select element for the enum expression with localized enum values.
+        /// </summary>
+        /// <typeparam name="TEnum">The type of enumeration.</typeparam>
+        public static IHtmlContent DropDownListForEnum<TModel, TEnum>(
+            this IHtmlHelper<TModel> helper,
+            Expression<Func<TModel, TEnum>> expression,
+            object htmlAttributes) where TEnum : struct
+        {
+            return DropDownListForEnum(helper, expression, optionLabel: null, htmlAttributes: htmlAttributes);
+        }
+
+        /// <summary>
+        /// Returns a single-selection HTML select element for the enum expression with localized enum values.
+        /// </summary>
+        /// <typeparam name="TEnum">The type of enumeration.</typeparam>
+        public static IHtmlContent DropDownListForEnum<TModel, TEnum>(
+            this IHtmlHelper<TModel> helper,
+            Expression<Func<TModel, TEnum>> expression,
+            string optionLabel) where TEnum : struct
+        {
+            return DropDownListForEnum(helper, expression, optionLabel: optionLabel, htmlAttributes: null);
+        }
+
+        /// <summary>
+        /// Returns a single-selection HTML select element for the enum expression with localized enum values.
+        /// </summary>
+        /// <typeparam name="TEnum">The type of enumeration.</typeparam>
+        public static IHtmlContent DropDownListForEnum<TModel, TEnum>(
+            this IHtmlHelper<TModel> helper,
+            Expression<Func<TModel, TEnum>> expression,
+            string optionLabel,
+            object htmlAttributes) where TEnum : struct
+        {
+            Guard.IsEnumType(typeof(TEnum), nameof(expression));
+
+            return helper.DropDownListFor(
+                expression,
+                helper.GetLocalizedEnumSelectList(typeof(TEnum)), 
+                optionLabel, 
+                htmlAttributes);
+        }
+
+        #endregion
+
         #region ValidationMessageFor
 
         /// <summary>

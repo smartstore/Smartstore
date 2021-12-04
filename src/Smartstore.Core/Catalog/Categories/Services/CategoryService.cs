@@ -377,6 +377,11 @@ namespace Smartstore.Core.Catalog.Categories
 
         public virtual async Task<IList<Category>> GetCategoriesByParentCategoryIdAsync(int parentCategoryId, bool includeHidden = false)
         {
+            if (parentCategoryId == 0)
+            {
+                return new List<Category>();
+            }
+            
             var storeId = _storeContext.CurrentStore.Id;
             var cacheKey = CATEGORIES_BY_PARENT_CATEGORY_ID_KEY.FormatInvariant(includeHidden, _workContext.CurrentCustomer.Id, storeId, parentCategoryId);
 

@@ -29,4 +29,23 @@ namespace Smartstore.Web.TagHelpers.Shared
             }
         }
     }
+
+    [HtmlTargetElement(SourceTagName, Attributes = FileAttributeName)]
+    [HtmlTargetElement(SourceTagName, Attributes = FileIdAttributeName)]
+    public class SourceTagHelper : BaseMediaTagHelper
+    {
+        const string SourceTagName = "source";
+
+        protected override void ProcessMedia(TagHelperContext context, TagHelperOutput output)
+        {
+            if (Src.IsEmpty() || File == null)
+            {
+                output.SuppressOutput();
+                return;
+            }
+
+            output.MergeAttribute("src", Src);
+            output.MergeAttribute("type", File.MimeType);
+        }
+    }
 }
