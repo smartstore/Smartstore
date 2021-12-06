@@ -11,7 +11,7 @@
     var rtl = WorkContext.WorkingLanguage.Rtl;
     var rnd = CommonHelper.GenerateRandomInteger();
     var id = Html.IdForModel();
-    var metadata = LinkResolver.GetBuilderMetadata().ToDictionarySafe(x => x.Schema);
+    var metadata = LinkResolver.GetBuilderMetadata().ToDictionarySafe(x => x.Schema, StringComparer.OrdinalIgnoreCase);
     var link = await LinkResolver.ResolveAsync(Value);
     var expression = link.Expression;
     var hideQueryString = GetMetadata<bool>("hideQueryString");

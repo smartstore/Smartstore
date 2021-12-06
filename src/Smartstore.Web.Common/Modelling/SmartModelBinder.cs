@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Metadata;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -85,6 +86,8 @@ namespace Smartstore.Web.Modelling
         {
             Debug.Assert(propertyData == GreedyPropertiesMayHaveData || propertyData == ValueProviderDataAvailable);
 
+            var isPolymorphicBind = false;
+
             if (bindingContext.Model == null)
             {
                 var instance = CreateModel(bindingContext);
@@ -95,6 +98,7 @@ namespace Smartstore.Web.Modelling
                 {
                     // Fix metadata for polymorphic binding scenarios.
                     bindingContext.ModelMetadata = MetadataProvider.GetMetadataForType(modelType);
+                    isPolymorphicBind = true;
                 }
             }
 
@@ -219,6 +223,15 @@ namespace Smartstore.Web.Modelling
                 bindingContext.Result = ModelBindingResult.Success(bindingContext.Model);
             }
 
+            if (isPolymorphicBind && bindingContext.Result.IsModelSet)
+            {
+                // Setting the ValidationState ensures properties on derived types are correctly validated.
+                bindingContext.ValidationState[bindingContext.Result.Model] = new ValidationStateEntry
+                {
+                    Metadata = modelMetadata,
+                };
+            }
+
             await OnModelBoundAsync(bindingContext, (T)bindingContext.Model);
         }
 
@@ -300,6 +313,7 @@ namespace Smartstore.Web.Modelling
                 propertyModel = property.PropertyGetter(bindingContext.Model);
             }
 
+            ModelMetadata polymorphPropertyMetadata = null;
             ModelBindingResult result;
             using (bindingContext.EnterNestedScope(
                 modelMetadata: property,
@@ -309,11 +323,26 @@ namespace Smartstore.Web.Modelling
             {
                 await BindPropertyAsync(bindingContext);
                 result = bindingContext.Result;
+
+                if (property.ModelType != bindingContext.ModelMetadata.ModelType)
+                {
+                    // Fix metadata for polymorphic binding scenarios
+                    polymorphPropertyMetadata = bindingContext.ModelMetadata;
+                }
             }
 
             if (result.IsModelSet)
             {
                 SetProperty(bindingContext, modelName, property, result);
+
+                if (polymorphPropertyMetadata != null)
+                {
+                    // Setting the ValidationState ensures properties on derived types are correctly validated.
+                    bindingContext.ValidationState[result.Model] = new ValidationStateEntry
+                    {
+                        Metadata = polymorphPropertyMetadata,
+                    };
+                }
             }
             else if (property.IsBindingRequired)
             {
