@@ -1,6 +1,4 @@
-﻿using Smartstore.Web.Modelling;
-
-namespace Smartstore.Blog.Models.Public
+﻿namespace Smartstore.Blog.Models.Public
 {
     public partial class BlogPostTagModel : ModelBase
     {

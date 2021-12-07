@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using FluentValidation;
-using Smartstore.Blog.Domain;
-using Smartstore.Web.Modelling;
-using Smartstore.Web.Models.Common;
+﻿using Smartstore.Web.Models.Common;
 using Smartstore.Web.Models.Media;
 
 namespace Smartstore.Blog.Models.Public

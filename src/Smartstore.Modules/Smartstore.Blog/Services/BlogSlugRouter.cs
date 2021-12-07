@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
-using Smartstore.Blog.Domain;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Seo.Routing;
 

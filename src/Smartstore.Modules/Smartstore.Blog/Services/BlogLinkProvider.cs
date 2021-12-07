@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using Smartstore.Blog.Domain;
-using Smartstore.Core.Content.Menus;
+﻿using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Data;
 using Smartstore.Core.Widgets;
 using Smartstore.Data.Hooks;
@@ -29,12 +22,12 @@ namespace Smartstore.Blog.Services
         {
             return new[]
             {
-                new LinkBuilderMetadata 
-                { 
-                    Schema = SchemaBlog, 
-                    Icon = "fa fa-blog", 
-                    ResKey = "Common.Entity.BlogPost", 
-                    Widget = new PartialViewWidgetInvoker("BlogLinkBuilder", "Smartstore.Blog") 
+                new LinkBuilderMetadata
+                {
+                    Schema = SchemaBlog,
+                    Icon = "fa fa-blog",
+                    ResKey = "Common.Entity.BlogPost",
+                    Widget = new PartialViewWidgetInvoker("BlogLinkBuilder", "Smartstore.Blog")
                 }
             };
         }

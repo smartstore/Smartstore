@@ -1,6 +1,4 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Smartstore.Blog.Hooks;
 using Smartstore.Blog.Models.Public;
 using Smartstore.Blog.Services;
@@ -50,7 +48,7 @@ namespace Smartstore.Blog.Components
                 {
                     model.Tags.Add(new BlogPostTagModel
                     {
-                        Name = tag.Name,        
+                        Name = tag.Name,
                         SeName = SeoHelper.BuildSlug(tag.Name),
                         BlogPostCount = tag.BlogPostCount
                     });

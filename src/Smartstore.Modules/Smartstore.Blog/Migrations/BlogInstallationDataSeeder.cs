@@ -1,9 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using Smartstore.Blog.Domain;
-using Smartstore.Blog.Services;
+﻿using Smartstore.Blog.Services;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Data;
@@ -41,7 +36,7 @@ namespace Smartstore.Blog.Migrations
         private async Task PopulateMessageTemplates()
         {
             await _messageTemplateService.ImportAllTemplatesAsync(
-                _installContext.Culture, 
+                _installContext.Culture,
                 PathUtility.Combine(_installContext.ModuleDescriptor.Path, "App_Data/EmailTemplates"));
         }
 

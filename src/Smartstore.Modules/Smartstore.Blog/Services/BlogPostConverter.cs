@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Xml.Linq;
-using Microsoft.EntityFrameworkCore;
-using Smartstore.Blog.Domain;
+﻿using System.Xml.Linq;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Data;
@@ -99,7 +92,7 @@ namespace Smartstore.Blog.Services
         {
             var root = _installContext.ApplicationContext.ContentRoot;
             var dir = root.GetDirectory(PathUtility.Combine(_installContext.ModuleDescriptor.Path, "App_Data/Samples"));
-            
+
             // de-DE, de, en
             var testPaths = new List<string>(3) { _installContext.Culture, "en" };
             if (_installContext.Culture.IndexOf('-') > -1)

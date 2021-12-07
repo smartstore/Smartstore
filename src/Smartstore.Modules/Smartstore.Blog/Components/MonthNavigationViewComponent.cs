@@ -1,14 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Mvc;
 using Smartstore.Blog.Hooks;
 using Smartstore.Blog.Models.Public;
-using Smartstore.Caching;
-using Smartstore.Core;
-using Smartstore.Core.Data;
 using Smartstore.Web.Components;
 
 namespace Smartstore.Blog.Components

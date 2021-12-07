@@ -1,6 +1,4 @@
-﻿using Smartstore.Web.Modelling;
-
-namespace Smartstore.Blog.Models
+﻿namespace Smartstore.Blog.Models
 {
     [LocalizedDisplay("Admin.Configuration.Settings.Blog.")]
     public class BlogSettingsModel : ModelBase

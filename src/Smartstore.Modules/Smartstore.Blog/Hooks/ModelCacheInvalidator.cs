@@ -1,8 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using Smartstore.Blog.Domain;
-using Smartstore.Caching;
+﻿using Smartstore.Caching;
 using Smartstore.Core.Configuration;
 using Smartstore.Data.Hooks;
 using Smartstore.Utilities;
@@ -50,7 +46,7 @@ namespace Smartstore.Blog.Hooks
             else if (entity is Setting)
             {
                 var setting = entity as Setting;
-                
+
                 if (setting.Name == NumberOfTagsName)
                 {
                     await _cache.RemoveByPatternAsync(BLOG_PATTERN_KEY); // depends on BlogSettings.NumberOfTags

@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ServiceModel.Syndication;
-using System.Threading.Tasks;
+﻿using System.ServiceModel.Syndication;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Routing;
-using Microsoft.EntityFrameworkCore;
-using Smartstore.Blog.Domain;
 using Smartstore.Blog.Messaging;
 using Smartstore.Blog.Models.Mappers;
 using Smartstore.Blog.Models.Public;
@@ -37,7 +32,7 @@ namespace Smartstore.Blog.Controllers
         private readonly IPageAssetBuilder _pageAssetBuilder;
         private readonly BlogHelper _helper;
         private readonly Lazy<IWebHelper> _webHelper;
-        private readonly Lazy<IActivityLogger> _activityLogger; 
+        private readonly Lazy<IActivityLogger> _activityLogger;
         private readonly Lazy<IMessageFactory> _messageFactory;
         private readonly Lazy<IUrlHelper> _urlHelper;
         private readonly BlogSettings _blogSettings;
@@ -95,11 +90,11 @@ namespace Smartstore.Blog.Controllers
         }
 
         public async Task<IActionResult> BlogSummary(
-            int? maxPostAmount, 
-            int? maxAgeInDays, 
-            bool renderHeading, 
-            string blogHeading, 
-            bool disableCommentCount, 
+            int? maxPostAmount,
+            int? maxAgeInDays,
+            bool renderHeading,
+            string blogHeading,
+            bool disableCommentCount,
             string postsWithTag)
         {
             var model = await _helper.PrepareBlogPostListModelAsync(maxPostAmount, maxAgeInDays, renderHeading, blogHeading, disableCommentCount, postsWithTag);

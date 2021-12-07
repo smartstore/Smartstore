@@ -1,8 +1,6 @@
-﻿using System;
-using Microsoft.AspNetCore.Html;
+﻿using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using Smartstore.Core;
 using Smartstore.Core.Stores;
 using Smartstore.Core.Web;
 using Smartstore.Core.Widgets;
@@ -16,7 +14,7 @@ namespace Smartstore.Blog.Filters
         private readonly IStoreContext _storeContext;
         private readonly Lazy<IUrlHelper> _urlHelper;
         private readonly Lazy<IWebHelper> _webHelper;
-        
+
         public RssHeaderLinkFilter(BlogSettings blogSettings, IWidgetProvider widgetProvider, IStoreContext storeContext, Lazy<IUrlHelper> urlHelper, Lazy<IWebHelper> webHelper)
         {
             _blogSettings = blogSettings;

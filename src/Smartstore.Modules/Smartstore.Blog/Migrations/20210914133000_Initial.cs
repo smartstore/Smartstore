@@ -1,6 +1,5 @@
 ﻿using System.Data;
 using FluentMigrator;
-using Smartstore.Blog.Domain;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Data.Migrations;
 using Smartstore.Core.Identity;
@@ -16,7 +15,7 @@ namespace Smartstore.Blog.Migrations
         {
             const string blogPost = "BlogPost";
             const string blogComment = "BlogComment";
-            
+
             const string id = nameof(BaseEntity.Id);
 
             if (!Schema.Table(blogPost).Exists())

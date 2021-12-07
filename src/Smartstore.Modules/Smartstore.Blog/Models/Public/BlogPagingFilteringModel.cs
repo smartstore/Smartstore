@@ -1,5 +1,4 @@
-﻿using System;
-using Smartstore.Collections;
+﻿using Smartstore.Collections;
 
 namespace Smartstore.Blog.Models.Public
 {

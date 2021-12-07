@@ -1,7 +1,5 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using Humanizer;
+﻿using Humanizer;
+using Smartstore.Blog.Models.Public;
 using Smartstore.ComponentModel;
 using Smartstore.Core;
 using Smartstore.Core.Common.Services;
@@ -9,12 +7,10 @@ using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
-using Smartstore.Blog.Domain;
-using Smartstore.Blog.Models.Public;
+using Smartstore.Utilities.Html;
 using Smartstore.Web.Models.Common;
 using Smartstore.Web.Models.Customers;
 using Smartstore.Web.Models.Media;
-using Smartstore.Utilities.Html;
 
 namespace Smartstore.Blog.Models.Mappers
 {
@@ -58,7 +54,7 @@ namespace Smartstore.Blog.Models.Mappers
         {
             Guard.NotNull(from, nameof(from));
             Guard.NotNull(to, nameof(to));
-            
+
             var prepareComments = parameters?.PrepareComments == true;
 
             MiniMapper.Map(from, to);

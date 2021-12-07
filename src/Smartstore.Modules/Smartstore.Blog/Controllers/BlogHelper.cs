@@ -1,8 +1,4 @@
-﻿using System;
-using System.Globalization;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
+﻿using System.Globalization;
 using Smartstore.Blog.Models.Mappers;
 using Smartstore.Blog.Models.Public;
 using Smartstore.Core;
@@ -17,7 +13,7 @@ namespace Smartstore.Blog.Controllers
         private readonly SmartDbContext _db;
         private readonly ICommonServices _services;
         private readonly BlogSettings _blogSettings;
-        
+
         public BlogHelper(SmartDbContext db, ICommonServices services, BlogSettings blogSettings)
         {
             _db = db;

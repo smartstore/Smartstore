@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Smartstore.Blog.Controllers;
 using Smartstore.Web.Components;
 
@@ -18,11 +17,11 @@ namespace Smartstore.Blog.Components
         }
 
         public async Task<IViewComponentResult> InvokeAsync(
-            int? maxPostAmount, 
-            int? maxAgeInDays, 
-            bool renderHeading, 
-            string blogHeading, 
-            bool disableCommentCount, 
+            int? maxPostAmount,
+            int? maxAgeInDays,
+            bool renderHeading,
+            string blogHeading,
+            bool disableCommentCount,
             string postsWithTag)
         {
             var model = await _helper.PrepareBlogPostListModelAsync(maxPostAmount, maxAgeInDays, renderHeading, blogHeading, disableCommentCount, postsWithTag);

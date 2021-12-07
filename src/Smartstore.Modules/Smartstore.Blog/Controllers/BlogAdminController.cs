@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using Smartstore.Blog.Domain;
 using Smartstore.Blog.Models;
 using Smartstore.Blog.Services;
 using Smartstore.ComponentModel;
@@ -20,7 +14,6 @@ using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
 using Smartstore.Data;
 using Smartstore.Web.Controllers;
-using Smartstore.Web.Modelling;
 using Smartstore.Web.Modelling.Settings;
 using Smartstore.Web.Models;
 using Smartstore.Web.Models.DataGrid;
@@ -270,7 +263,7 @@ namespace Smartstore.Blog.Controllers
                         model.LanguageName = x.Language?.Name;
                     }
 
-                    model.EditUrl = Url.Action(nameof(Edit), "Blog", new { id = x.Id }); 
+                    model.EditUrl = Url.Action(nameof(Edit), "Blog", new { id = x.Id });
                     model.CommentsUrl = Url.Action(nameof(Comments), "Blog", new { blogPostId = x.Id });
                     model.CreatedOn = Services.DateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc);
                     model.Comments = x.ApprovedCommentCount + x.NotApprovedCommentCount;
@@ -346,7 +339,7 @@ namespace Smartstore.Blog.Controllers
                 return continueEditing ? RedirectToAction("Edit", new { id = blogPost.Id }) : RedirectToAction("List");
             }
 
-            await PrepareBlogPostModelAsync (model, null);
+            await PrepareBlogPostModelAsync(model, null);
 
             return View(model);
         }
@@ -428,7 +421,7 @@ namespace Smartstore.Blog.Controllers
 
             _db.BlogPosts().Remove(blogPost);
             await _db.SaveChangesAsync();
-            
+
             NotifySuccess(T("Admin.ContentManagement.Blog.BlogPosts.Deleted"));
 
             return RedirectToAction("List");

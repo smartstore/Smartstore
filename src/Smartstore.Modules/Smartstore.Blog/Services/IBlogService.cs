@@ -1,8 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using Smartstore.Blog.Domain;
-
-namespace Smartstore.Blog.Services
+﻿namespace Smartstore.Blog.Services
 {
     /// <summary>
     /// Blog service interface.

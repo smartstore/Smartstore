@@ -1,13 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Threading.Tasks;
-using FluentValidation;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Smartstore.Blog.Domain;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Seo;
-using Smartstore.Web.Modelling;
 
 namespace Smartstore.Blog.Models
 {

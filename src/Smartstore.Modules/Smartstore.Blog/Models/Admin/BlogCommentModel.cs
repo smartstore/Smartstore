@@ -1,7 +1,4 @@
-﻿using System;
-using Smartstore.Web.Modelling;
-
-namespace Smartstore.Blog.Models
+﻿namespace Smartstore.Blog.Models
 {
     [LocalizedDisplay("Admin.ContentManagement.Blog.Comments.Fields.")]
     public class BlogCommentModel : EntityModelBase

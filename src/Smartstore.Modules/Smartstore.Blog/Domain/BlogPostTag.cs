@@ -1,5 +1,4 @@
-﻿using System;
-using Smartstore.Domain;
+﻿using Smartstore.Domain;
 
 namespace Smartstore.Blog.Domain
 {

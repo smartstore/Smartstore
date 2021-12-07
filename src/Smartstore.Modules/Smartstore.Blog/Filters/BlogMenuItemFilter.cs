@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.AspNetCore.Html;
+﻿using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Smartstore.Core.Localization;
@@ -17,7 +16,7 @@ namespace Smartstore.Blog.Filters
         public BlogMenuItemFilter(
             BlogSettings blogSettings,
             Lazy<IWidgetProvider> widgetProvider,
-            Lazy<ILocalizationService> localizationService, 
+            Lazy<ILocalizationService> localizationService,
             Lazy<IUrlHelper> urlHelper)
         {
             _blogSettings = blogSettings;

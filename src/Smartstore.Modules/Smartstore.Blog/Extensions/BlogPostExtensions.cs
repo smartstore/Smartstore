@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Smartstore.Blog.Domain;
-using Smartstore.Core.Seo;
+﻿using Smartstore.Core.Seo;
 
 namespace Smartstore.Blog
 {
@@ -44,7 +40,7 @@ namespace Smartstore.Blog
 
             var taggedBlogPosts = new List<BlogPost>();
 
-            foreach (var blogPost in posts.Where(x => x.Tags.Any()))
+            foreach (var blogPost in posts.Where(x => x.Tags.HasValue()))
             {
                 var tags = blogPost.ParseTags().Select(x => SeoHelper.BuildSlug(x));
 

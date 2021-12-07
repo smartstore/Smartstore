@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-using Smartstore.Blog.Domain;
-using Smartstore.Core.Messaging;
+﻿using Smartstore.Core.Messaging;
 
 namespace Smartstore.Blog.Messaging
 {
@@ -17,4 +15,3 @@ namespace Smartstore.Blog.Messaging
         }
     }
 }
-    

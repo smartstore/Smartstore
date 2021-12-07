@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using Smartstore.Web.Modelling;
-
-namespace Smartstore.Blog.Models.Public
+﻿namespace Smartstore.Blog.Models.Public
 {
     public partial class BlogPostListModel : ModelBase
     {

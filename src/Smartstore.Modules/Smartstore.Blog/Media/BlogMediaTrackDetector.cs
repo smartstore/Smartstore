@@ -1,9 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Threading;
-using Microsoft.EntityFrameworkCore;
-using Smartstore.Blog.Domain;
+﻿using System.Runtime.CompilerServices;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Data;
 using Smartstore.Data;

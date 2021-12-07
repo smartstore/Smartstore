@@ -1,8 +1,5 @@
-﻿using System;
-using System.Linq;
-using System.Linq.Dynamic.Core;
+﻿using System.Linq.Dynamic.Core;
 using Autofac;
-using Smartstore.Blog.Domain;
 using Smartstore.Core.Rules.Filters;
 using Smartstore.Core.Stores;
 
@@ -55,8 +52,8 @@ namespace Smartstore
         /// /// <param name="maxAge">Applies maximum age date time filter by <see cref="BlogPost.CreatedOnUtc"/>.</param>
         /// <returns>BlogPost query.</returns>
         public static IQueryable<BlogPost> ApplyTimeFilter(
-            this IQueryable<BlogPost> query, 
-            DateTime? dateFrom = null, 
+            this IQueryable<BlogPost> query,
+            DateTime? dateFrom = null,
             DateTime? dateTo = null,
             DateTime? maxAge = null)
         {

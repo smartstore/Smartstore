@@ -1,9 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Smartstore.Blog.Domain;
+﻿using Microsoft.AspNetCore.Mvc;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
@@ -26,7 +21,7 @@ namespace Smartstore.Blog
             _db = db;
         }
 
-        public async Task HandleEventAsync(PreviewModelResolveEvent message, 
+        public async Task HandleEventAsync(PreviewModelResolveEvent message,
             ITemplateEngine engine)
         {
             if (message.ModelName == nameof(BlogComment))
@@ -50,8 +45,8 @@ namespace Smartstore.Blog
             }
             else
             {
-                result = new BlogComment 
-                { 
+                result = new BlogComment
+                {
                     CommentText = @"Lorem ipsum dolor sit amet, consetetur sadipscing elitr, 
                                     sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua."
                 };
@@ -62,8 +57,8 @@ namespace Smartstore.Blog
             return result;
         }
 
-        public async Task HandleEventAsync(MessageModelPartMappingEvent message, 
-            IUrlHelper urlHelper, 
+        public async Task HandleEventAsync(MessageModelPartMappingEvent message,
+            IUrlHelper urlHelper,
             MessageModelHelper messageModelHelper)
         {
             if (message.Source is BlogComment part)
@@ -84,7 +79,7 @@ namespace Smartstore.Blog
             }
         }
 
-        public async Task HandleEventAsync(GdprCustomerDataExportedEvent message, 
+        public async Task HandleEventAsync(GdprCustomerDataExportedEvent message,
             IMessageModelProvider messageModelProvider)
         {
             var blogComments = message.Customer.CustomerContent.OfType<BlogComment>();
