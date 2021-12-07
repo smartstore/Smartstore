@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using System.Threading.Tasks;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
@@ -27,7 +25,7 @@ namespace Smartstore.Admin.Models.Catalog
         [LocalizedDisplay("*AssociatedToProductName")]
         public int AssociatedToProductId { get; set; }
 
-        [LocalizedDisplay("*.AssociatedToProductName")]
+        [LocalizedDisplay("*AssociatedToProductName")]
         public string AssociatedToProductName { get; set; }
 
         [LocalizedDisplay("*Visibility")]
@@ -65,7 +63,7 @@ namespace Smartstore.Admin.Models.Catalog
         public bool AllowCustomerReviews { get; set; }
 
         [LocalizedDisplay("*ProductTags")]
-        public string[] ProductTags { get; set; }
+        public string[] ProductTagNames { get; set; }
 
         [LocalizedDisplay("*CountryOfOriginId")]
         public int? CountryOfOriginId { get; set; }

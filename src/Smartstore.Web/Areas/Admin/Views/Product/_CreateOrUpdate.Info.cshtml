@@ -270,11 +270,11 @@
     </div>
     <div class="adminRow">
         <div class="adminTitle">
-            <smart-label asp-for="ProductTags" />
+            <smart-label asp-for="ProductTagNames" />
         </div>
         <div class="adminData">
-            <select asp-for="ProductTags" asp-items="ViewBag.AvailableProductTags" multiple="multiple" data-tags="true"></select>
-            <span asp-validation-for="ProductTags"></span>
+            <select asp-for="ProductTagNames" asp-items="ViewBag.AvailableProductTags" multiple="multiple" data-tags="true"></select>
+            <span asp-validation-for="ProductTagNames"></span>
         </div>
     </div>
     <div class="adminRow">

@@ -1567,7 +1567,7 @@ namespace Smartstore.Admin.Controllers
             // Product tags.
             if (product != null)
             {
-                model.ProductTags = product.ProductTags.Select(x => x.Name).ToArray();
+                model.ProductTagNames = product.ProductTags.Select(x => x.Name).ToArray();
             }
 
             var allTags = await _db.ProductTags
@@ -1576,7 +1576,7 @@ namespace Smartstore.Admin.Controllers
                 .Select(x => x.Name)
                 .ToListAsync();
 
-            ViewBag.AvailableProductTags = new MultiSelectList(allTags, model.ProductTags);
+            ViewBag.AvailableProductTags = new MultiSelectList(allTags, model.ProductTagNames);
 
             // Tax categories.
             var taxCategories = await _db.TaxCategories
@@ -2162,7 +2162,7 @@ namespace Smartstore.Admin.Controllers
                 await _urlService.ApplySlugAsync(validateSlugResult);
             }
 
-            await _productTagService.UpdateProductTagsAsync(p, m.ProductTags);
+            await _productTagService.UpdateProductTagsAsync(p, m.ProductTagNames);
 
             await SaveStoreMappingsAsync(p, model.SelectedStoreIds);
             await SaveAclMappingsAsync(p, model.SelectedCustomerRoleIds);

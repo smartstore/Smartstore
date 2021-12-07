@@ -142,19 +142,22 @@ namespace Smartstore.Core.Seo
             }
 
             // Trim allocation-free
-            if (prevdash)
+            if (sb.Length > 0)
             {
-                sb.Remove(sb.Length - 1, 1);
-            }
+                if (prevdash)
+                {
+                    sb.Remove(sb.Length - 1, 1);
+                }
 
-            if (sb[0] == '/')
-            {
-                sb.Remove(0, 1);
-            }
+                if (sb[0] == '/')
+                {
+                    sb.Remove(0, 1);
+                }
 
-            if (sb[^1] == '/')
-            {
-                sb.Remove(sb.Length - 1, 1);
+                if (sb[^1] == '/')
+                {
+                    sb.Remove(sb.Length - 1, 1);
+                }
             }
 
             return sb.ToString();

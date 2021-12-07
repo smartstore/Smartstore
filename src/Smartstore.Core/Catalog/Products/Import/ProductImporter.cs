@@ -27,7 +27,15 @@ namespace Smartstore.Core.DataExchange.Import
     public class ProductImporter : EntityImporterBase
     {
         private const string CARGO_DATA_KEY = "ProductImporter.CargoData";
+
+        /// <summary>
+        /// Old Product.Id -> new Product.Id
+        /// </summary>
         private const string TARGET_PRODUCT_IDS_KEY = "ProductImporter.TargetProductIds";
+
+        /// <summary>
+        /// Old Product.Id -> old Product.ParentGroupedProductId
+        /// </summary>
         private const string PARENT_PRODUCT_IDS_KEY = "ProductImporter.ParentProductIds";
 
         private static readonly Dictionary<string, Expression<Func<Product, string>>> _localizableProperties = new()
@@ -88,7 +96,6 @@ namespace Smartstore.Core.DataExchange.Import
             var segmenter = context.DataSegmenter;
             var batch = segmenter.GetCurrentBatch<Product>();
 
-            // TODO: (mg) (core) check if and how far the importer has to work together with hooks.
             using (var scope = new DbContextScope(_db, autoDetectChanges: false, minHookImportance: HookImportance.Important, deferCommit: true))
             {
                 await context.SetProgressAsync(segmenter.CurrentSegmentFirstRowIndex - 1, segmenter.TotalRows);
@@ -358,6 +365,7 @@ namespace Smartstore.Core.DataExchange.Import
                 row.SetProperty(context.Result, (x) => x.DownloadExpirationDays);
                 row.SetProperty(context.Result, (x) => x.DownloadActivationTypeId, 1);
                 row.SetProperty(context.Result, (x) => x.HasSampleDownload);
+                row.SetProperty(context.Result, (x) => x.SampleDownloadId, null, ZeroToNull);    // TODO: global scope
                 row.SetProperty(context.Result, (x) => x.HasUserAgreement);
                 row.SetProperty(context.Result, (x) => x.UserAgreementText);
                 row.SetProperty(context.Result, (x) => x.IsRecurring);
@@ -437,10 +445,6 @@ namespace Smartstore.Core.DataExchange.Import
                 if (row.TryGetDataValue("Condition", out int conditionValue))
                 {
                     product.Condition = (ProductCondition)conditionValue;
-                }
-                if (row.TryGetDataValue("SampleDownloadId", out int sampleDownloadId) && cargo.DownloadIds.Contains(sampleDownloadId))
-                {
-                    product.SampleDownloadId = sampleDownloadId;
                 }
 
                 if (row.TryGetDataValue("ProductTemplateViewPath", out string tvp, row.IsTransient))
@@ -882,7 +886,7 @@ namespace Smartstore.Core.DataExchange.Import
             var entityName = await _services.Localization.GetLocalizedEnumAsync(RelatedEntityType.TierPrice, _services.WorkContext.WorkingLanguage.Id);
             var savedEntities = 0;
 
-            using (var scope = new DbContextScope(_services.DbContext, autoDetectChanges: false, minHookImportance: HookImportance.Important, deferCommit: true))
+            using (var scope = new DbContextScope(_db, autoDetectChanges: false, minHookImportance: HookImportance.Important, deferCommit: true))
             {
                 await context.SetProgressAsync(T("Admin.Common.ProcessingInfo", entityName, segmenter.CurrentSegmentFirstRowIndex - 1, segmenter.TotalRows));
 
@@ -901,8 +905,20 @@ namespace Smartstore.Core.DataExchange.Import
                                 continue;
                             }
 
-                            // ProductId is required for new tier prices.
+                            // Product-ID is required for new tier prices.
                             var productId = row.GetDataValue<int>("ProductId");
+                            
+                            if (productId == 0 &&
+                                context.KeyFieldNames.Contains("Sku") && 
+                                row.TryGetDataValue<string>("ProductSku", out var sku) && 
+                                sku.HasValue())
+                            {
+                                productId = await _db.Products
+                                    .ApplySkuFilter(sku)
+                                    .Select(x => x.Id)
+                                    .FirstOrDefaultAsync(context.CancelToken);
+                            }
+
                             if (productId == 0)
                             {
                                 ++context.Result.SkippedRecords;
@@ -947,9 +963,7 @@ namespace Smartstore.Core.DataExchange.Import
                 context.Result.NewRecords += batch.Count(x => x.IsNew);
                 context.Result.ModifiedRecords += Math.Max(0, savedEntities - context.Result.NewRecords);
 
-                // TODO: (mg) (core) check if and how far the importer has to work together with hooks.
-                // Updating HasTierPrices property not necessary anymore.
-                // This is done by the TierPriceHook (minHookImportance is set to HookImportance.Important).
+                // INFO: Product.HasTierPrices is updated by TierPriceHook.
             }
 
             await _services.EventPublisher.PublishAsync(new ImportBatchExecutedEvent<TierPrice>(context, batch));
@@ -962,7 +976,7 @@ namespace Smartstore.Core.DataExchange.Import
             var entityName = await _services.Localization.GetLocalizedEnumAsync(RelatedEntityType.ProductVariantAttributeValue, _services.WorkContext.WorkingLanguage.Id);
             var savedEntities = 0;
 
-            using (var scope = new DbContextScope(_services.DbContext, autoDetectChanges: false, minHookImportance: HookImportance.Important, deferCommit: true))
+            using (var scope = new DbContextScope(_db, autoDetectChanges: false, minHookImportance: HookImportance.Important, deferCommit: true))
             {
                 await context.SetProgressAsync(T("Admin.Common.ProcessingInfo", entityName, segmenter.CurrentSegmentFirstRowIndex - 1, segmenter.TotalRows));
 
@@ -1046,7 +1060,7 @@ namespace Smartstore.Core.DataExchange.Import
             var entityName = await _services.Localization.GetLocalizedEnumAsync(RelatedEntityType.ProductVariantAttributeCombination, _services.WorkContext.WorkingLanguage.Id);
             var savedEntities = 0;
 
-            using (var scope = new DbContextScope(_services.DbContext, autoDetectChanges: false, minHookImportance: HookImportance.Important, deferCommit: true))
+            using (var scope = new DbContextScope(_db, autoDetectChanges: false, minHookImportance: HookImportance.Important, deferCommit: true))
             {
                 await context.SetProgressAsync(T("Admin.Common.ProcessingInfo", entityName, segmenter.CurrentSegmentFirstRowIndex - 1, segmenter.TotalRows));
 
@@ -1130,9 +1144,7 @@ namespace Smartstore.Core.DataExchange.Import
                 context.Result.NewRecords += batch.Count(x => x.IsNew);
                 context.Result.ModifiedRecords += Math.Max(0, savedEntities - context.Result.NewRecords);
 
-                // TODO: (mg) (core) check if and how far the importer has to work together with hooks.
-                // Updating LowestAttributeCombinationPrice property not necessary anymore.
-                // This is done by the ProductVariantAttributeCombinationHook (minHookImportance is set to HookImportance.Important).
+                // INFO: Product.LowestAttributeCombinationPrice is updated by ProductVariantAttributeCombinationHook.
             }
 
             await _services.EventPublisher.PublishAsync(new ImportBatchExecutedEvent<ProductVariantAttributeCombination>(context, batch));
@@ -1172,11 +1184,6 @@ namespace Smartstore.Core.DataExchange.Import
                 result.ManufacturerIds = await _db.Manufacturers.Select(x => x.Id).ToListAsync(context.CancelToken);
             }
 
-            if (segmenter.HasColumn("SampleDownloadId"))
-            {
-                result.DownloadIds = await _db.Downloads.Select(x => x.Id).ToListAsync(context.CancelToken);
-            }
-
             context.CustomProperties[CARGO_DATA_KEY] = result;
             return result;
         }
@@ -1190,7 +1197,6 @@ namespace Smartstore.Core.DataExchange.Import
             public Dictionary<string, int> TemplateViewPaths { get; init; }
             public List<int> CategoryIds { get; set; }
             public List<int> ManufacturerIds { get; set; }
-            public List<int> DownloadIds { get; set; }
         }
     }
 }
