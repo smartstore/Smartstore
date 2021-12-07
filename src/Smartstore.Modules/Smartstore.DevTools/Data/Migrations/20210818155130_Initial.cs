@@ -1,7 +1,4 @@
-﻿using FluentMigrator;
-using Smartstore.Core.Data.Migrations;
-
-namespace Smartstore.DevTools.Data.Migrations
+﻿namespace Smartstore.DevTools.Data.Migrations
 {
     //[MigrationVersion("2021-08-18 15:51:30", "DevTools: add test entity")]
     //internal class Initial : Migration

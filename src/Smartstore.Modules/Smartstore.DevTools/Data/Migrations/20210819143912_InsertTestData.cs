@@ -1,8 +1,4 @@
-﻿using System;
-using FluentMigrator;
-using Smartstore.Core.Data.Migrations;
-
-namespace Smartstore.DevTools.Data.Migrations
+﻿namespace Smartstore.DevTools.Data.Migrations
 {
     //[MigrationVersion("2021-08-19 14:39:12", "DevTools: insert some test data")]
     //internal class InsertTestData : Migration

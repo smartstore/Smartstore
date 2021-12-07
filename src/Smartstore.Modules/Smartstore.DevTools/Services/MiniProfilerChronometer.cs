@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Smartstore.Diagnostics;
+﻿using Smartstore.Diagnostics;
 using StackExchange.Profiling;
 
 namespace Smartstore.DevTools.Services
