@@ -1,7 +1,4 @@
-﻿using System.Threading.Tasks;
-using Smartstore.Core.Checkout.Tax;
-using Smartstore.Core.Configuration;
-using Smartstore.Engine.Modularity;
+﻿using Smartstore.Core.Checkout.Tax;
 using Smartstore.Http;
 
 namespace Smartstore.Tax

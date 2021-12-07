@@ -1,7 +1,17 @@
-﻿using System.Threading.Tasks;
+﻿global using System;
+global using System.Collections.Generic;
+global using System.ComponentModel.DataAnnotations;
+global using System.Linq;
+global using System.Threading.Tasks;
+global using FluentValidation;
+global using Microsoft.EntityFrameworkCore;
+global using Smartstore.Core.Configuration;
+global using Smartstore.Engine.Modularity;
+global using Smartstore.Tax.Domain;
+global using Smartstore.Tax.Models;
+global using Smartstore.Web.Modelling;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using Smartstore.Engine.Modularity;
 using Smartstore.Http;
 
 namespace Smartstore.Tax

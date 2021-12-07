@@ -1,18 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common;
 using Smartstore.Core.Data;
 using Smartstore.Core.Security;
-using Smartstore.Tax.Domain;
-using Smartstore.Tax.Models;
 using Smartstore.Web.Controllers;
 using Smartstore.Web.Models.DataGrid;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Smartstore.Tax.Controllers
 {

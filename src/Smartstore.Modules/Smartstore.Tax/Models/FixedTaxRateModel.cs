@@ -1,6 +1,4 @@
-﻿using Smartstore.Web.Modelling;
-
-namespace Smartstore.Tax.Models
+﻿namespace Smartstore.Tax.Models
 {
     [LocalizedDisplay("Plugins.Tax.FixedRate.Fields.")]
     public class FixedTaxRateModel

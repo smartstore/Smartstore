@@ -1,7 +1,4 @@
-﻿using System.Linq;
-using Smartstore.Tax.Domain;
-
-namespace Smartstore.Tax
+﻿namespace Smartstore.Tax
 {
     public static class TaxRateQueryExtensions
     {

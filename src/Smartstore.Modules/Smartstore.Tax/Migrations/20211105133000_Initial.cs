@@ -1,6 +1,5 @@
 ﻿using FluentMigrator;
 using Smartstore.Core.Data.Migrations;
-using Smartstore.Tax.Domain;
 
 namespace Smartstore.Tax.Migrations
 {
