@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Forums.Models.Public;

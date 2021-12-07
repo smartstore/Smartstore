@@ -1,8 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using FluentValidation;
-using Smartstore.Web.Modelling;
-
-namespace Smartstore.Forums.Models.Public
+﻿namespace Smartstore.Forums.Models.Public
 {
     [LocalizedDisplay("Admin.Customers.Customers.SendPM.")]
     public partial class SendPrivateMessageModel : EntityModelBase

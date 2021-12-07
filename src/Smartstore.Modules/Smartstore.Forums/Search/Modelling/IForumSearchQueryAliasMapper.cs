@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using Smartstore.Core.Search.Facets;
+﻿using Smartstore.Core.Search.Facets;
 
 namespace Smartstore.Forums.Search.Modelling
 {

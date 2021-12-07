@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Smartstore.Core;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Search;
 using Smartstore.Core.Search.Facets;
-using Smartstore.Forums.Domain;
 
 namespace Smartstore.Forums.Search.Modelling
 {

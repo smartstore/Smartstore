@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Routing;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Seo.Routing;
-using Smartstore.Forums.Domain;
 
 namespace Smartstore.Forums.Services
 {

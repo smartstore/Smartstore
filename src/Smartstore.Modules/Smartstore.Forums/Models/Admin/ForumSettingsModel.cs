@@ -1,7 +1,4 @@
-﻿using Smartstore.Forums.Domain;
-using Smartstore.Web.Modelling;
-
-namespace Smartstore.Forums.Models
+﻿namespace Smartstore.Forums.Models
 {
     [LocalizedDisplay("Admin.Configuration.Settings.Forums.")]
     public class ForumSettingsModel : ModelBase

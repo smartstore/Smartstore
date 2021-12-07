@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Dynamic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Dynamic;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Data;
-using Smartstore.Core.Localization;
 using Smartstore.Core.Seo;
-using Smartstore.Forums.Domain;
 using Smartstore.Forums.Models.Public;
 
 namespace Smartstore.Forums.Models.Mappers

@@ -1,6 +1,4 @@
-﻿using Smartstore.Web.Modelling;
-
-namespace Smartstore.Forums.Models.Public
+﻿namespace Smartstore.Forums.Models.Public
 {
     [CustomModelPart]
     public partial class ForumCustomerInfoModel : ModelBase

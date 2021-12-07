@@ -1,7 +1,4 @@
-﻿using System;
-using Smartstore.Forums.Domain;
-using Smartstore.Web.Modelling;
-using Smartstore.Web.Models.Customers;
+﻿using Smartstore.Web.Models.Customers;
 
 namespace Smartstore.Forums.Models.Public
 {

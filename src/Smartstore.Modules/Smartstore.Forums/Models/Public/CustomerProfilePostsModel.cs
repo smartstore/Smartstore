@@ -1,5 +1,4 @@
 ﻿using Smartstore.Collections;
-using Smartstore.Web.Modelling;
 
 namespace Smartstore.Forums.Models.Public
 {

@@ -1,12 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Threading.Tasks;
-using FluentValidation;
-using Smartstore.ComponentModel;
+﻿using Smartstore.ComponentModel;
 using Smartstore.Core.Seo;
-using Smartstore.Forums.Domain;
-using Smartstore.Web.Modelling;
 
 namespace Smartstore.Forums.Models
 {

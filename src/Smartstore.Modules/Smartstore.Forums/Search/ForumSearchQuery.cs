@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Search;
-using Smartstore.Forums.Domain;
 using Smartstore.Forums.Search.Modelling;
 
 namespace Smartstore.Forums.Search

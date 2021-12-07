@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Smartstore.Core.Localization;
-using Smartstore.Web.Modelling;
-
-namespace Smartstore.Forums.Models.Public
+﻿namespace Smartstore.Forums.Models.Public
 {
     public partial class PublicForumGroupListModel
     {

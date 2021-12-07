@@ -1,7 +1,4 @@
-﻿using System;
-using FluentValidation;
-using Smartstore.Collections;
-using Smartstore.Web.Modelling;
+﻿using Smartstore.Collections;
 
 namespace Smartstore.Forums.Models.Public
 {

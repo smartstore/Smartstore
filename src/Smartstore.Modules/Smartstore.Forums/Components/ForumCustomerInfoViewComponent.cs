@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Smartstore.Core;
 using Smartstore.Forums.Models.Public;
-using Smartstore.Forums.Services;
 using Smartstore.Web.Components;
 
 namespace Smartstore.Forums.Components

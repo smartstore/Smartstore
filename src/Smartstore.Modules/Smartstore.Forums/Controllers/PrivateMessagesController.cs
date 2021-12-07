@@ -1,17 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization.Routing;
 using Smartstore.Core.Messaging;
-using Smartstore.Forums.Domain;
 using Smartstore.Forums.Models.Public;
-using Smartstore.Forums.Services;
 using Smartstore.Web.Controllers;
 
 namespace Smartstore.Forums.Controllers

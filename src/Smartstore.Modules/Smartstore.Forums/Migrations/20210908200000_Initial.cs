@@ -3,7 +3,6 @@ using FluentMigrator;
 using Smartstore.Core.Data.Migrations;
 using Smartstore.Core.Identity;
 using Smartstore.Domain;
-using Smartstore.Forums.Domain;
 
 namespace Smartstore.Forums.Migrations
 {

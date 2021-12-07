@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Data;
-using Smartstore.Forums.Domain;
 
 namespace Smartstore.Forums
 {

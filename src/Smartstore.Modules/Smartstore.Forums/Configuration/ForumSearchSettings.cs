@@ -1,7 +1,5 @@
-﻿using System.Collections.Generic;
-using Smartstore.Core.Configuration;
+﻿using Smartstore.Core.Configuration;
 using Smartstore.Core.Search;
-using Smartstore.Forums.Domain;
 
 namespace Smartstore.Forums
 {

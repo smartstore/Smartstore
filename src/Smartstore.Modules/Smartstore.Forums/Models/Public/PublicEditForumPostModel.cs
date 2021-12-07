@@ -1,9 +1,4 @@
-﻿using FluentValidation;
-using Smartstore.Core.Localization;
-using Smartstore.Forums.Domain;
-using Smartstore.Web.Modelling;
-
-namespace Smartstore.Forums.Models.Public
+﻿namespace Smartstore.Forums.Models.Public
 {
     public partial class PublicEditForumPostModel : EntityModelBase
     {

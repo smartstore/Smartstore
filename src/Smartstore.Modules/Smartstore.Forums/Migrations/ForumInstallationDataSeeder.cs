@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Autofac;
+﻿using Autofac;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Content.Menus;
@@ -12,8 +8,6 @@ using Smartstore.Core.Data.Migrations;
 using Smartstore.Core.Logging;
 using Smartstore.Core.Messaging;
 using Smartstore.Engine.Modularity;
-using Smartstore.Forums.Domain;
-using Smartstore.Forums.Services;
 using Smartstore.IO;
 
 namespace Smartstore.Forums.Migrations

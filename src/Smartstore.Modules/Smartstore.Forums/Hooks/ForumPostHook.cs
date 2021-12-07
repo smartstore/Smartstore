@@ -1,11 +1,6 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Threading;
 using Smartstore.Core.Data;
 using Smartstore.Data.Hooks;
-using Smartstore.Forums.Domain;
-using Smartstore.Forums.Services;
 
 namespace Smartstore.Forums.Hooks
 {

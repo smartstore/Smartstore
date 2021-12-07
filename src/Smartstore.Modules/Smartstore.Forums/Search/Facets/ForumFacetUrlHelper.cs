@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Smartstore.Core;
 using Smartstore.Core.Search.Facets;
 using Smartstore.Forums.Search.Modelling;

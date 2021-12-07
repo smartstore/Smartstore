@@ -1,7 +1,5 @@
 ﻿using System.Threading;
-using System.Threading.Tasks;
 using Smartstore.Core.Identity;
-using Smartstore.Forums.Domain;
 
 namespace Smartstore.Forums.Services
 {

@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Core.Data;
@@ -14,7 +13,6 @@ using Smartstore.Forums.Filters;
 using Smartstore.Forums.Search;
 using Smartstore.Forums.Search.Facets;
 using Smartstore.Forums.Search.Modelling;
-using Smartstore.Forums.Services;
 using Smartstore.Web.Controllers;
 
 namespace Smartstore.Forums

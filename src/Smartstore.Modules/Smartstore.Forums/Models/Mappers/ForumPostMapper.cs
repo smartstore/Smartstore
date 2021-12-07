@@ -1,15 +1,9 @@
-﻿using System;
-using System.Dynamic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Dynamic;
 using Humanizer;
 using Smartstore.ComponentModel;
 using Smartstore.Core;
 using Smartstore.Core.Identity;
-using Smartstore.Core.Localization;
-using Smartstore.Forums.Domain;
 using Smartstore.Forums.Models.Public;
-using Smartstore.Forums.Services;
 using Smartstore.Utilities.Html;
 using Smartstore.Web.Models.Customers;
 

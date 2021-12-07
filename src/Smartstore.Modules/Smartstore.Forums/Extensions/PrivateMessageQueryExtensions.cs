@@ -1,8 +1,6 @@
-﻿using System.Linq;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
 using Smartstore.Core.Identity;
-using Smartstore.Forums.Domain;
 
 namespace Smartstore.Forums
 {

@@ -1,8 +1,4 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
-using Smartstore.Forums.Domain;
-
-namespace Smartstore.Forums.Search
+﻿namespace Smartstore.Forums.Search
 {
     /// <summary>
     /// Forum search interface.

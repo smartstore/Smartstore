@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Smartstore.Caching;
+﻿using Smartstore.Caching;
 using Smartstore.Core.Configuration;
-using Smartstore.Core.Localization;
 using Smartstore.Core.Search.Facets;
 
 namespace Smartstore.Forums.Search.Modelling

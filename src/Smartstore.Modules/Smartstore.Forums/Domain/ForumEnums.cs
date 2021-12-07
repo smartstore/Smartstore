@@ -1,7 +1,4 @@
-﻿using System;
-using Smartstore.Core.Localization;
-
-namespace Smartstore.Forums.Domain
+﻿namespace Smartstore.Forums.Domain
 {
     /// <summary>
     /// Represents a forum topic type.

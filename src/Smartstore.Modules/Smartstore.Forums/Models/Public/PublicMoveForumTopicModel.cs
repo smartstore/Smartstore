@@ -1,7 +1,4 @@
-﻿using Smartstore.Forums.Domain;
-using Smartstore.Web.Modelling;
-
-namespace Smartstore.Forums.Models.Public
+﻿namespace Smartstore.Forums.Models.Public
 {
     public partial class PublicMoveForumTopicModel : EntityModelBase
     {

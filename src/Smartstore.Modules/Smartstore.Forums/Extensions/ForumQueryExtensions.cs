@@ -1,7 +1,4 @@
-﻿using System.Linq;
-using Smartstore.Forums.Domain;
-
-namespace Smartstore.Forums
+﻿namespace Smartstore.Forums
 {
     public static class ForumQueryExtensions
     {

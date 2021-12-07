@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using Smartstore.Collections;
-using Smartstore.Core.Localization;
-using Smartstore.Web.Modelling;
+﻿using Smartstore.Collections;
 
 namespace Smartstore.Forums.Models.Public
 {

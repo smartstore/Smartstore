@@ -1,5 +1,15 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿global using System;
+global using System.Collections.Generic;
+global using System.ComponentModel.DataAnnotations;
+global using System.Linq;
+global using System.Threading.Tasks;
+global using FluentValidation;
+global using Newtonsoft.Json;
+global using Smartstore.Core.Localization;
+global using Smartstore.Forums.Domain;
+global using Smartstore.Forums.Models;
+global using Smartstore.Forums.Services;
+global using Smartstore.Web.Modelling;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Smartstore.Engine.Modularity;

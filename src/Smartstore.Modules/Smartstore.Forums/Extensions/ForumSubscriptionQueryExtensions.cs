@@ -1,6 +1,4 @@
-﻿using System.Linq;
-using Smartstore.Core;
-using Smartstore.Forums.Domain;
+﻿using Smartstore.Core;
 
 namespace Smartstore.Forums
 {

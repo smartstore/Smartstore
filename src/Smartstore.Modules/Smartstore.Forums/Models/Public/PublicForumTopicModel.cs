@@ -1,6 +1,4 @@
 ﻿using Smartstore.Collections;
-using Smartstore.Forums.Domain;
-using Smartstore.Web.Modelling;
 using Smartstore.Web.Models.Customers;
 
 namespace Smartstore.Forums.Models.Public
