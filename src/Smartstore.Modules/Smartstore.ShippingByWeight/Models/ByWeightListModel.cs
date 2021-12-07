@@ -1,6 +1,4 @@
-﻿using Smartstore.Web.Modelling;
-
-namespace Smartstore.ShippingByWeight.Models
+﻿namespace Smartstore.ShippingByWeight.Models
 {
     [LocalizedDisplay("Plugins.Shipping.ByWeight.Fields.")]
     public class ByWeightListModel : ModelBase

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using Smartstore.Core;
+﻿using Smartstore.Core;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Cart;
@@ -12,10 +8,8 @@ using Smartstore.Core.Common.Services;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Stores;
-using Smartstore.Engine.Modularity;
 using Smartstore.Http;
 using Smartstore.ShippingByWeight;
-using Smartstore.ShippingByWeight.Domain;
 using Smartstore.ShippingByWeight.Settings;
 using Smartstore.Utilities;
 

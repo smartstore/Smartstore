@@ -1,6 +1,4 @@
-﻿using Smartstore.Web.Modelling;
-
-namespace Smartstore.Shipping.Models
+﻿namespace Smartstore.Shipping.Models
 {
     [LocalizedDisplay("Plugins.Shipping.FixedRateShipping.Fields.")]
     public class FixedRateModel

@@ -1,6 +1,4 @@
-﻿using Smartstore.Core.Configuration;
-
-namespace Smartstore.ShippingByWeight.Settings
+﻿namespace Smartstore.ShippingByWeight.Settings
 {
     public class ShippingByWeightSettings : ISettings
     {

@@ -1,7 +1,4 @@
-﻿using System.Linq;
-using Smartstore.Shipping.Domain;
-
-namespace Smartstore.Shipping
+﻿namespace Smartstore.Shipping
 {
     public static class ShippingRateByTotalQueryExtensions
     {

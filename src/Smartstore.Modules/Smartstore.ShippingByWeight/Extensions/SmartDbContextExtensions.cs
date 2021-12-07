@@ -1,6 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Smartstore.ShippingByWeight.Domain;
-using Smartstore.Core.Data;
+﻿using Smartstore.Core.Data;
 
 namespace Smartstore.ShippingByWeight
 {

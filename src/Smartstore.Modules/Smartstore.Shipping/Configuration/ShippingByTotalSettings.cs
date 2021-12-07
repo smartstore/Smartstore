@@ -1,6 +1,4 @@
-﻿using Smartstore.Core.Configuration;
-
-namespace Smartstore.Shipping.Settings
+﻿namespace Smartstore.Shipping.Settings
 {
     public class ShippingByTotalSettings : ISettings
     {

@@ -1,6 +1,5 @@
 ﻿using FluentMigrator;
 using Smartstore.Core.Data.Migrations;
-using Smartstore.Shipping.Domain;
 
 namespace Smartstore.Shipping.Migrations
 {

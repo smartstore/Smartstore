@@ -1,7 +1,4 @@
-﻿using System.Linq;
-using Smartstore.ShippingByWeight.Domain;
-
-namespace Smartstore.ShippingByWeight
+﻿namespace Smartstore.ShippingByWeight
 {
     public static class ShippingRateByWeightQueryExtensions
     {
