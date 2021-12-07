@@ -1,7 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using Smartstore.Web.Modelling;
-
-namespace Smartstore.Google.Analytics.Models
+﻿namespace Smartstore.Google.Analytics.Models
 {
     [LocalizedDisplay("Plugins.Widgets.GoogleAnalytics.")]
     public class ConfigurationModel : ModelBase
