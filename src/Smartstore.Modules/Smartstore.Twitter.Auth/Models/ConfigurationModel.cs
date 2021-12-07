@@ -1,6 +1,4 @@
-﻿using Smartstore.Web.Modelling;
-
-namespace Smartstore.Twitter.Auth.Models
+﻿namespace Smartstore.Twitter.Auth.Models
 {
     [LocalizedDisplay("Plugins.Smartstore.Twitter.Auth.")]
     public class ConfigurationModel : ModelBase

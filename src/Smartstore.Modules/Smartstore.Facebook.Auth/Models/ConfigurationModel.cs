@@ -1,6 +1,4 @@
-﻿using Smartstore.Web.Modelling;
-
-namespace Smartstore.Facebook.Auth.Models
+﻿namespace Smartstore.Facebook.Auth.Models
 {
     [LocalizedDisplay("Plugins.ExternalAuth.Facebook.")]
     public class ConfigurationModel : ModelBase

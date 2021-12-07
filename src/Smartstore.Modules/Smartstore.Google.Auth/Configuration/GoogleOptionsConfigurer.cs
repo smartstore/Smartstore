@@ -1,12 +1,9 @@
 ﻿using System.Diagnostics;
 using Autofac;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.OAuth;
-using Microsoft.Extensions.Options;
 using Smartstore.Engine;
 using Smartstore.Google.Auth;
-using System.Threading.Tasks;
 
 namespace Smartstore.Google
 {

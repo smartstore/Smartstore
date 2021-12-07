@@ -1,10 +1,7 @@
 ﻿using System.Diagnostics;
-using System.Threading.Tasks;
 using Autofac;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Facebook;
 using Microsoft.AspNetCore.Authentication.OAuth;
-using Microsoft.Extensions.Options;
 using Smartstore.Engine;
 using Smartstore.Facebook.Auth;
 

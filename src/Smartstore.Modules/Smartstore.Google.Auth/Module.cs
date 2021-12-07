@@ -1,4 +1,7 @@
-﻿using System.Threading.Tasks;
+﻿global using System.Threading.Tasks;
+global using Microsoft.AspNetCore.Authentication.Google;
+global using Microsoft.Extensions.Options;
+global using Smartstore.Web.Modelling;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Widgets;
 using Smartstore.Engine.Modularity;

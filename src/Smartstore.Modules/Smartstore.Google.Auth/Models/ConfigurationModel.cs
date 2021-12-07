@@ -1,6 +1,4 @@
-﻿using Smartstore.Web.Modelling;
-
-namespace Smartstore.Google.Auth.Models
+﻿namespace Smartstore.Google.Auth.Models
 {
     [LocalizedDisplay("Plugins.Smartstore.Google.Auth.")]
     public class ConfigurationModel : ModelBase

@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Authentication.Twitter;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
+﻿using Microsoft.AspNetCore.Mvc;
 using Smartstore.Web.Components;
 
 namespace Smartstore.Twitter.Auth.Components

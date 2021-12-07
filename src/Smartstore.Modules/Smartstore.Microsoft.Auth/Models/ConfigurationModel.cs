@@ -1,6 +1,4 @@
-﻿using Smartstore.Web.Modelling;
-
-namespace Smartstore.Microsoft.Auth.Models
+﻿namespace Smartstore.Microsoft.Auth.Models
 {
     [LocalizedDisplay("Plugins.Smartstore.Microsoft.Auth.")]
     public class ConfigurationModel : ModelBase
