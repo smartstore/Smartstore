@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Smartstore.Polls.Domain;
 using Smartstore.Core.Data;
 
 namespace Smartstore.Polls

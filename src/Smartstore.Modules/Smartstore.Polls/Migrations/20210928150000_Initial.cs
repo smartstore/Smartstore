@@ -2,9 +2,7 @@
 using FluentMigrator;
 using Smartstore.Core.Data.Migrations;
 using Smartstore.Core.Identity;
-using Smartstore.Core.Localization;
 using Smartstore.Domain;
-using Smartstore.Polls.Domain;
 
 namespace Smartstore.Polls.Migrations
 {

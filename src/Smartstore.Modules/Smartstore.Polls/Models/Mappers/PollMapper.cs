@@ -1,10 +1,6 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using Smartstore.ComponentModel;
+﻿using Smartstore.ComponentModel;
 using Smartstore.Core;
 using Smartstore.Core.Data;
-using Smartstore.Polls.Domain;
 using Smartstore.Polls.Extensions;
 using Smartstore.Polls.Models.Public;
 

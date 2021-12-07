@@ -1,7 +1,4 @@
-﻿using System;
-using Smartstore.Web.Modelling;
-
-namespace Smartstore.Polls.Models
+﻿namespace Smartstore.Polls.Models
 {
     [LocalizedDisplay("Admin.Customers.Customers.Fields.")]
     public class PollVotingRecordModel : EntityModelBase

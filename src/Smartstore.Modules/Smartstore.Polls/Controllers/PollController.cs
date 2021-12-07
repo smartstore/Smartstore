@@ -1,10 +1,8 @@
-﻿using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Core;
 using Smartstore.Core.Data;
 using Smartstore.Core.Web;
-using Smartstore.Polls.Domain;
 using Smartstore.Polls.Extensions;
 using Smartstore.Polls.Models.Mappers;
 using Smartstore.Web.Controllers;

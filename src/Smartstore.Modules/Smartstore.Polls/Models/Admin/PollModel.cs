@@ -1,9 +1,4 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
-using FluentValidation;
-using Smartstore.Web.Modelling;
-
-namespace Smartstore.Polls.Models
+﻿namespace Smartstore.Polls.Models
 {
     [LocalizedDisplay("Admin.ContentManagement.Polls.Fields.")]
     public class PollModel : EntityModelBase

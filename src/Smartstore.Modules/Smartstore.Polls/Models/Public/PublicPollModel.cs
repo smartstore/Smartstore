@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Smartstore.Web.Modelling;
-
-namespace Smartstore.Polls.Models.Public
+﻿namespace Smartstore.Polls.Models.Public
 {
     public partial class PublicPollListModel : EntityModelBase
     {

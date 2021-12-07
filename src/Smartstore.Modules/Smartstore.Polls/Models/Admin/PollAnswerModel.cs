@@ -1,7 +1,4 @@
-﻿using FluentValidation;
-using Smartstore.Web.Modelling;
-
-namespace Smartstore.Polls.Models
+﻿namespace Smartstore.Polls.Models
 {
     public class PollAnswerModel : EntityModelBase
     {

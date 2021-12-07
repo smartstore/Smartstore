@@ -1,10 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Threading;
 using Smartstore.Caching;
 using Smartstore.Core.Data;
 using Smartstore.Data.Hooks;
-using Smartstore.Polls.Domain;
 
 namespace Smartstore.Polls.Hooks
 {
