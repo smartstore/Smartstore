@@ -1,8 +1,4 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
-using Smartstore.Web.Modelling;
-
-namespace Smartstore.News.Models
+﻿namespace Smartstore.News.Models
 {
     [LocalizedDisplay("Admin.ContentManagement.News.NewsItems.Fields.")]
     public partial class NewsListModel : ModelBase

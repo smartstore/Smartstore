@@ -1,5 +1,16 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿global using System;
+global using System.Collections.Generic;
+global using System.ComponentModel.DataAnnotations;
+global using System.IO;
+global using System.Linq;
+global using System.Linq.Expressions;
+global using System.Threading;
+global using System.Threading.Tasks;
+global using FluentValidation;
+global using Microsoft.EntityFrameworkCore;
+global using Newtonsoft.Json;
+global using Smartstore.News.Domain;
+global using Smartstore.Web.Modelling;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Smartstore.Core;

@@ -1,7 +1,4 @@
-﻿using System;
-using FluentValidation;
-using Smartstore.Web.Modelling;
-using Smartstore.Web.Models.Common;
+﻿using Smartstore.Web.Models.Common;
 using Smartstore.Web.Models.Media;
 
 namespace Smartstore.News.Models.Public

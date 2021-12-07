@@ -1,6 +1,4 @@
-﻿using Smartstore.Web.Modelling;
-
-namespace Smartstore.News.Models.Public
+﻿namespace Smartstore.News.Models.Public
 {
     public partial class AddNewsCommentModel : ModelBase
     {

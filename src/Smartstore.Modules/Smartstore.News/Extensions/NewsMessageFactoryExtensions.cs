@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-using Smartstore.Core.Messaging;
-using Smartstore.News.Domain;
+﻿using Smartstore.Core.Messaging;
 
 namespace Smartstore.News.Messaging
 {

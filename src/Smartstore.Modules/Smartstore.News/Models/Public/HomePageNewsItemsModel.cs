@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Smartstore.Web.Modelling;
-
-namespace Smartstore.News.Models.Public
+﻿namespace Smartstore.News.Models.Public
 {
     public partial class HomepageNewsItemsModel : ModelBase, ICloneable
     {

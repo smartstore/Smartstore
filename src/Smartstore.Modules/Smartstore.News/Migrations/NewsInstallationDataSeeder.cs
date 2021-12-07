@@ -1,13 +1,10 @@
-﻿using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using Smartstore.Core.Data;
+﻿using Smartstore.Core.Data;
 using Smartstore.Core.Data.Migrations;
 using Smartstore.Core.Messaging;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Widgets;
 using Smartstore.Engine.Modularity;
 using Smartstore.IO;
-using Smartstore.News.Domain;
 using Smartstore.News.Services;
 using Smartstore.Utilities;
 

@@ -1,13 +1,7 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using FluentValidation;
-using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Core.Content.Blocks;
 using Smartstore.Core.Widgets;
 using Smartstore.News.Components;
-using Smartstore.Web.Modelling;
 
 namespace Smartstore.News.Blocks
 {

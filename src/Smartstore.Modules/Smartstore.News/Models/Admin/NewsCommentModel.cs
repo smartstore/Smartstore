@@ -1,7 +1,4 @@
-﻿using System;
-using Smartstore.Web.Modelling;
-
-namespace Smartstore.News.Models
+﻿namespace Smartstore.News.Models
 {
     [LocalizedDisplay("Admin.ContentManagement.News.Comments.Fields.")]
     public class NewsCommentModel : EntityModelBase

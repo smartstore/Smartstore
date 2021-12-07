@@ -1,13 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Runtime.CompilerServices;
 using Dasync.Collections;
-using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Data;
 using Smartstore.Core.Seo;
-using Smartstore.News.Domain;
 
 namespace Smartstore.News.Services
 {

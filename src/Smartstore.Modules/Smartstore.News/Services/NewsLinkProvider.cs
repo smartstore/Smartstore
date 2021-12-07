@@ -1,14 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using Smartstore.News.Domain;
-using Smartstore.Core.Content.Menus;
+﻿using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Data;
-using Smartstore.Data.Hooks;
 using Smartstore.Core.Widgets;
+using Smartstore.Data.Hooks;
 
 namespace Smartstore.News.Services
 {

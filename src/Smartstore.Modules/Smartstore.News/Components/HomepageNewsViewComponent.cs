@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Mvc;
 using Smartstore.ComponentModel;
 using Smartstore.News.Hooks;
 using Smartstore.News.Models.Mappers;

@@ -1,6 +1,4 @@
-﻿using Smartstore.Web.Modelling;
-
-namespace Smartstore.News.Models
+﻿namespace Smartstore.News.Models
 {
     [LocalizedDisplay("Admin.Configuration.Settings.News.")]
     public class NewsSettingsModel : ModelBase

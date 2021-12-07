@@ -1,8 +1,5 @@
-﻿using System;
-using System.Linq;
-using System.Linq.Dynamic.Core;
+﻿using System.Linq.Dynamic.Core;
 using Autofac;
-using Smartstore.News.Domain;
 using Smartstore.Core.Rules.Filters;
 using Smartstore.Core.Stores;
 

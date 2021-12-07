@@ -1,23 +1,18 @@
-﻿using System;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
-using Smartstore.News.Filters;
-using Smartstore.News.Services;
 using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Data;
+using Smartstore.Core.OutputCache;
+using Smartstore.Core.Seo;
 using Smartstore.Core.Seo.Routing;
 using Smartstore.Data;
 using Smartstore.Data.Providers;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;
-using Smartstore.Web.Controllers;
-using Smartstore.Core.Seo;
 using Smartstore.News.Controllers;
-using Smartstore.Core.OutputCache;
-using Smartstore.News.Domain;
-using System.Threading.Tasks;
-using System.Collections.Generic;
+using Smartstore.News.Filters;
+using Smartstore.News.Services;
+using Smartstore.Web.Controllers;
 
 namespace Smartstore.News
 {

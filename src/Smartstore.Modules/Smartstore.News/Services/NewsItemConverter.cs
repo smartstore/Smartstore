@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Xml.Linq;
-using Microsoft.EntityFrameworkCore;
-using Smartstore.News.Domain;
+﻿using System.Xml.Linq;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Data;

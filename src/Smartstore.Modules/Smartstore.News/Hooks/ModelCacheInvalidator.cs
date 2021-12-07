@@ -1,8 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using Smartstore.News.Domain;
-using Smartstore.Caching;
+﻿using Smartstore.Caching;
 using Smartstore.Core.Configuration;
 using Smartstore.Data.Hooks;
 using Smartstore.Utilities;

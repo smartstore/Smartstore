@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using Smartstore.Collections;
-using Smartstore.Web.Modelling;
+﻿using Smartstore.Collections;
 
 namespace Smartstore.News.Models.Public
 {

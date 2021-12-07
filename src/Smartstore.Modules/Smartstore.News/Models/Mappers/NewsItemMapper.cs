@@ -1,7 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using Humanizer;
+﻿using Humanizer;
 using Smartstore.ComponentModel;
 using Smartstore.Core;
 using Smartstore.Core.Common.Services;
@@ -9,7 +6,6 @@ using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
-using Smartstore.News.Domain;
 using Smartstore.News.Models.Public;
 using Smartstore.Utilities.Html;
 using Smartstore.Web.Models.Common;

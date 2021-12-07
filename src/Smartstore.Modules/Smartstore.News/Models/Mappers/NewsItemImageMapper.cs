@@ -1,10 +1,7 @@
-﻿using System;
-using System.Threading.Tasks;
-using Smartstore.ComponentModel;
+﻿using Smartstore.ComponentModel;
 using Smartstore.Core;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Localization;
-using Smartstore.News.Domain;
 using Smartstore.Web.Models.Media;
 
 namespace Smartstore.News.Models.Mappers

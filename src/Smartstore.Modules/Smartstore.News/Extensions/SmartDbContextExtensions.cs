@@ -1,6 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Smartstore.News.Domain;
-using Smartstore.Core.Data;
+﻿using Smartstore.Core.Data;
 
 namespace Smartstore.News
 {
