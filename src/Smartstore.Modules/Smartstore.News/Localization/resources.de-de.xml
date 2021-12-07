@@ -8,4 +8,7 @@
   <LocaleResource Name="Settings">
     <Value>News</Value>
   </LocaleResource>
+	<LocaleResource Name="BlockMetadata.FriendlyName.News" AppendRootKey="false">
+		<Value>News</Value>
+	</LocaleResource>
 </Language>

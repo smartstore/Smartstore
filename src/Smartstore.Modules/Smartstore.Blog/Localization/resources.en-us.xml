@@ -8,5 +8,44 @@
   <LocaleResource Name="Settings">
     <Value>Blog settings</Value>
   </LocaleResource>
-
+	<LocaleResource Name="BlockMetadata.FriendlyName.Blog" AppendRootKey="false">
+		<Value>Blog</Value>
+	</LocaleResource>
+	<LocaleResource Name="Plugins.SmartStore.PageBuilder.Blog">
+		<Children>
+			<LocaleResource Name="RenderHeading">
+				<Value>Display blog heading</Value>
+			</LocaleResource>
+			<LocaleResource Name="RenderHeading.Hint">
+				<Value>Specifies whether the blog heading and the RSS button are displayed.</Value>
+			</LocaleResource>
+			<LocaleResource Name="AltHeading.Hint">
+				<Value>Use 'Title' in 'General' tab to set custom heading text</Value>
+			</LocaleResource>
+			<LocaleResource Name="DisableCommentCount">
+				<Value>Disable comment count</Value>
+			</LocaleResource>
+			<LocaleResource Name="DisableCommentCount.Hint">
+				<Value>Specifies whether the number of comments within the blog image is disabled.</Value>
+			</LocaleResource>
+			<LocaleResource Name="MaxPostAmount">
+				<Value>Maximum count</Value>
+			</LocaleResource>
+			<LocaleResource Name="MaxPostAmount.Hint">
+				<Value>Specifies the maximum number of blog entries displayed at the same time. Without an entered value, the upper limit is 100.</Value>
+			</LocaleResource>
+			<LocaleResource Name="MaxAgeInDays">
+				<Value>Maximum age in days</Value>
+			</LocaleResource>
+			<LocaleResource Name="MaxAgeInDays.Hint">
+				<Value>Specifies the maximum age of displayed blog entries in days.</Value>
+			</LocaleResource>
+			<LocaleResource Name="PostsWithTag">
+				<Value>With tag</Value>
+			</LocaleResource>
+			<LocaleResource Name="PostsWithTag.Hint">
+				<Value>Specifies whether only blog entries with the selected tag are displayed.</Value>
+			</LocaleResource>
+		</Children>
+	</LocaleResource>
 </Language>

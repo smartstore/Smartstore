@@ -8,4 +8,44 @@
   <LocaleResource Name="Settings">
     <Value>Blog</Value>
   </LocaleResource>
+	<LocaleResource Name="BlockMetadata.FriendlyName.Blog" AppendRootKey="false">
+		<Value>Blog</Value>
+	</LocaleResource>
+	<LocaleResource Name="Plugins.SmartStore.PageBuilder.Blog" AppendRootKey="false">
+		<Children>
+			<LocaleResource Name="RenderHeading">
+				<Value>Zeige Blogkopf an</Value>
+			</LocaleResource>
+			<LocaleResource Name="RenderHeading.Hint">
+				<Value>Legt fest, ob die Blogüberschrift und die RSS-Schaltfläche dargestellt werden.</Value>
+			</LocaleResource>
+			<LocaleResource Name="AltHeading.Hint">
+				<Value>Nutzen Sie das 'Titel'-Feld im 'Allgemein'-Tab, um eine alternative Überschrift darzustellen.</Value>
+			</LocaleResource>
+			<LocaleResource Name="DisableCommentCount">
+				<Value>Kommentaranzahl deaktiviert</Value>
+			</LocaleResource>
+			<LocaleResource Name="DisableCommentCount.Hint">
+				<Value>Legt fest, ob die Anzahl an Kommentaren innerhalb des Blogbildes deaktiviert wird.</Value>
+			</LocaleResource>
+			<LocaleResource Name="MaxPostAmount">
+				<Value>Maximalanzahl</Value>
+			</LocaleResource>
+			<LocaleResource Name="MaxPostAmount.Hint">
+				<Value>Legt die Maximalanzahl der gleichzeitig dargestellten Blogeinträge fest. Ohne eingetragenem Wert liegt die Obergrenze bei 100.</Value>
+			</LocaleResource>
+			<LocaleResource Name="MaxAgeInDays">
+				<Value>Maximalalter</Value>
+			</LocaleResource>
+			<LocaleResource Name="MaxAgeInDays.Hint">
+				<Value>Legt das Maximalalter von dargestellten Blogeinträgen in Tagen fest.</Value>
+			</LocaleResource>
+			<LocaleResource Name="PostsWithTag">
+				<Value>Mit Tag</Value>
+			</LocaleResource>
+			<LocaleResource Name="PostsWithTag.Hint">
+				<Value>Legt fest, ob nur Blogeinträge mit dem ausgewählten Tag dargestellt werden.</Value>
+			</LocaleResource>
+		</Children>
+	</LocaleResource>
 </Language>
