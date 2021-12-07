@@ -1,6 +1,4 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
-using Smartstore.Clickatell.Services;
+﻿using Smartstore.Clickatell.Services;
 using Smartstore.Clickatell.Settings;
 using Smartstore.Core;
 using Smartstore.Core.Checkout.Orders.Events;

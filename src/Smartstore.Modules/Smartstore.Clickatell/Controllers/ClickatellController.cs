@@ -1,11 +1,8 @@
-﻿using System;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Smartstore.Clickatell.Models;
 using Smartstore.Clickatell.Services;
 using Smartstore.Clickatell.Settings;
 using Smartstore.ComponentModel;
-using Smartstore.Core.Security;
 using Smartstore.Web.Controllers;
 using Smartstore.Web.Modelling.Settings;
 

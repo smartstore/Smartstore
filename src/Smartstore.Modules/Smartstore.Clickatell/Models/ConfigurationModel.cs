@@ -1,6 +1,4 @@
-﻿using Smartstore.Web.Modelling;
-
-namespace Smartstore.Clickatell.Models
+﻿namespace Smartstore.Clickatell.Models
 {
     [LocalizedDisplay("Plugins.Sms.Clickatell.Fields.")]
     public class ConfigurationModel : ModelBase
