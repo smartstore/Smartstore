@@ -1,5 +1,4 @@
-﻿using System;
-using Smartstore.Engine.Modularity;
+﻿using Smartstore.Engine.Modularity;
 using Smartstore.Http;
 using Smartstore.OfflinePayment.Components;
 using Smartstore.OfflinePayment.Settings;

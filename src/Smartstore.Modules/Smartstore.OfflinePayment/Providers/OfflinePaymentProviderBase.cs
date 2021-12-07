@@ -1,6 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using Smartstore.Core;
+﻿using Smartstore.Core;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Configuration;

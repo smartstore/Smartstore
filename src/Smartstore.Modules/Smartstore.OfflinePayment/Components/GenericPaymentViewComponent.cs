@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-using Autofac;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Smartstore.OfflinePayment.Models;
 using Smartstore.OfflinePayment.Settings;
 

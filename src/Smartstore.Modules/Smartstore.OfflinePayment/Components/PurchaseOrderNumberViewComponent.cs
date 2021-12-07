@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.OfflinePayment.Models;
 using Smartstore.OfflinePayment.Settings;

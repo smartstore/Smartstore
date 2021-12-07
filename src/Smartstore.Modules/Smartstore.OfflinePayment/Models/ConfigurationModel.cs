@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Smartstore.Web.Modelling;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.OfflinePayment.Settings;
 
 namespace Smartstore.OfflinePayment.Models

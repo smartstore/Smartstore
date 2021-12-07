@@ -1,8 +1,4 @@
-﻿using System.Collections.Generic;
-using FluentValidation;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Smartstore.Core.Localization;
-using Smartstore.Web.Modelling;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Smartstore.OfflinePayment.Models
 {
