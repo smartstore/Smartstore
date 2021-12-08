@@ -30,23 +30,5 @@ namespace Smartstore.Core.DataExchange.Export
                 .OrderBy(x => x.IsSystemProfile)
                 .ThenBy(x => x.Name);
         }
-
-        /// <summary>
-        /// Applies a filter for system export profiles.
-        /// </summary>
-        /// <param name="query">Export profile query.</param>
-        /// <param name="providerSystemName">Name of the export provider.</param>
-        /// <returns>Export profile query.</returns>
-        public static IQueryable<ExportProfile> ApplySystemProfileFilter(this IQueryable<ExportProfile> query, string providerSystemName)
-        {
-            Guard.NotNull(query, nameof(query));
-
-            if (providerSystemName.IsEmpty())
-            {
-                return query;
-            }
-
-            return query.Where(x => x.IsSystemProfile && x.ProviderSystemName == providerSystemName);
-        }
     }
 }
