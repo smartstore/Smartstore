@@ -31,6 +31,7 @@ using Smartstore.Engine;
 using Smartstore.Engine.Builders;
 using Smartstore.Engine.Modularity.ApplicationParts;
 using Smartstore.Net;
+using Smartstore.Web.Controllers;
 using Smartstore.Web.Filters;
 using Smartstore.Web.Modelling;
 using Smartstore.Web.Modelling.Settings;
@@ -71,6 +72,9 @@ namespace Smartstore.Web
             // Replaces inbuilt IHtmlGenerator with SmartHtmlGenerator
             // that is capable of applying custom Bootstrap classes to generated html.
             services.AddSingleton<IHtmlGenerator, SmartHtmlGenerator>();
+
+            // ActionResult executor for LazyFileContentResult
+            services.AddSingleton<IActionResultExecutor<LazyFileContentResult>, LazyFileContentResultExecutor>();
 
             // Provide custom database related exceptions to DeveloperExceptionPageMiddleware
             services.AddDatabaseDeveloperPageExceptionFilter();
