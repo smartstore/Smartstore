@@ -27,6 +27,7 @@ namespace Smartstore.Core.DataExchange.Import
     public class ProductImporter : EntityImporterBase
     {
         private const string CARGO_DATA_KEY = "ProductImporter.CargoData";
+        private const int MAX_DUPLICATE_FILENAME_WARNINGS = 10;
 
         /// <summary>
         /// Old Product.Id -> new Product.Id
@@ -200,6 +201,7 @@ namespace Smartstore.Core.DataExchange.Import
                 {
                     try
                     {
+                        // TODO: (mg) (core) too slow! Noticeably slows down the import.
                         // We need the media file ID.
                         _db.SuppressCommit = false;
 
@@ -630,16 +632,7 @@ namespace Smartstore.Core.DataExchange.Import
                         downloadItems.Where(x => x.Url.HasValue() && !x.Success),
                         context.CancelToken);
 
-                    var hasDuplicateFileNames = downloadItems
-                        .Where(x => x.Url.HasValue())
-                        .Select(x => x.FileName)
-                        .GroupBy(x => x)
-                        .Any(x => x.Count() > 1);
-
-                    if (hasDuplicateFileNames)
-                    {
-                        context.Result.AddWarning($"Found duplicate names (not supported yet). File names in URLs have to be unique!", row.RowInfo, "ImageUrls");
-                    }
+                    LogDuplicateFileNameWarning(row, downloadItems);
                 }
 
                 // Import images.
@@ -649,11 +642,13 @@ namespace Smartstore.Core.DataExchange.Import
                     {
                         if (FileDownloadSucceeded(image, context))
                         {
+                            // INFO: the file may be in use by the download manager again, if the URLs have same file names.
+                            // In this case an IOException "cannot access file because it is being used by another process" is thrown by next statement.
                             using var stream = File.OpenRead(image.Path);
 
                             if (stream?.Length > 0)
                             {
-                                var currentFiles = existingMediaFilesMap.ContainsKey(product.Id) 
+                                var currentFiles = existingMediaFilesMap.ContainsKey(product.Id)
                                     ? existingMediaFilesMap[product.Id]
                                     : Enumerable.Empty<ProductMediaFile>();
 
@@ -718,6 +713,36 @@ namespace Smartstore.Core.DataExchange.Import
 
                     // Update for FixProductMainPictureIds.
                     product.UpdatedOnUtc = DateTime.UtcNow;
+                }
+            }
+
+            void LogDuplicateFileNameWarning(ImportRow<Product> row, List< DownloadManagerItem> items)
+            {
+                if (cargo.DuplicateFileNameRowCount == -1)
+                {
+                    // Ignore.
+                }
+                else if (cargo.DuplicateFileNameRowCount == MAX_DUPLICATE_FILENAME_WARNINGS)
+                {
+                    // Stop logging warnings.
+                    cargo.DuplicateFileNameRowCount = -1;
+
+                    var msg = $"Too many duplicate names in file URLs (> {MAX_DUPLICATE_FILENAME_WARNINGS}). Stopped logging warnings.";
+                    context.Result.AddWarning(msg, row.RowInfo, "ImageUrls");
+                }
+                else if (cargo.DuplicateFileNameRowCount < MAX_DUPLICATE_FILENAME_WARNINGS)
+                {
+                    var hasDuplicateFileNames = items
+                        .Where(x => x.Url.HasValue())
+                        .Select(x => x.FileName)
+                        .GroupBy(x => x)
+                        .Any(x => x.Count() > 1);
+
+                    if (hasDuplicateFileNames)
+                    {
+                        cargo.DuplicateFileNameRowCount++;
+                        context.Result.AddWarning("Found duplicate names (not supported yet). File names in URLs have to be unique!", row.RowInfo, "ImageUrls");
+                    }
                 }
             }
         }
@@ -1197,6 +1222,7 @@ namespace Smartstore.Core.DataExchange.Import
             public Dictionary<string, int> TemplateViewPaths { get; init; }
             public List<int> CategoryIds { get; set; }
             public List<int> ManufacturerIds { get; set; }
+            public int DuplicateFileNameRowCount { get; set; }
         }
     }
 }
