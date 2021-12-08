@@ -591,7 +591,7 @@ namespace Smartstore.Core.DataExchange.Import
 
             var existingMediaFiles = await _db.ProductMediaFiles
                 .AsNoTracking()
-                .Include(x => x.MediaFile)
+                .Include(x => x.MediaFile) // TODO: (mg) (core) Is this really necessary?
                 .Where(x => productIds.Contains(x.ProductId))
                 .ToListAsync(context.CancelToken);
             var existingMediaFilesMap = existingMediaFiles.ToMultimap(x => x.ProductId, x => x);
@@ -668,7 +668,6 @@ namespace Smartstore.Core.DataExchange.Import
                                     if (equalityCheck.Success)
                                     {
                                         AddProductMediaFile(equalityCheck.Value, product);
-
                                         context.Result.AddInfo($"Found equal file in catalog album for '{image.FileName}'. Assigning existing file instead.", row.RowInfo, "ImageUrls");
                                     }
                                     else
