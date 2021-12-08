@@ -591,7 +591,7 @@ namespace Smartstore.Core.DataExchange.Import
 
             var existingMediaFiles = await _db.ProductMediaFiles
                 .AsNoTracking()
-                .Include(x => x.MediaFile) // TODO: (mg) (core) Is this really necessary?
+                .Include(x => x.MediaFile)
                 .Where(x => productIds.Contains(x.ProductId))
                 .ToListAsync(context.CancelToken);
             var existingMediaFilesMap = existingMediaFiles.ToMultimap(x => x.ProductId, x => x);
