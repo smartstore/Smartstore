@@ -291,7 +291,7 @@ namespace Smartstore.Admin.Controllers
                     return RedirectToReferrer(null, () => RedirectToAction(nameof(List)));
                 }
 
-                return File(path, qea.MimeType, qea.Name);
+                return PhysicalFile(path, qea.MimeType, qea.Name);
             }
             else if (qea.MediaFileId.HasValue)
             {
