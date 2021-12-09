@@ -1,5 +1,4 @@
 ﻿using System.Linq;
-using Microsoft.EntityFrameworkCore;
 
 namespace Smartstore.Core.DataExchange.Export
 {
@@ -7,7 +6,6 @@ namespace Smartstore.Core.DataExchange.Export
     {
         /// <summary>
         /// Applies a standard filter for an export profile query.
-        /// Includes <see cref="ExportProfile.Deployments"/> and <see cref="ExportProfile.Task"/>.
         /// Sorts by <see cref="ExportProfile.IsSystemProfile"/>, then by <see cref="ExportProfile.Name"/>.
         /// </summary>
         /// <param name="query">Export profile query.</param>
@@ -16,10 +14,6 @@ namespace Smartstore.Core.DataExchange.Export
         public static IOrderedQueryable<ExportProfile> ApplyStandardFilter(this IQueryable<ExportProfile> query, bool? enabled = null)
         {
             Guard.NotNull(query, nameof(query));
-
-            query = query
-                .Include(x => x.Deployments)
-                .Include(x => x.Task);
 
             if (enabled.HasValue)
             {

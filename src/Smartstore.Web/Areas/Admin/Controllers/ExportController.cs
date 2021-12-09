@@ -349,7 +349,7 @@ namespace Smartstore.Admin.Controllers
         public async Task<IActionResult> Execute(int id, string selectedIds)
         {
             // Permissions checked internally by DataExporter.
-            var (profile, provider) = await LoadProfileAndProvider(id);
+            var profile = await _db.ExportProfiles.FindByIdAsync(id, false);
             if (profile == null)
             {
                 return NotFound();
@@ -707,8 +707,7 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Configuration.Export.Update)]
         public async Task<IActionResult> CreateDeployment(ExportDeploymentModel model, bool continueEditing)
         {
-            var (profile, _) = await LoadProfileAndProvider(model.ProfileId);
-            if (profile == null)
+            if (!await _db.ExportProfiles.AnyAsync(x => x.Id == model.ProfileId))
             {
                 return NotFound();
             }
@@ -724,11 +723,11 @@ namespace Smartstore.Admin.Controllers
                 await _db.SaveChangesAsync();
 
                 return continueEditing ?
-                    RedirectToAction("EditDeployment", new { id = deployment.Id }) :
-                    RedirectToAction(nameof(Edit), new { id = profile.Id });
+                    RedirectToAction(nameof(EditDeployment), new { id = deployment.Id }) :
+                    RedirectToAction(nameof(Edit), new { id = model.ProfileId });
             }
 
-            return await CreateDeployment(profile.Id);
+            return await CreateDeployment(model.ProfileId);
         }
 
         [Permission(Permissions.Configuration.Export.Update)]
@@ -797,8 +796,7 @@ namespace Smartstore.Admin.Controllers
                 return NotFound();
             }
 
-            var (profile, _) = await LoadProfileAndProvider(deployment.ProfileId);
-            if (profile == null)
+            if (!await _db.ExportProfiles.AnyAsync(x => x.Id == deployment.ProfileId))
             {
                 return NotFound();
             }
@@ -808,7 +806,7 @@ namespace Smartstore.Admin.Controllers
 
             NotifySuccess(T("Admin.Common.TaskSuccessfullyProcessed"));
 
-            return RedirectToAction(nameof(Edit), new { id = profile.Id });
+            return RedirectToAction(nameof(Edit), new { id = deployment.ProfileId });
         }
 
         #endregion
@@ -1060,7 +1058,7 @@ namespace Smartstore.Admin.Controllers
         {
             if (profileId != 0)
             {
-                var (profile, provider) = await LoadProfileAndProvider(profileId);
+                var (profile, _) = await LoadProfileAndProvider(profileId);
                 if (profile != null)
                 {
                     return await CreateFileDetailsModel(profile, null);
@@ -1225,6 +1223,8 @@ namespace Smartstore.Admin.Controllers
             if (profileId != 0)
             {
                 var profile = await _db.ExportProfiles
+                    .Include(x => x.Deployments)
+                    .Include(x => x.Task)
                     .ApplyStandardFilter()
                     .FirstOrDefaultAsync(x => x.Id == profileId);
 
