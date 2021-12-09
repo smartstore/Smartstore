@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc.Filters;
 using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Licensing
@@ -80,12 +81,30 @@ namespace Smartstore.Licensing
     }
 
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
-    public class LicensableModuleAttribute : Attribute
+    public sealed class LicensableModuleAttribute : Attribute
     {
         public LicensableModuleAttribute()
         {
         }
 
         public bool HasSingleLicenseForAllStores { get; set; }
+    }
+
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, Inherited = true, AllowMultiple = true)]
+    public sealed class LicenseRequiredAttribute : ActionFilterAttribute
+    {
+        public string PluginSystemName { get; set; }
+        public string MasterName { get; set; }
+        public string ViewName { get; set; }
+        public bool EmptyResultWhenUnlicensed { get; set; }
+        public bool BlockDemo { get; set; }
+        public bool NotifyOnly { get; set; }
+        public string NotificationMessage { get; set; }
+        public string NotificationMessageType { get; set; }
+
+        public override void OnActionExecuting(ActionExecutingContext context)
+        {
+            // Void
+        }
     }
 }

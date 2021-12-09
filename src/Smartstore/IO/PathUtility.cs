@@ -42,7 +42,7 @@ namespace Smartstore.IO
         /// <param name="toPath">To path</param>
         /// <param name="sep">Directory separator</param>
         /// <returns>The relative path</returns>
-        public static string MakeRelativePath(string fromPath, string toPath, string sep = "\\")
+        public static string MakeRelativePath(string fromPath, string toPath, char sep = '\\')
         {
             var fromParts = fromPath.Tokenize(PathSeparators, StringSplitOptions.RemoveEmptyEntries);
             var toParts = toPath.Tokenize(PathSeparators, StringSplitOptions.RemoveEmptyEntries);

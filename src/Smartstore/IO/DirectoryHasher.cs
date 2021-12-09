@@ -107,7 +107,7 @@ namespace Smartstore.IO
 
         protected virtual string BuildLookupKey()
         {
-            var key = PathUtility.MakeRelativePath(CommonHelper.ContentRoot.Root, _source.PhysicalPath, "_").ToLower();
+            var key = PathUtility.MakeRelativePath(CommonHelper.ContentRoot.Root, _source.PhysicalPath, '_').ToLower();
 
             if (_deep)
                 key += "_d";

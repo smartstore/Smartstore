@@ -192,7 +192,7 @@ namespace Smartstore
             // Create directory path if it doesn't exist.
             await fs.TryCreateDirectoryAsync(file.Directory);
 
-            file.Create(inStream, overwrite);
+            await file.CreateAsync(inStream, overwrite);
             return file;
         }
 
