@@ -3,7 +3,7 @@
 namespace Smartstore.Blog.Models
 {
     [LocalizedDisplay("Admin.ContentManagement.Blog.BlogPosts.Fields.")]
-    public class BlogListModel : TabbableModel
+    public class BlogListModel
     {
         [LocalizedDisplay("*Title")]
         public string SearchTitle { get; set; }

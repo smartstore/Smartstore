@@ -286,11 +286,11 @@ namespace Smartstore.Blog.Controllers
         public async Task<IActionResult> BlogPostUpdate(BlogPostModel model)
         {
             var success = false;
-            var blogPosts = await _db.BlogPosts().FindByIdAsync(model.Id);
+            var blogPost = await _db.BlogPosts().FindByIdAsync(model.Id);
 
-            if (blogPosts != null)
+            if (blogPost != null)
             {
-                await MapperFactory.MapAsync(model, blogPosts);
+                await MapperFactory.MapAsync(model, blogPost);
                 await _db.SaveChangesAsync();
                 success = true;
             }
