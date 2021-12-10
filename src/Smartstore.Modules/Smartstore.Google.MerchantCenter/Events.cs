@@ -42,7 +42,10 @@ namespace Smartstore.Google.MerchantCenter
                 return;
 
             var utcNow = DateTime.UtcNow;
-            var entity = await _db.GoogleProducts().Where(x => x.ProductId == model.ProductId).FirstOrDefaultAsync();
+            var entity = await _db.GoogleProducts()
+                .Where(x => x.ProductId == model.ProductId)
+                .FirstOrDefaultAsync();
+
             var insert = entity == null;
 
             if (entity == null)

@@ -32,6 +32,9 @@ namespace Smartstore.Google.MerchantCenter.Providers
         ExportFeatures.UsesAttributeCombination)]
     public class GmcXmlExportProvider : ExportProviderBase
     {
+        public const string SystemName = "Feeds.GoogleMerchantCenterProductXml";
+        public const string Unspecified = "__nospec__";
+
         private const string _googleNamespace = "http://base.google.com/ns/1.0";
 
         private readonly SmartDbContext _db;
@@ -51,17 +54,16 @@ namespace Smartstore.Google.MerchantCenter.Providers
             _services = services;
             _productAttributeService = productAttributeService;
             _measureSettings = measureSettings;
-
-            T = NullLocalizer.Instance;
         }
 
-        public Localizer T { get; set; }
+        public Localizer T { get; set; } = NullLocalizer.Instance;
 
-        private void InitAttributeMappings()
+        private async Task InitAttributeMappings()
         {
             if (_attributeMappings == null)
             {
-                _attributeMappings = _productAttributeService.GetExportFieldMappingsAsync("gmc").Result;
+                // INFO: (mh) (core) NEVER call .Result on a Task (call .Await() if you cannot use async pattern)
+                _attributeMappings = await _productAttributeService.GetExportFieldMappingsAsync("gmc");
             }
         }
 
@@ -75,16 +77,16 @@ namespace Smartstore.Google.MerchantCenter.Providers
             // TODO: Product.BasePriceMeasureUnit should be localized
             return value.ToLowerInvariant() switch
             {
-                "mg" or "milligramm" or "milligram" => "mg",
-                "g" or "gramm" or "gram" => "g",
-                "kg" or "kilogramm" or "kilogram" => "kg",
-                "ml" or "milliliter" or "millilitre" => "ml",
-                "cl" or "zentiliter" or "centilitre" => "cl",
-                "l" or "liter" or "litre" => "l",
-                "cbm" or "kubikmeter" or "cubic metre" => "cbm",
-                "cm" or "zentimeter" or "centimetre" => "cm",
-                "m" or "meter" => "m",
-                "qm²" or "quadratmeter" or "square metre" => "sqm",
+                "mg" or "milligramm" or "milligram"             => "mg",
+                "g" or "gramm" or "gram"                        => "g",
+                "kg" or "kilogramm" or "kilogram"               => "kg",
+                "ml" or "milliliter" or "millilitre"            => "ml",
+                "cl" or "zentiliter" or "centilitre"            => "cl",
+                "l" or "liter" or "litre"                       => "l",
+                "cbm" or "kubikmeter" or "cubic metre"          => "cbm",
+                "cm" or "zentimeter" or "centimetre"            => "cm",
+                "m" or "meter"                                  => "m",
+                "qm²" or "quadratmeter" or "square metre"       => "sqm",
                 _ => defaultValue,
             };
         }
@@ -158,17 +160,13 @@ namespace Smartstore.Google.MerchantCenter.Providers
 
             return measureWeight switch
             {
-                "gram" or "gramme" => "g",
-                "mg" or "milligramme" or "milligram" => "mg",
-                "lb" => "lb",
-                "ounce" or "oz" => "oz",
-                _ => "kg",
+                "gram" or "gramme"                      => "g",
+                "mg" or "milligramme" or "milligram"    => "mg",
+                "lb"                                    => "lb",
+                "ounce" or "oz"                         => "oz",
+                _                                       => "kg",
             };
         }
-
-        public static string SystemName => "Feeds.GoogleMerchantCenterProductXml";
-
-        public static string Unspecified => "__nospec__";
 
         public override ExportConfigurationInfo ConfigurationInfo => new()
         {
@@ -180,12 +178,12 @@ namespace Smartstore.Google.MerchantCenter.Providers
 
         protected override async Task ExportAsync(ExportExecuteContext context, CancellationToken cancelToken)
         {
-            InitAttributeMappings();
+            await InitAttributeMappings();
             Currency currency = context.Currency.Entity;
             var languageId = context.Projection.LanguageId ?? 0;
             var dateFormat = "yyyy-MM-ddTHH:mmZ";
             var defaultAvailability = "in stock";
-            var measureWeight = GetBaseMeasureWeightAsync();
+            var measureWeight = await GetBaseMeasureWeightAsync(); // !!!!!!!
 
             var config = (context.ConfigurationData as ProfileConfigurationModel) ?? new ProfileConfigurationModel();
 
@@ -210,9 +208,14 @@ namespace Smartstore.Google.MerchantCenter.Providers
 
             while (context.Abort == DataExchangeAbortion.None && await context.DataSegmenter.ReadNextSegmentAsync())
             {
-                var segment = await context.DataSegmenter.GetCurrentSegmentAsync();   
+                var segment = await context.DataSegmenter.GetCurrentSegmentAsync();
+
                 int[] productIds = segment.Select(x => (int)((dynamic)x).Id).ToArray();
-                var googleProducts = _db.GoogleProducts().Where(x => productIds.Contains(x.ProductId)).ToDictionarySafe(x => x.ProductId);
+
+                // TODO: (mh) (core) WHAT are you doing?!! First get data ASYNC, then make dictionary!
+                var googleProducts = _db.GoogleProducts()
+                    .Where(x => productIds.Contains(x.ProductId))
+                    .ToDictionarySafe(x => x.ProductId);
 
                 foreach (dynamic product in segment)
                 {
@@ -332,7 +335,6 @@ namespace Smartstore.Google.MerchantCenter.Providers
                         if (availability == "preorder" && entity.AvailableStartDateTimeUtc.HasValue && entity.AvailableStartDateTimeUtc.Value > DateTime.UtcNow)
                         {
                             var availabilityDate = entity.AvailableStartDateTimeUtc.Value.ToString(dateFormat);
-
                             WriteString(writer, "availability_date", availabilityDate);
                         }
 
@@ -343,7 +345,8 @@ namespace Smartstore.Google.MerchantCenter.Providers
                             if (entity.SpecialPriceStartDateTimeUtc.HasValue && entity.SpecialPriceEndDateTimeUtc.HasValue)
                             {
                                 var specialPriceDate = "{0}/{1}".FormatInvariant(
-                                    entity.SpecialPriceStartDateTimeUtc.Value.ToString(dateFormat), entity.SpecialPriceEndDateTimeUtc.Value.ToString(dateFormat));
+                                    entity.SpecialPriceStartDateTimeUtc.Value.ToString(dateFormat), 
+                                    entity.SpecialPriceEndDateTimeUtc.Value.ToString(dateFormat));
 
                                 WriteString(writer, "sale_price_effective_date", specialPriceDate);
                             }

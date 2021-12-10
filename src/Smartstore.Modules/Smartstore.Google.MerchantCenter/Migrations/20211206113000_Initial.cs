@@ -13,6 +13,7 @@ namespace Smartstore.Google.MerchantCenter.Migrations
 
             if (!Schema.Table(GoogleMerchantCenter).Exists())
             {
+                // INFO: (mh) (core) Once again: "Port" the classic EF6 migration class(es). This way you'll reduce error count significantly.
                 Create.Table(GoogleMerchantCenter)
                     .WithIdColumn()
                     .WithColumn(nameof(GoogleProduct.ProductId)).AsInt32().NotNullable()
@@ -27,9 +28,9 @@ namespace Smartstore.Google.MerchantCenter.Migrations
                     .WithColumn(nameof(GoogleProduct.ItemGroupId)).AsString(4000).Nullable()
                     .WithColumn(nameof(GoogleProduct.IsTouched)).AsBoolean().NotNullable()
                         .Indexed("IX_IsTouched")
-                    .WithColumn(nameof(GoogleProduct.CreatedOnUtc)).AsDateTime2().NotNullable()
-                    .WithColumn(nameof(GoogleProduct.UpdatedOnUtc)).AsDateTime2().NotNullable()
-                    .WithColumn(nameof(GoogleProduct.Export)).AsBoolean().NotNullable()
+                    .WithColumn(nameof(GoogleProduct.CreatedOnUtc)).AsDateTime2().NotNullable().WithDefaultValue(SystemMethods.CurrentUTCDateTime)
+                    .WithColumn(nameof(GoogleProduct.UpdatedOnUtc)).AsDateTime2().NotNullable().WithDefaultValue(SystemMethods.CurrentUTCDateTime)
+                    .WithColumn(nameof(GoogleProduct.Export)).AsBoolean().NotNullable().WithDefaultValue(true)
                         .Indexed("IX_Export")
                     .WithColumn(nameof(GoogleProduct.Multipack)).AsInt32().NotNullable()
                     .WithColumn(nameof(GoogleProduct.IsBundle)).AsBoolean().Nullable()

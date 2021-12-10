@@ -2,9 +2,13 @@
 
 @{
     var items = T("Plugins.Feed.Froogle.EnergyEfficiencyClasses").Value
-                .SplitSafe(",")
+                .SplitSafe(',')
                 .Select(x => new SelectListItem { Value = x, Text = x })
                 .ToList();
 }
 
-<select asp-for="@Model" asp-items="items" asp-placeholder="@T("Common.Unspecified")"></select>
+<select asp-for="@Model" 
+        asp-items="items" 
+        asp-placeholder="@T("Common.Unspecified")"
+        data-editor="select"
+        class="edit-control form-control-sm"></select>

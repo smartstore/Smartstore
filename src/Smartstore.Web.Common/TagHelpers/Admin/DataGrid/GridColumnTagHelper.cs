@@ -235,7 +235,7 @@ namespace Smartstore.Web.TagHelpers.Admin
                 member = MemberName,
                 name = For.Metadata.DisplayName ?? For.Metadata.PropertyName.Titleize(),
                 title = Title ?? For.Metadata.DisplayName ?? For.Metadata.PropertyName.Titleize(),
-                hint = Hint ?? Title,
+                hint = Hint,
                 width = Width.EmptyNull(),
                 visible = Visible,
                 halign = HAlign,

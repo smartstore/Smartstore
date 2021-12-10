@@ -2,7 +2,7 @@
 
 <select asp-for="@Model"
         asp-items="@ViewBag.AvailableCategories"
-        class="edit-control"
+        class="edit-control form-control-sm"
         data-editor="taxonomy"
         v-bind:data-select-selected-id="item.value"
         v-bind:data-select-init-text="item.row.Taxonomy"

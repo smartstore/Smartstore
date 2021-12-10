@@ -1,5 +1,6 @@
 ﻿(function ($, window, document, undefined) {
-    window.initGoogleProductTaxonomy = function (el) {
+	window.initGoogleProductTaxonomy = function (el) {
+		el = $(el);
 		el.select2({
 			width: 'style',
 			dropdownAutoWidth: true,

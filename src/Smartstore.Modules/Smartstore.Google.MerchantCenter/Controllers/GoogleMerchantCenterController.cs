@@ -15,6 +15,7 @@ using Smartstore.Engine.Modularity;
 using Smartstore.Google.MerchantCenter.Domain;
 using Smartstore.Google.MerchantCenter.Models;
 using Smartstore.Google.MerchantCenter.Providers;
+using Smartstore.IO;
 using Smartstore.Utilities;
 using Smartstore.Web.Controllers;
 using Smartstore.Web.Models.DataGrid;
@@ -27,7 +28,10 @@ namespace Smartstore.Google.MerchantCenter.Controllers
         private readonly Lazy<IExportProfileService> _exportService;
         private readonly IProviderManager _providerManager;
 
-        public GoogleMerchantCenterController(SmartDbContext db, Lazy<IExportProfileService> exportService, IProviderManager providerManager)
+        public GoogleMerchantCenterController(
+            SmartDbContext db, 
+            Lazy<IExportProfileService> exportService, 
+            IProviderManager providerManager)
         {
             _db = db;
             _exportService = exportService;
@@ -217,26 +221,25 @@ namespace Smartstore.Google.MerchantCenter.Controllers
         [HttpPost]
         public async Task<IActionResult> GoogleProductUpsert(GoogleProductModel model)
         {
-            var success = false;
             var googleProduct = await _db.GoogleProducts()
                 .Where(x => x.ProductId == model.ProductId)
                 .FirstOrDefaultAsync();
 
+            var success = false;
             var insert = googleProduct == null;
             var utcNow = DateTime.UtcNow;
 
-            if (googleProduct == null)
+            googleProduct ??= new GoogleProduct
             {
-                googleProduct = new GoogleProduct
-                {
-                    ProductId = model.ProductId,
-                    CreatedOnUtc = utcNow
-                };
-            }
+                ProductId = model.ProductId,
+                CreatedOnUtc = utcNow
+            };
 
             await MapperFactory.MapAsync(model, googleProduct);
 
             googleProduct.UpdatedOnUtc = utcNow;
+
+            // TODO: (mh) (core) Check for "IsTouched" is missing (delete if false)
             googleProduct.IsTouched = googleProduct.IsTouched();
 
             if (insert)
@@ -252,60 +255,75 @@ namespace Smartstore.Google.MerchantCenter.Controllers
 
         public async Task<IActionResult> GetGoogleCategories(string search, int? page)
         {
-            page ??= 1;
             const int take = 100;
+
+            page ??= 1;
+            
             var skip = (page.Value - 1) * take;
-            var categories = await GetTaxonomyListAsync(search);
-            var hasMoreItems = (page.Value * take) < categories.Count;
-            //$"{skip}\\{categories.Length} {hasMoreItems}: {search.NaIfEmpty()}".Dump();
+            var (categories, hasMoreItems) = await GetTaxonomyListAsync(search, skip, take);
 
-            var items = categories.Select(x => new
+            var items = categories.Select(x => new { id = x, text = x }).ToList();
+
+            return Json(new 
             {
-                id = x,
-                text = x
-            })
-            .Skip(skip)
-            .Take(take)
-            .ToList();
-
-            return Json(new {
                 hasMoreItems,
                 results = items
             });
         }
 
-        private async Task<List<string>> GetTaxonomyListAsync(string searchTerm)
+        // INFO: (mh) (mg) (core) This code is (and always was) extremely inefficient. Loading a ~430 KB large file
+        //       completely into memory just to take a small portion is toxic and slow. Solution: just skip all unnecessary lines,
+        //       take while result size is < "take", and then EXIT to reduce RAM pressure.
+        private async Task<(List<string> categories, bool hasMoreItems)> GetTaxonomyListAsync(string searchTerm, int skip, int take)
         {
-            var result = new List<string>();
+            var categories = new List<string>(take);
+            var hasMoreItems = false;
 
             try
             {
                 var provider = _providerManager.GetProvider("Feeds.GoogleMerchantCenterProductXml");
-                var descriptor = provider.Metadata.ModuleDescriptor;
-                var fileDir = Path.Combine(descriptor.PhysicalPath, "Files");
+                var module = provider.Metadata.ModuleDescriptor;
+                var fileDir = "Files";
                 var fileName = $"taxonomy.{Services.WorkContext.WorkingLanguage.LanguageCulture ?? "de-DE"}.txt";
-                var path = Path.Combine(fileDir, fileName);
                 var filter = searchTerm.HasValue();
                 string line;
 
-                if (!System.IO.File.Exists(path))
+                var file = module.ContentRoot.GetFile(PathUtility.Combine(fileDir, fileName));
+                if (!file.Exists)
                 {
-                    path = Path.Combine(fileDir, "taxonomy.en-US.txt");
+                    file = module.ContentRoot.GetFile(PathUtility.Combine(fileDir, "taxonomy.en-US.txt"));
                 }
 
-                using var file = new StreamReader(path, Encoding.UTF8);
-                while ((line = await file.ReadLineAsync()) != null)
+                int numSkipped = 0;
+                int numTook = 0;
+
+                using var reader = new StreamReader(file.OpenRead(), Encoding.UTF8);
+                while ((line = await reader.ReadLineAsync()) != null)
                 {
                     if (string.IsNullOrWhiteSpace(line))
                     {
                         continue;
                     }
-                    if (filter && line.IndexOf(searchTerm, StringComparison.OrdinalIgnoreCase) < 0)
+
+                    if (filter && !line.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
                     {
                         continue;
                     }
 
-                    result.Add(line);
+                    if (numSkipped < skip)
+                    {
+                        numSkipped++;
+                        continue;
+                    }
+
+                    categories.Add(line);
+
+                    numTook++;
+                    if (numTook >= take)
+                    {
+                        hasMoreItems = await reader.ReadLineAsync() != null;
+                        break;
+                    }
                 }
             }
             catch (Exception exc)
@@ -313,7 +331,7 @@ namespace Smartstore.Google.MerchantCenter.Controllers
                 Logger.Error(exc);
             }
 
-            return result;
+            return (categories, hasMoreItems);
         }
     }
 }

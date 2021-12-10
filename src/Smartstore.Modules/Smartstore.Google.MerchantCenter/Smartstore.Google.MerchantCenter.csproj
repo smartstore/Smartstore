@@ -5,11 +5,8 @@
 		<OutDir>$(OutputPath)</OutDir>
 	</PropertyGroup>
 	<ItemGroup>
-	  <None Update="Files\taxonomy.de-DE.txt">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </None>
-	  <None Update="Files\taxonomy.en-US.txt">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </None>
+		<Content Include="Files\**">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
 	</ItemGroup>
 </Project>

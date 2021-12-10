@@ -34,9 +34,21 @@
 
 @if (!ViewData.ModelMetadata.IsNullableValueType)
 {
-    <input asp-for="@Model" attr-value="(Value ?? false, (Value ?? false).ToString())" class="check-box form-check-input" type="checkbox" attrs="attributes" />
+    <input asp-for="@Model" 
+           attr-value="(Value ?? false, (Value ?? false).ToString())" 
+           class="check-box form-check-input" 
+           type="checkbox" 
+           attrs="attributes" />
 }
 else
 {
-    <select id="@Html.IdForModel()" name="@Html.NameForModel()" asp-items="TriStateValues" class="list-box tri-state edit-control" attrs="attributes" data-editor="select"></select>
+    var size = GetMetadata<string>("size");
+
+    <select id="@Html.IdForModel()" 
+            name="@Html.NameForModel()" 
+            asp-items="TriStateValues" 
+            class="list-box tri-state edit-control"
+            attr-class='(size.HasValue(), "form-control-" + size)'
+            attrs="attributes" 
+            data-editor="select"></select>
 }

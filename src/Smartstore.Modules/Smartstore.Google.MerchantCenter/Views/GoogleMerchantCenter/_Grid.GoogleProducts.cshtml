@@ -2,6 +2,16 @@
 
 @{
     var parentModel = ViewData["Parent"] as ConfigurationModel;
+    var emptyCell = T("Plugins.Feed.Froogle.EmptyGridCell");
+
+    // INFO: (mh) (core) DRY!
+    async Task DisplayTemplate()
+    {
+        <span v-if="item.value">{{ item.value }}</span>
+        <span v-else class="text-muted font-italic">@emptyCell</span>
+    }
+
+    // TODO: (mh) (core) Default column sizing has to be thoroghly thought about and be optimized!!! It is very clumsy!
 }
 
 <widget target-zone="scripts" key="gmc-products-grid">
@@ -15,7 +25,7 @@
           allow-edit="true">
     <datasource read="@Url.Action("GoogleProductList", "GoogleMerchantCenter")"
                 update="@Url.Action("GoogleProductUpsert", "GoogleMerchantCenter")" />
-    <paging position="Bottom" page-index="1" show-size-chooser="true" />
+    <paging position="Both" page-index="1" show-size-chooser="true" />
     <sorting allow-unsort="true" allow-multisort="false">
         <sort by="Name" />
     </sorting>
@@ -31,7 +41,7 @@
     </search-panel>
     <columns>
         <column for="ProductId" readonly visible="false" />
-        <column for="Name" width="2fr" hideable="false" readonly>
+        <column for="Name" hideable="false" readonly>
             <display-template>
                 @Html.LabeledProductName()
             </display-template>
@@ -41,93 +51,111 @@
 
         <column for="Taxonomy" width="2fr" sortable="false" hint="@T("Plugins.Feed.Froogle.Products.GoogleCategory.Hint")">
             <display-template>
-                <span v-if="item.value">{{ item.value }}</span>
-                <a v-else class="text-muted font-italic">@T("Plugins.Feed.Froogle.EmptyGridCell")</a>
+                @{ await DisplayTemplate(); }
             </display-template>
         </column>
-        <column for="Gender" sortable="false" hint="@T("Plugins.Feed.Froogle.Gender.Hint")" >
+        <column for="Gender" width="140px" sortable="false" hint="@T("Plugins.Feed.Froogle.Gender.Hint")">
             <display-template>
-                <span v-if="item.value">{{ item.value }}</span>
-                <a v-else class="text-muted font-italic">@T("Plugins.Feed.Froogle.EmptyGridCell")</a>
+                @{ await DisplayTemplate(); }
             </display-template>
         </column>
-        <column for="AgeGroup" sortable="false" hint="@T("Plugins.Feed.Froogle.AgeGroup.Hint")">
+        <column for="AgeGroup" width="140px" sortable="false" hint="@T("Plugins.Feed.Froogle.AgeGroup.Hint")">
             <display-template>
-                <span v-if="item.value">{{ item.value }}</span>
-                <a v-else class="text-muted font-italic">@T("Plugins.Feed.Froogle.EmptyGridCell")</a>
+                @{ await DisplayTemplate(); }
             </display-template>
         </column>
         <column for="IsAdult" visible="false" sortable="false" halign="center" hint="@T("Plugins.Feed.Froogle.IsAdult.Hint")">
             <display-template>
-                <span v-if="item.value">{{ item.value }}</span>
-                <a v-else class="text-muted font-italic">@T("Plugins.Feed.Froogle.EmptyGridCell")</a>
+                @{ await DisplayTemplate(); }
             </display-template>
+            <edit-template>
+                @Html.EditorFor(model => model.IsAdult, new { size = "sm" })
+            </edit-template>
         </column>
         <column for="Color" sortable="false" hint="@T("Plugins.Feed.Froogle.Color.Hint")">
             <display-template>
-                <span v-if="item.value">{{ item.value }}</span>
-                <a v-else class="text-muted font-italic">@T("Plugins.Feed.Froogle.EmptyGridCell")</a>
+                @{ await DisplayTemplate(); }
             </display-template>
+            <edit-template>
+                <input asp-for="Color" class="form-control-sm" />
+            </edit-template>
         </column>
-        <column for="Size" hint="@T("Plugins.Feed.Froogle.Size.Hint")">
+        <column for="Size" sortable="false" hint="@T("Plugins.Feed.Froogle.Size.Hint")">
             <display-template>
-                <span v-if="item.value">{{ item.value }}</span>
-                <a v-else class="text-muted font-italic">@T("Plugins.Feed.Froogle.EmptyGridCell")</a>
+                @{ await DisplayTemplate(); }
             </display-template>
+            <edit-template>
+                <input asp-for="Size" class="form-control-sm" />
+            </edit-template>
         </column>
         <column for="Material" sortable="false" hint="@T("Plugins.Feed.Froogle.Material.Hint")">
             <display-template>
-                <span v-if="item.value">{{ item.value }}</span>
-                <a v-else class="text-muted font-italic">@T("Plugins.Feed.Froogle.EmptyGridCell")</a>
+                @{ await DisplayTemplate(); }
             </display-template>
+            <edit-template>
+                <input asp-for="Material" class="form-control-sm" />
+            </edit-template>
         </column>
         <column for="Pattern" visible="false" sortable="false" hint="@T("Plugins.Feed.Froogle.Pattern.Hint")">
             <display-template>
-                <span v-if="item.value">{{ item.value }}</span>
-                <a v-else class="text-muted font-italic">@T("Plugins.Feed.Froogle.EmptyGridCell")</a>
+                @{ await DisplayTemplate(); }
             </display-template>
+            <edit-template>
+                <input asp-for="Pattern" class="form-control-sm" />
+            </edit-template>
         </column>
         <column for="Multipack" visible="false" sortable="false" halign="center" hint="@T("Plugins.Feed.Froogle.Multipack.Hint")">
             <display-template>
-                <span v-if="item.value">{{ item.value }}</span>
-                <a v-else class="text-muted font-italic">@T("Plugins.Feed.Froogle.EmptyGridCell")</a>
+                @{ await DisplayTemplate(); }
             </display-template>
+            <edit-template>
+                @Html.EditorFor(model => model.Multipack, new { size = "sm" })
+            </edit-template>
         </column>
         <column for="EnergyEfficiencyClass" visible="false" sortable="false" hint="@T("Plugins.Feed.Froogle.EnergyEfficiencyClass.Hint")">
             <display-template>
-                <span v-if="item.value">{{ item.value }}</span>
-                <a v-else class="text-muted font-italic">@T("Plugins.Feed.Froogle.EmptyGridCell")</a>
+                @{ await DisplayTemplate(); }
             </display-template>
         </column>
         <column for="CustomLabel0" visible="false" sortable="false" hint="@T("Plugins.Feed.Froogle.CustomLabel0.Hint")">
             <display-template>
-                <span v-if="item.value">{{ item.value }}</span>
-                <a v-else class="text-muted font-italic">@T("Plugins.Feed.Froogle.EmptyGridCell")</a>
+                @{ await DisplayTemplate(); }
             </display-template>
+            <edit-template>
+                <input asp-for="CustomLabel0" class="form-control-sm" />
+            </edit-template>
         </column>
         <column for="CustomLabel1" visible="false" sortable="false" hint="@T("Plugins.Feed.Froogle.CustomLabel1.Hint")">
             <display-template>
-                <span v-if="item.value">{{ item.value }}</span>
-                <a v-else class="text-muted font-italic">@T("Plugins.Feed.Froogle.EmptyGridCell")</a>
+                @{ await DisplayTemplate(); }
             </display-template>
+            <edit-template>
+                <input asp-for="CustomLabel1" class="form-control-sm" />
+            </edit-template>
         </column>
         <column for="CustomLabel2" visible="false" sortable="false" hint="@T("Plugins.Feed.Froogle.CustomLabel2.Hint")">
             <display-template>
-                <span v-if="item.value">{{ item.value }}</span>
-                <a v-else class="text-muted font-italic">@T("Plugins.Feed.Froogle.EmptyGridCell")</a>
+                @{ await DisplayTemplate(); }
             </display-template>
+            <edit-template>
+                <input asp-for="CustomLabel2" class="form-control-sm" />
+            </edit-template>
         </column>
         <column for="CustomLabel3" visible="false" sortable="false" hint="@T("Plugins.Feed.Froogle.CustomLabel3.Hint")">
             <display-template>
-                <span v-if="item.value">{{ item.value }}</span>
-                <a v-else class="text-muted font-italic">@T("Plugins.Feed.Froogle.EmptyGridCell")</a>
+                @{ await DisplayTemplate(); }
             </display-template>
+            <edit-template>
+                <input asp-for="CustomLabel3" class="form-control-sm" />
+            </edit-template>
         </column>
         <column for="CustomLabel4" visible="false" sortable="false" hint="@T("Plugins.Feed.Froogle.CustomLabel4.Hint")">
             <display-template>
-                <span v-if="item.value">{{ item.value }}</span>
-                <a v-else class="text-muted font-italic">@T("Plugins.Feed.Froogle.EmptyGridCell")</a>
+                @{ await DisplayTemplate(); }
             </display-template>
+            <edit-template>
+                <input asp-for="CustomLabel4" class="form-control-sm" />
+            </edit-template>
         </column>
     </columns>
     <row-commands>
@@ -136,9 +164,7 @@
 </datagrid>
 
 <script sm-target-zone="scripts" data-origin="gmc-products-grid">
-    $(function () {
-        EventBroker.subscribe("editcontrol.initializing", function (event, el) {
-            window.initGoogleProductTaxonomy($(el));
-        });
+    EventBroker.subscribe("editcontrol.initializing", function (e, el) {
+        window.initGoogleProductTaxonomy(el);
     });
 </script>
