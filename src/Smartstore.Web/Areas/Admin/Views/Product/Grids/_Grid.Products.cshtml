@@ -43,18 +43,6 @@
         </toolbar-group>
 
         <zone name="datagrid_toolbar_after"></zone>
-        @* TODO: (mg) (core) Inject export dropdowns like this from modules *@
-        @*<toolbar-group class="border-right-0 border-left mr-0 pr-0 pl-2 ml-2">
-            <div class="dropdown">
-                <button v-bind:class="{ disabled: !grid.hasSelection }" type="button" class="btn btn-light btn-flat dropdown-toggle" data-toggle="dropdown" data-boundary="window">
-                    <i class="far fa-upload"></i>
-                    <span>Exportieren</span>
-                </button>
-                <div class="dropdown-menu dropdown-menu-right">
-                    <a href="#" class="dropdown-item">Hallo</a>
-                </div>
-            </div>
-        </toolbar-group>*@
     </toolbar>
     <search-panel>
         <partial name="Grids/_Grid.Products.Search" model="parentModel" />

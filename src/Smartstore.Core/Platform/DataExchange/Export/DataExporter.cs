@@ -764,15 +764,15 @@ namespace Smartstore.Core.DataExchange.Export
             }
             else if (entityType == ExportEntityType.Customer)
             {
+                // TODO: (mg) (core) too much includes for customer export. Use CustomerBatchContext (all address stuff).
                 var query = _db.Customers
-                    .Include(x => x.BillingAddress)
-                    .Include(x => x.ShippingAddress)
-                    .Include(x => x.Addresses)
-                        .ThenInclude(x => x.Country)
-                    .Include(x => x.Addresses)
-                        .ThenInclude(x => x.StateProvince)
-                    .Include(x => x.CustomerRoleMappings)
-                        .ThenInclude(x => x.CustomerRole)
+                    .IncludeCustomerRoles()
+                    .Include(x => x.BillingAddress.Country)
+                    .Include(x => x.BillingAddress.StateProvince)
+                    .Include(x => x.ShippingAddress.Country)
+                    .Include(x => x.ShippingAddress.StateProvince)
+                    .Include(x => x.Addresses).ThenInclude(x => x.Country)
+                    .Include(x => x.Addresses).ThenInclude(x => x.StateProvince)
                     .AsNoTracking()
                     .AsNoCaching();
 
