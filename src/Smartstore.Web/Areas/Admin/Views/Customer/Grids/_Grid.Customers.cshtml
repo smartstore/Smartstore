@@ -32,7 +32,6 @@
                 <span>@T("Admin.Common.Delete.Selected")</span>
             </button>
         </toolbar-group>
-        @* TODO: (mg) (core) Inject export dropdowns from modules *@
         <zone name="datagrid_toolbar_after"></zone>
     </toolbar>
     <search-panel>
@@ -61,11 +60,11 @@
         }
         @if (parentModel.PhoneEnabled)
         {
-            <column for="Phone" />
+            <column for="Phone" sortable="false" />
         }
         @if (parentModel.ZipPostalCodeEnabled)
         {
-            <column for="ZipPostalCode" />
+            <column for="ZipPostalCode" sortable="false" />
         }
         <column for="Active" halign="center" />
         <column for="CreatedOn" entity-member="CreatedOnUtc" />
@@ -75,9 +74,9 @@
         <column for="IsTaxExempt" halign="center" visible="false" />
         <column for="LastIpAddress" visible="false" />
         <column for="CustomerNumber" visible="false" />
-        <column for="DateOfBirth" visible="false" />
+        <column for="DateOfBirth" visible="false" sortable="false" />
         <column for="Gender" visible="false" />
-        <column for="VatNumber" visible="false" />
+        <column for="VatNumber" visible="false" sortable="false" />
     </columns>
 </datagrid>
 
