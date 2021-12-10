@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31410.357
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore.Web", "src\Smartstore.Web\Smartstore.Web.csproj", "{25E0AA77-1B48-4F6E-B42F-9F428ED968D1}"
 EndProject
@@ -72,9 +72,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore.Shipping", "src\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore.Clickatell", "src\Smartstore.Modules\Smartstore.Clickatell\Smartstore.Clickatell.csproj", "{54FBCDEA-FF29-4988-A699-F1592C790DA3}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore.GoogleAnalytics", "src\Smartstore.Modules\Smartstore.GoogleAnalytics\Smartstore.GoogleAnalytics.csproj", "{FB1560D0-8146-4E2C-A4A6-F12B6BCDFAFD}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore.ShippingByWeight", "src\Smartstore.Modules\Smartstore.ShippingByWeight\Smartstore.ShippingByWeight.csproj", "{BEA9D71F-6B39-4B68-909F-868B9E53038E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore.Google.Analytics", "src\Smartstore.Modules\Smartstore.Google.Analytics\Smartstore.Google.Analytics.csproj", "{290CAB7D-A6AD-4605-A59D-91A1921213E2}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore.Google.MerchantCenter", "src\Smartstore.Modules\Smartstore.Google.MerchantCenter\Smartstore.Google.MerchantCenter.csproj", "{BBB5935F-1E33-4D47-9B3E-7E92F3A4E54A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -178,14 +180,18 @@ Global
 		{54FBCDEA-FF29-4988-A699-F1592C790DA3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{54FBCDEA-FF29-4988-A699-F1592C790DA3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{54FBCDEA-FF29-4988-A699-F1592C790DA3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{FB1560D0-8146-4E2C-A4A6-F12B6BCDFAFD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{FB1560D0-8146-4E2C-A4A6-F12B6BCDFAFD}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{FB1560D0-8146-4E2C-A4A6-F12B6BCDFAFD}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{FB1560D0-8146-4E2C-A4A6-F12B6BCDFAFD}.Release|Any CPU.Build.0 = Release|Any CPU
 		{BEA9D71F-6B39-4B68-909F-868B9E53038E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{BEA9D71F-6B39-4B68-909F-868B9E53038E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BEA9D71F-6B39-4B68-909F-868B9E53038E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BEA9D71F-6B39-4B68-909F-868B9E53038E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{290CAB7D-A6AD-4605-A59D-91A1921213E2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{290CAB7D-A6AD-4605-A59D-91A1921213E2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{290CAB7D-A6AD-4605-A59D-91A1921213E2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{290CAB7D-A6AD-4605-A59D-91A1921213E2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BBB5935F-1E33-4D47-9B3E-7E92F3A4E54A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BBB5935F-1E33-4D47-9B3E-7E92F3A4E54A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BBB5935F-1E33-4D47-9B3E-7E92F3A4E54A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BBB5935F-1E33-4D47-9B3E-7E92F3A4E54A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -212,8 +218,9 @@ Global
 		{BFFCA72C-F9A8-4966-8691-F3243EE9D472} = {E5C1AA43-6B44-4EFA-8DE9-6070EE007CE3}
 		{F945B5FE-0B1F-443F-8395-C441A6F84348} = {E5C1AA43-6B44-4EFA-8DE9-6070EE007CE3}
 		{54FBCDEA-FF29-4988-A699-F1592C790DA3} = {E5C1AA43-6B44-4EFA-8DE9-6070EE007CE3}
-		{FB1560D0-8146-4E2C-A4A6-F12B6BCDFAFD} = {E5C1AA43-6B44-4EFA-8DE9-6070EE007CE3}
 		{BEA9D71F-6B39-4B68-909F-868B9E53038E} = {E5C1AA43-6B44-4EFA-8DE9-6070EE007CE3}
+		{290CAB7D-A6AD-4605-A59D-91A1921213E2} = {E5C1AA43-6B44-4EFA-8DE9-6070EE007CE3}
+		{BBB5935F-1E33-4D47-9B3E-7E92F3A4E54A} = {E5C1AA43-6B44-4EFA-8DE9-6070EE007CE3}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A0A0B995-5D0B-458E-BCC0-1071B76949D1}

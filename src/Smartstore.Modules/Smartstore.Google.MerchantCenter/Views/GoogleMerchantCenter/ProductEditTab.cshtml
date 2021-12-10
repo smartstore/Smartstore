@@ -1,0 +1,175 @@
+﻿@using Smartstore.Google.MerchantCenter.Models;
+
+@model GoogleProductModel
+
+@{
+    Layout = "";
+}
+
+<script src="~/Modules/Smartstore.Google.MerchantCenter/js/taxonomy.js"></script>
+
+<input type="hidden" name="CustomProperties[GMC].__Type__" value="@Model.GetType().AssemblyQualifiedName" />
+<input type="hidden" asp-for="Id" />
+<input type="hidden" asp-for="ProductId" />
+
+<div id="GmcData" class="adminContent">
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Export" />
+        </div>
+        <div class="adminData">
+            <input asp-for="Export" />
+            <span asp-validation-for="Export"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Taxonomy" />
+        </div>
+        <div class="adminData wide">
+            <editor asp-for="Taxonomy" />
+            <span asp-validation-for="Taxonomy"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Gender" />
+        </div>
+        <div class="adminData">
+            <editor asp-for="Gender" />
+            <span asp-validation-for="Gender"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="AgeGroup" />
+        </div>
+        <div class="adminData">
+            <editor asp-for="AgeGroup" />
+            <span asp-validation-for="AgeGroup"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="IsAdult" />
+        </div>
+        <div class="adminData">
+            <editor asp-for="IsAdult" placeholder="@ViewBag.DefaultIsAdult" />
+            <span asp-validation-for="IsAdult"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Color" />
+        </div>
+        <div class="adminData">
+            <editor asp-for="Color" placeholder="@ViewBag.DefaultColor" />
+            <span asp-validation-for="Color"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Size" />
+        </div>
+        <div class="adminData">
+            <input asp-for="Size" placeholder="@ViewBag.DefaultSize" />
+            <span asp-validation-for="Size"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Material" />
+        </div>
+        <div class="adminData">
+            <input asp-for="Material" placeholder="@ViewBag.DefaultMaterial" />
+            <span asp-validation-for="Material"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Pattern" />
+        </div>
+        <div class="adminData">
+            <input asp-for="Pattern" placeholder="@ViewBag.DefaultPattern" />
+            <span asp-validation-for="Pattern"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Multipack" />
+        </div>
+        <div class="adminData">
+            <editor asp-for="Multipack" placeholder="@ViewBag.DefaultMultipack" />
+            <span asp-validation-for="Multipack"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="IsBundle" />
+        </div>
+        <div class="adminData">
+            <editor asp-for="IsBundle" placeholder="@ViewBag.DefaultIsBundle" />
+            <span asp-validation-for="IsBundle"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="EnergyEfficiencyClass" />
+        </div>
+        <div class="adminData">
+            <editor asp-for="EnergyEfficiencyClass" />
+            <span asp-validation-for="EnergyEfficiencyClass"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="CustomLabel0" />
+        </div>
+        <div class="adminData">
+            <input asp-for="CustomLabel0" placeholder="@ViewBag.DefaultCustomLabel" />
+            <span asp-validation-for="CustomLabel0"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="CustomLabel1" />
+        </div>
+        <div class="adminData">
+            <input asp-for="CustomLabel1" placeholder="@ViewBag.DefaultCustomLabel" />
+            <span asp-validation-for="CustomLabel1"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="CustomLabel2" />
+        </div>
+        <div class="adminData">
+            <input asp-for="CustomLabel2" placeholder="@ViewBag.DefaultCustomLabel" />
+            <span asp-validation-for="CustomLabel2"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="CustomLabel3" />
+        </div>
+        <div class="adminData">
+            <input asp-for="CustomLabel3" placeholder="@ViewBag.DefaultCustomLabel" />
+            <span asp-validation-for="CustomLabel3"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="CustomLabel4" />
+        </div>
+        <div class="adminData">
+            <input asp-for="CustomLabel4" placeholder="@ViewBag.DefaultCustomLabel" />
+            <span asp-validation-for="CustomLabel4"></span>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        window.initGoogleProductTaxonomy($('#@Html.IdFor(model => model.Taxonomy)'));
+    });
+</script>

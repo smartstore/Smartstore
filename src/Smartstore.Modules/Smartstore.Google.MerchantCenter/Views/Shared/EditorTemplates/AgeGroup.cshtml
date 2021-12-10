@@ -1,0 +1,10 @@
+﻿@model string
+
+@{
+    var defaultAgeGroup = ViewBag.DefaultAgeGroup ?? T("Common.Unspecified");
+}
+
+<select asp-for="@Model" class="edit-control" data-editor="select" asp-placeholder="@defaultAgeGroup">
+    <option value="adult">@T("Plugins.Feed.Froogle.AgeGroupAdult")</option>
+    <option value="kids">@T("Plugins.Feed.Froogle.AgeGroupKids")</option>
+</select>

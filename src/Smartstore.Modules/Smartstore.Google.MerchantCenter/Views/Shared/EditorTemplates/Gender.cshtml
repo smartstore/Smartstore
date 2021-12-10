@@ -1,0 +1,11 @@
+﻿@model string
+
+@{
+    var defaultGender = ViewBag.DefaultGender ?? T("Common.Unspecified");
+}
+
+<select asp-for="@Model" class="edit-control" data-editor="select" asp-placeholder="@defaultGender">
+    <option value="male">@T("Plugins.Feed.Froogle.GenderMale")</option>
+    <option value="female">@T("Plugins.Feed.Froogle.GenderFemale")</option>
+    <option value="unisex">@T("Plugins.Feed.Froogle.GenderUnisex")</option>
+</select>

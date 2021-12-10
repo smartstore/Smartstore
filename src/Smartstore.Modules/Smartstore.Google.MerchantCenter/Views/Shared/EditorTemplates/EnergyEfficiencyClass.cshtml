@@ -1,0 +1,10 @@
+﻿@model string
+
+@{
+    var items = T("Plugins.Feed.Froogle.EnergyEfficiencyClasses").Value
+                .SplitSafe(",")
+                .Select(x => new SelectListItem { Value = x, Text = x })
+                .ToList();
+}
+
+<select asp-for="@Model" asp-items="items" asp-placeholder="@T("Common.Unspecified")"></select>
