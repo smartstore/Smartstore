@@ -41,7 +41,7 @@ namespace Smartstore.Google.MerchantCenter
 
             // Delete existing export profiles.
             var profiles = await _db.ExportProfiles
-                .ApplySystemProfileFilter(GmcXmlExportProvider.SystemName)
+                .Where(x => x.ProviderSystemName == GmcXmlExportProvider.SystemName)
                 .ToListAsync();
 
             profiles.Each(async x => await _exportProfileService.DeleteExportProfileAsync(x, true));
