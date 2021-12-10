@@ -17,6 +17,12 @@ namespace Smartstore.Domain
     /// </remarks>
     public abstract class AttributeSelection : IEquatable<AttributeSelection>
     {
+        private static readonly JsonSerializerSettings _jsonSettings = new()
+        {
+            // Do not include the .NET type name when serializing types.
+            TypeNameHandling = TypeNameHandling.None
+        };
+
         private string _rawAttributes;
         protected readonly AllAttributes _attributes;
 
@@ -154,7 +160,7 @@ namespace Smartstore.Domain
 
             try
             {
-                var json = JsonConvert.SerializeObject(_attributes);
+                var json = JsonConvert.SerializeObject(_attributes, _jsonSettings);
 
                 _isJson = true;
                 _dirty = false;
@@ -267,7 +273,7 @@ namespace Smartstore.Domain
                 }
                 else
                 {
-                    var attributes = JsonConvert.DeserializeObject<AllAttributes>(_rawAttributes);
+                    var attributes = JsonConvert.DeserializeObject<AllAttributes>(_rawAttributes, _jsonSettings);
 
                     if (attributes.CustomAttributes.Any())
                     {
