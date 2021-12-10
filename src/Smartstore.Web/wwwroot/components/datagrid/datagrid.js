@@ -87,10 +87,10 @@ Vue.component("sm-datagrid", {
                                     <div class="dg-cell dg-cell-header" 
                                         :style="getCellStyles(null, column, true)" 
                                         :class="{ 'dg-sortable': sorting.enabled && column.sortable }"
-                                        :title="column.title ? null : column.name"
+                                        :title="column.hint ? column.hint : column.name"
                                         v-on:click="onSort($event, column)">
                                         <i v-if="column.icon" class="dg-icon" :class="column.icon"></i>
-                                        <span v-if="column.title" class="dg-cell-value" :title="column.title">{{ column.title }}</span>
+                                        <span v-if="column.title" class="dg-cell-value">{{ column.title }}</span>
                                         <i v-if="isSortedAsc(column)" class="fa fa-fw fa-sm fa-arrow-up mx-1"></i>
                                         <i v-if="isSortedDesc(column)" class="fa fa-fw fa-sm fa-arrow-down mx-1"></i>
                                     </div>

@@ -17,6 +17,7 @@ namespace Smartstore.Web.TagHelpers.Admin
     {
         const string ForAttributeName = "for";
         const string TitleAttributeName = "title";
+        const string HintAttributeName = "hint";
         const string WidthAttributeName = "width";
         const string VisibleAttributeName = "visible";
         const string FlowAttributeName = "flow";
@@ -60,6 +61,12 @@ namespace Smartstore.Web.TagHelpers.Admin
         [HtmlAttributeName(TitleAttributeName)]
         public string Title { get; set; }
 
+        /// <summary>
+        /// Sets the title tag of a column. Use it to display user hints.
+        /// </summary>
+        [HtmlAttributeName(HintAttributeName)]
+        public string Hint { get; set; }
+        
         /// <summary>
         /// Columns width. Any CSS grid width specification is valid.
         /// </summary>
@@ -228,6 +235,7 @@ namespace Smartstore.Web.TagHelpers.Admin
                 member = MemberName,
                 name = For.Metadata.DisplayName ?? For.Metadata.PropertyName.Titleize(),
                 title = Title ?? For.Metadata.DisplayName ?? For.Metadata.PropertyName.Titleize(),
+                hint = Hint ?? Title,
                 width = Width.EmptyNull(),
                 visible = Visible,
                 halign = HAlign,
