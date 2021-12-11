@@ -19,7 +19,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             if (Placeholder != null)
             {
                 await output.GetChildContentAsync();
-                output.PreContent.AppendHtml($"<option>{Placeholder}</option>");
+                output.PreContent.AppendHtml($"<option value=\"\">{Placeholder}</option>");
             }
         }
     }
