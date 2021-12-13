@@ -238,13 +238,15 @@ namespace Smartstore.Google.MerchantCenter.Controllers
             await MapperFactory.MapAsync(model, googleProduct);
 
             googleProduct.UpdatedOnUtc = utcNow;
-
-            // TODO: (mh) (core) Check for "IsTouched" is missing (delete if false)
             googleProduct.IsTouched = googleProduct.IsTouched();
 
             if (insert)
             {
                 _db.GoogleProducts().Add(googleProduct);
+            }
+            else if(!googleProduct.IsTouched) 
+            {
+                _db.GoogleProducts().Remove(googleProduct);
             }
             
             await _db.SaveChangesAsync();
@@ -261,7 +263,6 @@ namespace Smartstore.Google.MerchantCenter.Controllers
             
             var skip = (page.Value - 1) * take;
             var (categories, hasMoreItems) = await GetTaxonomyListAsync(search, skip, take);
-
             var items = categories.Select(x => new { id = x, text = x }).ToList();
 
             return Json(new 
@@ -271,9 +272,6 @@ namespace Smartstore.Google.MerchantCenter.Controllers
             });
         }
 
-        // INFO: (mh) (mg) (core) This code is (and always was) extremely inefficient. Loading a ~430 KB large file
-        //       completely into memory just to take a small portion is toxic and slow. Solution: just skip all unnecessary lines,
-        //       take while result size is < "take", and then EXIT to reduce RAM pressure.
         private async Task<(List<string> categories, bool hasMoreItems)> GetTaxonomyListAsync(string searchTerm, int skip, int take)
         {
             var categories = new List<string>(take);

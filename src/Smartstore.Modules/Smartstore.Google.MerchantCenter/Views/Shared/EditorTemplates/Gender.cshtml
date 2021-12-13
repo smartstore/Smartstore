@@ -2,9 +2,14 @@
 
 @{
     var defaultGender = ViewBag.DefaultGender ?? T("Common.Unspecified");
+    var size = GetMetadata<string>("size");
 }
 
-<select asp-for="@Model" class="edit-control form-control-sm" data-editor="select" asp-placeholder="@defaultGender">
+<select asp-for="@Model" 
+        class="edit-control"
+        attr-class='(size.HasValue(), "form-control-" + size)'
+        data-editor="select" 
+        asp-placeholder="@defaultGender">
     <option value="male">@T("Plugins.Feed.Froogle.GenderMale")</option>
     <option value="female">@T("Plugins.Feed.Froogle.GenderFemale")</option>
     <option value="unisex">@T("Plugins.Feed.Froogle.GenderUnisex")</option>

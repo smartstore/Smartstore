@@ -13,7 +13,6 @@ namespace Smartstore.Google.MerchantCenter.Migrations
 
             if (!Schema.Table(GoogleMerchantCenter).Exists())
             {
-                // INFO: (mh) (core) Once again: "Port" the classic EF6 migration class(es). This way you'll reduce error count significantly.
                 Create.Table(GoogleMerchantCenter)
                     .WithIdColumn()
                     .WithColumn(nameof(GoogleProduct.ProductId)).AsInt32().NotNullable()

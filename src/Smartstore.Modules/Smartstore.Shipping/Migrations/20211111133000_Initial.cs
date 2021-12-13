@@ -19,7 +19,7 @@ namespace Smartstore.Shipping.Migrations
                     .WithColumn(nameof(ShippingRateByTotal.CountryId)).AsInt32().Nullable()
                     .WithColumn(nameof(ShippingRateByTotal.StateProvinceId)).AsInt32().Nullable()
                     .WithColumn(nameof(ShippingRateByTotal.Zip)).AsString(100).Nullable()
-                    .WithColumn(nameof(ShippingRateByTotal.From)).AsDecimal(2, 18).NotNullable() // WTF ???!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                    .WithColumn(nameof(ShippingRateByTotal.From)).AsDecimal(2, 18).NotNullable()
                     .WithColumn(nameof(ShippingRateByTotal.To)).AsDecimal(2, 18).Nullable()
                     .WithColumn(nameof(ShippingRateByTotal.UsePercentage)).AsBoolean()
                     .WithColumn(nameof(ShippingRateByTotal.ShippingChargePercentage)).AsDecimal(2, 18).NotNullable()

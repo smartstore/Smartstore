@@ -1,5 +1,6 @@
 ﻿using System.Threading;
 using System.Xml;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Smartstore.Collections;
 using Smartstore.Core;
@@ -58,11 +59,10 @@ namespace Smartstore.Google.MerchantCenter.Providers
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
 
-        private async Task InitAttributeMappings()
+        private async Task InitAttributeMappingsAsync()
         {
             if (_attributeMappings == null)
             {
-                // INFO: (mh) (core) NEVER call .Result on a Task (call .Await() if you cannot use async pattern)
                 _attributeMappings = await _productAttributeService.GetExportFieldMappingsAsync("gmc");
             }
         }
@@ -178,7 +178,7 @@ namespace Smartstore.Google.MerchantCenter.Providers
 
         protected override async Task ExportAsync(ExportExecuteContext context, CancellationToken cancelToken)
         {
-            await InitAttributeMappings();
+            await InitAttributeMappingsAsync();
             Currency currency = context.Currency.Entity;
             var languageId = context.Projection.LanguageId ?? 0;
             var dateFormat = "yyyy-MM-ddTHH:mmZ";
@@ -212,9 +212,9 @@ namespace Smartstore.Google.MerchantCenter.Providers
 
                 int[] productIds = segment.Select(x => (int)((dynamic)x).Id).ToArray();
 
-                // TODO: (mh) (core) WHAT are you doing?!! First get data ASYNC, then make dictionary!
-                var googleProducts = _db.GoogleProducts()
+                var googleProducts = (await _db.GoogleProducts()
                     .Where(x => productIds.Contains(x.ProductId))
+                    .ToListAsync(cancellationToken: cancelToken))
                     .ToDictionarySafe(x => x.ProductId);
 
                 foreach (dynamic product in segment)

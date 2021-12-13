@@ -13,12 +13,6 @@ using Smartstore.Engine.Modularity;
 using Smartstore.Google.MerchantCenter.Providers;
 using Smartstore.Http;
 
-// TODO: (mh) (core) Please check whether Google provides more up-to-date taxonomy files.
-// TODO: (mh) (core) Language resource keys for module displayname and description follow conventions:
-//       "Plugins.FriendlyName.SmartStore.GoogleMerchantCenter" does not meet this convention:
-//       It needs to be: "Plugins.FriendlyName.Smartstore.Google.MerchantCenter"
-//       Please verify, fix here and in all other renamed modules.
-
 namespace Smartstore.Google.MerchantCenter
 {
     internal class Module : ModuleBase, IConfigurable

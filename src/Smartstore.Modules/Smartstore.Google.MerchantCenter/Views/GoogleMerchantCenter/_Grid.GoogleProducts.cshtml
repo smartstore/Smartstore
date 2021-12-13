@@ -4,7 +4,6 @@
     var parentModel = ViewData["Parent"] as ConfigurationModel;
     var emptyCell = T("Plugins.Feed.Froogle.EmptyGridCell");
 
-    // INFO: (mh) (core) DRY!
     async Task DisplayTemplate()
     {
         <span v-if="item.value">{{ item.value }}</span>
@@ -53,16 +52,25 @@
             <display-template>
                 @{ await DisplayTemplate(); }
             </display-template>
+            <edit-template>
+                @Html.EditorFor(model => model.Taxonomy, new { size = "sm" })
+            </edit-template>
         </column>
         <column for="Gender" width="140px" sortable="false" hint="@T("Plugins.Feed.Froogle.Gender.Hint")">
             <display-template>
                 @{ await DisplayTemplate(); }
             </display-template>
+            <edit-template>
+                @Html.EditorFor(model => model.Gender, new { size = "sm" })
+            </edit-template>
         </column>
         <column for="AgeGroup" width="140px" sortable="false" hint="@T("Plugins.Feed.Froogle.AgeGroup.Hint")">
             <display-template>
                 @{ await DisplayTemplate(); }
             </display-template>
+            <edit-template>
+                @Html.EditorFor(model => model.AgeGroup, new { size = "sm" })
+            </edit-template>
         </column>
         <column for="IsAdult" visible="false" sortable="false" halign="center" hint="@T("Plugins.Feed.Froogle.IsAdult.Hint")">
             <display-template>
@@ -116,6 +124,9 @@
             <display-template>
                 @{ await DisplayTemplate(); }
             </display-template>
+            <edit-template>
+                @Html.EditorFor(model => model.EnergyEfficiencyClass, new { size = "sm" })
+            </edit-template>
         </column>
         <column for="CustomLabel0" visible="false" sortable="false" hint="@T("Plugins.Feed.Froogle.CustomLabel0.Hint")">
             <display-template>
