@@ -11,6 +11,7 @@
     }
 
     // TODO: (mh) (core) Default column sizing has to be thoroghly thought about and be optimized!!! It is very clumsy!
+    // TODO: (mh) (core) admin.catalog.products.producttype.0.label is unlocalized
 }
 
 <widget target-zone="scripts" key="gmc-products-grid">
@@ -33,6 +34,7 @@
             <button datagrid-action="DataGridToolAction.ToggleSearchPanel" type="button" class="btn btn-light btn-icon">
                 <i class="fa fa-fw fa-filter"></i>
             </button>
+            @* TODO: (mh) (core) Apply & Cancel buttons are missing *@
         </toolbar-group>
     </toolbar>
     <search-panel>
@@ -40,12 +42,12 @@
     </search-panel>
     <columns>
         <column for="ProductId" readonly visible="false" />
-        <column for="Name" hideable="false" readonly>
+        <column for="Name" width="1.5fr" hideable="false" readonly>
             <display-template>
                 @Html.LabeledProductName()
             </display-template>
         </column>
-        <column for="SKU" readonly visible="false" />
+        <column for="SKU" width="200px" readonly visible="false" />
         <column for="Export" halign="center" sortable="false" />
 
         <column for="Taxonomy" width="2fr" sortable="false" hint="@T("Plugins.Feed.Froogle.Products.GoogleCategory.Hint")">
@@ -56,7 +58,7 @@
                 @Html.EditorFor(model => model.Taxonomy, new { size = "sm" })
             </edit-template>
         </column>
-        <column for="Gender" width="140px" sortable="false" hint="@T("Plugins.Feed.Froogle.Gender.Hint")">
+        <column for="Gender" visible="false" width="140px" sortable="false" hint="@T("Plugins.Feed.Froogle.Gender.Hint")">
             <display-template>
                 @{ await DisplayTemplate(); }
             </display-template>
@@ -64,7 +66,7 @@
                 @Html.EditorFor(model => model.Gender, new { size = "sm" })
             </edit-template>
         </column>
-        <column for="AgeGroup" width="140px" sortable="false" hint="@T("Plugins.Feed.Froogle.AgeGroup.Hint")">
+        <column for="AgeGroup" visible="false" width="140px" sortable="false" hint="@T("Plugins.Feed.Froogle.AgeGroup.Hint")">
             <display-template>
                 @{ await DisplayTemplate(); }
             </display-template>
@@ -96,7 +98,7 @@
                 <input asp-for="Size" class="form-control-sm" />
             </edit-template>
         </column>
-        <column for="Material" sortable="false" hint="@T("Plugins.Feed.Froogle.Material.Hint")">
+        <column for="Material" visible="false" sortable="false" hint="@T("Plugins.Feed.Froogle.Material.Hint")">
             <display-template>
                 @{ await DisplayTemplate(); }
             </display-template>
