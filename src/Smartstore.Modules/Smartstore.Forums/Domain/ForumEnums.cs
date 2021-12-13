@@ -3,7 +3,6 @@
     /// <summary>
     /// Represents a forum topic type.
     /// </summary>
-    [EnumAliasName("Smartstore.Forums.Domain.ForumTopicType")]
     public enum ForumTopicType
     {
         /// <summary>
@@ -22,7 +21,6 @@
         Announcement = 20,
     }
 
-    [EnumAliasName("Smartstore.Forums.Domain.ForumDateFilter")]
     public enum ForumDateFilter
     {
         LastVisit = 0,
@@ -38,7 +36,6 @@
     /// <summary>
     /// Represents a forum editor type.
     /// </summary>
-    [EnumAliasName("Smartstore.Forums.Domain.EditorType")]
     public enum EditorType
     {
         /// <summary>
@@ -55,7 +52,6 @@
     /// <summary>
     /// Represents the sorting of forum topics.
     /// </summary>
-    [EnumAliasName("Smartstore.Forums.Domain.ForumTopicSorting")]
     public enum ForumTopicSorting
     {
         /// <summary>

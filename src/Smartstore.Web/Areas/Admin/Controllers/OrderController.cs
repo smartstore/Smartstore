@@ -275,8 +275,22 @@ namespace Smartstore.Admin.Controllers
             })
             .AsyncToList();
 
+            var summaryQuery =
+                from q in orderQuery
+                group q by 1 into grp
+                select new OrderAverageReportLine
+                {
+                    OrderCount = grp.Count(),
+                    SumTax = grp.Sum(x => x.OrderTax),
+                    SumOrderTotal = grp.Sum(x => x.OrderTotal)
+                };
+
+            var summary = await summaryQuery
+                .OrderByDescending(x => x.SumOrderTotal)
+                .FirstOrDefaultAsync() ?? new OrderAverageReportLine();
+
             var productCost = await orderQuery.GetOrdersProductCostsAsync();
-            var summary = await orderQuery.SelectAsOrderAverageReportLine().FirstOrDefaultAsync() ?? new OrderAverageReportLine();
+
             var profit = summary.SumOrderTotal - summary.SumTax - productCost;
 
             return Json(new GridModel<OrderOverviewModel>

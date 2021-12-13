@@ -133,7 +133,9 @@
                         <smart-label asp-for="ForumEditor" />
                     </div>
                     <div class="adminData">
-                        <setting-editor asp-for="ForumEditor"></setting-editor>
+                        <setting-editor asp-for="ForumEditor">
+                            <select asp-for="ForumEditor" asp-items="Html.GetLocalizedEnumSelectList(typeof(EditorType))"></select>
+                        </setting-editor>
                         <span asp-validation-for="ForumEditor"></span>
                     </div>
                 </div>

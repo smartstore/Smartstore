@@ -269,25 +269,6 @@ namespace Smartstore
         }
 
         /// <summary>
-        /// Selects <see cref="OrderAverageReportLine"/> from query.
-        /// </summary>
-        /// <param name="query">Order query from which to select.</param>
-        /// <returns><see cref="IQueryable"/> of <see cref="OrderAverageReportLine"/>.</returns>
-        public static IQueryable<OrderAverageReportLine> SelectAsOrderAverageReportLine(this IQueryable<Order> query)
-        {
-            Guard.NotNull(query, nameof(query));
-
-            return query
-                .GroupBy(x => 1)
-                .Select(x => new OrderAverageReportLine
-                {
-                    OrderCount = x.Count(),
-                    SumTax = x.Sum(x => x.OrderTax),
-                    SumOrderTotal = x.Sum(x => x.OrderTotal)
-                });
-        }
-
-        /// <summary>
         /// Selects <see cref="OrderDataPoint"/> from query.
         /// </summary>
         /// <param name="query">Order query from which to select.</param>
