@@ -35,8 +35,8 @@ namespace Smartstore.Core.DataExchange.Export.Internal
 
             if (orders != null)
             {
-                _orderIds = new List<int>(orders.Select(x => x.Id));
-                _customerIds = new List<int>(orders.Select(x => x.CustomerId));
+                _orderIds.AddRange(orders.Select(x => x.Id));
+                _customerIds.AddRange(orders.Select(x => x.CustomerId));
 
                 _addressIds = orders
                     .Select(x => x.BillingAddressId)
@@ -104,7 +104,8 @@ namespace Smartstore.Core.DataExchange.Export.Internal
         protected virtual async Task<Multimap<int, Customer>> LoadCustomers(int[] customerIds)
         {
             var customers = await _db.Customers
-                .AsNoTracking()
+                .AsNoTrackingWithIdentityResolution()
+                .IncludeCustomerRoles()
                 .Where(x => customerIds.Contains(x.Id))
                 .ToListAsync();
 
@@ -137,8 +138,6 @@ namespace Smartstore.Core.DataExchange.Export.Internal
         {
             var addresses = await _db.Addresses
                 .AsNoTracking()
-                .Include(x => x.Country)
-                .Include(x => x.StateProvince)
                 .Where(x => addressIds.Contains(x.Id))
                 .ToListAsync();
 
@@ -148,7 +147,7 @@ namespace Smartstore.Core.DataExchange.Export.Internal
         protected virtual async Task<Multimap<int, OrderItem>> LoadOrderItems(int[] orderIds)
         {
             var orderItems = await _db.OrderItems
-                .AsNoTracking()
+                .AsNoTrackingWithIdentityResolution()
                 .Include(x => x.Product)
                 .Where(x => orderIds.Contains(x.OrderId))
                 .OrderBy(x => x.OrderId)

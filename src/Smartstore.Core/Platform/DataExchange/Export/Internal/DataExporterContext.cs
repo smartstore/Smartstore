@@ -78,6 +78,7 @@ namespace Smartstore.Core.DataExchange.Export.Internal
         public Dictionary<int, Store> Stores { get; set; } = new();
         public Dictionary<int, Language> Languages { get; set; } = new();
         public Dictionary<int, Country> Countries { get; set; } = new();
+        public Dictionary<int, StateProvince> StateProvinces { get; set; } = new();
         public Dictionary<int, string> ProductTemplates { get; set; } = new();
         public Dictionary<int, string> CategoryTemplates { get; set; } = new();
         public HashSet<string> NewsletterSubscriptions { get; set; } = new();

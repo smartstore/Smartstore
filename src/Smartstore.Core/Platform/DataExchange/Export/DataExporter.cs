@@ -352,11 +352,17 @@ namespace Smartstore.Core.DataExchange.Export
                 ctx.ProductTemplates = await _db.ProductTemplates.AsNoTracking().ToDictionaryAsync(x => x.Id, x => x.ViewPath, ct);
                 ctx.CategoryTemplates = await _db.CategoryTemplates.AsNoTracking().ToDictionaryAsync(x => x.Id, x => x.ViewPath, ct);
 
-                if (provider.EntityType == ExportEntityType.Product || provider.EntityType == ExportEntityType.Order)
+                if (provider.EntityType == ExportEntityType.Product || 
+                    provider.EntityType == ExportEntityType.Order ||
+                    provider.EntityType == ExportEntityType.Customer)
                 {
                     ctx.Countries = await _db.Countries.AsNoTracking().ToDictionaryAsync(x => x.Id, x => x, ct);
                 }
-                else if (provider.EntityType == ExportEntityType.Customer)
+                if (provider.EntityType == ExportEntityType.Order || provider.EntityType == ExportEntityType.Customer)
+                {
+                    ctx.StateProvinces = await _db.StateProvinces.AsNoTracking().ToDictionaryAsync(x => x.Id, x => x, ct);
+                }
+                if (provider.EntityType == ExportEntityType.Customer)
                 {
                     var subscriptionEmails = await _db.NewsletterSubscriptions
                         .AsNoTracking()
@@ -556,6 +562,7 @@ namespace Smartstore.Core.DataExchange.Export
                 ctx.ProductTemplates.Clear();
                 ctx.CategoryTemplates.Clear();
                 ctx.Countries.Clear();
+                ctx.StateProvinces.Clear();
                 ctx.Languages.Clear();
                 ctx.QuantityUnits.Clear();
                 ctx.DeliveryTimes.Clear();
@@ -764,16 +771,12 @@ namespace Smartstore.Core.DataExchange.Export
             }
             else if (entityType == ExportEntityType.Customer)
             {
-                // TODO: (mg) (core) too much includes for customer export. Use CustomerBatchContext (all address stuff).
                 var query = _db.Customers
                     .IncludeCustomerRoles()
-                    .Include(x => x.BillingAddress.Country)
-                    .Include(x => x.BillingAddress.StateProvince)
-                    .Include(x => x.ShippingAddress.Country)
-                    .Include(x => x.ShippingAddress.StateProvince)
-                    .Include(x => x.Addresses).ThenInclude(x => x.Country)
-                    .Include(x => x.Addresses).ThenInclude(x => x.StateProvince)
-                    .AsNoTracking()
+                    .Include(x => x.BillingAddress)
+                    .Include(x => x.ShippingAddress)
+                    .Include(x => x.Addresses)
+                    .AsNoTrackingWithIdentityResolution()
                     .AsNoCaching();
 
                 if (f.IsActiveCustomer.HasValue)
@@ -866,7 +869,7 @@ namespace Smartstore.Core.DataExchange.Export
                         .ThenInclude(x => x.CustomerRoleMappings)
                         .ThenInclude(x => x.CustomerRole)
                     .Include(x => x.Product)
-                    .AsNoTracking()
+                    .AsNoTrackingWithIdentityResolution()
                     .AsNoCaching()
                     .Where(x => x.Customer != null && x.Product != null);
 
@@ -1433,7 +1436,7 @@ namespace Smartstore.Core.DataExchange.Export
         {
             var profile = ctx.Request.Profile;
             var emailAccount = await _db.EmailAccounts.FindByIdAsync(profile.EmailAccountId, false, ctx.CancelToken);
-            if (emailAccount == null)
+            if (emailAccount == null || emailAccount.Host.IsEmpty())
             {
                 return;
             }

@@ -26,7 +26,7 @@ namespace Smartstore.Core.DataExchange.Export.Internal
 
             if (customers != null)
             {
-                _customerIds = new List<int>(customers.Select(x => x.Id));
+                _customerIds.AddRange(customers.Select(x => x.Id));
             }
         }
 
