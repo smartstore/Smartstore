@@ -17,7 +17,7 @@ namespace Smartstore.Facebook.Auth.Components
 
         public IViewComponentResult Invoke()
         {
-            if (!_facebookOptions.AppId.HasValue() && !_facebookOptions.AppSecret.HasValue())
+            if (!_facebookOptions.AppId.HasValue() || !_facebookOptions.AppSecret.HasValue())
             {
                 return Empty();
             }

@@ -16,7 +16,7 @@ namespace Smartstore.Google.Auth.Components
 
         public IViewComponentResult Invoke()
         {
-            if (!_googleOptions.ClientId.HasValue() && !_googleOptions.ClientSecret.HasValue())
+            if (!_googleOptions.ClientId.HasValue() || !_googleOptions.ClientSecret.HasValue())
             {
                 return Empty();
             }

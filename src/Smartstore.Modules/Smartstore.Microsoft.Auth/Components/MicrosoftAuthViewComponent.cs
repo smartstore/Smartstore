@@ -17,7 +17,7 @@ namespace Smartstore.Microsoft.Auth.Components
 
         public IViewComponentResult Invoke()
         {
-            if (!_microsoftOptions.ClientId.HasValue() && !_microsoftOptions.ClientSecret.HasValue())
+            if (!_microsoftOptions.ClientId.HasValue() || !_microsoftOptions.ClientSecret.HasValue())
             {
                 return Empty();
             }

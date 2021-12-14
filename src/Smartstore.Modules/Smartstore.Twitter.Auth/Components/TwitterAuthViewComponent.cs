@@ -16,7 +16,7 @@ namespace Smartstore.Twitter.Auth.Components
 
         public IViewComponentResult Invoke()
         {
-            if (!_twitterOptions.ConsumerKey.HasValue() && !_twitterOptions.ConsumerSecret.HasValue())
+            if (!_twitterOptions.ConsumerKey.HasValue() || !_twitterOptions.ConsumerSecret.HasValue())
             {
                 return Empty();
             }
