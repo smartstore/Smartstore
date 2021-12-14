@@ -1,0 +1,481 @@
+﻿@model ConfigurationModel
+
+@{
+    Layout = "_ConfigureModule";
+
+    var configGroups = T("Plugins.Payments.AmazonPay.ConfigGroups").Value.SplitSafe(';');
+
+    var marketplace = new List<SelectListItem>
+    {
+        new SelectListItem { Text = T("Plugins.Payments.AmazonPay.Marketplace.De"), Value = "de" },
+        new SelectListItem { Text = T("Plugins.Payments.AmazonPay.Marketplace.Uk"), Value = "uk" },
+        new SelectListItem { Text = T("Plugins.Payments.AmazonPay.Marketplace.Us"), Value = "us" },
+        new SelectListItem { Text = T("Plugins.Payments.AmazonPay.Marketplace.Jp"), Value = "jp" }
+    };
+
+    var buttonColors = new List<SelectListItem>
+    {
+        new SelectListItem { Text = T("Plugins.Payments.AmazonPay.ButtonColor.Gold"), Value = "Gold" },
+        new SelectListItem { Text = T("Plugins.Payments.AmazonPay.ButtonColor.LightGray"), Value = "LightGray" },
+        new SelectListItem { Text = T("Plugins.Payments.AmazonPay.ButtonColor.DarkGray"), Value = "DarkGray" }
+    };
+
+    var buttonSizes = new List<SelectListItem>
+    {
+        new SelectListItem { Text = T("Plugins.Payments.AmazonPay.ButtonSize.Small"), Value = "small" },
+        new SelectListItem { Text = T("Plugins.Payments.AmazonPay.ButtonSize.Medium"), Value = "medium" },
+        new SelectListItem { Text = T("Plugins.Payments.AmazonPay.ButtonSize.Large"), Value = "large" },
+        new SelectListItem { Text = T("Plugins.Payments.AmazonPay.ButtonSize.Xlarge"), Value = "x-large" }
+    };
+
+    var authButtonType = new List<SelectListItem>
+    {
+        new SelectListItem { Text = T("Plugins.Payments.AmazonPay.AuthButtonType.Login"), Value = "Login" },
+        new SelectListItem { Text = T("Plugins.Payments.AmazonPay.AuthButtonType.LwA"), Value = "LwA" }
+    };
+}
+
+@await Component.InvokeAsync("StoreScope")
+
+<widget target-zone="admin_button_toolbar_before">
+    <button id="SaveConfigButton" type="submit" name="save" class="btn btn-warning" value="save">
+        <i class="fa fa-check"></i>
+        <span>@T("Admin.Common.Save")</span>
+    </button>
+</widget>
+
+<div class="plugin-configuration">
+    <div>
+        <div class="alert alert-info alert-dismissible">
+            @Html.Raw(T("Plugins.Payments.AmazonPay.AdminInstruction"))
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+        </div>
+    </div>
+    <div>
+        <a href="https://sellercentral-europe.amazon.com" target="_blank">
+            <img src="@Url.Content("~/Modules/Smartstore.AmazonPay/branding.png")" alt="Amazon Pay" />
+        </a>
+    </div>
+</div>
+
+<form asp-action="Configure">
+    <div asp-validation-summary="All"></div>
+
+    <div id="amazonpay-config" class="adminContent">
+        <div class="adminRow">
+            <div class="admin-config-group">
+                <div class="head">@configGroups.ElementAtOrDefault(0)</div>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">&nbsp;</div>
+            <div class="adminData">
+                <a href="javascript:;" class="btn btn-primary register-now">
+                    <i class="fa fa-sign-in-alt"></i>
+                    <span>@T("Plugins.Payments.AmazonPay.RegisterNow")</span>
+                </a>
+                <button type="button" class="btn btn-secondary paste-access-data">
+                    <i class="far fa-clipboard"></i>
+                    <span>@T("Plugins.Payments.AmazonPay.PasteAccessData")</span>
+                </button>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">&nbsp;</div>
+            <div class="adminData">
+                <div class="alert alert-info">
+                    @Html.Raw(T("Plugins.Payments.AmazonPay.RegisterNote"))
+                </div>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="UseSandbox" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="UseSandbox"></setting-editor>
+                <span asp-validation-for="UseSandbox"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="SellerId" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="SellerId"></setting-editor>
+                <span asp-validation-for="SellerId"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="AccessKey" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="AccessKey"></setting-editor>
+                <span asp-validation-for="AccessKey"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="SecretKey" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="SecretKey">
+                    <input asp-for="SecretKey" type="password" autocomplete="new-password" class="password" attr-value='(Model.SecretKey.HasValue(), Model.SecretKey)' />
+                </setting-editor>
+                <span asp-validation-for="SecretKey"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="ClientId" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="ClientId"></setting-editor>
+                <span asp-validation-for="ClientId"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="Marketplace" />
+            </div>
+            <div class="adminData">
+                @*To avoid migration, the "Marketplace" setting of the old SDK is retained and only the translation is changed.*@
+                <setting-editor asp-for="Marketplace">
+                    <select asp-for="Marketplace" asp-items="marketplace"></select>
+                </setting-editor>
+                <span asp-validation-for="Marketplace"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="CurrentMerchantLoginDomains" />
+            </div>
+            <div class="adminData form-control-plaintext">
+                @foreach (var item in Model.CurrentMerchantLoginDomains)
+                {
+                    <div>@Html.Raw(item)</div>
+                }
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="CurrentMerchantLoginRedirectUrls" />
+            </div>
+            <div class="adminData form-control-plaintext">
+                @foreach (var item in Model.CurrentMerchantLoginRedirectUrls)
+                {
+                    <div>@Html.Raw(item)</div>
+                }
+            </div>
+        </div>
+
+        <div class="adminRow">
+            <div class="admin-config-group">
+                <div class="head">@configGroups.ElementAtOrDefault(1)</div>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="AuthorizeMethod" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="AuthorizeMethod">
+                    <select asp-for="AuthorizeMethod" asp-items="Model.AuthorizeMethod.ToSelectList()"></select>
+                </setting-editor>
+                <span asp-validation-for="AuthorizeMethod"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="TransactionType" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="TransactionType">
+                    <select asp-for="TransactionType" asp-items="ViewBag.TransactionTypes"></select>
+                </setting-editor>
+                <span asp-validation-for="TransactionType"></span>
+            </div>
+        </div>
+        <div id="TransactionTypeWarning" class="adminRow d-none">
+            <div class="adminTitle">&nbsp;</div>
+            <div class="adminData">
+                <div class="alert alert-warning">
+                    @Html.Raw(T("Plugins.Payments.AmazonPay.TransactionType.Warning"))
+                </div>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="SaveEmailAndPhone" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="SaveEmailAndPhone">
+                    <select asp-for="SaveEmailAndPhone" asp-items="ViewBag.SaveEmailAndPhones"></select>
+                </setting-editor>
+                <span asp-validation-for="SaveEmailAndPhone"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="AddOrderNotes" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="AddOrderNotes"></setting-editor>
+                <span asp-validation-for="AddOrderNotes"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="InformCustomerAboutErrors" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="InformCustomerAboutErrors" data-toggler-for="#InformCustomerAddErrorsContainer"></setting-editor>
+                <span asp-validation-for="InformCustomerAboutErrors"></span>
+            </div>
+        </div>
+        <div id="InformCustomerAddErrorsContainer" class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="InformCustomerAddErrors" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="InformCustomerAddErrors"></setting-editor>
+                <span asp-validation-for="InformCustomerAddErrors"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="DataFetching" />
+            </div>
+            <div class="adminData">
+                <select asp-for="DataFetching" asp-items="ViewBag.DataFetchings"></select>
+                <span asp-validation-for="DataFetching"></span>
+            </div>
+        </div>
+        <div class="adminRow data-fetching data-fetching-ipn">
+            <div class="adminTitle">
+                <smart-label asp-for="IpnUrl" />
+            </div>
+            <div class="adminData">
+                <input asp-for="IpnUrl" class="form-control-plaintext" readonly />
+            </div>
+        </div>
+        <div class="adminRow data-fetching data-fetching-polling">
+            <div class="adminTitle">
+                <smart-label asp-for="PollingMaxOrderCreationDays" />
+            </div>
+            <div class="adminData">
+                <editor asp-for="PollingMaxOrderCreationDays" sm-postfix="@T("Time.Days")" />
+                <span asp-validation-for="PollingMaxOrderCreationDays"></span>
+            </div>
+        </div>
+        <div id="DataFetchingWarning" class="adminRow d-none">
+            <div class="adminTitle">&nbsp;</div>
+            <div class="adminData">
+                <div class="alert alert-warning">
+                    @Html.Raw(T("Plugins.Payments.AmazonPay.DataFetching.Warning"))
+                </div>
+            </div>
+        </div>
+
+        <div class="adminRow">
+            <div class="admin-config-group">
+                <div class="head">@configGroups.ElementAtOrDefault(2)</div>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="PayButtonColor" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="PayButtonColor">
+                    <select asp-for="PayButtonColor" asp-items="buttonColors"></select>
+                </setting-editor>
+                <span asp-validation-for="PayButtonColor"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="PayButtonSize" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="PayButtonSize">
+                    <select asp-for="PayButtonSize" asp-items="buttonSizes"></select>
+                </setting-editor>
+                <span asp-validation-for="PayButtonSize"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="AuthButtonType" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="AuthButtonType">
+                    <select asp-for="AuthButtonType" asp-items="authButtonType"></select>
+                </setting-editor>
+                <span asp-validation-for="AuthButtonType"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="AuthButtonColor" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="AuthButtonColor">
+                    <select asp-for="AuthButtonColor" asp-items="buttonColors"></select>
+                </setting-editor>
+                <span asp-validation-for="AuthButtonColor"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="AuthButtonSize" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="AuthButtonSize">
+                    <select asp-for="AuthButtonSize" asp-items="buttonSizes"></select>
+                </setting-editor>
+                <span asp-validation-for="AuthButtonSize"></span>
+            </div>
+        </div>
+
+        <div class="adminRow">
+            <div class="admin-config-group">
+                <div class="head">@configGroups.ElementAtOrDefault(3)</div>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="ShowPayButtonForAdminOnly" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="ShowPayButtonForAdminOnly"></setting-editor>
+                <span asp-validation-for="ShowPayButtonForAdminOnly"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="ShowButtonInMiniShoppingCart" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="ShowButtonInMiniShoppingCart"></setting-editor>
+                <span asp-validation-for="ShowButtonInMiniShoppingCart"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="AdditionalFee" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="AdditionalFee" sm-postfix="@ViewBag.PrimaryStoreCurrencyCode"></setting-editor>
+                <span asp-validation-for="AdditionalFee"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="AdditionalFeePercentage" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="AdditionalFeePercentage"></setting-editor>
+                <span asp-validation-for="AdditionalFeePercentage"></span>
+            </div>
+        </div>
+    </div>
+</form>
+
+@* Must not be the first form in this view. *@
+<form id="register-now-form" method="POST" action="@Model.RegisterUrl" target="_blank">
+    <input type="hidden" name="spId" value="@Model.PlatformId" />
+
+    @*Not available for europe at the moment:*@
+    @*<input type="hidden" name="publicKey" value="@Model.PublicKey" />*@
+
+    <input type="hidden" name="keyShareURL" value="@Model.KeyShareUrl" />
+    <input type="hidden" name="locale" value="@Model.LanguageLocale" />
+    <input type="hidden" name="merchantCountry" value="@Model.MerchantCountry" />
+    @foreach (var item in Model.MerchantLoginDomains)
+    {
+        <input type="hidden" name="merchantLoginDomains[]" value="@item" />
+    }
+    <input type="hidden" name="spSoftwareVersion" value="@Model.SoftwareVersion" />
+    <input type="hidden" name="spAmazonPluginVersion" value="@Model.ModuleVersion" />
+    <input type="hidden" name="ld" value="@Model.LeadCode" />
+    @foreach (var item in Model.MerchantLoginRedirectUrls)
+    {
+        <input type="hidden" name="merchantLoginRedirectURLs[]" value="@item" />
+    }
+    <input type="hidden" name="merchantPrivacyNoticeURL" value="@Model.MerchantPrivacyNoticeUrl" />
+    <input type="hidden" name="merchantStoreDescription" value="@Model.MerchantStoreDescription" />
+    <input type="hidden" name="merchantSandboxIPNURL" value="@Model.MerchantSandboxIpnUrl" />
+    <input type="hidden" name="merchantProductionIPNURL" value="@Model.MerchantProductionIpnUrl" />
+    <input type="hidden" name="source" value="SPPL" />
+</form>
+
+<modal id="register-now-dialog" sm-render-at-page-end="true" sm-size="Large">
+    <modal-header sm-title="@T("Plugins.Payments.AmazonPay.PasteAccessData")"></modal-header>
+    <modal-body>
+        <form asp-action="SaveAccessData">
+            <textarea id="amazon-access-data" name="accessData" rows="12" class="form-control" style="width: 98%;" placeholder="@T("Plugins.Payments.AmazonPay.PasteAccessData.Hint")"></textarea>
+        </form>
+    </modal-body>
+    <modal-footer>
+        <button class="btn btn-secondary btn-flat" data-dismiss="modal">
+            <span>@T("Common.Cancel")</span>
+        </button>
+        <button id="amazon-save-access-data" class="btn btn-primary" disabled="disabled">
+            <span>@T("Plugins.Payments.AmazonPay.SaveAccessData")</span>
+        </button>
+    </modal-footer>
+</modal>
+
+<script sm-target-zone="scripts" data-origin="configure-amazonpay">
+    $(function () {
+
+		// Show/hide transaction type warning.
+		$('#@(Html.IdFor(x => x.TransactionType))').on('change', function () {
+			$('#TransactionTypeWarning').toggleClass('d-none', $(this).val() !== '2');
+		}).trigger('change');
+
+		// Show/hide status fetching warning.
+		$('#@(Html.IdFor(x => x.DataFetching))').on('change', function () {
+            var val = $(this).val();
+            var configTable = $('#amazonpay-config');
+
+			$('#DataFetchingWarning').toggleClass('d-none', val !== '1');
+
+			configTable.find('.data-fetching').hide();
+			if (val === '1') {
+				configTable.find('.data-fetching-ipn').show();
+			}
+			else if (val === '2') {
+				configTable.find('.data-fetching-polling').show();
+			}
+		}).trigger('change');
+
+        // Register now.
+        $('.register-now').on('click', function () {
+            $('.paste-access-data').trigger('click');
+            $('#register-now-form').submit();
+        });
+
+        // Save access data.
+        $('#amazon-save-access-data').on('click', function () {
+            $('#access-data-form').submit();
+        });
+
+        // Paste access data.
+        $('.paste-access-data').click(function () {
+            //$('#amazon-access-data').trigger('change');
+            $('#register-now-dialog').modal('show');
+
+            setTimeout(function () {
+                $('#amazon-access-data').focus();
+            }, 800);
+        });
+
+        // Enable\disable register-now button.
+        $('#amazon-access-data').on('keyup', function () {
+            $('#register-now-dialog').find('.btn-primary').prop('disabled', $(this).val().length == 0);
+        });
+    });
+</script>

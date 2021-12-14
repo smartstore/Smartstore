@@ -7,4 +7,11 @@
   <ItemGroup>
     <PackageReference Include="AmazonPay" Version="3.9.1" />
   </ItemGroup>
+  <ItemGroup>
+		<ProjectReference Include="..\..\Smartstore.Web\Smartstore.Web.csproj">
+			<Private>False</Private>
+			<CopyLocal>False</CopyLocal>
+			<CopyLocalSatelliteAssemblies>False</CopyLocalSatelliteAssemblies>
+		</ProjectReference>
+  </ItemGroup>
 </Project>
