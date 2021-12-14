@@ -66,25 +66,26 @@ namespace Smartstore.Collections
             }
             set
             {
-                InsertItem(
+                if (InsertItem(
                     key: key,
                     value: value,
                     appendMode: AppendMode.Replace,
-                    oldValue: out var oldItem);
-
-                if (oldItem != null)
+                    out var oldValue))
                 {
-                    OnCollectionChanged(
-                        action: NotifyCollectionChangedAction.Replace,
-                        newItem: new KeyValuePair<TKey, TValue>(key, value),
-                        oldItem: new KeyValuePair<TKey, TValue>(key, oldItem));
-                }
-                else
-                {
-                    OnCollectionChanged(
-                        action: NotifyCollectionChangedAction.Add,
-                        changedItem: new KeyValuePair<TKey, TValue>(key, value));
-                }
+                    if (oldValue != null)
+                    {
+                        OnCollectionChanged(
+                            action: NotifyCollectionChangedAction.Replace,
+                            newItem: new KeyValuePair<TKey, TValue>(key, value),
+                            oldItem: new KeyValuePair<TKey, TValue>(key, oldValue));
+                    }
+                    else
+                    {
+                        OnCollectionChanged(
+                            action: NotifyCollectionChangedAction.Add,
+                            changedItem: new KeyValuePair<TKey, TValue>(key, value));
+                    }
+                };
             }
         }
 
@@ -102,26 +103,28 @@ namespace Smartstore.Collections
 
         public void Add(TKey key, TValue value)
         {
-            InsertItem(
+            if (InsertItem(
                 key: key,
                 value: value,
-                appendMode: AppendMode.Add);
-
-            OnCollectionChanged(
-                action: NotifyCollectionChangedAction.Add,
-                changedItem: new KeyValuePair<TKey, TValue>(key, value));
+                appendMode: AppendMode.Add))
+            {
+                OnCollectionChanged(
+                    action: NotifyCollectionChangedAction.Add,
+                    changedItem: new KeyValuePair<TKey, TValue>(key, value));
+            };
         }
 
         public void Add(KeyValuePair<TKey, TValue> item)
         {
-            InsertItem(
+            if (InsertItem(
                 key: item.Key,
                 value: item.Value,
-                appendMode: AppendMode.Add);
-
-            OnCollectionChanged(
-                action: NotifyCollectionChangedAction.Add,
-                changedItem: new KeyValuePair<TKey, TValue>(item.Key, item.Value));
+                appendMode: AppendMode.Add))
+            {
+                OnCollectionChanged(
+                    action: NotifyCollectionChangedAction.Add,
+                    changedItem: new KeyValuePair<TKey, TValue>(item.Key, item.Value));
+            };
         }
 
         public void Clear()
@@ -203,10 +206,10 @@ namespace Smartstore.Collections
 
         #region ObservableDictionary inner methods
 
-        private void InsertItem(TKey key, TValue value, AppendMode appendMode)
+        private bool InsertItem(TKey key, TValue value, AppendMode appendMode)
             => InsertItem(key, value, appendMode, out _);
 
-        private void InsertItem(TKey key, TValue value, AppendMode appendMode, out TValue oldValue)
+        private bool InsertItem(TKey key, TValue value, AppendMode appendMode, out TValue oldValue)
         {
             Guard.NotNull(key, nameof(key));
             
@@ -221,15 +224,17 @@ namespace Smartstore.Collections
 
                 if (Equals(item, value))
                 {
-                    return;
+                    return false;
                 }
 
                 _dict[key] = value;
                 oldValue = item;
+                return true;
             }
             else
             {
                 _dict[key] = value;
+                return true;
             }
         }
 
