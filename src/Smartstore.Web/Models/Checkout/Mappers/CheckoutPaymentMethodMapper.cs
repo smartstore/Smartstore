@@ -70,7 +70,14 @@ namespace Smartstore.Web.Models.Checkout
                 to.SkippedSelectShipping = true;
             }
 
-            var paymentTypes = new PaymentMethodType[] { PaymentMethodType.Standard, PaymentMethodType.Redirection, PaymentMethodType.StandardAndRedirection };
+            var paymentTypes = new PaymentMethodType[] 
+            { 
+                PaymentMethodType.Standard, 
+                PaymentMethodType.Redirection, 
+                PaymentMethodType.StandardAndRedirection,
+                PaymentMethodType.StandardAndButton
+            };
+
             var boundPaymentMethods = await _paymentService.LoadActivePaymentMethodsAsync(from, from.StoreId, paymentTypes);
             var allPaymentMethods = await _paymentService.GetAllPaymentMethodsAsync(from.StoreId);
 
