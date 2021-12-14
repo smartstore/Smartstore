@@ -34,7 +34,15 @@
             <button datagrid-action="DataGridToolAction.ToggleSearchPanel" type="button" class="btn btn-light btn-icon">
                 <i class="fa fa-fw fa-filter"></i>
             </button>
-            @* TODO: (mh) (core) Apply & Cancel buttons are missing *@
+        </toolbar-group>
+        <toolbar-group>
+            <button type="button" class="btn btn-warning no-anims btn-flat" v-bind:class="{ disabled: !grid.editing.active }" v-on:click.prevent="grid.saveChanges">
+                <i class="fa fa-check"></i>
+                <span>@T("Admin.Common.SaveChanges")</span>
+            </button>
+            <button type="button" class="btn btn-light btn-flat mr-auto" v-bind:class="{ disabled: !grid.editing.active }" v-on:click.prevent="grid.cancelEdit">
+                <span>@T("Common.Cancel")</span>
+            </button>
         </toolbar-group>
     </toolbar>
     <search-panel>
