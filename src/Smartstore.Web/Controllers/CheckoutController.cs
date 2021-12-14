@@ -291,14 +291,7 @@ namespace Smartstore.Web.Controllers
             var options = response.ShippingOptions;
             var state = _checkoutStateAccessor.CheckoutState;
 
-            if (state.CustomProperties.ContainsKey("HasOnlyOneActiveShippingMethod"))
-            {
-                state.CustomProperties["HasOnlyOneActiveShippingMethod"] = options.Count == 1;
-            }
-            else
-            {
-                state.CustomProperties.Add("HasOnlyOneActiveShippingMethod", options.Count == 1);
-            }
+            state.CustomProperties["HasOnlyOneActiveShippingMethod"] = options.Count == 1;
 
             if (options.Count <= 1 && _shippingSettings.SkipShippingIfSingleOption && response.Success)
             {

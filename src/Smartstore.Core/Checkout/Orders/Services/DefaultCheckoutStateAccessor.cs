@@ -19,7 +19,7 @@ namespace Smartstore.Core.Checkout.Orders
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public bool IsStateLoaded => _state == null;
+        public bool IsStateLoaded => _state != null;
 
         public bool HasStateChanged
         {
