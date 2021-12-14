@@ -202,11 +202,16 @@ namespace Smartstore.Core.Content.Blocks
 			};
 		}
 
-		private static ViewEngineResult FindFirstView(IBlockMetadata blockMetadata, IEnumerable<string> templates, ActionContext actionContext, out ICollection<string> searchedLocations)
+		private static ViewEngineResult FindFirstView(
+			IBlockMetadata blockMetadata, 
+			IEnumerable<string> templates, 
+			ActionContext actionContext, 
+			out ICollection<string> searchedLocations)
 		{
 			searchedLocations = new List<string>();
 
 			var viewEngine = actionContext.HttpContext.RequestServices.GetRequiredService<IRazorViewEngine>();
+
 			foreach (var template in templates)
 			{
 				var viewName = string.Concat("BlockTemplates/", blockMetadata.SystemName, "/", template);
