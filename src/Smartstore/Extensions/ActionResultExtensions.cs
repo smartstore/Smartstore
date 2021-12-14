@@ -16,7 +16,7 @@ namespace Smartstore
                 return contentResult.ContentType.EqualsNoCase("text/html");
             }
 
-            return result is (ViewResult or PartialViewResult);
+            return result is (ViewResult or PartialViewResult or ViewComponentResult);
         }
     }
 }
