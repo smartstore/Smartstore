@@ -95,6 +95,7 @@ namespace Smartstore.AmazonPay.Models
         /// </summary>
         [LocalizedDisplay("*MerchantLoginDomains")]
         public HashSet<string> MerchantLoginDomains { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+
         [LocalizedDisplay("*MerchantLoginDomains")]
         public HashSet<string> CurrentMerchantLoginDomains { get; set; } = new(StringComparer.OrdinalIgnoreCase);
 
@@ -103,6 +104,7 @@ namespace Smartstore.AmazonPay.Models
         /// </summary>
         [LocalizedDisplay("*MerchantLoginRedirectUrls")]
         public HashSet<string> MerchantLoginRedirectUrls { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+
         [LocalizedDisplay("*MerchantLoginRedirectUrls")]
         public HashSet<string> CurrentMerchantLoginRedirectUrls { get; set; } = new(StringComparer.OrdinalIgnoreCase);
 

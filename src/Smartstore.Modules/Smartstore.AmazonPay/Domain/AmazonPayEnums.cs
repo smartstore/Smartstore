@@ -1,5 +1,7 @@
 ﻿namespace Smartstore.AmazonPay.Domain
 {
+    // TODO: (mg) (core) Enums are not not really "Domain", but infrastructure (if they are not bound to entity classes). Move it to Smartstore.AmazonPay namespace.
+
     public enum AmazonPayRequestType
     {
         None = 0,
