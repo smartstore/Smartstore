@@ -9,5 +9,6 @@ namespace Smartstore.AmazonPay.Services
     public interface IAmazonPayService
     {
         Task RunDataPollingAsync(CancellationToken cancelToken = default);
+        Task<int> UpdateAccessKeysAsync(string json, int storeId);
     }
 }

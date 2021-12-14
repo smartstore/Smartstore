@@ -21,6 +21,7 @@ namespace Smartstore.AmazonPay.Controllers
     public class AmazonPayAdminController : AdminController
     {
         private readonly SmartDbContext _db;
+        private readonly IAmazonPayService _amazonPayService;
         private readonly ICurrencyService _currencyService;
         private readonly StoreDependingSettingHelper _settingHelper;
         private readonly ITaskStore _taskStore;
@@ -28,12 +29,14 @@ namespace Smartstore.AmazonPay.Controllers
 
         public AmazonPayAdminController(
             SmartDbContext db,
+            IAmazonPayService amazonPayService,
             ICurrencyService currencyService,
             StoreDependingSettingHelper settingHelper,
             ITaskStore taskStore,
             CompanyInformationSettings companyInformationSettings)
         {
             _db = db;
+            _amazonPayService = amazonPayService;
             _currencyService = currencyService;
             _settingHelper = settingHelper;
             _taskStore = taskStore;
@@ -189,12 +192,12 @@ namespace Smartstore.AmazonPay.Controllers
             await Services.Settings.ApplySettingAsync(settings, x => x.DataFetching);
             await Services.Settings.ApplySettingAsync(settings, x => x.PollingMaxOrderCreationDays);
 
-            var taskEnabled = settings.DataFetching == AmazonPayDataFetchingType.Polling;
+            var pollingTaskEnabled = settings.DataFetching == AmazonPayDataFetchingType.Polling;
             var task = await _taskStore.GetTaskByTypeAsync<DataPollingTask>();
             
-            if (task != null && task.Enabled != taskEnabled)
+            if (task != null && task.Enabled != pollingTaskEnabled)
             {
-                task.Enabled = taskEnabled;
+                task.Enabled = pollingTaskEnabled;
                 await _taskStore.UpdateTaskAsync(task);
             }
 
@@ -206,13 +209,12 @@ namespace Smartstore.AmazonPay.Controllers
         }
 
         [HttpPost]
-        public IActionResult SaveAccessData(string accessData)
+        public async Task<IActionResult> UpdateAccessKeys(string accessData)
         {
             try
             {
                 var storeScope = GetActiveStoreScopeConfiguration();
-
-                // TODO: (mg) (core) implemment ShareKeys.
+                await _amazonPayService.UpdateAccessKeysAsync(accessData, storeScope);
 
                 NotifySuccess(T("Plugins.Payments.AmazonPay.SaveAccessDataSucceeded"));
             }
@@ -223,7 +225,6 @@ namespace Smartstore.AmazonPay.Controllers
 
             return RedirectToAction(nameof(Configure));
         }
-
 
         private static string GetLoginDomain(string shopUrl)
         {
