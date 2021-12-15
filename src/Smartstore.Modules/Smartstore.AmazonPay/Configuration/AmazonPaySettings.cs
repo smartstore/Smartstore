@@ -1,5 +1,4 @@
-﻿using Smartstore.AmazonPay.Domain;
-using Smartstore.Core.Configuration;
+﻿using Smartstore.Core.Configuration;
 
 namespace Smartstore.AmazonPay
 {

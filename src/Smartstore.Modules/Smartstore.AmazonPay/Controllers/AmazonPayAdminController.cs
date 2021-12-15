@@ -49,7 +49,7 @@ namespace Smartstore.AmazonPay.Controllers
             var language = Services.WorkContext.WorkingLanguage;
             var store = Services.StoreContext.CurrentStore;
             var allStores = Services.StoreContext.GetAllStores();
-            var module = Services.ApplicationContext.ModuleCatalog.GetModuleByName(Module.SystemName);
+            var module = Services.ApplicationContext.ModuleCatalog.GetModuleByName("Smartstore.AmazonPay");
 
             var model = MiniMapper.Map<AmazonPaySettings, ConfigurationModel>(settings);
 
@@ -66,7 +66,7 @@ namespace Smartstore.AmazonPay.Controllers
             model.PlatformId = AmazonPayService.PlatformId;
             // Not implemented. Not available for europe at the moment.
             model.PublicKey = string.Empty;
-            model.LanguageLocale = AmazonPayService.GetAmazonLanguageCode(language.UniqueSeoCode, '_');
+            model.LanguageLocale = _amazonPayService.GetAmazonLanguageCode(language.UniqueSeoCode, '_');
             model.MerchantStoreDescription = store.Name.Truncate(2048);
             model.MerchantPrivacyNoticeUrl = WebHelper.GetAbsoluteUrl(await Url.TopicAsync("privacyinfo"), Request, true, store.SslEnabled ? "https" : "http");
             model.MerchantSandboxIpnUrl = model.IpnUrl;

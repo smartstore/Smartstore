@@ -998,7 +998,8 @@ namespace Smartstore.Core.Checkout.Orders
                 _db.RecurringPayments.Add(rp);
             }
 
-            // Obsolete: use CheckoutState instead.
+            // TODO: (mg) (core) later remove obsolete, commented out code.
+            // Obsolete: use CheckoutState and PostProcessPayment instead if you want to insert order attributes for payments.
             // Add generic attributes automatically for custom payment properties.
             //var customAttributes = ctx.PaymentRequest.CustomProperties
             //    .Where(x => x.Key.HasValue() && x.Value.AutoCreateGenericAttribute)

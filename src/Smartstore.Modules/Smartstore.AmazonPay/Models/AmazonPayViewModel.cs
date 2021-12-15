@@ -1,5 +1,4 @@
-﻿using Smartstore.AmazonPay.Domain;
-using Smartstore.Web.Models.Common;
+﻿using Smartstore.Web.Models.Common;
 
 namespace Smartstore.AmazonPay.Models
 {

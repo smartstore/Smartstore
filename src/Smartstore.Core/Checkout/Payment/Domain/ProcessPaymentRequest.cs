@@ -45,7 +45,9 @@ namespace Smartstore.Core.Checkout.Payment
         /// </summary>
         public bool IsMultiOrder { get; set; }
 
-        // Obsolete! Use CheckoutState instead. (Was only used by Payone plugin in the early days anyway.)
+        // TODO: (mg) (core) later remove obsolete, commented out code.
+        // Obsolete: use CheckoutState and PostProcessPayment instead if you want to insert order attributes for payments.
+        // (Was only used by Payone plugin in the early days anyway.)
         /// <summary>Use that dictionary for any payment method or checkout flow specific data.</summary>
         //public Dictionary<string, CustomPaymentRequestValue> CustomProperties { get; set; } = new();
 
@@ -193,16 +195,16 @@ namespace Smartstore.Core.Checkout.Payment
         #endregion
     }
 
-    public partial class CustomPaymentRequestValue
-    {
-        /// <summary>
-        /// The value of the custom property.
-        /// </summary>
-        public object Value { get; set; }
+    //public partial class CustomPaymentRequestValue
+    //{
+    //    /// <summary>
+    //    /// The value of the custom property.
+    //    /// </summary>
+    //    public object Value { get; set; }
 
-        /// <summary>
-        /// A value indicating whether to automatically create a generic attribute if an order has been placed.
-        /// </summary>
-        public bool AutoCreateGenericAttribute { get; set; }
-    }
+    //    /// <summary>
+    //    /// A value indicating whether to automatically create a generic attribute if an order has been placed.
+    //    /// </summary>
+    //    public bool AutoCreateGenericAttribute { get; set; }
+    //}
 }
