@@ -177,6 +177,7 @@ namespace Smartstore.AmazonPay.Providers
                             // Must be logged out and redirected to shopping cart.
                             httpContext.Session.SetString("AmazonPayFailedPaymentReason", reason);
 
+                            // TODO: (mg) (core) Uffff! Please don't redirect here.
                             httpContext.Response.Redirect(_urlHelper.Action("Cart", "ShoppingCart", new { area = string.Empty }));
                         }
                         else if (reason.EqualsNoCase("InvalidPaymentMethod"))
@@ -188,6 +189,7 @@ namespace Smartstore.AmazonPay.Providers
                             state.IsConfirmed = false;
                             state.FormData = null;
 
+                            // TODO: (mg) (core) Uffff! See above.
                             httpContext.Response.Redirect(_urlHelper.Action("PaymentMethod", "Checkout", new { area = string.Empty }));
                         }
                     }

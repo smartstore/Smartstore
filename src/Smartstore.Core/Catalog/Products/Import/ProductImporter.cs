@@ -628,6 +628,7 @@ namespace Smartstore.Core.DataExchange.Import
                 // Download images.
                 if (downloadItems.Any(x => x.Url.HasValue()))
                 {
+                    // TODO: (mg) (core) Make this fire&forget somehow and sync later
                     await context.DownloadManager.DownloadFilesAsync(
                         downloadItems.Where(x => x.Url.HasValue() && !x.Success),
                         context.CancelToken);
