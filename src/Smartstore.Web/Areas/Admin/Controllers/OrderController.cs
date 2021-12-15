@@ -1434,7 +1434,6 @@ namespace Smartstore.Admin.Controllers
                     _db.OrderNotes.RemoveRange(orderNotes);
                     await _db.SaveChangesAsync();
 
-                    await Services.EventPublisher.PublishOrderUpdatedAsync(order);
                     Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditOrder, T("ActivityLog.EditOrder"), order.GetOrderNumber());
 
                     success = true;

@@ -20,7 +20,7 @@ namespace Smartstore.Core.Checkout.Orders
             _eventPublisher = eventPublisher;
         }
 
-        protected override Task<HookResult> OnDeletedAsync(OrderItem entity, IHookedEntity entry, CancellationToken cancelToken)
+        public override Task<HookResult> OnAfterSaveAsync(IHookedEntity entry, CancellationToken cancelToken)
             => Task.FromResult(HookResult.Ok);
 
         public override async Task OnAfterSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)

@@ -20,7 +20,7 @@ namespace Smartstore.Core.Checkout.Orders
             _eventPublisher = eventPublisher;
         }
 
-        protected override Task<HookResult> OnDeletedAsync(OrderNote entity, IHookedEntity entry, CancellationToken cancelToken)
+        public override Task<HookResult> OnAfterSaveAsync(IHookedEntity entry, CancellationToken cancelToken)
             => Task.FromResult(HookResult.Ok);
 
         public override async Task OnAfterSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
@@ -30,15 +30,11 @@ namespace Smartstore.Core.Checkout.Orders
                 .OfType<OrderNote>()
                 .ToList();
 
-            var orderIds = orderNotes
-                .Select(x => x.OrderId)
-                .Distinct()
-                .ToArray();
+            var orderIds = orderNotes.ToDistinctArray(x => x.OrderId);
 
             if (orderIds.Any())
             {
                 var orders = await _db.Orders
-                    .AsNoTracking()
                     .Where(x => orderIds.Contains(x.Id))
                     .ToListAsync(cancelToken);
 
