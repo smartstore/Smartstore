@@ -48,7 +48,7 @@ namespace Smartstore.Web.TagHelpers.Shared
         public string Caption { get; set; }
 
         /// <summary>
-        /// Sets the icon of the button which opens the dialog. Default = "fa fa-search"
+        /// Sets the icon of the button which opens the dialog, Default: "fa fa-search"
         /// </summary>
         [HtmlAttributeName(IconCssClassAttributeName)]
         public string IconCssClass { get; set; } = "fa fa-search";
@@ -141,7 +141,7 @@ namespace Smartstore.Web.TagHelpers.Shared
         {
             if (For != null)
             {
-                TargetInputSelector = "#" + HtmlHelper.GenerateIdFromName(For.Name);
+                TargetInputSelector = "#" + HtmlHelper.Id(For.Name);
             }
             
             var options = new
@@ -170,11 +170,16 @@ namespace Smartstore.Web.TagHelpers.Shared
             output.TagMode = TagMode.StartTagAndEndTag;
             output.MergeAttribute("id", buttonId);
             output.MergeAttribute("type", "button");
-            output.AppendCssClass("btn btn-secondary");
+            output.AppendCssClass("btn btn-light");
 
             if (IconCssClass.HasValue())
             {
                 output.Content.AppendHtml($"<i class='{ IconCssClass }'></i>");
+
+                if (Caption.IsEmpty())
+                {
+                    output.AppendCssClass("btn-icon");
+                }
             }
 
             if (Caption.HasValue())

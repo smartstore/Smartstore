@@ -15,7 +15,7 @@
     var link = await LinkResolver.ResolveAsync(Value);
     var expression = link.Expression;
     var hideQueryString = GetMetadata<bool>("hideQueryString");
-    var arr = GetMetadata<string>("allowedSchemas").SplitSafe(',');
+    var arr = GetMetadata<string>("allowedSchemas").SplitSafe(',').Select(x => x.ToLowerInvariant());
     var allowedSchemas = arr.Any() ? arr : metadata.Keys;
 }
 
