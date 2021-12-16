@@ -498,7 +498,7 @@ namespace Smartstore.Core.Content.Media
 
                 try
                 {
-                    using var stream = File.OpenRead(source.PhysicalPath);
+                    var stream = File.OpenRead(source.PhysicalPath);
                     
                     var file = destFiles.Get(pathData.FileName);
                     var isDupe = file != null;
@@ -583,6 +583,7 @@ namespace Smartstore.Core.Content.Media
                     _db.MediaFiles.Remove(file);
                 }
 
+                result.StorageItem?.Dispose();
                 result.StorageItem = null;
             }
 

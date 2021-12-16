@@ -680,7 +680,7 @@ namespace Smartstore.Core.DataExchange.Import
                                             FileName = image.FileName,
                                             State = row.Entity
                                         });
-                                        
+
                                         //var path = _services.MediaService.CombinePaths(SystemAlbumProvider.Catalog, image.FileName);
                                         //var saveFileResult = await _services.MediaService.SaveFileAsync(path, stream, false, DuplicateFileHandling.Rename);
 
@@ -701,18 +701,21 @@ namespace Smartstore.Core.DataExchange.Import
                 }
             }
 
-            var batchFileResult = await _services.MediaService.BatchSaveFilesAsync(
-                newFiles.ToArray(), 
-                cargo.CatalogAlbum, 
-                true,
-                DuplicateFileHandling.Rename, 
-                context.CancelToken);
-
-            foreach (var fileResult in batchFileResult)
+            if (newFiles.Any())
             {
-                if (fileResult.Exception == null && fileResult.File != null)
+                var batchFileResult = await _services.MediaService.BatchSaveFilesAsync(
+                    newFiles.ToArray(),
+                    cargo.CatalogAlbum,
+                    true,
+                    DuplicateFileHandling.Rename,
+                    context.CancelToken);
+
+                foreach (var fileResult in batchFileResult)
                 {
-                    AddProductMediaFile(fileResult.File.File, fileResult.Source.State as Product);
+                    if (fileResult.Exception == null && fileResult.File != null)
+                    {
+                        AddProductMediaFile(fileResult.File.File, fileResult.Source.State as Product);
+                    }
                 }
             }
 
