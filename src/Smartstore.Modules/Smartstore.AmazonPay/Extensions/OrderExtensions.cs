@@ -7,21 +7,21 @@ namespace Smartstore.AmazonPay
 {
     internal static class OrderExtensions
     {
-        public static void SetAmazonPayAttribute(this Order order, AmazonPayOrderAttribute attribute)
+        public static void SetAmazonPayOrderReference(this Order order, AmazonPayOrderReference orderReference)
         {
             Guard.NotNull(order, nameof(order));
-            Guard.NotNull(attribute, nameof(attribute));
+            Guard.NotNull(orderReference, nameof(orderReference));
 
             using var psb = StringBuilderPool.Instance.Get(out var sb);
             using var writer = new StringWriter(sb);
 
-            var serializer = new XmlSerializer(typeof(AmazonPayOrderAttribute));
-            serializer.Serialize(writer, attribute);
+            var serializer = new XmlSerializer(typeof(AmazonPayOrderReference));
+            serializer.Serialize(writer, orderReference);
 
             order.GenericAttributes.Set(AmazonPayProvider.SystemName + ".OrderAttribute", sb.ToString(), order.StoreId);
         }
 
-        public static AmazonPayOrderAttribute GetAmazonPayAttribute(this Order order)
+        public static AmazonPayOrderReference GetAmazonPayOrderReference(this Order order)
         {
             Guard.NotNull(order, nameof(order));
 
@@ -30,18 +30,18 @@ namespace Smartstore.AmazonPay
             if (!rawAttribute.HasValue())
             {
                 // Legacy < v.1.14
-                var attribute = new AmazonPayOrderAttribute
+                var orderReference = new AmazonPayOrderReference
                 {
                     OrderReferenceId = order.GenericAttributes.Get<string>(AmazonPayProvider.SystemName + ".OrderReferenceId", order.StoreId)
                 };
 
-                return attribute;
+                return orderReference;
             }
 
             using var reader = new StringReader(rawAttribute);
-            var serializer = new XmlSerializer(typeof(AmazonPayOrderAttribute));
+            var serializer = new XmlSerializer(typeof(AmazonPayOrderReference));
 
-            return (AmazonPayOrderAttribute)serializer.Deserialize(reader);
+            return (AmazonPayOrderReference)serializer.Deserialize(reader);
         }
 
 

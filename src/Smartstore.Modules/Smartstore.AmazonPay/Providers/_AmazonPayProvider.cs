@@ -177,8 +177,7 @@ namespace Smartstore.AmazonPay.Providers
                             // Must be logged out and redirected to shopping cart.
                             httpContext.Session.SetString("AmazonPayFailedPaymentReason", reason);
 
-                            // TODO: (mg) (core) Uffff! Please don't redirect here.
-                            httpContext.Response.Redirect(_urlHelper.Action("Cart", "ShoppingCart", new { area = string.Empty }));
+                            result.RedirectUrl = _urlHelper.Action("Cart", "ShoppingCart", new { area = string.Empty });
                         }
                         else if (reason.EqualsNoCase("InvalidPaymentMethod"))
                         {
@@ -189,8 +188,7 @@ namespace Smartstore.AmazonPay.Providers
                             state.IsConfirmed = false;
                             state.FormData = null;
 
-                            // TODO: (mg) (core) Uffff! See above.
-                            httpContext.Response.Redirect(_urlHelper.Action("PaymentMethod", "Checkout", new { area = string.Empty }));
+                            result.RedirectUrl = _urlHelper.Action("PaymentMethod", "Checkout", new { area = string.Empty });
                         }
                     }
                 }
@@ -266,7 +264,7 @@ namespace Smartstore.AmazonPay.Providers
                 var order = postProcessPaymentRequest.Order;
                 var state = _amazonPayService.GetCheckoutState();
 
-                var orderAttribute = new AmazonPayOrderAttribute
+                var orderReference = new AmazonPayOrderReference
                 {
                     OrderReferenceId = state.OrderReferenceId
                 };
@@ -278,12 +276,12 @@ namespace Smartstore.AmazonPay.Providers
 
                     var closeRequest = new CloseOrderReferenceRequest()
                         .WithMerchantId(settings.SellerId)
-                        .WithAmazonOrderReferenceId(orderAttribute.OrderReferenceId);
+                        .WithAmazonOrderReferenceId(orderReference.OrderReferenceId);
 
                     var closeResponse = client.CloseOrderReference(closeRequest);
                     if (closeResponse.GetSuccess())
                     {
-                        orderAttribute.OrderReferenceClosed = true;
+                        orderReference.OrderReferenceClosed = true;
                     }
                     else
                     {
@@ -291,7 +289,7 @@ namespace Smartstore.AmazonPay.Providers
                     }
                 }
 
-                order.SetAmazonPayAttribute(orderAttribute);
+                order.SetAmazonPayOrderReference(orderReference);
                 await _db.SaveChangesAsync();
             }
             catch (Exception ex)
@@ -427,12 +425,12 @@ namespace Smartstore.AmazonPay.Providers
                 if (order.PaymentStatus == PaymentStatus.Pending || order.PaymentStatus == PaymentStatus.Authorized)
                 {
                     var settings = await _services.SettingFactory.LoadSettingsAsync<AmazonPaySettings>(order.StoreId);
-                    var orderAttribute = order.GetAmazonPayAttribute();
+                    var orderReference = order.GetAmazonPayOrderReference();
                     var client = _amazonPayService.CreateApiClient(settings);
 
                     var cancelRequest = new CancelOrderReferenceRequest()
                         .WithMerchantId(settings.SellerId)
-                        .WithAmazonOrderReferenceId(orderAttribute.OrderReferenceId);
+                        .WithAmazonOrderReferenceId(orderReference.OrderReferenceId);
 
                     var cancelResponse = client.CancelOrderReference(cancelRequest);
                     if (cancelResponse.GetSuccess())

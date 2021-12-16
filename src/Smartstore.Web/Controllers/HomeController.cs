@@ -870,11 +870,25 @@ namespace Smartstore.Web.Controllers
             //    }
             //}
 
-            var tenantTempDir = Services.ApplicationContext.GetTenantTempDirectory();
-            var fileName = "1-3-0001-kundencsvexport-einzeln.csv";
-            var file = await tenantTempDir.GetFileAsync(fileName);
+            //using var psb = StringBuilderPool.Instance.Get(out var sb);
+            //using var writer = new StringWriter(sb);
 
-            await tenantTempDir.FileSystem.TryDeleteFileAsync(file);
+            //var info = new AmazonPayOrderReference { OrderReferenceClosed = true, OrderReferenceId = "abc xyz" };
+            //var serializer = new XmlSerializer(typeof(AmazonPayOrderReference));
+            //serializer.Serialize(writer, info);
+            //content.AppendLine(sb.ToString());
+
+
+            //using var reader2 = new StringReader(sb.ToString());
+            //var info2 = (AmazonPayOrderReference)serializer.Deserialize(reader2);
+            //content.AppendLine();
+            //content.AppendLine($"info2: {info2.OrderReferenceId} {info2.OrderReferenceClosed}");
+
+            //var ga = await _db.GenericAttributes.FindByIdAsync(8186297);
+            //using var reader3 = new StringReader(ga.Value);
+            //var info3 = (AmazonPayOrderReference)serializer.Deserialize(reader3);
+            //content.AppendLine();
+            //content.AppendLine($"info3: {info3.OrderReferenceId} {info3.OrderReferenceClosed}");
 
 
             var orderId = 32123;

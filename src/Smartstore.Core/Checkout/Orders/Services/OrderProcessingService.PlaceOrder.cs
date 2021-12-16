@@ -710,6 +710,8 @@ namespace Smartstore.Core.Checkout.Orders
                 ctx.Result.Errors.AddRange(result.Errors);
             }
 
+            ctx.Result.RedirectUrl = result.RedirectUrl;
+
             return result.Success;
         }
 

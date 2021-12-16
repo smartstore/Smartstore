@@ -54,5 +54,10 @@
         /// Gets or sets a payment status after processing.
         /// </summary>
         public PaymentStatus NewPaymentStatus { get; set; } = PaymentStatus.Pending;
+
+        /// <summary>
+        /// Gets or sets an URL to be redirected to, e.g. if an error occurred during payment.
+        /// </summary>
+        public string RedirectUrl { get; set; }
     }
 }

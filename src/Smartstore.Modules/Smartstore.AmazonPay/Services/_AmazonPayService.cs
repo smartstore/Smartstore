@@ -10,6 +10,7 @@ using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Common;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Data;
+using Smartstore.Core.Messaging;
 using Smartstore.Utilities;
 
 namespace Smartstore.AmazonPay.Services
@@ -19,6 +20,7 @@ namespace Smartstore.AmazonPay.Services
         private readonly SmartDbContext _db;
         private readonly ICommonServices _services;
         private readonly ICheckoutStateAccessor _checkoutStateAccessor;
+        private readonly IMessageFactory _messageFactory;
 
         private readonly Currency _primaryCurrency;
 
@@ -26,11 +28,13 @@ namespace Smartstore.AmazonPay.Services
             SmartDbContext db,
             ICommonServices services,
             ICurrencyService currencyService,
-            ICheckoutStateAccessor checkoutStateAccessor)
+            ICheckoutStateAccessor checkoutStateAccessor,
+            IMessageFactory messageFactory)
         {
             _db = db;
             _services = services;
             _checkoutStateAccessor = checkoutStateAccessor;
+            _messageFactory = messageFactory;
 
             _primaryCurrency = currencyService.PrimaryCurrency;
         }
@@ -90,8 +94,7 @@ namespace Smartstore.AmazonPay.Services
                         order.OrderNotes.Add(orderNote);
                         await _db.SaveChangesAsync(cancelToken);
 
-                        // TODO: (mg) (core) SendNewOrderNoteAddedCustomerNotification
-                        //_services.MessageFactory.SendNewOrderNoteAddedCustomerNotification(orderNote, _services.WorkContext.WorkingLanguage.Id);
+                        await _messageFactory.SendNewOrderNoteAddedCustomerNotificationAsync(orderNote, _services.WorkContext.WorkingLanguage.Id);
                         break;
                     }
 

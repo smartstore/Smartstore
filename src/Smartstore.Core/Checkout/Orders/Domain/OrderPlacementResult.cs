@@ -23,5 +23,10 @@ namespace Smartstore.Core.Checkout.Orders
         /// </summary>
         public bool Success
             => !Errors.Any();
+
+        /// <summary>
+        /// Gets or sets an URL to be redirected to, e.g. if an error occurred during payment.
+        /// </summary>
+        public string RedirectUrl { get; set; }
     }
 }

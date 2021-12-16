@@ -607,6 +607,11 @@ namespace Smartstore.Web.Controllers
                 if (!placeOrderResult.Success)
                 {
                     model.Warnings.AddRange(placeOrderResult.Errors.Select(x => HtmlUtility.ConvertPlainTextToHtml(x)));
+
+                    if (placeOrderResult.RedirectUrl.HasValue())
+                    {
+                        return Redirect(placeOrderResult.RedirectUrl);
+                    }
                 }
             }
             catch (Exception ex)
