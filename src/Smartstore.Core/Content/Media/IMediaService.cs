@@ -8,6 +8,8 @@ using Newtonsoft.Json;
 using Smartstore.Collections;
 using Smartstore.Core.Content.Media.Imaging;
 using Smartstore.Core.Content.Media.Storage;
+using Smartstore.Core.DataExchange.Import;
+using Smartstore.Net.Http;
 using Smartstore.Threading;
 
 namespace Smartstore.Core.Content.Media
@@ -108,6 +110,35 @@ namespace Smartstore.Core.Content.Media
         public string UniquePath { get; set; }
     }
 
+    public class FileBatchSource
+    {
+        /// <summary>
+        /// The full physical path to file.
+        /// </summary>
+        public string PhysicalPath { get; init; }
+
+        /// <summary>
+        /// Name of file, usually file part from <see cref="PhysicalPath"/>
+        /// </summary>
+        public string FileName { get; init; }
+
+        /// <summary>
+        /// Any state to identify the source later after batch save. E.g.: <see cref="ImportRow{T}"/>, <see cref="DownloadManagerItem"/> etc.
+        /// </summary>
+        public object State { get; init; }
+    }
+
+    public class FileBatchResult
+    {
+        public FileBatchSource Source { get; init; }
+        public MediaFileInfo File { get; init; }
+        public MediaPathData PathData { get; init; }
+        public Exception Exception { get; set; }
+        public bool IsDuplicate { get; set; }
+        public string UniquePath { get; set; }
+        internal MediaStorageItem StorageItem { get; set; }
+    }
+
     #endregion
 
     /// <summary>
@@ -148,7 +179,10 @@ namespace Smartstore.Core.Content.Media
         /// <param name="queryModifier">An optional modifier function for the LINQ query that was internally derived from <paramref name="query"/>. Can be null.</param>
         /// <param name="flags">Flags that affect the loading behaviour (eager-loading, tracking etc.)</param>
         /// <returns>The search result.</returns>
-        Task<MediaSearchResult> SearchFilesAsync(MediaSearchQuery query, Func<IQueryable<MediaFile>, IQueryable<MediaFile>> queryModifier, MediaLoadFlags flags = MediaLoadFlags.AsNoTracking);
+        Task<MediaSearchResult> SearchFilesAsync(
+            MediaSearchQuery query, 
+            Func<IQueryable<MediaFile>, IQueryable<MediaFile>> queryModifier, 
+            MediaLoadFlags flags = MediaLoadFlags.AsNoTracking);
 
         Task<bool> FileExistsAsync(string path);
         Task<MediaFileInfo> GetFileByPathAsync(string path, MediaLoadFlags flags = MediaLoadFlags.None);
@@ -178,23 +212,71 @@ namespace Smartstore.Core.Content.Media
         /// <c>true</c> when a duplicate file was found, <c>false</c> otherwise.
         /// If true, a file from the <paramref name="files"/> collection whose content is equal to <paramref name="source"/> is the <c>out</c> parameter.
         /// </returns>
-        Task<AsyncOut<MediaFile>> FindEqualFileAsync(Stream source, IEnumerable<MediaFile> files, bool leaveOpen);
+        Task<AsyncOut<MediaFile>> FindEqualFileAsync(
+            Stream source, 
+            IEnumerable<MediaFile> files, 
+            bool leaveOpen);
 
-        Task<MediaFileInfo> SaveFileAsync(string path, Stream stream, bool isTransient = true, DuplicateFileHandling dupeFileHandling = DuplicateFileHandling.ThrowError);
-        Task DeleteFileAsync(MediaFile file, bool permanent, bool force = false);
-        Task<FileOperationResult> CopyFileAsync(MediaFileInfo mediaFile, string destinationFileName, DuplicateFileHandling dupeFileHandling = DuplicateFileHandling.ThrowError);
-        Task<MediaFileInfo> MoveFileAsync(MediaFile file, string destinationFileName, DuplicateFileHandling dupeFileHandling = DuplicateFileHandling.ThrowError);
-        Task<MediaFileInfo> ReplaceFileAsync(MediaFile file, Stream inStream, string newFileName);
+        Task<MediaFileInfo> SaveFileAsync(
+            string path, 
+            Stream stream, 
+            bool isTransient = true, 
+            DuplicateFileHandling dupeFileHandling = DuplicateFileHandling.ThrowError);
+
+        Task DeleteFileAsync(
+            MediaFile file, 
+            bool permanent, bool 
+            force = false);
+
+        Task<FileOperationResult> CopyFileAsync(
+            MediaFileInfo mediaFile, 
+            string destinationFileName, 
+            DuplicateFileHandling dupeFileHandling = DuplicateFileHandling.ThrowError);
+
+        Task<MediaFileInfo> MoveFileAsync(
+            MediaFile file, 
+            string destinationFileName, 
+            DuplicateFileHandling dupeFileHandling = DuplicateFileHandling.ThrowError);
+
+        Task<MediaFileInfo> ReplaceFileAsync(
+            MediaFile file, 
+            Stream inStream, 
+            string newFileName);
+
+        /// <summary>
+        /// Saves multiple files batched.
+        /// </summary>
+        /// <param name="sources">The source files to save.</param>
+        /// <param name="destinationFolder">The destination folder to save files to.</param>
+        Task<IList<FileBatchResult>> BatchSaveFilesAsync(
+            FileBatchSource[] sources,
+            MediaFolderNode destinationFolder,
+            bool isTransient = true,
+            DuplicateFileHandling dupeFileHandling = DuplicateFileHandling.ThrowError,
+            CancellationToken cancelToken = default);
 
         bool FolderExists(string path);
         Task<MediaFolderInfo> CreateFolderAsync(string path);
         Task<MediaFolderInfo> MoveFolderAsync(string path, string destinationPath);
-        Task<FolderOperationResult> CopyFolderAsync(string path, string destinationPath, DuplicateEntryHandling dupeEntryHandling = DuplicateEntryHandling.Skip, CancellationToken cancelToken = default);
-        Task<FolderDeleteResult> DeleteFolderAsync(string path, FileHandling fileHandling = FileHandling.SoftDelete, CancellationToken cancelToken = default);
+
+        Task<FolderOperationResult> CopyFolderAsync(
+            string path, 
+            string destinationPath, 
+            DuplicateEntryHandling dupeEntryHandling = DuplicateEntryHandling.Skip, 
+            CancellationToken cancelToken = default);
+
+        Task<FolderDeleteResult> DeleteFolderAsync(
+            string path, 
+            FileHandling fileHandling = FileHandling.SoftDelete, 
+            CancellationToken cancelToken = default);
 
         MediaFileInfo ConvertMediaFile(MediaFile file);
         MediaFolderInfo ConvertMediaFolder(TreeNode<MediaFolderNode> node);
 
-        string GetUrl(MediaFileInfo file, ProcessImageQuery query, string host = null, bool doFallback = true);
+        string GetUrl(
+            MediaFileInfo file, 
+            ProcessImageQuery query, 
+            string host = null, 
+            bool doFallback = true);
     }
 }

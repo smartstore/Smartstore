@@ -228,9 +228,7 @@ namespace Smartstore.Core.Content.Media
             if (doDupeCheck)
             {
                 // Get all files in destination folder for faster dupe selection
-                destFiles = (await _searcher
-                    .SearchFiles(new MediaSearchQuery { FolderId = destNode.Value.Id }, MediaLoadFlags.None).LoadAsync())
-                    .ToDictionarySafe(x => x.Name);
+                destFiles = await GetCachedFilesByFolderAsync(destNode.Value.Id);
 
                 // Make a HashSet from all file names in the destination folder for faster unique file name lookups
                 destNames = new HashSet<string>(destFiles.Keys, StringComparer.CurrentCultureIgnoreCase);

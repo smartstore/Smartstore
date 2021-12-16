@@ -42,7 +42,7 @@
     }
 }
 
-:not(.input-group-prepend, .input-group-append) {
+/*:not(.input-group-prepend, .input-group-append) {
     > .btn-secondary {
         @include button-variant($secondary, $secondary, $secondary, rgba(#000, 0.15), darken($secondary, 10%), rgba(#000, 0.2));
     }
@@ -50,6 +50,14 @@
     > .btn-light {
         @include button-variant($light, $light, $light, rgba(#000, 0.15), darken($light, 10%), rgba(#000, 0.2));
     }
+}*/
+
+.btn-secondary {
+    @include button-variant($secondary, $secondary, $secondary, rgba(#000, 0.15), darken($secondary, 10%), rgba(#000, 0.2));
+}
+
+.btn-light {
+    @include button-variant($light, $light, $light, rgba(#000, 0.15), darken($light, 10%), rgba(#000, 0.2));
 }
 
 
