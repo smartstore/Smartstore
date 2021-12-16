@@ -64,7 +64,7 @@ namespace Smartstore.Core.Logging.Serilog
             return new Log
             {
                 LogLevelId = e.Level == LogEventLevel.Verbose ? 0 : (int)e.Level * 10,
-                ShortMessage = e.RenderMessage(_formatProvider),
+                ShortMessage = e.RenderMessage(_formatProvider).Truncate(4000),
                 FullMessage = e.Exception?.ToString(),
                 CreatedOnUtc = e.Timestamp.UtcDateTime,
                 Logger = e.GetSourceContext() ?? "Unknown", // TODO: "Unknown" or "Smartstore"??

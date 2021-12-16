@@ -203,7 +203,7 @@ namespace Smartstore.Core.DataExchange.Import
                     {
                         // TODO: (mg) (core) too slow! Noticeably slows down the import.
                         // We need the media file ID.
-                        _db.SuppressCommit = false;
+                        //_db.SuppressCommit = false;
 
                         await ProcessProductPicturesAsync(context, scope, batch);
                     }
@@ -211,10 +211,10 @@ namespace Smartstore.Core.DataExchange.Import
                     {
                         context.Result.AddError(ex, segmenter.CurrentSegment, nameof(ProcessProductPicturesAsync));
                     }
-                    finally
-                    {
-                        _db.SuppressCommit = true;
-                    }
+                    //finally
+                    //{
+                    //    _db.SuppressCommit = true;
+                    //}
                 }
 
                 // ===========================================================================
@@ -582,6 +582,7 @@ namespace Smartstore.Core.DataExchange.Import
         {
             var cargo = await GetCargoData(context);
             var numberOfPictures = context.ExtraData.NumberOfPictures ?? int.MaxValue;
+            var newFiles = new List<FileBatchSource>();
             var displayOrder = -1;
 
             var productIds = batch
@@ -665,7 +666,7 @@ namespace Smartstore.Core.DataExchange.Import
                                 }
                                 else
                                 {
-                                    equalityCheck = await _services.MediaService.FindEqualFileAsync(stream, image.FileName, cargo.CatalogAlbumId, true);
+                                    equalityCheck = await _services.MediaService.FindEqualFileAsync(stream, image.FileName, cargo.CatalogAlbum.Id, true);
                                     if (equalityCheck.Success)
                                     {
                                         AddProductMediaFile(equalityCheck.Value, product);
@@ -673,10 +674,17 @@ namespace Smartstore.Core.DataExchange.Import
                                     }
                                     else
                                     {
-                                        var path = _services.MediaService.CombinePaths(SystemAlbumProvider.Catalog, image.FileName);
-                                        var saveFileResult = await _services.MediaService.SaveFileAsync(path, stream, false, DuplicateFileHandling.Rename);
+                                        newFiles.Add(new FileBatchSource
+                                        {
+                                            PhysicalPath = image.Path,
+                                            FileName = image.FileName,
+                                            State = row.Entity
+                                        });
+                                        
+                                        //var path = _services.MediaService.CombinePaths(SystemAlbumProvider.Catalog, image.FileName);
+                                        //var saveFileResult = await _services.MediaService.SaveFileAsync(path, stream, false, DuplicateFileHandling.Rename);
 
-                                        AddProductMediaFile(saveFileResult?.File, product);
+                                        //AddProductMediaFile(saveFileResult?.File, product);
                                     }
                                 }
                             }
@@ -690,6 +698,21 @@ namespace Smartstore.Core.DataExchange.Import
                     {
                         context.Result.AddWarning(ex.ToAllMessages(), row.RowInfo, "ImageUrls" + image.DisplayOrder.ToString());
                     }
+                }
+            }
+
+            var batchFileResult = await _services.MediaService.BatchSaveFilesAsync(
+                newFiles.ToArray(), 
+                cargo.CatalogAlbum, 
+                true,
+                DuplicateFileHandling.Rename, 
+                context.CancelToken);
+
+            foreach (var fileResult in batchFileResult)
+            {
+                if (fileResult.Exception == null && fileResult.File != null)
+                {
+                    AddProductMediaFile(fileResult.File.File, fileResult.Source.State as Product);
                 }
             }
 
@@ -1196,7 +1219,7 @@ namespace Smartstore.Core.DataExchange.Import
             var result = new ImporterCargoData
             {
                 TemplateViewPaths = productTemplates.ToDictionarySafe(x => x.ViewPath, x => x.Id),
-                CatalogAlbumId = _folderService.GetNodeByPath(SystemAlbumProvider.Catalog).Value.Id
+                CatalogAlbum = _folderService.GetNodeByPath(SystemAlbumProvider.Catalog).Value
             };
 
             if (segmenter.HasColumn("CategoryIds"))
@@ -1218,8 +1241,8 @@ namespace Smartstore.Core.DataExchange.Import
         /// </summary>
         protected class ImporterCargoData
         {
-            public int CatalogAlbumId { get; init; }
             public Dictionary<string, int> TemplateViewPaths { get; init; }
+            public MediaFolderNode CatalogAlbum { get; init; }
             public List<int> CategoryIds { get; set; }
             public List<int> ManufacturerIds { get; set; }
             public int DuplicateFileNameRowCount { get; set; }
