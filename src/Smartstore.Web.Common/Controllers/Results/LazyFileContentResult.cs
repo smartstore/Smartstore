@@ -15,7 +15,6 @@ namespace Smartstore.Web.Controllers
     public class LazyFileContentResult : FileResult
     {
         private Func<Task<byte[]>> _bufferAccessor;
-        private long? _fileLength;
 
         /// <summary>
         /// Creates a new <see cref="LazyFileContentResult"/> instance with

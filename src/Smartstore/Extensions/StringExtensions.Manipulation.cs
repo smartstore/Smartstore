@@ -96,7 +96,7 @@ namespace Smartstore
 
             if (value != null && value.Length > maxLength)
             {
-                return value.Substring(0, subStringLength).Trim() + end;
+                return value[..subStringLength].Trim() + end;
             }
             else
             {

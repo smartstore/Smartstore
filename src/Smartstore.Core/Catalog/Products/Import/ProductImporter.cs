@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Dasync.Collections;
 using Microsoft.EntityFrameworkCore;
+using Smartstore.Collections;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Brands;
 using Smartstore.Core.Catalog.Categories;
@@ -701,7 +702,7 @@ namespace Smartstore.Core.DataExchange.Import
                 }
             }
 
-            if (newFiles.Any())
+            if (newFiles.Count > 0)
             {
                 var batchFileResult = await _services.MediaService.BatchSaveFilesAsync(
                     newFiles.ToArray(),
@@ -712,7 +713,7 @@ namespace Smartstore.Core.DataExchange.Import
 
                 foreach (var fileResult in batchFileResult)
                 {
-                    if (fileResult.Exception == null && fileResult.File != null)
+                    if (fileResult.Exception == null && fileResult.File?.Id > 0)
                     {
                         AddProductMediaFile(fileResult.File.File, fileResult.Source.State as Product);
                     }
@@ -723,23 +724,20 @@ namespace Smartstore.Core.DataExchange.Import
 
             void AddProductMediaFile(MediaFile file, Product product)
             {
-                if (file?.Id > 0)
+                var productMediaFile = new ProductMediaFile
                 {
-                    var productMediaFile = new ProductMediaFile
-                    {
-                        ProductId = product.Id,
-                        MediaFileId = file.Id,
-                        DisplayOrder = ++displayOrder
-                    };
+                    ProductId = product.Id,
+                    MediaFileId = file.Id,
+                    DisplayOrder = ++displayOrder
+                };
 
-                    _db.ProductMediaFiles.Add(productMediaFile);
+                _db.ProductMediaFiles.Add(productMediaFile);
                     
-                    productMediaFile.MediaFile = file;
-                    existingMediaFilesMap.Add(product.Id, productMediaFile);
+                productMediaFile.MediaFile = file;
+                existingMediaFilesMap.Add(product.Id, productMediaFile);
 
-                    // Update for FixProductMainPictureIds.
-                    product.UpdatedOnUtc = DateTime.UtcNow;
-                }
+                // Update for FixProductMainPictureIds.
+                product.UpdatedOnUtc = DateTime.UtcNow;
             }
 
             void LogDuplicateFileNameWarning(ImportRow<Product> row, List< DownloadManagerItem> items)

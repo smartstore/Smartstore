@@ -498,14 +498,12 @@ namespace Smartstore.Core.Content.Media
 
                 try
                 {
-                    var stream = File.OpenRead(source.PhysicalPath);
-                    
                     var file = destFiles.Get(pathData.FileName);
                     var isDupe = file != null;
                     var processFileResult = await ProcessFileAsync(
                         file, 
                         pathData, 
-                        stream,
+                        inStream: File.OpenRead(source.PhysicalPath),
                         destFileNames: destNames,
                         isTransient: isTransient,
                         dupeFileHandling: dupeFileHandling,
@@ -582,9 +580,11 @@ namespace Smartstore.Core.Content.Media
                     // New file's metadata should be removed on storage save failure
                     _db.MediaFiles.Remove(file);
                 }
-
-                result.StorageItem?.Dispose();
-                result.StorageItem = null;
+                finally
+                {
+                    // INFO: StorageItem already disposed by StorageProvider
+                    result.StorageItem = null;
+                }
             }
 
             if (hasError)

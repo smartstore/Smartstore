@@ -61,10 +61,16 @@ namespace Smartstore.Core.Logging.Serilog
 
         private Log CovertLogEvent(LogEvent e)
         {
+            var shortMessage = e.RenderMessage(_formatProvider);
+            if (shortMessage?.Length > 4000)
+            {
+                shortMessage = shortMessage.Truncate(4000);
+            }
+
             return new Log
             {
                 LogLevelId = e.Level == LogEventLevel.Verbose ? 0 : (int)e.Level * 10,
-                ShortMessage = e.RenderMessage(_formatProvider).Truncate(4000),
+                ShortMessage = shortMessage,
                 FullMessage = e.Exception?.ToString(),
                 CreatedOnUtc = e.Timestamp.UtcDateTime,
                 Logger = e.GetSourceContext() ?? "Unknown", // TODO: "Unknown" or "Smartstore"??
