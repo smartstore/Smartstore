@@ -89,9 +89,6 @@ Text suggestions:</div><ul>
 	<LocaleResource Name="MissingAccessToken">
 		<Value>Missing access token!</Value>
 	</LocaleResource>
-	<LocaleResource Name="TaskName">
-		<Value>Amazon data polling</Value>
-	</LocaleResource>
 	<LocaleResource Name="SaveAccessDataSucceeded">
 		<Value>The access data has been saved successfully.</Value>
 	</LocaleResource>
@@ -237,28 +234,18 @@ Text suggestions:</div><ul>
 	<LocaleResource Name="AuthButtonSize.Hint">
 		<Value>Specifies the size of the Login button.</Value>
 	</LocaleResource>
-	<LocaleResource Name="DataFetching">
-		<Value>Updating the payment status</Value>
-	</LocaleResource>
-	<LocaleResource Name="DataFetching.Hint">
-		<Value>Specifies the method used to update the payment status.</Value>
-	</LocaleResource>
 	<LocaleResource Name="DataFetching.Warning">
 		<Value>
 			<![CDATA[The URL for IPN (Instant Payment Notification) must be entered separately for Sandbox and Live Mode in Amazon Seller Central. Live mode requires a valid SSL certificate issued by a trusted certificate authority, self-signed certificates are not permitted. The sandbox does not require an SSL certificate. In this case, the IPN URL must be specified with HTTP.]]>
 		</Value>
 	</LocaleResource>
-	<LocaleResource Name="DataFetching.Ipn">
-		<Value>IPN (Instant Payment Notification)</Value>
-	</LocaleResource>
-	<LocaleResource Name="DataFetching.Polling">
-		<Value>Data polling</Value>
-	</LocaleResource>
 	<LocaleResource Name="IpnUrl">
 		<Value>IPN URL</Value>
 	</LocaleResource>
 	<LocaleResource Name="IpnUrl.Hint">
-		<Value>Please enter this URL at Amazon Seller Central under Integration Settings - Instant Notification Settings - Merchant URL.</Value>
+		<Value>
+			URL for instant notifications to update payment status. Please enter this URL at Amazon Seller Central under "Integration Settings - Instant Notification Settings - Merchant URL".
+		</Value>
 	</LocaleResource>
 	<LocaleResource Name="TransactionType">
 		<Value>Payment action</Value>

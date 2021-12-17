@@ -27,6 +27,12 @@ namespace Smartstore.Core.Checkout.Cart
         public OrganizedShoppingCartItem[] Items { get; }
 
         /// <summary>
+        /// A value indicating whether the cart contains cart items.
+        /// </summary>
+        public bool HasItems
+            => Items.Length > 0;
+
+        /// <summary>
         /// Shopping cart type.
         /// </summary>
         public ShoppingCartType CartType { get; init; } = ShoppingCartType.ShoppingCart;

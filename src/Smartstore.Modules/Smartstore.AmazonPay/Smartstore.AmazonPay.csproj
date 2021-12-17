@@ -5,7 +5,7 @@
 		<OutDir>$(OutputPath)</OutDir>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="AmazonPay" Version="3.9.1" />
+    <Content Remove="Views\Shared\Components\AmazonPayButton\Default.cshtml" />
   </ItemGroup>
   <ItemGroup>
 		<ProjectReference Include="..\..\Smartstore.Web\Smartstore.Web.csproj">

@@ -62,18 +62,20 @@ namespace Smartstore.Admin.Controllers
         public async Task<ActionResult> Providers()
         {
             var paymentMethodsModel = new List<PaymentMethodModel>();
-            var widgets = _providerManager.GetAllProviders<IPaymentMethod>();
+            var providers = _providerManager.GetAllProviders<IPaymentMethod>();
 
-            foreach (var widget in widgets)
+            foreach (var provider in providers)
             {
-                var model = _moduleManager.ToProviderModel<IPaymentMethod, PaymentMethodModel>(widget);
-                var instance = widget.Value;
-                model.IsActive = widget.IsPaymentMethodActive(_paymentSettings);
+                var model = _moduleManager.ToProviderModel<IPaymentMethod, PaymentMethodModel>(provider);
+                var instance = provider.Value;
+                
+                model.IsActive = provider.IsPaymentMethodActive(_paymentSettings);
                 model.SupportCapture = instance.SupportCapture;
                 model.SupportPartiallyRefund = instance.SupportPartiallyRefund;
                 model.SupportRefund = instance.SupportRefund;
                 model.SupportVoid = instance.SupportVoid;
                 model.RecurringPaymentType = await instance.RecurringPaymentType.GetLocalizedEnumAsync();
+
                 paymentMethodsModel.Add(model);
             }
 
@@ -84,9 +86,9 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Configuration.PaymentMethod.Activate)]
         public async Task<IActionResult> ActivateProvider(string systemName, bool activate)
         {
-            var pm = _providerManager.GetProvider<IPaymentMethod>(systemName);
+            var provider = _providerManager.GetProvider<IPaymentMethod>(systemName);
 
-            if (activate && !pm.Value.IsActive)
+            if (activate && !provider.Value.IsActive)
             {
                 NotifyWarning(T("Admin.Configuration.Payment.CannotActivatePaymentMethod"));
             }
@@ -94,15 +96,15 @@ namespace Smartstore.Admin.Controllers
             {
                 if (!activate)
                 {
-                    _paymentSettings.ActivePaymentMethodSystemNames.Remove(pm.Metadata.SystemName);
+                    _paymentSettings.ActivePaymentMethodSystemNames.Remove(x => x.EqualsNoCase(provider.Metadata.SystemName));
                 }
                 else
                 {
-                    _paymentSettings.ActivePaymentMethodSystemNames.Add(pm.Metadata.SystemName);
+                    _paymentSettings.ActivePaymentMethodSystemNames.Add(provider.Metadata.SystemName);
                 }
 
                 await Services.SettingFactory.SaveSettingsAsync(_paymentSettings);
-                await _widgetService.ActivateWidgetAsync(pm.Metadata.SystemName, activate);
+                await _widgetService.ActivateWidgetAsync(provider.Metadata.SystemName, activate);
             }
 
             return RedirectToAction(nameof(Providers));

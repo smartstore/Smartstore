@@ -12,15 +12,12 @@ namespace Smartstore.AmazonPay
         public string ClientId { get; set; }
         public string Marketplace { get; set; } = "de";
 
-        public AmazonPayDataFetchingType DataFetching { get; set; } = AmazonPayDataFetchingType.Ipn;
         public AmazonPayTransactionType TransactionType { get; set; } = AmazonPayTransactionType.Authorize;
         public AmazonPayAuthorizeMethod AuthorizeMethod { get; set; } = AmazonPayAuthorizeMethod.Omnichronous;
 
         public AmazonPaySaveDataType? SaveEmailAndPhone { get; set; } = AmazonPaySaveDataType.OnlyIfEmpty;
         public bool ShowPayButtonForAdminOnly { get; set; }
         public bool ShowButtonInMiniShoppingCart { get; set; }
-
-        public int PollingMaxOrderCreationDays { get; set; } = 31;
 
         public decimal AdditionalFee { get; set; }
         public bool AdditionalFeePercentage { get; set; }

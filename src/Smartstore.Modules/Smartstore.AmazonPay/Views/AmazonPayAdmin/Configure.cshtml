@@ -6,7 +6,7 @@
     var configGroups = T("Plugins.Payments.AmazonPay.ConfigGroups").Value.SplitSafe(';');
 
     var marketplace = new List<SelectListItem>
-{
+    {
         new SelectListItem { Text = T("Plugins.Payments.AmazonPay.Marketplace.De"), Value = "de" },
         new SelectListItem { Text = T("Plugins.Payments.AmazonPay.Marketplace.Uk"), Value = "uk" },
         new SelectListItem { Text = T("Plugins.Payments.AmazonPay.Marketplace.Us"), Value = "us" },
@@ -14,14 +14,14 @@
     };
 
     var buttonColors = new List<SelectListItem>
-{
+    {
         new SelectListItem { Text = T("Plugins.Payments.AmazonPay.ButtonColor.Gold"), Value = "Gold" },
         new SelectListItem { Text = T("Plugins.Payments.AmazonPay.ButtonColor.LightGray"), Value = "LightGray" },
         new SelectListItem { Text = T("Plugins.Payments.AmazonPay.ButtonColor.DarkGray"), Value = "DarkGray" }
     };
 
     var buttonSizes = new List<SelectListItem>
-{
+    {
         new SelectListItem { Text = T("Plugins.Payments.AmazonPay.ButtonSize.Small"), Value = "small" },
         new SelectListItem { Text = T("Plugins.Payments.AmazonPay.ButtonSize.Medium"), Value = "medium" },
         new SelectListItem { Text = T("Plugins.Payments.AmazonPay.ButtonSize.Large"), Value = "large" },
@@ -29,7 +29,7 @@
     };
 
     var authButtonType = new List<SelectListItem>
-{
+    {
         new SelectListItem { Text = T("Plugins.Payments.AmazonPay.AuthButtonType.Login"), Value = "Login" },
         new SelectListItem { Text = T("Plugins.Payments.AmazonPay.AuthButtonType.LwA"), Value = "LwA" }
     };
@@ -245,31 +245,13 @@
         </div>
         <div class="adminRow">
             <div class="adminTitle">
-                <smart-label asp-for="DataFetching" />
-            </div>
-            <div class="adminData">
-                <select asp-for="DataFetching" asp-items="ViewBag.DataFetchings"></select>
-                <span asp-validation-for="DataFetching"></span>
-            </div>
-        </div>
-        <div class="adminRow data-fetching data-fetching-ipn">
-            <div class="adminTitle">
                 <smart-label asp-for="IpnUrl" />
             </div>
             <div class="adminData">
                 <input asp-for="IpnUrl" class="form-control-plaintext" readonly />
             </div>
         </div>
-        <div class="adminRow data-fetching data-fetching-polling">
-            <div class="adminTitle">
-                <smart-label asp-for="PollingMaxOrderCreationDays" />
-            </div>
-            <div class="adminData">
-                <editor asp-for="PollingMaxOrderCreationDays" sm-postfix="@T("Time.Days")" />
-                <span asp-validation-for="PollingMaxOrderCreationDays"></span>
-            </div>
-        </div>
-        <div id="DataFetchingWarning" class="adminRow d-none">
+        <div class="adminRow">
             <div class="adminTitle">&nbsp;</div>
             <div class="adminData">
                 <div class="alert alert-warning">
@@ -434,22 +416,6 @@
 		// Show/hide transaction type warning.
 		$('#@(Html.IdFor(x => x.TransactionType))').on('change', function () {
 			$('#TransactionTypeWarning').toggleClass('d-none', $(this).val() !== '2');
-		}).trigger('change');
-
-		// Show/hide status fetching warning.
-		$('#@(Html.IdFor(x => x.DataFetching))').on('change', function () {
-            var val = $(this).val();
-            var configTable = $('#amazonpay-config');
-
-			$('#DataFetchingWarning').toggleClass('d-none', val !== '1');
-
-			configTable.find('.data-fetching').hide();
-			if (val === '1') {
-				configTable.find('.data-fetching-ipn').show();
-			}
-			else if (val === '2') {
-				configTable.find('.data-fetching-polling').show();
-			}
 		}).trigger('change');
 
         // Register now.

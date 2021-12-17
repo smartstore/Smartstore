@@ -89,12 +89,13 @@ namespace Smartstore.Admin.Controllers
         public IActionResult Providers()
         {
             var shippingProviderModels = new List<ShippingRateComputationMethodModel>();
-            var widgets = _providerManager.GetAllProviders<IShippingRateComputationMethod>();
+            var providers = _providerManager.GetAllProviders<IShippingRateComputationMethod>();
 
-            foreach (var widget in widgets)
+            foreach (var provider in providers)
             {
-                var model = _moduleManager.ToProviderModel<IShippingRateComputationMethod, ShippingRateComputationMethodModel>(widget);
-                model.IsActive = widget.IsShippingRateComputationMethodActive(_shippingSettings);
+                var model = _moduleManager.ToProviderModel<IShippingRateComputationMethod, ShippingRateComputationMethodModel>(provider);
+                model.IsActive = provider.IsShippingRateComputationMethodActive(_shippingSettings);
+
                 shippingProviderModels.Add(model);
             }
 
@@ -105,8 +106,8 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Configuration.Shipping.Activate)]
         public async Task<IActionResult> ActivateProvider(string systemName, bool activate)
         {
-            var srcm = _providerManager.GetProvider<IShippingRateComputationMethod>(systemName);
-            var isActive = srcm.Value.IsActive;
+            var provider = _providerManager.GetProvider<IShippingRateComputationMethod>(systemName);
+            var isActive = provider.Value.IsActive;
 
             if (!isActive && activate)
             {
@@ -116,15 +117,15 @@ namespace Smartstore.Admin.Controllers
             {
                 if (!activate)
                 {
-                    _shippingSettings.ActiveShippingRateComputationMethodSystemNames.Remove(srcm.Metadata.SystemName);
+                    _shippingSettings.ActiveShippingRateComputationMethodSystemNames.Remove(x => x.EqualsNoCase(provider.Metadata.SystemName));
                 }
                 else
                 {
-                    _shippingSettings.ActiveShippingRateComputationMethodSystemNames.Add(srcm.Metadata.SystemName);
+                    _shippingSettings.ActiveShippingRateComputationMethodSystemNames.Add(provider.Metadata.SystemName);
                 }
 
                 await Services.SettingFactory.SaveSettingsAsync(_shippingSettings);
-                await _widgetService.ActivateWidgetAsync(srcm.Metadata.SystemName, activate);
+                await _widgetService.ActivateWidgetAsync(provider.Metadata.SystemName, activate);
             }
 
             return RedirectToAction(nameof(Providers));

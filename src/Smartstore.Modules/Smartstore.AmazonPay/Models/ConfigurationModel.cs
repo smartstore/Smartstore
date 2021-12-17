@@ -24,14 +24,8 @@ namespace Smartstore.AmazonPay.Models
         [LocalizedDisplay("*Marketplace")]
         public string Marketplace { get; set; }
 
-        [LocalizedDisplay("*DataFetching")]
-        public AmazonPayDataFetchingType DataFetching { get; set; }
-
         [LocalizedDisplay("*IpnUrl")]
         public string IpnUrl { get; set; }
-
-        [LocalizedDisplay("*PollingMaxOrderCreationDays")]
-        public int PollingMaxOrderCreationDays { get; set; }
 
         [LocalizedDisplay("*TransactionType")]
         public AmazonPayTransactionType TransactionType { get; set; }

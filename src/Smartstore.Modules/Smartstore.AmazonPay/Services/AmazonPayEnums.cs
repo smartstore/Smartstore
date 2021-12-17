@@ -1,25 +1,25 @@
 ﻿namespace Smartstore.AmazonPay
 {
-    public enum AmazonPayRequestType
-    {
-        None = 0,
-        ShoppingCart,
-        Address,
-        PaymentMethod,
-        OrderReviewData,
-        ShippingMethod,
-        MiniShoppingCart,
+    //public enum AmazonPayRequestType
+    //{
+    //    None = 0,
+    //    ShoppingCart,
+    //    Address,
+    //    PaymentMethod,
+    //    OrderReviewData,
+    //    ShippingMethod,
+    //    MiniShoppingCart,
 
-        /// <summary>
-        /// Amazon Pay button clicked
-        /// </summary>
-        PayButtonHandler,
+    //    /// <summary>
+    //    /// Amazon Pay button clicked
+    //    /// </summary>
+    //    PayButtonHandler,
 
-        /// <summary>
-        /// Display authentication button on login page
-        /// </summary>
-        AuthenticationPublicInfo
-    }
+    //    /// <summary>
+    //    /// Display authentication button on login page
+    //    /// </summary>
+    //    AuthenticationPublicInfo
+    //}
 
     public enum AmazonPayTransactionType
     {
@@ -42,20 +42,13 @@
         Always
     }
 
-    public enum AmazonPayDataFetchingType
-    {
-        None = 0,
-        Ipn,
-        Polling
-    }
-
-    public enum AmazonPayResultType
-    {
-        None = 0,
-        PluginView,
-        Redirect,
-        Unauthorized
-    }
+    //public enum AmazonPayResultType
+    //{
+    //    None = 0,
+    //    PluginView,
+    //    Redirect,
+    //    Unauthorized
+    //}
 
     public enum AmazonPayMessage
     {

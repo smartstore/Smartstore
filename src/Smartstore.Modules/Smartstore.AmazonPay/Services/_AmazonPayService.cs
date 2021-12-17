@@ -1,6 +1,4 @@
 ﻿using System.Linq;
-using AmazonPay;
-using AmazonPay.CommonRequests;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -10,6 +8,7 @@ using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Common;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Data;
+using Smartstore.Core.Identity;
 using Smartstore.Core.Messaging;
 using Smartstore.Utilities;
 
@@ -47,11 +46,6 @@ namespace Smartstore.AmazonPay.Services
         /// </summary>
         internal static string PlatformId => "A3OJ83WFYM72IY";
         internal static string LeadCode => "SPEXDEAPA-SmartStore.Net-CP-DP";
-
-        public Task RunDataPollingAsync(CancellationToken cancelToken = default)
-        {
-            throw new NotImplementedException();
-        }
 
         public async Task<bool> AddCustomerOrderNoteLoopAsync(AmazonPayActionState state, CancellationToken cancelToken = default)
         {
@@ -178,52 +172,52 @@ namespace Smartstore.AmazonPay.Services
             };
         }
 
-        public Regions.currencyCode GetAmazonCurrencyCode(string currencyCode = null)
-        {
-            currencyCode ??= _primaryCurrency.CurrencyCode;
+        //public Regions.currencyCode GetAmazonCurrencyCode(string currencyCode = null)
+        //{
+        //    currencyCode ??= _primaryCurrency.CurrencyCode;
 
-            return currencyCode.EmptyNull().ToLower() switch
-            {
-                "usd" => Regions.currencyCode.USD,
-                "gbp" => Regions.currencyCode.GBP,
-                "jpy" => Regions.currencyCode.JPY,
-                "aud" => Regions.currencyCode.AUD,
-                "zar" => Regions.currencyCode.ZAR,
-                "chf" => Regions.currencyCode.CHF,
-                "nok" => Regions.currencyCode.NOK,
-                "dkk" => Regions.currencyCode.DKK,
-                "sek" => Regions.currencyCode.SEK,
-                "nzd" => Regions.currencyCode.NZD,
-                "hkd" => Regions.currencyCode.HKD,
-                _ => Regions.currencyCode.EUR,
-            };
-        }
+        //    return currencyCode.EmptyNull().ToLower() switch
+        //    {
+        //        "usd" => Regions.currencyCode.USD,
+        //        "gbp" => Regions.currencyCode.GBP,
+        //        "jpy" => Regions.currencyCode.JPY,
+        //        "aud" => Regions.currencyCode.AUD,
+        //        "zar" => Regions.currencyCode.ZAR,
+        //        "chf" => Regions.currencyCode.CHF,
+        //        "nok" => Regions.currencyCode.NOK,
+        //        "dkk" => Regions.currencyCode.DKK,
+        //        "sek" => Regions.currencyCode.SEK,
+        //        "nzd" => Regions.currencyCode.NZD,
+        //        "hkd" => Regions.currencyCode.HKD,
+        //        _ => Regions.currencyCode.EUR,
+        //    };
+        //}
 
-        public Client CreateApiClient(AmazonPaySettings settings)
-        {
-            var module = _services.ApplicationContext.ModuleCatalog.GetModuleByName("Smartstore.AmazonPay");
-            var appVersion = module?.Version?.ToString() ?? "1.0";
+        //public Client CreateApiClient(AmazonPaySettings settings)
+        //{
+        //    var module = _services.ApplicationContext.ModuleCatalog.GetModuleByName("Smartstore.AmazonPay");
+        //    var appVersion = module?.Version?.ToString() ?? "1.0";
 
-            var region = settings.Marketplace.EmptyNull().ToLower() switch
-            {
-                "us" => Regions.supportedRegions.us,
-                "uk" => Regions.supportedRegions.uk,
-                "jp" => Regions.supportedRegions.jp,
-                _ => Regions.supportedRegions.de,
-            };
+        //    var region = settings.Marketplace.EmptyNull().ToLower() switch
+        //    {
+        //        "us" => Regions.supportedRegions.us,
+        //        "uk" => Regions.supportedRegions.uk,
+        //        "jp" => Regions.supportedRegions.jp,
+        //        _ => Regions.supportedRegions.de,
+        //    };
 
-            var config = new Configuration()
-                .WithAccessKey(settings.AccessKey)
-                .WithClientId(settings.ClientId)
-                .WithSecretKey(settings.SecretKey)
-                .WithSandbox(settings.UseSandbox)
-                .WithApplicationName("Smartstore " + AmazonPayProvider.SystemName)
-                .WithApplicationVersion(appVersion)
-                .WithRegion(region);
+        //    var config = new Configuration()
+        //        .WithAccessKey(settings.AccessKey)
+        //        .WithClientId(settings.ClientId)
+        //        .WithSecretKey(settings.SecretKey)
+        //        .WithSandbox(settings.UseSandbox)
+        //        .WithApplicationName("Smartstore " + AmazonPayProvider.SystemName)
+        //        .WithApplicationVersion(appVersion)
+        //        .WithRegion(region);
 
-            var client = new Client(config);
-            return client;
-        }
+        //    var client = new Client(config);
+        //    return client;
+        //}
 
         #region Utilities
 

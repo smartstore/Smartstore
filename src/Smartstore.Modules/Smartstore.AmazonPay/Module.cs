@@ -7,27 +7,22 @@ global using Smartstore.AmazonPay.Providers;
 global using Smartstore.Core.Localization;
 global using Smartstore.Web.Modelling;
 using System.Linq;
-using Smartstore.AmazonPay.Services;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Widgets;
 using Smartstore.Engine.Modularity;
-using Smartstore.Scheduling;
 
 namespace Smartstore.AmazonPay
 {
     internal class Module : ModuleBase, ICookiePublisher
     {
         private readonly IProviderManager _providerManager;
-        private readonly ITaskStore _taskStore;
         private readonly WidgetSettings _widgetSettings;
 
         public Module(
             IProviderManager providerManager,
-            ITaskStore taskStore,
             WidgetSettings widgetSettings)
         {
             _providerManager = providerManager;
-            _taskStore = taskStore;
             _widgetSettings = widgetSettings;
         }
 
@@ -56,11 +51,9 @@ namespace Smartstore.AmazonPay
             await TrySaveSettingsAsync<AmazonPaySettings>();
             await ImportLanguageResourcesAsync();
 
-            _ = await _taskStore.GetOrAddTaskAsync<DataPollingTask>(x =>
-            {
-                x.Name = Services.Localization.GetResource("Plugins.Payments.AmazonPay.TaskName");
-                x.CronExpression = "*/30 * * * *";  // 30 minutes.
-            });
+            // INFO: DataPollingTask has been removed. Its work was redundant.
+            // It was intended for stores without SSL to update the payment status.
+            // Payment status is updated by IPN, which requires SSL but SSL is required anyway.
 
             await base.InstallAsync(context);
         }
@@ -69,8 +62,6 @@ namespace Smartstore.AmazonPay
         {
             await DeleteSettingsAsync<AmazonPaySettings>();
             await DeleteLanguageResourcesAsync();
-
-            await _taskStore.TryDeleteTaskAsync<DataPollingTask>();
 
             await base.UninstallAsync();
         }

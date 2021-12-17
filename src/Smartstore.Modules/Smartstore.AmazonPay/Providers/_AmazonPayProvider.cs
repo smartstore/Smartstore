@@ -1,12 +1,10 @@
 ﻿using System.Linq;
-using AmazonPay;
-using AmazonPay.Responses;
-using AmazonPay.StandardPaymentRequests;
 using Autofac;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using Smartstore.AmazonPay.Components;
 using Smartstore.AmazonPay.Services;
 using Smartstore.Core;
 using Smartstore.Core.Checkout.Cart;
@@ -21,6 +19,7 @@ namespace Smartstore.AmazonPay.Providers
 {
     [SystemName("Smartstore.AmazonPay")]
     [FriendlyName("Amazon Pay")]
+    // TODO: (mg) (core) is AmazonPay widget still required?
     [DependentWidgets("Widgets.AmazonPay")]
     [Order(-1)]
     public class AmazonPayProvider : PaymentMethodBase, IConfigurable
@@ -68,11 +67,9 @@ namespace Smartstore.AmazonPay.Providers
             => new("Configure", "AmazonPayAdmin", new { area = "Admin" });
 
         public override WidgetInvoker GetPaymentInfoWidget()
-        {
-            throw new NotImplementedException();
-        }
+            => new ComponentWidgetInvoker(typeof(AmazonPayButtonViewComponent), new { providerName = nameof(AmazonPayProvider) });
 
-        public override async Task<ProcessPaymentResult> ProcessPaymentAsync(ProcessPaymentRequest processPaymentRequest)
+        public override Task<ProcessPaymentResult> ProcessPaymentAsync(ProcessPaymentRequest processPaymentRequest)
         {
             var result = new ProcessPaymentResult
             {
@@ -94,108 +91,108 @@ namespace Smartstore.AmazonPay.Providers
                     httpContext.Session.TryRemove("AmazonPayCheckoutCompletedNote");
                 }
 
-                var settings = await _services.SettingFactory.LoadSettingsAsync<AmazonPaySettings>(processPaymentRequest.StoreId);
-                var captureNow = settings.TransactionType == AmazonPayTransactionType.AuthorizeAndCapture;
-                var state = _amazonPayService.GetCheckoutState();
-                var client = _amazonPayService.CreateApiClient(settings);
-                AuthorizeRequest authRequest = null;
-                AuthorizeResponse authResponse = null;
+                //var settings = await _services.SettingFactory.LoadSettingsAsync<AmazonPaySettings>(processPaymentRequest.StoreId);
+                //var captureNow = settings.TransactionType == AmazonPayTransactionType.AuthorizeAndCapture;
+                //var state = _amazonPayService.GetCheckoutState();
+                //var client = _amazonPayService.CreateApiClient(settings);
+                //AuthorizeRequest authRequest = null;
+                //AuthorizeResponse authResponse = null;
 
-                informCustomerAboutErrors = settings.InformCustomerAboutErrors;
-                informCustomerAddErrors = settings.InformCustomerAddErrors;
+                //informCustomerAboutErrors = settings.InformCustomerAboutErrors;
+                //informCustomerAddErrors = settings.InformCustomerAddErrors;
 
-                // Authorize.
-                if (settings.AuthorizeMethod == AmazonPayAuthorizeMethod.Omnichronous)
-                {
-                    // First try synchronously.
-                    (authRequest, authResponse) = AuthorizePayment(settings, state, processPaymentRequest, client, true);
+                //// Authorize.
+                //if (settings.AuthorizeMethod == AmazonPayAuthorizeMethod.Omnichronous)
+                //{
+                //    // First try synchronously.
+                //    (authRequest, authResponse) = AuthorizePayment(settings, state, processPaymentRequest, client, true);
 
-                    if (authResponse.GetAuthorizationState().EqualsNoCase("Declined") &&
-                        authResponse.GetReasonCode().EqualsNoCase("TransactionTimedOut"))
-                    {
-                        // Second try asynchronously.
-                        // Transaction is always in pending state after return.
-                        (authRequest, authResponse) = AuthorizePayment(settings, state, processPaymentRequest, client, false);
-                    }
-                    else
-                    {
-                        isSynchronous = true;
-                    }
-                }
-                else
-                {
-                    isSynchronous = settings.AuthorizeMethod == AmazonPayAuthorizeMethod.Synchronous;
-                    (authRequest, authResponse) = AuthorizePayment(settings, state, processPaymentRequest, client, isSynchronous);
-                }
+                //    if (authResponse.GetAuthorizationState().EqualsNoCase("Declined") &&
+                //        authResponse.GetReasonCode().EqualsNoCase("TransactionTimedOut"))
+                //    {
+                //        // Second try asynchronously.
+                //        // Transaction is always in pending state after return.
+                //        (authRequest, authResponse) = AuthorizePayment(settings, state, processPaymentRequest, client, false);
+                //    }
+                //    else
+                //    {
+                //        isSynchronous = true;
+                //    }
+                //}
+                //else
+                //{
+                //    isSynchronous = settings.AuthorizeMethod == AmazonPayAuthorizeMethod.Synchronous;
+                //    (authRequest, authResponse) = AuthorizePayment(settings, state, processPaymentRequest, client, isSynchronous);
+                //}
 
-                // Process authorization response.
-                if (authResponse.GetSuccess())
-                {
-                    var reason = authResponse.GetReasonCode();
+                //// Process authorization response.
+                //if (authResponse.GetSuccess())
+                //{
+                //    var reason = authResponse.GetReasonCode();
 
-                    result.AuthorizationTransactionId = authResponse.GetAuthorizationId();
-                    result.AuthorizationTransactionCode = authResponse.GetAuthorizationReferenceId();
-                    result.AuthorizationTransactionResult = authResponse.GetAuthorizationState();
+                //    result.AuthorizationTransactionId = authResponse.GetAuthorizationId();
+                //    result.AuthorizationTransactionCode = authResponse.GetAuthorizationReferenceId();
+                //    result.AuthorizationTransactionResult = authResponse.GetAuthorizationState();
 
-                    if (captureNow)
-                    {
-                        var idList = authResponse.GetCaptureIdList();
-                        if (idList.Any())
-                        {
-                            result.CaptureTransactionId = idList.First();
-                        }
-                    }
+                //    if (captureNow)
+                //    {
+                //        var idList = authResponse.GetCaptureIdList();
+                //        if (idList.Any())
+                //        {
+                //            result.CaptureTransactionId = idList.First();
+                //        }
+                //    }
 
-                    if (isSynchronous)
-                    {
-                        if (result.AuthorizationTransactionResult.EqualsNoCase("Open"))
-                        {
-                            result.NewPaymentStatus = PaymentStatus.Authorized;
-                        }
-                        else if (result.AuthorizationTransactionResult.EqualsNoCase("Closed"))
-                        {
-                            if (captureNow && reason.EqualsNoCase("MaxCapturesProcessed"))
-                            {
-                                result.NewPaymentStatus = PaymentStatus.Paid;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        httpContext.Session.SetString("AmazonPayCheckoutCompletedNote", T("Plugins.Payments.AmazonPay.AsyncPaymentAuthrizationNote"));
-                    }
+                //    if (isSynchronous)
+                //    {
+                //        if (result.AuthorizationTransactionResult.EqualsNoCase("Open"))
+                //        {
+                //            result.NewPaymentStatus = PaymentStatus.Authorized;
+                //        }
+                //        else if (result.AuthorizationTransactionResult.EqualsNoCase("Closed"))
+                //        {
+                //            if (captureNow && reason.EqualsNoCase("MaxCapturesProcessed"))
+                //            {
+                //                result.NewPaymentStatus = PaymentStatus.Paid;
+                //            }
+                //        }
+                //    }
+                //    else
+                //    {
+                //        httpContext.Session.SetString("AmazonPayCheckoutCompletedNote", T("Plugins.Payments.AmazonPay.AsyncPaymentAuthrizationNote"));
+                //    }
 
-                    if (reason.EqualsNoCase("InvalidPaymentMethod") || reason.EqualsNoCase("AmazonRejected") ||
-                        reason.EqualsNoCase("ProcessingFailure") || reason.EqualsNoCase("TransactionTimedOut") ||
-                        reason.EqualsNoCase("TransactionTimeout"))
-                    {
-                        error = authResponse.GetReasonDescription();
-                        error = error.HasValue() ? $"{reason}: {error}" : reason;
+                //    if (reason.EqualsNoCase("InvalidPaymentMethod") || reason.EqualsNoCase("AmazonRejected") ||
+                //        reason.EqualsNoCase("ProcessingFailure") || reason.EqualsNoCase("TransactionTimedOut") ||
+                //        reason.EqualsNoCase("TransactionTimeout"))
+                //    {
+                //        error = authResponse.GetReasonDescription();
+                //        error = error.HasValue() ? $"{reason}: {error}" : reason;
 
-                        if (reason.EqualsNoCase("AmazonRejected"))
-                        {
-                            // Must be logged out and redirected to shopping cart.
-                            httpContext.Session.SetString("AmazonPayFailedPaymentReason", reason);
+                //        if (reason.EqualsNoCase("AmazonRejected"))
+                //        {
+                //            // Must be logged out and redirected to shopping cart.
+                //            httpContext.Session.SetString("AmazonPayFailedPaymentReason", reason);
 
-                            result.RedirectUrl = _urlHelper.Action("Cart", "ShoppingCart", new { area = string.Empty });
-                        }
-                        else if (reason.EqualsNoCase("InvalidPaymentMethod"))
-                        {
-                            // Must be redirected to checkout payment page.
-                            httpContext.Session.SetString("AmazonPayFailedPaymentReason", reason);
+                //            result.RedirectUrl = _urlHelper.Action("Cart", "ShoppingCart", new { area = string.Empty });
+                //        }
+                //        else if (reason.EqualsNoCase("InvalidPaymentMethod"))
+                //        {
+                //            // Must be redirected to checkout payment page.
+                //            httpContext.Session.SetString("AmazonPayFailedPaymentReason", reason);
 
-                            // Review: confirmation required to get order reference object from suspended to open state again.
-                            state.IsConfirmed = false;
-                            state.FormData = null;
+                //            // Review: confirmation required to get order reference object from suspended to open state again.
+                //            state.IsConfirmed = false;
+                //            state.FormData = null;
 
-                            result.RedirectUrl = _urlHelper.Action("PaymentMethod", "Checkout", new { area = string.Empty });
-                        }
-                    }
-                }
-                else
-                {
-                    error = Logger.LogAmazonResponse(authRequest, authResponse);
-                }
+                //            result.RedirectUrl = _urlHelper.Action("PaymentMethod", "Checkout", new { area = string.Empty });
+                //        }
+                //    }
+                //}
+                //else
+                //{
+                //    error = Logger.LogAmazonResponse(authRequest, authResponse);
+                //}
             }
             catch (Exception ex)
             {
@@ -233,32 +230,11 @@ namespace Smartstore.AmazonPay.Providers
                 ctx);
             }
 
-            return result;
+            return Task.FromResult(result);
         }
 
         public override async Task PostProcessPaymentAsync(PostProcessPaymentRequest postProcessPaymentRequest)
         {
-            // Early polling... note we do not have the amazon billing address yet.
-            //try
-            //{
-            //	int orderId = order.Id;
-            //	var settings = _services.Settings.LoadSetting<AmazonPaySettings>(order.StoreId);
-
-            //	if (orderId != 0 && settings.StatusFetching == AmazonPayStatusFetchingType.Polling)
-            //	{
-            //		AsyncRunner.Run((container, obj) =>
-            //		{
-            //			var amazonService = container.Resolve<IAmazonPayService>();
-            //			amazonService.EarlyPolling(orderId, obj as AmazonPaySettings);
-            //		},
-            //		settings, CancellationToken.None, TaskCreationOptions.None, TaskScheduler.Default);
-            //	}
-            //}
-            //catch (Exception ex)
-            //{
-            //	Logger.Error(ex);
-            //}
-
             try
             {
                 var order = postProcessPaymentRequest.Order;
@@ -271,22 +247,22 @@ namespace Smartstore.AmazonPay.Providers
 
                 if (order.PaymentStatus == PaymentStatus.Paid)
                 {
-                    var settings = await _services.SettingFactory.LoadSettingsAsync<AmazonPaySettings>(order.StoreId);
-                    var client = _amazonPayService.CreateApiClient(settings);
+                    //var settings = await _services.SettingFactory.LoadSettingsAsync<AmazonPaySettings>(order.StoreId);
+                    //var client = _amazonPayService.CreateApiClient(settings);
 
-                    var closeRequest = new CloseOrderReferenceRequest()
-                        .WithMerchantId(settings.SellerId)
-                        .WithAmazonOrderReferenceId(orderReference.OrderReferenceId);
+                    //var closeRequest = new CloseOrderReferenceRequest()
+                    //    .WithMerchantId(settings.SellerId)
+                    //    .WithAmazonOrderReferenceId(orderReference.OrderReferenceId);
 
-                    var closeResponse = client.CloseOrderReference(closeRequest);
-                    if (closeResponse.GetSuccess())
-                    {
-                        orderReference.OrderReferenceClosed = true;
-                    }
-                    else
-                    {
-                        Logger.LogAmazonResponse(closeRequest, closeResponse, LogLevel.Warning);
-                    }
+                    //var closeResponse = client.CloseOrderReference(closeRequest);
+                    //if (closeResponse.GetSuccess())
+                    //{
+                    //    orderReference.OrderReferenceClosed = true;
+                    //}
+                    //else
+                    //{
+                    //    Logger.LogAmazonResponse(closeRequest, closeResponse, LogLevel.Warning);
+                    //}
                 }
 
                 order.SetAmazonPayOrderReference(orderReference);
@@ -298,160 +274,160 @@ namespace Smartstore.AmazonPay.Providers
             }
         }
 
-        public override async Task<CapturePaymentResult> CaptureAsync(CapturePaymentRequest capturePaymentRequest)
-        {
-            var order = capturePaymentRequest.Order;
-            var result = new CapturePaymentResult
-            {
-                NewPaymentStatus = order.PaymentStatus
-            };
+        //public override async Task<CapturePaymentResult> CaptureAsync(CapturePaymentRequest capturePaymentRequest)
+        //{
+        //    var order = capturePaymentRequest.Order;
+        //    var result = new CapturePaymentResult
+        //    {
+        //        NewPaymentStatus = order.PaymentStatus
+        //    };
 
-            try
-            {
-                var settings = await _services.SettingFactory.LoadSettingsAsync<AmazonPaySettings>(order.StoreId);
-                var client = _amazonPayService.CreateApiClient(settings);
+        //    try
+        //    {
+        //        var settings = await _services.SettingFactory.LoadSettingsAsync<AmazonPaySettings>(order.StoreId);
+        //        var client = _amazonPayService.CreateApiClient(settings);
 
-                var captureRequest = new CaptureRequest()
-                    .WithMerchantId(settings.SellerId)
-                    .WithAmazonAuthorizationId(order.AuthorizationTransactionId)
-                    .WithCaptureReferenceId(AmazonPayService.GenerateRandomId("Capture"))
-                    .WithCurrencyCode(_amazonPayService.GetAmazonCurrencyCode())
-                    .WithAmount(order.OrderTotal);
+        //        var captureRequest = new CaptureRequest()
+        //            .WithMerchantId(settings.SellerId)
+        //            .WithAmazonAuthorizationId(order.AuthorizationTransactionId)
+        //            .WithCaptureReferenceId(AmazonPayService.GenerateRandomId("Capture"))
+        //            .WithCurrencyCode(_amazonPayService.GetAmazonCurrencyCode())
+        //            .WithAmount(order.OrderTotal);
 
-                var captureResponse = client.Capture(captureRequest);
+        //        var captureResponse = client.Capture(captureRequest);
 
-                if (captureResponse.GetSuccess())
-                {
-                    var state = captureResponse.GetCaptureState();
+        //        if (captureResponse.GetSuccess())
+        //        {
+        //            var state = captureResponse.GetCaptureState();
 
-                    result.CaptureTransactionId = captureResponse.GetCaptureId();
-                    result.CaptureTransactionResult = state.Grow(captureResponse.GetReasonCode(), " ");
+        //            result.CaptureTransactionId = captureResponse.GetCaptureId();
+        //            result.CaptureTransactionResult = state.Grow(captureResponse.GetReasonCode(), " ");
 
-                    if (state.EqualsNoCase("completed"))
-                    {
-                        result.NewPaymentStatus = PaymentStatus.Paid;
-                    }
-                }
-                else
-                {
-                    var message = Logger.LogAmazonResponse(captureRequest, captureResponse);
-                    result.Errors.Add(message);
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.Error(ex);
-                result.Errors.Add(ex.Message);
-            }
+        //            if (state.EqualsNoCase("completed"))
+        //            {
+        //                result.NewPaymentStatus = PaymentStatus.Paid;
+        //            }
+        //        }
+        //        else
+        //        {
+        //            var message = Logger.LogAmazonResponse(captureRequest, captureResponse);
+        //            result.Errors.Add(message);
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Logger.Error(ex);
+        //        result.Errors.Add(ex.Message);
+        //    }
 
-            return result;
-        }
+        //    return result;
+        //}
 
-        public override async Task<RefundPaymentResult> RefundAsync(RefundPaymentRequest refundPaymentRequest)
-        {
-            var order = refundPaymentRequest.Order;
-            var result = new RefundPaymentResult
-            {
-                NewPaymentStatus = order.PaymentStatus
-            };
+        //public override async Task<RefundPaymentResult> RefundAsync(RefundPaymentRequest refundPaymentRequest)
+        //{
+        //    var order = refundPaymentRequest.Order;
+        //    var result = new RefundPaymentResult
+        //    {
+        //        NewPaymentStatus = order.PaymentStatus
+        //    };
 
-            try
-            {
-                var settings = await _services.SettingFactory.LoadSettingsAsync<AmazonPaySettings>(order.StoreId);
-                var client = _amazonPayService.CreateApiClient(settings);
+        //    try
+        //    {
+        //        var settings = await _services.SettingFactory.LoadSettingsAsync<AmazonPaySettings>(order.StoreId);
+        //        var client = _amazonPayService.CreateApiClient(settings);
 
-                var refundRequest = new RefundRequest()
-                    .WithMerchantId(settings.SellerId)
-                    .WithAmazonCaptureId(order.CaptureTransactionId)
-                    .WithRefundReferenceId(AmazonPayService.GenerateRandomId("Refund"))
-                    .WithCurrencyCode(_amazonPayService.GetAmazonCurrencyCode())
-                    .WithAmount(refundPaymentRequest.AmountToRefund.Amount);
+        //        var refundRequest = new RefundRequest()
+        //            .WithMerchantId(settings.SellerId)
+        //            .WithAmazonCaptureId(order.CaptureTransactionId)
+        //            .WithRefundReferenceId(AmazonPayService.GenerateRandomId("Refund"))
+        //            .WithCurrencyCode(_amazonPayService.GetAmazonCurrencyCode())
+        //            .WithAmount(refundPaymentRequest.AmountToRefund.Amount);
 
-                var refundResponse = client.Refund(refundRequest);
+        //        var refundResponse = client.Refund(refundRequest);
 
-                if (refundResponse.GetSuccess())
-                {
-                    result.NewPaymentStatus = refundPaymentRequest.IsPartialRefund ? PaymentStatus.PartiallyRefunded : PaymentStatus.Refunded;
+        //        if (refundResponse.GetSuccess())
+        //        {
+        //            result.NewPaymentStatus = refundPaymentRequest.IsPartialRefund ? PaymentStatus.PartiallyRefunded : PaymentStatus.Refunded;
 
-                    var refundId = refundResponse.GetAmazonRefundId();
-                    if (refundId.HasValue() && refundPaymentRequest.Order.Id != 0)
-                    {
-                        order.GenericAttributes.Set<string>(SystemName + ".RefundId", refundId, order.StoreId);
+        //            var refundId = refundResponse.GetAmazonRefundId();
+        //            if (refundId.HasValue() && refundPaymentRequest.Order.Id != 0)
+        //            {
+        //                order.GenericAttributes.Set<string>(SystemName + ".RefundId", refundId, order.StoreId);
 
-                        await _db.SaveChangesAsync();
-                    }
-                }
-                else
-                {
-                    var message = Logger.LogAmazonResponse(refundRequest, refundResponse);
-                    result.Errors.Add(message);
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.Error(ex);
-                result.Errors.Add(ex.Message);
-            }
+        //                await _db.SaveChangesAsync();
+        //            }
+        //        }
+        //        else
+        //        {
+        //            var message = Logger.LogAmazonResponse(refundRequest, refundResponse);
+        //            result.Errors.Add(message);
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Logger.Error(ex);
+        //        result.Errors.Add(ex.Message);
+        //    }
 
-            return result;
-        }
+        //    return result;
+        //}
 
-        public override async Task<VoidPaymentResult> VoidAsync(VoidPaymentRequest voidPaymentRequest)
-        {
-            var order = voidPaymentRequest.Order;
-            var result = new VoidPaymentResult
-            {
-                NewPaymentStatus = order.PaymentStatus
-            };
+        //public override async Task<VoidPaymentResult> VoidAsync(VoidPaymentRequest voidPaymentRequest)
+        //{
+        //    var order = voidPaymentRequest.Order;
+        //    var result = new VoidPaymentResult
+        //    {
+        //        NewPaymentStatus = order.PaymentStatus
+        //    };
 
-            // redundant... cause payment infrastructure hides "void" and displays "refund" instead.
-            //if (order.PaymentStatus == PaymentStatus.Paid)
-            //{
-            //	var refundRequest = new RefundPaymentRequest()
-            //	{
-            //		Order = order,
-            //		IsPartialRefund = false,
-            //		AmountToRefund = order.OrderTotal
-            //	};
+        //    // Redundant... cause payment infrastructure hides "void" and displays "refund" instead.
+        //    //if (order.PaymentStatus == PaymentStatus.Paid)
+        //    //{
+        //    //	var refundRequest = new RefundPaymentRequest()
+        //    //	{
+        //    //		Order = order,
+        //    //		IsPartialRefund = false,
+        //    //		AmountToRefund = order.OrderTotal
+        //    //	};
 
-            //	var refundResult = Refund(refundRequest);
+        //    //	var refundResult = Refund(refundRequest);
 
-            //	result.Errors.AddRange(refundResult.Errors);
-            //	return result;
-            //}
+        //    //	result.Errors.AddRange(refundResult.Errors);
+        //    //	return result;
+        //    //}
 
-            try
-            {
-                if (order.PaymentStatus == PaymentStatus.Pending || order.PaymentStatus == PaymentStatus.Authorized)
-                {
-                    var settings = await _services.SettingFactory.LoadSettingsAsync<AmazonPaySettings>(order.StoreId);
-                    var orderReference = order.GetAmazonPayOrderReference();
-                    var client = _amazonPayService.CreateApiClient(settings);
+        //    try
+        //    {
+        //        if (order.PaymentStatus == PaymentStatus.Pending || order.PaymentStatus == PaymentStatus.Authorized)
+        //        {
+        //            var settings = await _services.SettingFactory.LoadSettingsAsync<AmazonPaySettings>(order.StoreId);
+        //            var orderReference = order.GetAmazonPayOrderReference();
+        //            var client = _amazonPayService.CreateApiClient(settings);
 
-                    var cancelRequest = new CancelOrderReferenceRequest()
-                        .WithMerchantId(settings.SellerId)
-                        .WithAmazonOrderReferenceId(orderReference.OrderReferenceId);
+        //            var cancelRequest = new CancelOrderReferenceRequest()
+        //                .WithMerchantId(settings.SellerId)
+        //                .WithAmazonOrderReferenceId(orderReference.OrderReferenceId);
 
-                    var cancelResponse = client.CancelOrderReference(cancelRequest);
-                    if (cancelResponse.GetSuccess())
-                    {
-                        result.NewPaymentStatus = PaymentStatus.Voided;
-                    }
-                    else
-                    {
-                        var message = Logger.LogAmazonResponse(cancelRequest, cancelResponse);
-                        result.Errors.Add(message);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.Error(ex);
-                result.Errors.Add(ex.Message);
-            }
+        //            var cancelResponse = client.CancelOrderReference(cancelRequest);
+        //            if (cancelResponse.GetSuccess())
+        //            {
+        //                result.NewPaymentStatus = PaymentStatus.Voided;
+        //            }
+        //            else
+        //            {
+        //                var message = Logger.LogAmazonResponse(cancelRequest, cancelResponse);
+        //                result.Errors.Add(message);
+        //            }
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Logger.Error(ex);
+        //        result.Errors.Add(ex.Message);
+        //    }
 
-            return result;
-        }
+        //    return result;
+        //}
 
         public override async Task<(decimal FixedFeeOrPercentage, bool UsePercentage)> GetPaymentFeeInfoAsync(ShoppingCart cart)
         {
@@ -462,39 +438,39 @@ namespace Smartstore.AmazonPay.Providers
 
         #region Utilities
 
-        private (AuthorizeRequest Request, AuthorizeResponse Response) AuthorizePayment(
-            AmazonPaySettings settings,
-            AmazonPayCheckoutState state,
-            ProcessPaymentRequest request,
-            Client client,
-            bool synchronously)
-        {
-            var authRequest = new AuthorizeRequest()
-                .WithMerchantId(settings.SellerId)
-                .WithAmazonOrderReferenceId(state.OrderReferenceId)
-                .WithAuthorizationReferenceId(AmazonPayService.GenerateRandomId("Authorize"))
-                .WithCaptureNow(settings.TransactionType == AmazonPayTransactionType.AuthorizeAndCapture)
-                .WithCurrencyCode(_amazonPayService.GetAmazonCurrencyCode())
-                .WithAmount(request.OrderTotal.Amount);
+        //private (AuthorizeRequest Request, AuthorizeResponse Response) AuthorizePayment(
+        //    AmazonPaySettings settings,
+        //    AmazonPayCheckoutState state,
+        //    ProcessPaymentRequest request,
+        //    Client client,
+        //    bool synchronously)
+        //{
+        //    var authRequest = new AuthorizeRequest()
+        //        .WithMerchantId(settings.SellerId)
+        //        .WithAmazonOrderReferenceId(state.OrderReferenceId)
+        //        .WithAuthorizationReferenceId(AmazonPayService.GenerateRandomId("Authorize"))
+        //        .WithCaptureNow(settings.TransactionType == AmazonPayTransactionType.AuthorizeAndCapture)
+        //        .WithCurrencyCode(_amazonPayService.GetAmazonCurrencyCode())
+        //        .WithAmount(request.OrderTotal.Amount);
 
-            if (synchronously)
-            {
-                authRequest = authRequest.WithTransactionTimeout(0);
-            }
+        //    if (synchronously)
+        //    {
+        //        authRequest = authRequest.WithTransactionTimeout(0);
+        //    }
 
-            // See https://pay.amazon.com/de/developer/documentation/lpwa/201956480
-            //{"SandboxSimulation": {"State":"Declined", "ReasonCode":"InvalidPaymentMethod", "PaymentMethodUpdateTimeInMins":5}}
-            //{"SandboxSimulation": {"State":"Declined", "ReasonCode":"AmazonRejected"}}
-            //if (settings.UseSandbox)
-            //{
-            //	var authNote = _services.Settings.GetSettingByKey<string>("SmartStore.AmazonPay.SellerAuthorizationNote");
-            //  authRequest = authRequest.WithSellerAuthorizationNote(authNote);
-            //}
+        //    // See https://pay.amazon.com/de/developer/documentation/lpwa/201956480
+        //    //{"SandboxSimulation": {"State":"Declined", "ReasonCode":"InvalidPaymentMethod", "PaymentMethodUpdateTimeInMins":5}}
+        //    //{"SandboxSimulation": {"State":"Declined", "ReasonCode":"AmazonRejected"}}
+        //    //if (settings.UseSandbox)
+        //    //{
+        //    //	var authNote = _services.Settings.GetSettingByKey<string>("SmartStore.AmazonPay.SellerAuthorizationNote");
+        //    //  authRequest = authRequest.WithSellerAuthorizationNote(authNote);
+        //    //}
 
-            var authResponse = client.Authorize(authRequest);
+        //    var authResponse = client.Authorize(authRequest);
 
-            return (authRequest, authResponse);
-        }
+        //    return (authRequest, authResponse);
+        //}
 
         #endregion
     }

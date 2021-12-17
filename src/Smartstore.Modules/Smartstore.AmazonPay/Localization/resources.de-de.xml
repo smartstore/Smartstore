@@ -89,9 +89,6 @@ Textvorschläge:</div><ul>
 	<LocaleResource Name="MissingAccessToken">
 		<Value>Der Access-Token fehlt!</Value>
 	</LocaleResource>
-	<LocaleResource Name="TaskName">
-		<Value>Amazon Datenabruf</Value>
-	</LocaleResource>
 	<LocaleResource Name="SaveAccessDataSucceeded">
 		<Value>Die Zugangsdaten wurden erfolgreich gespeichert.</Value>
 	</LocaleResource>
@@ -237,29 +234,17 @@ Textvorschläge:</div><ul>
 	<LocaleResource Name="AuthButtonSize.Hint">
 		<Value>Legt die Größe Anmelde-Button (Login-Button) fest.</Value>
 	</LocaleResource>
-	<LocaleResource Name="DataFetching">
-		<Value>Aktualisierung des Zahlungsstatus</Value>
-	</LocaleResource>
-	<LocaleResource Name="DataFetching.Hint">
-		<Value>Legt die Methode fest, mit deren Hilfe der Zahlungsstatus aktualisiert werden soll.</Value>
-	</LocaleResource>
 	<LocaleResource Name="DataFetching.Warning">
 		<Value>
 			<![CDATA[Die URL für IPN (Sofortbenachrichtigungen) muss in Amazon Seller Central separat für Sandbox und Live-Modus eingetragen werden. Für den Live-Modus ist ein gültiges, von einer vertrauenswürdigen Zertifizierungsstelle ausgegebenes SSL-Zertifikat erforderlich, selbstsignierte Zertifikate sind nicht zulässig. Für die Sandbox ist kein SSL-Zertifikat erforderlich. Die IPN-URL muss in diesem Fall mit HTTP angegeben werden.]]>
 		</Value>
-	</LocaleResource>
-	<LocaleResource Name="DataFetching.Ipn">
-		<Value>IPN (Instant Payment Notification)</Value>
-	</LocaleResource>
-	<LocaleResource Name="DataFetching.Polling">
-		<Value>Automatischer Abruf (Polling)</Value>
 	</LocaleResource>
 	<LocaleResource Name="IpnUrl">
 		<Value>IPN URL</Value>
 	</LocaleResource>
 	<LocaleResource Name="IpnUrl.Hint">
 		<Value>
-			Bitte geben Sie diese URL bei Amazon Seller Central unter <b>Integrationseinstellungen - Sofortbenachrichtigungs-Einstellungen - Händler-URL</b> ein.
+			URL für Sofortbenachrichtigungen, um den Zahlungsstatus zu aktualisieren. Bitte geben Sie diese URL bei Amazon Seller Central unter "Integrationseinstellungen - Sofortbenachrichtigungs-Einstellungen - Händler-URL" ein.
 		</Value>
 	</LocaleResource>
 	<LocaleResource Name="TransactionType">

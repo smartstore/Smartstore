@@ -1,17 +1,14 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Smartstore.AmazonPay.Models;
 using Smartstore.AmazonPay.Services;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Data;
-using Smartstore.Core.Localization;
 using Smartstore.Core.Stores;
 using Smartstore.Http;
-using Smartstore.Scheduling;
 using Smartstore.Web.Controllers;
 using Smartstore.Web.Modelling.Settings;
 
@@ -24,7 +21,6 @@ namespace Smartstore.AmazonPay.Controllers
         private readonly IAmazonPayService _amazonPayService;
         private readonly ICurrencyService _currencyService;
         private readonly StoreDependingSettingHelper _settingHelper;
-        private readonly ITaskStore _taskStore;
         private readonly CompanyInformationSettings _companyInformationSettings;
 
         public AmazonPayAdminController(
@@ -32,14 +28,12 @@ namespace Smartstore.AmazonPay.Controllers
             IAmazonPayService amazonPayService,
             ICurrencyService currencyService,
             StoreDependingSettingHelper settingHelper,
-            ITaskStore taskStore,
             CompanyInformationSettings companyInformationSettings)
         {
             _db = db;
             _amazonPayService = amazonPayService;
             _currencyService = currencyService;
             _settingHelper = settingHelper;
-            _taskStore = taskStore;
             _companyInformationSettings = companyInformationSettings;
         }
 
@@ -53,8 +47,8 @@ namespace Smartstore.AmazonPay.Controllers
 
             var model = MiniMapper.Map<AmazonPaySettings, ConfigurationModel>(settings);
 
-            // TODO: (mg) (core) shop update forces the merchant to update URLs at Amazon's Celler Central.
-            // Following URLs are configured at Amazon's Celler Central:
+            // INFO: updating to Core forces the merchant to update URLs at Amazon Celler Central.
+            // Following URLs are configured at Amazon Celler Central:
             // ~/Plugins/SmartStore.AmazonPay/AmazonPay/IPNHandler
             // ~/Plugins/SmartStore.AmazonPay/AmazonPayShoppingCart/PayButtonHandler
             // ~/Plugins/SmartStore.AmazonPay/AmazonPay/AuthenticationButtonHandler
@@ -105,27 +99,6 @@ namespace Smartstore.AmazonPay.Controllers
             }
 
             ViewBag.PrimaryStoreCurrencyCode = _currencyService.PrimaryCurrency.CurrencyCode;
-
-            ViewBag.DataFetchings = new List<SelectListItem>
-            {
-                new SelectListItem
-                {
-                    Text = T("Common.Unspecified"),
-                    Value = string.Empty
-                },
-                new SelectListItem
-                {
-                    Text = T("Plugins.Payments.AmazonPay.DataFetching.Ipn"),
-                    Value = ((int)AmazonPayDataFetchingType.Ipn).ToString(),
-                    Selected = model.DataFetching == AmazonPayDataFetchingType.Ipn
-                },
-                new SelectListItem
-                {
-                    Text = T("Plugins.Payments.AmazonPay.DataFetching.Polling"),
-                    Value = ((int)AmazonPayDataFetchingType.Polling).ToString(),
-                    Selected = model.DataFetching == AmazonPayDataFetchingType.Polling
-                }
-            };
 
             ViewBag.TransactionTypes = new List<SelectListItem>
             {
@@ -188,18 +161,6 @@ namespace Smartstore.AmazonPay.Controllers
             MiniMapper.Map(model, settings);
 
             await _settingHelper.UpdateSettingsAsync(settings, form, storeScope);
-
-            await Services.Settings.ApplySettingAsync(settings, x => x.DataFetching);
-            await Services.Settings.ApplySettingAsync(settings, x => x.PollingMaxOrderCreationDays);
-
-            var pollingTaskEnabled = settings.DataFetching == AmazonPayDataFetchingType.Polling;
-            var task = await _taskStore.GetTaskByTypeAsync<DataPollingTask>();
-            
-            if (task != null && task.Enabled != pollingTaskEnabled)
-            {
-                task.Enabled = pollingTaskEnabled;
-                await _taskStore.UpdateTaskAsync(task);
-            }
 
             await _db.SaveChangesAsync();
 
