@@ -117,6 +117,18 @@ Text suggestions:</div><ul>
 	<LocaleResource Name="UseSandbox.Hint">
 		<Value>Check the box to use the sandbox (testing environment).</Value>
 	</LocaleResource>
+	<LocaleResource Name="PublicKeyId">
+		<Value>Public Key-ID</Value>
+	</LocaleResource>
+	<LocaleResource Name="PublicKeyId.Hint">
+		<Value>The Public Key ID is your unique identifier used to access the Amazon Pay API.</Value>
+	</LocaleResource>
+	<LocaleResource Name="PrivateKey">
+		<Value>Private Key</Value>
+	</LocaleResource>
+	<LocaleResource Name="PrivateKey.Hint">
+		<Value>The Private Key for accessing the Amazon Pay API. You get the Private Key as a downloadable .pem file from Amazon Pay after creating the API keys.</Value>
+	</LocaleResource>
 	<LocaleResource Name="ShowPayButtonForAdminOnly">
 		<Value>Show pay button for administrators only</Value>
 	</LocaleResource>

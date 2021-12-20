@@ -1,4 +1,6 @@
 ﻿using System.Linq;
+using Amazon.Pay.API;
+using Amazon.Pay.API.WebStore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -8,9 +10,9 @@ using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Common;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Data;
-using Smartstore.Core.Identity;
 using Smartstore.Core.Messaging;
 using Smartstore.Utilities;
+using AmazonPayTypes = Amazon.Pay.API.Types;
 
 namespace Smartstore.AmazonPay.Services
 {
@@ -46,6 +48,26 @@ namespace Smartstore.AmazonPay.Services
         /// </summary>
         internal static string PlatformId => "A3OJ83WFYM72IY";
         internal static string LeadCode => "SPEXDEAPA-SmartStore.Net-CP-DP";
+
+        public static WebStoreClient CreateApiClient(AmazonPaySettings settings)
+        {
+            var region = settings.Marketplace.EmptyNull().ToLower() switch
+            {
+                "us" => AmazonPayTypes.Region.UnitedStates,
+                "jp" => AmazonPayTypes.Region.Japan,
+                _ => AmazonPayTypes.Region.Europe,
+            };
+
+            var config = new ApiConfiguration(
+                region,
+                settings.UseSandbox ? AmazonPayTypes.Environment.Sandbox : AmazonPayTypes.Environment.Live,
+                settings.PublicKeyId,
+                settings.PrivateKey
+            );
+
+            var client = new WebStoreClient(config);
+            return client;
+        }
 
         public async Task<bool> AddCustomerOrderNoteLoopAsync(AmazonPayActionState state, CancellationToken cancelToken = default)
         {

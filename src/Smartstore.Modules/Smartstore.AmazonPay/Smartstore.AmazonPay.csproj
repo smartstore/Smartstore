@@ -8,6 +8,9 @@
     <Content Remove="Views\Shared\Components\AmazonPayButton\Default.cshtml" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Amazon.Pay.API.SDK" Version="2.4.9" />
+  </ItemGroup>
+  <ItemGroup>
 		<ProjectReference Include="..\..\Smartstore.Web\Smartstore.Web.csproj">
 			<Private>False</Private>
 			<CopyLocal>False</CopyLocal>

@@ -1,16 +1,45 @@
-﻿using Smartstore.Web.Models.Common;
-
-namespace Smartstore.AmazonPay.Models
+﻿namespace Smartstore.AmazonPay.Models
 {
     public class AmazonPayViewModel : ModelBase
     {
+        public AmazonPayViewModel()
+        {
+        }
+
+        public AmazonPayViewModel(AmazonPaySettings settings)
+        {
+            Guard.NotNull(settings, nameof(settings));
+
+            PublicKeyId = settings.PublicKeyId;
+            PrivateKey = settings.PrivateKey;
+            SellerId = settings.SellerId;
+            ClientId = settings.ClientId;
+            // AmazonPay review: The setting for payment button type has been removed.
+            ButtonType = "PwA";
+            ButtonColor = settings.PayButtonColor;
+            ButtonSize = settings.PayButtonSize;
+
+            switch (settings.Marketplace.EmptyNull().ToLower())
+            {
+                case "us":
+                    CheckoutScriptUrl = "https://static-na.payments-amazon.com/checkout.js";
+                    break;
+                case "jp":
+                    CheckoutScriptUrl = "https://static-fe.payments-amazon.com/checkout.js";
+                    break;
+                default:
+                    CheckoutScriptUrl = "https://static-eu.payments-amazon.com/checkout.js";
+                    break;
+            }
+        }
+
+        public string PublicKeyId { get; set; }
+        public string PrivateKey { get; set; }
+
         public string SellerId { get; set; }
         public string ClientId { get; set; }
 
-        /// <summary>
-        /// Amazon widget script URL.
-        /// </summary>
-        //public string WidgetUrl { get; set; }
+        public string CheckoutScriptUrl { get; set; }
         public string ButtonHandlerUrl { get; set; }
 
         public bool IsShippable { get; set; } = true;

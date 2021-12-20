@@ -99,6 +99,25 @@
         </div>
         <div class="adminRow">
             <div class="adminTitle">
+                <smart-label asp-for="PublicKeyId" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="PublicKeyId"></setting-editor>
+                <span asp-validation-for="PublicKeyId"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="PrivateKey" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="PrivateKey"></setting-editor>
+                @*TODO: (mg) (core) add button to load private key from file.*@
+                <span asp-validation-for="PrivateKey"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
                 <smart-label asp-for="SellerId" />
             </div>
             <div class="adminData">

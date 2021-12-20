@@ -6,7 +6,7 @@ using Smartstore.Web.Components;
 namespace Smartstore.AmazonPay.Components
 {
     /// <summary>
-    /// Renders the AmazonPay payment button.
+    /// Renders the AmazonPay payment ot login button.
     /// </summary>
     public class AmazonPayButtonViewComponent : SmartViewComponent
     {
@@ -31,6 +31,8 @@ namespace Smartstore.AmazonPay.Components
 
             // TODO: (mg) (core) Every check which returns empty here can already be requested before registering the filter.
             // so theoretically there is no need to return Empty() from a payment button viewcomponent
+            // RE: this is exactly what I don't want, to spread the logic for rendering over multiple callers. Not only the filter
+            // invokes the component. The component alone should decide if and what to render.
             if (_amazonPaySettings.SellerId.IsEmpty() ||
                 (_amazonPaySettings.ShowPayButtonForAdminOnly && !customer.IsAdmin()))
             {
@@ -48,16 +50,7 @@ namespace Smartstore.AmazonPay.Components
                 return Empty();
             }
 
-            var model = new AmazonPayViewModel
-            {
-                SellerId = _amazonPaySettings.SellerId,
-                ClientId = _amazonPaySettings.ClientId,
-                // AmazonPay review: The setting for payment button type has been removed.
-                ButtonType = "PwA",
-                ButtonColor = _amazonPaySettings.PayButtonColor,
-                ButtonSize = _amazonPaySettings.PayButtonSize,
-                //...
-            };
+            var model = new AmazonPayViewModel(_amazonPaySettings);
 
             return View(model);
         }

@@ -117,6 +117,18 @@ Textvorschläge:</div><ul>
 	<LocaleResource Name="UseSandbox.Hint">
 		<Value>Legt fest, ob die Sandbox (Testumgebung) genutzt werden soll.</Value>
 	</LocaleResource>
+	<LocaleResource Name="PublicKeyId">
+		<Value>Public Key-ID</Value>
+	</LocaleResource>
+	<LocaleResource Name="PublicKeyId.Hint">
+		<Value>Die Public Key-ID ist Ihre eindeutige Kennung, die für den Zugriff auf die Amazon Pay-API verwendet wird.</Value>
+	</LocaleResource>
+	<LocaleResource Name="PrivateKey">
+		<Value>Private Key</Value>
+	</LocaleResource>
+	<LocaleResource Name="PrivateKey.Hint">
+		<Value>Der Private Key für den Zugriff auf die Amazon Pay-API. Den Private Key erhalten Sie als herunterladbare .pem Datei bei Amazon Pay nach Erstellen der API-Schlüssel.</Value>
+	</LocaleResource>
 	<LocaleResource Name="ShowPayButtonForAdminOnly">
 		<Value>Zahlungs-Button nur für Administratoren sichtbar</Value>
 	</LocaleResource>

@@ -8,6 +8,15 @@ namespace Smartstore.AmazonPay.Models
         [LocalizedDisplay("*UseSandbox")]
         public bool UseSandbox { get; set; }
 
+        [LocalizedDisplay("*PublicKeyId")]
+        public string PublicKeyId { get; set; }
+
+        [UIHint("Textarea")]
+        [AdditionalMetadata("rows", 3)]
+        [DataType(DataType.Password)]
+        [LocalizedDisplay("*PrivateKey")]
+        public string PrivateKey { get; set; }
+
         [LocalizedDisplay("*SellerId")]
         public string SellerId { get; set; }
 

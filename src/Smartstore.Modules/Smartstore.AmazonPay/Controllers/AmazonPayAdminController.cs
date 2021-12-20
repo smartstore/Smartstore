@@ -153,6 +153,8 @@ namespace Smartstore.AmazonPay.Controllers
 
             ModelState.Clear();
 
+            model.PublicKey = model.PublicKey.TrimSafe();
+            model.PrivateKey = model.PrivateKey.TrimSafe();
             model.AccessKey = model.AccessKey.TrimSafe();
             model.ClientId = model.ClientId.TrimSafe();
             model.SecretKey = model.SecretKey.TrimSafe();
