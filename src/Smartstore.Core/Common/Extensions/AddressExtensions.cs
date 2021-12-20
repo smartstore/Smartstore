@@ -61,15 +61,18 @@ namespace Smartstore
         public static string GetFullName(this Address address, bool withCompanyName = true)
         {
             if (address == null)
+            {
                 return null;
+            }
 
-            string result = string.Empty;
+            var result = string.Empty;
+
             if (address.FirstName.HasValue() || address.LastName.HasValue())
             {
                 result = (address.FirstName + ' ' + address.LastName).Trim();
             }
 
-            if (withCompanyName && address.Company.HasValue())
+            if (withCompanyName && address.Company.HasValue() && !address.Company.EqualsNoCase(result))
             {
                 result = string.Concat(result, result.HasValue() ? ", " : string.Empty, address.Company);
             }

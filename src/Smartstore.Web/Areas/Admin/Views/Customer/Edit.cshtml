@@ -22,6 +22,11 @@
                 <span>@T("Admin.Common.SaveContinue")</span>
             </button>
 
+            <a sm-if="Model.DisplayProfileLink" asp-route="CustomerProfile" asp-route-id="@Model.Id" class="btn btn-secondary" target="user-profile">
+                <i class="fa fa-external-link-alt"></i>
+                <span>@T("Common.UserProfile")</span>
+            </a>
+
             @if (Display.ZoneHasContent("admin_button_toolbar_messaging_dropdown"))
             {
                 <div class="btn-group">

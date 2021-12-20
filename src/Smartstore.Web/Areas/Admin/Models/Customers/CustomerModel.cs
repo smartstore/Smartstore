@@ -142,7 +142,9 @@ namespace Smartstore.Admin.Models.Customers
         [LocalizedDisplay("Admin.Customers.CustomerRoles")]
         public int[] SelectedCustomerRoleIds { get; set; }
         public bool AllowManagingCustomerRoles { get; set; }
+
         public bool DisplayRewardPointsHistory { get; set; }
+        public bool DisplayProfileLink { get; set; }
 
         [LocalizedDisplay("Admin.Customers.Customers.AssociatedExternalAuth")]
         public List<AssociatedExternalAuthModel> AssociatedExternalAuthRecords { get; set; } = new();

@@ -365,6 +365,7 @@ namespace Smartstore.Core.Data.Migrations
                 "Es wurden {0} Produkt Rezensionen abgelehnt.");
 
             builder.AddOrUpdate("Admin.Common.InvalidFileName", "Invalid file name.", "Ungültiger Dateiname.");
+            builder.AddOrUpdate("Common.UserProfile", "User profile", "Benutzerprofil");
 
             #endregion
 

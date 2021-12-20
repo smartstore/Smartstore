@@ -258,6 +258,7 @@ namespace Smartstore.Admin.Controllers
             model.UsernamesEnabled = _customerSettings.CustomerLoginType != CustomerLoginType.Email;
             model.AllowManagingCustomerRoles = Services.Permissions.Authorize(Permissions.Customer.EditRole);
             model.DisplayRewardPointsHistory = _rewardPointsSettings.Enabled;
+            model.DisplayProfileLink = _customerSettings.AllowViewingProfiles && !customer.IsGuest();
             model.AssociatedExternalAuthRecords = await GetAssociatedExternalAuthRecordsAsync(customer);
             model.PermissionTree = await Services.Permissions.BuildCustomerPermissionTreeAsync(customer, true);
 
