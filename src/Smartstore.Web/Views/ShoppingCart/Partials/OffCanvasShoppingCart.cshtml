@@ -178,8 +178,7 @@
     <zone name="offcanvas_cart_footer_after" />
 
     <div sm-if="@Display.ZoneHasContent("offcanvas_cart_summary")" class="offcanvas-cart-external-checkout">
-        <div class="d-flex justify-content-center align-items-center flex-wrap">
-            <zone name="offcanvas_cart_summary" />
-        </div>
+        @*INFO: written like this so pseudo selector :not(:empty) can work and surpress padding, in case we need to return Empty() from ViewComponent directly*@
+        <div class="d-flex justify-content-center align-items-center flex-wrap"><zone name="offcanvas_cart_summary" /></div>
     </div>
 </div>
