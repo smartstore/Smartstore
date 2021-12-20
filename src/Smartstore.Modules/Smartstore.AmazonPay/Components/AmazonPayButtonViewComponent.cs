@@ -29,6 +29,8 @@ namespace Smartstore.AmazonPay.Components
             var store = Services.StoreContext.CurrentStore;
             var customer = Services.WorkContext.CurrentCustomer;
 
+            // TODO: (mg) (core) Every check which returns empty here can already be requested before registering the filter.
+            // so theoretically there is no need to return Empty() from a payment button viewcomponent
             if (_amazonPaySettings.SellerId.IsEmpty() ||
                 (_amazonPaySettings.ShowPayButtonForAdminOnly && !customer.IsAdmin()))
             {
