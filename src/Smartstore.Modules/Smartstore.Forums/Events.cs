@@ -607,7 +607,11 @@ namespace Smartstore.Forums
                                 var rawPostCount = row.GetDataValue<string>(ForumService.ForumPostCountKey);
                                 if (row.IsNew || rawPostCount != null)
                                 {
-                                    row.Entity.GenericAttributes.Set(ForumService.ForumPostCountKey, rawPostCount.ToInt());
+                                    var postCount = rawPostCount.ToInt();
+                                    if (postCount > 0)
+                                    {
+                                        row.Entity.GenericAttributes.Set(ForumService.ForumPostCountKey, postCount);
+                                    }
                                 }
                             }
 

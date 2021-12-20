@@ -25,6 +25,7 @@ namespace Smartstore.Core.DataExchange.Import
     {
         private const string CARGO_DATA_KEY = "CustomerImporter.CargoData";
 
+        private readonly IFolderService _folderService;
         private readonly CustomerSettings _customerSettings;
         private readonly TaxSettings _taxSettings;
         private readonly PrivacySettings _privacySettings;
@@ -35,12 +36,14 @@ namespace Smartstore.Core.DataExchange.Import
             ILocalizedEntityService localizedEntityService,
             IStoreMappingService storeMappingService,
             IUrlService urlService,
+            IFolderService folderService,
             CustomerSettings customerSettings,
             TaxSettings taxSettings,
             PrivacySettings privacySettings,
             DateTimeSettings dateTimeSettings)
             : base(services, localizedEntityService, storeMappingService, urlService)
         {
+            _folderService = folderService;
             _customerSettings = customerSettings;
             _taxSettings = taxSettings;
             _privacySettings = privacySettings;
@@ -113,18 +116,11 @@ namespace Smartstore.Core.DataExchange.Import
                 {
                     try
                     {
-                        // We need the avatar file ID.
-                        _db.SuppressCommit = false;
-
                         await ProcessAvatarsAsync(context, scope, batch);
                     }
                     catch (Exception ex)
                     {
                         context.Result.AddError(ex, segmenter.CurrentSegment, nameof(ProcessAvatarsAsync));
-                    }
-                    finally
-                    {
-                        _db.SuppressCommit = true;
                     }
                 }
 
@@ -413,6 +409,9 @@ namespace Smartstore.Core.DataExchange.Import
 
         protected virtual async Task<int> ProcessAvatarsAsync(ImportExecuteContext context, DbContextScope scope, IEnumerable<ImportRow<Customer>> batch)
         {
+            var cargo = await GetCargoData(context);
+            var newFiles = new List<FileBatchSource>();
+
             foreach (var row in batch)
             {
                 var urlOrPath = row.GetDataValue<string>("AvatarPictureUrl");
@@ -450,20 +449,38 @@ namespace Smartstore.Core.DataExchange.Import
                             }
                         }
 
-                        // An avatar may not be assigned to several customers. A customer could otherwise delete the avatar of another.
-                        // Overwriting is probably too dangerous here, because we could overwrite the avatar of another customer, so better rename.
-                        var path = _services.MediaService.CombinePaths(SystemAlbumProvider.Customers, image.FileName);
-                        var saveFileResult = await _services.MediaService.SaveFileAsync(path, stream, false, DuplicateFileHandling.Rename);
-
-                        if (saveFileResult.Id > 0)
+                        // Keep path for later batch import of new images.
+                        newFiles.Add(new FileBatchSource
                         {
-                            SetGenericAttribute(SystemCustomerAttributeNames.AvatarPictureId, saveFileResult.Id, row);
-                        }
+                            PhysicalPath = image.Path,
+                            FileName = image.FileName,
+                            State = row
+                        });
                     }
                 }
                 else
                 {
                     context.Result.AddInfo($"Download failed for avatar {image.Url}.", row.RowInfo, "AvatarPictureUrl");
+                }
+            }
+
+            if (newFiles.Count > 0)
+            {
+                // An avatar may not be assigned to several customers. A customer could otherwise delete the avatar of another.
+                // Overwriting is probably too dangerous here, because we could overwrite the avatar of another customer, so better rename.
+                var batchFileResult = await _services.MediaService.BatchSaveFilesAsync(
+                    newFiles.ToArray(),
+                    cargo.CustomersAlbum,
+                    false,
+                    DuplicateFileHandling.Rename,
+                    context.CancelToken);
+
+                foreach (var fileResult in batchFileResult)
+                {
+                    if (fileResult.Exception == null && fileResult.File?.Id > 0)
+                    {
+                        SetGenericAttribute(SystemCustomerAttributeNames.AvatarPictureId, fileResult.File.Id, fileResult.Source.State as ImportRow<Customer>);
+                    }
                 }
             }
 
@@ -677,6 +694,7 @@ namespace Smartstore.Core.DataExchange.Import
             var result = new ImporterCargoData
             {
                 AllowManagingCustomerRoles = allowManagingCustomerRoles,
+                CustomersAlbum = _folderService.GetNodeByPath(SystemAlbumProvider.Customers).Value,
                 AffiliateIds = affiliateIds,
                 CustomerNumbers = new HashSet<string>(customerNumbers, StringComparer.OrdinalIgnoreCase),
                 CustomerRoleIds = customerRoleIds.ToDictionarySafe(x => x.SystemName, x => x.Id, StringComparer.OrdinalIgnoreCase),
@@ -694,6 +712,7 @@ namespace Smartstore.Core.DataExchange.Import
         protected class ImporterCargoData
         {
             public bool AllowManagingCustomerRoles { get; init; }
+            public MediaFolderNode CustomersAlbum { get; init; }
             public List<int> AffiliateIds { get; init; }
             public HashSet<string> CustomerNumbers { get; init; }
             public Dictionary<string, int> CustomerRoleIds { get; init; }

@@ -136,18 +136,11 @@ namespace Smartstore.Core.DataExchange.Import
                 {
                     try
                     {
-                        // We need the media file ID.
-                        _db.SuppressCommit = false;
-
                         await ProcessPicturesAsync(context, scope, batch);
                     }
                     catch (Exception ex)
                     {
                         context.Result.AddError(ex, segmenter.CurrentSegment, nameof(ProcessPicturesAsync));
-                    }
-                    finally
-                    {
-                        _db.SuppressCommit = true;
                     }
                 }
 
@@ -288,15 +281,14 @@ namespace Smartstore.Core.DataExchange.Import
             return num;
         }
 
-        protected virtual async Task<int> ProcessPicturesAsync(ImportExecuteContext context, DbContextScope scope, IEnumerable<ImportRow<Category>> batch)
+        protected virtual async Task ProcessPicturesAsync(ImportExecuteContext context, DbContextScope scope, IEnumerable<ImportRow<Category>> batch)
         {
             var cargo = await GetCargoData(context);
+            var newFiles = new List<FileBatchSource>();
+
             var allFileIds = batch
                 .Where(row => row.HasDataValue("ImageUrl") && row.Entity.MediaFileId > 0)
-                .Select(row => row.Entity.MediaFileId.Value)
-                .Distinct()
-                .ToArray();
-
+                .ToDistinctArray(row => row.Entity.MediaFileId.Value);
             var allFiles = await _services.MediaService.GetFilesByIdsAsync(allFileIds);
             var allFilesMap = allFiles.ToDictionary(x => x.Id, x => x.File);
 
@@ -338,24 +330,21 @@ namespace Smartstore.Core.DataExchange.Import
                                 }
                             }
 
-                            var fileId = 0;
-                            var equalityCheck = await _services.MediaService.FindEqualFileAsync(stream, image.FileName, cargo.CatalogAlbumId, true);
+                            var equalityCheck = await _services.MediaService.FindEqualFileAsync(stream, image.FileName, cargo.CatalogAlbum.Id, true);
                             if (equalityCheck.Success)
                             {
-                                fileId = equalityCheck.Value.Id;
+                                row.Entity.MediaFileId = equalityCheck.Value.Id;
                                 context.Result.AddInfo($"Found equal file in catalog album for '{image.FileName}'. Assigning existing file instead.", row.RowInfo, "ImageUrl");
                             }
                             else
                             {
-                                var path = _services.MediaService.CombinePaths(SystemAlbumProvider.Catalog, image.FileName);
-                                var saveFileResult = await _services.MediaService.SaveFileAsync(path, stream, false, DuplicateFileHandling.Rename);
-
-                                fileId = saveFileResult.Id;
-                            }
-
-                            if (fileId != 0)
-                            {
-                                row.Entity.MediaFileId = fileId;
+                                // Keep path for later batch import of new images.
+                                newFiles.Add(new FileBatchSource
+                                {
+                                    PhysicalPath = image.Path,
+                                    FileName = image.FileName,
+                                    State = row.Entity
+                                });
                             }
                         }
                     }
@@ -370,8 +359,25 @@ namespace Smartstore.Core.DataExchange.Import
                 }
             }
 
-            var num = await scope.CommitAsync(context.CancelToken);
-            return num;
+            if (newFiles.Count > 0)
+            {
+                var batchFileResult = await _services.MediaService.BatchSaveFilesAsync(
+                    newFiles.ToArray(),
+                    cargo.CatalogAlbum,
+                    false,
+                    DuplicateFileHandling.Rename,
+                    context.CancelToken);
+
+                foreach (var fileResult in batchFileResult)
+                {
+                    if (fileResult.Exception == null && fileResult.File?.Id > 0)
+                    {
+                        (fileResult.Source.State as Category).MediaFileId = fileResult.File.Id;
+                    }
+                }
+            }
+
+            await scope.CommitAsync(context.CancelToken);
         }
 
         protected virtual async Task<int> ProcessParentMappingsAsync(ImportExecuteContext context, DbContextScope scope, IEnumerable<ImportRow<Category>> batch)
@@ -441,7 +447,7 @@ namespace Smartstore.Core.DataExchange.Import
             var result = new ImporterCargoData
             {
                 TemplateViewPaths = categoryTemplates.ToDictionarySafe(x => x.ViewPath, x => x.Id),
-                CatalogAlbumId = _folderService.GetNodeByPath(SystemAlbumProvider.Catalog).Value.Id
+                CatalogAlbum = _folderService.GetNodeByPath(SystemAlbumProvider.Catalog).Value
             };
 
             context.CustomProperties[CARGO_DATA_KEY] = result;
@@ -453,7 +459,7 @@ namespace Smartstore.Core.DataExchange.Import
         /// </summary>
         protected class ImporterCargoData
         {
-            public int CatalogAlbumId { get; init; }
+            public MediaFolderNode CatalogAlbum { get; init; }
             public Dictionary<string, int> TemplateViewPaths { get; init; }
         }
     }

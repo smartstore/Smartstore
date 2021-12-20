@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Dasync.Collections;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Smartstore.Collections;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Brands;
@@ -28,7 +29,6 @@ namespace Smartstore.Core.DataExchange.Import
     public class ProductImporter : EntityImporterBase
     {
         private const string CARGO_DATA_KEY = "ProductImporter.CargoData";
-        private const int MAX_DUPLICATE_FILENAME_WARNINGS = 10;
 
         /// <summary>
         /// Old Product.Id -> new Product.Id
@@ -202,20 +202,12 @@ namespace Smartstore.Core.DataExchange.Import
                 {
                     try
                     {
-                        // TODO: (mg) (core) too slow! Noticeably slows down the import.
-                        // We need the media file ID.
-                        //_db.SuppressCommit = false;
-
                         await ProcessProductPicturesAsync(context, scope, batch);
                     }
                     catch (Exception ex)
                     {
                         context.Result.AddError(ex, segmenter.CurrentSegment, nameof(ProcessProductPicturesAsync));
                     }
-                    //finally
-                    //{
-                    //    _db.SuppressCommit = true;
-                    //}
                 }
 
                 // ===========================================================================
@@ -591,12 +583,12 @@ namespace Smartstore.Core.DataExchange.Import
                 .Where(x => x != 0)
                 .ToArray();
 
-            var existingMediaFiles = await _db.ProductMediaFiles
+            var existingFiles = await _db.ProductMediaFiles
                 .AsNoTracking()
                 .Include(x => x.MediaFile)
                 .Where(x => productIds.Contains(x.ProductId))
                 .ToListAsync(context.CancelToken);
-            var existingMediaFilesMap = existingMediaFiles.ToMultimap(x => x.ProductId, x => x);
+            var existingFilesMap = existingFiles.ToMultimap(x => x.ProductId, x => x);
 
             foreach (var row in batch)
             {
@@ -610,49 +602,31 @@ namespace Smartstore.Core.DataExchange.Import
                 }
 
                 displayOrder = -1;
-
                 var product = row.Entity;
-                var imageNumber = 0;
-                var downloadItems = new List<DownloadManagerItem>();
-
-                // Collect required image file infos.
-                foreach (var urlOrPath in imageUrls)
-                {
-                    var item = CreateDownloadItem(context, urlOrPath, ++imageNumber);
-                    if (item != null)
-                    {
-                        downloadItems.Add(item);
-                        if (downloadItems.Count >= numberOfPictures)
-                            break;
-                    }
-                }
+                var downloadItems = CreateDownloadItems(context, imageUrls, numberOfPictures);
 
                 // Download images.
                 if (downloadItems.Any(x => x.Url.HasValue()))
                 {
-                    // TODO: (mg) (core) Make this fire&forget somehow and sync later
+                    // TODO: (mg) (core) Make this fire&forget somehow and sync later.
                     await context.DownloadManager.DownloadFilesAsync(
                         downloadItems.Where(x => x.Url.HasValue() && !x.Success),
                         context.CancelToken);
-
-                    LogDuplicateFileNameWarning(row, downloadItems);
                 }
 
-                // Import images.
+                // Process downloaded images.
                 foreach (var image in downloadItems.OrderBy(x => x.DisplayOrder))
                 {
                     try
                     {
                         if (FileDownloadSucceeded(image, context))
                         {
-                            // INFO: the file may be in use by the download manager again, if the URLs have same file names.
-                            // In this case an IOException "cannot access file because it is being used by another process" is thrown by next statement.
                             using var stream = File.OpenRead(image.Path);
 
                             if (stream?.Length > 0)
                             {
-                                var currentFiles = existingMediaFilesMap.ContainsKey(product.Id)
-                                    ? existingMediaFilesMap[product.Id]
+                                var currentFiles = existingFilesMap.ContainsKey(product.Id)
+                                    ? existingFilesMap[product.Id]
                                     : Enumerable.Empty<ProductMediaFile>();
 
                                 if (displayOrder == -1)
@@ -663,6 +637,8 @@ namespace Smartstore.Core.DataExchange.Import
                                 var equalityCheck = await _services.MediaService.FindEqualFileAsync(stream, currentFiles.Select(x => x.MediaFile), true);
                                 if (equalityCheck.Success)
                                 {
+                                    // INFO: may occur during a initial import when products have the same SKU and
+                                    // the first product was overwritten with the data of the second one.
                                     context.Result.AddInfo($"Found equal file in product data for '{image.FileName}'. Skipping file.", row.RowInfo, "ImageUrls");
                                 }
                                 else
@@ -670,22 +646,20 @@ namespace Smartstore.Core.DataExchange.Import
                                     equalityCheck = await _services.MediaService.FindEqualFileAsync(stream, image.FileName, cargo.CatalogAlbum.Id, true);
                                     if (equalityCheck.Success)
                                     {
+                                        // INFO: may occur during a subsequent import when products have the same SKU and
+                                        // the images of the second product are additionally assigned to the first one.
                                         AddProductMediaFile(equalityCheck.Value, product);
                                         context.Result.AddInfo($"Found equal file in catalog album for '{image.FileName}'. Assigning existing file instead.", row.RowInfo, "ImageUrls");
                                     }
                                     else
                                     {
+                                        // Keep path for later batch import of new images.
                                         newFiles.Add(new FileBatchSource
                                         {
                                             PhysicalPath = image.Path,
                                             FileName = image.FileName,
                                             State = row.Entity
                                         });
-
-                                        //var path = _services.MediaService.CombinePaths(SystemAlbumProvider.Catalog, image.FileName);
-                                        //var saveFileResult = await _services.MediaService.SaveFileAsync(path, stream, false, DuplicateFileHandling.Rename);
-
-                                        //AddProductMediaFile(saveFileResult?.File, product);
                                     }
                                 }
                             }
@@ -707,7 +681,7 @@ namespace Smartstore.Core.DataExchange.Import
                 var batchFileResult = await _services.MediaService.BatchSaveFilesAsync(
                     newFiles.ToArray(),
                     cargo.CatalogAlbum,
-                    true,
+                    false,
                     DuplicateFileHandling.Rename,
                     context.CancelToken);
 
@@ -734,40 +708,10 @@ namespace Smartstore.Core.DataExchange.Import
                 _db.ProductMediaFiles.Add(productMediaFile);
                     
                 productMediaFile.MediaFile = file;
-                existingMediaFilesMap.Add(product.Id, productMediaFile);
+                existingFilesMap.Add(product.Id, productMediaFile);
 
                 // Update for FixProductMainPictureIds.
                 product.UpdatedOnUtc = DateTime.UtcNow;
-            }
-
-            void LogDuplicateFileNameWarning(ImportRow<Product> row, List< DownloadManagerItem> items)
-            {
-                if (cargo.DuplicateFileNameRowCount == -1)
-                {
-                    // Ignore.
-                }
-                else if (cargo.DuplicateFileNameRowCount == MAX_DUPLICATE_FILENAME_WARNINGS)
-                {
-                    // Stop logging warnings.
-                    cargo.DuplicateFileNameRowCount = -1;
-
-                    var msg = $"Too many duplicate names in file URLs (> {MAX_DUPLICATE_FILENAME_WARNINGS}). Stopped logging warnings.";
-                    context.Result.AddWarning(msg, row.RowInfo, "ImageUrls");
-                }
-                else if (cargo.DuplicateFileNameRowCount < MAX_DUPLICATE_FILENAME_WARNINGS)
-                {
-                    var hasDuplicateFileNames = items
-                        .Where(x => x.Url.HasValue())
-                        .Select(x => x.FileName)
-                        .GroupBy(x => x)
-                        .Any(x => x.Count() > 1);
-
-                    if (hasDuplicateFileNames)
-                    {
-                        cargo.DuplicateFileNameRowCount++;
-                        context.Result.AddWarning("Found duplicate names (not supported yet). File names in URLs have to be unique!", row.RowInfo, "ImageUrls");
-                    }
-                }
             }
         }
 
@@ -1246,7 +1190,6 @@ namespace Smartstore.Core.DataExchange.Import
             public MediaFolderNode CatalogAlbum { get; init; }
             public List<int> CategoryIds { get; set; }
             public List<int> ManufacturerIds { get; set; }
-            public int DuplicateFileNameRowCount { get; set; }
         }
     }
 }

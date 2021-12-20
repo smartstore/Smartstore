@@ -23,10 +23,12 @@ namespace Smartstore.Core.DataExchange.Import
 {
     public abstract partial class EntityImporterBase : IEntityImporter
     {
-        // Maps (per batch) already downloaded URLs to file names.
-        // Background: in some imports subsequent products (e.g. associated products)
-        // share the same images, where multiple downloading is unnecessary.
-        private readonly Dictionary<string, string> _downloadedItems = new();
+        /// Maximum number of URLs cached in <see cref="_downloadUrls"/>.
+        private const int MAX_CACHED_DOWNLOAD_URLS = 1000;
+
+        // Maps downloaded URLs to file names to not download the file again.
+        // Sometimes subsequent products (e.g. associated products) share the same image.
+        private readonly Dictionary<string, string> _downloadUrls = new();
 
         protected SmartDbContext _db;
         protected ICommonServices _services;
@@ -310,48 +312,114 @@ namespace Smartstore.Core.DataExchange.Import
 
             try
             {
-                var item = new DownloadManagerItem
-                {
-                    Id = displayOrder,
-                    DisplayOrder = displayOrder
-                };
-
-                if (urlOrPath.IsWebUrl())
-                {
-                    // We append quality to avoid importing of image duplicates.
-                    item.Url = _services.WebHelper.ModifyQueryString(urlOrPath, "q=100", null);
-
-                    if (_downloadedItems.ContainsKey(urlOrPath))
-                    {
-                        // URL has already been downloaded.
-                        item.Success = true;
-                        item.FileName = _downloadedItems[urlOrPath];
-                    }
-                    else
-                    {
-                        item.FileName = WebHelper.GetFileNameFromUrl(urlOrPath) ?? Path.GetRandomFileName();
-                    }
-
-                    item.Path = GetAbsolutePath(context.ImageDownloadDirectory, item.FileName);
-                }
-                else
-                {
-                    item.Success = true;
-                    item.FileName = Path.GetFileName(urlOrPath).ToValidFileName().NullEmpty() ?? Path.GetRandomFileName();
-
-                    item.Path = Path.IsPathRooted(urlOrPath)
-                        ? urlOrPath
-                        : GetAbsolutePath(context.ImageDirectory, urlOrPath);
-                }
-
-                item.MimeType = MimeTypes.MapNameToMimeType(item.FileName);
-
+                var item = CreateDownloadItem(context, urlOrPath, displayOrder, null);
                 return item;
             }
             catch
             {
                 context.Result.AddWarning($"Failed to prepare image download for '{urlOrPath.NaIfEmpty()}'. Skipping file.");
                 return null;
+            }
+        }
+
+        /// <summary>
+        /// Creates download manager items from URLs or file pathes.
+        /// </summary>
+        /// <param name="context">Import execution context.</param>
+        /// <param name="urlOrPathes">URLs or pathes to download.</param>
+        /// <param name="maxItems">Maximum number of returned items, <c>null</c> to return all items.</param>
+        /// <returns>Download manager items.</returns>
+        protected virtual List<DownloadManagerItem> CreateDownloadItems(ImportExecuteContext context, string[] urlOrPathes, int? maxItems = null)
+        {
+            var items = new List<DownloadManagerItem>();
+            var existingNames = new HashSet<string>(StringComparer.CurrentCultureIgnoreCase);
+            var itemNum = 0;
+
+            foreach (var urlOrPath in urlOrPathes)
+            {
+                if (urlOrPath.HasValue())
+                {
+                    try
+                    {
+                        var item = CreateDownloadItem(context, urlOrPath, ++itemNum, existingNames);
+                        items.Add(item);
+                    }
+                    catch
+                    {
+                        context.Result.AddWarning($"Failed to prepare image download for '{urlOrPath.NaIfEmpty()}'. Skipping file.");
+                    }
+
+                    if (maxItems.HasValue && items.Count >= maxItems.Value)
+                    {
+                        break;
+                    }
+                }
+            }
+
+            return items;
+        }
+
+        private DownloadManagerItem CreateDownloadItem(
+            ImportExecuteContext context, 
+            string urlOrPath, 
+            int displayOrder,
+            HashSet<string> existingFileNames)
+        {
+            var item = new DownloadManagerItem();
+
+            if (urlOrPath.IsWebUrl())
+            {
+                // We append quality to avoid importing of image duplicates.
+                item.Url = _services.WebHelper.ModifyQueryString(urlOrPath, "q=100", null);
+
+                if (_downloadUrls.ContainsKey(urlOrPath))
+                {
+                    // URL has already been downloaded.
+                    item.Success = true;
+                    item.FileName = _downloadUrls[urlOrPath];
+                }
+                else
+                {
+                    var fileName = WebHelper.GetFileNameFromUrl(urlOrPath) ?? Path.GetRandomFileName();
+                    item.FileName = GetUniqueFileName(fileName, existingFileNames);
+
+                    existingFileNames?.Add(item.FileName);
+                }
+
+                item.Path = GetAbsolutePath(context.ImageDownloadDirectory, item.FileName);
+            }
+            else
+            {
+                item.Success = true;
+                item.FileName = Path.GetFileName(urlOrPath).ToValidFileName().NullEmpty() ?? Path.GetRandomFileName();
+
+                item.Path = Path.IsPathRooted(urlOrPath)
+                    ? urlOrPath
+                    : GetAbsolutePath(context.ImageDirectory, urlOrPath);
+            }
+
+            item.MimeType = MimeTypes.MapNameToMimeType(item.FileName);
+            item.Id = displayOrder;
+            item.DisplayOrder = displayOrder;
+
+            return item;
+
+            static string GetUniqueFileName(string fileName, HashSet<string> lookup)
+            {
+                if (lookup?.Contains(fileName) ?? false)
+                {
+                    var i = 0;
+                    var name = Path.GetFileNameWithoutExtension(fileName);
+                    var ext = Path.GetExtension(fileName);
+
+                    do
+                    {
+                        fileName = $"{name}-{++i}{ext}";
+                    }
+                    while (lookup.Contains(fileName));
+                }
+
+                return fileName;
             }
 
             static string GetAbsolutePath(IDirectory directory, string fileNameOrRelativePath)
@@ -370,10 +438,15 @@ namespace Smartstore.Core.DataExchange.Import
         {
             if (item.Success && File.Exists(item.Path))
             {
-                // "Cache" URL to not download it again during this batch.
-                if (item.Url.HasValue() && !_downloadedItems.ContainsKey(item.Url))
+                // "Cache" URL to not download it again.
+                if (item.Url.HasValue() && !_downloadUrls.ContainsKey(item.Url))
                 {
-                    _downloadedItems[item.Url] = Path.GetFileName(item.Path);
+                    if (_downloadUrls.Count >= MAX_CACHED_DOWNLOAD_URLS)
+                    {
+                        _downloadUrls.Clear();
+                    }
+
+                    _downloadUrls[item.Url] = Path.GetFileName(item.Path);
                 }
 
                 return true;
