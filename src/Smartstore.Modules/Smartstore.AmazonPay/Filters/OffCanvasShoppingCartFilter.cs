@@ -9,11 +9,11 @@ namespace Smartstore.AmazonPay.Filters
     /// </summary>
     public class OffCanvasShoppingCartFilter : IResultFilter
     {
-        private readonly Lazy<IWidgetProvider> _widgetProvider;
+        private readonly IWidgetProvider _widgetProvider;
         private readonly AmazonPaySettings _amazonPaySettings;
 
         public OffCanvasShoppingCartFilter(
-            Lazy<IWidgetProvider> widgetProvider,
+            IWidgetProvider widgetProvider,
             AmazonPaySettings amazonPaySettings)
         {
             _widgetProvider = widgetProvider;
@@ -25,7 +25,7 @@ namespace Smartstore.AmazonPay.Filters
             if (_amazonPaySettings.ShowButtonInMiniShoppingCart && context.Result.IsHtmlViewResult())
             {
                 var widget = new ComponentWidgetInvoker(typeof(AmazonPayButtonViewComponent));
-                _widgetProvider.Value.RegisterWidget(new[] { "offcanvas_cart_summary" }, widget);
+                _widgetProvider.RegisterWidget(new[] { "offcanvas_cart_summary" }, widget);
             }
         }
 

@@ -4,6 +4,7 @@ using Smartstore.AmazonPay.Filters;
 using Smartstore.AmazonPay.Services;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;
+using Smartstore.Web.Controllers;
 
 namespace Smartstore.AmazonPay
 {
@@ -16,7 +17,7 @@ namespace Smartstore.AmazonPay
             services.Configure<MvcOptions>(o =>
             {
                 o.Filters.AddConditional<OffCanvasShoppingCartFilter>(
-                    context => context.RouteData?.Values?.IsSameRoute("ShoppingCart", "OffCanvasShoppingCart") ?? false);
+                    context => context.RouteData?.Values?.IsSameRoute("ShoppingCart", nameof(ShoppingCartController.OffCanvasShoppingCart)) ?? false);
             });
         }
     }

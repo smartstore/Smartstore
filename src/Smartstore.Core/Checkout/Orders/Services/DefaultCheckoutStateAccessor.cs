@@ -38,6 +38,7 @@ namespace Smartstore.Core.Checkout.Orders
                     {
                         return null;
                     }
+
                     if (httpContext.Session.TryGetObject<CheckoutState>(CheckoutStateSessionKey, out var state))
                     {
                         _state = state;
@@ -75,6 +76,7 @@ namespace Smartstore.Core.Checkout.Orders
             {
                 httpContext.Session.Remove(CheckoutStateSessionKey);
                 _state = null;
+                _dirty = false;
             }
         }
 

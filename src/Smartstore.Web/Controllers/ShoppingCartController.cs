@@ -32,7 +32,6 @@ using Smartstore.Utilities.Html;
 using Smartstore.Web.Components;
 using Smartstore.Web.Filters;
 using Smartstore.Web.Models.Cart;
-using Smartstore.Web.Razor;
 
 namespace Smartstore.Web.Controllers
 {
@@ -283,8 +282,6 @@ namespace Smartstore.Web.Controllers
 
             var model = await cart.MapAsync();
 
-            HttpContext.Session.TrySetObject(CheckoutState.CheckoutStateSessionKey, new CheckoutState());
-
             return View(model);
         }
 
@@ -389,8 +386,6 @@ namespace Smartstore.Web.Controllers
 
             var model = new MiniShoppingCartModel();
             await cart.MapAsync(model);
-
-            HttpContext.Session.TrySetObject(CheckoutState.CheckoutStateSessionKey, new CheckoutState());
 
             return PartialView(model);
         }
