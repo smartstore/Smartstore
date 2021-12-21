@@ -60,11 +60,19 @@ namespace Smartstore.AmazonPay.Controllers
             model.PlatformId = AmazonPayService.PlatformId;
             // Not implemented. Not available for europe at the moment.
             model.PublicKey = string.Empty;
-            model.LanguageLocale = _amazonPayService.GetAmazonLanguageCode(language.UniqueSeoCode, '_');
             model.MerchantStoreDescription = store.Name.Truncate(2048);
             model.MerchantPrivacyNoticeUrl = WebHelper.GetAbsoluteUrl(await Url.TopicAsync("privacyinfo"), Request, true, store.SslEnabled ? "https" : "http");
             model.MerchantSandboxIpnUrl = model.IpnUrl;
             model.MerchantProductionIpnUrl = model.IpnUrl;
+
+            model.LanguageLocale = language.UniqueSeoCode.EmptyNull().ToLower() switch
+            {
+                "en" => "en_GB",
+                "fr" => "fr_FR",
+                "it" => "it_IT",
+                "es" => "es_ES",
+                _ => "de_DE",
+            };
 
             foreach (var entity in allStores)
             {
