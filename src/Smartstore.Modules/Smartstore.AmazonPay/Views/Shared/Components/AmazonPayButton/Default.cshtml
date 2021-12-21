@@ -1,11 +1,26 @@
 ﻿@model AmazonPayButtonModel
 
-<div class="amazon-pay-button my-2 ml-3">
-    <div id="amazon-pay-login-button">TODO: AmazonPay button</div>
+<div class="my-2 ml-3">
+    <div id="amazonpay-button"></div>
 </div>
 
+<script sm-target-zone="scripts" src="@Html.Raw(Model.CheckoutScriptUrl)"></script>
 <script sm-target-zone="scripts" data-origin="amazonpay-button">
     $(function () {
-        //...
+        var amazonPayButton = amazon.Pay.renderButton('#amazonpay-button', {
+            merchantId: '@Html.Raw(Model.SellerId)',
+            publicKeyId: '@Html.Raw(Model.PublicKeyId)',
+            ledgerCurrency: '@Model.CurrencyCode',
+            checkoutLanguage: '@Model.CheckoutLanguage',
+            productType: '@Model.ButtonType',
+            placement: '@Model.ButtonPlacement',
+            buttonColor: '@Model.ButtonColor',
+            sandbox: @(Model.UseSandbox.ToString().ToLower())
+        });
+
+        amazonPayButton.onClick(function () {
+            // define your custom actions here
+
+        });
     });
 </script>

@@ -13,6 +13,7 @@
             UseSandbox = settings.UseSandbox;
             PublicKeyId = settings.PublicKeyId;
             PrivateKey = settings.PrivateKey;
+            SellerId = settings.SellerId;
             StoreId = settings.ClientId;
             CurrencyCode = currencyCode;
 
@@ -46,6 +47,8 @@
         public bool UseSandbox { get; }
         public string PublicKeyId { get; }
         public string PrivateKey { get; }
+
+        public string SellerId { get; }
         public string StoreId { get; }
 
         public string CheckoutScriptUrl { get; }
