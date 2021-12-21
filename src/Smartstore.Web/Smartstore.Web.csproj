@@ -19,6 +19,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<None Include="..\..\.editorconfig" Link=".editorconfig" />
 		<None Include="App_Data\icons.json" CopyToPublishDirectory="PreserveNewest" />
 		<None Include="App_Data\widgetzones.json" CopyToPublishDirectory="PreserveNewest" />
 		<None Include="App_Data\EmailTemplates\**" CopyToPublishDirectory="PreserveNewest" />

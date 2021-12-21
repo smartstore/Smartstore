@@ -1,0 +1,4 @@
+﻿[*.cs]
+
+# IDE0042: Variablendeklaration dekonstruieren
+dotnet_diagnostic.IDE0042.severity = none

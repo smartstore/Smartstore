@@ -327,13 +327,11 @@ namespace Smartstore.Core.Content.Media
                 {
                     source.Seek(0, SeekOrigin.Begin);
 
-                    using (var other = _storageProvider.OpenRead(file))
+                    using var other = _storageProvider.OpenRead(file);
+                    if (source.ContentsEqual(other, true))
                     {
-                        if (source.ContentsEqual(other, true))
-                        {
-                            equalFile = file;
-                            return true;
-                        }
+                        equalFile = file;
+                        return true;
                     }
                 }
 
@@ -363,12 +361,10 @@ namespace Smartstore.Core.Content.Media
                 {
                     source.Seek(0, SeekOrigin.Begin);
 
-                    await using (var other = await _storageProvider.OpenReadAsync(file))
+                    await using var other = await _storageProvider.OpenReadAsync(file);
+                    if (await source.ContentsEqualAsync(other, true))
                     {
-                        if (await source.ContentsEqualAsync(other, true))
-                        {
-                            return new AsyncOut<MediaFile>(true, file);
-                        }
+                        return new AsyncOut<MediaFile>(true, file);
                     }
                 }
 
@@ -793,11 +789,9 @@ namespace Smartstore.Core.Content.Media
 
             query.MaxSize = maxSize;
 
-            using (var result = await _imageProcessor.ProcessImageAsync(query, false))
-            {
-                outImage = result.Image;
-                return new AsyncOut<IImage>(true, outImage);
-            }
+            using var result = await _imageProcessor.ProcessImageAsync(query, false);
+            outImage = result.Image;
+            return new AsyncOut<IImage>(true, outImage);
         }
 
         #endregion

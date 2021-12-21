@@ -370,7 +370,7 @@ namespace Smartstore.Core.Web
             if (hsIndex >= 0)
             {
                 curAnchor = url[hsIndex..];
-                url = url.Substring(0, hsIndex);
+                url = url[..hsIndex];
             }
 
             var parts = url.Split(new[] { '?' });
