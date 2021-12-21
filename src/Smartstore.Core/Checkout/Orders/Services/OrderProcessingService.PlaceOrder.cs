@@ -546,7 +546,7 @@ namespace Smartstore.Core.Checkout.Orders
             }
 
             ctx.PaymentRequest.OrderTax = order.OrderTax;
-            ctx.PaymentRequest.OrderTotal = ctx.CartTotal.Total.Value;
+            ctx.PaymentRequest.OrderTotal = ctx.CartTotal.Total.Value.Amount;
         }
 
         private async Task<bool> ProcessPayment(PlaceOrderContext ctx)

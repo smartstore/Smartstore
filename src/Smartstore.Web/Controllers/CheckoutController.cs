@@ -644,7 +644,6 @@ namespace Smartstore.Web.Controllers
             }
             finally
             {
-                // TODO: (mg) (core) "ProcessPaymentRequest" is not serializable because of "Money" struct.
                 HttpContext.Session.TrySetObject<ProcessPaymentRequest>("OrderPaymentInfo", null);
                 _checkoutStateAccessor.Abandon();
             }
