@@ -51,6 +51,8 @@ namespace Smartstore.AmazonPay.Services
 
         public static WebStoreClient CreateApiClient(AmazonPaySettings settings)
         {
+            // TODO: (mg) (core) Register WebStoreClient as IWebStoreClient in container with a factory delegate that executes the code in this method.
+
             var region = settings.Marketplace.EmptyNull().ToLower() switch
             {
                 "us" => AmazonPayTypes.Region.UnitedStates,
