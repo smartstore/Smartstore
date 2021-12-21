@@ -1,7 +1,7 @@
 ﻿using System.Linq;
-using Amazon.Pay.API.WebStore;
 using Amazon.Pay.API.WebStore.Buyer;
 using Amazon.Pay.API.WebStore.CheckoutSession;
+using Amazon.Pay.API.WebStore.Interfaces;
 using Amazon.Pay.API.WebStore.Types;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -14,13 +14,13 @@ namespace Smartstore.AmazonPay.Controllers
     public class AmazonPayController : PublicController
     {
         private readonly SmartDbContext _db;
-        private readonly WebStoreClient _apiClient;
+        private readonly IWebStoreClient _apiClient;
         private readonly IShoppingCartService _shoppingCartService;
         private readonly AmazonPaySettings _settings;
 
         public AmazonPayController(
             SmartDbContext db,
-            WebStoreClient apiClient,
+            IWebStoreClient apiClient,
             IShoppingCartService shoppingCartService,
             AmazonPaySettings amazonPaySettings)
         {
@@ -38,13 +38,15 @@ namespace Smartstore.AmazonPay.Controllers
 
             var store = Services.StoreContext.CurrentStore;
             var customer = Services.WorkContext.CurrentCustomer;
+            var currentScheme = Services.WebHelper.IsCurrentConnectionSecured() ? "https" : "http";
+
             string signature;
             string payload;
 
             if (buttonType == "PayAndShip" || buttonType == "PayOnly")
             {
-                var checkoutReviewUrl = Url.Action(nameof(CheckoutReview), "AmazonPay", null, store.SslEnabled ? "https" : "http");
-
+                var checkoutReviewUrl = Url.Action(nameof(CheckoutReview), "AmazonPay", null, currentScheme);
+                
                 // TODO later: config for specialRestrictions 'RestrictPOBoxes', 'RestrictPackstations'.
                 var request = new CreateCheckoutSessionRequest(checkoutReviewUrl, _settings.ClientId)
                 {
@@ -72,7 +74,7 @@ namespace Smartstore.AmazonPay.Controllers
             }
             else if (buttonType == "SignIn")
             {
-                var signInReturnUrl = Url.Action(nameof(SignIn), "AmazonPay", null, store.SslEnabled ? "https" : "http");
+                var signInReturnUrl = Url.Action(nameof(SignIn), "AmazonPay", null, currentScheme);
 
                 var request = new SignInRequest(signInReturnUrl, _settings.ClientId)
                 {

@@ -1,5 +1,6 @@
 ﻿using Amazon.Pay.API;
 using Amazon.Pay.API.WebStore;
+using Amazon.Pay.API.WebStore.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Smartstore.AmazonPay.Filters;
@@ -17,9 +18,9 @@ namespace Smartstore.AmazonPay
         {
             services.AddScoped<IAmazonPayService, AmazonPayService>();
 
-            services.AddScoped(services =>
+            services.AddScoped<IWebStoreClient, WebStoreClient>(c =>
             {
-                var settings = services.GetRequiredService<AmazonPaySettings>();
+                var settings = c.GetRequiredService<AmazonPaySettings>();
 
                 var region = settings.Marketplace.EmptyNull().ToLower() switch
                 {

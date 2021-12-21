@@ -2,7 +2,8 @@
 {
     public class AmazonPayButtonModel : ModelBase
     {
-        public AmazonPayButtonModel(AmazonPaySettings settings,
+        public AmazonPayButtonModel(
+            AmazonPaySettings settings,
             string currencyCode,
             string languageSeoCode = null)
         {
