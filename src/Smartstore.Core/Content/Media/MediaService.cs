@@ -408,6 +408,7 @@ namespace Smartstore.Core.Content.Media
             try
             {
                 await _storageProvider.SaveAsync(result.File, result.StorageItem);
+                await _db.SaveChangesAsync();
             }
             catch (Exception ex)
             {
@@ -442,16 +443,16 @@ namespace Smartstore.Core.Content.Media
             if (file.Id == 0)
             {
                 _db.MediaFiles.Add(file);
-                await _db.SaveChangesAsync();
             }
 
             try
             {
+                await _db.SaveChangesAsync();
                 await _storageProvider.SaveAsync(file, result.StorageItem);
             }
             catch (Exception ex)
             {
-                if (!isDupe)
+                if (!isDupe && file.Id > 0)
                 {
                     // New file's metadata should be removed on storage save failure immediately
                     await DeleteFileAsync(file, true, true);
@@ -595,6 +596,11 @@ namespace Smartstore.Core.Content.Media
         {
             Guard.NotNull(file, nameof(file));
 
+            if (file.Id == 0)
+            {
+                return;
+            }
+
             // Delete thumb
             await _imageCache.DeleteAsync(file);
 
@@ -732,11 +738,14 @@ namespace Smartstore.Core.Content.Media
             // Process image
             if (inStream != null && inStream.Length > 0 && file.MediaType == MediaType.Image && (await ProcessImage(file, inStream)).Out(out var outImage))
             {
+                var storageItem = MediaStorageItem.FromImage(outImage);
+
                 file.Width = outImage.Width;
                 file.Height = outImage.Height;
                 file.PixelSize = outImage.Width * outImage.Height;
+                file.Size = (int)storageItem.SourceStream.Length;
 
-                return (MediaStorageItem.FromImage(outImage), file);
+                return (storageItem, file);
             }
             else
             {

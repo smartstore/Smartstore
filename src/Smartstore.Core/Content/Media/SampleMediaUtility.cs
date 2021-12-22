@@ -117,6 +117,8 @@ namespace Smartstore.Core.Content.Media
             {
                 if (mediaFile.MediaType == MediaType.Image)
                 {
+                    mediaFile.Size = (int)stream.Length;
+                    
                     var pixelSize = ImageHeader.GetPixelSize(stream);
                     if (!pixelSize.IsEmpty)
                     {
