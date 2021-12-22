@@ -13,6 +13,7 @@ using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.GiftCards;
 using Smartstore.Core.Checkout.Shipping;
+using Smartstore.Core.Common.JsonConverters;
 using Smartstore.Core.Data;
 using Smartstore.Core.Data.Migrations;
 using Smartstore.Data;
@@ -48,6 +49,8 @@ namespace Smartstore.Core.Bootstrapping
                     NullValueHandling = NullValueHandling.Ignore,
                     MaxDepth = 32
                 };
+
+                settings.Converters.Add(new UTCDateTimeConverter(new IsoDateTimeConverter()));
 
                 return settings;
             };

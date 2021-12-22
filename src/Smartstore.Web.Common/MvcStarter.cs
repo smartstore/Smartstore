@@ -175,7 +175,7 @@ namespace Smartstore.Web
                 {
                     var settings = o.SerializerSettings;
                     settings.ContractResolver = SmartContractResolver.Instance;
-                    settings.TypeNameHandling = TypeNameHandling.Objects;
+                    settings.TypeNameHandling = TypeNameHandling.None;
                     settings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
                     settings.ObjectCreationHandling = ObjectCreationHandling.Replace;
                     settings.NullValueHandling = NullValueHandling.Ignore;

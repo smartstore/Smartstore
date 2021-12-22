@@ -131,7 +131,7 @@
                 </div>
                 <div class="adminRow wide">
                     <div class="adminData">
-                        <editor asp-for="Locales[item].Body" TemplateName="@templateName" />
+                        <editor asp-for="Locales[item].Body" asp-additional-viewdata="new { templateName  }" />
                         <span asp-validation-for="Locales[item].Body"></span>
                     </div>
                 </div>
@@ -212,7 +212,7 @@
                 </div>
                 <div class="adminRow wide">
                     <div class="adminData">
-                        <editor asp-for="Body" TemplateName="@templateName" />
+                        <editor asp-for="Body" asp-additional-viewdata="new { templateName  }" />
                         <span asp-validation-for="Body"></span>
                     </div>
                 </div>
