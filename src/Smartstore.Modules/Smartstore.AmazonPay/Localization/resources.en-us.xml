@@ -54,6 +54,9 @@ Text suggestions:</div><ul>
 	<LocaleResource Name="AuthenticationStatusAbandonedMessage">
 		<Value>Something's wrong with your payment method. To place your order, try another.</Value>
 	</LocaleResource>
+	<LocaleResource Name="MissingCheckoutSessionId">
+		<Value>Something's wrong with your payment method (missing session ID). To place your order, try another.</Value>
+	</LocaleResource>	
 	<LocaleResource Name="AmazonPaymentsReports">
 		<Value>Amazon Pay reports</Value>
 	</LocaleResource>
@@ -68,6 +71,9 @@ Text suggestions:</div><ul>
 	</LocaleResource>
 	<LocaleResource Name="AsyncPaymentAuthrizationNote">
 		<Value>Your transaction with Amazon Pay is currently being validated. Please be aware that we will inform you shortly as needed.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Signout">
+		<Value>Sign out from Amazon</Value>
 	</LocaleResource>
 	<LocaleResource Name="RegisterNow">
 		<Value>Register now</Value>

@@ -54,6 +54,9 @@ Textvorschläge:</div><ul>
 	<LocaleResource Name="AuthenticationStatusAbandonedMessage">
 		<Value>Mit dieser Zahlungsart ist ein Problem aufgetreten. Um Ihre Bestellung abzuschließen, wählen Sie bitte eine andere aus.</Value>
 	</LocaleResource>
+	<LocaleResource Name="MissingCheckoutSessionId">
+		<Value>Mit dieser Zahlungsart ist ein Problem aufgetreten (fehlende Sitzungs-ID). Um Ihre Bestellung abzuschließen, wählen Sie bitte eine andere aus.</Value>
+	</LocaleResource>
 	<LocaleResource Name="AmazonPaymentsReports">
 		<Value>Amazon Pay meldet</Value>
 	</LocaleResource>
@@ -68,6 +71,9 @@ Textvorschläge:</div><ul>
 	</LocaleResource>
 	<LocaleResource Name="AsyncPaymentAuthrizationNote">
 		<Value>Ihre Zahlung mit Amazon Pay ist derzeit noch in Prüfung. Bitte beachten Sie, dass wir uns mit Ihnen in Kürze per E-Mail in Verbindung setzen werden, falls noch Unklarheiten bestehen sollten.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Signout">
+		<Value>Bei Amazon abmelden</Value>
 	</LocaleResource>
 	<LocaleResource Name="RegisterNow">
 		<Value>Jetzt registrieren</Value>

@@ -129,9 +129,17 @@ namespace Smartstore.AmazonPay.Controllers
         /// The buyer is redirected to this action method after they complete checkout on the Amazon Pay hosted page.
         /// </summary>
         [Route("amazonpay/checkoutreview")]
-        public Task<IActionResult> CheckoutReview()
+        public IActionResult CheckoutReview(string amazonCheckoutSessionId)
         {
-            throw new NotImplementedException();
+            if (amazonCheckoutSessionId.IsEmpty())
+            {
+                NotifyWarning(T("Plugins.Payments.AmazonPay.MissingCheckoutSessionId"));
+                return RedirectToAction(nameof(CheckoutController.Confirm), "Checkout");
+            }
+
+            // TODO: GetCheckoutSession
+
+            return RedirectToAction(nameof(CheckoutController.Confirm), "Checkout");
         }
 
         /// <summary>

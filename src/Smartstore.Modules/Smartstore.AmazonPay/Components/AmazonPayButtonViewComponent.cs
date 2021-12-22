@@ -40,14 +40,18 @@ namespace Smartstore.AmazonPay.Components
             if (_settings.SellerId.IsEmpty() ||
                 _settings.PublicKeyId.IsEmpty() ||
                 _settings.PrivateKey.IsEmpty() ||
-                (_settings.ShowPayButtonForAdminOnly && !customer.IsAdmin()) ||
-                (!_orderSettings.AnonymousCheckoutAllowed && customer.IsGuest()))
+                (!_orderSettings.AnonymousCheckoutAllowed && customer.IsGuest()) ||
+                (_settings.ShowPayButtonForAdminOnly && !customer.IsAdmin() && !buttonType.EqualsNoCase("SignIn")))
             {
                 return Empty();
             }
-
+            
             var cart = await _shoppingCartService.GetCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
-            if (!cart.HasItems)
+
+            buttonType ??= cart.IsShippingRequired() ? "PayAndShip" : "PayOnly";
+            var signout = buttonType == "SignOut";
+
+            if (!cart.HasItems && !signout)
             {
                 return Empty();
             }
@@ -57,8 +61,6 @@ namespace Smartstore.AmazonPay.Components
                 return Empty();
             }
 
-            buttonType ??= cart.IsShippingRequired() ? "PayAndShip" : "PayOnly";
-
             // INFO: we are "decoupling button render and checkout or sign-in initiation".
             // So we do not create and sign the payload here to reduce net traffic.
 
@@ -66,6 +68,11 @@ namespace Smartstore.AmazonPay.Components
             var languageSeoCode = Services.WorkContext.WorkingLanguage.UniqueSeoCode;
 
             var model = new AmazonPayButtonModel(_settings, buttonType, currencyCode, languageSeoCode);
+
+            if (signout)
+            {
+                return View("Signout", model);
+            }
 
             return View(model);
         }
