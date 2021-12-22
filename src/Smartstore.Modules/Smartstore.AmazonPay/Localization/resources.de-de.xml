@@ -55,7 +55,7 @@ Textvorschläge:</div><ul>
 		<Value>Mit dieser Zahlungsart ist ein Problem aufgetreten. Um Ihre Bestellung abzuschließen, wählen Sie bitte eine andere aus.</Value>
 	</LocaleResource>
 	<LocaleResource Name="MissingCheckoutSessionId">
-		<Value>Mit dieser Zahlungsart ist ein Problem aufgetreten (fehlende Sitzungs-ID). Um Ihre Bestellung abzuschließen, wählen Sie bitte eine andere aus.</Value>
+		<Value>Mit dieser Zahlungsart ist ein Problem aufgetreten (fehlende Sitzungs-ID). Um Ihre Bestellung abzuschließen, wählen Sie bitte eine andere Zahlungsart aus.</Value>
 	</LocaleResource>
 	<LocaleResource Name="AmazonPaymentsReports">
 		<Value>Amazon Pay meldet</Value>

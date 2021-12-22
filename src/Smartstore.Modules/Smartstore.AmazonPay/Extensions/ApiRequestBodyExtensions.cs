@@ -10,8 +10,11 @@ namespace Smartstore.AmazonPay
         /// This is a temporary workaround for the following SDK issue:
         /// https://github.com/amzn/amazon-pay-api-sdk-dotnet/issues/11
         /// </summary>
-        public static string AsJson(this ApiRequestBody body)
+        public static string ToJsonNoType(this ApiRequestBody body)
         {
+            // INFO: (mg) (core) I know this name is ugly, but "As*" should only be used for type casts where if B *IS* A already.
+            // INFO: (mg) (core) I believe it is partly our fault that the inbuilt .ToJson() does not work: we build default serializer settings in CoreStarter (line 41).
+
             var serializerSettings = new JsonSerializerSettings
             {
                 NullValueHandling = NullValueHandling.Ignore,

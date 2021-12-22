@@ -79,7 +79,7 @@ namespace Smartstore.AmazonPay.Controllers
                             }
                         }
 
-                        payload = request.AsJson();
+                        payload = request.ToJsonNoType();
                         signature = _apiClient.GenerateButtonSignature(payload);
                         success = true;
                     }
@@ -107,7 +107,7 @@ namespace Smartstore.AmazonPay.Controllers
                         }
                     };
 
-                    payload = request.AsJson();
+                    payload = request.ToJsonNoType();
                     signature = _apiClient.GenerateButtonSignature(payload);
                     success = true;
                 }
