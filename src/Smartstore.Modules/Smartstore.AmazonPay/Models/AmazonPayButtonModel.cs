@@ -4,10 +4,12 @@
     {
         public AmazonPayButtonModel(
             AmazonPaySettings settings,
+            string buttonType,
             string currencyCode,
             string languageSeoCode = null)
         {
             Guard.NotNull(settings, nameof(settings));
+            Guard.NotEmpty(buttonType, nameof(buttonType));
             Guard.NotEmpty(currencyCode, nameof(currencyCode));
 
             UseSandbox = settings.UseSandbox;
@@ -15,10 +17,10 @@
             PrivateKey = settings.PrivateKey;
             SellerId = settings.SellerId;
             StoreId = settings.ClientId;
+            
             CurrencyCode = currencyCode;
-
-            ButtonColor = settings.PayButtonColor;
-            ButtonSize = settings.PayButtonSize;
+            ButtonType = buttonType;
+            ButtonColor = buttonType == "SignIn" ? settings.AuthButtonColor : settings.PayButtonColor;
 
             var marketplace = settings.Marketplace.EmptyNull().ToLower();
 
@@ -59,6 +61,5 @@
         public string ButtonPlacement { get; init; } = "Cart";
         public string ButtonType { get; init; } = "PayAndShip";
         public string ButtonColor { get; }
-        public string ButtonSize { get; }   // TODO: (mg) (core) Obsolete. Button is responsive now.
     }
 }

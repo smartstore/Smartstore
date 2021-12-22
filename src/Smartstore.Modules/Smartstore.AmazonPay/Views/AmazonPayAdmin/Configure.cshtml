@@ -20,14 +20,6 @@
         new SelectListItem { Text = T("Plugins.Payments.AmazonPay.ButtonColor.DarkGray"), Value = "DarkGray" }
     };
 
-    var buttonSizes = new List<SelectListItem>
-    {
-        new SelectListItem { Text = T("Plugins.Payments.AmazonPay.ButtonSize.Small"), Value = "small" },
-        new SelectListItem { Text = T("Plugins.Payments.AmazonPay.ButtonSize.Medium"), Value = "medium" },
-        new SelectListItem { Text = T("Plugins.Payments.AmazonPay.ButtonSize.Large"), Value = "large" },
-        new SelectListItem { Text = T("Plugins.Payments.AmazonPay.ButtonSize.Xlarge"), Value = "x-large" }
-    };
-
     var authButtonType = new List<SelectListItem>
     {
         new SelectListItem { Text = T("Plugins.Payments.AmazonPay.AuthButtonType.Login"), Value = "Login" },
@@ -297,17 +289,6 @@
         </div>
         <div class="adminRow">
             <div class="adminTitle">
-                <smart-label asp-for="PayButtonSize" />
-            </div>
-            <div class="adminData">
-                <setting-editor asp-for="PayButtonSize">
-                    <select asp-for="PayButtonSize" asp-items="buttonSizes"></select>
-                </setting-editor>
-                <span asp-validation-for="PayButtonSize"></span>
-            </div>
-        </div>
-        <div class="adminRow">
-            <div class="adminTitle">
                 <smart-label asp-for="AuthButtonType" />
             </div>
             <div class="adminData">
@@ -326,17 +307,6 @@
                     <select asp-for="AuthButtonColor" asp-items="buttonColors"></select>
                 </setting-editor>
                 <span asp-validation-for="AuthButtonColor"></span>
-            </div>
-        </div>
-        <div class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="AuthButtonSize" />
-            </div>
-            <div class="adminData">
-                <setting-editor asp-for="AuthButtonSize">
-                    <select asp-for="AuthButtonSize" asp-items="buttonSizes"></select>
-                </setting-editor>
-                <span asp-validation-for="AuthButtonSize"></span>
             </div>
         </div>
 

@@ -19,8 +19,26 @@
         });
 
         amazonPayButton.onClick(function () {
-            // define your custom actions here
-
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("CreateCheckoutSession", "AmazonPay", new { area = string.Empty, buttonType = Model.ButtonType })',
+                data: $('#startcheckout').closest('form').serialize(),
+			    success: function (response) {
+                    if (response.success) {
+                        // INFO: this it not nice. It forces us to redirect to AmazonPay in the same browser window.
+                        amazonPayButton.initCheckout({
+                            createCheckoutSessionConfig: {
+                                payloadJSON: response.payload,
+                                signature: response.signature,
+                                publicKeyId: '@Html.Raw(Model.PublicKeyId)'
+                            }
+                        });
+				    }
+				    else {
+					    displayNotification(response.message, response.messageType);
+				    }
+			    }
+		    });
         });
     });
 </script>

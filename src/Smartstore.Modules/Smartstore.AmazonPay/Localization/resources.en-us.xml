@@ -204,24 +204,6 @@ Text suggestions:</div><ul>
 	<LocaleResource Name="ButtonColor.DarkGray">
 		<Value>Dark gray</Value>
 	</LocaleResource>
-	<LocaleResource Name="PayButtonSize">
-		<Value>Pay button size</Value>
-	</LocaleResource>
-	<LocaleResource Name="PayButtonSize.Hint">
-		<Value>Specifies the size of the Pay button.</Value>
-	</LocaleResource>
-	<LocaleResource Name="ButtonSize.Small">
-		<Value>Small</Value>
-	</LocaleResource>
-	<LocaleResource Name="ButtonSize.Medium">
-		<Value>Medium</Value>
-	</LocaleResource>
-	<LocaleResource Name="ButtonSize.Large">
-		<Value>Large</Value>
-	</LocaleResource>
-	<LocaleResource Name="ButtonSize.Xlarge">
-		<Value>Extra large</Value>
-	</LocaleResource>
 	<LocaleResource Name="AuthButtonType">
 		<Value>Login button type</Value>
 	</LocaleResource>
@@ -239,12 +221,6 @@ Text suggestions:</div><ul>
 	</LocaleResource>
 	<LocaleResource Name="AuthButtonColor.Hint">
 		<Value>Specifies the prefered color of the Login button.</Value>
-	</LocaleResource>
-	<LocaleResource Name="AuthButtonSize">
-		<Value>Login button size</Value>
-	</LocaleResource>
-	<LocaleResource Name="AuthButtonSize.Hint">
-		<Value>Specifies the size of the Login button.</Value>
 	</LocaleResource>
 	<LocaleResource Name="DataFetching.Warning">
 		<Value>

@@ -37,10 +37,6 @@ namespace Smartstore.AmazonPay.Components
             var store = Services.StoreContext.CurrentStore;
             var customer = Services.WorkContext.CurrentCustomer;
 
-            // TODO: (mg) (core) Every check which returns empty here can already be requested before registering the filter.
-            // so theoretically there is no need to return Empty() from a payment button viewcomponent
-            // RE: this is exactly what I don't want, to spread the logic for rendering over multiple callers. Not only the filter
-            // invokes the component. The component alone should decide if and what to render.
             if (_settings.SellerId.IsEmpty() ||
                 _settings.PublicKeyId.IsEmpty() ||
                 _settings.PrivateKey.IsEmpty() ||
@@ -69,10 +65,7 @@ namespace Smartstore.AmazonPay.Components
             var currencyCode = _currencyService.Value.PrimaryCurrency.CurrencyCode;
             var languageSeoCode = Services.WorkContext.WorkingLanguage.UniqueSeoCode;
 
-            var model = new AmazonPayButtonModel(_settings, currencyCode, languageSeoCode)
-            {
-                ButtonType = buttonType
-            };
+            var model = new AmazonPayButtonModel(_settings, buttonType, currencyCode, languageSeoCode);
 
             return View(model);
         }

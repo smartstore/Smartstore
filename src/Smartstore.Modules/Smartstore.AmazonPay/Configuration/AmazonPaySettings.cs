@@ -42,11 +42,9 @@ namespace Smartstore.AmazonPay
         public bool InformCustomerAddErrors { get; set; } = true;
 
         public string PayButtonColor { get; set; } = "Gold";
-        public string PayButtonSize { get; set; } = "small";
 
         public string AuthButtonType { get; set; } = "LwA";
         public string AuthButtonColor { get; set; } = "Gold";
-        public string AuthButtonSize { get; set; } = "medium";
 
         public bool CanSaveEmailAndPhone(string value)
             => SaveEmailAndPhone == AmazonPaySaveDataType.Always || (SaveEmailAndPhone == AmazonPaySaveDataType.OnlyIfEmpty && value.IsEmpty());

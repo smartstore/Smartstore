@@ -5,6 +5,7 @@ using Amazon.Pay.API.WebStore.Interfaces;
 using Amazon.Pay.API.WebStore.Types;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Data;
 using Smartstore.Web.Controllers;
@@ -16,23 +17,26 @@ namespace Smartstore.AmazonPay.Controllers
         private readonly SmartDbContext _db;
         private readonly IWebStoreClient _apiClient;
         private readonly IShoppingCartService _shoppingCartService;
+        private readonly IShoppingCartValidator _shoppingCartValidator;
         private readonly AmazonPaySettings _settings;
 
         public AmazonPayController(
             SmartDbContext db,
             IWebStoreClient apiClient,
             IShoppingCartService shoppingCartService,
+            IShoppingCartValidator shoppingCartValidator,
             AmazonPaySettings amazonPaySettings)
         {
             _db = db;
             _apiClient = apiClient;
             _shoppingCartService = shoppingCartService;
+            _shoppingCartValidator = shoppingCartValidator;
             _settings = amazonPaySettings;
         }
 
         // AJAX.
         [HttpPost]
-        public async Task<IActionResult> CreateCheckoutSession(string buttonType)
+        public async Task<IActionResult> CreateCheckoutSession(ProductVariantQuery query, string buttonType, bool? useRewardPoints)
         {
             Guard.NotEmpty(buttonType, nameof(buttonType));
 
@@ -40,64 +44,85 @@ namespace Smartstore.AmazonPay.Controllers
             var customer = Services.WorkContext.CurrentCustomer;
             var currentScheme = Services.WebHelper.IsCurrentConnectionSecured() ? "https" : "http";
 
-            string signature;
-            string payload;
+            var signature = string.Empty;
+            var payload = string.Empty;
+            var message = string.Empty;
+            var messageType = "error";
+            var success = false;
 
-            if (buttonType == "PayAndShip" || buttonType == "PayOnly")
+            try
             {
-                var checkoutReviewUrl = Url.Action(nameof(CheckoutReview), "AmazonPay", null, currentScheme);
-                
-                // TODO later: config for specialRestrictions 'RestrictPOBoxes', 'RestrictPackstations'.
-                var request = new CreateCheckoutSessionRequest(checkoutReviewUrl, _settings.ClientId)
+                if (buttonType == "PayAndShip" || buttonType == "PayOnly")
                 {
-                    ChargePermissionType = ChargePermissionType.OneTime
-                };
+                    var cart = await _shoppingCartService.GetCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
+                    var warnings = new List<string>();
 
-                var cart = await _shoppingCartService.GetCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
-                if (cart.HasItems && cart.IsShippingRequired())
-                {
-                    var allowedCountryCodes = await _db.Countries
-                        .ApplyStandardFilter(false, store.Id)
-                        .Select(x => x.TwoLetterIsoCode)
-                        .Distinct()
-                        .ToListAsync();
-
-                    if (allowedCountryCodes.Any())
+                    // Save checkout attributes, whether to use reward points and validate the shopping cart.
+                    if (await _shoppingCartValidator.ValidateCartAsync(cart, warnings, true, query, useRewardPoints ?? false))
                     {
-                        request.DeliverySpecifications.AddressRestrictions.Type = RestrictionType.Allowed;
-                        allowedCountryCodes.Each(countryCode => request.DeliverySpecifications.AddressRestrictions.AddCountryRestriction(countryCode));
+                        // TODO later: config for specialRestrictions 'RestrictPOBoxes', 'RestrictPackstations'.
+                        var checkoutReviewUrl = Url.Action(nameof(CheckoutReview), "AmazonPay", null, currentScheme);
+                        var request = new CreateCheckoutSessionRequest(checkoutReviewUrl, _settings.ClientId);
+
+                        if (cart.HasItems && cart.IsShippingRequired())
+                        {
+                            var allowedCountryCodes = await _db.Countries
+                                .ApplyStandardFilter(false, store.Id)
+                                .Select(x => x.TwoLetterIsoCode)
+                                .Distinct()
+                                .ToListAsync();
+
+                            if (allowedCountryCodes.Any())
+                            {
+                                request.DeliverySpecifications.AddressRestrictions.Type = RestrictionType.Allowed;
+                                allowedCountryCodes.Each(countryCode => request.DeliverySpecifications.AddressRestrictions.AddCountryRestriction(countryCode));
+                            }
+                        }
+
+                        signature = _apiClient.GenerateButtonSignature(request);
+                        payload = request.ToJson();
+                        success = true;
+                    }
+                    else
+                    {
+                        messageType = "warning";
+                        message = string.Join(Environment.NewLine, warnings);
+                        success = false;
                     }
                 }
-
-                signature = _apiClient.GenerateButtonSignature(request);
-                payload = request.ToJson();
-            }
-            else if (buttonType == "SignIn")
-            {
-                var signInReturnUrl = Url.Action(nameof(SignIn), "AmazonPay", null, currentScheme);
-
-                var request = new SignInRequest(signInReturnUrl, _settings.ClientId)
+                else if (buttonType == "SignIn")
                 {
-                    SignInScopes = new[]
+                    var signInReturnUrl = Url.Action(nameof(SignIn), "AmazonPay", null, currentScheme);
+
+                    var request = new SignInRequest(signInReturnUrl, _settings.ClientId)
                     {
-                        SignInScope.Name,
-                        SignInScope.Email,
-                        //SignInScope.PostalCode, 
-                        SignInScope.ShippingAddress,
-                        SignInScope.BillingAddress,
-                        SignInScope.PhoneNumber
-                    }
-                };
+                        SignInScopes = new[]
+                        {
+                            SignInScope.Name,
+                            SignInScope.Email,
+                            //SignInScope.PostalCode, 
+                            SignInScope.ShippingAddress,
+                            SignInScope.BillingAddress,
+                            SignInScope.PhoneNumber
+                        }
+                    };
 
-                signature = _apiClient.GenerateButtonSignature(request);
-                payload = request.ToJson();
+                    signature = _apiClient.GenerateButtonSignature(request);
+                    payload = request.ToJson();
+                    success = true;
+                }
+                else
+                {
+                    throw new ArgumentException($"Unknown or not supported button type '{buttonType}'.");
+                }
             }
-            else
+            catch (Exception ex)
             {
-                throw new ArgumentException($"Unknown or not supported button type '{buttonType}'.");
+                message = ex.Message;
+                success = false;
             }
 
-            return Json(new { signature, payload });
+            return Json(new { success, signature, payload, message, messageType });
         }
 
         /// <summary>

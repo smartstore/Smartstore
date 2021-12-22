@@ -70,17 +70,11 @@ namespace Smartstore.AmazonPay.Models
         [LocalizedDisplay("*PayButtonColor")]
         public string PayButtonColor { get; set; }
 
-        [LocalizedDisplay("*PayButtonSize")]
-        public string PayButtonSize { get; set; }
-
         [LocalizedDisplay("*AuthButtonType")]
         public string AuthButtonType { get; set; }
 
         [LocalizedDisplay("*AuthButtonColor")]
         public string AuthButtonColor { get; set; }
-
-        [LocalizedDisplay("*AuthButtonSize")]
-        public string AuthButtonSize { get; set; }
 
         #region Registration data
 

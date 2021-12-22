@@ -120,7 +120,7 @@
                                         <span>@T("ShoppingCart.AlternativePaymentButtons")</span>
                                     </div>
 
-                                    @*Payment method buttons (e.g. GoogleCheckoutButton, Paypal Express, Pay with Amazon)*@
+                                    @*Payment method buttons (e.g. Paypal, Amazon Pay)*@
                                     @foreach (var item in Model.ButtonPaymentMethods.Items)
                                     {
                                         @await item.InvokeAsync(ViewContext)
