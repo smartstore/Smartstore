@@ -407,8 +407,6 @@ namespace Smartstore.Web.Modelling
 
         internal int CanCreateModel(ModelBindingContext bindingContext)
         {
-            return ValueProviderDataAvailable;
-            
             var isTopLevelObject = bindingContext.IsTopLevelObject;
 
             // If we get here the model is a complex object which was not directly bound by any previous model binder,
