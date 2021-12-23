@@ -170,7 +170,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             output.TagMode = TagMode.StartTagAndEndTag;
             output.MergeAttribute("id", buttonId);
             output.MergeAttribute("type", "button");
-            output.AppendCssClass("btn btn-light");
+            output.AppendCssClass("btn btn-secondary");
 
             if (IconCssClass.HasValue())
             {
