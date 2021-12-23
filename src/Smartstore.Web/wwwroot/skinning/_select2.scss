@@ -503,7 +503,8 @@ $s2bs-form-control-transition: none; // border-color ease-in-out .15s, box-shado
         font-size: $s2bs-font-size-small;
         height: $s2bs-input-height-small;
         line-height: $s2bs-line-height-small;
-        padding: $s2bs-padding-small-vertical $s2bs-padding-small-horizontal + $s2bs-caret-width-base*3 $s2bs-padding-small-vertical $s2bs-padding-small-horizontal;
+        padding: $s2bs-padding-small-vertical $s2bs-padding-small-horizontal;
+        padding-right: $s2bs-padding-small-horizontal + ($s2bs-caret-width-base*4);
         --border-radius: #{$input-border-radius-sm};
         /* 2 */
         .select2-selection__arrow {
