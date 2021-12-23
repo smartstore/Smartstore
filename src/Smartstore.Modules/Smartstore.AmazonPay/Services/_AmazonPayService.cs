@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using Amazon.Pay.API.WebStore.CheckoutSession;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -8,6 +9,7 @@ using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Common;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Data;
+using Smartstore.Core.Identity;
 using Smartstore.Core.Messaging;
 using Smartstore.Utilities;
 
@@ -157,6 +159,64 @@ namespace Smartstore.AmazonPay.Services
             return await _services.SettingFactory.SaveSettingsAsync(settings, storeId);
         }
 
+        public async Task<Address> CreateAddressAsync(CheckoutSessionResponse session, Customer customer, bool createBillingAddress)
+        {
+            Guard.NotNull(session, nameof(session));
+            Guard.NotNull(customer, nameof(customer));
+
+            var src = createBillingAddress ? session.BillingAddress : session.ShippingAddress;
+            if (src == null)
+            {
+                return null;
+            }
+
+            var country = src.CountryCode.HasValue()
+                ? await _db.Countries
+                    .AsNoTracking()
+                    .ApplyIsoCodeFilter(src.CountryCode)
+                    .FirstOrDefaultAsync()
+                : null;
+
+            if (country == null ||
+                (createBillingAddress && !country.AllowsBilling) ||
+                (!createBillingAddress && !country.AllowsShipping))
+            {
+                return null;
+            }
+
+            var stateProvince = src.StateOrRegion.HasValue()
+                ? await _db.StateProvinces
+                    .AsNoTracking()
+                    .ApplyAbbreviationFilter(src.StateOrRegion)
+                    .FirstOrDefaultAsync()
+                : null;
+
+            var (firstName, lastName) = GetFirstAndLastName(src.Name);
+
+            var address = new Address
+            {
+                CreatedOnUtc = DateTime.UtcNow,
+                FirstName = firstName.Truncate(255),
+                LastName = lastName.Truncate(255),
+                Address1 = src.AddressLine1.TrimSafe().Truncate(500),
+                Address2 = src.AddressLine2.TrimSafe()
+                    .Grow(src.AddressLine3.TrimSafe(), ", ")
+                    .Truncate(500),
+                City = src.County
+                    .Grow(src.District, " ")
+                    .Grow(src.City, " ")
+                    .TrimSafe()
+                    .Truncate(100),
+                ZipPostalCode = src.PostalCode.TrimSafe().Truncate(50),
+                PhoneNumber = src.PhoneNumber.TrimSafe().Truncate(100),
+                Email = session.Buyer.Email.TrimSafe().NullEmpty() ?? customer.Email,
+                CountryId = country.Id,
+                StateProvinceId = stateProvince?.Id
+            };
+
+            return address;
+        }
+
         //public Regions.currencyCode GetAmazonCurrencyCode(string currencyCode = null)
         //{
         //    currencyCode ??= _primaryCurrency.CurrencyCode;
@@ -212,60 +272,33 @@ namespace Smartstore.AmazonPay.Services
             return str.Truncate(32);
         }
 
-        private static void GetFirstAndLastName(string name, out string firstName, out string lastName)
+        private static (string FirstName, string LastName) GetFirstAndLastName(string name)
         {
             if (name.HasValue())
             {
                 var index = name.LastIndexOf(' ');
-
                 if (index == -1)
                 {
-                    firstName = string.Empty;
-                    lastName = name;
+                    return (string.Empty, name);
                 }
                 else
                 {
-                    firstName = name[..index];
-                    lastName = name[(index + 1)..];
+                    return (name[..index], name[(index + 1)..]);
                 }
+            }
 
-                firstName = firstName.EmptyNull().Truncate(4000);
-                lastName = lastName.EmptyNull().Truncate(4000);
-            }
-            else
-            {
-                firstName = lastName = string.Empty;
-            }
+            return (string.Empty, string.Empty);
         }
 
-        private static Address FindAddress(List<Address> addresses, Address address)
-        {
-            var match = addresses.FindAddress(address);
-
-            if (match == null)
-            {
-                // Also check incomplete "ToAddress".
-                match = addresses.FirstOrDefault(x =>
-                    x.FirstName == null && x.LastName == null &&
-                    x.Address1 == null && x.Address2 == null &&
-                    x.City == address.City && x.ZipPostalCode == address.ZipPostalCode &&
-                    x.PhoneNumber == null &&
-                    x.CountryId == address.CountryId && x.StateProvinceId == address.StateProvinceId
-                );
-            }
-
-            return match;
-        }
-
-        private async Task<Order> FindOrderByAmazonId(string amazonId)
+        private async Task<Order> FindOrderByAmazonId(string amazonPayId)
         {
             // S02-9777218-8608106				OrderReferenceId
             // S02-9777218-8608106-A088344		Auth ID
             // S02-9777218-8608106-C088344		Capture ID
 
-            if (amazonId.HasValue())
+            if (amazonPayId.HasValue())
             {
-                var amazonOrderReferenceId = amazonId[..amazonId.LastIndexOf('-')];
+                var amazonOrderReferenceId = amazonPayId[..amazonPayId.LastIndexOf('-')];
                 if (amazonOrderReferenceId.HasValue())
                 {
                     var orders = await _db.Orders

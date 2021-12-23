@@ -5,8 +5,11 @@ using Amazon.Pay.API.WebStore.Interfaces;
 using Amazon.Pay.API.WebStore.Types;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Smartstore.AmazonPay.Services;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Checkout.Cart;
+using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Data;
 using Smartstore.Web.Controllers;
 
@@ -16,21 +19,27 @@ namespace Smartstore.AmazonPay.Controllers
     {
         private readonly SmartDbContext _db;
         private readonly IWebStoreClient _apiClient;
+        private readonly IAmazonPayService _amazonPayService;
         private readonly IShoppingCartService _shoppingCartService;
         private readonly IShoppingCartValidator _shoppingCartValidator;
+        private readonly ICheckoutStateAccessor _checkoutStateAccessor;
         private readonly AmazonPaySettings _settings;
 
         public AmazonPayController(
             SmartDbContext db,
             IWebStoreClient apiClient,
+            IAmazonPayService amazonPayService,
             IShoppingCartService shoppingCartService,
             IShoppingCartValidator shoppingCartValidator,
+            ICheckoutStateAccessor checkoutStateAccessor,
             AmazonPaySettings amazonPaySettings)
         {
             _db = db;
             _apiClient = apiClient;
+            _amazonPayService = amazonPayService;
             _shoppingCartService = shoppingCartService;
             _shoppingCartValidator = shoppingCartValidator;
+            _checkoutStateAccessor = checkoutStateAccessor;
             _settings = amazonPaySettings;
         }
 
@@ -62,12 +71,16 @@ namespace Smartstore.AmazonPay.Controllers
                     {
                         // TODO later: config for specialRestrictions 'RestrictPOBoxes', 'RestrictPackstations'.
                         var checkoutReviewUrl = Url.Action(nameof(CheckoutReview), "AmazonPay", null, currentScheme);
-                        var request = new CreateCheckoutSessionRequest(checkoutReviewUrl, _settings.ClientId);
+                        var request = new CreateCheckoutSessionRequest(checkoutReviewUrl, _settings.ClientId)
+                        {
+                            PlatformId = AmazonPayService.PlatformId
+                        };
 
                         if (cart.HasItems && cart.IsShippingRequired())
                         {
                             var allowedCountryCodes = await _db.Countries
                                 .ApplyStandardFilter(false, store.Id)
+                                .Where(x => x.AllowsBilling || x.AllowsShipping)
                                 .Select(x => x.TwoLetterIsoCode)
                                 .Distinct()
                                 .ToListAsync();
@@ -129,17 +142,102 @@ namespace Smartstore.AmazonPay.Controllers
         /// The buyer is redirected to this action method after they complete checkout on the Amazon Pay hosted page.
         /// </summary>
         [Route("amazonpay/checkoutreview")]
-        public IActionResult CheckoutReview(string amazonCheckoutSessionId)
+        public async Task<IActionResult> CheckoutReview(string amazonCheckoutSessionId)
         {
             if (amazonCheckoutSessionId.IsEmpty())
             {
                 NotifyWarning(T("Plugins.Payments.AmazonPay.MissingCheckoutSessionId"));
-                return RedirectToAction(nameof(CheckoutController.Confirm), "Checkout");
+                return RedirectToRoute("ShoppingCart");
             }
 
-            // TODO: GetCheckoutSession
+            try
+            {
+                await ProcessCheckoutReview(amazonCheckoutSessionId);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+                NotifyError(ex);
+            }
 
             return RedirectToAction(nameof(CheckoutController.Confirm), "Checkout");
+        }
+
+        private async Task<bool> ProcessCheckoutReview(string amazonCheckoutSessionId)
+        {
+            var store = Services.StoreContext.CurrentStore;
+            var customer = Services.WorkContext.CurrentCustomer;
+            var cart = await _shoppingCartService.GetCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
+            var session = _apiClient.GetCheckoutSession(amazonCheckoutSessionId);
+            var shippingRequired = cart.IsShippingRequired();
+            
+            await _db.LoadCollectionAsync(customer, x => x.Addresses);
+
+            var billTo = await _amazonPayService.CreateAddressAsync(session, customer, true);
+            if (billTo == null)
+            {
+                NotifyWarning(T("Plugins.Payments.AmazonPay.BillingToCountryNotAllowed"));
+                return false;
+            }
+
+            var shipTo = shippingRequired
+                ? await _amazonPayService.CreateAddressAsync(session, customer, false)
+                : null;
+
+            if (shippingRequired && shipTo == null)
+            {
+                NotifyWarning(T("Plugins.Payments.AmazonPay.ShippingToCountryNotAllowed"));
+                return false;
+            }
+
+            // Update customer.
+            var billingAddress = customer.FindAddress(billTo);
+            if (billingAddress != null)
+            {
+                customer.BillingAddress = billingAddress;
+            }
+            else
+            {
+                customer.Addresses.Add(billTo);
+                customer.BillingAddress = billTo;
+            }
+
+            if (shipTo == null)
+            {
+                customer.ShippingAddress = null;
+            }
+            else
+            {
+                var shippingAddress = customer.FindAddress(shipTo);
+                if (shippingAddress != null)
+                {
+                    customer.ShippingAddress = shippingAddress;
+                }
+                else
+                {
+                    customer.Addresses.Add(shipTo);
+                    customer.ShippingAddress = shipTo;
+                }
+            }
+
+            if (_settings.CanSaveEmailAndPhone(customer.Email))
+            {
+                customer.Email = session.Buyer.Email;
+            }
+
+            if (_settings.CanSaveEmailAndPhone(customer.GenericAttributes.Phone))
+            {
+                customer.GenericAttributes.Phone = billTo.PhoneNumber.NullEmpty() ?? session.Buyer.PhoneNumber;
+            }
+
+            await _db.SaveChangesAsync();
+
+            if (session.PaymentPreferences != null)
+            {
+                _checkoutStateAccessor.CheckoutState.PaymentSummary = string.Join(", ", session.PaymentPreferences.Select(x => x.PaymentDescriptor));
+            }
+
+            return true;
         }
 
         /// <summary>

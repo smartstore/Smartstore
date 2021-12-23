@@ -52,7 +52,7 @@ Textvorschläge:</div><ul>
 		<Value>Beim Zahlungsvorgang ist ein Problem aufgetreten. Ihre Bestellung wurde nicht aufgegeben und Ihr Konto nicht belastet.</Value>
 	</LocaleResource>
 	<LocaleResource Name="AuthenticationStatusAbandonedMessage">
-		<Value>Mit dieser Zahlungsart ist ein Problem aufgetreten. Um Ihre Bestellung abzuschließen, wählen Sie bitte eine andere aus.</Value>
+		<Value>Mit dieser Zahlungsart ist ein Problem aufgetreten. Um Ihre Bestellung abzuschließen, wählen Sie bitte eine andere Zahlungsart aus.</Value>
 	</LocaleResource>
 	<LocaleResource Name="MissingCheckoutSessionId">
 		<Value>Mit dieser Zahlungsart ist ein Problem aufgetreten (fehlende Sitzungs-ID). Um Ihre Bestellung abzuschließen, wählen Sie bitte eine andere Zahlungsart aus.</Value>
@@ -62,6 +62,9 @@ Textvorschläge:</div><ul>
 	</LocaleResource>
 	<LocaleResource Name="ShippingToCountryNotAllowed">
 		<Value>Ein Versand in das ausgewählte Land ist leider nicht möglich. Bitte wählen Sie eine andere Versandadresse.</Value>
+	</LocaleResource>
+	<LocaleResource Name="BillingToCountryNotAllowed">
+		<Value>Eine Rechnungsstellung ist für das ausgewählte Land leider nicht möglich. Bitte wählen Sie eine andere Rechnungsadresse.</Value>
 	</LocaleResource>
 	<LocaleResource Name="ConfigSaveNote">
 		<Value>Die Einstellungen wurden erfolgreich gespeichert. Starten Sie die Anwendung bitte neu, falls "Aktualisierung des Zahlungsstatus" geändert wurde.</Value>
