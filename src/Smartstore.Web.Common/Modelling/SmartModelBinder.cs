@@ -321,6 +321,14 @@ namespace Smartstore.Web.Modelling
                 modelName: modelName,
                 model: propertyModel))
             {
+                if (property.IsComplexType && 
+                    !property.ModelType.IsArray &&
+                    property.BindingSource != null &&
+                    property.BindingSource == BindingSource.Custom)
+                {
+                    bindingContext.BindingSource = BindingSource.ModelBinding;
+                }   
+                
                 await BindPropertyAsync(bindingContext);
                 result = bindingContext.Result;
 
