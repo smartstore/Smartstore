@@ -340,9 +340,9 @@
 
 <script sm-target-zone="scripts" data-origin="ShoppingCartSettings">
     $(function() {
-        // toggle third party email hand over label text
+        // Toggle third party email hand over label text.
         $('#@Html.IdFor(model => model.ThirdPartyEmailHandOver)').on("change", function () {
-        	$('#ThirdPartyEmailHandOverTextLocalized').toggle($(this).val() !== '0');
+        	$('#ThirdPartyEmailHandOverTextLocalized').toggle($(this).val() !== '@((int)CheckoutThirdPartyEmailHandOver.None)');
         }).trigger('change');
     });
 </script>
