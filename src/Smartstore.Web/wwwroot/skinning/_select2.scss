@@ -1,70 +1,53 @@
 /// <reference path="../shared/_mixins.scss" />
 /// <reference path="../bs4/scss/bootstrap.scss" />
-//
+
 // Variables
 // --------------------------------------------------
 // Variables directly translating Bootstrap variables
 // -------------------------
-$s2bs-border-radius-base: $input-border-radius !default;
-$s2bs-border-radius-large: $input-border-radius-lg !default;
-$s2bs-border-radius-small: $input-border-radius-sm !default;
-$s2bs-btn-default-bg: theme-color("secondary") !default;
-$s2bs-btn-default-border: $input-border-color !default;
 $s2bs-caret-width-base: 0.35rem !default;
 $s2bs-caret-width-large: 0.35rem !default;
 $s2bs-cursor-disabled: not-allowed !default;
-$s2bs-dropdown-header-color: $gray-700 !default;
 $s2bs-dropdown-link-active-bg: $gray-100 !default;
 $s2bs-dropdown-link-active-color: $yiq-text-dark !default;
 $s2bs-dropdown-link-disabled-color: $dropdown-link-disabled-color !default;
 $s2bs-dropdown-link-hover-bg: $gray-100 !default;
 $s2bs-dropdown-link-hover-color: $yiq-text-dark !default;
-$s2bs-font-size-base: $font-size-base !default;
-$s2bs-font-size-large: $font-size-lg !default;
-$s2bs-font-size-small: $font-size-sm !default;
 $s2bs-padding-base-horizontal: $input-btn-padding-x !default;
-$s2bs-padding-large-horizontal: $input-btn-padding-x-lg !default;
-$s2bs-padding-small-horizontal: $input-btn-padding-x-sm !default;
-$s2bs-padding-base-vertical: $input-btn-padding-y !default;
-$s2bs-padding-large-vertical: $input-btn-padding-y-lg !default;
-$s2bs-padding-small-vertical: $input-btn-padding-y-sm !default;
-$s2bs-line-height-base: $line-height-base !default;
-$s2bs-line-height-large: $line-height-lg !default;
-$s2bs-line-height-small: $line-height-sm !default;
 $s2bs-input-bg: $input-bg !default;
 $s2bs-input-bg-disabled: $input-disabled-bg !default;
 $s2bs-input-color: $input-color !default;
 $s2bs-input-color-placeholder: $input-placeholder-color !default;
 $s2bs-input-border: $input-border-color !default;
 $s2bs-input-border-focus: $s2bs-input-border; // $input-focus-border-color !default;
-$s2bs-input-border-radius: $input-border-radius !default;
-$s2bs-input-height-base: $input-height !default;
-$s2bs-input-height-large: $input-height-lg !default;
-$s2bs-input-height-small: $input-height-sm !default;
+
 // Theme-specific variables
-// -------------------------
+// --------------------------------------------------
+
 $s2bs-dropdown-arrow-color: $input-color !default;
 $s2bs-dropdown-box-shadow: $dropdown-box-shadow !default;
-
+$s2bs-dropdown-header-padding-vertical: $input-btn-padding-y !default;
+$s2bs-dropdown-header-font-size: $font-size-base !default;
 $s2bs-clear-selection-color: $s2bs-input-color-placeholder !default;
 $s2bs-clear-selection-hover-color: $body-color !default;
 $s2bs-remove-choice-color: $input-placeholder-color !default;
 $s2bs-remove-choice-hover-color: $body-color !default;
 $s2bs-selection-choice-border-radius: $input-border-radius-sm !default;
-$s2bs-dropdown-header-padding-vertical: $s2bs-padding-base-vertical !default;
-$s2bs-dropdown-header-font-size: $s2bs-font-size-base !default;
+
+
 // SMNET extra styling
-// -------------------------
+// --------------------------------------------------
 $s2sm-inner-border-color: rgba(#000, 0.08);
-$s2sm-option-padding-vertical: 0.5rem;
 $s2sm-option-font-size: 0.75rem;
 $s2sm-shade-bg: $gray-100;
 $s2sm-caret-width: $input-height;
 $s2sm-caret-width-lg: $input-height-lg;
 $s2sm-caret-width-sm: $input-height-sm;
+
 // Bootstrap defaults not available as pre-defined variables
 // These should not be overridden.
-// -------------------------
+// --------------------------------------------------
+
 // @see https://github.com/twbs/bootstrap-sass/blob/master/assets/stylesheets/bootstrap/_forms.scss#L126
 $s2bs-form-control-default-box-shadow: $input-box-shadow;
 // @see https://github.com/twbs/bootstrap-sass/blob/master/assets/stylesheets/bootstrap/mixins/_forms.scss#L60
@@ -74,14 +57,15 @@ $s2bs-form-control-transition: none; // border-color ease-in-out .15s, box-shado
 //
 // Mixins
 // --------------------------------------------------
+
 // @see https://github.com/twbs/bootstrap-sass/blob/master/assets/stylesheets/bootstrap/_forms.scss#L115
 @mixin bootstrap-input-defaults {
     @include box-shadow($s2bs-form-control-default-box-shadow);
     background-color: $s2bs-input-bg;
     border: 1px solid $s2bs-input-border;
-    border-radius: $s2bs-input-border-radius;
+    border-radius: var(--border-radius);
     color: $s2bs-input-color;
-    font-size: $s2bs-font-size-base;
+    font-size: var(--select2-font-size);
 }
 
 // @see http://getbootstrap.com/css/#forms-control-validation
@@ -122,32 +106,63 @@ $s2bs-form-control-transition: none; // border-color ease-in-out .15s, box-shado
 }
 
 .select2-container--bootstrap {
-    display: block;
+    --border-radius: #{$input-border-radius};
     --shadow-color-intensity: 0.5;
+    --select2-caret-width: calc(#{$input-height} - 2px);
+    --select2-height: #{$input-height};
+    --select2-line-height: #{$line-height-base};
+    --select2-padding-x: #{$input-btn-padding-x};
+    --select2-padding-y: #{$input-btn-padding-y};
+    --select2-font-size: #{$font-size-base};
+    --select2-multiple-padding: 0.2rem;
+    --select2-choice-padding-x: #{$input-btn-padding-x / 2};
+    --select2-choice-padding-y: 0;
+    --select2-choice-line-height: 1.7;
+
+    display: block;
+
     /*------------------------------------*\
       #COMMON STYLES
-  \*------------------------------------*/
+    \*------------------------------------*/
     .select2-selection {
         @include bootstrap-input-defaults;
         outline: 0;
 
-        &.form-control {
-            border-radius: $s2bs-border-radius-base;
+        &.input-sm, .form-control-sm + &, .input-group-sm & {
+            --border-radius: #{$input-border-radius-sm};
+            --select2-caret-width: calc(#{$input-height-sm} - 2px);
+            --select2-padding-x: #{$input-btn-padding-x-sm};
+            --select2-padding-y: #{$input-btn-padding-y-sm};
+            --select2-height: #{$input-height-sm};
+            --select2-line-height: #{$line-height-sm};
+            --select2-font-size: #{$font-size-sm};
+            --select2-multiple-padding: 0.125rem;
+            --select2-choice-padding-x: #{$input-btn-padding-x-sm / 2};
+            --select2-choice-line-height: inherit;
+        }
+
+        &.input-lg, .form-control-lg + &, .input-group-lg & {
+            --border-radius: #{$input-border-radius-lg};
+            --select2-caret-width: calc(#{$input-height-lg} - 2px);
+            --select2-padding-x: #{$input-btn-padding-x-lg};
+            --select2-padding-y: #{$input-btn-padding-y-lg};
+            --select2-height: #{$input-height-lg};
+            --select2-line-height: #{$line-height-lg};
+            --select2-font-size: #{$font-size-lg};
+            --select2-choice-padding-x: #{$input-btn-padding-x-lg / 2};
         }
     }
-    /**
-   * Search field in the Select2 dropdown.
-   */
+
+    // Search field in the Select2 dropdown.
     .select2-search--dropdown {
         .select2-search__field {
             @include bootstrap-input-defaults;
             border-radius: 0;
         }
     }
-    /**
-   * No outline for all search fields - in the dropdown
-   * and inline in multi Select2s.
-   */
+
+    // No outline for all search fields - in the dropdown
+    // and inline in multi Select2s.
     .select2-search__field {
         outline: 0;
 
@@ -239,7 +254,7 @@ $s2bs-form-control-transition: none; // border-color ease-in-out .15s, box-shado
     }
 
     .select2-results__group {
-        color: inherit; // $s2bs-dropdown-header-color;
+        color: inherit;
         display: block;
         padding: $s2bs-dropdown-header-padding-vertical $s2bs-padding-base-horizontal;
         white-space: nowrap;
@@ -248,7 +263,7 @@ $s2bs-form-control-transition: none; // border-color ease-in-out .15s, box-shado
 
         .select2-option {
             font-size: $s2bs-dropdown-header-font-size;
-            line-height: $s2bs-line-height-base;
+            line-height: $line-height-base;
         }
     }
 
@@ -326,9 +341,8 @@ $s2bs-form-control-transition: none; // border-color ease-in-out .15s, box-shado
     /*------------------------------------*\
       #DROPDOWN
   \*------------------------------------*/
-    /**
-   * Dropdown border color and box-shadow.
-   */
+
+   // Dropdown border color and box-shadow.
     .select2-dropdown {
         box-shadow: $s2bs-dropdown-box-shadow;
         clip-path: inset(0 -100px -100px -100px); // cut off top shadow
@@ -342,28 +356,27 @@ $s2bs-form-control-transition: none; // border-color ease-in-out .15s, box-shado
             margin-top: 1px;
         }
     }
-    /**
-   * Limit the dropdown height.
-   */
+
+   // Limit the dropdown height.
     .select2-results > .select2-results__options {
         max-height: 320px;
         overflow-y: auto;
     }
+
     /*------------------------------------*\
       #SINGLE SELECT2
-  \*------------------------------------*/
+    \*------------------------------------*/
     .select2-selection--single {
-        height: $s2bs-input-height-base;
-        line-height: $s2bs-line-height-base;
-        padding-top: $s2bs-padding-base-vertical;
-        padding-bottom: $s2bs-padding-base-vertical;
-        padding-left: $s2bs-padding-base-horizontal;
-        padding-right: calc(#{$s2sm-caret-width} + #{$s2bs-padding-base-horizontal / 2});
-        --border-radius: #{$input-border-radius};
-        //padding-right: ($s2bs-padding-base-horizontal + ($s2bs-caret-width-base * 3));
-        /**
-     * Adjust the single Select2's dropdown arrow button appearance.
-     */
+        border-radius: var(--border-radius);
+        height: var(--select2-height);
+        line-height: var(--select2-line-height);
+        padding: var(--select2-padding-y) var(--select2-padding-x);
+        padding-right: calc(var(--select2-caret-width) + calc(var(--select2-padding-x) / 2));
+        font-size: var(--select2-font-size);
+        line-height: var(--select2-line-height);
+        height: var(--select2-height);
+
+        // Adjust the single Select2's dropdown arrow button appearance.
         .select2-selection__clear {
             margin-top: -2px;
             margin-right: 4px;
@@ -376,9 +389,9 @@ $s2bs-form-control-transition: none; // border-color ease-in-out .15s, box-shado
             right: 1px;
             border: 0 solid $input-border-color;
             border-left-width: 1px;
-            width: calc(#{$s2sm-caret-width} - 2px);
-            background-color: $s2sm-shade-bg;
+            width: var(--select2-caret-width);
             border-radius: var(--border-radius);
+            background-color: $s2sm-shade-bg;
             border-top-left-radius: 0;
             border-bottom-left-radius: 0;
 
@@ -405,18 +418,19 @@ $s2bs-form-control-transition: none; // border-color ease-in-out .15s, box-shado
             color: $s2bs-input-color-placeholder;
         }
     }
+
     /*------------------------------------*\
     #MULTIPLE SELECT2
-  \*------------------------------------*/
+    \*------------------------------------*/
     .select2-selection--multiple {
-        min-height: $s2bs-input-height-base;
+        min-height: var(--select2-height);
         display: flex;
-        padding: 0.2rem;
+        padding: var(--select2-multiple-padding);
 
         .select2-selection__rendered {
             box-sizing: border-box;
             display: block;
-            line-height: $s2bs-line-height-base;
+            line-height: var(--select2-line-height);
             list-style: none;
             overflow: hidden;
             width: 100%;
@@ -437,32 +451,35 @@ $s2bs-form-control-transition: none; // border-color ease-in-out .15s, box-shado
             float: left;
             margin-top: 5px;
         }
-        // Make Multi Select2's choices match Bootstrap 4's default button styles.
+
+        // Make Multi Select2's choices match Bootstrap's default button styles.
         .select2-selection__choice {
+            font-size: var(--select2-font-size);
             color: $s2bs-input-color;
-            background: $s2bs-btn-default-bg;
             background: $gray-100;
-            border: 1px solid rgba(#000, 0.05);
-            border-radius: 2px; // $s2bs-selection-choice-border-radius;
+            border: 1px solid rgba(#000, .05);
+            border-radius: calc(var(--border-radius) - 1px);
             cursor: default;
-            padding: 0 $s2bs-padding-base-vertical;
+            padding: var(--select2-choice-padding-y) var(--select2-choice-padding-x);
             display: flex;
             align-items: center;
             margin: 0.2rem;
-            line-height: 1.7;
+            line-height: var(--select2-choice-line-height);
         }
-        // Minus 2px borders.
-        .select2-search--inline {
-            .select2-search__field {
-                background: transparent;
-                padding: 0 $s2bs-padding-base-horizontal;
-                line-height: $s2bs-line-height-base;
-                margin-top: 0;
-                width: 100% !important;
-                min-width: 5em;
-                padding: 0 0.5rem;
-                float: none;
-            }
+
+        .select2-search--inline > .select2-search__field {
+            background: transparent;
+            font-size: var(--select2-font-size);
+            padding: 0 calc(var(--select2-choice-padding-x) / 2);
+            line-height: var(--select2-choice-line-height);
+            margin-top: 0;
+            width: 100% !important;
+            min-width: 5em;
+            float: none;
+        }
+
+        .select2-search--inline:first-child > .select2-search__field {
+            padding: 0 var(--select2-padding-x);
         }
 
         .select2-selection__choice__remove {
@@ -470,7 +487,8 @@ $s2bs-form-control-transition: none; // border-color ease-in-out .15s, box-shado
             cursor: pointer;
             display: inline-block;
             font-weight: bold;
-            margin-right: $s2bs-padding-base-vertical / 2;
+            margin-right: calc(var(--select2-padding-y) / 3);
+            margin-top: -2px;
 
             &:hover {
                 color: $s2bs-remove-choice-hover-color;
@@ -478,101 +496,15 @@ $s2bs-form-control-transition: none; // border-color ease-in-out .15s, box-shado
         }
         // Clear the selection.
         .select2-selection__clear {
-            margin-top: $s2bs-padding-base-vertical/2;
-            margin-right: $s2bs-padding-base-horizontal;
-            float: none;
             position: absolute;
+            float: none;
             right: 0;
             top: 0;
-        }
-    }
-    /**
-   * Address Bootstrap control sizing classes
-   *
-   * 1. Reset Bootstrap defaults.
-   * 2. Adjust the dropdown arrow button icon position.
-   *
-   * @see http://getbootstrap.com/css/#forms-control-sizes
-   */
-    /* 1 */
-    .select2-selection--single.input-sm,
-    .form-control-sm + & .select2-selection--single,
-    .input-group-sm & .select2-selection--single,
-    .form-group-sm & .select2-selection--single {
-        border-radius: $s2bs-border-radius-small;
-        font-size: $s2bs-font-size-small;
-        height: $s2bs-input-height-small;
-        line-height: $s2bs-line-height-small;
-        padding: $s2bs-padding-small-vertical $s2bs-padding-small-horizontal;
-        padding-right: $s2bs-padding-small-horizontal + ($s2bs-caret-width-base*4);
-        --border-radius: #{$input-border-radius-sm};
-        /* 2 */
-        .select2-selection__arrow {
-            width: calc(#{$input-height-sm} - 2px);
-            border-radius: $border-radius;
+            margin-top: $input-btn-padding-y / 2;
+            margin-right: $input-btn-padding-x-sm / 1.5;
         }
     }
 
-    .select2-selection--multiple.input-sm,
-    .form-control-sm + & .select2-selection--multiple,
-    .input-group-sm & .select2-selection--multiple,
-    .form-group-sm & .select2-selection--multiple {
-        min-height: $s2bs-input-height-small;
-        border-radius: $s2bs-border-radius-small;
-        padding: 0.125rem;
-
-        .select2-selection__choice {
-            font-size: $s2bs-font-size-small;
-            line-height: inherit;
-        }
-
-        .select2-search--inline .select2-search__field {
-            padding: 0 $s2bs-padding-small-horizontal;
-            font-size: $s2bs-font-size-small;
-        }
-
-        .select2-selection__clear {
-            margin-top: $s2bs-padding-small-vertical/2;
-            margin-right: 0.5rem;
-        }
-    }
-
-    .select2-selection--single.input-lg,
-    .form-control-lg + & .select2-selection--single,
-    .input-group-lg & .select2-selection--single,
-    .form-group-lg & .select2-selection--single {
-        border-radius: $s2bs-border-radius-large;
-        font-size: $s2bs-font-size-large;
-        height: $s2bs-input-height-large;
-        line-height: $s2bs-line-height-large;
-        padding-top: $s2bs-padding-large-vertical;
-        padding-right: calc(#{$s2bs-input-height-large} + #{$s2bs-caret-width-large*2});
-        padding-bottom: $s2bs-padding-large-vertical;
-        padding-left: $s2bs-padding-large-horizontal;
-        --border-radius: #{$input-border-radius-lg};
-        /* 1 */
-        .select2-selection__arrow {
-            width: calc(#{$input-height-lg} - 2px);
-        }
-    }
-
-    .select2-selection--multiple.input-lg,
-    .form-control-lg + & .select2-selection--multiple,
-    .input-group-lg & .select2-selection--multiple,
-    .form-group-lg & .select2-selection--multiple {
-        min-height: $s2bs-input-height-large;
-        border-radius: $s2bs-border-radius-large;
-
-        .select2-selection__choice {
-            font-size: $s2bs-font-size-large;
-            border-radius: $s2bs-selection-choice-border-radius;
-        }
-
-        .select2-search--inline .select2-search__field {
-            padding: 0 ($s2bs-padding-large-horizontal/4);
-            font-size: $s2bs-font-size-large;
-        }
-    }
     /*------------------------------------*\
       Smartstore specific styles
 	\*------------------------------------*/
@@ -603,7 +535,7 @@ $s2bs-form-control-transition: none; // border-color ease-in-out .15s, box-shado
         > .select2-option {
             &:before {
                 position: absolute;
-                left: $s2bs-padding-base-horizontal;
+                left: 12px;
                 @include fontawesome("\f00c");
                 color: $success;
                 text-align: left;
@@ -645,7 +577,7 @@ $s2bs-form-control-transition: none; // border-color ease-in-out .15s, box-shado
         .select2-item-link {
             font-weight: 600;
             font-size: $s2bs-dropdown-header-font-size;
-            line-height: $s2bs-line-height-base;
+            line-height: $line-height-base;
         }
     }
 
@@ -662,7 +594,7 @@ $s2bs-form-control-transition: none; // border-color ease-in-out .15s, box-shado
     }
 
     .select2-search--dropdown {
-        padding: 0 $s2bs-padding-base-horizontal 0.5rem $s2bs-padding-base-horizontal;
+        padding: 0 $input-btn-padding-x 0.5rem $input-btn-padding-x;
         background-color: $s2sm-shade-bg;
     }
 
@@ -690,9 +622,10 @@ $s2bs-form-control-transition: none; // border-color ease-in-out .15s, box-shado
             }
         }
     }
+
     /*------------------------------------*\
     #RTL SUPPORT
-  \*------------------------------------*/
+    \*------------------------------------*/
     &[dir="rtl"] {
         .select2-selection--single {
             padding-right: $s2bs-padding-base-horizontal;
@@ -743,6 +676,7 @@ $s2bs-form-control-transition: none; // border-color ease-in-out .15s, box-shado
             }
         }
     }
+
     // RTL for dropdown
     > [dir="rtl"] {
         .select2-results__option > .select2-option {
@@ -821,8 +755,7 @@ select.is-invalid + .select2:not(.select2-container--open) {
    * above appended buttons in .input-group and .form-group.
    */
     &.select2-container--open,
-    /* .form-group */
-    &.select2-container--focus /* .input-group */ {
+    &.select2-container--focus {
         z-index: 3;
     }
 }

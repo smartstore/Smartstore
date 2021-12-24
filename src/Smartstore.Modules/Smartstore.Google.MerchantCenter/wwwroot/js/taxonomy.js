@@ -2,7 +2,7 @@
 	window.initGoogleProductTaxonomy = function (el) {
 		el = $(el);
 		el.select2({
-			width: 'style',
+			//width: 'style',
 			dropdownAutoWidth: true,
 			allowClear: true,
 			theme: 'bootstrap',

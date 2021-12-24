@@ -30,10 +30,6 @@
         --ni-padding-y: #{$input-btn-padding-y-sm};
         --ni-border-radius: #{$input-border-radius-sm};
     }
-
-    .dg-cell-edit & {
-        --ni-addon-width: 1.5rem;
-    }
 }
 
 .numberinput {

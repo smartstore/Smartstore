@@ -512,7 +512,15 @@ input.form-control-plaintext {
 
     > .select2 {
         width: 100%;
-    } 
+    }
+
+    .select2-selection {
+        --select2-caret-width: 1.5rem !important;
+    }
+
+    .numberinput-group {
+        --ni-addon-width: 1.5rem !important;
+    }
 }
 
 
