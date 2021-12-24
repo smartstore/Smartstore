@@ -1,6 +1,8 @@
-﻿using System.Threading.Tasks;
+﻿using System.Text.Encodings.Web;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Mvc.TagHelpers;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Smartstore.Core.Localization;
 using Smartstore.Web.Rendering;
@@ -146,7 +148,12 @@ namespace Smartstore.Web.TagHelpers.Shared
                 isPlainText = output.Attributes.TryGetAttribute("class", out var classAttr) && classAttr.ValueAsString().Contains("form-control-plaintext");
             }
             
-            if (!isPlainText)
+            if (isPlainText)
+            {
+                // Remove .form-control class added by SmartHtmlGenerator
+                output.RemoveClass("form-control", HtmlEncoder.Default);
+            }
+            else
             {
                 // INFO: SmartHtmlGenerator applies .form-control now globally
                 //output.AppendCssClass("form-control");
