@@ -273,21 +273,31 @@ namespace Smartstore.Web.Rendering
 
         #region ColorBox
 
-        public static IHtmlContent ColorBoxFor(this IHtmlHelper helper, ModelExpression expression, string defaultColor = null)
+        public static IHtmlContent ColorBoxFor(
+            this IHtmlHelper helper,
+            ModelExpression expression, 
+            string defaultColor = null)
         {
             Guard.NotNull(expression, nameof(expression));
 
             return ColorBox(helper, expression.Name, expression.Model?.ToString().EmptyNull(), defaultColor);
         }
 
-        public static IHtmlContent ColorBoxFor<TModel>(this IHtmlHelper<TModel> helper, Expression<Func<TModel, string>> expression, string defaultColor = null)
+        public static IHtmlContent ColorBoxFor<TModel>(
+            this IHtmlHelper<TModel> helper, 
+            Expression<Func<TModel, string>> expression, 
+            string defaultColor = null)
         {
             Guard.NotNull(expression, nameof(expression));
 
             return ColorBox(helper, helper.NameFor(expression), helper.ValueFor(expression), defaultColor);
         }
 
-        public static IHtmlContent ColorBox(this IHtmlHelper helper, string name, string color, string defaultColor = null)
+        public static IHtmlContent ColorBox(
+            this IHtmlHelper helper, 
+            string name, 
+            string color, 
+            string defaultColor = null)
         {
             defaultColor = defaultColor.EmptyNull();
             var isDefault = color.EqualsNoCase(defaultColor);
