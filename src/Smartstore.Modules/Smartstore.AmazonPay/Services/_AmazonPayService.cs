@@ -159,62 +159,67 @@ namespace Smartstore.AmazonPay.Services
             return await _services.SettingFactory.SaveSettingsAsync(settings, storeId);
         }
 
-        public async Task<Address> CreateAddressAsync(CheckoutSessionResponse session, Customer customer, bool createBillingAddress)
+        public async Task<CheckoutAdressResult> CreateAddressAsync(CheckoutSessionResponse session, Customer customer, bool createBillingAddress)
         {
             Guard.NotNull(session, nameof(session));
             Guard.NotNull(customer, nameof(customer));
 
-            var src = createBillingAddress ? session.BillingAddress : session.ShippingAddress;
-            if (src == null)
-            {
-                return null;
-            }
+            var result = new CheckoutAdressResult();
 
-            var country = src.CountryCode.HasValue()
-                ? await _db.Countries
+            var src = createBillingAddress ? session.BillingAddress : session.ShippingAddress;
+            if (src != null && src.CountryCode.HasValue())
+            {
+                result.CountryCode = src.CountryCode;
+
+                var country = await _db.Countries
                     .AsNoTracking()
                     .ApplyIsoCodeFilter(src.CountryCode)
-                    .FirstOrDefaultAsync()
-                : null;
+                    .FirstOrDefaultAsync();
 
-            if (country == null ||
-                (createBillingAddress && !country.AllowsBilling) ||
-                (!createBillingAddress && !country.AllowsShipping))
-            {
-                return null;
+                if (country != null)
+                {
+                    result.IsCountryAllowed = createBillingAddress
+                        ? country.AllowsBilling
+                        : country.AllowsShipping;
+
+                    if (result.IsCountryAllowed)
+                    {
+                        var (firstName, lastName) = GetFirstAndLastName(src.Name);
+
+                        var stateProvince = src.StateOrRegion.HasValue()
+                            ? await _db.StateProvinces
+                                .AsNoTracking()
+                                .ApplyAbbreviationFilter(src.StateOrRegion)
+                                .FirstOrDefaultAsync()
+                            : null;
+
+                        result.Address = new Address
+                        {
+                            CreatedOnUtc = DateTime.UtcNow,
+                            FirstName = firstName.Truncate(255),
+                            LastName = lastName.Truncate(255),
+                            Address1 = src.AddressLine1.TrimSafe().Truncate(500),
+                            Address2 = src.AddressLine2.TrimSafe()
+                                .Grow(src.AddressLine3.TrimSafe(), ", ")
+                                .Truncate(500),
+                            City = src.County
+                                .Grow(src.District, " ")
+                                .Grow(src.City, " ")
+                                .TrimSafe()
+                                .Truncate(100),
+                            ZipPostalCode = src.PostalCode.TrimSafe().Truncate(50),
+                            PhoneNumber = src.PhoneNumber.TrimSafe().Truncate(100),
+                            Email = session.Buyer.Email.TrimSafe().NullEmpty() ?? customer.Email,
+                            CountryId = country.Id,
+                            StateProvinceId = stateProvince?.Id
+                        };
+
+                        result.Success = true;
+                    }
+                }
             }
 
-            var stateProvince = src.StateOrRegion.HasValue()
-                ? await _db.StateProvinces
-                    .AsNoTracking()
-                    .ApplyAbbreviationFilter(src.StateOrRegion)
-                    .FirstOrDefaultAsync()
-                : null;
-
-            var (firstName, lastName) = GetFirstAndLastName(src.Name);
-
-            var address = new Address
-            {
-                CreatedOnUtc = DateTime.UtcNow,
-                FirstName = firstName.Truncate(255),
-                LastName = lastName.Truncate(255),
-                Address1 = src.AddressLine1.TrimSafe().Truncate(500),
-                Address2 = src.AddressLine2.TrimSafe()
-                    .Grow(src.AddressLine3.TrimSafe(), ", ")
-                    .Truncate(500),
-                City = src.County
-                    .Grow(src.District, " ")
-                    .Grow(src.City, " ")
-                    .TrimSafe()
-                    .Truncate(100),
-                ZipPostalCode = src.PostalCode.TrimSafe().Truncate(50),
-                PhoneNumber = src.PhoneNumber.TrimSafe().Truncate(100),
-                Email = session.Buyer.Email.TrimSafe().NullEmpty() ?? customer.Email,
-                CountryId = country.Id,
-                StateProvinceId = stateProvince?.Id
-            };
-
-            return address;
+            return result;
         }
 
         //public Regions.currencyCode GetAmazonCurrencyCode(string currencyCode = null)

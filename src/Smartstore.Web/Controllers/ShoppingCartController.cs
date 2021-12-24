@@ -58,6 +58,7 @@ namespace Smartstore.Web.Controllers
         private readonly MediaSettings _mediaSettings;
         private readonly CustomerSettings _customerSettings;
         private readonly CatalogSettings _catalogSettings;
+        private readonly RewardPointsSettings _rewardPointsSettings;
 
         public ShoppingCartController(
             SmartDbContext db,
@@ -80,7 +81,8 @@ namespace Smartstore.Web.Controllers
             OrderSettings orderSettings,
             MediaSettings mediaSettings,
             CustomerSettings customerSettings,
-            CatalogSettings catalogSettings)
+            CatalogSettings catalogSettings,
+            RewardPointsSettings rewardPointsSettings)
         {
             _db = db;
             _messageFactory = messageFactory;
@@ -103,6 +105,7 @@ namespace Smartstore.Web.Controllers
             _mediaSettings = mediaSettings;
             _customerSettings = customerSettings;
             _catalogSettings = catalogSettings;
+            _rewardPointsSettings = rewardPointsSettings;
         }
 
         #region Shopping cart
@@ -214,7 +217,17 @@ namespace Smartstore.Web.Controllers
             var cart = await _shoppingCartService.GetCartAsync(storeId: Services.StoreContext.CurrentStore.Id);
             var warnings = new List<string>();
 
-            if (!await _shoppingCartValidator.ValidateCartAsync(cart, warnings, true, query, useRewardPoints))
+            // Save data entered on cart page.
+            cart.Customer.GenericAttributes.CheckoutAttributes = await _checkoutAttributeMaterializer.CreateCheckoutAttributeSelectionAsync(query, cart);
+
+            if (_rewardPointsSettings.Enabled)
+            {
+                cart.Customer.GenericAttributes.UseRewardPointsDuringCheckout = useRewardPoints;
+            }
+
+            await _db.SaveChangesAsync();
+
+            if (!await _shoppingCartValidator.ValidateCartAsync(cart, warnings, true))
             {
                 // Something is wrong with the checkout data. Redisplay shopping cart.
                 var model = await cart.MapAsync(validateCheckoutAttributes: true);
@@ -309,7 +322,17 @@ namespace Smartstore.Web.Controllers
             var cart = await _shoppingCartService.GetCartAsync(storeId: Services.StoreContext.CurrentStore.Id);
             var warnings = new List<string>();
 
-            var success = await _shoppingCartValidator.ValidateCartAsync(cart, warnings, true, query, useRewardPoints ?? false);
+            // Save data entered on cart page.
+            cart.Customer.GenericAttributes.CheckoutAttributes = await _checkoutAttributeMaterializer.CreateCheckoutAttributeSelectionAsync(query, cart);
+
+            if (_rewardPointsSettings.Enabled && useRewardPoints.HasValue)
+            {
+                cart.Customer.GenericAttributes.UseRewardPointsDuringCheckout = useRewardPoints.Value;
+            }
+
+            await _db.SaveChangesAsync();
+
+            var success = await _shoppingCartValidator.ValidateCartAsync(cart, warnings, true);
 
             return Json(new
             {

@@ -97,6 +97,7 @@ namespace Smartstore.Core.Checkout.Cart
             ctx.StoreId ??= _storeContext.CurrentStore.Id;
 
             ctx.Customer.ResetCheckoutData(ctx.StoreId.Value);
+            await _db.SaveChangesAsync();
 
             // Get raw attributes from variant query.
             if (ctx.VariantQuery != null)
@@ -326,12 +327,17 @@ namespace Smartstore.Core.Checkout.Cart
             return !ctx.Warnings.Any();
         }
 
-        public virtual async Task<int> DeleteCartItemAsync(ShoppingCartItem cartItem, bool resetCheckoutData = true, bool removeInvalidCheckoutAttributes = false)
+        public virtual async Task DeleteCartItemAsync(ShoppingCartItem cartItem, bool resetCheckoutData = true, bool removeInvalidCheckoutAttributes = false)
         {
             Guard.NotNull(cartItem, nameof(cartItem));
 
             var customer = cartItem.Customer;
             var storeId = cartItem.StoreId;
+
+            if (resetCheckoutData)
+            {
+                customer?.ResetCheckoutData(storeId);
+            }
 
             _db.ShoppingCartItems.Remove(cartItem);
 
@@ -345,21 +351,14 @@ namespace Smartstore.Core.Checkout.Cart
                 _db.ShoppingCartItems.RemoveRange(childItems);
             }
 
-            var num = await _db.SaveChangesAsync();
+            await _db.SaveChangesAsync();
 
             _requestCache.RemoveByPattern(CART_ITEMS_PATTERN_KEY);
-
-            if (resetCheckoutData)
-            {
-                customer?.ResetCheckoutData(storeId);
-            }
 
             if (removeInvalidCheckoutAttributes && cartItem.ShoppingCartType == ShoppingCartType.ShoppingCart && customer != null)
             {
                 await RemoveInvalidCheckoutAttributesAsync(customer, storeId);
             }
-
-            return num;
         }
 
         public virtual async Task<int> DeleteCartAsync(ShoppingCart cart, bool resetCheckoutData = true, bool removeInvalidCheckoutAttributes = false)
@@ -485,43 +484,42 @@ namespace Smartstore.Core.Checkout.Cart
                 return warnings;
             }
 
+            if (newQuantity <= 0)
+            {
+                await DeleteCartItemAsync(cartItem, resetCheckoutData, true);
+                return warnings;
+            }
+
             if (resetCheckoutData)
             {
                 customer.ResetCheckoutData(cartItem.StoreId);
             }
 
-            if (newQuantity > 0)
+            var ctx = new AddToCartContext
             {
-                var ctx = new AddToCartContext
-                {
-                    Customer = customer,
-                    CartType = cartItem.ShoppingCartType,
-                    Product = cartItem.Product,
-                    StoreId = cartItem.StoreId,
-                    RawAttributes = cartItem.AttributeSelection.AsJson(),
-                    CustomerEnteredPrice = new Money(cartItem.CustomerEnteredPrice, _primaryCurrency),
-                    Quantity = newQuantity,
-                    AutomaticallyAddRequiredProducts = false,
-                };
+                Customer = customer,
+                CartType = cartItem.ShoppingCartType,
+                Product = cartItem.Product,
+                StoreId = cartItem.StoreId,
+                RawAttributes = cartItem.AttributeSelection.AsJson(),
+                CustomerEnteredPrice = new Money(cartItem.CustomerEnteredPrice, _primaryCurrency),
+                Quantity = newQuantity,
+                AutomaticallyAddRequiredProducts = false,
+            };
 
-                var cart = await GetCartAsync(customer, cartItem.ShoppingCartType, cartItem.StoreId);
+            var cart = await GetCartAsync(customer, cartItem.ShoppingCartType, cartItem.StoreId);
 
-                if (await _cartValidator.ValidateAddToCartItemAsync(ctx, cartItem, cart.Items))
-                {
-                    cartItem.Quantity = newQuantity;
-                    cartItem.UpdatedOnUtc = DateTime.UtcNow;
-
-                    await _db.SaveChangesAsync();
-                }
-                else
-                {
-                    warnings.AddRange(ctx.Warnings);
-                }
+            if (await _cartValidator.ValidateAddToCartItemAsync(ctx, cartItem, cart.Items))
+            {
+                cartItem.Quantity = newQuantity;
+                cartItem.UpdatedOnUtc = DateTime.UtcNow;
             }
             else
             {
-                await DeleteCartItemAsync(cartItem, resetCheckoutData, true);
+                warnings.AddRange(ctx.Warnings);
             }
+
+            await _db.SaveChangesAsync();
 
             _requestCache.RemoveByPattern(CART_ITEMS_PATTERN_KEY);
 

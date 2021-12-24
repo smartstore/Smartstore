@@ -32,7 +32,6 @@ namespace Smartstore.Core.Checkout.Cart
         private readonly ILocalizationService _localizationService;
         private readonly IProductAttributeMaterializer _productAttributeMaterializer;
         private readonly ICheckoutAttributeMaterializer _checkoutAttributeMaterializer;
-        private readonly RewardPointsSettings _rewardPointsSettings;
 
         public ShoppingCartValidator(
             SmartDbContext db,
@@ -45,8 +44,7 @@ namespace Smartstore.Core.Checkout.Cart
             IStoreMappingService storeMappingService,
             ILocalizationService localizationService,
             IProductAttributeMaterializer productAttributeMaterializer,
-            ICheckoutAttributeMaterializer checkoutAttributeMaterializer,
-            RewardPointsSettings rewardPointsSettings)
+            ICheckoutAttributeMaterializer checkoutAttributeMaterializer)
         {
             _db = db;
             _aclService = aclService;
@@ -59,7 +57,6 @@ namespace Smartstore.Core.Checkout.Cart
             _localizationService = localizationService;
             _productAttributeMaterializer = productAttributeMaterializer;
             _checkoutAttributeMaterializer = checkoutAttributeMaterializer;
-            _rewardPointsSettings = rewardPointsSettings;
         }
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
@@ -124,23 +121,10 @@ namespace Smartstore.Core.Checkout.Cart
             return !currentWarnings.Any();
         }
 
-        public virtual async Task<bool> ValidateCartAsync(
-            ShoppingCart cart, 
-            IList<string> warnings,
-            bool validateCheckoutAttributes = false,
-            ProductVariantQuery query = null,
-            bool? useRewardPoints = null)
+        public virtual async Task<bool> ValidateCartAsync(ShoppingCart cart, IList<string> warnings, bool validateCheckoutAttributes = false)
         {
             Guard.NotNull(cart, nameof(cart));
             Guard.NotNull(warnings, nameof(warnings));
-
-            if (query != null)
-            {
-                cart.Customer.GenericAttributes.CheckoutAttributes = await _checkoutAttributeMaterializer.CreateCheckoutAttributeSelectionAsync(query, cart);
-
-                // INFO: we must save before validating the cart.
-                await _db.SaveChangesAsync();
-            }
 
             var currentWarnings = new List<string>();
 
@@ -198,15 +182,7 @@ namespace Smartstore.Core.Checkout.Cart
 
             warnings.AddRange(currentWarnings);
 
-            var isValid = !currentWarnings.Any();
-
-            if (isValid && useRewardPoints.HasValue && _rewardPointsSettings.Enabled)
-            {
-                cart.Customer.GenericAttributes.UseRewardPointsDuringCheckout = useRewardPoints.Value;
-                await _db.SaveChangesAsync();
-            }
-
-            return isValid;
+            return !currentWarnings.Any();
         }
 
         public virtual async Task<bool> ValidateAddToCartItemAsync(AddToCartContext ctx, ShoppingCartItem cartItem, IEnumerable<OrganizedShoppingCartItem> cartItems)

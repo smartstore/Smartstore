@@ -13,6 +13,6 @@ namespace Smartstore.AmazonPay.Services
 
         Task<int> UpdateAccessKeysAsync(string json, int storeId);
 
-        Task<Address> CreateAddressAsync(CheckoutSessionResponse session, Customer customer, bool createBillingAddress);
+        Task<CheckoutAdressResult> CreateAddressAsync(CheckoutSessionResponse session, Customer customer, bool createBillingAddress);
     }
 }
