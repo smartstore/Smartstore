@@ -322,7 +322,7 @@ namespace Smartstore.Web.Modelling
                 model: propertyModel))
             {
                 if (property.IsComplexType && 
-                    !property.ModelType.IsArray &&
+                    //!property.ModelType.IsArray &&
                     property.BindingSource != null &&
                     property.BindingSource == BindingSource.Custom)
                 {
@@ -415,6 +415,8 @@ namespace Smartstore.Web.Modelling
 
         internal int CanCreateModel(ModelBindingContext bindingContext)
         {
+            return ValueProviderDataAvailable;
+
             var isTopLevelObject = bindingContext.IsTopLevelObject;
 
             // If we get here the model is a complex object which was not directly bound by any previous model binder,
