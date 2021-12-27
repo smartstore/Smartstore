@@ -4,13 +4,11 @@
     {
         public AmazonPayButtonModel(
             AmazonPaySettings settings,
-            string buttonType,
-            string currencyCode,
+            string buttonType = null,
+            string currencyCode = null,
             string languageSeoCode = null)
         {
             Guard.NotNull(settings, nameof(settings));
-            Guard.NotEmpty(buttonType, nameof(buttonType));
-            Guard.NotEmpty(currencyCode, nameof(currencyCode));
 
             UseSandbox = settings.UseSandbox;
             PublicKeyId = settings.PublicKeyId;
@@ -20,18 +18,18 @@
             
             CurrencyCode = currencyCode;
             ButtonType = buttonType;
-            ButtonColor = buttonType == "SignIn" ? settings.AuthButtonColor : settings.PayButtonColor;
+            ButtonColor = buttonType.EqualsNoCase("SignIn") ? settings.AuthButtonColor : settings.PayButtonColor;
 
-            var marketplace = settings.Marketplace.EmptyNull().ToLower();
+            Marketplace = settings.Marketplace.EmptyNull().ToLower();
 
-            CheckoutScriptUrl = marketplace switch
+            CheckoutScriptUrl = Marketplace switch
             {
                 "us" => "https://static-na.payments-amazon.com/checkout.js",
                 "jp" => "https://static-fe.payments-amazon.com/checkout.js",
                 _ => "https://static-eu.payments-amazon.com/checkout.js",
             };
 
-            CheckoutLanguage = marketplace switch
+            CheckoutLanguage = Marketplace switch
             {
                 "us" => "en_US",
                 "jp" => "ja_JP",
@@ -53,6 +51,7 @@
         public string SellerId { get; }
         public string StoreId { get; }
 
+        public string Marketplace { get; }
         public string CheckoutScriptUrl { get; }
 
         public string CurrencyCode { get; }

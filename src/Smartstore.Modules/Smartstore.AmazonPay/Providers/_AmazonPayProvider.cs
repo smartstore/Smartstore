@@ -8,6 +8,7 @@ using Smartstore.AmazonPay.Components;
 using Smartstore.AmazonPay.Services;
 using Smartstore.Core;
 using Smartstore.Core.Checkout.Cart;
+using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Data;
 using Smartstore.Core.Widgets;
@@ -19,8 +20,6 @@ namespace Smartstore.AmazonPay.Providers
 {
     [SystemName("Smartstore.AmazonPay")]
     [FriendlyName("Amazon Pay")]
-    // TODO: (mg) (core) is AmazonPay widget still required?
-    [DependentWidgets("Widgets.AmazonPay")]
     [Order(-1)]
     public class AmazonPayProvider : PaymentMethodBase, IConfigurable
     {
@@ -28,6 +27,7 @@ namespace Smartstore.AmazonPay.Providers
         private readonly ICommonServices _services;
         private readonly IAmazonPayService _amazonPayService;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly ICheckoutStateAccessor _checkoutStateAccessor;
         private readonly IUrlHelper _urlHelper;
         private readonly AsyncRunner _asyncRunner;
 
@@ -36,6 +36,7 @@ namespace Smartstore.AmazonPay.Providers
             ICommonServices services,
             IAmazonPayService amazonPayService,
             IHttpContextAccessor httpContextAccessor,
+            ICheckoutStateAccessor checkoutStateAccessor,
             IUrlHelper urlHelper,
             AsyncRunner asyncRunner)
         {
@@ -43,15 +44,21 @@ namespace Smartstore.AmazonPay.Providers
             _services = services;
             _amazonPayService = amazonPayService;
             _httpContextAccessor = httpContextAccessor;
+            _checkoutStateAccessor = checkoutStateAccessor;
             _urlHelper = urlHelper;
             _asyncRunner = asyncRunner;
         }
 
         public ILogger Logger { get; set; } = NullLogger.Instance;
 
+        /// <summary>Also named "spId".</summary>
+        internal static string PlatformId => "A3OJ83WFYM72IY";
+        internal static string LeadCode => "SPEXDEAPA-SmartStore.Net-CP-DP";
+
         // INFO: provider and module system name are equal because the payment method
         // was developed at a time when there were no payment providers yet.
         public static string SystemName => "Smartstore.AmazonPay";
+        public static string CheckoutStateKey => SystemName + ".CheckoutState";
 
         public override bool SupportCapture => true;
 
@@ -237,12 +244,16 @@ namespace Smartstore.AmazonPay.Providers
         {
             try
             {
+                if (_checkoutStateAccessor.CheckoutState?.CustomProperties?.Get(CheckoutStateKey) is not AmazonPayCheckoutState state)
+                {
+                    throw new SmartException(T("Plugins.Payments.AmazonPay.MissingCheckoutSessionState"));
+                }
+
                 var order = postProcessPaymentRequest.Order;
-                var state = _amazonPayService.GetCheckoutState();
 
                 var orderReference = new AmazonPayOrderReference
                 {
-                    OrderReferenceId = state.OrderReferenceId
+                    //OrderReferenceId = state.OrderReferenceId
                 };
 
                 if (order.PaymentStatus == PaymentStatus.Paid)

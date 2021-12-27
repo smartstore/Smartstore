@@ -11,8 +11,10 @@ using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Checkout.Attributes;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
+using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
+using Smartstore.Utilities.Html;
 using Smartstore.Web.Controllers;
 
 namespace Smartstore.AmazonPay.Controllers
@@ -26,6 +28,7 @@ namespace Smartstore.AmazonPay.Controllers
         private readonly IShoppingCartValidator _shoppingCartValidator;
         private readonly ICheckoutAttributeMaterializer _checkoutAttributeMaterializer;
         private readonly ICheckoutStateAccessor _checkoutStateAccessor;
+        private readonly IOrderProcessingService _orderProcessingService;
         private readonly AmazonPaySettings _settings;
         private readonly OrderSettings _orderSettings;
         private readonly RewardPointsSettings _rewardPointsSettings;
@@ -38,6 +41,7 @@ namespace Smartstore.AmazonPay.Controllers
             IShoppingCartValidator shoppingCartValidator,
             ICheckoutAttributeMaterializer checkoutAttributeMaterializer,
             ICheckoutStateAccessor checkoutStateAccessor,
+            IOrderProcessingService orderProcessingService,
             AmazonPaySettings amazonPaySettings,
             OrderSettings orderSettings,
             RewardPointsSettings rewardPointsSettings)
@@ -49,6 +53,7 @@ namespace Smartstore.AmazonPay.Controllers
             _shoppingCartValidator = shoppingCartValidator;
             _checkoutAttributeMaterializer = checkoutAttributeMaterializer;
             _checkoutStateAccessor = checkoutStateAccessor;
+            _orderProcessingService = orderProcessingService;
             _settings = amazonPaySettings;
             _orderSettings = orderSettings;
             _rewardPointsSettings = rewardPointsSettings;
@@ -98,7 +103,7 @@ namespace Smartstore.AmazonPay.Controllers
                         var checkoutReviewUrl = Url.Action(nameof(CheckoutReview), "AmazonPay", null, currentScheme);
                         var request = new CreateCheckoutSessionRequest(checkoutReviewUrl, _settings.ClientId)
                         {
-                            PlatformId = AmazonPayService.PlatformId
+                            PlatformId = AmazonPayProvider.PlatformId
                         };
 
                         if (cart.HasItems && cart.IsShippingRequired())
@@ -171,15 +176,25 @@ namespace Smartstore.AmazonPay.Controllers
         {
             try
             {
-                var result = await ProcessCheckoutSession(amazonCheckoutSessionId);
+                var result = await ProcessCheckoutReview(amazonCheckoutSessionId);
+
                 if (result.Success)
                 {
-                    var actionName = result.IsShippingRequired && Services.WorkContext.CurrentCustomer.GenericAttributes.SelectedShippingOption == null
+                    var actionName = result.IsShippingMissing
                         ? nameof(CheckoutController.ShippingMethod)
                         : nameof(CheckoutController.Confirm);
 
                     return RedirectToAction(actionName, "Checkout");
                 }
+                else if (!result.IsCountryAllowed && !result.IsShippingMissing)
+                {
+                    // Buyer can choose another billing\shipping address at AmazonPay.
+                    return RedirectToAction(nameof(CheckoutController.Confirm), "Checkout");
+                }
+
+                // In all other cases we have to kick the buyer out and redirect him back to the shopping cart (not nice).
+                // We cannot change the address here. We cannot store invalid addresses and assign them to a customer.
+                // Also, the shipping method has not been selected yet.
             }
             catch (Exception ex)
             {
@@ -190,11 +205,11 @@ namespace Smartstore.AmazonPay.Controllers
             return RedirectToRoute("ShoppingCart");
         }
 
-        private async Task<CheckoutReviewResult> ProcessCheckoutSession(string amazonCheckoutSessionId)
+        private async Task<CheckoutReviewResult> ProcessCheckoutReview(string checkoutSessionId)
         {
             var result = new CheckoutReviewResult();
 
-            if (amazonCheckoutSessionId.IsEmpty())
+            if (checkoutSessionId.IsEmpty())
             {
                 NotifyWarning(T("Plugins.Payments.AmazonPay.MissingCheckoutSessionId"));
                 return result;
@@ -203,8 +218,9 @@ namespace Smartstore.AmazonPay.Controllers
             var store = Services.StoreContext.CurrentStore;
             var customer = Services.WorkContext.CurrentCustomer;
             var cart = await _shoppingCartService.GetCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
+            var isShippingRequired = cart.IsShippingRequired();
 
-            result.IsShippingRequired = cart.IsShippingRequired();
+            result.IsShippingMissing = isShippingRequired && customer.GenericAttributes.SelectedShippingOption == null;
 
             if (!cart.HasItems || (customer.IsGuest() && !_orderSettings.AnonymousCheckoutAllowed))
             {
@@ -214,26 +230,25 @@ namespace Smartstore.AmazonPay.Controllers
             await _db.LoadCollectionAsync(customer, x => x.Addresses);
 
             // Create addresses from AmazonPay checkout session.
-            var session = _apiClient.GetCheckoutSession(amazonCheckoutSessionId);           
+            var session = _apiClient.GetCheckoutSession(checkoutSessionId);           
 
             var billTo = await _amazonPayService.CreateAddressAsync(session, customer, true);
             if (!billTo.Success)
             {
-                // INFO: this is not nice. We have to kick the buyer out and redirect him back to the shopping cart because
-                // he cannot change the address here. We cannot store invalid addresses and assign them to a customer.
-                // Also, the shipping method has not been selected yet.
                 NotifyWarning(T("Plugins.Payments.AmazonPay.BillingToCountryNotAllowed"));
+                result.IsCountryAllowed = false;
                 return result;
             }
 
             CheckoutAdressResult shipTo = null;
 
-            if (result.IsShippingRequired)
+            if (isShippingRequired)
             {
                 shipTo = await _amazonPayService.CreateAddressAsync(session, customer, false);
                 if (!shipTo.Success)
                 {
                     NotifyWarning(T("Plugins.Payments.AmazonPay.ShippingToCountryNotAllowed"));
+                    result.IsCountryAllowed = false;
                     return result;
                 }
             }
@@ -269,6 +284,8 @@ namespace Smartstore.AmazonPay.Controllers
                 }
             }
 
+            customer.GenericAttributes.SelectedPaymentMethod = AmazonPayProvider.SystemName;
+
             if (_settings.CanSaveEmailAndPhone(customer.Email))
             {
                 customer.Email = session.Buyer.Email;
@@ -282,6 +299,11 @@ namespace Smartstore.AmazonPay.Controllers
             await _db.SaveChangesAsync();
             result.Success = true;
 
+            _checkoutStateAccessor.CheckoutState.CustomProperties[AmazonPayProvider.CheckoutStateKey] = new AmazonPayCheckoutState 
+            {
+                CheckoutSessionId = checkoutSessionId
+            };
+
             if (session.PaymentPreferences != null)
             {
                 _checkoutStateAccessor.CheckoutState.PaymentSummary = string.Join(", ", session.PaymentPreferences.Select(x => x.PaymentDescriptor));
@@ -291,63 +313,70 @@ namespace Smartstore.AmazonPay.Controllers
         }
 
         /// <summary>
-        /// AJAX.
+        /// AJAX. Called after buyer clicked buy-now-button but before the order was created.
+        /// Validates order placement and updates AmazonPay checkout session to set payment info.
         /// </summary>
         [HttpPost]
         public async Task<IActionResult> ConfirmOrder(string formData)
         {
-            var result = new CheckoutConfirmResult();
+            string redirectUrl = null;
+            var messages = new List<string>();
+            var success = false;
 
             try
             {
-                result = await ProcessConfirmation(formData);
+                var store = Services.StoreContext.CurrentStore;
+                var customer = Services.WorkContext.CurrentCustomer;
+
+                if (!HttpContext.Session.TryGetObject<ProcessPaymentRequest>("OrderPaymentInfo", out var paymentRequest) || paymentRequest == null)
+                {
+                    paymentRequest = new ProcessPaymentRequest();
+                }
+
+                paymentRequest.StoreId = store.Id;
+                paymentRequest.CustomerId = customer.Id;
+                paymentRequest.PaymentMethodSystemName = AmazonPayProvider.SystemName;
+
+                // We must check here if an order can be placed to avoid creating unauthorized Amazon payment objects.
+                var (warnings, cart) = await _orderProcessingService.ValidateOrderPlacementAsync(paymentRequest);
+
+                if (!warnings.Any())
+                {
+                    if (await _orderProcessingService.IsMinimumOrderPlacementIntervalValidAsync(customer, store))
+                    {
+                        //......
+
+                        success = true;
+                    }
+                    else
+                    {
+                        messages.Add(T("Checkout.MinOrderPlacementInterval"));
+                    }
+                }
+                else
+                {
+                    messages.AddRange(warnings.Select(x => HtmlUtility.ConvertPlainTextToHtml(x)));
+                }
             }
             catch (Exception ex)
             {
-                result.Messages.Add(ex.Message);
+                messages.Add(ex.Message);
                 Logger.Error(ex);
             }
 
-            return Json(new
-            {
-                success = result.Success,
-                redirectUrl = result.RedirectUrl,
-                messages = result.Messages
-            });
+            return Json(new { success, redirectUrl, messages });
         }
 
-        private async Task<CheckoutConfirmResult> ProcessConfirmation(string formData)
+        /// <summary>
+        /// The buyer is redirected to this action method after checkout is completed on the AmazonPay hosted page.
+        /// </summary>
+        [Route("amazonpay/confirmationresult")]
+        public IActionResult ConfirmationResult()
         {
-            var result = new CheckoutConfirmResult();
-            var store = Services.StoreContext.CurrentStore;
-            var customer = Services.WorkContext.CurrentCustomer;
-            var cart = await _shoppingCartService.GetCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
-
-            // Validate countries.
-            await _db.LoadReferenceAsync(customer, x => x.BillingAddress, false, q => q.Include(x => x.Country));
-
-            if (!customer.BillingAddress.Country.AllowsBilling)
-            {
-                result.Messages.Add(T("Plugins.Payments.AmazonPay.BillingToCountryNotAllowed"));
-                return result;
-            }
-
-            if (cart.IsShippingRequired())
-            {
-                await _db.LoadReferenceAsync(customer, x => x.ShippingAddress, false, q => q.Include(x => x.Country));
-
-                if (!customer.ShippingAddress.Country.AllowsShipping)
-                {
-                    result.Messages.Add(T("Plugins.Payments.AmazonPay.ShippingToCountryNotAllowed"));
-                    return result;
-                }
-            }
-
-            //......
-
-            result.Success = true;
-            return result;
+            throw new NotImplementedException();
         }
+
+        #region Authentication
 
         /// <summary>
         /// The buyer is redirected to this action method after they click the sign-in button.
@@ -357,5 +386,7 @@ namespace Smartstore.AmazonPay.Controllers
         {
             throw new NotImplementedException();
         }
+
+        #endregion
     }
 }

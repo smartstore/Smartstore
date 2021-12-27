@@ -1,0 +1,96 @@
+﻿@model ConfirmOrderModel
+
+<widget target-zone="scripts">
+    <script src="~/Modules/Smartstore.AmazonPay/js/jquery.deserialize.js"></script>
+    <script sm-target-zone="scripts" src="@Html.Raw(Model.CheckoutScriptUrl)"></script>
+
+    <script data-origin="amazonpay-update-checkout">
+        $(function () {
+            // We do not know exactly what the AmazonPay script does. So we better remove the original URLs to avoid accidents.
+            $('.change-payment-method, .change-billing-address, .change-shipping-address').attr('href', 'javascript:;');
+
+            amazon.Pay.bindChangeAction('.change-payment-method', {
+                amazonCheckoutSessionId: '@Html.Raw(Model.CheckoutSessionId)',
+                changeAction: 'changePayment'
+            });
+
+            amazon.Pay.bindChangeAction('.change-billing-address', {
+                amazonCheckoutSessionId: '@Html.Raw(Model.CheckoutSessionId)',
+                changeAction: 'changeAddress'
+            });
+
+            amazon.Pay.bindChangeAction('.change-shipping-address', {
+                amazonCheckoutSessionId: '@Html.Raw(Model.CheckoutSessionId)',
+                changeAction: 'changeAddress'
+            });
+
+            // Confirmation flow.
+            $(document).on('submitOrder', function (e) {
+                var isConfirmed = @(Model.IsConfirmed.ToString().ToLower());
+                e.isOrderValid = isConfirmed;
+
+                // Confirm order.
+                if (!isConfirmed) {
+                    var data = $('#confirm-order-form').serializeArray();
+
+                    e.disableBuyButton = true;
+
+                    $.ajax({
+                        type: 'POST',
+                        url: '@Url.Action("ConfirmOrder", "AmazonPay")',
+                        data: { "formData": JSON.stringify(data) },
+                        success: function (response) {
+                            if (response.success) {
+                                // Redirect back to AmazonPay to complete checkout.
+                                window.location = response.redirectUrl;
+                            }
+                            else if (!_.isEmpty(response.redirectUrl)) {
+                                // Handled server side. Reject AmazonPay and redirect to payment list.
+                                window.location = response.redirectUrl;
+                            }
+                            else if (!_.isEmpty(response.messages)) {
+                                var errorEvent = jQuery.Event('reportError');
+                                errorEvent.message = response.messages
+                                $(document).trigger(errorEvent);
+                            }
+                        },
+                        error: function (objXml) {
+                            if (objXml != null && objXml.responseText != null && objXml.responseText !== '') {
+                                displayNotification(objXml.responseText, 'error');
+                            }
+                        }
+                    });
+                }
+            });
+
+            // Restore form data.
+            @if (Model.IsConfirmed && Model.FormData.HasValue())
+            {
+                <text>
+                try {
+                    var data = @Html.Raw(Model.FormData);
+                    $('#confirm-order-form').deserialize(data);
+                }
+                catch (e) {
+                    console.log('Failed to restore form data.');
+                    console.log(e);
+                }
+                </text>
+            }
+
+            // Fire event to simulate buy-button click.
+            @if (Model.SubmitForm)
+            {
+                <text>
+                jQuery(document).ready(function () {
+                    var clickBuyButtonEvent = jQuery.Event('clickBuyButton');
+                    clickBuyButtonEvent.customerAgreed = true;
+                    clickBuyButtonEvent.showThrobber = true;
+
+                    $(document).trigger(clickBuyButtonEvent);
+                });
+                </text>
+            }
+        });
+    </script>
+</widget>

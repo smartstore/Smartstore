@@ -27,16 +27,16 @@ namespace Smartstore.AmazonPay
 
             var rawAttribute = order.GenericAttributes.Get<string>(AmazonPayProvider.SystemName + ".OrderAttribute", order.StoreId);
 
-            if (!rawAttribute.HasValue())
-            {
-                // Legacy < v.1.14
-                var orderReference = new AmazonPayOrderReference
-                {
-                    OrderReferenceId = order.GenericAttributes.Get<string>(AmazonPayProvider.SystemName + ".OrderReferenceId", order.StoreId)
-                };
+            //if (!rawAttribute.HasValue())
+            //{
+            //    // Legacy < v.1.14
+            //    var orderReference = new AmazonPayOrderReference
+            //    {
+            //        OrderReferenceId = order.GenericAttributes.Get<string>(AmazonPayProvider.SystemName + ".OrderReferenceId", order.StoreId)
+            //    };
 
-                return orderReference;
-            }
+            //    return orderReference;
+            //}
 
             using var reader = new StringReader(rawAttribute);
             var serializer = new XmlSerializer(typeof(AmazonPayOrderReference));

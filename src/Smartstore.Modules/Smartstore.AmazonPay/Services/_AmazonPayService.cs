@@ -42,12 +42,6 @@ namespace Smartstore.AmazonPay.Services
         public Localizer T { get; set; } = NullLocalizer.Instance;
         public ILogger Logger { get; set; } = NullLogger.Instance;
 
-        /// <summary>
-        /// Also named "spId".
-        /// </summary>
-        internal static string PlatformId => "A3OJ83WFYM72IY";
-        internal static string LeadCode => "SPEXDEAPA-SmartStore.Net-CP-DP";
-
         public async Task<bool> AddCustomerOrderNoteLoopAsync(AmazonPayActionState state, CancellationToken cancelToken = default)
         {
             if (state == null || state.OrderGuid == Guid.Empty)
@@ -102,36 +96,6 @@ namespace Smartstore.AmazonPay.Services
             }
 
             return false;
-        }
-
-        public bool HasCheckoutState()
-        {
-            var checkoutStateKey = AmazonPayProvider.SystemName + ".CheckoutState";
-            var checkoutState = _checkoutStateAccessor.CheckoutState;
-
-            if (checkoutState != null && checkoutState.CustomProperties.ContainsKey(checkoutStateKey))
-            {
-                return checkoutState.CustomProperties[checkoutStateKey] is AmazonPayCheckoutState state && state.AccessToken.HasValue();
-            }
-
-            return false;
-        }
-
-        public AmazonPayCheckoutState GetCheckoutState()
-        {
-            var checkoutState = _checkoutStateAccessor.CheckoutState;
-
-            if (checkoutState == null)
-            {
-                throw new SmartException(T("Plugins.Payments.AmazonPay.MissingCheckoutSessionState"));
-            }
-
-            if (checkoutState.CustomProperties.Get(AmazonPayProvider.SystemName + ".CheckoutState") is not AmazonPayCheckoutState state)
-            {
-                throw new SmartException(T("Plugins.Payments.AmazonPay.MissingCheckoutSessionState"));
-            }
-
-            return state;
         }
 
         public async Task<int> UpdateAccessKeysAsync(string json, int storeId)

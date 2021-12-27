@@ -57,8 +57,8 @@ namespace Smartstore.AmazonPay.Controllers
             model.IpnUrl = Services.WebHelper.GetStoreLocation(true) + "amazonpay/IPNHandler";
             model.KeyShareUrl = Services.WebHelper.GetStoreLocation() + "amazonpay/ShareKey";
             model.ModuleVersion = module.Version.ToString();
-            model.LeadCode = AmazonPayService.LeadCode;
-            model.PlatformId = AmazonPayService.PlatformId;
+            model.LeadCode = AmazonPayProvider.LeadCode;
+            model.PlatformId = AmazonPayProvider.PlatformId;
             // Not implemented. Not available for europe at the moment.
             model.PublicKey = string.Empty;
             model.MerchantStoreDescription = store.Name.Truncate(2048);

@@ -5,7 +5,7 @@ using Smartstore.Core.Widgets;
 namespace Smartstore.AmazonPay.Filters
 {
     /// <summary>
-    /// Amazon Pay button in off-canvas shopping cart.
+    /// AmazonPay button in off-canvas shopping cart.
     /// </summary>
     public class OffCanvasShoppingCartFilter : IResultFilter
     {
@@ -24,8 +24,8 @@ namespace Smartstore.AmazonPay.Filters
         {
             if (_amazonPaySettings.ShowButtonInMiniShoppingCart && context.Result.IsHtmlViewResult())
             {
-                var widget = new ComponentWidgetInvoker(typeof(AmazonPayButtonViewComponent));
-                _widgetProvider.RegisterWidget(new[] { "offcanvas_cart_summary" }, widget);
+                _widgetProvider.RegisterWidget("offcanvas_cart_summary",
+                    new ComponentWidgetInvoker(typeof(AmazonPayButtonViewComponent)));
             }
         }
 
