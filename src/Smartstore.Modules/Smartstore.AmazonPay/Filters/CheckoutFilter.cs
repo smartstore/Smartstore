@@ -58,6 +58,10 @@ namespace Smartstore.AmazonPay.Filters
                         {
                             _widgetProvider.Value.RegisterWidget("end",
                                 new ComponentWidgetInvoker(typeof(ConfirmOrderViewComponent), new { state }));
+
+                            // TODO: (mg) (core) Use partial view widget with AmazonPayCheckoutState as model. Inject AmazonPaySettings in view.
+                            //_widgetProvider.Value.RegisterWidget("end",
+                            //    new PartialViewWidgetInvoker("ConfirmOrder", state, AmazonPayProvider.SystemName));
                         }
                     }
                 }
