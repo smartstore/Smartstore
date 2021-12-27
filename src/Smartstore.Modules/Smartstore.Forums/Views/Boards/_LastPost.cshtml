@@ -1,7 +1,7 @@
 ﻿@model PublicForumPostModel
 
 @{
-	var showTopic = (ViewData["ShowTopic"] as bool?) ?? false;
+    var showTopic = ViewBag.ShowTopic == true;
 }
 
 <div sm-if="Model?.Id > 0" class="last-post d-flex align-items-center">

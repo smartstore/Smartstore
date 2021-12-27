@@ -18,8 +18,8 @@
 </div>
 
 <div id="export-profile-lists">
-    <partial name="_ProfileList" model="Model.Where(x => !x.IsSystemProfile)" view-data='new ViewDataDictionary(ViewData) { { "IsSystemProfile", false } }' />
-    <partial name="_ProfileList" model="Model.Where(x => x.IsSystemProfile)" view-data='new ViewDataDictionary(ViewData) { { "IsSystemProfile", true } }' />
+    <partial name="_ProfileList" model="Model.Where(x => !x.IsSystemProfile)" view-data='new ViewDataDictionary(ViewData) { ["IsSystemProfile"] = false }' />
+    <partial name="_ProfileList" model="Model.Where(x => x.IsSystemProfile)" view-data='new ViewDataDictionary(ViewData) { ["IsSystemProfile"] = true }' />
 </div>
 
 <modal id="export-profile-dialog" sm-render-at-page-end="true" sm-size="Large">

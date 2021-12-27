@@ -398,7 +398,7 @@ namespace Smartstore.Web.Controllers
             }
             else
             {
-                var dataDictAddToCart = new ViewDataDictionary(ViewData) { Model = model };
+                var dataDictAddToCart = new ViewDataDictionary<ProductDetailsModel>(ViewData, model);
                 dataDictAddToCart.TemplateInfo.HtmlFieldPrefix = $"addtocart_{model.Id}";
 
                 partials = new

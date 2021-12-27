@@ -43,12 +43,12 @@ namespace Smartstore.Web.Controllers
         /// <inheritdoc cref="IViewInvoker.InvokeViewAsync(string, string, ViewDataDictionary)"/>
         /// <param name="model">Model</param>
         protected async Task<string> InvokeViewAsync(string viewName, object model)
-            => (await ViewInvoker.InvokeViewAsync(viewName, null, new ViewDataDictionary(ViewData) { Model = model })).ToString();
+            => (await ViewInvoker.InvokeViewAsync(viewName, null, new ViewDataDictionary<object>(ViewData, model))).ToString();
 
         ///// <inheritdoc cref="IViewInvoker.InvokeViewAsync(string, string, ViewDataDictionary)"/>
         ///// <param name="model">Model</param>
         //public static Task<HtmlString> InvokeViewAsync(this IViewInvoker invoker, string viewName, string module, object model)
-        //    => invoker.InvokeViewAsync(viewName, module, new ViewDataDictionary(invoker.ViewData) { Model = model });
+        //    => invoker.InvokeViewAsync(viewName, module, new ViewDataDictionary<object>(ViewData, model));
 
         /// <inheritdoc cref="IViewInvoker.InvokeViewAsync(string, string, ViewDataDictionary)"/>
         protected async Task<string> InvokeViewAsync(string viewName, ViewDataDictionary viewData)
@@ -64,12 +64,12 @@ namespace Smartstore.Web.Controllers
         /// <inheritdoc cref="IViewInvoker.InvokePartialViewAsync(string, string, ViewDataDictionary)"/>
         /// <param name="model">Model</param>
         protected async Task<string> InvokePartialViewAsync(string viewName, object model)
-            => (await ViewInvoker.InvokePartialViewAsync(viewName, null, new ViewDataDictionary(ViewData) { Model = model })).ToString();
+            => (await ViewInvoker.InvokePartialViewAsync(viewName, null, new ViewDataDictionary<object>(ViewData, model))).ToString();
 
         ///// <inheritdoc cref="IViewInvoker.InvokePartialViewAsync(string, string, ViewDataDictionary)"/>
         ///// <param name="model">Model</param>
         //public static Task<HtmlString> InvokePartialViewAsync(this IViewInvoker invoker, string viewName, string module, object model)
-        //    => invoker.InvokePartialViewAsync(viewName, module, new ViewDataDictionary(invoker.ViewData) { Model = model });
+        //    => invoker.InvokePartialViewAsync(viewName, module, new ViewDataDictionary<object>(ViewData, model));
 
         /// <inheritdoc cref="IViewInvoker.InvokePartialViewAsync(string, string, ViewDataDictionary)"/>
         protected async Task<string> InvokePartialViewAsync(string viewName, ViewDataDictionary viewData)

@@ -212,7 +212,7 @@
 @if (Model.CsvConfiguration != null)
 {
     var configViewData = new ViewDataDictionary(new EmptyModelMetadataProvider(), new ModelStateDictionary());
-	configViewData.Add("ShowGroupCaption", true);
+	configViewData["ShowGroupCaption"] = true;
 	configViewData.TemplateInfo.HtmlFieldPrefix = "CsvConfiguration";
 	configViewData.ModelState.Merge(ViewData.ModelState);
 

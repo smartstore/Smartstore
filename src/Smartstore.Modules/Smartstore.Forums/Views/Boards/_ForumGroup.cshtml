@@ -1,7 +1,8 @@
 ﻿@model PublicForumGroupModel
 
 @{ 
-    var lastPostViewData = new ViewDataDictionary(ViewData) { { "ShowTopic", true } };
+    var lastPostViewData = new ViewDataDictionary<PublicForumGroupModel>(ViewData);
+    lastPostViewData["ShowTopic"] = true;
 }
 
 <div class="forum-group card mb-4 x-shadow-sm">

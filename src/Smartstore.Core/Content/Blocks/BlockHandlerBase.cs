@@ -156,12 +156,7 @@ namespace Smartstore.Core.Content.Blocks
 
 		protected ViewDataDictionary CreateViewData(IBlockContainer element, ViewContext viewContext)
         {
-			var modelMetadataProvider = viewContext.HttpContext.RequestServices.GetRequiredService<IModelMetadataProvider>();
-
-			var viewData = new ViewDataDictionary(modelMetadataProvider, viewContext.ModelState)
-			{
-				Model = element.Block
-			};
+			var viewData = new ViewDataDictionary<IBlock>(viewContext.ViewData, element.Block);
 
 			viewData.TemplateInfo.HtmlFieldPrefix = "Block";
 

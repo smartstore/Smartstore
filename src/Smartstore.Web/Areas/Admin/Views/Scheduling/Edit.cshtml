@@ -14,7 +14,7 @@
         new SelectListItem { Value = "1", Text = T("Admin.System.ScheduleTasks.Priority.High") }
     };
 
-    var gridViewData = new ViewDataDictionary(this.ViewData) { { "Parent", Model } };
+    var gridViewData = new ViewDataDictionary(this.ViewData) { ["Parent"] = Model };
 }
 
 <form asp-action="Edit">
