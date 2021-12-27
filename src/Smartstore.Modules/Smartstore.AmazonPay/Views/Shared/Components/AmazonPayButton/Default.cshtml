@@ -4,6 +4,10 @@
     <div id="amazonpay-button"></div>
 </div>
 
+@{ 
+    // TODO: (mg) (core) Double zone rendering (here and in filter). Will not work!
+}
+
 <script sm-target-zone="scripts" src="@Html.Raw(Model.CheckoutScriptUrl)"></script>
 <script sm-target-zone="scripts" data-origin="amazonpay-button">
     $(function () {

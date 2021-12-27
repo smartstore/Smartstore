@@ -18,9 +18,7 @@ namespace Smartstore.AmazonPay
         private readonly IProviderManager _providerManager;
         private readonly WidgetSettings _widgetSettings;
 
-        public Module(
-            IProviderManager providerManager,
-            WidgetSettings widgetSettings)
+        public Module(IProviderManager providerManager, WidgetSettings widgetSettings)
         {
             _providerManager = providerManager;
             _widgetSettings = widgetSettings;

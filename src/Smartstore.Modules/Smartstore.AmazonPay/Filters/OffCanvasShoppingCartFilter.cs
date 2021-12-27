@@ -12,9 +12,7 @@ namespace Smartstore.AmazonPay.Filters
         private readonly IWidgetProvider _widgetProvider;
         private readonly AmazonPaySettings _amazonPaySettings;
 
-        public OffCanvasShoppingCartFilter(
-            IWidgetProvider widgetProvider,
-            AmazonPaySettings amazonPaySettings)
+        public OffCanvasShoppingCartFilter(IWidgetProvider widgetProvider, AmazonPaySettings amazonPaySettings)
         {
             _widgetProvider = widgetProvider;
             _amazonPaySettings = amazonPaySettings;
