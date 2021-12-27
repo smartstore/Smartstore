@@ -81,6 +81,7 @@ namespace Smartstore.AmazonPay.Controllers
                 var shopUrl = entity.SslEnabled ? entity.SecureUrl : entity.Url;
                 if (shopUrl.HasValue())
                 {
+                    // TODO: (mg) (core) Allowed redirect URLs are changing.
                     var loginDomain = GetLoginDomain(shopUrl);
                     var payHandlerUrl = shopUrl.EnsureEndsWith("/") + "amazonpay/PayButtonHandler";
                     var authHandlerUrl = shopUrl.EnsureEndsWith("/") + "amazonpay/AuthenticationButtonHandler";

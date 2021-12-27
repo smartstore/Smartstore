@@ -56,7 +56,6 @@ namespace Smartstore.AmazonPay.Filters
                         if (_checkoutStateAccessor.CheckoutState?.CustomProperties?.Get(AmazonPayProvider.CheckoutStateKey) is AmazonPayCheckoutState state &&
                             state.CheckoutSessionId.HasValue())
                         {
-                            // INFO: (mg) (core) body_end_html_tag_before does not exist anymore.
                             _widgetProvider.Value.RegisterWidget("end",
                                 new ComponentWidgetInvoker(typeof(ConfirmOrderViewComponent), new { state }));
                         }

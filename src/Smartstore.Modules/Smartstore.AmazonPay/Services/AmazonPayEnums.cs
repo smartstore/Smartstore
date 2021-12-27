@@ -23,9 +23,8 @@
 
     public enum AmazonPayTransactionType
     {
-        None = 0,
-        Authorize,
-        AuthorizeAndCapture
+        Authorize = 1,
+        AuthorizeAndCapture = 2
     }
 
     public enum AmazonPayAuthorizeMethod

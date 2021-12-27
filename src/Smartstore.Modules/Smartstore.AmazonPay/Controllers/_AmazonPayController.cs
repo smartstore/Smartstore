@@ -309,6 +309,13 @@ namespace Smartstore.AmazonPay.Controllers
                 _checkoutStateAccessor.CheckoutState.PaymentSummary = string.Join(", ", session.PaymentPreferences.Select(x => x.PaymentDescriptor));
             }
 
+            if (!HttpContext.Session.TryGetObject<ProcessPaymentRequest>("OrderPaymentInfo", out var paymentRequest) 
+                || paymentRequest == null
+                || paymentRequest.OrderGuid == Guid.Empty)
+            {
+                HttpContext.Session.TrySetObject("OrderPaymentInfo", new ProcessPaymentRequest { OrderGuid = Guid.NewGuid() });
+            }
+
             return result;
         }
 
@@ -328,6 +335,11 @@ namespace Smartstore.AmazonPay.Controllers
                 var store = Services.StoreContext.CurrentStore;
                 var customer = Services.WorkContext.CurrentCustomer;
 
+                if (_checkoutStateAccessor.CheckoutState?.CustomProperties?.Get(AmazonPayProvider.CheckoutStateKey) is not AmazonPayCheckoutState state)
+                {
+                    throw new SmartException(T("Plugins.Payments.AmazonPay.MissingCheckoutSessionState"));
+                }
+
                 if (!HttpContext.Session.TryGetObject<ProcessPaymentRequest>("OrderPaymentInfo", out var paymentRequest) || paymentRequest == null)
                 {
                     paymentRequest = new ProcessPaymentRequest();
@@ -344,6 +356,29 @@ namespace Smartstore.AmazonPay.Controllers
                 {
                     if (await _orderProcessingService.IsMinimumOrderPlacementIntervalValidAsync(customer, store))
                     {
+                        var currentScheme = Services.WebHelper.IsCurrentConnectionSecured() ? "https" : "http";
+                        var request = new UpdateCheckoutSessionRequest
+                        {
+                            PlatformId = AmazonPayProvider.PlatformId,
+                        };
+
+                        request.WebCheckoutDetails.CheckoutResultReturnUrl = Url.Action(nameof(ConfirmationResult), "AmazonPay", null, currentScheme);
+
+                        request.PaymentDetails.CanHandlePendingAuthorization = _settings.TransactionType == AmazonPayTransactionType.Authorize;
+                        request.PaymentDetails.PaymentIntent = _settings.TransactionType == AmazonPayTransactionType.AuthorizeAndCapture
+                            ? PaymentIntent.AuthorizeWithCapture
+                            : PaymentIntent.Authorize;
+
+                        request.MerchantMetadata.MerchantStoreName = store.Name.Truncate(50);
+
+                        if (paymentRequest.OrderGuid != Guid.Empty)
+                        {
+                            request.MerchantMetadata.MerchantReferenceId = paymentRequest.OrderGuid.ToString();
+                        }
+
+
+                        var response = _apiClient.UpdateCheckoutSession(state.CheckoutSessionId, request);
+
                         //......
 
                         success = true;
