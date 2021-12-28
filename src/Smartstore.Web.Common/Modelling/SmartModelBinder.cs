@@ -321,13 +321,13 @@ namespace Smartstore.Web.Modelling
                 modelName: modelName,
                 model: propertyModel))
             {
-                if (property.IsComplexType && 
-                    //!property.ModelType.IsArray &&
-                    property.BindingSource != null &&
-                    property.BindingSource == BindingSource.Custom)
-                {
-                    bindingContext.BindingSource = BindingSource.ModelBinding;
-                }   
+                //if (property.IsComplexType && 
+                //    //!property.ModelType.IsArray &&
+                //    property.BindingSource != null &&
+                //    property.BindingSource == BindingSource.Custom)
+                //{
+                //    bindingContext.BindingSource = BindingSource.ModelBinding;
+                //}   
                 
                 await BindPropertyAsync(bindingContext);
                 result = bindingContext.Result;
@@ -415,37 +415,11 @@ namespace Smartstore.Web.Modelling
 
         internal int CanCreateModel(ModelBindingContext bindingContext)
         {
-            return ValueProviderDataAvailable;
-
-            var isTopLevelObject = bindingContext.IsTopLevelObject;
-
-            // If we get here the model is a complex object which was not directly bound by any previous model binder,
-            // so we want to decide if we want to continue binding. This is important to get right to avoid infinite
-            // recursion.
-            //
-            // First, we want to make sure this object is allowed to come from a value provider source as this binder
-            // will only include value provider data. For instance if the model is marked with [FromBody], then we
-            // can just skip it. A greedy source cannot be a value provider.
-            //
-            // If the model isn't marked with ANY binding source, then we assume it's OK also.
-            //
-            // We skip this check if it is a top level object because we want to always evaluate
-            // the creation of top level object (this is also required for ModelBinderAttribute to work.)
-            var bindingSource = bindingContext.BindingSource;
-            if (!isTopLevelObject && bindingSource != null && bindingSource.IsGreedy)
-            {
-                return NoDataAvailable;
-            }
-
-            // Create the object if:
-            // 1. It is a top level model.
-            if (isTopLevelObject)
-            {
-                return ValueProviderDataAvailable;
-            }
-
-            // 2. Any of the model properties can be bound.
-            return CanBindAnyModelProperties(bindingContext);
+            // Other than the inbuilt ComplextObjectModelBinder we don't check for BindingSource
+            // in sublevel objects.
+            return bindingContext.IsTopLevelObject
+                ? ValueProviderDataAvailable
+                : CanBindAnyModelProperties(bindingContext);
         }
 
         private int CanBindAnyModelProperties(ModelBindingContext bindingContext)
