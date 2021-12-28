@@ -9,7 +9,6 @@ namespace Smartstore.AmazonPay.Models
         /// The identifier of the AmazonPay checkout session object.
         /// </summary>
         public string CheckoutSessionId { get; set; }
-        public decimal ChargeAmount { get; set; }
         //public string OrderReferenceId { get; set; }
         //public string AccessToken { get; set; }
 

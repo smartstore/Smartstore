@@ -49,7 +49,7 @@ Textvorschläge:</div><ul>
 		</Value>
 	</LocaleResource>
 	<LocaleResource Name="AuthenticationStatusFailureMessage">
-		<Value>Beim Zahlungsvorgang ist ein Problem aufgetreten. Ihre Bestellung wurde nicht aufgegeben und Ihr Konto nicht belastet.</Value>
+		<Value>Beim Zahlungsvorgang ist ein Problem aufgetreten. Ihre Bestellung wurde nicht aufgegeben und Ihr Konto nicht belastet. Um Ihre Bestellung abzuschließen, wählen Sie bitte eine andere Zahlungsart aus.</Value>
 	</LocaleResource>
 	<LocaleResource Name="AuthenticationStatusAbandonedMessage">
 		<Value>Mit dieser Zahlungsart ist ein Problem aufgetreten. Um Ihre Bestellung abzuschließen, wählen Sie bitte eine andere Zahlungsart aus.</Value>

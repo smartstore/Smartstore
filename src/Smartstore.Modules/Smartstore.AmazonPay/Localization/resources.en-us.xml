@@ -49,7 +49,7 @@ Text suggestions:</div><ul>
 		</Value>
 	</LocaleResource>
 	<LocaleResource Name="AuthenticationStatusFailureMessage">
-		<Value>There was a problem with your payment. Your order hasn't been placed, and you haven't been charged.</Value>
+		<Value>There was a problem with your payment. Your order hasn't been placed, and you haven't been charged. To place your order, try another payment method.</Value>
 	</LocaleResource>
 	<LocaleResource Name="AuthenticationStatusAbandonedMessage">
 		<Value>Something's wrong with your payment method. To place your order, try another payment method.</Value>

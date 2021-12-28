@@ -388,7 +388,6 @@ namespace Smartstore.AmazonPay.Controllers
                             if (redirectUrl.HasValue())
                             {
                                 success = true;
-                                state.ChargeAmount = cartTotal.Value.Amount;
                                 state.IsConfirmed = true;
                                 state.FormData = formData.EmptyNull();
                             }
@@ -424,10 +423,9 @@ namespace Smartstore.AmazonPay.Controllers
 
         /// <summary>
         /// The buyer is redirected to this action method after checkout is completed on the AmazonPay hosted page.
-        /// We had to confirm that the buyer has successfully returned to this shop.
         /// </summary>
         [Route("amazonpay/confirmationresult")]
-        public IActionResult ConfirmationResult(string amazonCheckoutSessionId)
+        public IActionResult ConfirmationResult()
         {
             try
             {
@@ -436,31 +434,44 @@ namespace Smartstore.AmazonPay.Controllers
                     throw new SmartException(T("Plugins.Payments.AmazonPay.MissingCheckoutSessionState"));
                 }
 
-                state.SubmitForm = false;
-
-                var request = new CompleteCheckoutSessionRequest(state.ChargeAmount, _amazonPayService.GetAmazonPayCurrency());
-                var response = _apiClient.CompleteCheckoutSession(amazonCheckoutSessionId ?? state.CheckoutSessionId, request);
-
-                if (response.Success)
+                if (state.CheckoutSessionId.IsEmpty())
                 {
-                    // TODO: (mg) (core) ChargeId
-                    state.SubmitForm = true;
-
-                    return RedirectToAction(nameof(CheckoutController.Confirm), "Checkout");
+                    state.SubmitForm = false;
+                    throw new SmartException(T("Plugins.Payments.AmazonPay.MissingCheckoutSessionState"));
                 }
-                else
-                {
-                    var failureReason = response.StatusDetails.ReasonCode;
 
-                    if (failureReason.EqualsNoCase("AmazonRejected") || failureReason.EqualsNoCase("PaymentMethodNotAllowed"))
-                    {
-                        NotifyError(T("Plugins.Payments.AmazonPay.AuthorizationSoftDeclineMessage"));
-                    }
+                // TODO: (mg) (core) Call GetCheckoutSession and check CheckoutSessionResponse.StatusDetails.State\ReasonCode (if any).
 
-                    //....
+                state.SubmitForm = true;
 
-                    Logger.LogAmazonFailure(request, response);
-                }
+                // TODO: (mg) (core) that's too early. Do not finalize the paymentIntent here.
+                // First create the order then call "CompleteCheckoutSession". Do it in "ProcessPaymentAsync":
+
+                //var request = new CompleteCheckoutSessionRequest(state.ChargeAmount, _amazonPayService.GetAmazonPayCurrency());
+                //var response = _apiClient.CompleteCheckoutSession(state.CheckoutSessionId, request);
+
+                //if (response.Success)
+                //{
+                //    state.SubmitForm = true;
+
+                //    return RedirectToAction(nameof(CheckoutController.Confirm), "Checkout");
+                //}
+                //else
+                //{
+                //    var failureReason = response.StatusDetails.ReasonCode;
+
+                //    if (failureReason.EqualsNoCase("AmazonRejected") || failureReason.EqualsNoCase("PaymentMethodNotAllowed"))
+                //    {
+                //        NotifyError(T("Plugins.Payments.AmazonPay.AuthorizationSoftDeclineMessage"));
+                //    }
+                //    else
+                //    {
+                //        NotifyError(T("Plugins.Payments.AmazonPay.AuthenticationStatusFailureMessage"));
+                //    }
+
+                //    Logger.LogAmazonFailure(request, response);
+                //    return RedirectToRoute("ShoppingCart");
+                //}
             }
             catch (Exception ex)
             {
@@ -468,7 +479,7 @@ namespace Smartstore.AmazonPay.Controllers
                 NotifyError(ex);
             }
 
-            return RedirectToRoute("ShoppingCart");
+            return RedirectToAction(nameof(CheckoutController.Confirm), "Checkout");
         }
 
         #region Authentication
@@ -479,6 +490,7 @@ namespace Smartstore.AmazonPay.Controllers
         [Route("amazonpay/signin")]
         public Task<IActionResult> SignIn()
         {
+            // TODO: (mg) (core) implement Login with AmazonPay.
             throw new NotImplementedException();
         }
 
