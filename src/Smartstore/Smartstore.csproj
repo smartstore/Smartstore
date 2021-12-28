@@ -2,41 +2,18 @@
 
 	<Import Project="..\Build\Smartstore.Common.props" />
 
+	<ItemGroup>
+		<FrameworkReference Include="Microsoft.AspNetCore.App" />
+	</ItemGroup>
+	
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <DefineConstants>DEBUG;TRACE</DefineConstants>
         <WarningLevel>4</WarningLevel>
         <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
         <WarningsAsErrors>;NU1605</WarningsAsErrors>
+		<Optimize>false</Optimize>
     </PropertyGroup>
-
-    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-        <Optimize>false</Optimize>
-        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    </PropertyGroup>
-
-    <ItemGroup>
-        <Compile Remove="Authentication\**" />
-        <Compile Remove="Mocks\**" />
-        <Compile Remove="Utilities\ObjectPools\**" />
-        <Compile Remove="Web\**" />
-        <EmbeddedResource Remove="Authentication\**" />
-        <EmbeddedResource Remove="Mocks\**" />
-        <EmbeddedResource Remove="Utilities\ObjectPools\**" />
-        <EmbeddedResource Remove="Web\**" />
-        <None Remove="Authentication\**" />
-        <None Remove="Mocks\**" />
-        <None Remove="Utilities\ObjectPools\**" />
-        <None Remove="Web\**" />
-    </ItemGroup>
-  
-    <ItemGroup>
-        <FrameworkReference Include="Microsoft.AspNetCore.App" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <Folder Include="Linq\" />
-    </ItemGroup>
 
 	<!--<ItemGroup>
 		<Compile Include="..\GlobalUsings.cs">
