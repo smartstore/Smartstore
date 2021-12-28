@@ -12,6 +12,7 @@ using Smartstore.Core.Checkout.Attributes;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
+using Smartstore.Core.Common;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Utilities.Html;
@@ -29,6 +30,7 @@ namespace Smartstore.AmazonPay.Controllers
         private readonly ICheckoutAttributeMaterializer _checkoutAttributeMaterializer;
         private readonly ICheckoutStateAccessor _checkoutStateAccessor;
         private readonly IOrderProcessingService _orderProcessingService;
+        private readonly IOrderCalculationService _orderCalculationService;
         private readonly AmazonPaySettings _settings;
         private readonly OrderSettings _orderSettings;
         private readonly RewardPointsSettings _rewardPointsSettings;
@@ -42,6 +44,7 @@ namespace Smartstore.AmazonPay.Controllers
             ICheckoutAttributeMaterializer checkoutAttributeMaterializer,
             ICheckoutStateAccessor checkoutStateAccessor,
             IOrderProcessingService orderProcessingService,
+            IOrderCalculationService orderCalculationService,
             AmazonPaySettings amazonPaySettings,
             OrderSettings orderSettings,
             RewardPointsSettings rewardPointsSettings)
@@ -54,6 +57,7 @@ namespace Smartstore.AmazonPay.Controllers
             _checkoutAttributeMaterializer = checkoutAttributeMaterializer;
             _checkoutStateAccessor = checkoutStateAccessor;
             _orderProcessingService = orderProcessingService;
+            _orderCalculationService = orderCalculationService;
             _settings = amazonPaySettings;
             _orderSettings = orderSettings;
             _rewardPointsSettings = rewardPointsSettings;
@@ -357,18 +361,17 @@ namespace Smartstore.AmazonPay.Controllers
                     if (await _orderProcessingService.IsMinimumOrderPlacementIntervalValidAsync(customer, store))
                     {
                         var currentScheme = Services.WebHelper.IsCurrentConnectionSecured() ? "https" : "http";
-                        var request = new UpdateCheckoutSessionRequest
-                        {
-                            PlatformId = AmazonPayProvider.PlatformId,
-                        };
+                        var cartTotal = (Money?)await _orderCalculationService.GetShoppingCartTotalAsync(cart);
+                        var request = new UpdateCheckoutSessionRequest();
 
-                        request.WebCheckoutDetails.CheckoutResultReturnUrl = Url.Action(nameof(ConfirmationResult), "AmazonPay", null, currentScheme);
-
+                        request.PaymentDetails.ChargeAmount.Amount = cartTotal.Value.Amount;
+                        request.PaymentDetails.ChargeAmount.CurrencyCode = _amazonPayService.GetAmazonPayCurrency();
                         request.PaymentDetails.CanHandlePendingAuthorization = _settings.TransactionType == AmazonPayTransactionType.Authorize;
                         request.PaymentDetails.PaymentIntent = _settings.TransactionType == AmazonPayTransactionType.AuthorizeAndCapture
                             ? PaymentIntent.AuthorizeWithCapture
                             : PaymentIntent.Authorize;
 
+                        request.WebCheckoutDetails.CheckoutResultReturnUrl = Url.Action(nameof(ConfirmationResult), "AmazonPay", null, currentScheme);
                         request.MerchantMetadata.MerchantStoreName = store.Name.Truncate(50);
 
                         if (paymentRequest.OrderGuid != Guid.Empty)
@@ -376,12 +379,29 @@ namespace Smartstore.AmazonPay.Controllers
                             request.MerchantMetadata.MerchantReferenceId = paymentRequest.OrderGuid.ToString();
                         }
 
-
                         var response = _apiClient.UpdateCheckoutSession(state.CheckoutSessionId, request);
+                        if (response.Success)
+                        {
+                            // INFO: unlike in v1, the constraints can be ignored. They are only returned if mandatory parameters are missing.
+                            redirectUrl = response.WebCheckoutDetails.AmazonPayRedirectUrl;
 
-                        //......
-
-                        success = true;
+                            if (redirectUrl.HasValue())
+                            {
+                                success = true;
+                                state.ChargeAmount = cartTotal.Value.Amount;
+                                state.IsConfirmed = true;
+                                state.FormData = formData.EmptyNull();
+                            }
+                            else
+                            {
+                                messages.Add(T("Plugins.Payments.AmazonPay.MissingRedirectUrl"));
+                            }
+                        }
+                        else
+                        {
+                            var message = Logger.LogAmazonFailure(request, response);
+                            messages.Add(message);
+                        }
                     }
                     else
                     {
@@ -404,11 +424,51 @@ namespace Smartstore.AmazonPay.Controllers
 
         /// <summary>
         /// The buyer is redirected to this action method after checkout is completed on the AmazonPay hosted page.
+        /// We had to confirm that the buyer has successfully returned to this shop.
         /// </summary>
         [Route("amazonpay/confirmationresult")]
-        public IActionResult ConfirmationResult()
+        public IActionResult ConfirmationResult(string amazonCheckoutSessionId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                if (_checkoutStateAccessor.CheckoutState?.CustomProperties?.Get(AmazonPayProvider.CheckoutStateKey) is not AmazonPayCheckoutState state)
+                {
+                    throw new SmartException(T("Plugins.Payments.AmazonPay.MissingCheckoutSessionState"));
+                }
+
+                state.SubmitForm = false;
+
+                var request = new CompleteCheckoutSessionRequest(state.ChargeAmount, _amazonPayService.GetAmazonPayCurrency());
+                var response = _apiClient.CompleteCheckoutSession(amazonCheckoutSessionId ?? state.CheckoutSessionId, request);
+
+                if (response.Success)
+                {
+                    // TODO: (mg) (core) ChargeId
+                    state.SubmitForm = true;
+
+                    return RedirectToAction(nameof(CheckoutController.Confirm), "Checkout");
+                }
+                else
+                {
+                    var failureReason = response.StatusDetails.ReasonCode;
+
+                    if (failureReason.EqualsNoCase("AmazonRejected") || failureReason.EqualsNoCase("PaymentMethodNotAllowed"))
+                    {
+                        NotifyError(T("Plugins.Payments.AmazonPay.AuthorizationSoftDeclineMessage"));
+                    }
+
+                    //....
+
+                    Logger.LogAmazonFailure(request, response);
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+                NotifyError(ex);
+            }
+
+            return RedirectToRoute("ShoppingCart");
         }
 
         #region Authentication

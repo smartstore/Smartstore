@@ -1,13 +1,20 @@
-﻿@model ConfirmOrderModel
+﻿@model AmazonPayCheckoutState
 
-@{ 
-    // INFO: (mg) (core) This component is already rendered as a widget in "end" zone. No need to apply a widget zone again here (would not work anyway).
+@inject AmazonPaySettings _settings
+
+@{
+    var checkoutScriptUrl = _settings.Marketplace.EmptyNull().ToLower() switch
+    {
+        "us" => "https://static-na.payments-amazon.com/checkout.js",
+        "jp" => "https://static-fe.payments-amazon.com/checkout.js",
+        _ => "https://static-eu.payments-amazon.com/checkout.js",
+    };
 }
 
 <script src="~/Modules/Smartstore.AmazonPay/js/jquery.deserialize.js"></script>
-<script sm-target-zone="scripts" src="@Html.Raw(Model.CheckoutScriptUrl)"></script>
+<script sm-target-zone="scripts" src="@Html.Raw(checkoutScriptUrl)"></script>
 
-<script data-origin="amazonpay-update-checkout">
+<script data-origin="amazonpay-confirm">
     $(function () {
         // We do not know exactly what the AmazonPay script does. So we better remove the original URLs to avoid accidents.
         $('.change-payment-method, .change-billing-address, .change-shipping-address').attr('href', 'javascript:;');
@@ -48,7 +55,7 @@
                             window.location = response.redirectUrl;
                         }
                         else if (!_.isEmpty(response.redirectUrl)) {
-                            // Handled server side. Reject AmazonPay and redirect to payment list.
+                            // Handled server side. Reject Amazon payment and redirect to payment list.
                             window.location = response.redirectUrl;
                         }
                         else if (!_.isEmpty(response.messages)) {

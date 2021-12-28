@@ -67,8 +67,12 @@ namespace Smartstore.Web.TagHelpers.Shared
 
 				foreach (var widget in widgets)
 				{
+					var model = widget is PartialViewWidgetInvoker partialInvoker
+						? partialInvoker.Model
+						: Model;
+
 					var target = widget.Prepend ? output.PreContent : output.PostContent;
-					var viewContext = Model == null ? ViewContext : ViewContext.Clone(Model);
+					var viewContext = model == null ? ViewContext : ViewContext.Clone(model);
 
 					target.AppendHtml(await widget.InvokeAsync(viewContext));
 				}

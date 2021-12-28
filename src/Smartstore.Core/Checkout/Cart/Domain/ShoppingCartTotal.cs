@@ -14,7 +14,8 @@ namespace Smartstore.Core.Checkout.Cart
             => obj.Total;
 
         /// <summary>
-        /// Total amount of the shopping cart in the primary currency. <c>null</c> if the cart total couldn't be calculated now.
+        /// Total amount of the shopping cart in the primary currency. <c>null</c> if the cart total couldn't be calculated yet.
+        /// The total amount is rounded if rounding is enabled for <see cref="IWorkContext.WorkingCurrency"/>.
         /// </summary>
         public Money? Total { get; init; }
 

@@ -1,7 +1,6 @@
 ﻿using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using Smartstore.AmazonPay.Components;
 using Smartstore.Core;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
@@ -13,7 +12,12 @@ namespace Smartstore.AmazonPay.Filters
 {
     public class CheckoutFilter : IAsyncActionFilter
     {
-        private static readonly string[] _skipActions = new[] { "BillingAddress", "ShippingAddress", "PaymentMethod" };
+        private static readonly string[] _skipActions = new[] 
+        {
+            nameof(CheckoutController.BillingAddress),
+            nameof(CheckoutController.ShippingAddress),
+            nameof(CheckoutController.PaymentMethod),
+        };
 
         private readonly IStoreContext _storeContext;
         private readonly IWorkContext _workContext;
@@ -40,8 +44,7 @@ namespace Smartstore.AmazonPay.Filters
 
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
-            if (context.Result.IsHtmlViewResult() &&
-                _workContext.CurrentCustomer.GenericAttributes.SelectedPaymentMethod.EqualsNoCase(AmazonPayProvider.SystemName))
+            if (_workContext.CurrentCustomer.GenericAttributes.SelectedPaymentMethod.EqualsNoCase(AmazonPayProvider.SystemName))
             {
                 if (await _paymentService.Value.IsPaymentMethodActiveAsync(AmazonPayProvider.SystemName, null, _storeContext.CurrentStore.Id))
                 {
@@ -57,11 +60,7 @@ namespace Smartstore.AmazonPay.Filters
                             state.CheckoutSessionId.HasValue())
                         {
                             _widgetProvider.Value.RegisterWidget("end",
-                                new ComponentWidgetInvoker(typeof(ConfirmOrderViewComponent), new { state }));
-
-                            // TODO: (mg) (core) Use partial view widget with AmazonPayCheckoutState as model. Inject AmazonPaySettings in view.
-                            //_widgetProvider.Value.RegisterWidget("end",
-                            //    new PartialViewWidgetInvoker("ConfirmOrder", state, AmazonPayProvider.SystemName));
+                                new PartialViewWidgetInvoker("_ConfirmOrder", state, "Smartstore.AmazonPay"));
                         }
                     }
                 }

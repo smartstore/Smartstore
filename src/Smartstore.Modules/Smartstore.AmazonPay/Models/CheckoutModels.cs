@@ -9,13 +9,18 @@ namespace Smartstore.AmazonPay.Models
         /// The identifier of the AmazonPay checkout session object.
         /// </summary>
         public string CheckoutSessionId { get; set; }
+        public decimal ChargeAmount { get; set; }
         //public string OrderReferenceId { get; set; }
         //public string AccessToken { get; set; }
 
         // Confirmation flow.
-        public bool DetailsSet { get; set; }
+        //public bool DetailsSet { get; set; }
         public bool IsConfirmed { get; set; }
         public string FormData { get; set; }
+
+        /// <summary>
+        /// Order is confimed by buyer and AmazonPay -> automatically submit confirm form.
+        /// </summary>
         public bool SubmitForm { get; set; }
     }
 
