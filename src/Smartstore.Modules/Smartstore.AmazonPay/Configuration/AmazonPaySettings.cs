@@ -32,6 +32,7 @@ namespace Smartstore.AmazonPay
         public AmazonPaySaveDataType? SaveEmailAndPhone { get; set; } = AmazonPaySaveDataType.OnlyIfEmpty;
         public bool ShowPayButtonForAdminOnly { get; set; }
         public bool ShowButtonInMiniShoppingCart { get; set; }
+        public bool ShowSignoutButton { get; set; } = true;
 
         public decimal AdditionalFee { get; set; }
         public bool AdditionalFeePercentage { get; set; }
@@ -48,5 +49,15 @@ namespace Smartstore.AmazonPay
 
         public bool CanSaveEmailAndPhone(string value)
             => SaveEmailAndPhone == AmazonPaySaveDataType.Always || (SaveEmailAndPhone == AmazonPaySaveDataType.OnlyIfEmpty && value.IsEmpty());
+
+        public string GetCheckoutScriptUrl()
+        {
+            return Marketplace.EmptyNull().ToLower() switch
+            {
+                "us" => "https://static-na.payments-amazon.com/checkout.js",
+                "jp" => "https://static-fe.payments-amazon.com/checkout.js",
+                _ => "https://static-eu.payments-amazon.com/checkout.js",
+            };
+        }
     }
 }

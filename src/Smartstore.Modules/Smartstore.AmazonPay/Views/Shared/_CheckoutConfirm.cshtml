@@ -2,17 +2,8 @@
 
 @inject AmazonPaySettings _settings
 
-@{
-    var checkoutScriptUrl = _settings.Marketplace.EmptyNull().ToLower() switch
-    {
-        "us" => "https://static-na.payments-amazon.com/checkout.js",
-        "jp" => "https://static-fe.payments-amazon.com/checkout.js",
-        _ => "https://static-eu.payments-amazon.com/checkout.js",
-    };
-}
-
 <script src="~/Modules/Smartstore.AmazonPay/js/jquery.deserialize.js"></script>
-<script src="@Html.Raw(checkoutScriptUrl)"></script>
+<script src="@Html.Raw(_settings.GetCheckoutScriptUrl())"></script>
 
 <script data-origin="amazonpay-confirm">
     $(function () {

@@ -48,18 +48,12 @@ namespace Smartstore.AmazonPay.Components
             
             var cart = await _shoppingCartService.GetCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
 
+            if (!cart.HasItems || !await _paymentService.IsPaymentMethodActiveAsync(AmazonPayProvider.SystemName, cart, store.Id))
+            {
+                return Empty();
+            }
+
             buttonType ??= cart.IsShippingRequired() ? "PayAndShip" : "PayOnly";
-            var signout = buttonType == "SignOut";
-
-            if (!cart.HasItems && !signout)
-            {
-                return Empty();
-            }
-
-            if (!await _paymentService.IsPaymentMethodActiveAsync(AmazonPayProvider.SystemName, cart, store.Id))
-            {
-                return Empty();
-            }
 
             // INFO: we are "decoupling button render and checkout or sign-in initiation".
             // So we do not create and sign the payload here to reduce net traffic.
@@ -68,11 +62,6 @@ namespace Smartstore.AmazonPay.Components
             var languageSeoCode = Services.WorkContext.WorkingLanguage.UniqueSeoCode;
 
             var model = new AmazonPayButtonModel(_settings, buttonType, currencyCode, languageSeoCode);
-
-            if (signout)
-            {
-                return View("Signout", model);
-            }
 
             return View(model);
         }

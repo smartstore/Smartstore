@@ -1,5 +1,4 @@
 ﻿using System.Linq;
-using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -26,6 +25,7 @@ namespace Smartstore.AmazonPay.Filters
         private readonly Lazy<IUrlHelper> _urlHelper;
         private readonly Lazy<IWidgetProvider> _widgetProvider;
         private readonly ICheckoutStateAccessor _checkoutStateAccessor;
+        private readonly AmazonPaySettings _settings;
         private readonly OrderSettings _orderSettings;
 
         public CheckoutFilter(
@@ -34,6 +34,7 @@ namespace Smartstore.AmazonPay.Filters
             Lazy<IUrlHelper> urlHelper,
             Lazy<IWidgetProvider> widgetProvider,
             ICheckoutStateAccessor checkoutStateAccessor,
+            AmazonPaySettings settings,
             OrderSettings orderSettings)
         {
             _services = services;
@@ -41,49 +42,56 @@ namespace Smartstore.AmazonPay.Filters
             _urlHelper = urlHelper;
             _widgetProvider = widgetProvider;
             _checkoutStateAccessor = checkoutStateAccessor;
+            _settings = settings;
             _orderSettings = orderSettings;
         }
 
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
-            if (_services.WorkContext.CurrentCustomer.GenericAttributes.SelectedPaymentMethod.EqualsNoCase(AmazonPayProvider.SystemName))
-            {
-                if (await _paymentService.Value.IsPaymentMethodActiveAsync(AmazonPayProvider.SystemName, null, _services.StoreContext.CurrentStore.Id))
-                {
-                    var action = context.RouteData.Values.GetActionName();
+            var action = context.RouteData.Values.GetActionName();
 
-                    if (_skipActions.Contains(action, StringComparer.OrdinalIgnoreCase))
-                    {
-                        context.Result = new RedirectResult(_urlHelper.Value.Action(nameof(CheckoutController.Confirm), "Checkout"));
-                    }
-                    else if (action.EqualsNoCase(nameof(CheckoutController.Confirm)))
-                    {
-                        if (_checkoutStateAccessor.CheckoutState?.CustomProperties?.Get(AmazonPayProvider.CheckoutStateKey) is AmazonPayCheckoutState state
-                            && state.CheckoutSessionId.HasValue())
-                        {
-                            _widgetProvider.Value.RegisterWidget("end",
-                                new PartialViewWidgetInvoker("_ConfirmOrder", state, "Smartstore.AmazonPay"));
-                        }
-                    }
-                    else if (action.EqualsNoCase(nameof(CheckoutController.Completed)))
-                    {
-                        var note = context.HttpContext.Session.GetString("AmazonPayCheckoutCompletedNote");
-                        if (note.HasValue())
-                        {
-                            if (_orderSettings.DisableOrderCompletedPage)
-                            {
-                                _services.Notifier.Information(note);
-                            }
-                            else
-                            {
-                                _widgetProvider.Value.RegisterHtml("checkout_completed_top", new HtmlString(note));
-                            }
-                        }
-                    }
+            if (_skipActions.Contains(action, StringComparer.OrdinalIgnoreCase))
+            {
+                if (IsAmazonPaySelected() && await IsAmazonPayActive())
+                {
+                    context.Result = new RedirectResult(_urlHelper.Value.Action(nameof(CheckoutController.Confirm), "Checkout"));
                 }
+            }
+            else if (action.EqualsNoCase(nameof(CheckoutController.Confirm)))
+            {
+                if (IsAmazonPaySelected()
+                    && await IsAmazonPayActive()
+                    && _checkoutStateAccessor.CheckoutState?.CustomProperties?.Get(AmazonPayProvider.CheckoutStateKey) is AmazonPayCheckoutState state
+                    && state.CheckoutSessionId.HasValue())
+                {
+                    _widgetProvider.Value.RegisterWidget("end",
+                        new PartialViewWidgetInvoker("_CheckoutConfirm", state, "Smartstore.AmazonPay"));
+                }
+            }
+            else if (action.EqualsNoCase(nameof(CheckoutController.Completed)))
+            {
+                // TODO: (mg) (core) rework this.
+                // ResetCheckoutData was called. Control it via a session object in ProcessPaymentAsync. Only register widget for AmazonPay!
+                //var note = context.HttpContext.Session.GetString("AmazonPayCheckoutCompletedNote");
+
+                //if (_orderSettings.DisableOrderCompletedPage && note.HasValue())
+                //{
+                //    _services.Notifier.Information(note);
+                //}
+                //else if (_settings.ShowSignoutButton || note.HasValue())
+                //{
+                //    _widgetProvider.Value.RegisterWidget("checkout_completed_top",
+                //        new PartialViewWidgetInvoker("_CheckoutCompleted", note, "Smartstore.AmazonPay"));
+                //}
             }
 
             await next();
         }
+
+        private bool IsAmazonPaySelected()
+            => _services.WorkContext.CurrentCustomer.GenericAttributes.SelectedPaymentMethod.EqualsNoCase(AmazonPayProvider.SystemName);
+
+        private Task<bool> IsAmazonPayActive()
+            => _paymentService.Value.IsPaymentMethodActiveAsync(AmazonPayProvider.SystemName, null, _services.StoreContext.CurrentStore.Id);
     }
 }

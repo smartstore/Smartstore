@@ -84,6 +84,9 @@ Text suggestions:</div><ul>
 	<LocaleResource Name="Signout">
 		<Value>Sign out from Amazon</Value>
 	</LocaleResource>
+	<LocaleResource Name="SuccessfullySignedOut">
+		<Value>You have successfully signed out from Amazon.</Value>
+	</LocaleResource>
 	<LocaleResource Name="RegisterNow">
 		<Value>Register now</Value>
 	</LocaleResource>

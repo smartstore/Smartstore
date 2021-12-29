@@ -85,6 +85,9 @@ Textvorschläge:</div><ul>
 	<LocaleResource Name="Signout">
 		<Value>Bei Amazon abmelden</Value>
 	</LocaleResource>
+	<LocaleResource Name="SuccessfullySignedOut">
+		<Value>Sie haben sich erfolgreich bei Amazon abgemeldet.</Value>
+	</LocaleResource>
 	<LocaleResource Name="RegisterNow">
 		<Value>Jetzt registrieren</Value>
 	</LocaleResource>

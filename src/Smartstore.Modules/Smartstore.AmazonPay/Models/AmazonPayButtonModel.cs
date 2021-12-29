@@ -21,13 +21,7 @@
             ButtonColor = buttonType.EqualsNoCase("SignIn") ? settings.AuthButtonColor : settings.PayButtonColor;
 
             Marketplace = settings.Marketplace.EmptyNull().ToLower();
-
-            CheckoutScriptUrl = Marketplace switch
-            {
-                "us" => "https://static-na.payments-amazon.com/checkout.js",
-                "jp" => "https://static-fe.payments-amazon.com/checkout.js",
-                _ => "https://static-eu.payments-amazon.com/checkout.js",
-            };
+            CheckoutScriptUrl = settings.GetCheckoutScriptUrl();
 
             CheckoutLanguage = Marketplace switch
             {

@@ -4,13 +4,8 @@
     <div id="amazonpay-button"></div>
 </div>
 
-@{ 
-    // TODO: (mg) (core) Double zone rendering (here and in filter). Will not work!
-}
-
-<script sm-target-zone="scripts" src="@Html.Raw(Model.CheckoutScriptUrl)"></script>
-<script sm-target-zone="scripts" data-origin="amazonpay-button">
-    $(function () {
+<script data-origin="amazonpay-button">
+    loadAmazonPayScript(function () {
         var amazonPayButton = amazon.Pay.renderButton('#amazonpay-button', {
             merchantId: '@Html.Raw(Model.SellerId)',
             publicKeyId: '@Html.Raw(Model.PublicKeyId)',
@@ -45,4 +40,21 @@
 		    });
         });
     });
+
+    function loadAmazonPayScript(callback) {
+        if (window.amazon && window.amazon.Pay) {
+            callback();
+            return;
+        }
+
+        var elem = document.createElement('script');
+        elem.type = 'text/javascript';
+        elem.async = true;
+        elem.src = '@Html.Raw(Model.CheckoutScriptUrl)';
+
+        elem.addEventListener('load', callback, false);
+
+        var s = document.getElementsByTagName('script')[0];
+        s.parentNode.insertBefore(elem, s);
+    }
 </script>
