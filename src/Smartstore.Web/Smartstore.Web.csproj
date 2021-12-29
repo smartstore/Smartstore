@@ -3,9 +3,7 @@
 	<Import Project="..\Build\Smartstore.Common.props" />
 
 	<PropertyGroup>
-		<CopyRefAssembliesToPublishDirectory>false</CopyRefAssembliesToPublishDirectory>
 		<UserSecretsId>b35c0f56-dfa8-4120-b29b-a677578afcd1</UserSecretsId>
-		<SatelliteResourceLanguages>ar; de; de-DE; es; fa; fr; it; ja; nl; pt; pt-BR; ru; sv; tr; vi; zh-CN</SatelliteResourceLanguages>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -60,9 +58,8 @@
 
 	<!-- Copy publishable files in Modules directory -->
 	<ItemGroup>
-		<None Include="Modules\placeholder.txt" CopyToPublishDirectory="Never" />
 		<None Include="Modules\**"
-			  Exclude="Modules\**\*.pdb; Modules\**\runtimes\**; Modules\**\ref\**; Modules\**\refs\**; Modules\placeholder.txt"
+			  Exclude="Modules\**\*.pdb; Modules\**\runtimes\**; Modules\**\ref\**; Modules\**\refs\**"
 			  CopyToPublishDirectory="PreserveNewest" />
 	</ItemGroup>
 

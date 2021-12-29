@@ -7,13 +7,16 @@
 	</ItemGroup>
 	
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <DefineConstants>DEBUG;TRACE</DefineConstants>
         <WarningLevel>4</WarningLevel>
         <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
         <WarningsAsErrors>;NU1605</WarningsAsErrors>
-		<Optimize>false</Optimize>
     </PropertyGroup>
+
+	<PropertyGroup>
+		<Optimize>false</Optimize>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+	</PropertyGroup>
 
 	<!--<ItemGroup>
 		<Compile Include="..\GlobalUsings.cs">

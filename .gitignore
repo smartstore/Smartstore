@@ -71,6 +71,7 @@ dlldata.c
 # DNX
 project.lock.json
 artifacts/
+.artifacts/
 
 *_i.c
 *_p.c
@@ -272,6 +273,12 @@ $RECYCLE.BIN/
 
 # Logs
 logs/
+
+# Cake
+tools/Cake/
+tools/Addins/
+tools/Modules/
+tools/packages.config*
 
 
 ###########
