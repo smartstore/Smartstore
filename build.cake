@@ -10,8 +10,7 @@ var version = "5.0.0";
 // TASKS
 //////////////////////////////////////////////////////////////////////
 
-Task("Clean")
-    .Does(() =>
+Task("Clean").Does(() =>
 {
     Information("Cleaning bin, obj and Modules directories...");
     DotNetClean(solution);
@@ -20,11 +19,9 @@ Task("Clean")
     CleanDirectory($"./src/Smartstore.Web/Modules");
 });
 
-Task("Build")
-    //.IsDependentOn("Clean")
-    .Does(() =>
+Task("Build").Does(() =>
 {
-    Information("Building Smartstore...");
+    Information($"Building Smartstore {edition}...");
 
     CleanDirectory($"./src/Smartstore.Web/Modules");
 
@@ -44,7 +41,7 @@ Task("Deploy")
     .IsDependentOn("Build")
     .Does(() =>
 {
-    Information("Deploying to '" + edition + "'...");
+    Information($"Deploying Smartstore {edition}...");
     DotNetPublish("./src/Smartstore.Web/Smartstore.Web.csproj", new DotNetPublishSettings
     {
         Configuration = configuration,
@@ -55,25 +52,31 @@ Task("Deploy")
     
 });
 
-Task("Zip")
-    .IsDependentOn("Deploy")
-    .Does(() =>
+Task("Zip").Does(() =>
 {
     Information("Zipping '" + edition + "'...");
+    
+    var rootPath = new DirectoryPath("./artifacts/" + edition);
+    if (!DirectoryExists(rootPath)) 
+    {
+        throw new Exception($"Path '{edition}' does not exist. Please build the {edition} solution before packing.");
+    }
+
+    var zipPath = new FilePath($"./artifacts/Smartstore.{edition}.{version}.zip");
+
     SevenZip(new SevenZipSettings 
     {
         Command = new AddCommand
         {
-            DirectoryContents = new DirectoryPathCollection(new[] { new DirectoryPath("./artifacts/" + edition) }),
-            Archive = new FilePath($"./artifacts/Smartstore.{edition}.{version}.zip"),
+            DirectoryContents = new DirectoryPathCollection(new[] { rootPath }),
+            Archive = zipPath,
             ArchiveType = SwitchArchiveType.Zip,
             CompressionMethod = new SwitchCompressionMethod { Level = 3 }
         }
     });
 });
 
-Task("Test")
-    .Does(() =>
+Task("Test").Does(() =>
 {
     DotNetTest(solution, new DotNetTestSettings
     {

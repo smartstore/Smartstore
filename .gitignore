@@ -275,10 +275,10 @@ $RECYCLE.BIN/
 logs/
 
 # Cake
-tools/Cake/
-tools/Addins/
-tools/Modules/
-tools/packages.config*
+/tools/Cake/
+/tools/Addins/
+/tools/Modules/
+/tools/packages.config*
 
 
 ###########
