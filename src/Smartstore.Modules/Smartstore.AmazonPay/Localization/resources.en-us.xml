@@ -2,10 +2,13 @@
 	<LocaleResource Name="Plugins.FriendlyName.SmartStore.AmazonPay" AppendRootKey="false">
 		<Value>Amazon Pay</Value>
 	</LocaleResource>
-	<LocaleResource Name="Plugins.FriendlyName.Widgets.AmazonPay" AppendRootKey="false">
+	<LocaleResource Name="Plugins.FriendlyName.Payments.AmazonPay" AppendRootKey="false">
 		<Value>Amazon Pay</Value>
 	</LocaleResource>
-
+	<LocaleResource Name="Plugins.Description.Payments.AmazonPay" AppendRootKey="false">
+		<Value>Amazon Pay</Value>
+	</LocaleResource>
+	
 	<LocaleResource Name="AdminInstruction">
 		<Value>
 			<![CDATA[<div class="mb-1">How to set up <b>Login and Pay with Amazon</b>:</div><ul>
@@ -49,7 +52,7 @@ Text suggestions:</div><ul>
 		</Value>
 	</LocaleResource>
 	<LocaleResource Name="AuthenticationStatusFailureMessage">
-		<Value>There was a problem with your payment. Your order hasn't been placed, and you haven't been charged. To place your order, try another payment method.</Value>
+		<Value>There was a problem with your payment. Your order hasn't been placed, and you haven't been charged.</Value>
 	</LocaleResource>
 	<LocaleResource Name="AuthenticationStatusAbandonedMessage">
 		<Value>Something's wrong with your payment method. To place your order, try another payment method.</Value>
@@ -75,7 +78,7 @@ Text suggestions:</div><ul>
 	<LocaleResource Name="AuthenticationNotActive">
 		<Value>Amazon authentication is not active!</Value>
 	</LocaleResource>
-	<LocaleResource Name="AsyncPaymentAuthrizationNote">
+	<LocaleResource Name="AsyncPaymentAuthorizationNote">
 		<Value>Your transaction with Amazon Pay is currently being validated. Please be aware that we will inform you shortly as needed.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Signout">
@@ -121,6 +124,9 @@ Text suggestions:</div><ul>
 	</LocaleResource>
 	<LocaleResource Name="MessageStrings">
 		<Value>Message type;Message ID;Authorization ID;Capture ID;Refund ID;Reference ID;State;State update;Fee;Authorized amount;Captured amount;Refunded amount;Capture now;Creation;Expiration</Value>
+	</LocaleResource>
+	<LocaleResource Name="CloseChargeReason">
+		<Value>No more charges required.</Value>
 	</LocaleResource>
 
 	<LocaleResource Name="UseSandbox">

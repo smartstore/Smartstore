@@ -1,10 +1,12 @@
 ﻿using System.Linq;
+using Microsoft.AspNetCore.Html;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Smartstore.Core;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
-using Smartstore.Core.Stores;
+using Smartstore.Core.Logging;
 using Smartstore.Core.Widgets;
 using Smartstore.Web.Controllers;
 
@@ -19,34 +21,34 @@ namespace Smartstore.AmazonPay.Filters
             nameof(CheckoutController.PaymentMethod),
         };
 
-        private readonly IStoreContext _storeContext;
-        private readonly IWorkContext _workContext;
+        private readonly ICommonServices _services;
         private readonly Lazy<IPaymentService> _paymentService;
         private readonly Lazy<IUrlHelper> _urlHelper;
         private readonly Lazy<IWidgetProvider> _widgetProvider;
         private readonly ICheckoutStateAccessor _checkoutStateAccessor;
+        private readonly OrderSettings _orderSettings;
 
         public CheckoutFilter(
-            IStoreContext storeContext,
-            IWorkContext workContext,
+            ICommonServices services,
             Lazy<IPaymentService> paymentService,
             Lazy<IUrlHelper> urlHelper,
             Lazy<IWidgetProvider> widgetProvider,
-            ICheckoutStateAccessor checkoutStateAccessor)
+            ICheckoutStateAccessor checkoutStateAccessor,
+            OrderSettings orderSettings)
         {
-            _storeContext = storeContext;
-            _workContext = workContext;
+            _services = services;
             _paymentService = paymentService;
             _urlHelper = urlHelper;
             _widgetProvider = widgetProvider;
             _checkoutStateAccessor = checkoutStateAccessor;
+            _orderSettings = orderSettings;
         }
 
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
-            if (_workContext.CurrentCustomer.GenericAttributes.SelectedPaymentMethod.EqualsNoCase(AmazonPayProvider.SystemName))
+            if (_services.WorkContext.CurrentCustomer.GenericAttributes.SelectedPaymentMethod.EqualsNoCase(AmazonPayProvider.SystemName))
             {
-                if (await _paymentService.Value.IsPaymentMethodActiveAsync(AmazonPayProvider.SystemName, null, _storeContext.CurrentStore.Id))
+                if (await _paymentService.Value.IsPaymentMethodActiveAsync(AmazonPayProvider.SystemName, null, _services.StoreContext.CurrentStore.Id))
                 {
                     var action = context.RouteData.Values.GetActionName();
 
@@ -56,11 +58,26 @@ namespace Smartstore.AmazonPay.Filters
                     }
                     else if (action.EqualsNoCase(nameof(CheckoutController.Confirm)))
                     {
-                        if (_checkoutStateAccessor.CheckoutState?.CustomProperties?.Get(AmazonPayProvider.CheckoutStateKey) is AmazonPayCheckoutState state &&
-                            state.CheckoutSessionId.HasValue())
+                        if (_checkoutStateAccessor.CheckoutState?.CustomProperties?.Get(AmazonPayProvider.CheckoutStateKey) is AmazonPayCheckoutState state
+                            && state.CheckoutSessionId.HasValue())
                         {
                             _widgetProvider.Value.RegisterWidget("end",
                                 new PartialViewWidgetInvoker("_ConfirmOrder", state, "Smartstore.AmazonPay"));
+                        }
+                    }
+                    else if (action.EqualsNoCase(nameof(CheckoutController.Completed)))
+                    {
+                        var note = context.HttpContext.Session.GetString("AmazonPayCheckoutCompletedNote");
+                        if (note.HasValue())
+                        {
+                            if (_orderSettings.DisableOrderCompletedPage)
+                            {
+                                _services.Notifier.Information(note);
+                            }
+                            else
+                            {
+                                _widgetProvider.Value.RegisterHtml("checkout_completed_top", new HtmlString(note));
+                            }
                         }
                     }
                 }

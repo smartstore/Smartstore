@@ -398,7 +398,7 @@ namespace Smartstore.AmazonPay.Controllers
                         }
                         else
                         {
-                            var message = Logger.LogAmazonFailure(request, response);
+                            var message = Logger.LogAmazonPayFailure(request, response);
                             messages.Add(message);
                         }
                     }
@@ -434,44 +434,33 @@ namespace Smartstore.AmazonPay.Controllers
                     throw new SmartException(T("Plugins.Payments.AmazonPay.MissingCheckoutSessionState"));
                 }
 
+                state.SubmitForm = false;
+
+                // INFO: amazonCheckoutSessionId query parameter is provided here too but it is more secure to use the state object.
                 if (state.CheckoutSessionId.IsEmpty())
                 {
-                    state.SubmitForm = false;
                     throw new SmartException(T("Plugins.Payments.AmazonPay.MissingCheckoutSessionState"));
                 }
 
-                // TODO: (mg) (core) Call GetCheckoutSession and check CheckoutSessionResponse.StatusDetails.State\ReasonCode (if any).
+                var response = _apiClient.GetCheckoutSession(state.CheckoutSessionId);
 
-                state.SubmitForm = true;
-
-                // TODO: (mg) (core) that's too early. Do not finalize the paymentIntent here.
-                // First create the order then call "CompleteCheckoutSession". Do it in "ProcessPaymentAsync":
-
-                //var request = new CompleteCheckoutSessionRequest(state.ChargeAmount, _amazonPayService.GetAmazonPayCurrency());
-                //var response = _apiClient.CompleteCheckoutSession(state.CheckoutSessionId, request);
-
-                //if (response.Success)
-                //{
-                //    state.SubmitForm = true;
-
-                //    return RedirectToAction(nameof(CheckoutController.Confirm), "Checkout");
-                //}
-                //else
-                //{
-                //    var failureReason = response.StatusDetails.ReasonCode;
-
-                //    if (failureReason.EqualsNoCase("AmazonRejected") || failureReason.EqualsNoCase("PaymentMethodNotAllowed"))
-                //    {
-                //        NotifyError(T("Plugins.Payments.AmazonPay.AuthorizationSoftDeclineMessage"));
-                //    }
-                //    else
-                //    {
-                //        NotifyError(T("Plugins.Payments.AmazonPay.AuthenticationStatusFailureMessage"));
-                //    }
-
-                //    Logger.LogAmazonFailure(request, response);
-                //    return RedirectToRoute("ShoppingCart");
-                //}
+                if (response.Success)
+                {
+                    if (!response.StatusDetails.State.EqualsNoCase("Canceled"))
+                    {
+                        state.SubmitForm = true;
+                        return RedirectToAction(nameof(CheckoutController.Confirm), "Checkout");
+                    }
+                    else
+                    {
+                        NotifyError(T("Plugins.Payments.AmazonPay.AuthenticationStatusFailureMessage"));
+                    }
+                }
+                else
+                {
+                    NotifyError(T("Plugins.Payments.AmazonPay.AuthenticationStatusFailureMessage"));
+                    Logger.LogAmazonPayFailure(null, response);
+                }
             }
             catch (Exception ex)
             {
@@ -479,7 +468,7 @@ namespace Smartstore.AmazonPay.Controllers
                 NotifyError(ex);
             }
 
-            return RedirectToAction(nameof(CheckoutController.Confirm), "Checkout");
+            return RedirectToRoute("ShoppingCart");
         }
 
         #region Authentication

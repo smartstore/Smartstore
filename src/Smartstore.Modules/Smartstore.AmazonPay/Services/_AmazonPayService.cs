@@ -7,7 +7,6 @@ using Newtonsoft.Json.Linq;
 using Smartstore.Core;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Common;
-using Smartstore.Core.Common.Services;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Messaging;
@@ -28,7 +27,6 @@ namespace Smartstore.AmazonPay.Services
         public AmazonPayService(
             SmartDbContext db,
             ICommonServices services,
-            ICurrencyService currencyService,
             ICheckoutStateAccessor checkoutStateAccessor,
             IMessageFactory messageFactory)
         {
@@ -37,7 +35,7 @@ namespace Smartstore.AmazonPay.Services
             _checkoutStateAccessor = checkoutStateAccessor;
             _messageFactory = messageFactory;
 
-            _primaryCurrency = currencyService.PrimaryCurrency;
+            _primaryCurrency = services.CurrencyService.PrimaryCurrency;
         }
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
@@ -65,6 +63,7 @@ namespace Smartstore.AmazonPay.Services
                     if (order != null)
                     {
                         using var psb = StringBuilderPool.Instance.Get(out var sb);
+                        sb.AppendLine(T("Plugins.Payments.AmazonPay.AuthorizationHardDeclineMessage"));
 
                         if (state.Errors?.Any() ?? false)
                         {

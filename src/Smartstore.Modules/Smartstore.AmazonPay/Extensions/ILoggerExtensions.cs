@@ -9,7 +9,7 @@ namespace Smartstore.AmazonPay
 {
     internal static class ILoggerExtensions
     {
-        public static string LogAmazonFailure(this ILogger logger,
+        public static string LogAmazonPayFailure(this ILogger logger,
             ApiRequestBody request,
             AmazonPayResponse response,
             LogLevel logLevel = LogLevel.Warning)
@@ -26,16 +26,19 @@ namespace Smartstore.AmazonPay
                 sb.AppendLine($"Request-ID: {response.RequestId}");
                 sb.AppendLine($"Retries: {response.Retries}");
                 sb.AppendLine($"Duration: {response.Duration} ms.");
-                sb.AppendLine();
 
                 try
                 {
-                    sb.AppendLine(request.ToJsonNoType(new JsonSerializerSettings
+                    if (request != null)
                     {
-                        NullValueHandling = NullValueHandling.Ignore,
-                        TypeNameHandling = TypeNameHandling.None,
-                        Formatting = Formatting.Indented
-                    }));
+                        sb.AppendLine();
+                        sb.AppendLine(request.ToJsonNoType(new JsonSerializerSettings
+                        {
+                            NullValueHandling = NullValueHandling.Ignore,
+                            TypeNameHandling = TypeNameHandling.None,
+                            Formatting = Formatting.Indented
+                        }));
+                    }
 
                     if (response.RawResponse.HasValue())
                     {
