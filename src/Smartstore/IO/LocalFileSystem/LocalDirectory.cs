@@ -139,7 +139,7 @@ namespace Smartstore.IO
                 throw new FileSystemException($"Cannot move directory because the target path '{newPath}' already exists.");
             }
 
-            _di.MoveTo(newPath);
+            _di.MoveTo(fullDstPath);
         }
 
         public IEnumerable<IFileEntry> EnumerateEntries(string pattern = "*", bool deep = false)

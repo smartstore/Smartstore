@@ -73,8 +73,8 @@ namespace Smartstore.Tests
             var one = files.Single(x => x.Name == "one.txt");
             var two = files.Single(x => x.Name == "two.txt");
 
-            Assert.That(one.SubPath, Is.EqualTo("Subfolder1/one.txt"));
-            Assert.That(two.SubPath, Is.EqualTo("Subfolder1/two.txt"));
+            Assert.That(one.SubPath, Is.EqualTo($"Subfolder1{PathUtility.PathSeparators[0]}one.txt"));
+            Assert.That(two.SubPath, Is.EqualTo($"Subfolder1{PathUtility.PathSeparators[0]}two.txt"));
         }
 
 
