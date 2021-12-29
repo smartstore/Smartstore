@@ -9,6 +9,4 @@ $env:DOTNET_NOLOGO = '1'
 dotnet tool restore
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
-dotnet cake @args
 Read-Host -Prompt "Press ENTER to exit..."
-if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }

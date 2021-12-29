@@ -3,7 +3,8 @@
 var target = Argument("target", "Build");
 var configuration = Argument("configuration", "Release");
 var solution = "./" + Argument("solution", "Smartstore") + ".sln";
-var publishDir = Argument("publishdir", "Core");
+var edition = Argument("edition", "Community");
+var version = "5.0.0";
 
 //////////////////////////////////////////////////////////////////////
 // TASKS
@@ -20,30 +21,34 @@ Task("Clean")
 });
 
 Task("Build")
-    .IsDependentOn("Clean")
+    //.IsDependentOn("Clean")
     .Does(() =>
 {
+    Information("Building Smartstore...");
+
+    CleanDirectory($"./src/Smartstore.Web/Modules");
+
     DotNetBuild(solution, new DotNetBuildSettings
     {
         Configuration = configuration,
         Verbosity = DotNetVerbosity.Minimal,
         // Whether to mark the build as unsafe for incrementality. This turns off incremental compilation and forces a clean rebuild of the project dependency graph.
-        NoIncremental = false,
+        //NoIncremental = false,
         // Whether to not do implicit NuGet package restore. This makes build faster, but requires restore to be done before build is executed
-        NoRestore = false
+        //NoRestore = false
     });
     
 });
 
 Task("Deploy")
-    //.IsDependentOn("Build")
+    .IsDependentOn("Build")
     .Does(() =>
 {
-    Information("Deploying to '" + publishDir + "'...");
+    Information("Deploying to '" + edition + "'...");
     DotNetPublish("./src/Smartstore.Web/Smartstore.Web.csproj", new DotNetPublishSettings
     {
         Configuration = configuration,
-        OutputDirectory = "./artifacts/" + publishDir,
+        OutputDirectory = "./artifacts/" + edition,
         // Whether to not to build the project before publishing. This makes build faster, but requires build to be done before publish is executed.
         NoBuild = true
     });
@@ -54,13 +59,13 @@ Task("Zip")
     .IsDependentOn("Deploy")
     .Does(() =>
 {
-    Information("Zipping '" + publishDir + "'...");
+    Information("Zipping '" + edition + "'...");
     SevenZip(new SevenZipSettings 
     {
         Command = new AddCommand
         {
-            DirectoryContents = new DirectoryPathCollection(new[] { new DirectoryPath("./artifacts/" + publishDir) }),
-            Archive = new FilePath($"./artifacts/{publishDir}.zip"),
+            DirectoryContents = new DirectoryPathCollection(new[] { new DirectoryPath("./artifacts/" + edition) }),
+            Archive = new FilePath($"./artifacts/Smartstore.{edition}.{version}.zip"),
             ArchiveType = SwitchArchiveType.Zip,
             CompressionMethod = new SwitchCompressionMethod { Level = 3 }
         }

@@ -1,1 +1,2 @@
-Powershell -NoProfile -ExecutionPolicy Bypass -File "build.ps1" --target=Test
+dotnet cake --target=Test
+pause
