@@ -78,12 +78,9 @@ namespace Smartstore.Engine
 
         class EngineStarter : EngineStarter<SmartEngine>
         {
-            private ModuleExplorer _moduleExplorer;
-
             public EngineStarter(SmartEngine engine)
                 : base(engine)
             {
-                _moduleExplorer = new ModuleExplorer(engine.Application);
             }
 
             protected override IEnumerable<Assembly> ResolveCoreAssemblies()
@@ -127,7 +124,8 @@ namespace Smartstore.Engine
 
             protected override IEnumerable<IModuleDescriptor> DiscoverModules()
             {
-                return _moduleExplorer.DiscoverModules();
+                var moduleExplorer = new ModuleExplorer(Engine.Application);
+                return moduleExplorer.DiscoverModules();
             }
 
             public override void ConfigureServices(IServiceCollection services)
