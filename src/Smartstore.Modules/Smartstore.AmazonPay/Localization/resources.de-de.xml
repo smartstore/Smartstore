@@ -120,9 +120,6 @@ Textvorschläge:</div><ul>
 	<LocaleResource Name="MissingBillingAddress">
 		<Value>Die Amazon Rechnungsanschrift fehlt. Bitte hinterlegen Sie eine Rechnungsanschrift bei Amazon oder wählen Sie eine andere Zahlart.</Value>
 	</LocaleResource>
-	<LocaleResource Name="AmazonDataProcessed">
-		<Value>Daten von Amazon wurden verarbeitet</Value>
-	</LocaleResource>
 	<LocaleResource Name="ConfigGroups">
 		<Value>Zugangsdaten;Datenaustausch;Layout;Verschiedenes</Value>
 	</LocaleResource>
@@ -131,6 +128,11 @@ Textvorschläge:</div><ul>
 	</LocaleResource>
 	<LocaleResource Name="CloseChargeReason">
 		<Value>Keine weiteren Buchungen erforderlich.</Value>
+	</LocaleResource>
+	<LocaleResource Name="IpnOrderNote">
+		<Value>
+			<![CDATA[Amazon Pay Daten wurden verarbeitet:<br />Mitteilung: {0} {1}<br />Transaktion: {2} {3}<br />Charge Permission: {4}<br />Status (alt\neu): {5} -&gt; {6}]]>
+		</Value>
 	</LocaleResource>
 
 	<LocaleResource Name="UseSandbox">

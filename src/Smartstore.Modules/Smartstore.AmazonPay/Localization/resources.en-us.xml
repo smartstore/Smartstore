@@ -119,9 +119,6 @@ Text suggestions:</div><ul>
 	<LocaleResource Name="MissingBillingAddress">
 		<Value>Missing Amazon billing address of the customer. Please enter a billing address at Amazon or choose another payment method.</Value>
 	</LocaleResource>
-	<LocaleResource Name="AmazonDataProcessed">
-		<Value>Data from Amazon has been processed</Value>
-	</LocaleResource>
 	<LocaleResource Name="ConfigGroups">
 		<Value>Access data;Data exchange;Layout;Miscellaneous</Value>
 	</LocaleResource>
@@ -130,6 +127,11 @@ Text suggestions:</div><ul>
 	</LocaleResource>
 	<LocaleResource Name="CloseChargeReason">
 		<Value>No more charges required.</Value>
+	</LocaleResource>
+	<LocaleResource Name="IpnOrderNote">
+		<Value>
+			<![CDATA[Amazon Pay data processed:<br />Notification: {0} {1}<br />Transaction: {2} {3}<br />Charge Permission: {4}<br />State (old\new): {5} -&gt; {6}]]>
+		</Value>
 	</LocaleResource>
 
 	<LocaleResource Name="UseSandbox">

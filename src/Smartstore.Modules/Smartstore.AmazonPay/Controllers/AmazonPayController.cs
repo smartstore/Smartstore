@@ -17,7 +17,6 @@ using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Common;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
-using Smartstore.Utilities;
 using Smartstore.Utilities.Html;
 using Smartstore.Web.Controllers;
 
@@ -34,6 +33,7 @@ namespace Smartstore.AmazonPay.Controllers
         private readonly ICheckoutStateAccessor _checkoutStateAccessor;
         private readonly IOrderProcessingService _orderProcessingService;
         private readonly IOrderCalculationService _orderCalculationService;
+        private readonly IPaymentService _paymentService;
         private readonly AmazonPaySettings _settings;
         private readonly OrderSettings _orderSettings;
         private readonly RewardPointsSettings _rewardPointsSettings;
@@ -48,6 +48,7 @@ namespace Smartstore.AmazonPay.Controllers
             ICheckoutStateAccessor checkoutStateAccessor,
             IOrderProcessingService orderProcessingService,
             IOrderCalculationService orderCalculationService,
+            IPaymentService paymentService,
             AmazonPaySettings amazonPaySettings,
             OrderSettings orderSettings,
             RewardPointsSettings rewardPointsSettings)
@@ -61,6 +62,7 @@ namespace Smartstore.AmazonPay.Controllers
             _checkoutStateAccessor = checkoutStateAccessor;
             _orderProcessingService = orderProcessingService;
             _orderCalculationService = orderCalculationService;
+            _paymentService = paymentService;
             _settings = amazonPaySettings;
             _orderSettings = orderSettings;
             _rewardPointsSettings = rewardPointsSettings;
@@ -508,83 +510,114 @@ namespace Smartstore.AmazonPay.Controllers
 
         private async Task ProcessIpn(IpnMessage message)
         {
-            if (message.ObjectType.EqualsNoCase("CHARGE_PERMISSION") && message.ObjectId.HasValue())
+            Order order = null;
+            var chargePermissionId = message.ObjectType.EqualsNoCase("CHARGE_PERMISSION")
+                ? message.ObjectId
+                : message.ChargePermissionId;
+
+            if (chargePermissionId.HasValue())
             {
-                var order = await _db.Orders
-                    .Where(x => x.PaymentMethodSystemName == AmazonPayProvider.SystemName && x.AuthorizationTransactionCode == message.ObjectId)
+                order = await _db.Orders
+                    .Where(x => x.PaymentMethodSystemName == AmazonPayProvider.SystemName && x.AuthorizationTransactionCode == chargePermissionId)
                     .FirstOrDefaultAsync();
+            }
 
-                if (order != null)
+            if (order == null)
+            {
+                Logger.Warn(T("Plugins.Payments.AmazonPay.OrderNotFound", chargePermissionId));
+                return;
+            }
+
+            if (!await _paymentService.IsPaymentMethodActiveAsync(AmazonPayProvider.SystemName, null, order.StoreId))
+            {
+                return;
+            }
+
+            var orderUpdated = false;
+            var oldState = string.Empty;
+            var newState = string.Empty;
+
+            // TODO: (mg) (core) check for empty message.ObjectId.
+
+            if (message.ObjectType.EqualsNoCase("CHARGE_PERMISSION"))
+            {                
+                var response = _apiClient.GetChargePermission(message.ObjectId);
+                if (response.Success)
                 {
-                    var response = _apiClient.GetChargePermission(message.ObjectId);
-                    if (response.Success)
+                    var d = response.StatusDetails;
+                    newState = d.State.Grow(d.Reasons?.LastOrDefault()?.ReasonCode, " ");
+
+                    if (order.CanMarkOrderAsAuthorized())
                     {
-                        var orderUpdated = false;
-                        var d = response.StatusDetails;
-                        var newPaymentResult = d.State.Grow(d.Reasons?.FirstOrDefault()?.ReasonCode, " ");
+                        oldState = order.AuthorizationTransactionResult;
+                        order.AuthorizationTransactionResult = newState;
 
-                        if (order.CanMarkOrderAsAuthorized())
-                        {
-                            order.AuthorizationTransactionResult = newPaymentResult;
+                        await _orderProcessingService.MarkAsAuthorizedAsync(order);
+                        orderUpdated = true;
+                    }
 
-                            await _orderProcessingService.MarkAsAuthorizedAsync(order);
-                            orderUpdated = true;
-                        }
+                    if ((d.State.EqualsNoCase("Closed") || d.State.EqualsNoCase("NonChargeable"))
+                        && order.CanVoidOffline())
+                    {
+                        oldState = order.CaptureTransactionResult;
+                        order.CaptureTransactionResult = newState;
 
-                        if ((d.State.EqualsNoCase("Closed") || d.State.EqualsNoCase("NonChargeable"))
-                            && order.CanVoidOffline())
-                        {
-                            order.CaptureTransactionResult = newPaymentResult;
-
-                            await _orderProcessingService.VoidOfflineAsync(order);
-                            orderUpdated = true;
-                        }
-
-                        if (orderUpdated)
-                        {
-                            order.HasNewPaymentNotification = true;
-
-                            if (_settings.AddOrderNotes)
-                            {
-                                order.OrderNotes.Add(new OrderNote
-                                {
-                                    Note = CreateOrderNote(message),
-                                    DisplayToCustomer = false,
-                                    CreatedOnUtc = DateTime.UtcNow
-                                });
-                            }
-
-                            await _db.SaveChangesAsync();
-                        }
+                        await _orderProcessingService.VoidOfflineAsync(order);
+                        orderUpdated = true;
                     }
                 }
                 else
                 {
-                    Logger.Warn(T("Plugins.Payments.AmazonPay.OrderNotFound", message.ObjectId));
+                    Logger.LogAmazonPayFailure(null, response);
                 }
             }
+            else if (message.ObjectType.EqualsNoCase("CHARGE"))
+            {
+                var response = _apiClient.GetCharge(message.ObjectId);
+                if (response.Success)
+                {
+                    var d = response.StatusDetails;
+                    newState = d.State.Grow(d.ReasonCode, " ");
 
-            // TODO: (mg) (core) implement more IPN stuff...
-            // TODO: _paymentService.IsPaymentMethodActiveAsync(AmazonPayProvider.SystemName, null, order.StoreId)
-        }
+                    // TODO: (mg) (core) implement more IPN stuff...
+                }
+                else
+                {
+                    Logger.LogAmazonPayFailure(null, response);
+                }
+            }
+            else if (message.ObjectType.EqualsNoCase("REFUND"))
+            {
+            }
+            else if (message.ObjectType.EqualsNoCase("CHARGEBACK"))
+            {
+            }
 
-        private string CreateOrderNote(IpnMessage message)
-        {
-            using var psb = StringBuilderPool.Instance.Get(out var sb);
+            if (orderUpdated)
+            {
+                // Add order note.
+                order.HasNewPaymentNotification = true;
 
-            var faviconUrl = Services.WebHelper.GetStoreLocation() + "Modules/Smartstore.AmazonPay/favicon.png";
+                if (_settings.AddOrderNotes)
+                {
+                    var faviconUrl = Services.WebHelper.GetStoreLocation() + "Modules/Smartstore.AmazonPay/favicon.png";
 
-            var note = T("Plugins.Payments.AmazonPay.IpnOrderNote",
-                message.NotificationType, message.NotificationId,
-                message.ObjectType, message.ObjectId);
+                    var note = T("Plugins.Payments.AmazonPay.IpnOrderNote",
+                        message.NotificationType, message.NotificationId,
+                        message.ObjectType, message.ObjectId,
+                        message.ChargePermissionId.NullEmpty() ?? "-",
+                        oldState.NullEmpty() ?? "-", newState.NullEmpty() ?? "-");
 
-            sb.AppendFormat($"<img src='{faviconUrl}' class='mr-1 align-text-top' />");
-            sb.Append(T("Plugins.Payments.AmazonPay.AmazonDataProcessed"));
-            sb.Append(":<br />");
-            sb.Append(note);
-            // .....
+                    order.OrderNotes.Add(new OrderNote
+                    {
+                        Note = $"<img src='{faviconUrl}' class='mr-1 align-text-top' />" + note,
+                        DisplayToCustomer = false,
+                        CreatedOnUtc = DateTime.UtcNow
+                    });
+                }
 
-            return sb.ToString();
+                await _db.SaveChangesAsync();
+            }
         }
 
         #region Authentication
