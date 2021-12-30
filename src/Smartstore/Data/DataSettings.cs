@@ -153,6 +153,11 @@ namespace Smartstore.Data
 
                 (TenantName, TenantRoot) = ResolveTenant();
 
+                if (TenantRoot == null)
+                {
+                    return false;
+                }
+
                 if (TenantRoot.FileExists(SETTINGS_FILENAME) && !_testMode)
                 {
                     string text = TenantRoot.ReadAllText(SETTINGS_FILENAME);
@@ -248,6 +253,11 @@ namespace Smartstore.Data
 
         protected virtual (string name, IFileSystem root) ResolveTenant()
         {
+            if (_appContext.AppDataRoot == null)
+            {
+                return default;
+            }
+            
             var fs = _appContext.AppDataRoot;
             var tenantsBaseDir = "Tenants";
             var curTenantFile = fs.PathCombine(tenantsBaseDir, "current.txt");

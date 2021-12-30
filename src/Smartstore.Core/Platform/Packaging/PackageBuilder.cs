@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Smartstore.Engine;
 using Smartstore.Engine.Modularity;
+using Smartstore.IO;
 using Smartstore.Utilities;
 
 namespace Smartstore.Core.Packaging
@@ -18,11 +19,16 @@ namespace Smartstore.Core.Packaging
             "*.obj", "*.pdb", "*.exclude", "*.cs", "*.deps.json"
         }.Select(x => new Wildcard(x)).ToArray();
 
-        private readonly IApplicationContext _appContext;
+        private readonly IFileSystem _contentRoot;
         
         public PackageBuilder(IApplicationContext appContext)
         {
-            _appContext = appContext;
+            _contentRoot = appContext.ContentRoot;
+        }
+
+        public PackageBuilder(IFileSystem contentRoot)
+        {
+            _contentRoot = Guard.NotNull(contentRoot, nameof(contentRoot));
         }
 
         public async Task<ExtensionPackage> BuildPackageAsync(IExtensionDescriptor extension)
@@ -74,7 +80,7 @@ namespace Smartstore.Core.Packaging
         {
             var location = extension as IExtensionLocation;
 
-            foreach (var file in _appContext.ContentRoot.EnumerateFiles(location.Path, deep: true))
+            foreach (var file in _contentRoot.EnumerateFiles(location.Path, deep: true))
             {
                 // Skip ignores files
                 if (IgnoreFile(file.SubPath))

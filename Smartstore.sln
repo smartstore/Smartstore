@@ -80,6 +80,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore.Google.MerchantC
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore.AmazonPay", "src\Smartstore.Modules\Smartstore.AmazonPay\Smartstore.AmazonPay.csproj", "{6A9FA9E0-029C-4565-BD2E-10A209D78031}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore.Packager", "tools\Smartstore.Packager\Smartstore.Packager.csproj", "{4BFFDE97-4EC0-423E-91C6-A202FD0A5978}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -198,6 +200,10 @@ Global
 		{6A9FA9E0-029C-4565-BD2E-10A209D78031}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6A9FA9E0-029C-4565-BD2E-10A209D78031}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6A9FA9E0-029C-4565-BD2E-10A209D78031}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4BFFDE97-4EC0-423E-91C6-A202FD0A5978}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4BFFDE97-4EC0-423E-91C6-A202FD0A5978}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4BFFDE97-4EC0-423E-91C6-A202FD0A5978}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4BFFDE97-4EC0-423E-91C6-A202FD0A5978}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -228,6 +234,7 @@ Global
 		{290CAB7D-A6AD-4605-A59D-91A1921213E2} = {E5C1AA43-6B44-4EFA-8DE9-6070EE007CE3}
 		{BBB5935F-1E33-4D47-9B3E-7E92F3A4E54A} = {E5C1AA43-6B44-4EFA-8DE9-6070EE007CE3}
 		{6A9FA9E0-029C-4565-BD2E-10A209D78031} = {E5C1AA43-6B44-4EFA-8DE9-6070EE007CE3}
+		{4BFFDE97-4EC0-423E-91C6-A202FD0A5978} = {5135A2B0-95B5-46AD-906A-70A2364B892B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A0A0B995-5D0B-458E-BCC0-1071B76949D1}
