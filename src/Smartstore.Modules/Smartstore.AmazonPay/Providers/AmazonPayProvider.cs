@@ -36,6 +36,7 @@ namespace Smartstore.AmazonPay.Providers
         private readonly ICheckoutStateAccessor _checkoutStateAccessor;
         private readonly IUrlHelper _urlHelper;
         private readonly AsyncRunner _asyncRunner;
+        private readonly OrderSettings _orderSettings;
 
         public AmazonPayProvider(
             SmartDbContext db,
@@ -45,7 +46,8 @@ namespace Smartstore.AmazonPay.Providers
             IHttpContextAccessor httpContextAccessor,
             ICheckoutStateAccessor checkoutStateAccessor,
             IUrlHelper urlHelper,
-            AsyncRunner asyncRunner)
+            AsyncRunner asyncRunner,
+            OrderSettings orderSettings)
         {
             _db = db;
             _services = services;
@@ -55,6 +57,7 @@ namespace Smartstore.AmazonPay.Providers
             _checkoutStateAccessor = checkoutStateAccessor;
             _urlHelper = urlHelper;
             _asyncRunner = asyncRunner;
+            _orderSettings = orderSettings;
         }
 
         public ILogger Logger { get; set; } = NullLogger.Instance;
@@ -64,7 +67,6 @@ namespace Smartstore.AmazonPay.Providers
         internal static string LeadCode => "SPEXDEAPA-SmartStore.Net-CP-DP";
 
         public static string SystemName => "Payments.AmazonPay";
-        public static string CheckoutStateKey => SystemName + ".CheckoutState";
 
         public override bool SupportCapture => true;
 
@@ -100,10 +102,10 @@ namespace Smartstore.AmazonPay.Providers
                 if (httpContext != null)
                 {
                     httpContext.Session.TryRemove("AmazonPayFailedPaymentReason");
-                    httpContext.Session.TryRemove("AmazonPayCheckoutCompletedNote");
+                    httpContext.Session.TryRemove(AmazonPayCheckoutCompleteInfo.Key);
                 }
 
-                if (_checkoutStateAccessor.CheckoutState?.CustomProperties?.Get(CheckoutStateKey) is not AmazonPayCheckoutState state
+                if (_checkoutStateAccessor.CheckoutState?.CustomProperties?.Get(AmazonPayCheckoutState.Key) is not AmazonPayCheckoutState state
                     || state.CheckoutSessionId.IsEmpty())
                 {
                     throw new SmartException(T("Plugins.Payments.AmazonPay.MissingCheckoutSessionState"));
@@ -123,8 +125,14 @@ namespace Smartstore.AmazonPay.Providers
                     // 200 (OK): authorization succeeded.
                     isSynchronous = response.Status != 202;
 
+                    // A Charge represents a single payment transaction.
+                    // Can either be created using a valid Charge Permission, or as a result of a successful Checkout Session.
                     result.AuthorizationTransactionId = response.ChargeId;
+
+                    // A Charge Permission represents buyer consent to be charged.
+                    // Can either be requested for a one-time or recurring payment scenario.
                     result.AuthorizationTransactionCode = response.ChargePermissionId;
+
                     result.AuthorizationTransactionResult = response.StatusDetails.State;
 
                     if (isSynchronous)
@@ -134,7 +142,11 @@ namespace Smartstore.AmazonPay.Providers
                     }
                     else
                     {
-                        httpContext.Session.SetString("AmazonPayCheckoutCompletedNote", T("Plugins.Payments.AmazonPay.AsyncPaymentAuthorizationNote"));
+                        httpContext.Session.TrySetObject(AmazonPayCheckoutCompleteInfo.Key, new AmazonPayCheckoutCompleteInfo
+                        {
+                            Note = T("Plugins.Payments.AmazonPay.AsyncPaymentAuthorizationNote"),
+                            UseWidget = !_orderSettings.DisableOrderCompletedPage
+                        });
                     }
 
                     // TODO: (mg) (core) state\reason is unclear here.

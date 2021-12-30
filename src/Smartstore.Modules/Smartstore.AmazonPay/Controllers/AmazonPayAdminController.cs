@@ -54,7 +54,8 @@ namespace Smartstore.AmazonPay.Controllers
             // ~/Plugins/SmartStore.AmazonPay/AmazonPayShoppingCart/PayButtonHandler
             // ~/Plugins/SmartStore.AmazonPay/AmazonPay/AuthenticationButtonHandler
 
-            model.IpnUrl = Services.WebHelper.GetStoreLocation(true) + "amazonpay/IPNHandler";
+            model.IpnUrl = Url.Action(nameof(AmazonPayController.IPNHandler), "AmazonPay", null, "https");
+            // TODO: (mg) (core) implement key sharing endpoint for smart registration.
             model.KeyShareUrl = Services.WebHelper.GetStoreLocation() + "amazonpay/ShareKey";
             model.ModuleVersion = module.Version.ToString();
             model.LeadCode = AmazonPayProvider.LeadCode;

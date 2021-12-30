@@ -209,11 +209,11 @@ namespace Smartstore.AmazonPay.Services
 
         #region Utilities
 
-        internal static string GenerateRandomId(string prefix)
-        {
-            var str = prefix + CommonHelper.GenerateRandomDigitCode(20);
-            return str.Truncate(32);
-        }
+        //internal static string GenerateRandomId(string prefix)
+        //{
+        //    var str = prefix + CommonHelper.GenerateRandomDigitCode(20);
+        //    return str.Truncate(32);
+        //}
 
         private static (string FirstName, string LastName) GetFirstAndLastName(string name)
         {
@@ -233,30 +233,30 @@ namespace Smartstore.AmazonPay.Services
             return (string.Empty, string.Empty);
         }
 
-        private async Task<Order> FindOrderByAmazonId(string amazonPayId)
-        {
-            // S02-9777218-8608106				OrderReferenceId
-            // S02-9777218-8608106-A088344		Auth ID
-            // S02-9777218-8608106-C088344		Capture ID
+        //private async Task<Order> FindOrderByAmazonId(string amazonPayId)
+        //{
+        //    // S02-9777218-8608106				OrderReferenceId
+        //    // S02-9777218-8608106-A088344		Auth ID
+        //    // S02-9777218-8608106-C088344		Capture ID
 
-            if (amazonPayId.HasValue())
-            {
-                var amazonOrderReferenceId = amazonPayId[..amazonPayId.LastIndexOf('-')];
-                if (amazonOrderReferenceId.HasValue())
-                {
-                    var orders = await _db.Orders
-                        .Where(x => x.PaymentMethodSystemName == AmazonPayProvider.SystemName && x.AuthorizationTransactionId.StartsWith(amazonOrderReferenceId))
-                        .ToListAsync();
+        //    if (amazonPayId.HasValue())
+        //    {
+        //        var amazonOrderReferenceId = amazonPayId[..amazonPayId.LastIndexOf('-')];
+        //        if (amazonOrderReferenceId.HasValue())
+        //        {
+        //            var orders = await _db.Orders
+        //                .Where(x => x.PaymentMethodSystemName == AmazonPayProvider.SystemName && x.AuthorizationTransactionId.StartsWith(amazonOrderReferenceId))
+        //                .ToListAsync();
 
-                    if (orders.Count == 1)
-                    {
-                        return orders[0];
-                    }
-                }
-            }
+        //            if (orders.Count == 1)
+        //            {
+        //                return orders[0];
+        //            }
+        //        }
+        //    }
 
-            return null;
-        }
+        //    return null;
+        //}
 
         #endregion
     }

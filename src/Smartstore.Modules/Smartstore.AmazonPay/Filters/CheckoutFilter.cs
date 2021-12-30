@@ -1,5 +1,4 @@
 ﻿using System.Linq;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Smartstore.Core;
@@ -25,25 +24,19 @@ namespace Smartstore.AmazonPay.Filters
         private readonly Lazy<IUrlHelper> _urlHelper;
         private readonly Lazy<IWidgetProvider> _widgetProvider;
         private readonly ICheckoutStateAccessor _checkoutStateAccessor;
-        private readonly AmazonPaySettings _settings;
-        private readonly OrderSettings _orderSettings;
 
         public CheckoutFilter(
             ICommonServices services,
             Lazy<IPaymentService> paymentService,
             Lazy<IUrlHelper> urlHelper,
             Lazy<IWidgetProvider> widgetProvider,
-            ICheckoutStateAccessor checkoutStateAccessor,
-            AmazonPaySettings settings,
-            OrderSettings orderSettings)
+            ICheckoutStateAccessor checkoutStateAccessor)
         {
             _services = services;
             _paymentService = paymentService;
             _urlHelper = urlHelper;
             _widgetProvider = widgetProvider;
             _checkoutStateAccessor = checkoutStateAccessor;
-            _settings = settings;
-            _orderSettings = orderSettings;
         }
 
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
@@ -61,7 +54,7 @@ namespace Smartstore.AmazonPay.Filters
             {
                 if (IsAmazonPaySelected()
                     && await IsAmazonPayActive()
-                    && _checkoutStateAccessor.CheckoutState?.CustomProperties?.Get(AmazonPayProvider.CheckoutStateKey) is AmazonPayCheckoutState state
+                    && _checkoutStateAccessor.CheckoutState?.CustomProperties?.Get(AmazonPayCheckoutState.Key) is AmazonPayCheckoutState state
                     && state.CheckoutSessionId.HasValue())
                 {
                     _widgetProvider.Value.RegisterWidget("end",
@@ -70,19 +63,18 @@ namespace Smartstore.AmazonPay.Filters
             }
             else if (action.EqualsNoCase(nameof(CheckoutController.Completed)))
             {
-                // TODO: (mg) (core) rework this.
-                // ResetCheckoutData was called. Control it via a session object in ProcessPaymentAsync. Only register widget for AmazonPay!
-                //var note = context.HttpContext.Session.GetString("AmazonPayCheckoutCompletedNote");
-
-                //if (_orderSettings.DisableOrderCompletedPage && note.HasValue())
-                //{
-                //    _services.Notifier.Information(note);
-                //}
-                //else if (_settings.ShowSignoutButton || note.HasValue())
-                //{
-                //    _widgetProvider.Value.RegisterWidget("checkout_completed_top",
-                //        new PartialViewWidgetInvoker("_CheckoutCompleted", note, "Smartstore.AmazonPay"));
-                //}
+                if (context.HttpContext.Session.TryGetObject<AmazonPayCheckoutCompleteInfo>(AmazonPayCheckoutCompleteInfo.Key, out var info))
+                {
+                    if (info.UseWidget)
+                    {
+                        _widgetProvider.Value.RegisterWidget("checkout_completed_top",
+                            new PartialViewWidgetInvoker("_CheckoutCompleted", info, "Smartstore.AmazonPay"));
+                    }
+                    else
+                    {
+                        _services.Notifier.Information(info.Note);
+                    }
+                }
             }
 
             await next();

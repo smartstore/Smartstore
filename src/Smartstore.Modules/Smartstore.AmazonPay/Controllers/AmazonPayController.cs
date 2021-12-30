@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.IO;
+using System.Linq;
 using Amazon.Pay.API.WebStore.Buyer;
 using Amazon.Pay.API.WebStore.CheckoutSession;
 using Amazon.Pay.API.WebStore.Interfaces;
@@ -6,6 +7,7 @@ using Amazon.Pay.API.WebStore.Types;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using Smartstore.AmazonPay.Services;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Checkout.Attributes;
@@ -15,6 +17,7 @@ using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Common;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
+using Smartstore.Utilities;
 using Smartstore.Utilities.Html;
 using Smartstore.Web.Controllers;
 
@@ -184,13 +187,13 @@ namespace Smartstore.AmazonPay.Controllers
 
                 if (result.Success)
                 {
-                    var actionName = result.IsShippingMissing
+                    var actionName = result.IsShippingMethodMissing
                         ? nameof(CheckoutController.ShippingMethod)
                         : nameof(CheckoutController.Confirm);
 
                     return RedirectToAction(actionName, "Checkout");
                 }
-                else if (!result.IsCountryAllowed && !result.IsShippingMissing)
+                else if (result.RequiresAddressUpdate && !result.IsShippingMethodMissing)
                 {
                     // Buyer can choose another billing\shipping address at AmazonPay.
                     return RedirectToAction(nameof(CheckoutController.Confirm), "Checkout");
@@ -224,7 +227,7 @@ namespace Smartstore.AmazonPay.Controllers
             var cart = await _shoppingCartService.GetCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
             var isShippingRequired = cart.IsShippingRequired();
 
-            result.IsShippingMissing = isShippingRequired && customer.GenericAttributes.SelectedShippingOption == null;
+            result.IsShippingMethodMissing = isShippingRequired && customer.GenericAttributes.SelectedShippingOption == null;
 
             if (!cart.HasItems || (customer.IsGuest() && !_orderSettings.AnonymousCheckoutAllowed))
             {
@@ -240,7 +243,7 @@ namespace Smartstore.AmazonPay.Controllers
             if (!billTo.Success)
             {
                 NotifyWarning(T("Plugins.Payments.AmazonPay.BillingToCountryNotAllowed"));
-                result.IsCountryAllowed = false;
+                result.RequiresAddressUpdate = true;
                 return result;
             }
 
@@ -252,7 +255,7 @@ namespace Smartstore.AmazonPay.Controllers
                 if (!shipTo.Success)
                 {
                     NotifyWarning(T("Plugins.Payments.AmazonPay.ShippingToCountryNotAllowed"));
-                    result.IsCountryAllowed = false;
+                    result.RequiresAddressUpdate = true;
                     return result;
                 }
             }
@@ -303,7 +306,7 @@ namespace Smartstore.AmazonPay.Controllers
             await _db.SaveChangesAsync();
             result.Success = true;
 
-            _checkoutStateAccessor.CheckoutState.CustomProperties[AmazonPayProvider.CheckoutStateKey] = new AmazonPayCheckoutState 
+            _checkoutStateAccessor.CheckoutState.CustomProperties[AmazonPayCheckoutState.Key] = new AmazonPayCheckoutState 
             {
                 CheckoutSessionId = checkoutSessionId
             };
@@ -339,7 +342,7 @@ namespace Smartstore.AmazonPay.Controllers
                 var store = Services.StoreContext.CurrentStore;
                 var customer = Services.WorkContext.CurrentCustomer;
 
-                if (_checkoutStateAccessor.CheckoutState?.CustomProperties?.Get(AmazonPayProvider.CheckoutStateKey) is not AmazonPayCheckoutState state)
+                if (_checkoutStateAccessor.CheckoutState?.CustomProperties?.Get(AmazonPayCheckoutState.Key) is not AmazonPayCheckoutState state)
                 {
                     throw new SmartException(T("Plugins.Payments.AmazonPay.MissingCheckoutSessionState"));
                 }
@@ -429,7 +432,7 @@ namespace Smartstore.AmazonPay.Controllers
         {
             try
             {
-                if (_checkoutStateAccessor.CheckoutState?.CustomProperties?.Get(AmazonPayProvider.CheckoutStateKey) is not AmazonPayCheckoutState state)
+                if (_checkoutStateAccessor.CheckoutState?.CustomProperties?.Get(AmazonPayCheckoutState.Key) is not AmazonPayCheckoutState state)
                 {
                     throw new SmartException(T("Plugins.Payments.AmazonPay.MissingCheckoutSessionState"));
                 }
@@ -469,6 +472,119 @@ namespace Smartstore.AmazonPay.Controllers
             }
 
             return RedirectToRoute("ShoppingCart");
+        }
+
+        [HttpPost]
+        [Route("amazonpay/ipnhandler")]
+        public async Task<IActionResult> IPNHandler()
+        {
+            string json = null;
+
+            try
+            {
+                using (var reader = new StreamReader(Request.Body))
+                {
+                    json = await reader.ReadToEndAsync();
+                }
+
+                if (json.HasValue())
+                {
+                    dynamic ipnEnvelope = JsonConvert.DeserializeObject(json);
+                    var message = JsonConvert.DeserializeObject<IpnMessage>((string)ipnEnvelope.Message);
+
+                    if (message != null)
+                    {
+                        await ProcessIpn(message);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex, json);
+            }
+
+            return Ok();
+        }
+
+        private async Task ProcessIpn(IpnMessage message)
+        {
+            if (message.ObjectType.EqualsNoCase("CHARGE_PERMISSION") && message.ObjectId.HasValue())
+            {
+                var order = await _db.Orders
+                    .Where(x => x.PaymentMethodSystemName == AmazonPayProvider.SystemName && x.AuthorizationTransactionCode == message.ObjectId)
+                    .FirstOrDefaultAsync();
+
+                if (order != null)
+                {
+                    var response = _apiClient.GetChargePermission(message.ObjectId);
+                    if (response.Success)
+                    {
+                        var orderUpdated = false;
+                        var d = response.StatusDetails;
+                        var newPaymentResult = d.State.Grow(d.Reasons?.FirstOrDefault()?.ReasonCode, " ");
+
+                        if (order.CanMarkOrderAsAuthorized())
+                        {
+                            order.AuthorizationTransactionResult = newPaymentResult;
+
+                            await _orderProcessingService.MarkAsAuthorizedAsync(order);
+                            orderUpdated = true;
+                        }
+
+                        if ((d.State.EqualsNoCase("Closed") || d.State.EqualsNoCase("NonChargeable"))
+                            && order.CanVoidOffline())
+                        {
+                            order.CaptureTransactionResult = newPaymentResult;
+
+                            await _orderProcessingService.VoidOfflineAsync(order);
+                            orderUpdated = true;
+                        }
+
+                        if (orderUpdated)
+                        {
+                            order.HasNewPaymentNotification = true;
+
+                            if (_settings.AddOrderNotes)
+                            {
+                                order.OrderNotes.Add(new OrderNote
+                                {
+                                    Note = CreateOrderNote(message),
+                                    DisplayToCustomer = false,
+                                    CreatedOnUtc = DateTime.UtcNow
+                                });
+                            }
+
+                            await _db.SaveChangesAsync();
+                        }
+                    }
+                }
+                else
+                {
+                    Logger.Warn(T("Plugins.Payments.AmazonPay.OrderNotFound", message.ObjectId));
+                }
+            }
+
+            // TODO: (mg) (core) implement more IPN stuff...
+            // TODO: _paymentService.IsPaymentMethodActiveAsync(AmazonPayProvider.SystemName, null, order.StoreId)
+        }
+
+        private string CreateOrderNote(IpnMessage message)
+        {
+            using var psb = StringBuilderPool.Instance.Get(out var sb);
+
+            var faviconUrl = Services.WebHelper.GetStoreLocation() + "Modules/Smartstore.AmazonPay/favicon.png";
+
+            var note = T("Plugins.Payments.AmazonPay.IpnOrderNote",
+                message.NotificationType, message.NotificationId,
+                message.ObjectType, message.ObjectId);
+
+            sb.AppendFormat($"<img src='{faviconUrl}' class='mr-1 align-text-top' />");
+            sb.Append(T("Plugins.Payments.AmazonPay.AmazonDataProcessed"));
+            sb.Append(":<br />");
+            sb.Append(note);
+            // .....
+
+            return sb.ToString();
         }
 
         #region Authentication
