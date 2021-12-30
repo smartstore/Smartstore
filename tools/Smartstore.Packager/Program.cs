@@ -1,7 +1,12 @@
+using Autofac;
+using Autofac.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging.Abstractions;
+using Smartstore.Core.Packaging;
 using Smartstore.Engine;
 using Smartstore.IO;
 using System.Diagnostics;
@@ -14,40 +19,71 @@ namespace Smartstore.Packager
         ///  The main entry point for the application.
         /// </summary>
         [STAThread]
-        static void Main()
+        static void Main(string[] args)
         {
-            var configuration = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json", optional: true)
-                .AddEnvironmentVariables()
-                .Build();
+            var host = CreateHostBuilder(args).Build();
 
-            var environment = new HostEnvironment
+            var appContext = host.Services.GetRequiredService<IApplicationContext>();
+            var providerContainer = (appContext as IServiceProviderContainer)
+                ?? throw new ApplicationException($"The implementation of '${nameof(IApplicationContext)}' must also implement '${nameof(IServiceProviderContainer)}'.");
+            providerContainer.ApplicationServices = host.Services;
+
+            var engine = host.Services.GetRequiredService<IEngine>();
+            var scopeAccessor = host.Services.GetRequiredService<ILifetimeScopeAccessor>();
+            engine.Scope = new ScopedServiceContainer(
+                scopeAccessor,
+                host.Services.GetRequiredService<IHttpContextAccessor>(),
+                host.Services.AsLifetimeScope());
+
+            using (scopeAccessor.BeginContextAwareScope(out var scope))
             {
-                ApplicationName = "Smartstore Packager",
-                EnvironmentName = Debugger.IsAttached ? Environments.Development : Environments.Production,
-                ContentRootPath = Directory.GetCurrentDirectory(),
-                ContentRootFileProvider = new LocalFileSystem(Directory.GetCurrentDirectory())
-            };
-
-            var appContext = new SmartApplicationContext(environment, configuration, NullLogger.Instance);
-            appContext.AppConfiguration.EngineType = typeof(SimpleEngine).AssemblyQualifiedName;
-
-            EngineFactory
-                .Create(appContext.AppConfiguration)
-                .Start(appContext)
-                .Dispose();
-
-            ApplicationConfiguration.Initialize();
-            Application.Run(new MainForm());
+                ApplicationConfiguration.Initialize();
+                //Application.Run(new MainForm());
+                Application.Run(scope.Resolve<MainForm>());
+            }
         }
 
-        class HostEnvironment : IHostEnvironment
+        private static IHostBuilder CreateHostBuilder(string[] args)
         {
-            public string ApplicationName { get; set; }
-            public string EnvironmentName { get; set; }
-            public string ContentRootPath { get; set; }
-            public IFileProvider ContentRootFileProvider { get; set; }
+            IEngineStarter starter = null;
+            
+            var builder = Host.CreateDefaultBuilder(args)
+                .UseServiceProviderFactory(new AutofacServiceProviderFactory())
+                .ConfigureAppConfiguration((context, builder) =>
+                {
+                    builder.AddJsonFile("appsettings.json", optional: true);
+                    builder.AddEnvironmentVariables();
+                })
+                .ConfigureHostOptions((context, options) =>
+                {
+                    context.HostingEnvironment.EnvironmentName = Debugger.IsAttached ? Environments.Development : Environments.Production;
+                })
+                .ConfigureServices((context, services) =>
+                {
+                    var appContext = new SmartApplicationContext(
+                        context.HostingEnvironment,
+                        context.Configuration,
+                        NullLogger.Instance);
+
+                    appContext.AppConfiguration.EngineType = typeof(PackagerEngine).AssemblyQualifiedName;
+
+                    starter = EngineFactory
+                        .Create(appContext.AppConfiguration)
+                        .Start(appContext);
+
+                    starter.ConfigureServices(services);
+
+                    services.AddScoped<IPackageBuilder, PackageBuilder>();
+                    services.AddScoped<MainForm>();
+
+                })
+                .ConfigureContainer<ContainerBuilder>((context, builder) =>
+                {
+                    starter.ConfigureContainer(builder);
+                    starter.Dispose();
+                });
+
+            return builder;
         }
     }
 }

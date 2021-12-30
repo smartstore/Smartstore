@@ -46,7 +46,7 @@ namespace Smartstore.Web
         }
 
         private readonly static string EnvironmentName 
-            = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production";
+            = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? Environments.Production;
 
         private readonly static IConfiguration Configuration 
             = _configuration ??= BuildConfiguration();

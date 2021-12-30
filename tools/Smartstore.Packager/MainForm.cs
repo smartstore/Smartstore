@@ -3,13 +3,20 @@ using Smartstore.Core.Theming;
 using Smartstore.Packager.Properties;
 using Smartstore.Engine.Modularity;
 using Smartstore.IO;
+using Smartstore.Engine;
+using Smartstore.Core.Packaging;
+using Smartstore.Utilities;
 
 namespace Smartstore.Packager
 {
     public partial class MainForm : Form
     {
-        public MainForm()
+        private readonly IApplicationContext _appContext;
+
+        public MainForm(IApplicationContext appContext)
         {
+            _appContext = appContext;
+
             InitializeComponent();
 
             this.Load += (object sender, EventArgs e) =>
@@ -19,7 +26,7 @@ namespace Smartstore.Packager
 
                 try
                 {
-                    var rootPath = new DirectoryInfo(Environment.CurrentDirectory).Parent.Parent.Parent.Parent.Parent;
+                    var rootPath = new DirectoryInfo(appContext.RuntimeInfo.BaseDirectory).Parent.Parent.Parent.Parent.Parent;
 
                     if (settings.RootPath.IsEmpty())
                     {

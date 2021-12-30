@@ -18,17 +18,6 @@ namespace Smartstore.Engine
         SmartConfiguration AppConfiguration { get; }
 
         /// <summary>
-        /// Discovers all deployed modules without loading their assemblies.
-        /// </summary>
-        /// <returns>All valid modules.</returns>
-        IEnumerable<IModuleDescriptor> DiscoverModules();
-
-        /// <summary>
-        /// Loads a module's assembly.
-        /// </summary>
-        void LoadModule(IModuleDescriptor descriptor);
-
-        /// <summary>
         /// This method gets called by the runtime. Use this method to add services to the container.
         /// </summary>
         /// <param name="services">The collection of service descriptors.</param>

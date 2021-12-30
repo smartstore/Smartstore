@@ -1,6 +1,4 @@
-﻿using System;
-using System.IO;
-using Smartstore.Core.Packaging;
+﻿using Smartstore.Core.Packaging;
 using Smartstore.Engine.Modularity;
 using Smartstore.IO;
 
