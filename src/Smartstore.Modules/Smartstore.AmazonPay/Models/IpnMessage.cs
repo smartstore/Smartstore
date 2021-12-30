@@ -4,9 +4,7 @@ namespace Smartstore.AmazonPay.Models
 {
     public class IpnMessage
     {
-        [JsonProperty("MerchantID")]
-        public string MerchantId { get; set; }
-
+        public string MerchantID { get; set; }
         public string ObjectType { get; set; }
         public string ObjectId { get; set; }
         public string ChargePemissionId { get; set; }
