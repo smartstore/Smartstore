@@ -1,5 +1,3 @@
-#addin nuget:?package=Cake.7zip&version=2.0.0
-
 var target = Argument("target", "Build");
 var configuration = Argument("configuration", "Release");
 var solution = "./" + Argument("solution", "Smartstore") + ".sln";
@@ -64,7 +62,9 @@ Task("Zip").Does(() =>
 
     var zipPath = new FilePath($"./artifacts/Smartstore.{edition}.{version}.zip");
 
-    SevenZip(new SevenZipSettings 
+    Zip(rootPath, zipPath);
+
+    /*SevenZip(new SevenZipSettings 
     {
         Command = new AddCommand
         {
@@ -73,7 +73,7 @@ Task("Zip").Does(() =>
             ArchiveType = SwitchArchiveType.Zip,
             CompressionMethod = new SwitchCompressionMethod { Level = 3 }
         }
-    });
+    });*/
 });
 
 Task("Test").Does(() =>
