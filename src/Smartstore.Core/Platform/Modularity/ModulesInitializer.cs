@@ -51,6 +51,7 @@ namespace Smartstore.Engine.Modularity
 
             foreach (var pendingModule in modularState.PendingModules)
             {
+                
                 if (modularState.InstalledModules.Contains(pendingModule))
                 {
                     processedModules.Add(pendingModule);

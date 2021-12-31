@@ -27,8 +27,8 @@ namespace Smartstore.Engine.Modularity
                 .ToArray();
 
             var modules = allDirectories
-                .AsParallel()
-                .AsOrdered()
+                //.AsParallel()
+                //.AsOrdered()
                 .Select(d => ModuleDescriptor.Create(d))
                 .Where(x => x != null)
                 .ToArray()

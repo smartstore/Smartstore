@@ -38,7 +38,6 @@ namespace Smartstore.Packager
             using (scopeAccessor.BeginContextAwareScope(out var scope))
             {
                 ApplicationConfiguration.Initialize();
-                //Application.Run(new MainForm());
                 Application.Run(scope.Resolve<MainForm>());
             }
         }

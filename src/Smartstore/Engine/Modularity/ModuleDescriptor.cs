@@ -68,7 +68,7 @@ namespace Smartstore.Engine.Modularity
                 // Try to point file provider to source code directory in dev mode.
                 var sourceRoot = IOPath.GetFullPath(IOPath.Combine(CommonHelper.ContentRoot.Root, @"..\Smartstore.Modules"));
                 var dirNamesToCheck = new[] { directory.Name, directory.Name + "-sym" };
-                
+
                 foreach (var name in dirNamesToCheck)
                 {
                     var dir = new DirectoryInfo(IOPath.Combine(sourceRoot, name));

@@ -32,7 +32,7 @@ namespace Smartstore.Engine.Runtimes
             _appContext = Guard.NotNull(appContext, nameof(appContext));
             _repository = repository ?? Repository.Factory.GetCoreV3("https://api.nuget.org/v3/index.json");
             _sourceCache = sourceCache ?? new SourceCacheContext();
-            _nugetSettings = Settings.LoadDefaultSettings(null);
+            _nugetSettings = NullSettings.Instance;
             _logger = logger ?? Microsoft.Extensions.Logging.Abstractions.NullLogger.Instance;
             _nugetLogger = new NuGetLogger(_logger);
             _packageDownloadPath = _appContext.GetTempDirectory().PhysicalPath;
