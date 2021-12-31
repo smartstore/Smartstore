@@ -130,7 +130,12 @@ Text suggestions:</div><ul>
 	</LocaleResource>
 	<LocaleResource Name="IpnOrderNote">
 		<Value>
-			<![CDATA[Amazon Pay data processed:<br />Notification: {0} {1}<br />Transaction: {2} {3}<br />Charge Permission: {4}<br />State (old\new): {5} -&gt; {6}]]>
+			<![CDATA[Amazon Pay data processed:<br />Message ID: {0}<br />Notification: {1} {2}<br />Object: {3} {4}<br />Charge Permission: {5}<br />State (old\new): {6} -&gt; {7}]]>
+		</Value>
+	</LocaleResource>
+	<LocaleResource Name="IpnChargebackOrderNote">
+		<Value>
+			<![CDATA[Amazon Pay reports a chargeback. You can view chargeback details in <a href="https://sellercentral-europe.amazon.com" target="_blank">Amazon Seller Central</a>.<br />Message ID: {0}<br />Notification: {1} {2}<br />Object: {3} {4}<br />Charge Permission: {5}]]>
 		</Value>
 	</LocaleResource>
 

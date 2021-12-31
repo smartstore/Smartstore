@@ -131,7 +131,12 @@ Textvorschläge:</div><ul>
 	</LocaleResource>
 	<LocaleResource Name="IpnOrderNote">
 		<Value>
-			<![CDATA[Amazon Pay Daten wurden verarbeitet:<br />Mitteilung: {0} {1}<br />Transaktion: {2} {3}<br />Charge Permission: {4}<br />Status (alt\neu): {5} -&gt; {6}]]>
+			<![CDATA[Amazon Pay Daten wurden verarbeitet:<br />Message ID: {0}<br />Mitteilung: {1} {2}<br />Objekt: {3} {4}<br />Charge Permission: {5}<br />Status (alt\neu): {6} -&gt; {7}]]>
+		</Value>
+	</LocaleResource>
+	<LocaleResource Name="IpnChargebackOrderNote">
+		<Value>
+			<![CDATA[Amazon Pay meldet eine Rückbuchung. Details zu Rückbuchungen können Sie in <a href="https://sellercentral-europe.amazon.com" target="_blank">Amazon Seller Central</a> einsehen.<br />Message ID: {0}<br />Mitteilung: {1} {2}<br />Objekt: {3} {4}<br />Charge Permission: {5}]]>
 		</Value>
 	</LocaleResource>
 

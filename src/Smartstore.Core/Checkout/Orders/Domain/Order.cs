@@ -337,27 +337,33 @@ namespace Smartstore.Core.Checkout.Orders
         public string CustomerOrderComment { get; set; }
 
         /// <summary>
-        /// Gets or sets the authorization transaction identifier
+        /// Gets or sets the authorization transaction identifier.
+        /// Typically this is the authorization ID of the payment provider referenced by <see cref="PaymentMethodSystemName"/>.
         /// </summary>
         public string AuthorizationTransactionId { get; set; }
 
         /// <summary>
-        /// Gets or sets the authorization transaction code
+        /// Gets or sets the authorization transaction code.
+        /// Not used by Smartstore. Can be used to store another ID or payment code of the payment provider.
+        /// Use <see cref="GenericAttribute"/> if you want to store even more payment data for an order.
         /// </summary>
         public string AuthorizationTransactionCode { get; set; }
 
         /// <summary>
-        /// Gets or sets the authorization transaction result
+        /// Gets or sets the authorization transaction result.
+        /// Not used by Smartstore. Can be used to inform about the current authorization payment status.
         /// </summary>
         public string AuthorizationTransactionResult { get; set; }
 
         /// <summary>
-        /// Gets or sets the capture transaction identifier
+        /// Gets or sets the capture transaction identifier.
+        /// Typically this is the capture ID of the payment provider referenced by <see cref="PaymentMethodSystemName"/>.
         /// </summary>
         public string CaptureTransactionId { get; set; }
 
         /// <summary>
-        /// Gets or sets the capture transaction result
+        /// Gets or sets the capture transaction result.
+        /// Not used by Smartstore. Can be used to inform about the current capture payment status.
         /// </summary>
         public string CaptureTransactionResult { get; set; }
 
@@ -406,7 +412,9 @@ namespace Smartstore.Core.Checkout.Orders
         public int? RewardPointsRemaining { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether a new payment notification arrived (IPN, webhook, callback etc.)
+        /// Gets or sets a value indicating whether a new payment notification arrived.
+        /// Set this to <c>true</c> if a new IPN, webhook notification or payment provider message arrived.
+        /// Use an <see cref="OrderNote"/> to save the notification.
         /// </summary>
         public bool HasNewPaymentNotification { get; set; }
 

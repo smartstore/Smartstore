@@ -496,7 +496,7 @@ namespace Smartstore.AmazonPay.Controllers
 
                     if (message != null)
                     {
-                        await ProcessIpn(message);
+                        await ProcessIpn(message, (string)ipnEnvelope.MessageId);
                     }
                 }
             }
@@ -508,36 +508,26 @@ namespace Smartstore.AmazonPay.Controllers
             return Ok();
         }
 
-        private async Task ProcessIpn(IpnMessage message)
+        private async Task ProcessIpn(IpnMessage message, string messageId)
         {
-            Order order = null;
+            string newState = null;
+            var orderUpdated = false;
+            var authorize = false;
+            var paid = false;
+            var voidOffline = false;
+            var refund = false;
+            var refundAmount = decimal.Zero;
+            var chargeback = message.ObjectType.EqualsNoCase("CHARGEBACK");
+
             var chargePermissionId = message.ObjectType.EqualsNoCase("CHARGE_PERMISSION")
                 ? message.ObjectId
                 : message.ChargePermissionId;
 
-            if (chargePermissionId.HasValue())
-            {
-                order = await _db.Orders
-                    .Where(x => x.PaymentMethodSystemName == AmazonPayProvider.SystemName && x.AuthorizationTransactionCode == chargePermissionId)
-                    .FirstOrDefaultAsync();
-            }
-
-            if (order == null)
+            if (chargePermissionId.IsEmpty())
             {
                 Logger.Warn(T("Plugins.Payments.AmazonPay.OrderNotFound", chargePermissionId));
                 return;
             }
-
-            if (!await _paymentService.IsPaymentMethodActiveAsync(AmazonPayProvider.SystemName, null, order.StoreId))
-            {
-                return;
-            }
-
-            var orderUpdated = false;
-            var oldState = string.Empty;
-            var newState = string.Empty;
-
-            // TODO: (mg) (core) check for empty message.ObjectId.
 
             if (message.ObjectType.EqualsNoCase("CHARGE_PERMISSION"))
             {                
@@ -546,25 +536,8 @@ namespace Smartstore.AmazonPay.Controllers
                 {
                     var d = response.StatusDetails;
                     newState = d.State.Grow(d.Reasons?.LastOrDefault()?.ReasonCode, " ");
-
-                    if (order.CanMarkOrderAsAuthorized())
-                    {
-                        oldState = order.AuthorizationTransactionResult;
-                        order.AuthorizationTransactionResult = newState;
-
-                        await _orderProcessingService.MarkAsAuthorizedAsync(order);
-                        orderUpdated = true;
-                    }
-
-                    if ((d.State.EqualsNoCase("Closed") || d.State.EqualsNoCase("NonChargeable"))
-                        && order.CanVoidOffline())
-                    {
-                        oldState = order.CaptureTransactionResult;
-                        order.CaptureTransactionResult = newState;
-
-                        await _orderProcessingService.VoidOfflineAsync(order);
-                        orderUpdated = true;
-                    }
+                    authorize = true;
+                    voidOffline = d.State.EqualsNoCase("Closed") || d.State.EqualsNoCase("NonChargeable");
                 }
                 else
                 {
@@ -577,9 +550,29 @@ namespace Smartstore.AmazonPay.Controllers
                 if (response.Success)
                 {
                     var d = response.StatusDetails;
+                    var isDeclined = d.State.EqualsNoCase("Declined");
                     newState = d.State.Grow(d.ReasonCode, " ");
 
-                    // TODO: (mg) (core) implement more IPN stuff...
+                    // Authorize if not still pending.
+                    authorize = !d.State.EqualsNoCase("AuthorizationInitiated");
+                    paid = d.State.EqualsNoCase("Captured");
+
+                    // "SoftDeclined... retry attempts may or may not be successful":
+                    // We can not distinguish in it in terms of further processing -> void payment.
+                    voidOffline = isDeclined || d.State.EqualsNoCase("Canceled");
+
+                    if (isDeclined && d.ReasonCode.EqualsNoCase("ProcessingFailure") && message.ChargePermissionId.HasValue())
+                    {
+                        var response2 = _apiClient.GetChargePermission(message.ChargePermissionId);
+                        if (response2.Success)
+                        {
+                            voidOffline = !response2.StatusDetails.State.EqualsNoCase("Chargeable");
+                        }
+                        else
+                        {
+                            Logger.LogAmazonPayFailure(null, response2);
+                        }
+                    }
                 }
                 else
                 {
@@ -588,33 +581,131 @@ namespace Smartstore.AmazonPay.Controllers
             }
             else if (message.ObjectType.EqualsNoCase("REFUND"))
             {
-            }
-            else if (message.ObjectType.EqualsNoCase("CHARGEBACK"))
-            {
-            }
-
-            if (orderUpdated)
-            {
-                // Add order note.
-                order.HasNewPaymentNotification = true;
-
-                if (_settings.AddOrderNotes)
+                var response = _apiClient.GetRefund(message.ObjectId);
+                if (response.Success)
                 {
-                    var faviconUrl = Services.WebHelper.GetStoreLocation() + "Modules/Smartstore.AmazonPay/favicon.png";
+                    var d = response.StatusDetails;
+                    newState = d.State.Grow(d.ReasonCode, " ");
+                    refund = d.State.EqualsNoCase("Refunded");
 
-                    var note = T("Plugins.Payments.AmazonPay.IpnOrderNote",
+                    if (refund)
+                    {
+                        refundAmount = response.RefundAmount.Amount;
+                    }
+                }
+                else
+                {
+                    Logger.LogAmazonPayFailure(null, response);
+                }
+            }
+
+            // Perf. Jump out early from further processing.
+            // Access the database only when necessary.
+            if (!authorize && !paid && !voidOffline && !refund && !chargeback)
+            {
+                return;
+            }
+
+            // Get order.
+            var order = await _db.Orders.FirstOrDefaultAsync(x => x.PaymentMethodSystemName == AmazonPayProvider.SystemName && x.AuthorizationTransactionCode == chargePermissionId);
+            if (order == null)
+            {
+                Logger.Warn(T("Plugins.Payments.AmazonPay.OrderNotFound", chargePermissionId));
+                return;
+            }
+
+            if (!await _paymentService.IsPaymentMethodActiveAsync(AmazonPayProvider.SystemName, null, order.StoreId))
+            {
+                return;
+            }
+
+            // Process order.
+            var oldState = order.CaptureTransactionResult.NullEmpty() ?? order.AuthorizationTransactionResult.NullEmpty() ?? "-";
+
+            // INFO: order must be authorized for all other state changes.
+            // That is why we call MarkAsAuthorizedAsync, even though the payment is not necessarily considered authorized at AmazonPay.
+            if (authorize && order.CanMarkOrderAsAuthorized())
+            {
+                order.AuthorizationTransactionResult = newState;
+
+                await _orderProcessingService.MarkAsAuthorizedAsync(order);
+                orderUpdated = true;
+            }
+
+            if (paid && order.CanMarkOrderAsPaid())
+            {
+                order.CaptureTransactionResult = newState;
+
+                await _orderProcessingService.MarkOrderAsPaidAsync(order);
+                orderUpdated = true;
+            }
+
+            if (voidOffline && order.CanVoidOffline())
+            {
+                order.CaptureTransactionResult = newState;
+
+                await _orderProcessingService.VoidOfflineAsync(order);
+                orderUpdated = true;
+            }
+
+            // Only refund once because order.RefundedAmount could become wrong otherwise.
+            if (refund && order.RefundedAmount == decimal.Zero && refundAmount > decimal.Zero)
+            {
+                decimal receivable = order.OrderTotal - refundAmount;
+                if (receivable <= decimal.Zero)
+                {
+                    if (order.CanRefundOffline())
+                    {
+                        order.CaptureTransactionResult = newState;
+
+                        await _orderProcessingService.RefundOfflineAsync(order);
+                        orderUpdated = true;
+                    }
+                }
+                else
+                {
+                    if (order.CanPartiallyRefundOffline(refundAmount))
+                    {
+                        order.CaptureTransactionResult = newState;
+
+                        await _orderProcessingService.PartiallyRefundOfflineAsync(order, refundAmount);
+                        orderUpdated = true;
+                    }
+                }
+            }
+
+            // Add order note.
+            if ((orderUpdated || chargeback) && _settings.AddOrderNotes)
+            {
+                var faviconUrl = Services.WebHelper.GetStoreLocation() + "Modules/Smartstore.AmazonPay/favicon.png";
+                string note;
+
+                if (chargeback)
+                {
+                    note = T("Plugins.Payments.AmazonPay.IpnChargebackOrderNote",
+                        messageId.NaIfEmpty(),
                         message.NotificationType, message.NotificationId,
                         message.ObjectType, message.ObjectId,
-                        message.ChargePermissionId.NullEmpty() ?? "-",
-                        oldState.NullEmpty() ?? "-", newState.NullEmpty() ?? "-");
-
-                    order.OrderNotes.Add(new OrderNote
-                    {
-                        Note = $"<img src='{faviconUrl}' class='mr-1 align-text-top' />" + note,
-                        DisplayToCustomer = false,
-                        CreatedOnUtc = DateTime.UtcNow
-                    });
+                        message.ChargePermissionId.NaIfEmpty());
                 }
+                else
+                {
+                    note = T("Plugins.Payments.AmazonPay.IpnOrderNote",
+                        messageId.NaIfEmpty(),
+                        message.NotificationType, message.NotificationId,
+                        message.ObjectType, message.ObjectId,
+                        message.ChargePermissionId.NaIfEmpty(),
+                        oldState, newState.NullEmpty() ?? "-");
+                }
+
+                order.OrderNotes.Add(new OrderNote
+                {
+                    Note = $"<img src='{faviconUrl}' class='mr-1 align-text-top' />" + note,
+                    DisplayToCustomer = false,
+                    CreatedOnUtc = DateTime.UtcNow
+                });
+
+                order.HasNewPaymentNotification = true;
 
                 await _db.SaveChangesAsync();
             }
