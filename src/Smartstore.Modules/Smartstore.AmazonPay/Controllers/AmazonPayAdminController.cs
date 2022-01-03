@@ -225,16 +225,12 @@ namespace Smartstore.AmazonPay.Controllers
 
         private static string GetLoginUrl(string shopUrl)
         {
-            try
+            if (Uri.TryCreate(shopUrl, UriKind.Absolute, out var uri))
             {
-                // Only protocol and domain name.
-                var uri = new Uri(shopUrl);
                 return uri.GetLeftPart(UriPartial.Scheme | UriPartial.Authority).EmptyNull().TrimEnd('/');
             }
-            catch
-            {
-                return string.Empty;
-            }
+
+            return string.Empty;
         }
     }
 }
