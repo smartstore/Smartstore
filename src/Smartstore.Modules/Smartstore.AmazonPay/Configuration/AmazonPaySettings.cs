@@ -2,6 +2,19 @@
 
 namespace Smartstore.AmazonPay
 {
+    public enum AmazonPayTransactionType
+    {
+        Authorize = 1,
+        AuthorizeAndCapture = 2
+    }
+
+    public enum AmazonPaySaveDataType
+    {
+        None = 0,
+        OnlyIfEmpty,
+        Always
+    }
+
     public class AmazonPaySettings : ISettings
     {
         public bool UseSandbox { get; set; }
@@ -27,7 +40,6 @@ namespace Smartstore.AmazonPay
         public string Marketplace { get; set; } = "de";
 
         public AmazonPayTransactionType TransactionType { get; set; } = AmazonPayTransactionType.Authorize;
-        public AmazonPayAuthorizeMethod AuthorizeMethod { get; set; } = AmazonPayAuthorizeMethod.Omnichronous;
 
         public AmazonPaySaveDataType? SaveEmailAndPhone { get; set; } = AmazonPaySaveDataType.OnlyIfEmpty;
         public bool ShowPayButtonForAdminOnly { get; set; }

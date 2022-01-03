@@ -6,7 +6,7 @@
     var configGroups = T("Plugins.Payments.AmazonPay.ConfigGroups").Value.SplitSafe(';');
 
     var marketplace = new List<SelectListItem>
-    {
+{
         new SelectListItem { Text = T("Plugins.Payments.AmazonPay.Marketplace.De"), Value = "de" },
         new SelectListItem { Text = T("Plugins.Payments.AmazonPay.Marketplace.Uk"), Value = "uk" },
         new SelectListItem { Text = T("Plugins.Payments.AmazonPay.Marketplace.Us"), Value = "us" },
@@ -14,14 +14,14 @@
     };
 
     var buttonColors = new List<SelectListItem>
-    {
+{
         new SelectListItem { Text = T("Plugins.Payments.AmazonPay.ButtonColor.Gold"), Value = "Gold" },
         new SelectListItem { Text = T("Plugins.Payments.AmazonPay.ButtonColor.LightGray"), Value = "LightGray" },
         new SelectListItem { Text = T("Plugins.Payments.AmazonPay.ButtonColor.DarkGray"), Value = "DarkGray" }
     };
 
     var authButtonType = new List<SelectListItem>
-    {
+{
         new SelectListItem { Text = T("Plugins.Payments.AmazonPay.AuthButtonType.Login"), Value = "Login" },
         new SelectListItem { Text = T("Plugins.Payments.AmazonPay.AuthButtonType.LwA"), Value = "LwA" }
     };
@@ -100,12 +100,26 @@
         </div>
         <div class="adminRow">
             <div class="adminTitle">
-                <smart-label asp-for="PrivateKey" />
+                <smart-label asp-for="HasPrivateKey" />
             </div>
             <div class="adminData">
-                <setting-editor asp-for="PrivateKey"></setting-editor>
-                @*TODO: (mg) (core) add button to load private key from file.*@
-                <span asp-validation-for="PrivateKey"></span>
+                <div sm-if="Model.HasPrivateKey" class="form-control-plaintext">
+                    <span>*******</span>
+                    <button id="remove-private-key" type="button" class="btn btn-secondary btn-to-danger btn-sm ml-3" data-url="@Url.Action("RemovePrivateKey")">
+                        <i class="far fa-trash-alt"></i>
+                        <span>@T("Admin.Common.Delete")</span>
+                    </button>
+                </div>
+                <div class="mt-1">
+                    <file-uploader file-uploader-name="private-key-uploader"
+                                   upload-url='@Url.Action("UploadPrivateKey")'
+                                   type-filter=".pem"
+                                   display-browse-media-button="false"
+                                   display-remove-button="false"
+                                   display-remove-button-after-upload="false"
+                                   upload-text='@T("Plugins.Payments.AmazonPay.UploadPrivateKey")'
+                                   onuploadcompleted="onUploadPrivateKeyCompleted" />
+                </div>
             </div>
         </div>
         <div class="adminRow">
@@ -184,17 +198,6 @@
         <div class="adminRow">
             <div class="admin-config-group">
                 <div class="head">@configGroups.ElementAtOrDefault(1)</div>
-            </div>
-        </div>
-        <div class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="AuthorizeMethod" />
-            </div>
-            <div class="adminData">
-                <setting-editor asp-for="AuthorizeMethod">
-                    <select asp-for="AuthorizeMethod" asp-items="Model.AuthorizeMethod.ToSelectList()"></select>
-                </setting-editor>
-                <span asp-validation-for="AuthorizeMethod"></span>
             </div>
         </div>
         <div class="adminRow">
@@ -354,6 +357,7 @@
     </div>
 </form>
 
+
 @* Must not be the first form in this view. *@
 <form id="register-now-form" method="POST" action="@Model.RegisterUrl" target="_blank">
     <input type="hidden" name="spId" value="@Model.PlatformId" />
@@ -399,7 +403,29 @@
     </modal-footer>
 </modal>
 
+<modal id="update-private-key" sm-render-at-page-end="true" sm-size="Medium">
+    <modal-header sm-title="@T("Plugins.Payments.AmazonPay.PastePrivateKey")"></modal-header>
+    <modal-body>
+        <form asp-action="UpdatePrivateKey" id="private-key-form" method="POST">
+            <textarea name="privateKey" rows="8" class="form-control" style="width: 98%;" placeholder="@T("Plugins.Payments.AmazonPay.PastePrivateKey.Hint")"></textarea>
+        </form>
+
+    </modal-body>
+    <modal-footer>
+        <button class="btn btn-secondary btn-flat" data-dismiss="modal">
+            <span>@T("Common.Cancel")</span>
+        </button>
+        <button id="amazon-save-access-data" class="btn btn-primary" disabled="disabled">
+            <span>@T("Plugins.Payments.AmazonPay.SaveAccessData")</span>
+        </button>
+    </modal-footer>
+</modal>
+
 <script sm-target-zone="scripts" data-origin="configure-amazonpay">
+    window['onUploadPrivateKeyCompleted'] = function () {
+        location.reload();
+	}
+
     $(function () {
 
 		// Show/hide transaction type warning.
@@ -431,6 +457,15 @@
         // Enable\disable register-now button.
         $('#amazon-access-data').on('keyup', function () {
             $('#register-now-dialog').find('.btn-primary').prop('disabled', $(this).val().length == 0);
+        });
+
+        // Remove private key.
+        $('#remove-private-key').on('click', function (e) {
+            e.preventDefault();
+            $(this).postData({
+                ask: @T("Admin.Common.AskToProceed").JsValue
+            });
+            return false;
         });
     });
 </script>

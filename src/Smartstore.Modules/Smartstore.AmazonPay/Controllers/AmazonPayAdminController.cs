@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System.Linq;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.AmazonPay.Services;
@@ -48,15 +49,8 @@ namespace Smartstore.AmazonPay.Controllers
 
             var model = MiniMapper.Map<AmazonPaySettings, ConfigurationModel>(settings);
 
-            // INFO: updating to Core forces the merchant to update URLs at Amazon Celler Central.
-            // Following URLs are configured at Amazon Celler Central:
-            // ~/Plugins/SmartStore.AmazonPay/AmazonPay/IPNHandler
-            // ~/Plugins/SmartStore.AmazonPay/AmazonPayShoppingCart/PayButtonHandler
-            // ~/Plugins/SmartStore.AmazonPay/AmazonPay/AuthenticationButtonHandler
-
             model.IpnUrl = Url.Action(nameof(AmazonPayController.IPNHandler), "AmazonPay", null, "https");
-            // TODO: (mg) (core) implement key sharing endpoint for smart registration.
-            model.KeyShareUrl = Services.WebHelper.GetStoreLocation() + "amazonpay/ShareKey";
+            model.KeyShareUrl = Url.Action(nameof(AmazonPayController.ShareKey), "AmazonPay", null, currentScheme);
             model.ModuleVersion = module.Version.ToString();
             model.LeadCode = AmazonPayProvider.LeadCode;
             model.PlatformId = AmazonPayProvider.PlatformId;
@@ -66,6 +60,7 @@ namespace Smartstore.AmazonPay.Controllers
             model.MerchantPrivacyNoticeUrl = WebHelper.GetAbsoluteUrl(await Url.TopicAsync("privacyinfo"), Request, true, currentScheme);
             model.MerchantSandboxIpnUrl = model.IpnUrl;
             model.MerchantProductionIpnUrl = model.IpnUrl;
+            model.HasPrivateKey = settings.PrivateKey.HasValue();
 
             model.LanguageLocale = language.UniqueSeoCode.EmptyNull().ToLower() switch
             {
@@ -79,23 +74,18 @@ namespace Smartstore.AmazonPay.Controllers
             foreach (var entity in allStores)
             {
                 // SSL required!
-                var shopUrl = entity.SslEnabled ? entity.SecureUrl : entity.Url;
-                if (shopUrl.HasValue())
+                var loginUrl = GetLoginUrl(entity.SslEnabled ? entity.SecureUrl : entity.Url);
+                if (loginUrl.HasValue())
                 {
-                    // TODO: (mg) (core) Allowed redirect URLs are changing.
-                    var loginDomain = GetLoginDomain(shopUrl);
-                    var payHandlerUrl = shopUrl.EnsureEndsWith("/") + "amazonpay/PayButtonHandler";
-                    var authHandlerUrl = shopUrl.EnsureEndsWith("/") + "amazonpay/AuthenticationButtonHandler";
+                    var redirectUrl = loginUrl.EnsureEndsWith("/");
 
-                    model.MerchantLoginDomains.Add(loginDomain);
-                    model.MerchantLoginRedirectUrls.Add(payHandlerUrl);
-                    model.MerchantLoginRedirectUrls.Add(authHandlerUrl);
+                    model.MerchantLoginDomains.Add(loginUrl);
+                    model.MerchantLoginRedirectUrls.Add(redirectUrl);
 
                     if (entity.Id == store.Id)
                     {
-                        model.CurrentMerchantLoginDomains.Add(loginDomain);
-                        model.CurrentMerchantLoginRedirectUrls.Add(payHandlerUrl);
-                        model.CurrentMerchantLoginRedirectUrls.Add(authHandlerUrl);
+                        model.CurrentMerchantLoginDomains.Add(loginUrl);
+                        model.CurrentMerchantLoginRedirectUrls.Add(redirectUrl);
                     }
                 }
             }
@@ -165,7 +155,6 @@ namespace Smartstore.AmazonPay.Controllers
             ModelState.Clear();
 
             model.PublicKey = model.PublicKey.TrimSafe();
-            model.PrivateKey = model.PrivateKey.TrimSafe();
             model.AccessKey = model.AccessKey.TrimSafe();
             model.ClientId = model.ClientId.TrimSafe();
             model.SecretKey = model.SecretKey.TrimSafe();
@@ -177,7 +166,7 @@ namespace Smartstore.AmazonPay.Controllers
 
             await _db.SaveChangesAsync();
 
-            NotifySuccess(T("Plugins.Payments.AmazonPay.ConfigSaveNote"));
+            NotifySuccess(T("Admin.Common.DataSuccessfullySaved"));
 
             return RedirectToAction(nameof(Configure));
         }
@@ -200,7 +189,41 @@ namespace Smartstore.AmazonPay.Controllers
             return RedirectToAction(nameof(Configure));
         }
 
-        private static string GetLoginDomain(string shopUrl)
+        [HttpPost]
+        public async Task<IActionResult> UploadPrivateKey()
+        {
+            if (!Request.Form.Files.Any())
+            {
+                throw new BadHttpRequestException(T("Common.NoFileUploaded"));
+            }
+
+            var storeScope = GetActiveStoreScopeConfiguration();
+            var settings = await Services.SettingFactory.LoadSettingsAsync<AmazonPaySettings>(storeScope);
+
+            using var sourceStream = Request.Form.Files[0].OpenReadStream();
+            var privateKey = await sourceStream.AsStringAsync();
+
+            settings.PrivateKey = privateKey.TrimSafe();
+            await Services.SettingFactory.SaveSettingsAsync(settings, storeScope);
+
+            NotifySuccess(T("Admin.Common.DataSuccessfullySaved"));
+
+            return Json(new { success = true });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> RemovePrivateKey()
+        {
+            var storeScope = GetActiveStoreScopeConfiguration();
+            var settings = await Services.SettingFactory.LoadSettingsAsync<AmazonPaySettings>(storeScope);
+
+            settings.PrivateKey = null;
+            await Services.SettingFactory.SaveSettingsAsync(settings, storeScope);
+
+            return RedirectToAction(nameof(Configure));
+        }
+
+        private static string GetLoginUrl(string shopUrl)
         {
             try
             {

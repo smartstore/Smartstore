@@ -18,6 +18,7 @@ namespace Smartstore.AmazonPay
         {
             services.AddScoped<IAmazonPayService, AmazonPayService>();
 
+            // TODO: (mg) (core) we cannot register API client. We need the client with settings for a certain store ID.
             services.AddScoped<IWebStoreClient, WebStoreClient>(c =>
             {
                 var settings = c.GetRequiredService<AmazonPaySettings>();

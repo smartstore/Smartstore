@@ -566,7 +566,6 @@ namespace Smartstore.Web.Controllers
 
             var model = new CheckoutConfirmModel();
             OrderPlacementResult placeOrderResult = null;
-            PostProcessPaymentRequest postProcessPaymentRequest = null;
 
             try
             {
@@ -606,11 +605,15 @@ namespace Smartstore.Web.Controllers
 
                 if (!placeOrderResult.Success)
                 {
-                    model.Warnings.AddRange(placeOrderResult.Errors.Select(x => HtmlUtility.ConvertPlainTextToHtml(x)));
-
                     if (placeOrderResult.RedirectUrl.HasValue())
                     {
+                        NotifyError(string.Join(Environment.NewLine, placeOrderResult.Errors.Take(3)));
+
                         return Redirect(placeOrderResult.RedirectUrl);
+                    }
+                    else
+                    {
+                        model.Warnings.AddRange(placeOrderResult.Errors.Select(x => HtmlUtility.ConvertPlainTextToHtml(x)));
                     }
                 }
             }
@@ -629,13 +632,13 @@ namespace Smartstore.Web.Controllers
                 return View(model);
             }
 
+            var postProcessPaymentRequest = new PostProcessPaymentRequest
+            {
+                Order = placeOrderResult.PlacedOrder
+            };
+
             try
             {
-                postProcessPaymentRequest = new PostProcessPaymentRequest
-                {
-                    Order = placeOrderResult.PlacedOrder
-                };
-
                 await _paymentService.PostProcessPaymentAsync(postProcessPaymentRequest);
             }
             catch (Exception ex)
@@ -648,7 +651,7 @@ namespace Smartstore.Web.Controllers
                 _checkoutStateAccessor.Abandon();
             }
 
-            if (postProcessPaymentRequest != null && postProcessPaymentRequest.RedirectUrl.HasValue())
+            if (postProcessPaymentRequest.RedirectUrl.HasValue())
             {
                 return Redirect(postProcessPaymentRequest.RedirectUrl);
             }

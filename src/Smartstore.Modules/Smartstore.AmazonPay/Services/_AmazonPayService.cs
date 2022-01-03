@@ -115,10 +115,11 @@ namespace Smartstore.AmazonPay.Services
             }
 
             settings.SellerId = (string)jsonData.merchant_id;
-            settings.AccessKey = (string)jsonData.access_key;
-            settings.SecretKey = (string)jsonData.secret_key;
-            settings.ClientId = (string)jsonData.client_id;
-            //settings.ClientSecret = (string)json.client_secret;
+            settings.PublicKeyId = (string)jsonData.public_key_id;
+            settings.ClientId = (string)jsonData.store_id;
+
+            //settings.AccessKey = (string)jsonData.access_key;
+            //settings.SecretKey = (string)jsonData.secret_key;
 
             return await _services.SettingFactory.SaveSettingsAsync(settings, storeId);
         }
@@ -209,12 +210,6 @@ namespace Smartstore.AmazonPay.Services
 
         #region Utilities
 
-        //internal static string GenerateRandomId(string prefix)
-        //{
-        //    var str = prefix + CommonHelper.GenerateRandomDigitCode(20);
-        //    return str.Truncate(32);
-        //}
-
         private static (string FirstName, string LastName) GetFirstAndLastName(string name)
         {
             if (name.HasValue())
@@ -232,31 +227,6 @@ namespace Smartstore.AmazonPay.Services
 
             return (string.Empty, string.Empty);
         }
-
-        //private async Task<Order> FindOrderByAmazonId(string amazonPayId)
-        //{
-        //    // S02-9777218-8608106				OrderReferenceId
-        //    // S02-9777218-8608106-A088344		Auth ID
-        //    // S02-9777218-8608106-C088344		Capture ID
-
-        //    if (amazonPayId.HasValue())
-        //    {
-        //        var amazonOrderReferenceId = amazonPayId[..amazonPayId.LastIndexOf('-')];
-        //        if (amazonOrderReferenceId.HasValue())
-        //        {
-        //            var orders = await _db.Orders
-        //                .Where(x => x.PaymentMethodSystemName == AmazonPayProvider.SystemName && x.AuthorizationTransactionId.StartsWith(amazonOrderReferenceId))
-        //                .ToListAsync();
-
-        //            if (orders.Count == 1)
-        //            {
-        //                return orders[0];
-        //            }
-        //        }
-        //    }
-
-        //    return null;
-        //}
 
         #endregion
     }

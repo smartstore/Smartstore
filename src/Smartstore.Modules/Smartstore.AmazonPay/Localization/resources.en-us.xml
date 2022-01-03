@@ -47,21 +47,13 @@ Text suggestions:</div><ul>
 		<Value>Unfortunately Amazon Pay declined the payment for your order in our online shop. Please choose another payment method.</Value>
 	</LocaleResource>
 	<LocaleResource Name="AuthorizationHardDeclineMessage">
-		<Value>
-			<![CDATA[<p>Unfortunately Amazon Pay declined the payment for your order in our online shop. Please contact us.</p>]]>
-		</Value>
+		<Value>Unfortunately Amazon Pay declined the payment for your order in our online shop. Please contact us.</Value>
 	</LocaleResource>
 	<LocaleResource Name="AuthenticationStatusFailureMessage">
-		<Value>There was a problem with your payment. Your order hasn't been placed, and you haven't been charged.</Value>
+		<Value>There was a problem with your payment. Your order hasn't been placed, and you haven't been charged. Please try another payment method.</Value>
 	</LocaleResource>
-	<LocaleResource Name="AuthenticationStatusAbandonedMessage">
-		<Value>Something's wrong with your payment method. To place your order, try another payment method.</Value>
-	</LocaleResource>
-	<LocaleResource Name="MissingCheckoutSessionId">
-		<Value>Something's wrong with your payment method (missing session ID). To place your order, try another payment method.</Value>
-	</LocaleResource>
-	<LocaleResource Name="MissingRedirectUrl">
-		<Value>Something's wrong with your payment method (missing redirect URL). To place your order, try again or choose another payment method.</Value>
+	<LocaleResource Name="PaymentFailure">
+		<Value>Something's wrong with your payment method. To place your order, try again or choose another payment method.</Value>
 	</LocaleResource>
 	<LocaleResource Name="AmazonPaymentsReports">
 		<Value>Amazon Pay reports</Value>
@@ -71,9 +63,6 @@ Text suggestions:</div><ul>
 	</LocaleResource>
 	<LocaleResource Name="BillingToCountryNotAllowed">
 		<Value>Invoicing is not possible for the selected country. Please choose an other billing address.</Value>
-	</LocaleResource>
-	<LocaleResource Name="ConfigSaveNote">
-		<Value>The settings were successfully saved. Please restart the application if "Updating the payment status" has been changed.</Value>
 	</LocaleResource>
 	<LocaleResource Name="AuthenticationNotActive">
 		<Value>Amazon authentication is not active!</Value>
@@ -102,7 +91,7 @@ Text suggestions:</div><ul>
 		<Value>Paste access data</Value>
 	</LocaleResource>
 	<LocaleResource Name="PasteAccessData.Hint">
-		<Value>Paste here your access data (merchant_id, access_key, secret_key, client_id etc.)...</Value>
+		<Value>Paste here your access data (merchant_id, public_key_id, store_id etc.)...</Value>
 	</LocaleResource>
 	<LocaleResource Name="MissingAccessToken">
 		<Value>Missing access token!</Value>
@@ -121,9 +110,6 @@ Text suggestions:</div><ul>
 	</LocaleResource>
 	<LocaleResource Name="ConfigGroups">
 		<Value>Access data;Data exchange;Layout;Miscellaneous</Value>
-	</LocaleResource>
-	<LocaleResource Name="MessageStrings">
-		<Value>Message type;Message ID;Authorization ID;Capture ID;Refund ID;Reference ID;State;State update;Fee;Authorized amount;Captured amount;Refunded amount;Capture now;Creation;Expiration</Value>
 	</LocaleResource>
 	<LocaleResource Name="CloseChargeReason">
 		<Value>No more charges required.</Value>
@@ -146,17 +132,20 @@ Text suggestions:</div><ul>
 		<Value>Check the box to use the sandbox (testing environment).</Value>
 	</LocaleResource>
 	<LocaleResource Name="PublicKeyId">
-		<Value>Public Key-ID</Value>
+		<Value>Your Public Key-ID</Value>
 	</LocaleResource>
 	<LocaleResource Name="PublicKeyId.Hint">
 		<Value>The Public Key ID is your unique identifier used to access the Amazon Pay API.</Value>
 	</LocaleResource>
 	<LocaleResource Name="PrivateKey">
-		<Value>Private Key</Value>
+		<Value>Your Private Key</Value>
 	</LocaleResource>
 	<LocaleResource Name="PrivateKey.Hint">
-		<Value>The Private Key for accessing the Amazon Pay API. You get the Private Key as a downloadable .pem file from Amazon Pay after creating the API keys.</Value>
+		<Value>The Private Key for accessing the Amazon Pay API. You will get the Private Key from Amazon Pay as a downloadable file with the extension .pem after you have created the API keys.</Value>
 	</LocaleResource>
+	<LocaleResource Name="UploadPrivateKey">
+		<Value>Upload Private Key file (.pem)</Value>
+	</LocaleResource>	
 	<LocaleResource Name="ShowPayButtonForAdminOnly">
 		<Value>Show pay button for administrators only</Value>
 	</LocaleResource>
@@ -279,21 +268,6 @@ Text suggestions:</div><ul>
 		<Value>
 			<![CDATA[Please use <b>Immediately debit</b> method only in the case you are shipping goods on the same day they are ordered and you have been white-listed for this service. Do not activate this option without contacting Amazon Pay first.]]>
 		</Value>
-	</LocaleResource>
-	<LocaleResource Name="AuthorizeMethod">
-		<Value>Authorize method</Value>
-	</LocaleResource>
-	<LocaleResource Name="AuthorizeMethod.Hint">
-		<Value>Specifies the method by which payments are to be authorized.</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.AmazonPayAuthorizeMethod.Omnichronous" AppendRootKey="false">
-		<Value>Standard (Omnichronous)</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.AmazonPayAuthorizeMethod.Asynchronous" AppendRootKey="false">
-		<Value>Asynchronous</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.AmazonPayAuthorizeMethod.Synchronous" AppendRootKey="false">
-		<Value>Synchronous</Value>
 	</LocaleResource>
 	<LocaleResource Name="SaveEmailAndPhone">
 		<Value>Apply customer data</Value>

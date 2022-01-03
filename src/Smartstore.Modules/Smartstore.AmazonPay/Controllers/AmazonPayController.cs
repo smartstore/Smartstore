@@ -195,15 +195,6 @@ namespace Smartstore.AmazonPay.Controllers
 
                     return RedirectToAction(actionName, "Checkout");
                 }
-                else if (result.RequiresAddressUpdate && !result.IsShippingMethodMissing)
-                {
-                    // Buyer can choose another billing\shipping address at AmazonPay.
-                    return RedirectToAction(nameof(CheckoutController.Confirm), "Checkout");
-                }
-
-                // In all other cases we have to kick the buyer out and redirect him back to the shopping cart (not nice).
-                // We cannot change the address here. We cannot store invalid addresses and assign them to a customer.
-                // Also, the shipping method has not been selected yet.
             }
             catch (Exception ex)
             {
@@ -220,7 +211,7 @@ namespace Smartstore.AmazonPay.Controllers
 
             if (checkoutSessionId.IsEmpty())
             {
-                NotifyWarning(T("Plugins.Payments.AmazonPay.MissingCheckoutSessionId"));
+                NotifyWarning(T("Plugins.Payments.AmazonPay.PaymentFailure"));
                 return result;
             }
 
@@ -244,6 +235,8 @@ namespace Smartstore.AmazonPay.Controllers
             var billTo = await _amazonPayService.CreateAddressAsync(session, customer, true);
             if (!billTo.Success)
             {
+                // We have to redirect the buyer back to the shopping cart because we cannot change the address at this stage.
+                // We cannot store invalid addresses and assign them to a customer.
                 NotifyWarning(T("Plugins.Payments.AmazonPay.BillingToCountryNotAllowed"));
                 result.RequiresAddressUpdate = true;
                 return result;
@@ -398,7 +391,8 @@ namespace Smartstore.AmazonPay.Controllers
                             }
                             else
                             {
-                                messages.Add(T("Plugins.Payments.AmazonPay.MissingRedirectUrl"));
+                                messages.Add(T("Plugins.Payments.AmazonPay.PaymentFailure"));
+                                Logger.LogAmazonPayFailure(request, response);
                             }
                         }
                         else
@@ -709,6 +703,26 @@ namespace Smartstore.AmazonPay.Controllers
 
                 await _db.SaveChangesAsync();
             }
+        }
+
+        [Route("amazonpay/sharekey")]
+        public async Task<IActionResult> ShareKey(string payload)
+        {
+            Response.Headers.Add("Access-Control-Allow-Origin", "https://payments.amazon.com");
+            Response.Headers.Add("Access-Control-Allow-Methods", "GET, POST");
+            Response.Headers.Add("Access-Control-Allow-Headers", "Content-Type");
+
+            try
+            {
+                await _amazonPayService.UpdateAccessKeysAsync(payload, 0);
+            }
+            catch (Exception ex)
+            {
+                Response.StatusCode = 400;
+                return Json(new { result = "error", message = ex.Message });
+            }
+
+            return Json(new { result = "success" });
         }
 
         #region Authentication

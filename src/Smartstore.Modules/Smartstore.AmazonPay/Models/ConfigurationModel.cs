@@ -11,11 +11,8 @@ namespace Smartstore.AmazonPay.Models
         [LocalizedDisplay("*PublicKeyId")]
         public string PublicKeyId { get; set; }
 
-        [UIHint("Textarea")]
-        [AdditionalMetadata("rows", 3)]
-        [DataType(DataType.Password)]
         [LocalizedDisplay("*PrivateKey")]
-        public string PrivateKey { get; set; }
+        public bool HasPrivateKey { get; set; }
 
         [LocalizedDisplay("*SellerId")]
         public string SellerId { get; set; }
@@ -38,9 +35,6 @@ namespace Smartstore.AmazonPay.Models
 
         [LocalizedDisplay("*TransactionType")]
         public AmazonPayTransactionType TransactionType { get; set; }
-
-        [LocalizedDisplay("*AuthorizeMethod")]
-        public AmazonPayAuthorizeMethod AuthorizeMethod { get; set; }
 
         [LocalizedDisplay("*SaveEmailAndPhone")]
         public AmazonPaySaveDataType? SaveEmailAndPhone { get; set; }

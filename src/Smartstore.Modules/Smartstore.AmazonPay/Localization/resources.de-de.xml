@@ -48,21 +48,13 @@ Textvorschläge:</div><ul>
 		<Value>Leider wurde die Zahlung zu Ihrer Bestellung in unserem Onlineshop von Amazon Pay zurückgewiesen. Bitte wählen Sie eine andere Zahlart.</Value>
 	</LocaleResource>
 	<LocaleResource Name="AuthorizationHardDeclineMessage">
-		<Value>
-			<![CDATA[<p>Leider wurde die Zahlung zu Ihrer Bestellung in unserem Onlineshop von Amazon Pay zurückgewiesen. Bitte kontaktieren Sie uns.</p>]]>
-		</Value>
+		<Value>Leider wurde die Zahlung zu Ihrer Bestellung in unserem Onlineshop von Amazon Pay zurückgewiesen. Bitte kontaktieren Sie uns.</Value>
 	</LocaleResource>
 	<LocaleResource Name="AuthenticationStatusFailureMessage">
-		<Value>Beim Zahlungsvorgang ist ein Problem aufgetreten. Ihre Bestellung wurde nicht aufgegeben und Ihr Konto nicht belastet.</Value>
+		<Value>Beim Zahlungsvorgang ist ein Problem aufgetreten. Ihre Bestellung wurde nicht aufgegeben und Ihr Konto nicht belastet. Bitte wählen Sie eine andere Zahlungsart aus.</Value>
 	</LocaleResource>
-	<LocaleResource Name="AuthenticationStatusAbandonedMessage">
-		<Value>Mit dieser Zahlungsart ist ein Problem aufgetreten. Um Ihre Bestellung abzuschließen, wählen Sie bitte eine andere Zahlungsart aus.</Value>
-	</LocaleResource>
-	<LocaleResource Name="MissingCheckoutSessionId">
-		<Value>Mit dieser Zahlungsart ist ein Problem aufgetreten (fehlende Sitzungs-ID). Um Ihre Bestellung abzuschließen, wählen Sie bitte eine andere Zahlungsart aus.</Value>
-	</LocaleResource>
-	<LocaleResource Name="MissingRedirectUrl">
-		<Value>Mit dieser Zahlungsart ist ein Problem aufgetreten (fehlende Weiterleitungsadresse). Bitte versuchen Sie es erneut oder wählen Sie eine andere Zahlungsart aus.</Value>
+	<LocaleResource Name="PaymentFailure">
+		<Value>Mit dieser Zahlungsart ist ein Problem aufgetreten. Bitte versuchen Sie es erneut oder wählen Sie eine andere Zahlungsart aus.</Value>
 	</LocaleResource>
 	<LocaleResource Name="AmazonPaymentsReports">
 		<Value>Amazon Pay meldet</Value>
@@ -72,9 +64,6 @@ Textvorschläge:</div><ul>
 	</LocaleResource>
 	<LocaleResource Name="BillingToCountryNotAllowed">
 		<Value>Eine Rechnungsstellung ist für das ausgewählte Land leider nicht möglich. Bitte wählen Sie eine andere Rechnungsadresse.</Value>
-	</LocaleResource>
-	<LocaleResource Name="ConfigSaveNote">
-		<Value>Die Einstellungen wurden erfolgreich gespeichert. Starten Sie die Anwendung bitte neu, falls "Aktualisierung des Zahlungsstatus" geändert wurde.</Value>
 	</LocaleResource>
 	<LocaleResource Name="AuthenticationNotActive">
 		<Value>Amazon Authentifizierung ist nicht aktiv!</Value>
@@ -103,7 +92,7 @@ Textvorschläge:</div><ul>
 		<Value>Zugangsdaten einfügen</Value>
 	</LocaleResource>
 	<LocaleResource Name="PasteAccessData.Hint">
-		<Value>Fügen Sie hier Ihre Zugangsdaten ein (merchant_id, access_key, secret_key, client_id etc.)...</Value>
+		<Value>Fügen Sie hier Ihre Zugangsdaten ein (merchant_id, public_key_id, store_id etc.)...</Value>
 	</LocaleResource>
 	<LocaleResource Name="MissingAccessToken">
 		<Value>Der Access-Token fehlt!</Value>
@@ -122,9 +111,6 @@ Textvorschläge:</div><ul>
 	</LocaleResource>
 	<LocaleResource Name="ConfigGroups">
 		<Value>Zugangsdaten;Datenaustausch;Layout;Verschiedenes</Value>
-	</LocaleResource>
-	<LocaleResource Name="MessageStrings">
-		<Value>Mitteilungstyp;Mitteilungs ID;Autorisierungs ID;Buchungs ID;Rückerstatattungs ID;Referenz ID;Status;Statusaktualisierung;Gebühr;Autorisierungsbetrag;Buchungsbetrag;Erstattungsbetrag;Sofort buchen;Erstellt am;Verfällt am</Value>
 	</LocaleResource>
 	<LocaleResource Name="CloseChargeReason">
 		<Value>Keine weiteren Buchungen erforderlich.</Value>
@@ -147,16 +133,19 @@ Textvorschläge:</div><ul>
 		<Value>Legt fest, ob die Sandbox (Testumgebung) genutzt werden soll.</Value>
 	</LocaleResource>
 	<LocaleResource Name="PublicKeyId">
-		<Value>Public Key-ID</Value>
+		<Value>Ihre Public Key-ID</Value>
 	</LocaleResource>
 	<LocaleResource Name="PublicKeyId.Hint">
 		<Value>Die Public Key-ID ist Ihre eindeutige Kennung, die für den Zugriff auf die Amazon Pay-API verwendet wird.</Value>
 	</LocaleResource>
 	<LocaleResource Name="PrivateKey">
-		<Value>Private Key</Value>
+		<Value>Ihr Private Key</Value>
 	</LocaleResource>
 	<LocaleResource Name="PrivateKey.Hint">
-		<Value>Der Private Key für den Zugriff auf die Amazon Pay-API. Den Private Key erhalten Sie als herunterladbare .pem Datei bei Amazon Pay nach Erstellen der API-Schlüssel.</Value>
+		<Value>Der Private Key für den Zugriff auf die Amazon Pay-API. Den Private Key erhalten Sie bei Amazon Pay als herunterladbare Datei mit der Endung .pem, nachdem Sie die API-Schlüssel erstellt haben.</Value>
+	</LocaleResource>
+	<LocaleResource Name="UploadPrivateKey">
+		<Value>Private Key Datei (.pem) hochladen</Value>
 	</LocaleResource>
 	<LocaleResource Name="ShowPayButtonForAdminOnly">
 		<Value>Zahlungs-Button nur für Administratoren sichtbar</Value>
@@ -280,21 +269,6 @@ Textvorschläge:</div><ul>
 		<Value>
 			<![CDATA[Bitte benutzen Sie <b>Sofort abbuchen</b> nur, wenn Sie Ware am selben Tag der Bestellung verschicken und Sie für diesen Dienst zugelassen sind. Aktivieren Sie diese Option bitte erst nach Rücksprache mit Amazon Pay.]]>
 		</Value>
-	</LocaleResource>
-	<LocaleResource Name="AuthorizeMethod">
-		<Value>Autorisierungsmethode</Value>
-	</LocaleResource>
-	<LocaleResource Name="AuthorizeMethod.Hint">
-		<Value>Legt die Methode fest, mit der Zahlungen autorisiert werden sollen.</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.AmazonPayAuthorizeMethod.Omnichronous" AppendRootKey="false">
-		<Value>Standard (Omnichron)</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.AmazonPayAuthorizeMethod.Asynchronous" AppendRootKey="false">
-		<Value>Asynchron</Value>
-	</LocaleResource>
-	<LocaleResource Name="Enums.AmazonPayAuthorizeMethod.Synchronous" AppendRootKey="false">
-		<Value>Synchron</Value>
 	</LocaleResource>
 	<LocaleResource Name="SaveEmailAndPhone">
 		<Value>Kundendaten übernehmen</Value>
