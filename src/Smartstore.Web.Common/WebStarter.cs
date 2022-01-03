@@ -1,15 +1,17 @@
-﻿using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Text.Encodings.Web;
+﻿using System.Text.Encodings.Web;
 using System.Text.Unicode;
 using Autofac;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.WebEncoders;
-using Microsoft.Net.Http.Headers;
+using Serilog;
+using Smartstore.Bootstrapping;
 using Smartstore.Core;
+using Smartstore.Core.Bootstrapping;
+using Smartstore.Core.Logging.Serilog;
 using Smartstore.Core.Seo.Routing;
 using Smartstore.Core.Widgets;
 using Smartstore.Engine;
@@ -69,6 +71,67 @@ namespace Smartstore.Web
             builder.RegisterType<DefaultViewInvoker>().As<IViewInvoker>().InstancePerLifetimeScope();
             builder.RegisterType<WebWorkContext>().As<IWorkContext>().InstancePerLifetimeScope();
             builder.RegisterType<SlugRouteTransformer>().InstancePerLifetimeScope();
+        }
+
+        public override void BuildPipeline(RequestPipelineBuilder builder)
+        {
+            var appContext = builder.ApplicationContext;
+
+            builder.Configure(StarterOrdering.BeforeExceptionHandlerMiddleware, app =>
+            {
+                // Must come very early.
+                app.UseContextState();
+            });
+
+            builder.Configure(StarterOrdering.ExceptionHandlerMiddleware, app =>
+            {
+                bool useDevExceptionPage = appContext.AppConfiguration.UseDeveloperExceptionPage ?? appContext.HostEnvironment.IsDevelopment();
+                if (useDevExceptionPage)
+                {
+                    app.UseDeveloperExceptionPage();
+                }
+                else
+                {
+                    app.UseExceptionHandler("/Error");
+                    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+                    app.UseHsts();
+                }
+
+                app.UseStatusCodePagesWithReExecute("/Error/{0}");
+            });
+
+            builder.Configure(StarterOrdering.AfterExceptionHandlerMiddleware, app =>
+            {
+                // Write streamlined request completion events, instead of the more verbose ones from the framework.
+                // To use the default framework request logging instead, remove this line and set the "Microsoft"
+                // level in appsettings.json to "Information".
+                app.UseSerilogRequestLogging();
+
+                // Executes IApplicationInitializer implementations during the very first request.
+                if (appContext.IsInstalled)
+                {
+                    app.UseApplicationInitializer();
+                }
+            });
+
+            builder.Configure(StarterOrdering.EarlyMiddleware, app =>
+            {
+                app.UseSession();
+                app.UseCheckoutState();
+
+                if (appContext.IsInstalled)
+                {
+                    app.UseUrlPolicy();
+                    app.UseRequestCulture();
+                    app.UseMiddleware<SerilogHttpContextMiddleware>();
+                }
+            });
+
+            builder.Configure(StarterOrdering.DefaultMiddleware, app =>
+            {
+                // TODO: (core) Configure cookie policy
+                app.UseCookiePolicy();
+            });
         }
 
         public override void MapRoutes(EndpointRoutingBuilder builder)

@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Linq;
 using Autofac;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Abstractions;
@@ -18,14 +16,12 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures.Infrastructure;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Bootstrapping;
 using Smartstore.Core.Common.JsonConverters;
 using Smartstore.Core.Localization.Routing;
-using Smartstore.Core.Logging.Serilog;
 using Smartstore.Core.Web;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;
@@ -229,25 +225,6 @@ namespace Smartstore.Web
 
         public override void BuildPipeline(RequestPipelineBuilder builder)
         {
-            var appContext = builder.ApplicationContext;
-
-            builder.Configure(StarterOrdering.BeforeStaticFilesMiddleware, app => 
-            {
-                bool useDevExceptionPage = appContext.AppConfiguration.UseDeveloperExceptionPage ?? appContext.HostEnvironment.IsDevelopment();
-                if (useDevExceptionPage)
-                {
-                    app.UseDeveloperExceptionPage();
-                }
-                else
-                {
-                    app.UseExceptionHandler("/Error");
-                    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-                    app.UseHsts();
-                }
-
-                app.UseStatusCodePagesWithReExecute("/Error/{0}");
-            });
-
             builder.Configure(StarterOrdering.RoutingMiddleware, app =>
             {
                 app.UseRouting();
@@ -257,25 +234,6 @@ namespace Smartstore.Web
             {
                 // TODO: (core) Use Swagger
                 // TODO: (core) Use Response compression
-            });
-
-            builder.Configure(StarterOrdering.EarlyMiddleware, app =>
-            {
-                app.UseSession();
-                app.UseCheckoutState();
-
-                if (appContext.IsInstalled)
-                {
-                    app.UseUrlPolicy();
-                    app.UseRequestCulture();
-                    app.UseMiddleware<SerilogHttpContextMiddleware>();
-                }
-            });
-
-            builder.Configure(StarterOrdering.DefaultMiddleware, app =>
-            {
-                // TODO: (core) Configure cookie policy
-                app.UseCookiePolicy();
             });
         }
 
