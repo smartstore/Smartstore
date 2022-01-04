@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace Smartstore.AmazonPay.Models
+﻿namespace Smartstore.AmazonPay.Models
 {
     [LocalizedDisplay("Plugins.Payments.AmazonPay.")]
     public class ConfigurationModel : ModelBase
@@ -16,13 +14,6 @@ namespace Smartstore.AmazonPay.Models
 
         [LocalizedDisplay("*SellerId")]
         public string SellerId { get; set; }
-
-        [LocalizedDisplay("*AccessKey")]
-        public string AccessKey { get; set; }
-
-        [LocalizedDisplay("*SecretKey")]
-        [DataType(DataType.Password)]
-        public string SecretKey { get; set; }
 
         [LocalizedDisplay("*ClientId")]
         public string ClientId { get; set; }
@@ -45,6 +36,9 @@ namespace Smartstore.AmazonPay.Models
         [LocalizedDisplay("*ShowButtonInMiniShoppingCart")]
         public bool ShowButtonInMiniShoppingCart { get; set; }
 
+        [LocalizedDisplay("*ShowSignoutButton")]
+        public bool ShowSignoutButton { get; set; }
+
         [LocalizedDisplay("Admin.Configuration.Payment.Methods.AdditionalFee")]
         public decimal AdditionalFee { get; set; }
 
@@ -54,18 +48,8 @@ namespace Smartstore.AmazonPay.Models
         [LocalizedDisplay("*AddOrderNotes")]
         public bool AddOrderNotes { get; set; }
 
-        [LocalizedDisplay("*InformCustomerAboutErrors")]
-        public bool InformCustomerAboutErrors { get; set; }
-
-        [LocalizedDisplay("*InformCustomerAddErrors")]
-        public bool InformCustomerAddErrors { get; set; }
-
-
         [LocalizedDisplay("*PayButtonColor")]
         public string PayButtonColor { get; set; }
-
-        [LocalizedDisplay("*AuthButtonType")]
-        public string AuthButtonType { get; set; }
 
         [LocalizedDisplay("*AuthButtonColor")]
         public string AuthButtonColor { get; set; }

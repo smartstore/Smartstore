@@ -54,5 +54,8 @@
         public string ButtonPlacement { get; init; } = "Cart";
         public string ButtonType { get; init; } = "PayAndShip";
         public string ButtonColor { get; }
+
+        public bool SignIn
+            => ButtonType.EqualsNoCase("SignIn");
     }
 }

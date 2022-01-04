@@ -9,34 +9,22 @@
 		<Value>Amazon Pay</Value>
 	</LocaleResource>
 
-
 	<LocaleResource Name="AdminInstruction">
 		<Value>
 			<![CDATA[<div class="mb-1">So richten Sie <b>Login und Bezahlen mit Amazon</b> ein:</div><ul>
-<li>Legen Sie in Ihrem <a href="https://sellercentral-europe.amazon.com" target="_blank">Amazon Seller Central</a> Konto eine <b>Login mit Amazon</b> Anwendung an. Verwenden Sie dabei die unten aufgeführten <b>Zulässige JavaScript-Ursprünge</b> und <b>Zulässige Rückleitungs-URLs</b> (SSL zwingend erforderlich!).</li>
+<li>Legen Sie in Ihrem <a class="alert-link" href="https://sellercentral-europe.amazon.com" target="_blank">Amazon Seller Central</a> Konto eine <b>Login mit Amazon</b> Anwendung an. Verwenden Sie dabei die unten aufgeführten <b>Zulässige JavaScript-Ursprünge</b> und <b>Zulässige Rückleitungs-URLs</b> (SSL zwingend erforderlich!).</li>
 <li>Tragen Sie Ihre Amazon-Zugangsdaten unten in die dafür vorgesehenen Felder ein.
-Die Zugangsdaten finden Sie in Ihrem <a href="https://sellercentral-europe.amazon.com" target="_blank">Amazon Seller Central</a> Konto oben links unter <b>Integration > MWS Access Key</b>.</li>
-<li>Falls Sie Sofortbenachrichtigungen (IPN) erhalten möchten (SSL zwingend erforderlich!), so tragen Sie die unten aufgeführte IPN URL unter <b>Einstellungen > Integrationseinstellungen > Sofortbenachrichtigungs-Einstellungen > Händler-URL</b> ein.</li>
+Erstellen Sie dazu API-Schlüssel in Ihrem <a class="alert-link" href="https://sellercentral-europe.amazon.com" target="_blank">Amazon Seller Central</a> Konto oben links unter <b>Integration > Integration Central</b>.
+Den Private Key erhalten Sie in Form einer Datei mit der Endung .pem, die Sie weiter unten hochladen müssen.</li>
+<li>Falls Sie Sofortbenachrichtigungen (IPN) erhalten möchten (SSL zwingend erforderlich!), so tragen Sie die unten aufgeführte IPN URL unter <b>Integrationseinstellungen - Sofortbenachrichtigungseinstellungen - Händler-URL</b> ein.</li>
 </ul>
-<div class="mb-1">Bitte fügen Sie Informationen zu <b>Login und Bezahlen mit Amazon</b> auf Ihrer Seite der Zahlungsarten ein (siehe <b>CMS > Seiten</b>). Bildmaterial finden Sie <a href="https://payments.amazon.de/resources#marks">hier</a>.
+<div class="mb-1">Bitte fügen Sie Informationen zu <b>Login und Bezahlen mit Amazon</b> auf Ihrer Seite der Zahlungsarten ein (siehe <b>CMS > Seiten</b>). Bildmaterial finden Sie <a class="alert-link" href="https://payments.amazon.de/resources#marks">hier</a>.
 Textvorschläge:</div><ul>
 <li>Option 1: Amazon Pay: Zahlen Sie jetzt mit den Zahl- und Lieferinformationen aus Ihrem Amazon-Konto.</li>
 <li>Option 2: Sie sind Amazon-Kunde? Zahlen Sie jetzt mit den Zahl- und Lieferinformationen aus Ihrem Amazon-Konto.</li>
 <li>Option 3: Sie sind Amazon-Kunde? Zahlen Sie jetzt mit den Daten aus Ihrem Amazon-Konto.</li>
 </ul>]]>
 		</Value>
-	</LocaleResource>
-	<LocaleResource Name="BillingAddressMessageNote">
-		<Value>Bitte beachten Sie, dass es sich bei dieser Rechnungsadresse unter Umständen nicht um die für diese Bestellung gültige handelt!</Value>
-	</LocaleResource>
-	<LocaleResource Name="MissingOrderReferenceId">
-		<Value>Es wurde keine Auftrags-Referenz-ID durch Amazon übermittelt.</Value>
-	</LocaleResource>
-	<LocaleResource Name="MissingAddressConsentToken">
-		<Value>Es wurde keine Access-Token durch Amazon übermittelt.</Value>
-	</LocaleResource>
-	<LocaleResource Name="IncompleteProfileDetails">
-		<Value>Unvollständige Amazon Profildaten!</Value>
 	</LocaleResource>
 	<LocaleResource Name="MissingCheckoutSessionState">
 		<Value>Fehlender Checkout-Sitzungsstatus für "Login und Bezahlen mit Amazon". Ihre Zahlung kann leider nicht bearbeitet werden. Bitte gehen Sie zurück in den Warenkorb und Durchlaufen Sie den Checkout erneut.</Value>
@@ -56,17 +44,11 @@ Textvorschläge:</div><ul>
 	<LocaleResource Name="PaymentFailure">
 		<Value>Mit dieser Zahlungsart ist ein Problem aufgetreten. Bitte versuchen Sie es erneut oder wählen Sie eine andere Zahlungsart aus.</Value>
 	</LocaleResource>
-	<LocaleResource Name="AmazonPaymentsReports">
-		<Value>Amazon Pay meldet</Value>
-	</LocaleResource>
 	<LocaleResource Name="ShippingToCountryNotAllowed">
 		<Value>Ein Versand in das ausgewählte Land ist leider nicht möglich. Bitte wählen Sie eine andere Versandadresse.</Value>
 	</LocaleResource>
 	<LocaleResource Name="BillingToCountryNotAllowed">
 		<Value>Eine Rechnungsstellung ist für das ausgewählte Land leider nicht möglich. Bitte wählen Sie eine andere Rechnungsadresse.</Value>
-	</LocaleResource>
-	<LocaleResource Name="AuthenticationNotActive">
-		<Value>Amazon Authentifizierung ist nicht aktiv!</Value>
 	</LocaleResource>
 	<LocaleResource Name="AsyncPaymentAuthorizationNote">
 		<Value>Ihre Zahlung mit Amazon Pay ist derzeit noch in Prüfung. Bitte beachten Sie, dass wir uns mit Ihnen in Kürze per E-Mail in Verbindung setzen werden, falls noch Unklarheiten bestehen sollten.</Value>
@@ -95,7 +77,7 @@ Textvorschläge:</div><ul>
 		<Value>Fügen Sie hier Ihre Zugangsdaten ein (merchant_id, public_key_id, store_id etc.)...</Value>
 	</LocaleResource>
 	<LocaleResource Name="MissingAccessToken">
-		<Value>Der Access-Token fehlt!</Value>
+		<Value>Fehlender Token-Parameter für die Anmeldung mit Amazon Pay!</Value>
 	</LocaleResource>
 	<LocaleResource Name="SaveAccessDataSucceeded">
 		<Value>Die Zugangsdaten wurden erfolgreich gespeichert.</Value>
@@ -136,22 +118,16 @@ Textvorschläge:</div><ul>
 		<Value>Ihre Public Key-ID</Value>
 	</LocaleResource>
 	<LocaleResource Name="PublicKeyId.Hint">
-		<Value>Die Public Key-ID ist Ihre eindeutige Kennung, die für den Zugriff auf die Amazon Pay-API verwendet wird.</Value>
+		<Value>Die Public Key-ID ist Ihre eindeutige Kennung, die für den Zugriff auf die Amazon Pay-API verwendet wird. Sie finden sie bei Amazon's Seller Central unter Integration - Integration Central.</Value>
 	</LocaleResource>
 	<LocaleResource Name="PrivateKey">
 		<Value>Ihr Private Key</Value>
 	</LocaleResource>
 	<LocaleResource Name="PrivateKey.Hint">
-		<Value>Der Private Key für den Zugriff auf die Amazon Pay-API. Den Private Key erhalten Sie bei Amazon Pay als herunterladbare Datei mit der Endung .pem, nachdem Sie die API-Schlüssel erstellt haben.</Value>
+		<Value>Der Private Key für den Zugriff auf die Amazon Pay-API. Den Private Key erhalten Sie als herunterladbare Datei mit der Endung .pem, nachdem Sie die API-Schlüssel bei Amazon's Seller Central unter Integration - Integration Central erstellt haben.</Value>
 	</LocaleResource>
 	<LocaleResource Name="UploadPrivateKey">
 		<Value>Private Key Datei (.pem) hochladen</Value>
-	</LocaleResource>
-	<LocaleResource Name="ShowPayButtonForAdminOnly">
-		<Value>Zahlungs-Button nur für Administratoren sichtbar</Value>
-	</LocaleResource>
-	<LocaleResource Name="ShowPayButtonForAdminOnly.Hint">
-		<Value>Legt fest, ob der Zahlungs-Button nur für Administratoren sichtbar ist. Dient dem Testen ohne Kunden die Zahlart bereits anbieten zu müssen.</Value>
 	</LocaleResource>
 	<LocaleResource Name="SellerId">
 		<Value>Ihre Händlernummer</Value>
@@ -176,18 +152,6 @@ Textvorschläge:</div><ul>
 	</LocaleResource>
 	<LocaleResource Name="Marketplace.Jp">
 		<Value>JPY (Japanischer Yen)</Value>
-	</LocaleResource>
-	<LocaleResource Name="AccessKey">
-		<Value>Ihre Access Key ID</Value>
-	</LocaleResource>
-	<LocaleResource Name="AccessKey.Hint">
-		<Value>Die Access Key ID finden Sie bei Amazon's Seller Central unter Integration - MWS Access Key.</Value>
-	</LocaleResource>
-	<LocaleResource Name="SecretKey">
-		<Value>Ihr Secret Access Key</Value>
-	</LocaleResource>
-	<LocaleResource Name="SecretKey.Hint">
-		<Value>Den Secret Access Key finden Sie bei Amazon's Seller Central unter Integration - MWS Access Key.</Value>
 	</LocaleResource>
 	<LocaleResource Name="ClientId">
 		<Value>Ihre Client-ID</Value>
@@ -222,18 +186,6 @@ Textvorschläge:</div><ul>
 	<LocaleResource Name="ButtonColor.DarkGray">
 		<Value>Dunkelgrau</Value>
 	</LocaleResource>
-	<LocaleResource Name="AuthButtonType">
-		<Value>Art des Anmelde-Button</Value>
-	</LocaleResource>
-	<LocaleResource Name="AuthButtonType.Hint">
-		<Value>Legt die bevorzugte Art des Anmelde-Button (Loogin-Button) fest.</Value>
-	</LocaleResource>
-	<LocaleResource Name="AuthButtonType.Login">
-		<Value>Login</Value>
-	</LocaleResource>
-	<LocaleResource Name="AuthButtonType.LwA">
-		<Value>Login mit Amazon</Value>
-	</LocaleResource>
 	<LocaleResource Name="AuthButtonColor">
 		<Value>Farbe des Anmelde-Button</Value>
 	</LocaleResource>
@@ -249,9 +201,7 @@ Textvorschläge:</div><ul>
 		<Value>IPN URL</Value>
 	</LocaleResource>
 	<LocaleResource Name="IpnUrl.Hint">
-		<Value>
-			URL für Sofortbenachrichtigungen, um den Zahlungsstatus zu aktualisieren. Bitte geben Sie diese URL bei Amazon Seller Central unter "Integrationseinstellungen - Sofortbenachrichtigungs-Einstellungen - Händler-URL" ein.
-		</Value>
+		<Value>URL für Sofortbenachrichtigungen, um den Zahlungsstatus zu aktualisieren. Bitte geben Sie diese URL bei Amazon Seller Central unter "Integrationseinstellungen - Sofortbenachrichtigungseinstellungen - Händler-URL" ein.</Value>
 	</LocaleResource>
 	<LocaleResource Name="TransactionType">
 		<Value>Zahlungsaktion</Value>
@@ -282,35 +232,29 @@ Textvorschläge:</div><ul>
 	<LocaleResource Name="AmazonPaySaveDataType.Always">
 		<Value>Immer</Value>
 	</LocaleResource>
+	<LocaleResource Name="ShowPayButtonForAdminOnly">
+		<Value>Zahlungs-Button nur für Administratoren sichtbar</Value>
+	</LocaleResource>
+	<LocaleResource Name="ShowPayButtonForAdminOnly.Hint">
+		<Value>Legt fest, ob der Zahlungs-Button nur für Administratoren sichtbar ist. Dient dem Testen ohne Kunden die Zahlart bereits anbieten zu müssen.</Value>
+	</LocaleResource>
 	<LocaleResource Name="ShowButtonInMiniShoppingCart">
 		<Value>Button im Miniwarenkorb anzeigen</Value>
 	</LocaleResource>
 	<LocaleResource Name="ShowButtonInMiniShoppingCart.Hint">
 		<Value>Legt fest, ob der Amazon Pay Button auch im Miniwarenkorb angezeigt werden soll.</Value>
 	</LocaleResource>
+	<LocaleResource Name="ShowSignoutButton">
+		<Value>Logout-Button anzeigen</Value>
+	</LocaleResource>
+	<LocaleResource Name="ShowSignoutButton.Hint">
+		<Value>Legt fest, ob der Amazon Pay Logout-Button auf der Bestellbestätigungsseite angezeigt werden soll.</Value>
+	</LocaleResource>
 	<LocaleResource Name="AddOrderNotes">
 		<Value>Auftragsnotizen anlegen</Value>
 	</LocaleResource>
 	<LocaleResource Name="AddOrderNotes.Hint">
 		<Value>Legt fest, dass Auftragsnotizen hinsichtlich des Datenaustausches mit Amazon Pay angelegt werden sollen.</Value>
-	</LocaleResource>
-	<LocaleResource Name="PollingMaxOrderCreationDays">
-		<Value>Maximales Auftragsalter</Value>
-	</LocaleResource>
-	<LocaleResource Name="PollingMaxOrderCreationDays.Hint">
-		<Value>Legt fest, dass nur Aufträge, die nicht älter als x Tage sind, in die Aktualisierung der Zahlungsdaten einbezogen werden sollen.</Value>
-	</LocaleResource>
-	<LocaleResource Name="InformCustomerAboutErrors">
-		<Value>Über Ablehnung einer Autorisierung informieren</Value>
-	</LocaleResource>
-	<LocaleResource Name="InformCustomerAboutErrors.Hint">
-		<Value>Legt fest, dass Auftragsnotizen im Fall einer Ablehnung einer Autorisierung durch Amazon angelegt werden, die auch für den Kunden einsehbar sind. Zusätzlich wird der Kunde per E-Mail über den Sachverhalt informiert.</Value>
-	</LocaleResource>
-	<LocaleResource Name="InformCustomerAddErrors">
-		<Value>Fehlermeldung anhängen</Value>
-	</LocaleResource>
-	<LocaleResource Name="InformCustomerAddErrors.Hint">
-		<Value>Legt fest, ob der genaue Wortlaut der Fehlermeldung der Auftragsnotiz bzw. E-Mail angehängt werden soll.</Value>
 	</LocaleResource>
 	<LocaleResource Name="CookieInfo">
 		<Value>Amazon Pay nutzt Cookies zur Darstellung und Abwicklung des Zahlungsvorgangs über Amazon.</Value>

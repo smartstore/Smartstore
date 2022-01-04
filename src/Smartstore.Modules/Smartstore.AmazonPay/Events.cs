@@ -1,5 +1,5 @@
-﻿using Amazon.Pay.API.WebStore.ChargePermission;
-using Amazon.Pay.API.WebStore.Interfaces;
+﻿using Amazon.Pay.API.WebStore;
+using Amazon.Pay.API.WebStore.ChargePermission;
 using Microsoft.Extensions.Logging;
 using Smartstore.Core;
 using Smartstore.Core.Checkout.Orders.Events;
@@ -12,11 +12,10 @@ namespace Smartstore.AmazonPay
     {
         public Localizer T { get; set; } = NullLocalizer.Instance;
 
-        public Task HandleEventAsync(OrderPaidEvent message,
+        public async Task HandleEventAsync(OrderPaidEvent message,
             ICommonServices services,
             IProviderManager providerManager,
-            ILogger logger,
-            Lazy<IWebStoreClient> apiClient)    // TODO: (mg) (core) that's wrong. Use message.Order.StoreId.
+            ILogger logger)
         {
             var order = message.Order;
 
@@ -30,12 +29,15 @@ namespace Smartstore.AmazonPay
                 {
                     try
                     {
+                        var settings = await services.SettingFactory.LoadSettingsAsync<AmazonPaySettings>(order.StoreId);
+                        var client = new WebStoreClient(settings.ToApiConfiguration());
+
                         var request = new CloseChargePermissionRequest(T("Plugins.Payments.AmazonPay.CloseChargeReason").Value.Truncate(255))
                         {
                             CancelPendingCharges = false
                         };
 
-                        var response = apiClient.Value.CloseChargePermission(order.AuthorizationTransactionCode, request);
+                        var response = client.CloseChargePermission(order.AuthorizationTransactionCode, request);
                         if (!response.Success)
                         {
                             logger.LogAmazonPayFailure(request, response);
@@ -47,8 +49,6 @@ namespace Smartstore.AmazonPay
                     }
                 }
             }
-
-            return Task.CompletedTask;
         }
     }
 }

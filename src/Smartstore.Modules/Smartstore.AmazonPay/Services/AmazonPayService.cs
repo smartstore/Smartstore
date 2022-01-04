@@ -1,102 +1,83 @@
-﻿using System.Linq;
-using Amazon.Pay.API.WebStore.CheckoutSession;
+﻿using Amazon.Pay.API.WebStore.CheckoutSession;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 using Newtonsoft.Json.Linq;
 using Smartstore.Core;
-using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Common;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
-using Smartstore.Core.Messaging;
-using Smartstore.Utilities;
 using AmazonPayTypes = Amazon.Pay.API.Types;
 
 namespace Smartstore.AmazonPay.Services
 {
-    public partial class AmazonPayService : IAmazonPayService
+    public class AmazonPayService : IAmazonPayService
     {
         private readonly SmartDbContext _db;
         private readonly ICommonServices _services;
-        private readonly ICheckoutStateAccessor _checkoutStateAccessor;
-        private readonly IMessageFactory _messageFactory;
 
-        private readonly Currency _primaryCurrency;
-
-        public AmazonPayService(
-            SmartDbContext db,
-            ICommonServices services,
-            ICheckoutStateAccessor checkoutStateAccessor,
-            IMessageFactory messageFactory)
+        public AmazonPayService(SmartDbContext db, ICommonServices services)
         {
             _db = db;
             _services = services;
-            _checkoutStateAccessor = checkoutStateAccessor;
-            _messageFactory = messageFactory;
-
-            _primaryCurrency = services.CurrencyService.PrimaryCurrency;
         }
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
-        public ILogger Logger { get; set; } = NullLogger.Instance;
 
-        public async Task<bool> AddCustomerOrderNoteLoopAsync(AmazonPayActionState state, CancellationToken cancelToken = default)
-        {
-            if (state == null || state.OrderGuid == Guid.Empty)
-            {
-                return false;
-            }
+        //public async Task<bool> AddCustomerOrderNoteLoopAsync(AmazonPayActionState state, CancellationToken cancelToken = default)
+        //{
+        //    if (state == null || state.OrderGuid == Guid.Empty)
+        //    {
+        //        return false;
+        //    }
 
-            try
-            {
-                const int sleepMillSec = 4000;
-                const int loopMillSec = 40000;
-                var startTime = DateTime.Now.TimeOfDay;
+        //    try
+        //    {
+        //        const int sleepMillSec = 4000;
+        //        const int loopMillSec = 40000;
+        //        var startTime = DateTime.Now.TimeOfDay;
 
-                for (var i = 0; i < 99 && (DateTime.Now.TimeOfDay.Milliseconds - startTime.Milliseconds) <= loopMillSec; ++i)
-                {
-                    var order = await _db.Orders
-                        .Where(x => x.OrderGuid == state.OrderGuid)
-                        .FirstOrDefaultAsync(cancelToken);
+        //        for (var i = 0; i < 99 && (DateTime.Now.TimeOfDay.Milliseconds - startTime.Milliseconds) <= loopMillSec; ++i)
+        //        {
+        //            var order = await _db.Orders
+        //                .Where(x => x.OrderGuid == state.OrderGuid)
+        //                .FirstOrDefaultAsync(cancelToken);
 
-                    if (order != null)
-                    {
-                        using var psb = StringBuilderPool.Instance.Get(out var sb);
-                        sb.AppendLine(T("Plugins.Payments.AmazonPay.AuthorizationHardDeclineMessage"));
+        //            if (order != null)
+        //            {
+        //                using var psb = StringBuilderPool.Instance.Get(out var sb);
+        //                sb.AppendLine(T("Plugins.Payments.AmazonPay.AuthorizationHardDeclineMessage"));
 
-                        if (state.Errors?.Any() ?? false)
-                        {
-                            foreach (var error in state.Errors)
-                            {
-                                sb.AppendFormat("<p>{0}</p>", error);
-                            }
-                        }
+        //                if (state.Errors?.Any() ?? false)
+        //                {
+        //                    foreach (var error in state.Errors)
+        //                    {
+        //                        sb.AppendFormat("<p>{0}</p>", error);
+        //                    }
+        //                }
 
-                        var orderNote = new OrderNote
-                        {
-                            DisplayToCustomer = true,
-                            Note = sb.ToString(),
-                            CreatedOnUtc = DateTime.UtcNow,
-                        };
+        //                var orderNote = new OrderNote
+        //                {
+        //                    DisplayToCustomer = true,
+        //                    Note = sb.ToString(),
+        //                    CreatedOnUtc = DateTime.UtcNow,
+        //                };
 
-                        order.OrderNotes.Add(orderNote);
-                        await _db.SaveChangesAsync(cancelToken);
+        //                order.OrderNotes.Add(orderNote);
+        //                await _db.SaveChangesAsync(cancelToken);
 
-                        await _messageFactory.SendNewOrderNoteAddedCustomerNotificationAsync(orderNote, _services.WorkContext.WorkingLanguage.Id);
-                        break;
-                    }
+        //                await _messageFactory.SendNewOrderNoteAddedCustomerNotificationAsync(orderNote, _services.WorkContext.WorkingLanguage.Id);
+        //                break;
+        //            }
 
-                    Thread.Sleep(sleepMillSec);
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.Error(ex);
-            }
+        //            Thread.Sleep(sleepMillSec);
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Logger.Error(ex);
+        //    }
 
-            return false;
-        }
+        //    return false;
+        //}
 
         public async Task<int> UpdateAccessKeysAsync(string json, int storeId)
         {
@@ -117,9 +98,6 @@ namespace Smartstore.AmazonPay.Services
             settings.SellerId = (string)jsonData.merchant_id;
             settings.PublicKeyId = (string)jsonData.public_key_id;
             settings.ClientId = (string)jsonData.store_id;
-
-            //settings.AccessKey = (string)jsonData.access_key;
-            //settings.SecretKey = (string)jsonData.secret_key;
 
             return await _services.SettingFactory.SaveSettingsAsync(settings, storeId);
         }
@@ -189,7 +167,7 @@ namespace Smartstore.AmazonPay.Services
 
         public AmazonPayTypes.Currency GetAmazonPayCurrency(string currencyCode = null)
         {
-            currencyCode ??= _primaryCurrency.CurrencyCode;
+            currencyCode ??= _services.CurrencyService.PrimaryCurrency.CurrencyCode;
 
             return currencyCode.EmptyNull().ToLower() switch
             {

@@ -8,7 +8,7 @@ using Smartstore.Web.Components;
 namespace Smartstore.AmazonPay.Components
 {
     /// <summary>
-    /// Renders the AmazonPay payment and login button.
+    /// Renders the AmazonPay checkout and sign-in button.
     /// </summary>
     public class AmazonPayButtonViewComponent : SmartViewComponent
     {
@@ -36,24 +36,33 @@ namespace Smartstore.AmazonPay.Components
         {
             var store = Services.StoreContext.CurrentStore;
             var customer = Services.WorkContext.CurrentCustomer;
+            var signIn = buttonType.EqualsNoCase("SignIn");
 
-            if (_settings.SellerId.IsEmpty() ||
-                _settings.PublicKeyId.IsEmpty() ||
+            if (_settings.PublicKeyId.IsEmpty() ||
                 _settings.PrivateKey.IsEmpty() ||
                 (!_orderSettings.AnonymousCheckoutAllowed && customer.IsGuest()) ||
-                (_settings.ShowPayButtonForAdminOnly && !customer.IsAdmin() && !buttonType.EqualsNoCase("SignIn")))
-            {
-                return Empty();
-            }
-            
-            var cart = await _shoppingCartService.GetCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
-
-            if (!cart.HasItems || !await _paymentService.IsPaymentMethodActiveAsync(AmazonPayProvider.SystemName, cart, store.Id))
+                (_settings.ShowPayButtonForAdminOnly && !customer.IsAdmin() && !signIn))
             {
                 return Empty();
             }
 
-            buttonType ??= cart.IsShippingRequired() ? "PayAndShip" : "PayOnly";
+            ShoppingCart cart = null;
+
+            if (!signIn)
+            {
+                cart = await _shoppingCartService.GetCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
+                if (!cart.HasItems)
+                {
+                    return Empty();
+                }
+
+                buttonType ??= cart.IsShippingRequired() ? "PayAndShip" : "PayOnly";
+            }
+
+            if (!await _paymentService.IsPaymentMethodActiveAsync(AmazonPayProvider.SystemName, cart, store.Id))
+            {
+                return Empty();
+            }
 
             // INFO: we are "decoupling button render and checkout or sign-in initiation".
             // So we do not create and sign the payload here to reduce net traffic.

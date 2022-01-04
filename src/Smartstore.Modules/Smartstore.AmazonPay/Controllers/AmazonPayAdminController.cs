@@ -74,18 +74,21 @@ namespace Smartstore.AmazonPay.Controllers
             foreach (var entity in allStores)
             {
                 // SSL required!
-                var loginUrl = GetLoginUrl(entity.SslEnabled ? entity.SecureUrl : entity.Url);
-                if (loginUrl.HasValue())
+                if (Uri.TryCreate(entity.SslEnabled ? entity.SecureUrl : entity.Url, UriKind.Absolute, out var uri))
                 {
-                    var redirectUrl = loginUrl.EnsureEndsWith("/");
-
-                    model.MerchantLoginDomains.Add(loginUrl);
-                    model.MerchantLoginRedirectUrls.Add(redirectUrl);
-
-                    if (entity.Id == store.Id)
+                    var loginUrl = uri.GetLeftPart(UriPartial.Scheme | UriPartial.Authority).EmptyNull().TrimEnd('/');
+                    if (loginUrl.HasValue())
                     {
-                        model.CurrentMerchantLoginDomains.Add(loginUrl);
-                        model.CurrentMerchantLoginRedirectUrls.Add(redirectUrl);
+                        var redirectUrl = loginUrl.EnsureEndsWith("/");
+
+                        model.MerchantLoginDomains.Add(loginUrl);
+                        model.MerchantLoginRedirectUrls.Add(redirectUrl);
+
+                        if (entity.Id == store.Id)
+                        {
+                            model.CurrentMerchantLoginDomains.Add(loginUrl);
+                            model.CurrentMerchantLoginRedirectUrls.Add(redirectUrl);
+                        }
                     }
                 }
             }
@@ -155,15 +158,12 @@ namespace Smartstore.AmazonPay.Controllers
             ModelState.Clear();
 
             model.PublicKey = model.PublicKey.TrimSafe();
-            model.AccessKey = model.AccessKey.TrimSafe();
             model.ClientId = model.ClientId.TrimSafe();
-            model.SecretKey = model.SecretKey.TrimSafe();
             model.SellerId = model.SellerId.TrimSafe();
 
             MiniMapper.Map(model, settings);
 
             await _settingHelper.UpdateSettingsAsync(settings, form, storeScope);
-
             await _db.SaveChangesAsync();
 
             NotifySuccess(T("Admin.Common.DataSuccessfullySaved"));
@@ -221,16 +221,6 @@ namespace Smartstore.AmazonPay.Controllers
             await Services.SettingFactory.SaveSettingsAsync(settings, storeScope);
 
             return RedirectToAction(nameof(Configure));
-        }
-
-        private static string GetLoginUrl(string shopUrl)
-        {
-            if (Uri.TryCreate(shopUrl, UriKind.Absolute, out var uri))
-            {
-                return uri.GetLeftPart(UriPartial.Scheme | UriPartial.Authority).EmptyNull().TrimEnd('/');
-            }
-
-            return string.Empty;
         }
     }
 }

@@ -7,13 +7,14 @@ global using Smartstore.AmazonPay.Providers;
 global using Smartstore.Core.Localization;
 global using Smartstore.Web.Modelling;
 using System.Linq;
+using Smartstore.AmazonPay.Components;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Widgets;
 using Smartstore.Engine.Modularity;
 
 namespace Smartstore.AmazonPay
 {
-    internal class Module : ModuleBase, ICookiePublisher
+    internal class Module : ModuleBase, ICookiePublisher, IExternalAuthenticationMethod
     {
         private readonly IProviderManager _providerManager;
         private readonly WidgetSettings _widgetSettings;
@@ -43,6 +44,9 @@ namespace Smartstore.AmazonPay
 
             return Task.FromResult(new List<CookieInfo> { cookieInfo }.AsEnumerable());
         }
+
+        public WidgetInvoker GetDisplayWidget(int storeId)
+            => new ComponentWidgetInvoker(typeof(AmazonPayButtonViewComponent), new { buttonType = "SignIn" });
 
         public override async Task InstallAsync(ModuleInstallationContext context)
         {

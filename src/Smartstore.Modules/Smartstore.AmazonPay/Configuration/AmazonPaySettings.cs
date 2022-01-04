@@ -1,4 +1,6 @@
-﻿using Smartstore.Core.Configuration;
+﻿using Amazon.Pay.API;
+using Smartstore.Core.Configuration;
+using AmazonPayTypes = Amazon.Pay.API.Types;
 
 namespace Smartstore.AmazonPay
 {
@@ -25,13 +27,11 @@ namespace Smartstore.AmazonPay
         public string PublicKeyId { get; set; }
 
         /// <summary>
-        /// Private key to access API (Checkout v2). Provided as a .pem file.
+        /// Private key to access API (Checkout v2). Provided by AmazonPay as a .pem file.
         /// </summary>
         public string PrivateKey { get; set; }
 
         public string SellerId { get; set; }
-        public string AccessKey { get; set; }
-        public string SecretKey { get; set; }
 
         /// <summary>
         /// Also named "Store-ID" (Checkout v2). E.g. amzn1.application-oa2-client.1ab987....
@@ -51,12 +51,7 @@ namespace Smartstore.AmazonPay
 
         public bool AddOrderNotes { get; set; } = true;
 
-        public bool InformCustomerAboutErrors { get; set; } = true;
-        public bool InformCustomerAddErrors { get; set; } = true;
-
         public string PayButtonColor { get; set; } = "Gold";
-
-        public string AuthButtonType { get; set; } = "LwA";
         public string AuthButtonColor { get; set; } = "Gold";
 
         public bool CanSaveEmailAndPhone(string value)
@@ -70,6 +65,23 @@ namespace Smartstore.AmazonPay
                 "jp" => "https://static-fe.payments-amazon.com/checkout.js",
                 _ => "https://static-eu.payments-amazon.com/checkout.js",
             };
+        }
+
+        public ApiConfiguration ToApiConfiguration()
+        {
+            var region = Marketplace.EmptyNull().ToLower() switch
+            {
+                "us" => AmazonPayTypes.Region.UnitedStates,
+                "jp" => AmazonPayTypes.Region.Japan,
+                _ => AmazonPayTypes.Region.Europe,
+            };
+
+            return new ApiConfiguration(
+                region,
+                UseSandbox ? AmazonPayTypes.Environment.Sandbox : AmazonPayTypes.Environment.Live,
+                PublicKeyId,
+                PrivateKey
+            );
         }
     }
 }

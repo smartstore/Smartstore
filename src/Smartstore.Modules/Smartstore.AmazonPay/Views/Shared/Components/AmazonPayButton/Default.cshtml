@@ -1,6 +1,6 @@
 ﻿@model AmazonPayButtonModel
 
-<div class="my-2 ml-3">
+<div attr-class='(!Model.SignIn, "my-2 ml-3")'>
     <div id="amazonpay-button"></div>
 </div>
 
@@ -18,20 +18,32 @@
         });
 
         amazonPayButton.onClick(function () {
+            var signIn = @(Model.SignIn.ToString().ToLower());
+            var data = !signIn ? $('#startcheckout').closest('form').serialize() : null;
+
             $.ajax({
                 type: 'POST',
                 url: '@Url.Action("CreateCheckoutSession", "AmazonPay", new { area = string.Empty, buttonType = Model.ButtonType })',
-                data: $('#startcheckout').closest('form').serialize(),
+                data: data,
 			    success: function (response) {
                     if (response.success) {
-                        // INFO: this it not nice. It forces us to redirect to AmazonPay in the same browser window.
-                        amazonPayButton.initCheckout({
-                            createCheckoutSessionConfig: {
-                                payloadJSON: response.payload,
-                                signature: response.signature,
-                                publicKeyId: '@Html.Raw(Model.PublicKeyId)'
-                            }
-                        });
+                        var config = {
+                            payloadJSON: response.payload,
+                            signature: response.signature,
+                            publicKeyId: '@Html.Raw(Model.PublicKeyId)'
+                        };
+
+                        // INFO: this forces us to redirect to AmazonPay in the same browser window.
+                        if (signIn) {
+                            amazonPayButton.initCheckout({
+                                signInConfig: config
+                            });
+                        }
+                        else {
+                            amazonPayButton.initCheckout({
+                                createCheckoutSessionConfig: config
+                            });
+                        }
 				    }
 				    else {
 					    displayNotification(response.message, response.messageType);

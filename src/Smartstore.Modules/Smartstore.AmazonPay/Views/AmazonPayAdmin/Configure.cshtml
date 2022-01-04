@@ -6,7 +6,7 @@
     var configGroups = T("Plugins.Payments.AmazonPay.ConfigGroups").Value.SplitSafe(';');
 
     var marketplace = new List<SelectListItem>
-{
+    {
         new SelectListItem { Text = T("Plugins.Payments.AmazonPay.Marketplace.De"), Value = "de" },
         new SelectListItem { Text = T("Plugins.Payments.AmazonPay.Marketplace.Uk"), Value = "uk" },
         new SelectListItem { Text = T("Plugins.Payments.AmazonPay.Marketplace.Us"), Value = "us" },
@@ -14,16 +14,10 @@
     };
 
     var buttonColors = new List<SelectListItem>
-{
+    {
         new SelectListItem { Text = T("Plugins.Payments.AmazonPay.ButtonColor.Gold"), Value = "Gold" },
         new SelectListItem { Text = T("Plugins.Payments.AmazonPay.ButtonColor.LightGray"), Value = "LightGray" },
         new SelectListItem { Text = T("Plugins.Payments.AmazonPay.ButtonColor.DarkGray"), Value = "DarkGray" }
-    };
-
-    var authButtonType = new List<SelectListItem>
-{
-        new SelectListItem { Text = T("Plugins.Payments.AmazonPay.AuthButtonType.Login"), Value = "Login" },
-        new SelectListItem { Text = T("Plugins.Payments.AmazonPay.AuthButtonType.LwA"), Value = "LwA" }
     };
 }
 
@@ -133,26 +127,6 @@
         </div>
         <div class="adminRow">
             <div class="adminTitle">
-                <smart-label asp-for="AccessKey" />
-            </div>
-            <div class="adminData">
-                <setting-editor asp-for="AccessKey"></setting-editor>
-                <span asp-validation-for="AccessKey"></span>
-            </div>
-        </div>
-        <div class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="SecretKey" />
-            </div>
-            <div class="adminData">
-                <setting-editor asp-for="SecretKey">
-                    <input asp-for="SecretKey" type="password" autocomplete="new-password" class="password" attr-value='(Model.SecretKey.HasValue(), Model.SecretKey)' />
-                </setting-editor>
-                <span asp-validation-for="SecretKey"></span>
-            </div>
-        </div>
-        <div class="adminRow">
-            <div class="adminTitle">
                 <smart-label asp-for="ClientId" />
             </div>
             <div class="adminData">
@@ -241,24 +215,6 @@
         </div>
         <div class="adminRow">
             <div class="adminTitle">
-                <smart-label asp-for="InformCustomerAboutErrors" />
-            </div>
-            <div class="adminData">
-                <setting-editor asp-for="InformCustomerAboutErrors" data-toggler-for="#InformCustomerAddErrorsContainer"></setting-editor>
-                <span asp-validation-for="InformCustomerAboutErrors"></span>
-            </div>
-        </div>
-        <div id="InformCustomerAddErrorsContainer" class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="InformCustomerAddErrors" />
-            </div>
-            <div class="adminData">
-                <setting-editor asp-for="InformCustomerAddErrors"></setting-editor>
-                <span asp-validation-for="InformCustomerAddErrors"></span>
-            </div>
-        </div>
-        <div class="adminRow">
-            <div class="adminTitle">
                 <smart-label asp-for="IpnUrl" />
             </div>
             <div class="adminData">
@@ -288,17 +244,6 @@
                     <select asp-for="PayButtonColor" asp-items="buttonColors"></select>
                 </setting-editor>
                 <span asp-validation-for="PayButtonColor"></span>
-            </div>
-        </div>
-        <div class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="AuthButtonType" />
-            </div>
-            <div class="adminData">
-                <setting-editor asp-for="AuthButtonType">
-                    <select asp-for="AuthButtonType" asp-items="authButtonType"></select>
-                </setting-editor>
-                <span asp-validation-for="AuthButtonType"></span>
             </div>
         </div>
         <div class="adminRow">
@@ -334,6 +279,15 @@
             <div class="adminData">
                 <setting-editor asp-for="ShowButtonInMiniShoppingCart"></setting-editor>
                 <span asp-validation-for="ShowButtonInMiniShoppingCart"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="ShowSignoutButton" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="ShowSignoutButton"></setting-editor>
+                <span asp-validation-for="ShowSignoutButton"></span>
             </div>
         </div>
         <div class="adminRow">

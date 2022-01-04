@@ -1,8 +1,8 @@
 ﻿using System.IO;
 using System.Linq;
+using Amazon.Pay.API.WebStore;
 using Amazon.Pay.API.WebStore.Buyer;
 using Amazon.Pay.API.WebStore.CheckoutSession;
-using Amazon.Pay.API.WebStore.Interfaces;
 using Amazon.Pay.API.WebStore.Types;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -25,7 +25,6 @@ namespace Smartstore.AmazonPay.Controllers
     public class AmazonPayController : PublicController
     {
         private readonly SmartDbContext _db;
-        private readonly IWebStoreClient _apiClient;
         private readonly IAmazonPayService _amazonPayService;
         private readonly IShoppingCartService _shoppingCartService;
         private readonly IShoppingCartValidator _shoppingCartValidator;
@@ -40,7 +39,6 @@ namespace Smartstore.AmazonPay.Controllers
 
         public AmazonPayController(
             SmartDbContext db,
-            IWebStoreClient apiClient,
             IAmazonPayService amazonPayService,
             IShoppingCartService shoppingCartService,
             IShoppingCartValidator shoppingCartValidator,
@@ -54,7 +52,6 @@ namespace Smartstore.AmazonPay.Controllers
             RewardPointsSettings rewardPointsSettings)
         {
             _db = db;
-            _apiClient = apiClient;
             _amazonPayService = amazonPayService;
             _shoppingCartService = shoppingCartService;
             _shoppingCartValidator = shoppingCartValidator;
@@ -108,13 +105,14 @@ namespace Smartstore.AmazonPay.Controllers
                     // Validate the shopping cart.
                     if (await _shoppingCartValidator.ValidateCartAsync(cart, warnings, true))
                     {
-                        // TODO later: config for specialRestrictions 'RestrictPOBoxes', 'RestrictPackstations'.
+                        var client = new WebStoreClient(_settings.ToApiConfiguration());
                         var checkoutReviewUrl = Url.Action(nameof(CheckoutReview), "AmazonPay", null, currentScheme);
                         var request = new CreateCheckoutSessionRequest(checkoutReviewUrl, _settings.ClientId)
                         {
                             PlatformId = AmazonPayProvider.PlatformId
                         };
 
+                        // TODO later: config for specialRestrictions 'RestrictPOBoxes', 'RestrictPackstations'.
                         if (cart.HasItems && cart.IsShippingRequired())
                         {
                             var allowedCountryCodes = await _db.Countries
@@ -132,7 +130,7 @@ namespace Smartstore.AmazonPay.Controllers
                         }
 
                         payload = request.ToJsonNoType();
-                        signature = _apiClient.GenerateButtonSignature(payload);
+                        signature = client.GenerateButtonSignature(payload);
                         success = true;
                     }
                     else
@@ -144,6 +142,7 @@ namespace Smartstore.AmazonPay.Controllers
                 }
                 else if (buttonType == "SignIn")
                 {
+                    var client = new WebStoreClient(_settings.ToApiConfiguration());
                     var signInReturnUrl = Url.Action(nameof(SignIn), "AmazonPay", null, currentScheme);
 
                     var request = new SignInRequest(signInReturnUrl, _settings.ClientId)
@@ -160,7 +159,7 @@ namespace Smartstore.AmazonPay.Controllers
                     };
 
                     payload = request.ToJsonNoType();
-                    signature = _apiClient.GenerateButtonSignature(payload);
+                    signature = client.GenerateButtonSignature(payload);
                     success = true;
                 }
                 else
@@ -230,7 +229,14 @@ namespace Smartstore.AmazonPay.Controllers
             await _db.LoadCollectionAsync(customer, x => x.Addresses);
 
             // Create addresses from AmazonPay checkout session.
-            var session = _apiClient.GetCheckoutSession(checkoutSessionId);           
+            var client = new WebStoreClient(_settings.ToApiConfiguration());
+            var session = client.GetCheckoutSession(checkoutSessionId);
+
+            if (session.BillingAddress == null)
+            {
+                NotifyError(T("Plugins.Payments.AmazonPay.MissingBillingAddress"));
+                return result;
+            }
 
             var billTo = await _amazonPayService.CreateAddressAsync(session, customer, true);
             if (!billTo.Success)
@@ -377,7 +383,9 @@ namespace Smartstore.AmazonPay.Controllers
                             request.MerchantMetadata.MerchantReferenceId = paymentRequest.OrderGuid.ToString();
                         }
 
-                        var response = _apiClient.UpdateCheckoutSession(state.CheckoutSessionId, request);
+                        var client = new WebStoreClient(_settings.ToApiConfiguration());
+                        var response = client.UpdateCheckoutSession(state.CheckoutSessionId, request);
+
                         if (response.Success)
                         {
                             // INFO: unlike in v1, the constraints can be ignored. They are only returned if mandatory parameters are missing.
@@ -441,7 +449,8 @@ namespace Smartstore.AmazonPay.Controllers
                     throw new SmartException(T("Plugins.Payments.AmazonPay.MissingCheckoutSessionState"));
                 }
 
-                var response = _apiClient.GetCheckoutSession(state.CheckoutSessionId);
+                var client = new WebStoreClient(_settings.ToApiConfiguration());
+                var response = client.GetCheckoutSession(state.CheckoutSessionId);
 
                 if (response.Success)
                 {
@@ -523,9 +532,11 @@ namespace Smartstore.AmazonPay.Controllers
                 return;
             }
 
+            var client = new WebStoreClient(_settings.ToApiConfiguration());
+
             if (message.ObjectType.EqualsNoCase("CHARGE_PERMISSION"))
             {                
-                var response = _apiClient.GetChargePermission(message.ObjectId);
+                var response = client.GetChargePermission(message.ObjectId);
                 if (response.Success)
                 {
                     var d = response.StatusDetails;
@@ -540,7 +551,7 @@ namespace Smartstore.AmazonPay.Controllers
             }
             else if (message.ObjectType.EqualsNoCase("CHARGE"))
             {
-                var response = _apiClient.GetCharge(message.ObjectId);
+                var response = client.GetCharge(message.ObjectId);
                 if (response.Success)
                 {
                     var d = response.StatusDetails;
@@ -557,7 +568,7 @@ namespace Smartstore.AmazonPay.Controllers
 
                     if (isDeclined && d.ReasonCode.EqualsNoCase("ProcessingFailure") && message.ChargePermissionId.HasValue())
                     {
-                        var response2 = _apiClient.GetChargePermission(message.ChargePermissionId);
+                        var response2 = client.GetChargePermission(message.ChargePermissionId);
                         if (response2.Success)
                         {
                             voidOffline = !response2.StatusDetails.State.EqualsNoCase("Chargeable");
@@ -575,7 +586,7 @@ namespace Smartstore.AmazonPay.Controllers
             }
             else if (message.ObjectType.EqualsNoCase("REFUND"))
             {
-                var response = _apiClient.GetRefund(message.ObjectId);
+                var response = client.GetRefund(message.ObjectId);
                 if (response.Success)
                 {
                     var d = response.StatusDetails;
@@ -731,9 +742,19 @@ namespace Smartstore.AmazonPay.Controllers
         /// The buyer is redirected to this action method after they click the sign-in button.
         /// </summary>
         [Route("amazonpay/signin")]
-        public Task<IActionResult> SignIn()
+        public Task<IActionResult> SignIn(string buyerToken)
         {
-            // TODO: (mg) (core) implement Login with AmazonPay.
+            if (buyerToken.IsEmpty())
+            {
+                throw new ArgumentException(T("Plugins.Payments.AmazonPay.MissingAccessToken"));
+            }
+
+            var client = new WebStoreClient(_settings.ToApiConfiguration());
+            var response = client.GetBuyer(buyerToken);
+
+            // TODO: (mg) (core) make a generic sign-in with Amazon somehow, using .BuyerId (formerly external identifier), .Name, .Email, .ShippingAddress, .BillingAddress
+            // Is there a contract to meet SignInManager?
+
             throw new NotImplementedException();
         }
 
