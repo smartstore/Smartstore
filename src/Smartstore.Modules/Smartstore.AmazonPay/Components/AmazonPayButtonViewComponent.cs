@@ -7,6 +7,8 @@ using Smartstore.Web.Components;
 
 namespace Smartstore.AmazonPay.Components
 {
+    // TODO: (mg) (core) API design: don't mix up Pay and SignIn. Make two components & two views.
+    
     /// <summary>
     /// Renders the AmazonPay checkout and sign-in button.
     /// </summary>
