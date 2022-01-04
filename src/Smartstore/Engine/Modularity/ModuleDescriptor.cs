@@ -26,8 +26,9 @@ namespace Smartstore.Engine.Modularity
         /// Creates a module descriptor.
         /// </summary>
         /// <param name="directory">The module directory.</param>
+        /// <param name="root">The <see cref="IFileSystem"/> instance used to enumrate the module directories.</param>
         /// <returns>The descriptor instance or <c>null</c> if directory does not exist or does not contain a 'module.json' file.</returns>
-        public static ModuleDescriptor Create(IDirectory directory)
+        public static ModuleDescriptor Create(IDirectory directory, IFileSystem root)
         {
             Guard.NotNull(directory, nameof(directory));
 
@@ -84,7 +85,7 @@ namespace Smartstore.Engine.Modularity
 
             descriptor.ContentRoot = descriptor.SourcePhysicalPath != null
                 ? new LocalFileSystem(descriptor.SourcePhysicalPath)
-                : new ExpandedFileSystem(directory.Name, directory.FileSystem);
+                : new ExpandedFileSystem(directory.Name, root);
 
             return descriptor;
         }

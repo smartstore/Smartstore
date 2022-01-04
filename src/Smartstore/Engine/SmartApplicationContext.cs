@@ -72,17 +72,17 @@ namespace Smartstore.Engine
             // TODO: (core) Read stuff from config and resolve tenant. Check folders and create them also.
             if (ContentRoot.DirectoryExists("Modules"))
             {
-                ModulesRoot = new LocalFileSystem(Path.Combine(ContentRoot.Root, "Modules"));
+                ModulesRoot = new ExpandedFileSystem("Modules", ContentRoot);
             }
 
             if (ContentRoot.DirectoryExists("Themes"))
             {
-                ThemesRoot = new LocalFileSystem(Path.Combine(ContentRoot.Root, "Themes"));
+                ThemesRoot = new ExpandedFileSystem("Themes", ContentRoot);
             }
 
             if (ContentRoot.DirectoryExists("App_Data"))
             {
-                AppDataRoot = new LocalFileSystem(Path.Combine(ContentRoot.Root, "App_Data"));
+                AppDataRoot = new ExpandedFileSystem("App_Data", ContentRoot);
 
                 if (!AppDataRoot.DirectoryExists("Tenants"))
                 {

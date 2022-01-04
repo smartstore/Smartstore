@@ -29,7 +29,7 @@ namespace Smartstore.Engine.Modularity
             var modules = allDirectories
                 //.AsParallel()
                 //.AsOrdered()
-                .Select(d => ModuleDescriptor.Create(d))
+                .Select(d => ModuleDescriptor.Create(d, _appContext.ModulesRoot))
                 .Where(x => x != null)
                 .ToArray()
                 .SortTopological()
