@@ -168,6 +168,10 @@ namespace Smartstore.Packager
             var dirModules = root.GetDirectory("Modules");
             var dirThemes = root.GetDirectory("Themes");
 
+            var modulesRoot = dirModules.Exists
+                ? new LocalFileSystem(dirModules.PhysicalPath)
+                : root;
+
             var themesRoot = dirThemes.Exists
                 ? new LocalFileSystem(dirThemes.PhysicalPath)
                 : root;
@@ -214,7 +218,7 @@ namespace Smartstore.Packager
                     }
                     else
                     {
-                        var descriptor = ModuleDescriptor.Create(dir);
+                        var descriptor = ModuleDescriptor.Create(dir, modulesRoot);
                         if (descriptor != null)
                         {
                             lstModules.Items.Add(descriptor);

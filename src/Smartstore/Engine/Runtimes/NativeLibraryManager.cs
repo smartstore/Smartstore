@@ -95,6 +95,9 @@ namespace Smartstore.Engine.Runtimes
 
             var explorer = Explorer;
 
+            //var explorer2 = new NuGetExplorer2(_appContext, null, _logger);
+            //var remotePackage2 = await explorer2.FindPackageAsync(packageId, request.MinVersion, request.MaxVersion, cancelToken);
+
             // Find local package
             var localPackage = explorer.FindLocalPackage(packageId);
 
