@@ -4,6 +4,7 @@ using Autofac;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Smartstore.AmazonPay.Services;
 using Smartstore.Core.Stores;
@@ -41,11 +42,11 @@ namespace Smartstore.AmazonPay
 
     internal sealed class SignInOptionsConfigurer : IConfigureOptions<AuthenticationOptions>, IConfigureNamedOptions<SignInOptions>
     {
-        private readonly IApplicationContext _appContext;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public SignInOptionsConfigurer(IApplicationContext appContext)
+        public SignInOptionsConfigurer(IHttpContextAccessor httpContextAccessor)
         {
-            _appContext = appContext;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public void Configure(AuthenticationOptions options)
@@ -65,12 +66,13 @@ namespace Smartstore.AmazonPay
                 return;
             }
 
-            var T = _appContext.Services.Resolve<Localizer>();
-            var storeContext = _appContext.Services.Resolve<IStoreContext>();
-            var httpContextAccessor = _appContext.Services.Resolve<IHttpContextAccessor>();
+            // INFO: (mg) (core) AppContext.Services is the ROOT (singleton) container. Never resolve scoped dependencies from it!
+            var httpContext = _httpContextAccessor.HttpContext;
+            var storeContext = httpContext.RequestServices.GetService<IStoreContext>();
+            var T = httpContext.RequestServices.GetService<Localizer>();
 
             options.StoreId = storeContext.CurrentStore.Id;
-            options.BuyerToken = httpContextAccessor.HttpContext.Session.GetString("AmazonPayBuyerToken");
+            options.BuyerToken = httpContext.Session.GetString("AmazonPayBuyerToken");
 
             options.Res["MissingAccessToken"] = T("Plugins.Payments.AmazonPay.MissingAccessToken");
 
