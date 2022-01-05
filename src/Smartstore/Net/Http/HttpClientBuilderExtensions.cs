@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -8,15 +7,12 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.Extensions.DependencyInjection;
-using Smartstore.Threading;
 
 namespace Smartstore.Net.Http
 {
     public static class HttpClientBuilderExtensions
     {
-        private readonly static ProductInfoHeaderValue _userAgentHeader = new("Smartstore", SmartstoreVersion.CurrentFullVersion.ToString());
-        private static readonly AsyncLock _asyncLock = new();
-        private static readonly ConcurrentDictionary<int, string> _safeLocalHostNames = new();
+        private readonly static ProductInfoHeaderValue _userAgentHeader = new("Smartstore", SmartstoreVersion.CurrentFullVersion);
 
         public static IHttpClientBuilder AddSmartstoreUserAgent(this IHttpClientBuilder builder)
         {

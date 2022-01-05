@@ -1,7 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Smartstore.Engine.Runtimes
 {
@@ -41,13 +39,8 @@ namespace Smartstore.Engine.Runtimes
         FileInfo GetNativeExecutable(string exeName, string minVersion = null, string maxVersion = null);
 
         /// <summary>
-        /// Installs a native library or executable from a NuGet source in the designated runtime folder.
-        /// If the NuGet package exists in the local (machine-wide) package cache, files are copied from this cache to the target. 
-        /// Otherwise the package is downloaded and extracted first.
+        /// Creates a transient instance of the native library installer.
         /// </summary>
-        /// <param name="request">A context object with all required information for the install process.</param>
-        /// <param name="cancelToken"></param>
-        /// <returns>A <see cref="FileInfo"/> instance representing the target native file in the application's runtime folder.</returns>
-        Task<FileInfo> InstallFromPackageAsync(InstallNativePackageRequest request, CancellationToken cancelToken = default);
+        INativeLibraryInstaller CreateLibraryInstaller();
     }
 }

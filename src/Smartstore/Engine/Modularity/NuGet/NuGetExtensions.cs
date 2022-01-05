@@ -8,16 +8,26 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NuGet.Common;
+using NuGet.Configuration;
+using NuGet.Packaging;
 using NuGet.Protocol;
 using NuGet.Protocol.Core.Types;
 
-namespace Smartstore.Engine.Runtimes
+namespace Smartstore.Engine.Modularity.NuGet
 {
     internal static class NuGetExtensions
     {
         private static readonly string[] PackageBaseAddressUrl = { "PackageBaseAddress/3.0.0" };
 
-        internal static Task<JObject> GetJObjectAsync(this HttpSource source, 
+        public static SourceRepository GetCoreV3Custom(this Repository.RepositoryFactory factory, PackageSource source)
+        {
+            var providers = Repository.Provider.GetCoreV3()
+                .Concat(new[] { new Lazy<INuGetResourceProvider>(() => new HttpHandlerResourceV3NoProxyProvider()) });
+
+            return Repository.CreateSource(providers, source);
+        }
+
+        public static Task<JObject> GetJObjectAsync(this HttpSource source, 
             Uri uri, 
             HttpSourceCacheContext cacheContext, 
             ILogger log, 
@@ -32,6 +42,29 @@ namespace Smartstore.Engine.Runtimes
             };
 
             return source.GetAsync(request, ProcessJson, log, token);
+        }
+
+        public static Task<HttpSourceResult> GetNupkgAsync(this HttpSource source, 
+            Uri uri, 
+            HttpSourceCacheContext cacheContext, 
+            ILogger log, 
+            CancellationToken cancelToken)
+        {
+            var cacheKey = GetHashKey(uri);
+
+            var request = new HttpSourceCachedRequest(uri.AbsoluteUri, cacheKey, cacheContext)
+            {
+                IgnoreNotFounds = false,
+                EnsureValidContents = stream =>
+                {
+                    using (var reader = new PackageArchiveReader(stream, leaveStreamOpen: true))
+                    {
+                        reader.NuspecReader.GetIdentity();
+                    }
+                }
+            };
+
+            return source.GetAsync(request, result => Task.FromResult(result), log, cancelToken);
         }
 
         private static string GetHashKey(Uri uri)
@@ -70,12 +103,12 @@ namespace Smartstore.Engine.Runtimes
             }
         }
 
-        internal static Uri GetPackageBaseAddressUri(this ServiceIndexResourceV3 serviceIndex)
+        public static Uri GetPackageBaseAddressUri(this ServiceIndexResourceV3 serviceIndex)
         {
             return serviceIndex.GetServiceUri(PackageBaseAddressUrl);
         }
 
-        internal static Uri GetServiceUri(this ServiceIndexResourceV3 serviceIndex, string[] types)
+        public static Uri GetServiceUri(this ServiceIndexResourceV3 serviceIndex, string[] types)
         {
             var uris = serviceIndex.GetServiceEntryUris(types);
 

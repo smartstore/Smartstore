@@ -38,6 +38,8 @@ namespace Smartstore.Engine.Runtimes
                 }
             };
 
+            using var libraryInstaller = libraryManager.CreateLibraryInstaller();
+
             foreach (var libRequest in libRequests)
             {
                 var fi = libRequest.IsExecutable 
@@ -46,7 +48,7 @@ namespace Smartstore.Engine.Runtimes
 
                 if (!fi.Exists)
                 {
-                    await libraryManager.InstallFromPackageAsync(libRequest);
+                    await libraryInstaller.InstallFromPackageAsync(libRequest);
                 }
             }
         }

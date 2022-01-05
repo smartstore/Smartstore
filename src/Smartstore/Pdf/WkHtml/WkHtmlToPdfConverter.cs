@@ -66,7 +66,8 @@ namespace Smartstore.Pdf.WkHtml
             var fi = libraryManager.GetNativeExecutable("wkhtmltopdf");
             if (!fi.Exists)
             {
-                fi = await libraryManager.InstallFromPackageAsync(new InstallNativePackageRequest("wkhtmltopdf", true, "Smartstore.wkhtmltopdf.Native"));
+                using var libraryInstaller = libraryManager.CreateLibraryInstaller();
+                fi = await libraryInstaller.InstallFromPackageAsync(new InstallNativePackageRequest("wkhtmltopdf", true, "Smartstore.wkhtmltopdf.Native"));
             }
 
             if (!fi.Exists)

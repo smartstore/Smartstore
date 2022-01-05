@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using NuGet.Protocol;
 using NuGet.Versioning;
+using Smartstore.Engine.Modularity.NuGet;
 
 namespace Smartstore.Engine.Runtimes
 {
@@ -15,17 +13,11 @@ namespace Smartstore.Engine.Runtimes
     {
         private readonly IApplicationContext _appContext;
         private readonly ILogger _logger;
-        private NuGetExplorer _explorer;
 
         public NativeLibraryManager(IApplicationContext appContext, ILogger logger)
         {
             _appContext = appContext;
             _logger = logger;
-        }
-
-        private NuGetExplorer Explorer
-        {
-            get => LazyInitializer.EnsureInitialized(ref _explorer, () => new NuGetExplorer(_appContext, null, null, _logger));
         }
 
         public FileInfo GetNativeLibrary(string libraryName, string minVersion = null, string maxVersion = null)
@@ -42,7 +34,7 @@ namespace Smartstore.Engine.Runtimes
             return GetNativeFileInfo(exeName, minVersion, maxVersion, isExecutable: true);
         }
 
-        private FileInfo GetNativeFileInfo(string fileName, string minVersion, string maxVersion, bool isExecutable)
+        internal FileInfo GetNativeFileInfo(string fileName, string minVersion, string maxVersion, bool isExecutable)
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
@@ -83,71 +75,9 @@ namespace Smartstore.Engine.Runtimes
             return fi;
         }
 
-        public async Task<FileInfo> InstallFromPackageAsync(InstallNativePackageRequest request, CancellationToken cancelToken = default)
+        public INativeLibraryInstaller CreateLibraryInstaller()
         {
-            Guard.NotNull(request, nameof(request));
-
-            var packageId = request.PackageId;
-            if (request.AppendRIDToPackageId)
-            {
-                packageId = packageId.EnsureEndsWith($".{_appContext.RuntimeInfo.RID}");
-            }
-
-            var explorer = Explorer;
-
-            //var explorer2 = new NuGetExplorer2(_appContext, null, _logger);
-            //var remotePackage2 = await explorer2.FindPackageAsync(packageId, request.MinVersion, request.MaxVersion, cancelToken);
-
-            // Find local package
-            var localPackage = explorer.FindLocalPackage(packageId);
-
-            if (localPackage == null)
-            {
-                // Local package does not exist, check NuGet online feed
-                var remotePackage = await explorer.FindPackageAsync(packageId, request.MinVersion, request.MaxVersion, cancelToken);
-                if (remotePackage != null)
-                {
-                    // Package exists, download and extract
-                    localPackage = await explorer.DownloadPackageAsync(remotePackage, cancelToken);
-                }
-            }
-
-            if (localPackage != null)
-            {
-                // Copy native files to application folder.
-                CopyRuntimeFiles(localPackage);
-            }
-
-            return GetNativeFileInfo(request.LibraryName, null, null, request.IsExecutable);
-        }
-
-        private void CopyRuntimeFiles(LocalPackageInfo package)
-        {
-            var destination = _appContext.RuntimeInfo.BaseDirectory;
-            var packageDir = Path.GetDirectoryName(package.Path);
-            var rid = _appContext.RuntimeInfo.RID;
-
-            using var reader = package.GetReader();
-
-            var runtimeEntries = reader.GetFiles($"runtimes/{rid}")
-                .Select(x => x.Replace('/', Path.DirectorySeparatorChar))
-                .ToList();
-
-            foreach (var entry in runtimeEntries)
-            {
-                var source = Path.Combine(packageDir, entry);
-                var target = Path.Combine(destination, entry);
-                var targetDir = Path.GetDirectoryName(target);
-
-                if (!Directory.Exists(targetDir))
-                {
-                    Directory.CreateDirectory(targetDir);
-                } 
-
-                File.Copy(source, target, true);
-
-                // TODO: ErrHandling
-            }
+            return new NativeLibraryInstaller(_appContext, this, _logger);
         }
     }
 }

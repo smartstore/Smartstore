@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using L = Microsoft.Extensions.Logging;
 using NuGet.Common;
 
-namespace Smartstore.Engine.Runtimes
+namespace Smartstore.Engine.Modularity.NuGet
 {
     internal class NuGetLogger : LoggerBase
     {
