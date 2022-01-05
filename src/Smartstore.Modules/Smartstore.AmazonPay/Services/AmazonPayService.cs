@@ -188,7 +188,7 @@ namespace Smartstore.AmazonPay.Services
 
         #region Utilities
 
-        private static (string FirstName, string LastName) GetFirstAndLastName(string name)
+        internal static (string FirstName, string LastName) GetFirstAndLastName(string name)
         {
             if (name.HasValue())
             {

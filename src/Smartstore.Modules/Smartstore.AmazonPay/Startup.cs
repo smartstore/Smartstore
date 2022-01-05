@@ -1,5 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Autofac;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Smartstore.AmazonPay.Filters;
 using Smartstore.AmazonPay.Services;
 using Smartstore.Engine;
@@ -14,6 +17,9 @@ namespace Smartstore.AmazonPay
         {
             services.AddScoped<IAmazonPayService, AmazonPayService>();
 
+            //services.AddAuthentication(AmazonPaySignInHandler.SchemeName)
+            //    .AddScheme<AmazonPaySignInOptions, AmazonPaySignInHandler>(AmazonPaySignInHandler.SchemeName, null);
+
             services.Configure<MvcOptions>(o =>
             {
                 o.Filters.AddConditional<OffCanvasShoppingCartFilter>(
@@ -22,6 +28,18 @@ namespace Smartstore.AmazonPay
                 o.Filters.AddConditional<CheckoutFilter>(
                     context => context.ControllerIs<CheckoutController>() && !context.HttpContext.Request.IsAjaxRequest());
             });
+        }
+
+        public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext)
+        {
+            builder.RegisterType<AmazonPaySignInOptionsConfigurer>()
+                .As<IConfigureOptions<AuthenticationOptions>>()
+                .As<IConfigureOptions<AmazonPaySignInOptions>>()
+                .InstancePerDependency();
+
+            builder.RegisterType<PostConfigureOptions<AmazonPaySignInOptions, AmazonPaySignInHandler>>()
+                .As<IPostConfigureOptions<AmazonPaySignInOptions>>()
+                .InstancePerDependency();
         }
     }
 }

@@ -20,14 +20,14 @@ namespace Smartstore.AmazonPay.Controllers
     {
         private readonly SmartDbContext _db;
         private readonly IAmazonPayService _amazonPayService;
-        private readonly IOptionsMonitorCache<SignInOptions> _optionsCache;
+        private readonly IOptionsMonitorCache<AmazonPaySignInOptions> _optionsCache;
         private readonly StoreDependingSettingHelper _settingHelper;
         private readonly CompanyInformationSettings _companyInformationSettings;
 
         public AmazonPayAdminController(
             SmartDbContext db,
             IAmazonPayService amazonPayService,
-            IOptionsMonitorCache<SignInOptions> optionsCache,
+            IOptionsMonitorCache<AmazonPaySignInOptions> optionsCache,
             StoreDependingSettingHelper settingHelper,
             CompanyInformationSettings companyInformationSettings)
         {
@@ -167,7 +167,7 @@ namespace Smartstore.AmazonPay.Controllers
             await _db.SaveChangesAsync();
 
             // TODO: (mg) (core) This must also be called when settings change via all settings grid.
-            _optionsCache.TryRemove(SignInHandler.SchemeName);
+            _optionsCache.TryRemove(AmazonPaySignInHandler.SchemeName);
 
             NotifySuccess(T("Admin.Common.DataSuccessfullySaved"));
 

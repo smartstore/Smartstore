@@ -6,13 +6,12 @@ using Microsoft.Extensions.Options;
 
 namespace Smartstore.AmazonPay.Services
 {
-    // TODO: (mg) (core) somehow register this the way IdentityController.ExternalLogin can pick it up.
-    public class SignInHandler : AuthenticationHandler<SignInOptions>
+    public class AmazonPaySignInHandler : AuthenticationHandler<AmazonPaySignInOptions>
     {
         internal static readonly string SchemeName = "AmazonPay.SignIn";
 
-        public SignInHandler(
-            IOptionsMonitor<SignInOptions> options,
+        public AmazonPaySignInHandler(
+            IOptionsMonitor<AmazonPaySignInOptions> options,
             ILoggerFactory logger,
             UrlEncoder encoder, 
             ISystemClock clock) 
@@ -22,34 +21,40 @@ namespace Smartstore.AmazonPay.Services
 
         protected override Task<AuthenticateResult> HandleAuthenticateAsync()
         {
-            if (Scheme.Name.EqualsNoCase(SchemeName))
+            if (!Scheme.Name.EqualsNoCase(SchemeName))
             {
-                var client = Context.GetAmazonPayApiClient(Options.StoreId);
-                var response = client.GetBuyer(Options.BuyerToken);
-
-                if (response.Success)
-                {
-                    // TODO: (mg) (core) add more claim stuff.
-                    // TODO: (mg) (core) ExternalAuthenticationRecord.ExternalIdentifier aka UserLoginInfo.ProviderKey.
-                    var claims = new[] 
-                    {
-                        new Claim(ClaimTypes.Name, response.Name),
-                        new Claim(ClaimTypes.Email, response.Email)
-                    };
-
-                    var identity = new ClaimsIdentity(claims, Scheme.Name);
-                    var principal = new ClaimsPrincipal(identity);
-                    var ticket = new AuthenticationTicket(principal, Scheme.Name);
-
-                    return Task.FromResult(AuthenticateResult.Success(ticket));
-                }
-                else
-                {
-                    Logger.LogAmazonPayFailure(null, response);
-                }
+                return Task.FromResult(AuthenticateResult.NoResult());
             }
 
-            return Task.FromResult(AuthenticateResult.NoResult());
+            var client = Context.GetAmazonPayApiClient(Options.StoreId);
+            var response = client.GetBuyer(Options.BuyerToken);
+
+            if (response.Success)
+            {
+                var (firstName, lastName) = AmazonPayService.GetFirstAndLastName(response.Name);
+
+                var claims = new[]
+                {
+                    new Claim(ClaimTypes.NameIdentifier, response.BuyerId),
+                    new Claim(ClaimTypes.Email, response.Email),
+                    new Claim(ClaimTypes.Name, response.Name),
+                    new Claim(ClaimTypes.GivenName, firstName),
+                    new Claim(ClaimTypes.Surname, lastName),
+                    //new Claim(ClaimTypes.HomePhone, response.BillingAddress?.PhoneNumber ?? string.Empty)
+                };
+
+                var identity = new ClaimsIdentity(claims, Scheme.Name);
+                var principal = new ClaimsPrincipal(identity);
+                var ticket = new AuthenticationTicket(principal, Scheme.Name);
+
+                return Task.FromResult(AuthenticateResult.Success(ticket));
+            }
+            else
+            {
+                var message = Logger.LogAmazonPayFailure(null, response);
+
+                return Task.FromResult(AuthenticateResult.Fail(message));
+            }            
         }
     }
 

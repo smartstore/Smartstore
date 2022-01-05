@@ -730,7 +730,15 @@ namespace Smartstore.AmazonPay.Controllers
 
                 var request = new SignInRequest(signInReturnUrl, _settings.ClientId)
                 {
-                    SignInScopes = SignInOptions.Scopes
+                    SignInScopes = new[]
+                    {
+                        SignInScope.Name,
+                        SignInScope.Email,
+                        //SignInScope.PostalCode, 
+                        //SignInScope.ShippingAddress,
+                        //SignInScope.BillingAddress,
+                        //SignInScope.PhoneNumber
+                    }
                 };
 
                 payload = request.ToJsonNoType();
@@ -768,7 +776,7 @@ namespace Smartstore.AmazonPay.Controllers
             var returnUrl = HttpContext.Request.Query["returnUrl"].ToString();
 
             return RedirectToAction(nameof(IdentityController.ExternalLogin), "Identity", 
-                new { provider = SignInHandler.SchemeName, returnUrl });
+                new { provider = AmazonPaySignInHandler.SchemeName, returnUrl });
         }
 
         #endregion
