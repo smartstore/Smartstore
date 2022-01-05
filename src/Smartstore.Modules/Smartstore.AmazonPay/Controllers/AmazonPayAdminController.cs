@@ -2,9 +2,9 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Extensions.Options;
 using Smartstore.AmazonPay.Services;
 using Smartstore.ComponentModel;
-using Smartstore.Core.Common.Services;
 using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Data;
@@ -20,20 +20,20 @@ namespace Smartstore.AmazonPay.Controllers
     {
         private readonly SmartDbContext _db;
         private readonly IAmazonPayService _amazonPayService;
-        private readonly ICurrencyService _currencyService;
+        private readonly IOptionsMonitorCache<SignInOptions> _optionsCache;
         private readonly StoreDependingSettingHelper _settingHelper;
         private readonly CompanyInformationSettings _companyInformationSettings;
 
         public AmazonPayAdminController(
             SmartDbContext db,
             IAmazonPayService amazonPayService,
-            ICurrencyService currencyService,
+            IOptionsMonitorCache<SignInOptions> optionsCache,
             StoreDependingSettingHelper settingHelper,
             CompanyInformationSettings companyInformationSettings)
         {
             _db = db;
             _amazonPayService = amazonPayService;
-            _currencyService = currencyService;
+            _optionsCache = optionsCache;
             _settingHelper = settingHelper;
             _companyInformationSettings = companyInformationSettings;
         }
@@ -102,7 +102,7 @@ namespace Smartstore.AmazonPay.Controllers
                 }
             }
 
-            ViewBag.PrimaryStoreCurrencyCode = _currencyService.PrimaryCurrency.CurrencyCode;
+            ViewBag.PrimaryStoreCurrencyCode = Services.CurrencyService.PrimaryCurrency.CurrencyCode;
 
             ViewBag.TransactionTypes = new List<SelectListItem>
             {
@@ -165,6 +165,9 @@ namespace Smartstore.AmazonPay.Controllers
 
             await _settingHelper.UpdateSettingsAsync(settings, form, storeScope);
             await _db.SaveChangesAsync();
+
+            // TODO: (mg) (core) This must also be called when settings change via all settings grid.
+            _optionsCache.TryRemove(SignInHandler.SchemeName);
 
             NotifySuccess(T("Admin.Common.DataSuccessfullySaved"));
 

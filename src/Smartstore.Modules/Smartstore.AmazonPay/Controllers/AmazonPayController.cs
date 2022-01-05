@@ -3,6 +3,7 @@ using System.Linq;
 using Amazon.Pay.API.WebStore.Buyer;
 using Amazon.Pay.API.WebStore.CheckoutSession;
 using Amazon.Pay.API.WebStore.Types;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -729,15 +730,7 @@ namespace Smartstore.AmazonPay.Controllers
 
                 var request = new SignInRequest(signInReturnUrl, _settings.ClientId)
                 {
-                    SignInScopes = new[]
-                    {
-                        SignInScope.Name,
-                        SignInScope.Email,
-                        //SignInScope.PostalCode, 
-                        SignInScope.ShippingAddress,
-                        SignInScope.BillingAddress,
-                        SignInScope.PhoneNumber
-                    }
+                    SignInScopes = SignInOptions.Scopes
                 };
 
                 payload = request.ToJsonNoType();
@@ -763,20 +756,19 @@ namespace Smartstore.AmazonPay.Controllers
         /// The buyer is redirected to this action method after they click the sign-in button.
         /// </summary>
         [Route("amazonpay/signin")]
-        public async Task<IActionResult> SignIn(string buyerToken)
+        public IActionResult SignIn(string buyerToken)
         {
             if (buyerToken.IsEmpty())
             {
                 throw new ArgumentException(T("Plugins.Payments.AmazonPay.MissingAccessToken"));
             }
 
-            var client = await HttpContext.GetAmazonPayApiClientAsync(Services.StoreContext.CurrentStore.Id);
-            var response = client.GetBuyer(buyerToken);
+            HttpContext.Session.SetString("AmazonPayBuyerToken", buyerToken);
 
-            // TODO: (mg) (core) make a generic sign-in with Amazon somehow, using .BuyerId (formerly external identifier), .Name, .Email, .ShippingAddress, .BillingAddress
-            // Is there a contract to meet SignInManager?
+            var returnUrl = HttpContext.Request.Query["returnUrl"].ToString();
 
-            throw new NotImplementedException();
+            return RedirectToAction(nameof(IdentityController.ExternalLogin), "Identity", 
+                new { provider = SignInHandler.SchemeName, returnUrl });
         }
 
         #endregion
