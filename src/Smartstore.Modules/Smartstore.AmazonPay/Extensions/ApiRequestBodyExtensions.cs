@@ -12,8 +12,6 @@ namespace Smartstore.AmazonPay
         /// </summary>
         public static string ToJsonNoType(this ApiRequestBody body, JsonSerializerSettings settings = null)
         {
-            // INFO: (mg) (core) I believe it is partly our fault that the inbuilt .ToJson() does not work: we build default serializer settings in CoreStarter (line 41).
-
             if (body == null)
             {
                 return null;

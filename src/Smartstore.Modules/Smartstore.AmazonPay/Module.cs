@@ -1,6 +1,5 @@
 ﻿global using System;
 global using System.Collections.Generic;
-global using System.Threading;
 global using System.Threading.Tasks;
 global using Smartstore.AmazonPay.Models;
 global using Smartstore.AmazonPay.Providers;
@@ -46,7 +45,7 @@ namespace Smartstore.AmazonPay
         }
 
         public WidgetInvoker GetDisplayWidget(int storeId)
-            => new ComponentWidgetInvoker(typeof(AmazonPayButtonViewComponent), new { buttonType = "SignIn" });
+            => new ComponentWidgetInvoker(typeof(SignInButtonViewComponent));
 
         public override async Task InstallAsync(ModuleInstallationContext context)
         {

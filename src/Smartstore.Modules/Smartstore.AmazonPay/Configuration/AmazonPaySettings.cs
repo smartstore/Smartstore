@@ -1,6 +1,4 @@
-﻿using Amazon.Pay.API;
-using Smartstore.Core.Configuration;
-using AmazonPayTypes = Amazon.Pay.API.Types;
+﻿using Smartstore.Core.Configuration;
 
 namespace Smartstore.AmazonPay
 {
@@ -65,23 +63,6 @@ namespace Smartstore.AmazonPay
                 "jp" => "https://static-fe.payments-amazon.com/checkout.js",
                 _ => "https://static-eu.payments-amazon.com/checkout.js",
             };
-        }
-
-        public ApiConfiguration ToApiConfiguration()
-        {
-            var region = Marketplace.EmptyNull().ToLower() switch
-            {
-                "us" => AmazonPayTypes.Region.UnitedStates,
-                "jp" => AmazonPayTypes.Region.Japan,
-                _ => AmazonPayTypes.Region.Europe,
-            };
-
-            return new ApiConfiguration(
-                region,
-                UseSandbox ? AmazonPayTypes.Environment.Sandbox : AmazonPayTypes.Environment.Live,
-                PublicKeyId,
-                PrivateKey
-            );
         }
     }
 }

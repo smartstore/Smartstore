@@ -1,6 +1,5 @@
 ﻿using System.IO;
 using System.Linq;
-using Amazon.Pay.API.WebStore;
 using Amazon.Pay.API.WebStore.Buyer;
 using Amazon.Pay.API.WebStore.CheckoutSession;
 using Amazon.Pay.API.WebStore.Types;
@@ -69,111 +68,83 @@ namespace Smartstore.AmazonPay.Controllers
         /// AJAX. Creates the AmazonPay checkout session object after clicking the AmazonPay button.
         /// </summary>
         [HttpPost]
-        public async Task<IActionResult> CreateCheckoutSession(ProductVariantQuery query, string buttonType, bool? useRewardPoints)
+        public async Task<IActionResult> CreateCheckoutSession(ProductVariantQuery query, bool? useRewardPoints)
         {
-            Guard.NotEmpty(buttonType, nameof(buttonType));
-
-            var store = Services.StoreContext.CurrentStore;
-            var customer = Services.WorkContext.CurrentCustomer;
-            var currentScheme = Services.WebHelper.IsCurrentConnectionSecured() ? "https" : "http";
-
             var signature = string.Empty;
             var payload = string.Empty;
             var message = string.Empty;
-            var messageType = "error";
-            var success = false;
+            var messageType = string.Empty;
 
             try
             {
-                if (buttonType == "PayAndShip" || buttonType == "PayOnly")
+                var store = Services.StoreContext.CurrentStore;
+                var customer = Services.WorkContext.CurrentCustomer;
+                var currentScheme = Services.WebHelper.IsCurrentConnectionSecured() ? "https" : "http";
+                var cart = await _shoppingCartService.GetCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
+                var warnings = new List<string>();
+
+                // Save data entered on cart page.
+                customer.ResetCheckoutData(store.Id);
+                customer.GenericAttributes.CheckoutAttributes = await _checkoutAttributeMaterializer.CreateCheckoutAttributeSelectionAsync(query, cart);
+
+                if (_rewardPointsSettings.Enabled && useRewardPoints.HasValue)
                 {
-                    var cart = await _shoppingCartService.GetCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
-                    var warnings = new List<string>();
-
-                    // Save data entered on cart page.
-                    customer.ResetCheckoutData(store.Id);
-                    customer.GenericAttributes.CheckoutAttributes = await _checkoutAttributeMaterializer.CreateCheckoutAttributeSelectionAsync(query, cart);
-
-                    if (_rewardPointsSettings.Enabled && useRewardPoints.HasValue)
-                    {
-                        customer.GenericAttributes.UseRewardPointsDuringCheckout = useRewardPoints.Value;
-                    }
-
-                    // INFO: we must save before validating the cart.
-                    await _db.SaveChangesAsync();
-
-                    // Validate the shopping cart.
-                    if (await _shoppingCartValidator.ValidateCartAsync(cart, warnings, true))
-                    {
-                        var client = new WebStoreClient(_settings.ToApiConfiguration());
-                        var checkoutReviewUrl = Url.Action(nameof(CheckoutReview), "AmazonPay", null, currentScheme);
-                        var request = new CreateCheckoutSessionRequest(checkoutReviewUrl, _settings.ClientId)
-                        {
-                            PlatformId = AmazonPayProvider.PlatformId
-                        };
-
-                        // TODO later: config for specialRestrictions 'RestrictPOBoxes', 'RestrictPackstations'.
-                        if (cart.HasItems && cart.IsShippingRequired())
-                        {
-                            var allowedCountryCodes = await _db.Countries
-                                .ApplyStandardFilter(false, store.Id)
-                                .Where(x => x.AllowsBilling || x.AllowsShipping)
-                                .Select(x => x.TwoLetterIsoCode)
-                                .Distinct()
-                                .ToListAsync();
-
-                            if (allowedCountryCodes.Any())
-                            {
-                                request.DeliverySpecifications.AddressRestrictions.Type = RestrictionType.Allowed;
-                                allowedCountryCodes.Each(countryCode => request.DeliverySpecifications.AddressRestrictions.AddCountryRestriction(countryCode));
-                            }
-                        }
-
-                        payload = request.ToJsonNoType();
-                        signature = client.GenerateButtonSignature(payload);
-                        success = true;
-                    }
-                    else
-                    {
-                        messageType = "warning";
-                        message = string.Join(Environment.NewLine, warnings);
-                        success = false;
-                    }
+                    customer.GenericAttributes.UseRewardPointsDuringCheckout = useRewardPoints.Value;
                 }
-                else if (buttonType == "SignIn")
-                {
-                    var client = new WebStoreClient(_settings.ToApiConfiguration());
-                    var signInReturnUrl = Url.Action(nameof(SignIn), "AmazonPay", null, currentScheme);
 
-                    var request = new SignInRequest(signInReturnUrl, _settings.ClientId)
+                // INFO: we must save before validating the cart.
+                await _db.SaveChangesAsync();
+
+                // Validate the shopping cart.
+                if (await _shoppingCartValidator.ValidateCartAsync(cart, warnings, true))
+                {
+                    var client = await HttpContext.GetAmazonPayApiClientAsync(store.Id);
+                    var checkoutReviewUrl = Url.Action(nameof(CheckoutReview), "AmazonPay", null, currentScheme);
+                    var request = new CreateCheckoutSessionRequest(checkoutReviewUrl, _settings.ClientId)
                     {
-                        SignInScopes = new[]
-                        {
-                            SignInScope.Name,
-                            SignInScope.Email,
-                            //SignInScope.PostalCode, 
-                            SignInScope.ShippingAddress,
-                            SignInScope.BillingAddress,
-                            SignInScope.PhoneNumber
-                        }
+                        PlatformId = AmazonPayProvider.PlatformId
                     };
+
+                    // TODO later: config for specialRestrictions 'RestrictPOBoxes', 'RestrictPackstations'.
+                    if (cart.HasItems && cart.IsShippingRequired())
+                    {
+                        var allowedCountryCodes = await _db.Countries
+                            .ApplyStandardFilter(false, store.Id)
+                            .Where(x => x.AllowsBilling || x.AllowsShipping)
+                            .Select(x => x.TwoLetterIsoCode)
+                            .Distinct()
+                            .ToListAsync();
+
+                        if (allowedCountryCodes.Any())
+                        {
+                            request.DeliverySpecifications.AddressRestrictions.Type = RestrictionType.Allowed;
+                            allowedCountryCodes.Each(countryCode => request.DeliverySpecifications.AddressRestrictions.AddCountryRestriction(countryCode));
+                        }
+                    }
 
                     payload = request.ToJsonNoType();
                     signature = client.GenerateButtonSignature(payload);
-                    success = true;
                 }
                 else
                 {
-                    throw new ArgumentException($"Unknown or not supported button type '{buttonType}'.");
+                    message = string.Join(Environment.NewLine, warnings);
+                    messageType = "warning";
                 }
             }
             catch (Exception ex)
             {
                 message = ex.Message;
-                success = false;
+                messageType = "error";
             }
 
-            return Json(new { success, signature, payload, message, messageType });
+            return Json(new
+            {
+                success = signature.HasValue(),
+                signature,
+                payload,
+                message,
+                messageType
+            });
         }
 
         /// <summary>
@@ -229,7 +200,7 @@ namespace Smartstore.AmazonPay.Controllers
             await _db.LoadCollectionAsync(customer, x => x.Addresses);
 
             // Create addresses from AmazonPay checkout session.
-            var client = new WebStoreClient(_settings.ToApiConfiguration());
+            var client = await HttpContext.GetAmazonPayApiClientAsync(store.Id);
             var session = client.GetCheckoutSession(checkoutSessionId);
 
             if (session.BillingAddress == null)
@@ -383,7 +354,7 @@ namespace Smartstore.AmazonPay.Controllers
                             request.MerchantMetadata.MerchantReferenceId = paymentRequest.OrderGuid.ToString();
                         }
 
-                        var client = new WebStoreClient(_settings.ToApiConfiguration());
+                        var client = await HttpContext.GetAmazonPayApiClientAsync(store.Id);
                         var response = client.UpdateCheckoutSession(state.CheckoutSessionId, request);
 
                         if (response.Success)
@@ -432,7 +403,7 @@ namespace Smartstore.AmazonPay.Controllers
         /// The buyer is redirected to this action method after checkout is completed on the AmazonPay hosted page.
         /// </summary>
         [Route("amazonpay/confirmationresult")]
-        public IActionResult ConfirmationResult()
+        public async Task<IActionResult> ConfirmationResult()
         {
             try
             {
@@ -449,7 +420,7 @@ namespace Smartstore.AmazonPay.Controllers
                     throw new SmartException(T("Plugins.Payments.AmazonPay.MissingCheckoutSessionState"));
                 }
 
-                var client = new WebStoreClient(_settings.ToApiConfiguration());
+                var client = await HttpContext.GetAmazonPayApiClientAsync(Services.StoreContext.CurrentStore.Id);
                 var response = client.GetCheckoutSession(state.CheckoutSessionId);
 
                 if (response.Success)
@@ -532,7 +503,7 @@ namespace Smartstore.AmazonPay.Controllers
                 return;
             }
 
-            var client = new WebStoreClient(_settings.ToApiConfiguration());
+            var client = await HttpContext.GetAmazonPayApiClientAsync(Services.StoreContext.CurrentStore.Id);
 
             if (message.ObjectType.EqualsNoCase("CHARGE_PERMISSION"))
             {                
@@ -736,20 +707,70 @@ namespace Smartstore.AmazonPay.Controllers
             return Json(new { result = "success" });
         }
 
-        #region Authentication
+        #region Authentication\Sign-in
+
+        /// <summary>
+        /// AJAX. Creates the AmazonPay sign-in session object after clicking the AmazonPay button.
+        /// </summary>
+        [HttpPost]
+        public async Task<IActionResult> CreateSignInSession()
+        {
+            var signature = string.Empty;
+            var payload = string.Empty;
+            var message = string.Empty;
+            var messageType = string.Empty;
+
+            try
+            {
+                var store = Services.StoreContext.CurrentStore;
+                var currentScheme = Services.WebHelper.IsCurrentConnectionSecured() ? "https" : "http";
+                var client = await HttpContext.GetAmazonPayApiClientAsync(store.Id);
+                var signInReturnUrl = Url.Action(nameof(SignIn), "AmazonPay", null, currentScheme);
+
+                var request = new SignInRequest(signInReturnUrl, _settings.ClientId)
+                {
+                    SignInScopes = new[]
+                    {
+                        SignInScope.Name,
+                        SignInScope.Email,
+                        //SignInScope.PostalCode, 
+                        SignInScope.ShippingAddress,
+                        SignInScope.BillingAddress,
+                        SignInScope.PhoneNumber
+                    }
+                };
+
+                payload = request.ToJsonNoType();
+                signature = client.GenerateButtonSignature(payload);
+            }
+            catch (Exception ex)
+            {
+                message = ex.Message;
+                messageType = "error";
+            }
+
+            return Json(new 
+            {
+                success = signature.HasValue(), 
+                signature, 
+                payload, 
+                message,
+                messageType
+            });
+        }
 
         /// <summary>
         /// The buyer is redirected to this action method after they click the sign-in button.
         /// </summary>
         [Route("amazonpay/signin")]
-        public Task<IActionResult> SignIn(string buyerToken)
+        public async Task<IActionResult> SignIn(string buyerToken)
         {
             if (buyerToken.IsEmpty())
             {
                 throw new ArgumentException(T("Plugins.Payments.AmazonPay.MissingAccessToken"));
             }
 
-            var client = new WebStoreClient(_settings.ToApiConfiguration());
+            var client = await HttpContext.GetAmazonPayApiClientAsync(Services.StoreContext.CurrentStore.Id);
             var response = client.GetBuyer(buyerToken);
 
             // TODO: (mg) (core) make a generic sign-in with Amazon somehow, using .BuyerId (formerly external identifier), .Name, .Email, .ShippingAddress, .BillingAddress

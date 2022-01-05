@@ -1,0 +1,57 @@
+﻿@model AmazonPayButtonModel
+
+<div id="amazonpay-signin-button"></div>
+
+<script data-origin="amazonpay-signin-button">
+    loadAmazonPayScript(function () {
+        var amazonPaySignInButton = amazon.Pay.renderButton('#amazonpay-signin-button', {
+            merchantId: '@Html.Raw(Model.SellerId)',
+            publicKeyId: '@Html.Raw(Model.PublicKeyId)',
+            ledgerCurrency: '@Model.CurrencyCode',
+            checkoutLanguage: '@Model.CheckoutLanguage',
+            productType: '@Model.ButtonType',
+            placement: '@Model.ButtonPlacement',
+            buttonColor: '@Model.ButtonColor',
+            sandbox: @(Model.UseSandbox.ToString().ToLower())
+        });
+
+        amazonPaySignInButton.onClick(function () {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("CreateSignInSession", "AmazonPay")',
+                data: data,
+			    success: function (response) {
+                    if (response.success) {
+                        amazonPaySignInButton.initCheckout({
+                            signInConfig: {
+                                payloadJSON: response.payload,
+                                signature: response.signature,
+                                publicKeyId: '@Html.Raw(Model.PublicKeyId)'
+                            }
+                        });
+				    }
+				    else {
+					    displayNotification(response.message, response.messageType);
+				    }
+			    }
+		    });
+        });
+    });
+
+    function loadAmazonPayScript(callback) {
+        if (window.amazon && window.amazon.Pay) {
+            callback();
+            return;
+        }
+
+        var elem = document.createElement('script');
+        elem.type = 'text/javascript';
+        elem.async = true;
+        elem.src = '@Html.Raw(Model.CheckoutScriptUrl)';
+
+        elem.addEventListener('load', callback, false);
+
+        var s = document.getElementsByTagName('script')[0];
+        s.parentNode.insertBefore(elem, s);
+    }
+</script>

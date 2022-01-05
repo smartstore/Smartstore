@@ -1,5 +1,5 @@
-﻿using Amazon.Pay.API.WebStore;
-using Amazon.Pay.API.WebStore.ChargePermission;
+﻿using Amazon.Pay.API.WebStore.ChargePermission;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Smartstore.Core;
 using Smartstore.Core.Checkout.Orders.Events;
@@ -15,11 +15,14 @@ namespace Smartstore.AmazonPay
         public async Task HandleEventAsync(OrderPaidEvent message,
             ICommonServices services,
             IProviderManager providerManager,
+            IHttpContextAccessor httpContextAccessor,
             ILogger logger)
         {
             var order = message.Order;
+            var httpContext = httpContextAccessor?.HttpContext;
 
-            if (order != null
+            if (order != null 
+                && httpContext != null
                 && order.PaymentMethodSystemName.EqualsNoCase(AmazonPayProvider.SystemName)
                 && order.AuthorizationTransactionCode.HasValue())
             {
@@ -29,9 +32,7 @@ namespace Smartstore.AmazonPay
                 {
                     try
                     {
-                        var settings = await services.SettingFactory.LoadSettingsAsync<AmazonPaySettings>(order.StoreId);
-                        var client = new WebStoreClient(settings.ToApiConfiguration());
-
+                        var client = await httpContext.GetAmazonPayApiClientAsync(order.StoreId);
                         var request = new CloseChargePermissionRequest(T("Plugins.Payments.AmazonPay.CloseChargeReason").Value.Truncate(255))
                         {
                             CancelPendingCharges = false

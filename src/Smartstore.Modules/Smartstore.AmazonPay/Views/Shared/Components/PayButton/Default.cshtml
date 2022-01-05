@@ -1,6 +1,6 @@
 ﻿@model AmazonPayButtonModel
 
-<div attr-class='(!Model.SignIn, "my-2 ml-3")'>
+<div class="my-2 ml-3">
     <div id="amazonpay-button"></div>
 </div>
 
@@ -18,32 +18,22 @@
         });
 
         amazonPayButton.onClick(function () {
-            var signIn = @(Model.SignIn.ToString().ToLower());
-            var data = !signIn ? $('#startcheckout').closest('form').serialize() : null;
-
+            // INFO: we are decoupling button render and checkout initiation
+            // by creating and signing the payload later using AJAX to reduce net traffic.
             $.ajax({
                 type: 'POST',
-                url: '@Url.Action("CreateCheckoutSession", "AmazonPay", new { area = string.Empty, buttonType = Model.ButtonType })',
-                data: data,
+                url: '@Url.Action("CreateCheckoutSession", "AmazonPay")',
+                data: $('#startcheckout').closest('form').serialize(),
 			    success: function (response) {
                     if (response.success) {
-                        var config = {
-                            payloadJSON: response.payload,
-                            signature: response.signature,
-                            publicKeyId: '@Html.Raw(Model.PublicKeyId)'
-                        };
-
-                        // INFO: this forces us to redirect to AmazonPay in the same browser window.
-                        if (signIn) {
-                            amazonPayButton.initCheckout({
-                                signInConfig: config
-                            });
-                        }
-                        else {
-                            amazonPayButton.initCheckout({
-                                createCheckoutSessionConfig: config
-                            });
-                        }
+                        // INFO: this forces a redirect to AmazonPay in the same browser window.
+                        amazonPayButton.initCheckout({
+                            createCheckoutSessionConfig: {
+                                payloadJSON: response.payload,
+                                signature: response.signature,
+                                publicKeyId: '@Html.Raw(Model.PublicKeyId)'
+                            }
+                        });
 				    }
 				    else {
 					    displayNotification(response.message, response.messageType);

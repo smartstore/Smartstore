@@ -4,11 +4,15 @@
     {
         public AmazonPayButtonModel(
             AmazonPaySettings settings,
-            string buttonType = null,
-            string currencyCode = null,
+            string buttonType,
+            string currencyCode,
             string languageSeoCode = null)
         {
             Guard.NotNull(settings, nameof(settings));
+            Guard.NotEmpty(buttonType, nameof(buttonType));
+            Guard.NotEmpty(currencyCode, nameof(currencyCode));
+
+            var signIn = buttonType.EqualsNoCase("SignIn");
 
             UseSandbox = settings.UseSandbox;
             PublicKeyId = settings.PublicKeyId;
@@ -18,7 +22,8 @@
             
             CurrencyCode = currencyCode;
             ButtonType = buttonType;
-            ButtonColor = buttonType.EqualsNoCase("SignIn") ? settings.AuthButtonColor : settings.PayButtonColor;
+            ButtonColor = signIn ? settings.AuthButtonColor : settings.PayButtonColor;
+            ButtonPlacement = signIn ? "Other" : "Cart";
 
             Marketplace = settings.Marketplace.EmptyNull().ToLower();
             CheckoutScriptUrl = settings.GetCheckoutScriptUrl();
@@ -51,11 +56,19 @@
         public string CurrencyCode { get; }
         public string CheckoutLanguage { get; }
 
-        public string ButtonPlacement { get; init; } = "Cart";
-        public string ButtonType { get; init; } = "PayAndShip";
-        public string ButtonColor { get; }
+        /// <summary>
+        /// Supported values: Home, Product, Cart, Checkout, Other.
+        /// </summary>
+        public string ButtonPlacement { get; }
 
-        public bool SignIn
-            => ButtonType.EqualsNoCase("SignIn");
+        /// <summary>
+        /// Supported values: PayAndShip, PayOnly, SignIn.
+        /// </summary>
+        public string ButtonType { get; }
+
+        /// <summary>
+        /// Supported values: Gold, LightGray, DarkGray.
+        /// </summary>
+        public string ButtonColor { get; }
     }
 }
