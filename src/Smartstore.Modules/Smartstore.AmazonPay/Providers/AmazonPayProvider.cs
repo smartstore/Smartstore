@@ -92,7 +92,7 @@ namespace Smartstore.AmazonPay.Providers
                     throw new SmartException(T("Plugins.Payments.AmazonPay.MissingCheckoutSessionState"));
                 }
 
-                var client = await httpContext.GetAmazonPayApiClientAsync(processPaymentRequest.StoreId);
+                var client = httpContext.GetAmazonPayApiClient(processPaymentRequest.StoreId);
                 var request = new CompleteCheckoutSessionRequest(processPaymentRequest.OrderTotal, _amazonPayService.GetAmazonPayCurrency());
                 var response = client.CompleteCheckoutSession(state.CheckoutSessionId, request);
                 
@@ -159,7 +159,7 @@ namespace Smartstore.AmazonPay.Providers
             return result;
         }
 
-        public override async Task PostProcessPaymentAsync(PostProcessPaymentRequest postProcessPaymentRequest)
+        public override Task PostProcessPaymentAsync(PostProcessPaymentRequest postProcessPaymentRequest)
         {
             var order = postProcessPaymentRequest.Order;
 
@@ -167,7 +167,7 @@ namespace Smartstore.AmazonPay.Providers
             {
                 try
                 {
-                    var client = await _httpContextAccessor.HttpContext.GetAmazonPayApiClientAsync(order.StoreId);
+                    var client = _httpContextAccessor.HttpContext.GetAmazonPayApiClient(order.StoreId);
                     var request = new CloseChargePermissionRequest(T("Plugins.Payments.AmazonPay.CloseChargeReason").Value.Truncate(255))
                     {
                         CancelPendingCharges = false
@@ -185,9 +185,11 @@ namespace Smartstore.AmazonPay.Providers
                     Logger.Error(ex);
                 }
             }
+
+            return Task.CompletedTask;
         }
 
-        public override async Task<CapturePaymentResult> CaptureAsync(CapturePaymentRequest capturePaymentRequest)
+        public override Task<CapturePaymentResult> CaptureAsync(CapturePaymentRequest capturePaymentRequest)
         {
             var order = capturePaymentRequest.Order;
             var result = new CapturePaymentResult
@@ -197,7 +199,7 @@ namespace Smartstore.AmazonPay.Providers
 
             try
             {
-                var client = await _httpContextAccessor.HttpContext.GetAmazonPayApiClientAsync(order.StoreId);
+                var client = _httpContextAccessor.HttpContext.GetAmazonPayApiClient(order.StoreId);
                 var request = new CaptureChargeRequest(order.OrderTotal, _amazonPayService.GetAmazonPayCurrency());
                 var response = client.CaptureCharge(order.AuthorizationTransactionId, request);
 
@@ -224,7 +226,7 @@ namespace Smartstore.AmazonPay.Providers
                 result.Errors.Add(ex.Message);
             }
 
-            return result;
+            return Task.FromResult(result);
         }
 
         public override async Task<RefundPaymentResult> RefundAsync(RefundPaymentRequest refundPaymentRequest)
@@ -237,7 +239,7 @@ namespace Smartstore.AmazonPay.Providers
 
             try
             {
-                var client = await _httpContextAccessor.HttpContext.GetAmazonPayApiClientAsync(order.StoreId);
+                var client = _httpContextAccessor.HttpContext.GetAmazonPayApiClient(order.StoreId);
                 var request = new CreateRefundRequest(order.AuthorizationTransactionId, refundPaymentRequest.AmountToRefund.Amount, _amazonPayService.GetAmazonPayCurrency());
                 var response = client.CreateRefund(request);
 
@@ -266,7 +268,7 @@ namespace Smartstore.AmazonPay.Providers
             return result;
         }
 
-        public override async Task<VoidPaymentResult> VoidAsync(VoidPaymentRequest voidPaymentRequest)
+        public override Task<VoidPaymentResult> VoidAsync(VoidPaymentRequest voidPaymentRequest)
         {
             var order = voidPaymentRequest.Order;
             var result = new VoidPaymentResult
@@ -278,7 +280,7 @@ namespace Smartstore.AmazonPay.Providers
             {
                 try
                 {
-                    var client = await _httpContextAccessor.HttpContext.GetAmazonPayApiClientAsync(order.StoreId);
+                    var client = _httpContextAccessor.HttpContext.GetAmazonPayApiClient(order.StoreId);
                     var request = new CloseChargePermissionRequest(T("Plugins.Payments.AmazonPay.CloseChargeReason").Value.Truncate(255))
                     {
                         CancelPendingCharges = true
@@ -303,7 +305,7 @@ namespace Smartstore.AmazonPay.Providers
                 }
             }
 
-            return result;
+            return Task.FromResult(result);
         }
 
         public override async Task<(decimal FixedFeeOrPercentage, bool UsePercentage)> GetPaymentFeeInfoAsync(ShoppingCart cart)

@@ -12,7 +12,7 @@ namespace Smartstore.AmazonPay
     {
         public Localizer T { get; set; } = NullLocalizer.Instance;
 
-        public async Task HandleEventAsync(OrderPaidEvent message,
+        public void HandleEvent(OrderPaidEvent message,
             ICommonServices services,
             IProviderManager providerManager,
             IHttpContextAccessor httpContextAccessor,
@@ -32,7 +32,7 @@ namespace Smartstore.AmazonPay
                 {
                     try
                     {
-                        var client = await httpContext.GetAmazonPayApiClientAsync(order.StoreId);
+                        var client = httpContext.GetAmazonPayApiClient(order.StoreId);
                         var request = new CloseChargePermissionRequest(T("Plugins.Payments.AmazonPay.CloseChargeReason").Value.Truncate(255))
                         {
                             CancelPendingCharges = false

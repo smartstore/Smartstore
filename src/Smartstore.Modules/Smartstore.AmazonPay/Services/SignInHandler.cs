@@ -20,11 +20,11 @@ namespace Smartstore.AmazonPay.Services
         {
         }
 
-        protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
+        protected override Task<AuthenticateResult> HandleAuthenticateAsync()
         {
             if (Scheme.Name.EqualsNoCase(SchemeName))
             {
-                var client = await Context.GetAmazonPayApiClientAsync(Options.StoreId);
+                var client = Context.GetAmazonPayApiClient(Options.StoreId);
                 var response = client.GetBuyer(Options.BuyerToken);
 
                 if (response.Success)
@@ -41,7 +41,7 @@ namespace Smartstore.AmazonPay.Services
                     var principal = new ClaimsPrincipal(identity);
                     var ticket = new AuthenticationTicket(principal, Scheme.Name);
 
-                    return AuthenticateResult.Success(ticket);
+                    return Task.FromResult(AuthenticateResult.Success(ticket));
                 }
                 else
                 {
@@ -49,7 +49,7 @@ namespace Smartstore.AmazonPay.Services
                 }
             }
 
-            return AuthenticateResult.NoResult();
+            return Task.FromResult(AuthenticateResult.NoResult());
         }
     }
 

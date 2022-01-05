@@ -99,7 +99,7 @@ namespace Smartstore.AmazonPay.Controllers
                 // Validate the shopping cart.
                 if (await _shoppingCartValidator.ValidateCartAsync(cart, warnings, true))
                 {
-                    var client = await HttpContext.GetAmazonPayApiClientAsync(store.Id);
+                    var client = HttpContext.GetAmazonPayApiClient(store.Id);
                     var checkoutReviewUrl = Url.Action(nameof(CheckoutReview), "AmazonPay", null, currentScheme);
                     var request = new CreateCheckoutSessionRequest(checkoutReviewUrl, _settings.ClientId)
                     {
@@ -201,7 +201,7 @@ namespace Smartstore.AmazonPay.Controllers
             await _db.LoadCollectionAsync(customer, x => x.Addresses);
 
             // Create addresses from AmazonPay checkout session.
-            var client = await HttpContext.GetAmazonPayApiClientAsync(store.Id);
+            var client = HttpContext.GetAmazonPayApiClient(store.Id);
             var session = client.GetCheckoutSession(checkoutSessionId);
 
             if (session.BillingAddress == null)
@@ -355,7 +355,7 @@ namespace Smartstore.AmazonPay.Controllers
                             request.MerchantMetadata.MerchantReferenceId = paymentRequest.OrderGuid.ToString();
                         }
 
-                        var client = await HttpContext.GetAmazonPayApiClientAsync(store.Id);
+                        var client = HttpContext.GetAmazonPayApiClient(store.Id);
                         var response = client.UpdateCheckoutSession(state.CheckoutSessionId, request);
 
                         if (response.Success)
@@ -404,7 +404,7 @@ namespace Smartstore.AmazonPay.Controllers
         /// The buyer is redirected to this action method after checkout is completed on the AmazonPay hosted page.
         /// </summary>
         [Route("amazonpay/confirmationresult")]
-        public async Task<IActionResult> ConfirmationResult()
+        public IActionResult ConfirmationResult()
         {
             try
             {
@@ -421,7 +421,7 @@ namespace Smartstore.AmazonPay.Controllers
                     throw new SmartException(T("Plugins.Payments.AmazonPay.MissingCheckoutSessionState"));
                 }
 
-                var client = await HttpContext.GetAmazonPayApiClientAsync(Services.StoreContext.CurrentStore.Id);
+                var client = HttpContext.GetAmazonPayApiClient(Services.StoreContext.CurrentStore.Id);
                 var response = client.GetCheckoutSession(state.CheckoutSessionId);
 
                 if (response.Success)
@@ -504,7 +504,7 @@ namespace Smartstore.AmazonPay.Controllers
                 return;
             }
 
-            var client = await HttpContext.GetAmazonPayApiClientAsync(Services.StoreContext.CurrentStore.Id);
+            var client = HttpContext.GetAmazonPayApiClient(Services.StoreContext.CurrentStore.Id);
 
             if (message.ObjectType.EqualsNoCase("CHARGE_PERMISSION"))
             {                
@@ -714,7 +714,7 @@ namespace Smartstore.AmazonPay.Controllers
         /// AJAX. Creates the AmazonPay sign-in session object after clicking the AmazonPay button.
         /// </summary>
         [HttpPost]
-        public async Task<IActionResult> CreateSignInSession()
+        public IActionResult CreateSignInSession()
         {
             var signature = string.Empty;
             var payload = string.Empty;
@@ -725,7 +725,7 @@ namespace Smartstore.AmazonPay.Controllers
             {
                 var store = Services.StoreContext.CurrentStore;
                 var currentScheme = Services.WebHelper.IsCurrentConnectionSecured() ? "https" : "http";
-                var client = await HttpContext.GetAmazonPayApiClientAsync(store.Id);
+                var client = HttpContext.GetAmazonPayApiClient(store.Id);
                 var signInReturnUrl = Url.Action(nameof(SignIn), "AmazonPay", null, currentScheme);
 
                 var request = new SignInRequest(signInReturnUrl, _settings.ClientId)

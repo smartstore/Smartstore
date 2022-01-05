@@ -9,14 +9,14 @@ namespace Smartstore.AmazonPay
 {
     internal static class HttpContextExtensions
     {
-        public static Task<WebStoreClient> GetAmazonPayApiClientAsync(this HttpContext context, int storeId)
+        public static WebStoreClient GetAmazonPayApiClient(this HttpContext context, int storeId)
         {
             Guard.NotNull(context, nameof(context));
 
-            return context.GetItemAsync("AmazonPayApiClient" + storeId, async () =>
+            return context.GetItem("AmazonPayApiClient" + storeId, () =>
             {
                 var settingFactory = context.RequestServices.GetService<ISettingFactory>();
-                var settings = await settingFactory.LoadSettingsAsync<AmazonPaySettings>(storeId);
+                var settings = settingFactory.LoadSettings<AmazonPaySettings>(storeId);
 
                 var region = settings.Marketplace.EmptyNull().ToLower() switch
                 {
