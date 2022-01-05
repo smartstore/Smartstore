@@ -537,8 +537,8 @@
                         function tryStripHeaders(message) {
                             // Removes the annoying HEADERS part of message that
                             // DeveloperExceptionPageMiddleware adds to the output.
-                            var idx = message.indexOf("\r\nHEADERS\r\n=======");
-                            if (idx === -1) {
+                            var idx = message?.indexOf("\r\nHEADERS\r\n=======");
+                            if (idx === undefined || idx === -1) {
                                 return message;
                             }
                             return message.substring(0, idx).trim();

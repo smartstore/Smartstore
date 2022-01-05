@@ -8,8 +8,31 @@
 }
 
 <style sm-target-zone="stylesheets" data-origin="RestartApplication">
-    .throbber-content {
-        font-weight: 400 !important;
+    .cph:after {
+        position: absolute;
+        content: '';
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        z-index: -1;
+        background-image: url('/admin/images/bg-mobile.jpg');
+        background-repeat: no-repeat;
+        background-position: center 0;
+        background-size: 100%;
+        filter: blur(16px);
+    }
+
+    @@media (min-width: 800px) {
+        .cph:after {
+            background-image: url('/admin/images/bg-tablet.jpg');
+        }
+    }
+
+    @@media (min-width: 1200px) {
+        .cph:after {
+            background-image: url('/admin/images/bg-desktop.jpg');
+        }
     }
 </style>
 
@@ -23,6 +46,7 @@
                 type: "POST",
                 cache: false,
                 url: "@postUrl",
+                global: false,
                 complete() {
                     // Set cookie with 1 min. expiration
                     _.setCookie(".Smart.RestartingApp", "true", "@pathBase", new Date(Date.now() + 60000));
@@ -36,6 +60,7 @@
                 type: "GET",
                 cache: false,
                 url: "@pingUrl",
+                global: false,
                 success() {
                     clearInterval(interval);
                     _.setCookie(".Smart.RestartingApp", null);
@@ -45,9 +70,9 @@
         }
 
         $.throbber.show({
-            message: @T("Admin.Header.RestartApplication.Progress").JsValue,
+            message: @T("Admin.Header.RestartApplication.Progress").JsValue + "...",
             speed: 0,
-            white: true,
+            white: false,
             callback() {
                 if (restartInProgress) {
                     interval = setInterval(checkAlive, 1000);
