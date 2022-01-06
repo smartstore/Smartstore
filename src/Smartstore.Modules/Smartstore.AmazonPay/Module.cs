@@ -6,46 +6,55 @@ global using Smartstore.AmazonPay.Providers;
 global using Smartstore.Core.Localization;
 global using Smartstore.Web.Modelling;
 using System.Linq;
-using Smartstore.AmazonPay.Components;
+using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Identity;
-using Smartstore.Core.Widgets;
 using Smartstore.Engine.Modularity;
 
 namespace Smartstore.AmazonPay
 {
-    internal class Module : ModuleBase, ICookiePublisher, IExternalAuthenticationMethod
+    internal class Module : ModuleBase, ICookiePublisher
     {
+        private readonly IPaymentService _paymentService;
         private readonly IProviderManager _providerManager;
-        private readonly WidgetSettings _widgetSettings;
+        private readonly ExternalAuthenticationSettings _externalAuthenticationSettings;
 
-        public Module(IProviderManager providerManager, WidgetSettings widgetSettings)
+        public Module(
+            IPaymentService paymentService, 
+            IProviderManager providerManager,
+            ExternalAuthenticationSettings externalAuthenticationSettings)
         {
+            _paymentService = paymentService;
             _providerManager = providerManager;
-            _widgetSettings = widgetSettings;
+            _externalAuthenticationSettings = externalAuthenticationSettings;
         }
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
 
-        public Task<IEnumerable<CookieInfo>> GetCookieInfoAsync()
+        public async Task<IEnumerable<CookieInfo>> GetCookieInfoAsync()
         {
-            var widget = _providerManager.GetProvider<IWidget>("Smartstore.AmazonPay");
-            if (!widget.IsWidgetActive(_widgetSettings))
+            var store = Services.StoreContext.CurrentStore;
+            var cookieInfoRequired = await _paymentService.IsPaymentMethodActiveAsync(AmazonPayProvider.SystemName, null, store.Id);
+
+            if (!cookieInfoRequired)
             {
-                return null;
+                var signInProvider = _providerManager.GetProvider<IExternalAuthenticationMethod>(AmazonPaySignInProvider.SystemName);
+                cookieInfoRequired = signInProvider?.IsMethodActive(_externalAuthenticationSettings) ?? false;
             }
 
-            var cookieInfo = new CookieInfo
+            if (cookieInfoRequired)
             {
-                Name = T("Plugins.FriendlyName.Widgets.AmazonPay"),
-                Description = T("Plugins.Payments.AmazonPay.CookieInfo"),
-                CookieType = CookieType.Required
-            };
+                var cookieInfo = new CookieInfo
+                {
+                    Name = T("Plugins.FriendlyName.Authentications.AmazonPay"),
+                    Description = T("Plugins.Payments.AmazonPay.CookieInfo"),
+                    CookieType = CookieType.Required
+                };
 
-            return Task.FromResult(new List<CookieInfo> { cookieInfo }.AsEnumerable());
+                return new List<CookieInfo> { cookieInfo }.AsEnumerable();
+            }
+
+            return null;
         }
-
-        public WidgetInvoker GetDisplayWidget(int storeId)
-            => new ComponentWidgetInvoker(typeof(SignInButtonViewComponent));
 
         public override async Task InstallAsync(ModuleInstallationContext context)
         {

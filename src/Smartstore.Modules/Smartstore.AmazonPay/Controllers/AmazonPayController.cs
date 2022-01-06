@@ -776,7 +776,7 @@ namespace Smartstore.AmazonPay.Controllers
             var returnUrl = HttpContext.Request.Query["returnUrl"].ToString();
 
             return RedirectToAction(nameof(IdentityController.ExternalLogin), "Identity", 
-                new { provider = AmazonPaySignInHandler.SchemeName, returnUrl });
+                new { provider = AmazonPaySignInProvider.SystemName, returnUrl });
         }
 
         #endregion

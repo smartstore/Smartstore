@@ -8,8 +8,6 @@ namespace Smartstore.AmazonPay.Services
 {
     public class AmazonPaySignInHandler : AuthenticationHandler<AmazonPaySignInOptions>
     {
-        internal static readonly string SchemeName = "AmazonPay.SignIn";
-
         public AmazonPaySignInHandler(
             IOptionsMonitor<AmazonPaySignInOptions> options,
             ILoggerFactory logger,
@@ -21,10 +19,10 @@ namespace Smartstore.AmazonPay.Services
 
         protected override Task<AuthenticateResult> HandleAuthenticateAsync()
         {
-            if (!Scheme.Name.EqualsNoCase(SchemeName))
-            {
-                return Task.FromResult(AuthenticateResult.NoResult());
-            }
+            // TODO: (mg) (core) logic of ExternalAuthorizer is missing\not ported. We need to rebuild the flow from Classic here:
+            // make "AccountAlreadyExists" check and return AuthenticateResult.Success if true.
+
+            $"auth: {Options.StoreId} {Options.BuyerToken}".Dump();
 
             var client = Context.GetAmazonPayApiClient(Options.StoreId);
             var response = client.GetBuyer(Options.BuyerToken);
@@ -32,6 +30,7 @@ namespace Smartstore.AmazonPay.Services
             if (response.Success)
             {
                 var (firstName, lastName) = AmazonPayService.GetFirstAndLastName(response.Name);
+                $"buyer: {response.Email} {response.Name}".Dump();
 
                 var claims = new[]
                 {
@@ -56,6 +55,8 @@ namespace Smartstore.AmazonPay.Services
                 return Task.FromResult(AuthenticateResult.Fail(message));
             }            
         }
+
+        // TODO: (mg) (core) override of HandleChallengeAsync required.
     }
 
     //public class SignInHandler : OAuthHandler<SignInOptions>

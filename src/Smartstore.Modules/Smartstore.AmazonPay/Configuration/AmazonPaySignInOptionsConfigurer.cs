@@ -9,7 +9,7 @@ using Smartstore.Core.Stores;
 
 namespace Smartstore.AmazonPay
 {
-    public class AmazonPaySignInOptions : AuthenticationSchemeOptions /*OAuthOptions*/
+    public class AmazonPaySignInOptions : AuthenticationSchemeOptions
     {
         public int StoreId { get; set; }
         public string BuyerToken { get; set; }
@@ -18,7 +18,7 @@ namespace Smartstore.AmazonPay
         {
             if (BuyerToken.IsEmpty())
             {
-                throw new ArgumentException("Missing buyer token for sign-in with Amazon Pay.");
+                throw new ArgumentException("Missing buyer token for sign-in with Amazon.");
             }
 
             base.Validate();
@@ -36,9 +36,11 @@ namespace Smartstore.AmazonPay
 
         public void Configure(AuthenticationOptions options)
         {
-            options.AddScheme(AmazonPaySignInHandler.SchemeName, builder =>
+            $"add auth scheme {AmazonPaySignInProvider.SystemName}".Dump();
+
+            options.AddScheme(AmazonPaySignInProvider.SystemName, builder =>
             {
-                builder.DisplayName = "Amazon Pay";
+                builder.DisplayName = "Amazon sign-in";
                 builder.HandlerType = typeof(AmazonPaySignInHandler);
             });
         }
@@ -46,7 +48,7 @@ namespace Smartstore.AmazonPay
         public void Configure(string name, AmazonPaySignInOptions options)
         {
             // Ignore OpenID Connect client handler instances that don't correspond to the instance managed by the OpenID module.
-            if (name.HasValue() && !name.EqualsNoCase(AmazonPaySignInHandler.SchemeName))
+            if (name.HasValue() && !name.EqualsNoCase(AmazonPaySignInProvider.SystemName))
             {
                 return;
             }

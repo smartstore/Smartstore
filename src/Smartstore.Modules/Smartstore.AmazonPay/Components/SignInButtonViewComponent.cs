@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Smartstore.Engine.Modularity;
 using Smartstore.Web.Components;
 
 namespace Smartstore.AmazonPay.Components
@@ -9,26 +8,16 @@ namespace Smartstore.AmazonPay.Components
     /// </summary>
     public class SignInButtonViewComponent : SmartViewComponent
     {
-        private readonly IProviderManager _providerManager;
         private readonly AmazonPaySettings _settings;
 
-        public SignInButtonViewComponent(
-            IProviderManager providerManager,
-            AmazonPaySettings amazonPaySettings)
+        public SignInButtonViewComponent(AmazonPaySettings amazonPaySettings)
         {
-            _providerManager = providerManager;
             _settings = amazonPaySettings;
         }
 
         public IViewComponentResult Invoke()
         {
             if (_settings.PublicKeyId.IsEmpty() || _settings.PrivateKey.IsEmpty())
-            {
-                return Empty();
-            }
-
-            var module = Services.ApplicationContext.ModuleCatalog.GetModuleByAssembly(typeof(SignInButtonViewComponent).Assembly);
-            if (!_providerManager.IsActiveForStore(module, Services.StoreContext.CurrentStore.Id))
             {
                 return Empty();
             }

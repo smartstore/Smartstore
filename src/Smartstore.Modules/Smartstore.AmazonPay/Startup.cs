@@ -1,10 +1,11 @@
 ﻿using Autofac;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 using Smartstore.AmazonPay.Filters;
 using Smartstore.AmazonPay.Services;
+using Smartstore.Core.Stores;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;
 using Smartstore.Web.Controllers;
@@ -17,8 +18,15 @@ namespace Smartstore.AmazonPay
         {
             services.AddScoped<IAmazonPayService, AmazonPayService>();
 
-            //services.AddAuthentication(AmazonPaySignInHandler.SchemeName)
-            //    .AddScheme<AmazonPaySignInOptions, AmazonPaySignInHandler>(AmazonPaySignInHandler.SchemeName, null);
+            services.AddAuthentication(AmazonPaySignInProvider.SystemName)
+                .AddScheme<AmazonPaySignInOptions, AmazonPaySignInHandler>(AmazonPaySignInProvider.SystemName, options =>
+                {
+                    var storeContext = appContext.Services.Resolve<IStoreContext>();
+                    var httpContext = appContext.Services.Resolve<IHttpContextAccessor>().HttpContext;
+
+                    options.StoreId = storeContext.CurrentStore.Id;
+                    options.BuyerToken = httpContext.Session.GetString("AmazonPayBuyerToken");
+                });
 
             services.Configure<MvcOptions>(o =>
             {
@@ -30,16 +38,16 @@ namespace Smartstore.AmazonPay
             });
         }
 
-        public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext)
-        {
-            builder.RegisterType<AmazonPaySignInOptionsConfigurer>()
-                .As<IConfigureOptions<AuthenticationOptions>>()
-                .As<IConfigureOptions<AmazonPaySignInOptions>>()
-                .InstancePerDependency();
+        //public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext)
+        //{
+        //    builder.RegisterType<AmazonPaySignInOptionsConfigurer>()
+        //        .As<IConfigureOptions<AuthenticationOptions>>()
+        //        .As<IConfigureNamedOptions<AmazonPaySignInOptions>>()
+        //        .InstancePerDependency();
 
-            builder.RegisterType<PostConfigureOptions<AmazonPaySignInOptions, AmazonPaySignInHandler>>()
-                .As<IPostConfigureOptions<AmazonPaySignInOptions>>()
-                .InstancePerDependency();
-        }
+        //    builder.RegisterType<PostConfigureOptions<AmazonPaySignInOptions, AmazonPaySignInHandler>>()
+        //        .As<IPostConfigureOptions<AmazonPaySignInOptions>>()
+        //        .InstancePerDependency();
+        //}
     }
 }

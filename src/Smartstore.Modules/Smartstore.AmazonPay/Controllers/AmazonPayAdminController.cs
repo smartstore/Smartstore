@@ -167,7 +167,7 @@ namespace Smartstore.AmazonPay.Controllers
             await _db.SaveChangesAsync();
 
             // TODO: (mg) (core) This must also be called when settings change via all settings grid.
-            _optionsCache.TryRemove(AmazonPaySignInHandler.SchemeName);
+            _optionsCache.TryRemove(AmazonPaySignInProvider.SystemName);
 
             NotifySuccess(T("Admin.Common.DataSuccessfullySaved"));
 

@@ -25,7 +25,7 @@ using Smartstore.Core.Messaging;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
 using Smartstore.Core.Web;
-using Smartstore.Web.Filters;
+using Smartstore.Engine.Modularity;
 using Smartstore.Web.Models.Customers;
 using Smartstore.Web.Models.Identity;
 
@@ -38,6 +38,7 @@ namespace Smartstore.Web.Controllers
         private readonly SignInManager<Customer> _signInManager;
         private readonly RoleManager<CustomerRole> _roleManager;
         private readonly IUserStore<Customer> _userStore;
+        private readonly IProviderManager _providerManager;
         private readonly ITaxService _taxService;
         private readonly IAddressService _addressService;
         private readonly IShoppingCartService _shoppingCartService;
@@ -58,6 +59,7 @@ namespace Smartstore.Web.Controllers
             SignInManager<Customer> signInManager,
             RoleManager<CustomerRole> roleManager,
             IUserStore<Customer> userStore,
+            IProviderManager providerManager,
             ITaxService taxService,
             IAddressService addressService,
             IShoppingCartService shoppingCartService,
@@ -77,6 +79,7 @@ namespace Smartstore.Web.Controllers
             _signInManager = signInManager;
             _roleManager = roleManager;
             _userStore = userStore;
+            _providerManager = providerManager;
             _taxService = taxService;
             _addressService = addressService;
             _shoppingCartService = shoppingCartService;
@@ -98,16 +101,17 @@ namespace Smartstore.Web.Controllers
         [TypeFilter(typeof(DisplayExternalAuthWidgets))]
         [RequireSsl, AllowAnonymous, NeverAuthorize, CheckStoreClosed(false)]
         [LocalizedRoute("/login", Name = "Login")]
-        public async Task<IActionResult> Login(bool? checkoutAsGuest, string returnUrl = null)
+        public IActionResult Login(bool? checkoutAsGuest, string returnUrl = null)
         {
             ViewBag.ReturnUrl = returnUrl ?? Url.Content("~/");
-
+                
             var model = new LoginModel
             {
                 CustomerLoginType = _customerSettings.CustomerLoginType,
                 CheckoutAsGuest = checkoutAsGuest.GetValueOrDefault(),
                 DisplayCaptcha = _captchaSettings.CanDisplayCaptcha && _captchaSettings.ShowOnLoginPage,
-                DisplayExternalAuth = (await _signInManager.GetExternalAuthenticationSchemesAsync()).Any()
+                DisplayExternalAuth = _providerManager.GetAllProviders<IExternalAuthenticationMethod>(Services.StoreContext.CurrentStore.Id)
+                    .Any(x => x.IsMethodActive(_externalAuthenticationSettings))
             };
 
             return View(model);
@@ -181,7 +185,8 @@ namespace Smartstore.Web.Controllers
             // If we got this far something failed. Redisplay form!
             model.CustomerLoginType = _customerSettings.CustomerLoginType;
             model.DisplayCaptcha = _captchaSettings.CanDisplayCaptcha && _captchaSettings.ShowOnLoginPage;
-            model.DisplayExternalAuth = (await _signInManager.GetExternalAuthenticationSchemesAsync()).Any();
+            model.DisplayExternalAuth = _providerManager.GetAllProviders<IExternalAuthenticationMethod>(Services.StoreContext.CurrentStore.Id)
+                .Any(x => x.IsMethodActive(_externalAuthenticationSettings));
 
             return View(model);
         }

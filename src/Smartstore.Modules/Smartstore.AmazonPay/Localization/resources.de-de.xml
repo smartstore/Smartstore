@@ -6,7 +6,13 @@
 		<Value>Amazon Pay</Value>
 	</LocaleResource>
 	<LocaleResource Name="Plugins.Description.Payments.AmazonPay" AppendRootKey="false">
-		<Value>Amazon Pay</Value>
+		<Value>Erweitert den Shop um die Zahlungsfunktion von Amazon Pay.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Plugins.FriendlyName.Authentications.AmazonPay" AppendRootKey="false">
+		<Value>Anmeldung mit Amazon</Value>
+	</LocaleResource>
+	<LocaleResource Name="Plugins.Description.Authentications.AmazonPay" AppendRootKey="false">
+		<Value>Erweitert den Shop um die Anmeldefunktion von Amazon Pay.</Value>
 	</LocaleResource>
 
 	<LocaleResource Name="AdminInstruction">
@@ -257,6 +263,6 @@ Textvorschläge:</div><ul>
 		<Value>Legt fest, dass Auftragsnotizen hinsichtlich des Datenaustausches mit Amazon Pay angelegt werden sollen.</Value>
 	</LocaleResource>
 	<LocaleResource Name="CookieInfo">
-		<Value>Amazon Pay nutzt Cookies zur Darstellung und Abwicklung des Zahlungsvorgangs über Amazon.</Value>
+		<Value>Amazon Pay nutzt Cookies zur Darstellung und Abwicklung des Zahlungs- bzw. Anmeldevorgangs.</Value>
 	</LocaleResource>
 </Language>

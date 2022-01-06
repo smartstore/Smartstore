@@ -6,9 +6,15 @@
 		<Value>Amazon Pay</Value>
 	</LocaleResource>
 	<LocaleResource Name="Plugins.Description.Payments.AmazonPay" AppendRootKey="false">
-		<Value>Amazon Pay</Value>
+		<Value>Adds the Amazon Pay payment feature to the store.</Value>
 	</LocaleResource>
-	
+	<LocaleResource Name="Plugins.FriendlyName.Authentications.AmazonPay" AppendRootKey="false">
+		<Value>Amazon sign-in</Value>
+	</LocaleResource>
+	<LocaleResource Name="Plugins.Description.Authentications.AmazonPay" AppendRootKey="false">
+		<Value>Adds the Amazon Pay sign-in feature to the store.</Value>
+	</LocaleResource>
+
 	<LocaleResource Name="AdminInstruction">
 		<Value>
 			<![CDATA[<div class="mb-1">How to set up <b>Login and Pay with Amazon</b>:</div><ul>
@@ -245,10 +251,10 @@ Text suggestions:</div><ul>
 		<Value>Specifies whether to show the Amazon Pay button in the mini shopping cart too.</Value>
 	</LocaleResource>
 	<LocaleResource Name="ShowSignoutButton">
-		<Value>Show sign-out button</Value>
+		<Value>Show sign out button</Value>
 	</LocaleResource>
 	<LocaleResource Name="ShowSignoutButton.Hint">
-		<Value>Specifies whether to show the Amazon Pay sign-out button on the order completed page.</Value>
+		<Value>Specifies whether to show the Amazon Pay sign out button on the order completed page.</Value>
 	</LocaleResource>
 	<LocaleResource Name="AddOrderNotes">
 		<Value>Create order notes</Value>
@@ -257,6 +263,6 @@ Text suggestions:</div><ul>
 		<Value>Specifies that order notes should be created in context of the data exchange with Amazon Pay.</Value>
 	</LocaleResource>
 	<LocaleResource Name="CookieInfo">
-		<Value>Amazon Pay uses cookies to display and process the payment transaction via Amazon.</Value>
+		<Value>Amazon Pay uses cookies to display and process the payment or sign-in transaction.</Value>
 	</LocaleResource>
 </Language>

@@ -19,10 +19,17 @@
             $.ajax({
                 type: 'POST',
                 url: '@Url.Action("CreateSignInSession", "AmazonPay")',
-                data: data,
 			    success: function (response) {
                     if (response.success) {
-                        amazonPaySignInButton.initCheckout({
+                        amazon.Pay.initCheckout({
+                            merchantId: '@Html.Raw(Model.SellerId)',
+                            publicKeyId: '@Html.Raw(Model.PublicKeyId)',
+                            ledgerCurrency: '@Model.CurrencyCode',
+                            checkoutLanguage: '@Model.CheckoutLanguage',
+                            productType: '@Model.ButtonType',
+                            placement: '@Model.ButtonPlacement',
+                            buttonColor: '@Model.ButtonColor',
+                            sandbox: @(Model.UseSandbox.ToString().ToLower()),
                             signInConfig: {
                                 payloadJSON: response.payload,
                                 signature: response.signature,
