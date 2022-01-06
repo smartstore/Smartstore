@@ -18,7 +18,7 @@
 		<!-- TODO: Describe EnableDefaultContentItems -->
 		<EnableDefaultContentItems>false</EnableDefaultContentItems>
 		<!-- TODO: Describe CompilationContext -->
-		<PreserveCompilationContext>true</PreserveCompilationContext>
+		<PreserveCompilationContext>false</PreserveCompilationContext>
 		<PreserveCompilationReferences>false</PreserveCompilationReferences>
 		<!-- TODO: Describe MvcRazorExcludeRefAssembliesFromPublish -->
 		<MvcRazorExcludeRefAssembliesFromPublish>true</MvcRazorExcludeRefAssembliesFromPublish>
