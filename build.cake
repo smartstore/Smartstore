@@ -39,11 +39,23 @@ Task("Deploy")
     .IsDependentOn("Build")
     .Does(() =>
 {
-    Information($"Deploying Smartstore {edition}...");
+    var outputDir = "./artifacts/" + edition;
+    	
+    if (DirectoryExists(outputDir)) 
+    {
+        Information($"Deleting {outputDir}...");
+	    DeleteDirectory(outputDir, new DeleteDirectorySettings 
+        {
+            Recursive = true,
+            Force = true
+        });
+    }
+    
+    Information($"Publishing Smartstore {edition}...");
     DotNetPublish("./src/Smartstore.Web/Smartstore.Web.csproj", new DotNetPublishSettings
     {
         Configuration = configuration,
-        OutputDirectory = "./artifacts/" + edition,
+        OutputDirectory = outputDir,
         // Whether to not to build the project before publishing. This makes build faster, but requires build to be done before publish is executed.
         NoBuild = true
     });
