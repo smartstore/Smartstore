@@ -727,7 +727,7 @@ namespace Smartstore.Admin.Controllers
         }
 
         [Permission(Permissions.Order.Update)]
-        public async Task<IActionResult> PartiallyRefundOrderPopup(string btnId, string formId, int id)
+        public async Task<IActionResult> PartiallyRefundOrderPopup(string btnId, string formId, int id, bool online)
         {
             var order = await _db.Orders.FindByIdAsync(id);
             if (order == null)
@@ -746,6 +746,7 @@ namespace Smartstore.Admin.Controllers
 
             ViewBag.BtnId = btnId;
             ViewBag.FormId = formId;
+            ViewBag.Online = online;
 
             return View(model);
         }
