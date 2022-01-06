@@ -389,9 +389,16 @@
                 type: "GET",
                 cache: false,
                 url: "@checkAliveUrl",
-                success() {
+                global: false,
+                success: function() {
                     clearInterval(checkAliveInterval);
-                    location.replace(redirectUrl);
+
+                    // Redirection sometimes fails in Chrome. Therefore we we delay and repeat the call until it succeeds.
+                    setTimeout(() => {
+                        setInterval(() => {
+                            location.replace(redirectUrl);
+                        }, 1000);
+                    }, 1000);
                 }
             });
         }
@@ -432,6 +439,7 @@
                     data: { restart: success },
                     dataType: "json",
                     async: false,
+                    global: false,
                     type: "POST"
                 });
             }
