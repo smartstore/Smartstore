@@ -4,6 +4,7 @@
 
 	<PropertyGroup>
 		<UserSecretsId>b35c0f56-dfa8-4120-b29b-a677578afcd1</UserSecretsId>
+		<CopyRefAssembliesToPublishDirectory>true</CopyRefAssembliesToPublishDirectory>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -58,9 +59,7 @@
 
 	<!-- Copy publishable files in Modules directory -->
 	<ItemGroup>
-		<None Include="Modules\**"
-			  Exclude="Modules\**\*.pdb; Modules\**\runtimes\**; Modules\**\ref\**; Modules\**\refs\**"
-			  CopyToPublishDirectory="PreserveNewest" />
+		<None Include="Modules\**" Exclude="Modules\**\*.pdb; Modules\**\runtimes\**; Modules\**\ref\**; Modules\**\refs\**" CopyToPublishDirectory="PreserveNewest" />
 	</ItemGroup>
 
 	<!-- Copy publishable files in Themes directory -->

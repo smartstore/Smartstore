@@ -4,7 +4,6 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.AspNetCore.Razor.Hosting;
-using Microsoft.Extensions.DependencyModel;
 
 namespace Smartstore.Engine.Modularity.ApplicationParts
 {
@@ -51,24 +50,7 @@ namespace Smartstore.Engine.Modularity.ApplicationParts
                 return Enumerable.Empty<string>();
             }
 
-            var dependencyContext = DependencyContext.Load(assembly);
-
-            if (dependencyContext == null)
-            {
-                // If an application has been compiled without preserveCompilationContext, return the path to the assembly
-                // as a reference. For runtime compilation, this will allow the compilation to succeed as long as it least
-                // one application part has been compiled with preserveCompilationContext and contains a super set of types
-                // required for the compilation to succeed.
-                return new[] { assembly.Location };
-            }
-            else
-            {
-                // Skip the first library (the module main assembly itself), because path resolution will raise an exception...
-                var libs = dependencyContext.CompileLibraries.Skip(1).SelectMany(library => library.ResolveReferencePaths());
-
-                // ...instead prepend assembly location
-                return (new[] { assembly.Location }).Concat(libs);
-            }
+            return (new[] { assembly.Location }).Concat(Descriptor.Module.PrivateAssemblies);
         }
     }
 }

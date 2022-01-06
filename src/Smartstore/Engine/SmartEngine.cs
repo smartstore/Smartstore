@@ -58,19 +58,23 @@ namespace Smartstore.Engine
 
         private Assembly OnAssemblyResolve(object sender, ResolveEventArgs args)
         {
-            var assembly = _moduleReferenceResolver.ResolveAssembly(args.RequestingAssembly, args.Name);
+            var assembly = _moduleReferenceResolver.ResolveAssembly(args.RequestingAssembly, args.Name, out var module);
             
             if (assembly == null)
             {
                 // Check for assembly already loaded
                 assembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(a => a.FullName == args.Name);
-                if (assembly != null)
+                
+                if (assembly == null)
                 {
-                    return assembly;
+                    // Get assembly from TypeScanner
+                    assembly = Application.TypeScanner?.Assemblies?.FirstOrDefault(a => a.FullName == args.Name);
                 }
-                    
-                // Get assembly from TypeScanner
-                assembly = Application.TypeScanner?.Assemblies?.FirstOrDefault(a => a.FullName == args.Name);
+            }
+
+            if (assembly != null && module != null)
+            {
+                module.Module?.AddPrivateAssembly(assembly);
             }
 
             return assembly;

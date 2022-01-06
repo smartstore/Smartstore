@@ -3,7 +3,6 @@ using System.Collections.Concurrent;
 using System.IO;
 using System.Reflection;
 using System.Runtime.Loader;
-using Smartstore.IO;
 
 namespace Smartstore.Engine.Modularity
 {
@@ -26,8 +25,10 @@ namespace Smartstore.Engine.Modularity
         /// <param name="requestingAssembly">The requesting assembly. May be the module main assembly or any dependency of it.</param>
         /// <param name="name">Name of assembly to resolve.</param>
         /// <returns></returns>
-        public Assembly ResolveAssembly(Assembly requestingAssembly, string name)
+        public Assembly ResolveAssembly(Assembly requestingAssembly, string name, out IModuleDescriptor module)
         {
+            module = null;
+
             if (_appContext.ModuleCatalog == null)
             {
                 return null;
@@ -35,7 +36,7 @@ namespace Smartstore.Engine.Modularity
             
             Assembly assembly = null;
 
-            if (!_assemblyModuleMap.TryGetValue(requestingAssembly, out var module))
+            if (!_assemblyModuleMap.TryGetValue(requestingAssembly, out module))
             {
                 module = _appContext.ModuleCatalog.GetModuleByAssembly(requestingAssembly);
             }
@@ -43,7 +44,7 @@ namespace Smartstore.Engine.Modularity
             if (module != null)
             {
                 var requestedAssemblyName = name.Split(',', StringSplitOptions.RemoveEmptyEntries)[0] + ".dll";
-                var fullPath = PathUtility.Combine(module.PhysicalPath, requestedAssemblyName);
+                var fullPath = Path.Combine(module.PhysicalPath, requestedAssemblyName);
                 if (File.Exists(fullPath))
                 {
                     // TODO: (core) ModuleReferenceResolver ErrHandling
