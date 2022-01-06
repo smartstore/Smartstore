@@ -1,5 +1,7 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
+	<Import Project="Smartstore.Razor.props" />
+	
 	<PropertyGroup>
 		<OutputType>Library</OutputType>
 	</PropertyGroup>
@@ -7,11 +9,6 @@
 	<PropertyGroup>
 		<!-- TODO: !!!! Describe CopyLocalLockFileAssemblies !!!! -->
 		<CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
-		<!-- TODO: Describe Razor compilation -->
-		<AddRazorSupportForMvc>true</AddRazorSupportForMvc>
-		<MvcRazorCompileOnPublish>true</MvcRazorCompileOnPublish>
-		<RazorCompileOnBuild>true</RazorCompileOnBuild>
-		<RazorCompileOnPublish>true</RazorCompileOnPublish>
 		<!-- TODO: Describe GenerateProvideApplicationPartFactoryAttribute -->
 		<GenerateProvideApplicationPartFactoryAttribute>true</GenerateProvideApplicationPartFactoryAttribute>
 		<ProvideApplicationPartFactoryAttributeTypeName>Smartstore.Engine.Modularity.ApplicationParts.ModuleRazorAssemblyPartFactory, Smartstore</ProvideApplicationPartFactoryAttributeTypeName>
