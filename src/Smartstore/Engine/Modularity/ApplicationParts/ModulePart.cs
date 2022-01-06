@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
@@ -37,7 +38,17 @@ namespace Smartstore.Engine.Modularity.ApplicationParts
                 return Enumerable.Empty<string>();
             }
 
-            return (new[] { assembly.Location }).Concat(Descriptor.Module.PrivateAssemblies);
+            // Try to find the smaller ref file in the "ref" subfolder and use its path (if it exists).
+            var location = assembly.Location;
+            var file = new FileInfo(location);
+            var refLocation = Path.Combine(file.DirectoryName, "ref", file.Name);
+
+            if (File.Exists(refLocation))
+            {
+                location = refLocation;
+            }
+
+            return (new[] { location }).Concat(Descriptor.Module.PrivateReferences);
         }
     }
 }

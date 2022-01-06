@@ -11,7 +11,7 @@ namespace Smartstore.Engine.Modularity
     public class ModuleAssemblyInfo
     {
         private bool? _isConfigurable;
-        private List<string> _privateAssemblies;
+        private List<string> _privateReferences;
         
         public ModuleAssemblyInfo(IModuleDescriptor descriptor)
         {
@@ -34,27 +34,27 @@ namespace Smartstore.Engine.Modularity
         public Type ModuleType { get; init; }
 
         /// <summary>
-        /// Gets a list of private assembly full paths the module references.
+        /// Gets a list of assembly full paths the module references privately.
         /// </summary>
-        public IEnumerable<string> PrivateAssemblies
+        public IEnumerable<string> PrivateReferences
         {
-            get => _privateAssemblies ?? Enumerable.Empty<string>();
+            get => _privateReferences ?? Enumerable.Empty<string>();
         }
 
         /// <summary>
         /// Adds an assembly to the list of private assemblies the module references.
         /// </summary>
         /// <param name="assembly"></param>
-        public void AddPrivateAssembly(Assembly assembly)
+        public void AddPrivateReference(Assembly assembly)
         {
             Guard.NotNull(assembly, nameof(assembly));
 
-            if (_privateAssemblies == null)
+            if (_privateReferences == null)
             {
-                _privateAssemblies = new List<string>();
+                _privateReferences = new List<string>();
             }
 
-            _privateAssemblies.Add(assembly.Location);
+            _privateReferences.Add(assembly.Location);
         }
 
         /// <summary>

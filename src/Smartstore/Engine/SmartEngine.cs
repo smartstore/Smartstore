@@ -74,7 +74,7 @@ namespace Smartstore.Engine
 
             if (assembly != null && module != null)
             {
-                module.Module?.AddPrivateAssembly(assembly);
+                module.Module?.AddPrivateReference(assembly);
             }
 
             return assembly;

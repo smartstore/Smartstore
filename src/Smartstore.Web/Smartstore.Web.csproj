@@ -51,7 +51,7 @@
 
 	<!-- Copy publishable files in Modules directory -->
 	<ItemGroup>
-		<None Include="Modules\**" Exclude="Modules\**\*.pdb; Modules\**\runtimes\**; Modules\**\ref\**; Modules\**\refs\**" CopyToPublishDirectory="PreserveNewest" />
+		<None Include="Modules\**" Exclude="Modules\**\*.pdb; Modules\**\runtimes\**; Modules\**\refs\**" CopyToPublishDirectory="PreserveNewest" />
 	</ItemGroup>
 
 	<!-- Copy publishable files in Themes directory -->

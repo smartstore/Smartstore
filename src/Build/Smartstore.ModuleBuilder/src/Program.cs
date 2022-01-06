@@ -137,7 +137,7 @@ namespace Smartstore.ModuleBuilder
             var entries = dir.GetFileSystemInfos("*", SearchOption.TopDirectoryOnly);
             foreach (var entry in entries)
             {
-                if (entry is DirectoryInfo di && (entry.Name == "ref" || entry.Name == "refs"))
+                if (entry is DirectoryInfo di && (/*entry.Name == "ref" ||*/ entry.Name == "refs"))
                 {
                     di.Delete(true);
                 }
