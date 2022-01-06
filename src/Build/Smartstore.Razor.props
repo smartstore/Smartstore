@@ -5,7 +5,7 @@
 		<AddRazorSupportForMvc>true</AddRazorSupportForMvc>
 		<MvcRazorCompileOnBuild>false</MvcRazorCompileOnBuild>
 		<MvcRazorCompileOnPublish>true</MvcRazorCompileOnPublish>
-		<RazorCompileOnBuild>false</RazorCompileOnBuild>
+		<RazorCompileOnBuild>true</RazorCompileOnBuild>
 		<RazorCompileOnPublish>true</RazorCompileOnPublish>
 	
 		<!-- TODO: (core) Think about Razor precompilation strategy and implement decently -->
@@ -13,6 +13,18 @@
 			<CopyRazorGenerateFilesToPublishDirectory>true</CopyRazorGenerateFilesToPublishDirectory>
 			<CopyRefAssembliesToPublishDirectory>false</CopyRefAssembliesToPublishDirectory>
 		-->
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<RazorCompileOnBuild>true</RazorCompileOnBuild>
+	</PropertyGroup>
+		
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugNoRazorCompile|AnyCPU'">
+		<RazorCompileOnBuild>false</RazorCompileOnBuild>
+	</PropertyGroup>
+	
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+		<RazorCompileOnBuild>true</RazorCompileOnBuild>
 	</PropertyGroup>
 
 </Project>
