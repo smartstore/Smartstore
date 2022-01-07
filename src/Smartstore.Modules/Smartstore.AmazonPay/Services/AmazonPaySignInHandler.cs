@@ -19,30 +19,25 @@ namespace Smartstore.AmazonPay.Services
 
         protected override Task<AuthenticateResult> HandleAuthenticateAsync()
         {
-            // TODO: (mg) (core) logic of ExternalAuthorizer is missing\not ported. We need to rebuild the flow from Classic here:
-            // make "AccountAlreadyExists" check and return AuthenticateResult.Success if true.
-
-            $"auth: {Options.StoreId} {Options.BuyerToken}".Dump();
-
             var client = Context.GetAmazonPayApiClient(Options.StoreId);
             var response = client.GetBuyer(Options.BuyerToken);
 
             if (response.Success)
             {
                 var (firstName, lastName) = AmazonPayService.GetFirstAndLastName(response.Name);
-                $"buyer: {response.Email} {response.Name}".Dump();
 
                 var claims = new[]
                 {
-                    new Claim(ClaimTypes.NameIdentifier, response.BuyerId),
-                    new Claim(ClaimTypes.Email, response.Email),
-                    new Claim(ClaimTypes.Name, response.Name),
-                    new Claim(ClaimTypes.GivenName, firstName),
-                    new Claim(ClaimTypes.Surname, lastName),
+                    new Claim(ClaimTypes.NameIdentifier, response.BuyerId, ClaimValueTypes.String, ClaimsIssuer),
+                    new Claim(ClaimTypes.Email, response.Email, ClaimValueTypes.String, ClaimsIssuer),
+                    new Claim(ClaimTypes.Name, response.Name, ClaimValueTypes.String, ClaimsIssuer),
+                    new Claim(ClaimTypes.GivenName, firstName, ClaimValueTypes.String, ClaimsIssuer),
+                    new Claim(ClaimTypes.Surname, lastName, ClaimValueTypes.String, ClaimsIssuer),
                     //new Claim(ClaimTypes.HomePhone, response.BillingAddress?.PhoneNumber ?? string.Empty)
                 };
 
-                var identity = new ClaimsIdentity(claims, Scheme.Name);
+                var identity = new ClaimsIdentity(claims, ClaimsIssuer);
+
                 var principal = new ClaimsPrincipal(identity);
                 var ticket = new AuthenticationTicket(principal, Scheme.Name);
 
@@ -56,40 +51,9 @@ namespace Smartstore.AmazonPay.Services
             }            
         }
 
-        // TODO: (mg) (core) override of HandleChallengeAsync required.
+        //protected override Task HandleChallengeAsync(AuthenticationProperties properties)
+        //{
+        //    return Context.ChallengeAsync(properties);
+        //}
     }
-
-    //public class SignInHandler : OAuthHandler<SignInOptions>
-    //{
-    //    internal static readonly string SchemeName = "AmazonPay.SignIn";
-
-    //    public SignInHandler(IOptionsMonitor<SignInOptions> options, ILoggerFactory logger, UrlEncoder encoder, ISystemClock clock) 
-    //        : base(options, logger, encoder, clock)
-    //    {
-    //    }
-
-    //    public IApplicationContext Application { get; set; }
-
-    //    /// <inheritdoc />
-    //    protected override async Task<AuthenticationTicket> CreateTicketAsync(ClaimsIdentity identity, AuthenticationProperties properties, OAuthTokenResponse tokens)
-    //    {
-    //        var httpContextAccessor = Application.Services.Resolve<IHttpContextAccessor>();
-    //        var logger = Application.Services.Resolve<ILogger>();
-
-    //        var client = await httpContextAccessor.HttpContext.GetAmazonPayApiClientAsync(Options.StoreId);
-    //        var response = client.GetBuyer(Options.BuyerToken);
-
-    //        if (response.Success)
-    //        {
-    //        }
-    //        else
-    //        {
-    //            logger.LogAmazonPayFailure(null, response);
-    //        }
-
-    //        var principal = new ClaimsPrincipal(identity);
-
-    //        return new AuthenticationTicket(principal, Scheme.Name);
-    //    }
-    //}
 }

@@ -37,17 +37,5 @@ namespace Smartstore.AmazonPay
                     context => context.ControllerIs<CheckoutController>() && !context.HttpContext.Request.IsAjaxRequest());
             });
         }
-
-        //public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext)
-        //{
-        //    builder.RegisterType<AmazonPaySignInOptionsConfigurer>()
-        //        .As<IConfigureOptions<AuthenticationOptions>>()
-        //        .As<IConfigureNamedOptions<AmazonPaySignInOptions>>()
-        //        .InstancePerDependency();
-
-        //    builder.RegisterType<PostConfigureOptions<AmazonPaySignInOptions, AmazonPaySignInHandler>>()
-        //        .As<IPostConfigureOptions<AmazonPaySignInOptions>>()
-        //        .InstancePerDependency();
-        //}
     }
 }
