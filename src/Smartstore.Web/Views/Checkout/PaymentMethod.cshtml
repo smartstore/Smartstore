@@ -36,11 +36,11 @@
                                 <div class="form-check opt-control option-name radio">
 
                                     <input id="paymentmethod_@(i)" type="radio" name="paymentmethod"
-                                       attr-checked='(paymentMethod.Selected, "checked")'
-                                       data-has-info='@(widgetInvoker != null ? "true" : "false")'
-                                       data-lazy-info='@(paymentMethod.RequiresInteraction ? "true" : "false")'
-                                       class="opt-radio form-check-input"
-                                       value="@(paymentMethod.PaymentMethodSystemName)" />
+                                           attr-checked='(paymentMethod.Selected, "checked")'
+                                           data-has-info='@(widgetInvoker != null ? "true" : "false")'
+                                           data-lazy-info='@(paymentMethod.RequiresInteraction ? "true" : "false")'
+                                           class="opt-radio form-check-input"
+                                           value="@(paymentMethod.PaymentMethodSystemName)" />
 
                                     <label class="form-check-label" for="paymentmethod_@(i)">
                                         <span class="opt-name">@paymentMethod.Name</span>
@@ -76,6 +76,19 @@
                         </li>
                     }
                 </ul>
+
+                <div class="buttons">
+                    <a asp-action="ShippingMethod" asp-controller="Checkout" class="btn btn-secondary btn-lg">
+                        <i class="fa fa-angle-left"></i>
+                        <span>@T("Common.Back")</span>
+                    </a>
+                    <input type="submit" name="nextstep" id="nextstep" class="d-none" />
+
+                    <button class="btn btn-warning btn-lg payment-method-next-step-button" onclick="$('#nextstep').trigger('click');return false;">
+                        <span>@T("Checkout.NextButton")</span>
+                        <i class="fa fa-angle-right"></i>
+                    </button>
+                </div>
             }
             else
             {
@@ -83,19 +96,6 @@
                     @T("Checkout.NoPaymentMethods")
                 </div>
             }
-
-            <div sm-if="Model.PaymentMethods.Any()" class="buttons">
-                <a asp-action="ShippingMethod" asp-controller="Checkout" class="btn btn-secondary btn-lg">
-                    <i class="fa fa-angle-left"></i>
-                    <span>@T("Common.Back")</span>
-                </a>
-                <input type="submit" name="nextstep" id="nextstep" class="d-none" />
-
-                <button class="btn btn-warning btn-lg payment-method-next-step-button" onclick="$('#nextstep').trigger('click');return false;">
-                    <span>@T("Checkout.NextButton")</span>
-                    <i class="fa fa-angle-right"></i>
-                </button>
-            </div>
 
             <zone name="checkout_payment_method_bottom" />
         </form>
