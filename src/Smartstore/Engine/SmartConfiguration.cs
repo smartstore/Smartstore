@@ -53,6 +53,12 @@
         public bool EnableLegacyRoutesMapping { get; set; }
 
         /// <summary>
+        /// Set this to "false" if you don't intend to edit view files during runtime. 
+        /// Disabling razor runtime compilation uses less resources.
+        /// </summary>
+        public bool EnableRazorRuntimeCompilation { get; set; } = true;
+
+        /// <summary>
         /// Increase timeout if you run into database related timeout problems during regular operations (Default: 30 sec.)
         /// </summary>
         public int? DbCommandTimeout { get; set; } = 30;

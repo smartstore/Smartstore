@@ -126,11 +126,6 @@ namespace Smartstore.Web
                         o.ViewLocationExpanders.Add(new LanguageViewLocationExpander(LanguageViewLocationExpanderFormat.Suffix));
                     }
                 })
-                .AddRazorRuntimeCompilation(o =>
-                {
-                    o.FileProviders.Clear();
-                    o.FileProviders.Add(new RazorRuntimeFileProvider(appContext, true));
-                })
                 .AddFluentValidation(c =>
                 {
                     c.LocalizationEnabled = true;
@@ -184,6 +179,16 @@ namespace Smartstore.Web
                     // Client validation (must come last - after "FluentValidationClientModelValidatorProvider")
                     o.ClientModelValidatorProviders.Add(new SmartClientModelValidatorProvider(appContext, validatorLanguageManager));
                 });
+
+            // Add Razor runtime compilation if enabled
+            if (appContext.AppConfiguration.EnableRazorRuntimeCompilation)
+            {
+                mvcBuilder.AddRazorRuntimeCompilation(o =>
+                {
+                    o.FileProviders.Clear();
+                    o.FileProviders.Add(new RazorRuntimeFileProvider(appContext, true));
+                });
+            }
 
             // Add TempData feature
             if (appContext.AppConfiguration.UseCookieTempDataProvider)
