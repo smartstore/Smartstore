@@ -1,6 +1,5 @@
 ﻿using Smartstore.Core.Catalog.Search;
 using Smartstore.Core.Localization;
-using Smartstore.Web.Modelling;
 using Smartstore.Web.Models.Search;
 
 namespace Smartstore.Web.Models.Catalog

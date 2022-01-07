@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using Smartstore.Web.Modelling;
 using Smartstore.Web.Models.Common;
 
 namespace Smartstore.Admin.Models.Customers

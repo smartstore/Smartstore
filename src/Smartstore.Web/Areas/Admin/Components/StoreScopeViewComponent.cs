@@ -1,8 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Admin.Models;
 using Smartstore.Core.Stores;
-using Smartstore.Web.Components;
 
 namespace Smartstore.Admin.Components
 {

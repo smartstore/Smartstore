@@ -1,15 +1,7 @@
-﻿using System;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Smartstore.Core;
-using Smartstore.Core.Data;
-using Smartstore.Core.Identity;
+﻿using Smartstore.Core.Identity;
 using Smartstore.Core.Localization.Routing;
 using Smartstore.Core.Messaging;
 using Smartstore.Core.Stores;
-using Smartstore.Web.Filters;
 using Smartstore.Web.Models.Newsletter;
 
 namespace Smartstore.Web.Controllers

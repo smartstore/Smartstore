@@ -1,16 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json.Linq;
 using Smartstore.Core.Content.Media;
-using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Security;
-using Smartstore.Web.Controllers;
 
 namespace Smartstore.Admin.Controllers
 {

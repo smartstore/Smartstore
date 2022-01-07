@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Routing;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.AspNetCore.Routing;
 using Smartstore.Admin.Models.Modularity;
 using Smartstore.Admin.Models.Stores;
 using Smartstore.ComponentModel;
@@ -16,11 +9,9 @@ using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
-using Smartstore.Core.Widgets;
 using Smartstore.Engine.Modularity;
 using Smartstore.Licensing;
 using Smartstore.Utilities.Html;
-using Smartstore.Web.Controllers;
 
 namespace Smartstore.Admin.Controllers
 {

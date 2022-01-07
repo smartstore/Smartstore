@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Smartstore.Web.Modelling;
-
-namespace Smartstore.Web.Models.Catalog
+﻿namespace Smartstore.Web.Models.Catalog
 {
     public partial class PopularProductTagsModel : ModelBase
     {

@@ -1,5 +1,4 @@
-﻿using Smartstore.Web.Modelling;
-using Smartstore.Admin.Models.Modularity;
+﻿using Smartstore.Admin.Models.Modularity;
 
 namespace Smartstore.Admin.Models.Tax
 {

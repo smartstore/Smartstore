@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Smartstore.Core.Content.Menus;
+﻿using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Security;
 using Smartstore.Web.Models.Common;
 using Smartstore.Web.Rendering;

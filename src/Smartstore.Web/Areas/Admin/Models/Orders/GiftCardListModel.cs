@@ -1,6 +1,4 @@
-﻿using Smartstore.Web.Modelling;
-
-namespace Smartstore.Admin.Models.Orders
+﻿namespace Smartstore.Admin.Models.Orders
 {
     [LocalizedDisplay("Admin.GiftCards.List.")]
     public class GiftCardListModel : ModelBase

@@ -1,7 +1,4 @@
-﻿using System;
-using Smartstore.Web.Modelling;
-
-namespace Smartstore.Admin.Models.Maintenance
+﻿namespace Smartstore.Admin.Models.Maintenance
 {
     public class MaintenanceModel : ModelBase
     {

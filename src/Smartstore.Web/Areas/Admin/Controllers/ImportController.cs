@@ -1,17 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net.Mime;
+﻿using System.Net.Mime;
 using System.Text;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using Smartstore.Admin.Models.Import;
 using Smartstore.Admin.Models.Scheduling;
-using Smartstore.Core.Data;
 using Smartstore.Core.DataExchange;
 using Smartstore.Core.DataExchange.Csv;
 using Smartstore.Core.DataExchange.Import;
@@ -19,8 +11,6 @@ using Smartstore.Core.Security;
 using Smartstore.IO;
 using Smartstore.Scheduling;
 using Smartstore.Utilities;
-using Smartstore.Web.Controllers;
-using Smartstore.Web.Modelling;
 
 namespace Smartstore.Admin.Controllers
 {

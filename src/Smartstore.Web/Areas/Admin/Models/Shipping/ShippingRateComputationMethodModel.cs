@@ -1,5 +1,4 @@
 ﻿using Smartstore.Admin.Models.Modularity;
-using Smartstore.Web.Modelling;
 
 namespace Smartstore.Admin.Models.Shipping
 {

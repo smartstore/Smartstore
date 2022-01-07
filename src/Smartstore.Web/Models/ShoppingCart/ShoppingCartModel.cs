@@ -1,9 +1,5 @@
-﻿using System.Collections.Generic;
-using Microsoft.AspNetCore.Mvc;
-using Smartstore.Core.Checkout.Attributes;
-using Smartstore.Core.Common;
+﻿using Smartstore.Core.Checkout.Attributes;
 using Smartstore.Core.Localization;
-using Smartstore.Web.Modelling;
 using Smartstore.Web.Models.Common;
 using Smartstore.Web.Rendering.Choices;
 

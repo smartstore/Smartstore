@@ -1,15 +1,4 @@
-﻿using FluentValidation;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Smartstore.ComponentModel;
-using Smartstore.Core.Common;
-using Smartstore.Core.Common.Services;
-using Smartstore.Core.Localization;
-using Smartstore.Web.Modelling;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-
-namespace Smartstore.Admin.Models.Common
+﻿namespace Smartstore.Admin.Models.Common
 {
     //[LocalizedDisplay("Admin.Address.Fields.")]
     //public partial class AddressModel : EntityModelBase

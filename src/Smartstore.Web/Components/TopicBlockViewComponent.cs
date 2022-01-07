@@ -1,13 +1,8 @@
-﻿using System;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Smartstore.Core.Content.Topics;
+﻿using Smartstore.Core.Content.Topics;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Seo;
-using Smartstore.Web.Models.Topics;
 using Smartstore.Web.Infrastructure.Hooks;
-using Microsoft.EntityFrameworkCore;
-using System.Linq;
+using Smartstore.Web.Models.Topics;
 
 namespace Smartstore.Web.Components
 {

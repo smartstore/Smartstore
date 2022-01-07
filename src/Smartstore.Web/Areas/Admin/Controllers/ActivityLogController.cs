@@ -1,18 +1,10 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Admin.Models.Logging;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Common.Services;
-using Smartstore.Core.Common.Settings;
-using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Logging;
 using Smartstore.Core.Security;
-using Smartstore.Web.Controllers;
 using Smartstore.Web.Models.DataGrid;
 
 namespace Smartstore.Admin.Controllers

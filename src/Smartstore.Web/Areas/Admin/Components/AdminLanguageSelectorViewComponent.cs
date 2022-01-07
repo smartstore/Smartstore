@@ -1,9 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Smartstore.Admin.Models.Localization;
+﻿using Smartstore.Admin.Models.Localization;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Localization;
-using Smartstore.Web.Components;
-using System.Threading.Tasks;
 
 namespace Smartstore.Admin.Components
 {

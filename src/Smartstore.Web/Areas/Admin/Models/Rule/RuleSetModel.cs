@@ -1,8 +1,6 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using FluentValidation;
 using Smartstore.Core.Rules;
-using Smartstore.Web.Modelling;
 
 namespace Smartstore.Admin.Models.Rules
 {

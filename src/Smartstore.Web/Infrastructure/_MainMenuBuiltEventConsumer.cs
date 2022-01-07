@@ -1,5 +1,4 @@
-﻿using System;
-using Smartstore.Core.Content.Menus;
+﻿using Smartstore.Core.Content.Menus;
 using Smartstore.Events;
 using Smartstore.Web.Rendering.Builders;
 

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using Smartstore.ComponentModel;
-using Smartstore.Core;
+﻿using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;

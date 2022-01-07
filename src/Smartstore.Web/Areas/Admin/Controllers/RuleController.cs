@@ -1,12 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
+﻿using System.Globalization;
 using System.Linq.Dynamic.Core;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Smartstore.Admin.Models.Catalog;
 using Smartstore.Admin.Models.Customers;
@@ -19,7 +12,6 @@ using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Rules;
 using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Content.Media;
-using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Identity.Rules;
 using Smartstore.Core.Localization;
@@ -29,12 +21,9 @@ using Smartstore.Core.Rules.Rendering;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
 using Smartstore.Engine.Modularity;
-using Smartstore.Web.Controllers;
-using Smartstore.Web.Modelling;
-using Smartstore.Web.Models.DataGrid;
 using Smartstore.Web.Models;
+using Smartstore.Web.Models.DataGrid;
 using Smartstore.Web.Rendering;
-using Smartstore.Web.Razor;
 
 namespace Smartstore.Admin.Controllers
 {

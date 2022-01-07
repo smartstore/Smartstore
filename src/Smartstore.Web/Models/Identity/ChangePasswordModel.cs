@@ -1,7 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using FluentValidation;
 using Smartstore.Core.Localization;
-using Smartstore.Web.Modelling;
 
 namespace Smartstore.Web.Models.Identity
 {

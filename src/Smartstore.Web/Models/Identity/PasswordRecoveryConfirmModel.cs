@@ -2,7 +2,6 @@
 using FluentValidation;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
-using Smartstore.Web.Modelling;
 
 namespace Smartstore.Web.Models.Identity
 {

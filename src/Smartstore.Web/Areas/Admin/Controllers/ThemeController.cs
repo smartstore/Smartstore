@@ -1,23 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Options;
 using Smartstore.Admin.Models.Themes;
 using Smartstore.Collections;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Content.Media.Icons;
-using Smartstore.Core.Data;
 using Smartstore.Core.Logging;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
 using Smartstore.Core.Theming;
 using Smartstore.Web.Bundling;
-using Smartstore.Web.Controllers;
-using Smartstore.Web.Modelling;
 using Smartstore.Web.Rendering;
 
 namespace Smartstore.Admin.Controllers

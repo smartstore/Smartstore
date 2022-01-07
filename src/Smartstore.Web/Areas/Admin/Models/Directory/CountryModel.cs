@@ -1,10 +1,6 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 using FluentValidation;
 using Smartstore.ComponentModel;
-using Smartstore.Core.Common;
-using Smartstore.Web.Modelling;
 
 namespace Smartstore.Admin.Models.Common
 {

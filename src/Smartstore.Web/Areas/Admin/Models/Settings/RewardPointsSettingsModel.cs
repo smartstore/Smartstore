@@ -1,7 +1,6 @@
 ﻿using FluentValidation;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Localization;
-using Smartstore.Web.Modelling;
 
 namespace Smartstore.Admin.Models
 {

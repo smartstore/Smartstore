@@ -1,27 +1,18 @@
-using System;
-using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;
 using Serilog.Extensions.Logging;
 using Serilog.Filters;
-using Smartstore.Core.Data;
 using Smartstore.Core.Data.Migrations;
 using Smartstore.Core.Logging.Serilog;
-using Smartstore.Engine;
 using MsHost = Microsoft.Extensions.Hosting.Host;
 
 namespace Smartstore.Web

@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using Smartstore.Core.Common;
-using Smartstore.Core.Localization;
-using Smartstore.Web.Modelling;
+﻿using Smartstore.Core.Localization;
 
 namespace Smartstore.Web.Models.Orders
 {

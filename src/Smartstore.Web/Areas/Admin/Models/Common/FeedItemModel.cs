@@ -1,7 +1,4 @@
-﻿using Smartstore.Web.Modelling;
-using System;
-
-namespace Smartstore.Admin.Models.Common
+﻿namespace Smartstore.Admin.Models.Common
 {
     [Serializable]
     public class FeedItemModel : ModelBase

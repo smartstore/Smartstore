@@ -1,7 +1,4 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
-using Smartstore.Core.Common;
-using Smartstore.Web.Modelling;
+﻿using System.ComponentModel.DataAnnotations;
 using Smartstore.Web.Models.Common;
 
 namespace Smartstore.Admin.Models.Affiliates

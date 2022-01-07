@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using Smartstore.Admin.Models.Catalog;
 using Smartstore.Collections;
 using Smartstore.ComponentModel;
@@ -14,7 +8,6 @@ using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Catalog.Rules;
-using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Logging;
 using Smartstore.Core.Rules;
@@ -23,10 +16,8 @@ using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
 using Smartstore.Scheduling;
-using Smartstore.Web.Controllers;
-using Smartstore.Web.Modelling;
-using Smartstore.Web.Models.DataGrid;
 using Smartstore.Web.Models;
+using Smartstore.Web.Models.DataGrid;
 
 namespace Smartstore.Admin.Controllers
 {

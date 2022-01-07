@@ -1,20 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Smartstore.Admin.Models.Logging;
+﻿using Smartstore.Admin.Models.Logging;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Common.Settings;
-using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Logging;
 using Smartstore.Core.Rules.Filters;
 using Smartstore.Core.Security;
-using Smartstore.Web.Controllers;
 using Smartstore.Web.Models.DataGrid;
-using Smartstore.Web.Rendering;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using LogLevel = Smartstore.Core.Logging.LogLevel;
 
 namespace Smartstore.Admin.Controllers
 {

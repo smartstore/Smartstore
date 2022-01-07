@@ -1,8 +1,4 @@
-﻿using Smartstore.Core.Common;
-using Smartstore.Core.Localization;
-using Smartstore.Core.Widgets;
-using Smartstore.Web.Modelling;
-using System.Collections.Generic;
+﻿using Smartstore.Core.Localization;
 
 namespace Smartstore.Web.Models.Checkout
 {

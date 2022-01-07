@@ -1,6 +1,4 @@
-﻿using Smartstore.Web.Modelling;
-
-namespace Smartstore.Admin.Models.UrlRecord
+﻿namespace Smartstore.Admin.Models.UrlRecord
 {
     [LocalizedDisplay("Admin.System.SeNames.")]
     public class UrlRecordListModel : ModelBase

@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Dynamic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+﻿using System.Dynamic;
 using Smartstore.ComponentModel;
-using Smartstore.Core;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Content.Media;
 

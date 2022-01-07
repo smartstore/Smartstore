@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using FluentValidation;
-using Smartstore.Web.Modelling;
+﻿using FluentValidation;
 
 namespace Smartstore.Admin.Models.Common
 {

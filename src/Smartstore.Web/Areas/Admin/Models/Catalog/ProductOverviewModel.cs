@@ -1,9 +1,4 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
-using FluentValidation;
-using Smartstore.Core.Catalog.Products;
-using Smartstore.Core.Data;
-using Smartstore.Web.Modelling;
+﻿using Smartstore.Core.Catalog.Products;
 using Smartstore.Web.Modelling.Validation;
 
 namespace Smartstore.Admin.Models.Catalog

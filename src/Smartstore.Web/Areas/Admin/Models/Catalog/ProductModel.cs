@@ -1,20 +1,15 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Content.Media;
-using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Web;
-using Smartstore.Web.Modelling;
 using Smartstore.Web.Modelling.Validation;
 
 namespace Smartstore.Admin.Models.Catalog

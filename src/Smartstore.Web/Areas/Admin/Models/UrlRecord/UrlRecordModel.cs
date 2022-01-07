@@ -1,5 +1,4 @@
 ﻿using FluentValidation;
-using Smartstore.Web.Modelling;
 
 namespace Smartstore.Admin.Models.UrlRecord
 {

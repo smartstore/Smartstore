@@ -1,17 +1,9 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Admin.Models.UrlRecord;
-using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Seo.Routing;
-using Smartstore.Web.Controllers;
-using Smartstore.Web.Modelling;
 using Smartstore.Web.Models.DataGrid;
 
 namespace Smartstore.Admin.Controllers

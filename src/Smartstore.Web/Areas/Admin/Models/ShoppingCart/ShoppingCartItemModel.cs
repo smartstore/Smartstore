@@ -1,8 +1,4 @@
-﻿using Smartstore.Core.Common;
-using Smartstore.Web.Modelling;
-using System;
-
-namespace Smartstore.Admin.Models.Cart
+﻿namespace Smartstore.Admin.Models.Cart
 {
     [LocalizedDisplay("Admin.CurrentCarts.")]
     public class ShoppingCartItemModel : EntityModelBase

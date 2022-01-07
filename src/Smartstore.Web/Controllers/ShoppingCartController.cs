@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Http;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Attributes;
@@ -17,11 +11,9 @@ using Smartstore.Core.Checkout.GiftCards;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Checkout.Tax;
-using Smartstore.Core.Common;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Content.Menus;
-using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization.Routing;
 using Smartstore.Core.Logging;
@@ -29,8 +21,6 @@ using Smartstore.Core.Messaging;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Utilities.Html;
-using Smartstore.Web.Components;
-using Smartstore.Web.Filters;
 using Smartstore.Web.Models.Cart;
 
 namespace Smartstore.Web.Controllers

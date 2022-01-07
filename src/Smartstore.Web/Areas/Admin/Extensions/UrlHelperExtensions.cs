@@ -1,9 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Smartstore.Core.Checkout.Payment;
+﻿using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Identity;
-using Smartstore.Core.Widgets;
 using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Admin

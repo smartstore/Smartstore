@@ -1,10 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using FluentValidation;
 using Smartstore.Core.Checkout.Tax;
-using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
-using Smartstore.Web.Modelling;
 using Smartstore.Web.Modelling.Validation;
 
 namespace Smartstore.Web.Models.Identity

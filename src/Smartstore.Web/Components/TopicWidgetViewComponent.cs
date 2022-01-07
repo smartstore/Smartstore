@@ -1,7 +1,4 @@
-﻿using System;
-using Microsoft.AspNetCore.Mvc;
-using Smartstore.Core.Content.Topics;
-using Smartstore.Core.Widgets;
+﻿using Smartstore.Core.Content.Topics;
 using Smartstore.Core.Identity;
 
 namespace Smartstore.Web.Components

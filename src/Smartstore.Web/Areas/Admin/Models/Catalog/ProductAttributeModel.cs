@@ -1,9 +1,6 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using Smartstore.Core.Catalog.Attributes;
-using Smartstore.Core.Data;
 using Smartstore.Core.Search.Facets;
-using Smartstore.Web.Modelling;
 using Smartstore.Web.Modelling.Validation;
 
 namespace Smartstore.Admin.Models.Catalog

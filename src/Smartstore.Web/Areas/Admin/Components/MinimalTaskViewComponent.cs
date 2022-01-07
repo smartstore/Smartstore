@@ -1,9 +1,6 @@
-﻿using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Smartstore.Admin.Models.Scheduling;
+﻿using Smartstore.Admin.Models.Scheduling;
 using Smartstore.Core.Security;
 using Smartstore.Scheduling;
-using Smartstore.Web.Components;
 
 namespace Smartstore.Admin.Components
 {

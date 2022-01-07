@@ -1,7 +1,5 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using Smartstore.Core.Rules;
-using Smartstore.Web.Modelling;
 
 namespace Smartstore.Admin.Models.Payments
 {

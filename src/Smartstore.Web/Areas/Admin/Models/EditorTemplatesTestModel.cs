@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Rules;
-using Smartstore.Web.Modelling;
 using Smartstore.Web.Modelling.Validation;
 using Smartstore.Web.Models.Catalog;
 

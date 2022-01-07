@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-using Smartstore.ComponentModel;
-using Smartstore.Core;
+﻿using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Content.Media;

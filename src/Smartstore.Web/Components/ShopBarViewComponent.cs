@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Smartstore.Core.Catalog;
+﻿using Smartstore.Core.Catalog;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Security;

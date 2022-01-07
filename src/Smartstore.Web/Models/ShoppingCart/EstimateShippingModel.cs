@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Smartstore.Web.Modelling;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Smartstore.Web.Models.Cart
 {

@@ -1,8 +1,6 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using Smartstore.Collections;
 using Smartstore.Core.Content.Media;
-using Smartstore.Web.Modelling;
 
 namespace Smartstore.Web.Models
 {

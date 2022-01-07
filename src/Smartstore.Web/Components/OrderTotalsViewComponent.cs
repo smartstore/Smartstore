@@ -1,17 +1,11 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Smartstore.Core.Checkout.Cart;
+﻿using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Cart.Events;
 using Smartstore.Core.Checkout.GiftCards;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Checkout.Tax;
-using Smartstore.Core.Common;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Common.Settings;
-using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Web.Models.Cart;
 

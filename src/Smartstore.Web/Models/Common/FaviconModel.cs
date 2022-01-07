@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using Smartstore.Web.Modelling;
-
-namespace Smartstore.Web.Models.Common
+﻿namespace Smartstore.Web.Models.Common
 {
     public partial class FaviconModel : ModelBase
     {

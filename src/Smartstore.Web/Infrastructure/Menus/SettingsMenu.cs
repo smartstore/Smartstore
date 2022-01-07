@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using Smartstore.Caching;
+﻿using Smartstore.Caching;
 using Smartstore.Collections;
 using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Localization;

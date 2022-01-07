@@ -1,14 +1,8 @@
-﻿using Humanizer;
-using Microsoft.AspNetCore.Mvc;
-using Smartstore.Admin.Models.Common;
-using Smartstore.Web.Components;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
+﻿using System.Net.Http;
 using System.ServiceModel.Syndication;
-using System.Threading.Tasks;
 using System.Xml;
+using Humanizer;
+using Smartstore.Admin.Models.Common;
 
 namespace Smartstore.Admin.Components
 {

@@ -3,7 +3,7 @@
     "windowsAuthentication": false,
     "anonymousAuthentication": true,
     "iis": {
-      "applicationUrl": "http://localhost/Smartstore.Web",
+      "applicationUrl": "http://localhost/Smartstore",
       "sslPort": 0
     },
     "iisExpress": {
@@ -15,20 +15,16 @@
     "IIS Express": {
       "commandName": "IISExpress",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development",
-        "ASPNETCORE_HOSTINGSTARTUPASSEMBLIES": "Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation"
+        "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-    "SmartstoreCorePlayground": {
+    "Smartstore.Web": {
       "commandName": "Project",
       "launchBrowser": true,
+      "launchUrl": "http://localhost:5000",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development",
-        "ASPNETCORE_HOSTINGSTARTUPASSEMBLIES": "Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation"
-      },
-      "hotReloadEnabled": true,
-      "applicationUrl": "https://localhost:5001;http://localhost:5000",
-      "nativeDebugging": false
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
     }
   }
 }

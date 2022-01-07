@@ -1,6 +1,4 @@
-﻿using Smartstore.Web.Modelling;
-
-namespace Smartstore.Admin.Models
+﻿namespace Smartstore.Admin.Models
 {
     [LocalizedDisplay("Admin.Configuration.Settings.DataExchange.")]
     public partial class DataExchangeSettingsModel

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Smartstore.Core.Localization;
-using Smartstore.Web.Modelling;
+﻿using Smartstore.Core.Localization;
 using Smartstore.Web.Models.Media;
 
 namespace Smartstore.Web.Models.Catalog

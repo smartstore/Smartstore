@@ -1,6 +1,4 @@
-﻿using System;
-using Smartstore.Core.Checkout.Cart;
-using Smartstore.Web.Modelling;
+﻿using Smartstore.Core.Checkout.Cart;
 
 namespace Smartstore.Admin.Models.Cart
 {

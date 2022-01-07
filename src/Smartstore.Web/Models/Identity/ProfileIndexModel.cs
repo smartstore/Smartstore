@@ -1,5 +1,4 @@
-﻿using Smartstore.Web.Modelling;
-using Smartstore.Web.Models.Customers;
+﻿using Smartstore.Web.Models.Customers;
 
 namespace Smartstore.Web.Models.Identity
 {

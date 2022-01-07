@@ -1,13 +1,6 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Smartstore.Admin.Models.Customers;
+﻿using Smartstore.Admin.Models.Customers;
 using Smartstore.Core.Checkout.Orders.Reporting;
-using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
-using Smartstore.Web.Components;
 
 namespace Smartstore.Admin.Components
 {

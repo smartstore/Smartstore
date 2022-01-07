@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Smartstore.Admin.Models.Modularity
+﻿namespace Smartstore.Admin.Models.Modularity
 {
     public class ProviderModelCollection
     {

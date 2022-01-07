@@ -1,6 +1,4 @@
-﻿using Smartstore.Web.Modelling;
-
-namespace Smartstore.Admin.Models.Catalog
+﻿namespace Smartstore.Admin.Models.Catalog
 {
     public class ProductAttributeOptionsSetModel : EntityModelBase
     {

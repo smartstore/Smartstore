@@ -1,17 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Smartstore.Core.Checkout.Tax;
+﻿using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Theming;
-using Smartstore.Core.Widgets;
 using Smartstore.Utilities;
 using Smartstore.Web.Models.Common;
-using Smartstore.Web.Theming;
 
 namespace Smartstore.Web.Components
 {

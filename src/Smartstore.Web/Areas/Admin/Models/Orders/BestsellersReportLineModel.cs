@@ -1,6 +1,4 @@
 ﻿using Smartstore.Admin.Models.Catalog;
-using Smartstore.Core.Common;
-using Smartstore.Web.Modelling;
 
 namespace Smartstore.Admin.Models.Orders
 {

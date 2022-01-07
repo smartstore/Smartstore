@@ -1,9 +1,5 @@
-﻿using System;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Smartstore.Core.Stores;
+﻿using Smartstore.Core.Stores;
 using Smartstore.Core.Theming;
-using Smartstore.Web.Theming;
 
 namespace Smartstore.Web.Components
 {

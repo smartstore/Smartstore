@@ -1,7 +1,4 @@
-﻿using System;
-using Smartstore.Web.Modelling;
-
-namespace Smartstore.Admin.Models.Customers
+﻿namespace Smartstore.Admin.Models.Customers
 {
     [LocalizedDisplay("Admin.Customers.OnlineCustomers.Fields.")]
     public class OnlineCustomerModel : EntityModelBase

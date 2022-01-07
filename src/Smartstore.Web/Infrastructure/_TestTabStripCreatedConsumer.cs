@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Smartstore.Core.Widgets;
-using Smartstore.Events;
+﻿using Smartstore.Events;
 using Smartstore.Web.Rendering.Events;
 
 namespace Smartstore.Web.Infrastructure

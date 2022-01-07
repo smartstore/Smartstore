@@ -1,9 +1,7 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using FluentValidation;
 using Smartstore.Collections;
 using Smartstore.Core.Messaging;
-using Smartstore.Web.Modelling;
 
 namespace Smartstore.Admin.Models.Messages
 {

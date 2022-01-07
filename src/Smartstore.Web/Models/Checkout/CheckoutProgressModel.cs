@@ -1,6 +1,4 @@
-﻿using Smartstore.Web.Modelling;
-
-namespace Smartstore.Web.Models.Checkout
+﻿namespace Smartstore.Web.Models.Checkout
 {
     public partial class CheckoutProgressModel : ModelBase
     {

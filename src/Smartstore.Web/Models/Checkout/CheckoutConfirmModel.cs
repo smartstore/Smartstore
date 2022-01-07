@@ -1,6 +1,4 @@
 ﻿using Smartstore.Core.Checkout.Cart;
-using Smartstore.Web.Modelling;
-using System.Collections.Generic;
 
 namespace Smartstore.Web.Models.Checkout
 {

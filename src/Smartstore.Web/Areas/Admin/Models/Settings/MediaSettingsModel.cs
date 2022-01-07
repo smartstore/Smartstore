@@ -1,9 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.Threading.Tasks;
 using FluentValidation;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Content.Media;
-using Smartstore.Web.Modelling;
 
 namespace Smartstore.Admin.Models
 {

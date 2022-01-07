@@ -1,7 +1,5 @@
-﻿using System.Collections.Generic;
-using FluentValidation;
+﻿using FluentValidation;
 using Smartstore.Core.Search.Facets;
-using Smartstore.Web.Modelling;
 
 namespace Smartstore.Admin.Models.Catalog
 {

@@ -1,9 +1,7 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.GiftCards;
-using Smartstore.Web.Modelling;
 using Smartstore.Web.Rendering.Choices;
 
 namespace Smartstore.Admin.Models.Orders

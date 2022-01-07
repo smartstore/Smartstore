@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Smartstore.Core.Common;
-using Smartstore.Web.Modelling;
-
-namespace Smartstore.Web.Models.Customers
+﻿namespace Smartstore.Web.Models.Customers
 {
     public partial class CustomerRewardPointsModel : ModelBase
     {

@@ -1,6 +1,4 @@
-﻿using Smartstore.Web.Modelling;
-
-namespace Smartstore.Admin.Models.Logging
+﻿namespace Smartstore.Admin.Models.Logging
 {
     [LocalizedDisplay("Admin.Configuration.ActivityLog.ActivityLogType.Fields.")]
     public class ActivityLogTypeModel : EntityModelBase

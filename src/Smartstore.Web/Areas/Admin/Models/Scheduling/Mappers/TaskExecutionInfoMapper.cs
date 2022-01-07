@@ -1,6 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using Humanizer;
+﻿using Humanizer;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Common.Services;
 using Smartstore.Scheduling;

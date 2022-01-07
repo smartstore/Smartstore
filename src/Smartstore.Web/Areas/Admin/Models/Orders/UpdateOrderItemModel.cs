@@ -1,6 +1,4 @@
-﻿using Smartstore.Web.Modelling;
-
-namespace Smartstore.Admin.Models.Orders
+﻿namespace Smartstore.Admin.Models.Orders
 {
     [LocalizedDisplay("Admin.Orders.OrderItem.AutoUpdate.")]
     public class UpdateOrderItemModel : EntityModelBase

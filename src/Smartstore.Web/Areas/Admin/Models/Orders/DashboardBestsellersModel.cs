@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using Smartstore.Web.Modelling;
-
-namespace Smartstore.Admin.Models.Orders
+﻿namespace Smartstore.Admin.Models.Orders
 {
     public class DashboardBestsellersModel : ModelBase
     {

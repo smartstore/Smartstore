@@ -1,11 +1,7 @@
-﻿using System;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Smartstore.Core.Identity;
+﻿using Smartstore.Core.Identity;
 using Smartstore.Core.Packaging;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
-using Smartstore.Web.Components;
 
 namespace Smartstore.Admin.Components
 {

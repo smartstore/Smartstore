@@ -1,8 +1,6 @@
 ﻿using Autofac;
 using Smartstore.Admin.Models.Customers;
-using Smartstore.Engine;
 using Smartstore.Engine.Builders;
-using Smartstore.Web.Controllers;
 
 namespace Smartstore.Web.Infrastructure
 {

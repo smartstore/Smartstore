@@ -1,7 +1,6 @@
-﻿using Smartstore.Core.Checkout.Tax;
-using Smartstore.Web.Modelling;
+﻿using System.ComponentModel.DataAnnotations;
+using Smartstore.Core.Checkout.Tax;
 using Smartstore.Web.Models.Common;
-using System.ComponentModel.DataAnnotations;
 
 namespace Smartstore.Admin.Models
 {

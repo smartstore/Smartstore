@@ -1,8 +1,5 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using Smartstore.Core.Checkout.Orders;
-using Smartstore.Core.Common;
-using Smartstore.Web.Modelling;
 
 namespace Smartstore.Admin.Models.Orders
 {

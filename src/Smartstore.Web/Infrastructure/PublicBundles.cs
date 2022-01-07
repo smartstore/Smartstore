@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Smartstore.Engine;
-using Smartstore.Web.Bundling;
-using Smartstore.Web.Bundling.Processors;
+﻿using Smartstore.Web.Bundling;
 
 namespace Smartstore.Web.Infrastructure
 {

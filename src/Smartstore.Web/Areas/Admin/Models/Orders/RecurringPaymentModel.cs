@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Smartstore.Web.Modelling;
-
-namespace Smartstore.Admin.Models.Orders
+﻿namespace Smartstore.Admin.Models.Orders
 {
     [LocalizedDisplay("Admin.RecurringPayments.Fields.")]
     public class RecurringPaymentModel : EntityModelBase

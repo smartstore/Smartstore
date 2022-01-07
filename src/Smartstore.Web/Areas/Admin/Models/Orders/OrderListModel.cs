@@ -1,7 +1,4 @@
-﻿using System;
-using Smartstore.Web.Modelling;
-
-namespace Smartstore.Admin.Models.Orders
+﻿namespace Smartstore.Admin.Models.Orders
 {
     [LocalizedDisplay("Admin.Orders.List.")]
     public class OrderListModel : ModelBase

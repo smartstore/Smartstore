@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Smartstore.Core.Search.Facets;
+﻿using Smartstore.Core.Search.Facets;
 
 namespace Smartstore.Web.Components
 {

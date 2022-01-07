@@ -1,20 +1,10 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Smartstore.Admin.Models.Affiliates;
+﻿using Smartstore.Admin.Models.Affiliates;
 using Smartstore.ComponentModel;
-using Smartstore.Core;
 using Smartstore.Core.Checkout.Affiliates;
-using Smartstore.Core.Common;
 using Smartstore.Core.Common.Services;
-using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Security;
 using Smartstore.Core.Web;
-using Smartstore.Web.Controllers;
-using Smartstore.Web.Modelling;
 using Smartstore.Web.Models.Common;
 using Smartstore.Web.Models.DataGrid;
 

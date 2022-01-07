@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Dynamic.Core;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
+﻿using System.Linq.Dynamic.Core;
 using Smartstore.Admin.Models.Catalog;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Attributes;
@@ -15,7 +8,6 @@ using Smartstore.Core.Logging;
 using Smartstore.Core.Rules.Filters;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
-using Smartstore.Web.Controllers;
 using Smartstore.Web.Models.DataGrid;
 
 namespace Smartstore.Admin.Controllers

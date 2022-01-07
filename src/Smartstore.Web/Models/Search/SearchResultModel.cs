@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Smartstore.Core.Catalog.Search;
+﻿using Smartstore.Core.Catalog.Search;
 using Smartstore.Web.Models.Catalog;
 
 namespace Smartstore.Web.Models.Search

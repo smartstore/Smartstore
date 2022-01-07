@@ -1,24 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 using Smartstore.Admin.Models.Messages;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Content.Media;
-using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Messaging;
 using Smartstore.Core.Rules.Filters;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
-using Smartstore.Engine;
 using Smartstore.Net.Mail;
-using Smartstore.Web.Controllers;
-using Smartstore.Web.Modelling;
 using Smartstore.Web.Models.DataGrid;
 
 namespace Smartstore.Admin.Controllers

@@ -1,8 +1,6 @@
-﻿using FluentValidation;
+﻿using System.ComponentModel.DataAnnotations;
+using FluentValidation;
 using Smartstore.Core.Rules;
-using Smartstore.Web.Modelling;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 
 namespace Smartstore.Admin.Models.Shipping
 {

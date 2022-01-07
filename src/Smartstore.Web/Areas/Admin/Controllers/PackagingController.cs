@@ -1,12 +1,7 @@
-﻿using System;
-using System.IO;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
 using Smartstore.Core.Packaging;
 using Smartstore.Core.Security;
 using Smartstore.Engine.Modularity;
-using Smartstore.Web.Controllers;
 
 namespace Smartstore.Controllers
 {
