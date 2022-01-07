@@ -4,8 +4,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;
 using Smartstore.Net.Http;
+using Smartstore.PayPal.Client;
 using Smartstore.PayPal.Filters;
-using Smartstore.PayPal.Services;
 using Smartstore.Web.Controllers;
 
 namespace Smartstore.PayPal

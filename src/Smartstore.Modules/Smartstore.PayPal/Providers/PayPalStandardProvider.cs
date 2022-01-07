@@ -5,8 +5,8 @@ using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Widgets;
 using Smartstore.Engine.Modularity;
 using Smartstore.Http;
+using Smartstore.PayPal.Client;
 using Smartstore.PayPal.Components;
-using Smartstore.PayPal.Services;
 using Smartstore.PayPal.Settings;
 
 namespace Smartstore.PayPal.Providers

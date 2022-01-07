@@ -8,20 +8,18 @@ using System.Net.Http.Json;
 using System.Text;
 using System.Threading.Tasks;
 using Humanizer;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Smartstore.Core;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
+using Smartstore.Core.Localization;
 using Smartstore.Core.Stores;
 using Smartstore.PayPal.Infrastructure.PayPalObjects;
 using Smartstore.PayPal.Settings;
 
-namespace Smartstore.PayPal.Services
+namespace Smartstore.PayPal.Client
 {
     public class PayPalHttpClient
     {
@@ -45,20 +43,23 @@ namespace Smartstore.PayPal.Services
         private readonly ILogger _logger;
         private readonly PayPalSettings _settings;
         private readonly ICheckoutStateAccessor _checkoutStateAccessor;
-        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IStoreContext _storeContext;
+        private readonly ILocalizationService _locService;
 
         public PayPalHttpClient(
             HttpClient client,
             ILogger logger,
             PayPalSettings settings,
             ICheckoutStateAccessor checkoutStateAccessor,
-            IHttpContextAccessor httpContextAccessor)
+            IStoreContext storeContext,
+            ILocalizationService locService)
         {
             _client = client;
             _logger = logger;
             _settings = settings;
             _checkoutStateAccessor = checkoutStateAccessor;
-            _httpContextAccessor = httpContextAccessor;
+            _storeContext = storeContext;
+            _locService = locService;
         }
 
         /// <summary>
@@ -113,8 +114,7 @@ namespace Smartstore.PayPal.Services
         /// </summary>
         public async Task UpdateOrder(ProcessPaymentRequest request, ProcessPaymentResult result)
         {
-            var storeContext = _httpContextAccessor.HttpContext.RequestServices.GetService<IStoreContext>();
-            var store = storeContext.GetStoreById(request.StoreId);
+            var store = _storeContext.GetStoreById(request.StoreId);
             string error = null;
             HttpResponseMessage responseMessage = null;
 
@@ -305,8 +305,7 @@ namespace Smartstore.PayPal.Services
                 var amount = new Money();
                 if (request.IsPartialRefund)
                 {
-                    var storeContext = _httpContextAccessor.HttpContext.RequestServices.GetService<IStoreContext>();
-                    var store = storeContext.GetStoreById(request.Order.StoreId);
+                    var store = _storeContext.GetStoreById(request.Order.StoreId);
 
                     amount.Value = request.AmountToRefund.Amount.ToString("0.00", CultureInfo.InvariantCulture);
                     amount.CurrencyCode = store.PrimaryStoreCurrency.CurrencyCode;
@@ -362,9 +361,8 @@ namespace Smartstore.PayPal.Services
                 // TODO: (mh) (core) Create product & store returned product id as GenericAttribute for shop product
                 // https://developer.paypal.com/api/catalog-products/v1/#products_create
 
-                var services = _httpContextAccessor.HttpContext.RequestServices.GetService<ICommonServices>();
-                var store = services.StoreContext.GetStoreById(storeId);
-                var billingPlanName = services.Localization.GetResource("TODO.BillingPlanName").FormatWith("TODO:Productname");
+                var store = _storeContext.GetStoreById(storeId);
+                var billingPlanName = _locService.GetResource("TODO.BillingPlanName").FormatWith("TODO:Productname");
 
                 var billingPlan = new BillingPlan
                 {
