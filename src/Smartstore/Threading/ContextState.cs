@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading;
-
-namespace Smartstore.Threading
+﻿namespace Smartstore.Threading
 {
     public abstract class ContextState
     {

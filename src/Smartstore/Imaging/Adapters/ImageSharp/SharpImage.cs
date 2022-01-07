@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Threading.Tasks;
-using SixLabors.ImageSharp;
+﻿using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
 using SharpFormat = SixLabors.ImageSharp.Formats.IImageFormat;
 using Size = System.Drawing.Size;

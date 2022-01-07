@@ -1,5 +1,4 @@
-﻿using System;
-using System.Globalization;
+﻿using System.Globalization;
 using System.Text;
 using Smartstore.Data;
 using Smartstore.Utilities;

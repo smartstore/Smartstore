@@ -1,5 +1,4 @@
-﻿using System;
-using Autofac;
+﻿using Autofac;
 using Autofac.Core;
 using Microsoft.AspNetCore.Http;
 using Smartstore.ComponentModel;

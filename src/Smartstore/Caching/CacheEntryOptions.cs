@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace Smartstore.Caching
+﻿namespace Smartstore.Caching
 {
     public sealed class CacheEntryOptions
     {

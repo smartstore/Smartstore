@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Autofac;
+﻿using Autofac;
 using Microsoft.AspNetCore.Http;
 
 namespace Smartstore.Scheduling

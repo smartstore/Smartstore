@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace Smartstore.Caching
+﻿namespace Smartstore.Caching
 {
     [Serializable]
     internal class MemorySet : HashSet<string>, ISet

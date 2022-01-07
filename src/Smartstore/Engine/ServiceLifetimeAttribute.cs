@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Microsoft.Extensions.DependencyInjection
+﻿namespace Microsoft.Extensions.DependencyInjection
 {
     /// <summary>
     /// Sepcifies the lifetime of a service instance that was registered 

@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using SixLabors.ImageSharp.Formats;
+﻿using SixLabors.ImageSharp.Formats;
 using SixLabors.ImageSharp.Formats.Gif;
 using SixLabors.ImageSharp.Formats.Jpeg;
 using SixLabors.ImageSharp.Formats.Png;

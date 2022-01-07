@@ -1,7 +1,4 @@
-﻿using System;
-using System.Drawing;
-using System.IO;
-using System.Threading.Tasks;
+﻿using System.Drawing;
 
 namespace Smartstore.IO
 {

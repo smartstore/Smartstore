@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Smartstore.Engine
+﻿namespace Smartstore.Engine
 {
     /// <summary>
     /// Represent current OS user (either WindowsIdentity or LinuxUser).

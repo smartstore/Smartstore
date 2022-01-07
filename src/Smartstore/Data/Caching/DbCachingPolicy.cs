@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Smartstore.Data.Caching
+﻿namespace Smartstore.Data.Caching
 {
     public class DbCachingPolicy
     {

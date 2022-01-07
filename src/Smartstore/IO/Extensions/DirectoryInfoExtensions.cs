@@ -1,8 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Linq;
-
-namespace Smartstore
+﻿namespace Smartstore
 {
     public static class DirectoryInfoExtensions
     {

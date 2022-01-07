@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-
-namespace Smartstore.Engine.Runtimes
+﻿namespace Smartstore.Engine.Runtimes
 {
     /// <summary>
     /// Manages native runtime libraries and executables.

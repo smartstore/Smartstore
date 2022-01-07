@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace Smartstore.Caching
+﻿namespace Smartstore.Caching
 {
     public enum CacheEntryRemovedReason
     {

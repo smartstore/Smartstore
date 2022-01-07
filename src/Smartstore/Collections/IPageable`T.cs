@@ -1,8 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace Smartstore.Collections
+﻿namespace Smartstore.Collections
 {
     /// <summary>
     /// A sequence of objects that has been split into pages.

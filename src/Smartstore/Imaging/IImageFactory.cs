@@ -1,8 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Threading.Tasks;
-
-namespace Smartstore.Imaging
+﻿namespace Smartstore.Imaging
 {
     /// <summary>
     /// A provider interface for imaging libraries.

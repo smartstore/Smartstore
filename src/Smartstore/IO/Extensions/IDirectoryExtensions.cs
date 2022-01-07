@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using Smartstore.IO;
+﻿using Smartstore.IO;
 
 namespace Smartstore
 {

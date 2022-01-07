@@ -1,8 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Security.AccessControl;
-
-namespace Smartstore.IO
+﻿namespace Smartstore.IO
 {
     [Flags]
     public enum FileEntryRights

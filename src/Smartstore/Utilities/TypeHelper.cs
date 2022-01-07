@@ -1,7 +1,4 @@
-﻿using System;
-using System.Linq.Expressions;
-
-namespace Smartstore.Utilities
+﻿namespace Smartstore.Utilities
 {
     public static class TypeHelper
     {

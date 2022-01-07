@@ -1,5 +1,4 @@
-﻿using System;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Smartstore.ComponentModel;
 using Smartstore.ComponentModel.JsonConverters;
 

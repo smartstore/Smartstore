@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-
-namespace Smartstore.IO
+﻿namespace Smartstore.IO
 {
     public class NotFoundDirectory : IDirectory
     {

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Microsoft.AspNetCore.Razor.Hosting;
+﻿using Microsoft.AspNetCore.Razor.Hosting;
 
 namespace Smartstore.Engine.Modularity.ApplicationParts
 {

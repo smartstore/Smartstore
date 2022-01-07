@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Microsoft.Extensions.Logging
+﻿namespace Microsoft.Extensions.Logging
 {
     public static class LoggerExtensions
     {

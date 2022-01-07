@@ -1,16 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Net;
-using System.Linq;
-using System.Text;
-using System.Web;
-using Smartstore.Core;
-using System.Runtime.CompilerServices;
-using Microsoft.Extensions.Caching.Memory;
-
-namespace Smartstore
+﻿namespace Smartstore
 {
     public static class HttpExtensions
     {

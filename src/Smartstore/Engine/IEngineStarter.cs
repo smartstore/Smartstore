@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using Autofac;
+﻿using Autofac;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
-using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Engine
 {

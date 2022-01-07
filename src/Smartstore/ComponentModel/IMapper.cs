@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-
-namespace Smartstore.ComponentModel
+﻿namespace Smartstore.ComponentModel
 {
     public interface IMapper<in TFrom, in TTo>
         where TFrom : class

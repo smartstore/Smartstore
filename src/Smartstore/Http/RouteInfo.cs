@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.AspNetCore.Routing;
+﻿using Microsoft.AspNetCore.Routing;
 using Newtonsoft.Json;
 
 namespace Smartstore.Http
 {
-	[JsonConverter(typeof(RouteInfoConverter))]
+    [JsonConverter(typeof(RouteInfoConverter))]
 	public class RouteInfo
 	{
 		public RouteInfo(RouteInfo cloneFrom)

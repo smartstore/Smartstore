@@ -1,8 +1,5 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Drawing;
-using System.IO;
-using System.Threading.Tasks;
 using Microsoft.Extensions.FileProviders;
 using Smartstore.Imaging;
 

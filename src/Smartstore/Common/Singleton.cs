@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Smartstore
+﻿namespace Smartstore
 {
     /// <summary>
     /// A statically compiled "singleton" used to store objects throughout the 

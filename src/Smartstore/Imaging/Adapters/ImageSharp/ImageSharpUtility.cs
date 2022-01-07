@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using SixLabors.ImageSharp.Processing;
+﻿using SixLabors.ImageSharp.Processing;
 using SixLabors.ImageSharp.Processing.Processors.Quantization;
 using SixLabors.ImageSharp.Processing.Processors.Transforms;
 using SharpFormat = SixLabors.ImageSharp.Formats.IImageFormat;

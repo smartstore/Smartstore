@@ -1,6 +1,4 @@
-﻿using System;
-using System.Globalization;
-using System.Linq;
+﻿using System.Globalization;
 using Smartstore.Domain;
 using Smartstore.Utilities;
 

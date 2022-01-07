@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Smartstore.Events
+﻿namespace Smartstore.Events
 {
     /// <summary>
     /// A registry for fast <see cref="ConsumerDescriptor"/> lookup.

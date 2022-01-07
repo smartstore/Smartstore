@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-
-namespace Smartstore.Caching
+﻿namespace Smartstore.Caching
 {
     public interface ISet : IEnumerable<string>
     {

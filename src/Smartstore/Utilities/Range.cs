@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace Smartstore.Utilities
+﻿namespace Smartstore.Utilities
 {
     /// <summary>
     /// Helper class with shortcut methods for managing enumerables.

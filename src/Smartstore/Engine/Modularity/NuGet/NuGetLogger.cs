@@ -1,7 +1,5 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using NuGet.Common;
 using L = Microsoft.Extensions.Logging;
-using NuGet.Common;
 
 namespace Smartstore.Engine.Modularity.NuGet
 {

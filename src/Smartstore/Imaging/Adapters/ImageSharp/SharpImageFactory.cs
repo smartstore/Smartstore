@@ -1,8 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
-using SixLabors.ImageSharp;
+﻿using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Memory;
 using Smartstore.Engine;
 using SharpConfiguration = SixLabors.ImageSharp.Configuration;

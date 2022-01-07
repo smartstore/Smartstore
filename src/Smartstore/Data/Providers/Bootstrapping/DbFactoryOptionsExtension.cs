@@ -1,15 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Linq;
+﻿using System.Reflection;
 using AngleSharp.Common;
 using Autofac;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.Extensions.DependencyInjection;
-using Smartstore.Engine;
 using Smartstore.Data.Migrations;
+using Smartstore.Engine;
 
 namespace Smartstore.Data.Providers
 {

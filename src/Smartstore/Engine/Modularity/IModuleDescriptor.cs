@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Smartstore.Engine.Modularity
+﻿namespace Smartstore.Engine.Modularity
 {
     /// <summary>
     /// Provides metadata about a module.

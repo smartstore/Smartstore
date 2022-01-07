@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Smartstore.Data.Caching
+﻿namespace Smartstore.Data.Caching
 {
     /// <summary>
     /// Stores information of the computed key of the input LINQ query.

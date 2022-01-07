@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Smartstore.Scheduling
+﻿namespace Smartstore.Scheduling
 {
     /// <summary>
     /// Specifies the name of an <see cref="ITask"/> implementation class.

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Smartstore.Data.Migrations
+﻿namespace Smartstore.Data.Migrations
 {
     /// <summary>
     /// A list of table names to check during database initialization. If all given table names

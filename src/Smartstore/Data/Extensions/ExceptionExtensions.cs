@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Smartstore
+﻿namespace Smartstore
 {
     public static class DataExceptionExtensions
     {

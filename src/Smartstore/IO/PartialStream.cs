@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-
-namespace Smartstore.IO
+﻿namespace Smartstore.IO
 {
     /// <summary>
     /// Wraps a stream and exposes only a limited region of its data

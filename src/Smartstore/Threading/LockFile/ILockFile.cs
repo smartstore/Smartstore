@@ -1,7 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-
-namespace Smartstore.Threading
+﻿namespace Smartstore.Threading
 {
     /// <summary>
     /// Represents a Lock File acquired on the file system

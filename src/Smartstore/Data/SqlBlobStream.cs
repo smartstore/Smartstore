@@ -1,8 +1,5 @@
-﻿using System;
-using System.Data;
+﻿using System.Data;
 using System.Data.Common;
-using System.IO;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;

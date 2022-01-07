@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Smartstore.Utilities
+﻿namespace Smartstore.Utilities
 {
     /// <summary>
     /// xxHash is an extremely fast non-cryptographic Hash algorithm, working at speeds close to RAM limits.

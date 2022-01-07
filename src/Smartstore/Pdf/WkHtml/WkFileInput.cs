@@ -1,6 +1,4 @@
-﻿using System;
-using System.IO;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Smartstore.Http;
 using Smartstore.IO;
 

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Smartstore.Engine
+﻿namespace Smartstore.Engine
 {
     public class Work<T> where T : class
     {

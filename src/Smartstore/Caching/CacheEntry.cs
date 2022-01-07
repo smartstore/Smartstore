@@ -1,6 +1,4 @@
-﻿using System;
-using System.Threading;
-using Microsoft.Extensions.Caching.Memory;
+﻿using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json;
 using Smartstore.ComponentModel;
 using Smartstore.ComponentModel.JsonConverters;

@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-
-namespace Smartstore.Net.Mail
+﻿namespace Smartstore.Net.Mail
 {
     /// <summary>
     /// Mail service abstraction. Responsible for connecting to SMTP hosts.

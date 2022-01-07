@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections;
 using System.Runtime.CompilerServices;
-using System.Threading;
-using System.Threading.Tasks;
 using Dasync.Collections;
 
 // Source: https://github.com/dotnet/reactive/tree/9329157592c13e97ce2d3251c91b2871aed875c9/Ix.NET/Source/System.Linq.Async/System/Linq/Operators

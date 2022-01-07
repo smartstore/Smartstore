@@ -1,7 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-
-namespace Smartstore.IO
+﻿namespace Smartstore.IO
 {
     /// <summary>
     /// Supplies a hash code for a file entry, using a custom hash function.

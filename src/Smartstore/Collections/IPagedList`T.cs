@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace Smartstore.Collections
+﻿namespace Smartstore.Collections
 {
     /// <summary>
     /// Paged list interface
