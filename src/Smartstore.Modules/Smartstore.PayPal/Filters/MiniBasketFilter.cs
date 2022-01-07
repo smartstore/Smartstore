@@ -10,9 +10,9 @@ namespace Smartstore.PayPal.Filters
     public class MiniBasketFilter : IResultFilter
     {
         private readonly PayPalSettings _settings;
-        private readonly Lazy<IWidgetProvider> _widgetProvider;
+        private readonly IWidgetProvider _widgetProvider;
         
-        public MiniBasketFilter(PayPalSettings settings, Lazy<IWidgetProvider> widgetProvider)
+        public MiniBasketFilter(PayPalSettings settings, IWidgetProvider widgetProvider)
         {
             _settings = settings;
             _widgetProvider = widgetProvider;
@@ -30,7 +30,9 @@ namespace Smartstore.PayPal.Filters
             // should only run on a full view rendering result or HTML ContentResult
             if (filterContext.Result is StatusCodeResult || filterContext.Result.IsHtmlViewResult())
             {
-                _widgetProvider.Value.RegisterWidget("offcanvas_cart_summary", new ComponentWidgetInvoker(typeof(PayPalViewComponent)));
+                _widgetProvider.RegisterWidget(
+                    "offcanvas_cart_summary", 
+                    new ComponentWidgetInvoker(typeof(PayPalViewComponent)));
             }
         }
 

@@ -4,14 +4,10 @@
   "Group": "Payment",
   "SystemName": "Smartstore.PayPal",
   "FriendlyName": "Smartstore.PayPal",
-  "Description": "",
+  "Description": "TODO: (mh) (core) Describe'",
   "Version": "5.0",
   "MinAppVersion": "5.0",
   "Order": 1,
   "ResourceRootKey": "Plugins.Smartstore.PayPal",
-  "ProjectUrl": "",
-  "PrivateReferences": [
-    "PayPalCheckoutSdk",
-    "PayPalHttp"
-  ]
+  "ProjectUrl": "TODO: (mh) (core) Don't forget URL"
 }

@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using Smartstore.Core;
 using Smartstore.Core.Widgets;
 using Smartstore.PayPal.Settings;
-using Smartstore.Web.Controllers;
 
 namespace Smartstore.PayPal.Filters
 {
@@ -14,9 +13,9 @@ namespace Smartstore.PayPal.Filters
     {
         private readonly ICommonServices _services;
         private readonly PayPalSettings _settings;
-        private readonly Lazy<IWidgetProvider> _widgetProvider;
+        private readonly IWidgetProvider _widgetProvider;
 
-        public ScriptIncludeFilter(ICommonServices services, PayPalSettings settings, Lazy<IWidgetProvider> widgetProvider)
+        public ScriptIncludeFilter(ICommonServices services, PayPalSettings settings, IWidgetProvider widgetProvider)
         {
             _services = services;
             _settings = settings;
@@ -32,14 +31,8 @@ namespace Smartstore.PayPal.Filters
             var controller = filterContext.RouteData.Values.GetControllerName().EmptyNull();
             var action = filterContext.RouteData.Values.GetActionName().EmptyNull();
             var isConfirmationPage = controller == "Checkout" && action == "Confirm";
-            var isPaymentSelectionPage = controller == "Checkout" && action == "PaymentMethod";
-            var isCartPage = controller == "ShoppingCart" && action == "Cart";
 
-            // TODO: (mh) (core) Consider rendering script via dynamic script include, as it's needed globaly only if minibasket will be show (via AJAX).
-
-            // Render on cart, payment selection, order confirmation or everywhere if mini cart setting is turned on.
-            if ((!isConfirmationPage || !isPaymentSelectionPage || !isCartPage) && !_settings.ShowButtonInMiniShoppingCart)
-                return;
+            // TODO: (mh) (core) Consider rendering script via dynamic script include, as it's needed globaly only if minibasket will be shown (via AJAX).
 
             // Should only run on a full view rendering result or HTML ContentResult.
             if (filterContext.Result is StatusCodeResult || filterContext.Result.IsHtmlViewResult())
@@ -49,8 +42,10 @@ namespace Smartstore.PayPal.Filters
                 var html = $"<script src='https://www.paypal.com/sdk/js" +
                     $"?client-id={_settings.ClientId}" +
                     $"&currency={currency}" +
-                    $"&integration-date=2021-12-14" +                                           // Ensures no breaking changes will be applied in SDK.
-                    $"&commit={isConfirmationPage.ToString().ToLower()}";                       // Depends on the button location. Commit on confirmation page.
+                    // Ensures no breaking changes will be applied in SDK.
+                    $"&integration-date=2021-12-14" +
+                    // Depends on the button location. Commit on confirmation page.
+                    $"&commit={isConfirmationPage.ToString().ToLower()}";
 
                 if (_settings.DisabledFundings.HasValue())
                 {
@@ -65,7 +60,7 @@ namespace Smartstore.PayPal.Filters
                 html += $"&intent={_settings.Intent}";
                 html += "'></script>";
 
-                _widgetProvider.Value.RegisterHtml("head_scripts", new HtmlString(html));
+                _widgetProvider.RegisterHtml("head_scripts", new HtmlString(html));
             }
         }
 
@@ -75,8 +70,9 @@ namespace Smartstore.PayPal.Filters
 
         private static string GetFundingOptions<TEnum>(string fundings) where TEnum : struct
         {
-            var concated = string.Empty;
+            var result = string.Empty;
             TEnum resultInputType = default;
+
             var arr = fundings.SplitSafe(',')
                 .Select(x =>
                 {
@@ -87,10 +83,10 @@ namespace Smartstore.PayPal.Filters
 
             if (arr.Length > 0)
             {
-                concated = string.Join(',', arr ?? Array.Empty<string>());
+                result = string.Join(',', arr ?? Array.Empty<string>());
             }
 
-            return concated;
+            return result;
         }
     }
 }

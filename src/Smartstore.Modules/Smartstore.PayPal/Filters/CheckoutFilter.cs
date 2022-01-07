@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.AspNetCore.Routing;
 using Smartstore.Core;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
@@ -47,23 +46,15 @@ namespace Smartstore.PayPal.Filters
                 await next();
                 return;
             }
-            
-            var controller = filterContext.RouteData.Values.GetControllerName().EmptyNull();
-            var action = filterContext.RouteData.Values.GetActionName().EmptyNull();
-            var isPaymentSelectionPage = controller == "Checkout" && action == "PaymentMethod";
-
-            // Render on cart, payment selection, order confirmation or everywhere if mini cart setting is turned on.
-            if (!isPaymentSelectionPage)
-            {
-                await next();
-                return;
-            }
 
             var checkoutState = _checkoutStateAccessor.CheckoutState;
 
-            if(!checkoutState.CustomProperties.ContainsKey("PayPalButtonUsed"))
+            if (!checkoutState.CustomProperties.ContainsKey("PayPalButtonUsed"))
             {
-                _widgetProvider.Value.RegisterWidget("checkout_payment_method_buttons", new ComponentWidgetInvoker(typeof(PayPalViewComponent)));
+                _widgetProvider.Value.RegisterWidget(
+                    "checkout_payment_method_buttons", 
+                    new ComponentWidgetInvoker(typeof(PayPalViewComponent)));
+
                 await next();
                 return;
             }
@@ -78,25 +69,21 @@ namespace Smartstore.PayPal.Filters
 
                 var session = _httpContextAccessor.HttpContext.Session;
 
-                if (!session.TryGetObject<ProcessPaymentRequest>("OrderPaymentInfo", out var processPaymentRequest))
+                // TODO: (mh) (core) ProcessPaymentRequest contains "Order" property and is therefore NOT SERIALIZABLE!
+                // Don't forget: ASP.NET Core does not save session data in memory anymore, but serializes all session data on request end.
+                // Please change the architecture after talking to MG. This affects many places :-(( !!
+                if (!session.ContainsKey("OrderPaymentInfo"))
                 {
-                    processPaymentRequest = new ProcessPaymentRequest
+                    session.TrySetObject("OrderPaymentInfo", new ProcessPaymentRequest
                     {
                         PaypalOrderId = (string)checkoutState.CustomProperties.Get("PayPalOrderId")
-                    };
-                    session.TrySetObject("OrderPaymentInfo", processPaymentRequest);
+                    });
                 };
 
                 // Delete property for backward navigation.
                 checkoutState.CustomProperties.Remove("PayPalButtonUsed");
 
-                filterContext.Result = new RedirectToRouteResult(
-                    new RouteValueDictionary
-                    {
-                        { "Controller", "Checkout" },
-                        { "Action", "Confirm" },
-                        { "area", null }
-                    });
+                filterContext.Result = new RedirectToActionResult("Confirm", "Checkout", new { area = "" });
             }
 
             await next();

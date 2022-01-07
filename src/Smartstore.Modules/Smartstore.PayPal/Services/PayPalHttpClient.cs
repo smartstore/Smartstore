@@ -464,25 +464,25 @@ namespace Smartstore.PayPal.Services
             switch (transaction)
             {
                 case PayPalTransaction.UpdateOrder:
-                    url = OrderEndpoint.FormatWith(apiUrl, id);
+                    url = OrderEndpoint.FormatInvariant(apiUrl, id);
                     break;
                 case PayPalTransaction.Authorize:
-                    url = AuthorizeEndpoint.FormatWith(apiUrl, id);
+                    url = AuthorizeEndpoint.FormatInvariant(apiUrl, id);
                     break;
                 case PayPalTransaction.Capture:
-                    url = CaptureEndpoint.FormatWith(apiUrl, id);
+                    url = CaptureEndpoint.FormatInvariant(apiUrl, id);
                     break;
                 case PayPalTransaction.CaptureAuthorization:
-                    url = CaptureAuthorizationEndpoint.FormatWith(apiUrl, id);
+                    url = CaptureAuthorizationEndpoint.FormatInvariant(apiUrl, id);
                     break;
                 case PayPalTransaction.Void:
-                    url = VoidEndpoint.FormatWith(apiUrl, id);
+                    url = VoidEndpoint.FormatInvariant(apiUrl, id);
                     break;
                 case PayPalTransaction.Refund:
-                    url = RefundEndpoint.FormatWith(apiUrl, id);
+                    url = RefundEndpoint.FormatInvariant(apiUrl, id);
                     break;
                 case PayPalTransaction.Token:
-                    url = TokenEndpoint.FormatWith(apiUrl);
+                    url = TokenEndpoint.FormatInvariant(apiUrl);
                     break;
             }
 
