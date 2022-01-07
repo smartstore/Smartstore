@@ -50,7 +50,6 @@ namespace Smartstore.Web.Controllers
         private readonly IShoppingCartService _shoppingCartService;
         private readonly IProductCompareService _productCompareService;
         private readonly IOrderCalculationService _orderCalculationService;
-        private readonly IShoppingCartValidator _shoppingCartValidator;
         private readonly ICheckoutAttributeMaterializer _checkoutAttributeMaterializer;
         private readonly ShoppingCartSettings _shoppingCartSettings;
         private readonly CaptchaSettings _captchaSettings;
@@ -58,7 +57,6 @@ namespace Smartstore.Web.Controllers
         private readonly MediaSettings _mediaSettings;
         private readonly CustomerSettings _customerSettings;
         private readonly CatalogSettings _catalogSettings;
-        private readonly RewardPointsSettings _rewardPointsSettings;
 
         public ShoppingCartController(
             SmartDbContext db,
@@ -74,15 +72,13 @@ namespace Smartstore.Web.Controllers
             IShoppingCartService shoppingCartService,
             IProductCompareService productCompareService,
             IOrderCalculationService orderCalculationService,
-            IShoppingCartValidator shoppingCartValidator,
             ICheckoutAttributeMaterializer checkoutAttributeMaterializer,
             ShoppingCartSettings shoppingCartSettings,
             CaptchaSettings captchaSettings,
             OrderSettings orderSettings,
             MediaSettings mediaSettings,
             CustomerSettings customerSettings,
-            CatalogSettings catalogSettings,
-            RewardPointsSettings rewardPointsSettings)
+            CatalogSettings catalogSettings)
         {
             _db = db;
             _messageFactory = messageFactory;
@@ -97,7 +93,6 @@ namespace Smartstore.Web.Controllers
             _shoppingCartService = shoppingCartService;
             _productCompareService = productCompareService;
             _orderCalculationService = orderCalculationService;
-            _shoppingCartValidator = shoppingCartValidator;
             _checkoutAttributeMaterializer = checkoutAttributeMaterializer;
             _shoppingCartSettings = shoppingCartSettings;
             _captchaSettings = captchaSettings;
@@ -105,7 +100,6 @@ namespace Smartstore.Web.Controllers
             _mediaSettings = mediaSettings;
             _customerSettings = customerSettings;
             _catalogSettings = catalogSettings;
-            _rewardPointsSettings = rewardPointsSettings;
         }
 
         #region Shopping cart
@@ -218,16 +212,8 @@ namespace Smartstore.Web.Controllers
             var warnings = new List<string>();
 
             // Save data entered on cart page.
-            cart.Customer.GenericAttributes.CheckoutAttributes = await _checkoutAttributeMaterializer.CreateCheckoutAttributeSelectionAsync(query, cart);
-
-            if (_rewardPointsSettings.Enabled)
-            {
-                cart.Customer.GenericAttributes.UseRewardPointsDuringCheckout = useRewardPoints;
-            }
-
-            await _db.SaveChangesAsync();
-
-            if (!await _shoppingCartValidator.ValidateCartAsync(cart, warnings, true))
+            var isCartValid = await _shoppingCartService.SaveCartDataAsync(cart, warnings, query, useRewardPoints);
+            if (!isCartValid)
             {
                 // Something is wrong with the checkout data. Redisplay shopping cart.
                 var model = await cart.MapAsync(validateCheckoutAttributes: true);
@@ -235,7 +221,6 @@ namespace Smartstore.Web.Controllers
                 return View(model);
             }
 
-            // Everything is OK.
             if (cart.Customer.IsGuest())
             {
                 if (_customerSettings.UserRegistrationType == UserRegistrationType.Disabled)
@@ -319,20 +304,8 @@ namespace Smartstore.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> SaveCartData(ProductVariantQuery query, bool? useRewardPoints)
         {
-            var cart = await _shoppingCartService.GetCartAsync(storeId: Services.StoreContext.CurrentStore.Id);
             var warnings = new List<string>();
-
-            // Save data entered on cart page.
-            cart.Customer.GenericAttributes.CheckoutAttributes = await _checkoutAttributeMaterializer.CreateCheckoutAttributeSelectionAsync(query, cart);
-
-            if (_rewardPointsSettings.Enabled && useRewardPoints.HasValue)
-            {
-                cart.Customer.GenericAttributes.UseRewardPointsDuringCheckout = useRewardPoints.Value;
-            }
-
-            await _db.SaveChangesAsync();
-
-            var success = await _shoppingCartValidator.ValidateCartAsync(cart, warnings, true);
+            var success = await _shoppingCartService.SaveCartDataAsync(null, warnings, query, useRewardPoints);
 
             return Json(new
             {

@@ -32,6 +32,7 @@ namespace Smartstore.Core.Checkout.Cart
         private readonly IProductAttributeMaterializer _productAttributeMaterializer;
         private readonly ICheckoutAttributeMaterializer _checkoutAttributeMaterializer;
         private readonly ShoppingCartSettings _shoppingCartSettings;
+        private readonly RewardPointsSettings _rewardPointsSettings;
         private readonly Currency _primaryCurrency;
 
         public ShoppingCartService(
@@ -44,6 +45,7 @@ namespace Smartstore.Core.Checkout.Cart
             IProductAttributeMaterializer productAttributeMaterializer,
             ICheckoutAttributeMaterializer checkoutAttributeMaterializer,
             ICurrencyService currencyService,
+            RewardPointsSettings rewardPointsSettings,
             ShoppingCartSettings shoppingCartSettings)
         {
             _db = db;
@@ -54,6 +56,7 @@ namespace Smartstore.Core.Checkout.Cart
             _cartValidator = cartValidator;
             _productAttributeMaterializer = productAttributeMaterializer;
             _checkoutAttributeMaterializer = checkoutAttributeMaterializer;
+            _rewardPointsSettings = rewardPointsSettings;
             _shoppingCartSettings = shoppingCartSettings;
 
             _primaryCurrency = currencyService.PrimaryCurrency;
@@ -519,6 +522,28 @@ namespace Smartstore.Core.Checkout.Cart
             _requestCache.RemoveByPattern(CART_ITEMS_PATTERN_KEY);
 
             return warnings;
+        }
+
+        public virtual async Task<bool> SaveCartDataAsync(
+            ShoppingCart cart,
+            IList<string> warnings,
+            ProductVariantQuery query, 
+            bool? useRewardPoints = null,
+            bool validateCheckoutAttributes = true)
+        {
+            cart ??= await GetCartAsync(storeId: _storeContext.CurrentStore.Id);
+
+            cart.Customer.GenericAttributes.CheckoutAttributes = await _checkoutAttributeMaterializer.CreateCheckoutAttributeSelectionAsync(query, cart);
+
+            if (_rewardPointsSettings.Enabled && useRewardPoints.HasValue)
+            {
+                cart.Customer.GenericAttributes.UseRewardPointsDuringCheckout = useRewardPoints.Value;
+            }
+
+            // INFO: we must save before validating the cart.
+            await _db.SaveChangesAsync();
+
+            return await _cartValidator.ValidateCartAsync(cart, warnings, validateCheckoutAttributes);
         }
 
         protected virtual async Task<List<OrganizedShoppingCartItem>> OrganizeCartItemsAsync(ICollection<ShoppingCartItem> items)

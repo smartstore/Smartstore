@@ -35,7 +35,6 @@ namespace Smartstore.AmazonPay.Controllers
         private readonly IPaymentService _paymentService;
         private readonly AmazonPaySettings _settings;
         private readonly OrderSettings _orderSettings;
-        private readonly RewardPointsSettings _rewardPointsSettings;
 
         public AmazonPayController(
             SmartDbContext db,
@@ -48,8 +47,7 @@ namespace Smartstore.AmazonPay.Controllers
             IOrderCalculationService orderCalculationService,
             IPaymentService paymentService,
             AmazonPaySettings amazonPaySettings,
-            OrderSettings orderSettings,
-            RewardPointsSettings rewardPointsSettings)
+            OrderSettings orderSettings)
         {
             _db = db;
             _amazonPayService = amazonPayService;
@@ -62,7 +60,6 @@ namespace Smartstore.AmazonPay.Controllers
             _paymentService = paymentService;
             _settings = amazonPaySettings;
             _orderSettings = orderSettings;
-            _rewardPointsSettings = rewardPointsSettings;
         }
 
         /// <summary>
@@ -86,18 +83,9 @@ namespace Smartstore.AmazonPay.Controllers
 
                 // Save data entered on cart page.
                 customer.ResetCheckoutData(store.Id);
-                customer.GenericAttributes.CheckoutAttributes = await _checkoutAttributeMaterializer.CreateCheckoutAttributeSelectionAsync(query, cart);
 
-                if (_rewardPointsSettings.Enabled && useRewardPoints.HasValue)
-                {
-                    customer.GenericAttributes.UseRewardPointsDuringCheckout = useRewardPoints.Value;
-                }
-
-                // INFO: we must save before validating the cart.
-                await _db.SaveChangesAsync();
-
-                // Validate the shopping cart.
-                if (await _shoppingCartValidator.ValidateCartAsync(cart, warnings, true))
+                var isCartValid = await _shoppingCartService.SaveCartDataAsync(cart, warnings, query, useRewardPoints);
+                if (isCartValid)
                 {
                     var client = HttpContext.GetAmazonPayApiClient(store.Id);
                     var checkoutReviewUrl = Url.Action(nameof(CheckoutReview), "AmazonPay", null, currentScheme);
