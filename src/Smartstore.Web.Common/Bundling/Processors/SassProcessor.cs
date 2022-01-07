@@ -1,15 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.AspNetCore.Http;
 using SharpScss;
 using Smartstore.Core.Stores;
 using Smartstore.Core.Theming;
 using Smartstore.IO;
-using Smartstore.Web.Theming;
 
 namespace Smartstore.Web.Bundling.Processors
 {

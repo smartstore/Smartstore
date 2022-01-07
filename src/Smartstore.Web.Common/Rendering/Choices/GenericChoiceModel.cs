@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Smartstore.Web.Rendering.Choices
+﻿namespace Smartstore.Web.Rendering.Choices
 {
     public class GenericChoiceModel : ChoiceModel
     {

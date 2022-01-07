@@ -4,8 +4,6 @@ using Microsoft.AspNetCore.Razor.TagHelpers;
 using Microsoft.AspNetCore.Routing;
 using Smartstore.Web.Modelling.Settings;
 using Smartstore.Web.Rendering;
-using System;
-using System.Threading.Tasks;
 
 namespace Smartstore.Web.TagHelpers.Admin
 {

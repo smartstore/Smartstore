@@ -1,10 +1,6 @@
 ﻿using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Dynamic;
-using System.Linq;
 using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
 using Autofac;
 using Microsoft.Extensions.Caching.Memory;
 using Smartstore.Core.Theming;

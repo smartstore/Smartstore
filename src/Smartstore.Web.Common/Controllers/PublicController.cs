@@ -1,6 +1,4 @@
-﻿using System;
-using Smartstore.Core.Checkout.Affiliates;
-using Smartstore.Core.Data;
+﻿using Smartstore.Core.Checkout.Affiliates;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;

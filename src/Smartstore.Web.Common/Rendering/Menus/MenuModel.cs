@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using Smartstore.Collections;
+﻿using Smartstore.Collections;
 using Smartstore.Core.Content.Menus;
 
 namespace Smartstore.Web.Rendering.Menus

@@ -1,7 +1,5 @@
-﻿using System.Linq;
-using Smartstore.Core.Content.Media;
+﻿using Smartstore.Core.Content.Media;
 using Smartstore.Core.Identity;
-using Smartstore.Engine;
 using Smartstore.Web.Modelling;
 
 namespace Smartstore.Web.Models.Customers

@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Smartstore.Web.Rendering;
-using System;
 
 namespace Smartstore.Web.TagHelpers.Shared
 {

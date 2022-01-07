@@ -1,6 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Text.Encodings.Web;
+﻿using System.Text.Encodings.Web;
 using Microsoft.AspNetCore.Html;
 using Smartstore.Utilities;
 

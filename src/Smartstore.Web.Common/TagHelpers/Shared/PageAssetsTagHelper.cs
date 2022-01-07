@@ -1,7 +1,5 @@
-﻿using System;
-using Microsoft.AspNetCore.Razor.TagHelpers;
+﻿using Microsoft.AspNetCore.Razor.TagHelpers;
 using Smartstore.Core.Seo;
-using Smartstore.Core.Widgets;
 using Smartstore.Web.Rendering;
 
 namespace Smartstore.Web.TagHelpers.Shared

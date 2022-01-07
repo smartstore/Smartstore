@@ -1,12 +1,7 @@
-﻿using System;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Filters;
-using Smartstore.Core;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Logging;
-using Smartstore.Core.Widgets;
 
 namespace Smartstore.Web.Filters
 {

@@ -1,14 +1,11 @@
-﻿using System;
-using Autofac;
+﻿using Autofac;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.CookiePolicy;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Stores;
 using Smartstore.Core.Web;
-using Smartstore.Engine;
 using Smartstore.Net;
 
 namespace Smartstore.Web.Bootstrapping

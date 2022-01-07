@@ -1,8 +1,5 @@
 ﻿using Microsoft.AspNetCore.Razor.TagHelpers;
 using Smartstore.Core.Content.Media;
-using Smartstore.Core.Widgets;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Smartstore.Web.TagHelpers.Shared
 {

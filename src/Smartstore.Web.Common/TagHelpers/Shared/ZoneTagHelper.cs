@@ -1,14 +1,10 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Razor.TagHelpers;
-using Smartstore.Core.Widgets;
 using Smartstore.Web.Rendering;
 
 namespace Smartstore.Web.TagHelpers.Shared
 {
-	[HtmlTargetElement("zone", Attributes = NameAttributeName)]
+    [HtmlTargetElement("zone", Attributes = NameAttributeName)]
 	public class ZoneTagHelper : SmartTagHelper
 	{
 		const string NameAttributeName = "name";

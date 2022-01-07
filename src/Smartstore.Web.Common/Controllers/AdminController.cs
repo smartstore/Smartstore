@@ -1,10 +1,4 @@
-﻿using System;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.Extensions.DependencyInjection;
-using Smartstore.Core;
-using Smartstore.Core.Data;
-using Smartstore.Core.Identity;
+﻿using Microsoft.AspNetCore.Mvc.Filters;
 using Smartstore.Core.Security;
 
 namespace Smartstore.Web.Controllers

@@ -1,9 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Filters;
-using Smartstore.Core;
+﻿using Microsoft.AspNetCore.Mvc.Filters;
 using Smartstore.Core.Security;
 using Smartstore.Core.Web;
-using Smartstore.Core.Widgets;
 
 namespace Smartstore.Web.Theming
 {

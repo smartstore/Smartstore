@@ -1,8 +1,4 @@
-﻿using System;
-using System.Linq;
-using Smartstore.Engine;
-
-namespace Smartstore.Web.Bundling
+﻿namespace Smartstore.Web.Bundling
 {
     internal class BundlePublisher
     {

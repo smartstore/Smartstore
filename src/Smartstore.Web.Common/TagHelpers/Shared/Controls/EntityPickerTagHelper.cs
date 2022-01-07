@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Html;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Newtonsoft.Json;
-using Smartstore.ComponentModel;
 using Smartstore.Utilities;
 
 namespace Smartstore.Web.TagHelpers.Shared

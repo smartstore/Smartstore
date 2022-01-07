@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Smartstore.Web.Modelling
+﻿namespace Smartstore.Web.Modelling
 {
     [AttributeUsage(AttributeTargets.Interface | AttributeTargets.Class | AttributeTargets.Property, AllowMultiple = true)]
     public sealed class AdditionalMetadataAttribute : Attribute

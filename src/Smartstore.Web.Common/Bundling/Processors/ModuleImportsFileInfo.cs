@@ -1,16 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Threading.Tasks;
-using Microsoft.Extensions.FileProviders;
+﻿using Microsoft.Extensions.FileProviders;
 using Smartstore.Data;
-using Smartstore.Engine;
 using Smartstore.Engine.Modularity;
 using Smartstore.IO;
 using Smartstore.Utilities;
 
 namespace Smartstore.Web.Bundling.Processors
-{   
+{
     internal class ModuleImportsFileInfo : IFileInfo, IFileHashProvider
     {
         public const string FileName = "moduleimports.scss";

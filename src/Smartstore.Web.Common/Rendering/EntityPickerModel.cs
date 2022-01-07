@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Smartstore.Web.Modelling;
+﻿using Smartstore.Web.Modelling;
 
 namespace Smartstore.Web.Rendering
 {

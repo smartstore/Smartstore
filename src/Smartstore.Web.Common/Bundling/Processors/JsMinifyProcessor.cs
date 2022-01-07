@@ -1,6 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using DouglasCrockford.JsMin;
+﻿using DouglasCrockford.JsMin;
 
 namespace Smartstore.Web.Bundling.Processors
 {

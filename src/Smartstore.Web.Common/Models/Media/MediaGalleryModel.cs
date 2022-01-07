@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Smartstore.Core.Content.Media;
+﻿using Smartstore.Core.Content.Media;
 using Smartstore.Web.Modelling;
 
 namespace Smartstore.Web.Models.Media

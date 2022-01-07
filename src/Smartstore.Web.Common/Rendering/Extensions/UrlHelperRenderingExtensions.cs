@@ -1,7 +1,4 @@
-﻿using System;
-using System.Runtime.CompilerServices;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.DependencyInjection;
+﻿using System.Runtime.CompilerServices;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Content.Media.Imaging;
 

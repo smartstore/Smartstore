@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Smartstore.Web.Modelling.Settings
+﻿namespace Smartstore.Web.Modelling.Settings
 {
     public class StoreDependingSettingData
     {

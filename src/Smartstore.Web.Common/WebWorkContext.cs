@@ -1,20 +1,13 @@
-﻿using System;
-using System.Linq;
-using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Http;
 using Smartstore.Caching;
-using Smartstore.Core;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Identity;
-using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Stores;
 using Smartstore.Core.Web;
-using System.Threading.Tasks;
 using Smartstore.Net;
-using System.Collections.Generic;
 
 namespace Smartstore.Web
 {

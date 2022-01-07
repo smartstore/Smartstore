@@ -1,9 +1,6 @@
-﻿using System;
-using System.Linq;
-using Microsoft.AspNetCore.Html;
+﻿using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
-using Smartstore.Core.Widgets;
 using Smartstore.Http;
 
 namespace Smartstore.Web.Bundling

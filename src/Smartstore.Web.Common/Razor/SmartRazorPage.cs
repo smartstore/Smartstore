@@ -1,13 +1,8 @@
-﻿using System;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Razor;
-using Microsoft.Extensions.DependencyInjection;
-using Smartstore.Core;
 using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Web;
-using Smartstore.Core.Widgets;
-using Smartstore.Engine;
 using Smartstore.Events;
 
 namespace Smartstore.Web.Razor

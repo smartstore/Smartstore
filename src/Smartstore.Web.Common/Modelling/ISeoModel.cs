@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Smartstore.Web.Modelling
+﻿namespace Smartstore.Web.Modelling
 {
     public interface ISeoModel : ILocalizedModel<SeoModelLocal>
     {
