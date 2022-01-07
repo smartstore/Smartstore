@@ -72,6 +72,11 @@ namespace Smartstore.Admin.Controllers
                 searchQuery = searchQuery.WithCategoryIds(null, model.SearchCategoryId);
             }
 
+            if (model.SearchDeliveryTimeIds?.Any() ?? false)
+            {
+                searchQuery = searchQuery.WithDeliveryTimeIds(model.SearchDeliveryTimeIds);
+            }
+
             IPagedList<Product> products;
 
             if (_searchSettings.UseCatalogSearchInBackend)

@@ -167,6 +167,15 @@ namespace Smartstore.Admin.Controllers
 
             model.AvailableProductTypes = ProductType.SimpleProduct.ToSelectList(false).ToList();
 
+            var deliveryTimes = await _db.DeliveryTimes
+                .AsNoTracking()
+                .OrderBy(x => x.DisplayOrder)
+                .ToListAsync();
+
+            ViewBag.DeliveryTimes = deliveryTimes
+                .Select(x => new SelectListItem { Text = x.Name, Value = x.Id.ToString() })
+                .ToList();
+
             return View(model);
         }
 

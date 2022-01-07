@@ -361,6 +361,12 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.Common.InvalidFileName", "Invalid file name.", "Ungültiger Dateiname.");
             builder.AddOrUpdate("Common.UserProfile", "User profile", "Benutzerprofil");
 
+            builder.AddOrUpdate("Admin.Catalog.Products.List.SearchDeliveryTime",
+                "Delivery time",
+                "Lieferzeit",
+                "Filter delivery time.",
+                "Lieferzeit eingrenzen.");
+
             #endregion
 
             #region Packaging

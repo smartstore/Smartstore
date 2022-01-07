@@ -39,6 +39,9 @@ namespace Smartstore.Admin.Models.Catalog
         [LocalizedDisplay("*SearchHomePageProducts")]
         public bool? SearchHomePageProducts { get; set; }
 
+        [LocalizedDisplay("*SearchDeliveryTime")]
+        public int[] SearchDeliveryTimeIds { get; set; }
+
         [LocalizedDisplay("*GoDirectlyToSku")]
         public string GoDirectlyToSku { get; set; }
 
