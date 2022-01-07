@@ -1,0 +1,17 @@
+{
+  "$schema": "../module.schema.json",
+  "Author": "SmartStore AG",
+  "Group": "Payment",
+  "SystemName": "Smartstore.PayPal",
+  "FriendlyName": "Smartstore.PayPal",
+  "Description": "",
+  "Version": "5.0",
+  "MinAppVersion": "5.0",
+  "Order": 1,
+  "ResourceRootKey": "Plugins.Smartstore.PayPal",
+  "ProjectUrl": "",
+  "PrivateReferences": [
+    "PayPalCheckoutSdk",
+    "PayPalHttp"
+  ]
+}

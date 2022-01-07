@@ -1,0 +1,79 @@
+﻿@model PublicPaymentMethodModel
+
+<!-- Set up a container element for the paypal button -->
+<div id="paypal-button-container" 
+     data-init-transaction-url="@Url.Action("InitTransaction", "PayPal")"
+     data-forward-url="@(Model.IsPaymentSelection ? Url.Action("BillingAddress", "Checkout") : Url.Action("Confirm", "Checkout"))"
+     attr-style='(Model.IsPaymentSelection, "display:none")'></div>
+
+@*INFO: No target zone here as can also be rendered via AJAX*@
+<script>
+    var paypalCtn = $("#paypal-button-container");
+
+    // TODO: (mh) (core) Don't forget to call save cart data, to save reward points, etc?
+
+    // Render the PayPal button into #paypal-button-container
+    paypal.Buttons({
+        style: {
+            layout: 'horizontal',
+            label: 'pay'
+        },
+        // Create order
+        createOrder: function(data, actions) {
+            return actions.order.create({
+                purchase_units: [{
+                    amount: {
+                        value: '@(Model.Amount.ToString("F2", CultureInfo.InvariantCulture))'
+                    }
+                }],
+                intent: "@Model.Intent"
+            });
+        },
+        // Save obtained order id in checkout state.
+        onApprove: function (data, actions) {
+            $.ajax({
+                type: 'POST',
+                url: paypalCtn.data("init-transaction-url"),
+                data: { orderId: data.orderID },
+                cache: false,
+                success: function (resp) {
+                    if (resp.success) {
+                        // Lead customer to address selection or to confirm page if PayPal was choosen from payment selection page.
+                        location.href = paypalCtn.data("forward-url");
+                    }
+                    else {
+                        displayNotification(resp.message, 'error');
+                    }
+                }
+            });
+        },
+        onCancel: function (data) {
+            // Do nothing here, just let the user have it's way
+        },
+        onError: function (err) {
+            // TODO: (mh) (core) Go back to cart & notify
+            window.location.href = "/your-error-page-here";
+        }
+    }).render('#paypal-button-container');
+
+    @if (Model.IsPaymentSelection)
+    {
+        <text>
+        var btnNext = $(".payment-method-next-step-button");
+
+        // Listen for changes to the radio fields
+        $(document, "input[name='paymentmethod']").on("change", function(e) {
+            if (e.target.value == "Payments.PayPalStandard")
+            {
+                btnNext[0].style.display = 'none';
+                paypalCtn[0].style.display = 'block';
+            }
+            else
+            {
+                btnNext[0].style.display = 'block';
+                paypalCtn[0].style.display = 'none';
+            }
+        });
+        </text>
+    }
+</script>

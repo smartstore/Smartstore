@@ -1,0 +1,194 @@
+﻿<Language Name="Deutsch" IsDefault="true" IsRightToLeft="false">
+	<!-- TODO: (mh) (core) Check every resource key in here -->
+  <LocaleResource Name="Plugins.FriendlyName.Smartstore.PayPal" AppendRootKey="false">
+    <Value>PayPal</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Description.Smartstore.PayPal" AppendRootKey="false">
+    <Value>Detaillierte Beschreibung zu PayPal</Value>
+  </LocaleResource>
+  
+  <!-- (Provider) will be displayed in frontend on payment selection page and in backend on payment configuration list -->
+  <LocaleResource Name="Plugins.FriendlyName.Payments.PayPal" AppendRootKey="false">
+    <Value>PayPal</Value>
+  </LocaleResource>
+  <!-- (Provider) will be displayed in frontend on payment selection page and in backend on payment configuration list -->
+  <LocaleResource Name="Plugins.Description.Payments.PayPal" AppendRootKey="false">
+    <Value>Detallierte Beschreibung zu PayPal</Value>
+  </LocaleResource>
+  
+  <LocaleResource Name="Plugins.Smartstore.PayPal" AppendRootKey="false">
+    <Children>
+      <LocaleResource Name="AdminInstruction">
+        <Value>
+          <![CDATA[
+            Geben Sie zur Einrichtung dieses Plugins nachfolgend Ihre Daten an.
+          ]]>
+        </Value>
+      </LocaleResource>
+
+      
+      <LocaleResource Name="PaymentInfo">
+        <Value>Nach Abschluß der Bestellung werden Sie zu einem externen Zahlungsanbieter weitergeleitet, auf dessen Seite Sie die Zahlung für Ihre Bestellung durchführen können.</Value>
+      </LocaleResource>
+      <LocaleResource Name="Agreement">
+        <Value>Ich bin mir bewusst, dass meine Daten im Zuge des Zahlungsvorgangs an den Zahlungsanbieter übermittelt werden.</Value>
+      </LocaleResource>
+      <LocaleResource Name="Agreement.Message">
+        <Value>Bitte stimmen Sie zu, dass Ihre Daten im Zuge dieses Zahlungsvorgangs an den Zahlartanbieter übermittelt werden dürfen.</Value>
+      </LocaleResource>
+      <LocaleResource Name="UseSandbox">
+        <Value>Sandbox nutzen</Value>
+      </LocaleResource>
+      <LocaleResource Name="UseSandbox.Hint">
+        <Value>Bestimmt, ob die Zahlungen in der Sandbox des Payment-Anbieters ausgeführt werden.</Value>
+      </LocaleResource>
+      <LocaleResource Name="Account">
+        <Value>Account-Id</Value>
+      </LocaleResource>
+      <LocaleResource Name="Account.Hint">
+        <Value>Geben Sie hier Ihren Account an.</Value>
+      </LocaleResource>
+			<LocaleResource Name="ClientId">
+				<Value>Client ID</Value>
+			</LocaleResource>
+			<LocaleResource Name="ClientId.Hint">
+				<Value>Geben Sie hier die Client ID an, die Ihnen vom Zahlungsanbieter übermittelt wurde.</Value>
+			</LocaleResource>
+      <LocaleResource Name="Secret">
+        <Value>Passwort</Value>
+      </LocaleResource>
+      <LocaleResource Name="Secret.Hint">
+        <Value>Geben Sie hier das Passwort an, das Ihnen vom Zahlungsanbieter übermittelt wurde.</Value>
+      </LocaleResource>
+      <LocaleResource Name="AdditionalFee">
+        <Value>Zusätzliche Gebühren</Value>
+      </LocaleResource>
+      <LocaleResource Name="AdditionalFee.Hint">
+        <Value>Zusätzliche Gebühren, die dem Kunden für die Inanspruchnahme dieser Zahlart berechnet werden sollen.</Value>
+      </LocaleResource>
+      <LocaleResource Name="AdditionalFeePercentage">
+        <Value>Zusätzliche Gebühren (prozentual)</Value>
+      </LocaleResource>
+      <LocaleResource Name="AdditionalFeePercentage.Hint">
+        <Value>Zusätzliche prozentuale Gebühr. Die konfigurierte Gebühr wird als fester Wert verwendet, falls diese Option nicht aktiviert ist.</Value>
+      </LocaleResource>
+			<LocaleResource Name="ShowButtonInMiniShoppingCart">
+				<Value>Button im Miniwarenkorb anzeigen</Value>
+			</LocaleResource>
+			<LocaleResource Name="ShowButtonInMiniShoppingCart.Hint">
+				<Value>Legt fest, ob der Checkout-Button im Miniwarenkorb angezeigt werden soll.</Value>
+			</LocaleResource>
+
+			<LocaleResource Name="DisabledFundings">
+				<Value>Deaktivierte Zahlungsoptionen</Value>
+			</LocaleResource>
+			<LocaleResource Name="DisabledFundings.Hint">
+				<Value>
+					Die Anzeige einer Zahlungsoption wird automatisch durch eine Reihe von Faktoren bestimmt.
+					Bestimmen Sie hier die Zahlungsoptionen, die nicht angeboten werden dürfen.
+				</Value>
+			</LocaleResource>
+			<LocaleResource Name="EnabledFundings">
+				<Value>Aktivierte Zahlungsoptionen</Value>
+			</LocaleResource>
+			<LocaleResource Name="EnabledFundings.Hint">
+				<Value>
+					Die Anzeige einer Zahlungsoption wird automatisch durch eine Reihe von Faktoren bestimmt.
+					Bestimmen Sie hier die Zahlungsoptionen, die auf jeden Fall angeboten werden sollen, sofern sie verfügbar sind.
+				</Value>
+			</LocaleResource>
+			<LocaleResource Name="Intent">
+				<Value>Transaktionsmodus</Value>
+			</LocaleResource>
+			<LocaleResource Name="Intent.Hint">
+				<Value>Legt fest ob die Zahlung sofort ausgeführt wird oder erst durch Interaktion des Händlers.</Value>
+			</LocaleResource>
+			<LocaleResource Name="Capture">
+				<Value>Sofort abbuchen</Value>
+			</LocaleResource>
+			<LocaleResource Name="Auth">
+				<Value>Autorisierung sofort, Abbuchung später</Value>
+			</LocaleResource>
+			<LocaleResource Name="BillingPlanName">
+				<Value>Zahlungsplan für {1}</Value>
+			</LocaleResource>
+		</Children>
+  </LocaleResource>
+
+	<LocaleResource Name="Enums.DisableFundingOptions.Card" AppendRootKey="false">
+		<Value>Kreditkarten</Value>
+	</LocaleResource>
+	<LocaleResource Name="Enums.DisableFundingOptions.Credit" AppendRootKey="false">
+		<Value>PayPal Credit</Value>
+	</LocaleResource>
+	<LocaleResource Name="Enums.DisableFundingOptions.Bancontact" AppendRootKey="false">
+		<Value>Bancontact</Value>
+	</LocaleResource>
+	<LocaleResource Name="Enums.DisableFundingOptions.Blik" AppendRootKey="false">
+		<Value>BLIK</Value>
+	</LocaleResource>
+	<LocaleResource Name="Enums.DisableFundingOptions.Eps" AppendRootKey="false">
+		<Value>eps</Value>
+	</LocaleResource>
+	<LocaleResource Name="Enums.DisableFundingOptions.Giropay" AppendRootKey="false">
+		<Value>giropay</Value>
+	</LocaleResource>
+	<LocaleResource Name="Enums.DisableFundingOptions.Ideal" AppendRootKey="false">
+		<Value>iDEAL</Value>
+	</LocaleResource>
+	<LocaleResource Name="Enums.DisableFundingOptions.MercadoPago" AppendRootKey="false">
+		<Value>Mercado Pago</Value>
+	</LocaleResource>
+	<LocaleResource Name="Enums.DisableFundingOptions.P24" AppendRootKey="false">
+		<Value>Przelewy24</Value>
+	</LocaleResource>
+	<LocaleResource Name="Enums.DisableFundingOptions.Sepa" AppendRootKey="false">
+		<Value>SEPA-Lastschrift</Value>
+	</LocaleResource>
+	<LocaleResource Name="Enums.DisableFundingOptions.Sofort" AppendRootKey="false">
+		<Value>Sofort</Value>
+	</LocaleResource>
+	<LocaleResource Name="Enums.DisableFundingOptions.Venmo" AppendRootKey="false">
+		<Value>Venmo</Value>
+	</LocaleResource>
+
+	<LocaleResource Name="Enums.EnableFundingOptions.Card" AppendRootKey="false">
+		<Value>Kreditkarten</Value>
+	</LocaleResource>
+	<LocaleResource Name="Enums.EnableFundingOptions.Credit" AppendRootKey="false">
+		<Value>PayPal Credit</Value>
+	</LocaleResource>
+	<LocaleResource Name="Enums.EnableFundingOptions.Bancontact" AppendRootKey="false">
+		<Value>Bancontact</Value>
+	</LocaleResource>
+	<LocaleResource Name="Enums.EnableFundingOptions.Blik" AppendRootKey="false">
+		<Value>BLIK</Value>
+	</LocaleResource>
+	<LocaleResource Name="Enums.EnableFundingOptions.Eps" AppendRootKey="false">
+		<Value>eps</Value>
+	</LocaleResource>
+	<LocaleResource Name="Enums.EnableFundingOptions.Giropay" AppendRootKey="false">
+		<Value>giropay</Value>
+	</LocaleResource>
+	<LocaleResource Name="Enums.EnableFundingOptions.Ideal" AppendRootKey="false">
+		<Value>iDEAL</Value>
+	</LocaleResource>
+	<LocaleResource Name="Enums.EnableFundingOptions.MercadoPago" AppendRootKey="false">
+		<Value>Mercado Pago</Value>
+	</LocaleResource>
+	<LocaleResource Name="Enums.EnableFundingOptions.P24" AppendRootKey="false">
+		<Value>Przelewy24</Value>
+	</LocaleResource>
+	<LocaleResource Name="Enums.EnableFundingOptions.Sepa" AppendRootKey="false">
+		<Value>SEPA-Lastschrift</Value>
+	</LocaleResource>
+	<LocaleResource Name="Enums.EnableFundingOptions.Sofort" AppendRootKey="false">
+		<Value>Sofort</Value>
+	</LocaleResource>
+	<LocaleResource Name="Enums.EnableFundingOptions.Venmo" AppendRootKey="false">
+		<Value>Venmo</Value>
+	</LocaleResource>
+	<LocaleResource Name="Enums.EnableFundingOptions.PayLater" AppendRootKey="false">
+		<Value>Pay Later</Value>
+	</LocaleResource>
+</Language>

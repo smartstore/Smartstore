@@ -1,0 +1,136 @@
+﻿@model ConfigurationModel
+
+@{
+    Layout = "_ConfigureModule";
+
+    var trasactModes = new List<SelectListItem>
+    {
+        new SelectListItem { Text = T("Plugins.Smartstore.PayPal.Capture"), Value = "capture", Selected = Model.Intent == "capture" },
+        new SelectListItem { Text = T("Plugins.Smartstore.PayPal.Auth"), Value = "authorize", Selected = Model.Intent == "authorize" }
+    };
+}
+
+@await Component.InvokeAsync("StoreScope")
+
+<widget target-zone="admin_button_toolbar_before">
+    <button id="SaveConfigButton" type="submit" name="save" class="btn btn-warning" value="save">
+        <i class="fa fa-check"></i>
+        <span>@T("Admin.Common.Save")</span>
+    </button>
+</widget>
+
+<div class="plugin-configuration">
+    <div>
+        <div class="alert alert-info alert-dismissible">
+            @Html.Raw(@T("Plugins.Smartstore.PayPal.AdminInstruction"))
+            <button class="close" data-dismiss="alert">&times;</button>
+        </div>
+    </div>
+    <div class="mt-5">
+        <a href="https://www.paypal.com/" target="_blank">
+            <img src="@Url.Content("~/Modules/Smartstore.PayPal/branding.png")" alt="PayPal" />
+        </a>
+    </div>
+</div>
+
+<form asp-action="Configure">
+    <div asp-validation-summary="All"></div>
+
+    @*TODO: (mh) (core) Sort & group settings*@
+    <div class="adminContent">
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="UseSandbox" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="UseSandbox" />
+                <span asp-validation-for="UseSandbox"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="Account" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="Account" />
+                <span asp-validation-for="Account"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="ClientId" />
+            </div>
+            <div class="adminData wide">
+                <setting-editor asp-for="ClientId" />
+                <span asp-validation-for="ClientId"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="Secret" />
+            </div>
+            <div class="adminData wide">
+                <setting-editor asp-for="Secret" />
+                <span asp-validation-for="Secret"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="AdditionalFee" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="AdditionalFee" />
+                <span asp-validation-for="AdditionalFee"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="AdditionalFeePercentage" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="AdditionalFeePercentage" />
+                <span asp-validation-for="AdditionalFeePercentage"></span>
+            </div>
+        </div>
+
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="ShowButtonInMiniShoppingCart" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="ShowButtonInMiniShoppingCart" />
+                <span asp-validation-for="ShowButtonInMiniShoppingCart"></span>
+            </div>
+        </div>
+        <hr />
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="EnabledFundings" />
+            </div>
+            <div class="adminData">
+                <select asp-for="EnabledFundings" asp-items="Html.GetLocalizedEnumSelectList(typeof(EnableFundingOptions))" multiple="multiple" data-tags="true"></select>
+                <span asp-validation-for="EnabledFundings"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="DisabledFundings" />
+            </div>
+            <div class="adminData">
+                <select asp-for="DisabledFundings" asp-items="Html.GetLocalizedEnumSelectList(typeof(DisableFundingOptions))" multiple="multiple" data-tags="true"></select>
+                <span asp-validation-for="DisabledFundings"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="Intent" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="Intent">
+                    <select asp-for="Intent" asp-items="trasactModes"></select>
+                </setting-editor>
+                <span asp-validation-for="Intent"></span>
+            </div>
+        </div>
+    </div>
+</form>

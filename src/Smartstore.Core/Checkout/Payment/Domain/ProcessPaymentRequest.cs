@@ -86,9 +86,9 @@ namespace Smartstore.Core.Checkout.Payment
         public string CreditCardCvv2 { get; set; }
 
         /// <summary>
-        /// Gets or sets a paypal payer token (required for Paypal payment methods).
+        /// Gets or sets a PayPal order id.
         /// </summary>
-        public string PaypalToken { get; set; }
+        public string PaypalOrderId { get; set; }
 
         /// <summary>
         /// Gets or sets a paypal payer identifier (required for Paypal payment methods).
