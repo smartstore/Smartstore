@@ -1,14 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
+﻿using System.Runtime.CompilerServices;
 using Smartstore.Caching;
-using Smartstore.Core.Identity;
 using Smartstore.Core.Data;
-using Smartstore.Data.Caching;
+using Smartstore.Core.Identity;
 using Smartstore.Data.Hooks;
 
 namespace Smartstore.Core.Logging

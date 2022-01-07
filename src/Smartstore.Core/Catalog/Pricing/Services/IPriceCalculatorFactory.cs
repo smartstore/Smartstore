@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-
-namespace Smartstore.Core.Catalog.Pricing
+﻿namespace Smartstore.Core.Catalog.Pricing
 {
     /// <summary>
     /// Responsible for resolving price calculators for a given context,

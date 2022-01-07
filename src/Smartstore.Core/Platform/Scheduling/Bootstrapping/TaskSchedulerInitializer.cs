@@ -1,10 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
-using Smartstore.Engine;
+﻿using Microsoft.AspNetCore.Http;
 using Smartstore.Engine.Initialization;
 using Smartstore.Scheduling;
 

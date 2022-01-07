@@ -1,6 +1,4 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore;
-using Smartstore.Core.Content.Media;
+﻿using Smartstore.Core.Content.Media;
 
 namespace Smartstore.Core.Data
 {

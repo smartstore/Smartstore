@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Smartstore.Core.Content.Menus
+﻿namespace Smartstore.Core.Content.Menus
 {
     //public enum LinkType
     //{

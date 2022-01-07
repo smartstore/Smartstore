@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using DotLiquid;
+﻿using DotLiquid;
 
 namespace Smartstore.Templating.Liquid
 {

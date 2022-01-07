@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Smartstore.Core.Data.Migrations
+﻿namespace Smartstore.Core.Data.Migrations
 {
     public class MigrationDescriptor
     {

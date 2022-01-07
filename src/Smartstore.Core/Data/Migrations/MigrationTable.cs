@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using FluentMigrator.Runner;
-using Microsoft.EntityFrameworkCore;
+﻿using FluentMigrator.Runner;
 using Smartstore.Data;
 using Smartstore.Data.Providers;
 

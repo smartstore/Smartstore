@@ -1,18 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Dasync.Collections;
-using Microsoft.EntityFrameworkCore;
+﻿using Dasync.Collections;
 using Smartstore.Caching;
 using Smartstore.Collections;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Data;
 using Smartstore.Core.Stores;
 using Smartstore.Data.Hooks;
-using Smartstore.Domain;
-using Smartstore.Threading;
 
 namespace Smartstore.Core.Localization
 {

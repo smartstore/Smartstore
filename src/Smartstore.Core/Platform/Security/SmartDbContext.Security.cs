@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Smartstore.Core.Security;
+﻿using Smartstore.Core.Security;
 
 namespace Smartstore.Core.Data
 {

@@ -1,9 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Smartstore.Core.Localization;
 using Smartstore.Data.Caching;
-using Smartstore.Domain;
 
 namespace Smartstore.Core.Common
 {

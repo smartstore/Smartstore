@@ -1,7 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using Smartstore.Collections;
-using Smartstore.Threading;
+﻿using Smartstore.Collections;
 
 namespace Smartstore.Core.Content.Media
 {

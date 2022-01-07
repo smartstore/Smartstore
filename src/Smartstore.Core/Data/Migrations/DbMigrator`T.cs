@@ -1,18 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Autofac;
+﻿using Autofac;
 using FluentMigrator;
 using FluentMigrator.Infrastructure;
 using FluentMigrator.Runner;
 using FluentMigrator.Runner.Initialization;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Smartstore.Data;
 using Smartstore.Data.Migrations;
-using Smartstore.Engine;
 using Smartstore.Events;
 
 namespace Smartstore.Core.Data.Migrations

@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Serilog.Context;
 using Smartstore.Core.Web;

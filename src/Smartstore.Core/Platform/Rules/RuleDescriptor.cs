@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace Smartstore.Core.Rules
+﻿namespace Smartstore.Core.Rules
 {
     public abstract class RuleDescriptor
     {

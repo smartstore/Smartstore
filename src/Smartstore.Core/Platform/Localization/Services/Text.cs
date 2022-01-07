@@ -1,6 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-
-namespace Smartstore.Core.Localization
+﻿namespace Smartstore.Core.Localization
 {
     public partial class Text : IText
     {

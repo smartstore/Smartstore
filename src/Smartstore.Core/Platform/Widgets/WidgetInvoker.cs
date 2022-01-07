@@ -1,12 +1,10 @@
-﻿using System;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Html;
+﻿using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Smartstore.Core.Widgets
 {
     // TODO: (core) Make Json converters for invoker implementations.
-    
+
     /// <summary>
     /// Base class for widgets.
     /// </summary>

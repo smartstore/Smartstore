@@ -1,14 +1,9 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO;
+﻿using System.Diagnostics;
 using System.Drawing;
-using Smartstore.Utilities;
 using Smartstore.Events;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
-using System.Threading.Tasks;
-using Smartstore.IO;
 using Smartstore.Imaging;
+using Smartstore.IO;
+using Smartstore.Utilities;
 
 namespace Smartstore.Core.Content.Media.Imaging
 {

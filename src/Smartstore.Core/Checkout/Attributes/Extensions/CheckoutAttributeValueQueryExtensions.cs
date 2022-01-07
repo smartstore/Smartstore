@@ -1,6 +1,4 @@
-﻿using System;
-using System.Linq;
-using Smartstore.Core.Catalog.Attributes;
+﻿using Smartstore.Core.Catalog.Attributes;
 
 namespace Smartstore.Core.Checkout.Attributes
 {

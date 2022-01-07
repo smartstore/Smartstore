@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Smartstore.Core.Configuration
+﻿namespace Smartstore.Core.Configuration
 {
     /// <summary>
     /// Marker interface for setting classes.

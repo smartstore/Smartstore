@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Smartstore.Core.Checkout.Shipping
+﻿namespace Smartstore.Core.Checkout.Shipping
 {
     /// <summary>
     /// Represents a response from get shipping options

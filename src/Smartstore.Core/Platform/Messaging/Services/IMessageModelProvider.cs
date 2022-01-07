@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using Smartstore.Collections;
+﻿using Smartstore.Collections;
 
 namespace Smartstore.Core.Messaging
 {

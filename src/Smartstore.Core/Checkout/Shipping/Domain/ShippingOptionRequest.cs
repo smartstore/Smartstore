@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Smartstore.Core.Checkout.Cart;
+﻿using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Common;
 using Smartstore.Core.Identity;
 

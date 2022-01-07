@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Xml;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
+﻿using System.Xml;
 using Smartstore.Caching;
 using Smartstore.Core.Catalog.Products.Utilities;
 using Smartstore.Core.Common;
@@ -19,8 +13,6 @@ using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Theming;
 using Smartstore.Data.Hooks;
-using Smartstore.Domain;
-using Smartstore.Engine;
 using Smartstore.IO;
 
 namespace Smartstore.Core.Installation

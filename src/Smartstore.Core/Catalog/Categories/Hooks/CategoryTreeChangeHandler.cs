@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Smartstore.Caching;
+﻿using Smartstore.Caching;
 using Smartstore.Collections;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Configuration;
@@ -14,7 +9,6 @@ using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
 using Smartstore.Data;
 using Smartstore.Data.Hooks;
-using Smartstore.Domain;
 using Smartstore.Events;
 
 namespace Smartstore.Core.Catalog.Categories

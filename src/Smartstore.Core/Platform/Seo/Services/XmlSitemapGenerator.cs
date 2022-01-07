@@ -1,25 +1,18 @@
-using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Threading.Tasks;
+using System.Runtime.CompilerServices;
 using System.Xml.Linq;
+using Dasync.Collections;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
-using Dasync.Collections;
 using Smartstore.Collections;
 using Smartstore.Core.Data;
+using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Stores;
 using Smartstore.Data;
 using Smartstore.IO;
 using Smartstore.Threading;
 using Smartstore.Utilities;
-using Smartstore.Core.Identity;
-using System.Threading;
-using System.Runtime.CompilerServices;
 
 namespace Smartstore.Core.Seo
 {

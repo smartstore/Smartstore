@@ -1,9 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
-using Smartstore.Core.Content.Media.Imaging;
+﻿using Smartstore.Core.Content.Media.Imaging;
 using Smartstore.Core.Localization;
 using Smartstore.Threading;
 

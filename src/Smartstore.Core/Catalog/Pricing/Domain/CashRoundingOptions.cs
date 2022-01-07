@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Smartstore.Core.Catalog.Pricing
+﻿namespace Smartstore.Core.Catalog.Pricing
 {
     /// <summary>
     /// TODO: (mg) (core) Describe once implemented completely.

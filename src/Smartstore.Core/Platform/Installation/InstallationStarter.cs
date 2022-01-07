@@ -1,7 +1,6 @@
 ﻿using Autofac;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
-using Smartstore.Engine;
 using Smartstore.Engine.Builders;
 
 namespace Smartstore.Core.Installation

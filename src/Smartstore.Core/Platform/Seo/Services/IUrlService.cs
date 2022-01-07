@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Smartstore.Core.Data;
+﻿using Smartstore.Core.Data;
 using Smartstore.Core.Seo.Routing;
-using Smartstore.Domain;
 
 namespace Smartstore.Core.Seo
 {

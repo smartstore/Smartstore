@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Smartstore.Core.Catalog.Pricing
+﻿namespace Smartstore.Core.Catalog.Pricing
 {
     /// <summary>
     /// Specifies product types that a price calculator can handle.

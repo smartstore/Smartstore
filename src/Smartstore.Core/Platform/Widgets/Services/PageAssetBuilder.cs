@@ -1,18 +1,13 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+﻿using System.Collections.Concurrent;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
-using Microsoft.Extensions.Hosting;
-using Smartstore.Core.Seo;
-using Smartstore.Core.Localization;
-using Smartstore.Core.Stores;
-using Smartstore.Engine;
-using Smartstore.Http;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Hosting;
+using Smartstore.Core.Localization;
+using Smartstore.Core.Seo;
+using Smartstore.Core.Stores;
+using Smartstore.Http;
 
 namespace Smartstore.Core.Widgets
 {

@@ -1,17 +1,12 @@
-﻿using System;
-using System.Linq;
-using Autofac;
+﻿using Autofac;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Caching;
 using Smartstore.Core.Common;
 using Smartstore.Core.Data;
 using Smartstore.Core.Web;
 using Smartstore.Data.Caching;
 using Smartstore.Data.Hooks;
-using Smartstore.Domain;
 using Smartstore.Utilities;
 
 namespace Smartstore.Core.Stores

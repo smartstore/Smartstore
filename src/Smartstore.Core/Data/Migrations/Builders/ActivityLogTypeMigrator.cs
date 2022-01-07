@@ -1,7 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using Smartstore.Core.Localization;
+﻿using Smartstore.Core.Localization;
 using Smartstore.Core.Logging;
 
 namespace Smartstore.Core.Data.Migrations

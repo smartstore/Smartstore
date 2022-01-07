@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Smartstore.Core.Web
+﻿namespace Smartstore.Core.Web
 {
     /// <summary>
     /// Allows short-term overwriting of context data in a cookie, for preview purposes.

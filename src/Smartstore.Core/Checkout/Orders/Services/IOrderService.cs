@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using Smartstore.Core.Common;
+﻿using Smartstore.Core.Common;
 
 namespace Smartstore.Core.Checkout.Orders
 {

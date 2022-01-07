@@ -1,6 +1,4 @@
-﻿using System.Linq;
-
-namespace Smartstore.Core.Catalog.Discounts
+﻿namespace Smartstore.Core.Catalog.Discounts
 {
     public static partial class DiscountUsageHistoryQueryExtensions
     {

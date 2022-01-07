@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
+﻿using System.Reflection;
 using Autofac;
 using Autofac.Core;
 using Autofac.Core.Activators.Reflection;
 using Autofac.Core.Registration;
-using Microsoft.Extensions.Logging;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Logging;
 using Smartstore.Data;

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Smartstore.Core.Checkout.Orders
+﻿namespace Smartstore.Core.Checkout.Orders
 {
     /// <summary>
     /// Responsible for accessing the <see cref="CheckoutState"/> of a customer.

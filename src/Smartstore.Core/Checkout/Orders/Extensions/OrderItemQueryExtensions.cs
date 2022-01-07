@@ -1,7 +1,4 @@
-﻿using System;
-using System.Linq;
-using Microsoft.EntityFrameworkCore;
-using Smartstore.Core.Checkout.Orders;
+﻿using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Orders.Reporting;
 using Smartstore.Core.Data;
 

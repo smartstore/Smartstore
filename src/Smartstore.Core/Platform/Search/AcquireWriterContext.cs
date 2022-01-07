@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Smartstore.Collections;
+﻿using Smartstore.Collections;
 using Smartstore.Core.Catalog.Brands;
 using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Common;

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Smartstore.Core.DataExchange
+﻿namespace Smartstore.Core.DataExchange
 {
     /// <summary>
     /// Supported entity types

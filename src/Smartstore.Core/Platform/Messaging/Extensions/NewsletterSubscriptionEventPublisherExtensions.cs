@@ -1,7 +1,5 @@
-﻿using System.Threading.Tasks;
-using Smartstore.Core.Messaging.Events;
+﻿using Smartstore.Core.Messaging.Events;
 using Smartstore.Events;
-using Smartstore.Core.Messaging;
 
 namespace Smartstore
 {

@@ -1,12 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.EntityFrameworkCore;
 using Smartstore.Caching;
 using Smartstore.Collections;
 using Smartstore.Core.Content.Topics;
@@ -16,7 +9,6 @@ using Smartstore.Core.Localization;
 using Smartstore.Core.OutputCache;
 using Smartstore.Core.Stores;
 using Smartstore.Data.Hooks;
-using Smartstore.Domain;
 
 namespace Smartstore.Core.Widgets
 {

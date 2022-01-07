@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Smartstore.Core.Messaging;
+﻿using Smartstore.Core.Messaging;
 
 namespace Smartstore.Core.Data
 {

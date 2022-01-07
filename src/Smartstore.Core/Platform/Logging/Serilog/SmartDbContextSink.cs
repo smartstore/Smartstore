@@ -1,15 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Autofac;
-using Microsoft.EntityFrameworkCore;
+﻿using Autofac;
 using Serilog.Events;
 using Serilog.Sinks.PeriodicBatching;
 using Smartstore.Core.Data;
 using Smartstore.Data;
 using Smartstore.Data.Hooks;
-using Smartstore.Engine;
 
 namespace Smartstore.Core.Logging.Serilog
 {

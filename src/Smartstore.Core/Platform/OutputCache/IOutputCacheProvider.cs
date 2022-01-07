@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using Smartstore.Collections;
+﻿using Smartstore.Collections;
 using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Core.OutputCache

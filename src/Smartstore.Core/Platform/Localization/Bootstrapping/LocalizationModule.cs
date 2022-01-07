@@ -1,14 +1,13 @@
-﻿using System;
-using System.Reflection;
+﻿using System.Reflection;
 using Autofac;
 using Autofac.Core;
 using Autofac.Core.Registration;
 using Autofac.Core.Resolving.Pipeline;
 using Smartstore.ComponentModel;
-using Smartstore.Core.Seo;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Localization.Rules;
 using Smartstore.Core.Rules.Rendering;
+using Smartstore.Core.Seo;
 using Smartstore.Data;
 
 namespace Smartstore.Core.Bootstrapping

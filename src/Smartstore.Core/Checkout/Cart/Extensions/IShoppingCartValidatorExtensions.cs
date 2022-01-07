@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-
-namespace Smartstore.Core.Checkout.Cart
+﻿namespace Smartstore.Core.Checkout.Cart
 {
     public static partial class IShoppingCartValidatorExtensions
     {

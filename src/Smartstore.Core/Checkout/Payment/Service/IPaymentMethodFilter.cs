@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-using Smartstore.Core.Checkout.Cart;
-using Smartstore.Core.Identity;
+﻿using Smartstore.Core.Checkout.Cart;
 using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Core.Checkout.Payment

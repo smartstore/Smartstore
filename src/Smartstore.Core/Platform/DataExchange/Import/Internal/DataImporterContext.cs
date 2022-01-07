@@ -1,8 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading;
-using Microsoft.Extensions.Logging;
-
-namespace Smartstore.Core.DataExchange.Import.Internal
+﻿namespace Smartstore.Core.DataExchange.Import.Internal
 {
     internal class DataImporterContext
     {

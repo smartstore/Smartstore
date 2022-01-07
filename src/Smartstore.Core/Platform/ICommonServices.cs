@@ -1,6 +1,4 @@
-﻿using System;
-using Autofac;
-using Microsoft.Extensions.Logging;
+﻿using Autofac;
 using Smartstore.Caching;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Configuration;
@@ -13,7 +11,6 @@ using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
 using Smartstore.Core.Web;
 using Smartstore.Diagnostics;
-using Smartstore.Engine;
 using Smartstore.Events;
 
 namespace Smartstore.Core

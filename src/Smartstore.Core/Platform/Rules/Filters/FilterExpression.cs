@@ -1,7 +1,4 @@
-﻿using System.Linq;
-using System.Linq.Expressions;
-
-namespace Smartstore.Core.Rules.Filters
+﻿namespace Smartstore.Core.Rules.Filters
 {
     public class FilterExpression : RuleExpression
     {

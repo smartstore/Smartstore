@@ -6,11 +6,8 @@
 //
 //	MIT license (http://en.wikipedia.org/wiki/MIT_License)
 
-using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Data;
-using System.IO;
 using LumenWorks.Framework.IO.Csv;
 
 namespace Smartstore.Core.DataExchange.Csv

@@ -1,9 +1,7 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 using Smartstore.Data.Caching;
-using Smartstore.Domain;
 using Smartstore.Net.Mail;
 
 namespace Smartstore.Core.Messaging

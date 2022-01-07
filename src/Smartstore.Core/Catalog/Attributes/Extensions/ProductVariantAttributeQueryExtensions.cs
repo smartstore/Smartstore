@@ -1,6 +1,4 @@
-﻿using System.Linq;
-
-namespace Smartstore.Core.Catalog.Attributes
+﻿namespace Smartstore.Core.Catalog.Attributes
 {
     public static partial class ProductVariantAttributeQueryExtensions
     {

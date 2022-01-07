@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using Smartstore.ComponentModel;
+﻿using Smartstore.ComponentModel;
 using Smartstore.Core.Data;
 using Smartstore.Data;
 using Smartstore.Data.Hooks;
-using Smartstore.Domain;
 
 namespace Smartstore.Core.Content.Media
 {

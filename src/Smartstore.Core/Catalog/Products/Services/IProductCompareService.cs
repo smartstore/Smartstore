@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-
-namespace Smartstore.Core.Catalog.Products
+﻿namespace Smartstore.Core.Catalog.Products
 {
     /// <summary>
     /// Compare products service.

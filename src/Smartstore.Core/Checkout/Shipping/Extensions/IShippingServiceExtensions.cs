@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using Smartstore.Core.Checkout.Cart;
+﻿using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Common;
 
 namespace Smartstore.Core.Checkout.Shipping

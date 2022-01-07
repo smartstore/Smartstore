@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Smartstore.Core.Content.Menus
+﻿namespace Smartstore.Core.Content.Menus
 {
     /// <summary>
     /// Applies metadata to menu item provider types which implement <see cref="IMenuItemProvider"/>.

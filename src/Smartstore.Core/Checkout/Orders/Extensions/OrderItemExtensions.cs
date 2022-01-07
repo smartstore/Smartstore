@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Smartstore.Core.Catalog.Products;
+﻿using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Orders;
 
 namespace Smartstore

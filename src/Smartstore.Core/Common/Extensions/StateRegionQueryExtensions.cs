@@ -1,5 +1,4 @@
 ﻿using Smartstore.Core.Common;
-using System.Linq;
 
 namespace Smartstore
 {

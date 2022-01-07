@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Smartstore.Core.Common;
+﻿using Smartstore.Core.Common;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Search.Facets;
 using Smartstore.Utilities;

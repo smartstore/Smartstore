@@ -1,6 +1,4 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
-using Smartstore.Core.Catalog.Attributes;
+﻿using Smartstore.Core.Catalog.Attributes;
 
 namespace Smartstore.Core.Catalog.Pricing.Calculators
 {

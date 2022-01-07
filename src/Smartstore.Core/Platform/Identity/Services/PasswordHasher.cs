@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Smartstore.Core.Security;
 
 namespace Smartstore.Core.Identity

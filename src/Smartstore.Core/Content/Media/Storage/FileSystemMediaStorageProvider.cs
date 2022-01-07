@@ -1,13 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using Autofac;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
+﻿using Autofac;
 using Smartstore.Core.Content.Media.Imaging;
 using Smartstore.Engine.Modularity;
 using Smartstore.IO;

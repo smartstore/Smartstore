@@ -1,6 +1,4 @@
-﻿using System;
-using System.Linq;
-using Autofac;
+﻿using Autofac;
 using Autofac.Builder;
 using Humanizer;
 using Smartstore.Core.Checkout.Payment;
@@ -13,7 +11,6 @@ using Smartstore.Core.DataExchange.Export;
 using Smartstore.Core.Identity;
 using Smartstore.Core.OutputCache;
 using Smartstore.Core.Widgets;
-using Smartstore.Engine;
 using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Core.Bootstrapping

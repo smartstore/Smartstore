@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
-using System.Linq;
-using Microsoft.EntityFrameworkCore;
+﻿using System.Globalization;
 using Smartstore.Caching.Tasks;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Brands;
@@ -36,8 +31,6 @@ using Smartstore.Core.Rules;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
-using Smartstore.Domain;
-using Smartstore.Engine;
 using Smartstore.Scheduling;
 
 namespace Smartstore.Core.Installation

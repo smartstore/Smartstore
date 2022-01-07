@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Smartstore.Core.Search.Facets;
+﻿using Smartstore.Core.Search.Facets;
 
 namespace Smartstore.Core.Search
 {

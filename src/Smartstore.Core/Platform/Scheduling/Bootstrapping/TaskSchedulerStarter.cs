@@ -1,8 +1,5 @@
-﻿using System;
-using Autofac;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Autofac;
 using Smartstore.Bootstrapping;
-using Smartstore.Engine;
 using Smartstore.Engine.Builders;
 using Smartstore.Scheduling;
 

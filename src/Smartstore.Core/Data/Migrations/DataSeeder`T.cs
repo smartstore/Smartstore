@@ -1,13 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Autofac;
+﻿using Autofac;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 using Smartstore.Caching;
 using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Localization;
@@ -15,8 +7,6 @@ using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Data;
 using Smartstore.Data.Migrations;
-using Smartstore.Domain;
-using Smartstore.Engine;
 
 namespace Smartstore.Core.Data.Migrations
 {

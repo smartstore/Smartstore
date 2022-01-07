@@ -1,7 +1,4 @@
-﻿using System;
-using Smartstore.Core.Localization;
-
-namespace Smartstore.Core.Logging
+﻿namespace Smartstore.Core.Logging
 {
     public enum NotifyType
     {

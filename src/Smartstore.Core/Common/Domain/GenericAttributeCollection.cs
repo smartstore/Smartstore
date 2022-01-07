@@ -1,13 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
+﻿using System.Runtime.CompilerServices;
 using Smartstore.Collections;
 using Smartstore.Core.Data;
-using Smartstore.Domain;
 
 namespace Smartstore.Core.Common
 {
@@ -241,7 +234,7 @@ namespace Smartstore.Core.Common
                     // In this case we have to restore the deleted entry.
                     var deletedEntry = DbContext.ChangeTracker
                         .Entries<GenericAttribute>()
-                        .Where(x => x.State == EntityState.Deleted)
+                        .Where(x => x.State == EfState.Deleted)
                         .FirstOrDefault(x => x.Entity.EntityId == EntityId && x.Entity.Key.EqualsNoCase(key) && x.Entity.KeyGroup.EqualsNoCase(EntityName));
 
                     if (deletedEntry == null)
@@ -262,7 +255,7 @@ namespace Smartstore.Core.Common
                     else
                     {
                         // Restore deleted entry
-                        deletedEntry.State = EntityState.Modified;
+                        deletedEntry.State = EfState.Modified;
                         entity = deletedEntry.Entity;
                         entity.Value = valueStr;
                     }

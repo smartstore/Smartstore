@@ -1,17 +1,12 @@
-﻿using System;
-using System.Net;
+﻿using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
-using Smartstore.Caching;
-using Smartstore.Core.Stores;
-using Smartstore.Core.Security;
-using Smartstore.Utilities;
-using Smartstore.Core.Common.Settings;
-using Smartstore.Engine;
 using System.Net.Http.Json;
+using Smartstore.Caching;
+using Smartstore.Core.Common.Settings;
+using Smartstore.Core.Security;
+using Smartstore.Core.Stores;
+using Smartstore.Utilities;
 
 namespace Smartstore.Core.Packaging
 {

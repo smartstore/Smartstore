@@ -1,6 +1,4 @@
-﻿using System;
-using System.Linq;
-using Smartstore.Core.Data;
+﻿using Smartstore.Core.Data;
 
 namespace Smartstore.Core.Catalog.Products
 {

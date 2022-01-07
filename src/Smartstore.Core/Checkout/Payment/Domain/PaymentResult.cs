@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Smartstore.Core.Checkout.Payment
+﻿namespace Smartstore.Core.Checkout.Payment
 {
     /// <summary>
     /// Represents a default payment result.

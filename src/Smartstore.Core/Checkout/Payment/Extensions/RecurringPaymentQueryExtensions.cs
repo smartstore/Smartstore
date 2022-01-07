@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using Microsoft.EntityFrameworkCore;
-using Smartstore.Core.Data;
+﻿using Smartstore.Core.Data;
 
 namespace Smartstore.Core.Checkout.Payment
 {

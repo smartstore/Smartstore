@@ -2,11 +2,11 @@
 
 namespace Smartstore.Core.Localization
 {
-	/// <summary>
-	/// Wrapper for the most common string extension helpers used in views.
-	/// Just here to avoid runtime exceptions in views after refactoring GetLocalized() helper.
-	/// </summary>
-	public static class LocalizedValueExtensions
+    /// <summary>
+    /// Wrapper for the most common string extension helpers used in views.
+    /// Just here to avoid runtime exceptions in views after refactoring GetLocalized() helper.
+    /// </summary>
+    public static class LocalizedValueExtensions
 	{
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static bool HasValue(this LocalizedValue<string> value) => value?.Value?.HasValue() == true;

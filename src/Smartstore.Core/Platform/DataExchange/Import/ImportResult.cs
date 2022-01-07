@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace Smartstore.Core.DataExchange.Import
+﻿namespace Smartstore.Core.DataExchange.Import
 {
     public class ImportResult : ICloneable<SerializableImportResult>
     {

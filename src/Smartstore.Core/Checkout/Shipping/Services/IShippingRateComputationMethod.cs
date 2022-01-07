@@ -1,6 +1,4 @@
-﻿using Smartstore.Core.Common;
-using Smartstore.Engine.Modularity;
-using System.Threading.Tasks;
+﻿using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Core.Checkout.Shipping
 {

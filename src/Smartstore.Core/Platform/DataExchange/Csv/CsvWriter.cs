@@ -1,8 +1,4 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-
-namespace Smartstore.Core.DataExchange.Csv
+﻿namespace Smartstore.Core.DataExchange.Csv
 {
     /// <summary>
     /// Simple utility class used to write CSV files.

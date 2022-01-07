@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-using Dasync.Collections;
-using Microsoft.EntityFrameworkCore;
+﻿using Dasync.Collections;
 using Smartstore.Core.Data;
 using Smartstore.Core.Rules;
 using Smartstore.Core.Rules.Rendering;

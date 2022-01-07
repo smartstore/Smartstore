@@ -1,7 +1,4 @@
-﻿using System.Linq;
-using Microsoft.EntityFrameworkCore;
-
-namespace Smartstore.Core.DataExchange.Import
+﻿namespace Smartstore.Core.DataExchange.Import
 {
     public static partial class ImportProfileQueryExtensions
     {

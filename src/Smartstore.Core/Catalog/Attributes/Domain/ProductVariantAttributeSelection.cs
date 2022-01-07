@@ -1,9 +1,7 @@
 ﻿using System.ComponentModel;
-using System.Linq;
 using System.Xml.Linq;
 using Newtonsoft.Json.Linq;
 using Smartstore.Core.Checkout.GiftCards;
-using Smartstore.Domain;
 
 namespace Smartstore.Core.Catalog.Attributes
 {

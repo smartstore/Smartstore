@@ -1,5 +1,4 @@
-﻿using System;
-using Smartstore.Core.Identity;
+﻿using Smartstore.Core.Identity;
 using Smartstore.Core.Stores;
 
 namespace Smartstore.Core.Checkout.Rules

@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using DotLiquid;
+﻿using DotLiquid;
 using Smartstore.ComponentModel;
-using Smartstore.Http;
 using Smartstore.Utilities;
 
 namespace Smartstore.Templating.Liquid

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-
-namespace Smartstore.Core.Rules.Filters
+﻿namespace Smartstore.Core.Rules.Filters
 {
     public abstract class PredicateFilterDescriptor<T, TPredicate, TPredicateValue> : FilterDescriptor<T, IEnumerable<TPredicate>>
         where T : class

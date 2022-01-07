@@ -1,7 +1,4 @@
-﻿using System;
-using System.Linq;
-
-namespace Smartstore.Core.Checkout.Shipping
+﻿namespace Smartstore.Core.Checkout.Shipping
 {
     /// <summary>
     /// Shipment query extensions

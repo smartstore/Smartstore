@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using Smartstore.Core.Common;
+﻿using Smartstore.Core.Common;
 
 namespace Smartstore
 {

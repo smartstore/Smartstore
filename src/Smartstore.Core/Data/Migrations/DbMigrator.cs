@@ -1,17 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Transactions;
+﻿using System.Transactions;
 using Autofac;
 using FluentMigrator;
-using FluentMigrator.Runner;
 using Microsoft.EntityFrameworkCore.Storage;
 using Smartstore.Data;
 using Smartstore.Data.Migrations;
-using Smartstore.Engine;
 
 namespace Smartstore.Core.Data.Migrations
 {

@@ -1,6 +1,4 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
-using Smartstore.Core.Checkout.Cart;
+﻿using Smartstore.Core.Checkout.Cart;
 
 namespace Smartstore.Core.Catalog.Products
 {

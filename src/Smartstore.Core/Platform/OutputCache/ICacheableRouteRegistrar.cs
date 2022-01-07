@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-
-namespace Smartstore.Core.OutputCache
+﻿namespace Smartstore.Core.OutputCache
 {
     public interface ICacheableRouteRegistrar
     {

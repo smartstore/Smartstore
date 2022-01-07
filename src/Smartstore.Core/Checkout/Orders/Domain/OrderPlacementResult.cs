@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-
-namespace Smartstore.Core.Checkout.Orders
+﻿namespace Smartstore.Core.Checkout.Orders
 {
     /// <summary>
     /// Represents the result of an order placement.

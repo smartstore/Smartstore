@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Smartstore.Core.Catalog.Pricing
+﻿namespace Smartstore.Core.Catalog.Pricing
 {
     /// <summary>
     /// Represents pricing targets.

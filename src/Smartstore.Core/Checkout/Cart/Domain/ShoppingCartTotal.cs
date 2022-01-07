@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Smartstore.Core.Catalog.Discounts;
+﻿using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Checkout.GiftCards;
 using Smartstore.Core.Common;
 

@@ -1,8 +1,5 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO;
+﻿using System.Diagnostics;
 using System.Text;
-using Microsoft.Extensions.Logging;
 using Smartstore.IO;
 using Smartstore.Utilities;
 using MsLogLevel = Microsoft.Extensions.Logging.LogLevel;

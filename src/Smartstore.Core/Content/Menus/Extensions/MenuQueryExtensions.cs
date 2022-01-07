@@ -1,6 +1,4 @@
-﻿using System.Linq;
-using Microsoft.EntityFrameworkCore;
-using Smartstore.Core.Data;
+﻿using Smartstore.Core.Data;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
 

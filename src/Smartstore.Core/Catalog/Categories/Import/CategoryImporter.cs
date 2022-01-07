@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using Smartstore.Core.Catalog.Categories;
+﻿using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.DataExchange.Import.Events;
 using Smartstore.Core.Localization;

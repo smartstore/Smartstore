@@ -1,7 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-
-namespace Smartstore.Core.Data.Migrations
+﻿namespace Smartstore.Core.Data.Migrations
 {
     public static class MigrationBuilderDbContextExtensions
     {

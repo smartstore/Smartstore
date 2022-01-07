@@ -1,7 +1,4 @@
-﻿using System;
-using System.Linq;
-
-namespace Smartstore.Core.Seo
+﻿namespace Smartstore.Core.Seo
 {
     public static partial class UrlRecordQueryExtensions
     {

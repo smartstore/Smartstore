@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-
-namespace Smartstore.Core.Common.Services
+﻿namespace Smartstore.Core.Common.Services
 {
     /// <summary>
     /// Measure dimension service interface

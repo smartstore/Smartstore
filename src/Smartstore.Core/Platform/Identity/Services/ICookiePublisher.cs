@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using Smartstore.Core.Localization;
-using Smartstore.Domain;
+﻿using Smartstore.Core.Localization;
 
 namespace Smartstore.Core.Identity
 {

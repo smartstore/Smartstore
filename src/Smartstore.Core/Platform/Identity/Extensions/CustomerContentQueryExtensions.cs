@@ -1,6 +1,4 @@
-﻿using System.Linq;
-
-namespace Smartstore.Core.Identity
+﻿namespace Smartstore.Core.Identity
 {
     public static partial class CustomerContentQueryExtensions
     {

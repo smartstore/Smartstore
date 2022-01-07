@@ -1,15 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
 using Microsoft.AspNetCore.Http;
 using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Search;
 using Smartstore.Core.Search.Facets;
 using Smartstore.Core.Security;
-using Smartstore.Domain;
 
 namespace Smartstore.Core.Catalog.Search.Modelling
 {

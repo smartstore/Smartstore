@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Smartstore.Core.Search
+﻿namespace Smartstore.Core.Search
 {
     public interface IIndexProvider
     {

@@ -1,6 +1,4 @@
-﻿using System.Linq;
-
-namespace Smartstore.Core.DataExchange.Export
+﻿namespace Smartstore.Core.DataExchange.Export
 {
     public static partial class ExportProfileQueryExtensions
     {

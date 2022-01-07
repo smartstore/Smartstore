@@ -1,10 +1,8 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using Microsoft.EntityFrameworkCore;
 using Smartstore.Data;
 using Smartstore.Data.Hooks;
 using Smartstore.Data.Migrations;
 using Smartstore.Data.Providers;
-using Smartstore.Engine;
 
 namespace Smartstore.Core.Data
 {

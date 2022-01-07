@@ -1,9 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
-using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json.Linq;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Rules;
 

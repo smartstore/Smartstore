@@ -1,6 +1,4 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
-using Smartstore.Engine.Modularity;
+﻿using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Core.Content.Media.Storage
 {

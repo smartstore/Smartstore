@@ -1,6 +1,4 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
-using Smartstore.Core.Data;
+﻿using Smartstore.Core.Data;
 using Smartstore.Data.Hooks;
 using Smartstore.Events;
 

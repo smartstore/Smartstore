@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
+﻿using System.Globalization;
 using System.Text;
 using System.Xml.Serialization;
 using Smartstore.ComponentModel.TypeConverters;
-using Smartstore.Core.Common;
 
 namespace Smartstore.Core.Checkout.Shipping
 {

@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Smartstore.Core.Logging;
+﻿using Smartstore.Core.Logging;
 
 namespace Smartstore.Core.Data
 {

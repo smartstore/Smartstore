@@ -1,10 +1,6 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
+﻿using System.Diagnostics;
 using System.Text.Encodings.Web;
 using Microsoft.AspNetCore.Html;
-using Smartstore.Utilities;
 
 namespace Smartstore.Core.Localization
 {

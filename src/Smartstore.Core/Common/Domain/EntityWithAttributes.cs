@@ -1,10 +1,8 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Newtonsoft.Json;
 using Smartstore.Core.Common;
 using Smartstore.Core.Common.Services;
-using Smartstore.Engine;
 
 namespace Smartstore.Domain
 {

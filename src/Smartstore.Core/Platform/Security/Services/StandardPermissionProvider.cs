@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using Smartstore.Core.Identity;
+﻿using Smartstore.Core.Identity;
 
 namespace Smartstore.Core.Security
 {

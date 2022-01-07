@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using Smartstore.Core.Catalog.Attributes;
+﻿using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Seo;
 

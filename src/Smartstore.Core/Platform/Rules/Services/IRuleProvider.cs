@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-
-namespace Smartstore.Core.Rules
+﻿namespace Smartstore.Core.Rules
 {
     /// <summary>
     /// Rule provider interface.

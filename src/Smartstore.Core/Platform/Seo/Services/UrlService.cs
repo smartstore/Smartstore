@@ -1,20 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Runtime.CompilerServices;
 using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
 using Smartstore.Caching;
 using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
-using Smartstore.Core.Seo.Routing;
-using Smartstore.Data.Hooks;
-using Smartstore.Core.Stores;
-using Smartstore.Core.Web;
 using Smartstore.Core.Security;
+using Smartstore.Core.Seo.Routing;
+using Smartstore.Core.Stores;
+using Smartstore.Data.Hooks;
 
 namespace Smartstore.Core.Seo
 {

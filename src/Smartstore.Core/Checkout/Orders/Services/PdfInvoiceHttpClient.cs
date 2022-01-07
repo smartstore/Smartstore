@@ -1,7 +1,4 @@
-﻿using System;
-using System.Net.Http;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Net.Http;
 using Microsoft.AspNetCore.Mvc;
 using Smartstore.Core.Localization;
 using Smartstore.Http;

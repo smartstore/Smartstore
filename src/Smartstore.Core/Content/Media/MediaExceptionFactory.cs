@@ -1,5 +1,4 @@
-﻿using System;
-using Smartstore.Core.Localization;
+﻿using Smartstore.Core.Localization;
 using Smartstore.Utilities;
 
 namespace Smartstore.Core.Content.Media

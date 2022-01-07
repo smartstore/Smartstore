@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-
-namespace Smartstore.Core.Seo
+﻿namespace Smartstore.Core.Seo
 {
     public class XmlSitemapPartition
     {

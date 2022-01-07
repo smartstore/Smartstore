@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Smartstore.Core.Widgets;
-using Smartstore.Engine;
+﻿using Smartstore.Core.Widgets;
 using Smartstore.Engine.Builders;
 
 namespace Smartstore.Core.Bootstrapping

@@ -1,6 +1,4 @@
-﻿using System;
-using Autofac;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Autofac;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Attributes.Modelling;
 using Smartstore.Core.Catalog.Attributes.Rules;
@@ -21,7 +19,6 @@ using Smartstore.Core.Rules;
 using Smartstore.Core.Rules.Rendering;
 using Smartstore.Core.Search.Facets;
 using Smartstore.Core.Seo;
-using Smartstore.Engine;
 using Smartstore.Engine.Builders;
 
 namespace Smartstore.Core.Bootstrapping

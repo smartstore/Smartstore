@@ -1,7 +1,4 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Smartstore.Core.Common.Settings;
+﻿using Smartstore.Core.Common.Settings;
 using Smartstore.Scheduling;
 
 namespace Smartstore.Core.Identity.Tasks

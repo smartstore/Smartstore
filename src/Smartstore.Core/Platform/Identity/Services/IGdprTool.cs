@@ -1,15 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
-using Smartstore.Core.Localization;
-using Smartstore.Domain;
+﻿using Smartstore.Core.Localization;
 
 namespace Smartstore.Core.Identity
 {
-	public enum IdentifierDataType
+    public enum IdentifierDataType
 	{
 		Text,
 		LongText,

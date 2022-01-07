@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using Smartstore.Core.Checkout.Affiliates;
+﻿using Smartstore.Core.Checkout.Affiliates;
 
 namespace Smartstore
 {

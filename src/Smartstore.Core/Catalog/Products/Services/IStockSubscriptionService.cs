@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using Smartstore.Core.Identity;
+﻿using Smartstore.Core.Identity;
 using Smartstore.Core.Stores;
 
 namespace Smartstore.Core.Catalog.Products

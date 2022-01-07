@@ -1,10 +1,6 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO;
-using System.Threading.Tasks;
+﻿using System.Diagnostics;
 using Smartstore.Core.Content.Media.Storage;
 using Smartstore.Core.Data;
-using Smartstore.Engine;
 using Smartstore.Imaging;
 using Smartstore.IO;
 

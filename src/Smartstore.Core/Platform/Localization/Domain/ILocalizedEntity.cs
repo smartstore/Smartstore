@@ -1,6 +1,4 @@
-﻿using Smartstore.Domain;
-
-namespace Smartstore.Core.Localization
+﻿namespace Smartstore.Core.Localization
 {
     /// <summary>
     /// Represents a localized entity

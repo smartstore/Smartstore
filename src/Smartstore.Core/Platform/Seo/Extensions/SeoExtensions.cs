@@ -1,9 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Localization;
-using Smartstore.Domain;
-using Smartstore.Engine;
 
 namespace Smartstore.Core.Seo
 {

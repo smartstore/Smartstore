@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Smartstore.Domain;
-
-namespace Smartstore.Core.Stores
+﻿namespace Smartstore.Core.Stores
 {
     public static class IStoreMappingServiceExtensions
     {

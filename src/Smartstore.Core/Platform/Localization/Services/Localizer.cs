@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Smartstore.Core.Localization
+﻿namespace Smartstore.Core.Localization
 {
     public delegate LocalizedString Localizer(string key, params object[] args);
     public delegate LocalizedString LocalizerEx(string key, int languageId, params object[] args);

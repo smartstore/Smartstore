@@ -1,5 +1,5 @@
-﻿using Smartstore.Net.Mail;
-using Smartstore.Core.Messaging;
+﻿using Smartstore.Core.Messaging;
+using Smartstore.Net.Mail;
 
 namespace Smartstore
 {

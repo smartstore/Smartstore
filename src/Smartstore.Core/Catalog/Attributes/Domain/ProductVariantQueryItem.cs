@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Smartstore.Core.Catalog.Attributes
+﻿namespace Smartstore.Core.Catalog.Attributes
 {
     public class ProductVariantQueryItem
     {

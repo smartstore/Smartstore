@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Smartstore.Core.Theming;
+﻿using Smartstore.Core.Theming;
 
 namespace Smartstore.Core.Data
 {

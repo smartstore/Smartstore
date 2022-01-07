@@ -1,7 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Linq.Expressions;
-using Smartstore.Core.Rules;
+﻿using Smartstore.Core.Rules;
 using Smartstore.Core.Rules.Filters;
 
 namespace Smartstore.Core.Identity.Rules

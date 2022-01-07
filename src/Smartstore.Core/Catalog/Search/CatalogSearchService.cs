@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
+﻿using System.Runtime.CompilerServices;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Data;

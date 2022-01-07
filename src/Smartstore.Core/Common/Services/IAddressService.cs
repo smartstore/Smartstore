@@ -1,6 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using Smartstore.Core.Common.Settings;
+﻿using Smartstore.Core.Common.Settings;
 
 namespace Smartstore.Core.Common.Services
 {

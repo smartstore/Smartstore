@@ -1,12 +1,10 @@
-﻿using System;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc.Filters;
+﻿using Microsoft.AspNetCore.Mvc.Filters;
 using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Licensing
 {
     // TODO: (mg) (core) Remove everything in here after Licensing has been ported.
-    
+
     public enum LicensingState
     {
         Unlicensed = 0,

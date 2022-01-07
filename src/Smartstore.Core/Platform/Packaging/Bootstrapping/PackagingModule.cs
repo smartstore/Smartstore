@@ -1,7 +1,5 @@
-﻿using System;
-using Autofac;
+﻿using Autofac;
 using Smartstore.Core.Packaging;
-using Smartstore.Engine;
 
 namespace Smartstore.Core.Bootstrapping
 {

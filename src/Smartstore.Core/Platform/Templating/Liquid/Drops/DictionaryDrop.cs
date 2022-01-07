@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Smartstore.Templating.Liquid
+﻿namespace Smartstore.Templating.Liquid
 {
     internal class DictionaryDrop : SafeDropBase
     {

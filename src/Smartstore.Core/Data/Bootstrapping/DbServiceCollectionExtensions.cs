@@ -1,11 +1,8 @@
-﻿using System;
-using FluentMigrator.Runner;
+﻿using FluentMigrator.Runner;
 using FluentMigrator.Runner.Initialization;
 using FluentMigrator.Runner.Processors;
-using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Core.Data.Migrations;
 using Smartstore.Data;
-using Smartstore.Engine;
 
 namespace Smartstore.Core.Bootstrapping
 {

@@ -1,6 +1,4 @@
-﻿using System;
-using System.IO;
-using Smartstore.Collections;
+﻿using Smartstore.Collections;
 using Smartstore.IO;
 
 namespace Smartstore.Core.Content.Media

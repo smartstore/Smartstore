@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Smartstore.Core.Content.Media.Storage
+﻿namespace Smartstore.Core.Content.Media.Storage
 {
     public class MediaMoverContext
     {

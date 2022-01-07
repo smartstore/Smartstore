@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-
-namespace Smartstore.Core.Checkout.Cart
+﻿namespace Smartstore.Core.Checkout.Cart
 {
     /// <summary>
     /// Shopping cart extension methods.

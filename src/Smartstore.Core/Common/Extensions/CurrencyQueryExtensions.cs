@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using Smartstore.Core.Common;
+﻿using Smartstore.Core.Common;
 using Smartstore.Core.Stores;
 
 namespace Smartstore

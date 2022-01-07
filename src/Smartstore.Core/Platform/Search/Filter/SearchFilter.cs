@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Smartstore.Core.Search
+﻿namespace Smartstore.Core.Search
 {
     public class SearchFilter : SearchFilterBase, IAttributeSearchFilter
     {

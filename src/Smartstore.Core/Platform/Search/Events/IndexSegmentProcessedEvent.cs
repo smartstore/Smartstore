@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Smartstore.Core.Search.Events
+﻿namespace Smartstore.Core.Search.Events
 {
     public class IndexSegmentProcessedEvent
     {

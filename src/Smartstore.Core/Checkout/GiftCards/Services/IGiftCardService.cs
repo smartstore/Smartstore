@@ -1,8 +1,6 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using Smartstore.Core.Identity;
-using Smartstore.Core.Checkout.Orders;
+﻿using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Common;
+using Smartstore.Core.Identity;
 
 namespace Smartstore.Core.Checkout.GiftCards
 {

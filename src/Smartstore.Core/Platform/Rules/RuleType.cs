@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Smartstore.Core.Rules
+﻿namespace Smartstore.Core.Rules
 {
     public sealed class RuleType
     {

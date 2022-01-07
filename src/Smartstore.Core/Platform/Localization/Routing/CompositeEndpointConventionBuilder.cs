@@ -1,5 +1,4 @@
-﻿using System;
-using Smartstore;
+﻿using Smartstore;
 
 namespace Microsoft.AspNetCore.Builder
 {

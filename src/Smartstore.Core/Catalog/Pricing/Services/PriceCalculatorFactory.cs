@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Smartstore.Caching;
+﻿using Smartstore.Caching;
 using Smartstore.Core.Catalog.Products;
-using Smartstore.Core.Checkout.Cart;
 
 namespace Smartstore.Core.Catalog.Pricing
 {

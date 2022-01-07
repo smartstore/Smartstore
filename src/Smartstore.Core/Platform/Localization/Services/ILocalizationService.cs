@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-
-namespace Smartstore.Core.Localization
+﻿namespace Smartstore.Core.Localization
 {
     /// <summary>
     /// Localization service interface

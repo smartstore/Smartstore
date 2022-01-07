@@ -1,16 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Smartstore.Core.Content.Blocks
+﻿namespace Smartstore.Core.Content.Blocks
 {
-	/// <summary>
-	/// Retrieves information about UI mapping between template tokens and form controls.
-	/// </summary>
-	/// <remarks>
-	/// <see cref="IBindableBlockHandler"/> only works in conjunction with <see cref="IBindableBlock"/>.
-	/// Make sure that the handled block type implements <see cref="IBindableBlock"/>.
-	/// </remarks>
-	public interface IBindableBlockHandler : IBlockHandler
+    /// <summary>
+    /// Retrieves information about UI mapping between template tokens and form controls.
+    /// </summary>
+    /// <remarks>
+    /// <see cref="IBindableBlockHandler"/> only works in conjunction with <see cref="IBindableBlock"/>.
+    /// Make sure that the handled block type implements <see cref="IBindableBlock"/>.
+    /// </remarks>
+    public interface IBindableBlockHandler : IBlockHandler
 	{
 		/// <summary>
 		/// Build and returns the template mapping configuration.

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Linq;
-using Smartstore.Core.Checkout.GiftCards;
+﻿using Smartstore.Core.Checkout.GiftCards;
 using Smartstore.Core.Checkout.Orders;
 
 namespace Smartstore

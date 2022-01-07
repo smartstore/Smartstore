@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading;
-
-namespace Smartstore.Core.Content.Media
+﻿namespace Smartstore.Core.Content.Media
 {
     /// <summary>
     /// Responsible for detecting assignments between entities and media files.

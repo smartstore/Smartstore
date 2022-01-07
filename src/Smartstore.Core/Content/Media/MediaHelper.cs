@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using Smartstore.IO;
-
-namespace Smartstore.Core.Content.Media
+﻿namespace Smartstore.Core.Content.Media
 {
     public partial class MediaHelper
     {

@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-
-namespace Smartstore.Core.Identity
+﻿namespace Smartstore.Core.Identity
 {
     public partial interface ICookieConsentManager
     {

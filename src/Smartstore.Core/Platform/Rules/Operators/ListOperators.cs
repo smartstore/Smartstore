@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using Smartstore.Core.Rules.Filters;
+﻿using Smartstore.Core.Rules.Filters;
 
 namespace Smartstore.Core.Rules.Operators
 {

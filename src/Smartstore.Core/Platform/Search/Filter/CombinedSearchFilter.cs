@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-
-namespace Smartstore.Core.Search
+﻿namespace Smartstore.Core.Search
 {
     public class CombinedSearchFilter : SearchFilterBase, ICombinedSearchFilter
     {

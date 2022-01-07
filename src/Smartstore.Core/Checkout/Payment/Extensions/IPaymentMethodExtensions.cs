@@ -1,6 +1,4 @@
-﻿using System;
-using System.Linq;
-using Smartstore.Engine.Modularity;
+﻿using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Core.Checkout.Payment
 {

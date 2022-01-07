@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Smartstore.Core.Content.Media.Imaging
+﻿namespace Smartstore.Core.Content.Media.Imaging
 {
     /// <summary>
     /// Published after processing finishes.

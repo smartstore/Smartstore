@@ -1,9 +1,7 @@
-﻿using System;
-using Autofac;
+﻿using Autofac;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Smartstore.Core.Identity;
-using Smartstore.Engine;
 
 namespace Smartstore.Core.Bootstrapping
 {

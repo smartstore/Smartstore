@@ -1,7 +1,4 @@
-﻿using System;
-using System.Linq;
-
-namespace Smartstore.Core.DataExchange
+﻿namespace Smartstore.Core.DataExchange
 {
     public static partial class SyncMappingQueryExtensions
     {

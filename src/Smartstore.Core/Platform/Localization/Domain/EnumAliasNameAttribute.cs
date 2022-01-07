@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Smartstore.Core.Localization
+﻿namespace Smartstore.Core.Localization
 {
     /// <summary>
     /// Specifies the alias name of an <see cref="Enum"/> type

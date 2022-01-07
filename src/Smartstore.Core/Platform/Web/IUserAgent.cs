@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace Smartstore.Core.Web
+﻿namespace Smartstore.Core.Web
 {
-	public interface IUserAgent
+    public interface IUserAgent
 	{
 		string RawValue { get; set; }
 

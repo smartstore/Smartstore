@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Smartstore.Core.Content.Menus
+﻿namespace Smartstore.Core.Content.Menus
 {
     public interface IBreadcrumb
     {

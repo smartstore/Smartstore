@@ -2,7 +2,6 @@
 using Smartstore.Core.DataExchange;
 using Smartstore.Core.DataExchange.Import;
 using Smartstore.Core.Messaging;
-using Smartstore.Engine;
 using Smartstore.Engine.Builders;
 
 namespace Smartstore.Core.Bootstrapping

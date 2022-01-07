@@ -1,12 +1,9 @@
-﻿using System;
-using Autofac;
-using Microsoft.AspNetCore.Builder;
+﻿using Autofac;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Content.Media.Icons;
 using Smartstore.Core.Content.Media.Imaging;
 using Smartstore.Core.Content.Media.Storage;
-using Smartstore.Engine;
 using Smartstore.Engine.Builders;
 using Smartstore.Engine.Modularity;
 using Smartstore.Imaging;

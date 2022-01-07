@@ -1,9 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Linq.Expressions;
-using Smartstore.Domain;
-
-namespace Smartstore.Core.Rules.Filters
+﻿namespace Smartstore.Core.Rules.Filters
 {
     public static class RuleQueryableExtensions
     {

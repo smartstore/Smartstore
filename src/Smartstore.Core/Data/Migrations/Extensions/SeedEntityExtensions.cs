@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Smartstore.Core.Configuration;
-using Smartstore.Domain;
+﻿using Smartstore.Core.Configuration;
 
 namespace Smartstore.Core.Data.Migrations
 {

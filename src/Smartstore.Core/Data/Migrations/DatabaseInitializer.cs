@@ -1,17 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Reflection;
 using Autofac;
-using Microsoft.EntityFrameworkCore;
 using Smartstore.Collections;
 using Smartstore.Data;
 using Smartstore.Data.Hooks;
 using Smartstore.Data.Migrations;
 using Smartstore.Data.Providers;
-using Smartstore.Engine;
 using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Core.Data.Migrations

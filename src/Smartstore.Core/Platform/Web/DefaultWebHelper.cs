@@ -1,20 +1,14 @@
-﻿using System;
-using System.IO;
-using System.Linq;
-using System.Net;
+﻿using System.Net;
+using System.Net.Http;
 using System.Net.Sockets;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Primitives;
 using Microsoft.Net.Http.Headers;
 using Smartstore.Collections;
-using Smartstore.Engine;
-using Smartstore.Utilities;
 using Smartstore.Core.Stores;
 using Smartstore.IO;
-using System.Net.Http;
-using System.Threading.Tasks;
-using System.Net.Http.Headers;
+using Smartstore.Utilities;
 
 namespace Smartstore.Core.Web
 {

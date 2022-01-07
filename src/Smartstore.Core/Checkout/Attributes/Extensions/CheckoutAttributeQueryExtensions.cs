@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using Smartstore.Core.Stores;
+﻿using Smartstore.Core.Stores;
 
 namespace Smartstore.Core.Checkout.Attributes
 {

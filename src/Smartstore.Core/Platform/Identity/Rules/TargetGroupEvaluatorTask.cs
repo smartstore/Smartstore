@@ -1,18 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
+﻿using System.Diagnostics;
 using Smartstore.Caching;
-using Smartstore.Scheduling;
 using Smartstore.Core.Data;
 using Smartstore.Core.Rules;
 using Smartstore.Core.Rules.Filters;
 using Smartstore.Core.Security;
 using Smartstore.Data;
 using Smartstore.Data.Hooks;
+using Smartstore.Scheduling;
 
 namespace Smartstore.Core.Identity.Rules
 {

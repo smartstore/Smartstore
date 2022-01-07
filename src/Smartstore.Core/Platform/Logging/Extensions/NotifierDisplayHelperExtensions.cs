@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
-using Smartstore.Core.Localization;
+﻿using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Smartstore.Core.Logging;
 using Smartstore.Core.Web;
 

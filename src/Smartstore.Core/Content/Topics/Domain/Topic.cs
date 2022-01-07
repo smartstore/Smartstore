@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using Smartstore.Core.Seo;
+﻿using System.ComponentModel.DataAnnotations;
+using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
+using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
 using Smartstore.Data.Caching;
-using Smartstore.Domain;
-using Smartstore.Core.Identity;
 
 namespace Smartstore.Core.Content.Topics
 {

@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 using Autofac;
 using Dasync.Collections;
-using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Brands;
 using Smartstore.Core.Catalog.Categories;
@@ -17,7 +12,6 @@ using Smartstore.Core.Content.Media;
 using Smartstore.Core.Content.Topics;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
-using Smartstore.Domain;
 using Smartstore.Utilities;
 
 namespace Smartstore.Core.OutputCache

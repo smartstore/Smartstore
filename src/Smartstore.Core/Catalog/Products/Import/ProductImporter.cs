@@ -1,14 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Threading;
-using System.Threading.Tasks;
-using Dasync.Collections;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using Smartstore.Collections;
+﻿using Dasync.Collections;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Brands;
 using Smartstore.Core.Catalog.Categories;
@@ -22,7 +12,6 @@ using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
 using Smartstore.Data;
 using Smartstore.Data.Hooks;
-using Smartstore.Net.Http;
 
 namespace Smartstore.Core.DataExchange.Import
 {

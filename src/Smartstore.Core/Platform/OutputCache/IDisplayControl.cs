@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Smartstore.Domain;
-using Smartstore.Utilities;
-
-namespace Smartstore.Core.OutputCache
+﻿namespace Smartstore.Core.OutputCache
 {
     /// <summary>
     /// Responsible for collecting displayed entities during a request

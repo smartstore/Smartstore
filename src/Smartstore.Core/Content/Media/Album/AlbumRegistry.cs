@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Smartstore.Caching;
+﻿using Smartstore.Caching;
 using Smartstore.Core.Data;
-using Microsoft.EntityFrameworkCore;
-using System.Threading.Tasks;
 
 namespace Smartstore.Core.Content.Media
 {

@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq.Expressions;
-using System.Threading;
-using System.Threading.Tasks;
-using Smartstore.Core.Configuration;
-using Smartstore.Domain;
+﻿using Smartstore.Core.Configuration;
 
 namespace Smartstore.Core.Content.Media
 {

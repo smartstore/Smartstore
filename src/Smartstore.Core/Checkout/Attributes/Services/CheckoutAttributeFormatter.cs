@@ -1,8 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Web;
-using Microsoft.EntityFrameworkCore;
+﻿using System.Web;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common.Services;

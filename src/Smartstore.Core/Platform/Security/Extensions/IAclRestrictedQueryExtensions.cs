@@ -1,8 +1,6 @@
-﻿using System.Linq;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
-using Smartstore.Domain;
 
 namespace Smartstore.Core.Security
 {

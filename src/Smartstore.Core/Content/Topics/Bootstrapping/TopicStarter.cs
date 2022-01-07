@@ -1,9 +1,7 @@
-﻿using System;
-using Autofac;
+﻿using Autofac;
+using Smartstore.Core.Content.Topics;
 using Smartstore.Core.Seo;
 using Smartstore.Engine.Builders;
-using Smartstore.Engine;
-using Smartstore.Core.Content.Topics;
 
 namespace Smartstore.Core.Bootstrapping
 {

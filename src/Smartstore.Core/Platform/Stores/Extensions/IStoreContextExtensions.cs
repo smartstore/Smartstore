@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Smartstore.Core.Stores
+﻿namespace Smartstore.Core.Stores
 {
     public static class IStoreContextExtensions
     {

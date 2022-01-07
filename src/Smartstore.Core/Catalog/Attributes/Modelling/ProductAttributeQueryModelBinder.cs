@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using Autofac;
+﻿using Autofac;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace Smartstore.Core.Catalog.Attributes.Modelling

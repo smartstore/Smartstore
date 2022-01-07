@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Smartstore.Core.DataExchange.Export.Deployment
+﻿namespace Smartstore.Core.DataExchange.Export.Deployment
 {
     [Serializable]
     public class DataDeploymentResult

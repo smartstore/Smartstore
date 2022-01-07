@@ -1,5 +1,4 @@
 ﻿using Smartstore.Collections;
-using Smartstore.Domain;
 
 namespace Smartstore.Core.Checkout.Attributes
 {

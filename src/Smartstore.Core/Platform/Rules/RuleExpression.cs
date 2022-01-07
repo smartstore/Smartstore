@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Smartstore.Utilities;
+﻿using Smartstore.Utilities;
 
 namespace Smartstore.Core.Rules
 {

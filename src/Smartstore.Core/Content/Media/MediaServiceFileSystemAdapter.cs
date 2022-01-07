@@ -1,12 +1,9 @@
-﻿using System;
-using System.IO;
-using System.Threading.Tasks;
-using Smartstore.IO;
+﻿using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Primitives;
 using Smartstore.Collections;
 using Smartstore.Core.Content.Media.Storage;
+using Smartstore.IO;
 using Smartstore.Threading;
-using Microsoft.Extensions.FileProviders;
-using Microsoft.Extensions.Primitives;
 
 namespace Smartstore.Core.Content.Media
 {

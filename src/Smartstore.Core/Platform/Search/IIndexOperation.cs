@@ -1,6 +1,4 @@
-﻿using Smartstore.Domain;
-
-namespace Smartstore.Core.Search
+﻿namespace Smartstore.Core.Search
 {
     public enum IndexOperationType
     {

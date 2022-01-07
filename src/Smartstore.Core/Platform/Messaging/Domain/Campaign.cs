@@ -1,8 +1,6 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
-using Smartstore.Domain;
 
 namespace Smartstore.Core.Messaging
 {

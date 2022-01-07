@@ -1,10 +1,8 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Newtonsoft.Json;
 using Smartstore.Core.Common;
-using Smartstore.Domain;
 
 namespace Smartstore.Core.Checkout.Affiliates
 {

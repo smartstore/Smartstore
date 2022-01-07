@@ -1,8 +1,4 @@
-﻿using System;
-using System.Linq;
-using Smartstore.Domain;
-
-namespace Smartstore
+﻿namespace Smartstore
 {
     public static partial class IAuditableQueryExtensions
     {

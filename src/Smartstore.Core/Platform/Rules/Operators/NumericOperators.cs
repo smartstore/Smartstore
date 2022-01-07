@@ -1,7 +1,4 @@
-﻿using System.Linq;
-using System.Linq.Expressions;
-
-namespace Smartstore.Core.Rules.Operators
+﻿namespace Smartstore.Core.Rules.Operators
 {
     internal sealed class LessThanOperator : RuleOperator
     {

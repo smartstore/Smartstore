@@ -1,15 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.Globalization;
-using System.IO;
-using System.Linq;
 using System.Text;
 using System.Xml.Linq;
 using System.Xml.Serialization;
 using Smartstore.ComponentModel.TypeConverters;
 using Smartstore.Core.Catalog.Attributes;
-using Smartstore.Domain;
 
 namespace Smartstore.Core.Catalog.Products
 {

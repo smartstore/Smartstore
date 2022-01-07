@@ -1,6 +1,4 @@
-﻿using System.Linq;
-
-namespace Smartstore.Core.Security
+﻿namespace Smartstore.Core.Security
 {
     public static partial class PermissionRecordQueryExtensions
     {

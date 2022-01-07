@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Smartstore.Core.Content.Blocks.Domain
+﻿namespace Smartstore.Core.Content.Blocks.Domain
 {
     /// <summary>
     /// Specifies whether a property refers to an asset to be included in the story export.

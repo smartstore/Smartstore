@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Smartstore.Core.DataExchange;
+﻿using Smartstore.Core.DataExchange;
 
 namespace Smartstore.Core.Data
 {

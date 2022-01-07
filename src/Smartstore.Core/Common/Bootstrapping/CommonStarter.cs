@@ -3,7 +3,6 @@ using Smartstore.Core.Common.Rules;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Rules.Rendering;
 using Smartstore.Core.Web;
-using Smartstore.Engine;
 using Smartstore.Engine.Builders;
 
 namespace Smartstore.Core.Bootstrapping

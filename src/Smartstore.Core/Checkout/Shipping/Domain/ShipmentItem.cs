@@ -1,7 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Smartstore.Domain;
 
 namespace Smartstore.Core.Checkout.Shipping
 {

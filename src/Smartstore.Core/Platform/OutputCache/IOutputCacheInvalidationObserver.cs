@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Smartstore.Data.Hooks;
-using Smartstore.Domain;
-using Smartstore.Engine;
+﻿using Smartstore.Data.Hooks;
 
 namespace Smartstore.Core.OutputCache
 {

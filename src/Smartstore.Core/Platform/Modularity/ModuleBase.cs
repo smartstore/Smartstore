@@ -1,8 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.Extensions.Logging;
-using Smartstore.Core;
+﻿using Smartstore.Core;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Localization;
 

@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using Smartstore.Domain;
-
-namespace Smartstore.Core.DataExchange.Import.Events
+﻿namespace Smartstore.Core.DataExchange.Import.Events
 {
     /// <summary>
     /// An event that is fired after an import of a data batch.
