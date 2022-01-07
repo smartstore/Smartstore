@@ -108,7 +108,6 @@ namespace Smartstore.Data.Caching
         private sealed class ExtensionInfo : DbContextOptionsExtensionInfo
         {
             private long? _serviceProviderHash;
-            private string _logFragment;
 
             public ExtensionInfo(CachingOptionsExtension extension)
                 : base(extension)

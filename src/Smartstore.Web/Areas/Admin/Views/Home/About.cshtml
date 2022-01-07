@@ -1,8 +1,54 @@
-﻿@{
+﻿@using Smartstore.Admin.Models.Common 
+
+@{
     ViewBag.Title = T("Admin.Common.About").Value;
     string license = T("Admin.Common.License").Value;
 
-    // TODO: (mh) (core) Check all libraries and update their info!!! The removed ones are not used anymore. The commented ones need an update. Check other (new) packges we use and add them here.
+    var libraries = new List<LibraryModel>
+    {
+        new LibraryModel("ASP.NET Core", "https://github.com/dotnet/aspnetcore/", LibraryLicense.MIT, "Microsoft Corporation"),
+        new LibraryModel("Entity Framework Core", "https://github.com/dotnet/efcore/", LibraryLicense.MIT, "Microsoft Corporation"),
+        new LibraryModel("Autofac", "http://autofac.org/", LibraryLicense.MIT, "Autofac Contributors"),
+        new LibraryModel("Json.NET", "https://www.newtonsoft.com/json/", LibraryLicense.MIT, "2007 James Newton-King"),
+        new LibraryModel("Fluent Validation", "https://github.com/JeremySkinner/FluentValidation/", LibraryLicense.Apache2, "Jeremy Skinner 2008-2022"),
+        new LibraryModel("SixLabors ImageSharp", "https://github.com/SixLabors/ImageSharp/", LibraryLicense.Apache2, "2022 ImageSharp Contributors"),
+        new LibraryModel("Summernote", "https://summernote.org/", LibraryLicense.MIT, "2015~ Summernote Team"),
+        new LibraryModel("ExcelDataReader", "https://github.com/ExcelDataReader/ExcelDataReader", LibraryLicense.MIT, "2014 ExcelDataReader"),
+        new LibraryModel("JavaScriptEngineSwitcher", "https://github.com/Taritsyn/JavaScriptEngineSwitcher/", LibraryLicense.Apache2, "Andrey Taritsyn 2013-2022"),
+        new LibraryModel("jQuery", "http://jquery.com/", LibraryLicense.MIT, "OpenJS Foundation and other contributors"),
+        new LibraryModel("DB-IP Country Lite", "https://db-ip.com/", LibraryLicense.CreativeCommons4, "2022 db-ip.com"),
+        new LibraryModel("Linearicons by Perxis", "https://linearicons.com/", LibraryLicense.CreativeCommons, "2018 Linearicons.com"),
+        new LibraryModel("MiniProfiler", "http://miniprofiler.com/", LibraryLicense.MIT, ".NET MiniProfiler Contributors"),
+        new LibraryModel("Modernizr", "http://modernizr.com/", LibraryLicense.MIT, "2022 The Modernizr Team"),
+        new LibraryModel("NuGet", "https://github.com/NuGet/Home/", LibraryLicense.Apache2, ".NET Foundation"),
+        new LibraryModel("NUnit", "http://www.nunit.org/", LibraryLicense.MIT, "2022 Charlie Poole, Rob Prouse"),
+        new LibraryModel("PhotoSwipe", "http://photoswipe.com/", LibraryLicense.MIT, "2014-2019 Dmitry Semenov, http://dimsemenov.com"),
+        new LibraryModel("slick (carousel)", "http://kenwheeler.github.io/slick/", LibraryLicense.MIT, "2013-2022 Ken Wheeler"),
+        new LibraryModel("Bootstrap", "https://github.com/twbs/bootstrap/", LibraryLicense.MIT, "2011-2022 Twitter, Inc., 2011-2022 The Bootstrap Authors"),
+        new LibraryModel("ua_parser", "https://github.com/ua-parser/uap-csharp/", LibraryLicense.Apache2, "2012 Søren Enemærke"),
+        new LibraryModel("underscore.js", "http://underscorejs.org/", LibraryLicense.MIT, "2009-2021 Jeremy Ashkenas, Julian Gonggrijp, and DocumentCloud and Investigative Reporters & Editors"),
+        new LibraryModel("wkhtmltopdf", "http://wkhtmltopdf.org/", LibraryLicense.LGPL, "2007 Free Software Foundation, Inc. http://fsf.org/"),
+        new LibraryModel("AngleSharp", "https://github.com/AngleSharp/AngleSharp/", LibraryLicense.MIT, "2013 - 2021 AngleSharp"),
+        new LibraryModel("AsyncEnumerator", "https://github.com/Dasync/AsyncEnumerable/", LibraryLicense.MIT, "2019 D-ASYNC"),
+        new LibraryModel("Autoprefixer Host for .NET", "https://github.com/Taritsyn/AutoprefixerHost/", LibraryLicense.MIT, "2019-2021 Andrey Taritsyn"),
+        new LibraryModel("CoreFtp", "https://github.com/sparkeh9/CoreFTP/", LibraryLicense.MIT, "2018 Nicholas Briscoe"),
+        new LibraryModel("Cron Expression Descriptor", "https://github.com/bradymholt/cron-expression-descriptor/", LibraryLicense.MIT, "2017 Brady Holt"),
+        new LibraryModel("DotLiquid", "https://github.com/dotliquid/dotliquid/", LibraryLicense.MSPL, "2022 DotLiquid Contributors"),
+        new LibraryModel("FluentMigrator ", "https://github.com/fluentmigrator/fluentmigrator/", LibraryLicense.Apache2, "2022 FluentMigrator Contributors"),
+        new LibraryModel("HtmlSanitizer", "https://github.com/mganss/HtmlSanitizer/", LibraryLicense.MIT, "2013-2016 Michael Ganss and HtmlSanitizer contributors"),
+        new LibraryModel("Humanizer", "https://github.com/Humanizr/Humanizer/", LibraryLicense.MIT, "2022 .NET Foundation and Contributors"),
+        new LibraryModel("MailKit", "http://www.mimekit.net/", LibraryLicense.MIT, "2012-2021 .NET Foundation and Contributors"),
+        new LibraryModel("MaxMind DB Reader", "https://github.com/maxmind/MaxMind-DB-Reader-dotnet/", LibraryLicense.Apache2, "2013-2020 MaxMind, Inc."),
+        new LibraryModel("GeoIP2 .NET API", "https://github.com/maxmind/GeoIP2-dotnet/", LibraryLicense.Apache2, "2013-2021 MaxMind, Inc."),
+        new LibraryModel("Moq", "https://github.com/moq/moq4/", LibraryLicense.BSD3, "2007, Clarius Consulting, Manas Technology Solutions, InSTEDD, and Contributors"),
+        new LibraryModel("NCrontab", "https://github.com/atifaziz/NCrontab/", LibraryLicense.Apache2, "2022 NCrontab Contributors"),
+        new LibraryModel("NUglify", "https://github.com/trullock/NUglify/", LibraryLicense.Apache2, "2016, Alexandre Mutel"),
+        new LibraryModel("Parlot", "https://github.com/sebastienros/parlot/", LibraryLicense.BSD3, "2020, Sébastien Ros"),
+        new LibraryModel("Pomelo.EntityFrameworkCore.MySql", "https://github.com/PomeloFoundation/Pomelo.EntityFrameworkCore.MySql/", LibraryLicense.MIT, "2017 Pomelo Foundation"),
+        new LibraryModel("PreMailer.Net", "https://github.com/milkshakesoftware/PreMailer.Net/", LibraryLicense.MIT, "2013 Milkshake Software (http://milkshakesoftware.com)"),
+        new LibraryModel("Serilog", "https://github.com/serilog/serilog/", LibraryLicense.Apache2, "2013-2020 Serilog Contributors"),
+        new LibraryModel("EFCore.BulkExtensions", "https://github.com/yang-er/efcore-ext/", LibraryLicense.MIT, "2017 borisdj")
+    };
 }
 
 <div class="section-header">
@@ -22,7 +68,6 @@
 </style>
 
 <div style="max-width: 1000px">
-
     <p>
         Version @SmartstoreVersion.CurrentFullVersion<br />
         Copyright &copy; 1999-@DateTime.Today.Year SmartStore AG<br />
@@ -36,296 +81,56 @@
 
     <p>
         <ul class="work-list list-unstyled">
-            @*<li>
-                <div class="name">
-                    <a href="https://github.com/aspnet/AspNetWebStack" rel="nofollow" target="AboutTargetWin">ASP.NET MVC</a>
-                </div>
-                <div class="copyright">
-                    Copyright &copy; 2008-2018 Microsoft Corporation
-                </div>
-                @{ await MVCEULA(); }
-            </li>*@
-            <li>
-                <div class="name">
-                    <a href="http://autofac.org" rel="nofollow" target="AboutTargetWin">Autofac</a>
-                </div>
-                <div class="copyright">
-                    Copyright &copy; 2013 <a href="http://autofac.readthedocs.io/en/latest/contributors.html" rel="nofollow" target="AboutTargetWin">Autofac Contributors</a>
-                </div>
-                @{ await MITLicense(); }
-            </li>
-            <li>
-                <div class="name">
-                    <a href="https://summernote.org/" rel="nofollow" target="AboutTargetWin">summernote</a>
-                </div>
-                <div class="copyright">
-                    &copy 2015~ Summernote Team (https://github.com/orgs/summernote/people)
-                </div>
-                @{ await MITLicense(); }
-            </li>
-            @*<li>
-                <div class="name">
-                    <a href="http://dotnetopenauth.net/" rel="nofollow" target="AboutTargetWin">DotNetOpenAuth</a>
-                </div>
-                <div class="copyright">
-                    Copyright &copy; 2018, Outercurve Foundation
-                </div>
-                @{ await MSPLLicense(); }
-            </li>*@
-            @*<li>
-                <div class="name">
-                    <a href="https://github.com/aspnet/EntityFramework6" rel="nofollow" target="AboutTargetWin">Entity Framework</a>
-                </div>
-                <div class="copyright">
-                    Copyright &copy; 2012-2018 Microsoft Corporation
-                </div>
-                @{ await Apache2License(); }
-            </li>*@
-            @*<li>
-                <div class="name">
-                    <a href="https://github.com/JanKallman/EPPlus" rel="nofollow" target="AboutTargetWin">EPPlus</a>
-                </div>
-                <div class="copyright">
-                    Copyright &copy; 2018 Jan Källman
-                </div>
-                @{ await LGPLLicense(); }
-            </li>*@
-            <li>
-                <div class="name">
-                    <a href="https://github.com/JeremySkinner/FluentValidation/" rel="nofollow" target="AboutTargetWin">Fluent Validation</a>
-                </div>
-                <div class="copyright">
-                    Copyright &copy; Jeremy Skinner 2008-2021
-                </div>
-                @{ await Apache2License(); }
-            </li>
-            @*<li>
-                <div class="name">
-                    <a href="http://imageprocessor.org/" rel="nofollow" target="AboutTargetWin">ImageProcessor</a>
-                </div>
-                <div class="copyright">
-                    Copyright &copy; 2018 James Jackson-South
-                </div>
-                @{ await Apache2License(); }
-            </li>*@
-            @*<li>
-                <div class="name">
-                    <a href="https://github.com/Taritsyn/JavaScriptEngineSwitcher" rel="nofollow" target="AboutTargetWin">JavaScriptEngineSwitcher</a>
-                </div>
-                <div class="copyright">
-                    Copyright Andrey Taritsyn 2018
-                </div>
-                @{ await Apache2License(); }
-            </li>*@
-            <li>
-                <div class="name">
-                    <a href="http://jquery.com/" rel="nofollow" target="AboutTargetWin">jQuery</a>
-                </div>
-                <div class="copyright">
-                    Copyright &copy; 2010 <a href="http://jquery.com/" rel="nofollow" target="AboutTargetWin">John Resig</a>
-                </div>
-                @{ await MITLicense(); }
-            </li>
-            <li>
-                <div class="name">
-                    <a href="https://www.newtonsoft.com/json" rel="nofollow" target="AboutTargetWin">Json.NET</a>
-                </div>
-                <div class="copyright">
-                    Copyright &copy; 2007 James Newton-King
-                </div>
-                @{ await MITLicense(); }
-            </li>
-            <li>
-                <div class="name">
-                    <a href="https://db-ip.com/" rel="nofollow" target="AboutTargetWin">DB-IP Country Lite</a>
-                </div>
-                <div class="copyright">
-                    Copyright &copy; 2020 db-ip.com
-                </div>
-                @{ await CreativeCommons4License(); }
-            </li>
-            <li>
-                <div class="name">
-                    <a href="https://linearicons.com" rel="nofollow" target="AboutTargetWin">Linearicons by Perxis</a>
-                </div>
-                <div class="copyright">
-                    Copyright (c) 2018 Linearicons.com
-                </div>
-                @{ await CreativeCommonsLicense(); }
-            </li>
-            <li>
-                <div class="name">
-                    <a href="http://miniprofiler.com/" rel="nofollow" target="AboutTargetWin">MiniProfiler</a>
-                </div>
-                <div class="copyright">
-
-                </div>
-                @{ await Apache2License(); }
-            </li>
-            <li>
-                <div class="name">
-                    <a href="http://modernizr.com/" rel="nofollow" target="AboutTargetWin">Modernizr</a>
-                </div>
-                <div class="copyright">
-
-                </div>
-                @{ await MITLicense(); }
-            </li>
-            <li>
-                <div class="name">
-                    <a href="https://github.com/NuGet/Home" rel="nofollow" target="AboutTargetWin">NuGet</a>
-                </div>
-                <div class="copyright">
-                    Copyright &copy; 2018 <a href="http://www.dotnetfoundation.org/" rel="nofollow" target="AboutTargetWin">.NET Foundation</a>
-                </div>
-                @{ await Apache2License(); }
-            </li>
-            <li>
-                <div class="name">
-                    <a href="http://www.nunit.org" rel="nofollow" target="AboutTargetWin">nUnit</a>
-                </div>
-                <div class="copyright">
-                    Copyright &copy; 2002-2007 NUnit.org<br />
-                    Portions Copyright &copy; 2002-2008 Charlie Poole or Copyright &copy; 2002-2004 James W. Newkirk, Michael C. Two, Alexei A. Vorontsov or Copyright &copy; 2000-2002 Philip A. Craig
-                </div>
-                @{ await zlibLicense(); }
-            </li>
-            <li>
-                <div class="name">
-                    <a href="http://photoswipe.com/" rel="nofollow" target="AboutTargetWin">PhotoSwipe</a>
-                </div>
-                <div class="copyright">
-                    Copyright (c) 2014-2018 Dmitry Semenov, <a href="http://dimsemenov.com">http://dimsemenov.com</a>
-                </div>
-                @{ await MITLicense(); }
-            </li>
-            <li>
-                <div class="name">
-                    <a href="http://kenwheeler.github.io/slick/" rel="nofollow" target="AboutTargetWin">slick carousel</a>
-                </div>
-                <div class="copyright">
-                    Copyright (c) 2018 Ken Wheeler
-                </div>
-                @{ await MITLicense(); }
-            </li>
-            <li>
-                <div class="name">
-                    <a href="http://getbootstrap.com/" rel="nofollow" target="AboutTargetWin">Twitter Bootstrap</a>
-                </div>
-                <div class="copyright">
-                    Copyright &copy; 2021 Twitter, Inc.
-                </div>
-                @{ await Apache2License(); }
-            </li>
-            <li>
-                <div class="name">
-                    <a href="https://github.com/ua-parser/uap-csharp" rel="nofollow" target="AboutTargetWin">ua_parser</a>
-                </div>
-                <div class="copyright">
-                    Copyright 2018 Søren Enemærke
-                </div>
-                @{ await Apache2License(); }
-            </li>
-            <li>
-                <div class="name">
-                    <a href="http://underscorejs.org/" rel="nofollow" target="AboutTargetWin">underscore.js</a>
-                </div>
-                <div class="copyright">
-                    Copyright &copy; 2009-2018 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
-                </div>
-                @{ await MITLicense(); }
-            </li>
-            @*<li>
-                <div class="name">
-                    <a href="http://wkhtmltopdf.org/" rel="nofollow" target="AboutTargetWin">wkhtmltopdf</a>
-                </div>
-                <div class="copyright">
-
-                </div>
-                @{ await LGPLLicense(); }
-            </li>*@
+            @foreach (var lib in libraries.OrderBy(x => x.Name))
+            {
+                <li>
+                    <div class="name">
+                        <a href="@lib.Url" rel="nofollow" target="AboutTargetWin">@lib.Name</a>
+                    </div>
+                    <div sm-if="lib.Copyright.HasValue()" class="copyright">
+                        Copyright &copy; @Html.Raw(lib.Copyright)
+                    </div>
+                    <span class="license">
+                        <span>@T("Common.License"):</span>
+                        @if (lib.License == LibraryLicense.MIT)
+                        {
+                            <a href="http://en.wikipedia.org/wiki/MIT_License" rel="nofollow" target="AboutTargetWin">MIT</a>
+                        }
+                        else if (lib.License == LibraryLicense.MPL20)
+                        {
+                            <a href="http://en.wikipedia.org/wiki/Mozilla_Public_License" rel="nofollow" target="AboutTargetWin">Mozilla Public License 2.0 (MPL-2.0)</a>
+                        }
+                        else if (lib.License == LibraryLicense.BSD3)
+                        {
+                            <a href="http://en.wikipedia.org/wiki/BSD_licenses" rel="nofollow" target="AboutTargetWin">BSD</a>
+                        }
+                        else if (lib.License == LibraryLicense.Apache2)
+                        {
+                            <a href="http://en.wikipedia.org/wiki/Apache_License" rel="nofollow" target="AboutTargetWin">Apache License 2.0</a>
+                        }
+                        else if (lib.License == LibraryLicense.MSPL)
+                        {
+                            <a href="http://opensource.org/licenses/MS-PL" rel="nofollow" target="AboutTargetWin">MS-PL</a>
+                        }
+                        else if (lib.License == LibraryLicense.LGPL)
+                        {
+                            <a href="http://en.wikipedia.org/wiki/GNU_Lesser_General_Public_License" rel="nofollow" target="AboutTargetWin">GNU Lesser General Public License (LGPL)</a>
+                        }
+                        else if (lib.License == LibraryLicense.GPLv3)
+                        {
+                            <a href="http://en.wikipedia.org/wiki/GNU_General_Public_License" rel="nofollow" target="AboutTargetWin">GPL 3.0</a>
+                        }
+                        else if (lib.License == LibraryLicense.CreativeCommons)
+                        {
+                            <a href="http://creativecommons.org/licenses/by-sa/3.0/" rel="nofollow" target="AboutTargetWin">Creative Commons Attribution-ShareAlike 3.0 Unported License</a>
+                        }
+                        else if (lib.License == LibraryLicense.CreativeCommons4)
+                        {
+                            <a href="https://creativecommons.org/licenses/by/4.0/" rel="nofollow" target="AboutTargetWin">Creative Commons Attribution 4.0 International License</a>
+                        }
+                    </span>
+                </li>
+            }
         </ul>
     </p>
 </div>
-
-@{
-    async Task MPL20License()
-    {
-        <div class="license">
-            <span>@T("Common.License"):</span> <a href="http://en.wikipedia.org/wiki/Mozilla_Public_License" rel="nofollow" target="AboutTargetWin">Mozilla Public License 2.0 (MPL-2.0)</a>
-        </div>
-    }
-    async Task BSDLicense()
-    {
-        <div class="license">
-            <span>@T("Common.License"):</span> <a href="http://en.wikipedia.org/wiki/BSD_licenses" rel="nofollow" target="AboutTargetWin">BSD</a>
-        </div>
-    }
-    async Task MVCEULA()
-    {
-        <div class="license">
-            <span>@T("Common.License"):</span> <a href="http://go.microsoft.com/fwlink/?LinkID=207621" rel="nofollow" target="AboutTargetWin">MICROSOFT ASP.NET MODEL VIEW CONTROLLER 3 EULA</a>
-        </div>
-    }
-    async Task MITLicense()
-    {
-        <div class="license">
-            <span>@T("Common.License"):</span> <a href="http://en.wikipedia.org/wiki/MIT_License" rel="nofollow" target="AboutTargetWin">MIT</a>
-        </div>
-    }
-    async Task Apache2License()
-    {
-        <div class="license">
-            <span>@T("Common.License"):</span> <a href="http://en.wikipedia.org/wiki/Apache_License" rel="nofollow" target="AboutTargetWin">Apache License 2.0</a>
-        </div>
-    }
-    async Task MSPLLicense()
-    {
-        <div class="license">
-            <span>@T("Common.License"):</span> <a href="http://opensource.org/licenses/MS-PL" rel="nofollow" target="AboutTargetWin">MS-PL</a>
-        </div>
-    }
-    async Task LGPLLicense()
-    {
-        <div class="license">
-            <span>@T("Common.License"):</span> <a href="http://en.wikipedia.org/wiki/GNU_Lesser_General_Public_License" rel="nofollow" target="AboutTargetWin">GNU Lesser General Public License (LGPL)</a>
-        </div>
-    }
-    async Task FreedomLicense()
-    {
-        <div class="license">
-            <span>@T("Common.License"):</span> Freedom License
-        </div>
-    }
-    async Task zlibLicense()
-    {
-        <div class="license">
-            <span>@T("Common.License"):</span> <a href="http://nunit.org/index.php?p=license&amp;r=2.4" rel="nofollow" target="AboutTargetWin">Derived from zlib</a>
-        </div>
-    }
-    async Task GPLv3License()
-    {
-        <div class="license">
-            <span>@T("Common.License"):</span> <a href="http://en.wikipedia.org/wiki/GNU_General_Public_License" rel="nofollow" target="AboutTargetWin">GPL 3.0</a>
-        </div>
-    }
-    async Task CreativeCommonsLicense()
-    {
-        <div class="license">
-            <span>@T("Common.License"):</span> <a href="http://creativecommons.org/licenses/by-sa/3.0/" rel="nofollow" target="AboutTargetWin">Creative Commons Attribution-ShareAlike 3.0 Unported License</a>
-        </div>
-    }
-    async Task CreativeCommons4License()
-    {
-        <div class="license">
-            <span>@T("Common.License"):</span> <a href="https://creativecommons.org/licenses/by/4.0/" rel="nofollow" target="AboutTargetWin">Creative Commons Attribution 4.0 International License</a>
-        </div>
-    }
-    async Task SqlCeEULA()
-    {
-        <div class="license">
-            <span>@T("Common.License"):</span> <a href="http://www.microsoft.com/web/webpi/eula/SQLCE_EULA_ENU.rtf" rel="nofollow" target="AboutTargetWin">Custom EULA</a>
-        </div>
-    }
-}
-

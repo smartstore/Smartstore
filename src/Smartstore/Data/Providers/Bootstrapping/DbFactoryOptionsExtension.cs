@@ -153,7 +153,6 @@ namespace Smartstore.Data.Providers
         private sealed class ExtensionInfo : DbContextOptionsExtensionInfo
         {
             private long? _serviceProviderHash;
-            private string _logFragment;
 
             public ExtensionInfo(IDbContextOptionsExtension extension)
                 : base(extension)
@@ -171,6 +170,7 @@ namespace Smartstore.Data.Providers
             {
                 return true;
             }
+
             public override int GetServiceProviderHashCode()
             {
                 if (_serviceProviderHash == null)

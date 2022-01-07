@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 using Dasync.Collections;
@@ -12,7 +13,9 @@ namespace Smartstore.Caching
     {
         public static ICacheManager Instance => new NullCache();
 
+#pragma warning disable CS0067 // The event is never used
         public event EventHandler<CacheEntryExpiredEventArgs> Expired;
+#pragma warning restore CS0067
 
         public T Get<T>(string key, bool independent = false)
             => default;
