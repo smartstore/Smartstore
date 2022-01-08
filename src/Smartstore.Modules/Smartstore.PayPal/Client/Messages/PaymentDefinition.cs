@@ -47,6 +47,6 @@ namespace Smartstore.PayPal.Client.Messages
         /// The currency and amount of the charge to make at the end of each payment cycle for this definition.
         /// </summary>
         [JsonProperty("amount")]
-        public Money Amount;
+        public MoneyMessage Amount;
     }
 }

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -39,6 +41,8 @@ namespace Smartstore.PayPal.Client
         private const string RefundEndpoint                 = "{0}/v2/payments/captures/{1}/refund";
         private const string TokenEndpoint                  = "{0}/v1/oauth2/token";
 
+        private readonly static JsonSerializerSettings _serializerSettings = new() { TypeNameHandling = TypeNameHandling.None };
+
         private readonly HttpClient _client;
         private readonly ILogger _logger;
         private readonly PayPalSettings _settings;
@@ -61,6 +65,180 @@ namespace Smartstore.PayPal.Client
             _storeContext = storeContext;
             _locService = locService;
         }
+
+        #region NEW --> MH
+
+        // TODO: (mh) (core) Refactor & complete PayPalHttpClient/Messages according to this blueprint
+
+        public async Task<PayPalResponse> RefundPaymentAsync(RefundPaymentRequest request, RefundPaymentResult result)
+        {
+            Guard.NotNull(request, nameof(request));
+
+            var message = new RefundMessage
+            {
+                InvoiceId = "TODO mh ??",
+                Status = "TODO mh ??",
+                // ... ???
+            };
+
+            if (request.IsPartialRefund)
+            {
+                var store = _storeContext.GetStoreById(request.Order.StoreId);
+
+                message.Amount = new MoneyMessage
+                {
+                    Value = request.AmountToRefund.Amount.ToString("0.00", CultureInfo.InvariantCulture),
+                    CurrencyCode = store.PrimaryStoreCurrency.CurrencyCode
+                };
+            }
+
+            var refundRequest = new CapturesRefundRequest(request.Order.CaptureTransactionId).WithBody(message);
+
+            try
+            {
+                var response = await Execute(refundRequest);
+
+                if (response.StatusCode == HttpStatusCode.NoContent || response.StatusCode == HttpStatusCode.Created)
+                {
+                    result.NewPaymentStatus = request.IsPartialRefund
+                        ? PaymentStatus.PartiallyRefunded
+                        : PaymentStatus.Refunded;
+                }
+
+                return response;
+            }
+            catch (PayPalException ex)
+            {
+                // TODO: (mh) (core) Should this throw? What was the overall behaviour in Classic? TBD with MC.
+                // TODO: (mh) (mc) (core) Think about error handling strategy thoroughly. TBD with MC.
+                HandleException(ex, result);
+                return ex.Response;
+            }
+        }
+
+        public Task<PayPalResponse> RefundPayment(CapturesRefundRequest request)
+        {
+            return Execute(request);
+        }
+
+        #endregion
+
+        #region Infrastructure
+
+        public virtual async Task<PayPalResponse> Execute<TRequest>(TRequest request)
+            where TRequest : PayPalRequest
+        {
+            Guard.NotNull(request, nameof(request));
+
+            request = request.Clone<TRequest>();
+
+            if (!request.Headers.Contains("Authorization"))
+            {
+                // TODO: (mh) (core) Implement Authorization here as it is done in Checkout-NET-SDK.
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", "TEST123456789");
+            }
+
+            var apiUrl = _settings.UseSandbox ? ApiUrlSandbox : ApiUrlLive;
+            request.RequestUri = new Uri(apiUrl + request.Path.EnsureStartsWith('/'));
+
+            if (request.Body != null)
+            {
+                request.Content = await SerializeRequestAsync(request);
+            }
+
+            var response = await _client.SendAsync(request);
+
+            if (response.IsSuccessStatusCode)
+            {
+                object responseBody = null;
+
+                if (response.Content.Headers.ContentType != null)
+                {
+                    responseBody = await DeserializeResponseAsync(response.Content, request.ResponseType);
+                }
+
+                return new PayPalResponse(response.Headers, response.StatusCode, responseBody);
+            }
+            else
+            {
+                var responseBody = await response.Content.ReadAsStringAsync();
+                var payPalResponse = new PayPalResponse(response.Headers, response.StatusCode, responseBody);
+                throw new PayPalException(payPalResponse, responseBody);
+            }
+        }
+
+        protected async Task<HttpContent> SerializeRequestAsync(PayPalRequest request)
+        {
+            if (request.ContentType == null)
+            {
+                throw new IOException("HttpRequest did not have content-type header set");
+            }
+
+            request.ContentType = request.ContentType.ToLower();
+
+            HttpContent content = null;
+
+            if (request.ContentType == "application/json")
+            {
+                var json = JsonConvert.SerializeObject(request.Body, _serializerSettings);
+                content = new StringContent(json, Encoding.UTF8, "application/json");
+            }
+            // TODO: (mh) (core) Is TextSerializer necessary?
+
+            if (content == null)
+            {
+                throw new IOException($"Unable to serialize request with Content-Type {request.ContentType} because it is not supported.");
+            }
+
+            if ("gzip".Equals(request.ContentEncoding))
+            {
+                var source = await content.ReadAsStringAsync();
+                content = new ByteArrayContent(await Encoding.UTF8.GetBytes(source).ZipAsync());
+            }
+
+            return content;
+        }
+
+        protected async Task<object> DeserializeResponseAsync(HttpContent content, Type responseType)
+        {
+            if (content.Headers.ContentType == null)
+            {
+                throw new IOException("HTTP response did not have content-type header set");
+            }
+
+            var contentEncoding = content.Headers.ContentEncoding.FirstOrDefault();
+
+            if ("gzip".Equals(contentEncoding))
+            {
+                var buf = await content.ReadAsByteArrayAsync();
+                content = new StringContent(Encoding.UTF8.GetString(await buf.UnzipAsync()), Encoding.UTF8);
+            }
+
+            var contentType = content.Headers.ContentType.ToString().ToLower();
+
+            if (contentType == "application/json")
+            {
+                var message = JsonConvert.DeserializeObject(await content.ReadAsStringAsync(), responseType, _serializerSettings);
+                return message;
+            }
+            else
+            {
+                // TODO: (mh) (core) Is TextSerializer necessary?
+                throw new IOException($"Unable to deserialize response with Content-Type {contentType} because it is not supported.");
+            }
+        }
+
+        private void HandleException(Exception exception, PaymentResult result, bool log = false)
+        {
+            if (exception != null)
+            {
+                result.Errors.Add(exception.Message);
+                if (log)
+                    _logger.Error(exception);
+            }
+        }
+
+        #endregion
 
         /// <summary>
         /// For testing purposes only!
@@ -302,7 +480,7 @@ namespace Smartstore.PayPal.Client
 
             try
             {
-                var amount = new Money();
+                var amount = new MoneyMessage();
                 if (request.IsPartialRefund)
                 {
                     var store = _storeContext.GetStoreById(request.Order.StoreId);
@@ -376,7 +554,7 @@ namespace Smartstore.PayPal.Client
                     Name = billingPlanName,
                     Cycles = product.RecurringTotalCycles.ToString(),
                     FrequencyInterval = product.RecurringCyclePeriod.ToString(),
-                    Amount = new Money{
+                    Amount = new MoneyMessage{
                         // TODO: (mh) (core) Respect discounts & more?
                         Value = product.Price.ToString("0.00", CultureInfo.InvariantCulture),
                         CurrencyCode = store.PrimaryStoreCurrency.CurrencyCode

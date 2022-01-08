@@ -5,19 +5,19 @@ namespace Smartstore.PayPal.Client
 {
     public class PayPalResponse
     {
-        private readonly object _result;
+        private readonly object _message;
 
-        public PayPalResponse(HttpHeaders headers, HttpStatusCode statusCode, object result)
+        public PayPalResponse(HttpHeaders headers, HttpStatusCode statusCode, object message)
         {
             Headers = headers;
             StatusCode = statusCode;
-            _result = result;
+            _message = message;
         }
 
         public HttpHeaders Headers { get; }
         public HttpStatusCode StatusCode { get; }
 
-        public T Result<T>()
-            => (T)_result;
+        public T Message<T>()
+            => (T)_message;
     }
 }

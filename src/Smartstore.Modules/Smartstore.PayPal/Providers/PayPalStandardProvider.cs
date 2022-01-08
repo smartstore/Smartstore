@@ -97,7 +97,9 @@ namespace Smartstore.PayPal.Providers
                 NewPaymentStatus = request.Order.PaymentStatus
             };
 
-            await _client.RefundPayment(request, result);
+            var response = await _client.RefundPaymentAsync(request, result);
+
+            // TODO: (mh) (core) Do something with response? Hmmm... I don't think so.
 
             return result;
         }

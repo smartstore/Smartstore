@@ -3,19 +3,27 @@ using System.Net.Http;
 
 namespace Smartstore.PayPal.Client
 {
+    public class PayPalRequest<TMessage> : PayPalRequest
+    {
+        public PayPalRequest(string path, HttpMethod method)
+            : base(path, method, typeof(TMessage))
+        {
+        }
+    }
+    
     public class PayPalRequest : HttpRequestMessage
     {
+        public PayPalRequest(string path, HttpMethod method)
+            : this(path, method, typeof(void))
+        {
+        }
+
         public PayPalRequest(string path, HttpMethod method, Type responseType)
         {
             Path = path;
             ResponseType = responseType;
             Method = method;
             ContentEncoding = "identity";
-        }
-
-        public PayPalRequest(string path, HttpMethod method) 
-            : this(path, method, typeof(void)) 
-        { 
         }
 
         public string Path { get; set; }

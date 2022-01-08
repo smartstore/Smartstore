@@ -45,12 +45,13 @@ namespace Smartstore.PayPal
                     context => context.ControllerIs<CheckoutController>(x => x.PaymentMethod()) && !context.HttpContext.Request.IsAjaxRequest(), 200);
             });
 
-            // TODO: (mh) (core) Add GZip capability with .AddHttpMessageHandler() or .ConfigurePrimaryHttpMessageHandler(). TBD.
+            // TODO: (mh) (core) Connection timeout necessary?
             services.AddHttpClient<PayPalHttpClient>()
                 .AddSmartstoreUserAgent()
                 .ConfigureHttpClient(client =>
                 {
-                    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                    //client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                    client.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("gzip"));
                 });
         }
     }
