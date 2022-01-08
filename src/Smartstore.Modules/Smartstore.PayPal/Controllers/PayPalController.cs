@@ -4,6 +4,7 @@ using Smartstore.Web.Controllers;
 
 namespace Smartstore.PayPal.Controllers
 {
+    // TODO: (mh) (core) Consolidate both controllers into one? TBD with MC.
     public class PayPalController : PublicController
     {
         private readonly ICheckoutStateAccessor _checkoutStateAccessor;

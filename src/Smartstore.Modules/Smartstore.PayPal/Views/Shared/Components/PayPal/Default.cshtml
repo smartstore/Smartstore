@@ -8,7 +8,7 @@
 
 @*INFO: No target zone here as can also be rendered via AJAX*@
 <script>
-    var paypalCtn = $("#paypal-button-container");
+    var btnContainer = $("#paypal-button-container");
 
     // TODO: (mh) (core) Don't forget to call save cart data, to save reward points, etc?
 
@@ -33,13 +33,13 @@
         onApprove: function (data, actions) {
             $.ajax({
                 type: 'POST',
-                url: paypalCtn.data("init-transaction-url"),
+                url: btnContainer.data("init-transaction-url"),
                 data: { orderId: data.orderID },
                 cache: false,
                 success: function (resp) {
                     if (resp.success) {
                         // Lead customer to address selection or to confirm page if PayPal was choosen from payment selection page.
-                        location.href = paypalCtn.data("forward-url");
+                        location.href = btnContainer.data("forward-url");
                     }
                     else {
                         displayNotification(resp.message, 'error');
@@ -66,12 +66,12 @@
             if (e.target.value == "Payments.PayPalStandard")
             {
                 btnNext[0].style.display = 'none';
-                paypalCtn[0].style.display = 'block';
+                btnContainer[0].style.display = 'block';
             }
             else
             {
                 btnNext[0].style.display = 'block';
-                paypalCtn[0].style.display = 'none';
+                btnContainer[0].style.display = 'none';
             }
         });
         </text>
