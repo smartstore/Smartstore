@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace Smartstore.PayPal.Infrastructure.PayPalObjects
+namespace Smartstore.PayPal.Client.Messages
 {
     /// <summary>
     /// The total order amount with an optional breakdown that provides details

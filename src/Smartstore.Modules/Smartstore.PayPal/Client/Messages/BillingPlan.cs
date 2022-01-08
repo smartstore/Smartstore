@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Newtonsoft.Json;
 
-namespace Smartstore.PayPal.Infrastructure.PayPalObjects
+namespace Smartstore.PayPal.Client.Messages
 {
     public class BillingPlan
     {

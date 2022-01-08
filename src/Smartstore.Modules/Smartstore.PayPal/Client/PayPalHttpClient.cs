@@ -16,7 +16,7 @@ using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Stores;
-using Smartstore.PayPal.Infrastructure.PayPalObjects;
+using Smartstore.PayPal.Client.Messages;
 using Smartstore.PayPal.Settings;
 
 namespace Smartstore.PayPal.Client
