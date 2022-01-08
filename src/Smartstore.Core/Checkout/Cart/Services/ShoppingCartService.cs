@@ -529,9 +529,16 @@ namespace Smartstore.Core.Checkout.Cart
             IList<string> warnings,
             ProductVariantQuery query, 
             bool? useRewardPoints = null,
+            bool resetCheckoutData = true,
             bool validateCheckoutAttributes = true)
         {
             cart ??= await GetCartAsync(storeId: _storeContext.CurrentStore.Id);
+
+            if (resetCheckoutData)
+            {
+                // Clear payment and shipping method selected in checkout.
+                cart.Customer.ResetCheckoutData(cart.StoreId);
+            }
 
             cart.Customer.GenericAttributes.CheckoutAttributes = await _checkoutAttributeMaterializer.CreateCheckoutAttributeSelectionAsync(query, cart);
 

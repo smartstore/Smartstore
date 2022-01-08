@@ -82,8 +82,6 @@ namespace Smartstore.AmazonPay.Controllers
                 var warnings = new List<string>();
 
                 // Save data entered on cart page.
-                customer.ResetCheckoutData(store.Id);
-
                 var isCartValid = await _shoppingCartService.SaveCartDataAsync(cart, warnings, query, useRewardPoints);
                 if (isCartValid)
                 {

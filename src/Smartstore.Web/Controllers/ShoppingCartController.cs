@@ -202,7 +202,7 @@ namespace Smartstore.Web.Controllers
             var warnings = new List<string>();
 
             // Save data entered on cart page.
-            var isCartValid = await _shoppingCartService.SaveCartDataAsync(cart, warnings, query, useRewardPoints);
+            var isCartValid = await _shoppingCartService.SaveCartDataAsync(cart, warnings, query, useRewardPoints, false);
             if (!isCartValid)
             {
                 // Something is wrong with the checkout data. Redisplay shopping cart.

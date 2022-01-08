@@ -80,7 +80,7 @@ namespace Smartstore.Core.Checkout.Cart
         /// <param name="customer">Customer of cart items.</param>
         /// <param name="cartItemId">Cart item to update.</param>
         /// <param name="newQuantity">New quantitiy.</param>
-        /// <param name="resetCheckoutData">Value indicating whether to reset checkout data.</param>
+        /// <param name="resetCheckoutData">A value indicating whether to reset customer's checkout data.</param>
         /// <returns>List of error messages.</returns>
         Task<IList<string>> UpdateCartItemAsync(Customer customer, int cartItemId, int newQuantity, bool resetCheckoutData);
 
@@ -93,6 +93,7 @@ namespace Smartstore.Core.Checkout.Cart
         /// <param name="warnings">List of returned warnings.</param>
         /// <param name="query"><see cref="ProductVariantQuery"/> with checkout attributes to save.</param>
         /// <param name="useRewardPoints">A value indicating whether to use reward points during checkout. <c>null</c> to ignore.</param>
+        /// <param name="resetCheckoutData">A value indicating whether to reset customer's checkout data.</param>
         /// <param name="validateCheckoutAttributes">A value indicating whether to validate checkout attributes.</param>
         /// <returns><c>True</c> when the shopping cart is valid, otherwise <c>false</c>.</returns>
         Task<bool> SaveCartDataAsync(
@@ -100,6 +101,7 @@ namespace Smartstore.Core.Checkout.Cart
             IList<string> warnings,
             ProductVariantQuery query,
             bool? useRewardPoints = null,
+            bool resetCheckoutData = true,
             bool validateCheckoutAttributes = true);
     }
 }
