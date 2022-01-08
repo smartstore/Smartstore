@@ -26,6 +26,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.WebEncoders;
 using Serilog;
+using Serilog.Events;
 using Smartstore.Bootstrapping;
 using Smartstore.Core.Bootstrapping;
 using Smartstore.Core.Logging.Serilog;
@@ -120,7 +121,10 @@ namespace Smartstore.Web
                 // Write streamlined request completion events, instead of the more verbose ones from the framework.
                 // To use the default framework request logging instead, remove this line and set the "Microsoft"
                 // level in appsettings.json to "Information".
-                app.UseSerilogRequestLogging();
+                app.UseSerilogRequestLogging(o => 
+                {
+                    o.GetLevel = (ctx, _, ex) => ex == null && ctx.Response.StatusCode <= 499 ? LogEventLevel.Debug : LogEventLevel.Error;
+                });
 
                 // Executes IApplicationInitializer implementations during the very first request.
                 if (appContext.IsInstalled)
