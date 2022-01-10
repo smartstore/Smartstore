@@ -453,7 +453,8 @@ namespace Smartstore.Core.Identity
                 .Where(x => x.CustomerId == user.Id)
                 .ToListAsync(cancellationToken);
 
-            var infos = records.Select(x => {
+            var infos = records.Select(x => 
+            {
                 return new UserLoginInfo
                 (
                     TranslateSystemNameToProvider(x.ProviderSystemName),

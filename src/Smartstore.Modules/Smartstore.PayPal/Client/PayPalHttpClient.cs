@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Humanizer;
 using Microsoft.Extensions.Logging;
@@ -92,28 +92,19 @@ namespace Smartstore.PayPal.Client
                 };
             }
 
-            var refundRequest = new CapturesRefundRequest(request.Order.CaptureTransactionId).WithBody(message);
+        var refundRequest = new CapturesRefundRequest(request.Order.CaptureTransactionId)
+            .WithBody(message);
 
-            try
+            var response = await Execute(refundRequest);
+
+            if (response.StatusCode == HttpStatusCode.NoContent || response.StatusCode == HttpStatusCode.Created)
             {
-                var response = await Execute(refundRequest);
-
-                if (response.StatusCode == HttpStatusCode.NoContent || response.StatusCode == HttpStatusCode.Created)
-                {
-                    result.NewPaymentStatus = request.IsPartialRefund
-                        ? PaymentStatus.PartiallyRefunded
-                        : PaymentStatus.Refunded;
-                }
-
-                return response;
+                result.NewPaymentStatus = request.IsPartialRefund
+                    ? PaymentStatus.PartiallyRefunded
+                    : PaymentStatus.Refunded;
             }
-            catch (PayPalException ex)
-            {
-                // TODO: (mh) (core) Should this throw? What was the overall behaviour in Classic? TBD with MC.
-                // TODO: (mh) (mc) (core) Think about error handling strategy thoroughly. TBD with MC.
-                HandleException(ex, result);
-                return ex.Response;
-            }
+
+            return response;
         }
 
         public Task<PayPalResponse> RefundPayment(CapturesRefundRequest request)
@@ -125,28 +116,22 @@ namespace Smartstore.PayPal.Client
 
         #region Infrastructure
 
-        public virtual async Task<PayPalResponse> Execute<TRequest>(TRequest request)
+        public virtual async Task<PayPalResponse> Execute<TRequest>(TRequest request, CancellationToken cancelToken = default)
             where TRequest : PayPalRequest
         {
             Guard.NotNull(request, nameof(request));
 
             request = request.Clone<TRequest>();
 
-            if (!request.Headers.Contains("Authorization"))
-            {
-                // TODO: (mh) (core) Implement Authorization here as it is done in Checkout-NET-SDK.
-                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", "TEST123456789");
-            }
-
             var apiUrl = _settings.UseSandbox ? ApiUrlSandbox : ApiUrlLive;
             request.RequestUri = new Uri(apiUrl + request.Path.EnsureStartsWith('/'));
 
             if (request.Body != null)
             {
-                request.Content = await SerializeRequestAsync(request);
+                request.Content = SerializeRequest(request);
             }
 
-            var response = await _client.SendAsync(request);
+            var response = await _client.SendAsync(request, cancelToken);
 
             if (response.IsSuccessStatusCode)
             {
@@ -161,13 +146,13 @@ namespace Smartstore.PayPal.Client
             }
             else
             {
-                var responseBody = await response.Content.ReadAsStringAsync();
+                var responseBody = await response.Content.ReadAsStringAsync(cancelToken);
                 var payPalResponse = new PayPalResponse(response.Headers, response.StatusCode, responseBody);
                 throw new PayPalException(payPalResponse, responseBody);
             }
         }
 
-        protected async Task<HttpContent> SerializeRequestAsync(PayPalRequest request)
+        protected HttpContent SerializeRequest(PayPalRequest request)
         {
             if (request.ContentType == null)
             {
@@ -190,12 +175,6 @@ namespace Smartstore.PayPal.Client
                 throw new IOException($"Unable to serialize request with Content-Type {request.ContentType} because it is not supported.");
             }
 
-            if ("gzip".Equals(request.ContentEncoding))
-            {
-                var source = await content.ReadAsStringAsync();
-                content = new ByteArrayContent(await Encoding.UTF8.GetBytes(source).ZipAsync());
-            }
-
             return content;
         }
 
@@ -204,14 +183,6 @@ namespace Smartstore.PayPal.Client
             if (content.Headers.ContentType == null)
             {
                 throw new IOException("HTTP response did not have content-type header set");
-            }
-
-            var contentEncoding = content.Headers.ContentEncoding.FirstOrDefault();
-
-            if ("gzip".Equals(contentEncoding))
-            {
-                var buf = await content.ReadAsByteArrayAsync();
-                content = new StringContent(Encoding.UTF8.GetString(await buf.UnzipAsync()), Encoding.UTF8);
             }
 
             var contentType = content.Headers.ContentType.ToString().ToLower();

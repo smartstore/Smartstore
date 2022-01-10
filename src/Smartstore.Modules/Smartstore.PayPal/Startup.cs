@@ -1,4 +1,6 @@
-﻿using System.Net.Http.Headers;
+﻿using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Engine;
@@ -25,13 +27,19 @@ namespace Smartstore.PayPal
                     context => context.ControllerIs<CheckoutController>(x => x.PaymentMethod()) && !context.HttpContext.Request.IsAjaxRequest(), 200);
             });
 
-            // TODO: (mh) (core) Connection timeout necessary?
+            services.AddTransient<AuthorizationHandler>();
+            
             services.AddHttpClient<PayPalHttpClient>()
                 .AddSmartstoreUserAgent()
+                .ConfigurePrimaryHttpMessageHandler(c => new HttpClientHandler 
+                {
+                    AutomaticDecompression = DecompressionMethods.GZip
+                })
+                .AddHttpMessageHandler<AuthorizationHandler>()
                 .ConfigureHttpClient(client =>
                 {
-                    //client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                    client.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("gzip"));
+                    // TODO: (mh) (core) Connection timeout necessary?
+                    //client.Timeout = ???;
                 });
         }
     }
