@@ -51,25 +51,25 @@ namespace Smartstore.Admin.Controllers
         {
             await _widgetService.ActivateWidgetAsync(systemName, activate);
 
-            var method = _providerManager.GetProvider<IExternalAuthenticationMethod>(systemName);
-            var dirty = method.IsMethodActive(_externalAuthenticationSettings) != activate;
+            var provider = _providerManager.GetProvider<IExternalAuthenticationMethod>(systemName);
+            var dirty = provider.IsMethodActive(_externalAuthenticationSettings) != activate;
 
             if (dirty)
             {
                 if (!activate)
                 {
-                    _externalAuthenticationSettings.ActiveAuthenticationMethodSystemNames.Remove(method.Metadata.SystemName);
+                    _externalAuthenticationSettings.ActiveAuthenticationMethodSystemNames.Remove(x => x.EqualsNoCase(provider.Metadata.SystemName));
                 }
                 else
                 {
-                    _externalAuthenticationSettings.ActiveAuthenticationMethodSystemNames.Add(method.Metadata.SystemName);
+                    _externalAuthenticationSettings.ActiveAuthenticationMethodSystemNames.Add(provider.Metadata.SystemName);
                 }
 
                 await Services.SettingFactory.SaveSettingsAsync(_externalAuthenticationSettings);
-                await _widgetService.ActivateWidgetAsync(method.Metadata.SystemName, activate);
+                await _widgetService.ActivateWidgetAsync(provider.Metadata.SystemName, activate);
             }
 
-            return RedirectToAction("Providers");
+            return RedirectToAction(nameof(Providers));
         }
     }
 }

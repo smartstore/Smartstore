@@ -499,10 +499,8 @@ namespace Smartstore.Core.Identity
                 case "google":
                     return "Smartstore.GoogleAuth";
                 default:
-                    break;
+                    return provider;
             }
-
-            return string.Empty;
         }
 
         public static string TranslateSystemNameToProvider(string systemName)
@@ -518,10 +516,8 @@ namespace Smartstore.Core.Identity
                 case "smartstore.googleauth":
                     return "Google";
                 default:
-                    break;
+                    return systemName;
             }
-
-            return string.Empty;
         }
 
         #endregion

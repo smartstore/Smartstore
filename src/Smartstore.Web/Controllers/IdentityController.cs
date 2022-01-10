@@ -573,6 +573,8 @@ namespace Smartstore.Web.Controllers
             var info = await _signInManager.GetExternalLoginInfoAsync();
             if (info == null)
             {
+                // INFO: if you get here and wonder why it fails, call HttpContext.AuthenticateAsync(IdentityConstants.ExternalScheme)
+                // (which is internally called by GetExternalLoginInfoAsync) and check AuthenticateResult for errors.
                 return RedirectToAction(nameof(Login));
             }
 
@@ -581,7 +583,7 @@ namespace Smartstore.Web.Controllers
             if (result.Succeeded)
             {
                 Services.ActivityLogger.LogActivity(KnownActivityLogTypes.PublicStoreLogin, T("ActivityLog.PublicStore.LoginExternal"), info.LoginProvider);
-                return RedirectToRoute("Homepage");
+                return RedirectToReferrer(returnUrl, () => RedirectToRoute("Homepage"));
             }
             else
             {

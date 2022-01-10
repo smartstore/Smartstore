@@ -2,10 +2,12 @@
 using System.Diagnostics;
 using System.Drawing;
 using System.Numerics;
+using System.Security.Claims;
 using System.Text;
 using Autofac;
 using Dasync.Collections;
 using Humanizer;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Routing;
@@ -840,19 +842,47 @@ namespace Smartstore.Web.Controllers
             //var cart = await scs.GetCartAsync(customer, ShoppingCartType.ShoppingCart);
             //var crypt = Services.Resolve<IEncryptor>();
             //var eps = Services.Resolve<IExportProfileService>();
+            var auths = Services.Resolve<IAuthenticationService>();
+            var sim = Services.Resolve<SignInManager<Customer>>();
 
-            //using var stream = new FileStream(@"C:\Downloads\export\" + Guid.NewGuid() + ".csv", FileMode.Create, FileAccess.Write);
-            //await Request.Body.CopyToAsync(stream);
+            var authScheme = "AmazonPaySignIn";
+            var properties = sim.ConfigureExternalAuthenticationProperties(authScheme, null);
 
-            //$"got files {Request?.Form?.Files?.Count ?? 0}".Dump();
-            //if (Request?.Form?.Files?.Any() ?? false)
-            //{
-            //    foreach (var file in Request.Form.Files)
-            //    {
-            //        using var stream = new FileStream(@"C:\Downloads\export\" + file.FileName.NaIfEmpty(), FileMode.Create, FileAccess.Write);
-            //        await file.CopyToAsync(stream);
-            //    }
-            //}
+            var claims = new[]
+            {
+                new Claim(ClaimTypes.NameIdentifier, "amzn1.account.AEJB4N75K4OL36GRZ5VD6QUOLURQ", ClaimValueTypes.String, authScheme),
+                new Claim(ClaimTypes.Email, "max-mustermann@anywhere.de", ClaimValueTypes.String, authScheme),
+                new Claim(ClaimTypes.Name, "Max Mustermann", ClaimValueTypes.String, authScheme),
+                new Claim(ClaimTypes.GivenName, "Max", ClaimValueTypes.String, authScheme),
+                new Claim(ClaimTypes.Surname, "Mustermann", ClaimValueTypes.String, authScheme),
+            };
+
+            var identity = new ClaimsIdentity(claims, authScheme);
+            var principal = new ClaimsPrincipal(identity);
+            var ticket = new AuthenticationTicket(principal, properties, authScheme);
+
+            //ticket.Properties.IsPersistent = false;
+            //ticket.Properties.ExpiresUtc = DateTime.Now.AddDays(7);
+            //ticket.Properties.AllowRefresh = true;
+
+            await auths.SignInAsync(HttpContext, null, principal, ticket.Properties);
+
+            var auth = await HttpContext.AuthenticateAsync(IdentityConstants.ExternalScheme);
+            var items = auth?.Properties?.Items;
+
+            var providerKey = auth.Principal.FindFirstValue(ClaimTypes.NameIdentifier);
+            var provider = items.Get("LoginProvider");
+            content.AppendLine($"Provider {provider}. Key {providerKey}.");
+
+            var info = await sim.GetExternalLoginInfoAsync();
+            if (info == null)
+            {
+                content.AppendLine("GetExternalLoginInfoAsync failed.");
+            }
+            else
+            {
+                content.AppendLine($"Provider {info.LoginProvider}. Key {info.ProviderKey}.");
+            }
 
             //using var psb = StringBuilderPool.Instance.Get(out var sb);
             //using var writer = new StringWriter(sb);
@@ -877,85 +907,6 @@ namespace Smartstore.Web.Controllers
 
             var orderId = 32123;
             var order = await _db.Orders.FindByIdAsync(orderId);
-
-            //order.AllowStoringCreditCardNumber = true;
-            //order.CardType = crypt.EncryptText("Visa Debit");
-            //order.CardName = crypt.EncryptText("Max Mustermann");
-            //order.CardNumber = crypt.EncryptText("987654321");
-            //order.MaskedCreditCardNumber = crypt.EncryptText("98******21");
-            //order.CardCvv2 = crypt.EncryptText("123");
-            //order.CardExpirationMonth = crypt.EncryptText("10");
-            //order.CardExpirationYear = crypt.EncryptText("2024");
-            //order.AllowStoringDirectDebit = true;
-            //order.DirectDebitAccountHolder = crypt.EncryptText("Erika Musterfrau");
-            //order.DirectDebitAccountNumber = crypt.EncryptText("6663333999");
-            //order.DirectDebitBankCode = crypt.EncryptText("884455");
-            //order.DirectDebitBankName = crypt.EncryptText("JP Morgan & Co.");
-            //order.DirectDebitBIC = crypt.EncryptText("JP555658");
-            //order.DirectDebitCountry = crypt.EncryptText("United States of America");
-            //order.DirectDebitIban = crypt.EncryptText("US559986587744");
-
-            //order.AllowStoringCreditCardNumber = order.AllowStoringDirectDebit = false;
-            //order.CardType = order.CardName = order.CardNumber = order.MaskedCreditCardNumber = order.CardCvv2 = order.CardExpirationMonth = order.CardExpirationYear = null;
-            //order.DirectDebitAccountHolder = order.DirectDebitAccountNumber = order.DirectDebitBankCode = order.DirectDebitBankName = order.DirectDebitBIC = order.DirectDebitCountry = order.DirectDebitIban = null;
-
-            //await _db.SaveChangesAsync();
-
-
-            //var shipmentId = 22054;
-            //var shipment = await _db.Shipments
-            //    .Include(x => x.Order)
-            //    .FindByIdAsync(shipmentId);
-
-            //await _db.LoadReferenceAsync(shipment.Order, x => x.RedeemedRewardPointsEntry);
-
-            //await _db.LoadReferenceAsync(shipment.Order, x => x.Customer, false, q => q
-            //    .Include(x => x.RewardPointsHistory)
-            //    .Include(x => x.CustomerRoleMappings)
-            //    .ThenInclude(x => x.CustomerRole));
-
-            //await _db.LoadCollectionAsync(shipment.Order, x => x.OrderItems, false, q =>
-            //{
-            //    q = q.Include(x => x.Product);
-
-            //    q = q.Include(x => x.Order.Shipments)
-            //        .ThenInclude(x => x.ShipmentItems);
-
-            //    return q;
-            //});
-
-            //content.AppendLine($"order {shipment.Order.Id}");
-            //content.AppendLine($"customer {shipment.Order.Customer.Email}");
-            //content.AppendLine($"order items {shipment.Order.OrderItems.Count}");
-            //content.AppendLine($"shipments {shipment.Order.Shipments.Count}");
-            //content.AppendLine($"shipment items {shipment.Order.Shipments?.FirstOrDefault()?.ShipmentItems?.Count ?? 0}");
-
-            //var orderItem = shipment.Order.OrderItems.First();
-            //// This works! Even if there is no include for it!
-            //var deepShippmentCount = orderItem.Order.Shipments?.Count ?? 0;
-            //var deepShippmentItemCount = orderItem.Order.Shipments.FirstOrDefault()?.ShipmentItems?.Count ?? 0;
-
-            //content.AppendLine($"deep shipments {deepShippmentCount}");
-            //content.AppendLine($"deep shipment items {deepShippmentItemCount}");
-
-
-            //_typeScanner.Assemblies.SingleOrDefault(x => x.GetName().Name.StartsWith("Smartstore.DevTools"));
-            //var migrator2 = Services.Container.Resolve(typeof(Core.Data.Migrations.DbMigrator<>).MakeGenericType(typeof(SmartDbContext))) as Core.Data.Migrations.DbMigrator;
-            //await migrator2.RunPendingMigrationsAsync();
-            //await migrator2.SeedPendingLocaleResourcesAsync(null);
-            //await migrator2.SeedPendingLocaleResourcesAsync("UpdateTestEntityMigration");
-
-            //var guestCustomer = await _db.Customers.FindByIdAsync(2670508);
-            //guestCustomer.Deleted = true;
-            //await _db.SaveChangesAsync();
-
-
-            //await Services.Localization.DeleteLocaleStringResourcesAsync("Plugins.SmartStore.MyTestPlugin");
-            //var parameter = "Plugins.SmartStore.MyTestPlugin.%";
-            //var sql = "DELETE `l` FROM `LocaleStringResource` AS `l` WHERE `l`.`ResourceName` LIKE {0}";
-            //var num = await _db.Database.ExecuteSqlRawAsync(sql, parameter);
-            //content.AppendLine($"num {num}");
-
 
             return Content(content.ToString());
             //return View();

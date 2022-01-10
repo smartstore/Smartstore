@@ -3,6 +3,7 @@ using System.Linq;
 using Amazon.Pay.API.WebStore.Buyer;
 using Amazon.Pay.API.WebStore.CheckoutSession;
 using Amazon.Pay.API.WebStore.Types;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -16,7 +17,6 @@ using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Common;
 using Smartstore.Core.Data;
-using Smartstore.Core.Identity;
 using Smartstore.Utilities.Html;
 using Smartstore.Web.Controllers;
 
@@ -99,13 +99,14 @@ namespace Smartstore.AmazonPay.Controllers
                             .ApplyStandardFilter(false, store.Id)
                             .Where(x => x.AllowsBilling || x.AllowsShipping)
                             .Select(x => x.TwoLetterIsoCode)
-                            .Distinct()
                             .ToListAsync();
 
                         if (allowedCountryCodes.Any())
                         {
                             request.DeliverySpecifications.AddressRestrictions.Type = RestrictionType.Allowed;
-                            allowedCountryCodes.Each(countryCode => request.DeliverySpecifications.AddressRestrictions.AddCountryRestriction(countryCode));
+                            allowedCountryCodes
+                                .Distinct()
+                                .Each(countryCode => request.DeliverySpecifications.AddressRestrictions.AddCountryRestriction(countryCode));
                         }
                     }
 
@@ -173,14 +174,20 @@ namespace Smartstore.AmazonPay.Controllers
             }
 
             var store = Services.StoreContext.CurrentStore;
-            var customer = Services.WorkContext.CurrentCustomer;
-            var cart = await _shoppingCartService.GetCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
+            var cart = await _shoppingCartService.GetCartAsync(storeId: store.Id);
             var isShippingRequired = cart.IsShippingRequired();
+            var customer = cart.Customer;
 
             result.IsShippingMethodMissing = isShippingRequired && customer.GenericAttributes.SelectedShippingOption == null;
 
-            if (!cart.HasItems || (customer.IsGuest() && !_orderSettings.AnonymousCheckoutAllowed))
+            if (!cart.HasItems)
             {
+                return result;
+            }
+
+            if (customer.IsGuest() && !_orderSettings.AnonymousCheckoutAllowed)
+            {
+                NotifyWarning(T("Checkout.AnonymousNotAllowed"));
                 return result;
             }
 
@@ -700,7 +707,7 @@ namespace Smartstore.AmazonPay.Controllers
         /// AJAX. Creates the AmazonPay sign-in session object after clicking the AmazonPay button.
         /// </summary>
         [HttpPost]
-        public IActionResult CreateSignInSession()
+        public IActionResult CreateSignInSession(string returnUrl)
         {
             var signature = string.Empty;
             var payload = string.Empty;
@@ -729,6 +736,8 @@ namespace Smartstore.AmazonPay.Controllers
 
                 payload = request.ToJsonNoType();
                 signature = client.GenerateButtonSignature(payload);
+
+                HttpContext.Session.SetString("AmazonPayReturnUrl", returnUrl);
             }
             catch (Exception ex)
             {
@@ -750,18 +759,12 @@ namespace Smartstore.AmazonPay.Controllers
         /// The buyer is redirected to this action method after they click the sign-in button.
         /// </summary>
         [Route("amazonpay/signin")]
-        public IActionResult SignIn(string buyerToken)
+        [Authorize(AuthenticationSchemes = "Smartstore.AmazonPay")]
+        public IActionResult SignIn(/*string buyerToken*/)
         {
-            if (buyerToken.IsEmpty())
-            {
-                throw new ArgumentException(T("Plugins.Payments.AmazonPay.MissingAccessToken"));
-            }
+            var returnUrl = HttpContext.Session.GetString("AmazonPayReturnUrl");
 
-            HttpContext.Session.SetString("AmazonPayBuyerToken", buyerToken);
-
-            var returnUrl = HttpContext.Request.Query["returnUrl"].ToString();
-
-            return RedirectToAction(nameof(IdentityController.ExternalLogin), "Identity", 
+            return RedirectToAction(nameof(IdentityController.ExternalLoginCallback), "Identity", 
                 new { provider = AmazonPaySignInProvider.SystemName, returnUrl });
         }
 

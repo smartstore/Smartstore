@@ -1,11 +1,7 @@
-﻿using Autofac;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Smartstore.AmazonPay.Filters;
 using Smartstore.AmazonPay.Services;
-using Smartstore.Core.Stores;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;
 using Smartstore.Web.Controllers;
@@ -19,14 +15,7 @@ namespace Smartstore.AmazonPay
             services.AddScoped<IAmazonPayService, AmazonPayService>();
 
             services.AddAuthentication(AmazonPaySignInProvider.SystemName)
-                .AddScheme<AmazonPaySignInOptions, AmazonPaySignInHandler>(AmazonPaySignInProvider.SystemName, options =>
-                {
-                    var storeContext = appContext.Services.Resolve<IStoreContext>();
-                    var httpContext = appContext.Services.Resolve<IHttpContextAccessor>().HttpContext;
-
-                    options.StoreId = storeContext.CurrentStore.Id;
-                    options.BuyerToken = httpContext.Session.GetString("AmazonPayBuyerToken");
-                });
+                .AddScheme<AmazonPaySignInOptions, AmazonPaySignInHandler>(AmazonPaySignInProvider.SystemName, null);
 
             services.Configure<MvcOptions>(o =>
             {

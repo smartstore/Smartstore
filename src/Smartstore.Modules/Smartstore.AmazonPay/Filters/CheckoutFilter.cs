@@ -48,6 +48,7 @@ namespace Smartstore.AmazonPay.Filters
                 if (IsAmazonPaySelected() && await IsAmazonPayActive())
                 {
                     context.Result = new RedirectResult(_urlHelper.Value.Action(nameof(CheckoutController.Confirm), "Checkout"));
+                    return;
                 }
             }
             else if (action.EqualsNoCase(nameof(CheckoutController.Confirm)))

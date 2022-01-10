@@ -18,7 +18,7 @@
         amazonPaySignInButton.onClick(function () {
             $.ajax({
                 type: 'POST',
-                url: '@Url.Action("CreateSignInSession", "AmazonPay")',
+                url: '@Url.Action("CreateSignInSession", "AmazonPay", new { returnUrl = Url.Referrer() })',
 			    success: function (response) {
                     if (response.success) {
                         amazon.Pay.initCheckout({
