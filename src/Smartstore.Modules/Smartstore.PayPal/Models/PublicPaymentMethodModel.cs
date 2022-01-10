@@ -9,5 +9,7 @@ namespace Smartstore.PayPal.Models
         public decimal Amount { get; set; }
 
         public bool IsPaymentSelection { get; set; } = false;
+
+        public string ScriptUrl { get; set; }
     }
 }

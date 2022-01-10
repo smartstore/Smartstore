@@ -21,26 +21,6 @@ namespace Smartstore.PayPal
             {
                 o.Filters.AddConditional<MiniBasketFilter>(
                     context => context.ControllerIs<ShoppingCartController>(x => x.OffCanvasShoppingCart()));
-                o.Filters.AddConditional<ScriptIncludeFilter>(
-                    context => context.ControllerIs(controllerContext => 
-                    {
-                        if (!controllerContext.HttpContext.Request.IsAjaxRequest())
-                        {
-                            var descriptor = controllerContext.ActionDescriptor;
-                            var controllerType = descriptor.ControllerTypeInfo.AsType();
-
-                            if (controllerType == typeof(ShoppingCartController))
-                            {
-                                return descriptor.ActionName == "Cart";
-                            }
-                            else if (controllerType == typeof(CheckoutController))
-                            {
-                                return descriptor.ActionName is ("Confirm" or "PaymentMethod");
-                            }
-                        }
-
-                        return false;
-                    }), 200);
                 o.Filters.AddConditional<CheckoutFilter>(
                     context => context.ControllerIs<CheckoutController>(x => x.PaymentMethod()) && !context.HttpContext.Request.IsAjaxRequest(), 200);
             });
