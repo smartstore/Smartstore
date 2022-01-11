@@ -1,6 +1,7 @@
 ﻿using Amazon.Pay.API.WebStore.Charge;
 using Amazon.Pay.API.WebStore.ChargePermission;
 using Amazon.Pay.API.WebStore.CheckoutSession;
+using Amazon.Pay.API.WebStore.Interfaces;
 using Amazon.Pay.API.WebStore.Refund;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -94,7 +95,7 @@ namespace Smartstore.AmazonPay.Providers
                     throw new SmartException(T("Plugins.Payments.AmazonPay.MissingCheckoutSessionState"));
                 }
 
-                var client = httpContext.GetAmazonPayApiClient(processPaymentRequest.StoreId);
+                var client = GetClient(processPaymentRequest.StoreId);
                 var request = new CompleteCheckoutSessionRequest(processPaymentRequest.OrderTotal, _amazonPayService.GetAmazonPayCurrency());
                 var response = client.CompleteCheckoutSession(state.SessionId, request);
 
@@ -171,7 +172,7 @@ namespace Smartstore.AmazonPay.Providers
 
             if (order.PaymentStatus == PaymentStatus.Paid)
             {
-                var client = _httpContextAccessor.HttpContext.GetAmazonPayApiClient(order.StoreId);
+                var client = GetClient(order.StoreId);
                 var request = new CloseChargePermissionRequest(T("Plugins.Payments.AmazonPay.CloseChargeReason").Value.Truncate(255))
                 {
                     CancelPendingCharges = false
@@ -196,7 +197,7 @@ namespace Smartstore.AmazonPay.Providers
                 NewPaymentStatus = order.PaymentStatus
             };
 
-            var client = _httpContextAccessor.HttpContext.GetAmazonPayApiClient(order.StoreId);
+            var client = GetClient(order.StoreId);
             var request = new CaptureChargeRequest(order.OrderTotal, _amazonPayService.GetAmazonPayCurrency());
             var response = client.CaptureCharge(order.AuthorizationTransactionId, request);
 
@@ -228,7 +229,7 @@ namespace Smartstore.AmazonPay.Providers
                 NewPaymentStatus = order.PaymentStatus
             };
 
-            var client = _httpContextAccessor.HttpContext.GetAmazonPayApiClient(order.StoreId);
+            var client = GetClient(order.StoreId);
             var request = new CreateRefundRequest(order.AuthorizationTransactionId, refundPaymentRequest.AmountToRefund.Amount, _amazonPayService.GetAmazonPayCurrency());
             var response = client.CreateRefund(request);
 
@@ -261,7 +262,7 @@ namespace Smartstore.AmazonPay.Providers
 
             if (order.PaymentStatus == PaymentStatus.Pending || order.PaymentStatus == PaymentStatus.Authorized)
             {
-                var client = _httpContextAccessor.HttpContext.GetAmazonPayApiClient(order.StoreId);
+                var client = GetClient(order.StoreId);
                 var request = new CloseChargePermissionRequest(T("Plugins.Payments.AmazonPay.CloseChargeReason").Value.Truncate(255))
                 {
                     CancelPendingCharges = true
@@ -288,6 +289,11 @@ namespace Smartstore.AmazonPay.Providers
             var settings = await _services.SettingFactory.LoadSettingsAsync<AmazonPaySettings>(_services.StoreContext.CurrentStore.Id);
 
             return (settings.AdditionalFee, settings.AdditionalFeePercentage);
+        }
+
+        protected IWebStoreClient GetClient(int storeId)
+        {
+            return _httpContextAccessor.HttpContext.GetAmazonPayApiClient(storeId);
         }
     }
 

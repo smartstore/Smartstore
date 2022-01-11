@@ -8,20 +8,20 @@ namespace Smartstore.AmazonPay
         {
             Guard.NotNull(checkoutStateAccessor, nameof(checkoutStateAccessor));
 
-            var prop = checkoutStateAccessor.CheckoutState.CustomProperties;
+            var props = checkoutStateAccessor.CheckoutState.CustomProperties;
 
             var state = new AmazonPayCheckoutState
             {
-                SessionId = prop.Get("AmazonPayCheckout.SessionId") as string,
-                FormData = prop.Get("AmazonPayCheckout.FormData") as string
+                SessionId = props.Get("AmazonPayCheckout.SessionId") as string,
+                FormData = props.Get("AmazonPayCheckout.FormData") as string
             };
 
-            if (prop.TryGetValue("AmazonPayCheckout.IsConfirmed", out var isConfirmed))
+            if (props.TryGetValue("AmazonPayCheckout.IsConfirmed", out var isConfirmed))
             {
                 state.IsConfirmed = (bool)isConfirmed;
             }
 
-            if (prop.TryGetValue("AmazonPayCheckout.SubmitForm", out var submitForm))
+            if (props.TryGetValue("AmazonPayCheckout.SubmitForm", out var submitForm))
             {
                 state.SubmitForm = (bool)submitForm;
             }
@@ -33,21 +33,21 @@ namespace Smartstore.AmazonPay
         {
             Guard.NotNull(checkoutStateAccessor, nameof(checkoutStateAccessor));
 
-            var prop = checkoutStateAccessor.CheckoutState.CustomProperties;
+            var props = checkoutStateAccessor.CheckoutState.CustomProperties;
 
             if (state == null)
             {
-                prop.Remove("AmazonPayCheckout.SessionId");
-                prop.Remove("AmazonPayCheckout.IsConfirmed");
-                prop.Remove("AmazonPayCheckout.FormData");
-                prop.Remove("AmazonPayCheckout.SubmitForm");
+                props.Remove("AmazonPayCheckout.SessionId");
+                props.Remove("AmazonPayCheckout.IsConfirmed");
+                props.Remove("AmazonPayCheckout.FormData");
+                props.Remove("AmazonPayCheckout.SubmitForm");
             }
             else
             {
-                prop["AmazonPayCheckout.SessionId"] = state.SessionId;
-                prop["AmazonPayCheckout.IsConfirmed"] = state.IsConfirmed;
-                prop["AmazonPayCheckout.FormData"] = state.FormData;
-                prop["AmazonPayCheckout.SubmitForm"] = state.SubmitForm;
+                props["AmazonPayCheckout.SessionId"] = state.SessionId;
+                props["AmazonPayCheckout.IsConfirmed"] = state.IsConfirmed;
+                props["AmazonPayCheckout.FormData"] = state.FormData;
+                props["AmazonPayCheckout.SubmitForm"] = state.SubmitForm;
             }
         }
     }
