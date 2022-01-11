@@ -292,6 +292,15 @@ namespace Smartstore.Http
                 return false;
             }
 
+            var firstChar = path.Length > 1 && (path[0] == Path.AltDirectorySeparatorChar || path[0] == Path.DirectorySeparatorChar)
+                ? path[1]
+                : path[0];
+
+            if (firstChar is not ('M' or 'T'))
+            {
+                return false;
+            }
+
             var tokenizer = new StringTokenizer(path.Trim(PathUtility.PathSeparators), PathUtility.PathSeparators);
             int i = 0;
 
@@ -299,11 +308,11 @@ namespace Smartstore.Http
             {
                 if (i == 0)
                 {
-                    if (segment.Value.EqualsNoCase("modules"))
+                    if ("Modules".Equals(segment.Value))
                     {
                         extensionType = ExtensionType.Module;
                     }
-                    else if (segment.Value.EqualsNoCase("themes"))
+                    else if ("Themes".Equals(segment.Value))
                     {
                         extensionType = ExtensionType.Theme;
                     }
