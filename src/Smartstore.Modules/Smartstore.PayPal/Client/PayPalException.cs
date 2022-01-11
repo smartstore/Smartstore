@@ -1,19 +1,17 @@
-﻿using System.IO;
-using System.Net;
-using System.Net.Http.Headers;
+﻿using Smartstore.Core.Checkout.Payment;
 
 namespace Smartstore.PayPal.Client
 {
-    public class PayPalException : IOException
+    public class PayPalException : PaymentException
     {
-        public PayPalException(PayPalResponse response, string message) 
-            : base(message)
+        const string PayPal = "PayPal";
+        
+        public PayPalException(string message, PayPalResponse response)
+            : base(message, response, PayPal)
         {
-            Response = Guard.NotNull(response, nameof(response));
         }
 
-        public PayPalResponse Response { get; }
-        public HttpStatusCode StatusCode { get => Response.StatusCode; }
-        public HttpHeaders Headers { get => Response.Headers; }
+        public override PayPalResponse Response
+            => (PayPalResponse)base.Response;
     }
 }

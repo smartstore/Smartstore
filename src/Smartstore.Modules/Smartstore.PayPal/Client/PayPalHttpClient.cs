@@ -95,7 +95,7 @@ namespace Smartstore.PayPal.Client
 
             var response = await Execute(refundRequest);
 
-            if (response.StatusCode == HttpStatusCode.NoContent || response.StatusCode == HttpStatusCode.Created)
+            if (response.Status == HttpStatusCode.NoContent || response.Status == HttpStatusCode.Created)
             {
                 result.NewPaymentStatus = request.IsPartialRefund
                     ? PaymentStatus.PartiallyRefunded
@@ -140,13 +140,15 @@ namespace Smartstore.PayPal.Client
                     responseBody = await DeserializeResponseAsync(response.Content, request.ResponseType);
                 }
 
-                return new PayPalResponse(response.Headers, response.StatusCode, responseBody);
+                return new PayPalResponse(response.StatusCode, response.Headers, responseBody);
             }
             else
             {
                 var responseBody = await response.Content.ReadAsStringAsync(cancelToken);
-                var payPalResponse = new PayPalResponse(response.Headers, response.StatusCode, responseBody);
-                throw new PayPalException(payPalResponse, responseBody);
+                throw new PayPalException(responseBody, new PayPalResponse(
+                    response.StatusCode, 
+                    response.Headers,
+                    responseBody));
             }
         }
 

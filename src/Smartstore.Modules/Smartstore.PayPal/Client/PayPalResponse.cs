@@ -1,23 +1,23 @@
 ﻿using System.Net;
 using System.Net.Http.Headers;
+using Smartstore.Core.Checkout.Payment;
+using Smartstore.Net.Http;
 
 namespace Smartstore.PayPal.Client
 {
-    public class PayPalResponse
+    public class PayPalResponse : PaymentResponse
     {
-        private readonly object _message;
-
-        public PayPalResponse(HttpHeaders headers, HttpStatusCode statusCode, object message)
+        public PayPalResponse(HttpHeaders headers, HttpStatusCode status)
+            : this(status, headers, null)
         {
-            Headers = headers;
-            StatusCode = statusCode;
-            _message = message;
         }
 
-        public HttpHeaders Headers { get; }
-        public HttpStatusCode StatusCode { get; }
+        public PayPalResponse(HttpStatusCode status, HttpHeaders headers, object body)
+            : base(status, headers?.ToFlatDictionary(), body)
+        {
+            HttpHeaders = headers;
+        }
 
-        public T Message<T>()
-            => (T)_message;
+        public HttpHeaders HttpHeaders { get; }
     }
 }
