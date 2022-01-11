@@ -110,7 +110,7 @@ namespace Smartstore.AmazonPay.Controllers
                         }
                     }
 
-                    payload = request.ToJsonNoType();
+                    payload = request.ToJson();
                     signature = client.GenerateButtonSignature(payload);
                 }
                 else
@@ -272,10 +272,10 @@ namespace Smartstore.AmazonPay.Controllers
             await _db.SaveChangesAsync();
             result.Success = true;
 
-            _checkoutStateAccessor.CheckoutState.CustomProperties[AmazonPayCheckoutState.Key] = new AmazonPayCheckoutState 
+            _checkoutStateAccessor.SetAmazonPayCheckoutState(new AmazonPayCheckoutState
             {
-                CheckoutSessionId = checkoutSessionId
-            };
+                SessionId = checkoutSessionId
+            });
 
             if (session.PaymentPreferences != null)
             {
@@ -307,8 +307,9 @@ namespace Smartstore.AmazonPay.Controllers
             {
                 var store = Services.StoreContext.CurrentStore;
                 var customer = Services.WorkContext.CurrentCustomer;
+                var state = _checkoutStateAccessor.GetAmazonPayCheckoutState();
 
-                if (_checkoutStateAccessor.CheckoutState?.CustomProperties?.Get(AmazonPayCheckoutState.Key) is not AmazonPayCheckoutState state)
+                if (state.SessionId.IsEmpty())
                 {
                     throw new SmartException(T("Plugins.Payments.AmazonPay.MissingCheckoutSessionState"));
                 }
@@ -349,7 +350,7 @@ namespace Smartstore.AmazonPay.Controllers
                         }
 
                         var client = HttpContext.GetAmazonPayApiClient(store.Id);
-                        var response = client.UpdateCheckoutSession(state.CheckoutSessionId, request);
+                        var response = client.UpdateCheckoutSession(state.SessionId, request);
 
                         if (response.Success)
                         {
@@ -361,6 +362,8 @@ namespace Smartstore.AmazonPay.Controllers
                                 success = true;
                                 state.IsConfirmed = true;
                                 state.FormData = formData.EmptyNull();
+
+                                _checkoutStateAccessor.SetAmazonPayCheckoutState(state);
                             }
                             else
                             {
@@ -399,30 +402,25 @@ namespace Smartstore.AmazonPay.Controllers
         [Route("amazonpay/confirmationresult")]
         public IActionResult ConfirmationResult()
         {
+            var state = _checkoutStateAccessor.GetAmazonPayCheckoutState();
+            state.SubmitForm = false;
+
             try
             {
-                if (_checkoutStateAccessor.CheckoutState?.CustomProperties?.Get(AmazonPayCheckoutState.Key) is not AmazonPayCheckoutState state)
-                {
-                    throw new SmartException(T("Plugins.Payments.AmazonPay.MissingCheckoutSessionState"));
-                }
-
-                state.SubmitForm = false;
-
                 // INFO: amazonCheckoutSessionId query parameter is provided here too but it is more secure to use the state object.
-                if (state.CheckoutSessionId.IsEmpty())
+                if (state.SessionId.IsEmpty())
                 {
                     throw new SmartException(T("Plugins.Payments.AmazonPay.MissingCheckoutSessionState"));
                 }
 
                 var client = HttpContext.GetAmazonPayApiClient(Services.StoreContext.CurrentStore.Id);
-                var response = client.GetCheckoutSession(state.CheckoutSessionId);
+                var response = client.GetCheckoutSession(state.SessionId);
 
                 if (response.Success)
                 {
                     if (!response.StatusDetails.State.EqualsNoCase("Canceled"))
                     {
                         state.SubmitForm = true;
-                        return RedirectToAction(nameof(CheckoutController.Confirm), "Checkout");
                     }
                     else
                     {
@@ -439,6 +437,15 @@ namespace Smartstore.AmazonPay.Controllers
             {
                 Logger.Error(ex);
                 NotifyError(ex);
+            }
+            finally
+            {
+                _checkoutStateAccessor.SetAmazonPayCheckoutState(state);
+            }
+
+            if (state.SubmitForm)
+            {
+                return RedirectToAction(nameof(CheckoutController.Confirm), "Checkout");
             }
 
             return RedirectToRoute("ShoppingCart");
@@ -681,6 +688,10 @@ namespace Smartstore.AmazonPay.Controllers
             }
         }
 
+        /// <summary>
+        /// The merchant is redirected to this action method after he clicked the "smart registration" button on AmazonPay configuration page.
+        /// As a result of this registration, AmazonPay provides here JSON formatted API access keys.
+        /// </summary>
         [Route("amazonpay/sharekey")]
         public async Task<IActionResult> ShareKey(string payload)
         {
@@ -734,7 +745,7 @@ namespace Smartstore.AmazonPay.Controllers
                     }
                 };
 
-                payload = request.ToJsonNoType();
+                payload = request.ToJson();
                 signature = client.GenerateButtonSignature(payload);
 
                 HttpContext.Session.SetString("AmazonPayReturnUrl", returnUrl);

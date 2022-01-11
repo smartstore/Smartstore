@@ -21,6 +21,9 @@
                 url: '@Url.Action("CreateSignInSession", "AmazonPay", new { returnUrl = Url.Referrer() })',
 			    success: function (response) {
                     if (response.success) {
+                        // TODO: (mg) (core) react to solution for issue
+                        // https://github.com/amzn/amazon-pay-api-sdk-dotnet/issues/12
+
                         amazon.Pay.initCheckout({
                             merchantId: '@Html.Raw(Model.SellerId)',
                             publicKeyId: '@Html.Raw(Model.PublicKeyId)',
@@ -33,7 +36,8 @@
                             signInConfig: {
                                 payloadJSON: response.payload,
                                 signature: response.signature,
-                                publicKeyId: '@Html.Raw(Model.PublicKeyId)'
+                                publicKeyId: '@Html.Raw(Model.PublicKeyId)',
+                                algorithm: 'AMZN-PAY-RSASSA-PSS-V2'
                             }
                         });
 				    }

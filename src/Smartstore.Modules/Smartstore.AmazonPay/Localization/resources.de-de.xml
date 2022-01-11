@@ -39,13 +39,13 @@ Textvorschläge:</div><ul>
 		<Value>Ein Auftrag mit der Zahlungsart "Login und Bezahlen mit Amazon" und der Kennung '{0}' wurde nicht gefunden.</Value>
 	</LocaleResource>
 	<LocaleResource Name="AuthorizationSoftDeclineMessage">
-		<Value>Leider wurde die Zahlung zu Ihrer Bestellung in unserem Onlineshop von Amazon Pay zurückgewiesen. Bitte wählen Sie eine andere Zahlart.</Value>
+		<Value>Leider wurde die Zahlung zu Ihrer Bestellung in unserem Onlineshop von Amazon Pay zurückgewiesen.</Value>
 	</LocaleResource>
 	<LocaleResource Name="AuthorizationHardDeclineMessage">
 		<Value>Leider wurde die Zahlung zu Ihrer Bestellung in unserem Onlineshop von Amazon Pay zurückgewiesen. Bitte kontaktieren Sie uns.</Value>
 	</LocaleResource>
 	<LocaleResource Name="AuthenticationStatusFailureMessage">
-		<Value>Beim Zahlungsvorgang ist ein Problem aufgetreten. Ihre Bestellung wurde nicht aufgegeben und Ihr Konto nicht belastet. Bitte wählen Sie eine andere Zahlungsart aus.</Value>
+		<Value>Bei der Zahlung mit Amazon Pay ist ein Problem aufgetreten. Ihre Bestellung wurde nicht aufgegeben und Ihr Konto nicht belastet.</Value>
 	</LocaleResource>
 	<LocaleResource Name="PaymentFailure">
 		<Value>Mit dieser Zahlungsart ist ein Problem aufgetreten. Bitte versuchen Sie es erneut oder wählen Sie eine andere Zahlungsart aus.</Value>

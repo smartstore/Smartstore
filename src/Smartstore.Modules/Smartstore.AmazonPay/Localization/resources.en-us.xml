@@ -39,13 +39,13 @@ Text suggestions:</div><ul>
 		<Value>Cannot find an order with the payment method "Login and Pay with Amazon" and the identification '{0}'.</Value>
 	</LocaleResource>
 	<LocaleResource Name="AuthorizationSoftDeclineMessage">
-		<Value>Unfortunately Amazon Pay declined the payment for your order in our online shop. Please choose another payment method.</Value>
+		<Value>Unfortunately Amazon Pay declined the payment for your order in our online shop.</Value>
 	</LocaleResource>
 	<LocaleResource Name="AuthorizationHardDeclineMessage">
 		<Value>Unfortunately Amazon Pay declined the payment for your order in our online shop. Please contact us.</Value>
 	</LocaleResource>
 	<LocaleResource Name="AuthenticationStatusFailureMessage">
-		<Value>There was a problem with your payment. Your order hasn't been placed, and you haven't been charged. Please try another payment method.</Value>
+		<Value>There was a problem with your payment with Amazon Pay. Your order hasn't been placed, and you haven't been charged.</Value>
 	</LocaleResource>
 	<LocaleResource Name="PaymentFailure">
 		<Value>Something's wrong with your payment method. To place your order, try again or choose another payment method.</Value>

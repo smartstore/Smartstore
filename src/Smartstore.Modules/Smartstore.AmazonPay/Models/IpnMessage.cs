@@ -1,6 +1,4 @@
-﻿using Newtonsoft.Json;
-
-namespace Smartstore.AmazonPay.Models
+﻿namespace Smartstore.AmazonPay.Models
 {
     public class IpnMessage
     {

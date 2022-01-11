@@ -2,20 +2,14 @@
 
 namespace Smartstore.AmazonPay.Models
 {
-    [Serializable]
     public class AmazonPayCheckoutState
     {
-        public static string Key => "AmazonPayCheckoutState";
-
         /// <summary>
         /// The identifier of the AmazonPay checkout session object.
         /// </summary>
-        public string CheckoutSessionId { get; set; }
-        //public string OrderReferenceId { get; set; }
-        //public string AccessToken { get; set; }
+        public string SessionId { get; set; }
 
         // Confirmation flow.
-        //public bool DetailsSet { get; set; }
         public bool IsConfirmed { get; set; }
         public string FormData { get; set; }
 
@@ -26,9 +20,9 @@ namespace Smartstore.AmazonPay.Models
     }
 
     [Serializable]
-    public class AmazonPayCheckoutCompleteInfo
+    public class AmazonPayCompletedInfo
     {
-        public static string Key => "AmazonPayCheckoutCompleteInfo";
+        public static string Key => "AmazonPayCompletedInfo";
 
         public string Note { get; set; }
         public bool UseWidget { get; set; }

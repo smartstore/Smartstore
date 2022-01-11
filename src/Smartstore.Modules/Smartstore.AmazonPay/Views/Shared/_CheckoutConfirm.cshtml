@@ -11,17 +11,17 @@
         $('.change-payment-method, .change-billing-address, .change-shipping-address').attr('href', 'javascript:;');
 
         amazon.Pay.bindChangeAction('.change-payment-method', {
-            amazonCheckoutSessionId: '@Html.Raw(Model.CheckoutSessionId)',
+            amazonCheckoutSessionId: '@Html.Raw(Model.SessionId)',
             changeAction: 'changePayment'
         });
 
         amazon.Pay.bindChangeAction('.change-billing-address', {
-            amazonCheckoutSessionId: '@Html.Raw(Model.CheckoutSessionId)',
+            amazonCheckoutSessionId: '@Html.Raw(Model.SessionId)',
             changeAction: 'changeAddress'
         });
 
         amazon.Pay.bindChangeAction('.change-shipping-address', {
-            amazonCheckoutSessionId: '@Html.Raw(Model.CheckoutSessionId)',
+            amazonCheckoutSessionId: '@Html.Raw(Model.SessionId)',
             changeAction: 'changeAddress'
         });
 

@@ -32,7 +32,7 @@ namespace Smartstore.AmazonPay
                     if (request != null)
                     {
                         sb.AppendLine();
-                        sb.AppendLine(request.ToJsonNoType(new JsonSerializerSettings
+                        sb.AppendLine(JsonConvert.SerializeObject(request, new JsonSerializerSettings
                         {
                             NullValueHandling = NullValueHandling.Ignore,
                             TypeNameHandling = TypeNameHandling.None,

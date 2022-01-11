@@ -31,7 +31,8 @@
                             createCheckoutSessionConfig: {
                                 payloadJSON: response.payload,
                                 signature: response.signature,
-                                publicKeyId: '@Html.Raw(Model.PublicKeyId)'
+                                publicKeyId: '@Html.Raw(Model.PublicKeyId)',
+                                algorithm: 'AMZN-PAY-RSASSA-PSS-V2'
                             }
                         });
 				    }

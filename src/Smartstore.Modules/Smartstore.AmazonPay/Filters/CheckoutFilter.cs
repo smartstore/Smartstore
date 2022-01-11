@@ -53,18 +53,19 @@ namespace Smartstore.AmazonPay.Filters
             }
             else if (action.EqualsNoCase(nameof(CheckoutController.Confirm)))
             {
-                if (IsAmazonPaySelected()
-                    && await IsAmazonPayActive()
-                    && _checkoutStateAccessor.CheckoutState?.CustomProperties?.Get(AmazonPayCheckoutState.Key) is AmazonPayCheckoutState state
-                    && state.CheckoutSessionId.HasValue())
+                if (IsAmazonPaySelected() && await IsAmazonPayActive())
                 {
-                    _widgetProvider.Value.RegisterWidget("end",
-                        new PartialViewWidgetInvoker("_CheckoutConfirm", state, "Smartstore.AmazonPay"));
+                    var state = _checkoutStateAccessor.GetAmazonPayCheckoutState();
+                    if (state.SessionId.HasValue())
+                    {
+                        _widgetProvider.Value.RegisterWidget("end",
+                            new PartialViewWidgetInvoker("_CheckoutConfirm", state, "Smartstore.AmazonPay"));
+                    }
                 }
             }
             else if (action.EqualsNoCase(nameof(CheckoutController.Completed)))
             {
-                if (context.HttpContext.Session.TryGetObject<AmazonPayCheckoutCompleteInfo>(AmazonPayCheckoutCompleteInfo.Key, out var info))
+                if (context.HttpContext.Session.TryGetObject<AmazonPayCompletedInfo>(AmazonPayCompletedInfo.Key, out var info))
                 {
                     if (info.UseWidget)
                     {

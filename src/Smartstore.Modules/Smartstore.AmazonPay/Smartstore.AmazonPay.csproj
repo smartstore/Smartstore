@@ -5,7 +5,7 @@
 		<OutDir>$(OutputPath)</OutDir>
 	</PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="Amazon.Pay.API.SDK" Version="2.4.9" />
+		<PackageReference Include="Amazon.Pay.API.SDK" Version="2.5.0" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\..\Smartstore.Web\Smartstore.Web.csproj">
