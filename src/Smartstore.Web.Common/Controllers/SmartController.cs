@@ -224,14 +224,6 @@ namespace Smartstore.Web.Controllers
 
         #region Exceptions
 
-        public override void OnActionExecuted(ActionExecutedContext context)
-        {
-            if (context.Exception != null && !context.ExceptionHandled)
-            {
-                LogException(context.Exception);
-            }
-        }
-
         /// <summary>
         /// Logs an exception
         /// </summary>

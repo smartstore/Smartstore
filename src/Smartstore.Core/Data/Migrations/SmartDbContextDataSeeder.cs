@@ -609,6 +609,16 @@ namespace Smartstore.Core.Data.Migrations
                 "Search by order reference number or part of it. Leave empty to load all orders.",
                 "Suche über die Bestellreferenznummer oder Teile der Bestellreferenznummer. Freilassen, um alle Aufträge zu laden.");
 
+            builder.AddOrUpdate("Admin.System.Log.Fields.Customer",
+                "Customer",
+                "Kunde",
+                "Customer who caused the exception.",
+                "Kunde, der die Ausnahme verursacht hat.");
+
+            builder.AddOrUpdate("Admin.System.Log.Fields.UserName",
+                "Username",
+                "Benutzername");
+
             #endregion
 
             #region Obsolete

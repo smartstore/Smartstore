@@ -133,7 +133,7 @@
 
         public static void Error(this ILogger l, Exception ex, params object[] args)
         {
-            l.LogError(ex, null, args);
+            l.LogError(ex, ex.Message, args);
         }
 
         public static void Error(this ILogger l, Func<string> msgFactory, params object[] args)

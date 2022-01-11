@@ -167,6 +167,8 @@ namespace Smartstore.Web.Controllers
         {
             var storeId = _storeContext.CurrentStore.Id;
 
+            //throw new InvalidOperationException("Invalid operation");
+
             ViewBag.MetaTitle = _homePageSettings.GetLocalizedSetting(x => x.MetaTitle, storeId);
             ViewBag.MetaDescription = _homePageSettings.GetLocalizedSetting(x => x.MetaDescription, storeId);
             ViewBag.MetaKeywords = _homePageSettings.GetLocalizedSetting(x => x.MetaKeywords, storeId);
@@ -463,7 +465,6 @@ namespace Smartstore.Web.Controllers
 
             #endregion
 
-            Logger.Error(new Exception("WTF Exception"), "WTF maaaan");
             Logger.Warn("WTF WARN maaaan");
 
             Logger.Info("INFO maaaan");
