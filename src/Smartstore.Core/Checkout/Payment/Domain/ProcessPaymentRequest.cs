@@ -23,7 +23,8 @@ namespace Smartstore.Core.Checkout.Payment
         public Guid OrderGuid { get; set; }
 
         /// <summary>
-        /// Gets or sets an order total.
+        /// Gets or sets the order total in primary currency. 
+        /// This value is not rounded so that it can be converted to the <see cref="IWorkContext.WorkingCurrency"/> if required.
         /// </summary>
         public decimal OrderTotal { get; set; }
 

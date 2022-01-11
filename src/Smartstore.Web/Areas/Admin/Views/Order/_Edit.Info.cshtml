@@ -407,11 +407,12 @@
             </div>
         </div>
     </div>
-    <div sm-if="Model.CustomerOrderComment.HasValue()" class="adminRow">
-        <h4>@T("Admin.Order.CustomerComment.Heading")</h4>
-        <div class="alert alert-info">
-            @Model.CustomerOrderComment
-        </div>
+</div>
+
+<div sm-if="Model.CustomerOrderComment.HasValue()">
+    <h5 class="mt-4">@T("Admin.Order.CustomerComment.Heading")</h5>
+    <div class="alert alert-info">
+        @Model.CustomerOrderComment
     </div>
 </div>
 

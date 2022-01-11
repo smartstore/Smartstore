@@ -13,6 +13,7 @@ using Smartstore.Core;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
+using Smartstore.Core.Common;
 using Smartstore.Core.Data;
 using Smartstore.Core.Widgets;
 using Smartstore.Engine.Modularity;
@@ -95,8 +96,9 @@ namespace Smartstore.AmazonPay.Providers
                     throw new SmartException(T("Plugins.Payments.AmazonPay.MissingCheckoutSessionState"));
                 }
 
+                var orderTotal = new Money(processPaymentRequest.OrderTotal, _services.CurrencyService.PrimaryCurrency);
                 var client = GetClient(processPaymentRequest.StoreId);
-                var request = new CompleteCheckoutSessionRequest(processPaymentRequest.OrderTotal, _amazonPayService.GetAmazonPayCurrency());
+                var request = new CompleteCheckoutSessionRequest(orderTotal.RoundedAmount, _amazonPayService.GetAmazonPayCurrency());
                 var response = client.CompleteCheckoutSession(state.SessionId, request);
 
                 if (response.Success)

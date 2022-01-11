@@ -120,7 +120,7 @@
             <smart-label asp-for="Price" />
         </div>
         <div class="adminData">
-            <editor asp-for="Price" sm-postfix="@Model.PrimaryStoreCurrencyCode">
+            <editor asp-for="Price" sm-postfix="@Model.PrimaryStoreCurrencyCode" />
             <span asp-validation-for="Price"></span>
         </div>
     </div>

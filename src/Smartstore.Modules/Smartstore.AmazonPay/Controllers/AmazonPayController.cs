@@ -334,7 +334,7 @@ namespace Smartstore.AmazonPay.Controllers
                         var cartTotal = (Money?)await _orderCalculationService.GetShoppingCartTotalAsync(cart);
                         var request = new UpdateCheckoutSessionRequest();
 
-                        request.PaymentDetails.ChargeAmount.Amount = cartTotal.Value.Amount;
+                        request.PaymentDetails.ChargeAmount.Amount = cartTotal.Value.RoundedAmount;
                         request.PaymentDetails.ChargeAmount.CurrencyCode = _amazonPayService.GetAmazonPayCurrency();
                         request.PaymentDetails.CanHandlePendingAuthorization = _settings.TransactionType == AmazonPayTransactionType.Authorize;
                         request.PaymentDetails.PaymentIntent = _settings.TransactionType == AmazonPayTransactionType.AuthorizeAndCapture
