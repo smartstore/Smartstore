@@ -4,10 +4,10 @@ namespace Smartstore.PayPal.Client
 {
     public class PayPalException : PaymentException
     {
-        const string PayPal = "PayPal";
+        const string ProviderName = "PayPal";
         
         public PayPalException(string message, PayPalResponse response)
-            : base(message, response, PayPal)
+            : base(message, response, ProviderName)
         {
         }
 

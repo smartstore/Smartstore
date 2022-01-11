@@ -1,4 +1,6 @@
-﻿using Amazon.Pay.API.WebStore.Charge;
+﻿using System.Net;
+using Amazon.Pay.API.Types;
+using Amazon.Pay.API.WebStore.Charge;
 using Amazon.Pay.API.WebStore.ChargePermission;
 using Amazon.Pay.API.WebStore.CheckoutSession;
 using Amazon.Pay.API.WebStore.Interfaces;
@@ -21,6 +23,26 @@ using Smartstore.Http;
 
 namespace Smartstore.AmazonPay.Providers
 {
+    public class AmazonPayException : PaymentException
+    {
+        const string ProviderName = "AmazonPay";
+
+        public AmazonPayException(string message, Exception innerException)
+            : base(message, innerException, ProviderName)
+        {
+        }
+
+        public AmazonPayException(string message)
+            : base(message, ProviderName)
+        {
+        }
+
+        public AmazonPayException(string message, AmazonPayResponse response)
+            : base(message, new PaymentResponse((HttpStatusCode)response.Status, response.Headers), ProviderName)
+        {
+        }
+    }
+
     // TODO: (mg) (core) check error handling of payment infrastructure after all have GIT-committed.
     // Check whether all errors are also logged, not only notified. Example: OrderController.RePostPayment has no logging yet.
     [SystemName("Payments.AmazonPay")]
@@ -93,7 +115,7 @@ namespace Smartstore.AmazonPay.Providers
             {
                 if (state.SessionId.IsEmpty())
                 {
-                    throw new SmartException(T("Plugins.Payments.AmazonPay.MissingCheckoutSessionState"));
+                    throw new AmazonPayException(T("Plugins.Payments.AmazonPay.MissingCheckoutSessionState"));
                 }
 
                 var orderTotal = new Money(processPaymentRequest.OrderTotal, _services.CurrencyService.PrimaryCurrency);
@@ -157,12 +179,12 @@ namespace Smartstore.AmazonPay.Providers
                     Logger.LogAmazonPayFailure(request, response);
                 }
             }
-            catch
+            catch (Exception ex)
             {
                 // Avoid infinite loop where the confirm-form is automatically submitted over and over again.
                 state.SubmitForm = false;
                 _checkoutStateAccessor.SetAmazonPayCheckoutState(state);
-                throw;
+                throw new AmazonPayException(ex.Message, ex);
             }
 
             return result;
@@ -217,7 +239,7 @@ namespace Smartstore.AmazonPay.Providers
             else
             {
                 var message = Logger.LogAmazonPayFailure(request, response);
-                result.Errors.Add(message);
+                throw new AmazonPayException(message, response);
             }
 
             return Task.FromResult(result);
@@ -248,7 +270,7 @@ namespace Smartstore.AmazonPay.Providers
             else
             {
                 var message = Logger.LogAmazonPayFailure(request, response);
-                result.Errors.Add(message);
+                throw new AmazonPayException(message, response);
             }
 
             return result;
@@ -279,7 +301,7 @@ namespace Smartstore.AmazonPay.Providers
                 else
                 {
                     var message = Logger.LogAmazonPayFailure(request, response);
-                    result.Errors.Add(message);
+                    throw new AmazonPayException(message, response);
                 }
             }
 
