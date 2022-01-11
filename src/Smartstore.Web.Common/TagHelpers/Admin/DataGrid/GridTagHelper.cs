@@ -412,7 +412,6 @@ namespace Smartstore.Web.TagHelpers.Admin
         {
             return JsonConvert.SerializeObject(obj, new JsonSerializerSettings
             {
-                TypeNameHandling = TypeNameHandling.None,
                 Formatting = CommonHelper.IsDevEnvironment ? Formatting.Indented : Formatting.None
             });
         }

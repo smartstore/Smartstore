@@ -35,7 +35,6 @@ namespace Smartstore.AmazonPay
                         sb.AppendLine(JsonConvert.SerializeObject(request, new JsonSerializerSettings
                         {
                             NullValueHandling = NullValueHandling.Ignore,
-                            TypeNameHandling = TypeNameHandling.None,
                             Formatting = Formatting.Indented
                         }));
                     }

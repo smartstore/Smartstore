@@ -1413,7 +1413,11 @@ namespace Smartstore.Admin.Controllers
             }
 
             var data = await _gdprTool.Value.ExportCustomerAsync(customer);
-            var json = JsonConvert.SerializeObject(data, Formatting.Indented);
+            var json = JsonConvert.SerializeObject(data, new JsonSerializerSettings
+            {
+                Formatting = Formatting.Indented,
+                TypeNameHandling = TypeNameHandling.Objects
+            });
 
             return File(Encoding.UTF8.GetBytes(json), "application/json", "customer-{0}.json".FormatInvariant(customer.Id));
         }

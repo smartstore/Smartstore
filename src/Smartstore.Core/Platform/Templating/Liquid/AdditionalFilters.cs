@@ -107,8 +107,7 @@ namespace Smartstore.Templating.Liquid
 
             return JsonConvert.SerializeObject(input, new JsonSerializerSettings
             {
-                ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-                TypeNameHandling = TypeNameHandling.None
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore
             });
         }
 

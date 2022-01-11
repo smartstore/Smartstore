@@ -55,11 +55,7 @@ namespace Smartstore.Core.Packaging
 
         private async Task EmbedManifest(ZipArchive archive, MinimalExtensionDescriptor manifest)
         {
-            var json = JsonConvert.SerializeObject(manifest, new JsonSerializerSettings 
-            {
-                Formatting = Formatting.Indented,
-                TypeNameHandling = TypeNameHandling.None
-            });
+            var json = JsonConvert.SerializeObject(manifest, Formatting.Indented);
 
             var memStream = new MemoryStream();
             using (var streamWriter = new StreamWriter(memStream, leaveOpen: true))

@@ -8,7 +8,7 @@ namespace Smartstore.ComponentModel
 {
     public class NewtonsoftJsonSerializer : IJsonSerializer
     {
-        private readonly JsonSerializer _jsonSerializer = JsonSerializer.CreateDefault();
+        private readonly JsonSerializer _jsonSerializer = JsonSerializer.CreateDefault(new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.Objects });
 
         private static readonly byte[] NullResult = Encoding.UTF8.GetBytes("null");
 

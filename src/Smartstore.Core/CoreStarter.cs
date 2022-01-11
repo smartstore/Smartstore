@@ -51,7 +51,7 @@ namespace Smartstore.Core.Bootstrapping
                 var settings = new JsonSerializerSettings
                 {
                     ContractResolver = SmartContractResolver.Instance,
-                    TypeNameHandling = TypeNameHandling.Objects,
+                    TypeNameHandling = TypeNameHandling.None,
                     ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
                     ObjectCreationHandling = ObjectCreationHandling.Auto,
                     NullValueHandling = NullValueHandling.Ignore,

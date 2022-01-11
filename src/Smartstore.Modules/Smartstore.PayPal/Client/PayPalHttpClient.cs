@@ -41,8 +41,6 @@ namespace Smartstore.PayPal.Client
         private const string RefundEndpoint                 = "{0}/v2/payments/captures/{1}/refund";
         private const string TokenEndpoint                  = "{0}/v1/oauth2/token";
 
-        private readonly static JsonSerializerSettings _serializerSettings = new() { TypeNameHandling = TypeNameHandling.None };
-
         private readonly HttpClient _client;
         private readonly ILogger _logger;
         private readonly PayPalSettings _settings;
@@ -165,7 +163,7 @@ namespace Smartstore.PayPal.Client
 
             if (request.ContentType == "application/json")
             {
-                var json = JsonConvert.SerializeObject(request.Body, _serializerSettings);
+                var json = JsonConvert.SerializeObject(request.Body);
                 content = new StringContent(json, Encoding.UTF8, "application/json");
             }
             // TODO: (mh) (core) Is TextSerializer necessary?
@@ -189,7 +187,7 @@ namespace Smartstore.PayPal.Client
 
             if (contentType == "application/json")
             {
-                var message = JsonConvert.DeserializeObject(await content.ReadAsStringAsync(), responseType, _serializerSettings);
+                var message = JsonConvert.DeserializeObject(await content.ReadAsStringAsync(), responseType);
                 return message;
             }
             else
@@ -284,7 +282,7 @@ namespace Smartstore.PayPal.Client
                 }
             };
 
-            var data = JsonConvert.SerializeObject(patches, new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.None });
+            var data = JsonConvert.SerializeObject(patches);
 
             try
             {
@@ -460,7 +458,7 @@ namespace Smartstore.PayPal.Client
                     amount.CurrencyCode = store.PrimaryStoreCurrency.CurrencyCode;
                 }
 
-                var data = JsonConvert.SerializeObject(amount, new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.None });
+                var data = JsonConvert.SerializeObject(amount);
 
                 await EnsureAuthorizationAsync();
                 var url = GetEndPointUrl(PayPalTransaction.Refund, request.Order.CaptureTransactionId);
@@ -543,7 +541,7 @@ namespace Smartstore.PayPal.Client
 
                 billingPlan.PaymentDefinitions.Add(paymentDefinition);
 
-                var data = JsonConvert.SerializeObject(billingPlan, new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.None });
+                var data = JsonConvert.SerializeObject(billingPlan);
 
                 await EnsureAuthorizationAsync();
                 // TODO: (mh) (core) Make request & store plan id as GenericAttribute for shop product

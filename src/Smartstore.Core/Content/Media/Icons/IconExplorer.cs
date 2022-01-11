@@ -105,7 +105,6 @@ namespace Smartstore.Core.Content.Media.Icons
                 var settings = new JsonSerializerSettings
                 {
                     DefaultValueHandling = DefaultValueHandling.Ignore,
-                    TypeNameHandling = TypeNameHandling.None,
                     Formatting = Formatting.None
                 };
 

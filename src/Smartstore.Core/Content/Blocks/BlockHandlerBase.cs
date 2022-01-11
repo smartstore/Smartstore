@@ -66,8 +66,7 @@ namespace Smartstore.Core.Content.Blocks
 
 			var settings = new JsonSerializerSettings
 			{
-				ObjectCreationHandling = ObjectCreationHandling.Replace,
-				TypeNameHandling = TypeNameHandling.None
+				ObjectCreationHandling = ObjectCreationHandling.Replace
 			};
 
 			entity.Model = JsonConvert.SerializeObject(block, Formatting.None, settings);

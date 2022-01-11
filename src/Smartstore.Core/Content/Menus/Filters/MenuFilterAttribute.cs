@@ -89,7 +89,7 @@ namespace Smartstore.Core.Content.Menus
                     nodeData = new
                     {
                         type = nodeType,
-                        id = nodeId,
+                        id = nodeId?.ToString(),
                         menuItemId = selectedNode.Value.MenuItemId,
                         entityId = selectedNode.Value.EntityId,
                         parentId = selectedNode.Parent?.IsRoot == true ? 0 : selectedNode.Parent?.Id
