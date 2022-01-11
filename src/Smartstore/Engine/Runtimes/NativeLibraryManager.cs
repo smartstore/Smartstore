@@ -9,12 +9,14 @@ namespace Smartstore.Engine.Runtimes
     public class NativeLibraryManager : INativeLibraryManager
     {
         private readonly IApplicationContext _appContext;
+        private readonly ILoggerFactory _loggerFactory;
         private readonly ILogger _logger;
 
-        public NativeLibraryManager(IApplicationContext appContext, ILogger logger)
+        public NativeLibraryManager(IApplicationContext appContext, ILoggerFactory loggerFactory)
         {
             _appContext = appContext;
-            _logger = logger;
+            _loggerFactory = loggerFactory;
+            _logger = loggerFactory.CreateLogger<NativeLibraryManager>();
         }
 
         public FileInfo GetNativeLibrary(string libraryName, string minVersion = null, string maxVersion = null)
@@ -74,7 +76,7 @@ namespace Smartstore.Engine.Runtimes
 
         public INativeLibraryInstaller CreateLibraryInstaller()
         {
-            return new NativeLibraryInstaller(_appContext, this, _logger);
+            return new NativeLibraryInstaller(_appContext, this, _loggerFactory.CreateLogger<NativeLibraryInstaller>());
         }
     }
 }

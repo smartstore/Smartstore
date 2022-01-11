@@ -24,7 +24,8 @@ namespace Smartstore.Engine.Runtimes
         private readonly IApplicationContext _appContext;
         private readonly NativeLibraryManager _manager;
         private readonly NuGetExplorer _explorer;
-        
+        private readonly ILogger _logger;
+
         public NativeLibraryInstaller(
             IApplicationContext appContext, 
             NativeLibraryManager manager, 
@@ -36,6 +37,7 @@ namespace Smartstore.Engine.Runtimes
 
             _appContext = appContext;
             _manager = manager;
+            _logger = logger;
             _explorer = new NuGetExplorer(appContext, null, logger);
         }
 
@@ -92,8 +94,11 @@ namespace Smartstore.Engine.Runtimes
 
                 if (!Directory.Exists(targetDir))
                 {
+                    _logger.Info($"Creating runtime directory '{targetDir}'.");
                     Directory.CreateDirectory(targetDir);
                 }
+
+                _logger.Info($"Copy native library file from '{source}' to '{target}'.");
 
                 File.Copy(source, target, true);
 
