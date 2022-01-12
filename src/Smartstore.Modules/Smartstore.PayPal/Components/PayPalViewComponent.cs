@@ -78,6 +78,7 @@ namespace Smartstore.PayPal.Components
             }
 
             scriptUrl += $"&intent={_settings.Intent}";
+            scriptUrl += $"&locale={_services.WorkContext.WorkingLanguage.LanguageCulture.Replace("-", "_")}";
 
             model.ScriptUrl = scriptUrl;
 

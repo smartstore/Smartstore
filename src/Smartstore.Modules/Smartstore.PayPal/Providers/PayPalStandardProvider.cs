@@ -54,14 +54,22 @@ namespace Smartstore.PayPal.Providers
                 NewPaymentStatus = PaymentStatus.Pending,
             };
 
+            
             //TODO: (mh) (core) OBSOLETE > Remove
             //await _client.GetOrder(request);
 
-            await _client.UpdateOrder(request, result);
+            _ = await _client.UpdateOrderAsync(request, result);
 
             //await _client.GetOrder(request);
 
-            await _client.DoCheckout(request, result);
+            if (_settings.Intent == "authorize")
+            {
+                var response = await _client.AuthorizeOrderAsync(request, result);
+            }
+            else
+            {
+                var response = await _client.CaptureOrderAsync(request, result);
+            }
 
             return result;
         }
@@ -73,7 +81,7 @@ namespace Smartstore.PayPal.Providers
                 NewPaymentStatus = request.Order.PaymentStatus
             };
 
-            await _client.CapturePayment(request, result);
+            var response = await _client.CapturePaymentAsync(request, result);
 
             return result;
         }
@@ -85,7 +93,7 @@ namespace Smartstore.PayPal.Providers
                 NewPaymentStatus = request.Order.PaymentStatus
             };
 
-            await _client.VoidPayment(request, result);
+            var response = await _client.VoidPaymentAsync(request, result);
 
             return result;
         }
@@ -98,8 +106,6 @@ namespace Smartstore.PayPal.Providers
             };
 
             var response = await _client.RefundPaymentAsync(request, result);
-
-            // TODO: (mh) (core) Do something with response? Hmmm... I don't think so.
 
             return result;
         }

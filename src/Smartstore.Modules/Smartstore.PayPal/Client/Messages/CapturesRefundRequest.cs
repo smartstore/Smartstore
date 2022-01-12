@@ -36,7 +36,6 @@ namespace Smartstore.PayPal.Client.Messages
             return this;
         }
 
-
         public CapturesRefundRequest WithBody(RefundMessage refundRequest)
         {
             Body = refundRequest;

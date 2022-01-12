@@ -9,19 +9,19 @@
 @*INFO: No target zone here as can also be rendered via AJAX*@
 <script>
     loadPayPalPayScript(function () {
-
         var btnContainer = $("#paypal-button-container");
 
         // TODO: (mh) (core) Don't forget to call save cart data, to save reward points, etc?
 
         // Render the PayPal button into #paypal-button-container
         paypal.Buttons({
+            // TODO: (mh) (core) Add options for color, shape & label
             style: {
                 layout: 'horizontal',
                 label: 'pay'
             },
             // Create order
-            createOrder: function(data, actions) {
+            createOrder: function (data, actions) {
                 return actions.order.create({
                     purchase_units: [{
                         amount: {
