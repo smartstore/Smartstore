@@ -69,9 +69,6 @@ namespace Smartstore.PayPal.Filters
 
                 var session = _httpContextAccessor.HttpContext.Session;
 
-                // TODO: (mh) (core) ProcessPaymentRequest contains "Order" property and is therefore NOT SERIALIZABLE!
-                // Don't forget: ASP.NET Core does not save session data in memory anymore, but serializes all session data on request end.
-                // Please change the architecture after talking to MG. This affects many places :-(( !!
                 if (!session.ContainsKey("OrderPaymentInfo"))
                 {
                     session.TrySetObject("OrderPaymentInfo", new ProcessPaymentRequest
