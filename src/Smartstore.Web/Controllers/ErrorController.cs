@@ -98,7 +98,7 @@ namespace Smartstore.Web.Controllers
 
             try
             {
-                CreateLogger(model.ActionDescriptor).Error(model.Exception);
+                //CreateLogger(model.ActionDescriptor).Error(model.Exception);
             }
             catch
             {
@@ -117,7 +117,7 @@ namespace Smartstore.Web.Controllers
                         ? T("Admin.System.Warnings.AccessDeniedToUser", identity.Name.NaIfEmpty(), identity.Name.NaIfEmpty(), model.Path.NaIfEmpty())
                         : T("Admin.System.Warnings.AccessDeniedToAnonymousRequest", model.Path.NaIfEmpty());
 
-                    CreateLogger(model.ActionDescriptor).Info(info);
+                    //CreateLogger(model.ActionDescriptor).Info(info);
                 }
             }
             catch

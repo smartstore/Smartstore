@@ -4,11 +4,14 @@ namespace Smartstore
 {
     public static class LogEventExtensions
     {
-        public static T GetScalarPropertyValue<T>(this LogEvent logEvent, string name)
+        public static T GetPropertyValue<T>(this LogEvent logEvent, string name)
         {
-            if (logEvent.Properties.TryGetValue(name, out var value) && value is ScalarValue scalarValue)
+            if (logEvent.Properties.TryGetValue(name, out var value))
             {
-                return scalarValue.Value.Convert<T>();
+                if (value is ScalarValue scalarValue)
+                {
+                    return scalarValue.Value.Convert<T>();
+                }
             }
 
             return default;

@@ -18,7 +18,7 @@ namespace Smartstore.Engine.Modularity.NuGet
         {
             _logger.Log(
                 ConvertLevel(message.Level), 
-                0, 
+                0,
                 message.FormatWithCode(), 
                 null, 
                 _messageFormatter);

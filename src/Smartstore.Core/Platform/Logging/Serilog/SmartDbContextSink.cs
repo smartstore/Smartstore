@@ -68,12 +68,12 @@ namespace Smartstore.Core.Logging.Serilog
                 FullMessage = e.Exception?.ToString(),
                 CreatedOnUtc = e.Timestamp.UtcDateTime,
                 Logger = e.GetSourceContext() ?? "Unknown", // TODO: "Unknown" or "Smartstore"??
-                IpAddress = e.GetScalarPropertyValue<string>("Ip"),
-                CustomerId = e.GetScalarPropertyValue<int?>("CustomerId"),
-                PageUrl = e.GetScalarPropertyValue<string>("Url"),
-                ReferrerUrl = e.GetScalarPropertyValue<string>("Referrer"),
-                HttpMethod = e.GetScalarPropertyValue<string>("HttpMethod"),
-                UserName = e.GetScalarPropertyValue<string>("UserName")
+                IpAddress = e.GetPropertyValue<string>("Ip"),
+                CustomerId = e.GetPropertyValue<int?>("CustomerId"),
+                PageUrl = e.GetPropertyValue<string>("Url"),
+                ReferrerUrl = e.GetPropertyValue<string>("Referrer"),
+                HttpMethod = e.GetPropertyValue<string>("HttpMethod"),
+                UserName = e.GetPropertyValue<string>("UserName")
             };
         }
     }

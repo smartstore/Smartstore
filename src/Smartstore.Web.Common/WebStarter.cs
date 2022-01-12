@@ -118,12 +118,14 @@ namespace Smartstore.Web
 
             builder.Configure(StarterOrdering.AfterExceptionHandlerMiddleware, app =>
             {
-                // Executes IApplicationInitializer implementations during the very first request.
+                // Write streamlined request completion events, instead of the more verbose ones from the framework.
+                // To use the default framework request logging instead, remove this line and set the "Microsoft"
+                // level in appsettings.json to "Information".
+                app.UseRequestLogging();
+
                 if (appContext.IsInstalled)
                 {
-                    // Enriches log entry with CustomerId, UserName, IP etc.
-                    app.UseMiddleware<SerilogHttpContextMiddleware>();
-
+                    // Executes IApplicationInitializer implementations during the very first request.
                     app.UseApplicationInitializer();
                 }
             });
@@ -138,17 +140,6 @@ namespace Smartstore.Web
                     app.UseUrlPolicy();
                     app.UseRequestCulture();
                 }
-            });
-
-            builder.Configure(StarterOrdering.AfterStaticFilesMiddleware, app =>
-            {
-                // Write streamlined request completion events, instead of the more verbose ones from the framework.
-                // To use the default framework request logging instead, remove this line and set the "Microsoft"
-                // level in appsettings.json to "Information".
-                app.UseSerilogRequestLogging(o =>
-                {
-                    o.GetLevel = (ctx, _, ex) => ex == null && ctx.Response.StatusCode <= 499 ? LogEventLevel.Debug : LogEventLevel.Error;
-                });
             });
 
             builder.Configure(StarterOrdering.DefaultMiddleware, app =>
