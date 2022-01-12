@@ -38,6 +38,9 @@ Text suggestions:</div><ul>
 	<LocaleResource Name="OrderNotFound">
 		<Value>Cannot find an order with the payment method "Login and Pay with Amazon" and the identification '{0}'.</Value>
 	</LocaleResource>
+	<LocaleResource Name="SignInFailureMessage">
+		<Value>A problem occurred during the login process with Amazon.</Value>
+	</LocaleResource>
 	<LocaleResource Name="AuthorizationSoftDeclineMessage">
 		<Value>Unfortunately Amazon Pay declined the payment for your order in our online shop.</Value>
 	</LocaleResource>

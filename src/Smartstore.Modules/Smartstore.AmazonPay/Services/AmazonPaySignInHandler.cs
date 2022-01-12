@@ -96,7 +96,8 @@ namespace Smartstore.AmazonPay.Services
             }
             else
             {
-                var message = Logger.LogAmazonPayFailure(null, response);
+                var message = T("Plugins.Payments.AmazonPay.SignInFailureMessage");
+                Logger.Log(response, message);
 
                 return AuthenticateResult.Fail(message);
             }

@@ -311,7 +311,7 @@ namespace Smartstore.AmazonPay.Controllers
 
                 if (state.SessionId.IsEmpty())
                 {
-                    throw new SmartException(T("Plugins.Payments.AmazonPay.MissingCheckoutSessionState"));
+                    throw new AmazonPayException(T("Plugins.Payments.AmazonPay.MissingCheckoutSessionState"));
                 }
 
                 if (!HttpContext.Session.TryGetObject<ProcessPaymentRequest>("OrderPaymentInfo", out var paymentRequest) || paymentRequest == null)
@@ -367,14 +367,12 @@ namespace Smartstore.AmazonPay.Controllers
                             }
                             else
                             {
-                                messages.Add(T("Plugins.Payments.AmazonPay.PaymentFailure"));
-                                Logger.LogAmazonPayFailure(request, response);
+                                throw new AmazonPayException(T("Plugins.Payments.AmazonPay.PaymentFailure"), response);
                             }
                         }
                         else
                         {
-                            var message = Logger.LogAmazonPayFailure(request, response);
-                            messages.Add(message);
+                            throw new AmazonPayException(T("Plugins.Payments.AmazonPay.PaymentFailure"), response);
                         }
                     }
                     else
@@ -389,8 +387,8 @@ namespace Smartstore.AmazonPay.Controllers
             }
             catch (Exception ex)
             {
-                messages.Add(ex.Message);
                 Logger.Error(ex);
+                messages.Add(ex.Message);
             }
 
             return Json(new { success, redirectUrl, messages });
@@ -410,7 +408,7 @@ namespace Smartstore.AmazonPay.Controllers
                 // INFO: amazonCheckoutSessionId query parameter is provided here too but it is more secure to use the state object.
                 if (state.SessionId.IsEmpty())
                 {
-                    throw new SmartException(T("Plugins.Payments.AmazonPay.MissingCheckoutSessionState"));
+                    throw new AmazonPayException(T("Plugins.Payments.AmazonPay.MissingCheckoutSessionState"));
                 }
 
                 var client = HttpContext.GetAmazonPayApiClient(Services.StoreContext.CurrentStore.Id);
@@ -429,14 +427,13 @@ namespace Smartstore.AmazonPay.Controllers
                 }
                 else
                 {
-                    NotifyError(T("Plugins.Payments.AmazonPay.AuthenticationStatusFailureMessage"));
-                    Logger.LogAmazonPayFailure(null, response);
+                    throw new AmazonPayException(T("Plugins.Payments.AmazonPay.AuthenticationStatusFailureMessage"), response);
                 }
             }
             catch (Exception ex)
             {
                 Logger.Error(ex);
-                NotifyError(ex);
+                NotifyError(ex.Message);
             }
             finally
             {
@@ -518,7 +515,7 @@ namespace Smartstore.AmazonPay.Controllers
                 }
                 else
                 {
-                    Logger.LogAmazonPayFailure(null, response);
+                    Logger.Log(response);
                 }
             }
             else if (message.ObjectType.EqualsNoCase("CHARGE"))
@@ -547,13 +544,13 @@ namespace Smartstore.AmazonPay.Controllers
                         }
                         else
                         {
-                            Logger.LogAmazonPayFailure(null, response2);
+                            Logger.Log(response2);
                         }
                     }
                 }
                 else
                 {
-                    Logger.LogAmazonPayFailure(null, response);
+                    Logger.Log(response);
                 }
             }
             else if (message.ObjectType.EqualsNoCase("REFUND"))
@@ -572,7 +569,7 @@ namespace Smartstore.AmazonPay.Controllers
                 }
                 else
                 {
-                    Logger.LogAmazonPayFailure(null, response);
+                    Logger.Log(response);
                 }
             }
 

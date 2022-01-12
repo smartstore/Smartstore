@@ -596,21 +596,12 @@ namespace Smartstore.Web.Controllers
 
                 if (!placeOrderResult.Success)
                 {
-                    if (placeOrderResult.RedirectUrl.HasValue())
-                    {
-                        NotifyError(string.Join(Environment.NewLine, placeOrderResult.Errors.Take(3)));
-
-                        return Redirect(placeOrderResult.RedirectUrl);
-                    }
-                    else
-                    {
-                        model.Warnings.AddRange(placeOrderResult.Errors.Select(x => HtmlUtility.ConvertPlainTextToHtml(x)));
-                    }
+                    model.Warnings.AddRange(placeOrderResult.Errors.Select(x => HtmlUtility.ConvertPlainTextToHtml(x)));
                 }
             }
             catch (Exception ex)
             {
-                Logger.Warn(ex, ex.Message);
+                Logger.Error(ex);
 
                 if (!model.Warnings.Any(x => x == ex.Message))
                 {
@@ -620,6 +611,15 @@ namespace Smartstore.Web.Controllers
 
             if (placeOrderResult == null || !placeOrderResult.Success || model.Warnings.Any())
             {
+                var paymentMethod = await _paymentService.LoadPaymentMethodBySystemNameAsync(customer.GenericAttributes.SelectedPaymentMethod);
+                if (paymentMethod != null && paymentMethod.Value.PaymentMethodType == PaymentMethodType.Button)
+                {
+                    NotifyError(string.Join(Environment.NewLine, model.Warnings.Take(3)));
+
+                    // Redirect back to where the payment button is.
+                    return RedirectToAction(nameof(ShoppingCartController.Cart), "ShoppingCart");
+                }
+
                 return View(model);
             }
 

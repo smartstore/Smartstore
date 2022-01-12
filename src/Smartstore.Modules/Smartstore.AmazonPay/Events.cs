@@ -41,7 +41,7 @@ namespace Smartstore.AmazonPay
                         var response = client.CloseChargePermission(order.AuthorizationTransactionCode, request);
                         if (!response.Success)
                         {
-                            logger.LogAmazonPayFailure(request, response);
+                            logger.Log(response);
                         }
                     }
                     catch (Exception ex)

@@ -22,92 +22,77 @@ namespace Smartstore.Core.Checkout.Orders
 
             extraData ??= new();
 
+            if (paymentRequest.OrderGuid == Guid.Empty)
+            {
+                paymentRequest.OrderGuid = Guid.NewGuid();
+            }
+
             var result = new OrderPlacementResult();
+            var initialOrder = await _db.Orders.FindByIdAsync(paymentRequest.InitialOrderId);
 
-            try
+            var customer = await _db.Customers
+                .IncludeCustomerRoles()
+                .FindByIdAsync(paymentRequest.CustomerId);
+
+            var (warnings, cart) = await ValidateOrderPlacementAsync(paymentRequest, initialOrder, customer);
+            if (warnings.Count > 0)
             {
-                if (paymentRequest.OrderGuid == Guid.Empty)
-                {
-                    paymentRequest.OrderGuid = Guid.NewGuid();
-                }
-
-                var initialOrder = await _db.Orders.FindByIdAsync(paymentRequest.InitialOrderId);
-
-                var customer = await _db.Customers
-                    .IncludeCustomerRoles()
-                    .FindByIdAsync(paymentRequest.CustomerId);
-
-                var (warnings, cart) = await ValidateOrderPlacementAsync(paymentRequest, initialOrder, customer);
-                if (warnings.Any())
-                {
-                    result.Errors.AddRange(warnings);
-                    Logger.Warn(string.Join(" ", result.Errors));
-                    return result;
-                }
-
-                var context = new PlaceOrderContext
-                {
-                    Result = result,
-                    InitialOrder = initialOrder,
-                    Customer = customer,
-                    Cart = cart,
-                    ExtraData = extraData,
-                    PaymentRequest = paymentRequest
-                };
-
-                if (!paymentRequest.IsRecurringPayment)
-                {
-                    context.CartRequiresShipping = cart.IsShippingRequired();
-                }
-                else
-                {
-                    context.CartRequiresShipping = initialOrder.ShippingStatus != ShippingStatus.ShippingNotRequired;
-                    paymentRequest.PaymentMethodSystemName = initialOrder.PaymentMethodSystemName;
-                }
-
-                // Collect data for new order.
-                // Also applies data (like order and tax total) to paymentRequest for payment processing below.
-                await ApplyCustomerData(context);
-                await ApplyPricingData(context);
-
-                if (await ProcessPayment(context))
-                {
-                    _db.Orders.Add(context.Order);
-
-                    // Save, we need the primary key.
-                    // Payment has been made. Order MUST be saved immediately!
-                    await _db.SaveChangesAsync();
-
-                    context.Result.PlacedOrder = context.Order;
-
-                    // Also applies data (like discounts) required for saving associated data.
-                    await AddOrderItems(context);
-                    await AddAssociatedData(context);
-
-                    // Email messages, order notes etc.
-                    await FinalizeOrderPlacement(context);
-
-                    // Saves changes to database.
-                    await CheckOrderStatusAsync(context.Order);
-
-                    // Events.
-                    await _eventPublisher.PublishOrderPlacedAsync(context.Order);
-
-                    if (context.Order.PaymentStatus == PaymentStatus.Paid)
-                    {
-                        await _eventPublisher.PublishOrderPaidAsync(context.Order);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.Error(ex);
-                result.Errors.Add(ex.Message);
+                result.Errors.AddRange(warnings);
+                return result;
             }
 
-            if (result.Errors.Any())
+            var context = new PlaceOrderContext
             {
-                Logger.Error(string.Join(" ", result.Errors));
+                Result = result,
+                InitialOrder = initialOrder,
+                Customer = customer,
+                Cart = cart,
+                ExtraData = extraData,
+                PaymentRequest = paymentRequest
+            };
+
+            if (!paymentRequest.IsRecurringPayment)
+            {
+                context.CartRequiresShipping = cart.IsShippingRequired();
+            }
+            else
+            {
+                context.CartRequiresShipping = initialOrder.ShippingStatus != ShippingStatus.ShippingNotRequired;
+                paymentRequest.PaymentMethodSystemName = initialOrder.PaymentMethodSystemName;
+            }
+
+            // Collect data for new order.
+            // Also applies data (like order and tax total) to paymentRequest for payment processing below.
+            await ApplyCustomerData(context);
+            await ApplyPricingData(context);
+
+            if (await ProcessPayment(context))
+            {
+                _db.Orders.Add(context.Order);
+
+                // Save, we need the primary key.
+                // Payment has been made. Order MUST be saved immediately!
+                await _db.SaveChangesAsync();
+
+                context.Result.PlacedOrder = context.Order;
+
+                // Also applies data (like discounts) required for saving associated data.
+                await AddOrderItems(context);
+                await AddAssociatedData(context);
+
+                // Email messages, order notes etc.
+                await FinalizeOrderPlacement(context);
+
+                // Saves changes to database.
+                await CheckOrderStatusAsync(context.Order);
+
+                // Events.
+                await _eventPublisher.PublishOrderPlacedAsync(context.Order);
+
+                if (context.Order.PaymentStatus == PaymentStatus.Paid)
+                {
+                    await _eventPublisher.PublishOrderPaidAsync(context.Order);
+                }
             }
 
             return result;
@@ -703,8 +688,6 @@ namespace Smartstore.Core.Checkout.Orders
                 ctx.Result.Errors.Add(T("Payment.PayingFailed"));
                 ctx.Result.Errors.AddRange(result.Errors);
             }
-
-            ctx.Result.RedirectUrl = result.RedirectUrl;
 
             return result.Success;
         }

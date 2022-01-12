@@ -570,6 +570,7 @@ namespace Smartstore.Admin.Controllers
             }
             catch (Exception ex)
             {
+                Logger.Error(ex);
                 NotifyError(ex);
             }
 
@@ -627,6 +628,7 @@ namespace Smartstore.Admin.Controllers
             }
             catch (Exception ex)
             {
+                Logger.Error(ex);
                 NotifyError(ex);
             }
 
@@ -684,6 +686,7 @@ namespace Smartstore.Admin.Controllers
             }
             catch (Exception ex)
             {
+                Logger.Error(ex);
                 NotifyError(ex);
             }
 
@@ -793,6 +796,7 @@ namespace Smartstore.Admin.Controllers
             }
             catch (Exception ex)
             {
+                Logger.Error(ex);
                 NotifyError(ex, false);
             }
 

@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.Extensions.Options;
 using Smartstore.AmazonPay.Services;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Common.Settings;
@@ -20,20 +19,17 @@ namespace Smartstore.AmazonPay.Controllers
     {
         private readonly SmartDbContext _db;
         private readonly IAmazonPayService _amazonPayService;
-        private readonly IOptionsMonitorCache<AmazonPaySignInOptions> _optionsCache;
         private readonly StoreDependingSettingHelper _settingHelper;
         private readonly CompanyInformationSettings _companyInformationSettings;
 
         public AmazonPayAdminController(
             SmartDbContext db,
             IAmazonPayService amazonPayService,
-            IOptionsMonitorCache<AmazonPaySignInOptions> optionsCache,
             StoreDependingSettingHelper settingHelper,
             CompanyInformationSettings companyInformationSettings)
         {
             _db = db;
             _amazonPayService = amazonPayService;
-            _optionsCache = optionsCache;
             _settingHelper = settingHelper;
             _companyInformationSettings = companyInformationSettings;
         }
@@ -165,9 +161,6 @@ namespace Smartstore.AmazonPay.Controllers
 
             await _settingHelper.UpdateSettingsAsync(settings, form, storeScope);
             await _db.SaveChangesAsync();
-
-            // TODO: (mg) (core) This must also be called when settings change via all settings grid.
-            _optionsCache.TryRemove(AmazonPaySignInProvider.SystemName);
 
             NotifySuccess(T("Admin.Common.DataSuccessfullySaved"));
 
