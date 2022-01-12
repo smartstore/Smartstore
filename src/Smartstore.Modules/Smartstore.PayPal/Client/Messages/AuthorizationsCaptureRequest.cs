@@ -5,7 +5,7 @@ using System.Net.Http;
 namespace Smartstore.PayPal.Client.Messages
 {
     /// <summary>
-    /// Captures an authorized, by ID.
+    /// Captures an authorized order, by ID.
     /// </summary>
     public class AuthorizationsCaptureRequest : PayPalRequest<CaptureMessage>
     {

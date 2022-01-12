@@ -5,7 +5,7 @@ using System.Net.Http;
 namespace Smartstore.PayPal.Client.Messages
 {
     /// <summary>
-    /// Voids, or cancels, an authorized payment, by ID. You cannot void an authorized payment that has been fully captured.
+    /// Voids or cancels an authorized payment, by ID. You cannot void an authorized payment that has been fully captured.
     /// </summary>
     public class AuthorizationsVoidRequest : PayPalRequest<object>
     {
