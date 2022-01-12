@@ -191,6 +191,9 @@ namespace Smartstore.AmazonPay.Controllers
                 return result;
             }
 
+            // TODO: (mg) (core) Buyer can change addresses\payment, so get session data later (in ConfirmOrder before validation).
+            // TODO: (mg) (core) back-button on shipping page moves forward, not back.
+
             await _db.LoadCollectionAsync(customer, x => x.Addresses);
 
             // Create addresses from AmazonPay checkout session.

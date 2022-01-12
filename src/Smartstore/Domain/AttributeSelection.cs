@@ -149,6 +149,11 @@ namespace Smartstore.Domain
                 return _rawAttributes;
             }
 
+            if (_attributes.Attributes.Count == 0 && _attributes.CustomAttributes.Count == 0)
+            {
+                return null;
+            }
+
             try
             {
                 var json = JsonConvert.SerializeObject(_attributes);

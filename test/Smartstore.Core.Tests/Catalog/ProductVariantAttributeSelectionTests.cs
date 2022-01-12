@@ -20,6 +20,15 @@ namespace Smartstore.Core.Tests.Catalog
         }
 
         [Test]
+        public void CanSerializeEmptyAttributeSelectionToJson()
+        {
+            var source = new ProductVariantAttributeSelection(string.Empty);
+            var json = source.AsJson();
+
+            Assert.IsNull(json);
+        }
+
+        [Test]
         public void CanSerializeAttributeSelectionToXml()
         {
             var source = CreateSelection();

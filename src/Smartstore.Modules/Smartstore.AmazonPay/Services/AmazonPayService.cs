@@ -136,15 +136,24 @@ namespace Smartstore.AmazonPay.Services
                                 .FirstOrDefaultAsync()
                             : null;
 
+                        var address1 = src.AddressLine1.TrimSafe().Truncate(500);
+                        var address2 = src.AddressLine2.TrimSafe()
+                                .Grow(src.AddressLine3.TrimSafe(), ", ")
+                                .Truncate(500);
+
+                        if (address1.IsEmpty() && address2.HasValue())
+                        {
+                            address1 = address2;
+                            address2 = null;
+                        }
+
                         result.Address = new Address
                         {
                             CreatedOnUtc = DateTime.UtcNow,
                             FirstName = firstName.Truncate(255),
                             LastName = lastName.Truncate(255),
-                            Address1 = src.AddressLine1.TrimSafe().Truncate(500),
-                            Address2 = src.AddressLine2.TrimSafe()
-                                .Grow(src.AddressLine3.TrimSafe(), ", ")
-                                .Truncate(500),
+                            Address1 = address1,
+                            Address2 = address2,
                             City = src.County
                                 .Grow(src.District, " ")
                                 .Grow(src.City, " ")
