@@ -56,7 +56,7 @@ namespace Smartstore.Web
             });
 
             // Add DataProtection
-            var dataProtectionDir = new DirectoryInfo(Path.Combine(appContext.TenantRoot.Root, "DataProtectionKeys"));
+            var dataProtectionDir = new DirectoryInfo(Path.Combine(appContext.TenantRoot.Root, "DataProtection-Keys"));
             services.AddDataProtection()
                 .PersistKeysToFileSystem(dataProtectionDir)
                 .AddKeyManagementOptions(o => o.XmlEncryptor ??= new NullXmlEncryptor())
