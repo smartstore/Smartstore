@@ -2,20 +2,16 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Net.Http.Json;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Humanizer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Smartstore.Caching;
-using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Localization;
@@ -27,8 +23,8 @@ namespace Smartstore.PayPal.Client
 {
     public class PayPalHttpClient
     {
-        private const string ApiUrlLive = "https://api-m.paypal.com";
-        private const string ApiUrlSandbox = "https://api-m.sandbox.paypal.com";
+        const string ApiUrlLive = "https://api-m.paypal.com";
+        const string ApiUrlSandbox = "https://api-m.sandbox.paypal.com";
 
         /// <summary>
         /// Key for PayPal access token caching
@@ -68,10 +64,231 @@ namespace Smartstore.PayPal.Client
             _cacheFactory = cacheFactory;
         }
 
+        #region Payment processing
+
+        /// <summary>
+        /// Gets an order. (For testing purposes only)
+        /// </summary>
+        public async Task<PayPalResponse> GetOrderAsync(ProcessPaymentRequest request, ProcessPaymentResult result)
+        {
+            Guard.NotNull(request, nameof(request));
+
+            var ordersGetRequest = new OrdersGetRequest(request.PaypalOrderId);
+            var response = await ExecuteRequestAsync(ordersGetRequest);
+            var rawResponse = response.Body<object>().ToString();
+
+            dynamic jResponse = JObject.Parse(rawResponse);
+
+            return response;
+        }
+
+        /// <summary>
+        /// Authorizes an order.
+        /// </summary>
+        public virtual async Task<PayPalResponse> UpdateOrderAsync(ProcessPaymentRequest request, ProcessPaymentResult result)
+        {
+            Guard.NotNull(request, nameof(request));
+
+            var ordersPatchRequest = new OrdersPatchRequest<object>(request.PaypalOrderId);
+
+            // TODO: (mh) (core) Add more info, like shipping cost, discount & payment fees
+            var store = _storeContext.GetStoreById(request.StoreId);
+            var amount = new AmountWithBreakdown
+            {
+                Value = request.OrderTotal.ToString("0.00", CultureInfo.InvariantCulture),
+                CurrencyCode = store.PrimaryStoreCurrency.CurrencyCode
+            };
+
+            var patches = new List<Patch<object>>
+            {
+                new Patch<object>
+                {
+                    Op = "replace",
+                    Path = "/purchase_units/@reference_id=='default'/amount",
+                    Value = amount
+                }
+            };
+
+            ordersPatchRequest.WithBody(patches);
+
+            var response = await ExecuteRequestAsync(ordersPatchRequest);
+
+            var rawResponse = response.Body<object>().ToString();
+            dynamic jResponse = JObject.Parse(rawResponse);
+            // TODO: (mh) (core) What to do here? Return success or error & only proceed if successful???
+
+            return response;
+        }
+
+        public Task<PayPalResponse> UpdateOrderAsync(OrdersPatchRequest<object> request) => ExecuteRequestAsync(request);
+
+        /// <summary>
+        /// Authorizes an order.
+        /// </summary>
+        public virtual async Task<PayPalResponse> AuthorizeOrderAsync(ProcessPaymentRequest request, ProcessPaymentResult result)
+        {
+            Guard.NotNull(request, nameof(request));
+
+            var ordersAuthorizeRequest = new OrdersAuthorizeRequest(request.PaypalOrderId);
+            var response = await ExecuteRequestAsync(ordersAuthorizeRequest);
+            var rawResponse = response.Body<object>().ToString();
+            dynamic jResponse = JObject.Parse(rawResponse);
+
+            result.AuthorizationTransactionId = (string)jResponse.purchase_units[0].payments.authorizations[0].id;
+            result.AuthorizationTransactionResult = (string)jResponse.status;
+            result.NewPaymentStatus = PaymentStatus.Authorized;
+
+            return response;
+        }
+
+        public Task<PayPalResponse> AuthorizeOrderAsync(OrdersAuthorizeRequest request) => ExecuteRequestAsync(request);
+
+        /// <summary>
+        /// Captures an order.
+        /// </summary>
+        public virtual async Task<PayPalResponse> CaptureOrderAsync(ProcessPaymentRequest request, ProcessPaymentResult result)
+        {
+            Guard.NotNull(request, nameof(request));
+
+            var ordersCaptureRequest = new OrdersCaptureRequest(request.PaypalOrderId);
+            var response = await ExecuteRequestAsync(ordersCaptureRequest);
+            var rawResponse = response.Body<object>().ToString();
+
+            dynamic jResponse = JObject.Parse(rawResponse);
+
+            result.CaptureTransactionId = (string)jResponse.purchase_units[0].payments.captures[0].id;
+            result.CaptureTransactionResult = (string)jResponse.status;
+            result.NewPaymentStatus = PaymentStatus.Paid;
+
+            return response;
+        }
+
+        public Task<PayPalResponse> CaptureOrderAsync(OrdersCaptureRequest request) => ExecuteRequestAsync(request);
+
+        /// <summary>
+        /// Captures authorized payment.
+        /// </summary>
+        public virtual async Task<PayPalResponse> CapturePaymentAsync(CapturePaymentRequest request, CapturePaymentResult result)
+        {
+            Guard.NotNull(request, nameof(request));
+
+            // TODO: (mh) (core) If ERPs are used this ain't the real Invoice-Id > Make optional or remove (TBD with MC)
+            var message = new CaptureMessage { InvoiceId = request.Order.OrderNumber };
+            var voidRequest = new AuthorizationsCaptureRequest(request.Order.CaptureTransactionId).WithBody(message);
+            var response = await ExecuteRequestAsync(voidRequest);
+            var capture = response.Body<Capture>();
+
+            result.NewPaymentStatus = PaymentStatus.Paid;
+            result.CaptureTransactionId = capture.Id;
+            result.CaptureTransactionResult = capture.Status;
+
+            return response;
+        }
+
+        public Task<PayPalResponse> CapturePaymentAsync(AuthorizationsCaptureRequest request) => ExecuteRequestAsync(request);
+
+        /// <summary>
+        /// Voids authorized payment.
+        /// </summary>
+        public virtual async Task<PayPalResponse> VoidPaymentAsync(VoidPaymentRequest request, VoidPaymentResult result)
+        {
+            Guard.NotNull(request, nameof(request));
+
+            var voidRequest = new AuthorizationsVoidRequest(request.Order.CaptureTransactionId);
+            var response = await ExecuteRequestAsync(voidRequest);
+
+            result.NewPaymentStatus = PaymentStatus.Voided;
+
+            return response;
+        }
+
+        public Task<PayPalResponse> VoidPaymentAsync(AuthorizationsVoidRequest request) => ExecuteRequestAsync(request);
+
+        /// <summary>
+        /// Refunds captured payment.
+        /// </summary>
+        public virtual async Task<PayPalResponse> RefundPaymentAsync(RefundPaymentRequest request, RefundPaymentResult result)
+        {
+            Guard.NotNull(request, nameof(request));
+
+            var message = new RefundMessage();
+
+            if (request.IsPartialRefund)
+            {
+                var store = _storeContext.GetStoreById(request.Order.StoreId);
+
+                message.Amount = new MoneyMessage
+                {
+                    Value = request.AmountToRefund.Amount.ToString("0.00", CultureInfo.InvariantCulture),
+                    CurrencyCode = store.PrimaryStoreCurrency.CurrencyCode
+                };
+            }
+
+            var refundRequest = new CapturesRefundRequest(request.Order.CaptureTransactionId).WithBody(message);
+            var response = await ExecuteRequestAsync(refundRequest);
+
+            result.NewPaymentStatus = request.IsPartialRefund
+                ? PaymentStatus.PartiallyRefunded
+                : PaymentStatus.Refunded;
+
+            return response;
+        }
+
+        public Task<PayPalResponse> RefundPaymentAsync(CapturesRefundRequest request) => ExecuteRequestAsync(request);
+
+        #endregion
+
+        #region Infrastructure
+
+        public virtual async Task<PayPalResponse> ExecuteRequestAsync<TRequest>(TRequest request, CancellationToken cancelToken = default)
+            where TRequest : PayPalRequest
+        {
+            Guard.NotNull(request, nameof(request));
+
+            request = request.Clone<TRequest>();
+
+            var apiUrl = _settings.UseSandbox ? ApiUrlSandbox : ApiUrlLive;
+            request.RequestUri = new Uri(apiUrl + request.Path.EnsureStartsWith('/'));
+
+            if (request.Body != null)
+            {
+                request.Content = SerializeRequest(request);
+            }
+            else
+            {
+                // Support empty messages
+                request.Content = new StringContent(string.Empty, Encoding.UTF8, "application/json");
+            }
+
+            await HandleAuthorizationAsync(request);
+
+            var response = await _client.SendAsync(request, cancelToken);
+
+            if (response.IsSuccessStatusCode)
+            {
+                object responseBody = null;
+
+                if (response.Content.Headers.ContentType != null)
+                {
+                    responseBody = await DeserializeResponseAsync(response.Content, request.ResponseType);
+                }
+
+                return new PayPalResponse(response.StatusCode, response.Headers, responseBody);
+            }
+            else
+            {
+                var responseBody = await response.Content.ReadAsStringAsync(cancelToken);
+                throw new PayPalException(responseBody, new PayPalResponse(
+                    response.StatusCode, 
+                    response.Headers,
+                    responseBody));
+            }
+        }
+
         /// <summary>
         /// Gets access token and add authorization header.
         /// </summary>
-        async Task SetAccessTokenHeaderAsync(HttpRequestMessage request)
+        protected virtual async Task HandleAuthorizationAsync(HttpRequestMessage request)
         {
             if (!request.Headers.Contains("Authorization") && request is not AccessTokenRequest)
             {
@@ -99,8 +316,9 @@ namespace Smartstore.PayPal.Client
             var cacheKey = string.Format(PAYPAL_ACCESS_TOKEN_KEY, _storeContext.CurrentStore.Id);
             var token = await _cacheFactory.GetMemoryCache().GetAsync(cacheKey, async (o) =>
             {
+                // TODO: (mh) (core) Fetch settings for a specific storeId by current order
                 var accessTokenRequest = new AccessTokenRequest(_settings.ClientId, _settings.Secret);
-                var response = await Execute(accessTokenRequest);
+                var response = await ExecuteRequestAsync(accessTokenRequest);
                 var accesstoken = response.Body<AccessToken>();
 
                 o.ExpiresIn(TimeSpan.FromSeconds(accesstoken.ExpiresIn - 30));
@@ -112,264 +330,7 @@ namespace Smartstore.PayPal.Client
             return token;
         }
 
-        /// <summary>
-        /// Gets an order. (For testing purposes only)
-        /// </summary>
-        public async Task<PayPalResponse> GetOrderAsync(ProcessPaymentRequest request, ProcessPaymentResult result)
-        {
-            Guard.NotNull(request, nameof(request));
-
-            var ordersGetRequest = new OrdersGetRequest(request.PaypalOrderId);
-
-            await SetAccessTokenHeaderAsync(ordersGetRequest);
-
-            var response = await Execute(ordersGetRequest);
-
-            var rawResponse = response.Body<object>().ToString();
-            dynamic jResponse = JObject.Parse(rawResponse);
-
-            return response;
-        }
-
-        /// <summary>
-        /// Authorizes an order.
-        /// </summary>
-        public async Task<PayPalResponse> UpdateOrderAsync(ProcessPaymentRequest request, ProcessPaymentResult result)
-        {
-            Guard.NotNull(request, nameof(request));
-
-            var ordersPatchRequest = new OrdersPatchRequest<object>(request.PaypalOrderId);
-            
-            await SetAccessTokenHeaderAsync(ordersPatchRequest);
-
-            // TODO: (mh) (core) Add more info, like shipping cost, discount & payment fees
-            var store = _storeContext.GetStoreById(request.StoreId);
-            var amount = new AmountWithBreakdown
-            {
-                Value = request.OrderTotal.ToString("0.00", CultureInfo.InvariantCulture),
-                CurrencyCode = store.PrimaryStoreCurrency.CurrencyCode
-            };
-
-            var patches = new List<Patch<object>>
-            {
-                new Patch<object>
-                {
-                    Op = "replace",
-                    Path = "/purchase_units/@reference_id=='default'/amount",
-                    Value = amount
-                }
-            };
-
-            ordersPatchRequest.WithBody(patches);
-
-            var response = await Execute(ordersPatchRequest);
-
-
-            var rawResponse = response.Body<object>().ToString();
-            dynamic jResponse = JObject.Parse(rawResponse);    
-            // TODO: (mh) (core) What to do here? Return success or error & onyl proceed if successful???
-
-            return response;
-        }
-
-        public Task<PayPalResponse> UpdateOrder(OrdersPatchRequest<object> request)
-        {
-            return Execute(request);
-        }
-
-        /// <summary>
-        /// Authorizes an order.
-        /// </summary>
-        public async Task<PayPalResponse> AuthorizeOrderAsync(ProcessPaymentRequest request, ProcessPaymentResult result)
-        {
-            Guard.NotNull(request, nameof(request));
-
-            var ordersAuthorizeRequest = new OrdersAuthorizeRequest(request.PaypalOrderId);
-
-            await SetAccessTokenHeaderAsync(ordersAuthorizeRequest);
-
-            var response = await Execute(ordersAuthorizeRequest);
-
-            var rawResponse = response.Body<object>().ToString();
-            dynamic jResponse = JObject.Parse(rawResponse);
-
-            result.AuthorizationTransactionId = (string)jResponse.purchase_units[0].payments.authorizations[0].id;
-            result.AuthorizationTransactionResult = (string)jResponse.status;
-            result.NewPaymentStatus = PaymentStatus.Authorized;
-
-            return response;
-        }
-
-        public Task<PayPalResponse> AuthorizeOrder(OrdersAuthorizeRequest request)
-        {
-            return Execute(request);
-        }
-
-        /// <summary>
-        /// Captures an order.
-        /// </summary>
-        public async Task<PayPalResponse> CaptureOrderAsync(ProcessPaymentRequest request, ProcessPaymentResult result)
-        {
-            Guard.NotNull(request, nameof(request));
-
-            var ordersCaptureRequest = new OrdersCaptureRequest(request.PaypalOrderId);
-
-            await SetAccessTokenHeaderAsync(ordersCaptureRequest);
-
-            var response = await Execute(ordersCaptureRequest);
-            var rawResponse = response.Body<object>().ToString();
-
-            dynamic jResponse = JObject.Parse(rawResponse);
-
-            result.CaptureTransactionId = (string)jResponse.purchase_units[0].payments.captures[0].id;
-            result.CaptureTransactionResult = (string)jResponse.status;
-            result.NewPaymentStatus = PaymentStatus.Paid;
-
-            return response;
-        }
-
-        public Task<PayPalResponse> CaptureOrder(OrdersCaptureRequest request)
-        {
-            return Execute(request);
-        }
-
-        /// <summary>
-        /// Captures authorized payment.
-        /// </summary>
-        public async Task<PayPalResponse> CapturePaymentAsync(CapturePaymentRequest request, CapturePaymentResult result)
-        {
-            Guard.NotNull(request, nameof(request));
-
-            // TODO: (mh) (core) If ERPs are used this ain't the real Invoice-Id > Make optional or remove (TBD with MC)
-            var message = new CaptureMessage { InvoiceId = request.Order.OrderNumber };
-            var voidRequest = new AuthorizationsCaptureRequest(request.Order.CaptureTransactionId)
-                .WithBody(message);
-
-            await SetAccessTokenHeaderAsync(voidRequest);
-
-            var response = await Execute(voidRequest);
-            var capture = response.Body<Capture>();
-
-            result.NewPaymentStatus = PaymentStatus.Paid;
-            result.CaptureTransactionId = capture.Id;
-            result.CaptureTransactionResult = capture.Status;
-
-            return response;
-        }
-
-        public Task<PayPalResponse> CapturePayment(AuthorizationsCaptureRequest request)
-        {
-            return Execute(request);
-        }
-
-        /// <summary>
-        /// Voids authorized payment.
-        /// </summary>
-        public async Task<PayPalResponse> VoidPaymentAsync(VoidPaymentRequest request, VoidPaymentResult result)
-        {
-            Guard.NotNull(request, nameof(request));
-
-            var voidRequest = new AuthorizationsVoidRequest(request.Order.CaptureTransactionId);
-
-            await SetAccessTokenHeaderAsync(voidRequest);
-
-            var response = await Execute(voidRequest);
-
-            result.NewPaymentStatus = PaymentStatus.Voided;
-
-            return response;
-        }
-
-        public Task<PayPalResponse> VoidPayment(AuthorizationsVoidRequest request)
-        {
-            return Execute(request);
-        }
-
-        /// <summary>
-        /// Refunds captured payment.
-        /// </summary>
-        public async Task<PayPalResponse> RefundPaymentAsync(RefundPaymentRequest request, RefundPaymentResult result)
-        {
-            Guard.NotNull(request, nameof(request));
-            
-            var message = new RefundMessage();
-
-            if (request.IsPartialRefund)
-            {
-                var store = _storeContext.GetStoreById(request.Order.StoreId);
-
-                message.Amount = new MoneyMessage
-                {
-                    Value = request.AmountToRefund.Amount.ToString("0.00", CultureInfo.InvariantCulture),
-                    CurrencyCode = store.PrimaryStoreCurrency.CurrencyCode
-                };
-            }
-
-            var refundRequest = new CapturesRefundRequest(request.Order.CaptureTransactionId)
-                .WithBody(message);
-            
-            await SetAccessTokenHeaderAsync(refundRequest);
-
-            var response = await Execute(refundRequest);
-
-            result.NewPaymentStatus = request.IsPartialRefund
-                ? PaymentStatus.PartiallyRefunded
-                : PaymentStatus.Refunded;
-
-            return response;
-        }
-
-        public Task<PayPalResponse> RefundPayment(CapturesRefundRequest request)
-        {
-            return Execute(request);
-        }
-
-        #region Infrastructure
-
-        public virtual async Task<PayPalResponse> Execute<TRequest>(TRequest request, CancellationToken cancelToken = default)
-            where TRequest : PayPalRequest
-        {
-            Guard.NotNull(request, nameof(request));
-
-            request = request.Clone<TRequest>();
-
-            var apiUrl = _settings.UseSandbox ? ApiUrlSandbox : ApiUrlLive;
-            request.RequestUri = new Uri(apiUrl + request.Path.EnsureStartsWith('/'));
-
-            if (request.Body != null)
-            {
-                request.Content = SerializeRequest(request);
-            }
-            else
-            {
-                // Support empty messages
-                request.Content = new StringContent(string.Empty, Encoding.UTF8, "application/json");
-            }
-
-            var response = await _client.SendAsync(request, cancelToken);
-
-            if (response.IsSuccessStatusCode)
-            {
-                object responseBody = null;
-
-                if (response.Content.Headers.ContentType != null)
-                {
-                    responseBody = await DeserializeResponseAsync(response.Content, request.ResponseType);
-                }
-
-                return new PayPalResponse(response.StatusCode, response.Headers, responseBody);
-            }
-            else
-            {
-                var responseBody = await response.Content.ReadAsStringAsync(cancelToken);
-                throw new PayPalException(responseBody, new PayPalResponse(
-                    response.StatusCode, 
-                    response.Headers,
-                    responseBody));
-            }
-        }
-
-        protected HttpContent SerializeRequest(PayPalRequest request)
+        protected virtual HttpContent SerializeRequest(PayPalRequest request)
         {
             if (request.ContentType == null)
             {
@@ -399,7 +360,7 @@ namespace Smartstore.PayPal.Client
             return content;
         }
 
-        protected async Task<object> DeserializeResponseAsync(HttpContent content, Type responseType)
+        protected virtual async Task<object> DeserializeResponseAsync(HttpContent content, Type responseType)
         {
             if (content.Headers.ContentType == null)
             {
@@ -420,7 +381,7 @@ namespace Smartstore.PayPal.Client
             }
         }
 
-        private void HandleException(Exception exception, PaymentResult result, bool log = false)
+        protected virtual void HandleException(Exception exception, PaymentResult result, bool log = false)
         {
             if (exception != null)
             {
@@ -431,6 +392,8 @@ namespace Smartstore.PayPal.Client
         }
 
         #endregion
+
+        #region For future use
 
         /// <summary>
         /// Creates billing plan. (For future use)
@@ -504,5 +467,7 @@ namespace Smartstore.PayPal.Client
 
         //    // TODO: (mh) (core) Handle error
         //}
+
+        #endregion
     }
 }
