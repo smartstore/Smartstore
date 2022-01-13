@@ -11,7 +11,6 @@ using Smartstore.PayPal.Settings;
 
 namespace Smartstore.PayPal.Providers
 {
-    // TODO: (mh) (core) Don't allow checkout for mixed baskets (recurring and normal payments). > Check shopping cart warnings
     [SystemName("Payments.PayPalStandard")]
     [FriendlyName("PayPal Standard")]
     [Order(1)]

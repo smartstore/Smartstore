@@ -7,11 +7,9 @@
      attr-style='(Model.IsPaymentSelection, "display:none")'></div>
 
 @*INFO: No target zone here as can also be rendered via AJAX*@
-<script>
+<script data-origin="paypal-button">
     loadPayPalPayScript(function () {
         var btnContainer = $("#paypal-button-container");
-
-        // TODO: (mh) (core) Don't forget to call save cart data, to save reward points, etc?
 
         // Render the PayPal button into #paypal-button-container
         paypal.Buttons({
@@ -53,8 +51,7 @@
                 // Do nothing here, just let the user have it's way
             },
             onError: function (err) {
-                // TODO: (mh) (core) Go back to cart & notify
-                window.location.href = "/your-error-page-here";
+                displayNotification(err, 'error');
             }
         }).render('#paypal-button-container');
 
