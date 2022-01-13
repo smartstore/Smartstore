@@ -83,7 +83,14 @@ namespace Smartstore.Core.Checkout.Shipping
 
         public virtual async Task<List<ShippingMethod>> GetAllShippingMethodsAsync(int storeId = 0, bool matchRules = false)
         {
-            var shippingMethods = await _db.ShippingMethods
+            var query = _db.ShippingMethods.AsQueryable();
+
+            if (matchRules)
+            {
+                query = query.Include(x => x.RuleSets);
+            }
+
+            var shippingMethods = await query
                 .ApplyStoreFilter(storeId)
                 .OrderBy(x => x.DisplayOrder)
                 .ToListAsync();

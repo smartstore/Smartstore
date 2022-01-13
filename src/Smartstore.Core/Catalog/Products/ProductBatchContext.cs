@@ -242,10 +242,10 @@ namespace Smartstore.Core.Catalog.Products
 
         protected virtual async Task<Multimap<int, Discount>> LoadAppliedDiscounts(int[] ids)
         {
+            // INFO: AppliedDiscounts.RuleSets are not eager loaded anymore to avoid MultipleCollectionIncludeWarning.
             var discounts = await _db.Products
                 .AsNoTracking()
                 .Include(x => x.AppliedDiscounts)
-                    .ThenInclude(x => x.RuleSets)
                 .Where(x => ids.Contains(x.Id))
                 .Select(x => new
                 {

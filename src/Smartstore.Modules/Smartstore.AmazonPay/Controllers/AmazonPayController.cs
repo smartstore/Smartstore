@@ -191,14 +191,13 @@ namespace Smartstore.AmazonPay.Controllers
                 return result;
             }
 
-            // TODO: (mg) (core) back-button on shipping page moves forward, not back.
-
             await _db.LoadCollectionAsync(customer, x => x.Addresses);
 
             // Create addresses from AmazonPay checkout session.
             var client = HttpContext.GetAmazonPayApiClient(store.Id);
             var session = client.GetCheckoutSession(checkoutSessionId);
 
+            // TODO: (mg) (core) AmazonPay does provide billing address for EU market only.
             if (session.BillingAddress == null)
             {
                 NotifyError(T("Plugins.Payments.AmazonPay.MissingBillingAddress"));

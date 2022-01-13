@@ -247,6 +247,8 @@ namespace Smartstore.Core.Catalog.Discounts
             }
 
             // Rulesets.
+            await _db.LoadCollectionAsync(discount, x => x.RuleSets);
+
             if (!await _cartRuleProvider.RuleMatchesAsync(discount))
             {
                 return Cached(false);

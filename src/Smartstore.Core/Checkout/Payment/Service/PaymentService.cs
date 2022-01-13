@@ -108,6 +108,8 @@ namespace Smartstore.Core.Checkout.Payment
                         // Rule sets.
                         if (paymentMethods.TryGetValue(p.Metadata.SystemName, out var pm))
                         {
+                            await _db.LoadCollectionAsync(pm, x => x.RuleSets);
+
                             if (!await _cartRuleProvider.RuleMatchesAsync(pm))
                             {
                                 return false;

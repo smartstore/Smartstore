@@ -10,6 +10,7 @@ using Smartstore.Web.Controllers;
 
 namespace Smartstore.AmazonPay.Filters
 {
+    // TODO: (mg) (core) support navigating back to AmazonPay through checkout links.
     public class CheckoutFilter : IAsyncActionFilter
     {
         private static readonly string[] _skipActions = new[] 
