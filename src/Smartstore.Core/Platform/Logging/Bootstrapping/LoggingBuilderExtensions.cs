@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Smartstore.Core.Logging;
-using Smartstore.Core.Logging.Serilog;
 
 namespace Smartstore.Core.Bootstrapping
 {
@@ -22,18 +21,5 @@ namespace Smartstore.Core.Bootstrapping
             app.UseMiddleware<RequestLoggingMiddleware>();
             return app;
         }
-
-        ///// <summary>
-        ///// Enriches log context with CustomerId, UserName, Url, Referrer, HttpMethod and IP.
-        ///// </summary>
-        ///// <param name="app">The application builder.</param>
-        ///// <returns>The application builder.</returns>
-        //public static IApplicationBuilder UseLogContextEnricher(this IApplicationBuilder app)
-        //{
-        //    Guard.NotNull(app, nameof(app));
-
-        //    app.UseMiddleware<SerilogHttpContextMiddleware>();
-        //    return app;
-        //}
     }
 }

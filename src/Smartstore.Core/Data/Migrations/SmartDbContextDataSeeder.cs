@@ -29,8 +29,8 @@ namespace Smartstore.Core.Data.Migrations
 
         public async Task SeedAsync(SmartDbContext context, CancellationToken cancelToken = default)
         {
-            await context.MigrateLocaleResourcesAsync(MigrateLocaleResources);
             await MigrateEnumResources(context, cancelToken);
+            await context.MigrateLocaleResourcesAsync(MigrateLocaleResources);
             await MigrateSettingsAsync(context, cancelToken);
         }
 
@@ -70,7 +70,7 @@ namespace Smartstore.Core.Data.Migrations
             }
         }
 
-        public static void MigrateLocaleResources(LocaleResourcesBuilder builder)
+        public void MigrateLocaleResources(LocaleResourcesBuilder builder)
         {
             // TODO: (core) Uncomment all resource deletions before first public release.
 
@@ -571,6 +571,9 @@ namespace Smartstore.Core.Data.Migrations
             #endregion
 
             #region Fixes
+
+            builder.AddOrUpdate("Enums.LogLevel.Debug", "Debug", "Debug");
+            builder.AddOrUpdate("Enums.LogLevel.Information", "Info", "Info");
 
             builder.AddOrUpdate("ActivityLog.ImportThemeVars", "Imported {0} variables for theme '{1}'.", "{0} Variablen für Theme '{1}' importiert.");
             builder.AddOrUpdate("ActivityLog.ExportThemeVars", "Successfully exported theme '{0}'.", "Theme '{0}' erfolgreich exportiert.");

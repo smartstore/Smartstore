@@ -1,4 +1,5 @@
 ﻿using Serilog.Events;
+using Smartstore.Core.Logging.Serilog;
 
 namespace Smartstore
 {
@@ -11,6 +12,10 @@ namespace Smartstore
                 if (value is ScalarValue scalarValue)
                 {
                     return scalarValue.Value.Convert<T>();
+                }
+                else if (value is DelegateScalarValue delegateValue)
+                {
+                    return delegateValue.Value.Convert<T>();
                 }
             }
 

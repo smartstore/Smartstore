@@ -1,11 +1,13 @@
 ﻿using System.Diagnostics;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.Http.Features.Authentication;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Serilog.Context;
 using Serilog.Events;
 using Serilog.Extensions.Hosting;
 using Serilog.Parsing;
+using Smartstore.Core.Localization;
 using Smartstore.Core.Logging.Serilog;
 using Smartstore.Core.Security;
 using Smartstore.Core.Web;
@@ -36,17 +38,20 @@ namespace Smartstore.Core.Logging
         {
             Guard.NotNull(httpContext, nameof(httpContext));
 
-            var start = Stopwatch.GetTimestamp();
+            var customerIdEnricher = new DelegatingPropertyEnricher("CustomerId", () => workContext.CurrentCustomer?.Id);
+            var userNameEnricher = new DelegatingPropertyEnricher("UserName", () => httpContext.User?.Identity?.Name);
 
-            var collector = _diagnosticContext.BeginCollection();
-            try
+            using (LogContext.PushProperty("Url", webHelper.GetCurrentPageUrl(true)))
+            using (LogContext.PushProperty("Referrer", webHelper.GetUrlReferrer()?.OriginalString))
+            using (LogContext.PushProperty("HttpMethod", httpContext.Request.Method))
+            using (LogContext.PushProperty("Ip", webHelper.GetClientIpAddress().ToString()))
+            using (LogContext.Push(customerIdEnricher))
+            using (LogContext.Push(userNameEnricher))
             {
-                using (LogContext.PushProperty("Url", webHelper.GetCurrentPageUrl(true)))
-                using (LogContext.PushProperty("Referrer", webHelper.GetUrlReferrer()?.OriginalString))
-                using (LogContext.PushProperty("HttpMethod", httpContext.Request.Method))
-                using (LogContext.PushProperty("Ip", webHelper.GetClientIpAddress().ToString()))
-                using (LogContext.Push(new LazyPropertyEnricher("CustomerId", workContext.CurrentCustomer?.Id)))
-                using (LogContext.Push(new LazyPropertyEnricher("UserName", httpContext.User.Identity.Name)))
+                var start = Stopwatch.GetTimestamp();
+
+                var collector = _diagnosticContext.BeginCollection();
+                try
                 {
                     await _next.Invoke(httpContext);
 
@@ -54,21 +59,32 @@ namespace Smartstore.Core.Logging
                     var statusCode = httpContext.Response.StatusCode;
                     LogCompletion(httpContext, collector, statusCode, elapsedMs, null);
                 }
-            }
-            catch (Exception ex)
-                // Never caught, because `LogCompletion()` returns false.
-                // This ensures e.g. the developer exception page is still shown.
-                when (LogCompletion(httpContext, collector, 500, GetElapsedMilliseconds(start, Stopwatch.GetTimestamp()), ex))
-            {
-            }
-            finally
-            {
-                collector.Dispose();
+                catch (Exception ex)
+                    // Never caught, because `LogCompletion()` returns false.
+                    // This ensures e.g. the developer exception page is still shown.
+                    when (LogCompletion(httpContext, collector, 500, GetElapsedMilliseconds(start, Stopwatch.GetTimestamp()), ex))
+                {
+                }
+                finally
+                {
+                    // Fetch and freeze values as we'll go out of scope soon.
+                    customerIdEnricher.FreezeValue();
+                    userNameEnricher.FreezeValue();
+
+                    collector.Dispose();
+                }
             }
         }
 
         bool LogCompletion(HttpContext httpContext, DiagnosticContextCollector collector, int statusCode, double elapsedMs, Exception ex)
         {
+            var features = httpContext.Features;
+            if (features.Get<IExceptionHandlerPathFeature>() != null || features.Get<IStatusCodeReExecuteFeature>() != null)
+            {
+                // Don't execute again during re-execution.
+                return false;
+            }
+
             var endpoint = httpContext.GetEndpoint();
             var logger = GetLogger(httpContext, endpoint, ex);
             var level = GetLevel(httpContext, ex);
@@ -80,7 +96,7 @@ namespace Smartstore.Core.Logging
 
             if (ex != null)
             {
-                logger.Write(level, ex, ex.Message);
+                logger.Write(level, ex, GetMessage(httpContext, ex));
             }
             else
             {
@@ -92,7 +108,7 @@ namespace Smartstore.Core.Logging
                 // Last-in (correctly) wins...
                 var properties = collectedProperties.Concat(new[]
                 {
-                    new LogEventProperty("RequestPath", new ScalarValue(GetPath(httpContext))),
+                    new LogEventProperty("RequestPath", new ScalarValue(httpContext.Request.Path.Value)),
                     new LogEventProperty("StatusCode", new ScalarValue(statusCode)),
                     new LogEventProperty("Elapsed", new ScalarValue(elapsedMs)),
                     new LogEventProperty("HttpMethod", new ScalarValue(httpContext.Request.Method))
@@ -108,17 +124,6 @@ namespace Smartstore.Core.Logging
         static double GetElapsedMilliseconds(long start, long stop)
         {
             return (stop - start) * 1000 / (double)Stopwatch.Frequency;
-        }
-
-        static string GetPath(HttpContext ctx)
-        {
-            var requestPath = ctx.Features.Get<IHttpRequestFeature>()?.Path;
-            if (string.IsNullOrEmpty(requestPath))
-            {
-                requestPath = ctx.Request.Path.ToString();
-            }
-
-            return requestPath;
         }
 
         static ILogger GetLogger(HttpContext ctx, Endpoint endpoint, Exception ex)
@@ -144,6 +149,27 @@ namespace Smartstore.Core.Logging
                 : ctx.Response.StatusCode > 499
                     ? LogEventLevel.Error
                     : LogEventLevel.Debug;
+        }
+
+        static string GetMessage(HttpContext ctx, Exception ex)
+        {
+            if (ex is AccessDeniedException)
+            {
+                var identity = ctx.Features.Get<IHttpAuthenticationFeature>()?.User?.Identity;
+                if (identity != null)
+                {
+                    var T = ctx.RequestServices.GetService<Localizer>();
+                    if (T != null)
+                    {
+                        var path = ctx.Request.Path.Value;
+                        return identity.IsAuthenticated
+                            ? T("Admin.System.Warnings.AccessDeniedToUser", identity.Name.NaIfEmpty(), identity.Name.NaIfEmpty(), path.NaIfEmpty())
+                            : T("Admin.System.Warnings.AccessDeniedToAnonymousRequest", path.NaIfEmpty());
+                    }
+                }
+            }
+            
+            return ex.Message ?? "An unhandled exception has occurred while executing the request.";
         }
     }
 }

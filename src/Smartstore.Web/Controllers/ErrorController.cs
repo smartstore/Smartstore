@@ -2,7 +2,6 @@
 using System.Net;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Features.Authentication;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Routing;
 using Smartstore.Core.Localization;
@@ -16,12 +15,10 @@ namespace Smartstore.Web.Controllers
     public class ErrorController : Controller
     {
         private readonly UrlPolicy _urlPolicy;
-        private readonly ILoggerFactory _loggerFactory;
 
-        public ErrorController(UrlPolicy urlPolicy, ILoggerFactory loggerFactory)
+        public ErrorController(UrlPolicy urlPolicy)
         {
             _urlPolicy = urlPolicy;
-            _loggerFactory = loggerFactory;
         }
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
@@ -34,7 +31,6 @@ namespace Smartstore.Web.Controllers
 
             var errorFeature = HttpContext.Features.Get<IExceptionHandlerPathFeature>();
             var reExecuteFeature = HttpContext.Features.Get<IStatusCodeReExecuteFeature>();
-            var isAccessDeniedException = errorFeature?.Error is AccessDeniedException;
 
             var model = new ErrorModel 
             { 
@@ -51,21 +47,12 @@ namespace Smartstore.Web.Controllers
                 model.ActionDescriptor = model.Endpoint.Metadata.OfType<ControllerActionDescriptor>().FirstOrDefault();
             }
 
-            if (isAccessDeniedException)
-            {
-                TryLogAccessDeniedInfo(model);
-            }
-            else
-            {
-                TryLogError(model);
-            }
-
             if (Request.IsAjaxRequest())
             {
                 return Json(model);
             }
 
-            if (isAccessDeniedException)
+            if (model.Exception is AccessDeniedException)
             {
                 return View("AccessDenied", model);
             }
@@ -83,55 +70,6 @@ namespace Smartstore.Web.Controllers
                 default:
                     return View("Error", model);
             }
-        }
-        
-        private void TryLogError(ErrorModel model)
-        {
-            if (model.Exception == null)
-                return;
-
-            if (model.Exception.IsFatal())
-                return;
-
-            if (model.StatusCode < HttpStatusCode.InternalServerError)
-                return;
-
-            try
-            {
-                //CreateLogger(model.ActionDescriptor).Error(model.Exception);
-            }
-            catch
-            {
-                // Don't throw new exception
-            }
-        }
-
-        private void TryLogAccessDeniedInfo(ErrorModel model)
-        {
-            try
-            {
-                var identity = HttpContext.Features.Get<IHttpAuthenticationFeature>()?.User?.Identity;
-                if (identity != null)
-                {
-                    string info = identity.IsAuthenticated
-                        ? T("Admin.System.Warnings.AccessDeniedToUser", identity.Name.NaIfEmpty(), identity.Name.NaIfEmpty(), model.Path.NaIfEmpty())
-                        : T("Admin.System.Warnings.AccessDeniedToAnonymousRequest", model.Path.NaIfEmpty());
-
-                    //CreateLogger(model.ActionDescriptor).Info(info);
-                }
-            }
-            catch
-            {
-            }
-        }
-
-        private ILogger CreateLogger(ControllerActionDescriptor actionDescriptor)
-        {
-            var logger = actionDescriptor != null
-                ? _loggerFactory.CreateLogger(actionDescriptor.ControllerTypeInfo.AsType())
-                : _loggerFactory.CreateLogger<ErrorController>();
-
-            return logger;
         }
     }
 }

@@ -61,7 +61,7 @@ namespace Smartstore.Core.Logging.Serilog
                 shortMessage = shortMessage.Truncate(4000);
             }
 
-            return new Log
+            var log = new Log
             {
                 LogLevelId = e.Level == LogEventLevel.Verbose ? 0 : (int)e.Level * 10,
                 ShortMessage = shortMessage,
@@ -75,6 +75,8 @@ namespace Smartstore.Core.Logging.Serilog
                 HttpMethod = e.GetPropertyValue<string>("HttpMethod"),
                 UserName = e.GetPropertyValue<string>("UserName")
             };
+
+            return log;
         }
     }
 }
