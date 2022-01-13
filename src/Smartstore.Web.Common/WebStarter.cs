@@ -124,13 +124,13 @@ namespace Smartstore.Web
 
             builder.Configure(StarterOrdering.AfterExceptionHandlerMiddleware, app =>
             {
-                // Write streamlined request completion events, instead of the more verbose ones from the framework.
-                // To use the default framework request logging instead, remove this line and set the "Microsoft"
-                // level in appsettings.json to "Information".
-                app.UseRequestLogging();
-
                 if (appContext.IsInstalled)
                 {
+                    // Write streamlined request completion events, instead of the more verbose ones from the framework.
+                    // To use the default framework request logging instead, remove this line and set the "Microsoft"
+                    // level in appsettings.json to "Information".
+                    app.UseRequestLogging();
+
                     // Executes IApplicationInitializer implementations during the very first request.
                     app.UseApplicationInitializer();
                 }
