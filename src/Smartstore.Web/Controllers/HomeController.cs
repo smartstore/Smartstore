@@ -167,8 +167,6 @@ namespace Smartstore.Web.Controllers
         {
             var storeId = _storeContext.CurrentStore.Id;
 
-            throw new InvalidOperationException("Invalid operation");
-
             ViewBag.MetaTitle = _homePageSettings.GetLocalizedSetting(x => x.MetaTitle, storeId);
             ViewBag.MetaDescription = _homePageSettings.GetLocalizedSetting(x => x.MetaDescription, storeId);
             ViewBag.MetaKeywords = _homePageSettings.GetLocalizedSetting(x => x.MetaKeywords, storeId);

@@ -38,8 +38,11 @@ namespace Smartstore.Core.Logging
         {
             Guard.NotNull(httpContext, nameof(httpContext));
 
-            var customerIdEnricher = new DelegatingPropertyEnricher("CustomerId", () => workContext.CurrentCustomer?.Id);
-            var userNameEnricher = new DelegatingPropertyEnricher("UserName", () => httpContext.User?.Identity?.Name);
+            var customerIdEnricher = new DelegatingPropertyEnricher("CustomerId", 
+                () => httpContext.Response.HasStarted ? null : workContext.CurrentCustomer?.Id);
+
+            var userNameEnricher = new DelegatingPropertyEnricher("UserName", 
+                () => httpContext.User?.Identity?.Name);
 
             using (LogContext.PushProperty("Url", webHelper.GetCurrentPageUrl(true)))
             using (LogContext.PushProperty("Referrer", webHelper.GetUrlReferrer()?.OriginalString))
@@ -86,7 +89,7 @@ namespace Smartstore.Core.Logging
             }
 
             var endpoint = httpContext.GetEndpoint();
-            var logger = GetLogger(httpContext, endpoint, ex);
+            var logger = GetLogger(endpoint, ex);
             var level = GetLevel(httpContext, ex);
 
             if (!logger.IsEnabled(level))
@@ -126,7 +129,7 @@ namespace Smartstore.Core.Logging
             return (stop - start) * 1000 / (double)Stopwatch.Frequency;
         }
 
-        static ILogger GetLogger(HttpContext ctx, Endpoint endpoint, Exception ex)
+        static ILogger GetLogger(Endpoint endpoint, Exception ex)
         {
             var loggerType = typeof(RequestLoggingMiddleware);
 

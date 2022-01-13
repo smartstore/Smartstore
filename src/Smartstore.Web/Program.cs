@@ -131,6 +131,11 @@ namespace Smartstore.Web
                 builder.WriteTo.Debug();
             }
 
+            var strDbMinLevel = configuration["Serilog:MinimumLevel:Database"];
+            var dbMinLevel = strDbMinLevel.HasValue()
+                ? (LogEventLevel)Enum.Parse(typeof(LogEventLevel), strDbMinLevel)
+                : LogEventLevel.Information;
+
             builder
                 // Build INSTALL logger
                 .WriteTo.Conditional(Matching.FromSource("Install"), a => a.Async(logger =>
@@ -173,7 +178,7 @@ namespace Smartstore.Web
                         // Do not allow system/3rdParty noise less than WRN level
                         .Filter.ByIncludingOnly(IsDbSource)
                         .WriteTo.DbContext(period: TimeSpan.FromSeconds(5), batchSize: 50, eagerlyEmitFirstEvent: false, queueLimit: 1000);
-                }, restrictedToMinimumLevel: LogEventLevel.Information, levelSwitch: null);
+                }, restrictedToMinimumLevel: dbMinLevel, levelSwitch: null);
 
             return builder.CreateLogger();
         }
