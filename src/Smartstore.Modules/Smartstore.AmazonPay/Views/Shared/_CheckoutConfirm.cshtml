@@ -3,28 +3,11 @@
 @inject AmazonPaySettings _settings
 
 <script src="~/Modules/Smartstore.AmazonPay/js/jquery.deserialize.js"></script>
-<script src="@Html.Raw(_settings.GetCheckoutScriptUrl())"></script>
+
+<partial name="_CheckoutNavigation" />
 
 <script data-origin="amazonpay-confirm">
     $(function () {
-        // We do not know exactly what the AmazonPay script does. So we better remove the original URLs to avoid accidents.
-        $('.change-payment-method, .change-billing-address, .change-shipping-address').attr('href', 'javascript:;');
-
-        amazon.Pay.bindChangeAction('.change-payment-method', {
-            amazonCheckoutSessionId: '@Html.Raw(Model.SessionId)',
-            changeAction: 'changePayment'
-        });
-
-        amazon.Pay.bindChangeAction('.change-billing-address', {
-            amazonCheckoutSessionId: '@Html.Raw(Model.SessionId)',
-            changeAction: 'changeAddress'
-        });
-
-        amazon.Pay.bindChangeAction('.change-shipping-address', {
-            amazonCheckoutSessionId: '@Html.Raw(Model.SessionId)',
-            changeAction: 'changeAddress'
-        });
-
         // Confirmation flow.
         $(document).on('submitOrder', function (e) {
             var isConfirmed = @(Model.IsConfirmed.ToString().ToLower());

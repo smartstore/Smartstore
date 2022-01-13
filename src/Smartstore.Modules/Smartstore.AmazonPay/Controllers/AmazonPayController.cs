@@ -197,9 +197,9 @@ namespace Smartstore.AmazonPay.Controllers
             var client = HttpContext.GetAmazonPayApiClient(store.Id);
             var session = client.GetCheckoutSession(checkoutSessionId);
 
-            // TODO: (mg) (core) AmazonPay does provide billing address for EU market only.
             if (session.BillingAddress == null)
             {
+                // Orders without a billing address cannot be created.
                 NotifyError(T("Plugins.Payments.AmazonPay.MissingBillingAddress"));
                 return result;
             }
