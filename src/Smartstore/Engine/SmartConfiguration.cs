@@ -31,7 +31,7 @@
 
     public partial class SmartConfiguration
     {
-        public string ApplicationName { get; set; } = "Smartstore";
+        public string ApplicationName { get; set; }
         public bool EnableDynamicDiscovery { get; set; } = true;
         public string ThemesBasePath { get; set; } = "/Themes";
         public string ModulesBasePath { get; set; } = "/Plugins";

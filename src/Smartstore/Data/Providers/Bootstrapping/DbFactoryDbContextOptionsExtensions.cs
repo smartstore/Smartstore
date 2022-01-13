@@ -74,8 +74,8 @@ namespace Smartstore.Data.Providers
 
                         #region Test
                         //// To identify the query that's triggering MultipleCollectionIncludeWarning.
-                        ////w.Throw(RelationalEventId.MultipleCollectionIncludeWarning);
-                        ////w.Ignore(RelationalEventId.MultipleCollectionIncludeWarning);
+                        //w.Throw(RelationalEventId.MultipleCollectionIncludeWarning);
+                        //w.Ignore(RelationalEventId.MultipleCollectionIncludeWarning);
                         #endregion
                 });
             }

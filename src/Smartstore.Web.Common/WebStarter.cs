@@ -21,6 +21,8 @@ using System.Text.Encodings.Web;
 using System.Text.Unicode;
 using Autofac;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.DataProtection.XmlEncryption;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
@@ -52,6 +54,13 @@ namespace Smartstore.Web
                 o.Cookie.Name = CookieNames.Antiforgery;
                 o.HeaderName = "X-XSRF-Token";
             });
+
+            // Add DataProtection
+            var dataProtectionDir = new DirectoryInfo(Path.Combine(appContext.TenantRoot.Root, "DataProtectionKeys"));
+            services.AddDataProtection()
+                .PersistKeysToFileSystem(dataProtectionDir)
+                .AddKeyManagementOptions(o => o.XmlEncryptor ??= new NullXmlEncryptor())
+                .SetApplicationName(appContext.AppConfiguration.ApplicationName.NullEmpty() ?? appContext.RuntimeInfo.ApplicationIdentifier);
 
             // Add default HTTP client
             services.AddHttpClient(string.Empty)
