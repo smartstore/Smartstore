@@ -71,14 +71,6 @@ namespace Smartstore.Core.Content.Media
                 return;
             }
 
-            var method = context.Request.Method;
-
-            if (method != HttpMethods.Get && method != HttpMethods.Head)
-            {
-                await NotFound(null);
-                return;
-            }
-
             var mediaFileId = routeValues["id"].Convert<int>();
             var path = routeValues["path"].Convert<string>();
 

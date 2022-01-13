@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Smartstore.Core.Content.Media;
 
 namespace Smartstore.Core.Bootstrapping
@@ -12,10 +13,15 @@ namespace Smartstore.Core.Bootstrapping
         {
             Guard.NotNull(app, nameof(app));
 
-            app.UseMiddleware<MediaMiddleware>();
-            app.UseMiddleware<MediaLegacyMiddleware>();
+            app.UseWhen(IsGetOrHead, x => 
+            {
+                x.UseMiddleware<MediaMiddleware>();
+                x.UseMiddleware<MediaLegacyMiddleware>();
+            });
 
             return app;
         }
+
+        static bool IsGetOrHead(HttpContext ctx) => ctx.Request.Method == HttpMethods.Get || ctx.Request.Method == HttpMethods.Head;
     }
 }
