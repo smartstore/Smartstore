@@ -1,49 +1,71 @@
 ﻿<Language Name="Deutsch" IsDefault="true" IsRightToLeft="false">
 	<!-- TODO: (mh) (core) Check every resource key in here -->
-  <LocaleResource Name="Plugins.FriendlyName.Smartstore.PayPal" AppendRootKey="false">
+	
+	<!-- Friendly plugin backend name & description (e.g. in payment configuration list) -->
+	<LocaleResource Name="Plugins.FriendlyName.Smartstore.PayPal" AppendRootKey="false">
     <Value>PayPal</Value>
   </LocaleResource>
   <LocaleResource Name="Plugins.Description.Smartstore.PayPal" AppendRootKey="false">
-    <Value>Detaillierte Beschreibung zu PayPal</Value>
+    <Value>Erweitert den Shop um die Zahlungsfunktion von PayPal</Value>
   </LocaleResource>
   
-  <!-- (Provider) will be displayed in frontend on payment selection page and in backend on payment configuration list -->
-  <LocaleResource Name="Plugins.FriendlyName.Payments.PayPal" AppendRootKey="false">
+  <!-- Friendly provider name & description -->
+	<!-- Frontend payment option & backend -->
+  <LocaleResource Name="Plugins.FriendlyName.Payments.PayPalStandard" AppendRootKey="false">
     <Value>PayPal</Value>
   </LocaleResource>
-  <!-- (Provider) will be displayed in frontend on payment selection page and in backend on payment configuration list -->
-  <LocaleResource Name="Plugins.Description.Payments.PayPal" AppendRootKey="false">
-    <Value>Detallierte Beschreibung zu PayPal</Value>
+	<!-- Backend provider description -->
+	<LocaleResource Name="Plugins.Description.Payments.PayPalStandard" AppendRootKey="false">
+    <Value>
+			<![CDATA[
+				Öffnet ein sicheres Zahlungsfenster für den Kunden, in dem die Zahlung direkt bei PayPal durchgeführt wird. 
+				Nach der Rückleitung in den Shop kann die Bestellung mit wenigen Klicks abgeschloßen werden.
+      ]]>
+		</Value>
   </LocaleResource>
-  
-  <LocaleResource Name="Plugins.Smartstore.PayPal" AppendRootKey="false">
+
+	<!-- Should be rendered in frontend by default. As long as the shop admin doesn't enter a FullDescription for the PaymentMethod -->
+	<!-- 
+		TODO: (mh) (core) Talk with MC about a better convention for this.
+		The current state is absolutely horrible.
+		My proposal: add another resource key as a fallback, if no FullDescription was entered yet by the shop admin (see PaymentMethod.cshtml line 32).
+		
+		TODO: (mh) (core) Remove the puposeless, shitty settings from OfflinePayment and adapt to new convention.
+	-->
+	<LocaleResource Name="Plugins.PaymentInfo.Payments.PayPalStandard" AppendRootKey="false">
+		<Value>
+			<![CDATA[
+				Führen Sie die Zahlung in einem sicheren Browserfenster direkt bei PayPal durch. 
+				Nach der Rückleitung in den Shop können Sie die Bestellung mit wenigen Klicks abschließen.
+      ]]>
+		</Value>
+	</LocaleResource>
+	
+  <LocaleResource Name="Plugins.Smartstore.PayPalStandard" AppendRootKey="false">
     <Children>
       <LocaleResource Name="AdminInstruction">
         <Value>
           <![CDATA[
-            Geben Sie zur Einrichtung dieses Plugins nachfolgend Ihre Daten an.
+            <p>
+							Um PayPal in Ihrem Shop einzurichten befolgen Sie die Schritte der folgenden Anleitung.
+						</p>
+						<ul>
+							<li>Melden Sie sich mit Ihren PayPal-Kontodaten <a href="https://developer.paypal.com/developer/applications" target="_blank">im Entwickler-Dashboard</a> an.</li>
+							<li>Erstellen Sie eine neue App, indem Sie auf denn Button <b>Create App</b> klicken.</li>
+							<li>Tragen Sie nun den Account, die Client ID und den Secret in die dafür vorgesehenen Felder weiter unten auf dieser Seite.</li>
+						</ul>
           ]]>
         </Value>
       </LocaleResource>
 
-      
-      <LocaleResource Name="PaymentInfo">
-        <Value>Nach Abschluß der Bestellung werden Sie zu einem externen Zahlungsanbieter weitergeleitet, auf dessen Seite Sie die Zahlung für Ihre Bestellung durchführen können.</Value>
-      </LocaleResource>
-      <LocaleResource Name="Agreement">
-        <Value>Ich bin mir bewusst, dass meine Daten im Zuge des Zahlungsvorgangs an den Zahlungsanbieter übermittelt werden.</Value>
-      </LocaleResource>
-      <LocaleResource Name="Agreement.Message">
-        <Value>Bitte stimmen Sie zu, dass Ihre Daten im Zuge dieses Zahlungsvorgangs an den Zahlartanbieter übermittelt werden dürfen.</Value>
-      </LocaleResource>
       <LocaleResource Name="UseSandbox">
         <Value>Sandbox nutzen</Value>
       </LocaleResource>
       <LocaleResource Name="UseSandbox.Hint">
-        <Value>Bestimmt, ob die Zahlungen in der Sandbox des Payment-Anbieters ausgeführt werden.</Value>
+        <Value>Bestimmt, ob die Zahlungen in der PayPal Sandbox ausgeführt werden.</Value>
       </LocaleResource>
       <LocaleResource Name="Account">
-        <Value>Account-Id</Value>
+        <Value>Account</Value>
       </LocaleResource>
       <LocaleResource Name="Account.Hint">
         <Value>Geben Sie hier Ihren Account an.</Value>
@@ -60,6 +82,7 @@
       <LocaleResource Name="Secret.Hint">
         <Value>Geben Sie hier das Passwort an, das Ihnen vom Zahlungsanbieter übermittelt wurde.</Value>
       </LocaleResource>
+			
       <LocaleResource Name="AdditionalFee">
         <Value>Zusätzliche Gebühren</Value>
       </LocaleResource>
@@ -67,16 +90,16 @@
         <Value>Zusätzliche Gebühren, die dem Kunden für die Inanspruchnahme dieser Zahlart berechnet werden sollen.</Value>
       </LocaleResource>
       <LocaleResource Name="AdditionalFeePercentage">
-        <Value>Zusätzliche Gebühren (prozentual)</Value>
+        <Value>Zusätzliche Gebühren prozentual berechnen</Value>
       </LocaleResource>
       <LocaleResource Name="AdditionalFeePercentage.Hint">
-        <Value>Zusätzliche prozentuale Gebühr. Die konfigurierte Gebühr wird als fester Wert verwendet, falls diese Option nicht aktiviert ist.</Value>
+        <Value>Berechnet die zusätzliche Gebühr prozentual vom Bestellwert. Die konfigurierte Gebühr wird als fester Wert verwendet, falls diese Option nicht aktiviert ist.</Value>
       </LocaleResource>
 			<LocaleResource Name="ShowButtonInMiniShoppingCart">
 				<Value>Button im Miniwarenkorb anzeigen</Value>
 			</LocaleResource>
 			<LocaleResource Name="ShowButtonInMiniShoppingCart.Hint">
-				<Value>Legt fest, ob der Checkout-Button im Miniwarenkorb angezeigt werden soll.</Value>
+				<Value>Legt fest, ob der PayPal-Button im Miniwarenkorb angezeigt werden soll.</Value>
 			</LocaleResource>
 
 			<LocaleResource Name="DisabledFundings">

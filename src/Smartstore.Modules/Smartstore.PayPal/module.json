@@ -4,10 +4,10 @@
   "Group": "Payment",
   "SystemName": "Smartstore.PayPal",
   "FriendlyName": "Smartstore.PayPal",
-  "Description": "TODO: (mh) (core) Describe'",
+  "Description": "Enables payments with PayPal",
   "Version": "5.0",
   "MinAppVersion": "5.0",
   "Order": 1,
   "ResourceRootKey": "Plugins.Smartstore.PayPal",
-  "ProjectUrl": "TODO: (mh) (core) Don't forget URL"
+  "ProjectUrl": "http://community.smartstore.com/marketplace/file/29-paypal-payment-plugins/"
 }

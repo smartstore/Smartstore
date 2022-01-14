@@ -29,7 +29,7 @@
                     {
                         var paymentMethod = Model.PaymentMethods[i];
                         var widgetInvoker = paymentMethod.InfoWidget;
-                        var description = paymentMethod.FullDescription?.Value;
+                        var description = paymentMethod.FullDescription?.Value; // ?? T("Plugins.PaymentInfo." + paymentMethod.PaymentMethodSystemName);
 
                         <li class="list-group-item opt-list-item payment-method-item" attr-class='(paymentMethod.Selected, "active")'>
                             <div class="opt-data">
