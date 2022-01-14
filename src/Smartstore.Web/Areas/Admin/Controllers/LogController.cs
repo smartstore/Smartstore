@@ -23,7 +23,7 @@ namespace Smartstore.Admin.Controllers
             { LogLevel.Fatal, "dark" },
             { LogLevel.Error, "danger" },
             { LogLevel.Warning, "warning" },
-            { LogLevel.Information, "info" },
+            { LogLevel.Information, "primary" },
             { LogLevel.Debug, "secondary" },
             { LogLevel.Verbose, "secondary" }
         };
