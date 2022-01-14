@@ -13,7 +13,7 @@ namespace Smartstore.Core.Logging
 
         public virtual async Task<int> ClearLogsAsync(CancellationToken cancelToken = default)
         {
-            var numDeleted = await _db.Logs.CountAsync();
+            var numDeleted = await _db.Logs.CountAsync(cancelToken);
             
             using var tx = await _db.Database.BeginTransactionAsync(cancelToken);
 

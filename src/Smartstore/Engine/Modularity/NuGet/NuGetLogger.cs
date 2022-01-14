@@ -1,5 +1,6 @@
 ﻿using NuGet.Common;
-using L = Microsoft.Extensions.Logging;
+using MsLogger = Microsoft.Extensions.Logging.ILogger;
+using MsLogLevel = Microsoft.Extensions.Logging.LogLevel;
 
 namespace Smartstore.Engine.Modularity.NuGet
 {
@@ -7,9 +8,9 @@ namespace Smartstore.Engine.Modularity.NuGet
     {
         private static readonly Func<string, Exception, string> _messageFormatter = MessageFormatter;
 
-        private readonly L.ILogger _logger;
+        private readonly MsLogger _logger;
 
-        public NuGetLogger(L.ILogger logger)
+        public NuGetLogger(MsLogger logger)
         {
             _logger = Guard.NotNull(logger, nameof(logger));
         }
@@ -35,26 +36,17 @@ namespace Smartstore.Engine.Modularity.NuGet
             return _logger.IsEnabled(ConvertLevel(messageLevel));
         }
 
-        private static L.LogLevel ConvertLevel(LogLevel level)
+        private static MsLogLevel ConvertLevel(LogLevel level)
         {
-            switch (level)
+            return level switch
             {
-                case LogLevel.Debug:
-                    return L.LogLevel.Debug;
-                case LogLevel.Verbose:
-                    return L.LogLevel.None;
-                case LogLevel.Information:
-                    return L.LogLevel.Information;
-                case LogLevel.Warning:
-                case LogLevel.Minimal:
-                    return L.LogLevel.Warning;
-                case LogLevel.Error:
-                    return L.LogLevel.Error;
-                default:
-                    break;
-            }
-
-            return L.LogLevel.Debug;
+                LogLevel.Verbose => MsLogLevel.Trace,
+                LogLevel.Information => MsLogLevel.Information,
+                LogLevel.Minimal => MsLogLevel.Information,
+                LogLevel.Warning => MsLogLevel.Warning,
+                LogLevel.Error => MsLogLevel.Debug,
+                _ => MsLogLevel.Debug
+            };
         }
 
         private static string MessageFormatter(string state, Exception error) => state;

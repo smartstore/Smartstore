@@ -115,7 +115,7 @@ namespace Smartstore
             {
                 ICollection<TSource> collection => new ValueTask<int>(collection.Count),
                 ICollection collection => new ValueTask<int>(collection.Count),
-                _ => Core(source, cancellationToken),
+                _ => Core(source, cancellationToken)
             };
 
             static async ValueTask<int> Core(IAsyncEnumerable<TSource> source, CancellationToken cancellationToken)
