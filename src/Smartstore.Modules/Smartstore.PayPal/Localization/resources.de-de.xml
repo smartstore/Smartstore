@@ -41,7 +41,7 @@
 		</Value>
 	</LocaleResource>
 	
-  <LocaleResource Name="Plugins.Smartstore.PayPalStandard" AppendRootKey="false">
+  <LocaleResource Name="Plugins.Smartstore.PayPal" AppendRootKey="false">
     <Children>
       <LocaleResource Name="AdminInstruction">
         <Value>
@@ -132,6 +132,42 @@
 			<LocaleResource Name="Auth">
 				<Value>Autorisierung sofort, Abbuchung später</Value>
 			</LocaleResource>
+			
+			<LocaleResource Name="ButtonShape">
+				<Value>Button-Form</Value>
+			</LocaleResource>
+			<LocaleResource Name="ButtonShape.Hint">
+				<Value>Legt die Form des PayPal-Buttons fest.</Value>
+			</LocaleResource>
+			<LocaleResource Name="ButtonShape.Rect">
+				<Value>Rechteckig</Value>
+			</LocaleResource>
+			<LocaleResource Name="ButtonShape.Pill">
+				<Value>Abgerundet</Value>
+			</LocaleResource>
+
+			<LocaleResource Name="ButtonColor">
+				<Value>Button-Farbe</Value>
+			</LocaleResource>
+			<LocaleResource Name="ButtonColor.Hint">
+				<Value>Legt die Farbe des PayPal-Buttons fest.</Value>
+			</LocaleResource>
+			<LocaleResource Name="ButtonColor.Gold">
+				<Value>Gold</Value>
+			</LocaleResource>
+			<LocaleResource Name="ButtonColor.Blue">
+				<Value>Blue</Value>
+			</LocaleResource>
+			<LocaleResource Name="ButtonColor.Silver">
+				<Value>Silber</Value>
+			</LocaleResource>
+			<LocaleResource Name="ButtonColor.White">
+				<Value>Weiß</Value>
+			</LocaleResource>
+			<LocaleResource Name="ButtonColor.Black">
+				<Value>Schwarz</Value>
+			</LocaleResource>
+			
 			<LocaleResource Name="BillingPlanName">
 				<Value>Zahlungsplan für {1}</Value>
 			</LocaleResource>

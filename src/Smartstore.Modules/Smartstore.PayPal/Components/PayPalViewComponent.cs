@@ -58,7 +58,9 @@ namespace Smartstore.PayPal.Components
             {
                 Intent = _settings.Intent,
                 Amount = cartSubTotal.SubtotalWithDiscount.Amount,
-                IsPaymentSelection = isPaymentSelectionPage
+                IsPaymentSelection = isPaymentSelectionPage,
+                ButtonColor = _settings.ButtonColor,
+                ButtonShape = _settings.ButtonShape
             };
 
             var currency = _services.WorkContext.WorkingCurrency.CurrencyCode;

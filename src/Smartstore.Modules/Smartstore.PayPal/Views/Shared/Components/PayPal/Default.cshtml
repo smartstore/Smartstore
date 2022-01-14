@@ -13,10 +13,11 @@
 
         // Render the PayPal button into #paypal-button-container
         paypal.Buttons({
-            // TODO: (mh) (core) Add options for color, shape & label
             style: {
                 layout: 'horizontal',
-                label: 'pay'
+                label: 'pay',
+                shape: '@Model.ButtonShape',
+                color: '@Model.ButtonColor'
             },
             // Create order
             createOrder: function (data, actions) {

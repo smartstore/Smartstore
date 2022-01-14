@@ -54,5 +54,15 @@ namespace Smartstore.PayPal.Settings
         /// Specifies whether the payment will be captured immediately or just authorized.
         /// </summary>
         public string Intent { get; set; } = "authorize";
+
+        /// <summary>
+        /// Specifies the form of the button.
+        /// </summary>
+        public string ButtonShape { get; set; }
+
+        /// <summary>
+        /// Specifies the color of the button.
+        /// </summary>
+        public string ButtonColor { get; set; }
     }
 }

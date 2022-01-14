@@ -34,5 +34,11 @@ namespace Smartstore.PayPal.Models
 
         [LocalizedDisplay("*Intent")]
         public string Intent { get; set; } = "authorize";
+
+        [LocalizedDisplay("*ButtonShape")]
+        public string ButtonShape { get; set; } = "pill";
+ 
+        [LocalizedDisplay("*ButtonColor")]
+        public string ButtonColor { get; set; } = "gold";
     }
 }

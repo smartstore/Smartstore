@@ -8,6 +8,21 @@
         new SelectListItem { Text = T("Plugins.Smartstore.PayPal.Capture"), Value = "capture", Selected = Model.Intent == "capture" },
         new SelectListItem { Text = T("Plugins.Smartstore.PayPal.Auth"), Value = "authorize", Selected = Model.Intent == "authorize" }
     };
+
+    var buttonShapes = new List<SelectListItem>
+    {
+        new SelectListItem { Text = T("Plugins.Smartstore.PayPal.ButtonShape.Pill"), Value = "pill", Selected = Model.ButtonShape == "pill" },
+        new SelectListItem { Text = T("Plugins.Smartstore.PayPal.ButtonShape.Rect"), Value = "rect", Selected = Model.ButtonShape == "rect" }
+    };
+
+    var buttonColors = new List<SelectListItem>
+    {
+        new SelectListItem { Text = T("Plugins.Smartstore.PayPal.ButtonColor.Gold"), Value = "gold", Selected = Model.ButtonColor == "gold" },
+        new SelectListItem { Text = T("Plugins.Smartstore.PayPal.ButtonColor.Blue"), Value = "blue", Selected = Model.ButtonColor == "blue" },
+        new SelectListItem { Text = T("Plugins.Smartstore.PayPal.ButtonColor.Silver"), Value = "silver", Selected = Model.ButtonColor == "silver" },
+        new SelectListItem { Text = T("Plugins.Smartstore.PayPal.ButtonColor.White"), Value = "white", Selected = Model.ButtonColor == "white" },
+        new SelectListItem { Text = T("Plugins.Smartstore.PayPal.ButtonColor.Black"), Value = "black", Selected = Model.ButtonColor == "black" }
+    };
 }
 
 @await Component.InvokeAsync("StoreScope")
@@ -132,5 +147,31 @@
                 <span asp-validation-for="Intent"></span>
             </div>
         </div>
+
+        <hr />
+
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="ButtonShape" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="ButtonShape">
+                    <select asp-for="ButtonShape" asp-items="buttonShapes"></select>
+                </setting-editor>
+                <span asp-validation-for="ButtonShape"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="ButtonColor" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="ButtonColor">
+                    <select asp-for="ButtonColor" asp-items="buttonColors"></select>
+                </setting-editor>
+                <span asp-validation-for="ButtonColor"></span>
+            </div>
+        </div>
+
     </div>
 </form>
