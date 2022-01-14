@@ -19,7 +19,8 @@ namespace Smartstore.IO
             "App_Data",
             $"App_Data/Tenants/{DataSettings.Instance.TenantName}",
             $"App_Data/Tenants/{DataSettings.Instance.TenantName}/Media",
-            "Modules"
+            "Modules",
+            $"runtimes/{RuntimeInfo.GetRuntimeIdentifier()}/native"
         };
 
         /// <summary>

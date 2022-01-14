@@ -97,7 +97,7 @@ namespace Smartstore.Core.Widgets
 
             if (_legacyWidgetNameMap.ContainsKey(zone))
             {
-                _legacyWidgetNameMap.TryGetValue(zone, out zone);
+                zone = _legacyWidgetNameMap[zone];
             }
             
             var storeId = _storeContext.CurrentStore.Id;

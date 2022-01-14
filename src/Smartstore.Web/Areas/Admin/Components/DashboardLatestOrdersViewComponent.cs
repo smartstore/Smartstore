@@ -21,6 +21,7 @@ namespace Smartstore.Admin.Components
                 .AsNoTracking()
                 .Include(x => x.Customer).ThenInclude(x => x.CustomerRoleMappings).ThenInclude(x => x.CustomerRole)
                 .Include(x => x.OrderItems)
+                .AsSplitQuery()
                 .OrderByDescending(x => x.CreatedOnUtc)
                 .Take(7)
                 .ToListAsync();

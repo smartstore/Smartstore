@@ -106,6 +106,10 @@ namespace Smartstore.Web
                     .UseStartup<Startup>(hostingContext =>
                     {
                         hostingContext.Configuration = Configuration;
+
+                        hostingContext.HostingEnvironment.ContentRootPath = AppContext.BaseDirectory;
+                        hostingContext.HostingEnvironment.WebRootPath = Path.Combine(hostingContext.HostingEnvironment.ContentRootPath, "wwwroot");
+
                         var startupLogger = new SerilogLoggerFactory(Log.Logger).CreateLogger("File");
                         return new Startup(hostingContext, startupLogger);
                     }));

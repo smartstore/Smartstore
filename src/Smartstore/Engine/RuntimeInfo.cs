@@ -13,18 +13,22 @@ namespace Smartstore.Engine
             // Use ContentRootPath as AppIdent
             ApplicationIdentifier = host.ContentRootPath;
 
+            RID = GetRuntimeIdentifier();
+            NativeLibraryDirectory = Path.Combine(AppContext.BaseDirectory, "runtimes", RID, "native");
+        }
+
+        internal static string GetRuntimeIdentifier()
+        {
             var processArchitecture = RuntimeInformation.ProcessArchitecture.ToString().ToLower();
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                RID = "win-" + processArchitecture;
+                return "win-" + processArchitecture;
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-                RID = "linux-" + processArchitecture;
+                return "linux-" + processArchitecture;
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-                RID = "osx-" + processArchitecture;
+                return "osx-" + processArchitecture;
             else
                 throw new InvalidOperationException($"Unsupported OS Platform {RuntimeInformation.OSDescription}.");
-
-            NativeLibraryDirectory = $"{AppContext.BaseDirectory}runtimes\\{RID}\\native\\";
         }
 
         /// <summary>

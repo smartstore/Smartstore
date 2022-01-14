@@ -211,7 +211,10 @@ namespace Smartstore.Core.Content.Media
             async Task SendStatus(int code, string message)
             {
                 context.Response.StatusCode = code;
-                await context.Response.WriteAsync(message);
+                if (code != 204)
+                {
+                    await context.Response.WriteAsync(message);
+                }
             }
 
             #endregion
@@ -219,7 +222,14 @@ namespace Smartstore.Core.Content.Media
 
         private static FileStreamResult CreateFileResult(IFile file, MediaPathData pathData)
         {
-            return new FileStreamResult(file.OpenRead(), pathData.MimeType)
+            var stream = file.OpenRead();
+
+            if (stream == null)
+            {
+                throw new MediaFileNotFoundException($"The data stream for media file '{file.SubPath}' could not be opened for reading. Blob missing?");  
+            }
+            
+            return new FileStreamResult(stream, pathData.MimeType)
             {
                 EnableRangeProcessing = true,
                 // INFO: (core)(perf)I think ETag is sufficient and ignoring this reduces header comparison by one item.

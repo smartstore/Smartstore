@@ -60,6 +60,7 @@ namespace Smartstore.Pdf.WkHtml
             var libraryManager = EngineContext.Current.Application.Services.Resolve<INativeLibraryManager>();
 
             var fi = libraryManager.GetNativeExecutable("wkhtmltopdf");
+
             if (!fi.Exists)
             {
                 using var libraryInstaller = libraryManager.CreateLibraryInstaller();
@@ -68,7 +69,7 @@ namespace Smartstore.Pdf.WkHtml
 
             if (!fi.Exists)
             {
-                throw new InvalidOperationException($"Unable to install PDF processor tool 'wkhtmltopdf'.");
+                throw new InvalidOperationException($"Unable to install PDF processor tool 'wkhtmltopdf'. Path: {fi.FullName}.");
             }
 
             return fi.FullName;

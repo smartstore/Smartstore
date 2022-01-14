@@ -79,19 +79,21 @@ namespace Smartstore.Core.Bootstrapping
                 }
                     
                 builder
-                    .UseDbFactory(b => 
+                    .UseDbFactory(factoryBuilder => 
                     {
-                        b.AddModelAssemblies(new[]
-                        { 
-                            // Add all core models from Smartstore.Core assembly
-                            typeof(SmartDbContext).Assembly,
-                            // Add provider specific entity configurations
-                            DataSettings.Instance.DbFactory.GetType().Assembly
-                        });
+                        factoryBuilder
+                            //.QuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)
+                            .AddModelAssemblies(new[]
+                            { 
+                                // Add all core models from Smartstore.Core assembly
+                                typeof(SmartDbContext).Assembly,
+                                // Add provider specific entity configurations
+                                DataSettings.Instance.DbFactory.GetType().Assembly
+                            });
 
                         if (appContext.IsInstalled)
                         {
-                            b.AddDataSeeder<SmartDbContext, SmartDbContextDataSeeder>();
+                            factoryBuilder.AddDataSeeder<SmartDbContext, SmartDbContextDataSeeder>();
                         }
                     });
 
