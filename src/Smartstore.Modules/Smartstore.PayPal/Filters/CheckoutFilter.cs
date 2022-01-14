@@ -53,7 +53,7 @@ namespace Smartstore.PayPal.Filters
             {
                 _widgetProvider.Value.RegisterWidget(
                     "checkout_payment_method_buttons", 
-                    new ComponentWidgetInvoker(typeof(PayPalViewComponent)));
+                    new ComponentWidgetInvoker(typeof(PayPalViewComponent), false));
 
                 await next();
                 return;

@@ -44,7 +44,7 @@ namespace Smartstore.PayPal.Providers
             => Task.FromResult<(decimal FixedFeeOrPercentage, bool UsePercentage)>(new(_settings.AdditionalFee, _settings.AdditionalFeePercentage));
 
         public override WidgetInvoker GetPaymentInfoWidget()
-            => new ComponentWidgetInvoker(typeof(PayPalViewComponent), null);
+            => new ComponentWidgetInvoker(typeof(PayPalViewComponent), true);
 
         public override async Task<ProcessPaymentResult> ProcessPaymentAsync(ProcessPaymentRequest request)
         {

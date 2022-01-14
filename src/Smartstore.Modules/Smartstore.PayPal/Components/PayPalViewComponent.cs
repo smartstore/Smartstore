@@ -30,7 +30,12 @@ namespace Smartstore.PayPal.Components
             _settings = settings;
         }
 
-        public async Task<IViewComponentResult> InvokeAsync()
+        /// <summary>
+        /// Renders PayPal button widget.
+        /// </summary>
+        /// <param name="isPaymentInfoInvoker">Defines whether the widget is invoked from payment method's GetPaymentInfoWidget.</param>
+        /// <returns></returns>
+        public async Task<IViewComponentResult> InvokeAsync(bool isPaymentInfoInvoker)
         {
             // If client id or secret haven't been configured yet, don't render button.
             if (!_settings.ClientId.HasValue() || !_settings.Secret.HasValue())
@@ -42,7 +47,7 @@ namespace Smartstore.PayPal.Components
             var action = HttpContext.Request.RouteValues.GetActionName().EmptyNull();
             var isPaymentSelectionPage = controller == "Checkout" && action == "PaymentMethod";
 
-            if (isPaymentSelectionPage)
+            if (isPaymentSelectionPage && isPaymentInfoInvoker)
             {
                 return Empty();
             }
