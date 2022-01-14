@@ -18,8 +18,7 @@
 	<LocaleResource Name="Plugins.Description.Payments.PayPalStandard" AppendRootKey="false">
     <Value>
 			<![CDATA[
-				Öffnet ein sicheres Zahlungsfenster für den Kunden, in dem die Zahlung direkt bei PayPal durchgeführt wird. 
-				Nach der Rückleitung in den Shop kann die Bestellung mit wenigen Klicks abgeschloßen werden.
+				Öffnet ein sicheres Zahlungsfenster, in dem die Zahlung direkt bei PayPal durchgeführt wird.
       ]]>
 		</Value>
   </LocaleResource>
@@ -170,6 +169,15 @@
 			
 			<LocaleResource Name="BillingPlanName">
 				<Value>Zahlungsplan für {1}</Value>
+			</LocaleResource>
+			<LocaleResource Name="Credentials">
+				<Value>Anmeldeinformationen</Value>
+			</LocaleResource>
+			<LocaleResource Name="PaymentSettings">
+				<Value>Zahlarteinstellungen</Value>
+			</LocaleResource>
+			<LocaleResource Name="Misc">
+				<Value>Verschiedenes</Value>
 			</LocaleResource>
 		</Children>
   </LocaleResource>

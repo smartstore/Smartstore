@@ -51,7 +51,12 @@
 <form asp-action="Configure">
     <div asp-validation-summary="All"></div>
 
-    @*TODO: (mh) (core) Sort & group settings*@
+    <div class="adminRow">
+        <div class="admin-config-group">
+            <div class="head">@T("Plugins.Smartstore.PayPal.Credentials")</div>
+        </div>
+    </div>
+
     <div class="adminContent">
         <div class="adminRow">
             <div class="adminTitle">
@@ -90,34 +95,10 @@
             </div>
         </div>
         <div class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="AdditionalFee" />
-            </div>
-            <div class="adminData">
-                <setting-editor asp-for="AdditionalFee" />
-                <span asp-validation-for="AdditionalFee"></span>
+            <div class="admin-config-group">
+                <div class="head">@T("Plugins.Smartstore.PayPal.PaymentSettings")</div>
             </div>
         </div>
-        <div class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="AdditionalFeePercentage" />
-            </div>
-            <div class="adminData">
-                <setting-editor asp-for="AdditionalFeePercentage" />
-                <span asp-validation-for="AdditionalFeePercentage"></span>
-            </div>
-        </div>
-
-        <div class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="ShowButtonInMiniShoppingCart" />
-            </div>
-            <div class="adminData">
-                <setting-editor asp-for="ShowButtonInMiniShoppingCart" />
-                <span asp-validation-for="ShowButtonInMiniShoppingCart"></span>
-            </div>
-        </div>
-        <hr />
         <div class="adminRow">
             <div class="adminTitle">
                 <smart-label asp-for="EnabledFundings" />
@@ -147,9 +128,11 @@
                 <span asp-validation-for="Intent"></span>
             </div>
         </div>
-
-        <hr />
-
+        <div class="adminRow">
+            <div class="admin-config-group">
+                <div class="head">Style</div>
+            </div>
+        </div>
         <div class="adminRow">
             <div class="adminTitle">
                 <smart-label asp-for="ButtonShape" />
@@ -173,5 +156,37 @@
             </div>
         </div>
 
+        <div class="adminRow">
+            <div class="admin-config-group">
+                <div class="head">@T("Plugins.Smartstore.PayPal.Misc")</div>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="AdditionalFee" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="AdditionalFee" />
+                <span asp-validation-for="AdditionalFee"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="AdditionalFeePercentage" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="AdditionalFeePercentage" />
+                <span asp-validation-for="AdditionalFeePercentage"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="ShowButtonInMiniShoppingCart" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="ShowButtonInMiniShoppingCart" />
+                <span asp-validation-for="ShowButtonInMiniShoppingCart"></span>
+            </div>
+        </div>
     </div>
 </form>
