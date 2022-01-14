@@ -14,6 +14,7 @@ using Newtonsoft.Json.Linq;
 using Smartstore.Caching;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
+using Smartstore.Core.Common.Services;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Stores;
@@ -22,6 +23,8 @@ using Smartstore.PayPal.Settings;
 
 namespace Smartstore.PayPal.Client
 {
+    // TODO: (mh) (core) API design: pass CancellationToken to all public payment methods that call ExecuteRequestAsync()
+    
     public class PayPalHttpClient
     {
         const string ApiUrlLive = "https://api-m.paypal.com";
@@ -31,7 +34,7 @@ namespace Smartstore.PayPal.Client
         /// Key for PayPal access token caching
         /// </summary>
         /// <remarks>
-        /// {0} : current store ID
+        /// {0} : PayPal client ID
         /// </remarks>
         public const string PAYPAL_ACCESS_TOKEN_KEY = "paypal:accesstoken-{0}";
         public const string PAYPAL_ACCESS_TOKEN_PATTERN_KEY = "paypal:accesstoken-*";
@@ -41,6 +44,7 @@ namespace Smartstore.PayPal.Client
         private readonly ICheckoutStateAccessor _checkoutStateAccessor;
         private readonly IStoreContext _storeContext;
         private readonly ILocalizationService _locService;
+        private readonly ICurrencyService _currencyService;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ICacheFactory _cacheFactory;
         private readonly ISettingFactory _settingFactory;
@@ -51,6 +55,7 @@ namespace Smartstore.PayPal.Client
             ICheckoutStateAccessor checkoutStateAccessor,
             IStoreContext storeContext,
             ILocalizationService locService,
+            ICurrencyService currencyService,
             IHttpContextAccessor httpContextAccessor,
             ICacheFactory cacheFactory,
             ISettingFactory settingFactory)
@@ -60,6 +65,7 @@ namespace Smartstore.PayPal.Client
             _checkoutStateAccessor = checkoutStateAccessor;
             _storeContext = storeContext;
             _locService = locService;
+            _currencyService = currencyService;
             _httpContextAccessor = httpContextAccessor;
             _cacheFactory = cacheFactory;
             _settingFactory = settingFactory;
@@ -90,14 +96,14 @@ namespace Smartstore.PayPal.Client
         {
             Guard.NotNull(request, nameof(request));
 
-            var ordersPatchRequest = new OrdersPatchRequest<object>(request.PaypalOrderId, request.StoreId);
+            var ordersPatchRequest = new OrdersPatchRequest<object>(request.PaypalOrderId);
 
             // TODO: (mh) (core) Add more info, like shipping cost, discount & payment fees
-            var store = _storeContext.GetStoreById(request.StoreId);
             var amount = new AmountWithBreakdown
             {
                 Value = request.OrderTotal.ToString("0.00", CultureInfo.InvariantCulture),
-                CurrencyCode = store.PrimaryStoreCurrency.CurrencyCode
+                // TODO: (mh) (core) PLEEASE! I've fixed this a thousand times in reviews, yet you do it constantly wrong!
+                CurrencyCode = _currencyService.PrimaryCurrency.CurrencyCode
             };
 
             var patches = new List<Patch<object>>
@@ -112,7 +118,7 @@ namespace Smartstore.PayPal.Client
 
             ordersPatchRequest.WithBody(patches);
 
-            var response = await ExecuteRequestAsync(ordersPatchRequest);
+            var response = await ExecuteRequestAsync(ordersPatchRequest, request.StoreId);
 
             var rawResponse = response.Body<object>().ToString();
             dynamic jResponse = JObject.Parse(rawResponse);
@@ -130,8 +136,8 @@ namespace Smartstore.PayPal.Client
         {
             Guard.NotNull(request, nameof(request));
 
-            var ordersAuthorizeRequest = new OrdersAuthorizeRequest(request.PaypalOrderId, request.StoreId);
-            var response = await ExecuteRequestAsync(ordersAuthorizeRequest);
+            var ordersAuthorizeRequest = new OrdersAuthorizeRequest(request.PaypalOrderId);
+            var response = await ExecuteRequestAsync(ordersAuthorizeRequest, request.StoreId);
             var rawResponse = response.Body<object>().ToString();
             dynamic jResponse = JObject.Parse(rawResponse);
 
@@ -151,8 +157,8 @@ namespace Smartstore.PayPal.Client
         {
             Guard.NotNull(request, nameof(request));
 
-            var ordersCaptureRequest = new OrdersCaptureRequest(request.PaypalOrderId, request.StoreId);
-            var response = await ExecuteRequestAsync(ordersCaptureRequest);
+            var ordersCaptureRequest = new OrdersCaptureRequest(request.PaypalOrderId);
+            var response = await ExecuteRequestAsync(ordersCaptureRequest, request.StoreId);
             var rawResponse = response.Body<object>().ToString();
 
             dynamic jResponse = JObject.Parse(rawResponse);
@@ -175,8 +181,8 @@ namespace Smartstore.PayPal.Client
 
             // TODO: (mh) (core) If ERPs are used this ain't the real Invoice-Id > Make optional or remove (TBD with MC)
             var message = new CaptureMessage { InvoiceId = request.Order.OrderNumber };
-            var voidRequest = new AuthorizationsCaptureRequest(request.Order.CaptureTransactionId, request.Order.StoreId).WithBody(message);
-            var response = await ExecuteRequestAsync(voidRequest);
+            var voidRequest = new AuthorizationsCaptureRequest(request.Order.CaptureTransactionId).WithBody(message);
+            var response = await ExecuteRequestAsync(voidRequest, request.Order.StoreId);
             var capture = response.Body<Capture>();
 
             result.NewPaymentStatus = PaymentStatus.Paid;
@@ -195,8 +201,8 @@ namespace Smartstore.PayPal.Client
         {
             Guard.NotNull(request, nameof(request));
 
-            var voidRequest = new AuthorizationsVoidRequest(request.Order.CaptureTransactionId, request.Order.StoreId);
-            var response = await ExecuteRequestAsync(voidRequest);
+            var voidRequest = new AuthorizationsVoidRequest(request.Order.CaptureTransactionId);
+            var response = await ExecuteRequestAsync(voidRequest, request.Order.StoreId);
 
             result.NewPaymentStatus = PaymentStatus.Voided;
 
@@ -216,17 +222,15 @@ namespace Smartstore.PayPal.Client
 
             if (request.IsPartialRefund)
             {
-                var store = _storeContext.GetStoreById(request.Order.StoreId);
-
                 message.Amount = new MoneyMessage
                 {
                     Value = request.AmountToRefund.Amount.ToString("0.00", CultureInfo.InvariantCulture),
-                    CurrencyCode = store.PrimaryStoreCurrency.CurrencyCode
+                    CurrencyCode = _currencyService.PrimaryCurrency.CurrencyCode
                 };
             }
 
-            var refundRequest = new CapturesRefundRequest(request.Order.CaptureTransactionId, request.Order.StoreId).WithBody(message);
-            var response = await ExecuteRequestAsync(refundRequest);
+            var refundRequest = new CapturesRefundRequest(request.Order.CaptureTransactionId).WithBody(message);
+            var response = await ExecuteRequestAsync(refundRequest, request.Order.StoreId);
 
             result.NewPaymentStatus = request.IsPartialRefund
                 ? PaymentStatus.PartiallyRefunded
@@ -241,14 +245,34 @@ namespace Smartstore.PayPal.Client
 
         #region Infrastructure
 
-        public virtual async Task<PayPalResponse> ExecuteRequestAsync<TRequest>(TRequest request, CancellationToken cancelToken = default)
+        public Task<PayPalResponse> ExecuteRequestAsync<TRequest>(
+            TRequest request, 
+            CancellationToken cancelToken = default)
+            where TRequest : PayPalRequest
+        {
+            return ExecuteRequestAsync(request, 0, cancelToken);
+        }
+
+        public Task<PayPalResponse> ExecuteRequestAsync<TRequest>(
+            TRequest request, 
+            int storeId, 
+            CancellationToken cancelToken = default)
+            where TRequest : PayPalRequest
+        {
+            return ExecuteRequestAsync(request, _settingFactory.LoadSettings<PayPalSettings>(storeId), cancelToken);
+        }
+
+        public virtual async Task<PayPalResponse> ExecuteRequestAsync<TRequest>(
+            TRequest request, 
+            PayPalSettings settings, 
+            CancellationToken cancelToken = default)
             where TRequest : PayPalRequest
         {
             Guard.NotNull(request, nameof(request));
+            Guard.NotNull(settings, nameof(settings));
 
             request = request.Clone<TRequest>();
 
-            var settings = _settingFactory.LoadSettings<PayPalSettings>(request.StoreId);
             var apiUrl = settings.UseSandbox ? ApiUrlSandbox : ApiUrlLive;
             request.RequestUri = new Uri(apiUrl + request.Path.EnsureStartsWith('/'));
 
@@ -262,7 +286,7 @@ namespace Smartstore.PayPal.Client
                 request.Content = new StringContent(string.Empty, Encoding.UTF8, "application/json");
             }
 
-            await HandleAuthorizationAsync(request);
+            await HandleAuthorizationAsync(request, settings);
 
             var response = await _client.SendAsync(request, cancelToken);
 
@@ -290,35 +314,29 @@ namespace Smartstore.PayPal.Client
         /// <summary>
         /// Gets access token and add authorization header.
         /// </summary>
-        protected virtual async Task HandleAuthorizationAsync(PayPalRequest request)
+        protected virtual async Task HandleAuthorizationAsync(PayPalRequest request, PayPalSettings settings)
         {
+            Guard.NotNull(request, nameof(request));
+            Guard.NotNull(settings, nameof(settings));
+
             if (!request.Headers.Contains("Authorization") && request is not AccessTokenRequest)
             {
                 // TODO: (mh) (core) Don't forget model invalidation on setting change.
-                var cacheKey = string.Format(PAYPAL_ACCESS_TOKEN_KEY, request.StoreId);
-                var token = await GetAccessTokenFromCacheAsync(request.StoreId);
-
-                // Should never happen, but just to be save...
-                if (token.IsExpired())
-                {
-                    // Invalidate cache & obtain new token.
-                    _cacheFactory.GetMemoryCache().Remove(cacheKey);
-                    token = await GetAccessTokenFromCacheAsync(request.StoreId);
-                }
+                var token = await GetAccessTokenFromCacheAsync(settings);
 
                 request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token.Token);
             }
         }
 
         /// <summary>
-        /// Gets access token from memory cache.
+        /// Gets access token from memory cache or - if not in cache - fetches token from API.
         /// </summary>
-        private async Task<AccessToken> GetAccessTokenFromCacheAsync(int storeId = 0)
+        private async Task<AccessToken> GetAccessTokenFromCacheAsync(PayPalSettings settings)
         {
-            var cacheKey = string.Format(PAYPAL_ACCESS_TOKEN_KEY, _storeContext.CurrentStore.Id);
-            var token = await _cacheFactory.GetMemoryCache().GetAsync(cacheKey, async (o) =>
+            var cacheKey = string.Format(PAYPAL_ACCESS_TOKEN_KEY, settings.ClientId);
+            var memCache = _cacheFactory.GetMemoryCache();
+            var token = await memCache.GetAsync(cacheKey, async (o) =>
             {
-                var settings = _settingFactory.LoadSettings<PayPalSettings>(storeId);
                 var accessTokenRequest = new AccessTokenRequest(settings.ClientId, settings.Secret);
                 var response = await ExecuteRequestAsync(accessTokenRequest);
                 var accesstoken = response.Body<AccessToken>();
@@ -328,6 +346,13 @@ namespace Smartstore.PayPal.Client
 
                 return accesstoken;
             });
+
+            if (token.IsExpired())
+            {
+                // Should never happen, but just to be save...
+                memCache.Remove(cacheKey);
+                return await GetAccessTokenFromCacheAsync(settings);
+            }
 
             return token;
         }

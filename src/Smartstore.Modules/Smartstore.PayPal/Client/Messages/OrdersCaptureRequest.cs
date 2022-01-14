@@ -9,13 +9,12 @@ namespace Smartstore.PayPal.Client.Messages
     /// </summary>
     public class OrdersCaptureRequest : PayPalRequest<object>
     {
-        public OrdersCaptureRequest(string orderId, int storeId) 
+        public OrdersCaptureRequest(string orderId) 
             : base("/v2/checkout/orders/{0}/capture?", HttpMethod.Post)
         {
             try
             {
                 Path = Path.FormatInvariant(Uri.EscapeDataString(orderId));
-                StoreId = storeId;
             }
             catch (IOException) 
             { 

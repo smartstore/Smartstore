@@ -103,12 +103,13 @@ namespace Smartstore.Web
                 .ConfigureLogging(SetupLogging)
                 .UseSerilog(dispose: true)
                 .ConfigureWebHostDefaults(wb => wb
-                    .UseStartup<Startup>(hostingContext =>
+                    .UseWebRoot("wwwroot")
+                    .UseStartup(hostingContext =>
                     {
                         hostingContext.Configuration = Configuration;
 
-                        hostingContext.HostingEnvironment.ContentRootPath = AppContext.BaseDirectory;
-                        hostingContext.HostingEnvironment.WebRootPath = Path.Combine(hostingContext.HostingEnvironment.ContentRootPath, "wwwroot");
+                        //hostingContext.HostingEnvironment.ContentRootPath = AppContext.BaseDirectory;
+                        //hostingContext.HostingEnvironment.WebRootPath = Path.Combine(hostingContext.HostingEnvironment.ContentRootPath, "wwwroot");
 
                         var startupLogger = new SerilogLoggerFactory(Log.Logger).CreateLogger("File");
                         return new Startup(hostingContext, startupLogger);

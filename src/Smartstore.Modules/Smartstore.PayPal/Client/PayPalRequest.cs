@@ -31,7 +31,6 @@ namespace Smartstore.PayPal.Client
         public string ContentType { get; set; }
         public string ContentEncoding { get; set; }
         public Type ResponseType { get; }
-        public int StoreId { get; set; }
 
         public T Clone<T>() where T : PayPalRequest
             => (T)MemberwiseClone();

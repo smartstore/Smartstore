@@ -10,13 +10,12 @@ namespace Smartstore.PayPal.Client.Messages
     /// </summary>
     public class CapturesRefundRequest : PayPalRequest<RefundMessage>
     {
-        public CapturesRefundRequest(string captureId, int storeId) 
+        public CapturesRefundRequest(string captureId) 
             : base("/v2/payments/captures/{0}/refund?", HttpMethod.Post)
         {
             try
             {
                 Path = Path.FormatInvariant(Uri.EscapeDataString(captureId));
-                StoreId = storeId;
             }
             catch (IOException) 
             { 

@@ -10,13 +10,12 @@ namespace Smartstore.PayPal.Client.Messages
     /// </summary>
     public class OrdersPatchRequest<T> : PayPalRequest
     {
-        public OrdersPatchRequest(string orderId, int storeId) 
+        public OrdersPatchRequest(string orderId) 
             : base("/v2/checkout/orders/{0}?", HttpMethod.Patch)
         {
             try
             {
                 Path = Path.FormatInvariant(Uri.EscapeDataString(orderId));
-                StoreId = storeId;
             }
             catch (IOException) 
             { 
