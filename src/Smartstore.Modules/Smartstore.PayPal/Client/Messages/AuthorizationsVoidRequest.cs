@@ -9,12 +9,13 @@ namespace Smartstore.PayPal.Client.Messages
     /// </summary>
     public class AuthorizationsVoidRequest : PayPalRequest<object>
     {
-        public AuthorizationsVoidRequest(string authorizationId)
+        public AuthorizationsVoidRequest(string authorizationId, int storeId)
             : base("/v2/payments/authorizations/{0}/void?", HttpMethod.Post)
         {
             try
             {
                 Path = Path.FormatInvariant(Uri.EscapeDataString(authorizationId));
+                StoreId = storeId;
             }
             catch (IOException)
             {

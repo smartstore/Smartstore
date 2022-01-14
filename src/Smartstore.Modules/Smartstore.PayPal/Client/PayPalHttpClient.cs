@@ -14,6 +14,7 @@ using Newtonsoft.Json.Linq;
 using Smartstore.Caching;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
+using Smartstore.Core.Configuration;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Stores;
 using Smartstore.PayPal.Client.Messages;
@@ -37,31 +38,31 @@ namespace Smartstore.PayPal.Client
 
         private readonly HttpClient _client;
         private readonly ILogger _logger;
-        private readonly PayPalSettings _settings;
         private readonly ICheckoutStateAccessor _checkoutStateAccessor;
         private readonly IStoreContext _storeContext;
         private readonly ILocalizationService _locService;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ICacheFactory _cacheFactory;
+        private readonly ISettingFactory _settingFactory;
 
         public PayPalHttpClient(
             HttpClient client,
             ILogger logger,
-            PayPalSettings settings,
             ICheckoutStateAccessor checkoutStateAccessor,
             IStoreContext storeContext,
             ILocalizationService locService,
             IHttpContextAccessor httpContextAccessor,
-            ICacheFactory cacheFactory)
+            ICacheFactory cacheFactory,
+            ISettingFactory settingFactory)
         {
             _client = client;
             _logger = logger;
-            _settings = settings;
             _checkoutStateAccessor = checkoutStateAccessor;
             _storeContext = storeContext;
             _locService = locService;
             _httpContextAccessor = httpContextAccessor;
             _cacheFactory = cacheFactory;
+            _settingFactory = settingFactory;
         }
 
         #region Payment processing
@@ -89,7 +90,7 @@ namespace Smartstore.PayPal.Client
         {
             Guard.NotNull(request, nameof(request));
 
-            var ordersPatchRequest = new OrdersPatchRequest<object>(request.PaypalOrderId);
+            var ordersPatchRequest = new OrdersPatchRequest<object>(request.PaypalOrderId, request.StoreId);
 
             // TODO: (mh) (core) Add more info, like shipping cost, discount & payment fees
             var store = _storeContext.GetStoreById(request.StoreId);
@@ -129,7 +130,7 @@ namespace Smartstore.PayPal.Client
         {
             Guard.NotNull(request, nameof(request));
 
-            var ordersAuthorizeRequest = new OrdersAuthorizeRequest(request.PaypalOrderId);
+            var ordersAuthorizeRequest = new OrdersAuthorizeRequest(request.PaypalOrderId, request.StoreId);
             var response = await ExecuteRequestAsync(ordersAuthorizeRequest);
             var rawResponse = response.Body<object>().ToString();
             dynamic jResponse = JObject.Parse(rawResponse);
@@ -150,7 +151,7 @@ namespace Smartstore.PayPal.Client
         {
             Guard.NotNull(request, nameof(request));
 
-            var ordersCaptureRequest = new OrdersCaptureRequest(request.PaypalOrderId);
+            var ordersCaptureRequest = new OrdersCaptureRequest(request.PaypalOrderId, request.StoreId);
             var response = await ExecuteRequestAsync(ordersCaptureRequest);
             var rawResponse = response.Body<object>().ToString();
 
@@ -174,7 +175,7 @@ namespace Smartstore.PayPal.Client
 
             // TODO: (mh) (core) If ERPs are used this ain't the real Invoice-Id > Make optional or remove (TBD with MC)
             var message = new CaptureMessage { InvoiceId = request.Order.OrderNumber };
-            var voidRequest = new AuthorizationsCaptureRequest(request.Order.CaptureTransactionId).WithBody(message);
+            var voidRequest = new AuthorizationsCaptureRequest(request.Order.CaptureTransactionId, request.Order.StoreId).WithBody(message);
             var response = await ExecuteRequestAsync(voidRequest);
             var capture = response.Body<Capture>();
 
@@ -194,7 +195,7 @@ namespace Smartstore.PayPal.Client
         {
             Guard.NotNull(request, nameof(request));
 
-            var voidRequest = new AuthorizationsVoidRequest(request.Order.CaptureTransactionId);
+            var voidRequest = new AuthorizationsVoidRequest(request.Order.CaptureTransactionId, request.Order.StoreId);
             var response = await ExecuteRequestAsync(voidRequest);
 
             result.NewPaymentStatus = PaymentStatus.Voided;
@@ -224,7 +225,7 @@ namespace Smartstore.PayPal.Client
                 };
             }
 
-            var refundRequest = new CapturesRefundRequest(request.Order.CaptureTransactionId).WithBody(message);
+            var refundRequest = new CapturesRefundRequest(request.Order.CaptureTransactionId, request.Order.StoreId).WithBody(message);
             var response = await ExecuteRequestAsync(refundRequest);
 
             result.NewPaymentStatus = request.IsPartialRefund
@@ -247,7 +248,8 @@ namespace Smartstore.PayPal.Client
 
             request = request.Clone<TRequest>();
 
-            var apiUrl = _settings.UseSandbox ? ApiUrlSandbox : ApiUrlLive;
+            var settings = _settingFactory.LoadSettings<PayPalSettings>(request.StoreId);
+            var apiUrl = settings.UseSandbox ? ApiUrlSandbox : ApiUrlLive;
             request.RequestUri = new Uri(apiUrl + request.Path.EnsureStartsWith('/'));
 
             if (request.Body != null)
@@ -288,20 +290,20 @@ namespace Smartstore.PayPal.Client
         /// <summary>
         /// Gets access token and add authorization header.
         /// </summary>
-        protected virtual async Task HandleAuthorizationAsync(HttpRequestMessage request)
+        protected virtual async Task HandleAuthorizationAsync(PayPalRequest request)
         {
             if (!request.Headers.Contains("Authorization") && request is not AccessTokenRequest)
             {
                 // TODO: (mh) (core) Don't forget model invalidation on setting change.
-                var cacheKey = string.Format(PAYPAL_ACCESS_TOKEN_KEY, _storeContext.CurrentStore.Id);
-                var token = await GetAccessTokenFromCacheAsync();
+                var cacheKey = string.Format(PAYPAL_ACCESS_TOKEN_KEY, request.StoreId);
+                var token = await GetAccessTokenFromCacheAsync(request.StoreId);
 
                 // Should never happen, but just to be save...
                 if (token.IsExpired())
                 {
                     // Invalidate cache & obtain new token.
                     _cacheFactory.GetMemoryCache().Remove(cacheKey);
-                    token = await GetAccessTokenFromCacheAsync();
+                    token = await GetAccessTokenFromCacheAsync(request.StoreId);
                 }
 
                 request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token.Token);
@@ -311,13 +313,13 @@ namespace Smartstore.PayPal.Client
         /// <summary>
         /// Gets access token from memory cache.
         /// </summary>
-        private async Task<AccessToken> GetAccessTokenFromCacheAsync()
+        private async Task<AccessToken> GetAccessTokenFromCacheAsync(int storeId = 0)
         {
             var cacheKey = string.Format(PAYPAL_ACCESS_TOKEN_KEY, _storeContext.CurrentStore.Id);
             var token = await _cacheFactory.GetMemoryCache().GetAsync(cacheKey, async (o) =>
             {
-                // TODO: (mh) (core) Fetch settings for a specific storeId by current order
-                var accessTokenRequest = new AccessTokenRequest(_settings.ClientId, _settings.Secret);
+                var settings = _settingFactory.LoadSettings<PayPalSettings>(storeId);
+                var accessTokenRequest = new AccessTokenRequest(settings.ClientId, settings.Secret);
                 var response = await ExecuteRequestAsync(accessTokenRequest);
                 var accesstoken = response.Body<AccessToken>();
 
