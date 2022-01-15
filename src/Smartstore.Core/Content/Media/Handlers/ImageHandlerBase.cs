@@ -98,13 +98,6 @@ namespace Smartstore.Core.Content.Media
                             context.Executed = true;
                             return;
                         }
-                        finally
-                        {
-                            if (inputStream != null)
-                            {
-                                inputStream.Dispose();
-                            }
-                        }
 
                         if (context.ResultImage != null)
                         {
@@ -126,6 +119,12 @@ namespace Smartstore.Core.Content.Media
 
         protected abstract bool IsProcessable(MediaHandlerContext context);
 
-        protected abstract Task ProcessImageAsync(MediaHandlerContext context, CachedImage cachedImage, Stream inputStream);
+        /// <summary>
+        /// The handler implementation. <see cref="inputStream"/> should be closed by implementor.
+        /// </summary>
+        protected abstract Task ProcessImageAsync(
+            MediaHandlerContext context, 
+            CachedImage cachedImage, 
+            Stream inputStream);
     }
 }

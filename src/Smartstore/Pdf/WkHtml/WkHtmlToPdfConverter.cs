@@ -196,10 +196,12 @@ namespace Smartstore.Pdf.WkHtml
 
             try
             {
+                var toolExePath = await _toolExePath;
+
                 _process = Process.Start(new ProcessStartInfo
                 {
-                    FileName = await _toolExePath,
-                    WorkingDirectory = _appContext.RuntimeInfo.NativeLibraryDirectory,
+                    FileName = toolExePath,
+                    WorkingDirectory = Path.GetDirectoryName(toolExePath),
                     Arguments = arguments,
                     WindowStyle = ProcessWindowStyle.Hidden,
                     CreateNoWindow = true,

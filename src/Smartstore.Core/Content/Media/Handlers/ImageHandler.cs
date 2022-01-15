@@ -27,6 +27,7 @@ namespace Smartstore.Core.Content.Media
                 DisposeSource = false
             };
 
+            await using (inputStream)
             using (var result = await _imageProcessor.ProcessImageAsync(processQuery, false))
             {
                 Logger.Debug($"Processed image '{cachedImage.FileName}' in {result.ProcessTimeMs} ms.");

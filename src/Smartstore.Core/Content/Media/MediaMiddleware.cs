@@ -210,10 +210,13 @@ namespace Smartstore.Core.Content.Media
 
             async Task SendStatus(int code, string message)
             {
-                context.Response.StatusCode = code;
-                if (code != 204)
+                if (!context.Response.HasStarted)
                 {
-                    await context.Response.WriteAsync(message);
+                    context.Response.StatusCode = code;
+                    if (code != 204)
+                    {
+                        await context.Response.WriteAsync(message);
+                    }
                 }
             }
 

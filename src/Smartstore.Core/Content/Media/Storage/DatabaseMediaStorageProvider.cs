@@ -97,7 +97,7 @@ namespace Smartstore.Core.Content.Media.Storage
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public virtual Task SaveAsync(MediaFile mediaFile, MediaStorageItem item)
-            => ApplyBlobAsync(mediaFile, item, false);
+            => ApplyBlobAsync(mediaFile, item, true);
 
         /// <summary>
         /// Applies given media storage <paramref name="item"/> to <paramref name="media"/> entity as blob.
