@@ -38,11 +38,7 @@ namespace Smartstore.AmazonPay
                             CancelPendingCharges = false
                         };
 
-                        var response = client.CloseChargePermission(order.AuthorizationTransactionCode, request);
-                        if (!response.Success)
-                        {
-                            logger.Log(response);
-                        }
+                        client.CloseChargePermission(order.AuthorizationTransactionCode, request);
                     }
                     catch (Exception ex)
                     {

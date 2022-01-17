@@ -19,14 +19,14 @@ namespace Smartstore.AmazonPay.Models
         public bool SubmitForm { get; set; }
     }
 
-    [Serializable]
-    public class AmazonPayCompletedInfo
-    {
-        public static string Key => "AmazonPayCompletedInfo";
+    //[Serializable]
+    //public class AmazonPayCompletedInfo
+    //{
+    //    public static string Key => "AmazonPayCompletedInfo";
 
-        public string Note { get; set; }
-        public bool UseWidget { get; set; }
-    }
+    //    public string Note { get; set; }
+    //    public bool UseWidget { get; set; }
+    //}
 
     public class CheckoutReviewResult
     {

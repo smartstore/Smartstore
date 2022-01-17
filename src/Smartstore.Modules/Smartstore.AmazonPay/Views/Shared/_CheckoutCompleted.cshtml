@@ -1,8 +1,8 @@
-﻿@model AmazonPayCompletedInfo
+﻿@model string
 
 @inject AmazonPaySettings _settings
 
-<p sm-if="Model.Note.HasValue()">@Model.Note</p>
+<p sm-if="Model.HasValue()">@Html.Raw(Model)</p>
 
 @if (_settings.ShowSignoutButton)
 {
