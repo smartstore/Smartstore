@@ -102,7 +102,6 @@ namespace Smartstore.PayPal.Client
             var amount = new AmountWithBreakdown
             {
                 Value = request.OrderTotal.ToString("0.00", CultureInfo.InvariantCulture),
-                // TODO: (mh) (core) PLEEASE! I've fixed this a thousand times in reviews, yet you do it constantly wrong!
                 CurrencyCode = _currencyService.PrimaryCurrency.CurrencyCode
             };
 
