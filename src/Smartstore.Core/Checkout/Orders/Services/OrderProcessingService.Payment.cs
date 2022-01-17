@@ -79,7 +79,7 @@ namespace Smartstore.Core.Checkout.Orders
                     var paidDate = result.NewPaymentStatus == PaymentStatus.Paid ? DateTime.UtcNow : order.PaidDateUtc;
 
                     order.CaptureTransactionId = result.CaptureTransactionId;
-                    order.CaptureTransactionResult = result.CaptureTransactionResult;
+                    order.CaptureTransactionResult = result.CaptureTransactionResult.Truncate(400);
                     order.PaymentStatus = result.NewPaymentStatus;
                     order.PaidDateUtc = paidDate;
 

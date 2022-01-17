@@ -46,6 +46,11 @@ namespace Smartstore.Core.Checkout.Orders
 
     [Index(nameof(Deleted), Name = "IX_Deleted")]
     [Index(nameof(CustomerId), Name = "IX_Order_CustomerId")]
+    [Index(nameof(OrderGuid))]
+    // INFO: MySQL max key length is 3072 bytes, so we can index up to 768 characters for utf8mb4.
+    [Index(nameof(PaymentMethodSystemName), nameof(AuthorizationTransactionId))]
+    [Index(nameof(PaymentMethodSystemName), nameof(AuthorizationTransactionCode))]
+    [Index(nameof(PaymentMethodSystemName), nameof(CaptureTransactionId))]
     public partial class Order : EntityWithAttributes, IAuditable, ISoftDeletable
     {
         public Order()
@@ -94,7 +99,7 @@ namespace Smartstore.Core.Checkout.Orders
         /// <summary>
         /// Gets or sets the payment method system name
         /// </summary>
-        [StringLength(400)]
+        [StringLength(255)]
         public string PaymentMethodSystemName { get; set; }
 
         /// <summary>
@@ -336,6 +341,7 @@ namespace Smartstore.Core.Checkout.Orders
         /// Gets or sets the authorization transaction identifier.
         /// Typically this is the authorization ID of the payment provider referenced by <see cref="PaymentMethodSystemName"/>.
         /// </summary>
+        [StringLength(400)]
         public string AuthorizationTransactionId { get; set; }
 
         /// <summary>
@@ -343,29 +349,34 @@ namespace Smartstore.Core.Checkout.Orders
         /// Not used by Smartstore. Can be used to store another ID or payment code of the payment provider.
         /// Use <see cref="GenericAttribute"/> if you want to store even more payment data for an order.
         /// </summary>
+        [StringLength(400)]
         public string AuthorizationTransactionCode { get; set; }
 
         /// <summary>
         /// Gets or sets the authorization transaction result.
         /// Not used by Smartstore. Can be used to inform about the current authorization payment status.
         /// </summary>
+        [StringLength(400)]
         public string AuthorizationTransactionResult { get; set; }
 
         /// <summary>
         /// Gets or sets the capture transaction identifier.
         /// Typically this is the capture ID of the payment provider referenced by <see cref="PaymentMethodSystemName"/>.
         /// </summary>
+        [StringLength(400)]
         public string CaptureTransactionId { get; set; }
 
         /// <summary>
         /// Gets or sets the capture transaction result.
         /// Not used by Smartstore. Can be used to inform about the current capture payment status.
         /// </summary>
+        [StringLength(400)]
         public string CaptureTransactionResult { get; set; }
 
         /// <summary>
-        /// Gets or sets the subscription transaction identifier
+        /// Gets or sets the subscription transaction identifier.
         /// </summary>
+        [StringLength(400)]
         public string SubscriptionTransactionId { get; set; }
 
         /// <summary>

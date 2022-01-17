@@ -43,6 +43,7 @@ namespace Smartstore.Core.Checkout.Payment
     /// Represents a payment method.
     /// </summary>
     [CacheableEntity]
+    [Index(nameof(PaymentMethodSystemName))]
     public partial class PaymentMethod : EntityWithAttributes, ILocalizedEntity, IStoreRestricted, IRulesContainer
     {
         public PaymentMethod()
@@ -58,7 +59,7 @@ namespace Smartstore.Core.Checkout.Payment
         /// <summary>
         /// Gets or sets the payment method system name.
         /// </summary>
-        [Required, StringLength(400)]
+        [Required, StringLength(255)]
         public string PaymentMethodSystemName { get; set; }
 
         /// <summary>

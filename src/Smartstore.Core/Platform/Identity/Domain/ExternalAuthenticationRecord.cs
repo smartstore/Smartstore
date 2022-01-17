@@ -7,6 +7,7 @@ namespace Smartstore.Core.Identity
     /// <summary>
     /// Represents an external authentication record.
     /// </summary>
+    [Index(nameof(ProviderSystemName), nameof(ExternalIdentifier))]
     public partial class ExternalAuthenticationRecord : BaseEntity
     {
         public ExternalAuthenticationRecord()
@@ -67,7 +68,7 @@ namespace Smartstore.Core.Identity
         /// <summary>
         /// Gets or sets the provider system name.
         /// </summary>
-        [StringLength(400)]
+        [StringLength(255)]
         public string ProviderSystemName { get; set; }
     }
 }

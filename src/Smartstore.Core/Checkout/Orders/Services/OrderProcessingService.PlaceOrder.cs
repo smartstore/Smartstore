@@ -676,7 +676,7 @@ namespace Smartstore.Core.Checkout.Orders
                 order.AuthorizationTransactionCode = result.AuthorizationTransactionCode;
                 order.AuthorizationTransactionResult = result.AuthorizationTransactionResult;
                 order.CaptureTransactionId = result.CaptureTransactionId;
-                order.CaptureTransactionResult = result.CaptureTransactionResult;
+                order.CaptureTransactionResult = result.CaptureTransactionResult.Truncate(400);
                 order.SubscriptionTransactionId = result.SubscriptionTransactionId;
                 order.PurchaseOrderNumber = pr.PurchaseOrderNumber;
                 order.PaymentStatus = result.NewPaymentStatus;
