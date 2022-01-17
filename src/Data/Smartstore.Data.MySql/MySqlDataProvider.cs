@@ -71,13 +71,13 @@ namespace Smartstore.Data.MySql
         protected override void SetTableIncrementCore(string tableName, int ident)
         {
             Database.ExecuteSqlRaw(
-                $"ALTER TABLE {tableName} AUTO_INCREMENT = {ident}");
+                $"ALTER TABLE `{tableName}` AUTO_INCREMENT = {ident}");
         }
 
         protected override Task SetTableIncrementCoreAsync(string tableName, int ident)
         {
             return Database.ExecuteSqlRawAsync(
-                $"ALTER TABLE {tableName} AUTO_INCREMENT = {ident}");
+                $"ALTER TABLE `{tableName}` AUTO_INCREMENT = {ident}");
         }
 
         public override int ShrinkDatabase()
