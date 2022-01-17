@@ -62,9 +62,10 @@ namespace Smartstore.Pdf.WkHtml
             if (input != null)
             {
                 await ProcessInputAsync(flag, input);
-                if (input.Content.HasValue())
+                var content = input.Content;
+                if (content.HasValue())
                 {
-                    TryAppendOption($"--{flag}-html", input.Content, builder);
+                    TryAppendOption($"--{flag}-html", content, builder);
                     BuildSectionCommandFragment(options, flag, builder);
                 }
             }

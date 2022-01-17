@@ -97,6 +97,7 @@ namespace Smartstore.Core.Content.Media
             // Determine counts
             var result = await (from f in q
                                 group f by 1 into g
+                                orderby 1
                                 select new FileCountResult
                                 {
                                     Total = g.Count(),

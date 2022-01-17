@@ -441,7 +441,7 @@ namespace Smartstore.Web.Controllers
         [LocalizedRoute("/cart/addproductsimple/{productId:int}", Name = "AddProductToCartSimple")]
         public async Task<IActionResult> AddProductSimple(int productId, int shoppingCartTypeId = 1, bool forceRedirection = false)
         {
-            var product = await _db.Products.FindByIdAsync(productId, false);
+            var product = await _db.Products.FindByIdAsync(productId);
             if (product == null)
             {
                 return Json(new
@@ -527,7 +527,7 @@ namespace Smartstore.Web.Controllers
         {
             // Adds a product to cart. This method is used on product details page.
             var form = HttpContext.Request.Form;
-            var product = await _db.Products.FindByIdAsync(productId, false);
+            var product = await _db.Products.FindByIdAsync(productId);
             if (product == null)
             {
                 return Json(new
