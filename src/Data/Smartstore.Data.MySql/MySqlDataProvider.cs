@@ -58,25 +58,25 @@ namespace Smartstore.Data.MySql
 
         protected override int? GetTableIncrementCore(string tableName)
         {
-            return Database.ExecuteScalarInterpolated<decimal?>(
+            return Database.ExecuteScalarInterpolated<ulong>(
                 $"SELECT AUTO_INCREMENT FROM information_schema.TABLES WHERE TABLE_SCHEMA = {Database.GetDbConnection().Database} AND TABLE_NAME = {tableName}").Convert<int?>();
         }
 
         protected override async Task<int?> GetTableIncrementCoreAsync(string tableName)
         {
-            return (await Database.ExecuteScalarInterpolatedAsync<decimal?>(
+            return (await Database.ExecuteScalarInterpolatedAsync<ulong>(
                 $"SELECT AUTO_INCREMENT FROM information_schema.TABLES WHERE TABLE_SCHEMA = {Database.GetDbConnection().Database} AND TABLE_NAME = {tableName}")).Convert<int?>();
         }
 
         protected override void SetTableIncrementCore(string tableName, int ident)
         {
-            Database.ExecuteSqlInterpolated(
+            Database.ExecuteSqlRaw(
                 $"ALTER TABLE {tableName} AUTO_INCREMENT = {ident}");
         }
 
         protected override Task SetTableIncrementCoreAsync(string tableName, int ident)
         {
-            return Database.ExecuteSqlInterpolatedAsync(
+            return Database.ExecuteSqlRawAsync(
                 $"ALTER TABLE {tableName} AUTO_INCREMENT = {ident}");
         }
 

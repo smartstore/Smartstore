@@ -121,7 +121,7 @@ namespace Smartstore.Core.Checkout.Orders
             }
 
             // Check whether guest checkout is allowed.
-            if (customer.IsGuest() && !_orderSettings.AnonymousCheckoutAllowed)
+            if (!_orderSettings.AnonymousCheckoutAllowed && customer.IsGuest())
             {
                 warnings.Add(T("Checkout.AnonymousNotAllowed"));
                 return (warnings, cart);

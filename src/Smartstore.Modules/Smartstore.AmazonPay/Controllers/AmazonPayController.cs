@@ -182,10 +182,11 @@ namespace Smartstore.AmazonPay.Controllers
 
             if (!cart.HasItems)
             {
+                NotifyWarning(T("ShoppingCart.CartIsEmpty"));
                 return result;
             }
 
-            if (customer.IsGuest() && !_orderSettings.AnonymousCheckoutAllowed)
+            if (!_orderSettings.AnonymousCheckoutAllowed && customer.IsGuest())
             {
                 NotifyWarning(T("Checkout.AnonymousNotAllowed"));
                 return result;
@@ -582,6 +583,7 @@ namespace Smartstore.AmazonPay.Controllers
             }
 
             // Get order.
+            // TODO: (mg) (core) add indexes for AuthorizationTransactionCode, AuthorizationTransactionId, CaptureTransactionId.
             var order = await _db.Orders.FirstOrDefaultAsync(x => x.PaymentMethodSystemName == AmazonPayProvider.SystemName && x.AuthorizationTransactionCode == chargePermissionId);
             if (order == null)
             {
@@ -593,6 +595,8 @@ namespace Smartstore.AmazonPay.Controllers
             {
                 return;
             }
+
+            $"-- {message.ObjectType} {newState} authorize:{authorize} paid:{paid} void:{voidOffline} refund:{refund}".Dump();
 
             // Process order.
             var oldState = order.CaptureTransactionResult.NullEmpty() ?? order.AuthorizationTransactionResult.NullEmpty() ?? "-";
@@ -623,7 +627,7 @@ namespace Smartstore.AmazonPay.Controllers
                 orderUpdated = true;
             }
 
-            // Only refund once because order.RefundedAmount could become wrong otherwise.
+            // Only refund once this way because order.RefundedAmount could become wrong otherwise.
             if (refund && order.RefundedAmount == decimal.Zero && refundAmount > decimal.Zero)
             {
                 decimal receivable = order.OrderTotal - refundAmount;
@@ -675,7 +679,7 @@ namespace Smartstore.AmazonPay.Controllers
 
                 order.OrderNotes.Add(new OrderNote
                 {
-                    Note = $"<img src='{faviconUrl}' class='mr-1 align-text-top' />" + note,
+                    Note = $"<img src='{faviconUrl}' class='mr-2' />" + note,
                     DisplayToCustomer = false,
                     CreatedOnUtc = DateTime.UtcNow
                 });

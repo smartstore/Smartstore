@@ -21,6 +21,27 @@ namespace Smartstore.Core.Identity
         {
 			var tblOrder = _db.DataProvider.EncloseIdentifier("Order");
 
+			if (_db.DataProvider.ProviderType == Smartstore.Data.DbSystemType.MySql)
+			{
+				return $@"
+DELETE g
+  FROM GenericAttribute g
+  JOIN (SELECT Id FROM GenericAttribute LIMIT 50000) g2 ON g.Id = g2.Id
+  LEFT OUTER JOIN Customer AS c ON c.Id = g.EntityId
+  LEFT OUTER JOIN {tblOrder} AS o ON c.Id = o.CustomerId
+  LEFT OUTER JOIN CustomerContent AS cc ON c.Id = cc.CustomerId
+  LEFT OUTER JOIN Forums_PrivateMessage AS pm ON c.Id = pm.ToCustomerId
+  LEFT OUTER JOIN Forums_Post AS fp ON c.Id = fp.CustomerId
+  LEFT OUTER JOIN Forums_Topic AS ft ON c.Id = ft.CustomerId
+  WHERE g.KeyGroup = 'Customer' AND c.Username IS Null AND c.Email IS NULL AND c.IsSystemAccount = 0{paramClauses}
+	AND (NOT EXISTS (SELECT 1 AS C1 FROM {tblOrder} AS o1 WHERE c.Id = o1.CustomerId ))
+	AND (NOT EXISTS (SELECT 1 AS C1 FROM CustomerContent AS cc1 WHERE c.Id = cc1.CustomerId ))
+	AND (NOT EXISTS (SELECT 1 AS C1 FROM Forums_PrivateMessage AS pm1 WHERE c.Id = pm1.ToCustomerId ))
+	AND (NOT EXISTS (SELECT 1 AS C1 FROM Forums_Post AS fp1 WHERE c.Id = fp1.CustomerId ))
+	AND (NOT EXISTS (SELECT 1 AS C1 FROM Forums_Topic AS ft1 WHERE c.Id = ft1.CustomerId ))
+";
+			}
+
 			return $@"
 DELETE TOP(50000) g
   FROM GenericAttribute AS g
@@ -42,6 +63,26 @@ DELETE TOP(50000) g
 		private string GetSqlGuestCustomers(string paramClauses)
 		{
 			var tblOrder = _db.DataProvider.EncloseIdentifier("Order");
+
+			if (_db.DataProvider.ProviderType == Smartstore.Data.DbSystemType.MySql)
+			{
+				return $@"
+DELETE c
+  FROM Customer c
+  JOIN (SELECT Id FROM Customer LIMIT 20000) c2 ON c.Id = c2.Id
+  LEFT OUTER JOIN {tblOrder} AS o ON c.Id = o.CustomerId
+  LEFT OUTER JOIN CustomerContent AS cc ON c.Id = cc.CustomerId
+  LEFT OUTER JOIN Forums_PrivateMessage AS pm ON c.Id = pm.ToCustomerId
+  LEFT OUTER JOIN Forums_Post AS fp ON c.Id = fp.CustomerId
+  LEFT OUTER JOIN Forums_Topic AS ft ON c.Id = ft.CustomerId
+  WHERE c.Username IS Null AND c.Email IS NULL AND c.IsSystemAccount = 0{paramClauses}
+	AND (NOT EXISTS (SELECT 1 AS x FROM {tblOrder} AS o1 WHERE c.Id = o1.CustomerId ))
+	AND (NOT EXISTS (SELECT 1 AS x FROM CustomerContent AS cc1 WHERE c.Id = cc1.CustomerId ))
+	AND (NOT EXISTS (SELECT 1 AS x FROM Forums_PrivateMessage AS pm1 WHERE c.Id = pm1.ToCustomerId ))
+	AND (NOT EXISTS (SELECT 1 AS x FROM Forums_Post AS fp1 WHERE c.Id = fp1.CustomerId ))
+	AND (NOT EXISTS (SELECT 1 AS x FROM Forums_Topic AS ft1 WHERE c.Id = ft1.CustomerId ))
+";
+			}
 
 			return $@"
 DELETE TOP(20000) c
