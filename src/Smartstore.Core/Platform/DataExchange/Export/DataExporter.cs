@@ -860,6 +860,7 @@ namespace Smartstore.Core.DataExchange.Export
                         .ThenInclude(x => x.CustomerRoleMappings)
                         .ThenInclude(x => x.CustomerRole)
                     .Include(x => x.Product)
+                    .AsSplitQuery()
                     .AsNoTrackingWithIdentityResolution()
                     .AsNoCaching()
                     .Where(x => x.Customer != null && x.Product != null);

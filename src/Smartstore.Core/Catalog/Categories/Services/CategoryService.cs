@@ -413,6 +413,7 @@ namespace Smartstore.Core.Catalog.Categories
 
             var productCategoriesQuery = _db.ProductCategories
                 .AsNoTracking()
+                .AsSplitQuery()
                 .Include(x => x.Category).ThenInclude(x => x.MediaFile)
                 .Include(x => x.Category).ThenInclude(x => x.AppliedDiscounts);
 

@@ -45,6 +45,7 @@ namespace Smartstore
             Guard.NotNull(query, nameof(query));
 
             return query
+                .AsSplitQuery()
                 .Include(x => x.GiftCardUsageHistory)
                 .ThenInclude(x => x.GiftCard);
         }
@@ -65,6 +66,7 @@ namespace Smartstore
             }
 
             return query
+                .AsSplitQuery()
                 .Include(x => x.Customer)
                 .ThenInclude(x => x.CustomerRoleMappings)
                 .ThenInclude(x => x.CustomerRole);
@@ -78,6 +80,7 @@ namespace Smartstore
             Guard.NotNull(query, nameof(query));
 
             return query
+                .AsSplitQuery()
                 .Include(x => x.OrderItems)
                 .ThenInclude(x => x.Product);
         }
@@ -90,6 +93,7 @@ namespace Smartstore
             Guard.NotNull(query, nameof(query));
 
             return query
+                .AsSplitQuery()
                 .Include(x => x.ShippingAddress)
                 .Include(x => x.Shipments)
                 .ThenInclude(x => x.ShipmentItems);

@@ -147,6 +147,7 @@ namespace Smartstore.Admin.Controllers
             var model = new GridModel<ProductModel.ProductVariantAttributeModel>();
 
             var productVariantAttributes = await _db.ProductVariantAttributes
+                .AsSplitQuery()
                 .ApplyProductFilter(new[] { productId })
                 .Include(x => x.ProductVariantAttributeValues)
                 .Include(x => x.ProductAttribute)

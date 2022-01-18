@@ -555,6 +555,7 @@ namespace Smartstore.Core.Catalog.Attributes
             return await _db.ProductVariantAttributeValues
                 .Include(x => x.ProductVariantAttribute)
                 .ThenInclude(x => x.ProductAttribute)
+                .AsSplitQuery()
                 .AsNoTracking()
                 .Where(x => attributeIds.Contains(x.ProductVariantAttributeId) && valueIds.Contains(x.Id))
                 .ApplyListTypeFilter()

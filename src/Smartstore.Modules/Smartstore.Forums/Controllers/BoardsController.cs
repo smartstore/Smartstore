@@ -1109,6 +1109,7 @@ namespace Smartstore.Forums.Controllers
 
             var currentCustomer = Services.WorkContext.CurrentCustomer;
             var post = await _db.ForumPosts()
+                .AsSplitQuery()
                 .Include(x => x.Customer)
                 .Include(x => x.ForumTopic)
                 .ThenInclude(x => x.Forum)
@@ -1144,6 +1145,7 @@ namespace Smartstore.Forums.Controllers
 
             var currentCustomer = Services.WorkContext.CurrentCustomer;
             var post = await _db.ForumPosts()
+                .AsSplitQuery()
                 .Include(x => x.Customer)
                 .Include(x => x.ForumTopic)
                 .ThenInclude(x => x.Forum)
@@ -1289,6 +1291,7 @@ namespace Smartstore.Forums.Controllers
 
             var currentCustomer = Services.WorkContext.CurrentCustomer;
             var post = await _db.ForumPosts()
+                .AsSplitQuery()
                 .Include(x => x.ForumTopic)
                 .ThenInclude(x => x.Forum)
                 .ThenInclude(x => x.ForumGroup)

@@ -83,6 +83,7 @@ namespace Smartstore.Forums
             Guard.NotNull(query, nameof(query));
 
             return query
+                .AsSplitQuery()
                 .Include(x => x.FromCustomer)
                 .ThenInclude(x => x.CustomerRoleMappings)
                 .ThenInclude(x => x.CustomerRole)

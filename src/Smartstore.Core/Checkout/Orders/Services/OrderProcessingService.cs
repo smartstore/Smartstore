@@ -961,6 +961,7 @@ namespace Smartstore.Core.Checkout.Orders
                 await _db.LoadReferenceAsync(order, x => x.RedeemedRewardPointsEntry);
 
                 await _db.LoadReferenceAsync(order, x => x.Customer, false, q => q
+                    .AsSplitQuery()
                     .Include(x => x.RewardPointsHistory)
                     .Include(x => x.CustomerRoleMappings)
                     .ThenInclude(x => x.CustomerRole));
@@ -973,7 +974,8 @@ namespace Smartstore.Core.Checkout.Orders
 
                 if (includeShipments)
                 {
-                    q = q.Include(x => x.Order.Shipments)
+                    q = q.AsSplitQuery()
+                        .Include(x => x.Order.Shipments)
                         .ThenInclude(x => x.ShipmentItems);
                 }
 

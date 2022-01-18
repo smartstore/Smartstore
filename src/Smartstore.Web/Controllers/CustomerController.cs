@@ -1157,6 +1157,7 @@ namespace Smartstore.Web.Controllers
             // Recurring payments.
             var recurringPayments = await _db.RecurringPayments
                 .AsNoTracking()
+                .AsSplitQuery()
                 .Include(x => x.InitialOrder)
                 .ThenInclude(x => x.Customer)
                 .Include(x => x.RecurringPaymentHistory)

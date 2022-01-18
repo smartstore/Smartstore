@@ -486,6 +486,7 @@ namespace Smartstore.Admin.Controllers
 
                     var orderItems = await _db.OrderItems
                         .AsNoTracking()
+                        .AsSplitQuery()
                         .Include(x => x.Product)
                         .Include(x => x.Order)
                         .ThenInclude(x => x.Shipments)

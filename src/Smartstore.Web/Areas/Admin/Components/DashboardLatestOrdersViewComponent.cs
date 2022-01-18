@@ -19,9 +19,11 @@ namespace Smartstore.Admin.Components
             var model = new DashboardLatestOrdersModel();
             var latestOrders = await _db.Orders
                 .AsNoTracking()
-                .Include(x => x.Customer).ThenInclude(x => x.CustomerRoleMappings).ThenInclude(x => x.CustomerRole)
-                .Include(x => x.OrderItems)
                 .AsSplitQuery()
+                .Include(x => x.Customer)
+                    .ThenInclude(x => x.CustomerRoleMappings)
+                    .ThenInclude(x => x.CustomerRole)
+                .Include(x => x.OrderItems)
                 .OrderByDescending(x => x.CreatedOnUtc)
                 .Take(7)
                 .ToListAsync();

@@ -40,6 +40,7 @@ namespace Smartstore.Core.Catalog.Brands
 
             var productManufacturerQuery = _db.ProductManufacturers
                 .AsNoTracking()
+                .AsSplitQuery()
                 .Include(x => x.Manufacturer).ThenInclude(x => x.MediaFile)
                 .Include(x => x.Manufacturer).ThenInclude(x => x.AppliedDiscounts);
 

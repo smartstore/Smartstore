@@ -105,6 +105,7 @@ namespace Smartstore.Web.Controllers
         public async Task<IActionResult> ProductDetails(int productId, ProductVariantQuery query)
         {
             var product = await _db.Products
+                .AsSplitQuery()
                 .IncludeMedia()
                 .IncludeManufacturers()
                 .FindByIdAsync(productId);

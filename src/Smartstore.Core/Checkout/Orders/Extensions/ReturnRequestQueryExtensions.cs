@@ -22,6 +22,7 @@ namespace Smartstore
             }
 
             return query
+                .AsSplitQuery()
                 .Include(x => x.Customer)
                 .ThenInclude(x => x.CustomerRoleMappings)
                 .ThenInclude(x => x.CustomerRole);

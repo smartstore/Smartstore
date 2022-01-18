@@ -1034,10 +1034,12 @@ namespace Smartstore.Admin.Controllers
         public async Task<IActionResult> AddReturnRequest(int id, IFormCollection form)
         {
             var order = await _db.Orders
+                .AsSplitQuery()
                 .Include(x => x.OrderItems)
                 .Include(x => x.Customer)
                 .ThenInclude(x => x.ReturnRequests)
                 .FindByIdAsync(id);
+
             if (order == null)
             {
                 return NotFound();
@@ -1134,6 +1136,7 @@ namespace Smartstore.Admin.Controllers
             var order = await _db.Orders
                 .IncludeOrderItems()
                 .FindByIdAsync(id, false);
+
             if (order == null)
             {
                 return NotFound();
@@ -1169,6 +1172,7 @@ namespace Smartstore.Admin.Controllers
             var order = await _db.Orders
                 .IncludeOrderItems()
                 .FindByIdAsync(model.OrderId);
+
             if (order == null)
             {
                 return NotFound();
@@ -1245,6 +1249,7 @@ namespace Smartstore.Admin.Controllers
             var order = await _db.Orders
                 .IncludeOrderItems()
                 .FindByIdAsync(model.OrderId);
+
             if (order == null)
             {
                 return NotFound();

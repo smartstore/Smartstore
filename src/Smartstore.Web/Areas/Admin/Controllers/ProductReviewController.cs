@@ -64,6 +64,7 @@ namespace Smartstore.Admin.Controllers
                 : dtHelper.ConvertToUtcTime(model.CreatedOnTo.Value, dtHelper.CurrentTimeZone).AddDays(1);
 
             var query = _db.ProductReviews
+                .AsSplitQuery()
                 .Include(x => x.Product)
                 .Include(x => x.Customer).ThenInclude(x => x.CustomerRoleMappings).ThenInclude(x => x.CustomerRole)
                 .ApplyAuditDateFilter(createdFrom, createdTo);

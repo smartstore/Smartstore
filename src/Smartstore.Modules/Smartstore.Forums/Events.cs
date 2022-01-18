@@ -371,6 +371,7 @@ namespace Smartstore.Forums
                         .ThenInclude(x => x.Forum)
                         .Include(x => x.ForumPostVotes)
                         .Include(x => x.Customer)
+                        .AsSplitQuery()
                         .AsNoTracking()
                         .OrderBy(x => x.Id)
                         .Skip(skip)

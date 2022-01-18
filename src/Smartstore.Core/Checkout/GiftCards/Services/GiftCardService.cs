@@ -23,6 +23,7 @@ namespace Smartstore.Core.Checkout.GiftCards
                 .Include(x => x.PurchasedWithOrderItem)
                     .ThenInclude(x => x.Order)
                 .Include(x => x.GiftCardUsageHistory)
+                .AsSplitQuery()
                 .ApplyStandardFilter(storeId)
                 .AsQueryable();
 
