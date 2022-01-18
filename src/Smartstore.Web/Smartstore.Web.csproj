@@ -7,6 +7,7 @@
 		<UserSecretsId>b35c0f56-dfa8-4120-b29b-a677578afcd1</UserSecretsId>
 		<CopyRefAssembliesToPublishDirectory>true</CopyRefAssembliesToPublishDirectory>
 		<RuntimeIdentifiers>win-x64; win-x86; osx-x64; linux-x64</RuntimeIdentifiers>
+		<!--<PublishReadyToRun>true</PublishReadyToRun>-->
 	</PropertyGroup>
 
 	<ItemGroup>

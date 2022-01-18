@@ -2,8 +2,19 @@ var target = Argument("target", "Build");
 var configuration = Argument("configuration", "Release");
 var solution = "./" + Argument("solution", "Smartstore") + ".sln";
 var edition = Argument("edition", "Community");
-var runtime = Argument("runtime", "win-x64");
+var runtime = Argument("runtime", "win-x86");
 var version = "5.0.0";
+
+public string GetPublishName() 
+{
+    var name = edition + '.' + version;
+	if (string.IsNullOrEmpty(runtime))
+    {
+    	return name;
+    }
+    
+	return name + '.' + runtime;
+}
 
 //////////////////////////////////////////////////////////////////////
 // TASKS
@@ -40,11 +51,12 @@ Task("Deploy")
     .IsDependentOn("Build")
     .Does(() =>
 {
-    var outputDir = "./artifacts/" + edition;
+    var publishName = GetPublishName();
+    var outputDir = "./artifacts/" + publishName;
     	
     if (DirectoryExists(outputDir)) 
     {
-        Information($"Deleting {outputDir}...");
+        Information($"Deleting {publishName}...");
 	    DeleteDirectory(outputDir, new DeleteDirectorySettings 
         {
             Recursive = true,
@@ -52,42 +64,34 @@ Task("Deploy")
         });
     }
     
-    Information($"Publishing Smartstore {edition}...");
+    Information($"Publishing Smartstore {publishName}...");
     DotNetPublish("./src/Smartstore.Web/Smartstore.Web.csproj", new DotNetPublishSettings
     {
         Configuration = configuration,
         OutputDirectory = outputDir,
-        //Runtime = "linux-x64",
+        Runtime = runtime,
+        SelfContained = true,
         // Whether to not to build the project before publishing. This makes build faster, but requires build to be done before publish is executed.
-        NoBuild = true
+        //NoBuild = true
     });
     
 });
 
 Task("Zip").Does(() =>
 {
-    Information("Zipping '" + edition + "'...");
+    var publishName = GetPublishName();
     
-    var rootPath = new DirectoryPath("./artifacts/" + edition);
+    Information($"Zipping {publishName}...");
+    
+    var rootPath = new DirectoryPath("./artifacts/" + publishName);
     if (!DirectoryExists(rootPath)) 
     {
-        throw new Exception($"Path '{edition}' does not exist. Please build the {edition} solution before packing.");
+        throw new Exception($"Path '{publishName}' does not exist. Please build the {publishName} solution before packing.");
     }
 
-    var zipPath = new FilePath($"./artifacts/Smartstore.{edition}.{version}.zip");
+    var zipPath = new FilePath($"./artifacts/Smartstore.{publishName}.zip");
 
     Zip(rootPath, zipPath);
-
-    /*SevenZip(new SevenZipSettings 
-    {
-        Command = new AddCommand
-        {
-            DirectoryContents = new DirectoryPathCollection(new[] { rootPath }),
-            Archive = zipPath,
-            ArchiveType = SwitchArchiveType.Zip,
-            CompressionMethod = new SwitchCompressionMethod { Level = 3 }
-        }
-    });*/
 });
 
 Task("Test").Does(() =>
