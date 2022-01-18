@@ -23,7 +23,7 @@ namespace Smartstore.Core.Identity.Tasks
 
             var registrationTo = DateTime.UtcNow.AddMinutes(-_commonSettings.MaxGuestsRegistrationAgeInMinutes);
 
-            await _customerService.DeleteGuestCustomersAsync(null, registrationTo, true);
+            await _customerService.DeleteGuestCustomersAsync(null, registrationTo, true, cancelToken);
         }
     }
 }

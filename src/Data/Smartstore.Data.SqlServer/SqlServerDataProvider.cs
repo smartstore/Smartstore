@@ -85,6 +85,15 @@ namespace Smartstore.Data.SqlServer
             return identifier.EnsureStartsWith('[').EnsureEndsWith(']');
         }
 
+        public override string ApplyPaging(string sql, int pageIndex, int pageSize)
+        {
+            Guard.NotNegative(pageIndex, nameof(pageIndex));
+            Guard.NotNegative(pageSize, nameof(pageSize));
+
+            return $@"{sql}
+OFFSET {pageIndex * pageSize} ROWS FETCH NEXT {pageSize} ROWS ONLY";
+        }
+
         public override string[] GetTableNames()
         {
             return Database.ExecuteQueryRaw<string>(

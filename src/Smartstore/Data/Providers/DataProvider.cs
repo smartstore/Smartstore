@@ -159,6 +159,13 @@ namespace Smartstore.Data.Providers
             => throw new NotSupportedException();
 
         /// <summary>
+        /// Applies paging to <paramref name="sql"/> to limit the number of records to be returned.
+        /// </summary>
+        /// <returns>SQL with included paging.</returns>
+        public virtual string ApplyPaging(string sql, int pageIndex, int pageSize)
+            => throw new NotSupportedException();
+
+        /// <summary>
         /// Executes the given INSERT INTO sql command and returns ident of the inserted row.
         /// </summary>
         /// <returns>The ident / primary key value of the newly inserted row.</returns>
