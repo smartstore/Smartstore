@@ -162,7 +162,7 @@ namespace Smartstore.Data.Providers
         /// Applies paging to <paramref name="sql"/> to limit the number of records to be returned.
         /// </summary>
         /// <returns>SQL with included paging.</returns>
-        public virtual string ApplyPaging(string sql, int pageIndex, int pageSize)
+        public virtual string ApplyPaging(string sql, int skip, int take)
             => throw new NotSupportedException();
 
         /// <summary>

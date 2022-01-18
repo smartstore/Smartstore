@@ -44,13 +44,13 @@ namespace Smartstore.Data.MySql
             return identifier.EnsureStartsWith('`').EnsureEndsWith('`');
         }
 
-        public override string ApplyPaging(string sql, int pageIndex, int pageSize)
+        public override string ApplyPaging(string sql, int skip, int take)
         {
-            Guard.NotNegative(pageIndex, nameof(pageIndex));
-            Guard.NotNegative(pageSize, nameof(pageSize));
+            Guard.NotNegative(skip, nameof(skip));
+            Guard.NotNegative(take, nameof(take));
 
             return $@"{sql}
-LIMIT {pageSize} OFFSET {pageIndex * pageSize}";
+LIMIT {take} OFFSET {skip}";
         }
 
         public override string[] GetTableNames()
