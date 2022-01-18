@@ -202,10 +202,6 @@ namespace Smartstore.Admin.Controllers
 
                 orderQuery = orderQuery.Where(x => x.BillingAddress.LastName.Contains(model.CustomerName) || x.BillingAddress.FirstName.Contains(model.CustomerName));
             }
-            if (model.OrderGuid.HasValue())
-            {
-                orderQuery = orderQuery.Where(x => x.OrderGuid.ToString().Contains(model.OrderGuid));
-            }
             if (model.OrderNumber.HasValue())
             {
                 orderQuery = orderQuery.ApplySearchFilterFor(x => x.OrderNumber, model.OrderNumber);
@@ -301,19 +297,30 @@ namespace Smartstore.Admin.Controllers
         public async Task<IActionResult> GoToOrder(OrderListModel model)
         {
             var orderId = 0;
+            var orderNumber = model.GoDirectlyToNumber.TrimSafe();
 
-            if (model.GoDirectlyToNumber.HasValue())
+            if (orderNumber.HasValue())
             {
-                orderId = await _db.Orders
-                    .Where(x => x.OrderNumber == model.GoDirectlyToNumber)
-                    .Select(x => x.Id)
-                    .FirstOrDefaultAsync();
-
-                if (orderId == 0 && int.TryParse(model.GoDirectlyToNumber, out orderId) && orderId > 0)
+                if (RegularExpressions.IsGuid.IsMatch(orderNumber))
                 {
-                    if (!await _db.Orders.AnyAsync(x => x.Id == orderId))
+                    orderId = await _db.Orders
+                        .Where(x => x.OrderGuid.ToString() == orderNumber)
+                        .Select(x => x.Id)
+                        .FirstOrDefaultAsync();
+                }
+                else
+                {
+                    orderId = await _db.Orders
+                        .Where(x => x.OrderNumber == orderNumber)
+                        .Select(x => x.Id)
+                        .FirstOrDefaultAsync();
+
+                    if (orderId == 0 && int.TryParse(orderNumber, out orderId) && orderId > 0)
                     {
-                        orderId = 0;
+                        if (!await _db.Orders.AnyAsync(x => x.Id == orderId))
+                        {
+                            orderId = 0;
+                        }
                     }
                 }
             }

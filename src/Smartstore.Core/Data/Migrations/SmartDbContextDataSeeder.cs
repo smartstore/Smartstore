@@ -606,12 +606,6 @@ namespace Smartstore.Core.Data.Migrations
                 "A value indicating whether to display this order note to a customer.",
                 "Legt fest, ob die Notiz für den Benutzer sichtbar ist.");
 
-            builder.AddOrUpdate("Admin.Orders.List.OrderGuid",
-                "Order reference number",
-                "Bestellreferenznummer",
-                "Search by order reference number or part of it. Leave empty to load all orders.",
-                "Suche über die Bestellreferenznummer oder Teile der Bestellreferenznummer. Freilassen, um alle Aufträge zu laden.");
-
             builder.AddOrUpdate("Admin.System.Log.Fields.Customer",
                 "Customer",
                 "Kunde",
@@ -621,6 +615,12 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.System.Log.Fields.UserName",
                 "Username",
                 "Benutzername");
+
+            builder.AddOrUpdate("Admin.Orders.List.GoDirectlyToNumber",
+                "Search by order number",
+                "Nach Auftragsnummer suchen",
+                "Opens directly the details of the order with the order number or order reference number.",
+                "Öffnet direkt die Details zum Auftrag mit der Auftrags- oder Bestellreferenznummer.");
 
             #endregion
 
@@ -687,6 +687,8 @@ namespace Smartstore.Core.Data.Migrations
             //    "Admin.Configuration.Languages.BackToList",
             //    "Admin.Catalog.ProductReviews.BackToList",
             //    "Admin.System.QueuedEmails.BackToList",
+            //    "Admin.Orders.List.OrderGuid",
+            //    "Admin.Orders.List.OrderGuid.Hint",
             //    );
 
 

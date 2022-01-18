@@ -30,9 +30,6 @@
         [LocalizedDisplay("Order.PaymentMethod")]
         public string PaymentMethods { get; set; }
 
-        [LocalizedDisplay("*OrderGuid")]
-        public string OrderGuid { get; set; }
-
         [LocalizedDisplay("*OrderNumber")]
         public string OrderNumber { get; set; }
 
