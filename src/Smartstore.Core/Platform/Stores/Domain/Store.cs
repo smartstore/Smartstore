@@ -11,6 +11,7 @@ namespace Smartstore.Core.Stores
     {
         public void Configure(EntityTypeBuilder<Store> builder)
         {
+#pragma warning disable CS0618
             // TODO: (mg) (core) Refactor. A currency on store level should just act working currency preselection.
             builder
                 .HasOne(x => x.PrimaryStoreCurrency)
@@ -23,6 +24,7 @@ namespace Smartstore.Core.Stores
                 .WithMany()
                 .HasForeignKey(x => x.PrimaryExchangeRateCurrencyId)
                 .OnDelete(DeleteBehavior.Restrict);
+#pragma warning restore CS0618
         }
     }
 
@@ -138,7 +140,7 @@ namespace Smartstore.Core.Stores
         /// <summary>
         /// Gets or sets the primary store currency
         /// </summary>
-        [Obsolete("Use ICurrencyService.PrimartyCurrency")]
+        [Obsolete("Use ICurrencyService.PrimaryCurrency")]
         public Currency PrimaryStoreCurrency
         { 
             get => _primaryStoreCurrency ?? LazyLoader.Load(this, ref _primaryStoreCurrency);
@@ -149,7 +151,7 @@ namespace Smartstore.Core.Stores
         /// <summary>
         /// Gets or sets the primary exchange rate currency
         /// </summary>
-        [Obsolete("Use ICurrencyService.PrimartyExchangeCurrency")]
+        [Obsolete("Use ICurrencyService.PrimaryExchangeCurrency")]
         public Currency PrimaryExchangeRateCurrency 
         {
             get => _primaryExchangeRateCurrency ?? LazyLoader.Load(this, ref _primaryExchangeRateCurrency);

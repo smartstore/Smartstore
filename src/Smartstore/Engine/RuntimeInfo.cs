@@ -62,6 +62,11 @@ namespace Smartstore.Engine
         public string OSDescription { get; } = RuntimeInformation.OSDescription;
 
         /// <summary>
+        /// Indicates whether the current application is running on the Windows platform.
+        /// </summary>
+        public bool IsWindows { get; } = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+
+        /// <summary>
         /// Gets the process architecture.
         /// </summary>
         public Architecture ProcessArchitecture { get; } = RuntimeInformation.ProcessArchitecture;

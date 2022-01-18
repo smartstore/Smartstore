@@ -2,6 +2,7 @@ var target = Argument("target", "Build");
 var configuration = Argument("configuration", "Release");
 var solution = "./" + Argument("solution", "Smartstore") + ".sln";
 var edition = Argument("edition", "Community");
+var runtime = Argument("runtime", "win-x64");
 var version = "5.0.0";
 
 //////////////////////////////////////////////////////////////////////
@@ -56,6 +57,7 @@ Task("Deploy")
     {
         Configuration = configuration,
         OutputDirectory = outputDir,
+        //Runtime = "linux-x64",
         // Whether to not to build the project before publishing. This makes build faster, but requires build to be done before publish is executed.
         NoBuild = true
     });

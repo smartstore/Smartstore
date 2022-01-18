@@ -136,8 +136,8 @@ namespace Smartstore.Core.Stores
                 var allStores = db.Stores
                     .AsNoTracking()
                     .AsNoCaching()
-                    .Include(x => x.PrimaryStoreCurrency)
-                    .Include(x => x.PrimaryExchangeRateCurrency)
+                    //.Include(x => x.PrimaryStoreCurrency)
+                    //.Include(x => x.PrimaryExchangeRateCurrency)
                     .OrderBy(x => x.DisplayOrder)
                     .ThenBy(x => x.Name)
                     .ToList();

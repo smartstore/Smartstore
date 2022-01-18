@@ -1,4 +1,5 @@
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
@@ -102,13 +103,17 @@ namespace Smartstore.Web
                 .ConfigureLogging(SetupLogging)
                 .UseSerilog(dispose: true)
                 .ConfigureWebHostDefaults(wb => wb
-                    .UseWebRoot("wwwroot")
+                    //.UseWebRoot("wwwroot")
                     .UseStartup(hostingContext =>
                     {
                         hostingContext.Configuration = Configuration;
 
-                        //hostingContext.HostingEnvironment.ContentRootPath = AppContext.BaseDirectory;
-                        //hostingContext.HostingEnvironment.WebRootPath = Path.Combine(hostingContext.HostingEnvironment.ContentRootPath, "wwwroot");
+                        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                        {
+                            // TODO: (core) Temp only
+                            hostingContext.HostingEnvironment.ContentRootPath = AppContext.BaseDirectory;
+                            hostingContext.HostingEnvironment.WebRootPath = Path.Combine(hostingContext.HostingEnvironment.ContentRootPath, "wwwroot");
+                        }
 
                         var startupLogger = new SerilogLoggerFactory(Log.Logger).CreateLogger("File");
                         return new Startup(hostingContext, startupLogger);

@@ -9,7 +9,6 @@ using Smartstore.Bootstrapping;
 using Smartstore.Collections;
 using Smartstore.ComponentModel;
 using Smartstore.Data;
-using Smartstore.DependencyInjection;
 using Smartstore.Diagnostics;
 using Smartstore.Engine.Builders;
 using Smartstore.Engine.Modularity;
