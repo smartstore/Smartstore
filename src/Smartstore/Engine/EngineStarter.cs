@@ -156,7 +156,8 @@ namespace Smartstore.Engine
 
         public virtual void ConfigureContainer(ContainerBuilder builder)
         {
-            builder.RegisterModule(new WorkModule());
+            builder.RegisterGeneric(typeof(Work<>)).SingleInstance();
+
             builder.RegisterModule(new CachingModule());
             builder.RegisterModule(new EventsModule(_appContext));
 
