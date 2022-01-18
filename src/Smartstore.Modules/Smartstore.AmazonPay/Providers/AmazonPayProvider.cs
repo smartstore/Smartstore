@@ -32,7 +32,6 @@ namespace Smartstore.AmazonPay.Providers
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ICheckoutStateAccessor _checkoutStateAccessor;
         private readonly IUrlHelper _urlHelper;
-        private readonly OrderSettings _orderSettings;
 
         public AmazonPayProvider(
             SmartDbContext db,
@@ -40,8 +39,7 @@ namespace Smartstore.AmazonPay.Providers
             IAmazonPayService amazonPayService,
             IHttpContextAccessor httpContextAccessor,
             ICheckoutStateAccessor checkoutStateAccessor,
-            IUrlHelper urlHelper,
-            OrderSettings orderSettings)
+            IUrlHelper urlHelper)
         {
             _db = db;
             _services = services;
@@ -49,7 +47,6 @@ namespace Smartstore.AmazonPay.Providers
             _httpContextAccessor = httpContextAccessor;
             _checkoutStateAccessor = checkoutStateAccessor;
             _urlHelper = urlHelper;
-            _orderSettings = orderSettings;
         }
 
         public ILogger Logger { get; set; } = NullLogger.Instance;
@@ -82,7 +79,6 @@ namespace Smartstore.AmazonPay.Providers
             var state = _checkoutStateAccessor.GetAmazonPayCheckoutState();
             var httpContext = _httpContextAccessor.HttpContext;
             httpContext.Session.TryRemove("AmazonPayCompletedNote");
-            //httpContext.Session.TryRemove(AmazonPayCompletedInfo.Key);
 
             if (state.SessionId.IsEmpty())
             {
@@ -121,11 +117,6 @@ namespace Smartstore.AmazonPay.Providers
                     {
                         // 202 (Accepted): authorization is pending.
                         httpContext.Session.SetString("AmazonPayCompletedNote", T("Plugins.Payments.AmazonPay.AsyncPaymentAuthorizationNote"));
-                        //httpContext.Session.TrySetObject(AmazonPayCompletedInfo.Key, new AmazonPayCompletedInfo
-                        //{
-                        //    Note = T("Plugins.Payments.AmazonPay.AsyncPaymentAuthorizationNote"),
-                        //    UseWidget = !_orderSettings.DisableOrderCompletedPage
-                        //});
                     }
                 }
                 else

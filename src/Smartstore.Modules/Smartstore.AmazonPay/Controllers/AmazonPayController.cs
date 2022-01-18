@@ -600,7 +600,7 @@ namespace Smartstore.AmazonPay.Controllers
                     return;
                 }
 
-                $"-- Order {order.Id}: {message.ObjectType} {newState} authorize:{authorize} paid:{paid} void:{voidOffline} refund:{refund} message:{messageId}".Dump();
+                //$"-- Order {order.Id}: {message.ObjectType} {newState} authorize:{authorize} paid:{paid} void:{voidOffline} refund:{refund} message:{messageId}".Dump();
 
                 var oldState = order.CaptureTransactionResult.NullEmpty() ?? order.AuthorizationTransactionResult.NullEmpty() ?? "-";
 

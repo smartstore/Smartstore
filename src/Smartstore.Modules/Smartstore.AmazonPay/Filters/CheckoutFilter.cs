@@ -37,7 +37,7 @@ namespace Smartstore.AmazonPay.Filters
 
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
-            if (!IsAmazonPaySelected() || !await IsAmazonPayActive())
+            if (!await IsAmazonPayActive())
             {
                 await next();
                 return;
@@ -49,7 +49,7 @@ namespace Smartstore.AmazonPay.Filters
             {
                 var completedNote = context.HttpContext.Session.GetString("AmazonPayCompletedNote").EmptyNull();
 
-                if (_orderSettings.DisableOrderCompletedPage)
+                if (!_orderSettings.DisableOrderCompletedPage)
                 {
                     _widgetProvider.Value.RegisterWidget("checkout_completed_top",
                         new PartialViewWidgetInvoker("_CheckoutCompleted", completedNote, "Smartstore.AmazonPay"));
@@ -59,25 +59,13 @@ namespace Smartstore.AmazonPay.Filters
                     _services.Notifier.Information(completedNote);
                 }
 
-                //if (context.HttpContext.Session.TryGetObject<AmazonPayCompletedInfo>(AmazonPayCompletedInfo.Key, out var info))
-                //{
-                //    if (info.UseWidget)
-                //    {
-                //        _widgetProvider.Value.RegisterWidget("checkout_completed_top",
-                //            new PartialViewWidgetInvoker("_CheckoutCompleted", info, "Smartstore.AmazonPay"));
-                //    }
-                //    else
-                //    {
-                //        _services.Notifier.Information(info.Note);
-                //    }
-                //}
-
                 await next();
                 return;
             }
 
             var state = _checkoutStateAccessor.GetAmazonPayCheckoutState();
-            if (state.SessionId.HasValue())
+
+            if (state.SessionId.HasValue() && IsAmazonPaySelected())
             {
                 if (action.EqualsNoCase(nameof(CheckoutController.PaymentMethod)))
                 {
