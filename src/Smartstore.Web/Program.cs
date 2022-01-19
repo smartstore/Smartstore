@@ -39,7 +39,6 @@ using Smartstore.Core.Logging.Serilog;
 
 var rgSystemSource = new Regex("^File|^System|^Microsoft|^Serilog|^Autofac|^Castle|^MiniProfiler|^Newtonsoft|^Pipelines|^StackExchange|^Superpower", RegexOptions.Compiled);
 var environmentName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? Environments.Production;
-//var configuration = BuildConfiguration();
 
 // Create the application builder
 var builder = WebApplication.CreateBuilder(args);
@@ -101,6 +100,8 @@ await InitializeDatabasesAsync();
 
 // Run application
 app.Run();
+
+
 
 #region Setup helpers
 

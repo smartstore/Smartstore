@@ -48,11 +48,9 @@ namespace Smartstore.Engine.Runtimes
                 fileName = fileName.EnsureEndsWith(".dylib");
             }
 
-            var runtimeInfo = _appContext.RuntimeInfo;
-
-            var basePath = isExecutable || runtimeInfo.IsWindows
-                ? runtimeInfo.NativeLibraryDirectory 
-                : runtimeInfo.BaseDirectory;
+            var basePath = isExecutable
+                ? _appContext.RuntimeInfo.NativeLibraryDirectory 
+                : _appContext.RuntimeInfo.BaseDirectory;
 
             var fi = new FileInfo(Path.Combine(basePath, fileName));
 

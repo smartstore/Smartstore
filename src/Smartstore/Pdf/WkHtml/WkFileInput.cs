@@ -25,6 +25,8 @@ namespace Smartstore.Pdf.WkHtml
         {
             get
             {
+                return null;
+                
                 if (Path.IsPathFullyQualified(_urlOrPath) || _urlOrPath.Contains(Uri.SchemeDelimiter))
                 {
                     return _urlOrPath;

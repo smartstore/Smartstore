@@ -76,6 +76,12 @@ namespace Smartstore.Engine.Runtimes
 
         private void CopyRuntimeFiles(LocalPackageInfo package, InstallNativePackageRequest request)
         {
+            if (request.IsExecutable)
+            {
+                _logger.Info($"Creating runtime directory '{_appContext.RuntimeInfo.RID}'.");
+                Directory.CreateDirectory(_appContext.RuntimeInfo.NativeLibraryDirectory);
+            }
+            
             var destination = _appContext.RuntimeInfo.BaseDirectory;
             var packageDir = Path.GetDirectoryName(package.Path);
             var rid = _appContext.RuntimeInfo.RID;
@@ -89,21 +95,15 @@ namespace Smartstore.Engine.Runtimes
             foreach (var entry in runtimeEntries)
             {
                 var fileName = entry;
-                if (!request.IsExecutable && !_appContext.RuntimeInfo.IsWindows)
+                if (!request.IsExecutable)
                 {
-                    // Libarry files (.so, .dylib) belong to the root.
+                    // Libarry files (.dll, .so, .dylib) belong to the root.
                     fileName = Path.GetFileName(fileName);
                 }
                 
                 var source = Path.Combine(packageDir, entry);
                 var target = Path.Combine(destination, fileName);
                 var targetDir = Path.GetDirectoryName(target);
-
-                if (!request.IsExecutable && !Directory.Exists(targetDir))
-                {
-                    _logger.Info($"Creating runtime directory '{targetDir}'.");
-                    Directory.CreateDirectory(targetDir);
-                }
 
                 _logger.Info($"Copy native library file from '{source}' to '{target}'.");
 
