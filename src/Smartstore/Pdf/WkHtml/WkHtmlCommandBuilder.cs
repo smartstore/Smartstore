@@ -93,7 +93,7 @@ namespace Smartstore.Pdf.WkHtml
         protected virtual void BuildGlobalCommandFragment(PdfConversionSettings settings, StringBuilder builder)
         {
             // Commons
-            TryAppendOption("--quiet", settings.Quiet, builder);
+            TryAppendOption("--log-level", settings.Quiet ? "none" : "error", builder);
             TryAppendOption("-g", settings.Grayscale, builder);
             TryAppendOption("-l", settings.LowQuality, builder);
             TryAppendOption("--title", settings.Title, builder);

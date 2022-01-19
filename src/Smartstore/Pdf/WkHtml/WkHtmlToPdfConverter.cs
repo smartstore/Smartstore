@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Smartstore.Core;
+using Smartstore.Diagnostics;
 using Smartstore.Engine;
 using Smartstore.Engine.Runtimes;
 using Smartstore.Threading;
@@ -182,21 +183,22 @@ namespace Smartstore.Pdf.WkHtml
 
         private async Task RunProcessAsync(string arguments, IPdfInput input, CancellationToken cancelToken)
         {
-            var lastErrorLine = string.Empty;
+            var data = new List<string>();
+
             DataReceivedEventHandler onDataReceived = ((o, e) =>
             {
-                if (e.Data == null) return;
-                if (e.Data.HasValue()) 
+                if (e.Data.HasValue())
                 {
-                    lastErrorLine = e.Data;
-                    Logger.Error("WkHtml error: {0}.", e.Data);
+                    data.Add(e.Data);
+                    LogReceived?.Invoke(this, e);
                 }
-                LogReceived?.Invoke(this, e);
             });
 
             try
             {
                 var toolExePath = await _toolExePath;
+
+                Logger.Debug($"Starting process '{toolExePath}' with arguments '{arguments}'.");
 
                 _process = Process.Start(new ProcessStartInfo
                 {
@@ -227,6 +229,11 @@ namespace Smartstore.Pdf.WkHtml
                 }
 
                 await _process.WaitForExitAsync(cancelToken);
+
+                if (data.Count > 0)
+                {
+                    throw new ProcessException(_process, data);
+                }
             }
             finally
             {

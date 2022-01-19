@@ -15,9 +15,10 @@
         public string Title { get; set; }
 
         /// <summary>
-        /// Be less verbose. Default: true.
+        /// Sets log verbosity. <c>false</c> corresponds to log-level <c>error</c>, 
+        /// <c>true</c> corresponds to log-level <c>none</c>. Default: false.
         /// </summary>
-        public bool Quiet { get; set; } = true;
+        public bool Quiet { get; set; }
 
         /// <summary>
         /// Get or set option to generate grayscale PDF 
