@@ -104,15 +104,7 @@ namespace Smartstore.Scheduling
                 Logger.Debug("Executing scheduled task: {0}", task.Type);
                 var ctx = new TaskExecutionContext(_taskStore, httpContext, _componentContext, executionInfo, taskParameters);
 
-                //// TODO: (core) Uncomment job.Run and remove Task.Delay()
-                //await job.Run(ctx, cts.Token);
-                await Task.Delay(1, cts.Token);
-
-                // Remove me later... just for testing:
-                //if (normalizedTypeName == "DataExportTask")
-                //    await job.Run(ctx, cts.Token);
-                //else
-                //    await Task.Delay(1, cts.Token);
+                await job.Run(ctx, cts.Token);
             }
             catch (Exception ex)
             {
