@@ -14,6 +14,10 @@
 		<PackageReference Include="Autofac.Extensions.DependencyInjection" Version="7.2.0" />
 		<PackageReference Include="FluentValidation.AspNetCore" Version="9.5.3" />
 		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.0" />
+		<PackageReference Include="Microsoft.ClearScript.V8.Native.linux-x64" Version="7.2.1" />
+		<PackageReference Include="Microsoft.ClearScript.V8.Native.osx-x64" Version="7.2.1" />
+		<PackageReference Include="Microsoft.ClearScript.V8.Native.win-x64" Version="7.2.1" />
+		<PackageReference Include="Microsoft.ClearScript.V8.Native.win-x86" Version="7.2.1" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.0">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
