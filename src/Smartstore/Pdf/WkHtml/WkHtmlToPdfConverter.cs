@@ -18,34 +18,31 @@ namespace Smartstore.Pdf.WkHtml
     public class WkHtmlToPdfConverter : IPdfConverter
     {
         private static string _tempPath;
-        private static AsyncLazy<string> _toolExePath = new(GetToolExePathAsync);
-        private readonly static string[] _ignoreErrLines = new string[] 
-        { 
-            "Exit with code 1 due to network error: ContentNotFoundError", 
-            "QFont::setPixelSize: Pixel size <= 0", 
-            "Exit with code 1 due to network error: ProtocolUnknownError", 
-            "Exit with code 1 due to network error: HostNotFoundError", 
-            "Exit with code 1 due to network error: ContentOperationNotPermittedError", 
-            "Exit with code 1 due to network error: UnknownContentError" 
-        };
+        private static AsyncLazy<string> _toolName = new(GetToolNameAsync);
+        //private readonly static string[] _ignoreErrLines = new string[] 
+        //{ 
+        //    "Exit with code 1 due to network error: ContentNotFoundError", 
+        //    "QFont::setPixelSize: Pixel size <= 0", 
+        //    "Exit with code 1 due to network error: ProtocolUnknownError", 
+        //    "Exit with code 1 due to network error: HostNotFoundError", 
+        //    "Exit with code 1 due to network error: ContentOperationNotPermittedError", 
+        //    "Exit with code 1 due to network error: UnknownContentError" 
+        //};
 
         private Process _process;
 
-        private readonly IApplicationContext _appContext;
         private readonly IWkHtmlCommandBuilder _commandBuilder;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly WkHtmlToPdfOptions _options;
         private readonly AsyncRunner _asyncRunner;
 
         public WkHtmlToPdfConverter(
-            IApplicationContext appContext,
             IWkHtmlCommandBuilder commandBuilder, 
             IHttpContextAccessor httpContextAccessor,
             IOptions<WkHtmlToPdfOptions> options,
             AsyncRunner asyncRunner,
             ILogger<WkHtmlToPdfConverter> logger)
         {
-            _appContext = appContext;
             _commandBuilder = commandBuilder;
             _httpContextAccessor = httpContextAccessor;
             _options = options.Value;
@@ -56,24 +53,38 @@ namespace Smartstore.Pdf.WkHtml
 
         public ILogger Logger { get; set; } = NullLogger.Instance;
 
-        private static async Task<string> GetToolExePathAsync()
+        private static async Task<string> GetToolNameAsync()
         {
-            var libraryManager = EngineContext.Current.Application.Services.Resolve<INativeLibraryManager>();
+            var message = @"Unable to install PDF processor tool 'wkhtmltopdf'. PDF documents may not be generated unless you manually install 'wkhtmltopdf' on your web server. Please contact your hosting provider or system administrator to install the appropriate package for your operating system. See: https://wkhtmltopdf.org/downloads.html";
 
-            var fi = libraryManager.GetNativeExecutable("wkhtmltopdf");
-
-            if (!fi.Exists)
+            try
             {
-                using var libraryInstaller = libraryManager.CreateLibraryInstaller();
-                fi = await libraryInstaller.InstallFromPackageAsync(new InstallNativePackageRequest("wkhtmltopdf", true, "Smartstore.wkhtmltopdf.Native"));
+                var libraryManager = EngineContext.Current.Application.Services.Resolve<INativeLibraryManager>();
+
+                var fi = libraryManager.GetNativeExecutable("wkhtmltopdf");
+
+                if (!fi.Exists)
+                {
+                    using var libraryInstaller = libraryManager.CreateLibraryInstaller();
+                    fi = await libraryInstaller.InstallFromPackageAsync(new InstallNativePackageRequest("wkhtmltopdf", true, "Smartstore.wkhtmltopdf.Native"));
+                }
+
+                if (!fi.Exists)
+                {
+                    GetLogger().Warn(message);
+                }
+            }
+            catch (Exception ex)
+            {
+                GetLogger().Warn(ex, message);
             }
 
-            if (!fi.Exists)
-            {
-                throw new InvalidOperationException($"Unable to install PDF processor tool 'wkhtmltopdf'. Path: {fi.FullName}.");
-            }
+            return "wkhtmltopdf";
 
-            return fi.FullName;
+            static ILogger GetLogger()
+            {
+                return EngineContext.Current.Application.Services.Resolve<ILogger<WkHtmlToPdfConverter>>();
+            }
         }
 
         /// <summary>
@@ -124,9 +135,9 @@ namespace Smartstore.Pdf.WkHtml
                 sb.AppendFormat(" \"{0}\" ", outputFileName);
 
                 var arguments = sb.ToString();
+                var compositeCancelToken = CreateCancellationToken(cancelToken);
 
                 // Run process
-                var compositeCancelToken = CreateCancellationToken(cancelToken);
                 await RunProcessAsync(arguments, settings.Page, compositeCancelToken);
 
                 compositeCancelToken.ThrowIfCancellationRequested();
@@ -141,21 +152,80 @@ namespace Smartstore.Pdf.WkHtml
                     throw new FileNotFoundException($"PDF converter cannot find output file '{outputFileName}'.");
                 }
             }
-            catch (Exception ex) when (ex is not ProcessException)
+            catch (Exception ex) when (ex is (ProcessException or FileNotFoundException))
             {
-                EnsureProcessStopped();
-
-                Logger.Error(ex, $"Html to Pdf conversion error: {ex.Message}.");
                 throw;
-
+            } 
+            catch (Exception ex)
+            {
+                throw new ProcessException($"wkhtmltopdf error: {ex.Message}.", ex, null);
             }
             finally
             {
                 // Teardown / clear inputs
-                settings.Page.Teardown();
+                settings.Page?.Teardown();
                 settings.Header?.Teardown();
                 settings.Footer?.Teardown();
                 settings.Cover?.Teardown();
+            }
+        }
+
+        private async Task RunProcessAsync(string arguments, IPdfInput input, CancellationToken cancelToken)
+        {
+            var data = new List<string>();
+
+            DataReceivedEventHandler onDataReceived = ((o, e) =>
+            {
+                if (e.Data.HasValue())
+                {
+                    data.Add(e.Data);
+                    LogReceived?.Invoke(this, e);
+                }
+            });
+
+            try
+            {
+                var toolName = await _toolName;
+
+                Logger.Debug($"Starting process '{toolName}' with arguments '{arguments}'.");
+
+                _process = Process.Start(new ProcessStartInfo
+                {
+                    FileName = toolName,
+                    Arguments = arguments,
+                    WindowStyle = ProcessWindowStyle.Hidden,
+                    CreateNoWindow = true,
+                    UseShellExecute = false,
+                    StandardInputEncoding = Encoding.UTF8,
+                    RedirectStandardInput = input.Kind == PdfInputKind.Html,
+                    RedirectStandardOutput = false,
+                    RedirectStandardError = true
+                });
+
+                if (_options.ProcessPriority != ProcessPriorityClass.Normal)
+                {
+                    _process.PriorityClass = _options.ProcessPriority;
+                }
+
+                _process.ErrorDataReceived += onDataReceived;
+                _process.BeginErrorReadLine();
+
+                if (input.Kind == PdfInputKind.Html)
+                {
+                    using var sIn = _process.StandardInput;
+                    sIn.WriteLine(input.Content);
+                }
+
+                await _process.WaitForExitAsync(cancelToken);
+
+                if (data.Count > 0)
+                {
+                    throw new ProcessException(_process, data);
+                }
+            }
+            finally
+            {
+                EnsureProcessStopped();
             }
         }
 
@@ -179,65 +249,6 @@ namespace Smartstore.Pdf.WkHtml
             });
 
             return _tempPath;
-        }
-
-        private async Task RunProcessAsync(string arguments, IPdfInput input, CancellationToken cancelToken)
-        {
-            var data = new List<string>();
-
-            DataReceivedEventHandler onDataReceived = ((o, e) =>
-            {
-                if (e.Data.HasValue())
-                {
-                    data.Add(e.Data);
-                    LogReceived?.Invoke(this, e);
-                }
-            });
-
-            try
-            {
-                var toolExePath = await _toolExePath;
-
-                Logger.Debug($"Starting process '{toolExePath}' with arguments '{arguments}'.");
-
-                _process = Process.Start(new ProcessStartInfo
-                {
-                    FileName = "wkhtmltopdf",
-                    Arguments = arguments,
-                    WindowStyle = ProcessWindowStyle.Hidden,
-                    CreateNoWindow = true,
-                    UseShellExecute = false,
-                    StandardInputEncoding = Encoding.UTF8,
-                    RedirectStandardInput = input.Kind == PdfInputKind.Html,
-                    RedirectStandardOutput = false,
-                    RedirectStandardError = true
-                });
-
-                if (_options.ProcessPriority != ProcessPriorityClass.Normal)
-                {
-                    _process.PriorityClass = _options.ProcessPriority;
-                }  
-
-                _process.ErrorDataReceived += onDataReceived;
-                _process.BeginErrorReadLine();
-
-                if (input.Kind == PdfInputKind.Html)
-                {
-                    using var sIn = _process.StandardInput;
-                    sIn.WriteLine(input.Content);
-                }
-
-                await _process.WaitForExitAsync(cancelToken);
-
-                if (data.Count > 0)
-                {
-                    throw new ProcessException(_process, data);
-                }
-            }
-            finally
-            {
-                EnsureProcessStopped();
-            }
         }
 
         private void CheckProcess()

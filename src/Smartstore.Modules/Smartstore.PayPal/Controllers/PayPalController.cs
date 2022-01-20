@@ -248,7 +248,7 @@ namespace Smartstore.PayPal.Controllers
             var response = await _client.ExecuteRequestAsync(verifyRequest);
 
             // TODO: (mh) (core) OK ain't enough. The response body must contain a "SUCCESS"
-            // INFO: won't work for mookups that can be sent with PayPal Webhooks simulator as mockups can't be validated.
+            // INFO: won't work for mockups that can be sent with PayPal Webhooks simulator as mockups can't be validated.
             if (response.Status == HttpStatusCode.OK)
             {
                 return response;
