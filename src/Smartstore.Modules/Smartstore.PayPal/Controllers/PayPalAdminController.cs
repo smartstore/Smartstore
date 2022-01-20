@@ -20,6 +20,7 @@ namespace Smartstore.PayPal.Controllers
 
             model.EnabledFundings = settings.EnabledFundings.SplitSafe(',').ToArray();
             model.DisabledFundings = settings.DisabledFundings.SplitSafe(',').ToArray();
+            model.WebhookUrl = Url.Action(nameof(PayPalController.WebhookHandler), "PayPal", null, "https");
 
             return View(model);
         }

@@ -1,11 +1,14 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
+using Smartstore.Core.Data;
 using Smartstore.Core.Widgets;
 using Smartstore.Engine.Modularity;
 using Smartstore.Http;
 using Smartstore.PayPal.Client;
+using Smartstore.PayPal.Client.Messages;
 using Smartstore.PayPal.Components;
 using Smartstore.PayPal.Settings;
 
@@ -16,11 +19,13 @@ namespace Smartstore.PayPal.Providers
     [Order(1)]
     public class PayPalStandardProvider : PaymentMethodBase, IConfigurable
     {
+        private readonly SmartDbContext _db;
         private readonly PayPalHttpClient _client;
         private readonly PayPalSettings _settings;
 
-        public PayPalStandardProvider(PayPalHttpClient client, PayPalSettings settings)
+        public PayPalStandardProvider(SmartDbContext db, PayPalHttpClient client, PayPalSettings settings)
         {
+            _db = db;
             _client = client;
             _settings = settings;
         }
@@ -53,7 +58,6 @@ namespace Smartstore.PayPal.Providers
                 NewPaymentStatus = PaymentStatus.Pending,
             };
 
-            
             //TODO: (mh) (core) OBSOLETE > Remove
             //await _client.GetOrder(request);
 
@@ -105,6 +109,19 @@ namespace Smartstore.PayPal.Providers
             };
 
             var response = await _client.RefundPaymentAsync(request, result);
+            var refund = response.Body<RefundMessage>();
+
+            if (refund.Id.HasValue() && request.Order.Id != 0)
+            {
+                var refundIds = request.Order.GenericAttributes.Get<List<string>>("Payments.PayPalStandard.RefundId") ?? new List<string>();
+                if (!refundIds.Contains(refund.Id))
+                {
+                    refundIds.Add(refund.Id);
+                }
+                
+                request.Order.GenericAttributes.Set("Payments.PayPalStandard.RefundId", refundIds, request.Order.StoreId);
+                await _db.SaveChangesAsync();
+            }
 
             return result;
         }

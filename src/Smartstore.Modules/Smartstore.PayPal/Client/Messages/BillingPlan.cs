@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using Newtonsoft.Json;
 
 namespace Smartstore.PayPal.Client.Messages
@@ -12,12 +13,11 @@ namespace Smartstore.PayPal.Client.Messages
         [JsonProperty("name")]
         public string Name;
 
-        // TODO: (mh) (core) Is there a way to set MaxLength to 127 via attribute
         /// <summary>
         /// REQUIRED
         /// The plan description. Maximum length is 127 single-byte alphanumeric characters.
         /// </summary>
-        [JsonProperty("description")]
+        [JsonProperty("description"), MaxLength(127)]
         public string Description;
 
         /// <summary>

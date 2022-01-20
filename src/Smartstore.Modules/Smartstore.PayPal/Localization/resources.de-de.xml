@@ -52,6 +52,8 @@
 							<li>Melden Sie sich mit Ihren PayPal-Kontodaten <a href="https://developer.paypal.com/developer/applications" target="_blank">im Entwickler-Dashboard</a> an.</li>
 							<li>Erstellen Sie eine neue App, indem Sie auf denn Button <b>Create App</b> klicken.</li>
 							<li>Tragen Sie nun den Account, die Client ID und den Secret in die dafür vorgesehenen Felder weiter unten auf dieser Seite.</li>
+							<li>Erstellen Sie einen Webhook und hinterlegen die unten aufgeführte URL in Ihrer PayPal App als Webhook URL.</li>
+							<li>Aktivieren Sie Benachrichtigungen für alle Events.</li>
 						</ul>
           ]]>
         </Value>
@@ -81,8 +83,20 @@
       <LocaleResource Name="Secret.Hint">
         <Value>Geben Sie hier das Passwort an, das Ihnen vom Zahlungsanbieter übermittelt wurde.</Value>
       </LocaleResource>
+			<LocaleResource Name="WebhookId">
+				<Value>Webhook ID</Value>
+			</LocaleResource>
+			<LocaleResource Name="WebhookId.Hint">
+				<Value>Geben Sie hier die ID an, die PayPal für Ihren Webhook erzeugt hat.</Value>
+			</LocaleResource>
+			<LocaleResource Name="WebhookUrl">
+				<Value>Webhook URL</Value>
+			</LocaleResource>
+			<LocaleResource Name="WebhookUrl.Hint">
+				<Value>Hinterlegen Sie diese URL in Ihrer PayPal App als Webhook URL.</Value>
+			</LocaleResource>
 			
-      <LocaleResource Name="AdditionalFee">
+			<LocaleResource Name="AdditionalFee">
         <Value>Zusätzliche Gebühren</Value>
       </LocaleResource>
       <LocaleResource Name="AdditionalFee.Hint">

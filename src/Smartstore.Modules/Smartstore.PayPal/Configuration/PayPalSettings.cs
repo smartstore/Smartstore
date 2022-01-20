@@ -30,6 +30,11 @@ namespace Smartstore.PayPal.Settings
         public string Secret { get; set; }
 
         /// <summary>
+        /// PayPal webhook id
+        /// </summary>
+        public string WebhookId { get; set; }
+
+        /// <summary>
         /// Specifies whether <see cref="AdditionalFee"/> is specified as percentage. true - percentage, false - fixed value.
         /// </summary>
         public bool AdditionalFeePercentage { get; set; }

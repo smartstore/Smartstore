@@ -17,6 +17,12 @@ namespace Smartstore.PayPal.Models
         [LocalizedDisplay("*Secret")]
         public string Secret { get; set; }
 
+        [LocalizedDisplay("*WebhookId")]
+        public string WebhookId { get; set; }
+
+        [LocalizedDisplay("*WebhookUrl")]
+        public string WebhookUrl { get; set; }
+
         [LocalizedDisplay("*AdditionalFee")]
         public decimal AdditionalFee { get; set; }
 

@@ -95,6 +95,23 @@
             </div>
         </div>
         <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="WebhookId" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="WebhookId" />
+                <span asp-validation-for="WebhookId"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="WebhookUrl" />
+            </div>
+            <div class="adminData">
+                <input asp-for="WebhookUrl" class="form-control-plaintext" readonly />
+            </div>
+        </div>
+        <div class="adminRow">
             <div class="admin-config-group">
                 <div class="head">@T("Plugins.Smartstore.PayPal.PaymentSettings")</div>
             </div>

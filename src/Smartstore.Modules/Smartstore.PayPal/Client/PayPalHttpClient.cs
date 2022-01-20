@@ -112,6 +112,12 @@ namespace Smartstore.PayPal.Client
                     Op = "replace",
                     Path = "/purchase_units/@reference_id=='default'/amount",
                     Value = amount
+                },
+                new Patch<object>
+                {
+                    Op = "add",
+                    Path = "/purchase_units/@reference_id=='default'/custom_id",
+                    Value = request.OrderGuid
                 }
             };
 
@@ -119,8 +125,8 @@ namespace Smartstore.PayPal.Client
 
             var response = await ExecuteRequestAsync(ordersPatchRequest, request.StoreId);
 
-            var rawResponse = response.Body<object>().ToString();
-            dynamic jResponse = JObject.Parse(rawResponse);
+            //var rawResponse = response.Body<object>().ToString();
+            //dynamic jResponse = JObject.Parse(rawResponse);
             // TODO: (mh) (core) What to do here? Return success or error & only proceed if successful???
 
             return response;
@@ -141,6 +147,7 @@ namespace Smartstore.PayPal.Client
             dynamic jResponse = JObject.Parse(rawResponse);
 
             result.AuthorizationTransactionId = (string)jResponse.purchase_units[0].payments.authorizations[0].id;
+            result.AuthorizationTransactionCode = (string)jResponse.id;
             result.AuthorizationTransactionResult = (string)jResponse.status;
             result.NewPaymentStatus = PaymentStatus.Authorized;
 
@@ -163,6 +170,7 @@ namespace Smartstore.PayPal.Client
             dynamic jResponse = JObject.Parse(rawResponse);
 
             result.CaptureTransactionId = (string)jResponse.purchase_units[0].payments.captures[0].id;
+            result.AuthorizationTransactionCode = (string)jResponse.id;
             result.CaptureTransactionResult = (string)jResponse.status;
             result.NewPaymentStatus = PaymentStatus.Paid;
 
@@ -395,7 +403,8 @@ namespace Smartstore.PayPal.Client
 
             var contentType = content.Headers.ContentType.ToString().ToLower();
 
-            if (contentType == "application/json")
+            // ContentType can also be 'application/json; charset=utf-8'
+            if (contentType.Contains("application/json"))
             {
                 var message = JsonConvert.DeserializeObject(await content.ReadAsStringAsync(), responseType);
                 return message;
