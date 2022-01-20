@@ -23,8 +23,6 @@ using Smartstore.PayPal.Settings;
 
 namespace Smartstore.PayPal.Client
 {
-    // TODO: (mh) (core) API design: pass CancellationToken to all public payment methods that call ExecuteRequestAsync()
-    
     public class PayPalHttpClient
     {
         const string ApiUrlLive = "https://api-m.paypal.com";
@@ -76,12 +74,12 @@ namespace Smartstore.PayPal.Client
         /// <summary>
         /// Gets an order. (For testing purposes only)
         /// </summary>
-        public async Task<PayPalResponse> GetOrderAsync(ProcessPaymentRequest request, ProcessPaymentResult result)
+        public async Task<PayPalResponse> GetOrderAsync(ProcessPaymentRequest request, ProcessPaymentResult result, CancellationToken cancelToken = default)
         {
             Guard.NotNull(request, nameof(request));
 
             var ordersGetRequest = new OrdersGetRequest(request.PaypalOrderId);
-            var response = await ExecuteRequestAsync(ordersGetRequest);
+            var response = await ExecuteRequestAsync(ordersGetRequest, cancelToken);
             var rawResponse = response.Body<object>().ToString();
 
             dynamic jResponse = JObject.Parse(rawResponse);
@@ -92,7 +90,7 @@ namespace Smartstore.PayPal.Client
         /// <summary>
         /// Authorizes an order.
         /// </summary>
-        public virtual async Task<PayPalResponse> UpdateOrderAsync(ProcessPaymentRequest request, ProcessPaymentResult result)
+        public virtual async Task<PayPalResponse> UpdateOrderAsync(ProcessPaymentRequest request, ProcessPaymentResult result, CancellationToken cancelToken = default)
         {
             Guard.NotNull(request, nameof(request));
 
@@ -123,7 +121,7 @@ namespace Smartstore.PayPal.Client
 
             ordersPatchRequest.WithBody(patches);
 
-            var response = await ExecuteRequestAsync(ordersPatchRequest, request.StoreId);
+            var response = await ExecuteRequestAsync(ordersPatchRequest, request.StoreId, cancelToken);
 
             //var rawResponse = response.Body<object>().ToString();
             //dynamic jResponse = JObject.Parse(rawResponse);
@@ -132,17 +130,18 @@ namespace Smartstore.PayPal.Client
             return response;
         }
 
-        public Task<PayPalResponse> UpdateOrderAsync(OrdersPatchRequest<object> request) => ExecuteRequestAsync(request);
+        public Task<PayPalResponse> UpdateOrderAsync(OrdersPatchRequest<object> request, CancellationToken cancelToken = default) 
+            => ExecuteRequestAsync(request, cancelToken);
 
         /// <summary>
         /// Authorizes an order.
         /// </summary>
-        public virtual async Task<PayPalResponse> AuthorizeOrderAsync(ProcessPaymentRequest request, ProcessPaymentResult result)
+        public virtual async Task<PayPalResponse> AuthorizeOrderAsync(ProcessPaymentRequest request, ProcessPaymentResult result, CancellationToken cancelToken = default)
         {
             Guard.NotNull(request, nameof(request));
 
             var ordersAuthorizeRequest = new OrdersAuthorizeRequest(request.PaypalOrderId);
-            var response = await ExecuteRequestAsync(ordersAuthorizeRequest, request.StoreId);
+            var response = await ExecuteRequestAsync(ordersAuthorizeRequest, request.StoreId, cancelToken);
             var rawResponse = response.Body<object>().ToString();
             dynamic jResponse = JObject.Parse(rawResponse);
 
@@ -154,17 +153,18 @@ namespace Smartstore.PayPal.Client
             return response;
         }
 
-        public Task<PayPalResponse> AuthorizeOrderAsync(OrdersAuthorizeRequest request) => ExecuteRequestAsync(request);
+        public Task<PayPalResponse> AuthorizeOrderAsync(OrdersAuthorizeRequest request, CancellationToken cancelToken = default) 
+            => ExecuteRequestAsync(request, cancelToken);
 
         /// <summary>
         /// Captures an order.
         /// </summary>
-        public virtual async Task<PayPalResponse> CaptureOrderAsync(ProcessPaymentRequest request, ProcessPaymentResult result)
+        public virtual async Task<PayPalResponse> CaptureOrderAsync(ProcessPaymentRequest request, ProcessPaymentResult result, CancellationToken cancelToken = default)
         {
             Guard.NotNull(request, nameof(request));
 
             var ordersCaptureRequest = new OrdersCaptureRequest(request.PaypalOrderId);
-            var response = await ExecuteRequestAsync(ordersCaptureRequest, request.StoreId);
+            var response = await ExecuteRequestAsync(ordersCaptureRequest, request.StoreId, cancelToken);
             var rawResponse = response.Body<object>().ToString();
 
             dynamic jResponse = JObject.Parse(rawResponse);
@@ -177,19 +177,20 @@ namespace Smartstore.PayPal.Client
             return response;
         }
 
-        public Task<PayPalResponse> CaptureOrderAsync(OrdersCaptureRequest request) => ExecuteRequestAsync(request);
+        public Task<PayPalResponse> CaptureOrderAsync(OrdersCaptureRequest request, CancellationToken cancelToken = default) 
+            => ExecuteRequestAsync(request, cancelToken);
 
         /// <summary>
         /// Captures authorized payment.
         /// </summary>
-        public virtual async Task<PayPalResponse> CapturePaymentAsync(CapturePaymentRequest request, CapturePaymentResult result)
+        public virtual async Task<PayPalResponse> CapturePaymentAsync(CapturePaymentRequest request, CapturePaymentResult result, CancellationToken cancelToken = default)
         {
             Guard.NotNull(request, nameof(request));
 
             // TODO: (mh) (core) If ERPs are used this ain't the real Invoice-Id > Make optional or remove (TBD with MC)
             var message = new CaptureMessage { InvoiceId = request.Order.OrderNumber };
             var voidRequest = new AuthorizationsCaptureRequest(request.Order.CaptureTransactionId).WithBody(message);
-            var response = await ExecuteRequestAsync(voidRequest, request.Order.StoreId);
+            var response = await ExecuteRequestAsync(voidRequest, request.Order.StoreId, cancelToken);
             var capture = response.Body<Capture>();
 
             result.NewPaymentStatus = PaymentStatus.Paid;
@@ -199,29 +200,31 @@ namespace Smartstore.PayPal.Client
             return response;
         }
 
-        public Task<PayPalResponse> CapturePaymentAsync(AuthorizationsCaptureRequest request) => ExecuteRequestAsync(request);
+        public Task<PayPalResponse> CapturePaymentAsync(AuthorizationsCaptureRequest request, CancellationToken cancelToken = default) 
+            => ExecuteRequestAsync(request, cancelToken);
 
         /// <summary>
         /// Voids authorized payment.
         /// </summary>
-        public virtual async Task<PayPalResponse> VoidPaymentAsync(VoidPaymentRequest request, VoidPaymentResult result)
+        public virtual async Task<PayPalResponse> VoidPaymentAsync(VoidPaymentRequest request, VoidPaymentResult result, CancellationToken cancelToken = default)
         {
             Guard.NotNull(request, nameof(request));
 
             var voidRequest = new AuthorizationsVoidRequest(request.Order.CaptureTransactionId);
-            var response = await ExecuteRequestAsync(voidRequest, request.Order.StoreId);
+            var response = await ExecuteRequestAsync(voidRequest, request.Order.StoreId, cancelToken);
 
             result.NewPaymentStatus = PaymentStatus.Voided;
 
             return response;
         }
 
-        public Task<PayPalResponse> VoidPaymentAsync(AuthorizationsVoidRequest request) => ExecuteRequestAsync(request);
+        public Task<PayPalResponse> VoidPaymentAsync(AuthorizationsVoidRequest request, CancellationToken cancelToken = default) 
+            => ExecuteRequestAsync(request, cancelToken);
 
         /// <summary>
         /// Refunds captured payment.
         /// </summary>
-        public virtual async Task<PayPalResponse> RefundPaymentAsync(RefundPaymentRequest request, RefundPaymentResult result)
+        public virtual async Task<PayPalResponse> RefundPaymentAsync(RefundPaymentRequest request, RefundPaymentResult result, CancellationToken cancelToken = default)
         {
             Guard.NotNull(request, nameof(request));
 
@@ -237,7 +240,7 @@ namespace Smartstore.PayPal.Client
             }
 
             var refundRequest = new CapturesRefundRequest(request.Order.CaptureTransactionId).WithBody(message);
-            var response = await ExecuteRequestAsync(refundRequest, request.Order.StoreId);
+            var response = await ExecuteRequestAsync(refundRequest, request.Order.StoreId, cancelToken);
 
             result.NewPaymentStatus = request.IsPartialRefund
                 ? PaymentStatus.PartiallyRefunded
@@ -246,7 +249,8 @@ namespace Smartstore.PayPal.Client
             return response;
         }
 
-        public Task<PayPalResponse> RefundPaymentAsync(CapturesRefundRequest request) => ExecuteRequestAsync(request);
+        public Task<PayPalResponse> RefundPaymentAsync(CapturesRefundRequest request, CancellationToken cancelToken = default) 
+            => ExecuteRequestAsync(request, cancelToken);
 
         #endregion
 
