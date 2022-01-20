@@ -34,7 +34,7 @@ namespace Smartstore.Diagnostics
                 }
                 else
                 {
-                    var processName = process?.ProcessName.NaIfEmpty();
+                    var processName = process?.StartInfo?.FileName.NaIfEmpty();
                     message = data != null && data.Count > 1
                         ? $"One or more errors occured while running process '{processName}':"
                         : $"An unknown error occured while running process '{processName}'.";

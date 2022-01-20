@@ -66,12 +66,30 @@ namespace Smartstore.Core.Content.Media.Storage
             }
             else
             {
+                _db.LoadReferenceAsync(mediaFile, x => x.MediaStorage).Await();
                 return mediaFile.MediaStorage?.Data?.ToStream();
             }
         }
 
-        public virtual Task<Stream> OpenReadAsync(MediaFile mediaFile)
-            => Task.FromResult(OpenRead(mediaFile));
+        public virtual async Task<Stream> OpenReadAsync(MediaFile mediaFile)
+        {
+            Guard.NotNull(mediaFile, nameof(mediaFile));
+
+            if (_db.DataProvider.CanStreamBlob)
+            {
+                if (mediaFile.MediaStorageId > 0)
+                {
+                    return OpenBlobStream(mediaFile.MediaStorageId.Value);
+                }
+
+                return null;
+            }
+            else
+            {
+                await _db.LoadReferenceAsync(mediaFile, x => x.MediaStorage);
+                return mediaFile.MediaStorage?.Data?.ToStream();
+            }
+        }
 
         public virtual async Task<byte[]> LoadAsync(MediaFile mediaFile)
         {

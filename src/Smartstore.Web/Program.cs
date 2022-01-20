@@ -64,6 +64,9 @@ var appContext = new SmartApplicationContext(builder.Environment, configuration,
 var engine = EngineFactory.Create(appContext.AppConfiguration);
 var engineStarter = engine.Start(appContext);
 
+// Add NativeLibraryDirectory to PATH environment variable
+AddPathToEnv(appContext.RuntimeInfo.NativeLibraryDirectory);
+
 // Add services to the container.
 engineStarter.ConfigureServices(builder.Services);
 
@@ -104,6 +107,19 @@ app.Run();
 
 
 #region Setup helpers
+
+void AddPathToEnv(string path)
+{
+    if (appContext.RuntimeInfo.IsWindows)
+    {
+        var value = Environment.GetEnvironmentVariable("Path", EnvironmentVariableTarget.Process);
+        if (value.IsEmpty() || !value.Contains(path))
+        {
+            value = value.EmptyNull().Trim(';') + ';' + path;
+            Environment.SetEnvironmentVariable("Path", value, EnvironmentVariableTarget.Process);
+        }
+    }
+}
 
 void SetupLogging(ILoggingBuilder loggingBuilder)
 {

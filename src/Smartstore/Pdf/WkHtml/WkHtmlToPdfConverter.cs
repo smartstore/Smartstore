@@ -141,7 +141,7 @@ namespace Smartstore.Pdf.WkHtml
                     throw new FileNotFoundException($"PDF converter cannot find output file '{outputFileName}'.");
                 }
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is not ProcessException)
             {
                 EnsureProcessStopped();
 
@@ -202,8 +202,7 @@ namespace Smartstore.Pdf.WkHtml
 
                 _process = Process.Start(new ProcessStartInfo
                 {
-                    FileName = toolExePath,
-                    WorkingDirectory = Path.GetDirectoryName(toolExePath),
+                    FileName = "wkhtmltopdf",
                     Arguments = arguments,
                     WindowStyle = ProcessWindowStyle.Hidden,
                     CreateNoWindow = true,

@@ -133,12 +133,21 @@ namespace Smartstore.Core.Logging
         {
             var loggerType = typeof(RequestLoggingMiddleware);
 
-            if (ex != null && endpoint != null)
+            if (ex != null)
             {
-                var actionDescriptor = endpoint.Metadata.OfType<ControllerActionDescriptor>().FirstOrDefault();
-                if (actionDescriptor != null)
+                var exceptionSource = ex.TargetSite?.DeclaringType;
+
+                if (exceptionSource != null)
                 {
-                    loggerType = actionDescriptor.ControllerTypeInfo.AsType();
+                    loggerType = exceptionSource;
+                }
+                else if (endpoint != null)
+                {
+                    var actionDescriptor = endpoint.Metadata.OfType<ControllerActionDescriptor>().FirstOrDefault();
+                    if (actionDescriptor != null)
+                    {
+                        loggerType = actionDescriptor.ControllerTypeInfo.AsType();
+                    }
                 }
             }
 

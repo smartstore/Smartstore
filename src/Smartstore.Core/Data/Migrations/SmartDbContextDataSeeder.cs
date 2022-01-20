@@ -127,6 +127,7 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Common.Exit", "Exit", "Beenden");
             builder.AddOrUpdate("Common.Empty", "Empty", "Leer");
             builder.AddOrUpdate("Admin.Common.SaveChanges", "Save changes", "Änderungen speichern");
+            builder.AddOrUpdate("Admin.Common.EnvironmentVariables", "Environment variables", "Umgebungsvariablen");
             builder.AddOrUpdate("Admin.System.Log.ClearLog.Confirm", "Are you sure that all log entries should be deleted?", "Sind Sie sicher, dass alle Log-Einträge gelöscht werden sollen?");
             builder.AddOrUpdate("Admin.System.QueuedEmails.DeleteAll.Confirm", "Are you sure that all emails should be deleted?", "Sind Sie sicher, dass alle Emails gelöscht werden sollen?");
 

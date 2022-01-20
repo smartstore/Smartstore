@@ -91,7 +91,9 @@ namespace Smartstore.Core.Content.Media
                     return;
                 }
 
+                // TODO: (core) Check "Media.Storage.Provider" --> DatabaseMediaStorageProvider.SystemName for MediaLoadFlags.
                 mediaFile = await mediaService.GetFileByIdAsync(mediaFileId, MediaLoadFlags.AsNoTracking);
+
                 if (mediaFile == null || mediaFile.FolderId == null || mediaFile.Deleted)
                 {
                     await NotFound(mediaFile?.MimeType);
@@ -235,7 +237,7 @@ namespace Smartstore.Core.Content.Media
             return new FileStreamResult(stream, pathData.MimeType)
             {
                 EnableRangeProcessing = true,
-                // INFO: (core)(perf)I think ETag is sufficient and ignoring this reduces header comparison by one item.
+                // INFO: (core)(perf) I think ETag is sufficient and ignoring this reduces header comparison by one item.
                 //LastModified = file.LastModified,
                 EntityTag = new EntityTagHeaderValue(ETagUtility.GenerateETag(file))
             };
