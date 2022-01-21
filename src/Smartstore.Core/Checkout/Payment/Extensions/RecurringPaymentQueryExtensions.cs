@@ -54,5 +54,17 @@ namespace Smartstore.Core.Checkout.Payment
 
             return query.OrderBy(x => x.StartDateUtc).ThenBy(x => x.Id);
         }
+
+        public static IQueryable<RecurringPayment> IncludeAddresses(this IQueryable<RecurringPayment> query)
+        {
+            Guard.NotNull(query, nameof(query));
+
+            query = query
+                .Include(x => x.InitialOrder).ThenInclude(x => x.Customer).ThenInclude(x => x.BillingAddress)
+                .Include(x => x.InitialOrder).ThenInclude(x => x.Customer).ThenInclude(x => x.ShippingAddress)
+                .Include(x => x.RecurringPaymentHistory);
+
+            return query;
+        }
     }
 }

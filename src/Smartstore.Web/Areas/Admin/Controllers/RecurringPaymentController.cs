@@ -47,9 +47,7 @@ namespace Smartstore.Admin.Controllers
         {
             var query = _db.RecurringPayments
                 .AsSplitQuery()
-                .Include(x => x.InitialOrder).ThenInclude(x => x.Customer).ThenInclude(x => x.BillingAddress)
-                .Include(x => x.InitialOrder).ThenInclude(x => x.Customer).ThenInclude(x => x.ShippingAddress)
-                .Include(x => x.RecurringPaymentHistory)
+                .IncludeAddresses()
                 .AsQueryable();
 
             if (model.CustomerEmail.HasValue())
@@ -96,12 +94,9 @@ namespace Smartstore.Admin.Controllers
         public async Task<IActionResult> Edit(int id)
         {
             var recurringPayment = await _db.RecurringPayments
-                // TODO: (mh) (core) Make extension method for next 3 lines --> IncludeAddresses
                 .AsSplitQuery()
-                .Include(x => x.InitialOrder).ThenInclude(x => x.Customer).ThenInclude(x => x.BillingAddress)
-                .Include(x => x.InitialOrder).ThenInclude(x => x.Customer).ThenInclude(x => x.ShippingAddress)
-                .Include(x => x.RecurringPaymentHistory)
-                .FindByIdAsync(id);
+                .IncludeAddresses()
+                .FirstOrDefaultAsync(x => x.Id == id);
 
             if (recurringPayment == null)
             {
