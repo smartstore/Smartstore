@@ -20,7 +20,8 @@ namespace Smartstore.Data.Providers
         AccessIncrement = 1 << 5,
         StreamBlob = 1 << 6,
         ExecuteSqlScript = 1 << 7,
-        StoredProcedures = 1 << 8
+        StoredProcedures = 1 << 8,
+        ReadSequential = 1 << 9
     }
 
     public abstract class DataProvider : Disposable
@@ -77,6 +78,11 @@ namespace Smartstore.Data.Providers
         public bool CanStreamBlob
         {
             get => Features.HasFlag(DataProviderFeatures.StreamBlob);
+        }
+
+        public bool CanReadSequential
+        {
+            get => Features.HasFlag(DataProviderFeatures.ReadSequential);
         }
 
         public bool CanExecuteSqlScript

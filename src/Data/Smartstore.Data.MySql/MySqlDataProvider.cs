@@ -35,8 +35,13 @@ namespace Smartstore.Data.MySql
         public override DbSystemType ProviderType => DbSystemType.MySql;
 
         public override DataProviderFeatures Features
-            => DataProviderFeatures.AccessIncrement | DataProviderFeatures.ReIndex | DataProviderFeatures.Shrink | DataProviderFeatures.ComputeSize
-            | DataProviderFeatures.ExecuteSqlScript /*| DataProviderFeatures.StreamBlob*/ | DataProviderFeatures.StoredProcedures;
+            => DataProviderFeatures.AccessIncrement 
+            | DataProviderFeatures.ReIndex 
+            | DataProviderFeatures.Shrink 
+            | DataProviderFeatures.ComputeSize
+            | DataProviderFeatures.ExecuteSqlScript
+            | DataProviderFeatures.ReadSequential
+            | DataProviderFeatures.StoredProcedures;
 
         public override string EncloseIdentifier(string identifier)
         {

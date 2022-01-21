@@ -82,7 +82,7 @@ namespace Smartstore.Core.Content.Media.Storage
         public virtual async Task<Stream> OpenReadAsync(MediaFile mediaFile)
         {
             var file = await _fileSystem.GetFileAsync(GetPath(Guard.NotNull(mediaFile, nameof(mediaFile))));
-            return file.Exists ? file.OpenRead() : null;
+            return file.Exists ? await file.OpenReadAsync() : null;
         }
 
         public virtual async Task<byte[]> LoadAsync(MediaFile mediaFile)

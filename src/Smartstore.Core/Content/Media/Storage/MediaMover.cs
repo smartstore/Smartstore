@@ -1,4 +1,5 @@
-﻿using Smartstore.Core.Configuration;
+﻿using MailKit.Search;
+using Smartstore.Core.Configuration;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Logging;
@@ -9,7 +10,7 @@ namespace Smartstore.Core.Content.Media.Storage
 {
     public class MediaMover : IMediaMover
     {
-        private const int PAGE_SIZE = 500;
+        private const int PAGE_SIZE = 50;
 
         private readonly SmartDbContext _db;
         private readonly INotifier _notifier;
@@ -57,13 +58,20 @@ namespace Smartstore.Core.Content.Media.Storage
             
             // We are about to process data in chunks but want to commit ALL at once after ALL chunks have been processed successfully.
             // AutoDetectChanges true required for newly inserted binary data.
-            using (var scope = new DbContextScope(ctx: _db, autoDetectChanges: _db.DataProvider.CanStreamBlob ? false : null, retainConnection: true))
+            using (var scope = new DbContextScope(ctx: _db, autoDetectChanges: _db.DataProvider.CanStreamBlob ? false : null/*, retainConnection: true*/))
             {
+                var query = _db.MediaFiles.AsQueryable();
+
+                if (sender is DatabaseMediaStorageProvider && !_db.DataProvider.CanReadSequential)
+                {
+                    query = query.Include(x => x.MediaStorage);
+                }
+
                 using (var transaction = await _db.Database.BeginTransactionAsync(cancelToken))
                 {
                     try
                     {
-                        var pager = new FastPager<MediaFile>(_db.MediaFiles, PAGE_SIZE);
+                        var pager = new FastPager<MediaFile>(query, PAGE_SIZE);
                         while ((await pager.ReadNextPageAsync<MediaFile>()).Out(out var files))
                         {
                             if (cancelToken.IsCancellationRequested)

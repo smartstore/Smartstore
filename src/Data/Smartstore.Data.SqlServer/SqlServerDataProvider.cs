@@ -75,8 +75,15 @@ namespace Smartstore.Data.SqlServer
         public override DbSystemType ProviderType => DbSystemType.SqlServer;
 
         public override DataProviderFeatures Features
-            => DataProviderFeatures.Backup | DataProviderFeatures.ComputeSize | DataProviderFeatures.ReIndex | DataProviderFeatures.ExecuteSqlScript
-            | DataProviderFeatures.Restore | DataProviderFeatures.AccessIncrement | DataProviderFeatures.Shrink | DataProviderFeatures.StreamBlob
+            => DataProviderFeatures.Backup 
+            | DataProviderFeatures.ComputeSize 
+            | DataProviderFeatures.ReIndex 
+            | DataProviderFeatures.ExecuteSqlScript
+            | DataProviderFeatures.Restore 
+            | DataProviderFeatures.AccessIncrement 
+            | DataProviderFeatures.Shrink 
+            | DataProviderFeatures.StreamBlob
+            | DataProviderFeatures.ReadSequential
             | DataProviderFeatures.StoredProcedures;
 
         public override string EncloseIdentifier(string identifier)
