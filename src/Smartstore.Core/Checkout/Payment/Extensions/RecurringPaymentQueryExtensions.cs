@@ -60,6 +60,7 @@ namespace Smartstore.Core.Checkout.Payment
             Guard.NotNull(query, nameof(query));
 
             query = query
+                .AsSplitQuery()
                 .Include(x => x.InitialOrder).ThenInclude(x => x.Customer).ThenInclude(x => x.BillingAddress)
                 .Include(x => x.InitialOrder).ThenInclude(x => x.Customer).ThenInclude(x => x.ShippingAddress)
                 .Include(x => x.RecurringPaymentHistory);

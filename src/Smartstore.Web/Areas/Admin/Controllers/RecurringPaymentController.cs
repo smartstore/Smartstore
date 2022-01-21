@@ -46,7 +46,6 @@ namespace Smartstore.Admin.Controllers
         public async Task<IActionResult> RecurringPaymentList(GridCommand command, RecurringPaymentListModel model)
         {
             var query = _db.RecurringPayments
-                .AsSplitQuery()
                 .IncludeAddresses()
                 .AsQueryable();
 
