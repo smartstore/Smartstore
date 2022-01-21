@@ -55,20 +55,27 @@
                         @foreach (var item in Model.RecurringPayments)
                         {
                             <tr>
-                                <td>@item.StartDate</td>
+                                <td title="@item.NextPayment.ToString()">@item.StartDate.ToString("d")</td>
                                 <td>@item.CycleInfo</td>
-                                <td>@item.NextPayment</td>
+                                <td title="@item.NextPayment.ToString()">@(item.NextPayment.HasValue ? ((DateTime)item.NextPayment).ToString("d") : string.Empty)</td>
                                 <td class="text-center">@item.TotalCycles</td>
                                 <td class="text-center">@item.CyclesRemaining</td>
                                 <td>
-                                    <a asp-action="Details" asp-controller="Order" asp-route-id="@item.InitialOrderId" class="btn btn-block btn-sm btn-secondary" rel="nofollow">
-                                        <i class="far fa-list-alt"></i>
-                                        <span>@T("Account.CustomerOrders.RecurringOrders.ViewInitialOrder", item.InitialOrderId)</span>
-                                    </a>
-                                    <button sm-if="item.CanCancel" type="submit" name="cancelRecurringPayment@(item.Id)" value="cancelRecurringPayment@(item.Id)" class="btn btn-block btn-sm btn-danger">
-                                        <i class="fa fa-times"></i>
-                                        <span>@T("Account.CustomerOrders.RecurringOrders.Cancel")</span>
-                                    </button>
+                                    <div class="dropdown">
+                                        <button type="button" class="btn btn-secondary btn-sm dropdown-toggle text-right" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            ...
+                                        </button>
+                                        <div class="dropdown-menu @(WorkContext.WorkingLanguage.Rtl ? "dropdown-menu-right" : "dropdown-menu-left")">
+                                            <a asp-action="Details" asp-controller="Order" asp-route-id="@item.InitialOrderId" class="dropdown-item" rel="nofollow">
+                                                <i class="far fa-list-alt"></i>
+                                                <span>@T("Account.CustomerOrders.RecurringOrders.ViewInitialOrder", item.InitialOrderId)</span>
+                                            </a>
+                                            <button sm-if="item.CanCancel" type="submit" name="cancelRecurringPayment@(item.Id)" value="cancelRecurringPayment@(item.Id)" class="dropdown-item">
+                                                <i class="fa fa-times"></i>
+                                                <span>@T("Account.CustomerOrders.RecurringOrders.Cancel")</span>
+                                            </button>
+                                        </div>
+                                    </div>
                                 </td>
                             </tr>
                         }

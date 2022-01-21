@@ -78,6 +78,9 @@ namespace Smartstore.Core.Data.Migrations
 
             // TODO: (core) Delete all Telerik language resources (???)
             
+            builder.AddOrUpdate("Account.CustomerOrders.RecurringOrders.CycleInfo", "Interval", "Interval");
+            builder.AddOrUpdate("Account.CustomerOrders.RecurringOrders.CyclesRemaining", "Remaining", "Verbleibend");
+
             builder.AddOrUpdate("Admin.Tax.Categories.NoDuplicatesAllowed",
                 "A tax category with this name already exists. Please choose another name.",
                 "Eine Steuerklasse mit diesem Namen existiert bereits. Bitte wählen Sie einen anderen Namen.");

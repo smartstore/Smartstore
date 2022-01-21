@@ -22,9 +22,9 @@ namespace Smartstore.Web.Models.Customers
 
         public partial class RecurringPaymentModel : EntityModelBase
         {
-            public string StartDate { get; set; }
+            public DateTime StartDate { get; set; }
             public string CycleInfo { get; set; }
-            public string NextPayment { get; set; }
+            public DateTime? NextPayment { get; set; }
             public int TotalCycles { get; set; }
             public int CyclesRemaining { get; set; }
             public int InitialOrderId { get; set; }

@@ -1173,9 +1173,9 @@ namespace Smartstore.Web.Controllers
                     return new CustomerOrderListModel.RecurringPaymentModel
                     {
                         Id = x.Id,
-                        StartDate = _dateTimeHelper.ConvertToUserTime(x.StartDateUtc, DateTimeKind.Utc).ToString(),
+                        StartDate = _dateTimeHelper.ConvertToUserTime(x.StartDateUtc, DateTimeKind.Utc),
                         CycleInfo = $"{x.CycleLength} {await _localizationService.GetLocalizedEnumAsync(x.CyclePeriod)}",
-                        NextPayment = nextPaymentDate.HasValue ? _dateTimeHelper.ConvertToUserTime(nextPaymentDate.Value, DateTimeKind.Utc).ToString() : string.Empty,
+                        NextPayment = nextPaymentDate.HasValue ? _dateTimeHelper.ConvertToUserTime(nextPaymentDate.Value, DateTimeKind.Utc) : null,
                         TotalCycles = x.TotalCycles,
                         CyclesRemaining = await _paymentService.GetRecurringPaymentRemainingCyclesAsync(x),
                         InitialOrderId = x.InitialOrder.Id,
