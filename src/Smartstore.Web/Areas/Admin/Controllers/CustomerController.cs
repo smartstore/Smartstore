@@ -590,6 +590,7 @@ namespace Smartstore.Admin.Controllers
         public async Task<IActionResult> Edit(int id)
         {
             var customer = await _db.Customers
+                .AsSplitQuery()
                 .IncludeCustomerRoles()
                 .Include(x => x.Addresses)
                 .Include(x => x.ExternalAuthenticationRecords)
