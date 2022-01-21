@@ -38,6 +38,8 @@ namespace Smartstore.Web.Bundling.Processors
                 else
                 {
                     var theme = services.Resolve<IThemeContext>().CurrentTheme.Name;
+                    // TODO: (core) is that correct? Should it not be: 
+                    //var storeId = services.Resolve<IStoreContext>().CurrentStore.Id;
                     var storeId = _appContext.Services.Resolve<IStoreContext>().CurrentStore.Id;
                     return new ThemeVarsFileInfo(subpath, theme, storeId,repo);
                 }
