@@ -56,6 +56,7 @@ namespace Smartstore.Core.Catalog.Rules
                 var categoryQuery = _db.Categories
                     .Include(x => x.RuleSets)
                     .ThenInclude(x => x.Rules)
+                    .AsSplitQuery()
                     .AsNoTracking();
 
                 if (categoryIds != null)
