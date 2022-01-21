@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 
-namespace Smartstore.Core
+namespace Smartstore
 {
     public static class ProcessExtensions
     {

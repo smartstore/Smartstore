@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
-using Smartstore.Core;
 using Smartstore.Diagnostics;
 using Smartstore.Engine;
 using Smartstore.Engine.Runtimes;

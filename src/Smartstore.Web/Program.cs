@@ -19,7 +19,7 @@ global using Smartstore.Web.Controllers;
 global using Smartstore.Web.Filters;
 global using Smartstore.Web.Modelling;
 global using EntityState = Smartstore.Data.EntityState;
-
+using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
@@ -110,14 +110,13 @@ app.Run();
 
 void AddPathToEnv(string path)
 {
-    if (appContext.RuntimeInfo.IsWindows)
+    var name = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "Path" : "PATH";
+    var value = Environment.GetEnvironmentVariable(name, EnvironmentVariableTarget.Process);
+
+    if (value.IsEmpty() || !value.Contains(path))
     {
-        var value = Environment.GetEnvironmentVariable("Path", EnvironmentVariableTarget.Process);
-        if (value.IsEmpty() || !value.Contains(path))
-        {
-            value = value.EmptyNull().Trim(';') + ';' + path;
-            Environment.SetEnvironmentVariable("Path", value, EnvironmentVariableTarget.Process);
-        }
+        value = value.EmptyNull().Trim(';') + ';' + path;
+        Environment.SetEnvironmentVariable(name, value, EnvironmentVariableTarget.Process);
     }
 }
 

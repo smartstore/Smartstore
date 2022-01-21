@@ -94,12 +94,8 @@ namespace Smartstore.Engine.Runtimes
 
             foreach (var entry in runtimeEntries)
             {
-                var fileName = entry;
-                if (!request.IsExecutable)
-                {
-                    // Libarry files (.dll, .so, .dylib) belong to the root.
-                    fileName = Path.GetFileName(fileName);
-                }
+                // Native libary files (.exe, .dll, .so, .dylib) belong to the root.
+                var fileName = Path.GetFileName(entry);
                 
                 var source = Path.Combine(packageDir, entry);
                 var target = Path.Combine(destination, fileName);

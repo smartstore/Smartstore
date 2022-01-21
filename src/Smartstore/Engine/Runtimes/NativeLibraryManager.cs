@@ -48,11 +48,12 @@ namespace Smartstore.Engine.Runtimes
                 fileName = fileName.EnsureEndsWith(".dylib");
             }
 
-            var basePath = isExecutable
-                ? _appContext.RuntimeInfo.NativeLibraryDirectory 
-                : _appContext.RuntimeInfo.BaseDirectory;
+            if (isExecutable && TryStartProcess(fileName, out var fi))
+            {
+                return fi;
+            }
 
-            var fi = new FileInfo(Path.Combine(basePath, fileName));
+            fi = new FileInfo(Path.Combine(_appContext.RuntimeInfo.BaseDirectory, fileName));
 
             if (fi.Exists)
             {
@@ -81,6 +82,44 @@ namespace Smartstore.Engine.Runtimes
         public INativeLibraryInstaller CreateLibraryInstaller()
         {
             return new NativeLibraryInstaller(_appContext, this, _loggerFactory.CreateLogger<NativeLibraryInstaller>());
+        }
+
+        internal bool TryStartProcess(string fileName, out FileInfo fi)
+        {
+            // Check if any machine-wide tool can be started
+            fi = null;
+
+            Process process = null;
+
+            try
+            {
+                process = Process.Start(new ProcessStartInfo
+                {
+                    FileName = fileName,
+                    WindowStyle = ProcessWindowStyle.Hidden,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                });
+
+                if (process.MainModule != null)
+                {
+                    fi = new FileInfo(process.MainModule.FileName);
+                    if (fi.Exists)
+                    {
+                        _logger.Info($"'{Path.GetFileNameWithoutExtension(fileName)}' library is ready.");
+                    }
+                }
+
+                return fi != null;
+            }
+            catch
+            {
+                return false;
+            }
+            finally
+            {
+                process?.EnsureStopped();
+            }
         }
     }
 }
