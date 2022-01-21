@@ -238,7 +238,7 @@ namespace Smartstore.Admin.Controllers
             model.VatNumberStatusNote = await ((VatNumberStatus)customer.VatNumberStatusId).GetLocalizedEnumAsync();
             model.CreatedOn = Services.DateTimeHelper.ConvertToUserTime(customer.CreatedOnUtc, DateTimeKind.Utc);
             model.LastActivityDate = Services.DateTimeHelper.ConvertToUserTime(customer.LastActivityDateUtc, DateTimeKind.Utc);
-            model.LastIpAddress = model.LastIpAddress;
+            model.LastIpAddress = customer.LastIpAddress;
             model.LastVisitedPage = customer.GenericAttributes.LastVisitedPage;
 
             // Form fields.
