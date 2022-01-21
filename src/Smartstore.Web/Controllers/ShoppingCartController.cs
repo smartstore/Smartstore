@@ -325,6 +325,7 @@ namespace Smartstore.Web.Controllers
 
             var cartHtml = string.Empty;
             var totalsHtml = string.Empty;
+            var newItemPrice = string.Empty;
 
             var cart = await _shoppingCartService.GetCartAsync(
                 customer,
@@ -346,6 +347,9 @@ namespace Smartstore.Web.Controllers
 
                     cartHtml = await InvokePartialViewAsync("CartItems", model);
                     totalsHtml = await InvokeComponentAsync(typeof(OrderTotalsViewComponent), ViewData, new { isEditable = true });
+
+                    var sci = model.Items.Where(x => x.Id == sciItemId).FirstOrDefault();
+                    newItemPrice = sci.UnitPrice.ToString();
                 }
             }
 
@@ -358,7 +362,8 @@ namespace Smartstore.Web.Controllers
                 message = warnings,
                 cartHtml,
                 totalsHtml,
-                displayCheckoutButtons = true
+                displayCheckoutButtons = true,
+                newItemPrice
             });
         }
 
