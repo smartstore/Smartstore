@@ -4,7 +4,7 @@ using Smartstore.Collections;
 using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Localization;
 
-namespace Smartstore.Web.Infrastructure
+namespace Smartstore.Admin.Infrastructure.Menus
 {
     public partial class AdminMenu : MenuBase
     {

@@ -24,6 +24,11 @@ namespace Smartstore.Web.Controllers
             _asyncState = asyncState;
         }
 
+        private string T(string resourceName)
+        {
+            return _installService.GetResource(resourceName);
+        }
+
         public override async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
             if (_appContext.IsInstalled)
@@ -39,7 +44,7 @@ namespace Smartstore.Web.Controllers
         {
             var model = new InstallationModel
             {
-                AdminEmail = _installService.GetResource("AdminEmailValue")
+                AdminEmail = T("AdminEmailValue")
             };
 
             var curLanguage = _installService.GetCurrentLanguage();
@@ -78,8 +83,8 @@ namespace Smartstore.Web.Controllers
 
             ViewBag.AvailableMediaStorages = new[] 
             {
-                new SelectListItem { Value = "fs", Text = _installService.GetResource("MediaStorage.FS"), Selected = true },
-                new SelectListItem { Value = "db", Text = _installService.GetResource("MediaStorage.DB") }
+                new SelectListItem { Value = "fs", Text = T("MediaStorage.FS") + " " + T("Recommended"), Selected = true },
+                new SelectListItem { Value = "db", Text = T("MediaStorage.DB") }
             };
 
             return View(model);

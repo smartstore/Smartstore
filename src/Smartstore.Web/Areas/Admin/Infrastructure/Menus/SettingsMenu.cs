@@ -4,7 +4,7 @@ using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
 
-namespace Smartstore.Web.Infrastructure.Menus
+namespace Smartstore.Admin.Infrastructure.Menus
 {
     public partial class SettingsMenu : MenuBase
     {
@@ -46,7 +46,7 @@ namespace Smartstore.Web.Infrastructure.Menus
             {
                 Id = "catalog",
                 Text = T("Admin.Catalog"),
-                Icon = "fas fa-fw fa-book",
+                Icon = "fa fa-fw fa-cube",
                 PermissionNames = perm,
                 ControllerName = "Setting",
                 ActionName = "Catalog"
@@ -66,7 +66,7 @@ namespace Smartstore.Web.Infrastructure.Menus
             {
                 Id = "customer",
                 Text = T("Admin.Customers"),
-                Icon = "fa fa-fw fa-users",
+                Icon = "fa fa-fw fa-user-alt",
                 PermissionNames = perm,
                 ControllerName = "Setting",
                 ActionName = "CustomerUser"
@@ -136,7 +136,7 @@ namespace Smartstore.Web.Infrastructure.Menus
             {
                 Id = "media",
                 Text = T("Admin.Plugins.KnownGroup.Media"),
-                Icon = "far fa-fw fa-image",
+                Icon = "far fa-fw fa-photo-video",
                 PermissionNames = perm,
                 ControllerName = "Setting",
                 ActionName = "Media"

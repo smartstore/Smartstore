@@ -60,7 +60,7 @@
     <Value>Enter raw connection string (advanced)</Value>
   </LocaleResource>
   <LocaleResource Name="Recommended">
-    <Value>[Recommended]</Value>
+    <Value>(recommended)</Value>
   </LocaleResource>
   <LocaleResource Name="RestartInstallation">
     <Value>Restart installation</Value>
@@ -125,7 +125,7 @@
     <Value>Media storage</Value>
   </LocaleResource>
   <LocaleResource Name="MediaStorage.Hint">
-    <Value>Select 'File system', if your database does not provide enough disk space (&lt; 500 MB). Otherwise, 'Database' is recommended.</Value>
+	<Value>'File system' provides the highest possible performance and stability and is ideally suited for production environment.</Value>
   </LocaleResource>
   <LocaleResource Name="MediaStorage.DB">
     <Value>Database</Value>

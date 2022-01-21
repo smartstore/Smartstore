@@ -11,7 +11,7 @@ namespace Smartstore.Blog
             var blogMenuItem = new MenuItem().ToBuilder()
                 .ResKey("Admin.Configuration.Settings.Blog")
                 .Id("blog")
-                .Icon("far fa-fw fa-edit")
+                .Icon("fa fa-fw fa-blog")
                 .PermissionNames(BlogPermissions.Read)
                 .Action("Settings", "Blog", new { area = "Admin" })
                 .AsItem();
