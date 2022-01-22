@@ -2,6 +2,7 @@
 using FluentValidation;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Content.Media;
+using Smartstore.Imaging;
 
 namespace Smartstore.Admin.Models
 {
@@ -99,6 +100,41 @@ namespace Smartstore.Admin.Models
         [AdditionalMetadata("rows", 2)]
         [LocalizedDisplay("*Type.Bin")]
         public string BinTypes { get; set; }
+
+        #endregion
+
+        #region Image processing
+
+        public ResamplingMode DefaultResamplingMode { get; set; }
+
+        [AdditionalMetadata("min", 0)]
+        [AdditionalMetadata("max", 100)]
+        public int DefaultImageQuality { get; set; }
+
+        public JpegSubsample JpegSubsampling { get; set; }
+
+        public PngCompressionLevel PngCompressionLevel { get; set; }
+
+        public QuantizationMethod PngQuantizationMethod { get; set; }
+
+        public bool PngInterlaced { get; set; }
+
+        public bool PngIgnoreMetadata { get; set; }
+
+        public QuantizationMethod GifQuantizationMethod { get; set; }
+
+        #endregion
+
+        #region Response Caching
+
+        [AdditionalMetadata("min", 0)]
+        public int ResponseCacheDuration { get; set; }
+
+        public ResponseCacheLocation ResponseCacheLocation { get; set; }
+
+        public bool ResponseCacheNoStore { get; set; }
+
+        public bool AppendFileVersionToUrl { get; set; }
 
         #endregion
     }
