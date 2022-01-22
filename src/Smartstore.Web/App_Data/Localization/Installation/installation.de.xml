@@ -122,7 +122,6 @@
     <Value>Speicherort für Medien</Value>
   </LocaleResource>
   <LocaleResource Name="MediaStorage.Hint">
-    <Value>Wählen Sie 'Dateisystem', falls Ihre Datenbank zu wenig Speicherplatz bietet (&lt; 500 MB). Ansonsten ist die Option 'Datenbank' empfohlen.</Value>
 	<Value>'Dateisystem' bietet größtmögliche Performance und Stabilität und ist bestens geeignet für den produktiven Einsatz.</Value>
   </LocaleResource>
   <LocaleResource Name="MediaStorage.DB">

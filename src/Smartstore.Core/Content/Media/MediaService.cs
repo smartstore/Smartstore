@@ -608,12 +608,12 @@ namespace Smartstore.Core.Content.Media
                         throw _exceptionFactory.DeleteTrackedFile(file, null);
                     }
 
-                    // Delete entity
+                    // Delete BLOB
+                    await _storageProvider.RemoveAsync(file);
+
+                    // Delete media entity
                     _db.MediaFiles.Remove(file);
                     await _db.SaveChangesAsync();
-
-                    // Delete from storage
-                    await _storageProvider.RemoveAsync(file);
                 }
                 catch (DbUpdateException ex)
                 {

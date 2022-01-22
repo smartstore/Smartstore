@@ -131,7 +131,8 @@ namespace Smartstore.Core.Content.Media.Storage
 
             if (item == null)
             {
-                media.ApplyBlob(null);
+                save = save && await RemoveInternalAsync(media) == 0;
+                media.MediaStorageId = null;
             }
             else
             {
@@ -177,15 +178,26 @@ namespace Smartstore.Core.Content.Media.Storage
 
         public virtual async Task RemoveAsync(params MediaFile[] mediaFiles)
         {
+            int numRemoved = 0;
+            
             foreach (var media in mediaFiles)
             {
-                media.ApplyBlob(null);
+                numRemoved += await RemoveInternalAsync(media);
             }
 
-            if (mediaFiles.Length > 0)
+            if (mediaFiles.Length > 0 && numRemoved < mediaFiles.Length)
             {
+                // Not all Blobs have been batch-deleted: commit here.
                 await _db.SaveChangesAsync();
             }
+        }
+
+        private async Task<int> RemoveInternalAsync(IMediaAware media)
+        {
+            // Do BatchDelete, we don't wanna load the Blob into memory.
+            return await _db.MediaStorage
+                .Where(x => x.Id == media.MediaStorageId.Value)
+                .BatchDeleteAsync();
         }
 
         public Task ChangeExtensionAsync(MediaFile mediaFile, string extension)
@@ -213,7 +225,6 @@ namespace Smartstore.Core.Content.Media.Storage
                 _db.MediaStorage.Remove(new MediaStorage { Id = mediaFile.MediaStorageId.Value });
 
                 mediaFile.MediaStorageId = null;
-                //mediaFile.MediaStorage = null;
             }
         }
 

@@ -379,8 +379,7 @@ namespace Smartstore.Core.Installation
                 if (mediaFile.MediaStorage?.Data?.LongLength > 0)
                 {
                     await fileSystemStorageProvider.SaveAsync(mediaFile, MediaStorageItem.FromStream(mediaFile.MediaStorage.Data.ToStream()));
-                    mediaFile.MediaStorageId = null;
-                    mediaFile.MediaStorage = null;
+                    db.MediaStorage.Remove(mediaFile.MediaStorage);
                 }
             }
 
