@@ -139,16 +139,13 @@
                                     <div class="form-group row">
                                         <label class="col-md-3 col-form-label" asp-for="DataProvider">@InstallService.GetResource("DbSystem")</label>
                                         <div class="col-md-9">
-                                            <select name="DataProvider" id="DataProvider" class="form-control remember">
-                                                <option value="sqlserver">@InstallService.GetResource("UseSqlServer")</option>
-                                                <option value="mysql">@InstallService.GetResource("UseMySql")</option>
-                                            </select>
+                                            <select asp-for="DataProvider" asp-items="ViewBag.AvailableDataProviders" class="form-control remember"></select>
                                             <span asp-validation-for="DataProvider"></span>
                                         </div>
                                     </div>
 
                                     <!-- Connection root -->
-                                    <div id="ConnectionPanel" style="x-display: none">
+                                    <div id="ConnectionPanel">
                                         <div class="form-group row">
                                             <label class="col-md-3 col-form-label" asp-for="UseRawConnectionString">@InstallService.GetResource("Connection")</label>
                                             <div class="col-md-9">

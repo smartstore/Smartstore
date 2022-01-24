@@ -14,7 +14,7 @@ namespace Smartstore.Core.Installation
         [DataType(DataType.Password)]
         public string ConfirmPassword { get; set; }
 
-        public string DataProvider { get; set; } = "sqlserver"; // sqlserver | mysql
+        public string DataProvider { get; set; } // sqlserver | mysql
 
         public string PrimaryLanguage { get; set; } // ISO code
 

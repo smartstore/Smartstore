@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc.Filters;
+﻿using System.Runtime.InteropServices;
+using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Hosting;
 using Smartstore.Core.Installation;
@@ -78,8 +79,16 @@ namespace Smartstore.Web.Controllers
                 appLanguages.FirstOrDefault(x => x.Value.EqualsNoCase("en")).Selected = true;
             }
 
+            var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+            var dataProviders = new List<SelectListItem> 
+            { 
+                new SelectListItem { Value = "mysql", Text = T("UseMySql"), Selected = !isWindows },
+                new SelectListItem { Value = "sqlserver", Text = T("UseSqlServer"), Selected = isWindows }
+            };
+
             ViewBag.AvailableInstallationLanguages = installLanguages;
             ViewBag.AvailableAppLanguages = appLanguages;
+            ViewBag.AvailableDataProviders = dataProviders;
 
             ViewBag.AvailableMediaStorages = new[] 
             {

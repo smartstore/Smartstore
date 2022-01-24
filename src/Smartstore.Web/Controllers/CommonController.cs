@@ -33,6 +33,7 @@ namespace Smartstore.Web.Controllers
         
         public CommonController(
             SmartDbContext db,
+            ICookieConsentManager cookieConsentManager,
             Lazy<IMediaService> mediaService,
             ILanguageService languageService,
             UrlPolicy urlPolicy,
@@ -45,6 +46,7 @@ namespace Smartstore.Web.Controllers
             LocalizationSettings localizationSettings)
         {
             _db = db;
+            _cookieConsentManager = cookieConsentManager;
             _mediaService = mediaService;
             _languageService = languageService;
             _urlPolicy = urlPolicy;
