@@ -1,10 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc.Filters;
+﻿using System.Net.Http;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.Filters;
 using Newtonsoft.Json;
 using Smartstore.Core.Web;
 
 namespace Smartstore.Core.Identity
 {
-    public class CookieConsentFilter : IActionFilter, IAsyncResultFilter
+    // TODO: (mh) (core) Make attribute
+    public class CookieConsentFilter : IActionFilter, IResultFilter
     {
         private readonly PrivacySettings _privacySettings;
         private readonly ICookieConsentManager _cookieConsentManager;
@@ -38,7 +41,7 @@ namespace Smartstore.Core.Identity
             if (request.IsAjaxRequest())
                 return false;
 
-            if (!string.Equals(request.Method, "GET", StringComparison.OrdinalIgnoreCase))
+            if (request.Method != HttpMethods.Get)
                 return false;
 
             return true;
@@ -46,14 +49,13 @@ namespace Smartstore.Core.Identity
 
         public void OnActionExecuting(ActionExecutingContext context)
         {
-            _isProcessableRequest = IsProcessableRequest(context);
-
-            if (!_isProcessableRequest)
+            if (!IsProcessableRequest(context))
                 return;
 
             var isLegacy = false;
             var request = context.HttpContext.Request;
             var response = context.HttpContext.Response;
+
             ConsentCookie cookieData = null;
 
             // Check if the user has a consent cookie.
@@ -66,16 +68,10 @@ namespace Smartstore.Core.Identity
                 // If we receive a DNT header, we accept its value (0 = give consent, 1 = deny) and do not ask the user anymore.
                 if (doNotTrack.HasValue())
                 {
-                    if (doNotTrack.Equals("0"))
-                    {
-                        // Tracking consented.
-                        _cookieConsentManager.SetConsentCookie(true, true);
-                    }
-                    else
-                    {
-                        // Tracking denied.
-                        _cookieConsentManager.SetConsentCookie(false, false);
-                    }
+                    var consented = doNotTrack.Equals("0");
+
+                    // Tracking consented/denied.
+                    _cookieConsentManager.SetConsentCookie(consented, consented);
                 }
                 else
                 {
@@ -98,7 +94,9 @@ namespace Smartstore.Core.Identity
                 {
                     cookieData = JsonConvert.DeserializeObject<ConsentCookie>(consentCookie);
                 }
-                catch { }
+                catch 
+                { 
+                }
 
                 if (cookieData == null)
                 {
@@ -111,6 +109,7 @@ namespace Smartstore.Core.Identity
                     if (str.Equals("asked") || str.Equals("2"))
                     {
                         // Remove legacy Cookie & thus show CookieManager.
+                        // TODO: (mh) (core) This was REQUEST.Cookies... in classic. Sure this behaves the same way?
                         response.Cookies.Delete("CookieConsent");
                     }
                     // 'true' means consented to all cookies.
@@ -133,18 +132,21 @@ namespace Smartstore.Core.Identity
         {
         }
 
-        public async Task OnResultExecutionAsync(ResultExecutingContext context, ResultExecutionDelegate next)
+        public void OnResultExecuting(ResultExecutingContext context)
         {
+            // TODO: (mh) (core) What about _isProcessableRequest check here?
+
+            // Should only run on a full view rendering result or HTML ContentResult.
             if (!context.Result.IsHtmlViewResult())
             {
-                await next();
                 return;
             }
 
-            var widget = new ComponentWidgetInvoker("CookieManager", null);
-            _widgetProvider.RegisterWidget("end", widget);
-            
-            await next();
+            _widgetProvider.RegisterWidget("end", new ComponentWidgetInvoker("CookieManager", null));
+        }
+
+        public void OnResultExecuted(ResultExecutedContext context)
+        {
         }
     }
 }
