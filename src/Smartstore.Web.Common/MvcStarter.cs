@@ -18,6 +18,7 @@ using Newtonsoft.Json.Converters;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Bootstrapping;
 using Smartstore.Core.Common.JsonConverters;
+using Smartstore.Core.Identity;
 using Smartstore.Core.Localization.Routing;
 using Smartstore.Core.Web;
 using Smartstore.Engine.Builders;
@@ -85,6 +86,8 @@ namespace Smartstore.Web
                     //o.EnableEndpointRouting = false;
                     // TODO: (core) AddModelBindingMessagesLocalizer
                     o.Filters.AddService<IViewDataAccessor>(int.MinValue);
+
+                    o.Filters.Add<CookieConsentFilter>();
 
                     // TODO: (core) More MVC config?
                     o.ModelBinderProviders.Insert(0, new InvariantFloatingPointTypeModelBinderProvider());
