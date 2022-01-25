@@ -136,6 +136,11 @@ namespace Smartstore.Web
                 }
             });
 
+            builder.Configure(StarterOrdering.BeforeAuthenticationMiddleware, app =>
+            {
+                app.UseCookiePolicy();
+            });
+
             builder.Configure(StarterOrdering.EarlyMiddleware, app =>
             {
                 app.UseSession();
@@ -146,12 +151,6 @@ namespace Smartstore.Web
                     app.UseUrlPolicy();
                     app.UseRequestCulture();
                 }
-            });
-
-            builder.Configure(StarterOrdering.DefaultMiddleware, app =>
-            {
-                // TODO: (core) Configure cookie policy
-                app.UseCookiePolicy();
             });
         }
 
