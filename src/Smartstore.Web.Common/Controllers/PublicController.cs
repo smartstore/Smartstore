@@ -6,6 +6,7 @@ using Smartstore.Web.Theming;
 
 namespace Smartstore.Web.Controllers
 {
+    [CookieConsent]
     [PreviewMode]
     [CheckStoreClosed]
     [AuthorizeShopAccess]

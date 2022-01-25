@@ -87,8 +87,6 @@ namespace Smartstore.Web
                     // TODO: (core) AddModelBindingMessagesLocalizer
                     o.Filters.AddService<IViewDataAccessor>(int.MinValue);
 
-                    o.Filters.Add<CookieConsentFilter>();
-
                     // TODO: (core) More MVC config?
                     o.ModelBinderProviders.Insert(0, new InvariantFloatingPointTypeModelBinderProvider());
 
