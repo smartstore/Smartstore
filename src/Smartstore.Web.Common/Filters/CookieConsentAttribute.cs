@@ -117,10 +117,7 @@ namespace Smartstore.Core.Identity
                         if (str.Equals("asked") || str.Equals("2"))
                         {
                             // Remove legacy Cookie & thus show CookieManager.
-                            response.Cookies.Delete(CookieNames.CookieConsent, new CookieOptions()
-                            {
-                                Secure = true
-                            });
+                            response.Cookies.Delete(CookieNames.CookieConsent, new CookieOptions { Secure = true });
                         }
                         // 'true' means consented to all cookies.
                         // '1' was the Value of legacy enum CookieConsentStatus.Consented

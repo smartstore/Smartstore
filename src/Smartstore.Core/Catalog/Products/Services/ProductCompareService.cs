@@ -108,17 +108,17 @@ namespace Smartstore.Core.Catalog.Products
 
             var cookieName = CookieNames.ComparedProducts;
 
-            var options = new CookieOptions
-            {
-                Expires = DateTime.Now.AddDays(10.0),
-                HttpOnly = true,
-                IsEssential = true
-            };
-
-            cookies.Delete(cookieName, options);
+            cookies.Delete(cookieName, new CookieOptions { Secure = true });
 
             if (productIds?.Any() ?? false)
             {
+                var options = new CookieOptions
+                {
+                    Expires = DateTime.Now.AddDays(10.0),
+                    HttpOnly = true,
+                    IsEssential = true
+                };
+
                 cookies.Append(cookieName, string.Join(',', productIds), options);
             }
         }

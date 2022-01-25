@@ -209,7 +209,7 @@ namespace Smartstore.Web
                 var cookies = context.Response.Cookies;
                 try
                 {
-                    cookies.Delete(CookieNames.Visitor, cookieOptions);
+                    cookies.Delete(CookieNames.Visitor, new CookieOptions { Secure = true });
                 }
                 finally
                 {
