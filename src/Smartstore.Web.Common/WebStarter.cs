@@ -33,6 +33,7 @@ using Smartstore.Core.Seo.Routing;
 using Smartstore.Engine.Builders;
 using Smartstore.Net;
 using Smartstore.Net.Http;
+using Smartstore.Utilities;
 using Smartstore.Web.Bootstrapping;
 using Smartstore.Web.Razor;
 
@@ -55,8 +56,10 @@ namespace Smartstore.Web
                 o.HeaderName = "X-XSRF-Token";
             });
 
-            // Add DataProtection
-            var dataProtectionDir = new DirectoryInfo(Path.Combine(appContext.TenantRoot.Root, "DataProtection-Keys"));
+            // Add DataProtection, but distinguish between dev and production. On localhost keys file should be stored
+            // in a shared directory, so that switching tenants does not try to encrypt existing cookies with the wrong key.
+            var dataProtectionRoot = CommonHelper.IsDevEnvironment ? appContext.AppDataRoot : appContext.TenantRoot;
+            var dataProtectionDir = new DirectoryInfo(Path.Combine(dataProtectionRoot.Root, "DataProtection-Keys"));
             services.AddDataProtection()
                 .PersistKeysToFileSystem(dataProtectionDir)
                 .AddKeyManagementOptions(o => o.XmlEncryptor ??= new NullXmlEncryptor())
