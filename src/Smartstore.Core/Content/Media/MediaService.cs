@@ -5,6 +5,7 @@ using Smartstore.Core.Content.Media.Imaging;
 using Smartstore.Core.Content.Media.Storage;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Logging;
 using Smartstore.Data;
 using Smartstore.Events;
 using Smartstore.Imaging;
@@ -735,6 +736,13 @@ namespace Smartstore.Core.Content.Media
                 file.PixelSize = outImage.Width * outImage.Height;
                 file.Size = (int)storageItem.SourceStream.Length;
 
+                //var notifier = EngineContext.Current.Scope.Resolve<INotifier>();
+                //var originalFileSize = inStream.Length;
+                //var resultSize = file.Size;
+                //var percent = (double)resultSize / (double)originalFileSize;
+                //var saving = $"{1 - percent:P}";
+                //notifier.Add(NotifyType.Success, saving);
+
                 return (storageItem, file);
             }
             else
@@ -787,9 +795,10 @@ namespace Smartstore.Core.Content.Media
             }
 
             query.MaxSize = maxSize;
-
+            
             using var result = await _imageProcessor.ProcessImageAsync(query, false);
             outImage = result.Image;
+
             return new AsyncOut<IImage>(true, outImage);
         }
 
