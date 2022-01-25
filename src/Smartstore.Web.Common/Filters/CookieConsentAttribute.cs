@@ -61,6 +61,7 @@ namespace Smartstore.Core.Identity
                     return;
 
                 var isLegacy = false;
+                var hasLegacyName = false;
                 var request = context.HttpContext.Request;
                 var response = context.HttpContext.Response;
 
@@ -68,6 +69,14 @@ namespace Smartstore.Core.Identity
 
                 // Check if the user has a consent cookie.
                 var consentCookie = request.Cookies[CookieNames.CookieConsent];
+
+                // Try fetch cookie from pre Smartstore 5.0.0
+                if (consentCookie == null)
+                {
+                    consentCookie = request.Cookies["CookieConsent"];
+                    hasLegacyName = true;
+                }
+
                 if (consentCookie == null)
                 {
                     // No consent cookie. We first check the Do Not Track header value, this can have the value "0" or "1"
@@ -108,7 +117,7 @@ namespace Smartstore.Core.Identity
 
                     if (cookieData == null)
                     {
-                        // Cookie was found but could not be converted thus it's a legacy cookie.
+                        // Cookie was found but could not be converted thus it's a pre Smartstore 3 legacy cookie.
                         isLegacy = true;
                         var str = consentCookie;
 
@@ -117,7 +126,7 @@ namespace Smartstore.Core.Identity
                         if (str.Equals("asked") || str.Equals("2"))
                         {
                             // Remove legacy Cookie & thus show CookieManager.
-                            response.Cookies.Delete(CookieNames.CookieConsent, new CookieOptions { Secure = true });
+                            response.Cookies.Delete("CookieConsent", new CookieOptions { Secure = true });
                         }
                         // 'true' means consented to all cookies.
                         // '1' was the Value of legacy enum CookieConsentStatus.Consented
@@ -126,6 +135,14 @@ namespace Smartstore.Core.Identity
                             // Set Cookie with all types allowed.
                             _cookieConsentManager.SetConsentCookie(true, true);
                         }
+                    }
+                    else if (hasLegacyName)
+                    {
+                        // Cookie was found with old name and could be converted thus it's a pre Smartstore 5 and after Smartstore 3 legacy cookie. So let's rename it.
+                        // Remove legacy Cookie 
+                        response.Cookies.Delete("CookieConsent", new CookieOptions { Secure = true });
+                        // Add again with new name
+                        _cookieConsentManager.SetConsentCookie(cookieData.AllowAnalytics, cookieData.AllowThirdParty);
                     }
                 }
 
