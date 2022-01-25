@@ -19,6 +19,13 @@
                 <i class="fa fa-plus"></i>
                 <span>@T("Admin.Configuration.Countries.States.AddNew")...</span>
             </a>
+            <button datagrid-action="DataGridToolAction.SaveChanges" type="button" class="btn btn-warning no-anims btn-flat">
+                <i class="fa fa-check"></i>
+                <span>@T("Admin.Common.SaveChanges")</span>
+            </button>
+            <button datagrid-action="DataGridToolAction.CancelEdit" type="button" class="btn btn-light btn-flat mr-auto">
+                <span>@T("Common.Cancel")</span>
+            </button>
         </toolbar-group>
         <toolbar-group class="omega">
             <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger no-anims btn-flat">
