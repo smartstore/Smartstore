@@ -73,7 +73,10 @@ namespace Smartstore.Core.Web
                 var cookieName = CookieNames.PreviewModeOverride;
                 var response = _httpContextAccessor.HttpContext.Response;
 
-                response.Cookies.Delete(cookieName);
+                response.Cookies.Delete(cookieName, new CookieOptions
+                {
+                    Secure = true
+                });
 
                 if (_currentValues != null && _currentValues.Count > 0)
                 {
