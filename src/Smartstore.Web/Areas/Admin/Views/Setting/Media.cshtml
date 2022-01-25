@@ -251,14 +251,17 @@
                         <span asp-validation-for="BinTypes"></span>
                     </div>
                 </div>
-
+            </div>
+        </tab>
+        <tab sm-title="@T("Admin.Configuration.Settings.Media.FileStorage")">
+            <div class="adminContent">
                 <div class="adminRow">
                     <div>
-                        <div class="admin-config-group">
+                        @*<div class="admin-config-group">
                             <div class="title">
                                 @(T("Admin.Configuration.Settings.Media.MediaIsStoredIn"))&hellip;
                             </div>
-                        </div>
+                        </div>*@
                         <div class="alert alert-warning">
                             <p>
                                 @T("Admin.Configuration.Settings.Media.MoveMediaNote")

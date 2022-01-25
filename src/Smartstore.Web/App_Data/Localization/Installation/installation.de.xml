@@ -119,7 +119,7 @@
   </LocaleResource>
 
   <LocaleResource Name="MediaStorage.Label">
-    <Value>Speicherort für Medien</Value>
+    <Value>Dateispeicher für Medien</Value>
   </LocaleResource>
   <LocaleResource Name="MediaStorage.Hint">
 	<Value>'Dateisystem' bietet größtmögliche Performance und Stabilität und ist bestens geeignet für den produktiven Einsatz.</Value>

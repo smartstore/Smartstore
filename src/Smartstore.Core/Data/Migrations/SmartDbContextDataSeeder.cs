@@ -626,6 +626,20 @@ namespace Smartstore.Core.Data.Migrations
                 "Opens directly the details of the order with the order number or order reference number.",
                 "Öffnet direkt die Details zum Auftrag mit der Auftrags- oder Bestellreferenznummer.");
 
+            builder.AddOrUpdate("Admin.Configuration.Settings.Media.FileStorage",
+                "Storage",
+                "Dateispeicher");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.Media.CurrentStorageLocation",
+                "The current storage provider is",
+                "Der aktuelle Speicheranbieter ist");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.Media.StorageProvider",
+                "Change storage",
+                "Speicher wechseln",
+                "Specifies the new storage provider for media file like images.",
+                "Legt den neuen Speicheranbieter für Mediendateien wie z.B. Bilder fest.");
+
             #endregion
 
             #region Obsolete
