@@ -43,7 +43,7 @@ namespace Smartstore.Google.Analytics
         {
             var widget = _providerManager.GetProvider<IWidget>("Smartstore.Google.Analytics");
             if (!widget.IsWidgetActive(_widgetSettings))
-                return null;
+                return Task.FromResult(Enumerable.Empty<CookieInfo>());
 
             var cookieInfo = new CookieInfo
             {
@@ -52,7 +52,7 @@ namespace Smartstore.Google.Analytics
                 CookieType = CookieType.Analytics
             };
 
-            return Task.FromResult(new List<CookieInfo> { cookieInfo }.AsEnumerable());
+            return Task.FromResult<IEnumerable<CookieInfo>>(new CookieInfo[] { cookieInfo });
         }
 
         public WidgetInvoker GetDisplayWidget(string widgetZone, object model, int storeId)
