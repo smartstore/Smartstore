@@ -74,7 +74,7 @@ namespace Smartstore.Core.Security
                     {
                         context.Result = new ContentResult
                         {
-                            Content = message.HasValue() ? $"<div class=\"alert alert-danger\">{message}</div>" : string.Empty,
+                            Content = message.HasValue() ? $"<div class=\"alert alert-danger\">{message}</div>" : "<div />",
                             ContentType = "text/html"
                         };
                     }

@@ -100,9 +100,54 @@ namespace Smartstore.Licensing
         public string NotificationMessage { get; set; }
         public string NotificationMessageType { get; set; }
 
+        //public override async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
+        //{
+        //    //throw new LicenseRequiredException(
+        //    //    "Intrinsicly procrastinate frictionless intellectual capital through.",
+        //    //    "Smartstore.AmazonPay",
+        //    //    "/admin/payment/providers");
+
+        //    var request = context?.HttpContext?.Request;
+        //    if (request == null)
+        //    {
+        //        await next();
+        //        return;
+        //    }
+
+        //    var controllerName = request.RouteValues.GetControllerName();
+        //    var actionName = request.RouteValues.GetActionName();
+
+        //    var model = new Dictionary<string, object>
+        //    {
+        //        { "SystemName", "Smartstore.AmazonPay" },
+        //        { "ControllerName", controllerName },
+        //        { "ActionName", actionName },
+        //        { "LayoutName", "_Layout" },
+        //        { "Message", "Intrinsicly procrastinate frictionless intellectual capital through." }
+        //    };
+
+        //    var controller = (Controller)context.Controller;
+        //    context.Result = controller.View("LicenseRequired", model);
+        //}
+
         public override void OnActionExecuting(ActionExecutingContext context)
         {
             // Void
         }
     }
+
+    //public sealed class LicenseRequiredException : SystemException
+    //{
+    //    public LicenseRequiredException(string message)
+    //        : this(message.EmptyNull(), null)     // Do not pass null to avoid non-localized messages.
+    //    {
+    //    }
+
+    //    public LicenseRequiredException(string message, string systemName = null, string returnUrl = null, Exception innerException = null)
+    //        : base(message.EmptyNull(), innerException)
+    //    {
+    //        Data["SystemName"] = systemName;
+    //        Data["ReturnUrl"] = returnUrl;
+    //    }
+    //}
 }
