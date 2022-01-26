@@ -126,7 +126,7 @@ namespace Smartstore.Forums.Controllers
 
                 await _db.SaveChangesAsync();
 
-                var validateSlugResult = await group.ValidateSlugAsync(group.Name, true, 0);
+                var validateSlugResult = await group.ValidateSlugAsync(model.SeName, group.Name, true);
                 await _urlService.ApplySlugAsync(validateSlugResult);
                 model.SeName = validateSlugResult.Slug;
 
@@ -186,7 +186,7 @@ namespace Smartstore.Forums.Controllers
             {
                 MiniMapper.Map(model, group);
 
-                var validateSlugResult = await group.ValidateSlugAsync(group.Name, true, 0);
+                var validateSlugResult = await group.ValidateSlugAsync(model.SeName, group.Name, true);
                 await _urlService.ApplySlugAsync(validateSlugResult);
                 model.SeName = validateSlugResult.Slug;
 
@@ -243,7 +243,7 @@ namespace Smartstore.Forums.Controllers
                 await _localizedEntityService.ApplyLocalizedValueAsync(group, x => x.Name, localized.Name, localized.LanguageId);
                 await _localizedEntityService.ApplyLocalizedValueAsync(group, x => x.Description, localized.Description, localized.LanguageId);
 
-                var validateSlugResult = await group.ValidateSlugAsync(localized.Name, false, localized.LanguageId);
+                var validateSlugResult = await group.ValidateSlugAsync(localized.SeName, localized.Name, false, localized.LanguageId);
                 await _urlService.ApplySlugAsync(validateSlugResult);
             }
         }
@@ -305,7 +305,7 @@ namespace Smartstore.Forums.Controllers
 
                 await _db.SaveChangesAsync();
 
-                var validateSlugResult = await forum.ValidateSlugAsync(forum.Name, true, 0);
+                var validateSlugResult = await forum.ValidateSlugAsync(model.SeName, forum.Name, true);
                 await _urlService.ApplySlugAsync(validateSlugResult);
                 model.SeName = validateSlugResult.Slug;
 
@@ -363,7 +363,7 @@ namespace Smartstore.Forums.Controllers
             {
                 MiniMapper.Map(model, forum);
 
-                var validateSlugResult = await forum.ValidateSlugAsync(forum.Name, true, 0);
+                var validateSlugResult = await forum.ValidateSlugAsync(model.SeName, forum.Name, true);
                 await _urlService.ApplySlugAsync(validateSlugResult);
                 model.SeName = validateSlugResult.Slug;
 
@@ -421,7 +421,7 @@ namespace Smartstore.Forums.Controllers
                 await _localizedEntityService.ApplyLocalizedValueAsync(forum, x => x.Name, localized.Name, localized.LanguageId);
                 await _localizedEntityService.ApplyLocalizedValueAsync(forum, x => x.Description, localized.Description, localized.LanguageId);
 
-                var validateSlugResult = await forum.ValidateSlugAsync(localized.Name, false, localized.LanguageId);
+                var validateSlugResult = await forum.ValidateSlugAsync(localized.SeName, localized.Name, false, localized.LanguageId);
                 await _urlService.ApplySlugAsync(validateSlugResult);
             }
         }

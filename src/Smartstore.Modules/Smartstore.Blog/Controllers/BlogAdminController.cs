@@ -116,7 +116,7 @@ namespace Smartstore.Blog.Controllers
                 await _localizedEntityService.ApplyLocalizedValueAsync(blogPost, x => x.MetaDescription, localized.MetaDescription, localized.LanguageId);
                 await _localizedEntityService.ApplyLocalizedValueAsync(blogPost, x => x.MetaTitle, localized.MetaTitle, localized.LanguageId);
 
-                var validateSlugResult = await blogPost.ValidateSlugAsync(localized.SeName, false, localized.LanguageId);
+                var validateSlugResult = await blogPost.ValidateSlugAsync(localized.SeName, localized.Title, false, localized.LanguageId);
                 await _urlService.ApplySlugAsync(validateSlugResult);
                 model.SeName = validateSlugResult.Slug;
             }
@@ -327,16 +327,19 @@ namespace Smartstore.Blog.Controllers
                 _db.BlogPosts().Add(blogPost);
                 await _db.SaveChangesAsync();
 
-                var validateSlugResult = await blogPost.ValidateSlugAsync(blogPost.Title, true, 0);
+                var validateSlugResult = await blogPost.ValidateSlugAsync(model.SeName, blogPost.Title, true);
                 await _urlService.ApplySlugAsync(validateSlugResult);
                 model.SeName = validateSlugResult.Slug;
 
                 await UpdateLocalesAsync(blogPost, model);
                 await SaveStoreMappingsAsync(blogPost, model.SelectedStoreIds);
-                await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, blogPost, form));
 
+                await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, blogPost, form));
                 NotifySuccess(T("Admin.ContentManagement.Blog.BlogPosts.Added"));
-                return continueEditing ? RedirectToAction("Edit", new { id = blogPost.Id }) : RedirectToAction("List");
+
+                return continueEditing 
+                    ? RedirectToAction("Edit", new { id = blogPost.Id }) 
+                    : RedirectToAction("List");
             }
 
             await PrepareBlogPostModelAsync(model, null);
@@ -391,7 +394,7 @@ namespace Smartstore.Blog.Controllers
                 blogPost.StartDateUtc = model.StartDate;
                 blogPost.EndDateUtc = model.EndDate;
 
-                var validateSlugResult = await blogPost.ValidateSlugAsync(blogPost.Title, true, 0);
+                var validateSlugResult = await blogPost.ValidateSlugAsync(model.SeName, blogPost.Title, true);
                 await _urlService.ApplySlugAsync(validateSlugResult);
                 model.SeName = validateSlugResult.Slug;
 
@@ -401,7 +404,9 @@ namespace Smartstore.Blog.Controllers
 
                 NotifySuccess(T("Admin.ContentManagement.Blog.BlogPosts.Updated"));
 
-                return continueEditing ? RedirectToAction("Edit", new { id = blogPost.Id }) : RedirectToAction("List");
+                return continueEditing 
+                    ? RedirectToAction("Edit", new { id = blogPost.Id }) 
+                    : RedirectToAction("List");
             }
 
             await PrepareBlogPostModelAsync(model, blogPost);

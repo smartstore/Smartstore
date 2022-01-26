@@ -103,16 +103,17 @@ namespace Smartstore.Core.Seo
         /// </summary>
         /// <typeparam name="T">Type of slug supporting entity</typeparam>
         /// <param name="entity">Entity instance</param>
-        /// <param name="seName">Search engine display name to validate. If null or empty, name will be resolved from <see cref="IDisplayedEntity.GetDisplayName()"/>.</param>
+        /// <param name="seName">Search engine name to validate. If <c>null</c> or empty, the slug will be resolved from <paramref name="displayName"/>.</param>
+        /// <param name="displayName">Display name used to resolve the slug if <paramref name="seName"/> is empty.</param>
         /// <param name="ensureNotEmpty">Ensure that slug is not empty</param>
         /// <returns>A system unique slug</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ValidateSlugResult ValidateSlug<T>(this T entity, string seName, bool ensureNotEmpty, int? languageId = null)
+        public static ValidateSlugResult ValidateSlug<T>(this T entity, string seName, string displayName, bool ensureNotEmpty, int? languageId = null)
             where T : ISlugSupported
         {
             Guard.NotNull(entity, nameof(entity));
 
-            return EngineContext.Current.Scope.Resolve<IUrlService>().ValidateSlugAsync(entity, seName, ensureNotEmpty, languageId).Await();
+            return EngineContext.Current.Scope.Resolve<IUrlService>().ValidateSlugAsync(entity, seName, displayName, ensureNotEmpty, languageId).Await();
         }
 
         /// <summary>
@@ -120,16 +121,17 @@ namespace Smartstore.Core.Seo
         /// </summary>
         /// <typeparam name="T">Type of slug supporting entity</typeparam>
         /// <param name="entity">Entity instance</param>
-        /// <param name="seName">Search engine display name to validate. If null or empty, name will be resolved from <see cref="IDisplayedEntity.GetDisplayName()"/>.</param>
+        /// <param name="seName">Search engine name to validate. If <c>null</c> or empty, the slug will be resolved from <paramref name="displayName"/>.</param>
+        /// <param name="displayName">Display name used to resolve the slug if <paramref name="seName"/> is empty.</param>
         /// <param name="ensureNotEmpty">Ensure that slug is not empty</param>
         /// <returns>A system unique slug</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ValueTask<ValidateSlugResult> ValidateSlugAsync<T>(this T entity, string seName, bool ensureNotEmpty, int? languageId = null)
+        public static ValueTask<ValidateSlugResult> ValidateSlugAsync<T>(this T entity, string seName, string displayName, bool ensureNotEmpty, int? languageId = null)
             where T : ISlugSupported
         {
             Guard.NotNull(entity, nameof(entity));
 
-            return EngineContext.Current.Scope.Resolve<IUrlService>().ValidateSlugAsync(entity, seName, ensureNotEmpty, languageId);
+            return EngineContext.Current.Scope.Resolve<IUrlService>().ValidateSlugAsync(entity, seName, displayName, ensureNotEmpty, languageId);
         }
     }
 }

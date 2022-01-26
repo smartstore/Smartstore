@@ -347,7 +347,7 @@ namespace Smartstore.Admin.Controllers
 
                 await _db.SaveChangesAsync();
 
-                var validateSlugResult = await category.ValidateSlugAsync(category.Name, true, 0);
+                var validateSlugResult = await category.ValidateSlugAsync(model.SeName, category.Name, true);
                 await _urlService.ApplySlugAsync(validateSlugResult);
                 model.SeName = validateSlugResult.Slug;
 
@@ -428,7 +428,7 @@ namespace Smartstore.Admin.Controllers
                 var mapper = MapperFactory.GetMapper<CategoryModel, Category>();
                 await mapper.MapAsync(model, category);
 
-                var validateSlugResult = await category.ValidateSlugAsync(category.Name, true, 0);
+                var validateSlugResult = await category.ValidateSlugAsync(model.SeName, category.Name, true);
                 await _urlService.ApplySlugAsync(validateSlugResult);
                 model.SeName = validateSlugResult.Slug;
 
@@ -716,7 +716,7 @@ namespace Smartstore.Admin.Controllers
                 await _localizedEntityService.ApplyLocalizedValueAsync(category, x => x.MetaDescription, localized.MetaDescription, localized.LanguageId);
                 await _localizedEntityService.ApplyLocalizedValueAsync(category, x => x.MetaTitle, localized.MetaTitle, localized.LanguageId);
 
-                var validateSlugResult = await category.ValidateSlugAsync(localized.Name, false, localized.LanguageId);
+                var validateSlugResult = await category.ValidateSlugAsync(localized.SeName, localized.Name, false, localized.LanguageId);
                 await _urlService.ApplySlugAsync(validateSlugResult);
             }
         }

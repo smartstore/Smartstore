@@ -255,7 +255,7 @@ namespace Smartstore.Core.DataExchange.Import
                 {
                     if (row.TryGetDataValue("SeName", out string seName) || row.IsNew || row.NameChanged)
                     {
-                        scope.ApplySlugs(await _urlService.ValidateSlugAsync(row.Entity, seName, true));
+                        scope.ApplySlugs(await _urlService.ValidateSlugAsync(row.Entity, seName, row.EntityDisplayName, true));
 
                         // Process localized slugs.
                         foreach (var language in context.Languages)
@@ -265,14 +265,7 @@ namespace Smartstore.Core.DataExchange.Import
 
                             if (hasSeName || hasLocalizedName)
                             {
-                                // ValidateSlugAsync has no 'name' parameter anymore.
-                                // We ourselves must ensure that 'Name[<UniqueSeoCode>]' is taken into account.
-                                if (string.IsNullOrWhiteSpace(seName))
-                                {
-                                    seName = localizedName;
-                                }
-
-                                scope.ApplySlugs(await _urlService.ValidateSlugAsync(row.Entity, seName, false, language.Id));
+                                scope.ApplySlugs(await _urlService.ValidateSlugAsync(row.Entity, seName, localizedName, false, language.Id));
                             }
                         }
                     }

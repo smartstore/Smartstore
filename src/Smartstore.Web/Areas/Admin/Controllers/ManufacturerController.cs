@@ -184,7 +184,7 @@ namespace Smartstore.Admin.Controllers
 
                 await _db.SaveChangesAsync();
 
-                var validateSlugResult = await manufacturer.ValidateSlugAsync(manufacturer.Name, true, 0);
+                var validateSlugResult = await manufacturer.ValidateSlugAsync(model.SeName, manufacturer.Name, true);
                 await _urlService.ApplySlugAsync(validateSlugResult);
                 model.SeName = validateSlugResult.Slug;
 
@@ -260,7 +260,7 @@ namespace Smartstore.Admin.Controllers
                 var mapper = MapperFactory.GetMapper<ManufacturerModel, Manufacturer>();
                 await mapper.MapAsync(model, manufacturer);
 
-                var validateSlugResult = await manufacturer.ValidateSlugAsync(manufacturer.Name, true, 0);
+                var validateSlugResult = await manufacturer.ValidateSlugAsync(model.SeName, manufacturer.Name, true);
                 await _urlService.ApplySlugAsync(validateSlugResult);
                 model.SeName = validateSlugResult.Slug;
 
@@ -437,7 +437,6 @@ namespace Smartstore.Admin.Controllers
             ViewBag.ManufacturerTemplates = manufacturerTemplates
                 .Select(x => new SelectListItem { Text = x.Name, Value = x.Id.ToString() })
                 .ToList();
-
         }
 
         private async Task ApplyLocales(ManufacturerModel model, Manufacturer manufacturer)
@@ -451,7 +450,7 @@ namespace Smartstore.Admin.Controllers
                 await _localizedEntityService.ApplyLocalizedValueAsync(manufacturer, x => x.MetaDescription, localized.MetaDescription, localized.LanguageId);
                 await _localizedEntityService.ApplyLocalizedValueAsync(manufacturer, x => x.MetaTitle, localized.MetaTitle, localized.LanguageId);
 
-                var validateSlugResult = await manufacturer.ValidateSlugAsync(localized.Name, false, localized.LanguageId);
+                var validateSlugResult = await manufacturer.ValidateSlugAsync(localized.SeName, localized.Name, false, localized.LanguageId);
                 await _urlService.ApplySlugAsync(validateSlugResult);
             }
         }

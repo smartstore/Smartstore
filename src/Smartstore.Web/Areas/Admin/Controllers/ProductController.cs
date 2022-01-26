@@ -2140,7 +2140,7 @@ namespace Smartstore.Admin.Controllers
             //var seoTabLoaded = m.LoadedTabs.Contains("SEO", StringComparer.OrdinalIgnoreCase);
 
             // SEO.
-            var validateSlugResult = await p.ValidateSlugAsync(p.Name, true, 0);
+            var validateSlugResult = await p.ValidateSlugAsync(m.SeName, p.Name, true);
             m.SeName = validateSlugResult.Slug;
             await _urlService.ApplySlugAsync(validateSlugResult);
 
@@ -2156,7 +2156,7 @@ namespace Smartstore.Admin.Controllers
                 await _localizedEntityService.ApplyLocalizedValueAsync(product, x => x.ShortDescription, localized.ShortDescription, localized.LanguageId);
                 await _localizedEntityService.ApplyLocalizedValueAsync(product, x => x.FullDescription, localized.FullDescription, localized.LanguageId);
 
-                validateSlugResult = await p.ValidateSlugAsync(localized.Name, false, localized.LanguageId);
+                validateSlugResult = await p.ValidateSlugAsync(localized.SeName, localized.Name, false, localized.LanguageId);
                 await _urlService.ApplySlugAsync(validateSlugResult);
             }
 

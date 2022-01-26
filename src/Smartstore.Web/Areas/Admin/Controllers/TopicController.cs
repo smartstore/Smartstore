@@ -154,7 +154,7 @@ namespace Smartstore.Admin.Controllers
                 _db.Topics.Add(topic);
                 await _db.SaveChangesAsync();
 
-                var slugResult = await topic.ValidateSlugAsync(model.SeName, true);
+                var slugResult = await topic.ValidateSlugAsync(model.SeName, topic.Title.NullEmpty() ?? topic.SystemName, true);
                 model.SeName = slugResult.Slug;
                 await _urlService.ApplySlugAsync(slugResult, true);
 
@@ -164,9 +164,11 @@ namespace Smartstore.Admin.Controllers
                 AddCookieTypes(model, model.CookieType);
 
                 await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, topic, Request.Form));
-
                 NotifySuccess(T("Admin.ContentManagement.Topics.Updated"));
-                return continueEditing ? RedirectToAction(nameof(Edit), new { id = topic.Id }) : RedirectToAction(nameof(List));
+
+                return continueEditing 
+                    ? RedirectToAction(nameof(Edit), new { id = topic.Id }) 
+                    : RedirectToAction(nameof(List));
             }
 
             // If we got this far something failed. Redisplay form.
@@ -264,7 +266,7 @@ namespace Smartstore.Admin.Controllers
 
                 await _db.SaveChangesAsync();
 
-                var slugResult = await topic.ValidateSlugAsync(model.SeName, true);
+                var slugResult = await topic.ValidateSlugAsync(model.SeName, topic.Title.NullEmpty() ?? topic.SystemName, true);
                 model.SeName = slugResult.Slug;
                 await _urlService.ApplySlugAsync(slugResult, true);
                 
@@ -274,9 +276,11 @@ namespace Smartstore.Admin.Controllers
                 AddCookieTypes(model, model.CookieType);
 
                 await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, topic, Request.Form));
-
                 NotifySuccess(T("Admin.ContentManagement.Topics.Updated"));
-                return continueEditing ? RedirectToAction(nameof(Edit), new { id = topic.Id }) : RedirectToAction(nameof(List));
+
+                return continueEditing 
+                    ? RedirectToAction(nameof(Edit), new { id = topic.Id }) 
+                    : RedirectToAction(nameof(List));
             }
 
             // If we got this far something failed. Redisplay form.
@@ -380,7 +384,7 @@ namespace Smartstore.Admin.Controllers
 
                 await _db.SaveChangesAsync();
 
-                var slugResult = await topic.ValidateSlugAsync(localized.SeName, true);
+                var slugResult = await topic.ValidateSlugAsync(localized.SeName, localized.Title.NullEmpty() ?? localized.ShortTitle, false, localized.LanguageId);
                 model.SeName = slugResult.Slug;
                 await _urlService.ApplySlugAsync(slugResult, true);
             }

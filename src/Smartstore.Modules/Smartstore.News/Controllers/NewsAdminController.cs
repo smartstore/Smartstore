@@ -113,7 +113,7 @@ namespace Smartstore.News.Controllers
                 await _localizedEntityService.ApplyLocalizedValueAsync(newsItem, x => x.MetaTitle, localized.MetaTitle, localized.LanguageId);
 
 
-                var validateSlugResult = await newsItem.ValidateSlugAsync(localized.SeName, false, localized.LanguageId);
+                var validateSlugResult = await newsItem.ValidateSlugAsync(localized.SeName, localized.Title, false, localized.LanguageId);
                 await _urlService.ApplySlugAsync(validateSlugResult);
                 model.SeName = validateSlugResult.Slug;
             }
@@ -314,16 +314,19 @@ namespace Smartstore.News.Controllers
                 _db.NewsItems().Add(newsItem);
                 await _db.SaveChangesAsync();
 
-                var validateSlugResult = await newsItem.ValidateSlugAsync(newsItem.Title, true, 0);
+                var validateSlugResult = await newsItem.ValidateSlugAsync(model.SeName, newsItem.Title, true);
                 await _urlService.ApplySlugAsync(validateSlugResult);
                 model.SeName = validateSlugResult.Slug;
 
                 await UpdateLocalesAsync(newsItem, model);
                 await SaveStoreMappingsAsync(newsItem, model.SelectedStoreIds);
-                await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, newsItem, form));
 
+                await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, newsItem, form));
                 NotifySuccess(T("Admin.ContentManagement.News.NewsItems.Added"));
-                return continueEditing ? RedirectToAction(nameof(Edit), new { id = newsItem.Id }) : RedirectToAction(nameof(List));
+
+                return continueEditing 
+                    ? RedirectToAction(nameof(Edit), new { id = newsItem.Id }) 
+                    : RedirectToAction(nameof(List));
             }
 
             await PrepareNewsItemModelAsync(model, null);
@@ -381,7 +384,7 @@ namespace Smartstore.News.Controllers
                 newsItem.EndDateUtc = model.EndDate;
                 newsItem.CreatedOnUtc = model.CreatedOn;
 
-                var validateSlugResult = await newsItem.ValidateSlugAsync(newsItem.Title, true, 0);
+                var validateSlugResult = await newsItem.ValidateSlugAsync(model.SeName, newsItem.Title, true);
                 await _urlService.ApplySlugAsync(validateSlugResult);
                 model.SeName = validateSlugResult.Slug;
 
@@ -391,7 +394,9 @@ namespace Smartstore.News.Controllers
 
                 NotifySuccess(T("Admin.ContentManagement.News.NewsItems.Updated"));
 
-                return continueEditing ? RedirectToAction(nameof(Edit), new { id = newsItem.Id }) : RedirectToAction(nameof(List));
+                return continueEditing 
+                    ? RedirectToAction(nameof(Edit), new { id = newsItem.Id }) 
+                    : RedirectToAction(nameof(List));
             }
 
             await PrepareNewsItemModelAsync(model, newsItem);

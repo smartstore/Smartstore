@@ -488,23 +488,16 @@ namespace Smartstore.Core.Seo
 
         public virtual async ValueTask<ValidateSlugResult> ValidateSlugAsync<T>(T entity,
             string seName,
+            string displayName,
             bool ensureNotEmpty,
             int? languageId = null)
             where T : ISlugSupported
         {
             Guard.NotNull(entity, nameof(entity));
 
-            var displayName = entity.GetDisplayName();
-            var entityName = entity.GetEntityName();
-
-            // Use entity DisplayName if seName is not specified
+            // Use displayName if seName is not specified.
             if (string.IsNullOrWhiteSpace(seName) && !string.IsNullOrWhiteSpace(displayName))
             {
-                // TODO: (core) ValidateSlugAsync returns a slug even if ensureNotEmpty is False -> slug for a specific language can no longer be deleted using "URL alias" field.
-                // RE: I don't get it. This code here bahaves exactly like before. Hmmm ??
-                // 1.) Edit ForumGroup > add localized name for all languages > save (localized URL alias is not empty anymore) > try to remove localized URL alias > save > localized URL alias not removed.
-                // 2.) Create a new forum. Localized Editor shows 'Standard', DE, EN for me. I enter a name only for 'Standard', nothing else > Save.
-                // URL alias is created for 'Standard', DE and EN. But it must be created only for 'Standard'.
                 seName = displayName;
             }
 
@@ -520,17 +513,17 @@ namespace Smartstore.Core.Seo
                 if (ensureNotEmpty)
                 {
                     // Use entity identifier as slug if empty
-                    slug = entityName.ToLower() + entity.Id.ToStringInvariant();
+                    slug = entity.GetEntityName().ToLower() + entity.Id.ToStringInvariant();
                 }
                 else
                 {
                     // Return. no need for further processing
-                    return new ValidateSlugResult 
-                    { 
-                        Source = entity, 
-                        Slug = slug, 
-                        LanguageId = languageId, 
-                        WasValidated = true 
+                    return new ValidateSlugResult
+                    {
+                        Source = entity,
+                        Slug = slug,
+                        LanguageId = languageId,
+                        WasValidated = true
                     };
                 }
             }
@@ -554,7 +547,7 @@ namespace Smartstore.Core.Seo
             {
                 // Check whether such slug already exists in the database
                 var urlRecord = _extraSlugLookup.Get(tempSlug) ?? (await _db.UrlRecords.FirstOrDefaultAsync(x => x.Slug == tempSlug));
-                
+
                 // Check whether found record refers to requested entity
                 foundIsSelf = FoundRecordIsSelf(entity, urlRecord, languageId);
 

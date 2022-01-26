@@ -110,7 +110,12 @@ namespace Smartstore.Core.Seo
                         // The existence of a UrlRecord instance for a given slug implies that the slug
                         // needs to run through the default validation process
                         // to ensure uniqueness.
-                        return await _urlService.ValidateSlugAsync(slug.Source, slug.Slug, true, slug.LanguageId).AsTask();
+                        return await _urlService.ValidateSlugAsync(
+                            slug.Source, 
+                            slug.Slug, 
+                            slug.Source.GetDisplayName(), 
+                            slug.LanguageId.GetValueOrDefault() == 0, 
+                            slug.LanguageId).AsTask();
                     }
 
                     return new ValidateSlugResult(slug) { WasValidated = true };
