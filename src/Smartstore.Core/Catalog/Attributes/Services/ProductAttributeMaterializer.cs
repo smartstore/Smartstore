@@ -571,6 +571,11 @@ namespace Smartstore.Core.Catalog.Attributes
                 return null;
             }
 
+            // TODO: (mg) (core) MaterializeProductVariantAttributeValuesAsync() tries to cast values to integer to determine
+            //                   whether an attribute is list type. But what if the value is freetext but simply numeric?
+            // TODO: (mg) (core) "Try" to apply the changes to Smartstore classic
+            // TODO: (mg) (core) Apply changes in MessageModelProvider.BuildModelTreePartForClass() to Smartstore classic.
+
             ProductVariantAttributeSelection listTypeSelection;
             var listTypeValues = await MaterializeProductVariantAttributeValuesAsync(selection);
             var listTypeAttributesIds = listTypeValues.Select(x => x.ProductVariantAttributeId).ToArray();

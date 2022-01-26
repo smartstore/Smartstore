@@ -69,9 +69,7 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Configuration.Store.Create)]
         public IActionResult Create()
         {
-            var model = new StoreModel();
-
-            return View(model);
+            return View(new StoreModel());
         }
 
         [HttpPost, ParameterBasedOnFormName("save-continue", "continueEditing")]
