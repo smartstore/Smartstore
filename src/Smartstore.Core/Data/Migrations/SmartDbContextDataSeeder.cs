@@ -77,7 +77,12 @@ namespace Smartstore.Core.Data.Migrations
             #region General
 
             // TODO: (core) Delete all Telerik language resources (???)
-            
+
+            builder.Delete("Admin.Configuration.Stores.Fields.PrimaryStoreCurrencyId");
+            builder.Delete("Admin.Configuration.Stores.Fields.PrimaryStoreCurrencyId.Hint");
+            builder.Delete("Admin.Configuration.Stores.Fields.PrimaryExchangeRateCurrencyId");
+            builder.Delete("Admin.Configuration.Stores.Fields.PrimaryExchangeRateCurrencyId.Hint");
+
             builder.AddOrUpdate("Account.CustomerOrders.RecurringOrders.CycleInfo", "Interval", "Interval");
             builder.AddOrUpdate("Account.CustomerOrders.RecurringOrders.CyclesRemaining", "Remaining", "Verbleibend");
 

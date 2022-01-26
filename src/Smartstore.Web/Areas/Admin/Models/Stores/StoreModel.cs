@@ -74,27 +74,6 @@ namespace Smartstore.Admin.Models.Stores
 
         [LocalizedDisplay("*ContentDeliveryNetwork")]
         public string ContentDeliveryNetwork { get; set; }
-
-        [LocalizedDisplay("*PrimaryStoreCurrencyId")]
-        public int PrimaryStoreCurrencyId { get; set; }
-
-        [LocalizedDisplay("*PrimaryStoreCurrencyId")]
-        public string PrimaryStoreCurrencyName
-        {
-            get => AvailableCurrencies.FirstOrDefault(x => x.Value == PrimaryStoreCurrencyId.ToString())?.Text;
-        }
-
-        [LocalizedDisplay("*PrimaryExchangeRateCurrencyId")]
-        public int PrimaryExchangeRateCurrencyId { get; set; }
-
-        [LocalizedDisplay("*PrimaryExchangeRateCurrencyId")]
-        public string PrimaryExchangeRateCurrencyName
-        {
-            get => AvailableCurrencies.FirstOrDefault(x => x.Value == PrimaryExchangeRateCurrencyId.ToString())?.Text;
-        }
-
-        public List<SelectListItem> AvailableCurrencies { get; set; } = new();
-
         public string ViewUrl { get; set; }
     }
 

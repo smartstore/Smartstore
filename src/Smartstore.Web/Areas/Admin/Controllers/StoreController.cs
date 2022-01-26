@@ -1,5 +1,4 @@
 ﻿using System.Linq.Dynamic.Core;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Admin.Models.Store;
 using Smartstore.Admin.Models.Stores;
 using Smartstore.ComponentModel;
@@ -7,7 +6,6 @@ using Smartstore.Core.Catalog.Search;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Identity;
-using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
 using Smartstore.Web.Models;
@@ -24,22 +22,6 @@ namespace Smartstore.Admin.Controllers
         {
             _db = db;
             _catalogSearchService = catalogSearchService;
-        }
-
-        private async Task PrepareStoreModelAsync(StoreModel model, Store store)
-        {
-            var currencies = await _db.Currencies
-                .AsNoTracking()
-                .ApplyStandardFilter(false, store == null ? 0 : store.Id)
-                .ToListAsync();
-
-            model.AvailableCurrencies = currencies
-                .Select(x => new SelectListItem
-                {
-                    Text = x.GetLocalized(y => y.Name),
-                    Value = x.Id.ToString()
-                })
-                .ToList();
         }
 
         public IActionResult Index()
@@ -64,8 +46,6 @@ namespace Smartstore.Admin.Controllers
                 {
                     var model = await MapperFactory.MapAsync<Store, StoreModel>(x);
 
-                    await PrepareStoreModelAsync(model, x);
-
                     model.HostList = model.Hosts.Convert<string[]>();
                     model.ViewUrl = Url.Action("Edit", "Store", new { id = x.Id });
 
@@ -87,10 +67,9 @@ namespace Smartstore.Admin.Controllers
         }
 
         [Permission(Permissions.Configuration.Store.Create)]
-        public async Task<IActionResult> Create()
+        public IActionResult Create()
         {
             var model = new StoreModel();
-            await PrepareStoreModelAsync(model, null);
 
             return View(model);
         }
@@ -112,7 +91,6 @@ namespace Smartstore.Admin.Controllers
                 return continueEditing ? RedirectToAction(nameof(Edit), new { id = store.Id }) : RedirectToAction(nameof(List));
             }
 
-            await PrepareStoreModelAsync(model, null);
             return View(model);
         }
 
@@ -126,7 +104,6 @@ namespace Smartstore.Admin.Controllers
             }
 
             var model = await MapperFactory.MapAsync<Store, StoreModel>(store);
-            await PrepareStoreModelAsync(model, store);
 
             return View(model);
         }
@@ -154,7 +131,6 @@ namespace Smartstore.Admin.Controllers
                 return continueEditing ? RedirectToAction(nameof(Edit), new { id = store.Id }) : RedirectToAction(nameof(List));
             }
 
-            await PrepareStoreModelAsync(model, store);
             return View(model);
         }
 
