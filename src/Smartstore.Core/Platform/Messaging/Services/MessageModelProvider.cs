@@ -981,22 +981,24 @@ namespace Smartstore.Core.Messaging
                 {
                     yield return new TreeNode<ModelTreeMember>(new ModelTreeMember { Name = prop.Name, Kind = ModelTreeMemberKind.Collection });
                 }
-                else
+                else if (pi.PropertyType.IsClass)
                 {
                     if (instanceLookup == null)
                     {
-                        instanceLookup = new HashSet<object>(ReferenceEqualityComparer.Instance);
+                        instanceLookup = new HashSet<object>(ReferenceEqualityComparer.Instance) { instance };
                     }
 
-                    var exists = !type.IsValueType && instanceLookup.Contains(instance);
-
-                    if (!exists)
+                    var childInstance = prop.GetValue(instance);
+                    if (childInstance != null)
                     {
-                        instanceLookup.Add(instance);
+                        if (!instanceLookup.Contains(childInstance))
+                        {
+                            instanceLookup.Add(childInstance);
 
-                        var node = new TreeNode<ModelTreeMember>(new ModelTreeMember { Name = prop.Name, Kind = ModelTreeMemberKind.Complex });
-                        node.AppendRange(BuildModelTreePartForClass(prop.GetValue(instance), instanceLookup));
-                        yield return node;
+                            var node = new TreeNode<ModelTreeMember>(new ModelTreeMember { Name = prop.Name, Kind = ModelTreeMemberKind.Complex });
+                            node.AppendRange(BuildModelTreePartForClass(childInstance, instanceLookup));
+                            yield return node;
+                        }
                     }
                 }
             }
