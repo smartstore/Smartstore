@@ -310,8 +310,26 @@ namespace Smartstore.Core.Catalog.Attributes
                 return null;
             }
 
-            var cacheKey = ATTRIBUTECOMBINATION_BY_IDJSON_KEY.FormatInvariant(productId, selection.AsJson());
+            ProductVariantAttributeSelection listTypeSelection;
+            var listTypeValues = await MaterializeProductVariantAttributeValuesAsync(selection);
+            var listTypeAttributesIds = listTypeValues.Select(x => x.ProductVariantAttributeId).ToArray();
 
+            if (selection.AttributesMap.Any(x => !listTypeAttributesIds.Contains(x.Key)))
+            {
+                // Remove attributes that are not of type list from selection.
+                listTypeSelection = new ProductVariantAttributeSelection(null);
+
+                foreach (var item in selection.AttributesMap.Where(x => listTypeAttributesIds.Contains(x.Key)))
+                {
+                    listTypeSelection.AddAttribute(item.Key, item.Value);
+                }
+            }
+            else
+            {
+                listTypeSelection = selection;
+            }
+
+            var cacheKey = ATTRIBUTECOMBINATION_BY_IDJSON_KEY.FormatInvariant(productId, listTypeSelection.AsJson());
             var combination = await _requestCache.GetAsync(cacheKey, async () =>
             {
                 var combinations = await _db.ProductVariantAttributeCombinations
@@ -324,7 +342,7 @@ namespace Smartstore.Core.Catalog.Attributes
                     })
                     .ToListAsync();
 
-                return await FindCombinationByAttributeSelection(selection, combinations);
+                return await FindCombinationByAttributeSelection(listTypeSelection, combinations);
             });
 
             return combination;
