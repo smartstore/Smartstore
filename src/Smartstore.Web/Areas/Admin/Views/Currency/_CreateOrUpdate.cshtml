@@ -148,39 +148,39 @@
                     <smart-label asp-for="PrimaryStoreCurrencyStores" />
                 </div>
                 <div class="adminData">
-                    @if (Model.PrimaryStoreCurrencyStores != null && Model.PrimaryStoreCurrencyStores.Count > 0)
-                    {
-                        foreach (var store in Model.PrimaryStoreCurrencyStores)
+                    <div class="form-control-plaintext">
+                        @if (Model.PrimaryStoreCurrencyStores != null && Model.PrimaryStoreCurrencyStores.Count > 0)
                         {
-                            <a href="@store.Value">@store.Text.NaIfEmpty()</a><br />
+                            foreach (var store in Model.PrimaryStoreCurrencyStores)
+                            {
+                                <a href="@store.Value">@store.Text.NaIfEmpty()</a><br />
+                            }
                         }
-                    }
-                    else
-                    {
-                        <div class="form-control-plaintext">
+                        else
+                        {
                             @T("Common.Unspecified")
-                        </div>
-                    }
+                        }
+                    </div>
                 </div>
             </div>
             <div class="adminRow">
                 <div class="adminTitle">
                     <smart-label asp-for="PrimaryExchangeRateCurrencyStores" />
                 </div>
-                <div class="adminData">
-                    @if (Model.PrimaryExchangeRateCurrencyStores != null && Model.PrimaryExchangeRateCurrencyStores.Count > 0)
-                    {
-                        foreach (var store in Model.PrimaryExchangeRateCurrencyStores)
+                <div clas="adminData">
+                    <div class="form-control-plaintext">
+                        @if (Model.PrimaryExchangeRateCurrencyStores != null && Model.PrimaryExchangeRateCurrencyStores.Count > 0)
                         {
-                            <a href="@store.Value">@store.Text.NaIfEmpty()</a><br />
+                            foreach (var store in Model.PrimaryExchangeRateCurrencyStores)
+                            {
+                                <a href="@store.Value">@store.Text.NaIfEmpty()</a><br />
+                            }
                         }
-                    }
-                    else
-                    {
-                        <div class="form-control-plaintext">
+                        else
+                        {
                             @T("Common.Unspecified")
-                        </div>
-                    }
+                        }
+                    </div>
                 </div>
             </div>
 
