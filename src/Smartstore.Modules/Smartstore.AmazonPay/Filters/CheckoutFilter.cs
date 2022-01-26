@@ -35,6 +35,8 @@ namespace Smartstore.AmazonPay.Filters
             _orderSettings = orderSettings;
         }
 
+        public Localizer T { get; set; } = NullLocalizer.Instance;
+
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
             if (!await IsAmazonPayActive())
@@ -47,16 +49,23 @@ namespace Smartstore.AmazonPay.Filters
 
             if (action.EqualsNoCase(nameof(CheckoutController.Completed)))
             {
-                var completedNote = context.HttpContext.Session.GetString("AmazonPayCompletedNote").EmptyNull();
+                var responseStatus = context.HttpContext.Session.GetString("AmazonPayResponseStatus");
+                if (responseStatus.HasValue())
+                {
+                    // 202 (Accepted): authorization is pending.
+                    var completedNote = responseStatus == "202"
+                        ? T("Plugins.Payments.AmazonPay.AsyncPaymentAuthorizationNote").Value
+                        : string.Empty;
 
-                if (!_orderSettings.DisableOrderCompletedPage)
-                {
-                    _widgetProvider.Value.RegisterWidget("checkout_completed_top",
-                        new PartialViewWidgetInvoker("_CheckoutCompleted", completedNote, "Smartstore.AmazonPay"));
-                }
-                else if (completedNote.HasValue())
-                {
-                    _services.Notifier.Information(completedNote);
+                    if (!_orderSettings.DisableOrderCompletedPage)
+                    {
+                        _widgetProvider.Value.RegisterWidget("checkout_completed_top",
+                            new PartialViewWidgetInvoker("_CheckoutCompleted", completedNote, "Smartstore.AmazonPay"));
+                    }
+                    else if (completedNote.HasValue())
+                    {
+                        _services.Notifier.Information(completedNote);
+                    }
                 }
 
                 await next();

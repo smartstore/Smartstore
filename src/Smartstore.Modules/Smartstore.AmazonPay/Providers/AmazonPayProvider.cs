@@ -78,7 +78,7 @@ namespace Smartstore.AmazonPay.Providers
             var result = new ProcessPaymentResult();
             var state = _checkoutStateAccessor.GetAmazonPayCheckoutState();
             var httpContext = _httpContextAccessor.HttpContext;
-            httpContext.Session.TryRemove("AmazonPayCompletedNote");
+            httpContext.Session.TryRemove("AmazonPayResponseStatus");
 
             if (state.SessionId.IsEmpty())
             {
@@ -113,11 +113,8 @@ namespace Smartstore.AmazonPay.Providers
                             ? PaymentStatus.Paid
                             : PaymentStatus.Authorized;
                     }
-                    else
-                    {
-                        // 202 (Accepted): authorization is pending.
-                        httpContext.Session.SetString("AmazonPayCompletedNote", T("Plugins.Payments.AmazonPay.AsyncPaymentAuthorizationNote"));
-                    }
+
+                    httpContext.Session.SetString("AmazonPayResponseStatus", response.Status.ToString());
                 }
                 else
                 {
