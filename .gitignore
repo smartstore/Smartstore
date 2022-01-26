@@ -321,6 +321,9 @@ Kopie von*
 /src/Smartstore.Web/Media
 /src/**/App_Data/Tenants/
 
+# DataProtection
+DataProtection-Keys/
+
 # Import/Export
 /src/Smartstore.Web/wwwroot/[Ee]xchange/*
 

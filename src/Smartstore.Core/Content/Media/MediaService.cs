@@ -424,7 +424,7 @@ namespace Smartstore.Core.Content.Media
                 pathData, 
                 stream,
                 isTransient: false,
-                dupeFileHandling: DuplicateFileHandling.Overwrite);
+                dupeFileHandling: dupeFileHandling);
 
             file = result.File;
 
@@ -735,13 +735,6 @@ namespace Smartstore.Core.Content.Media
                 file.Height = outImage.Height;
                 file.PixelSize = outImage.Width * outImage.Height;
                 file.Size = (int)storageItem.SourceStream.Length;
-
-                //var notifier = EngineContext.Current.Scope.Resolve<INotifier>();
-                //var originalFileSize = inStream.Length;
-                //var resultSize = file.Size;
-                //var percent = (double)resultSize / (double)originalFileSize;
-                //var saving = $"{1 - percent:P}";
-                //notifier.Add(NotifyType.Success, saving);
 
                 return (storageItem, file);
             }

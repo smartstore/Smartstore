@@ -173,7 +173,7 @@ namespace Smartstore.Core.Content.Media
         /// <summary>
         /// Gets or sets the default JPEG quality used for JPEG encoding.
         /// </summary>
-        public int DefaultImageQuality { get; set; } = 90;
+        public int DefaultImageQuality { get; set; } = 85;
 
         /// <summary>
         /// Gets or sets the default JPEG subsampling used for JPEG encoding.
@@ -183,7 +183,7 @@ namespace Smartstore.Core.Content.Media
         /// <summary>
         /// Gets or sets the default compression level used for PNG encoding.
         /// </summary>
-        public PngCompressionLevel PngCompressionLevel { get; set; } = PngCompressionLevel.Level0;
+        public PngCompressionLevel PngCompressionLevel { get; set; } = PngCompressionLevel.BestCompression;
 
         /// <summary>
         /// Gets or sets the default quantization method used for PNG encoding.
@@ -193,12 +193,12 @@ namespace Smartstore.Core.Content.Media
         /// <summary>
         /// Whether PNG should be encoded interlaced.
         /// </summary>
-        public bool PngInterlaced { get; set; }
+        public bool PngInterlaced { get; set; } = true;
 
         /// <summary>
         /// Whether PNG metadata should be ignored when the image is being encoded.
         /// </summary>
-        public bool PngIgnoreMetadata { get; set; }
+        public bool PngIgnoreMetadata { get; set; } = true;
 
         /// <summary>
         /// Gets or sets the default quantization method used for GIF encoding.
