@@ -3,7 +3,7 @@
 @{
     ViewBag.Title = T("Admin.Configuration.Languages").Value;
 
-    var defaultLanguageNote = ViewBag.DefaultLanguageNote as string;
+    var defaultLanguageNote = ViewBag.DefaultLanguageNote as LocalizedString;
 }
 
 <div class="section-header">
@@ -25,7 +25,7 @@
 
 <div>
     <h5 class="mb-3">@T("Admin.Configuration.Languages.InstalledLanguages")</h5>
-    <div sm-if="defaultLanguageNote.HasValue()" class="alert alert-info">
+    <div sm-if="defaultLanguageNote.Value.HasValue()" class="alert alert-info">
         @Html.Raw(defaultLanguageNote)
     </div>
 

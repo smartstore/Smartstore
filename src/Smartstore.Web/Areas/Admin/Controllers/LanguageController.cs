@@ -83,7 +83,7 @@ namespace Smartstore.Admin.Controllers
 
                 if (x.Id == masterLanguageId)
                 {
-                    ViewBag.DefaultLanguageNote = T("Admin.Configuration.Languages.DefaultLanguage.Note", m.Name).Value;
+                    ViewBag.DefaultLanguageNote = T("Admin.Configuration.Languages.DefaultLanguage.Note", m.Name);
                 }
 
                 return m;
