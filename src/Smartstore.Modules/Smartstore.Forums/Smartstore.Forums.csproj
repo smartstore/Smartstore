@@ -10,6 +10,6 @@
 		</Content>
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="XiaoYang.EntityFrameworkCore.Bulk" Version="6.0.27-preview" />
+		<PackageReference Include="XiaoYang.EntityFrameworkCore.Bulk" Version="6.0.28" />
 	</ItemGroup>
 </Project>

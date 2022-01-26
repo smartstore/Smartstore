@@ -9,29 +9,29 @@
 	<ItemGroup>
 		<PackageReference Include="Autofac.Extensions.DependencyInjection" Version="7.2.0" />
 		<PackageReference Include="CoreFtp" Version="1.4.0" />
-		<PackageReference Include="DotLiquid" Version="2.2.580" />
+		<PackageReference Include="DotLiquid" Version="2.2.595" />
 		<PackageReference Include="ExcelDataReader" Version="3.6.0" />
-		<PackageReference Include="FluentMigrator" Version="3.3.1" />
-		<PackageReference Include="FluentMigrator.Runner" Version="3.3.1" />
+		<PackageReference Include="FluentMigrator" Version="3.3.2" />
+		<PackageReference Include="FluentMigrator.Runner" Version="3.3.2" />
 		<PackageReference Include="FluentValidation.AspNetCore" Version="9.5.3" />
 		<PackageReference Include="LumenWorksCsvReader" Version="4.0.0" />
 		<PackageReference Include="MaxMind.Db" Version="3.0.0" />
-		<PackageReference Include="MaxMind.GeoIP2" Version="4.0.1" />
+		<PackageReference Include="MaxMind.GeoIP2" Version="4.1.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.2.0" />
-		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.0" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.0" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="6.0.0" />
-		<PackageReference Include="Parlot" Version="0.0.17" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.1" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.1" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="6.0.1" />
+		<PackageReference Include="Parlot" Version="0.0.23" />
 		<PackageReference Include="PreMailer.Net" Version="2.4.0" />
 		<PackageReference Include="Serilog.AspNetCore" Version="4.1.0" />
 		<PackageReference Include="Serilog.Expressions" Version="3.2.1" />
 		<PackageReference Include="Serilog.Sinks.Async" Version="1.5.0" />
 		<PackageReference Include="Serilog.Sinks.Map" Version="1.0.2" />
-		<PackageReference Include="Serilog.Sinks.PeriodicBatching" Version="2.3.0" />
-		<PackageReference Include="System.Linq.Dynamic.Core" Version="1.2.14" />
+		<PackageReference Include="Serilog.Sinks.PeriodicBatching" Version="2.3.1" />
+		<PackageReference Include="System.Linq.Dynamic.Core" Version="1.2.15" />
 		<PackageReference Include="System.ServiceModel.Http" Version="4.9.0" />
 		<PackageReference Include="UAParser" Version="3.1.47" />
-		<PackageReference Include="XiaoYang.EntityFrameworkCore.Bulk" Version="6.0.27-preview" />
+		<PackageReference Include="XiaoYang.EntityFrameworkCore.Bulk" Version="6.0.28" />
 	</ItemGroup>
 
 	<ItemGroup>
