@@ -24,8 +24,6 @@ namespace Smartstore.Web.Bootstrapping
             // Whether to allow the use of cookies from SSL protected page on the other store pages which are not protected
             options.Secure = CookieSecurePolicy.SameAsRequest;
 
-            // TODO: (mh) (core) Revert all your prior changes to specific cookies and try again with this global deletion handler.
-
             options.OnAppendCookie = cookieContext => ApplyCookiePolicy(cookieContext.Context, cookieContext.CookieOptions);
             options.OnDeleteCookie = cookieContext => ApplyCookiePolicy(cookieContext.Context, cookieContext.CookieOptions);
         }

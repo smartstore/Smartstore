@@ -510,7 +510,7 @@ namespace Smartstore.Core.Installation
                 SameSite = SameSiteMode.Lax
             };
 
-            cookies.Delete(LanguageCookieName, new CookieOptions { Secure = true });
+            cookies.Delete(LanguageCookieName, options);
             cookies.Append(LanguageCookieName, languageCode, options);
         }
 

@@ -69,14 +69,14 @@ namespace Smartstore.Core.Catalog.Products
             var cookies = _httpContextAccessor.HttpContext.Response.Cookies;
             var cookieName = CookieNames.RecentlyViewedProducts;
 
-            cookies.Delete(cookieName, new CookieOptions { Secure = true });
-
             var options = new CookieOptions
             {
                 Expires = DateTime.Now.AddDays(10.0),
                 HttpOnly = true,
                 IsEssential = true
             };
+
+            cookies.Delete(cookieName, options);
 
             cookies.Append(cookieName, 
                 string.Join(",", newProductIds.Take(maxProducts)),

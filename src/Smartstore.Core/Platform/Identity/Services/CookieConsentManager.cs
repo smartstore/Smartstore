@@ -146,7 +146,7 @@ namespace Smartstore.Core.Identity
                     Secure = _webHelper.IsCurrentConnectionSecured()
                 };
 
-                cookies.Delete(cookieName, new CookieOptions { Secure = true });
+                cookies.Delete(cookieName, options);
                 cookies.Append(cookieName, JsonConvert.SerializeObject(cookieData), options);
             }
         }

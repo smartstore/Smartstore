@@ -23,7 +23,7 @@ namespace Smartstore.Web.Theming
             var cookies = context.Response.Cookies;
             var cookieName = CookieNames.UserThemeChoice;
 
-            cookies.Delete(cookieName, new CookieOptions { Secure = true });
+            cookies.Delete(cookieName);
 
             if (value.IsEmpty())
             {

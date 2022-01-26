@@ -126,7 +126,7 @@ namespace Smartstore.Core.Identity
                         if (str.Equals("asked") || str.Equals("2"))
                         {
                             // Remove legacy Cookie & thus show CookieManager.
-                            response.Cookies.Delete("CookieConsent", new CookieOptions { Secure = true });
+                            response.Cookies.Delete("CookieConsent");
                         }
                         // 'true' means consented to all cookies.
                         // '1' was the Value of legacy enum CookieConsentStatus.Consented
@@ -140,7 +140,7 @@ namespace Smartstore.Core.Identity
                     {
                         // Cookie was found with old name and could be converted thus it's a pre Smartstore 5 and after Smartstore 3 legacy cookie. So let's rename it.
                         // Remove legacy Cookie 
-                        response.Cookies.Delete("CookieConsent", new CookieOptions { Secure = true });
+                        response.Cookies.Delete("CookieConsent");
                         // Add again with new name
                         _cookieConsentManager.SetConsentCookie(cookieData.AllowAnalytics, cookieData.AllowThirdParty);
                     }
