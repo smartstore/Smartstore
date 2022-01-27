@@ -34,5 +34,7 @@ namespace Smartstore.OfflinePayment
 
             return Task.FromResult(result);
         }
+
+        public override bool RequiresInteraction => true;
     }
 }

@@ -49,5 +49,7 @@ namespace Smartstore.OfflinePayment
 
             return result;
         }
+
+        public override bool RequiresInteraction => true;
     }
 }

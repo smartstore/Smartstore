@@ -26,7 +26,7 @@ namespace Smartstore.OfflinePayment.Components
                     break;
             }
 
-            if (model == null)
+            if (model != null)
             {
                 return View(model);
             }
