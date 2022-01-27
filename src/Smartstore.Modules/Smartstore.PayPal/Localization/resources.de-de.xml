@@ -24,13 +24,6 @@
   </LocaleResource>
 
 	<!-- Should be rendered in frontend by default. As long as the shop admin doesn't enter a FullDescription for the PaymentMethod -->
-	<!-- 
-		TODO: (mh) (core) Talk with MC about a better convention for this.
-		The current state is absolutely horrible.
-		My proposal: add another resource key as a fallback, if no FullDescription was entered yet by the shop admin (see PaymentMethod.cshtml line 32).
-		
-		TODO: (mh) (core) Remove the puposeless, shitty settings from OfflinePayment and adapt to new convention.
-	-->
 	<LocaleResource Name="Plugins.PaymentInfo.Payments.PayPalStandard" AppendRootKey="false">
 		<Value>
 			<![CDATA[
