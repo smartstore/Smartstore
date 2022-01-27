@@ -41,7 +41,11 @@ var rgSystemSource = new Regex("^File|^System|^Microsoft|^Serilog|^Autofac|^Cast
 var environmentName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? Environments.Production;
 
 // Create the application builder
-var builder = WebApplication.CreateBuilder(args);
+var builder = WebApplication.CreateBuilder(new WebApplicationOptions
+{
+    Args = args,
+    ContentRootPath = AppContext.BaseDirectory
+});
 
 // Add connections.json and usersettings.json to configuration manager
 var configuration = (IConfiguration)builder.Configuration
