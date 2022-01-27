@@ -401,6 +401,9 @@ namespace Smartstore.Core.Seo
             
             if (string.IsNullOrWhiteSpace(result.Slug))
             {
+                // TODO: (core) the case "disable the previous active URL record" is missing here (updating UrlRecord.IsActive from 'true' to 'false').
+                // Compare with Classic > UrlRecordService > line 392.
+                // This way, the localized 'URL Alias' cannot be removed using the localized editor.
                 return null;
             }
 
