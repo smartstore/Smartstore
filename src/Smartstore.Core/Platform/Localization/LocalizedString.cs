@@ -10,8 +10,8 @@ namespace Smartstore.Core.Localization
     [DebuggerDisplay("{Value}")]
     public class LocalizedString : IHtmlContent
     {
-        public LocalizedString(string value)
-            : this(value, null, false, Array.Empty<object>())
+        public LocalizedString(string value, bool isResourceNotFound = false)
+            : this(value, null, isResourceNotFound, Array.Empty<object>())
         {
         }
 

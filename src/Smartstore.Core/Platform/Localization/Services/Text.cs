@@ -12,11 +12,11 @@
         public virtual LocalizedString Get(string key, params object[] args)
         {
             // INFO: (perf) Hot path code, don't call GetEx().
-            var value = _localizationService.GetResource(key, 0);
+            var value = _localizationService.GetResource(key, 0, returnEmptyIfNotFound: true);
 
             if (string.IsNullOrEmpty(value))
             {
-                return new LocalizedString(key);
+                return new LocalizedString(key, true);
             }
 
             if (args?.Length == 0)
