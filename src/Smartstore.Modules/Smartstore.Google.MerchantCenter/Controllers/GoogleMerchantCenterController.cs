@@ -156,11 +156,6 @@ namespace Smartstore.Google.MerchantCenter.Controllers
                     {
                         model = await MapperFactory.MapAsync<GoogleProduct, GoogleProductModel>(x.GoogleProduct);
 
-                        if (model.ProductType != ProductType.SimpleProduct)
-                        {
-                            model.ProductTypeName = T($"Admin.Catalog.Products.ProductType.{model.ProductType}.Label");
-                        }
-
                         if (model.Gender.HasValue())
                         {
                             model.GenderLocalize = T("Plugins.Feed.Froogle.Gender" + textInfo.ToTitleCase(model.Gender));
@@ -204,6 +199,11 @@ namespace Smartstore.Google.MerchantCenter.Controllers
                     model.SKU = x.Sku;
                     model.Name = x.Name;
                     model.ProductTypeId = x.ProductTypeId;
+
+                    if (model.ProductType != ProductType.SimpleProduct)
+                    {
+                        model.ProductTypeName = T($"Admin.Catalog.Products.ProductType.{model.ProductType}.Label");
+                    }
 
                     return model;
                 })
