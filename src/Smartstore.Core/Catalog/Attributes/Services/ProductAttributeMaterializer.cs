@@ -571,8 +571,6 @@ namespace Smartstore.Core.Catalog.Attributes
                 return null;
             }
 
-            // TODO: (mg) (core) "Try" to apply the changes to Smartstore classic
-
             ProductVariantAttributeSelection listTypeSelection;
             var listTypeValues = await MaterializeProductVariantAttributeValuesAsync(selection);
             var listTypeAttributesIds = listTypeValues.Select(x => x.ProductVariantAttributeId).ToArray();
