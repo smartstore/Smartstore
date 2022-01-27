@@ -527,14 +527,6 @@ namespace Smartstore.Admin.Controllers
                     .ThenBy(x => x.Name));
             }
 
-            // TODO: (mh) (core) Remove test cookie
-            systemCookies += " ,Test";
-            data.Add(new CookieInfo {
-                CookieType = CookieType.Required,
-                Name = "Test",
-                Description = "Test"
-            });
-
             var gridModel = new GridModel<CookieInfoModel>
             {
                 Rows = data
