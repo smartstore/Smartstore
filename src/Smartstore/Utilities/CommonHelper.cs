@@ -113,7 +113,7 @@ namespace Smartstore.Utilities
             return false;
         }
 
-        private static DirectoryInfo FindSolutionRoot(string currentDir)
+        internal static DirectoryInfo FindSolutionRoot(string currentDir)
         {
             var dir = Directory.GetParent(currentDir);
             while (true)

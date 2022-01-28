@@ -36,15 +36,17 @@ using Serilog.Filters;
 using Smartstore;
 using Smartstore.Core.Data.Migrations;
 using Smartstore.Core.Logging.Serilog;
+using Smartstore.Utilities;
 
 var rgSystemSource = new Regex("^File|^System|^Microsoft|^Serilog|^Autofac|^Castle|^MiniProfiler|^Newtonsoft|^Pipelines|^StackExchange|^Superpower", RegexOptions.Compiled);
 var environmentName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? Environments.Production;
+var isDevEnvironment = IsDevEnvironment();
 
 // Create the application builder
 var builder = WebApplication.CreateBuilder(new WebApplicationOptions
 {
     Args = args,
-    ContentRootPath = AppContext.BaseDirectory
+    ContentRootPath = isDevEnvironment ? null : AppContext.BaseDirectory
 });
 
 // Add connections.json and usersettings.json to configuration manager
@@ -111,6 +113,22 @@ app.Run();
 
 
 #region Setup helpers
+
+bool IsDevEnvironment()
+{
+    if (environmentName == Environments.Development)
+        return true;
+
+    if (System.Diagnostics.Debugger.IsAttached)
+        return true;
+
+    // if there's a 'Smartstore.sln' in one of the parent folders,
+    // then we're likely in a dev environment
+    if (CommonHelper.FindSolutionRoot(Directory.GetCurrentDirectory()) != null)
+        return true;
+
+    return false;
+}
 
 void AddPathToEnv(string path)
 {
