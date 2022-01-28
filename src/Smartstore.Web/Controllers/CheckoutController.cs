@@ -545,6 +545,11 @@ namespace Smartstore.Web.Controllers
             var state = _checkoutStateAccessor.CheckoutState;
             foreach (var kvp in form)
             {
+                if (state.PaymentData.ContainsKey(kvp.Key))
+                {
+                    state.PaymentData.Remove(kvp.Key);
+                }
+
                 state.PaymentData.Add(kvp.Key, kvp.Value.ToString());
             }
 
