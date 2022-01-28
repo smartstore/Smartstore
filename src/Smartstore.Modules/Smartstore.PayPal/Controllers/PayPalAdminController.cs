@@ -42,8 +42,7 @@ namespace Smartstore.PayPal.Controllers
             // Clear token from cache if ClientId or Secret have changed.
             if (model.ClientId != settings.ClientId || model.Secret != settings.Secret)
             {
-                var memCache = _cacheFactory.GetMemoryCache();
-                await memCache.RemoveByPatternAsync(PayPalHttpClient.PAYPAL_ACCESS_TOKEN_PATTERN_KEY);
+                await _cacheFactory.GetMemoryCache().RemoveByPatternAsync(PayPalHttpClient.PAYPAL_ACCESS_TOKEN_PATTERN_KEY);
             }
             
             ModelState.Clear();
