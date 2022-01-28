@@ -376,6 +376,10 @@ namespace Smartstore.Core.Data.Migrations
                 "Filter delivery time.",
                 "Lieferzeit eingrenzen.");
 
+            builder.AddOrUpdate("Admin.Catalog.Products.BundleItems.CanBeBundleItemWarning",
+                "A bundle, grouped product, download or recurring product cannot be added to the bundle item list.",
+                "Ein Bundle, Gruppenprodukt, Abo oder Download kann der Stückliste nicht hinzugefügt werden.");
+
             #endregion
 
             #region Packaging
@@ -712,6 +716,7 @@ namespace Smartstore.Core.Data.Migrations
             //    "Admin.System.QueuedEmails.BackToList",
             //    "Admin.Orders.List.OrderGuid",
             //    "Admin.Orders.List.OrderGuid.Hint",
+            //    "Admin.DataExchange.Export.FolderName.Validate",
             //    );
 
 

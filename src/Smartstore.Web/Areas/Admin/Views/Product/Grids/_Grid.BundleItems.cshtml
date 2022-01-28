@@ -5,6 +5,7 @@
 }
 
 <datagrid id="bundleitems-grid"
+          allow-edit="true"
           allow-resize="true"
           allow-row-selection="true"
           allow-column-reordering="true"
@@ -93,9 +94,9 @@
     });
 
     function bundleItems_onRowClass(row) {
-        if (!row.Published) {
-            return { 'text-muted': true };
-        }
+        return {
+            "text-muted": !row.Published
+        };
     }
 
     function PickBundleItems_Completed(ids) {

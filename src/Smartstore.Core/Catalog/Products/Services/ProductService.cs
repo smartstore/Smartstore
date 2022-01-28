@@ -146,38 +146,6 @@ namespace Smartstore.Core.Catalog.Products
             return map;
         }
 
-        public virtual async Task<Multimap<int, Discount>> GetAppliedDiscountsByProductIdsAsync(int[] productIds, bool includeHidden = false, bool tracked = false)
-        {
-            Guard.NotNull(productIds, nameof(productIds));
-
-            var map = new Multimap<int, Discount>();
-            if (!productIds.Any())
-            {
-                return map;
-            }
-
-            var query = _db.Products
-                .Include(x => x.AppliedDiscounts)
-                    .ThenInclude(y => y.RuleSets)
-                .ApplyTracking(tracked)
-                .Where(x => productIds.Contains(x.Id))
-                .ApplyStandardFilter(includeHidden)
-                .Select(x => new
-                {
-                    ProductId = x.Id,
-                    Discounts = x.AppliedDiscounts
-                });
-
-            var items = await query.ToListAsync();
-
-            foreach (var item in items)
-            {
-                map.AddRange(item.ProductId, item.Discounts);
-            }
-
-            return map;
-        }
-
         public virtual async Task<IList<Product>> GetCrossSellProductsByProductIdsAsync(int[] productIds, int numberOfProducts, bool includeHidden = false)
         {
             Guard.NotNull(productIds, nameof(productIds));
@@ -527,13 +495,5 @@ namespace Smartstore.Core.Catalog.Products
     }
 
     // TODO: (mg) (core) Summary of various issues to be checked and done later:
-    // - Add fluent validations when inserting ProductBundleItem:
-    //      if (bundleItem.BundleProductId == 0) throw new SmartException("BundleProductId of a bundle item cannot be 0.");
-    //      if (bundleItem.ProductId == 0) throw new SmartException("ProductId of a bundle item cannot be 0.");
-    //      if (bundleItem.ProductId == bundleItem.BundleProductId) throw new SmartException("A bundle item cannot be an element of itself.");
-    // - Check callers of IProductService.GetAppliedDiscountsByProductIdsAsync. Must now be called with includeHidden (default value was previously 'true').
-    // - UI. Always show Currency.RoundNumDecimals on currency edit page. It is no longer used only for order item rounding.
     // - SystemCustomerAttributeNames.WalletEnabled belongs to Wallet module (as extension method for CustomerAttributeCollection).
-    // - Check callers of IPaymentMethod.GetPaymentDataWarningsAsync. Default return value is now null and not an empty list anymore.
-    // - String resources to be deleted (not used anymore): Admin.DataExchange.Export.FolderName.Validate
 }

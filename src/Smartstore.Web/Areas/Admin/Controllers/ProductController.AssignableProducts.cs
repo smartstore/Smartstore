@@ -4,6 +4,7 @@ using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Catalog.Search;
+using Smartstore.Core.Logging;
 using Smartstore.Core.Rules.Filters;
 using Smartstore.Core.Security;
 using Smartstore.Web.Models.DataGrid;
@@ -458,7 +459,6 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Catalog.Product.EditBundle)]
         public async Task<IActionResult> BundleItemAdd(int productId, int[] selectedProductIds)
         {
-            var utcNow = DateTime.UtcNow;
             var products = await _db.Products.GetManyAsync(selectedProductIds, true);
 
             var maxDisplayOrder = await _db.ProductBundleItem
@@ -468,7 +468,6 @@ namespace Smartstore.Admin.Controllers
                 .Select(x => x.DisplayOrder)
                 .FirstOrDefaultAsync();
 
-            // TODO: (mh) (core) No notification if not CanBeBundleItem() :-/ > Fix that!
             foreach (var product in products.Where(x => x.CanBeBundleItem()))
             {
                 var attributes = await _db.ProductVariantAttributes
@@ -495,7 +494,12 @@ namespace Smartstore.Admin.Controllers
                 }
             }
 
-            await _db.SaveChangesAsync();
+            var num = await _db.SaveChangesAsync();
+
+            if (products.Any(x => !x.CanBeBundleItem()))
+            {
+                Services.Notifier.Add(num > 0 ? NotifyType.Warning : NotifyType.Error, T("Admin.Catalog.Products.BundleItems.CanBeBundleItemWarning"));
+            }
 
             return new EmptyResult();
         }
