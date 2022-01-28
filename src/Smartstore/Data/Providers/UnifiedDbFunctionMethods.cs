@@ -1,14 +1,18 @@
 ﻿using System.Reflection;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query;
-using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 namespace Smartstore.Data.Providers
 {
-    public class DbFactoryFunctionsTranslator : IMethodCallTranslator
+    public class DbFunctionMap
     {
-        private readonly HashSet<MethodInfo> _uniMethods
+        public MethodInfo Method { get; init; }
+        public IMethodCallTranslator Translator { get; init; }
+    }
+
+    public static class UnifiedDbFunctionMethods
+    {
+        private readonly static HashSet<MethodInfo> _uniMethods
             = new()
             {
                 typeof(DbFunctionsExtensions).GetRuntimeMethod(
@@ -78,7 +82,7 @@ namespace Smartstore.Data.Providers
                 typeof(DbFunctionsExtensions).GetRuntimeMethod(
                     nameof(DbFunctionsExtensions.DateDiffMinute),
                     new[] { typeof(DbFunctions), typeof(DateTime), typeof(DateTime) }),
-   
+
                 typeof(DbFunctionsExtensions).GetRuntimeMethod(
                     nameof(DbFunctionsExtensions.DateDiffMinute),
                     new[] { typeof(DbFunctions), typeof(DateTime?), typeof(DateTime?) }),
@@ -108,29 +112,9 @@ namespace Smartstore.Data.Providers
                     new[] { typeof(DbFunctions), typeof(DateTimeOffset?), typeof(DateTimeOffset?) }),
             };
 
-        private readonly IServiceProvider _services;
-
-        public DbFactoryFunctionsTranslator(IServiceProvider services)
+        public static HashSet<MethodInfo> Methods
         {
-            _services = services;
-        }
-
-        public SqlExpression Translate(
-            SqlExpression instance, 
-            MethodInfo method, 
-            IReadOnlyList<SqlExpression> arguments, 
-            IDiagnosticsLogger<DbLoggerCategory.Query> logger)
-        {
-            if (_uniMethods.Contains(method))
-            {
-                var mappedFunction = DataSettings.Instance.DbFactory.MapDbFunction(_services, method);
-                if (mappedFunction != null)
-                {
-                    return mappedFunction.Translator.Translate(instance, mappedFunction.Method, arguments, logger);
-                }
-            }      
-            
-            return null;
+            get => _uniMethods;
         }
     }
 }

@@ -48,7 +48,6 @@ namespace Smartstore.Data.Providers
 
         public void ApplyServices(IServiceCollection services)
         {
-            services.AddSingleton<IMethodCallTranslatorPlugin, DbFactoryMethodCallTranslatorPlugin>();
         }
 
         public void Validate(IDbContextOptions options)
