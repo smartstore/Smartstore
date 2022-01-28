@@ -1,6 +1,8 @@
 ﻿using System.Linq;
 using Microsoft.AspNetCore.Mvc;
+using Smartstore.Caching;
 using Smartstore.ComponentModel;
+using Smartstore.PayPal.Client;
 using Smartstore.Web.Controllers;
 using Smartstore.Web.Modelling.Settings;
 
@@ -10,6 +12,13 @@ namespace Smartstore.PayPal.Controllers
     [Route("[area]/paypal/{action=index}/{id?}")]
     public class PayPalAdminController : ModuleController
     {
+        private readonly ICacheFactory _cacheFactory;
+
+        public PayPalAdminController(ICacheFactory cacheFactory)
+        {
+            _cacheFactory = cacheFactory;
+        }
+
         [LoadSetting]
         public IActionResult Configure(PayPalSettings settings)
         {
@@ -23,13 +32,20 @@ namespace Smartstore.PayPal.Controllers
         }
 
         [HttpPost, SaveSetting]
-        public IActionResult Configure(ConfigurationModel model, PayPalSettings settings)
+        public async Task<IActionResult> ConfigureAsync(ConfigurationModel model, PayPalSettings settings)
         {
             if (!ModelState.IsValid)
             {
                 return Configure(settings);
             }
 
+            // Clear token from cache if ClientId or Secret have changed.
+            if (model.ClientId != settings.ClientId || model.Secret != settings.Secret)
+            {
+                var memCache = _cacheFactory.GetMemoryCache();
+                await memCache.RemoveByPatternAsync(PayPalHttpClient.PAYPAL_ACCESS_TOKEN_PATTERN_KEY);
+            }
+            
             ModelState.Clear();
             MiniMapper.Map(model, settings);
 

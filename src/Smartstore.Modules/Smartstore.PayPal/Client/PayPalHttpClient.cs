@@ -324,7 +324,6 @@ namespace Smartstore.PayPal.Client
 
             if (!request.Headers.Contains("Authorization") && request is not AccessTokenRequest)
             {
-                // TODO: (mh) (core) Don't forget model invalidation on setting change.
                 var token = await GetAccessTokenFromCacheAsync(settings);
 
                 request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token.Token);
@@ -380,8 +379,7 @@ namespace Smartstore.PayPal.Client
             {
                 content = new FormUrlEncodedContent((IEnumerable<KeyValuePair<string, string>>)request.Body);
             }
-            // TODO: (mh) (core) Is TextSerializer necessary?
-
+            
             if (content == null)
             {
                 throw new IOException($"Unable to serialize request with Content-Type {request.ContentType} because it is not supported.");
@@ -407,7 +405,6 @@ namespace Smartstore.PayPal.Client
             }
             else
             {
-                // TODO: (mh) (core) Is TextSerializer necessary?
                 throw new IOException($"Unable to deserialize response with Content-Type {contentType} because it is not supported.");
             }
         }

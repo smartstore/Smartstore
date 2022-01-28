@@ -55,12 +55,7 @@ namespace Smartstore.PayPal.Providers
                 NewPaymentStatus = PaymentStatus.Pending,
             };
 
-            //TODO: (mh) (core) OBSOLETE > Remove
-            //await _client.GetOrder(request);
-
             _ = await _client.UpdateOrderAsync(request, result);
-
-            //await _client.GetOrder(request);
 
             if (_settings.Intent == "authorize")
             {
