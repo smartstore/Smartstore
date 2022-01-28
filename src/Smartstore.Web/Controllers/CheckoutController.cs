@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Smartstore.ComponentModel;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Cart.Events;
 using Smartstore.Core.Checkout.Orders;
@@ -208,6 +209,81 @@ namespace Smartstore.Web.Controllers
             await _db.SaveChangesAsync();
 
             return RedirectToAction(nameof(ShippingAddress));
+        }
+
+        [HttpPost, ActionName("BillingAddress")]
+        [FormValueRequired("nextstep")]
+        public async Task<IActionResult> NewBillingAddress(CheckoutAddressModel model)
+        {
+            var result = await HandleNewAddress(model, true);
+            if (result != null)
+            {
+                return result;
+            }
+
+            model = await PrepareCheckoutAddressModelAsync(false);
+            return View(model);
+        }
+
+        [HttpPost, ActionName("ShippingAddress")]
+        [FormValueRequired("nextstep")]
+        public async Task<IActionResult> NewShippingAddress(CheckoutAddressModel model)
+        {
+            var result = await HandleNewAddress(model, true);
+            if (result != null)
+            {
+                return result;
+            }
+
+            model = await PrepareCheckoutAddressModelAsync(false);
+            return View(model);
+        }
+
+        private async Task<IActionResult> HandleNewAddress(CheckoutAddressModel model, bool isBillingAddress)
+        {
+            var customer = Services.WorkContext.CurrentCustomer;
+            var cart = await _shoppingCartService.GetCartAsync(customer, storeId: Services.StoreContext.CurrentStore.Id);
+
+            if (!cart.Items.Any())
+            {
+                return RedirectToRoute("ShoppingCart");
+            }
+
+            if (customer.IsGuest() && !_orderSettings.AnonymousCheckoutAllowed)
+            {
+                return new UnauthorizedResult();
+            }
+
+            if (ModelState.IsValid)
+            {
+                var address = await MapperFactory.MapAsync<AddressModel, Address>(model.NewAddress);
+                address.CreatedOnUtc = DateTime.UtcNow;
+
+                if (address.CountryId == 0)
+                {
+                    address.CountryId = null;
+                }
+                if (address.StateProvinceId == 0)
+                {
+                    address.StateProvinceId = null;
+                }
+
+                customer.Addresses.Add(address);
+                if (isBillingAddress)
+                {
+                    customer.BillingAddress = address;
+                }
+                else
+                {
+                    customer.ShippingAddress = address;
+                }
+                
+                await _db.SaveChangesAsync();
+
+                return RedirectToAction(isBillingAddress ? nameof(ShippingAddress) : nameof(ShippingMethod));
+            }
+
+            return null;
         }
 
         public async Task<IActionResult> ShippingAddress()
