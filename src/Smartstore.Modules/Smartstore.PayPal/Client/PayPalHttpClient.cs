@@ -88,7 +88,6 @@ namespace Smartstore.PayPal.Client
 
             var ordersPatchRequest = new OrdersPatchRequest<object>(request.PaypalOrderId);
 
-            // TODO: (mh) (core) Add more info, like shipping cost, discount & payment fees
             var amount = new AmountWithBreakdown
             {
                 Value = request.OrderTotal.ToString("0.00", CultureInfo.InvariantCulture),
