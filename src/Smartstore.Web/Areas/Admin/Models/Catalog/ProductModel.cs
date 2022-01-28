@@ -275,7 +275,7 @@ namespace Smartstore.Admin.Models.Catalog
         [LocalizedDisplay("Admin.Promotions.Discounts.AppliedDiscounts")]
         public int[] SelectedDiscountIds { get; set; }
 
-        public AddProductSpecificationAttributeModel AddSpecificationAttributeModel { get; set; }
+        public AddProductSpecificationAttributeModel AddSpecificationAttributeModel { get; set; } = new();
 
         //BasePrice
         [LocalizedDisplay("*BasePriceEnabled")]
