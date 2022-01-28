@@ -1,6 +1,4 @@
-﻿using Smartstore.Web.Modelling;
-
-namespace Smartstore.PayPal.Models
+﻿namespace Smartstore.PayPal.Models
 {
     [LocalizedDisplay("Plugins.Smartstore.PayPal.")]
     public class ConfigurationModel : ModelBase

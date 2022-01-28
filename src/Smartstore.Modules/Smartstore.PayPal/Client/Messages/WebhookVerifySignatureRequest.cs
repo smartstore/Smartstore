@@ -1,6 +1,4 @@
-﻿using System.Net.Http;
-
-namespace Smartstore.PayPal.Client.Messages
+﻿namespace Smartstore.PayPal.Client.Messages
 {
     /// <summary>
     /// Verifies a webhook request by checking its signature against the API.

@@ -1,25 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
-using System.Net.Http;
+﻿using System.Globalization;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Smartstore.Caching;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Configuration;
-using Smartstore.Core.Localization;
 using Smartstore.Core.Stores;
 using Smartstore.PayPal.Client.Messages;
-using Smartstore.PayPal.Settings;
 
 namespace Smartstore.PayPal.Client
 {

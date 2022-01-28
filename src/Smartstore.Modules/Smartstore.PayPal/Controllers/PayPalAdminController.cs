@@ -1,9 +1,6 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Smartstore.ComponentModel;
-using Smartstore.PayPal.Models;
-using Smartstore.PayPal.Settings;
 using Smartstore.Web.Controllers;
 using Smartstore.Web.Modelling.Settings;
 

@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using Smartstore.Core.Checkout.Cart;
+﻿using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Data;
@@ -10,7 +8,6 @@ using Smartstore.Http;
 using Smartstore.PayPal.Client;
 using Smartstore.PayPal.Client.Messages;
 using Smartstore.PayPal.Components;
-using Smartstore.PayPal.Settings;
 
 namespace Smartstore.PayPal.Providers
 {

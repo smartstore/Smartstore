@@ -1,6 +1,4 @@
-﻿using Newtonsoft.Json;
-
-namespace Smartstore.PayPal.Client.Messages
+﻿namespace Smartstore.PayPal.Client.Messages
 {
     /// <summary>
     /// Captures either a portion or the full authorized amount of an authorized payment.

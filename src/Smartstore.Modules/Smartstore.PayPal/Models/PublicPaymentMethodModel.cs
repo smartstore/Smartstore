@@ -1,6 +1,4 @@
-﻿using Smartstore.Web.Modelling;
-
-namespace Smartstore.PayPal.Models
+﻿namespace Smartstore.PayPal.Models
 {
     public class PublicPaymentMethodModel : ModelBase
     {

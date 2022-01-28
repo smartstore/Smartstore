@@ -1,7 +1,4 @@
-﻿using System;
-using System.Net.Http;
-
-namespace Smartstore.PayPal.Client
+﻿namespace Smartstore.PayPal.Client
 {
     public class PayPalRequest<TMessage> : PayPalRequest
     {

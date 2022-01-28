@@ -1,8 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Net.Http;
-
-namespace Smartstore.PayPal.Client.Messages
+﻿namespace Smartstore.PayPal.Client.Messages
 {
     /// <summary>
     /// Refunds a captured payment, by ID. For a full refund, include an empty payload in the JSON request body. 

@@ -1,6 +1,4 @@
-﻿using Newtonsoft.Json;
-
-namespace Smartstore.PayPal.Client.Messages
+﻿namespace Smartstore.PayPal.Client.Messages
 {
     public class PaymentDefinition
     {

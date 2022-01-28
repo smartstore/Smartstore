@@ -1,8 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Net.Http;
-
-namespace Smartstore.PayPal.Client.Messages
+﻿namespace Smartstore.PayPal.Client.Messages
 {
     /// <summary>
     /// Captures an authorized order, by ID.

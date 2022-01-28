@@ -1,12 +1,8 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Smartstore.Core;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
-using Smartstore.PayPal.Models;
-using Smartstore.PayPal.Settings;
 using Smartstore.Web.Components;
 
 namespace Smartstore.PayPal.Components
