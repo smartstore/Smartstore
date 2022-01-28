@@ -114,10 +114,6 @@ namespace Smartstore.PayPal.Client
 
             var response = await ExecuteRequestAsync(ordersPatchRequest, request.StoreId, cancelToken);
 
-            //var rawResponse = response.Body<object>().ToString();
-            //dynamic jResponse = JObject.Parse(rawResponse);
-            // TODO: (mh) (core) What to do here? Return success or error & only proceed if successful???
-
             return response;
         }
 

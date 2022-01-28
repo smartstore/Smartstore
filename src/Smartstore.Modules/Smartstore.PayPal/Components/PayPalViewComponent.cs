@@ -52,7 +52,7 @@ namespace Smartstore.PayPal.Components
             var cartSubTotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(cart);
             var model = new PublicPaymentMethodModel
             {
-                Intent = _settings.Intent,
+                Intent = _settings.Intent.ToString().ToLower(),
                 Amount = cartSubTotal.SubtotalWithDiscount.Amount,
                 IsPaymentSelection = isPaymentSelectionPage,
                 ButtonColor = _settings.ButtonColor,
@@ -80,7 +80,7 @@ namespace Smartstore.PayPal.Components
                 scriptUrl += $"&enable-funding={GetFundingOptions<EnableFundingOptions>(_settings.EnabledFundings)}";
             }
 
-            scriptUrl += $"&intent={_settings.Intent}";
+            scriptUrl += $"&intent={_settings.Intent.ToString().ToLower()}";
             scriptUrl += $"&locale={_services.WorkContext.WorkingLanguage.LanguageCulture.Replace("-", "_")}";
 
             model.ScriptUrl = scriptUrl;

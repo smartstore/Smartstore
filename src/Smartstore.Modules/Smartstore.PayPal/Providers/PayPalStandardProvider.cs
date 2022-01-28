@@ -57,7 +57,7 @@ namespace Smartstore.PayPal.Providers
 
             _ = await _client.UpdateOrderAsync(request, result);
 
-            if (_settings.Intent == "authorize")
+            if (_settings.Intent == PayPalTransactionType.Authorize)
             {
                 var response = await _client.AuthorizeOrderAsync(request, result);
             }
@@ -118,7 +118,7 @@ namespace Smartstore.PayPal.Providers
             return result;
         }
 
-        // TODO: (mh) (core)
+        // TODO: (mh) (core) Implement in future
         //public override async Task<ProcessPaymentResult> ProcessRecurringPaymentAsync(ProcessPaymentRequest request)
         //{
         //    var result = new ProcessPaymentResult

@@ -33,8 +33,7 @@ namespace Smartstore.PayPal
                 })
                 .ConfigureHttpClient(client =>
                 {
-                    // TODO: (mh) (core) Connection timeout necessary?
-                    //client.Timeout = ???;
+                    client.Timeout = TimeSpan.FromSeconds(30);
                 });
         }
     }

@@ -2,6 +2,12 @@
 
 namespace Smartstore.PayPal.Settings
 {
+    public enum PayPalTransactionType
+    {
+        Authorize = 1,
+        Capture = 2
+    }
+
     public class PayPalSettings : ISettings
     {
         /// <summary>
@@ -54,11 +60,10 @@ namespace Smartstore.PayPal.Settings
         /// </summary>
         public string EnabledFundings { get; set; }
 
-        // TODO: (mh) (core) Make enum out of this.
         /// <summary>
         /// Specifies whether the payment will be captured immediately or just authorized.
         /// </summary>
-        public string Intent { get; set; } = "authorize";
+        public PayPalTransactionType Intent { get; set; } = PayPalTransactionType.Authorize;
 
         /// <summary>
         /// Specifies the form of the button.
