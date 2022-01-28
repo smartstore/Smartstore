@@ -30,7 +30,7 @@ namespace Smartstore.Templating.Liquid
                 else if (valueType.IsSequenceType())
                 {
                     var genericArgs = valueType.GetGenericArguments();
-                    var isEnumerable = genericArgs.Length == 1 && valueType.IsSubClass(typeof(IEnumerable<>));
+                    var isEnumerable = genericArgs.Length == 1 && valueType.IsClosedTypeOf(typeof(IEnumerable<>));
                     if (isEnumerable)
                     {
                         var seqType = genericArgs[0];

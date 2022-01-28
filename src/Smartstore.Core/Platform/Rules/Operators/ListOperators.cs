@@ -27,7 +27,7 @@ namespace Smartstore.Core.Rules.Operators
             if (constantExpr == null)
                 throw new ArgumentException($"The expression must be of type '{nameof(ConstantExpression)}'.", nameof(right));
 
-            if (constantExpr.Value == null || !constantExpr.Type.IsSubClass(typeof(ICollection<>)))
+            if (constantExpr.Value == null || !constantExpr.Type.IsClosedTypeOf(typeof(ICollection<>)))
             {
                 throw new ArgumentException("The 'In' operator only supports non-null instances from types that implement 'ICollection<T>'.", nameof(right));
             }

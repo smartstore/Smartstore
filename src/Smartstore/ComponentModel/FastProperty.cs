@@ -141,7 +141,7 @@ namespace Smartstore.ComponentModel
                 {
                     var type = Property.PropertyType;
                     _isSequenceType = type != typeof(string)
-                        && (type.IsSubClass(typeof(IEnumerable<>)) || type.IsSubClass(typeof(IAsyncEnumerable<>)));
+                        && (type.IsClosedTypeOf(typeof(IEnumerable<>)) || type.IsClosedTypeOf(typeof(IAsyncEnumerable<>)));
                 }
                 return _isSequenceType.Value;
             }

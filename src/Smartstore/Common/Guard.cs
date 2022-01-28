@@ -21,7 +21,7 @@ namespace Smartstore
         const string NotZeroMessage = "Argument '{0}' must be greater or less than zero. Value: '{1}'.";
         const string IsEnumTypeMessage = "Type '{0}' must be a valid Enum type.";
         const string IsEnumTypeMessage2 = "The value of the argument '{0}' provided for the enumeration '{1}' is invalid.";
-        const string IsSubclassOfMessage = "Type '{0}' must be a subclass of type '{1}'.";
+        const string IsClosedTypeOfMessage = "Type '{0}' must be a closed type of '{1}'.";
         const string HasDefaultConstructorMessage = "The type '{0}' must have a default parameterless constructor.";
 
         private Guard()
@@ -252,12 +252,12 @@ namespace Smartstore
         }
 
         [DebuggerStepThrough]
-        public static void IsDerivedFrom<TBase>(Type type)
+        public static void IsClosedTypeOf<TBase>(Type type)
         {
             var baseType = typeof(TBase);
-            if (!baseType.IsSubClass(type))
+            if (!baseType.IsClosedTypeOf(type))
             {
-                throw new InvalidOperationException(IsSubclassOfMessage.FormatInvariant(type.FullName, baseType.FullName));
+                throw new InvalidOperationException(IsClosedTypeOfMessage.FormatInvariant(type.FullName, baseType.FullName));
             }
         }
 

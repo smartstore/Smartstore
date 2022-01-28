@@ -167,6 +167,9 @@ namespace Smartstore.Web.Controllers
         {
             var storeId = _storeContext.CurrentStore.Id;
 
+            //var x1 = typeof(Dictionary<string, int>).IsClosedTypeOf(typeof(IEnumerable<>), out var implType);
+            //var x2 = typeof(Dictionary<string, int>).IsSubClass(typeof(IEnumerable<>), out var implType2);
+
             ViewBag.MetaTitle = _homePageSettings.GetLocalizedSetting(x => x.MetaTitle, storeId);
             ViewBag.MetaDescription = _homePageSettings.GetLocalizedSetting(x => x.MetaDescription, storeId);
             ViewBag.MetaKeywords = _homePageSettings.GetLocalizedSetting(x => x.MetaKeywords, storeId);

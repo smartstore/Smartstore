@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Smartstore.Domain;
+using Smartstore.Utilities;
 
 namespace Smartstore
 {
@@ -55,7 +56,10 @@ namespace Smartstore
             if (type == typeof(string))
                 return false;
 
-            return type.IsArray || typeof(IEnumerable).IsAssignableFrom(type) || type.IsSubClass(typeof(IAsyncEnumerable<>), out _);
+            return 
+                type.IsArray || 
+                typeof(IEnumerable).IsAssignableFrom(type) || 
+                type.IsClosedTypeOf(typeof(IAsyncEnumerable<>), out _);
         }
 
         public static bool IsSequenceType(this Type type, out Type elementType)
@@ -69,12 +73,14 @@ namespace Smartstore
             {
                 elementType = type.GetElementType();
             }
-            else if (type.IsSubClass(typeof(IEnumerable<>), out var implType) || type.IsSubClass(typeof(IAsyncEnumerable<>), out implType))
+            else if (
+                type.IsClosedTypeOf(typeof(IEnumerable<>), out var implType) || 
+                type.IsClosedTypeOf(typeof(IAsyncEnumerable<>), out implType))
             {
-                var genericArgs = implType.GetGenericArguments();
-                if (genericArgs.Length == 1)
+                var args = implType.GetGenericArguments();
+                if (args.Length == 1)
                 {
-                    elementType = genericArgs[0];
+                    elementType = args[0];
                 }
             }
 
@@ -237,53 +243,6 @@ namespace Smartstore
             return false;
         }
 
-        /// <summary>
-        /// Checks whether this type is an open generic type of a given type.
-        /// </summary>
-        /// <param name="source">The type we are checking.</param>
-        /// <param name="type">The type to validate against.</param>
-        /// <returns>True if <paramref name="source"/> is a open generic type of <paramref name="type"/>. False otherwise.</returns>
-        public static bool IsOpenGenericTypeOf(this Type source, Type type)
-        {
-            if (source == null || type == null)
-            {
-                return false;
-            }
-
-            if (!type.IsGenericTypeDefinition)
-            {
-                return false;
-            }
-
-            if (source == type)
-            {
-                return true;
-            }
-
-            return source.CheckBaseTypeIsOpenGenericTypeOf(type)
-              || source.CheckInterfacesAreOpenGenericTypeOf(type);
-        }
-
-        private static bool CheckBaseTypeIsOpenGenericTypeOf(this Type source, Type type)
-        {
-            if (source.BaseType == null)
-            {
-                return false;
-            }
-
-            return source.BaseType.IsGenericType
-                ? source.BaseType.GetGenericTypeDefinition().IsOpenGenericTypeOf(type)
-                : type.IsAssignableFrom(source.BaseType);
-        }
-
-        private static bool CheckInterfacesAreOpenGenericTypeOf(this Type source, Type type)
-        {
-            return source.GetInterfaces()
-                .Any(it => it.IsGenericType
-                    ? it.GetGenericTypeDefinition().IsOpenGenericTypeOf(type)
-                    : type.IsAssignableFrom(it));
-        }
-
         [DebuggerStepThrough]
         public static bool HasDefaultConstructor(this Type type)
         {
@@ -293,65 +252,6 @@ namespace Smartstore
                 return true;
 
             return type.GetConstructor(Type.EmptyTypes) != null;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool IsSubClass(this Type type, Type check)
-        {
-            return IsSubClass(type, check, out Type _);
-        }
-
-        public static bool IsSubClass(this Type type, Type check, out Type implementingType)
-        {
-            if (type == null)
-                throw new ArgumentNullException(nameof(type));
-
-            if (check == null)
-                throw new ArgumentNullException(nameof(check));
-
-            return IsSubClassInternal(type, type, check, out implementingType);
-        }
-
-        private static bool IsSubClassInternal(Type initialType, Type currentType, Type check, out Type implementingType)
-        {
-            if (currentType == check)
-            {
-                implementingType = currentType;
-                return true;
-            }
-
-            // don't get interfaces for an interface unless the initial type is an interface
-            if (check.IsInterface && (initialType.IsInterface || currentType == initialType))
-            {
-                foreach (Type t in currentType.GetInterfaces())
-                {
-                    if (IsSubClassInternal(initialType, t, check, out implementingType))
-                    {
-                        // don't return the interface itself, return it's implementor
-                        if (check == implementingType)
-                            implementingType = currentType;
-
-                        return true;
-                    }
-                }
-            }
-
-            if (currentType.IsGenericType && !currentType.IsGenericTypeDefinition)
-            {
-                if (IsSubClassInternal(initialType, currentType.GetGenericTypeDefinition(), check, out implementingType))
-                {
-                    implementingType = currentType;
-                    return true;
-                }
-            }
-
-            if (currentType.BaseType == null)
-            {
-                implementingType = null;
-                return false;
-            }
-
-            return IsSubClassInternal(initialType, currentType.BaseType, check, out implementingType);
         }
 
         public static bool IsCompatibleWith(this Type source, Type target)
@@ -499,6 +399,148 @@ namespace Smartstore
             return type.Name;
         }
 
+        #region Generics
+
+        /// <summary>
+        /// Determine whether a given type is an open generic.
+        /// </summary>
+        /// <param name="type">The input type, e.g. <see cref="IEnumerable{}"/></param>
+        /// <returns>True if the type is an open generic; false otherwise.</returns>
+        public static bool IsOpenGeneric(this Type source)
+        {
+            return source.IsGenericTypeDefinition || source.ContainsGenericParameters;
+        }
+
+        /// <summary>
+        /// Checks whether this type is an open generic type of a given type.
+        /// </summary>
+        /// <param name="source">The open generic type we are checking, e.g. <see cref="IEnumerable{}"/></param>
+        /// <param name="type">The closed generic type to validate against, e.g. <see cref="List{String}"/></param>
+        /// <returns>True if <paramref name="source"/> is a open generic type of <paramref name="type"/>. False otherwise.</returns>
+        public static bool IsOpenGenericTypeOf(this Type source, Type type)
+        {
+            if (source == null || type == null)
+            {
+                return false;
+            }
+
+            if (!type.IsGenericTypeDefinition)
+            {
+                return false;
+            }
+
+            if (source == type)
+            {
+                return true;
+            }
+
+            return 
+                source.CheckBaseTypeIsOpenGenericTypeOf(type) || 
+                source.CheckInterfacesAreOpenGenericTypeOf(type);
+        }
+
+        private static bool CheckBaseTypeIsOpenGenericTypeOf(this Type source, Type type)
+        {
+            if (source.BaseType == null)
+            {
+                return false;
+            }
+
+            return source.BaseType.IsGenericType
+                ? source.BaseType.GetGenericTypeDefinition().IsOpenGenericTypeOf(type)
+                : type.IsAssignableFrom(source.BaseType);
+        }
+
+        private static bool CheckInterfacesAreOpenGenericTypeOf(this Type source, Type type)
+        {
+            return source.GetInterfaces()
+                .Any(it => it.IsGenericType
+                    ? it.GetGenericTypeDefinition().IsOpenGenericTypeOf(type)
+                    : type.IsAssignableFrom(it));
+        }
+
+        /// <summary>
+        /// Checks whether given type is a closed type of a given open generic type.
+        /// </summary>
+        /// <param name="source">The source type to check.</param>
+        /// <param name="openGeneric">The open generic type to validate against.</param>
+        /// <returns>True if <paramref name="source"/> is a closed type of <paramref name="openGeneric"/>. False otherwise.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsClosedTypeOf(this Type source, Type openGeneric)
+        {
+            return TypesAssignableFrom(source)
+                .Any(t => t.IsGenericType && !source.ContainsGenericParameters && t.GetGenericTypeDefinition() == openGeneric);
+        }
+
+        /// <summary>
+        /// Checks whether given type is a closed type of a given open generic type.
+        /// </summary>
+        /// <param name="source">The source type to check.</param>
+        /// <param name="openGeneric">The open generic type to validate against.</param>
+        /// <param name="closingInterfaceType">The type of the closing interface.</param>
+        /// <returns>True if <paramref name="source"/> is a closed type of <paramref name="openGeneric"/>. False otherwise.</returns>
+        public static bool IsClosedTypeOf(this Type source, Type openGeneric, out Type closingInterfaceType)
+        {
+            //closingInterfaceType = TypesAssignableFrom(source)
+            //    .Where(t => t.IsClosedTypeOf(openGeneric) && t.GetGenericTypeDefinition() == openGeneric)
+            //    .FirstOrDefault();
+
+            //return closingInterfaceType != null;
+
+            return IsSubClassInternal(source, source, openGeneric, out closingInterfaceType);
+        }
+
+        //public static bool IsSubClass(this Type source, Type openGeneric, out Type closingInterfaceType)
+        //{
+        //    return IsSubClassInternal(source, source, openGeneric, out closingInterfaceType);
+        //}
+
+        private static bool IsSubClassInternal(Type initialType, Type currentType, Type check, out Type implementingType)
+        {
+            if (currentType == check)
+            {
+                implementingType = currentType;
+                return true;
+            }
+
+            // don't get interfaces for an interface unless the initial type is an interface
+            if (check.IsInterface && (initialType.IsInterface || currentType == initialType))
+            {
+                foreach (Type t in currentType.GetInterfaces())
+                {
+                    if (IsSubClassInternal(initialType, t, check, out implementingType))
+                    {
+                        // don't return the interface itself, return it's implementor
+                        if (check == implementingType)
+                            implementingType = currentType;
+
+                        return true;
+                    }
+                }
+            }
+
+            if (currentType.IsGenericType && !currentType.IsGenericTypeDefinition)
+            {
+                if (IsSubClassInternal(initialType, currentType.GetGenericTypeDefinition(), check, out implementingType))
+                {
+                    implementingType = currentType;
+                    return true;
+                }
+            }
+
+            if (currentType.BaseType == null)
+            {
+                implementingType = null;
+                return false;
+            }
+
+            return IsSubClassInternal(initialType, currentType.BaseType, check, out implementingType);
+        }
+
+        #endregion
+
+        #region Attributes
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryGetAttribute<TAttribute>(this ICustomAttributeProvider target, bool inherits, out TAttribute attribute) where TAttribute : Attribute
         {
@@ -596,11 +638,16 @@ namespace Smartstore
         {
             if (typeof(IOrdered).IsAssignableFrom(typeof(TAttribute)))
             {
-                return attributes.Cast<IOrdered>().OrderBy(x => x.Ordinal).Cast<TAttribute>();
+                return attributes
+                    .Cast<IOrdered>()
+                    .OrderBy(x => x.Ordinal)
+                    .Cast<TAttribute>();
             }
 
             return attributes;
         }
+
+        #endregion
 
         /// <summary>
         /// Given a MethodBase for a property's get or set method,
@@ -663,6 +710,12 @@ namespace Smartstore
                 return FindIEnumerable(seqType.BaseType);
 
             return null;
+        }
+
+        private static IEnumerable<Type> TypesAssignableFrom(Type candidateType)
+        {
+            return candidateType.GetInterfaces().Concat(
+                Traverse.Across(candidateType, t => t.BaseType));
         }
     }
 
