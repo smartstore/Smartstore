@@ -86,11 +86,17 @@ namespace Smartstore.Core.DataExchange.Import
                 {
                     try
                     {
+                        scope.DbContext.SuppressCommit = false;
+
                         await ProcessSlugsAsync(context, batch, entityName);
                     }
                     catch (Exception ex)
                     {
                         context.Result.AddError(ex, segmenter.CurrentSegment, nameof(ProcessSlugsAsync));
+                    }
+                    finally
+                    {
+                        scope.DbContext.SuppressCommit = true;
                     }
                 }
 
