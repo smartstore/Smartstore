@@ -1,15 +1,18 @@
-﻿
-/*TODO: (mh) (core) Check display and add more queries if required  */
-
-/* Media query for mobile viewport */
-@media screen and (max-width: 400px) {
+﻿/* Media query for mobile viewport */
+@media screen and (max-width: 480px) {
     #paypal-button-container {
         width: 100%;
+
+        /* On payment selection page we need some padding & alignment */
+        .checkout-page:not(.order-summary-page) & {
+            align-self: center;
+            padding-left: 10px;
+        }
     }
 }
 
 /* Media query for desktop viewport */
-@media screen and (min-width: 400px) {
+@media screen and (min-width: 480px) {
     #paypal-button-container {
         width: 250px;
     }
