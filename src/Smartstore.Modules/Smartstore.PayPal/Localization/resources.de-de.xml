@@ -1,5 +1,4 @@
 ﻿<Language Name="Deutsch" IsDefault="true" IsRightToLeft="false">
-	<!-- TODO: (mh) (core) Check every resource key in here -->
 	
 	<!-- Friendly plugin backend name & description (e.g. in payment configuration list) -->
 	<LocaleResource Name="Plugins.FriendlyName.Smartstore.PayPal" AppendRootKey="false">
@@ -44,7 +43,7 @@
 						<ul>
 							<li>Melden Sie sich mit Ihren PayPal-Kontodaten <a href="https://developer.paypal.com/developer/applications" target="_blank">im Entwickler-Dashboard</a> an.</li>
 							<li>Erstellen Sie eine neue App, indem Sie auf denn Button <b>Create App</b> klicken.</li>
-							<li>Tragen Sie nun den Account, die Client ID und den Secret in die dafür vorgesehenen Felder weiter unten auf dieser Seite.</li>
+							<li>Tragen Sie nun den Account, die Client ID und den Secret in die dafür vorgesehenen Felder weiter unten auf dieser Seite ein.</li>
 							<li>Erstellen Sie einen Webhook und hinterlegen die unten aufgeführte URL in Ihrer PayPal App als Webhook URL.</li>
 							<li>Aktivieren Sie Benachrichtigungen für alle Events.</li>
 						</ul>
@@ -162,7 +161,7 @@
 				<Value>Gold</Value>
 			</LocaleResource>
 			<LocaleResource Name="ButtonColor.Blue">
-				<Value>Blue</Value>
+				<Value>Blau</Value>
 			</LocaleResource>
 			<LocaleResource Name="ButtonColor.Silver">
 				<Value>Silber</Value>

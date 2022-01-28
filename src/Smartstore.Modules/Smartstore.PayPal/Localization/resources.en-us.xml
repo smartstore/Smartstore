@@ -1,35 +1,56 @@
 ﻿<Language Name="English" IsDefault="false" IsRightToLeft="false">
-	<!-- TODO: (mh) (core) Check every resource key in here -->
-  <LocaleResource Name="Plugins.FriendlyName.Smartstore.PayPal" AppendRootKey="false">
-    <Value>PayPal</Value>
-  </LocaleResource>
-  <LocaleResource Name="Plugins.Description.Smartstore.PayPal" AppendRootKey="false">
-    <Value>Detailed description for PayPal</Value>
-  </LocaleResource>
-  <LocaleResource Name="Plugins.FriendlyName.Payments.PayPal" AppendRootKey="false">
-    <Value>PayPal</Value>
-  </LocaleResource>
-  <LocaleResource Name="Plugins.Description.Payments.PayPal" AppendRootKey="false">
-    <Value>Detailed description for PayPal</Value>
-  </LocaleResource>
+
+	<!-- Friendly plugin backend name & description (e.g. in payment configuration list) -->
+	<LocaleResource Name="Plugins.FriendlyName.Smartstore.PayPal" AppendRootKey="false">
+		<Value>PayPal</Value>
+	</LocaleResource>
+	<LocaleResource Name="Plugins.Description.Smartstore.PayPal" AppendRootKey="false">
+		<Value>Adds the PayPal payment feature to the store.</Value>
+	</LocaleResource>
+
+	<!-- Friendly provider name & description -->
+	<!-- Frontend payment option & backend -->
+	<LocaleResource Name="Plugins.FriendlyName.Payments.PayPalStandard" AppendRootKey="false">
+		<Value>PayPal</Value>
+	</LocaleResource>
+	<!-- Backend provider description -->
+	<LocaleResource Name="Plugins.Description.Payments.PayPalStandard" AppendRootKey="false">
+		<Value>
+			<![CDATA[
+				Opens a secure payment window where the payment is made directly at PayPal.
+      ]]>
+		</Value>
+	</LocaleResource>
+
+	<!-- Should be rendered in frontend by default. As long as the shop admin doesn't enter a FullDescription for the PaymentMethod -->
+	<LocaleResource Name="Plugins.PaymentInfo.Payments.PayPalStandard" AppendRootKey="false">
+		<Value>
+			<![CDATA[
+				Do the payment in a secure browser window directly at PayPal. 
+				After redirection back to the store, you can complete the order with a few clicks.
+      ]]>
+		</Value>
+	</LocaleResource>
+	
   <LocaleResource Name="Plugins.Smartstore.PayPal" AppendRootKey="false">
     <Children>
       <LocaleResource Name="AdminInstruction">
         <Value>
           <![CDATA[
-            Enter your data below to configure this plugin.
+            <p>
+							To set up PayPal in your store follow the steps in the following guide.
+						</p>
+						<ul>
+							<li>Sign in with your PayPal account details <a href="https://developer.paypal.com/developer/applications" target="_blank">in the developer dashboard</a>.</li>
+							<li>Create a new app by clicking on the <b>Create App</b> button.</li>
+							<li>Now enter the account, client ID and secret in the fields provided further down this page.</li>
+							<li>Create a webhook and store the URL below as the webhook URL in your PayPal app.</li>
+							<li>Enable notifications for all events.</li>
+						</ul>
           ]]>
         </Value>
       </LocaleResource>      
-      <LocaleResource Name="PaymentInfo">
-        <Value>After completing the order you will be redirected to an external payment provider, where you can make the payment for your order.</Value>
-      </LocaleResource>
-      <LocaleResource Name="Agreement">
-        <Value>I am aware that my data is transferred to the payment provider during the payment process.</Value>
-      </LocaleResource>
-      <LocaleResource Name="Agreement.Message">
-        <Value>Please agree that your data may be transferred to the payment method provider during this payment process.</Value>
-      </LocaleResource>
+			
       <LocaleResource Name="UseSandbox">
         <Value>Use sandbox</Value>
       </LocaleResource>
@@ -57,6 +78,19 @@
       <LocaleResource Name="AdditionalFee">
         <Value>Additional fee</Value>
       </LocaleResource>
+			<LocaleResource Name="WebhookId">
+				<Value>Webhook ID</Value>
+			</LocaleResource>
+			<LocaleResource Name="WebhookId.Hint">
+				<Value>Enter the ID that PayPal has generated for your webhook.</Value>
+			</LocaleResource>
+			<LocaleResource Name="WebhookUrl">
+				<Value>Webhook URL</Value>
+			</LocaleResource>
+			<LocaleResource Name="WebhookUrl.Hint">
+				<Value>Save this URL in your PayPal app as a webhook URL.</Value>
+			</LocaleResource>
+			
       <LocaleResource Name="AdditionalFee.Hint">
         <Value>Enter additional fee to charge your customers.</Value>
       </LocaleResource>
@@ -103,8 +137,53 @@
 			<LocaleResource Name="Auth">
 				<Value>Authorize immediately, debit later</Value>
 			</LocaleResource>
+
+			<LocaleResource Name="ButtonShape">
+				<Value>Button shape</Value>
+			</LocaleResource>
+			<LocaleResource Name="ButtonShape.Hint">
+				<Value>Defines the shape of the PayPal button.</Value>
+			</LocaleResource>
+			<LocaleResource Name="ButtonShape.Rect">
+				<Value>Rectangular</Value>
+			</LocaleResource>
+			<LocaleResource Name="ButtonShape.Pill">
+				<Value>Pill</Value>
+			</LocaleResource>
+
+			<LocaleResource Name="ButtonColor">
+				<Value>Button color</Value>
+			</LocaleResource>
+			<LocaleResource Name="ButtonColor.Hint">
+				<Value>Defines the color of the PayPal button.</Value>
+			</LocaleResource>
+			<LocaleResource Name="ButtonColor.Gold">
+				<Value>Gold</Value>
+			</LocaleResource>
+			<LocaleResource Name="ButtonColor.Blue">
+				<Value>Blue</Value>
+			</LocaleResource>
+			<LocaleResource Name="ButtonColor.Silver">
+				<Value>Silver</Value>
+			</LocaleResource>
+			<LocaleResource Name="ButtonColor.White">
+				<Value>White</Value>
+			</LocaleResource>
+			<LocaleResource Name="ButtonColor.Black">
+				<Value>Black</Value>
+			</LocaleResource>
+			
 			<LocaleResource Name="BillingPlanName">
 				<Value>Billing plan {1}</Value>
+			</LocaleResource>
+			<LocaleResource Name="Credentials">
+				<Value>Credentials</Value>
+			</LocaleResource>
+			<LocaleResource Name="PaymentSettings">
+				<Value>Payment settings</Value>
+			</LocaleResource>
+			<LocaleResource Name="Misc">
+				<Value>Miscellaneous</Value>
 			</LocaleResource>
     </Children>
   </LocaleResource>
