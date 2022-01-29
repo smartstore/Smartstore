@@ -219,7 +219,7 @@ namespace Smartstore.Utilities
 
             if (value == null || value == DBNull.Value)
             {
-                return to == typeof(string) || to.IsPredefinedSimpleType() == false;
+                return to == typeof(string) || to.IsBasicType() == false;
             }
 
             if (to != typeof(object) && to.IsInstanceOfType(value))
@@ -321,7 +321,7 @@ namespace Smartstore.Utilities
                     return x.GetEnumerator().MoveNext();
             }
 
-            if (value.GetType().IsNullable(out var wrappedType))
+            if (value.GetType().IsNullableType(out var wrappedType))
             {
                 return IsTruthy(Convert.ChangeType(value, wrappedType));
             }

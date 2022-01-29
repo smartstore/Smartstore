@@ -14,7 +14,7 @@ namespace Smartstore.ComponentModel.TypeConverters
 
         public override bool CanConvertFrom(Type type)
         {
-            return type.IsPlainObjectType() || type.IsAnonymous();
+            return type.IsPlainObjectType() || type.IsAnonymousType();
         }
 
         public override bool CanConvertTo(Type type)

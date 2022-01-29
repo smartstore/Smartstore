@@ -110,7 +110,7 @@ namespace Smartstore.Core.Rules.Filters
 
         public static Expression CreateValueExpression(Type targetType, object value, CultureInfo culture = null)
         {
-            var targetIsNullable = targetType.IsNullable(out var nonNullableType);
+            var targetIsNullable = targetType.IsNullableType(out var nonNullableType);
 
             if (((targetType != typeof(string)) && (!targetType.IsValueType || targetIsNullable)) && (string.Compare(value as string, "null", StringComparison.OrdinalIgnoreCase) == 0))
             {

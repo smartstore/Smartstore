@@ -18,7 +18,7 @@ namespace Smartstore.Web.Modelling.Validation
             // Get all model properties
             var modelProps = FastProperty.GetProperties(typeof(TModel), PropertyCachingStrategy.EagerCached);
 
-            foreach (var modelProp in modelProps.Values.Where(x => !x.Property.PropertyType.IsNullable(out _) && x.Property.PropertyType.IsValueType))
+            foreach (var modelProp in modelProps.Values.Where(x => !x.Property.PropertyType.IsNullableType(out _) && x.Property.PropertyType.IsValueType))
             {
                 // If the model property is a non-nullable value type, then MVC will have already generated a non-localized Required rule.
                 // We should provide our own localized required rule and rely on FV to remove the MVC one. 

@@ -85,7 +85,7 @@ namespace Smartstore.ComponentModel.TypeConverters
 
         public override bool CanConvertFrom(Type type)
         {
-            if (type.IsSequenceType(out var elementType))
+            if (type.IsEnumerableType(out var elementType))
             {
                 return elementType.IsAssignableFrom(typeof(T))
                     || _elementTypeConverter.CanConvertFrom(elementType)
@@ -124,7 +124,7 @@ namespace Smartstore.ComponentModel.TypeConverters
 
             if (items != null)
             {
-                items.GetType().IsSequenceType(out var elementType);
+                items.GetType().IsEnumerableType(out var elementType);
                 var elementConverter = _elementTypeConverter;
                 var isOtherConverter = false;
                 var isAssignable = elementType.IsAssignableFrom(typeof(T));

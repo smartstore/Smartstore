@@ -139,7 +139,7 @@ namespace Smartstore.Utilities
                 {
                     var pi = fastProp.Property;
 
-                    if (!pi.PropertyType.IsPredefinedSimpleType() && source.TryGetValue(pi.Name, out var value) && value is IDictionary<string, object>)
+                    if (!pi.PropertyType.IsBasicType() && source.TryGetValue(pi.Name, out var value) && value is IDictionary<string, object>)
                     {
                         var nestedValue = fastProp.GetValue(target);
 
@@ -241,7 +241,7 @@ namespace Smartstore.Utilities
                         return;
                     }
 
-                    if (pi.PropertyType.IsNullable(out var wrappedType))
+                    if (pi.PropertyType.IsNullableType(out var wrappedType))
                     {
                         destType = wrappedType;
                     }

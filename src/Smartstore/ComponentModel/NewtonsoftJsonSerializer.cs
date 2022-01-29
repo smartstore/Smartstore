@@ -93,7 +93,7 @@ namespace Smartstore.ComponentModel
             }
             catch
             {
-                if (!(typeof(IObjectContainer).IsAssignableFrom(objectType) || objectType == typeof(object) || objectType.IsPredefinedType()))
+                if (!(typeof(IObjectContainer).IsAssignableFrom(objectType) || objectType == typeof(object) || objectType.IsBasicOrNullableType()))
                 {
                     _unDeserializableTypes.Add(objectType);
                     Logger.Debug("Type '{0}' cannot be DEserialized", objectType);

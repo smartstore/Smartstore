@@ -55,10 +55,9 @@ namespace Smartstore.Linq
 
                 DoExpand(t, member);
 
-                if (memberType.IsSequenceType())
-                    t = TypeHelper.GetElementType(memberType); //TypeHelper.GetListItemType(memberType);
-                else
-                    t = memberType;
+                t = memberType.IsSequenceType()
+                    ? TypeHelper.GetElementType(memberType)
+                    : memberType;
             }
         }
 

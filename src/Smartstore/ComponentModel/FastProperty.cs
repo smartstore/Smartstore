@@ -127,7 +127,7 @@ namespace Smartstore.ComponentModel
                 if (!_isComplexType.HasValue)
                 {
                     var type = Property.PropertyType;
-                    _isComplexType = (type.IsClass || type.IsInterface) && !type.IsPredefinedType();
+                    _isComplexType = (type.IsClass || type.IsInterface) && !type.IsBasicOrNullableType();
                 }
                 return _isComplexType.Value;
             }
@@ -141,7 +141,7 @@ namespace Smartstore.ComponentModel
                 {
                     var type = Property.PropertyType;
                     _isSequenceType = type != typeof(string)
-                        && (type.IsClosedTypeOf(typeof(IEnumerable<>)) || type.IsClosedTypeOf(typeof(IAsyncEnumerable<>)));
+                        && (type.IsClosedGenericTypeOf(typeof(IEnumerable<>)) || type.IsClosedGenericTypeOf(typeof(IAsyncEnumerable<>)));
                 }
                 return _isSequenceType.Value;
             }

@@ -1,21 +1,19 @@
 ﻿using System.Collections;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using Microsoft.AspNetCore.Razor.Hosting;
 using Smartstore.Domain;
-using Smartstore.Utilities;
 
 namespace Smartstore
 {
     public static class TypeExtensions
     {
-        private static readonly Type[] s_predefinedTypes = new Type[] { typeof(string), typeof(decimal), typeof(DateTime), typeof(TimeSpan), typeof(Guid) };
+        #region Common
 
         public static string AssemblyQualifiedNameWithoutVersion(this Type type)
         {
-            if (type == null)
-                throw new ArgumentNullException(nameof(type));
-
             if (type.AssemblyQualifiedName != null)
             {
                 return type.FullName + ", " + type.Assembly.GetName().Name;
@@ -24,234 +22,38 @@ namespace Smartstore
             return null;
         }
 
-        public static bool IsNumericType(this Type type)
+        /// <summary>
+        /// Given a MethodBase for a property's get or set method,
+        /// return the corresponding property info.
+        /// </summary>
+        /// <param name="method">MethodBase for the property's get or set method.</param>
+        /// <returns>PropertyInfo for the property, or null if method is not part of a property.</returns>
+        public static PropertyInfo GetPropertyFromMethod(this MethodBase method)
         {
-            switch (Type.GetTypeCode(type))
+            Guard.NotNull(method, nameof(method));
+
+            PropertyInfo property = null;
+
+            if (method.IsSpecialName)
             {
-                case TypeCode.Byte:
-                case TypeCode.SByte:
-                case TypeCode.UInt16:
-                case TypeCode.UInt32:
-                case TypeCode.UInt64:
-                case TypeCode.Int16:
-                case TypeCode.Int32:
-                case TypeCode.Int64:
-                case TypeCode.Decimal:
-                case TypeCode.Double:
-                case TypeCode.Single:
-                    return true;
-                case TypeCode.Object:
-                    if (type.IsNullable(out var innerType))
-                    {
-                        return innerType.IsNumericType();
-                    }
-                    return false;
-                default:
-                    return false;
-            }
-        }
-
-        public static bool IsSequenceType(this Type type)
-        {
-            if (type == typeof(string))
-                return false;
-
-            return 
-                type.IsArray || 
-                typeof(IEnumerable).IsAssignableFrom(type) || 
-                type.IsClosedTypeOf(typeof(IAsyncEnumerable<>), out _);
-        }
-
-        public static bool IsSequenceType(this Type type, out Type elementType)
-        {
-            elementType = null;
-
-            if (type == typeof(string))
-                return false;
-
-            if (type.IsArray)
-            {
-                elementType = type.GetElementType();
-            }
-            else if (
-                type.IsClosedTypeOf(typeof(IEnumerable<>), out var implType) || 
-                type.IsClosedTypeOf(typeof(IAsyncEnumerable<>), out implType))
-            {
-                var args = implType.GetGenericArguments();
-                if (args.Length == 1)
+                Type containingType = method.DeclaringType;
+                if (containingType != null)
                 {
-                    elementType = args[0];
-                }
-            }
-
-            return elementType != null;
-        }
-
-        public static bool IsPredefinedSimpleType(this Type type)
-        {
-            if ((type.IsPrimitive && (type != typeof(IntPtr))) && (type != typeof(UIntPtr)))
-            {
-                return true;
-            }
-
-            if (type.IsEnum)
-            {
-                return true;
-            }
-
-            return s_predefinedTypes.Any(t => t == type);
-        }
-
-        public static bool IsStruct(this Type type)
-        {
-            if (type.IsValueType)
-            {
-                return !type.IsPredefinedSimpleType();
-            }
-
-            return false;
-        }
-
-        public static bool IsPredefinedGenericType(this Type type)
-        {
-            if (type.IsGenericType)
-            {
-                type = type.GetGenericTypeDefinition();
-            }
-            else
-            {
-                return false;
-            }
-
-            return type == typeof(Nullable<>);
-        }
-
-        public static bool IsPredefinedType(this Type type)
-        {
-            if ((!IsPredefinedSimpleType(type) && !IsPredefinedGenericType(type)) && ((type != typeof(byte[]))))
-            {
-                return (string.Compare(type.FullName, "System.Xml.Linq.XElement", StringComparison.Ordinal) == 0);
-            }
-
-            return true;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool IsPlainObjectType(this Type type)
-        {
-            return type.IsClass && !type.IsSequenceType() && !type.IsPredefinedType();
-        }
-
-        public static bool IsInteger(this Type type)
-        {
-            switch (Type.GetTypeCode(type))
-            {
-                case TypeCode.SByte:
-                case TypeCode.Byte:
-                case TypeCode.Int16:
-                case TypeCode.UInt16:
-                case TypeCode.Int32:
-                case TypeCode.UInt32:
-                case TypeCode.Int64:
-                case TypeCode.UInt64:
-                    return true;
-                default:
-                    return false;
-            }
-        }
-
-        /// <summary>
-        /// Gets the underlying type of a <see cref="Nullable{T}" /> type.
-        /// </summary>
-        public static Type GetNonNullableType(this Type type)
-        {
-            if (!IsNullable(type, out var wrappedType))
-            {
-                return type;
-            }
-
-            return wrappedType;
-        }
-
-        public static bool IsNullable(this Type type, out Type elementType)
-        {
-            elementType = Nullable.GetUnderlyingType(type) ?? type;
-            return elementType != type;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool IsEnumType(this Type type)
-        {
-            return type.GetNonNullableType().IsEnum;
-        }
-
-        public static bool IsConstructable(this Type type)
-        {
-            if (type == null)
-                throw new ArgumentNullException(nameof(type));
-
-            if (type.IsAbstract || type.IsInterface || type.IsArray || type.IsGenericTypeDefinition || type == typeof(void))
-                return false;
-
-            if (!HasDefaultConstructor(type))
-                return false;
-
-            return true;
-        }
-
-        /// <summary>
-        /// Checks whether a type is compiler generated.
-        /// </summary>
-        /// <param name="type">The type to check.</param>
-        /// <returns>True if the type is compiler generated; false otherwise.</returns>
-        [DebuggerStepThrough]
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool IsCompilerGenerated(this Type type)
-        {
-            return type.GetCustomAttributes<CompilerGeneratedAttribute>().Any();
-        }
-
-        /// <summary>
-        /// Checks whether a given type is a delegate type.
-        /// </summary>
-        /// <param name="type">The type to check.</param>
-        /// <returns>True if the type is a delegate; false otherwise.</returns>
-        [DebuggerStepThrough]
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool IsDelegate(this Type type)
-        {
-            return type.IsSubclassOf(typeof(Delegate));
-        }
-
-        [DebuggerStepThrough]
-        public static bool IsAnonymous(this Type type)
-        {
-            if (type.IsGenericType)
-            {
-                var d = type.GetGenericTypeDefinition();
-                if (d.IsClass && d.IsSealed && d.Attributes.HasFlag(TypeAttributes.NotPublic))
-                {
-                    var attributes = d.GetCustomAttributes(typeof(CompilerGeneratedAttribute), false);
-                    if (attributes != null && attributes.Length > 0)
+                    if (method.Name.StartsWith("get_", StringComparison.InvariantCulture) ||
+                        method.Name.StartsWith("set_", StringComparison.InvariantCulture))
                     {
-                        // WOW! We have an anonymous type!!!
-                        return true;
+                        string propertyName = method.Name[4..];
+                        property = containingType.GetProperty(propertyName);
                     }
                 }
             }
 
-            return false;
+            return property;
         }
 
-        [DebuggerStepThrough]
         public static bool HasDefaultConstructor(this Type type)
         {
-            Guard.NotNull(type, nameof(type));
-
-            if (type.IsValueType)
-                return true;
-
-            return type.GetConstructor(Type.EmptyTypes) != null;
+            return type.IsValueType || type.GetConstructor(Type.EmptyTypes) != null;
         }
 
         public static bool IsCompatibleWith(this Type source, Type target)
@@ -389,74 +191,336 @@ namespace Smartstore
             return false;
         }
 
-        public static string GetTypeName(this Type type)
+        /// <summary>
+        /// Gets all types that are assignable from <paramref name="source"/>, except for <see cref="typeof(object)"/>
+        /// </summary>
+        /// <param name="source">The type to get assignable types for.</param>
+        /// <returns>
+        /// All interface types in the hierarchy chain, 
+        /// all base types (except <see cref="typeof(object)"/>) and the source type itself.
+        /// </returns>
+        public static IEnumerable<Type> GetTypesAssignableFrom(this Type source)
         {
-            if (type.IsNullable(out var wrappedType))
+            var interfaces = source.GetInterfaces();
+
+            for (var i = 0; i < interfaces.Length; i++)
             {
-                return wrappedType.Name + "?";
+                yield return interfaces[i];
             }
 
-            return type.Name;
+            while (source != null && source != typeof(object))
+            {
+                yield return source;
+                source = source.BaseType;
+            }
         }
+
+        #endregion
+
+        #region Is...Type
+
+        /// <summary>
+        /// Checks whether given type is primitive, enum, <see cref="typeof(string)"/>, 
+        /// <see cref="typeof(decimal)"/>, <see cref="typeof(DateTime)"/>, 
+        /// <see cref="typeof(TimeSpan)"/>, <see cref="typeof(Guid)"/>, 
+        /// <see cref="typeof(byte[])"/>.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsBasicType(this Type type)
+        {
+            return
+                type.IsPrimitive ||
+                type.IsEnum ||
+                type == typeof(string) ||
+                type == typeof(decimal) ||
+                type == typeof(DateTime) ||
+                type == typeof(TimeSpan) ||
+                type == typeof(Guid) ||
+                type == typeof(byte[]);
+        }
+
+        /// <summary>
+        /// Checks whether given type is a predefined basic type or a nullable type. 
+        /// </summary>
+        public static bool IsBasicOrNullableType(this Type type)
+        {
+            return
+                IsBasicType(type) ||
+                Nullable.GetUnderlyingType(type) != null;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsNullableType(this Type type)
+        {
+            return Nullable.GetUnderlyingType(type) != null;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsNullableType(this Type type, out Type underlyingType)
+        {
+            underlyingType = Nullable.GetUnderlyingType(type) ?? type;
+            return underlyingType != type;
+        }
+
+        public static bool IsNumericType(this Type type)
+        {
+            if (IsIntegerType(type))
+            {
+                return true;
+            }
+            
+            switch (Type.GetTypeCode(type))
+            {
+                case TypeCode.Decimal:
+                case TypeCode.Double:
+                case TypeCode.Single:
+                    return true;
+                case TypeCode.Object:
+                    return type.IsNullableType(out var underlyingType) && underlyingType.IsNumericType();
+                default:
+                    return false;
+            }
+        }
+
+        public static bool IsIntegerType(this Type type)
+        {
+            switch (Type.GetTypeCode(type))
+            {
+                case TypeCode.SByte:
+                case TypeCode.Byte:
+                case TypeCode.Int16:
+                case TypeCode.UInt16:
+                case TypeCode.Int32:
+                case TypeCode.UInt32:
+                case TypeCode.Int64:
+                case TypeCode.UInt64:
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        /// <summary>
+        /// Checks whether given type or its underlying nullable type is an enumeration type.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public static bool IsEnumType(this Type type)
+        {
+            return type.GetNonNullableType().IsEnum;
+        }
+
+        public static bool IsStructType(this Type type)
+        {
+            return type.IsValueType && !type.IsBasicType();
+        }
+
+        public static bool IsPlainObjectType(this Type type)
+        {
+            return type.IsClass && !type.IsSequenceType() && !type.IsBasicOrNullableType();
+        }
+
+        /// <summary>
+        /// Checks whether a type is compiler generated.
+        /// </summary>
+        /// <param name="type">The type to check.</param>
+        /// <returns>True if the type is compiler generated; False otherwise.</returns>
+        [DebuggerStepThrough]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsCompilerGenerated(this Type type)
+        {
+            return type.IsDefined(typeof(CompilerGeneratedAttribute), false);
+        }
+
+        /// <summary>
+        /// Checks whether a type is a pre-compiled razor view.
+        /// </summary>
+        /// <param name="type">The type to check.</param>
+        /// <returns>True if the type is a pre-compiled razor view; False otherwise.</returns>
+        [DebuggerStepThrough]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsRazorCompiledItem(this Type type)
+        {
+            return type.IsDefined(typeof(RazorCompiledItemAttribute), false);
+        }
+
+        /// <summary>
+        /// Checks whether a given type is a delegate type.
+        /// </summary>
+        /// <param name="type">The type to check.</param>
+        /// <returns>True if the type is a delegate; false otherwise.</returns>
+        [DebuggerStepThrough]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsDelegate(this Type type)
+        {
+            return type.IsSubclassOf(typeof(Delegate));
+        }
+
+        [DebuggerStepThrough]
+        public static bool IsAnonymousType(this Type type)
+        {
+            if (type.IsGenericType)
+            {
+                var d = type.GetGenericTypeDefinition();
+                if (d.IsClass && d.IsSealed && d.Attributes.HasFlag(TypeAttributes.NotPublic))
+                {
+                    var attributes = d.GetCustomAttributes(typeof(CompilerGeneratedAttribute), false);
+                    if (attributes != null && attributes.Length > 0)
+                    {
+                        // WOW! We have an anonymous type!!!
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Checks whether the given type is an array or implements <see cref="IEnumerable"/>.
+        /// </summary>
+        /// <param name="type">The type to check.</param>
+        /// <returns>True if the type is a sequence type; False otherwise.</returns>
+        public static bool IsSequenceType(this Type type)
+        {
+            if (type.IsBasicOrNullableType())
+            {
+                return false;
+            }
+
+            return 
+                type.IsArray || 
+                typeof(IEnumerable).IsAssignableFrom(type) ||
+                // i.e., a direct ref to System.Array
+                type == typeof(Array);
+        }
+
+        /// <summary>
+        /// Checks whether the given type is an array or implements <see cref="IEnumerable"/>.
+        /// </summary>
+        /// <param name="type">The type to check.</param>
+        /// <param name="elementType">
+        /// The generic argument type of the sequence, or <see cref="typeof(object)"/>
+        /// if the sequence is non-generic.
+        /// </param>
+        /// <returns>True if the type is a sequence type; False otherwise.</returns>
+        public static bool IsSequenceType(this Type type, out Type elementType)
+        {
+            elementType = null;
+
+            if (type.IsBasicOrNullableType())
+            {
+                return false;
+            }
+
+            if (type.IsArray)
+            {
+                elementType = type.GetElementType();
+            }
+            else if (type.IsClosedGenericTypeOf(typeof(IEnumerable<>), out var closedType))
+            {
+                elementType = closedType.GetGenericArguments()[0];
+            }
+            else if (typeof(IEnumerable).IsAssignableFrom(type) || type == typeof(Array))
+            {
+                elementType = typeof(object);
+            }
+
+            return elementType != null;
+        }
+
+        /// <summary>
+        /// Checks whether the given type implements <see cref="IEnumerable{}"/>.
+        /// </summary>
+        /// <param name="type">The type to check.</param>
+        /// <param name="elementType">The generic argument type of the sequence.</param>
+        /// <returns>True if the type is an enumerable type; False otherwise.</returns>
+        public static bool IsEnumerableType(this Type type, out Type elementType)
+        {
+            elementType = null;
+
+            if (type.IsBasicOrNullableType())
+            {
+                return false;
+            }
+
+            if (type.IsClosedGenericTypeOf(typeof(IEnumerable<>), out var closedType))
+            {
+                elementType = closedType.GetGenericArguments()[0];
+            }
+
+            return elementType != null;
+        }
+
+        /// <summary>
+        /// Checks whether the given type implements <see cref="ICollection{}"/>.
+        /// </summary>
+        /// <param name="type">The type to check.</param>
+        /// <param name="elementType">The generic argument type of the collection.</param>
+        /// <returns>True if the type is a collection type; False otherwise.</returns>
+        public static bool IsCollectionType(this Type type, out Type elementType)
+        {
+            elementType = null;
+
+            if (type.IsBasicOrNullableType())
+            {
+                return false;
+            }
+
+            if (type.IsClosedGenericTypeOf(typeof(ICollection<>), out var closedType))
+            {
+                elementType = closedType.GetGenericArguments()[0];
+            }
+
+            return elementType != null;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsDictionaryType(this Type type)
+        {
+            return type.IsClosedGenericTypeOf(typeof(IDictionary<,>));
+        }
+
+        public static bool IsDictionaryType(this Type type, out Type keyType, out Type valueType)
+        {
+            keyType = null;
+            valueType = null;
+
+            if (type.IsClosedGenericTypeOf(typeof(IDictionary<,>), out var closedType))
+            {
+                var args = closedType.GetGenericArguments();
+                keyType = args[0];
+                valueType = args[1];
+
+                return true;
+            }
+
+            return false;
+        }
+
+        #endregion
 
         #region Generics
 
         /// <summary>
-        /// Determine whether a given type is an open generic.
+        /// Gets either the underlying type of a <see cref="Nullable{T}" /> type
+        /// or the given type itself if it is not nullable.
         /// </summary>
-        /// <param name="type">The input type, e.g. <see cref="IEnumerable{}"/></param>
-        /// <returns>True if the type is an open generic; false otherwise.</returns>
-        public static bool IsOpenGeneric(this Type source)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Type GetNonNullableType(this Type type)
         {
-            return source.IsGenericTypeDefinition || source.ContainsGenericParameters;
+            return Nullable.GetUnderlyingType(type) ?? type;
         }
 
         /// <summary>
-        /// Checks whether this type is an open generic type of a given type.
+        /// Determine whether a given type is an open generic.
         /// </summary>
-        /// <param name="source">The open generic type we are checking, e.g. <see cref="IEnumerable{}"/></param>
-        /// <param name="type">The closed generic type to validate against, e.g. <see cref="List{String}"/></param>
-        /// <returns>True if <paramref name="source"/> is a open generic type of <paramref name="type"/>. False otherwise.</returns>
-        public static bool IsOpenGenericTypeOf(this Type source, Type type)
+        /// <param name="source">The input type, e.g. <see cref="IEnumerable{}"/></param>
+        /// <returns>True if the type is an open generic; false otherwise.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsOpenGeneric(this Type source)
         {
-            if (source == null || type == null)
-            {
-                return false;
-            }
-
-            if (!type.IsGenericTypeDefinition)
-            {
-                return false;
-            }
-
-            if (source == type)
-            {
-                return true;
-            }
-
-            return 
-                source.CheckBaseTypeIsOpenGenericTypeOf(type) || 
-                source.CheckInterfacesAreOpenGenericTypeOf(type);
-        }
-
-        private static bool CheckBaseTypeIsOpenGenericTypeOf(this Type source, Type type)
-        {
-            if (source.BaseType == null)
-            {
-                return false;
-            }
-
-            return source.BaseType.IsGenericType
-                ? source.BaseType.GetGenericTypeDefinition().IsOpenGenericTypeOf(type)
-                : type.IsAssignableFrom(source.BaseType);
-        }
-
-        private static bool CheckInterfacesAreOpenGenericTypeOf(this Type source, Type type)
-        {
-            return source.GetInterfaces()
-                .Any(it => it.IsGenericType
-                    ? it.GetGenericTypeDefinition().IsOpenGenericTypeOf(type)
-                    : type.IsAssignableFrom(it));
+            return source.IsGenericTypeDefinition || source.ContainsGenericParameters;
         }
 
         /// <summary>
@@ -466,75 +530,35 @@ namespace Smartstore
         /// <param name="openGeneric">The open generic type to validate against.</param>
         /// <returns>True if <paramref name="source"/> is a closed type of <paramref name="openGeneric"/>. False otherwise.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool IsClosedTypeOf(this Type source, Type openGeneric)
+        public static bool IsClosedGenericTypeOf(this Type source, Type openGeneric)
         {
-            return TypesAssignableFrom(source)
-                .Any(t => t.IsGenericType && !source.ContainsGenericParameters && t.GetGenericTypeDefinition() == openGeneric);
+            return GetClosedGenericTypesOf(source, openGeneric).Any();
+        }
+
+        /// <inheritdoc cref="IsClosedGenericTypeOf(Type, Type)"/>
+        /// <param name="closedGeneric">The first matching closed type.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsClosedGenericTypeOf(this Type source, Type openGeneric, out Type closedGeneric)
+        {
+            closedGeneric = GetClosedGenericTypesOf(source, openGeneric).FirstOrDefault();
+            return closedGeneric != null;
         }
 
         /// <summary>
-        /// Checks whether given type is a closed type of a given open generic type.
+        /// Looks for interfaces on the <paramref name="source"/> type that closes the given <paramref name="openGeneric"/> interface type.
         /// </summary>
-        /// <param name="source">The source type to check.</param>
-        /// <param name="openGeneric">The open generic type to validate against.</param>
-        /// <param name="closingInterfaceType">The type of the closing interface.</param>
-        /// <returns>True if <paramref name="source"/> is a closed type of <paramref name="openGeneric"/>. False otherwise.</returns>
-        public static bool IsClosedTypeOf(this Type source, Type openGeneric, out Type closingInterfaceType)
+        /// <param name="source">The type that is being checked for the interface.</param>
+        /// <param name="openGeneric">The open generic service type to locate.</param>
+        /// <returns>Matching closed implementation types.</returns>
+        public static IEnumerable<Type> GetClosedGenericTypesOf(this Type source, Type openGeneric)
         {
-            //closingInterfaceType = TypesAssignableFrom(source)
-            //    .Where(t => t.IsClosedTypeOf(openGeneric) && t.GetGenericTypeDefinition() == openGeneric)
-            //    .FirstOrDefault();
-
-            //return closingInterfaceType != null;
-
-            return IsSubClassInternal(source, source, openGeneric, out closingInterfaceType);
-        }
-
-        //public static bool IsSubClass(this Type source, Type openGeneric, out Type closingInterfaceType)
-        //{
-        //    return IsSubClassInternal(source, source, openGeneric, out closingInterfaceType);
-        //}
-
-        private static bool IsSubClassInternal(Type initialType, Type currentType, Type check, out Type implementingType)
-        {
-            if (currentType == check)
+            if (!openGeneric.IsOpenGeneric())
             {
-                implementingType = currentType;
-                return true;
+                return Enumerable.Empty<Type>();
             }
 
-            // don't get interfaces for an interface unless the initial type is an interface
-            if (check.IsInterface && (initialType.IsInterface || currentType == initialType))
-            {
-                foreach (Type t in currentType.GetInterfaces())
-                {
-                    if (IsSubClassInternal(initialType, t, check, out implementingType))
-                    {
-                        // don't return the interface itself, return it's implementor
-                        if (check == implementingType)
-                            implementingType = currentType;
-
-                        return true;
-                    }
-                }
-            }
-
-            if (currentType.IsGenericType && !currentType.IsGenericTypeDefinition)
-            {
-                if (IsSubClassInternal(initialType, currentType.GetGenericTypeDefinition(), check, out implementingType))
-                {
-                    implementingType = currentType;
-                    return true;
-                }
-            }
-
-            if (currentType.BaseType == null)
-            {
-                implementingType = null;
-                return false;
-            }
-
-            return IsSubClassInternal(initialType, currentType.BaseType, check, out implementingType);
+            return GetTypesAssignableFrom(source)
+                .Where(t => !t.ContainsGenericParameters && t.IsGenericType && t.GetGenericTypeDefinition() == openGeneric);
         }
 
         #endregion
@@ -597,7 +621,7 @@ namespace Smartstore
                 return SortAttributesIfPossible(attributes).ToArray();
             }
 
-            return new TAttribute[0];
+            return Array.Empty<TAttribute>();
         }
 
         /// <summary>
@@ -648,75 +672,6 @@ namespace Smartstore
         }
 
         #endregion
-
-        /// <summary>
-        /// Given a MethodBase for a property's get or set method,
-        /// return the corresponding property info.
-        /// </summary>
-        /// <param name="method">MethodBase for the property's get or set method.</param>
-        /// <returns>PropertyInfo for the property, or null if method is not part of a property.</returns>
-        public static PropertyInfo GetPropertyFromMethod(this MethodBase method)
-        {
-            Guard.NotNull(method, "method");
-
-            PropertyInfo property = null;
-            if (method.IsSpecialName)
-            {
-                Type containingType = method.DeclaringType;
-                if (containingType != null)
-                {
-                    if (method.Name.StartsWith("get_", StringComparison.InvariantCulture) ||
-                        method.Name.StartsWith("set_", StringComparison.InvariantCulture))
-                    {
-                        string propertyName = method.Name.Substring(4);
-                        property = containingType.GetProperty(propertyName);
-                    }
-                }
-            }
-            return property;
-        }
-
-        internal static Type FindIEnumerable(this Type seqType)
-        {
-            if (seqType == null || seqType == typeof(string))
-                return null;
-
-            if (seqType.IsArray)
-                return typeof(IEnumerable<>).MakeGenericType(seqType.GetElementType());
-
-            if (seqType.IsGenericType)
-            {
-                var args = seqType.GetGenericArguments();
-                foreach (var arg in args)
-                {
-                    var ienum = typeof(IEnumerable<>).MakeGenericType(arg);
-                    if (ienum.IsAssignableFrom(seqType))
-                        return ienum;
-                }
-            }
-
-            Type[] ifaces = seqType.GetInterfaces();
-            if (ifaces.Length > 0)
-            {
-                foreach (Type iface in ifaces)
-                {
-                    Type ienum = FindIEnumerable(iface);
-                    if (ienum != null)
-                        return ienum;
-                }
-            }
-
-            if (seqType.BaseType != null && seqType.BaseType != typeof(object))
-                return FindIEnumerable(seqType.BaseType);
-
-            return null;
-        }
-
-        private static IEnumerable<Type> TypesAssignableFrom(Type candidateType)
-        {
-            return candidateType.GetInterfaces().Concat(
-                Traverse.Across(candidateType, t => t.BaseType));
-        }
     }
 
 }

@@ -33,7 +33,7 @@
         public IEnumerable<RuleOperator> GetValidOperators(bool isComparingSequences = false)
         {
             var isComparable = typeof(IComparable).IsAssignableFrom(ClrType);
-            var isNullable = ClrType.IsNullable(out var nonNullableType);
+            var isNullable = ClrType.IsNullableType(out var nonNullableType);
 
             if (isNullable)
             {

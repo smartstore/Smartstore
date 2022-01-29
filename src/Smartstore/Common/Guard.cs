@@ -255,7 +255,7 @@ namespace Smartstore
         public static void IsClosedTypeOf<TBase>(Type type)
         {
             var baseType = typeof(TBase);
-            if (!baseType.IsClosedTypeOf(type))
+            if (!baseType.IsClosedGenericTypeOf(type))
             {
                 throw new InvalidOperationException(IsClosedTypeOfMessage.FormatInvariant(type.FullName, baseType.FullName));
             }

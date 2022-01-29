@@ -100,7 +100,7 @@ namespace Smartstore.Data.Caching.Internal
             ElementType = expression.Type;
             CachingPolicy = null;
 
-            if (expression.Type.IsSequenceType(out var elementType))
+            if (expression.Type.IsEnumerableType(out var elementType))
             {
                 IsSequenceType = true;
                 ElementType = elementType;

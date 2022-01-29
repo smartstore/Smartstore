@@ -29,7 +29,10 @@ namespace Smartstore.Collections.JsonConverters
             var valueType = objectType.GetGenericArguments()[1];
 
             // typeof IEnumerable<KeyValuePair<TKey, ICollection<TValue>>
-            var sequenceType = typeof(IEnumerable<>).MakeGenericType(typeof(KeyValuePair<,>).MakeGenericType(keyType, typeof(IEnumerable<>).MakeGenericType(valueType)));
+            var sequenceType = typeof(IEnumerable<>)
+                .MakeGenericType(typeof(KeyValuePair<,>)
+                .MakeGenericType(keyType, typeof(IEnumerable<>)
+                .MakeGenericType(valueType)));
 
             // serialize JArray to sequenceType
             var list = serializer.Deserialize(reader, sequenceType);

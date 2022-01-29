@@ -254,7 +254,7 @@ namespace Smartstore.Core.Messaging
                     var partType = part.GetType();
                     modelPart = part;
 
-                    if (partType.IsPlainObjectType() && !partType.IsAnonymous())
+                    if (partType.IsPlainObjectType() && !partType.IsAnonymousType())
                     {
                         var evt = new MessageModelPartMappingEvent(part, messageContext);
                         await _services.EventPublisher.PublishAsync(evt);
@@ -920,11 +920,11 @@ namespace Smartstore.Core.Messaging
         {
             var t = instance?.GetType();
             TreeNode<ModelTreeMember> node;
-            if (t == null || t.IsPredefinedType())
+            if (t == null || t.IsBasicOrNullableType())
             {
                 node = new TreeNode<ModelTreeMember>(new ModelTreeMember { Name = modelName, Kind = ModelTreeMemberKind.Primitive });
             }
-            else if (t.IsSequenceType() && !(instance is IDictionary<string, object>))
+            else if (t.IsSequenceType() && !t.IsDictionaryType())
             {
                 node = new TreeNode<ModelTreeMember>(new ModelTreeMember { Name = modelName, Kind = ModelTreeMemberKind.Collection });
             }
@@ -969,7 +969,7 @@ namespace Smartstore.Core.Messaging
             {
                 var pi = prop.Property;
 
-                if (pi.PropertyType.IsPredefinedType())
+                if (pi.PropertyType.IsBasicOrNullableType())
                 {
                     yield return new TreeNode<ModelTreeMember>(new ModelTreeMember { Name = prop.Name, Kind = ModelTreeMemberKind.Primitive });
                 }

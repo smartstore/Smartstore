@@ -15,7 +15,7 @@ namespace Smartstore.ComponentModel.TypeConverters
         {
             return type == typeof(string)
                 || type.IsPlainObjectType()
-                || type.IsAnonymous();
+                || type.IsAnonymousType();
 
         }
 

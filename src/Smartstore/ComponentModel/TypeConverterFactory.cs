@@ -118,13 +118,13 @@ namespace Smartstore.ComponentModel
                 }
 
                 // Nullable types
-                if (type.IsNullable(out Type elementType))
+                if (type.IsNullableType(out Type elementType))
                 {
                     return new NullableConverter(type, elementType);
                 }
 
                 // Sequence types
-                if (type.IsSequenceType(out elementType))
+                if (type.IsEnumerableType(out elementType))
                 {
                     var converter = (ITypeConverter)Activator.CreateInstance(typeof(EnumerableConverter<>).MakeGenericType(elementType), type);
                     return converter;

@@ -136,14 +136,24 @@ namespace Smartstore.Core.Rules
             {
                 throw new ArgumentException("Operator '{0}' is incompatible with operand types '{1}' and '{2}'.".FormatInvariant(
                     this.Operator,
-                    targetType.GetTypeName(),
-                    right.Type.GetTypeName()));
+                    GetTypeName(targetType),
+                    GetTypeName(right.Type)));
             }
 
             return GenerateExpression(left, right, provider);
         }
 
         protected abstract Expression GenerateExpression(Expression left, Expression right, IQueryProvider provider);
+
+        private static string GetTypeName(Type type)
+        {
+            if (type.IsNullableType(out var underlyingType))
+            {
+                return underlyingType.Name + "?";
+            }
+
+            return type.Name;
+        }
 
         #region Expression/Lambda stuff
 
@@ -164,7 +174,7 @@ namespace Smartstore.Core.Rules
             if (targetType == right.Type)
                 return true;
 
-            var leftIsNullable = targetType.IsNullable(out _);
+            var leftIsNullable = targetType.IsNullableType(out _);
             var rightIsNullObj = ExpressionHelper.IsNullObjectConstantExpression(right);
             var rightIsList = false;
 
@@ -211,7 +221,7 @@ namespace Smartstore.Core.Rules
             {
                 var value = ((ConstantExpression)right).Value;
                 var listElemType = right.Type.GetGenericArguments()[0];
-                if (!listElemType.IsNullable(out _))
+                if (!listElemType.IsNullableType(out _))
                 {
                     // List<T> > List<T?>
                     var nullableListType = typeof(List<>).MakeGenericType(targetType);
@@ -273,14 +283,16 @@ namespace Smartstore.Core.Rules
 
             var expression = expr as ConstantExpression;
 
-            if (expression != null && expression.Value == null && (!type.IsValueType || type.IsNullable(out _)))
+            if (expression != null && expression.Value == null && (!type.IsValueType || type.IsNullableType(out _)))
             {
                 return Expression.Constant(null, type);
             }
+
             if (!targetType.IsCompatibleWith(type))
             {
                 return null;
             }
+
             if (!type.IsValueType && !exact)
             {
                 return expr;

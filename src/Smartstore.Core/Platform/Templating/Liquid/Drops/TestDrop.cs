@@ -47,7 +47,7 @@ namespace Smartstore.Templating.Liquid
                     {
                         value = "{{ " + modelPrefix + " }}";
                     }
-                    else if (pi.PropertyType.IsPredefinedType())
+                    else if (pi.PropertyType.IsBasicOrNullableType())
                     {
                         value = "{{ " + modelPrefix + " }}";
                     }
