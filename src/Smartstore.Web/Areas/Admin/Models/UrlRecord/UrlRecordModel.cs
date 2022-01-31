@@ -9,6 +9,9 @@ namespace Smartstore.Admin.Models.UrlRecord
         public string Slug { get; set; }
 
         [LocalizedDisplay("*EntityName")]
+        public string LocalizedEntityName { get; set; }
+
+        [LocalizedDisplay("*EntityName")]
         public string EntityName { get; set; }
 
         [LocalizedDisplay("*EntityId")]
@@ -25,6 +28,7 @@ namespace Smartstore.Admin.Models.UrlRecord
         
         [LocalizedDisplay("*Language")]
         public string Language { get; set; }
+        public string FlagImageUrl { get; set; }
 
         [LocalizedDisplay("*SlugsPerEntity")]
         public int SlugsPerEntity { get; set; }

@@ -54,12 +54,12 @@ namespace Smartstore.Web.Controllers
         /// <typeparam name="T">Entity type.</typeparam>
         /// <param name="entity">The entity.</param>
         /// <param name="selectedStoreIds">Selected store identifiers.</param>
-        protected virtual async Task SaveStoreMappingsAsync<T>(T entity, int[] selectedStoreIds) where T : BaseEntity, IStoreRestricted
+        protected virtual async Task<int> SaveStoreMappingsAsync<T>(T entity, int[] selectedStoreIds) where T : BaseEntity, IStoreRestricted
         {
             Guard.NotNull(entity, nameof(entity));
 
             await Services.Resolve<IStoreMappingService>().ApplyStoreMappingsAsync(entity, selectedStoreIds);
-            await Services.DbContext.SaveChangesAsync();
+            return await Services.DbContext.SaveChangesAsync();
         }
 
         /// <summary>
@@ -67,12 +67,12 @@ namespace Smartstore.Web.Controllers
         /// </summary>
         /// <typeparam name="T">Entity type</typeparam>
         /// <param name="entity">The entity</param>
-        protected virtual async Task SaveAclMappingsAsync<T>(T entity, params int[] selectedCustomerRoleIds) where T : BaseEntity, IAclRestricted
+        protected virtual async Task<int> SaveAclMappingsAsync<T>(T entity, params int[] selectedCustomerRoleIds) where T : BaseEntity, IAclRestricted
         {
             Guard.NotNull(entity, nameof(entity));
 
             await Services.Resolve<IAclService>().ApplyAclMappingsAsync(entity, selectedCustomerRoleIds);
-            await Services.DbContext.SaveChangesAsync();
+            return await Services.DbContext.SaveChangesAsync();
         }
 
         /// <summary>

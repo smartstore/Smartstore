@@ -398,65 +398,74 @@ namespace Smartstore.Core.Seo
             {
                 throw new ArgumentException("Unvalidated slugs cannot be applied. Consider obtaining 'ValidateSlugResult' from 'ValidateSlugAsync()' method.", nameof(result));
             }
-            
-            if (string.IsNullOrWhiteSpace(result.Slug))
-            {
-                // TODO: (core) the case "disable the previous active URL record" is missing here (updating UrlRecord.IsActive from 'true' to 'false').
-                // Compare with Classic > UrlRecordService > line 392.
-                // This way, the localized 'URL Alias' cannot be removed using the localized editor.
-                return null;
-            }
 
             var dirty = false;
             var entry = result.Found;
             var languageId = result.LanguageId ?? 0;
 
-            if (entry != null && result.FoundIsSelf)
+            if (string.IsNullOrWhiteSpace(result.Slug))
             {
-                // Found record refers to requested entity
-                if (entry.IsActive)
-                {
-                    // ...and is active. Do nothing, 'cause nothing changed.
-                }
-                else
-                {
-                    // ...and is inactive. Make it active
-                    entry.IsActive = true;
-                    dirty = true;
+                // TODO: (core) the case "disable the previous active URL record" is missing here (updating UrlRecord.IsActive from 'true' to 'false').
+                // Compare with Classic > UrlRecordService > line 392.
+                // This way, the localized 'URL Alias' cannot be removed using the localized editor.
 
-                    // ...and make the current active one(s) inactive.
-                    var currentActive = await GetActiveEntryFromStoreAsync();
-                    if (currentActive != null)
+                // Disable the previous active URL record.
+                var currentActive = await GetActiveEntryFromStoreAsync();
+                if (currentActive != null)
+                {
+                    dirty = true;
+                    currentActive.IsActive = false;
+                }
+            }
+            else
+            {
+                if (entry != null && result.FoundIsSelf)
+                {
+                    // Found record refers to requested entity
+                    if (entry.IsActive)
                     {
-                        currentActive.IsActive = false;
+                        // ...and is active. Do nothing, 'cause nothing changed.
+                    }
+                    else
+                    {
+                        // ...and is inactive. Make it active
+                        entry.IsActive = true;
+                        dirty = true;
+
+                        // ...and make the current active one(s) inactive.
+                        var currentActive = await GetActiveEntryFromStoreAsync();
+                        if (currentActive != null)
+                        {
+                            currentActive.IsActive = false;
+                        }
                     }
                 }
-            }
 
-            if (entry == null || !result.FoundIsSelf)
-            {
-                // Create new entry because no entry was found or found one refers to another entity.
-                // Because unvalidated slugs cannot be passed to this method we assume slug uniqueness.
-                entry = new UrlRecord
+                if (entry == null || !result.FoundIsSelf)
                 {
-                    EntityId = result.Source.Id,
-                    EntityName = result.EntityName,
-                    Slug = result.Slug,
-                    LanguageId = languageId,
-                    IsActive = true,
-                };
-            }
+                    // Create new entry because no entry was found or found one refers to another entity.
+                    // Because unvalidated slugs cannot be passed to this method we assume slug uniqueness.
+                    entry = new UrlRecord
+                    {
+                        EntityId = result.Source.Id,
+                        EntityName = result.EntityName,
+                        Slug = result.Slug,
+                        LanguageId = languageId,
+                        IsActive = true,
+                    };
+                }
 
-            if (entry != null && entry.IsTransientRecord())
-            {
-                // It's a freshly created record, add to set.
-                _db.UrlRecords.Add(entry);
+                if (entry != null && entry.IsTransientRecord())
+                {
+                    // It's a freshly created record, add to set.
+                    _db.UrlRecords.Add(entry);
 
-                // When we gonna save deferred, adding the new entry to our extra lookup
-                // will ensure that subsequent validation does not miss new records.
-                _extraSlugLookup[entry.Slug] = entry;
+                    // When we gonna save deferred, adding the new entry to our extra lookup
+                    // will ensure that subsequent validation does not miss new records.
+                    _extraSlugLookup[entry.Slug] = entry;
 
-                dirty = true;
+                    dirty = true;
+                }
             }
 
             if (dirty && save)

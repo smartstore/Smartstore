@@ -3,14 +3,14 @@
 @model UrlRecordModel
 
 @{
-    var title = $"{T("Admin.Common.Edit")} {T("Admin.System.SeNames.Name")}";
-    ViewBag.Title = title;
+    ViewBag.Title = T("Admin.Common.Edit") + " - " + Model.Slug;
 }
 
 <form asp-action="Edit">
     <div class="section-header">
         <div class="title">
-            @title <a asp-action="List">(@T("Admin.Common.BackToList"))</a>
+            <i class="fa fa-search"></i>
+            <span>@ViewBag.Title <a asp-action="List">(@T("Admin.Common.BackToList"))</a></span>
         </div>
         <div class="options">
             <a href="@Model.EntityUrl" class="btn btn-secondary">

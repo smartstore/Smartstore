@@ -158,11 +158,11 @@ namespace Smartstore.Admin.Controllers
                 model.SeName = slugResult.Slug;
                 await _urlService.ApplySlugAsync(slugResult, true);
 
-                await SaveStoreMappingsAsync(topic, model.SelectedStoreIds);
-                await SaveAclMappingsAsync(topic, model.SelectedCustomerRoleIds);
                 await UpdateLocalesAsync(topic, model);
-                AddCookieTypes(model, model.CookieType);
+                await _storeMappingService.ApplyStoreMappingsAsync(topic, model.SelectedStoreIds);
+                await _aclService.ApplyAclMappingsAsync(topic, model.SelectedCustomerRoleIds);
 
+                AddCookieTypes(model, model.CookieType);
                 await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, topic, Request.Form));
                 NotifySuccess(T("Admin.ContentManagement.Topics.Updated"));
 
@@ -264,17 +264,19 @@ namespace Smartstore.Admin.Controllers
 
                 topic.CookieType = (CookieType?)model.CookieType;
 
-                await _db.SaveChangesAsync();
-
                 var slugResult = await topic.ValidateSlugAsync(model.SeName, topic.Title.NullEmpty() ?? topic.SystemName, true);
                 model.SeName = slugResult.Slug;
-                await _urlService.ApplySlugAsync(slugResult, true);
-                
-                await SaveStoreMappingsAsync(topic, model.SelectedStoreIds);
-                await SaveAclMappingsAsync(topic, model.SelectedCustomerRoleIds);
-                await UpdateLocalesAsync(topic, model);
-                AddCookieTypes(model, model.CookieType);
+                await _urlService.ApplySlugAsync(slugResult);
 
+                await _db.SaveChangesAsync();
+
+                await UpdateLocalesAsync(topic, model);
+                await _storeMappingService.ApplyStoreMappingsAsync(topic, model.SelectedStoreIds);
+                await _aclService.ApplyAclMappingsAsync(topic, model.SelectedCustomerRoleIds);
+
+                await _db.SaveChangesAsync();
+
+                AddCookieTypes(model, model.CookieType);
                 await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, topic, Request.Form));
                 NotifySuccess(T("Admin.ContentManagement.Topics.Updated"));
 
@@ -382,11 +384,9 @@ namespace Smartstore.Admin.Controllers
                 await _localizedEntityService.ApplyLocalizedValueAsync(topic, x => x.MetaDescription, localized.MetaDescription, localized.LanguageId);
                 await _localizedEntityService.ApplyLocalizedValueAsync(topic, x => x.MetaTitle, localized.MetaTitle, localized.LanguageId);
 
-                await _db.SaveChangesAsync();
-
                 var slugResult = await topic.ValidateSlugAsync(localized.SeName, localized.Title.NullEmpty() ?? localized.ShortTitle, false, localized.LanguageId);
                 model.SeName = slugResult.Slug;
-                await _urlService.ApplySlugAsync(slugResult, true);
+                await _urlService.ApplySlugAsync(slugResult);
             }
         }
 

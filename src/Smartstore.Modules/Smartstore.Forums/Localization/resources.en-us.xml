@@ -9,6 +9,13 @@
 		<Value>Forums</Value>
 	</LocaleResource>
 
+	<LocaleResource Name="Common.Entity.ForumGroup" AppendRootKey="false">
+		<Value>Forum Group</Value>
+	</LocaleResource>
+	<LocaleResource Name="Common.Entity.Forum" AppendRootKey="false">
+		<Value>Forum</Value>
+	</LocaleResource>
+
 	<LocaleResource Name="ActivityLog.PublicStore.SendPM" AppendRootKey="false">
 		<Value>Sent PM to customer ('{0}').</Value>
 	</LocaleResource>

@@ -149,16 +149,16 @@ namespace Smartstore.Admin.Models.Topics
         [AdditionalMetadata("ForceRootBlock", false)]
         public string Body { get; set; }
 
-        [LocalizedDisplay("*MetaKeywords")]
+        [LocalizedDisplay("Admin.Configuration.Seo.MetaKeywords")]
         public string MetaKeywords { get; set; }
 
-        [LocalizedDisplay("*MetaDescription")]
+        [LocalizedDisplay("Admin.Configuration.Seo.MetaDescription")]
         public string MetaDescription { get; set; }
 
-        [LocalizedDisplay("*MetaTitle")]
+        [LocalizedDisplay("Admin.Configuration.Seo.MetaTitle")]
         public string MetaTitle { get; set; }
 
-        [LocalizedDisplay("*SeName")]
+        [LocalizedDisplay("Admin.Configuration.Seo.SeName")]
         public string SeName { get; set; }
     }
 

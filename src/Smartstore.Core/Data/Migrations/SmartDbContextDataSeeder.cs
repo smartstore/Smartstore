@@ -717,6 +717,7 @@ namespace Smartstore.Core.Data.Migrations
             //    "Admin.Orders.List.OrderGuid",
             //    "Admin.Orders.List.OrderGuid.Hint",
             //    "Admin.DataExchange.Export.FolderName.Validate",
+            //    "Admin.ContentManagement.Topics.BackToList",
             //    );
 
 

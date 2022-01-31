@@ -21,48 +21,8 @@ namespace Smartstore.Admin.Controllers
             _urlService = urlService;
         }
 
-        private void PrepareAvailableLanguages()
-        {
-            var allLanguages = _languageService.GetAllLanguages(true);
-
-            ViewBag.AvailableLanguages = _languageService
-                .GetAllLanguages()
-                .Select(x => new SelectListItem { Text = x.Name, Value = x.Id.ToString() })
-                .ToList();
-
-            ViewBag.AvailableLanguages.Insert(0, new SelectListItem { Text = T("Admin.System.SeNames.Language.Standard"), Value = "0" });
-        }
-
-        private void PrepareUrlRecordModel(UrlRecordModel model, UrlRecord urlRecord, bool forList = false)
-        {
-            if (!forList)
-            {
-                PrepareAvailableLanguages();
-            }
-
-            if (urlRecord != null)
-            {
-                model.Id = urlRecord.Id;
-                model.Slug = urlRecord.Slug;
-                model.EntityName = urlRecord.EntityName;
-                model.EntityId = urlRecord.EntityId;
-                model.IsActive = urlRecord.IsActive;
-                model.LanguageId = urlRecord.LanguageId;
-
-                var routeValues = SlugRouteTransformer.GetRouteValuesFor(urlRecord, RouteTarget.Edit);
-                if (routeValues != null)
-                {
-                    model.EntityUrl = Url.RouteUrl(routeValues);
-                }
-                else
-                {
-                    model.EntityUrl = Url.Action("Edit", urlRecord.EntityName, new { id = urlRecord.EntityId });
-                }
-            }
-        }
-
         [Permission(Permissions.System.UrlRecord.Read)]
-        public IActionResult List(string entityName, int? entityId)
+        public async Task<IActionResult> List(string entityName, int? entityId)
         {
             var model = new UrlRecordListModel
             {
@@ -72,6 +32,32 @@ namespace Smartstore.Admin.Controllers
 
             PrepareAvailableLanguages();
 
+            var languageId = Services.WorkContext.WorkingLanguage.Id;
+            var entityNames = await _db.UrlRecords
+                .Select(x => x.EntityName)
+                .Distinct()
+                .ToListAsync();
+
+            var resourceNamesMap = entityNames.ToDictionarySafe(x => x, x => "Common.Entity." + x);
+            var allResourceNames = resourceNamesMap.Values.ToArray();
+
+            var localizedNames = (await _db.LocaleStringResources
+                .Where(x => allResourceNames.Contains(x.ResourceName) && x.LanguageId == languageId)
+                .Select(x => new { x.ResourceName, x.ResourceValue })
+                .ToListAsync())
+                .ToDictionarySafe(x => x.ResourceName, x => x.ResourceValue);
+
+            ViewBag.EntityNames = entityNames
+                .Select(x => new SelectListItem
+                {
+                    Text = localizedNames.Get(resourceNamesMap.Get(x).EmptyNull()).NullEmpty() ?? x,
+                    Value = x,
+                    Selected = x.EqualsNoCase(entityName)
+                })
+                .ToList()
+                .OrderBy(x => x.Text)
+                .ToList();
+
             return View(model);
         }
 
@@ -79,9 +65,6 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.System.UrlRecord.Read)]
         public async Task<IActionResult> UrlRecordList(GridCommand command, UrlRecordListModel model)
         {
-            var allLanguages = _languageService.GetAllLanguages(true);
-            var defaultLanguageName = T("Admin.System.SeNames.Language.Standard");
-
             var urlRecords = await _db.UrlRecords
                 .AsNoTracking()
                 .ApplySlugFilter(model.SeName, false)
@@ -95,26 +78,14 @@ namespace Smartstore.Admin.Controllers
             var urlRecordModels = urlRecords
                 .Select(x =>
                 {
-                    string languageName;
+                    var model = new UrlRecordModel();
+                    PrepareUrlRecordModel(model, x);
 
-                    if (x.LanguageId == 0)
-                    {
-                        languageName = defaultLanguageName;
-                    }
-                    else
-                    {
-                        var language = allLanguages.FirstOrDefault(y => y.Id == x.LanguageId);
-                        languageName = language != null ? language.Name : string.Empty.NaIfEmpty();
-                    }
+                    model.SlugsPerEntity = slugsPerEntity.ContainsKey(x.Id) ? slugsPerEntity[x.Id] : 0;
+                    model.EditUrl = Url.Action("Edit", "UrlRecord", new { id = x.Id });
+                    model.FilterUrl = Url.Action("List", "UrlRecord", new { entityName = x.EntityName, entityId = x.EntityId });
 
-                    var urlRecordModel = new UrlRecordModel();
-                    PrepareUrlRecordModel(urlRecordModel, x, true);
-
-                    urlRecordModel.Language = languageName;
-                    urlRecordModel.SlugsPerEntity = slugsPerEntity.ContainsKey(x.Id) ? slugsPerEntity[x.Id] : 0;
-                    urlRecordModel.EditUrl = Url.Action("Edit", "UrlRecord", new { id = x.Id });
-                    urlRecordModel.FilterUrl = Url.Action("List", "UrlRecord", new { entityName = x.EntityName, entityId = x.EntityId });
-                    return urlRecordModel;
+                    return model;
                 })
                 .ToList();
 
@@ -138,6 +109,7 @@ namespace Smartstore.Admin.Controllers
 
             var model = new UrlRecordModel();
             PrepareUrlRecordModel(model, urlRecord);
+            PrepareAvailableLanguages();
 
             return View(model);
         }
@@ -179,6 +151,7 @@ namespace Smartstore.Admin.Controllers
             }
 
             PrepareUrlRecordModel(model, null);
+            PrepareAvailableLanguages();
 
             return View(model);
         }
@@ -230,6 +203,58 @@ namespace Smartstore.Admin.Controllers
             }
 
             return Json(new { Success = true, Count = numDeleted });
+        }
+
+        private void PrepareAvailableLanguages()
+        {
+            var allLanguages = _languageService.GetAllLanguages(true);
+
+            ViewBag.AvailableLanguages = _languageService
+                .GetAllLanguages()
+                .Select(x => new SelectListItem { Text = x.Name, Value = x.Id.ToString() })
+                .ToList();
+
+            ViewBag.AvailableLanguages.Insert(0, new SelectListItem { Text = T("Admin.System.SeNames.Language.Standard"), Value = "0" });
+        }
+
+        private void PrepareUrlRecordModel(
+            UrlRecordModel model,
+            UrlRecord urlRecord,
+            Dictionary<int, Language> allLanguages = null)
+        {
+            if (urlRecord != null)
+            {
+                allLanguages ??= _languageService.GetAllLanguages(true).ToDictionary(x => x.Id);
+
+                var localizedEntityName = Services.Localization.GetResource("Common.Entity." + urlRecord.EntityName, 0, false, string.Empty, true);
+
+                model.Id = urlRecord.Id;
+                model.Slug = urlRecord.Slug;
+                model.EntityName = urlRecord.EntityName;
+                model.LocalizedEntityName = localizedEntityName.NullEmpty() ?? urlRecord.EntityName;
+                model.EntityId = urlRecord.EntityId;
+                model.IsActive = urlRecord.IsActive;
+                model.LanguageId = urlRecord.LanguageId;
+
+                var routeValues = SlugRouteTransformer.GetRouteValuesFor(urlRecord, RouteTarget.Edit);
+                model.EntityUrl = routeValues != null
+                    ? Url.RouteUrl(routeValues)
+                    : Url.Action("Edit", urlRecord.EntityName, new { id = urlRecord.EntityId });
+
+                if (urlRecord.LanguageId == 0)
+                {
+                    model.Language = T("Admin.System.SeNames.Language.Standard");
+                }
+                else if (allLanguages.TryGetValue(urlRecord.LanguageId, out var language))
+                {
+                    model.Language = language?.Name?.NaIfEmpty();
+                    model.FlagImageUrl = Url.Content("~/images/flags/" + language.FlagImageFileName);
+                }
+                else
+                {
+                    model.Language = StringExtensions.NotAvailable;
+                }
+            }
         }
     }
 }

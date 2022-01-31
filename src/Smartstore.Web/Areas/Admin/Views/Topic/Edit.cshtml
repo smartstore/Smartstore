@@ -3,13 +3,14 @@
 @model TopicModel
 
 @{
-    ViewBag.Title = T("Admin.ContentManagement.Topics.EditTopicDetails").Value;
+    ViewBag.Title = T("Admin.ContentManagement.Topics.EditTopicDetails") + " - " + @Model.SystemName;
 }
 
 <form asp-action="Edit">
     <div class="section-header">
         <div class="title">
-            @T("Admin.ContentManagement.Topics.EditTopicDetails") - @Model.SystemName <a asp-action="List">(@T("Admin.ContentManagement.Topics.BackToList"))</a>
+            <i class="far fa-file"></i>
+            <span>@ViewBag.Title <a asp-action="List">(@T("Admin.Common.BackToList"))</a></span>
         </div>
         <div class="options">
             <button type="submit" name="save" value="save" class="btn btn-warning">

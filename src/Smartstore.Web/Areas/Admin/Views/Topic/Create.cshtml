@@ -9,7 +9,8 @@
 <form asp-action="Create">
     <div class="section-header">
         <div class="title">
-            @T("Admin.ContentManagement.Topics.AddNew") @Html.ActionLink("(" + T("Admin.ContentManagement.Topics.BackToList") + ")", "List")
+            <i class="far fa-file"></i>
+            <span>@ViewBag.Title <a asp-action="List">(@T("Admin.Common.BackToList"))</a></span>
         </div>
         <div class="options">
             <button type="submit" name="save" value="save" class="btn btn-primary">

@@ -1,4 +1,5 @@
 ﻿using Smartstore.Core.Identity;
+using Smartstore.Data.Hooks;
 
 namespace Smartstore.Core.Catalog.Products
 {
@@ -9,6 +10,7 @@ namespace Smartstore.Core.Catalog.Products
     {
         /// <summary>
         /// Updates product tags. This method commits to database.
+        /// It uses a <see cref="HookImportance.Important"/> hook scope and therefore all changes to entities should have been committed to the database before calling it.
         /// </summary>
         /// <param name="product">Product.</param>
         /// <param name="tagNames">Tag names.</param>

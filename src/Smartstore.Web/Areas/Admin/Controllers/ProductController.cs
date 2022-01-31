@@ -2160,10 +2160,12 @@ namespace Smartstore.Admin.Controllers
                 await _urlService.ApplySlugAsync(validateSlugResult);
             }
 
-            await _productTagService.UpdateProductTagsAsync(p, m.ProductTagNames);
+            await _storeMappingService.ApplyStoreMappingsAsync(p, model.SelectedStoreIds);
+            await _aclService.ApplyAclMappingsAsync(p, model.SelectedCustomerRoleIds);
 
-            await SaveStoreMappingsAsync(p, model.SelectedStoreIds);
-            await SaveAclMappingsAsync(p, model.SelectedCustomerRoleIds);
+            await _db.SaveChangesAsync();
+
+            await _productTagService.UpdateProductTagsAsync(p, m.ProductTagNames);
         }
 
         #endregion
