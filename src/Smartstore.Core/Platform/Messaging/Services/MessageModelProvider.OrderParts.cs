@@ -391,10 +391,13 @@ namespace Smartstore.Core.Messaging
             Guard.NotNull(part, nameof(part));
 
             var itemParts = new List<object>();
-
-            // TODO: (mh) (core) ToListAsync, ToMultimap, ToDictionarySafe. Debug & Test. 
             var db = _services.Resolve<SmartDbContext>();
-            var orderItems = await db.OrderItems.AsNoTracking().ApplyStandardFilter(part.OrderId).ToListAsync();
+            var orderItems = await db.OrderItems
+                .AsNoTracking()
+                .Include(x => x.Product)
+                .Include(x => x.Order)
+                .ApplyStandardFilter(part.OrderId)
+                .ToListAsync();
             var map = orderItems.ToMultimap(x => x.OrderId, x => x);
             var orderItemsDic = orderItems.ToDictionarySafe(x => x.Id);
 

@@ -70,7 +70,7 @@
                                                 <i class="far fa-list-alt"></i>
                                                 <span>@T("Account.CustomerOrders.RecurringOrders.ViewInitialOrder", item.InitialOrderId)</span>
                                             </a>
-                                            <button sm-if="item.CanCancel" type="submit" name="cancelRecurringPayment@(item.Id)" value="cancelRecurringPayment@(item.Id)" class="dropdown-item">
+                                            <button sm-if="item.CanCancel" type="submit" name="cancelRecurringPayment@(item.Id)" value="cancelRecurringPayment@(item.Id)" class="dropdown-item btn btn-link">
                                                 <i class="fa fa-times"></i>
                                                 <span>@T("Account.CustomerOrders.RecurringOrders.Cancel")</span>
                                             </button>
