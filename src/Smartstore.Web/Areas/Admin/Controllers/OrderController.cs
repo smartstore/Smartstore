@@ -24,6 +24,7 @@ using Smartstore.Core.Content.Media;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Logging;
 using Smartstore.Core.Messaging;
+using Smartstore.Core.Rules;
 using Smartstore.Core.Rules.Filters;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
@@ -193,12 +194,11 @@ namespace Smartstore.Admin.Controllers
             }
             if (model.CustomerName.HasValue())
             {
-                // InvalidOperationException: The binary operator OrElse is not defined for...
-                //orderQuery = orderQuery.ApplySearchFilter(
-                //    model.CustomerName,
-                //    LogicalRuleOperator.Or, 
-                //    x => x.BillingAddress.FirstName, 
-                //    x => x.BillingAddress.LastName);
+                orderQuery = orderQuery.ApplySearchFilter(
+                    model.CustomerName,
+                    LogicalRuleOperator.Or,
+                    x => x.BillingAddress.FirstName,
+                    x => x.BillingAddress.LastName);
 
                 orderQuery = orderQuery.Where(x => x.BillingAddress.LastName.Contains(model.CustomerName) || x.BillingAddress.FirstName.Contains(model.CustomerName));
             }
