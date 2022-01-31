@@ -346,8 +346,6 @@ namespace Smartstore.Web.Controllers
 
             if (order.AllowStoringCreditCardNumber)
             {
-                // TODO: Decryption breaks with old orders > CryptographicException: Padding is invalid and cannot be removed.
-                // (can be reproduced with order 350 from my database)
                 model.CardNumber = _encryptor.DecryptText(order.CardNumber);
                 model.MaskedCreditCardNumber = _encryptor.DecryptText(order.MaskedCreditCardNumber);
                 model.CardCvv2 = _encryptor.DecryptText(order.CardCvv2);
