@@ -54,7 +54,7 @@
 <script sm-target-zone="scripts" data-origin="tasks-grid">
     function tasksGrid_onRowClass(row) {
         return {
-            "text-muted": !row.Enabled // TODO: (mh) (core) as discussed. Disabled tasks should have a gray background-color (previously 'table-light').
+            "text-muted inactive": !row.Enabled 
         };
     }
 </script>

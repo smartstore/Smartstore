@@ -139,7 +139,7 @@ namespace Smartstore.Core.Identity
                     else if (hasLegacyName)
                     {
                         // Cookie was found with old name and could be converted thus it's a pre Smartstore 5 and after Smartstore 3 legacy cookie. So let's rename it.
-                        // Remove legacy Cookie 
+                        // Remove legacy cookie 
                         response.Cookies.Delete("CookieConsent");
                         // Add again with new name
                         _cookieConsentManager.SetConsentCookie(cookieData.AllowAnalytics, cookieData.AllowThirdParty);

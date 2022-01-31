@@ -34,6 +34,7 @@ input.form-control-plaintext {
     --dg-row-even-bg: #fff;
     --dg-row-hover-color: #{$dg-hover};
     --dg-row-active-color: #{$dg-hover};
+    --dg-row-inactive-color: #{lighten($light, 1.5%)};
     --dg-cell-padding: 13px 16px;
     --dg-cell-align: center;
     --dg-cell-justify: flex-start;
@@ -134,6 +135,11 @@ input.form-control-plaintext {
     .dg-tr.dg-edit-row {
         --dg-row-bg: var(--dg-row-active-color) !important;
         --dg-row-even-bg: var(--dg-row-active-color) !important;
+    }
+
+    .dg-tr.inactive {
+        --dg-row-bg: var(--dg-row-inactive-color) !important;
+        --dg-row-even-bg: var(--dg-row-inactive-color) !important;
     }
 
     &.dg-resizing {
