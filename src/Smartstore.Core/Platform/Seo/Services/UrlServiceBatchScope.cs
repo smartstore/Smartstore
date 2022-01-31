@@ -122,26 +122,6 @@ namespace Smartstore.Core.Seo
                         Found = found,
                         FoundIsSelf = true
                     };
-
-                    //if (foundIsSelf)
-                    //{
-                    //    return new ValidateSlugResult(slug) { WasValidated = true, Found = found, FoundIsSelf = true };
-                    //}
-
-                    //if (found != null || isReserved)
-                    //{
-                    //    // The existence of a UrlRecord instance for a given slug implies that the slug
-                    //    // needs to run through the default validation process
-                    //    // to ensure uniqueness.
-                    //    return await _urlService.ValidateSlugAsync(
-                    //        slug.Source, 
-                    //        slug.Slug, 
-                    //        null,
-                    //        slug.LanguageId.GetValueOrDefault() == 0, 
-                    //        slug.LanguageId).AsTask();
-                    //}
-
-                    //return new ValidateSlugResult(slug) { WasValidated = true };
                 });
 
             return await validatedBatch.AsyncToList(cancelToken);
