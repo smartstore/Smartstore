@@ -26,18 +26,21 @@ namespace Smartstore.Core.DataExchange.Import
         protected ILocalizedEntityService _localizedEntityService;
         protected IStoreMappingService _storeMappingService;
         protected IUrlService _urlService;
+        protected SeoSettings _seoSettings;
 
         protected EntityImporterBase(
             ICommonServices services,
             ILocalizedEntityService localizedEntityService,
             IStoreMappingService storeMappingService,
-            IUrlService urlService)
+            IUrlService urlService,
+            SeoSettings seoSettings)
         {
             _db = services.DbContext;
             _services = services;
             _localizedEntityService = localizedEntityService;
             _storeMappingService = storeMappingService;
             _urlService = urlService;
+            _seoSettings = seoSettings;
 
             // Always turn image post-processing off during imports. It can heavily decrease processing time.
             _services.MediaService.ImagePostProcessingEnabled = false;
@@ -247,7 +250,6 @@ namespace Smartstore.Core.DataExchange.Import
             using var scope = _urlService.CreateBatchScope(_db);
 
             // TODO: (core) (perf) IUrlService.ValidateSlugAsync ignores prefetched data.
-            // TODO: (core) throws SqlException "Cannot insert duplicate key row in object 'dbo.UrlRecord' with unique index 'IX_UrlRecord_Slug'" when inserting new categories\products.
 
             foreach (var row in batch)
             {
@@ -255,7 +257,11 @@ namespace Smartstore.Core.DataExchange.Import
                 {
                     if (row.TryGetDataValue("SeName", out string seName) || row.IsNew || row.NameChanged)
                     {
-                        scope.ApplySlugs(await _urlService.ValidateSlugAsync(row.Entity, seName, row.EntityDisplayName, true));
+                        scope.ApplySlugs(new ValidateSlugResult
+                        {
+                            Source = row.Entity,
+                            Slug = SeoHelper.BuildSlug(seName.NullEmpty() ?? row.EntityDisplayName, _seoSettings)
+                        });
 
                         // Process localized slugs.
                         foreach (var language in context.Languages)
@@ -265,7 +271,12 @@ namespace Smartstore.Core.DataExchange.Import
 
                             if (hasSeName || hasLocalizedName)
                             {
-                                scope.ApplySlugs(await _urlService.ValidateSlugAsync(row.Entity, seName, localizedName, false, language.Id));
+                                scope.ApplySlugs(new ValidateSlugResult
+                                {
+                                    Source = row.Entity,
+                                    Slug = SeoHelper.BuildSlug(seName.NullEmpty() ?? localizedName, _seoSettings),
+                                    LanguageId = language.Id
+                                });
                             }
                         }
                     }

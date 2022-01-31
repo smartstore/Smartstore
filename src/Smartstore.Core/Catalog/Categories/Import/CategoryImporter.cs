@@ -33,8 +33,9 @@ namespace Smartstore.Core.DataExchange.Import
             ILocalizedEntityService localizedEntityService,
             IStoreMappingService storeMappingService,
             IUrlService urlService,
-            IFolderService folderService)
-            : base(services, localizedEntityService, storeMappingService, urlService)
+            IFolderService folderService,
+            SeoSettings seoSettings)
+            : base(services, localizedEntityService, storeMappingService, urlService, seoSettings)
         {
             _folderService = folderService;
         }

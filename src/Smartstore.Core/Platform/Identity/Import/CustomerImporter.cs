@@ -30,11 +30,12 @@ namespace Smartstore.Core.DataExchange.Import
             IStoreMappingService storeMappingService,
             IUrlService urlService,
             IFolderService folderService,
+            SeoSettings seoSettings,
             CustomerSettings customerSettings,
             TaxSettings taxSettings,
             PrivacySettings privacySettings,
             DateTimeSettings dateTimeSettings)
-            : base(services, localizedEntityService, storeMappingService, urlService)
+            : base(services, localizedEntityService, storeMappingService, urlService, seoSettings)
         {
             _folderService = folderService;
             _customerSettings = customerSettings;
