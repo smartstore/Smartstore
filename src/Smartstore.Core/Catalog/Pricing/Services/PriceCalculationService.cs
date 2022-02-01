@@ -359,10 +359,9 @@ namespace Smartstore.Core.Catalog.Pricing
 
         private Money? ConvertAmount(decimal? amount, CalculatorContext context, TaxRate taxRate, bool isFinalPrice, out Tax? tax)
         {
-            tax = null;
-
             if (amount == null)
             {
+                tax = null;
                 return null;
             }
 
@@ -374,18 +373,11 @@ namespace Smartstore.Core.Catalog.Pricing
                 amount = 0;
             }
 
-            if (amount != 0)
-            {
-                tax = options.IsGrossPrice
-                     ? _taxCalculator.CalculateTaxFromGross(amount.Value, taxRate, options.TaxInclusive, options.RoundingCurrency)
-                     : _taxCalculator.CalculateTaxFromNet(amount.Value, taxRate, options.TaxInclusive, options.RoundingCurrency);
+            tax = options.IsGrossPrice
+                 ? _taxCalculator.CalculateTaxFromGross(amount.Value, taxRate, options.TaxInclusive, options.RoundingCurrency)
+                 : _taxCalculator.CalculateTaxFromNet(amount.Value, taxRate, options.TaxInclusive, options.RoundingCurrency);
 
-                amount = tax.Value.Price;
-            }
-            else
-            {
-                tax = Tax.Zero;
-            }
+            amount = tax.Value.Price;
 
             var money = _currencyService.ConvertFromPrimaryCurrency(amount.Value, options.TargetCurrency);
 
