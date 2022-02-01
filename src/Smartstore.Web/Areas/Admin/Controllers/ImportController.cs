@@ -599,19 +599,14 @@ namespace Smartstore.Admin.Controllers
                 return;
             }
 
-            CsvConfiguration csvConfiguration = null;
+            var csvConfiguration = (profile.FileType == ImportFileType.Csv
+                ? new CsvConfigurationConverter().ConvertFrom<CsvConfiguration>(profile.FileTypeConfiguration)
+                : null) ?? CsvConfiguration.ExcelFriendlyConfiguration;
 
-            if (profile.FileType == ImportFileType.Csv)
+            model.CsvConfiguration = new CsvConfigurationModel(csvConfiguration)
             {
-                var csvConverter = new CsvConfigurationConverter();
-                csvConfiguration = csvConverter.ConvertFrom<CsvConfiguration>(profile.FileTypeConfiguration) ?? CsvConfiguration.ExcelFriendlyConfiguration;
-            }
-            else
-            {
-                csvConfiguration = CsvConfiguration.ExcelFriendlyConfiguration;
-            }
-
-            model.CsvConfiguration = new CsvConfigurationModel(csvConfiguration);
+                Validate = profile.FileType == ImportFileType.Csv
+            };
 
             // Common configuration.
             var extraData = XmlHelper.Deserialize<ImportExtraData>(profile.ExtraData);

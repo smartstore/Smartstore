@@ -22,6 +22,8 @@ namespace Smartstore.Admin.Models.Import
             Escape = Regex.Escape(config.Escape.ToString());
         }
 
+        public bool Validate { get; set; }
+
         [LocalizedDisplay("*QuoteAllFields")]
         public bool QuoteAllFields { get; set; }
 
@@ -61,25 +63,28 @@ namespace Smartstore.Admin.Models.Import
     {
         public CsvConfigurationValidator(Localizer T)
         {
-            RuleFor(x => x.Delimiter)
-                .Must(x => !CsvConfiguration.PresetCharacters.Contains(x.ToChar(true)))
-                .WithMessage(T("Admin.DataExchange.Csv.Delimiter.Validation"));
+            When(x => x.Validate, () =>
+            {
+                RuleFor(x => x.Delimiter)
+                    .Must(x => !CsvConfiguration.PresetCharacters.Contains(x.ToChar(true)))
+                    .WithMessage(T("Admin.DataExchange.Csv.Delimiter.Validation"));
 
-            RuleFor(x => x.Quote)
-                .Must(x => !CsvConfiguration.PresetCharacters.Contains(x.ToChar(true)))
-                .WithMessage(T("Admin.DataExchange.Csv.Quote.Validation"));
+                RuleFor(x => x.Quote)
+                    .Must(x => !CsvConfiguration.PresetCharacters.Contains(x.ToChar(true)))
+                    .WithMessage(T("Admin.DataExchange.Csv.Quote.Validation"));
 
-            RuleFor(x => x.Escape)
-                .Must(x => !CsvConfiguration.PresetCharacters.Contains(x.ToChar(true)))
-                .WithMessage(T("Admin.DataExchange.Csv.Escape.Validation"));
+                RuleFor(x => x.Escape)
+                    .Must(x => !CsvConfiguration.PresetCharacters.Contains(x.ToChar(true)))
+                    .WithMessage(T("Admin.DataExchange.Csv.Escape.Validation"));
 
-            RuleFor(x => x.Escape)
-                .Must((model, x) => x != model.Delimiter)
-                .WithMessage(T("Admin.DataExchange.Csv.EscapeDelimiter.Validation"));
+                RuleFor(x => x.Escape)
+                    .Must((model, x) => x != model.Delimiter)
+                    .WithMessage(T("Admin.DataExchange.Csv.EscapeDelimiter.Validation"));
 
-            RuleFor(x => x.Quote)
-                .Must((model, x) => x != model.Delimiter)
-                .WithMessage(T("Admin.DataExchange.Csv.QuoteDelimiter.Validation"));
+                RuleFor(x => x.Quote)
+                    .Must((model, x) => x != model.Delimiter)
+                    .WithMessage(T("Admin.DataExchange.Csv.QuoteDelimiter.Validation"));
+            });
         }
     }
 }

@@ -4,6 +4,8 @@
     var showGroupCaption = ViewData["ShowGroupCaption"] != null && (bool)ViewData["ShowGroupCaption"];
 }
 
+<input type="hidden" asp-for="Validate" />
+
 <div class="adminContent">
     <div sm-if="showGroupCaption" class="adminRow adminSeparator">
         <div class="admin-config-group">
