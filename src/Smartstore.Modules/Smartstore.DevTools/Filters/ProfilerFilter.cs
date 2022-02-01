@@ -40,7 +40,7 @@ namespace Smartstore.DevTools.Filters
             var viewName = viewResult?.ViewName;
             if (viewName.IsEmpty())
             {
-                var action = (context.RouteData.Values.GetActionName()).EmptyNull();
+                var action = context.RouteData.Values.GetActionName().EmptyNull();
                 viewName = action;
             }
 

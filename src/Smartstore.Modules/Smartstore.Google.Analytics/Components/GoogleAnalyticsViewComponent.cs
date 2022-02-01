@@ -23,7 +23,8 @@ namespace Smartstore.Google.Analytics.Components
         private readonly IProductAttributeMaterializer _productAttributeMaterializer;
         private readonly ICookieConsentManager _cookieConsentManager;
 
-        public GoogleAnalyticsViewComponent(SmartDbContext db,
+        public GoogleAnalyticsViewComponent(
+            SmartDbContext db,
             GoogleAnalyticsSettings settings,
             ICategoryService categoryService,
             IProductAttributeMaterializer productAttributeMaterializer,

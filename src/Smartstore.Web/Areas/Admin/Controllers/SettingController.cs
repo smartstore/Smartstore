@@ -326,7 +326,6 @@ namespace Smartstore.Admin.Controllers
 
             // Necessary before mapping
             var resetUserSeoCharacterTable = seoSettings.SeoNameCharConversion != model.SeoSettings.SeoNameCharConversion;
-            var clearSeoFriendlyUrls = localizationSettings.SeoFriendlyUrlsForLanguagesEnabled != model.LocalizationSettings.SeoFriendlyUrlsForLanguagesEnabled;
             var prevPdfLogoId = pdfSettings.LogoPictureId;
 
             // Map model to entities
@@ -379,12 +378,6 @@ namespace Smartstore.Admin.Controllers
             {
                 SeoHelper.ResetUserSeoCharacterTable();
             }
-
-            // TODO: (mh) (core) Do this right, if still needed.
-            //if (clearSeoFriendlyUrls)
-            //{
-            //    LocalizedRoute.ClearSeoFriendlyUrlsCachedValue();
-            //}
 
             #endregion
 
