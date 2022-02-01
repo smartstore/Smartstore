@@ -382,6 +382,10 @@ namespace Smartstore.Core.Catalog.Pricing
 
                 amount = tax.Value.Price;
             }
+            else
+            {
+                tax = Tax.Zero;
+            }
 
             var money = _currencyService.ConvertFromPrimaryCurrency(amount.Value, options.TargetCurrency);
 
