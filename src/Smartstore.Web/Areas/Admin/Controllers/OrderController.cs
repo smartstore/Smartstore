@@ -162,7 +162,7 @@ namespace Smartstore.Admin.Controllers
         }
 
         [Permission(Permissions.Order.Read)]
-        public async Task<IActionResult> OrderList(GridCommand command, OrderListModel model)
+        public async Task<IActionResult> OrderList(GridCommand command, OrderListModel model, int? productId = null)
         {
             var dtHelper = Services.DateTimeHelper;
             var viaShippingMethodString = T("Admin.Order.ViaShippingMethod").Value;
@@ -187,6 +187,11 @@ namespace Smartstore.Admin.Controllers
                 .ApplyAuditDateFilter(startDateUtc, endDateUtc)
                 .ApplyStatusFilter(model.OrderStatusIds, model.PaymentStatusIds, model.ShippingStatusIds)
                 .ApplyPaymentFilter(paymentMethodSystemnames);
+
+            if (productId != null && productId > 0)
+            {
+                orderQuery = orderQuery.Where(x => x.OrderItems.Any(i => i.ProductId == productId));
+            }
 
             if (model.CustomerEmail.HasValue())
             {

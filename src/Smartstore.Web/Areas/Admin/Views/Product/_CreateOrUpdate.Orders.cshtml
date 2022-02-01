@@ -1,0 +1,15 @@
+﻿@model ProductModel
+
+@if (Model.HasOrders)
+{
+    var gridViewData = new ViewDataDictionary(this.ViewData);
+    gridViewData["ProductId"] = Model.Id;
+
+    <partial name="~/Areas/Admin/Views/Order/Grids/_Grid.Orders.cshtml" model="null" view-data="gridViewData" />
+}
+else
+{
+    <div class="alert alert-info">
+        @T("Admin.Catalog.Products.Orders.NoOrdersAvailable")
+    </div>
+}

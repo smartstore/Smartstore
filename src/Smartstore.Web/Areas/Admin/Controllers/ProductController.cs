@@ -1537,6 +1537,7 @@ namespace Smartstore.Admin.Controllers
             model.NumberOfAvailableProductAttributes = await _db.ProductAttributes.CountAsync();
             model.NumberOfAvailableManufacturers = await _db.Manufacturers.CountAsync();
             model.NumberOfAvailableCategories = await _db.Categories.CountAsync();
+            model.HasOrders = _db.Orders.SelectMany(x => x.OrderItems).Any(i => i.ProductId == product.Id);
 
             // Copy product.
             if (product != null)

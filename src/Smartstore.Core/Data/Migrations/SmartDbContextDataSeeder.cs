@@ -78,6 +78,10 @@ namespace Smartstore.Core.Data.Migrations
 
             // TODO: (core) Delete all Telerik language resources (???)
 
+            builder.AddOrUpdate("Admin.Catalog.Products.Orders.NoOrdersAvailable",
+                "There are no orders for this product yet.", 
+                "Für dieses Produkt existieren noch keine Bestellungen.");
+            
             builder.Delete("Admin.Configuration.Stores.Fields.PrimaryStoreCurrencyId");
             builder.Delete("Admin.Configuration.Stores.Fields.PrimaryStoreCurrencyId.Hint");
             builder.Delete("Admin.Configuration.Stores.Fields.PrimaryExchangeRateCurrencyId");

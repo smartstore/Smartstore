@@ -2,6 +2,7 @@
 
 @{
     var parentModel = ViewData["Parent"] as OrderListModel;
+    var productId = (int?)ViewData["ProductId"];
 }
 
 <datagrid id="orders-grid" version="2"
@@ -11,34 +12,36 @@
           sticky-footer="false"
           preserve-grid-state="true" preserve-command-state="true"
           allow-column-reordering="true">
-    <datasource read="@Url.Action("OrderList")" />
+    <datasource read="@Url.Action("OrderList", "Order", new { productId })" />
     <paging position="Bottom" show-size-chooser="true" />
     <sorting allow-unsort="true" allow-multisort="false">
         <sort by="CreatedOn" by-entity-member="CreatedOnUtc" descending="true" />
     </sorting>
     <toolbar>
-        <toolbar-group>
-            <button datagrid-action="DataGridToolAction.ToggleSearchPanel" type="button" class="btn btn-light btn-icon">
-                <i class="fa fa-fw fa-filter"></i>
-            </button>
-        </toolbar-group>
+        @if (productId == null)
+        {
+            <toolbar-group>
+                <button datagrid-action="DataGridToolAction.ToggleSearchPanel" type="button" class="btn btn-light btn-icon">
+                    <i class="fa fa-fw fa-filter"></i>
+                </button>
+            </toolbar-group>
 
-        <toolbar-group class="dropdown">
-            <button type="button" class="btn btn-light btn-flat dropdown-toggle" data-toggle="dropdown" data-boundary="window">
-                @T("Admin.Common.Export.PDF")
-            </button>
-            <div class="dropdown-menu">
-                <a href="javascript:;" class="dropdown-item process-orders" v-bind:class="{ disabled: !grid.hasSelection }" data-url="@Url.Action("ExportPdf")">
-                    <i class="far fa-fw fa-file-pdf"></i>
-                    <span class="order-process-title">@T("Admin.Common.ExportToPdf.Selected")</span>
-                </a>
-                <a href="javascript:;" class="dropdown-item process-orders all-allowed" data-url="@Url.Action("ExportPdf")" data-msg="@T("Admin.Common.AskToProceed")">
-                    <i class="far fa-fw fa-file-pdf"></i>
-                    <span class="order-process-title">@T("Admin.Common.ExportToPdf.All")</span>
-                </a>
-            </div>
-        </toolbar-group>
-
+            <toolbar-group class="dropdown">
+                <button type="button" class="btn btn-light btn-flat dropdown-toggle" data-toggle="dropdown" data-boundary="window">
+                    @T("Admin.Common.Export.PDF")
+                </button>
+                <div class="dropdown-menu">
+                    <a href="javascript:;" class="dropdown-item process-orders" v-bind:class="{ disabled: !grid.hasSelection }" data-url="@Url.Action("ExportPdf", "Order")">
+                        <i class="far fa-fw fa-file-pdf"></i>
+                        <span class="order-process-title">@T("Admin.Common.ExportToPdf.Selected")</span>
+                    </a>
+                    <a href="javascript:;" class="dropdown-item process-orders all-allowed" data-url="@Url.Action("ExportPdf", "Order")" data-msg="@T("Admin.Common.AskToProceed")">
+                        <i class="far fa-fw fa-file-pdf"></i>
+                        <span class="order-process-title">@T("Admin.Common.ExportToPdf.All")</span>
+                    </a>
+                </div>
+            </toolbar-group>
+        }
         <toolbar-group class="dropdown omega border-right-0 mr-0 pr-0 ">
             <button datagrid-action="DataGridToolAction.ReactToSelection" class="btn btn-light btn-flat dropdown-toggle no-chevron" data-toggle="dropdown" data-boundary="window">
                 <i class="fa fa-fw fa-ellipsis-h"></i>
@@ -47,11 +50,11 @@
                 <div class="dropdown-header h6 text-uppercase">
                     @T("Admin.Orders.Fields.OrderStatus")
                 </div>
-                <a href="javascript:;" class="dropdown-item process-orders" data-url="@Url.Action("ProcessOrder", new { operation = "complete" })">
+                <a href="javascript:;" class="dropdown-item process-orders" data-url="@Url.Action("ProcessOrder", "Order", new { operation = "complete" })">
                     <i class="fa fa-fw fa-check"></i>
                     <span class="order-process-title">@T("Enums.OrderStatus.Complete")</span>
                 </a>
-                <a href="javascript:;" class="dropdown-item process-orders" data-url="@Url.Action("ProcessOrder", new { operation = "cancel" })">
+                <a href="javascript:;" class="dropdown-item process-orders" data-url="@Url.Action("ProcessOrder", "Order", new { operation = "cancel" })">
                     <i class="fa fa-fw fa-times"></i>
                     <span class="order-process-title">@T("Admin.Orders.Fields.OrderStatus.Cancel")</span>
                 </a>
@@ -59,27 +62,27 @@
                 <div class="dropdown-header h6 text-uppercase">
                     @T("Admin.Orders.Fields.PaymentStatus")
                 </div>
-                <a href="javascript:;" class="dropdown-item process-orders" data-url="@Url.Action("ProcessOrder", new { operation = "markpaid" })" title="@T("Admin.Orders.Fields.MarkAsPaid.Hint")">
+                <a href="javascript:;" class="dropdown-item process-orders" data-url="@Url.Action("ProcessOrder", "Order", new { operation = "markpaid" })" title="@T("Admin.Orders.Fields.MarkAsPaid.Hint")">
                     <i class="fa fa-fw"></i>
                     <span class="order-process-title">@T("Admin.Orders.Fields.MarkAsPaid")</span>
                 </a>
-                <a href="javascript:;" class="dropdown-item process-orders" data-url="@Url.Action("ProcessOrder", new { operation = "capture" })" title="@T("Admin.Orders.Fields.Capture.Hint")">
+                <a href="javascript:;" class="dropdown-item process-orders" data-url="@Url.Action("ProcessOrder", "Order", new { operation = "capture" })" title="@T("Admin.Orders.Fields.Capture.Hint")">
                     <i class="fas fa-fw fa-euro-sign"></i>
                     <span class="order-process-title">@T("Admin.Orders.Fields.Capture")</span>
                 </a>
-                <a href="javascript:;" class="dropdown-item process-orders" data-url="@Url.Action("ProcessOrder", new { operation = "refundoffline" })" title="@T("Admin.Orders.Fields.RefundOffline.Hint")">
+                <a href="javascript:;" class="dropdown-item process-orders" data-url="@Url.Action("ProcessOrder", "Order", new { operation = "refundoffline" })" title="@T("Admin.Orders.Fields.RefundOffline.Hint")">
                     <i class="fa fa-fw"></i>
                     <span class="order-process-title">@T("Admin.Orders.Fields.RefundOffline")</span>
                 </a>
-                <a href="javascript:;" class="dropdown-item process-orders" data-url="@Url.Action("ProcessOrder", new { operation = "refund" })" title="@T("Admin.Orders.Fields.Refund.Hint")">
+                <a href="javascript:;" class="dropdown-item process-orders" data-url="@Url.Action("ProcessOrder", "Order", new { operation = "refund" })" title="@T("Admin.Orders.Fields.Refund.Hint")">
                     <i class="fas fa-fw fa-undo-alt"></i>
                     <span class="order-process-title">@T("Admin.Orders.Fields.Refund")</span>
                 </a>
-                <a href="javascript:;" class="dropdown-item process-orders" data-url="@Url.Action("ProcessOrder", new { operation = "voidoffline" })" title="@T("Admin.Orders.Fields.VoidOffline.Hint")">
+                <a href="javascript:;" class="dropdown-item process-orders" data-url="@Url.Action("ProcessOrder", "Order", new { operation = "voidoffline" })" title="@T("Admin.Orders.Fields.VoidOffline.Hint")">
                     <i class="fa fa-fw"></i>
                     <span class="order-process-title">@T("Admin.Orders.Fields.VoidOffline")</span>
                 </a>
-                <a href="javascript:;" class="dropdown-item process-orders" data-url="@Url.Action("ProcessOrder", new { operation = "void" })" title="@T("Admin.Orders.Fields.Void.Hint")">
+                <a href="javascript:;" class="dropdown-item process-orders" data-url="@Url.Action("ProcessOrder", "Order", new { operation = "void" })" title="@T("Admin.Orders.Fields.Void.Hint")">
                     <i class="fa fa-fw fa-times"></i>
                     <span class="order-process-title">@T("Admin.Orders.Fields.Void")</span>
                 </a>
@@ -88,9 +91,12 @@
 
         <zone name="datagrid_toolbar_after"></zone>
     </toolbar>
-    <search-panel>
-        <partial name="Grids/_Grid.Orders.Search" model="parentModel" />
-    </search-panel>
+    @if (productId == null)
+    {
+        <search-panel>
+            <partial name="~/Areas/Admin/Views/Order/Grids/_Grid.Orders.Search.cshtml" model="parentModel" />
+        </search-panel>
+    }
     <columns>
         @* TODO: (core) Localization issue: "Auftragsnummer" very misleading, especially if it's equal to "OrderNumber" most of the time. *@
         <column for="Id" halign="center" visible="false" type="string" />
@@ -165,15 +171,16 @@
             </footer-template>
         </column>
     </columns>
+
     <row-commands>
         <div class="dropdown-header h6 text-uppercase">
             @T("Admin.Orders.Fields.OrderStatus")
         </div>
-        <a datarow-action="DataRowAction.Custom" class="process-orders" :data-key="item.row.Id" data-url="@Url.Action("ProcessOrder", new { operation = "complete" })">
+        <a datarow-action="DataRowAction.Custom" class="process-orders" :data-key="item.row.Id" data-url="@Url.Action("ProcessOrder", "Order", new { operation = "complete" })">
             <i class="fa fa-fw fa-check"></i>
             <span class="order-process-title">@T("Enums.OrderStatus.Complete")</span>
         </a>
-        <a href="javascript:;" class="dropdown-item process-orders" :data-key="item.row.Id" data-url="@Url.Action("ProcessOrder", new { operation = "cancel" })">
+        <a href="javascript:;" class="dropdown-item process-orders" :data-key="item.row.Id" data-url="@Url.Action("ProcessOrder", "Order", new { operation = "cancel" })">
             <i class="fa fa-fw fa-times"></i>
             <span class="order-process-title">@T("Admin.Orders.Fields.OrderStatus.Cancel")</span>
         </a>
@@ -181,32 +188,32 @@
         <div class="dropdown-header h6 text-uppercase">
             @T("Admin.Orders.Fields.PaymentStatus")
         </div>
-        <a href="javascript:;" class="dropdown-item process-orders" :data-key="item.row.Id" data-url="@Url.Action("ProcessOrder", new { operation = "markpaid" })"
+        <a href="javascript:;" class="dropdown-item process-orders" :data-key="item.row.Id" data-url="@Url.Action("ProcessOrder", "Order", new { operation = "markpaid" })"
            title="@T("Admin.Orders.Fields.MarkAsPaid.Hint")">
             <i class="fa fa-fw"></i>
             <span class="order-process-title">@T("Admin.Orders.Fields.MarkAsPaid")</span>
         </a>
-        <a href="javascript:;" class="dropdown-item process-orders" :data-key="item.row.Id" data-url="@Url.Action("ProcessOrder", new { operation = "capture" })"
+        <a href="javascript:;" class="dropdown-item process-orders" :data-key="item.row.Id" data-url="@Url.Action("ProcessOrder", "Order", new { operation = "capture" })"
            title="@T("Admin.Orders.Fields.Capture.Hint")">
             <i class="fas fa-fw fa-euro-sign"></i>
             <span class="order-process-title">@T("Admin.Orders.Fields.Capture")</span>
         </a>
-        <a href="javascript:;" class="dropdown-item process-orders" :data-key="item.row.Id" data-url="@Url.Action("ProcessOrder", new { operation = "refundoffline" })"
+        <a href="javascript:;" class="dropdown-item process-orders" :data-key="item.row.Id" data-url="@Url.Action("ProcessOrder", "Order", new { operation = "refundoffline" })"
            title="@T("Admin.Orders.Fields.RefundOffline.Hint")">
             <i class="fa fa-fw"></i>
             <span class="order-process-title">@T("Admin.Orders.Fields.RefundOffline")</span>
         </a>
-        <a href="javascript:;" class="dropdown-item process-orders" :data-key="item.row.Id" data-url="@Url.Action("ProcessOrder", new { operation = "refund" })"
+        <a href="javascript:;" class="dropdown-item process-orders" :data-key="item.row.Id" data-url="@Url.Action("ProcessOrder", "Order", new { operation = "refund" })"
            title="@T("Admin.Orders.Fields.Refund.Hint")">
             <i class="fas fa-fw fa-undo-alt"></i>
             <span class="order-process-title">@T("Admin.Orders.Fields.Refund")</span>
         </a>
-        <a href="javascript:;" class="dropdown-item process-orders" :data-key="item.row.Id" data-url="@Url.Action("ProcessOrder", new { operation = "voidoffline" })"
+        <a href="javascript:;" class="dropdown-item process-orders" :data-key="item.row.Id" data-url="@Url.Action("ProcessOrder", "Order", new { operation = "voidoffline" })"
            title="@T("Admin.Orders.Fields.VoidOffline.Hint")">
             <i class="fa fa-fw"></i>
             <span class="order-process-title">@T("Admin.Orders.Fields.VoidOffline")</span>
         </a>
-        <a href="javascript:;" class="dropdown-item process-orders" :data-key="item.row.Id" data-url="@Url.Action("ProcessOrder", new { operation = "void" })"
+        <a href="javascript:;" class="dropdown-item process-orders" :data-key="item.row.Id" data-url="@Url.Action("ProcessOrder", "Order", new { operation = "void" })"
            title="@T("Admin.Orders.Fields.Void.Hint")">
             <i class="fa fa-fw fa-times"></i>
             <span class="order-process-title">@T("Admin.Orders.Fields.Void")</span>
@@ -214,7 +221,7 @@
     </row-commands>
 </datagrid>
 
-<script sm-target-zone="scripts" data-origin="orders-grid">
+<script data-origin="orders-grid">
     $(function () {
 
         // Order processing commands (order and payment status, PDF export...).

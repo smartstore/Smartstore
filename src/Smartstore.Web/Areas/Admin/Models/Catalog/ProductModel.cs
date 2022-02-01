@@ -261,6 +261,7 @@ namespace Smartstore.Admin.Models.Catalog
         public int NumberOfAvailableCategories { get; set; }
         public int NumberOfAvailableManufacturers { get; set; }
         public int NumberOfAvailableProductAttributes { get; set; }
+        public bool HasOrders { get; set; }
 
         //Pictures.
         [LocalizedDisplay("*HasPreviewPicture")]
