@@ -56,6 +56,7 @@ namespace Smartstore.Admin.Models.Import
         [LocalizedDisplay("*FolderName")]
         public string FolderName { get; set; }
 
+        public ImportFileType FileType { get; set; }
         public CsvConfigurationModel CsvConfiguration { get; set; }
         public ExtraDataModel ExtraData { get; set; } = new();
 

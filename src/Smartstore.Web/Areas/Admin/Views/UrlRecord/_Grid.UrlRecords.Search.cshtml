@@ -20,5 +20,5 @@
 </div>
 <div class="form-group">
     <smart-label asp-for="LanguageId" />
-    <select asp-for="LanguageId" asp-items="ViewBag.AvailableLanguages"></select>
+    <select asp-for="LanguageId" asp-items="ViewBag.AvailableLanguages" asp-placeholder="@T("Common.Unspecified")"></select>
 </div>

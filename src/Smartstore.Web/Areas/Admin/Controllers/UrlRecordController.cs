@@ -68,14 +68,14 @@ namespace Smartstore.Admin.Controllers
             var urlRecords = await _db.UrlRecords
                 .AsNoTracking()
                 .ApplySlugFilter(model.SeName, false)
-                .ApplyEntityFilter(model.EntityName, model.EntityId ?? 0, model.LanguageId ?? 0, model.IsActive)
+                .ApplyEntityFilter(model.EntityName, model.EntityId ?? 0, model.LanguageId, model.IsActive)
                 .ApplyGridCommand(command)
                 .ToPagedList(command)
                 .LoadAsync();
 
-            var slugsPerEntity = await _urlService.CountSlugsPerEntityAsync(urlRecords.Select(x => x.Id).Distinct().ToArray());
+            var slugsPerEntity = await _urlService.CountSlugsPerEntityAsync(urlRecords.ToDistinctArray(x => x.Id));
 
-            var urlRecordModels = urlRecords
+            var models = urlRecords
                 .Select(x =>
                 {
                     var model = new UrlRecordModel();
@@ -89,13 +89,11 @@ namespace Smartstore.Admin.Controllers
                 })
                 .ToList();
 
-            var gridModel = new GridModel<UrlRecordModel>
+            return Json(new GridModel<UrlRecordModel>
             {
-                Rows = urlRecordModels,
-                Total = await urlRecords.GetTotalCountAsync()
-            };
-
-            return Json(gridModel);
+                Rows = models,
+                Total = urlRecords.TotalCount
+            });
         }
 
         [Permission(Permissions.System.UrlRecord.Read)]

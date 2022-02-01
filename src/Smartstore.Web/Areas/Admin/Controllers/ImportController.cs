@@ -582,6 +582,7 @@ namespace Smartstore.Admin.Controllers
             model.FolderName = dir.Name;
             model.EntityTypeName = await Services.Localization.GetLocalizedEnumAsync(profile.EntityType);
             model.ExistingFiles = await _importProfileService.GetImportFilesAsync(profile);
+            model.FileType = profile.FileType;
 
             foreach (var file in model.ExistingFiles.Where(x => x.RelatedType.HasValue))
             {
@@ -604,13 +605,13 @@ namespace Smartstore.Admin.Controllers
             {
                 var csvConverter = new CsvConfigurationConverter();
                 csvConfiguration = csvConverter.ConvertFrom<CsvConfiguration>(profile.FileTypeConfiguration) ?? CsvConfiguration.ExcelFriendlyConfiguration;
-
-                model.CsvConfiguration = new CsvConfigurationModel(csvConfiguration);
             }
             else
             {
                 csvConfiguration = CsvConfiguration.ExcelFriendlyConfiguration;
             }
+
+            model.CsvConfiguration = new CsvConfigurationModel(csvConfiguration);
 
             // Common configuration.
             var extraData = XmlHelper.Deserialize<ImportExtraData>(profile.ExtraData);

@@ -405,10 +405,6 @@ namespace Smartstore.Core.Seo
 
             if (string.IsNullOrWhiteSpace(result.Slug))
             {
-                // TODO: (core) the case "disable the previous active URL record" is missing here (updating UrlRecord.IsActive from 'true' to 'false').
-                // Compare with Classic > UrlRecordService > line 392.
-                // This way, the localized 'URL Alias' cannot be removed using the localized editor.
-
                 // Disable the previous active URL record.
                 var currentActive = await GetActiveEntryFromStoreAsync();
                 if (currentActive != null)
@@ -443,6 +439,13 @@ namespace Smartstore.Core.Seo
 
                 if (entry == null || !result.FoundIsSelf)
                 {
+                    // Disable the previous active URL record.
+                    var currentActive = await GetActiveEntryFromStoreAsync();
+                    if (currentActive != null)
+                    {
+                        currentActive.IsActive = false;
+                    }
+
                     // Create new entry because no entry was found or found one refers to another entity.
                     // Because unvalidated slugs cannot be passed to this method we assume slug uniqueness.
                     entry = new UrlRecord
@@ -488,7 +491,7 @@ namespace Smartstore.Core.Seo
                             return record.IsTransientRecord() ? null : record;
                         }
                     }
-                    
+
                     return await _db.UrlRecords
                         .ApplyEntityFilter(result.Source, languageId, true)
                         .FirstOrDefaultAsync();

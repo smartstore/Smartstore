@@ -90,6 +90,7 @@ namespace Smartstore.Core.Seo
                         return slug;
                     }
 
+                    ValidateSlugResult result;
                     var found = unvalidatedSlugsMap.Get(slug.Slug);
                     var foundIsSelf = _urlService.FoundRecordIsSelf(slug.Source, found, slug.LanguageId);
                     var isReserved = _urlService._seoSettings.ReservedUrlRecordSlugs.Contains(slug.Slug);
@@ -99,29 +100,35 @@ namespace Smartstore.Core.Seo
                     {
                         // The existence of a UrlRecord instance for a given slug implies that the slug
                         // needs to run through the default validation process to ensure uniqueness.
-                        return await _urlService.ValidateSlugAsync(
+                        result = await _urlService.ValidateSlugAsync(
                             slug.Source,
                             slug.Slug,
                             null,
                             slug.LanguageId.GetValueOrDefault() == 0,
                             slug.LanguageId).AsTask();
                     }
-
-                    _urlService._extraSlugLookup[slug.Slug] = new UrlRecord
+                    else
                     {
-                        EntityId = slug.Source.Id,
-                        EntityName = slug.EntityName,
-                        Slug = slug.Slug,
-                        LanguageId = slug.LanguageId ?? 0,
+                        result = new ValidateSlugResult(slug)
+                        {
+                            WasValidated = true,
+                            Found = found,
+                            FoundIsSelf = true
+                        };
+                    }
+
+                    //$"{slug.Source.Id} {slug.Slug} -> {result.Slug}: {foundIsSelf == false} {found != null} {isReserved} {alreadyProcessed}".Dump();
+
+                    _urlService._extraSlugLookup[result.Slug] = new UrlRecord
+                    {
+                        EntityId = result.Source.Id,
+                        EntityName = result.EntityName,
+                        Slug = result.Slug,
+                        LanguageId = result.LanguageId ?? 0,
                         IsActive = true
                     };
 
-                    return new ValidateSlugResult(slug) 
-                    { 
-                        WasValidated = true, 
-                        Found = found,
-                        FoundIsSelf = true
-                    };
+                    return result;
                 });
 
             return await validatedBatch.AsyncToList(cancelToken);

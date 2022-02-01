@@ -209,7 +209,7 @@
 	</div>
 </div>
 
-@if (Model.CsvConfiguration != null)
+@if (Model.FileType == ImportFileType.Csv)
 {
     var configViewData = new ViewDataDictionary(new EmptyModelMetadataProvider(), new ModelStateDictionary());
 	configViewData["ShowGroupCaption"] = true;

@@ -257,37 +257,40 @@ namespace Smartstore.Core.DataExchange.Import
 
                 foreach (var keyName in context.KeyFieldNames)
                 {
-                    var keyValue = row.GetDataValue<string>(keyName);
-                    if (keyValue.HasValue() || id > 0)
+                    if (keyName == "Id")
                     {
-                        switch (keyName)
+                        product = await _db.Products.FindByIdAsync(id, true, context.CancelToken);
+                    }
+                    else
+                    {
+                        var keyValue = row.GetDataValue<string>(keyName).TrimSafe();
+                        if (keyValue.HasValue())
                         {
-                            case "Id":
-                                product = await _db.Products.FindByIdAsync(id, true, context.CancelToken);
-                                break;
-                            case "Sku":
-                                product = await _db.Products
-                                    .ApplySkuFilter(keyValue)
-                                    .FirstOrDefaultAsync(context.CancelToken);
-                                break;
-                            case "Gtin":
-                                product = await _db.Products
-                                    .ApplyGtinFilter(keyValue)
-                                    .FirstOrDefaultAsync(context.CancelToken);
-                                break;
-                            case "ManufacturerPartNumber":
-                                product = await _db.Products
-                                    .ApplyMpnFilter(keyValue)
-                                    .FirstOrDefaultAsync(context.CancelToken);
-                                break;
-                            case "Name":
-                                keyValue = keyValue.Trim();
-                                product = await _db.Products
-                                    .AsQueryable()
-                                    .Where(x => x.Name == keyValue)
-                                    .OrderBy(x => x.Id)
-                                    .FirstOrDefaultAsync(context.CancelToken);
-                                break;
+                            switch (keyName)
+                            {
+                                case "Sku":
+                                    product = await _db.Products
+                                        .ApplySkuFilter(keyValue)
+                                        .FirstOrDefaultAsync(context.CancelToken);
+                                    break;
+                                case "Gtin":
+                                    product = await _db.Products
+                                        .ApplyGtinFilter(keyValue)
+                                        .FirstOrDefaultAsync(context.CancelToken);
+                                    break;
+                                case "ManufacturerPartNumber":
+                                    product = await _db.Products
+                                        .ApplyMpnFilter(keyValue)
+                                        .FirstOrDefaultAsync(context.CancelToken);
+                                    break;
+                                case "Name":
+                                    product = await _db.Products
+                                        .AsQueryable()
+                                        .Where(x => x.Name == keyValue)
+                                        .OrderBy(x => x.Id)
+                                        .FirstOrDefaultAsync(context.CancelToken);
+                                    break;
+                            }
                         }
                     }
 
