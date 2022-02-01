@@ -533,7 +533,11 @@ namespace Smartstore.Web.Controllers
                 }
                 else
                 {
-                    NotifyError(T("Account.PasswordRecoveryConfirm.InvalidEmailOrToken"));
+                    foreach (var error in response.Errors)
+                    {
+                        NotifyError(error.Description);
+                    }
+
                     return RedirectToAction("PasswordRecoveryConfirm", new { token = model.Token, email = model.Email });
                 }
 

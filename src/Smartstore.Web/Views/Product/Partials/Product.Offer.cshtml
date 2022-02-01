@@ -90,8 +90,8 @@
                 data: $(form).serialize(),
                 success: function (response) {
 					// Redirect to ask question get action
-					if (response.Data.redirect)
-						location.href = response.Data.redirect;
+					if (response.redirect)
+						location.href = response.redirect;
 				}
             });
         }

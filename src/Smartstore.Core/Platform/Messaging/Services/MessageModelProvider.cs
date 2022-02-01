@@ -609,7 +609,7 @@ namespace Smartstore.Core.Messaging
                 // URLs
                 ["WishlistUrl"] = _helper.BuildRouteUrl("Wishlist", new { customerGuid = part.CustomerGuid }, messageContext),
                 ["EditUrl"] = _helper.BuildActionUrl("Edit", "Customer", new { id = part.Id, area = "Admin" }, messageContext),
-                ["PasswordRecoveryURL"] = pwdRecoveryToken == null ? null : _helper.BuildActionUrl("passwordrecoveryconfirm", "customer",
+                ["PasswordRecoveryURL"] = pwdRecoveryToken == null ? null : _helper.BuildActionUrl("passwordrecoveryconfirm", "identity",
                     new { token = pwdRecoveryToken, email, area = "" }, 
                     messageContext),
                 ["AccountActivationURL"] = accountActivationToken == null ? null : _helper.BuildActionUrl("activation", "customer", 

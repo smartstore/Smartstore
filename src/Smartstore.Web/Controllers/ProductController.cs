@@ -503,6 +503,7 @@ namespace Smartstore.Web.Controllers
                     HelpfulYesTotal = 0,
                     HelpfulNoTotal = 0,
                     IsApproved = isApproved,
+                    Product = product
                 };
 
                 product.ProductReviews.Add(productReview);

@@ -29,8 +29,8 @@ namespace Smartstore.Core.Checkout.Orders.Events
 
             var handledTemplates = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase)
             {
-                { "OrderPlaced.CustomerNotification", _pdfSettings.AttachOrderPdfToOrderPlacedEmail },
-                { "OrderCompleted.CustomerNotification", _pdfSettings.AttachOrderPdfToOrderCompletedEmail }
+                { MessageTemplateNames.OrderPlacedCustomer, _pdfSettings.AttachOrderPdfToOrderPlacedEmail },
+                { MessageTemplateNames.OrderCompletedCustomer, _pdfSettings.AttachOrderPdfToOrderCompletedEmail }
             };
 
             if (handledTemplates.TryGetValue(ctx.MessageTemplate.Name, out var shouldHandle) && shouldHandle)

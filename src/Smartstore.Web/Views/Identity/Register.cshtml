@@ -219,9 +219,9 @@
                 <fieldset sm-if="Model.NewsletterEnabled" class="content-group">
                     <legend><span>@T("Account.Options")</span></legend>
                     <div class="form-group row">
-                        <div class="col">
+                        <div class="col form-control-plaintext">
                             <div class="form-check">
-                                <input asp-for="Newsletter" sm-ignore-label="true" sm-switch="false" class="remember" />
+                                <input asp-for="Newsletter" sm-ignore-label="true" sm-switch="false" class="remember form-check-input" />
                                 <label class="form-check-label" for="Newsletter">
                                     @Html.Raw(T("Account.Fields.Newsletter", await Url.TopicAsync("PrivacyInfo")))
                                 </label>
