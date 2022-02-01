@@ -340,7 +340,7 @@ namespace Smartstore.Core.Catalog.Products
                 {
                     if (linkedProductsDic.TryGetValue(value.LinkedProductId, out var linkedProduct))
                     {
-                        await AdjustInventoryAsync(linkedProduct, null, decrease, quantity * value.Quantity);
+                        await AdjustInventoryAsync(linkedProduct, new ProductVariantAttributeSelection(null), decrease, quantity * value.Quantity);
                     }
                 }
             }

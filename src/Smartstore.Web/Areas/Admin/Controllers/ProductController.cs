@@ -2055,7 +2055,7 @@ namespace Smartstore.Admin.Controllers
 
                 if (p.StockQuantity != stockQuantityInDatabase)
                 {
-                    await _productService.AdjustInventoryAsync(p, null, true, 0);
+                    await _productService.AdjustInventoryAsync(p, new ProductVariantAttributeSelection(null), true, 0);
                 }
             }
         }
