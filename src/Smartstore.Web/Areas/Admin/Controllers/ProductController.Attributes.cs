@@ -660,12 +660,14 @@ namespace Smartstore.Admin.Controllers
             var productVariantAttributes = await _db.ProductVariantAttributes
                 .AsNoTracking()
                 .Include(x => x.ProductAttribute)
+                .Include(x => x.ProductVariantAttributeValues)
+                .ApplyListTypeFilter()
                 .ApplyProductFilter(new[] { product.Id })
                 .ToListAsync();
 
             foreach (var attribute in productVariantAttributes)
             {
-                var pvaModel = new ProductVariantAttributeCombinationModel.ProductVariantAttributeModel()
+                var pvaModel = new ProductVariantAttributeCombinationModel.ProductVariantAttributeModel
                 {
                     Id = attribute.Id,
                     ProductAttributeId = attribute.ProductAttributeId,
@@ -675,24 +677,14 @@ namespace Smartstore.Admin.Controllers
                     AttributeControlType = attribute.AttributeControlType
                 };
 
-                if (attribute.IsListTypeAttribute())
+                foreach (var pvaValue in attribute.ProductVariantAttributeValues)
                 {
-                    // TODO: (mh) (core) I think you can eager-load this list in main query above (?)
-                    var pvaValues = await _db.ProductVariantAttributeValues
-                        .AsNoTracking()
-                        .ApplyProductAttributeFilter(attribute.Id)
-                        .ToListAsync();
-
-                    foreach (var pvaValue in pvaValues)
+                    pvaModel.Values.Add(new ProductVariantAttributeCombinationModel.ProductVariantAttributeValueModel
                     {
-                        var pvaValueModel = new ProductVariantAttributeCombinationModel.ProductVariantAttributeValueModel
-                        {
-                            Id = pvaValue.Id,
-                            Name = pvaValue.Name,
-                            IsPreSelected = pvaValue.IsPreSelected
-                        };
-                        pvaModel.Values.Add(pvaValueModel);
-                    }
+                        Id = pvaValue.Id,
+                        Name = pvaValue.Name,
+                        IsPreSelected = pvaValue.IsPreSelected
+                    });
                 }
 
                 model.ProductVariantAttributes.Add(pvaModel);
@@ -735,6 +727,7 @@ namespace Smartstore.Admin.Controllers
             var product = await _db.Products.FindByIdAsync(productId, false);
             var productUrlTitle = T("Common.OpenInShop");
             var productSeName = await product.GetActiveSlugAsync();
+
             var allCombinations = await _db.ProductVariantAttributeCombinations
                 .AsNoTracking()
                 .Where(x => x.ProductId == product.Id)
@@ -750,7 +743,7 @@ namespace Smartstore.Admin.Controllers
                 pvacModel.ProductId = product.Id;
                 pvacModel.ProductUrlTitle = productUrlTitle;
                 pvacModel.ProductUrl = await _productUrlHelper.Value.GetProductUrlAsync(product.Id, productSeName, x.AttributeSelection);
-                pvacModel.AttributesXml = await _productAttributeFormatter.Value.FormatAttributesAsync(x.AttributeSelection, product, customer, "<br />", htmlEncode: false, includeHyperlinks: false);
+                pvacModel.AttributesXml = await _productAttributeFormatter.Value.FormatAttributesAsync(x.AttributeSelection, product, customer, "<br />", false, includeHyperlinks: false);
 
                 return pvacModel;
             })
@@ -816,7 +809,11 @@ namespace Smartstore.Admin.Controllers
                 return NotFound();
             }
 
-            var (selection, warnings) = await _productAttributeMaterializer.Value.CreateAttributeSelectionAsync(query, product.ProductVariantAttributes, product.Id, 0);
+            var productVariantAttributes = product.ProductVariantAttributes
+                .AsQueryable()
+                .ApplyListTypeFilter();
+
+            var (selection, warnings) = await _productAttributeMaterializer.Value.CreateAttributeSelectionAsync(query, productVariantAttributes, product.Id, 0);
 
             await _shoppingCartValidator.Value.ValidateProductAttributesAsync(
                 product,
@@ -824,7 +821,9 @@ namespace Smartstore.Admin.Controllers
                 Services.StoreContext.CurrentStore.Id,
                 warnings);
 
-            if (_productAttributeMaterializer.Value.FindAttributeCombinationAsync(product.Id, selection) != null)
+            var foundCombination = await _productAttributeMaterializer.Value.FindAttributeCombinationAsync(product.Id, selection);
+
+            if (foundCombination != null)
             {
                 warnings.Add(T("Admin.Catalog.Products.ProductVariantAttributes.AttributeCombinations.CombiExists"));
             }
@@ -952,10 +951,14 @@ namespace Smartstore.Admin.Controllers
                 return new JsonResult(new { Message = T("Products.NotFound", productId), HasWarning = true });
             }
 
-            var (selection, warnings) = await _productAttributeMaterializer.Value.CreateAttributeSelectionAsync(query, product.ProductVariantAttributes, product.Id, 0);
-            var exists = _productAttributeMaterializer.Value.FindAttributeCombinationAsync(product.Id, selection) != null;
+            var productVariantAttributes = product.ProductVariantAttributes
+                .AsQueryable()
+                .ApplyListTypeFilter();
 
-            if (!exists)
+            var (selection, warnings) = await _productAttributeMaterializer.Value.CreateAttributeSelectionAsync(query, productVariantAttributes, product.Id, 0);
+            var foundCombination = await _productAttributeMaterializer.Value.FindAttributeCombinationAsync(product.Id, selection);
+
+            if (foundCombination == null)
             {
                 await _shoppingCartValidator.Value.ValidateProductAttributesAsync(
                     product,
@@ -969,14 +972,14 @@ namespace Smartstore.Admin.Controllers
                 return new JsonResult(new { Message = warnings[0], HasWarning = true });
             }
 
-            var message = T(exists
+            string message = T(foundCombination != null
                 ? "Admin.Catalog.Products.ProductVariantAttributes.AttributeCombinations.CombiExists"
                 : "Admin.Catalog.Products.Variants.ProductVariantAttributes.AttributeCombinations.CombiNotExists");
 
             return new JsonResult(new
             {
                 Message = message,
-                HasWarning = exists
+                HasWarning = foundCombination != null
             });
         }
 

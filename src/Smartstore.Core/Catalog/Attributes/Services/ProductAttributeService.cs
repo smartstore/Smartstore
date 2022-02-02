@@ -308,6 +308,7 @@ namespace Smartstore.Core.Catalog.Attributes
                 .AsNoTracking()
                 .Include(x => x.ProductVariantAttributeValues)
                 .Where(x => x.ProductId == productId)
+                .ApplyListTypeFilter()
                 .OrderBy(x => x.DisplayOrder)
                 .ToListAsync();
 
@@ -381,8 +382,10 @@ namespace Smartstore.Core.Catalog.Attributes
 
                 for (var col = 0; col < combine.Count; ++col)
                 {
-                    var lst = new List<ProductVariantAttributeValue>(tmp);
-                    lst.Add(combine[col]);
+                    var lst = new List<ProductVariantAttributeValue>(tmp)
+                    {
+                        combine[col]
+                    };
 
                     if (row == (toCombine.Count - 1))
                     {
