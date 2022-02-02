@@ -5,8 +5,7 @@ FROM mcr.microsoft.com/dotnet/runtime-deps:6.0-alpine
 # RUN apk add --no-cache libstdc++ libintl
 
 # Expose
-EXPOSE 5001
-EXPOSE 5002
+EXPOSE 80
 
 # Globalization support
 RUN apk add --no-cache icu-libs

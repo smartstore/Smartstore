@@ -76,11 +76,11 @@ namespace Smartstore.Engine.Runtimes
 
         private void CopyRuntimeFiles(LocalPackageInfo package, InstallNativePackageRequest request)
         {
-            if (request.IsExecutable)
-            {
-                _logger.Info($"Creating runtime directory '{_appContext.RuntimeInfo.RID}'.");
-                Directory.CreateDirectory(_appContext.RuntimeInfo.NativeLibraryDirectory);
-            }
+            //if (request.IsExecutable)
+            //{
+            //    _logger.Info($"Creating runtime directory '{_appContext.RuntimeInfo.RID}'.");
+            //    Directory.CreateDirectory(_appContext.RuntimeInfo.NativeLibraryDirectory);
+            //}
             
             var destination = _appContext.RuntimeInfo.BaseDirectory;
             var packageDir = Path.GetDirectoryName(package.Path);

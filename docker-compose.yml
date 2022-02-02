@@ -4,7 +4,7 @@ services:
         build: .
         container_name: smartstore
         ports:
-            - "88:5001"
+            - "80:80"
         depends_on:
             - db
     db:
@@ -12,18 +12,16 @@ services:
         restart: always
         container_name: db
         environment:
-            MYSQL_DATABASE: smartstore
-            MYSQL_PASSWORD: "password"
-            MYSQL_ROOT_PASSWORD: "password"
+            MYSQL_DATABASE: "smartstore"
+            MYSQL_USER: "root"
+            MYSQL_PASSWORD: "smartstore"
+            MYSQL_ROOT_PASSWORD: "smartstore"
         ports:
-          # <Port exposed> : < MySQL Port running inside container>
           - '3307:3306'
         expose:
-          # Opens port 3306 on the container
           - '3306'
-          # Where our data will be persisted
         volumes:
           - smartstore-db:/var/lib/mysql
 
 volumes:
-  smartstore-db:            
+  smartstore-db:
