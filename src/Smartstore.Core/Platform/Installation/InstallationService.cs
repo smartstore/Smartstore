@@ -127,8 +127,8 @@ namespace Smartstore.Core.Installation
                 });
             }
 
-            // Check FS access rights
-            CheckFileSystemAccessRights(GetInstallResult().Errors);
+            //// Check FS access rights
+            //CheckFileSystemAccessRights(GetInstallResult().Errors);
 
             if (GetInstallResult().HasErrors)
             {

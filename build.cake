@@ -71,6 +71,8 @@ Task("Deploy")
         OutputDirectory = outputDir,
         Runtime = runtime,
         SelfContained = true,
+        //PublishTrimmed = true,
+        //PublishSingleFile = true
         // Whether to not to build the project before publishing. This makes build faster, but requires build to be done before publish is executed.
         //NoBuild = true
     });
