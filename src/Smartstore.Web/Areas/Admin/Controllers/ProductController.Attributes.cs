@@ -144,62 +144,62 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Catalog.Product.Read)]
         public async Task<IActionResult> ProductVariantAttributeList(GridCommand command, int productId)
         {
-            var model = new GridModel<ProductModel.ProductVariantAttributeModel>();
+            var editValuesStr = T("Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values.ViewLink").Value;
+            var copyOptionsStr = T("Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values.CopyOptions").Value;
 
             var productVariantAttributes = await _db.ProductVariantAttributes
+                .AsNoTracking()
                 .AsSplitQuery()
-                .ApplyProductFilter(new[] { productId })
                 .Include(x => x.ProductVariantAttributeValues)
                 .Include(x => x.ProductAttribute)
                 .ThenInclude(x => x.ProductAttributeOptionsSets)
+                .ApplyProductFilter(new[] { productId })
                 .ApplyGridCommand(command)
                 .ToPagedList(command)
                 .LoadAsync();
 
-            var productVariantAttributesModel = await productVariantAttributes
-                .SelectAsync(async x =>
+            var rows = productVariantAttributes.Select(x =>
+            {
+                var pvaModel = new ProductModel.ProductVariantAttributeModel
                 {
-                    // TODO: (mh) (core) This is shit. TBD with MC.
-                    var attr = await _db.ProductAttributes.FindByIdAsync(x.ProductAttributeId);
+                    Id = x.Id,
+                    ProductId = x.ProductId,
+                    ProductAttribute = x.ProductAttribute.Name,
+                    ProductAttributeId = x.ProductAttributeId,
+                    TextPrompt = x.TextPrompt,
+                    CustomData = x.CustomData,
+                    IsRequired = x.IsRequired,
+                    AttributeControlType = Services.Localization.GetLocalizedEnum(x.AttributeControlType),
+                    AttributeControlTypeId = x.AttributeControlTypeId,
+                    DisplayOrder1 = x.DisplayOrder
+                };
 
-                    var pvaModel = new ProductModel.ProductVariantAttributeModel
+                if (x.IsListTypeAttribute())
+                {
+                    pvaModel.ValueCount = x.ProductVariantAttributeValues?.Count ?? 0;
+                    pvaModel.EditUrl = Url.Action(nameof(EditAttributeValues), new { productVariantAttributeId = x.Id });
+                    pvaModel.EditText = editValuesStr.FormatInvariant(pvaModel.ValueCount);
+
+                    if (x.ProductAttribute.ProductAttributeOptionsSets.Any())
                     {
-                        Id = x.Id,
-                        ProductId = x.ProductId,
-                        ProductAttribute = attr.Name,
-                        ProductAttributeId = x.ProductAttributeId,
-                        TextPrompt = x.TextPrompt,
-                        CustomData = x.CustomData,
-                        IsRequired = x.IsRequired,
-                        AttributeControlType = await x.AttributeControlType.GetLocalizedEnumAsync(),
-                        AttributeControlTypeId = x.AttributeControlTypeId,
-                        DisplayOrder1 = x.DisplayOrder
-                    };
+                        pvaModel.OptionSets.Add(new { Id = string.Empty, Name = copyOptionsStr });
 
-                    if (x.IsListTypeAttribute())
-                    {
-                        pvaModel.ValueCount = x.ProductVariantAttributeValues != null ? x.ProductVariantAttributeValues.Count : 0;
-                        pvaModel.EditUrl = Url.Action(nameof(EditAttributeValues), new { productVariantAttributeId = x.Id });
-                        pvaModel.EditText = T("Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values.ViewLink", pvaModel.ValueCount);
-
-                        if (x.ProductAttribute.ProductAttributeOptionsSets.Any())
+                        x.ProductAttribute.ProductAttributeOptionsSets.Each(set => 
                         {
-                            pvaModel.OptionSets.Add(new { Id = string.Empty, Name = T("Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values.CopyOptions").Value });
-                            x.ProductAttribute.ProductAttributeOptionsSets.Each(set => 
-                            {
-                                pvaModel.OptionSets.Add(new { set.Id, set.Name });
-                            });
-                        }
+                            pvaModel.OptionSets.Add(new { set.Id, set.Name });
+                        });
                     }
+                }
 
-                    return pvaModel;
-                })
-                .AsyncToList();
+                return pvaModel;
+            })
+            .ToList();
 
-            model.Rows = productVariantAttributesModel;
-            model.Total = await productVariantAttributes.GetTotalCountAsync();
-
-            return Json(model);
+            return Json(new GridModel<ProductModel.ProductVariantAttributeModel>
+            {
+                Rows = rows,
+                Total = productVariantAttributes.TotalCount
+            });
         }
 
         [Permission(Permissions.Catalog.Product.EditVariant)]
@@ -290,7 +290,10 @@ namespace Smartstore.Admin.Controllers
                 try
                 {
                     var numberOfCopiedOptions = await _productAttributeService.Value.CopyAttributeOptionsAsync(pva, optionsSetId, deleteExistingValues);
-                    NotifySuccess($"{T("Admin.Common.TaskSuccessfullyProcessed")} {T("Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values.NumberOfCopiedOptions", numberOfCopiedOptions)}");
+                   
+                    NotifySuccess(T("Admin.Common.TaskSuccessfullyProcessed") 
+                        + " " 
+                        + T("Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values.NumberOfCopiedOptions", numberOfCopiedOptions));
                 }
                 catch (Exception ex)
                 {
@@ -309,8 +312,6 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Catalog.Product.Read)]
         public async Task<IActionResult> ProductAttributeValueList(int productVariantAttributeId, GridCommand command)
         {
-            var gridModel = new GridModel<ProductModel.ProductVariantAttributeValueModel>();
-
             var values = await _db.ProductVariantAttributeValues
                 .AsNoTracking()
                 .ApplyProductAttributeFilter(productVariantAttributeId)
@@ -318,11 +319,16 @@ namespace Smartstore.Admin.Controllers
                 .ToPagedList(command)
                 .LoadAsync();
 
-            gridModel.Rows = await values.SelectAsync(async x =>
-            {
-                // TODO: (mh) (core) Also get this outside of loop (MultiList).
-                var linkedProduct = await _db.Products.FindByIdAsync(x.LinkedProductId, false);
+            var linkedProductIds = values
+                .Where(x => x.ValueType == ProductVariantAttributeValueType.ProductLinkage && x.LinkedProductId != 0)
+                .ToDistinctArray(x => x.LinkedProductId);
 
+            var linkedProducts = linkedProductIds.Any()
+                ? await _db.Products.AsNoTracking().Where(x => linkedProductIds.Contains(x.Id)).ToDictionaryAsync(x => x.Id)
+                : new Dictionary<int, Product>();
+
+            var rows = values.Select(x =>
+            {
                 var model = new ProductModel.ProductVariantAttributeValueModel
                 {
                     Id = x.Id,
@@ -340,13 +346,13 @@ namespace Smartstore.Admin.Controllers
                     IsPreSelected = x.IsPreSelected,
                     DisplayOrder = x.DisplayOrder,
                     ValueTypeId = x.ValueTypeId,
-                    TypeName = await x.ValueType.GetLocalizedEnumAsync(),
+                    TypeName = Services.Localization.GetLocalizedEnum(x.ValueType),
                     TypeNameClass = x.ValueType == ProductVariantAttributeValueType.ProductLinkage ? "fa fa-link mr-2" : "d-none hide hidden-xs-up",
                     LinkedProductId = x.LinkedProductId,
                     Quantity = x.Quantity
                 };
 
-                if (linkedProduct != null)
+                if (x.ValueType == ProductVariantAttributeValueType.ProductLinkage && linkedProducts.TryGetValue(x.LinkedProductId, out var linkedProduct))
                 {
                     model.LinkedProductName = linkedProduct.GetLocalized(p => p.Name);
                     model.LinkedProductTypeName = linkedProduct.GetProductTypeLabel(Services.Localization);
@@ -360,11 +366,14 @@ namespace Smartstore.Admin.Controllers
                 }
 
                 return model;
-            }).AsyncToList();
+            })
+            .ToList();
 
-            gridModel.Total = await values.GetTotalCountAsync();
-
-            return Json(gridModel);
+            return Json(new GridModel<ProductModel.ProductVariantAttributeValueModel>
+            {
+                Rows = rows,
+                Total = values.TotalCount
+            });
         }
 
         [Permission(Permissions.Catalog.Product.EditVariant)]
@@ -496,7 +505,7 @@ namespace Smartstore.Admin.Controllers
                 IsPreSelected = pvav.IsPreSelected,
                 DisplayOrder = pvav.DisplayOrder,
                 ValueTypeId = pvav.ValueTypeId,
-                TypeName = await pvav.ValueType.GetLocalizedEnumAsync(),
+                TypeName = await Services.Localization.GetLocalizedEnumAsync(pvav.ValueType),
                 TypeNameClass = pvav.ValueType == ProductVariantAttributeValueType.ProductLinkage ? "fa fa-link mr-2" : "d-none hide hidden-xs-up",
                 LinkedProductId = pvav.LinkedProductId,
                 Quantity = pvav.Quantity
@@ -589,7 +598,6 @@ namespace Smartstore.Admin.Controllers
             return Json(new { Success = true, Count = numDeleted });
         }
 
-        [NonAction]
         private async Task UpdateLocalesAsync(ProductVariantAttributeValue pvav, ProductModel.ProductVariantAttributeValueModel model)
         {
             foreach (var localized in model.Locales)
@@ -599,7 +607,6 @@ namespace Smartstore.Admin.Controllers
             }
         }
 
-        [NonAction]
         private async Task<bool> IsBundleItemAsync(int productId)
         {
             if (productId == 0)
@@ -726,11 +733,12 @@ namespace Smartstore.Admin.Controllers
             var customer = _workContext.CurrentCustomer;
             var product = await _db.Products.FindByIdAsync(productId, false);
             var productUrlTitle = T("Common.OpenInShop");
-            var productSeName = await product.GetActiveSlugAsync();
+            var productSlug = await product.GetActiveSlugAsync();
 
             var allCombinations = await _db.ProductVariantAttributeCombinations
                 .AsNoTracking()
                 .Where(x => x.ProductId == product.Id)
+                .OrderBy(x => x.Id)
                 .ApplyGridCommand(command)
                 .ToPagedList(command)
                 .LoadAsync();
@@ -742,7 +750,7 @@ namespace Smartstore.Admin.Controllers
                 var pvacModel = await MapperFactory.MapAsync<ProductVariantAttributeCombination, ProductVariantAttributeCombinationModel>(x);
                 pvacModel.ProductId = product.Id;
                 pvacModel.ProductUrlTitle = productUrlTitle;
-                pvacModel.ProductUrl = await _productUrlHelper.Value.GetProductUrlAsync(product.Id, productSeName, x.AttributeSelection);
+                pvacModel.ProductUrl = await _productUrlHelper.Value.GetProductUrlAsync(product.Id, productSlug, x.AttributeSelection);
                 pvacModel.AttributesXml = await _productAttributeFormatter.Value.FormatAttributesAsync(x.AttributeSelection, product, customer, "<br />", false, includeHyperlinks: false);
 
                 return pvacModel;
@@ -888,9 +896,9 @@ namespace Smartstore.Admin.Controllers
                     return RedirectToAction(nameof(List));
                 }
 
-                var attributeXml = combination.RawAttributes;
+                var rawAttributes = combination.RawAttributes;
                 await MapperFactory.MapAsync(model, combination);
-                combination.RawAttributes = attributeXml;
+                combination.RawAttributes = rawAttributes;
                 combination.SetAssignedMediaIds(model.AssignedPictureIds);
 
                 await _db.SaveChangesAsync();
