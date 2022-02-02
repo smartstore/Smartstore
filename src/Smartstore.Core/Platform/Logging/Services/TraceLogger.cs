@@ -41,20 +41,19 @@ namespace Smartstore.Core.Logging
 
             if (CommonHelper.IsDevEnvironment)
             {
-                var defaultListener = new DefaultTraceListener
+                _traceSource.Listeners.Add(new DefaultTraceListener
                 {
                     Name = "Debugger",
                     Filter = new EventTypeFilter(SourceLevels.All),
-                    TraceOutputOptions = TraceOptions.DateTime
-                };
-                _traceSource.Listeners.Add(defaultListener);
+                    //TraceOutputOptions = TraceOptions.DateTime
+                });
             }
 
             var textListener = new TextWriterTraceListener(File.PhysicalPath)
             {
                 Name = "File",
                 Filter = new EventTypeFilter(SourceLevels.All),
-                TraceOutputOptions = TraceOptions.DateTime
+                //TraceOutputOptions = TraceOptions.DateTime
             };
 
             try

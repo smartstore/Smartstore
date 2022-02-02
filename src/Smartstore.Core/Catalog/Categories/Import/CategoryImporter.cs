@@ -267,7 +267,7 @@ namespace Smartstore.Core.DataExchange.Import
             // Required for parent category relationship.
             var targetCategoryIds = context.GetCustomProperty<Dictionary<int, int>>(TARGET_CATEGORY_IDS_KEY);
 
-            foreach (var row in batch)
+            foreach (var row in batch.Where(x => x.Entity != null))
             {
                 var id = row.GetDataValue<int>("Id");
                 if (id != 0)

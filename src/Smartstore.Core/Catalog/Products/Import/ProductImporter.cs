@@ -469,7 +469,7 @@ namespace Smartstore.Core.DataExchange.Import
             // Required to assign associated products to their parent products.
             var targetProductIds = context.GetCustomProperty<Dictionary<int, int>>(TARGET_PRODUCT_IDS_KEY);
 
-            foreach (var row in batch)
+            foreach (var row in batch.Where(x => x.Entity != null))
             {
                 var id = row.GetDataValue<int>("Id");
                 if (id != 0)
