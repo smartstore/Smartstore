@@ -14,9 +14,8 @@
                 delete="@Url.Action("ProductSpecAttrDelete")"
                 update="@Url.Action("ProductSpecAttrUpdate")" />
     <paging position="Bottom" page-index="1" show-size-chooser="false" />
-    <sorting enabled="true">
+    <sorting>
         <sort by="DisplayOrder" />
-        <sort by="SpecificationAttributeName" />
     </sorting>
     <toolbar>
         <button datagrid-action="DataGridToolAction.SaveChanges" type="button" class="btn btn-warning no-anims btn-flat">
@@ -35,7 +34,7 @@
     </toolbar>
     <columns>
         <column for="SpecificationAttributeName" hideable="false" readonly="true" width="2fr" entity-member="SpecificationAttributeOption.SpecificationAttribute.Name" />
-        <column for="SpecificationAttributeOptionName" halign="center" width="1fr" entity-member="SpecificationAttributeOption.Name">
+        <column for="SpecificationAttributeOptionName" width="1fr" entity-member="SpecificationAttributeOption.Name">
             <edit-template>
                 <select name="SpecificationAttributeOptionId"
                         id="SpecificationAttributeOptionId"

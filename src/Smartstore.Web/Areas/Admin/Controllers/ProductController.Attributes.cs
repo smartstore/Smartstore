@@ -20,54 +20,40 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Catalog.Product.Read)]
         public async Task<IActionResult> ProductSpecAttrList(GridCommand command, int productId)
         {
-            var model = new GridModel<ProductSpecificationAttributeModel>();
             var productSpecAttributes = await _db.ProductSpecificationAttributes
                 .AsNoTracking()
-                .ApplyProductsFilter(new[] { productId })
                 .Include(x => x.SpecificationAttributeOption)
                 .ThenInclude(x => x.SpecificationAttribute)
+                .ApplyProductsFilter(new[] { productId })
                 .ApplyGridCommand(command)
                 .ToPagedList(command)
                 .LoadAsync();
 
-            var specAttributeIds = productSpecAttributes.Select(x => x.SpecificationAttributeOption.SpecificationAttributeId).ToArray();
-            var options = await _db.SpecificationAttributeOptions
-                .AsNoTracking()
-                .Where(x => specAttributeIds.Contains(x.SpecificationAttributeId))
-                .OrderBy(x => x.DisplayOrder)
-                .ToListAsync();
-
-            var specOptions = options.ToMultimap(x => x.SpecificationAttributeId, x => x);
-
-            var productSpecModel = productSpecAttributes
-                .Select(x =>
+            var rows = productSpecAttributes.Select(x =>
+            {
+                var attributeId = x.SpecificationAttributeOption.SpecificationAttributeId;
+                var psaModel = new ProductSpecificationAttributeModel
                 {
-                    var attributeId = x.SpecificationAttributeOption.SpecificationAttributeId;
-                    var psaModel = new ProductSpecificationAttributeModel
-                    {
-                        Id = x.Id,
-                        SpecificationAttributeName = x.SpecificationAttributeOption.SpecificationAttribute.Name,
-                        SpecificationAttributeOptionName = x.SpecificationAttributeOption.Name,
-                        SpecificationAttributeId = attributeId,
-                        SpecificationAttributeOptionId = x.SpecificationAttributeOptionId,
-                        AllowFiltering = x.AllowFiltering,
-                        ShowOnProductPage = x.ShowOnProductPage,
-                        DisplayOrder = x.DisplayOrder
-                    };
+                    Id = x.Id,
+                    SpecificationAttributeName = x.SpecificationAttributeOption.SpecificationAttribute.Name,
+                    SpecificationAttributeOptionName = x.SpecificationAttributeOption.Name,
+                    SpecificationAttributeId = attributeId,
+                    SpecificationAttributeOptionId = x.SpecificationAttributeOptionId,
+                    AllowFiltering = x.AllowFiltering,
+                    ShowOnProductPage = x.ShowOnProductPage,
+                    DisplayOrder = x.DisplayOrder,
+                    SpecificationAttributeOptionsUrl = Url.Action("GetOptionsByAttributeId", "SpecificationAttribute", new { attributeId })
+                };
 
-                    if (specOptions.ContainsKey(attributeId))
-                    {
-                        psaModel.SpecificationAttributeOptionsUrl = Url.Action("GetOptionsByAttributeId", "SpecificationAttribute", new { attributeId });
-                    }
+                return psaModel;
+            })
+            .ToList();
 
-                    return psaModel;
-                })
-                .ToList();
-
-            model.Rows = productSpecModel;
-            model.Total = await productSpecAttributes.GetTotalCountAsync();
-
-            return Json(model);
+            return Json(new GridModel<ProductSpecificationAttributeModel>
+            {
+                Rows = rows,
+                Total = await productSpecAttributes.GetTotalCountAsync()
+            });
         }
 
         [HttpPost]
@@ -198,15 +184,13 @@ namespace Smartstore.Admin.Controllers
             return Json(new GridModel<ProductModel.ProductVariantAttributeModel>
             {
                 Rows = rows,
-                Total = productVariantAttributes.TotalCount
+                Total = await productVariantAttributes.GetTotalCountAsync(),
             });
         }
 
         [Permission(Permissions.Catalog.Product.EditVariant)]
         public async Task<IActionResult> ProductVariantAttributeInsert(ProductModel.ProductVariantAttributeModel model, int productId)
         {
-            // TODO: (mh) (core) Throws if no attribute was selected (also in classic code). Fix it!
-
             var pva = new ProductVariantAttribute
             {
                 ProductId = productId,
@@ -372,7 +356,7 @@ namespace Smartstore.Admin.Controllers
             return Json(new GridModel<ProductModel.ProductVariantAttributeValueModel>
             {
                 Rows = rows,
-                Total = values.TotalCount
+                Total = await values.GetTotalCountAsync()
             });
         }
 
@@ -700,12 +684,12 @@ namespace Smartstore.Admin.Controllers
 
         private async Task PrepareVariantCombinationPicturesAsync(ProductVariantAttributeCombinationModel model, Product product)
         {
-            var files = (await _db.ProductMediaFiles
-                .ApplyProductFilter(product.Id)
+            var files = await _db.ProductMediaFiles
+                .AsNoTracking()
                 .Include(x => x.MediaFile)
-                .ToListAsync())
+                .ApplyProductFilter(product.Id)
                 .Select(x => x.MediaFile)
-                .ToList();
+                .ToListAsync();
 
             foreach (var file in files)
             {
@@ -717,6 +701,7 @@ namespace Smartstore.Admin.Controllers
                 });
             }
         }
+        
         private void PrepareViewBag(string btnId, string formId, bool refreshPage = false, bool isEdit = true)
         {
             ViewBag.btnId = btnId;
@@ -745,7 +730,7 @@ namespace Smartstore.Admin.Controllers
 
             await _productAttributeMaterializer.Value.PrefetchProductVariantAttributesAsync(allCombinations.Select(x => x.AttributeSelection));
 
-            var productVariantAttributesModel = await allCombinations.SelectAsync(async x =>
+            var rows = await allCombinations.SelectAsync(async x =>
             {
                 var pvacModel = await MapperFactory.MapAsync<ProductVariantAttributeCombination, ProductVariantAttributeCombinationModel>(x);
                 pvacModel.ProductId = product.Id;
@@ -757,10 +742,11 @@ namespace Smartstore.Admin.Controllers
             })
             .AsyncToList();
 
-            model.Rows = productVariantAttributesModel;
-            model.Total = await allCombinations.GetTotalCountAsync();
-
-            return Json(model);
+            return Json(new GridModel<ProductVariantAttributeCombinationModel>
+            {
+                Rows = rows,
+                Total = await allCombinations.GetTotalCountAsync()
+            });
         }
 
         [Permission(Permissions.Catalog.Product.EditVariant)]

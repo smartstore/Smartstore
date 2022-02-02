@@ -15,7 +15,7 @@
                 update="@Url.Action("ProductVariantAttributeUpdate")"
                 insert="@Url.Action("ProductVariantAttributeInsert", new { productId = parentModel.Id })" />
     <sorting enabled="true">
-        <sort by="DisplayOrder1" />
+        <sort by="DisplayOrder1" by-entity-member="DisplayOrder" />
     </sorting>
     <paging enabled="true" page-size="10" />
     <toolbar>

@@ -259,6 +259,7 @@ namespace Smartstore.Admin.Controllers
         public async Task<IActionResult> Edit(int id)
         {
             var product = await _db.Products
+                .AsSplitQuery()
                 .Include(x => x.ProductTags)
                 .Include(x => x.AppliedDiscounts)
                 .FindByIdAsync(id);
@@ -333,7 +334,6 @@ namespace Smartstore.Admin.Controllers
             return View(model);
         }
 
-
         #endregion
 
         #region Misc 
@@ -380,7 +380,8 @@ namespace Smartstore.Admin.Controllers
             {
                 var query = _catalogSearchService.Value.PrepareQuery(searchQuery);
 
-                hasMoreData = (page + 1) * pageSize < query.Count();
+                hasMoreData = (page + 1) * pageSize < await query.CountAsync();
+
                 products = await query
                     .Select(x => new Product
                     {
@@ -427,6 +428,7 @@ namespace Smartstore.Admin.Controllers
                 }
 
                 var product = await _db.Products
+                    .AsSplitQuery()
                     .Include(x => x.AppliedDiscounts)
                     .Include(x => x.ProductTags)
                     .FindByIdAsync(id, false);
