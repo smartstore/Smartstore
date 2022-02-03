@@ -2,7 +2,7 @@ var target = Argument("target", "Build");
 var configuration = Argument("configuration", "Release");
 var solution = "./" + Argument("solution", "Smartstore") + ".sln";
 var edition = Argument("edition", "Community");
-var runtime = Argument("runtime", "win-x86");
+var runtime = Argument("runtime", "win-x64");
 var version = "5.0.0";
 
 public string GetPublishName() 
