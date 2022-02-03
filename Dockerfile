@@ -1,21 +1,17 @@
-FROM mcr.microsoft.com/dotnet/runtime-deps:6.0-alpine
+FROM mcr.microsoft.com/dotnet/aspnet:6.0
 
-# Add some libs required by .NET runtime 
-# https://github.com/dotnet/core/blob/master/Documentation/build-and-install-rhel6-prerequisites.md#troubleshooting
-# RUN apk add --no-cache libstdc++ libintl
+# Copy
+WORKDIR /app
+COPY artifacts/Enterprise.5.0.0.linux-x64/ ./
 
 # Expose
 EXPOSE 80
 
-# Globalization support
-RUN apk add --no-cache icu-libs
-ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=False
+# Install wkhtmltopdf
+RUN apt update &&\
+	apt -y install wget &&\
+	wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox_0.12.6-1.buster_amd64.deb &&\ 
+	apt -y install ./wkhtmltox_0.12.6-1.buster_amd64.deb &&\
+	rm ./wkhtmltox_0.12.6-1.buster_amd64.deb
 
-# Copy
-WORKDIR /app
-COPY --chown=$USER artifacts/Community.5.0.0.alpine-x64/ ./
-
-# Webserver als Gruppen-Besitzer setzen
-# RUN chgrp -R www-data /app
-
-ENTRYPOINT ["./Smartstore.Web", "--urls", "http://0.0.0.0:5001"]
+ENTRYPOINT ["./Smartstore.Web", "--urls", "http://0.0.0.0:80"]
