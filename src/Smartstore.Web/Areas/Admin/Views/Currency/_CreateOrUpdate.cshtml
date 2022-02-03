@@ -1,16 +1,12 @@
-﻿@using Smartstore.Admin.Models.Common
+﻿@using System.Globalization 
+@using Smartstore.Admin.Models.Common
 
 @model Smartstore.Admin.Models.Common.CurrencyModel
 
 @{
-    var cultures = System.Globalization.CultureInfo.GetCultures(System.Globalization.CultureTypes.SpecificCultures).ToList();
-    var availableDomainEndings = Model.AvailableDomainEndings.Select(x => x.Value).ToArray();
-    for (var i = 0; i < availableDomainEndings.Length; i++)
-    {
-        availableDomainEndings[i] = availableDomainEndings[i].EncodeJsString();
-    }
-
-    ViewBag.SerializedDomainEndings = string.Join(",", availableDomainEndings);
+    var cultures = CultureInfo.GetCultures(CultureTypes.SpecificCultures)
+        .Select(x => new SelectListItem { Value = x.IetfLanguageTag, Text = $"{x.DisplayName} [{x.IetfLanguageTag}]" })
+        .ToList();
 
     var roundOrderTotalDenominators = new List<SelectListItem>
     {
@@ -78,8 +74,7 @@
                     <smart-label asp-for="DisplayLocale" />
                 </div>
                 <div class="adminData">
-                    <select asp-for="DisplayLocale"
-                            asp-items='cultures.Select(x => new SelectListItem { Value = x.IetfLanguageTag, Text = $"{x.DisplayName} [{x.IetfLanguageTag}]" })'></select>
+                    <select asp-for="DisplayLocale" asp-items="cultures"></select>
                     <span asp-validation-for="DisplayLocale"></span>
                 </div>
             </div>
@@ -129,57 +124,33 @@
                     <span asp-validation-for="SelectedStoreIds"></span>
                 </div>
             </div>
-            @if (Model.Id > 0)
-            {
-                <div class="adminRow">
-                    <div class="adminTitle">
-                        <smart-label asp-for="CreatedOn" />
-                    </div>
-                    <div class="adminData">
-                        <div class="form-control-plaintext">
-                            @Html.DisplayFor(model => model.CreatedOn)
-                        </div>
-                    </div>
-                </div>
-            }
-
-            <div class="adminRow">
+            <div sm-if="Model.Id > 0" class="adminRow">
                 <div class="adminTitle">
-                    <smart-label asp-for="PrimaryStoreCurrencyStores" />
+                    <smart-label asp-for="IsPrimaryCurrency" />
                 </div>
                 <div class="adminData">
                     <div class="form-control-plaintext">
-                        @if (Model.PrimaryStoreCurrencyStores != null && Model.PrimaryStoreCurrencyStores.Count > 0)
-                        {
-                            foreach (var store in Model.PrimaryStoreCurrencyStores)
-                            {
-                                <a href="@store.Value">@store.Text.NaIfEmpty()</a><br />
-                            }
-                        }
-                        else
-                        {
-                            @T("Common.Unspecified")
-                        }
+                        @(Model.IsPrimaryCurrency ? T("Common.Yes") : T("Common.No"))
                     </div>
                 </div>
             </div>
-            <div class="adminRow">
+            <div sm-if="Model.Id > 0" class="adminRow">
                 <div class="adminTitle">
-                    <smart-label asp-for="PrimaryExchangeRateCurrencyStores" />
+                    <smart-label asp-for="IsPrimaryExchangeCurrency" />
                 </div>
-                <div clas="adminData">
+                <div class="adminData">
                     <div class="form-control-plaintext">
-                        @if (Model.PrimaryExchangeRateCurrencyStores != null && Model.PrimaryExchangeRateCurrencyStores.Count > 0)
-                        {
-                            foreach (var store in Model.PrimaryExchangeRateCurrencyStores)
-                            {
-                                <a href="@store.Value">@store.Text.NaIfEmpty()</a><br />
-                            }
-                        }
-                        else
-                        {
-                            @T("Common.Unspecified")
-                        }
+                        @(Model.IsPrimaryExchangeCurrency ? T("Common.Yes") : T("Common.No"))
+                    </div>
+                </div>
+            </div>
+            <div sm-if="Model.Id > 0" class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="CreatedOn" />
+                </div>
+                <div class="adminData">
+                    <div class="form-control-plaintext">
+                        @Html.DisplayFor(model => model.CreatedOn)
                     </div>
                 </div>
             </div>
@@ -257,7 +228,7 @@
     </tab>
 </tabstrip>
 
-<script sm-target-zone="scripts" data-origin="currencies-create-or-update">
+<script sm-target-zone="scripts" data-origin="currency-edit">
     $(function () {
         $('#@(Html.IdFor(x => x.RoundOrderTotalEnabled))').change(function () {
             $('.round-order-total').toggle($(this).is(':checked'));

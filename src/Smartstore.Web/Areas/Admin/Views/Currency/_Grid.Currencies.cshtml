@@ -2,8 +2,8 @@
 
 <datagrid id="currencies-grid" allow-resize="true" allow-row-selection="true" allow-edit="true" allow-column-reordering="true">
     <datasource read="@Url.Action("CurrencyList", "Currency")"
-                update="@Url.Action("Update", "Currency")"
-                delete="@Url.Action("DeleteSelection", "Currency")" />
+                update="@Url.Action("CurrencyUpdate", "Currency")"
+                delete="@Url.Action("CurrencyDelete", "Currency")" />
     <sorting enabled="true">
         <sort by="DisplayOrder" />
     </sorting>

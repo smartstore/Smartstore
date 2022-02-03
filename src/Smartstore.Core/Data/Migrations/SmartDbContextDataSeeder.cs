@@ -146,10 +146,6 @@ namespace Smartstore.Core.Data.Migrations
 
             builder.AddOrUpdate("Admin.Configuration.Currencies.ApplyRate.Error", "An error occurred when applying the rate.", "Bei der Aktualisierung der Rate ist ein Fehler aufgetreten.");
 
-            builder.AddOrUpdate("Admin.Configuration.Currencies.CannotDeleteAssociated",
-                "Currencies that have already been assigned to a store cannot be deleted. Remove the assignment first.",
-                "Währungen, die bereits einem Store zugewiesen wurde,n können nicht gelöscht werden. Entfernen Sie zunächst die Zuordnung.");
-
             builder.AddOrUpdate("Admin.Configuration.Measures.QuantityUnits.CantDeleteDefault",
                 "The default quantity unit can't be deleted. Specify another standard quantity unit beforehand.",
                 "Die Standard-Verpackungseinheit kann nicht gelöscht werden. Bestimmen Sie zuvor eine andere Standard-Verpackungseinheit.");
@@ -421,6 +417,10 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.Configuration.Currencies.SetAsPrimaryExchangeCurrency",
                 "Set as exchange rate currency",
                 "Als Umrechnungswährung festlegen");
+
+            builder.AddOrUpdate("Admin.Configuration.Currencies.CannotDeleteOrDeactivatePrimaryCurrency",
+                "The primary or exchange rate currency cannot be deleted or deactivated. Set a different primary or exchange rate currency first.",
+                "Die Leit- oder Umrechnungswährung kann nicht gelöscht oder deaktiviert werden. Legen Sie zunächst eine andere Leit- bzw. Umrechnungswährung fest.");
 
             #endregion
 
@@ -761,6 +761,11 @@ namespace Smartstore.Core.Data.Migrations
             //    "Admin.DataExchange.Export.FolderName.Validate",
             //    "Admin.ContentManagement.Topics.BackToList",
             //    "Admin.Configuration.Currencies.BackToList",
+            //    "Admin.Configuration.Currencies.Fields.PrimaryStoreCurrencyStores",
+            //    "Admin.Configuration.Currencies.Fields.PrimaryStoreCurrencyStores.Hint",
+            //    "Admin.Configuration.Currencies.Fields.PrimaryExchangeRateCurrencyStores",
+            //    "Admin.Configuration.Currencies.Fields.PrimaryExchangeRateCurrencyStores.Hint",
+            //    "Admin.Configuration.Currencies.DeleteOrPublishStoreConflict",
             //    );
 
 

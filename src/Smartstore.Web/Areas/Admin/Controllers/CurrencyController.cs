@@ -40,104 +40,6 @@ namespace Smartstore.Admin.Controllers
             _currencySettings = currencySettings;
         }
 
-        #region Utilities
-
-        [NonAction]
-        public async Task UpdateLocalesAsync(Currency currency, CurrencyModel model)
-        {
-            foreach (var localized in model.Locales)
-            {
-                await _localizedEntityService.ApplyLocalizedValueAsync(currency, x => x.Name, localized.Name, localized.LanguageId);
-            }
-        }
-
-        private async Task PrepareCurrencyModelAsync(CurrencyModel model, Currency currency, bool excludeProperties)
-        {
-            Guard.NotNull(model, nameof(model));
-
-            var paymentMethods = await _paymentService.GetAllPaymentMethodsAsync();
-            var paymentProviders = await _paymentService.LoadAllPaymentMethodsAsync();
-
-            foreach (var provider in paymentProviders)
-            {
-                if (paymentMethods.TryGetValue(provider.Metadata.SystemName, out var paymentMethod) && paymentMethod.RoundOrderTotalEnabled)
-                {
-                    var friendlyName = _moduleManager.GetLocalizedFriendlyName(provider.Metadata);
-                    model.RoundOrderTotalPaymentMethods[provider.Metadata.SystemName] = friendlyName ?? provider.Metadata.SystemName;
-                }
-            }
-
-            if (currency != null)
-            {
-                // TODO: (mg) (core) review model.PrimaryStoreCurrencyStores\PrimaryExchangeRateCurrencyStores. Probably not required anymore.
-                var allStores = Services.StoreContext.GetAllStores();
-
-                model.PrimaryStoreCurrencyStores = allStores
-                    .Where(x => x.PrimaryStoreCurrencyId == currency.Id)
-                    .Select(x => new SelectListItem
-                    {
-                        Text = x.Name,
-                        Value = Url.Action("Edit", "Store", new { id = x.Id })
-                    })
-                    .ToList();
-
-                model.PrimaryExchangeRateCurrencyStores = allStores
-                    .Where(x => x.PrimaryExchangeRateCurrencyId == currency.Id)
-                    .Select(x => new SelectListItem
-                    {
-                        Text = x.Name,
-                        Value = Url.Action("Edit", "Store", new { id = x.Id })
-                    })
-                    .ToList();
-            }
-
-            if (!excludeProperties)
-            {
-                model.SelectedStoreIds = await _storeMappingService.GetAuthorizedStoreIdsAsync(currency);
-            }
-        }
-
-        private async Task<CurrencyModel> CreateCurrencyListModelAsync(Currency currency)
-        {
-            var model = await MapperFactory.MapAsync<Currency, CurrencyModel>(currency);
-
-            model.IsPrimaryCurrency = model.Id == _currencySettings.PrimaryCurrencyId;
-            model.IsPrimaryExchangeCurrency = model.Id == _currencySettings.PrimaryExchangeCurrencyId;
-
-            return model;
-        }
-
-        private bool IsAttachedToStore(Currency currency, IList<Store> stores, bool force)
-        {
-            // TODO: (mg) (core) review IsAttachedToStore. Probably not required anymore.
-            var attachedStore = stores.FirstOrDefault(x => x.PrimaryStoreCurrencyId == currency.Id || x.PrimaryExchangeRateCurrencyId == currency.Id);
-
-            if (attachedStore != null)
-            {
-                if (force || (!force && !currency.Published))
-                {
-                    NotifyError(T("Admin.Configuration.Currencies.DeleteOrPublishStoreConflict", attachedStore.Name));
-                    return true;
-                }
-
-                // Must store limitations include the store where the currency is attached as primary or exchange rate currency?
-                //if (currency.LimitedToStores)
-                //{
-                //	if (selectedStoreIds == null)
-                //		selectedStoreIds = _storeMappingService.GetStoreMappingsFor("Currency", currency.Id).Select(x => x.StoreId).ToArray();
-
-                //	if (!selectedStoreIds.Contains(attachedStore.Id))
-                //	{
-                //		NotifyError(T("Admin.Configuration.Currencies.StoreLimitationConflict", attachedStore.Name));
-                //		return true;
-                //	}
-                //}
-            }
-            return false;
-        }
-
-        #endregion
-
         public IActionResult Index()
         {
             return RedirectToAction(nameof(List));
@@ -194,8 +96,12 @@ namespace Smartstore.Admin.Controllers
             var currencyModels = await currencies
                 .SelectAsync(async x =>
                 {
-                    var model = await CreateCurrencyListModelAsync(x);
+                    var model = await MapperFactory.MapAsync<Currency, CurrencyModel>(x);
+
+                    model.IsPrimaryCurrency = model.Id == _currencySettings.PrimaryCurrencyId;
+                    model.IsPrimaryExchangeCurrency = model.Id == _currencySettings.PrimaryExchangeCurrencyId;
                     model.EditUrl = Url.Action(nameof(Edit), "Currency", new { id = x.Id });
+
                     return model;
                 })
                 .AsyncToList();
@@ -211,7 +117,7 @@ namespace Smartstore.Admin.Controllers
 
         [HttpPost]
         [Permission(Permissions.Configuration.Currency.Update)]
-        public async Task<IActionResult> Update(CurrencyModel model)
+        public async Task<IActionResult> CurrencyUpdate(CurrencyModel model)
         {
             var success = false;
             var currency = await _db.Currencies.FindByIdAsync(model.Id);
@@ -224,6 +130,33 @@ namespace Smartstore.Admin.Controllers
             }
 
             return Json(new { success });
+        }
+
+        [HttpPost]
+        [Permission(Permissions.Configuration.Currency.Delete)]
+        public async Task<IActionResult> CurrencyDelete(GridSelection selection)
+        {
+            var success = false;
+            var numDeleted = 0;
+            var ids = selection.GetEntityIds();
+
+            if (ids.Any())
+            {
+                try
+                {
+                    var currencies = await _db.Currencies.GetManyAsync(ids, true);
+                    _db.Currencies.RemoveRange(currencies);
+
+                    numDeleted = await _db.SaveChangesAsync();
+                    success = true;
+                }
+                catch (Exception ex)
+                {
+                    NotifyError(ex);
+                }
+            }
+
+            return Json(new { Success = success, Count = numDeleted });
         }
 
         [HttpPost]
@@ -373,7 +306,10 @@ namespace Smartstore.Admin.Controllers
                 await _db.SaveChangesAsync();
 
                 NotifySuccess(T("Admin.Configuration.Currencies.Added"));
-                return continueEditing ? RedirectToAction(nameof(Edit), new { id = currency.Id }) : RedirectToAction(nameof(List));
+
+                return continueEditing 
+                    ? RedirectToAction(nameof(Edit), new { id = currency.Id }) 
+                    : RedirectToAction(nameof(List));
             }
 
             await PrepareCurrencyModelAsync(model, null, true);
@@ -391,27 +327,11 @@ namespace Smartstore.Admin.Controllers
             }
 
             var model = await MapperFactory.MapAsync<Currency, CurrencyModel>(currency);
-            model.CreatedOn = Services.DateTimeHelper.ConvertToUserTime(currency.CreatedOnUtc, DateTimeKind.Utc);
 
             AddLocales(model.Locales, (locale, languageId) =>
             {
                 locale.Name = currency.GetLocalized(x => x.Name, languageId, false, false);
             });
-
-            foreach (var ending in model.DomainEndings.SplitSafe(','))
-            {
-                var item = model.AvailableDomainEndings.FirstOrDefault(x => x.Value.EqualsNoCase(ending));
-                if (item == null)
-                {
-                    model.AvailableDomainEndings.Add(new SelectListItem { Text = ending, Value = ending, Selected = true });
-                }
-                else
-                {
-                    item.Selected = true;
-                }
-            }
-
-            model.DomainEndingsArray = model.DomainEndings.SplitSafe(',').ToArray();
 
             await PrepareCurrencyModelAsync(model, currency, false);
 
@@ -431,21 +351,27 @@ namespace Smartstore.Admin.Controllers
 
             if (ModelState.IsValid)
             {
-                await MapperFactory.MapAsync(model, currency);
-                currency.DomainEndings = string.Join(",", model.DomainEndingsArray ?? Array.Empty<string>());
-
-                if (!IsAttachedToStore(currency, Services.StoreContext.GetAllStores().ToList(), false))
+                try
                 {
+                    await MapperFactory.MapAsync(model, currency);
+
+                    currency.DomainEndings = string.Join(",", model.DomainEndingsArray ?? Array.Empty<string>());
+
                     await UpdateLocalesAsync(currency, model);
                     await SaveStoreMappingsAsync(currency, model.SelectedStoreIds);
                     await _db.SaveChangesAsync();
 
                     NotifySuccess(T("Admin.Configuration.Currencies.Updated"));
-                    return continueEditing ? RedirectToAction(nameof(Edit), new { id = currency.Id }) : RedirectToAction(nameof(List));
+
+                    return continueEditing
+                        ? RedirectToAction(nameof(Edit), new { id = currency.Id })
+                        : RedirectToAction(nameof(List));
+                }
+                catch (Exception ex)
+                {
+                    NotifyError(ex);
                 }
             }
-
-            model.CreatedOn = Services.DateTimeHelper.ConvertToUserTime(currency.CreatedOnUtc, DateTimeKind.Utc);
 
             await PrepareCurrencyModelAsync(model, currency, true);
 
@@ -464,18 +390,12 @@ namespace Smartstore.Admin.Controllers
 
             try
             {
-                if (!IsAttachedToStore(currency, Services.StoreContext.GetAllStores().ToList(), true))
-                {
-                    _db.Currencies.Remove(currency);
-                    await _db.SaveChangesAsync();
+                _db.Currencies.Remove(currency);
+                await _db.SaveChangesAsync();
 
-                    NotifySuccess(T("Admin.Configuration.Currencies.Deleted"));
-                    return RedirectToAction(nameof(List));
-                }
-                else
-                {
-                    NotifyError(T("Admin.Configuration.Currencies.CannotDeleteAssociated"));
-                }
+                NotifySuccess(T("Admin.Configuration.Currencies.Deleted"));
+
+                return RedirectToAction(nameof(List));
             }
             catch (Exception ex)
             {
@@ -483,40 +403,6 @@ namespace Smartstore.Admin.Controllers
             }
 
             return RedirectToAction(nameof(Edit), new { id = currency.Id });
-        }
-
-        [HttpPost]
-        [Permission(Permissions.Configuration.Currency.Delete)]
-        public async Task<IActionResult> DeleteSelection(GridSelection selection)
-        {
-            var success = false;
-            var numDeleted = 0;
-            var ids = selection.GetEntityIds();
-
-            if (ids.Any())
-            {
-                var currencies = await _db.Currencies.GetManyAsync(ids, true);
-                var triedToDeleteAssociated = false;
-
-                foreach (var currency in currencies)
-                {
-                    if (!IsAttachedToStore(currency, Services.StoreContext.GetAllStores().ToList(), true))
-                    {
-                        _db.Currencies.Remove(currency);
-                    }
-                    else
-                    {
-                        triedToDeleteAssociated = true;
-                        NotifyError(T("Admin.Configuration.Currencies.CannotDeleteAssociated"));
-                    }
-                }
-
-                numDeleted = await _db.SaveChangesAsync();
-
-                success = !triedToDeleteAssociated || numDeleted != 0;
-            }
-
-            return Json(new { Success = success, Count = numDeleted });
         }
 
         // AJAX
@@ -545,5 +431,61 @@ namespace Smartstore.Admin.Controllers
 
             return new JsonResult(new { example, error });
         }
+
+        #region Utilities
+
+        private async Task UpdateLocalesAsync(Currency currency, CurrencyModel model)
+        {
+            foreach (var localized in model.Locales)
+            {
+                await _localizedEntityService.ApplyLocalizedValueAsync(currency, x => x.Name, localized.Name, localized.LanguageId);
+            }
+        }
+
+        private async Task PrepareCurrencyModelAsync(CurrencyModel model, Currency currency, bool excludeProperties)
+        {
+            Guard.NotNull(model, nameof(model));
+
+            var paymentMethods = await _paymentService.GetAllPaymentMethodsAsync();
+            var paymentProviders = await _paymentService.LoadAllPaymentMethodsAsync();
+
+            foreach (var provider in paymentProviders)
+            {
+                if (paymentMethods.TryGetValue(provider.Metadata.SystemName, out var paymentMethod) && paymentMethod.RoundOrderTotalEnabled)
+                {
+                    var friendlyName = _moduleManager.GetLocalizedFriendlyName(provider.Metadata);
+                    model.RoundOrderTotalPaymentMethods[provider.Metadata.SystemName] = friendlyName ?? provider.Metadata.SystemName;
+                }
+            }
+
+            if (currency != null)
+            {
+                model.CreatedOn = Services.DateTimeHelper.ConvertToUserTime(currency.CreatedOnUtc, DateTimeKind.Utc);
+                model.IsPrimaryCurrency = currency.Id == _currencySettings.PrimaryCurrencyId;
+                model.IsPrimaryExchangeCurrency = currency.Id == _currencySettings.PrimaryExchangeCurrencyId;
+            }
+
+            if (!excludeProperties)
+            {
+                model.SelectedStoreIds = await _storeMappingService.GetAuthorizedStoreIdsAsync(currency);
+
+                foreach (var ending in model.DomainEndings.SplitSafe(','))
+                {
+                    var item = model.AvailableDomainEndings.FirstOrDefault(x => x.Value.EqualsNoCase(ending));
+                    if (item == null)
+                    {
+                        model.AvailableDomainEndings.Add(new SelectListItem { Text = ending, Value = ending, Selected = true });
+                    }
+                    else
+                    {
+                        item.Selected = true;
+                    }
+                }
+
+                model.DomainEndingsArray = model.DomainEndings.SplitSafe(',').ToArray();
+            }
+        }
+
+        #endregion
     }
 }

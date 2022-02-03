@@ -229,6 +229,7 @@ namespace Smartstore.Admin.Controllers
             if (ids.Any())
             {
                 var deliveryTimes = await _db.DeliveryTimes.GetManyAsync(ids, true);
+                // TODO: (mg) (core) we have a hook for this (check all other 'triedToDeleteDefault').
                 var triedToDeleteDefault = false;
 
                 foreach (var deliveryTime in deliveryTimes)
@@ -252,7 +253,6 @@ namespace Smartstore.Admin.Controllers
             return Json(new { Success = success, Count = numDeleted });
         }
 
-        [NonAction]
         private async Task UpdateLocalesAsync(DeliveryTime deliveryTime, DeliveryTimeModel model)
         {
             foreach (var localized in model.Locales)

@@ -4,11 +4,13 @@ using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
+using Smartstore.Data.Hooks;
 using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Core.Common.Services
 {
-    public partial class CurrencyService : ICurrencyService
+    [Important]
+    public partial class CurrencyService : AsyncDbSaveHook<Currency>, ICurrencyService
     {
         private readonly SmartDbContext _db;
         private readonly ILocalizationService _localizationService;
@@ -38,6 +40,39 @@ namespace Smartstore.Core.Common.Services
             _taxSettings = taxSettings;
             _settingFactory = settingFactory;
         }
+
+        public Localizer T { get; set; } = NullLocalizer.Instance;
+
+        #region Hook
+
+        protected override Task<HookResult> OnUpdatingAsync(Currency entity, IHookedEntity entry, CancellationToken cancelToken)
+        {
+            CheckPrimaryCurrency(entity, entry);
+
+            return Task.FromResult(HookResult.Ok);
+        }
+
+        protected override Task<HookResult> OnDeletingAsync(Currency entity, IHookedEntity entry, CancellationToken cancelToken)
+        {
+            if (!entity.Published)
+            {
+                CheckPrimaryCurrency(entity, entry);
+            }
+
+            return Task.FromResult(HookResult.Ok);
+        }
+
+        private void CheckPrimaryCurrency(Currency entity, IHookedEntity entry)
+        {
+            if (entity.Id == _currencySettings.PrimaryCurrencyId || entity.Id == _currencySettings.PrimaryExchangeCurrencyId)
+            {
+                entry.State = Smartstore.Data.EntityState.Detached;
+
+                throw new SmartException(T("Admin.Configuration.Currencies.CannotDeleteOrDeactivatePrimaryCurrency"));
+            }
+        }
+
+        #endregion
 
         public virtual Currency PrimaryCurrency
         {

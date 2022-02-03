@@ -32,14 +32,6 @@ namespace Smartstore.Admin.Models.Common
 
         [LocalizedDisplay("Common.CreatedOn")]
         public DateTime CreatedOn { get; set; }
-        public bool IsPrimaryCurrency { get; set; }
-        public bool IsPrimaryExchangeCurrency { get; set; }
-
-        [LocalizedDisplay("*PrimaryStoreCurrencyStores")]
-        public List<SelectListItem> PrimaryStoreCurrencyStores { get; set; } = new();
-
-        [LocalizedDisplay("*PrimaryExchangeRateCurrencyStores")]
-        public List<SelectListItem> PrimaryExchangeRateCurrencyStores { get; set; } = new();
 
         [LocalizedDisplay("*DomainEndings")]
         public string DomainEndings { get; set; }
@@ -62,6 +54,12 @@ namespace Smartstore.Admin.Models.Common
         [LocalizedDisplay("Admin.Common.Store.LimitedTo")]
         public bool LimitedToStores { get; set; }
 
+        [LocalizedDisplay("*IsPrimaryStoreCurrency")]
+        public bool IsPrimaryCurrency { get; set; }
+
+        [LocalizedDisplay("*IsPrimaryExchangeRateCurrency")]
+        public bool IsPrimaryExchangeCurrency { get; set; }
+
         public string EditUrl { get; set; }
 
         #region Rounding
@@ -81,7 +79,7 @@ namespace Smartstore.Admin.Models.Common
         [LocalizedDisplay("*RoundOrderTotalRule")]
         public CurrencyRoundingRule RoundOrderTotalRule { get; set; }
 
-        public Dictionary<string, string> RoundOrderTotalPaymentMethods { get; set; } = new Dictionary<string, string>();
+        public Dictionary<string, string> RoundOrderTotalPaymentMethods { get; set; } = new();
 
         #endregion Rounding
     }
