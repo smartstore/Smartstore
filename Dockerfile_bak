@@ -1,37 +1,17 @@
-# FROM mcr.microsoft.com/dotnet/aspnet:6.0-alpine AS runtime
-FROM mcr.microsoft.com/dotnet/aspnet AS runtime
+FROM mcr.microsoft.com/dotnet/aspnet:6.0
+
+# Copy
 WORKDIR /app
+COPY artifacts/Enterprise.5.0.0.linux-x64/ ./
 
-COPY artifacts/Community.5.0.0.linux-x64/ ./
-WORKDIR /app
-EXPOSE 5001
-ENV ASPNETCORE_URLS http://+:5001
+# Expose
+EXPOSE 80
 
-# RUN apt-get update
-# RUN apt-get -y install wkhtmltopdf
+# Install wkhtmltopdf
+RUN apt update &&\
+	apt -y install wget &&\
+	wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox_0.12.6-1.buster_amd64.deb &&\ 
+	apt -y install ./wkhtmltox_0.12.6-1.buster_amd64.deb &&\
+	rm ./wkhtmltox_0.12.6-1.buster_amd64.deb
 
-# RUN apk update
-# RUN apk add wkhtmltopdf
-
-# Eigenen Benutzer als Besitzer des Website-Ordners mit vollen Lese-, Schreib- und Ausführungsrechten setzen
-# RUN chown -R root /app
-
-# Webserver als Gruppen-Besitzer setzen
-# RUN chgrp -R www-data /app
-
-# Rekursiv für alle Dateien und Ordner Lese-, Schreib- und Ausführungsrechte für den Besitzer, 
-# Lese- und Ausführungsrechte für den Gruppen-Besitzer und keine Rechte für andere festlegen
-# RUN chmod -R 750 /app
-
-# Gruppenbesitz auf neue Dateien und Ordner vererben
-# RUN chmod g+s /app
-
-# Spezielle Ordner rekursiv mit Schreibrechten für Webserver versehen
-# RUN chmod -R g+w App_Data/
-# RUN chmod -R g+w Modules/
-
-
-# RUN chmod 777 App_Data/
-# RUN chmod 777 Modules/
-
-ENTRYPOINT ["dotnet", "Smartstore.Web.dll"]
+ENTRYPOINT ["./Smartstore.Web", "--urls", "http://0.0.0.0:80"]

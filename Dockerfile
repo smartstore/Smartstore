@@ -1,11 +1,21 @@
-FROM mcr.microsoft.com/dotnet/aspnet:6.0
+FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 
-# Copy
+# Build application
 WORKDIR /app
-COPY artifacts/Enterprise.5.0.0.linux-x64/ ./
+COPY Smartstore.Min.sln ./
+COPY src/ ./src
+#RUN dotnet restore Smartstore.sln
+RUN dotnet build Smartstore.Min.sln -c Release -o ./release
+WORKDIR /app/src/Smartstore.Web
+RUN dotnet publish Smartstore.Web.csproj -c Release -o /app/release/publish --runtime linux-x64 --no-self-contained
 
-# Expose
+# Build docker image
+FROM mcr.microsoft.com/dotnet/aspnet:6.0
 EXPOSE 80
+EXPOSE 443
+ENV ASPNETCORE_URLS http://+:80
+WORKDIR /app
+COPY --from=build /app/release/publish .
 
 # Install wkhtmltopdf
 RUN apt update &&\

@@ -7,13 +7,15 @@ services:
             - "80:80"
         depends_on:
             - db
+        volumes:
+            - "D:/mount/smtenants:/app/App_Data/Tenants"
     db:
         image: mysql
         restart: always
         container_name: db
         environment:
-            MYSQL_DATABASE: "smartstore"
-            MYSQL_USER: "root"
+            MYSQL_DATABASE: smartstore
+            # MYSQL_USER: "root"
             MYSQL_PASSWORD: "smartstore"
             MYSQL_ROOT_PASSWORD: "smartstore"
         ports:

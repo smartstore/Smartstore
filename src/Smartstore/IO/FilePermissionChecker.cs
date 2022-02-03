@@ -192,7 +192,7 @@ namespace Smartstore.IO
                         RedirectStandardInput = true,
                         RedirectStandardOutput = true,
                         UseShellExecute = false,
-                        FileName = "sh",
+                        FileName = "/bin/sh",
                         Arguments = arguments
                     }
                 };
@@ -203,7 +203,7 @@ namespace Smartstore.IO
                 // Where 555 - file permissions, 1111 - file owner ID, 2222 - file group ID
                 var result = process.StandardOutput.ReadToEnd().Trim('\n').Split(' ');
 
-                var filePermissions = result[0].Select(p => (int)char.GetNumericValue(p)).ToList();
+                var filePermissions = result[0].Select(p => (int)char.GetNumericValue(p)).ToArray();
                 var isOwner = _osIdentity.UserId == result[1];
                 var isInGroup = _osIdentity.Groups.Contains(result[2]);
 
@@ -212,8 +212,9 @@ namespace Smartstore.IO
 
                 return CheckUserFilePermissions(filePermission);
             }
-            catch
+            catch (Exception ex)
             {
+                Console.WriteLine($"FilePermissionChecker error: {ex.Message}");
                 return false;
             }
 
