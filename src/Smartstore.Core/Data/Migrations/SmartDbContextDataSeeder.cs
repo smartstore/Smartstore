@@ -68,6 +68,36 @@ namespace Smartstore.Core.Data.Migrations
             {
                 activeWidgetZone.Each(x => x.Value = x.Value.Replace("SmartStore.GoogleAnalytics", "Smartstore.Google.Analytics"));
             }
+
+            var store = await context.Stores
+                .AsNoTracking()
+                .OrderBy(x => x.DisplayOrder)
+                .ThenBy(x => x.Name)
+                .FirstOrDefaultAsync(cancelToken);
+
+            if (store != null)
+            {
+                var settingValues = new Dictionary<string, string>
+                {
+                    { "CurrencySettings.PrimaryCurrencyId", store.PrimaryStoreCurrencyId.ToString() },
+                    { "CurrencySettings.PrimaryExchangeCurrencyId", store.PrimaryExchangeRateCurrencyId.ToString() }
+                };
+
+                foreach (var pair in settingValues)
+                {
+                    var setting = await settings.FirstOrDefaultAsync(x => x.Name == pair.Key && x.StoreId == 0, cancelToken);
+                    if (setting != null)
+                    {
+                        setting.Value = pair.Value;
+                    }
+                    else
+                    {
+                        settings.Add(new Setting { Name = pair.Key, Value = pair.Value });
+                    }
+                }
+            }
+
+            await context.SaveChangesAsync(cancelToken);
         }
 
         public void MigrateLocaleResources(LocaleResourcesBuilder builder)
@@ -383,6 +413,14 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.Catalog.Products.BundleItems.CanBeBundleItemWarning",
                 "A bundle, grouped product, download or recurring product cannot be added to the bundle item list.",
                 "Ein Bundle, Gruppenprodukt, Abo oder Download kann der Stückliste nicht hinzugefügt werden.");
+
+            builder.AddOrUpdate("Admin.Configuration.Currencies.SetAsPrimaryCurrency",
+                "Set as primary currency",
+                "Als Leitwährung festlegen");
+
+            builder.AddOrUpdate("Admin.Configuration.Currencies.SetAsPrimaryExchangeCurrency",
+                "Set as exchange rate currency",
+                "Als Umrechnungswährung festlegen");
 
             #endregion
 
@@ -722,6 +760,7 @@ namespace Smartstore.Core.Data.Migrations
             //    "Admin.Orders.List.OrderGuid.Hint",
             //    "Admin.DataExchange.Export.FolderName.Validate",
             //    "Admin.ContentManagement.Topics.BackToList",
+            //    "Admin.Configuration.Currencies.BackToList",
             //    );
 
 

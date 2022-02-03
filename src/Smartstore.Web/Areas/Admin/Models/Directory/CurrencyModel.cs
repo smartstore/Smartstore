@@ -32,8 +32,8 @@ namespace Smartstore.Admin.Models.Common
 
         [LocalizedDisplay("Common.CreatedOn")]
         public DateTime CreatedOn { get; set; }
-        public bool IsPrimaryStoreCurrency { get; set; }
-        public bool IsPrimaryExchangeRateCurrency { get; set; }
+        public bool IsPrimaryCurrency { get; set; }
+        public bool IsPrimaryExchangeCurrency { get; set; }
 
         [LocalizedDisplay("*PrimaryStoreCurrencyStores")]
         public List<SelectListItem> PrimaryStoreCurrencyStores { get; set; } = new();
@@ -52,7 +52,7 @@ namespace Smartstore.Admin.Models.Common
             new SelectListItem { Text = ".ch", Value = ".ch" }
         };
 
-        public List<CurrencyLocalizedModel> Locales { get; set; } = new List<CurrencyLocalizedModel>();
+        public List<CurrencyLocalizedModel> Locales { get; set; } = new();
 
         [UIHint("Stores")]
         [AdditionalMetadata("multiple", true)]

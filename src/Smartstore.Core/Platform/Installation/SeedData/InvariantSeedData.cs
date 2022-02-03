@@ -79,13 +79,7 @@ namespace Smartstore.Core.Installation
         {
             var imgCompanyLogo = _db.MediaFiles.Where(x => x.Name == "company-logo.png").FirstOrDefault();
 
-            var currency = _db.Currencies.FirstOrDefault(x => x.CurrencyCode == "EUR");
-            if (currency == null)
-            {
-                currency = _db.Currencies.First();
-            }
-
-            var entities = new List<Store>()
+            var entities = new List<Store>
             {
                 new Store
                 {
@@ -94,9 +88,7 @@ namespace Smartstore.Core.Installation
                     Hosts = "yourstore.com,www.yourstore.com",
                     SslEnabled = false,
                     DisplayOrder = 1,
-                    LogoMediaFileId = imgCompanyLogo?.Id ?? 0,
-                    PrimaryStoreCurrencyId = currency.Id,
-                    PrimaryExchangeRateCurrencyId = currency.Id
+                    LogoMediaFileId = imgCompanyLogo?.Id ?? 0
                 }
             };
 
@@ -572,7 +564,7 @@ namespace Smartstore.Core.Installation
                 .Select(x => Activator.CreateInstance(x))
                 .OfType<ISettings>()
                 .ToList();
-            
+
             var defaultLanguageId = _language.Id;
             var localizationSettings = settings.OfType<LocalizationSettings>().FirstOrDefault();
             if (localizationSettings != null)
@@ -601,11 +593,22 @@ namespace Smartstore.Core.Installation
                 };
             }
 
-            var defaultEmailAccountId = (_db.EmailAccounts.FirstOrDefault())?.Id ?? 0;
+            var defaultEmailAccountId = _db.EmailAccounts.FirstOrDefault()?.Id ?? 0;
             var emailAccountSettings = settings.OfType<EmailAccountSettings>().FirstOrDefault();
             if (emailAccountSettings != null)
             {
                 emailAccountSettings.DefaultEmailAccountId = defaultEmailAccountId;
+            }
+
+            var currencySettings = settings.OfType<CurrencySettings>().FirstOrDefault();
+            if (currencySettings != null)
+            {
+                var currency = _db.Currencies.FirstOrDefault(x => x.CurrencyCode == "EUR") ?? _db.Currencies.First();
+                if (currency != null)
+                {
+                    currencySettings.PrimaryCurrencyId = currency.Id;
+                    currencySettings.PrimaryExchangeCurrencyId = currency.Id;
+                }
             }
 
             Alter(settings);

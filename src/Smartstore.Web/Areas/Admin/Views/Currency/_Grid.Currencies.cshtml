@@ -39,7 +39,7 @@
         </column>
         <column for="CurrencyCode" halign="center" />
         <column for="Published" halign="center" />
-        <column for="Rate" halign="flex-end" format="{0:N5}"/>
+        <column for="Rate" halign="flex-end" format="{0:N5}" />
         <column for="DisplayOrder" halign="center" />
         <column for="LimitedToStores" halign="center" readonly="true" />
         <column for="DomainEndings" />
@@ -47,5 +47,38 @@
     <row-commands>
         <a datarow-action="DataRowAction.Custom" :href="item.row.EditUrl">@T("Common.Edit")</a>
         <a datarow-action="DataRowAction.Delete">@T("Common.Delete")</a>
+        <div class="dropdown-divider"></div>
+        <a datarow-action="DataRowAction.Custom" class="grid-set-primary-currency" :data-key="item.row.Id" v-bind:class="{ disabled: item.row.IsPrimaryCurrency }">
+            @T("Admin.Configuration.Currencies.SetAsPrimaryCurrency")
+        </a>
+        <a datarow-action="DataRowAction.Custom" class="grid-set-primary-currency grid-set-primary-exchange-currency" :data-key="item.row.Id"
+           v-bind:class="{ disabled: item.row.IsPrimaryExchangeCurrency }">
+            @T("Admin.Configuration.Currencies.SetAsPrimaryExchangeCurrency")
+        </a>
     </row-commands>
 </datagrid>
+
+<script sm-target-zone="scripts" data-origin="currencies-grid">
+    $(function () {
+        $(document).on('click', '.grid-set-primary-currency', function (e) {
+            e.preventDefault();
+            var btn = $(this);
+
+            $.ajax({
+				cache: false,
+				type: 'POST',
+				url: '@(Url.Action("SetPrimaryCurrency", "Currency"))',
+				data: {
+                    "id": btn.data("key"),
+                    "forExchange": btn.hasClass('grid-set-primary-exchange-currency')
+				},
+                success: function () {
+                    const currenciesGrid = $('#currencies-grid').parent().data('datagrid');
+                    currenciesGrid.read();
+                }
+            });
+
+            return false;
+        });
+    });
+</script>

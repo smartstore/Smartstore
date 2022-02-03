@@ -96,16 +96,16 @@ namespace Smartstore.Web.Rendering
         /// Renders a labeled currency name for grids including a link to the edit page. Not intended to be used outside of grids.
         /// </summary>
         /// <param name="helper"></param>
-        /// <param name="isPrimaryStoreCurrencyExpression">Row expression of IsPrimaryStoreCurrencyExpression property.</param>
-        /// <param name="isPrimaryExchangeRateCurrencyExpression">Row expression of IsPrimaryExchangeRateCurrencyExpression property.</param>
+        /// <param name="isPrimaryCurrencyExpression">Row expression of IsPrimaryCurrencyExpression property.</param>
+        /// <param name="isPrimaryExchangeCurrencyExpression">Row expression of IsPrimaryExchangeCurrencyExpression property.</param>
         /// <param name="urlExpression">Row expression of the edit page URL.</param>
         /// <param name="valueExpression">Value expression of the name cell.</param>
         /// <param name="linkTarget">Value of the HTML target attribute.</param>
         /// <returns>Labeled currency name.</returns>
         public static IHtmlContent LabeledCurrencyName(
             this IHtmlHelper helper,
-            string isPrimaryStoreCurrencyExpression = "item.row.IsPrimaryStoreCurrency",
-            string isPrimaryExchangeRateCurrencyExpression = "item.row.IsPrimaryExchangeRateCurrency",
+            string isPrimaryCurrencyExpression = "item.row.IsPrimaryCurrency",
+            string isPrimaryExchangeCurrencyExpression = "item.row.IsPrimaryExchangeCurrency",
             string urlExpression = "item.row.EditUrl",
             string valueExpression = "item.value",
             string linkTarget = null)
@@ -113,21 +113,21 @@ namespace Smartstore.Web.Rendering
             var builder = new HtmlContentBuilder();
             var localizationService = helper.ViewContext.HttpContext.RequestServices.GetService<ILocalizationService>();
 
-            if (isPrimaryStoreCurrencyExpression.HasValue())
+            if (isPrimaryCurrencyExpression.HasValue())
             {
                 var label = new TagBuilder("span");
-                label.Attributes.Add("v-if", isPrimaryStoreCurrencyExpression);
+                label.Attributes.Add("v-if", isPrimaryCurrencyExpression);
                 label.Attributes.Add("class", "badge badge-warning");
-                label.Attributes.Add("v-bind:class", "{ 'mr-1': !" + isPrimaryExchangeRateCurrencyExpression + "}");
+                label.Attributes.Add("v-bind:class", "{ 'mr-1': !" + isPrimaryExchangeCurrencyExpression + "}");
                 label.InnerHtml.Append(localizationService.GetResource("Admin.Configuration.Currencies.Fields.IsPrimaryStoreCurrency"));
 
                 builder.AppendHtml(label);
             }
 
-            if (isPrimaryExchangeRateCurrencyExpression.HasValue())
+            if (isPrimaryExchangeCurrencyExpression.HasValue())
             {
                 var label = new TagBuilder("span");
-                label.Attributes.Add("v-if", isPrimaryExchangeRateCurrencyExpression);
+                label.Attributes.Add("v-if", isPrimaryExchangeCurrencyExpression);
                 label.Attributes.Add("class", "badge badge-info mr-1");
                 label.InnerHtml.Append(localizationService.GetResource("Admin.Configuration.Currencies.Fields.IsPrimaryExchangeRateCurrency"));
 

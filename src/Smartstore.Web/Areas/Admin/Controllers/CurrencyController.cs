@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Admin.Models.Common;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Checkout.Payment;
-using Smartstore.Core.Common.Services;
 using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
@@ -16,38 +15,29 @@ namespace Smartstore.Admin.Controllers
     public class CurrencyController : AdminController
     {
         private readonly SmartDbContext _db;
-        private readonly ICurrencyService _currencyService;
-        private readonly CurrencySettings _currencySettings;
-        private readonly IDateTimeHelper _dateTimeHelper;
         private readonly ILocalizedEntityService _localizedEntityService;
         private readonly ILanguageService _languageService;
         private readonly IStoreMappingService _storeMappingService;
         private readonly ModuleManager _moduleManager;
-        private readonly ICommonServices _services;
         private readonly IPaymentService _paymentService;
+        private readonly CurrencySettings _currencySettings;
 
         public CurrencyController(
             SmartDbContext db,
-            ICurrencyService currencyService,
-            CurrencySettings currencySettings,
-            IDateTimeHelper dateTimeHelper,
             ILocalizedEntityService localizedEntityService,
             ILanguageService languageService,
             IStoreMappingService storeMappingService,
             ModuleManager moduleManager,
-            ICommonServices services,
-            IPaymentService paymentService)
+            IPaymentService paymentService,
+            CurrencySettings currencySettings)
         {
             _db = db;
-            _currencyService = currencyService;
-            _currencySettings = currencySettings;
-            _dateTimeHelper = dateTimeHelper;
             _localizedEntityService = localizedEntityService;
             _languageService = languageService;
             _storeMappingService = storeMappingService;
             _moduleManager = moduleManager;
-            _services = services;
             _paymentService = paymentService;
+            _currencySettings = currencySettings;
         }
 
         #region Utilities
@@ -79,7 +69,8 @@ namespace Smartstore.Admin.Controllers
 
             if (currency != null)
             {
-                var allStores = _services.StoreContext.GetAllStores();
+                // TODO: (mg) (core) review model.PrimaryStoreCurrencyStores\PrimaryExchangeRateCurrencyStores. Probably not required anymore.
+                var allStores = Services.StoreContext.GetAllStores();
 
                 model.PrimaryStoreCurrencyStores = allStores
                     .Where(x => x.PrimaryStoreCurrencyId == currency.Id)
@@ -108,17 +99,17 @@ namespace Smartstore.Admin.Controllers
 
         private async Task<CurrencyModel> CreateCurrencyListModelAsync(Currency currency)
         {
-            var store = _services.StoreContext.CurrentStore;
             var model = await MapperFactory.MapAsync<Currency, CurrencyModel>(currency);
 
-            model.IsPrimaryStoreCurrency = store.PrimaryStoreCurrencyId == model.Id;
-            model.IsPrimaryExchangeRateCurrency = store.PrimaryExchangeRateCurrencyId == model.Id;
+            model.IsPrimaryCurrency = model.Id == _currencySettings.PrimaryCurrencyId;
+            model.IsPrimaryExchangeCurrency = model.Id == _currencySettings.PrimaryExchangeCurrencyId;
 
             return model;
         }
 
         private bool IsAttachedToStore(Currency currency, IList<Store> stores, bool force)
         {
+            // TODO: (mg) (core) review IsAttachedToStore. Probably not required anymore.
             var attachedStore = stores.FirstOrDefault(x => x.PrimaryStoreCurrencyId == currency.Id || x.PrimaryExchangeRateCurrencyId == currency.Id);
 
             if (attachedStore != null)
@@ -163,7 +154,7 @@ namespace Smartstore.Admin.Controllers
             
             ViewBag.ExchangeRateProviders = new List<SelectListItem>();
 
-            foreach (var erp in _currencyService.LoadAllExchangeRateProviders())
+            foreach (var erp in Services.CurrencyService.LoadAllExchangeRateProviders())
             {
                 ViewBag.ExchangeRateProviders.Add(new SelectListItem
                 {
@@ -183,8 +174,8 @@ namespace Smartstore.Admin.Controllers
             _currencySettings.ActiveExchangeRateProviderSystemName = model.ExchangeRateProvider;
             _currencySettings.AutoUpdateEnabled = model.AutoUpdateEnabled;
 
-            await _services.Settings.ApplySettingAsync(_currencySettings, x => x.ActiveExchangeRateProviderSystemName);
-            await _services.Settings.ApplySettingAsync(_currencySettings, x => x.AutoUpdateEnabled);
+            await Services.Settings.ApplySettingAsync(_currencySettings, x => x.ActiveExchangeRateProviderSystemName);
+            await Services.Settings.ApplySettingAsync(_currencySettings, x => x.AutoUpdateEnabled);
             await _db.SaveChangesAsync();
 
             return RedirectToAction(nameof(List), "Currency");
@@ -219,7 +210,7 @@ namespace Smartstore.Admin.Controllers
         }
 
         [HttpPost]
-        [Permission(Permissions.Configuration.Measure.Update)]
+        [Permission(Permissions.Configuration.Currency.Update)]
         public async Task<IActionResult> Update(CurrencyModel model)
         {
             var success = false;
@@ -239,7 +230,7 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Configuration.Currency.Read)]
         public async Task<IActionResult> LiveRateList()
         {
-            var language = _services.WorkContext.WorkingLanguage;
+            var language = Services.WorkContext.WorkingLanguage;
             var rates = new List<ExchangeRate>();
             var ratesCount = 0;
             var allCurrenciesByIsoCode = (await _db.Currencies
@@ -249,13 +240,13 @@ namespace Smartstore.Admin.Controllers
 
             try
             {
-                var primaryExchangeCurrency = _currencyService.PrimaryExchangeCurrency;
+                var primaryExchangeCurrency = Services.CurrencyService.PrimaryExchangeCurrency;
                 if (primaryExchangeCurrency == null)
                 {
                     throw new SmartException(T("Admin.System.Warnings.ExchangeCurrency.NotSet"));
                 }
 
-                rates = (await _currencyService.GetCurrencyLiveRatesAsync(primaryExchangeCurrency.CurrencyCode)).ToList();
+                rates = (await Services.CurrencyService.GetCurrencyLiveRatesAsync(primaryExchangeCurrency.CurrencyCode)).ToList();
 
                 // Get localized name of currencies.
                 var currencyNames = allCurrenciesByIsoCode.ToDictionarySafe(
@@ -332,6 +323,31 @@ namespace Smartstore.Admin.Controllers
             return new JsonResult(new { success, returnMessage });
         }
 
+        // AJAX
+        [HttpPost]
+        [Permission(Permissions.Configuration.Currency.Update)]
+        public async Task<IActionResult> SetPrimaryCurrency(int id, bool forExchange)
+        {
+            var currency = await _db.Currencies.FindByIdAsync(id, false);
+            if (currency == null)
+            {
+                return NotFound();
+            }
+
+            if (forExchange)
+            {
+                _currencySettings.PrimaryExchangeCurrencyId = currency.Id;
+            }
+            else
+            {
+                _currencySettings.PrimaryCurrencyId = currency.Id;
+            }
+
+            await Services.SettingFactory.SaveSettingsAsync(_currencySettings);
+
+            return new JsonResult(new { success = true });
+        }
+
         [Permission(Permissions.Configuration.Currency.Create)]
         public async Task<IActionResult> Create()
         {
@@ -375,7 +391,7 @@ namespace Smartstore.Admin.Controllers
             }
 
             var model = await MapperFactory.MapAsync<Currency, CurrencyModel>(currency);
-            model.CreatedOn = _dateTimeHelper.ConvertToUserTime(currency.CreatedOnUtc, DateTimeKind.Utc);
+            model.CreatedOn = Services.DateTimeHelper.ConvertToUserTime(currency.CreatedOnUtc, DateTimeKind.Utc);
 
             AddLocales(model.Locales, (locale, languageId) =>
             {
@@ -416,9 +432,9 @@ namespace Smartstore.Admin.Controllers
             if (ModelState.IsValid)
             {
                 await MapperFactory.MapAsync(model, currency);
-                currency.DomainEndings = string.Join(",", model.DomainEndingsArray ?? new string[0]);
+                currency.DomainEndings = string.Join(",", model.DomainEndingsArray ?? Array.Empty<string>());
 
-                if (!IsAttachedToStore(currency, _services.StoreContext.GetAllStores().ToList(), false))
+                if (!IsAttachedToStore(currency, Services.StoreContext.GetAllStores().ToList(), false))
                 {
                     await UpdateLocalesAsync(currency, model);
                     await SaveStoreMappingsAsync(currency, model.SelectedStoreIds);
@@ -429,7 +445,7 @@ namespace Smartstore.Admin.Controllers
                 }
             }
 
-            model.CreatedOn = _dateTimeHelper.ConvertToUserTime(currency.CreatedOnUtc, DateTimeKind.Utc);
+            model.CreatedOn = Services.DateTimeHelper.ConvertToUserTime(currency.CreatedOnUtc, DateTimeKind.Utc);
 
             await PrepareCurrencyModelAsync(model, currency, true);
 
@@ -448,7 +464,7 @@ namespace Smartstore.Admin.Controllers
 
             try
             {
-                if (!IsAttachedToStore(currency, _services.StoreContext.GetAllStores().ToList(), true))
+                if (!IsAttachedToStore(currency, Services.StoreContext.GetAllStores().ToList(), true))
                 {
                     _db.Currencies.Remove(currency);
                     await _db.SaveChangesAsync();
@@ -484,7 +500,7 @@ namespace Smartstore.Admin.Controllers
 
                 foreach (var currency in currencies)
                 {
-                    if (!IsAttachedToStore(currency, _services.StoreContext.GetAllStores().ToList(), true))
+                    if (!IsAttachedToStore(currency, Services.StoreContext.GetAllStores().ToList(), true))
                     {
                         _db.Currencies.Remove(currency);
                     }
