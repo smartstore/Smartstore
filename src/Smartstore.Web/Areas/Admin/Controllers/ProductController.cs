@@ -1528,8 +1528,6 @@ namespace Smartstore.Admin.Controllers
                 model.AddPictureModel.PictureId = product.MainPictureId ?? 0;
             }
 
-            model.PrimaryStoreCurrencyCode = _currencyService.PrimaryCurrency.CurrencyCode;
-
             var measure = await _db.MeasureWeights.FindByIdAsync(_measureSettings.BaseWeightId, false);
             var dimension = await _db.MeasureDimensions.FindByIdAsync(_measureSettings.BaseDimensionId, false);
 
@@ -1540,6 +1538,7 @@ namespace Smartstore.Admin.Controllers
             model.NumberOfAvailableManufacturers = await _db.Manufacturers.CountAsync();
             model.NumberOfAvailableCategories = await _db.Categories.CountAsync();
             model.HasOrders = _db.Orders.SelectMany(x => x.OrderItems).Any(i => i.ProductId == product.Id);
+            model.PrimaryStoreCurrencyCode = _currencyService.PrimaryCurrency.CurrencyCode;
 
             // Copy product.
             if (product != null)
@@ -1555,15 +1554,13 @@ namespace Smartstore.Admin.Controllers
                 .OrderBy(x => x.DisplayOrder)
                 .ToListAsync();
 
-            ViewBag.AvailableProductTemplates = new List<SelectListItem>();
-            foreach (var template in templates)
-            {
-                ViewBag.AvailableProductTemplates.Add(new SelectListItem
+            ViewBag.AvailableProductTemplates = templates
+                .Select(x => new SelectListItem
                 {
-                    Text = template.Name,
-                    Value = template.Id.ToString()
-                });
-            }
+                    Text = x.Name,
+                    Value = x.Id.ToString()
+                })
+                .ToList();
 
             // Product tags.
             if (product != null)
@@ -1585,16 +1582,14 @@ namespace Smartstore.Admin.Controllers
                 .OrderBy(x => x.DisplayOrder)
                 .ToListAsync();
 
-            ViewBag.AvailableTaxCategories = new List<SelectListItem>();
-            foreach (var tc in taxCategories)
-            {
-                ViewBag.AvailableTaxCategories.Add(new SelectListItem
+            ViewBag.AvailableTaxCategories = taxCategories
+                .Select(x => new SelectListItem
                 {
-                    Text = tc.Name,
-                    Value = tc.Id.ToString(),
-                    Selected = product != null && !setPredefinedValues && tc.Id == product.TaxCategoryId
-                });
-            }
+                    Text = x.Name,
+                    Value = x.Id.ToString(),
+                    Selected = product != null && !setPredefinedValues && x.Id == product.TaxCategoryId
+                })
+                .ToList();
 
             // Do not pre-select a tax category that is not stored.
             if (product != null && product.TaxCategoryId == 0)
@@ -1619,16 +1614,14 @@ namespace Smartstore.Admin.Controllers
                 .OrderBy(x => x.DisplayOrder)
                 .ToListAsync();
 
-            ViewBag.AvailableQuantityUnits = new List<SelectListItem>();
-            foreach (var mu in quantityUnits)
-            {
-                ViewBag.AvailableQuantityUnits.Add(new SelectListItem
+            ViewBag.AvailableQuantityUnits = quantityUnits
+                .Select(x => new SelectListItem
                 {
-                    Text = mu.Name,
-                    Value = mu.Id.ToString(),
-                    Selected = product != null && !setPredefinedValues && mu.Id == product.QuantityUnitId.GetValueOrDefault()
-                });
-            }
+                    Text = x.Name,
+                    Value = x.Id.ToString(),
+                    Selected = product != null && !setPredefinedValues && x.Id == product.QuantityUnitId.GetValueOrDefault()
+                })
+                .ToList();
 
             // BasePrice aka PAnGV
             var measureUnitKeys = await _db.MeasureWeights.AsNoTracking().OrderBy(x => x.DisplayOrder).Select(x => x.SystemKeyword).ToListAsync();
@@ -1641,49 +1634,16 @@ namespace Smartstore.Admin.Controllers
                 measureUnits.Add(product.BasePriceMeasureUnit);
             }
 
-            ViewBag.AvailableMeasureUnits = new List<SelectListItem>();
-            foreach (var mu in measureUnits)
-            {
-                ViewBag.AvailableMeasureUnits.Add(new SelectListItem
+            ViewBag.AvailableMeasureUnits = measureUnits
+                .Select(x => new SelectListItem
                 {
-                    Text = mu,
-                    Value = mu,
-                    Selected = product != null && !setPredefinedValues && mu.EqualsNoCase(product.BasePriceMeasureUnit)
-                });
-            }
+                    Text = x,
+                    Value = x,
+                    Selected = product != null && !setPredefinedValues && x.EqualsNoCase(product.BasePriceMeasureUnit)
+                })
+                .ToList();
 
-            // Specification attributes.
-            // TODO: (mh) (core) We can't do this!!! The list can be very large. This needs to be AJAXified. TBD with MC.
-            var specificationAttributes = await _db.SpecificationAttributes
-                .AsNoTracking()
-                .OrderBy(x => x.DisplayOrder)
-                .ThenBy(x => x.Name)
-                .ToListAsync();
-
-            var availableAttributes = new List<SelectListItem>();
-            var availableOptions = new List<SelectListItem>();
-            for (int i = 0; i < specificationAttributes.Count; i++)
-            {
-                var sa = specificationAttributes[i];
-                availableAttributes.Add(new SelectListItem { Text = sa.Name, Value = sa.Id.ToString() });
-                if (i == 0)
-                {
-                    var options = await _db.SpecificationAttributeOptions
-                        .AsNoTracking()
-                        .Where(x => x.SpecificationAttributeId == sa.Id)
-                        .OrderBy(x => x.DisplayOrder)
-                        .ToListAsync();
-
-                    // Attribute options.
-                    foreach (var sao in options)
-                    {
-                        availableOptions.Add(new SelectListItem { Text = sao.Name, Value = sao.Id.ToString() });
-                    }
-                }
-            }
-
-            ViewBag.AvailableAttributes = availableAttributes;
-            ViewBag.AvailableOptions = availableOptions;
+            ViewBag.SpecificationAttributesCount = await _db.SpecificationAttributes.CountAsync();
 
             if (product != null && !excludeProperties)
             {
@@ -1694,16 +1654,14 @@ namespace Smartstore.Admin.Controllers
                 x => model.ProductTypeId != (int)ProductType.BundledProduct || x != ManageInventoryMethod.ManageStockByAttributes
             );
 
-            ViewBag.AvailableManageInventoryMethods = new List<SelectListItem>();
-            foreach (var inventoryMethod in inventoryMethods)
-            {
-                ViewBag.AvailableManageInventoryMethods.Add(new SelectListItem
+            ViewBag.AvailableManageInventoryMethods = inventoryMethods
+                .Select(x => new SelectListItem
                 {
-                    Value = ((int)inventoryMethod).ToString(),
-                    Text = inventoryMethod.GetLocalizedEnum(),
-                    Selected = ((int)inventoryMethod == model.ManageInventoryMethodId)
-                });
-            }
+                    Value = ((int)x).ToString(),
+                    Text = x.GetLocalizedEnum(),
+                    Selected = (int)x == model.ManageInventoryMethodId
+                })
+                .ToList();
 
             ViewBag.AvailableCountries = await _db.Countries.AsNoTracking().ApplyStandardFilter(true)
                 .Select(x => new SelectListItem

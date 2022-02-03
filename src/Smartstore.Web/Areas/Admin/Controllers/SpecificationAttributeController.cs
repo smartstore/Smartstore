@@ -5,6 +5,8 @@ using Smartstore.Core.Localization;
 using Smartstore.Core.Logging;
 using Smartstore.Core.Rules.Filters;
 using Smartstore.Core.Security;
+using Smartstore.Data;
+using Smartstore.Web.Models;
 using Smartstore.Web.Models.DataGrid;
 
 namespace Smartstore.Admin.Controllers
@@ -18,6 +20,57 @@ namespace Smartstore.Admin.Controllers
         {
             _db = db;
             _localizedEntityService = localizedEntityService;
+        }
+
+        // AJAX.
+        public async Task<IActionResult> AllSpecificationAttributes(string label, string selectedIds)
+        {
+            var query = _db.SpecificationAttributes
+                .AsNoTracking()
+                .OrderBy(x => x.DisplayOrder)
+                .ThenBy(x => x.Name);
+
+            var ids = selectedIds.ToIntArray().ToList();
+            var pager = new FastPager<SpecificationAttribute>(query, 1000);
+            var allAttributes = new List<dynamic>();
+
+            while ((await pager.ReadNextPageAsync<SpecificationAttribute>()).Out(out var attributes))
+            {
+                foreach (var attribute in attributes)
+                {
+                    dynamic obj = new
+                    {
+                        attribute.Id,
+                        attribute.DisplayOrder,
+                        attribute.Name
+                    };
+
+                    allAttributes.Add(obj);
+                }
+            }
+
+            var data = allAttributes
+                .OrderBy(x => x.DisplayOrder)
+                .ThenBy(x => x.Name)
+                .Select(x => new ChoiceListItem
+                {
+                    Id = x.Id.ToString(),
+                    Text = x.Name,
+                    Selected = ids.Contains(x.Id)
+                })
+                .ToList();
+
+            if (label.HasValue())
+            {
+                data.Insert(0, new ChoiceListItem
+                {
+                    Id = "0",
+                    Text = label,
+                    Selected = false
+                });
+            }
+
+            return new JsonResult(data);
         }
 
         // AJAX.
@@ -102,7 +155,7 @@ namespace Smartstore.Admin.Controllers
             var attributes = await query
                 .OrderBy(x => x.DisplayOrder)
                 .ThenBy(x => x.Name)
-                .ApplyGridCommand(command, false)
+                .ApplyGridCommand(command)
                 .ToPagedList(command)
                 .LoadAsync();
 

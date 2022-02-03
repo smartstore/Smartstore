@@ -11,8 +11,9 @@
           allow-column-reordering="true">
     <datasource read="@Url.Action("SpecificationAttributeList")" delete="@Url.Action("SpecificationAttributeDelete")" />
     <paging position="Bottom" page-index="1" show-size-chooser="true" />
-    <sorting allow-unsort="true" allow-multisort="false">
+    <sorting allow-unsort="true" allow-multisort="true">
         <sort by="DisplayOrder" />
+        <sort by="Name" />
     </sorting>
     <search-panel>
         <partial name="_Grid.SpecificationAttributes.Search" model="parentModel" />

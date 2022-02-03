@@ -8,7 +8,7 @@
     return;
 }
 
-@if (ViewBag.AvailableAttributes.Count == 0)
+@if (ViewBag.SpecificationAttributesCount == 0)
 {
     <div class="alert alert-danger">
         @T("Admin.Catalog.Products.SpecificationAttributes.NoAttributes")
@@ -27,7 +27,9 @@
             <smart-label asp-for="AddSpecificationAttributeModel.SpecificationAttributeId" />
         </div>
         <div class="adminData">
-            <select asp-for="AddSpecificationAttributeModel.SpecificationAttributeId" asp-items="ViewBag.AvailableAttributes"></select>
+            <select asp-for="AddSpecificationAttributeModel.SpecificationAttributeId"
+                    data-select-url="@Url.Action("AllSpecificationAttributes", "SpecificationAttribute")">
+            </select>
             <span asp-validation-for="AddSpecificationAttributeModel.SpecificationAttributeId"></span>
         </div>
     </div>
@@ -36,7 +38,7 @@
             <smart-label asp-for="AddSpecificationAttributeModel.SpecificationAttributeOptionId" />
         </div>
         <div class="adminData">
-            <select asp-for="AddSpecificationAttributeModel.SpecificationAttributeOptionId" asp-items="ViewBag.AvailableOptions"></select>
+            <select asp-for="AddSpecificationAttributeModel.SpecificationAttributeOptionId"></select>
             <span asp-validation-for="AddSpecificationAttributeModel.SpecificationAttributeOptionId"></span>
         </div>
     </div>
@@ -83,31 +85,33 @@
 <script>
     $(function () {
         $("#@Html.IdFor(model => model.AddSpecificationAttributeModel.SpecificationAttributeId)").on('change', function() {
-            var selectedItem = $(this).val();
-            var ddlSpecOptions = $("#@Html.IdFor(model => model.AddSpecificationAttributeModel.SpecificationAttributeOptionId)")
+            var attributeId = $(this).val();
+            var options = $("#@Html.IdFor(model => model.AddSpecificationAttributeModel.SpecificationAttributeOptionId)")
             $.ajax({
                 cache: false,
                 type: "GET",
-                url: "@(Url.Action("GetOptionsByAttributeId", "SpecificationAttribute"))",
-                data: { "attributeId": selectedItem },
+                url: "@Url.Action("GetOptionsByAttributeId", "SpecificationAttribute")",
+                data: { "attributeId": attributeId },
                 success: function (data) {
-                    ddlSpecOptions.html('');
+                    options.html('');
                     $.each(data, function(id, option) {
-                        ddlSpecOptions.append($('<option></option>').val(option.id).html(option.name));
+                        options.append($('<option></option>').val(option.id).html(option.name));
                     });
-                    ddlSpecOptions.trigger("change");
+                    options.trigger("change");
                 },
                 error: function (xhr, ajaxOptions, thrownError) {
                     alert('Failed to retrieve specification options.')
                 }
             });
-        });
+        }).trigger('change');
 
         $(document).on("click", "#addProductSpec", (function () {
             var specificationAttributeOptionId = $("#@Html.IdFor(model => model.AddSpecificationAttributeModel.SpecificationAttributeOptionId)").val();
             var allowFiltering = $("#@Html.IdFor(model => model.AddSpecificationAttributeModel.AllowFiltering)").val();
             var showOnProductPage = $("#@Html.IdFor(model => model.AddSpecificationAttributeModel.ShowOnProductPage)").val();
-            var displayOrder = $("#@Html.IdFor(model => model.AddSpecificationAttributeModel.DisplayOrder)").val();
+
+            var elDisplayOrder = $("#@Html.IdFor(model => model.AddSpecificationAttributeModel.DisplayOrder)");
+            var displayOrder = elDisplayOrder.val();
 
             $('#addProductSpec').attr('disabled', true);
 
@@ -130,6 +134,8 @@
                     else {
                         displayNotification(data.message, 'warning');
                     }
+
+                    elDisplayOrder.val(1 + (parseInt(displayOrder) || 0)).trigger('change');
                 },
                 error: function (xhr, ajaxOptions, thrownError) {
                     alert('Failed to add specification attribute.')

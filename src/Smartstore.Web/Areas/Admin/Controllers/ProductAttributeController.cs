@@ -24,16 +24,17 @@ namespace Smartstore.Admin.Controllers
         }
 
         // AJAX.
-        public IActionResult AllProductAttributes(string label, int selectedId)
+        public async Task<IActionResult> AllProductAttributes(string label, int selectedId)
         {
             var query = _db.ProductAttributes
                 .AsNoTracking()
-                .OrderBy(x => x.DisplayOrder);
+                .OrderBy(x => x.DisplayOrder)
+                .ThenBy(x => x.Name);
 
-            var pager = new FastPager<ProductAttribute>(query, 500);
+            var pager = new FastPager<ProductAttribute>(query, 1000);
             var allAttributes = new List<dynamic>();
 
-            while (pager.ReadNextPage(out var attributes))
+            while ((await pager.ReadNextPageAsync<ProductAttribute>()).Out(out var attributes))
             {
                 foreach (var attribute in attributes)
                 {
@@ -41,7 +42,7 @@ namespace Smartstore.Admin.Controllers
                     {
                         attribute.Id,
                         attribute.DisplayOrder,
-                        Name = attribute.GetLocalized(x => x.Name).Value
+                        attribute.Name
                     };
 
                     allAttributes.Add(obj);
@@ -50,6 +51,7 @@ namespace Smartstore.Admin.Controllers
 
             var data = allAttributes
                 .OrderBy(x => x.DisplayOrder)
+                .ThenBy(x => x.Name)
                 .Select(x => new ChoiceListItem
                 {
                     Id = x.Id.ToString(),
