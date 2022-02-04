@@ -60,7 +60,7 @@ namespace Smartstore.Core.Identity
 
 				if (_hookErrorMessage.HasValue())
 				{
-					return RevertChanges(entry);
+					entry.ResetState();
 				}
 			}
 
@@ -78,21 +78,6 @@ namespace Smartstore.Core.Identity
 			}
 
 			return Task.CompletedTask;
-		}
-
-		private static HookResult RevertChanges(IHookedEntity entry)
-		{
-			if (entry.State == EState.Modified)
-			{
-				entry.State = EState.Unchanged;
-			}
-			else if (entry.State == EState.Added)
-			{
-				entry.State = EState.Detached;
-			}
-
-			// We need to return HookResult.Ok instead of HookResult.Failed to be able to output an error notification.
-			return HookResult.Ok;
 		}
 
 		private void UpdateFullName(Customer entity)

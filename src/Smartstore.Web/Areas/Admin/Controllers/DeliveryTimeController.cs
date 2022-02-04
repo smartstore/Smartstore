@@ -91,7 +91,7 @@ namespace Smartstore.Admin.Controllers
 
         [HttpPost]
         [Permission(Permissions.Configuration.DeliveryTime.Update)]
-        public async Task<IActionResult> Update(DeliveryTimeModel model)
+        public async Task<IActionResult> DeliveryTimeUpdate(DeliveryTimeModel model)
         {
             var success = false;
             var deliveryTime = await _db.DeliveryTimes.FindByIdAsync(model.Id);
@@ -104,6 +104,33 @@ namespace Smartstore.Admin.Controllers
             }
 
             return Json(new { success });
+        }
+
+        [HttpPost]
+        [Permission(Permissions.Configuration.DeliveryTime.Delete)]
+        public async Task<IActionResult> DeliveryTimeDelete(GridSelection selection)
+        {
+            var success = false;
+            var numDeleted = 0;
+            var ids = selection.GetEntityIds();
+
+            if (ids.Any())
+            {
+                try
+                {
+                    var deliveryTimes = await _db.DeliveryTimes.GetManyAsync(ids, true);
+                    _db.DeliveryTimes.RemoveRange(deliveryTimes);
+
+                    numDeleted = await _db.SaveChangesAsync();
+                    success = true;
+                }
+                catch (Exception ex)
+                {
+                    NotifyError(ex);
+                }
+            }
+
+            return Json(new { Success = success, Count = numDeleted });
         }
 
         [Permission(Permissions.Configuration.DeliveryTime.Create)]
@@ -216,41 +243,6 @@ namespace Smartstore.Admin.Controllers
             await _db.SaveChangesAsync();
 
             return Json(new { Success = true });
-        }
-
-        [HttpPost]
-        [Permission(Permissions.Configuration.DeliveryTime.Delete)]
-        public async Task<IActionResult> Delete(GridSelection selection)
-        {
-            var success = false;
-            var numDeleted = 0;
-            var ids = selection.GetEntityIds();
-
-            if (ids.Any())
-            {
-                var deliveryTimes = await _db.DeliveryTimes.GetManyAsync(ids, true);
-                // TODO: (mg) (core) we have a hook for this (check all other 'triedToDeleteDefault').
-                var triedToDeleteDefault = false;
-
-                foreach (var deliveryTime in deliveryTimes)
-                {
-                    if (deliveryTime.IsDefault == true)
-                    {
-                        triedToDeleteDefault = true;
-                        NotifyError(T("Admin.Configuration.DeliveryTimes.CantDeleteDefault"));
-                    }
-                    else
-                    {
-                        _db.DeliveryTimes.Remove(deliveryTime);
-                    }
-                }
-
-                numDeleted = await _db.SaveChangesAsync();
-
-                success = triedToDeleteDefault && numDeleted == 0 ? false : true;
-            }
-
-            return Json(new { Success = success, Count = numDeleted });
         }
 
         private async Task UpdateLocalesAsync(DeliveryTime deliveryTime, DeliveryTimeModel model)

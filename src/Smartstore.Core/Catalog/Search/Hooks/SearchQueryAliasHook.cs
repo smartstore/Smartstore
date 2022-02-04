@@ -58,7 +58,8 @@ namespace Smartstore.Core.Catalog.Search
             {
                 if (await HasAliasDuplicate<ProductAttribute, SpecificationAttribute>(entry, entity, cancelToken))
                 {
-                    return RevertChanges(entry);
+                    entry.ResetState();
+                    return HookResult.Ok;
                 }
 
                 if (IsPropertyModified(entry, "Alias"))
@@ -75,12 +76,14 @@ namespace Smartstore.Core.Catalog.Search
                     x => x.SpecificationAttributeId == specAttributeOption.SpecificationAttributeId && x.Name == specAttributeOption.Name,
                     cancelToken))
                 {
-                    return RevertChanges(entry);
+                    entry.ResetState();
+                    return HookResult.Ok;
                 }
 
                 if (await HasAliasDuplicate<SpecificationAttributeOption>(entry, entity, null, cancelToken))
                 {
-                    return RevertChanges(entry);
+                    entry.ResetState();
+                    return HookResult.Ok;
                 }
 
                 if (IsPropertyModified(entry, "Alias"))
@@ -97,14 +100,16 @@ namespace Smartstore.Core.Catalog.Search
                     x => x.ProductId == specAttribute.ProductId && x.SpecificationAttributeOptionId == specAttribute.SpecificationAttributeOptionId,
                     cancelToken))
                 {
-                    return RevertChanges(entry);
+                    entry.ResetState();
+                    return HookResult.Ok;
                 }
             }
             else if (type == typeof(ProductAttribute))
             {
                 if (await HasAliasDuplicate<ProductAttribute, SpecificationAttribute>(entry, entity, cancelToken))
                 {
-                    return RevertChanges(entry);
+                    entry.ResetState();
+                    return HookResult.Ok;
                 }
 
                 if (IsPropertyModified(entry, "Alias"))
@@ -121,13 +126,15 @@ namespace Smartstore.Core.Catalog.Search
                     x => x.ProductAttributeOptionsSetId == attributeOption.ProductAttributeOptionsSetId && x.Name == attributeOption.Name,
                     cancelToken))
                 {
-                    return RevertChanges(entry);
+                    entry.ResetState();
+                    return HookResult.Ok;
                 }
 
                 // ClearVariantCacheAsync() not necessary.
                 if (await HasAliasDuplicate<ProductAttributeOption>(entry, entity, null, cancelToken))
                 {
-                    return RevertChanges(entry);
+                    entry.ResetState();
+                    return HookResult.Ok;
                 }
             }
             else if (entity is ProductVariantAttribute productAttribute)
@@ -139,7 +146,8 @@ namespace Smartstore.Core.Catalog.Search
                     x => x.ProductId == productAttribute.ProductId && x.ProductAttributeId == productAttribute.ProductAttributeId,
                     cancelToken))
                 {
-                    return RevertChanges(entry);
+                    entry.ResetState();
+                    return HookResult.Ok;
                 }
             }
             else if (entity is ProductVariantAttributeValue attributeValue)
@@ -151,7 +159,8 @@ namespace Smartstore.Core.Catalog.Search
                     x => x.ProductVariantAttributeId == attributeValue.ProductVariantAttributeId && x.Name == attributeValue.Name,
                     cancelToken))
                 {
-                    return RevertChanges(entry);
+                    entry.ResetState();
+                    return HookResult.Ok;
                 }
 
                 if (await HasAliasDuplicate<ProductVariantAttributeValue>(
@@ -160,7 +169,8 @@ namespace Smartstore.Core.Catalog.Search
                     (all, e) => all.AnyAsync(x => x.Id != e.Id && x.ProductVariantAttributeId == e.ProductVariantAttributeId && x.Alias == e.Alias),
                     cancelToken))
                 {
-                    return RevertChanges(entry);
+                    entry.ResetState();
+                    return HookResult.Ok;
                 }
 
                 if (IsPropertyModified(entry, "Alias"))
@@ -195,7 +205,8 @@ namespace Smartstore.Core.Catalog.Search
 
                     if (prop.LocaleValue.HasValue() && await HasAliasDuplicate(prop, cancelToken))
                     {
-                        return RevertChanges(entry);
+                        entry.ResetState();
+                        return HookResult.Ok;
                     }
                 }
 
@@ -451,21 +462,6 @@ namespace Smartstore.Core.Catalog.Search
             }
 
             return result;
-        }
-
-        private static HookResult RevertChanges(IHookedEntity entry)
-        {
-            if (entry.State == EState.Modified)
-            {
-                entry.State = EState.Unchanged;
-            }
-            else if (entry.State == EState.Added)
-            {
-                entry.State = EState.Detached;
-            }
-
-            // We need to return HookResult.Ok instead of HookResult.Failed to be able to output an error notification.
-            return HookResult.Ok;
         }
 
         private string CreateValueExistsMessage(string resourceKey, string checkedValue)

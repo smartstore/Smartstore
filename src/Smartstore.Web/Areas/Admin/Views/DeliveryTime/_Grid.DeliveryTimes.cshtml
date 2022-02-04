@@ -4,8 +4,8 @@
 
 <datagrid id="delivery-time-grid" allow-resize="true" allow-row-selection="true" allow-edit="true" allow-column-reordering="true">
     <datasource read="@Url.Action("DeliveryTimeList", "DeliveryTime")"
-                update="@Url.Action("Update", "DeliveryTime")"
-                delete="@Url.Action("Delete", "DeliveryTime")" />
+                update="@Url.Action("DeliveryTimeUpdate", "DeliveryTime")"
+                delete="@Url.Action("DeliveryTimeDelete", "DeliveryTime")" />
     <sorting enabled="true">
         <sort by="DisplayOrder" />
     </sorting>

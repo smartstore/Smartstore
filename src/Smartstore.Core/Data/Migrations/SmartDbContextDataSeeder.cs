@@ -146,8 +146,8 @@ namespace Smartstore.Core.Data.Migrations
                 "The default quantity unit can't be deleted. Specify another standard quantity unit beforehand.",
                 "Die Standard-Verpackungseinheit kann nicht gelöscht werden. Bestimmen Sie zuvor eine andere Standard-Verpackungseinheit.");
 
-            builder.AddOrUpdate("Admin.Configuration.DeliveryTimes.CantDeleteDefault",
-                "The default delivery time can't be deleted. Specify another standard delivery time beforehand.",
+            builder.AddOrUpdate("Admin.Configuration.DeliveryTimes.CannotDeleteDefaultDeliveryTime",
+                "The default delivery time cannot be deleted. Set another standard delivery time first.",
                 "Die Standard-Lieferzeit kann nicht gelöscht werden. Bestimmen Sie zuvor eine andere Standard-Lieferzeit.");
            
             builder.AddOrUpdate("Admin.Configuration.Entity.Updated",
@@ -770,6 +770,7 @@ namespace Smartstore.Core.Data.Migrations
             //    "Admin.Configuration.Currencies.Fields.PrimaryExchangeRateCurrencyStores",
             //    "Admin.Configuration.Currencies.Fields.PrimaryExchangeRateCurrencyStores.Hint",
             //    "Admin.Configuration.Currencies.DeleteOrPublishStoreConflict",
+            //    "Admin.Configuration.DeliveryTimes.Fields.DisplayLocale",
             //    );
 
 

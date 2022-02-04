@@ -77,7 +77,7 @@ namespace Smartstore.Core.Common.Services
 
                 if (_hookErrorMessage.HasValue())
                 {
-                    RevertChanges(entry);
+                    entry.ResetState();
                 }
             }
 
@@ -96,18 +96,6 @@ namespace Smartstore.Core.Common.Services
             }
 
             return Task.CompletedTask;
-        }
-
-        private static void RevertChanges(IHookedEntity entry)
-        {
-            if (entry.State == EState.Modified)
-            {
-                entry.State = EState.Unchanged;
-            }
-            else if (entry.State == EState.Added || entry.State == EState.Deleted)
-            {
-                entry.State = EState.Detached;
-            }
         }
 
         #endregion

@@ -46,8 +46,6 @@
     </columns>
     <row-commands>
         <a datarow-action="DataRowAction.Custom" :href="item.row.EditUrl">@T("Common.Edit")</a>
-        <a datarow-action="DataRowAction.Delete">@T("Common.Delete")</a>
-        <div class="dropdown-divider"></div>
         <a datarow-action="DataRowAction.Custom" class="grid-set-primary-currency" :data-key="item.row.Id" v-bind:class="{ disabled: item.row.IsPrimaryCurrency }">
             @T("Admin.Configuration.Currencies.SetAsPrimaryCurrency")
         </a>
@@ -55,6 +53,8 @@
            v-bind:class="{ disabled: item.row.IsPrimaryExchangeCurrency }">
             @T("Admin.Configuration.Currencies.SetAsPrimaryExchangeCurrency")
         </a>
+        <div class="dropdown-divider"></div>
+        <a datarow-action="DataRowAction.Delete">@T("Common.Delete")</a>
     </row-commands>
 </datagrid>
 
