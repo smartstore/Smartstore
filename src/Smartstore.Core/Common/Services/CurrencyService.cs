@@ -61,7 +61,7 @@ namespace Smartstore.Core.Common.Services
                             ? T("Admin.Configuration.Currencies.CannotDeletePrimaryCurrency")
                             : T("Admin.Configuration.Currencies.CannotDeleteExchangeCurrency");
                     }
-                    else if (currency.Published && await _db.Currencies.CountAsync(x => x.Published && x.Id != currency.Id, cancelToken) == 0)
+                    else if (currency.Published && !await _db.Currencies.AnyAsync(x => x.Published && x.Id != currency.Id, cancelToken))
                     {
                         _hookErrorMessage = T("Admin.Configuration.Currencies.PublishedCurrencyRequired");
                     }
@@ -69,7 +69,7 @@ namespace Smartstore.Core.Common.Services
                 else if (entry.InitialState == EState.Modified)
                 {
                     // Ensure that we have at least one published currency.
-                    if (!currency.Published && await _db.Currencies.CountAsync(x => x.Published && x.Id != currency.Id, cancelToken) == 0)
+                    if (!currency.Published && !await _db.Currencies.AnyAsync(x => x.Published && x.Id != currency.Id, cancelToken))
                     {
                         _hookErrorMessage = T("Admin.Configuration.Currencies.PublishedCurrencyRequired");
                     }
