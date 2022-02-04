@@ -27,7 +27,8 @@ namespace Smartstore.Blog.Media
         {
             var name = nameof(BlogPost);
             var p = new FastPager<BlogPost>(_db.BlogPosts().AsNoTracking().Where(x => x.MediaFileId.HasValue || x.PreviewMediaFileId.HasValue));
-            while ((await p.ReadNextPageAsync(x => new { x.Id, x.MediaFileId, x.PreviewMediaFileId }, x => x.Id)).Out(out var list))
+
+            while ((await p.ReadNextPageAsync(x => new { x.Id, x.MediaFileId, x.PreviewMediaFileId }, x => x.Id, cancelToken)).Out(out var list))
             {
                 foreach (var x in list)
                 {

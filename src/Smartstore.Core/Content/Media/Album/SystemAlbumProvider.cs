@@ -169,7 +169,7 @@ namespace Smartstore.Core.Content.Media
                 {
                     var name = nameof(ProductMediaFile);
                     var p = new FastPager<ProductMediaFile>(_db.ProductMediaFiles.AsNoTracking(), 5000);
-                    while ((await p.ReadNextPageAsync(x => new { x.Id, x.ProductId, x.MediaFileId }, x => x.Id)).Out(out var list))
+                    while ((await p.ReadNextPageAsync(x => new { x.Id, x.ProductId, x.MediaFileId }, x => x.Id, cancelToken)).Out(out var list))
                     {
                         foreach (var x in list)
                         {
@@ -183,7 +183,7 @@ namespace Smartstore.Core.Content.Media
                 {
                     var name = nameof(ProductAttributeOption);
                     var p = new FastPager<ProductAttributeOption>(_db.ProductAttributeOptions.AsNoTracking().Where(x => x.MediaFileId > 0), 5000);
-                    while ((await p.ReadNextPageAsync(x => new { x.Id, x.MediaFileId }, x => x.Id)).Out(out var list))
+                    while ((await p.ReadNextPageAsync(x => new { x.Id, x.MediaFileId }, x => x.Id, cancelToken)).Out(out var list))
                     {
                         foreach (var x in list)
                         {
@@ -197,7 +197,7 @@ namespace Smartstore.Core.Content.Media
                 {
                     var name = nameof(ProductVariantAttributeValue);
                     var p = new FastPager<ProductVariantAttributeValue>(_db.ProductVariantAttributeValues.AsNoTracking().Where(x => x.MediaFileId > 0), 5000);
-                    while ((await p.ReadNextPageAsync(x => new { x.Id, x.MediaFileId }, x => x.Id)).Out(out var list))
+                    while ((await p.ReadNextPageAsync(x => new { x.Id, x.MediaFileId }, x => x.Id, cancelToken)).Out(out var list))
                     {
                         foreach (var x in list)
                         {
@@ -211,7 +211,7 @@ namespace Smartstore.Core.Content.Media
                 {
                     var name = nameof(CheckoutAttributeValue);
                     var p = new FastPager<CheckoutAttributeValue>(_db.CheckoutAttributeValues.AsNoTracking().Where(x => x.MediaFileId.HasValue), 5000);
-                    while ((await p.ReadNextPageAsync(x => new { x.Id, x.MediaFileId }, x => x.Id)).Out(out var list))
+                    while ((await p.ReadNextPageAsync(x => new { x.Id, x.MediaFileId }, x => x.Id, cancelToken)).Out(out var list))
                     {
                         foreach (var x in list)
                         {
@@ -225,7 +225,7 @@ namespace Smartstore.Core.Content.Media
                 {
                     var name = nameof(SpecificationAttributeOption);
                     var p = new FastPager<SpecificationAttributeOption>(_db.SpecificationAttributeOptions.AsNoTracking().Where(x => x.MediaFileId > 0), 5000);
-                    while ((await p.ReadNextPageAsync(x => new { x.Id, x.MediaFileId }, x => x.Id)).Out(out var list))
+                    while ((await p.ReadNextPageAsync(x => new { x.Id, x.MediaFileId }, x => x.Id, cancelToken)).Out(out var list))
                     {
                         foreach (var x in list)
                         {
@@ -239,7 +239,7 @@ namespace Smartstore.Core.Content.Media
                 {
                     var name = nameof(Category);
                     var p = new FastPager<Category>(_db.Categories.AsNoTracking().Where(x => x.MediaFileId.HasValue), 5000);
-                    while ((await p.ReadNextPageAsync(x => new { x.Id, x.MediaFileId }, x => x.Id)).Out(out var list))
+                    while ((await p.ReadNextPageAsync(x => new { x.Id, x.MediaFileId }, x => x.Id, cancelToken)).Out(out var list))
                     {
                         foreach (var x in list)
                         {
@@ -253,7 +253,7 @@ namespace Smartstore.Core.Content.Media
                 {
                     var name = nameof(Manufacturer);
                     var p = new FastPager<Manufacturer>(_db.Manufacturers.AsNoTracking().Where(x => x.MediaFileId.HasValue), 5000);
-                    while ((await p.ReadNextPageAsync(x => new { x.Id, x.MediaFileId }, x => x.Id)).Out(out var list))
+                    while ((await p.ReadNextPageAsync(x => new { x.Id, x.MediaFileId }, x => x.Id, cancelToken)).Out(out var list))
                     {
                         foreach (var x in list)
                         {
@@ -273,7 +273,7 @@ namespace Smartstore.Core.Content.Media
                 {
                     var name = nameof(Store);
                     var p = new FastPager<Store>(_db.Stores.AsNoTracking().Where(x => x.LogoMediaFileId > 0));
-                    while ((await p.ReadNextPageAsync(x => new { x.Id, x.LogoMediaFileId }, x => x.Id)).Out(out var list))
+                    while ((await p.ReadNextPageAsync(x => new { x.Id, x.LogoMediaFileId }, x => x.Id, cancelToken)).Out(out var list))
                     {
                         foreach (var x in list)
                         {
@@ -308,7 +308,7 @@ namespace Smartstore.Core.Content.Media
             {
                 var name = nameof(MessageTemplate);
                 var p = new FastPager<MessageTemplate>(_db.MessageTemplates.AsNoTracking());
-                while ((await p.ReadNextPageAsync(x => new { x.Id, x.Attachment1FileId, x.Attachment2FileId, x.Attachment3FileId }, x => x.Id)).Out(out var list))
+                while ((await p.ReadNextPageAsync(x => new { x.Id, x.Attachment1FileId, x.Attachment2FileId, x.Attachment3FileId }, x => x.Id, cancelToken)).Out(out var list))
                 {
                     foreach (var x in list)
                     {
@@ -333,7 +333,7 @@ namespace Smartstore.Core.Content.Media
 
                 // Avatars
                 var p = new FastPager<GenericAttribute>(_db.GenericAttributes.AsNoTracking().Where(x => x.KeyGroup == nameof(Customer) && x.Key == key));
-                while ((await p.ReadNextPageAsync(x => new { x.Id, x.EntityId, x.Value }, x => x.Id)).Out(out var list))
+                while ((await p.ReadNextPageAsync(x => new { x.Id, x.EntityId, x.Value }, x => x.Id, cancelToken)).Out(out var list))
                 {
                     foreach (var x in list)
                     {

@@ -72,7 +72,7 @@ namespace Smartstore.Core.Content.Media.Storage
                     try
                     {
                         var pager = new FastPager<MediaFile>(query, PAGE_SIZE);
-                        while ((await pager.ReadNextPageAsync<MediaFile>()).Out(out var files))
+                        while ((await pager.ReadNextPageAsync<MediaFile>(cancelToken)).Out(out var files))
                         {
                             if (cancelToken.IsCancellationRequested)
                             {

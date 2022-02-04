@@ -73,6 +73,11 @@ namespace Smartstore.Core.Common.Services
             var productsPager = new FastPager<Product>(productsQuery, 500);
             while ((await productsPager.ReadNextPageAsync<Product>(cancelToken)).Out(out var products))
             {
+                if (cancelToken.IsCancellationRequested)
+                {
+                    break;
+                }
+
                 if (products.Any())
                 {
                     products.Each(x => x.DeliveryTimeId = null);
@@ -90,6 +95,11 @@ namespace Smartstore.Core.Common.Services
             var attributeCombinationPager = new FastPager<ProductVariantAttributeCombination>(attributeCombinationQuery, 1000);
             while ((await attributeCombinationPager.ReadNextPageAsync<ProductVariantAttributeCombination>(cancelToken)).Out(out var attributeCombinations))
             {
+                if (cancelToken.IsCancellationRequested)
+                {
+                    break;
+                }
+
                 if (attributeCombinations.Any())
                 {
                     attributeCombinations.Each(x => x.DeliveryTimeId = null);

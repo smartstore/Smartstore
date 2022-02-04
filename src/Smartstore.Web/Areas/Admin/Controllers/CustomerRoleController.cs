@@ -68,7 +68,7 @@ namespace Smartstore.Admin.Controllers
 
             query = query.ApplyStandardFilter(true);
 
-            var rolesPager = new FastPager<CustomerRole>(query, 500);
+            var rolesPager = new FastPager<CustomerRole>(query, 1000);
             var customerRoles = new List<CustomerRole>();
             var ids = selectedIds.ToIntArray();
 
