@@ -11,11 +11,10 @@ services:
             - "D:/mount/smtenants:/app/App_Data/Tenants"
     db:
         image: mysql
-        restart: always
         container_name: db
         environment:
             MYSQL_DATABASE: smartstore
-            # MYSQL_USER: "root"
+            #MYSQL_USER: "root"
             MYSQL_PASSWORD: "smartstore"
             MYSQL_ROOT_PASSWORD: "smartstore"
         ports:

@@ -39,19 +39,20 @@ namespace Smartstore.ModuleBuilder
         {
             foreach (var path in modulePaths)
             {
-                var fullModulePath = Path.GetFullPath(path).Trim('"');
-                var moduleName = Path.GetFileName(fullModulePath);
+                var moduleDir = new DirectoryInfo(Path.GetFullPath(path.Trim('"').Replace('\\', Path.DirectorySeparatorChar)));
 
-                Console.WriteLine($"DeployModule: {moduleName}");
+                Console.WriteLine($"DeployModule: {moduleDir.Name}, Path: {moduleDir.FullName}");
 
-                DeployModule(fullModulePath);
-                DeleteJunk(fullModulePath);
+                DeployModule(moduleDir);
+                DeleteJunk(moduleDir);
             }
         }
 
-        static void DeployModule(string modulePath)
+        static void DeployModule(DirectoryInfo moduleDir)
         {
-            var moduleName = Path.GetFileName(modulePath);
+            var modulePath = moduleDir.FullName;
+            var moduleName = moduleDir.Name;
+
             var moduleContext = ReadDependencyContext(Path.Combine(modulePath, $"{moduleName}.deps.json"));
             if (moduleContext == null)
             {
@@ -79,7 +80,7 @@ namespace Smartstore.ModuleBuilder
                 }
                 else
                 {
-                    var paths = lib.ResolveReferencePaths();
+                    var paths = lib.ResolveReferencePaths(); 
                     if (paths != null)
                     {
                         foreach (var path in paths)
@@ -126,15 +127,14 @@ namespace Smartstore.ModuleBuilder
             }
         }
 
-        static void DeleteJunk(string modulePath)
+        static void DeleteJunk(DirectoryInfo moduleDir)
         {
-            var dir = new DirectoryInfo(modulePath);
-            if (!dir.Exists)
+            if (!moduleDir.Exists)
             {
                 return;
             }
 
-            var entries = dir.GetFileSystemInfos("*", SearchOption.TopDirectoryOnly);
+            var entries = moduleDir.GetFileSystemInfos("*", SearchOption.TopDirectoryOnly);
             foreach (var entry in entries)
             {
                 if (entry is DirectoryInfo di && (/*entry.Name == "ref" ||*/ entry.Name == "refs"))

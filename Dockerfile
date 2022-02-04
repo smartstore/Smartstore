@@ -1,15 +1,29 @@
+# -----------------------------------------------------------
+# Creates a Docker image by building and publishing 
+# the source within the container
+# -----------------------------------------------------------
+
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 
-# Build application
+# Copy solution and source
 WORKDIR /app
 COPY Smartstore.Min.sln ./
 COPY src/ ./src
-#RUN dotnet restore Smartstore.sln
-RUN dotnet build Smartstore.Min.sln -c Release -o ./release
-WORKDIR /app/src/Smartstore.Web
-RUN dotnet publish Smartstore.Web.csproj -c Release -o /app/release/publish --runtime linux-x64 --no-self-contained
 
-# Build docker image
+# Create Modules dir if missing
+RUN mkdir /app/src/Smartstore.Web/Modules -p -v
+
+# Build
+RUN dotnet build Smartstore.Min.sln -c Release
+
+# Publish
+WORKDIR /app/src/Smartstore.Web
+RUN dotnet publish Smartstore.Web.csproj -c Release -o /app/release/publish \
+	--runtime linux-x64 \
+	--no-self-contained \
+	--no-restore
+
+# Build Docker image
 FROM mcr.microsoft.com/dotnet/aspnet:6.0
 EXPOSE 80
 EXPOSE 443

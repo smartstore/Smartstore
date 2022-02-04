@@ -1,0 +1,25 @@
+# -----------------------------------------------------------
+# Creates a Docker image from an existing build artifact
+# -----------------------------------------------------------
+
+ENV DOTNET="runtime-deps:6.0"
+ENV ARTIFACT="Community.5.0.0.linux-x64"
+ENV WKFILE="wkhtmltox_0.12.6-1.buster_amd64.deb"
+
+FROM mcr.microsoft.com/dotnet/$DOTNET
+EXPOSE 80
+EXPOSE 443
+ENV ASPNETCORE_URLS http://+:80
+
+# Copy
+WORKDIR /app
+COPY artifacts/$ARTIFACT/ ./
+
+# Install wkhtmltopdf
+RUN apt update &&\
+	apt -y install wget &&\
+	wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/$WKFILE &&\ 
+	apt -y install ./$WKFILE &&\
+	rm ./$WKFILE
+
+ENTRYPOINT ["./Smartstore.Web", "--urls", "http://0.0.0.0:80"]

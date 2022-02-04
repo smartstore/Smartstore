@@ -9,7 +9,7 @@ namespace Smartstore.Engine.Modularity
 
         class ModulesHasher : DirectoryHasher
         {
-            private readonly IApplicationContext _appContext;
+            private readonly IApplicationContext _appContext; 
 
             public ModulesHasher(IApplicationContext appContext)
                 : base(appContext.ModulesRoot.GetDirectory(""), appContext.TenantRoot.GetDirectory(""))

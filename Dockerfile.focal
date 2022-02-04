@@ -1,0 +1,19 @@
+# Creates a Docker image from an existing build artifact
+
+FROM mcr.microsoft.com/dotnet/runtime-deps:6.0-focal
+EXPOSE 80
+EXPOSE 443
+ENV ASPNETCORE_URLS http://+:80
+
+# Copy
+WORKDIR /app
+COPY artifacts/Community.5.0.0.linux-x64/ ./
+
+# Install wkhtmltopdf
+RUN apt update &&\
+	apt -y install wget &&\
+	wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox_0.12.6-1.focal_amd64.deb &&\ 
+	apt -y install ./wkhtmltox_0.12.6-1.focal_amd64.deb &&\
+	rm ./wkhtmltox_0.12.6-1.focal_amd64.deb
+
+ENTRYPOINT ["./Smartstore.Web", "--urls", "http://0.0.0.0:80"]

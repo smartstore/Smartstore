@@ -1,0 +1,27 @@
+services:
+    web:
+        build:
+            context: .
+            dockerfile: Dockerfile.nobuild
+    db:
+        image: "mcr.microsoft.com/mssql/server"
+        container_name: db
+        environment:
+            SA_PASSWORD: "smartstore"
+            ACCEPT_EULA: "Y"
+            MSSQL_PID: "Express"
+        ports:
+          - '1434:1433'
+        expose:
+          - '1433'
+        volumes:
+          - mssqlsystem:/var/opt/mssql/
+          - mssqldata:/var/opt/sqlserver/data
+          - mssqllog:/var/opt/sqlserver/log
+          - mssqlbackup:/var/opt/sqlserver/backup
+
+volumes:
+  mssqlsystem:
+  mssqldata:
+  mssqllog:
+  mssqlbackup:
