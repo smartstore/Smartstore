@@ -306,7 +306,6 @@ _[Bb]ackups/
 *.orig
 Kopie von*
 
-/build
 /src/Smartstore.Web/Modules
 /src/Smartstore.Web/App_Data/_temp/
 /src/Smartstore.Web/App_Data/ExportProfiles/

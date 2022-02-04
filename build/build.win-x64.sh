@@ -1,4 +1,4 @@
-REM Powershell -NoProfile -ExecutionPolicy Bypass -File "build.ps1"
+cd ..
 dotnet cake --target=Deploy --runtime=win-x64
 dotnet cake --target=Zip --runtime=win-x64
-pause
+echo 'Press enter to exit...'; read dummy;

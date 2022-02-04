@@ -7,7 +7,7 @@ FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 
 # Copy solution and source
 WORKDIR /app
-COPY Smartstore.Min.sln ./
+COPY *.sln ./
 COPY src/ ./src
 
 # Create Modules dir if missing
@@ -19,7 +19,6 @@ RUN dotnet build Smartstore.Min.sln -c Release
 # Publish
 WORKDIR /app/src/Smartstore.Web
 RUN dotnet publish Smartstore.Web.csproj -c Release -o /app/release/publish \
-	--runtime linux-x64 \
 	--no-self-contained \
 	--no-restore
 

@@ -2,17 +2,21 @@
 # Creates a Docker image from an existing build artifact
 # -----------------------------------------------------------
 
-ARG DOTNET=runtime-deps:6.0
-ARG ARTIFACT=Community.5.0.0.linux-x64
+ARG ASPNET_TAG=6.0
 
-FROM mcr.microsoft.com/dotnet/${DOTNET}
+FROM mcr.microsoft.com/dotnet/runtime-deps:${ASPNET_TAG}
 EXPOSE 80
 EXPOSE 443
 ENV ASPNETCORE_URLS "http://+:80;https://+:443"
 
 # Copy
+ARG EDITION=Community
+ARG VERSION=5.0.0
+ARG RUNTIME=linux-x64
+ARG SOURCE="artifacts/${EDITION}.${VERSION}.${RUNTIME}/"
+
 WORKDIR /app
-COPY artifacts/${ARTIFACT}/ ./
+COPY $SOURCE ./
 
 # Install wkhtmltopdf
 RUN apt update &&\
