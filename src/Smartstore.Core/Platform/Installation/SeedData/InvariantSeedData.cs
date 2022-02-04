@@ -78,6 +78,7 @@ namespace Smartstore.Core.Installation
         public IList<Store> Stores()
         {
             var imgCompanyLogo = _db.MediaFiles.Where(x => x.Name == "company-logo.png").FirstOrDefault();
+            var currency = _db.Currencies.FirstOrDefault(x => x.CurrencyCode == "EUR") ?? _db.Currencies.First();
 
             var entities = new List<Store>
             {
@@ -88,7 +89,9 @@ namespace Smartstore.Core.Installation
                     Hosts = "yourstore.com,www.yourstore.com",
                     SslEnabled = false,
                     DisplayOrder = 1,
-                    LogoMediaFileId = imgCompanyLogo?.Id ?? 0
+                    LogoMediaFileId = imgCompanyLogo?.Id ?? 0,
+                    PrimaryStoreCurrencyId = currency.Id,
+                    PrimaryExchangeRateCurrencyId = currency.Id
                 }
             };
 
