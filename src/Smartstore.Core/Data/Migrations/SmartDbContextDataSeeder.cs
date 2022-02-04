@@ -69,30 +69,26 @@ namespace Smartstore.Core.Data.Migrations
                 activeWidgetZone.Each(x => x.Value = x.Value.Replace("SmartStore.GoogleAnalytics", "Smartstore.Google.Analytics"));
             }
 
-            var store = await context.Stores
-                .AsNoTracking()
-                .OrderBy(x => x.DisplayOrder)
-                .ThenBy(x => x.Name)
-                .FirstOrDefaultAsync(cancelToken);
+            var hasPrimaryCurrency = await settings.AnyAsync(x => x.Name == "CurrencySettings.PrimaryCurrencyId" && x.StoreId == 0, cancelToken);
+            var hasExchangeCurrency = await settings.AnyAsync(x => x.Name == "CurrencySettings.PrimaryExchangeCurrencyId" && x.StoreId == 0, cancelToken);
 
-            if (store != null)
+            if (!hasPrimaryCurrency || !hasExchangeCurrency)
             {
-                var settingValues = new Dictionary<string, string>
-                {
-                    { "CurrencySettings.PrimaryCurrencyId", store.PrimaryStoreCurrencyId.ToString() },
-                    { "CurrencySettings.PrimaryExchangeCurrencyId", store.PrimaryExchangeRateCurrencyId.ToString() }
-                };
+                var store = await context.Stores
+                    .AsNoTracking()
+                    .OrderBy(x => x.DisplayOrder)
+                    .ThenBy(x => x.Name)
+                    .FirstOrDefaultAsync(cancelToken);
 
-                foreach (var pair in settingValues)
+                if (store != null)
                 {
-                    var setting = await settings.FirstOrDefaultAsync(x => x.Name == pair.Key && x.StoreId == 0, cancelToken);
-                    if (setting != null)
+                    if (!hasPrimaryCurrency)
                     {
-                        setting.Value = pair.Value;
+                        settings.Add(new Setting { Name = "CurrencySettings.PrimaryCurrencyId", Value = store.PrimaryStoreCurrencyId.ToString() });
                     }
-                    else
+                    if (!hasExchangeCurrency)
                     {
-                        settings.Add(new Setting { Name = pair.Key, Value = pair.Value });
+                        settings.Add(new Setting { Name = "CurrencySettings.PrimaryExchangeCurrencyId", Value = store.PrimaryExchangeRateCurrencyId.ToString() });
                     }
                 }
             }
@@ -418,9 +414,17 @@ namespace Smartstore.Core.Data.Migrations
                 "Set as exchange rate currency",
                 "Als Umrechnungswährung festlegen");
 
-            builder.AddOrUpdate("Admin.Configuration.Currencies.CannotDeleteOrDeactivatePrimaryCurrency",
-                "The primary or exchange rate currency cannot be deleted or deactivated. Set a different primary or exchange rate currency first.",
-                "Die Leit- oder Umrechnungswährung kann nicht gelöscht oder deaktiviert werden. Legen Sie zunächst eine andere Leit- bzw. Umrechnungswährung fest.");
+            builder.AddOrUpdate("Admin.Configuration.Currencies.CannotDeletePrimaryCurrency",
+                "The primary currency cannot be deleted. Set a different primary currency first.",
+                "Die Leitwährung kann nicht gelöscht werden. Legen Sie zunächst eine andere Leitwährung fest.");
+
+            builder.AddOrUpdate("Admin.Configuration.Currencies.CannotDeleteExchangeCurrency",
+                "The exchange rate currency cannot be deleted. Set a different exchange rate currency first.",
+                "Die Umrechnungswährung kann nicht gelöscht werden. Legen Sie zunächst eine andere Umrechnungswährung fest.");
+
+            builder.AddOrUpdate("Admin.Configuration.Currencies.PublishedCurrencyRequired",
+                "At least one currency must be published.",
+                "Mindestens eine Währung muss veröffentlicht sein.");
 
             #endregion
 

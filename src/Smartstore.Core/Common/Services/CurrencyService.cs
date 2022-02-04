@@ -6,6 +6,7 @@ using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Data.Hooks;
 using Smartstore.Engine.Modularity;
+using EState = Smartstore.Data.EntityState;
 
 namespace Smartstore.Core.Common.Services
 {
@@ -43,32 +44,69 @@ namespace Smartstore.Core.Common.Services
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
 
-        #region Hook
+        #region Hooks
 
-        protected override Task<HookResult> OnUpdatingAsync(Currency entity, IHookedEntity entry, CancellationToken cancelToken)
+        private string _hookErrorMessage;
+
+        public override async Task<HookResult> OnBeforeSaveAsync(IHookedEntity entry, CancellationToken cancelToken)
         {
-            CheckPrimaryCurrency(entity, entry);
-
-            return Task.FromResult(HookResult.Ok);
-        }
-
-        protected override Task<HookResult> OnDeletingAsync(Currency entity, IHookedEntity entry, CancellationToken cancelToken)
-        {
-            if (!entity.Published)
+            if (entry.Entity is Currency currency)
             {
-                CheckPrimaryCurrency(entity, entry);
+                if (entry.InitialState == EState.Deleted)
+                {
+                    // Ensure that we do not delete the primary or exchange currency.
+                    if (currency.Id == _currencySettings.PrimaryCurrencyId || currency.Id == _currencySettings.PrimaryExchangeCurrencyId)
+                    {
+                        _hookErrorMessage = currency.Id == _currencySettings.PrimaryCurrencyId
+                            ? T("Admin.Configuration.Currencies.CannotDeletePrimaryCurrency")
+                            : T("Admin.Configuration.Currencies.CannotDeleteExchangeCurrency");
+                    }
+                    else if (currency.Published && await _db.Currencies.CountAsync(x => x.Published && x.Id != currency.Id, cancelToken) == 0)
+                    {
+                        _hookErrorMessage = T("Admin.Configuration.Currencies.PublishedCurrencyRequired");
+                    }
+                }
+                else if (entry.InitialState == EState.Modified)
+                {
+                    // Ensure that we have at least one published currency.
+                    if (!currency.Published && await _db.Currencies.CountAsync(x => x.Published && x.Id != currency.Id, cancelToken) == 0)
+                    {
+                        _hookErrorMessage = T("Admin.Configuration.Currencies.PublishedCurrencyRequired");
+                    }
+                }
+
+                if (_hookErrorMessage.HasValue())
+                {
+                    RevertChanges(entry);
+                }
             }
 
-            return Task.FromResult(HookResult.Ok);
+            // We need to return HookResult.Ok instead of HookResult.Failed to be able to output an error notification.
+            return HookResult.Ok;
         }
 
-        private void CheckPrimaryCurrency(Currency entity, IHookedEntity entry)
+        public override Task OnBeforeSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
         {
-            if (entity.Id == _currencySettings.PrimaryCurrencyId || entity.Id == _currencySettings.PrimaryExchangeCurrencyId)
+            if (_hookErrorMessage.HasValue())
             {
-                entry.State = Smartstore.Data.EntityState.Detached;
+                var message = new string(_hookErrorMessage);
+                _hookErrorMessage = null;
 
-                throw new SmartException(T("Admin.Configuration.Currencies.CannotDeleteOrDeactivatePrimaryCurrency"));
+                throw new SmartException(message);
+            }
+
+            return Task.CompletedTask;
+        }
+
+        private static void RevertChanges(IHookedEntity entry)
+        {
+            if (entry.State == EState.Modified)
+            {
+                entry.State = EState.Unchanged;
+            }
+            else if (entry.State == EState.Added || entry.State == EState.Deleted)
+            {
+                entry.State = EState.Detached;
             }
         }
 

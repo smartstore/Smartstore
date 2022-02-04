@@ -339,7 +339,6 @@ namespace Smartstore.Admin.Controllers
         }
 
         [HttpPost, ParameterBasedOnFormName("save-continue", "continueEditing")]
-        [ValidateAntiForgeryToken]
         [Permission(Permissions.Configuration.Currency.Update)]
         public async Task<IActionResult> Edit(CurrencyModel model, bool continueEditing)
         {
