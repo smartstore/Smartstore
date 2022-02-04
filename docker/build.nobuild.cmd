@@ -1,3 +1,3 @@
 cd ..
-docker build -t smarststore -f Dockerfile.nobuild .
+docker build -t smartstore -f Dockerfile.nobuild .
 pause

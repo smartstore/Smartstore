@@ -1,7 +1,7 @@
 version: "3.4"
 services:
     web:
-        build: .
+        image: smartstore
         container_name: smartstore
         ports:
             - "80:80"
@@ -11,7 +11,7 @@ services:
             - "D:/mount/smtenants:/app/App_Data/Tenants"
     db:
         image: mysql
-        container_name: db
+        container_name: mysql
         environment:
             MYSQL_DATABASE: smartstore
             #MYSQL_USER: "root"

@@ -40,8 +40,8 @@ README.md
 **/*.orig
 **/Kopie von*
 
-#/src/Smartstore.Web/Modules/*
-/src/Smartstore.Web/App_Data/*
+src/Smartstore.Web/Modules/*
+src/Smartstore.Web/App_Data/*
 !src/Smartstore.Web/App_Data/EmailTemplates/*
 !src/Smartstore.Web/App_Data/Geo/*
 !src/Smartstore.Web/App_Data/Localization/*

@@ -1,3 +1,3 @@
 cd ..
-docker build -t smarststore .
+docker build -t smartstore .
 pause
