@@ -462,29 +462,53 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Catalog.Product.Read)]
         public async Task<IActionResult> GoToSku(ProductListModel model)
         {
-            var sku = model.GoDirectlyToSku;
+            var sku = model.GoDirectlyToSku.TrimSafe();
 
             if (sku.HasValue())
             {
                 var product = await _db.Products
+                    .IgnoreQueryFilters()
                     .ApplySkuFilter(sku)
-                    .Select(x => new { x.Id })
+                    .Select(x => new { x.Id, x.Deleted })
                     .FirstOrDefaultAsync();
 
                 if (product != null)
                 {
-                    return RedirectToAction(nameof(Edit), new { id = product.Id });
+                    if (product.Deleted)
+                    {
+                        NotifyWarning(T("Products.Deleted", product.Id));
+                    }
+                    else
+                    {
+                        return RedirectToAction(nameof(Edit), new { id = product.Id });
+                    }
                 }
-
-                var combination = await _db.ProductVariantAttributeCombinations
-                    .AsNoTracking()
-                    .ApplySkuFilter(sku)
-                    .Select(x => new { x.ProductId, ProductDeleted = x.Product.Deleted })
-                    .FirstOrDefaultAsync();
-
-                if (combination != null)
+                else
                 {
-                    return RedirectToAction(nameof(Edit), new { id = combination.ProductId });
+                    var query =
+                        from ac in _db.ProductVariantAttributeCombinations
+                        join p in _db.Products.AsNoTracking().IgnoreQueryFilters() on ac.ProductId equals p.Id into acp
+                        from p in acp.DefaultIfEmpty()
+                        where ac.Sku == sku
+                        select new { Combination = ac, Product = p };
+
+                    var pvac = await query.FirstOrDefaultAsync();
+
+                    if (pvac?.Combination != null)
+                    {
+                        if (pvac.Product == null)
+                        {
+                            NotifyWarning(T("Products.NotFound", pvac.Combination.ProductId));
+                        }
+                        else if (pvac.Product.Deleted)
+                        {
+                            NotifyWarning(T("Products.Deleted", pvac.Combination.ProductId));
+                        }
+                        else
+                        {
+                            return RedirectToAction(nameof(Edit), new { id = pvac.Combination.ProductId });
+                        }
+                    }
                 }
             }
 
