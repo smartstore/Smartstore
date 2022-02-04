@@ -71,7 +71,7 @@ namespace Smartstore.Web.Controllers
             _orderSettings = orderSettings;
         }
 
-        protected async Task<bool> ValidatePaymentDataAsync(IPaymentMethod paymentMethod)
+        protected async Task<bool> ValidatePaymentDataAsync(IPaymentMethod paymentMethod, IFormCollection form)
         {
             var warnings = await paymentMethod.GetPaymentDataWarningsAsync();
 
@@ -88,10 +88,9 @@ namespace Smartstore.Web.Controllers
                 return false;
             }
 
-            // TODO: (mh) (core) Wait for payment methods, check how to retrieve processPaymentRequest now.
-            //var paymentInfo = await paymentMethod.ProcessPaymentAsync();
-            //HttpContext.Session.TrySetObject<ProcessPaymentRequest>("OrderPaymentInfo", paymentInfo);
-
+            var paymentInfo = await paymentMethod.GetPaymentInfoAsync(form);
+            HttpContext.Session.TrySetObject("OrderPaymentInfo", paymentInfo);
+            
             var state = _checkoutStateAccessor.CheckoutState;
             state.PaymentSummary = await paymentMethod.GetPaymentSummaryAsync();
 
@@ -536,7 +535,7 @@ namespace Smartstore.Web.Controllers
             await customer.GenericAttributes.SaveChangesAsync();
 
             // Validate info
-            if (!await ValidatePaymentDataAsync(paymentMethodProvider.Value))
+            if (!await ValidatePaymentDataAsync(paymentMethodProvider.Value, form))
             {
                 return RedirectToAction(nameof(PaymentMethod));
             }

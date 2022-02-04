@@ -1,4 +1,5 @@
-﻿using Smartstore.Core.Checkout.Payment;
+﻿using Microsoft.AspNetCore.Http;
+using Smartstore.Core.Checkout.Payment;
 using Smartstore.Engine.Modularity;
 using Smartstore.Http;
 using Smartstore.OfflinePayment.Settings;
@@ -23,6 +24,16 @@ namespace Smartstore.OfflinePayment
 
         public RouteInfo GetConfigurationRoute()
             => new("PurchaseOrderNumberConfigure", "OfflinePayment", new { area = "Admin" });
+
+        public override Task<ProcessPaymentRequest> GetPaymentInfoAsync(IFormCollection form)
+        {
+            var paymentInfo = new ProcessPaymentRequest
+            {
+                PurchaseOrderNumber = form["PurchaseOrderNumber"]
+            };
+
+            return Task.FromResult(paymentInfo);
+        }
 
         public override async Task<ProcessPaymentResult> ProcessPaymentAsync(ProcessPaymentRequest processPaymentRequest)
         {

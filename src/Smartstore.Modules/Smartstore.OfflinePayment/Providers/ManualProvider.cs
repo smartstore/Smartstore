@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Engine.Modularity;
 using Smartstore.Http;
@@ -65,6 +66,21 @@ namespace Smartstore.OfflinePayment
             }
 
             return result;
+        }
+
+        public override Task<ProcessPaymentRequest> GetPaymentInfoAsync(IFormCollection form)
+        {
+            var paymentInfo = new ProcessPaymentRequest
+            {
+                CreditCardType = form["CreditCardType"],
+                CreditCardName = form["CardholderName"],
+                CreditCardNumber = form["CardNumber"],
+                CreditCardExpireMonth = int.Parse(form["ExpireMonth"].ToString().SplitSafe(',').FirstOrDefault()),
+                CreditCardExpireYear = int.Parse(form["ExpireYear"].ToString().SplitSafe(',').FirstOrDefault()),
+                CreditCardCvv2 = form["CardCode"]
+            };
+
+            return Task.FromResult(paymentInfo);
         }
 
         public override async Task<ProcessPaymentResult> ProcessPaymentAsync(ProcessPaymentRequest processPaymentRequest)

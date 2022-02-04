@@ -1,4 +1,5 @@
-﻿using Smartstore.Core.Checkout.Cart;
+﻿using Microsoft.AspNetCore.Http;
+using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Widgets;
@@ -56,6 +57,10 @@ namespace Smartstore.Core.Checkout.Payment
         /// <inheritdoc/>
         public virtual Task<(decimal FixedFeeOrPercentage, bool UsePercentage)> GetPaymentFeeInfoAsync(ShoppingCart cart)
             => Task.FromResult((decimal.Zero, false));
+
+        /// <inheritdoc/>
+        public virtual Task<ProcessPaymentRequest> GetPaymentInfoAsync(IFormCollection form)
+            => Task.FromResult(new ProcessPaymentRequest());
 
         /// <inheritdoc/>
         public virtual Task<List<string>> GetPaymentDataWarningsAsync()

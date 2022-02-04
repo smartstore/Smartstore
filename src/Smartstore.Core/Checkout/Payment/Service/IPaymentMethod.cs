@@ -1,4 +1,5 @@
-﻿using Smartstore.Core.Checkout.Cart;
+﻿using Microsoft.AspNetCore.Http;
+using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Widgets;
 using Smartstore.Engine.Modularity;
@@ -85,8 +86,12 @@ namespace Smartstore.Core.Checkout.Payment
         /// <returns>The fixed fee or a percentage value. If UsePercentage is <c>true</c>, the fee is calculated as a percentage of the order total.</returns>
         Task<(decimal FixedFeeOrPercentage, bool UsePercentage)> GetPaymentFeeInfoAsync(ShoppingCart cart);
 
-        // TODO: (mg) (core) Provide raw payment form data required by GetPaymentDataWarningsAsync and GetPaymentSummaryAsync of IPaymentMethod somehow.
-        // Was formerly a FormCollection parameter.
+        /// <summary>
+        /// Handles payment data entered by customer on checkout's payment page.
+        /// </summary>
+        /// <param name="cart">Shopping cart.</param>
+        /// <param name="request">Payment info required for order processing.</param>
+        Task<ProcessPaymentRequest> GetPaymentInfoAsync(IFormCollection form);
 
         /// <summary>
         /// Validates payment data entered by customer on checkout's payment page.
