@@ -44,7 +44,7 @@ namespace Smartstore.Core.Common.Services
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
 
-        #region Hooks
+        #region Hook
 
         private string _hookErrorMessage;
 
