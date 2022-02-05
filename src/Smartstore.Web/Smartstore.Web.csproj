@@ -25,11 +25,11 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\Smartstore.Data\Smartstore.Data.MySql\Smartstore.Data.MySql.csproj" />
+		<ProjectReference Include="..\Smartstore.Data\Smartstore.Data.SqlServer\Smartstore.Data.SqlServer.csproj" />
 		<ProjectReference Include="..\Smartstore\Smartstore.csproj" />
 		<ProjectReference Include="..\Smartstore.Core\Smartstore.Core.csproj" />
 		<ProjectReference Include="..\Smartstore.Web.Common\Smartstore.Web.Common.csproj" />
-		<ProjectReference Include="..\Data\Smartstore.Data.MySql\Smartstore.Data.MySql.csproj" />
-		<ProjectReference Include="..\Data\Smartstore.Data.SqlServer\Smartstore.Data.SqlServer.csproj" />
 	</ItemGroup>
 	
 	<ItemGroup>

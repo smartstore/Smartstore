@@ -15,9 +15,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Modules", "Modules", "{E5C1
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Data", "Data", "{82A38DDA-C944-4C15-AF43-86732F8ED15A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore.Data.SqlServer", "src\Data\Smartstore.Data.SqlServer\Smartstore.Data.SqlServer.csproj", "{BFC8BA20-AB93-4B37-B9BB-6783BA5B194F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore.Data.SqlServer", "src\Smartstore.Data\Smartstore.Data.SqlServer\Smartstore.Data.SqlServer.csproj", "{BFC8BA20-AB93-4B37-B9BB-6783BA5B194F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore.Data.MySql", "src\Data\Smartstore.Data.MySql\Smartstore.Data.MySql.csproj", "{253DECF2-2ECA-4A90-955B-9299CCEC1363}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore.Data.MySql", "src\Smartstore.Data\Smartstore.Data.MySql\Smartstore.Data.MySql.csproj", "{253DECF2-2ECA-4A90-955B-9299CCEC1363}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore.DevTools", "src\Smartstore.Modules\Smartstore.DevTools\Smartstore.DevTools.csproj", "{62C64D0B-D937-40B2-B89D-198B2409FC84}"
 EndProject
