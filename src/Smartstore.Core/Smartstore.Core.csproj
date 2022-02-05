@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-	<Import Project="..\Build\Smartstore.Common.props" />
+	<Import Project="..\Smartstore.Build\Smartstore.Common.props" />
   
     <ItemGroup>
         <FrameworkReference Include="Microsoft.AspNetCore.App" />

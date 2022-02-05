@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-	<Import Project="..\..\src\Build\Smartstore.Common.props" />
+	<Import Project="..\..\src\Smartstore.Build\Smartstore.Common.props" />
 	
 	<PropertyGroup>
 		<OutputType>Library</OutputType>

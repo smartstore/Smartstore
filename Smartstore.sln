@@ -38,16 +38,16 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{1DE93C7F-22CE-462C-BB6E-7282F4403F2E}"
 	ProjectSection(SolutionItems) = preProject
-		src\Build\Smartstore.Common.props = src\Build\Smartstore.Common.props
-		src\Build\Smartstore.Common.targets = src\Build\Smartstore.Common.targets
-		src\Build\Smartstore.Module.props = src\Build\Smartstore.Module.props
-		src\Build\Smartstore.Module.targets = src\Build\Smartstore.Module.targets
-		src\Build\Smartstore.Razor.props = src\Build\Smartstore.Razor.props
+		src\Smartstore.Build\Smartstore.Common.props = src\Smartstore.Build\Smartstore.Common.props
+		src\Smartstore.Build\Smartstore.Common.targets = src\Smartstore.Build\Smartstore.Common.targets
+		src\Smartstore.Build\Smartstore.Module.props = src\Smartstore.Build\Smartstore.Module.props
+		src\Smartstore.Build\Smartstore.Module.targets = src\Smartstore.Build\Smartstore.Module.targets
+		src\Smartstore.Build\Smartstore.Razor.props = src\Smartstore.Build\Smartstore.Razor.props
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{5135A2B0-95B5-46AD-906A-70A2364B892B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore.ModuleBuilder", "src\Build\Smartstore.ModuleBuilder\src\Smartstore.ModuleBuilder.csproj", "{23B334CE-7FFC-464E-A0A8-FFCB084E8F24}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore.ModuleBuilder", "src\Smartstore.Build\Smartstore.ModuleBuilder\src\Smartstore.ModuleBuilder.csproj", "{23B334CE-7FFC-464E-A0A8-FFCB084E8F24}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore.Forums", "src\Smartstore.Modules\Smartstore.Forums\Smartstore.Forums.csproj", "{BB9E738C-0785-497F-9391-2B4CA242B567}"
 EndProject
