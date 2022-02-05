@@ -8,8 +8,8 @@
           allow-edit="true"
           allow-column-reordering="true">
     <datasource read="@Url.Action("QuantityUnitList", "QuantityUnit")"
-                update="@Url.Action("Update", "QuantityUnit")"
-                delete="@Url.Action("Delete", "QuantityUnit")" />
+                update="@Url.Action("QuantityUnitUpdate", "QuantityUnit")"
+                delete="@Url.Action("QuantityUnitDelete", "QuantityUnit")" />
     <sorting enabled="true">
         <sort by="DisplayOrder" />
     </sorting>
@@ -36,6 +36,7 @@
         </toolbar-group>
     </toolbar>
     <columns>
+        <column for="Id" halign="center" visible="false" type="string" />
         <column for="Name" width="2fr" hideable="false">
             <display-template>
                 <a href="#" class="grid-edit-quantity-unit text-truncate" :data-key="item.row.Id">

@@ -71,10 +71,7 @@ namespace Smartstore.Admin.Controllers
                 .LoadAsync();
 
             var quantityUnitModels = await quantityUnits
-                .SelectAsync(async x =>
-                {
-                    return await MapperFactory.MapAsync<QuantityUnit, QuantityUnitModel>(x);
-                })
+                .SelectAsync(async x => await MapperFactory.MapAsync<QuantityUnit, QuantityUnitModel>(x))
                 .AsyncToList();
 
             var gridModel = new GridModel<QuantityUnitModel>
@@ -88,7 +85,7 @@ namespace Smartstore.Admin.Controllers
 
         [HttpPost]
         [Permission(Permissions.Configuration.Measure.Update)]
-        public async Task<IActionResult> Update(QuantityUnitModel model)
+        public async Task<IActionResult> QuantityUnitUpdate(QuantityUnitModel model)
         {
             var success = false;
             var quantityUnit = await _db.QuantityUnits.FindByIdAsync(model.Id);
@@ -101,6 +98,33 @@ namespace Smartstore.Admin.Controllers
             }
 
             return Json(new { success });
+        }
+
+        [HttpPost]
+        [Permission(Permissions.Configuration.Measure.Delete)]
+        public async Task<IActionResult> QuantityUnitDelete(GridSelection selection)
+        {
+            var success = false;
+            var numDeleted = 0;
+            var ids = selection.GetEntityIds();
+
+            if (ids.Any())
+            {
+                try
+                {
+                    var quantityUnits = await _db.QuantityUnits.GetManyAsync(ids, true);
+                    _db.QuantityUnits.RemoveRange(quantityUnits);
+
+                    numDeleted = await _db.SaveChangesAsync();
+                    success = true;
+                }
+                catch (Exception ex)
+                {
+                    NotifyError(ex);
+                }
+            }
+
+            return Json(new { Success = success, Count = numDeleted });
         }
 
         [Permission(Permissions.Configuration.Measure.Create)]
@@ -188,11 +212,11 @@ namespace Smartstore.Admin.Controllers
                     await UpdateLocalesAsync(quantityUnit, model);
                     await _db.SaveChangesAsync();
 
-                    NotifySuccess(T("Admin.Configuration.QuantityUnit.Updated"));
+                    NotifySuccess(T("Admin.Configuration.QuantityUnits.Updated"));
                 }
                 catch (Exception ex)
                 {
-                    ModelState.AddModelError("", ex.Message);
+                    ModelState.AddModelError(string.Empty, ex.Message);
                     return View(model);
                 }
 
@@ -217,41 +241,6 @@ namespace Smartstore.Admin.Controllers
             return Json(new { Success = true });
         }
 
-        [HttpPost]
-        [Permission(Permissions.Configuration.Measure.Delete)]
-        public async Task<IActionResult> Delete(GridSelection selection)
-        {
-            var success = false;
-            var numDeleted = 0;
-            var ids = selection.GetEntityIds();
-
-            if (ids.Any())
-            {
-                var quantityUnits = await _db.QuantityUnits.GetManyAsync(ids, true);
-                var triedToDeleteDefault = false;
-
-                foreach (var quantityUnit in quantityUnits)
-                {
-                    if (quantityUnit.IsDefault)
-                    {
-                        triedToDeleteDefault = true;
-                        NotifyError(T("Admin.Configuration.Measures.QuantityUnits.CantDeleteDefault"));
-                    }
-                    else
-                    {
-                        _db.QuantityUnits.Remove(quantityUnit);
-                    }
-                }
-
-                numDeleted = await _db.SaveChangesAsync();
-
-                success = triedToDeleteDefault && numDeleted == 0 ? false : true;
-            }
-
-            return Json(new { Success = success, Count = numDeleted });
-        }
-
-        [NonAction]
         private async Task UpdateLocalesAsync(QuantityUnit quantityUnit, QuantityUnitModel model)
         {
             foreach (var localized in model.Locales)

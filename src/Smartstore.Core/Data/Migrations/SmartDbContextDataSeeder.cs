@@ -140,10 +140,16 @@ namespace Smartstore.Core.Data.Migrations
 
             builder.AddOrUpdate("Common.SetDefault", "Set as default", "Als Standard festlegen");
 
-            builder.AddOrUpdate("Admin.Configuration.Currencies.ApplyRate.Error", "An error occurred when applying the rate.", "Bei der Aktualisierung der Rate ist ein Fehler aufgetreten.");
+            builder.AddOrUpdate("Admin.Configuration.Currencies.ApplyRate.Error", 
+                "An error occurred when applying the rate.", 
+                "Bei der Aktualisierung der Rate ist ein Fehler aufgetreten.");
 
-            builder.AddOrUpdate("Admin.Configuration.Measures.QuantityUnits.CantDeleteDefault",
-                "The default quantity unit can't be deleted. Specify another standard quantity unit beforehand.",
+            builder.AddOrUpdate("Admin.Configuration.QuantityUnit.CannotDeleteAssignedProducts",
+                "The quntity unit cannot be deleted. It has associated products or product variants.",
+                "Die Verpackungseinheit kann nicht gelöscht werden. Ihr sind Produkte oder Produktvarianten zugeordnet.");
+
+            builder.AddOrUpdate("Admin.Configuration.QuantityUnit.CannotDeleteDefaultQuantityUnit",
+                "The default quantity unit cannot be deleted. Set another standard quantity unit first.",
                 "Die Standard-Verpackungseinheit kann nicht gelöscht werden. Bestimmen Sie zuvor eine andere Standard-Verpackungseinheit.");
 
             builder.AddOrUpdate("Admin.Configuration.DeliveryTimes.CannotDeleteDefaultDeliveryTime",
@@ -430,7 +436,7 @@ namespace Smartstore.Core.Data.Migrations
 
             #region Packaging
 
-            builder.AddOrUpdate("Admin.Packaging.Dialog.PluginInfo",
+               builder.AddOrUpdate("Admin.Packaging.Dialog.PluginInfo",
                 "Choose a plugin package file (Smartstore.Module.*.zip) to upload to your server. The package will be automatically extracted and installed. If an older version of the plugin already exists, it will be backed up for you.",
                 "Wählen Sie die Plugin Paket-Datei (Smartstore.Module.*.zip), die Sie auf den Server hochladen möchten. Das Paket wird autom. extrahiert und installiert. Wenn eine ältere Version des Plugins bereits existiert, wird eine Sicherungskopie davon erstellt.");
 
@@ -770,7 +776,9 @@ namespace Smartstore.Core.Data.Migrations
             //    "Admin.Configuration.Currencies.Fields.PrimaryExchangeRateCurrencyStores",
             //    "Admin.Configuration.Currencies.Fields.PrimaryExchangeRateCurrencyStores.Hint",
             //    "Admin.Configuration.Currencies.DeleteOrPublishStoreConflict",
+            //    "Admin.Configuration.DeliveryTime.BackToList",
             //    "Admin.Configuration.DeliveryTimes.Fields.DisplayLocale",
+            //    "Admin.Configuration.Stores.BackToList",
             //    );
 
 

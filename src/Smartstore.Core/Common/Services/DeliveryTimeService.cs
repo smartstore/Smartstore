@@ -107,16 +107,15 @@ namespace Smartstore.Core.Common.Services
                 }
             }
 
-            // Ensure not to delete the default delivery time.
             if (entity.IsDefault == true)
             {
+                // Cannot delete the default delivery time.
                 entry.ResetState();
                 _hookErrorMessage = T("Admin.Configuration.DeliveryTimes.CannotDeleteDefaultDeliveryTime");
             }
-
-            // Ensure that there are no associations to active products or attribute combinations.
-            if (await _db.Products.AnyAsync(x => x.DeliveryTimeId == entity.Id || x.ProductVariantAttributeCombinations.Any(c => c.DeliveryTimeId == entity.Id), cancelToken))
+            else if (await _db.Products.AnyAsync(x => x.DeliveryTimeId == entity.Id || x.ProductVariantAttributeCombinations.Any(c => c.DeliveryTimeId == entity.Id), cancelToken))
             {
+                // Cannot delete if there are associations to active products or attribute combinations.
                 entry.ResetState();
                 _hookErrorMessage = T("Admin.Configuration.DeliveryTimes.CannotDeleteAssignedProducts");
             }

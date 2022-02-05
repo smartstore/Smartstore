@@ -1,4 +1,5 @@
 ﻿using Smartstore.Core.Data;
+using Smartstore.Core.Localization;
 using Smartstore.Data.Hooks;
 
 namespace Smartstore.Core.Common.Hooks
@@ -7,18 +8,21 @@ namespace Smartstore.Core.Common.Hooks
     internal class QuantityUnitHook : AsyncDbSaveHook<QuantityUnit>
     {
         private readonly SmartDbContext _db;
+        private string _hookErrorMessage;
 
         public QuantityUnitHook(SmartDbContext db)
         {
             _db = db;
         }
 
+        public Localizer T { get; set; } = NullLocalizer.Instance;
+
         /// <summary>
         /// Sets all quantity units to <see cref="QuantityUnit.IsDefault"/> = false if the currently updated entity is the default quantity unit.
         /// </summary>
         protected override async Task<HookResult> OnInsertingAsync(QuantityUnit entity, IHookedEntity entry, CancellationToken cancelToken)
         {
-            await TryResetDefaultQuantityUnitsAsync(entity, cancelToken);
+            await ResetDefaultQuantityUnits(entity, cancelToken);
 
             return HookResult.Ok;
         }
@@ -28,7 +32,7 @@ namespace Smartstore.Core.Common.Hooks
         /// </summary>
         protected override async Task<HookResult> OnUpdatingAsync(QuantityUnit entity, IHookedEntity entry, CancellationToken cancelToken)
         {
-            await TryResetDefaultQuantityUnitsAsync(entity, cancelToken);
+            await ResetDefaultQuantityUnits(entity, cancelToken);
 
             return HookResult.Ok;
         }
@@ -38,20 +42,36 @@ namespace Smartstore.Core.Common.Hooks
         /// </summary>
         protected override async Task<HookResult> OnDeletingAsync(QuantityUnit entity, IHookedEntity entry, CancellationToken cancelToken)
         {
-            var hasAssociatedEntities = await _db.Products
-                .AsNoTracking()
-                .Where(x => x.QuantityUnitId == entity.Id || x.ProductVariantAttributeCombinations.Any(c => c.QuantityUnitId == entity.Id))
-                .AnyAsync(cancellationToken: cancelToken);
-
-            if (hasAssociatedEntities)
+            if (entity.IsDefault == true)
             {
-                throw new SmartException($"The quantity unit '{entity.Name}' cannot be deleted. It has associated products or attribute combinations.");
+                // Cannot delete the default quantity unit.
+                entry.ResetState();
+                _hookErrorMessage = T("Admin.Configuration.QuantityUnit.CannotDeleteDefaultQuantityUnit");
+            }
+            else if (await _db.Products.AnyAsync(x => x.QuantityUnitId == entity.Id || x.ProductVariantAttributeCombinations.Any(c => c.QuantityUnitId == entity.Id), cancelToken))
+            {
+                // Cannot delete if there are associations to active products or attribute combinations.
+                entry.ResetState();
+                _hookErrorMessage = T("Admin.Configuration.QuantityUnit.CannotDeleteAssignedProducts");
             }
 
             return HookResult.Ok;
         }
 
-        public virtual async Task TryResetDefaultQuantityUnitsAsync(QuantityUnit entity, CancellationToken cancelToken)
+        public override Task OnBeforeSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
+        {
+            if (_hookErrorMessage.HasValue())
+            {
+                var message = new string(_hookErrorMessage);
+                _hookErrorMessage = null;
+
+                throw new SmartException(message);
+            }
+
+            return Task.CompletedTask;
+        }
+
+        private async Task ResetDefaultQuantityUnits(QuantityUnit entity, CancellationToken cancelToken)
         {
             Guard.NotNull(entity, nameof(entity));
 
@@ -59,11 +79,12 @@ namespace Smartstore.Core.Common.Hooks
             {
                 var quantityUnits = await _db.QuantityUnits
                     .Where(x => x.IsDefault && x.Id != entity.Id)
-                    .ToListAsync(cancellationToken: cancelToken);
+                    .ToListAsync(cancelToken);
 
-                foreach (var quantityUnit in quantityUnits)
+                if (quantityUnits.Any())
                 {
-                    quantityUnit.IsDefault = false;
+                    quantityUnits.Each(x => x.IsDefault = false);
+                    await _db.SaveChangesAsync(cancelToken);
                 }
             }
         }

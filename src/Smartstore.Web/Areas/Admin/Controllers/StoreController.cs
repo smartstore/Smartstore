@@ -4,6 +4,7 @@ using Smartstore.Admin.Models.Stores;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Search;
 using Smartstore.Core.Checkout.Cart;
+using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Security;
@@ -17,11 +18,44 @@ namespace Smartstore.Admin.Controllers
     {
         private readonly SmartDbContext _db;
         private readonly ICatalogSearchService _catalogSearchService;
+        private readonly CurrencySettings _currencySettings;
 
-        public StoreController(SmartDbContext db, ICatalogSearchService catalogSearchService)
+        public StoreController(
+            SmartDbContext db, 
+            ICatalogSearchService catalogSearchService,
+            CurrencySettings currencySettings)
         {
             _db = db;
             _catalogSearchService = catalogSearchService;
+            _currencySettings = currencySettings;
+        }
+
+        /// <summary>
+        /// (AJAX) Gets a list of all available stores. 
+        /// </summary>
+        /// <param name="label">Text for optional entry. If not null an entry with the specified label text and the Id 0 will be added to the list.</param>
+        /// <param name="selectedIds">Ids of selected entities.</param>
+        /// <returns>List of all stores as JSON.</returns>
+        public IActionResult AllStores(string label, string selectedIds)
+        {
+            var stores = new List<Store>(Services.StoreContext.GetAllStores());
+            var ids = selectedIds.ToIntArray();
+
+            if (label.HasValue())
+            {
+                stores.Insert(0, new Store { Name = label, Id = 0 });
+            }
+
+            var list = stores
+                .Select(x => new ChoiceListItem
+                {
+                    Id = x.Id.ToString(),
+                    Text = x.Name,
+                    Selected = ids.Contains(x.Id)
+                })
+                .ToList();
+
+            return new JsonResult(list);
         }
 
         public IActionResult Index()
@@ -82,11 +116,20 @@ namespace Smartstore.Admin.Controllers
 
                 // Ensure we have "/" at the end.
                 store.Url = store.Url.EnsureEndsWith("/");
+
+                // TODO: (mg) (core) Refactor. A currency on store level should just act working currency preselection.
+                // We have to do this because we have a foreign key constraint on these fields.
+                store.PrimaryStoreCurrencyId = _currencySettings.PrimaryCurrencyId;
+                store.PrimaryExchangeRateCurrencyId = _currencySettings.PrimaryExchangeCurrencyId;
+
                 _db.Stores.Add(store);
                 await _db.SaveChangesAsync();
 
                 NotifySuccess(T("Admin.Configuration.Stores.Added"));
-                return continueEditing ? RedirectToAction(nameof(Edit), new { id = store.Id }) : RedirectToAction(nameof(List));
+
+                return continueEditing 
+                    ? RedirectToAction(nameof(Edit), new { id = store.Id }) 
+                    : RedirectToAction(nameof(List));
             }
 
             return View(model);
@@ -123,10 +166,19 @@ namespace Smartstore.Admin.Controllers
 
                 // Ensure we have "/" at the end.
                 store.Url = store.Url.EnsureEndsWith("/");
+
+                // TODO: (mg) (core) Refactor. A currency on store level should just act working currency preselection.
+                // We have to do this because we have a foreign key constraint on these fields.
+                store.PrimaryStoreCurrencyId = _currencySettings.PrimaryCurrencyId;
+                store.PrimaryExchangeRateCurrencyId = _currencySettings.PrimaryExchangeCurrencyId;
+
                 await _db.SaveChangesAsync();
                 
                 NotifySuccess(T("Admin.Configuration.Stores.Updated"));
-                return continueEditing ? RedirectToAction(nameof(Edit), new { id = store.Id }) : RedirectToAction(nameof(List));
+
+                return continueEditing 
+                    ? RedirectToAction(nameof(Edit), new { id = store.Id }) 
+                    : RedirectToAction(nameof(List));
             }
 
             return View(model);
@@ -166,33 +218,6 @@ namespace Smartstore.Admin.Controllers
             }
 
             return RedirectToAction(nameof(Edit), new { id = store.Id });
-        }
-
-        /// <summary>
-        /// (AJAX) Gets a list of all available stores. 
-        /// </summary>
-        /// <param name="label">Text for optional entry. If not null an entry with the specified label text and the Id 0 will be added to the list.</param>
-        /// <param name="selectedIds">Ids of selected entities.</param>
-        /// <returns>List of all stores as JSON.</returns>
-        public IActionResult AllStores(string label, string selectedIds)
-        {
-            var stores = new List<Store>(Services.StoreContext.GetAllStores());
-            var ids = selectedIds.ToIntArray();
-
-            if (label.HasValue())
-            {
-                stores.Insert(0, new Store { Name = label, Id = 0 });
-            }
-
-            var list = from m in stores
-                select new ChoiceListItem
-                {
-                    Id = m.Id.ToString(),
-                    Text = m.Name,
-                    Selected = ids.Contains(m.Id)
-                };
-
-            return new JsonResult(list.ToList());
         }
 
         [SaveChanges(typeof(SmartDbContext), false)]
