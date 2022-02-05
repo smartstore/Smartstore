@@ -1,13 +1,12 @@
 services:
     web:
-        build:
-            context: .
-            dockerfile: Dockerfile.nobuild
+        volumes:
+            - "D:/mount/smtenants/sqlserver:/app/App_Data/Tenants"
     db:
         image: "mcr.microsoft.com/mssql/server"
-        container_name: db
+        container_name: sqlserver
         environment:
-            SA_PASSWORD: "smartstore"
+            SA_PASSWORD: "Smartstore2022!"
             ACCEPT_EULA: "Y"
             MSSQL_PID: "Express"
         ports:
@@ -15,13 +14,9 @@ services:
         expose:
           - '1433'
         volumes:
-          - mssqlsystem:/var/opt/mssql/
-          - mssqldata:/var/opt/sqlserver/data
-          - mssqllog:/var/opt/sqlserver/log
-          - mssqlbackup:/var/opt/sqlserver/backup
+          - mssql_system:/var/opt/mssql/
+          - mssql_user:/var/opt/sqlserver/
 
 volumes:
-  mssqlsystem:
-  mssqldata:
-  mssqllog:
-  mssqlbackup:
+  mssql_system:
+  mssql_user:

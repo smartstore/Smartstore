@@ -1,5 +1,0 @@
-services:
-    web:
-        build:
-            context: .
-            dockerfile: Dockerfile.nobuild

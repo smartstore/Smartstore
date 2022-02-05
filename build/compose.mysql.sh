@@ -1,3 +1,3 @@
 cd ..
-docker build -t smartstore -f Nano.Dockerfile .
+docker-compose up -d
 echo 'Press enter to exit...'; read dummy;
