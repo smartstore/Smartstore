@@ -1380,6 +1380,16 @@ namespace Smartstore.Admin.Controllers
             model.PrimaryStoreCurrencyCode = _currencyService.PrimaryCurrency.CurrencyCode;
             model.StoreCount = allStores.Count;
 
+            if (settings.GiftCards_Activated_OrderStatusId > 0)
+            {
+                model.GiftCardsActivatedOrderStatusId = settings.GiftCards_Activated_OrderStatusId;
+            }
+
+            if (settings.GiftCards_Deactivated_OrderStatusId > 0)
+            {
+                model.GiftCardsDeactivatedOrderStatusId = settings.GiftCards_Deactivated_OrderStatusId;
+            }
+
             AddLocales(model.Locales, (locale, languageId) =>
             {
                 locale.ReturnRequestActions = settings.GetLocalizedSetting(x => x.ReturnRequestActions, languageId, storeScope, false, false);
@@ -1403,29 +1413,13 @@ namespace Smartstore.Admin.Controllers
             ModelState.Clear();
 
             await MapperFactory.MapAsync(model, settings);
+            settings.GiftCards_Activated_OrderStatusId = Convert.ToInt32(model.GiftCardsActivatedOrderStatusId);
+            settings.GiftCards_Deactivated_OrderStatusId = Convert.ToInt32(model.GiftCardsDeactivatedOrderStatusId);
 
             foreach (var localized in model.Locales)
             {
                 await _localizedEntityService.ApplyLocalizedSettingAsync(settings, x => x.ReturnRequestActions, localized.ReturnRequestActions, localized.LanguageId, storeScope);
                 await _localizedEntityService.ApplyLocalizedSettingAsync(settings, x => x.ReturnRequestReasons, localized.ReturnRequestReasons, localized.LanguageId, storeScope);
-            }
-
-            if (model.GiftCards_Activated_OrderStatusId.HasValue)
-            {
-                await Services.Settings.ApplySettingAsync(settings, x => x.GiftCards_Activated_OrderStatusId);
-            }
-            else
-            {
-                await Services.Settings.RemoveSettingAsync(settings, x => x.GiftCards_Activated_OrderStatusId);
-            }
-
-            if (model.GiftCards_Deactivated_OrderStatusId.HasValue)
-            {
-                await Services.Settings.ApplySettingAsync(settings, x => x.GiftCards_Deactivated_OrderStatusId);
-            }
-            else
-            {
-                await Services.Settings.RemoveSettingAsync(settings, x => x.GiftCards_Deactivated_OrderStatusId);
             }
 
             await _db.SaveChangesAsync();
