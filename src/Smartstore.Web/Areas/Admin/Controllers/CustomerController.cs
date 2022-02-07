@@ -428,14 +428,11 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Customer.Read)]
         public async Task<IActionResult> CustomerList(GridCommand command, CustomerListModel model)
         {
-            var gridModel = new GridModel<CustomerModel>();
-
             var searchQuery = _db.Customers
                 .AsNoTracking()
                 .IncludeCustomerRoles()
                 .ApplyIdentFilter(model.SearchEmail, model.SearchUsername, model.SearchCustomerNumber)
-                .ApplyBirthDateFilter(model.SearchYearOfBirth.ToInt(), model.SearchMonthOfBirth.ToInt(), model.SearchDayOfBirth.ToInt())
-                .ApplyGridCommand(command, false);              
+                .ApplyBirthDateFilter(model.SearchYearOfBirth.ToInt(), model.SearchMonthOfBirth.ToInt(), model.SearchDayOfBirth.ToInt());
                 
             if (model.SearchCustomerRoleIds != null)
             {
@@ -462,12 +459,19 @@ namespace Smartstore.Admin.Controllers
                 searchQuery = searchQuery.Where(x => x.Active == model.SearchActiveOnly);
             }
 
-            var customers = await searchQuery.ToPagedList(command).LoadAsync();
+            var customers = await searchQuery
+                .OrderByDescending(x => x.CreatedOnUtc)
+                .ApplyGridCommand(command)
+                .ToPagedList(command)
+                .LoadAsync();
 
-            gridModel.Rows = customers.Select(x => PrepareCustomerModelForList(x)).ToList();
-            gridModel.Total = customers.TotalCount;
+            var rows = customers.Select(x => PrepareCustomerModelForList(x)).ToList();
 
-            return Json(gridModel);
+            return Json(new GridModel<CustomerModel>
+            {
+                Rows = rows,
+                Total = await customers.GetTotalCountAsync()
+            });
         }
 
         [Permission(Permissions.Customer.Create)]

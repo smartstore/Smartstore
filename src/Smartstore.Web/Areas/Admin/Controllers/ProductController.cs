@@ -1285,6 +1285,7 @@ namespace Smartstore.Admin.Controllers
         {
             var tags = await _db.ProductTags
                 .AsNoTracking()
+                .OrderBy(x => x.Name)
                 .ApplyGridCommand(command)
                 .ToPagedList(command)
                 .LoadAsync();
@@ -1421,7 +1422,6 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Catalog.Product.Read)]
         public async Task<IActionResult> LowStockReportList(GridCommand command)
         {
-            // TODO: (mg) (core) think about improving this: stub entity, incl. ac.StockQuantity, show ManageInventoryMethod in grid, grid filter
             var productIdQuery =
                 from p in _db.Products
                 join ac in _db.ProductVariantAttributeCombinations on p.Id equals ac.ProductId into pac

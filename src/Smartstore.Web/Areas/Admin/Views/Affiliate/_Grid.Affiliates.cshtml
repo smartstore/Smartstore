@@ -3,8 +3,8 @@
 @model AffiliateModel
 
 <datagrid id="affiliates-grid" allow-resize="true" allow-row-selection="true" allow-column-reordering="true">
-    <datasource read="@Url.Action("List", "Affiliate")"
-                delete="@Url.Action("AffiliatesDelete", "Affiliate")" />
+    <datasource read="@Url.Action("AffiliateList", "Affiliate")"
+                delete="@Url.Action("AffiliateDelete", "Affiliate")" />
     <sorting enabled="true" />
     <paging position="Bottom" show-size-chooser="true" />
     <toolbar>

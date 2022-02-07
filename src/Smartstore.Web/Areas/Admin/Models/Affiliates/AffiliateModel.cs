@@ -61,6 +61,9 @@ namespace Smartstore.Admin.Models.Affiliates
             [LocalizedDisplay("*FullName")]
             public string FullName { get; set; }
 
+            [LocalizedDisplay("Common.CreatedOn")]
+            public DateTime CreatedOn { get; set; }
+
             public string EditUrl { get; set; }
         }
     }

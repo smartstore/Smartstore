@@ -12,7 +12,7 @@
     <datasource read="@Url.Action("CustomerList")" delete="@Url.Action("CustomerDelete")" />
     <paging position="Bottom" show-size-chooser="true" />
     <sorting enabled="true" allow-unsort="true" allow-multisort="false">
-        <sort by="CreatedOn" descending="true" />
+        <sort by="CreatedOn" by-entity-member="CreatedOnUtc" descending="true" />
     </sorting>
     <toolbar>
         <toolbar-group>

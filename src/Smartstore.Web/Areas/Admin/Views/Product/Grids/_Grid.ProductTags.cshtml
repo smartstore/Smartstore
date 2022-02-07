@@ -10,7 +10,7 @@
                 update="@Url.Action("ProductTagsUpdate")"/>
     <paging position="Both" />
     <sorting enabled="true">
-        <sort by="ProductCount" descending="true"></sort>
+        <sort by="Name"></sort>
     </sorting>
     <toolbar>
         <toolbar-group class="omega">
@@ -28,7 +28,7 @@
                 </a>
             </display-template>
         </column>
-        <column for="ProductCount" entity-member="Products.Count" halign="center" readonly />
+        <column for="ProductCount" halign="center" sortable="false" readonly />
         <column for="Published" halign="center" />
     </columns>
     <row-commands>

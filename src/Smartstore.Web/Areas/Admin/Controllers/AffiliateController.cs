@@ -1,10 +1,8 @@
 ﻿using Smartstore.Admin.Models.Affiliates;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Checkout.Affiliates;
-using Smartstore.Core.Common.Services;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Security;
-using Smartstore.Core.Web;
 using Smartstore.Web.Models.Common;
 using Smartstore.Web.Models.DataGrid;
 
@@ -13,32 +11,20 @@ namespace Smartstore.Admin.Controllers
     public class AffiliateController : AdminController
     {
         private readonly SmartDbContext _db;
-        private readonly ICommonServices _services;
-        private readonly IDateTimeHelper _dateTimeHelper;
-        private readonly IWebHelper _webHelper;
         private readonly CustomerSettings _customerSettings;
 
-        public AffiliateController(
-            SmartDbContext db,
-            ICommonServices services,
-            IDateTimeHelper dateTimeHelper, 
-            IWebHelper webHelper,
-            CustomerSettings customerSettings)
+        public AffiliateController(SmartDbContext db, CustomerSettings customerSettings)
         {
             _db = db;
-            _services = services;
-            _dateTimeHelper = dateTimeHelper;
-            _webHelper = webHelper;
             _customerSettings = customerSettings;
         }
         
-        [NonAction]
-        protected async Task PrepareAffiliateModelAsync(AffiliateModel model, Affiliate affiliate, bool excludeProperties)
+        private async Task PrepareAffiliateModelAsync(AffiliateModel model, Affiliate affiliate, bool excludeProperties)
         {
             if (affiliate != null)
             {
                 model.Id = affiliate.Id;
-                model.Url = _webHelper.ModifyQueryString(_webHelper.GetStoreLocation(false), "affiliateid=" + affiliate.Id, null);
+                model.Url = Services.WebHelper.ModifyQueryString(Services.WebHelper.GetStoreLocation(false), "affiliateid=" + affiliate.Id, null);
 
                 if (!excludeProperties)
                 {
@@ -81,25 +67,24 @@ namespace Smartstore.Admin.Controllers
 
         [HttpPost]
         [Permission(Permissions.Promotion.Affiliate.Read)]
-        public async Task<IActionResult> List(GridCommand command)
+        public async Task<IActionResult> AffiliateList(GridCommand command)
         {
             var affiliates = await _db.Affiliates
                 .AsNoTracking()
                 .Include(x => x.Address)
+                .OrderBy(x => x.Id)
                 .ApplyGridCommand(command)
                 .ToPagedList(command)
                 .LoadAsync();
 
             var affiliateModels = affiliates
-                .Select(x =>
+                .Select(x => new AffiliateModel
                 {
-                    return new AffiliateModel {
-                        Id = x.Id,
-                        AddressEmail = x.Address.Email,
-                        AddressFirstName = x.Address.FirstName,
-                        AddressLastName = x.Address.LastName,
-                        EditUrl = Url.Action("Edit", "Affiliate", new { id = x.Id })
-                    };
+                    Id = x.Id,
+                    AddressEmail = x.Address.Email,
+                    AddressFirstName = x.Address.FirstName,
+                    AddressLastName = x.Address.LastName,
+                    EditUrl = Url.Action(nameof(Edit), new { id = x.Id })
                 })
                 .ToList();
 
@@ -139,7 +124,10 @@ namespace Smartstore.Admin.Controllers
                 await _db.SaveChangesAsync();
 
                 NotifySuccess(T("Admin.Affiliates.Added"));
-                return continueEditing ? RedirectToAction(nameof(Edit), new { id = affiliate.Id }) : RedirectToAction(nameof(List));
+                
+                return continueEditing 
+                    ? RedirectToAction(nameof(Edit), new { id = affiliate.Id }) 
+                    : RedirectToAction(nameof(List));
             }
 
             await PrepareAffiliateModelAsync(model, null, true);
@@ -182,7 +170,10 @@ namespace Smartstore.Admin.Controllers
                 await _db.SaveChangesAsync();
 
                 NotifySuccess(T("Admin.Affiliates.Updated"));
-                return continueEditing ? RedirectToAction(nameof(Edit), affiliate.Id) : RedirectToAction(nameof(List));
+                
+                return continueEditing 
+                    ? RedirectToAction(nameof(Edit), affiliate.Id) 
+                    : RedirectToAction(nameof(List));
             }
 
             await PrepareAffiliateModelAsync(model, affiliate, true);
@@ -208,7 +199,7 @@ namespace Smartstore.Admin.Controllers
 
         [HttpPost]
         [Permission(Permissions.System.Message.Delete)]
-        public async Task<IActionResult> AffiliatesDelete(GridSelection selection)
+        public async Task<IActionResult> AffiliateDelete(GridSelection selection)
         {
             var success = false;
             var numDeleted = 0;
@@ -237,24 +228,23 @@ namespace Smartstore.Admin.Controllers
         {
             var orders = await _db.Orders
                 .Where(x => x.AffiliateId == affiliateId)
+                .OrderByDescending(x => x.CreatedOnUtc)
                 .ApplyGridCommand(command)
                 .ToPagedList(command)
                 .LoadAsync();
 
-            var orderModels = await orders.SelectAsync(async order =>
-            {
-                var orderModel = new AffiliateModel.AffiliatedOrderModel
+            var orderModels = await orders
+                .SelectAsync(async x => new AffiliateModel.AffiliatedOrderModel
                 {
-                    Id = order.Id,
-                    OrderStatus = await _services.Localization.GetLocalizedEnumAsync(order.OrderStatus),
-                    PaymentStatus = await _services.Localization.GetLocalizedEnumAsync(order.PaymentStatus),
-                    ShippingStatus = await _services.Localization.GetLocalizedEnumAsync(order.ShippingStatus),
-                    OrderTotal = Services.CurrencyService.PrimaryCurrency.AsMoney(order.OrderTotal),
-                    CreatedOn = _dateTimeHelper.ConvertToUserTime(order.CreatedOnUtc, DateTimeKind.Utc),
-                    EditUrl = Url.Action("Edit", "Order", new { id = order.Id })
-                };
-                return orderModel;
-            }).AsyncToList();
+                    Id = x.Id,
+                    OrderStatus = await Services.Localization.GetLocalizedEnumAsync(x.OrderStatus),
+                    PaymentStatus = await Services.Localization.GetLocalizedEnumAsync(x.PaymentStatus),
+                    ShippingStatus = await Services.Localization.GetLocalizedEnumAsync(x.ShippingStatus),
+                    OrderTotal = Services.CurrencyService.PrimaryCurrency.AsMoney(x.OrderTotal),
+                    CreatedOn = Services.DateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc),
+                    EditUrl = Url.Action("Edit", "Order", new { id = x.Id })
+                })
+                .AsyncToList();
 
             var gridModel = new GridModel<AffiliateModel.AffiliatedOrderModel>
             {
@@ -271,22 +261,22 @@ namespace Smartstore.Admin.Controllers
         {
             var customers = await _db.Customers
                 .Where(x => x.AffiliateId == affiliateId)
+                .OrderByDescending(x => x.CreatedOnUtc)
                 .ApplyGridCommand(command)
                 .ToPagedList(command)
                 .LoadAsync();
 
-            var customerModels = customers.Select(customer =>
-            {
-                return new AffiliateModel.AffiliatedCustomerModel
+            var customerModels = customers
+                .Select(x => new AffiliateModel.AffiliatedCustomerModel
                 {
-                    Id = customer.Id,
-                    Email = customer.Email,
-                    Username = customer.Username,
-                    FullName = customer.GetFullName(),
-                    EditUrl = Url.Action("Edit", "Customer", new { id = customer.Id })
-            };
-
-            }).ToList();
+                    Id = x.Id,
+                    Email = x.Email,
+                    Username = x.Username,
+                    FullName = x.GetFullName(),
+                    CreatedOn = Services.DateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc),
+                    EditUrl = Url.Action("Edit", "Customer", new { id = x.Id })
+                })
+                .ToList();
 
             var gridModel = new GridModel<AffiliateModel.AffiliatedCustomerModel>
             {

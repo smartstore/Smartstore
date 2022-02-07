@@ -51,10 +51,10 @@
     @if (Model.Id > 0)
     {
         <tab sm-title="@T("Admin.Affiliates.Customers")">
-            <partial name="_Grid.AffiliatedCustomers.cshtml" model="null" view-data="gridViewData" />
+            <partial name="_Grid.AffiliatedCustomers" model="null" view-data="gridViewData" />
         </tab>
         <tab sm-title="@T("Admin.Affiliates.Orders")">
-            <partial name="_Grid.AffiliatedOrders.cshtml" model="null" view-data="gridViewData"  />
+            <partial name="_Grid.AffiliatedOrders" model="null" view-data="gridViewData"  />
         </tab>
     }
 </tabstrip>

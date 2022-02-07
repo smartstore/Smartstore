@@ -12,8 +12,8 @@
 </form>
 
 <datagrid id="activity-log-grid" allow-resize="true" allow-row-selection="true" allow-column-reordering="true">
-    <datasource read="@Url.Action("ListActivityLogs", "ActivityLog")"
-                delete="@Url.Action("Delete", "ActivityLog")" />
+    <datasource read="@Url.Action("ActivityLogList", "ActivityLog")"
+                delete="@Url.Action("ActivityLogDelete", "ActivityLog")" />
     <sorting enabled="true">
         <sort by="CreatedOn" by-entity-member="CreatedOnUtc" descending="true" />
     </sorting>

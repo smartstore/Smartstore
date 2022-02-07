@@ -92,7 +92,7 @@ namespace Smartstore.Admin.Controllers
 
         [HttpPost]
         [Permission(Permissions.Configuration.ActivityLog.Read)]
-        public async Task<IActionResult> ListActivityLogs(GridCommand command, ActivityLogListModel model)
+        public async Task<IActionResult> ActivityLogList(GridCommand command, ActivityLogListModel model)
         {
             DateTime? startDateValue = (model.CreatedOnFrom == null) ? null
                 : _dateTimeHelper.ConvertToUtcTime(model.CreatedOnFrom.Value, _dateTimeHelper.CurrentTimeZone);
@@ -100,7 +100,10 @@ namespace Smartstore.Admin.Controllers
             DateTime? endDateValue = (model.CreatedOnTo == null) ? null
                 : _dateTimeHelper.ConvertToUtcTime(model.CreatedOnTo.Value, _dateTimeHelper.CurrentTimeZone).AddDays(1);
 
-            var query = _db.ActivityLogs.AsNoTracking();
+            var query = _db.ActivityLogs
+                .Include(x => x.Customer)
+                .Include(x => x.ActivityLogType)
+                .AsNoTracking();
 
             if (model.ActivityLogTypeId != 0)
             {
@@ -110,21 +113,20 @@ namespace Smartstore.Admin.Controllers
             var activityLogs = await query
                 .ApplyDateFilter(startDateValue, endDateValue)
                 .ApplyCustomerFilter(model.CustomerEmail, model.CustomerSystemAccount)
+                .OrderByDescending(x => x.CreatedOnUtc)
                 .ApplyGridCommand(command)
-                .Include(x => x.Customer)
-                .Include(x => x.ActivityLogType)
                 .ToPagedList(command)
                 .LoadAsync();
 
             var systemAccountCustomers = await _db.Customers
                 .AsNoTracking()
                 .Where(x => x.IsSystemAccount)
-                .ToListAsync();
+                .ToDictionaryAsync(x => x.Id);
 
             var activityLogModels = await activityLogs.SelectAsync(async x =>
             {
                 var model = await MapperFactory.MapAsync<ActivityLog, ActivityLogModel>(x);
-                var systemCustomer = systemAccountCustomers.FirstOrDefault(y => y.Id == x.CustomerId);
+                var systemCustomer = systemAccountCustomers.Get(x.CustomerId);
 
                 model.CreatedOn = _dateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc);
                 model.IsSystemAccount = systemCustomer != null;
@@ -164,7 +166,7 @@ namespace Smartstore.Admin.Controllers
 
         [HttpPost]
         [Permission(Permissions.Configuration.Setting.Delete)]
-        public async Task<IActionResult> Delete(GridSelection selection)
+        public async Task<IActionResult> ActivityLogDelete(GridSelection selection)
         {
             var success = false;
             var numDeleted = 0;

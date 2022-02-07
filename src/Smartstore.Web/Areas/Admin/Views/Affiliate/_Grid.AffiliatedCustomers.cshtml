@@ -3,8 +3,10 @@
 @model AffiliateModel.AffiliatedCustomerModel
 
 <datagrid id="customers-grid" allow-resize="true" allow-column-reordering="true">
-    <datasource read="@Url.Action("List", "AffiliatedCustomerList", new { affiliateId = ViewData["AffiliateId"] })" />
-    <sorting enabled="true" />
+    <datasource read="@Url.Action("AffiliatedCustomerList", "Affiliate", new { affiliateId = ViewData["AffiliateId"] })" />
+    <sorting enabled="true">
+        <sort by="CreatedOn" by-entity-member="CreatedOnUtc" descending="true" />
+    </sorting>
     <paging position="Bottom" show-size-chooser="true" />
     <columns>
         <column for="Email" hideable="false">
@@ -16,6 +18,7 @@
         </column>
         <column for="Username" />
         <column for="FullName" />
+        <column for="CreatedOn" entity-member="CreatedOnUtc" />
     </columns>
     <row-commands>
         <a datarow-action="DataRowAction.Custom" :href="item.row.EditUrl">@T("Admin.Common.View")</a>
