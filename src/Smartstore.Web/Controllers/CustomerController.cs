@@ -1051,6 +1051,8 @@ namespace Smartstore.Web.Controllers
                 }
             }
 
+            model.FirstNameRequired = _customerSettings.FirstNameRequired;
+            model.LastNameRequired = _customerSettings.LastNameRequired;
             model.DisplayVatNumber = _taxSettings.EuVatEnabled;
             model.VatNumberStatusNote = await ((VatNumberStatus)customer.VatNumberStatusId).GetLocalizedEnumAsync(Services.WorkContext.WorkingLanguage.Id);
             model.GenderEnabled = _customerSettings.GenderEnabled;
