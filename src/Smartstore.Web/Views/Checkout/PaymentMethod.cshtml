@@ -2,6 +2,8 @@
 
 @model CheckoutPaymentMethodModel
 
+@inject ILocalizationService LocalizationService
+
 @{
     Layout = "_Checkout";
     Assets.AppendTitleParts(T("PageTitle.Checkout"));
@@ -31,7 +33,7 @@
                         var widgetInvoker = paymentMethod.InfoWidget;
 
                         var defaultPluginDescKey = "Plugins.PaymentInfo." + paymentMethod.PaymentMethodSystemName;
-                        var defaultPluginDesc = T(defaultPluginDescKey).IsResourceNotFound ? string.Empty : T(defaultPluginDescKey).Value;
+                        var defaultPluginDesc = await LocalizationService.GetResourceAsync(defaultPluginDescKey, logIfNotFound: false, returnEmptyIfNotFound: true);
                         var description = paymentMethod.FullDescription?.Value ?? defaultPluginDesc;
 
                         <li class="list-group-item opt-list-item payment-method-item" attr-class='(paymentMethod.Selected, "active")'>
