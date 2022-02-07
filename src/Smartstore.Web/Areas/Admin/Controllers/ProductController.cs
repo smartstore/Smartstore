@@ -1283,29 +1283,27 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Catalog.Product.Read)]
         public async Task<IActionResult> ProductTagsList(GridCommand command)
         {
-            var model = new GridModel<ProductTagModel>();
             var tags = await _db.ProductTags
                 .AsNoTracking()
-                .ApplyGridCommand(command, false)
+                .ApplyGridCommand(command)
                 .ToPagedList(command)
                 .LoadAsync();
 
-            model.Rows = await tags
-                .AsQueryable()
-                .SelectAsync(async x =>
+            var rows = await tags
+                .SelectAsync(async x => new ProductTagModel
                 {
-                    return new ProductTagModel
-                    {
-                        Id = x.Id,
-                        Name = x.Name,
-                        Published = x.Published,
-                        ProductCount = await _productTagService.CountProductsByTagIdAsync(x.Id)
-                    };
-                }).AsyncToList();
-            
-            model.Total = await tags.GetTotalCountAsync();
+                    Id = x.Id,
+                    Name = x.Name,
+                    Published = x.Published,
+                    ProductCount = await _productTagService.CountProductsByTagIdAsync(x.Id)
+                })
+                .AsyncToList();
 
-            return Json(model);
+            return Json(new GridModel<ProductTagModel>
+            {
+                Rows = rows,
+                Total = await tags.GetTotalCountAsync()
+            });
         }
 
         [HttpPost]
@@ -1393,7 +1391,11 @@ namespace Smartstore.Admin.Controllers
                 productTag.Name = model.Name;
                 productTag.Published = model.Published;
 
-                await UpdateLocalesAsync(productTag, model);
+                foreach (var localized in model.Locales)
+                {
+                    await _localizedEntityService.ApplyLocalizedValueAsync(productTag, x => x.Name, localized.Name, localized.LanguageId);
+                }
+
                 await _db.SaveChangesAsync();
 
                 ViewBag.RefreshPage = true;
@@ -1402,15 +1404,6 @@ namespace Smartstore.Admin.Controllers
             }
 
             return View(model);
-        }
-
-        [NonAction]
-        private async Task UpdateLocalesAsync(ProductTag productTag, ProductTagModel model)
-        {
-            foreach (var localized in model.Locales)
-            {
-                await _localizedEntityService.ApplyLocalizedValueAsync(productTag, x => x.Name, localized.Name, localized.LanguageId);
-            }
         }
 
         #endregion
@@ -1428,23 +1421,34 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Catalog.Product.Read)]
         public async Task<IActionResult> LowStockReportList(GridCommand command)
         {
-            var model = new GridModel<ProductModel>();
-            var allProducts = await _productService.GetLowStockProducts()
+            // TODO: (mg) (core) think about improving this: stub entity, incl. ac.StockQuantity, show ManageInventoryMethod in grid, grid filter
+            var productIdQuery =
+                from p in _db.Products
+                join ac in _db.ProductVariantAttributeCombinations on p.Id equals ac.ProductId into pac
+                from ac in pac.DefaultIfEmpty()
+                where (p.ManageInventoryMethodId == (int)ManageInventoryMethod.ManageStock && p.StockQuantity <= p.MinStockQuantity) ||
+                    (p.ManageInventoryMethodId == (int)ManageInventoryMethod.ManageStockByAttributes && ac.StockQuantity <= 0)
+                select p.Id;
+
+            var distinctQuery = productIdQuery
+                .Distinct()
+                .SelectMany(key => _db.Products
+                    .AsNoTracking()
+                    .Where(x => x.Id == key));
+
+            var products = await distinctQuery
+                .OrderBy(x => x.StockQuantity)
                 .ApplyGridCommand(command)
                 .ToPagedList(command)
                 .LoadAsync();
 
-            model.Rows = await allProducts.SelectAsync(async x =>
+            var rows = await products.MapAsync(Services.MediaService);
+
+            return Json(new GridModel<ProductOverviewModel>
             {
-                var productModel = await MapperFactory.MapAsync<Product, ProductModel>(x);
-                productModel.ProductTypeName = x.GetProductTypeLabel(Services.Localization);
-                productModel.EditUrl = Url.Action("Edit", "Product", new { id = x.Id });
-                return productModel;
-            }).AsyncToList();
-
-            model.Total = await allProducts.GetTotalCountAsync();
-
-            return Json(model);
+                Rows = rows,
+                Total = await products.GetTotalCountAsync()
+            });
         }
 
         #endregion

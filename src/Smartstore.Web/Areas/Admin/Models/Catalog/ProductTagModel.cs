@@ -13,7 +13,7 @@ namespace Smartstore.Admin.Models.Catalog
         [LocalizedDisplay("*Published")]
         public bool Published { get; set; }
 
-        [LocalizedDisplay("*ProductCount")]
+        [LocalizedDisplay("*Fields.ProductCount")]
         public int ProductCount { get; set; }
 
         public List<ProductTagLocalizedModel> Locales { get; set; } = new();

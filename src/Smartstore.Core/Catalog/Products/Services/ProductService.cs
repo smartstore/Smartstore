@@ -82,32 +82,6 @@ namespace Smartstore.Core.Catalog.Products
             return (variantCombination?.Product, variantCombination);
         }
 
-        public virtual IQueryable<Product> GetLowStockProducts(bool tracked = false)
-        {
-            // TODO: (mh) (core) Create query extension method "ApplyLowStockFilter()" and remove this method (bad convention: GetXyz() should always return a resultset).
-            var query = _db.Products
-                .ApplyTracking(tracked)
-                .ApplyStandardFilter(true);
-
-            // Track inventory for product.
-            var query1 = 
-                from p in query
-                orderby p.MinStockQuantity
-                where p.ManageInventoryMethodId == (int)ManageInventoryMethod.ManageStock && p.MinStockQuantity >= p.StockQuantity
-                select p;
-
-            // Track inventory for product by product attributes.
-            var query2 = 
-                from p in query
-                from pvac in p.ProductVariantAttributeCombinations
-                where p.ManageInventoryMethodId == (int)ManageInventoryMethod.ManageStockByAttributes && pvac.StockQuantity <= 0
-                select p;
-
-            // INFO: (mh) (core) This will throw. EF is not able to "Concat" rows.
-            // The reason why this was not a query filter but a service method is because the list is a combination of 2 query results.
-            return query1.Concat(query2);
-        }
-
         public virtual async Task<Multimap<int, ProductTag>> GetProductTagsByProductIdsAsync(int[] productIds, bool includeHidden = false)
         {
             Guard.NotNull(productIds, nameof(productIds));

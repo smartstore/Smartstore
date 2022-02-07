@@ -24,13 +24,6 @@ namespace Smartstore.Core.Catalog.Products
             bool tracked = false);
 
         /// <summary>
-        /// Gets low stock products.
-        /// </summary>
-        /// <param name="tracked">A value indicating whether to put prefetched entities to EF change tracker.</param>
-        /// <returns>List of low stock products.</returns>
-        IQueryable<Product> GetLowStockProducts(bool tracked = false);
-
-        /// <summary>
         /// Gets product tags by product identifiers.
         /// </summary>
         /// <param name="productIds">Product identifiers.</param>
