@@ -282,6 +282,12 @@ logs/
 
 
 ###########
+## Build
+###########
+build/packages
+.nuke/temp
+
+###########
 ## Symlinks
 ###########
 

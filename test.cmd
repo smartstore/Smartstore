@@ -1,2 +1,2 @@
-dotnet cake --target=Test
+build --target test
 pause

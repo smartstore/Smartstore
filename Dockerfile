@@ -6,10 +6,11 @@
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 
 # Copy solution and source
-ARG SOLUTION=Smartstore.Min.sln
+ARG SOLUTION=Smartstore.sln
 WORKDIR /app
 COPY $SOLUTION ./
 COPY src/ ./src
+COPY test/ ./test
 
 # Create Modules dir if missing
 RUN mkdir /app/src/Smartstore.Web/Modules -p -v

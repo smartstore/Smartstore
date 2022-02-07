@@ -1,2 +1,2 @@
-dotnet cake --target=Clean
+build --target clean
 pause

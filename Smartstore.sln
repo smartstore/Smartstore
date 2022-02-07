@@ -12,6 +12,9 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore", "src\Smartstore\Smartstore.csproj", "{2DEC17CE-3292-4F40-AC27-2F17ECABC2B2}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Modules", "Modules", "{E5C1AA43-6B44-4EFA-8DE9-6070EE007CE3}"
+	ProjectSection(SolutionItems) = preProject
+		src\Smartstore.Modules\module.schema.json = src\Smartstore.Modules\module.schema.json
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{B3391994-AE0F-4C8C-AE8E-968F6013B4B6}"
 EndProject
@@ -31,12 +34,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore.Web.Tests", "tes
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore.DevTools", "src\Smartstore.Modules\Smartstore.DevTools\Smartstore.DevTools.csproj", "{62C64D0B-D937-40B2-B89D-198B2409FC84}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{4C0385CB-1ABE-4569-AA9D-0C3DCBE44479}"
-	ProjectSection(SolutionItems) = preProject
-		src\Smartstore.Modules\module.schema.json = src\Smartstore.Modules\module.schema.json
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{1DE93C7F-22CE-462C-BB6E-7282F4403F2E}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{5135A2B0-95B5-46AD-906A-70A2364B892B}"
 	ProjectSection(SolutionItems) = preProject
 		src\Smartstore.Build\Smartstore.Common.props = src\Smartstore.Build\Smartstore.Common.props
 		src\Smartstore.Build\Smartstore.Common.targets = src\Smartstore.Build\Smartstore.Common.targets
@@ -44,8 +42,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{1DE93C7F
 		src\Smartstore.Build\Smartstore.Module.targets = src\Smartstore.Build\Smartstore.Module.targets
 		src\Smartstore.Build\Smartstore.Razor.props = src\Smartstore.Build\Smartstore.Razor.props
 	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{5135A2B0-95B5-46AD-906A-70A2364B892B}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore.ModuleBuilder", "src\Smartstore.Build\Smartstore.ModuleBuilder\src\Smartstore.ModuleBuilder.csproj", "{23B334CE-7FFC-464E-A0A8-FFCB084E8F24}"
 EndProject
@@ -81,7 +77,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore.Google.MerchantC
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore.AmazonPay", "src\Smartstore.Modules\Smartstore.AmazonPay\Smartstore.AmazonPay.csproj", "{6A9FA9E0-029C-4565-BD2E-10A209D78031}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore.Packager", "tools\Smartstore.Packager\Smartstore.Packager.csproj", "{4BFFDE97-4EC0-423E-91C6-A202FD0A5978}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smartstore.Build", "src\Smartstore.Build\Smartstore.Build\Smartstore.Build.csproj", "{48F4799B-9824-469C-B1A4-7050F85163CA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -258,12 +254,12 @@ Global
 		{6A9FA9E0-029C-4565-BD2E-10A209D78031}.DebugNoRazorCompile|Any CPU.Build.0 = Debug|Any CPU
 		{6A9FA9E0-029C-4565-BD2E-10A209D78031}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6A9FA9E0-029C-4565-BD2E-10A209D78031}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4BFFDE97-4EC0-423E-91C6-A202FD0A5978}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4BFFDE97-4EC0-423E-91C6-A202FD0A5978}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4BFFDE97-4EC0-423E-91C6-A202FD0A5978}.DebugNoRazorCompile|Any CPU.ActiveCfg = Debug|Any CPU
-		{4BFFDE97-4EC0-423E-91C6-A202FD0A5978}.DebugNoRazorCompile|Any CPU.Build.0 = Debug|Any CPU
-		{4BFFDE97-4EC0-423E-91C6-A202FD0A5978}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4BFFDE97-4EC0-423E-91C6-A202FD0A5978}.Release|Any CPU.Build.0 = Release|Any CPU
+		{48F4799B-9824-469C-B1A4-7050F85163CA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{48F4799B-9824-469C-B1A4-7050F85163CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{48F4799B-9824-469C-B1A4-7050F85163CA}.DebugNoRazorCompile|Any CPU.ActiveCfg = Debug|Any CPU
+		{48F4799B-9824-469C-B1A4-7050F85163CA}.DebugNoRazorCompile|Any CPU.Build.0 = Debug|Any CPU
+		{48F4799B-9824-469C-B1A4-7050F85163CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{48F4799B-9824-469C-B1A4-7050F85163CA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -276,7 +272,6 @@ Global
 		{253DECF2-2ECA-4A90-955B-9299CCEC1363} = {82A38DDA-C944-4C15-AF43-86732F8ED15A}
 		{EAA90B11-ED40-4AB1-8027-45226471F9EE} = {B3391994-AE0F-4C8C-AE8E-968F6013B4B6}
 		{62C64D0B-D937-40B2-B89D-198B2409FC84} = {E5C1AA43-6B44-4EFA-8DE9-6070EE007CE3}
-		{1DE93C7F-22CE-462C-BB6E-7282F4403F2E} = {4C0385CB-1ABE-4569-AA9D-0C3DCBE44479}
 		{23B334CE-7FFC-464E-A0A8-FFCB084E8F24} = {5135A2B0-95B5-46AD-906A-70A2364B892B}
 		{BB9E738C-0785-497F-9391-2B4CA242B567} = {E5C1AA43-6B44-4EFA-8DE9-6070EE007CE3}
 		{944E4667-6CA2-4AD6-B9B0-F8E8C7903473} = {E5C1AA43-6B44-4EFA-8DE9-6070EE007CE3}
@@ -294,7 +289,7 @@ Global
 		{290CAB7D-A6AD-4605-A59D-91A1921213E2} = {E5C1AA43-6B44-4EFA-8DE9-6070EE007CE3}
 		{BBB5935F-1E33-4D47-9B3E-7E92F3A4E54A} = {E5C1AA43-6B44-4EFA-8DE9-6070EE007CE3}
 		{6A9FA9E0-029C-4565-BD2E-10A209D78031} = {E5C1AA43-6B44-4EFA-8DE9-6070EE007CE3}
-		{4BFFDE97-4EC0-423E-91C6-A202FD0A5978} = {5135A2B0-95B5-46AD-906A-70A2364B892B}
+		{48F4799B-9824-469C-B1A4-7050F85163CA} = {5135A2B0-95B5-46AD-906A-70A2364B892B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A0A0B995-5D0B-458E-BCC0-1071B76949D1}

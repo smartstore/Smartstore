@@ -30,12 +30,14 @@ namespace Smartstore.Packager
 
                     if (settings.RootPath.IsEmpty())
                     {
-                        settings.RootPath = Path.Combine(rootPath.FullName, "artifacts\\Community");
+                        var version = SmartstoreVersion.Version;
+                        var versionStr = $"{version.Major}.{version.Minor}.{version.Revision}";
+                        settings.RootPath = Path.Combine(rootPath.FullName, $"build\\artifacts\\Community.{versionStr}.win-x64");
                     }
 
                     if (settings.OutputPath.IsEmpty())
                     {
-                        settings.OutputPath = Path.Combine(rootPath.FullName, "artifacts\\Packages");
+                        settings.OutputPath = Path.Combine(rootPath.FullName, "build\\packages");
                     }
                 }
                 catch 
