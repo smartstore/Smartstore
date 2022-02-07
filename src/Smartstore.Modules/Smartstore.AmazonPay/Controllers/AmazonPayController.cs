@@ -492,7 +492,6 @@ namespace Smartstore.AmazonPay.Controllers
             var voidOffline = false;
             var refund = false;
             var refundAmount = decimal.Zero;
-            var refundIgnored = false;
             var chargeback = message.ObjectType.EqualsNoCase("CHARGEBACK");
 
             var chargePermissionId = message.ObjectType.EqualsNoCase("CHARGE_PERMISSION")
@@ -600,7 +599,7 @@ namespace Smartstore.AmazonPay.Controllers
                     return;
                 }
 
-                //$"-- Order {order.Id}: {message.ObjectType} {newState} authorize:{authorize} paid:{paid} void:{voidOffline} refund:{refund} message:{messageId}".Dump();
+                //$"-- Order {order.Id}: {message.ObjectType} {newState} authorize:{authorize} paid:{paid} void:{voidOffline} refund:{refund} id:{message.ObjectId}".Dump();
 
                 var oldState = order.CaptureTransactionResult.NullEmpty() ?? order.AuthorizationTransactionResult.NullEmpty() ?? "-";
 
@@ -630,38 +629,41 @@ namespace Smartstore.AmazonPay.Controllers
                     orderUpdated = true;
                 }
 
-                // Only refund once this way because order.RefundedAmount could become wrong otherwise.
-                if (refund && order.RefundedAmount == decimal.Zero && refundAmount > decimal.Zero)
+                if (refund && refundAmount > decimal.Zero)
                 {
-                    decimal receivable = order.OrderTotal - refundAmount;
-                    if (receivable <= decimal.Zero)
+                    var refundIds = order.GenericAttributes.Get<List<string>>(AmazonPayProvider.SystemName + ".RefundIds") ?? new List<string>();
+                    if (!refundIds.Contains(message.ObjectId, StringComparer.OrdinalIgnoreCase))
                     {
-                        if (order.CanRefundOffline())
+                        decimal receivable = order.OrderTotal - refundAmount;
+                        if (receivable <= decimal.Zero)
                         {
-                            order.CaptureTransactionResult = newState;
+                            if (order.CanRefundOffline())
+                            {
+                                order.CaptureTransactionResult = newState;
 
-                            await _orderProcessingService.RefundOfflineAsync(order);
-                            orderUpdated = true;
+                                await _orderProcessingService.RefundOfflineAsync(order);
+                                orderUpdated = true;
+                            }
                         }
-                    }
-                    else
-                    {
-                        if (order.CanPartiallyRefundOffline(refundAmount))
+                        else
                         {
-                            order.CaptureTransactionResult = newState;
+                            if (order.CanPartiallyRefundOffline(refundAmount))
+                            {
+                                order.CaptureTransactionResult = newState;
 
-                            await _orderProcessingService.PartiallyRefundOfflineAsync(order, refundAmount);
-                            orderUpdated = true;
+                                await _orderProcessingService.PartiallyRefundOfflineAsync(order, refundAmount);
+                                orderUpdated = true;
+                            }
                         }
+
+                        refundIds.Add(message.ObjectId);
+                        order.GenericAttributes.Set(AmazonPayProvider.SystemName + ".RefundIds", refundIds);
+                        await _db.SaveChangesAsync();
                     }
-                }
-                else
-                {
-                    refundIgnored = (DateTime.UtcNow - order.UpdatedOnUtc).TotalSeconds > 60;
                 }
 
                 // Add order note.
-                if ((orderUpdated || chargeback || refundIgnored) && _settings.AddOrderNotes)
+                if ((orderUpdated || chargeback) && _settings.AddOrderNotes)
                 {
                     var faviconUrl = Services.WebHelper.GetStoreLocation() + "Modules/Smartstore.AmazonPay/favicon.png";
                     string note;
@@ -673,15 +675,6 @@ namespace Smartstore.AmazonPay.Controllers
                             message.NotificationType, message.NotificationId,
                             message.ObjectType, message.ObjectId,
                             message.ChargePermissionId.NaIfEmpty());
-                    }
-                    else if (refundIgnored)
-                    {
-                        note = T("Plugins.Payments.AmazonPay.IpnRefundIgnored",
-                            messageId.NaIfEmpty(),
-                            message.NotificationType, message.NotificationId,
-                            message.ObjectType, message.ObjectId,
-                            message.ChargePermissionId.NaIfEmpty(),
-                            refundAmount.ToStringInvariant());
                     }
                     else
                     {

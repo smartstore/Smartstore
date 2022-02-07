@@ -1,4 +1,5 @@
-﻿using Amazon.Pay.API.WebStore.Charge;
+﻿using System.Linq;
+using Amazon.Pay.API.WebStore.Charge;
 using Amazon.Pay.API.WebStore.ChargePermission;
 using Amazon.Pay.API.WebStore.CheckoutSession;
 using Amazon.Pay.API.WebStore.Interfaces;
@@ -220,8 +221,13 @@ namespace Smartstore.AmazonPay.Providers
 
                 if (response.RefundId.HasValue() && refundPaymentRequest.Order.Id != 0)
                 {
-                    order.GenericAttributes.Set(SystemName + ".RefundId", response.RefundId, order.StoreId);
-                    await _db.SaveChangesAsync();
+                    var refundIds = order.GenericAttributes.Get<List<string>>(SystemName + ".RefundIds") ?? new List<string>();
+                    if (!refundIds.Contains(response.RefundId, StringComparer.OrdinalIgnoreCase))
+                    {
+                        refundIds.Add(response.RefundId);
+                        order.GenericAttributes.Set(SystemName + ".RefundIds", refundIds);
+                        await _db.SaveChangesAsync();
+                    }
                 }
             }
             else
