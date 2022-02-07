@@ -111,7 +111,7 @@ namespace Smartstore.PayPal.Providers
                     refundIds.Add(refund.Id);
                 }
                 
-                request.Order.GenericAttributes.Set("Payments.PayPalStandard.RefundId", refundIds, request.Order.StoreId);
+                request.Order.GenericAttributes.Set("Payments.PayPalStandard.RefundId", refundIds);
                 await _db.SaveChangesAsync();
             }
 

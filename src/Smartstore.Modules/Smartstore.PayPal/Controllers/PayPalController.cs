@@ -218,7 +218,7 @@ namespace Smartstore.PayPal.Controllers
                     {
                         await _orderProcessingService.PartiallyRefundOfflineAsync(order, refundedAmount);
                         refundIds.Add(resource.Id);
-                        order.GenericAttributes.Set("Payments.PayPalStandard.RefundId", refundIds, order.StoreId);
+                        order.GenericAttributes.Set("Payments.PayPalStandard.RefundId", refundIds);
                         await _db.SaveChangesAsync();
                     }
                     break;
