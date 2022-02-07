@@ -62,15 +62,6 @@
     </div>
     <div class="adminRow">
         <div class="adminTitle">
-            <smart-label asp-for="IsDefaultEmailAccount" />
-        </div>
-        <div class="adminData">
-            <input asp-for="IsDefaultEmailAccount" />
-            <span asp-validation-for="IsDefaultEmailAccount"></span>
-        </div>
-    </div>
-    <div class="adminRow">
-        <div class="adminTitle">
             <smart-label asp-for="EnableSsl" />
         </div>
         <div class="adminData">
@@ -85,6 +76,15 @@
         <div class="adminData">
             <input asp-for="UseDefaultCredentials" />
             <span asp-validation-for="UseDefaultCredentials"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="IsDefaultEmailAccount" />
+        </div>
+        <div class="adminData">
+            <input asp-for="IsDefaultEmailAccount" />
+            <span asp-validation-for="IsDefaultEmailAccount"></span>
         </div>
     </div>
     @if (Model.Id > 0)

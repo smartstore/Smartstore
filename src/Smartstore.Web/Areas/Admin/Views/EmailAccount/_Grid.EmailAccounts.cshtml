@@ -7,7 +7,7 @@
           allow-row-selection="true"
           allow-column-reordering="true">
     <datasource read="@Url.Action("EmailAccountList", "EmailAccount")"
-                delete="@Url.Action("DeleteEmailAccounts", "EmailAccount")" />
+                delete="@Url.Action("EmailAccountDelete", "EmailAccount")" />
     <paging position="Bottom" show-size-chooser="true" />
     <sorting enabled="false">
         <sort by="Id" />
@@ -36,7 +36,7 @@
         </column>
         <column for="DisplayName" width="1fr" />
         <column for="Host" width="1fr" />
-        <column for="Port" />
+        <column for="Port" halign="center" />
         <column for="EnableSsl" halign="center" />
         <column for="IsDefaultEmailAccount" halign="center" />
     </columns>

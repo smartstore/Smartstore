@@ -69,14 +69,44 @@ namespace Smartstore.Admin.Controllers
         }
 
         [HttpPost]
+        [Permission(Permissions.Configuration.EmailAccount.Delete)]
+        public async Task<IActionResult> EmailAccountDelete(GridSelection selection)
+        {
+            var success = false;
+            var numDeleted = 0;
+            var ids = selection.GetEntityIds();
+
+            if (ids.Any())
+            {
+                try
+                {
+                    var emailAccounts = await _db.EmailAccounts.GetManyAsync(ids, true);
+                    _db.EmailAccounts.RemoveRange(emailAccounts);
+
+                    numDeleted = await _db.SaveChangesAsync();
+                    success = true;
+                }
+                catch (Exception ex)
+                {
+                    NotifyError(ex);
+                }
+            }
+
+            return Json(new { Success = success, Count = numDeleted });
+        }
+
+        [HttpPost]
         [Permission(Permissions.Configuration.EmailAccount.Update)]
         public async Task<IActionResult> SetDefaultEmailAccount(int id)
         {
-            Guard.NotZero(id, nameof(id));
+            var emailAccount = await _db.EmailAccounts.FindByIdAsync(id, false);
+            if (emailAccount == null)
+            {
+                return NotFound();
+            }
 
-            _emailAccountSettings.DefaultEmailAccountId = id;
-            await Services.Settings.ApplySettingAsync(_emailAccountSettings, x => x.DefaultEmailAccountId);
-            await _db.SaveChangesAsync();
+            _emailAccountSettings.DefaultEmailAccountId = emailAccount.Id;
+            await Services.SettingFactory.SaveSettingsAsync(_emailAccountSettings);
 
             return Json(new { Success = true });
         }
@@ -102,8 +132,17 @@ namespace Smartstore.Admin.Controllers
                 _db.EmailAccounts.Add(emailAccount);
                 await _db.SaveChangesAsync();
 
+                if (model.IsDefaultEmailAccount)
+                {
+                    _emailAccountSettings.DefaultEmailAccountId = emailAccount.Id;
+                    await Services.SettingFactory.SaveSettingsAsync(_emailAccountSettings);
+                }
+
                 NotifySuccess(T("Admin.Configuration.EmailAccounts.Added"));
-                return continueEditing ? RedirectToAction(nameof(Edit), new { id = emailAccount.Id }) : RedirectToAction(nameof(List));
+                
+                return continueEditing 
+                    ? RedirectToAction(nameof(Edit), new { id = emailAccount.Id }) 
+                    : RedirectToAction(nameof(List));
             }
 
             // If we got this far something failed. Redisplay form.
@@ -121,6 +160,7 @@ namespace Smartstore.Admin.Controllers
 
             var model = await MapperFactory.MapAsync<EmailAccount, EmailAccountModel>(emailAccount);
             model.IsDefaultEmailAccount = emailAccount.Id == _emailAccountSettings.DefaultEmailAccountId;
+
             return View(model);
         }
 
@@ -143,12 +183,14 @@ namespace Smartstore.Admin.Controllers
                 if (model.IsDefaultEmailAccount && _emailAccountSettings.DefaultEmailAccountId != emailAccount.Id)
                 {
                     _emailAccountSettings.DefaultEmailAccountId = emailAccount.Id;
-                    await Services.Settings.ApplySettingAsync(_emailAccountSettings, x => x.DefaultEmailAccountId);
-                    await _db.SaveChangesAsync();
+                    await Services.SettingFactory.SaveSettingsAsync(_emailAccountSettings);
                 }
 
                 NotifySuccess(T("Admin.Configuration.EmailAccounts.Updated"));
-                return continueEditing ? RedirectToAction(nameof(Edit), new { id = emailAccount.Id }) : RedirectToAction(nameof(List));
+
+                return continueEditing 
+                    ? RedirectToAction(nameof(Edit), new { id = emailAccount.Id }) 
+                    : RedirectToAction(nameof(List));
             }
 
             // If we got this far something failed. Redisplay form.
@@ -165,52 +207,11 @@ namespace Smartstore.Admin.Controllers
                 return NotFound();
             }
 
-            if (emailAccount.Id == _emailAccountSettings.DefaultEmailAccountId)
-            {
-                NotifyError(T("Admin.Configuration.EmailAccounts.CantDeleteDefault"));
-            }
-            else
-            {
-                _db.EmailAccounts.Remove(emailAccount);
-                await _db.SaveChangesAsync();
-                NotifySuccess(T("Admin.Configuration.EmailAccounts.Deleted"));
-            }
+            _db.EmailAccounts.Remove(emailAccount);
+            await _db.SaveChangesAsync();
+            NotifySuccess(T("Admin.Configuration.EmailAccounts.Deleted"));
 
             return RedirectToAction(nameof(List));
-        }
-
-        [HttpPost]
-        [Permission(Permissions.Configuration.EmailAccount.Delete)]
-        public async Task<IActionResult> DeleteEmailAccounts(GridSelection selection)
-        {
-            var success = false;
-            var numDeleted = 0;
-            var ids = selection.GetEntityIds();
-
-            if (ids.Any())
-            {
-                var EmailAccounts = await _db.EmailAccounts.GetManyAsync(ids, true);
-                var triedToDeleteDefault = false;
-
-                foreach (var emailAccount in EmailAccounts)
-                {
-                    if (emailAccount.Id == _emailAccountSettings.DefaultEmailAccountId)
-                    {
-                        triedToDeleteDefault = true;
-                        NotifyError(T("Admin.Configuration.EmailAccounts.CantDeleteDefault"));
-                    }
-                    else
-                    {
-                        _db.EmailAccounts.Remove(emailAccount);
-                    }
-                }
-
-                numDeleted = await _db.SaveChangesAsync();
-
-                success = !triedToDeleteDefault || numDeleted != 0;
-            }
-
-            return Json(new { Success = success, Count = numDeleted });
         }
 
         [HttpPost, ActionName("Edit")]

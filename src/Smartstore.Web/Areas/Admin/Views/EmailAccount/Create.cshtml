@@ -9,8 +9,9 @@
 <form asp-action="Create" id="email-accounts-create">
     <div class="section-header">
         <div class="title">
-            <span>@T("Admin.Configuration.EmailAccounts.AddNew")</span>
-            <a asp-action="List">(@T("Admin.Configuration.EmailAccounts.BackToList"))</a>
+            <i class="fa fa-envelope"></i>
+            <span>@ViewBag.Title</span>
+            <a asp-action="List">(@T("Admin.Common.BackToList"))</a>
         </div>
         <div class="options">
             <button type="submit" name="save" value="save" class="btn btn-primary">

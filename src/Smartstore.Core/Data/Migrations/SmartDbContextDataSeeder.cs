@@ -122,9 +122,13 @@ namespace Smartstore.Core.Data.Migrations
 
             builder.AddOrUpdate("Admin.Customers.Customers.List.SearchCustomerNumber", "Customer number", "Kundennummer");
 
-            builder.AddOrUpdate("Admin.Configuration.EmailAccounts.CantDeleteDefault",
-                "The default email account cannot be deleted.",
-                "Das Standard-Email-Konto kann nicht gelöscht werden.");
+            builder.AddOrUpdate("Admin.Configuration.EmailAccounts.CannotDeleteDefaultAccount",
+                "The default email account \"{0}\" cannot be deleted. Set a different default email account first.",
+                "Das Standard-Email-Konto \"{0}\" kann nicht gelöscht werden. Legen Sie zunächst ein anderes Standard-Email-Konto fest.");
+
+            builder.AddOrUpdate("Admin.Configuration.EmailAccounts.CannotDeleteLastAccount",
+                "The email account \"{0}\" cannot be deleted. At least one email account is required.",
+                "Das E-Mail-Konto \"{0}\" kann nicht gelöscht werden. Es wird mindestens ein E-Mail-Konto benötigt.");
 
             builder.AddOrUpdate("ExternalAuthentication.ConfigError", 
                 "There is a problem with the selected login method. Please choose another one or notify the store owner.", 
@@ -789,6 +793,7 @@ namespace Smartstore.Core.Data.Migrations
             //    "Admin.Configuration.DeliveryTime.BackToList",
             //    "Admin.Configuration.DeliveryTimes.Fields.DisplayLocale",
             //    "Admin.Configuration.Stores.BackToList",
+            //    "Admin.Configuration.EmailAccounts.BackToList",
             //    );
 
 
