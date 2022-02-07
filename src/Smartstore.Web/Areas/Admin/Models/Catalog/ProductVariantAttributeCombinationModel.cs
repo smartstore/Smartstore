@@ -30,6 +30,9 @@ namespace Smartstore.Admin.Models.Catalog
         [LocalizedDisplay("Admin.Catalog.Products.Fields.DeliveryTime")]
         public int? DeliveryTimeId { get; set; }
 
+        [LocalizedDisplay("Admin.Catalog.Products.Fields.QuantityUnit")]
+        public int? QuantityUnitId { get; set; }
+
         [LocalizedDisplay("*Pictures")]
         public int[] AssignedPictureIds { get; set; } = new int[0];
 

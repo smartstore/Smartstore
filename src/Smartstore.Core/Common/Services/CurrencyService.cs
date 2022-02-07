@@ -58,8 +58,8 @@ namespace Smartstore.Core.Common.Services
                     if (currency.Id == _currencySettings.PrimaryCurrencyId || currency.Id == _currencySettings.PrimaryExchangeCurrencyId)
                     {
                         _hookErrorMessage = currency.Id == _currencySettings.PrimaryCurrencyId
-                            ? T("Admin.Configuration.Currencies.CannotDeletePrimaryCurrency")
-                            : T("Admin.Configuration.Currencies.CannotDeleteExchangeCurrency");
+                            ? T("Admin.Configuration.Currencies.CannotDeletePrimaryCurrency", currency.Name.NaIfEmpty())
+                            : T("Admin.Configuration.Currencies.CannotDeleteExchangeCurrency", currency.Name.NaIfEmpty());
                     }
                     else if (currency.Published && !await _db.Currencies.AnyAsync(x => x.Published && x.Id != currency.Id, cancelToken))
                     {

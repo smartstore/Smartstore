@@ -135,10 +135,19 @@
     </div>
     <div class="adminRow">
         <div class="adminTitle">
+            <smart-label asp-for="QuantityUnitId" />
+        </div>
+        <div class="adminData">
+            <select asp-for="QuantityUnitId" asp-items="ViewBag.QuantityUnits" asp-placeholder="@T("Common.Unspecified")"></select>
+            <span asp-validation-for="QuantityUnitId"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
             <smart-label asp-for="BasePriceBaseAmount" />
         </div>
         <div class="adminData">
-            <input asp-for="BasePriceBaseAmount" />
+            <editor asp-for="BasePriceBaseAmount" />
             <span asp-validation-for="BasePriceBaseAmount"></span>
         </div>
     </div>

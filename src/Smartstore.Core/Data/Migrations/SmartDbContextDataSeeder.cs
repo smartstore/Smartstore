@@ -145,16 +145,26 @@ namespace Smartstore.Core.Data.Migrations
                 "Bei der Aktualisierung der Rate ist ein Fehler aufgetreten.");
 
             builder.AddOrUpdate("Admin.Configuration.QuantityUnit.CannotDeleteAssignedProducts",
-                "The quntity unit cannot be deleted. It has associated products or product variants.",
-                "Die Verpackungseinheit kann nicht gelöscht werden. Ihr sind Produkte oder Produktvarianten zugeordnet.");
+                "The quantity unit \"{0}\" cannot be deleted. It has associated products or product variants.",
+                "Die Verpackungseinheit \"{0}\" kann nicht gelöscht werden. Ihr sind Produkte oder Produktvarianten zugeordnet.");
 
             builder.AddOrUpdate("Admin.Configuration.QuantityUnit.CannotDeleteDefaultQuantityUnit",
-                "The default quantity unit cannot be deleted. Set another standard quantity unit first.",
-                "Die Standard-Verpackungseinheit kann nicht gelöscht werden. Bestimmen Sie zuvor eine andere Standard-Verpackungseinheit.");
+                "The default quantity unit \"{0}\" cannot be deleted. Set another standard quantity unit first.",
+                "Die Standard-Verpackungseinheit \"{0}\" kann nicht gelöscht werden. Bestimmen Sie zuvor eine andere Standard-Verpackungseinheit.");
+
+            builder.AddOrUpdate("Admin.Configuration.DeliveryTimes.CannotDeleteAssignedProducts",
+                "The delivery time \"{0}\" cannot be deleted. It has associated products or product variants.",
+                "Die Lieferzeit \"{0}\" kann nicht gelöscht werden. Ihr sind Produkte oder Produktvarianten zugeordnet.");
 
             builder.AddOrUpdate("Admin.Configuration.DeliveryTimes.CannotDeleteDefaultDeliveryTime",
-                "The default delivery time cannot be deleted. Set another standard delivery time first.",
-                "Die Standard-Lieferzeit kann nicht gelöscht werden. Bestimmen Sie zuvor eine andere Standard-Lieferzeit.");
+                "The default delivery time \"{0}\" cannot be deleted. Set another standard delivery time first.",
+                "Die Standard-Lieferzeit \"{0}\" kann nicht gelöscht werden. Bestimmen Sie zuvor eine andere Standard-Lieferzeit.");
+
+            builder.AddOrUpdate("Admin.Catalog.Products.Fields.QuantityUnit",
+                "Quantity unit",
+                "Verpackungseinheit",
+                "Specifies the quantity unit.",
+                "Legt die Verpackungseinheit fest.");
            
             builder.AddOrUpdate("Admin.Configuration.Entity.Updated",
                 "The entity has been successfully updated.",
@@ -421,12 +431,12 @@ namespace Smartstore.Core.Data.Migrations
                 "Als Umrechnungswährung festlegen");
 
             builder.AddOrUpdate("Admin.Configuration.Currencies.CannotDeletePrimaryCurrency",
-                "The primary currency cannot be deleted. Set a different primary currency first.",
-                "Die Leitwährung kann nicht gelöscht werden. Legen Sie zunächst eine andere Leitwährung fest.");
+                "The primary currency \"{0}\" cannot be deleted. Set a different primary currency first.",
+                "Die Leitwährung \"{0}\" kann nicht gelöscht werden. Legen Sie zunächst eine andere Leitwährung fest.");
 
             builder.AddOrUpdate("Admin.Configuration.Currencies.CannotDeleteExchangeCurrency",
-                "The exchange rate currency cannot be deleted. Set a different exchange rate currency first.",
-                "Die Umrechnungswährung kann nicht gelöscht werden. Legen Sie zunächst eine andere Umrechnungswährung fest.");
+                "The exchange rate currency \"{0}\" cannot be deleted. Set a different exchange rate currency first.",
+                "Die Umrechnungswährung \"{0}\" kann nicht gelöscht werden. Legen Sie zunächst eine andere Umrechnungswährung fest.");
 
             builder.AddOrUpdate("Admin.Configuration.Currencies.PublishedCurrencyRequired",
                 "At least one currency must be published.",

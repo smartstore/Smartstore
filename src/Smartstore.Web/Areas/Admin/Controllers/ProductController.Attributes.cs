@@ -1,4 +1,5 @@
 ﻿using System.Linq.Dynamic.Core;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Admin.Models.Catalog;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Attributes;
@@ -627,7 +628,19 @@ namespace Smartstore.Admin.Controllers
             model.PrimaryStoreCurrencyCode = _currencyService.PrimaryCurrency.CurrencyCode;
             model.BaseDimensionIn = baseDimension?.GetLocalized(x => x.Name) ?? string.Empty;
 
-            if (entity == null)
+            if (entity != null)
+            {
+                if (formatAttributes)
+                {
+                    model.AttributesXml = await _productAttributeFormatter.Value.FormatAttributesAsync(
+                        entity.AttributeSelection,
+                        product,
+                        _workContext.CurrentCustomer,
+                        "<br />",
+                        includeHyperlinks: false);
+                }
+            }
+            else
             {
                 // It's a new entity, so initialize it properly.
                 model.StockQuantity = 10000;
@@ -635,15 +648,19 @@ namespace Smartstore.Admin.Controllers
                 model.AllowOutOfStockOrders = true;
             }
 
-            if (formatAttributes && entity != null)
-            {
-                model.AttributesXml = await _productAttributeFormatter.Value.FormatAttributesAsync(
-                    entity.AttributeSelection,
-                    product,
-                    _workContext.CurrentCustomer,
-                    "<br />",
-                    includeHyperlinks: false);
-            }
+            var quantityUnits = await _db.QuantityUnits
+                .AsNoTracking()
+                .OrderBy(x => x.DisplayOrder)
+                .ToListAsync();
+
+            ViewBag.QuantityUnits = quantityUnits
+                .Select(x => new SelectListItem
+                {
+                    Text = x.Name,
+                    Value = x.Id.ToString(),
+                    Selected = entity != null && x.Id == entity.QuantityUnitId.GetValueOrDefault()
+                })
+                .ToList();
         }
 
         private async Task PrepareVariantCombinationAttributesAsync(ProductVariantAttributeCombinationModel model, Product product)

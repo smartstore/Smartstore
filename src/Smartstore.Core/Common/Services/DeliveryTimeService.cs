@@ -111,13 +111,13 @@ namespace Smartstore.Core.Common.Services
             {
                 // Cannot delete the default delivery time.
                 entry.ResetState();
-                _hookErrorMessage = T("Admin.Configuration.DeliveryTimes.CannotDeleteDefaultDeliveryTime");
+                _hookErrorMessage = T("Admin.Configuration.DeliveryTimes.CannotDeleteDefaultDeliveryTime", entity.Name.NaIfEmpty());
             }
             else if (await _db.Products.AnyAsync(x => x.DeliveryTimeId == entity.Id || x.ProductVariantAttributeCombinations.Any(c => c.DeliveryTimeId == entity.Id), cancelToken))
             {
                 // Cannot delete if there are associations to active products or attribute combinations.
                 entry.ResetState();
-                _hookErrorMessage = T("Admin.Configuration.DeliveryTimes.CannotDeleteAssignedProducts");
+                _hookErrorMessage = T("Admin.Configuration.DeliveryTimes.CannotDeleteAssignedProducts", entity.Name.NaIfEmpty());
             }
 
             return HookResult.Ok;
@@ -142,13 +142,13 @@ namespace Smartstore.Core.Common.Services
 
             if (deliveryTime.IsDefault == true)
             {
-                var dts = await _db.DeliveryTimes
+                var deliveryTimes = await _db.DeliveryTimes
                     .Where(x => x.IsDefault == true && x.Id != deliveryTime.Id)
                     .ToListAsync(cancelToken);
 
-                if (dts.Any())
+                if (deliveryTimes.Any())
                 {
-                    dts.Each(x => x.IsDefault = false);
+                    deliveryTimes.Each(x => x.IsDefault = false);
                     await _db.SaveChangesAsync(cancelToken);
                 }
             }
