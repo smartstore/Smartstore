@@ -24,7 +24,7 @@
 	@<div class="adminContent">
         <div class="adminRow">
             <div class="adminTitle">
-                <smart-label asp-for="Locales[item].MetaTitle" sm-hint="@T(metaTitleResKey)"/>
+                <smart-label asp-for="Locales[item].MetaTitle" sm-text="@T(metaTitleResKey)" sm-hint="@T(metaTitleResKey + ".Hint")" />
             </div>
             <div class="adminData">
                 @*IMPORTANT: Do not delete, this hidden element contains the id to assign localized values to the corresponding language *@
@@ -36,7 +36,7 @@
         </div>
         <div class="adminRow">
             <div class="adminTitle">
-                <smart-label asp-for="Locales[item].MetaDescription" sm-hint="@T(metaDescriptionResKey)"/>
+                <smart-label asp-for="Locales[item].MetaDescription" sm-text="@T(metaDescriptionResKey)" sm-hint="@T(metaDescriptionResKey + ".Hint")" />
             </div>
             <div class="adminData">
                 <setting-editor asp-for="Locales[item].MetaDescription"></setting-editor>
@@ -45,7 +45,7 @@
         </div>
         <div class="adminRow">
             <div class="adminTitle">
-                <smart-label asp-for="Locales[item].MetaKeywords" sm-hint="@T(metaKeywordsResKey)"/>
+                <smart-label asp-for="Locales[item].MetaKeywords" sm-text="@T(metaKeywordsResKey)" sm-hint="@T(metaKeywordsResKey + ".Hint")" />
             </div>
             <div class="adminData wide">
                 <setting-editor asp-for="Locales[item].MetaKeywords"></setting-editor>
@@ -57,7 +57,7 @@
 	@<div class="adminContent">
         <div class="adminRow">
             <div class="adminTitle">
-                <smart-label asp-for="MetaTitle" sm-hint="@T(metaTitleResKey)"/>
+                <smart-label asp-for="MetaTitle" sm-text="@T(metaTitleResKey)" sm-hint="@T(metaTitleResKey + ".Hint")" />
             </div>
             <div class="adminData">
                 <setting-editor asp-for="MetaTitle"></setting-editor>
@@ -66,7 +66,7 @@
         </div>
         <div class="adminRow">
             <div class="adminTitle">
-                <smart-label asp-for="MetaDescription" sm-hint="@T(metaDescriptionResKey)"/>
+                <smart-label asp-for="MetaDescription" sm-text="@T(metaDescriptionResKey)" sm-hint="@T(metaDescriptionResKey + ".Hint")" />
             </div>
             <div class="adminData">
                 <setting-editor asp-for="MetaDescription"></setting-editor>
@@ -75,7 +75,7 @@
         </div>
         <div class="adminRow">
             <div class="adminTitle">
-                <smart-label asp-for="MetaKeywords" sm-hint="@T(metaKeywordsResKey)"/>
+                <smart-label asp-for="MetaKeywords" sm-text="@T(metaKeywordsResKey)" sm-hint="@T(metaKeywordsResKey + ".Hint")" />
             </div>
             <div class="adminData wide">
                 <setting-editor asp-for="MetaKeywords"></setting-editor>

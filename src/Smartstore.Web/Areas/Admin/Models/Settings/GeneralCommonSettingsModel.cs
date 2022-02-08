@@ -10,7 +10,18 @@ namespace Smartstore.Admin.Models
     {
         public StoreInformationSettingsModel StoreInformationSettings { get; set; } = new();
         public DateTimeSettingsModel DateTimeSettings { get; set; } = new();
+
+        [AdditionalMetadata("MetaTitleResKey", "Admin.Configuration.Settings.GeneralCommon.DefaultTitle")]
+        [AdditionalMetadata("MetaDescriptionResKey", "Admin.Configuration.Settings.GeneralCommon.DefaultMetaDescription")]
+        [AdditionalMetadata("MetaKeywordsResKey", "Admin.Configuration.Settings.GeneralCommon.DefaultMetaKeywords")]
+        [LocalizedDisplay("Admin.Configuration.Settings.GeneralCommon.")]
         public SeoSettingsModel SeoSettings { get; set; } = new();
+
+        [AdditionalMetadata("MetaTitleResKey", "Admin.Configuration.Settings.GeneralCommon.HomepageTitle")]
+        [AdditionalMetadata("MetaDescriptionResKey", "Admin.Configuration.Settings.GeneralCommon.HomepageMetaDescription")]
+        [AdditionalMetadata("MetaKeywordsResKey", "Admin.Configuration.Settings.GeneralCommon.HomepageMetaKeywords")]
+        public HomepageSettingsModel HomepageSettings { get; set; } = new();
+
         public SecuritySettingsModel SecuritySettings { get; set; } = new();
         public CaptchaSettingsModel CaptchaSettings { get; set; } = new();
         public PdfSettingsModel PdfSettings { get; set; } = new();
@@ -19,13 +30,8 @@ namespace Smartstore.Admin.Models
         public ContactDataSettingsModel ContactDataSettings { get; set; } = new();
         public BankConnectionSettingsModel BankConnectionSettings { get; set; } = new();
         public SocialSettingsModel SocialSettings { get; set; } = new();
-        public HomepageSettingsModel HomepageSettings { get; set; } = new();
 
         #region Nested classes
-
-        [AdditionalMetadata("MetaTitleResKey", "Admin.Configuration.Settings.GeneralCommon.HomepageTitle")]
-        [AdditionalMetadata("MetaDescriptionResKey", "Admin.Configuration.Settings.GeneralCommon.HomepageMetaDescription")]
-        [AdditionalMetadata("MetaKeywordsResKey", "Admin.Configuration.Settings.GeneralCommon.HomepageMetaKeywords")]
         public partial class HomepageSettingsModel : ISeoModel
         {
             public string MetaTitle { get; set; }
@@ -61,10 +67,6 @@ namespace Smartstore.Admin.Models
             public List<SelectListItem> AvailableTimeZones { get; set; } = new();
         }
 
-        [AdditionalMetadata("MetaTitleResKey", "Admin.Configuration.Settings.GeneralCommon.DefaultTitle")]
-        [AdditionalMetadata("MetaDescriptionResKey", "Admin.Configuration.Settings.GeneralCommon.DefaultMetaDescription")]
-        [AdditionalMetadata("MetaKeywordsResKey", "Admin.Configuration.Settings.GeneralCommon.DefaultMetaKeywords")]
-        [LocalizedDisplay("Admin.Configuration.Settings.GeneralCommon.")]
         public partial class SeoSettingsModel : ISeoModel
         {
             [LocalizedDisplay("*PageTitleSeparator")]
