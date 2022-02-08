@@ -59,7 +59,6 @@ namespace Smartstore.Admin.Models
             [LocalizedDisplay("*AllowCustomersToSetTimeZone")]
             public bool AllowCustomersToSetTimeZone { get; set; }
 
-            [Required]
             [LocalizedDisplay("*DefaultStoreTimeZone")]
             public string DefaultStoreTimeZoneId { get; set; }
 
