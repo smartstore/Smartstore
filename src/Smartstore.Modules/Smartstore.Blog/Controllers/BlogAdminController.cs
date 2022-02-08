@@ -31,6 +31,7 @@ namespace Smartstore.Blog.Controllers
         private readonly ILocalizedEntityService _localizedEntityService;
         private readonly IStoreMappingService _storeMappingService;
         private readonly ICustomerService _customerService;
+        private readonly StoreDependingSettingHelper _settingHelper;
 
         public BlogAdminController(
             SmartDbContext db,
@@ -40,7 +41,8 @@ namespace Smartstore.Blog.Controllers
             IDateTimeHelper dateTimeHelper,
             ILocalizedEntityService localizedEntityService,
             IStoreMappingService storeMappingService,
-            ICustomerService customerService)
+            ICustomerService customerService,
+            StoreDependingSettingHelper settingHelper)
         {
             _db = db;
             _blogService = blogService;
@@ -50,6 +52,7 @@ namespace Smartstore.Blog.Controllers
             _localizedEntityService = localizedEntityService;
             _storeMappingService = storeMappingService;
             _customerService = customerService;
+            _settingHelper = settingHelper;
         }
 
         #region Configure settings
@@ -60,12 +63,7 @@ namespace Smartstore.Blog.Controllers
         {
             var model = MiniMapper.Map<BlogSettings, BlogSettingsModel>(settings);
 
-            // TODO: (mh) (core) Localization is broken in core.
-            model.SeoModel.MetaTitle = settings.MetaTitle;
-            model.SeoModel.MetaDescription = settings.MetaDescription;
-            model.SeoModel.MetaKeywords = settings.MetaKeywords;
-
-            AddLocales(model.SeoModel.Locales, (locale, languageId) =>
+            AddLocales(model.Locales, (locale, languageId) =>
             {
                 locale.MetaTitle = settings.GetLocalizedSetting(x => x.MetaTitle, languageId, storeId, false, false);
                 locale.MetaDescription = settings.GetLocalizedSetting(x => x.MetaDescription, languageId, storeId, false, false);
@@ -87,11 +85,7 @@ namespace Smartstore.Blog.Controllers
             ModelState.Clear();
             MiniMapper.Map(model, settings);
 
-            settings.MetaTitle = model.SeoModel.MetaTitle;
-            settings.MetaDescription = model.SeoModel.MetaDescription;
-            settings.MetaKeywords = model.SeoModel.MetaKeywords;
-
-            foreach (var localized in model.SeoModel.Locales)
+            foreach (var localized in model.Locales)
             {
                 await _localizedEntityService.ApplyLocalizedSettingAsync(settings, x => x.MetaTitle, localized.MetaTitle, localized.LanguageId, storeId);
                 await _localizedEntityService.ApplyLocalizedSettingAsync(settings, x => x.MetaDescription, localized.MetaDescription, localized.LanguageId, storeId);

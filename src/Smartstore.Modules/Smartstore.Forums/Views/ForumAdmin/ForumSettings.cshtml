@@ -264,7 +264,7 @@
 
         </tab>
         <tab sm-title="@T("Admin.Configuration.SeoTab.Title")">
-            <editor asp-for="SeoModel" asp-template="SeoModel" />
+            @Html.EditorFor(model => model, "SeoModel")
         </tab>
     </tabstrip>
 </form>

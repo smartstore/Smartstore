@@ -434,15 +434,9 @@ namespace Smartstore.Forums.Controllers
         [LoadSetting]
         public IActionResult ForumSettings(ForumSettings settings, int storeScope)
         {
-            // TODO: (mg) (core) multistore settings doesn't work anymore (no override checkbox checked).
-            // Maybe HtmlFieldPrefix needs to be set earlier so that StoreDependingSettingHelper can create override key names.
             var model = MiniMapper.Map<ForumSettings, ForumSettingsModel>(settings);
 
-            model.SeoModel.MetaTitle = settings.MetaTitle;
-            model.SeoModel.MetaDescription = settings.MetaDescription;
-            model.SeoModel.MetaKeywords = settings.MetaKeywords;
-
-            AddLocales(model.SeoModel.Locales, (locale, languageId) =>
+            AddLocales(model.Locales, (locale, languageId) =>
             {
                 locale.MetaTitle = settings.GetLocalizedSetting(x => x.MetaTitle, languageId, storeScope, false, false);
                 locale.MetaDescription = settings.GetLocalizedSetting(x => x.MetaDescription, languageId, storeScope, false, false);
@@ -464,11 +458,7 @@ namespace Smartstore.Forums.Controllers
             ModelState.Clear();
             MiniMapper.Map(model, settings);
 
-            settings.MetaTitle = model.SeoModel.MetaTitle;
-            settings.MetaDescription = model.SeoModel.MetaDescription;
-            settings.MetaKeywords = model.SeoModel.MetaKeywords;
-
-            foreach (var localized in model.SeoModel.Locales)
+            foreach (var localized in model.Locales)
             {
                 await _localizedEntityService.ApplyLocalizedSettingAsync(settings, x => x.MetaTitle, localized.MetaTitle, localized.LanguageId, storeScope);
                 await _localizedEntityService.ApplyLocalizedSettingAsync(settings, x => x.MetaDescription, localized.MetaDescription, localized.LanguageId, storeScope);

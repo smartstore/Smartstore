@@ -94,8 +94,7 @@
             </div>
         </tab>
         <tab sm-title="@T("Admin.Configuration.SeoTab.Title")">
-            @*TODO: (mh) (core) Test again if this works fine along with store scope configuration *@
-            <editor asp-for="SeoModel" asp-template="SeoModel" />
+            @Html.EditorFor(model => model, "SeoModel")
         </tab>
     </tabstrip>
 </form>

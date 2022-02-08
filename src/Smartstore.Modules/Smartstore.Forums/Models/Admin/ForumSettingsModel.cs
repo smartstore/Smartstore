@@ -1,7 +1,7 @@
 ﻿namespace Smartstore.Forums.Models
 {
     [LocalizedDisplay("Admin.Configuration.Settings.Forums.")]
-    public class ForumSettingsModel : ModelBase
+    public class ForumSettingsModel : ModelBase, ISeoModel
     {
         [LocalizedDisplay("*ForumsEnabled")]
         public bool ForumsEnabled { get; set; }
@@ -71,7 +71,9 @@
 
         [LocalizedDisplay("*ForumFeedCount")]
         public int ForumFeedCount { get; set; }
-
-        public SeoModel SeoModel { get; set; } = new();
+        public string MetaTitle { get; set; }
+        public string MetaDescription { get; set; }
+        public string MetaKeywords { get; set; }
+        public List<SeoModelLocal> Locales { get; set; } = new();
     }
 }

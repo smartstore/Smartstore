@@ -1,7 +1,7 @@
 ﻿namespace Smartstore.Blog.Models
 {
     [LocalizedDisplay("Admin.Configuration.Settings.Blog.")]
-    public class BlogSettingsModel : ModelBase
+    public class BlogSettingsModel : ModelBase, ISeoModel
     {
         [LocalizedDisplay("*Enabled")]
         public bool Enabled { get; set; }
@@ -24,6 +24,9 @@
         [LocalizedDisplay("*ShowHeaderRSSUrl")]
         public bool ShowHeaderRssUrl { get; set; }
 
-        public SeoModel SeoModel { get; set; } = new();
+        public string MetaTitle { get; set; }
+        public string MetaDescription { get; set; }
+        public string MetaKeywords { get; set; }
+        public List<SeoModelLocal> Locales { get; set; } = new();
     }
 }

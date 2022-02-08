@@ -1,7 +1,7 @@
 ﻿namespace Smartstore.News.Models
 {
     [LocalizedDisplay("Admin.Configuration.Settings.News.")]
-    public class NewsSettingsModel : ModelBase
+    public class NewsSettingsModel : ModelBase, ISeoModel
     {
         [LocalizedDisplay("*Enabled")]
         public bool Enabled { get; set; }
@@ -27,6 +27,9 @@
         [LocalizedDisplay("*ShowHeaderRSSUrl")]
         public bool ShowHeaderRssUrl { get; set; }
 
-        public SeoModel SeoModel { get; set; } = new();
+        public string MetaTitle { get; set; }
+        public string MetaDescription { get; set; }
+        public string MetaKeywords { get; set; }
+        public List<SeoModelLocal> Locales { get; set; } = new();
     }
 }

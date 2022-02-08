@@ -56,12 +56,7 @@ namespace Smartstore.News.Controllers
         {
             var model = MiniMapper.Map<NewsSettings, NewsSettingsModel>(settings);
 
-            // TODO: (mh) (core) Localization is broken in core.
-            model.SeoModel.MetaTitle = settings.MetaTitle;
-            model.SeoModel.MetaDescription = settings.MetaDescription;
-            model.SeoModel.MetaKeywords = settings.MetaKeywords;
-
-            AddLocales(model.SeoModel.Locales, (locale, languageId) =>
+            AddLocales(model.Locales, (locale, languageId) =>
             {
                 locale.MetaTitle = settings.GetLocalizedSetting(x => x.MetaTitle, languageId, storeId, false, false);
                 locale.MetaDescription = settings.GetLocalizedSetting(x => x.MetaDescription, languageId, storeId, false, false);
@@ -83,11 +78,7 @@ namespace Smartstore.News.Controllers
             ModelState.Clear();
             MiniMapper.Map(model, settings);
 
-            settings.MetaTitle = model.SeoModel.MetaTitle;
-            settings.MetaDescription = model.SeoModel.MetaDescription;
-            settings.MetaKeywords = model.SeoModel.MetaKeywords;
-
-            foreach (var localized in model.SeoModel.Locales)
+            foreach (var localized in model.Locales)
             {
                 await _localizedEntityService.ApplyLocalizedSettingAsync(settings, x => x.MetaTitle, localized.MetaTitle, localized.LanguageId, storeId);
                 await _localizedEntityService.ApplyLocalizedSettingAsync(settings, x => x.MetaDescription, localized.MetaDescription, localized.LanguageId, storeId);

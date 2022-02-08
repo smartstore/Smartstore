@@ -29,7 +29,6 @@
             <div class="adminData">
                 @*IMPORTANT: Do not delete, this hidden element contains the id to assign localized values to the corresponding language *@
                 <input type="hidden" asp-for="Locales[item].LanguageId" />
-                @*TODO: (mh) (core) Setting override checkbox fails to be set*@
                 <setting-editor asp-for="Locales[item].MetaTitle"></setting-editor>
                 <span asp-validation-for="Locales[item].MetaTitle"></span>
             </div>
