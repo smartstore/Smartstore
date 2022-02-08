@@ -101,7 +101,7 @@
                                     <i class="far fa-edit"></i>
                                 </a>
                                 <button id="address-delete-@address.Id" type="button" class="btn btn-sm btn-flat btn-icon btn-lg btn-danger delete-address" title="@T("Common.Delete")"
-                                        data-url="@Url.Action("AddressDelete", "Customer", new { customerId = Model.Id, addressId = address.Id })">
+                                        data-url="@Url.Action("AddressDelete", "Customer", new { addressId = address.Id })">
                                     <i class="far fa-trash-alt"></i>
                                 </button>
                             </div>

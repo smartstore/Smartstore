@@ -794,6 +794,8 @@ namespace Smartstore.Core.Data.Migrations
             //    "Admin.Configuration.DeliveryTimes.Fields.DisplayLocale",
             //    "Admin.Configuration.Stores.BackToList",
             //    "Admin.Configuration.EmailAccounts.BackToList",
+            //    "Admin.Customers.Customers.ActivityLog.ActivityLogType",
+            //    "Admin.Customers.Customers.ActivityLog.Comment",
             //    );
 
 

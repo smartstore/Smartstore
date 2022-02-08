@@ -14,11 +14,14 @@
                 </a>
             </display-template>
         </column>
-        <column for="OrderStatus" sortable="false" />
-        <column for="PaymentStatus" sortable="false" />
-        <column for="ShippingStatus" sortable="false" />
-        <column for="StoreName" sortable="false" />
+        <column for="OrderStatus" entity-member="OrderStatusId" />
+        <column for="PaymentStatus" entity-member="PaymentStatusId" />
+        <column for="ShippingStatus" entity-member="ShippingStatusId" />
+        @if (!(bool)ViewBag.IsSingleStoreMode)
+        {
+            <column for="StoreName" sortable="false" />
+        }
         <column for="CreatedOn" entity-member="CreatedOnUtc" />
-        <column for="OrderTotal" halign="right" sortable="false" />
+        <column for="OrderTotal" halign="right" />
     </columns>
 </datagrid>

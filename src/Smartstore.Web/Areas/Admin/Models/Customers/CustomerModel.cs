@@ -220,19 +220,6 @@ namespace Smartstore.Admin.Models.Customers
             public string EditUrl { get; set; }
         }
 
-        [LocalizedDisplay("Admin.Customers.Customers.ActivityLog.")]
-        public partial class ActivityLogModel : EntityModelBase
-        {
-            [LocalizedDisplay("*ActivityLogType")]
-            public string ActivityLogTypeName { get; set; }
-
-            [LocalizedDisplay("*Comment")]
-            public string Comment { get; set; }
-
-            [LocalizedDisplay("Common.CreatedOn")]
-            public DateTime CreatedOn { get; set; }
-        }
-
         public class SendEmailValidator : SmartValidator<SendEmailModel>
         {
             public SendEmailValidator()
