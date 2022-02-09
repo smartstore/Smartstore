@@ -40,9 +40,9 @@
         int? Quality { get; set; }
 
         /// <summary>
-        /// Gets or sets the subsample ratio that will be used to encode the image.
+        /// Gets or sets the color type that will be used to encode the image.
         /// </summary>
-        JpegSubsample? Subsample { get; set; }
+        JpegColorType? ColorType { get; set; }
     }
 
     public interface IPngFormat : IImageFormat
@@ -53,7 +53,7 @@
         PngBitDepth? BitDepth { get; set; }
 
         /// <summary>
-        /// Gets or sets the color type.
+        /// Gets or sets the color type that will be used to encode the image.
         /// </summary>
         PngColorType? ColorType { get; set; }
 

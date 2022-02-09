@@ -178,7 +178,7 @@ namespace Smartstore.Core.Content.Media
         /// <summary>
         /// Gets or sets the default JPEG subsampling used for JPEG encoding.
         /// </summary>
-        public JpegSubsample JpegSubsampling { get; set; } = JpegSubsample.Ratio420;
+        public JpegColorType? JpegColorType { get; set; }
 
         /// <summary>
         /// Gets or sets the default compression level used for PNG encoding.

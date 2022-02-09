@@ -173,7 +173,7 @@ namespace Smartstore.Core.Content.Media.Imaging
             if (image.Format is IJpegFormat jpegFormat)
             {
                 jpegFormat.Quality = query.Quality ?? _mediaSettings.DefaultImageQuality;
-                jpegFormat.Subsample = _mediaSettings.JpegSubsampling;
+                jpegFormat.ColorType = _mediaSettings.JpegColorType;
             }
             else if (image.Format is IPngFormat pngFormat)
             {

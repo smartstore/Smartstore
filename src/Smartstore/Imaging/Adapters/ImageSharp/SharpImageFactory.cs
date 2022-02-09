@@ -12,23 +12,13 @@ namespace Smartstore.Imaging.Adapters.ImageSharp
 
         public SharpImageFactory(SmartConfiguration appConfig)
         {
-            switch (appConfig.ImagingMemoryAllocation)
+            if (appConfig.ImagingMaxPoolSizeMB > 0)
             {
-                case ImagingMemoryAllocation.Minimal:
-                    _memAllocator = ArrayPoolMemoryAllocator.CreateWithMinimalPooling();
-                    break;
-                case ImagingMemoryAllocation.Moderate:
-                    _memAllocator = ArrayPoolMemoryAllocator.CreateWithModeratePooling();
-                    break;
-                case ImagingMemoryAllocation.Default:
-                    _memAllocator = ArrayPoolMemoryAllocator.CreateDefault();
-                    break;
-                case ImagingMemoryAllocation.Aggressive:
-                    _memAllocator = ArrayPoolMemoryAllocator.CreateWithAggressivePooling();
-                    break;
+                SharpConfiguration.Default.MemoryAllocator = MemoryAllocator.Create(new MemoryAllocatorOptions
+                {
+                    MaximumPoolSizeMegabytes = appConfig.ImagingMaxPoolSizeMB
+                });
             }
-
-            SharpConfiguration.Default.MemoryAllocator = _memAllocator;
 
             // Release memory pool every 10 minutes
             var releaseInterval = TimeSpan.FromMinutes(10);

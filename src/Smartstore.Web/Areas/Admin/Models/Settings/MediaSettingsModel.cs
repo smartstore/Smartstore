@@ -111,7 +111,7 @@ namespace Smartstore.Admin.Models
         [AdditionalMetadata("max", 100)]
         public int DefaultImageQuality { get; set; }
 
-        public JpegSubsample JpegSubsampling { get; set; }
+        public JpegColorType? JpegColorType { get; set; }
 
         public PngCompressionLevel PngCompressionLevel { get; set; }
 

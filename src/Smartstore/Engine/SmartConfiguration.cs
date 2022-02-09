@@ -1,34 +1,5 @@
 ﻿namespace Smartstore.Engine
 {
-    /// <summary>
-    /// Memory managers are used to allocate memory for image processing operations.
-    /// </summary>
-    public enum ImagingMemoryAllocation
-    {
-        /// <summary>
-        /// For environments with very limited memory capabilities, only small buffers like
-        //  image rows are pooled.
-        /// </summary>
-        Minimal,
-
-        /// <summary>
-        /// For environments with limited memory capabilities, only small array requests
-        //  are pooled, which can result in reduced throughput.
-        /// </summary>
-        Moderate,
-
-        /// <summary>
-        /// Should be good for most use cases.
-        /// </summary>
-        Default,
-
-        /// <summary>
-        /// For environments where memory capabilities are not an issue, the maximum amount
-        //  of array requests are pooled which results in optimal throughput.
-        /// </summary>
-        Aggressive
-    }
-
     public partial class SmartConfiguration
     {
         public string ApplicationName { get; set; }
@@ -91,9 +62,10 @@
         public string MediaPublicPath { get; set; } = "media";
 
         /// <summary>
-        /// The amount of memory allocated for image processing operations.
+        /// A value defining the maximum size of the image processor
+        /// internal memory pool in Megabytes. <c>null</c> means platform default.
         /// </summary>
-        public ImagingMemoryAllocation ImagingMemoryAllocation { get; set; } = ImagingMemoryAllocation.Minimal;
+        public int? ImagingMaxPoolSizeMB { get; set; }
 
         /// <summary>
         /// List of module names to ignore during app installation.

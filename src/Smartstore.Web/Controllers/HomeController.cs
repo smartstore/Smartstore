@@ -716,7 +716,7 @@ namespace Smartstore.Web.Controllers
                     if (image.Format is IJpegFormat jpeg)
                     {
                         jpeg.Quality = 90;
-                        jpeg.Subsample = JpegSubsample.Ratio420;
+                        jpeg.ColorType = JpegColorType.Ratio420;
                     }
                     else if (image.Format is IPngFormat png)
                     {
