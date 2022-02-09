@@ -23,6 +23,7 @@ using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
 using Smartstore.Engine.Modularity;
 using Smartstore.Utilities.Html;
+using Smartstore.Web.Rendering;
 
 namespace Smartstore.Web.Models.Cart
 {
@@ -385,53 +386,29 @@ namespace Smartstore.Web.Models.Cart
 
                 if (to.EstimateShipping.Enabled)
                 {
-                    // TODO: (mg) (core) Create some generic solution for this always repeating code.
-                    // Countries.
+                    // Countries and state provinces.
+                    var countriesForShipping = await _db.Countries
+                        .AsNoTracking()
+                        .Where(x => x.AllowsShipping)
+                        .ApplyStandardFilter(false, store.Id)
+                        .ToListAsync();
+
                     var defaultEstimateCountryId = setEstimateShippingDefaultAddress && customer.ShippingAddress != null
                         ? customer.ShippingAddress.CountryId
                         : to.EstimateShipping.CountryId;
 
-                    var countriesForShipping = await _db.Countries
-                        .AsNoTracking()
-                        .ApplyStoreFilter(store.Id)
-                        .Where(x => x.AllowsShipping)
-                        .ToListAsync();
+                    to.EstimateShipping.AvailableCountries = countriesForShipping.ToSelectListItems(defaultEstimateCountryId ?? 0);
 
-                    foreach (var countries in countriesForShipping)
+                    var stateProvinces = await _db.StateProvinces.GetStateProvincesByCountryIdAsync(defaultEstimateCountryId ?? 0);
+
+                    var defaultEstimateStateId = setEstimateShippingDefaultAddress && customer.ShippingAddress != null
+                        ? customer.ShippingAddress.StateProvinceId
+                        : to.EstimateShipping.StateProvinceId;
+
+                    to.EstimateShipping.AvailableStates = stateProvinces.ToSelectListItems(defaultEstimateStateId ?? 0) ?? new List<SelectListItem>
                     {
-                        to.EstimateShipping.AvailableCountries.Add(new SelectListItem
-                        {
-                            Text = countries.GetLocalized(x => x.Name),
-                            Value = countries.Id.ToString(),
-                            Selected = countries.Id == defaultEstimateCountryId
-                        });
-                    }
-
-                    // States.
-                    var states = defaultEstimateCountryId.HasValue
-                        ? await _db.StateProvinces.AsNoTracking().ApplyCountryFilter(defaultEstimateCountryId.Value).ToListAsync()
-                        : new();
-
-                    if (states.Any())
-                    {
-                        var defaultEstimateStateId = setEstimateShippingDefaultAddress && customer.ShippingAddress != null
-                            ? customer.ShippingAddress.StateProvinceId
-                            : to.EstimateShipping.StateProvinceId;
-
-                        foreach (var s in states)
-                        {
-                            to.EstimateShipping.AvailableStates.Add(new SelectListItem
-                            {
-                                Text = s.GetLocalized(x => x.Name),
-                                Value = s.Id.ToString(),
-                                Selected = s.Id == defaultEstimateStateId
-                            });
-                        }
-                    }
-                    else
-                    {
-                        to.EstimateShipping.AvailableStates.Add(new SelectListItem { Text = T("Address.OtherNonUS"), Value = "0" });
-                    }
+                        new SelectListItem { Text = T("Address.OtherNonUS"), Value = "0" }
+                    };
 
                     if (setEstimateShippingDefaultAddress && customer.ShippingAddress != null)
                     {

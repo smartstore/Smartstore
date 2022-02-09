@@ -19,8 +19,8 @@ namespace Smartstore.Web.Models.Cart
         [LocalizedDisplay("*ZipPostalCode")]
         public string ZipPostalCode { get; set; }
 
-        public List<SelectListItem> AvailableCountries { get; set; } = new();
-        public List<SelectListItem> AvailableStates { get; set; } = new();
+        public IList<SelectListItem> AvailableCountries { get; set; } = new List<SelectListItem>();
+        public IList<SelectListItem> AvailableStates { get; set; } = new List<SelectListItem>();
 
         public partial class ShippingOptionModel : ModelBase
         {
