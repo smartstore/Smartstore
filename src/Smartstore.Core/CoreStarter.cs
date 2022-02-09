@@ -110,17 +110,9 @@ namespace Smartstore.Core.Bootstrapping
 
         internal static void RegisterTypeConverters()
         {
-            ITypeConverter converter = new ShippingOptionConverter(true);
-            TypeConverterFactory.RegisterConverter<IList<ShippingOption>>(converter);
-            TypeConverterFactory.RegisterConverter<List<ShippingOption>>(converter);
-            TypeConverterFactory.RegisterConverter<ShippingOption>(new ShippingOptionConverter(false));
-
-            converter = new ProductBundleItemOrderDataConverter(true);
-            TypeConverterFactory.RegisterConverter<IList<ProductBundleItemOrderData>>(converter);
-            TypeConverterFactory.RegisterConverter<List<ProductBundleItemOrderData>>(converter);
-            TypeConverterFactory.RegisterConverter<ProductBundleItemOrderData>(new ProductBundleItemOrderDataConverter(false));
-
-            TypeConverterFactory.RegisterListConverter<GiftCardCouponCode>(new GiftCardCouponCodeConverter());
+            TypeConverterFactory.Providers.Insert(0, new ProductBundleItemOrderDataConverterProvider());
+            TypeConverterFactory.Providers.Insert(0, new ShippingOptionConverterProvider());
+            TypeConverterFactory.Providers.Insert(0, new GiftCardCouponCodeConverterProvider());
         }
 
         public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext)

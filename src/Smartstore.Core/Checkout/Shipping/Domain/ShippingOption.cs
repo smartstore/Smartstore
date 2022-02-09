@@ -1,6 +1,7 @@
 ﻿using System.Globalization;
 using System.Text;
 using System.Xml.Serialization;
+using Smartstore.ComponentModel;
 using Smartstore.ComponentModel.TypeConverters;
 
 namespace Smartstore.Core.Checkout.Shipping
@@ -34,6 +35,25 @@ namespace Smartstore.Core.Checkout.Shipping
         /// Gets or sets a shipping option description
         /// </summary>
         public string Description { get; set; }
+    }
+
+    public class ShippingOptionConverterProvider : ITypeConverterProvider
+    {
+        static readonly ITypeConverter Default = new ShippingOptionConverter(true);
+
+        public ITypeConverter GetConverter(Type type)
+        {
+            if (type == typeof(ShippingOption))
+            {
+                return new ShippingOptionConverter(false);
+            }
+            else if (type.IsEnumerableType(out var elementType) && elementType == typeof(ShippingOption))
+            {
+                return Default;
+            }
+
+            return null;
+        }
     }
 
     public class ShippingOptionConverter : DefaultTypeConverter

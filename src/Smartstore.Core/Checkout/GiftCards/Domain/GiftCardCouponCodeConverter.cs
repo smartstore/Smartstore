@@ -2,14 +2,30 @@
 using System.Xml;
 using System.Xml.Linq;
 using Newtonsoft.Json;
+using Smartstore.ComponentModel;
 using Smartstore.ComponentModel.TypeConverters;
 
 namespace Smartstore.Core.Checkout.GiftCards
 {
+    public class GiftCardCouponCodeConverterProvider : ITypeConverterProvider
+    {
+        static readonly ITypeConverter Default = new GiftCardCouponCodeConverter();
+
+        public ITypeConverter GetConverter(Type type)
+        {
+            if (type.IsEnumerableType(out var elementType) && elementType == typeof(GiftCardCouponCode))
+            {
+                return Default;
+            }
+            
+            return null;
+        }
+    }
+
     /// <summary>
     /// Gift card coupon code converter
     /// </summary>
-    public class GiftCardCouponCodeConverter : DefaultTypeConverter
+    internal class GiftCardCouponCodeConverter : DefaultTypeConverter
     {
         public GiftCardCouponCodeConverter()
             : base(typeof(object))

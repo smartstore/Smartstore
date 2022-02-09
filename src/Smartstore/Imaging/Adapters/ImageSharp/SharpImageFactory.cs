@@ -7,7 +7,6 @@ namespace Smartstore.Imaging.Adapters.ImageSharp
 {
     public class SharpImageFactory : Disposable, IImageFactory
     {
-        private readonly MemoryAllocator _memAllocator;
         private readonly Timer _releaseMemTimer;
 
         public SharpImageFactory(SmartConfiguration appConfig)
@@ -117,7 +116,7 @@ namespace Smartstore.Imaging.Adapters.ImageSharp
         }
 
         public void ReleaseMemory()
-            => _memAllocator.ReleaseRetainedResources();
+            => SharpConfiguration.Default.MemoryAllocator.ReleaseRetainedResources();
 
         protected override void OnDispose(bool disposing)
         {

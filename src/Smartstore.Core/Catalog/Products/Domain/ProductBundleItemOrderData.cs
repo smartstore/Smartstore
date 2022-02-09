@@ -3,6 +3,7 @@ using System.Globalization;
 using System.Text;
 using System.Xml.Linq;
 using System.Xml.Serialization;
+using Smartstore.ComponentModel;
 using Smartstore.ComponentModel.TypeConverters;
 using Smartstore.Core.Catalog.Attributes;
 
@@ -40,6 +41,25 @@ namespace Smartstore.Core.Catalog.Products
         [NotMapped]
         public ProductVariantAttributeSelection AttributeSelection
             => _attributeSelection ??= new(RawAttributes);
+    }
+
+    public class ProductBundleItemOrderDataConverterProvider : ITypeConverterProvider
+    {
+        static readonly ITypeConverter Default = new ProductBundleItemOrderDataConverter(true);
+
+        public ITypeConverter GetConverter(Type type)
+        {
+            if (type == typeof(ProductBundleItemOrderData))
+            {
+                return new ProductBundleItemOrderDataConverter(false);
+            }
+            else if (type.IsEnumerableType(out var elementType) && elementType == typeof(ProductBundleItemOrderData))
+            {
+                return Default;
+            }
+
+            return null;
+        }
     }
 
     public class ProductBundleItemOrderDataConverter : DefaultTypeConverter
