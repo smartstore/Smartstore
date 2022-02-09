@@ -116,7 +116,7 @@ namespace Smartstore.Admin.Controllers
             return result;
         }
 
-        private CustomerModel PrepareCustomerModelForList(Customer customer)
+        private CustomerModel CreateCustomerModelForList(Customer customer)
         {
             return new CustomerModel
             {
@@ -136,92 +136,126 @@ namespace Smartstore.Admin.Controllers
             };
         }
 
-        private async Task PrepareCustomerModelForCreateAsync(CustomerModel model)
+        private async Task PrepareCustomerModel(CustomerModel model, Customer customer)
         {
-            var timeZoneId = model.TimeZoneId.NullEmpty() ?? Services.DateTimeHelper.DefaultStoreTimeZone.Id;
-            var addressModel = await new Address().MapAsync();
-
-            MiniMapper.Map(_customerSettings, model);
-
-            model.AllowCustomersToSetTimeZone = _dateTimeSettings.AllowCustomersToSetTimeZone;
-            model.DisplayVatNumber = false;
-            model.AllowManagingCustomerRoles = await Services.Permissions.AuthorizeAsync(Permissions.Customer.EditRole);
-            model.CustomerNumberEnabled = _customerSettings.CustomerNumberMethod != CustomerNumberMethod.Disabled;
-            model.UsernamesEnabled = _customerSettings.CustomerLoginType != CustomerLoginType.Email;
-
-            if (model.SelectedCustomerRoleIds == null || model.SelectedCustomerRoleIds.Length == 0)
-            {
-                var role = await _customerService.GetRoleBySystemNameAsync(SystemCustomerRoleNames.Registered);
-                model.SelectedCustomerRoleIds = new[] { role.Id };
-            }
-
-            ViewBag.AvailableTimeZones = Services.DateTimeHelper.GetSystemTimeZones()
-                .Select(x => new SelectListItem { Text = x.DisplayName, Value = x.Id, Selected = x.Id == timeZoneId })
-                .ToList();
-
-            ViewBag.IsSingleStoreMode = Services.StoreContext.IsSingleStoreMode();
-            ViewBag.AvailableCountries = addressModel.AvailableCountries;
-            ViewBag.AvailableStates = addressModel.AvailableStates;
-        }
-
-        private async Task PrepareCustomerModelForEditAsync(CustomerModel model, Customer customer)
-        {
-            await _db.LoadCollectionAsync(customer, x => x.Addresses, false, q => q
-                .Include(x => x.Country)
-                .Include(x => x.StateProvince));
-
-            MiniMapper.Map(_customerSettings, model);
-
-            model.AllowCustomersToSetTimeZone = _dateTimeSettings.AllowCustomersToSetTimeZone;
-            model.Deleted = customer.Deleted;
-            model.DisplayVatNumber = _taxSettings.EuVatEnabled;
-            model.VatNumberStatusNote = await ((VatNumberStatus)customer.VatNumberStatusId).GetLocalizedEnumAsync();
-            model.CreatedOn = Services.DateTimeHelper.ConvertToUserTime(customer.CreatedOnUtc, DateTimeKind.Utc);
-            model.LastActivityDate = Services.DateTimeHelper.ConvertToUserTime(customer.LastActivityDateUtc, DateTimeKind.Utc);
-            model.LastIpAddress = customer.LastIpAddress;
-            model.LastVisitedPage = customer.GenericAttributes.LastVisitedPage;
-
-            model.CustomerNumberEnabled = _customerSettings.CustomerNumberMethod != CustomerNumberMethod.Disabled;
-            model.UsernamesEnabled = _customerSettings.CustomerLoginType != CustomerLoginType.Email;
-            model.AllowManagingCustomerRoles = Services.Permissions.Authorize(Permissions.Customer.EditRole);
-            model.DisplayRewardPointsHistory = _rewardPointsSettings.Enabled;
-            model.DisplayProfileLink = _customerSettings.AllowViewingProfiles && !customer.IsGuest();
-            model.AssociatedExternalAuthRecords = await GetAssociatedExternalAuthRecordsAsync(customer);
-            model.PermissionTree = await Services.Permissions.BuildCustomerPermissionTreeAsync(customer, true);
-
-            ViewBag.AvailableTimeZones = Services.DateTimeHelper.GetSystemTimeZones()
-                .Select(x => new SelectListItem { Text = x.DisplayName, Value = x.Id, Selected = x.Id == model.TimeZoneId })
-                .ToList();
-
-            ViewBag.IsSingleStoreMode = Services.StoreContext.IsSingleStoreMode();
-
-            // Addresses.
+            var dtHelper = Services.DateTimeHelper;
             var countries = await _db.Countries
                 .AsNoTracking()
                 .ApplyStandardFilter(false, Services.StoreContext.CurrentStore.Id)
                 .ToListAsync();
 
-            var addresses = customer.Addresses
-                .OrderByDescending(x => x.CreatedOnUtc)
-                .ThenByDescending(x => x.Id)
-                .ToList();
+            MiniMapper.Map(_customerSettings, model);
 
-            foreach (var address in addresses)
+            model.AllowCustomersToSetTimeZone = _dateTimeSettings.AllowCustomersToSetTimeZone;
+            model.AllowManagingCustomerRoles = await Services.Permissions.AuthorizeAsync(Permissions.Customer.EditRole);
+            model.CustomerNumberEnabled = _customerSettings.CustomerNumberMethod != CustomerNumberMethod.Disabled;
+            model.UsernamesEnabled = _customerSettings.CustomerLoginType != CustomerLoginType.Email;
+
+            if (customer != null)
             {
-                model.Addresses.Add(await address.MapAsync(null, countries));
+                await _db.LoadCollectionAsync(customer, x => x.Addresses, false, q => q
+                    .Include(x => x.Country)
+                    .Include(x => x.StateProvince));
+
+                model.Id = customer.Id;
+                model.Email = customer.Email;
+                model.Username = customer.Username;
+                model.AdminComment = customer.AdminComment;
+                model.IsTaxExempt = customer.IsTaxExempt;
+                model.Active = customer.Active;
+                model.TimeZoneId = customer.TimeZoneId;
+                model.VatNumber = customer.GenericAttributes.VatNumber;
+                model.AffiliateId = customer.AffiliateId;
+                model.Deleted = customer.Deleted;
+                model.Title = customer.Title;
+                model.FirstName = customer.FirstName;
+                model.LastName = customer.LastName;
+                model.DateOfBirth = customer.BirthDate;
+                model.Company = customer.Company;
+                model.CustomerNumber = customer.CustomerNumber;
+                model.Gender = customer.Gender;
+                model.ZipPostalCode = customer.GenericAttributes.ZipPostalCode;
+                model.CountryId = Convert.ToInt32(customer.GenericAttributes.CountryId);
+                model.StreetAddress = customer.GenericAttributes.StreetAddress;
+                model.StreetAddress2 = customer.GenericAttributes.StreetAddress2;
+                model.City = customer.GenericAttributes.City;
+                model.StateProvinceId = Convert.ToInt32(customer.GenericAttributes.StateProvinceId);
+                model.Phone = customer.GenericAttributes.Phone;
+                model.Fax = customer.GenericAttributes.Fax;
+
+                model.DisplayVatNumber = _taxSettings.EuVatEnabled;
+                model.DisplayRewardPointsHistory = _rewardPointsSettings.Enabled;
+                model.VatNumberStatusNote = await ((VatNumberStatus)customer.VatNumberStatusId).GetLocalizedEnumAsync();
+                model.CreatedOn = dtHelper.ConvertToUserTime(customer.CreatedOnUtc, DateTimeKind.Utc);
+                model.LastActivityDate = dtHelper.ConvertToUserTime(customer.LastActivityDateUtc, DateTimeKind.Utc);
+                model.LastIpAddress = customer.LastIpAddress;
+                model.LastVisitedPage = customer.GenericAttributes.LastVisitedPage;
+                model.DisplayProfileLink = _customerSettings.AllowViewingProfiles && !customer.IsGuest();
+                model.AssociatedExternalAuthRecords = await GetAssociatedExternalAuthRecordsAsync(customer);
+                model.PermissionTree = await Services.Permissions.BuildCustomerPermissionTreeAsync(customer, true);
+
+                model.SelectedCustomerRoleIds = customer.CustomerRoleMappings
+                    .Where(x => !x.IsSystemMapping)
+                    .Select(x => x.CustomerRoleId)
+                    .ToArray();
+
+                if (customer.AffiliateId != 0)
+                {
+                    var affiliate = await _db.Affiliates
+                        .Include(x => x.Address)
+                        .FindByIdAsync(customer.AffiliateId, false);
+
+                    model.AffiliateFullName = affiliate?.Address?.GetFullName();
+                }
+
+                // Addresses.
+                var addresses = customer.Addresses
+                    .OrderByDescending(x => x.CreatedOnUtc)
+                    .ThenByDescending(x => x.Id)
+                    .ToList();
+
+                foreach (var address in addresses)
+                {
+                    model.Addresses.Add(await address.MapAsync(null, countries));
+                }
+            }
+            else
+            {
+                // Set default values for creation.
+                model.Active = true;
+
+                if (model.SelectedCustomerRoleIds == null || model.SelectedCustomerRoleIds.Length == 0)
+                {
+                    var role = await _customerService.GetRoleBySystemNameAsync(SystemCustomerRoleNames.Registered);
+                    model.SelectedCustomerRoleIds = new[] { role.Id };
+                }
             }
 
-            // Get available countries and state provinces.
-            var addressModel = new AddressModel
+            // ViewBag.
+            ViewBag.IsSingleStoreMode = Services.StoreContext.IsSingleStoreMode();
+
+            ViewBag.AvailableTimeZones = dtHelper.GetSystemTimeZones()
+                .ToSelectListItems(model.TimeZoneId.NullEmpty() ?? dtHelper.DefaultStoreTimeZone.Id);
+
+            // Countries and state provinces.
+            if (_customerSettings.CountryEnabled)
             {
-                CountryId = customer.GenericAttributes.CountryId,
-                StateProvinceId = customer.GenericAttributes.StateProvinceId
-            };
+                var countryId = customer?.GenericAttributes?.CountryId ?? model.CountryId;
 
-            await new Address().MapAsync(addressModel, null, countries);
+                ViewBag.AvailableCountries = countries.ToSelectListItems(countryId);
+                ViewBag.AvailableCountries.Insert(0, new SelectListItem { Text = T("Address.SelectCountry"), Value = "0" });
 
-            ViewBag.AvailableCountries = addressModel.AvailableCountries;
-            ViewBag.AvailableStates = addressModel.AvailableStates;
+                if (_customerSettings.StateProvinceEnabled)
+                {
+                    var stateProvinceId = customer?.GenericAttributes?.StateProvinceId ?? model.StateProvinceId;
+                    var stateProvinces = await _db.StateProvinces.GetStateProvincesByCountryIdAsync(countryId);
+
+                    ViewBag.AvailableStates = stateProvinces.ToSelectListItems(stateProvinceId) ?? new List<SelectListItem>
+                    {
+                        new SelectListItem { Text = T("Address.OtherNonUS"), Value = "0" }
+                    };
+                }
+            }
         }
 
         private async Task<(List<CustomerRole> NewCustomerRoles, string ErrMessage)> ValidateCustomerRolesAsync(int[] selectedCustomerRoleIds, List<int> allCustomerRoleIds)
@@ -410,7 +444,7 @@ namespace Smartstore.Admin.Controllers
                 .ToPagedList(command)
                 .LoadAsync();
 
-            var rows = customers.Select(x => PrepareCustomerModelForList(x)).ToList();
+            var rows = customers.Select(x => CreateCustomerModelForList(x)).ToList();
 
             return Json(new GridModel<CustomerModel>
             {
@@ -424,10 +458,7 @@ namespace Smartstore.Admin.Controllers
         {
             var model = new CustomerModel();
 
-            await PrepareCustomerModelForCreateAsync(model);
-
-            // Set default value for creation.
-            model.Active = true;
+            await PrepareCustomerModel(model, null);
 
             return View(model);
         }
@@ -529,7 +560,7 @@ namespace Smartstore.Admin.Controllers
             }
 
             // If we got this far something failed. Redisplay form.
-            await PrepareCustomerModelForCreateAsync(model);
+            await PrepareCustomerModel(model, null);
 
             return View(model);
         }
@@ -549,53 +580,8 @@ namespace Smartstore.Admin.Controllers
                 return NotFound();
             }
 
-            var model = new CustomerModel
-            {
-                Id = customer.Id,
-                Email = customer.Email,
-                Username = customer.Username,
-                AdminComment = customer.AdminComment,
-                IsTaxExempt = customer.IsTaxExempt,
-                Active = customer.Active,
-                TimeZoneId = customer.TimeZoneId,
-                VatNumber = customer.GenericAttributes.VatNumber,
-                AffiliateId = customer.AffiliateId
-            };
-
-            if (customer.AffiliateId != 0)
-            {
-                var affiliate = await _db.Affiliates
-                    .Include(x => x.Address)
-                    .FindByIdAsync(customer.AffiliateId, false);
-
-                if (affiliate != null && affiliate.Address != null)
-                {
-                    model.AffiliateFullName = affiliate.Address.GetFullName();
-                }
-            }
-
-            model.Title = customer.Title;
-            model.FirstName = customer.FirstName;
-            model.LastName = customer.LastName;
-            model.DateOfBirth = customer.BirthDate;
-            model.Company = customer.Company;
-            model.CustomerNumber = customer.CustomerNumber;
-            model.Gender = customer.Gender;
-            model.ZipPostalCode = customer.GenericAttributes.ZipPostalCode;
-            model.CountryId = Convert.ToInt32(customer.GenericAttributes.CountryId);
-            model.StreetAddress = customer.GenericAttributes.StreetAddress;
-            model.StreetAddress2 = customer.GenericAttributes.StreetAddress2;
-            model.City = customer.GenericAttributes.City;
-            model.StateProvinceId = Convert.ToInt32(customer.GenericAttributes.StateProvinceId);
-            model.Phone = customer.GenericAttributes.Phone;
-            model.Fax = customer.GenericAttributes.Fax;
-
-            model.SelectedCustomerRoleIds = customer.CustomerRoleMappings
-                .Where(x => !x.IsSystemMapping)
-                .Select(x => x.CustomerRoleId)
-                .ToArray();
-
-            await PrepareCustomerModelForEditAsync(model, customer);
+            var model = new CustomerModel();
+            await PrepareCustomerModel(model, customer);
 
             return View(model);
         }
@@ -730,7 +716,10 @@ namespace Smartstore.Admin.Controllers
                     Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditCustomer, T("ActivityLog.EditCustomer"), customer.Id);
 
                     NotifySuccess(T("Admin.Customers.Customers.Updated"));
-                    return continueEditing ? RedirectToAction(nameof(Edit), customer.Id) : RedirectToAction(nameof(List));
+
+                    return continueEditing 
+                        ? RedirectToAction(nameof(Edit), customer.Id) 
+                        : RedirectToAction(nameof(List));
                 }
                 catch (Exception ex)
                 {
@@ -739,7 +728,7 @@ namespace Smartstore.Admin.Controllers
             }
 
             // If we got this far something failed. Redisplay form.
-            await PrepareCustomerModelForEditAsync(model, customer);
+            await PrepareCustomerModel(model, customer);
 
             return View(model);
         }

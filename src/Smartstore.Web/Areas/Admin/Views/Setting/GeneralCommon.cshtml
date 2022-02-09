@@ -55,7 +55,7 @@
                     </div>
                     <div class="adminData">
                         <setting-editor asp-for="DateTimeSettings.DefaultStoreTimeZoneId">
-                            <select asp-for="DateTimeSettings.DefaultStoreTimeZoneId" asp-items="Model.DateTimeSettings.AvailableTimeZones"></select>
+                            <select asp-for="DateTimeSettings.DefaultStoreTimeZoneId" asp-items="ViewBag.AvailableTimeZones"></select>
                         </setting-editor>
                         <span asp-validation-for="DateTimeSettings.DefaultStoreTimeZoneId"></span>
                     </div>

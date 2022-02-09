@@ -7,6 +7,7 @@ using Smartstore.Core.Data;
 using Smartstore.Core.Security;
 using Smartstore.Web.Controllers;
 using Smartstore.Web.Models.DataGrid;
+using Smartstore.Web.Rendering;
 
 namespace Smartstore.Tax.Controllers
 {
@@ -26,39 +27,30 @@ namespace Smartstore.Tax.Controllers
         {
             var taxCategories = await _db.TaxCategories
                 .AsNoTracking()
-                .ToDictionaryAsync(x => x.Id);
+                .ToListAsync();
 
             var countries = await _db.Countries
                 .AsNoTracking()
                 .ApplyStandardFilter(true)
-                .ToDictionaryAsync(x => x.Id);
+                .ToListAsync();
 
             var stateProvinces = await _db.StateProvinces
                 .AsNoTracking()
-                .ToDictionaryAsync(x => x.Id);
+                .ToListAsync();
 
-            var stateProvincesOfFirstCountry = stateProvinces.Values.Where(x => x.CountryId == countries.Values.FirstOrDefault().Id).ToList();
+            var firstCountryId = countries.FirstOrDefault()?.Id ?? 0;
+            var stateProvincesOfFirstCountry = stateProvinces.Where(x => x.CountryId == firstCountryId).ToList();
 
-            ViewBag.AvailableTaxCategories = taxCategories.Values.Select(x => new SelectListItem
+            ViewBag.AvailableTaxCategories = taxCategories.Select(x => new SelectListItem
             {
                 Text = x.Name,
                 Value = x.Id.ToString()
             })
             .ToList();
 
-            ViewBag.AvailableCountries = countries.Values.Select(x => new SelectListItem
-            {
-                Text = x.Name,
-                Value = x.Id.ToString()
-            })
-            .ToList();
+            ViewBag.AvailableCountries = countries.ToSelectListItems();
 
-            ViewBag.AvailableStates = stateProvincesOfFirstCountry.Select(x => new SelectListItem
-            {
-                Text = x.Name,
-                Value = x.Id.ToString()
-            })
-            .ToList();
+            ViewBag.AvailableStates = stateProvincesOfFirstCountry.ToSelectListItems() ?? new List<SelectListItem>();
             ViewBag.AvailableStates.Insert(0, new SelectListItem { Text = "*", Value = "0" });
 
             ViewBag.Provider = _taxService.LoadTaxProviderBySystemName("Tax.CountryStateZip").Metadata;

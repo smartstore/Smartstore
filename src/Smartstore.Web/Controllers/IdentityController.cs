@@ -19,6 +19,7 @@ using Smartstore.Core.Web;
 using Smartstore.Engine.Modularity;
 using Smartstore.Web.Models.Customers;
 using Smartstore.Web.Models.Identity;
+using Smartstore.Web.Rendering;
 
 namespace Smartstore.Web.Controllers
 {
@@ -281,11 +282,11 @@ namespace Smartstore.Web.Controllers
                     }
                     else
                     {
-                        AddErrors(addPasswordResult);
+                        addPasswordResult.Errors.Each(x => ModelState.AddModelError(string.Empty, x.Description));
                     }   
                 }
 
-                AddErrors(result);
+                result.Errors.Each(x => ModelState.AddModelError(string.Empty, x.Description));
             }
 
             // If we got this far something failed. Redisplay form.
@@ -679,15 +680,28 @@ namespace Smartstore.Web.Controllers
             model.CheckUsernameAvailabilityEnabled = _customerSettings.CheckUsernameAvailabilityEnabled;
             model.DisplayCaptcha = _captchaSettings.CanDisplayCaptcha && _captchaSettings.ShowOnRegistrationPage;
 
-            ViewBag.AvailableTimeZones = new List<SelectListItem>();
-            foreach (var tzi in _dateTimeHelper.GetSystemTimeZones())
-            {
-                ViewBag.AvailableTimeZones.Add(new SelectListItem { Text = tzi.DisplayName, Value = tzi.Id, Selected = (tzi.Id == _dateTimeHelper.DefaultStoreTimeZone.Id) });
-            }
+            ViewBag.AvailableTimeZones = _dateTimeHelper.GetSystemTimeZones()
+                .ToSelectListItems(_dateTimeHelper.DefaultStoreTimeZone.Id);
 
             if (_customerSettings.CountryEnabled)
             {
-                await AddCountriesAndStatesToViewBagAsync(model.CountryId, _customerSettings.StateProvinceEnabled, model.StateProvinceId ?? 0);
+                var countries = await _db.Countries
+                    .AsNoTracking()
+                    .ApplyStandardFilter(false, Services.StoreContext.CurrentStore.Id)
+                    .ToListAsync();
+
+                ViewBag.AvailableCountries = countries.ToSelectListItems(model.CountryId);
+                ViewBag.AvailableCountries.Insert(0, new SelectListItem { Text = T("Address.SelectCountry"), Value = "0" });
+
+                if (_customerSettings.StateProvinceEnabled)
+                {
+                    var stateProvinces = await _db.StateProvinces.GetStateProvincesByCountryIdAsync(model.CountryId);
+
+                    ViewBag.AvailableStates = stateProvinces.ToSelectListItems(model.StateProvinceId ?? 0) ?? new List<SelectListItem>
+                    {
+                        new SelectListItem { Text = T("Address.OtherNonUS"), Value = "0" }
+                    };
+                }
             }
         }
 
@@ -922,69 +936,6 @@ namespace Smartstore.Web.Controllers
 
             await _userManager.RemoveFromRolesAsync(customer, mappings);
             await _db.SaveChangesAsync();
-        }
-
-        // TODO: (mh) (core) Find globally accessable place for this.
-        private async Task AddCountriesAndStatesToViewBagAsync(int selectedCountryId, bool statesEnabled, int selectedStateId)
-        {
-            var availableCountries = new List<SelectListItem>
-            {
-                new SelectListItem { Text = T("Address.SelectCountry"), Value = "0" }
-            };
-
-            var countries = await _db.Countries
-                .AsNoTracking()
-                .ApplyStandardFilter()
-                .ToListAsync();
-
-            foreach (var c in countries)
-            {
-                availableCountries.Add(new SelectListItem
-                {
-                    Text = c.GetLocalized(x => x.Name),
-                    Value = c.Id.ToString(),
-                    Selected = c.Id == selectedCountryId
-                });
-            }
-
-            ViewBag.AvailableCountries = availableCountries;
-
-            if (statesEnabled)
-            {
-                var availableStates = new List<SelectListItem>();
-
-                var states = await _db.StateProvinces
-                    .AsNoTracking()
-                    .ApplyCountryFilter(selectedStateId)
-                    .ToListAsync();
-
-                if (states.Any())
-                {
-                    foreach (var s in states)
-                    {
-                        availableStates.Add(new SelectListItem
-                        {
-                            Text = s.GetLocalized(x => x.Name),
-                            Value = s.Id.ToString(),
-                            Selected = s.Id == selectedStateId
-                        });
-                    }
-                }
-                else
-                {
-                    availableStates.Add(new SelectListItem { Text = T("Address.OtherNonUS"), Value = "0" });
-                }
-
-                ViewBag.AvailableStates = availableStates;
-            }
-        }
-
-        private void AddErrors(IdentityResult result)
-        {
-            foreach (var error in result.Errors)
-            {
-                ModelState.AddModelError(string.Empty, error.Description);
-            }
         }
 
         private IActionResult RedirectToLocal(string returnUrl)

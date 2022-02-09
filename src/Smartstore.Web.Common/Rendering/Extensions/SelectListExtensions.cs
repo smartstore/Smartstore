@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using System.Linq;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Core.Checkout.Payment;
+using Smartstore.Core.Common;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Stores;
@@ -106,6 +108,66 @@ namespace Smartstore.Web.Rendering
             }
 
             return list.OrderBy(x => x.Text).ToList();
+        }
+
+        /// <summary>
+        /// Gets a select list of countries.
+        /// </summary>
+        /// <param name="countries">Countries.</param>
+        /// <param name="selectedCountryIds">Identifiers of countries to be selected.</param>
+        /// <returns>Select list of countries.</returns>
+        public static IList<SelectListItem> ToSelectListItems(this IEnumerable<Country> countries, params int[] selectedCountryIds)
+        {
+            Guard.NotNull(countries, nameof(countries));
+
+            return countries.Select(x => new SelectListItem
+            {
+                Text = x.GetLocalized(x => x.Name),
+                Value = x.Id.ToString(),
+                Selected = selectedCountryIds != null && selectedCountryIds.Contains(x.Id)
+            })
+            .ToList();
+        }
+
+        /// <summary>
+        /// Gets a select list of state provinces.
+        /// </summary>
+        /// <param name="stateProvinces">State provinces.</param>
+        /// <param name="selectedStateProvinceIds">Identifiers of state provinces to be selected.</param>
+        /// <returns>Select list of state provinces. <c>null</c> if <paramref name="stateProvinces"/> does not contain any state provinces.</returns>
+        public static IList<SelectListItem> ToSelectListItems(this IEnumerable<StateProvince> stateProvinces, params int[] selectedStateProvinceIds)
+        {
+            if (stateProvinces?.Any() ?? false)
+            {
+                return stateProvinces.Select(x => new SelectListItem
+                {
+                    Text = x.GetLocalized(x => x.Name),
+                    Value = x.Id.ToString(),
+                    Selected = selectedStateProvinceIds != null && selectedStateProvinceIds.Contains(x.Id)
+                })
+                .ToList();
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Gets a select list of time zone infos.
+        /// </summary>
+        /// <param name="timeZoneInfos">Time zone infos.</param>
+        /// <param name="selectedTimeZoneId">Identifier of time zone info to be selected.</param>
+        /// <returns>Select list of time zone infos.</returns>
+        public static IList<SelectListItem> ToSelectListItems(this IEnumerable<TimeZoneInfo> timeZoneInfos, string selectedTimeZoneId = null)
+        {
+            Guard.NotNull(timeZoneInfos, nameof(timeZoneInfos));
+
+            return timeZoneInfos.Select(x => new SelectListItem
+            {
+                Text = x.DisplayName,
+                Value = x.Id,
+                Selected = selectedTimeZoneId != null && selectedTimeZoneId.EqualsNoCase(x.Id)
+            })
+            .ToList();
         }
 
         public static void SelectValue(this IEnumerable<SelectListItem> list, string value, string defaultValue = null)

@@ -48,8 +48,9 @@ namespace Smartstore.Shipping.Controllers
             var countries = await _db.Countries
                 .AsNoTracking()
                 .ApplyStandardFilter(true)
-                .ToDictionaryAsync(x => x.Id);
+                .ToListAsync();
 
+            ViewBag.AvailableCountries = countries.ToSelectListItems();
             ViewBag.AvailableStores = Services.StoreContext.GetAllStores().ToSelectListItems();
             ViewBag.PrimaryStoreCurrencyCode = _currencyService.PrimaryCurrency.CurrencyCode;
             ViewBag.AvailableShippingMethods = shippingMethods.Values.Select(x => new SelectListItem
@@ -58,14 +59,7 @@ namespace Smartstore.Shipping.Controllers
                 Value = x.Id.ToString()
             })
             .ToList();
-
-            ViewBag.AvailableCountries = countries.Values.Select(x => new SelectListItem
-            {
-                Text = x.Name,
-                Value = x.Id.ToString()
-            })
-            .ToList();
-
+                
             ViewBag.Provider = _providerManager.GetProvider("Shipping.ByTotal").Metadata;
         }
 

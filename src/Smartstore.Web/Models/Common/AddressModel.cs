@@ -95,9 +95,9 @@ namespace Smartstore.Web.Models.Common
         public bool FaxRequired { get; set; }
         public DateTime CreatedOnUtc { get; set; }
 
-        public List<SelectListItem> AvailableCountries { get; set; } = new();
-        public List<SelectListItem> AvailableStates { get; set; } = new();
-        public List<SelectListItem> AvailableSalutations { get; set; } = new();
+        public IList<SelectListItem> AvailableCountries { get; set; } = new List<SelectListItem>();
+        public IList<SelectListItem> AvailableStates { get; set; } = new List<SelectListItem>();
+        public IList<SelectListItem> AvailableSalutations { get; set; } = new List<SelectListItem>();
 
         public string FormattedAddress { get; set; }
 

@@ -97,6 +97,7 @@ namespace Smartstore.Web.Models.Common
                 to.FormattedAddress = await _addressService.FormatAddressAsync(from, true);
             }
 
+            // TODO: (mg) (core) get this out of AddressMapper.
             // Countries and states.
             if (addCountries ?? _addressSettings.CountryEnabled)
             {

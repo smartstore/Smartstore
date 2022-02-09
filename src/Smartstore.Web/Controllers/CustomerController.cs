@@ -19,6 +19,7 @@ using Smartstore.Engine.Modularity;
 using Smartstore.Utilities;
 using Smartstore.Web.Models.Common;
 using Smartstore.Web.Models.Customers;
+using Smartstore.Web.Rendering;
 
 namespace Smartstore.Web.Controllers
 {
@@ -931,7 +932,7 @@ namespace Smartstore.Web.Controllers
 
         #region Utilities
 
-        protected async Task PrepareCustomerInfoModelAsync(CustomerInfoModel model, Customer customer, bool excludeProperties)
+        private async Task PrepareCustomerInfoModelAsync(CustomerInfoModel model, Customer customer, bool excludeProperties)
         {
             Guard.NotNull(model, nameof(model));
             Guard.NotNull(customer, nameof(customer));
@@ -939,17 +940,8 @@ namespace Smartstore.Web.Controllers
             model.Id = customer.Id;
             model.AllowCustomersToSetTimeZone = _dateTimeSettings.AllowCustomersToSetTimeZone;
 
-            var availableTimeZones = new List<SelectListItem>();
-            foreach (var tzi in _dateTimeHelper.GetSystemTimeZones())
-            {
-                availableTimeZones.Add(new SelectListItem
-                {
-                    Text = tzi.DisplayName,
-                    Value = tzi.Id,
-                    Selected = (excludeProperties ? tzi.Id == model.TimeZoneId : tzi.Id == _dateTimeHelper.CurrentTimeZone.Id)
-                });
-            }
-            ViewBag.AvailableTimeZones = availableTimeZones;
+            ViewBag.AvailableTimeZones = _dateTimeHelper.GetSystemTimeZones()
+                .ToSelectListItems(excludeProperties ? model.TimeZoneId : _dateTimeHelper.CurrentTimeZone.Id);
 
             if (!excludeProperties)
             {
@@ -995,59 +987,25 @@ namespace Smartstore.Web.Controllers
                 }
             }
 
-            // TODO: (mh) (core) Create some generic solution for this always repeating code.
-            // Countries and states.
+            // Countries and state provinces.
             if (_customerSettings.CountryEnabled)
             {
-                var availableCountries = new List<SelectListItem>
-                {
-                    new SelectListItem { Text = T("Address.SelectCountry"), Value = "0" }
-                };
-
                 var countries = await _db.Countries
                     .AsNoTracking()
-                    .ApplyStandardFilter()
+                    .ApplyStandardFilter(false, Services.StoreContext.CurrentStore.Id)
                     .ToListAsync();
 
-                foreach (var c in countries)
-                {
-                    availableCountries.Add(new SelectListItem
-                    {
-                        Text = c.GetLocalized(x => x.Name),
-                        Value = c.Id.ToString(),
-                        Selected = c.Id == model.CountryId
-                    });
-                }
-
-                ViewBag.AvailableCountries = availableCountries;
+                ViewBag.AvailableCountries = countries.ToSelectListItems(model.CountryId);
+                ViewBag.AvailableCountries.Insert(0, new SelectListItem { Text = T("Address.SelectCountry"), Value = "0" });
 
                 if (_customerSettings.StateProvinceEnabled)
                 {
-                    var availableStates = new List<SelectListItem>();
+                    var stateProvinces = await _db.StateProvinces.GetStateProvincesByCountryIdAsync(model.CountryId);
 
-                    var states = await _db.StateProvinces
-                        .AsNoTracking()
-                        .ApplyCountryFilter(model.CountryId)
-                        .ToListAsync();
-
-                    if (states.Any())
+                    ViewBag.AvailableStates = stateProvinces.ToSelectListItems(model.StateProvinceId) ?? new List<SelectListItem>
                     {
-                        foreach (var s in states)
-                        {
-                            availableStates.Add(new SelectListItem
-                            {
-                                Text = s.GetLocalized(x => x.Name),
-                                Value = s.Id.ToString(),
-                                Selected = (s.Id == model.StateProvinceId)
-                            });
-                        }
-                    }
-                    else
-                    {
-                        availableStates.Add(new SelectListItem { Text = T("Address.OtherNonUS"), Value = "0" });
-                    }
-
-                    ViewBag.AvailableStates = availableStates;
+                        new SelectListItem { Text = T("Address.OtherNonUS"), Value = "0" }
+                    };
                 }
             }
 
@@ -1112,7 +1070,7 @@ namespace Smartstore.Web.Controllers
             }
         }
 
-        protected async Task<CustomerOrderListModel> PrepareCustomerOrderListModelAsync(Customer customer, int orderPageIndex, int recurringPaymentPageIndex)
+        private async Task<CustomerOrderListModel> PrepareCustomerOrderListModelAsync(Customer customer, int orderPageIndex, int recurringPaymentPageIndex)
         {
             Guard.NotNull(customer, nameof(customer));
 

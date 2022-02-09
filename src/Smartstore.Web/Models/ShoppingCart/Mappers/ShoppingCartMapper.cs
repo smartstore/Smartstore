@@ -385,6 +385,7 @@ namespace Smartstore.Web.Models.Cart
 
                 if (to.EstimateShipping.Enabled)
                 {
+                    // TODO: (mg) (core) Create some generic solution for this always repeating code.
                     // Countries.
                     var defaultEstimateCountryId = setEstimateShippingDefaultAddress && customer.ShippingAddress != null
                         ? customer.ShippingAddress.CountryId

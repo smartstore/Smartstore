@@ -61,11 +61,9 @@ namespace Smartstore.Admin.Models
 
             [LocalizedDisplay("*DefaultStoreTimeZone")]
             public string DefaultStoreTimeZoneId { get; set; }
-
-            [LocalizedDisplay("*DefaultStoreTimeZone")]
-            public List<SelectListItem> AvailableTimeZones { get; set; } = new();
         }
 
+        [LocalizedDisplay("Admin.Configuration.Settings.GeneralCommon.")]
         public partial class SeoSettingsModel : ISeoModel
         {
             [LocalizedDisplay("*PageTitleSeparator")]

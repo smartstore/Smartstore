@@ -1691,15 +1691,13 @@ namespace Smartstore.Admin.Controllers
                 })
                 .ToList();
 
-            ViewBag.AvailableCountries = await _db.Countries.AsNoTracking().ApplyStandardFilter(true)
-                .Select(x => new SelectListItem
-                {
-                    Text = x.Name,
-                    Value = x.Id.ToString(),
-                    Selected = product != null && x.Id == product.CountryOfOriginId
-                })
+            var countries = await _db.Countries
+                .AsNoTracking()
+                .ApplyStandardFilter(true)
                 .ToListAsync();
 
+            ViewBag.AvailableCountries = countries.ToSelectListItems(product?.CountryOfOriginId ?? 0);
+                
             if (setPredefinedValues)
             {
                 // TODO: These should be hidden settings.

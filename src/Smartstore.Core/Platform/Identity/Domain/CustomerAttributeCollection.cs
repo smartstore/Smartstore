@@ -14,6 +14,9 @@ namespace Smartstore.Core.Identity
 
         #region Form fields
 
+        // INFO: this address data is for information purposes only (e.g. on the customer profile page).
+        // Usually customer addresses are used for it (e.g. in checkout).
+
         public string StreetAddress
         {
             get => Get<string>(SystemCustomerAttributeNames.StreetAddress);
