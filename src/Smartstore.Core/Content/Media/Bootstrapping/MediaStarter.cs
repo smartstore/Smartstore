@@ -59,19 +59,7 @@ namespace Smartstore.Core.Bootstrapping
             builder.RegisterType<DefaultImageProcessor>().As<IImageProcessor>().InstancePerLifetimeScope();
 
             // Register factory for currently active media storage provider
-            if (appContext.IsInstalled)
-            {
-                builder.Register(MediaStorageProviderFactory);
-            }
-            else
-            {
-                builder.Register<Func<IMediaStorageProvider>>(c =>
-                {
-                    var fs = c.ResolveNamed<IMediaFileSystem>("local");
-                    var asyncRunner = c.Resolve<AsyncRunner>();
-                    return () => new FileSystemMediaStorageProvider(fs, asyncRunner);
-                });
-            }
+            builder.Register(MediaStorageProviderFactory);
 
             // Register all album providers
             var albumProviderTypes = appContext.TypeScanner.FindTypes<IAlbumProvider>();

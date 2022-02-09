@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using Autofac;
 using Smartstore.Caching.Tasks;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Brands;
@@ -46,10 +47,10 @@ namespace Smartstore.Core.Installation
         {
         }
 
-        public void Initialize(SmartDbContext db, Language primaryLanguage, IApplicationContext appContext)
+        public void Initialize(SmartDbContext db, SeedDataConfiguration configuration, IApplicationContext appContext)
         {
             _db = db;
-            _language = primaryLanguage;
+            _language = configuration.Language;
             _appContext = appContext;
             _mediaUtility = new SampleMediaUtility(db, "/App_Data/Samples");
         }

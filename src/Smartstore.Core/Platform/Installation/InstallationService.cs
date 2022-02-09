@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Smartstore.Core;
 using Smartstore.Core.Content.Media;
-using Smartstore.Core.Content.Media.Storage;
 using Smartstore.Core.Data;
 using Smartstore.Core.Data.Migrations;
 using Smartstore.Core.Localization;
@@ -31,7 +30,6 @@ namespace Smartstore.Core.Installation
         private readonly IFilePermissionChecker _filePermissionChecker;
         private readonly IAsyncState _asyncState;
         private readonly IUrlHelper _urlHelper;
-        private readonly Func<IMediaStorageProvider> _mediaStorageProvider;
         private readonly IEnumerable<Lazy<InvariantSeedData, InstallationAppLanguageMetadata>> _seedDatas;
 
         public InstallationService(
@@ -40,7 +38,6 @@ namespace Smartstore.Core.Installation
             IFilePermissionChecker filePermissionChecker,
             IAsyncState asyncState,
             IUrlHelper urlHelper,
-            Func<IMediaStorageProvider> mediaStorageProvider,
             IEnumerable<Lazy<InvariantSeedData, InstallationAppLanguageMetadata>> seedDatas)
         {
             _httpContextAccessor = httpContextAccessor;
@@ -48,7 +45,6 @@ namespace Smartstore.Core.Installation
             _filePermissionChecker = filePermissionChecker;
             _asyncState = asyncState;
             _urlHelper = urlHelper;
-            _mediaStorageProvider = mediaStorageProvider;
             _seedDatas = seedDatas;
 
             Logger = _appContext.Logger;
@@ -243,12 +239,6 @@ namespace Smartstore.Core.Installation
                     Logger.Info(x.ProgressMessage);
                 });
 
-                if (!seedConfiguration.StoreMediaInDB)
-                {
-                    // All pictures have initially been stored in the DB. Move the binaries to disk as configured.
-                    await MoveMedia(db);
-                }
-
                 var mediaTracker = scope.Resolve<IMediaTracker>();
                 foreach (var album in scope.Resolve<IAlbumRegistry>().GetAlbumNames(true))
                 {
@@ -292,7 +282,7 @@ namespace Smartstore.Core.Installation
                     }
                 }
 
-                //// Clear provider settings if something got wrong
+                // Clear provider settings if something got wrong
                 DataSettings.Delete();
 
                 var msg = ex.Message;
@@ -360,30 +350,6 @@ namespace Smartstore.Core.Installation
                     modularState.InstalledModules.Remove(module.SystemName);
                 }
             }
-        }
-
-        private async Task MoveMedia(SmartDbContext db)
-        {
-            // All pictures have initially been stored in the DB. Move the binaries to disk as configured.
-            var fileSystemStorageProvider = _mediaStorageProvider.Invoke();
-
-            using var scope = new DbContextScope(db, autoDetectChanges: true);
-
-            var mediaFiles = await db.MediaFiles
-                .Include(x => x.MediaStorage)
-                .Where(x => x.MediaStorageId != null)
-                .ToListAsync();
-
-            foreach (var mediaFile in mediaFiles)
-            {
-                if (mediaFile.MediaStorage?.Data?.LongLength > 0)
-                {
-                    await fileSystemStorageProvider.SaveAsync(mediaFile, MediaStorageItem.FromStream(mediaFile.MediaStorage.Data.ToStream()));
-                    db.MediaStorage.Remove(mediaFile.MediaStorage);
-                }
-            }
-
-            await scope.CommitAsync();
         }
 
         private void CheckFileSystemAccessRights(List<string> errors)

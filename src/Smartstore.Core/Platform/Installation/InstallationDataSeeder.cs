@@ -67,20 +67,22 @@ namespace Smartstore.Core.Installation
 
         protected override async Task SeedCoreAsync()
         {
-            _data.Initialize(Context, _config.Language, EngineContext.Current.Application);
-
             Context.ChangeTracker.AutoDetectChangesEnabled = false;
             Context.MinHookImportance = HookImportance.Essential;
 
             _config.ProgressMessageCallback("Progress.CreatingRequiredData");
 
-            // special mandatory (non-visible) settings
+            // Special mandatory (non-visible) settings
             await Context.MigrateSettingsAsync(x =>
             {
                 x.Add("Media.Storage.Provider", _config.StoreMediaInDB ? DatabaseMediaStorageProvider.SystemName : FileSystemMediaStorageProvider.SystemName);
             });
 
-            await PopulateAsync("PopulatePictures", _data.Pictures().Where(x => x != null));
+            // Initialize seeder AFTER we added "Media.Storage.Provider" key,
+            // because SampleMediaUtility depends on it.
+            _data.Initialize(Context, _config, EngineContext.Current.Application);
+
+            Populate("PopulatePictures", () => _data.Pictures());
             await PopulateAsync("PopulateCurrencies", PopulateCurrencies);
             await PopulateAsync("PopulateStores", PopulateStores);
             await PopulateAsync("InstallLanguages", () => PopulateLanguage(_config.Language));
