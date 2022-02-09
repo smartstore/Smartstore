@@ -1,4 +1,6 @@
-﻿namespace Smartstore.ComponentModel.TypeConverters
+﻿using Microsoft.Extensions.Primitives;
+
+namespace Smartstore.ComponentModel.TypeConverters
 {
     public class SimpleTypeConverterProvider : ITypeConverterProvider
     {
@@ -11,6 +13,10 @@
             else if (type == typeof(TimeSpan))
             {
                 return new TimeSpanConverter();
+            }
+            else if (type == typeof(StringValues))
+            {
+                return new StringValuesConverter();
             }
             else if (type == typeof(bool))
             {

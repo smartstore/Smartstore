@@ -228,11 +228,6 @@ namespace Smartstore.Utilities
                 return true;
             }
 
-            if (value is StringValues stringValues)
-            {
-                value = stringValues.ToString();
-            }
-
             Type from = value.GetType();
 
             if (culture == null)
