@@ -1,4 +1,4 @@
-﻿using System.Linq;
+using System.Linq;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Common;
@@ -196,7 +196,7 @@ namespace Smartstore.Web.Rendering
 
         public Dictionary<string, object> CustomProperties { get; set; }
 
-        public TProperty Get<TProperty>(string key, TProperty defaultValue = default(TProperty))
+        public TProperty Get<TProperty>(string key, TProperty defaultValue = default)
         {
             if (CustomProperties.TryGetValue(key, out object value))
             {

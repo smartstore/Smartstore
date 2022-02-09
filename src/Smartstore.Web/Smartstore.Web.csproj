@@ -84,10 +84,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<None Include="..\..\.editorconfig" Link=".editorconfig" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
 			<_Parameter1>Smartstore.Web.Tests</_Parameter1>
 		</AssemblyAttribute>
