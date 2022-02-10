@@ -338,16 +338,11 @@ namespace Smartstore.Web.Controllers
                 return new UnauthorizedResult();
             }
 
-            var model = await customer.Addresses
-                .SelectAsync(async x =>
-                {
-                    var addressModel = new AddressModel();
-                    await x.MapAsync(addressModel, false);
-                    return addressModel;
-                })
+            var models = await customer.Addresses
+                .SelectAsync(async x => await x.MapAsync())
                 .AsyncToList();
 
-            return View(model);
+            return View(models);
         }
 
         [RequireSsl]
@@ -372,7 +367,7 @@ namespace Smartstore.Web.Controllers
                 await _db.SaveChangesAsync();
             }
 
-            return RedirectToAction("Addresses");
+            return RedirectToAction(nameof(Addresses));
         }
 
         [RequireSsl]
@@ -385,8 +380,7 @@ namespace Smartstore.Web.Controllers
             }
 
             var model = new AddressModel();
-            await new Address().MapAsync(model);
-            model.Email = customer?.Email;
+            await PrepareAddressModel(new Address(), model);
 
             return View(model);
         }
@@ -400,19 +394,20 @@ namespace Smartstore.Web.Controllers
                 return new UnauthorizedResult();
             }
 
+            var address = new Address();
+
             if (ModelState.IsValid)
             {
-                var address = new Address();
                 MiniMapper.Map(model, address);
                 customer.Addresses.Add(address);
 
                 await _db.SaveChangesAsync();
 
-                return RedirectToAction("Addresses");
+                return RedirectToAction(nameof(Addresses));
             }
 
             // If we got this far something failed. Redisplay form.
-            await new Address().MapAsync(model);
+            await PrepareAddressModel(address, model);
 
             return View(model);
         }
@@ -435,11 +430,11 @@ namespace Smartstore.Web.Controllers
             var address = customer.Addresses.Where(a => a.Id == id).FirstOrDefault();
             if (address == null)
             {
-                return RedirectToAction("Addresses");
+                return RedirectToAction(nameof(Addresses));
             }
             
             var model = new AddressModel();
-            await address.MapAsync(model);
+            await PrepareAddressModel(address, model);
 
             return View(model);
         }
@@ -454,10 +449,10 @@ namespace Smartstore.Web.Controllers
             }
 
             // Find address and ensure that it belongs to the current customer.
-            var address = customer.Addresses.Where(a => a.Id == id).FirstOrDefault();
+            var address = customer.Addresses.FirstOrDefault(x => x.Id == id);
             if (address == null)
             {
-                return RedirectToAction("Addresses");
+                return RedirectToAction(nameof(Addresses));
             }
 
             if (ModelState.IsValid)
@@ -466,13 +461,29 @@ namespace Smartstore.Web.Controllers
                 _db.Addresses.Update(address);
                 await _db.SaveChangesAsync();
 
-                return RedirectToAction("Addresses");
+                return RedirectToAction(nameof(Addresses));
             }
 
             // If we got this far something failed. Redisplay form.
-            await new Address().MapAsync(model);
+            await PrepareAddressModel(address, model);
 
             return View(model);
+        }
+
+        private async Task PrepareAddressModel(Address from, AddressModel to)
+        {
+            await from.MapAsync(to);
+
+            if (to.CountryEnabled)
+            {
+                var countries = await _db.Countries
+                    .AsNoTracking()
+                    .ApplyStandardFilter(false, Services.StoreContext.CurrentStore.Id)
+                    .ToListAsync();
+
+                to.AvailableCountries = countries.ToSelectListItems(to.CountryId ?? 0);
+                to.AvailableCountries.Insert(0, new SelectListItem { Text = T("Address.SelectCountry"), Value = "0" });
+            }
         }
 
         #endregion

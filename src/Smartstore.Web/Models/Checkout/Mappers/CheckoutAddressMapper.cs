@@ -52,10 +52,7 @@ namespace Smartstore.Web.Models.Checkout
 
             foreach (var address in from)
             {
-                var addressModel = new AddressModel();
-                await address.MapAsync(addressModel, false);
-
-                to.ExistingAddresses.Add(addressModel);
+                to.ExistingAddresses.Add(await address.MapAsync());
             }
 
             // New address.
@@ -69,7 +66,7 @@ namespace Smartstore.Web.Models.Checkout
                 .ApplyStandardFilter(false, _services.StoreContext.CurrentStore.Id)
                 .ToListAsync();
 
-            await new Address().MapAsync(to.NewAddress, false);
+            await new Address().MapAsync(to.NewAddress);
 
             to.NewAddress.CountryId = selectedCountryId;
             to.NewAddress.Email = _services.WorkContext.CurrentCustomer.Email;

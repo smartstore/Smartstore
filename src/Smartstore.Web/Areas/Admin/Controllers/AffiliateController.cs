@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
-using Smartstore.Admin.Models.Affiliates;
+﻿using Smartstore.Admin.Models.Affiliates;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Checkout.Affiliates;
 using Smartstore.Core.Identity;
@@ -31,7 +30,7 @@ namespace Smartstore.Admin.Controllers
                 if (!excludeProperties)
                 {
                     model.Active = affiliate.Active;
-                    await affiliate.Address.MapAsync(model.Address, false);
+                    await affiliate.Address.MapAsync(model.Address);
                 }
             }
 

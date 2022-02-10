@@ -1314,7 +1314,13 @@ namespace Smartstore.Admin.Controllers
                 OrderId = orderId
             };
 
-            await address.MapAsync(model.Address, true);
+            var countries = await _db.Countries
+                .AsNoTracking()
+                .ApplyStandardFilter(true)
+                .ToListAsync();
+
+            await address.MapAsync(model.Address);
+            model.Address.AvailableCountries = countries.ToSelectListItems(address.CountryId ?? 0);
 
             return View(model);
         }
@@ -1349,7 +1355,13 @@ namespace Smartstore.Admin.Controllers
                     : RedirectToAction(nameof(Edit), new { id = order.Id });
             }
 
-            await address.MapAsync(model.Address, true);
+            var countries = await _db.Countries
+                .AsNoTracking()
+                .ApplyStandardFilter(true)
+                .ToListAsync();
+
+            await address.MapAsync(model.Address);
+            model.Address.AvailableCountries = countries.ToSelectListItems(address.CountryId ?? 0);
 
             return View(model);
         }
@@ -1964,15 +1976,14 @@ namespace Smartstore.Admin.Controllers
                 .Select(x => x.Id)
                 .FirstOrDefaultAsync();
 
-            await order.BillingAddress.MapAsync(model.BillingAddress, false);
+            await order.BillingAddress.MapAsync(model.BillingAddress);
 
             if (order.ShippingStatus != ShippingStatus.ShippingNotRequired)
             {
                 var shipTo = order.ShippingAddress;
                 if (shipTo != null)
                 {
-                    model.ShippingAddress = new();
-                    await shipTo.MapAsync(model.ShippingAddress, false);
+                    model.ShippingAddress = await shipTo.MapAsync();
 
                     var googleAddressQuery = $"{shipTo.Address1} {shipTo.ZipPostalCode} {shipTo.City} {shipTo.Country?.Name ?? string.Empty}";
 

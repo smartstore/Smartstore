@@ -475,7 +475,7 @@ namespace Smartstore.Admin.Controllers
 
                 if (order.ShippingAddressId.HasValue)
                 {
-                    await order.ShippingAddress.MapAsync(model.ShippingAddress, false);
+                    await order.ShippingAddress.MapAsync(model.ShippingAddress);
                 }
 
                 // Shipment items.

@@ -212,10 +212,7 @@ namespace Smartstore.Admin.Controllers
 
                 foreach (var address in addresses)
                 {
-                    var addressModel = new AddressModel();
-                    await address.MapAsync(addressModel, false);
-
-                    model.Addresses.Add(addressModel);
+                    model.Addresses.Add(await address.MapAsync());
                 }
             }
             else
@@ -370,7 +367,7 @@ namespace Smartstore.Admin.Controllers
 
         private async Task PrepareAddressModelAsync(CustomerAddressModel model, Customer customer, Address address)
         {
-            await address.MapAsync(model.Address, false);
+            await address.MapAsync(model.Address);
 
             var countries = await _db.Countries
                 .AsNoTracking()
