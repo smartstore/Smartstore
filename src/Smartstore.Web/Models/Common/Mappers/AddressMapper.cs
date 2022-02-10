@@ -13,40 +13,17 @@ namespace Smartstore.Web.Models.Common
         /// Maps an <see cref="Address"/> entity to <see cref="AddressModel"/>.
         /// </summary>
         /// <param name="entity">Source <see cref="Address"/> to be mapped.</param>
-        /// <param name="addCountries">
-        /// A value indicating whether to add countries and state provinces to the model.
-        /// If <c>null</c>, it will be obtained from <see cref="AddressSettings.CountryEnabled"/> and <see cref="AddressSettings.StateProvinceEnabled"/>.
-        /// </param>
-        /// <param name="countries">Countries to be added to the model.</param>
-        /// <returns><see cref="AddressModel"/>.</returns>
-        public static async Task<AddressModel> MapAsync(this Address entity,
-            bool? addCountries = null,
-            IEnumerable<Country> countries = null)
-        {
-            var model = new AddressModel();
-            await entity.MapAsync(model, addCountries, countries);
-
-            return model;
-        }
-
-        /// <summary>
-        /// Maps an <see cref="Address"/> entity to <see cref="AddressModel"/>.
-        /// </summary>
-        /// <param name="entity">Source <see cref="Address"/> to be mapped.</param>
         /// <param name="model">Target <see cref="AddressModel"/> to which <paramref name="entity"/> is to be mapped.</param>
         /// <param name="addCountries">
         /// A value indicating whether to add countries and state provinces to the model.
         /// If <c>null</c>, it will be obtained from <see cref="AddressSettings.CountryEnabled"/> and <see cref="AddressSettings.StateProvinceEnabled"/>.
         /// </param>
-        /// <param name="countries">Countries to be added to the model.</param>
         public static async Task MapAsync(this Address entity,
             AddressModel model,
-            bool? addCountries = null,
-            IEnumerable<Country> countries = null)
+            bool? addCountries = null)
         {
             dynamic parameters = new ExpandoObject();
             parameters.AddCountries = addCountries;
-            parameters.Countries = countries;
 
             await MapperFactory.MapAsync(entity, model, parameters);
         }
@@ -101,14 +78,10 @@ namespace Smartstore.Web.Models.Common
             // Countries and states.
             if (addCountries ?? _addressSettings.CountryEnabled)
             {
-                var countries = parameters?.Countries as IEnumerable<Country>;
-                if (countries == null)
-                {
-                    countries = await _db.Countries
-                        .AsNoTracking()
-                        .ApplyStandardFilter(explicitAddCountries, explicitAddCountries ? 0 : _services.StoreContext.CurrentStore.Id)
-                        .ToListAsync();
-                }
+                var countries = await _db.Countries
+                    .AsNoTracking()
+                    .ApplyStandardFilter(explicitAddCountries, explicitAddCountries ? 0 : _services.StoreContext.CurrentStore.Id)
+                    .ToListAsync();
 
                 if (countries?.Any() ?? false)
                 {

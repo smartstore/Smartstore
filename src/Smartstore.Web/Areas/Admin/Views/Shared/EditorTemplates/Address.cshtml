@@ -98,7 +98,7 @@
             <smart-label asp-for="StateProvinceId" />
         </div>
         <div class="adminData">
-            <select asp-for="StateProvinceId" asp-items="Model.AvailableStates"></select>
+            <select asp-for="StateProvinceId" asp-items="Model.AvailableStates" data-select-selected-id="@Model.StateProvinceId"></select>
             <span asp-validation-for="StateProvinceId"></span>
         </div>
     </div>
@@ -157,3 +157,13 @@
         </div>
     </div>
 </div>
+
+@if (Model.CountryEnabled && Model.StateProvinceEnabled && Model.AvailableStates.Count == 0)
+{
+    <script sm-target-zone="scripts" data-origin="address-template">
+        $(function () {
+            // No state provinces provided -> trigger country change to load them via AJAX (see smartstore.common.js).
+            $('#@Html.IdFor(x => x.CountryId)').trigger('change');
+        });
+    </script>
+}

@@ -97,7 +97,7 @@ namespace Smartstore.Web.Controllers
             return true;
         }
 
-        protected async Task<CheckoutAddressModel> PrepareCheckoutAddressModelAsync(bool shipping = false, int? selectedCountryId = null)
+        protected async Task<CheckoutAddressModel> PrepareCheckoutAddressModelAsync(bool shipping = false)
         {
             // Get existing addresses.
             var customer = Services.WorkContext.CurrentCustomer;
@@ -105,7 +105,7 @@ namespace Smartstore.Web.Controllers
 
             // And map billing / shipping addresses.
             var model = new CheckoutAddressModel();
-            await addresses.MapAsync(model, shipping, selectedCountryId);
+            await addresses.MapAsync(model, shipping, null);
 
             return model;
         }

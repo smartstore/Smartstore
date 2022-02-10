@@ -139,10 +139,6 @@ namespace Smartstore.Admin.Controllers
         private async Task PrepareCustomerModel(CustomerModel model, Customer customer)
         {
             var dtHelper = Services.DateTimeHelper;
-            var countries = await _db.Countries
-                .AsNoTracking()
-                .ApplyStandardFilter(false, Services.StoreContext.CurrentStore.Id)
-                .ToListAsync();
 
             MiniMapper.Map(_customerSettings, model);
 
@@ -216,7 +212,10 @@ namespace Smartstore.Admin.Controllers
 
                 foreach (var address in addresses)
                 {
-                    model.Addresses.Add(await address.MapAsync(null, countries));
+                    var addressModel = new AddressModel();
+                    await address.MapAsync(addressModel, false);
+
+                    model.Addresses.Add(addressModel);
                 }
             }
             else
@@ -240,17 +239,19 @@ namespace Smartstore.Admin.Controllers
             // Countries and state provinces.
             if (_customerSettings.CountryEnabled)
             {
-                var countryId = customer?.GenericAttributes?.CountryId ?? model.CountryId;
+                var countries = await _db.Countries
+                    .AsNoTracking()
+                    .ApplyStandardFilter(false, Services.StoreContext.CurrentStore.Id)
+                    .ToListAsync();
 
-                ViewBag.AvailableCountries = countries.ToSelectListItems(countryId);
+                ViewBag.AvailableCountries = countries.ToSelectListItems(model.CountryId);
                 ViewBag.AvailableCountries.Insert(0, new SelectListItem { Text = T("Address.SelectCountry"), Value = "0" });
 
                 if (_customerSettings.StateProvinceEnabled)
                 {
-                    var stateProvinceId = customer?.GenericAttributes?.StateProvinceId ?? model.StateProvinceId;
-                    var stateProvinces = await _db.StateProvinces.GetStateProvincesByCountryIdAsync(countryId);
+                    var stateProvinces = await _db.StateProvinces.GetStateProvincesByCountryIdAsync(model.CountryId);
 
-                    ViewBag.AvailableStates = stateProvinces.ToSelectListItems(stateProvinceId) ?? new List<SelectListItem>
+                    ViewBag.AvailableStates = stateProvinces.ToSelectListItems(model.StateProvinceId) ?? new List<SelectListItem>
                     {
                         new SelectListItem { Text = T("Address.OtherNonUS"), Value = "0" }
                     };
@@ -367,12 +368,18 @@ namespace Smartstore.Admin.Controllers
             }
         }
 
-        private static async Task PrepareAddressModelAsync(CustomerAddressModel model, Customer customer, Address address)
+        private async Task PrepareAddressModelAsync(CustomerAddressModel model, Customer customer, Address address)
         {
+            await address.MapAsync(model.Address, false);
+
+            var countries = await _db.Countries
+                .AsNoTracking()
+                .ApplyStandardFilter(true)
+                .ToListAsync();
+
             model.CustomerId = customer.Id;
             model.Username = customer.Username;
-
-            await address.MapAsync(model.Address);
+            model.Address.AvailableCountries = countries.ToSelectListItems(address.CountryId ?? 0);
         }
 
         #endregion

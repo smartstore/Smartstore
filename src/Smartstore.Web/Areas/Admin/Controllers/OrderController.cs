@@ -1820,11 +1820,6 @@ namespace Smartstore.Admin.Controllers
             var store = Services.StoreContext.GetStoreById(order.StoreId);
             var taxRates = order.TaxRatesDictionary;
 
-            var countries = await _db.Countries
-                .AsNoTracking()
-                .ApplyStandardFilter(true)
-                .ToListAsync();
-
             MiniMapper.Map(order, model);
             await PrepareOrderOverviewModel(model, order);
 
@@ -1969,7 +1964,7 @@ namespace Smartstore.Admin.Controllers
                 .Select(x => x.Id)
                 .FirstOrDefaultAsync();
 
-            await order.BillingAddress.MapAsync(model.BillingAddress, true, countries);
+            await order.BillingAddress.MapAsync(model.BillingAddress, false);
 
             if (order.ShippingStatus != ShippingStatus.ShippingNotRequired)
             {
@@ -1977,7 +1972,7 @@ namespace Smartstore.Admin.Controllers
                 if (shipTo != null)
                 {
                     model.ShippingAddress = new();
-                    await shipTo.MapAsync(model.ShippingAddress, true, countries);
+                    await shipTo.MapAsync(model.ShippingAddress, false);
 
                     var googleAddressQuery = $"{shipTo.Address1} {shipTo.ZipPostalCode} {shipTo.City} {shipTo.Country?.Name ?? string.Empty}";
 

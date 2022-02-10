@@ -338,18 +338,14 @@ namespace Smartstore.Web.Controllers
                 return new UnauthorizedResult();
             }
 
-            var model = new List<AddressModel>();
-            var countries = await _db.Countries
-                .AsNoTracking()
-                .ApplyStandardFilter(false, Services.StoreContext.CurrentStore.Id)
-                .ToListAsync();
-
-            foreach (var address in customer.Addresses)
-            {
-                var addressModel = new AddressModel();
-                await address.MapAsync(addressModel, null, countries);
-                model.Add(addressModel);
-            }
+            var model = await customer.Addresses
+                .SelectAsync(async x =>
+                {
+                    var addressModel = new AddressModel();
+                    await x.MapAsync(addressModel, false);
+                    return addressModel;
+                })
+                .AsyncToList();
 
             return View(model);
         }
