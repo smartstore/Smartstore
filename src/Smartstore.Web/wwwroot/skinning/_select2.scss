@@ -77,37 +77,10 @@ $s2bs-form-control-transition: none; // border-color ease-in-out .15s, box-shado
     .select2-selection {
         border-color: $color;
     }
-    /*.select2-container--focus .select2-selection,
-  .select2-container--open .select2-selection {
-    box-shadow: $shadow;
-    border-color: darken($color, 10%);
-  }
-
-  &.select2-drop-active {
-    border-color: darken($color, 10%);
-
-    &.select2-drop.select2-drop-above {
-      border-top-color: darken($color, 10%);
-    }
-  }*/
-}
-
-// dropdown arrow when dropdown is open
-@mixin dropdown-arrow {
-    .select2-selection--single {
-        /**
-     * Make the dropdown arrow point up while the dropdown is visible.
-     */
-        .select2-selection__arrow b {
-            border-color: transparent transparent $s2bs-dropdown-arrow-color transparent;
-            border-width: 0 $s2bs-caret-width-large $s2bs-caret-width-large $s2bs-caret-width-large;
-        }
-    }
 }
 
 .select2-container--bootstrap {
     --border-radius: #{$input-border-radius};
-    --shadow-color-intensity: 0.5;
     --select2-caret-width: calc(#{$input-height} - 2px);
     --select2-height: #{$input-height};
     --select2-line-height: #{$line-height-base};
@@ -275,20 +248,19 @@ $s2bs-form-control-transition: none; // border-color ease-in-out .15s, box-shado
 
     &.select2-container--open {
         .select2-selection {
-            @include box-shadow($s2bs-form-control-focus-box-shadow);
+            box-shadow: $s2bs-form-control-focus-box-shadow;
             border-color: $s2bs-input-border-focus;
         }
 
         &.select2-container--above .select2-selection {
-            --shadow-color-yoffset: -0.5;
+            --shadow-yoffset: -0.5;
         }
     }
 
     &.select2-container--open {
         // Make the dropdown arrow point up while the dropdown is visible.
-        .select2-selection .select2-selection__arrow b {
-            border-color: transparent transparent $s2bs-dropdown-arrow-color transparent;
-            border-width: 0 $s2bs-caret-width-base $s2bs-caret-width-base $s2bs-caret-width-base;
+        .select2-selection .select2-selection__arrow b:after {
+            content: '\f077'; // chevron-up
         }
         // Handle border radii of the container when the dropdown is showing.
         &.select2-container--below {
@@ -345,14 +317,14 @@ $s2bs-form-control-transition: none; // border-color ease-in-out .15s, box-shado
    // Dropdown border color and box-shadow.
     .select2-dropdown {
         box-shadow: $s2bs-dropdown-box-shadow;
-        clip-path: inset(0 -100px -100px -100px); // cut off top shadow
+        clip-path: inset(0 -300px -300px -300px); // cut off top shadow
         border-color: $s2bs-input-border-focus;
         overflow-x: hidden;
         margin-top: -1px;
 
         &--above {
-            --shadow-color-yoffset: -0.5;
-            clip-path: inset(-100px -100px 0 -100px); // cut off bottom shadow
+            --shadow-yoffset: -0.5;
+            clip-path: inset(-300px -300px 0 -300px); // cut off bottom shadow
             margin-top: 1px;
         }
     }
@@ -394,18 +366,19 @@ $s2bs-form-control-transition: none; // border-color ease-in-out .15s, box-shado
             background-color: $s2sm-shade-bg;
             border-top-left-radius: 0;
             border-bottom-left-radius: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
 
             b {
-                border-color: $s2bs-dropdown-arrow-color transparent transparent transparent;
-                border-style: solid;
-                border-width: $s2bs-caret-width-base $s2bs-caret-width-base 0 $s2bs-caret-width-base;
-                height: 0;
-                margin-left: -$s2bs-caret-width-base;
-                margin-top: -$s2bs-caret-width-base/2;
-                position: absolute;
-                top: 50%;
-                width: 0;
-                left: 50%;
+                width: 10px;
+                height: 10px;
+                color: $s2bs-dropdown-arrow-color;
+
+                &:after {
+                    position: absolute;
+                    @include fontawesome('\f078', 10px);
+                }
             }
         }
 

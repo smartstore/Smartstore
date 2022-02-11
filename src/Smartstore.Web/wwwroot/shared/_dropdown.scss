@@ -3,11 +3,16 @@
 /// <reference path="../lib/bs4/scss/bootstrap.scss" />
 
 
+.dropdown-menu {
+    //box-shadow: 0 0 50px 0 rgba(82,63,105, .15);
+}
+
 // Common
 // ==============================================================
 
 .dropdown-menu {
-	--shadow-color-intensity: 0.5;
+    --shadow-yoffset: 0;
+	--shadow-color-intensity: 1;
 }
 
 // Add nested dropdown support to BS4
@@ -26,7 +31,8 @@
 			right: $dropdown-item-padding-x / 2;
 			top: 50%;
 			transform: translateY(-40%);
-			@include fontawesome("\f105", 13px); // angle-right
+            color: $gray-500;
+			@include fontawesome("\f054", 10px); // chevron-right
 		}
 	}
 
@@ -68,6 +74,8 @@
 
 .dropdown-item {
     position: relative;
+    font-weight: $dropdown-font-weight;
+    font-size: $dropdown-font-size;
 
 	&.disabled {
 		cursor: default;

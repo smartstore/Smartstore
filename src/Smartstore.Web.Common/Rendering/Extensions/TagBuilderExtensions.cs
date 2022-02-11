@@ -31,7 +31,7 @@ namespace Smartstore.Web.Rendering
         /// </summary>
         public static CssClassList GetClassList(this TagBuilder builder)
         {
-            return new CssClassList(builder.Attributes.AppendCssClass("gdfg"));
+            return new CssClassList(builder.Attributes);
         }
 
         public static void AddCssStyle(this TagBuilder builder, string expression, object value)
