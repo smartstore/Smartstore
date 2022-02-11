@@ -59,7 +59,19 @@
             }
         </tab>
         <tab sm-title="@T("Admin.Customers.Customers.Orders")">
-            <partial name="Grids/_Grid.Orders" model="null" view-data="gridViewData" />
+            @if (Model.HasOrders)
+            {
+                var orderGridViewData = new ViewDataDictionary(this.ViewData);
+                orderGridViewData["CustomerId"] = Model.Id;
+
+                <partial name="~/Areas/Admin/Views/Order/Grids/_Grid.Orders.cshtml" model="null" view-data="orderGridViewData" />
+            }
+            else
+            {
+                <div class="alert alert-info">
+                    @T("Admin.Orders.List.NoOrdersAvailable")
+                </div>
+            }
         </tab>
 
         if (Model.DisplayRewardPointsHistory)

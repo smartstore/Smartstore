@@ -6,8 +6,6 @@ using Newtonsoft.Json;
 using Smartstore.Admin.Models.Cart;
 using Smartstore.Admin.Models.Customers;
 using Smartstore.ComponentModel;
-using Smartstore.Core.Catalog.Pricing;
-using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
@@ -40,13 +38,10 @@ namespace Smartstore.Admin.Controllers
         private readonly RewardPointsSettings _rewardPointsSettings;
         private readonly CustomerSettings _customerSettings;
         private readonly ITaxService _taxService;
-        private readonly IPriceCalculationService _priceCalculationService;
         private readonly Lazy<IEmailAccountService> _emailAccountService;
         private readonly Lazy<IGdprTool> _gdprTool;
         private readonly Lazy<IGeoCountryLookup> _geoCountryLookup;
         private readonly IShoppingCartService _shoppingCartService;
-        private readonly IProductService _productService;
-        private readonly IDateTimeHelper _dateTimeHelper;
         private readonly CustomerHelper _customerHelper;
 
         public CustomerController(
@@ -60,13 +55,10 @@ namespace Smartstore.Admin.Controllers
             RewardPointsSettings rewardPointsSettings,
             CustomerSettings customerSettings,
             ITaxService taxService,
-            IPriceCalculationService priceCalculationService,
             Lazy<IEmailAccountService> emailAccountService,
             Lazy<IGdprTool> gdprTool,
             Lazy<IGeoCountryLookup> geoCountryLookup,
             IShoppingCartService shoppingCartService,
-            IProductService productService,
-            IDateTimeHelper dateTimeHelper,
             CustomerHelper customerHelper)
         {
             _db = db;
@@ -79,13 +71,10 @@ namespace Smartstore.Admin.Controllers
             _rewardPointsSettings = rewardPointsSettings;
             _customerSettings = customerSettings;
             _taxService = taxService;
-            _priceCalculationService = priceCalculationService;
             _emailAccountService = emailAccountService;
             _gdprTool = gdprTool;
             _geoCountryLookup = geoCountryLookup;
             _shoppingCartService = shoppingCartService;
-            _productService = productService;
-            _dateTimeHelper = dateTimeHelper;
             _customerHelper = customerHelper;
         }
 
@@ -189,6 +178,7 @@ namespace Smartstore.Admin.Controllers
                 model.DisplayProfileLink = _customerSettings.AllowViewingProfiles && !customer.IsGuest();
                 model.AssociatedExternalAuthRecords = await GetAssociatedExternalAuthRecordsAsync(customer);
                 model.PermissionTree = await Services.Permissions.BuildCustomerPermissionTreeAsync(customer, true);
+                model.HasOrders = await _db.Orders.AnyAsync(x => x.CustomerId == customer.Id);
 
                 model.SelectedCustomerRoleIds = customer.CustomerRoleMappings
                     .Where(x => !x.IsSystemMapping)
@@ -950,25 +940,28 @@ namespace Smartstore.Admin.Controllers
         {
             var customers = await _db.Customers
                 .AsNoTracking()
-                .ApplyOnlineCustomersFilter(_customerSettings.OnlineCustomerMinutes)
                 .IncludeCustomerRoles()
+                .Where(x => !x.IsSystemAccount)
+                .ApplyOnlineCustomersFilter(_customerSettings.OnlineCustomerMinutes)
                 .ApplyGridCommand(command)
                 .ToPagedList(command)
                 .LoadAsync();
 
+            var guestStr = T("Admin.Customers.Guest").Value;
+
             var customerModels = customers
-                .Select(x =>
+                .Select(x => new OnlineCustomerModel
                 {
-                    return new OnlineCustomerModel
-                    {
-                        Id = x.Id,
-                        CustomerInfo = x.IsRegistered() ? x.Email : T("Admin.Customers.Guest").Value,
-                        LastIpAddress = x.LastIpAddress,
-                        Location = _geoCountryLookup.Value.LookupCountry(x.LastIpAddress)?.Name.EmptyNull(),
-                        LastActivityDate = _dateTimeHelper.ConvertToUserTime(x.LastActivityDateUtc, DateTimeKind.Utc),
-                        LastVisitedPage = x.GenericAttributes.LastVisitedPage,
-                        EditUrl = Url.Action("Edit", "Customer", new { id = x.Id })
-                    };
+                    Id = x.Id,
+                    CustomerInfo = x.IsRegistered() ? x.Email : guestStr,
+                    CustomerNumber = x.CustomerNumber,
+                    Active = x.Active,
+                    LastIpAddress = x.LastIpAddress,
+                    Location = _geoCountryLookup.Value.LookupCountry(x.LastIpAddress)?.Name.EmptyNull(),
+                    LastActivityDate = Services.DateTimeHelper.ConvertToUserTime(x.LastActivityDateUtc, DateTimeKind.Utc),
+                    LastVisitedPage = x.GenericAttributes.LastVisitedPage,
+                    CreatedOn = Services.DateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc),
+                    EditUrl = Url.Action("Edit", "Customer", new { id = x.Id })
                 })
                 .ToList();
 
@@ -1026,51 +1019,6 @@ namespace Smartstore.Admin.Controllers
             bool success = true;
 
             return Json(new { success });
-        }
-
-        #endregion
-
-        #region Orders
-
-        [HttpPost]
-        [Permission(Permissions.Order.Read)]
-        public async Task<IActionResult> OrderList(int customerId, GridCommand command)
-        {
-            var allStores = Services.StoreContext.GetAllStores().ToDictionary(x => x.Id);
-            var orders = await _db.Orders
-                .ApplyStandardFilter(customerId)
-                .ApplyGridCommand(command)
-                .ToPagedList(command)
-                .LoadAsync();
-
-            var orderModels = orders
-                .Select(x =>
-                {
-                    allStores.TryGetValue(x.StoreId, out var store);
-
-                    var orderModel = new CustomerModel.OrderModel
-                    {
-                        Id = x.Id,
-                        OrderStatus = x.OrderStatus.GetLocalizedEnum(),
-                        PaymentStatus = x.PaymentStatus.GetLocalizedEnum(),
-                        ShippingStatus = x.ShippingStatus.GetLocalizedEnum(),
-                        OrderTotal = Services.CurrencyService.PrimaryCurrency.AsMoney(x.OrderTotal),
-                        StoreName = store?.Name.NullEmpty() ?? string.Empty.NaIfEmpty(),
-                        CreatedOn = Services.DateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc),
-                        EditUrl = Url.Action("Edit", "Order", new { id = x.Id })
-                    };
-
-                    return orderModel;
-                })
-                .ToList();
-
-            var gridModel = new GridModel<CustomerModel.OrderModel>
-            {
-                Rows = orderModels,
-                Total = await orders.GetTotalCountAsync()
-            };
-
-            return Json(gridModel);
         }
 
         #endregion
@@ -1222,46 +1170,42 @@ namespace Smartstore.Admin.Controllers
             ViewBag.AvailablePaymentStatuses = PaymentStatus.Pending.ToSelectList(false).ToList();
             ViewBag.AvailableShippingStatuses = ShippingStatus.NotYetShipped.ToSelectList(false).ToList();
 
-            var registeredRole = await _db.CustomerRoles
-                .AsNoTracking()
-                .FirstOrDefaultAsync(x => x.SystemName == SystemCustomerRoleNames.Registered);
+            var registeredRoleId = await _db.CustomerRoles
+                .Where(x => x.SystemName == SystemCustomerRoleNames.Registered)
+                .Select(x => x.Id)
+                .FirstOrDefaultAsync();
 
-            var registeredCustomerReportLines = new Dictionary<string, int>
+            ViewBag.RegisteredCustomerReportLines = new Dictionary<string, int>
             {
                 {
-                    T("Admin.Customers.Reports.RegisteredCustomers.Fields.Period.7days").Value,
-                    await GetRegisteredCustomersReportAsync(7, registeredRole.Id)
+                    T("Admin.Customers.Reports.RegisteredCustomers.Fields.Period.7days"),
+                    await GetRegisteredCustomersReport(7)
                 },
                 {
-                    T("Admin.Customers.Reports.RegisteredCustomers.Fields.Period.14days").Value,
-                    await GetRegisteredCustomersReportAsync(14, registeredRole.Id)
+                    T("Admin.Customers.Reports.RegisteredCustomers.Fields.Period.14days"),
+                    await GetRegisteredCustomersReport(14)
                 },
                 {
-                    T("Admin.Customers.Reports.RegisteredCustomers.Fields.Period.month").Value,
-                    await GetRegisteredCustomersReportAsync(30, registeredRole.Id)
+                    T("Admin.Customers.Reports.RegisteredCustomers.Fields.Period.month"),
+                    await GetRegisteredCustomersReport(30)
                 },
                 {
-                    T("Admin.Customers.Reports.RegisteredCustomers.Fields.Period.year").Value,
-                    await GetRegisteredCustomersReportAsync(365, registeredRole.Id)
+                    T("Admin.Customers.Reports.RegisteredCustomers.Fields.Period.year"),
+                    await GetRegisteredCustomersReport(365)
                 }
             };
 
-            ViewBag.RegisteredCustomerReportLines = registeredCustomerReportLines;
-
             return View();
-        }
 
-        private async Task<int> GetRegisteredCustomersReportAsync(int days, int registeredRoleId)
-        {
-            DateTime startDate = _dateTimeHelper.ConvertToUserTime(DateTime.Now).AddDays(-days);
+            async Task<int> GetRegisteredCustomersReport(int days)
+            {
+                var startDate = Services.DateTimeHelper.ConvertToUserTime(DateTime.Now).AddDays(-days);
 
-            var customerDates = _db.Customers
-                .AsNoTracking()
-                .ApplyRegistrationFilter(startDate, DateTime.UtcNow)
-                .ApplyRolesFilter(new[] { registeredRoleId })
-                .Select(x => x.CreatedOnUtc);
-
-            return await customerDates.CountAsync(); 
+                return await _db.Customers
+                    .ApplyRolesFilter(new[] { registeredRoleId })
+                    .ApplyRegistrationFilter(startDate, null)
+                    .CountAsync();
+            }
         }
 
         [Permission(Permissions.Customer.Read)]
@@ -1279,7 +1223,7 @@ namespace Smartstore.Admin.Controllers
             PaymentStatus? paymentStatus = model.PaymentStatusId > 0 ? (PaymentStatus?)model.PaymentStatusId : null;
             ShippingStatus? shippingStatus = model.ShippingStatusId > 0 ? (ShippingStatus?)model.ShippingStatusId : null;
 
-            var items = await _db.Customers
+            var rows = await _db.Customers
                 .AsNoTracking()
                 .SelectAsTopCustomerReportLine(startDateValue, endDateValue, orderStatus, paymentStatus, shippingStatus)
                 .ApplyGridCommand(command)
@@ -1288,8 +1232,8 @@ namespace Smartstore.Admin.Controllers
 
             var gridModel = new GridModel<TopCustomerReportLineModel>
             {
-                Rows = await _customerHelper.CreateCustomerReportLineModelAsync(items),
-                Total = items.TotalCount
+                Rows = await _customerHelper.CreateCustomerReportLineModelAsync(rows),
+                Total = await rows.GetTotalCountAsync()
             };
 
             return Json(gridModel);

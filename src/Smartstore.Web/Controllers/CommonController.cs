@@ -10,7 +10,6 @@ using Smartstore.Core.Seo;
 using Smartstore.Core.Seo.Routing;
 using Smartstore.Core.Stores;
 using Smartstore.Core.Theming;
-using Smartstore.Core.Web;
 using Smartstore.Http;
 using Smartstore.Utilities;
 using Smartstore.Web.Infrastructure.Hooks;
@@ -39,7 +38,6 @@ namespace Smartstore.Web.Controllers
             Lazy<IMediaService> mediaService,
             ILanguageService languageService,
             UrlPolicy urlPolicy,
-            IWebHelper webHelper,
             IThemeContext themeContext, 
             IThemeRegistry themeRegistry,
             ICacheManager cache,

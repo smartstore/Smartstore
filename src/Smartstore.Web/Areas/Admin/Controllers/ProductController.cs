@@ -1485,6 +1485,7 @@ namespace Smartstore.Admin.Controllers
                 model.SelectedStoreIds = await _storeMappingService.GetAuthorizedStoreIdsAsync(product);
                 model.SelectedCustomerRoleIds = await _aclService.GetAuthorizedCustomerRoleIdsAsync(product);
                 model.OriginalStockQuantity = product.StockQuantity;
+                model.HasOrders = await _db.OrderItems.AnyAsync(x => x.ProductId == product.Id);
 
                 if (product.LimitedToStores)
                 {
@@ -1565,7 +1566,6 @@ namespace Smartstore.Admin.Controllers
             model.NumberOfAvailableProductAttributes = await _db.ProductAttributes.CountAsync();
             model.NumberOfAvailableManufacturers = await _db.Manufacturers.CountAsync();
             model.NumberOfAvailableCategories = await _db.Categories.CountAsync();
-            model.HasOrders = _db.Orders.SelectMany(x => x.OrderItems).Any(i => i.ProductId == product.Id);
             model.PrimaryStoreCurrencyCode = _currencyService.PrimaryCurrency.CurrencyCode;
 
             // Copy product.

@@ -39,12 +39,12 @@
         <partial name="_Grid.ActivityLogs.Search" model="parentModel" />
     </search-panel>
     <columns>
-        <column for="ActivityLogTypeName" entity-member="ActivityLogType.Name" width="350px" hideable="false" />
-        <column for="Comment" width="1fr" />
-        <column for="CustomerEmail" entity-member="Customer.Email" width="200px">
+        <column for="ActivityLogTypeName" entity-member="ActivityLogType.Name" hideable="false" />
+        <column for="Comment" wrap="true" />
+        <column for="CustomerEmail" entity-member="Customer.Email" type="string">
             <display-template>
                 <a :href="item.row.CustomerEditUrl" class="text-truncate">
-                    {{ item.row.CustomerEmail }}
+                    {{ item.value }}
                 </a>
             </display-template>
         </column>

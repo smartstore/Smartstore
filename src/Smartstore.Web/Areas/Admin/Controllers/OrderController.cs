@@ -162,7 +162,7 @@ namespace Smartstore.Admin.Controllers
         }
 
         [Permission(Permissions.Order.Read)]
-        public async Task<IActionResult> OrderList(GridCommand command, OrderListModel model, int? productId = null)
+        public async Task<IActionResult> OrderList(GridCommand command, OrderListModel model, int? productId = null, int? customerId = null)
         {
             var dtHelper = Services.DateTimeHelper;
             var viaShippingMethodString = T("Admin.Order.ViaShippingMethod").Value;
@@ -188,9 +188,13 @@ namespace Smartstore.Admin.Controllers
                 .ApplyStatusFilter(model.OrderStatusIds, model.PaymentStatusIds, model.ShippingStatusIds)
                 .ApplyPaymentFilter(paymentMethodSystemnames);
 
-            if (productId != null && productId > 0)
+            if (productId > 0)
             {
-                orderQuery = orderQuery.Where(x => x.OrderItems.Any(i => i.ProductId == productId));
+                orderQuery = orderQuery.Where(x => x.OrderItems.Any(i => i.ProductId == productId.Value));
+            }
+            if (customerId > 0)
+            {
+                orderQuery = orderQuery.Where(x => x.CustomerId == customerId.Value);
             }
 
             if (model.CustomerEmail.HasValue())
@@ -204,8 +208,6 @@ namespace Smartstore.Admin.Controllers
                     LogicalRuleOperator.Or,
                     x => x.BillingAddress.FirstName,
                     x => x.BillingAddress.LastName);
-
-                orderQuery = orderQuery.Where(x => x.BillingAddress.LastName.Contains(model.CustomerName) || x.BillingAddress.FirstName.Contains(model.CustomerName));
             }
             if (model.OrderNumber.HasValue())
             {
@@ -362,7 +364,7 @@ namespace Smartstore.Admin.Controllers
 
             if (!orders.Any() || operation.IsEmpty())
             {
-                return RedirectToAction(nameof(List));
+                return RedirectToReferrer(null, () => RedirectToAction(nameof(List)));
             }
 
             const int maxErrors = 3;
@@ -503,7 +505,7 @@ namespace Smartstore.Admin.Controllers
                 Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditOrder, T("ActivityLog.EditOrder"), string.Join(", ", succeededOrderNumbers.OrderBy(x => x)));
             }
 
-            return RedirectToAction(nameof(List));
+            return RedirectToReferrer(null, () => RedirectToAction(nameof(List)));
         }
 
         [HttpPost, ActionName("Edit")]

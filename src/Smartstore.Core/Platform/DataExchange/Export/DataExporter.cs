@@ -767,6 +767,7 @@ namespace Smartstore.Core.DataExchange.Export
                     .Include(x => x.BillingAddress)
                     .Include(x => x.ShippingAddress)
                     .Include(x => x.Addresses)
+                    .AsSplitQuery()
                     .AsNoTrackingWithIdentityResolution()
                     .AsNoCaching();
 

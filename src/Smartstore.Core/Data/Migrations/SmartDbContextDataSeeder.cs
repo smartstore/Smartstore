@@ -107,7 +107,11 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.Catalog.Products.Orders.NoOrdersAvailable",
                 "There are no orders for this product yet.", 
                 "Für dieses Produkt existieren noch keine Bestellungen.");
-            
+
+            builder.AddOrUpdate("Admin.Orders.List.NoOrdersAvailable",
+                "There are no orders for this customer yet.",
+                "Für diesen Kunden existieren noch keine Bestellungen.");
+
             builder.Delete("Admin.Configuration.Stores.Fields.PrimaryStoreCurrencyId");
             builder.Delete("Admin.Configuration.Stores.Fields.PrimaryStoreCurrencyId.Hint");
             builder.Delete("Admin.Configuration.Stores.Fields.PrimaryExchangeRateCurrencyId");
@@ -445,6 +449,12 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.Configuration.Currencies.PublishedCurrencyRequired",
                 "At least one currency must be published.",
                 "Mindestens eine Währung muss veröffentlicht sein.");
+
+            builder.AddOrUpdate("Admin.Orders.Fields.ID",
+                "Order ID",
+                "Auftrags-ID",
+                "The unique ID for this order.",
+                "Die eindeutige ID für diesen Auftrag.");
 
             #endregion
 

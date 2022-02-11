@@ -2,69 +2,63 @@
 
 <div class="form-group">
     <smart-label asp-for="SearchEmail" />
-    <editor asp-for="SearchEmail" />
+    <input asp-for="SearchEmail" class="form-control-sm" />
 </div>
 <div sm-if="Model.UsernamesEnabled" class="form-group">
     <smart-label asp-for="SearchUsername" />
-    <editor asp-for="SearchUsername" />
+    <input asp-for="SearchUsername" class="form-control-sm" />
 </div>
 <div class="form-group">
     <smart-label asp-for="SearchTerm" />
-    <editor asp-for="SearchTerm" placeholder="@T("Admin.Customers.Customers.List.SearchTerm.Hint")" />
+    <input asp-for="SearchTerm" placeholder="@T("Admin.Customers.Customers.List.SearchTerm.Hint")" class="form-control-sm" />
 </div>
 <div class="form-group">
     <smart-label asp-for="SearchCustomerNumber" />
-    <editor asp-for="SearchCustomerNumber" />
+    <input asp-for="SearchCustomerNumber" class="form-control-sm" />
 </div>
 @if (Model.DateOfBirthEnabled)
 {
-    var monthOfBirthValues = new List<SelectListItem>();
-    for (int i = 1; i <= 12; i++)
-    {
-        monthOfBirthValues.Add(new SelectListItem { Text = i.ToString(CultureInfo.InvariantCulture), Value = i.ToString(CultureInfo.InvariantCulture) });
-    }
+    // INFO: we assume customers must be at least 14 years old and are not older than 70.
+    var yearOfBirthValues = Enumerable.Range(1950, DateTime.UtcNow.Year - 1963)
+        .Select(i => new SelectListItem { Text = i.ToString(CultureInfo.InvariantCulture), Value = i.ToString(CultureInfo.InvariantCulture) })
+        .ToList();
 
-    var dayOfBirthValues = new List<SelectListItem>();
-    for (int i = 1; i <= 31; i++)
-    {
-        dayOfBirthValues.Add(new SelectListItem { Text = i.ToString(CultureInfo.InvariantCulture), Value = i.ToString(CultureInfo.InvariantCulture) });
-    }
+    var monthOfBirthValues = Enumerable.Range(1, 12)
+        .Select(i => new SelectListItem { Text = i.ToString(CultureInfo.InvariantCulture), Value = i.ToString(CultureInfo.InvariantCulture) })
+        .ToList();
 
-    var yearOfBirthValues = new List<SelectListItem>();
-    // Info: We asume customers must be at least 14 years old & are not older then 70.
-    for (int i = 1950; i <= DateTime.UtcNow.Year - 14; i++)
-    {
-        yearOfBirthValues.Add(new SelectListItem { Text = i.ToString(CultureInfo.InvariantCulture), Value = i.ToString(CultureInfo.InvariantCulture) });
-    }
+    var dayOfBirthValues = Enumerable.Range(1, 31)
+        .Select(i => new SelectListItem { Text = i.ToString(CultureInfo.InvariantCulture), Value = i.ToString(CultureInfo.InvariantCulture) })
+        .ToList();
 
     <div class="form-group">
         <smart-label asp-for="SearchMonthOfBirth" />
-        <div class="form-row">
+        <div class="form-row flex-nowrap">
             <div class="col">
-                <select asp-for="SearchYearOfBirth" asp-items="@yearOfBirthValues" asp-placeholder="@T("Common.Year")"></select>
+                <select asp-for="SearchYearOfBirth" asp-items="@yearOfBirthValues" asp-placeholder="@T("Common.Year")" class="form-control-sm"></select>
             </div>
             <div class="col">
-                <select asp-for="SearchMonthOfBirth" asp-items="@monthOfBirthValues" asp-placeholder="@T("Admin.Customers.Customers.List.SearchDateOfBirth.Month")"></select>
+                <select asp-for="SearchMonthOfBirth" asp-items="@monthOfBirthValues" asp-placeholder="@T("Admin.Customers.Customers.List.SearchDateOfBirth.Month")" class="form-control-sm"></select>
             </div>
             <div class="col">
-                <select asp-for="SearchDayOfBirth" asp-items="@dayOfBirthValues" asp-placeholder="@T("Admin.Customers.Customers.List.SearchDateOfBirth.Day")"></select>
+                <select asp-for="SearchDayOfBirth" asp-items="@dayOfBirthValues" asp-placeholder="@T("Admin.Customers.Customers.List.SearchDateOfBirth.Day")" class="form-control-sm"></select>
             </div>
         </div>
     </div>
 }
 <div sm-if="Model.PhoneEnabled" class="form-group">
     <smart-label asp-for="SearchPhone" />
-    <editor asp-for="SearchPhone" />
+    <input asp-for="SearchPhone" class="form-control-sm" />
 </div>
 <div sm-if="Model.ZipPostalCodeEnabled" class="form-group">
     <smart-label asp-for="SearchZipPostalCode" />
-    <editor asp-for="SearchZipPostalCode" />
+    <input asp-for="SearchZipPostalCode" class="form-control-sm" />
 </div>
 <div class="form-group">
     <smart-label asp-for="SearchCustomerRoleIds" />
-    <editor asp-for="SearchCustomerRoleIds" />
+    <editor asp-for="SearchCustomerRoleIds" class="form-control-sm" />
 </div>
 <div class="form-group">
     <smart-label asp-for="SearchActiveOnly" />
-    <editor asp-for="SearchActiveOnly" />
+    <input asp-for="SearchActiveOnly" class="form-control-sm" />
 </div>

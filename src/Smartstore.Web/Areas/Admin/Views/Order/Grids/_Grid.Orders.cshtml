@@ -3,6 +3,8 @@
 @{
     var parentModel = ViewData["Parent"] as OrderListModel;
     var productId = (int?)ViewData["ProductId"];
+    var customerId = (int?)ViewData["CustomerId"];
+    var isOrderListPage = productId == null && customerId == null;
 }
 
 <datagrid id="orders-grid" version="2"
@@ -12,13 +14,13 @@
           sticky-footer="false"
           preserve-grid-state="true" preserve-command-state="true"
           allow-column-reordering="true">
-    <datasource read="@Url.Action("OrderList", "Order", new { productId })" />
+    <datasource read="@Url.Action("OrderList", "Order", new { productId, customerId })" />
     <paging position="Bottom" show-size-chooser="true" />
     <sorting allow-unsort="true" allow-multisort="false">
         <sort by="CreatedOn" by-entity-member="CreatedOnUtc" descending="true" />
     </sorting>
     <toolbar>
-        @if (productId == null)
+        @if (isOrderListPage)
         {
             <toolbar-group>
                 <button datagrid-action="DataGridToolAction.ToggleSearchPanel" type="button" class="btn btn-light btn-icon">
@@ -91,16 +93,15 @@
 
         <zone name="datagrid_toolbar_after"></zone>
     </toolbar>
-    @if (productId == null)
+    @if (isOrderListPage)
     {
         <search-panel>
             <partial name="~/Areas/Admin/Views/Order/Grids/_Grid.Orders.Search.cshtml" model="parentModel" />
         </search-panel>
     }
     <columns>
-        @* TODO: (core) Localization issue: "Auftragsnummer" very misleading, especially if it's equal to "OrderNumber" most of the time. *@
         <column for="Id" halign="center" visible="false" type="string" />
-        <column for="OrderNumber" hideable="false" width="auto" title="@T("Admin.Order")">
+        <column for="OrderNumber" hideable="false" width="auto">
             <display-template>
                 @Html.LabeledOrderNumber()
             </display-template>
