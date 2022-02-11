@@ -103,7 +103,7 @@ html {
 }
 
 body {
-    background-color: $gray-200;
+    background-color: mix($gray-100, $gray-200);
 
     &.popup {
         background-color: #fff;
@@ -148,7 +148,7 @@ body {
     padding-right: var(--content-padding-x);
     padding-top: $section-header-height;
     padding-bottom: $content-padding-x * 2;
-    box-shadow: 0 8px 16px rgba(#32325d, .1), 0 -2px 8px rgba(#000, .09);
+    box-shadow: $box-shadow-sm-var;
     border-radius: $border-radius-lg $border-radius-lg 0 0;
     background-color: #fff;
     grid-column: 1 / -1;
@@ -203,16 +203,16 @@ body {
 
     .title {
         font-family: $headings-font-family;
-        font-weight: 400;
+        font-weight: $font-weight-medium;
         color: $headings-color;
-        font-size: $h5-font-size;
+        font-size: $h4-font-size;
         line-height: $input-height;
         min-height: $input-height;
         vertical-align: middle;
         @include text-truncate();
         padding-left: 0;
         padding-right: 5px;
-        color: $text-muted;
+        color: inherit;
         display: inline-flex;
         align-items: center;
         // mimic .col
@@ -221,6 +221,7 @@ body {
         max-width: 100%;
 
         > i {
+            display: none; // Turn off for now, seems to look nicer
             font-size: 28px;
             vertical-align: text-top;
             margin-right: 0.5rem;
@@ -279,9 +280,7 @@ body {
         right: var(--sticky-header-right);
         padding: calc(var(--content-padding-y) / 2) var(--content-padding-x);
         background: #fff;
-        box-shadow: 0 8px 16px 0 rgba(#32325d, .1), 0 2px 7px 0 rgba(#000, .07);
-        --shadow-color-intensity: 1;
-        box-shadow: $box-shadow-sm-var;
+        box-shadow: 0 10px 30px 0 rgba(#000, .05);
 
         .modal-open & {
             // add the killed scrollbar width
@@ -741,7 +740,7 @@ legend {
             > .adminTitle {
                 flex: 0 0 33.333333%;
                 max-width: 33.333333%;
-                text-align: right;
+                //text-align: right;
                 padding-right: 0 !important;
 
                 .ctl-label > label,
@@ -999,7 +998,7 @@ legend {
     .head {
         font-family: $headings-font-family;
         font-weight: $headings-font-weight;
-        color: inherit;
+        color: $text-muted;
         border-bottom: 1px solid rgba(#000, 0.11);
     }
 
@@ -1150,7 +1149,7 @@ legend {
 }
 
 
-// Plugins & Providers
+// Modules & Providers
 // --------------------------------------------------------------
 
 .sortable-grip {
@@ -1292,7 +1291,7 @@ a.editable {
 
 
 //
-// Plugin configuration
+// Module configuration
 // --------------------------------------------------
 
 .section-header .options .plugin-actions {

@@ -142,17 +142,9 @@ $btn-border-radius-lg:          $border-radius-lg;
 $btn-border-radius-sm:          $border-radius-sm;
 
 // Shadows
-
-$box-shadow-sm-var:             0 calc(1px * var(--shadow-color-yoffset, 1)) 1px rgba(var(--shadow-color-rgb), calc(var(--shadow-color-intensity, 1) * 0.06)), 
-                                0 calc(2px * var(--shadow-color-yoffset, 1)) 4px rgba(var(--shadow-color-rgb), calc(var(--shadow-color-intensity, 1) * 0.06)), 
-                                0 calc(3px * var(--shadow-color-yoffset, 1)) 8px rgba(var(--shadow-color-rgb), calc(var(--shadow-color-intensity, 1) * 0.1));
-$box-shadow-var:                0 calc(1px * var(--shadow-color-yoffset, 1)) 2px rgba(var(--shadow-color-rgb), calc(var(--shadow-color-intensity, 1) * 0.06)), 
-                                0 calc(3px * var(--shadow-color-yoffset, 1)) 6px rgba(var(--shadow-color-rgb), calc(var(--shadow-color-intensity, 1) * 0.08)), 
-                                0 calc(6px * var(--shadow-color-yoffset, 1)) 16px rgba(var(--shadow-color-rgb), calc(var(--shadow-color-intensity, 1) * 0.12));
-$box-shadow-lg-var:             0 calc(1px * var(--shadow-color-yoffset, 1)) 2px rgba(var(--shadow-color-rgb), calc(var(--shadow-color-intensity, 1) * 0.06)), 
-                                0 calc(3px * var(--shadow-color-yoffset, 1)) 8px rgba(var(--shadow-color-rgb), calc(var(--shadow-color-intensity, 1) * 0.06)), 
-                                0 calc(8px * var(--shadow-color-yoffset, 1)) 20px rgba(var(--shadow-color-rgb), calc(var(--shadow-color-intensity, 1) * 0.1)), 
-                                0 calc(16px * var(--shadow-color-yoffset, 1)) 42px rgba(var(--shadow-color-rgb), calc(var(--shadow-color-intensity, 1) * 0.12));
+$box-shadow-sm-var:             0 calc(0.1rem * var(--shadow-yoffset, 1)) 1rem 0 rgba(var(--shadow-color-rgb), calc(var(--shadow-color-intensity, 1) * 0.09));
+$box-shadow-var:                0 calc(0.5rem * var(--shadow-yoffset, 1)) 1.5rem 0.5rem rgba(var(--shadow-color-rgb), calc(var(--shadow-color-intensity, 1) * 0.1));
+$box-shadow-lg-var:             0 calc(1rem * var(--shadow-yoffset, 1)) 2rem 1rem rgba(var(--shadow-color-rgb), calc(var(--shadow-color-intensity, 1) * 0.1));
 
 $box-shadow-sm:                 var(--box-shadow);
 $box-shadow:                    var(--box-shadow);
@@ -200,10 +192,16 @@ $badge-font-weight:             $font-weight-medium !default;
 
 // Dropdown
 
-$dropdown-box-shadow:			$box-shadow-lg-var;
-$dropdown-border-color:			$gray-300; 
+$dropdown-min-width:            10rem;
+$dropdown-font-size:            14px;
+$dropdown-font-weight:          $font-weight-normal;
+$dropdown-box-shadow:			0 calc(1px * var(--shadow-yoffset, 1)) 50px 0 rgba(var(--shadow-color-rgb), calc(var(--shadow-color-intensity, 1) * 0.12));
+$dropdown-border-color:			$gray-100;
+$dropdown-link-color:           $gray-700;
 $dropdown-link-active-color:    $dropdown-link-hover-color;
 $dropdown-link-active-bg:       darken($dropdown-link-hover-bg, 4%);
+$dropdown-item-padding-y:       0.525rem;
+$dropdown-item-padding-x:       1.5rem;
 
 
 // Modal
@@ -302,6 +300,7 @@ $breadcrumb-border-radius:          0;
 
 // Misc
 
+$card-border-color:                 rgba(#000, 0.1);
 $card-deck-margin:                  10px;
 $alert-border-radius:               $border-radius;
 $product-price-color:               $body-color !default;

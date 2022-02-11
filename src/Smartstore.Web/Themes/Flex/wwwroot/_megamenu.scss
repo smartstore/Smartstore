@@ -444,11 +444,7 @@ $mixed-megamenu-bg:             $megamenu-bg;
 			transform: translateX(-($grid-gutter-width/2));
 		}
     }
-    .dropdown-item {
-        padding-top: 0.4rem;
-        padding-bottom: 0.4rem;
-        font-size: $font-size-sm;
-    }
+
     .nav-item.active:before {
         right: initial;
         left: 12px;

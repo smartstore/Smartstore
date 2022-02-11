@@ -57,13 +57,13 @@ $gray-100: #f8f9fa;
 $gray-200: #e9ecef;
 $gray-300: #dee2e6;
 $gray-400: #ced4da;
-$gray-500: #b0bac3;
+$gray-500: #a1a5b7;
 $gray-600: #8d9ba9;
 $gray-700: #596167;
 $gray-800: #393f46;
 $gray-900: #22262a;
 
-$text-muted: $gray-600;
+$text-muted: $gray-500;
 
 $blue: $sm-blue;
 $indigo: $sm-blue2;
@@ -102,37 +102,48 @@ $yiq-contrasted-threshold: 179;
 $yiq-text-dark: $gray-800;
 $yiq-text-light: #fff;
 
+// Fonts
+//
+// Font, line-height, and color for body text, headings, and more.
+//$font-family-sans-serif: Poppins, Helvetica, sans-serif;
+
 $font-size-base: 0.875rem;
 $font-size-lg: 1rem;
 $font-size-sm: 0.8125rem;
 
-$h1-font-size: 2.5rem;
-$h2-font-size: 2rem;
-$h3-font-size: 1.75rem;
-$h4-font-size: 1.375rem;
-$h5-font-size: 1.175rem;
+$font-weight-light: 100;
+$font-weight-normal: 400;
+$font-weight-medium: 600;
+$font-weight-bold:  900;
+/*$font-weight-light: 300;
+$font-weight-normal: 400;
+$font-weight-medium: 500;
+$font-weight-bold:  600;*/
+
+$h1-font-size: 2.25rem;
+$h2-font-size: 1.75rem;
+$h3-font-size: 1.375rem;
+$h4-font-size: 1.25rem;
+$h5-font-size: 1.125rem;
 $h6-font-size: 1rem;
 
 $small-font-size: 90%;
-$headings-font-weight: 400;
+$headings-font-weight: $font-weight-medium;
+
+$badge-font-size: 85%;
+$badge-font-weight: $font-weight-medium;
+
 
 $border-radius: 0.3rem;
 $border-radius-sm: 0.2.5rem;
 $border-radius-lg: 0.4rem;
 
-$badge-font-size: 85%;
-$badge-font-weight: 600;
-
 
 // Shadows
 
-//$box-shadow-sm-var:             0 0 .75rem 0 rgba(#000, .05);
-//$box-shadow-var:                0 1rem 2.25rem rgba(#32325d, .03), 0 0.3125rem 1rem rgba(#000, .12);
-//$box-shadow-lg-var:             0 1rem 3rem rgba(#000, .125);
-
-$box-shadow-sm-var: 0 calc(1px * var(--shadow-color-yoffset, 1)) 1px rgba(var(--shadow-color-rgb), calc(var(--shadow-color-intensity, 1) * 0.06)), 0 calc(2px * var(--shadow-color-yoffset, 1)) 4px rgba(var(--shadow-color-rgb), calc(var(--shadow-color-intensity, 1) * 0.06)), 0 calc(3px * var(--shadow-color-yoffset, 1)) 8px rgba(var(--shadow-color-rgb), calc(var(--shadow-color-intensity, 1) * 0.1));
-$box-shadow-var: 0 calc(1px * var(--shadow-color-yoffset, 1)) 2px rgba(var(--shadow-color-rgb), calc(var(--shadow-color-intensity, 1) * 0.06)), 0 calc(3px * var(--shadow-color-yoffset, 1)) 6px rgba(var(--shadow-color-rgb), calc(var(--shadow-color-intensity, 1) * 0.08)), 0 calc(6px * var(--shadow-color-yoffset, 1)) 16px rgba(var(--shadow-color-rgb), calc(var(--shadow-color-intensity, 1) * 0.12));
-$box-shadow-lg-var: 0 calc(1px * var(--shadow-color-yoffset, 1)) 2px rgba(var(--shadow-color-rgb), calc(var(--shadow-color-intensity, 1) * 0.06)), 0 calc(3px * var(--shadow-color-yoffset, 1)) 8px rgba(var(--shadow-color-rgb), calc(var(--shadow-color-intensity, 1) * 0.06)), 0 calc(8px * var(--shadow-color-yoffset, 1)) 20px rgba(var(--shadow-color-rgb), calc(var(--shadow-color-intensity, 1) * 0.1)), 0 calc(16px * var(--shadow-color-yoffset, 1)) 42px rgba(var(--shadow-color-rgb), calc(var(--shadow-color-intensity, 1) * 0.12));
+$box-shadow-sm-var:             0 calc(0.1rem * var(--shadow-yoffset, 1)) 1rem 0 rgba(var(--shadow-color-rgb), calc(var(--shadow-color-intensity, 1) * 0.09));
+$box-shadow-var:                0 calc(0.5rem * var(--shadow-yoffset, 1)) 1.5rem 0.5rem rgba(var(--shadow-color-rgb), calc(var(--shadow-color-intensity, 1) * 0.1));
+$box-shadow-lg-var:             0 calc(1rem * var(--shadow-yoffset, 1)) 2rem 1rem rgba(var(--shadow-color-rgb), calc(var(--shadow-color-intensity, 1) * 0.1));
 
 $box-shadow-sm: var(--box-shadow);
 $box-shadow: var(--box-shadow);
@@ -168,7 +179,7 @@ $input-group-addon-bg: $gray-100;
 $input-border-color: $gray-300;
 $input-disabled-bg: $gray-100;
 
-$btn-font-weight: 600;
+$btn-font-weight: $font-weight-medium;
 $btn-focus-width: 0; //$input-btn-focus-width;
 $btn-box-shadow: inset 0 0 0 rgba(#fff, 0.15), 0 0 0 rgba(#000, 0.075);
 $btn-focus-box-shadow: $input-btn-focus-box-shadow;
@@ -179,16 +190,18 @@ $btn-border-radius-lg: $input-border-radius-lg; //.1875rem;
 $btn-border-radius-sm: $input-border-radius-sm; //.125rem;
 $btn-disabled-opacity: 0.5;
 
+$dropdown-min-width: 10rem;
 //$dropdown-box-shadow:			$box-shadow-var; // 0 3px 12px rgba(27,31,35, 0.15); //0 2px 6px rgba(#000, .15);
 //$dropdown-border-color:			rgba(#000, 0.05);
-$dropdown-box-shadow: $box-shadow-lg-var;
-$dropdown-border-color: $gray-300;
-$dropdown-link-color: $body-color; //$gray-800;
+$dropdown-bg: #fff;
+$dropdown-box-shadow: 0 calc(1px * var(--shadow-yoffset, 1)) 50px 0 rgba(var(--shadow-color-rgb), calc(var(--shadow-color-intensity, 1) * 0.12));
+$dropdown-border-color: $gray-100;
+$dropdown-link-color: $gray-700;
 $dropdown-link-hover-color: darken($dropdown-link-color, 5%);
 $dropdown-link-hover-bg: lighten($gray-200, 3%);
 $dropdown-link-active-color: $dropdown-link-hover-color;
 $dropdown-link-active-bg: lighten($dropdown-link-hover-bg, 5%);
-$dropdown-item-padding-y: 0.625rem; // 0.5rem;
+$dropdown-item-padding-y: 0.625rem;
 $dropdown-item-padding-x: 1.5rem;
 $dropdown-header-color: $text-muted;
 $dropdown-link-disabled-color: $gray-500;
@@ -248,6 +261,7 @@ $custom-range-thumb-active-bg: lighten($primary, 20%);
 
 
 // Dashboard
+
 $chart-color-danger: lighten($danger, 40%);
 $chart-color-danger-dark: lighten($danger, 15%);
 $chart-color-danger-light: lighten($danger, 55%);
@@ -260,3 +274,8 @@ $chart-color-success-light: lighten($success, 65%);
 $chart-color-primary: lighten($primary, 35%);
 $chart-color-primary-dark: lighten($primary, 15%);
 $chart-color-primary-light: lighten($primary, 50%);
+
+
+// Misc
+
+$card-border-color: rgba(#000, 0.1);
