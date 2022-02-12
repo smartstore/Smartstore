@@ -57,7 +57,7 @@ namespace Smartstore.Blog.Blocks
             }
         }
 
-        protected override WidgetInvoker GetWidget(IBlockContainer element, string template)
+        protected override WidgetInvoker GetWidget(IBlockContainer element, IHtmlHelper htmlHelper, string template)
         {
             var block = (BlogBlock)element.Block;
 
