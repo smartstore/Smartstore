@@ -48,7 +48,7 @@ $s2sm-caret-width-sm: $input-height-sm;
 // @see https://github.com/twbs/bootstrap-sass/blob/master/assets/stylesheets/bootstrap/_forms.scss#L126
 $s2bs-form-control-default-box-shadow: $input-box-shadow;
 // @see https://github.com/twbs/bootstrap-sass/blob/master/assets/stylesheets/bootstrap/mixins/_forms.scss#L60
-$s2bs-form-control-focus-box-shadow: $dropdown-box-shadow; // $input-focus-box-shadow;
+$s2bs-form-control-focus-box-shadow: $s2bs-dropdown-box-shadow; // $input-focus-box-shadow;
 // @see https://github.com/twbs/bootstrap-sass/blob/master/assets/stylesheets/bootstrap/_forms.scss#L127
 $s2bs-form-control-transition: none; // border-color ease-in-out .15s, box-shadow ease-in-out .15s !default;
 //

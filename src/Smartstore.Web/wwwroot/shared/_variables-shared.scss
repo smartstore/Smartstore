@@ -32,8 +32,10 @@ $pagination-padding-x-xs:           0.5rem;
 // --------------------------------------------------
 
 $mtab-text-transform:		none !default;
+$mtab-font-size:			1rem !default;
 $mtab-font-weight:			$font-weight-medium !default;
-$mtab-color:				inherit !default;
+$mtab-color:				$gray-600 !default;
+$mtab-active-color:			$nav-tabs-link-active-color !default;
 
 
 // Dropdowns
