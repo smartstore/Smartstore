@@ -320,7 +320,9 @@ table th {
 .shadow-sm,
 .shadow-lg,
 :root {
+    $c: $dark;
     --shadow-color-rgb: 0,0,0;
+    --shadow-colorbase-rgb: #{red($c)}, #{green($c)}, #{blue($c)};
     --shadow-color-intensity: 1;
 }
 
@@ -343,6 +345,7 @@ table th {
             --lightness: #{lightness($value)};
             --shadow-color-intensity: 1.25 !important;
             --shadow-color-rgb: #{red($c)}, #{green($c)}, #{blue($c)} !important;
+            --shadow-colorbase-rgb: var(--shadow-color-rgb) !important;
         }
     }
 }

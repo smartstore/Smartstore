@@ -22,14 +22,14 @@ $headings-sm-font-weight:   $font-weight-medium !default;
 
 
 // Pagination Mini
-// ==============================================================
+// --------------------------------------------------
 
 $pagination-padding-y-xs:           0.25rem;
 $pagination-padding-x-xs:           0.5rem;
 
 
 // Material tabs
-// ==============================================================
+// --------------------------------------------------
 
 $mtab-text-transform:		none !default;
 $mtab-font-weight:			$font-weight-medium !default;
@@ -37,14 +37,14 @@ $mtab-color:				inherit !default;
 
 
 // Dropdowns
-// ==============================================================
+// --------------------------------------------------
 
 $dropdown-font-size:		$font-size-sm !default;
 $dropdown-font-weight:	    $font-weight-medium !default;
 
 
 // Offcanvas
-// ==============================================================
+// --------------------------------------------------
 
 $offcanvas-width:                   320px !default;
 $offcanvas-width-lg:                480px !default;
@@ -57,7 +57,19 @@ $offcanvas-z-index:                 99999 !default;
 $offcanvas-shadow:                  0 0 24px rgba(#000, 0.3) !default;
 
 
-//
+// Shadows
+// --------------------------------------------------
+
+$box-shadow-sm-var:             0 2px 16px -2px rgba(var(--shadow-colorbase-rgb), calc(var(--shadow-color-intensity, 1) * 0.12)), 
+                                0 2px 3px -2px rgba(var(--shadow-color-rgb), calc(var(--shadow-color-intensity, 1) * 0.15));
+$box-shadow-var:                0 6px 24px -5px rgba(var(--shadow-colorbase-rgb), calc(var(--shadow-color-intensity, 1) * 0.12)), 
+                                0 5px 12px -5px rgba(var(--shadow-color-rgb), calc(var(--shadow-color-intensity, 1) * 0.17));
+$box-shadow-lg-var:             0 10px 40px -4px rgba(var(--shadow-colorbase-rgb), calc(var(--shadow-color-intensity, 1) * 0.14)), 
+                                0 12px 28px -12px rgba(var(--shadow-color-rgb), calc(var(--shadow-color-intensity, 1) * 0.2));
+$box-shadow-xl-var:             0 17px 70px -7px rgba(var(--shadow-colorbase-rgb), calc(var(--shadow-color-intensity, 1) * 0.14)), 
+                                0 20px 48px -12px rgba(var(--shadow-color-rgb), calc(var(--shadow-color-intensity, 1) * 0.22));
+
+
 // Boxes
 // --------------------------------------------------
 

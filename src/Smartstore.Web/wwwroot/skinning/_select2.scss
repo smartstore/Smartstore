@@ -5,8 +5,6 @@
 // --------------------------------------------------
 // Variables directly translating Bootstrap variables
 // -------------------------
-$s2bs-caret-width-base: 0.35rem !default;
-$s2bs-caret-width-large: 0.35rem !default;
 $s2bs-cursor-disabled: not-allowed !default;
 $s2bs-dropdown-link-active-bg: $gray-100 !default;
 $s2bs-dropdown-link-active-color: $yiq-text-dark !default;
@@ -19,12 +17,12 @@ $s2bs-input-bg-disabled: $input-disabled-bg !default;
 $s2bs-input-color: $input-color !default;
 $s2bs-input-color-placeholder: $input-placeholder-color !default;
 $s2bs-input-border: $input-border-color !default;
-$s2bs-input-border-focus: $s2bs-input-border; // $input-focus-border-color !default;
+$s2bs-input-border-focus: $gray-200; // $s2bs-input-border; // $input-focus-border-color !default;
 
 // Theme-specific variables
 // --------------------------------------------------
 
-$s2bs-dropdown-arrow-color: $input-color !default;
+$s2bs-dropdown-arrow-color: inherit !default;
 $s2bs-dropdown-box-shadow: $dropdown-box-shadow !default;
 $s2bs-dropdown-header-padding-vertical: $input-btn-padding-y !default;
 $s2bs-dropdown-header-font-size: $font-size-base !default;
@@ -37,8 +35,7 @@ $s2bs-selection-choice-border-radius: $input-border-radius-sm !default;
 
 // SMNET extra styling
 // --------------------------------------------------
-$s2sm-inner-border-color: rgba(#000, 0.08);
-$s2sm-option-font-size: 0.75rem;
+$s2sm-option-font-size: $font-size-sm;
 $s2sm-shade-bg: $gray-100;
 $s2sm-caret-width: $input-height;
 $s2sm-caret-width-lg: $input-height-lg;
@@ -60,7 +57,7 @@ $s2bs-form-control-transition: none; // border-color ease-in-out .15s, box-shado
 
 // @see https://github.com/twbs/bootstrap-sass/blob/master/assets/stylesheets/bootstrap/_forms.scss#L115
 @mixin bootstrap-input-defaults {
-    @include box-shadow($s2bs-form-control-default-box-shadow);
+    box-shadow: $s2bs-form-control-default-box-shadow;
     background-color: $s2bs-input-bg;
     border: 1px solid $s2bs-input-border;
     border-radius: var(--border-radius);
@@ -171,10 +168,18 @@ $s2bs-form-control-transition: none; // border-color ease-in-out .15s, box-shado
    * @see http://getbootstrap.com/components/#dropdowns
    */
     .select2-results__option {
-        padding: $input-btn-padding-y-sm $s2bs-padding-base-horizontal;
+        --select2-option-indent: 1;
+        --select2-option-padding-x-start: #{$s2bs-padding-base-horizontal};
+        --select2-option-padding-x-end: #{$s2bs-padding-base-horizontal};
+        --select2-option-padding-y: #{$input-btn-padding-y};
+        padding-left: calc(var(--select2-option-padding-x-start) * var(--select2-option-indent));
+        padding-right: var(--select2-option-padding-x-end);
+        padding-top: var(--select2-option-padding-y);
+        padding-bottom: var(--select2-option-padding-y);
 
         &[role=group] {
-            padding: 0;
+            padding: 0 !important;
+            padding-top: 0.75em !important;
         }
 
         &[aria-disabled=true] {
@@ -193,36 +198,7 @@ $s2bs-form-control-transition: none; // border-color ease-in-out .15s, box-shado
         }
 
         .select2-results__option {
-            padding: $input-btn-padding-y-sm $s2bs-padding-base-horizontal;
-
-            .select2-results__group {
-                padding-left: 0;
-            }
-
-            .select2-results__option {
-                margin-left: -$s2bs-padding-base-horizontal;
-                padding-left: $s2bs-padding-base-horizontal*2;
-
-                .select2-results__option {
-                    margin-left: -$s2bs-padding-base-horizontal*2;
-                    padding-left: $s2bs-padding-base-horizontal*3;
-
-                    .select2-results__option {
-                        margin-left: -$s2bs-padding-base-horizontal*3;
-                        padding-left: $s2bs-padding-base-horizontal*4;
-
-                        .select2-results__option {
-                            margin-left: -$s2bs-padding-base-horizontal*4;
-                            padding-left: $s2bs-padding-base-horizontal*5;
-
-                            .select2-results__option {
-                                margin-left: -$s2bs-padding-base-horizontal*5;
-                                padding-left: $s2bs-padding-base-horizontal*6;
-                            }
-                        }
-                    }
-                }
-            }
+            --select2-option-indent: 2;
         }
     }
 
@@ -232,7 +208,6 @@ $s2bs-form-control-transition: none; // border-color ease-in-out .15s, box-shado
         padding: $s2bs-dropdown-header-padding-vertical $s2bs-padding-base-horizontal;
         white-space: nowrap;
         font-weight: 600;
-        border-bottom: 1px solid rgba(#000, 0.1);
 
         .select2-option {
             font-size: $s2bs-dropdown-header-font-size;
@@ -250,10 +225,7 @@ $s2bs-form-control-transition: none; // border-color ease-in-out .15s, box-shado
         .select2-selection {
             box-shadow: $s2bs-form-control-focus-box-shadow;
             border-color: $s2bs-input-border-focus;
-        }
-
-        &.select2-container--above .select2-selection {
-            --shadow-yoffset: -0.5;
+            clip-path: inset(-300px -300px 0 -300px); // cut off bottom shadow
         }
     }
 
@@ -274,6 +246,7 @@ $s2bs-form-control-transition: none; // border-color ease-in-out .15s, box-shado
             .select2-selection {
                 @include border-top-radius(0);
                 border-top-color: transparent;
+                clip-path: inset(0 -300px -300px -300px); // cut off top shadow
             }
         }
     }
@@ -323,7 +296,6 @@ $s2bs-form-control-transition: none; // border-color ease-in-out .15s, box-shado
         margin-top: -1px;
 
         &--above {
-            --shadow-yoffset: -0.5;
             clip-path: inset(-300px -300px 0 -300px); // cut off bottom shadow
             margin-top: 1px;
         }
@@ -481,12 +453,15 @@ $s2bs-form-control-transition: none; // border-color ease-in-out .15s, box-shado
     /*------------------------------------*\
       Smartstore specific styles
 	\*------------------------------------*/
-    &.select2-container--open .select2-selection {
-        background-color: $s2sm-shade-bg;
-    }
+    &.select2-container--open {
+        .select2-selection,
+        .select2-selection__arrow {
+            background-color: $dropdown-bg;
+        }
 
-    &.select2-container--open .select2-selection__arrow {
-        border-color: transparent;
+        .select2-selection__arrow {
+            border-color: transparent;
+        }
     }
 
     .select2-results {
@@ -494,24 +469,22 @@ $s2bs-form-control-transition: none; // border-color ease-in-out .15s, box-shado
     }
 
     .select2-results__option {
-        //font-size: $s2sm-option-font-size;
         position: relative;
-        border-bottom: 1px solid $s2sm-inner-border-color;
 
         > .select2-option,
         > .select2-item-description {
             display: block;
             font-size: $s2sm-option-font-size;
-            padding-left: 18px;
+            padding-right: 10px;
         }
 
         > .select2-option {
-            &:before {
+            &:after {
                 position: absolute;
-                left: 12px;
+                right: 8px;
                 @include fontawesome("\f00c");
                 color: $success;
-                text-align: left;
+                text-align: right;
                 width: 18px;
                 line-height: $line-height-base;
                 visibility: hidden;
@@ -522,7 +495,7 @@ $s2bs-form-control-transition: none; // border-color ease-in-out .15s, box-shado
             font-weight: normal;
         }
 
-        &[aria-selected=true] > .select2-option:before {
+        &[aria-selected=true] > .select2-option:after {
             visibility: visible;
         }
 
@@ -554,21 +527,17 @@ $s2bs-form-control-transition: none; // border-color ease-in-out .15s, box-shado
         }
     }
 
-    .select2-results__option:last-child {
-        border-bottom-width: 0;
-    }
-
     .select2-dropdown--below .select2-results {
-        border-top: 1px solid darken($s2sm-shade-bg, 10%);
+        border-top: 1px solid $gray-200;
     }
 
     .select2-dropdown--above .select2-results {
-        border-bottom: 1px solid darken($s2sm-shade-bg, 10%);
+        border-bottom: 1px solid $gray-200;
     }
 
     .select2-search--dropdown {
         padding: 0 $input-btn-padding-x 0.5rem $input-btn-padding-x;
-        background-color: $s2sm-shade-bg;
+        background-color: $dropdown-bg;
     }
 
     .select2-dropdown--above .select2-search--dropdown {
@@ -652,14 +621,19 @@ $s2bs-form-control-transition: none; // border-color ease-in-out .15s, box-shado
 
     // RTL for dropdown
     > [dir="rtl"] {
+        .select2-results__option {
+            padding-right: calc(var(--select2-option-padding-x-start) * var(--select2-option-indent));
+            padding-left: var(--select2-option-padding-x-end);
+        }
+        
         .select2-results__option > .select2-option {
-            padding-right: 18px;
-            padding-left: initial;
+            padding-left: 10px;
+            padding-right: initial;
 
-            &:before {
-                right: $s2bs-padding-base-horizontal;
-                left: auto;
-                text-align: right;
+            &:after {
+                left: 8px;
+                right: auto;
+                text-align: left;
             }
         }
     }

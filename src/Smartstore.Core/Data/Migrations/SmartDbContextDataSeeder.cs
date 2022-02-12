@@ -634,6 +634,8 @@ namespace Smartstore.Core.Data.Migrations
                 "Specifies that passwords must contain at least one non alphanumeric character.",
                 "Legt fest, dass Passwörter mindestens ein nicht alphanumerisches Zeichen enthalten müssen.");
 
+            builder.AddOrUpdate("Admin.Configuration.Settings.News", "News", "News");
+
             builder.AddOrUpdate("Account.Fields.Password", "Password management", "Passwortverwaltung");
 
             #endregion

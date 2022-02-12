@@ -159,7 +159,7 @@ namespace Smartstore.Core.Content.Blocks
 			Guard.NotNull(templates, nameof(templates));
 			Guard.NotNull(htmlHelper, nameof(htmlHelper));
 
-			var widget = templates.Select(x => GetWidget(element, x)).FirstOrDefault(x => x != null);
+			var widget = templates.Select(x => GetWidget(element, htmlHelper, x)).FirstOrDefault(x => x != null);
 			if (widget == null)
 			{
 				throw new InvalidOperationException("The return value of the 'GetWidget()' method cannot be NULL.");
@@ -170,7 +170,7 @@ namespace Smartstore.Core.Content.Blocks
             content.WriteTo(textWriter, HtmlEncoder.Default);
 		}
 
-		protected virtual WidgetInvoker GetWidget(IBlockContainer element, string template)
+		protected virtual WidgetInvoker GetWidget(IBlockContainer element, IHtmlHelper htmlHelper, string template)
 		{
 			throw new NotImplementedException();
 		}
