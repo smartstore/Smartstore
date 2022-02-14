@@ -58,14 +58,6 @@
 			color: $mtab-active-color;
 		}
 
-		&:hover:not(.active) {
-			//background-color: rgba(#000, 0.025);
-		}
-
-		&:active:not(.active) {
-			//background-color: rgba(#000, 0.05);
-		}
-
 		&.active {
 			color: $mtab-active-color;
 		}
