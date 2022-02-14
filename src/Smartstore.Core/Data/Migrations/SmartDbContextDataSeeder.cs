@@ -84,7 +84,7 @@ namespace Smartstore.Core.Data.Migrations
                 {
                     if (!hasPrimaryCurrency)
                     {
-                        settings.Add(new Setting { Name = "CurrencySettings.PrimaryCurrencyId", Value = store.PrimaryStoreCurrencyId.ToString() });
+                        settings.Add(new Setting { Name = "CurrencySettings.PrimaryCurrencyId", Value = store.DefaultCurrencyId.ToString() });
                     }
                     if (!hasExchangeCurrency)
                     {
@@ -116,6 +116,12 @@ namespace Smartstore.Core.Data.Migrations
             builder.Delete("Admin.Configuration.Stores.Fields.PrimaryStoreCurrencyId.Hint");
             builder.Delete("Admin.Configuration.Stores.Fields.PrimaryExchangeRateCurrencyId");
             builder.Delete("Admin.Configuration.Stores.Fields.PrimaryExchangeRateCurrencyId.Hint");
+
+            builder.AddOrUpdate("Admin.Configuration.Stores.Fields.DefaultCurrencyId",
+                "Default currency",
+                "Standardwährung",
+                "Sets the currency that is preselected for this shop in the frontend.",
+                "Legt die im Frontend vorausgewählte Währung für diesen Shop fest.");
 
             builder.AddOrUpdate("Account.CustomerOrders.RecurringOrders.CycleInfo", "Interval", "Interval");
             builder.AddOrUpdate("Account.CustomerOrders.RecurringOrders.CyclesRemaining", "Remaining", "Verbleibend");

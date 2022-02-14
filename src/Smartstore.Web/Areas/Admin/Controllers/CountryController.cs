@@ -37,7 +37,6 @@ namespace Smartstore.Admin.Controllers
 
         #region Utilities 
 
-        [NonAction]
         private async Task UpdateLocalesAsync(Country country, CountryModel model)
         {
             foreach (var localized in model.Locales)
@@ -46,7 +45,6 @@ namespace Smartstore.Admin.Controllers
             }
         }
 
-        [NonAction]
         private async Task UpdateLocalesAsync(StateProvince stateProvince, StateProvinceModel model)
         {
             foreach (var localized in model.Locales)
@@ -55,7 +53,6 @@ namespace Smartstore.Admin.Controllers
             }
         }
 
-        [NonAction]
         private async Task PrepareCountryModelAsync(CountryModel model, Country country)
         {
             Guard.NotNull(model, nameof(model));
@@ -68,10 +65,10 @@ namespace Smartstore.Admin.Controllers
             
             var currencies = await _db.Currencies
                 .AsNoTracking()
-                .ApplyStandardFilter(true)
+                .ApplyStandardFilter(false)
                 .ToListAsync();
 
-            ViewBag.AllCurrencies = currencies
+            ViewBag.Currencies = currencies
                 .Select(x => new SelectListItem { Text = x.GetLocalized(y => y.Name), Value = x.Id.ToString() })
                 .ToList();
         }

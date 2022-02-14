@@ -91,7 +91,7 @@ namespace Smartstore.Core.Installation
                     SslEnabled = false,
                     DisplayOrder = 1,
                     LogoMediaFileId = imgCompanyLogo?.Id ?? 0,
-                    PrimaryStoreCurrencyId = currency.Id,
+                    DefaultCurrencyId = currency.Id,
                     PrimaryExchangeRateCurrencyId = currency.Id
                 }
             };

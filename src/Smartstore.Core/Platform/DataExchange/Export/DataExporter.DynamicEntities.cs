@@ -369,8 +369,7 @@ namespace Smartstore.Core.DataExchange.Export
 
             dynamic result = new DynamicEntity(store);
 
-            result.PrimaryStoreCurrency = ToDynamic(_currencyService.PrimaryCurrency, ctx);
-            result.PrimaryExchangeRateCurrency = ToDynamic(_currencyService.PrimaryExchangeCurrency, ctx);
+            result.DefaultCurrency = ToDynamic(store.DefaultCurrency, ctx);
 
             return result;
         }

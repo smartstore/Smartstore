@@ -1,4 +1,5 @@
 ﻿using System.Linq.Dynamic.Core;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Admin.Models.Store;
 using Smartstore.Admin.Models.Stores;
 using Smartstore.ComponentModel;
@@ -7,6 +8,7 @@ using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Identity;
+using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
 using Smartstore.Web.Models;
@@ -73,7 +75,9 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Configuration.Store.Read)]
         public async Task<IActionResult> StoreList(GridCommand command)
         {
-            var storeModels = await Services.StoreContext.GetAllStores()
+            var stores = Services.StoreContext.GetAllStores();
+
+            var rows = await stores
                 .AsQueryable()
                 .ApplyGridCommand(command)
                 .SelectAsync(async x =>
@@ -81,29 +85,30 @@ namespace Smartstore.Admin.Controllers
                     var model = await MapperFactory.MapAsync<Store, StoreModel>(x);
 
                     model.HostList = model.Hosts.Convert<string[]>();
-                    model.ViewUrl = Url.Action("Edit", "Store", new { id = x.Id });
+                    model.EditUrl = Url.Action(nameof(Edit), "Store", new { id = x.Id });
 
                     return model;
                 })
                 .AsyncToList();
 
-            var stores = await storeModels
-                .ToPagedList(command.Page - 1, command.PageSize)
-                .LoadAsync();
-
-            var gridModel = new GridModel<StoreModel>
+            return Json(new GridModel<StoreModel>
             {
-                Rows = storeModels,
-                Total = stores.TotalCount
-            };
-
-            return Json(gridModel);
+                Rows = rows,
+                Total = rows.Count
+            });
         }
 
         [Permission(Permissions.Configuration.Store.Create)]
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            return View(new StoreModel());
+            await PrepareViewBag(null);
+
+            var model = new StoreModel
+            {
+                DefaultCurrencyId = _currencySettings.PrimaryCurrencyId
+            };
+
+            return View(model);
         }
 
         [HttpPost, ParameterBasedOnFormName("save-continue", "continueEditing")]
@@ -117,9 +122,7 @@ namespace Smartstore.Admin.Controllers
                 // Ensure we have "/" at the end.
                 store.Url = store.Url.EnsureEndsWith("/");
 
-                // TODO: (mg) (core) Refactor. A currency on store level should just act working currency preselection.
-                // We have to do this because we have a foreign key constraint on these fields.
-                store.PrimaryStoreCurrencyId = _currencySettings.PrimaryCurrencyId;
+                // INFO: we have to do this because we have a foreign key constraint on these fields.
                 store.PrimaryExchangeRateCurrencyId = _currencySettings.PrimaryExchangeCurrencyId;
 
                 _db.Stores.Add(store);
@@ -131,6 +134,8 @@ namespace Smartstore.Admin.Controllers
                     ? RedirectToAction(nameof(Edit), new { id = store.Id }) 
                     : RedirectToAction(nameof(List));
             }
+
+            await PrepareViewBag(null);
 
             return View(model);
         }
@@ -145,6 +150,8 @@ namespace Smartstore.Admin.Controllers
             }
 
             var model = await MapperFactory.MapAsync<Store, StoreModel>(store);
+
+            await PrepareViewBag(store);
 
             return View(model);
         }
@@ -166,10 +173,8 @@ namespace Smartstore.Admin.Controllers
 
                 // Ensure we have "/" at the end.
                 store.Url = store.Url.EnsureEndsWith("/");
-
-                // TODO: (mg) (core) Refactor. A currency on store level should just act working currency preselection.
-                // We have to do this because we have a foreign key constraint on these fields.
-                store.PrimaryStoreCurrencyId = _currencySettings.PrimaryCurrencyId;
+                
+                // INFO: we have to do this because we have a foreign key constraint on these fields.
                 store.PrimaryExchangeRateCurrencyId = _currencySettings.PrimaryExchangeCurrencyId;
 
                 await _db.SaveChangesAsync();
@@ -180,6 +185,8 @@ namespace Smartstore.Admin.Controllers
                     ? RedirectToAction(nameof(Edit), new { id = store.Id }) 
                     : RedirectToAction(nameof(List));
             }
+
+            await PrepareViewBag(store);
 
             return View(model);
         }
@@ -254,6 +261,22 @@ namespace Smartstore.Admin.Controllers
             };
 
             return new JsonResult(new { model });
+        }
+
+        private async Task PrepareViewBag(Store store)
+        {
+            var currencies = await _db.Currencies
+                .AsNoTracking()
+                .ApplyStandardFilter(false, store?.Id ?? 0)
+                .ToListAsync();
+
+            ViewBag.Currencies = currencies
+                .Select(x => new SelectListItem
+                {
+                    Text = x.GetLocalized(y => y.Name),
+                    Value = x.Id.ToString()
+                })
+                .ToList();
         }
     }
 }

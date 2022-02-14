@@ -94,9 +94,7 @@
                     <smart-label asp-for="DefaultCurrencyId" />
                 </div>
                 <div class="adminData">
-                    <select asp-for="DefaultCurrencyId" asp-items="ViewBag.AllCurrencies">
-                        <option>@T("Common.Unspecified")</option>
-                    </select>
+                    <select asp-for="DefaultCurrencyId" asp-items="ViewBag.Currencies" asp-placeholder="@T("Common.Unspecified")"></select>
                     <span asp-validation-for="DefaultCurrencyId"></span>
                 </div>
             </div>

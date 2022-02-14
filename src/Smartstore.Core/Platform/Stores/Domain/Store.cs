@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -11,14 +12,13 @@ namespace Smartstore.Core.Stores
     {
         public void Configure(EntityTypeBuilder<Store> builder)
         {
-#pragma warning disable CS0618
-            // TODO: (mg) (core) Refactor. A currency on store level should just act working currency preselection.
             builder
-                .HasOne(x => x.PrimaryStoreCurrency)
+                .HasOne(x => x.DefaultCurrency)
                 .WithMany()
-                .HasForeignKey(x => x.PrimaryStoreCurrencyId)
+                .HasForeignKey(x => x.DefaultCurrencyId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+#pragma warning disable CS0618
             builder
                 .HasOne(x => x.PrimaryExchangeRateCurrency)
                 .WithMany()
@@ -108,8 +108,6 @@ namespace Smartstore.Core.Stores
         /// </summary>
         public string MsTileColor { get; set; }
 
-
-
         /// <summary>
         /// Gets or sets the display order
         /// </summary>
@@ -127,24 +125,24 @@ namespace Smartstore.Core.Stores
         public string ContentDeliveryNetwork { get; set; }
 
         /// <summary>
-        /// Gets or sets the primary store currency identifier
+        /// Gets or sets the default currency identifier.
         /// </summary>
-        public int PrimaryStoreCurrencyId { get; set; }
+        [Column("PrimaryStoreCurrencyId")]
+        public int DefaultCurrencyId { get; set; }
 
         /// <summary>
         /// Gets or sets the primary exchange rate currency identifier
         /// </summary>
         public int PrimaryExchangeRateCurrencyId { get; set; }
 
-        private Currency _primaryStoreCurrency;
+        private Currency _defaultCurrency;
         /// <summary>
-        /// Gets or sets the primary store currency
+        /// Gets or sets the default currency.
         /// </summary>
-        [Obsolete("Use ICurrencyService.PrimaryCurrency")]
-        public Currency PrimaryStoreCurrency
+        public Currency DefaultCurrency
         { 
-            get => _primaryStoreCurrency ?? LazyLoader.Load(this, ref _primaryStoreCurrency);
-            set => _primaryStoreCurrency = value;
+            get => _defaultCurrency ?? LazyLoader.Load(this, ref _defaultCurrency);
+            set => _defaultCurrency = value;
         }
 
         private Currency _primaryExchangeRateCurrency;
