@@ -255,16 +255,21 @@ namespace Smartstore.Admin.Controllers
             {
                 var menu = MiniMapper.Map<MenuEntityModel, MenuEntity>(model);
                 menu.WidgetZone = string.Join(',', model.WidgetZone ?? Array.Empty<string>()).NullEmpty();
+
                 _db.Menus.Add(menu);
                 await _db.SaveChangesAsync();
-                await SaveStoreMappingsAsync(menu, model.SelectedStoreIds);
-                await SaveAclMappingsAsync(menu, model.SelectedCustomerRoleIds);
+
+                await _storeMappingService.ApplyStoreMappingsAsync(menu, model.SelectedStoreIds);
+                await _aclService.ApplyAclMappingsAsync(menu, model.SelectedCustomerRoleIds);
                 await UpdateLocalesAsync(menu, model);
                 await _db.SaveChangesAsync();
-                await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, menu, form));
 
+                await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, menu, form));
                 NotifySuccess(T("Admin.Common.DataSuccessfullySaved"));
-                return continueEditing ? RedirectToAction(nameof(Edit), new { id = menu.Id }) : RedirectToAction(nameof(List));
+
+                return continueEditing 
+                    ? RedirectToAction(nameof(Edit), new { id = menu.Id }) 
+                    : RedirectToAction(nameof(List));
             }
 
             await PrepareModelAsync(model, null);
@@ -308,14 +313,17 @@ namespace Smartstore.Admin.Controllers
                 MiniMapper.Map(model, menu);
                 menu.WidgetZone = string.Join(',', model.WidgetZone ?? Array.Empty<string>()).NullEmpty();
 
-                await SaveStoreMappingsAsync(menu, model.SelectedStoreIds);
-                await SaveAclMappingsAsync(menu, model.SelectedCustomerRoleIds);
+                await _storeMappingService.ApplyStoreMappingsAsync(menu, model.SelectedStoreIds);
+                await _aclService.ApplyAclMappingsAsync(menu, model.SelectedCustomerRoleIds);
                 await UpdateLocalesAsync(menu, model);
                 await _db.SaveChangesAsync();
-                await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, menu, form));
 
+                await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, menu, form));
                 NotifySuccess(T("Admin.Common.DataSuccessfullySaved"));
-                return continueEditing ? RedirectToAction(nameof(Edit), menu.Id) : RedirectToAction(nameof(List));
+
+                return continueEditing 
+                    ? RedirectToAction(nameof(Edit), menu.Id)
+                    : RedirectToAction(nameof(List));
             }
 
             await PrepareModelAsync(model, menu);
@@ -392,21 +400,17 @@ namespace Smartstore.Admin.Controllers
                 _db.MenuItems.Add(item);
                 await _db.SaveChangesAsync();
 
-                await SaveStoreMappingsAsync(item, itemModel.SelectedStoreIds);
-                await SaveAclMappingsAsync(item, itemModel.SelectedCustomerRoleIds);
+                await _storeMappingService.ApplyStoreMappingsAsync(item, itemModel.SelectedStoreIds);
+                await _aclService.ApplyAclMappingsAsync(item, itemModel.SelectedCustomerRoleIds);
                 await UpdateLocalesAsync(item, itemModel);
-
                 await _db.SaveChangesAsync();
 
                 await Services.EventPublisher.PublishAsync(new ModelBoundEvent(itemModel, item, form));
                 NotifySuccess(T("Admin.Common.DataSuccessfullySaved"));
 
-                if (continueEditing)
-                {
-                    return RedirectToAction(nameof(EditItem), new { id = item.Id });
-                }
-
-                return RedirectToAction(nameof(Edit), new { id = item.MenuId });
+                return continueEditing
+                    ? RedirectToAction(nameof(EditItem), new { id = item.Id })
+                    : RedirectToAction(nameof(Edit), new { id = item.MenuId });
             }
 
             await PrepareModelAsync(itemModel, null);
@@ -454,9 +458,10 @@ namespace Smartstore.Admin.Controllers
                 MiniMapper.Map(itemModel, item);
                 item.PermissionNames = string.Join(',', itemModel.PermissionNames ?? Array.Empty<string>()).NullEmpty();
 
-                await SaveStoreMappingsAsync(item, itemModel.SelectedStoreIds);
-                await SaveAclMappingsAsync(item, itemModel.SelectedCustomerRoleIds);
+                await _storeMappingService.ApplyStoreMappingsAsync(item, itemModel.SelectedStoreIds);
+                await _aclService.ApplyAclMappingsAsync(item, itemModel.SelectedCustomerRoleIds);
                 await UpdateLocalesAsync(item, itemModel);
+                await _db.SaveChangesAsync();
 
                 await Services.EventPublisher.PublishAsync(new ModelBoundEvent(itemModel, item, form));
                 NotifySuccess(T("Admin.Common.DataSuccessfullySaved"));

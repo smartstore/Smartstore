@@ -108,7 +108,10 @@ namespace Smartstore.Core.Content.Menus
             }
             else if (expression.Schema == SchemaFile)
             {
-                return new LinkResolutionResult(expression, new LinkTranslationResult { Link = expression.Target }, LinkStatus.Ok);
+                return new LinkResolutionResult(
+                    expression,
+                    new LinkTranslationResult { Link = expression.Target, Label = expression.Target },
+                    LinkStatus.Ok);
             }
 
             if (roles == null)

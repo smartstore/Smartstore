@@ -4,7 +4,6 @@
 
 <div asp-validation-summary="All"></div>
 <input asp-for="Id" type="hidden" />
-<input asp-for="SystemName" type="hidden" />
 
 <tabstrip id="menu-edit" sm-nav-style="Material">
     <tab sm-title="@T("Admin.Common.General")" sm-selected="true">
@@ -34,7 +33,7 @@
                 <div class="adminData">
                     @if (!Model.IsSystemMenu)
                     {
-                        <select id="@Html.IdFor(x => x.Template)" name="@Html.NameFor(x => x.Template)" data-tags="true" data-minimum-results-for-search="0">
+                        <select id="@Html.IdFor(x => x.Template)" name="@Html.NameFor(x => x.Template)" data-tags="true">
                             @if (Model.IsCustomTemplate)
                             {
                                 <option value="@Model.Template" selected="selected">@Model.Template</option>
