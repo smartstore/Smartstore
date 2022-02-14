@@ -206,16 +206,6 @@ namespace Smartstore.Admin.Controllers
                 _db.Stores.Remove(store);
                 await _db.SaveChangesAsync();
                 
-                // When we delete a store we should also ensure that all "per store" settings will also be deleted.
-                await _db.Settings.Where(x => x.StoreId == id).BatchDeleteAsync();
-
-                // When we had two stores and now have only one store, we also should delete all "per store" settings.
-                var allStores = await _db.Stores.ToListAsync();
-                if (allStores.Count == 1)
-                {
-                    await _db.Settings.Where(x => x.StoreId == allStores[0].Id).BatchDeleteAsync();
-                }
-
                 NotifySuccess(T("Admin.Configuration.Stores.Deleted"));
                 return RedirectToAction(nameof(List));
             }
