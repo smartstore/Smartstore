@@ -52,6 +52,7 @@
 		border-width: 0;
 		background-color: transparent;
 		padding: 0.825rem 1rem;
+        border-radius: 0;
 		transition: color 0.05s ease-in-out, background-color 0.05s ease-in-out;
 
 		&:hover {
@@ -165,18 +166,6 @@
 			align-items: baseline;
 		}
 
-		&.nav-left {
-			.nav-link {
-				border-radius: $nav-tabs-border-radius 0 0 $nav-tabs-border-radius;
-			}
-		}
-
-		&.nav-right {
-			.nav-link {
-				border-radius: 0 $nav-tabs-border-radius $nav-tabs-border-radius 0;
-			}
-		}
-
 		&.nav-tabs-line {
 			border-bottom: none;
 
@@ -186,10 +175,29 @@
 
 			.nav-link {
 				text-align: left;
-				border: 1px solid transparent;
-				transition: none;
 				padding: 0.625rem 1.25rem;
-				font-size: inherit;
+				font-size: $font-size-sm;
+                color: $gray-700;
+                background-color: transparent;
+
+                > i, 
+                > svg {
+                    color: $gray-500;
+                }
+
+		        &:hover,
+                &.active {
+			        color: $mtab-active-color;
+		        }
+
+                &:hover:not(.active) {
+                    border-color: rgba(#000, 0.2) !important;
+
+                    > i, 
+                    > svg {
+                        color: $gray-700;
+                    }
+                }
 
 				&:not(.disabled):before {
 					// disable selection animations
@@ -197,28 +205,21 @@
 				}
 			}
 
-			.nav-link.active,
-			.nav-link.active:focus,
-			.nav-item.open > .nav-link,
-			.nav-item.open > .nav-link:focus {
-				border-top-color: $nav-tabs-border-color;
-				border-bottom-color: $nav-tabs-border-color;
-			}
-
 			&.nav-left {
-				border-right: 1px solid $nav-tabs-border-color;
+                border-right: 1px solid $nav-tabs-border-color;
 
 				.nav-item {
 					margin-right: -1px;
 				}
 
 				.nav-link {
-					border-left-width: 2px;
 					padding-right: 1.25rem;
+                    padding-left: 0;
+                    border-right: 2px solid transparent;
 
 					> img, > i {
 						margin-right: 0.75rem;
-						margin-left: -0.5rem;
+						margin-left: 0.25rem;
 					}
 				}
 
@@ -226,7 +227,7 @@
 				.nav-link.active:focus,
 				.nav-item.open > .nav-link,
 				.nav-item.open > .nav-link:focus {
-					border-left-color: theme-color("warning") !important;
+					border-right-color: theme-color("warning");
 				}
 			}
 
@@ -238,12 +239,13 @@
 				}
 
 				.nav-link {
-					border-right-width: 2px;
-					padding-right: 1.25rem;
+					padding-left: 1.25rem;
+                    padding-right: 1.25rem;
+                    border-left: 2px solid transparent;
 
 					> img, > i {
 						margin-right: 0.75rem;
-						margin-left: 0;
+						margin-left: 0.25rem;
 					}
 				}
 
@@ -251,7 +253,7 @@
 				.nav-link.active:focus,
 				.nav-item.open > .nav-link,
 				.nav-item.open > .nav-link:focus {
-					border-right-color: theme-color("warning") !important;
+					border-color: theme-color("warning");
 				}
 			}
 		}

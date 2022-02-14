@@ -461,12 +461,11 @@ body {
 
 .menu-settings {
     .nav-link {
-        font-weight: $font-weight-normal !important;
+        padding-left: 0.25rem !important;
     }
 
     .nav-link.active {
         z-index: 99;
-        //font-weight: $font-weight-medium !important;
     }
 }
 
