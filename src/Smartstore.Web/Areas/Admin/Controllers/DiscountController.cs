@@ -179,6 +179,7 @@ namespace Smartstore.Admin.Controllers
         {
             // INFO: CacheableEntity! Always load "tracked" otherwise RuleSets loaded with old values after saving.
             var discount = await _db.Discounts
+                .AsSplitQuery()
                 .Include(x => x.RuleSets)
                 .Include(x => x.AppliedToCategories)
                 .Include(x => x.AppliedToManufacturers)
@@ -203,6 +204,7 @@ namespace Smartstore.Admin.Controllers
         public async Task<IActionResult> Edit(DiscountModel model, bool continueEditing)
         {
             var discount = await _db.Discounts
+                .AsSplitQuery()
                 .Include(x => x.RuleSets)
                 .Include(x => x.AppliedToCategories)
                 .Include(x => x.AppliedToManufacturers)

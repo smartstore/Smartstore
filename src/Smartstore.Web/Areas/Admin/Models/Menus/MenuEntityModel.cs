@@ -58,6 +58,7 @@ namespace Smartstore.Admin.Models.Menus
         public string EditUrl { get; set; }
     }
 
+    [LocalizedDisplay("Admin.ContentManagement.Menus.")]
     public class MenuEntityLocalizedModel : ILocalizedLocaleModel
     {
         public int LanguageId { get; set; }

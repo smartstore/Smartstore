@@ -54,10 +54,11 @@ namespace Smartstore.Admin.Controllers
 
         [HttpPost]
         [Permission(Permissions.Configuration.Currency.Read)]
-        public async Task<IActionResult> List(GridCommand command)
+        public async Task<IActionResult> CampaignList(GridCommand command)
         {
             var campaigns = await _db.Campaigns
                 .AsNoTracking()
+                .OrderByDescending(x => x.CreatedOnUtc)
                 .ApplyGridCommand(command)
                 .ToPagedList(command)
                 .LoadAsync();
@@ -79,6 +80,27 @@ namespace Smartstore.Admin.Controllers
             };
 
             return Json(gridModel);
+        }
+
+        [HttpPost]
+        [Permission(Permissions.Configuration.Currency.Delete)]
+        public async Task<IActionResult> CampaignDelete(GridSelection selection)
+        {
+            var success = false;
+            var numDeleted = 0;
+            var ids = selection.GetEntityIds();
+
+            if (ids.Any())
+            {
+                var campaigns = await _db.Campaigns.GetManyAsync(ids, true);
+
+                _db.Campaigns.RemoveRange(campaigns);
+
+                numDeleted = await _db.SaveChangesAsync();
+                success = true;
+            }
+
+            return Json(new { Success = success, Count = numDeleted });
         }
 
         [Permission(Permissions.Promotion.Campaign.Create)]
@@ -196,27 +218,6 @@ namespace Smartstore.Admin.Controllers
 
             NotifySuccess(T("Admin.Promotions.Campaigns.Deleted"));
             return RedirectToAction(nameof(List));
-        }
-
-        [HttpPost]
-        [Permission(Permissions.Configuration.Currency.Delete)]
-        public async Task<IActionResult> DeleteSelection(GridSelection selection)
-        {
-            var success = false;
-            var numDeleted = 0;
-            var ids = selection.GetEntityIds();
-
-            if (ids.Any())
-            {
-                var campaigns = await _db.Campaigns.GetManyAsync(ids, true);
-
-                _db.Campaigns.RemoveRange(campaigns);
-
-                numDeleted = await _db.SaveChangesAsync();
-                success = true;
-            }
-
-            return Json(new { Success = success, Count = numDeleted });
         }
     }
 }

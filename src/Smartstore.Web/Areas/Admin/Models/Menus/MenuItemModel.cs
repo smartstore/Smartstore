@@ -1,7 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.AspNetCore.Mvc.Routing;
 using Smartstore.Collections;
 using Smartstore.Core.Content.Media.Icons;
 using Smartstore.Core.Content.Menus;
@@ -104,7 +103,7 @@ namespace Smartstore.Admin.Models.Menus
 
     public partial class MenuItemValidator : AbstractValidator<MenuItemModel>
     {
-        public MenuItemValidator(Localizer T)
+        public MenuItemValidator(Localizer T, IUrlHelper urlHelper)
         {
             RuleFor(x => x.ProviderName).NotEmpty();
 
@@ -118,15 +117,13 @@ namespace Smartstore.Admin.Models.Menus
                             var node = new TreeNode<MenuItem>(new MenuItem());
                             node.ApplyRouteData(x);
 
-                            // TODO: (mh) (core) How to do this.
-                            //var urlHelper = new UrlHelper(HttpContext.Current.Request.RequestContext);
-                            var urlHelper = new UrlHelper(null);
                             var result = node.Value.GenerateUrl(urlHelper);
-
                             return result.HasValue();
                         }
                     }
-                    catch { }
+                    catch
+                    {
+                    }
 
                     return false;
                 })

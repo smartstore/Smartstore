@@ -174,6 +174,10 @@ namespace Smartstore.Core.Data.Migrations
                 "The default delivery time \"{0}\" cannot be deleted. Set another standard delivery time first.",
                 "Die Standard-Lieferzeit \"{0}\" kann nicht gelöscht werden. Bestimmen Sie zuvor eine andere Standard-Lieferzeit.");
 
+            builder.AddOrUpdate("Admin.ContentManagement.Menus.CannotBeDeleted",
+                "The menu \"{0}\" is required by your shop and cannot be deleted.",
+                "Das Menü \"{0}\" wird von Ihrem Shop benötigt und kann nicht gelöscht werden.");
+
             builder.AddOrUpdate("Admin.Catalog.Products.Fields.QuantityUnit",
                 "Quantity unit",
                 "Verpackungseinheit",
@@ -462,11 +466,23 @@ namespace Smartstore.Core.Data.Migrations
                 "The unique ID for this order.",
                 "Die eindeutige ID für diesen Auftrag.");
 
+            builder.AddOrUpdate("Admin.ContentManagement.Topics.Fields.IsSystemTopic",
+                "System topic",
+                "Systemseite",
+                "Topics predefined by the system cannot be deleted.",
+                "Vom System vorgegebene Seiten und Inhalte können nicht gelöscht werden.");
+
+            builder.AddOrUpdate("Admin.ContentManagement.Topics.Fields.CookieType",
+                "Cookie type",
+                "Art des Cookies",
+                "Sets whether this widget is displayed according to the customer's settings in the cookie manager. This option should be used if you add a third-party script that sets cookies.",
+                "Legt fest, ob dieses Widget in Abhängigkeit zur Kundeneinstellung im Cookie-Manager ausgegeben wird. Diese Option sollte verwendet werden, wenn Sie ein Script für einen Drittanbieter zufügen, das Cookies setzt.");
+
             #endregion
 
             #region Packaging
 
-               builder.AddOrUpdate("Admin.Packaging.Dialog.PluginInfo",
+            builder.AddOrUpdate("Admin.Packaging.Dialog.PluginInfo",
                 "Choose a plugin package file (Smartstore.Module.*.zip) to upload to your server. The package will be automatically extracted and installed. If an older version of the plugin already exists, it will be backed up for you.",
                 "Wählen Sie die Plugin Paket-Datei (Smartstore.Module.*.zip), die Sie auf den Server hochladen möchten. Das Paket wird autom. extrahiert und installiert. Wenn eine ältere Version des Plugins bereits existiert, wird eine Sicherungskopie davon erstellt.");
 

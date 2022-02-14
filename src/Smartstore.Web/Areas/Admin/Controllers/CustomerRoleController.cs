@@ -297,6 +297,7 @@ namespace Smartstore.Admin.Controllers
                 .AsNoTracking()
                 .Include(x => x.Customer)
                 .Where(x => x.CustomerRoleId == id && x.Customer != null)
+                .OrderBy(x => x.IsSystemMapping)
                 .Select(x => new CustomerRoleMappingModel
                 {
                     Id = x.Id,

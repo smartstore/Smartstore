@@ -113,6 +113,7 @@ namespace Smartstore.Admin.Models.Topics
         [LocalizedDisplay("*TitleTag")]
         public string TitleTag { get; set; }
 
+        [LocalizedDisplay("*IsSystemTopic")]
         public bool IsSystemTopic { get; set; }
 
         [LocalizedDisplay("Common.Published")]

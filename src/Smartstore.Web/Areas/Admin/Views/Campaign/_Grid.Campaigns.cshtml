@@ -3,9 +3,11 @@
 @model CampaignModel
 
 <datagrid id="campaigns-grid" allow-resize="true" allow-row-selection="true" allow-column-reordering="true">
-    <datasource read="@Url.Action("List", "Campaign")"
-                delete="@Url.Action("DeleteSelection", "Campaign")" />
-    <sorting enabled="true" />
+    <datasource read="@Url.Action("CampaignList", "Campaign")"
+                delete="@Url.Action("CampaignDelete", "Campaign")" />
+    <sorting enabled="true">
+        <sort by="CreatedOn" by-entity-member="CreatedOnUtc" descending="true" />
+    </sorting>
     <paging position="Bottom" show-size-chooser="true" />
     <toolbar>
         <toolbar-group>
@@ -22,7 +24,7 @@
         </toolbar-group>
     </toolbar>
     <columns>
-        <column for="Name" hideable="false" width="350px">
+        <column for="Name" hideable="false">
             <display-template>
                 <a :href="item.row.EditUrl" class="text-truncate">
                     {{ item.value }}
@@ -31,7 +33,8 @@
         </column>
         <column for="Subject" width="1fr" />
         <column for="CreatedOn" />
-        <column for="LimitedToStores" readonly="true" halign="center" />
+        <column for="LimitedToStores" halign="center" />
+        <column for="SubjectToAcl" halign="center" />
     </columns>
     <row-commands>
         <a datarow-action="DataRowAction.Custom" :href="item.row.EditUrl">@T("Common.Edit")</a>
