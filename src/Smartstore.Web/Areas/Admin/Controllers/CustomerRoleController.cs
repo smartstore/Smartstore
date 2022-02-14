@@ -116,14 +116,15 @@ namespace Smartstore.Admin.Controllers
         {
             var customerRoles = await _roleManager.Roles
                 .AsNoTracking()
-                .ApplyGridCommand(command, false)
+                .OrderBy(x => x.Name)
+                .ApplyGridCommand(command)
                 .ToPagedList(command)
                 .LoadAsync();
 
             var rows = customerRoles.Select(x =>
             {
                 var model = MiniMapper.Map<CustomerRole, CustomerRoleModel>(x);
-                model.EditUrl = Url.Action("Edit", "CustomerRole", new { id = x.Id, area = "Admin" });
+                model.EditUrl = Url.Action(nameof(Edit), "CustomerRole", new { id = x.Id, area = "Admin" });
                 return model;
             })
             .ToList();

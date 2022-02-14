@@ -1906,26 +1906,22 @@ namespace Smartstore.Web.Controllers
                 .Query()
                 .Where(x => x.IsApproved);
 
-            if (collectionLoaded)
-            {
-                model.TotalReviewsCount = product.ProductReviews.Count;
-            }
-            else
-            {
-                model.TotalReviewsCount = await query.CountAsync();
-            }
+            model.TotalReviewsCount = collectionLoaded
+                ? product.ProductReviews.Count
+                : await query.CountAsync();
 
             if (model.TotalReviewsCount > 0)
             {
+                query = query.OrderByDescending(x => x.CreatedOnUtc);
+
                 if (take.HasValue)
                 {
                     query = query.Take(take.Value);
                 }
                 
-                var reviews = collectionLoaded ? product.ProductReviews.Take(take ?? int.MaxValue).ToList() : await query
-                    .OrderByDescending(y => y.CreatedOnUtc)
-                    .Include(x => x.Customer)
-                    .ToListAsync();
+                var reviews = collectionLoaded 
+                    ? product.ProductReviews.Take(take ?? int.MaxValue).ToList() 
+                    : await query.Include(x => x.Customer).ToListAsync();
 
                 foreach (var review in reviews)
                 {
