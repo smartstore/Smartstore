@@ -14,10 +14,10 @@
           onrowclass="blogpostsGrid_onRowClass">
     <datasource read="@Url.Action("BlogPostList")"
                 update="@Url.Action("BlogPostUpdate")"
-                delete="@Url.Action("DeleteSelection")" />
+                delete="@Url.Action("BlogPostDelete")" />
     <paging position="Bottom" page-index="1" show-size-chooser="true" />
     <sorting allow-unsort="true" allow-multisort="false">
-        <sort by="CreatedOnUtc" />
+        <sort by="CreatedOn" by-entity-member="CreatedOnUtc" descending="true" />
     </sorting>
     <toolbar>
         <toolbar-group>
@@ -72,9 +72,9 @@
         }
         <column for="AllowComments" halign="center" visible="false" />
         <column for="DisplayTagsInPreview" halign="center" visible="false" />
-        <column for="CreatedOn" entity-member="CreatedOnUtc" visible="false" />
-        <column for="StartDate" entity-member="StartDateUtc" visible="false" />
-        <column for="EndDate" entity-member="EndDateUtc" visible="false" />
+        <column for="CreatedOn" entity-member="CreatedOnUtc" readonly="true" />
+        <column for="StartDate" entity-member="StartDateUtc" readonly="true" visible="false" />
+        <column for="EndDate" entity-member="EndDateUtc" readonly="true" visible="false" />
         <column for="Tags" readonly="true" wrap="true" sortable="false">
             <display-template>
                 <div>

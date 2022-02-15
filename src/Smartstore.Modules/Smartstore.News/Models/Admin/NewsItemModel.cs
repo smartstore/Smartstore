@@ -1,4 +1,5 @@
 ﻿using Smartstore.ComponentModel;
+using Smartstore.Core.Common.Services;
 using Smartstore.Core.Seo;
 
 namespace Smartstore.News.Models
@@ -26,7 +27,7 @@ namespace Smartstore.News.Models
         public int? PictureId { get; set; }
 
         [UIHint("Media"), AdditionalMetadata("album", "content")]
-        [LocalizedDisplay("*PreviewPictureId")]
+        [LocalizedDisplay("*PreviewPicture")]
         public int? PreviewPictureId { get; set; }
 
         [LocalizedDisplay("*AllowComments")]
@@ -120,12 +121,36 @@ namespace Smartstore.News.Models
         IMapper<NewsItem, NewsItemModel>,
         IMapper<NewsItemModel, NewsItem>
     {
+        private readonly IDateTimeHelper _dateTimeHelper;
+
+        public NewsItemMapper(IDateTimeHelper dateTimeHelper)
+        {
+            _dateTimeHelper = dateTimeHelper;
+        }
+
         public async Task MapAsync(NewsItem from, NewsItemModel to, dynamic parameters = null)
         {
             MiniMapper.Map(from, to);
             to.SeName = await from.GetActiveSlugAsync(0, true, false);
             to.PictureId = from.MediaFileId;
             to.PreviewPictureId = from.PreviewMediaFileId;
+            to.Comments = from.ApprovedCommentCount + from.NotApprovedCommentCount;
+
+            if (from.LanguageId.HasValue)
+            {
+                to.LanguageName = from.Language?.Name;
+            }
+
+            if (from.StartDateUtc.HasValue)
+            {
+                to.StartDate = _dateTimeHelper.ConvertToUserTime(from.StartDateUtc.Value, DateTimeKind.Utc);
+            }
+            if (from.EndDateUtc.HasValue)
+            {
+                to.EndDate = _dateTimeHelper.ConvertToUserTime(from.EndDateUtc.Value, DateTimeKind.Utc);
+            }
+
+            to.CreatedOn = _dateTimeHelper.ConvertToUserTime(from.CreatedOnUtc, DateTimeKind.Utc);
         }
 
         public Task MapAsync(NewsItemModel from, NewsItem to, dynamic parameters = null)

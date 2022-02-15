@@ -333,20 +333,18 @@ namespace Smartstore.Polls.Controllers
         public async Task<IActionResult> PollAnswerDelete(GridSelection selection)
         {
             var success = false;
-            var numDeleted = 0;
             var ids = selection.GetEntityIds();
 
             if (ids.Any())
             {
                 var pollAnswers = await _db.PollAnswers().GetManyAsync(ids, true);
-
                 _db.PollAnswers().RemoveRange(pollAnswers);
 
-                numDeleted = await _db.SaveChangesAsync();
+                await _db.SaveChangesAsync();
                 success = true;
             }
 
-            return Json(new { Success = success, Count = numDeleted });
+            return Json(new { Success = success });
         }
 
         #endregion

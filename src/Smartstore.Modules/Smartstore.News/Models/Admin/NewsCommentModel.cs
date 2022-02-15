@@ -11,6 +11,8 @@
 
         [LocalizedDisplay("*Customer")]
         public int CustomerId { get; set; }
+
+        [LocalizedDisplay("*Customer")]
         public string CustomerName { get; set; }
 
         [LocalizedDisplay("*IPAddress")]

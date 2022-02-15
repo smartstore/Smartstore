@@ -4,11 +4,11 @@
           allow-resize="true"
           allow-column-reordering="true"
           allow-row-selection="true">
-    <datasource read="@Url.Action("Comments", "News", new { newsItemId = ViewData["NewsItemId"] })"
-                delete="@Url.Action("DeleteCommentSelection")" />
+    <datasource read="@Url.Action("NewsCommentList", "News", new { newsItemId = ViewData["NewsItemId"] })"
+                delete="@Url.Action("NewsCommentDelete")" />
     <paging position="Bottom" page-index="1" show-size-chooser="true" />
     <sorting allow-unsort="true" allow-multisort="false">
-        <sort by="CreatedOn" by-entity-member="CreatedOnUtc" />
+        <sort by="CreatedOn" by-entity-member="CreatedOnUtc" descending="true" />
     </sorting>
     <toolbar>
         <toolbar-group class="omega">
@@ -20,12 +20,12 @@
     </toolbar>
     <columns>
         <column for="Id" halign="center" visible="false" type="string" />
-        <column for="NewsItemTitle" hideable="false">
+        <column for="NewsItemTitle" hideable="false" entity-member="NewsItem.Title">
             <display-template>
                 <div class="text-truncate"><a :href="item.row.EditNewsItemUrl" class="text-truncate">{{ item.value }}</a></div>
             </display-template>
         </column>
-        <column for="CustomerName">
+        <column for="CustomerName" sortable="false">
             <display-template>
                 <div class="text-truncate"><a :href="item.row.EditCustomerUrl" class="text-truncate">{{ item.value }}</a></div>
             </display-template>

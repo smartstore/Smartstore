@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Blog.Models;
 using Smartstore.Blog.Services;
 using Smartstore.ComponentModel;
-using Smartstore.Core.Common.Services;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
@@ -27,7 +26,6 @@ namespace Smartstore.Blog.Controllers
         private readonly IBlogService _blogService;
         private readonly IUrlService _urlService;
         private readonly ILanguageService _languageService;
-        private readonly IDateTimeHelper _dateTimeHelper;
         private readonly ILocalizedEntityService _localizedEntityService;
         private readonly IStoreMappingService _storeMappingService;
         private readonly ICustomerService _customerService;
@@ -38,7 +36,6 @@ namespace Smartstore.Blog.Controllers
             IBlogService blogService,
             IUrlService urlService,
             ILanguageService languageService,
-            IDateTimeHelper dateTimeHelper,
             ILocalizedEntityService localizedEntityService,
             IStoreMappingService storeMappingService,
             ICustomerService customerService,
@@ -48,7 +45,6 @@ namespace Smartstore.Blog.Controllers
             _blogService = blogService;
             _urlService = urlService;
             _languageService = languageService;
-            _dateTimeHelper = dateTimeHelper;
             _localizedEntityService = localizedEntityService;
             _storeMappingService = storeMappingService;
             _customerService = customerService;
@@ -208,9 +204,9 @@ namespace Smartstore.Blog.Controllers
         [Permission(BlogPermissions.Read)]
         public async Task<IActionResult> BlogPostList(GridCommand command, BlogListModel model)
         {
-            var query = _db.BlogPosts().Include(x => x.Language).AsNoTracking();
-
-            query = query
+            var query = _db.BlogPosts()
+                .Include(x => x.Language)
+                .AsNoTracking()
                 .ApplyTimeFilter(model.SearchStartDate, model.SearchEndDate)
                 .ApplyStandardFilter(model.SearchStoreId, model.SearchLanguageId, true)
                 .Where(x => x.IsPublished == model.SearchIsPublished || model.SearchIsPublished == null);
@@ -236,7 +232,7 @@ namespace Smartstore.Blog.Controllers
             }
 
             var blogPosts = await query
-                .ApplyGridCommand(command, false)
+                .ApplyGridCommand(command)
                 .ToPagedList(command)
                 .LoadAsync();
 
@@ -244,23 +240,9 @@ namespace Smartstore.Blog.Controllers
                 .SelectAsync(async x =>
                 {
                     var model = await MapperFactory.MapAsync<BlogPost, BlogPostModel>(x);
-                    if (x.StartDateUtc.HasValue)
-                    {
-                        model.StartDate = _dateTimeHelper.ConvertToUserTime(x.StartDateUtc.Value, DateTimeKind.Utc);
-                    }
-                    if (x.EndDateUtc.HasValue)
-                    {
-                        model.EndDate = _dateTimeHelper.ConvertToUserTime(x.EndDateUtc.Value, DateTimeKind.Utc);
-                    }
-                    if (x.LanguageId.HasValue)
-                    {
-                        model.LanguageName = x.Language?.Name;
-                    }
 
                     model.EditUrl = Url.Action(nameof(Edit), "Blog", new { id = x.Id });
                     model.CommentsUrl = Url.Action(nameof(Comments), "Blog", new { blogPostId = x.Id });
-                    model.CreatedOn = Services.DateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc);
-                    model.Comments = x.ApprovedCommentCount + x.NotApprovedCommentCount;
 
                     return model;
                 })
@@ -326,7 +308,8 @@ namespace Smartstore.Blog.Controllers
                 model.SeName = validateSlugResult.Slug;
 
                 await UpdateLocalesAsync(blogPost, model);
-                await SaveStoreMappingsAsync(blogPost, model.SelectedStoreIds);
+                await _storeMappingService.ApplyStoreMappingsAsync(blogPost, model.SelectedStoreIds);
+                await _db.SaveChangesAsync();
 
                 await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, blogPost, form));
                 NotifySuccess(T("Admin.ContentManagement.Blog.BlogPosts.Added"));
@@ -393,9 +376,10 @@ namespace Smartstore.Blog.Controllers
                 model.SeName = validateSlugResult.Slug;
 
                 await UpdateLocalesAsync(blogPost, model);
-                await SaveStoreMappingsAsync(blogPost, model.SelectedStoreIds);
-                await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, blogPost, form));
+                await _storeMappingService.ApplyStoreMappingsAsync(blogPost, model.SelectedStoreIds);
+                await _db.SaveChangesAsync();
 
+                await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, blogPost, form));
                 NotifySuccess(T("Admin.ContentManagement.Blog.BlogPosts.Updated"));
 
                 return continueEditing 
@@ -428,7 +412,7 @@ namespace Smartstore.Blog.Controllers
 
         [HttpPost]
         [Permission(BlogPermissions.Delete)]
-        public async Task<IActionResult> DeleteSelection(GridSelection selection)
+        public async Task<IActionResult> BlogPostDelete(GridSelection selection)
         {
             var success = false;
             var numDeleted = 0;
@@ -488,7 +472,7 @@ namespace Smartstore.Blog.Controllers
                     BlogPostTitle = blogComment.BlogPost.GetLocalized(x => x.Title),
                     CustomerId = blogComment.CustomerId,
                     IpAddress = blogComment.IpAddress,
-                    CreatedOn = _dateTimeHelper.ConvertToUserTime(blogComment.CreatedOnUtc, DateTimeKind.Utc),
+                    CreatedOn = Services.DateTimeHelper.ConvertToUserTime(blogComment.CreatedOnUtc, DateTimeKind.Utc),
                     Comment = blogComment.CommentText.Truncate(270, "..."),
                     CustomerName = blogComment.Customer.GetDisplayName(T),
                     EditBlogPostUrl = Url.Action(nameof(Edit), "Blog", new { id = blogComment.BlogPostId }),

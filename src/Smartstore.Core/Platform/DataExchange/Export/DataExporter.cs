@@ -420,7 +420,7 @@ namespace Smartstore.Core.DataExchange.Export
             var fileExtension = provider.FileExtension.NullEmpty()?.ToLower()?.EnsureStartsWith(".") ?? string.Empty;
 
             context.FileIndex = 0;
-            context.Store = ToDynamic(ctx.Store, ctx);
+            context.Store = DataExporter.ToDynamic(ctx.Store, ctx);
             context.MaxFileNameLength = dataExchangeSettings.MaxFileNameLength;
             context.HasPublicDeployment = publicDeployment != null;
             context.PublicDirectory = await _exportProfileService.GetDeploymentDirectoryAsync(publicDeployment, true);

@@ -100,20 +100,15 @@ namespace Smartstore.Admin.Controllers
         public async Task<IActionResult> ProductReviewDelete(GridSelection selection)
         {
             var success = false;
-            var numDeleted = 0;
             var ids = selection.GetEntityIds();
 
             if (ids.Any())
             {
-                var productReviews = await _db.CustomerContent
-                    .OfType<ProductReview>()
-                    .Where(x => ids.Contains(x.Id))
-                    .ToListAsync();
-
+                var productReviews = await _db.ProductReviews.GetManyAsync(ids, true);
                 var productIds = productReviews.ToDistinctArray(x => x.ProductId);
 
                 _db.CustomerContent.RemoveRange(productReviews);
-                numDeleted = await _db.SaveChangesAsync();
+                await _db.SaveChangesAsync();
 
                 var products = await _db.Products
                     .Include(x => x.ProductReviews)
@@ -126,7 +121,7 @@ namespace Smartstore.Admin.Controllers
                 success = true;
             }
 
-            return Json(new { Success = success, Count = numDeleted });
+            return Json(new { Success = success });
         }
 
         [HttpPost]

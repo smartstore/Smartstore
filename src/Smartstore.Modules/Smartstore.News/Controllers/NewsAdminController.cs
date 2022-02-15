@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.ComponentModel;
-using Smartstore.Core.Common.Services;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
@@ -25,16 +24,14 @@ namespace Smartstore.News.Controllers
         private readonly SmartDbContext _db;
         private readonly IUrlService _urlService;
         private readonly ILanguageService _languageService;
-        private readonly IDateTimeHelper _dateTimeHelper;
         private readonly ILocalizedEntityService _localizedEntityService;
         private readonly IStoreMappingService _storeMappingService;
         private readonly ICustomerService _customerService;
 
-        public NewsAdminController  (
+        public NewsAdminController(
             SmartDbContext db,
             IUrlService urlService,
             ILanguageService languageService,
-            IDateTimeHelper dateTimeHelper,
             ILocalizedEntityService localizedEntityService,
             IStoreMappingService storeMappingService,
             ICustomerService customerService)
@@ -42,7 +39,6 @@ namespace Smartstore.News.Controllers
             _db = db;
             _urlService = urlService;
             _languageService = languageService;
-            _dateTimeHelper = dateTimeHelper;
             _localizedEntityService = localizedEntityService;
             _storeMappingService = storeMappingService;
             _customerService = customerService;
@@ -117,7 +113,8 @@ namespace Smartstore.News.Controllers
                 model.SelectedStoreIds = await _storeMappingService.GetAuthorizedStoreIdsAsync(newsItem);
             }
 
-            var allLanguages = _languageService.GetAllLanguages(true);
+            var allLanguages = await _languageService.GetAllLanguagesAsync(true);
+
             ViewBag.AvailableLanguages = allLanguages
                 .Select(x => new SelectListItem { Text = x.Name, Value = x.Id.ToString() })
                 .ToList();
@@ -172,14 +169,15 @@ namespace Smartstore.News.Controllers
         }
 
         [Permission(NewsPermissions.Read)]
-        public IActionResult List()
+        public async Task<IActionResult> List()
         {
             var model = new NewsListModel
             {
                 SearchEndDate = DateTime.UtcNow
             };
 
-            var allLanguages = _languageService.GetAllLanguages(true);
+            var allLanguages = await _languageService.GetAllLanguagesAsync(true);
+
             ViewBag.AvailableLanguages = allLanguages
                 .Select(x => new SelectListItem { Text = x.Name, Value = x.Id.ToString() })
                 .ToList();
@@ -216,7 +214,7 @@ namespace Smartstore.News.Controllers
             }
 
             var newsItems = await query
-                .ApplyGridCommand(command, false)
+                .ApplyGridCommand(command)
                 .ToPagedList(command)
                 .LoadAsync();
 
@@ -224,23 +222,9 @@ namespace Smartstore.News.Controllers
                 .SelectAsync(async x =>
                 {
                     var model = await MapperFactory.MapAsync<NewsItem, NewsItemModel>(x);
-                    if (x.StartDateUtc.HasValue)
-                    {
-                        model.StartDate = _dateTimeHelper.ConvertToUserTime(x.StartDateUtc.Value, DateTimeKind.Utc);
-                    }
-                    if (x.EndDateUtc.HasValue)
-                    {
-                        model.EndDate = _dateTimeHelper.ConvertToUserTime(x.EndDateUtc.Value, DateTimeKind.Utc);
-                    }
-                    if (x.LanguageId.HasValue)
-                    {
-                        model.LanguageName = x.Language?.Name;
-                    }
 
                     model.EditUrl = Url.Action(nameof(Edit), "News", new { id = x.Id });
-                    model.CommentsUrl = Url.Action(nameof(Comments), "News", new { blogPostId = x.Id });
-                    model.CreatedOn = Services.DateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc);
-                    model.Comments = x.ApprovedCommentCount + x.NotApprovedCommentCount;
+                    model.CommentsUrl = Url.Action(nameof(Comments), "News", new { newsItemId = x.Id });
 
                     return model;
                 })
@@ -260,11 +244,11 @@ namespace Smartstore.News.Controllers
         public async Task<IActionResult> NewsItemUpdate(NewsItemModel model)
         {
             var success = false;
-            var newsItems = await _db.NewsItems().FindByIdAsync(model.Id);
+            var newsItem = await _db.NewsItems().FindByIdAsync(model.Id);
 
-            if (newsItems != null)
+            if (newsItem != null)
             {
-                await MapperFactory.MapAsync(model, newsItems);
+                await MapperFactory.MapAsync(model, newsItem);
                 await _db.SaveChangesAsync();
                 success = true;
             }
@@ -279,7 +263,7 @@ namespace Smartstore.News.Controllers
             {
                 Published = true,
                 AllowComments = true,
-                CreatedOn = DateTime.UtcNow
+                CreatedOn = Services.DateTimeHelper.ConvertToUserTime(DateTime.UtcNow, DateTimeKind.Utc)
             };
 
             AddLocales(model.Locales);
@@ -310,7 +294,8 @@ namespace Smartstore.News.Controllers
                 model.SeName = validateSlugResult.Slug;
 
                 await UpdateLocalesAsync(newsItem, model);
-                await SaveStoreMappingsAsync(newsItem, model.SelectedStoreIds);
+                await _storeMappingService.ApplyStoreMappingsAsync(newsItem, model.SelectedStoreIds);
+                await _db.SaveChangesAsync();
 
                 await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, newsItem, form));
                 NotifySuccess(T("Admin.ContentManagement.News.NewsItems.Added"));
@@ -347,10 +332,6 @@ namespace Smartstore.News.Controllers
                 locale.SeName = await newsItem.GetActiveSlugAsync(languageId, false, false);
             });
 
-            model.StartDate = newsItem.StartDateUtc;
-            model.EndDate = newsItem.EndDateUtc;
-            model.CreatedOn = newsItem.CreatedOnUtc;
-
             await PrepareNewsItemModelAsync(model, newsItem);
 
             return View(model);
@@ -361,7 +342,7 @@ namespace Smartstore.News.Controllers
         [Permission(NewsPermissions.Update)]
         public async Task<IActionResult> Edit(NewsItemModel model, bool continueEditing, IFormCollection form)
         {
-            var newsItem = await _db.NewsItems().FindByIdAsync(model.Id, false);
+            var newsItem = await _db.NewsItems().FindByIdAsync(model.Id);
             if (newsItem == null)
             {
                 return NotFound();
@@ -371,6 +352,7 @@ namespace Smartstore.News.Controllers
             {
                 await MapperFactory.MapAsync(model, newsItem);
 
+                // TODO: (mg) (core) fix DateTime conversion mess here and in BlogAdminController.
                 newsItem.StartDateUtc = model.StartDate;
                 newsItem.EndDateUtc = model.EndDate;
                 newsItem.CreatedOnUtc = model.CreatedOn;
@@ -380,9 +362,10 @@ namespace Smartstore.News.Controllers
                 model.SeName = validateSlugResult.Slug;
 
                 await UpdateLocalesAsync(newsItem, model);
-                await SaveStoreMappingsAsync(newsItem, model.SelectedStoreIds);
-                await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, newsItem, form));
+                await _storeMappingService.ApplyStoreMappingsAsync(newsItem, model.SelectedStoreIds);
+                await _db.SaveChangesAsync();
 
+                await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, newsItem, form));
                 NotifySuccess(T("Admin.ContentManagement.News.NewsItems.Updated"));
 
                 return continueEditing 
@@ -414,7 +397,7 @@ namespace Smartstore.News.Controllers
 
         [HttpPost]
         [Permission(NewsPermissions.Delete)]
-        public async Task<IActionResult> DeleteSelection(GridSelection selection)
+        public async Task<IActionResult> NewsItemDelete(GridSelection selection)
         {
             var success = false;
             var numDeleted = 0;
@@ -447,11 +430,11 @@ namespace Smartstore.News.Controllers
 
         [HttpPost]
         [Permission(NewsPermissions.Read)]
-        public async Task<IActionResult> Comments(int? newsItemId, GridCommand command)
+        public async Task<IActionResult> NewsCommentList(int? newsItemId, GridCommand command)
         {
             var query = _db.CustomerContent
-                    .AsNoTracking()
-                    .OfType<NewsComment>();
+                .AsNoTracking()
+                .OfType<NewsComment>();
 
             if (newsItemId.HasValue)
             {
@@ -461,33 +444,31 @@ namespace Smartstore.News.Controllers
             var comments = await query
                 .Include(x => x.NewsItem)
                 .Include(x => x.Customer)
+                .ThenInclude(x => x.CustomerRoleMappings)
+                .ThenInclude(x => x.CustomerRole)
                 .OrderByDescending(x => x.CreatedOnUtc)
-                .ToPagedList(command.Page - 1, command.PageSize)
+                .ApplyGridCommand(command)
+                .ToPagedList(command)
                 .LoadAsync();
 
-            var commentsModel = comments.Select(newsComment =>
+            var rows = comments.Select(newsComment => new NewsCommentModel
             {
-                var commentModel = new NewsCommentModel
-                {
-                    Id = newsComment.Id,
-                    NewsItemId = newsComment.NewsItemId,
-                    NewsItemTitle = newsComment.NewsItem.GetLocalized(x => x.Title),
-                    CustomerId = newsComment.CustomerId,
-                    IpAddress = newsComment.IpAddress,
-                    CreatedOn = _dateTimeHelper.ConvertToUserTime(newsComment.CreatedOnUtc, DateTimeKind.Utc),
-                    CommentText = newsComment.CommentText.Truncate(270, "..."),
-                    CommentTitle = newsComment.CommentTitle,
-                    CustomerName = newsComment.Customer.GetDisplayName(T),
-                    EditNewsItemUrl = Url.Action(nameof(Edit), "News", new { id = newsComment.NewsItemId }),
-                    EditCustomerUrl = Url.Action("Edit", "Customer", new { id = newsComment.CustomerId })
-                };
-
-                return commentModel;
+                Id = newsComment.Id,
+                NewsItemId = newsComment.NewsItemId,
+                NewsItemTitle = newsComment.NewsItem.GetLocalized(x => x.Title),
+                CustomerId = newsComment.CustomerId,
+                IpAddress = newsComment.IpAddress,
+                CreatedOn = Services.DateTimeHelper.ConvertToUserTime(newsComment.CreatedOnUtc, DateTimeKind.Utc),
+                CommentText = newsComment.CommentText.Truncate(270, "..."),
+                CommentTitle = newsComment.CommentTitle,
+                CustomerName = newsComment.Customer.GetDisplayName(T),
+                EditNewsItemUrl = Url.Action(nameof(Edit), "News", new { id = newsComment.NewsItemId }),
+                EditCustomerUrl = Url.Action("Edit", "Customer", new { id = newsComment.CustomerId })
             });
 
             var gridModel = new GridModel<NewsCommentModel>
             {
-                Rows = commentsModel,
+                Rows = rows,
                 Total = await comments.GetTotalCountAsync()
             };
 
@@ -496,10 +477,9 @@ namespace Smartstore.News.Controllers
 
         [HttpPost]
         [Permission(NewsPermissions.EditComment)]
-        public async Task<IActionResult> DeleteCommentSelection(GridSelection selection)
+        public async Task<IActionResult> NewsCommentDelete(GridSelection selection)
         {
             var success = false;
-            var numDeleted = 0;
             var ids = selection.GetEntityIds();
 
             if (ids.Any())
@@ -507,11 +487,11 @@ namespace Smartstore.News.Controllers
                 var newsComments = await _db.NewsComments().GetManyAsync(ids, true);
                 _db.NewsComments().RemoveRange(newsComments);
 
-                numDeleted = await _db.SaveChangesAsync();
+                await _db.SaveChangesAsync();
                 success = true;
             }
 
-            return Json(new { Success = success, Count = numDeleted });
+            return Json(new { Success = success });
         }
 
         #endregion

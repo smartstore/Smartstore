@@ -749,6 +749,18 @@ namespace Smartstore.Core.Data.Migrations
                 "Specifies the new storage provider for media file like images.",
                 "Legt den neuen Speicheranbieter für Mediendateien wie z.B. Bilder fest.");
 
+            builder.AddOrUpdate("Admin.ContentManagement.Blog.BlogPosts.Fields.PreviewDisplayType",
+                "Preview display type",
+                "Vorschau-Darstellung",
+                "Specifies display type of the preview for a blog item.",
+                "Legt die Darstellung der Vorschau für einen Blog-Eintrag fest.");
+
+            builder.AddOrUpdate("Admin.ContentManagement.Blog.BlogPosts.Fields.DisplayTagsInPreview",
+                "Display tags on preview",
+                "Tags in Vorschau anzeigen",
+                "Specifies whether tags are display in the preview for blog item.",
+                "Legt fest, ob Tags in der Vorschau eines Blog-Eintrags angezeigt werden.");
+
             #endregion
 
             #region Obsolete
@@ -830,6 +842,9 @@ namespace Smartstore.Core.Data.Migrations
             //    "Admin.Configuration.EmailAccounts.BackToList",
             //    "Admin.Customers.Customers.ActivityLog.ActivityLogType",
             //    "Admin.Customers.Customers.ActivityLog.Comment",
+            //    "Admin.ContentManagement.News.Blog.BlogPosts.Fields.PreviewDisplayType",
+            //    "Admin.ContentManagement.News.Blog.BlogPosts.Fields.DisplayTagsInPreview",
+            //    "Admin.ContentManagement.News.Blog.BlogPosts.Fields.IsPublished",
             //    );
 
 

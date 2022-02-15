@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.ComponentModel;
+using Smartstore.Core.Common.Services;
 using Smartstore.Core.Seo;
 
 namespace Smartstore.Blog.Models
@@ -56,6 +57,9 @@ namespace Smartstore.Blog.Models
         [LocalizedDisplay("Common.CreatedOn")]
         public DateTime CreatedOnUtc { get; set; }
 
+        [LocalizedDisplay("Common.CreatedOn")]
+        public DateTime CreatedOn { get; set; }
+
         [LocalizedDisplay("*StartDate")]
         public DateTime? StartDate { get; set; }
 
@@ -74,9 +78,6 @@ namespace Smartstore.Blog.Models
         [AdditionalMetadata("rows", 1)]
         [LocalizedDisplay("Admin.Configuration.Seo.MetaTitle")]
         public string MetaTitle { get; set; }
-
-        [LocalizedDisplay("Common.CreatedOn")]
-        public DateTime CreatedOn { get; set; }
 
         [LocalizedDisplay("*Language")]
         public int? LanguageId { get; set; }
@@ -150,12 +151,36 @@ namespace Smartstore.Blog.Models
         IMapper<BlogPost, BlogPostModel>,
         IMapper<BlogPostModel, BlogPost>
     {
+        private readonly IDateTimeHelper _dateTimeHelper;
+
+        public BlogPostMapper(IDateTimeHelper dateTimeHelper)
+        {
+            _dateTimeHelper = dateTimeHelper;
+        }
+
         public async Task MapAsync(BlogPost from, BlogPostModel to, dynamic parameters = null)
         {
             MiniMapper.Map(from, to);
             to.SeName = await from.GetActiveSlugAsync(0, true, false);
             to.PictureId = from.MediaFileId;
             to.PreviewPictureId = from.PreviewMediaFileId;
+            to.Comments = from.ApprovedCommentCount + from.NotApprovedCommentCount;
+
+            if (from.LanguageId.HasValue)
+            {
+                to.LanguageName = from.Language?.Name;
+            }
+
+            if (from.StartDateUtc.HasValue)
+            {
+                to.StartDate = _dateTimeHelper.ConvertToUserTime(from.StartDateUtc.Value, DateTimeKind.Utc);
+            }
+            if (from.EndDateUtc.HasValue)
+            {
+                to.EndDate = _dateTimeHelper.ConvertToUserTime(from.EndDateUtc.Value, DateTimeKind.Utc);
+            }
+
+            to.CreatedOn = _dateTimeHelper.ConvertToUserTime(from.CreatedOnUtc, DateTimeKind.Utc);
         }
 
         public Task MapAsync(BlogPostModel from, BlogPost to, dynamic parameters = null)
