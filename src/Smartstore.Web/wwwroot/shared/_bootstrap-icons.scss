@@ -1,0 +1,22 @@
+﻿/// <reference path="_variables-shared.scss" />
+/// <reference path="_mixins.scss" />
+/// <reference path="../lib/bs4/scss/bootstrap.scss" />
+
+// Bootstrap Icons
+// ------------------------------------
+
+.bi {
+    display: inline-block;
+    vertical-align: middle;
+    width: 1em;
+    height: 1em;
+    min-width: 16px;
+    min-height: 16px;
+    line-height: 1;
+}
+
+.bi-fw {
+    text-align: center;
+    width: 1.25em;
+    min-width: 20px;
+}

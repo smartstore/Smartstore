@@ -74,6 +74,8 @@
 
 .dropdown-item {
     position: relative;
+    display: flex;
+    align-items: center;
     font-weight: $dropdown-font-weight;
     font-size: $dropdown-font-size;
 
@@ -82,23 +84,29 @@
 	}
 
 	> i,
+    > svg,
 	> img {
 		margin-left: -0.5rem;
-		margin-right: 0.5rem;
+		margin-right: 0.75rem;
 	}
 
 	&:not(.disabled) {
-		> i {
+		> i,
+        > svg {
 			color: lighten($dropdown-link-color, 15%);
 		}
 
 		.dropdown-group.show > & > i,
-		&:hover > i {
+        .dropdown-group.show > & > svg,
+		&:hover > i,
+        &:hover > svg {
 			color: $dropdown-link-hover-color;
 		}
 
 		&:active > i,
-		&:focus > i {
+        &:active > svg,
+		&:focus > i,
+        &:focus > svg {
 			color: $dropdown-link-active-color;
 		}
 	}

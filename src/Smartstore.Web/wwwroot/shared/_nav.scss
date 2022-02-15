@@ -15,6 +15,42 @@
 }
 
 
+// 
+// Add icon support to nav tabs and pills (BS4)
+// ==============================================================
+
+.nav {
+    .nav-link {
+        display: flex;
+        align-items: center;
+    }
+
+	.nav-link > img,
+	.nav-link > i,
+    .nav-link > .nav-icon {
+		font-size: inherit;
+		margin-right: 0.5rem;
+		color: $gray-700;
+
+		+ span {
+			// Reset left space
+			padding-left: 0 !important;
+		}
+	}
+
+	.nav-link:hover > i
+    .nav-link:hover > .nav-icon,
+	.nav-link.active > i,
+    .nav-link.active > .nav-icon {
+		color: inherit;
+	}
+
+	.nav-link > .chevron {
+		margin-left: 3px;
+	}
+}
+
+
 // Material Tabs
 // ==============================================================
 
@@ -67,7 +103,9 @@
 			opacity: 0.4;
 		}
 
-		> i, > img {
+		> i,
+        > .nav-icon,
+        > img {
 			display: none;
 		}
 
@@ -76,7 +114,9 @@
         }
 
 		@include media-breakpoint-up(lg) {
-			> i, > img {
+			> i,
+            > .nav-icon,
+            > img {
 				display: inline-block;
 			}
 		}
@@ -163,7 +203,7 @@
 
 		.nav-link {
 			display: flex;
-			align-items: baseline;
+			align-items: center;
 		}
 
 		&.nav-tabs-line {
@@ -180,9 +220,9 @@
                 color: $gray-700;
                 background-color: transparent;
 
-                > i, 
-                > svg {
-                    color: $gray-500;
+                &:not(.active) > i, 
+                &:not(.active) > .nav-icon {
+                    color: $gray-600;
                 }
 
 		        &:hover,
@@ -194,7 +234,7 @@
                     border-color: rgba(#000, 0.2) !important;
 
                     > i, 
-                    > svg {
+                    > .nav-icon {
                         color: $gray-700;
                     }
                 }
@@ -217,7 +257,9 @@
                     padding-left: 0;
                     border-right: 2px solid transparent;
 
-					> img, > i {
+					> img, 
+                    > i, 
+                    > .nav-icon {
 						margin-right: 0.75rem;
 						margin-left: 0.25rem;
 					}
@@ -243,7 +285,9 @@
                     padding-right: 1.25rem;
                     border-left: 2px solid transparent;
 
-					> img, > i {
+					> img, 
+                    > i,
+                    > .nav-icon {
 						margin-right: 0.75rem;
 						margin-left: 0.25rem;
 					}
@@ -356,37 +400,4 @@
         padding: 1.5rem;
         padding-top: 1rem;
     }
-}
-
-
-// 
-// Add icon support to nav tabs and pills (BS4)
-// ==============================================================
-
-.nav {
-	.nav-link > img,
-	.nav-link > i {
-		vertical-align: baseline;
-		font-size: inherit;
-		margin-right: 0.5rem;
-		color: $gray-700;
-
-		+ span {
-			// Reset left space
-			padding-left: 0 !important;
-		}
-	}
-
-	.nav-link:hover > i,
-	.nav-link.active > i {
-		color: inherit;
-	}
-
-	.nav-link > .chevron {
-		margin-left: 3px;
-	}
-
-	.tabs-left .nav-link > i {
-		min-width: 1rem;
-	}
 }

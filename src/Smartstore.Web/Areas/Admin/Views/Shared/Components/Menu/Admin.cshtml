@@ -98,12 +98,16 @@
                     <a class="dropdown-item" href="@GetNodeLink(node)">
                         @if (hasIcons)
                         {
-                            var iconClass = "fa-fw";
                             if (node.Value.Icon.HasValue())
                             {
-                                iconClass += " " + node.Value.Icon;
+                                <svg class="dropdown-icon bi bi-fw" fill="currentColor">
+                                    <use xlink:href="/lib/bi/bootstrap-icons.svg#@node.Value.Icon" />
+                                </svg>
                             }
-                            <i class="@iconClass"></i>
+                            else
+                            {
+                                <i class="bi bi-fw"></i>
+                            }
                         }
                         @itemText
                     </a>

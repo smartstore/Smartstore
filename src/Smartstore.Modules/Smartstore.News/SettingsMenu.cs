@@ -11,7 +11,7 @@ namespace Smartstore.News
             var newsMenuItem = new MenuItem().ToBuilder()
                 .ResKey("Admin.Configuration.Settings.News")
                 .Id("news")
-                .Icon("far fa-fw fa-newspaper")
+                .Icon("newspaper", "bi")
                 .PermissionNames(NewsPermissions.Read)
                 .Action("Settings", "News", new { area = "Admin" })
                 .AsItem();

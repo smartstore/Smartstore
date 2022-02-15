@@ -36,7 +36,8 @@ namespace Smartstore.Admin.Infrastructure.Menus
             {
                 Id = "general",
                 Text = T("Admin.Common.General"),
-                Icon = "fa fa-fw fa-sliders-h",
+                IconLibrary = "bi",
+                Icon = "sliders",
                 PermissionNames = perm,
                 ControllerName = "Setting",
                 ActionName = "GeneralCommon"
@@ -46,7 +47,8 @@ namespace Smartstore.Admin.Infrastructure.Menus
             {
                 Id = "catalog",
                 Text = T("Admin.Catalog"),
-                Icon = "fa fa-fw fa-cube",
+                IconLibrary = "bi",
+                Icon = "box",
                 PermissionNames = perm,
                 ControllerName = "Setting",
                 ActionName = "Catalog"
@@ -56,7 +58,8 @@ namespace Smartstore.Admin.Infrastructure.Menus
             {
                 Id = "search",
                 Text = T("Search.Title"),
-                Icon = "far fa-fw fa-search",
+                IconLibrary = "bi",
+                Icon = "search",
                 PermissionNames = perm,
                 ControllerName = "Setting",
                 ActionName = "Search"
@@ -66,7 +69,8 @@ namespace Smartstore.Admin.Infrastructure.Menus
             {
                 Id = "customer",
                 Text = T("Admin.Customers"),
-                Icon = "fa fa-fw fa-user-alt",
+                IconLibrary = "bi",
+                Icon = "person",
                 PermissionNames = perm,
                 ControllerName = "Setting",
                 ActionName = "CustomerUser"
@@ -76,7 +80,8 @@ namespace Smartstore.Admin.Infrastructure.Menus
             {
                 Id = "cart",
                 Text = T("ShoppingCart"),
-                Icon = "fa fa-fw fa-shopping-cart",
+                IconLibrary = "bi",
+                Icon = "cart",
                 PermissionNames = perm,
                 ControllerName = "Setting",
                 ActionName = "ShoppingCart"
@@ -86,7 +91,8 @@ namespace Smartstore.Admin.Infrastructure.Menus
             {
                 Id = "order",
                 Text = T("Admin.Orders"),
-                Icon = "fa fa-fw fa-chart-bar",
+                IconLibrary = "bi",
+                Icon = "graph-up",
                 PermissionNames = perm,
                 ControllerName = "Setting",
                 ActionName = "Order"
@@ -96,7 +102,8 @@ namespace Smartstore.Admin.Infrastructure.Menus
             {
                 Id = "payment",
                 Text = T("Admin.Configuration.Payment"),
-                Icon = "far fa-fw fa-credit-card",
+                IconLibrary = "bi",
+                Icon = "credit-card",
                 PermissionNames = perm,
                 ControllerName = "Setting",
                 ActionName = "Payment"
@@ -106,7 +113,8 @@ namespace Smartstore.Admin.Infrastructure.Menus
             {
                 Id = "tax",
                 Text = T("Admin.Plugins.KnownGroup.Tax"),
-                Icon = "fa fa-fw fa-percent",
+                IconLibrary = "bi",
+                Icon = "percent",
                 PermissionNames = perm,
                 ControllerName = "Setting",
                 ActionName = "Tax"
@@ -116,7 +124,8 @@ namespace Smartstore.Admin.Infrastructure.Menus
             {
                 Id = "shipping",
                 Text = T("Admin.Configuration.Shipping"),
-                Icon = "fa fa-fw fa-truck",
+                IconLibrary = "bi",
+                Icon = "truck",
                 PermissionNames = perm,
                 ControllerName = "Setting",
                 ActionName = "Shipping"
@@ -126,7 +135,8 @@ namespace Smartstore.Admin.Infrastructure.Menus
             {
                 Id = "reward-points",
                 Text = T("Account.RewardPoints"),
-                Icon = "fa fa-fw fa-trophy",
+                IconLibrary = "bi",
+                Icon = "trophy",
                 PermissionNames = perm,
                 ControllerName = "Setting",
                 ActionName = "RewardPoints"
@@ -136,7 +146,8 @@ namespace Smartstore.Admin.Infrastructure.Menus
             {
                 Id = "media",
                 Text = T("Admin.Plugins.KnownGroup.Media"),
-                Icon = "far fa-fw fa-photo-video",
+                IconLibrary = "bi",
+                Icon = "images",
                 PermissionNames = perm,
                 ControllerName = "Setting",
                 ActionName = "Media"
@@ -146,7 +157,8 @@ namespace Smartstore.Admin.Infrastructure.Menus
             {
                 Id = "dataexchange",
                 Text = T("Admin.Common.DataExchange"),
-                Icon = "fa fa-fw fa-exchange-alt",
+                IconLibrary = "bi",
+                Icon = "arrow-left-right",
                 PermissionNames = perm,
                 ControllerName = "Setting",
                 ActionName = "DataExchange"
@@ -157,7 +169,8 @@ namespace Smartstore.Admin.Infrastructure.Menus
                 IsGroupHeader = true,
                 Id = "all",
                 Text = T("Admin.Configuration.Settings.AllSettings"),
-                Icon = "fa fa-fw fa-cogs",
+                IconLibrary = "bi",
+                Icon = "gear",
                 PermissionNames = perm,
                 ControllerName = "Setting",
                 ActionName = "AllSettings"
