@@ -11,7 +11,7 @@ namespace Smartstore.DevTools
             var menuItem = new MenuItem().ToBuilder()
                 .Text("Developer Tools")
                 .ResKey("Plugins.FriendlyName.SmartStore.DevTools")
-                .Icon("far fa-terminal")
+                .Icon("terminal", "bi")
                 .PermissionNames(DevToolsPermissions.Read)
                 .Action("Configure", "DevTools", new { area = "Admin" })
                 .AsItem();

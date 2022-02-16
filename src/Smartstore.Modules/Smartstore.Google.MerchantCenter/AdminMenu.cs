@@ -11,7 +11,7 @@ namespace Smartstore.Google.MerchantCenter
             var menuItem = new MenuItem().ToBuilder()
                 .Text("Google Merchant Center")
                 .ResKey("Plugins.FriendlyName.SmartStore.Google.MerchantCenter")
-                .Icon("fab fa-google")
+                .Icon("google", "bi")
                 .Action("Configure", "GoogleMerchantCenter", new { area = "Admin" })
                 .AsItem();
 

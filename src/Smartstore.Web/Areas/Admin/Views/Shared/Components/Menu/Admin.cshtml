@@ -42,6 +42,7 @@
                 @if (item.Icon.HasValue())
                 {
                     <i class="icm icm-@item.Icon navbar-icon"></i>
+                    @*<bootstrap-icon name="@item.Icon.Replace("icm icm-", "")" class="navbar-icon" style="width: 24px; height: 24px" />*@
                 }
                 else
                 {
@@ -100,9 +101,7 @@
                         {
                             if (node.Value.Icon.HasValue())
                             {
-                                <svg class="dropdown-icon bi bi-fw" fill="currentColor">
-                                    <use xlink:href="/lib/bi/bootstrap-icons.svg#@node.Value.Icon" />
-                                </svg>
+                                <bootstrap-icon name="@node.Value.Icon" class="dropdown-icon bi-fw" />
                             }
                             else
                             {

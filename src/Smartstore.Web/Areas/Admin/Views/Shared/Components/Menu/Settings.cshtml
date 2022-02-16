@@ -54,9 +54,7 @@
                         <a class="nav-link text-left" attr-class='(isSelected, "active")' href="@itemUrl">
                             @if (item.IconLibrary == "bi")
                             {
-                                <svg class="nav-icon bi" fill="currentColor">
-                                    <use xlink:href="/lib/bi/bootstrap-icons.svg#@icon"/>
-                                </svg>
+                                <bootstrap-icon name="@icon" class="nav-icon" />
                             }
                             else
                             {

@@ -11,7 +11,7 @@ namespace Smartstore.Polls
             // Insert menu items for list views.
             var pollsMenuItem = new MenuItem().ToBuilder()
                 .ResKey("Admin.ContentManagement.Polls")
-                .Icon("fa fa-tasks")
+                .Icon("check2-circle", "bi")
                 .PermissionNames(PollPermissions.Self)
                 .Action("List", "PollAdmin", new { area = "Admin" })
                 .AsItem();

@@ -26,7 +26,7 @@
         <siteMapNode id="sales" title="Sales" resKey="Admin.Sales" permissionNames="order" iconClass="icm icm-chart-growth">
             <siteMapNode id="orders" iconClass="graph-up-arrow" title="Orders" resKey="Admin.Orders" permissionNames="order" controller="Order" action="List" area="Admin" />
             <siteMapNode id="shipments" iconClass="truck" title="Shipments" resKey="Admin.Orders.Shipments.List" permissionNames="order" controller="Shipment" action="List" area="Admin" />
-            <siteMapNode id="recurring-payments" iconClass="arrow-clockwise" title="Recurring payments" resKey="Admin.RecurringPayments" permissionNames="order" controller="RecurringPayment" action="List" area="Admin" />
+            <siteMapNode id="recurring-payments" iconClass="arrow-repeat" title="Recurring payments" resKey="Admin.RecurringPayments" permissionNames="order" controller="RecurringPayment" action="List" area="Admin" />
             <siteMapNode id="return-requests" iconClass="truck" title="Return requests" resKey="Admin.ReturnRequests" permissionNames="order.returnrequest" controller="ReturnRequest" action="List" area="Admin" />
             <siteMapNode id="gift-cards" iconClass="gift" title="Gift cards" resKey="Admin.GiftCards" permissionNames="order.giftcard" controller="GiftCard" action="List" area="Admin" />
             <siteMapNode id="sales-sep-1" isGroupHeader="true" title="[SKIP]" />
@@ -52,7 +52,7 @@
             <siteMapNode id="discounts" iconClass="percent" title="Discounts" resKey="Admin.Promotions.Discounts" permissionNames="promotion.discount" controller="Discount" action="List" area="Admin" />
             <siteMapNode id="affiliates" iconClass="people-fill" title="Affiliates" resKey="Admin.Affiliates" permissionNames="promotion.affiliate" controller="Affiliate" action="List" area="Admin" />
             <siteMapNode id="newsletter-subscribers" iconClass="envelope-open-heart" title="Newsletter subscriptions" resKey="Admin.Promotions.NewsletterSubscriptions" permissionNames="promotion.newsletter" controller="NewsletterSubscription" action="List" area="Admin" />
-            <siteMapNode id="campaigns" iconClass="receipt" title="Campaigns" resKey="Admin.Promotions.Campaigns" permissionNames="promotion.campaign" controller="Campaign" action="List" area="Admin" />
+            <siteMapNode id="campaigns" iconClass="megaphone" title="Campaigns" resKey="Admin.Promotions.Campaigns" permissionNames="promotion.campaign" controller="Campaign" action="List" area="Admin" />
         </siteMapNode>
 
 
@@ -122,7 +122,7 @@
 
         <siteMapNode id="system" title="System" resKey="Admin.System" iconClass="icm icm-database" permissionNames="system">
             <siteMapNode id="rulesets" iconClass="funnel" title="Rules" resKey="Common.Rules" permissionNames="system.rule" controller="Rule" action="List" area="Admin" />
-            <siteMapNode id="system-log" iconClass="journal-text" title="Log" resKey="Admin.System.Log" permissionNames="system.log" controller="Log" action="List" area="Admin" />
+            <siteMapNode id="system-log" iconClass="lightning" title="Log" resKey="Admin.System.Log" permissionNames="system.log" controller="Log" action="List" area="Admin" />
             <siteMapNode id="queued-emails" iconClass="inboxes" title="Queued emails" resKey="Admin.System.QueuedEmails" permissionNames="system.message" controller="QueuedEmail" action="List" area="Admin" />
             <siteMapNode id="scheduled tasks" iconClass="clock" title="Schedule tasks" resKey="Admin.System.ScheduleTasks" permissionNames="system.scheduletask" controller="Scheduling" action="List" area="Admin" />
             <siteMapNode id="seo-names" iconClass="search" title="Search engine friendly names" resKey="Admin.System.SeNames" permissionNames="system.urlrecord" controller="UrlRecord" action="List" area="Admin" />

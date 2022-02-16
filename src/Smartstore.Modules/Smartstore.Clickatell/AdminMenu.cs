@@ -11,7 +11,7 @@ namespace Smartstore.Clickatell
             var menuItem = new MenuItem().ToBuilder()
                 .Text("Clickatell SMS Provider")
                 .ResKey("Plugins.FriendlyName.SmartStore.Clickatell")
-                .Icon("far fa-paper-plane")
+                .Icon("send", "bi")
                 .Action("Configure", "Clickatell", new { area = "Admin" })
                 .AsItem();
 

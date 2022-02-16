@@ -23,6 +23,7 @@
     .nav-link {
         display: flex;
         align-items: center;
+        justify-content: center;
     }
 
 	.nav-link > img,
@@ -201,11 +202,6 @@
 	.nav-stacked {
 		min-height: 100%;
 
-		.nav-link {
-			display: flex;
-			align-items: center;
-		}
-
 		&.nav-tabs-line {
 			border-bottom: none;
 
@@ -219,10 +215,16 @@
 				font-size: $font-size-sm;
                 color: $gray-700;
                 background-color: transparent;
+                justify-content: start;
+ 
+                .tab-caption {
+                    transition: all ease 0.15s;
+                }
 
                 &:not(.active) > i, 
                 &:not(.active) > .nav-icon {
-                    color: $gray-600;
+                    color: $dropdown-icon-color;
+                    transition: transform ease 0.15s;
                 }
 
 		        &:hover,
@@ -233,9 +235,14 @@
                 &:hover:not(.active) {
                     border-color: rgba(#000, 0.2) !important;
 
+                    .tab-caption {
+                        transform: translateX(2px);
+                    }
+
                     > i, 
                     > .nav-icon {
                         color: $gray-700;
+                        transform: scale(1.2);
                     }
                 }
 

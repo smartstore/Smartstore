@@ -70,6 +70,12 @@
 	<ItemGroup>
 		<None Include="Views\**\*.cshtml" CopyToPublishDirectory="PreserveNewest" />
 	</ItemGroup>
+    
+    <!-- Don't publish SVG icons raw files -->
+	<ItemGroup>
+		<None Remove="wwwroot\lib\bi\use\*.svg" CopyToPublishDirectory="Never" />
+        <None Remove="wwwroot\lib\bi\bootstrap-icons-all.svg" CopyToPublishDirectory="Never" />
+	</ItemGroup>
 
 	<ItemGroup>
 		<Content Update="appsettings.Development.json" CopyToPublishDirectory="Never">

@@ -11,7 +11,7 @@ namespace Smartstore.News
             // Insert menu items for list views.
             var newsMenuItem = new MenuItem().ToBuilder()
                 .ResKey("Admin.ContentManagement.News")
-                .Icon("far fa-newspaper")
+                .Icon("newspaper", "bi")
                 .PermissionNames(NewsPermissions.Self)
                 .AsItem();
 

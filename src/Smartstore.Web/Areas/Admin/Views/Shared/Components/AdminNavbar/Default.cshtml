@@ -38,26 +38,26 @@
                     @foreach (var store in stores)
                     {
                         <a class="dropdown-item" href="@store.Url" title="@T("Admin.Header.PublicStore") - @store.Name">
-                            <i class="fa fa-fw fa-globe"></i>
+                            <bootstrap-icon name="shop-window" class="bi-fw" />
                             @store.Name.Truncate(32, "...")
                         </a>
                     }
                     <a class="dropdown-item" href='@Url.Action("Preview", "Theme")'>
-                        <i class="far fa-fw fa-eye"></i>
+                        <bootstrap-icon name="eye" class="bi-fw" />
                         @T("Admin.Configuration.Themes.PreviewMode")
                     </a>
                     <div class="dropdown-divider"></div>
                     <a class="dropdown-item" id="clear-cache" href="#" data-url="@Url.Action("ClearCache", "Maintenance", new { area = "Admin" })">
-                        <i class="far fa-fw fa-trash-alt"></i>
+                        <bootstrap-icon name="trash" class="bi-fw" />
                         @T("Admin.Header.ClearCache")
                     </a>
                     <a class="dropdown-item" id="clear-database-cache" href="#" data-url="@Url.Action("ClearDatabaseCache", "Maintenance", new { area = "Admin" })">
-                        <i class="fa fa-fw"></i>
+                        <i class="bi bi-fw"></i>
                         @T("Admin.Header.ClearDbCache")
                     </a>
                     <div class="dropdown-divider"></div>
                     <a class="dropdown-item" asp-action="RestartApplication" asp-controller="Maintenance" asp-area="Admin">
-                        <i class="fa fa-fw fa-power-off"></i>
+                        <bootstrap-icon name="power" class="bi-fw" />
                         @T("Admin.Header.RestartApplication")
                     </a>
                 </div>
@@ -77,22 +77,22 @@
                     @if (checkUpdateResult != null && checkUpdateResult.UpdateAvailable)
                     {
                         <a class="dropdown-item" asp-controller="Maintenance" asp-action="CheckUpdate">
-                            <i class="fa fa-fw fa-level-up-alt"></i>
+                            <bootstrap-icon name="arrow-90deg-up" class="bi-fw" />
                             <strong>@T("Admin.CheckUpdate.UpdateAvailable")</strong>
                             <span class="reddot" style="margin-left: 6px"></span>
                         </a>
                     }
                     <a class="dropdown-item" href="@docsUrl" data-lang="@currentLanguageCode" target="help">
-                        <i class="fa fa-fw fa-book"></i>
+                        <bootstrap-icon name="question-circle-fill" class="bi-fw" />
                         @T("Admin.Help.Documentation")
                     </a>
                     <a class="dropdown-item" href="@communityUrl" data-lang="@currentLanguageCode" target="help">
-                        <i class="fa fa-fw fa-comment"></i>
+                        <bootstrap-icon name="chat-dots" class="bi-fw" />
                         @T("Admin.Help.Forums")
                     </a>
                     <div class="dropdown-divider"></div>
                     <a class="dropdown-item" asp-action="About" asp-controller="Home">
-                        <i class="fa fa-fw fa-info-circle"></i>
+                        <bootstrap-icon name="info-circle" class="bi-fw" />
                         @T("Admin.Common.About")
                     </a>
                 </div>
@@ -100,19 +100,16 @@
 
             <li sm-if="currentCustomer != null && currentCustomer.IsRegistered()" class="nav-item dropdown ml-md-3">
                 <a id="current-user" class="nav-link dropdown-toggle navbar-tool" data-toggle="dropdown" title="@userName" asp-action="Edit" asp-controller="Customer" asp-route-id="@currentCustomer.Id">
-                    @*<em class="fa-stack fa-lg">
-                            <i class="fa fa-circle fa-stack-2x"></i>
-                            <i class="icm icm-user navbar-icon" style="color: #3b50ce"></i>
-                        </em>*@
                     <i class="icm icm-user navbar-icon"></i>
                 </a>
                 <div class="dropdown-menu dropdown-menu-right">
                     <a class="dropdown-item" asp-action="Edit" asp-controller="Customer" asp-route-id="@currentCustomer.Id">
-                        <i class="fa fa-fw fa-user"></i>
-                        <span>@T("Admin.Header.Account")</span> <small class="muted">(@currentCustomer.Username.Truncate(40, "…"))</small>
+                        <bootstrap-icon name="person-circle" class="bi-fw" />
+                        <span>@T("Admin.Header.Account")</span> 
+                        <small class="text-muted ml-2">@currentCustomer.Username.Truncate(40, "…")</small>
                     </a>
                     <a class="dropdown-item" asp-route="Logout">
-                        <i class="fal fa-fw fa-sign-out-alt"></i>
+                        <bootstrap-icon name="box-arrow-left" class="bi-fw" />
                         @T("Admin.Header.Logout")
                     </a>
                 </div>
