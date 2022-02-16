@@ -119,7 +119,7 @@ namespace Smartstore.Core.Identity
             // Last user agent
             if (_attribute.TrackUserAgent && _customerSettings.StoreLastVisitedPage)
             {
-                // TODO: (core) Make new setting CustomerSettings.StoreLastUserAgent
+                // TODO: (mh) (core) Make new setting CustomerSettings.StoreLastUserAgent
                 var currentUserAgent = _userAgent.RawValue;
                 if (currentUserAgent.HasValue())
                 {
