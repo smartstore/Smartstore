@@ -1924,8 +1924,6 @@ namespace Smartstore.Admin.Controllers
             p.ManufacturerPartNumber = m.ManufacturerPartNumber;
             p.Gtin = m.Gtin;
             p.AdminComment = m.AdminComment;
-            p.AvailableStartDateTimeUtc = m.AvailableStartDateTimeUtc;
-            p.AvailableEndDateTimeUtc = m.AvailableEndDateTimeUtc;
 
             p.AllowCustomerReviews = m.AllowCustomerReviews;
             p.ShowOnHomePage = m.ShowOnHomePage;
@@ -1959,8 +1957,13 @@ namespace Smartstore.Admin.Controllers
             p.CustomsTariffNumber = m.CustomsTariffNumber;
             p.CountryOfOriginId = m.CountryOfOriginId == 0 ? null : m.CountryOfOriginId;
 
-            p.AvailableEndDateTimeUtc = p.AvailableEndDateTimeUtc.ToEndOfTheDay();
-            p.SpecialPriceEndDateTimeUtc = p.SpecialPriceEndDateTimeUtc.ToEndOfTheDay();
+            p.AvailableStartDateTimeUtc = m.AvailableStartDateTimeUtc.HasValue
+                ? Services.DateTimeHelper.ConvertToUtcTime(m.AvailableStartDateTimeUtc.Value)
+                : null;
+
+            p.AvailableEndDateTimeUtc = m.AvailableEndDateTimeUtc.HasValue
+                ? Services.DateTimeHelper.ConvertToUtcTime(m.AvailableEndDateTimeUtc.Value)
+                : null;
         }
 
         protected async Task UpdateProductDownloadsAsync(Product product, ProductModel model)

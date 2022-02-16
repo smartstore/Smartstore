@@ -13,14 +13,10 @@
         [LocalizedDisplay("Common.Answer")]
         public string AnswerName { get; set; }
 
-        [LocalizedDisplay("*Email")]
-        public string Email { get; set; }
-
         [LocalizedDisplay("*Username")]
         public string Username { get; set; }
 
-        [LocalizedDisplay("*FullName")]
-        public string FullName { get; set; }
-
+        [LocalizedDisplay("*Email")]
+        public string Email { get; set; }
     }
 }

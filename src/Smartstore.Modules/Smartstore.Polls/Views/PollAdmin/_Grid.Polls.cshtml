@@ -9,7 +9,7 @@
           allow-column-reordering="true"
           allow-row-selection="true"
           onrowclass="pollGrid_onRowClass">
-    <datasource read="@Url.Action("PollList")" delete="@Url.Action("DeleteSelection")" />
+    <datasource read="@Url.Action("PollList")" delete="@Url.Action("PollDelete")" />
     <paging position="Bottom" page-index="1" show-size-chooser="true" />
     <sorting allow-unsort="true" allow-multisort="false">
         <sort by="DisplayOrder" />
