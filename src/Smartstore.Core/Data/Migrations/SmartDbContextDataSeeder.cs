@@ -845,6 +845,8 @@ namespace Smartstore.Core.Data.Migrations
             //    "Admin.ContentManagement.News.Blog.BlogPosts.Fields.PreviewDisplayType",
             //    "Admin.ContentManagement.News.Blog.BlogPosts.Fields.DisplayTagsInPreview",
             //    "Admin.ContentManagement.News.Blog.BlogPosts.Fields.IsPublished",
+            //    "Admin.ContentManagement.Blog.BlogPosts.BackToList",
+            ///   "Admin.ContentManagement.News.NewsItems.BackToList",
             //    );
 
 

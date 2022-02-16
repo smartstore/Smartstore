@@ -2072,8 +2072,15 @@ namespace Smartstore.Admin.Controllers
             p.OldPrice = m.OldPrice ?? 0;
             p.ProductCost = m.ProductCost ?? 0;
             p.SpecialPrice = m.SpecialPrice;
-            p.SpecialPriceStartDateTimeUtc = m.SpecialPriceStartDateTimeUtc;
-            p.SpecialPriceEndDateTimeUtc = m.SpecialPriceEndDateTimeUtc;
+
+            p.SpecialPriceStartDateTimeUtc = m.SpecialPriceStartDateTimeUtc.HasValue
+                ? Services.DateTimeHelper.ConvertToUtcTime(m.SpecialPriceStartDateTimeUtc.Value)
+                : null;
+
+            p.SpecialPriceEndDateTimeUtc = m.SpecialPriceEndDateTimeUtc.HasValue
+                ? Services.DateTimeHelper.ConvertToUtcTime(m.SpecialPriceEndDateTimeUtc.Value)
+                : null;
+
             p.DisableBuyButton = m.DisableBuyButton;
             p.DisableWishlistButton = m.DisableWishlistButton;
             p.AvailableForPreOrder = m.AvailableForPreOrder;

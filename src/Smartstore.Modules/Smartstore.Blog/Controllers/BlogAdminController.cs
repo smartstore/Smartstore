@@ -29,7 +29,6 @@ namespace Smartstore.Blog.Controllers
         private readonly ILocalizedEntityService _localizedEntityService;
         private readonly IStoreMappingService _storeMappingService;
         private readonly ICustomerService _customerService;
-        private readonly StoreDependingSettingHelper _settingHelper;
 
         public BlogAdminController(
             SmartDbContext db,
@@ -38,8 +37,7 @@ namespace Smartstore.Blog.Controllers
             ILanguageService languageService,
             ILocalizedEntityService localizedEntityService,
             IStoreMappingService storeMappingService,
-            ICustomerService customerService,
-            StoreDependingSettingHelper settingHelper)
+            ICustomerService customerService)
         {
             _db = db;
             _blogService = blogService;
@@ -48,7 +46,6 @@ namespace Smartstore.Blog.Controllers
             _localizedEntityService = localizedEntityService;
             _storeMappingService = storeMappingService;
             _customerService = customerService;
-            _settingHelper = settingHelper;
         }
 
         #region Configure settings
@@ -237,15 +234,7 @@ namespace Smartstore.Blog.Controllers
                 .LoadAsync();
 
             var blogPostModels = await blogPosts
-                .SelectAsync(async x =>
-                {
-                    var model = await MapperFactory.MapAsync<BlogPost, BlogPostModel>(x);
-
-                    model.EditUrl = Url.Action(nameof(Edit), "Blog", new { id = x.Id });
-                    model.CommentsUrl = Url.Action(nameof(Comments), "Blog", new { blogPostId = x.Id });
-
-                    return model;
-                })
+                .SelectAsync(async x => await MapperFactory.MapAsync<BlogPost, BlogPostModel>(x))
                 .AsyncToList();
 
             var gridModel = new GridModel<BlogPostModel>
@@ -295,10 +284,7 @@ namespace Smartstore.Blog.Controllers
         {
             if (ModelState.IsValid)
             {
-                var mapper = MapperFactory.GetMapper<BlogPostModel, BlogPost>();
-                var blogPost = await mapper.MapAsync(model);
-                blogPost.StartDateUtc = model.StartDate;
-                blogPost.EndDateUtc = model.EndDate;
+                var blogPost = await MapperFactory.MapAsync<BlogPostModel, BlogPost>(model);
 
                 _db.BlogPosts().Add(blogPost);
                 await _db.SaveChangesAsync();
@@ -346,9 +332,6 @@ namespace Smartstore.Blog.Controllers
                 locale.SeName = await blogPost.GetActiveSlugAsync(languageId, false, false);
             });
 
-            model.StartDate = blogPost.StartDateUtc;
-            model.EndDate = blogPost.EndDateUtc;
-
             await PrepareBlogPostModelAsync(model, blogPost);
 
             return View(model);
@@ -368,9 +351,6 @@ namespace Smartstore.Blog.Controllers
             {
                 await MapperFactory.MapAsync(model, blogPost);
 
-                blogPost.StartDateUtc = model.StartDate;
-                blogPost.EndDateUtc = model.EndDate;
-
                 var validateSlugResult = await blogPost.ValidateSlugAsync(model.SeName, blogPost.Title, true);
                 await _urlService.ApplySlugAsync(validateSlugResult);
                 model.SeName = validateSlugResult.Slug;
@@ -383,8 +363,8 @@ namespace Smartstore.Blog.Controllers
                 NotifySuccess(T("Admin.ContentManagement.Blog.BlogPosts.Updated"));
 
                 return continueEditing 
-                    ? RedirectToAction("Edit", new { id = blogPost.Id }) 
-                    : RedirectToAction("List");
+                    ? RedirectToAction(nameof(Edit), new { id = blogPost.Id }) 
+                    : RedirectToAction(nameof(List));
             }
 
             await PrepareBlogPostModelAsync(model, blogPost);
@@ -445,11 +425,11 @@ namespace Smartstore.Blog.Controllers
 
         [HttpPost]
         [Permission(BlogPermissions.Read)]
-        public async Task<IActionResult> Comments(int? blogPostId, GridCommand command)
+        public async Task<IActionResult> BlogCommentList(int? blogPostId, GridCommand command)
         {
             var query = _db.CustomerContent
-                    .AsNoTracking()
-                    .OfType<BlogComment>();
+                .AsNoTracking()
+                .OfType<BlogComment>();
 
             if (blogPostId.HasValue)
             {
@@ -459,32 +439,30 @@ namespace Smartstore.Blog.Controllers
             var comments = await query
                 .Include(x => x.BlogPost)
                 .Include(x => x.Customer)
+                .ThenInclude(x => x.CustomerRoleMappings)
+                .ThenInclude(x => x.CustomerRole)
                 .OrderByDescending(x => x.CreatedOnUtc)
-                .ToPagedList(command.Page - 1, command.PageSize)
+                .ApplyGridCommand(command)
+                .ToPagedList(command)
                 .LoadAsync();
 
-            var commentsModel = comments.Select(blogComment =>
+            var rows = comments.Select(blogComment => new BlogCommentModel
             {
-                var commentModel = new BlogCommentModel
-                {
-                    Id = blogComment.Id,
-                    BlogPostId = blogComment.BlogPostId,
-                    BlogPostTitle = blogComment.BlogPost.GetLocalized(x => x.Title),
-                    CustomerId = blogComment.CustomerId,
-                    IpAddress = blogComment.IpAddress,
-                    CreatedOn = Services.DateTimeHelper.ConvertToUserTime(blogComment.CreatedOnUtc, DateTimeKind.Utc),
-                    Comment = blogComment.CommentText.Truncate(270, "..."),
-                    CustomerName = blogComment.Customer.GetDisplayName(T),
-                    EditBlogPostUrl = Url.Action(nameof(Edit), "Blog", new { id = blogComment.BlogPostId }),
-                    EditCustomerUrl = Url.Action("Edit", "Customer", new { id = blogComment.CustomerId })
-                };
-
-                return commentModel;
+                Id = blogComment.Id,
+                BlogPostId = blogComment.BlogPostId,
+                BlogPostTitle = blogComment.BlogPost.GetLocalized(x => x.Title),
+                CustomerId = blogComment.CustomerId,
+                IpAddress = blogComment.IpAddress,
+                CreatedOn = Services.DateTimeHelper.ConvertToUserTime(blogComment.CreatedOnUtc, DateTimeKind.Utc),
+                CommentText = blogComment.CommentText.Truncate(270, "…"),
+                CustomerName = blogComment.Customer.GetDisplayName(T),
+                EditBlogPostUrl = Url.Action(nameof(Edit), "Blog", new { id = blogComment.BlogPostId }),
+                EditCustomerUrl = Url.Action("Edit", "Customer", new { id = blogComment.CustomerId })
             });
 
             var gridModel = new GridModel<BlogCommentModel>
             {
-                Rows = commentsModel,
+                Rows = rows,
                 Total = await comments.GetTotalCountAsync()
             };
 
@@ -493,10 +471,9 @@ namespace Smartstore.Blog.Controllers
 
         [HttpPost]
         [Permission(BlogPermissions.EditComment)]
-        public async Task<IActionResult> DeleteCommentSelection(GridSelection selection)
+        public async Task<IActionResult> BlogCommentDelete(GridSelection selection)
         {
             var success = false;
-            var numDeleted = 0;
             var ids = selection.GetEntityIds();
 
             if (ids.Any())
@@ -504,11 +481,11 @@ namespace Smartstore.Blog.Controllers
                 var blogComments = await _db.BlogComments().GetManyAsync(ids, true);
                 _db.BlogComments().RemoveRange(blogComments);
 
-                numDeleted = await _db.SaveChangesAsync();
+                await _db.SaveChangesAsync();
                 success = true;
             }
 
-            return Json(new { Success = success, Count = numDeleted });
+            return Json(new { Success = success });
         }
 
         #endregion

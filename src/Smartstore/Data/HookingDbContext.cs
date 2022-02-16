@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Smartstore.Data.Hooks;
 using Smartstore.Data.Providers;
 using Smartstore.Domain;
@@ -17,6 +18,12 @@ namespace Smartstore.Data
         private DbSaveChangesOperation _currentSaveOperation;
         private DataProvider _dataProvider;
         private IDbHookHandler _hookHandler;
+
+        private static readonly ValueConverter _dateTimeConverter = 
+            new ValueConverter<DateTime, DateTime>(v => v, v => DateTime.SpecifyKind(v, DateTimeKind.Utc));
+
+        private static readonly ValueConverter _nullableDateTimeConverter = 
+            new ValueConverter<DateTime?, DateTime?>(v => v, v => v.HasValue ? DateTime.SpecifyKind(v.Value, DateTimeKind.Utc) : v);
 
         public HookingDbContext(DbContextOptions options)
             : base(options)
@@ -255,11 +262,14 @@ namespace Smartstore.Data
                 // TODO: (core) Make provider for conventions
                 ApplySingularTableNameConvention(entityType);
 
-                var decimalProperties = entityType.GetProperties();
-                foreach (var property in decimalProperties)
+                var properties = entityType.GetProperties();
+                foreach (var property in properties)
                 {
                     // decimal HasPrecision(18, 4) convention
                     ApplyDecimalPrecisionConvention(property);
+
+                    // DateTime UTC convention.
+                    ApplyDateTimeUtcConvention(property);
                 }
 
                 // Add ILazyLoader service property
@@ -360,6 +370,33 @@ namespace Smartstore.Data
                     // Apply scale convention only when no convention exists or existing convention is "Conventional" (NOT Explicit or DataAnnotation).
                     property.SetScale(4);
                 }
+            }
+        }
+
+        [SuppressMessage("Usage", "EF1001:Internal EF Core API usage.", Justification = "Required")]
+        private static void ApplyDateTimeUtcConvention(IMutableProperty property)
+        {
+            if (property.ClrType == typeof(DateTime) && CanConvert())
+            {
+                property.SetValueConverter(_dateTimeConverter);
+            }
+            else if (property.ClrType == typeof(DateTime?) && CanConvert())
+            {
+                property.SetValueConverter(_nullableDateTimeConverter);
+            }
+
+            bool CanConvert()
+            {
+                if (property.Name.EndsWith("Utc"))
+                {
+                    if (property.FindAnnotation(CoreAnnotationNames.ValueConverter) is not IConventionAnnotation converterAnnotation
+                        || converterAnnotation.GetConfigurationSource() == ConfigurationSource.Convention)
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
             }
         }
 

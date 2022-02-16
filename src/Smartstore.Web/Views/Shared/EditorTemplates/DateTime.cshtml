@@ -8,7 +8,7 @@
             DateTime? value = null;
             if (ViewData.Model != null)
             {
-                value = Convert.ToDateTime(ViewData.Model, System.Globalization.CultureInfo.CurrentCulture);
+                value = Convert.ToDateTime(ViewData.Model, System.Globalization.CultureInfo.CurrentCulture).ToLocalTime();
             }
             return value;
         }

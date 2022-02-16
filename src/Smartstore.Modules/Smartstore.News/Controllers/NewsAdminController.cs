@@ -219,15 +219,7 @@ namespace Smartstore.News.Controllers
                 .LoadAsync();
 
             var newsItemModels = await newsItems
-                .SelectAsync(async x =>
-                {
-                    var model = await MapperFactory.MapAsync<NewsItem, NewsItemModel>(x);
-
-                    model.EditUrl = Url.Action(nameof(Edit), "News", new { id = x.Id });
-                    model.CommentsUrl = Url.Action(nameof(Comments), "News", new { newsItemId = x.Id });
-
-                    return model;
-                })
+                .SelectAsync(async x => await MapperFactory.MapAsync<NewsItem, NewsItemModel>(x))
                 .AsyncToList();
 
             var gridModel = new GridModel<NewsItemModel>
@@ -263,11 +255,11 @@ namespace Smartstore.News.Controllers
             {
                 Published = true,
                 AllowComments = true,
-                CreatedOn = Services.DateTimeHelper.ConvertToUserTime(DateTime.UtcNow, DateTimeKind.Utc)
+                CreatedOnUtc = DateTime.UtcNow
             };
 
-            AddLocales(model.Locales);
             await PrepareNewsItemModelAsync(model, null);
+            AddLocales(model.Locales);
 
             return View(model);
         }
@@ -279,12 +271,7 @@ namespace Smartstore.News.Controllers
         {
             if (ModelState.IsValid)
             {
-                var mapper = MapperFactory.GetMapper<NewsItemModel, NewsItem>();
-                var newsItem = await mapper.MapAsync(model);
-
-                newsItem.StartDateUtc = model.StartDate;
-                newsItem.EndDateUtc = model.EndDate;
-                newsItem.CreatedOnUtc = model.CreatedOn;
+                var newsItem = await MapperFactory.MapAsync<NewsItemModel, NewsItem>(model);
 
                 _db.NewsItems().Add(newsItem);
                 await _db.SaveChangesAsync();
@@ -351,11 +338,6 @@ namespace Smartstore.News.Controllers
             if (ModelState.IsValid)
             {
                 await MapperFactory.MapAsync(model, newsItem);
-
-                // TODO: (mg) (core) fix DateTime conversion mess here and in BlogAdminController.
-                newsItem.StartDateUtc = model.StartDate;
-                newsItem.EndDateUtc = model.EndDate;
-                newsItem.CreatedOnUtc = model.CreatedOn;
 
                 var validateSlugResult = await newsItem.ValidateSlugAsync(model.SeName, newsItem.Title, true);
                 await _urlService.ApplySlugAsync(validateSlugResult);
@@ -459,7 +441,7 @@ namespace Smartstore.News.Controllers
                 CustomerId = newsComment.CustomerId,
                 IpAddress = newsComment.IpAddress,
                 CreatedOn = Services.DateTimeHelper.ConvertToUserTime(newsComment.CreatedOnUtc, DateTimeKind.Utc),
-                CommentText = newsComment.CommentText.Truncate(270, "..."),
+                CommentText = newsComment.CommentText.Truncate(270, "…"),
                 CommentTitle = newsComment.CommentTitle,
                 CustomerName = newsComment.Customer.GetDisplayName(T),
                 EditNewsItemUrl = Url.Action(nameof(Edit), "News", new { id = newsComment.NewsItemId }),

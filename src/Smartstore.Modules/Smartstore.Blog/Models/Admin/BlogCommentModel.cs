@@ -11,13 +11,15 @@
 
         [LocalizedDisplay("*Customer")]
         public int CustomerId { get; set; }
+
+        [LocalizedDisplay("*Customer")]
         public string CustomerName { get; set; }
 
         [LocalizedDisplay("*IPAddress")]
         public string IpAddress { get; set; }
 
         [LocalizedDisplay("*Comment")]
-        public string Comment { get; set; }
+        public string CommentText { get; set; }
 
         [LocalizedDisplay("Common.CreatedOn")]
         public DateTime CreatedOn { get; set; }
