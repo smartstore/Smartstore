@@ -1,5 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using FluentValidation;
+using Smartstore.ComponentModel;
+using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Rules;
 
 namespace Smartstore.Admin.Models.Discounts
@@ -54,13 +56,13 @@ namespace Smartstore.Admin.Models.Discounts
         public DateTime? StartDateUtc { get; set; }
 
         [LocalizedDisplay("*StartDate")]
-        public DateTime? StartDate { get; set; }
+        public string StartDate { get; set; }
 
         [LocalizedDisplay("*EndDate")]
         public DateTime? EndDateUtc { get; set; }
 
         [LocalizedDisplay("*EndDate")]
-        public DateTime? EndDate { get; set; }
+        public string EndDate { get; set; }
 
         [LocalizedDisplay("*RequiresCouponCode")]
         public bool RequiresCouponCode { get; set; }
@@ -112,6 +114,65 @@ namespace Smartstore.Admin.Models.Discounts
         public DiscountValidator()
         {
             RuleFor(x => x.Name).NotEmpty();
+        }
+    }
+
+    public class DiscountMapper :
+        IMapper<Discount, DiscountModel>,
+        IMapper<DiscountModel, Discount>
+    {
+        private readonly IUrlHelper _urlHelper;
+        private readonly ICommonServices _services;
+
+        public DiscountMapper(IUrlHelper urlHelper, ICommonServices services)
+        {
+            _urlHelper = urlHelper;
+            _services = services;
+        }
+
+        public async Task MapAsync(Discount from, DiscountModel to, dynamic parameters = null)
+        {
+            Guard.NotNull(from, nameof(from));
+            Guard.NotNull(to, nameof(to));
+
+            MiniMapper.Map(from, to);
+
+            to.NumberOfRules = from.RuleSets?.Count ?? 0;
+            to.DiscountTypeName = await _services.Localization.GetLocalizedEnumAsync(from.DiscountType);
+            to.FormattedDiscountAmount = !from.UsePercentage
+                ? _services.CurrencyService.PrimaryCurrency.AsMoney(from.DiscountAmount).ToString(true)
+                : string.Empty;
+
+            if (from.StartDateUtc.HasValue)
+            {
+                to.StartDate = _services.DateTimeHelper.ConvertToUserTime(from.StartDateUtc.Value, DateTimeKind.Utc).ToShortDateString();
+            }
+            if (from.EndDateUtc.HasValue)
+            {
+                to.EndDate = _services.DateTimeHelper.ConvertToUserTime(from.EndDateUtc.Value, DateTimeKind.Utc).ToShortDateString();
+            }
+
+            to.EditUrl = _urlHelper.Action("Edit", "Discount", new { id = from.Id, area = "Admin" });
+        }
+
+        public Task MapAsync(DiscountModel from, Discount to, dynamic parameters = null)
+        {
+            Guard.NotNull(from, nameof(from));
+            Guard.NotNull(to, nameof(to));
+
+            MiniMapper.Map(from, to);
+
+            if (from.StartDateUtc.HasValue && from.StartDateUtc.Value.Kind != DateTimeKind.Utc)
+            {
+                to.StartDateUtc = _services.DateTimeHelper.ConvertToUtcTime(from.StartDateUtc.Value);
+            }
+
+            if (from.EndDateUtc.HasValue && from.EndDateUtc.Value.Kind != DateTimeKind.Utc)
+            {
+                to.EndDateUtc = _services.DateTimeHelper.ConvertToUtcTime(from.EndDateUtc.Value);
+            }
+
+            return Task.CompletedTask;
         }
     }
 }

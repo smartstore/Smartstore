@@ -155,7 +155,6 @@ namespace Smartstore.Admin.Controllers
                 model.Title = customer.Title;
                 model.FirstName = customer.FirstName;
                 model.LastName = customer.LastName;
-                model.DateOfBirth = customer.BirthDate;
                 model.Company = customer.Company;
                 model.CustomerNumber = customer.CustomerNumber;
                 model.Gender = customer.Gender;
@@ -167,6 +166,9 @@ namespace Smartstore.Admin.Controllers
                 model.StateProvinceId = Convert.ToInt32(customer.GenericAttributes.StateProvinceId);
                 model.Phone = customer.GenericAttributes.Phone;
                 model.Fax = customer.GenericAttributes.Fax;
+                model.DateOfBirth = customer.BirthDate.HasValue
+                    ? dtHelper.ConvertToUserTime(customer.BirthDate.Value, DateTimeKind.Utc)
+                    : null;
 
                 model.DisplayVatNumber = _taxSettings.EuVatEnabled;
                 model.DisplayRewardPointsHistory = _rewardPointsSettings.Enabled;
@@ -307,7 +309,9 @@ namespace Smartstore.Admin.Controllers
             }
             if (_customerSettings.DateOfBirthEnabled)
             {
-                to.BirthDate = from.DateOfBirth;
+                to.BirthDate = from.DateOfBirth.HasValue
+                    ? Services.DateTimeHelper.ConvertToUtcTime(from.DateOfBirth.Value)
+                    : null;
             }
             if (_customerSettings.CompanyEnabled)
             {

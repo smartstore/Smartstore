@@ -390,13 +390,11 @@ namespace Smartstore.Data
 
             bool CanConvert()
             {
-                if (property.Name.EndsWith("Utc"))
+                // Unfortunately we cannot restrict by property name here, since not all names ends with "Utc".
+                if (property.FindAnnotation(CoreAnnotationNames.ValueConverter) is not IConventionAnnotation converterAnnotation
+                    || converterAnnotation.GetConfigurationSource() == ConfigurationSource.Convention)
                 {
-                    if (property.FindAnnotation(CoreAnnotationNames.ValueConverter) is not IConventionAnnotation converterAnnotation
-                        || converterAnnotation.GetConfigurationSource() == ConfigurationSource.Convention)
-                    {
-                        return true;
-                    }
+                    return true;
                 }
 
                 return false;

@@ -76,7 +76,6 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Promotion.Discount.Read)]
         public async Task<IActionResult> DiscountList(GridCommand command, DiscountListModel model)
         {
-            var mapper = MapperFactory.GetMapper<Discount, DiscountModel>();
             var query = _db.Discounts.AsNoTracking();
 
             if (model.SearchName.HasValue())
@@ -100,32 +99,13 @@ namespace Smartstore.Admin.Controllers
                 .Include(x => x.RuleSets)
                 .OrderBy(x => x.Name)
                 .ThenBy(x => x.Id)
-                .ApplyGridCommand(command, false)
+                .ApplyGridCommand(command)
                 .ToPagedList(command)
                 .LoadAsync();
 
-            var rows = await discounts.SelectAsync(async x =>
-            {
-                var m = await mapper.MapAsync(x);
-                m.EditUrl = Url.Action("Edit", "Discount", new { id = x.Id, area = "Admin" });
-                m.NumberOfRules = x.RuleSets.Count;
-                m.DiscountTypeName = await Services.Localization.GetLocalizedEnumAsync(x.DiscountType);
-                m.FormattedDiscountAmount = !x.UsePercentage
-                    ? Services.CurrencyService.PrimaryCurrency.AsMoney(x.DiscountAmount).ToString(true)
-                    : string.Empty;
-
-                if (x.StartDateUtc.HasValue)
-                {
-                    m.StartDate = Services.DateTimeHelper.ConvertToUserTime(x.StartDateUtc.Value, DateTimeKind.Utc);
-                }
-                if (x.EndDateUtc.HasValue)
-                {
-                    m.EndDate = Services.DateTimeHelper.ConvertToUserTime(x.EndDateUtc.Value, DateTimeKind.Utc);
-                }
-
-                return m;
-            })
-            .AsyncToList();
+            var rows = await discounts
+                .SelectAsync(async x => await MapperFactory.MapAsync<Discount, DiscountModel>(x))
+                .AsyncToList();
 
             return Json(new GridModel<DiscountModel>
             {
@@ -153,10 +133,8 @@ namespace Smartstore.Admin.Controllers
         {
             if (ModelState.IsValid)
             {
-                var mapper = MapperFactory.GetMapper<DiscountModel, Discount>();
-                var discount = await mapper.MapAsync(model);
+                var discount = await MapperFactory.MapAsync<DiscountModel, Discount>(model);
                 _db.Discounts.Add(discount);
-
                 await _db.SaveChangesAsync();
 
                 await _ruleService.ApplyRuleSetMappingsAsync(discount, model.SelectedRuleSetIds);
@@ -191,8 +169,7 @@ namespace Smartstore.Admin.Controllers
                 return NotFound();
             }
 
-            var mapper = MapperFactory.GetMapper<Discount, DiscountModel>();
-            var model = await mapper.MapAsync(discount);
+            var model = await MapperFactory.MapAsync<Discount, DiscountModel>(discount);
 
             PrepareDiscountModel(model, discount);
 
@@ -218,11 +195,8 @@ namespace Smartstore.Admin.Controllers
 
             if (ModelState.IsValid)
             {
-                var mapper = MapperFactory.GetMapper<DiscountModel, Discount>();
-                await mapper.MapAsync(model, discount);
-
+                await MapperFactory.MapAsync(model, discount);
                 await _ruleService.ApplyRuleSetMappingsAsync(discount, model.SelectedRuleSetIds);
-
                 await _db.SaveChangesAsync();
 
                 Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditDiscount, T("ActivityLog.EditDiscount"), discount.Name);
