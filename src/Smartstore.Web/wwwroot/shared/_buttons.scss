@@ -557,10 +557,10 @@ $btn-size-sm: $input-height-sm;
     transition-timing-function: cubic-bezier(0.25, 1, 0.33, 1);
     transition-duration: .35s;
     --shadow-color-rgb: 0,0,0;
-    --shadow-color-intensity: 1;
-    --box-shadow: 0 1px 1px rgba(var(--shadow-color-rgb), calc(var(--shadow-color-intensity) * 0.07)), 
-                  0 2px 4px rgba(var(--shadow-color-rgb), calc(var(--shadow-color-intensity) * 0.1)), 
-                  0 4px 8px rgba(var(--shadow-color-rgb), calc(var(--shadow-color-intensity) * 0.08));
+    --shadow-intensity: 1;
+    --box-shadow: 0 1px 1px rgba(var(--shadow-color-rgb), calc(var(--shadow-intensity) * 0.07)), 
+                  0 2px 4px rgba(var(--shadow-color-rgb), calc(var(--shadow-intensity) * 0.1)), 
+                  0 4px 8px rgba(var(--shadow-color-rgb), calc(var(--shadow-intensity) * 0.08));
     --box-shadow: #{$box-shadow-xs-var};
     // NORMAL
     box-shadow: var(--box-shadow) !important;
@@ -591,7 +591,7 @@ $btn-size-sm: $input-height-sm;
         @if $color != "secondary" and $color != "light" {
             $c: mix($value, #000, 50%);
             --shadow-color-rgb: #{red($c)}, #{green($c)}, #{blue($c)};
-            --shadow-color-intensity: 1.8;
+            --shadow-intensity: 1.8;
         }
         @else {
             border-color: $value !important;
