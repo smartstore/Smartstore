@@ -317,6 +317,7 @@ table th {
 // --------------------------------------------------
 
 .shadow,
+.shadow-xs,
 .shadow-sm,
 .shadow-lg,
 :root {
@@ -328,6 +329,11 @@ table th {
 
 .shadow {
     --box-shadow: #{$box-shadow-var};
+}
+
+.shadow-xs {
+    --box-shadow: #{$box-shadow-xs-var};
+    box-shadow: var(--box-shadow) !important;
 }
 
 .shadow-sm {
@@ -459,6 +465,38 @@ table th {
 
 .rotate-270 {
     transform: rotate(270deg) translate(var(--offset-x, 0), var(--offset-y, 0));
+}
+
+
+//
+// Spin & Beat
+// --------------------------------------------------
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg); 
+    }
+    100% {
+        transform: rotate(360deg); 
+    } 
+}
+
+@keyframes beat {
+    0%, 90% {
+        transform: scale(1)
+    }
+
+    45% {
+        transform: scale(var(--beat-scale, 1.25))
+    }
+}
+
+.spin {
+    animation: spin var(--animation-duration, 2s) infinite linear; 
+}
+
+.beat {
+    animation: beat var(--animation-duration, 1s) infinite ease-in-out; 
 }
 
 

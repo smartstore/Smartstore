@@ -159,6 +159,12 @@ namespace Smartstore.Web.Rendering.Builders
             return (this as TBuilder);
         }
 
+        public TBuilder IconClass(string value)
+        {
+            Item.IconClass = value;
+            return (this as TBuilder);
+        }
+
         public TBuilder Text(string value)
         {
             Item.Text = value;

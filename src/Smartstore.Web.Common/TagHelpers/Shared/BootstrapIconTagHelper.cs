@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Razor.TagHelpers;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Microsoft.AspNetCore.Razor.TagHelpers;
 
 namespace Smartstore.Web.TagHelpers.Shared
 {
@@ -7,6 +9,10 @@ namespace Smartstore.Web.TagHelpers.Shared
     public class BootstrapIconTagHelper : TagHelper
     {
         const string NameAttributeName = "name";
+
+        [HtmlAttributeNotBound]
+        [ViewContext]
+        public ViewContext ViewContext { get; set; }
 
         /// <summary>
         /// The name of the Bootstrap icon to use.
@@ -22,7 +28,9 @@ namespace Smartstore.Web.TagHelpers.Shared
             output.AppendCssClass("bi");
             output.MergeAttribute("fill", "currentColor");
 
-            output.Content.AppendHtml($"<use xlink:href=\"/lib/bi/bootstrap-icons.svg#{Name}\" />");
+            var urlHelper = ViewContext.HttpContext.RequestServices.GetService<IUrlHelper>();
+            var url = urlHelper.Content($"~/lib/bi/bootstrap-icons.svg#{Name}");
+            output.Content.AppendHtml($"<use xlink:href=\"{url}\" />");
         }
     }
 }

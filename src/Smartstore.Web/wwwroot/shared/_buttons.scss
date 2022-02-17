@@ -20,7 +20,7 @@ $btn-size-sm: $input-height-sm;
     height: $size;
     line-height: $size;
 
-    > i {
+    > i, > .bi {
         position: absolute;
         left: 50%;
         top: 50%;
@@ -30,7 +30,7 @@ $btn-size-sm: $input-height-sm;
 }
 
 
-// Make icon font-size 13px in small buttons
+// Make icon font-size 14px in small buttons
 // (looks ugly otherwise)
 // -----------------------------------------------------
 
@@ -290,7 +290,7 @@ $btn-size-sm: $input-height-sm;
         bottom: 0;
         background-color: rgba(0,0,0, .12);
 
-        > i {
+        > i, > .bi {
             position: relative;
             vertical-align: middle;
             //transform: translate(0, 50%);
@@ -376,7 +376,7 @@ $btn-size-sm: $input-height-sm;
     &:hover > span {
         transform: translateX(10px);
 
-        > i {
+        > i, > .bi {
             opacity: 1;
         }
     }
@@ -454,23 +454,6 @@ $btn-size-sm: $input-height-sm;
     &:hover:focus {
         box-shadow: $btn-box-shadow, 0 0 0 $btn-focus-width rgba($border, .5) !important;
     }
-
-/*  // TODO: (core) Remove later
-    &:not([disabled]):not(.disabled):active,
-    &:not([disabled]):not(.disabled).active,
-    .show > &.dropdown-toggle {
-        color: color-yiq($active-background);
-        background-color: $active-background;
-        border-color: $active-border;
-
-        &:focus {
-            box-shadow: $btn-active-box-shadow, 0 0 0 $btn-focus-width rgba($border, .5) !important;
-        }
-
-        > i {
-            opacity: 1; 
-        }
-    }*/
 }
 
 .btn.btn-to-danger {
@@ -575,14 +558,17 @@ $btn-size-sm: $input-height-sm;
     transition-duration: .35s;
     --shadow-color-rgb: 0,0,0;
     --shadow-color-intensity: 1;
-    --box-shadow: 0 1px 1px rgba(var(--shadow-color-rgb), calc(var(--shadow-color-intensity) * 0.07)), 0 2px 4px rgba(var(--shadow-color-rgb), calc(var(--shadow-color-intensity) * 0.1)), 0 4px 8px rgba(var(--shadow-color-rgb), calc(var(--shadow-color-intensity) * 0.08));
+    --box-shadow: 0 1px 1px rgba(var(--shadow-color-rgb), calc(var(--shadow-color-intensity) * 0.07)), 
+                  0 2px 4px rgba(var(--shadow-color-rgb), calc(var(--shadow-color-intensity) * 0.1)), 
+                  0 4px 8px rgba(var(--shadow-color-rgb), calc(var(--shadow-color-intensity) * 0.08));
+    --box-shadow: #{$box-shadow-xs-var};
     // NORMAL
     box-shadow: var(--box-shadow) !important;
     // ACTIVE
     &:hover,
     &:focus {
         transform: translateY(-3px);
-        --box-shadow: 0 1px 1px rgba(var(--shadow-color-rgb), calc(var(--shadow-color-intensity) * 0.08)), 0 6px 10px -2px rgba(var(--shadow-color-rgb), calc(var(--shadow-color-intensity) * 0.12)), 0 12px 24px -8px rgba(var(--shadow-color-rgb), calc(var(--shadow-color-intensity) * 0.12));
+        --box-shadow: #{$box-shadow-var};
     }
     // DISABLED
     &:disabled,
@@ -595,7 +581,7 @@ $btn-size-sm: $input-height-sm;
     .show > &.dropdown-toggle,
     .show > &.dropdown-toggle:focus {
         transform: translateY(1px);
-        --box-shadow: 0 1px 2px rgba(var(--shadow-color-rgb), calc(var(--shadow-color-intensity) * 0.13)), 0 2px 4px rgba(var(--shadow-color-rgb), calc(var(--shadow-color-intensity) * 0.12));
+        --box-shadow: #{$box-shadow-xs-var};
     }
 }
 

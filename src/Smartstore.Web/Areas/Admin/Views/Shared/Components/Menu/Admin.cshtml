@@ -99,9 +99,16 @@
                     <a class="dropdown-item" href="@GetNodeLink(node)">
                         @if (hasIcons)
                         {
-                            if (node.Value.Icon.HasValue())
+                            if (item.Icon.HasValue())
                             {
-                                <bootstrap-icon name="@node.Value.Icon" class="dropdown-icon bi-fw" />
+                                if (item.IconLibrary == "bi")
+                                {
+                                    <bootstrap-icon name="@item.Icon" class="dropdown-icon bi-fw" attr-class='@(item.IconClass.HasValue(), item.IconClass)' />
+                                }
+                                else
+                                {
+                                    <i class="@item.Icon" attr-class='@(item.IconClass.HasValue(), item.IconClass)'></i>
+                                }
                             }
                             else
                             {

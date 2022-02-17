@@ -304,7 +304,7 @@ namespace Smartstore.Web.TagHelpers.Shared
 
             foreach (var tab in Tabs)
             {
-                content.AppendHtml(BuildTabItem(tab));
+                content.AppendHtml(BuildTabItem(tab, isStacked));
             }
 
             content.AppendHtml(ul.RenderEndTag());
@@ -346,7 +346,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             }
         }
 
-        private TagBuilder BuildTabContentHeader(TabContentHeaderTagHelper header)
+        private static TagBuilder BuildTabContentHeader(TabContentHeaderTagHelper header)
         {
             TagBuilder div = new("div");
 
@@ -400,7 +400,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             return div;
         }
 
-        private TagBuilder BuildTabItem(TabTagHelper tab)
+        private TagBuilder BuildTabItem(TabTagHelper tab, bool isStacked)
         {
             // <li [class="nav-item [d-none]"]><a href="#{id}" class="nav-link [active]" data-toggle="tab">{text}</a></li>
             TagBuilder li = new("li");
@@ -462,9 +462,9 @@ namespace Smartstore.Web.TagHelpers.Shared
                 {
                     a.AppendCssClass("clearfix");
                 }
-
+                
                 // Icon/Image
-                BuildTabIcon(tab, a);
+                BuildTabIcon(tab, a, isStacked);
 
                 // Caption
                 BuildTabCaption(tab, a);
@@ -481,13 +481,43 @@ namespace Smartstore.Web.TagHelpers.Shared
             return li;
         }
 
-        private void BuildTabIcon(TabTagHelper tab, TagBuilder a)
+        private void BuildTabIcon(TabTagHelper tab, TagBuilder a, bool isStacked)
         {
             if (tab.Icon.HasValue())
             {
-                TagBuilder i = new("i");
-                i.AddCssClass(tab.Icon);
-                a.InnerHtml.AppendHtml(i);
+                TagBuilder el;
+                var icon = tab.Icon;
+
+                if (icon.StartsWith("bi:"))
+                {
+                    el = new("svg");
+                    el.Attributes["class"] = "bi";
+                    el.Attributes["fill"] = "currentColor";
+                    if (isStacked)
+                    {
+                        el.AddCssClass("bi-fw");
+                    }
+
+                    var url = UrlHelper.Content($"~/lib/bi/bootstrap-icons.svg#{icon[3..]}");
+                    el.InnerHtml.AppendHtml($"<use xlink:href=\"{url}\" />");
+                }
+                else
+                {
+                    el = new("i");
+                    el.Attributes["class"] = icon;
+                    if (isStacked)
+                    {
+                        el.AddCssClass("fa-fw");
+                    }
+                }
+
+                el.AppendCssClass("nav-icon");
+                if (tab.IconClass.HasValue())
+                {
+                    el.AppendCssClass(tab.IconClass);
+                }
+
+                a.InnerHtml.AppendHtml(el);
             }
             else if (tab.ImageUrl.HasValue())
             {
@@ -498,7 +528,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             }
         }
 
-        private void BuildTabCaption(TabTagHelper tab, TagBuilder a)
+        private static void BuildTabCaption(TabTagHelper tab, TagBuilder a)
         {
             TagBuilder caption = new("span");
             caption.AppendCssClass("tab-caption");

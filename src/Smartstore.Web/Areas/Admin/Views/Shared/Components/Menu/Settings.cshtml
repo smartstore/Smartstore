@@ -48,17 +48,17 @@
 
                     var itemText = node.GetItemText(T);
                     var itemUrl = GetNodeLink(node);
-                    var icon = item.Icon.NullEmpty() ?? "fas fa-fw fa-lg";
+                    var icon = item.Icon.NullEmpty() ?? "fas fa-fw";
 
                     <li class="nav-item">
                         <a class="nav-link text-left" attr-class='(isSelected, "active")' href="@itemUrl">
                             @if (item.IconLibrary == "bi")
                             {
-                                <bootstrap-icon name="@icon" class="nav-icon" />
+                                <bootstrap-icon name="@icon" class="nav-icon" attr-class='@(item.IconClass.HasValue(), item.IconClass)' />
                             }
                             else
                             {
-                                <i class="nav-icon @icon"></i>
+                                <i class="nav-icon @icon" attr-class='@(item.IconClass.HasValue(), item.IconClass)'></i>
                             }
                             <span class="tab-caption">@itemText</span>
                         </a>

@@ -57,6 +57,8 @@ namespace Smartstore.Core.Content.Menus
 
         public string Icon { get; set; }
 
+        public string IconClass { get; set; }
+
         public string Text { get; set; }
 
         public bool Rtl { get; set; }

@@ -75,6 +75,7 @@
 	<ItemGroup>
 		<None Remove="wwwroot\lib\bi\use\*.svg" CopyToPublishDirectory="Never" />
         <None Remove="wwwroot\lib\bi\bootstrap-icons-all.svg" CopyToPublishDirectory="Never" />
+        <None Remove="wwwroot\lib\fontastic\icomoon\**" CopyToPublishDirectory="Never" />
 	</ItemGroup>
 
 	<ItemGroup>

@@ -20,10 +20,14 @@ namespace Smartstore.Data
         private IDbHookHandler _hookHandler;
 
         private static readonly ValueConverter _dateTimeConverter = 
-            new ValueConverter<DateTime, DateTime>(v => v, v => DateTime.SpecifyKind(v, DateTimeKind.Utc));
+            new ValueConverter<DateTime, DateTime>(
+                v => v, 
+                v => DateTime.SpecifyKind(v, DateTimeKind.Utc));
 
         private static readonly ValueConverter _nullableDateTimeConverter = 
-            new ValueConverter<DateTime?, DateTime?>(v => v, v => v.HasValue ? DateTime.SpecifyKind(v.Value, DateTimeKind.Utc) : v);
+            new ValueConverter<DateTime?, DateTime?>(
+                v => v, 
+                v => v.HasValue ? DateTime.SpecifyKind(v.Value, DateTimeKind.Utc) : v);
 
         public HookingDbContext(DbContextOptions options)
             : base(options)
@@ -96,7 +100,6 @@ namespace Smartstore.Data
         /// </summary>
         internal bool DeferCommit { get; set; }
 
-        [SuppressMessage("Performance", "CA1822:Member can be static", Justification = "Seriously?")]
         protected internal IDbHookHandler DbHookHandler
         {
             get => _hookHandler ?? EngineContext.Current.Scope.ResolveOptional<IDbHookHandler>() ?? NullDbHookHandler.Instance;

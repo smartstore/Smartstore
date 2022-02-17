@@ -53,6 +53,11 @@ namespace Smartstore.Web.Rendering.Builders
                 Summary = item.Summary
             };
             
+            if (item.IconLibrary == "bi" && tagHelper.Icon.HasValue())
+            {
+                tagHelper.Icon = tagHelper.Icon.EnsureStartsWith("bi:");
+            }
+
             // Create TagHelperContext for tab passing it parent context's items dictionary (that's what Razor does)
             var context = new TagHelperContext("tab", new TagHelperAttributeList(), Context.Items, CommonHelper.GenerateRandomDigitCode(10));
 

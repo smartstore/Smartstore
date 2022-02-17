@@ -28,7 +28,7 @@
 
 	.nav-link > img,
 	.nav-link > i,
-    .nav-link > .nav-icon {
+    .nav-link > .bi {
 		font-size: inherit;
 		margin-right: 0.5rem;
 		color: $gray-700;
@@ -40,9 +40,9 @@
 	}
 
 	.nav-link:hover > i
-    .nav-link:hover > .nav-icon,
+    .nav-link:hover > .bi,
 	.nav-link.active > i,
-    .nav-link.active > .nav-icon {
+    .nav-link.active > .bi {
 		color: inherit;
 	}
 
@@ -105,7 +105,7 @@
 		}
 
 		> i,
-        > .nav-icon,
+        > .bi,
         > img {
 			display: none;
 		}
@@ -116,7 +116,7 @@
 
 		@include media-breakpoint-up(lg) {
 			> i,
-            > .nav-icon,
+            > .bi,
             > img {
 				display: inline-block;
 			}
@@ -222,7 +222,7 @@
                 }
 
                 &:not(.active) > i, 
-                &:not(.active) > .nav-icon {
+                &:not(.active) > .bi {
                     color: $dropdown-icon-color;
                     transition: transform ease 0.15s;
                 }
@@ -240,7 +240,7 @@
                     }
 
                     > i, 
-                    > .nav-icon {
+                    > .bi {
                         color: $gray-700;
                         transform: scale(1.2);
                     }
@@ -266,7 +266,7 @@
 
 					> img, 
                     > i, 
-                    > .nav-icon {
+                    > .bi {
 						margin-right: 0.75rem;
 						margin-left: 0.25rem;
 					}
@@ -294,7 +294,7 @@
 
 					> img, 
                     > i,
-                    > .nav-icon {
+                    > .bi {
 						margin-right: 0.75rem;
 						margin-left: 0.25rem;
 					}
