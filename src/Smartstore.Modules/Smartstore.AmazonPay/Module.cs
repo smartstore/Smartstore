@@ -9,20 +9,24 @@ using System.Linq;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Identity;
 using Smartstore.Engine.Modularity;
+using Smartstore.Scheduling;
 
 namespace Smartstore.AmazonPay
 {
     internal class Module : ModuleBase, ICookiePublisher
     {
+        private readonly ITaskStore _taskStore;
         private readonly IPaymentService _paymentService;
         private readonly IProviderManager _providerManager;
         private readonly ExternalAuthenticationSettings _externalAuthenticationSettings;
 
         public Module(
+            ITaskStore taskStore,
             IPaymentService paymentService, 
             IProviderManager providerManager,
             ExternalAuthenticationSettings externalAuthenticationSettings)
         {
+            _taskStore = taskStore;
             _paymentService = paymentService;
             _providerManager = providerManager;
             _externalAuthenticationSettings = externalAuthenticationSettings;
@@ -64,6 +68,11 @@ namespace Smartstore.AmazonPay
             // INFO: DataPollingTask has been removed. Its work was redundant.
             // It was intended for stores without SSL to update the payment status.
             // Payment status is updated by IPN, which requires SSL but SSL is required anyway.
+            var pollingTask = await _taskStore.GetTaskByTypeAsync("SmartStore.AmazonPay.DataPollingTask, SmartStore.AmazonPay");
+            if (pollingTask != null)
+            {
+                await _taskStore.DeleteTaskAsync(pollingTask);
+            }
 
             await base.InstallAsync(context);
         }
