@@ -102,7 +102,7 @@ namespace Smartstore.Admin.Controllers
 
         [HttpPost]
         [Permission(Permissions.Configuration.Setting.Read)]
-        public async Task<IActionResult> List(GridCommand command, SettingListModel model)
+        public async Task<IActionResult> SettingList(GridCommand command, SettingListModel model)
         {
             var stores = Services.StoreContext.GetAllStores();
 
@@ -124,40 +124,28 @@ namespace Smartstore.Admin.Controllers
             }
             
             var settings = await query
+                .OrderBy(x => x.Name)
                 .ApplyGridCommand(command)
                 .ToPagedList(command)
                 .LoadAsync();
 
-            var storesAll = T("Admin.Common.StoresAll").Value;
+            var allStoresStr = T("Admin.Common.StoresAll").Value;
+            var allStoreNames = Services.StoreContext.GetAllStores().ToDictionary(x => x.Id, x => x.Name);
 
-            var settingModels = settings
-                .Select(x =>
+            var rows = settings
+                .Select(x => new SettingModel
                 {
-                    var settingModel = new SettingModel
-                    {
-                        Id = x.Id,
-                        Name = x.Name,
-                        Value = x.Value,
-                        StoreId = x.StoreId
-                    };
-
-                    if (x.StoreId == 0)
-                    {
-                        settingModel.Store = storesAll;
-                    }
-                    else
-                    {
-                        var store = Services.StoreContext.GetStoreById(x.StoreId);
-                        settingModel.Store = store?.Name.NaIfEmpty();
-                    }
-
-                    return settingModel;
+                    Id = x.Id,
+                    Name = x.Name,
+                    Value = x.Value,
+                    StoreId = x.StoreId,
+                    Store = x.StoreId == 0 ? allStoresStr : allStoreNames.Get(x.StoreId).NaIfEmpty()
                 })
                 .ToList();
 
             var gridModel = new GridModel<SettingModel>
             {
-                Rows = settingModels,
+                Rows = rows,
                 Total = await settings.GetTotalCountAsync()
             };
 
@@ -166,7 +154,7 @@ namespace Smartstore.Admin.Controllers
 
         [HttpPost]
         [Permission(Permissions.Configuration.Setting.Update)]
-        public async Task<IActionResult> Update(SettingModel model)
+        public async Task<IActionResult> SettingUpdate(SettingModel model)
         {
             model.Name = model.Name.Trim();
 
@@ -190,7 +178,7 @@ namespace Smartstore.Admin.Controllers
 
         [HttpPost]
         [Permission(Permissions.Configuration.Setting.Create)]
-        public async Task<IActionResult> Insert(SettingModel model)
+        public async Task<IActionResult> SettingInsert(SettingModel model)
         {
             model.Name = model.Name.Trim();
 
@@ -210,7 +198,7 @@ namespace Smartstore.Admin.Controllers
 
         [HttpPost]
         [Permission(Permissions.Configuration.Setting.Delete)]
-        public async Task<IActionResult> Delete(GridSelection selection)
+        public async Task<IActionResult> SettingDelete(GridSelection selection)
         {
             var success = false;
             var numDeleted = 0;

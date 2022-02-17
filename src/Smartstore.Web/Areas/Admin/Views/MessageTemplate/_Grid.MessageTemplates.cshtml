@@ -6,8 +6,8 @@
           allow-resize="true"
           allow-row-selection="true"
           allow-column-reordering="true">
-    <datasource read="@Url.Action("List", "MessageTemplate")"
-                delete="@Url.Action("DeleteSelection", "MessageTemplate")" />
+    <datasource read="@Url.Action("MessageTemplateList", "MessageTemplate")"
+                delete="@Url.Action("MessageTemplateDelete", "MessageTemplate")" />
     <sorting enabled="true">
         <sort by="Name" />
     </sorting>

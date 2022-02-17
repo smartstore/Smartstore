@@ -57,11 +57,12 @@
             @<div class="adminContent">
                 <div class="adminRow">
                     <div class="adminTitle">
-                        <smart-label asp-for="Name"/>
+                        <smart-label asp-for="Locales[item].EmailAccountId"/>
                     </div>
                     <div class="adminData">
                         @*IMPORTANT: Do not delete, this hidden element contains the id to assign localized values to the corresponding language *@
                         <input asp-for="Locales[item].LanguageId" type="hidden" />
+
                         <select asp-for="Locales[item].EmailAccountId" asp-items='new SelectList(ViewBag.EmailAccounts, "Id", "DisplayName", Model.Locales[item].EmailAccountId)'></select>
                         <span asp-validation-for="Locales[item].EmailAccountId"></span>
                     </div>
