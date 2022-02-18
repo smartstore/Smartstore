@@ -69,10 +69,11 @@ namespace Smartstore.Admin.Controllers
             var lastImportInfos = await GetLastResourcesImportInfos();
             var languages = _languageService.GetAllLanguages(true);
             var masterLanguageId = _languageService.GetMasterLanguageId();
+            var mapper = MapperFactory.GetMapper<Language, LanguageModel>();
 
             var models = await languages.SelectAsync(async x =>
             {
-                var m = await MapperFactory.MapAsync<Language, LanguageModel>(x);
+                var m = await mapper.MapAsync(x);
                 m.Name = GetCultureDisplayName(x.LanguageCulture) ?? x.Name;
 
                 if (lastImportInfos.TryGetValue(x.Id, out LastResourcesImportInfo info))

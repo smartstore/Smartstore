@@ -148,13 +148,14 @@ namespace Smartstore.Google.MerchantCenter.Controllers
                 .ToPagedList(command)
                 .LoadAsync();
 
+            var mapper = MapperFactory.GetMapper<GoogleProduct, GoogleProductModel>();
             var googleProductModels = await googleProducts
                 .SelectAsync(async x =>
                 {
                     var model = new GoogleProductModel();
                     if (x.GoogleProduct != null)
                     {
-                        model = await MapperFactory.MapAsync<GoogleProduct, GoogleProductModel>(x.GoogleProduct);
+                        model = await mapper.MapAsync(x.GoogleProduct);
 
                         if (model.Gender.HasValue())
                         {

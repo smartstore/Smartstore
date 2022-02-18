@@ -192,11 +192,13 @@ namespace Smartstore.Admin.Controllers
                 .ToPagedList(command)
                 .LoadAsync();
 
+            var mapper = MapperFactory.GetMapper<MenuEntity, MenuEntityModel>();
             var menuModels = await menuRecords
                 .SelectAsync(async x =>
                 {
-                    var model = await MapperFactory.MapAsync<MenuEntity, MenuEntityModel>(x);
+                    var model = await mapper.MapAsync(x);
                     model.EditUrl = Url.Action(nameof(Edit), "Menu", new { id = x.Id });
+
                     return model;
                 })
                 .AsyncToList();

@@ -47,13 +47,14 @@ namespace Smartstore.Admin.Controllers
                 .LoadAsync();
 
             var allStores = Services.StoreContext.GetAllStores().ToDictionary(x => x.Id);
+            var mapper = MapperFactory.GetMapper<NewsletterSubscription, NewsletterSubscriptionModel>();
+
             var newsletterSubscriptionModels = await newsletterSubscriptions
                 .SelectAsync(async x =>
                 {
-                    allStores.TryGetValue(x.StoreId, out var store);
-                    var model = await MapperFactory.MapAsync<NewsletterSubscription, NewsletterSubscriptionModel>(x);
+                    var model = await mapper.MapAsync(x);
                     model.CreatedOn = _dateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc);
-                    model.StoreName = store?.Name.NaIfEmpty();
+                    model.StoreName = allStores.Get(x.StoreId)?.Name.NaIfEmpty();
 
                     return model;
                 })

@@ -123,13 +123,10 @@ namespace Smartstore.Admin.Controllers
             ViewBag.LastModelTreeJson = template.LastModelTree;
             ViewBag.LastModelTree = _messageModelProvider.GetLastModelTree(template);
 
-            // available email accounts
+            var mapper = MapperFactory.GetMapper<EmailAccount, EmailAccountModel>();
             ViewBag.EmailAccounts = await _db.EmailAccounts
                 .AsNoTracking()
-                .SelectAsync(async x =>
-                {
-                    return await MapperFactory.MapAsync<EmailAccount, EmailAccountModel>(x); ;
-                })
+                .SelectAsync(async x => await mapper.MapAsync(x))
                 .AsyncToList();
         }
 
@@ -170,11 +167,13 @@ namespace Smartstore.Admin.Controllers
                 .ToPagedList(command)
                 .LoadAsync();
 
+            var mapper = MapperFactory.GetMapper<MessageTemplate, MessageTemplateModel>();
             var messageTemplateModels = await messageTemplates
                 .SelectAsync(async x =>
                 {
-                    var model = await MapperFactory.MapAsync<MessageTemplate, MessageTemplateModel>(x);
+                    var model = await mapper.MapAsync(x);
                     model.EditUrl = Url.Action(nameof(Edit), "MessageTemplate", new { id = x.Id });
+
                     return model;
                 })
                 .AsyncToList();

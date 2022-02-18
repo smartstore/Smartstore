@@ -250,12 +250,14 @@ namespace Smartstore.Admin.Controllers
                 .ToPagedList(command)
                 .LoadAsync();
 
+            var mapper = MapperFactory.GetMapper<ShippingMethod, ShippingMethodModel>();
             var shippingMethodModels = await shippingMethods
                 .SelectAsync(async x => 
                 {
-                    var model = await MapperFactory.MapAsync<ShippingMethod, ShippingMethodModel>(x);
+                    var model = await mapper.MapAsync(x);
                     model.NumberOfRules = x.RuleSets.Count;
                     model.EditUrl = Url.Action("Edit", new { id = model.Id });
+
                     return model;
                 })
                 .AsyncToList();

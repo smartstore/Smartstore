@@ -1140,7 +1140,6 @@ namespace Smartstore.Admin.Controllers
         [LoadSetting]
         public async Task<IActionResult> RewardPoints(RewardPointsSettings settings, int storeScope)
         {
-            var store = storeScope == 0 ? Services.StoreContext.CurrentStore : Services.StoreContext.GetStoreById(storeScope);
             var model = await MapperFactory.MapAsync<RewardPointsSettings, RewardPointsSettingsModel>(settings);
 
             model.PrimaryStoreCurrencyCode = _currencyService.PrimaryCurrency.CurrencyCode;

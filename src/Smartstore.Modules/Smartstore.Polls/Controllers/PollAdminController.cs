@@ -87,10 +87,11 @@ namespace Smartstore.Polls.Controllers
                 .ToPagedList(command)
                 .LoadAsync();
 
+            var mapper = MapperFactory.GetMapper<Poll, PollModel>();
             var pollModels = await polls
                 .SelectAsync(async x =>
                 {
-                    var model = await MapperFactory.MapAsync<Poll, PollModel>(x);
+                    var model = await mapper.MapAsync(x);
                     if (x.StartDateUtc.HasValue)
                     {
                         model.StartDate = _dateTimeHelper.ConvertToUserTime(x.StartDateUtc.Value, DateTimeKind.Utc).ToShortDateString();

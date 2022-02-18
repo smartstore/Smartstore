@@ -76,14 +76,14 @@ namespace Smartstore.Admin.Controllers
         public async Task<IActionResult> StoreList(GridCommand command)
         {
             var stores = Services.StoreContext.GetAllStores();
+            var mapper = MapperFactory.GetMapper<Store, StoreModel>();
 
             var rows = await stores
                 .AsQueryable()
                 .ApplyGridCommand(command)
                 .SelectAsync(async x =>
                 {
-                    var model = await MapperFactory.MapAsync<Store, StoreModel>(x);
-
+                    var model = await mapper.MapAsync(x);
                     model.HostList = model.Hosts.Convert<string[]>();
                     model.EditUrl = Url.Action(nameof(Edit), "Store", new { id = x.Id });
 

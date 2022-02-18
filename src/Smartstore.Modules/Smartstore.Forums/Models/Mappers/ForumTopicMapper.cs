@@ -18,11 +18,12 @@ namespace Smartstore.Forums.Models.Mappers
             parameters.FirstPost = null;
             parameters.LastPosts = await db.ForumPosts().GetLastForumPostsAsync(entities.Select(x => x.LastPostId));
 
+            var mapper = MapperFactory.GetMapper<ForumTopic, PublicForumTopicModel>();
             var models = await entities
                 .SelectAsync(async x =>
                 {
                     var model = new PublicForumTopicModel();
-                    await MapperFactory.MapAsync(x, model, parameters);
+                    await mapper.MapAsync(x, model, parameters);
                     return model;
                 })
                 .AsyncToList();

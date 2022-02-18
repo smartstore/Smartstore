@@ -93,11 +93,11 @@ namespace Smartstore.Admin.Controllers
                 .ToPagedList(command)
                 .LoadAsync();
 
+            var mapper = MapperFactory.GetMapper<Currency, CurrencyModel>();
             var currencyModels = await currencies
                 .SelectAsync(async x =>
                 {
-                    var model = await MapperFactory.MapAsync<Currency, CurrencyModel>(x);
-
+                    var model = await mapper.MapAsync(x);
                     model.IsPrimaryCurrency = model.Id == _currencySettings.PrimaryCurrencyId;
                     model.IsPrimaryExchangeCurrency = model.Id == _currencySettings.PrimaryExchangeCurrencyId;
                     model.EditUrl = Url.Action(nameof(Edit), "Currency", new { id = x.Id });

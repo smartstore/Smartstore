@@ -166,12 +166,7 @@ namespace Smartstore.Admin.Controllers
                 model.StateProvinceId = Convert.ToInt32(customer.GenericAttributes.StateProvinceId);
                 model.Phone = customer.GenericAttributes.Phone;
                 model.Fax = customer.GenericAttributes.Fax;
-
-                // TODO: (mg) (core) BirthDate should NOT be converted to user-time.
-                model.DateOfBirth = customer.BirthDate.HasValue
-                    ? dtHelper.ConvertToUserTime(customer.BirthDate.Value, DateTimeKind.Utc)
-                    : null;
-
+                model.DateOfBirth = customer.BirthDate;
                 model.DisplayVatNumber = _taxSettings.EuVatEnabled;
                 model.DisplayRewardPointsHistory = _rewardPointsSettings.Enabled;
                 model.VatNumberStatusNote = await ((VatNumberStatus)customer.VatNumberStatusId).GetLocalizedEnumAsync();
@@ -311,9 +306,7 @@ namespace Smartstore.Admin.Controllers
             }
             if (_customerSettings.DateOfBirthEnabled)
             {
-                to.BirthDate = from.DateOfBirth.HasValue
-                    ? Services.DateTimeHelper.ConvertToUtcTime(from.DateOfBirth.Value)
-                    : null;
+                to.BirthDate = from.DateOfBirth;
             }
             if (_customerSettings.CompanyEnabled)
             {

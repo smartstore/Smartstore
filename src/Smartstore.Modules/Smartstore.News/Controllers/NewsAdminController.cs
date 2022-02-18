@@ -218,8 +218,9 @@ namespace Smartstore.News.Controllers
                 .ToPagedList(command)
                 .LoadAsync();
 
+            var mapper = MapperFactory.GetMapper<NewsItem, NewsItemModel>();
             var newsItemModels = await newsItems
-                .SelectAsync(async x => await MapperFactory.MapAsync<NewsItem, NewsItemModel>(x))
+                .SelectAsync(async x => await mapper.MapAsync(x))
                 .AsyncToList();
 
             var gridModel = new GridModel<NewsItemModel>

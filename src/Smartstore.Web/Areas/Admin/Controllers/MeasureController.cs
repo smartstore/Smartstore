@@ -39,11 +39,13 @@ namespace Smartstore.Admin.Controllers
                 .ToPagedList(command)
                 .LoadAsync();
 
+            var mapper = MapperFactory.GetMapper<MeasureWeight, MeasureWeightModel>();
             var measureWeightModels = await measureWeights
                 .SelectAsync(async x =>
                 {
-                    var model = await MapperFactory.MapAsync<MeasureWeight, MeasureWeightModel>(x);
+                    var model = await mapper.MapAsync(x);
                     model.IsPrimaryWeight = x.Id == _measureSettings.BaseWeightId;
+
                     return model;
                 })
                 .AsyncToList();
@@ -273,10 +275,12 @@ namespace Smartstore.Admin.Controllers
                 .ToPagedList(command)
                 .LoadAsync();
 
+            var mapper = MapperFactory.GetMapper<MeasureDimension, MeasureDimensionModel>();
             var measureDimensionModels = await measureDimensions.SelectAsync(async x =>
             {
-                var model = await MapperFactory.MapAsync<MeasureDimension, MeasureDimensionModel>(x);
+                var model = await mapper.MapAsync(x);
                 model.IsPrimaryDimension = x.Id == _measureSettings.BaseDimensionId;
+
                 return model;
             })
             .AsyncToList();

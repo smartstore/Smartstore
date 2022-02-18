@@ -50,11 +50,13 @@ namespace Smartstore.Admin.Controllers
                 .ToPagedList(command)
                 .LoadAsync();
 
+            var mapper = MapperFactory.GetMapper<EmailAccount, EmailAccountModel>();
             var emailAccountModels = await emailAccounts.SelectAsync(async x =>
             {
-                var model = await MapperFactory.MapAsync<EmailAccount, EmailAccountModel>(x);
+                var model = await mapper.MapAsync(x);
                 model.IsDefaultEmailAccount = x.Id == _emailAccountSettings.DefaultEmailAccountId;
                 model.EditUrl = Url.Action(nameof(Edit), "EmailAccount", new { id = x.Id });
+
                 return model;
             })
             .AsyncToList();

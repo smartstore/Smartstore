@@ -233,8 +233,9 @@ namespace Smartstore.Blog.Controllers
                 .ToPagedList(command)
                 .LoadAsync();
 
+            var mapper = MapperFactory.GetMapper<BlogPost, BlogPostModel>();
             var blogPostModels = await blogPosts
-                .SelectAsync(async x => await MapperFactory.MapAsync<BlogPost, BlogPostModel>(x))
+                .SelectAsync(async x => await mapper.MapAsync(x))
                 .AsyncToList();
 
             var gridModel = new GridModel<BlogPostModel>

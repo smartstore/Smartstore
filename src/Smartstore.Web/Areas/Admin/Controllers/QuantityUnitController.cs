@@ -70,8 +70,9 @@ namespace Smartstore.Admin.Controllers
                 .ToPagedList(command)
                 .LoadAsync();
 
+            var mapper = MapperFactory.GetMapper<QuantityUnit, QuantityUnitModel>();
             var quantityUnitModels = await quantityUnits
-                .SelectAsync(async x => await MapperFactory.MapAsync<QuantityUnit, QuantityUnitModel>(x))
+                .SelectAsync(async x => await mapper.MapAsync(x))
                 .AsyncToList();
 
             var gridModel = new GridModel<QuantityUnitModel>

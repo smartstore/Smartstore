@@ -97,10 +97,11 @@ namespace Smartstore.Admin.Controllers
                 .ToPagedList(command)
                 .LoadAsync();
 
+            var mapper = MapperFactory.GetMapper<Topic, TopicModel>();
             var rows = await topics
                 .SelectAsync(async x =>
                 {
-                    var model = await MapperFactory.MapAsync<Topic, TopicModel>(x);
+                    var model = await mapper.MapAsync(x);
                     await PrepareTopicModelAsync(x, model);
 
                     model.WidgetZoneValue = x.WidgetZone;

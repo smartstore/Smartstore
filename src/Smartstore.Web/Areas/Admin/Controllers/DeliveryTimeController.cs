@@ -71,11 +71,13 @@ namespace Smartstore.Admin.Controllers
                 .ToPagedList(command)
                 .LoadAsync();
 
+            var mapper = MapperFactory.GetMapper<DeliveryTime, DeliveryTimeModel>();
             var deliveryTimeModels = await deliveryTimes
                 .SelectAsync(async x =>
                 {
-                    var model = await MapperFactory.MapAsync<DeliveryTime, DeliveryTimeModel>(x);
+                    var model = await mapper.MapAsync(x);
                     model.DeliveryInfo = _deliveryTimeService.GetFormattedDeliveryDate(x);
+
                     return model;
                 })
                 .AsyncToList();

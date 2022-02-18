@@ -32,13 +32,11 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Configuration.Measure.Read)]
         public async Task<IActionResult> ActivityTypesList(GridCommand command)
         {
+            var mapper = MapperFactory.GetMapper<ActivityLogType, ActivityLogTypeModel>();
             var activityLogTypeModels = await _db.ActivityLogTypes
                 .AsNoTracking()
                 .ApplyGridCommand(command)
-                .SelectAsync(async x =>
-                {
-                    return await MapperFactory.MapAsync<ActivityLogType, ActivityLogTypeModel>(x);
-                })
+                .SelectAsync(async x => await mapper.MapAsync(x))
                 .AsyncToList();
 
             var gridModel = new GridModel<ActivityLogTypeModel>
@@ -123,9 +121,10 @@ namespace Smartstore.Admin.Controllers
                 .Where(x => x.IsSystemAccount)
                 .ToDictionaryAsync(x => x.Id);
 
+            var mapper = MapperFactory.GetMapper<ActivityLog, ActivityLogModel>();
             var activityLogModels = await activityLogs.SelectAsync(async x =>
             {
-                var model = await MapperFactory.MapAsync<ActivityLog, ActivityLogModel>(x);
+                var model = await mapper.MapAsync(x);
                 var systemCustomer = systemAccountCustomers.Get(x.CustomerId);
 
                 model.CreatedOn = _dateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc);

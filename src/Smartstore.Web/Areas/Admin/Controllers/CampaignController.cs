@@ -63,12 +63,14 @@ namespace Smartstore.Admin.Controllers
                 .ToPagedList(command)
                 .LoadAsync();
 
+            var mapper = MapperFactory.GetMapper<Campaign, CampaignModel>();
             var campaignModels = await campaigns
                 .SelectAsync(async x =>
                 {
-                    var model = await MapperFactory.MapAsync<Campaign, CampaignModel>(x);
+                    var model = await mapper.MapAsync(x);
                     model.EditUrl = Url.Action(nameof(Edit), "Campaign", new { id = x.Id });
                     model.CreatedOn = Services.DateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc);
+
                     return model;
                 })
                 .AsyncToList();
