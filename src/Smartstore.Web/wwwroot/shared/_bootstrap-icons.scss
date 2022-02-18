@@ -7,7 +7,8 @@
 
 .bi {
     display: inline-block;
-    vertical-align: middle;
+    vertical-align: -0.2em;
+    overflow: visible;
     width: var(--bi-size, 1em);
     height: var(--bi-size, 1em);
     min-width: 16px;

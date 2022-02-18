@@ -79,13 +79,13 @@
 .btn,
 .nav-link,
 .menubar-link {
-	> i + span:not(:empty),
-	> i + em:not(:empty) {
+	> i + span:not(:empty), > .bi + span:not(:empty),
+	> i + em:not(:empty), > .bi + em:not(:empty) {
 		padding-left: 0.5em;
 	}
 
-	> span:not(:empty) + i,
-	> em:not(:empty) + i {
+	> span:not(:empty) + i, > span:not(:empty) + .bi,
+	> em:not(:empty) + i, > em:not(:empty) + .bi {
 		margin-left: 0.5em;
 	}
 }
@@ -324,7 +324,7 @@ table th {
     $c: $dark;
     --shadow-color-rgb: 0,0,0;
     --shadow-colorbase-rgb: #{red($c)}, #{green($c)}, #{blue($c)};
-    --shadow-intensity: 1;
+    --shadow-intensity: #{$shadow-intensity};
 }
 
 .shadow {
@@ -492,10 +492,12 @@ table th {
 }
 
 .spin {
+    transform-origin: center;
     animation: spin var(--animation-duration, 2s) infinite linear; 
 }
 
 .beat {
+    transform-origin: center;
     animation: beat var(--animation-duration, 1s) infinite ease-in-out; 
 }
 

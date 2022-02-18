@@ -71,11 +71,11 @@
 		<None Include="Views\**\*.cshtml" CopyToPublishDirectory="PreserveNewest" />
 	</ItemGroup>
     
-    <!-- Don't publish SVG icons raw files -->
+    <!-- Don't publish static/raw files -->
 	<ItemGroup>
-		<None Remove="wwwroot\lib\bi\use\*.svg" CopyToPublishDirectory="Never" />
-        <None Remove="wwwroot\lib\bi\bootstrap-icons-all.svg" CopyToPublishDirectory="Never" />
-        <None Remove="wwwroot\lib\fontastic\icomoon\**" CopyToPublishDirectory="Never" />
+		<Content Remove="wwwroot\lib\bi\use\*.svg" CopyToPublishDirectory="Never" />
+        <Content Remove="wwwroot\lib\bi\bootstrap-icons-all.svg" CopyToPublishDirectory="Never" />
+        <Content Remove="wwwroot\lib\fontastic\icomoon\**" CopyToPublishDirectory="Never" />
 	</ItemGroup>
 
 	<ItemGroup>
