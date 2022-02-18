@@ -19,14 +19,6 @@ $btn-size-sm: $input-height-sm;
     width: $size;
     height: $size;
     line-height: $size;
-
-    > i, > .bi {
-        position: absolute;
-        left: 50%;
-        top: 50%;
-        transform: translate(-50%, -50%);
-        vertical-align: middle;
-    }
 }
 
 
@@ -94,10 +86,11 @@ $btn-size-sm: $input-height-sm;
 
 .btn.btn-icon,
 .btn.btn-circle {
-    padding: 0;
-    text-align: center;
-    vertical-align: middle;
     position: relative;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     @include btn-square($btn-size);
 
     &.btn-lg {
