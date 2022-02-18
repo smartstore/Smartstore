@@ -5,15 +5,12 @@ using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using NUnit.Framework;
-using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Test.Common;
-using Smartstore.ComponentModel.TypeConverters;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Net.Mail;
+using Smartstore.ComponentModel;
 
 namespace Smartstore.Core.Tests
 {
@@ -201,6 +198,8 @@ namespace Smartstore.Core.Tests
         [Test]
         public void CanConvertShippingOptions()
         {
+            TypeConverterFactory.Providers.Insert(0, new ShippingOptionConverterProvider());
+
             var shippingOption = new ShippingOption
             {
                 ShippingMethodId = 2,

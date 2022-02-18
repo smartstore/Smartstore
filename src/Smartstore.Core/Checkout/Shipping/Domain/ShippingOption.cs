@@ -47,7 +47,7 @@ namespace Smartstore.Core.Checkout.Shipping
             {
                 return new ShippingOptionConverter(false);
             }
-            else if (type.IsEnumerableType(out var elementType) && elementType == typeof(ShippingOption))
+            else if (!type.IsArray && type.IsEnumerableType(out var elementType) && elementType == typeof(ShippingOption))
             {
                 return Default;
             }
