@@ -469,36 +469,82 @@ table th {
 
 
 //
-// Spin & Beat
+// Animations
 // --------------------------------------------------
 
+@keyframes fade {
+    0% { opacity: 0.2; }
+    to { opacity: 1; } 
+}
+
 @keyframes spin {
-    0% {
-        transform: rotate(0deg); 
-    }
-    100% {
-        transform: rotate(360deg); 
-    } 
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(359deg); } 
 }
 
 @keyframes beat {
-    0%, 90% {
-        transform: scale(1)
-    }
-
-    45% {
-        transform: scale(var(--beat-scale, 1.25))
-    }
+    0%, 90% { transform: scale(1) }
+    45% { transform: scale(var(--beat-scale, 1.25)) }
 }
 
-.spin {
-    transform-origin: center;
-    animation: spin var(--animation-duration, 2s) infinite linear; 
+@keyframes throb {
+    0% { opacity: .5; transform: scale(.5); }
+    to { opacity: 1; transform: scale(1); }
 }
 
-.beat {
+@keyframes cylon {
+    0% { transform: translateX(-25%); }
+    to { transform: translateX(25%); } 
+}
+
+@keyframes cylon-vertical {
+    0% { transform: translateX(25%); }
+    to { transform: translateX(-25%); } 
+}
+
+.animate-fade {
     transform-origin: center;
-    animation: beat var(--animation-duration, 1s) infinite ease-in-out; 
+    animation: fade var(--animation-duration, 0.75s) ease-in-out infinite alternate; 
+}
+
+.animate-spin {
+    transform-origin: center;
+    animation: spin var(--animation-duration, 2s) linear infinite normal; 
+}
+
+.animate-spin-reverse {
+    transform-origin: center;
+    animation: spin var(--animation-duration, 2s) linear infinite reverse; 
+}
+
+.animate-spin-pulse {
+    transform-origin: center;
+    animation: spin var(--animation-duration, 1s) steps(8) infinite normal; 
+}
+
+.animate-spin-pulse-reverse {
+    transform-origin: center;
+    animation: spin var(--animation-duration, 1s) steps(8) infinite reverse; 
+}
+
+.animate-beat {
+    transform-origin: center;
+    animation: beat var(--animation-duration, 0.75s) infinite ease-in-out; 
+}
+
+.animate-throb {
+    transform-origin: center;
+    animation: throb var(--animation-duration, 0.75s) ease-in-out infinite alternate; 
+}
+
+.animate-cylon {
+    transform-origin: center;
+    animation: cylon var(--animation-duration, 0.75s) ease-in-out infinite alternate; 
+}
+
+.animate-cylon-vertical {
+    transform-origin: center;
+    animation: cylon-vertical var(--animation-duration, 0.75s) ease-in-out infinite alternate; 
 }
 
 
