@@ -166,6 +166,8 @@ namespace Smartstore.Admin.Controllers
                 model.StateProvinceId = Convert.ToInt32(customer.GenericAttributes.StateProvinceId);
                 model.Phone = customer.GenericAttributes.Phone;
                 model.Fax = customer.GenericAttributes.Fax;
+
+                // TODO: (mg) (core) BirthDate should NOT be converted to user-time.
                 model.DateOfBirth = customer.BirthDate.HasValue
                     ? dtHelper.ConvertToUserTime(customer.BirthDate.Value, DateTimeKind.Utc)
                     : null;

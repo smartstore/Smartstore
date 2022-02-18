@@ -103,8 +103,10 @@ namespace Smartstore.Admin.Controllers
                 .ToPagedList(command)
                 .LoadAsync();
 
+            // INFO: (mg) (core) Never use MapperFactory.Map() in a loop. Mappers are transient, a new instance will be created for each iteration.
+            var mapper = MapperFactory.GetMapper<Discount, DiscountModel>();
             var rows = await discounts
-                .SelectAsync(async x => await MapperFactory.MapAsync<Discount, DiscountModel>(x))
+                .SelectAsync(async x => await mapper.MapAsync(x))
                 .AsyncToList();
 
             return Json(new GridModel<DiscountModel>

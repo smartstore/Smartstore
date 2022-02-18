@@ -390,7 +390,8 @@ namespace Smartstore.Data
 
             bool CanConvert()
             {
-                // Unfortunately we cannot restrict by property name here, since not all names ends with "Utc".
+                // Unfortunately we cannot restrict by property name here, since not all names end with "Utc".
+                // TODO: (mg) (core) Are you sure that EVERY date field in all entities represent UTC?
                 if (property.FindAnnotation(CoreAnnotationNames.ValueConverter) is not IConventionAnnotation converterAnnotation
                     || converterAnnotation.GetConfigurationSource() == ConfigurationSource.Convention)
                 {
