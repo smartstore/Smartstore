@@ -493,6 +493,10 @@ namespace Smartstore.Web.TagHelpers.Shared
                     el = new("svg");
                     el.Attributes["class"] = "bi";
                     el.Attributes["fill"] = "currentColor";
+                    el.Attributes["width"] = "1em";
+                    el.Attributes["height"] = "1em";
+                    el.Attributes["role"] = "img";
+                    el.Attributes["focusable"] = "false";
                     if (isStacked)
                     {
                         el.AddCssClass("bi-fw");
