@@ -14,7 +14,6 @@ namespace Smartstore.Admin.Controllers
     public class ShippingController : AdminController
     {
         private readonly SmartDbContext _db;
-        private readonly IShippingService _shippingService;
         private readonly ILocalizedEntityService _localizedEntityService;
         private readonly IStoreMappingService _storeMappingService;
         private readonly IProviderManager _providerManager;
@@ -25,8 +24,7 @@ namespace Smartstore.Admin.Controllers
 
         public ShippingController(
             SmartDbContext db,
-            IShippingService shippingService,
-            ILocalizedEntityService localizedEntityService,
+             ILocalizedEntityService localizedEntityService,
             IStoreMappingService storeMappingService,
             IProviderManager providerManager,
             ModuleManager moduleManager,
@@ -35,7 +33,6 @@ namespace Smartstore.Admin.Controllers
             ShippingSettings shippingSettings)
         {
             _db = db;
-            _shippingService = shippingService;
             _localizedEntityService = localizedEntityService;
             _storeMappingService = storeMappingService;
             _providerManager = providerManager;
@@ -161,13 +158,15 @@ namespace Smartstore.Admin.Controllers
                     await _ruleService.ApplyRuleSetMappingsAsync(shippingMethod, model.SelectedRuleSetIds);
                 }
 
-                await SaveStoreMappingsAsync(shippingMethod, model.SelectedStoreIds);
+                await _storeMappingService.ApplyStoreMappingsAsync(shippingMethod, model.SelectedStoreIds);
                 await UpdateLocalesAsync(shippingMethod, model);
-
                 await _db.SaveChangesAsync();
 
                 NotifySuccess(T("Admin.Configuration.Shipping.Methods.Added"));
-                return continueEditing ? RedirectToAction(nameof(Edit), new { id = shippingMethod.Id }) : RedirectToAction(nameof(List));
+
+                return continueEditing 
+                    ? RedirectToAction(nameof(Edit), new { id = shippingMethod.Id })
+                    : RedirectToAction(nameof(List));
             }
 
             return View(model);
@@ -210,14 +209,16 @@ namespace Smartstore.Admin.Controllers
 
                 // Add\remove assigned rule sets.
                 await _ruleService.ApplyRuleSetMappingsAsync(shippingMethod, model.SelectedRuleSetIds);
-                await SaveStoreMappingsAsync(shippingMethod, model.SelectedStoreIds);
+                await _storeMappingService.ApplyStoreMappingsAsync(shippingMethod, model.SelectedStoreIds);
                 await UpdateLocalesAsync(shippingMethod, model);
                 await _db.SaveChangesAsync();
 
                 await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, shippingMethod, form));
-
                 NotifySuccess(T("Admin.Configuration.Shipping.Methods.Updated"));
-                return continueEditing ? RedirectToAction(nameof(Edit), new { id = shippingMethod.Id }) : RedirectToAction(nameof(List));
+
+                return continueEditing 
+                    ? RedirectToAction(nameof(Edit), new { id = shippingMethod.Id }) 
+                    : RedirectToAction(nameof(List));
             }
 
             return View(model);

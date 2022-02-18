@@ -8,7 +8,6 @@
           allow-edit="true"
           allow-column-reordering="true">
     <datasource read="@Url.Action("QuantityUnitList", "QuantityUnit")"
-                update="@Url.Action("QuantityUnitUpdate", "QuantityUnit")"
                 delete="@Url.Action("QuantityUnitDelete", "QuantityUnit")" />
     <sorting enabled="true">
         <sort by="DisplayOrder" />
@@ -23,9 +22,6 @@
             <button datagrid-action="DataGridToolAction.SaveChanges" type="button" class="btn btn-warning no-anims btn-flat">
                 <i class="fa fa-check"></i>
                 <span>@T("Admin.Common.SaveChanges")</span>
-            </button>
-            <button datagrid-action="DataGridToolAction.CancelEdit" type="button" class="btn btn-light btn-flat mr-auto">
-                <span>@T("Common.Cancel")</span>
             </button>
         </toolbar-group>
         <toolbar-group class="omega">

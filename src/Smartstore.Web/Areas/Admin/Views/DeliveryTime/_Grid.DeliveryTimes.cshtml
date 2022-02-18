@@ -4,7 +4,6 @@
 
 <datagrid id="delivery-time-grid" allow-resize="true" allow-row-selection="true" allow-edit="true" allow-column-reordering="true">
     <datasource read="@Url.Action("DeliveryTimeList", "DeliveryTime")"
-                update="@Url.Action("DeliveryTimeUpdate", "DeliveryTime")"
                 delete="@Url.Action("DeliveryTimeDelete", "DeliveryTime")" />
     <sorting enabled="true">
         <sort by="DisplayOrder" />
@@ -19,9 +18,6 @@
             <button datagrid-action="DataGridToolAction.SaveChanges" type="button" class="btn btn-warning no-anims btn-flat">
                 <i class="fa fa-check"></i>
                 <span>@T("Admin.Common.SaveChanges")</span>
-            </button>
-            <button datagrid-action="DataGridToolAction.CancelEdit" type="button" class="btn btn-light btn-flat mr-auto">
-                <span>@T("Common.Cancel")</span>
             </button>
         </toolbar-group>
         <toolbar-group class="omega">

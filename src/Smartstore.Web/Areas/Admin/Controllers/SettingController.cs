@@ -1036,6 +1036,7 @@ namespace Smartstore.Admin.Controllers
             var model = await MapperFactory.MapAsync<TaxSettings, TaxSettingsModel>(settings);
             var taxCategories = await _db.TaxCategories
                 .AsNoTracking()
+                .OrderBy(x => x.DisplayOrder)
                 .ToListAsync();
 
             var countries = await _db.Countries

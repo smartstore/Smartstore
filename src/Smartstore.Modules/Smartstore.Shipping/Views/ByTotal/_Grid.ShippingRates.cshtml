@@ -7,11 +7,11 @@
           allow-row-selection="true"
           allow-column-reordering="true"
           allow-edit="true">
-    <datasource read="@Url.Action("ByTotalList", "ByTotal")"
-                update="@Url.Action("ByTotalUpdate", "ByTotal")"
-                delete="@Url.Action("ByTotalDelete", "ByTotal")" />
+    <datasource read="@Url.Action("ShippingRateByTotalList", "ByTotal")"
+                update="@Url.Action("ShippingRateByTotalUpdate", "ByTotal")"
+                delete="@Url.Action("ShippingRateByTotalDelete", "ByTotal")" />
     <paging position="Bottom" page-index="1" show-size-chooser="true" />
-    <sorting allow-unsort="true" allow-multisort="false">
+    <sorting allow-unsort="true" allow-multisort="true">
         <sort by="StoreId" />
         <sort by="CountryId" />
         <sort by="StateProvinceId" />
@@ -43,10 +43,10 @@
     <columns>
         @*INFO: I don't want to hide any columns here so the shop admin doesn't miss any oportunities to configure his rates.*@
         <column for="StoreName" readonly entity-member="StoreId" />
-        <column for="CountryName" readonly entity-member="Country.Name" />
-        <column for="StateProvinceName" readonly entity-member="StateProvince.Name" />
+        <column for="CountryName" readonly entity-member="CountryId" />
+        <column for="StateProvinceName" readonly entity-member="StateProvinceId" />
         <column for="Zip" />
-        <column for="ShippingMethodName" entity-member="ShippingMethod.Name" width="1fr" readonly hideable="false" />
+        <column for="ShippingMethodName" entity-member="ShippingMethodId" width="1fr" readonly hideable="false" />
         <column for="From" />
         <column for="To" />
         <column for="UsePercentage" halign="center" />

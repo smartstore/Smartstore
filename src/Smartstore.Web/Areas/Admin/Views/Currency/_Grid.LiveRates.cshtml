@@ -9,10 +9,10 @@
     <sorting enabled="false"></sorting>
     <paging position="Bottom" show-size-chooser="true" enabled="false" />
     <columns>
-        <column for="Name" width="1fr" hideable="false" title="@T("Admin.Configuration.Currencies.Fields.Name")" />
-        <column for="CurrencyCode" width="1fr" halign="center" title="@T("Admin.Configuration.Currencies.Fields.CurrencyCode")" />
-        <column for="UpdatedOn" width="1fr" halign="center" title="@T("Admin.Common.Updated")" />
-        <column for="Rate" width="1fr" halign="flex-end" title="@T("Admin.Configuration.Currencies.Fields.Rate")" />
+        <column for="Name" hideable="false" title="@T("Admin.Configuration.Currencies.Fields.Name")" />
+        <column for="CurrencyCode" halign="center" title="@T("Admin.Configuration.Currencies.Fields.CurrencyCode")" />
+        <column for="Rate" halign="flex-end" format="{0:N5}" title="@T("Admin.Configuration.Currencies.Fields.Rate")" />
+        <column for="UpdatedOn" title="@T("Admin.Common.Updated")" />
     </columns>
     <row-commands>
         <a datarow-action="DataRowAction.Custom" 

@@ -13,7 +13,6 @@ namespace Smartstore.Admin.Controllers
     public class PaymentController : AdminController
     {
         private readonly SmartDbContext _db;
-        private readonly IPaymentService _paymentService;
         private readonly ILocalizedEntityService _localizedEntityService;
         private readonly IStoreMappingService _storeMappingService;
         private readonly IProviderManager _providerManager;
@@ -24,7 +23,6 @@ namespace Smartstore.Admin.Controllers
 
         public PaymentController(
             SmartDbContext db,
-            IPaymentService paymentService,
             ILocalizedEntityService localizedEntityService,
             IStoreMappingService storeMappingService,
             IProviderManager providerManager,
@@ -34,7 +32,6 @@ namespace Smartstore.Admin.Controllers
             PaymentSettings paymentSettings)
         {
             _db = db;
-            _paymentService = paymentService;
             _localizedEntityService = localizedEntityService;
             _storeMappingService = storeMappingService;
             _providerManager = providerManager;
@@ -170,25 +167,17 @@ namespace Smartstore.Admin.Controllers
             paymentMethod.RoundOrderTotalEnabled = model.RoundOrderTotalEnabled;
             paymentMethod.LimitedToStores = model.LimitedToStores;
 
-            var updateEntity = paymentMethod.Id != 0;
-
             if (paymentMethod.Id == 0)
             {
-                // In this case the update permission is sufficient.
+                // The update permission is sufficient here.
                 _db.PaymentMethods.Add(paymentMethod);
                 await _db.SaveChangesAsync();
-
-                updateEntity = model.SelectedRuleSetIds?.Any() ?? false;
             }
 
-            if (updateEntity)
-            {
-                // Add\remove assigned rule sets.
-                await _ruleService.ApplyRuleSetMappingsAsync(paymentMethod, model.SelectedRuleSetIds);
-                await _db.SaveChangesAsync();
-            }
+            // Add\remove assigned rule sets.
+            await _ruleService.ApplyRuleSetMappingsAsync(paymentMethod, model.SelectedRuleSetIds);
 
-            await SaveStoreMappingsAsync(paymentMethod, model.SelectedStoreIds);
+            await _storeMappingService.ApplyStoreMappingsAsync(paymentMethod, model.SelectedStoreIds);
 
             foreach (var localized in model.Locales)
             {
@@ -198,11 +187,14 @@ namespace Smartstore.Admin.Controllers
                 await _localizedEntityService.ApplyLocalizedValueAsync(paymentMethod, x => x.FullDescription, localized.FullDescription, localized.LanguageId);
             }
 
-            await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, paymentMethod, form));
+            await _db.SaveChangesAsync();
 
+            await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, paymentMethod, form));
             NotifySuccess(T("Admin.Common.DataEditSuccess"));
 
-            return continueEditing ? RedirectToAction(nameof(Edit), new { systemName }) : RedirectToAction(nameof(Providers));
+            return continueEditing 
+                ? RedirectToAction(nameof(Edit), new { systemName }) 
+                : RedirectToAction(nameof(Providers));
         }
     }
 }

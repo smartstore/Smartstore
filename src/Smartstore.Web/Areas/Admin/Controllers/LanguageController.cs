@@ -12,7 +12,6 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json;
 using Smartstore.Admin.Models.Localization;
 using Smartstore.ComponentModel;
-using Smartstore.Core.Common.Services;
 using Smartstore.Core.DataExchange;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Rules.Filters;
@@ -29,7 +28,6 @@ namespace Smartstore.Admin.Controllers
         private readonly SmartDbContext _db;
         private readonly ILanguageService _languageService;
         private readonly IStoreMappingService _storeMappingService;
-        private readonly IGenericAttributeService _genericAttributeService;
         private readonly IModuleCatalog _moduleCatalog;
         private readonly IXmlResourceManager _xmlResourceManager;
         private readonly IAsyncState _asyncState;
@@ -40,7 +38,6 @@ namespace Smartstore.Admin.Controllers
             SmartDbContext db,
             ILanguageService languageService,
             IStoreMappingService storeMappingService,
-            IGenericAttributeService genericAttributeService,
             IModuleCatalog moduleCatalog,
             IXmlResourceManager xmlResourceManager,
             IAsyncState asyncState,
@@ -50,7 +47,6 @@ namespace Smartstore.Admin.Controllers
             _db = db;
             _languageService = languageService;
             _storeMappingService = storeMappingService;
-            _genericAttributeService = genericAttributeService;
             _moduleCatalog = moduleCatalog;
             _xmlResourceManager = xmlResourceManager;
             _asyncState = asyncState;
@@ -217,9 +213,8 @@ namespace Smartstore.Admin.Controllers
                 }
 
                 await MapperFactory.MapAsync(model, language);
+                await _storeMappingService.ApplyStoreMappingsAsync(language, model.SelectedStoreIds);
                 await _db.SaveChangesAsync();
-
-                await SaveStoreMappingsAsync(language, model.SelectedStoreIds);
 
                 NotifySuccess(T("Admin.Configuration.Languages.Updated"));
 

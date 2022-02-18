@@ -42,15 +42,17 @@ namespace Smartstore.Polls.Controllers
         {
             var taxRates = await _db.TaxCategories
                 .AsNoTracking()
+                .OrderBy(x => x.DisplayOrder)
                 .ToPagedList(command)
                 .LoadAsync();
 
-            var taxRateModels = await taxRates.SelectAsync(async x => new FixedTaxRateModel()
-            {
-                TaxCategoryId = x.Id,
-                TaxCategoryName = x.Name,
-                Rate = await Services.Settings.GetSettingByKeyAsync<decimal>($"Tax.TaxProvider.FixedRate.TaxCategoryId{x.Id}")
-            }).AsyncToList();
+            var taxRateModels = await taxRates.SelectAsync(async x => new FixedTaxRateModel
+                {
+                    TaxCategoryId = x.Id,
+                    TaxCategoryName = x.Name,
+                    Rate = await Services.Settings.GetSettingByKeyAsync<decimal>($"Tax.TaxProvider.FixedRate.TaxCategoryId{x.Id}")
+                })
+                .AsyncToList();
 
             var gridModel = new GridModel<FixedTaxRateModel>
             {

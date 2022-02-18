@@ -56,7 +56,7 @@ namespace Smartstore.Core.Localization
 
             foreach (var resource in resources)
             {
-                if (resource.IsFromPlugin == false)
+                if (resource.IsFromPlugin.GetValueOrDefault() == false)
                 {
                     xmlWriter.WriteStartElement("LocaleResource");
                     xmlWriter.WriteAttributeString("Name", resource.ResourceName);

@@ -27,6 +27,7 @@ namespace Smartstore.Tax.Controllers
         {
             var taxCategories = await _db.TaxCategories
                 .AsNoTracking()
+                .OrderBy(x => x.DisplayOrder)
                 .ToListAsync();
 
             var countries = await _db.Countries
@@ -34,12 +35,12 @@ namespace Smartstore.Tax.Controllers
                 .ApplyStandardFilter(true)
                 .ToListAsync();
 
-            var stateProvinces = await _db.StateProvinces
-                .AsNoTracking()
-                .ToListAsync();
-
             var firstCountryId = countries.FirstOrDefault()?.Id ?? 0;
-            var stateProvincesOfFirstCountry = stateProvinces.Where(x => x.CountryId == firstCountryId).ToList();
+            var stateProvincesOfFirstCountry = await _db.StateProvinces
+                .AsNoTracking()
+                .Where(x => x.CountryId == firstCountryId)
+                .OrderBy(x => x.DisplayOrder)
+                .ToListAsync();
 
             ViewBag.AvailableTaxCategories = taxCategories.Select(x => new SelectListItem
             {
@@ -75,11 +76,11 @@ namespace Smartstore.Tax.Controllers
 
         [HttpPost]
         [Permission(Permissions.Configuration.Tax.Read)]
-        public async Task<IActionResult> List(GridCommand command)
+        public async Task<IActionResult> TaxRateList(GridCommand command)
         {
             var taxRates = await _db.TaxRates()
                 .ApplyRegionFilter(null, null, null, null)
-                .ApplyGridCommand(command, false)
+                .ApplyGridCommand(command)
                 .ToPagedList(command)
                 .LoadAsync();
 
@@ -135,7 +136,7 @@ namespace Smartstore.Tax.Controllers
 
         [HttpPost]
         [Permission(Permissions.Configuration.Tax.Update)]
-        public async Task<IActionResult> Update(ByRegionTaxRateModel model)
+        public async Task<IActionResult> TaxRateUpdate(ByRegionTaxRateModel model)
         {
             var success = false;
 
@@ -155,7 +156,7 @@ namespace Smartstore.Tax.Controllers
 
         [HttpPost]
         [Permission(Permissions.Configuration.Tax.Delete)]
-        public async Task<IActionResult> Delete(GridSelection selection)
+        public async Task<IActionResult> TaxRateDelete(GridSelection selection)
         {
             var success = false;
             var numDeleted = 0;

@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.ComponentModel;
-using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Common;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Data;
@@ -20,20 +19,17 @@ namespace Smartstore.Shipping.Controllers
     public class ByTotalController : AdminController
     {
         private readonly SmartDbContext _db;
-        private readonly IShippingService _shippingService;
         private readonly ICurrencyService _currencyService;
         private readonly IProviderManager _providerManager;
         private readonly ShippingByTotalSettings _shippingByTotalSettings;
 
         public ByTotalController(
             SmartDbContext db, 
-            IShippingService shippingService,
             ICurrencyService currencyService,
             IProviderManager providerManager, 
             ShippingByTotalSettings shippingByTotalSettings)
         {
             _db = db;
-            _shippingService = shippingService;
             _currencyService = currencyService;
             _providerManager = providerManager;
             _shippingByTotalSettings = shippingByTotalSettings;
@@ -94,14 +90,15 @@ namespace Smartstore.Shipping.Controllers
 
         [HttpPost]
         [Permission(Permissions.Configuration.Shipping.Read)]
-        public async Task<IActionResult> ByTotalList(GridCommand command)
+        public async Task<IActionResult> ShippingRateByTotalList(GridCommand command)
         {
             var shippingRates = await _db.ShippingRatesByTotal()
                 .AsNoTracking()
-                .ApplyGridCommand(command, false)
+                .ApplyGridCommand(command)
                 .ToPagedList(command)
                 .LoadAsync();
 
+            var stores = Services.StoreContext.GetAllStores().ToDictionary(x => x.Id);
             var shippingMethods = await _db.ShippingMethods.ToDictionaryAsync(x => x.Id, x => x);
 
             var countryIds = shippingRates
@@ -121,7 +118,7 @@ namespace Smartstore.Shipping.Controllers
 
             var shippingRateModels = shippingRates.Select(x =>
             {
-                var store = Services.StoreContext.GetStoreById(x.StoreId);
+                var store = stores.Get(x.StoreId);
                 var shippingMethod = shippingMethods.Get(x.ShippingMethodId);
                 var country = x.CountryId.HasValue ? countries.Get(x.CountryId.Value) : null;
                 var stateProvince = x.StateProvinceId.HasValue ? stateProvinces.Get(x.StateProvinceId.Value) : null;
@@ -133,7 +130,7 @@ namespace Smartstore.Shipping.Controllers
                     ShippingMethodId = x.ShippingMethodId,
                     CountryId = x.CountryId,
                     StateProvinceId = x.StateProvinceId,
-                    Zip = x.Zip.HasValue() ? x.Zip : "*",
+                    Zip = x.Zip.NullEmpty() ?? "*",
                     From = x.From,
                     To = x.To,
                     UsePercentage = x.UsePercentage,
@@ -141,7 +138,7 @@ namespace Smartstore.Shipping.Controllers
                     ShippingChargeAmount = x.ShippingChargeAmount,
                     BaseCharge = x.BaseCharge,
                     MaxCharge = x.MaxCharge,
-                    StoreName = store == null ? "*" : store.Name,
+                    StoreName = store?.Name ?? "*",
                     ShippingMethodName = shippingMethod?.Name ?? StringExtensions.NotAvailable,
                     CountryName = country?.Name ?? "*",
                     StateProvinceName = stateProvince?.Name ?? "*"
@@ -162,7 +159,7 @@ namespace Smartstore.Shipping.Controllers
 
         [HttpPost]
         [Permission(Permissions.Configuration.Shipping.Update)]
-        public async Task<IActionResult> ByTotalUpdate(ByTotalModel model)
+        public async Task<IActionResult> ShippingRateByTotalUpdate(ByTotalModel model)
         {
             var success = false;
             var shippingRate = await _db.ShippingRatesByTotal().FindByIdAsync(model.Id);
@@ -180,7 +177,7 @@ namespace Smartstore.Shipping.Controllers
 
         [HttpPost]
         [Permission(Permissions.Configuration.Shipping.Delete)]
-        public async Task<IActionResult> ByTotalDelete(GridSelection selection)
+        public async Task<IActionResult> ShippingRateByTotalDelete(GridSelection selection)
         {
             var success = false;
             var numDeleted = 0;

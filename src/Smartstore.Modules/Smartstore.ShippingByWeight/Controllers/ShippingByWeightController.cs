@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.ComponentModel;
-using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
@@ -19,22 +18,16 @@ namespace Smartstore.ShippingByWeight.Controllers
     public class ShippingByWeightController : ModuleController
     {
         private readonly SmartDbContext _db;
-        private readonly IShippingService _shippingService;
         private readonly IProviderManager _providerManager;
-        private readonly ShippingByWeightSettings _shippingByWeightSettings;
         private readonly MeasureSettings _measureSettings;
 
         public ShippingByWeightController(
             SmartDbContext db,
-            IShippingService shippingService,
             IProviderManager providerManager,
-            ShippingByWeightSettings shippingByWeightSettings,
             MeasureSettings measureSettings)
         {
             _db = db;
-            _shippingService = shippingService;
             _providerManager = providerManager;
-            _shippingByWeightSettings = shippingByWeightSettings;
             _measureSettings = measureSettings;
         }
 
@@ -97,20 +90,21 @@ namespace Smartstore.ShippingByWeight.Controllers
 
         [HttpPost]
         [Permission(Permissions.Configuration.Shipping.Read)]
-        public async Task<IActionResult> ByWeightList(GridCommand command)
+        public async Task<IActionResult> ShippingRateByWeightList(GridCommand command)
         {
             var shippingRates = await _db.ShippingRatesByWeight()
                 .AsNoTracking()
-                .ApplyGridCommand(command, false)
+                .ApplyGridCommand(command)
                 .ToPagedList(command)
                 .LoadAsync();
 
+            var stores = Services.StoreContext.GetAllStores().ToDictionary(x => x.Id);
             var shippingMethods = await _db.ShippingMethods.ToDictionaryAsync(x => x.Id, x => x);
             var countries = await _db.Countries.ToDictionaryAsync(x => x.Id, x => x);
 
             var shippingRateModels = shippingRates.Select(x =>
             {
-                var store = Services.StoreContext.GetStoreById(x.StoreId);
+                var store = stores.Get(x.StoreId);
                 var shippingMethod = shippingMethods.Get(x.ShippingMethodId);
                 var country = countries.Get(x.CountryId);
                 
@@ -120,7 +114,7 @@ namespace Smartstore.ShippingByWeight.Controllers
                     StoreId = x.StoreId,
                     ShippingMethodId = x.ShippingMethodId,
                     CountryId = x.CountryId,
-                    Zip = x.Zip.HasValue() ? x.Zip : "*",
+                    Zip = x.Zip.NullEmpty() ?? "*",
                     From = x.From,
                     To = x.To,
                     UsePercentage = x.UsePercentage,
@@ -128,7 +122,7 @@ namespace Smartstore.ShippingByWeight.Controllers
                     ShippingChargeAmount = x.ShippingChargeAmount,
                     SmallQuantitySurcharge = x.SmallQuantitySurcharge,
                     SmallQuantityThreshold = x.SmallQuantityThreshold,
-                    StoreName = store == null ? "*" : store.Name,
+                    StoreName = store?.Name ?? "*",
                     ShippingMethodName = shippingMethod?.Name ?? StringExtensions.NotAvailable,
                     CountryName = country?.Name ?? "*"
                 };
@@ -140,7 +134,7 @@ namespace Smartstore.ShippingByWeight.Controllers
             var gridModel = new GridModel<ByWeightModel>
             {
                 Rows = shippingRateModels,
-                Total = shippingRates.TotalCount
+                Total = await shippingRates.GetTotalCountAsync()
             };
 
             return Json(gridModel);
@@ -148,7 +142,7 @@ namespace Smartstore.ShippingByWeight.Controllers
 
         [HttpPost]
         [Permission(Permissions.Configuration.Shipping.Update)]
-        public async Task<IActionResult> ByWeightUpdate(ByWeightModel model)
+        public async Task<IActionResult> ShippingRateByWeightUpdate(ByWeightModel model)
         {
             var success = false;
             var shippingRate = await _db.ShippingRatesByWeight().FindByIdAsync(model.Id);
@@ -166,7 +160,7 @@ namespace Smartstore.ShippingByWeight.Controllers
 
         [HttpPost]
         [Permission(Permissions.Configuration.Shipping.Delete)]
-        public async Task<IActionResult> ByWeightDelete(GridSelection selection)
+        public async Task<IActionResult> ShippingRateByWeightDelete(GridSelection selection)
         {
             var success = false;
             var numDeleted = 0;
