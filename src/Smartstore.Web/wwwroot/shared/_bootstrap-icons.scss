@@ -9,12 +9,15 @@
     display: inline-block;
     vertical-align: -0.2em;
     overflow: visible;
-    width: var(--bi-size, 1em);
-    height: var(--bi-size, 1em);
     min-width: 16px;
     min-height: 16px;
     line-height: 1;
     //-webkit-backface-visibility: hidden;
+
+    > use,
+    > g {
+        transform-origin: center;
+    }
 }
 
 .bi-fw {
@@ -61,7 +64,7 @@
 }
 
 
-.bi-stack {
+/*.bi-stack {
     display: inline-flex;
     position: relative;
     --bi-size: 2em;
@@ -83,7 +86,7 @@
     position: relative;
     width: var(--bi-size);
     height: var(--bi-size);
-}
+}*/
 
 .bi-inverse {
     color: #fff;

@@ -498,8 +498,8 @@ table th {
 }
 
 @keyframes cylon-vertical {
-    0% { transform: translateX(25%); }
-    to { transform: translateX(-25%); } 
+    0% { transform: translateY(25%); }
+    to { transform: translateY(-25%); } 
 }
 
 .animate-fade {

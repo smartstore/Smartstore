@@ -56,26 +56,19 @@
         <div id="content">
             <div class="cph">
                 <zone name="admin_content_before"></zone>
-                <div class="my-2">
-                    <bootstrap-icon name="pc-display" class="hrrr" fill="blue" id="hjkhjkhkjhjk" font-scale="4" />
+                @*<div class="my-2">
+                    <div class="mb-1">
+                        <bootstrap-icon name="pc-display" class="mr-2 text-danger" font-scale="3" rotate="270" scale="2" flip-v="true" animation="IconAnimation.CylonVertical" />
 
-                    <svg class="bi bi-5x" fill="currentColor">
-                        <use xlink:href="/lib/bi/bootstrap-icons.svg#circle-fill" class="beat" fill="green" />
-                    </svg>
-                    <svg class="bi bi-5x" fill="currentColor">
-                        <g>
-                            <svg class="bi" fill="currentColor">
-                                <use xlink:href="/lib/bi/bootstrap-icons.svg#square-fill" />
-                            </svg>
-                            <svg class="bi beat text-white bi-1x" fill="currentColor">
-                                <use xlink:href="/lib/bi/bootstrap-icons.svg#arrow-up-short" transform="scale(0.5, 0.5)" />
-                            </svg>
-                            <svg class="bi text-white spin" fill="currentColor">
-                                <use xlink:href="/lib/bi/bootstrap-icons.svg#arrow-right-short" />
-                            </svg>
-                        </g>
-                    </svg>
-                </div>
+                        <bootstrap-iconstack font-scale="7">
+                            <bootstrap-icon name="square-fill" />
+                            <bootstrap-icon name="arrow-up-short" fill="yellow" scale="0.5F" shift-y="3" shift-x="-3" animation="IconAnimation.CylonVertical" />
+                            <bootstrap-icon name="arrow-up-short" fill="#fff" scale="0.5F" shift-y="3" shift-x="3" rotate="90" animation="IconAnimation.Fade" />
+                            <bootstrap-icon name="arrow-up-short" fill="green" scale="0.5F" shift-y="-3" shift-x="3" rotate="180" animation="IconAnimation.Beat" />
+                            <bootstrap-icon name="arrow-up-short" fill="blue" scale="0.5F" shift-y="-3" shift-x="-3" rotate="270" animation="IconAnimation.Spin" />
+                        </bootstrap-iconstack>
+                    </div>
+                </div>*@
                 @RenderBody()
             </div>
             <div id="ajax-busy">
