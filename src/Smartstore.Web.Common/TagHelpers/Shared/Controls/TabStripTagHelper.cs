@@ -302,9 +302,11 @@ namespace Smartstore.Web.TagHelpers.Shared
 
             content.AppendHtml(ul.RenderStartTag());
 
+            var hasIcons = Tabs.Any(x => x.Icon.HasValue() || x.ImageUrl.HasValue());
+
             foreach (var tab in Tabs)
             {
-                content.AppendHtml(BuildTabItem(tab, isStacked));
+                content.AppendHtml(BuildTabItem(tab, isStacked, hasIcons));
             }
 
             content.AppendHtml(ul.RenderEndTag());
@@ -400,7 +402,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             return div;
         }
 
-        private TagBuilder BuildTabItem(TabTagHelper tab, bool isStacked)
+        private TagBuilder BuildTabItem(TabTagHelper tab, bool isStacked, bool hasIcons)
         {
             // <li [class="nav-item [d-none]"]><a href="#{id}" class="nav-link [active]" data-toggle="tab">{text}</a></li>
             TagBuilder li = new("li");
@@ -464,7 +466,10 @@ namespace Smartstore.Web.TagHelpers.Shared
                 }
                 
                 // Icon/Image
-                BuildTabIcon(tab, a, isStacked);
+                if (hasIcons)
+                {
+                    BuildTabIcon(tab, a, isStacked);
+                }
 
                 // Caption
                 BuildTabCaption(tab, a);
@@ -529,6 +534,10 @@ namespace Smartstore.Web.TagHelpers.Shared
                 img.Attributes["src"] = UrlHelper.Content(tab.ImageUrl);
                 img.Attributes["alt"] = "Icon";
                 a.InnerHtml.AppendHtml(img);
+            }
+            else if (isStacked)
+            {
+                a.InnerHtml.AppendHtml("<i class=\"fa fa-fw\"></i>");
             }
         }
 

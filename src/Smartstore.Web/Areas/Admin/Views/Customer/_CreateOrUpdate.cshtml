@@ -11,13 +11,13 @@
 <div asp-validation-summary="All"></div>
 <input sm-if="Model.Id == 0" asp-for="Id" type="hidden" />
 
-<tabstrip id="customer-edit" sm-nav-style="Material">
-    <tab sm-title="@T("Admin.Customers.Customers.Info")" sm-selected="true">
+<tabstrip id="customer-edit" sm-nav-style="Material" sm-nav-position="Left">
+    <tab sm-title="@T("Admin.Customers.Customers.Info")" sm-selected="true" sm-icon="bi:pencil">
         <partial name="_CreateOrUpdate.Info" model="Model" />
     </tab>
     @if (Model.Id > 0)
     {
-        <tab sm-title="@T("Admin.Configuration.ACL")">
+        <tab sm-title="@T("Admin.Configuration.ACL")" sm-icon="bi:shield">
             @if (Model.PermissionTree?.Permissions?.HasChildren ?? false)
             {
                 <div class="alert alert-info">
@@ -58,7 +58,7 @@
                 </div>
             }
         </tab>
-        <tab sm-title="@T("Admin.Customers.Customers.Orders")">
+        <tab sm-title="@T("Admin.Customers.Customers.Orders")" sm-icon="bi:graph-up-arrow">
             @if (Model.HasOrders)
             {
                 var orderGridViewData = new ViewDataDictionary(this.ViewData);
@@ -76,12 +76,12 @@
 
         if (Model.DisplayRewardPointsHistory)
         {
-            <tab sm-title="@T("Admin.Customers.Customers.RewardPoints")">
+            <tab sm-title="@T("Admin.Customers.Customers.RewardPoints")" sm-icon="bi:trophy">
                 <partial name="Grids/_Grid.RewardPoints" model="null" view-data="gridViewData" />
             </tab>
         }
 
-        <tab sm-title="@T("Admin.Customers.Customers.Addresses")">
+        <tab sm-title="@T("Admin.Customers.Customers.Addresses")" sm-icon="bi:geo-alt">
             <div>
                 <a asp-action="AddressCreate" asp-route-customerId="@Model.Id" class="btn btn-primary mb-3">
                     <i class="fa fa-plus"></i>
@@ -140,7 +140,7 @@
 		        });
             </script>
         </tab>
-        <tab sm-title="@T("Admin.Customers.Customers.CurrentCart")">
+        <tab sm-title="@T("Admin.Customers.Customers.CurrentCart")" sm-icon="bi:cart-check">
             <h5 class="mt-3 text-muted">@T("Admin.Customers.Customers.CurrentShoppingCart")</h5>
             <div class="mt-3">
                 <partial name="Grids/_Grid.ShoppingCart" model="null" view-data="gridViewData"  />
@@ -151,7 +151,7 @@
                 <partial name="Grids/_Grid.Wishlist" model="null" view-data="gridViewData"  />
             </div>
         </tab>
-        <tab sm-title="@T("Admin.Customers.Customers.Impersonate")">
+        <tab sm-title="@T("Admin.Customers.Customers.Impersonate")" sm-icon="bi:person-badge">
             <div class="alert alert-info alert-dismissable">
                 <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                     <span aria-hidden="true">&times;</span>

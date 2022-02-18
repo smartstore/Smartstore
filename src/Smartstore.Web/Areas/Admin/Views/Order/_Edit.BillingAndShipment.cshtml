@@ -83,7 +83,7 @@
 </div>
 
 <div sm-if="Model.IsShippable && Model.ShippingAddress.Id != 0">
-    <h5>@T("Admin.Orders.Shipments")</h5>
+    <h5 class="text-muted mb-3">@T("Admin.Orders.Shipments")</h5>
     <div>
         <partial name="~/Areas/Admin/Views/Shipment/_Grid.Shipments.cshtml" model="null" view-data="gridViewData" />
     </div>

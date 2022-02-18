@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Smartstore.Web.Rendering;
 
-namespace Smartstore.Web.TagHelpers.Shared
+namespace Smartstore.Web.TagHelpers.Admin
 {
     public enum IconAnimation
     {
