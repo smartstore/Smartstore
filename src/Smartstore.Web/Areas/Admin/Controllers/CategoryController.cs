@@ -415,6 +415,7 @@ namespace Smartstore.Admin.Controllers
         public async Task<IActionResult> Edit(CategoryModel model, bool continueEditing, IFormCollection form)
         {
             var category = await _db.Categories
+                .AsSplitQuery()
                 .Include(x => x.AppliedDiscounts)
                 .Include(x => x.RuleSets)
                 .FindByIdAsync(model.Id);
