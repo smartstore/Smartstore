@@ -1,30 +1,16 @@
 ﻿using Humanizer;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Microsoft.AspNetCore.Mvc.TagHelpers;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Smartstore.Web.Rendering;
 
 namespace Smartstore.Web.TagHelpers.Admin
 {
-    public enum IconAnimation
-    {
-        Fade,
-        Spin,
-        SpinReverse,
-        SpinPulse,
-        SpinPulseReverse,
-        Beat,
-        Throb,
-        Cylon,
-        CylonVertical
-    }
-
     [HtmlTargetElement("bootstrap-iconstack"), RestrictChildren("bootstrap-icon")]
-    public class BootstrapIconStackTagHelper : TagHelper
+    public class BootstrapIconStackTagHelper : SmartTagHelper
     {
         const string ClassAttributeName = "class";
         const string StyleAttributeName = "style";
-        const string IdAttributeName = "id";
         const string FontScaleAttributeName = "font-scale";
         const string FillAttributeName = "fill";
         const string AnimationAttributeName = "animation";
@@ -35,10 +21,6 @@ namespace Smartstore.Web.TagHelpers.Admin
         const string FlipVAttributeName = "flip-v";
         const string RotateAttributeName = "rotate";
         const string ScaleAttributeName = "scale";
-
-        [HtmlAttributeNotBound]
-        [ViewContext]
-        public ViewContext ViewContext { get; set; }
 
         /// <summary>
         /// CSS class.
@@ -51,12 +33,6 @@ namespace Smartstore.Web.TagHelpers.Admin
         /// </summary>
         [HtmlAttributeName(StyleAttributeName)]
         public string Style { get; set; }
-
-        /// <summary>
-        /// HTML id.
-        /// </summary>
-        [HtmlAttributeName(IdAttributeName)]
-        public string Id { get; set; }
 
         /// <summary>
         /// Scales the icons current font size. e.g.: 2.5 --> 250% font-size.
@@ -74,19 +50,19 @@ namespace Smartstore.Web.TagHelpers.Admin
         /// Animates the icon.
         /// </summary>
         [HtmlAttributeName(AnimationAttributeName)]
-        public IconAnimation? Animation { get; set; }
+        public CssAnimation? Animation { get; set; }
 
         /// <summary>
         /// Moves the icon horizontally. Positive numbers will shift the icon right, negative left. Value is in 1/16em units. Default: 0.
         /// </summary>
         [HtmlAttributeName(ShiftXAttributeName)]
-        public int ShiftX { get; set; }
+        public float ShiftX { get; set; }
 
         /// <summary>
         /// Moves the icon vertically. Positive numbers will shift the icon down, negative up. Value is in 1/16em units. Default: 0.
         /// </summary>
         [HtmlAttributeName(ShiftYAttributeName)]
-        public int ShiftY { get; set; }
+        public float ShiftY { get; set; }
 
         /// <summary>
         /// Flips the icon horizontally. Default: false.
@@ -112,7 +88,7 @@ namespace Smartstore.Web.TagHelpers.Admin
         [HtmlAttributeName(ScaleAttributeName)]
         public float Scale { get; set; } = 1;
 
-        public override void Process(TagHelperContext context, TagHelperOutput output)
+        protected override void ProcessCore(TagHelperContext context, TagHelperOutput output)
         {
             context.Items["IconStack"] = true;
             
@@ -121,7 +97,7 @@ namespace Smartstore.Web.TagHelpers.Admin
 
             output.AppendCssClass("bi bi-stack");
 
-            var animClass = GetAnimationClassName();
+            var animClass = GenerateAnimationClassName();
             if (animClass != null)
             {
                 output.AppendCssClass(animClass);
@@ -129,11 +105,21 @@ namespace Smartstore.Web.TagHelpers.Admin
 
             ApplyRootAttributes(output, false);
 
-            var g = ApplyTransforms(new TagBuilder("g"));
+            var g = new TagBuilder("g");
+            var transforms = GenerateTransforms();
+
+            if (transforms != null)
+            {
+                g.Attributes["transform"] = transforms;
+            }
+
             output.WrapContentWith(g);
         }
 
-        protected string GetAnimationClassName()
+        protected override string GenerateTagId(TagHelperContext context)
+            => null;
+
+        protected string GenerateAnimationClassName()
         {
             if (Animation.HasValue)
             {
@@ -145,11 +131,6 @@ namespace Smartstore.Web.TagHelpers.Admin
 
         protected void ApplyRootAttributes(TagHelperOutput output, bool isStackItem)
         {
-            if (Id.HasValue())
-            {
-                output.MergeAttribute("id", Id);
-            }
-
             if (CssClass.HasValue())
             {
                 output.AppendCssClass(CssClass);
@@ -179,7 +160,24 @@ namespace Smartstore.Web.TagHelpers.Admin
             }
         }
 
-        protected TagBuilder ApplyTransforms(TagBuilder g)
+        protected object GenerateHtmlAttributes()
+        {
+            var attrs = new Dictionary<string, object>();
+
+            if (CssClass.HasValue())
+            {
+                attrs["class"] = CssClass;
+            }
+
+            if (Style.HasValue())
+            {
+                attrs["style"] = Style;
+            }
+
+            return attrs;
+        }
+
+        protected string GenerateTransforms()
         {
             // Compute the transforms:
             // Note that order is important as SVG transforms are applied in order from
@@ -218,11 +216,11 @@ namespace Smartstore.Web.TagHelpers.Admin
 
                 if (transforms.Count > 0)
                 {
-                    g.Attributes["transform"] = string.Join(' ', transforms);
+                    return string.Join(' ', transforms);
                 }
             }
 
-            return g;
+            return null;
         }
     }
 
@@ -237,45 +235,24 @@ namespace Smartstore.Web.TagHelpers.Admin
         [HtmlAttributeName(NameAttributeName)]
         public string Name { get; set; }
 
-        public override void Process(TagHelperContext context, TagHelperOutput output)
+        protected override void ProcessCore(TagHelperContext context, TagHelperOutput output)
         {
             var isStackItem = context.Items.ContainsKey("IconStack");
-            
-            output.TagName = "svg";
+
+            var svg = (TagBuilder)HtmlHelper.BootstrapIcon(
+                Name,
+                isStackItem,
+                Fill, 
+                FontScale, 
+                Animation,
+                GenerateTransforms(),
+                GenerateHtmlAttributes());
+
+            output.TagName = svg.TagName;
             output.TagMode = TagMode.StartTagAndEndTag;
 
-            output.AppendCssClass("bi");
-
-            ApplyRootAttributes(output, isStackItem);
-
-            var urlHelper = ViewContext.HttpContext.RequestServices.GetService<IUrlHelper>();
-            var symbol = new TagBuilder("use");
-            symbol.Attributes["xlink:href"] = urlHelper.Content($"~/lib/bi/bootstrap-icons.svg#{Name}");
-
-            var el = symbol;
-
-            var animClass = GetAnimationClassName();
-            if (animClass != null)
-            {
-                if (isStackItem)
-                {
-                    el.AppendCssClass(animClass);
-                }
-                else
-                {
-                    output.AppendCssClass(animClass);
-                }
-            }
-
-            if (isStackItem)
-            {
-                el = new TagBuilder("g");
-                el.InnerHtml.AppendHtml(symbol);
-            }
-
-            ApplyTransforms(el);
-
-            output.Content.AppendHtml(el);
+            output.MergeAttributes(svg);
+            output.Content.AppendHtml(svg.InnerHtml);
         }
     }
 }

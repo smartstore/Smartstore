@@ -58,12 +58,12 @@
     }
 
     // Light button icons lighter (looks nice).
-    > i {
+    > i, > .bi {
         transition: opacity .05s ease-in-out;
     }
 
     &:not(:hover):not(:active):not(.active):not(:focus):not([disabled]):not(.disabled) {
-        > i {
+        > i, > .bi {
             color: lighten($body-color, 16%);
         }
     }

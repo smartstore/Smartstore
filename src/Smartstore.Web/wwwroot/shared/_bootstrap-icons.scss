@@ -27,26 +27,6 @@
     width: 1.25em;
 }
 
-.bi-lg {
-    --bi-size: 1.33333em !important;
-    line-height: 0.75em;
-}
-
-.bi-xs {
-    --bi-size: 0.75em !important;
-}
-
-.bi-sm {
-    --bi-size: 0.875em !important;
-}
-
-@for $i from 1 through 10 {
-    .bi-#{$i}x {
-        --bi-size: #{$i * 1em} !important;
-    }
-}
-
-
 .bi-ul {
     list-style-type: none;
     margin-left: 2.5em;
@@ -63,33 +43,4 @@
     text-align: center;
     width: 2em;
     line-height: inherit;
-}
-
-
-/*.bi-stack {
-    display: inline-flex;
-    position: relative;
-    --bi-size: 2em;
-    width: calc(var(--bi-size) * 2);
-    height: calc(var(--bi-size) * 2);
-    align-items: center;
-    justify-content: center;
-}
-
-.bi-stack-2x {
-    position: absolute;
-    width: calc(var(--bi-size) * 2);
-    height: calc(var(--bi-size) * 2);
-    left: 0;
-    top: 0;
-}
-
-.bi-stack-1x {
-    position: relative;
-    width: var(--bi-size);
-    height: var(--bi-size);
-}*/
-
-.bi-inverse {
-    color: #fff;
 }

@@ -490,34 +490,11 @@ namespace Smartstore.Web.TagHelpers.Shared
         {
             if (tab.Icon.HasValue())
             {
-                TagBuilder el;
-                var icon = tab.Icon;
+                var el = (TagBuilder)HtmlHelper.Icon(tab.Icon);
 
-                if (icon.StartsWith("bi:"))
+                if (isStacked)
                 {
-                    el = new("svg");
-                    el.Attributes["class"] = "bi";
-                    el.Attributes["fill"] = "currentColor";
-                    el.Attributes["width"] = "1em";
-                    el.Attributes["height"] = "1em";
-                    el.Attributes["role"] = "img";
-                    el.Attributes["focusable"] = "false";
-                    if (isStacked)
-                    {
-                        el.AddCssClass("bi-fw");
-                    }
-
-                    var url = UrlHelper.Content($"~/lib/bi/bootstrap-icons.svg#{icon[3..]}");
-                    el.InnerHtml.AppendHtml($"<use xlink:href=\"{url}\" />");
-                }
-                else
-                {
-                    el = new("i");
-                    el.Attributes["class"] = icon;
-                    if (isStacked)
-                    {
-                        el.AddCssClass("fa-fw");
-                    }
+                    el.AppendCssClass("bi-fw");
                 }
 
                 el.AppendCssClass("nav-icon");
