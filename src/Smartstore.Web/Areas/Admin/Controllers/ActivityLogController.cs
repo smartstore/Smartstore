@@ -29,12 +29,13 @@ namespace Smartstore.Admin.Controllers
         }
 
         [HttpPost]
-        [Permission(Permissions.Configuration.Measure.Read)]
-        public async Task<IActionResult> ActivityTypesList(GridCommand command)
+        [Permission(Permissions.Configuration.ActivityLog.Read)]
+        public async Task<IActionResult> ActivityLogTypesList(GridCommand command)
         {
             var mapper = MapperFactory.GetMapper<ActivityLogType, ActivityLogTypeModel>();
             var activityLogTypeModels = await _db.ActivityLogTypes
                 .AsNoTracking()
+                .OrderBy(x => x.Name)
                 .ApplyGridCommand(command)
                 .SelectAsync(async x => await mapper.MapAsync(x))
                 .AsyncToList();
@@ -50,7 +51,7 @@ namespace Smartstore.Admin.Controllers
 
         [HttpPost]
         [Permission(Permissions.Configuration.ActivityLog.Update)]
-        public async Task<IActionResult> ActivityTypesUpdate(ActivityLogTypeModel model)
+        public async Task<IActionResult> ActivityLogTypesUpdate(ActivityLogTypeModel model)
         {
             var success = false;
 
@@ -72,20 +73,20 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Configuration.ActivityLog.Read)]
         public async Task<IActionResult> ActivityLogs()
         {
-            var model = new ActivityLogListModel
-            {
-                ActivityLogTypes = await _db.ActivityLogTypes
-                    .AsNoTracking()
-                    .OrderBy(x => x.Name)
-                    .Select(x => new SelectListItem
-                    {
-                        Value = x.Id.ToString(),
-                        Text = x.Name
-                    })
-                    .ToListAsync()
-            };
+            var activityLogTypes = await _db.ActivityLogTypes
+                .AsNoTracking()
+                .OrderBy(x => x.Name)
+                .Select(x => new SelectListItem
+                {
+                    Value = x.Id.ToString(),
+                    Text = x.Name
+                })
+                .ToListAsync();
 
-            return View(model);
+            return View(new ActivityLogListModel
+            {
+                ActivityLogTypes = activityLogTypes
+            });
         }
 
         [HttpPost]
@@ -129,7 +130,7 @@ namespace Smartstore.Admin.Controllers
 
                 model.CreatedOn = _dateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc);
                 model.IsSystemAccount = systemCustomer != null;
-                model.CustomerEditUrl = Url.Action("Edit", "Customer", new { id = x.CustomerId });
+                model.CustomerEditUrl = Url.Action("Edit", "Customer", new { id = x.CustomerId, area = "Admin" });
 
                 if (systemCustomer != null)
                 {
@@ -152,7 +153,8 @@ namespace Smartstore.Admin.Controllers
                 }
 
                 return model;
-            }).AsyncToList();
+            })
+            .AsyncToList();
 
             var gridModel = new GridModel<ActivityLogModel>
             {
@@ -164,7 +166,7 @@ namespace Smartstore.Admin.Controllers
         }
 
         [HttpPost]
-        [Permission(Permissions.Configuration.Setting.Delete)]
+        [Permission(Permissions.Configuration.ActivityLog.Delete)]
         public async Task<IActionResult> ActivityLogDelete(GridSelection selection)
         {
             var success = false;
@@ -185,11 +187,10 @@ namespace Smartstore.Admin.Controllers
         }
 
         [HttpPost]
-        [Permission(Permissions.Configuration.Setting.Delete)]
+        [Permission(Permissions.Configuration.ActivityLog.Delete)]
         public async Task<IActionResult> DeleteAll()
         {
-            await _db.ActivityLogs.DeleteAllAsync();
-            await _db.SaveChangesAsync();
+            await Services.ActivityLogger.ClearAllActivitiesAsync();
         
             return RedirectToAction(nameof(ActivityLogs));
         }

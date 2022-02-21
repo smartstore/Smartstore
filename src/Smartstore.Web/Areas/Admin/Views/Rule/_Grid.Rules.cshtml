@@ -5,8 +5,12 @@
           allow-column-reordering="true"
           preserve-grid-state="true"
           onrowclass="rulesGrid_onRowClass">
-    <datasource read="@Url.Action("RuleList")" />
+    <datasource read="@Url.Action("RuleSetList")" />
     <paging position="Bottom" show-size-chooser="true" />
+    <sorting allow-unsort="true" allow-multisort="true">
+        <sort by="IsActive" descending="true" />
+        <sort by="Scope" />
+    </sorting>
     <toolbar>
         <toolbar-group>
             <a asp-action="Create" class="btn btn-primary btn-flat">
@@ -16,6 +20,7 @@
         </toolbar-group>
     </toolbar>
     <columns>
+        <column for="Id" halign="center" visible="false" type="string" />
         <column for="Name" hideable="false">
             <display-template>
                 <div class="dg-cell-value">
@@ -24,8 +29,9 @@
                 </div>
             </display-template>
         </column>
-        <column for="ScopeName" width="300px" />
+        <column for="ScopeName" entity-member="Scope" />
         <column for="IsActive" halign="center" />
+        <column for="CreatedOn" entity-member="CreatedOnUtc" readonly="true" />
     </columns>
 </datagrid>
 

@@ -31,10 +31,11 @@ namespace Smartstore.Admin.Controllers
 
         [HttpPost]
         [Permission(Permissions.Configuration.Measure.Read)]
-        public async Task<IActionResult> WeightList(GridCommand command)
+        public async Task<IActionResult> MeasureWeightList(GridCommand command)
         {
             var measureWeights = await _db.MeasureWeights
                 .AsNoTracking()
+                .OrderBy(x => x.DisplayOrder)
                 .ApplyGridCommand(command)
                 .ToPagedList(command)
                 .LoadAsync();
@@ -61,7 +62,7 @@ namespace Smartstore.Admin.Controllers
 
         [HttpPost]
         [Permission(Permissions.Configuration.Measure.Update)]
-        public async Task<IActionResult> WeightUpdate(MeasureWeightModel model)
+        public async Task<IActionResult> MeasureWeightUpdate(MeasureWeightModel model)
         {
             var success = false;
             var measureWeight = await _db.MeasureWeights.FindByIdAsync(model.Id);
@@ -72,7 +73,6 @@ namespace Smartstore.Admin.Controllers
                 {
                     _measureSettings.BaseWeightId = measureWeight.Id;
                     await Services.Settings.ApplySettingAsync(_measureSettings, x => x.BaseWeightId);
-                    await _db.SaveChangesAsync();
                 }
 
                 await MapperFactory.MapAsync(model, measureWeight);
@@ -108,20 +108,20 @@ namespace Smartstore.Admin.Controllers
                     await _db.SaveChangesAsync();
 
                     await UpdateWeightLocalesAsync(measureWeight, model);
-                    await _db.SaveChangesAsync();
 
                     if (model.IsPrimaryWeight)
                     {
                         _measureSettings.BaseWeightId = measureWeight.Id;
                         await Services.Settings.ApplySettingAsync(_measureSettings, x => x.BaseWeightId);
-                        await _db.SaveChangesAsync();
                     }
+
+                    await _db.SaveChangesAsync();
 
                     NotifySuccess(T("Admin.Configuration.Entity.Added"));
                 }
                 catch (Exception ex)
                 {
-                    ModelState.AddModelError("", ex.Message);
+                    ModelState.AddModelError(string.Empty, ex.Message);
                     return View(model);
                 }
 
@@ -157,7 +157,6 @@ namespace Smartstore.Admin.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         [Permission(Permissions.Configuration.Measure.Update)]
         public async Task<IActionResult> EditWeightPopup(MeasureWeightModel model, string btnId, string formId)
         {
@@ -173,20 +172,20 @@ namespace Smartstore.Admin.Controllers
                 {
                     await MapperFactory.MapAsync(model, measureWeight);
                     await UpdateWeightLocalesAsync(measureWeight, model);
-                    await _db.SaveChangesAsync();
 
                     if (model.IsPrimaryWeight && _measureSettings.BaseWeightId != measureWeight.Id)
                     {
                         _measureSettings.BaseWeightId = measureWeight.Id;
                         await Services.Settings.ApplySettingAsync(_measureSettings, x => x.BaseWeightId);
-                        await _db.SaveChangesAsync();
                     }
+
+                    await _db.SaveChangesAsync();
 
                     NotifySuccess(T("Admin.Configuration.Entity.Updated"));
                 }
                 catch (Exception ex)
                 {
-                    ModelState.AddModelError("", ex.Message);
+                    ModelState.AddModelError(string.Empty, ex.Message);
                     return View(model);
                 }
 
@@ -213,7 +212,7 @@ namespace Smartstore.Admin.Controllers
 
         [HttpPost]
         [Permission(Permissions.Configuration.Measure.Delete)]
-        public async Task<IActionResult> DeleteMeasureWeights(GridSelection selection)
+        public async Task<IActionResult> MeasureWeightDelete(GridSelection selection)
         {
             var success = false;
             var numDeleted = 0;
@@ -221,25 +220,18 @@ namespace Smartstore.Admin.Controllers
 
             if (ids.Any())
             {
-                var measureWeights = await _db.MeasureWeights.GetManyAsync(ids, true);
-                var triedToDeletePrimary = false;
-
-                foreach (var weight in measureWeights)
+                try
                 {
-                    if (weight.Id == _measureSettings.BaseWeightId)
-                    {
-                        triedToDeletePrimary = true;
-                        NotifyError(T("Admin.Configuration.Measures.Dimensions.CantDeletePrimary"));
-                    }
-                    else
-                    {
-                        _db.MeasureWeights.Remove(weight);
-                    }
+                    var measureWeights = await _db.MeasureWeights.GetManyAsync(ids, true);
+                    _db.MeasureWeights.RemoveRange(measureWeights);
+
+                    numDeleted = await _db.SaveChangesAsync();
+                    success = true;
                 }
-
-                numDeleted = await _db.SaveChangesAsync();
-
-                success = triedToDeletePrimary && numDeleted == 0 ? false : true;
+                catch (Exception ex)
+                {
+                    NotifyError(ex);
+                }
             }
 
             return Json(new { Success = success, Count = numDeleted });
@@ -267,10 +259,11 @@ namespace Smartstore.Admin.Controllers
 
         [HttpPost]
         [Permission(Permissions.Configuration.Measure.Read)]
-        public async Task<IActionResult> DimensionList(GridCommand command)
+        public async Task<IActionResult> MeasureDimensionList(GridCommand command)
         {
             var measureDimensions = await _db.MeasureDimensions
                 .AsNoTracking()
+                .OrderBy(x => x.DisplayOrder)
                 .ApplyGridCommand(command)
                 .ToPagedList(command)
                 .LoadAsync();
@@ -296,7 +289,7 @@ namespace Smartstore.Admin.Controllers
 
         [HttpPost]
         [Permission(Permissions.Configuration.Measure.Update)]
-        public async Task<IActionResult> DimensionUpdate(MeasureDimensionModel model)
+        public async Task<IActionResult> MeasureDimensionUpdate(MeasureDimensionModel model)
         {
             var success = false;
             var measureDimension = await _db.MeasureDimensions.FindByIdAsync(model.Id);
@@ -307,7 +300,6 @@ namespace Smartstore.Admin.Controllers
                 {
                     _measureSettings.BaseDimensionId = measureDimension.Id;
                     await Services.Settings.ApplySettingAsync(_measureSettings, x => x.BaseDimensionId);
-                    await _db.SaveChangesAsync();
                 }
 
                 await MapperFactory.MapAsync(model, measureDimension);
@@ -343,20 +335,20 @@ namespace Smartstore.Admin.Controllers
                     await _db.SaveChangesAsync();
 
                     await UpdateDimensionLocalesAsync(measureDimension, model);
-                    await _db.SaveChangesAsync();
 
                     if (model.IsPrimaryDimension)
                     {
                         _measureSettings.BaseDimensionId = measureDimension.Id;
                         await Services.Settings.ApplySettingAsync(_measureSettings, x => x.BaseDimensionId);
-                        await _db.SaveChangesAsync();
                     }
+
+                    await _db.SaveChangesAsync();
 
                     NotifySuccess(T("Admin.Configuration.Entity.Added"));
                 }
                 catch (Exception ex)
                 {
-                    ModelState.AddModelError("", ex.Message);
+                    ModelState.AddModelError(string.Empty, ex.Message);
                     return View(model);
                 }
 
@@ -392,7 +384,6 @@ namespace Smartstore.Admin.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         [Permission(Permissions.Configuration.Measure.Update)]
         public async Task<IActionResult> EditDimensionPopup(MeasureDimensionModel model, string btnId, string formId)
         {
@@ -408,20 +399,20 @@ namespace Smartstore.Admin.Controllers
                 {
                     await MapperFactory.MapAsync(model, measureDimension);
                     await UpdateDimensionLocalesAsync(measureDimension, model);
-                    await _db.SaveChangesAsync();
 
                     if (model.IsPrimaryDimension && _measureSettings.BaseDimensionId != measureDimension.Id)
                     {
                         _measureSettings.BaseDimensionId = measureDimension.Id;
                         await Services.Settings.ApplySettingAsync(_measureSettings, x => x.BaseDimensionId);
-                        await _db.SaveChangesAsync();
                     }
+
+                    await _db.SaveChangesAsync();
 
                     NotifySuccess(T("Admin.Configuration.Entity.Updated"));
                 }
                 catch (Exception ex)
                 {
-                    ModelState.AddModelError("", ex.Message);
+                    ModelState.AddModelError(string.Empty, ex.Message);
                     return View(model);
                 }
 
@@ -448,7 +439,7 @@ namespace Smartstore.Admin.Controllers
 
         [HttpPost]
         [Permission(Permissions.Configuration.Measure.Delete)]
-        public async Task<IActionResult> DeleteMeasureDimensions(GridSelection selection)
+        public async Task<IActionResult> MeasureDimensionDelete(GridSelection selection)
         {
             var success = false;
             var numDeleted = 0;
@@ -456,31 +447,23 @@ namespace Smartstore.Admin.Controllers
 
             if (ids.Any())
             {
-                var measureDimension = await _db.MeasureDimensions.GetManyAsync(ids, true);
-                var triedToDeletePrimary = false;
-
-                foreach (var dimension in measureDimension)
+                try
                 {
-                    if (dimension.Id == _measureSettings.BaseDimensionId)
-                    {
-                        triedToDeletePrimary = true;
-                        NotifyError(T("Admin.Configuration.Measures.Dimensions.CantDeletePrimary"));
-                    }
-                    else
-                    {
-                        _db.MeasureDimensions.Remove(dimension);
-                    }
+                    var measureDimensions = await _db.MeasureDimensions.GetManyAsync(ids, true);
+                    _db.MeasureDimensions.RemoveRange(measureDimensions);
+
+                    numDeleted = await _db.SaveChangesAsync();
+                    success = true;
                 }
-
-                numDeleted = await _db.SaveChangesAsync();
-
-                success = triedToDeletePrimary && numDeleted == 0 ? false : true;
+                catch (Exception ex)
+                {
+                    NotifyError(ex);
+                }
             }
 
             return Json(new { Success = success, Count = numDeleted });
         }
 
-        [NonAction]
         private async Task UpdateDimensionLocalesAsync(MeasureDimension dimension, MeasureDimensionModel model)
         {
             foreach (var localized in model.Locales)

@@ -33,7 +33,7 @@
             <smart-label asp-for="Projection.CustomerId" />
         </div>
         <div class="adminData">
-            <input asp-for="Projection.CustomerId" />
+            <editor asp-for="Projection.CustomerId" />
             <span asp-validation-for="Projection.CustomerId"></span>
         </div>
     </div>
@@ -56,10 +56,10 @@
             </div>
             <div class="adminData">
                 <select asp-for="Projection.AttributeCombinationValueMergingId" asp-items="Html.GetLocalizedEnumSelectList(typeof(ExportAttributeValueMerging))"></select>
+                <span class="d-block mt-1 text-muted">
+                    @T("Admin.DataExchange.Export.NotPreviewCompatible")
+                </span>
                 <span asp-validation-for="Projection.AttributeCombinationValueMergingId"></span>
-				<span class="d-block text-muted mt-1">
-					@T("Admin.DataExchange.Export.NotPreviewCompatible")
-				</span>
             </div>
         </div>
     </div>
@@ -79,10 +79,10 @@
             </div>
             <div class="adminData">
                 <input asp-for="Projection.OnlyIndividuallyVisibleAssociated" />
+                <span class="d-inline-block py-2 px-2 text-muted">
+                    @T("Admin.DataExchange.Export.NotPreviewCompatible")
+                </span>
                 <span asp-validation-for="Projection.OnlyIndividuallyVisibleAssociated"></span>
-				<span class="ml-3 text-muted" style="vertical-align: super;">
-					@T("Admin.DataExchange.Export.NotPreviewCompatible")
-				</span>
             </div>
         </div>
     </div>
