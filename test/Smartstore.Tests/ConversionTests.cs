@@ -4,10 +4,13 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
+using System.Net.Mail;
 using System.Reflection;
 using NUnit.Framework;
 using Smartstore.ComponentModel;
 using Smartstore.ComponentModel.TypeConverters;
+using Smartstore.Core.Catalog.Attributes;
+using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Test.Common;
 
 namespace Smartstore.Tests
@@ -56,49 +59,48 @@ namespace Smartstore.Tests
 
             BindingFlags flags = BindingFlags.CreateInstance | BindingFlags.GetProperty | BindingFlags.IgnoreCase;
 
-            var e3 = (flags).Convert<string>();
+            var e3 = flags.Convert<string>();
             e3.ShouldBe<string>();
             Assert.AreEqual(e3, "IgnoreCase, CreateInstance, GetProperty");
 
-            var e5 = (e3).Convert<BindingFlags?>();
+            var e5 = e3.Convert<BindingFlags?>();
             e5.ShouldBe<BindingFlags?>();
             Assert.AreEqual(e5.Value, flags);
 
-            var e4 = (flags).Convert<int>();
+            var e4 = flags.Convert<int>();
             e4.ShouldBe<int>();
             Assert.AreEqual(e4, 4609);
 
-            // TODO: (core) uncomment later when AttributeControlType is available
-            //var enu = SmartStore.Core.Domain.Catalog.AttributeControlType.FileUpload;
-            //Assert.AreEqual((int)enu, enu.Convert<int>());
-            //Assert.AreEqual("FileUpload", enu.Convert<string>());
+            var enu = AttributeControlType.FileUpload;
+            Assert.AreEqual((int)enu, enu.Convert<int>());
+            Assert.AreEqual("FileUpload", enu.Convert<string>());
         }
 
         [Test]
         public void CanConvertBoolean()
         {
-            var b = ("yes").Convert<bool>();
+            var b = "yes".Convert<bool>();
             Assert.AreEqual(b, true);
 
-            b = ("off").Convert<bool>();
+            b = "off".Convert<bool>();
             Assert.AreEqual(b, false);
 
-            b = (1).Convert<bool>();
+            b = 1.Convert<bool>();
             Assert.AreEqual(b, true);
 
-            b = (0).Convert<bool>();
+            b = 0.Convert<bool>();
             Assert.AreEqual(b, false);
 
-            var s = (true).Convert<string>();
+            var s = true.Convert<string>();
             Assert.AreEqual(s, "True");
 
-            var bn = ("true").Convert<bool?>();
+            var bn = "true".Convert<bool?>();
             Assert.AreEqual(bn.Value, true);
 
-            bn = ("wahr").Convert<bool?>();
+            bn = "wahr".Convert<bool?>();
             Assert.AreEqual(bn.Value, true);
 
-            bn = ("").Convert<bool?>();
+            bn = "".Convert<bool?>();
             Assert.AreEqual(bn.HasValue, false);
         }
 
@@ -123,7 +125,7 @@ namespace Smartstore.Tests
             dbl.ShouldBe<double?>();
             Assert.AreEqual(dbl.Value, 10);
 
-            var f = (20f).Convert<int?>();
+            var f = 20f.Convert<int?>();
             f.ShouldBe<int?>();
             Assert.AreEqual(f.Value, 20);
 
@@ -133,7 +135,7 @@ namespace Smartstore.Tests
 
             var culture = CultureInfo.GetCultureInfoByIetfLanguageTag("de-DE");
 
-            ("123567896,54").Convert<decimal>(culture).ShouldBe<decimal>();
+            "123567896,54".Convert<decimal>(culture).ShouldBe<decimal>();
         }
 
         [Test]
@@ -196,63 +198,63 @@ namespace Smartstore.Tests
         [Test]
         public void CanConvertShippingOptions()
         {
-            //// TODO: (core) uncomment later when ShippingOption is available
-            //var shippingOption = new ShippingOption
-            //{
-            //    ShippingMethodId = 2,
-            //    Name = "Name",
-            //    Description = "Desc",
-            //    Rate = 1,
-            //    ShippingRateComputationMethodSystemName = "SystemName"
-            //};
-            //var soStr = shippingOption.Convert<string>();
-            //Assert.IsNotEmpty(soStr);
+            TypeConverterFactory.Providers.Insert(0, new ShippingOptionConverterProvider());
 
-            //var arr = (new[] { shippingOption.Convert<string>() }).Convert<ShippingOption[]>();
-            //arr.ShouldBe<ShippingOption[]>();
-            //Assert.AreEqual(1, arr.Length);
-            //Assert.AreEqual(arr[0].Name, "Name");
+            var shippingOption = new ShippingOption
+            {
+                ShippingMethodId = 2,
+                Name = "Name",
+                Description = "Desc",
+                Rate = 1,
+                ShippingRateComputationMethodSystemName = "SystemName"
+            };
+            var soStr = shippingOption.Convert<string>();
+            Assert.IsNotEmpty(soStr);
 
-            //shippingOption = soStr.Convert<ShippingOption>();
-            //Assert.IsNotNull(shippingOption);
-            //Assert.AreEqual(shippingOption.ShippingMethodId, 2);
-            //Assert.AreEqual(shippingOption.Name, "Name");
-            //Assert.AreEqual(shippingOption.Description, "Desc");
-            //Assert.AreEqual(shippingOption.Rate, 1);
-            //Assert.AreEqual(shippingOption.ShippingRateComputationMethodSystemName, "SystemName");
+            var arr = (new[] { shippingOption.Convert<string>() }).Convert<ShippingOption[]>();
+            arr.ShouldBe<ShippingOption[]>();
+            Assert.AreEqual(1, arr.Length);
+            Assert.AreEqual(arr[0].Name, "Name");
 
-            //var shippingOptions = new List<ShippingOption>
-            //{
-            //    new ShippingOption { ShippingMethodId = 1, Name = "Name1", Description = "Desc1" },
-            //    new ShippingOption { ShippingMethodId = 2, Name = "Name2", Description = "Desc2" }
-            //};
-            //soStr = shippingOptions.Convert<string>();
-            //Assert.IsNotEmpty(soStr);
+            shippingOption = soStr.Convert<ShippingOption>();
+            Assert.IsNotNull(shippingOption);
+            Assert.AreEqual(shippingOption.ShippingMethodId, 2);
+            Assert.AreEqual(shippingOption.Name, "Name");
+            Assert.AreEqual(shippingOption.Description, "Desc");
+            Assert.AreEqual(shippingOption.Rate, 1);
+            Assert.AreEqual(shippingOption.ShippingRateComputationMethodSystemName, "SystemName");
 
-            //shippingOptions = soStr.Convert<List<ShippingOption>>();
-            //Assert.AreEqual(shippingOptions.Count, 2);
-            //Assert.AreEqual(shippingOptions[1].ShippingMethodId, 2);
-            //Assert.AreEqual(shippingOptions[1].Description, "Desc2");
+            var shippingOptions = new List<ShippingOption>
+            {
+                new ShippingOption { ShippingMethodId = 1, Name = "Name1", Description = "Desc1" },
+                new ShippingOption { ShippingMethodId = 2, Name = "Name2", Description = "Desc2" }
+            };
+            soStr = shippingOptions.Convert<string>();
+            Assert.IsNotEmpty(soStr);
 
-            //var shippingOptions2 = soStr.Convert<IList<ShippingOption>>();
-            //Assert.AreEqual(shippingOptions2.Count, 2);
-            //Assert.AreEqual(shippingOptions[1].ShippingMethodId, 2);
-            //Assert.AreEqual(shippingOptions2.First().Description, "Desc1");
+            shippingOptions = soStr.Convert<List<ShippingOption>>();
+            Assert.AreEqual(shippingOptions.Count, 2);
+            Assert.AreEqual(shippingOptions[1].ShippingMethodId, 2);
+            Assert.AreEqual(shippingOptions[1].Description, "Desc2");
+
+            var shippingOptions2 = soStr.Convert<IList<ShippingOption>>();
+            Assert.AreEqual(shippingOptions2.Count, 2);
+            Assert.AreEqual(shippingOptions[1].ShippingMethodId, 2);
+            Assert.AreEqual(shippingOptions2.First().Description, "Desc1");
         }
 
         [Test]
         public void CanConvertEmailAddress()
         {
-            //// TODO: (core) uncomment later when EmailAddress is available
-            //var list = (new[] { new EmailAddress("test@domain.com") }).Convert<IList<string>>();
-            //list.ShouldBe<IList<string>>();
-            //Assert.AreEqual(1, list.Count);
-            //Assert.AreEqual("test@domain.com", list[0]);
+            var list = (new[] { new MailAddress("test@domain.com") }).Convert<IList<string>>();
+            list.ShouldBe<IList<string>>();
+            Assert.AreEqual(1, list.Count);
+            Assert.AreEqual("test@domain.com", list[0]);
 
-            //var list2 = (new[] { "test@domain.com", "test2@domain.com" }).Convert<HashSet<EmailAddress>>();
-            //list2.ShouldBe<HashSet<EmailAddress>>();
-            //Assert.AreEqual(2, list2.Count);
-            //Assert.AreEqual("test2@domain.com", list2.ElementAt(1).Address);
+            var list2 = (new[] { "test@domain.com", "test2@domain.com" }).Convert<HashSet<MailAddress>>();
+            list2.ShouldBe<HashSet<MailAddress>>();
+            Assert.AreEqual(2, list2.Count);
+            Assert.AreEqual("test2@domain.com", list2.ElementAt(1).Address);
         }
     }
 }
