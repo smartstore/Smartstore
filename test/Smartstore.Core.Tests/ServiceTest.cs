@@ -6,6 +6,7 @@ using Smartstore.Core.Tests.Shipping;
 using Smartstore.Core.Tests.Tax;
 using Smartstore.Engine.Modularity;
 using Smartstore.IO;
+using Smartstore.Utilities;
 
 namespace Smartstore.Core.Tests
 {
@@ -18,6 +19,9 @@ namespace Smartstore.Core.Tests
         [SetUp]
         public void SetUp()
         {
+            CommonHelper.IsHosted = false;
+            CommonHelper.IsDevEnvironment = false;
+
             _moduleManager = new ModuleManager(null, null, null, null, null, null, new Func<IModuleDescriptor, IModule>(x => null));
 
             InitModules();

@@ -42,7 +42,7 @@ namespace Smartstore.Core.Tests.DataExchange
         private Stream GetFileStream(string fileName)
         {
             var type = GetType();
-            return type.Assembly.GetManifestResourceStream($"{type.Namespace}.Files.{fileName}");
+            return type.Assembly.GetManifestResourceStream($"Smartstore.Core.Tests.Platform.DataExchange.Files.{fileName}");
         }
 
         private static void VerifyDataTable(IDataTable table)
