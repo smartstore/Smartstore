@@ -21,7 +21,7 @@ namespace Smartstore.Scheduling
 {
     public partial class DbTaskStore : Disposable, ITaskStore
     {
-        private readonly static Dictionary<string, string> _legacyTypeNames = new(StringComparer.OrdinalIgnoreCase)
+        private readonly static Dictionary<string, string> _legacyTypeNamesMap = new(StringComparer.OrdinalIgnoreCase)
         {
             { nameof(DataExportTask), "SmartStore.Services.DataExchange.Export.DataExportTask, SmartStore.Services" },
             { nameof(DataImportTask), "SmartStore.Services.DataExchange.Import.DataImportTask, SmartStore.Services" },
@@ -109,7 +109,7 @@ namespace Smartstore.Scheduling
             {
                 if (type.HasValue())
                 {
-                    var query = _legacyTypeNames.TryGetValue(type, out var legacyTypeName)
+                    var query = _legacyTypeNamesMap.TryGetValue(type, out var legacyTypeName)
                         ? _db.TaskDescriptors.Where(t => t.Type == type || t.Type == legacyTypeName)
                         : _db.TaskDescriptors.Where(t => t.Type == type);
 
