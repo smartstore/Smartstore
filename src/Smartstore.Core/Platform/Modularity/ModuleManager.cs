@@ -14,9 +14,7 @@ namespace Smartstore.Engine.Modularity
     {
         private readonly IApplicationContext _appContext;
         private readonly SmartDbContext _db;
-        private readonly IComponentContext _ctx;
         private readonly ILocalizationService _locService;
-        private readonly ISettingFactory _settingFactory;
         private readonly ISettingService _settingService;
         private readonly IWidgetService _widgetService;
         private readonly Func<string, IModule> _moduleByNameFactory;
@@ -25,9 +23,7 @@ namespace Smartstore.Engine.Modularity
         public ModuleManager(
             IApplicationContext appContext,
             SmartDbContext db,
-            IComponentContext ctx,
             ILocalizationService locService, 
-            ISettingFactory settingFactory, 
             ISettingService settingService,
             IWidgetService widgetService,
             Func<string, IModule> moduleByNameFactory,
@@ -35,9 +31,7 @@ namespace Smartstore.Engine.Modularity
         {
             _appContext = appContext;
             _db = db;
-            _ctx = ctx;
             _locService = locService;
-            _settingFactory = settingFactory;
             _settingService = settingService;
             _widgetService = widgetService;
             _moduleByNameFactory = moduleByNameFactory;

@@ -7,15 +7,20 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <None Remove="DataExchange\Files\testdata.csv" />
-	  <None Remove="DataExchange\Files\testdata.xlsx" />
-	  <None Remove="Files\testdata.html" />
+	  <None Remove="Platform\DataExchange\Files\testdata.csv" />
+	  <None Remove="Platform\DataExchange\Files\testdata.xlsx" />
+	  <None Remove="FakeModules\Smartstore.Shipping\module.json" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <EmbeddedResource Include="DataExchange\Files\testdata.csv" />
-	  <EmbeddedResource Include="DataExchange\Files\testdata.xlsx" />
-	  <EmbeddedResource Include="Files\testdata.html" />
+	  <Content Include="FakeModules\Smartstore.Shipping\module.json">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <EmbeddedResource Include="Platform\DataExchange\Files\testdata.csv" />
+	  <EmbeddedResource Include="Platform\DataExchange\Files\testdata.xlsx" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -30,6 +35,15 @@
 		<ProjectReference Include="..\..\src\Smartstore.Core\Smartstore.Core.csproj" />
 		<ProjectReference Include="..\..\src\Smartstore\Smartstore.csproj" />
 		<ProjectReference Include="..\Smartstore.Test.Common\Smartstore.Test.Common.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Update="FakeModules\Smartstore.Payment\module.json">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	  <None Update="FakeModules\Smartstore.Tax\module.json">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
 	</ItemGroup>
 
 </Project>

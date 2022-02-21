@@ -1,0 +1,12 @@
+{
+  "$schema": "../module.schema.json",
+  "Group": "Tax",
+  "SystemName": "Smartstore.Tax",
+  "FriendlyName": "Default Test Tax Providers",
+  "Description": "Fake module to test tax provider",
+  "Version": "5.0",
+  "MinAppVersion": "5.0",
+  "Author": "SmartStore AG",
+  "Order": 0,
+  "ResourceRootKey": "Plugins.SmartStore.Tax"
+}

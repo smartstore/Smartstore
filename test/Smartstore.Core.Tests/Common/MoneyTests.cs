@@ -1,7 +1,6 @@
 ﻿using System;
 using NUnit.Framework;
 using Smartstore.Core.Common;
-using Smartstore.Core.Stores;
 using Smartstore.Test.Common;
 
 namespace Smartstore.Core.Tests.Common
