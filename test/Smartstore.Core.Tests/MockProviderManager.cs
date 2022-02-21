@@ -50,17 +50,17 @@ namespace Smartstore.Core.Tests
 
         public T GetUserSetting<T>(ProviderMetadata metadata, Expression<Func<ProviderMetadata, T>> propertyAccessor)
         {
-            throw new NotImplementedException();
+            return default;
         }
 
         public ApplySettingResult ApplyUserSetting<T>(ProviderMetadata metadata, Expression<Func<ProviderMetadata, T>> propertyAccessor)
         {
-            throw new NotImplementedException();
+            return ApplySettingResult.Unchanged;
         }
 
         public bool IsActiveForStore(IModuleDescriptor module, int storeId)
         {
-            throw new NotImplementedException();
+            return true;
         }
     }
 }
