@@ -4,13 +4,13 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
-using System.Net.Mail;
 using System.Reflection;
 using NUnit.Framework;
 using Smartstore.ComponentModel;
 using Smartstore.ComponentModel.TypeConverters;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Checkout.Shipping;
+using Smartstore.Net.Mail;
 using Smartstore.Test.Common;
 
 namespace Smartstore.Tests
