@@ -28,7 +28,7 @@ namespace Smartstore.Web.Infrastructure
             -----------------------------------------------------*/
             bundles.Add(new StyleBundle("/bundle/css/admin-common.css").Include(
                 lib + "fontastic/fontastic.css",
-                lib + "fa5/css/all.css",
+                lib + "fa6/css/all.css",
                 lib + "pnotify/css/pnotify.css",
                 lib + "pnotify/css/pnotify.mobile.css",
                 lib + "pnotify/css/pnotify.buttons.css"));
