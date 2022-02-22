@@ -67,7 +67,8 @@
         </column>
         <column for="Gender" visible="false" width="140px" sortable="false" hint="@T("Plugins.Feed.Froogle.Gender.Hint")">
             <display-template>
-                @{ await DisplayTemplate(); }
+                <span v-if="item.value != null">{{ item.row.GenderLocalized }}</span>
+                <span v-else class="text-muted font-italic">@emptyCell</span>
             </display-template>
             <edit-template>
                 @Html.EditorFor(model => model.Gender, new { size = "sm" })
@@ -75,7 +76,8 @@
         </column>
         <column for="AgeGroup" visible="false" width="140px" sortable="false" hint="@T("Plugins.Feed.Froogle.AgeGroup.Hint")">
             <display-template>
-                @{ await DisplayTemplate(); }
+                <span v-if="item.value != null">{{ item.row.AgeGroupLocalized }}</span>
+                <span v-else class="text-muted font-italic">@emptyCell</span>
             </display-template>
             <edit-template>
                 @Html.EditorFor(model => model.AgeGroup, new { size = "sm" })
@@ -83,7 +85,8 @@
         </column>
         <column for="IsAdult" visible="false" sortable="false" halign="center" hint="@T("Plugins.Feed.Froogle.IsAdult.Hint")">
             <display-template>
-                @{ await DisplayTemplate(); }
+                <span v-if="item.value != null">{{ item.row.IsAdultLocalized }}</span>
+                <span v-else class="text-muted font-italic">@emptyCell</span>
             </display-template>
             <edit-template>
                 @Html.EditorFor(model => model.IsAdult, new { size = "sm" })
@@ -127,6 +130,15 @@
             </display-template>
             <edit-template>
                 @Html.EditorFor(model => model.Multipack, new { size = "sm" })
+            </edit-template>
+        </column>
+        <column for="IsBundle" visible="false" sortable="false" halign="center" hint="@T("Plugins.Feed.Froogle.IsBundle.Hint")">
+            <display-template>
+                <span v-if="item.value != null">{{ item.row.IsBundleLocalized }}</span>
+                <span v-else class="text-muted font-italic">@emptyCell</span>
+            </display-template>
+            <edit-template>
+                @Html.EditorFor(model => model.IsBundle, new { size = "sm" })
             </edit-template>
         </column>
         <column for="EnergyEfficiencyClass" visible="false" sortable="false" hint="@T("Plugins.Feed.Froogle.EnergyEfficiencyClass.Hint")">
