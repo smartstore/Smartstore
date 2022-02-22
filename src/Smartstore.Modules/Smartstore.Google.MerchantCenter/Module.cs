@@ -40,13 +40,16 @@ namespace Smartstore.Google.MerchantCenter
             await DeleteLanguageResourcesAsync();
 
             // Delete existing export profiles.
-            var profiles = await _db.ExportProfiles
+            var exportProfiles = await _db.ExportProfiles
                 .Include(x => x.Deployments)
                 .Include(x => x.Task)
                 .Where(x => x.ProviderSystemName == GmcXmlExportProvider.SystemName)
                 .ToListAsync();
 
-            profiles.Each(async x => await _exportProfileService.DeleteExportProfileAsync(x, true));
+            foreach (var exportProfile in exportProfiles)
+            {
+                await _exportProfileService.DeleteExportProfileAsync(exportProfile, true);
+            }
 
             await base.UninstallAsync();
         }

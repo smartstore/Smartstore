@@ -69,6 +69,7 @@ namespace Smartstore.Admin.Controllers
                 .AsNoTracking()
                 .ApplySlugFilter(model.SeName, false)
                 .ApplyEntityFilter(model.EntityName, model.EntityId ?? 0, model.LanguageId, model.IsActive)
+                .OrderBy(x => x.Slug)
                 .ApplyGridCommand(command)
                 .ToPagedList(command)
                 .LoadAsync();
@@ -82,8 +83,8 @@ namespace Smartstore.Admin.Controllers
                     PrepareUrlRecordModel(model, x);
 
                     model.SlugsPerEntity = slugsPerEntity.ContainsKey(x.Id) ? slugsPerEntity[x.Id] : 0;
-                    model.EditUrl = Url.Action("Edit", "UrlRecord", new { id = x.Id });
-                    model.FilterUrl = Url.Action("List", "UrlRecord", new { entityName = x.EntityName, entityId = x.EntityId });
+                    model.EditUrl = Url.Action(nameof(Edit), "UrlRecord", new { id = x.Id });
+                    model.FilterUrl = Url.Action(nameof(List), "UrlRecord", new { entityName = x.EntityName, entityId = x.EntityId });
 
                     return model;
                 })
@@ -92,7 +93,7 @@ namespace Smartstore.Admin.Controllers
             return Json(new GridModel<UrlRecordModel>
             {
                 Rows = models,
-                Total = urlRecords.TotalCount
+                Total = await urlRecords.GetTotalCountAsync()
             });
         }
 
@@ -130,7 +131,7 @@ namespace Smartstore.Admin.Controllers
 
                 if (urlRecords.Count > 0)
                 {
-                    ModelState.AddModelError("IsActive", T("Admin.System.SeNames.ActiveSlugAlreadyExist"));
+                    ModelState.AddModelError(nameof(UrlRecordModel.IsActive), T("Admin.System.SeNames.ActiveSlugAlreadyExist"));
                 }
             }
 
@@ -145,7 +146,9 @@ namespace Smartstore.Admin.Controllers
                 
                 NotifySuccess(T("Admin.Common.DataEditSuccess"));
 
-                return continueEditing ? RedirectToAction(nameof(Edit), new { id = urlRecord.Id }) : RedirectToAction(nameof(List));
+                return continueEditing 
+                    ? RedirectToAction(nameof(Edit), new { id = urlRecord.Id })
+                    : RedirectToAction(nameof(List));
             }
 
             PrepareUrlRecordModel(model, null);

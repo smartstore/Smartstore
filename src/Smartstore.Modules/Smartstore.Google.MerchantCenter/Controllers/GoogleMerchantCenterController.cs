@@ -9,7 +9,6 @@ using Smartstore;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Data;
-using Smartstore.Core.DataExchange.Export;
 using Smartstore.Core.Rules.Filters;
 using Smartstore.Engine.Modularity;
 using Smartstore.Google.MerchantCenter.Domain;
@@ -25,16 +24,11 @@ namespace Smartstore.Google.MerchantCenter.Controllers
     public class GoogleMerchantCenterController : AdminController
     {
         private readonly SmartDbContext _db;
-        private readonly Lazy<IExportProfileService> _exportService;
         private readonly IProviderManager _providerManager;
 
-        public GoogleMerchantCenterController(
-            SmartDbContext db, 
-            Lazy<IExportProfileService> exportService, 
-            IProviderManager providerManager)
+        public GoogleMerchantCenterController(SmartDbContext db, IProviderManager providerManager)
         {
             _db = db;
-            _exportService = exportService;
             _providerManager = providerManager;
         }
 
@@ -69,14 +63,11 @@ namespace Smartstore.Google.MerchantCenter.Controllers
             ViewBag.LanguageSeoCode = Services.WorkContext.WorkingLanguage.UniqueSeoCode.EmptyNull().ToLower();
 
             // We do not have export profile context here, so we simply use the first profile.
-            var profile = await _db.ExportProfiles
-                .Where(x => x.SystemName == GmcXmlExportProvider.SystemName)
-                .FirstOrDefaultAsync();
+            var profile = await _db.ExportProfiles.FirstOrDefaultAsync(x => x.ProviderSystemName == GmcXmlExportProvider.SystemName);
 
             if (profile != null)
             {
-                var config = XmlHelper.Deserialize(profile.ProviderConfigData, typeof(ProfileConfigurationModel)) as ProfileConfigurationModel;
-                if (config != null)
+                if (XmlHelper.Deserialize(profile.ProviderConfigData, typeof(ProfileConfigurationModel)) is ProfileConfigurationModel config)
                 {
                     ViewBag.DefaultCategory = config.DefaultGoogleCategory;
                     ViewBag.DefaultColor = config.Color;
@@ -144,7 +135,9 @@ namespace Smartstore.Google.MerchantCenter.Controllers
                 query = query.Where(x => x.GoogleProduct.IsTouched == model.SearchIsTouched);
             }
 
-            var googleProducts = await query.ApplyGridCommand(command, false)
+            var googleProducts = await query
+                .OrderBy(x => x.Name)
+                .ApplyGridCommand(command)
                 .ToPagedList(command)
                 .LoadAsync();
 
@@ -170,26 +163,9 @@ namespace Smartstore.Google.MerchantCenter.Controllers
                         model.Export2Localize = model.Export ? no : yes;
                         model.IsBundleLocalize = model.IsBundle.HasValue ? (model.IsBundle.Value ? yes : no) : null;
                         model.IsAdultLocalize = model.IsAdult.HasValue ? (model.IsAdult.Value ? yes : no) : null;
-
-                        if (model.IsBundle.HasValue)
-                        {
-                            model.IsBundleLocalize = model.IsBundle.Value ? yes : no;
-                        }
-                        else
-                        {
-                            model.IsBundleLocalize = null;
-                        }
-
-                        if (model.IsAdult.HasValue)
-                        {
-                            model.IsAdultLocalize = model.IsAdult.Value ? yes : no;
-                        }
-                        else
-                        {
-                            model.IsAdultLocalize = null;
-                        }
                     }
-                    else {
+                    else 
+                    {
                         // INFO: IN classic this was made in SQL COALESCE([t1].[Export],1)
                         model.Export = true;
                         // INFO: IN classic this was made in SQL COALESCE([t1].[Multipack],0)
@@ -197,7 +173,7 @@ namespace Smartstore.Google.MerchantCenter.Controllers
                     }
 
                     model.ProductId = x.ProductId;
-                    model.SKU = x.Sku;
+                    model.Sku = x.Sku;
                     model.Name = x.Name;
                     model.ProductTypeId = x.ProductTypeId;
 
@@ -223,8 +199,7 @@ namespace Smartstore.Google.MerchantCenter.Controllers
         public async Task<IActionResult> GoogleProductUpsert(GoogleProductModel model)
         {
             var googleProduct = await _db.GoogleProducts()
-                .Where(x => x.ProductId == model.ProductId)
-                .FirstOrDefaultAsync();
+                .FirstOrDefaultAsync(x => x.ProductId == model.ProductId);
 
             var success = false;
             var insert = googleProduct == null;
@@ -325,9 +300,9 @@ namespace Smartstore.Google.MerchantCenter.Controllers
                     }
                 }
             }
-            catch (Exception exc)
+            catch (Exception ex)
             {
-                Logger.Error(exc);
+                Logger.Error(ex);
             }
 
             return (categories, hasMoreItems);

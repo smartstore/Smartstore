@@ -6,12 +6,15 @@ namespace Smartstore.Google.MerchantCenter.Models
     [LocalizedDisplay("Plugins.Feed.Froogle.")]
     public class GoogleProductModel : EntityModelBase
     {
+        [LocalizedDisplay("Admin.Catalog.Products.Fields.ID")]
         public int ProductId { get; set; }
 
         [LocalizedDisplay("*Products.ProductName")]
         public string Name { get; set; }
 
-        public string SKU { get; set; }
+        [LocalizedDisplay("Admin.Catalog.Products.Fields.Sku")]
+        public string Sku { get; set; }
+
         public int ProductTypeId { get; set; }
         public ProductType ProductType => (ProductType)ProductTypeId;
         public string ProductTypeName { get; set; }

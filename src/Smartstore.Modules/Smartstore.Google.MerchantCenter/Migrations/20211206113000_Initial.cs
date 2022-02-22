@@ -9,11 +9,9 @@ namespace Smartstore.Google.MerchantCenter.Migrations
     {
         public override void Up()
         {
-            const string GoogleMerchantCenter = "GoogleMerchantCenter";
-
-            if (!Schema.Table(GoogleMerchantCenter).Exists())
+            if (!Schema.Table("GoogleProduct").Exists())
             {
-                Create.Table(GoogleMerchantCenter)
+                Create.Table("GoogleProduct")
                     .WithIdColumn()
                     .WithColumn(nameof(GoogleProduct.ProductId)).AsInt32().NotNullable()
                         .Indexed("IX_ProductId")

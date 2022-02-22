@@ -6,7 +6,7 @@
 
     async Task DisplayTemplate()
     {
-        <span v-if="item.value">{{ item.value }}</span>
+        <span v-if="item.value != null">{{ item.value }}</span>
         <span v-else class="text-muted font-italic">@emptyCell</span>
     }
 
@@ -48,13 +48,13 @@
         <partial name="_Grid.GoogleProducts.Search" model="parentModel" />
     </search-panel>
     <columns>
-        <column for="ProductId" readonly visible="false" />
+        <column for="ProductId" readonly visible="false" type="string" />
         <column for="Name" width="1.5fr" hideable="false" readonly>
             <display-template>
                 @Html.LabeledProductName()
             </display-template>
         </column>
-        <column for="SKU" width="200px" readonly visible="false" />
+        <column for="Sku" width="200px" readonly visible="false" />
         <column for="Export" halign="center" sortable="false" />
 
         <column for="Taxonomy" width="2fr" sortable="false" hint="@T("Plugins.Feed.Froogle.Products.GoogleCategory.Hint")">
