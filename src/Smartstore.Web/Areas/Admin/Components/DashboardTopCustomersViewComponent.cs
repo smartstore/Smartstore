@@ -1,11 +1,12 @@
 ﻿using Smartstore.Admin.Models.Customers;
 using Smartstore.Core.Checkout.Orders.Reporting;
-using Smartstore.Core.Identity;
 
 namespace Smartstore.Admin.Components
 {
     public class DashboardTopCustomersViewComponent : SmartViewComponent
     {
+        private const int NUM_REPORT_LINES = 7;
+
         private readonly SmartDbContext _db;
         private readonly CustomerHelper _customerHelper;
 
@@ -17,16 +18,16 @@ namespace Smartstore.Admin.Components
 
         public async Task<IViewComponentResult> InvokeAsync()
         {
-            var pageSize = 7;
+            var orderQuery = _db.Orders.Where(x => !x.Customer.Deleted);
 
-            var reportByQuantity = await _db.Customers
-                .SelectAsTopCustomerReportLine(sorting: ReportSorting.ByQuantityDesc)
-                .Take(pageSize)
+            var reportByQuantity = await orderQuery
+                .SelectAsTopCustomerReportLine(ReportSorting.ByQuantityDesc)
+                .Take(NUM_REPORT_LINES)
                 .ToListAsync();
 
-            var reportByAmount = await _db.Customers
-                .SelectAsTopCustomerReportLine(sorting: ReportSorting.ByAmountDesc)
-                .Take(pageSize)
+            var reportByAmount = await orderQuery
+                .SelectAsTopCustomerReportLine(ReportSorting.ByAmountDesc)
+                .Take(NUM_REPORT_LINES)
                 .ToListAsync();
 
             var model = new DashboardTopCustomersModel

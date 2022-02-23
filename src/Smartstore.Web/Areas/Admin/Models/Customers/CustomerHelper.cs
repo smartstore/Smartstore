@@ -25,11 +25,18 @@ namespace Smartstore.Admin.Models.Customers
 
         public async Task<List<TopCustomerReportLineModel>> CreateCustomerReportLineModelAsync(IList<TopCustomerReportLine> items)
         {
-            var customerIds = items.Distinct().Select(x => x.CustomerId).ToArray();
+            var customerIds = items.ToDistinctArray(x => x.CustomerId);
+            if (customerIds.Length == 0)
+            {
+                return new List<TopCustomerReportLineModel>();
+            }
+
             var customers = await _db.Customers
                 .AsNoTracking()
                 .Include(x => x.BillingAddress)
                 .Include(x => x.ShippingAddress)
+                .Include(x => x.CustomerRoleMappings)
+                .ThenInclude(x => x.CustomerRole)
                 .Where(x => customerIds.Contains(x.Id))
                 .ToDictionaryAsync(x => x.Id);
 
@@ -37,7 +44,7 @@ namespace Smartstore.Admin.Models.Customers
 
             var model = items.Select(x =>
             {
-                customers.TryGetValue(x.CustomerId, out var customer);
+                var customer = customers.Get(x.CustomerId);
 
                 var m = new TopCustomerReportLineModel
                 {
@@ -45,13 +52,13 @@ namespace Smartstore.Admin.Models.Customers
                     OrderCount = x.OrderCount.ToString("N0"),
                     CustomerId = x.CustomerId,
                     CustomerNumber = customer?.CustomerNumber,
-                    CustomerDisplayName = customer?.FindEmail() ?? customer?.FormatUserName(_customerSettings, T, false) ?? string.Empty.NaIfEmpty(),
-                    Email = customer?.Email.NullEmpty() ?? (customer.IsGuest() ? guestStr : string.Empty.NaIfEmpty()),
+                    CustomerDisplayName = customer?.FindEmail() ?? customer?.FormatUserName(_customerSettings, T, false) ?? StringExtensions.NotAvailable,
+                    Email = customer?.Email.NullEmpty() ?? (customer != null && customer.IsGuest() ? guestStr : StringExtensions.NotAvailable),
                     Username = customer?.Username,
                     FullName = customer?.GetFullName(),
                     Active = customer?.Active == true,
                     LastActivityDate = _services.DateTimeHelper.ConvertToUserTime(customer?.LastActivityDateUtc ?? DateTime.MinValue, DateTimeKind.Utc),
-                    EditUrl = _urlHelper.Value.Action("Edit", "Customer", new { id = customer.Id })
+                    EditUrl = _urlHelper.Value.Action("Edit", "Customer", new { id = x.CustomerId })
                 };
 
                 return m;

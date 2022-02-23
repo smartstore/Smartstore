@@ -1210,29 +1210,35 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Customer.Read)]
         public async Task<IActionResult> ReportTopCustomersList(GridCommand command, TopCustomersReportModel model)
         {
-            DateTime? startDateValue = (model.StartDate == null)
-                ? null
-                : Services.DateTimeHelper.ConvertToUtcTime(model.StartDate.Value, Services.DateTimeHelper.CurrentTimeZone);
+            var dtHelper = Services.DateTimeHelper;
 
-            DateTime? endDateValue = (model.EndDate == null)
-                ? null
-                : Services.DateTimeHelper.ConvertToUtcTime(model.EndDate.Value, Services.DateTimeHelper.CurrentTimeZone).AddDays(1);
+            DateTime? startDate = model.StartDate != null
+                ? dtHelper.ConvertToUtcTime(model.StartDate.Value, dtHelper.CurrentTimeZone)
+                : null;
 
-            OrderStatus? orderStatus = model.OrderStatusId > 0 ? (OrderStatus?)model.OrderStatusId : null;
-            PaymentStatus? paymentStatus = model.PaymentStatusId > 0 ? (PaymentStatus?)model.PaymentStatusId : null;
-            ShippingStatus? shippingStatus = model.ShippingStatusId > 0 ? (ShippingStatus?)model.ShippingStatusId : null;
+            DateTime? endDate = model.EndDate != null
+                ? dtHelper.ConvertToUtcTime(model.EndDate.Value, dtHelper.CurrentTimeZone).AddDays(1)
+                : null;
 
-            var rows = await _db.Customers
-                .AsNoTracking()
-                .SelectAsTopCustomerReportLine(startDateValue, endDateValue, orderStatus, paymentStatus, shippingStatus)
+            var orderStatusIds = model.OrderStatusId > 0 ? new[] { model.OrderStatusId } : null;
+            var paymentStatusIds = model.PaymentStatusId > 0 ? new[] { model.PaymentStatusId } : null;
+            var shippingStatusIds = model.ShippingStatusId > 0 ? new[] { model.ShippingStatusId } : null;
+
+            var orderQuery = _db.Orders
+                .Where(x => !x.Customer.Deleted)
+                .ApplyStatusFilter(orderStatusIds, paymentStatusIds , shippingStatusIds)
+                .ApplyAuditDateFilter(startDate, endDate);
+
+            var reportLines = await orderQuery
+                .SelectAsTopCustomerReportLine()
                 .ApplyGridCommand(command)
                 .ToPagedList(command)
                 .LoadAsync();
 
             var gridModel = new GridModel<TopCustomerReportLineModel>
             {
-                Rows = await _customerHelper.CreateCustomerReportLineModelAsync(rows),
-                Total = await rows.GetTotalCountAsync()
+                Rows = await _customerHelper.CreateCustomerReportLineModelAsync(reportLines),
+                Total = await reportLines.GetTotalCountAsync()
             };
 
             return Json(gridModel);
