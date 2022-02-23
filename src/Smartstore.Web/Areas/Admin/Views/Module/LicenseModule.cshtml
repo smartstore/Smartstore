@@ -45,7 +45,7 @@
                         <small sm-if="storeLicense.StoreUrl.HasValue()" class="form-text text-muted mt-2">
                             <span class="fwm">@T("Common.For", "")</span>
                             <span>@storeLicense.StoreUrl</span>
-                            <a asp-action="Edit" asp-controller="Store" asp-route-id="@storeLicense.StoreId">
+                            <a asp-action="Edit" asp-controller="Store" asp-route-id="@storeLicense.StoreId" class="ml-1">
                                 @T("Admin.Common.Change")
                             </a>
                         </small>
