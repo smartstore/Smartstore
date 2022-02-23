@@ -52,7 +52,7 @@ namespace Smartstore.Core.Catalog.Products
                 .ApplyStandardFilter()
                 .ToListAsync();
 
-            return comparedProducts;
+            return comparedProducts.OrderBySequence(productIds).ToList();
         }
 
         public virtual void ClearCompareList()
