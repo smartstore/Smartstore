@@ -17,9 +17,32 @@
 </div>
 <div class="form-group">
     <smart-label asp-for="Logger" />
-    <input asp-for="Logger" />
+    <div class="has-icon has-icon-right">
+        <input asp-for="Logger" />
+        <span class="input-group-icon">
+            <a href="@Url.Action("SearchFilter", "Help")" class="pretty-link text-muted open-help">
+                <i class="fa fa-circle-question"></i>
+            </a>
+        </span>
+    </div>
 </div>
 <div class="form-group">
     <smart-label asp-for="Message" />
     <input asp-for="Message" />
 </div>
+
+<script sm-target-zone="end">
+    $(function () {
+        $('.open-help').on('click', function (e) {
+            e.preventDefault();
+            openPopup({
+                url: this.href,
+                large: false,
+                flex: false,
+                focus: false,
+                backdrop: true
+            });
+            return false;
+        });
+    });
+</script>

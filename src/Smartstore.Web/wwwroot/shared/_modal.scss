@@ -9,7 +9,7 @@ $modal-transition-timing: cubic-bezier(0.165, 0.84, 0.44, 1); // easeOutQuart
 //$modal-transition-timing: cubic-bezier(0.19, 1, 0.22, 1); // easeOutExpo
 */
 
-$modal-transition-duration: 0.25s;
+$modal-transition-duration: 0.2s;
 $modal-transition-timing: ease-out;
 
 
@@ -73,10 +73,10 @@ $modal-transition-timing: ease-out;
 }
 
 .modal-dialog-app > .modal-content {
-    border-radius: 0;
-
     > .modal-body {
         padding: 0;
+        overflow: hidden;
+        border-radius: $modal-content-border-radius;
     }
 }
 

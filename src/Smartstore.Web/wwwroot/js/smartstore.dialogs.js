@@ -211,6 +211,8 @@
         if (opts.flex === undefined) opts.flex = true;
         if (opts.flex) sizeClass = "modal-flex";
         if (opts.backdrop === undefined) opts.backdrop = true;
+        if (opts.focus === undefined) opts.focus = true;
+        if (opts.keyboard === undefined) opts.keyboard = true;
 
         if (opts.large && !opts.flex)
             sizeClass = "modal-lg";
@@ -219,8 +221,9 @@
 
         if (modal.length === 0) {
             var html = [
-                '<div id="' + id + '" class="modal fade" data-backdrop="' + opts.backdrop + '" role="dialog" aria-hidden="true" tabindex="-1" style="border-radius: 0">',
-                '<a href="javascript:void(0)" class="modal-closer d-none d-md-block" data-dismiss="modal" title="' + window.Res['Common.Close'] + '">&times;</a>',
+                '<div id="' + id + '" class="modal fade" data-backdrop="' + opts.backdrop + '" data-focus="' + opts.focus + '" ',
+                'data-keyboard="' + opts.keyboard + '" role="dialog" aria-hidden="true" tabindex="-1">',
+                '<a href="javascript:;" class="modal-closer d-none d-md-block" data-dismiss="modal" title="' + window.Res['Common.Close'] + '">&times;</a>',
                 '<div class="modal-dialog{0} modal-dialog-app" role="document">'.format(sizeClass.length ? ' ' + sizeClass : ''),
                 '<div class="modal-content">',
                 '<div class="modal-body">',
