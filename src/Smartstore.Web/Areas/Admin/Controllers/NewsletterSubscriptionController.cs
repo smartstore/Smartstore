@@ -40,7 +40,7 @@ namespace Smartstore.Admin.Controllers
         {
             var newsletterSubscriptions = await _db.NewsletterSubscriptions
                 .AsNoTracking()
-                .ApplyStandardFilter(model.SearchEmail, false, new[] { model.SearchStoreId }, model.SearchCustomerRoleIds)
+                .ApplyStandardFilter(model.SearchEmail, true, new[] { model.SearchStoreId }, model.SearchCustomerRoleIds)
                 .Select(x => x.Subscription)
                 .ApplyGridCommand(command)
                 .ToPagedList(command)
