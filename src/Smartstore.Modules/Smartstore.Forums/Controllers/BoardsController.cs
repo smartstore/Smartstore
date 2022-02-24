@@ -379,10 +379,11 @@ namespace Smartstore.Forums.Controllers
             }
 
             var posts = await _db.ForumPosts()
+                .AsNoTracking()
+                .AsSplitQuery()
                 .Include(x => x.ForumTopic)
                 .Include(x => x.ForumPostVotes)
                 .IncludeCustomer()
-                .AsNoTracking()
                 .ApplyStandardFilter(currentCustomer, topic.Id)
                 .ToPagedList(page - 1, _forumSettings.PostsPageSize)
                 .LoadAsync();
@@ -823,16 +824,15 @@ namespace Smartstore.Forums.Controllers
                     }
 
                     topic.Subject = _forumSettings.TopicSubjectMaxLength > 0 && model.Subject.Length > _forumSettings.TopicSubjectMaxLength
-                        ? model.Subject.Substring(0, _forumSettings.TopicSubjectMaxLength)
+                        ? model.Subject[.._forumSettings.TopicSubjectMaxLength]
                         : model.Subject;
 
                     // First post.
                     var text = _forumSettings.PostMaxLength > 0 && model.Text.Length > _forumSettings.PostMaxLength
-                        ? model.Text.Substring(0, _forumSettings.PostMaxLength)
+                        ? model.Text[.._forumSettings.PostMaxLength]
                         : model.Text;
 
                     var firstPost = await _db.ForumPosts()
-                        .AsNoTracking()
                         .ApplyStandardFilter(currentCustomer, topic.Id)
                         .FirstOrDefaultAsync();
 

@@ -41,7 +41,6 @@ namespace Smartstore.Web.Controllers
         private readonly CaptchaSettings _captchaSettings;
         private readonly LocalizationSettings _localizationSettings;
         private readonly PrivacySettings _privacySettings;
-        private readonly Lazy<IUrlHelper> _urlHelper;
         private readonly Lazy<IMessageFactory> _messageFactory;
         private readonly Lazy<ProductUrlHelper> _productUrlHelper;
         private readonly Lazy<IProductAttributeFormatter> _productAttributeFormatter;
@@ -67,7 +66,6 @@ namespace Smartstore.Web.Controllers
             CaptchaSettings captchaSettings,
             LocalizationSettings localizationSettings,
             PrivacySettings privacySettings,
-            Lazy<IUrlHelper> urlHelper,
             Lazy<IMessageFactory> messageFactory,
             Lazy<ProductUrlHelper> productUrlHelper,
             Lazy<IProductAttributeFormatter> productAttributeFormatter,
@@ -92,7 +90,6 @@ namespace Smartstore.Web.Controllers
             _captchaSettings = captchaSettings;
             _localizationSettings = localizationSettings;
             _privacySettings = privacySettings;
-            _urlHelper = urlHelper;
             _messageFactory = messageFactory;
             _productUrlHelper = productUrlHelper;
             _productAttributeFormatter = productAttributeFormatter;
@@ -157,7 +154,7 @@ namespace Smartstore.Web.Controllers
             model.HotlineTelephoneNumber = _contactDataSettings.HotlineTelephoneNumber.NullEmpty();
             if (_seoSettings.CanonicalUrlsEnabled)
             {
-                model.CanonicalUrl = _urlHelper.Value.RouteUrl("Product", new { model.SeName }, Request.Scheme);
+                model.CanonicalUrl = Url.RouteUrl("Product", new { model.SeName }, Request.Scheme);
             }
 
             model.MetaProperties =  await model.MapMetaPropertiesAsync();

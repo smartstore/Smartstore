@@ -34,7 +34,6 @@ namespace Smartstore.Blog.Controllers
         private readonly Lazy<IWebHelper> _webHelper;
         private readonly Lazy<IActivityLogger> _activityLogger;
         private readonly Lazy<IMessageFactory> _messageFactory;
-        private readonly Lazy<IUrlHelper> _urlHelper;
         private readonly BlogSettings _blogSettings;
         private readonly LocalizationSettings _localizationSettings;
         private readonly CaptchaSettings _captchaSettings;
@@ -49,7 +48,6 @@ namespace Smartstore.Blog.Controllers
             Lazy<IWebHelper> webHelper,
             Lazy<IActivityLogger> activityLogger,
             Lazy<IMessageFactory> messageFactory,
-            Lazy<IUrlHelper> urlHelper,
             BlogSettings blogSettings,
             LocalizationSettings localizationSettings,
             CaptchaSettings captchaSettings,
@@ -63,7 +61,6 @@ namespace Smartstore.Blog.Controllers
             _webHelper = webHelper;
             _activityLogger = activityLogger;
             _messageFactory = messageFactory;
-            _urlHelper = urlHelper;
             _blogSettings = blogSettings;
             _localizationSettings = localizationSettings;
             _captchaSettings = captchaSettings;
@@ -86,7 +83,7 @@ namespace Smartstore.Blog.Controllers
                 _pageAssetBuilder.AppendCanonicalUrlParts(url);
             }
 
-            return View("List", model);
+            return View(model);
         }
 
         public async Task<IActionResult> BlogSummary(
@@ -120,7 +117,8 @@ namespace Smartstore.Blog.Controllers
             }
 
             var model = await _helper.PrepareBlogPostListModelAsync(command);
-            return View("List", model);
+
+            return View(nameof(List), model);
         }
 
         [LocalizedRoute("blog/month/{month}", Name = "BlogByMonth")]
@@ -141,7 +139,8 @@ namespace Smartstore.Blog.Controllers
             }
 
             var model = await _helper.PrepareBlogPostListModelAsync(command);
-            return View("List", model);
+
+            return View(nameof(List), model);
         }
 
         [LocalizedRoute("/blog/rss", Name = "BlogRSS")]
@@ -213,9 +212,13 @@ namespace Smartstore.Blog.Controllers
             }
 
             var blogPost = await _db.BlogPosts()
+                .AsSplitQuery()
                 .Include(x => x.BlogComments)
                 .ThenInclude(x => x.Customer)
+                .ThenInclude(x => x.CustomerRoleMappings)
+                .ThenInclude(x => x.CustomerRole)
                 .FindByIdAsync(blogPostId, false);
+
             if (blogPost == null)
             {
                 return NotFound();
@@ -293,7 +296,7 @@ namespace Smartstore.Blog.Controllers
                 NotifySuccess(T("Blog.Comments.SuccessfullyAdded"));
 
                 var seName = await blogPost.GetActiveSlugAsync(ensureTwoPublishedLanguages: false);
-                var url = _urlHelper.Value.RouteUrl(new UrlRouteContext
+                var url = Url.RouteUrl(new UrlRouteContext
                 {
                     RouteName = "BlogPost",
                     Values = new { SeName = seName },
@@ -309,7 +312,7 @@ namespace Smartstore.Blog.Controllers
             ViewBag.CanonicalUrlsEnabled = _seoSettings.CanonicalUrlsEnabled;
             ViewBag.StoreName = _services.StoreContext.CurrentStore.Name;
 
-            return View("BlogPost", model);
+            return View(nameof(BlogPost), model);
         }
     }
 }

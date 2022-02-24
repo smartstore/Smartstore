@@ -24,8 +24,6 @@ namespace Smartstore.Web.Controllers
     {
         private readonly SmartDbContext _db;
         private readonly ICategoryService _categoryService;
-        private readonly IManufacturerService _manufacturerService;
-        private readonly IProductService _productService;
         private readonly IProductTagService _productTagService;
         private readonly IRecentlyViewedProductsService _recentlyViewedProductsService;
         private readonly IAclService _aclService;
@@ -37,13 +35,10 @@ namespace Smartstore.Web.Controllers
         private readonly CatalogHelper _helper;
         private readonly IBreadcrumb _breadcrumb;
         private readonly SeoSettings _seoSettings;
-        private readonly Lazy<IUrlHelper> _urlHelper;
 
         public CatalogController(
             SmartDbContext db,
             ICategoryService categoryService,
-            IManufacturerService manufacturerService,
-            IProductService productService,
             IProductTagService productTagService,
             IRecentlyViewedProductsService recentlyViewedProductsService,
             IProductCompareService productCompareService,
@@ -54,13 +49,10 @@ namespace Smartstore.Web.Controllers
             CatalogSettings catalogSettings,
             CatalogHelper helper,
             IBreadcrumb breadcrumb,
-            SeoSettings seoSettings,
-            Lazy<IUrlHelper> urlHelper)
+            SeoSettings seoSettings)
         {
             _db = db;
             _categoryService = categoryService;
-            _manufacturerService = manufacturerService;
-            _productService = productService;
             _productTagService = productTagService;
             _recentlyViewedProductsService = recentlyViewedProductsService;
             _productCompareService = productCompareService;
@@ -72,7 +64,6 @@ namespace Smartstore.Web.Controllers
             _helper = helper;
             _breadcrumb = breadcrumb;
             _seoSettings = seoSettings;
-            _urlHelper = urlHelper;
         }
 
         #region Category
@@ -112,7 +103,7 @@ namespace Smartstore.Web.Controllers
 
             if (_seoSettings.CanonicalUrlsEnabled)
             {
-                model.CanonicalUrl = _urlHelper.Value.RouteUrl("Category", new { model.SeName }, Request.Scheme);
+                model.CanonicalUrl = Url.RouteUrl("Category", new { model.SeName }, Request.Scheme);
             }
 
             if (query.IsSubPage && !_catalogSettings.ShowDescriptionInSubPages)
@@ -254,7 +245,7 @@ namespace Smartstore.Web.Controllers
 
             if (_seoSettings.CanonicalUrlsEnabled)
             {
-                model.CanonicalUrl = _urlHelper.Value.RouteUrl("Manufacturer", new { model.SeName }, Request.Scheme);
+                model.CanonicalUrl = Url.RouteUrl("Manufacturer", new { model.SeName }, Request.Scheme);
             }
 
             if (query.IsSubPage && !_catalogSettings.ShowDescriptionInSubPages)
@@ -383,7 +374,7 @@ namespace Smartstore.Web.Controllers
 
             if (_seoSettings.CanonicalUrlsEnabled)
             {
-                model.CanonicalUrl = _urlHelper.Value.RouteUrl("ProductsByTag", new { productTagId, path = model.TagName }, Request.Scheme);
+                model.CanonicalUrl = Url.RouteUrl("ProductsByTag", new { productTagId, path = model.TagName }, Request.Scheme);
             }
 
             query.WithProductTagIds(productTagId);

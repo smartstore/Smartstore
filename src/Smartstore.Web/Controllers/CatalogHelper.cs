@@ -48,7 +48,6 @@ namespace Smartstore.Web.Controllers
         private readonly IMediaService _mediaService;
         private readonly ILocalizationService _localizationService;
         private readonly IPriceCalculationService _priceCalculationService;
-        private readonly IDateTimeHelper _dateTimeHelper;
         private readonly IStockSubscriptionService _stockSubscriptionService;
         private readonly MediaSettings _mediaSettings;
         private readonly CatalogSettings _catalogSettings;
@@ -56,7 +55,6 @@ namespace Smartstore.Web.Controllers
         private readonly CaptchaSettings _captchaSettings;
         private readonly TaxSettings _taxSettings;
         private readonly PerformanceSettings _performanceSettings;
-        private readonly IMeasureService _measureService;
         private readonly MeasureSettings _measureSettings;
         private readonly IDeliveryTimeService _deliveryTimeService;
         private readonly ICatalogSearchService _catalogSearchService;
@@ -67,7 +65,6 @@ namespace Smartstore.Web.Controllers
         private readonly ILocalizedEntityService _localizedEntityService;
         private readonly IUrlService _urlService;
         private readonly ILinkResolver _linkResolver;
-        private readonly SocialSettings _socialSettings;
         private readonly ContactDataSettings _contactDataSettings;
         private readonly IProductTagService _productTagService;        
 
@@ -84,13 +81,11 @@ namespace Smartstore.Web.Controllers
             ICurrencyService currencyService,
             IMediaService mediaService,
             IPriceCalculationService priceCalculationService,
-            IDateTimeHelper dateTimeHelper,
             IStockSubscriptionService stockSubscriptionService,
             MediaSettings mediaSettings,
             CatalogSettings catalogSettings,
             CustomerSettings customerSettings,
             CaptchaSettings captchaSettings,
-            IMeasureService measureService,
             MeasureSettings measureSettings,
             TaxSettings taxSettings,
             PerformanceSettings performanceSettings,
@@ -102,7 +97,6 @@ namespace Smartstore.Web.Controllers
             ILocalizedEntityService localizedEntityService,
             IUrlService urlService,
             ILinkResolver linkResolver,
-            SocialSettings socialSettings,
             ContactDataSettings contactDataSettings,
             IProductTagService productTagService)
         {
@@ -121,9 +115,7 @@ namespace Smartstore.Web.Controllers
             _mediaService = mediaService;
             _localizationService = _services.Localization;
             _priceCalculationService = priceCalculationService;
-            _dateTimeHelper = dateTimeHelper;
             _stockSubscriptionService = stockSubscriptionService;
-            _measureService = measureService;
             _measureSettings = measureSettings;
             _taxSettings = taxSettings;
             _performanceSettings = performanceSettings;
@@ -140,7 +132,6 @@ namespace Smartstore.Web.Controllers
             _urlService = urlService;
             _linkResolver = linkResolver;
             _httpRequest = _urlHelper.ActionContext.HttpContext.Request;
-            _socialSettings = socialSettings;
             _contactDataSettings = contactDataSettings;
             _productTagService = productTagService;
         }
@@ -1940,7 +1931,7 @@ namespace Smartstore.Web.Controllers
                             HelpfulYesTotal = review.HelpfulYesTotal,
                             HelpfulNoTotal = review.HelpfulNoTotal,
                         },
-                        WrittenOnStr = _dateTimeHelper.ConvertToUserTime(review.CreatedOnUtc, DateTimeKind.Utc).ToString("D"),
+                        WrittenOnStr = _services.DateTimeHelper.ConvertToUserTime(review.CreatedOnUtc, DateTimeKind.Utc).ToString("D"),
                         WrittenOn = review.CreatedOnUtc
                     });
                 }

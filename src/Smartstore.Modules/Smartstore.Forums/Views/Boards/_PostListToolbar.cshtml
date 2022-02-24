@@ -8,10 +8,10 @@
         </a>
     </div>
     <div sm-if="Model.CanSubscribe" class="col col-lg-auto mb-2 mb-lg-0">
-        <form id="watch-topic-form" sm-ajax="true" method="post" asp-action="TopicWatch" asp-controller="Boards" sm-oncomplete="onWatchTopicCompleted">
+        <form sm-ajax="true" method="post" asp-action="TopicWatch" asp-controller="Boards" sm-oncomplete="onWatchTopicCompleted">
             <input type="hidden" asp-for="Id" />
 
-            <button type="submit" id="watch-topic" class="btn btn-block watch-topic-link-button @(Model.IsSubscribed ? "btn-primary" : "btn-secondary")">
+            <button type="submit" class="btn btn-block watch-topic-link-button @(Model.IsSubscribed ? "btn-primary" : "btn-secondary")">
                 <i class="fa-bell @(Model.IsSubscribed ? "fas" : "far")"></i>
                 <span class="watch-topic-text">@T(Model.IsSubscribed ? "Forum.UnwatchTopic" : "Forum.WatchTopic")</span>
             </button>
@@ -24,7 +24,9 @@
             </div>
             <div class="col col-auto">
                 <div sm-if="Model.CanEditTopic || Model.CanDeleteTopic || Model.CanMoveTopic" class="manage dropdown ml-2">
-                    <button type="button" class="btn btn-primary btn-icon dropdown-toggle" data-toggle="dropdown"><i class="fa fa-cog"></i></button>
+                    <button type="button" class="btn btn-primary btn-icon dropdown-toggle" data-toggle="dropdown">
+                        <i class="fa fa-cog"></i>
+                    </button>
                     <div class="dropdown-menu dropdown-menu-right">
                         @if (Model.CanEditTopic)
                         {
@@ -42,7 +44,7 @@
                         }
                         @if (Model.CanDeleteTopic)
                         {
-                            <a asp-action="TopicDelete" asp-controller="Boards" asp-route-id="@Model.Id" id="delete-topic" class="dropdown-item" rel="nofollow">
+                            <a asp-action="TopicDelete" asp-controller="Boards" asp-route-id="@Model.Id" class="dropdown-item delete-topic" rel="nofollow">
                                 <i class="far fa-trash-alt"></i>
                                 <span>@T("Forum.DeleteTopic")</span>
                             </a>
