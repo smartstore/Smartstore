@@ -2,38 +2,59 @@
 /// <reference path="_mixins.scss" />
 /// <reference path="../lib/bs4/scss/bootstrap.scss" />
 
-/*
-$modal-transition-duration: 0.4s;
-//$modal-transition-timing: cubic-bezier(0.25, 0.46, 0.45, 0.94); // easeOutQuad
-$modal-transition-timing: cubic-bezier(0.165, 0.84, 0.44, 1); // easeOutQuart
-//$modal-transition-timing: cubic-bezier(0.19, 1, 0.22, 1); // easeOutExpo
-*/
-
-$modal-transition-duration: 0.2s;
-$modal-transition-timing: ease-out;
-
 
 // FLEX MODAL
 // ------------------------------------------------------------
 
-/*.modal-backdrop.show {
-    backdrop-filter: blur(20px);
-}*/
+.modal-has-backdrop {
+    --modal-backdrop-bg: #{$modal-backdrop-bg};
+    --modal-backdrop-opacity: #{$modal-backdrop-opacity};
+    --modal-backdrop-blur: 0;
 
-.modal-backdrop.fade {
-    // fade out
-    transition: opacity $modal-transition-duration $modal-transition-timing;
-    // fade in
-    &.show {
-        transition: opacity 0.15s ease-out;
+    &.modal-backdrop-inverse {
+        --modal-backdrop-bg: #{invert($modal-backdrop-bg)};
+    }
+
+    &.modal-backdrop-invisible {
+        --modal-backdrop-opacity: 0;
+
+        .modal-backdrop.fade {
+            transition-duration: 0s !important;
+        }
+    }
+
+    &:not(.modal-backdrop-invisible) {
+        #page {
+            transition: filter 0.175s linear;
+        }
+
+	    &.modal-open #page {
+		    // Fade in
+		    filter: blur(var(--modal-backdrop-blur));
+	    }
+
+	    &.modal-hiding #page {
+		    // Fade out
+		    filter: blur(0);
+	    }
+    }
+}
+
+.modal-backdrop {
+    background-color: var(--modal-backdrop-bg);
+
+    &.fade {
+        transition: opacity 0.175s linear;
+
+        &.show {
+            opacity: var(--modal-backdrop-opacity);
+        }
     }
 }
 
 .modal.fade {
     .modal-dialog {
 		transition-property: opacity, transform;
-		transition-duration: $modal-transition-duration;
-		transition-timing-function: $modal-transition-timing;
         transform: translate(0, 30px) scale(0.95, 0.95);
         will-change: transform, opacity;
     }
@@ -42,20 +63,6 @@ $modal-transition-timing: ease-out;
         transform: translate(0, 0) scale(1, 1);
         opacity: 1;
     }
-}
-
-.modal-has-backdrop {
-	&.modal-open #page {
-		// fade in
-		filter: blur(2px);
-		transition: filter $modal-transition-duration $modal-transition-timing 0.15s;
-	}
-
-	&.modal-hiding #page {
-		// fade out
-		filter: blur(0);
-		transition: filter $modal-transition-duration $modal-transition-timing;
-	}
 }
 
 .modal-content {

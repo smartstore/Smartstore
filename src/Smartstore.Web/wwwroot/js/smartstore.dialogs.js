@@ -3,12 +3,16 @@
     $(function () {
         // Global modal event handlers
         $(document).on('show.bs.modal', '.modal', function () {
-            if ($(this).data('backdrop') || $('body > .modal-backdrop').length) {
-                $('body').addClass('modal-has-backdrop');
+            let backdrop = $(this).data('backdrop');
+            if (backdrop || $('body > .modal-backdrop').length) {
+                let body = $('body');
+                body.addClass('modal-has-backdrop');
+                body.toggleClass('modal-backdrop-invisible', backdrop === 'invisible');
+                body.toggleClass('modal-backdrop-inverse', backdrop === 'invert');
             }
         });
         $(document).on('hidden.bs.modal', '.modal', function () {
-            $('body').removeClass('modal-has-backdrop');
+            $('body').removeClass('modal-has-backdrop modal-backdrop-inverse modal-backdrop-invisible');
         });
     });
 
@@ -210,6 +214,7 @@
 
         if (opts.flex === undefined) opts.flex = true;
         if (opts.flex) sizeClass = "modal-flex";
+        if (opts.closer === undefined) opts.closer = true;
         if (opts.backdrop === undefined) opts.backdrop = true;
         if (opts.focus === undefined) opts.focus = true;
         if (opts.keyboard === undefined) opts.keyboard = true;
@@ -223,7 +228,7 @@
             var html = [
                 '<div id="' + id + '" class="modal fade" data-backdrop="' + opts.backdrop + '" data-focus="' + opts.focus + '" ',
                 'data-keyboard="' + opts.keyboard + '" role="dialog" aria-hidden="true" tabindex="-1">',
-                '<a href="javascript:;" class="modal-closer d-none d-md-block" data-dismiss="modal" title="' + window.Res['Common.Close'] + '">&times;</a>',
+                !opts.closer ? '' : '<a href="javascript:;" class="modal-closer d-none d-md-block" data-dismiss="modal" title="' + window.Res['Common.Close'] + '">&times;</a>',
                 '<div class="modal-dialog{0} modal-dialog-app" role="document">'.format(sizeClass.length ? ' ' + sizeClass : ''),
                 '<div class="modal-content">',
                 '<div class="modal-body">',

@@ -224,13 +224,14 @@ $component-active-color:        inherit;
 
 $modal-inner-padding:           1rem;
 $modal-header-padding:          1rem;
-$modal-content-border-width:    1px;
+$modal-content-border-width:    0;
 $modal-content-border-color:    rgba(#000, 0.06);
 $modal-content-border-radius:   $border-radius-lg;
-$modal-backdrop-bg:             #fff;
-$modal-backdrop-opacity:        .6;
+$modal-backdrop-bg:             #000;
+$modal-backdrop-opacity:        .68;
 $modal-content-box-shadow-xs:   $box-shadow-var;
 $modal-content-box-shadow-sm-up:$box-shadow-lg-var;
+$modal-transition:              all 0.2s ease-out;
 
 
 // Embeds (TODO: Use from v4.3 onwards)
