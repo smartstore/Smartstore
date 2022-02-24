@@ -112,7 +112,8 @@ namespace Smartstore.Web.Controllers
         [HttpPost]
         [TypeFilter(typeof(DisplayExternalAuthWidgets))]
         [AllowAnonymous, NeverAuthorize]
-        [ValidateAntiForgeryToken, ValidateCaptcha, CheckStoreClosed(false)]
+        [ValidateCaptcha(CaptchaSettingName = nameof(CaptchaSettings.ShowOnLoginPage))]
+        [ValidateAntiForgeryToken, CheckStoreClosed(false)]
         [LocalizedRoute("/login", Name = "Login")]
         public async Task<IActionResult> Login(LoginModel model, string returnUrl, string captchaError)
         {
@@ -232,7 +233,8 @@ namespace Smartstore.Web.Controllers
 
         [HttpPost]
         [AllowAnonymous, NeverAuthorize]
-        [ValidateAntiForgeryToken, ValidateCaptcha, ValidateHoneypot]
+        [ValidateCaptcha(CaptchaSettingName = nameof(CaptchaSettings.ShowOnRegistrationPage))]
+        [ValidateAntiForgeryToken, ValidateHoneypot]
         [LocalizedRoute("/register", Name = "Register")]
         public async Task<IActionResult> Register(RegisterModel model, string captchaError, string returnUrl = null)
         {

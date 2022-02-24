@@ -245,8 +245,8 @@ namespace Smartstore.Blog.Controllers
         }
 
         [HttpPost]
-        [ValidateCaptcha, ValidateHoneypot]
-        [GdprConsent]
+        [ValidateCaptcha(CaptchaSettingName = nameof(CaptchaSettings.ShowOnBlogCommentPage))]
+        [ValidateHoneypot, GdprConsent]
         public async Task<IActionResult> BlogCommentAdd(PublicBlogPostModel model, string captchaError)
         {
             if (!_blogSettings.Enabled)

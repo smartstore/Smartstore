@@ -106,7 +106,8 @@ namespace Smartstore.Web.Controllers
         }
 
         [HttpPost, ActionName("ContactUs")]
-        [ValidateCaptcha, ValidateHoneypot, GdprConsent]
+        [ValidateCaptcha(CaptchaSettingName = nameof(CaptchaSettings.ShowOnContactUsPage))]
+        [ValidateHoneypot, GdprConsent]
         [LocalizedRoute("/contactus", Name = "ContactUs")]
         public async Task<IActionResult> ContactUsSend(ContactUsModel model, string captchaError)
         {

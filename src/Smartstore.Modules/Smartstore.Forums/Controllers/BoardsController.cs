@@ -610,7 +610,7 @@ namespace Smartstore.Forums.Controllers
         }
 
         [HttpPost]
-        [ValidateCaptcha]
+        [ValidateCaptcha(CaptchaSettingName = nameof(CaptchaSettings.ShowOnForumPage))]
         [GdprConsent]
         public async Task<IActionResult> TopicCreate(PublicEditForumTopicModel model, string captchaError)
         {
@@ -782,7 +782,7 @@ namespace Smartstore.Forums.Controllers
         }
 
         [HttpPost]
-        [ValidateCaptcha]
+        [ValidateCaptcha(CaptchaSettingName = nameof(CaptchaSettings.ShowOnForumPage))]
         public async Task<IActionResult> TopicEdit(PublicEditForumTopicModel model, string captchaError)
         {
             if (!_forumSettings.ForumsEnabled)
@@ -1006,7 +1006,7 @@ namespace Smartstore.Forums.Controllers
         }
 
         [HttpPost]
-        [ValidateCaptcha]
+        [ValidateCaptcha(CaptchaSettingName = nameof(CaptchaSettings.ShowOnForumPage))]
         [GdprConsent]
         [Route("boards/postcreate/{id:int}/{quote?}", Name = "ForumPostCreate")]
         public async Task<IActionResult> PostCreate(PublicEditForumPostModel model, string captchaError)
@@ -1135,7 +1135,7 @@ namespace Smartstore.Forums.Controllers
         }
 
         [HttpPost]
-        [ValidateCaptcha]
+        [ValidateCaptcha(CaptchaSettingName = nameof(CaptchaSettings.ShowOnForumPage))]
         public async Task<IActionResult> PostEdit(PublicEditForumPostModel model, string captchaError)
         {
             if (!_forumSettings.ForumsEnabled)

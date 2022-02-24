@@ -199,7 +199,7 @@ namespace Smartstore.News.Controllers
         }
 
         [HttpPost]
-        [ValidateCaptcha]
+        [ValidateCaptcha(CaptchaSettingName = nameof(CaptchaSettings.ShowOnNewsCommentPage))]
         [GdprConsent]
         public async Task<IActionResult> NewsCommentAdd(PublicNewsItemModel model, string captchaError)
         {

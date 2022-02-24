@@ -847,7 +847,7 @@ namespace Smartstore.Web.Controllers
 
         [HttpPost, ActionName("EmailWishlist")]
         [FormValueRequired("send-email")]
-        [ValidateCaptcha]
+        [ValidateCaptcha(CaptchaSettingName = nameof(CaptchaSettings.ShowOnEmailWishlistToFriendPage))]
         [GdprConsent]
         public async Task<IActionResult> EmailWishlistSend(WishlistEmailAFriendModel model, string captchaError)
         {
