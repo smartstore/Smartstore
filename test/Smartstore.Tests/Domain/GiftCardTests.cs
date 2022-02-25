@@ -16,7 +16,7 @@ namespace Smartstore.Tests.Domain
         IGiftCardService _giftCardService;
         ICurrencyService _currencyService;
 
-        [SetUp]
+        [OneTimeSetUp]
         public override void SetUp()
         {
             base.SetUp();

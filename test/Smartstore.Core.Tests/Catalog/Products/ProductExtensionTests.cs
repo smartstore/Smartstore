@@ -7,11 +7,6 @@ namespace Smartstore.Core.Tests.Catalog.Products
     [TestFixture]
     public class ProductExtensionTests
     {
-        [SetUp]
-        public new void SetUp()
-        {
-        }
-
         [Test]
         public void Can_parse_allowed_quantities()
         {

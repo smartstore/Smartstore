@@ -14,7 +14,7 @@ namespace Smartstore.Tests
         private string _folderPath;
         private IFileSystem _fileSystem;
 
-        [SetUp]
+        [OneTimeSetUp]
         public void Init()
         {
             _folderPath = Path.Combine(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Media"), "Default");

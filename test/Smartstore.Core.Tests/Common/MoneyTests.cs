@@ -10,7 +10,7 @@ namespace Smartstore.Core.Tests.Common
     {
         Currency currencyUSD, currencyRUR, currencyEUR;
 
-        [SetUp]
+        [OneTimeSetUp]
         public void SetUp()
         {
             currencyUSD = new Currency

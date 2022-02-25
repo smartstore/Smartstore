@@ -120,7 +120,7 @@ namespace Smartstore.Core.Tests.Rules.Filters
             }
         }
 
-        [SetUp]
+        [OneTimeSetUp]
         public virtual void SetUp()
         {
             SetUpEntities();

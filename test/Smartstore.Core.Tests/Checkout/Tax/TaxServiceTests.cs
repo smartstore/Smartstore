@@ -14,11 +14,9 @@ namespace Smartstore.Core.Tests.Tax
     {
         ITaxService _taxService;
 
-        [SetUp]
+        [OneTimeSetUp]
         public new void SetUp()
         {
-            base.SetUp();
-
             _taxService = new TaxService(
                 null,
                 ProviderManager,
@@ -50,7 +48,7 @@ namespace Smartstore.Core.Tests.Tax
         }
 
         [Test]
-        public async Task Can_check_taxExempt_productAsync()
+        public async Task Can_check_taxExempt_product()
         {
             var product = new Product
             {
@@ -63,7 +61,7 @@ namespace Smartstore.Core.Tests.Tax
         }
 
         [Test]
-        public async Task Can_check_taxExempt_customerAsync()
+        public async Task Can_check_taxExempt_customer()
         {
             var customer = new Customer
             {
@@ -76,7 +74,7 @@ namespace Smartstore.Core.Tests.Tax
         }
 
         [Test]
-        public async Task Can_check_taxExempt_customer_in_taxExemptCustomerRoleAsync()
+        public async Task Can_check_taxExempt_customer_in_taxExemptCustomerRole()
         {
             var customer = new Customer();
             customer.IsTaxExempt = false;

@@ -13,7 +13,7 @@ namespace Smartstore.Tests
 
         protected abstract Type[] GetTypes();
 
-        [SetUp]
+        [OneTimeSetUp]
         public override void SetUp()
         {
             base.SetUp();

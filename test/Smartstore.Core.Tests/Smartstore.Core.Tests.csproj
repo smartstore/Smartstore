@@ -9,13 +9,6 @@
 	<ItemGroup>
 	  <None Remove="Platform\DataExchange\Files\testdata.csv" />
 	  <None Remove="Platform\DataExchange\Files\testdata.xlsx" />
-	  <None Remove="FakeModules\Smartstore.Shipping\module.json" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Content Include="FakeModules\Smartstore.Shipping\module.json">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </Content>
 	</ItemGroup>
 
 	<ItemGroup>
@@ -25,6 +18,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="Autofac.Extras.Moq" Version="6.1.0" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="6.0.2" />
 		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0" />
 		<PackageReference Include="Moq" Version="4.16.1" />
 		<PackageReference Include="NUnit" Version="3.13.2" />
@@ -35,15 +29,6 @@
 		<ProjectReference Include="..\..\src\Smartstore.Core\Smartstore.Core.csproj" />
 		<ProjectReference Include="..\..\src\Smartstore\Smartstore.csproj" />
 		<ProjectReference Include="..\Smartstore.Test.Common\Smartstore.Test.Common.csproj" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <None Update="FakeModules\Smartstore.Payment\module.json">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </None>
-	  <None Update="FakeModules\Smartstore.Tax\module.json">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </None>
 	</ItemGroup>
 
 </Project>

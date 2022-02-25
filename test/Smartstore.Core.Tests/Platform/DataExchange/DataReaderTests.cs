@@ -13,7 +13,7 @@ namespace Smartstore.Core.Tests.DataExchange
     [TestFixture]
     public class DataReaderTests
     {
-        [SetUp]
+        [OneTimeSetUp]
         public void SetUp()
         {
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);

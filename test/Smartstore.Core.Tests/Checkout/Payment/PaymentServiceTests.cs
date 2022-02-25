@@ -18,7 +18,7 @@ namespace Smartstore.Core.Tests.Checkout.Payment
         ITypeScanner _typeScanner;
         IRequestCache _requestCache;
 
-        [SetUp]
+        [OneTimeSetUp]
         public new void SetUp()
         {
             _paymentSettings = new PaymentSettings
@@ -28,24 +28,24 @@ namespace Smartstore.Core.Tests.Checkout.Payment
             
             _paymentSettings.ActivePaymentMethodSystemNames.Add("Payments.TestMethod");
 
-            Mock<ITypeScanner> typeScannerWrapper = new Mock<ITypeScanner>();
+            var typeScannerWrapper = new Mock<ITypeScanner>();
             _typeScanner = typeScannerWrapper.Object;
 
-            Mock<IRequestCache> requestCacheWrapper = new Mock<IRequestCache>();
+            var requestCacheWrapper = new Mock<IRequestCache>();
             _requestCache = requestCacheWrapper.Object;
 
             _paymentService = new PaymentService(null, null, _paymentSettings, null, ProviderManager, _requestCache, _typeScanner);
         }
 
         [Test]
-        public async Task Can_load_paymentMethod_by_systemKeywordAsync()
+        public async Task Can_load_paymentMethod_by_systemKeyword()
         {
             var srcm = await _paymentService.LoadPaymentMethodBySystemNameAsync("Payments.TestMethod");
             srcm.ShouldNotBeNull();
         }
 
         [Test]
-        public async Task Can_load_active_paymentMethodsAsync()
+        public async Task Can_load_active_paymentMethods()
         {
             var srcm = await _paymentService.LoadActivePaymentMethodsAsync();
             srcm.ShouldNotBeNull();

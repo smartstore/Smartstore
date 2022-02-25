@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Moq;
 using NUnit.Framework;
 using Smartstore.Caching;
 using Smartstore.Core.Catalog;
@@ -10,7 +9,6 @@ using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Shipping;
-using Smartstore.Core.Common.Services;
 using Smartstore.Core.Identity;
 using Smartstore.Test.Common;
 
@@ -23,9 +21,8 @@ namespace Smartstore.Core.Tests.Shipping
         IShippingService _shippingService;
         IProductAttributeMaterializer _productAttributeMaterializer;
         IRequestCache _requestCache;
-        IGenericAttributeService _genericAttributeService;
 
-        [SetUp]
+        [OneTimeSetUp]
         public new void SetUp()
         {
             _shippingSettings = new ShippingSettings
@@ -36,12 +33,14 @@ namespace Smartstore.Core.Tests.Shipping
                 }
             };
 
-            // TODO: (mh) (core) Must be registered for EngineContext.Current
-            Mock<IGenericAttributeService> genericAttributeMockWrapper = new Mock<IGenericAttributeService>();
-            _genericAttributeService = genericAttributeMockWrapper.Object;
-
             _requestCache = new NullRequestCache();
             _productAttributeMaterializer = new ProductAttributeMaterializer(null, null, _requestCache, null, null, new Lazy<CatalogSettings>(), null);
+
+            DbContext.ShippingMethods.Add(new ShippingMethod { Name = "1" });
+            DbContext.ShippingMethods.Add(new ShippingMethod { Name = "2" });
+            DbContext.ShippingMethods.Add(new ShippingMethod { Name = "3" });
+            DbContext.ShippingMethods.Add(new ShippingMethod { Name = "4" });
+            DbContext.SaveChanges();
 
             _shippingService = new ShippingService(
                 _productAttributeMaterializer,
@@ -51,13 +50,12 @@ namespace Smartstore.Core.Tests.Shipping
                 ProviderManager,
                 null,
                 null,
-                null);
+                DbContext);
         }
 
         [Test]
         public async Task Can_load_shippingRateComputationMethods()
         {
-            // TODO: (mh) (core) Can _db be mocked somehow?
             var srcm = await _shippingService.GetAllShippingMethodsAsync();
             srcm.ShouldNotBeNull();
             (srcm.Count > 0).ShouldBeTrue();
@@ -75,7 +73,7 @@ namespace Smartstore.Core.Tests.Shipping
         {
             var srcm = _shippingService.LoadActiveShippingRateComputationMethods();
             srcm.ShouldNotBeNull();
-            (srcm.Count() > 0).ShouldBeTrue();
+            srcm.Any().ShouldBeTrue();
         }
 
         [Test]
@@ -104,7 +102,7 @@ namespace Smartstore.Core.Tests.Shipping
         {
             var sci1 = new ShoppingCartItem
             {
-                RawAttributes = "",
+                RawAttributes = string.Empty,
                 Quantity = 3,
                 Product = new Product
                 {
@@ -116,7 +114,7 @@ namespace Smartstore.Core.Tests.Shipping
             };
             var sci2 = new ShoppingCartItem
             {
-                RawAttributes = "",
+                RawAttributes = string.Empty,
                 Quantity = 4,
                 Product = new Product
                 {
@@ -133,7 +131,12 @@ namespace Smartstore.Core.Tests.Shipping
                 new OrganizedShoppingCartItem(sci2)
             };
 
-            var cart = new ShoppingCart(new Customer(), 0, items);
+            var customer = new Customer
+            {
+                Id = 1,
+            };
+
+            var cart = new ShoppingCart(customer, 0, items);
 
             (await _shippingService.GetCartTotalWeightAsync(cart)).ShouldEqual(50.5M);
         }

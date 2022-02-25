@@ -12,7 +12,7 @@ namespace Smartstore.Core.Tests.Common
     {
         private IDictionary<string, LookupCountryResponse> _addresses;
 
-        [SetUp]
+        [OneTimeSetUp]
         public void SetUp()
         {
             CommonHelper.IsHosted = false;

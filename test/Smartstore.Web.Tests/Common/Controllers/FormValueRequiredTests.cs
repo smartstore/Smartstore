@@ -12,7 +12,7 @@ namespace Smartstore.Web.Tests.Common.Controllers
     {
         private IFormCollection _form;
 
-        [SetUp]
+        [OneTimeSetUp]
         public void SetUp()
         {
             _form = new FormCollection(new Dictionary<string, StringValues>(StringComparer.OrdinalIgnoreCase) 
