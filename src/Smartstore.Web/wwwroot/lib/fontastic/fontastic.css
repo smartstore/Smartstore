@@ -1,8 +1,8 @@
 @font-face {
     font-family: 'fontastic';
-    src: url('fonts/fontastic.woff?97h4vt') format('woff'), 
-         url('fonts/fontastic.ttf?97h4vt') format('truetype'), 
-         url('fonts/fontastic.svg?97h4vt#fontastic') format('svg');
+    src: url('fonts/fontastic.ttf?syejbu') format('truetype'), 
+         url('fonts/fontastic.woff?syejbu') format('woff'), 
+         url('fonts/fontastic.svg?syejbu#fontastic') format('svg');
     font-weight: normal;
     font-style: normal;
     font-display: block;
@@ -82,6 +82,10 @@
     content: "\e74d";
 }
 
+.icm-credit-card:before {
+    content: "\e759";
+}
+
 .icm-coin-dollar:before {
     content: "\e762";
 }
@@ -116,6 +120,10 @@
 
 .icm-gift:before {
     content: "\e7ff";
+}
+
+.icm-truck:before {
+    content: "\e857";
 }
 
 .icm-cube:before {
@@ -160,6 +168,10 @@
 
 .icm-upload2:before {
     content: "\e8f6";
+}
+
+.icm-thumbs-up:before {
+    content: "\e919";
 }
 
 .icm-magnifier:before {
