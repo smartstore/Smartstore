@@ -17,9 +17,9 @@
 </div>
 <div class="form-group">
     <smart-label asp-for="Logger" />
-    <input asp-for="Logger" sm-is-search-expression />
+    <editor asp-for="Logger" asp-template="SearchExpression" />
 </div>
 <div class="form-group">
     <smart-label asp-for="Message" />
-    <input asp-for="Message" sm-is-search-expression />
+    <editor asp-for="Message" asp-template="SearchExpression" />
 </div>

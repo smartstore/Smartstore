@@ -10,7 +10,7 @@
 </div>
 <div class="form-group">
     <smart-label asp-for="SearchTerm" />
-    <input asp-for="SearchTerm" placeholder="@T("Admin.Customers.Customers.List.SearchTerm.Hint")" class="form-control-sm" />
+    <editor asp-for="SearchTerm" asp-template="SearchExpression" placeholder="@T("Admin.Customers.Customers.List.SearchTerm.Hint")" class="form-control-sm" />
 </div>
 <div class="form-group">
     <smart-label asp-for="SearchCustomerNumber" />

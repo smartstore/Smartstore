@@ -33,10 +33,10 @@ namespace Smartstore.Core.Tests
     public abstract class ServiceTest
     {
         private MockProviderManager _providerManager = new MockProviderManager();
-        ModuleManager _moduleManager;
-        static SmartDbContext _dbContext;
-        IEngine _engine;
-        WebApplicationBuilder _builder;
+        private ModuleManager _moduleManager;
+        private SmartDbContext _dbContext;
+        private IEngine _engine;
+        private WebApplicationBuilder _builder;
 
         [OneTimeSetUp]
         public void SetUp()

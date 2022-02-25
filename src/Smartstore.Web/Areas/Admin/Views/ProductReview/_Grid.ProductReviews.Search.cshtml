@@ -2,7 +2,7 @@
 
 <div class="form-group">
     <smart-label asp-for="ProductName" />
-    <input asp-for="ProductName" sm-is-search-expression />
+    <editor asp-for="ProductName" asp-template="SearchExpression" />
 </div>
 <div class="form-group">
     <smart-label asp-for="CreatedOnFrom" />

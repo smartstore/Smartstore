@@ -92,7 +92,7 @@ namespace Smartstore.Web.TagHelpers.Shared
                         }
                         else if (typeAttr.Value is ("checkbox" or "radio"))
                         {
-                            ProcessCheckRadio(output, typeAttr.ValueAsString());
+                            ProcessCheckRadio(output);
                         }
                         else if (typeAttr.Value is not ("file" or "hidden"))
                         {
@@ -103,7 +103,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             }
         }
 
-        private void ProcessCheckRadio(TagHelperOutput output, string type)
+        private void ProcessCheckRadio(TagHelperOutput output)
         {
             if (IgnoreLabel)
             {

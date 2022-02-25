@@ -21,15 +21,15 @@
 </div>
 <div class="form-group">
     <smart-label asp-for="CustomerName" />
-    <input asp-for="CustomerName" class="form-control-sm" />
+    <editor asp-for="CustomerName" asp-template="SearchExpression" class="form-control-sm" />
 </div>
 <div class="form-group">
     <smart-label asp-for="CustomerEmail" />
-    <input asp-for="CustomerEmail" class="form-control-sm" />
+    <editor asp-for="CustomerEmail" asp-template="SearchExpression" class="form-control-sm" />
 </div>
 <div class="form-group">
     <smart-label asp-for="OrderNumber" />
-    <input asp-for="OrderNumber" class="form-control-sm" />
+    <editor asp-for="OrderNumber" asp-template="SearchExpression" class="form-control-sm" />
 </div>
 <div class="form-group">
     <smart-label asp-for="PaymentMethods" />

@@ -17,6 +17,11 @@ namespace Smartstore.Web.TagHelpers.Admin
                 return;
             }
 
+            if (!output.Attributes.TryGetAttribute("type", out var typeAttr) || typeAttr.ValueAsString() != "text")
+            {
+                return;
+            }
+
             var url = UrlHelper.Action("SearchFilter", "Help", new { area = "Admin" });
             output.PostElement.AppendHtml(@$"
 <span class='input-group-icon'>

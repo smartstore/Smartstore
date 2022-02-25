@@ -1,0 +1,10 @@
+﻿@model string
+
+<div class="has-icon has-icon-right">
+    <input asp-for="@Model" />
+    <span class="input-group-icon">
+        <a href="@Url.Action("SearchFilter", "Help", new { area = "Admin" })" class="popup-toggle search-expression-toggle">
+            <i class="fa fa-circle-question"></i>
+        </a>
+    </span>
+</div>
