@@ -19,7 +19,7 @@
 }
 
 <modal id="cookie-manager-window"
-       sm-close-on-escape-press="!Model.ModalCookieConsent"
+       sm-backdrop="@(Model.ModalCookieConsent ? ModalBackdrop.Static : ModalBackdrop.Show)"
        sm-close-on-backdrop-click="!Model.ModalCookieConsent"
        sm-render-at-page-end="false">
     <modal-header sm-show-close="!Model.ModalCookieConsent"></modal-header>

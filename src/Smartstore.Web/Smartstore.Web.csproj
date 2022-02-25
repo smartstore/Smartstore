@@ -74,6 +74,7 @@
     <!-- Don't publish static/raw files -->
 	<ItemGroup>
         <Content Remove="Areas\Admin\Views\Shared\EditorTemplates\SearchExpression.cshtml" />
+        <Content Remove="Areas\Admin\Views\Shared\Partials\SearchExpressionHelp.cshtml" />
         <Content Remove="wwwroot\lib\bi\bootstrap-icons-all.svg" CopyToPublishDirectory="Never" />
         <Content Remove="wwwroot\lib\fontastic\icomoon\**" CopyToPublishDirectory="Never" />
 	</ItemGroup>

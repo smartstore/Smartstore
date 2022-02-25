@@ -1,0 +1,95 @@
+﻿@{
+    Layout = "";
+}
+
+<table class="table table-sm table-striped small mb-4">
+    <thead>
+        <tr>
+            <th>Example</th>
+            <th>Result</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td nowrap>banana joe</td>
+            <td>Contains "banana" or contains "joe"</td>
+        </tr>
+        <tr>
+            <td nowrap>banana and !*.joe</td>
+            <td>Contains "banana" but does not match "*.joe"</td>
+        </tr>
+        <tr>
+            <td nowrap>banana and (!~"hello world" or !*jim)</td>
+            <td>Contains "banana", but does not contain "hello world" or does not end with "jim"</td>
+        </tr>
+        <tr>
+            <td nowrap>*Leather and !(Sofa* Jacket*)</td>
+            <td>Ends with "Leather", but does not starts with "Sofa" or "Jacket"</td>
+        </tr>
+        <tr>
+            <td nowrap>(&gt;=10 and &lt;=100) or 1 or &gt;1000</td>
+            <td>Is between 10 and 100, or equals 1, or is greater than 1000</td>
+        </tr>
+    </tbody>
+</table>
+
+<h6 class="mb-3">Terms</h6>
+
+<p class="mb-4">
+    Quoted search term (double or single), or unquoted search term without whitespaces.
+    For example, unquoted <i>banana joe</i> is the equivalent of <i>~banana or ~joe</i>,
+    whereas quoted <i>"banana joe"</i> performs an exact term match.
+    Supports wildcards (* or ?). If wildcards are present, default operator
+    is switched to "Equals" (=). Use "NotEquals" (!) to negate pattern.
+</p>
+
+<h6 class="mb-3">Groups</h6>
+
+<p class="mb-4">
+    Multiple search words or phrases may be grouped in a fielded query by enclosing them in parenthesis.
+    Any group can be negated with a preceding ! (exclamation mark), e.g. <i>!(banana and joe)</i>.
+    Groups can be nested as often as required.
+</p>
+
+<h6 class="mb-3">Operators</h6>
+
+<table class="table table-sm table-striped small mb-4">
+    <tbody>
+        <tr>
+            <td>=[=]</td>
+            <td>Equals (default when omitted on numeric terms)</td>
+        </tr>
+        <tr>
+            <td>![=]</td>
+            <td>Not equals</td>
+        </tr>
+        <tr>
+            <td>&gt;</td>
+            <td>Greater than</td>
+        </tr>
+        <tr>
+            <td>&gt;=</td>
+            <td>Greater than or equal</td>
+        </tr>
+        <tr>
+            <td>&lt;</td>
+            <td>Less than</td>
+        </tr>
+        <tr>
+            <td>&lt;=</td>
+            <td>Less than or equal</td>
+        </tr>
+        <tr>
+            <td>~</td>
+            <td>Contains (default when omitted on string terms)</td>
+        </tr>
+        <tr>
+            <td>!~</td>
+            <td>Does not contain</td>
+        </tr>
+        <tr>
+            <td nowrap>and, or</td>
+            <td>Logical term combinators (case-insensitive). If omitted, "or" is default.</td>
+        </tr>
+    </tbody>
+</table>
