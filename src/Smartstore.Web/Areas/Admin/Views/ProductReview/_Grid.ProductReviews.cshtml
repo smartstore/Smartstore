@@ -60,6 +60,7 @@
                 <div v-if="!item.row.ProductEditUrl" class="text-truncate" v-html="item.row.ProductName"></div>
             </display-template>
         </column>
+        <column for="Sku" entity-member="Product.Sku" />
         <column for="Title" hideable="false">
             <display-template>
                 <a :href="item.row.EditUrl" class="text-truncate">{{ item.value }}</a>

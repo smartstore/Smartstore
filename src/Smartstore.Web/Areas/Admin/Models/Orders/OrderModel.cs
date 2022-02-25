@@ -204,6 +204,7 @@ namespace Smartstore.Admin.Models.Orders
             [LocalizedDisplay("Admin.Orders.Fields.GiftCardInfo")]
             public string CouponCode { get; set; }
             public string Amount { get; set; }
+            public int GiftCardId { get; set; }
         }
 
         public class ReturnRequestModel : EntityModelBase

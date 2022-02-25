@@ -1890,7 +1890,8 @@ namespace Smartstore.Admin.Controllers
                 .Select(x => new OrderModel.GiftCard
                 {
                     CouponCode = x.GiftCard.GiftCardCouponCode,
-                    Amount = Format(-x.UsedValue)
+                    Amount = Format(-x.UsedValue),
+                    GiftCardId = x.GiftCardId
                 })
                 .ToList();
 

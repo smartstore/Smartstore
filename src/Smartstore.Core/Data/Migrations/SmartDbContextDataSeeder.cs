@@ -419,6 +419,12 @@ namespace Smartstore.Core.Data.Migrations
                 "Filter list by rating.",
                 "Liste nach Bewertung filtern.");
 
+            builder.AddOrUpdate("Admin.Catalog.ProductReviews.List.ProductName",
+                "Product name",
+                "Produktname",
+                "Filter list by product name.",
+                "Liste nach dem Produktnamen filtern.");
+
             builder.AddOrUpdate("Admin.Catalog.ProductReviews.NumberApprovedReviews",
                 "There were {0} product reviews approved.",
                 "Es wurden {0} Produkt Rezensionen genehmigt.");
@@ -760,6 +766,10 @@ namespace Smartstore.Core.Data.Migrations
                 "Tags in Vorschau anzeigen",
                 "Specifies whether tags are display in the preview for blog item.",
                 "Legt fest, ob Tags in der Vorschau eines Blog-Eintrags angezeigt werden.");
+
+            builder.AddOrUpdate("Reviews.Helpfulness.SuccessfullyVoted",
+                "Thank you for your voting.",
+                "Danke für Ihre Beurteilung.");
 
             #endregion
 
