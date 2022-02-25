@@ -10,7 +10,7 @@ function openModalWindow(modalId) {
     $('#' + modalId).modal('show');
 }
 
-// global Admin namespace
+// Global Admin namespace
 Smartstore.Admin = {
     modelTrees: {},
     checkboxCheck: function (obj, checked) {

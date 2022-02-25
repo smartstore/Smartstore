@@ -143,12 +143,12 @@
             }, 300);
         });
 
-        // check overridden store settings
+        // Check overridden store settings
         $('.multi-store-override-option').each(function (i, el) {
             Smartstore.Admin.checkOverriddenStoreValue(el);
         });
 
-        // publish entity commit messages
+        // Publish entity commit messages
         $('.entity-commit-trigger').on('click', function (e) {
             var el = $(this);
             if (el.data('commit-type')) {
@@ -160,7 +160,7 @@
             }
         });
 
-        // sticky section-header
+        // Sticky section-header
         var navbar = $("#navbar");
         var navbarHeight = navbar.height() || 1;
         var sectionHeader = $('.section-header');
@@ -240,6 +240,22 @@
 
             addEventListener('mousemove', onMouseMove);
             addEventListener('mouseup', onMouseUp);
+        });
+
+        // Popup toggle
+        $(document).on('click', '.popup-toggle', function (e) {
+            e.preventDefault();
+            openPopup({
+                url: this.href,
+                large: false,
+                flex: true,
+                closer: false,
+                keyboard: true,
+                backdrop: 'invisible',
+                centered: true,
+                scrollable: true
+            });
+            return false;
         });
 
         $(window).on('load', function () {

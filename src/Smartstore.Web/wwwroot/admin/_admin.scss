@@ -171,7 +171,9 @@ body {
 
 .popup.bare {
     height: 100%;
-    overflow-y: hidden;
+    //overflow-y: hidden;
+    overflow-y: auto;
+    overflow-x: hidden;
 
     #page,
     #content,
@@ -1598,6 +1600,16 @@ a.editable {
 //
 // Misc
 // --------------------------------------------------------------
+
+.search-expression-toggle {
+    color: $text-muted;
+    text-decoration: none;
+    transition: color 0.12s ease;
+
+    &:hover {
+        color: $body-color;
+    }
+}
 
 .color-container {
     display: inline-block;
