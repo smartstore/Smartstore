@@ -112,8 +112,8 @@ namespace Smartstore.Core.Tests.Catalog.Pricing
             // INFO: no mocking here to use real implementation.
             _taxCalculator = new TaxCalculator(DbContext, _workContext, _taxService, _taxSettings);
 
-
             // TODO: (mh) (core) Somehow a mocked version of DbContext mus be registered so it can be resolved by autofac :-/
+            // RE: You cannot resolve this (too complicated), you have to mock it by passing a concrete list of calculators to the ctor.
             _priceCalculatorFactory = Engine.ResolveService<IPriceCalculatorFactory>();
 
             _priceCalcService = new PriceCalculationService(
