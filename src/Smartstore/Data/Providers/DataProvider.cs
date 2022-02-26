@@ -28,10 +28,7 @@ namespace Smartstore.Data.Providers
     {
         protected DataProvider(DatabaseFacade database)
         {
-            Guard.NotNull(database, nameof(database));
-            
-            // TODO: (core) Add more methods: EnsureColumn(), ... 
-            Database = database;
+            Database = Guard.NotNull(database, nameof(database));
         }
 
         public DatabaseFacade Database { get; }

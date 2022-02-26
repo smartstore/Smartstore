@@ -14,7 +14,7 @@ namespace Smartstore.Core.Tests.Platform.Identity
         private CustomerRoleMapping _crmAdmin;
         private CustomerRoleMapping _crmForumAdmin;
 
-        [OneTimeSetUp]
+        [SetUp]
         public virtual void Setup()
         {
             _customer = new Customer();
