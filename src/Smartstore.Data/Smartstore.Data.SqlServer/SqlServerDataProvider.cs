@@ -17,6 +17,11 @@ namespace Smartstore.Data.SqlServer
 {
     public class SqlServerDataProvider : DataProvider
     {
+        private const long EXPRESS_EDITION_ID = -1592396055L;
+        private const long EXPRESS_ADVANCED_EDITION_ID = -133711905L;
+
+        private static long? _editionId = null;
+
         private readonly static HashSet<int> _transientErrorCodes = new(new[]
         {
             49920, // Cannot process request. Too many operations in progress for subscription "%ld".
@@ -191,9 +196,20 @@ OFFSET {skip} ROWS FETCH NEXT {take} ROWS ONLY";
         {
             Guard.NotEmpty(fullPath, nameof(fullPath));
 
-            // TODO: (mg) (core) Edition will never change. Fetch once and cache please. Also: make this call fault tolerant and provide a fallback (False).
-            var editionId = await Database.ExecuteQueryRawAsync<long>("Select SERVERPROPERTY('EditionID')").FirstOrDefaultAsync(cancelToken);
-            return await Database.ExecuteSqlRawAsync(CreateBackupSql(editionId), new object[] { fullPath }, cancelToken);
+            if (!_editionId.HasValue)
+            {
+                try
+                {
+                    _editionId = await Database.ExecuteQueryRawAsync<long>("Select SERVERPROPERTY('EditionID')").FirstOrDefaultAsync(cancelToken);
+                }
+                catch
+                {
+                    // Fallback to "Express" edition (entry-level, free database).
+                    _editionId = EXPRESS_EDITION_ID;
+                }
+            }
+
+            return await Database.ExecuteSqlRawAsync(CreateBackupSql(_editionId.Value), new object[] { fullPath }, cancelToken);
         }
 
         private string CreateBackupSql(long editionId)
@@ -202,7 +218,7 @@ OFFSET {skip} ROWS FETCH NEXT {take} ROWS ONLY";
 
             // Backup compression is not supported by "Express" or "Express with Advanced Services" edition.
             // https://expressdb.io/sql-server-express-feature-comparison.html
-            if (editionId != 0 && editionId != -1592396055L && editionId != -133711905L)
+            if (editionId != EXPRESS_EDITION_ID && editionId != EXPRESS_ADVANCED_EDITION_ID)
             {
                 sql += ", COMPRESSION";
             }

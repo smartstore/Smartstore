@@ -1656,14 +1656,6 @@ namespace Smartstore.Admin.Controllers
             var dtHelper = Services.DateTimeHelper;
             var sorting = ReportSorting.ByAmountDesc;
 
-            DateTime? startDate = model.StartDate == null
-                ? null
-                : dtHelper.ConvertToUtcTime(model.StartDate.Value, dtHelper.CurrentTimeZone);
-
-            DateTime? endDate = model.EndDate == null
-                ? null
-                : dtHelper.ConvertToUtcTime(model.EndDate.Value, dtHelper.CurrentTimeZone).AddDays(1);
-
             if (command.Sorting?.Any() ?? false)
             {
                 var sort = command.Sorting.First();
@@ -1681,74 +1673,35 @@ namespace Smartstore.Admin.Controllers
                 }
             }
 
-            var orderItemQuery =
-                from oi in _db.OrderItems
-                join o in _db.Orders on oi.OrderId equals o.Id
-                join p in _db.Products on oi.ProductId equals p.Id
-                where
-                    (!startDate.HasValue || startDate.Value <= o.CreatedOnUtc) &&
-                    (!endDate.HasValue || endDate.Value >= o.CreatedOnUtc) &&
-                    (model.OrderStatusId == 0 || model.OrderStatusId == o.OrderStatusId) &&
-                    (model.PaymentStatusId == 0 || model.PaymentStatusId == o.PaymentStatusId) &&
-                    (model.ShippingStatusId == 0 || model.ShippingStatusId == o.ShippingStatusId) &&
-                    (model.BillingCountryId == 0 || model.BillingCountryId == o.BillingAddress.CountryId) &&
-                    !p.IsSystemProduct
-                select oi;
+            DateTime? startDate = model.StartDate == null
+                ? null
+                : dtHelper.ConvertToUtcTime(model.StartDate.Value, dtHelper.CurrentTimeZone);
 
-            //var watch = Stopwatch.StartNew();
+            DateTime? endDate = model.EndDate == null
+                ? null
+                : dtHelper.ConvertToUtcTime(model.EndDate.Value, dtHelper.CurrentTimeZone).AddDays(1);
 
-            // TODO: (mg) (core) bestsellers list is slow due to GroupBy.
-            // The linq query has not changed but is translated by Core into completely different SQL.
-            // It's a bit tricky. Re-working the query can lead to other performance issues but there should be a solution for that.
+            var orderStatusId = model.OrderStatusId == 0 ? null : new[] { model.OrderStatusId };
+            var paymentStatusId = model.PaymentStatusId == 0 ? null : new[] { model.PaymentStatusId };
+            var shippingStatusId = model.ShippingStatusId == 0 ? null : new[] { model.ShippingStatusId };
+            var countryId = model.BillingCountryId == 0 ? (int?)null : model.BillingCountryId;
+
+            var orderItemQuery = _db.OrderItems
+                .AsNoTracking()
+                .ApplyOrderFilter(0, startDate, endDate, orderStatusId, paymentStatusId, shippingStatusId, countryId)
+                .ApplyProductFilter(null, true);
+
             var reportLines = await orderItemQuery
                 .SelectAsBestsellersReportLine(sorting)
                 .ToPagedList(command)
                 .LoadAsync();
-
-            //watch.Stop();
-            //$"Bestsellers list {watch.ElapsedMilliseconds}ms, {reportLines.TotalCount} products.".Dump();
-
-            //var orderQuery =
-            //    from o in _db.Orders
-            //    where
-            //        (!startDate.HasValue || startDate.Value <= o.CreatedOnUtc) &&
-            //        (!endDate.HasValue || endDate.Value >= o.CreatedOnUtc) &&
-            //        (model.OrderStatusId == 0 || model.OrderStatusId == o.OrderStatusId) &&
-            //        (model.PaymentStatusId == 0 || model.PaymentStatusId == o.PaymentStatusId) &&
-            //        (model.ShippingStatusId == 0 || model.ShippingStatusId == o.ShippingStatusId) &&
-            //        (model.BillingCountryId == 0 || model.BillingCountryId == o.BillingAddress.CountryId)
-            //    select o;                
-
-            //var query =
-            //    from p in _db.Products
-            //    where !p.IsSystemProduct
-            //    select new
-            //    {
-            //        ProductId = p.Id,
-            //        TotalAmount =
-            //            (from oi in _db.OrderItems
-            //            join o in orderQuery on oi.OrderId equals o.Id
-            //            where oi.ProductId == p.Id
-            //            select oi.PriceExclTax).Sum(),
-            //        TotalQuantity =
-            //            (from oi in _db.OrderItems
-            //             join o in orderQuery on oi.OrderId equals o.Id
-            //             where oi.ProductId == p.Id
-            //             select oi.Quantity).Sum()
-            //    };
-
-            //var reportLines = await query
-            //    .OrderByDescending(x => x.TotalAmount)
-            //    .ToPagedList(command)
-            //    .LoadAsync();
-
 
             var rows = await reportLines.MapAsync(Services, true);
 
             return Json(new GridModel<BestsellersReportLineModel>
             {
                 Rows = rows,
-                Total = reportLines.TotalCount
+                Total = await reportLines.GetTotalCountAsync()
             });
         }
 
@@ -1999,8 +1952,7 @@ namespace Smartstore.Admin.Controllers
             }
 
             // Purchase order number (we have to find a better to inject this information because it's related to a certain plugin).
-            // TODO: (mg) (core) verify plugin systemname Smartstore.PurchaseOrderNumber.
-            model.DisplayPurchaseOrderNumber = order.PaymentMethodSystemName.EqualsNoCase("Smartstore.PurchaseOrderNumber");
+            model.DisplayPurchaseOrderNumber = order.PaymentMethodSystemName.EqualsNoCase("Payments.PurchaseOrderNumber");
             model.CheckoutAttributeInfo = HtmlUtility.ConvertPlainTextToTable(HtmlUtility.ConvertHtmlToPlainText(order.CheckoutAttributeDescription));
             model.HasDownloadableProducts = order.OrderItems.Any(x => x.Product.IsDownload);
             model.UpdateOrderItemInfo = TempData[UpdateOrderDetailsContext.InfoKey] as string;

@@ -9,8 +9,6 @@ namespace Smartstore.Core.Catalog.Pricing
     /// </summary>
     public readonly struct PriceSaving
     {
-        // TODO: (mg) (core) Extremely confusing API design and naming strategy. CalculatedPrice.FinalPrice IS the ultimate end price. TBD with mc please.
-
         /// <summary>
         /// A value indicating whether there is a price saving on the calculated final price.
         /// </summary>

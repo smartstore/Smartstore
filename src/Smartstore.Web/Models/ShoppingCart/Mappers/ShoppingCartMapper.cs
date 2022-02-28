@@ -393,19 +393,19 @@ namespace Smartstore.Web.Models.Cart
                         .ApplyStandardFilter(false, store.Id)
                         .ToListAsync();
 
-                    var defaultEstimateCountryId = setEstimateShippingDefaultAddress && customer.ShippingAddress != null
+                    var defaultCountryId = (setEstimateShippingDefaultAddress && customer.ShippingAddress != null
                         ? customer.ShippingAddress.CountryId
-                        : to.EstimateShipping.CountryId;
+                        : to.EstimateShipping.CountryId) ?? countriesForShipping.FirstOrDefault()?.Id;
 
-                    to.EstimateShipping.AvailableCountries = countriesForShipping.ToSelectListItems(defaultEstimateCountryId ?? 0);
+                    to.EstimateShipping.AvailableCountries = countriesForShipping.ToSelectListItems(defaultCountryId ?? 0);
 
-                    var stateProvinces = await _db.StateProvinces.GetStateProvincesByCountryIdAsync(defaultEstimateCountryId ?? 0);
+                    var stateProvinces = await _db.StateProvinces.GetStateProvincesByCountryIdAsync(defaultCountryId ?? 0);
 
-                    var defaultEstimateStateId = setEstimateShippingDefaultAddress && customer.ShippingAddress != null
+                    var defaultStateProvinceId = setEstimateShippingDefaultAddress && customer.ShippingAddress != null
                         ? customer.ShippingAddress.StateProvinceId
                         : to.EstimateShipping.StateProvinceId;
 
-                    to.EstimateShipping.AvailableStates = stateProvinces.ToSelectListItems(defaultEstimateStateId ?? 0) ?? new List<SelectListItem>
+                    to.EstimateShipping.AvailableStates = stateProvinces.ToSelectListItems(defaultStateProvinceId ?? 0) ?? new List<SelectListItem>
                     {
                         new SelectListItem { Text = T("Address.OtherNonUS"), Value = "0" }
                     };

@@ -37,7 +37,7 @@ namespace Smartstore.Web.Components
                 var customer = Services.WorkContext.CurrentCustomer;
                 var model = new PopularProductTagsModel();
 
-                // TODO: (mg) This is gonna explode with large amount of tags. Rethink!
+                // TODO: (mg) (core) This is gonna explode with large amount of tags. Rethink!
                 var allTags = await _db.ProductTags
                     .Where(x => x.Published)
                     .ToListAsync();
