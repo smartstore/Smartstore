@@ -120,22 +120,12 @@ namespace Smartstore.Core.Catalog.Products
             await _cache.RemoveByPatternAsync(PRODUCTTAG_PATTERN_KEY);
         }
 
-        public virtual async Task<int> CountProductsByTagIdAsync(int productTagId, Customer customer = null, int storeId = 0, bool includeHidden = false)
+        public virtual async Task<IDictionary<int, int>> GetProductCountsMapAsync(
+            Customer customer = null, 
+            int storeId = 0, 
+            bool includeHidden = false)
         {
-            if (productTagId <= 0)
-                return 0;
-            
-            var countsDic = await GetTagProductCountsMapAsync(customer ?? _workContext.CurrentCustomer, storeId, includeHidden);
-            countsDic.TryGetValue(productTagId, out var count);
-            return count;
-        }
-
-        /// <summary>
-        /// Key = TagId, Value = Number of products assigned to tag.
-        /// </summary>
-        protected virtual async Task<Dictionary<int, int>> GetTagProductCountsMapAsync(Customer customer, int storeId, bool includeHidden)
-        {
-            Guard.NotNull(customer, nameof(customer));
+            customer ??= _workContext.CurrentCustomer;
 
             // TODO: ACL.
             // TODO: counting over navigation property is probably too slow. Mapping entity would be faster.

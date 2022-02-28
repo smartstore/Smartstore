@@ -13,6 +13,7 @@ using Smartstore.Core.OutputCache;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
+using Smartstore.Data;
 using Smartstore.Http;
 using Smartstore.Net;
 using Smartstore.Web.Infrastructure.Hooks;
@@ -394,39 +395,28 @@ namespace Smartstore.Web.Controllers
         [LocalizedRoute("/producttag/all", Name = "ProductTagsAll")]
         public async Task<IActionResult> ProductTagsAll()
         {
-            // TODO: (mg) (core) This is nearly the same code as in PopularProductTagsViewComponent > implement helper method PreparePopularProductTagsModel?
-            var store = Services.StoreContext.CurrentStore;
-            var customer = Services.WorkContext.CurrentCustomer;
             var model = new PopularProductTagsModel();
+            var productCountsMap = await _productTagService.GetProductCountsMapAsync(null, Services.StoreContext.CurrentStore.Id);
+            var pager = new FastPager<ProductTag>(_db.ProductTags.AsNoTracking().Where(x => x.Published), 1000);
 
-            // TODO: (mg) (core) This is gonna explode with large amount of tags. Rethink!
-            var allTags = await _db.ProductTags
-                .Where(x => x.Published)
-                .ToListAsync();
-
-            var tags = (from t in allTags
-                        let numProducts = _productTagService.CountProductsByTagIdAsync(t.Id, customer, store.Id).Await()
-                        where numProducts > 0
-                        orderby numProducts descending
-                        select new
-                        {
-                            Tag = t,
-                            LocalizedName = t.GetLocalized(x => x.Name),
-                            NumProducts = numProducts
-                        })
-                        .OrderBy(x => x.LocalizedName.Value)
-                        .ToList();
-
-            foreach (var tag in tags)
+            while ((await pager.ReadNextPageAsync<ProductTag>()).Out(out var tags))
             {
-                model.Tags.Add(new ProductTagModel
+                foreach (var tag in tags)
                 {
-                    Id = tag.Tag.Id,
-                    Name = tag.LocalizedName,
-                    Slug = tag.Tag.BuildSlug(),
-                    ProductCount = tag.NumProducts
-                });
+                    if (productCountsMap.TryGetValue(tag.Id, out var productCount) && productCount > 0)
+                    {
+                        model.Tags.Add(new ProductTagModel
+                        {
+                            Id = tag.Id,
+                            Name = tag.GetLocalized(x => x.Name),
+                            Slug = tag.BuildSlug(),
+                            ProductCount = productCount
+                        });
+                    }
+                }
             }
+
+            model.Tags = model.Tags.OrderBy(x => x.Name).ToList();
 
             return View(model);
         }

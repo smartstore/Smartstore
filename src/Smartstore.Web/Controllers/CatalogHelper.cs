@@ -1611,28 +1611,32 @@ namespace Smartstore.Web.Controllers
         {
             var storeId = _services.StoreContext.CurrentStore.Id;
             var cacheKey = string.Format(ModelCacheInvalidator.PRODUCTTAG_BY_PRODUCT_MODEL_KEY, product.Id, _services.WorkContext.WorkingLanguage.Id, storeId);
-            var cacheModel = await _services.CacheFactory.GetMemoryCache().GetAsync(cacheKey, async () =>
+
+            model.ProductTags = await _services.CacheFactory.GetMemoryCache().GetAsync(cacheKey, async (o) =>
             {
-                var productTags = await product.ProductTags
-                    .WhereAsync(async x => x.Published && (await _productTagService.CountProductsByTagIdAsync(x.Id, storeId: storeId)) > 0)
-                    .AsyncToList();
+                o.ExpiresIn(TimeSpan.FromHours(3));
 
-                var tagModel = await productTags.SelectAsync(async x =>
+                await _db.LoadCollectionAsync(product, x => x.ProductTags);
+
+                var models = new List<ProductTagModel>();
+                var productCountsMap = await _productTagService.GetProductCountsMapAsync(null, storeId);
+
+                foreach (var tag in product.ProductTags.Where(x => x.Published))
+                {
+                    if (productCountsMap.TryGetValue(tag.Id, out var productCount) && productCount > 0)
                     {
-                        return new ProductTagModel
+                        models.Add(new ProductTagModel
                         {
-                            Id = x.Id,
-                            Name = x.GetLocalized(y => y.Name),
-                            Slug = x.BuildSlug(),
-                            ProductCount = await _productTagService.CountProductsByTagIdAsync(x.Id, storeId: storeId)
-                        };
-                    })
-                    .AsyncToList();
+                            Id = tag.Id,
+                            Name = tag.GetLocalized(x => x.Name),
+                            Slug = tag.BuildSlug(),
+                            ProductCount = productCount
+                        });
+                    }
+                }
 
-                return tagModel;
+                return models.OrderBy(x => x.Name).ToList();
             });
-
-            model.ProductTags = cacheModel;
         }
 
         protected async Task PrepareRelatedProductsModelAsync(ProductDetailsModel model, Product product)
