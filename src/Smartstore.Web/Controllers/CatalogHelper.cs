@@ -1957,19 +1957,5 @@ namespace Smartstore.Web.Controllers
         }
 
         #endregion
-
-        // INFO: (mh) (core) Ported CatalogSearchQuery.GetViewMode() like this because there was no proper place for the old extension method.
-        // TODO: (mh) (core) RE: This method does not belong here. Find another place please.
-        public ProductSummaryViewMode GetSearchQueryViewMode(CatalogSearchQuery query)
-        {
-            Guard.NotNull(query, nameof(query));
-
-            if (query.CustomData.Get("ViewMode") is string viewMode && viewMode.EqualsNoCase("list"))
-            {
-                return ProductSummaryViewMode.List;
-            }
-
-            return ProductSummaryViewMode.Grid;
-        }
     }
 }

@@ -42,7 +42,6 @@ namespace Smartstore.Admin.Controllers
         private readonly Lazy<IGdprTool> _gdprTool;
         private readonly Lazy<IGeoCountryLookup> _geoCountryLookup;
         private readonly IShoppingCartService _shoppingCartService;
-        private readonly CustomerHelper _customerHelper;
 
         public CustomerController(
             SmartDbContext db,
@@ -58,8 +57,7 @@ namespace Smartstore.Admin.Controllers
             Lazy<IEmailAccountService> emailAccountService,
             Lazy<IGdprTool> gdprTool,
             Lazy<IGeoCountryLookup> geoCountryLookup,
-            IShoppingCartService shoppingCartService,
-            CustomerHelper customerHelper)
+            IShoppingCartService shoppingCartService)
         {
             _db = db;
             _customerService = customerService;
@@ -75,7 +73,6 @@ namespace Smartstore.Admin.Controllers
             _gdprTool = gdprTool;
             _geoCountryLookup = geoCountryLookup;
             _shoppingCartService = shoppingCartService;
-            _customerHelper = customerHelper;
         }
 
         #region Utilities
@@ -1237,7 +1234,7 @@ namespace Smartstore.Admin.Controllers
 
             var gridModel = new GridModel<TopCustomerReportLineModel>
             {
-                Rows = await _customerHelper.CreateCustomerReportLineModelAsync(reportLines),
+                Rows = await reportLines.MapAsync(_db),
                 Total = await reportLines.GetTotalCountAsync()
             };
 

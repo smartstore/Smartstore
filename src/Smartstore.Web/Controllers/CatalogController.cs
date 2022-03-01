@@ -134,8 +134,7 @@ namespace Smartstore.Web.Controllers
             var searchResult = await _catalogSearchService.SearchAsync(query);
             model.SearchResult = searchResult;
 
-            var viewMode = _helper.GetSearchQueryViewMode(query);
-            var mappingSettings = _helper.GetBestFitProductSummaryMappingSettings(viewMode);
+            var mappingSettings = _helper.GetBestFitProductSummaryMappingSettings(GetViewMode(query));
             model.Products = await _helper.MapProductSummaryModelAsync(searchResult, mappingSettings);
 
             model.SubCategoryDisplayType = _catalogSettings.SubCategoryDisplayType;
@@ -300,8 +299,7 @@ namespace Smartstore.Web.Controllers
             var searchResult = await _catalogSearchService.SearchAsync(query);
             model.SearchResult = searchResult;
 
-            var viewMode = _helper.GetSearchQueryViewMode(query);
-            var mappingSettings = _helper.GetBestFitProductSummaryMappingSettings(viewMode);
+            var mappingSettings = _helper.GetBestFitProductSummaryMappingSettings(GetViewMode(query));
             model.Products = await _helper.MapProductSummaryModelAsync(searchResult, mappingSettings);
 
             // Prepare paging/sorting/mode stuff
@@ -383,7 +381,7 @@ namespace Smartstore.Web.Controllers
             var searchResult = await _catalogSearchService.SearchAsync(query);
             model.SearchResult = searchResult;
 
-            var mappingSettings = _helper.GetBestFitProductSummaryMappingSettings(_helper.GetSearchQueryViewMode(query));
+            var mappingSettings = _helper.GetBestFitProductSummaryMappingSettings(GetViewMode(query));
             model.Products = await _helper.MapProductSummaryModelAsync(searchResult, mappingSettings);
 
             // Prepare paging/sorting/mode stuff.
@@ -441,7 +439,7 @@ namespace Smartstore.Web.Controllers
 
             var result = await _catalogSearchService.SearchAsync(query);
             var hits = await result.GetHitsAsync();
-            var settings = _helper.GetBestFitProductSummaryMappingSettings(_helper.GetSearchQueryViewMode(query));
+            var settings = _helper.GetBestFitProductSummaryMappingSettings(GetViewMode(query));
 
             var model = await _helper.MapProductSummaryModelAsync(hits.ToList(), settings);
             model.GridColumnSpan = GridColumnSpan.Max5Cols;
@@ -669,7 +667,7 @@ namespace Smartstore.Web.Controllers
             return RedirectToRoute("CompareProducts");
         }
 
-        // ajax
+        // AJAX.
         [HttpPost]
         [ActionName("ClearCompareList")]
         public IActionResult ClearCompareListAjax()
@@ -704,5 +702,14 @@ namespace Smartstore.Web.Controllers
         }
 
         #endregion
+
+        private static ProductSummaryViewMode GetViewMode(CatalogSearchQuery query)
+        {
+            Guard.NotNull(query, nameof(query));
+
+            return query.CustomData.Get("ViewMode") is string viewMode && viewMode.EqualsNoCase("list")
+                ? ProductSummaryViewMode.List
+                : ProductSummaryViewMode.Grid;
+        }
     }
 }

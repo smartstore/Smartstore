@@ -158,7 +158,11 @@ namespace Smartstore.Web.Controllers
             model.Term = query.Term;
             model.TotalProductsCount = result.TotalHitsCount;
 
-            var mappingSettings = _catalogHelper.GetBestFitProductSummaryMappingSettings(_catalogHelper.GetSearchQueryViewMode(query));
+            var productSummaryViewMode = query.CustomData.Get("ViewMode") is string viewMode && viewMode.EqualsNoCase("list")
+                ? ProductSummaryViewMode.List
+                : ProductSummaryViewMode.Grid;
+
+            var mappingSettings = _catalogHelper.GetBestFitProductSummaryMappingSettings(productSummaryViewMode);
             var summaryModel = await _catalogHelper.MapProductSummaryModelAsync(result, mappingSettings);
 
             // Prepare paging/sorting/mode stuff.

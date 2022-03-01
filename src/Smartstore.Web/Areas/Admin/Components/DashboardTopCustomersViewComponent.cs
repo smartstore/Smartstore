@@ -8,12 +8,10 @@ namespace Smartstore.Admin.Components
         private const int NUM_REPORT_LINES = 7;
 
         private readonly SmartDbContext _db;
-        private readonly CustomerHelper _customerHelper;
 
-        public DashboardTopCustomersViewComponent(SmartDbContext db, CustomerHelper customerHelper)
+        public DashboardTopCustomersViewComponent(SmartDbContext db)
         {
             _db = db;
-            _customerHelper = customerHelper;
         }
 
         public async Task<IViewComponentResult> InvokeAsync()
@@ -32,8 +30,8 @@ namespace Smartstore.Admin.Components
 
             var model = new DashboardTopCustomersModel
             {
-                TopCustomersByQuantity = await _customerHelper.CreateCustomerReportLineModelAsync(reportByQuantity),
-                TopCustomersByAmount = await _customerHelper.CreateCustomerReportLineModelAsync(reportByAmount)
+                TopCustomersByQuantity = await reportByQuantity.MapAsync(_db),
+                TopCustomersByAmount = await reportByAmount.MapAsync(_db)
             };
 
             return View(model);
