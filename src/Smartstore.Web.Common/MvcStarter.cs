@@ -118,7 +118,6 @@ namespace Smartstore.Web
                     {
                         o.ViewLocationExpanders.Add(new ThemeViewLocationExpander());
                         o.ViewLocationExpanders.Add(new ModuleViewLocationExpander(appContext.ModuleCatalog));
-                        //o.ViewLocationExpanders.Add(new AdminViewLocationExpander());
                         o.ViewLocationExpanders.Add(new PartialViewLocationExpander());
                     }
 

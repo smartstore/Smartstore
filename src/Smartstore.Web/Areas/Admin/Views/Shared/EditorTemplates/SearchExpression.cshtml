@@ -1,5 +1,16 @@
 ﻿@model string
 
+@{ 
+    // We are not going to enable localized views just for this,
+    // but do it the shitty way just for once.
+    var helpPartialName = "SearchExpressionHelp";
+    var lang = WorkContext.WorkingLanguage.GetTwoLetterISOLanguageName();
+    if (lang == "de")
+    {
+        helpPartialName += ".de";
+    }
+}
+
 <div class="has-icon has-icon-right">
     <input asp-for="@Model" />
     <span class="input-group-icon">
@@ -13,7 +24,7 @@
     <modal id="search-expression-help-window" sm-backdrop="Invisible" sm-render-at-page-end="false">
         <modal-header sm-title="Search filter expressions"></modal-header>
         <modal-body>
-            <partial name="SearchExpressionHelp" />
+            <partial name="@helpPartialName" />
         </modal-body>
     </modal>
 
