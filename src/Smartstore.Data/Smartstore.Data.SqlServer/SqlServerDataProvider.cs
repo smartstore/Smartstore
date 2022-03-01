@@ -187,20 +187,22 @@ OFFSET {skip} ROWS FETCH NEXT {take} ROWS ONLY";
         public override int BackupDatabase(string fullPath)
         {
             Guard.NotEmpty(fullPath, nameof(fullPath));
-
-            var editionId = Database.ExecuteQueryRaw<long>("Select SERVERPROPERTY('EditionID')").FirstOrDefault();
-            return Database.ExecuteSqlRaw(CreateBackupSql(editionId), fullPath);
+            return Database.ExecuteSqlRaw(CreateBackupSql(), new object[] { fullPath });
         }
 
         public override async Task<int> BackupDatabaseAsync(string fullPath, CancellationToken cancelToken = default)
         {
             Guard.NotEmpty(fullPath, nameof(fullPath));
+            return await Database.ExecuteSqlRawAsync(CreateBackupSql(), new object[] { fullPath }, cancelToken);
+        }
 
+        private long GetSqlServerEdition()
+        {
             if (!_editionId.HasValue)
             {
                 try
                 {
-                    _editionId = await Database.ExecuteQueryRawAsync<long>("Select SERVERPROPERTY('EditionID')").FirstOrDefaultAsync(cancelToken);
+                    _editionId = Database.ExecuteQueryRaw<long>("Select SERVERPROPERTY('EditionID')").FirstOrDefault();
                 }
                 catch
                 {
@@ -209,15 +211,16 @@ OFFSET {skip} ROWS FETCH NEXT {take} ROWS ONLY";
                 }
             }
 
-            return await Database.ExecuteSqlRawAsync(CreateBackupSql(_editionId.Value), new object[] { fullPath }, cancelToken);
+            return _editionId.Value;
         }
 
-        private string CreateBackupSql(long editionId)
+        private string CreateBackupSql()
         {
             var sql = "BACKUP DATABASE [" + Database.GetDbConnection().Database + "] TO DISK = {0} WITH FORMAT";
 
             // Backup compression is not supported by "Express" or "Express with Advanced Services" edition.
             // https://expressdb.io/sql-server-express-feature-comparison.html
+            var editionId = GetSqlServerEdition();
             if (editionId != EXPRESS_EDITION_ID && editionId != EXPRESS_ADVANCED_EDITION_ID)
             {
                 sql += ", COMPRESSION";
