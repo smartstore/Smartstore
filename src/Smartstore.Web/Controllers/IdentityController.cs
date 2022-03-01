@@ -383,7 +383,7 @@ namespace Smartstore.Web.Controllers
             var info = new ProfileInfoModel
             {
                 Id = customer.Id,
-                Avatar = customer.ToAvatarModel(null, true)
+                Avatar = await customer.MapAsync(null, true)
             };
 
             // Location.

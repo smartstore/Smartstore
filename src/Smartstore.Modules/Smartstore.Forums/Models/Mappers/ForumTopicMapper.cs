@@ -83,15 +83,14 @@ namespace Smartstore.Forums.Models.Mappers
 
             var lastPosts = parameters.LastPosts as Dictionary<int, ForumPost>;
             var firstPost = parameters?.FirstPost as ForumPost;
-            var isGuest = from.Customer.IsGuest();
 
             MiniMapper.Map(from, to);
 
             to.Slug = _forumService.BuildSlug(from);
             to.FirstPostId = firstPost?.Id ?? from.FirstPostId;
-            to.HasCustomerProfile = _customerSettings.AllowViewingProfiles && !isGuest;
+            to.HasCustomerProfile = _customerSettings.AllowViewingProfiles && !from.Customer.IsGuest();
             to.CustomerName = from.Customer.FormatUserName(true);
-            to.Avatar = from.Customer.ToAvatarModel(to.CustomerName);
+            to.Avatar = await from.Customer.MapAsync(to.CustomerName);
             to.PostsPages = new Pageable<ForumPost>(0, _forumSettings.PostsPageSize, from.NumPosts);
 
             if (from.LastPostId != 0 && lastPosts.TryGetValue(from.LastPostId, out var lastPost) && lastPost != null)

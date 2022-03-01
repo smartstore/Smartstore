@@ -96,7 +96,7 @@ namespace Smartstore.Forums.Models.Mappers
                 ? createdOn.Humanize(false)
                 : createdOn.ToString("f");
 
-            to.Avatar = from.Customer.ToAvatarModel(to.CustomerName, largeAvatar);
+            to.Avatar = await from.Customer.MapAsync(to.CustomerName, largeAvatar);
 
             if (_forumSettings.AllowCustomersToVoteOnPosts && from.CustomerId != currentCustomer.Id)
             {

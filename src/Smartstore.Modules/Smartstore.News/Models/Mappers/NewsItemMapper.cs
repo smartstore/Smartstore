@@ -99,7 +99,7 @@ namespace Smartstore.News.Models.Mappers
                         AllowViewingProfiles = _customerSettings.AllowViewingProfiles && !nc.Customer.IsGuest(),
                     };
 
-                    commentModel.Avatar = nc.Customer.ToAvatarModel(null, false);
+                    commentModel.Avatar = await nc.Customer.MapAsync();
 
                     to.Comments.Comments.Add(commentModel);
                 }

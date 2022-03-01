@@ -725,7 +725,7 @@ namespace Smartstore.Web.Controllers
         #region Avatar
 
         [RequireSsl]
-        public IActionResult Avatar()
+        public async Task<IActionResult> Avatar()
         {
             var customer = Services.WorkContext.CurrentCustomer;
 
@@ -741,7 +741,7 @@ namespace Smartstore.Web.Controllers
 
             var model = new CustomerAvatarEditModel
             {
-                Avatar = customer.ToAvatarModel(null, true),
+                Avatar = await customer.MapAsync(null, true),
                 MaxFileSize = Prettifier.HumanizeBytes(_customerSettings.AvatarMaximumSizeBytes)
             };
 

@@ -120,7 +120,7 @@ namespace Smartstore.Blog.Models.Mappers
                         AllowViewingProfiles = _customerSettings.AllowViewingProfiles && !bc.Customer.IsGuest()
                     };
 
-                    commentModel.Avatar = bc.Customer.ToAvatarModel(null, false);
+                    commentModel.Avatar = await bc.Customer.MapAsync();
 
                     to.Comments.Comments.Add(commentModel);
                 }
