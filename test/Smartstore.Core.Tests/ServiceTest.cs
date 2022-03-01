@@ -74,6 +74,8 @@ namespace Smartstore.Core.Tests
                 host.Services.GetRequiredService<IHttpContextAccessor>(),
                 host.Services.AsLifetimeScope());
 
+            _engine = engine;
+
             // Initialize memory DbContext
             InitDbContext();
 
@@ -146,73 +148,6 @@ namespace Smartstore.Core.Tests
                 });
 
             return builder;
-        }
-
-        private void InitEngine()
-        {
-            _builder = WebApplication.CreateBuilder(new WebApplicationOptions
-            {
-                ContentRootPath = AppContext.BaseDirectory,
-                WebRootPath = "TEST_ENGINE_NO_PATH"
-            });
-
-            // Add connections.json and usersettings.json to configuration manager
-            var configuration = (IConfiguration)_builder.Configuration
-                .AddJsonFile("Config/connections.json", optional: true, reloadOnChange: true)
-                .AddJsonFile("Config/usersettings.json", optional: true, reloadOnChange: true);
-
-            // Configure the host
-            _builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory());
-
-            var startupLogger = new SerilogLoggerFactory(Log.Logger).CreateLogger("File");
-            var appContext = new SmartApplicationContext(_builder.Environment, configuration, startupLogger);
-            _engine = EngineFactory.Create(appContext.AppConfiguration);
-            var engineStarter = _engine.Start(appContext);
-
-            // Add services to the container.
-            engineStarter.ConfigureServices(_builder.Services);
-
-            // Overwrite GenericAttributeService
-            var genericAttributeMockWrapper = new Mock<IGenericAttributeService>();
-            var genericAttributeService = genericAttributeMockWrapper.Object;
-            genericAttributeMockWrapper
-                .Setup(x => x.GetAttributesForEntity("Customer", 1)).Returns(
-                    new GenericAttributeCollection(
-                        new List<GenericAttribute> {
-                            new GenericAttribute() { Key = "", Value = "" },
-                            new GenericAttribute() { Key = "", Value = "" }
-                        }.AsQueryable()
-                     , "Customer", 1, 0, null)
-            );
-
-            // Add services to the Autofac container.
-            _builder.Host.ConfigureContainer<ContainerBuilder>(container =>
-            {
-                engineStarter.ConfigureContainer(container);
-
-                // Register mocked GenericAttributeService else GenericAttributes e.g. for customer will throw.
-                container.RegisterInstance(genericAttributeMockWrapper.Object).As<IGenericAttributeService>().SingleInstance();
-
-                // Register some dependencies which will be resolved by Autofac during obtaining PriceCalculators.
-                var productAttributeMaterializerWrapper = new Mock<IProductAttributeMaterializer>();
-                container.RegisterInstance(productAttributeMaterializerWrapper.Object).As<IProductAttributeMaterializer>().SingleInstance();
-            });
-
-            // Build the application
-            var app = _builder.Build();
-
-            // At this stage we can access IServiceProvider.
-            var providerContainer = appContext as IServiceProviderContainer;
-            providerContainer.ApplicationServices = app.Services;
-
-            // At this stage we can set the scoped service container.
-            _engine.Scope = new ScopedServiceContainer(
-                app.Services.GetRequiredService<ILifetimeScopeAccessor>(),
-                app.Services.GetRequiredService<IHttpContextAccessor>(),
-                app.Services.AsLifetimeScope());
-
-            // Run application
-            //app.Run();
         }
 
         private void InitDbContext()
