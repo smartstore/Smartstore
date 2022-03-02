@@ -1021,7 +1021,7 @@ namespace Smartstore.Admin.Controllers
 
         #region Addresses
 
-        [Permission(Permissions.Customer.EditAddress)]
+        [Permission(Permissions.Customer.ReadAddress)]
         public async Task<IActionResult> AddressCreate(int customerId)
         {
             var customer = await _db.Customers.FindByIdAsync(customerId, false);
@@ -1042,7 +1042,7 @@ namespace Smartstore.Admin.Controllers
 
         [HttpPost, ParameterBasedOnFormName("save-continue", "continueEditing")]
         [FormValueRequired("save", "save-continue")]
-        [Permission(Permissions.Customer.EditAddress)]
+        [Permission(Permissions.Customer.CreateAddress)]
         public async Task<IActionResult> AddressCreate(CustomerAddressModel model, bool continueEditing)
         {
             var customer = await _db.Customers.FindByIdAsync(model.CustomerId);
@@ -1082,7 +1082,7 @@ namespace Smartstore.Admin.Controllers
             return View(model);
         }
 
-        [Permission(Permissions.Customer.EditAddress)]
+        [Permission(Permissions.Customer.ReadAddress)]
         public async Task<IActionResult> AddressEdit(int addressId, int customerId)
         {
             var customer = await _db.Customers.FindByIdAsync(customerId, false);
@@ -1138,7 +1138,7 @@ namespace Smartstore.Admin.Controllers
         }
 
         [HttpPost]
-        [Permission(Permissions.Customer.EditAddress)]
+        [Permission(Permissions.Customer.DeleteAddress)]
         public async Task<IActionResult> AddressDelete(int addressId)
         {
             var success = false;

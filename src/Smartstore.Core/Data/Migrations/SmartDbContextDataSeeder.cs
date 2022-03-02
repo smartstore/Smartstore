@@ -484,6 +484,12 @@ namespace Smartstore.Core.Data.Migrations
                 "Sets whether this widget is displayed according to the customer's settings in the cookie manager. This option should be used if you add a third-party script that sets cookies.",
                 "Legt fest, ob dieses Widget in Abhängigkeit zur Kundeneinstellung im Cookie-Manager ausgegeben wird. Diese Option sollte verwendet werden, wenn Sie ein Script für einen Drittanbieter zufügen, das Cookies setzt.");
 
+            builder.AddOrUpdate("Permissions.DisplayName.EditExchangeRate", "Edit exchange rates", "Umrechnungskurse bearbeiten");
+            builder.AddOrUpdate("Permissions.DisplayName.ReadAddress", "Read addresses", "Adressen lesen");
+            builder.AddOrUpdate("Permissions.DisplayName.CreateAddress", "Create addresses", "Adressen erstellen");
+            builder.AddOrUpdate("Permissions.DisplayName.DeleteAddress", "Delete addresses", "Adressen löschen");
+            builder.AddOrUpdate("Permissions.DisplayName.CreateDeployment", "Create deployment profile", "Veröffentlichungsprofil erstellen");
+
             #endregion
 
             #region Packaging

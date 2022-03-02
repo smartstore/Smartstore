@@ -713,7 +713,7 @@ namespace Smartstore.Admin.Controllers
 
         [HttpPost]
         [FormValueRequired("save", "save-continue"), ParameterBasedOnFormName("save-continue", "continueEditing")]
-        [Permission(Permissions.Configuration.Export.Update)]
+        [Permission(Permissions.Configuration.Export.CreateDeployment)]
         public async Task<IActionResult> CreateDeployment(ExportDeploymentModel model, bool continueEditing)
         {
             if (!await _db.ExportProfiles.AnyAsync(x => x.Id == model.ProfileId))

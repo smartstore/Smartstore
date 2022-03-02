@@ -85,7 +85,7 @@ namespace Smartstore.Admin.Controllers
         }
 
         [HttpPost]
-        [Permission(Permissions.Configuration.Currency.Delete)]
+        [Permission(Permissions.Promotion.Campaign.Delete)]
         public async Task<IActionResult> CampaignDelete(GridSelection selection)
         {
             var success = false;
@@ -206,7 +206,7 @@ namespace Smartstore.Admin.Controllers
         }
 
         [HttpPost]
-        [Permission(Permissions.Configuration.Currency.Delete)]
+        [Permission(Permissions.Promotion.Campaign.Delete)]
         public async Task<IActionResult> Delete(int id)
         {
             var campaign = await _db.Campaigns.FindByIdAsync(id);

@@ -12,6 +12,7 @@
                 public const string Create = "configuration.export.create";
                 public const string Delete = "configuration.export.delete";
                 public const string Execute = "configuration.export.execute";
+                public const string CreateDeployment = "configuration.export.createdeployment";
             }
 
             public static class Import

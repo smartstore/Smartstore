@@ -230,7 +230,7 @@ namespace Smartstore.Admin.Controllers
         }
 
         // AJAX
-        [Permission(Permissions.Configuration.Currency.Update)]
+        [Permission(Permissions.Configuration.Currency.EditExchangeRate)]
         public async Task<IActionResult> ApplyRate(string currencyCode, decimal rate)
         {
             var currency = await _db.Currencies.FirstOrDefaultAsync(x => x.CurrencyCode == currencyCode);
