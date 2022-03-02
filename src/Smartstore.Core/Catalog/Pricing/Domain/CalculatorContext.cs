@@ -62,6 +62,22 @@ namespace Smartstore.Core.Catalog.Pricing
         public decimal? MinTierPrice { get; set; }
 
         /// <summary>
+        /// The additional charges applied to the <see cref="FinalPrice"/> during calculation, such as price adjustments of product attributes.
+        /// </summary>
+        /// <remarks>
+        /// A calculator should add any additional charge included in <see cref="FinalPrice"/> to this property.
+        /// </remarks>
+        public decimal AdditionalCharge { get; set; }
+
+        /// <summary>
+        /// The discount amount resulting from applying discounts and tier prices.
+        /// </summary>
+        /// <remarks>
+        /// A calculator should add any discount amount included in <see cref="FinalPrice"/> to this property.
+        /// </remarks>
+        public decimal DiscountAmount { get; set; }
+
+        /// <summary>
         /// Gets or sets a list of calculated product attribute price adjustments, usually <see cref="ProductVariantAttributeValue.PriceAdjustment"/>.
         /// </summary>
         public ICollection<CalculatedPriceAdjustment> AttributePriceAdjustments { get; set; } = new List<CalculatedPriceAdjustment>();
@@ -82,6 +98,8 @@ namespace Smartstore.Core.Catalog.Pricing
             target.PreselectedPrice = PreselectedPrice;
             target.LowestPrice = LowestPrice;
             target.MinTierPrice = MinTierPrice;
+            target.AdditionalCharge = AdditionalCharge;
+            target.DiscountAmount = DiscountAmount;
 
             target.AppliedDiscounts.Clear();
             target.AppliedDiscounts.AddRange(AppliedDiscounts);
