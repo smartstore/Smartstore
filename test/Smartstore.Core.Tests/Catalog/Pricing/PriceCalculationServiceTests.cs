@@ -22,6 +22,7 @@ using Smartstore.Core.Common.Services;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Stores;
+using Smartstore.Core.Tests.Catalog.Pricing.Calculators;
 using Smartstore.Engine;
 using Smartstore.Test.Common;
 
@@ -148,7 +149,7 @@ namespace Smartstore.Core.Tests.Catalog.Pricing
                 ProductType = ProductType.SimpleProduct
             };
 
-            _sci = new ShoppingCartItem()
+            _sci = new ShoppingCartItem
             {
                 Customer = _customer,
                 CustomerId = _customer.Id,
@@ -163,8 +164,7 @@ namespace Smartstore.Core.Tests.Catalog.Pricing
                 IgnoreDiscounts = true
             })
             {
-                Quantity = 1,
-                AdditionalCharge = 0
+                Quantity = 1
             };
 
             DbContext.Discounts.Remove(1);
@@ -330,6 +330,11 @@ namespace Smartstore.Core.Tests.Catalog.Pricing
                 new TierPriceCalculator(), productMetadata);
             calculators.Add(tierPriceCalculator);
 
+            // Add custom calculator for additional charge.
+            var customCalculator = new Lazy<IPriceCalculator, PriceCalculatorMetadata>(() =>
+                new CustomAdditionalChargeCalculator(), new PriceCalculatorMetadata { ValidTargets = CalculatorTargets.Product, Order = CalculatorOrdering.Default });
+            calculators.Add(customCalculator);
+
             return calculators;
         }
 
@@ -356,7 +361,6 @@ namespace Smartstore.Core.Tests.Catalog.Pricing
             _priceCalculationContext.Options.IgnoreTierPrices = false;
 
             _priceCalculationContext.Quantity = 1;
-            _priceCalculationContext.AdditionalCharge = 0;
 
             var price = await _priceCalcService.CalculatePriceAsync(_priceCalculationContext);
             price.FinalPrice.Amount.ShouldEqual(12.34M);
@@ -412,19 +416,15 @@ namespace Smartstore.Core.Tests.Catalog.Pricing
             price.FinalPrice.Amount.ShouldEqual(8);
         }
 
-        // INFO: This test fails cause there seems to be no use case for this anymore
-        // TODO: (mg) (core) As discussed decide for yourself whether to delete or support this somehow.
-        //[Test]
-        //public async Task Can_get_final_product_price_with_additionalFee()
-        //{
-        //    _priceCalculationContext.Options.IgnoreDiscounts = false;
-        //    _priceCalculationContext.Options.IgnoreTierPrices = false;
+        [Test]
+        public async Task Can_get_final_product_price_with_custom_additionalCharge()
+        {
+            _priceCalculationContext.Metadata[CustomAdditionalChargeCalculator.AdditionalChargeKey] = 5m;
+            
+            var price = await _priceCalcService.CalculatePriceAsync(_priceCalculationContext);
 
-        //    _priceCalculationContext.AdditionalCharge = 5;
-
-        //    var price = await _priceCalcService.CalculatePriceAsync(_priceCalculationContext);
-        //    price.FinalPrice.Amount.ShouldEqual(17.34M);
-        //}
+            price.FinalPrice.Amount.ShouldEqual(17.34M);
+        }
 
         [Test]
         public async Task Can_get_final_product_price_with_discount()
