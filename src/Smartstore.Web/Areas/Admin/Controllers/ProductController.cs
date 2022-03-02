@@ -1518,7 +1518,7 @@ namespace Smartstore.Admin.Controllers
                     .ToListAsync();
 
                 var idsOrderedByVersion = productDownloads
-                    .Select(x => new { x.Id, Version = SemanticVersion.Parse(x.FileVersion.HasValue() ? x.FileVersion : "1.0.0.0") })
+                    .Select(x => new { x.Id, Version = SemanticVersion.Parse(x.FileVersion.HasValue() ? x.FileVersion : "1.0.0") })
                     .OrderByDescending(x => x.Version)
                     .Select(x => x.Id);
 
