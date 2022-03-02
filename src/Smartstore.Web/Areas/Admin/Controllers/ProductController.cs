@@ -564,17 +564,18 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Catalog.Product.Read)]
         public async Task<IActionResult> ProductCategoryList(int productId)
         {
-            var model = new GridModel<ProductModel.ProductCategoryModel>();
             var productCategories = await _categoryService.Value.GetProductCategoriesByProductIdsAsync(new[] { productId }, true);
-            var productCategoriesModel = await productCategories
-                .AsQueryable()
+
+            var rows = await productCategories
                 .SelectAsync(async x =>
                 {
                     var node = await _categoryService.Value.GetCategoryTreeAsync(x.CategoryId, true);
+                    var categoryPath = node != null ? _categoryService.Value.GetCategoryPath(node, null, "<span class='badge badge-secondary'>{0}</span>") : string.Empty;
+
                     return new ProductModel.ProductCategoryModel
                     {
                         Id = x.Id,
-                        Category = node != null ? _categoryService.Value.GetCategoryPath(node, aliasPattern: "<span class='badge badge-secondary'>{0}</span>") : string.Empty,
+                        Category = categoryPath,
                         ProductId = x.ProductId,
                         CategoryId = x.CategoryId,
                         IsFeaturedProduct = x.IsFeaturedProduct,
@@ -585,10 +586,11 @@ namespace Smartstore.Admin.Controllers
                 })
                 .AsyncToList();
 
-            model.Rows = productCategoriesModel;
-            model.Total = productCategoriesModel.Count;
-
-            return Json(model);
+            return Json(new GridModel<ProductModel.ProductCategoryModel>
+            {
+                Rows = rows,
+                Total = rows.Count,
+            });
         }
 
         [HttpPost]
@@ -703,28 +705,25 @@ namespace Smartstore.Admin.Controllers
         {
             var model = new GridModel<ProductModel.ProductManufacturerModel>();
             var productManufacturers = await _manufacturerService.Value.GetProductManufacturersByProductIdsAsync(new[] { productId }, true);
-            var productManufacturersModel = productManufacturers
-                .AsQueryable()
-                .ToList()
-                .Select(x =>
+
+            var rows = productManufacturers
+                .Select(x => new ProductModel.ProductManufacturerModel
                 {
-                    return new ProductModel.ProductManufacturerModel
-                    {
-                        Id = x.Id,
-                        Manufacturer = x.Manufacturer.Name,
-                        ProductId = x.ProductId,
-                        ManufacturerId = x.ManufacturerId,
-                        IsFeaturedProduct = x.IsFeaturedProduct,
-                        DisplayOrder = x.DisplayOrder,
-                        EditUrl = Url.Action("Edit", "Manufacturer", new { id = x.ManufacturerId })
-                    };
+                    Id = x.Id,
+                    Manufacturer = x.Manufacturer.Name,
+                    ProductId = x.ProductId,
+                    ManufacturerId = x.ManufacturerId,
+                    IsFeaturedProduct = x.IsFeaturedProduct,
+                    DisplayOrder = x.DisplayOrder,
+                    EditUrl = Url.Action("Edit", "Manufacturer", new { id = x.ManufacturerId })
                 })
                 .ToList();
 
-            model.Rows = productManufacturersModel;
-            model.Total = productManufacturersModel.Count;
-
-            return Json(model);
+            return Json(new GridModel<ProductModel.ProductManufacturerModel>
+            {
+                Rows = rows,
+                Total = rows.Count
+            });
         }
 
         [HttpPost]
@@ -1868,7 +1867,7 @@ namespace Smartstore.Admin.Controllers
 
         #region Update[...]
 
-        protected async Task MapModelToProductAsync(ProductModel model, Product product, IFormCollection form)
+        private async Task MapModelToProductAsync(ProductModel model, Product product, IFormCollection form)
         {
             if (model.LoadedTabs == null || model.LoadedTabs.Length == 0)
             {
@@ -1909,7 +1908,7 @@ namespace Smartstore.Admin.Controllers
             await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, product, form));
         }
 
-        protected void UpdateProductGeneralInfo(Product product, ProductModel model)
+        private void UpdateProductGeneralInfo(Product product, ProductModel model)
         {
             var p = product;
             var m = model;
@@ -1967,7 +1966,7 @@ namespace Smartstore.Admin.Controllers
                 : null;
         }
 
-        protected async Task UpdateProductDownloadsAsync(Product product, ProductModel model)
+        private async Task UpdateProductDownloadsAsync(Product product, ProductModel model)
         {
             if (!await Services.Permissions.AuthorizeAsync(Permissions.Media.Download.Update))
             {
@@ -1989,7 +1988,7 @@ namespace Smartstore.Admin.Controllers
             p.SampleDownloadId = m.SampleDownloadId == 0 ? null : m.SampleDownloadId;
         }
 
-        protected async Task UpdateProductInventoryAsync(Product product, ProductModel model)
+        private async Task UpdateProductInventoryAsync(Product product, ProductModel model)
         {
             var p = product;
             var m = model;
@@ -2050,7 +2049,7 @@ namespace Smartstore.Admin.Controllers
             }
         }
 
-        protected async Task UpdateProductBundleItemsAsync(Product product, ProductModel model)
+        private async Task UpdateProductBundleItemsAsync(Product product, ProductModel model)
         {
             var p = product;
             var m = model;
@@ -2067,7 +2066,7 @@ namespace Smartstore.Admin.Controllers
             }
         }
 
-        protected async Task UpdateProductPriceAsync(Product product, ProductModel model)
+        private async Task UpdateProductPriceAsync(Product product, ProductModel model)
         {
             var p = product;
             var m = model;
@@ -2102,12 +2101,12 @@ namespace Smartstore.Admin.Controllers
             await _discountService.ApplyDiscountsAsync(product, model.SelectedDiscountIds, DiscountType.AssignedToSkus);
         }
 
-        protected void UpdateProductAttributes(Product product, ProductModel model)
+        private static void UpdateProductAttributes(Product product, ProductModel model)
         {
             product.AttributeChoiceBehaviour = model.AttributeChoiceBehaviour;
         }
 
-        protected async Task UpdateProductSeoAsync(Product product, ProductModel model)
+        private async Task UpdateProductSeoAsync(Product product, ProductModel model)
         {
             var p = product;
             var m = model;
@@ -2125,7 +2124,7 @@ namespace Smartstore.Admin.Controllers
             }
         }
 
-        protected void UpdateProductPictures(Product product, ProductModel model)
+        private static void UpdateProductPictures(Product product, ProductModel model)
         {
             product.HasPreviewPicture = model.HasPreviewPicture;
         }

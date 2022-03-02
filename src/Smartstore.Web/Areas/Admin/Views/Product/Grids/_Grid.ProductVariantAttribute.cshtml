@@ -54,7 +54,7 @@
         <column for="CustomData" width="1fr" visible="false" />
         <column for="IsRequired" halign="center" />
         <column for="DisplayOrder1" entity-member="DisplayOrder" halign="center" />
-        <column for="EditUrl" width="1fr">
+        <column for="EditUrl" width="1fr" sortable="false">
             <display-template>
                 <a :href="item.row.EditUrl">
                     {{ item.row.EditText }}

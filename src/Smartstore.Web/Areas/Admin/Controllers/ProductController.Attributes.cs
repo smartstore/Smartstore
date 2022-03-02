@@ -731,7 +731,6 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Catalog.Product.Read)]
         public async Task<IActionResult> ProductVariantAttributeCombinationList(GridCommand command, int productId)
         {
-            var model = new GridModel<ProductVariantAttributeCombinationModel>();
             var customer = _workContext.CurrentCustomer;
             var product = await _db.Products.FindByIdAsync(productId, false);
             var productUrlTitle = T("Common.OpenInShop");

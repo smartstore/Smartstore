@@ -771,6 +771,8 @@ namespace Smartstore.Core.Data.Migrations
                 "Thank you for your voting.",
                 "Danke für Ihre Beurteilung.");
 
+            builder.AddOrUpdate("Admin.Catalog.Products.ProductVariantAttributes.AttributeCombinations.Fields.Sku", "SKU", "SKU");
+
             #endregion
 
             #region Obsolete
