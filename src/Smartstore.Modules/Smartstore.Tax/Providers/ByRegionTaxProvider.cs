@@ -25,9 +25,11 @@ namespace Smartstore.Tax
 
         public async Task<TaxRate> GetTaxRateAsync(TaxRateRequest request)
         {
+            var address = request.Address;
+            
             if (_taxSettings.EuVatEnabled)
             {
-                if (!(request.Address?.Country?.SubjectToVat ?? false))
+                if (!(address?.Country?.SubjectToVat ?? false))
                 {
                     // Fallback to fixed rate (merchant country VAT rate).
                     var fixedRate = _settingService.GetSettingByKey<decimal>($"Tax.TaxProvider.FixedRate.TaxCategoryId{request.TaxCategoryId}");
@@ -42,9 +44,9 @@ namespace Smartstore.Tax
                 .AsNoTracking()
                 .ApplyRegionFilter(
                     request.TaxCategoryId,
-                    request.Address?.Country?.Id,
-                    request.Address?.StateProvince?.Id,
-                    request.Address?.ZipPostalCode
+                    address?.Country?.Id,
+                    address?.StateProvince?.Id,
+                    address?.ZipPostalCode
                 ).ToListAsync();
 
             if (taxRates.Any())
