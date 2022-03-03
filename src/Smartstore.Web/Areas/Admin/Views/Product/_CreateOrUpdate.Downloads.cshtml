@@ -173,7 +173,7 @@
                 <smart-label asp-for="DownloadExpirationDays" />
             </div>
             <div class="adminData">
-                <editor asp-for="DownloadExpirationDays" />
+                <editor asp-for="DownloadExpirationDays" sm-postfix="@T("Time.Days").Value" />
                 <span asp-validation-for="DownloadExpirationDays"></span>
             </div>
         </div>

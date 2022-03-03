@@ -1150,8 +1150,7 @@ namespace Smartstore.Admin.Controllers
             return Json( new { success = true, Message = T("Admin.Common.TaskSuccessfullyProcessed").Value } );
         }
 
-        [NonAction]
-        protected async Task UpdateDataOfProductDownloadsAsync(ProductModel model)
+        private async Task UpdateDataOfProductDownloadsAsync(ProductModel model)
         {
             var testVersions = (new [] { model.DownloadFileVersion, model.NewVersion }).Where(x => x.HasValue());
             var saved = false;
@@ -1206,8 +1205,7 @@ namespace Smartstore.Admin.Controllers
             }
         }
 
-        [NonAction]
-        protected async Task InsertProductDownloadAsync(int? fileId, int entityId, string fileVersion = "")
+        private async Task InsertProductDownloadAsync(int? fileId, int entityId, string fileVersion = "")
         {
             if (fileId > 0)
             {
@@ -1242,8 +1240,7 @@ namespace Smartstore.Admin.Controllers
             }
         }
 
-        [NonAction]
-        protected async Task<int?> InsertSampleDownloadAsync(int? fileId, int entityId)
+        private async Task<int?> InsertSampleDownloadAsync(int? fileId, int entityId)
         {
             if (fileId > 0)
             {
