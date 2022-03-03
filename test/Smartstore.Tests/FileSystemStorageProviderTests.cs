@@ -34,7 +34,7 @@ namespace Smartstore.Tests
             _fileSystem = new LocalFileSystem(_folderPath);
         }
 
-        [TearDown]
+        [OneTimeTearDown]
         public void Term()
         {
             Directory.Delete(_folderPath, true);
