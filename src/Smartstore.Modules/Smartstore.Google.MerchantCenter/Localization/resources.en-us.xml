@@ -144,7 +144,7 @@
 		<Value>Search product names.</Value>
 	</LocaleResource>
 	<LocaleResource Name="SearchProductSku">
-		<Value>Sku</Value>
+		<Value>SKU</Value>
 	</LocaleResource>
 	<LocaleResource Name="SearchIsTouched">
 		<Value>Edited</Value>

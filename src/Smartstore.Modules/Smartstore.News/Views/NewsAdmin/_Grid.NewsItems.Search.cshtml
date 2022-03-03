@@ -7,15 +7,15 @@
 
 <div class="form-group">
     <smart-label asp-for="SearchTitle" />
-    <input asp-for="SearchTitle" />
+    <editor asp-for="SearchTitle" asp-template="SearchExpression" />
 </div>
 <div class="form-group">
     <smart-label asp-for="SearchShort" />
-    <input asp-for="SearchShort" />
+    <editor asp-for="SearchShort" asp-template="SearchExpression" />
 </div>
 <div class="form-group">
     <smart-label asp-for="SearchFull" />
-    <input asp-for="SearchFull" />
+    <editor asp-for="SearchFull" asp-template="SearchExpression" />
 </div>
 <div class="form-group">
     <smart-label asp-for="SearchStartDate" />

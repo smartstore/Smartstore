@@ -731,7 +731,6 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Catalog.Product.Read)]
         public async Task<IActionResult> ProductVariantAttributeCombinationList(GridCommand command, int productId)
         {
-            var model = new GridModel<ProductVariantAttributeCombinationModel>();
             var customer = _workContext.CurrentCustomer;
             var product = await _db.Products.FindByIdAsync(productId, false);
             var productUrlTitle = T("Common.OpenInShop");
@@ -747,9 +746,10 @@ namespace Smartstore.Admin.Controllers
 
             await _productAttributeMaterializer.Value.PrefetchProductVariantAttributesAsync(allCombinations.Select(x => x.AttributeSelection));
 
+            var mapper = MapperFactory.GetMapper<ProductVariantAttributeCombination, ProductVariantAttributeCombinationModel>();
             var rows = await allCombinations.SelectAsync(async x =>
             {
-                var pvacModel = await MapperFactory.MapAsync<ProductVariantAttributeCombination, ProductVariantAttributeCombinationModel>(x);
+                var pvacModel = await mapper.MapAsync(x);
                 pvacModel.ProductId = product.Id;
                 pvacModel.ProductUrlTitle = productUrlTitle;
                 pvacModel.ProductUrl = await _productUrlHelper.Value.GetProductUrlAsync(product.Id, productSlug, x.AttributeSelection);

@@ -39,11 +39,12 @@ namespace Smartstore.Admin.Models.Orders
                 parameters.Files = null;
             }
 
+            var mapper = MapperFactory.GetMapper<BestsellersReportLine, BestsellersReportLineModel>();
             var models = await lines
                 .SelectAsync(async x =>
                 {
                     var model = new BestsellersReportLineModel();
-                    await MapperFactory.MapAsync(x, model, parameters);
+                    await mapper.MapAsync(x, model, parameters);
                     return model;
                 })
                 .AsyncToList();

@@ -15,49 +15,98 @@
 }
 
 
+// 
+// Add icon support to nav tabs and pills (BS4)
+// ==============================================================
+
+.nav {
+    .nav-link {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+	.nav-link > img,
+	.nav-link > i,
+    .nav-link > .bi {
+		font-size: inherit;
+		margin-right: 0.5rem;
+		color: $gray-700;
+
+		+ span {
+			// Reset left space
+			padding-left: 0 !important;
+		}
+	}
+
+	.nav-link:hover > i
+    .nav-link:hover > .bi,
+	.nav-link.active > i,
+    .nav-link.active > .bi {
+		color: inherit;
+	}
+
+	.nav-link > .chevron {
+		margin-left: 3px;
+	}
+}
+
+
 // Material Tabs
 // ==============================================================
 
 .nav-tabs-line {
 	position: relative;
+    border-top-width: 0;
+    border-bottom-width: 0;
 
 	.nav-item {
 		position: relative;
 	}
 
+    &:not(.nav-stacked) > .nav-item:first-child > .nav-link {
+        margin-left: 0;
+    }
+
+    &:not(.nav-stacked) {
+        .nav-link {
+            padding: 0.825rem 0;
+            margin: 0 0.75rem;
+        }
+
+        > .nav-item:first-child > .nav-link {
+            margin-left: 0;
+        }
+    }
+
 	.nav-link {
 		color: $mtab-color;
 		text-transform: $mtab-text-transform;
 		font-weight: $mtab-font-weight;
-		font-size: 0.9375rem;
+		font-size: $mtab-font-size;
 		text-align: center;
 		position: relative;
 		border-width: 0;
 		background-color: transparent;
 		padding: 0.825rem 1rem;
+        border-radius: 0;
 		transition: color 0.05s ease-in-out, background-color 0.05s ease-in-out;
 
 		&:hover {
-			color: $nav-tabs-link-active-color;
-		}
-
-		&:hover:not(.active) {
-			background-color: rgba(#000, 0.025);
-		}
-
-		&:active:not(.active) {
-			background-color: rgba(#000, 0.05);
+			color: $mtab-active-color;
 		}
 
 		&.active {
-			color: $nav-tabs-link-active-color;
+			color: $mtab-active-color;
 		}
 
 		&.disabled {
 			opacity: 0.4;
 		}
 
-		> i, > img {
+		> i,
+        > .bi,
+        > img {
 			display: none;
 		}
 
@@ -66,7 +115,9 @@
         }
 
 		@include media-breakpoint-up(lg) {
-			> i, > img {
+			> i,
+            > .bi,
+            > img {
 				display: inline-block;
 			}
 		}
@@ -151,23 +202,6 @@
 	.nav-stacked {
 		min-height: 100%;
 
-		.nav-link {
-			display: flex;
-			align-items: baseline;
-		}
-
-		&.nav-left {
-			.nav-link {
-				border-radius: $nav-tabs-border-radius 0 0 $nav-tabs-border-radius;
-			}
-		}
-
-		&.nav-right {
-			.nav-link {
-				border-radius: 0 $nav-tabs-border-radius $nav-tabs-border-radius 0;
-			}
-		}
-
 		&.nav-tabs-line {
 			border-bottom: none;
 
@@ -177,10 +211,40 @@
 
 			.nav-link {
 				text-align: left;
-				border: 1px solid transparent;
-				transition: none;
 				padding: 0.625rem 1.25rem;
-				font-size: inherit;
+				font-size: $font-size-sm;
+                color: $gray-700;
+                background-color: transparent;
+                justify-content: start;
+ 
+                .tab-caption {
+                    transition: all ease 0.15s;
+                }
+
+                &:not(.active) > i, 
+                &:not(.active) > .bi {
+                    color: $dropdown-icon-color;
+                    transition: transform ease 0.15s;
+                }
+
+		        &:hover,
+                &.active {
+			        color: $mtab-active-color;
+		        }
+
+                &:hover:not(.active) {
+                    border-color: rgba(#000, 0.2) !important;
+
+                    .tab-caption {
+                        transform: translateX(2px);
+                    }
+
+                    > i, 
+                    > .bi {
+                        color: $gray-700;
+                        transform: scale(1.2);
+                    }
+                }
 
 				&:not(.disabled):before {
 					// disable selection animations
@@ -188,28 +252,23 @@
 				}
 			}
 
-			.nav-link.active,
-			.nav-link.active:focus,
-			.nav-item.open > .nav-link,
-			.nav-item.open > .nav-link:focus {
-				border-top-color: $nav-tabs-border-color;
-				border-bottom-color: $nav-tabs-border-color;
-			}
-
 			&.nav-left {
-				border-right: 1px solid $nav-tabs-border-color;
+                border-right: 1px solid $nav-tabs-border-color;
 
 				.nav-item {
 					margin-right: -1px;
 				}
 
 				.nav-link {
-					border-left-width: 2px;
 					padding-right: 1.25rem;
+                    padding-left: 0;
+                    border-right: 2px solid transparent;
 
-					> img, > i {
+					> img, 
+                    > i, 
+                    > .bi {
 						margin-right: 0.75rem;
-						margin-left: -0.5rem;
+						margin-left: 0.25rem;
 					}
 				}
 
@@ -217,7 +276,7 @@
 				.nav-link.active:focus,
 				.nav-item.open > .nav-link,
 				.nav-item.open > .nav-link:focus {
-					border-left-color: theme-color("warning") !important;
+					border-right-color: theme-color("warning");
 				}
 			}
 
@@ -229,12 +288,15 @@
 				}
 
 				.nav-link {
-					border-right-width: 2px;
-					padding-right: 1.25rem;
+					padding-left: 1.25rem;
+                    padding-right: 1.25rem;
+                    border-left: 2px solid transparent;
 
-					> img, > i {
+					> img, 
+                    > i,
+                    > .bi {
 						margin-right: 0.75rem;
-						margin-left: 0;
+						margin-left: 0.25rem;
 					}
 				}
 
@@ -242,7 +304,7 @@
 				.nav-link.active:focus,
 				.nav-item.open > .nav-link,
 				.nav-item.open > .nav-link:focus {
-					border-right-color: theme-color("warning") !important;
+					border-color: theme-color("warning");
 				}
 			}
 		}
@@ -345,37 +407,4 @@
         padding: 1.5rem;
         padding-top: 1rem;
     }
-}
-
-
-// 
-// Add icon support to nav tabs and pills (BS4)
-// ==============================================================
-
-.nav {
-	.nav-link > img,
-	.nav-link > i {
-		vertical-align: baseline;
-		font-size: inherit;
-		margin-right: 0.5rem;
-		color: $gray-700;
-
-		+ span {
-			// Reset left space
-			padding-left: 0 !important;
-		}
-	}
-
-	.nav-link:hover > i,
-	.nav-link.active > i {
-		color: inherit;
-	}
-
-	.nav-link > .chevron {
-		margin-left: 3px;
-	}
-
-	.tabs-left .nav-link > i {
-		min-width: 1rem;
-	}
 }

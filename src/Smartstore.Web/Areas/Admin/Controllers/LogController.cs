@@ -7,6 +7,7 @@ using Smartstore.Core.Rules.Filters;
 using Smartstore.Core.Security;
 using Smartstore.Web.Models.DataGrid;
 using LogLevel = Smartstore.Core.Logging.LogLevel;
+using System;
 
 namespace Smartstore.Admin.Controllers
 {
@@ -155,7 +156,7 @@ namespace Smartstore.Admin.Controllers
                 var token = tokens[i];
                 name += i == tokens.Length - 1
                     ? token
-                    : token.Substring(0, 1) + "...";
+                    : string.Concat(token.AsSpan(0, 1), "...");
             }
 
             return name;

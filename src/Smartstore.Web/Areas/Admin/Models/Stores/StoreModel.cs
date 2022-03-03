@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using FluentValidation;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Core.Localization;
 
 namespace Smartstore.Admin.Models.Stores
@@ -65,7 +64,6 @@ namespace Smartstore.Admin.Models.Stores
         [UIHint("Color")]
         public string MsTileColor { get; set; }
 
-
         [LocalizedDisplay("Common.DisplayOrder")]
         public int DisplayOrder { get; set; }
 
@@ -74,7 +72,11 @@ namespace Smartstore.Admin.Models.Stores
 
         [LocalizedDisplay("*ContentDeliveryNetwork")]
         public string ContentDeliveryNetwork { get; set; }
-        public string ViewUrl { get; set; }
+
+        [LocalizedDisplay("*DefaultCurrencyId")]
+        public int DefaultCurrencyId { get; set; }
+
+        public string EditUrl { get; set; }
     }
 
     public partial class StoreValidator : AbstractValidator<StoreModel>

@@ -102,7 +102,7 @@ namespace Smartstore.Admin.Controllers
 
         [HttpPost]
         [Permission(Permissions.Configuration.Setting.Read)]
-        public async Task<IActionResult> List(GridCommand command, SettingListModel model)
+        public async Task<IActionResult> SettingList(GridCommand command, SettingListModel model)
         {
             var stores = Services.StoreContext.GetAllStores();
 
@@ -124,40 +124,28 @@ namespace Smartstore.Admin.Controllers
             }
             
             var settings = await query
+                .OrderBy(x => x.Name)
                 .ApplyGridCommand(command)
                 .ToPagedList(command)
                 .LoadAsync();
 
-            var storesAll = T("Admin.Common.StoresAll").Value;
+            var allStoresStr = T("Admin.Common.StoresAll").Value;
+            var allStoreNames = Services.StoreContext.GetAllStores().ToDictionary(x => x.Id, x => x.Name);
 
-            var settingModels = settings
-                .Select(x =>
+            var rows = settings
+                .Select(x => new SettingModel
                 {
-                    var settingModel = new SettingModel
-                    {
-                        Id = x.Id,
-                        Name = x.Name,
-                        Value = x.Value,
-                        StoreId = x.StoreId
-                    };
-
-                    if (x.StoreId == 0)
-                    {
-                        settingModel.Store = storesAll;
-                    }
-                    else
-                    {
-                        var store = Services.StoreContext.GetStoreById(x.StoreId);
-                        settingModel.Store = store?.Name.NaIfEmpty();
-                    }
-
-                    return settingModel;
+                    Id = x.Id,
+                    Name = x.Name,
+                    Value = x.Value,
+                    StoreId = x.StoreId,
+                    Store = x.StoreId == 0 ? allStoresStr : allStoreNames.Get(x.StoreId).NaIfEmpty()
                 })
                 .ToList();
 
             var gridModel = new GridModel<SettingModel>
             {
-                Rows = settingModels,
+                Rows = rows,
                 Total = await settings.GetTotalCountAsync()
             };
 
@@ -166,7 +154,7 @@ namespace Smartstore.Admin.Controllers
 
         [HttpPost]
         [Permission(Permissions.Configuration.Setting.Update)]
-        public async Task<IActionResult> Update(SettingModel model)
+        public async Task<IActionResult> SettingUpdate(SettingModel model)
         {
             model.Name = model.Name.Trim();
 
@@ -190,7 +178,7 @@ namespace Smartstore.Admin.Controllers
 
         [HttpPost]
         [Permission(Permissions.Configuration.Setting.Create)]
-        public async Task<IActionResult> Insert(SettingModel model)
+        public async Task<IActionResult> SettingInsert(SettingModel model)
         {
             model.Name = model.Name.Trim();
 
@@ -210,7 +198,7 @@ namespace Smartstore.Admin.Controllers
 
         [HttpPost]
         [Permission(Permissions.Configuration.Setting.Delete)]
-        public async Task<IActionResult> Delete(GridSelection selection)
+        public async Task<IActionResult> SettingDelete(GridSelection selection)
         {
             var success = false;
             var numDeleted = 0;
@@ -1048,17 +1036,16 @@ namespace Smartstore.Admin.Controllers
             var model = await MapperFactory.MapAsync<TaxSettings, TaxSettingsModel>(settings);
             var taxCategories = await _db.TaxCategories
                 .AsNoTracking()
+                .OrderBy(x => x.DisplayOrder)
                 .ToListAsync();
 
             var countries = await _db.Countries
                 .AsNoTracking()
-                .Include(x => x.StateProvinces.OrderBy(x => x.DisplayOrder))
                 .ApplyStandardFilter(true)
                 .ToListAsync();
 
             var shippingTaxCategories = new List<SelectListItem>();
             var paymentMethodAdditionalFeeTaxCategories = new List<SelectListItem>();
-            var euVatShopCountries = new List<SelectListItem>();
 
             foreach (var tc in taxCategories)
             {
@@ -1066,19 +1053,13 @@ namespace Smartstore.Admin.Controllers
                 paymentMethodAdditionalFeeTaxCategories.Add(new SelectListItem { Text = tc.Name, Value = tc.Id.ToString(), Selected = tc.Id == settings.PaymentMethodAdditionalFeeTaxClassId });
             }
 
-            foreach (var c in countries)
-            {
-                euVatShopCountries.Add(new SelectListItem { Text = c.Name, Value = c.Id.ToString(), Selected = c.Id == settings.EuVatShopCountryId });
-            }
-
             ViewBag.ShippingTaxCategories = shippingTaxCategories;
             ViewBag.PaymentMethodAdditionalFeeTaxCategories = paymentMethodAdditionalFeeTaxCategories;
-            ViewBag.EuVatShopCountries = euVatShopCountries;
+            ViewBag.EuVatShopCountries = countries.ToSelectListItems(settings.EuVatShopCountryId);
 
             // Default tax address.
-            var defaultAddress = settings.DefaultTaxAddressId > 0
-                ? await _db.Addresses.FindByIdAsync(settings.DefaultTaxAddressId, false)
-                : null;
+            var defaultAddress = await _db.Addresses.FindByIdAsync(settings.DefaultTaxAddressId, false);
+            var stateProvinces = await _db.StateProvinces.GetStateProvincesByCountryIdAsync(defaultAddress?.CountryId ?? 0, true);
 
             if (defaultAddress != null)
             {
@@ -1090,31 +1071,12 @@ namespace Smartstore.Admin.Controllers
                 _storeDependingSettingHelper.AddOverrideKey(settings, "DefaultTaxAddress");
             }
 
-            foreach (var c in countries)
-            {
-                model.DefaultTaxAddress.AvailableCountries.Add(new SelectListItem
-                {
-                    Text = c.Name,
-                    Value = c.Id.ToString(),
-                    Selected = (defaultAddress != null && c.Id == defaultAddress.CountryId)
-                });
-            }
+            model.DefaultTaxAddress.AvailableCountries = countries.ToSelectListItems(defaultAddress?.CountryId ?? 0);
 
-            var states = defaultAddress != null && defaultAddress.Country != null
-                ? countries.FirstOrDefault(x => x.Id == defaultAddress.Country.Id).StateProvinces.ToList()
-                : new List<StateProvince>();
-
-            if (states.Any())
+            model.DefaultTaxAddress.AvailableStates = stateProvinces.ToSelectListItems(defaultAddress?.StateProvinceId ?? 0) ?? new List<SelectListItem>
             {
-                foreach (var s in states)
-                {
-                    model.DefaultTaxAddress.AvailableStates.Add(new SelectListItem { Text = s.Name, Value = s.Id.ToString(), Selected = (s.Id == defaultAddress.StateProvinceId) });
-                }
-            }
-            else
-            {
-                model.DefaultTaxAddress.AvailableStates.Add(new SelectListItem { Text = T("Admin.Address.OtherNonUS"), Value = "0" });
-            }
+                new SelectListItem { Text = T("Address.OtherNonUS"), Value = "0" }
+            };
 
             model.DefaultTaxAddress.FirstNameEnabled = false;
             model.DefaultTaxAddress.LastNameEnabled = false;
@@ -1179,7 +1141,6 @@ namespace Smartstore.Admin.Controllers
         [LoadSetting]
         public async Task<IActionResult> RewardPoints(RewardPointsSettings settings, int storeScope)
         {
-            var store = storeScope == 0 ? Services.StoreContext.CurrentStore : Services.StoreContext.GetStoreById(storeScope);
             var model = await MapperFactory.MapAsync<RewardPointsSettings, RewardPointsSettingsModel>(settings);
 
             model.PrimaryStoreCurrencyCode = _currencyService.PrimaryCurrency.CurrencyCode;
@@ -1270,9 +1231,7 @@ namespace Smartstore.Admin.Controllers
                 _storeDependingSettingHelper.AddOverrideKey(settings, "ShippingOriginAddress");
             }
 
-            var originAddress = settings.ShippingOriginAddressId > 0
-                ? await _db.Addresses.FindByIdAsync(settings.ShippingOriginAddressId, false)
-                : null;
+            var originAddress = await _db.Addresses.FindByIdAsync(settings.ShippingOriginAddressId, false);
 
             if (originAddress != null)
             {
@@ -1281,34 +1240,17 @@ namespace Smartstore.Admin.Controllers
 
             var countries = await _db.Countries
                 .AsNoTracking()
-                .Include(x => x.StateProvinces.OrderBy(x => x.DisplayOrder))
                 .ApplyStandardFilter(true)
                 .ToListAsync();
 
-            foreach (var c in countries)
-            {
-                model.ShippingOriginAddress.AvailableCountries.Add(
-                    new SelectListItem { Text = c.Name, Value = c.Id.ToString(), Selected = (originAddress != null && c.Id == originAddress.CountryId) }
-                );
-            }
+            var stateProvinces = await _db.StateProvinces.GetStateProvincesByCountryIdAsync(originAddress?.CountryId ?? 0, true);
 
-            var states = originAddress != null && originAddress.Country != null
-                ? countries.FirstOrDefault(x => x.Id == originAddress.Country.Id).StateProvinces.ToList()
-                : new List<StateProvince>();
+            model.ShippingOriginAddress.AvailableCountries = countries.ToSelectListItems(originAddress?.CountryId ?? 0);
 
-            if (states.Count > 0)
+            model.ShippingOriginAddress.AvailableStates = stateProvinces.ToSelectListItems(originAddress?.StateProvinceId ?? 0) ?? new List<SelectListItem>
             {
-                foreach (var s in states)
-                {
-                    model.ShippingOriginAddress.AvailableStates.Add(
-                        new SelectListItem { Text = s.Name, Value = s.Id.ToString(), Selected = (s.Id == originAddress.StateProvinceId) }
-                    );
-                }
-            }
-            else
-            {
-                model.ShippingOriginAddress.AvailableStates.Add(new SelectListItem { Text = T("Admin.Address.OtherNonUS"), Value = "0" });
-            }
+                new SelectListItem { Text = T("Address.OtherNonUS"), Value = "0" }
+            };
 
             model.ShippingOriginAddress.FirstNameEnabled = false;
             model.ShippingOriginAddress.LastNameEnabled = false;
@@ -1491,39 +1433,17 @@ namespace Smartstore.Admin.Controllers
 
         private async Task PrepareConfigurationModelAsync(GeneralCommonSettingsModel model)
         {
-            foreach (var timeZone in _dateTimeHelper.GetSystemTimeZones())
-            {
-                model.DateTimeSettings.AvailableTimeZones.Add(new SelectListItem
-                {
-                    Text = timeZone.DisplayName,
-                    Value = timeZone.Id,
-                    Selected = timeZone.Id.Equals(_dateTimeHelper.DefaultStoreTimeZone.Id, StringComparison.InvariantCultureIgnoreCase)
-                });
-            }
+            ViewBag.AvailableTimeZones = _dateTimeHelper.GetSystemTimeZones()
+                .ToSelectListItems(_dateTimeHelper.DefaultStoreTimeZone.Id);
 
             #region CompanyInfo custom mapping
 
-            ViewBag.AvailableCountries = new List<SelectListItem>
-            {
-                new SelectListItem { Text = T("Common.Unspecified"), Value = "0" }
-            };
-            
-            ViewBag.Salutations = new List<SelectListItem>();
-
             var countries = await _db.Countries
                 .AsNoTracking()
-                .ApplyStandardFilter()
+                .ApplyStandardFilter(true)
                 .ToListAsync();
 
-            foreach (var c in countries)
-            {
-                ViewBag.AvailableCountries.Add(new SelectListItem
-                {
-                    Text = c.GetLocalized(x => x.Name),
-                    Value = c.Id.ToString(),
-                    Selected = c.Id == model.CompanyInformationSettings.CountryId
-                });
-            }
+            ViewBag.AvailableCountries = countries.ToSelectListItems(model.CompanyInformationSettings.CountryId ?? 0);
 
             ViewBag.Salutations = new List<SelectListItem>();
             ViewBag.Salutations.AddRange(new[]

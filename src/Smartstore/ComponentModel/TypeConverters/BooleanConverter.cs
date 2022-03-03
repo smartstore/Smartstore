@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 
 namespace Smartstore.ComponentModel.TypeConverters
 {
@@ -26,22 +26,20 @@ namespace Smartstore.ComponentModel.TypeConverters
 
         public override object ConvertFrom(CultureInfo culture, object value)
         {
-            if (value is short)
+            if (value is short shrt)
             {
-                if ((short)value == 0)
+                if (shrt == 0)
                 {
                     return false;
                 }
-                if ((short)value == 1)
+                if (shrt == 1)
                 {
                     return true;
                 }
             }
 
-            if (value is string)
+            if (value is string str)
             {
-                var str = (string)value;
-
                 if (bool.TryParse(str, out var b))
                 {
                     return b;

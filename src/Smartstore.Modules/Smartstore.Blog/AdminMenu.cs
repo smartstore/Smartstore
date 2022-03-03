@@ -11,7 +11,7 @@ namespace Smartstore.Blog
             // Insert menu items for list views.
             var blogMenuItem = new MenuItem().ToBuilder()
                 .ResKey("Admin.ContentManagement.Blog")
-                .Icon("fa fa-blog")
+                .Icon("rss", "bi")
                 .PermissionNames(BlogPermissions.Self)
                 .AsItem();
 

@@ -7,10 +7,16 @@
           allow-row-selection="true"
           allow-column-reordering="true"
           allow-edit="true">
-    <datasource read="@Url.Action("List", "TaxByRegion")"
-                update="@Url.Action("Update", "TaxByRegion")"
-                delete="@Url.Action("Delete", "TaxByRegion")" />
+    <datasource read="@Url.Action("TaxRateList", "TaxByRegion")"
+                update="@Url.Action("TaxRateUpdate", "TaxByRegion")"
+                delete="@Url.Action("TaxRateDelete", "TaxByRegion")" />
     <paging position="Bottom" page-index="1" show-size-chooser="true" />
+    <sorting allow-unsort="true" allow-multisort="true">
+        <sort by="CountryId" />
+        <sort by="StateProvinceId" />
+        <sort by="Zip" />
+        <sort by="TaxCategoryId" />
+    </sorting>
     <toolbar>
         <toolbar-group>
             <a class="btn btn-primary btn-flat" href="#addrecord-window" data-toggle="modal">
@@ -33,10 +39,10 @@
         </toolbar-group>
     </toolbar>
     <columns>
-        <column for="CountryName" width="1fr" readonly hideable="false" />
-        <column for="StateProvinceName" width="1fr" readonly />
-        <column for="TaxCategoryName" width="1fr" readonly />
+        <column for="CountryName" readonly entity-member="CountryId" hideable="false" />
+        <column for="StateProvinceName" readonly entity-member="StateProvinceId" />
         <column for="Zip" />
+        <column for="TaxCategoryName" readonly entity-member="TaxCategoryId" />
         <column for="Percentage" />
     </columns>
     <row-commands>

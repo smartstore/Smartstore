@@ -68,10 +68,10 @@ namespace Smartstore.Admin.Controllers
                 .ToPagedList(command)
                 .LoadAsync();
 
+            var mapper = MapperFactory.GetMapper<QueuedEmail, QueuedEmailModel>();
             var rows = await queuedEmails.SelectAsync(async x =>
             {
-                var model = await MapperFactory.MapAsync<QueuedEmail, QueuedEmailModel>(x);
-
+                var model = await mapper.MapAsync(x);
                 model.ViewUrl = Url.Action(nameof(Edit), "QueuedEmail", new { id = x.Id });
 
                 return model;

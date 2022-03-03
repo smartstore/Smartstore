@@ -91,10 +91,9 @@ namespace Smartstore
             query =
                 from oi in query
                 join p in db.Products on oi.ProductId equals p.Id
-                where
-                    !p.IsSystemProduct
+                where (productIds == null || productIds.Contains(p.Id))
                     && (includeHidden || p.Published)
-                    && (!productIds.IsNullOrEmpty() && productIds.Contains(p.Id))
+                    && !p.IsSystemProduct
                 select oi;
 
             return query;

@@ -1,5 +1,4 @@
-﻿using System.Dynamic;
-using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Common.Settings;
@@ -13,60 +12,38 @@ namespace Smartstore.Web.Models.Common
         /// Maps an <see cref="Address"/> entity to <see cref="AddressModel"/>.
         /// </summary>
         /// <param name="entity">Source <see cref="Address"/> to be mapped.</param>
-        /// <param name="addCountries">
-        /// A value indicating whether to add countries and state provinces to the model.
-        /// If <c>null</c>, it will be obtained from <see cref="AddressSettings.CountryEnabled"/> and <see cref="AddressSettings.StateProvinceEnabled"/>.
-        /// </param>
-        /// <param name="countries">Countries to be added to the model.</param>
-        /// <returns><see cref="AddressModel"/>.</returns>
-        public static async Task<AddressModel> MapAsync(this Address entity,
-            bool? addCountries = null,
-            IEnumerable<Country> countries = null)
+        /// <param name="model">Target <see cref="AddressModel"/> to which <paramref name="entity"/> is to be mapped.</param>
+        public static async Task MapAsync(this Address entity, AddressModel model)
         {
-            var model = new AddressModel();
-            await entity.MapAsync(model, addCountries, countries);
-
-            return model;
+            await MapperFactory.MapAsync(entity, model);
         }
 
         /// <summary>
-        /// Maps an <see cref="Address"/> entity to <see cref="AddressModel"/>.
+        /// Creates a new <see cref="AddressModel"/> and maps an <see cref="Address"/> entity to it.
         /// </summary>
         /// <param name="entity">Source <see cref="Address"/> to be mapped.</param>
-        /// <param name="model">Target <see cref="AddressModel"/> to which <paramref name="entity"/> is to be mapped.</param>
-        /// <param name="addCountries">
-        /// A value indicating whether to add countries and state provinces to the model.
-        /// If <c>null</c>, it will be obtained from <see cref="AddressSettings.CountryEnabled"/> and <see cref="AddressSettings.StateProvinceEnabled"/>.
-        /// </param>
-        /// <param name="countries">Countries to be added to the model.</param>
-        public static async Task MapAsync(this Address entity,
-            AddressModel model,
-            bool? addCountries = null,
-            IEnumerable<Country> countries = null)
+        /// <returns>New <see cref="AddressModel"/>.</returns>
+        public static async Task<AddressModel> MapAsync(this Address entity)
         {
-            dynamic parameters = new ExpandoObject();
-            parameters.AddCountries = addCountries;
-            parameters.Countries = countries;
+            var model = new AddressModel();
+            await MapperFactory.MapAsync(entity, model);
 
-            await MapperFactory.MapAsync(entity, model, parameters);
+            return model;
         }
     }
 
     internal class AddressMapper : Mapper<Address, AddressModel>
     {
         private readonly SmartDbContext _db;
-        private readonly ICommonServices _services;
         private readonly IAddressService _addressService;
         private readonly AddressSettings _addressSettings;
 
         public AddressMapper(
             SmartDbContext db,
-            ICommonServices services,
             IAddressService addressService, 
             AddressSettings addressSettings)
         {
             _db = db;
-            _services = services;
             _addressService = addressService;
             _addressSettings = addressSettings;
         }
@@ -77,9 +54,6 @@ namespace Smartstore.Web.Models.Common
         public override async Task MapAsync(Address from, AddressModel to, dynamic parameters = null)
         {
             Guard.NotNull(to, nameof(to));
-
-            var addCountries = parameters?.AddCountries as bool?;
-            var explicitAddCountries = addCountries.GetValueOrDefault();
 
             MiniMapper.Map(_addressSettings, to);
 
@@ -95,70 +69,6 @@ namespace Smartstore.Web.Models.Common
                 to.CountryName = from.Country?.GetLocalized(x => x.Name);
                 to.StateProvinceName = from.StateProvince?.GetLocalized(x => x.Name);
                 to.FormattedAddress = await _addressService.FormatAddressAsync(from, true);
-            }
-
-            // Countries and states.
-            if (addCountries ?? _addressSettings.CountryEnabled)
-            {
-                var countries = parameters?.Countries as IEnumerable<Country>;
-                if (countries == null)
-                {
-                    countries = await _db.Countries
-                        .AsNoTracking()
-                        .ApplyStandardFilter(explicitAddCountries, explicitAddCountries ? 0 : _services.StoreContext.CurrentStore.Id)
-                        .ToListAsync();
-                }
-
-                if (countries?.Any() ?? false)
-                {
-                    if (!explicitAddCountries)
-                    {
-                        to.AvailableCountries.Add(new SelectListItem 
-                        { 
-                            Text = _services.Localization.GetResource("Address.SelectCountry"), 
-                            Value = "0"
-                        });
-                    }
-
-                    foreach (var country in countries)
-                    {
-                        to.AvailableCountries.Add(new SelectListItem
-                        {
-                            Text = country.GetLocalized(x => x.Name),
-                            Value = country.Id.ToString(),
-                            Selected = country.Id == to.CountryId
-                        });
-                    }
-
-                    if (addCountries ?? _addressSettings.StateProvinceEnabled)
-                    {
-                        if (to.CountryId.HasValue)
-                        {
-                            var states = await _db.StateProvinces
-                                .AsNoTracking()
-                                .ApplyCountryFilter(to.CountryId.Value)
-                                .ToListAsync();
-
-                            foreach (var state in states)
-                            {
-                                to.AvailableStates.Add(new SelectListItem
-                                {
-                                    Text = state.GetLocalized(x => x.Name),
-                                    Value = state.Id.ToString(),
-                                    Selected = state.Id == to.StateProvinceId
-                                });
-                            }
-                        }
-                        else
-                        {
-                            to.AvailableStates.Add(new SelectListItem 
-                            {
-                                Text = _services.Localization.GetResource("Address.OtherNonUS"), 
-                                Value = "0"
-                            });
-                        }
-                    }
-                }
             }
 
             string salutations = _addressSettings.GetLocalizedSetting(x => x.Salutations);

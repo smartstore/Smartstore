@@ -6,7 +6,7 @@
 
 <div class="form-group">
     <smart-label asp-for="SearchManufacturerName" />
-    <input asp-for="SearchManufacturerName" />
+    <editor asp-for="SearchManufacturerName" asp-template="SearchExpression" />
 </div>
 <div sm-if="!isSingleStoreMode" class="form-group">
     <smart-label asp-for="SearchStoreId" />

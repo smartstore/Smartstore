@@ -206,7 +206,8 @@
     {
         <div class="adminRow">
             <div class="adminTitle">
-                <smart-label asp-for="GiftCards[0].CouponCode" /> (@(gc.CouponCode))
+                <smart-label asp-for="GiftCards[0].CouponCode" />
+                (<a asp-action="Edit" asp-controller="GiftCard" asp-route-id="@gc.GiftCardId">@gc.CouponCode</a>)
             </div>
             <div class="adminData">
                 <input asp-for="@gc.Amount" sm-plaintext="true" readonly />

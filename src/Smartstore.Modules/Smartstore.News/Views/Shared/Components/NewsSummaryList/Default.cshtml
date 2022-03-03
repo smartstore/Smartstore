@@ -48,7 +48,7 @@
             {
                 <a class="rfs align-self-end btn btn-gray btn-flat"
                    attr-class='(item.Comments.NumberOfComments > 0, "vivid")'
-                   asp-route="NewsItem" asp-route-SeName="@item.SeName"
+                   asp-route="NewsItem" asp-route-SeName="@item.SeName" asp-fragment="customer-comment-list"
                    title="@T("Blog.CommentsLink", item.Comments.NumberOfComments)">
                     <i class="far fa-comment-alt"></i>
                     <span class="newsitem-comments-count">@item.Comments.NumberOfComments</span>

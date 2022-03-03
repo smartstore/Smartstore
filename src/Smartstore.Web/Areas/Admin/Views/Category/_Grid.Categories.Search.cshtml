@@ -6,11 +6,11 @@
 
 <div class="form-group">
     <smart-label asp-for="SearchCategoryName" />
-    <input asp-for="SearchCategoryName" />
+    <editor asp-for="SearchCategoryName" asp-template="SearchExpression" />
 </div>
 <div class="form-group">
     <smart-label asp-for="SearchAlias" />
-    <input asp-for="SearchAlias" />
+    <editor asp-for="SearchAlias" asp-template="SearchExpression" />
 </div>
 <div sm-if="!isSingleStoreMode" class="form-group">
     <smart-label asp-for="SearchStoreId" />

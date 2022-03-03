@@ -4,52 +4,55 @@
 	var parentModel = ViewData["Parent"] as TaskModel;
 }
 
-<datagrid id="task-execution-infos-grid" 
-        allow-row-selection="true"
-		allow-resize="true" 
-		allow-column-reordering="true" 
-		preserve-grid-state="true">
-	<datasource read="@Url.Action("TaskExecutionInfoList", new { id = parentModel.Id })" delete="@Url.Action("TaskExecutionInfoDelete")" />
+<datagrid id="task-execution-infos-grid"
+          allow-row-selection="true"
+          allow-resize="true"
+          allow-column-reordering="true"
+          preserve-grid-state="true">
+    <datasource read="@Url.Action("TaskExecutionInfoList", new { id = parentModel.Id })" delete="@Url.Action("TaskExecutionInfoDelete")" />
     <paging position="Bottom" show-size-chooser="true" />
-	<toolbar>
+    <sorting enabled="true" allow-unsort="true" allow-multisort="true">
+        <sort by="StartedOn" by-entity-member="StartedOnUtc" descending="true" />
+    </sorting>
+    <toolbar>
         <toolbar-group class="omega">
             <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger btn-flat">
                 <i class="far fa-trash-alt"></i>
                 <span>@T("Admin.Common.Delete.Selected")</span>
             </button>
         </toolbar-group>
-	</toolbar>
-	<columns>
+    </toolbar>
+    <columns>
         <column for="Id" visible="false" resizable="false" type="string" />
-        <column for="StartedOn" title="@T("Common.ExecutedOn")" width="1fr">
+        <column for="StartedOn" entity-member="StartedOnUtc" title="@T("Common.ExecutedOn")" width="1fr">
             <display-template>
                 <div class="dg-cell-value">
-					<div class="text-truncate">{{ item.row.StartedOnString }}</div>
-					<div class="text-truncate text-muted">{{ item.row.StartedOnPretty }}</div>
-				</div>
+                    <div class="text-truncate">{{ item.row.StartedOnString }}</div>
+                    <div class="text-truncate text-muted">{{ item.row.StartedOnPretty }}</div>
+                </div>
             </display-template>
         </column>
-        <column for="FinishedOn" title="@T("Common.FinishedOn")" width="1fr">
+        <column for="FinishedOn" entity-member="FinishedOnUtc" title="@T("Common.FinishedOn")" width="1fr">
             <display-template>
                 <div class="dg-cell-value">
-					<div class="text-truncate">{{ item.row.FinishedOnString }}</div>
-					<div class="text-truncatetext-muted">{{ item.row.FinishedOnPretty }}</div>
-				</div>
+                    <div class="text-truncate">{{ item.row.FinishedOnString }}</div>
+                    <div class="text-truncatetext-muted">{{ item.row.FinishedOnPretty }}</div>
+                </div>
             </display-template>
         </column>
-        <column for="Duration" />
-        <column for="Succeeded" width="2fr" hideable="false">
+        <column for="Duration" sortable="false" />
+        <column for="Succeeded" sortable="false" width="2fr" hideable="false">
             <display-template>
-				<div v-if="item.row.Succeeded" class="dg-cell-value">
+                <div v-if="item.row.Succeeded" class="dg-cell-value">
                     <i class="fa fa-fw icon-active-true"></i>
                     <span class="ml-1 text-truncate">@T("Common.Succeeded")</span>
                 </div>
-				<div v-if="!item.row.Succeeded" class="dg-cell-value">
+                <div v-if="!item.row.Succeeded" class="dg-cell-value">
                     <div class="text-danger text-truncate font-weight-medium">@T("Common.Error"):</div>
                     <pre class="prettyprint xlang-java mt-1 mb-0" style="max-height: 200px; white-space: pre-wrap;">{{ item.row.Error }}</pre>
                 </div>
             </display-template>
         </column>
-		<column for="MachineName" />
-	</columns>
+        <column for="MachineName" />
+    </columns>
 </datagrid>

@@ -236,7 +236,7 @@ namespace Smartstore.Web.Controllers
                 NotifyError(ex);
             }
 
-            return RedirectToAction("Details", "Order", new { id = order.Id });
+            return RedirectToAction(nameof(Details), "Order", new { id = order.Id });
         }
 
         [RequireSsl]

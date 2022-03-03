@@ -13,6 +13,7 @@ using Smartstore.Core.OutputCache;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
+using Smartstore.Data;
 using Smartstore.Http;
 using Smartstore.Net;
 using Smartstore.Web.Infrastructure.Hooks;
@@ -24,8 +25,6 @@ namespace Smartstore.Web.Controllers
     {
         private readonly SmartDbContext _db;
         private readonly ICategoryService _categoryService;
-        private readonly IManufacturerService _manufacturerService;
-        private readonly IProductService _productService;
         private readonly IProductTagService _productTagService;
         private readonly IRecentlyViewedProductsService _recentlyViewedProductsService;
         private readonly IAclService _aclService;
@@ -37,13 +36,10 @@ namespace Smartstore.Web.Controllers
         private readonly CatalogHelper _helper;
         private readonly IBreadcrumb _breadcrumb;
         private readonly SeoSettings _seoSettings;
-        private readonly Lazy<IUrlHelper> _urlHelper;
 
         public CatalogController(
             SmartDbContext db,
             ICategoryService categoryService,
-            IManufacturerService manufacturerService,
-            IProductService productService,
             IProductTagService productTagService,
             IRecentlyViewedProductsService recentlyViewedProductsService,
             IProductCompareService productCompareService,
@@ -54,13 +50,10 @@ namespace Smartstore.Web.Controllers
             CatalogSettings catalogSettings,
             CatalogHelper helper,
             IBreadcrumb breadcrumb,
-            SeoSettings seoSettings,
-            Lazy<IUrlHelper> urlHelper)
+            SeoSettings seoSettings)
         {
             _db = db;
             _categoryService = categoryService;
-            _manufacturerService = manufacturerService;
-            _productService = productService;
             _productTagService = productTagService;
             _recentlyViewedProductsService = recentlyViewedProductsService;
             _productCompareService = productCompareService;
@@ -72,7 +65,6 @@ namespace Smartstore.Web.Controllers
             _helper = helper;
             _breadcrumb = breadcrumb;
             _seoSettings = seoSettings;
-            _urlHelper = urlHelper;
         }
 
         #region Category
@@ -112,7 +104,7 @@ namespace Smartstore.Web.Controllers
 
             if (_seoSettings.CanonicalUrlsEnabled)
             {
-                model.CanonicalUrl = _urlHelper.Value.RouteUrl("Category", new { model.SeName }, Request.Scheme);
+                model.CanonicalUrl = Url.RouteUrl("Category", new { model.SeName }, Request.Scheme);
             }
 
             if (query.IsSubPage && !_catalogSettings.ShowDescriptionInSubPages)
@@ -142,8 +134,7 @@ namespace Smartstore.Web.Controllers
             var searchResult = await _catalogSearchService.SearchAsync(query);
             model.SearchResult = searchResult;
 
-            var viewMode = _helper.GetSearchQueryViewMode(query);
-            var mappingSettings = _helper.GetBestFitProductSummaryMappingSettings(viewMode);
+            var mappingSettings = _helper.GetBestFitProductSummaryMappingSettings(GetViewMode(query));
             model.Products = await _helper.MapProductSummaryModelAsync(searchResult, mappingSettings);
 
             model.SubCategoryDisplayType = _catalogSettings.SubCategoryDisplayType;
@@ -254,7 +245,7 @@ namespace Smartstore.Web.Controllers
 
             if (_seoSettings.CanonicalUrlsEnabled)
             {
-                model.CanonicalUrl = _urlHelper.Value.RouteUrl("Manufacturer", new { model.SeName }, Request.Scheme);
+                model.CanonicalUrl = Url.RouteUrl("Manufacturer", new { model.SeName }, Request.Scheme);
             }
 
             if (query.IsSubPage && !_catalogSettings.ShowDescriptionInSubPages)
@@ -308,8 +299,7 @@ namespace Smartstore.Web.Controllers
             var searchResult = await _catalogSearchService.SearchAsync(query);
             model.SearchResult = searchResult;
 
-            var viewMode = _helper.GetSearchQueryViewMode(query);
-            var mappingSettings = _helper.GetBestFitProductSummaryMappingSettings(viewMode);
+            var mappingSettings = _helper.GetBestFitProductSummaryMappingSettings(GetViewMode(query));
             model.Products = await _helper.MapProductSummaryModelAsync(searchResult, mappingSettings);
 
             // Prepare paging/sorting/mode stuff
@@ -383,7 +373,7 @@ namespace Smartstore.Web.Controllers
 
             if (_seoSettings.CanonicalUrlsEnabled)
             {
-                model.CanonicalUrl = _urlHelper.Value.RouteUrl("ProductsByTag", new { productTagId, path = model.TagName }, Request.Scheme);
+                model.CanonicalUrl = Url.RouteUrl("ProductsByTag", new { productTagId, path = model.TagName }, Request.Scheme);
             }
 
             query.WithProductTagIds(productTagId);
@@ -391,7 +381,7 @@ namespace Smartstore.Web.Controllers
             var searchResult = await _catalogSearchService.SearchAsync(query);
             model.SearchResult = searchResult;
 
-            var mappingSettings = _helper.GetBestFitProductSummaryMappingSettings(_helper.GetSearchQueryViewMode(query));
+            var mappingSettings = _helper.GetBestFitProductSummaryMappingSettings(GetViewMode(query));
             model.Products = await _helper.MapProductSummaryModelAsync(searchResult, mappingSettings);
 
             // Prepare paging/sorting/mode stuff.
@@ -403,39 +393,28 @@ namespace Smartstore.Web.Controllers
         [LocalizedRoute("/producttag/all", Name = "ProductTagsAll")]
         public async Task<IActionResult> ProductTagsAll()
         {
-            // TODO: (mh) (core) This is nearly the same code as in PopularProductTagsViewComponent > implement helper method PreparePopularProductTagsModel?
-            var store = Services.StoreContext.CurrentStore;
-            var customer = Services.WorkContext.CurrentCustomer;
             var model = new PopularProductTagsModel();
-            
-            // TODO: (mg) This is gonna explode with large amount of tags. Rethink!
-            var allTags = await _db.ProductTags
-                .Where(x => x.Published)
-                .ToListAsync();
+            var productCountsMap = await _productTagService.GetProductCountsMapAsync(null, Services.StoreContext.CurrentStore.Id);
+            var pager = new FastPager<ProductTag>(_db.ProductTags.AsNoTracking().Where(x => x.Published), 1000);
 
-            var tags = (from t in allTags
-                        let numProducts = _productTagService.CountProductsByTagIdAsync(t.Id, customer, store.Id).Await()
-                        where numProducts > 0
-                        orderby numProducts descending
-                        select new
-                        {
-                            Tag = t,
-                            LocalizedName = t.GetLocalized(x => x.Name),
-                            NumProducts = numProducts
-                        })
-                        .OrderBy(x => x.LocalizedName.Value)
-                        .ToList();
-
-            foreach (var tag in tags)
+            while ((await pager.ReadNextPageAsync<ProductTag>()).Out(out var tags))
             {
-                model.Tags.Add(new ProductTagModel
+                foreach (var tag in tags)
                 {
-                    Id = tag.Tag.Id,
-                    Name = tag.LocalizedName,
-                    Slug = tag.Tag.BuildSlug(),
-                    ProductCount = tag.NumProducts
-                });
+                    if (productCountsMap.TryGetValue(tag.Id, out var productCount) && productCount > 0)
+                    {
+                        model.Tags.Add(new ProductTagModel
+                        {
+                            Id = tag.Id,
+                            Name = tag.GetLocalized(x => x.Name),
+                            Slug = tag.BuildSlug(),
+                            ProductCount = productCount
+                        });
+                    }
+                }
             }
+
+            model.Tags = model.Tags.OrderBy(x => x.Name).ToList();
 
             return View(model);
         }
@@ -459,8 +438,10 @@ namespace Smartstore.Web.Controllers
                 .Slice(0, _catalogSettings.RecentlyAddedProductsNumber);
 
             var result = await _catalogSearchService.SearchAsync(query);
-            var settings = _helper.GetBestFitProductSummaryMappingSettings(_helper.GetSearchQueryViewMode(query));
-            var model = await _helper.MapProductSummaryModelAsync(result, settings);
+            var hits = await result.GetHitsAsync();
+            var settings = _helper.GetBestFitProductSummaryMappingSettings(GetViewMode(query));
+
+            var model = await _helper.MapProductSummaryModelAsync(hits.ToList(), settings);
             model.GridColumnSpan = GridColumnSpan.Max5Cols;
 
             return View(model);
@@ -686,7 +667,7 @@ namespace Smartstore.Web.Controllers
             return RedirectToRoute("CompareProducts");
         }
 
-        // ajax
+        // AJAX.
         [HttpPost]
         [ActionName("ClearCompareList")]
         public IActionResult ClearCompareListAjax()
@@ -721,5 +702,14 @@ namespace Smartstore.Web.Controllers
         }
 
         #endregion
+
+        private static ProductSummaryViewMode GetViewMode(CatalogSearchQuery query)
+        {
+            Guard.NotNull(query, nameof(query));
+
+            return query.CustomData.Get("ViewMode") is string viewMode && viewMode.EqualsNoCase("list")
+                ? ProductSummaryViewMode.List
+                : ProductSummaryViewMode.Grid;
+        }
     }
 }

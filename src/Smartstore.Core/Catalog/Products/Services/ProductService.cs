@@ -352,7 +352,7 @@ namespace Smartstore.Core.Catalog.Products
 
             var allAssociatedIds = await query.ToListAsync();
             var associatedIdsMap = allAssociatedIds.ToMultimap(x => x.ProductId2, x => x.ProductId1);
-            var added = 0;
+            var displayOrders = new Dictionary<int, int>();
 
             foreach (var id1 in productIds)
             {
@@ -362,32 +362,32 @@ namespace Smartstore.Core.Catalog.Products
 
                 foreach (var id2 in productIds)
                 {
-                    if (id1 == id2)
+                    if (id1 != id2 && !associatedIds.Any(x => x == id2))
                     {
-                        continue;
-                    }
-
-                    if (!associatedIds.Any(x => x == id2))
-                    {
-                        var maxDisplayOrder = await _db.RelatedProducts
-                            .Where(x => x.ProductId1 == id2)
-                            .OrderByDescending(x => x.DisplayOrder)
-                            .Select(x => x.DisplayOrder)
-                            .FirstOrDefaultAsync();
+                        if (!displayOrders.ContainsKey(id2))
+                        {
+                            displayOrders[id2] = await _db.RelatedProducts
+                                .Where(x => x.ProductId1 == id2)
+                                .OrderByDescending(x => x.DisplayOrder)
+                                .Select(x => x.DisplayOrder)
+                                .FirstOrDefaultAsync() + 1;
+                        }
+                        else
+                        {
+                            displayOrders[id2] = displayOrders[id2] + 1;
+                        }
 
                         _db.RelatedProducts.Add(new RelatedProduct
                         {
                             ProductId1 = id2,
                             ProductId2 = id1,
-                            DisplayOrder = maxDisplayOrder + 1
+                            DisplayOrder = displayOrders[id2]
                         });
-
-                        ++added;
                     }
                 }
             }
 
-            return added;
+            return await _db.SaveChangesAsync();
         }
 
         public virtual async Task<int> EnsureMutuallyCrossSellProductsAsync(int productId1)
@@ -420,7 +420,6 @@ namespace Smartstore.Core.Catalog.Products
 
             var allAssociatedIds = await query.ToListAsync();
             var associatedIdsMap = allAssociatedIds.ToMultimap(x => x.ProductId2, x => x.ProductId1);
-            var added = 0;
 
             foreach (var id1 in productIds)
             {
@@ -430,25 +429,18 @@ namespace Smartstore.Core.Catalog.Products
 
                 foreach (var id2 in productIds)
                 {
-                    if (id1 == id2)
-                    {
-                        continue;
-                    }
-
-                    if (!associatedIds.Any(x => x == id2))
+                    if (id1 != id2 && !associatedIds.Any(x => x == id2))
                     {
                         _db.CrossSellProducts.Add(new CrossSellProduct
                         {
                             ProductId1 = id2,
                             ProductId2 = id1
                         });
-
-                        ++added;
                     }
                 }
             }
 
-            return added;
+            return await _db.SaveChangesAsync();
         }
 
         public virtual ProductBatchContext CreateProductBatchContext(

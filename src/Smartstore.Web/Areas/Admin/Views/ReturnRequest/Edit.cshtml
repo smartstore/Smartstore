@@ -162,7 +162,7 @@
                 <smart-label asp-for="RequestedActionUpdated" />
             </div>
             <div class="adminData">
-                <input asp-for="RequestedActionUpdated" sm-plaintext="true" readonly />
+                <div class="form-control-plaintext">@Model.RequestedActionUpdated</div>
             </div>
         </div>
         <div class="adminRow">
@@ -197,9 +197,7 @@
                 <smart-label asp-for="CreatedOn" />
             </div>
             <div class="adminData">
-                <div class="form-control-plaintext">
-                    @Model.CreatedOn
-                </div>
+                <div class="form-control-plaintext">@Model.CreatedOn</div>
             </div>
         </div>
         <div class="adminRow">
@@ -207,7 +205,7 @@
                 <smart-label asp-for="UpdatedOn" />
             </div>
             <div class="adminData">
-                <input asp-for="UpdatedOn" sm-plaintext="true" readonly />
+                <div class="form-control-plaintext">@Model.UpdatedOn</div>
             </div>
         </div>
     </div>

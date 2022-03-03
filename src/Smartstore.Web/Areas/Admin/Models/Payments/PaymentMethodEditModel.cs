@@ -41,6 +41,7 @@ namespace Smartstore.Admin.Models.Payments
         public int[] SelectedRuleSetIds { get; set; }
     }
 
+    [LocalizedDisplay("Admin.Configuration.Payment.Methods.")]
     public class PaymentMethodLocalizedModel : ILocalizedLocaleModel
     {
         public int LanguageId { get; set; }

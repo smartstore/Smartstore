@@ -13,7 +13,7 @@ namespace Smartstore.Core.Checkout.GiftCards
 
         public ITypeConverter GetConverter(Type type)
         {
-            if (type.IsEnumerableType(out var elementType) && elementType == typeof(GiftCardCouponCode))
+            if (!type.IsArray && type.IsEnumerableType(out var elementType) && elementType == typeof(GiftCardCouponCode))
             {
                 return Default;
             }

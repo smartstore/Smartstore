@@ -37,7 +37,7 @@ namespace Smartstore.Admin.Controllers
 
         private async Task PrepareModelAsync(MenuEntityModel model, MenuEntity entity)
         {
-            var templateNames = new string[] { "LinkList", "ListGroup", "Dropdown", "Navbar" };
+            var templateNames = new[] { "LinkList", "ListGroup", "Dropdown", "Navbar" };
 
             if (entity != null && ModelState.IsValid)
             {
@@ -176,7 +176,7 @@ namespace Smartstore.Admin.Controllers
 
         [HttpPost]
         [Permission(Permissions.Cms.MessageTemplate.Read)]
-        public async Task<IActionResult> List(GridCommand command, MenuEntityListModel model)
+        public async Task<IActionResult> MenuEntityList(GridCommand command, MenuEntityListModel model)
         {
             var query = _db.Menus.AsNoTracking();
 
@@ -187,15 +187,18 @@ namespace Smartstore.Admin.Controllers
             
             var menuRecords = await query
                 .ApplyStoreFilter(model.StoreId)
+                .OrderBy(x => x.SystemName)
                 .ApplyGridCommand(command)
                 .ToPagedList(command)
                 .LoadAsync();
 
+            var mapper = MapperFactory.GetMapper<MenuEntity, MenuEntityModel>();
             var menuModels = await menuRecords
                 .SelectAsync(async x =>
                 {
-                    var model = await MapperFactory.MapAsync<MenuEntity, MenuEntityModel>(x);
+                    var model = await mapper.MapAsync(x);
                     model.EditUrl = Url.Action(nameof(Edit), "Menu", new { id = x.Id });
+
                     return model;
                 })
                 .AsyncToList();
@@ -207,6 +210,33 @@ namespace Smartstore.Admin.Controllers
             };
 
             return Json(gridModel);
+        }
+
+        [HttpPost]
+        [Permission(Permissions.Cms.Menu.Delete)]
+        public async Task<IActionResult> MenuEntityDelete(GridSelection selection)
+        {
+            var success = false;
+            var numDeleted = 0;
+            var ids = selection.GetEntityIds();
+
+            if (ids.Any())
+            {
+                try
+                {
+                    var menus = await _db.Menus.GetManyAsync(ids, true);
+                    _db.Menus.RemoveRange(menus);
+
+                    numDeleted = await _db.SaveChangesAsync();
+                    success = true;
+                }
+                catch (Exception ex)
+                {
+                    NotifyError(ex);
+                }
+            }
+
+            return Json(new { Success = success, Count = numDeleted });
         }
 
         [Permission(Permissions.Cms.Menu.Create)]
@@ -227,16 +257,21 @@ namespace Smartstore.Admin.Controllers
             {
                 var menu = MiniMapper.Map<MenuEntityModel, MenuEntity>(model);
                 menu.WidgetZone = string.Join(',', model.WidgetZone ?? Array.Empty<string>()).NullEmpty();
+
                 _db.Menus.Add(menu);
                 await _db.SaveChangesAsync();
-                await SaveStoreMappingsAsync(menu, model.SelectedStoreIds);
-                await SaveAclMappingsAsync(menu, model.SelectedCustomerRoleIds);
+
+                await _storeMappingService.ApplyStoreMappingsAsync(menu, model.SelectedStoreIds);
+                await _aclService.ApplyAclMappingsAsync(menu, model.SelectedCustomerRoleIds);
                 await UpdateLocalesAsync(menu, model);
                 await _db.SaveChangesAsync();
-                await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, menu, form));
 
+                await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, menu, form));
                 NotifySuccess(T("Admin.Common.DataSuccessfullySaved"));
-                return continueEditing ? RedirectToAction(nameof(Edit), new { id = menu.Id }) : RedirectToAction(nameof(List));
+
+                return continueEditing 
+                    ? RedirectToAction(nameof(Edit), new { id = menu.Id }) 
+                    : RedirectToAction(nameof(List));
             }
 
             await PrepareModelAsync(model, null);
@@ -280,14 +315,17 @@ namespace Smartstore.Admin.Controllers
                 MiniMapper.Map(model, menu);
                 menu.WidgetZone = string.Join(',', model.WidgetZone ?? Array.Empty<string>()).NullEmpty();
 
-                await SaveStoreMappingsAsync(menu, model.SelectedStoreIds);
-                await SaveAclMappingsAsync(menu, model.SelectedCustomerRoleIds);
+                await _storeMappingService.ApplyStoreMappingsAsync(menu, model.SelectedStoreIds);
+                await _aclService.ApplyAclMappingsAsync(menu, model.SelectedCustomerRoleIds);
                 await UpdateLocalesAsync(menu, model);
                 await _db.SaveChangesAsync();
-                await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, menu, form));
 
+                await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, menu, form));
                 NotifySuccess(T("Admin.Common.DataSuccessfullySaved"));
-                return continueEditing ? RedirectToAction(nameof(Edit), menu.Id) : RedirectToAction(nameof(List));
+
+                return continueEditing 
+                    ? RedirectToAction(nameof(Edit), menu.Id)
+                    : RedirectToAction(nameof(List));
             }
 
             await PrepareModelAsync(model, menu);
@@ -305,59 +343,19 @@ namespace Smartstore.Admin.Controllers
                 return NotFound();
             }
 
-            if (menu.IsSystemMenu)
-            {
-                NotifyError(T("Admin.ContentManagement.Menus.CannotBeDeleted"));
-                return RedirectToAction(nameof(Edit), new { id = menu.Id });
-            }
-
             _db.Menus.Remove(menu);
-
             await _db.SaveChangesAsync();
 
-            NotifySuccess(T("Admin.ContentManagement.MessageTemplates.Deleted"));
+            NotifySuccess(T("Admin.Common.TaskSuccessfullyProcessed"));
+
             return RedirectToAction(nameof(List));
-        }
-
-        [HttpPost]
-        [Permission(Permissions.Cms.Menu.Delete)]
-        public async Task<IActionResult> Delete(GridSelection selection)
-        {
-            var success = false;
-            var numDeleted = 0;
-            var ids = selection.GetEntityIds();
-
-            if (ids.Any())
-            {
-                var menus = await _db.Menus.GetManyAsync(ids, true);
-                var triedToDeleteSystemMenu = false;
-
-                foreach (var menu in menus)
-                {
-                    if (menu.IsSystemMenu == true)
-                    {
-                        triedToDeleteSystemMenu = true;
-                        NotifyError(T("Admin.Configuration.MessageTemplates.Deleted"));
-                    }
-                    else
-                    {
-                        _db.Menus.Remove(menu);
-                    }
-                }
-
-                numDeleted = await _db.SaveChangesAsync();
-
-                success = !triedToDeleteSystemMenu || numDeleted != 0;
-            }
-
-            return Json(new { Success = success, Count = numDeleted });
         }
 
         #endregion
 
         #region Menu items
 
-        // Ajax.
+        // AJAX.
         [Permission(Permissions.Cms.Menu.Read)]
         public async Task<IActionResult> ItemList(int id)
         {
@@ -404,21 +402,17 @@ namespace Smartstore.Admin.Controllers
                 _db.MenuItems.Add(item);
                 await _db.SaveChangesAsync();
 
-                await SaveStoreMappingsAsync(item, itemModel.SelectedStoreIds);
-                await SaveAclMappingsAsync(item, itemModel.SelectedCustomerRoleIds);
+                await _storeMappingService.ApplyStoreMappingsAsync(item, itemModel.SelectedStoreIds);
+                await _aclService.ApplyAclMappingsAsync(item, itemModel.SelectedCustomerRoleIds);
                 await UpdateLocalesAsync(item, itemModel);
-
                 await _db.SaveChangesAsync();
 
                 await Services.EventPublisher.PublishAsync(new ModelBoundEvent(itemModel, item, form));
                 NotifySuccess(T("Admin.Common.DataSuccessfullySaved"));
 
-                if (continueEditing)
-                {
-                    return RedirectToAction(nameof(EditItem), new { id = item.Id });
-                }
-
-                return RedirectToAction(nameof(Edit), new { id = item.MenuId });
+                return continueEditing
+                    ? RedirectToAction(nameof(EditItem), new { id = item.Id })
+                    : RedirectToAction(nameof(Edit), new { id = item.MenuId });
             }
 
             await PrepareModelAsync(itemModel, null);
@@ -466,9 +460,10 @@ namespace Smartstore.Admin.Controllers
                 MiniMapper.Map(itemModel, item);
                 item.PermissionNames = string.Join(',', itemModel.PermissionNames ?? Array.Empty<string>()).NullEmpty();
 
-                await SaveStoreMappingsAsync(item, itemModel.SelectedStoreIds);
-                await SaveAclMappingsAsync(item, itemModel.SelectedCustomerRoleIds);
+                await _storeMappingService.ApplyStoreMappingsAsync(item, itemModel.SelectedStoreIds);
+                await _aclService.ApplyAclMappingsAsync(item, itemModel.SelectedCustomerRoleIds);
                 await UpdateLocalesAsync(item, itemModel);
+                await _db.SaveChangesAsync();
 
                 await Services.EventPublisher.PublishAsync(new ModelBoundEvent(itemModel, item, form));
                 NotifySuccess(T("Admin.Common.DataSuccessfullySaved"));
@@ -486,7 +481,7 @@ namespace Smartstore.Admin.Controllers
             return View(itemModel);
         }
 
-        // Ajax.
+        // AJAX.
         [HttpPost]
         [Permission(Permissions.Cms.Menu.Update)]
         public async Task<IActionResult> MoveItem(int menuId, int sourceId, string direction)
@@ -536,12 +531,9 @@ namespace Smartstore.Admin.Controllers
             var item = await _db.MenuItems.FindByIdAsync(id);
             if (item == null)
             {
-                if (isAjax)
-                {
-                    return new EmptyResult();
-                }
-
-                return NotFound();
+                return isAjax
+                    ? new EmptyResult()
+                    : NotFound();
             }
 
             var menuId = item.MenuId;

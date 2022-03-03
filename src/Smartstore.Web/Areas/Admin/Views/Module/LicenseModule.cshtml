@@ -1,0 +1,57 @@
+﻿@using Smartstore.Licensing
+@using Smartstore.Admin.Models.Modularity
+
+@model LicenseModuleModel
+
+@{
+    Layout = null;
+}
+
+<form method="post" asp-action="LicenseModule" asp-controller="Module" asp-route-systemName="@Model.SystemName" data-module="@Model.SystemName"
+      data-resetcheckurl="@Url.Action("LicenseResetStatusCheck", "Module", new { systemName = Model.SystemName })">
+
+    <div sm-if="Model.InvalidDataStoreId != 0" class="alert alert-warning">
+        <p>@T("Admin.Configuration.Plugins.LicensingInvalidStoreUrl")</p>
+        <div>
+            <a asp-action="Edit" asp-controller="Store" asp-route-id="@Model.InvalidDataStoreId" class="btn btn-warning">
+                <span>@T("Admin.Common.Change")</span>
+            </a>
+        </div>
+    </div>
+
+    <div sm-if="Model.InvalidDataStoreId == 0">
+        @for (int i = 0; i < Model.StoreLicenses.Count; ++i)
+        {
+            var storeLicense = Model.StoreLicenses[i];
+            var keyAttributes = new AttributeDictionary { ["autocomplete"] = "new-password" };
+            if (storeLicense.LicenseLabel.LicenseState == LicensingState.Licensed && storeLicense.LicenseKey.IsEmpty() && !storeLicense.LicenseLabel.HideLabel)
+            {
+                keyAttributes.Add("disabled", "disabled");
+            }
+
+            <div class="card" attr-class='(i > 0, "mt-3")'>
+                <div class="card-header d-flex">
+                    <span sm-if="storeLicense.StoreName.HasValue()">
+                        @storeLicense.StoreName
+                    </span>
+                    <div class="ml-auto license-label">
+                        <partial name="LicenseLabel" model="storeLicense.LicenseLabel" />
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="form-group mb-0">
+                        <smart-label asp-for="StoreLicenses[i].LicenseKey"/>
+                        <input asp-for="StoreLicenses[i].LicenseKey" attrs="keyAttributes" />
+                        <small sm-if="storeLicense.StoreUrl.HasValue()" class="form-text text-muted mt-2">
+                            <span class="fwm">@T("Common.For", "")</span>
+                            <span>@storeLicense.StoreUrl</span>
+                            <a asp-action="Edit" asp-controller="Store" asp-route-id="@storeLicense.StoreId" class="ml-1">
+                                @T("Admin.Common.Change")
+                            </a>
+                        </small>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</form>

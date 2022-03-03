@@ -11,9 +11,8 @@
     var assignedToCustomerRoles = ViewBag.AssignedToCustomerRoles as List<RuleSetAssignedToEntityModel>;
     var assignedToCategories = ViewBag.AssignedToCategories as List<RuleSetAssignedToEntityModel>;
 
-    // TODO: (mg) (core) verify edit URLs
     string discountSelector(RuleSetAssignedToEntityModel x) => $"<a href='{Url.Action("Edit", "Discount", new { id = x.Id })}'>{x.Name.HtmlEncode()}</a>";
-    string shippingSelector(RuleSetAssignedToEntityModel x) => $"<a href='{Url.Action("EditMethod", "Shipping", new { id = x.Id })}'>{x.Name.HtmlEncode()}</a>";
+    string shippingSelector(RuleSetAssignedToEntityModel x) => $"<a href='{Url.Action("Edit", "Shipping", new { id = x.Id })}'>{x.Name.HtmlEncode()}</a>";
     string paymentSelector(RuleSetAssignedToEntityModel x) => $"<a href='{Url.Action("Edit", "Payment", new { systemName = x.SystemName })}' title='{x.SystemName.HtmlEncode()}'>{x.Name.HtmlEncode()}</a>";
     string customerRoleSelector(RuleSetAssignedToEntityModel x) => $"<a href='{Url.Action("Edit", "CustomerRole", new { id = x.Id })}'>{x.Name.HtmlEncode()}</a>";
     string categorySelector(RuleSetAssignedToEntityModel x) => $"<a href='{Url.Action("Edit", "Category", new { id = x.Id })}'>{x.Name.HtmlEncode()}</a>";

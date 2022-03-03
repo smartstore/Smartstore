@@ -420,7 +420,7 @@ namespace Smartstore.Core.DataExchange.Export
             var fileExtension = provider.FileExtension.NullEmpty()?.ToLower()?.EnsureStartsWith(".") ?? string.Empty;
 
             context.FileIndex = 0;
-            context.Store = ToDynamic(ctx.Store, ctx);
+            context.Store = DataExporter.ToDynamic(ctx.Store, ctx);
             context.MaxFileNameLength = dataExchangeSettings.MaxFileNameLength;
             context.HasPublicDeployment = publicDeployment != null;
             context.PublicDirectory = await _exportProfileService.GetDeploymentDirectoryAsync(publicDeployment, true);
@@ -672,13 +672,6 @@ namespace Smartstore.Core.DataExchange.Export
             var f = ctx.Filter;
             var entityType = ctx.Request.Provider.Value.EntityType;
             var storeId = ctx.Request.Profile.PerStore ? ctx.Store.Id : f.StoreId;
-            var timeZone = _services.DateTimeHelper.CurrentTimeZone;
-
-            var createdFrom = f.CreatedFrom.HasValue ? (DateTime?)_services.DateTimeHelper.ConvertToUtcTime(f.CreatedFrom.Value, timeZone) : null;
-            var createdTo = f.CreatedTo.HasValue ? (DateTime?)_services.DateTimeHelper.ConvertToUtcTime(f.CreatedTo.Value, timeZone) : null;
-
-            var activityFrom = f.LastActivityFrom.HasValue ? (DateTime?)_services.DateTimeHelper.ConvertToUtcTime(f.LastActivityFrom.Value, timeZone) : null;
-            var activityTo = f.LastActivityTo.HasValue ? (DateTime?)_services.DateTimeHelper.ConvertToUtcTime(f.LastActivityTo.Value, timeZone) : null;
             IQueryable<int> customerIdsByRolesQuery = null;
             IQueryable<BaseEntity> result = null;
 
@@ -704,7 +697,7 @@ namespace Smartstore.Core.DataExchange.Export
                     .HasStoreId(storeId)
                     .PriceBetween(priceFrom, priceTo)
                     .WithStockQuantity(f.AvailabilityMinimum, f.AvailabilityMaximum)
-                    .CreatedBetween(createdFrom, createdTo);
+                    .CreatedBetween(f.CreatedFrom, f.CreatedTo);
 
                 if (f.Visibility.HasValue)
                     searchQuery = searchQuery.WithVisibility(f.Visibility.Value);
@@ -749,7 +742,7 @@ namespace Smartstore.Core.DataExchange.Export
                     query = query.Where(x => x.CustomerId == ctx.Projection.CustomerId.Value);
 
                 result = query
-                    .ApplyAuditDateFilter(createdFrom, createdTo)
+                    .ApplyAuditDateFilter(f.CreatedFrom, f.CreatedTo)
                     .ApplyStatusFilter(f.OrderStatusIds, f.PaymentStatusIds, f.ShippingStatusIds);
             }
             else if (entityType == ExportEntityType.Manufacturer)
@@ -767,6 +760,7 @@ namespace Smartstore.Core.DataExchange.Export
                     .Include(x => x.BillingAddress)
                     .Include(x => x.ShippingAddress)
                     .Include(x => x.Addresses)
+                    .AsSplitQuery()
                     .AsNoTrackingWithIdentityResolution()
                     .AsNoCaching();
 
@@ -782,11 +776,17 @@ namespace Smartstore.Core.DataExchange.Export
                 if (f.ShippingCountryIds?.Any() ?? false)
                     query = query.Where(x => x.ShippingAddress != null && f.ShippingCountryIds.Contains(x.ShippingAddress.CountryId ?? 0));
 
-                if (activityFrom.HasValue)
-                    query = query.Where(x => activityFrom <= x.LastActivityDateUtc);
+                if (f.LastActivityFrom.HasValue)
+                    query = query.Where(x => f.LastActivityFrom.Value <= x.LastActivityDateUtc);
 
-                if (activityTo.HasValue)
-                    query = query.Where(x => activityTo >= x.LastActivityDateUtc);
+                if (f.LastActivityTo.HasValue)
+                    query = query.Where(x => f.LastActivityTo.Value >= x.LastActivityDateUtc);
+
+                if (f.CreatedFrom.HasValue)
+                    query = query.Where(x => f.CreatedFrom.Value <= x.CreatedOnUtc);
+
+                if (f.CreatedTo.HasValue)
+                    query = query.Where(x => f.CreatedTo.Value >= x.CreatedOnUtc);
 
                 if (customerIdsByRolesQuery != null)
                     query = query.Where(x => customerIdsByRolesQuery.Contains(x.Id));
@@ -842,11 +842,11 @@ namespace Smartstore.Core.DataExchange.Export
                         : query.Where(x => x.Subscription.WorkingLanguageId == f.WorkingLanguageId);
                 }
 
-                if (createdFrom.HasValue)
-                    query = query.Where(x => createdFrom <= x.Subscription.CreatedOnUtc);
+                if (f.CreatedFrom.HasValue)
+                    query = query.Where(x => f.CreatedFrom.Value <= x.Subscription.CreatedOnUtc);
 
-                if (createdTo.HasValue)
-                    query = query.Where(x => createdTo >= x.Subscription.CreatedOnUtc);
+                if (f.CreatedTo.HasValue)
+                    query = query.Where(x => f.CreatedTo.Value >= x.Subscription.CreatedOnUtc);
 
                 if (customerIdsByRolesQuery != null)
                     query = query.Where(x => customerIdsByRolesQuery.Contains(x.Customer.Id));
@@ -887,17 +887,17 @@ namespace Smartstore.Core.DataExchange.Export
                 if (f.IsTaxExempt.HasValue)
                     query = query.Where(x => x.Customer.IsTaxExempt == f.IsTaxExempt.Value);
 
-                if (activityFrom.HasValue)
-                    query = query.Where(x => activityFrom <= x.Customer.LastActivityDateUtc);
+                if (f.LastActivityFrom.HasValue)
+                    query = query.Where(x => f.LastActivityFrom.Value <= x.Customer.LastActivityDateUtc);
 
-                if (activityTo.HasValue)
-                    query = query.Where(x => activityTo >= x.Customer.LastActivityDateUtc);
+                if (f.LastActivityTo.HasValue)
+                    query = query.Where(x => f.LastActivityTo.Value >= x.Customer.LastActivityDateUtc);
 
-                if (createdFrom.HasValue)
-                    query = query.Where(x => createdFrom <= x.CreatedOnUtc);
+                if (f.CreatedFrom.HasValue)
+                    query = query.Where(x => f.CreatedFrom.Value <= x.CreatedOnUtc);
 
-                if (createdTo.HasValue)
-                    query = query.Where(x => createdTo >= x.CreatedOnUtc);
+                if (f.CreatedTo.HasValue)
+                    query = query.Where(x => f.CreatedTo.Value >= x.CreatedOnUtc);
 
                 if (ctx.Projection.NoBundleProducts)
                     query = query.Where(x => x.Product.ProductTypeId != (int)ProductType.BundledProduct);

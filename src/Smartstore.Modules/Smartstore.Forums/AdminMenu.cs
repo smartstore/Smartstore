@@ -18,7 +18,7 @@ namespace Smartstore.Forums
             var forumNode = new TreeNode<MenuItem>(new MenuItem().ToBuilder()
                 .Text("Manage forums")
                 .ResKey("Admin.ContentManagement.Forums")
-                .Icon("fa fa-users")
+                .Icon("chat-square-text", "bi")
                 .PermissionNames(ForumPermissions.Self)
                 .Action("List", "Forum", new { area = "Admin" })
                 .AsItem());

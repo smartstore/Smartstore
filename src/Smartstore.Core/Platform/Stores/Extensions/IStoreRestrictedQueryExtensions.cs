@@ -11,8 +11,13 @@ namespace Smartstore.Core.Stores
 
             // TODO: (core) Find a way to make ApplyStoreFilter to work in cross-context scenarios.
 
+            if (storeId == 0)
+            {
+                return query;
+            }
+
             var db = query.GetDbContext<SmartDbContext>();
-            if (storeId == 0 || db.QuerySettings.IgnoreMultiStore)
+            if (db.QuerySettings.IgnoreMultiStore)
             {
                 return query;
             }

@@ -60,7 +60,7 @@
         });
 
         // Delete topic
-        $('#delete-topic').on('click', function(e) {
+        $('.delete-topic').on('click', function(e) {
             e.preventDefault();
 
             $(this).postData({
@@ -74,15 +74,15 @@
 
     function onWatchTopicCompleted(data) {
         var response = data.responseJSON;
-        var btn = $('#watch-topic');
+        var buttons = $('.watch-topic-link-button');
 
-        btn
-            .toggleClass('btn-primary', response.Subscribed)
+        buttons.toggleClass('btn-primary', response.Subscribed)
             .toggleClass('btn-secondary', !response.Subscribed);
-        btn.find("> i")
+
+        buttons.find("> i")
             .toggleClass('fas', response.Subscribed)
             .toggleClass('far', !response.Subscribed);
 
-        btn.find('.watch-topic-text').html(response.Text);
+        buttons.find('.watch-topic-text').html(response.Text);
     }
 </script>

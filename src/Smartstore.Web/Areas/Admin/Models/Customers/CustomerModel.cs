@@ -147,6 +147,7 @@ namespace Smartstore.Admin.Models.Customers
 
         public bool Deleted { get; set; }
         public string EditUrl { get; set; }
+        public bool HasOrders { get; set; }
         public PermissionTree PermissionTree { get; set; }
         public List<AddressModel> Addresses { get; set; } = new();
 

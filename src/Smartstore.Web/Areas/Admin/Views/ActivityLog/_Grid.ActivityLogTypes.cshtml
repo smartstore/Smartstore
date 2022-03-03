@@ -3,14 +3,14 @@
 @model ActivityLogTypeModel
 
 <datagrid id="activity-types-grid" allow-resize="true" allow-edit="true">
-    <datasource read="@Url.Action("ActivityTypesList", "ActivityLog")" 
-                update="@Url.Action("ActivityTypesUpdate", "ActivityLog")" />
+    <datasource read="@Url.Action("ActivityLogTypesList", "ActivityLog")" 
+                update="@Url.Action("ActivityLogTypesUpdate", "ActivityLog")" />
     <sorting enabled="true">
         <sort by="Name" />
     </sorting>
     <columns>
         <column for="Name" hideable="false" readonly="true" />
-        <column for="Enabled" halign="center" hideable="false" />
+        <column for="Enabled" halign="center" hideable="false" width="1fr" />
     </columns>
     <row-commands>
         <a datarow-action="DataRowAction.InlineEdit">@T("Common.Edit")</a>

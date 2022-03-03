@@ -67,15 +67,18 @@ namespace Smartstore.Admin.Controllers
         {
             var deliveryTimes = await _db.DeliveryTimes
                 .AsNoTracking()
+                .OrderBy(x => x.DisplayOrder)
                 .ApplyGridCommand(command)
                 .ToPagedList(command)
                 .LoadAsync();
 
+            var mapper = MapperFactory.GetMapper<DeliveryTime, DeliveryTimeModel>();
             var deliveryTimeModels = await deliveryTimes
                 .SelectAsync(async x =>
                 {
-                    var model = await MapperFactory.MapAsync<DeliveryTime, DeliveryTimeModel>(x);
+                    var model = await mapper.MapAsync(x);
                     model.DeliveryInfo = _deliveryTimeService.GetFormattedDeliveryDate(x);
+
                     return model;
                 })
                 .AsyncToList();
@@ -87,23 +90,6 @@ namespace Smartstore.Admin.Controllers
             };
 
             return Json(gridModel);
-        }
-
-        [HttpPost]
-        [Permission(Permissions.Configuration.DeliveryTime.Update)]
-        public async Task<IActionResult> DeliveryTimeUpdate(DeliveryTimeModel model)
-        {
-            var success = false;
-            var deliveryTime = await _db.DeliveryTimes.FindByIdAsync(model.Id);
-
-            if (deliveryTime != null)
-            {
-                await MapperFactory.MapAsync(model, deliveryTime);
-                await _db.SaveChangesAsync();
-                success = true;
-            }
-
-            return Json(new { success });
         }
 
         [HttpPost]
@@ -158,6 +144,7 @@ namespace Smartstore.Admin.Controllers
                     await _db.SaveChangesAsync();
 
                     await UpdateLocalesAsync(deliveryTime, model);
+                    await _db.SaveChangesAsync();
 
                     NotifySuccess(T("Admin.Configuration.DeliveryTime.Added"));
                 }
@@ -198,7 +185,6 @@ namespace Smartstore.Admin.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         [Permission(Permissions.Configuration.DeliveryTime.Update)]
         public async Task<IActionResult> EditDeliveryTimePopup(DeliveryTimeModel model, string btnId, string formId)
         {

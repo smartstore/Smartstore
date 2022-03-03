@@ -299,6 +299,7 @@ namespace Smartstore.Admin.Controllers
         public async Task<IActionResult> Edit(ProductModel model, bool continueEditing, IFormCollection form)
         {
             var product = await _db.Products
+                .AsSplitQuery()
                 .Include(x => x.AppliedDiscounts)
                 .Include(x => x.ProductTags)
                 .FindByIdAsync(model.Id);
@@ -563,17 +564,18 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Catalog.Product.Read)]
         public async Task<IActionResult> ProductCategoryList(int productId)
         {
-            var model = new GridModel<ProductModel.ProductCategoryModel>();
             var productCategories = await _categoryService.Value.GetProductCategoriesByProductIdsAsync(new[] { productId }, true);
-            var productCategoriesModel = await productCategories
-                .AsQueryable()
+
+            var rows = await productCategories
                 .SelectAsync(async x =>
                 {
                     var node = await _categoryService.Value.GetCategoryTreeAsync(x.CategoryId, true);
+                    var categoryPath = node != null ? _categoryService.Value.GetCategoryPath(node, null, "<span class='badge badge-secondary'>{0}</span>") : string.Empty;
+
                     return new ProductModel.ProductCategoryModel
                     {
                         Id = x.Id,
-                        Category = node != null ? _categoryService.Value.GetCategoryPath(node, aliasPattern: "<span class='badge badge-secondary'>{0}</span>") : string.Empty,
+                        Category = categoryPath,
                         ProductId = x.ProductId,
                         CategoryId = x.CategoryId,
                         IsFeaturedProduct = x.IsFeaturedProduct,
@@ -584,10 +586,11 @@ namespace Smartstore.Admin.Controllers
                 })
                 .AsyncToList();
 
-            model.Rows = productCategoriesModel;
-            model.Total = productCategoriesModel.Count;
-
-            return Json(model);
+            return Json(new GridModel<ProductModel.ProductCategoryModel>
+            {
+                Rows = rows,
+                Total = rows.Count,
+            });
         }
 
         [HttpPost]
@@ -702,28 +705,25 @@ namespace Smartstore.Admin.Controllers
         {
             var model = new GridModel<ProductModel.ProductManufacturerModel>();
             var productManufacturers = await _manufacturerService.Value.GetProductManufacturersByProductIdsAsync(new[] { productId }, true);
-            var productManufacturersModel = productManufacturers
-                .AsQueryable()
-                .ToList()
-                .Select(x =>
+
+            var rows = productManufacturers
+                .Select(x => new ProductModel.ProductManufacturerModel
                 {
-                    return new ProductModel.ProductManufacturerModel
-                    {
-                        Id = x.Id,
-                        Manufacturer = x.Manufacturer.Name,
-                        ProductId = x.ProductId,
-                        ManufacturerId = x.ManufacturerId,
-                        IsFeaturedProduct = x.IsFeaturedProduct,
-                        DisplayOrder = x.DisplayOrder,
-                        EditUrl = Url.Action("Edit", "Manufacturer", new { id = x.ManufacturerId })
-                    };
+                    Id = x.Id,
+                    Manufacturer = x.Manufacturer.Name,
+                    ProductId = x.ProductId,
+                    ManufacturerId = x.ManufacturerId,
+                    IsFeaturedProduct = x.IsFeaturedProduct,
+                    DisplayOrder = x.DisplayOrder,
+                    EditUrl = Url.Action("Edit", "Manufacturer", new { id = x.ManufacturerId })
                 })
                 .ToList();
 
-            model.Rows = productManufacturersModel;
-            model.Total = productManufacturersModel.Count;
-
-            return Json(model);
+            return Json(new GridModel<ProductModel.ProductManufacturerModel>
+            {
+                Rows = rows,
+                Total = rows.Count
+            });
         }
 
         [HttpPost]
@@ -1485,6 +1485,7 @@ namespace Smartstore.Admin.Controllers
                 model.SelectedStoreIds = await _storeMappingService.GetAuthorizedStoreIdsAsync(product);
                 model.SelectedCustomerRoleIds = await _aclService.GetAuthorizedCustomerRoleIdsAsync(product);
                 model.OriginalStockQuantity = product.StockQuantity;
+                model.HasOrders = await _db.OrderItems.AnyAsync(x => x.ProductId == product.Id);
 
                 if (product.LimitedToStores)
                 {
@@ -1517,7 +1518,7 @@ namespace Smartstore.Admin.Controllers
                     .ToListAsync();
 
                 var idsOrderedByVersion = productDownloads
-                    .Select(x => new { x.Id, Version = SemanticVersion.Parse(x.FileVersion.HasValue() ? x.FileVersion : "1.0.0.0") })
+                    .Select(x => new { x.Id, Version = SemanticVersion.Parse(x.FileVersion.HasValue() ? x.FileVersion : "1.0.0") })
                     .OrderByDescending(x => x.Version)
                     .Select(x => x.Id);
 
@@ -1565,7 +1566,6 @@ namespace Smartstore.Admin.Controllers
             model.NumberOfAvailableProductAttributes = await _db.ProductAttributes.CountAsync();
             model.NumberOfAvailableManufacturers = await _db.Manufacturers.CountAsync();
             model.NumberOfAvailableCategories = await _db.Categories.CountAsync();
-            model.HasOrders = _db.Orders.SelectMany(x => x.OrderItems).Any(i => i.ProductId == product.Id);
             model.PrimaryStoreCurrencyCode = _currencyService.PrimaryCurrency.CurrencyCode;
 
             // Copy product.
@@ -1691,15 +1691,13 @@ namespace Smartstore.Admin.Controllers
                 })
                 .ToList();
 
-            ViewBag.AvailableCountries = await _db.Countries.AsNoTracking().ApplyStandardFilter(true)
-                .Select(x => new SelectListItem
-                {
-                    Text = x.Name,
-                    Value = x.Id.ToString(),
-                    Selected = product != null && x.Id == product.CountryOfOriginId
-                })
+            var countries = await _db.Countries
+                .AsNoTracking()
+                .ApplyStandardFilter(true)
                 .ToListAsync();
 
+            ViewBag.AvailableCountries = countries.ToSelectListItems(product?.CountryOfOriginId ?? 0);
+                
             if (setPredefinedValues)
             {
                 // TODO: These should be hidden settings.
@@ -1869,7 +1867,7 @@ namespace Smartstore.Admin.Controllers
 
         #region Update[...]
 
-        protected async Task MapModelToProductAsync(ProductModel model, Product product, IFormCollection form)
+        private async Task MapModelToProductAsync(ProductModel model, Product product, IFormCollection form)
         {
             if (model.LoadedTabs == null || model.LoadedTabs.Length == 0)
             {
@@ -1910,7 +1908,7 @@ namespace Smartstore.Admin.Controllers
             await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, product, form));
         }
 
-        protected void UpdateProductGeneralInfo(Product product, ProductModel model)
+        private void UpdateProductGeneralInfo(Product product, ProductModel model)
         {
             var p = product;
             var m = model;
@@ -1926,8 +1924,6 @@ namespace Smartstore.Admin.Controllers
             p.ManufacturerPartNumber = m.ManufacturerPartNumber;
             p.Gtin = m.Gtin;
             p.AdminComment = m.AdminComment;
-            p.AvailableStartDateTimeUtc = m.AvailableStartDateTimeUtc;
-            p.AvailableEndDateTimeUtc = m.AvailableEndDateTimeUtc;
 
             p.AllowCustomerReviews = m.AllowCustomerReviews;
             p.ShowOnHomePage = m.ShowOnHomePage;
@@ -1961,11 +1957,16 @@ namespace Smartstore.Admin.Controllers
             p.CustomsTariffNumber = m.CustomsTariffNumber;
             p.CountryOfOriginId = m.CountryOfOriginId == 0 ? null : m.CountryOfOriginId;
 
-            p.AvailableEndDateTimeUtc = p.AvailableEndDateTimeUtc.ToEndOfTheDay();
-            p.SpecialPriceEndDateTimeUtc = p.SpecialPriceEndDateTimeUtc.ToEndOfTheDay();
+            p.AvailableStartDateTimeUtc = m.AvailableStartDateTimeUtc.HasValue
+                ? Services.DateTimeHelper.ConvertToUtcTime(m.AvailableStartDateTimeUtc.Value)
+                : null;
+
+            p.AvailableEndDateTimeUtc = m.AvailableEndDateTimeUtc.HasValue
+                ? Services.DateTimeHelper.ConvertToUtcTime(m.AvailableEndDateTimeUtc.Value)
+                : null;
         }
 
-        protected async Task UpdateProductDownloadsAsync(Product product, ProductModel model)
+        private async Task UpdateProductDownloadsAsync(Product product, ProductModel model)
         {
             if (!await Services.Permissions.AuthorizeAsync(Permissions.Media.Download.Update))
             {
@@ -1987,7 +1988,7 @@ namespace Smartstore.Admin.Controllers
             p.SampleDownloadId = m.SampleDownloadId == 0 ? null : m.SampleDownloadId;
         }
 
-        protected async Task UpdateProductInventoryAsync(Product product, ProductModel model)
+        private async Task UpdateProductInventoryAsync(Product product, ProductModel model)
         {
             var p = product;
             var m = model;
@@ -2048,7 +2049,7 @@ namespace Smartstore.Admin.Controllers
             }
         }
 
-        protected async Task UpdateProductBundleItemsAsync(Product product, ProductModel model)
+        private async Task UpdateProductBundleItemsAsync(Product product, ProductModel model)
         {
             var p = product;
             var m = model;
@@ -2065,7 +2066,7 @@ namespace Smartstore.Admin.Controllers
             }
         }
 
-        protected async Task UpdateProductPriceAsync(Product product, ProductModel model)
+        private async Task UpdateProductPriceAsync(Product product, ProductModel model)
         {
             var p = product;
             var m = model;
@@ -2074,8 +2075,15 @@ namespace Smartstore.Admin.Controllers
             p.OldPrice = m.OldPrice ?? 0;
             p.ProductCost = m.ProductCost ?? 0;
             p.SpecialPrice = m.SpecialPrice;
-            p.SpecialPriceStartDateTimeUtc = m.SpecialPriceStartDateTimeUtc;
-            p.SpecialPriceEndDateTimeUtc = m.SpecialPriceEndDateTimeUtc;
+
+            p.SpecialPriceStartDateTimeUtc = m.SpecialPriceStartDateTimeUtc.HasValue
+                ? Services.DateTimeHelper.ConvertToUtcTime(m.SpecialPriceStartDateTimeUtc.Value)
+                : null;
+
+            p.SpecialPriceEndDateTimeUtc = m.SpecialPriceEndDateTimeUtc.HasValue
+                ? Services.DateTimeHelper.ConvertToUtcTime(m.SpecialPriceEndDateTimeUtc.Value)
+                : null;
+
             p.DisableBuyButton = m.DisableBuyButton;
             p.DisableWishlistButton = m.DisableWishlistButton;
             p.AvailableForPreOrder = m.AvailableForPreOrder;
@@ -2093,12 +2101,12 @@ namespace Smartstore.Admin.Controllers
             await _discountService.ApplyDiscountsAsync(product, model.SelectedDiscountIds, DiscountType.AssignedToSkus);
         }
 
-        protected void UpdateProductAttributes(Product product, ProductModel model)
+        private static void UpdateProductAttributes(Product product, ProductModel model)
         {
             product.AttributeChoiceBehaviour = model.AttributeChoiceBehaviour;
         }
 
-        protected async Task UpdateProductSeoAsync(Product product, ProductModel model)
+        private async Task UpdateProductSeoAsync(Product product, ProductModel model)
         {
             var p = product;
             var m = model;
@@ -2116,7 +2124,7 @@ namespace Smartstore.Admin.Controllers
             }
         }
 
-        protected void UpdateProductPictures(Product product, ProductModel model)
+        private static void UpdateProductPictures(Product product, ProductModel model)
         {
             product.HasPreviewPicture = model.HasPreviewPicture;
         }

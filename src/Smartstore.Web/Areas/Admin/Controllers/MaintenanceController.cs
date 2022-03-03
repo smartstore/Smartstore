@@ -45,7 +45,6 @@ namespace Smartstore.Admin.Controllers
         private readonly Lazy<IExportProfileService> _exportProfileService;
         private readonly Lazy<IImportProfileService> _importProfileService;
         private readonly Lazy<UpdateChecker> _updateChecker;
-        private readonly CurrencySettings _currencySettings;
         private readonly MeasureSettings _measureSettings;
 
         public MaintenanceController(
@@ -62,7 +61,6 @@ namespace Smartstore.Admin.Controllers
             Lazy<IExportProfileService> exportProfileService,
             Lazy<IImportProfileService> importProfileService,
             Lazy<UpdateChecker> updateChecker,
-            CurrencySettings currencySettings,
             MeasureSettings measureSettings)
         {
             _db = db;
@@ -78,7 +76,6 @@ namespace Smartstore.Admin.Controllers
             _exportProfileService = exportProfileService;
             _importProfileService = importProfileService;
             _updateChecker = updateChecker;
-            _currencySettings = currencySettings;
             _measureSettings = measureSettings;
         }
 
@@ -175,9 +172,9 @@ namespace Smartstore.Admin.Controllers
                     var rowsAffected = await _db.DataProvider.ExecuteSqlScriptAsync(model.SqlQuery);
                     NotifySuccess(T("Admin.System.Maintenance.SqlQuery.Succeeded", rowsAffected));
                 }
-                catch (Exception exception)
+                catch (Exception ex)
                 {
-                    NotifyError(exception);
+                    NotifyError(ex);
                     return View(model);
                 }
             }
@@ -436,11 +433,11 @@ namespace Smartstore.Admin.Controllers
 
                 model.Add(warningModel);
             }
-            catch (Exception exception)
+            catch (Exception ex)
             {
-                var msg = T("Admin.System.Warnings.TaskScheduler.Fail", _taskScheduler.BaseUrl, exception.Message);
+                var msg = T("Admin.System.Warnings.TaskScheduler.Fail", _taskScheduler.BaseUrl, ex.Message);
                 AddEntry(SystemWarningLevel.Fail, msg);
-                Logger.Error(exception, msg);
+                Logger.Error(ex, msg);
             }
 
             // Sitemap reachability
@@ -480,10 +477,10 @@ namespace Smartstore.Admin.Controllers
 
                 model.Add(warningModel);
             }
-            catch (Exception exception)
+            catch (Exception ex)
             {
                 AddEntry(SystemWarningLevel.Warning, T("Admin.System.Warnings.SitemapReachable.Wrong"));
-                Logger.Warn(exception, T("Admin.System.Warnings.SitemapReachable.Wrong"));
+                Logger.Warn(ex, T("Admin.System.Warnings.SitemapReachable.Wrong"));
             }
 
             // Primary exchange rate currency
@@ -662,7 +659,7 @@ namespace Smartstore.Admin.Controllers
                         Version = version,
                         IsCurrentVersion = version.EqualsNoCase(currentVersion),
                         CreatedOn = x.CreatedOn.LocalDateTime,
-                        DownloadUrl = Url.Action("DownloadBackup", new { name = x.Name })
+                        DownloadUrl = Url.Action(nameof(DownloadBackup), new { name = x.Name })
                     };
 
                     return model;

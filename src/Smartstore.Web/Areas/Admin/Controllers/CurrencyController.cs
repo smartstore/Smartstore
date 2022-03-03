@@ -16,7 +16,6 @@ namespace Smartstore.Admin.Controllers
     {
         private readonly SmartDbContext _db;
         private readonly ILocalizedEntityService _localizedEntityService;
-        private readonly ILanguageService _languageService;
         private readonly IStoreMappingService _storeMappingService;
         private readonly ModuleManager _moduleManager;
         private readonly IPaymentService _paymentService;
@@ -25,7 +24,6 @@ namespace Smartstore.Admin.Controllers
         public CurrencyController(
             SmartDbContext db,
             ILocalizedEntityService localizedEntityService,
-            ILanguageService languageService,
             IStoreMappingService storeMappingService,
             ModuleManager moduleManager,
             IPaymentService paymentService,
@@ -33,7 +31,6 @@ namespace Smartstore.Admin.Controllers
         {
             _db = db;
             _localizedEntityService = localizedEntityService;
-            _languageService = languageService;
             _storeMappingService = storeMappingService;
             _moduleManager = moduleManager;
             _paymentService = paymentService;
@@ -89,15 +86,16 @@ namespace Smartstore.Admin.Controllers
         {
             var currencies = await _db.Currencies
                 .AsNoTracking()
+                .OrderBy(x => x.DisplayOrder)
                 .ApplyGridCommand(command)
                 .ToPagedList(command)
                 .LoadAsync();
 
+            var mapper = MapperFactory.GetMapper<Currency, CurrencyModel>();
             var currencyModels = await currencies
                 .SelectAsync(async x =>
                 {
-                    var model = await MapperFactory.MapAsync<Currency, CurrencyModel>(x);
-
+                    var model = await mapper.MapAsync(x);
                     model.IsPrimaryCurrency = model.Id == _currencySettings.PrimaryCurrencyId;
                     model.IsPrimaryExchangeCurrency = model.Id == _currencySettings.PrimaryExchangeCurrencyId;
                     model.EditUrl = Url.Action(nameof(Edit), "Currency", new { id = x.Id });
@@ -232,7 +230,7 @@ namespace Smartstore.Admin.Controllers
         }
 
         // AJAX
-        [Permission(Permissions.Configuration.Currency.Update)]
+        [Permission(Permissions.Configuration.Currency.EditExchangeRate)]
         public async Task<IActionResult> ApplyRate(string currencyCode, decimal rate)
         {
             var currency = await _db.Currencies.FirstOrDefaultAsync(x => x.CurrencyCode == currencyCode);
@@ -302,7 +300,7 @@ namespace Smartstore.Admin.Controllers
                 await _db.SaveChangesAsync();
 
                 await UpdateLocalesAsync(currency, model);
-                await SaveStoreMappingsAsync(currency, model.SelectedStoreIds);
+                await _storeMappingService.ApplyStoreMappingsAsync(currency, model.SelectedStoreIds);
                 await _db.SaveChangesAsync();
 
                 NotifySuccess(T("Admin.Configuration.Currencies.Added"));
@@ -357,7 +355,7 @@ namespace Smartstore.Admin.Controllers
                     currency.DomainEndings = string.Join(",", model.DomainEndingsArray ?? Array.Empty<string>());
 
                     await UpdateLocalesAsync(currency, model);
-                    await SaveStoreMappingsAsync(currency, model.SelectedStoreIds);
+                    await _storeMappingService.ApplyStoreMappingsAsync(currency, model.SelectedStoreIds);
                     await _db.SaveChangesAsync();
 
                     NotifySuccess(T("Admin.Configuration.Currencies.Updated"));

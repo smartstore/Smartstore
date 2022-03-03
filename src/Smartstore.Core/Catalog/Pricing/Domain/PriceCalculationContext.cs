@@ -125,17 +125,6 @@ namespace Smartstore.Core.Catalog.Pricing
         public List<PriceCalculationAttributes> SelectedAttributes { get; set; } = new();
 
         /// <summary>
-        /// The additional charges applied to the <see cref="CalculatorContext.FinalPrice"/> during calculation, such as price adjustments of product attributes.
-        /// </summary>
-        public decimal AdditionalCharge { get; set; }
-
-        /// <summary>
-        /// The discount amount resulting from applying discounts and tier prices.
-        /// A calculator should add any discount amount included in <see cref="FinalPrice"/> to this property.
-        /// </summary>
-        public decimal DiscountAmount { get; set; }
-
-        /// <summary>
         /// Gets tier prices for <see cref="Product"/>. Tier prices with duplicate quantities are removed.
         /// </summary>
         public async Task<ICollection<TierPrice>> GetTierPricesAsync()

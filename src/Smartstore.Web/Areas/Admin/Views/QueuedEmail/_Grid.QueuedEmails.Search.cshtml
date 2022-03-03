@@ -12,11 +12,11 @@
 </div>
 <div class="form-group">
     <smart-label asp-for="SearchFromEmail" />
-    <editor asp-for="SearchFromEmail" />
+    <editor asp-for="SearchFromEmail" asp-template="SearchExpression" />
 </div>
 <div class="form-group">
     <smart-label asp-for="SearchToEmail" />
-    <editor asp-for="SearchToEmail" />
+    <editor asp-for="SearchToEmail" asp-template="SearchExpression" />
 </div>
 <div class="form-group">
     <smart-label asp-for="SearchSendManually" />

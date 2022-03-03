@@ -1,6 +1,10 @@
 ﻿@model ProductReviewListModel
 
 <div class="form-group">
+    <smart-label asp-for="ProductName" />
+    <editor asp-for="ProductName" asp-template="SearchExpression" />
+</div>
+<div class="form-group">
     <smart-label asp-for="CreatedOnFrom" />
     <editor asp-for="CreatedOnFrom" />
 </div>

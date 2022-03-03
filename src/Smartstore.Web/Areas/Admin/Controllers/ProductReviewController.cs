@@ -4,6 +4,7 @@ using Smartstore.Admin.Models.Catalog;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Rules.Filters;
 using Smartstore.Core.Security;
 using Smartstore.Web.Models.DataGrid;
 
@@ -69,6 +70,11 @@ namespace Smartstore.Admin.Controllers
                 .Include(x => x.Customer).ThenInclude(x => x.CustomerRoleMappings).ThenInclude(x => x.CustomerRole)
                 .ApplyAuditDateFilter(createdFrom, createdTo);
 
+            if (model.ProductName.HasValue())
+            {
+                query = query.ApplySearchFilterFor(x => x.Product.Name, model.ProductName);
+            }
+
             if (model.Ratings?.Any() ?? false)
             {
                 query = query.Where(x => model.Ratings.Contains(x.Rating));
@@ -76,7 +82,7 @@ namespace Smartstore.Admin.Controllers
 
             var productReviews = await query
                 .OrderByDescending(x => x.CreatedOnUtc)
-                .ApplyGridCommand(command, false)
+                .ApplyGridCommand(command)
                 .ToPagedList(command)
                 .LoadAsync();
 
@@ -91,7 +97,7 @@ namespace Smartstore.Admin.Controllers
             return Json(new GridModel<ProductReviewModel>
             {
                 Rows = rows,
-                Total = productReviews.TotalCount
+                Total = await productReviews.GetTotalCountAsync()
             });
         }
 
@@ -100,20 +106,15 @@ namespace Smartstore.Admin.Controllers
         public async Task<IActionResult> ProductReviewDelete(GridSelection selection)
         {
             var success = false;
-            var numDeleted = 0;
             var ids = selection.GetEntityIds();
 
             if (ids.Any())
             {
-                var productReviews = await _db.CustomerContent
-                    .OfType<ProductReview>()
-                    .Where(x => ids.Contains(x.Id))
-                    .ToListAsync();
-
+                var productReviews = await _db.ProductReviews.GetManyAsync(ids, true);
                 var productIds = productReviews.ToDistinctArray(x => x.ProductId);
 
                 _db.CustomerContent.RemoveRange(productReviews);
-                numDeleted = await _db.SaveChangesAsync();
+                await _db.SaveChangesAsync();
 
                 var products = await _db.Products
                     .Include(x => x.ProductReviews)
@@ -126,7 +127,7 @@ namespace Smartstore.Admin.Controllers
                 success = true;
             }
 
-            return Json(new { Success = success, Count = numDeleted });
+            return Json(new { Success = success });
         }
 
         [HttpPost]
@@ -254,6 +255,7 @@ namespace Smartstore.Admin.Controllers
             model.ProductName = product?.GetLocalized(x => x.Name) ?? StringExtensions.NotAvailable;
             model.ProductTypeName = product?.GetProductTypeLabel(Services.Localization);
             model.ProductTypeLabelHint = product?.ProductTypeLabelHint;
+            model.Sku = product?.Sku;
             model.CustomerId = productReview.CustomerId;
             model.CustomerName = customer?.GetDisplayName(T);
             model.IpAddress = productReview.IpAddress;

@@ -68,8 +68,8 @@ namespace Smartstore.Admin.Controllers
         public async Task<IActionResult> TopicList(GridCommand command, TopicListModel model)
         {
             var query = _db.Topics
-                .ApplyStoreFilter(model.SearchStoreId)
-                .AsNoTracking();
+                .AsNoTracking()
+                .ApplyStoreFilter(model.SearchStoreId);                
 
             if (model.SystemName.HasValue())
             {
@@ -91,42 +91,48 @@ namespace Smartstore.Admin.Controllers
                 query = query.Where(x => x.WidgetZone.Contains(model.WidgetZone));
             }
 
-            query = query.ApplyGridCommand(command, false);
+            var topics = await query
+                .OrderBy(x => x.SystemName)
+                .ApplyGridCommand(command)
+                .ToPagedList(command)
+                .LoadAsync();
 
-            var topicItems = await query.ToPagedList(command).LoadAsync();
+            var mapper = MapperFactory.GetMapper<Topic, TopicModel>();
+            var rows = await topics
+                .SelectAsync(async x =>
+                {
+                    var model = await mapper.MapAsync(x);
+                    await PrepareTopicModelAsync(x, model);
+
+                    model.WidgetZoneValue = x.WidgetZone;
+                    model.CookieType = (int?)x.CookieType;
+                    model.Body = string.Empty;  // Otherwise maxJsonLength could be exceeded.
+                    model.Intro = string.Empty; // Otherwise grind may slow down
+                    model.ViewUrl = Url.Action(nameof(Edit), "Topic", new { id = x.Id });
+
+                    return model;
+                })
+                .AsyncToList();
+
             var gridModel = new GridModel<TopicModel>
             {
-                Rows = await topicItems.AsEnumerable().SelectAsync(async x => await PrepareTopicListModelAsync(x)).AsyncToList(),
-                Total = topicItems.TotalCount
+                Rows = rows,
+                Total = await topics.GetTotalCountAsync()
             };
 
             return Json(gridModel);
         }
 
-        private async Task<TopicModel> PrepareTopicListModelAsync(Topic topic)
-        {
-            var model = new TopicModel();
-            await MapperFactory.MapAsync(topic, model);
-            await PrepareTopicModelAsync(topic, model);
-
-            model.WidgetZoneValue = topic.WidgetZone;
-            model.CookieType = (int?)topic.CookieType;
-            model.Body = string.Empty;                          // Otherwise maxJsonLength could be exceeded.
-            model.Intro = string.Empty;                          // Otherwise grind may slow down
-            model.ViewUrl = Url.Action("Edit", "Topic", new { id = topic.Id });
-
-            return model;
-        }
-
         [Permission(Permissions.Cms.Topic.Create)]
         public IActionResult Create()
         {
-            var model = new TopicModel();
+            var model = new TopicModel
+            {
+                TitleTag = "h1"
+            };
 
             AddLocales(model.Locales);
             AddCookieTypes(model);
-
-            model.TitleTag = "h1";
 
             return View(model);
         }
@@ -223,9 +229,9 @@ namespace Smartstore.Admin.Controllers
                             var url = Url.Action("EditItem", "Menu", new { id = item.Id, area = "Admin" });
 
                             var label = string.Concat(
-                                menu.Title.NullEmpty() ?? menu.SystemName.NullEmpty() ?? "".NaIfEmpty(),
+                                menu.Title.NullEmpty() ?? menu.SystemName.NullEmpty() ?? StringExtensions.NotAvailable,
                                 " » ",
-                                item.Title.NullEmpty() ?? link.Label.NullEmpty() ?? "".NaIfEmpty());
+                                item.Title.NullEmpty() ?? link.Label.NullEmpty() ?? StringExtensions.NotAvailable);
 
                             model.MenuLinks[url] = label;
                         }

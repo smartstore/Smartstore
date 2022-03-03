@@ -70,6 +70,12 @@
 	<ItemGroup>
 		<None Include="Views\**\*.cshtml" CopyToPublishDirectory="PreserveNewest" />
 	</ItemGroup>
+    
+    <!-- Don't publish static/raw files -->
+	<ItemGroup>
+        <Content Remove="wwwroot\lib\bi\bootstrap-icons-all.svg" CopyToPublishDirectory="Never" />
+        <Content Remove="wwwroot\lib\fontastic\icomoon\**" CopyToPublishDirectory="Never" />
+	</ItemGroup>
 
 	<ItemGroup>
 		<Content Update="appsettings.Development.json" CopyToPublishDirectory="Never">
@@ -81,10 +87,6 @@
 		<Content Update="Config\usersettings.json" CopyToPublishDirectory="PreserveNewest">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
-	</ItemGroup>
-
-	<ItemGroup>
-		<None Include="..\..\.editorconfig" Link=".editorconfig" />
 	</ItemGroup>
 
 	<ItemGroup>

@@ -140,11 +140,6 @@ namespace Smartstore.Core.Catalog.Pricing
         public bool TaxInclusive { get; set; }
 
         /// <summary>
-        /// Gets cash rounding options.
-        /// </summary>
-        //public CashRoundingOptions CashRounding { get; init; } = new();
-
-        /// <summary>
         /// Gets or sets the optional tax format string (e.g. "{0} *", "{0} incl. tax")
         /// </summary>
         public string TaxFormat { get; set; }

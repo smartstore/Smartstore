@@ -1,7 +1,5 @@
 ﻿using Smartstore.Admin.Models.Messages;
 using Smartstore.ComponentModel;
-using Smartstore.Core.Configuration;
-using Smartstore.Core.Localization;
 using Smartstore.Core.Messaging;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
@@ -13,24 +11,18 @@ namespace Smartstore.Admin.Controllers
     public class EmailAccountController : AdminController
     {
         private readonly SmartDbContext _db;
-        private readonly ILocalizationService _localizationService;
-        private readonly ISettingService _settingService;
         private readonly IStoreContext _storeContext;
         private readonly EmailAccountSettings _emailAccountSettings;
         private readonly Lazy<IMailService> _mailService;
 
         public EmailAccountController(
             SmartDbContext db,
-            ILocalizationService localizationService,
-            ISettingService settingService,
             IStoreContext storeContext,
             EmailAccountSettings emailAccountSettings,
             Lazy<IMailService> mailService)
         {
             _db = db;
-            _localizationService = localizationService;
             _emailAccountSettings = emailAccountSettings;
-            _settingService = settingService;
             _storeContext = storeContext;
             _mailService = mailService;
         }
@@ -44,17 +36,20 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Configuration.EmailAccount.Read)]
         public async Task<IActionResult> EmailAccountList(GridCommand command)
         {
-            var emailAccounts = await _db.EmailAccounts              
+            var emailAccounts = await _db.EmailAccounts
                 .AsNoTracking()
+                .OrderBy(x => x.Id)
                 .ApplyGridCommand(command)
                 .ToPagedList(command)
                 .LoadAsync();
 
+            var mapper = MapperFactory.GetMapper<EmailAccount, EmailAccountModel>();
             var emailAccountModels = await emailAccounts.SelectAsync(async x =>
             {
-                var model = await MapperFactory.MapAsync<EmailAccount, EmailAccountModel>(x);
+                var model = await mapper.MapAsync(x);
                 model.IsDefaultEmailAccount = x.Id == _emailAccountSettings.DefaultEmailAccountId;
                 model.EditUrl = Url.Action(nameof(Edit), "EmailAccount", new { id = x.Id });
+
                 return model;
             })
             .AsyncToList();
@@ -178,13 +173,14 @@ namespace Smartstore.Admin.Controllers
             if (ModelState.IsValid)
             {
                 await MapperFactory.MapAsync(model, emailAccount);
-                await _db.SaveChangesAsync();
 
                 if (model.IsDefaultEmailAccount && _emailAccountSettings.DefaultEmailAccountId != emailAccount.Id)
                 {
                     _emailAccountSettings.DefaultEmailAccountId = emailAccount.Id;
-                    await Services.SettingFactory.SaveSettingsAsync(_emailAccountSettings);
+                    await Services.Settings.ApplySettingAsync(_emailAccountSettings, x => x.DefaultEmailAccountId);
                 }
+
+                await _db.SaveChangesAsync();
 
                 NotifySuccess(T("Admin.Configuration.EmailAccounts.Updated"));
 

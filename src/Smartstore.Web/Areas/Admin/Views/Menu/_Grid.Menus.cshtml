@@ -10,7 +10,7 @@
           allow-resize="true"
           allow-row-selection="false"
           allow-column-reordering="true">
-    <datasource read="@Url.Action("List", "Menu")" delete="@Url.Action("Delete", "Menu")" />
+    <datasource read="@Url.Action("MenuEntityList", "Menu")" delete="@Url.Action("MenuEntityDelete", "Menu")" />
     <sorting enabled="true">
         <sort by="SystemName" />
     </sorting>
@@ -32,17 +32,18 @@
         <partial name="_Grid.Menus.Search" model="parentModel" />
     </search-panel>
     <columns>
-        <column for="SystemName" width="350px" hideable="false">
+        <column for="SystemName" hideable="false">
             <display-template>
                 <div class="text-truncate"><a :href="item.row.EditUrl" class="text-truncate">{{ item.value }}</a></div>
             </display-template>
         </column>
-        <column for="Title" width="1fr" />
+        <column for="Title" />
         <column for="Published" halign="center" />
         <column for="DisplayOrder" halign="center" />
         <column for="LimitedToStores" halign="center" />
     </columns>
     <row-commands>
         <a datarow-action="DataRowAction.Custom" :href="item.row.EditUrl">@T("Common.Edit")</a>
+        <a datarow-action="DataRowAction.Delete" v-bind:class="{ disabled: item.row.IsSystemMenu }">@T("Common.Delete")</a>
     </row-commands>
 </datagrid>

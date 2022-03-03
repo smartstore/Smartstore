@@ -44,6 +44,7 @@ namespace Smartstore.Admin.Infrastructure.Menus
             var controller = node.GetAttribute("controller");
             var action = node.GetAttribute("action");
             var url = node.GetAttribute("url");
+            var icon = node.GetAttribute("icon").NullEmpty();
 
             root.Id = id;
 
@@ -51,8 +52,21 @@ namespace Smartstore.Admin.Infrastructure.Menus
             item.Text = node.GetAttribute("title").NullEmpty();
             item.PermissionNames = node.GetAttribute("permissionNames").NullEmpty();
             item.ResKey = node.GetAttribute("resKey").NullEmpty();
-            item.Icon = node.GetAttribute("iconClass").NullEmpty();
+            item.IconClass = node.GetAttribute("iconClass").NullEmpty();
             item.ImageUrl = node.GetAttribute("imageUrl").NullEmpty();
+
+            if (icon.HasValue())
+            {
+                if (icon.StartsWith("bi:"))
+                {
+                    item.IconLibrary = "bi";
+                    item.Icon = icon[3..];
+                }
+                else
+                {
+                    item.Icon = icon;
+                }
+            }
 
             if (node.HasAttribute("isGroupHeader"))
             {

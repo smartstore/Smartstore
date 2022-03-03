@@ -96,7 +96,7 @@ namespace Smartstore.Admin.Controllers
             return RedirectToAction(nameof(List));
         }
 
-        [Permission(Permissions.Configuration.Module.Read)]
+        [Permission(Permissions.System.Maintenance.Execute)]
         public IActionResult ReloadList()
         {
             return RedirectToAction("RestartApplication", "Maintenance", new { returnUrl = Url.Action("List") });

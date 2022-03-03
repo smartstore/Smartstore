@@ -53,7 +53,7 @@ namespace Smartstore.Core.Catalog.Products
             {
                 return new ProductBundleItemOrderDataConverter(false);
             }
-            else if (type.IsEnumerableType(out var elementType) && elementType == typeof(ProductBundleItemOrderData))
+            else if (!type.IsArray && type.IsEnumerableType(out var elementType) && elementType == typeof(ProductBundleItemOrderData))
             {
                 return Default;
             }

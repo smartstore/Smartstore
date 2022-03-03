@@ -44,7 +44,7 @@ namespace Smartstore.Core.Catalog.Products
                 .SelectAuthorizedAsync(recentlyViewedProducts)
                 .AsyncToList();
 
-            return authorizedProducts;
+            return authorizedProducts.OrderBySequence(productIds).ToList();
         }
 
         public virtual void AddProductToRecentlyViewedList(int productId)

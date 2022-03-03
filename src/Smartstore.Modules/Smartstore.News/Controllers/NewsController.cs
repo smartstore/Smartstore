@@ -1,13 +1,9 @@
 ﻿using System.ServiceModel.Syndication;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Routing;
-using Smartstore.Caching;
 using Smartstore.ComponentModel;
 using Smartstore.Core;
-using Smartstore.Core.Common.Services;
-using Smartstore.Core.Content.Media;
 using Smartstore.Core.Data;
-using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Localization.Routing;
 using Smartstore.Core.Logging;
@@ -17,7 +13,6 @@ using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
 using Smartstore.Core.Web;
-using Smartstore.Core.Widgets;
 using Smartstore.Http;
 using Smartstore.Net;
 using Smartstore.News.Messaging;
@@ -33,58 +28,40 @@ namespace Smartstore.News.Controllers
     {
         private readonly SmartDbContext _db;
         private readonly ICommonServices _services;
-        private readonly IMediaService _mediaService;
-        private readonly IDateTimeHelper _dateTimeHelper;
         private readonly IStoreMappingService _storeMappingService;
-        private readonly IPageAssetBuilder _pageAssetBuilder;
-        private readonly ICacheManager _cache;
         private readonly NewsHelper _helper;
         private readonly Lazy<IWebHelper> _webHelper;
         private readonly Lazy<IActivityLogger> _activityLogger;
         private readonly Lazy<IMessageFactory> _messageFactory;
-        private readonly Lazy<IUrlHelper> _urlHelper;
 
         private readonly NewsSettings _newsSettings;
         private readonly LocalizationSettings _localizationSettings;
-        private readonly CustomerSettings _customerSettings;
         private readonly CaptchaSettings _captchaSettings;
         private readonly SeoSettings _seoSettings;
 
         public NewsController(
             SmartDbContext db,
             ICommonServices services,
-            IMediaService mediaService,
-            IDateTimeHelper dateTimeHelper,
             IStoreMappingService storeMappingService,
-            IPageAssetBuilder pageAssetBuilder,
-            ICacheManager cache,
             NewsHelper helper,
             Lazy<IWebHelper> webHelper,
             Lazy<IActivityLogger> activityLogger,
             Lazy<IMessageFactory> messageFactory,
-            Lazy<IUrlHelper> urlHelper,
             NewsSettings newsSettings,
             LocalizationSettings localizationSettings,
-            CustomerSettings customerSettings,
             CaptchaSettings captchaSettings,
             SeoSettings seoSettings)
         {
             _db = db;
             _services = services;
-            _mediaService = mediaService;
-            _dateTimeHelper = dateTimeHelper;
             _storeMappingService = storeMappingService;
-            _pageAssetBuilder = pageAssetBuilder;
-            _cache = cache;
             _helper = helper;
             _webHelper = webHelper;
             _activityLogger = activityLogger;
             _messageFactory = messageFactory;
-            _urlHelper = urlHelper;
 
             _newsSettings = newsSettings;
             _localizationSettings = localizationSettings;
-            _customerSettings = customerSettings;
             _captchaSettings = captchaSettings;
             _seoSettings = seoSettings;
         }
@@ -189,8 +166,11 @@ namespace Smartstore.News.Controllers
             }
 
             var newsItem = await _db.NewsItems()
+                .AsSplitQuery()
                 .Include(x => x.NewsComments)
                 .ThenInclude(x => x.Customer)
+                .ThenInclude(x => x.CustomerRoleMappings)
+                .ThenInclude(x => x.CustomerRole)
                 .FindByIdAsync(newsItemId, false);
 
             if (newsItem == null)
@@ -219,7 +199,7 @@ namespace Smartstore.News.Controllers
         }
 
         [HttpPost]
-        [ValidateCaptcha]
+        [ValidateCaptcha(CaptchaSettingName = nameof(CaptchaSettings.ShowOnNewsCommentPage))]
         [GdprConsent]
         public async Task<IActionResult> NewsCommentAdd(PublicNewsItemModel model, string captchaError)
         {
@@ -270,7 +250,7 @@ namespace Smartstore.News.Controllers
                 NotifySuccess(T("News.Comments.SuccessfullyAdded"));
 
                 var seName = await newsItem.GetActiveSlugAsync(ensureTwoPublishedLanguages: false);
-                var url = _urlHelper.Value.RouteUrl(new UrlRouteContext
+                var url = Url.RouteUrl(new UrlRouteContext
                 {
                     RouteName = "NewsItem",
                     Values = new { SeName = seName },
@@ -286,7 +266,7 @@ namespace Smartstore.News.Controllers
             ViewBag.CanonicalUrlsEnabled = _seoSettings.CanonicalUrlsEnabled;
             ViewBag.StoreName = _services.StoreContext.CurrentStore.Name;
 
-            return View("NewsItem", model);
+            return View(nameof(NewsItem), model);
         }
     }
 }

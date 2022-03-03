@@ -25,7 +25,7 @@ namespace Smartstore.Google.MerchantCenter
 
                 await message.TabFactory.AddAsync(builder => builder.Text("GMC")
                     .Name("tab-gmc")
-                    .Icon("fab fa-google fa-lg fa-fw")
+                    .Icon("google", "bi")
                     .LinkHtmlAttributes(new { data_tab_name = "GMC" })
                     .Action("ProductEditTab", "GoogleMerchantCenter", new { productId })
                     .Ajax());

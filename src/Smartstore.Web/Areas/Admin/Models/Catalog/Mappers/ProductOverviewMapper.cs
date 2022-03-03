@@ -30,11 +30,12 @@ namespace Smartstore.Admin.Models.Catalog
                 parameters.Files = null;
             }
 
+            var mapper = MapperFactory.GetMapper<Product, ProductOverviewModel>();
             var models = await entities
                 .SelectAsync(async x =>
                 {
                     var model = new ProductOverviewModel();
-                    await MapperFactory.MapAsync(x, model, parameters);
+                    await mapper.MapAsync(x, model, parameters);
                     return model;
                 })
                 .AsyncToList();

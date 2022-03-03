@@ -54,20 +54,23 @@ namespace Smartstore.Admin.Controllers
 
         [HttpPost]
         [Permission(Permissions.Configuration.Currency.Read)]
-        public async Task<IActionResult> List(GridCommand command)
+        public async Task<IActionResult> CampaignList(GridCommand command)
         {
             var campaigns = await _db.Campaigns
                 .AsNoTracking()
+                .OrderByDescending(x => x.CreatedOnUtc)
                 .ApplyGridCommand(command)
                 .ToPagedList(command)
                 .LoadAsync();
 
+            var mapper = MapperFactory.GetMapper<Campaign, CampaignModel>();
             var campaignModels = await campaigns
                 .SelectAsync(async x =>
                 {
-                    var model = await MapperFactory.MapAsync<Campaign, CampaignModel>(x);
+                    var model = await mapper.MapAsync(x);
                     model.EditUrl = Url.Action(nameof(Edit), "Campaign", new { id = x.Id });
                     model.CreatedOn = Services.DateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc);
+
                     return model;
                 })
                 .AsyncToList();
@@ -79,6 +82,27 @@ namespace Smartstore.Admin.Controllers
             };
 
             return Json(gridModel);
+        }
+
+        [HttpPost]
+        [Permission(Permissions.Promotion.Campaign.Delete)]
+        public async Task<IActionResult> CampaignDelete(GridSelection selection)
+        {
+            var success = false;
+            var numDeleted = 0;
+            var ids = selection.GetEntityIds();
+
+            if (ids.Any())
+            {
+                var campaigns = await _db.Campaigns.GetManyAsync(ids, true);
+
+                _db.Campaigns.RemoveRange(campaigns);
+
+                numDeleted = await _db.SaveChangesAsync();
+                success = true;
+            }
+
+            return Json(new { Success = success, Count = numDeleted });
         }
 
         [Permission(Permissions.Promotion.Campaign.Create)]
@@ -182,7 +206,7 @@ namespace Smartstore.Admin.Controllers
         }
 
         [HttpPost]
-        [Permission(Permissions.Configuration.Currency.Delete)]
+        [Permission(Permissions.Promotion.Campaign.Delete)]
         public async Task<IActionResult> Delete(int id)
         {
             var campaign = await _db.Campaigns.FindByIdAsync(id);
@@ -196,27 +220,6 @@ namespace Smartstore.Admin.Controllers
 
             NotifySuccess(T("Admin.Promotions.Campaigns.Deleted"));
             return RedirectToAction(nameof(List));
-        }
-
-        [HttpPost]
-        [Permission(Permissions.Configuration.Currency.Delete)]
-        public async Task<IActionResult> DeleteSelection(GridSelection selection)
-        {
-            var success = false;
-            var numDeleted = 0;
-            var ids = selection.GetEntityIds();
-
-            if (ids.Any())
-            {
-                var campaigns = await _db.Campaigns.GetManyAsync(ids, true);
-
-                _db.Campaigns.RemoveRange(campaigns);
-
-                numDeleted = await _db.SaveChangesAsync();
-                success = true;
-            }
-
-            return Json(new { Success = success, Count = numDeleted });
         }
     }
 }

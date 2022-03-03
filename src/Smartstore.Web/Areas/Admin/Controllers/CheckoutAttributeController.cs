@@ -132,12 +132,14 @@ namespace Smartstore.Admin.Controllers
                 .ToPagedList(command)
                 .LoadAsync();
 
+            var mapper = MapperFactory.GetMapper<CheckoutAttribute, CheckoutAttributeModel>();
             var checkoutAttributesModels = await checkoutAttributes
                 .SelectAsync(async x =>
                 {
-                    var model = await MapperFactory.MapAsync<CheckoutAttribute, CheckoutAttributeModel>(x);
+                    var model = await mapper.MapAsync(x);
                     model.AttributeControlTypeName = x.AttributeControlType.GetLocalizedEnum(Services.WorkContext.WorkingLanguage.Id);
                     model.EditUrl = Url.Action(nameof(Edit), "CheckoutAttribute", new { id = x.Id });
+
                     return model;
                 })
                 .AsyncToList();
@@ -310,11 +312,13 @@ namespace Smartstore.Admin.Controllers
                  .ToPagedList(command)
                  .LoadAsync();
 
+            var mapper = MapperFactory.GetMapper<CheckoutAttributeValue, CheckoutAttributeValueModel>();
             var valuesModel = await values
                 .SelectAsync(async x =>
                 {
-                    var model = await MapperFactory.MapAsync<CheckoutAttributeValue, CheckoutAttributeValueModel>(x);
+                    var model = await mapper.MapAsync(x);
                     model.NameString = (x.Color.IsEmpty() ? x.Name : $"{x.Name} - {x.Color}").HtmlEncode();
+
                     return model;
                 })
                 .AsyncToList();

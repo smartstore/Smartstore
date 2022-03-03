@@ -58,12 +58,12 @@
     }
 
     // Light button icons lighter (looks nice).
-    > i {
+    > i, > .bi {
         transition: opacity .05s ease-in-out;
     }
 
     &:not(:hover):not(:active):not(.active):not(:focus):not([disabled]):not(.disabled) {
-        > i {
+        > i, > .bi {
             color: lighten($body-color, 16%);
         }
     }
@@ -77,6 +77,7 @@
 @import '../shared/_variables-shared.scss';
 @import '../shared/_mixins.scss';
 @import '../shared/_fa.scss';
+@import '../shared/_bootstrap-icons.scss';
 @import '../shared/_typo.scss';
 @import '../shared/_alert.scss';
 @import '../shared/_buttons.scss';

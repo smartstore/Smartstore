@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Reflection;
@@ -14,12 +14,9 @@ namespace Smartstore
 
         public static string AssemblyQualifiedNameWithoutVersion(this Type type)
         {
-            if (type.AssemblyQualifiedName != null)
-            {
-                return type.FullName + ", " + type.Assembly.GetName().Name;
-            }
-
-            return null;
+            return type.AssemblyQualifiedName != null 
+                ? type.FullName + ", " + type.Assembly.GetName().Name 
+                : null;
         }
 
         /// <summary>

@@ -84,7 +84,7 @@ namespace Smartstore.Core.Data.Migrations
                 {
                     if (!hasPrimaryCurrency)
                     {
-                        settings.Add(new Setting { Name = "CurrencySettings.PrimaryCurrencyId", Value = store.PrimaryStoreCurrencyId.ToString() });
+                        settings.Add(new Setting { Name = "CurrencySettings.PrimaryCurrencyId", Value = store.DefaultCurrencyId.ToString() });
                     }
                     if (!hasExchangeCurrency)
                     {
@@ -107,11 +107,21 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.Catalog.Products.Orders.NoOrdersAvailable",
                 "There are no orders for this product yet.", 
                 "Für dieses Produkt existieren noch keine Bestellungen.");
-            
+
+            builder.AddOrUpdate("Admin.Orders.List.NoOrdersAvailable",
+                "There are no orders for this customer yet.",
+                "Für diesen Kunden existieren noch keine Bestellungen.");
+
             builder.Delete("Admin.Configuration.Stores.Fields.PrimaryStoreCurrencyId");
             builder.Delete("Admin.Configuration.Stores.Fields.PrimaryStoreCurrencyId.Hint");
             builder.Delete("Admin.Configuration.Stores.Fields.PrimaryExchangeRateCurrencyId");
             builder.Delete("Admin.Configuration.Stores.Fields.PrimaryExchangeRateCurrencyId.Hint");
+
+            builder.AddOrUpdate("Admin.Configuration.Stores.Fields.DefaultCurrencyId",
+                "Default currency",
+                "Standardwährung",
+                "Sets the currency that is preselected for this shop in the frontend.",
+                "Legt die im Frontend vorausgewählte Währung für diesen Shop fest.");
 
             builder.AddOrUpdate("Account.CustomerOrders.RecurringOrders.CycleInfo", "Interval", "Interval");
             builder.AddOrUpdate("Account.CustomerOrders.RecurringOrders.CyclesRemaining", "Remaining", "Verbleibend");
@@ -163,6 +173,10 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.Configuration.DeliveryTimes.CannotDeleteDefaultDeliveryTime",
                 "The default delivery time \"{0}\" cannot be deleted. Set another standard delivery time first.",
                 "Die Standard-Lieferzeit \"{0}\" kann nicht gelöscht werden. Bestimmen Sie zuvor eine andere Standard-Lieferzeit.");
+
+            builder.AddOrUpdate("Admin.ContentManagement.Menus.CannotBeDeleted",
+                "The menu \"{0}\" is required by your shop and cannot be deleted.",
+                "Das Menü \"{0}\" wird von Ihrem Shop benötigt und kann nicht gelöscht werden.");
 
             builder.AddOrUpdate("Admin.Catalog.Products.Fields.QuantityUnit",
                 "Quantity unit",
@@ -405,6 +419,12 @@ namespace Smartstore.Core.Data.Migrations
                 "Filter list by rating.",
                 "Liste nach Bewertung filtern.");
 
+            builder.AddOrUpdate("Admin.Catalog.ProductReviews.List.ProductName",
+                "Product name",
+                "Produktname",
+                "Filter list by product name.",
+                "Liste nach dem Produktnamen filtern.");
+
             builder.AddOrUpdate("Admin.Catalog.ProductReviews.NumberApprovedReviews",
                 "There were {0} product reviews approved.",
                 "Es wurden {0} Produkt Rezensionen genehmigt.");
@@ -446,11 +466,35 @@ namespace Smartstore.Core.Data.Migrations
                 "At least one currency must be published.",
                 "Mindestens eine Währung muss veröffentlicht sein.");
 
+            builder.AddOrUpdate("Admin.Orders.Fields.ID",
+                "Order ID",
+                "Auftrags-ID",
+                "The unique ID for this order.",
+                "Die eindeutige ID für diesen Auftrag.");
+
+            builder.AddOrUpdate("Admin.ContentManagement.Topics.Fields.IsSystemTopic",
+                "System topic",
+                "Systemseite",
+                "Topics predefined by the system cannot be deleted.",
+                "Vom System vorgegebene Seiten und Inhalte können nicht gelöscht werden.");
+
+            builder.AddOrUpdate("Admin.ContentManagement.Topics.Fields.CookieType",
+                "Cookie type",
+                "Art des Cookies",
+                "Sets whether this widget is displayed according to the customer's settings in the cookie manager. This option should be used if you add a third-party script that sets cookies.",
+                "Legt fest, ob dieses Widget in Abhängigkeit zur Kundeneinstellung im Cookie-Manager ausgegeben wird. Diese Option sollte verwendet werden, wenn Sie ein Script für einen Drittanbieter zufügen, das Cookies setzt.");
+
+            builder.AddOrUpdate("Permissions.DisplayName.EditExchangeRate", "Edit exchange rates", "Umrechnungskurse bearbeiten");
+            builder.AddOrUpdate("Permissions.DisplayName.ReadAddress", "Read addresses", "Adressen lesen");
+            builder.AddOrUpdate("Permissions.DisplayName.CreateAddress", "Create addresses", "Adressen erstellen");
+            builder.AddOrUpdate("Permissions.DisplayName.DeleteAddress", "Delete addresses", "Adressen löschen");
+            builder.AddOrUpdate("Permissions.DisplayName.CreateDeployment", "Create deployment profile", "Veröffentlichungsprofil erstellen");
+
             #endregion
 
             #region Packaging
 
-               builder.AddOrUpdate("Admin.Packaging.Dialog.PluginInfo",
+            builder.AddOrUpdate("Admin.Packaging.Dialog.PluginInfo",
                 "Choose a plugin package file (Smartstore.Module.*.zip) to upload to your server. The package will be automatically extracted and installed. If an older version of the plugin already exists, it will be backed up for you.",
                 "Wählen Sie die Plugin Paket-Datei (Smartstore.Module.*.zip), die Sie auf den Server hochladen möchten. Das Paket wird autom. extrahiert und installiert. Wenn eine ältere Version des Plugins bereits existiert, wird eine Sicherungskopie davon erstellt.");
 
@@ -624,6 +668,8 @@ namespace Smartstore.Core.Data.Migrations
                 "Specifies that passwords must contain at least one non alphanumeric character.",
                 "Legt fest, dass Passwörter mindestens ein nicht alphanumerisches Zeichen enthalten müssen.");
 
+            builder.AddOrUpdate("Admin.Configuration.Settings.News", "News", "News");
+
             builder.AddOrUpdate("Account.Fields.Password", "Password management", "Passwortverwaltung");
 
             #endregion
@@ -715,6 +761,24 @@ namespace Smartstore.Core.Data.Migrations
                 "Specifies the new storage provider for media file like images.",
                 "Legt den neuen Speicheranbieter für Mediendateien wie z.B. Bilder fest.");
 
+            builder.AddOrUpdate("Admin.ContentManagement.Blog.BlogPosts.Fields.PreviewDisplayType",
+                "Preview display type",
+                "Vorschau-Darstellung",
+                "Specifies display type of the preview for a blog item.",
+                "Legt die Darstellung der Vorschau für einen Blog-Eintrag fest.");
+
+            builder.AddOrUpdate("Admin.ContentManagement.Blog.BlogPosts.Fields.DisplayTagsInPreview",
+                "Display tags on preview",
+                "Tags in Vorschau anzeigen",
+                "Specifies whether tags are display in the preview for blog item.",
+                "Legt fest, ob Tags in der Vorschau eines Blog-Eintrags angezeigt werden.");
+
+            builder.AddOrUpdate("Reviews.Helpfulness.SuccessfullyVoted",
+                "Thank you for your voting.",
+                "Danke für Ihre Beurteilung.");
+
+            builder.AddOrUpdate("Admin.Catalog.Products.ProductVariantAttributes.AttributeCombinations.Fields.Sku", "SKU", "SKU");
+
             #endregion
 
             #region Obsolete
@@ -796,6 +860,11 @@ namespace Smartstore.Core.Data.Migrations
             //    "Admin.Configuration.EmailAccounts.BackToList",
             //    "Admin.Customers.Customers.ActivityLog.ActivityLogType",
             //    "Admin.Customers.Customers.ActivityLog.Comment",
+            //    "Admin.ContentManagement.News.Blog.BlogPosts.Fields.PreviewDisplayType",
+            //    "Admin.ContentManagement.News.Blog.BlogPosts.Fields.DisplayTagsInPreview",
+            //    "Admin.ContentManagement.News.Blog.BlogPosts.Fields.IsPublished",
+            //    "Admin.ContentManagement.Blog.BlogPosts.BackToList",
+            ///   "Admin.ContentManagement.News.NewsItems.BackToList",
             //    );
 
 

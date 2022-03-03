@@ -25,9 +25,8 @@ namespace Smartstore.Core.Common.JsonConverters
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
-            if (value is DateTime)
+            if (value is DateTime d)
             {
-                var d = (DateTime)value;
                 if (d.Kind == DateTimeKind.Unspecified)
                 {
                     // when DateTime kind is "Unspecified", it was very likely converted from UTC to 

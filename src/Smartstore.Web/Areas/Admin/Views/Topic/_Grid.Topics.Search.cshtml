@@ -12,7 +12,7 @@
 </div>
 <div class="form-group">
     <smart-label asp-for="Title" />
-    <input asp-for="Title" />
+    <editor asp-for="Title" asp-template="SearchExpression" />
 </div>
 <div class="form-group">
     <smart-label asp-for="RenderAsWidget" />

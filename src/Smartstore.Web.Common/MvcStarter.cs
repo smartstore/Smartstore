@@ -18,7 +18,6 @@ using Newtonsoft.Json.Converters;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Bootstrapping;
 using Smartstore.Core.Common.JsonConverters;
-using Smartstore.Core.Identity;
 using Smartstore.Core.Localization.Routing;
 using Smartstore.Core.Web;
 using Smartstore.Engine.Builders;
@@ -106,10 +105,6 @@ namespace Smartstore.Web
                         {
                             return validatorLanguageManager.GetString("NonPropertyMustBeANumber");
                         });
-                        //o.ModelBindingMessageProvider.SetValueMustNotBeNullAccessor(x =>
-                        //{
-                        //    return validatorLanguageManager.GetErrorMessage(nameof(NotEmptyValidator), x);
-                        //});
                     }
                 })
                 .AddRazorOptions(o => 
@@ -118,7 +113,6 @@ namespace Smartstore.Web
                     {
                         o.ViewLocationExpanders.Add(new ThemeViewLocationExpander());
                         o.ViewLocationExpanders.Add(new ModuleViewLocationExpander(appContext.ModuleCatalog));
-                        //o.ViewLocationExpanders.Add(new AdminViewLocationExpander());
                         o.ViewLocationExpanders.Add(new PartialViewLocationExpander());
                     }
 

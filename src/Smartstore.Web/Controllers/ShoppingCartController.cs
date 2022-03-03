@@ -847,7 +847,7 @@ namespace Smartstore.Web.Controllers
 
         [HttpPost, ActionName("EmailWishlist")]
         [FormValueRequired("send-email")]
-        [ValidateCaptcha]
+        [ValidateCaptcha(CaptchaSettingName = nameof(CaptchaSettings.ShowOnEmailWishlistToFriendPage))]
         [GdprConsent]
         public async Task<IActionResult> EmailWishlistSend(WishlistEmailAFriendModel model, string captchaError)
         {
@@ -1188,10 +1188,9 @@ namespace Smartstore.Web.Controllers
         {
             var cart = await _shoppingCartService.GetCartAsync(storeId: Services.StoreContext.CurrentStore.Id);
             var model = await cart.MapAsync();
+            model.GiftCardBox.IsWarning = true;
 
             cart.Customer.GenericAttributes.CheckoutAttributes = await _checkoutAttributeMaterializer.CreateCheckoutAttributeSelectionAsync(query, cart);
-
-            model.GiftCardBox.IsWarning = true;
 
             if (!cart.IncludesMatchingItems(x => x.IsRecurring))
             {
@@ -1207,10 +1206,9 @@ namespace Smartstore.Web.Controllers
                     if (isGiftCardValid)
                     {
                         var couponCodes = new List<GiftCardCouponCode>(cart.Customer.GenericAttributes.GiftCardCouponCodes);
-                        if (couponCodes.Select(x => x.Value).Contains(giftCardCouponCode))
+                        if (!couponCodes.Select(x => x.Value).Contains(giftCardCouponCode))
                         {
-                            var giftCardCoupon = new GiftCardCouponCode(giftCardCouponCode);
-                            couponCodes.Add(giftCardCoupon);
+                            couponCodes.Add(new GiftCardCouponCode(giftCardCouponCode));
 
                             cart.Customer.GenericAttributes.GiftCardCouponCodes = couponCodes;
                         }

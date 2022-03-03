@@ -40,20 +40,21 @@ namespace Smartstore.Admin.Controllers
         {
             var newsletterSubscriptions = await _db.NewsletterSubscriptions
                 .AsNoTracking()
-                .ApplyStandardFilter(model.SearchEmail, false, new[] { model.SearchStoreId }, model.SearchCustomerRoleIds)
+                .ApplyStandardFilter(model.SearchEmail, true, new[] { model.SearchStoreId }, model.SearchCustomerRoleIds)
                 .Select(x => x.Subscription)
                 .ApplyGridCommand(command)
                 .ToPagedList(command)
                 .LoadAsync();
 
             var allStores = Services.StoreContext.GetAllStores().ToDictionary(x => x.Id);
+            var mapper = MapperFactory.GetMapper<NewsletterSubscription, NewsletterSubscriptionModel>();
+
             var newsletterSubscriptionModels = await newsletterSubscriptions
                 .SelectAsync(async x =>
                 {
-                    allStores.TryGetValue(x.StoreId, out var store);
-                    var model = await MapperFactory.MapAsync<NewsletterSubscription, NewsletterSubscriptionModel>(x);
+                    var model = await mapper.MapAsync(x);
                     model.CreatedOn = _dateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc);
-                    model.StoreName = store?.Name.NaIfEmpty();
+                    model.StoreName = allStores.Get(x.StoreId)?.Name.NaIfEmpty();
 
                     return model;
                 })

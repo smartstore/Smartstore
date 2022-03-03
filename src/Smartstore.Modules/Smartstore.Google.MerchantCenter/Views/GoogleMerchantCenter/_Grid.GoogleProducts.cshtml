@@ -6,7 +6,7 @@
 
     async Task DisplayTemplate()
     {
-        <span v-if="item.value">{{ item.value }}</span>
+        <span v-if="item.value != null">{{ item.value }}</span>
         <span v-else class="text-muted font-italic">@emptyCell</span>
     }
 
@@ -48,13 +48,13 @@
         <partial name="_Grid.GoogleProducts.Search" model="parentModel" />
     </search-panel>
     <columns>
-        <column for="ProductId" readonly visible="false" />
+        <column for="ProductId" readonly visible="false" type="string" />
         <column for="Name" width="1.5fr" hideable="false" readonly>
             <display-template>
                 @Html.LabeledProductName()
             </display-template>
         </column>
-        <column for="SKU" width="200px" readonly visible="false" />
+        <column for="Sku" width="200px" readonly visible="false" />
         <column for="Export" halign="center" sortable="false" />
 
         <column for="Taxonomy" width="2fr" sortable="false" hint="@T("Plugins.Feed.Froogle.Products.GoogleCategory.Hint")">
@@ -67,7 +67,8 @@
         </column>
         <column for="Gender" visible="false" width="140px" sortable="false" hint="@T("Plugins.Feed.Froogle.Gender.Hint")">
             <display-template>
-                @{ await DisplayTemplate(); }
+                <span v-if="item.value != null">{{ item.row.GenderLocalized }}</span>
+                <span v-else class="text-muted font-italic">@emptyCell</span>
             </display-template>
             <edit-template>
                 @Html.EditorFor(model => model.Gender, new { size = "sm" })
@@ -75,7 +76,8 @@
         </column>
         <column for="AgeGroup" visible="false" width="140px" sortable="false" hint="@T("Plugins.Feed.Froogle.AgeGroup.Hint")">
             <display-template>
-                @{ await DisplayTemplate(); }
+                <span v-if="item.value != null">{{ item.row.AgeGroupLocalized }}</span>
+                <span v-else class="text-muted font-italic">@emptyCell</span>
             </display-template>
             <edit-template>
                 @Html.EditorFor(model => model.AgeGroup, new { size = "sm" })
@@ -83,7 +85,8 @@
         </column>
         <column for="IsAdult" visible="false" sortable="false" halign="center" hint="@T("Plugins.Feed.Froogle.IsAdult.Hint")">
             <display-template>
-                @{ await DisplayTemplate(); }
+                <span v-if="item.value != null">{{ item.row.IsAdultLocalized }}</span>
+                <span v-else class="text-muted font-italic">@emptyCell</span>
             </display-template>
             <edit-template>
                 @Html.EditorFor(model => model.IsAdult, new { size = "sm" })
@@ -127,6 +130,15 @@
             </display-template>
             <edit-template>
                 @Html.EditorFor(model => model.Multipack, new { size = "sm" })
+            </edit-template>
+        </column>
+        <column for="IsBundle" visible="false" sortable="false" halign="center" hint="@T("Plugins.Feed.Froogle.IsBundle.Hint")">
+            <display-template>
+                <span v-if="item.value != null">{{ item.row.IsBundleLocalized }}</span>
+                <span v-else class="text-muted font-italic">@emptyCell</span>
+            </display-template>
+            <edit-template>
+                @Html.EditorFor(model => model.IsBundle, new { size = "sm" })
             </edit-template>
         </column>
         <column for="EnergyEfficiencyClass" visible="false" sortable="false" hint="@T("Plugins.Feed.Froogle.EnergyEfficiencyClass.Hint")">

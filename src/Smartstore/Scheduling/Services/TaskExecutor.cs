@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using Smartstore.Engine;
 using Smartstore.Threading;
 using Smartstore.Utilities;
 
@@ -15,7 +14,6 @@ namespace Smartstore.Scheduling
         private readonly IComponentContext _componentContext;
         private readonly IAsyncState _asyncState;
         private readonly AsyncRunner _asyncRunner;
-        private readonly IApplicationContext _appContext;
 
         public const string CurrentCustomerIdParamName = "CurrentCustomerId";
         public const string CurrentStoreIdParamName = "CurrentStoreId";
@@ -25,15 +23,13 @@ namespace Smartstore.Scheduling
             ITaskActivator taskActivator,
             IComponentContext componentContext,
             IAsyncState asyncState,
-            AsyncRunner asyncRunner,
-            IApplicationContext appContext)
+            AsyncRunner asyncRunner)
         {
             _taskStore = taskStore;
             _taskActivator = taskActivator;
             _componentContext = componentContext;
             _asyncState = asyncState;
             _asyncRunner = asyncRunner;
-            _appContext = appContext;
 
             Logger = NullLogger.Instance;
         }

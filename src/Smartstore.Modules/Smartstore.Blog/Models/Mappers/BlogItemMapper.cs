@@ -2,7 +2,6 @@
 using Smartstore.Blog.Models.Public;
 using Smartstore.ComponentModel;
 using Smartstore.Core;
-using Smartstore.Core.Common.Services;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
@@ -33,14 +32,12 @@ namespace Smartstore.Blog.Models.Mappers
     public class BlogPostMapper : Mapper<BlogPost, PublicBlogPostModel>
     {
         private readonly ICommonServices _services;
-        private readonly IDateTimeHelper _dateTimeHelper;
         private readonly CustomerSettings _customerSettings;
         private readonly CaptchaSettings _captchaSettings;
 
-        public BlogPostMapper(ICommonServices services, IDateTimeHelper dateTimeHelper, CustomerSettings customerSettings, CaptchaSettings captchaSettings)
+        public BlogPostMapper(ICommonServices services, CustomerSettings customerSettings, CaptchaSettings captchaSettings)
         {
             _services = services;
-            _dateTimeHelper = dateTimeHelper;
             _customerSettings = customerSettings;
             _captchaSettings = captchaSettings;
         }
@@ -55,7 +52,11 @@ namespace Smartstore.Blog.Models.Mappers
             Guard.NotNull(from, nameof(from));
             Guard.NotNull(to, nameof(to));
 
+            var dtHelper = _services.DateTimeHelper;
+            var mapper = MapperFactory.GetMapper<BlogPost, ImageModel>();
             var prepareComments = parameters?.PrepareComments == true;
+
+            _services.DisplayControl.Announce(from);
 
             MiniMapper.Map(from, to);
 
@@ -66,17 +67,14 @@ namespace Smartstore.Blog.Models.Mappers
             to.MetaDescription = from.GetLocalized(x => x.MetaDescription);
             to.MetaKeywords = from.GetLocalized(x => x.MetaKeywords);
             to.SeName = await from.GetActiveSlugAsync(ensureTwoPublishedLanguages: false);
-            to.CreatedOn = _dateTimeHelper.ConvertToUserTime(from.CreatedOnUtc, DateTimeKind.Utc);
+            to.CreatedOn = dtHelper.ConvertToUserTime(from.CreatedOnUtc, DateTimeKind.Utc);
             to.CreatedOnUTC = from.CreatedOnUtc;
             to.AddNewComment.DisplayCaptcha = _captchaSettings.CanDisplayCaptcha && _captchaSettings.ShowOnBlogCommentPage;
             to.Comments.AllowComments = from.AllowComments;
             to.Comments.NumberOfComments = from.ApprovedCommentCount;
             to.Comments.AllowCustomersToUploadAvatars = _customerSettings.AllowCustomersToUploadAvatars;
             to.DisplayAdminLink = _services.Permissions.Authorize(Permissions.System.AccessBackend, _services.WorkContext.CurrentCustomer);
-
             to.HasBgImage = from.PreviewDisplayType == PreviewDisplayType.DefaultSectionBg || from.PreviewDisplayType == PreviewDisplayType.PreviewSectionBg;
-
-            var mapper = MapperFactory.GetMapper<BlogPost, ImageModel>();
             to.Image = await mapper.MapAsync(from, new { FileId = from.MediaFileId });
 
             if (from.PreviewDisplayType == PreviewDisplayType.Default || from.PreviewDisplayType == PreviewDisplayType.DefaultSectionBg)
@@ -111,26 +109,22 @@ namespace Smartstore.Blog.Models.Mappers
 
                 foreach (var bc in blogComments)
                 {
-                    var isGuest = bc.Customer.IsGuest();
-
                     var commentModel = new CommentModel(to.Comments)
                     {
                         Id = bc.Id,
                         CustomerId = bc.CustomerId,
                         CustomerName = bc.Customer.FormatUserName(_customerSettings, T, false),
                         CommentText = HtmlUtility.SanitizeHtml(bc.CommentText, HtmlSanitizerOptions.UserCommentSuitable),
-                        CreatedOn = _dateTimeHelper.ConvertToUserTime(bc.CreatedOnUtc, DateTimeKind.Utc),
-                        CreatedOnPretty = _services.DateTimeHelper.ConvertToUserTime(bc.CreatedOnUtc, DateTimeKind.Utc).Humanize(false),
-                        AllowViewingProfiles = _customerSettings.AllowViewingProfiles && !isGuest
+                        CreatedOn = dtHelper.ConvertToUserTime(bc.CreatedOnUtc, DateTimeKind.Utc),
+                        CreatedOnPretty = dtHelper.ConvertToUserTime(bc.CreatedOnUtc, DateTimeKind.Utc).Humanize(false),
+                        AllowViewingProfiles = _customerSettings.AllowViewingProfiles && !bc.Customer.IsGuest()
                     };
 
-                    commentModel.Avatar = bc.Customer.ToAvatarModel(null, false);
+                    commentModel.Avatar = await bc.Customer.MapAsync();
 
                     to.Comments.Comments.Add(commentModel);
                 }
             }
-
-            _services.DisplayControl.Announce(from);
         }
     }
 }

@@ -20,7 +20,7 @@ namespace Smartstore.News.Blocks
             }
         }
 
-        protected override WidgetInvoker GetWidget(IBlockContainer element, string template)
+        protected override WidgetInvoker GetWidget(IBlockContainer element, IHtmlHelper htmlHelper, string template)
         {
             var block = (NewsBlock)element.Block;
 

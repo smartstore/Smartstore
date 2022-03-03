@@ -1,5 +1,4 @@
 ﻿using Autofac;
-using Smartstore.Admin.Models.Customers;
 using Smartstore.Engine.Builders;
 
 namespace Smartstore.Web.Infrastructure
@@ -12,9 +11,6 @@ namespace Smartstore.Web.Infrastructure
             {
                 builder.RegisterType<CatalogHelper>().InstancePerLifetimeScope();
                 builder.RegisterType<OrderHelper>().InstancePerLifetimeScope();
-
-                // TODO: (mh) (core) Consider implementing an AdminWebStarter as this helper is only used in admin area.
-                builder.RegisterType<CustomerHelper>().InstancePerLifetimeScope();
             }
         }
     }

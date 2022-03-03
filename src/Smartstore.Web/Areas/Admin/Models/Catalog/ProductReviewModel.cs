@@ -6,6 +6,9 @@ namespace Smartstore.Admin.Models.Catalog
     [LocalizedDisplay("Admin.Catalog.ProductReviews.List.")]
     public class ProductReviewListModel : ModelBase
     {
+        [LocalizedDisplay("*ProductName")]
+        public string ProductName { get; set; }
+
         [LocalizedDisplay("*CreatedOnFrom")]
         public DateTime? CreatedOnFrom { get; set; }
 
@@ -26,6 +29,9 @@ namespace Smartstore.Admin.Models.Catalog
         public string ProductName { get; set; }
         public string ProductTypeName { get; set; }
         public string ProductTypeLabelHint { get; set; }
+
+        [LocalizedDisplay("Admin.Catalog.Products.Fields.Sku")]
+        public string Sku { get; set; }
 
         [LocalizedDisplay("*Customer")]
         public int CustomerId { get; set; }

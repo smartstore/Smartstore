@@ -287,7 +287,7 @@ namespace Smartstore.Web
                 {
                     // Find current customer currency
                     var customer = CurrentCustomer;
-                    var storeCurrenciesMap = query.ApplyStandardFilter(storeId: _storeContext.CurrentStore.Id).ToDictionary(x => x.Id);
+                    var storeCurrenciesMap = query.ApplyStandardFilter(false, _storeContext.CurrentStore.Id).ToDictionary(x => x.Id);
 
                     if (customer != null && !customer.IsSearchEngineAccount())
                     {
@@ -342,7 +342,13 @@ namespace Smartstore.Web
                         }
                     }
 
-                    // Get PrimaryStoreCurrency
+                    // Get default currency.
+                    if (currency == null)
+                    {
+                        currency = VerifyCurrency(storeCurrenciesMap.Get(_storeContext.CurrentStore.DefaultCurrencyId));
+                    }
+
+                    // Get primary currency.
                     if (currency == null)
                     {
                         currency = VerifyCurrency(_currencyService.Value.PrimaryCurrency);

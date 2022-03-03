@@ -48,20 +48,20 @@
 
     <div asp-validation-summary="All"></div>
 
-    <tabstrip id="order-edit" sm-nav-style="Material">
-        <tab sm-title="@T("Admin.Common.General")" sm-selected="true">
+    <tabstrip id="order-edit" sm-nav-style="Material" sm-nav-position="Left">
+        <tab sm-title="@T("Admin.Common.General")" sm-selected="true" sm-icon="bi:pencil">
             <partial name="_Edit.Info" />
         </tab>
-        <tab sm-title="@T("Admin.Orders.BillingAndShipment")">
+        <tab sm-title="@T("Admin.Orders.BillingAndShipment")" sm-icon="bi:receipt">
             <partial name="_Edit.BillingAndShipment" />
         </tab>
-        <tab sm-title="@T("Admin.Orders.Products")">
+        <tab sm-title="@T("Admin.Orders.Products")" sm-icon="bi:box">
             <partial name="_Edit.Products" />
         </tab>
-        <tab sm-title="@T("Admin.Orders.OrderNotes")">
+        <tab sm-title="@T("Admin.Orders.OrderNotes")" sm-icon="bi:stickies">
             <partial name="Grids/_Grid.OrderNotes" model="null" view-data="gridViewData" />
         </tab>
-        <tab sm-title="@T("Admin.Common.GenericAttributes")">
+        <tab sm-title="@T("Admin.Common.GenericAttributes")" sm-icon="bi:card-checklist">
             <partial name="_Grid.GenericAttributes" model='new GenericAttributeModel { EntityName = "Order", AttributeEntityId = Model.Id }' />
         </tab>
     </tabstrip>

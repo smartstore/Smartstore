@@ -14,22 +14,21 @@ namespace Smartstore.Forums.Search
         private readonly static Func<DbSet<ForumPost>, int[], Task<List<ForumPost>>> _defaultHitsFactory = async (dbSet, ids) =>
         {
             var items = await dbSet.AsNoTracking()
+                .AsSplitQuery()
                 .IncludeTopic()
                 .IncludeCustomer()
-                .Where(x => ids.Contains(x.Id))
-                .ToListAsync();
+                .GetManyAsync(ids);
 
-            return items.OrderBySequence(ids).ToList();
+            return items;
         };
 
         private readonly static Func<DbSet<ForumPost>, int[], Task<List<ForumPost>>> _defaultInstantSearchHitsFactory = async (dbSet, ids) =>
         {
             var items = await dbSet.AsNoTracking()
                 .IncludeTopic()
-                .Where(x => ids.Contains(x.Id))
-                .ToListAsync();
+                .GetManyAsync(ids);
 
-            return items.OrderBySequence(ids).ToList();
+            return items;
         };
 
         /// <summary>

@@ -109,12 +109,12 @@ namespace Smartstore.Admin.Controllers
         }
 
         [Permission(Permissions.System.Rule.Read)]
-        public async Task<IActionResult> RuleList(GridCommand command)
+        public async Task<IActionResult> RuleSetList(GridCommand command)
         {
             var ruleSets = await _db.RuleSets
                 .AsNoTracking()
                 .ApplyStandardFilter(null, false, true)
-                .ApplyGridCommand(command, false)
+                .ApplyGridCommand(command)
                 .ToPagedList(command)
                 .LoadAsync();
 
@@ -122,7 +122,8 @@ namespace Smartstore.Admin.Controllers
             {
                 var model = MiniMapper.Map<RuleSetEntity, RuleSetModel>(x);
                 model.ScopeName = await Services.Localization.GetLocalizedEnumAsync(x.Scope);
-                model.EditUrl = Url.Action("Edit", "Rule", new { id = x.Id, area = "Admin" });
+                model.CreatedOn = Services.DateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc);
+                model.EditUrl = Url.Action(nameof(Edit), "Rule", new { id = x.Id, area = "Admin" });
 
                 return model;
             })
@@ -131,7 +132,7 @@ namespace Smartstore.Admin.Controllers
             var gridModel = new GridModel<RuleSetModel>
             {
                 Rows = rows,
-                Total = ruleSets.TotalCount
+                Total = await ruleSets.GetTotalCountAsync()
             };
 
             return Json(gridModel);

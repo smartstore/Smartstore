@@ -4,7 +4,6 @@
     [Serializable]
     public class ProfileConfigurationModel
     {
-        [UIHint("Taxonomy")]
         [LocalizedDisplay("Plugins.Feed.Froogle.DefaultGoogleCategory")]
         public string DefaultGoogleCategory { get; set; }
 

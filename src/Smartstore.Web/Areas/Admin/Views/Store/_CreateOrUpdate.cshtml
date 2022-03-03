@@ -54,6 +54,15 @@
     </div>
     <div class="adminRow">
         <div class="adminTitle">
+            <smart-label asp-for="DefaultCurrencyId" />
+        </div>
+        <div class="adminData">
+            <select asp-for="DefaultCurrencyId" asp-items="ViewBag.Currencies"></select>
+            <span asp-validation-for="DefaultCurrencyId"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
             <smart-label asp-for="SslEnabled" />
         </div>
         <div class="adminData">

@@ -228,11 +228,6 @@ namespace Smartstore.Utilities
                 return true;
             }
 
-            if (value is StringValues stringValues)
-            {
-                value = stringValues.ToString();
-            }
-
             Type from = value.GetType();
 
             if (culture == null)
@@ -451,7 +446,7 @@ namespace Smartstore.Utilities
             }
             else if (type.IsClass)
             {
-                if (ObjectAnalyzed(obj, type))
+                if (ObjectAnalyzed(obj))
                 {
                     return _pointerSize;
                 }
@@ -474,7 +469,7 @@ namespace Smartstore.Utilities
 
             return 0;
 
-            bool ObjectAnalyzed(object o, Type t)
+            bool ObjectAnalyzed(object o)
             {
                 if (instanceLookup == null)
                 {

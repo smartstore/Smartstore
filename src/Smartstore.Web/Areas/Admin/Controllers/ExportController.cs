@@ -234,6 +234,8 @@ namespace Smartstore.Admin.Controllers
                 return View(model);
             }
 
+            var dtHelper = Services.DateTimeHelper;
+
             profile.Name = model.Name.NullEmpty() ?? provider.Metadata.FriendlyName.NullEmpty() ?? provider.Metadata.SystemName;
             profile.FileNamePattern = model.FileNamePattern;
             profile.FolderName = model.FolderName;
@@ -266,6 +268,23 @@ namespace Smartstore.Admin.Controllers
                 var filter = MiniMapper.Map<ExportFilterModel, ExportFilter>(model.Filter);
                 filter.StoreId = model.Filter.StoreId ?? 0;
                 filter.CategoryIds = model.Filter.CategoryIds?.Where(x => x != 0)?.ToArray() ?? Array.Empty<int>();
+
+                if (model.Filter.CreatedFrom.HasValue)
+                {
+                    filter.CreatedFrom = dtHelper.ConvertToUtcTime(model.Filter.CreatedFrom.Value);
+                }
+                if (model.Filter.CreatedTo.HasValue)
+                {
+                    filter.CreatedTo = dtHelper.ConvertToUtcTime(model.Filter.CreatedTo.Value);
+                }
+                if (model.Filter.LastActivityFrom.HasValue)
+                {
+                    filter.LastActivityFrom = dtHelper.ConvertToUtcTime(model.Filter.LastActivityFrom.Value);
+                }
+                if (model.Filter.LastActivityTo.HasValue)
+                {
+                    filter.LastActivityTo = dtHelper.ConvertToUtcTime(model.Filter.LastActivityTo.Value);
+                }
 
                 profile.Filtering = XmlHelper.Serialize(filter);
             }
@@ -694,7 +713,7 @@ namespace Smartstore.Admin.Controllers
 
         [HttpPost]
         [FormValueRequired("save", "save-continue"), ParameterBasedOnFormName("save-continue", "continueEditing")]
-        [Permission(Permissions.Configuration.Export.Update)]
+        [Permission(Permissions.Configuration.Export.CreateDeployment)]
         public async Task<IActionResult> CreateDeployment(ExportDeploymentModel model, bool continueEditing)
         {
             if (!await _db.ExportProfiles.AnyAsync(x => x.Id == model.ProfileId))
@@ -814,7 +833,7 @@ namespace Smartstore.Admin.Controllers
 
             var dir = await _exportProfileService.GetExportDirectoryAsync(profile);
             var logFile = await dir.GetFileAsync("log.txt");
-            //var moduleDescriptor = provider.Metadata.ModuleDescriptor;
+            var moduleDescriptor = provider.Metadata.ModuleDescriptor;
 
             model.TaskName = profile.Task.Name.NaIfEmpty();
             model.IsTaskRunning = lastExecutionInfo?.IsRunning ?? false;
@@ -831,9 +850,9 @@ namespace Smartstore.Admin.Controllers
                 ThumbnailUrl = GetThumbnailUrl(provider),
                 FriendlyName = _moduleManager.GetLocalizedFriendlyName(provider.Metadata),
                 Description = _moduleManager.GetLocalizedDescription(provider.Metadata),
-                //Url = descriptor?.Url,
-                //Author = descriptor?.Author,
-                //Version = descriptor?.Version?.ToString()
+                Url = moduleDescriptor?.ProjectUrl,
+                Author = moduleDescriptor?.Author,
+                Version = moduleDescriptor?.Version?.ToString()
             };
 
             if (!createForEdit)

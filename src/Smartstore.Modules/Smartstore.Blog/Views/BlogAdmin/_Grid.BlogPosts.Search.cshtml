@@ -7,15 +7,15 @@
 
 <div class="form-group">
     <smart-label asp-for="SearchTitle" />
-    <input asp-for="SearchTitle" />
+    <editor asp-for="SearchTitle" asp-template="SearchExpression" />
 </div>
 <div class="form-group">
     <smart-label asp-for="SearchIntro" />
-    <input asp-for="SearchIntro" />
+    <editor asp-for="SearchIntro" asp-template="SearchExpression" />
 </div>
 <div class="form-group">
     <smart-label asp-for="SearchBody" />
-    <input asp-for="SearchBody" />
+    <editor asp-for="SearchBody" asp-template="SearchExpression" />
 </div>
 <div class="form-group">
     <smart-label asp-for="SearchTags" />

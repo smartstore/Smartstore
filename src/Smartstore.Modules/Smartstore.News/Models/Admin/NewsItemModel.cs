@@ -1,4 +1,6 @@
-﻿using Smartstore.ComponentModel;
+﻿using Microsoft.AspNetCore.Mvc;
+using Smartstore.ComponentModel;
+using Smartstore.Core.Common.Services;
 using Smartstore.Core.Seo;
 
 namespace Smartstore.News.Models
@@ -26,17 +28,26 @@ namespace Smartstore.News.Models
         public int? PictureId { get; set; }
 
         [UIHint("Media"), AdditionalMetadata("album", "content")]
-        [LocalizedDisplay("*PreviewPictureId")]
+        [LocalizedDisplay("*PreviewPicture")]
         public int? PreviewPictureId { get; set; }
 
         [LocalizedDisplay("*AllowComments")]
         public bool AllowComments { get; set; }
 
         [LocalizedDisplay("*StartDate")]
-        public DateTime? StartDate { get; set; }
+        public DateTime? StartDateUtc { get; set; }
+        [LocalizedDisplay("*StartDate")]
+        public string StartDate { get; set; }
 
         [LocalizedDisplay("*EndDate")]
-        public DateTime? EndDate { get; set; }
+        public DateTime? EndDateUtc { get; set; }
+        [LocalizedDisplay("*EndDate")]
+        public string EndDate { get; set; }
+
+        [LocalizedDisplay("Common.CreatedOn")]
+        public DateTime CreatedOnUtc { get; set; }
+        [LocalizedDisplay("Common.CreatedOn")]
+        public string CreatedOn { get; set; }
 
         [LocalizedDisplay("Admin.Configuration.Seo.MetaKeywords")]
         public string MetaKeywords { get; set; }
@@ -52,9 +63,6 @@ namespace Smartstore.News.Models
 
         [LocalizedDisplay("*Comments")]
         public int Comments { get; set; }
-
-        [LocalizedDisplay("Common.CreatedOn")]
-        public DateTime CreatedOn { get; set; }
 
         [UIHint("Stores")]
         [AdditionalMetadata("multiple", true)]
@@ -120,19 +128,71 @@ namespace Smartstore.News.Models
         IMapper<NewsItem, NewsItemModel>,
         IMapper<NewsItemModel, NewsItem>
     {
+        private readonly IUrlHelper _urlHelper;
+        private readonly IDateTimeHelper _dateTimeHelper;
+
+        public NewsItemMapper(IUrlHelper urlHelper, IDateTimeHelper dateTimeHelper)
+        {
+            _urlHelper = urlHelper;
+            _dateTimeHelper = dateTimeHelper;
+        }
+
         public async Task MapAsync(NewsItem from, NewsItemModel to, dynamic parameters = null)
         {
+            Guard.NotNull(from, nameof(from));
+            Guard.NotNull(to, nameof(to));
+
             MiniMapper.Map(from, to);
+
             to.SeName = await from.GetActiveSlugAsync(0, true, false);
             to.PictureId = from.MediaFileId;
             to.PreviewPictureId = from.PreviewMediaFileId;
+            to.Comments = from.ApprovedCommentCount + from.NotApprovedCommentCount;
+            to.EditUrl = _urlHelper.Action("Edit", "News", new { id = from.Id, area = "Admin" });
+            to.CommentsUrl = _urlHelper.Action("Comments", "News", new { newsItemId = from.Id, area = "Admin" });
+
+            if (from.LanguageId.HasValue)
+            {
+                to.LanguageName = from.Language?.Name;
+            }
+
+            if (from.StartDateUtc.HasValue)
+            {
+                to.StartDate = _dateTimeHelper.ConvertToUserTime(from.StartDateUtc.Value, DateTimeKind.Utc).ToShortDateString();
+            }
+            if (from.EndDateUtc.HasValue)
+            {
+                to.EndDate = _dateTimeHelper.ConvertToUserTime(from.EndDateUtc.Value, DateTimeKind.Utc).ToShortDateString();
+            }
+
+            to.CreatedOn = _dateTimeHelper.ConvertToUserTime(from.CreatedOnUtc, DateTimeKind.Utc).ToShortDateString();
         }
 
         public Task MapAsync(NewsItemModel from, NewsItem to, dynamic parameters = null)
         {
+            Guard.NotNull(from, nameof(from));
+            Guard.NotNull(to, nameof(to));
+
             MiniMapper.Map(from, to);
+
             to.MediaFileId = from.PictureId.ZeroToNull();
             to.PreviewMediaFileId = from.PreviewPictureId.ZeroToNull();
+
+            // Convert date if updated via edit page. Let MiniMapper just copy the date in all other cases.
+            if (from.CreatedOnUtc.Kind != DateTimeKind.Utc)
+            {
+                to.CreatedOnUtc = _dateTimeHelper.ConvertToUtcTime(from.CreatedOnUtc);
+            }
+
+            if (from.StartDateUtc.HasValue && from.StartDateUtc.Value.Kind != DateTimeKind.Utc)
+            {
+                to.StartDateUtc = _dateTimeHelper.ConvertToUtcTime(from.StartDateUtc.Value);
+            }
+
+            if (from.EndDateUtc.HasValue && from.EndDateUtc.Value.Kind != DateTimeKind.Utc)
+            {
+                to.EndDateUtc = _dateTimeHelper.ConvertToUtcTime(from.EndDateUtc.Value);
+            }
 
             return Task.CompletedTask;
         }

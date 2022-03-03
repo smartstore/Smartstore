@@ -66,12 +66,14 @@ namespace Smartstore.Admin.Controllers
         {
             var quantityUnits = await _db.QuantityUnits
                 .AsNoTracking()
+                .OrderBy(x => x.DisplayOrder)
                 .ApplyGridCommand(command)
                 .ToPagedList(command)
                 .LoadAsync();
 
+            var mapper = MapperFactory.GetMapper<QuantityUnit, QuantityUnitModel>();
             var quantityUnitModels = await quantityUnits
-                .SelectAsync(async x => await MapperFactory.MapAsync<QuantityUnit, QuantityUnitModel>(x))
+                .SelectAsync(async x => await mapper.MapAsync(x))
                 .AsyncToList();
 
             var gridModel = new GridModel<QuantityUnitModel>
@@ -81,23 +83,6 @@ namespace Smartstore.Admin.Controllers
             };
 
             return Json(gridModel);
-        }
-
-        [HttpPost]
-        [Permission(Permissions.Configuration.Measure.Update)]
-        public async Task<IActionResult> QuantityUnitUpdate(QuantityUnitModel model)
-        {
-            var success = false;
-            var quantityUnit = await _db.QuantityUnits.FindByIdAsync(model.Id);
-
-            if (quantityUnit != null)
-            {
-                await MapperFactory.MapAsync(model, quantityUnit);
-                await _db.SaveChangesAsync();
-                success = true;
-            }
-
-            return Json(new { success });
         }
 
         [HttpPost]

@@ -14,10 +14,10 @@
           onrowclass="newsitemGrid_onRowClass">
     <datasource read="@Url.Action("NewsItemList")"
                 update="@Url.Action("NewsItemUpdate")"
-                delete="@Url.Action("DeleteSelection")" />
+                delete="@Url.Action("NewsItemDelete")" />
     <paging position="Bottom" page-index="1" show-size-chooser="true" />
     <sorting allow-unsort="true" allow-multisort="false">
-        <sort by="CreatedOn" by-entity-member="CreatedOnUtc" />
+        <sort by="CreatedOn" by-entity-member="CreatedOnUtc" descending="true" />
     </sorting>
     <toolbar>
         <toolbar-group>
@@ -71,9 +71,9 @@
             <column for="LanguageName" entity-member="LanguageId" halign="center" readonly="true" />
         }
         <column for="AllowComments" halign="center" visible="false" />
-        <column for="CreatedOn" entity-member="CreatedOnUtc" visible="false" />
-        <column for="StartDate" entity-member="StartDateUtc" visible="false" />
-        <column for="EndDate" entity-member="EndDateUtc" visible="false" />
+        <column for="CreatedOn" entity-member="CreatedOnUtc" readonly="true" />
+        <column for="StartDate" entity-member="StartDateUtc" readonly="true" visible="false" />
+        <column for="EndDate" entity-member="EndDateUtc" readonly="true" visible="false" />
     </columns>
     <row-commands>
         <a datarow-action="DataRowAction.InlineEdit">@T("Common.Edit")</a>

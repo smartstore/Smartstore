@@ -208,6 +208,7 @@
                         data-region-control-selector="#@Html.IdFor(x => x.StateProvinceId)"
                         data-states-ajax-url="@Url.Action("StatesByCountryId", "Common")"
                         data-addEmptyStateIfRequired="true"></select>
+                <span asp-validation-for="CountryId"></span>
             </div>
         </div>
 
@@ -215,6 +216,7 @@
             <label asp-for="StateProvinceId" class="col-lg-3 col-form-label"></label>
             <div class="col-lg-9">
                 <select asp-for="StateProvinceId" asp-items="ViewBag.AvailableStates"></select>
+                <span asp-validation-for="StateProvinceId"></span>
             </div>
         </div>
     </fieldset>

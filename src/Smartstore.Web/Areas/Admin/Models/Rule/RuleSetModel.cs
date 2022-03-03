@@ -29,6 +29,9 @@ namespace Smartstore.Admin.Models.Rules
         [LocalizedDisplay("*LogicalOperator")]
         public LogicalRuleOperator LogicalOperator { get; set; }
 
+        [LocalizedDisplay("Common.CreatedOn")]
+        public DateTime CreatedOn { get; set; }
+
         public DateTime CreatedOnUtc { get; set; }
         public DateTime UpdatedOnUtc { get; set; }
         public DateTime? LastProcessedOnUtc { get; set; }

@@ -6,12 +6,15 @@ namespace Smartstore.Google.MerchantCenter.Models
     [LocalizedDisplay("Plugins.Feed.Froogle.")]
     public class GoogleProductModel : EntityModelBase
     {
+        [LocalizedDisplay("Admin.Catalog.Products.Fields.ID")]
         public int ProductId { get; set; }
 
         [LocalizedDisplay("*Products.ProductName")]
         public string Name { get; set; }
 
-        public string SKU { get; set; }
+        [LocalizedDisplay("Admin.Catalog.Products.Fields.Sku")]
+        public string Sku { get; set; }
+
         public int ProductTypeId { get; set; }
         public ProductType ProductType => (ProductType)ProductTypeId;
         public string ProductTypeName { get; set; }
@@ -36,10 +39,12 @@ namespace Smartstore.Google.MerchantCenter.Models
         [UIHint("Gender")]
         [LocalizedDisplay("*Gender")]
         public string Gender { get; set; }
+        public string GenderLocalized { get; set; }
 
         [UIHint("AgeGroup")]
         [LocalizedDisplay("*AgeGroup")]
         public string AgeGroup { get; set; }
+        public string AgeGroupLocalized { get; set; }
 
         [LocalizedDisplay("*Color")]
         public string Color { get; set; }
@@ -61,9 +66,11 @@ namespace Smartstore.Google.MerchantCenter.Models
 
         [LocalizedDisplay("*IsBundle")]
         public bool? IsBundle { get; set; }
+        public string IsBundleLocalized { get; set; }
 
         [LocalizedDisplay("*IsAdult")]
         public bool? IsAdult { get; set; }
+        public string IsAdultLocalized { get; set; }
 
         [UIHint("EnergyEfficiencyClass")]
         [LocalizedDisplay("*EnergyEfficiencyClass")]
@@ -83,11 +90,5 @@ namespace Smartstore.Google.MerchantCenter.Models
 
         [LocalizedDisplay("*CustomLabel4")]
         public string CustomLabel4 { get; set; }
-
-        public string GenderLocalize { get; set; }
-        public string AgeGroupLocalize { get; set; }
-        public string Export2Localize { get; set; }
-        public string IsBundleLocalize { get; set; }
-        public string IsAdultLocalize { get; set; }
     }
 }

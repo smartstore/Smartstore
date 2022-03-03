@@ -49,7 +49,7 @@ namespace Smartstore.Forums
                         var forumNode = new TreeNode<MenuItem>(new MenuItem().ToBuilder()
                             .Text("Forums")
                             .ResKey("Forum.Forums")
-                            .Icon("fa fa-fw fa-users")
+                            .Icon("chat-square-text", "bi")
                             .PermissionNames(ForumPermissions.Read)
                             .Action("ForumSettings", "Forum", new { area = "Admin" })
                             .AsItem());

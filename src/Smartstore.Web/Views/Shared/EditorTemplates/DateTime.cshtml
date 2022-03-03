@@ -8,7 +8,7 @@
             DateTime? value = null;
             if (ViewData.Model != null)
             {
-                value = Convert.ToDateTime(ViewData.Model, System.Globalization.CultureInfo.CurrentCulture);
+                value = Convert.ToDateTime(ViewData.Model, System.Globalization.CultureInfo.CurrentCulture).ToLocalTime();
             }
             return value;
         }
@@ -72,6 +72,8 @@
            attr-value="(value.HasValue(), value)" />
 
     <div class="input-group-append input-group-addon" data-target="#@(id)-parent" data-toggle="datetimepicker">
-        <span class="input-group-text"><i class="far fa-calendar-alt"></i></span>
+        <span class="input-group-text">
+            <i class="far fa-calendar-alt"></i>
+        </span>
     </div>
 </div>

@@ -1,0 +1,40 @@
+﻿@model string
+
+@{ 
+    // We are not going to enable localized views just for this,
+    // but do it the shitty way just for once.
+    var helpPartialName = "SearchExpressionHelp";
+    var lang = WorkContext.WorkingLanguage.GetTwoLetterISOLanguageName();
+    if (lang == "de")
+    {
+        helpPartialName += ".de";
+    }
+}
+
+<div class="has-icon has-icon-right">
+    <input asp-for="@Model" />
+    <span class="input-group-icon">
+        <a href="javascript:;" class="search-expression-toggle">
+            <i class="fa fa-circle-question"></i>
+        </a>
+    </span>
+</div>
+
+<widget target-zone="end" key="search-expression-help">
+    <modal id="search-expression-help-window" sm-backdrop="Invisible" sm-render-at-page-end="false">
+        <modal-header sm-title="Search filter expressions"></modal-header>
+        <modal-body>
+            <partial name="@helpPartialName" />
+        </modal-body>
+    </modal>
+
+    <script data-origin="search-expression-help">
+        $(function () {
+            $(document).on('click', '.search-expression-toggle', function (e) {
+                e.preventDefault();
+                $('#search-expression-help-window').modal('show');
+                return false;
+            });
+        });
+    </script>
+</widget>

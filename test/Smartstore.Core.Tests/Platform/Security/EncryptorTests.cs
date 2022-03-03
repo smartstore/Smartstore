@@ -11,7 +11,7 @@ namespace Smartstore.Core.Tests.Security
         IEncryptor _encryptor;
         SecuritySettings _securitySettings;
 
-        [SetUp]
+        [OneTimeSetUp]
         public void SetUp()
         {
             _securitySettings = new SecuritySettings()

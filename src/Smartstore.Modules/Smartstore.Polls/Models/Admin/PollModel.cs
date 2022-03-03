@@ -28,10 +28,14 @@
         public int DisplayOrder { get; set; }
 
         [LocalizedDisplay("*StartDate")]
-        public DateTime? StartDate { get; set; }
+        public DateTime? StartDateUtc { get; set; }
+        [LocalizedDisplay("*StartDate")]
+        public string StartDate { get; set; }
 
         [LocalizedDisplay("*EndDate")]
-        public DateTime? EndDate { get; set; }
+        public DateTime? EndDateUtc { get; set; }
+        [LocalizedDisplay("*EndDate")]
+        public string EndDate { get; set; }
 
         [UIHint("Stores")]
         [AdditionalMetadata("multiple", true)]

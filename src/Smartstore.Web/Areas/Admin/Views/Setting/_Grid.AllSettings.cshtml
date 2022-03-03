@@ -5,10 +5,10 @@
 }
 
 <datagrid id="all-settings-grid" allow-resize="true" allow-row-selection="true" allow-edit="true">
-    <datasource read="@Url.Action("List", "Setting")"
-                update="@Url.Action("Update", "Setting")"
-                delete="@Url.Action("Delete", "Setting")"
-                insert="@Url.Action("Insert", "Setting")" />
+    <datasource read="@Url.Action("SettingList", "Setting")"
+                update="@Url.Action("SettingUpdate", "Setting")"
+                delete="@Url.Action("SettingDelete", "Setting")"
+                insert="@Url.Action("SettingInsert", "Setting")" />
     <sorting enabled="true">
         <sort by="Name" />
     </sorting>

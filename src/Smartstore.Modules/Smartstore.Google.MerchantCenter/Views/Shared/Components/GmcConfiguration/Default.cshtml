@@ -31,6 +31,12 @@
         new SelectListItem { Text = T("Plugins.Feed.Froogle.AgeGroupAdult"), Value = "adult" },
         new SelectListItem { Text = T("Plugins.Feed.Froogle.AgeGroupKids"), Value = "kids" }
     };
+
+    var languageSeoCode = WorkContext.WorkingLanguage.UniqueSeoCode.EmptyNull().ToLower();
+
+    var availableCategories = Model.DefaultGoogleCategory.HasValue()
+        ? new List<SelectListItem> { new SelectListItem { Text = Model.DefaultGoogleCategory, Value = Model.DefaultGoogleCategory, Selected = true } }
+        : new List<SelectListItem>();
 }
 
 <script sm-target-zone="scripts" src="~/Modules/Smartstore.Google.MerchantCenter/js/taxonomy.js"></script>
@@ -91,7 +97,12 @@
             <smart-label asp-for="DefaultGoogleCategory"></smart-label>
         </div>
         <div class="adminData wide">
-            <editor asp-for="DefaultGoogleCategory" />
+            <select asp-for="DefaultGoogleCategory"
+                    asp-items="availableCategories"
+                    data-select-url="@Url.Action("GetGoogleCategories", "GoogleMerchantCenter")"
+                    data-default-category=""
+                    data-language-seo-code="@languageSeoCode">
+            </select>
             <span asp-validation-for="DefaultGoogleCategory"></span>
         </div>
     </div>

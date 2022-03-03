@@ -4,9 +4,9 @@
 
 <div class="form-group">
     <smart-label asp-for="ResourceName" />
-    <input asp-for="ResourceName" />
+    <editor asp-for="ResourceName" asp-template="SearchExpression" />
 </div>
 <div class="form-group">
     <smart-label asp-for="ResourceValue" />
-    <input asp-for="ResourceValue" />
+    <editor asp-for="ResourceValue" asp-template="SearchExpression" />
 </div>

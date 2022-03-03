@@ -68,13 +68,6 @@ $font-size-root-md:             16px !default;
 $font-size-root-sm:             16px !default;
 
 
-// Material tabs
-// ==============================================================
-
-$mtab-text-transform:		    none;
-$mtab-font-weight:			    $font-weight-medium;
-$mtab-color:				    inherit;
-
 //
 // Checkout Steps
 // --------------------------------------------------
@@ -105,10 +98,10 @@ $enable-transitions:            true;
 $enable-hover-media-query:      false;
 $enable-grid-classes:           true;
 
-$theme-color-interval:		8%;
-$yiq-contrasted-threshold:	164;
-$yiq-text-dark:				$gray-900;
-$yiq-text-light:			#fff;
+$theme-color-interval:		    8%;
+$yiq-contrasted-threshold:	    164;
+$yiq-text-dark:				    $gray-900;
+$yiq-text-light:			    #fff;
 
 $spacer: 1.25rem;
 $spacers: ( 
@@ -142,17 +135,14 @@ $btn-border-radius-lg:          $border-radius-lg;
 $btn-border-radius-sm:          $border-radius-sm;
 
 // Shadows
-
-$box-shadow-sm-var:             0 calc(1px * var(--shadow-color-yoffset, 1)) 1px rgba(var(--shadow-color-rgb), calc(var(--shadow-color-intensity, 1) * 0.06)), 
-                                0 calc(2px * var(--shadow-color-yoffset, 1)) 4px rgba(var(--shadow-color-rgb), calc(var(--shadow-color-intensity, 1) * 0.06)), 
-                                0 calc(3px * var(--shadow-color-yoffset, 1)) 8px rgba(var(--shadow-color-rgb), calc(var(--shadow-color-intensity, 1) * 0.1));
-$box-shadow-var:                0 calc(1px * var(--shadow-color-yoffset, 1)) 2px rgba(var(--shadow-color-rgb), calc(var(--shadow-color-intensity, 1) * 0.06)), 
-                                0 calc(3px * var(--shadow-color-yoffset, 1)) 6px rgba(var(--shadow-color-rgb), calc(var(--shadow-color-intensity, 1) * 0.08)), 
-                                0 calc(6px * var(--shadow-color-yoffset, 1)) 16px rgba(var(--shadow-color-rgb), calc(var(--shadow-color-intensity, 1) * 0.12));
-$box-shadow-lg-var:             0 calc(1px * var(--shadow-color-yoffset, 1)) 2px rgba(var(--shadow-color-rgb), calc(var(--shadow-color-intensity, 1) * 0.06)), 
-                                0 calc(3px * var(--shadow-color-yoffset, 1)) 8px rgba(var(--shadow-color-rgb), calc(var(--shadow-color-intensity, 1) * 0.06)), 
-                                0 calc(8px * var(--shadow-color-yoffset, 1)) 20px rgba(var(--shadow-color-rgb), calc(var(--shadow-color-intensity, 1) * 0.1)), 
-                                0 calc(16px * var(--shadow-color-yoffset, 1)) 42px rgba(var(--shadow-color-rgb), calc(var(--shadow-color-intensity, 1) * 0.12));
+$box-shadow-sm-var:             0 2px 16px -2px rgba(var(--shadow-colorbase-rgb), calc(var(--shadow-intensity) * 0.12)), 
+                                0 2px 3px -2px rgba(var(--shadow-color-rgb), calc(var(--shadow-intensity) * 0.15));
+$box-shadow-var:                0 6px 24px -5px rgba(var(--shadow-colorbase-rgb), calc(var(--shadow-intensity) * 0.12)), 
+                                0 5px 12px -5px rgba(var(--shadow-color-rgb), calc(var(--shadow-intensity) * 0.17));
+$box-shadow-lg-var:             0 10px 40px -4px rgba(var(--shadow-colorbase-rgb), calc(var(--shadow-intensity) * 0.14)), 
+                                0 12px 28px -12px rgba(var(--shadow-color-rgb), calc(var(--shadow-intensity) * 0.2));
+$box-shadow-xl-var:             0 17px 70px -7px rgba(var(--shadow-colorbase-rgb), calc(var(--shadow-intensity) * 0.14)), 
+                                0 20px 48px -12px rgba(var(--shadow-color-rgb), calc(var(--shadow-intensity) * 0.22));
 
 $box-shadow-sm:                 var(--box-shadow);
 $box-shadow:                    var(--box-shadow);
@@ -200,10 +190,16 @@ $badge-font-weight:             $font-weight-medium !default;
 
 // Dropdown
 
-$dropdown-box-shadow:			$box-shadow-lg-var;
-$dropdown-border-color:			$gray-300; 
+$dropdown-min-width:            10rem;
+$dropdown-font-size:            14px;
+$dropdown-font-weight:          $font-weight-normal;
+$dropdown-box-shadow:			0 calc(1px * var(--shadow-yoffset, 1)) 50px 0 rgba(var(--shadow-color-rgb), calc(var(--shadow-intensity, 1) * 0.12));
+$dropdown-border-color:			$gray-200;
+$dropdown-link-color:           $gray-700;
 $dropdown-link-active-color:    $dropdown-link-hover-color;
 $dropdown-link-active-bg:       darken($dropdown-link-hover-bg, 4%);
+$dropdown-item-padding-y:       0.525rem;
+$dropdown-item-padding-x:       1.5rem;
 
 
 // Modal
@@ -211,10 +207,13 @@ $dropdown-link-active-bg:       darken($dropdown-link-hover-bg, 4%);
 $modal-inner-padding:               1.25rem;
 $modal-header-padding:              1.25rem;
 $modal-content-border-width:        0;
-$modal-content-border-radius:		$border-radius;
-$modal-backdrop-opacity:            .75;
+$modal-content-border-color:        rgba(#000, 0.06);
+$modal-content-border-radius:		$border-radius-lg;
+$modal-backdrop-bg:                 #000;
+$modal-backdrop-opacity:            .68;
 $modal-content-box-shadow-xs:       $box-shadow-var;
 $modal-content-box-shadow-sm-up:    $box-shadow-lg-var;
+$modal-transition:                  all 0.2s ease-out;
 
 
 // Popover
@@ -302,6 +301,7 @@ $breadcrumb-border-radius:          0;
 
 // Misc
 
+$card-border-color:                 rgba(#000, 0.1);
 $card-deck-margin:                  10px;
 $alert-border-radius:               $border-radius;
 $product-price-color:               $body-color !default;

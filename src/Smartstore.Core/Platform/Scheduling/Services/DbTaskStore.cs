@@ -1,7 +1,18 @@
-﻿using Smartstore.Core.Common.Services;
+﻿using Smartstore.Caching.Tasks;
+using Smartstore.Core.Catalog.Rules;
+using Smartstore.Core.Common.Services;
 using Smartstore.Core.Common.Settings;
+using Smartstore.Core.Common.Tasks;
+using Smartstore.Core.Content.Media.Tasks;
 using Smartstore.Core.Data;
+using Smartstore.Core.DataExchange.Export;
+using Smartstore.Core.DataExchange.Import;
+using Smartstore.Core.Identity.Rules;
+using Smartstore.Core.Identity.Tasks;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Logging.Tasks;
+using Smartstore.Core.Messaging.Tasks;
+using Smartstore.Core.Seo;
 using Smartstore.Data;
 using Smartstore.Data.Hooks;
 using Smartstore.Utilities;
@@ -10,6 +21,23 @@ namespace Smartstore.Scheduling
 {
     public partial class DbTaskStore : Disposable, ITaskStore
     {
+        private readonly static Dictionary<string, string> _legacyTypeNamesMap = new(StringComparer.OrdinalIgnoreCase)
+        {
+            { nameof(DataExportTask), "SmartStore.Services.DataExchange.Export.DataExportTask, SmartStore.Services" },
+            { nameof(DataImportTask), "SmartStore.Services.DataExchange.Import.DataImportTask, SmartStore.Services" },
+            { nameof(TargetGroupEvaluatorTask), "SmartStore.Services.Customers.TargetGroupEvaluatorTask, SmartStore.Services" },
+            { nameof(ProductRuleEvaluatorTask), "SmartStore.Services.Catalog.ProductRuleEvaluatorTask, SmartStore.Services" },
+            { nameof(RebuildXmlSitemapTask), "SmartStore.Services.Seo.RebuildXmlSitemapTask, SmartStore.Services" },
+            { nameof(UpdateExchangeRateTask), "SmartStore.Services.Directory.UpdateExchangeRateTask, SmartStore.Services" },
+            { nameof(ClearCacheTask), "SmartStore.Services.Caching.ClearCacheTask, SmartStore.Services" },
+            { nameof(DeleteGuestsTask), "SmartStore.Services.Customers.DeleteGuestsTask, SmartStore.Services" },
+            { nameof(DeleteLogsTask), "SmartStore.Services.Logging.DeleteLogsTask, SmartStore.Services" },
+            { nameof(QueuedMessagesClearTask), "SmartStore.Services.Messages.QueuedMessagesClearTask, SmartStore.Services" },
+            { nameof(QueuedMessagesSendTask), "SmartStore.Services.Messages.QueuedMessagesSendTask, SmartStore.Services" },
+            { nameof(TempFileCleanupTask), "SmartStore.Services.Common.TempFileCleanupTask, SmartStore.Services" },
+            { nameof(TransientMediaClearTask), "SmartStore.Services.Media.TransientMediaClearTask, SmartStore.Services" }
+        };
+
         private readonly SmartDbContext _db;
         private readonly IApplicationContext _appContext;
         private readonly IDateTimeHelper _dtHelper;
@@ -81,12 +109,14 @@ namespace Smartstore.Scheduling
             {
                 if (type.HasValue())
                 {
-                    var query = _db.TaskDescriptors
-                        .Where(t => t.Type == type)
-                        .OrderByDescending(t => t.Id);
+                    var query = _legacyTypeNamesMap.TryGetValue(type, out var legacyTypeName)
+                        ? _db.TaskDescriptors.Where(t => t.Type == type || t.Type == legacyTypeName)
+                        : _db.TaskDescriptors.Where(t => t.Type == type);
 
-                    // TODO: (core) Map old task types to new types.
-                    var task = await query.FirstOrDefaultAsync();
+                    var task = await query
+                        .OrderByDescending(t => t.Id)
+                        .FirstOrDefaultAsync();
+
                     return task;
                 }
             }

@@ -37,9 +37,9 @@ namespace Smartstore.Forums.Models.Public
         public Dictionary<int, string> AvailableSortOptions { get; set; }
         public IPageable PagedList { get; set; }
 
-        public ProductSummaryViewMode ViewMode => throw new NotImplementedException();
-        public GridColumnSpan GridColumnSpan => throw new NotImplementedException();
-        public bool AllowViewModeChanging => throw new NotImplementedException();
-        public IEnumerable<int> AvailablePageSizes => throw new NotImplementedException();
+        public ProductSummaryViewMode ViewMode { get; }
+        public GridColumnSpan GridColumnSpan { get; }
+        public bool AllowViewModeChanging { get; }
+        public IEnumerable<int> AvailablePageSizes { get; }
     }
 }

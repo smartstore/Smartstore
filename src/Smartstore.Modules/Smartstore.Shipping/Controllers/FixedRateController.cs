@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Data;
 using Smartstore.Core.Security;
 using Smartstore.Web.Controllers;
@@ -11,13 +10,11 @@ namespace Smartstore.Shipping.Controllers
     public class FixedRateController : AdminController
     {
         private readonly SmartDbContext _db;
-        private readonly IShippingService _shippingService;
         private readonly IProviderManager _providerManager;
 
-        public FixedRateController(SmartDbContext db, IShippingService shippingService, IProviderManager providerManager)
+        public FixedRateController(SmartDbContext db, IProviderManager providerManager)
         {
             _db = db;
-            _shippingService = shippingService;
             _providerManager = providerManager;
         }
 
@@ -44,10 +41,11 @@ namespace Smartstore.Shipping.Controllers
         {
             var shippingMethods = await _db.ShippingMethods
                 .AsNoTracking()
+                .OrderBy(x => x.DisplayOrder)
                 .ToPagedList(command)
                 .LoadAsync();
 
-            var ShippingRateModels = await shippingMethods.SelectAsync(async x => new FixedRateModel()
+            var ShippingRateModels = await shippingMethods.SelectAsync(async x => new FixedRateModel
             {
                 ShippingMethodId = x.Id,
                 ShippingMethodName = x.Name,
@@ -69,6 +67,7 @@ namespace Smartstore.Shipping.Controllers
         {
             await Services.Settings.ApplySettingAsync($"ShippingRateComputationMethod.FixedRate.Rate.ShippingMethodId{model.ShippingMethodId}", model.Rate);
             await _db.SaveChangesAsync();
+
             return Json(new { success = true });
         }
     }

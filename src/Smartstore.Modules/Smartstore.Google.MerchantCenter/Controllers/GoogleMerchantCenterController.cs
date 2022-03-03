@@ -9,7 +9,6 @@ using Smartstore;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Data;
-using Smartstore.Core.DataExchange.Export;
 using Smartstore.Core.Rules.Filters;
 using Smartstore.Engine.Modularity;
 using Smartstore.Google.MerchantCenter.Domain;
@@ -25,16 +24,11 @@ namespace Smartstore.Google.MerchantCenter.Controllers
     public class GoogleMerchantCenterController : AdminController
     {
         private readonly SmartDbContext _db;
-        private readonly Lazy<IExportProfileService> _exportService;
         private readonly IProviderManager _providerManager;
 
-        public GoogleMerchantCenterController(
-            SmartDbContext db, 
-            Lazy<IExportProfileService> exportService, 
-            IProviderManager providerManager)
+        public GoogleMerchantCenterController(SmartDbContext db, IProviderManager providerManager)
         {
             _db = db;
-            _exportService = exportService;
             _providerManager = providerManager;
         }
 
@@ -69,14 +63,11 @@ namespace Smartstore.Google.MerchantCenter.Controllers
             ViewBag.LanguageSeoCode = Services.WorkContext.WorkingLanguage.UniqueSeoCode.EmptyNull().ToLower();
 
             // We do not have export profile context here, so we simply use the first profile.
-            var profile = await _db.ExportProfiles
-                .Where(x => x.SystemName == GmcXmlExportProvider.SystemName)
-                .FirstOrDefaultAsync();
+            var profile = await _db.ExportProfiles.FirstOrDefaultAsync(x => x.ProviderSystemName == GmcXmlExportProvider.SystemName);
 
             if (profile != null)
             {
-                var config = XmlHelper.Deserialize(profile.ProviderConfigData, typeof(ProfileConfigurationModel)) as ProfileConfigurationModel;
-                if (config != null)
+                if (XmlHelper.Deserialize(profile.ProviderConfigData, typeof(ProfileConfigurationModel)) is ProfileConfigurationModel config)
                 {
                     ViewBag.DefaultCategory = config.DefaultGoogleCategory;
                     ViewBag.DefaultColor = config.Color;
@@ -120,6 +111,7 @@ namespace Smartstore.Google.MerchantCenter.Controllers
             var query = from p in _db.Products
                         join gp in _db.GoogleProducts() on p.Id equals gp.ProductId into Products
                         from gp in Products.DefaultIfEmpty()
+                        where !p.IsSystemProduct
                         select new
                         {
                             GoogleProduct = gp,
@@ -139,64 +131,45 @@ namespace Smartstore.Google.MerchantCenter.Controllers
                 query = query.ApplySearchFilterFor(x => x.Sku, model.SearchProductSku);
             }
             
-            if (model.SearchIsTouched != null)
+            if (model.SearchIsTouched.HasValue)
             {
-                query = query.Where(x => x.GoogleProduct.IsTouched == model.SearchIsTouched);
+                query = model.SearchIsTouched.Value
+                    ? query.Where(x => x.GoogleProduct.IsTouched)
+                    : query.Where(x => !x.GoogleProduct.IsTouched || x.GoogleProduct == null);
             }
 
-            var googleProducts = await query.ApplyGridCommand(command, false)
+            var googleProducts = await query
+                .OrderBy(x => x.Name)
+                .ApplyGridCommand(command)
                 .ToPagedList(command)
                 .LoadAsync();
 
+            var mapper = MapperFactory.GetMapper<GoogleProduct, GoogleProductModel>();
             var googleProductModels = await googleProducts
                 .SelectAsync(async x =>
                 {
-                    var model = new GoogleProductModel();
+                    var model = x.GoogleProduct != null
+                        ? await mapper.MapAsync(x.GoogleProduct)
+                        : new GoogleProductModel { Export = true };
+
                     if (x.GoogleProduct != null)
                     {
-                        model = await MapperFactory.MapAsync<GoogleProduct, GoogleProductModel>(x.GoogleProduct);
-
                         if (model.Gender.HasValue())
                         {
-                            model.GenderLocalize = T("Plugins.Feed.Froogle.Gender" + textInfo.ToTitleCase(model.Gender));
+                            model.GenderLocalized = T("Plugins.Feed.Froogle.Gender" + textInfo.ToTitleCase(model.Gender));
                         }
 
                         if (model.AgeGroup.HasValue())
                         {
-                            model.AgeGroupLocalize = T("Plugins.Feed.Froogle.AgeGroup" + textInfo.ToTitleCase(model.AgeGroup));
+                            model.AgeGroupLocalized = T("Plugins.Feed.Froogle.AgeGroup" + textInfo.ToTitleCase(model.AgeGroup));
                         }
 
-                        model.Export2Localize = model.Export ? no : yes;
-                        model.IsBundleLocalize = model.IsBundle.HasValue ? (model.IsBundle.Value ? yes : no) : null;
-                        model.IsAdultLocalize = model.IsAdult.HasValue ? (model.IsAdult.Value ? yes : no) : null;
-
-                        if (model.IsBundle.HasValue)
-                        {
-                            model.IsBundleLocalize = model.IsBundle.Value ? yes : no;
-                        }
-                        else
-                        {
-                            model.IsBundleLocalize = null;
-                        }
-
-                        if (model.IsAdult.HasValue)
-                        {
-                            model.IsAdultLocalize = model.IsAdult.Value ? yes : no;
-                        }
-                        else
-                        {
-                            model.IsAdultLocalize = null;
-                        }
-                    }
-                    else {
-                        // INFO: IN classic this was made in SQL COALESCE([t1].[Export],1)
-                        model.Export = true;
-                        // INFO: IN classic this was made in SQL COALESCE([t1].[Multipack],0)
-                        model.Multipack = 0;
+                        model.IsBundleLocalized = model.IsBundle.HasValue ? (model.IsBundle.Value ? yes : no) : null;
+                        model.IsAdultLocalized = model.IsAdult.HasValue ? (model.IsAdult.Value ? yes : no) : null;
                     }
 
                     model.ProductId = x.ProductId;
-                    model.SKU = x.Sku;
+                    model.Sku = x.Sku;
                     model.Name = x.Name;
                     model.ProductTypeId = x.ProductTypeId;
 
@@ -222,8 +195,7 @@ namespace Smartstore.Google.MerchantCenter.Controllers
         public async Task<IActionResult> GoogleProductUpsert(GoogleProductModel model)
         {
             var googleProduct = await _db.GoogleProducts()
-                .Where(x => x.ProductId == model.ProductId)
-                .FirstOrDefaultAsync();
+                .FirstOrDefaultAsync(x => x.ProductId == model.ProductId);
 
             var success = false;
             var insert = googleProduct == null;
@@ -324,9 +296,9 @@ namespace Smartstore.Google.MerchantCenter.Controllers
                     }
                 }
             }
-            catch (Exception exc)
+            catch (Exception ex)
             {
-                Logger.Error(exc);
+                Logger.Error(ex);
             }
 
             return (categories, hasMoreItems);

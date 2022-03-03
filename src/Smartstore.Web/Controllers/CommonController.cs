@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using System.Xml.Linq;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Caching;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Identity;
@@ -9,11 +10,11 @@ using Smartstore.Core.Seo;
 using Smartstore.Core.Seo.Routing;
 using Smartstore.Core.Stores;
 using Smartstore.Core.Theming;
-using Smartstore.Core.Web;
 using Smartstore.Http;
 using Smartstore.Utilities;
 using Smartstore.Web.Infrastructure.Hooks;
 using Smartstore.Web.Models.Common;
+using Smartstore.Web.Rendering;
 
 namespace Smartstore.Web.Controllers
 {
@@ -37,7 +38,6 @@ namespace Smartstore.Web.Controllers
             Lazy<IMediaService> mediaService,
             ILanguageService languageService,
             UrlPolicy urlPolicy,
-            IWebHelper webHelper,
             IThemeContext themeContext, 
             IThemeRegistry themeRegistry,
             ICacheManager cache,
@@ -220,34 +220,26 @@ namespace Smartstore.Web.Controllers
         }
 
         /// <summary>
-        /// This action method gets called via an ajax request.
+        /// This action method gets called via an AJAX request.
         /// </summary>
         [HttpGet]
         public async Task<IActionResult> StatesByCountryId(string countryId, bool addEmptyStateIfRequired)
         {
             // This should never happen. But just in case we return an empty List to don't throw in frontend.
             if (!countryId.HasValue())
-                return Json(new List<string>());
+            {
+                return Json(new List<SelectListItem>());
+            }
 
-            string cacheKey = string.Format(ModelCacheInvalidator.STATEPROVINCES_BY_COUNTRY_MODEL_KEY, countryId, addEmptyStateIfRequired, Services.WorkContext.WorkingLanguage.Id);
+            var cacheKey = string.Format(ModelCacheInvalidator.STATEPROVINCES_BY_COUNTRY_MODEL_KEY, countryId, addEmptyStateIfRequired, Services.WorkContext.WorkingLanguage.Id);
             var cacheModel = await _cache.GetAsync(cacheKey, async () =>
             {
-                var country = await _db.Countries
-                    .AsNoTracking()
-                    .Include(x => x.StateProvinces)
-                    .Where(x => x.Id == Convert.ToInt32(countryId))
-                    .FirstOrDefaultAsync();
-
-                var states = country?.StateProvinces ?? Array.Empty<StateProvince>();
-
-                // TODO: (mh) (core) Caching anonymous aobjects is a bad idea. Please use SelectListItem or something else.
-                var result = (from s in states
-                              select new { id = s.Id, name = s.GetLocalized(x => x.Name).Value })
-                              .ToList();
+                var stateProvinces = await _db.StateProvinces.GetStateProvincesByCountryIdAsync(Convert.ToInt32(countryId));
+                var result = stateProvinces.ToSelectListItems() ?? new List<SelectListItem>();
 
                 if (addEmptyStateIfRequired && result.Count == 0)
                 {
-                    result.Insert(0, new { id = 0, name = T("Address.OtherNonUS").Value });
+                    result.Add(new SelectListItem { Text = T("Address.OtherNonUS"), Value = "0" });
                 }
 
                 return result;

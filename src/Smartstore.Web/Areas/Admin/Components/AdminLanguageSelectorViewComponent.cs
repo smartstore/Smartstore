@@ -16,9 +16,11 @@ namespace Smartstore.Admin.Components
         public async Task<IViewComponentResult> InvokeAsync()
         {
             ViewBag.CurrentLanguage = await MapperFactory.MapAsync<Language, LanguageModel>(Services.WorkContext.WorkingLanguage);
+
+            var mapper = MapperFactory.GetMapper<Language, LanguageModel>();
             ViewBag.AvailableLanguages = await _languageService
-                 .GetAllLanguages(storeId: Services.StoreContext.CurrentStore.Id)
-                 .SelectAsync(async x => await MapperFactory.MapAsync<Language, LanguageModel>(x))
+                 .GetAllLanguages(false, Services.StoreContext.CurrentStore.Id)
+                 .SelectAsync(async x => await mapper.MapAsync(x))
                  .AsyncToList();
             
             return View();

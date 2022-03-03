@@ -132,8 +132,7 @@ namespace Smartstore.AmazonPay.Services
                         var stateProvince = src.StateOrRegion.HasValue()
                             ? await _db.StateProvinces
                                 .AsNoTracking()
-                                .ApplyAbbreviationFilter(src.StateOrRegion)
-                                .FirstOrDefaultAsync()
+                                .FirstOrDefaultAsync(x => x.Abbreviation == src.StateOrRegion)
                             : null;
 
                         var address1 = src.AddressLine1.TrimSafe().Truncate(500);
