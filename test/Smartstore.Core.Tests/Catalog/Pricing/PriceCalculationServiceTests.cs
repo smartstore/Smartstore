@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Autofac;
-using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using NUnit.Framework;
 using Smartstore.Caching;
@@ -23,11 +22,12 @@ using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Stores;
 using Smartstore.Core.Tests.Catalog.Pricing.Calculators;
-using Smartstore.Engine;
 using Smartstore.Test.Common;
 
 namespace Smartstore.Core.Tests.Catalog.Pricing
 {
+    // TODO: (mh) (core) Whatever you add to the DbContext here, you must remove it after test is done!
+    
     [TestFixture]
     public class PriceCalculationServiceTests : ServiceTest
     {
@@ -44,7 +44,7 @@ namespace Smartstore.Core.Tests.Catalog.Pricing
         IDiscountService _discountService;
 
         ICurrencyService _currencyService;
-        ICommonServices _services;
+        MockCommonServices _services;
         ITaxService _taxService;
         IRequestCache _requestCache;
 
@@ -93,6 +93,9 @@ namespace Smartstore.Core.Tests.Catalog.Pricing
             builder.RegisterInstance(_categoryService).As<ICategoryService>().SingleInstance();
             builder.RegisterInstance(_manufacturerService).As<IManufacturerService>().SingleInstance();
 
+            // TODO: (mh) (core) Don't create containers during testing, make the tested class testable instead!
+            //_services = new MockCommonServices(DbContext, LifetimeScope);
+
             _services = new MockCommonServices(DbContext, builder.Build());
 
             var productAttributeMaterializerMock = new Mock<IProductAttributeMaterializer>();
@@ -103,10 +106,14 @@ namespace Smartstore.Core.Tests.Catalog.Pricing
 
             var discountServiceMock = new Mock<IDiscountService>();
             _discountService = discountServiceMock.Object;
-            discountServiceMock.Setup(x => x.GetAllDiscountsAsync(DiscountType.AssignedToCategories, null, false)).ReturnsAsync(new List<Discount>());
-            discountServiceMock.Setup(x => x.GetAllDiscountsAsync(DiscountType.AssignedToManufacturers, null, false)).ReturnsAsync(new List<Discount>());
-            // INFO: Extensions methods can't be mocked.
-            //discountServiceWrapper.Setup(x => x.IsDiscountValidAsync(null, _customer, _store)).ReturnsAsync(true);
+
+            // INFO: (mh) (core) Use It.IsAny<T>() instead of passing fake values.
+            discountServiceMock
+                .Setup(x => x.GetAllDiscountsAsync(DiscountType.AssignedToCategories, It.IsAny<string>(), It.IsAny<bool>()))
+                .ReturnsAsync(new List<Discount>());
+            discountServiceMock
+                .Setup(x => x.GetAllDiscountsAsync(DiscountType.AssignedToManufacturers, It.IsAny<string>(), It.IsAny<bool>()))
+                .ReturnsAsync(new List<Discount>());
 
             var currencyServiceMock = new Mock<ICurrencyService>();
             _currencyService = currencyServiceMock.Object;
@@ -215,6 +222,7 @@ namespace Smartstore.Core.Tests.Catalog.Pricing
 
             DbContext.Products.Add(_product);
         }
+
         private void InitTierPricesForCustomerRoles()
         {
             var customerRole1 = new CustomerRole
@@ -320,11 +328,13 @@ namespace Smartstore.Core.Tests.Catalog.Pricing
             calculators.Add(offerPriceCalculator);
 
             // TODO: (mh) (core) Mock Materializer
+            // TODO: (mh) (core) ???!!! You change and pass a reference type, thus changing all prior assignments!!!!
             productMetadata.Order = CalculatorOrdering.Early + 1;
             var preselectedPriceCalculator = new Lazy<IPriceCalculator, PriceCalculatorMetadata>(() =>
                 new PreselectedPriceCalculator(null), productMetadata);
             calculators.Add(preselectedPriceCalculator);
 
+            // TODO: (mh) (core) ???!!! Dito
             productMetadata.Order = CalculatorOrdering.Default + 100;
             var tierPriceCalculator = new Lazy<IPriceCalculator, PriceCalculatorMetadata>(() =>
                 new TierPriceCalculator(), productMetadata);
@@ -487,6 +497,7 @@ namespace Smartstore.Core.Tests.Catalog.Pricing
                 ProductId = 1
             };
 
+            // TODO: (mh) (core) Now the product is merged and is never unmerged for the following tests. Learn to ISOLATE each test, this is SOUP!!!!
             _product.MergeWithCombination(combination);
 
             var price = await _priceCalcService.CalculatePriceAsync(_priceCalculationContext);
