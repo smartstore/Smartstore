@@ -9,11 +9,13 @@
 	<ItemGroup>
 	  <None Remove="Platform\DataExchange\Files\testdata.csv" />
 	  <None Remove="Platform\DataExchange\Files\testdata.xlsx" />
+	  <None Remove="Platform\Messaging\Attachment.pdf" />
 	</ItemGroup>
 
 	<ItemGroup>
 	  <EmbeddedResource Include="Platform\DataExchange\Files\testdata.csv" />
 	  <EmbeddedResource Include="Platform\DataExchange\Files\testdata.xlsx" />
+	  <EmbeddedResource Include="Platform\Messaging\Attachment.pdf" />
 	</ItemGroup>
 
 	<ItemGroup>

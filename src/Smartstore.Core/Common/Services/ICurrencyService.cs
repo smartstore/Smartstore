@@ -19,7 +19,7 @@ namespace Smartstore.Core.Common.Services
         /// Gets the primary exchange currency which is used to calculate money conversions.
         /// </summary>
         /// <remarks>The setter is for testing purposes only.</remarks>
-        Currency PrimaryExchangeCurrency { get; }
+        Currency PrimaryExchangeCurrency { get; set; }
 
         /// <summary>
         /// Exchanges given <see cref="Money"/> amount to <see cref="IWorkContext.WorkingCurrency"/>,

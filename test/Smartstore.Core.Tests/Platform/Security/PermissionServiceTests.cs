@@ -17,13 +17,13 @@ namespace Smartstore.Core.Tests.Platform.Security
         private IWorkContext _workContext;
         private ICacheManager _cacheManager;
 
-        private readonly CustomerRole _rAdmin = new() { Id = 1, Active = true, SystemName = "Administrators", Name = "Administrators" };
-        private readonly CustomerRole _rModerator = new() { Id = 2, Active = true, SystemName = "Moderators", Name = "Moderators" };
-        private readonly CustomerRole _rGuest = new() { Id = 3, Active = true, SystemName = "Guests", Name = "Guests" };
+        private readonly CustomerRole _rAdmin = new() { Id = 10, Active = true, SystemName = "Administrators", Name = "Administrators" };
+        private readonly CustomerRole _rModerator = new() { Id = 20, Active = true, SystemName = "Moderators", Name = "Moderators" };
+        private readonly CustomerRole _rGuest = new() { Id = 30, Active = true, SystemName = "Guests", Name = "Guests" };
 
-        private readonly Customer _cAdmin = new() { Id = 1, Username = "Admin" };
-        private readonly Customer _cModerator = new() { Id = 2, Username = "Moderator" };
-        private readonly Customer _cGuest = new() { Id = 3, Username = "Guest" };
+        private readonly Customer _cAdmin = new() { Id = 10, Username = "Admin" };
+        private readonly Customer _cModerator = new() { Id = 20, Username = "Moderator" };
+        private readonly Customer _cGuest = new() { Id = 30, Username = "Guest" };
 
         [OneTimeSetUp]
         public virtual void Setup()

@@ -20,7 +20,9 @@ using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Common;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Data;
+using Smartstore.Core.Identity;
 using Smartstore.Core.Tests.Checkout.Payment;
+using Smartstore.Core.Tests.Common;
 using Smartstore.Core.Tests.Shipping;
 using Smartstore.Core.Tests.Tax;
 using Smartstore.Data;
@@ -134,7 +136,7 @@ namespace Smartstore.Core.Tests
                         {
                             var query = new List<GenericAttribute> {
                                 new GenericAttribute { Key = "", Value = "" },
-                                new GenericAttribute { Key = "", Value = "" }
+                                new GenericAttribute { Key = SystemCustomerAttributeNames.DiscountCouponCode, Value = "CouponCode 1" }
                             }.AsQueryable();
 
                             return new GenericAttributeCollection(query, name, id, 0);
@@ -184,7 +186,7 @@ namespace Smartstore.Core.Tests
             _providerManager.RegisterProvider("FixedTaxRateTest", new FixedRateTestTaxProvider());
             _providerManager.RegisterProvider("FixedRateTestShippingRateComputationMethod", new FixedRateTestShippingRateComputationMethod());
             _providerManager.RegisterProvider("Payments.TestMethod", new TestPaymentMethod());
-            //_providerManager.RegisterProvider("CurrencyExchange.TestProvider", new TestExchangeRateProvider());
+            _providerManager.RegisterProvider("CurrencyExchange.TestProvider", new TestExchangeRateProvider());
             //_providerManager.RegisterProvider(DatabaseMediaStorageProvider.SystemName, new TestDatabaseMediaStorageProvider());
         }
 
