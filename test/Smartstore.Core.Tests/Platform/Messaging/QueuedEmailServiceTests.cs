@@ -25,13 +25,7 @@ namespace Smartstore.Core.Tests.Platform.Messaging
         IMediaService _mediaService;
         IMediaUrlGenerator _mediaUrlGenerator;
         EmailAccountSettings _emailAccountSettings;
-
-        ICommonServices _services;
-        ISettingService _settingService;
-        Provider<IMediaStorageProvider> _mediaStorageProvider;
-
-        Mock<IMediaService> _mediaServiceWrapper;
-        MediaFile _fileReferenceFile;
+        Mock<IMediaService> _mediaServiceMock;
 
         [SetUp]
         public new void SetUp()
@@ -43,12 +37,13 @@ namespace Smartstore.Core.Tests.Platform.Messaging
                 PickupDirectoryLocation = string.Empty
             };
 
-            _mediaServiceWrapper = new Mock<IMediaService>();
-            _mediaService = _mediaServiceWrapper.Object;
+            _mediaServiceMock = new Mock<IMediaService>();
+            _mediaService = _mediaServiceMock.Object;
 
             var mediaUrlGeneratorWrapper = new Mock<IMediaUrlGenerator>();
             _mediaUrlGenerator = mediaUrlGeneratorWrapper.Object;
 
+            // TODO: (mh) (core) Never registered! Why not mocking?
             _mailService = Engine.ResolveService<IMailService>();
             
             _queuedEmailService = new QueuedEmailService(DbContext, _mailService, _mediaService, _emailAccountSettings);
@@ -57,6 +52,7 @@ namespace Smartstore.Core.Tests.Platform.Messaging
         [Test]
         public async Task Can_convert_email()
         {
+            // TODO: (mh) (core) Test fails
             var qe = new QueuedEmail
             {
                 Bcc = "bcc1@mail.com;bcc2@mail.com",
@@ -123,7 +119,7 @@ namespace Smartstore.Core.Tests.Platform.Messaging
             qe.Attachments.Add(attachPath1);
             qe.Attachments.Add(attachPath2);
 
-            _mediaServiceWrapper.Setup(x => x.ConvertMediaFile(fileReferenceFile)).Returns(
+            _mediaServiceMock.Setup(x => x.ConvertMediaFile(fileReferenceFile)).Returns(
                 new MediaFileInfo(fileReferenceFile, _mediaService, _mediaUrlGenerator, string.Empty));
 
             // TODO: (mh) (core) Fails on reading attachFile with FileNotFound

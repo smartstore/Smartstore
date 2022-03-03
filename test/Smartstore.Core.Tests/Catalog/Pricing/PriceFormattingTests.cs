@@ -29,6 +29,7 @@ namespace Smartstore.Core.Tests.Catalog.Pricing
         public new void SetUp()
         {
             _currencySettings = new CurrencySettings();
+            _taxSettings = new TaxSettings();
 
             _currencyEUR = new Currency
             {
@@ -56,14 +57,14 @@ namespace Smartstore.Core.Tests.Catalog.Pricing
                 UpdatedOnUtc = DateTime.UtcNow
             };
 
-            var currencyServiceWrapper = new Mock<ICurrencyService>();
-            _currencyService = currencyServiceWrapper.Object;
+            var currencyServiceMock = new Mock<ICurrencyService>();
+            _currencyService = currencyServiceMock.Object;
 
-            var workContextWrapper = new Mock<IWorkContext>();
-            _workContext = workContextWrapper.Object;
+            var workContextMock = new Mock<IWorkContext>();
+            _workContext = workContextMock.Object;
 
-            var localizationServiceWrapper = new Mock<ILocalizationService>();
-            _localizationService = localizationServiceWrapper.Object;
+            var localizationServiceMock = new Mock<ILocalizationService>();
+            _localizationService = localizationServiceMock.Object;
 
             _currencyService = new CurrencyService(
                 DbContext, 

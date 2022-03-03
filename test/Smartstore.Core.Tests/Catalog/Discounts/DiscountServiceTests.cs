@@ -20,6 +20,7 @@ namespace Smartstore.Core.Tests.Catalog.Discounts
         IDiscountService _discountService;
         IStoreContext _storeContext;
         ICartRuleProvider _cartRuleProvider;
+        // TODO: (mh) (core) Never assigned to
         Lazy<IShoppingCartService> _shoppingCartService;
 
         [OneTimeSetUp]
@@ -53,19 +54,20 @@ namespace Smartstore.Core.Tests.Catalog.Discounts
             DbContext.Discounts.AddRange(new[] { discount1 , discount2 });
             await DbContext.SaveChangesAsync();
 
-            var storeContextWrapper = new Mock<IStoreContext>();
-            _storeContext = storeContextWrapper.Object;
-            storeContextWrapper.Setup(x => x.CurrentStore).Returns(new Store
+            // TODO: (mh) (core) I renamed Wrapper --> Mock a million times, yet you always call it "Wrapper". Why!?
+            var storeContextMock = new Mock<IStoreContext>();
+            _storeContext = storeContextMock.Object;
+            storeContextMock.Setup(x => x.CurrentStore).Returns(new Store
             {
                 Id = 1,
                 Name = "MyStore"
             });
 
-            var cartRuleProviderWrapper = new Mock<ICartRuleProvider>();
-            _cartRuleProvider = cartRuleProviderWrapper.Object;
+            var cartRuleProviderMock = new Mock<ICartRuleProvider>();
+            _cartRuleProvider = cartRuleProviderMock.Object;
 
-            cartRuleProviderWrapper.Setup(x => x.RuleMatchesAsync(discount1, LogicalRuleOperator.Or)).ReturnsAsync(true);
-            cartRuleProviderWrapper.Setup(x => x.RuleMatchesAsync(discount2, LogicalRuleOperator.Or)).ReturnsAsync(true);
+            cartRuleProviderMock.Setup(x => x.RuleMatchesAsync(discount1, LogicalRuleOperator.Or)).ReturnsAsync(true);
+            cartRuleProviderMock.Setup(x => x.RuleMatchesAsync(discount2, LogicalRuleOperator.Or)).ReturnsAsync(true);
 
             _discountService = new DiscountService(
                 DbContext,
@@ -114,7 +116,7 @@ namespace Smartstore.Core.Tests.Catalog.Discounts
         }
 
         [Test]
-        public async Task Should_not_accept_wrong_discount_codeAsync()
+        public async Task Should_not_accept_wrong_discount_code()
         {
             var discount = new Discount
             {

@@ -34,11 +34,11 @@ namespace Smartstore.Core.Tests.Common
                 TimeZoneId = "E. Europe Standard Time"
             };
 
-            var settingServiceWrapper = new Mock<ISettingService>();
-            _settingService = settingServiceWrapper.Object;
+            var settingServiceMock = new Mock<ISettingService>();
+            _settingService = settingServiceMock.Object;
 
-            var workContextWrapper = new Mock<IWorkContext>();
-            _workContext = workContextWrapper.Object;
+            var workContextMock = new Mock<IWorkContext>();
+            _workContext = workContextMock.Object;
 
             _dateTimeHelper = new DateTimeHelper(DbContext, _settingService, _workContext, _dateTimeSettings);
         }
