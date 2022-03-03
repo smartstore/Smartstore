@@ -120,7 +120,7 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
             await next(context);
         }
 
-        protected virtual decimal GetTierPriceAttributeAdjustment(Product product, IEnumerable<TierPrice> tierPrices, int quantity, decimal adjustment)
+        protected virtual decimal GetTierPriceAttributeAdjustment(Product product, IEnumerable<TierPrice> tierPrices, decimal quantity, decimal adjustment)
         {
             var result = decimal.Zero;
             var previousQty = 1;

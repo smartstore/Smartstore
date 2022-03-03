@@ -6,10 +6,10 @@ namespace Smartstore.Web.Models.Catalog
 {
     public interface IQuantityInput
     {
-        int EnteredQuantity { get; }
-        int MinOrderAmount { get; }
-        int MaxOrderAmount { get; }
-        int QuantityStep { get; }
+        decimal EnteredQuantity { get; }
+        decimal MinOrderAmount { get; }
+        decimal MaxOrderAmount { get; }
+        decimal QuantityStep { get; }
         LocalizedValue<string> QuantityUnitName { get; }
         List<SelectListItem> AllowedQuantities { get; }
         QuantityControlType QuantityControlType { get; }

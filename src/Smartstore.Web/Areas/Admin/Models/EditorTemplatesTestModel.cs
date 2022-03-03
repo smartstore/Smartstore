@@ -102,15 +102,15 @@ namespace Smartstore.Admin.Models
         public DateTime? Time { get; set; }
 
         [UIHint("QtyInput")]
-        public int QtyInput { get; set; }
+        public decimal QtyInput { get; set; }
 
-        public int EnteredQuantity { get; set; } = 1;
+        public decimal EnteredQuantity { get; set; } = 1;
 
-        public int MinOrderAmount { get; set; } = 1;
+        public decimal MinOrderAmount { get; set; } = 1;
 
-        public int MaxOrderAmount { get; set; } = 100;
+        public decimal MaxOrderAmount { get; set; } = 100;
 
-        public int QuantityStep { get; set; } = 1;
+        public decimal QuantityStep { get; set; } = 1;
 
         public LocalizedValue<string> QuantityUnitName { get; set; }
 

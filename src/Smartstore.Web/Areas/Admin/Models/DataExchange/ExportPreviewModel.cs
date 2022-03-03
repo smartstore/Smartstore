@@ -31,7 +31,7 @@ namespace Smartstore.Admin.Models.Export
         public decimal Price { get; set; }
 
         [LocalizedDisplay("*StockQuantity")]
-        public int StockQuantity { get; set; }
+        public decimal StockQuantity { get; set; }
 
         [LocalizedDisplay("*Published")]
         public bool Published { get; set; }

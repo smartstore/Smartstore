@@ -89,7 +89,7 @@ namespace Smartstore.Core.Checkout.Cart
             ProductVariantAttributeSelection selection,
             int storeId,
             IList<string> warnings,
-            int quantity = 1,
+            decimal quantity = 1,
             Customer customer = null,
             ProductBundleItem bundleItem = null,
             ShoppingCartType cartType = ShoppingCartType.ShoppingCart,

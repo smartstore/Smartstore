@@ -35,12 +35,12 @@ namespace Smartstore.Web.Models.Cart
         public Money Discount { get; set; }
         public string BasePrice { get; set; }
 
-        public int EnteredQuantity { get; set; }
+        public decimal EnteredQuantity { get; set; }
         public LocalizedValue<string> QuantityUnitName { get; set; }
         public List<SelectListItem> AllowedQuantities { get; set; } = new();
-        public int MinOrderAmount { get; set; }
-        public int MaxOrderAmount { get; set; }
-        public int QuantityStep { get; set; }
+        public decimal MinOrderAmount { get; set; }
+        public decimal MaxOrderAmount { get; set; }
+        public decimal QuantityStep { get; set; }
         public QuantityControlType QuantityControlType { get; set; }
 
         public string AttributeInfo { get; set; }

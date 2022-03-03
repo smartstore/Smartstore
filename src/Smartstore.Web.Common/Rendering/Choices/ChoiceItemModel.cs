@@ -11,7 +11,7 @@ namespace Smartstore.Web.Rendering.Choices
         public string Color { get; set; }
         public string PriceAdjustment { get; set; }
         public decimal PriceAdjustmentValue { get; set; }
-        public int QuantityInfo { get; set; }
+        public decimal QuantityInfo { get; set; }
         public bool IsPreSelected { get; set; }
         public bool IsDisabled { get; set; }
         public bool IsUnavailable { get; set; }

@@ -23,8 +23,8 @@ namespace Smartstore.Web.Models.Orders
             public string ProductUrl { get; set; }
             public string AttributeInfo { get; set; }
 
-            public int QuantityOrdered { get; set; }
-            public int QuantityShipped { get; set; }
+            public decimal QuantityOrdered { get; set; }
+            public decimal QuantityShipped { get; set; }
         }
 
         public partial class ShipmentStatusEventModel : ModelBase

@@ -1586,7 +1586,7 @@ namespace Smartstore.Admin.Controllers
                     Message = giftCardInfo.Message,
                     IsRecipientNotified = false,
                     CreatedOnUtc = utcNow
-                }, orderItem.Quantity));
+                }, (int)orderItem.Quantity));
             }
 
             await _db.SaveChangesAsync();

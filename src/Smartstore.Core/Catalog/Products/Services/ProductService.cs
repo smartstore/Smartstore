@@ -190,7 +190,7 @@ namespace Smartstore.Core.Catalog.Products
             product.NotApprovedTotalReviews = notApprovedTotalReviews;
         }
 
-        public virtual async Task<AdjustInventoryResult> AdjustInventoryAsync(OrderItem orderItem, bool decrease, int quantity)
+        public virtual async Task<AdjustInventoryResult> AdjustInventoryAsync(OrderItem orderItem, bool decrease, decimal quantity)
         {
             Guard.NotNull(orderItem, nameof(orderItem));
 
@@ -230,7 +230,7 @@ namespace Smartstore.Core.Catalog.Products
             }
         }
 
-        public virtual async Task<AdjustInventoryResult> AdjustInventoryAsync(Product product, ProductVariantAttributeSelection selection, bool decrease, int quantity)
+        public virtual async Task<AdjustInventoryResult> AdjustInventoryAsync(Product product, ProductVariantAttributeSelection selection, bool decrease, decimal quantity)
         {
             Guard.NotNull(product, nameof(product));
             Guard.NotNull(selection, nameof(selection));

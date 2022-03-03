@@ -69,7 +69,7 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
             lowestPriceCalculation.CopyTo(context);
         }
 
-        private async Task<CalculatorContext> CalculateAssociatedProductPrice(Product associatedProduct, CalculatorContext context, int quantity)
+        private async Task<CalculatorContext> CalculateAssociatedProductPrice(Product associatedProduct, CalculatorContext context, decimal quantity)
         {
             var childCalculation = await CalculateChildPriceAsync(associatedProduct, context, c =>
             {

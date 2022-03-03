@@ -799,7 +799,7 @@ namespace Smartstore.Core.Checkout.Orders
                                 Message = giftCardInfo.Message,
                                 IsRecipientNotified = false,
                                 CreatedOnUtc = ctx.Now
-                            }, item.Quantity));
+                            }, (int)item.Quantity));
                         }
                     }
 
@@ -857,7 +857,7 @@ namespace Smartstore.Core.Checkout.Orders
                                 Message = giftCardInfo.Message,
                                 IsRecipientNotified = false,
                                 CreatedOnUtc = ctx.Now
-                            }, oi.Quantity));
+                            }, (int)oi.Quantity));
                         }
                     }
 

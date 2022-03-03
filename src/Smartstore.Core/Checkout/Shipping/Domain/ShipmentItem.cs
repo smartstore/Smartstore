@@ -31,7 +31,7 @@ namespace Smartstore.Core.Checkout.Shipping
         /// <summary>
         /// Gets or sets the quantity
         /// </summary>
-        public int Quantity { get; set; }
+        public decimal Quantity { get; set; }
 
         private Shipment _shipment;
         /// <summary>

@@ -13,7 +13,7 @@ namespace Smartstore.Web.Models.Customers
             public LocalizedValue<string> ProductName { get; set; }
             public string ProductSeName { get; set; }
             public string ProductUrl { get; set; }
-            public int Quantity { get; set; }
+            public decimal Quantity { get; set; }
 
             public string ReturnReason { get; set; }
             public string ReturnAction { get; set; }

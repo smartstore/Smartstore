@@ -123,7 +123,7 @@ namespace Smartstore.Core.Checkout.Orders
         public Localizer T { get; set; } = NullLocalizer.Instance;
         public ILogger Logger { get; set; } = NullLogger.Instance;
 
-        public virtual Task<int> GetDispatchedItemsCountAsync(OrderItem orderItem, bool dispatched)
+        public virtual Task<decimal> GetDispatchedItemsCountAsync(OrderItem orderItem, bool dispatched)
         {
             Guard.NotNull(orderItem, nameof(orderItem));
 
@@ -156,7 +156,7 @@ namespace Smartstore.Core.Checkout.Orders
             return false;
         }
 
-        public virtual Task<int> GetDeliveredItemsCountAsync(OrderItem orderItem, bool delivered)
+        public virtual Task<decimal> GetDeliveredItemsCountAsync(OrderItem orderItem, bool delivered)
         {
             Guard.NotNull(orderItem, nameof(orderItem));
 
@@ -191,14 +191,14 @@ namespace Smartstore.Core.Checkout.Orders
             return false;
         }
 
-        public virtual async Task<int> GetShippableItemsCountAsync(OrderItem orderItem)
+        public virtual async Task<decimal> GetShippableItemsCountAsync(OrderItem orderItem)
         {
             var itemsCount = await GetShipmentItemsCountAsync(orderItem);
 
-            return Math.Max(orderItem.Quantity - itemsCount, 0);
+            return Math.Max(orderItem.Quantity - itemsCount, decimal.Zero);
         }
 
-        public virtual Task<int> GetShipmentItemsCountAsync(OrderItem orderItem)
+        public virtual Task<decimal> GetShipmentItemsCountAsync(OrderItem orderItem)
         {
             Guard.NotNull(orderItem, nameof(orderItem));
 
@@ -516,7 +516,7 @@ namespace Smartstore.Core.Checkout.Orders
             return result;
         }
 
-        public virtual async Task<Shipment> AddShipmentAsync(Order order, string trackingNumber, string trackingUrl, Dictionary<int, int> quantities)
+        public virtual async Task<Shipment> AddShipmentAsync(Order order, string trackingNumber, string trackingUrl, Dictionary<int, decimal> quantities)
         {
             Guard.NotNull(order, nameof(order));
 
@@ -535,7 +535,7 @@ namespace Smartstore.Core.Checkout.Orders
                 if (maxQtyToAdd <= 0)
                     continue;
 
-                var qtyToAdd = 0;
+                decimal qtyToAdd = 0;
 
                 if (quantities != null && quantities.ContainsKey(orderItem.Id))
                 {
@@ -927,7 +927,7 @@ namespace Smartstore.Core.Checkout.Orders
             await scope.CommitAsync();
         }
 
-        private async Task<int> SumUpQuantity(OrderItem orderItem, Func<Shipment, bool> predicate, bool load = false)
+        private async Task<decimal> SumUpQuantity(OrderItem orderItem, Func<Shipment, bool> predicate, bool load = false)
         {
             if (load)
             {
@@ -936,7 +936,7 @@ namespace Smartstore.Core.Checkout.Orders
                     .ThenInclude(x => x.ShipmentItems));
             }
 
-            var result = 0;
+            decimal result = 0;
             var shipments = predicate != null
                 ? orderItem.Order.Shipments.Where(predicate)
                 : orderItem.Order.Shipments;

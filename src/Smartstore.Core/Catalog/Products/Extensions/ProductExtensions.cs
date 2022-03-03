@@ -194,14 +194,14 @@ namespace Smartstore.Core.Catalog.Products
         /// </summary>
 		/// <param name="product">Product entity.</param>
         /// <returns>List of allowed quantities.</returns>
-		public static int[] ParseAllowedQuantities(this Product product)
+		public static decimal[] ParseAllowedQuantities(this Product product)
         {
             Guard.NotNull(product, nameof(product));
 
             return product.AllowedQuantities
                 .SplitSafe(',', StringSplitOptions.TrimEntries)
-                .Select(x => int.TryParse(x, out var quantity) ? quantity : int.MaxValue)
-                .Where(x => x != int.MaxValue)
+                .Select(x => decimal.TryParse(x, out var quantity) ? quantity : decimal.MaxValue)
+                .Where(x => x != decimal.MaxValue)
                 .ToArray();
         }
 

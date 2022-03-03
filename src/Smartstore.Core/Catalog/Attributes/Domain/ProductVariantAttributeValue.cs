@@ -115,6 +115,6 @@ namespace Smartstore.Core.Catalog.Attributes
         /// <summary>
         /// Gets or sets the quantity for the linked product.
         /// </summary>
-        public int Quantity { get; set; }
+        public decimal Quantity { get; set; }
     }
 }

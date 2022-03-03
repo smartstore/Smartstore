@@ -50,7 +50,7 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
             }
         }
 
-        protected virtual decimal? GetMinimumTierPrice(Product product, IEnumerable<TierPrice> tierPrices, int quantity)
+        protected virtual decimal? GetMinimumTierPrice(Product product, IEnumerable<TierPrice> tierPrices, decimal quantity)
         {
             decimal? result = null;
             var previousQty = 1;

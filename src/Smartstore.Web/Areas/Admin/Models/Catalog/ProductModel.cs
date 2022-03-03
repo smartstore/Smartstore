@@ -161,7 +161,7 @@ namespace Smartstore.Admin.Models.Catalog
         
         [LocalizedDisplay("*ManageInventoryMethod")]
         public int ManageInventoryMethodId { get; set; }
-        public int OriginalStockQuantity { get; set; }
+        public decimal OriginalStockQuantity { get; set; }
 
         [LocalizedDisplay("*DisplayStockAvailability")]
         public bool DisplayStockAvailability { get; set; }
@@ -604,7 +604,7 @@ namespace Smartstore.Admin.Models.Catalog
             public string LinkedProductEditUrl { get; set; }
 
             [LocalizedDisplay("*Quantity")]
-            public int Quantity { get; set; }
+            public decimal Quantity { get; set; }
             public string QuantityInfo { get; set; }
 
             public List<ProductVariantAttributeValueLocalizedModel> Locales { get; set; } = new();

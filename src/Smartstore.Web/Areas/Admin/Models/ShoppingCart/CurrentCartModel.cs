@@ -26,7 +26,7 @@ namespace Smartstore.Admin.Models.Cart
         public string CustomerEmail { get; set; }
 
         [LocalizedDisplay("*TotalItems")]
-        public int TotalItems { get; set; }
+        public decimal TotalItems { get; set; }
 
         [LocalizedDisplay("Common.Date")]
         public DateTime? LatestCartItemDate { get; set; }

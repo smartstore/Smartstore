@@ -35,8 +35,8 @@ namespace Smartstore.Core.Checkout.Orders
         /// </summary>
         public AdjustInventoryResult Inventory { get; set; }
 
-        public int? OldQuantity { get; set; }
-        public int? NewQuantity { get; set; }
+        public decimal? OldQuantity { get; set; }
+        public decimal? NewQuantity { get; set; }
         public int ReduceQuantity { get; set; }
 
         public decimal? NewUnitPriceInclTax { get; set; }

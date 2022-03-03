@@ -17,7 +17,7 @@ namespace Smartstore.Core.Checkout.Orders
         /// <param name="orderItem">Order item.</param>
         /// <param name="dispatched"><c>true</c> count dispatched items, <c>false</c> count not dispatched items.</param>
         /// <returns>Total number of dispatched items.</returns>
-        Task<int> GetDispatchedItemsCountAsync(OrderItem orderItem, bool dispatched);
+        Task<decimal> GetDispatchedItemsCountAsync(OrderItem orderItem, bool dispatched);
 
         /// <summary>
         /// Gets a value indicating whether an order has items to dispatch.
@@ -32,7 +32,7 @@ namespace Smartstore.Core.Checkout.Orders
         /// <param name="orderItem">Order item.</param>
         /// <param name="delivered"><c>true</c> count delivered items, <c>false</c> count not delivered items.</param>
         /// <returns>Total number of already delivered items.</returns>
-        Task<int> GetDeliveredItemsCountAsync(OrderItem orderItem, bool delivered);
+        Task<decimal> GetDeliveredItemsCountAsync(OrderItem orderItem, bool delivered);
 
         /// <summary>
         /// Gets a value indicating whether an order has items to deliver.
@@ -46,14 +46,14 @@ namespace Smartstore.Core.Checkout.Orders
         /// </summary>
         /// <param name="orderItem">Order item.</param>
         /// <returns>Total number of items which can be added to new shipments.</returns>
-        Task<int> GetShippableItemsCountAsync(OrderItem orderItem);
+        Task<decimal> GetShippableItemsCountAsync(OrderItem orderItem);
 
         /// <summary>
         /// Gets the total number of items in all shipments.
         /// </summary>
         /// <param name="orderItem">Order item.</param>
         /// <returns>Total number of items in all shipments.</returns>
-        Task<int> GetShipmentItemsCountAsync(OrderItem orderItem);
+        Task<decimal> GetShipmentItemsCountAsync(OrderItem orderItem);
 
         /// <summary>
         /// Gets a value indicating whether an order has items to be added to a shipment.
@@ -126,7 +126,7 @@ namespace Smartstore.Core.Checkout.Orders
         /// <param name="trackingUrl">Tracking URL.</param>
         /// <param name="quantities">Quantities by order item identifiers. <c>null</c> to use the remaining total number of products for each order item.</param>
         /// <returns>New shipment, <c>null</c> if no shipment was added.</returns>
-        Task<Shipment> AddShipmentAsync(Order order, string trackingNumber, string trackingUrl, Dictionary<int, int> quantities);
+        Task<Shipment> AddShipmentAsync(Order order, string trackingNumber, string trackingUrl, Dictionary<int, decimal> quantities);
 
         /// <summary>
         /// Update order details like order item quantity, stock quantity or order total 

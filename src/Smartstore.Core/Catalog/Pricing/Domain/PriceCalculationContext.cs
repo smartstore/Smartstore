@@ -29,7 +29,7 @@ namespace Smartstore.Core.Catalog.Pricing
         /// <param name="product">The product to calculate price for.</param>
         /// <param name="quantity">The product quantity.</param>
         /// <param name="options">The calculation options.</param>
-        public PriceCalculationContext(Product product, int quantity, PriceCalculationOptions options)
+        public PriceCalculationContext(Product product, decimal quantity, PriceCalculationOptions options)
         {
             Guard.NotNull(product, nameof(product));
             Guard.NotNull(options, nameof(options));
@@ -81,7 +81,7 @@ namespace Smartstore.Core.Catalog.Pricing
         /// <summary>
         /// The product quantity. May have impact on final price, e.g. because of tier prices etc.
         /// </summary>
-        public int Quantity { get; set; } = 1;
+        public decimal Quantity { get; set; } = 1;
 
         /// <summary>
         /// The calculation options/settings.

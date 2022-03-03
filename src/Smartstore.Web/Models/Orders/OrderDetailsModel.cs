@@ -86,7 +86,7 @@ namespace Smartstore.Web.Models.Orders
             public ProductType ProductType { get; set; }
             public Money UnitPrice { get; set; }
             public Money SubTotal { get; set; }
-            public int Quantity { get; set; }
+            public decimal Quantity { get; set; }
             public string QuantityUnit { get; set; }
             public string AttributeInfo { get; set; }
             public bool BundlePerItemPricing { get; set; }
@@ -103,7 +103,7 @@ namespace Smartstore.Web.Models.Orders
             public string ProductSeName { get; set; }
             public string ProductUrl { get; set; }
             public bool VisibleIndividually { get; set; }
-            public int Quantity { get; set; }
+            public decimal Quantity { get; set; }
             public int DisplayOrder { get; set; }
             public Money PriceWithDiscount { get; set; }
             public string AttributeInfo { get; set; }

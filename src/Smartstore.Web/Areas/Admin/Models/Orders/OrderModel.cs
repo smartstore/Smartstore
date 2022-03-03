@@ -208,7 +208,7 @@ namespace Smartstore.Admin.Models.Orders
 
         public class ReturnRequestModel : EntityModelBase
         {
-            public int Quantity { get; set; }
+            public decimal Quantity { get; set; }
             public ReturnRequestStatus Status { get; set; }
             public string StatusString { get; set; }
             public string StatusLabel
@@ -247,7 +247,7 @@ namespace Smartstore.Admin.Models.Orders
             public string ProductName { get; set; }
             public string ProductSeName { get; set; }
             public bool VisibleIndividually { get; set; }
-            public int Quantity { get; set; }
+            public decimal Quantity { get; set; }
             public int DisplayOrder { get; set; }
             public string PriceWithDiscount { get; set; }
             public string AttributesInfo { get; set; }

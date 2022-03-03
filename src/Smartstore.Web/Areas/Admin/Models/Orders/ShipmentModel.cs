@@ -76,10 +76,10 @@ namespace Smartstore.Admin.Models.Orders
             public string ItemWeight { get; set; }
             public string ItemDimensions { get; set; }
 
-            public int QuantityToAdd { get; set; }
-            public int QuantityOrdered { get; set; }
-            public int QuantityInThisShipment { get; set; }
-            public int QuantityInAllShipments { get; set; }
+            public decimal QuantityToAdd { get; set; }
+            public decimal QuantityOrdered { get; set; }
+            public decimal QuantityInThisShipment { get; set; }
+            public decimal QuantityInAllShipments { get; set; }
 
             public List<BundleItemModel> BundleItems { get; set; } = new();
         }
@@ -90,7 +90,7 @@ namespace Smartstore.Admin.Models.Orders
             public string ProductName { get; set; }
             public string ProductSeName { get; set; }
             public bool VisibleIndividually { get; set; }
-            public int Quantity { get; set; }
+            public decimal Quantity { get; set; }
             public int DisplayOrder { get; set; }
             public string AttributeInfo { get; set; }
         }

@@ -183,7 +183,7 @@ namespace Smartstore.Admin.Controllers
 
             if (ModelState.IsValid)
             {
-                var quantities = new Dictionary<int, int>();
+                var quantities = new Dictionary<int, decimal>();
 
                 foreach (var orderItem in order.OrderItems)
                 {

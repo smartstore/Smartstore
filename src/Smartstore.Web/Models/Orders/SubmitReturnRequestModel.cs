@@ -35,7 +35,7 @@ namespace Smartstore.Web.Models.Orders
 
             public Money UnitPrice { get; set; }
 
-            public int Quantity { get; set; }
+            public decimal Quantity { get; set; }
         }
     }
 }

@@ -62,7 +62,7 @@ namespace Smartstore.Core.Checkout.Cart
         /// <param name="cartType">Shopping cart type.</param>
         /// <param name="storeId">Store identifier.</param>
         /// <returns>Number of items.</returns>
-        public static Task<int> CountCartItemsAsync(this IQueryable<ShoppingCartItem> query,
+        public static Task<decimal> CountCartItemsAsync(this IQueryable<ShoppingCartItem> query,
             Customer customer,
             ShoppingCartType cartType = ShoppingCartType.ShoppingCart,
             int storeId = 0)
@@ -89,7 +89,7 @@ namespace Smartstore.Core.Checkout.Cart
             return query
                 .ApplyStandardFilter(cartType, storeId, customer)
                 .Where(x => x.ParentItemId == null)
-                .SumAsync(x => (int?)x.Quantity ?? 0);
+                .SumAsync(x => (decimal?)x.Quantity ?? 0);
         }
 
         /// <summary>

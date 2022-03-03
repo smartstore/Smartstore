@@ -494,10 +494,10 @@ namespace Smartstore.Core.Catalog.Products
             set => ManageInventoryMethodId = (int)value;
         }
 
-        private int _stockQuantity;
+        private decimal _stockQuantity;
         /// <summary>
         /// Gets or sets the stock quantity.
-        public int StockQuantity
+        public decimal StockQuantity
         {
             [DebuggerStepThrough]
             get => this.GetMergedDataValue(nameof(StockQuantity), _stockQuantity);

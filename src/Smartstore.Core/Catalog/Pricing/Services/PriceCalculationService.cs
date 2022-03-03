@@ -289,7 +289,7 @@ namespace Smartstore.Core.Catalog.Pricing
             return calculatorContext;
         }
 
-        private async Task<CalculatedPrice> CreateCalculatedPrice(CalculatorContext context, Product product = null, int subtotalQuantity = 1)
+        private async Task<CalculatedPrice> CreateCalculatedPrice(CalculatorContext context, Product product = null, decimal subtotalQuantity = 1)
         {
             product ??= context.Product;
 

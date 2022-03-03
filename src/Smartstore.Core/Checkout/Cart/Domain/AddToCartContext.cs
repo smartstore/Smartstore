@@ -79,7 +79,7 @@ namespace Smartstore.Core.Checkout.Cart
         /// <summary>
         /// Gets or sets the quantity
         /// </summary>
-        public int Quantity { get; set; }
+        public decimal Quantity { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether to add required products

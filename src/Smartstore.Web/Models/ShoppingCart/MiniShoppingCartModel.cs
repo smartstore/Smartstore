@@ -9,7 +9,7 @@ namespace Smartstore.Web.Models.Cart
     public partial class MiniShoppingCartModel : ModelBase
     {
         public List<ShoppingCartItemModel> Items { get; set; } = new();
-        public int TotalProducts { get; set; }
+        public decimal TotalProducts { get; set; }
         public Money SubTotal { get; set; }
         public bool DisplayCheckoutButton { get; set; }
         public bool CurrentCustomerIsGuest { get; set; }
@@ -31,17 +31,17 @@ namespace Smartstore.Web.Models.Cart
 
             public string ProductUrl { get; set; }
 
-            public int EnteredQuantity { get; set; }
+            public decimal EnteredQuantity { get; set; }
 
             public LocalizedValue<string> QuantityUnitName { get; set; }
 
             public List<SelectListItem> AllowedQuantities { get; set; } = new();
 
-            public int MinOrderAmount { get; set; }
+            public decimal MinOrderAmount { get; set; }
 
-            public int MaxOrderAmount { get; set; }
+            public decimal MaxOrderAmount { get; set; }
 
-            public int QuantityStep { get; set; }
+            public decimal QuantityStep { get; set; }
 
             public QuantityControlType QuantityControlType { get; set; }
 

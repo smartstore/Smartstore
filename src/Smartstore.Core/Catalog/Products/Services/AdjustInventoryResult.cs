@@ -2,13 +2,13 @@
 {
     public class AdjustInventoryResult
     {
-        private int? _stockQuantityOld;
-        private int? _stockQuantityNew;
+        private decimal? _stockQuantityOld;
+        private decimal? _stockQuantityNew;
 
         /// <summary>
         /// Gets or sets the stock quantity before adjustment.
         /// </summary>
-        public int StockQuantityOld
+        public decimal StockQuantityOld
         {
             get => _stockQuantityOld ?? 0;
             set => _stockQuantityOld = value;
@@ -17,7 +17,7 @@
         /// <summary>
         /// Gets or sets the stock quantity after adjustment.
         /// </summary>
-        public int StockQuantityNew
+        public decimal StockQuantityNew
         {
             get => _stockQuantityNew ?? 0;
             set => _stockQuantityNew = value;

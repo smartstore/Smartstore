@@ -95,7 +95,7 @@ namespace Smartstore.Core.Checkout.Cart
         /// <summary>
         /// Gets the total quantity of products in the cart.
         /// </summary>
-		public static int GetTotalQuantity(this ShoppingCart cart)
+		public static decimal GetTotalQuantity(this ShoppingCart cart)
         {
             Guard.NotNull(cart, nameof(cart));
 

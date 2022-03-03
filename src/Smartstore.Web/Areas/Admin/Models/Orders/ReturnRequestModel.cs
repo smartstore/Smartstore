@@ -34,7 +34,7 @@ namespace Smartstore.Admin.Models.Orders
         public Money MaxRefundAmount { get; set; } = Money.Zero;
 
         [LocalizedDisplay("*Quantity")]
-        public int Quantity { get; set; }
+        public decimal Quantity { get; set; }
 
         [LocalizedDisplay("*ReasonForReturn")]
         public string ReasonForReturn { get; set; }

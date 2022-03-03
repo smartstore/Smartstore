@@ -182,7 +182,7 @@ namespace Smartstore.Web.Models.Catalog
             public int ProductId { get; set; }
 
             [LocalizedDisplay("Products.Qty")]
-            public int EnteredQuantity { get; set; }
+            public decimal EnteredQuantity { get; set; }
 
             [LocalizedDisplay("Products.EnterProductPrice")]
             public bool CustomerEntersPrice { get; set; }
@@ -191,10 +191,10 @@ namespace Smartstore.Web.Models.Catalog
             public decimal CustomerEnteredPrice { get; set; }
             public string CustomerEnteredPriceRange { get; set; }
 
-            public int MinOrderAmount { get; set; }
-            public int MaxOrderAmount { get; set; }
+            public decimal MinOrderAmount { get; set; }
+            public decimal MaxOrderAmount { get; set; }
             public LocalizedValue<string> QuantityUnitName { get; set; }
-            public int QuantityStep { get; set; }
+            public decimal QuantityStep { get; set; }
             public bool HideQuantityControl { get; set; }
             public QuantityControlType QuantityControlType { get; set; }
 

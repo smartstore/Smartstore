@@ -53,7 +53,7 @@ namespace Smartstore.Core.Catalog.Products
         /// <param name="decrease">A value indicating whether to increase or descrease product stock quantity.</param>
         /// <param name="quantity">The quantity to adjust.</param>
         /// <returns>Adjust inventory result.</returns>
-        Task<AdjustInventoryResult> AdjustInventoryAsync(OrderItem orderItem, bool decrease, int quantity);
+        Task<AdjustInventoryResult> AdjustInventoryAsync(OrderItem orderItem, bool decrease, decimal quantity);
 
         /// <summary>
         /// Adjusts product inventory. The caller is responsible for database commit.
@@ -63,7 +63,7 @@ namespace Smartstore.Core.Catalog.Products
         /// <param name="decrease">A value indicating whether to increase or descrease product stock quantity.</param>
         /// <param name="quantity">The quantity to adjust.</param>
         /// <returns>Adjust inventory result.</returns>
-        Task<AdjustInventoryResult> AdjustInventoryAsync(Product product, ProductVariantAttributeSelection selection, bool decrease, int quantity);
+        Task<AdjustInventoryResult> AdjustInventoryAsync(Product product, ProductVariantAttributeSelection selection, bool decrease, decimal quantity);
 
         /// <summary>
         /// Ensures the existence of all mutually related products.

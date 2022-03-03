@@ -19,7 +19,7 @@
         public Money UnitPrice { get; set; }
 
         [LocalizedDisplay("*Quantity")]
-        public int Quantity { get; set; }
+        public decimal Quantity { get; set; }
 
         [LocalizedDisplay("*Total")]
         public Money Total { get; set; }
