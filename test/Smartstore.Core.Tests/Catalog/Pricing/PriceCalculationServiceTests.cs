@@ -68,25 +68,25 @@ namespace Smartstore.Core.Tests.Catalog.Pricing
             _customer = new Customer { Id = 1 };
             _language = new Language { Id = 1 };
 
-            var storeContextWrapper = new Mock<IStoreContext>();
-            _storeContext = storeContextWrapper.Object;
-            storeContextWrapper.Setup(x => x.CurrentStore).Returns(_store);
+            var storeContextMock = new Mock<IStoreContext>();
+            _storeContext = storeContextMock.Object;
+            storeContextMock.Setup(x => x.CurrentStore).Returns(_store);
 
-            var workContextWrapper = new Mock<IWorkContext>();
-            _workContext = workContextWrapper.Object;
-            workContextWrapper.Setup(x => x.WorkingCurrency).Returns(_currency);
-            workContextWrapper.Setup(x => x.WorkingLanguage).Returns(_language);
+            var workContextMock = new Mock<IWorkContext>();
+            _workContext = workContextMock.Object;
+            workContextMock.Setup(x => x.WorkingCurrency).Returns(_currency);
+            workContextMock.Setup(x => x.WorkingLanguage).Returns(_language);
 
             _requestCache = new NullRequestCache();
 
-            var productServiceWrapper = new Mock<IProductService>();
-            _productService = productServiceWrapper.Object;
+            var productServiceMock = new Mock<IProductService>();
+            _productService = productServiceMock.Object;
 
-            var categoryServiceWrapper = new Mock<ICategoryService>();
-            _categoryService = categoryServiceWrapper.Object;
+            var categoryServiceMock = new Mock<ICategoryService>();
+            _categoryService = categoryServiceMock.Object;
 
-            var manufacturerServiceWrapper = new Mock<IManufacturerService>();
-            _manufacturerService = manufacturerServiceWrapper.Object;
+            var manufacturerServiceMock = new Mock<IManufacturerService>();
+            _manufacturerService = manufacturerServiceMock.Object;
 
             var builder = new ContainerBuilder();
             builder.RegisterInstance(_productService).As<IProductService>().SingleInstance();
@@ -95,23 +95,23 @@ namespace Smartstore.Core.Tests.Catalog.Pricing
 
             _services = new MockCommonServices(DbContext, builder.Build());
 
-            var productAttributeMaterializerWrapper = new Mock<IProductAttributeMaterializer>();
-            _productAttributeMaterializer = productAttributeMaterializerWrapper.Object;
+            var productAttributeMaterializerMock = new Mock<IProductAttributeMaterializer>();
+            _productAttributeMaterializer = productAttributeMaterializerMock.Object;
 
-            var taxServiceWrapper = new Mock<ITaxService>();
-            _taxService = taxServiceWrapper.Object;
+            var taxServiceMock = new Mock<ITaxService>();
+            _taxService = taxServiceMock.Object;
 
-            var discountServiceWrapper = new Mock<IDiscountService>();
-            _discountService = discountServiceWrapper.Object;
-            discountServiceWrapper.Setup(x => x.GetAllDiscountsAsync(DiscountType.AssignedToCategories, null, false)).ReturnsAsync(new List<Discount>());
-            discountServiceWrapper.Setup(x => x.GetAllDiscountsAsync(DiscountType.AssignedToManufacturers, null, false)).ReturnsAsync(new List<Discount>());
+            var discountServiceMock = new Mock<IDiscountService>();
+            _discountService = discountServiceMock.Object;
+            discountServiceMock.Setup(x => x.GetAllDiscountsAsync(DiscountType.AssignedToCategories, null, false)).ReturnsAsync(new List<Discount>());
+            discountServiceMock.Setup(x => x.GetAllDiscountsAsync(DiscountType.AssignedToManufacturers, null, false)).ReturnsAsync(new List<Discount>());
             // INFO: Extensions methods can't be mocked.
             //discountServiceWrapper.Setup(x => x.IsDiscountValidAsync(null, _customer, _store)).ReturnsAsync(true);
 
-            var currencyServiceWrapper = new Mock<ICurrencyService>();
-            _currencyService = currencyServiceWrapper.Object;
-            currencyServiceWrapper.Setup(x => x.PrimaryCurrency).Returns(_currency);
-            currencyServiceWrapper.Setup(x => x.PrimaryExchangeCurrency).Returns(_currency);
+            var currencyServiceMock = new Mock<ICurrencyService>();
+            _currencyService = currencyServiceMock.Object;
+            currencyServiceMock.Setup(x => x.PrimaryCurrency).Returns(_currency);
+            currencyServiceMock.Setup(x => x.PrimaryExchangeCurrency).Returns(_currency);
 
             _catalogSettings = new CatalogSettings();
             _taxSettings = new TaxSettings();

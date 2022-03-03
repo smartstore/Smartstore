@@ -86,8 +86,6 @@ namespace Smartstore.Core.Tests.Common
             };
 
             DbContext.MeasureDimensions.AddRange(new[] { measureDimension1, measureDimension2, measureDimension3, measureDimension4 });
-            DbContext.SaveChanges();
-
             DbContext.MeasureWeights.AddRange(new[] { measureWeight1, measureWeight2, measureWeight3, measureWeight4 });
             DbContext.SaveChanges();
 

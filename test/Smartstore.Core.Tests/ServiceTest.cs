@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
@@ -35,12 +36,11 @@ namespace Smartstore.Core.Tests
     public abstract class ServiceTest
     {
         private MockProviderManager _providerManager = new();
-        private ModuleManager _moduleManager;
         private SmartDbContext _dbContext;
         private IEngine _engine;
+        [SuppressMessage("Style", "IDE0044:Add readonly modifier", Justification = "Wrong analysis")]
         private ILifetimeScope _lifetimeScope;
         private IDisposable _lifetimeToken;
-        private WebApplicationBuilder _builder;
 
         protected MockProviderManager ProviderManager
             => _providerManager;
@@ -81,7 +81,7 @@ namespace Smartstore.Core.Tests
 
             InitProviders();
 
-            _lifetimeToken = scopeAccessor.BeginContextAwareScope(out var _lifetimeScope);
+            _lifetimeToken = scopeAccessor.BeginContextAwareScope(out _lifetimeScope);
         }
 
         [OneTimeTearDown]
