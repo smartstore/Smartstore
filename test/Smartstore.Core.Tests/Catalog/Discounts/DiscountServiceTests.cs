@@ -55,6 +55,7 @@ namespace Smartstore.Core.Tests.Catalog.Discounts
             await DbContext.SaveChangesAsync();
 
             // TODO: (mh) (core) I renamed Wrapper --> Mock a million times, yet you always call it "Wrapper". Why!?
+            // RE: Because I've done other things! I've pulled your renaming commit yesterday evening. I begged you not to review yet!
             var storeContextMock = new Mock<IStoreContext>();
             _storeContext = storeContextMock.Object;
             storeContextMock.Setup(x => x.CurrentStore).Returns(new Store

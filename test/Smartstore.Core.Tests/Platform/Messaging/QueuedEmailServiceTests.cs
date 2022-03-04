@@ -44,6 +44,7 @@ namespace Smartstore.Core.Tests.Platform.Messaging
             _mediaUrlGenerator = mediaUrlGeneratorWrapper.Object;
 
             // TODO: (mh) (core) Never registered! Why not mocking?
+            // RE: Old test. Was made before you made changes to Engine start...
             _mailService = Engine.ResolveService<IMailService>();
             
             _queuedEmailService = new QueuedEmailService(DbContext, _mailService, _mediaService, _emailAccountSettings);
@@ -53,6 +54,7 @@ namespace Smartstore.Core.Tests.Platform.Messaging
         public async Task Can_convert_email()
         {
             // TODO: (mh) (core) Test fails
+            // RE: I know. See TODO further below...
             var qe = new QueuedEmail
             {
                 Bcc = "bcc1@mail.com;bcc2@mail.com",
