@@ -174,8 +174,8 @@ namespace Smartstore.Core.Tests.Catalog.Pricing
                 Quantity = 1
             };
 
-            DbContext.Discounts.Remove(1);
-            DbContext.Products.Remove(1);
+            DbContext.Discounts.RemoveRange(DbContext.Discounts);
+            DbContext.Products.RemoveRange(DbContext.Products);
             await DbContext.SaveChangesAsync();
         }
 
@@ -296,6 +296,8 @@ namespace Smartstore.Core.Tests.Catalog.Pricing
         {
             var calculators = new List<Lazy<IPriceCalculator, PriceCalculatorMetadata>>();
             var productMetadata = new PriceCalculatorMetadata { ValidTargets = CalculatorTargets.Product, Order = CalculatorOrdering.Default + 10 };
+            var productMetadataDefaultPlus100 = new PriceCalculatorMetadata { ValidTargets = CalculatorTargets.Product, Order = CalculatorOrdering.Default + 100 };
+            var productMetadataEarlyPlus1 = new PriceCalculatorMetadata { ValidTargets = CalculatorTargets.Product, Order = CalculatorOrdering.Early + 1 };
             var bundleMetadata = new PriceCalculatorMetadata { ValidTargets = CalculatorTargets.Bundle, Order = CalculatorOrdering.Early };
             var allMetadata = new PriceCalculatorMetadata { ValidTargets = CalculatorTargets.All, Order = CalculatorOrdering.Late };
             var groupedMetadata = new PriceCalculatorMetadata { ValidTargets = CalculatorTargets.GroupedProduct, Order = CalculatorOrdering.Early };
@@ -328,16 +330,12 @@ namespace Smartstore.Core.Tests.Catalog.Pricing
             calculators.Add(offerPriceCalculator);
 
             // TODO: (mh) (core) Mock Materializer
-            // TODO: (mh) (core) ???!!! You change and pass a reference type, thus changing all prior assignments!!!!
-            productMetadata.Order = CalculatorOrdering.Early + 1;
             var preselectedPriceCalculator = new Lazy<IPriceCalculator, PriceCalculatorMetadata>(() =>
-                new PreselectedPriceCalculator(null), productMetadata);
+                new PreselectedPriceCalculator(null), productMetadataEarlyPlus1);
             calculators.Add(preselectedPriceCalculator);
 
-            // TODO: (mh) (core) ???!!! Dito
-            productMetadata.Order = CalculatorOrdering.Default + 100;
             var tierPriceCalculator = new Lazy<IPriceCalculator, PriceCalculatorMetadata>(() =>
-                new TierPriceCalculator(), productMetadata);
+                new TierPriceCalculator(), productMetadataDefaultPlus100);
             calculators.Add(tierPriceCalculator);
 
             // Add custom calculator for additional charge.
