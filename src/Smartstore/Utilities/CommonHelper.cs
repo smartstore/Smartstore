@@ -316,9 +316,9 @@ namespace Smartstore.Utilities
                     return x.GetEnumerator().MoveNext();
             }
 
-            if (value.GetType().IsNullableType(out var wrappedType))
+            if (value.GetType().IsNullableType(out var underlyingType))
             {
-                return IsTruthy(Convert.ChangeType(value, wrappedType));
+                return IsTruthy(Convert.ChangeType(value, underlyingType));
             }
 
             return true;

@@ -16,6 +16,8 @@ namespace Smartstore.Core.Messaging
 {
     public partial class MessageModelHelper
     {
+        // TODO: (mg) (core) Don't overuse ICommonServices in platform classes (it is ok in controllers though),
+        // because it makes testing extremely challenging. Please revert your changes.
         private readonly SmartDbContext _db;
         private readonly ICommonServices _services;
         private readonly IMediaService _mediaService;
@@ -46,6 +48,7 @@ namespace Smartstore.Core.Messaging
 
         public static string BuildUrl(string url, MessageContext ctx)
         {
+            // TODO: (mg) (core) Please revert this (static) for the sake of API consistency
             return ctx.BaseUri.GetLeftPart(UriPartial.Authority) + url.EnsureStartsWith('/');
         }
 
