@@ -69,9 +69,9 @@ namespace Smartstore.Core.Catalog.Search
                         {
                             totalCount = await searchEngine.CountAsync();
                             // Fix paging boundaries.
-                            if (searchQuery.Skip > 0 && searchQuery.Skip >= totalCount)
+                            if (searchQuery.Skip > 0 && searchQuery.Skip > totalCount)
                             {
-                                searchQuery.Slice((totalCount / searchQuery.Take) * searchQuery.Take, searchQuery.Take);
+                                searchQuery.Slice(totalCount, searchQuery.Take);
                             }
                         }
 

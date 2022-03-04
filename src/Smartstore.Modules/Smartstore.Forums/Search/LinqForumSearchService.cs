@@ -47,9 +47,9 @@ namespace Smartstore.Forums.Search
                 totalHits = await query.CountAsync();
 
                 // Fix paging boundaries.
-                if (searchQuery.Skip > 0 && searchQuery.Skip >= totalHits)
+                if (searchQuery.Skip > 0 && searchQuery.Skip > totalHits)
                 {
-                    searchQuery.Slice((totalHits / searchQuery.Take) * searchQuery.Take, searchQuery.Take);
+                    searchQuery.Slice(totalHits, searchQuery.Take);
                 }
 
                 if (searchQuery.ResultFlags.HasFlag(SearchResultFlags.WithHits))
