@@ -28,11 +28,11 @@ namespace Smartstore.Core.Tests.Checkout.Payment
             
             _paymentSettings.ActivePaymentMethodSystemNames.Add("Payments.TestMethod");
 
-            var typeScannerWrapper = new Mock<ITypeScanner>();
-            _typeScanner = typeScannerWrapper.Object;
+            var typeScannerMock = new Mock<ITypeScanner>();
+            _typeScanner = typeScannerMock.Object;
 
-            var requestCacheWrapper = new Mock<IRequestCache>();
-            _requestCache = requestCacheWrapper.Object;
+            var requestCacheMock = new Mock<IRequestCache>();
+            _requestCache = requestCacheMock.Object;
 
             _paymentService = new PaymentService(null, null, _paymentSettings, null, ProviderManager, _requestCache, _typeScanner);
         }

@@ -30,11 +30,11 @@ namespace Smartstore.Core.Tests.Platform.Security
         {
             _cacheManager = NullCache.Instance;
 
-            var localizationServiceWrapper = new Mock<ILocalizationService>();
-            _localizationService = localizationServiceWrapper.Object;
+            var localizationServiceMock = new Mock<ILocalizationService>();
+            _localizationService = localizationServiceMock.Object;
 
-            var workContextWrapper = new Mock<IWorkContext>();
-            _workContext = workContextWrapper.Object;
+            var workContextMock = new Mock<IWorkContext>();
+            _workContext = workContextMock.Object;
 
             AddEntities();
 

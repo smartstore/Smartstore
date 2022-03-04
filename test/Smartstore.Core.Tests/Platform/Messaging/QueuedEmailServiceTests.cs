@@ -40,8 +40,8 @@ namespace Smartstore.Core.Tests.Platform.Messaging
             _mediaServiceMock = new Mock<IMediaService>();
             _mediaService = _mediaServiceMock.Object;
 
-            var mediaUrlGeneratorWrapper = new Mock<IMediaUrlGenerator>();
-            _mediaUrlGenerator = mediaUrlGeneratorWrapper.Object;
+            var mediaUrlGeneratorMock = new Mock<IMediaUrlGenerator>();
+            _mediaUrlGenerator = mediaUrlGeneratorMock.Object;
 
             // TODO: (mh) (core) Never registered! Why not mocking?
             // RE: Old test. Was made before you made changes to Engine start...
