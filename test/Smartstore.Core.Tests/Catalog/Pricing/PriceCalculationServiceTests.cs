@@ -296,46 +296,52 @@ namespace Smartstore.Core.Tests.Catalog.Pricing
         {
             var calculators = new List<Lazy<IPriceCalculator, PriceCalculatorMetadata>>();
             var productMetadata = new PriceCalculatorMetadata { ValidTargets = CalculatorTargets.Product, Order = CalculatorOrdering.Default + 10 };
-            var productMetadataDefaultPlus100 = new PriceCalculatorMetadata { ValidTargets = CalculatorTargets.Product, Order = CalculatorOrdering.Default + 100 };
-            var productMetadataEarlyPlus1 = new PriceCalculatorMetadata { ValidTargets = CalculatorTargets.Product, Order = CalculatorOrdering.Early + 1 };
-            var bundleMetadata = new PriceCalculatorMetadata { ValidTargets = CalculatorTargets.Bundle, Order = CalculatorOrdering.Early };
-            var allMetadata = new PriceCalculatorMetadata { ValidTargets = CalculatorTargets.All, Order = CalculatorOrdering.Late };
-            var groupedMetadata = new PriceCalculatorMetadata { ValidTargets = CalculatorTargets.GroupedProduct, Order = CalculatorOrdering.Early };
-            var productOrBundleMetadata = new PriceCalculatorMetadata { ValidTargets = CalculatorTargets.Product | CalculatorTargets.Bundle, Order = CalculatorOrdering.Default };
 
             var attributePriceCalculator = new Lazy<IPriceCalculator, PriceCalculatorMetadata>(() => 
                 new AttributePriceCalculator(_priceCalculatorFactory, DbContext), productMetadata);
             calculators.Add(attributePriceCalculator);
 
             // TODO: (mh) (core) Mock ProductService
-            var bundlePriceCalculator = new Lazy<IPriceCalculator, PriceCalculatorMetadata>(() => 
-                new BundlePriceCalculator(_priceCalculatorFactory, null), bundleMetadata);
+            var bundlePriceCalculator = 
+                new Lazy<IPriceCalculator, PriceCalculatorMetadata>(() => 
+                    new BundlePriceCalculator(_priceCalculatorFactory, null),
+                    new() { ValidTargets = CalculatorTargets.Bundle, Order = CalculatorOrdering.Early });
             calculators.Add(bundlePriceCalculator);
 
-            var discountPriceCalculator = new Lazy<IPriceCalculator, PriceCalculatorMetadata>(() 
-                => new DiscountPriceCalculator(DbContext, _discountService, _catalogSettings), allMetadata);
+            var discountPriceCalculator = 
+                new Lazy<IPriceCalculator, PriceCalculatorMetadata>(() => 
+                    new DiscountPriceCalculator(DbContext, _discountService, _catalogSettings),
+                    new() { ValidTargets = CalculatorTargets.All, Order = CalculatorOrdering.Late });
             calculators.Add(discountPriceCalculator);
 
             // TODO: (mh) (core) Mock CatalogSearchService & ProductService
-            var groupedProductPriceCalculator = new Lazy<IPriceCalculator, PriceCalculatorMetadata>(() => 
-                new GroupedProductPriceCalculator(null, _priceCalculatorFactory, null), groupedMetadata);
+            var groupedProductPriceCalculator = 
+                new Lazy<IPriceCalculator, PriceCalculatorMetadata>(() => 
+                    new GroupedProductPriceCalculator(null, _priceCalculatorFactory, null), 
+                    new() { ValidTargets = CalculatorTargets.GroupedProduct, Order = CalculatorOrdering.Early });
             calculators.Add(groupedProductPriceCalculator);
 
             var lowestPriceCalculator = new Lazy<IPriceCalculator, PriceCalculatorMetadata>(() =>
                 new LowestPriceCalculator(), productMetadata);
             calculators.Add(lowestPriceCalculator);
 
-            var offerPriceCalculator = new Lazy<IPriceCalculator, PriceCalculatorMetadata>(() =>
-                new OfferPriceCalculator(), productOrBundleMetadata);
+            var offerPriceCalculator = 
+                new Lazy<IPriceCalculator, PriceCalculatorMetadata>(() =>
+                    new OfferPriceCalculator(),
+                    new() { ValidTargets = CalculatorTargets.Product | CalculatorTargets.Bundle, Order = CalculatorOrdering.Default });
             calculators.Add(offerPriceCalculator);
 
             // TODO: (mh) (core) Mock Materializer
-            var preselectedPriceCalculator = new Lazy<IPriceCalculator, PriceCalculatorMetadata>(() =>
-                new PreselectedPriceCalculator(null), productMetadataEarlyPlus1);
+            var preselectedPriceCalculator = 
+                new Lazy<IPriceCalculator, PriceCalculatorMetadata>(() =>
+                    new PreselectedPriceCalculator(null),
+                    new() { ValidTargets = CalculatorTargets.Product, Order = CalculatorOrdering.Early + 1 });
             calculators.Add(preselectedPriceCalculator);
 
-            var tierPriceCalculator = new Lazy<IPriceCalculator, PriceCalculatorMetadata>(() =>
-                new TierPriceCalculator(), productMetadataDefaultPlus100);
+            var tierPriceCalculator = 
+                new Lazy<IPriceCalculator, PriceCalculatorMetadata>(() =>
+                    new TierPriceCalculator(), 
+                    new() { ValidTargets = CalculatorTargets.Product, Order = CalculatorOrdering.Default + 100 });
             calculators.Add(tierPriceCalculator);
 
             // Add custom calculator for additional charge.
