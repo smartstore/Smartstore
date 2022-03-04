@@ -3,15 +3,12 @@ using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Common;
-using Smartstore.Core.Common.Services;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Messaging.Events;
 using Smartstore.Core.Stores;
-using Smartstore.Engine.Modularity;
-using Smartstore.Templating;
 using Smartstore.Utilities;
 using Smartstore.Utilities.Html;
 
@@ -21,39 +18,21 @@ namespace Smartstore.Core.Messaging
     {
         private readonly SmartDbContext _db;
         private readonly ICommonServices _services;
-        private readonly ITemplateEngine _templateEngine;
-        private readonly IEmailAccountService _emailAccountService;
-        private readonly ILocalizationService _localizationService;
-        private readonly IWorkContext _workContext;
         private readonly IMediaService _mediaService;
         private readonly IProductAttributeMaterializer _productAttributeMaterializer;
-        private readonly IDateTimeHelper _dtHelper;
-        private readonly ModuleManager _moduleManager;
         private readonly Lazy<IUrlHelper> _urlHelper;
 
         public MessageModelHelper(
             SmartDbContext db,
             ICommonServices services,
-            ITemplateEngine templateEngine,
-            IEmailAccountService emailAccountService,
-            ILocalizationService localizationService,
-            IWorkContext workContext,
             IMediaService mediaService,
             IProductAttributeMaterializer productAttributeMaterializer,
-            IDateTimeHelper dtHelper,
-            ModuleManager moduleManager,
             Lazy<IUrlHelper> urlHelper)
         {
             _db = db;
             _services = services;
-            _templateEngine = templateEngine;
-            _emailAccountService = emailAccountService;
-            _localizationService = localizationService;
-            _workContext = workContext;
             _mediaService = mediaService;
             _productAttributeMaterializer = productAttributeMaterializer;
-            _dtHelper = dtHelper;
-            _moduleManager = moduleManager;
             _urlHelper = urlHelper;
         }
 
@@ -65,7 +44,7 @@ namespace Smartstore.Core.Messaging
             model["UpdatedOn"] = ToUserDate(content.UpdatedOnUtc, ctx);
         }
 
-        public string BuildUrl(string url, MessageContext ctx)
+        public static string BuildUrl(string url, MessageContext ctx)
         {
             return ctx.BaseUri.GetLeftPart(UriPartial.Authority) + url.EnsureStartsWith('/');
         }
@@ -110,14 +89,9 @@ namespace Smartstore.Core.Messaging
             };
         }
 
-        public string GetDisplayNameForCustomer(Customer customer)
-        {
-            return customer.GetFullName().NullEmpty() ?? customer.Username ?? customer.FindEmail();
-        }
-
         public string GetBoolResource(bool value, MessageContext ctx)
         {
-            return _localizationService.GetResource(value ? "Common.Yes" : "Common.No", ctx.Language.Id);
+            return _services.Localization.GetResource(value ? "Common.Yes" : "Common.No", ctx.Language.Id);
         }
 
         public DateTime? ToUserDate(DateTime? utcDate, MessageContext messageContext)
@@ -125,10 +99,10 @@ namespace Smartstore.Core.Messaging
             if (utcDate == null)
                 return null;
 
-            return _dtHelper.ConvertToUserTime(
+            return _services.DateTimeHelper.ConvertToUserTime(
                 utcDate.Value,
                 TimeZoneInfo.Utc,
-                _dtHelper.GetCustomerTimeZone(messageContext.Customer));
+                _services.DateTimeHelper.GetCustomerTimeZone(messageContext.Customer));
         }
 
         public Money FormatPrice(decimal price, Order order, MessageContext messageContext)
@@ -158,7 +132,7 @@ namespace Smartstore.Core.Messaging
 
         public Money FormatPrice(decimal price, Currency currency, MessageContext messageContext, decimal exchangeRate = 1)
         {
-            currency ??= _workContext.WorkingCurrency;
+            currency ??= _services.WorkContext.WorkingCurrency;
 
             if (exchangeRate != 1)
             {
@@ -208,7 +182,13 @@ namespace Smartstore.Core.Messaging
             return file;
         }
 
-        public object[] Concat(params object[] values)
+        public static string GetDisplayNameForCustomer(Customer customer)
+        {
+            return customer.GetFullName().NullEmpty() ?? customer.Username ?? customer.FindEmail();
+        }
+
+        // INFO: parameters must be of type 'string'. Type 'object' outputs nothing.
+        public static string[] GetValidValues(params string[] values)
         {
             return values.Where(x => CommonHelper.IsTruthy(x)).ToArray();
         }

@@ -68,13 +68,13 @@ namespace Smartstore.News
                 var url = urlHelper.RouteUrl("NewsItem", new { SeName = await newsItem.GetActiveSlugAsync(messageContext.Language.Id) });
                 var title = newsItem.GetLocalized(x => x.Title, messageContext.Language).Value.NullEmpty();
 
-                message.Result = CreateModelPart(part, messageContext, messageModelHelper, url, title);
+                message.Result = CreateModelPart(part, messageContext, url, title);
 
                 await messageModelHelper.PublishModelPartCreatedEventAsync(part, message.Result);
             }
         }
 
-        private static object CreateModelPart(NewsComment part, MessageContext messageContext, MessageModelHelper helper, string url, string title)
+        private static object CreateModelPart(NewsComment part, MessageContext messageContext, string url, string title)
         {
             Guard.NotNull(messageContext, nameof(messageContext));
             Guard.NotNull(part, nameof(part));
@@ -82,7 +82,7 @@ namespace Smartstore.News
             var m = new Dictionary<string, object>
             {
                 {  "NewsTitle", title },
-                {  "NewsUrl", helper.BuildUrl(url, messageContext) },
+                {  "NewsUrl", MessageModelHelper.BuildUrl(url, messageContext) },
                 {  "Title", part.CommentTitle.RemoveHtml().NullEmpty() },
                 {  "Text", HtmlUtility.SanitizeHtml(part.CommentText, HtmlSanitizerOptions.UserCommentSuitable).NullEmpty() }
             };

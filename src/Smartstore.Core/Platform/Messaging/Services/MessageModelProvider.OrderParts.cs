@@ -9,7 +9,6 @@ using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common;
-using Smartstore.Core.Common.Services;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
@@ -69,16 +68,14 @@ namespace Smartstore.Core.Messaging
             d.PaidOn = _helper.ToUserDate(part.PaidDateUtc, messageContext);
 
             // Payment method
-            var paymentMethodName = part.PaymentMethodSystemName;
             var paymentMethod = _services.Resolve<IProviderManager>().GetProvider<IPaymentMethod>(part.PaymentMethodSystemName);
-            if (paymentMethod != null)
-            {
-                paymentMethodName = _moduleManager.GetLocalizedFriendlyName(paymentMethod.Metadata, messageContext.Language.Id);
-            }
+            var paymentMethodName = paymentMethod != null
+                ? _moduleManager.GetLocalizedFriendlyName(paymentMethod.Metadata, messageContext.Language.Id)
+                : part.PaymentMethodSystemName;
             d.PaymentMethod = paymentMethodName.NullEmpty();
 
             d.Url = part.Customer != null && !part.Customer.IsGuest()
-                ? _helper.BuildActionUrl("Details", "Order", new { id = part.Id, area = "" }, messageContext)
+                ? _helper.BuildActionUrl("Details", "Order", new { id = part.Id, area = string.Empty }, messageContext)
                 : null;
 
             // Overrides
@@ -86,7 +83,11 @@ namespace Smartstore.Core.Messaging
             m.Properties["AcceptThirdPartyEmailHandOver"] = _helper.GetBoolResource(part.AcceptThirdPartyEmailHandOver, messageContext);
 
             // Items, Totals & Co.
-            d.Items = await part.OrderItems.Where(x => x.Product != null).SelectAsync(async x => await CreateModelPartAsync(x, messageContext)).AsyncToList();
+            d.Items = await part.OrderItems
+                .Where(x => x.Product != null)
+                .SelectAsync(async x => await CreateModelPartAsync(x, messageContext))
+                .AsyncToList();
+
             d.Totals = await CreateOrderTotalsPartAsync(part, messageContext);
 
             // Checkout Attributes
@@ -106,7 +107,6 @@ namespace Smartstore.Core.Messaging
             Guard.NotNull(order, nameof(order));
 
             var language = messageContext.Language;
-            var currencyService = _services.Resolve<ICurrencyService>();
             var giftCardService = _services.Resolve<IGiftCardService>();
             var orderService = _services.Resolve<IOrderService>();
             var taxService = _services.Resolve<ITaxService>();
@@ -114,30 +114,15 @@ namespace Smartstore.Core.Messaging
 
             var taxRates = new SortedDictionary<decimal, decimal>();
             Money cusTaxTotal = new();
-            Money cusDiscount = new();
-            Money cusRounding = new();
-            Money cusTotal = new();
 
             var customerCurrency = (await _db.Currencies
                 .AsNoTracking()
                 .Where(x => x.CurrencyCode == order.CustomerCurrencyCode)
                 .FirstOrDefaultAsync()) ?? new Currency { CurrencyCode = order.CustomerCurrencyCode };
 
-            var subTotals = GetSubTotals(order, messageContext);
-
-            // Shipping
-            bool dislayShipping = order.ShippingStatus != ShippingStatus.ShippingNotRequired;
-
-            // Payment method fee
-            bool displayPaymentMethodFee = true;
-            if (order.PaymentMethodAdditionalFeeExclTax == decimal.Zero)
-            {
-                displayPaymentMethodFee = false;
-            }
-
             // Tax
-            bool displayTax = true;
-            bool displayTaxRates = true;
+            var displayTax = true;
+            var displayTaxRates = true;
             if (taxSettings.HideTaxInOrderSummary && order.CustomerTaxDisplayType == TaxDisplayType.IncludingTax)
             {
                 displayTax = false;
@@ -165,36 +150,40 @@ namespace Smartstore.Core.Messaging
                 }
             }
 
-            // Discount
-            bool dislayDiscount = false;
-            if (order.OrderDiscount > decimal.Zero)
-            {
-                cusDiscount = _helper.FormatPrice(-order.OrderDiscount, order, messageContext);
-                dislayDiscount = true;
-            }
-
-            // Total
+            var subTotals = GetSubTotals(order, messageContext);
             (var orderTotal, var roundingAmount) = await orderService.GetOrderTotalInCustomerCurrencyAsync(order, customerCurrency);
-            cusTotal = _helper.FormatPrice(orderTotal.Amount, customerCurrency, messageContext);
-
-            // Rounding
-            if (roundingAmount != decimal.Zero)
-            {
-                cusRounding = _helper.FormatPrice(roundingAmount.Amount, customerCurrency, messageContext);
-            }
 
             // Model
             dynamic m = new ExpandoObject();
 
+            m.Total = _helper.FormatPrice(orderTotal.Amount, customerCurrency, messageContext);
             m.SubTotal = subTotals.SubTotal;
-            m.SubTotalDiscount = subTotals.DisplaySubTotalDiscount ? (decimal?)subTotals.SubTotalDiscount.Amount : null;
-            m.Shipping = dislayShipping ? (decimal?)subTotals.ShippingTotal.Amount : null;
-            m.Payment = displayPaymentMethodFee ? (decimal?)subTotals.PaymentFee.Amount : null;
-            m.Tax = displayTax ? (decimal?)cusTaxTotal.Amount : null;
-            m.Discount = dislayDiscount ? (decimal?)cusDiscount.Amount : null;
-            m.RoundingDiff = cusRounding;
-            m.Total = cusTotal;
             m.IsGross = order.CustomerTaxDisplayType == TaxDisplayType.IncludingTax;
+
+            if (subTotals.DisplaySubTotalDiscount)
+            {
+                m.SubTotalDiscount = subTotals.SubTotalDiscount;
+            }
+            if (order.ShippingStatus != ShippingStatus.ShippingNotRequired)
+            {
+                m.Shipping = subTotals.ShippingTotal;
+            }
+            if (order.PaymentMethodAdditionalFeeExclTax != decimal.Zero)
+            {
+                m.Payment = subTotals.PaymentFee;
+            }
+            if (displayTax)
+            {
+                m.Tax = cusTaxTotal;
+            }
+            if (order.OrderDiscount > decimal.Zero)
+            {
+                m.Discount = _helper.FormatPrice(-order.OrderDiscount, order, messageContext);
+            }
+            if (roundingAmount != decimal.Zero)
+            {
+                m.RoundingDiff = _helper.FormatPrice(roundingAmount.Amount, customerCurrency, messageContext);
+            }
 
             // TaxRates
             m.TaxRates = !displayTaxRates ? null : taxRates.Select(x =>
@@ -274,10 +263,14 @@ namespace Smartstore.Core.Messaging
             var attributeCombination = await productAttributeMaterializer.FindAttributeCombinationAsync(product.Id, part.AttributeSelection);
 
             product.MergeWithCombination(attributeCombination);
-            
+
+            var downloadUrl = downloadService.IsDownloadAllowed(part) 
+                ? _helper.BuildActionUrl("GetDownload", "Download", new { id = part.OrderItemGuid, area = string.Empty }, messageContext)
+                : null;
+
             var m = new Dictionary<string, object>
             {
-                { "DownloadUrl", !downloadService.IsDownloadAllowed(part) ? null : _helper.BuildActionUrl("GetDownload", "Download", new { id = part.OrderItemGuid, area = "" }, messageContext) },
+                { "DownloadUrl", downloadUrl },
                 { "AttributeDescription", part.AttributeDescription.NullEmpty() },
                 { "Weight", part.ItemWeight },
                 { "TaxRate", part.TaxRate },

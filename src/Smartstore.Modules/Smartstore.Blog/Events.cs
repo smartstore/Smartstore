@@ -71,7 +71,7 @@ namespace Smartstore.Blog
                 message.Result = new Dictionary<string, object>
                 {
                     {  "PostTitle", title },
-                    {  "PostUrl", messageModelHelper.BuildUrl(url, messageContext) },
+                    {  "PostUrl", MessageModelHelper.BuildUrl(url, messageContext) },
                     {  "Text", HtmlUtility.SanitizeHtml(part.CommentText, HtmlSanitizerOptions.UserCommentSuitable).NullEmpty() }
                 };
 

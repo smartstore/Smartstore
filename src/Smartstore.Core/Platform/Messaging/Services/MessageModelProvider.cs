@@ -372,13 +372,13 @@ namespace Smartstore.Core.Messaging
 
             dynamic m = new HybridExpando(settings, true);
 
-            m.NameLine = _helper.Concat(settings.Salutation, settings.Title, settings.Firstname, settings.Lastname);
-            m.StreetLine = _helper.Concat(settings.Street, settings.Street2);
-            m.CityLine = _helper.Concat(settings.ZipCode, settings.City);
+            m.NameLine = MessageModelHelper.GetValidValues(settings.Salutation, settings.Title, settings.Firstname, settings.Lastname);
+            m.StreetLine = MessageModelHelper.GetValidValues(settings.Street, settings.Street2);
+            m.CityLine = MessageModelHelper.GetValidValues(settings.ZipCode, settings.City);
 
             if (country != null)
             {
-                m.CountryLine = _helper.Concat(country.GetLocalized(x => x.Name), settings.Region);
+                m.CountryLine = MessageModelHelper.GetValidValues(country.GetLocalized(x => x.Name), settings.Region);
             }
 
             await _helper.PublishModelPartCreatedEventAsync<CompanyInformationSettings>(settings, m);
@@ -396,7 +396,7 @@ namespace Smartstore.Core.Messaging
         protected virtual async Task<object> CreateContactModelPartAsync(MessageContext messageContext)
         {
             var settings = await _services.SettingFactory.LoadSettingsAsync<ContactDataSettings>(messageContext.Store.Id);
-            var contact = new HybridExpando(settings, true) as dynamic;
+            dynamic contact = new HybridExpando(settings, true);
 
             // Aliases
             contact.Phone = new
@@ -444,8 +444,6 @@ namespace Smartstore.Core.Messaging
             Guard.NotNull(messageContext, nameof(messageContext));
             Guard.NotNull(part, nameof(part));
 
-            var currencyService = _services.Resolve<ICurrencyService>();
-
             var host = messageContext.BaseUri.ToString();
             var logoFile = await _services.MediaService.GetFileByIdAsync(messageContext.Store.LogoMediaFileId, MediaLoadFlags.AsNoTracking);
             
@@ -456,8 +454,8 @@ namespace Smartstore.Core.Messaging
                 { "Name", part.Name },
                 { "Url", host },
                 { "Cdn", part.ContentDeliveryNetwork },
-                { "PrimaryStoreCurrency", currencyService.PrimaryCurrency.CurrencyCode },
-                { "PrimaryExchangeRateCurrency", currencyService.PrimaryExchangeCurrency.CurrencyCode },
+                { "PrimaryStoreCurrency", _services.CurrencyService.PrimaryCurrency.CurrencyCode },
+                { "PrimaryExchangeRateCurrency", _services.CurrencyService.PrimaryExchangeCurrency.CurrencyCode },
                 { "Logo", await CreateModelPartAsync(logoFile, messageContext, host, null, new Size(400, 75)) },
                 { "Company", await CreateCompanyModelPartAsync(messageContext) },
                 { "Contact", await CreateContactModelPartAsync(messageContext) },
@@ -533,7 +531,7 @@ namespace Smartstore.Core.Messaging
 
             var slug = await part.GetActiveSlugAsync(messageContext.Language.Id);
             var productUrl = await productUrlHelper.GetProductUrlAsync(part.Id, slug, attrSelection);
-            var url = _helper.BuildUrl(productUrl, messageContext);
+            var url = MessageModelHelper.BuildUrl(productUrl, messageContext);
             var file = await _helper.GetMediaFileFor(part, attrSelection);
             var name = part.GetLocalized(x => x.Name, messageContext.Language.Id).Value;
             var alt = T("Media.Product.ImageAlternateTextFormat", messageContext.Language.Id, name).ToString();
@@ -600,7 +598,7 @@ namespace Smartstore.Core.Messaging
                 ["CreatedOn"] = _helper.ToUserDate(part.CreatedOnUtc, messageContext),
                 ["LastLoginOn"] = _helper.ToUserDate(part.LastLoginDateUtc, messageContext),
                 ["LastActivityOn"] = _helper.ToUserDate(part.LastActivityDateUtc, messageContext),
-                ["FullName"] = _helper.GetDisplayNameForCustomer(part).NullEmpty(),
+                ["FullName"] = MessageModelHelper.GetDisplayNameForCustomer(part).NullEmpty(),
                 ["VatNumber"] = part.GenericAttributes.VatNumber,
                 ["VatNumberStatus"] = customerVatStatus.GetLocalizedEnum(messageContext.Language.Id).NullEmpty(),
                 ["CustomerNumber"] = part.CustomerNumber.NullEmpty(),
@@ -803,10 +801,10 @@ namespace Smartstore.Core.Messaging
                 { "Fax", settings.FaxEnabled ? part.FaxNumber : null }
             };
 
-            m["NameLine"] = _helper.Concat(salutation, title, firstName, lastName);
-            m["StreetLine"] = _helper.Concat(street1, street2);
-            m["CityLine"] = _helper.Concat(zip, city);
-            m["CountryLine"] = _helper.Concat(country, state);
+            m["NameLine"] = MessageModelHelper.GetValidValues(salutation, title, firstName, lastName);
+            m["StreetLine"] = MessageModelHelper.GetValidValues(street1, street2);
+            m["CityLine"] = MessageModelHelper.GetValidValues(zip, city);
+            m["CountryLine"] = MessageModelHelper.GetValidValues(country, state);
 
             await _helper.PublishModelPartCreatedEventAsync(part, m);
 
