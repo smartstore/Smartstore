@@ -494,14 +494,17 @@ namespace Smartstore.Core.Checkout.Orders
             if (customer != null)
             {
                 var values = await _checkoutAttributeMaterializer.MaterializeCheckoutAttributeValuesAsync(customer.GenericAttributes.CheckoutAttributes);
-                foreach (var value in values)
+                if (values != null)
                 {
-                    var attributeTax = await _taxCalculator.CalculateCheckoutAttributeTaxAsync(value, customer: customer);
+                    foreach (var value in values)
+                    {
+                        var attributeTax = await _taxCalculator.CalculateCheckoutAttributeTaxAsync(value, customer: customer);
 
-                    subtotalExclTaxWithoutDiscount += attributeTax.PriceNet;
-                    subtotalInclTaxWithoutDiscount += attributeTax.PriceGross;
+                        subtotalExclTaxWithoutDiscount += attributeTax.PriceNet;
+                        subtotalInclTaxWithoutDiscount += attributeTax.PriceGross;
 
-                    result.TaxRates.Add(attributeTax.Amount, attributeTax.Rate.Rate);
+                        result.TaxRates.Add(attributeTax.Amount, attributeTax.Rate.Rate);
+                    }
                 }
             }
 
