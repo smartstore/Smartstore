@@ -8,6 +8,8 @@
     {
         Assets.BodyAttributes.AppendCssClass("has-left-sidebar");
     }
+
+    var warningMessage = Display.GetAdminWarningPanelMessage();
 }
 
 @if (ViewBag.RefreshPage == true)
@@ -29,16 +31,11 @@
 }
 
 <div id="page">
-    <div sm-if="@(ViewData["warning.panel.message"] != null)" class="alert warning-panel-message">
-        @Html.Raw(ViewData["warning.panel.message"])
-        <button type="button" class="close" data-dismiss="alert">&times;</button>
-    </div>
-
     <div class="page-main">
         <header id="header">
             <zone name="header" replace-content="true">
                 <zone name="admin_navbar_before"></zone>
-                @await Component.InvokeAsync("AdminNavbar") 
+                @await Component.InvokeAsync("AdminNavbar")
                 <zone name="admin_navbar_after"></zone>
             </zone>
 
@@ -72,3 +69,11 @@
 </div>
 
 <partial name="Notifications" />
+
+@if (warningMessage.HasValue())
+{
+    <div id="warning-panel-message" class="alert alert-dismissible shadow-lg shadow-dark rounded-0 fade" data-hash="@warningMessage.XxHash()">
+        @Html.Raw(warningMessage)
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+}

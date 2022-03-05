@@ -1392,21 +1392,17 @@ a.editable {
 // Warning panel message
 // --------------------------------------------------------------
 
-.warning-panel-message {
-    $bgColor: darken($primary, 15%);
-    z-index: 1031;
+#warning-panel-message {
     position: fixed;
+    z-index: $zindex-fixed;
     bottom: 0;
     left: 0;
     right: 0;
     margin: 0;
-    padding: 10px 20px;
-    @include gradient-y($bgColor, darken($bgColor, 12%));
+    padding: 0.75rem;
+    padding-right: 2.5rem;
+    background: $dark;
     color: #fff;
-    text-shadow: 0px 1px 0px mix(#000, $bgColor, 30%);
-    border: none;
-    border-top: 1px solid darken($bgColor, 10%);
-    text-align: center;
 
     a {
         color: inherit;
@@ -1418,9 +1414,7 @@ a.editable {
     }
 
     .close {
-        color: inherit;
-        text-shadow: none;
-        opacity: inherit;
+        color: inherit !important;
     }
 }
 

@@ -160,6 +160,20 @@
             }
         });
 
+        // Global messages
+        var messagePanel = $("#warning-panel-message");
+        if (messagePanel.length) {
+            var dismissedKey = "dismissed.message." + messagePanel.data("hash");
+            var isDismissed = !!(sessionStorage.getItem(dismissedKey));
+            if (!isDismissed) {
+                messagePanel.addClass("show");
+            }
+
+            messagePanel.on("click", "[data-dismiss]", function() {
+                sessionStorage.setItem(dismissedKey, true);
+            });
+        }
+
         // Sticky section-header
         var navbar = $("#navbar");
         var navbarHeight = navbar.height() || 1;

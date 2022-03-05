@@ -6,6 +6,28 @@ namespace Smartstore
 {
     public static class WebDisplayHelperExtensions
     {
+        #region Notifications
+
+        const string WarningPanelMessageKey = "AdminWarningPanelMessage";
+
+        /// <summary>
+        /// Sets a global message that should be displayed in the admin backend.
+        /// </summary>
+        public static void SetAdminWarningPanelMessage(this IDisplayHelper displayHelper, string message)
+        {
+            displayHelper.HttpContext.Items[WarningPanelMessageKey] = message;
+        }
+
+        /// <summary>
+        /// Gets the global message that should be displayed in the admin backend.
+        /// </summary>
+        public static string GetAdminWarningPanelMessage(this IDisplayHelper displayHelper)
+        {
+            return (string)displayHelper.HttpContext.Items[WarningPanelMessageKey];
+        }
+
+        #endregion
+
         #region URL
 
         /// <summary>
