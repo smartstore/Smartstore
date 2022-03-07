@@ -431,6 +431,42 @@ namespace Smartstore.Core.Tests.Catalog.Pricing
         }
 
         [Test]
+        public async Task Can_apply_percentage_discount_on_tier_price()
+        {
+            InitTierPrices();
+
+            _priceCalculationContext.Options.IgnoreDiscounts = false;
+            _priceCalculationContext.Options.IgnoreTierPrices = false;
+            _priceCalculationContext.Options.CheckDiscountValidity = false;
+            _priceCalculationContext.Options.IgnorePercentageDiscountOnTierPrices = false;
+            _priceCalculationContext.Quantity = 5;
+
+            var discount = new Discount
+            {
+                Id = 1,
+                Name = "Discount 1",
+                DiscountType = DiscountType.AssignedToSkus,
+                UsePercentage = true,
+                DiscountPercentage = 10,
+                DiscountLimitation = DiscountLimitationType.Unlimited
+            };
+
+            discount.AppliedToProducts.Add(_product);
+            _product.AppliedDiscounts.Add(discount);
+            _product.HasDiscountsApplied = true;
+
+            DbContext.Discounts.Add(discount);
+            DbContext.Products.Add(_product);
+
+            await DbContext.SaveChangesAsync();
+
+            var price = await _priceCalcService.CalculatePriceAsync(_priceCalculationContext);
+
+            // 8.00 (tier price) - 0.80 (10% discount on tier price).
+            price.FinalPrice.Amount.ShouldEqual(7.20);
+        }
+
+        [Test]
         public async Task Can_get_final_product_price_with_custom_additionalCharge()
         {
             _priceCalculationContext.Metadata[CustomAdditionalChargeCalculator.AdditionalChargeKey] = 5m;

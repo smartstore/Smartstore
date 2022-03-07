@@ -35,15 +35,18 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
             var minTierPrice = context.MinTierPrice ?? 0;
 
             // Percentage discount on minimum tier price.
-            // TODO: (mg) (core) PercentageDiscountOnTierPrices must be tested thoroughly. It is not entirely clear whether this works correctly in all cases.
             if (!context.Options.IgnorePercentageDiscountOnTierPrices && minTierPrice != 0)
             {
                 var (discountAmountOnTierPrice, discountOnTierPrice) = await GetDiscountAmountAsync(minTierPrice, context);
                 if (discountOnTierPrice != null && discountOnTierPrice.UsePercentage)
                 {
-                    context.AppliedDiscounts.Add(discountOnTierPrice);
-                    context.DiscountAmount += discountAmountOnTierPrice;
-                    context.FinalPrice -= discountAmountOnTierPrice;
+                    // Keep the amount to be applied later together with the tier price.
+                    context.CalculatedDiscounts.Add(new CalculatedDiscount
+                    {
+                        Origin = nameof(context.MinTierPrice),
+                        Discount = discountOnTierPrice,
+                        DiscountAmount = discountAmountOnTierPrice
+                    });
 
                     await next(context);
                     return;

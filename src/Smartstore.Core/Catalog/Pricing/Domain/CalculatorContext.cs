@@ -24,6 +24,12 @@ namespace Smartstore.Core.Catalog.Pricing
         public ICollection<Discount> AppliedDiscounts { get; } = new HashSet<Discount>();
 
         /// <summary>
+        /// List of discount amounts to be applied later during price calculation,
+        /// e.g. the discount amount applied to a tier price.
+        /// </summary>
+        public ICollection<CalculatedDiscount> CalculatedDiscounts { get; } = new List<CalculatedDiscount>();
+
+        /// <summary>
         /// The regular price of the input <see cref="Product"/>, in the primary currency, usually <see cref="Product.Price"/>
         /// </summary>
         public decimal RegularPrice { get; private set; }
@@ -103,6 +109,9 @@ namespace Smartstore.Core.Catalog.Pricing
 
             target.AppliedDiscounts.Clear();
             target.AppliedDiscounts.AddRange(AppliedDiscounts);
+
+            target.CalculatedDiscounts.Clear();
+            target.CalculatedDiscounts.AddRange(CalculatedDiscounts);
 
             target.AttributePriceAdjustments.Clear();
             target.AttributePriceAdjustments.AddRange(AttributePriceAdjustments);
