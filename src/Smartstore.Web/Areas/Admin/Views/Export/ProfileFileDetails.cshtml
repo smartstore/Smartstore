@@ -57,17 +57,16 @@
 	}
 </div>
 
-<script sm-target-zone="scripts" data-origin="ProfileFileDetails">
+<script>
     $(function() {
 		// Button to copy URL to clipboard.
 		$('.btn-copy-to-clipboard').tooltip({
 			placement: 'bottom',
 			trigger: 'hover',
 			title: @T("Common.CopyToClipboard").JsValue
-		}).click(function () {
+		}).on('click', function () {
 			var self = $(this);
 			var url = self.closest('.copy-to-clipboard').find('a').attr('href');
-
 			var succeeded = window.copyTextToClipboard(url);
 
 			self.attr('data-original-title', succeeded ? @T("Common.CopyToClipboard.Succeeded").JsValue : @T("Common.CopyToClipboard.Failed").JsValue)

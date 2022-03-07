@@ -82,7 +82,7 @@
                             <a asp-action="DownloadLogFile" asp-route-id="@profile.Id"
 								target="LogFile"
 								class="btn btn-block btn-sm btn-secondary btn-log"
-								attr-class='(profile.IsTaskRunning || !profile.Enabled || !profile.LogFileExists, "d-none")'>
+								attr-class='(profile.IsTaskRunning || !profile.Enabled || !profile.LogFileExists, "hide")'>
 									<i class="far fa-file-alt"></i>
 									<span>@T("Admin.Configuration.ActivityLog")</span>
                             </a>

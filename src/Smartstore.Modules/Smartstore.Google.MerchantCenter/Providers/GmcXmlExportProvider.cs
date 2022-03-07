@@ -3,7 +3,6 @@ using System.Xml;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Smartstore.Collections;
-using Smartstore.Core;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Common;
@@ -39,7 +38,6 @@ namespace Smartstore.Google.MerchantCenter.Providers
         private const string _googleNamespace = "http://base.google.com/ns/1.0";
 
         private readonly SmartDbContext _db;
-        private readonly ICommonServices _services;
         private readonly IProductAttributeService _productAttributeService;
         private readonly MeasureSettings _measureSettings;
 
@@ -47,25 +45,15 @@ namespace Smartstore.Google.MerchantCenter.Providers
 
         public GmcXmlExportProvider(
             SmartDbContext db,
-            ICommonServices services,
             IProductAttributeService productAttributeService,
             MeasureSettings measureSettings)
         {
             _db = db;
-            _services = services;
             _productAttributeService = productAttributeService;
             _measureSettings = measureSettings;
         }
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
-
-        private async Task InitAttributeMappingsAsync()
-        {
-            if (_attributeMappings == null)
-            {
-                _attributeMappings = await _productAttributeService.GetExportFieldMappingsAsync("gmc");
-            }
-        }
 
         private static string BasePriceUnits(string value)
         {
@@ -178,12 +166,12 @@ namespace Smartstore.Google.MerchantCenter.Providers
 
         protected override async Task ExportAsync(ExportExecuteContext context, CancellationToken cancelToken)
         {
-            await InitAttributeMappingsAsync();
             Currency currency = context.Currency.Entity;
             var languageId = context.Projection.LanguageId ?? 0;
             var dateFormat = "yyyy-MM-ddTHH:mmZ";
             var defaultAvailability = "in stock";
-            var measureWeight = await GetBaseMeasureWeightAsync(); // !!!!!!!
+            var measureWeight = await GetBaseMeasureWeightAsync();
+            _attributeMappings = await _productAttributeService.GetExportFieldMappingsAsync("gmc");
 
             var config = (context.ConfigurationData as ProfileConfigurationModel) ?? new ProfileConfigurationModel();
 
@@ -214,7 +202,7 @@ namespace Smartstore.Google.MerchantCenter.Providers
 
                 var googleProducts = (await _db.GoogleProducts()
                     .Where(x => productIds.Contains(x.ProductId))
-                    .ToListAsync(cancellationToken: cancelToken))
+                    .ToListAsync(cancelToken))
                     .ToDictionarySafe(x => x.ProductId);
 
                 foreach (dynamic product in segment)
@@ -232,7 +220,6 @@ namespace Smartstore.Google.MerchantCenter.Providers
 
                     try
                     {
-                        string category = gmc == null ? null : gmc.Taxonomy;
                         string productType = product._CategoryPath;
                         var price = (decimal)product.Price;
                         var uniqueId = (string)product._UniqueId;
@@ -248,7 +235,7 @@ namespace Smartstore.Google.MerchantCenter.Providers
                             .ToList();
 
                         var attributeValues = !isParent && product._AttributeCombinationValues != null
-                            ? ((ICollection<ProductVariantAttributeValue>)product._AttributeCombinationValues).ToMultimap(x => x.ProductVariantAttribute.ProductAttributeId, x => x)
+                            ? ((IList<ProductVariantAttributeValue>)product._AttributeCombinationValues).ToMultimap(x => x.ProductVariantAttribute.ProductAttributeId, x => x)
                             : new Multimap<int, ProductVariantAttributeValue>();
 
                         var specialPrice = product._FutureSpecialPrice as decimal?;
@@ -256,10 +243,10 @@ namespace Smartstore.Google.MerchantCenter.Providers
                         {
                             specialPrice = product._SpecialPrice;
                         }
-                        
+
+                        var category = gmc?.Taxonomy?.NullEmpty() ?? config.DefaultGoogleCategory;
                         if (category.IsEmpty())
                         {
-                            category = config.DefaultGoogleCategory;
                             context.Log.Error(T("Plugins.Feed.Froogle.MissingDefaultCategory"));
                         }
                         
@@ -394,7 +381,7 @@ namespace Smartstore.Google.MerchantCenter.Providers
 
                         if (config.ExportShipping)
                         {
-                            var weight = string.Concat(((decimal)product.Weight).FormatInvariant(), " ", measureWeight);
+                            var weight = ((decimal)product.Weight).FormatInvariant() + " " + measureWeight;
                             WriteString(writer, "shipping_weight", weight);
                         }
 

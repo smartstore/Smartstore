@@ -426,13 +426,13 @@ namespace Smartstore.Core.DataExchange.Export
             var numFolders = 0;
             var webRoot = _appContext.WebRoot;
             var tenantRoot = _appContext.TenantRoot;
+            var directories = new List<IDirectory>
+            {
+                await webRoot.GetDirectoryAsync(webRoot.PathCombine(DataExporter.PublicDirectoryName)),
+                await tenantRoot.GetDirectoryAsync(tenantRoot.PathCombine(EXPORT_FILE_ROOT))
+            };
 
-            await DeleteContent(await webRoot.GetDirectoryAsync(webRoot.PathCombine(DataExporter.PublicDirectoryName)));
-            await DeleteContent(await tenantRoot.GetDirectoryAsync(tenantRoot.PathCombine(EXPORT_FILE_ROOT)));
-
-            return (numFiles, numFolders);
-
-            async Task DeleteContent(IDirectory dir)
+            foreach (var dir in directories.Where(x => x.Exists))
             {
                 var files = dir.EnumerateFiles(deep: true);
 
@@ -466,6 +466,8 @@ namespace Smartstore.Core.DataExchange.Export
                     }
                 }
             }
+
+            return (numFiles, numFolders);
         }
     }
 }
