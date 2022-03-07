@@ -258,7 +258,7 @@ namespace Smartstore.Forums
                     { "NumPosts", topic.NumPosts },
                     { "NumViews", topic.Views },
                     { "Body", forumService.FormatPostText(firstPost).NullEmpty() },
-                    { "Url", MessageModelHelper.BuildUrl(url, ctx) }
+                    { "Url", messageModelHelper.BuildUrl(url, ctx) }
                 };
 
                 await PublishEvent(topic);
@@ -275,7 +275,7 @@ namespace Smartstore.Forums
                     { "GroupName", forum.ForumGroup?.GetLocalized(x => x.Name, ctx.Language)?.Value.NullEmpty() },
                     { "NumPosts", forum.NumPosts },
                     { "NumTopics", forum.NumTopics },
-                    { "Url", MessageModelHelper.BuildUrl(url, ctx) }
+                    { "Url", messageModelHelper.BuildUrl(url, ctx) }
                 };
 
                 await PublishEvent(forum);
@@ -342,7 +342,7 @@ namespace Smartstore.Forums
                     { "ToEmail", pm.ToCustomer?.FindEmail().NullEmpty() },
                     { "FromName", pm.FromCustomer?.GetFullName().NullEmpty() },
                     { "ToName", pm.ToCustomer?.GetFullName().NullEmpty() },
-                    { "Url", MessageModelHelper.BuildUrl(url, ctx) }
+                    { "Url", messageModelHelper.BuildUrl(url, ctx) }
                 };
 
                 await PublishEvent(pm);

@@ -3,12 +3,14 @@ using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Common;
+using Smartstore.Core.Common.Services;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Messaging.Events;
 using Smartstore.Core.Stores;
+using Smartstore.Events;
 using Smartstore.Utilities;
 using Smartstore.Utilities.Html;
 
@@ -16,23 +18,30 @@ namespace Smartstore.Core.Messaging
 {
     public partial class MessageModelHelper
     {
-        // TODO: (mg) (core) Don't overuse ICommonServices in platform classes (it is ok in controllers though),
-        // because it makes testing extremely challenging. Please revert your changes.
         private readonly SmartDbContext _db;
-        private readonly ICommonServices _services;
+        private readonly IWorkContext _workContext;
+        private readonly IDateTimeHelper _dateTimeHelper;
+        private readonly IEventPublisher _eventPublisher;
+        private readonly ILocalizationService _localizationService;
         private readonly IMediaService _mediaService;
         private readonly IProductAttributeMaterializer _productAttributeMaterializer;
         private readonly Lazy<IUrlHelper> _urlHelper;
 
         public MessageModelHelper(
             SmartDbContext db,
-            ICommonServices services,
+            IWorkContext workContext,
+            IDateTimeHelper dateTimeHelper,
+            IEventPublisher eventPublisher,
+            ILocalizationService localizationService,
             IMediaService mediaService,
             IProductAttributeMaterializer productAttributeMaterializer,
             Lazy<IUrlHelper> urlHelper)
         {
             _db = db;
-            _services = services;
+            _workContext = workContext;
+            _dateTimeHelper = dateTimeHelper;
+            _eventPublisher = eventPublisher;
+            _localizationService = localizationService;
             _mediaService = mediaService;
             _productAttributeMaterializer = productAttributeMaterializer;
             _urlHelper = urlHelper;
@@ -46,9 +55,8 @@ namespace Smartstore.Core.Messaging
             model["UpdatedOn"] = ToUserDate(content.UpdatedOnUtc, ctx);
         }
 
-        public static string BuildUrl(string url, MessageContext ctx)
+        public string BuildUrl(string url, MessageContext ctx)
         {
-            // TODO: (mg) (core) Please revert this (static) for the sake of API consistency
             return ctx.BaseUri.GetLeftPart(UriPartial.Authority) + url.EnsureStartsWith('/');
         }
 
@@ -69,7 +77,7 @@ namespace Smartstore.Core.Messaging
 
         public async Task PublishModelPartCreatedEventAsync<T>(T source, dynamic part) where T : class
         {
-            await _services.EventPublisher.PublishAsync(new MessageModelPartCreatedEvent<T>(source, part));
+            await _eventPublisher.PublishAsync(new MessageModelPartCreatedEvent<T>(source, part));
         }
 
         public async Task<object> GetTopicAsync(string topicSystemName, MessageContext ctx)
@@ -94,7 +102,7 @@ namespace Smartstore.Core.Messaging
 
         public string GetBoolResource(bool value, MessageContext ctx)
         {
-            return _services.Localization.GetResource(value ? "Common.Yes" : "Common.No", ctx.Language.Id);
+            return _localizationService.GetResource(value ? "Common.Yes" : "Common.No", ctx.Language.Id);
         }
 
         public DateTime? ToUserDate(DateTime? utcDate, MessageContext messageContext)
@@ -102,10 +110,10 @@ namespace Smartstore.Core.Messaging
             if (utcDate == null)
                 return null;
 
-            return _services.DateTimeHelper.ConvertToUserTime(
+            return _dateTimeHelper.ConvertToUserTime(
                 utcDate.Value,
                 TimeZoneInfo.Utc,
-                _services.DateTimeHelper.GetCustomerTimeZone(messageContext.Customer));
+                _dateTimeHelper.GetCustomerTimeZone(messageContext.Customer));
         }
 
         public Money FormatPrice(decimal price, Order order, MessageContext messageContext)
@@ -135,7 +143,7 @@ namespace Smartstore.Core.Messaging
 
         public Money FormatPrice(decimal price, Currency currency, MessageContext messageContext, decimal exchangeRate = 1)
         {
-            currency ??= _services.WorkContext.WorkingCurrency;
+            currency ??= _workContext.WorkingCurrency;
 
             if (exchangeRate != 1)
             {

@@ -528,6 +528,14 @@ namespace Smartstore.Core.Messaging
                             ["Address"] = "VatAddress"
                         });
                         break;
+                    case MessageTemplateNames.SystemGeneric:
+                        result.Add(new NamedModelPart("Generic")
+                        {
+                            ["Email"] = "john@doe.com",
+                            ["Subject"] = "Subject",
+                            ["Body"] = LoremIpsum
+                        });
+                        break;
                 }
             }
 
@@ -634,7 +642,14 @@ namespace Smartstore.Core.Messaging
                     }
                 }
 
-                return await factory?.Invoke();
+                if (factory != null)
+                {
+                    return await factory.Invoke();
+                }
+
+                // If no random entity exists in the database (e.g. RecurringPayment), then the associated parent model is
+                // of type 'TestDrop' and the child model may not be resolved (e.g. RecurringPayment.InitialOrder).
+                return null;
             }
         }
 
