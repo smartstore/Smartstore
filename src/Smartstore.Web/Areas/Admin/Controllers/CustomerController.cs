@@ -634,7 +634,7 @@ namespace Smartstore.Admin.Controllers
                         if (model.CustomerNumber != customer.CustomerNumber && 
                             await _db.Customers.ApplyIdentFilter(customerNumber: model.CustomerNumber).AnyAsync())
                         {
-                            NotifyError("Common.CustomerNumberAlreadyExists");
+                            NotifyError(T("Common.CustomerNumberAlreadyExists"));
                         }
                         else
                         {

@@ -18,7 +18,7 @@ namespace Smartstore.Web.Models.Identity
 
         public bool UsernamesEnabled { get; set; }
         [LocalizedDisplay("*Username")]
-        public string UserName { get; set; }
+        public string Username { get; set; }
 
         public bool CheckUsernameAvailabilityEnabled { get; set; }
 
@@ -135,13 +135,13 @@ namespace Smartstore.Web.Models.Identity
 
     public class RegisterModelValidator : SmartValidator<RegisterModel>
     {
-        public RegisterModelValidator(Localizer T, CustomerSettings customerSettings, TaxSettings taxSettings, SmartDbContext db)
+        public RegisterModelValidator(Localizer T, CustomerSettings customerSettings, TaxSettings taxSettings)
         {
             RuleFor(x => x.Email).NotEmpty().EmailAddress();
             RuleFor(x => x.Password).NotEmpty();
             RuleFor(x => x.ConfirmPassword).NotEmpty().Equal(x => x.Password).WithMessage(T("Identity.Error.PasswordMismatch"));
 
-            //// Form fields.
+            // Form fields.
             if (customerSettings.FirstNameRequired)
             {
                 RuleFor(x => x.FirstName).NotEmpty();

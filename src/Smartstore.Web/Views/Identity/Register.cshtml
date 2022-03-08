@@ -74,20 +74,20 @@
                     </div>
 
                     <div sm-if="Model.UsernamesEnabled" class="form-group row">
-                        <label asp-for="UserName" class="col-md-3 col-form-label required"></label>
+                        <label asp-for="Username" class="col-md-3 col-form-label required"></label>
                         <div class="col-md-9">
                             @if (Model.CheckUsernameAvailabilityEnabled)
                             {
                                 <div class="input-group">
-                                    <input asp-for="UserName" class="remember" />
+                                    <input asp-for="Username" class="remember" />
                                     <partial name="_CheckUsernameAvailability" />
                                 </div>
                             }
                             else
                             {
-                                <input asp-for="UserName" class="remember" />
+                                <input asp-for="Username" class="remember" />
                             }
-                            <span asp-validation-for="UserName"></span>
+                            <span asp-validation-for="Username"></span>
                         </div>
                     </div>
 

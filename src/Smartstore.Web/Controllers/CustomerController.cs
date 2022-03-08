@@ -197,7 +197,7 @@ namespace Smartstore.Web.Controllers
 
                         if (model.CustomerNumber != customer.CustomerNumber && numberExists)
                         {
-                            NotifyError("Common.CustomerNumberAlreadyExists");
+                            NotifyError(T("Common.CustomerNumberAlreadyExists"));
                         }
                         else
                         {
@@ -278,7 +278,7 @@ namespace Smartstore.Web.Controllers
 
                     await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, customer, Request.Form));
 
-                    return RedirectToAction("Info");
+                    return RedirectToAction(nameof(Info));
                 }
             }
             catch (Exception ex)
@@ -294,38 +294,39 @@ namespace Smartstore.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> CheckUsernameAvailability(string username)
         {
+            username = username.TrimSafe();
+
             var usernameAvailable = false;
-            var statusText = T("Account.CheckUsernameAvailability.NotAvailable");
+            string statusText = null;
 
-            if (_customerSettings.CustomerLoginType != CustomerLoginType.Email && username != null)
+            if (_customerSettings.CustomerLoginType != CustomerLoginType.Email && username.HasValue())
             {
-                username = username.Trim();
-
-                if (username.HasValue())
+                var customer = Services.WorkContext.CurrentCustomer;
+                if (customer != null && customer.Username != null && customer.Username.EqualsNoCase(username))
                 {
-                    var customer = Services.WorkContext.CurrentCustomer;
-                    if (customer != null && customer.Username != null && customer.Username.EqualsNoCase(username))
-                    {
-                        statusText = T("Account.CheckUsernameAvailability.CurrentUsername");
-                    }
-                    else
-                    {
-                        var userExists = await _db.Customers
-                            .AsNoTracking()
-                            .IgnoreQueryFilters()
-                            .ApplyIdentFilter(null, username, null, true)
-                            .AnyAsync();
+                    statusText = T("Account.CheckUsernameAvailability.CurrentUsername");
+                }
+                else
+                {
+                    var userExists = await _db.Customers
+                        .AsNoTracking()
+                        .IgnoreQueryFilters()
+                        .ApplyIdentFilter(null, username, null, true)
+                        .AnyAsync();
 
-                        if (!userExists)
-                        {
-                            statusText = T("Account.CheckUsernameAvailability.Available");
-                            usernameAvailable = true;
-                        }
+                    if (!userExists)
+                    {
+                        statusText = T("Account.CheckUsernameAvailability.Available");
+                        usernameAvailable = true;
                     }
                 }
             }
 
-            return Json(new { Available = usernameAvailable, Text = statusText.Value });
+            return Json(new 
+            {
+                Available = usernameAvailable, 
+                Text = statusText.NullEmpty() ?? T("Account.CheckUsernameAvailability.NotAvailable")
+            });
         }
 
         #region Addresses
