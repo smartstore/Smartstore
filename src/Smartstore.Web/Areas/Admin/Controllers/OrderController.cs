@@ -572,12 +572,12 @@ namespace Smartstore.Admin.Controllers
             try
             {
                 var errors = await _orderProcessingService.CaptureAsync(order);
-                foreach (var error in errors)
-                {
-                    NotifyError(error);
-                }
 
-                if (!errors.Any())
+                if (errors.Count > 0)
+                {
+                    NotifyError(string.Join(Environment.NewLine, errors));
+                }
+                else
                 {
                     Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditOrder, T("ActivityLog.EditOrder"), order.GetOrderNumber());
                 }
@@ -630,12 +630,12 @@ namespace Smartstore.Admin.Controllers
             try
             {
                 var errors = await _orderProcessingService.RefundAsync(order);
-                foreach (var error in errors)
-                {
-                    NotifyError(error);
-                }
 
-                if (!errors.Any())
+                if (errors.Count > 0)
+                {
+                    NotifyError(string.Join(Environment.NewLine, errors));
+                }
+                else
                 {
                     Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditOrder, T("ActivityLog.EditOrder"), order.GetOrderNumber());
                 }
@@ -688,12 +688,12 @@ namespace Smartstore.Admin.Controllers
             try
             {
                 var errors = await _orderProcessingService.VoidAsync(order);
-                foreach (var error in errors)
-                {
-                    NotifyError(error);
-                }
 
-                if (!errors.Any())
+                if (errors.Count > 0)
+                {
+                    NotifyError(string.Join(Environment.NewLine, errors));
+                }
+                else
                 {
                     Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditOrder, T("ActivityLog.EditOrder"), order.GetOrderNumber());
                 }
@@ -794,10 +794,7 @@ namespace Smartstore.Admin.Controllers
 
                 if (errors?.Any() ?? false)
                 {
-                    foreach (var error in errors)
-                    {
-                        NotifyError(error, false);
-                    }
+                    NotifyError(string.Join(Environment.NewLine, errors), false);
                 }
                 else
                 {

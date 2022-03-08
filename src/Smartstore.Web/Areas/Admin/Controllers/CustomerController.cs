@@ -593,7 +593,10 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Customer.Update)]
         public async Task<IActionResult> Edit(CustomerModel model, bool continueEditing, IFormCollection form)
         {
-            var customer = await _db.Customers.FindByIdAsync(model.Id);
+            var customer = await _db.Customers
+                .IncludeCustomerRoles()
+                .FindByIdAsync(model.Id);
+
             if (customer == null)
             {
                 return NotFound();
@@ -628,8 +631,8 @@ namespace Smartstore.Admin.Controllers
                     // Customer number.
                     if (_customerSettings.CustomerNumberMethod != CustomerNumberMethod.Disabled)
                     {
-                        var numberExists = await _db.Customers.ApplyIdentFilter(customerNumber: model.CustomerNumber).AnyAsync();
-                        if (model.CustomerNumber != customer.CustomerNumber && numberExists)
+                        if (model.CustomerNumber != customer.CustomerNumber && 
+                            await _db.Customers.ApplyIdentFilter(customerNumber: model.CustomerNumber).AnyAsync())
                         {
                             NotifyError("Common.CustomerNumberAlreadyExists");
                         }
@@ -663,7 +666,7 @@ namespace Smartstore.Admin.Controllers
                     // VAT number.
                     if (_taxSettings.EuVatEnabled)
                     {
-                        string prevVatNumber = customer.GenericAttributes.VatNumber;
+                        var prevVatNumber = customer.GenericAttributes.VatNumber;
                         customer.GenericAttributes.VatNumber = model.VatNumber;
 
                         // Set VAT number status.
@@ -748,14 +751,10 @@ namespace Smartstore.Admin.Controllers
 
             if (ModelState.IsValid)
             {
-                var changePasswordResult = await _userManager.ChangePasswordAsync(customer, customer.Password, model.Password);
-
-                if (!changePasswordResult.Succeeded)
+                var passwordResult = await _userManager.ChangePasswordAsync(customer, customer.Password, model.Password);
+                if (!passwordResult.Succeeded)
                 {
-                    foreach (var changePassError in changePasswordResult.Errors)
-                    {
-                        NotifyError(changePassError.Description);
-                    }
+                    NotifyError(string.Join(Environment.NewLine, passwordResult.Errors.SelectMany(x => x.Description)));
                 }
             }
 

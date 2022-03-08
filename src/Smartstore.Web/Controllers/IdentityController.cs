@@ -29,7 +29,6 @@ namespace Smartstore.Web.Controllers
         private readonly UserManager<Customer> _userManager;
         private readonly SignInManager<Customer> _signInManager;
         private readonly RoleManager<CustomerRole> _roleManager;
-        private readonly IUserStore<Customer> _userStore;
         private readonly IProviderManager _providerManager;
         private readonly ITaxService _taxService;
         private readonly IAddressService _addressService;
@@ -50,7 +49,6 @@ namespace Smartstore.Web.Controllers
             UserManager<Customer> userManager,
             SignInManager<Customer> signInManager,
             RoleManager<CustomerRole> roleManager,
-            IUserStore<Customer> userStore,
             IProviderManager providerManager,
             ITaxService taxService,
             IAddressService addressService,
@@ -70,7 +68,6 @@ namespace Smartstore.Web.Controllers
             _userManager = userManager;
             _signInManager = signInManager;
             _roleManager = roleManager;
-            _userStore = userStore;
             _providerManager = providerManager;
             _taxService = taxService;
             _addressService = addressService;
@@ -269,13 +266,11 @@ namespace Smartstore.Web.Controllers
                 customer.CreatedOnUtc = DateTime.UtcNow;
                 customer.LastActivityDateUtc = DateTime.UtcNow;
 
-                var result = await _userManager.UpdateAsync(customer);
-
-                if (result.Succeeded)
+                var identityResult = await _userManager.UpdateAsync(customer);
+                if (identityResult.Succeeded)
                 {
-                    var addPasswordResult = await _userManager.AddPasswordAsync(customer, model.Password);
-
-                    if (addPasswordResult.Succeeded)
+                    var passwordResult = await _userManager.AddPasswordAsync(customer, model.Password);
+                    if (passwordResult.Succeeded)
                     {
                         // Update customer properties.
                         await MapRegisterModelToCustomerAsync(customer, model);
@@ -284,15 +279,16 @@ namespace Smartstore.Web.Controllers
                     }
                     else
                     {
-                        addPasswordResult.Errors.Each(x => ModelState.AddModelError(string.Empty, x.Description));
+                        passwordResult.Errors.Each(x => ModelState.AddModelError(string.Empty, x.Description));
                     }   
                 }
 
-                result.Errors.Each(x => ModelState.AddModelError(string.Empty, x.Description));
+                identityResult.Errors.Each(x => ModelState.AddModelError(string.Empty, x.Description));
             }
 
             // If we got this far something failed. Redisplay form.
             await PrepareRegisterModelAsync(model);
+
             return View(model);
         }
 
@@ -442,19 +438,14 @@ namespace Smartstore.Web.Controllers
 
             if (ModelState.IsValid)
             {
-                var changePasswordResult = await _userManager.ChangePasswordAsync(customer, model.OldPassword, model.NewPassword);
-                
-                if (changePasswordResult.Succeeded)
+                var passwordResult = await _userManager.ChangePasswordAsync(customer, model.OldPassword, model.NewPassword);                
+                if (passwordResult.Succeeded)
                 {
                     model.Result = T("Account.ChangePassword.Success");
-                    return View(model);
                 }
                 else
                 {
-                    foreach (var error in changePasswordResult.Errors)
-                    {
-                        ModelState.AddModelError(string.Empty, error.Description);
-                    }
+                    passwordResult.Errors.Each(x => ModelState.AddModelError(string.Empty, x.Description));
                 }
             }
 
@@ -525,23 +516,20 @@ namespace Smartstore.Web.Controllers
 
             if (ModelState.IsValid)
             {
-                var response = await _userManager.ResetPasswordAsync(customer, model.Token, model.NewPassword);
-                
-                if (response.Succeeded)
+                var identityResult = await _userManager.ResetPasswordAsync(customer, model.Token, model.NewPassword);                
+                if (identityResult.Succeeded)
                 {
                     customer.GenericAttributes.PasswordRecoveryToken = string.Empty;
                     await _db.SaveChangesAsync();
+
                     model.SuccessfullyChanged = true;
                     model.Result = T("Account.PasswordRecovery.PasswordHasBeenChanged");
                 }
                 else
                 {
-                    foreach (var error in response.Errors)
-                    {
-                        NotifyError(error.Description);
-                    }
+                    NotifyError(string.Join(Environment.NewLine, identityResult.Errors.SelectMany(x => x.Description)));
 
-                    return RedirectToAction("PasswordRecoveryConfirm", new { token = model.Token, email = model.Email });
+                    return RedirectToAction(nameof(PasswordRecoveryConfirm), new { token = model.Token, email = model.Email });
                 }
 
                 return View(model);
@@ -607,17 +595,17 @@ namespace Smartstore.Web.Controllers
                         LastActivityDateUtc = DateTime.UtcNow
                     };
 
-                    var createResult = await _userManager.CreateAsync(customer);
-                    if (createResult.Succeeded)
+                    var identityResult = await _userManager.CreateAsync(customer);
+                    if (identityResult.Succeeded)
                     {
-                        // INFO: This creates the external auth record
-                        createResult = await _userManager.AddLoginAsync(customer, info);
-                        if (createResult.Succeeded)
+                        // INFO: this creates the external auth record.
+                        identityResult = await _userManager.AddLoginAsync(customer, info);
+                        if (identityResult.Succeeded)
                         {
                             return await FinalizeCustomerRegistrationAsync(customer, returnUrl);
                         }
 
-                        // migrate shopping cart.
+                        // Migrate shopping cart.
                         await _shoppingCartService.MigrateCartAsync(Services.WorkContext.CurrentCustomer, customer);
 
                         Services.ActivityLogger.LogActivity(KnownActivityLogTypes.PublicStoreLogin, T("ActivityLog.PublicStore.Login"), customer);
@@ -626,14 +614,11 @@ namespace Smartstore.Web.Controllers
                     }
 
                     // Display errors to user.
-                    foreach (var error in createResult.Errors)
-                    {
-                        NotifyError(error.Description);
-                    }
+                    NotifyError(string.Join(Environment.NewLine, identityResult.Errors.SelectMany(x => x.Description)));
                 }
                 else
                 {
-                    // Creating new accounts is disabled. Display to user.
+                    // Creating new accounts is disabled.
                     NotifyError(T("Account.Register.Result.Disabled"));
                 }
 

@@ -97,12 +97,12 @@ namespace Smartstore.Web.Controllers
             
             var order = orderItem.Order;
             var product = orderItem.Product;
-            var hasNotification = false;
+            var errors = new List<string>();
+            Download download;
 
             if (!_downloadService.IsDownloadAllowed(orderItem))
             {
-                hasNotification = true;
-                NotifyError(T("Common.Download.NotAllowed"));
+                errors.Add(T("Common.Download.NotAllowed"));
             }
 
             if (_customerSettings.DownloadableProductsValidateUser)
@@ -115,12 +115,9 @@ namespace Smartstore.Web.Controllers
                 
                 if (order.CustomerId != customer.Id)
                 {
-                    hasNotification = true;
-                    NotifyError(T("Account.CustomerOrders.NotYourOrder"));
+                    errors.Add(T("Account.CustomerOrders.NotYourOrder"));
                 }
             }
-
-            Download download;
 
             if (fileVersion.HasValue())
             {
@@ -144,22 +141,20 @@ namespace Smartstore.Web.Controllers
 
             if (download == null)
             {
-                hasNotification = true;
-                NotifyError(T("Common.Download.NoDataAvailable"));
-            }
-
-            if (product.HasUserAgreement && !agree)
-            {
-                hasNotification = true;
+                errors.Add(T("Common.Download.NoDataAvailable"));
             }
 
             if (!product.UnlimitedDownloads && orderItem.DownloadCount >= product.MaxNumberOfDownloads)
             {
-                hasNotification = true;
-                NotifyError(T("Common.Download.MaxNumberReached", product.MaxNumberOfDownloads));
+                errors.Add(T("Common.Download.MaxNumberReached", product.MaxNumberOfDownloads));
             }
 
-            if (hasNotification)
+            if (errors.Count > 0)
+            {
+                NotifyError(string.Join(Environment.NewLine, errors));
+            }
+
+            if (errors.Count > 0 || (product.HasUserAgreement && !agree))
             {
                 return RedirectToAction("UserAgreement", "Customer", new { id, fileVersion });
             }
