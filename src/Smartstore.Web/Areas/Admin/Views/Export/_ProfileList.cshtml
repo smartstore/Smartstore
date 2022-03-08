@@ -34,7 +34,7 @@
 			<tbody>
 				@foreach (var profile in Model.OrderBy(x => x.Name))
 				{
-					<tr data-profile-id="@profile.Id" data-task-id="@profile.TaskId" class="profile-row" attr-class='(!profile.Enabled, "disabled")'>
+					<tr id="export-profile-@profile.Id" data-profile-id="@profile.Id" data-task-id="@profile.TaskId" class="profile-row" attr-class='(!profile.Enabled, "disabled")'>
 						<td class="text-center">
 							<img src="@profile.Provider.ThumbnailUrl" alt="@profile.Provider.FriendlyName" attr-class='(profile.Enabled, "o40")' />
 						</td>
