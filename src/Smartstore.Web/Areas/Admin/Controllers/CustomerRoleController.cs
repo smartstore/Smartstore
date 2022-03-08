@@ -63,7 +63,7 @@ namespace Smartstore.Admin.Controllers
             
             if (!(includeSystemRoles ?? true))
             {
-                query = query.Where(x => x.IsSystemRole);
+                query = query.Where(x => !x.IsSystemRole);
             }
 
             query = query.ApplyStandardFilter(true);

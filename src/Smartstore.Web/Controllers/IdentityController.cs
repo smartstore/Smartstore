@@ -904,10 +904,11 @@ namespace Smartstore.Web.Controllers
 
             await _userManager.AddToRoleAsync(customer, registeredRole.Name);
 
-            // Add customer to custom configured role.
-            if (_customerSettings.RegisterCustomerRoleId != 0 && _customerSettings.RegisterCustomerRoleId != registeredRole.Id)
+            // Add customer to an additional role.
+            var roleIdToAdd = _customerSettings.RegisterCustomerRoleId ?? 0;
+            if (roleIdToAdd != 0 && roleIdToAdd != registeredRole.Id)
             {
-                var customerRole = await _roleManager.FindByIdAsync(_customerSettings.RegisterCustomerRoleId);
+                var customerRole = await _roleManager.FindByIdAsync(roleIdToAdd);
                 if (customerRole != null)
                 {
                     await _userManager.AddToRoleAsync(customer, customerRole.Name);

@@ -38,7 +38,7 @@ namespace Smartstore.Admin.Models
             [UIHint("CustomerRoles")]
             [AdditionalMetadata("includeSystemRoles", false)]
             [LocalizedDisplay("*RegisterCustomerRole")]
-            public int RegisterCustomerRoleId { get; set; }
+            public int? RegisterCustomerRoleId { get; set; }
 
             [LocalizedDisplay("*AllowCustomersToUploadAvatars")]
             public bool AllowCustomersToUploadAvatars { get; set; }
