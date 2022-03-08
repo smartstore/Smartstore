@@ -460,48 +460,60 @@ namespace Smartstore.Admin.Controllers
         {
             // Validate customer roles.
             var allCustomerRoleIds = await _db.CustomerRoles
-                .AsNoTracking()
                 .Select(x => x.Id)
                 .ToListAsync();
 
             var (newCustomerRoles, customerRolesError) = await ValidateCustomerRolesAsync(model.SelectedCustomerRoleIds, allCustomerRoleIds);
-
             if (customerRolesError.HasValue())
             {
-                ModelState.AddModelError(string.Empty, customerRolesError);
+                ModelState.AddModelError(nameof(model.SelectedCustomerRoleIds), customerRolesError);
             }
+
+            // Validate password.
+            if (model.Password.HasValue())
+            {
+                var passwordResults = await _userManager.PasswordValidators
+                    .SelectAsync(async x => await x.ValidateAsync(_userManager, null, model.Password))
+                    .AsyncToList();
+
+                passwordResults
+                    .Where(x => !x.Succeeded)
+                    .SelectMany(x => x.Errors.Select(y => y.Description))
+                    .Each(x => ModelState.AddModelError(nameof(model.Password), x));
+            }
+
+            var customer = new Customer
+            {
+                CustomerGuid = Guid.NewGuid(),
+                Email = model.Email,
+                Username = model.Username,
+                PasswordFormat = _customerSettings.DefaultPasswordFormat,
+                CreatedOnUtc = DateTime.UtcNow,
+                LastActivityDateUtc = DateTime.UtcNow,
+            };
 
             if (ModelState.IsValid)
             {
-                var utcNow = DateTime.UtcNow;
-                var customer = new Customer
-                {
-                    CustomerGuid = Guid.NewGuid(),
-                    Email = model.Email,
-                    Username = model.Username,
-                    CreatedOnUtc = utcNow,
-                    LastActivityDateUtc = utcNow,
-                };
-
                 if (_customerSettings.CustomerNumberMethod == CustomerNumberMethod.AutomaticallySet && model.CustomerNumber.IsEmpty())
                 {
-                    customer.CustomerNumber = null;
-                    // Let any NumberFormatter module handle this
+                    // Let any NumberFormatter module handle this.
                     await Services.EventPublisher.PublishAsync(new CustomerRegisteredEvent { Customer = customer });
                 }
                 else if (_customerSettings.CustomerNumberMethod == CustomerNumberMethod.Enabled && model.CustomerNumber.HasValue())
                 {
-                    var numberExists = await _db.Customers.ApplyIdentFilter(customerNumber: model.CustomerNumber).AnyAsync();
-                    if (numberExists)
+                    if (await _db.Customers.ApplyIdentFilter(customerNumber: model.CustomerNumber).AnyAsync())
                     {
-                        NotifyError("Common.CustomerNumberAlreadyExists");
+                        ModelState.AddModelError(nameof(model.CustomerNumber), T("Common.CustomerNumberAlreadyExists"));
                     }
                     else
                     {
                         customer.CustomerNumber = model.CustomerNumber;
                     }
                 }
+            }
 
+            if (ModelState.IsValid)
+            {
                 try
                 {
                     _db.Customers.Add(customer);
@@ -519,14 +531,11 @@ namespace Smartstore.Admin.Controllers
                     // Password.
                     if (model.Password.HasValue())
                     {
-                        var changePasswordResult = await _userManager.AddPasswordAsync(customer, model.Password);
-
-                        if (!changePasswordResult.Succeeded)
+                        var passwordResult = await _userManager.AddPasswordAsync(customer, model.Password);
+                        if (!passwordResult.Succeeded)
                         {
-                            foreach (var changePassError in changePasswordResult.Errors)
-                            {
-                                NotifyError(changePassError.Description);
-                            }
+                            // We should never get here because we already validated the password.
+                            NotifyError(string.Join(Environment.NewLine, passwordResult.Errors.SelectMany(x => x.Description)));
                         }
                     }
 
@@ -541,11 +550,14 @@ namespace Smartstore.Admin.Controllers
                     });
 
                     await _db.SaveChangesAsync();
+
                     await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, customer, form));
                     Services.ActivityLogger.LogActivity(KnownActivityLogTypes.AddNewCustomer, T("ActivityLog.AddNewCustomer"), customer.Id);
-
                     NotifySuccess(T("Admin.Customers.Customers.Added"));
-                    return continueEditing ? RedirectToAction(nameof(Edit), new { id = customer.Id }) : RedirectToAction(nameof(List));
+
+                    return continueEditing
+                        ? RedirectToAction(nameof(Edit), new { id = customer.Id })
+                        : RedirectToAction(nameof(List));
                 }
             }
 
