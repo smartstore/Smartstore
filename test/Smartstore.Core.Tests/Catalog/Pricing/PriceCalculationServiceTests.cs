@@ -68,6 +68,9 @@ namespace Smartstore.Core.Tests.Catalog.Pricing
             _customer = new Customer { Id = 1 };
             _language = new Language { Id = 1 };
 
+            _requestCache = new NullRequestCache();
+            _services = new MockCommonServices(DbContext, LifetimeScope);
+
             var storeContextMock = new Mock<IStoreContext>();
             _storeContext = storeContextMock.Object;
             storeContextMock.Setup(x => x.CurrentStore).Returns(_store);
@@ -77,8 +80,6 @@ namespace Smartstore.Core.Tests.Catalog.Pricing
             workContextMock.Setup(x => x.WorkingCurrency).Returns(_currency);
             workContextMock.Setup(x => x.WorkingLanguage).Returns(_language);
 
-            _requestCache = new NullRequestCache();
-
             var productServiceMock = new Mock<IProductService>();
             _productService = productServiceMock.Object;
 
@@ -87,16 +88,6 @@ namespace Smartstore.Core.Tests.Catalog.Pricing
 
             var manufacturerServiceMock = new Mock<IManufacturerService>();
             _manufacturerService = manufacturerServiceMock.Object;
-
-            var builder = new ContainerBuilder();
-            builder.RegisterInstance(_productService).As<IProductService>().SingleInstance();
-            builder.RegisterInstance(_categoryService).As<ICategoryService>().SingleInstance();
-            builder.RegisterInstance(_manufacturerService).As<IManufacturerService>().SingleInstance();
-
-            // TODO: (mh) (core) Don't create containers during testing, make the tested class testable instead!
-            //_services = new MockCommonServices(DbContext, LifetimeScope);
-
-            _services = new MockCommonServices(DbContext, builder.Build());
 
             var productAttributeMaterializerMock = new Mock<IProductAttributeMaterializer>();
             _productAttributeMaterializer = productAttributeMaterializerMock.Object;

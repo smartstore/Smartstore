@@ -41,8 +41,6 @@ namespace Smartstore.Core.Tests.Checkout.Orders
         TaxSettings _taxSettings;
         RewardPointsSettings _rewardPointsSettings;
         IProductService _productService;
-        ICategoryService _categoryService;
-        IManufacturerService _manufacturerService;
         IPriceCalculationService _priceCalcService;
         IOrderCalculationService _orderCalcService;
         ShippingSettings _shippingSettings;
@@ -82,26 +80,10 @@ namespace Smartstore.Core.Tests.Checkout.Orders
             workContextMock.Setup(x => x.WorkingLanguage).Returns(_language);
 
             _requestCache = new NullRequestCache();
+            _services = new MockCommonServices(DbContext, LifetimeScope);
 
             var productServiceMock = new Mock<IProductService>();
             _productService = productServiceMock.Object;
-
-            var categoryServiceMock = new Mock<ICategoryService>();
-            _categoryService = categoryServiceMock.Object;
-
-            var manufacturerServiceMock = new Mock<IManufacturerService>();
-            _manufacturerService = manufacturerServiceMock.Object;
-
-            var builder = new ContainerBuilder();
-            builder.RegisterInstance(_productService).As<IProductService>().SingleInstance();
-            builder.RegisterInstance(_categoryService).As<ICategoryService>().SingleInstance();
-            builder.RegisterInstance(_manufacturerService).As<IManufacturerService>().SingleInstance();
-
-            // TODO: (mh) (core) Don't create containers during testing, make the tested class testable instead!
-            //_services = new MockCommonServices(DbContext, LifetimeScope);
-
-            _services = new MockCommonServices(DbContext, builder.Build());
-
             productServiceMock
                 .Setup(x => x.CreateProductBatchContext(It.IsAny<IEnumerable<Product>>(), null, _customer, false, false))
                 .Returns(new ProductBatchContext(new List<Product>(), _services, _store, _customer, false));
