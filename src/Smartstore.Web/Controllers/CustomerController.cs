@@ -312,7 +312,8 @@ namespace Smartstore.Web.Controllers
                     {
                         var userExists = await _db.Customers
                             .AsNoTracking()
-                            .ApplyIdentFilter(userName: username)
+                            .IgnoreQueryFilters()
+                            .ApplyIdentFilter(null, username, null, true)
                             .AnyAsync();
 
                         if (!userExists)

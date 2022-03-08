@@ -1,6 +1,7 @@
 ﻿<script sm-target-zone="scripts" data-origin="check-username-availability">
     $(function () {
-    	$('#Username').closest(".input-group-append").after(createCircularSpinner(24).attr('id', 'cua-loader').css('margin-left', '10px'));
+        $('#Username').closest(".input-group-append").after(createCircularSpinner(24).attr('id', 'cua-loader').css('margin-left', '10px'));
+
     	$('#Username').on('input propertychange paste', function (e) {
     		$('#username-availabilty').text('');
     		$('#check-availability-button')
@@ -9,7 +10,8 @@
 				.find(">i")
 				.removeClass("fa-check fa-exclamation-circle")
 				.addClass("fa-question-circle");
-    	});
+        });
+
         $('#check-availability-button').on('click', function (e) {
             var btn = $('#check-availability-button');
             $('#username-availabilty').text('');
@@ -19,7 +21,7 @@
                 $.ajax({
                     cache: false,
                     type: 'POST',
-                    url: '@Url.Action("CheckUsernameAvailability")',
+                    url: '@Url.Action("CheckUsernameAvailability", "Customer")',
                     data: $('#Username').serialize(),
                     dataType: 'json',
                     success: function (data) {
@@ -42,6 +44,7 @@
                 $('#username-availabilty').attr('class', 'not-available-status');
                 $('#username-availabilty').text('*');
             }
+
             return false;
         });
     });
