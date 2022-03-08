@@ -525,7 +525,7 @@ namespace Smartstore.Admin.Controllers
                         {
                             foreach (var changePassError in changePasswordResult.Errors)
                             {
-                                NotifyError($"Error {changePassError.Code}: {changePassError.Description}");
+                                NotifyError(changePassError.Description);
                             }
                         }
                     }
@@ -742,7 +742,7 @@ namespace Smartstore.Admin.Controllers
                 {
                     foreach (var changePassError in changePasswordResult.Errors)
                     {
-                        NotifyError($"Error {changePassError.Code}: {changePassError.Description}");
+                        NotifyError(changePassError.Description);
                     }
                 }
             }
