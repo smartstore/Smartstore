@@ -104,7 +104,9 @@ namespace Smartstore
                 return source;
             }
 
-            if (source.FileSystem.GetType() != fs.GetType())
+            var sourceType = source.FileSystem.GetType();
+            var thisType = fs.GetType();
+            if (sourceType != thisType && (sourceType.BaseType == null || sourceType.BaseType != thisType))
             {
                 throw new FileSystemException("While attaching entries, both file system implementations must be of same type.");
             }
