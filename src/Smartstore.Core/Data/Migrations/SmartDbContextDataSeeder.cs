@@ -671,6 +671,7 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.Configuration.Settings.News", "News", "News");
 
             builder.AddOrUpdate("Account.Fields.Password", "Password security", "Passwortsicherheit");
+            builder.AddOrUpdate("Account.ChangePassword", "Change password", "Passwort ändern");
 
             #endregion
 
