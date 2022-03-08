@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Hosting;
 using Smartstore.Admin.Models.Maintenance;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Shipping;
@@ -36,6 +37,7 @@ namespace Smartstore.Admin.Controllers
         private readonly IMemoryCache _memCache;
         private readonly ITaskScheduler _taskScheduler;
         private readonly IHttpClientFactory _httpClientFactory;
+        private readonly IHostApplicationLifetime _hostApplicationLifetime;
         private readonly ICustomerService _customerService;
         private readonly Lazy<IImageCache> _imageCache;
         private readonly Lazy<IFilePermissionChecker> _filePermissionChecker;
@@ -52,6 +54,7 @@ namespace Smartstore.Admin.Controllers
             IMemoryCache memCache,
             ITaskScheduler taskScheduler,
             IHttpClientFactory httpClientFactory,
+            IHostApplicationLifetime hostApplicationLifetime,
             ICustomerService customerService,
             Lazy<IImageCache> imageCache,
             Lazy<IFilePermissionChecker> filePermissionChecker,
@@ -67,6 +70,7 @@ namespace Smartstore.Admin.Controllers
             _memCache = memCache;
             _taskScheduler = taskScheduler;
             _httpClientFactory = httpClientFactory;
+            _hostApplicationLifetime = hostApplicationLifetime;
             _customerService = customerService;
             _imageCache = imageCache;
             _filePermissionChecker = filePermissionChecker;
@@ -218,7 +222,7 @@ namespace Smartstore.Admin.Controllers
         [HttpPost]
         public IActionResult RestartApplication()
         {
-            Services.WebHelper.RestartAppDomain();
+            _hostApplicationLifetime.StopApplication();
             return new EmptyResult();
         }
 

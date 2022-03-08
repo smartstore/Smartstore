@@ -2,7 +2,6 @@
 using System.Net.Http;
 using System.Net.Sockets;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Primitives;
 using Microsoft.Net.Http.Headers;
 using Smartstore.Collections;
@@ -30,7 +29,6 @@ namespace Smartstore.Core.Web
 
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IHttpClientFactory _httpClientFactory;
-        private readonly IHostApplicationLifetime _hostApplicationLifetime;
         private readonly Work<IStoreContext> _storeContext;
 
         private bool? _isCurrentConnectionSecured;
@@ -43,12 +41,10 @@ namespace Smartstore.Core.Web
         public DefaultWebHelper(
             IHttpContextAccessor httpContextaccessor,
             IHttpClientFactory httpClientFactory,
-            IHostApplicationLifetime hostApplicationLifetime,
             Work<IStoreContext> storeContext)
         {
             _httpContextAccessor = httpContextaccessor;
             _httpClientFactory = httpClientFactory;
-            _hostApplicationLifetime = hostApplicationLifetime;
             _storeContext = storeContext;
         }
 
@@ -418,11 +414,6 @@ namespace Smartstore.Core.Web
             }
 
             return string.Empty;
-        }
-
-        public virtual void RestartAppDomain()
-        {
-            _hostApplicationLifetime.StopApplication();
         }
     }
 }
