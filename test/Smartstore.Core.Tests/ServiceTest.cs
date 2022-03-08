@@ -207,7 +207,7 @@ namespace Smartstore.Core.Tests
             //ModuleExplorer.ReferencedPlugins = plugins;
         }
 
-        internal List<Lazy<IPriceCalculator, PriceCalculatorMetadata>> GetCalculators(
+        protected List<Lazy<IPriceCalculator, PriceCalculatorMetadata>> GetPriceCalculators(
             IPriceCalculatorFactory priceCalculatorFactory,
             IDiscountService discountService,
             CatalogSettings catalogSettings)

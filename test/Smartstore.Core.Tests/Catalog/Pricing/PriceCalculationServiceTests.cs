@@ -117,7 +117,7 @@ namespace Smartstore.Core.Tests.Catalog.Pricing
             _taxCalculator = new TaxCalculator(DbContext, _workContext, _taxService, _taxSettings);
 
             // INFO: Create real instance of PriceCalculatorFactory with own instances of Calculators
-            _priceCalculatorFactory = new PriceCalculatorFactory(_requestCache, base.GetCalculators(_priceCalculatorFactory, _discountService, _catalogSettings));
+            _priceCalculatorFactory = new PriceCalculatorFactory(_requestCache, base.GetPriceCalculators(_priceCalculatorFactory, _discountService, _catalogSettings));
 
             _priceCalcService = new PriceCalculationService(
                 DbContext,

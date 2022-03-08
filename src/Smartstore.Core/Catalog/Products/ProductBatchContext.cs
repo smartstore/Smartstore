@@ -78,20 +78,24 @@ namespace Smartstore.Core.Catalog.Products
             }
         }
 
-        public IProductService ProductService { 
+        internal IProductService ProductService 
+        { 
             get => _productService ??= _services.Resolve<IProductService>(); 
+            // For testing purposes
             set => _productService = value; 
         }
 
-        public ICategoryService CategoryService
+        internal ICategoryService CategoryService
         {
             get => _categoryService ??= _services.Resolve<ICategoryService>();
+            // For testing purposes
             set => _categoryService = value;
         }
 
-        public IManufacturerService ManufacturerService
+        internal IManufacturerService ManufacturerService
         {
             get => _manufacturerService ??= _services.Resolve<IManufacturerService>();
+            // For testing purposes
             set => _manufacturerService = value;
         }
 
