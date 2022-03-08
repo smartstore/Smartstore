@@ -754,6 +754,8 @@ namespace Smartstore.Admin.Controllers
                 var passwordResult = await _userManager.ChangePasswordAsync(customer, customer.Password, model.Password);
                 if (!passwordResult.Succeeded)
                 {
+                    // TODO: (mg) (core) Display errors as HTML list. HTML cannot interpret Environment.NewLine!
+                    // I think it is better to push these errors to model state and rely on Razor validation summary rendering.
                     NotifyError(string.Join(Environment.NewLine, passwordResult.Errors.SelectMany(x => x.Description)));
                 }
             }
