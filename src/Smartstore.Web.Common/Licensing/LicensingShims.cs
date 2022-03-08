@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc.Filters;
+﻿using System.Collections.Concurrent;
+using Microsoft.AspNetCore.Mvc.Filters;
 using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Licensing
@@ -14,6 +15,8 @@ namespace Smartstore.Licensing
 
     public static class LicenseChecker
     {
+        private static readonly ConcurrentDictionary<Type, LicensableModuleInfo> _cachedModuleInfos = new();
+
         public static Task<LicenseCheckerResult> ActivateAsync(string licenseKey, string systemName, string url)
         {
             return Task.FromResult(new LicenseCheckerResult 
@@ -25,7 +28,7 @@ namespace Smartstore.Licensing
         }
 
         public static LicenseCheckerResult Check(string systemName, string url = null)
-            => new LicenseCheckerResult { State = LicensingState.Licensed, Success = true, TruncatedLicenseKey = "SM-01234-56789" };
+            => new() { State = LicensingState.Licensed, Success = true, TruncatedLicenseKey = "SM-01234-56789" };
 
         public static Task<LicenseCheckerResult> CheckAsync(string systemName, string url = null)
             => Task.FromResult(new LicenseCheckerResult { State = LicensingState.Licensed, Success = true, TruncatedLicenseKey = "SM-01234-56789" });
@@ -37,22 +40,61 @@ namespace Smartstore.Licensing
             => Task.FromResult(LicensingState.Licensed);
 
         public static LicensingData GetLicense(string systemName, string url = null)
-            => new LicensingData { State = LicensingState.Licensed, TruncatedLicenseKey = "SM-01234-56789" };
+            => new() { State = LicensingState.Licensed, TruncatedLicenseKey = "SM-01234-56789" };
 
         public static Task<LicensingData> GetLicenseAsync(string systemName, string url = null)
             => Task.FromResult(new LicensingData { State = LicensingState.Licensed, TruncatedLicenseKey = "SM-01234-56789" });
 
         public static bool IsLicensableModule(IModuleDescriptor descriptor)
-            => true;
+            => IsLicensableModule(descriptor, out _);
 
         public static bool IsLicensableModule(IModuleDescriptor descriptor, out bool hasSingleLicenseForAllStores)
         {
+            Guard.NotNull(descriptor, nameof(descriptor));
+
+            var info = GetModuleInfo(descriptor);
+            if (info != null)
+            {
+                hasSingleLicenseForAllStores = info.HasSingleLicenseForAllStores;
+                return info.IsLicensable;
+            }
+
             hasSingleLicenseForAllStores = false;
-            return true;
+            return false;
+        }
+
+        private static LicensableModuleInfo GetModuleInfo(IModuleDescriptor descriptor)
+        {
+            var moduleType = descriptor?.Module?.ModuleType;
+
+            if (moduleType == null)
+            {
+                return null;
+            }
+
+            var info = _cachedModuleInfos.GetOrAdd(moduleType, t =>
+            {
+                var attr = moduleType.GetAttribute<LicensableModuleAttribute>(false);
+                var result = new LicensableModuleInfo
+                {
+                    ModuleType = moduleType,
+                    SystemName = descriptor.SystemName
+                };
+
+                if (attr != null)
+                {
+                    result.IsLicensable = true;
+                    result.HasSingleLicenseForAllStores = attr.HasSingleLicenseForAllStores;
+                }
+
+                return result;
+            });
+
+            return info;
         }
 
         public static LicenseCheckerResult ResetState(string systemName, string url = null)
-            => new LicenseCheckerResult { State = LicensingState.Licensed, Success = true, TruncatedLicenseKey = "SM-01234-56789" };
+            => new() { State = LicensingState.Licensed, Success = true, TruncatedLicenseKey = "SM-01234-56789" };
 
         public static Task<LicenseCheckerResult> ResetStateAsync(string systemName, string url = null)
             => Task.FromResult(new LicenseCheckerResult { State = LicensingState.Licensed, Success = true, TruncatedLicenseKey = "SM-01234-56789" });
@@ -85,6 +127,14 @@ namespace Smartstore.Licensing
         {
         }
 
+        public bool HasSingleLicenseForAllStores { get; set; }
+    }
+
+    internal class LicensableModuleInfo
+    {
+        public string SystemName { get; set; }
+        public Type ModuleType { get; set; }
+        public bool IsLicensable { get; set; }
         public bool HasSingleLicenseForAllStores { get; set; }
     }
 
