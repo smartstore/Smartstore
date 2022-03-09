@@ -8,8 +8,6 @@
     {
         Assets.BodyAttributes.AppendCssClass("has-left-sidebar");
     }
-
-    var warningMessage = Display.GetAdminWarningPanelMessage();
 }
 
 @if (ViewBag.RefreshPage == true)
@@ -70,10 +68,19 @@
 
 <partial name="Notifications" />
 
-@if (warningMessage.HasValue())
-{
-    <div id="warning-panel-message" class="alert alert-dismissible shadow-lg shadow-dark rounded-0 fade" data-hash="@warningMessage.XxHash()">
-        @Html.Raw(warningMessage)
-        <button type="button" class="close" data-dismiss="alert">&times;</button>
-    </div>
-}
+@*<a href="javascript:;" id="demoshop-info" class="btn btn-secondary btn-3d btn-sm shadow shadow-sm px-3 rounded-lg" 
+   data-toggle="popover" 
+   data-content="@T("Plugins.Misc.DemoShop.ResetAdminPanelNote", "#") @T("Plugins.Misc.DemoShop.ResetAfter", 115)"
+   data-trigger="focus">
+    Demo
+</a>
+
+<script>
+    $(function () {
+        $('#demoshop-info').popover({
+            container: 'body',
+            html: true,
+            customClass: 'p-3'
+        })
+    })
+</script>*@

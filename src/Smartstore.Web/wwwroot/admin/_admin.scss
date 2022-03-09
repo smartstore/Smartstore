@@ -1389,35 +1389,6 @@ a.editable {
     }
 }
 
-// Warning panel message
-// --------------------------------------------------------------
-
-#warning-panel-message {
-    position: fixed;
-    z-index: $zindex-fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    margin: 0;
-    padding: 0.75rem;
-    padding-right: 2.5rem;
-    background: $dark;
-    color: #fff;
-
-    a {
-        color: inherit;
-        text-decoration: underline;
-    }
-
-    .popup & {
-        display: none !important;
-    }
-
-    .close {
-        color: inherit !important;
-    }
-}
-
 
 //
 // Import column mapping
@@ -1623,4 +1594,24 @@ a.editable {
 .cke_chrome.cke_focus {
     border-color: $input-focus-border-color;
     box-shadow: none;
+}
+
+
+// Demoshop info
+// --------------------------------------------------------------
+
+#demoshop-info {
+    position: fixed;
+    left: auto;
+    top: 50%;
+    bottom: auto;
+    right: -3px;
+    font-size: inherit;
+    background-color: #fff;
+    color: var(--gray-700);
+    border-top-left-radius: 0 !important;
+    border-top-right-radius: 0 !important;
+    z-index: $zindex-popover;
+    transform: rotate(90deg) translateX(100%);
+    transform-origin: right top;
 }
