@@ -553,7 +553,6 @@ namespace Smartstore.Core.Data.Migrations
             builder.Delete("Account.ChangePassword.Errors.EmailIsNotProvided");     // Isn't used
             builder.Delete("Account.ChangePassword.Errors.EmailNotFound");          // Isn't used
             builder.Delete("Account.ChangePassword.Errors.OldPasswordDoesntMatch"); // Isn't used
-            builder.Delete("Account.ChangePassword.Errors.PasswordIsNotProvided");  // Isn't used
 
             builder.AddOrUpdate("Identity.Error.ConcurrencyFailure",
                 "A concurrency failure has occured while trying to save your data.",
