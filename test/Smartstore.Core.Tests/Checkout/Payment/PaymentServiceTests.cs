@@ -26,7 +26,7 @@ namespace Smartstore.Core.Tests.Checkout.Payment
                 ActivePaymentMethodSystemNames = new List<string>()
             };
             
-            _paymentSettings.ActivePaymentMethodSystemNames.Add("Payments.TestMethod");
+            _paymentSettings.ActivePaymentMethodSystemNames.Add("Payments.TestMethod1");
 
             var typeScannerMock = new Mock<ITypeScanner>();
             _typeScanner = typeScannerMock.Object;
@@ -40,7 +40,7 @@ namespace Smartstore.Core.Tests.Checkout.Payment
         [Test]
         public async Task Can_load_paymentMethod_by_systemKeyword()
         {
-            var srcm = await _paymentService.LoadPaymentMethodBySystemNameAsync("Payments.TestMethod");
+            var srcm = await _paymentService.LoadPaymentMethodBySystemNameAsync("Payments.TestMethod1");
             srcm.ShouldNotBeNull();
         }
 

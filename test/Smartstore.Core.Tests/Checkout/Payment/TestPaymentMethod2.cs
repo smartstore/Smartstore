@@ -8,7 +8,7 @@ using Smartstore.Core.Widgets;
 
 namespace Smartstore.Core.Tests.Checkout.Payment
 {
-    public class TestPaymentMethod : PaymentMethodBase
+    public class TestPaymentMethod2 : PaymentMethodBase
     {
         public override Task<ProcessPaymentResult> ProcessPaymentAsync(ProcessPaymentRequest processPaymentRequest)
         {
@@ -19,7 +19,15 @@ namespace Smartstore.Core.Tests.Checkout.Payment
             return Task.FromResult(result);
         }
 
-		public decimal GetAdditionalHandlingFee(IList<OrganizedShoppingCartItem> cart)
+        public override bool SupportCapture => false;
+
+        public override bool SupportPartiallyRefund => false;
+
+        public override bool SupportRefund => false;
+
+        public override bool SupportVoid => false;
+
+        public decimal GetAdditionalHandlingFee(IList<OrganizedShoppingCartItem> cart)
         {
             return decimal.Zero;
         }
@@ -66,11 +74,6 @@ namespace Smartstore.Core.Tests.Checkout.Payment
 
             //it's not a redirection payment method. So we always return false
             return false;
-        }
-
-        public Type GetControllerType()
-        {
-            return typeof(TestPaymentMethod);
         }
 
         public override WidgetInvoker GetPaymentInfoWidget()

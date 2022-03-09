@@ -190,7 +190,8 @@ namespace Smartstore.Core.Tests
         {
             _providerManager.RegisterProvider("FixedTaxRateTest", new FixedRateTestTaxProvider());
             _providerManager.RegisterProvider("FixedRateTestShippingRateComputationMethod", new FixedRateTestShippingRateComputationMethod());
-            _providerManager.RegisterProvider("Payments.TestMethod", new TestPaymentMethod());
+            _providerManager.RegisterProvider("Payments.TestMethod1", new TestPaymentMethod1());
+            _providerManager.RegisterProvider("Payments.TestMethod2", new TestPaymentMethod2());
             _providerManager.RegisterProvider("CurrencyExchange.TestProvider", new TestExchangeRateProvider());
             //_providerManager.RegisterProvider(DatabaseMediaStorageProvider.SystemName, new TestDatabaseMediaStorageProvider());
         }
