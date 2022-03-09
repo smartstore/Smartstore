@@ -234,9 +234,9 @@ namespace Smartstore.Admin.Controllers
                         .RegexReplace(@"\p{C}+", " ")
                         .TrimSafe();
 
-                    var msg = new MailMessage(model.SendTestEmailTo, subject, T("Admin.Common.EmailSuccessfullySent"), emailAccount.Email);
-
+                    using var msg = new MailMessage(model.SendTestEmailTo, subject, T("Admin.Common.EmailSuccessfullySent"), emailAccount.Email);
                     using var client = await _mailService.Value.ConnectAsync(emailAccount);
+
                     await client.SendAsync(msg);
 
                     NotifySuccess(T("Admin.Configuration.EmailAccounts.SendTestEmail.Success"), false);

@@ -32,6 +32,7 @@ namespace Smartstore
         {
         }
 
+        [DebuggerStepThrough]
         public ValueTask DisposeAsync()
         {
             // Still need to check if we've already disposed; can't do both.

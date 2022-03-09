@@ -203,7 +203,8 @@ namespace Smartstore.Core.Messaging
                             }
                             if (File.Exists(path))
                             {
-                                attachment = new MailAttachment(File.Open(path, FileMode.Open), qea.MimeType) { Name = qea.Name };
+                                var contentStream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
+                                attachment = new MailAttachment(contentStream, qea.MimeType) { Name = qea.Name };
                             }
                         }
                     }

@@ -1463,7 +1463,7 @@ namespace Smartstore.Core.DataExchange.Export
                 body.Append("</p>");
             }
 
-            var message = new MailMessage
+            using var message = new MailMessage
             {
                 From = new(emailAccount.Email, emailAccount.DisplayName),
                 Subject = _services.Localization.GetResource("Admin.DataExchange.Export.CompletedEmail.Subject", languageId).FormatInvariant(ctx.Request.Profile.Name),

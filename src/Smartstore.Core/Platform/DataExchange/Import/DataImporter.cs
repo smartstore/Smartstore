@@ -270,7 +270,7 @@ namespace Smartstore.Core.DataExchange.Import
 
             body.Append("</p>");
 
-            var message = new MailMessage
+            using var message = new MailMessage
             {
                 From = new(emailAccount.Email, emailAccount.DisplayName),
                 Subject = T("Admin.DataExchange.Import.CompletedEmail.Subject").Value.FormatInvariant(profile.Name),

@@ -402,9 +402,10 @@ namespace Smartstore.Admin.Controllers
             try
             {
                 var account = (await _db.EmailAccounts.FindByIdAsync(model.EmailAccountId, false)) ?? _emailAccountService.GetDefaultEmailAccount();
-                var msg = new MailMessage(to, model.Subject, model.Body, model.From);
 
+                using var msg = new MailMessage(to, model.Subject, model.Body, model.From);
                 using var client = await _mailService.Value.ConnectAsync(account);
+
                 await client.SendAsync(msg);
 
                 return Json(new { success = true });

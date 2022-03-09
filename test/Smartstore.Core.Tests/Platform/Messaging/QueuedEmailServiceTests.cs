@@ -7,7 +7,6 @@ using NUnit.Framework;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Content.Media.Storage;
 using Smartstore.Core.Messaging;
-using Smartstore.Engine;
 using Smartstore.Net.Mail;
 using Smartstore.Utilities;
 
@@ -126,50 +125,47 @@ namespace Smartstore.Core.Tests.Platform.Messaging
                 new MediaFileInfo(fileReferenceFile, _mediaService, _mediaUrlGenerator, string.Empty));
 
             // TODO: (mh) (core) Fails on reading attachFile with FileNotFound
-            var msg = _queuedEmailService.ConvertMail(qe);
+            using (var msg = _queuedEmailService.ConvertMail(qe)) 
+            {
+                Assert.IsNotNull(msg);
+                Assert.IsNotNull(msg.To);
+                Assert.IsNotNull(msg.From);
 
-            Assert.IsNotNull(msg);
-            Assert.IsNotNull(msg.To);
-            Assert.IsNotNull(msg.From);
+                Assert.AreEqual(msg.ReplyTo.Count, 1);
 
-            Assert.AreEqual(msg.ReplyTo.Count, 1);
+                var replyToAddress = new MailAddress("replyto@mail.com", "ReplyToName");
+                Assert.AreEqual(replyToAddress.ToString(), msg.ReplyTo.First().ToString());
 
-            var replyToAddress = new MailAddress("replyto@mail.com", "ReplyToName");
-            Assert.AreEqual(replyToAddress.ToString(), msg.ReplyTo.First().ToString());
+                Assert.AreEqual(msg.Cc.Count, 2);
+                Assert.AreEqual(msg.Cc.First().Address, "cc1@mail.com");
+                Assert.AreEqual(msg.Cc.ElementAt(1).Address, "cc2@mail.com");
 
-            Assert.AreEqual(msg.Cc.Count, 2);
-            Assert.AreEqual(msg.Cc.First().Address, "cc1@mail.com");
-            Assert.AreEqual(msg.Cc.ElementAt(1).Address, "cc2@mail.com");
+                Assert.AreEqual(msg.Bcc.Count, 2);
+                Assert.AreEqual(msg.Bcc.First().Address, "bcc1@mail.com");
+                Assert.AreEqual(msg.Bcc.ElementAt(1).Address, "bcc2@mail.com");
 
-            Assert.AreEqual(msg.Bcc.Count, 2);
-            Assert.AreEqual(msg.Bcc.First().Address, "bcc1@mail.com");
-            Assert.AreEqual(msg.Bcc.ElementAt(1).Address, "bcc2@mail.com");
+                Assert.AreEqual(qe.Subject, msg.Subject);
+                Assert.AreEqual(qe.Body, msg.Body);
 
-            Assert.AreEqual(qe.Subject, msg.Subject);
-            Assert.AreEqual(qe.Body, msg.Body);
+                Assert.AreEqual(msg.Attachments.Count, 4);
 
-            Assert.AreEqual(msg.Attachments.Count, 4);
+                var attach1 = msg.Attachments.First();
+                var attach2 = msg.Attachments.ElementAt(1);
+                var attach3 = msg.Attachments.ElementAt(2);
+                var attach4 = msg.Attachments.ElementAt(3);
 
-            var attach1 = msg.Attachments.First();
-            var attach2 = msg.Attachments.ElementAt(1);
-            var attach3 = msg.Attachments.ElementAt(2);
-            var attach4 = msg.Attachments.ElementAt(3);
+                // test file names
+                Assert.AreEqual(attach1.Name, "blob.pdf");
+                Assert.AreEqual(attach2.Name, "file.pdf");
+                Assert.AreEqual(attach3.Name, "path1.pdf");
+                Assert.AreEqual(attach4.Name, "path2.pdf");
 
-            // test file names
-            Assert.AreEqual(attach1.Name, "blob.pdf");
-            Assert.AreEqual(attach2.Name, "file.pdf");
-            Assert.AreEqual(attach3.Name, "path1.pdf");
-            Assert.AreEqual(attach4.Name, "path2.pdf");
-
-            // test file streams
-            Assert.AreEqual(attach1.ContentStream.Length, pdfBinary.Length);
-            Assert.AreEqual(attach2.ContentStream.Length, pdfBinary.Length);
-            Assert.Greater(attach3.ContentStream.Length, 0);
-            Assert.Greater(attach4.ContentStream.Length, 0);
-
-            // cleanup
-            msg.Attachments.Each(x => x.Dispose());
-            msg.Attachments.Clear();
+                // test file streams
+                Assert.AreEqual(attach1.ContentStream.Length, pdfBinary.Length);
+                Assert.AreEqual(attach2.ContentStream.Length, pdfBinary.Length);
+                Assert.Greater(attach3.ContentStream.Length, 0);
+                Assert.Greater(attach4.ContentStream.Length, 0);
+            }
 
             // delete attachment file
             File.Delete(path2);
