@@ -18,7 +18,7 @@
 		<PackageReference Include="Microsoft.ClearScript.V8.Native.osx-x64" Version="7.2.1" />
 		<PackageReference Include="Microsoft.ClearScript.V8.Native.win-x64" Version="7.2.1" />
 		<PackageReference Include="Microsoft.ClearScript.V8.Native.win-x86" Version="7.2.1" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.1">
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.3">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
