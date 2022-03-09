@@ -57,6 +57,12 @@ namespace Smartstore.Core.Data.Migrations
                 settings.RemoveRange(minUppercaseCharsInPassword);
             }
 
+            var invalidRegisterCustomerRoleIds = await settings.Where(x => x.Name == "CustomerSettings.RegisterCustomerRoleId" && x.Value == "0").ToListAsync(cancelToken);
+            if (invalidRegisterCustomerRoleIds.Count > 0)
+            {
+                settings.RemoveRange(invalidRegisterCustomerRoleIds);
+            }
+
             var gaWidgetZone = await settings.Where(x => x.Name == "GoogleAnalyticsSettings.WidgetZone").ToListAsync(cancellationToken: cancelToken);
             if (gaWidgetZone.Any())
             {
