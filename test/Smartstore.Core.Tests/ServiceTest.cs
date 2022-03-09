@@ -23,11 +23,13 @@ using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Pricing.Calculators;
 using Smartstore.Core.Common;
 using Smartstore.Core.Common.Services;
+using Smartstore.Core.Content.Media.Storage;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Tests.Catalog.Pricing.Calculators;
 using Smartstore.Core.Tests.Checkout.Payment;
 using Smartstore.Core.Tests.Common;
+using Smartstore.Core.Tests.Content.Media.Storage;
 using Smartstore.Core.Tests.Shipping;
 using Smartstore.Core.Tests.Tax;
 using Smartstore.Data;
@@ -193,7 +195,7 @@ namespace Smartstore.Core.Tests
             _providerManager.RegisterProvider("Payments.TestMethod1", new TestPaymentMethod1());
             _providerManager.RegisterProvider("Payments.TestMethod2", new TestPaymentMethod2());
             _providerManager.RegisterProvider("CurrencyExchange.TestProvider", new TestExchangeRateProvider());
-            //_providerManager.RegisterProvider(DatabaseMediaStorageProvider.SystemName, new TestDatabaseMediaStorageProvider());
+            _providerManager.RegisterProvider(DatabaseMediaStorageProvider.SystemName, new TestDatabaseMediaStorageProvider());
         }
 
         private void InitModules()

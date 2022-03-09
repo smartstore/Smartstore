@@ -1,17 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
-using Smartstore.Core.Configuration;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Content.Media.Storage;
 using Smartstore.Core.Messaging;
 using Smartstore.Engine;
-using Smartstore.Engine.Modularity;
 using Smartstore.Net.Mail;
 using Smartstore.Utilities;
 
@@ -40,12 +36,16 @@ namespace Smartstore.Core.Tests.Platform.Messaging
             _mediaServiceMock = new Mock<IMediaService>();
             _mediaService = _mediaServiceMock.Object;
 
+            var mediaStorageProvider = ProviderManager.GetProvider<IMediaStorageProvider>(DatabaseMediaStorageProvider.SystemName);
+
+            _mediaServiceMock.Setup(x => x.StorageProvider).Returns(mediaStorageProvider.Value);
+            
+
             var mediaUrlGeneratorMock = new Mock<IMediaUrlGenerator>();
             _mediaUrlGenerator = mediaUrlGeneratorMock.Object;
 
-            // TODO: (mh) (core) Never registered! Why not mocking?
-            // RE: Old test. Was made before you made changes to Engine start...
-            _mailService = Engine.ResolveService<IMailService>();
+            var mailServiceMock = new Mock<IMailService>();
+            _mailService = mailServiceMock.Object;
             
             _queuedEmailService = new QueuedEmailService(DbContext, _mailService, _mediaService, _emailAccountSettings);
         }
@@ -53,8 +53,6 @@ namespace Smartstore.Core.Tests.Platform.Messaging
         [Test]
         public async Task Can_convert_email()
         {
-            // TODO: (mh) (core) Test fails
-            // RE: I know. See TODO further below...
             var qe = new QueuedEmail
             {
                 Bcc = "bcc1@mail.com;bcc2@mail.com",
@@ -70,13 +68,14 @@ namespace Smartstore.Core.Tests.Platform.Messaging
 
             // load attachment file resource and save as file
             var asm = typeof(QueuedEmailServiceTests).Assembly;
-            var pdfStream = asm.GetManifestResourceStream("{0}.Platform.Messaging.Attachment.pdf".FormatInvariant(asm.GetName().Name));
+            var pdfStream = asm.GetManifestResourceStream($"{asm.GetName().Name}.Platform.Messaging.Attachment.pdf");
             var pdfBinary = pdfStream.ToByteArray();
             pdfStream.Seek(0, SeekOrigin.Begin);
+            
             var path1 = "~/Attachment.pdf";
             var path2 = CommonHelper.MapPath(path1, false);
             Assert.IsTrue(await pdfStream.ToFileAsync(path2));
-
+            
             var attachBlob = new QueuedEmailAttachment
             {
                 StorageLocation = EmailAttachmentStorageLocation.Blob,
@@ -102,6 +101,7 @@ namespace Smartstore.Core.Tests.Platform.Messaging
 
             var fileReferenceFile = new MediaFile
             {
+                Id = 1,
                 MimeType = "application/pdf",
                 MediaStorage = new MediaStorage { Id = 2, Data = pdfBinary },
                 MediaStorageId = 2,
@@ -110,6 +110,7 @@ namespace Smartstore.Core.Tests.Platform.Messaging
             };
             var attachFile = new QueuedEmailAttachment
             {
+                Id = 1,
                 StorageLocation = EmailAttachmentStorageLocation.FileReference,
                 Name = "file.pdf",
                 MimeType = "application/pdf",
