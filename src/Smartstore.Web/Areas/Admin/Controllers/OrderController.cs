@@ -575,7 +575,7 @@ namespace Smartstore.Admin.Controllers
 
                 if (errors.Count > 0)
                 {
-                    NotifyError(string.Join(Environment.NewLine, errors));
+                    errors.Each(x => NotifyError(x));
                 }
                 else
                 {
@@ -633,7 +633,7 @@ namespace Smartstore.Admin.Controllers
 
                 if (errors.Count > 0)
                 {
-                    NotifyError(string.Join(Environment.NewLine, errors));
+                    errors.Each(x => NotifyError(x));
                 }
                 else
                 {
@@ -691,7 +691,7 @@ namespace Smartstore.Admin.Controllers
 
                 if (errors.Count > 0)
                 {
-                    NotifyError(string.Join(Environment.NewLine, errors));
+                    errors.Each(x => NotifyError(x));
                 }
                 else
                 {
@@ -794,7 +794,7 @@ namespace Smartstore.Admin.Controllers
 
                 if (errors?.Any() ?? false)
                 {
-                    NotifyError(string.Join(Environment.NewLine, errors), false);
+                    errors.Each(x => NotifyError(x, false));
                 }
                 else
                 {

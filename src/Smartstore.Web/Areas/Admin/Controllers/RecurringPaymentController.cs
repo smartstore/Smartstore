@@ -234,7 +234,7 @@ namespace Smartstore.Admin.Controllers
 
                 if (errors.Any())
                 {
-                    NotifyError(string.Join(Environment.NewLine, errors));
+                    errors.Each(x => NotifyError(x));
                 }
                 else
                 {

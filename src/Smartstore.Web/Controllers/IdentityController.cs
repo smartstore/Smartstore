@@ -527,7 +527,7 @@ namespace Smartstore.Web.Controllers
                 }
                 else
                 {
-                    NotifyError(string.Join(Environment.NewLine, identityResult.Errors.SelectMany(x => x.Description)));
+                    identityResult.Errors.Each(x => NotifyError(x.Description));
 
                     return RedirectToAction(nameof(PasswordRecoveryConfirm), new { token = model.Token, email = model.Email });
                 }
@@ -614,7 +614,7 @@ namespace Smartstore.Web.Controllers
                     }
 
                     // Display errors to user.
-                    NotifyError(string.Join(Environment.NewLine, identityResult.Errors.SelectMany(x => x.Description)));
+                    identityResult.Errors.Each(x => NotifyError(x.Description));
                 }
                 else
                 {

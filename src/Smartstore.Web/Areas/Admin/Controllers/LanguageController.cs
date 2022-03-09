@@ -336,7 +336,7 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Configuration.Language.EditResource)]
         public async Task<IActionResult> LocaleStringResourceUpdate(LanguageResourceModel model)
         {
-            string errorMessage = null;
+            var success = true;
 
             model.ResourceName = model.ResourceName.TrimSafe();
             model.ResourceValue = model.ResourceValue.TrimSafe();
@@ -355,11 +355,12 @@ namespace Smartstore.Admin.Controllers
 
                     if (resource2 != null && resource2.Id != resource.Id)
                     {
-                        errorMessage = T("Admin.Configuration.Languages.Resources.NameAlreadyExists", resource2.ResourceName);
+                        success = false;
+                        NotifyError(T("Admin.Configuration.Languages.Resources.NameAlreadyExists", resource2.ResourceName));
                     }
                 }
 
-                if (errorMessage.IsEmpty())
+                if (success)
                 {
                     resource.ResourceName = model.ResourceName;
                     resource.ResourceValue = model.ResourceValue;
@@ -370,22 +371,18 @@ namespace Smartstore.Admin.Controllers
             }
             else
             {
-                errorMessage = string.Join(Environment.NewLine, ModelState.Values.SelectMany(x => x.Errors).Select(x => x.ErrorMessage));
+                success = false;
+                ModelState.Values.SelectMany(x => x.Errors).Each(x => NotifyError(x.ErrorMessage));
             }
 
-            if (errorMessage.HasValue())
-            {
-                NotifyError(errorMessage);
-            }
-
-            return Json(new { success = errorMessage.IsEmpty() });
+            return Json(new { success });
         }
 
         [HttpPost]
         [Permission(Permissions.Configuration.Language.EditResource)]
         public async Task<IActionResult> LocaleStringResourceInsert(LanguageResourceModel model, int languageId)
         {
-            string errorMessage = null;
+            var success = true;
 
             model.ResourceName = model.ResourceName.TrimSafe();
             model.ResourceValue = model.ResourceValue.TrimSafe();
@@ -406,20 +403,17 @@ namespace Smartstore.Admin.Controllers
                 }
                 else
                 {
-                    errorMessage = T("Admin.Configuration.Languages.Resources.NameAlreadyExists", model.ResourceName);
+                    success = false;
+                    NotifyError(T("Admin.Configuration.Languages.Resources.NameAlreadyExists", model.ResourceName));
                 }
             }
             else
             {
-                errorMessage = string.Join(Environment.NewLine, ModelState.Values.SelectMany(x => x.Errors).Select(x => x.ErrorMessage));
+                success = false;
+                ModelState.Values.SelectMany(x => x.Errors).Each(x => NotifyError(x.ErrorMessage));
             }
 
-            if (errorMessage.HasValue())
-            {
-                NotifyError(errorMessage);
-            }
-
-            return Json(new { success = errorMessage.IsEmpty() });
+            return Json(new { success });
         }
 
         [HttpPost]

@@ -207,8 +207,7 @@ namespace Smartstore.Admin.Controllers
                     }
                     else
                     {
-                        var modelStateErrors = ModelState.Values.SelectMany(x => x.Errors).Select(x => x.ErrorMessage);
-                        NotifyError(string.Join(Environment.NewLine, modelStateErrors));
+                        ModelState.Values.SelectMany(x => x.Errors).Each(x => NotifyError(x.ErrorMessage));
                     }
                 }
             }

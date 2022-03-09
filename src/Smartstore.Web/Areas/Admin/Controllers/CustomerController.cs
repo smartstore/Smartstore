@@ -535,7 +535,7 @@ namespace Smartstore.Admin.Controllers
                         if (!passwordResult.Succeeded)
                         {
                             // We should never get here because we already validated the password.
-                            NotifyError(string.Join(Environment.NewLine, passwordResult.Errors.SelectMany(x => x.Description)));
+                            passwordResult.Errors.Each(x => NotifyError(x.Description));
                         }
                     }
 

@@ -151,7 +151,7 @@ namespace Smartstore.Web.Controllers
 
             if (errors.Count > 0)
             {
-                NotifyError(string.Join(Environment.NewLine, errors));
+                errors.Each(x => NotifyError(x));
             }
 
             if (errors.Count > 0 || (product.HasUserAgreement && !agree))
