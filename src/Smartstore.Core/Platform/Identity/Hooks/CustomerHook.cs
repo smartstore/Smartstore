@@ -38,13 +38,13 @@ namespace Smartstore.Core.Identity
 				}
 				else if (entry.InitialState == EState.Added)
 				{
-					if (customer.Email.HasValue() && await _db.Customers.AsQueryable().AnyAsync(x => x.Email == customer.Email, cancelToken))
+					if (customer.Email.HasValue() && await _db.Customers.IgnoreQueryFilters().AnyAsync(x => x.Email == customer.Email, cancelToken))
 					{
 						_hookErrorMessage = T("Identity.Error.DuplicateEmail", customer.Email);
 					}
 					else if (customer.Username.HasValue() &&
 						_customerSettings.CustomerLoginType != CustomerLoginType.Email &&
-						await _db.Customers.AsQueryable().AnyAsync(x => x.Username == customer.Username, cancelToken))
+						await _db.Customers.IgnoreQueryFilters().AnyAsync(x => x.Username == customer.Username, cancelToken))
 					{
 						_hookErrorMessage = T("Identity.Error.DuplicateUserName", customer.Username);
 					}
