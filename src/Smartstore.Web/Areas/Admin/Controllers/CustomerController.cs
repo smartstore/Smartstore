@@ -743,7 +743,14 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Customer.Update)]
         public async Task<IActionResult> ChangePassword(CustomerModel model)
         {
-            var customer = await _db.Customers.FindByIdAsync(model.Id, false);
+            if (model.Password.IsEmpty())
+            {
+                NotifyError(T("Account.ChangePassword.Errors.PasswordIsNotProvided"));
+
+                return RedirectToAction(nameof(Edit), model.Id);
+            }
+
+            var customer = await _db.Customers.FindByIdAsync(model.Id);
             if (customer == null)
             {
                 return NotFound();
@@ -751,16 +758,33 @@ namespace Smartstore.Admin.Controllers
 
             if (ModelState.IsValid)
             {
-                var passwordResult = await _userManager.ChangePasswordAsync(customer, customer.Password, model.Password);
-                if (!passwordResult.Succeeded)
+                IdentityResult passwordResult;
+
+                if (await _userManager.HasPasswordAsync(customer))
                 {
-                    // TODO: (mg) (core) Display errors as HTML list. HTML cannot interpret Environment.NewLine!
-                    // I think it is better to push these errors to model state and rely on Razor validation summary rendering.
-                    NotifyError(string.Join(Environment.NewLine, passwordResult.Errors.SelectMany(x => x.Description)));
+                    var token = await _userManager.GeneratePasswordResetTokenAsync(customer);
+                    passwordResult = await _userManager.ResetPasswordAsync(customer, token, model.Password);
+                }
+                else
+                {
+                    passwordResult = await _userManager.AddPasswordAsync(customer, model.Password);
+                }
+
+                if (passwordResult.Succeeded)
+                {
+                    NotifySuccess(T("Admin.Customers.Customers.PasswordChanged"));
+
+                    return RedirectToAction(nameof(Edit), customer.Id);
+                }
+                else
+                {
+                    passwordResult.Errors.Each(x => ModelState.AddModelError(nameof(model.Password), x.Description));
                 }
             }
 
-            // No redirect here. we need validation errors to be displayed.
+            // Show validation errors.
+            await PrepareCustomerModel(model, customer);
+
             return View(model);
         }
 
