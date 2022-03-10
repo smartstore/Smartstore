@@ -16,28 +16,36 @@ namespace Smartstore.Core.Checkout.Payment
         #region Properties
 
         /// <inheritdoc/>
-        public virtual bool IsActive => true;
+        public virtual bool IsActive 
+            => true;
 
         /// <inheritdoc/>
-        public virtual bool RequiresInteraction => false;
+        public virtual bool RequiresInteraction 
+            => false;
 
         /// <inheritdoc/>
-        public virtual bool SupportCapture => false;
+        public virtual bool SupportCapture 
+            => false;
 
         /// <inheritdoc/>
-        public virtual bool SupportPartiallyRefund => false;
+        public virtual bool SupportPartiallyRefund
+            => false;
 
         /// <inheritdoc/>
-        public virtual bool SupportRefund => false;
+        public virtual bool SupportRefund 
+            => false;
 
         /// <inheritdoc/>
-        public virtual bool SupportVoid => false;
+        public virtual bool SupportVoid 
+            => false;
 
         /// <inheritdoc/>
-        public virtual RecurringPaymentType RecurringPaymentType => RecurringPaymentType.NotSupported;
+        public virtual RecurringPaymentType RecurringPaymentType 
+            => RecurringPaymentType.NotSupported;
 
         /// <inheritdoc/>
-        public virtual PaymentMethodType PaymentMethodType => PaymentMethodType.Unknown;
+        public virtual PaymentMethodType PaymentMethodType 
+            => PaymentMethodType.Unknown;
 
         #endregion
 
@@ -72,43 +80,23 @@ namespace Smartstore.Core.Checkout.Payment
 
         /// <inheritdoc/>
         public virtual Task<CapturePaymentResult> CaptureAsync(CapturePaymentRequest capturePaymentRequest)
-        {
-            var result = new CapturePaymentResult();
-            result.Errors.Add(T("Common.Payment.NoCaptureSupport"));
-            return Task.FromResult(result);
-        }
+            => throw new NotSupportedException();
 
         /// <inheritdoc/>
         public virtual Task<RefundPaymentResult> RefundAsync(RefundPaymentRequest refundPaymentRequest)
-        {
-            var result = new RefundPaymentResult();
-            result.Errors.Add(T("Common.Payment.NoRefundSupport"));
-            return Task.FromResult(result);
-        }
+            => throw new NotSupportedException();
 
         /// <inheritdoc/>
         public virtual Task<VoidPaymentResult> VoidAsync(VoidPaymentRequest voidPaymentRequest)
-        {
-            var result = new VoidPaymentResult();
-            result.Errors.Add(T("Common.Payment.NoVoidSupport"));
-            return Task.FromResult(result);
-        }
+            => throw new NotSupportedException();
 
         /// <inheritdoc/>
         public virtual Task<ProcessPaymentResult> ProcessRecurringPaymentAsync(ProcessPaymentRequest processPaymentRequest)
-        {
-            var result = new ProcessPaymentResult();
-            result.Errors.Add(T("Common.Payment.NoRecurringPaymentSupport"));
-            return Task.FromResult(result);
-        }
+            => throw new NotSupportedException();
 
         /// <inheritdoc/>
         public virtual Task<CancelRecurringPaymentResult> CancelRecurringPaymentAsync(CancelRecurringPaymentRequest cancelPaymentRequest)
-        {
-            var result = new CancelRecurringPaymentResult();
-            result.Errors.Add(T("Common.Payment.NoRecurringPaymentSupport"));
-            return Task.FromResult(result);
-        }
+            => throw new NotSupportedException();
 
         /// <inheritdoc/>
         public virtual Task<bool> CanRePostProcessPaymentAsync(Order order) 

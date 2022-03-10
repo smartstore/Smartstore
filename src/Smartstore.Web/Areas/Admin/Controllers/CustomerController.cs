@@ -746,7 +746,6 @@ namespace Smartstore.Admin.Controllers
             if (model.Password.IsEmpty())
             {
                 NotifyError(T("Account.ChangePassword.Errors.PasswordIsNotProvided"));
-
                 return RedirectToAction(nameof(Edit), model.Id);
             }
 
@@ -773,7 +772,6 @@ namespace Smartstore.Admin.Controllers
                 if (passwordResult.Succeeded)
                 {
                     NotifySuccess(T("Admin.Customers.Customers.PasswordChanged"));
-
                     return RedirectToAction(nameof(Edit), customer.Id);
                 }
                 else
