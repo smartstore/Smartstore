@@ -218,7 +218,9 @@ namespace Smartstore.Web.Controllers
                                 customer.BirthDate = null;
                             }
                         }
-                        catch { }
+                        catch 
+                        { 
+                        }
                     }
 
                     if (_customerSettings.CompanyEnabled)

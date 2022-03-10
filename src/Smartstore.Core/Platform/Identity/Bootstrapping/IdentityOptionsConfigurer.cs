@@ -35,10 +35,6 @@ namespace Smartstore.Core.Bootstrapping
             signIn.RequireConfirmedAccount = false;
             signIn.RequireConfirmedPhoneNumber = false;
             signIn.RequireConfirmedEmail = false;
-
-            // TODO: (mh) (core) Read and apply more IdentityOptions from settings.
-            // TODO: (mh) (core) Update IdentityOptions whenever settings change by calling this method from controller with current options.
-            //                   This must also be called when setting is changing via all settings grid.
         }
     }
 }
