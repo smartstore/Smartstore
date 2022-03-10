@@ -184,6 +184,7 @@ namespace Smartstore.Core.Identity
             cancellationToken.ThrowIfCancellationRequested();
 
             return _users
+                .IgnoreQueryFilters()
                 .IncludeCustomerRoles()
                 .FirstOrDefaultAsync(x => x.Username == normalizedUserName, cancellationToken);
         }
@@ -252,6 +253,7 @@ namespace Smartstore.Core.Identity
             cancellationToken.ThrowIfCancellationRequested();
 
             return _users
+                .IgnoreQueryFilters()
                 .IncludeCustomerRoles()
                 .FirstOrDefaultAsync(x => x.Email == normalizedEmail, cancellationToken);
         }

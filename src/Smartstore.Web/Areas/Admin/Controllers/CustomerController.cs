@@ -456,32 +456,9 @@ namespace Smartstore.Admin.Controllers
         [HttpPost, ParameterBasedOnFormName("save-continue", "continueEditing")]
         [FormValueRequired("save", "save-continue")]
         [Permission(Permissions.Customer.Create)]
+        [SaveChanges(typeof(SmartDbContext), false)]
         public async Task<IActionResult> Create(CustomerModel model, bool continueEditing, IFormCollection form)
         {
-            // Validate customer roles.
-            var allCustomerRoleIds = await _db.CustomerRoles
-                .Select(x => x.Id)
-                .ToListAsync();
-
-            var (newCustomerRoles, customerRolesError) = await ValidateCustomerRolesAsync(model.SelectedCustomerRoleIds, allCustomerRoleIds);
-            if (customerRolesError.HasValue())
-            {
-                ModelState.AddModelError(nameof(model.SelectedCustomerRoleIds), customerRolesError);
-            }
-
-            // Validate password.
-            if (model.Password.HasValue())
-            {
-                var passwordResults = await _userManager.PasswordValidators
-                    .SelectAsync(async x => await x.ValidateAsync(_userManager, null, model.Password))
-                    .AsyncToList();
-
-                passwordResults
-                    .Where(x => !x.Succeeded)
-                    .SelectMany(x => x.Errors.Select(y => y.Description))
-                    .Each(x => ModelState.AddModelError(nameof(model.Password), x));
-            }
-
             var customer = new Customer
             {
                 CustomerGuid = Guid.NewGuid(),
@@ -489,9 +466,18 @@ namespace Smartstore.Admin.Controllers
                 Username = model.Username,
                 PasswordFormat = _customerSettings.DefaultPasswordFormat,
                 CreatedOnUtc = DateTime.UtcNow,
-                LastActivityDateUtc = DateTime.UtcNow,
+                LastActivityDateUtc = DateTime.UtcNow
             };
 
+            // Validate customer roles.
+            var allCustomerRoleIds = await _db.CustomerRoles.Select(x => x.Id).ToListAsync();
+            var (newCustomerRoles, customerRolesError) = await ValidateCustomerRolesAsync(model.SelectedCustomerRoleIds, allCustomerRoleIds);
+            if (customerRolesError.HasValue())
+            {
+                ModelState.AddModelError(nameof(model.SelectedCustomerRoleIds), customerRolesError);
+            }
+
+            // Customer number.
             if (ModelState.IsValid)
             {
                 if (_customerSettings.CustomerNumberMethod == CustomerNumberMethod.AutomaticallySet && model.CustomerNumber.IsEmpty())
@@ -507,33 +493,14 @@ namespace Smartstore.Admin.Controllers
 
             if (ModelState.IsValid)
             {
-                try
-                {
-                    _db.Customers.Add(customer);
-                    await _db.SaveChangesAsync();
-                }
-                catch (Exception ex)
-                {
-                    ModelState.AddModelError(string.Empty, ex.Message);
-                }
+                var createResult = await _userManager.CreateAsync(customer, model.Password);
 
-                if (ModelState.IsValid)
+                if (createResult.Succeeded)
                 {
                     MapCustomerModel(model, customer);
 
-                    // Password.
-                    if (model.Password.HasValue())
-                    {
-                        var passwordResult = await _userManager.AddPasswordAsync(customer, model.Password);
-                        if (!passwordResult.Succeeded)
-                        {
-                            // We should never get here because we already validated the password.
-                            passwordResult.Errors.Each(x => NotifyError(x.Description));
-                        }
-                    }
-
                     // Customer roles.
-                    newCustomerRoles.Each(x => 
+                    newCustomerRoles.Each(x =>
                     {
                         _db.CustomerRoleMappings.Add(new CustomerRoleMapping
                         {
@@ -551,6 +518,10 @@ namespace Smartstore.Admin.Controllers
                     return continueEditing
                         ? RedirectToAction(nameof(Edit), new { id = customer.Id })
                         : RedirectToAction(nameof(List));
+                }
+                else
+                {
+                    AddModelErrors(createResult, string.Empty);
                 }
             }
 
@@ -584,6 +555,7 @@ namespace Smartstore.Admin.Controllers
         [HttpPost, ParameterBasedOnFormName("save-continue", "continueEditing")]
         [FormValueRequired("save", "save-continue")]
         [Permission(Permissions.Customer.Update)]
+        [SaveChanges(typeof(SmartDbContext), false)]
         public async Task<IActionResult> Edit(CustomerModel model, bool continueEditing, IFormCollection form)
         {
             var customer = await _db.Customers
@@ -617,8 +589,25 @@ namespace Smartstore.Admin.Controllers
                 }
             }
 
-            // Validate user (email and username).
-            await ValidateEmailAndUsername(model, customer);
+            // INFO: update email and username requires SaveChangesAttribute to be set to 'false'.
+            var newEmail = model.Email.TrimSafe();
+            var newUsername = model.Username.TrimSafe();
+
+            if (ModelState.IsValid && !newEmail.Equals(customer.Email, StringComparison.InvariantCultureIgnoreCase))
+            {
+                var token = await _userManager.GenerateChangeEmailTokenAsync(customer, newEmail);
+                var result = await _userManager.ChangeEmailAsync(customer, newEmail, token);
+                AddModelErrors(result, nameof(model.Email));
+            }
+
+            if (ModelState.IsValid
+                && _customerSettings.CustomerLoginType != CustomerLoginType.Email
+                && _customerSettings.AllowUsersToChangeUsernames
+                && !newUsername.EqualsNoCase(customer.Username))
+            {
+                var result = await _userManager.SetUserNameAsync(customer, newUsername);
+                AddModelErrors(result, nameof(model.Username));
+            }
 
             if (ModelState.IsValid)
             {
@@ -654,6 +643,7 @@ namespace Smartstore.Admin.Controllers
                     MapCustomerModel(model, customer);
 
                     var updateResult = await _userManager.UpdateAsync(customer);
+
                     if (updateResult.Succeeded)
                     {
                         // Customer roles.
@@ -697,7 +687,7 @@ namespace Smartstore.Admin.Controllers
                     }
                     else
                     {
-                        updateResult.Errors.Each(x => ModelState.AddModelError(string.Empty, x.Description));
+                        AddModelErrors(updateResult, string.Empty);
                     }
                 }
                 catch (Exception ex)
@@ -712,58 +702,14 @@ namespace Smartstore.Admin.Controllers
             return View(model);
         }
 
-        private async Task ValidateEmailAndUsername(CustomerModel model, Customer customer)
+        private void AddModelErrors(IdentityResult result, string key)
         {
-            var canUpdateUsername = _customerSettings.CustomerLoginType != CustomerLoginType.Email && _customerSettings.AllowUsersToChangeUsernames;
-            var validateUser = false;
-            var oldEmail = customer.Email;
-            var oldUsername = customer.Username;
-
-            if (model.Email.HasValue() && !model.Email.EqualsNoCase(customer.Email))
+            if (!result.Succeeded)
             {
-                customer.Email = model.Email;
-                validateUser = true;
-            }
-
-            if (canUpdateUsername && model.Username.HasValue() && !model.Username.EqualsNoCase(customer.Username))
-            {
-                customer.Username = model.Username;
-                validateUser = true;
-            }
-
-            try
-            {
-                if (validateUser)
-                {
-                    var validationResults = await _userManager.UserValidators
-                        .SelectAsync(async x => await x.ValidateAsync(_userManager, customer))
-                        .AsyncToList();
-
-                    validationResults
-                        .Where(x => !x.Succeeded)
-                        .SelectMany(x => x.Errors.Select(y => y.Description))
-                        .Distinct()
-                        .Each(x => ModelState.AddModelError(string.Empty, x));
-                }
-            }
-            finally
-            {
-                if (!ModelState.IsValid)
-                {
-                    // Do not update customer with invalid data.
-                    customer.Email = oldEmail;
-                    customer.Username = oldUsername;
-                }
-
-                // Allow admin to clear email and username.
-                if (model.Email.IsEmpty())
-                {
-                    customer.Email = model.Email;
-                }
-                if (canUpdateUsername && model.Username.IsEmpty())
-                {
-                    customer.Username = model.Username;
-                }
+                result.Errors
+                    .Select(x => x.Description)
+                    .Distinct()
+                    .Each(x => ModelState.AddModelError(key, x));
             }
         }
 
