@@ -184,6 +184,10 @@
         }
     }
 
+    // TODO: (mh) (core) (perf) Make CSS less complex/cascaded: 
+    // - Don't put this into .report
+    // - Don't nest .newsfeed-item into .newsfeed-body
+    // - Generally: don't nest specific class names into anything. They can speak for themselves.
     .news-feed & .report-title-row {
         padding: 1.5rem 1rem 0 1rem !important;
     }
