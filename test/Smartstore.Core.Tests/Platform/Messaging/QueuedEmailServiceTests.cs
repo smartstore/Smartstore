@@ -39,7 +39,6 @@ namespace Smartstore.Core.Tests.Platform.Messaging
 
             _mediaServiceMock.Setup(x => x.StorageProvider).Returns(mediaStorageProvider.Value);
             
-
             var mediaUrlGeneratorMock = new Mock<IMediaUrlGenerator>();
             _mediaUrlGenerator = mediaUrlGeneratorMock.Object;
 
