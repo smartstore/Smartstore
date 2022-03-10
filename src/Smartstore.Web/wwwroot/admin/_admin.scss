@@ -1611,7 +1611,7 @@ a.editable {
     color: var(--gray-700);
     border-top-left-radius: 0 !important;
     border-top-right-radius: 0 !important;
-    z-index: $zindex-popover;
+    z-index: $zindex-dropdown - 1;
     transform: rotate(90deg) translateX(100%);
     transform-origin: right top;
 }
