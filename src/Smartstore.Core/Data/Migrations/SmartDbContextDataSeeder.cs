@@ -10,6 +10,7 @@ using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common;
+using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.DataExchange;
 using Smartstore.Core.Identity;
@@ -20,6 +21,7 @@ using Smartstore.Core.Search;
 using Smartstore.Core.Search.Facets;
 using Smartstore.Core.Seo;
 using Smartstore.Data.Migrations;
+using Smartstore.Utilities;
 
 namespace Smartstore.Core.Data.Migrations
 {
@@ -36,26 +38,19 @@ namespace Smartstore.Core.Data.Migrations
 
         public async Task MigrateSettingsAsync(SmartDbContext context, CancellationToken cancelToken = default)
         {
+            await context.MigrateSettingsAsync(builder =>
+            {
+                builder.Delete(
+                    "CustomerSettings.MinDigitsInPassword",
+                    "CustomerSettings.MinSpecialCharsInPassword",
+                    "CustomerSettings.MinSpecialCharsInPassword",
+                    "CustomerSettings.MinUppercaseCharsInPassword");
+
+                builder.Add(TypeHelper.NameOf<PerformanceSettings>(x => x.UseResponseCaching, true), "False");
+            });
+
             // Remark: In classic code, we always made the mistake to query for FirstOrDefault and thus ignoring multistore settings.
             var settings = context.Set<Setting>();
-
-            var minDigitsInPasswordSettings = await settings.Where(x => x.Name == "CustomerSettings.MinDigitsInPassword").ToListAsync(cancellationToken: cancelToken);
-            if (minDigitsInPasswordSettings.Any())
-            {
-                settings.RemoveRange(minDigitsInPasswordSettings);
-            }
-
-            var minSpecialCharsInPassword = await settings.Where(x => x.Name == "CustomerSettings.MinSpecialCharsInPassword").ToListAsync(cancellationToken: cancelToken);
-            if (minSpecialCharsInPassword.Any())
-            {
-                settings.RemoveRange(minSpecialCharsInPassword);
-            }
-
-            var minUppercaseCharsInPassword = await settings.Where(x => x.Name == "CustomerSettings.MinUppercaseCharsInPassword").ToListAsync(cancellationToken: cancelToken);
-            if (minUppercaseCharsInPassword.Any())
-            {
-                settings.RemoveRange(minUppercaseCharsInPassword);
-            }
 
             var invalidRegisterCustomerRoleIds = await settings.Where(x => x.Name == "CustomerSettings.RegisterCustomerRoleId" && x.Value == "0").ToListAsync(cancelToken);
             if (invalidRegisterCustomerRoleIds.Count > 0)
