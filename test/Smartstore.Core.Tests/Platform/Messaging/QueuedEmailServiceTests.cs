@@ -123,7 +123,6 @@ namespace Smartstore.Core.Tests.Platform.Messaging
             _mediaServiceMock.Setup(x => x.ConvertMediaFile(fileReferenceFile)).Returns(
                 new MediaFileInfo(fileReferenceFile, _mediaService, _mediaUrlGenerator, string.Empty));
 
-            // TODO: (mh) (core) Fails on reading attachFile with FileNotFound
             using (var msg = _queuedEmailService.ConvertMail(qe)) 
             {
                 Assert.IsNotNull(msg);

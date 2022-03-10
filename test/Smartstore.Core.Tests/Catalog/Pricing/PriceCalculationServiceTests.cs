@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Autofac;
 using Moq;
 using NUnit.Framework;
 using Smartstore.Caching;
@@ -12,7 +11,6 @@ using Smartstore.Core.Catalog.Brands;
 using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Catalog.Pricing;
-using Smartstore.Core.Catalog.Pricing.Calculators;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Tax;
@@ -27,7 +25,7 @@ using Smartstore.Test.Common;
 namespace Smartstore.Core.Tests.Catalog.Pricing
 {
     // TODO: (mh) (core) Whatever you add to the DbContext here, you must remove it after test is done!
-    
+
     [TestFixture]
     public class PriceCalculationServiceTests : ServiceTest
     {

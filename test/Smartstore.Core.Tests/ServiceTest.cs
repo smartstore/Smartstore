@@ -5,7 +5,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -14,8 +13,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using NUnit.Framework;
-using Serilog;
-using Serilog.Extensions.Logging;
 using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Discounts;
@@ -216,60 +213,59 @@ namespace Smartstore.Core.Tests
             CatalogSettings catalogSettings)
         {
             var calculators = new List<Lazy<IPriceCalculator, PriceCalculatorMetadata>>();
-
             var productMetadata = new PriceCalculatorMetadata { ValidTargets = CalculatorTargets.Product, Order = CalculatorOrdering.Default + 10 };
 
             var attributePriceCalculator = new Lazy<IPriceCalculator, PriceCalculatorMetadata>(() =>
                 new AttributePriceCalculator(priceCalculatorFactory, DbContext), productMetadata);
-            calculators.Add(attributePriceCalculator);
-
-            // TODO: (mh) (core) Mock ProductService
+            
             var bundlePriceCalculator =
                 new Lazy<IPriceCalculator, PriceCalculatorMetadata>(() =>
                     new BundlePriceCalculator(priceCalculatorFactory, null),
                     new() { ValidTargets = CalculatorTargets.Bundle, Order = CalculatorOrdering.Early });
-            calculators.Add(bundlePriceCalculator);
 
             var discountPriceCalculator =
                 new Lazy<IPriceCalculator, PriceCalculatorMetadata>(() =>
                     new DiscountPriceCalculator(DbContext, discountService, catalogSettings),
                     new() { ValidTargets = CalculatorTargets.All, Order = CalculatorOrdering.Late });
-            calculators.Add(discountPriceCalculator);
-
-            // TODO: (mh) (core) Mock CatalogSearchService & ProductService
+            
             var groupedProductPriceCalculator =
                 new Lazy<IPriceCalculator, PriceCalculatorMetadata>(() =>
                     new GroupedProductPriceCalculator(null, priceCalculatorFactory, null),
                     new() { ValidTargets = CalculatorTargets.GroupedProduct, Order = CalculatorOrdering.Early });
-            calculators.Add(groupedProductPriceCalculator);
 
             var lowestPriceCalculator = new Lazy<IPriceCalculator, PriceCalculatorMetadata>(() =>
                 new LowestPriceCalculator(), productMetadata);
-            calculators.Add(lowestPriceCalculator);
 
             var offerPriceCalculator =
                 new Lazy<IPriceCalculator, PriceCalculatorMetadata>(() =>
                     new OfferPriceCalculator(),
                     new() { ValidTargets = CalculatorTargets.Product | CalculatorTargets.Bundle, Order = CalculatorOrdering.Default });
-            calculators.Add(offerPriceCalculator);
-
-            // TODO: (mh) (core) Mock Materializer
+            
             var preselectedPriceCalculator =
                 new Lazy<IPriceCalculator, PriceCalculatorMetadata>(() =>
                     new PreselectedPriceCalculator(null),
                     new() { ValidTargets = CalculatorTargets.Product, Order = CalculatorOrdering.Early + 1 });
-            calculators.Add(preselectedPriceCalculator);
 
             var tierPriceCalculator =
                 new Lazy<IPriceCalculator, PriceCalculatorMetadata>(() =>
                     new TierPriceCalculator(),
                     new() { ValidTargets = CalculatorTargets.Product, Order = CalculatorOrdering.Default + 100 });
-            calculators.Add(tierPriceCalculator);
 
-            // Add custom calculator for additional charge.
+            // Custom calculator for additional charge.
             var customCalculator = new Lazy<IPriceCalculator, PriceCalculatorMetadata>(() =>
                 new CustomAdditionalChargeCalculator(), new PriceCalculatorMetadata { ValidTargets = CalculatorTargets.Product, Order = CalculatorOrdering.Default });
-            calculators.Add(customCalculator);
+            
+            calculators.AddRange(new[] { 
+                attributePriceCalculator, 
+                bundlePriceCalculator, 
+                discountPriceCalculator,
+                groupedProductPriceCalculator,
+                lowestPriceCalculator,
+                offerPriceCalculator,
+                preselectedPriceCalculator,
+                tierPriceCalculator,
+                customCalculator
+            });
 
             return calculators;
         }

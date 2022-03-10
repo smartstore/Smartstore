@@ -27,8 +27,6 @@ namespace Smartstore.Web.Controllers
 {
     public class HomeController : PublicController
     {
-        // TODO: (mh) (core) Clean this.
-        
         private readonly SmartDbContext _db;
         private readonly IStoreContext _storeContext;
         private readonly HomePageSettings _homePageSettings;
