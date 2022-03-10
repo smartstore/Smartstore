@@ -22,12 +22,14 @@ using Autofac;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.DataProtection.XmlEncryption;
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.WebEncoders;
 using Smartstore.Bootstrapping;
 using Smartstore.Core.Bootstrapping;
+using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Seo.Routing;
 using Smartstore.Engine.Builders;
 using Smartstore.Net;
@@ -87,6 +89,14 @@ namespace Smartstore.Web
             services.Configure<WebEncoderOptions>(o =>
             {
                 o.TextEncoderSettings = new TextEncoderSettings(UnicodeRanges.All);
+            });
+
+            // Add response compression
+            services.AddResponseCompression(o => 
+            {
+                o.EnableForHttps = true;
+                o.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
+                    new[] { "image/svg+xml" });
             });
         }
 
@@ -154,6 +164,14 @@ namespace Smartstore.Web
                     app.UseRequestCulture();
                 }
             });
+
+            if (appContext.Services.Resolve<PerformanceSettings>().UseResponseCaching)
+            {
+                builder.Configure(StarterOrdering.BeforeStaticFilesMiddleware - 5, app =>
+                {
+                    app.UseResponseCompression();
+                });
+            }
         }
 
         public override void MapRoutes(EndpointRoutingBuilder builder)

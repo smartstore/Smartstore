@@ -8,7 +8,6 @@ using Smartstore.Engine.Builders;
 using Smartstore.Engine.Modularity;
 using Smartstore.Imaging;
 using Smartstore.Imaging.Adapters.ImageSharp;
-using Smartstore.Threading;
 
 namespace Smartstore.Core.Bootstrapping
 {
