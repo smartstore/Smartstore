@@ -62,7 +62,6 @@ namespace Smartstore.Core.Tests.Checkout.Orders
             var giftCardServiceMock = new Mock<IGiftCardService>();
             var encryptorMock = new Mock<IEncryptor>();
             var activityLoggerMock = new Mock<IActivityLogger>();
-            var eventPublisherMock = new Mock<IEventPublisher>();
             var shoppingCartServiceMock = new Mock<IShoppingCartService>();
             var shoppingCartValidatorMock = new Mock<IShoppingCartValidator>();
             var messageFactoryMock = new Mock<IMessageFactory>();
@@ -121,7 +120,7 @@ namespace Smartstore.Core.Tests.Checkout.Orders
                 checkoutAttributeFormatterMock.Object,
                 encryptorMock.Object,
                 messageFactoryMock.Object,
-                eventPublisherMock.Object,
+                NullEventPublisher.Instance,
                 activityLoggerMock.Object,
                 _rewardPointsSettings,
                 _catalogSettings,
@@ -196,9 +195,11 @@ namespace Smartstore.Core.Tests.Checkout.Orders
                 .Setup(x => x.LoadPaymentMethodBySystemNameAsync("paymentMethodSystemName_that_doesn't_support_capture", It.IsAny<bool>(), It.IsAny<int>()))
                 .ReturnsAsync(testMethod2);
 
-            var order = new Order();
+            var order = new Order
+            {
+                PaymentMethodSystemName = "paymentMethodSystemName_that_supports_capture"
+            };
 
-            order.PaymentMethodSystemName = "paymentMethodSystemName_that_supports_capture";
             foreach (OrderStatus os in Enum.GetValues(typeof(OrderStatus)))
             {
                 foreach (PaymentStatus ps in Enum.GetValues(typeof(PaymentStatus)))
