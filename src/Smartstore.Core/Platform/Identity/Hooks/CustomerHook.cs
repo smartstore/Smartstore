@@ -32,36 +32,17 @@ namespace Smartstore.Core.Identity
 		{
 			if (entry.Entity is Customer customer)
 			{
-				if (customer.Deleted && customer.IsSystemAccount)
-				{
-					_hookErrorMessage = $"System customer account '{customer.SystemName}' cannot be deleted.";
-				}
-				else if (entry.InitialState == EState.Added)
-				{
-					if (customer.Email.HasValue() && await _db.Customers.IgnoreQueryFilters().AnyAsync(x => x.Email == customer.Email, cancelToken))
-					{
-						_hookErrorMessage = T("Identity.Error.DuplicateEmail", customer.Email);
-					}
-					else if (customer.Username.HasValue() &&
-						_customerSettings.CustomerLoginType != CustomerLoginType.Email &&
-						await _db.Customers.IgnoreQueryFilters().AnyAsync(x => x.Username == customer.Username, cancelToken))
-					{
-						_hookErrorMessage = T("Identity.Error.DuplicateUserName", customer.Username);
-					}
-					else
-					{
-						UpdateFullName(customer);
-					}
-				}
-				else if (entry.InitialState == EState.Modified)
-				{
-					UpdateFullName(customer);
-				}
-
-				if (_hookErrorMessage.HasValue())
-				{
-					entry.ResetState();
-				}
+                if (await ValidateCustomer(customer, entry, cancelToken))
+                {
+                    if (entry.InitialState == EState.Added || entry.InitialState == EState.Modified)
+                    {
+                        UpdateFullName(customer);
+                    }
+                }
+                else
+                {
+                    entry.ResetState();
+                }
 			}
 
 			return HookResult.Ok;
@@ -80,33 +61,70 @@ namespace Smartstore.Core.Identity
 			return Task.CompletedTask;
 		}
 
-		private void UpdateFullName(Customer entity)
-		{
-			var shouldUpdate = entity.IsTransientRecord();
+        // TODO: (mg) (core) update newsletter subscription email if changed.
 
-			if (!shouldUpdate)
-			{
-				shouldUpdate = entity.FullName.IsEmpty() && (entity.FirstName.HasValue() || entity.LastName.HasValue());
-			}
+        private async Task<bool> ValidateCustomer(Customer customer, IHookedEntity entry, CancellationToken cancelToken)
+        {
+            // INFO: do not validate email and username here. UserValidator is responsible for this.
+            if (customer.Deleted && customer.IsSystemAccount)
+            {
+                _hookErrorMessage = $"System customer account '{customer.SystemName}' cannot be deleted.";
+                return false;
+            }
 
-			if (!shouldUpdate)
-			{
-				var modProps = _db.GetModifiedProperties(entity);
-				shouldUpdate = _candidateProps.Any(x => modProps.ContainsKey(x));
-			}
+            if (!await ValidateCustomerNumber(customer, cancelToken))
+            {
+                return false;
+            }
 
-			if (shouldUpdate)
-			{
-				var parts = new[]
-				{
-					entity.Salutation,
-					entity.Title,
-					entity.FirstName,
-					entity.LastName
-				};
+            return true;
+        }
 
-				entity.FullName = string.Join(" ", parts.Where(x => x.HasValue())).NullEmpty();
-			}
-		}
-	}
+        private async Task<bool> ValidateCustomerNumber(Customer customer, CancellationToken cancelToken)
+        {
+            if (customer.CustomerNumber.HasValue() && _customerSettings.CustomerNumberMethod != CustomerNumberMethod.Disabled)
+            {
+                var customerNumberExists = await _db.Customers
+                    .IgnoreQueryFilters()
+                    .AnyAsync(x => x.CustomerNumber == customer.CustomerNumber && (customer.Id == 0 || customer.Id != x.Id), cancelToken);
+
+                if (customerNumberExists)
+                {
+                    _hookErrorMessage = T("Common.CustomerNumberAlreadyExists");
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        private void UpdateFullName(Customer entity)
+        {
+            var shouldUpdate = entity.IsTransientRecord();
+
+            if (!shouldUpdate)
+            {
+                shouldUpdate = entity.FullName.IsEmpty() && (entity.FirstName.HasValue() || entity.LastName.HasValue());
+            }
+
+            if (!shouldUpdate)
+            {
+                var modProps = _db.GetModifiedProperties(entity);
+                shouldUpdate = _candidateProps.Any(x => modProps.ContainsKey(x));
+            }
+
+            if (shouldUpdate)
+            {
+                var parts = new[]
+                {
+                    entity.Salutation,
+                    entity.Title,
+                    entity.FirstName,
+                    entity.LastName
+                };
+
+                entity.FullName = string.Join(" ", parts.Where(x => x.HasValue())).NullEmpty();
+            }
+        }
+    }
 }

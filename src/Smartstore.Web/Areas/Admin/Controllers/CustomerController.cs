@@ -501,14 +501,7 @@ namespace Smartstore.Admin.Controllers
                 }
                 else if (_customerSettings.CustomerNumberMethod == CustomerNumberMethod.Enabled && model.CustomerNumber.HasValue())
                 {
-                    if (await _db.Customers.ApplyIdentFilter(customerNumber: model.CustomerNumber).AnyAsync())
-                    {
-                        ModelState.AddModelError(nameof(model.CustomerNumber), T("Common.CustomerNumberAlreadyExists"));
-                    }
-                    else
-                    {
-                        customer.CustomerNumber = model.CustomerNumber;
-                    }
+                    customer.CustomerNumber = model.CustomerNumber;
                 }
             }
 
@@ -624,6 +617,9 @@ namespace Smartstore.Admin.Controllers
                 }
             }
 
+            // Validate user (email and username).
+            await ValidateEmailAndUsername(model, customer);
+
             if (ModelState.IsValid)
             {
                 try
@@ -631,36 +627,7 @@ namespace Smartstore.Admin.Controllers
                     // Customer number.
                     if (_customerSettings.CustomerNumberMethod != CustomerNumberMethod.Disabled)
                     {
-                        if (model.CustomerNumber != customer.CustomerNumber && 
-                            await _db.Customers.ApplyIdentFilter(customerNumber: model.CustomerNumber).AnyAsync())
-                        {
-                            NotifyError(T("Common.CustomerNumberAlreadyExists"));
-                        }
-                        else
-                        {
-                            customer.CustomerNumber = model.CustomerNumber;
-                        }
-                    }
-
-                    if (model.Email.HasValue())
-                    {
-                        await _userManager.SetEmailAsync(customer, model.Email);
-                    }
-                    else
-                    {
-                        customer.Email = model.Email;
-                    }
-
-                    if (_customerSettings.CustomerLoginType != CustomerLoginType.Email && _customerSettings.AllowUsersToChangeUsernames)
-                    {
-                        if (model.Username.HasValue())
-                        {
-                            await _userManager.SetUserNameAsync(customer, model.Username);
-                        }
-                        else
-                        {
-                            customer.Username = model.Username;
-                        }
+                        customer.CustomerNumber = model.CustomerNumber;
                     }
 
                     // VAT number.
@@ -685,46 +652,53 @@ namespace Smartstore.Admin.Controllers
 
                     // Model properties.
                     MapCustomerModel(model, customer);
-                    await _db.SaveChangesAsync();
 
-                    // Customer roles.
-                    if (allowManagingCustomerRoles)
+                    var updateResult = await _userManager.UpdateAsync(customer);
+                    if (updateResult.Succeeded)
                     {
-                        using var scope = new DbContextScope(ctx: Services.DbContext, autoDetectChanges: false);
-                        var existingMappings = customer.CustomerRoleMappings
-                            .Where(x => !x.IsSystemMapping)
-                            .ToMultimap(x => x.CustomerRoleId, x => x);
-
-                        foreach (var roleId in allCustomerRoleIds)
+                        // Customer roles.
+                        if (allowManagingCustomerRoles)
                         {
-                            if (model.SelectedCustomerRoleIds?.Contains(roleId) ?? false)
+                            using var scope = new DbContextScope(ctx: Services.DbContext, autoDetectChanges: false);
+                            var existingMappings = customer.CustomerRoleMappings
+                                .Where(x => !x.IsSystemMapping)
+                                .ToMultimap(x => x.CustomerRoleId, x => x);
+
+                            foreach (var roleId in allCustomerRoleIds)
                             {
-                                if (!existingMappings.ContainsKey(roleId))
+                                if (model.SelectedCustomerRoleIds?.Contains(roleId) ?? false)
                                 {
-                                    _db.CustomerRoleMappings.Add(new CustomerRoleMapping
+                                    if (!existingMappings.ContainsKey(roleId))
                                     {
-                                        CustomerId = customer.Id,
-                                        CustomerRoleId = roleId
-                                    });
+                                        _db.CustomerRoleMappings.Add(new CustomerRoleMapping
+                                        {
+                                            CustomerId = customer.Id,
+                                            CustomerRoleId = roleId
+                                        });
+                                    }
+                                }
+                                else if (existingMappings.ContainsKey(roleId))
+                                {
+                                    existingMappings[roleId].Each(x => _db.CustomerRoleMappings.Remove(x));
                                 }
                             }
-                            else if (existingMappings.ContainsKey(roleId))
-                            {
-                                existingMappings[roleId].Each(x => _db.CustomerRoleMappings.Remove(x));
-                            }
+
+                            await scope.CommitAsync();
                         }
 
-                        await scope.CommitAsync();
+                        await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, customer, form));
+                        Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditCustomer, T("ActivityLog.EditCustomer"), customer.Id);
+
+                        NotifySuccess(T("Admin.Customers.Customers.Updated"));
+
+                        return continueEditing
+                            ? RedirectToAction(nameof(Edit), customer.Id)
+                            : RedirectToAction(nameof(List));
                     }
-
-                    await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, customer, form));
-                    Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditCustomer, T("ActivityLog.EditCustomer"), customer.Id);
-
-                    NotifySuccess(T("Admin.Customers.Customers.Updated"));
-
-                    return continueEditing 
-                        ? RedirectToAction(nameof(Edit), customer.Id) 
-                        : RedirectToAction(nameof(List));
+                    else
+                    {
+                        updateResult.Errors.Each(x => ModelState.AddModelError(string.Empty, x.Description));
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -736,6 +710,61 @@ namespace Smartstore.Admin.Controllers
             await PrepareCustomerModel(model, customer);
 
             return View(model);
+        }
+
+        private async Task ValidateEmailAndUsername(CustomerModel model, Customer customer)
+        {
+            var canUpdateUsername = _customerSettings.CustomerLoginType != CustomerLoginType.Email && _customerSettings.AllowUsersToChangeUsernames;
+            var validateUser = false;
+            var oldEmail = customer.Email;
+            var oldUsername = customer.Username;
+
+            if (model.Email.HasValue() && !model.Email.EqualsNoCase(customer.Email))
+            {
+                customer.Email = model.Email;
+                validateUser = true;
+            }
+
+            if (canUpdateUsername && model.Username.HasValue() && !model.Username.EqualsNoCase(customer.Username))
+            {
+                customer.Username = model.Username;
+                validateUser = true;
+            }
+
+            try
+            {
+                if (validateUser)
+                {
+                    var validationResults = await _userManager.UserValidators
+                        .SelectAsync(async x => await x.ValidateAsync(_userManager, customer))
+                        .AsyncToList();
+
+                    validationResults
+                        .Where(x => !x.Succeeded)
+                        .SelectMany(x => x.Errors.Select(y => y.Description))
+                        .Distinct()
+                        .Each(x => ModelState.AddModelError(string.Empty, x));
+                }
+            }
+            finally
+            {
+                if (!ModelState.IsValid)
+                {
+                    // Do not update customer with invalid data.
+                    customer.Email = oldEmail;
+                    customer.Username = oldUsername;
+                }
+
+                // Allow admin to clear email and username.
+                if (model.Email.IsEmpty())
+                {
+                    customer.Email = model.Email;
+                }
+                if (canUpdateUsername && model.Username.IsEmpty())
+                {
+                    customer.Username = model.Username;
+                }
+            }
         }
 
         [HttpPost]

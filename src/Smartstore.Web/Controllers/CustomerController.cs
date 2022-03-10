@@ -133,11 +133,11 @@ namespace Smartstore.Web.Controllers
 
             if (model.Email.IsEmpty())
             {
-                ModelState.AddModelError(string.Empty, "Email is not provided.");
+                ModelState.AddModelError(string.Empty, T("Account.Register.Errors.EmailIsNotProvided"));
             }
             if (_customerSettings.CustomerLoginType != CustomerLoginType.Email && _customerSettings.AllowUsersToChangeUsernames && model.Username.IsEmpty())
             {
-                ModelState.AddModelError(string.Empty, "Username is not provided.");
+                ModelState.AddModelError(string.Empty, T("Account.Register.Errors.UsernameIsNotProvided"));
             }
 
             try
