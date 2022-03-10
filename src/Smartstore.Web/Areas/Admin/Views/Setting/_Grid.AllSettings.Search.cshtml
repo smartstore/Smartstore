@@ -10,8 +10,6 @@
         .Select(t => t.Name + ".*")
         .OrderBy(x => x)
         .ToArray();
-
-    // TODO: (core) Localize "All types"
 }
 
 <div class="form-group">
@@ -20,7 +18,9 @@
     <div class="row xs-gutters">
         <div class="col-auto">
             <div class="dropdown">
-                <button class="btn btn-outline-secondary no-chevron dropdown-toggle" title="All types" type="button" data-toggle="dropdown" aria-expanded="false">
+                <button class="btn btn-outline-secondary no-chevron dropdown-toggle"
+                        type="button" data-toggle="dropdown" aria-expanded="false"
+                        title="@T("Admin.Configuration.Settings.AllSettings.AllTypes")">
                     <i class="fa fa-ellipsis"></i>
                 </button>
                 <div class="dropdown-menu setting-patterns py-0">

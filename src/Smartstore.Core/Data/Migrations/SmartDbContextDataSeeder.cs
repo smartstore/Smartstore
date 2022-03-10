@@ -536,6 +536,8 @@ namespace Smartstore.Core.Data.Migrations
                 "Package does not contain a plugin.",
                 "Paket beinhaltet kein Plugin.");
 
+            builder.AddOrUpdate("Admin.Configuration.Settings.AllSettings.AllTypes", "All types", "Alle Typen");
+
             #endregion
 
             #region Identity
