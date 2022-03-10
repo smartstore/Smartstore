@@ -110,6 +110,15 @@ namespace Smartstore.Core.Data.Migrations
 
             // TODO: (core) Delete all Telerik language resources (???)
 
+            builder.AddOrUpdate("Admin.NewsFeed.Title", "Newsfeed", "News-Feed");
+            builder.AddOrUpdate("Admin.NewsFeed.ServerDown",
+                "Unfortunately, the server is currently unavailable. Please check your internet connection.", 
+                "Leider ist der Server derzeit nicht ereichbar. Bitte prüfen Sie Ihre Internetverbindung.");
+
+            builder.Delete("Admin.Marketplace.News");
+            builder.Delete("Admin.Marketplace.ComingSoon");
+            builder.Delete("Admin.Marketplace.Visit");
+            
             builder.AddOrUpdate("Admin.Catalog.Products.Orders.NoOrdersAvailable",
                 "There are no orders for this product yet.", 
                 "Für dieses Produkt existieren noch keine Bestellungen.");
