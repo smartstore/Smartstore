@@ -70,7 +70,9 @@ namespace Smartstore.Web.TagHelpers.Shared
 					var target = widget.Prepend ? output.PreContent : output.PostContent;
 					var viewContext = model == null ? ViewContext : ViewContext.Clone(model);
 
-					target.AppendHtml(await widget.InvokeAsync(viewContext));
+                    viewContext.ViewData["widgetzone"] = ZoneName;
+
+                    target.AppendHtml(await widget.InvokeAsync(viewContext));
 				}
 			}
 			else
