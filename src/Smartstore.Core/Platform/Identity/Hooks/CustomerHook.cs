@@ -19,8 +19,11 @@ namespace Smartstore.Core.Identity
 		private readonly SmartDbContext _db;
 		private readonly CustomerSettings _customerSettings;
 		private string _hookErrorMessage;
+        
+        // Key: old email. Value: new email.
+        private readonly Dictionary<string, string> _modifiedEmails = new(StringComparer.OrdinalIgnoreCase);
 
-		public CustomerHook(SmartDbContext db, CustomerSettings customerSettings)
+        public CustomerHook(SmartDbContext db, CustomerSettings customerSettings)
         {
 			_db = db;
 			_customerSettings = customerSettings;
@@ -32,11 +35,26 @@ namespace Smartstore.Core.Identity
 		{
 			if (entry.Entity is Customer customer)
 			{
-                if (await ValidateCustomer(customer, entry, cancelToken))
+                if (await ValidateCustomer(customer, cancelToken))
                 {
                     if (entry.InitialState == EState.Added || entry.InitialState == EState.Modified)
                     {
                         UpdateFullName(customer);
+
+                        if (entry.InitialState == EState.Modified)
+                        {
+                            var prop = entry.Entry.Property(nameof(customer.Email));
+                            if (prop != null && prop.OriginalValue != null && prop.CurrentValue != null)
+                            {
+                                var oldEmail = prop.OriginalValue.ToString();
+                                var newEmail = prop.CurrentValue.ToString().EmptyNull().Trim().Truncate(255);
+
+                                if (newEmail.IsEmail() && !newEmail.Equals(oldEmail, StringComparison.InvariantCultureIgnoreCase))
+                                {
+                                    _modifiedEmails[oldEmail] = newEmail;
+                                }
+                            }
+                        }
                     }
                 }
                 else
@@ -61,11 +79,36 @@ namespace Smartstore.Core.Identity
 			return Task.CompletedTask;
 		}
 
-        // TODO: (mg) (core) update newsletter subscription email if changed.
+        protected override Task<HookResult> OnUpdatedAsync(Customer entity, IHookedEntity entry, CancellationToken cancelToken)
+            => Task.FromResult(HookResult.Ok);
 
-        private async Task<bool> ValidateCustomer(Customer customer, IHookedEntity entry, CancellationToken cancelToken)
+        public override async Task OnAfterSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
+        {
+            // Update newsletter subscription if email changed.
+            if (_modifiedEmails.Any())
+            {
+                var oldEmails = _modifiedEmails.Keys.ToArray();
+
+                foreach (var oldEmailsChunk in oldEmails.Chunk(50))
+                {
+                    var subscriptions = await _db.NewsletterSubscriptions
+                        .Where(x => oldEmailsChunk.Contains(x.Email))
+                        .ToListAsync(cancelToken);
+
+                    // INFO: we do not use BatchUpdateAsync because of NewsletterSubscription hook.
+                    subscriptions.Each(x => x.Email = _modifiedEmails[x.Email]);
+
+                    await _db.SaveChangesAsync(cancelToken);
+                }
+
+                _modifiedEmails.Clear();
+            }
+        }
+
+        private async Task<bool> ValidateCustomer(Customer customer, CancellationToken cancelToken)
         {
             // INFO: do not validate email and username here. UserValidator is responsible for this.
+
             if (customer.Deleted && customer.IsSystemAccount)
             {
                 _hookErrorMessage = $"System customer account '{customer.SystemName}' cannot be deleted.";
