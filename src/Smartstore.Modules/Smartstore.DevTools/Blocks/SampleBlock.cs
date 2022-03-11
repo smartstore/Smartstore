@@ -3,13 +3,12 @@ using FluentValidation;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json;
 using Smartstore.Core.Content.Blocks;
-using Smartstore.Core.Widgets;
 
 namespace Smartstore.DevTools.Blocks
 {
     /// <summary>
     /// The block handler is the controller which is responsible for loading, instantiating, storing and rendering block types.
-    /// The 'BlockHandlerBase' abstract class already implements all relevant parts.
+    /// The <see cref="BlockHandlerBase{T}"/> abstract class already implements important parts.
     /// You can, however, overwrite any method to fulfill your custom needs.
     /// </summary>
     [Block("sample", Icon = "far fa-terminal", FriendlyName = "Sample", DisplayOrder = 50, IsInternal = false)] // REMOVE IsInternal = true to display the block in the page builder
@@ -45,10 +44,10 @@ namespace Smartstore.DevTools.Blocks
         }
 
         /// <summary>
-        /// By default block templates (Edit & Public) will be searched in '{Area}\Views\Story\BlockTemplates\{BlockSystemName}' or '{Area}\Views\Shared\BlockTemplates\{BlockSystemName}',
-        /// while {Area} represents your plugin folder.
+        /// By default block templates (Edit & Public) will be searched in '{Module}\Views\Shared\BlockTemplates\{BlockSystemName}',
+        /// while {Module} represents your custom module's system name.
         /// The public action can address a deviating route by overwriting RenderCoreAsync & GetWidget.
-        /// You can override this behaviour by e.g. calling a widget in your plugin controller instead of directly rendering a view.
+        /// You can override this behaviour by e.g. calling a widget in your module controller instead of directly rendering a view.
         /// For this to take effect you have to override both methods 'RenderCoreAsync()' and 'GetWidget()'
         /// </summary>
         //protected override async Task RenderCoreAsync(IBlockContainer element, IEnumerable<string> templates, IHtmlHelper htmlHelper, TextWriter textWriter)
