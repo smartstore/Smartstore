@@ -214,7 +214,7 @@ src/Smartstore.Web/App_Data/*
 !src/Smartstore.Web/App_Data/Samples/*
 !src/Smartstore.Web/App_Data/icons.json
 !src/Smartstore.Web/App_Data/widgetzones.json
-
+!src/Smartstore.Web/App_Data/Tenants
 # DataProtection
 DataProtection-Keys/
 
