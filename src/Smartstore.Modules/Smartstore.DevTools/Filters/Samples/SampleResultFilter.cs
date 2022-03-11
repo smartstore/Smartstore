@@ -20,8 +20,7 @@ namespace Smartstore.DevTools.Filters.Samples
                 {
                     model.Description = new LocalizedValue<string>("Test", null, null);
                     // Do something with model here!
-                    // If you want to use view models from SmartStore.Web
-                    // or SmartStore.Admin make sure you have added the project reference first.
+                    // If you want to use view models from Smartstore.Web make sure you have added the project reference first.
                 }
             }
         }

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Smartstore.Core;
+using Smartstore.Core.Web;
 using Smartstore.Web.Models.Catalog;
 
 namespace Smartstore.DevTools.Filters.Samples
@@ -8,11 +9,13 @@ namespace Smartstore.DevTools.Filters.Samples
     internal class SampleProductDetailActionFilter : IActionFilter
     {
         private readonly ICommonServices _services;
+        private readonly IViewDataAccessor _viewDataAccessor;
         private readonly IUrlHelper _urlHelper;
 
-        public SampleProductDetailActionFilter(ICommonServices services, IUrlHelper urlHelper)
+        public SampleProductDetailActionFilter(ICommonServices services, IViewDataAccessor viewDataAccessor, IUrlHelper urlHelper)
         {
             _services = services;
+            _viewDataAccessor = viewDataAccessor;
             _urlHelper = urlHelper;
         }
 
@@ -23,18 +26,17 @@ namespace Smartstore.DevTools.Filters.Samples
 
         public void OnActionExecuted(ActionExecutedContext filterContext)
         {
-            var result = filterContext.Result;
-            if (result == null)
+            if (!filterContext.Result.IsHtmlViewResult())
             {
                 // The controller action didn't return a view result 
                 // => no need to continue any further
                 return;
             }
 
-            var model = ((Controller)filterContext.Controller).ViewData.Model as ProductDetailsModel;
-            if (model == null)
+            var viewData = _viewDataAccessor.ViewData;
+            if (viewData == null || viewData.Model is not ProductDetailsModel model)
             {
-                // there's no model or the model was not of the expected type 
+                // There is no model or the model was not of the expected type 
                 // => no need to continue any further
                 return;
             }
@@ -45,7 +47,7 @@ namespace Smartstore.DevTools.Filters.Samples
                 Key = "dev",
                 Title = _services.Localization.GetResource("Dev"),
                 Tooltip = _services.Localization.GetResource("Dev.Hint"),
-                CssClass = "action-dev x-ajax-cart-link",
+                CssClass = "action-dev ajax-cart-link",
                 IconCssClass = "icm icm-server",
                 //Href = _urlHelper.Action("MyOwnAction", "MyPlugin", new { id = model.Id })
                 Href = "https://www.smartstore.com"

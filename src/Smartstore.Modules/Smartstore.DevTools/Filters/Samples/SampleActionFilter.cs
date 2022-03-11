@@ -15,9 +15,8 @@ namespace Smartstore.DevTools.Filters.Samples
 
         public void OnActionExecuting(ActionExecutingContext filterContext)
         {
-            filterContext.ActionDescriptor.RouteValues.TryGetValue("controller", out var controllerName);
-            filterContext.ActionDescriptor.RouteValues.TryGetValue("action", out var actionName);
-
+            var controllerName = filterContext.RouteData.Values.GetControllerName();
+            var actionName = filterContext.RouteData.Values.GetActionName();
             Debug.WriteLine($"Executing: {controllerName} - {actionName}");
 
             _notifier.Information("Yeah, my plugin action filter works. NICE!");
@@ -26,8 +25,8 @@ namespace Smartstore.DevTools.Filters.Samples
 
         public void OnActionExecuted(ActionExecutedContext filterContext)
         {
-            filterContext.ActionDescriptor.RouteValues.TryGetValue("controller", out var controllerName);
-            filterContext.ActionDescriptor.RouteValues.TryGetValue("action", out var actionName);
+            var controllerName = filterContext.RouteData.Values.GetControllerName();
+            var actionName = filterContext.RouteData.Values.GetActionName();
 
             Debug.WriteLine($"Executed: {controllerName} - {actionName}");
         }
