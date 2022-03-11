@@ -279,11 +279,13 @@ namespace Smartstore.Web.Controllers
                     }
                     else
                     {
-                        passwordResult.Errors.Each(x => ModelState.AddModelError(string.Empty, x.Description));
+                        passwordResult.Errors.Select(x => x.Description).Distinct()
+                            .Each(x => ModelState.AddModelError(string.Empty, x));
                     }   
                 }
 
-                identityResult.Errors.Each(x => ModelState.AddModelError(string.Empty, x.Description));
+                identityResult.Errors.Select(x => x.Description).Distinct()
+                    .Each(x => ModelState.AddModelError(string.Empty, x));
             }
 
             // If we got this far something failed. Redisplay form.
@@ -434,7 +436,9 @@ namespace Smartstore.Web.Controllers
             var customer = Services.WorkContext.CurrentCustomer;
 
             if (!customer.IsRegistered())
+            {
                 return new UnauthorizedResult();
+            }
 
             if (ModelState.IsValid)
             {
@@ -445,7 +449,8 @@ namespace Smartstore.Web.Controllers
                 }
                 else
                 {
-                    passwordResult.Errors.Each(x => ModelState.AddModelError(string.Empty, x.Description));
+                    passwordResult.Errors.Select(x => x.Description).Distinct()
+                        .Each(x => ModelState.AddModelError(string.Empty, x));
                 }
             }
 

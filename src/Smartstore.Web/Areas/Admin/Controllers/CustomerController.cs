@@ -478,23 +478,19 @@ namespace Smartstore.Admin.Controllers
             }
 
             // Customer number.
-            if (ModelState.IsValid)
+            if (_customerSettings.CustomerNumberMethod == CustomerNumberMethod.AutomaticallySet && model.CustomerNumber.IsEmpty())
             {
-                if (_customerSettings.CustomerNumberMethod == CustomerNumberMethod.AutomaticallySet && model.CustomerNumber.IsEmpty())
-                {
-                    // Let any NumberFormatter module handle this.
-                    await Services.EventPublisher.PublishAsync(new CustomerRegisteredEvent { Customer = customer });
-                }
-                else if (_customerSettings.CustomerNumberMethod == CustomerNumberMethod.Enabled && model.CustomerNumber.HasValue())
-                {
-                    customer.CustomerNumber = model.CustomerNumber;
-                }
+                // Let any NumberFormatter module handle this.
+                await Services.EventPublisher.PublishAsync(new CustomerRegisteredEvent { Customer = customer });
+            }
+            else if (_customerSettings.CustomerNumberMethod == CustomerNumberMethod.Enabled && model.CustomerNumber.HasValue())
+            {
+                customer.CustomerNumber = model.CustomerNumber;
             }
 
             if (ModelState.IsValid)
             {
                 var createResult = await _userManager.CreateAsync(customer, model.Password);
-
                 if (createResult.Succeeded)
                 {
                     MapCustomerModel(model, customer);
@@ -593,6 +589,7 @@ namespace Smartstore.Admin.Controllers
             var newEmail = model.Email.TrimSafe();
             var newUsername = model.Username.TrimSafe();
 
+            // Email.
             if (ModelState.IsValid && !newEmail.Equals(customer.Email, StringComparison.InvariantCultureIgnoreCase))
             {
                 var token = await _userManager.GenerateChangeEmailTokenAsync(customer, newEmail);
@@ -600,6 +597,7 @@ namespace Smartstore.Admin.Controllers
                 AddModelErrors(result, nameof(model.Email));
             }
 
+            // Username.
             if (ModelState.IsValid
                 && _customerSettings.CustomerLoginType != CustomerLoginType.Email
                 && _customerSettings.AllowUsersToChangeUsernames
@@ -751,11 +749,11 @@ namespace Smartstore.Admin.Controllers
                 }
                 else
                 {
-                    passwordResult.Errors.Each(x => ModelState.AddModelError(nameof(model.Password), x.Description));
+                    AddModelErrors(passwordResult, nameof(model.Password));
                 }
             }
 
-            // Show validation errors.
+            // Show model errors.
             await PrepareCustomerModel(model, customer);
 
             return View(model);

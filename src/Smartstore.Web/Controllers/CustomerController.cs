@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Smartstore.Caching;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Orders;
@@ -15,7 +14,6 @@ using Smartstore.Core.Localization;
 using Smartstore.Core.Messaging;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
-using Smartstore.Engine.Modularity;
 using Smartstore.Utilities;
 using Smartstore.Web.Models.Common;
 using Smartstore.Web.Models.Customers;
@@ -39,8 +37,6 @@ namespace Smartstore.Web.Controllers
         private readonly IMessageFactory _messageFactory;
         private readonly UserManager<Customer> _userManager;
         private readonly SignInManager<Customer> _signInManager;
-        private readonly IProviderManager _providerManager;
-        private readonly ICacheManager _cache;
         private readonly IDateTimeHelper _dateTimeHelper;
         private readonly ProductUrlHelper _productUrlHelper;
         private readonly DateTimeSettings _dateTimeSettings;
@@ -66,8 +62,6 @@ namespace Smartstore.Web.Controllers
             IMessageFactory messageFactory,
             UserManager<Customer> userManager,
             SignInManager<Customer> signInManager,
-            IProviderManager providerManager,
-            ICacheManager cache,
             IDateTimeHelper dateTimeHelper,
             ProductUrlHelper productUrlHelper,
             DateTimeSettings dateTimeSettings,
@@ -92,8 +86,6 @@ namespace Smartstore.Web.Controllers
             _messageFactory = messageFactory;
             _userManager = userManager;
             _signInManager = signInManager;
-            _providerManager = providerManager;
-            _cache = cache;
             _dateTimeHelper = dateTimeHelper;
             _productUrlHelper = productUrlHelper;
             _dateTimeSettings = dateTimeSettings;
@@ -122,6 +114,7 @@ namespace Smartstore.Web.Controllers
         }
 
         [HttpPost]
+        [SaveChanges(typeof(SmartDbContext), false)]
         public async Task<IActionResult> Info(CustomerInfoModel model)
         {
             var customer = Services.WorkContext.CurrentCustomer;
@@ -140,36 +133,55 @@ namespace Smartstore.Web.Controllers
                 ModelState.AddModelError(string.Empty, T("Account.Register.Errors.UsernameIsNotProvided"));
             }
 
+            // INFO: update email and username requires SaveChangesAttribute to be set to 'false'.
+            var newEmail = model.Email.TrimSafe();
+            var newUsername = model.Username.TrimSafe();
+
+            // Email.
+            if (ModelState.IsValid && !newEmail.Equals(customer.Email, StringComparison.InvariantCultureIgnoreCase))
+            {
+                var token = await _userManager.GenerateChangeEmailTokenAsync(customer, newEmail);
+                var result = await _userManager.ChangeEmailAsync(customer, newEmail, token);
+                if (result.Succeeded)
+                {
+                    // Re-authenticate (if usernames are disabled).
+                    if (_customerSettings.CustomerLoginType == CustomerLoginType.Email)
+                    {
+                        await _signInManager.SignInAsync(customer, true);
+                    }
+                }
+                else
+                {
+                    result.Errors.Select(x => x.Description).Distinct()
+                        .Each(x => ModelState.AddModelError(nameof(model.Email), x));
+                }
+            }
+
+            // Username.
+            if (ModelState.IsValid
+                && _customerSettings.CustomerLoginType != CustomerLoginType.Email
+                && _customerSettings.AllowUsersToChangeUsernames
+                && !newUsername.EqualsNoCase(customer.Username))
+            {
+                var result = await _userManager.SetUserNameAsync(customer, newUsername);
+                if (result.Succeeded)
+                {
+                    // Re-authenticate.
+                    await _signInManager.SignInAsync(customer, true);
+                }
+                else
+                {
+                    result.Errors.Select(x => x.Description).Distinct()
+                        .Each(x => ModelState.AddModelError(nameof(model.Username), x));
+                }
+            }
+
             try
             {
                 if (ModelState.IsValid)
                 {
                     customer.FirstName = model.FirstName;
                     customer.LastName = model.LastName;
-
-                    // Username.
-                    if (_customerSettings.CustomerLoginType != CustomerLoginType.Email && _customerSettings.AllowUsersToChangeUsernames)
-                    {
-                        if (!customer.Username.EqualsNoCase(model.Username.Trim()))
-                        {
-                            // Change username.
-                            await _userManager.SetUserNameAsync(customer, model.Username.Trim());
-                            // Re-authenticate.
-                            await _signInManager.SignInAsync(customer, true);
-                        }
-                    }
-
-                    // Email.
-                    if (!customer.Email.Equals(model.Email.Trim(), StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        // Change email.
-                        await _userManager.SetEmailAsync(customer, model.Email.Trim());
-                        // Re-authenticate (if usernames are disabled).
-                        if (_customerSettings.CustomerLoginType == CustomerLoginType.Email)
-                        {
-                            await _signInManager.SignInAsync(customer, true);
-                        }
-                    }
 
                     // VAT number.
                     if (_taxSettings.EuVatEnabled)
@@ -193,30 +205,16 @@ namespace Smartstore.Web.Controllers
                     // Customer number.
                     if (_customerSettings.CustomerNumberMethod != CustomerNumberMethod.Disabled)
                     {
-                        var numberExists = await _db.Customers.Where(x => x.CustomerNumber == model.CustomerNumber).AnyAsync();
-
-                        if (model.CustomerNumber != customer.CustomerNumber && numberExists)
-                        {
-                            NotifyError(T("Common.CustomerNumberAlreadyExists"));
-                        }
-                        else
-                        {
-                            customer.CustomerNumber = model.CustomerNumber;
-                        }
+                        customer.CustomerNumber = model.CustomerNumber;
                     }
 
                     if (_customerSettings.DateOfBirthEnabled)
                     {
                         try
                         {
-                            if (model.DateOfBirthYear.HasValue && model.DateOfBirthMonth.HasValue && model.DateOfBirthDay.HasValue)
-                            {
-                                customer.BirthDate = new DateTime(model.DateOfBirthYear.Value, model.DateOfBirthMonth.Value, model.DateOfBirthDay.Value);
-                            }
-                            else
-                            {
-                                customer.BirthDate = null;
-                            }
+                            customer.BirthDate = model.DateOfBirthYear.HasValue && model.DateOfBirthMonth.HasValue && model.DateOfBirthDay.HasValue
+                                ? new DateTime(model.DateOfBirthYear.Value, model.DateOfBirthMonth.Value, model.DateOfBirthDay.Value)
+                                : null;
                         }
                         catch 
                         { 
@@ -276,11 +274,18 @@ namespace Smartstore.Web.Controllers
                         customer.TimeZoneId = model.TimeZoneId;
                     }
 
-                    await _db.SaveChangesAsync();
+                    var updateResult = await _userManager.UpdateAsync(customer);
+                    if (updateResult.Succeeded)
+                    {
+                        await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, customer, Request.Form));
 
-                    await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, customer, Request.Form));
-
-                    return RedirectToAction(nameof(Info));
+                        return RedirectToAction(nameof(Info));
+                    }
+                    else
+                    {
+                        updateResult.Errors.Select(x => x.Description).Distinct()
+                            .Each(x => ModelState.AddModelError(string.Empty, x));
+                    }
                 }
             }
             catch (Exception ex)
@@ -311,7 +316,6 @@ namespace Smartstore.Web.Controllers
                 else
                 {
                     var userExists = await _db.Customers
-                        .AsNoTracking()
                         .IgnoreQueryFilters()
                         .ApplyIdentFilter(null, username, null, true)
                         .AnyAsync();
