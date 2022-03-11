@@ -15,7 +15,6 @@ using Smartstore.Core.Configuration;
 using Smartstore.Core.DataExchange;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
-using Smartstore.Core.Logging;
 using Smartstore.Core.Rules;
 using Smartstore.Core.Search;
 using Smartstore.Core.Search.Facets;
@@ -105,10 +104,10 @@ namespace Smartstore.Core.Data.Migrations
 
             // TODO: (core) Delete all Telerik language resources (???)
 
-            builder.AddOrUpdate("Admin.NewsFeed.Title", "Newsfeed", "News-Feed");
+            builder.AddOrUpdate("Admin.NewsFeed.Title", "Newsfeed", "Aktuelles");
             builder.AddOrUpdate("Admin.NewsFeed.ServerDown",
-                "Unfortunately, the server is currently unavailable. Please check your internet connection.", 
-                "Leider ist der Server derzeit nicht ereichbar. Bitte prüfen Sie Ihre Internetverbindung.");
+                "Unfortunately the connection to our server could not be established. Please check your internet connection.", 
+                "Leider konnte keine Verbindung zu unserem Server aufgebaut werden. Bitte prüfen Sie Ihre Internetverbindung.");
 
             builder.Delete("Admin.Marketplace.News");
             builder.Delete("Admin.Marketplace.ComingSoon");

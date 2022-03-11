@@ -184,75 +184,6 @@
         }
     }
 
-    // TODO: (mh) (core) (perf) Make CSS less complex/cascaded: 
-    // - Don't put this into .report
-    // - Don't nest .newsfeed-item into .newsfeed-body
-    // - Generally: don't nest specific class names into anything. They can speak for themselves.
-    .news-feed & .report-title-row {
-        padding: 1.5rem 1rem 0 1rem !important;
-    }
-
-    .newsfeed-body {
-        padding-top: 1rem;
-
-        .admin-config-group > .title {
-            padding-left: 1rem;
-            padding-right: 1rem;
-            color: inherit;
-        }
-
-        .admin-config-group:after {
-            right: 1rem;
-        }
-
-        .newsfeed-item {
-            padding: 0 1rem 1.25rem 1rem;
-            border-bottom: 1px solid #ddd;
-
-            &.pinned {
-                background-color: $light;
-            }
-
-            &:last-child {
-                border-bottom: none;
-                margin-bottom: 0;
-                padding-bottom: 0.25rem;
-            }
-
-            .more-info {
-                font-weight: 600;
-            }
-        }
-
-        .btn-newsfeed {
-            padding: 0 1.5rem 1.25rem 1.5rem;
-        }
-
-        .newsfeed-item-title {
-            margin-bottom: .5rem;
-            font-weight: 600;
-
-            & > a {
-                display: block;
-                line-height: 1.3;
-            }
-        }
-
-        .thumbnail {
-            max-height: 100px;
-            max-width: 100%;
-            width: 100%;
-            overflow: hidden;
-            display: flex;
-
-            .file-img {
-                object-fit: cover;
-                width: 100%;
-                height: auto;
-            }
-        }
-    }
-
     .statistics-value {
         font-size: .9rem;
         font-weight: $font-weight-medium;
@@ -692,4 +623,70 @@
         white-space: nowrap;
         text-overflow: ellipsis;
     }
+}
+
+.news-feed .report-title-row {
+    padding: 1.5rem 1rem 0 1rem !important;
+}
+
+.newsfeed-body {
+    padding-top: 1rem;
+
+    .admin-config-group > .title {
+        padding-left: 1rem;
+        padding-right: 1rem;
+        color: inherit;
+    }
+
+    .admin-config-group:after {
+        right: 1rem;
+    }
+}
+
+.newsfeed-item-title {
+    margin-bottom: .5rem;
+    font-weight: 600;
+
+    & > a {
+        display: block;
+        line-height: 1.3;
+    }
+}
+
+.newsfeed-item {
+    padding: 0 1rem 1.25rem 1rem;
+    border-bottom: 1px solid #ddd;
+
+    &.pinned {
+        background-color: lighten($blue, 50%) !important;
+    }
+
+    &:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0.25rem;
+    }
+
+    .more-info {
+        font-weight: 600;
+    }
+}
+
+.newsfeed-thumbnail {
+    max-height: 140px;
+    max-width: 100%;
+    width: 100%;
+    overflow: hidden;
+    display: flex;
+    margin-bottom: 0;
+
+    .file-img {
+        object-fit: cover;
+        width: 100%;
+        height: auto;
+    }
+}
+
+.btn-newsfeed {
+    padding: 1.25rem 1.5rem;
 }

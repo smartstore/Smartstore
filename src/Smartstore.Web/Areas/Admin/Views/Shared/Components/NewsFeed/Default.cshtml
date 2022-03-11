@@ -42,10 +42,10 @@
                 <div id="pnl-@(i)" class="collapse" attr-class='(isFirst, "show")' data-parent="#news-feed-accordion">
                     @foreach (var item in channel.NewsFeedItems)
                     {
+                        <figure sm-if="item.ThumbnailUrl.HasValue()" class="newsfeed-thumbnail">
+                            <img class="file-img" src="@item.ThumbnailUrl" />
+                        </figure>
                         <div class="newsfeed-item py-3" attr-class='(item.IsPinned, "pinned")'>
-                            <figure sm-if="item.ThumbnailUrl.HasValue()" class="thumbnail">
-                                <img class="file-img" src="@item.ThumbnailUrl" />
-                            </figure>
                             <div class="newsfeed-item-title">
                                 @if (item.Link.HasValue())
                                 {
@@ -64,8 +64,8 @@
                         </div>
                     }
 
-                    <div class="btn-newsfeed">
-                        <a sm-if="@(channel.ButtonText.HasValue() && @channel.ButtonLink.HasValue())" class="btn btn-primary btn-block btn-3d mb-3" href="@channel.ButtonLink" target="NewsfeedWindow">
+                    <div class="btn-newsfeed" sm-if="@(channel.ButtonText.HasValue() && @channel.ButtonLink.HasValue())">
+                        <a class="btn btn-primary btn-block btn-3d" href="@channel.ButtonLink" target="NewsfeedWindow">
                             <span>@channel.ButtonText</span>
                         </a>
                     </div>
