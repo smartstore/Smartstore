@@ -9,6 +9,7 @@ using Smartstore.Core.Web;
 using Smartstore.Data;
 using Smartstore.Data.Providers;
 using Smartstore.DevTools.Filters;
+using Smartstore.DevTools.Filters.Samples;
 using Smartstore.DevTools.Services;
 using Smartstore.Diagnostics;
 using Smartstore.Engine;
@@ -69,6 +70,17 @@ namespace Smartstore.DevTools
                     context => context.ControllerIs<SmartController>());
 
                 o.Filters.Add<WidgetZoneFilter>();
+
+                // TODO: (mh) (core) One more filter 
+                //o.Filters.AddConditional<SampleProductDetailActionFilter>(
+                //    context => context.ControllerIs<ProductController>());
+
+                //o.Filters.AddConditional<SampleResultFilter>(
+                //    context => context.ControllerIs<CatalogController>());
+
+                //o.Filters.AddConditional<SampleActionFilter>(
+                //    context => context.ControllerIs<PublicController>());
+
             });
         }
 
