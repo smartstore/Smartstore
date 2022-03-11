@@ -70,6 +70,8 @@ namespace Smartstore.Web.TagHelpers.Shared
 					var target = widget.Prepend ? output.PreContent : output.PostContent;
 					var viewContext = model == null ? ViewContext : ViewContext.Clone(model);
 
+                    // TODO: (mh) (core) I don't know why you did this, but ViewData is mostly global across partials.
+                    // You are overriding the very same entry each time. Are you sure?
                     viewContext.ViewData["widgetzone"] = ZoneName;
 
                     target.AppendHtml(await widget.InvokeAsync(viewContext));

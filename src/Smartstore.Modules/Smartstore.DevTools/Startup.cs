@@ -69,7 +69,8 @@ namespace Smartstore.DevTools
                 o.Filters.AddConditional<MachineNameFilter>(
                     context => context.ControllerIs<SmartController>());
 
-                o.Filters.Add<WidgetZoneFilter>();
+                o.Filters.AddConditional<WidgetZoneFilter>(
+                    context => context.ControllerIs<SmartController>());
 
                 // TODO: (mh) (core) One more filter 
                 //o.Filters.AddConditional<SampleProductDetailActionFilter>(
