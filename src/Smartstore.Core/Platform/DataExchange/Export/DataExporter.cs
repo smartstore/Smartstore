@@ -1540,6 +1540,7 @@ namespace Smartstore.Core.DataExchange.Export
             var priceDisplay = ctx.Projection.PriceType ?? _catalogSettings.PriceDisplayType;
             var options = _priceCalculationService.CreateDefaultOptions(false, ctx.ContextCustomer, ctx.ContextCurrency, batchContext);
 
+            options.CheckDiscountValidity = true;
             options.DetermineLowestPrice = priceDisplay == PriceDisplayType.LowestPrice;
             options.DeterminePreselectedPrice = priceDisplay == PriceDisplayType.PreSelectedPrice;
             options.ApplyPreselectedAttributes = priceDisplay == PriceDisplayType.PreSelectedPrice;
