@@ -18,7 +18,7 @@ namespace Smartstore.Data.Providers
         public DbFactoryOptionsExtension(DbContextOptions options)
         {
             _options = options;
-            var appConfig = EngineContext.Current.Application.Services.ResolveOptional<SmartConfiguration>();
+            var appConfig = EngineContext.Current?.Application?.Services?.ResolveOptional<SmartConfiguration>();
             if (appConfig?.DbCommandTimeout != null)
             {
                 CommandTimeout = appConfig.DbCommandTimeout.Value;

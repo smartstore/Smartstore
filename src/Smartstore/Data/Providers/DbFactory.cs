@@ -73,14 +73,11 @@ namespace Smartstore.Data.Providers
                 switch (provider.ToLowerInvariant())
                 {
                     case "sqlserver":
-                        assemblyName = "Smartstore.Data.SqlServer.dll";
+                        assemblyName = "Smartstore.Core.dll";
                         break;
                     case "mysql":
                         assemblyName = "Smartstore.Data.MySql.dll";
                         break;
-                    //case "sqlite":
-                    //    assemblyName = "Smartstore.Data.Sqlite.dll";
-                    //    break;
                 }
 
                 if (assemblyName.IsEmpty())

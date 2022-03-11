@@ -231,3 +231,5 @@ src/Tools/Smartstore.WebApi.Client/Smartstore.WebApi.Client.sln
 src/Smartstore.Packager.sln
 Log.txt
 src/Smartstore.Web/Themes/FlexMuseo/
+/src/Smartstore.Web/App_Data/Tenants/Default/BundleCache/*
+/src/Smartstore.Web/App_Data/Tenants/Default/Media/*

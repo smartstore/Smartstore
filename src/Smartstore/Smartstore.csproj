@@ -35,6 +35,7 @@
         <PackageReference Include="MailKit" Version="3.1.0" />
         <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.3" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="6.0.3" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.3" />
         <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="6.0.0" />
         <PackageReference Include="ncrontab" Version="3.3.1" />
         <PackageReference Include="Newtonsoft.Json.Bson" Version="1.0.2" />

@@ -1,7 +1,7 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<Import Project="..\Smartstore.Build\Smartstore.Common.props" />
-  
+ 
     <ItemGroup>
         <FrameworkReference Include="Microsoft.AspNetCore.App" />
     </ItemGroup>
@@ -21,6 +21,7 @@
 		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.1" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.3" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="6.0.3" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.3" />
 		<PackageReference Include="Parlot" Version="0.0.23" />
 		<PackageReference Include="PreMailer.Net" Version="2.4.0" />
 		<PackageReference Include="Serilog.AspNetCore" Version="4.1.0" />
@@ -31,7 +32,9 @@
 		<PackageReference Include="System.Linq.Dynamic.Core" Version="1.2.15" />
 		<PackageReference Include="System.ServiceModel.Http" Version="4.9.0" />
 		<PackageReference Include="UAParser" Version="3.1.47" />
-		<PackageReference Include="XiaoYang.EntityFrameworkCore.Bulk" Version="6.0.28" />
+		<PackageReference Include="XiaoYang.EntityFrameworkCore.Bulk" Version="6.0.29" />
+		<PackageReference Include="XiaoYang.EntityFrameworkCore.Bulk.Relational" Version="6.0.29" />
+		<PackageReference Include="XiaoYang.EntityFrameworkCore.Bulk.SqlServer" Version="6.0.29" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -55,4 +58,7 @@
 		</AssemblyAttribute>
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="Scripts\" />
+	</ItemGroup>
 </Project>

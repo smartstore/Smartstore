@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using Microsoft.EntityFrameworkCore.Design;
 using Smartstore.Data;
 using Smartstore.Data.Hooks;
 using Smartstore.Data.Migrations;
@@ -19,12 +20,7 @@ namespace Smartstore.Core.Data
     [CheckTables("Customer", "Discount", "Order", "Product", "ShoppingCartItem", "QueuedEmailAttachment", "ExportProfile")]
     public partial class SmartDbContext : HookingDbContext
     {
-        public SmartDbContext(DbContextOptions<SmartDbContext> options)
-            : base(options)
-        {
-        }
-
-        protected SmartDbContext(DbContextOptions options)
+        public SmartDbContext(DbContextOptions options)
             : base(options)
         {
         }
@@ -47,6 +43,18 @@ namespace Smartstore.Core.Data
             CreateModel(modelBuilder, options.ModelAssemblies); 
 
             base.OnModelCreating(modelBuilder);
+        }
+    }
+    public class SmartDbContextFactory : IDesignTimeDbContextFactory<SmartDbContext>
+    {
+        public SmartDbContext CreateDbContext(string[] args)
+        {
+            var optionsBuilder = new DbContextOptionsBuilder<SmartDbContext>()
+               .UseDbFactory(b =>
+               {
+                   b.AddModelAssembly(this.GetType().Assembly);
+               });
+            return new SmartDbContext(optionsBuilder.Options);
         }
     }
 }

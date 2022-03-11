@@ -80,7 +80,7 @@ namespace Smartstore.Core.Bootstrapping
             registration.PipelineBuilding += (sender, pipeline) =>
             {
                 // Add our middleware to the pipeline.
-                pipeline.Use(new AutofacSerilogMiddleware(registration.Activator.LimitType, hasCtorLogger, hasPropertyLogger));
+               // pipeline.Use(new AutofacSerilogMiddleware(registration.Activator.LimitType, hasCtorLogger, hasPropertyLogger));
             };
         }
 
