@@ -41,18 +41,16 @@ namespace Smartstore.Core.Identity
                     {
                         UpdateFullName(customer);
 
-                        if (entry.InitialState == EState.Modified)
+                        if (entry.Entry.TryGetModifiedProperty(nameof(customer.Email), out var originalValue) 
+                            && originalValue != null 
+                            && customer.Email != null)
                         {
-                            var prop = entry.Entry.Property(nameof(customer.Email));
-                            if (prop != null && prop.OriginalValue != null && prop.CurrentValue != null)
-                            {
-                                var oldEmail = prop.OriginalValue.ToString();
-                                var newEmail = prop.CurrentValue.ToString().EmptyNull().Trim().Truncate(255);
+                            var oldEmail = originalValue.ToString();
+                            var newEmail = customer.Email.EmptyNull().Trim().Truncate(255);
 
-                                if (newEmail.IsEmail() && !newEmail.Equals(oldEmail, StringComparison.InvariantCultureIgnoreCase))
-                                {
-                                    _modifiedEmails[oldEmail] = newEmail;
-                                }
+                            if (newEmail.IsEmail())
+                            {
+                                _modifiedEmails[oldEmail] = newEmail;
                             }
                         }
                     }
