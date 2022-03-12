@@ -163,7 +163,5 @@ namespace Smartstore.Engine.Modularity
 
             return _settingService.ApplySettingAsync(settingKey, value).Await();
         }
-
-        // TODO: (core) Move PluginMediator.ToProviderModel() to Controller/AdminControllerBase
     }
 }

@@ -12,7 +12,6 @@ namespace Smartstore.Bootstrapping
     {
         public readonly static Type[] IgnoredInterfaces = new Type[]
         {
-            // TODO: (core) add more ignored interfaces (?)
             typeof(IDisposable),
             typeof(IAsyncDisposable),
             typeof(IScopedService)

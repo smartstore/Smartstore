@@ -9,8 +9,6 @@ namespace Smartstore.Net.Mail
 {
     public partial class DefaultMailService : IMailService
     {
-        // TODO: (core) Get PickupDirectoryLocation from EmailAccountSettings in caller.
-
         public virtual ISmtpClient Connect(IMailAccount account, int timeout = 1000)
         {
             Guard.NotNull(account, nameof(account));

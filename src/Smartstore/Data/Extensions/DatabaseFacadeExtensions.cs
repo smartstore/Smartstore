@@ -72,35 +72,6 @@ namespace Smartstore
 
         #endregion
 
-        #region Migrations
-
-        // TODO: (core) Remove Migration stuff from DatabaseFacadeExtensions later
-
-        /// <summary>
-        /// Migrates the database to the specified target migration.
-        /// </summary>
-        /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
-        /// <param name="targetMigration">The target migration to migrate the database to.</param>
-        public static void Migrate(this DatabaseFacade databaseFacade, string targetMigration)
-            => Guard.NotNull(databaseFacade, nameof(databaseFacade)).GetRelationalService<IMigrator>().Migrate(targetMigration);
-
-        /// <summary>
-        /// Migrates the database to the specified target migration.
-        /// </summary>
-        /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
-        /// <param name="targetMigration">The target migration to migrate the database to.</param>
-        public static Task MigrateAsync(this DatabaseFacade databaseFacade, string targetMigration, CancellationToken cancellationToken = default)
-            => Guard.NotNull(databaseFacade, nameof(databaseFacade)).GetRelationalService<IMigrator>().MigrateAsync(targetMigration, cancellationToken);
-
-        /// <summary>
-        /// Resolves a service representing an assembly containing EF Core Migrations.
-        /// </summary>
-        /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
-        public static IMigrationsAssembly GetMigrationsAssembly(this DatabaseFacade databaseFacade)
-            => Guard.NotNull(databaseFacade, nameof(databaseFacade)).GetRelationalService<IMigrationsAssembly>();
-
-        #endregion
-
         #region ExecuteScalar
 
         public static T ExecuteScalarInterpolated<T>(this DatabaseFacade databaseFacade, FormattableString sql)

@@ -118,11 +118,9 @@ namespace Smartstore.Data.Caching
             private new CachingOptionsExtension Extension 
                 => (CachingOptionsExtension)base.Extension;
 
-            // TODO: (core) (net6) What to do?
             public override bool ShouldUseSameServiceProvider(DbContextOptionsExtensionInfo other)
-            {
-                return true;
-            }
+                => true;
+
             public override int GetServiceProviderHashCode()
             {
                 if (_serviceProviderHash == null)
@@ -138,8 +136,8 @@ namespace Smartstore.Data.Caching
                 return _serviceProviderHash.Value.Convert<int>();
             }
 
-            // TODO: (core) What to return as LogFragment?
-            public override string LogFragment => $"Using '{nameof(CachingOptionsExtension)}'";
+            public override string LogFragment 
+                => $"Using '{nameof(CachingOptionsExtension)}'";
 
             public override void PopulateDebugInfo(IDictionary<string, string> debugInfo)
             {

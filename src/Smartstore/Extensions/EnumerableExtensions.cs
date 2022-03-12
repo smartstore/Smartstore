@@ -376,7 +376,6 @@ namespace Smartstore
             return await Task.WhenAll(source);
         }
 
-        // TODO: (core) Probably conflicting with efcore AnyAsync extension method.
         /// <summary>
         /// Determines whether any element of a sequence satisfies a condition. 
         /// </summary>

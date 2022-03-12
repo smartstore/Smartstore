@@ -52,7 +52,6 @@ namespace Smartstore.Web
 
             services.AddRouting(o =>
             {
-                // TODO: (core) Make this behave like in SMNET
                 o.AppendTrailingSlash = true;
                 o.LowercaseUrls = true;
             });

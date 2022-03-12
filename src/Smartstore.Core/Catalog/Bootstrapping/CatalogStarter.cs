@@ -38,7 +38,6 @@ namespace Smartstore.Core.Bootstrapping
             builder.RegisterType<ManufacturerService>()
                 .As<IManufacturerService>()
                 .As<IXmlSitemapPublisher>()
-                //.WithNullCache()  // TODO: (core) Do we really need Autofac registration "WithNullCache"?
                 .InstancePerLifetimeScope();
 
             builder.RegisterType<ProductRuleProvider>()
