@@ -60,7 +60,6 @@ namespace Smartstore.Data.Providers
                 extension = new DbFactoryOptionsExtension(optionsBuilder.Options);
 
                 optionsBuilder
-                    .ReplaceService<IConventionSetBuilder, FixedRuntimeConventionSetBuilder>()
                     //.EnableSensitiveDataLogging(true)
                     .ConfigureWarnings(w =>
                     {

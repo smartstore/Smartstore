@@ -99,7 +99,6 @@ namespace Smartstore.Data
                     {
                         _ctx.ChangeTracker.AutoDetectChangesEnabled = autoDetectChanges;
 
-                        // TODO: (core) implement IMergedData stuff
                         IgnoreMergedData(mergeableEntities, false);
                     }
                 }
@@ -170,7 +169,6 @@ namespace Smartstore.Data
                     {
                         _ctx.ChangeTracker.AutoDetectChangesEnabled = autoDetectChanges;
 
-                        // TODO: (core) implement IMergedData stuff
                         IgnoreMergedData(mergeableEntities, false);
                     }
                 }
