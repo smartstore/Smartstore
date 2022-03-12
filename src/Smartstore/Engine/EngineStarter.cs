@@ -135,13 +135,19 @@ namespace Smartstore.Engine
             services.AddSingleton<IFilePermissionChecker, FilePermissionChecker>();
             services.AddSingleton<ILifetimeScopeAccessor, DefaultLifetimeScopeAccessor>();
             services.AddSingleton<IPdfConverter, NullPdfConverter>();
-            services.AddHttpContextAccessor();
             services.AddScoped<IDisplayHelper, DefaultDisplayHelper>();
+            services.AddHttpContextAccessor();
 
-            // TODO: (core) Configuration for MemoryCache?
-            services.AddMemoryCache();
+            services.AddMemoryCache(o => 
+            {
+                o.SizeLimit = app.AppConfiguration.MemoryCacheSizeLimit;
 
-            // TODO: (core) Register more system stuff
+                if (app.AppConfiguration.MemoryCacheExpirationScanFrequency.HasValue)
+                {
+                    o.ExpirationScanFrequency = app.AppConfiguration.MemoryCacheExpirationScanFrequency.Value;
+                }
+            });
+
             services.AddMailKitMailService();
             services.AddTemplateEngine();
 

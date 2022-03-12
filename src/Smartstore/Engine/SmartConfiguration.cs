@@ -107,6 +107,17 @@
         /// </summary>
         public bool? UseDeveloperExceptionPage { get; set; }
 
+        /// <summary>
+        /// Gets or sets the minimum length of time between successive scans for expired items in memory cache.
+        ///  Default is 1 minute.
+        /// </summary>
+        public TimeSpan? MemoryCacheExpirationScanFrequency { get; set; }
+
+        /// <summary>
+        /// Gets or sets the maximum size of the memory cache.
+        /// </summary>
+        public long? MemoryCacheSizeLimit { get; set; }
+
         public GoogleConfiguration Google { get; set; } = new();
 
         public class GoogleConfiguration
