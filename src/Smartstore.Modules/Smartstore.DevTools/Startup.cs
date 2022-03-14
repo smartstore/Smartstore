@@ -32,6 +32,7 @@ namespace Smartstore.DevTools
             services.AddTransient<IDbContextConfigurationSource<SmartDbContext>, SmartDbContextConfigurer>();
 
             services.AddScoped<IChronometer, MiniProfilerChronometer>();
+            services.AddScoped<IFacetTemplateSelector, CustomFacetTemplateSelector>();
 
             services.AddMiniProfiler(o =>
             {
@@ -87,11 +88,6 @@ namespace Smartstore.DevTools
             });
         }
 
-        public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext)
-        {
-            builder.RegisterType<CustomFacetTemplateSelector>().As<IFacetTemplateSelector>().InstancePerLifetimeScope();
-        }
-
         public override void BuildPipeline(RequestPipelineBuilder builder)
         {
             builder.Configure(StarterOrdering.FirstMiddleware, app =>
@@ -102,10 +98,10 @@ namespace Smartstore.DevTools
 
         public override void MapRoutes(EndpointRoutingBuilder builder)
         {
-            //builder.MapRoutes(0, routes => 
+            //builder.MapRoutes(0, routes =>
             //{
-            //    //routes.MapControllerRoute("SmartStore.DevTools",
-            //    //     "Module/Smartstore.DevTools/{action=Configure}/{id?}"
+            //    //routes.MapControllerRoute("Smartstore.DevTools",
+            //    //     "devtools/{action=Configure}/{id?}"
             //    //);
             //});
         }
