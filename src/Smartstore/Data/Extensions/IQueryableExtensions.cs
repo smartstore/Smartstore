@@ -59,8 +59,15 @@ namespace Smartstore
             Guard.NotNull(query, nameof(query));
 
             var queryCompiler = (QueryCompiler)_queryCompilerField.GetValue(query.Provider);
-            var queryContextFactory = (RelationalQueryContextFactory)_queryContextFactoryField.GetValue(queryCompiler);
-            var dependencies = _dependenciesProperty.GetValue(queryContextFactory);
+            var queryContextFactory = _queryContextFactoryField.GetValue(queryCompiler);
+
+            // In unit tests we have to deal with "InMemoryQueryContextFactory"
+            var dependencies = queryContextFactory is RelationalQueryContextFactory relationalFactory 
+                ? _dependenciesProperty.GetValue(queryContextFactory)
+                : queryContextFactory.GetType()
+                    .GetProperty("Dependencies", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+                    .GetValue(queryContextFactory);
+
             var stateManagerObj = _stateManagerProperty.GetValue(dependencies);
 
             IStateManager stateManager = stateManagerObj as IStateManager ?? ((dynamic)stateManagerObj).Value;

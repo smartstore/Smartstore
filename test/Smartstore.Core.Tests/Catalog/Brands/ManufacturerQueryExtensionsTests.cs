@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
 using Smartstore.Core.Catalog.Brands;
 using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Data;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
 

@@ -51,6 +51,7 @@ namespace Smartstore.Core.Common
             Guard.NotEmpty(entityName, nameof(entityName));
 
             Query = query;
+            DbContext = query.GetDbContext<SmartDbContext>();
             EntityName = entityName;
             EntityId = entityId;
             CurrentStoreId = currentStoreId;
@@ -61,13 +62,6 @@ namespace Smartstore.Core.Common
             {
                 CreateMap();
             }
-
-            // Try catch is for unit testing, where GetDbContext will throw.
-            try
-            {
-                DbContext = query.GetDbContext<SmartDbContext>();
-            }
-            catch { }
         }
 
         public virtual string EntityName { get; }
