@@ -9,7 +9,7 @@ namespace Smartstore.Admin.Models.Messages
     [LocalizedDisplay("Admin.System.QueuedEmails.Fields.")]
     public class QueuedEmailModel : EntityModelBase
     {
-        [LocalizedDisplay("Admin.Common.Entity.Fields.Id")]
+        [LocalizedDisplay("*Id")]
         public override int Id { get; set; }
 
         [LocalizedDisplay("*Priority")]

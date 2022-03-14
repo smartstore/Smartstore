@@ -1,6 +1,7 @@
 ﻿using System.Data;
 using System.Linq.Dynamic.Core;
 using System.Net.Mime;
+using Dasync.Collections;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Smartstore.Admin.Models.Orders;
@@ -156,7 +157,10 @@ namespace Smartstore.Admin.Controllers
                         continue;
 
                     var itemModel = await CreateShipmentItemModel(null, orderItem, baseDimension, baseWeight);
-                    model.Items.Add(itemModel);
+                    if (itemModel != null)
+                    {
+                        model.Items.Add(itemModel);
+                    }
                 }
             }
 
@@ -496,6 +500,7 @@ namespace Smartstore.Admin.Controllers
 
                     model.Items = await shipment.ShipmentItems
                         .SelectAsync(async x => await CreateShipmentItemModel(x, orderItems.Get(x.OrderItemId), baseDimension, baseWeight))
+                        .Where(x => x != null)
                         .AsyncToList();
                 }
             }
@@ -508,6 +513,11 @@ namespace Smartstore.Admin.Controllers
             MeasureWeight baseWeight)
         {
             // Requires: OrderItem.Product, OrderItem.Order, OrderItem.Order.Shipments, OrderItem.Order.Shipments.ShipmentItems
+            if (orderItem == null || orderItem.Product == null)
+            {
+                return null;
+            }
+
             var product = orderItem.Product;
             await _productAttributeMaterializer.MergeWithCombinationAsync(product, orderItem.AttributeSelection);
 
