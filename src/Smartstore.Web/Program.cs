@@ -242,28 +242,3 @@ async Task InitializeDatabasesAsync()
 
 #endregion
 
-#region Legacy
-
-//// Create host builder
-//builder.WebHost
-//    .UseServiceProviderFactory(new AutofacServiceProviderFactory())
-//    .ConfigureLogging(SetupLogging)
-//    .UseSerilog(dispose: true)
-//    .ConfigureWebHostDefaults(wb => wb
-//        //.UseWebRoot("wwwroot")
-//        .UseStartup(hostingContext =>
-//        {
-//            hostingContext.Configuration = Configuration;
-
-//            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-//            {
-//                // TODO: (core) Temp only
-//                hostingContext.HostingEnvironment.ContentRootPath = AppContext.BaseDirectory;
-//                hostingContext.HostingEnvironment.WebRootPath = Path.Combine(hostingContext.HostingEnvironment.ContentRootPath, "wwwroot");
-//            }
-
-//            var startupLogger = new SerilogLoggerFactory(Log.Logger).CreateLogger("File");
-//            return new Startup(hostingContext, startupLogger);
-//        }));
-
-#endregion
