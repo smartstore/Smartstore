@@ -812,15 +812,12 @@ namespace Smartstore.Core.Catalog.Search
                 var storeIds = GetIdList(ctx.Filters, "storeid");
                 if (storeIds.Any())
                 {
-                    ctx.IsGroupingRequired = true;
+                    var entityName = nameof(Product);
+                    var subQuery = _db.StoreMappings
+                        .Where(x => x.EntityName == entityName && storeIds.Contains(x.StoreId))
+                        .Select(x => x.EntityId);
 
-                    // Do not use ApplyStoreFilter extension method to avoid multiple grouping.
-                    query =
-                        from p in query
-                        join sm in _db.StoreMappings.AsNoTracking() on new { pid = p.Id, pname = "Product" } equals new { pid = sm.EntityId, pname = sm.EntityName } into psm
-                        from sm in psm.DefaultIfEmpty()
-                        where !p.LimitedToStores || storeIds.Contains(sm.StoreId)
-                        select p;
+                    query = query.Where(x => !x.LimitedToStores || subQuery.Contains(x.Id));
                 }
             }
 
@@ -834,15 +831,12 @@ namespace Smartstore.Core.Catalog.Search
                 var roleIds = GetIdList(ctx.Filters, "roleid");
                 if (roleIds.Any())
                 {
-                    ctx.IsGroupingRequired = true;
+                    var entityName = nameof(Product);
+                    var subQuery = _db.AclRecords
+                        .Where(x => x.EntityName == entityName && roleIds.Contains(x.CustomerRoleId))
+                        .Select(x => x.EntityId);
 
-                    // Do not use ApplyAclFilter extension method to avoid multiple grouping.
-                    query =
-                        from p in query
-                        join acl in _db.AclRecords.AsNoTracking() on new { pid = p.Id, pname = "Product" } equals new { pid = acl.EntityId, pname = acl.EntityName } into pacl
-                        from acl in pacl.DefaultIfEmpty()
-                        where !p.SubjectToAcl || roleIds.Contains(acl.CustomerRoleId)
-                        select p;
+                    query = query.Where(x => !x.SubjectToAcl || subQuery.Contains(x.Id));
                 }
             }
 

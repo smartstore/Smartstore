@@ -24,21 +24,11 @@ namespace Smartstore.Core.Stores
 
             var entityName = typeof(T).Name;
 
-            query = from x in query
-                    join m in db.StoreMappings
-                    on new { id = x.Id, name = entityName } equals new { id = m.EntityId, name = m.EntityName } into xm
-                    from sc in xm.DefaultIfEmpty()
-                    where !x.LimitedToStores || storeId == sc.StoreId
-                    select x;
+            var subQuery = db.StoreMappings
+                .Where(x => x.EntityName == entityName && x.StoreId == storeId)
+                .Select(x => x.EntityId);
 
-            // TODO: (core) Does not work with efcore5 anymore 
-            //query = query.Distinct();
-
-            //// Does not work anymore in efcore
-            //query = from c in query
-            //        group c by c.Id into cGroup
-            //        orderby cGroup.Key
-            //        select cGroup.FirstOrDefault();
+            query = query.Where(x => !x.LimitedToStores || subQuery.Contains(x.Id));
 
             return query;
         }
