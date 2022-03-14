@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using Autofac;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Core;
 using Smartstore.Core.Data;
+using Smartstore.Core.Search.Facets;
 using Smartstore.Core.Web;
 using Smartstore.Data;
 using Smartstore.Data.Providers;
@@ -83,6 +85,11 @@ namespace Smartstore.DevTools
                 //    context => context.ControllerIs<PublicController>());
 
             });
+        }
+
+        public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext)
+        {
+            builder.RegisterType<CustomFacetTemplateSelector>().As<IFacetTemplateSelector>().InstancePerLifetimeScope();
         }
 
         public override void BuildPipeline(RequestPipelineBuilder builder)
