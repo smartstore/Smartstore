@@ -11,7 +11,7 @@ namespace Smartstore.Core.Catalog.Search
 {
     public partial class LinqCatalogSearchService : SearchServiceBase, ICatalogSearchService
     {
-        private static readonly int[] _priceThresholds = new int[] { 10, 25, 50, 100, 250, 500, 1000 };
+        private static readonly int[] _priceThresholds = new[] { 10, 25, 50, 100, 250, 500, 1000 };
 
         private readonly SmartDbContext _db;
         private readonly ICommonServices _services;
@@ -117,7 +117,6 @@ namespace Smartstore.Core.Catalog.Search
             var categoryIds = GetIdList(ctx.Filters, "categoryid");
             if (categoryIds.Any())
             {
-                ctx.IsGroupingRequired = true;
                 ctx.CategoryId ??= categoryIds.First();
                 if (categoryIds.Count == 1 && ctx.CategoryId == 0)
                 {
@@ -126,6 +125,7 @@ namespace Smartstore.Core.Catalog.Search
                 }
                 else
                 {
+                    ctx.IsGroupingRequired = true;
                     query = ApplyCategoriesFilter(query, categoryIds, null);
                 }
             }
@@ -148,7 +148,6 @@ namespace Smartstore.Core.Catalog.Search
             var manufacturerIds = GetIdList(ctx.Filters, "manufacturerid");
             if (manufacturerIds.Any())
             {
-                ctx.IsGroupingRequired = true;
                 ctx.ManufacturerId ??= manufacturerIds.First();
                 if (manufacturerIds.Count == 1 && ctx.ManufacturerId == 0)
                 {
@@ -157,6 +156,7 @@ namespace Smartstore.Core.Catalog.Search
                 }
                 else
                 {
+                    ctx.IsGroupingRequired = true;
                     query = ApplyManufacturersFilter(query, manufacturerIds, null);
                 }
             }
@@ -341,6 +341,7 @@ namespace Smartstore.Core.Catalog.Search
             //        select grp.FirstOrDefault();
             //}
 
+            // INFO: Distinct does not preserve ordering.
             if (ctx.IsGroupingRequired)
             {
                 // Distinct is very slow if there are many products.
@@ -605,7 +606,6 @@ namespace Smartstore.Core.Catalog.Search
                 // Has any category.
                 if (1 == ((rf.Term as int?) ?? 0) && int.MaxValue == ((rf.UpperTerm as int?) ?? 0))
                 {
-                    ctx.IsGroupingRequired = true;
                     query = query.Where(x => x.ProductCategories.Count > 0);
                 }
             }
@@ -614,7 +614,6 @@ namespace Smartstore.Core.Catalog.Search
                 // Has any manufacturer.
                 if (1 == ((rf.Term as int?) ?? 0) && int.MaxValue == ((rf.UpperTerm as int?) ?? 0))
                 {
-                    ctx.IsGroupingRequired = true;
                     query = query.Where(x => x.ProductManufacturers.Count > 0);
                 }
             }

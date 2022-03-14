@@ -156,14 +156,21 @@ namespace Smartstore.Admin.Controllers
             if (ModelState.IsValid)
             {
                 var role = MiniMapper.Map<CustomerRoleModel, CustomerRole>(model);   
-                await _roleManager.CreateAsync(role);
+                var result = await _roleManager.CreateAsync(role);
 
-                Services.ActivityLogger.LogActivity(KnownActivityLogTypes.AddNewCustomerRole, T("ActivityLog.AddNewCustomerRole"), role.Name);
-                NotifySuccess(T("Admin.Customers.CustomerRoles.Added"));
+                if (result.Succeeded)
+                {
+                    Services.ActivityLogger.LogActivity(KnownActivityLogTypes.AddNewCustomerRole, T("ActivityLog.AddNewCustomerRole"), role.Name);
+                    NotifySuccess(T("Admin.Customers.CustomerRoles.Added"));
 
-                return continueEditing 
-                    ? RedirectToAction(nameof(Edit), new { id = role.Id }) 
-                    : RedirectToAction(nameof(List));
+                    return continueEditing
+                        ? RedirectToAction(nameof(Edit), new { id = role.Id })
+                        : RedirectToAction(nameof(List));
+                }
+                else
+                {
+                    AddModelErrors(result, string.Empty);
+                }
             }
 
             await PrepareRoleModel(model, null);
@@ -204,16 +211,22 @@ namespace Smartstore.Admin.Controllers
 
                         var result = await _roleManager.UpdateAsync(role);
                         success = result.Succeeded;
-                    }
-                    else
-                    {
-                        ModelState.Values.SelectMany(x => x.Errors).Each(x => NotifyError(x.ErrorMessage));
+
+                        if (!result.Succeeded)
+                        {
+                            AddModelErrors(result, string.Empty);
+                        }
                     }
                 }
             }
             else
             {
-                NotifyError(await Services.Permissions.GetUnauthorizedMessageAsync(Permissions.Customer.Role.Update));
+                ModelState.AddModelError(string.Empty, await Services.Permissions.GetUnauthorizedMessageAsync(Permissions.Customer.Role.Update));
+            }
+
+            if (!ModelState.IsValid)
+            {
+                ModelState.Values.SelectMany(x => x.Errors).Each(x => NotifyError(x.ErrorMessage));
             }
 
             return Json(new { success });
@@ -243,18 +256,24 @@ namespace Smartstore.Admin.Controllers
                     // INFO: cached permission tree removed by PermissionRoleMappingHook.
                     ApplyPermissionRoleMappings(role, form);
 
-                    await _roleManager.UpdateAsync(role);
+                    var result = await _roleManager.UpdateAsync(role);
+                    if (result.Succeeded)
+                    {
+                        Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditCustomerRole, T("ActivityLog.EditCustomerRole"), role.Name);
+                        NotifySuccess(T("Admin.Customers.CustomerRoles.Updated"));
 
-                    Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditCustomerRole, T("ActivityLog.EditCustomerRole"), role.Name);
-                    NotifySuccess(T("Admin.Customers.CustomerRoles.Updated"));
-
-                    return continueEditing
-                        ? RedirectToAction(nameof(Edit), new { id = role.Id })
-                        : RedirectToAction(nameof(List));
+                        return continueEditing
+                            ? RedirectToAction(nameof(Edit), new { id = role.Id })
+                            : RedirectToAction(nameof(List));
+                    }
+                    else
+                    {
+                        AddModelErrors(result, string.Empty);
+                    }
                 }
                 catch (Exception ex)
                 {
-                    NotifyError(ex);
+                    ModelState.AddModelError(string.Empty, ex.Message);
                 }
             }
 
@@ -275,18 +294,25 @@ namespace Smartstore.Admin.Controllers
 
             try
             {
-                await _roleManager.DeleteAsync(role);
+                var result = await _roleManager.DeleteAsync(role);
+                if (result.Succeeded)
+                {
+                    Services.ActivityLogger.LogActivity(KnownActivityLogTypes.DeleteCustomerRole, T("ActivityLog.DeleteCustomerRole"), role.Name);
+                    NotifySuccess(T("Admin.Customers.CustomerRoles.Deleted"));
 
-                Services.ActivityLogger.LogActivity(KnownActivityLogTypes.DeleteCustomerRole, T("ActivityLog.DeleteCustomerRole"), role.Name);
-                NotifySuccess(T("Admin.Customers.CustomerRoles.Deleted"));
-
-                return RedirectToAction(nameof(List));
+                    return RedirectToAction(nameof(List));
+                }
+                else
+                {
+                    result.Errors.Select(x => x.Description).Distinct().Each(x => NotifyError(x));
+                }
             }
             catch (Exception ex)
             {
                 NotifyError(ex.Message);
-                return RedirectToAction(nameof(Edit), new { id = role.Id });
             }
+
+            return RedirectToAction(nameof(Edit), new { id = role.Id });
         }
 
         [Permission(Permissions.Customer.Role.Read)]
@@ -460,6 +486,17 @@ namespace Smartstore.Admin.Controllers
                 {
                     ModelState.AddModelError(nameof(model.SystemName), T("Admin.Customers.CustomerRoles.Fields.SystemName.CantEditSystem"));
                 }
+            }
+        }
+
+        private void AddModelErrors(IdentityResult result, string key)
+        {
+            if (!result.Succeeded)
+            {
+                result.Errors
+                    .Select(x => x.Description)
+                    .Distinct()
+                    .Each(x => ModelState.AddModelError(key, x));
             }
         }
     }

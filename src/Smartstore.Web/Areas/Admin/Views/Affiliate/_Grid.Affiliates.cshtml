@@ -22,15 +22,15 @@
         </toolbar-group>
     </toolbar>
     <columns>
-        <column for="AddressEmail" entity-member="Address.Email" hideable="false">
+        <column for="Address.Email" entity-member="Address.Email" hideable="false">
             <display-template>
                 <a :href="item.row.EditUrl" class="text-truncate">
                     {{ item.value }}
                 </a>
             </display-template>
         </column>
-        <column for="AddressFirstName" entity-member="Address.FirstName" />
-        <column for="AddressLastName" entity-member="Address.LastName" />
+        <column for="Address.FirstName" entity-member="Address.FirstName" />
+        <column for="Address.LastName" entity-member="Address.LastName" />
         <column for="Active" halign="center" />
     </columns>
     <row-commands>

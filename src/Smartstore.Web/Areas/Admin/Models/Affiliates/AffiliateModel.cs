@@ -15,13 +15,9 @@ namespace Smartstore.Admin.Models.Affiliates
         [LocalizedDisplay("*Active")]
         public bool Active { get; set; }
 
-        public string AddressEmail { get; set; }
-        public string AddressFirstName { get; set; }
-        public string AddressLastName { get; set; }
-
-
         [UIHint("Address")]
         public AddressModel Address { get; set; } = new();
+
         public string EditUrl { get; set; }
         public bool UsernamesEnabled { get; set; }
 

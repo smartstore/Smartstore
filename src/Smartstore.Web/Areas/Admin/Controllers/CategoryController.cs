@@ -166,7 +166,6 @@ namespace Smartstore.Admin.Controllers
         public async Task<IActionResult> CategoryList(GridCommand command, CategoryListModel model)
         {
             var languageId = Services.WorkContext.WorkingLanguage.Id;
-            var mapper = MapperFactory.GetMapper<Category, CategoryModel>();
             var query = _db.Categories.AsNoTracking();
 
             if (model.SearchCategoryName.HasValue())
