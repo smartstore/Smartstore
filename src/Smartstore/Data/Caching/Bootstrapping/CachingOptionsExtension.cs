@@ -119,7 +119,12 @@ namespace Smartstore.Data.Caching
                 => (CachingOptionsExtension)base.Extension;
 
             public override bool ShouldUseSameServiceProvider(DbContextOptionsExtensionInfo other)
-                => true;
+            {
+                return other is ExtensionInfo otherInfo
+                    && Extension.EnableLogging == otherInfo.Extension.EnableLogging
+                    && Extension.DefaultExpirationTimeout == otherInfo.Extension.DefaultExpirationTimeout
+                    && Extension.DefaultMaxRows == otherInfo.Extension.DefaultMaxRows;
+            }
 
             public override int GetServiceProviderHashCode()
             {

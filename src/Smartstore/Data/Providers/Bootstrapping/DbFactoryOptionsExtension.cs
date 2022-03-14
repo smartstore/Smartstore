@@ -161,10 +161,16 @@ namespace Smartstore.Data.Providers
             private new DbFactoryOptionsExtension Extension
                 => (DbFactoryOptionsExtension)base.Extension;
 
-            // TODO: (core) (net6) What to do?
             public override bool ShouldUseSameServiceProvider(DbContextOptionsExtensionInfo other)
             {
-                return true;
+                return other is ExtensionInfo otherInfo
+                    && Extension.CommandTimeout == otherInfo.Extension.CommandTimeout
+                    && Extension.MinBatchSize == otherInfo.Extension.MinBatchSize
+                    && Extension.MaxBatchSize == otherInfo.Extension.MaxBatchSize
+                    && Extension.UseRelationalNulls == otherInfo.Extension.UseRelationalNulls
+                    && Extension.QuerySplittingBehavior == otherInfo.Extension.QuerySplittingBehavior
+                    && (Extension.ModelAssemblies == otherInfo.Extension.ModelAssemblies || Extension.ModelAssemblies.SequenceEqual(otherInfo.Extension.ModelAssemblies))
+                    && (Extension.DataSeederTypes == otherInfo.Extension.DataSeederTypes || Extension.DataSeederTypes.SequenceEqual(otherInfo.Extension.DataSeederTypes));
             }
 
             public override int GetServiceProviderHashCode()
