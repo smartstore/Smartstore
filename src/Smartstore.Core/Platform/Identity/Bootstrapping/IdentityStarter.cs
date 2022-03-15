@@ -83,7 +83,6 @@ namespace Smartstore.Core.Bootstrapping
             {
                 builder.Configure(StarterOrdering.AuthenticationMiddleware, app =>
                 {
-                    // TODO: (core) Check whether it's ok to run authentication middleware before routing. We desperately need auth before any RouteValueTransformer.
                     app.UseAuthentication();
                 });
 

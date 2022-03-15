@@ -86,7 +86,7 @@
 
                 if (shouldQuote
                     || field[0] == ' '
-                    || field[field.Length - 1] == ' '
+                    || field[^1] == ' '
                     || field.IndexOfAny(Configuration.QuotableChars) > -1)
                 {
                     shouldQuote = true;

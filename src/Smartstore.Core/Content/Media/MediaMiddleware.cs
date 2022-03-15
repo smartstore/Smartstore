@@ -91,7 +91,6 @@ namespace Smartstore.Core.Content.Media
                     return;
                 }
 
-                // TODO: (core) Check "Media.Storage.Provider" --> DatabaseMediaStorageProvider.SystemName for MediaLoadFlags.
                 mediaFile = await mediaService.GetFileByIdAsync(mediaFileId, MediaLoadFlags.AsNoTracking);
 
                 if (mediaFile == null || mediaFile.FolderId == null || mediaFile.Deleted)

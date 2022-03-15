@@ -30,9 +30,9 @@ namespace Smartstore.Core.Packaging
         {
             Guard.NotNull(extension, nameof(extension));
             
-            if (extension is not IExtensionLocation location)
+            if (extension is not IExtensionLocation)
             {
-                throw new InvalidExtensionException();
+                throw new InvalidExtensionException($"Extension '{extension.Name}' cannot be packaged because it cannot be located on local file system.");
             }
 
             var manifest = new MinimalExtensionDescriptor(extension);

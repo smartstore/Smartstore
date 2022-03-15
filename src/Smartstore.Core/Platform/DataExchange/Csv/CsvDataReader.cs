@@ -17,9 +17,6 @@ namespace Smartstore.Core.DataExchange.Csv
     /// </summary>
     public class CsvDataReader : Disposable, IDataReader, IEnumerable<string[]>
     {
-        // TODO: (core) CsvDataReader is a perfect candidate for Memory, Span & co. to reduce
-        // mem allocation. Try to refactor sometime in future.
-
         private readonly CsvReader _csv;
         private readonly IDataReader _reader;
 
