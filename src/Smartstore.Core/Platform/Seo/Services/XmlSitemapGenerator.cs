@@ -5,18 +5,20 @@ using Dasync.Collections;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Smartstore.Collections;
+using Smartstore.Core.Configuration;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Stores;
 using Smartstore.Data;
+using Smartstore.Data.Hooks;
 using Smartstore.IO;
 using Smartstore.Threading;
 using Smartstore.Utilities;
 
 namespace Smartstore.Core.Seo
 {
-    public partial class XmlSitemapGenerator : IXmlSitemapGenerator
+    public partial class XmlSitemapGenerator : AsyncDbSaveHook<BaseEntity>, IXmlSitemapGenerator
     {
         private const string SitemapsNamespace = "http://www.sitemaps.org/schemas/sitemap/0.9";
         private const string XhtmlNamespace = "http://www.w3.org/1999/xhtml";
@@ -83,6 +85,35 @@ namespace Smartstore.Core.Seo
         }
 
         public ILogger Logger { get; set; } = NullLogger.Instance;
+
+        #region Hook
+
+        public override Task<HookResult> OnAfterSaveAsync(IHookedEntity entry, CancellationToken cancelToken)
+        {
+            if (entry.Entity is Store store && entry.InitialState != EntityState.Added)
+            {
+                Invalidate(store.Id, null);
+                return Task.FromResult(HookResult.Ok);
+            }
+            else if (entry.Entity is Language lang && entry.InitialState != EntityState.Added)
+            {
+                InvalidateAll();
+                return Task.FromResult(HookResult.Ok);
+            }
+            else if (entry.Entity is Setting setting)
+            {
+                if (setting.Name.EqualsNoCase(TypeHelper.NameOf<LocalizationSettings>(x => x.DefaultLanguageRedirectBehaviour)))
+                {
+                    InvalidateAll();
+                }
+
+                return Task.FromResult(HookResult.Ok);
+            }
+
+            return Task.FromResult(HookResult.Void);
+        }
+
+        #endregion
 
         public virtual async Task<XmlSitemapPartition> GetSitemapPartAsync(int index = 0)
         {
@@ -675,8 +706,6 @@ namespace Smartstore.Core.Seo
 
         public virtual void Invalidate(int storeId, int? languageId)
         {
-            // TODO: (core) Auto-invalidate when dependant settings change:
-            // Store, Language, LanguageSettings.DefaultLanguageRedirectBehaviour
             var dir = BuildSitemapDirPath(storeId, languageId);
             _tenantRoot.TryDeleteDirectory(dir);
         }
