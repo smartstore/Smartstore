@@ -80,8 +80,8 @@ namespace Smartstore.Core.Packaging
 
                 try
                 {
-                    // TODO: (core) Define new app name? E.g. SMNET --> Smartstore | SMCORE (?)
-                    string url = $"https://dlm.smartstore.com/api/v1/apprelease/CheckUpdate?app=SMNET&version={curVersion}&language={lang}";
+                    // TODO: (mg) (core) DLM must know about "Smartstore"
+                    string url = $"https://dlm.smartstore.com/api/v1/apprelease/CheckUpdate?app=Smartstore&version={curVersion}&language={lang}";
                     var client = _httpClientFactory.CreateClient();
 
                     client.Timeout = TimeSpan.FromSeconds(3);

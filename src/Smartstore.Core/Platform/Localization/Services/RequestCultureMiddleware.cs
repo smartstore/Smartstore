@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
+using Smartstore.Caching;
 using Smartstore.Core.Widgets;
 using Smartstore.Utilities;
 
@@ -16,10 +17,12 @@ namespace Smartstore.Core.Localization
         private static string[] _deMonthAbbreviations = new[] { "Jan.", "Feb.", "März", "Apr.", "Mai", "Juni", "Juli", "Aug.", "Sept.", "Okt.", "Nov.", "Dez.", "" };
 
         private readonly RequestDelegate _next;
+        private readonly ICacheManager _cache;
 
-        public RequestCultureMiddleware(RequestDelegate next)
+        public RequestCultureMiddleware(RequestDelegate next, ICacheManager cache)
         {
             _next = next;
+            _cache = cache;
         }
 
         public async Task Invoke(HttpContext context, IWorkContext workContext)
@@ -45,17 +48,22 @@ namespace Smartstore.Core.Localization
 
                 if (widgetProvider != null && culture.Name != "en-US")
                 {
-                    // Write globalization script
-                    var json = CreateCultureJson(culture, language);
+                    var script = _cache.Get($"globalizationscript:{culture.Name}", o => 
+                    {
+                        // Write globalization script
+                        var json = CreateCultureJson(culture, language);
 
-                    using var psb = StringBuilderPool.Instance.Get(out var sb);
-                    sb.Append("<script data-origin='globalization'>");
-                    sb.Append("jQuery(function () { if (Smartstore.globalization) { Smartstore.globalization.culture = ");
-                    sb.Append(json);
-                    sb.Append("; }; });");
-                    sb.Append("</script>");
+                        using var psb = StringBuilderPool.Instance.Get(out var sb);
+                        sb.Append("<script data-origin='globalization'>");
+                        sb.Append("jQuery(function () { if (Smartstore.globalization) { Smartstore.globalization.culture = ");
+                        sb.Append(json);
+                        sb.Append("; }; });");
+                        sb.Append("</script>");
 
-                    widgetProvider.RegisterHtml("head", new HtmlString(sb.ToString()));
+                        return sb.ToString();
+                    });
+
+                    widgetProvider.RegisterHtml("head", new HtmlString(script));
                 }
             }
 
@@ -66,8 +74,6 @@ namespace Smartstore.Core.Localization
         {
             var nf = ci.NumberFormat;
             var df = ci.DateTimeFormat;
-
-            // TODO: (core) Determine view result type somehow and render glob script only when html view.
 
             var dict = new Dictionary<string, object>
             {
@@ -135,7 +141,7 @@ namespace Smartstore.Core.Localization
                         { "T", df.LongTimePattern },
                         { "g", df.ShortDatePattern + " " + df.ShortTimePattern },
                         { "G", df.ShortDatePattern + " " + df.LongTimePattern },
-                        { "f", df.FullDateTimePattern }, // TODO: (mc) find it actually
+                        { "f", df.FullDateTimePattern }, // TODO: (core) find it actually
 						{ "F", df.FullDateTimePattern },
                         { "M", df.MonthDayPattern },
                         { "Y", df.YearMonthPattern },
