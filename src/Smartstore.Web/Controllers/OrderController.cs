@@ -28,7 +28,6 @@ namespace Smartstore.Web.Controllers
         private readonly ProductUrlHelper _productUrlHelper;
         private readonly IProviderManager _providerManager;
         private readonly IPdfConverter _pdfConverter;
-        private readonly PdfSettings _pdfSettings;
         
         public OrderController(
             SmartDbContext db,
@@ -39,8 +38,7 @@ namespace Smartstore.Web.Controllers
             IDateTimeHelper dateTimeHelper, 
             IProviderManager providerManager,
             ProductUrlHelper productUrlHelper,
-            IPdfConverter pdfConverter,
-            PdfSettings pdfSettings)
+            IPdfConverter pdfConverter)
         {
             _db = db;
             _orderProcessingService = orderProcessingService;
@@ -51,7 +49,6 @@ namespace Smartstore.Web.Controllers
             _providerManager = providerManager;
             _productUrlHelper = productUrlHelper;
             _pdfConverter = pdfConverter;
-            _pdfSettings = pdfSettings;
         }
 
         [RequireSsl]
@@ -70,6 +67,7 @@ namespace Smartstore.Web.Controllers
                 return new UnauthorizedResult();
 
             var model = await _orderHelper.PrepareOrderDetailsModelAsync(order);
+
             return View(model);
         }
 
@@ -196,10 +194,10 @@ namespace Smartstore.Web.Controllers
                 return new UnauthorizedResult();
 
             await _orderProcessingService.ReOrderAsync(order);
+
             return RedirectToRoute("ShoppingCart");
         }
 
-        // TODO: (mh) (core) || TODO: (mg) (core) Untested :-o Test when payment methods are available which permit RePostPayment.
         [HttpPost, ActionName("Details")]
         [FormValueRequired("repost-payment")]
         public async Task<IActionResult> RePostPayment(int id /* orderId */)
@@ -350,7 +348,7 @@ namespace Smartstore.Web.Controllers
                     .Include(x => x.Product)
                     .FindByIdAsync(shipmentItem.OrderItemId, false);
                     
-                if (orderItem == null)
+                if (orderItem == null || orderItem.Product == null)
                     continue;
 
                 var attributeCombination = await _productAttributeMaterializer.FindAttributeCombinationAsync(orderItem.Product.Id, orderItem.AttributeSelection);

@@ -270,7 +270,6 @@ namespace Smartstore.Web.Controllers
             var catalogSettings = await settingFactory.LoadSettingsAsync<CatalogSettings>(store.Id);
             var taxSettings = await settingFactory.LoadSettingsAsync<TaxSettings>(store.Id);
             var pdfSettings = await settingFactory.LoadSettingsAsync<PdfSettings>(store.Id);
-            var addressSettings = await settingFactory.LoadSettingsAsync<AddressSettings>(store.Id);
             var companyInfoSettings = await settingFactory.LoadSettingsAsync<CompanyInformationSettings>(store.Id);
             var shoppingCartSettings = await settingFactory.LoadSettingsAsync<ShoppingCartSettings>(store.Id);
             var mediaSettings = await settingFactory.LoadSettingsAsync<MediaSettings>(store.Id);
