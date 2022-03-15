@@ -1,4 +1,6 @@
-﻿using System.Runtime.Serialization;
+﻿#nullable enable
+
+using System.Runtime.Serialization;
 
 namespace Smartstore
 {
@@ -19,7 +21,7 @@ namespace Smartstore
         /// Initializes a new instance of the <see cref="SmartException"/> class with a specified error message.
         /// </summary>
         /// <param name="message">The message that describes the error.</param>
-        public SmartException(string message)
+        public SmartException(string? message)
             : base(message)
         {
         }
@@ -49,7 +51,7 @@ namespace Smartstore
         /// </summary>
         /// <param name="message">The error message that explains the reason for the exception.</param>
         /// <param name="innerException">The exception that is the cause of the current exception, or a null reference if no inner exception is specified.</param>
-        public SmartException(string message, Exception innerException)
+        public SmartException(string? message, Exception? innerException)
             : base(message, innerException)
         {
         }
