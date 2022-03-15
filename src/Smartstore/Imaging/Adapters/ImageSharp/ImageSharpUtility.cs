@@ -32,6 +32,7 @@ namespace Smartstore.Imaging.Adapters.ImageSharp
             {
                 "PNG" => new PngFormat(sharpFormat),
                 "JPEG" => new JpegFormat(sharpFormat),
+                "WEBP" => new WebpFormat(sharpFormat),
                 "GIF" => new GifFormat(sharpFormat),
                 _ => new SharpImageFormat(sharpFormat),
             };
