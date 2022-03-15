@@ -300,11 +300,7 @@ namespace Smartstore.Web.Controllers
             var warnings = new List<string>();
             var success = await _shoppingCartService.SaveCartDataAsync(null, warnings, query, useRewardPoints);
 
-            return Json(new
-            {
-                success,
-                message = string.Join(Environment.NewLine, warnings)
-            });
+            return Json(new { success, warnings });
         }
 
         /// <summary>

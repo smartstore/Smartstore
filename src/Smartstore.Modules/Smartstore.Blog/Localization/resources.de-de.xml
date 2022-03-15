@@ -8,7 +8,27 @@
   <LocaleResource Name="Settings">
     <Value>Blog</Value>
   </LocaleResource>
-	<LocaleResource Name="BlockMetadata.FriendlyName.Blog" AppendRootKey="false">
+
+    <LocaleResource Name="Enums.PreviewDisplayType.Bare" AppendRootKey="false">
+        <Value>Minimal (kein Bild, kein Hintergrund)</Value>
+    </LocaleResource>
+    <LocaleResource Name="Enums.PreviewDisplayType.Default" AppendRootKey="false">
+        <Value>Bild über Text</Value>
+    </LocaleResource>
+    <LocaleResource Name="Enums.PreviewDisplayType.DefaultSectionBg" AppendRootKey="false">
+        <Value>Bild hinter Text</Value>
+    </LocaleResource>
+    <LocaleResource Name="Enums.PreviewDisplayType.Preview" AppendRootKey="false">
+        <Value>Galleriebild über Text</Value>
+    </LocaleResource>
+    <LocaleResource Name="Enums.PreviewDisplayType.PreviewSectionBg" AppendRootKey="false">
+        <Value>Galleriebild hinter Text</Value>
+    </LocaleResource>
+    <LocaleResource Name="Enums.PreviewDisplayType.SectionBg" AppendRootKey="false">
+        <Value>Hintergrundfarbe</Value>
+    </LocaleResource>
+
+    <LocaleResource Name="BlockMetadata.FriendlyName.Blog" AppendRootKey="false">
 		<Value>Blog</Value>
 	</LocaleResource>
 	<LocaleResource Name="Plugins.SmartStore.PageBuilder.Blog" AppendRootKey="false">

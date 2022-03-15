@@ -5,8 +5,6 @@ using Smartstore.Core.Checkout.Cart.Events;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Shipping;
-using Smartstore.Core.Checkout.Tax;
-using Smartstore.Core.Common.Services;
 using Smartstore.Core.Localization.Routing;
 using Smartstore.Engine.Modularity;
 using Smartstore.Utilities.Html;
@@ -19,7 +17,6 @@ namespace Smartstore.Web.Controllers
     public class CheckoutController : PublicController
     {
         private readonly SmartDbContext _db;
-        private readonly IOrderService _orderService;
         private readonly IPaymentService _paymentService;
         private readonly IShippingService _shippingService;
         private readonly IShoppingCartService _shoppingCartService;
@@ -27,17 +24,13 @@ namespace Smartstore.Web.Controllers
         private readonly IOrderProcessingService _orderProcessingService;
         private readonly IOrderCalculationService _orderCalculationService;
         private readonly ICheckoutStateAccessor _checkoutStateAccessor;
-        private readonly IProviderManager _providerManager;
         private readonly ModuleManager _moduleManager;
-        private readonly ICurrencyService _currencyService;
-        private readonly ITaxCalculator _taxCalculator;
         private readonly ShippingSettings _shippingSettings;
         private readonly PaymentSettings _paymentSettings;
         private readonly OrderSettings _orderSettings;
 
         public CheckoutController(
             SmartDbContext db,
-            IOrderService orderService,
             IPaymentService paymentService,
             IShippingService shippingService,
             IShoppingCartService shoppingCartService,
@@ -45,16 +38,12 @@ namespace Smartstore.Web.Controllers
             IOrderProcessingService orderProcessingService,
             IOrderCalculationService orderCalculationService,
             ICheckoutStateAccessor checkoutStateAccessor,
-            IProviderManager providerManager,
             ModuleManager moduleManager,
-            ICurrencyService currencyService,
-            ITaxCalculator taxCalculator,
             ShippingSettings shippingSettings,
             PaymentSettings paymentSettings,
             OrderSettings orderSettings)
         {
             _db = db;
-            _orderService = orderService;
             _paymentService = paymentService;
             _shippingService = shippingService;
             _shoppingCartService = shoppingCartService;
@@ -62,25 +51,19 @@ namespace Smartstore.Web.Controllers
             _orderCalculationService = orderCalculationService;
             _checkoutStateAccessor = checkoutStateAccessor;
             _shoppingCartValidator = shoppingCartValidator;
-            _providerManager = providerManager;
             _moduleManager = moduleManager;
-            _currencyService = currencyService;
-            _taxCalculator = taxCalculator;
             _shippingSettings = shippingSettings;
             _paymentSettings = paymentSettings;
             _orderSettings = orderSettings;
         }
 
-        protected async Task<bool> ValidatePaymentDataAsync(IPaymentMethod paymentMethod, IFormCollection form)
+        private async Task<bool> ValidatePaymentDataAsync(IPaymentMethod paymentMethod, IFormCollection form)
         {
             var warnings = await paymentMethod.GetPaymentDataWarningsAsync();
 
             if (warnings != null)
             {
-                foreach (var warning in warnings)
-                {
-                    ModelState.AddModelError(string.Empty, warning);
-                }
+                warnings.Each(x => ModelState.AddModelError(string.Empty, x));
             }
 
             if (!ModelState.IsValid)
@@ -97,7 +80,7 @@ namespace Smartstore.Web.Controllers
             return true;
         }
 
-        protected async Task<CheckoutAddressModel> PrepareCheckoutAddressModelAsync(bool shipping = false)
+        private async Task<CheckoutAddressModel> PrepareCheckoutAddressModelAsync(bool shipping = false)
         {
             // Get existing addresses.
             var customer = Services.WorkContext.CurrentCustomer;
@@ -133,7 +116,8 @@ namespace Smartstore.Web.Controllers
             var warnings = new List<string>();
             if (!await _shoppingCartValidator.ValidateCartAsync(cart, warnings, true))
             {
-                NotifyWarning(string.Join(Environment.NewLine, warnings.Take(3)));
+                warnings.Take(3).Each(x => NotifyWarning(x));
+
                 return RedirectToRoute("ShoppingCart");
             }
 
@@ -147,7 +131,8 @@ namespace Smartstore.Web.Controllers
 
             if (warnings.Any())
             {
-                NotifyWarning(string.Join(Environment.NewLine, warnings.Take(3)));
+                warnings.Take(3).Each(x => NotifyWarning(x));
+
                 return RedirectToRoute("ShoppingCart");
             }
 
@@ -165,7 +150,8 @@ namespace Smartstore.Web.Controllers
                 if (!await _shoppingCartValidator.ValidateAddToCartItemAsync(ctx, cartItem.Item, cart.Items))
                 {
                     warnings.AddRange(ctx.Warnings);
-                    NotifyWarning(string.Join(Environment.NewLine, warnings.Take(3)));
+                    warnings.Take(3).Each(x => NotifyWarning(x));
+
                     return RedirectToRoute("ShoppingCart");
                 }
             }
@@ -626,7 +612,8 @@ namespace Smartstore.Web.Controllers
 
             if (warnings.Any())
             {
-                NotifyWarning(string.Join(Environment.NewLine, warnings.Take(3)));
+                warnings.Take(3).Each(x => NotifyWarning(x));
+
                 return RedirectToRoute("ShoppingCart");
             }
 
@@ -689,7 +676,7 @@ namespace Smartstore.Web.Controllers
                 var paymentMethod = await _paymentService.LoadPaymentMethodBySystemNameAsync(customer.GenericAttributes.SelectedPaymentMethod);
                 if (paymentMethod != null && paymentMethod.Value.PaymentMethodType == PaymentMethodType.Button)
                 {
-                    NotifyError(string.Join(Environment.NewLine, model.Warnings.Take(3)));
+                    model.Warnings.Take(3).Each(x => NotifyError(x));
 
                     // Redirect back to where the payment button is.
                     return RedirectToAction(nameof(ShoppingCartController.Cart), "ShoppingCart");

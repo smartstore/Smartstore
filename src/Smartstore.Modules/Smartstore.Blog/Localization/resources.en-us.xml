@@ -8,6 +8,26 @@
   <LocaleResource Name="Settings">
     <Value>Blog settings</Value>
   </LocaleResource>
+
+    <LocaleResource Name="Enums.PreviewDisplayType.Bare" AppendRootKey="false">
+        <Value>Minimal (no image, no background)</Value>
+    </LocaleResource>
+    <LocaleResource Name="Enums.PreviewDisplayType.Default" AppendRootKey="false">
+        <Value>Picture over text</Value>
+    </LocaleResource>
+    <LocaleResource Name="Enums.PreviewDisplayType.DefaultSectionBg" AppendRootKey="false">
+        <Value>Picture behind text</Value>
+    </LocaleResource>
+    <LocaleResource Name="Enums.PreviewDisplayType.Preview" AppendRootKey="false">
+        <Value>Preview picture over text</Value>
+    </LocaleResource>
+    <LocaleResource Name="Enums.PreviewDisplayType.PreviewSectionBg" AppendRootKey="false">
+        <Value>Preview picture behind text</Value>
+    </LocaleResource>
+    <LocaleResource Name="Enums.PreviewDisplayType.SectionBg" AppendRootKey="false">
+        <Value>Background color</Value>
+    </LocaleResource>    
+    
 	<LocaleResource Name="BlockMetadata.FriendlyName.Blog" AppendRootKey="false">
 		<Value>Blog</Value>
 	</LocaleResource>
