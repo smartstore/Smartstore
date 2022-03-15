@@ -168,24 +168,17 @@ namespace Smartstore.Web.Controllers
             }
             else
             {
-                var stream = await _downloadService.OpenDownloadStreamAsync(download);
-                if (stream == null || stream.Length == 0)
+                var mediaFile = download.MediaFile;
+                if (mediaFile == null || mediaFile.Size == 0)
                 {
                     NotifyError(T("Common.Download.NoDataAvailable"));
                     return RedirectToAction("UserAgreement", "Customer", new { id });
                 }
 
-                // TODO: (core) If the stream isn't closed it throws on await _db.SaveChangesAsync(); two lines later
-                // with: "There is already an open DataReader associated with this Connection which must be closed first"
-                // the stream is valid even if it's closed here. File will be downloaded correctly. Tested...
-                // stream.Close();
-                // Note (ms): When stream is closed, SaveChangesAsync throws.
-                // As far as my testing went (file upload), it worked fine without closing the stream.
-
                 orderItem.DownloadCount++;
                 await _db.SaveChangesAsync();
 
-                return GetFileStreamResultFor(download, stream);
+                return GetFileStreamResultFor(download, await _downloadService.OpenDownloadStreamAsync(download));
             }
         }
 
