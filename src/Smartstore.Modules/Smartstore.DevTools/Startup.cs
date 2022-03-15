@@ -75,7 +75,6 @@ namespace Smartstore.DevTools
                 o.Filters.AddConditional<WidgetZoneFilter>(
                     context => context.ControllerIs<SmartController>());
 
-                // TODO: (mh) (core) One more filter 
                 //o.Filters.AddConditional<SampleProductDetailActionFilter>(
                 //    context => context.ControllerIs<ProductController>());
 
@@ -84,6 +83,9 @@ namespace Smartstore.DevTools
 
                 //o.Filters.AddConditional<SampleActionFilter>(
                 //    context => context.ControllerIs<PublicController>());
+
+                //o.Filters.AddConditional<SampleCheckoutFilter>(
+                //    context => context.ControllerIs<CheckoutController>());
 
             });
         }
