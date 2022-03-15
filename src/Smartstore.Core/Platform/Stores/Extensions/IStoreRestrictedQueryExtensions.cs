@@ -9,8 +9,6 @@ namespace Smartstore.Core.Stores
         {
             Guard.NotNull(query, nameof(query));
 
-            // TODO: (core) Find a way to make ApplyStoreFilter to work in cross-context scenarios.
-
             if (storeId == 0)
             {
                 return query;

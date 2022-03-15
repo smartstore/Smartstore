@@ -8,8 +8,6 @@ using Smartstore.Data.Providers;
 
 namespace Smartstore.Data.SqlServer
 {
-    // TODO: (core) Find a way to deploy provider projects unreferenced.
-
     internal class SqlServerDbFactory : DbFactory
     {
         public override DbSystemType DbSystem { get; } = DbSystemType.SqlServer;

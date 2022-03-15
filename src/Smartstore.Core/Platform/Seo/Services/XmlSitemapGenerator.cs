@@ -300,7 +300,6 @@ namespace Smartstore.Core.Seo
                 // Impersonate
                 var prevCustomer = _services.WorkContext.CurrentCustomer;
                 // no need to vary xml sitemap by customer roles: it's relevant to crawlers only.
-                // TODO: (core) Do not attempt to update CurrentCustomer entity if it is untracked (determine where applicable)
                 _services.WorkContext.CurrentCustomer = (await _customerService.GetCustomerBySystemNameAsync(SystemCustomerNames.SearchEngine, false)) ?? prevCustomer;
 
                 try

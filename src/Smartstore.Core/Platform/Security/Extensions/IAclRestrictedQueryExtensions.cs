@@ -19,8 +19,6 @@ namespace Smartstore.Core.Security
         {
             Guard.NotNull(query, nameof(query));
 
-            // TODO: (core) Find a way to make ApplyAclFilter to work in cross-context scenarios.
-
             if (customerRoleIds == null || !customerRoleIds.Any())
             {
                 return query;

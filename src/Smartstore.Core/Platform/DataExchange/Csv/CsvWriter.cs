@@ -5,9 +5,6 @@
     /// </summary>
     public class CsvWriter : Disposable
     {
-        // TODO: (core) CsvWriter is a perfect candidate for Memory, Span & co. to reduce
-        // mem allocation. Try to refactor sometime in future.
-        
         private TextWriter _writer;
         private readonly IList<string> _currentRow = new List<string>();
         private int? _fieldCount;
