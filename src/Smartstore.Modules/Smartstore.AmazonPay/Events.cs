@@ -14,7 +14,6 @@ namespace Smartstore.AmazonPay
 
         public void HandleEvent(OrderPaidEvent message,
             ICommonServices services,
-            IProviderManager providerManager,
             IHttpContextAccessor httpContextAccessor,
             ILogger logger)
         {
@@ -28,22 +27,19 @@ namespace Smartstore.AmazonPay
             {
                 var module = services.ApplicationContext.ModuleCatalog.GetModuleByAssembly(typeof(Events).Assembly);
 
-                if (providerManager.IsActiveForStore(module, order.StoreId))
+                try
                 {
-                    try
+                    var client = httpContext.GetAmazonPayApiClient(order.StoreId);
+                    var request = new CloseChargePermissionRequest(T("Plugins.Payments.AmazonPay.CloseChargeReason").Value.Truncate(255))
                     {
-                        var client = httpContext.GetAmazonPayApiClient(order.StoreId);
-                        var request = new CloseChargePermissionRequest(T("Plugins.Payments.AmazonPay.CloseChargeReason").Value.Truncate(255))
-                        {
-                            CancelPendingCharges = false
-                        };
+                        CancelPendingCharges = false
+                    };
 
-                        client.CloseChargePermission(order.AuthorizationTransactionCode, request);
-                    }
-                    catch (Exception ex)
-                    {
-                        logger.Error(ex);
-                    }
+                    client.CloseChargePermission(order.AuthorizationTransactionCode, request);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error(ex);
                 }
             }
         }
