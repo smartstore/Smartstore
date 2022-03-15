@@ -1,14 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Autofac;
 using Moq;
 using NUnit.Framework;
 using Smartstore.Caching;
 using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Attributes;
-using Smartstore.Core.Catalog.Brands;
-using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
@@ -16,7 +13,6 @@ using Smartstore.Core.Checkout.Attributes;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.GiftCards;
 using Smartstore.Core.Checkout.Orders;
-using Smartstore.Core.Checkout.Rules;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common;
@@ -38,6 +34,7 @@ namespace Smartstore.Core.Tests.Checkout.Orders
         IDiscountService _discountService;
         IGiftCardService _giftCardService;
         ICurrencyService _currencyService;
+        ILocalizationService _localizationService;
         TaxSettings _taxSettings;
         RewardPointsSettings _rewardPointsSettings;
         IProductService _productService;
@@ -46,8 +43,6 @@ namespace Smartstore.Core.Tests.Checkout.Orders
         ShippingSettings _shippingSettings;
         CatalogSettings _catalogSettings;
         ICommonServices _services;
-        IGeoCountryLookup _geoCountryLookup;
-        ICartRuleProvider _cartRuleProvider;
         IPriceCalculatorFactory _priceCalculatorFactory;
         ITaxCalculator _taxCalculator;
         IProductAttributeMaterializer _productAttributeMaterializer;
@@ -134,8 +129,11 @@ namespace Smartstore.Core.Tests.Checkout.Orders
             currencyServiceMock.Setup(x => x.PrimaryCurrency).Returns(_currency);
             currencyServiceMock.Setup(x => x.PrimaryExchangeCurrency).Returns(_currency);
 
+            var localizationServiceMock = new Mock<ILocalizationService>();
+            _localizationService = localizationServiceMock.Object;
+
             // INFO: no mocking here to use real implementation.
-            _taxService = new TaxService(DbContext, _geoCountryLookup, ProviderManager, _workContext, null, _taxSettings);
+            _taxService = new TaxService(DbContext, null, ProviderManager, _workContext, _localizationService, _taxSettings);
             _taxCalculator = new TaxCalculator(DbContext, _workContext, _taxService, _taxSettings);
 
             // INFO: Create real instance of PriceCalculatorFactory with own instances of Calculators
@@ -144,7 +142,7 @@ namespace Smartstore.Core.Tests.Checkout.Orders
             _shippingService = new ShippingService(
                 _productAttributeMaterializer,
                 _checkoutAttributeMaterializer,
-                _cartRuleProvider,
+                null,
                 _shippingSettings,
                 ProviderManager,
                 null,

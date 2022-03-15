@@ -5,8 +5,8 @@ using Moq;
 using NUnit.Framework;
 using Smartstore.Caching;
 using Smartstore.Core.Catalog.Discounts;
-using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Rules;
+using Smartstore.Core.Common;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Rules;
 using Smartstore.Core.Stores;
@@ -20,8 +20,6 @@ namespace Smartstore.Core.Tests.Catalog.Discounts
         IDiscountService _discountService;
         IStoreContext _storeContext;
         ICartRuleProvider _cartRuleProvider;
-        // TODO: (mh) (core) Never assigned to
-        Lazy<IShoppingCartService> _shoppingCartService;
 
         [OneTimeSetUp]
         public new async Task SetUp()
@@ -52,6 +50,11 @@ namespace Smartstore.Core.Tests.Catalog.Discounts
             };
 
             DbContext.Discounts.AddRange(new[] { discount1 , discount2 });
+
+            DbContext.GenericAttributes.AddRange(
+                new GenericAttribute { Key = "", KeyGroup = nameof(Customer), Value = "" },
+                new GenericAttribute { Key = SystemCustomerAttributeNames.DiscountCouponCode, KeyGroup = nameof(Customer), Value = "CouponCode 1" });
+
             await DbContext.SaveChangesAsync();
 
             var storeContextMock = new Mock<IStoreContext>();
@@ -73,7 +76,7 @@ namespace Smartstore.Core.Tests.Catalog.Discounts
                 NullRequestCache.Instance,
                 _storeContext,
                 _cartRuleProvider,
-                _shoppingCartService);
+                null);
         }
 
         [Test]

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Http;
@@ -22,7 +21,6 @@ using Smartstore.Core.Common;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Content.Media.Storage;
 using Smartstore.Core.Data;
-using Smartstore.Core.Identity;
 using Smartstore.Core.Tests.Catalog.Pricing.Calculators;
 using Smartstore.Core.Tests.Checkout.Payment;
 using Smartstore.Core.Tests.Common;
@@ -138,12 +136,7 @@ namespace Smartstore.Core.Tests
                         .Setup(x => x.GetAttributesForEntity(It.IsAny<string>(), It.IsAny<int>()))
                         .Returns<string, int>((name, id) =>
                         {
-                            var query = new List<GenericAttribute> {
-                                new GenericAttribute { Key = "", Value = "" },
-                                new GenericAttribute { Key = SystemCustomerAttributeNames.DiscountCouponCode, Value = "CouponCode 1" }
-                            }.AsQueryable();
-
-                            return new GenericAttributeCollection(query, name, id, 0);
+                            return new GenericAttributeCollection(_dbContext.GenericAttributes, name, id, 0);
                         });
 
                     builder.RegisterInstance(genericAttributeServiceMock.Object).As<IGenericAttributeService>().SingleInstance();
