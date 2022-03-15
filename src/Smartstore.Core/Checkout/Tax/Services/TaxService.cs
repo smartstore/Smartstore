@@ -1,10 +1,12 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
+using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Common;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
+using Smartstore.Core.Localization;
 using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Core.Checkout.Tax
@@ -16,21 +18,24 @@ namespace Smartstore.Core.Checkout.Tax
         private readonly IGeoCountryLookup _geoCountryLookup;
         private readonly IProviderManager _providerManager;
         private readonly IWorkContext _workContext;
+        private readonly ILocalizationService _localizationService;
         private readonly TaxSettings _taxSettings;
         private readonly SmartDbContext _db;
 
         public TaxService(
+            SmartDbContext db,
             IGeoCountryLookup geoCountryLookup,
             IProviderManager providerManager,
             IWorkContext workContext,
-            TaxSettings taxSettings,
-            SmartDbContext db)
+            ILocalizationService localizationService,
+            TaxSettings taxSettings)
         {
+            _db = db;
             _geoCountryLookup = geoCountryLookup;
             _providerManager = providerManager;
             _workContext = workContext;
+            _localizationService = localizationService;
             _taxSettings = taxSettings;
-            _db = db;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -184,6 +189,35 @@ namespace Smartstore.Core.Checkout.Tax
             }
 
             return customer.VatNumberStatusId == (int)VatNumberStatus.Valid && _taxSettings.EuVatAllowVatExemption;
+        }
+
+        public virtual string GetTaxFormat(
+            bool? displayTaxSuffix = null,
+            bool? priceIncludesTax = null,
+            PricingTarget target = PricingTarget.Product,
+            Language language = null)
+        {
+            displayTaxSuffix ??= target == PricingTarget.Product
+                ? _taxSettings.DisplayTaxSuffix
+                : (target == PricingTarget.ShippingCharge
+                    ? _taxSettings.DisplayTaxSuffix && _taxSettings.ShippingIsTaxable
+                    : _taxSettings.DisplayTaxSuffix && _taxSettings.PaymentMethodAdditionalFeeIsTaxable);
+
+            if (displayTaxSuffix == true)
+            {
+                // Show tax suffix.
+                priceIncludesTax ??= _workContext.TaxDisplayType == TaxDisplayType.IncludingTax;
+                language ??= _workContext.WorkingLanguage;
+
+                string resource = _localizationService.GetResource(priceIncludesTax.Value ? "Products.InclTaxSuffix" : "Products.ExclTaxSuffix", language.Id, false);
+                var postFormat = resource.NullEmpty() ?? (priceIncludesTax.Value ? "{0} incl. tax" : "{0} excl. tax");
+
+                return postFormat;
+            }
+            else
+            {
+                return null;
+            }
         }
 
         #region Utilities

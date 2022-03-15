@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Admin.Models.Orders;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Orders;
+using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Logging;
@@ -20,6 +21,7 @@ namespace Smartstore.Admin.Controllers
     {
         private readonly SmartDbContext _db;
         private readonly ICurrencyService _currencyService;
+        private readonly ITaxService _taxService;
         private readonly IOrderProcessingService _orderProcessingService;
         private readonly IMessageFactory _messageFactory;
         private readonly OrderSettings _orderSettings;
@@ -27,12 +29,14 @@ namespace Smartstore.Admin.Controllers
         public ReturnRequestController(
             SmartDbContext db,
             ICurrencyService currencyService,
+            ITaxService taxService,
             IOrderProcessingService orderProcessingService,
             IMessageFactory messageFactory,
             OrderSettings orderSettings)
         {
             _db = db;
             _currencyService = currencyService;
+            _taxService = taxService;
             _orderProcessingService = orderProcessingService;
             _messageFactory = messageFactory;
             _orderSettings = orderSettings;
@@ -394,7 +398,11 @@ namespace Smartstore.Admin.Controllers
                     var maxRefundAmount = Math.Max(orderItem.UnitPriceInclTax * returnRequest.Quantity, 0);
                     if (maxRefundAmount > decimal.Zero)
                     {
-                        model.MaxRefundAmount = new Money(maxRefundAmount, _currencyService.PrimaryCurrency, false, _currencyService.GetTaxFormat(true, true));
+                        model.MaxRefundAmount = new Money(
+                            maxRefundAmount, 
+                            _currencyService.PrimaryCurrency, 
+                            false,
+                            _taxService.GetTaxFormat(true, true));
                     }
                 }
             }

@@ -26,6 +26,7 @@ namespace Smartstore.Shipping
         private readonly IPriceCalculationService _priceCalculationService;
         private readonly IProductService _productService;
         private readonly ICurrencyService _currencyService;
+        private readonly ITaxService _taxService;
         private readonly IStoreContext _storeContext;
         private readonly ShippingByWeightSettings _shippingByWeightSettings;
 
@@ -35,6 +36,7 @@ namespace Smartstore.Shipping
             IPriceCalculationService priceCalculationService,
             IProductService productService,
             ICurrencyService currencyService,
+            ITaxService taxService,
             IStoreContext storeContext,
             ShippingByWeightSettings shippingByWeightSettings)
         {
@@ -44,6 +46,7 @@ namespace Smartstore.Shipping
             _priceCalculationService = priceCalculationService;
             _productService = productService;
             _currencyService = currencyService;
+            _taxService = taxService;
             _storeContext = storeContext;
             _shippingByWeightSettings = shippingByWeightSettings;
             
@@ -221,7 +224,7 @@ namespace Smartstore.Shipping
 
                     if (record != null && record.SmallQuantityThreshold > currentSubTotal)
                     {
-                        var taxFormat = _currencyService.GetTaxFormat();
+                        var taxFormat = _taxService.GetTaxFormat();
                         string surchargeHint = T("Plugins.Shipping.ByWeight.SmallQuantitySurchargeNotReached",
                             _currencyService.ConvertToWorkingCurrency(record.SmallQuantitySurcharge).ToString(true, false, taxFormat),
                             _currencyService.ConvertToWorkingCurrency(record.SmallQuantityThreshold).ToString(true, false, taxFormat));

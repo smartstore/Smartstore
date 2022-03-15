@@ -317,7 +317,7 @@ namespace Smartstore.Web.Controllers
                     AllowPrices = allowPrices,
                     AllowShoppingCart = allowShoppingCart,
                     AllowWishlist = allowWishlist,
-                    ShippingChargeTaxFormat = _currencyService.GetTaxFormat(priceIncludesTax: calculationOptions.TaxInclusive, target: PricingTarget.ShippingCharge, language: language),
+                    ShippingChargeTaxFormat = _taxService.GetTaxFormat(priceIncludesTax: calculationOptions.TaxInclusive, target: PricingTarget.ShippingCharge, language: language),
                 };
 
                 if (settings.MapPictures)

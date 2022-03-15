@@ -6,8 +6,6 @@ using NUnit.Framework;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common;
-using Smartstore.Core.Common.Services;
-using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Localization;
 using Smartstore.Test.Common;
 
@@ -16,10 +14,9 @@ namespace Smartstore.Core.Tests.Catalog.Pricing
     [TestFixture]
     public class PriceFormattingTests : ServiceTest
     {
-        ICurrencyService _currencyService;
+        ITaxService _taxService;
         ILocalizationService _localizationService;
         IWorkContext _workContext;
-        CurrencySettings _currencySettings;
         TaxSettings _taxSettings;
 
         Currency _currencyEUR;
@@ -28,7 +25,6 @@ namespace Smartstore.Core.Tests.Catalog.Pricing
         [SetUp]
         public new void SetUp()
         {
-            _currencySettings = new CurrencySettings();
             _taxSettings = new TaxSettings();
 
             _currencyEUR = new Currency
@@ -57,23 +53,19 @@ namespace Smartstore.Core.Tests.Catalog.Pricing
                 UpdatedOnUtc = DateTime.UtcNow
             };
 
-            var currencyServiceMock = new Mock<ICurrencyService>();
-            _currencyService = currencyServiceMock.Object;
-
             var workContextMock = new Mock<IWorkContext>();
             _workContext = workContextMock.Object;
 
             var localizationServiceMock = new Mock<ILocalizationService>();
             _localizationService = localizationServiceMock.Object;
 
-            _currencyService = new CurrencyService(
-                DbContext, 
-                _localizationService,
+            _taxService = new TaxService(
+                DbContext,
+                null,
                 ProviderManager,
                 _workContext,
-                _currencySettings,
-                _taxSettings,
-                null);
+                _localizationService,
+                _taxSettings);
         }
 
         [Test]
@@ -100,18 +92,18 @@ namespace Smartstore.Core.Tests.Catalog.Pricing
         [Test]
         public void Can_formatPrice_with_showTax()
         {
-            var language = new Language()
+            var language = new Language
             {
                 Id = 1,
                 Name = "English",
                 LanguageCulture = "en-US"
             };
 
-            var formatInkl = _currencyService.GetTaxFormat(true, true, PricingTarget.Product, language);
-            var formatExkl = _currencyService.GetTaxFormat(true, false, PricingTarget.Product, language);
+            var formatIncl = _taxService.GetTaxFormat(true, true, PricingTarget.Product, language);
+            var formatExcl = _taxService.GetTaxFormat(true, false, PricingTarget.Product, language);
 
-            new Money(1234.5M, _currencyUSD, false, formatInkl).ToString().ShouldEqual("$1,234.50 incl. tax");
-            new Money(1234.5M, _currencyUSD, false, formatExkl).ToString().ShouldEqual("$1,234.50 excl. tax");
+            new Money(1234.5M, _currencyUSD, false, formatIncl).ToString().ShouldEqual("$1,234.50 incl. tax");
+            new Money(1234.5M, _currencyUSD, false, formatExcl).ToString().ShouldEqual("$1,234.50 excl. tax");
         }
 
         [Test]

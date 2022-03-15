@@ -34,6 +34,7 @@ namespace Smartstore.Web.Controllers
         private readonly IMediaService _mediaService;
         private readonly IShippingService _shippingService;
         private readonly ICurrencyService _currencyService;
+        private readonly ITaxService _taxService;
         private readonly IDiscountService _discountService;
         private readonly IGiftCardService _giftCardService;
         private readonly IDownloadService _downloadService;
@@ -56,6 +57,7 @@ namespace Smartstore.Web.Controllers
             IMediaService mediaService,
             IShippingService shippingService,
             ICurrencyService currencyService,
+            ITaxService taxService,
             IDiscountService discountService,
             IGiftCardService giftCardService,
             IDownloadService downloadService,
@@ -77,6 +79,7 @@ namespace Smartstore.Web.Controllers
             _mediaService = mediaService;
             _shippingService = shippingService;
             _currencyService = currencyService;
+            _taxService = taxService;
             _discountService = discountService;
             _giftCardService = giftCardService;
             _downloadService = downloadService;
@@ -943,7 +946,7 @@ namespace Smartstore.Web.Controllers
                     if (getShippingOptionResponse.ShippingOptions.Any())
                     {
                         var shippingMethods = await _shippingService.GetAllShippingMethodsAsync(storeId);
-                        var shippingTaxFormat = _currencyService.GetTaxFormat(null, null, PricingTarget.ShippingCharge);
+                        var shippingTaxFormat = _taxService.GetTaxFormat(null, null, PricingTarget.ShippingCharge);
 
                         foreach (var shippingOption in getShippingOptionResponse.ShippingOptions)
                         {

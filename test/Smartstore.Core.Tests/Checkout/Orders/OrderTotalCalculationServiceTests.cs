@@ -135,7 +135,7 @@ namespace Smartstore.Core.Tests.Checkout.Orders
             currencyServiceMock.Setup(x => x.PrimaryExchangeCurrency).Returns(_currency);
 
             // INFO: no mocking here to use real implementation.
-            _taxService = new TaxService(_geoCountryLookup, ProviderManager, _workContext, _taxSettings, DbContext);
+            _taxService = new TaxService(DbContext, _geoCountryLookup, ProviderManager, _workContext, null, _taxSettings);
             _taxCalculator = new TaxCalculator(DbContext, _workContext, _taxService, _taxSettings);
 
             // INFO: Create real instance of PriceCalculatorFactory with own instances of Calculators

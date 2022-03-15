@@ -222,36 +222,5 @@ namespace Smartstore.Core.Common.Services
 
             return new Money(price, currency, !displayCurrency);
         }
-
-        public virtual string GetTaxFormat(
-            bool? displayTaxSuffix = null,
-            bool? priceIncludesTax = null,
-            PricingTarget target = PricingTarget.Product,
-            Language language = null)
-        {
-            // TODO: (core) Does GetTaxFormat belong to ITaxService? Hmmm... (?)
-
-            displayTaxSuffix ??= target == PricingTarget.Product
-                ? _taxSettings.DisplayTaxSuffix
-                : (target == PricingTarget.ShippingCharge
-                    ? _taxSettings.DisplayTaxSuffix && _taxSettings.ShippingIsTaxable
-                    : _taxSettings.DisplayTaxSuffix && _taxSettings.PaymentMethodAdditionalFeeIsTaxable);
-
-            if (displayTaxSuffix == true)
-            {
-                // Show tax suffix.
-                priceIncludesTax ??= _workContext.TaxDisplayType == TaxDisplayType.IncludingTax;
-                language ??= _workContext.WorkingLanguage;
-
-                string resource = _localizationService.GetResource(priceIncludesTax.Value ? "Products.InclTaxSuffix" : "Products.ExclTaxSuffix", language.Id, false);
-                var postFormat = resource.NullEmpty() ?? (priceIncludesTax.Value ? "{0} incl. tax" : "{0} excl. tax");
-
-                return postFormat;
-            }
-            else
-            {
-                return null;
-            }
-        }
     }
 }

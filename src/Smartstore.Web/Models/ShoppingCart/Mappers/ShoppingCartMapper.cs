@@ -20,7 +20,6 @@ using Smartstore.Core.Content.Media;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
-using Smartstore.Core.Stores;
 using Smartstore.Engine.Modularity;
 using Smartstore.Utilities.Html;
 using Smartstore.Web.Rendering;
@@ -75,6 +74,7 @@ namespace Smartstore.Web.Models.Cart
         private readonly IPaymentService _paymentService;
         private readonly IDiscountService _discountService;
         private readonly ICurrencyService _currencyService;
+        private readonly ITaxService _taxService;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IShoppingCartValidator _shoppingCartValidator;
         private readonly IOrderCalculationService _orderCalculationService;
@@ -95,6 +95,7 @@ namespace Smartstore.Web.Models.Cart
             IPaymentService paymentService,
             IDiscountService discountService,
             ICurrencyService currencyService,
+            ITaxService taxService,
             IHttpContextAccessor httpContextAccessor,
             IShoppingCartValidator shoppingCartValidator,
             IOrderCalculationService orderCalculationService,
@@ -118,6 +119,7 @@ namespace Smartstore.Web.Models.Cart
             _paymentService = paymentService;
             _discountService = discountService;
             _currencyService = currencyService;
+            _taxService = taxService;
             _httpContextAccessor = httpContextAccessor;
             _shoppingCartValidator = shoppingCartValidator;
             _orderCalculationService = orderCalculationService;
@@ -238,7 +240,7 @@ namespace Smartstore.Web.Models.Cart
 
                 if (attribute.IsListTypeAttribute)
                 {
-                    var taxFormat = _currencyService.GetTaxFormat(null, null, PricingTarget.Product);
+                    var taxFormat = _taxService.GetTaxFormat(null, null, PricingTarget.Product);
                     var caValues = await _db.CheckoutAttributeValues
                         .AsNoTracking()
                         .Where(x => x.CheckoutAttributeId == attribute.Id)
@@ -430,7 +432,7 @@ namespace Smartstore.Web.Models.Cart
             var subtotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(from, null, batchContext);
 
             dynamic itemParameters = new ExpandoObject();
-            itemParameters.TaxFormat = _currencyService.GetTaxFormat();
+            itemParameters.TaxFormat = _taxService.GetTaxFormat();
             itemParameters.BatchContext = batchContext;
             itemParameters.CartSubtotal = subtotal;
 

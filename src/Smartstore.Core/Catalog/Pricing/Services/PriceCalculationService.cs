@@ -85,7 +85,7 @@ namespace Smartstore.Core.Catalog.Pricing
                 DetermineLowestPrice = forListing && priceDisplay == PriceDisplayType.LowestPrice,
                 DeterminePreselectedPrice = determinePreselectedPrice,
                 ApplyPreselectedAttributes = determinePreselectedPrice,
-                TaxFormat = _currencyService.GetTaxFormat(null, taxInclusive, PricingTarget.Product, language),
+                TaxFormat = _taxService.GetTaxFormat(null, taxInclusive, PricingTarget.Product, language),
                 PriceRangeFormat = T("Products.PriceRangeFrom").Value,
                 RoundingCurrency = targetCurrency == _primaryCurrency ? _workContext.WorkingCurrency : targetCurrency
             };
@@ -245,7 +245,7 @@ namespace Smartstore.Core.Catalog.Pricing
             }
 
             var basePrice = Convert.ToDecimal((price / product.BasePriceAmount) * product.BasePriceBaseAmount);
-            var basePriceAmount = _currencyService.ApplyTaxFormat(
+            var basePriceAmount = _taxService.ApplyTaxFormat(
                 new Money(basePrice, targetCurrency ?? _workContext.WorkingCurrency),
                 includePackageContentPerUnit ? null : false,
                 null,

@@ -50,7 +50,6 @@ namespace Smartstore.Admin.Controllers
         private readonly Lazy<IGiftCardService> _giftCardService;
         private readonly IProductAttributeMaterializer _productAttributeMaterializer;
         private readonly IPaymentService _paymentService;
-        private readonly ICurrencyService _currencyService;
         private readonly ITaxService _taxService;
         private readonly IEncryptor _encryptor;
         private readonly ModuleManager _moduleManager;
@@ -100,7 +99,6 @@ namespace Smartstore.Admin.Controllers
             _giftCardService = giftCardService;
             _productAttributeMaterializer = productAttributeMaterializer;
             _paymentService = paymentService;
-            _currencyService = currencyService;
             _taxService = taxService;
             _encryptor = encryptor;
             _moduleManager = moduleManager;
@@ -2200,8 +2198,8 @@ namespace Smartstore.Admin.Controllers
 
         private string Format(decimal value, bool priceIncludesTax, bool? displayTaxSuffix = null, PricingTarget target = PricingTarget.Product)
         {
-            var format = _currencyService.GetTaxFormat(displayTaxSuffix, priceIncludesTax, target, Services.WorkContext.WorkingLanguage);
-
+            var format = _taxService.GetTaxFormat(displayTaxSuffix, priceIncludesTax, target, Services.WorkContext.WorkingLanguage);
+            
             return new Money(value, _primaryCurrency, false, format).ToString(true);
         }
 

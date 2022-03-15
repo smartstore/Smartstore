@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using NUnit.Framework;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Tax;
-using Smartstore.Core.Common;
 using Smartstore.Core.Identity;
 using Smartstore.Test.Common;
 
@@ -18,11 +17,12 @@ namespace Smartstore.Core.Tests.Tax
         public new void SetUp()
         {
             _taxService = new TaxService(
+                DbContext,
                 null,
                 ProviderManager,
                 null,
-                new TaxSettings { DefaultTaxAddressId = 10, EuVatUseWebService = true },
-                null);
+                null,
+                new TaxSettings { DefaultTaxAddressId = 10, EuVatUseWebService = true });
         }
 
         [Test]

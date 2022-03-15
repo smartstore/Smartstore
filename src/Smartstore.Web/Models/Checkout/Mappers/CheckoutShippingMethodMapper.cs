@@ -23,6 +23,7 @@ namespace Smartstore.Web.Models.Checkout
         private readonly IProviderManager _providerManager;
         private readonly ModuleManager _moduleManager;
         private readonly ICurrencyService _currencyService;
+        private readonly ITaxService _taxService;
         private readonly IShippingService _shippingService;
         private readonly IOrderCalculationService _orderCalculationService;
         private readonly ITaxCalculator _taxCalculator;
@@ -32,6 +33,7 @@ namespace Smartstore.Web.Models.Checkout
             IProviderManager providerManager,
             ModuleManager moduleManager,
             ICurrencyService currencyService,
+            ITaxService taxService,
             IShippingService shippingService,
             IOrderCalculationService orderCalculationService,
             ITaxCalculator taxCalculator)
@@ -40,6 +42,7 @@ namespace Smartstore.Web.Models.Checkout
             _providerManager = providerManager;
             _moduleManager = moduleManager;
             _currencyService = currencyService;
+            _taxService = taxService;
             _shippingService = shippingService;
             _orderCalculationService = orderCalculationService;
             _taxCalculator = taxCalculator;
@@ -85,7 +88,7 @@ namespace Smartstore.Web.Models.Checkout
                     }
 
                     // Adjust rate.
-                    var shippingTaxFormat = _currencyService.GetTaxFormat(null, null, PricingTarget.ShippingCharge);
+                    var shippingTaxFormat = _taxService.GetTaxFormat(null, null, PricingTarget.ShippingCharge);
                     var (shippingAmount, _) = await _orderCalculationService.AdjustShippingRateAsync(from, shippingOption.Rate, shippingOption, shippingMethods);
                     var rateBase = await _taxCalculator.CalculateShippingTaxAsync(shippingAmount);
                     var rate = _currencyService.ConvertFromPrimaryCurrency(rateBase.Price, _services.WorkContext.WorkingCurrency);

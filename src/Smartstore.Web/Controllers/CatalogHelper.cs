@@ -1456,7 +1456,7 @@ namespace Smartstore.Web.Controllers
             }
 
             var applyDiscountNote = false;
-            var taxFormat = _currencyService.GetTaxFormat();
+            var taxFormat = _taxService.GetTaxFormat();
             var calculationOptions = _priceCalculationService.CreateDefaultOptions(false, customer, currency, modelContext.BatchContext);
             var calculationContext = new PriceCalculationContext(product, selectedQuantity, calculationOptions)
             {

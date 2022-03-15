@@ -23,7 +23,7 @@ namespace Smartstore.Web.Models.Checkout
     {
         private readonly ICommonServices _services;
         private readonly ModuleManager _moduleManager;
-        private readonly ICurrencyService _currencyService;
+        private readonly ITaxService _taxService;
         private readonly IPaymentService _paymentService;
         private readonly IShippingService _shippingService;
         private readonly IOrderCalculationService _orderCalculationService;
@@ -35,6 +35,7 @@ namespace Smartstore.Web.Models.Checkout
             ModuleManager moduleManager,
             IPaymentService paymentService,
             ICurrencyService currencyService,
+            ITaxService taxService,
             IShippingService shippingService,
             IOrderCalculationService orderCalculationService,
             ITaxCalculator taxCalculator,
@@ -43,7 +44,7 @@ namespace Smartstore.Web.Models.Checkout
             _services = services;
             _moduleManager = moduleManager;
             _paymentService = paymentService;
-            _currencyService = currencyService;
+            _taxService = taxService;
             _shippingService = shippingService;
             _orderCalculationService = orderCalculationService;
             _taxCalculator = taxCalculator;
@@ -100,7 +101,7 @@ namespace Smartstore.Web.Models.Checkout
 
                 // Payment method additional fee.
                 var paymentMethodAdditionalFee = await _orderCalculationService.GetShoppingCartPaymentFeeAsync(from, pm.Metadata.SystemName);
-                var paymentTaxFormat = _currencyService.GetTaxFormat(null, null, PricingTarget.PaymentFee);
+                var paymentTaxFormat = _taxService.GetTaxFormat(null, null, PricingTarget.PaymentFee);
                 var rateBase = await _taxCalculator.CalculatePaymentFeeTaxAsync(paymentMethodAdditionalFee.Amount);
 
                 if (paymentMethodAdditionalFee.Amount != decimal.Zero)

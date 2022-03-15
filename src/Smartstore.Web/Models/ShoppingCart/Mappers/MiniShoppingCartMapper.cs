@@ -6,6 +6,7 @@ using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Attributes;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
+using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Localization;
@@ -29,6 +30,7 @@ namespace Smartstore.Web.Models.Cart
         private readonly ICommonServices _services;
         private readonly IProductService _productService;
         private readonly ICurrencyService _currencyService;
+        private readonly ITaxService _taxService;
         private readonly IPriceCalculationService _priceCalculationService;
         private readonly IOrderCalculationService _orderCalculationService;
         private readonly IProductAttributeFormatter _productAttributeFormatter;
@@ -44,6 +46,7 @@ namespace Smartstore.Web.Models.Cart
             ICommonServices services,
             IProductService productService,
             ICurrencyService currencyService,
+            ITaxService taxService,
             IPriceCalculationService priceCalculationService,
             IOrderCalculationService orderCalculationService,
             IProductAttributeFormatter productAttributeFormatter,
@@ -59,6 +62,7 @@ namespace Smartstore.Web.Models.Cart
             _productService = productService;
             _priceCalculationService = priceCalculationService;
             _currencyService = currencyService;
+            _taxService = taxService;
             _orderCalculationService = orderCalculationService;
             _productAttributeFormatter = productAttributeFormatter;
             _checkoutAttributeMaterializer = checkoutAttributeMaterializer;
@@ -95,7 +99,7 @@ namespace Smartstore.Web.Models.Cart
                 return;
             }
 
-            var taxFormat = _currencyService.GetTaxFormat();
+            var taxFormat = _taxService.GetTaxFormat();
             var batchContext = _productService.CreateProductBatchContext(from.Items.Select(x => x.Item.Product).ToArray(), null, customer, false);
 
             var subtotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(from, null, batchContext);
