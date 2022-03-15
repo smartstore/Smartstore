@@ -82,10 +82,8 @@ namespace Smartstore.Web
                 .AddMvcOptions(o =>
                 {
                     //o.EnableEndpointRouting = false;
-                    // TODO: (core) AddModelBindingMessagesLocalizer
                     o.Filters.AddService<IViewDataAccessor>(int.MinValue);
 
-                    // TODO: (core) More MVC config?
                     o.ModelBinderProviders.Insert(0, new InvariantFloatingPointTypeModelBinderProvider());
 
                     // Register custom metadata provider

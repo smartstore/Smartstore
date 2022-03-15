@@ -2,8 +2,6 @@
 
 namespace Smartstore.Data.Caching
 {
-    // TODO: (core) Annotate all cacheable entities with CacheableEntityAttribute.
-
     /// <summary>
     /// Marks a <see cref="BaseEntity"/> type as cacheable by the database 2nd level caching framework.
     /// </summary>

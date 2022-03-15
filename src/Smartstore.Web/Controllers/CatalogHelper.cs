@@ -662,7 +662,6 @@ namespace Smartstore.Web.Controllers
                 if (_catalogSettings.ShowManufacturerPicturesInProductDetail)
                 {
                     var brands = _db.IsCollectionLoaded(product, x => x.ProductManufacturers)
-                        // TODO: (core) Authorize for and ACL? But does make no sense here?! Hmmm...
                         ? product.ProductManufacturers
                         : await batchContext.ProductManufacturers.GetOrLoadAsync(product.Id);
                     

@@ -486,7 +486,6 @@ input.form-control-plaintext {
     }
 
     .input-validation-error {
-        // TODO: (core) Adopt SCSS theme colors once bundler is ported. And add bubble to error message.
         position: absolute;
         top: 0;
         background-color: #fff;

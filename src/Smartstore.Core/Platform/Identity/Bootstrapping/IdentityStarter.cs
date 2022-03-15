@@ -52,7 +52,7 @@ namespace Smartstore.Core.Bootstrapping
                 services.AddAuthentication().AddCookie(CookieNames.ExternalAuthentication);
             }
 
-            // TODO: (core) // Add Identity IEmailSender and ISmsSender to service collection.
+            // TODO: (mh) (core) // Add Identity IEmailSender and ISmsSender to service collection.
             // RE: This won't be needed right now. Will be implemented when we offer real 2FA.
         }
 

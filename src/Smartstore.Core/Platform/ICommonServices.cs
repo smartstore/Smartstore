@@ -39,8 +39,6 @@ namespace Smartstore.Core
         IMediaService MediaService { get; }
         IDisplayControl DisplayControl { get; }
         ICurrencyService CurrencyService { get; }
-
-        // TODO: (core) Add more props to ICommonServices once they drop in.
     }
 
     public static class ICommonServicesExtensions
