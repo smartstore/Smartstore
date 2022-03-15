@@ -77,6 +77,8 @@ namespace Smartstore.AmazonPay.Controllers
                     {
                         var redirectUrl = loginUrl.EnsureEndsWith("/");
 
+                        // INFO: the need to specify additional URLs in Amazon Seller Central is probably no longer necessary,
+                        // as the return URLs are set on the server side and no longer via JavaScript (as in v1).
                         model.MerchantLoginDomains.Add(loginUrl);
                         model.MerchantLoginRedirectUrls.Add(redirectUrl);
 

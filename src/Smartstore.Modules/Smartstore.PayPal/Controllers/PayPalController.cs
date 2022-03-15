@@ -78,6 +78,7 @@ namespace Smartstore.PayPal.Controllers
         }
 
         [HttpPost]
+        [Route("paypal/webhookhandler")]
         public async Task<IActionResult> WebhookHandler()
         {
             string rawRequest = null;
