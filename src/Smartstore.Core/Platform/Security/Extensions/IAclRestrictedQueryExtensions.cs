@@ -12,7 +12,7 @@ namespace Smartstore.Core.Security
         /// <param name="customer">Customer to be filtered according to their assigned customer roles.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IQueryable<T> ApplyAclFilter<T>(this IQueryable<T> query, Customer customer)
-            where T : BaseEntity, IAclRestricted
+            where T : BaseEntity, IAclRestricted, new()
         {
             Guard.NotNull(customer, nameof(customer));
             return ApplyAclFilter(query, customer.GetRoleIds());
@@ -23,7 +23,7 @@ namespace Smartstore.Core.Security
         /// </summary>
         /// <param name="customerRoleIds">Customer role identifiers to be filtered by. <c>null</c> to get all entities.</param>
         public static IQueryable<T> ApplyAclFilter<T>(this IQueryable<T> query, int[] customerRoleIds)
-            where T : BaseEntity, IAclRestricted
+            where T : BaseEntity, IAclRestricted, new()
         {
             Guard.NotNull(query, nameof(query));
 
@@ -38,7 +38,7 @@ namespace Smartstore.Core.Security
                 return query;
             }
 
-            var entityName = typeof(T).Name;
+            var entityName = new T().GetEntityName();
 
             var subQuery = db.AclRecords
                 .Where(x => x.EntityName == entityName && customerRoleIds.Contains(x.CustomerRoleId))

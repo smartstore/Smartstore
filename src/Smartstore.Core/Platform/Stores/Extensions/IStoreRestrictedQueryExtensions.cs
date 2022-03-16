@@ -9,7 +9,7 @@ namespace Smartstore.Core.Stores
         /// </summary>
         /// <param name="storeId">Store identifier to be filtered by. 0 to get all entities.</param>
         public static IQueryable<T> ApplyStoreFilter<T>(this IQueryable<T> query, int storeId)
-            where T : BaseEntity, IStoreRestricted
+            where T : BaseEntity, IStoreRestricted, new()
         {
             Guard.NotNull(query, nameof(query));
 
@@ -24,7 +24,7 @@ namespace Smartstore.Core.Stores
                 return query;
             }
 
-            var entityName = typeof(T).Name;
+            var entityName = new T().GetEntityName();
 
             var subQuery = db.StoreMappings
                 .Where(x => x.EntityName == entityName && x.StoreId == storeId)
