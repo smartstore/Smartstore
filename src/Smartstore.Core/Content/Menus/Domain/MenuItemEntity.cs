@@ -20,6 +20,8 @@ namespace Smartstore.Core.Content.Menus
     [Index(nameof(SubjectToAcl), Name = "IX_MenuItem_SubjectToAcl")]
     public class MenuItemEntity : EntityWithAttributes, ILocalizedEntity, IStoreRestricted, IAclRestricted
     {
+        const string EntityName = "MenuItemRecord";
+
         public MenuItemEntity()
         {
         }
@@ -29,6 +31,9 @@ namespace Smartstore.Core.Content.Menus
             : base(lazyLoader)
         {     
         }
+
+        public override string GetEntityName()
+            => EntityName;
 
         /// <summary>
         /// Gets or sets the menu identifier.
