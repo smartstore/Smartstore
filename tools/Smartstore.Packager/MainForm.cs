@@ -195,6 +195,8 @@ namespace Smartstore.Packager
                 dirs = root.EnumerateDirectories("");
             }
 
+            lstModules.DisplayMember = "SystemName";
+
             foreach (var dir in dirs)
             {
                 bool isTheme = false;
