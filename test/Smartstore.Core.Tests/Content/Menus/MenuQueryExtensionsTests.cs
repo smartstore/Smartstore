@@ -68,7 +68,7 @@ namespace Smartstore.Core.Tests.Content.Menus
         }
 
         [OneTimeTearDown]
-        public async Task Term()
+        public async Task Teardown()
         {
             DbContext.AclRecords.RemoveRange(_aclRecords);
             DbContext.StoreMappings.RemoveRange(_storeMappings);
