@@ -1,9 +1,0 @@
-﻿@model PublicEditForumTopicModel
-
-@{
-    Assets.AppendTitleParts(T("Forum.PageTitle.TopicNew"));
-}
-
-<form asp-action="TopicCreate">
-    <partial name="_CreateOrUpdateTopic" />
-</form>

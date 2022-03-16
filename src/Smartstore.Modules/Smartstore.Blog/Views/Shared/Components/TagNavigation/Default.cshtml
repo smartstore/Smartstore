@@ -1,8 +1,0 @@
-﻿@model BlogPostTagListModel
-
-<div sm-if="Model.Tags.Count > 0" class="block-popular-blogtags">
-    @foreach (var item in Model.Tags)
-    {
-        <a class="badge badge-pill badge-info py-2 px-3 mb-1" asp-route="BlogByTag" asp-route-tag="@item.SeName">@item.Name</a>
-    }
-</div>
