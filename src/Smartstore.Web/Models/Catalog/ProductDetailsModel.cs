@@ -276,6 +276,9 @@ namespace Smartstore.Web.Models.Catalog
             {
                 return url.Action("UploadFileProductAttribute", "ShoppingCart", new { productId = ProductId, productAttributeId = ProductAttributeId });
             }
+
+            public bool ShouldBeRendered
+                => !(ProductAttribute?.IsListTypeAttribute() ?? false) || Values.Count > 0;
         }
 
         public partial class ProductVariantAttributeValueModel : ChoiceItemModel
@@ -309,28 +312,5 @@ namespace Smartstore.Web.Models.Catalog
         }
 
         #endregion
-    }
-
-    // TODO: (mh) (core) This doesn't belong here. Find a proper place.
-    public static class ProductDetailsExtensions
-    {
-        public static bool ShouldBeRendered(this ProductDetailsModel.ProductVariantAttributeModel variantAttribute)
-        {
-            switch (variantAttribute.AttributeControlType)
-            {
-                case AttributeControlType.DropdownList:
-                case AttributeControlType.RadioList:
-                case AttributeControlType.Checkboxes:
-                case AttributeControlType.Boxes:
-                    return variantAttribute.Values.Count > 0;
-                default:
-                    return true;
-            }
-        }
-
-        public static bool ShouldBeRendered(this IEnumerable<ProductDetailsModel.ProductVariantAttributeModel> variantAttributes)
-        {
-            return variantAttributes?.FirstOrDefault(x => x.ShouldBeRendered()) != null;
-        }
     }
 }

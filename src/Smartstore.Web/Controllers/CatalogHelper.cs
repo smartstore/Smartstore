@@ -1310,7 +1310,6 @@ namespace Smartstore.Web.Controllers
             var defaultTaxRate = string.Empty;
             if (_taxSettings.DisplayTaxRates)
             {
-                // INFO: (mh) (core) Taxrate always contains a Rate of 0 because not all TaxProviders are implemented yet.
                 var taxRate = await _taxService.GetTaxRateAsync(product, customer: customer);
                 if (taxRate.Rate != 0)
                 {
