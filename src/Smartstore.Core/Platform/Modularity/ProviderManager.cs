@@ -1,6 +1,5 @@
 ﻿using Autofac;
 using Smartstore.Core.Configuration;
-using Smartstore.Core.Data;
 
 namespace Smartstore.Engine.Modularity
 {
@@ -8,11 +7,16 @@ namespace Smartstore.Engine.Modularity
     {
         private readonly IComponentContext _ctx;
         private readonly ISettingService _settingService;
+        private readonly IModuleConstraint _moduleConstraint;
 
-        public ProviderManager(IComponentContext ctx, ISettingService settingService)
+        public ProviderManager(
+            IComponentContext ctx, 
+            ISettingService settingService, 
+            IModuleConstraint moduleConstraint)
         {
             _ctx = ctx;
             _settingService = settingService;
+            _moduleConstraint = moduleConstraint;
         }
 
         public Provider<TProvider> GetProvider<TProvider>(string systemName, int storeId = 0) where TProvider : IProvider
@@ -27,7 +31,7 @@ namespace Smartstore.Engine.Modularity
                 if (storeId > 0)
                 {
                     var d = provider.Metadata.ModuleDescriptor;
-                    if (d != null && !IsActiveForStore(d, storeId))
+                    if (d != null && !_moduleConstraint.Matches(d, storeId))
                     {
                         return null;
                     }
@@ -51,7 +55,7 @@ namespace Smartstore.Engine.Modularity
                 if (storeId > 0)
                 {
                     var d = provider.Metadata.ModuleDescriptor;
-                    if (d != null && !IsActiveForStore(d, storeId))
+                    if (d != null && !_moduleConstraint.Matches(d, storeId))
                     {
                         return null;
                     }
@@ -72,7 +76,7 @@ namespace Smartstore.Engine.Modularity
             {
                 providers = from p in providers
                             let d = p.Metadata.ModuleDescriptor
-                            where d == null || IsActiveForStore(d, storeId)
+                            where d == null || _moduleConstraint.Matches(d, storeId)
                             select p;
             }
 
@@ -87,7 +91,7 @@ namespace Smartstore.Engine.Modularity
             {
                 providers = from p in providers
                             let d = p.Metadata.ModuleDescriptor
-                            where d == null || IsActiveForStore(d, storeId)
+                            where d == null || _moduleConstraint.Matches(d, storeId)
                             select p;
             }
 
@@ -121,25 +125,7 @@ namespace Smartstore.Engine.Modularity
 
         public bool IsActiveForStore(IModuleDescriptor module, int storeId)
         {
-            if (storeId == 0)
-            {
-                return true;
-            }
-
-            var limitedToStoresSetting = _settingService.GetSettingByKey<string>(module.GetSettingKey("LimitedToStores"));
-            if (limitedToStoresSetting.IsEmpty())
-            {
-                return true;
-            }
-
-            var limitedToStores = limitedToStoresSetting.ToIntArray();
-            if (limitedToStores.Length > 0)
-            {
-                var flag = limitedToStores.Contains(storeId);
-                return flag;
-            }
-
-            return true;
+            return _moduleConstraint.Matches(module, storeId);
         }
 
         public T GetUserSetting<T>(ProviderMetadata metadata, Expression<Func<ProviderMetadata, T>> propertyAccessor)

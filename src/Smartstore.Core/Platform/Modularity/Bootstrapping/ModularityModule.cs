@@ -26,6 +26,7 @@ namespace Smartstore.Core.Bootstrapping
 
         protected override void Load(ContainerBuilder builder)
         {
+            builder.RegisterType<StoreModuleConstraint>().As<IModuleConstraint>().InstancePerLifetimeScope();
             builder.RegisterType<ProviderManager>().As<IProviderManager>().InstancePerLifetimeScope();
             builder.RegisterType<ModuleManager>().AsSelf().InstancePerLifetimeScope();
 

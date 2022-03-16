@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Caching;
 using Smartstore.Data.Hooks;
 using Smartstore.Engine;
+using Smartstore.Engine.Modularity;
 using Smartstore.Events;
 
 namespace Smartstore.Bootstrapping
@@ -44,6 +45,10 @@ namespace Smartstore.Bootstrapping
 
             builder.RegisterType<ConsumerInvoker>()
                 .As<IConsumerInvoker>()
+                .SingleInstance();
+
+            builder.RegisterType<NullModuleContraint>()
+                .As<IModuleConstraint>()
                 .SingleInstance();
 
             DiscoverConsumers(builder);

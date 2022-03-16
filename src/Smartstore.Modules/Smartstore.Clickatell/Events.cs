@@ -25,11 +25,6 @@ namespace Smartstore.Clickatell
             }
 
             var module = services.ApplicationContext.ModuleCatalog.GetModuleByAssembly(typeof(Events).Assembly);
-            if (!providerManager.IsActiveForStore(module, services.StoreContext.CurrentStore.Id))
-            {
-                return;
-            }
-
 
             await client.SendSmsAsync(
                 T("Plugins.Sms.Clickatell.OrderPlacedMessage", message.Order.GetOrderNumber()), 
