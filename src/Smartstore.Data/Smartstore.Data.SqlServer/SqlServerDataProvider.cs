@@ -306,7 +306,6 @@ OFFSET {skip} ROWS FETCH NEXT {take} ROWS ONLY";
 
         private static bool DetectSqlError(Exception ex, ICollection<int> errorCodes)
         {
-            // TODO: (core) Implement Sql error detection for other data providers.
             while (ex != null)
             {
                 if (ex is SqlException sqlException)
@@ -318,7 +317,6 @@ OFFSET {skip} ROWS FETCH NEXT {take} ROWS ONLY";
                             return true;
                         }
                     }
-
 
                     break;
                 }

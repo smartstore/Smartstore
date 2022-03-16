@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data.Common;
 using System.IO;
 using System.Linq;
@@ -9,6 +10,7 @@ using Dasync.Collections;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using MySqlConnector;
+using Pomelo.EntityFrameworkCore.MySql.Storage.Internal;
 using Smartstore.Data.Providers;
 
 namespace Smartstore.Data.MySql
@@ -172,6 +174,34 @@ LIMIT {take} OFFSET {skip}";
         public override Stream OpenBlobStream(string tableName, string blobColumnName, string pkColumnName, object pkColumnValue)
         {
             return new SqlBlobStream(Database, tableName, blobColumnName, pkColumnName, pkColumnValue);
+        }
+
+        public override bool IsTransientException(Exception ex)
+            => ex is MySqlException mySqlException
+                ? mySqlException.IsTransient
+                : ex is TimeoutException;
+
+        public override bool IsUniquenessViolationException(DbUpdateException updateException)
+        {
+            if (updateException?.InnerException is MySqlException ex)
+            {
+                switch (ex.ErrorCode)
+                {
+                    case MySqlErrorCode.DuplicateEntryWithKeyName:
+                    case MySqlErrorCode.DuplicateKey:
+                    case MySqlErrorCode.DuplicateKeyEntry:
+                    case MySqlErrorCode.DuplicateKeyName:
+                    case MySqlErrorCode.DuplicateUnique:
+                    case MySqlErrorCode.ForeignDuplicateKey:
+                    case MySqlErrorCode.DuplicateEntryAutoIncrementCase:
+                    case MySqlErrorCode.NonUnique:
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+
+            return false;
         }
 
         public override DbParameter CreateParameter()
