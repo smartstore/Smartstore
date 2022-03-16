@@ -32,7 +32,7 @@ namespace Smartstore.DevTools
             services.AddTransient<IDbContextConfigurationSource<SmartDbContext>, SmartDbContextConfigurer>();
 
             services.AddScoped<IChronometer, MiniProfilerChronometer>();
-            services.AddScoped<IFacetTemplateSelector, CustomFacetTemplateSelector>();
+            //services.AddScoped<IFacetTemplateSelector, CustomFacetTemplateSelector>();
 
             services.AddMiniProfiler(o =>
             {

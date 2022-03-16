@@ -25,12 +25,12 @@ namespace Smartstore.DevTools
 
                 // add in an own tab
 
-                await message.TabFactory.AddAsync(builder => builder.Text("Dev Tools")
-                    .Name("tab-dt")
-                    .Icon("fa fa-code fa-lg fa-fw")
-                    .LinkHtmlAttributes(new { data_tab_name = "DevTools" })
-                    .Action("ProductEditTab", "DevTools", new { productId })
-                    .Ajax());
+                //await message.TabFactory.AddAsync(builder => builder.Text("Dev Tools")
+                //    .Name("tab-dt")
+                //    .Icon("fa fa-code fa-lg fa-fw")
+                //    .LinkHtmlAttributes(new { data_tab_name = "DevTools" })
+                //    .Action("ProductEditTab", "DevTools", new { productId })
+                //    .Ajax());
             }
         }
 
