@@ -215,10 +215,11 @@ namespace Smartstore.Admin.Controllers
             do
             {
                 menus = await _db.Menus
-                    .ApplyStandardFilter(true)
+                    .ApplyStandardFilter(includeHidden: true)
+                    .ApplySorting()
                     .ToPagedList(pageIndex++, 500)
                     .LoadAsync();
-                
+
                 foreach (var menu in menus)
                 {
                     foreach (var item in menu.Items.Where(x => x.ProviderName != null && x.ProviderName == "entity"))

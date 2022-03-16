@@ -1,0 +1,165 @@
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using NUnit.Framework;
+using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Content.Menus;
+using Smartstore.Core.Security;
+using Smartstore.Core.Stores;
+
+namespace Smartstore.Core.Tests.Content.Menus
+{
+    [TestFixture]
+    public class MenuQueryExtensionsTests : ServiceTest
+    {
+        #region Test data
+
+        private readonly List<MenuEntity> _menus = new()
+        {
+            new MenuEntity { Id = 1, SystemName = "Menu1", Title = "Menu 1", DisplayOrder = 1, Published = true },
+            new MenuEntity { Id = 2, SystemName = "Menu2", Title = "Menu 2", DisplayOrder = 2, Published = false },
+            new MenuEntity { Id = 3, SystemName = "Menu3", Title = "Menu 3", DisplayOrder = 3, Published = true, LimitedToStores = true },
+            new MenuEntity { Id = 4, SystemName = "Menu4", Title = "Menu 4", DisplayOrder = 4, Published = true, LimitedToStores = true, SubjectToAcl = true },
+            new MenuEntity { Id = 5, SystemName = "Menu5", Title = "Menu 5", DisplayOrder = 5, Published = true, SubjectToAcl = true },
+        };
+
+        private readonly List<MenuItemEntity> _menuItems = new()
+        {
+            new MenuItemEntity { Id = 1, MenuId = 1, DisplayOrder = 1, Published = true },
+            new MenuItemEntity { Id = 2, MenuId = 1, DisplayOrder = 2, Published = false },
+            new MenuItemEntity { Id = 3, MenuId = 2, DisplayOrder = 1, Published = true },
+            new MenuItemEntity { Id = 4, MenuId = 3, DisplayOrder = 1, Published = true, LimitedToStores = true },
+            new MenuItemEntity { Id = 5, MenuId = 3, DisplayOrder = 2, Published = true },
+            new MenuItemEntity { Id = 6, MenuId = 4, DisplayOrder = 1, Published = true, LimitedToStores = true },
+            new MenuItemEntity { Id = 7, MenuId = 4, DisplayOrder = 2, Published = true }
+        };
+
+        private readonly List<StoreMapping> _storeMappings = new()
+        {
+            new StoreMapping { EntityId = 3, EntityName = nameof(MenuEntity), StoreId = 1 },
+            new StoreMapping { EntityId = 4, EntityName = nameof(MenuEntity), StoreId = 1 },
+            new StoreMapping { EntityId = 4, EntityName = nameof(MenuEntity), StoreId = 2 },
+            new StoreMapping { EntityId = 4, EntityName = nameof(MenuEntity), StoreId = 3 },
+            new StoreMapping { EntityId = 9, EntityName = nameof(MenuEntity), StoreId = 2 },
+
+            new StoreMapping { EntityId = 4, EntityName = nameof(MenuItemEntity), StoreId = 2 },
+            new StoreMapping { EntityId = 6, EntityName = nameof(MenuItemEntity), StoreId = 2 },
+        };
+
+        private readonly List<AclRecord> _aclRecords = new()
+        {
+            new AclRecord { EntityId = 4, EntityName = nameof(MenuEntity), CustomerRoleId = 1 },
+            new AclRecord { EntityId = 4, EntityName = nameof(MenuEntity), CustomerRoleId = 2 },
+            new AclRecord { EntityId = 5, EntityName = nameof(MenuEntity), CustomerRoleId = 1 },
+        };
+
+        #endregion
+
+        [OneTimeSetUp]
+        public new async Task SetUp()
+        {
+            await DbContext.Menus.AddRangeAsync(_menus);
+            await DbContext.MenuItems.AddRangeAsync(_menuItems);
+            await DbContext.StoreMappings.AddRangeAsync(_storeMappings);
+            await DbContext.AclRecords.AddRangeAsync(_aclRecords);
+
+            await DbContext.SaveChangesAsync();
+        }
+
+        [OneTimeTearDown]
+        public async Task Term()
+        {
+            DbContext.AclRecords.RemoveRange(_aclRecords);
+            DbContext.StoreMappings.RemoveRange(_storeMappings);
+            DbContext.MenuItems.RemoveRange(_menuItems);
+            DbContext.Menus.RemoveRange(_menus);
+
+            await DbContext.SaveChangesAsync();
+        }
+
+        [Test]
+        public async Task Can_query_menu_by_systemname()
+        {
+            var menus1 = await DbContext.Menus
+                .ApplyStandardFilter("Menu1")
+                .ApplySorting()
+                .ToListAsync();
+
+            Assert.AreEqual(menus1.Count, 1);
+            Assert.AreEqual(menus1[0].Id, 1);
+
+            var menus2 = await DbContext.Menus
+                .ApplyStandardFilter("Menu2")
+                .ApplySorting()
+                .ToListAsync();
+
+            Assert.AreEqual(menus2.Count, 0);
+        }
+
+        [Test]
+        public async Task Can_query_store_restricted_menu_items()
+        {
+            var items1 = await DbContext.Menus
+                .ApplyStandardFilter("Menu4", null, 1)
+                .ApplyMenuItemFilter(1)
+                .ToListAsync();
+
+            Assert.AreEqual(items1.Count, 1);
+            Assert.AreEqual(items1[0].Id, 7);
+
+            var items2 = await DbContext.Menus
+                .ApplyStandardFilter("Menu4", null, 2)
+                .ApplyMenuItemFilter(2)
+                .ToListAsync();
+
+            Assert.AreEqual(items2.Count, 2);
+            Assert.AreEqual(string.Join(",", items2.Select(x => x.Id)), "6,7");
+
+            var items3 = await DbContext.Menus
+                .ApplyStandardFilter("Menu4", null, 9)
+                .ApplyMenuItemFilter(9)
+                .ToListAsync();
+
+            Assert.AreEqual(items3.Count, 0);
+        }
+
+        [Test]
+        public async Task Can_query_acl_restricted_menu_items()
+        {
+            var items1 = await DbContext.Menus
+                .ApplyStandardFilter(null, null, 0, new[] { 1 })
+                .ApplyMenuItemFilter(0, new[] { 1 })
+                .ToListAsync();
+
+            Assert.AreEqual(items1.Count, 5);
+
+            var items2 = await DbContext.Menus
+                .ApplyStandardFilter("Menu4", null, 0, new[] { 2 })
+                .ApplyMenuItemFilter(0, new[] { 2 })
+                .ToListAsync();
+
+            Assert.AreEqual(items2.Count, 2);
+            Assert.AreEqual(string.Join(",", items2.Select(x => x.Id)), "6,7");
+
+            var items3 = await DbContext.Menus
+                .ApplyStandardFilter("Menu4", null, 0, new[] { 3,4 })
+                .ApplyMenuItemFilter(0, new[] { 3,4 })
+                .ToListAsync();
+
+            Assert.AreEqual(items3.Count, 0);
+        }
+
+        [Test]
+        public async Task Can_query_store_and_acl_restricted_menu_items()
+        {
+            var items = await DbContext.Menus
+                .ApplyStandardFilter(null, null, 2, new[] { 2 })
+                .ApplyMenuItemFilter(2, new[] { 2 })
+                .ToListAsync();
+
+            Assert.AreEqual(items.Count, 3);
+            Assert.AreEqual(string.Join(",", items.Select(x => x.Id)), "1,6,7");
+        }
+    }
+}

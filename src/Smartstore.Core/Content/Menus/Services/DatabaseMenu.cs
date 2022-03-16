@@ -7,7 +7,6 @@ using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Catalog.Search;
 using Smartstore.Core.Data;
-using Smartstore.Core.Stores;
 using Smartstore.Diagnostics;
 using Smartstore.Threading;
 
@@ -22,7 +21,6 @@ namespace Smartstore.Core.Content.Menus
 
         private readonly Lazy<ICatalogSearchService> _catalogSearchService;
         private readonly Lazy<ICategoryService> _categoryService;
-        private readonly IMenuStorage _menuStorage;
         private readonly CatalogSettings _catalogSettings;
         private readonly SearchSettings _searchSettings;
         private readonly IDictionary<string, Lazy<IMenuItemProvider, MenuItemProviderMetadata>> _menuItemProviders;
@@ -33,7 +31,6 @@ namespace Smartstore.Core.Content.Menus
             IMenuPublisher menuPublisher,
             Lazy<ICatalogSearchService> catalogSearchService,
             Lazy<ICategoryService> categoryService,
-            IMenuStorage menuStorage,
             CatalogSettings catalogSettings,
             SearchSettings searchSettings,
             IEnumerable<Lazy<IMenuItemProvider, MenuItemProviderMetadata>> menuItemProviders)
@@ -46,7 +43,6 @@ namespace Smartstore.Core.Content.Menus
 
             _catalogSearchService = catalogSearchService;
             _categoryService = categoryService;
-            _menuStorage = menuStorage;
             _catalogSettings = catalogSettings;
             _searchSettings = searchSettings;
             _menuItemProviders = menuItemProviders.ToDictionarySafe(x => x.Metadata.ProviderName, x => x);
@@ -211,11 +207,24 @@ namespace Smartstore.Core.Content.Menus
 
         protected override async Task<TreeNode<MenuItem>> BuildAsync(CacheEntryOptions cacheEntryOptions)
         {
-            var db = Services.DbContext;
-            var entities = await db.MenuItems
-                .ApplyMenuFilter(0, Name)
-                .ApplyStoreFilter(Services.StoreContext.CurrentStore.Id)
-                .ToListAsync();
+            IEnumerable<MenuItemEntity> entities;
+
+            if (Name.HasValue())
+            {
+                var db = Services.DbContext;
+                var store = Services.StoreContext.CurrentStore;
+                var customerRoleIds = Services.WorkContext.CurrentCustomer.GetRoleIds();
+
+                var query = db.Menus
+                    .ApplyStandardFilter(Name, null, store.Id, customerRoleIds)
+                    .ApplyMenuItemFilter(store.Id, customerRoleIds);
+
+                entities = await query.ToListAsync();
+            }
+            else
+            {
+                entities = Enumerable.Empty<MenuItemEntity>();
+            }
 
             var tree = await entities.GetTreeAsync("DatabaseMenu", _menuItemProviders);
 

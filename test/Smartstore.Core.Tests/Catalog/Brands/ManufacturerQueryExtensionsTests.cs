@@ -81,9 +81,9 @@ namespace Smartstore.Core.Tests.Catalog.Brands
         [OneTimeSetUp]
         public new async Task SetUp()
         {
-            DbContext.Manufacturers.AddRange(_manufacturers);
-            DbContext.StoreMappings.AddRange(_storeMappings);
-            DbContext.AclRecords.AddRange(_aclRecords);
+            await DbContext.Manufacturers.AddRangeAsync(_manufacturers);
+            await DbContext.StoreMappings.AddRangeAsync(_storeMappings);
+            await DbContext.AclRecords.AddRangeAsync(_aclRecords);
 
             await DbContext.SaveChangesAsync();
         }
@@ -105,7 +105,7 @@ namespace Smartstore.Core.Tests.Catalog.Brands
                 .ApplyStandardFilter()
                 .ToListAsync();
 
-            Assert.AreEqual(4, manufacturers.Count);
+            Assert.AreEqual(manufacturers.Count, 4);
             Assert.AreEqual(string.Join(",", manufacturers.Select(x => x.Id)), "1,3,4,5");
         }
 
@@ -124,7 +124,7 @@ namespace Smartstore.Core.Tests.Catalog.Brands
                 .ApplyStandardFilter(false, null, 2)
                 .ToListAsync();
 
-            Assert.AreEqual(3, manufacturers.Count);
+            Assert.AreEqual(manufacturers.Count, 3);
             Assert.AreEqual(string.Join(",", manufacturers.Select(x => x.Id)), "1,4,5");
         }
 
@@ -143,7 +143,7 @@ namespace Smartstore.Core.Tests.Catalog.Brands
                 .ApplyStandardFilter(false, new[] { 1, 2 }, 0)
                 .ToListAsync();
 
-            Assert.AreEqual(3, manufacturers.Count);
+            Assert.AreEqual(manufacturers.Count, 3);
             Assert.AreEqual(string.Join(",", manufacturers.Select(x => x.Id)), "1,3,4");
         }
 
@@ -154,7 +154,7 @@ namespace Smartstore.Core.Tests.Catalog.Brands
                 .ApplyStandardFilter(false, new[] { 1, 2 }, 2)
                 .ToListAsync();
 
-            Assert.AreEqual(2, manufacturers.Count);
+            Assert.AreEqual(manufacturers.Count, 2);
             Assert.AreEqual(string.Join(",", manufacturers.Select(x => x.Id)), "1,4");
         }
     }
