@@ -13,7 +13,9 @@
         <sort by="Name"></sort>
     </sorting>
     <toolbar>
-        <toolbar-group class="omega">
+        <toolbar-group class="omega"></toolbar-group>
+        <zone name="datagrid_toolbar_after"></zone>
+        <toolbar-group>
             <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger no-anims btn-flat">
                 <i class="far fa-trash-alt"></i>
                 <span>@T("Admin.Common.Delete.Selected")</span>
