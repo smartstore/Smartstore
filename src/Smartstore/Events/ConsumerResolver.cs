@@ -7,10 +7,6 @@ namespace Smartstore.Events
 {
     public class ConsumerResolver : IConsumerResolver
     {
-        public ConsumerResolver()
-        {
-        }
-
         public virtual IConsumer Resolve(ConsumerDescriptor descriptor)
         {
             if (descriptor.ModuleDescriptor == null || IsActiveForStore(descriptor.ModuleDescriptor))

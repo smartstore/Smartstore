@@ -7,13 +7,11 @@ namespace Smartstore.Engine.Modularity
     public partial class ProviderManager : IProviderManager
     {
         private readonly IComponentContext _ctx;
-        private readonly SmartDbContext _db;
         private readonly ISettingService _settingService;
 
-        public ProviderManager(IComponentContext ctx, SmartDbContext db, ISettingService settingService)
+        public ProviderManager(IComponentContext ctx, ISettingService settingService)
         {
             _ctx = ctx;
-            _db = db;
             _settingService = settingService;
         }
 
