@@ -13,6 +13,13 @@ namespace Smartstore.Licensing
         Licensed = 20
     }
 
+    public enum UnlicensedActionResult
+    {
+        Block,
+        NotFound,
+        Empty
+    }
+
     public static class LicenseChecker
     {
         private static readonly ConcurrentDictionary<Type, LicensableModuleInfo> _cachedModuleInfos = new();
@@ -141,10 +148,10 @@ namespace Smartstore.Licensing
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, Inherited = true, AllowMultiple = true)]
     public sealed class LicenseRequiredAttribute : ActionFilterAttribute
     {
-        public string PluginSystemName { get; set; }
+        public string ModuleSystemName { get; set; }
         public string MasterName { get; set; }
         public string ViewName { get; set; }
-        public bool EmptyResultWhenUnlicensed { get; set; }
+        public UnlicensedActionResult Result { get; set; }
         public bool BlockDemo { get; set; }
         public bool NotifyOnly { get; set; }
         public string NotificationMessage { get; set; }
