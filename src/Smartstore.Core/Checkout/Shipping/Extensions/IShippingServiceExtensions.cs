@@ -16,7 +16,7 @@ namespace Smartstore.Core.Checkout.Shipping
         /// </param>
         /// <param name="storeId">Store identifier.</param>
         /// <returns>Shipping option response.</returns>
-        public static async Task<ShippingOptionResponse> GetShippingOptionsAsync(
+        public static Task<ShippingOptionResponse> GetShippingOptionsAsync(
             this IShippingService shippingService,
             ShoppingCart cart,
             Address shippingAddress,
@@ -28,7 +28,7 @@ namespace Smartstore.Core.Checkout.Shipping
 
             var request = shippingService.CreateShippingOptionRequest(cart, shippingAddress, storeId);
 
-            return await shippingService.GetShippingOptionsAsync(request, allowedShippingRateComputationMethodSystemName);
+            return shippingService.GetShippingOptionsAsync(request, allowedShippingRateComputationMethodSystemName);
         }
     }
 }
