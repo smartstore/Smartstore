@@ -145,6 +145,7 @@ namespace Smartstore.Core.Content.Menus
                         Published = topic.IsPublished,
                         SubjectToAcl = topic.SubjectToAcl,
                         LimitedToStores = topic.LimitedToStores,
+                        // TODO: (mg) (core) Are you REALLY sure about this?
                         LocalizedPropertyNames = new[] { nameof(Topic.Title), nameof(Topic.ShortTitle) }
                     };
                 }
