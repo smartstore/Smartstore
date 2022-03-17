@@ -3,7 +3,7 @@
 @{
     var parentModel = ViewData["Parent"] as CategoryListModel;
     var isSingleStoreMode = (bool)ViewBag.IsSingleStoreMode;
-    var hasToolbarZoneContent = Display.ZoneHasContent("datagrid_toolbar_after");
+    var hasToolbarZoneContent = Display.ZoneHasContent("datagrid_toolbar_omega");
 }
 
 <datagrid id="categories-grid"
@@ -29,7 +29,7 @@
                 <span>@T("Admin.Common.AddNew")…</span>
             </a>
         </toolbar-group>
-        <zone name="datagrid_toolbar_after"></zone>
+        <zone name="datagrid_toolbar_omega"></zone>
     </toolbar>
     <search-panel>
         <partial name="_Grid.Categories.Search" model="parentModel" />
