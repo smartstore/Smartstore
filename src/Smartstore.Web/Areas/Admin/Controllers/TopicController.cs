@@ -104,7 +104,7 @@ namespace Smartstore.Admin.Controllers
                     var model = await mapper.MapAsync(x);
                     await PrepareTopicModelAsync(x, model);
 
-                    model.WidgetZoneValue = x.WidgetZone;
+                    model.WidgetZoneValue = string.Join(", ", x.GetWidgetZones());
                     model.CookieType = (int?)x.CookieType;
                     model.Body = string.Empty;  // Otherwise maxJsonLength could be exceeded.
                     model.Intro = string.Empty; // Otherwise grind may slow down

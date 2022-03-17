@@ -428,6 +428,7 @@ namespace Smartstore.Admin.Controllers
             {
                 var mapper = MapperFactory.GetMapper<CategoryModel, Category>();
                 await mapper.MapAsync(model, category);
+                category.ParentCategoryId = model.ParentCategoryId ?? 0;
 
                 var validateSlugResult = await category.ValidateSlugAsync(model.SeName, category.Name, true);
                 await _urlService.ApplySlugAsync(validateSlugResult);
@@ -670,7 +671,7 @@ namespace Smartstore.Admin.Controllers
                 }
                 else
                 {
-                    model.ParentCategoryId = 0;
+                    model.ParentCategoryId = null;
                 }
             }
 

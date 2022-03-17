@@ -98,6 +98,9 @@ namespace Smartstore.Admin.Models.Topics
         [UIHint("WidgetZone")]
         public string[] WidgetZone { get; set; }
 
+        [LocalizedDisplay("*WidgetZone")]
+        public string WidgetZoneValue { get; set; }
+
         [LocalizedDisplay("*WidgetWrapContent")]
         public bool WidgetWrapContent { get; set; } = true;
 
@@ -127,8 +130,6 @@ namespace Smartstore.Admin.Models.Topics
         public Dictionary<string, string> MenuLinks { get; set; } = new();
 
         public string ViewUrl { get; set; }
-
-        public string WidgetZoneValue { get; set; }
     }
 
     [LocalizedDisplay("Admin.ContentManagement.Topics.Fields.")]

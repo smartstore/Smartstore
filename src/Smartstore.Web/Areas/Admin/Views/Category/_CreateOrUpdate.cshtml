@@ -4,7 +4,7 @@
     var parentCategoryBreadcrumb = (string)ViewBag.ParentCategoryBreadcrumb;
     var parentCategoryPlaceholder = "[" + T("Common.Unspecified") + "]";
 
-    var parentCategoryItems = Model.ParentCategoryId == null
+    var parentCategoryItems = Model.ParentCategoryId.GetValueOrDefault() == 0
         ? Enumerable.Empty<SelectListItem>()
         : new List<SelectListItem> { new SelectListItem { Text = parentCategoryBreadcrumb, Value = Model.ParentCategoryId.ToString() } };
 

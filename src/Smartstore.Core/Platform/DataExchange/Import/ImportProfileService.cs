@@ -194,19 +194,20 @@ namespace Smartstore.Core.DataExchange.Import
             var tenantRoot = _appContext.TenantRoot;
 
             var importProfileFolders = await _db.ImportProfiles
-                .AsNoTracking()
                 .ApplyStandardFilter()
                 .Select(x => x.FolderName)
                 .ToListAsync();
 
             var dir = await tenantRoot.GetDirectoryAsync(tenantRoot.PathCombine(IMPORT_FILE_ROOT));
-
-            foreach (var subdir in dir.EnumerateDirectories())
+            if (dir.Exists)
             {
-                if (!importProfileFolders.Contains(subdir.Name))
+                foreach (var subdir in dir.EnumerateDirectories())
                 {
-                    dir.FileSystem.ClearDirectory(subdir, true, TimeSpan.Zero);
-                    numFolders++;
+                    if (!importProfileFolders.Contains(subdir.Name))
+                    {
+                        dir.FileSystem.ClearDirectory(subdir, true, TimeSpan.Zero);
+                        numFolders++;
+                    }
                 }
             }
 

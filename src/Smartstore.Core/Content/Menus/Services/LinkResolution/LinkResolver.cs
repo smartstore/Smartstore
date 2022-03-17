@@ -228,7 +228,7 @@ namespace Smartstore.Core.Content.Menus
 
             if (result.Label.IsEmpty())
             {
-                result.Label = summary.ShortTitle.NullEmpty() ?? summary.Title.NullEmpty() ?? summary.Name;
+                result.Label = summary.Title.NullEmpty() ?? summary.ShortTitle.NullEmpty() ?? summary.Name;
             }
         }
     }
