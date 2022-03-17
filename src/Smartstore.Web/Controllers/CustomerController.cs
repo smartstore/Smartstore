@@ -1098,7 +1098,7 @@ namespace Smartstore.Web.Controllers
                 .ToPagedList(orderPageIndex, _orderSettings.OrderListPageSize)
                 .LoadAsync();
 
-            var customerCurrencyCodes = orders.Select(x => x.CustomerCurrencyCode).Distinct().ToArray();
+            var customerCurrencyCodes = orders.ToDistinctArray(x => x.CustomerCurrencyCode);
             var customerCurrencies = (await _db.Currencies
                 .AsNoTracking()
                 .Where(x => customerCurrencyCodes.Contains(x.CurrencyCode))
@@ -1108,20 +1108,19 @@ namespace Smartstore.Web.Controllers
             var orderModels = await orders
                 .SelectAsync(async x =>
                 {
+                    customerCurrencies.TryGetValue(x.CustomerCurrencyCode, out var customerCurrency);
+
+                    (var orderTotal, _) = await _orderService.GetOrderTotalInCustomerCurrencyAsync(x, customerCurrency);
+
                     var orderModel = new CustomerOrderListModel.OrderDetailsModel
                     {
                         Id = x.Id,
                         OrderNumber = x.GetOrderNumber(),
                         CreatedOn = _dateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc),
                         OrderStatus = await _localizationService.GetLocalizedEnumAsync(x.OrderStatus),
-                        IsReturnRequestAllowed = _orderProcessingService.IsReturnRequestAllowed(x)
+                        IsReturnRequestAllowed = _orderProcessingService.IsReturnRequestAllowed(x),
+                        OrderTotal = orderTotal
                     };
-
-                    // TODO: (mh) (core) Check format!
-                    customerCurrencies.TryGetValue(x.CustomerCurrencyCode, out var customerCurrency);
-
-                    (var orderTotal, var roundingAmount) = await _orderService.GetOrderTotalInCustomerCurrencyAsync(x, customerCurrency);
-                    orderModel.OrderTotal = orderTotal;
 
                     return orderModel;
                 })
