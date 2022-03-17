@@ -15,6 +15,9 @@ namespace Smartstore.Core.Tests.Content.Menus
     {
         #region Test data
 
+        private readonly static string _menuEntityName = new MenuEntity().GetEntityName();
+        private readonly static string _menuItemEntityName = new MenuItemEntity().GetEntityName();
+
         private readonly List<MenuEntity> _menus = new()
         {
             new MenuEntity { Id = 1, SystemName = "Menu1", Title = "Menu 1", DisplayOrder = 1, Published = true },
@@ -37,21 +40,21 @@ namespace Smartstore.Core.Tests.Content.Menus
 
         private readonly List<StoreMapping> _storeMappings = new()
         {
-            new StoreMapping { EntityId = 3, EntityName = nameof(MenuEntity), StoreId = 1 },
-            new StoreMapping { EntityId = 4, EntityName = nameof(MenuEntity), StoreId = 1 },
-            new StoreMapping { EntityId = 4, EntityName = nameof(MenuEntity), StoreId = 2 },
-            new StoreMapping { EntityId = 4, EntityName = nameof(MenuEntity), StoreId = 3 },
-            new StoreMapping { EntityId = 9, EntityName = nameof(MenuEntity), StoreId = 2 },
+            new StoreMapping { EntityId = 3, EntityName = _menuEntityName, StoreId = 1 },
+            new StoreMapping { EntityId = 4, EntityName = _menuEntityName, StoreId = 1 },
+            new StoreMapping { EntityId = 4, EntityName = _menuEntityName, StoreId = 2 },
+            new StoreMapping { EntityId = 4, EntityName = _menuEntityName, StoreId = 3 },
+            new StoreMapping { EntityId = 9, EntityName = _menuEntityName, StoreId = 2 },
 
-            new StoreMapping { EntityId = 4, EntityName = nameof(MenuItemEntity), StoreId = 2 },
-            new StoreMapping { EntityId = 6, EntityName = nameof(MenuItemEntity), StoreId = 2 },
+            new StoreMapping { EntityId = 4, EntityName = _menuItemEntityName, StoreId = 2 },
+            new StoreMapping { EntityId = 6, EntityName = _menuItemEntityName, StoreId = 2 },
         };
 
         private readonly List<AclRecord> _aclRecords = new()
         {
-            new AclRecord { EntityId = 4, EntityName = nameof(MenuEntity), CustomerRoleId = 1 },
-            new AclRecord { EntityId = 4, EntityName = nameof(MenuEntity), CustomerRoleId = 2 },
-            new AclRecord { EntityId = 5, EntityName = nameof(MenuEntity), CustomerRoleId = 1 },
+            new AclRecord { EntityId = 4, EntityName = _menuEntityName, CustomerRoleId = 1 },
+            new AclRecord { EntityId = 4, EntityName = _menuEntityName, CustomerRoleId = 2 },
+            new AclRecord { EntityId = 5, EntityName = _menuEntityName, CustomerRoleId = 1 },
         };
 
         #endregion

@@ -15,6 +15,9 @@ namespace Smartstore.Core.Tests.Catalog.Brands
     {
         #region Test data
 
+        private readonly static string _manufacturerEntityName = new Manufacturer().GetEntityName();
+        private readonly static string _productEntityName = new Product().GetEntityName();
+
         private readonly List<Manufacturer> _manufacturers = new()
         {
             new Manufacturer
@@ -61,19 +64,19 @@ namespace Smartstore.Core.Tests.Catalog.Brands
 
         private readonly List<StoreMapping> _storeMappings = new()
         {
-            new StoreMapping { EntityId = 3, EntityName = nameof(Manufacturer), StoreId = 1 },
-            new StoreMapping { EntityId = 4, EntityName = nameof(Manufacturer), StoreId = 1 },
-            new StoreMapping { EntityId = 4, EntityName = nameof(Manufacturer), StoreId = 2 },
-            new StoreMapping { EntityId = 4, EntityName = nameof(Manufacturer), StoreId = 3 },
-            new StoreMapping { EntityId = 9, EntityName = nameof(Manufacturer), StoreId = 2 },
-            new StoreMapping { EntityId = 4, EntityName = nameof(Product), StoreId = 2 }
+            new StoreMapping { EntityId = 3, EntityName = _manufacturerEntityName, StoreId = 1 },
+            new StoreMapping { EntityId = 4, EntityName = _manufacturerEntityName, StoreId = 1 },
+            new StoreMapping { EntityId = 4, EntityName = _manufacturerEntityName, StoreId = 2 },
+            new StoreMapping { EntityId = 4, EntityName = _manufacturerEntityName, StoreId = 3 },
+            new StoreMapping { EntityId = 9, EntityName = _manufacturerEntityName, StoreId = 2 },
+            new StoreMapping { EntityId = 4, EntityName = _productEntityName, StoreId = 2 }
         };
 
         private readonly List<AclRecord> _aclRecords = new()
         {
-            new AclRecord { EntityId = 4, EntityName = nameof(Manufacturer), CustomerRoleId = 1 },
-            new AclRecord { EntityId = 4, EntityName = nameof(Manufacturer), CustomerRoleId = 2 },
-            new AclRecord { EntityId = 5, EntityName = nameof(Manufacturer), CustomerRoleId = 3 }
+            new AclRecord { EntityId = 4, EntityName = _manufacturerEntityName, CustomerRoleId = 1 },
+            new AclRecord { EntityId = 4, EntityName = _manufacturerEntityName, CustomerRoleId = 2 },
+            new AclRecord { EntityId = 5, EntityName = _manufacturerEntityName, CustomerRoleId = 3 }
         };
 
         #endregion
@@ -89,7 +92,7 @@ namespace Smartstore.Core.Tests.Catalog.Brands
         }
 
         [OneTimeTearDown]
-        public async Task Term()
+        public async Task Teardown()
         {
             DbContext.AclRecords.RemoveRange(_aclRecords);
             DbContext.StoreMappings.RemoveRange(_storeMappings);

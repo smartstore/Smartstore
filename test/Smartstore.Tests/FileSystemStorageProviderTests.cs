@@ -35,7 +35,7 @@ namespace Smartstore.Tests
         }
 
         [OneTimeTearDown]
-        public void Term()
+        public void Teardown()
         {
             Directory.Delete(_folderPath, true);
         }
