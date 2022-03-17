@@ -23,7 +23,8 @@ namespace Smartstore.Google.MerchantCenter
             {
                 var productId = ((TabbableModel)message.Model).Id;
 
-                await message.TabFactory.AddAsync(builder => builder.Text("GMC")
+                await message.TabFactory.AddAsync(builder => builder
+                    .Text("GMC")
                     .Name("tab-gmc")
                     .Icon("google", "bi")
                     .LinkHtmlAttributes(new { data_tab_name = "GMC" })

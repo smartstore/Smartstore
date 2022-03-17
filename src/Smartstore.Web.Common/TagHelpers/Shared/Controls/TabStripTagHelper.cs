@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Razor.TagHelpers;
+using Smartstore.Core.Localization;
 using Smartstore.Events;
 using Smartstore.Web.Modelling;
 using Smartstore.Web.Rendering;
@@ -134,20 +135,38 @@ namespace Smartstore.Web.TagHelpers.Shared
         {
             await output.GetChildContentAsync();
 
-            // Give integrators the chance to add tabs.
+            // Give integrators the chance to add tabs and widgets.
             if (PublishEvent && Id.HasValue())
             {
                 var eventPublisher = ViewContext.HttpContext.RequestServices.GetRequiredService<IEventPublisher>();
-                await  eventPublisher.PublishAsync(new TabStripCreated(this, context));
+                var e = new TabStripCreated(this, context);
+                await  eventPublisher.PublishAsync(e);
+
+                if (e.Widgets != null && e.Widgets.Count > 0)
+                {
+                    var widgetContent = new HtmlContentBuilder();
+
+                    foreach (var widget in e.Widgets.OrderBy(x => x.Order))
+                    {
+                        widgetContent.AppendHtml(await widget.InvokeAsync(ViewContext, e.Model));
+                        widgetContent.AppendLine();
+                    }
+                    
+                    // Combine all custom widgets into one special tab named MODULE_WIDGETS
+                    await e.TabFactory.AddAsync(builder => builder
+                        .Text(EngineContext.Current.ResolveService<IText>().Get("Admin.Plugins"))
+                        .Name("tab-special-module-widgets")
+                        .Icon("puzzle", "bi")
+                        .LinkHtmlAttributes(new { data_tab_name = "MODULE_WIDGETS" })
+                        .Content(widgetContent)
+                        .Ajax(false));
+                }
             }
 
             if (Tabs.Count == 0)
             {
                 output.SuppressOutput();
             }
-
-            MoveSpecialTabToEnd(Tabs);
-            //RecalculateTabIndexes(Tabs);
 
             var hasContent = Tabs.Any(x => x.HasContent || x.Ajax);
             var isTabbable = Position != TabsPosition.Top;
@@ -567,17 +586,6 @@ namespace Smartstore.Web.TagHelpers.Shared
             }
 
             return null;
-        }
-
-        private static void MoveSpecialTabToEnd(List<TabTagHelper> tabs)
-        {
-            var idx = tabs.FindIndex(x => x.Name == "tab-special-plugin-widgets");
-            if (idx > -1 && idx < (tabs.Count - 1))
-            {
-                var tab = tabs[idx];
-                tabs.RemoveAt(idx);
-                tabs.Add(tab);
-            }
         }
 
         private static void RecalculateTabIndexes(List<TabTagHelper> tabs)
