@@ -259,10 +259,14 @@ input.form-control-plaintext {
     margin-right: 0.5rem;
     border-right: 1px solid var(--dg-border-color);
 
-    &.omega {
+    &.omega,
+    &:last-child {
         border-right-width: 0;
         padding-right: 0;
         margin-right: 0;
+    }
+
+    &.omega {
         margin-left: auto;
     }
 }
