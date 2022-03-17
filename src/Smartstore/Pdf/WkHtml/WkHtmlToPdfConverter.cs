@@ -190,6 +190,7 @@ namespace Smartstore.Pdf.WkHtml
 
                 _process = Process.Start(new ProcessStartInfo
                 {
+                    WorkingDirectory = AppContext.BaseDirectory,
                     FileName = toolName,
                     Arguments = arguments,
                     WindowStyle = ProcessWindowStyle.Hidden,
