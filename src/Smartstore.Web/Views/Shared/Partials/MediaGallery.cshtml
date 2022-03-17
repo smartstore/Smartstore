@@ -20,6 +20,7 @@
                         var linkTitle = T("Product.ThumbTitle", Model.ModelName, (i + 1).ToString());
                         var picTitle = linkTitle;
                         var picAlt = T("Product.ThumbAlternateText", Model.ModelName, (i + 1).ToString());
+                        var isVideo = file.MediaType == MediaType.Video;
 
                         if (file.Alt != null && file.Alt != Model.ModelName)
                         {
@@ -31,7 +32,7 @@
                             picTitle = file.TitleAttribute;
                         }
 
-                        <div class="gal-item" itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
+                        <div class="gal-item" itemprop="associatedMedia" itemscope itemtype="http://schema.org/@(isVideo ? "Video" : "Image")Object">
                             <a class="gal-item-viewport"
                                itemprop="contentUrl"
                                href="@file.GetUrl()"
@@ -41,6 +42,11 @@
                                data-medium-image="@file.GetUrl(Model.ImageSize)"
                                title="@linkTitle"
                                data-picture-id="@file.Id">
+                                @if (isVideo)
+                                {
+                                    <meta itemprop="thumbnailURL" content="@file.GetUrl(MediaSettings.ThumbnailSizeMd)" />
+                                    <meta itemprop="embedURL" content="@file.GetUrl()" />
+                                }
                                 <media sm-file="file" sm-size="Model.ThumbSize" class="gal-item-content" alt="@picAlt" title="@picTitle" />
                             </a>
                         </div>
