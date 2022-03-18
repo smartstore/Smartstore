@@ -30,7 +30,7 @@ Vue.component("sm-datagrid", {
                     <h6 class="m-0 text-muted">Filter</h6>
                     <button v-show="numSearchFilters > 0" type="button" class="dg-filter-reset btn btn-light btn-flat btn-sm ml-auto" @click.prevent.stop="resetSearchFilters()">
                         <i class="fa fa-filter-circle-xmark"></i>
-                        <span>Reset</span><!-- TODO: (mh) (core) Localize -->
+                        <span>{{ T.resetState }}</span>
                     </button>
                 </div>
                 <form class="dg-search-body p-3 m-0">
@@ -1417,11 +1417,32 @@ Vue.component("sm-datagrid", {
             const form = $(this.$el).find(".dg-search-body");
             const obj = form.serializeToJSON();
 
+            // Set isBusy = true to prevent read() from accessing the database every time an element is updated.
+            this.isBusy = true;
+
             Object.keys(obj)
                 .filter(key => {
                     const el = form.find("[name='" + key + "']");
-                    el.val(null).trigger('change');
+                    el.val(null);
+                    // Trigger change must be called here for every selectbox else they won't change display. The final event trigger is called a little later.
+                    if (el.is("select")) {
+                        el.trigger('change');
+                    }
                 });
+
+            // Now read can access database once on final call of trigger event.
+            this.isBusy = false;
+
+            var firstElem = form.find("input:first");
+
+            // In case search form consists of select boxes only.
+            if (firstElem.length == 0) {
+                firstElem = form.find("select:first");
+                firstElem.trigger('change');
+            }
+            else {
+                firstElem.trigger('focusout');
+            }            
         },
 
         // #endregion
