@@ -45,6 +45,10 @@ namespace Smartstore.Core.Checkout.Orders
                     else
                     {
                         _state = new CheckoutState();
+
+                        // INFO: 'Save' is necessary because in UseCheckoutState it is too late for the very first saving of CheckoutState.
+                        // It would produce InvalidOperationException 'The session cannot be established after the response has started'.
+                        Save();
                     }
 
                     _state.PropertyChanged += OnPropertyChanged;
