@@ -27,9 +27,11 @@ input.form-control-plaintext {
 .datagrid-root {
     --dg-border-color: #{$dg-border};
     --dg-header-bg: #{$light};
+    //--dg-header-bg: #fff;
     --dg-footer-bg: #{$white};
     --dg-pager-bg: #{$light};
     --dg-toolbar-bg: #{$light};
+    //--dg-toolbar-bg: #{mix($light, #fff)};
     --dg-row-bg: #fff;
     --dg-row-even-bg: #fff;
     --dg-row-hover-color: #{$dg-hover};
@@ -325,7 +327,7 @@ input.form-control-plaintext {
 
 .dg-table:not(.dg-resizing) .dg-sortable {
     cursor: pointer;
-    //transition: background-color 0.1s ease-in-out;
+    //transition: background-color 0.1s;
 
     &:hover {
         background-color: rgba(#000, 0.035);
