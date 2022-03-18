@@ -1,6 +1,8 @@
-﻿@model string
+﻿@using Smartstore.Utilities
 
-@{ 
+@model string
+
+@{
     // We are not going to enable localized views just for this,
     // but do it the shitty way just for once.
     var helpPartialName = "SearchExpressionHelp";
@@ -9,10 +11,12 @@
     {
         helpPartialName += ".de";
     }
+
+    var attributes = new AttributeDictionary().Merge(CommonHelper.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
 }
 
 <div class="has-icon has-icon-right">
-    <input asp-for="@Model" />
+    <input asp-for="@Model" attrs="attributes" />
     <span class="input-group-icon">
         <a href="javascript:;" class="search-expression-toggle">
             <i class="fa fa-circle-question"></i>
