@@ -54,11 +54,13 @@ namespace Smartstore.Pdf.WkHtml
 
         private static async Task<string> GetToolNameAsync()
         {
+            var services = EngineContext.Current.Application.Services;
             var message = @"Unable to install PDF processor tool 'wkhtmltopdf'. PDF documents may not be generated unless you manually install 'wkhtmltopdf' on your web server. Please contact your hosting provider or system administrator to install the appropriate package for your operating system. See: https://wkhtmltopdf.org/downloads.html";
+            var toolName = "wkhtmltopdf";
 
             try
             {
-                var libraryManager = EngineContext.Current.Application.Services.Resolve<INativeLibraryManager>();
+                var libraryManager = services.Resolve<INativeLibraryManager>();
 
                 var fi = libraryManager.GetNativeExecutable("wkhtmltopdf");
 
@@ -72,17 +74,21 @@ namespace Smartstore.Pdf.WkHtml
                 {
                     GetLogger().Warn(message);
                 }
+                else
+                {
+                    toolName = fi.FullName;
+                }
             }
             catch (Exception ex)
             {
                 GetLogger().Warn(ex, message);
             }
 
-            return "wkhtmltopdf";
+            return toolName;
 
-            static ILogger GetLogger()
+            ILogger GetLogger()
             {
-                return EngineContext.Current.Application.Services.Resolve<ILogger<WkHtmlToPdfConverter>>();
+                return services.Resolve<ILogger<WkHtmlToPdfConverter>>();
             }
         }
 
@@ -190,7 +196,6 @@ namespace Smartstore.Pdf.WkHtml
 
                 _process = Process.Start(new ProcessStartInfo
                 {
-                    WorkingDirectory = AppContext.BaseDirectory,
                     FileName = toolName,
                     Arguments = arguments,
                     WindowStyle = ProcessWindowStyle.Hidden,
