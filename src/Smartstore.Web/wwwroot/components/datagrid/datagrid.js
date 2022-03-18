@@ -28,8 +28,9 @@ Vue.component("sm-datagrid", {
             <div v-if="hasSearchPanel" class="dg-search d-flex flex-column" :class="{ show: options.showSearch }">
                 <div class="dg-search-header d-flex py-3 mx-3">
                     <h6 class="m-0 text-muted">Filter</h6>
-                    <button type="button" class="dg-filter-reset btn btn-secondary btn-flat btn-sm btn-icon ml-auto" @click.prevent.stop="resetFilters()" title="Reset">
-                        <i class="fa fa-fw fa-ban"></i>
+                    <button v-show="numSearchFilters > 0" type="button" class="dg-filter-reset btn btn-light btn-flat btn-sm ml-auto" @click.prevent.stop="resetSearchFilters()">
+                        <i class="fa fa-filter-circle-xmark"></i>
+                        <span>Reset</span><!-- TODO: (mh) (core) Localize -->
                     </button>
                 </div>
                 <form class="dg-search-body p-3 m-0">
@@ -1319,17 +1320,6 @@ Vue.component("sm-datagrid", {
                 .off(".validate");
         },
 
-        resetFilters() {
-            const form = $(this.$el).find(".dg-search-body");
-            const obj = form.serializeToJSON();
-
-            Object.keys(obj)
-                .filter(key => {
-                    const el = form.find("[name='" + key + "']");
-                    el.val(null).trigger('change');
-                });
-        },
-
         validateRowForm() {
             const validator = $(this.$refs.tableWrapper).data("validator");
             //const validator = this.createRowValidator();
@@ -1421,6 +1411,17 @@ Vue.component("sm-datagrid", {
 
                 $.extend(true, command, obj);
             }
+        },
+
+        resetSearchFilters() {
+            const form = $(this.$el).find(".dg-search-body");
+            const obj = form.serializeToJSON();
+
+            Object.keys(obj)
+                .filter(key => {
+                    const el = form.find("[name='" + key + "']");
+                    el.val(null).trigger('change');
+                });
         },
 
         // #endregion
