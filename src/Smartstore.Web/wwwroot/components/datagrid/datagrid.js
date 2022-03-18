@@ -409,11 +409,15 @@ Vue.component("sm-datagrid", {
 
         // Bind search control events
         if (this.hasSearchPanel) {
+            var readWhenNotBusy = function () {
+                if (!self.isBusy)
+                    self.read();
+            };
             var search = $(this.$el).find(".dg-search-body");
-            search.on("change", "select", this.read);
-            search.on("change", "input[type='checkbox'], input[type='radio']", this.read);
+            search.on("change", "select", readWhenNotBusy);
+            search.on("change", "input[type='checkbox'], input[type='radio']", readWhenNotBusy);
             search.on("keydown focusout", "textarea, input", e => {
-                if (e.target.type === 'checkbox' || e.target.type === 'radio') {
+                if (self.isBusy || e.target.type === 'checkbox' || e.target.type === 'radio') {
                     return;
                 }
                 if (e.type === "focusout" || (e.type === "keydown" && e.keyCode == 13)) {
@@ -779,7 +783,7 @@ Vue.component("sm-datagrid", {
         read(force, initial) {
             if (!force && this.isBusy)
                 return;
-
+            
             const self = this;
             self.cancelEdit();
 
@@ -803,6 +807,7 @@ Vue.component("sm-datagrid", {
             self.isBusy = true;
             self.$emit("data-binding", command);
 
+            
             $.ajax({
                 url: this.dataSource.read,
                 type: 'POST',
@@ -1421,7 +1426,7 @@ Vue.component("sm-datagrid", {
             this.isBusy = true;
 
             Object.keys(obj)
-                .filter(key => {
+                .forEach(key => {
                     const el = form.find("[name='" + key + "']");
                     el.val(null);
                     // Trigger change must be called here for every selectbox else they won't change display. The final event trigger is called a little later.
@@ -1430,19 +1435,10 @@ Vue.component("sm-datagrid", {
                     }
                 });
 
-            // Now read can access database once on final call of trigger event.
+            // Now read() can access database once on final call of trigger event.
             this.isBusy = false;
 
-            var firstElem = form.find("input:first");
-
-            // In case search form consists of select boxes only.
-            if (firstElem.length == 0) {
-                firstElem = form.find("select:first");
-                firstElem.trigger('change');
-            }
-            else {
-                firstElem.trigger('focusout');
-            }            
+            this.read();
         },
 
         // #endregion
