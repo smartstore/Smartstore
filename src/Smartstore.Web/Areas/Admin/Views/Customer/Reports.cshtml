@@ -3,8 +3,6 @@
 @{
     ViewBag.Title = T("Admin.Customers.Reports").Value;
 
-    Assets.BodyAttributes.AppendCssClass("spa-layout");
-
     var gridViewData = new ViewDataDictionary(this.ViewData);
     gridViewData["Parent"] = Model;
 }

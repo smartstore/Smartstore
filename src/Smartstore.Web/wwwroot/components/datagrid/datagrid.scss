@@ -55,14 +55,13 @@ input.form-control-plaintext {
     height: 100%;
     opacity: 0;
     transform: scale(1.0125, 1.0125);
-    transition-property: opacity, transform;
-    transition-duration: 0.6s;
-    transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
-    will-change: transform;
+    transition-property: transform, opacity;
+    transition-duration: 0.4s;
+    transition-timing-function: cubic-bezier(0, 0.55, 0.45, 1); // easeOutCirc
 
     &.datagrid-ready {
-        opacity: 1;
-        transform: none;
+        opacity: 1 !important;
+        transform: scale(1, 1) !important;
     }
 }
 
