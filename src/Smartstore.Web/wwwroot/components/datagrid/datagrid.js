@@ -376,7 +376,7 @@ Vue.component("sm-datagrid", {
         // Load user prefs
         this.originalState = this.getGridState();
         if (this.options.preserveState) {
-            var userPrefs = JSON.parse(localStorage.getItem('sm:grid:state:' + this.options.stateKey));
+            const userPrefs = JSON.parse(localStorage.getItem('sm:grid:state:' + this.options.stateKey));
             this.userPrefs = userPrefs?.version === this.options.version ? userPrefs : null;
         }  
 
@@ -783,6 +783,10 @@ Vue.component("sm-datagrid", {
         read(force, initial) {
             if (!force && this.isBusy)
                 return;
+
+            // Prevent dupe read after restoring user prefs
+            if (!initial && !this.ready)
+                return;
             
             const self = this;
             self.cancelEdit();
@@ -806,7 +810,6 @@ Vue.component("sm-datagrid", {
 
             self.isBusy = true;
             self.$emit("data-binding", command);
-
             
             $.ajax({
                 url: this.dataSource.read,
