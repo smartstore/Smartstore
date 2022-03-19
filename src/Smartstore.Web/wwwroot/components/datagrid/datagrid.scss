@@ -53,6 +53,35 @@ input.form-control-plaintext {
     display: flex;
     flex-flow: row;
     height: 100%;
+    opacity: 0;
+    transform: scale(1.0125, 1.0125);
+    transition-property: opacity, transform;
+    transition-duration: 0.6s;
+    transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: transform;
+
+    &.datagrid-ready {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+.datagrid-loader,
+.dg-blocker {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 999;
+}
+
+.datagrid-loader {
+    background-color: #fff;
+
+    .datagrid-ready + & {
+        display: none;
+    }
 }
 
 .dg-grid {
@@ -73,13 +102,7 @@ input.form-control-plaintext {
 }
 
 .dg-blocker {
-    position: absolute;
-    left: 0;
-    top: 0;
-    right: 0;
-    bottom: 0;
     background-color: transparent;
-    z-index: 999;
 }
 
 .dg-no-data > td {

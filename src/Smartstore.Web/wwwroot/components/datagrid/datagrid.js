@@ -22,7 +22,7 @@ Vue.component("sm-datagrid", {
     template: `
         <div class="datagrid" 
             :style="{ maxHeight: options.maxHeight, '--dg-search-width': options.searchPanelWidth }" 
-            :class="{ 'datagrid-has-search': hasSearchPanel }" 
+            :class="{ 'datagrid-has-search': hasSearchPanel, 'datagrid-ready': ready }" 
             ref="grid">
 
             <div v-if="hasSearchPanel" class="dg-search d-flex flex-column" :class="{ show: options.showSearch }">
@@ -817,7 +817,7 @@ Vue.component("sm-datagrid", {
                 cache: false,
                 dataType: 'json',
                 data: command,
-                global: true,
+                global: !initial,
                 success(result) {
                     self.rows = result.rows !== undefined ? result.rows : result;
                     self.total = result.total || self.rows.length;

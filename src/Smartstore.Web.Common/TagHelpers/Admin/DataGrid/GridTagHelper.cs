@@ -23,6 +23,8 @@ namespace Smartstore.Web.TagHelpers.Admin
     [RestrictChildren("columns", "datasource", "paging", "toolbar", "sorting", "search-panel", "row-commands", "detail-view")]
     public class GridTagHelper : SmartTagHelper
     {
+        const string LoaderHtml = "<div class='datagrid-loader spinner-container w-100 h-100 active'><div class='spinner'><svg style='width:64px; height:64px' viewBox='0 0 64 64'><circle class='circle' cx='32' cy='32' r='30' fill='none' stroke-width='2'></circle></svg></div></div>";
+
         const string BorderAttributeName = "border-style";
         const string StripedAttributeName = "striped";
         const string HoverAttributeName = "hover";
@@ -248,6 +250,11 @@ namespace Smartstore.Web.TagHelpers.Admin
 
             // Root wrapper div .datagrid-root
             output.PreElement.AppendHtml($"<div class='{cssClass}'>");
+
+            // Append .datagrid-loader
+            output.PostElement.AppendHtml(LoaderHtml);
+
+            // Close .datagrid-root
             output.PostElement.AppendHtml("</div>");
 
             output.TagName = "sm-datagrid";
