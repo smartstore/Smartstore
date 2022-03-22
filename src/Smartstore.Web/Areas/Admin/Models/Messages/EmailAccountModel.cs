@@ -19,10 +19,12 @@ namespace Smartstore.Admin.Models.Messages
         public int Port { get; set; }
 
         [LocalizedDisplay("*Username")]
+        [DisplayFormat(ConvertEmptyStringToNull = false)]
         public string Username { get; set; }
 
         [LocalizedDisplay("*Password")]
         [DataType(DataType.Password)]
+        [DisplayFormat(ConvertEmptyStringToNull = false)]
         public string Password { get; set; }
 
         [LocalizedDisplay("*EnableSsl")]
