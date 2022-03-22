@@ -13,10 +13,10 @@ ENV ASPNETCORE_URLS "http://+:80;https://+:443"
 ARG EDITION=Community
 ARG VERSION=5.0.0
 ARG RUNTIME=linux-x64
-ARG SOURCE="artifacts/${EDITION}.${VERSION}.${RUNTIME}/"
+ARG SOURCE=build/artifacts/${EDITION}.${VERSION}.${RUNTIME}
 
 WORKDIR /app
-COPY $SOURCE ./
+COPY ${SOURCE} ./
 
 # Install wkhtmltopdf
 RUN apt update &&\
