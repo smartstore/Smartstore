@@ -48,8 +48,6 @@ namespace Smartstore.Admin.Models.Messages
             RuleFor(x => x.Email).NotEmpty().EmailAddress();
             RuleFor(x => x.DisplayName).NotEmpty();
             RuleFor(x => x.Host).NotEmpty();
-            RuleFor(x => x.Username).NotEmpty();
-            RuleFor(x => x.Password).NotEmpty();
         }
     }
 }
