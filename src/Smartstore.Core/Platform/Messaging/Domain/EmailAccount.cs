@@ -6,6 +6,8 @@ using Smartstore.Net.Mail;
 
 namespace Smartstore.Core.Messaging
 {
+    // TODO: (mg) (core) remove required attribute at EmailAccount.Username and EmailAccount.Password later (migration required).
+
     /// <summary>
     /// Represents an email account.
     /// </summary>
