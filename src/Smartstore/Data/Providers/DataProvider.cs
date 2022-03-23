@@ -1,4 +1,6 @@
 ﻿using System.Data.Common;
+using System.Globalization;
+using System.Text.RegularExpressions;
 using Dasync.Collections;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -26,6 +28,9 @@ namespace Smartstore.Data.Providers
 
     public abstract class DataProvider : Disposable
     {
+        private static readonly Regex _dbNameRegex = new(@"^(?<DbName>.+)-(?<Version>\d+(\s*\.\s*\d+){0,3})-(?<Timestamp>[0-9]{14})(?<Suffix>.+?)?.bak", 
+            RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.Singleline | RegexOptions.IgnoreCase);
+
         protected DataProvider(DatabaseFacade database)
         {
             Database = Guard.NotNull(database, nameof(database));
@@ -224,6 +229,44 @@ namespace Smartstore.Data.Providers
         /// </summary>
         public virtual Task<decimal> GetDatabaseSizeAsync()
             => throw new NotSupportedException();
+
+        /// <summary>
+        /// Creates a file name for a database backup with the format:
+        /// {database name}-{Smartstore version}-{timestamp}.bak
+        /// </summary>
+        public virtual string CreateBackupName()
+        {
+            var timestamp = DateTime.Now.ToString("yyyyMMddHHmmss");
+            var dbName = Database.GetDbConnection().Database.NaIfEmpty().ToValidFileName().Replace('-', '_');
+
+            return $"{dbName}-{SmartstoreVersion.CurrentFullVersion}-{timestamp}.bak";
+        }
+
+        /// <summary>
+        /// Parses the file name of a database backup.
+        /// </summary>
+        /// <param name="fileName">File name of a database backup.</param>
+        public virtual DbBackupInfo ParseBackupName(string fileName)
+        {
+            if (fileName.HasValue())
+            {
+                var match = _dbNameRegex.Match(fileName.Trim());
+
+                if (match.Success
+                    && Version.TryParse(match.Groups["Version"].Value, out var version)
+                    && DateTime.TryParseExact(match.Groups["Timestamp"].Value, "yyyyMMddHHmmss", CultureInfo.InvariantCulture, DateTimeStyles.None, out var timestamp))
+                {
+                    return new DbBackupInfo(fileName)
+                    {
+                        Valid = true,
+                        Version = version,
+                        Timestamp = timestamp
+                    };
+                }
+            }
+
+            return new DbBackupInfo(fileName);
+        }
 
         /// <summary>
         /// Creates a database backup

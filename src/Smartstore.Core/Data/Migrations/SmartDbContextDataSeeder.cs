@@ -320,6 +320,7 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.System.Maintenance.DbBackup.Download", "Download database backup", "Datenbanksicherung herunterladen");
             builder.AddOrUpdate("Admin.System.Maintenance.DbBackup.IsCurrentVersion", "Current version", "Aktuelle Version");
             builder.AddOrUpdate("Admin.System.Maintenance.DbBackup.Create", "Create backup", "Sicherung erstellen");
+            builder.AddOrUpdate("Admin.System.Maintenance.DbBackup.Upload", "Upload backup", "Sicherung hochladen");
 
             builder.AddOrUpdate("Admin.System.Maintenance.DbBackup.BackupNotSupported",
                 "The database backup cannot be created because the data provider '{0}' does not support it.",
@@ -346,6 +347,22 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.System.Maintenance.DbBackup.RestoreVersionWarning",
                 "The backup was created with a different Smartstore version. Restoring it may cause unpredictable issues. Do you still want to proceed?",
                 "Die Sicherung wurde mit einer anderen Smartstore Version erstellt. Eine Wiederherstellung kann zu unvorhersehbaren Problemen führen. Möchten Sie trotzdem fortfahren?");
+
+            builder.AddOrUpdate("Admin.System.Maintenance.DbBackup.InvalidBackup",
+                "The file \"{0}\" is not a valid database backup. The name of a backup has the format <database name>-<version>-<timestamp>.bak.",
+                "Bei der Datei \"{0}\" handelt es sich um kein gültiges Datenbank-Backup. Der Name eines Backups hat das Format <Datenbankname>-<Version>-<Zeitstempel>.bak.");
+
+            builder.AddOrUpdate("Admin.System.Maintenance.DbBackup.BackupExists",
+                "A backup with the name \"{0}\" already exists. Please upload only backups that do not yet exist.",
+                "Ein Backup mit dem Namen \"{0}\" existiert bereits. Bitte laden Sie nur noch nicht vorhandene Backups hoch.");
+
+            builder.AddOrUpdate("Admin.System.Maintenance.DbBackup.BackupUploaded",
+                "The backup was successfully uploaded.",
+                "Das Backup wurde erfolgreich hochgeladen.");
+
+            builder.AddOrUpdate("Admin.System.Maintenance.DbBackup.BackupUploadNote",
+                "Please note that uploading a database backup may take several minutes depending on the file size.",
+                "Bitte beachten Sie, dass der Upload einer Datenbanksicherung je nach Dateigröße mehrere Minuten in Anspruch nehmen kann.");
 
             builder.AddOrUpdate("Admin.System.Maintenance.DeletedExportFilesAndFolders",
                 "{0} export files and {1} export folders have been deleted.",

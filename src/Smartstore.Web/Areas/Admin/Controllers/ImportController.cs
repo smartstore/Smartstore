@@ -445,7 +445,6 @@ namespace Smartstore.Admin.Controllers
 
             if (id == 0)
             {
-                var root = Services.ApplicationContext.TenantRoot;
                 var tempDir = Services.ApplicationContext.GetTenantTempDirectory();
 
                 await tempDir.FileSystem.TryDeleteFileAsync(await tempDir.GetFileAsync(fileName));

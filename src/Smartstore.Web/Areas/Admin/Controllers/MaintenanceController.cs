@@ -2,7 +2,6 @@
 using System.Net;
 using System.Net.Http;
 using System.Reflection;
-using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Caching.Memory;
@@ -12,6 +11,7 @@ using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Common.Settings;
+using Smartstore.Core.Content.Media;
 using Smartstore.Core.Content.Media.Imaging;
 using Smartstore.Core.DataExchange.Export;
 using Smartstore.Core.DataExchange.Import;
@@ -31,7 +31,6 @@ namespace Smartstore.Admin.Controllers
     public class MaintenanceController : AdminController
     {
         private const string BACKUP_DIR = "DbBackups";
-        private static readonly Regex DbVersion = new(@"(\d+\.)(\d+\.)(\d+\.)(\d)", RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
         private readonly SmartDbContext _db;
         private readonly IMemoryCache _memCache;
@@ -644,7 +643,6 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.System.Maintenance.Read)]
         public async Task<IActionResult> BackupList()
         {
-            var currentVersion = SmartstoreVersion.CurrentFullVersion;
             var root = Services.ApplicationContext.TenantRoot;
             await root.TryCreateDirectoryAsync(BACKUP_DIR);
 
@@ -655,13 +653,12 @@ namespace Smartstore.Admin.Controllers
             var rows = backups
                 .Select(x =>
                 {
-                    // Get version as string from file name (any string):
-                    var version = DbVersion.Matches(x.Name)?.FirstOrDefault()?.Value;
+                    var backupInfo = _db.DataProvider.ParseBackupName(x.Name);
 
                     var model = new DbBackupModel(x)
                     {
-                        Version = version,
-                        IsCurrentVersion = version.EqualsNoCase(currentVersion),
+                        Version = backupInfo?.Version?.ToString(),
+                        IsCurrentVersion = backupInfo.IsCurrentVersion,
                         CreatedOn = x.CreatedOn.LocalDateTime,
                         DownloadUrl = Url.Action(nameof(DownloadBackup), new { name = x.Name })
                     };
@@ -689,8 +686,8 @@ namespace Smartstore.Admin.Controllers
                     var dir = await Services.ApplicationContext.TenantRoot.GetDirectoryAsync(BACKUP_DIR);
                     var fs = dir.FileSystem;
 
-                    var dbName = _db.DataProvider.Database.GetDbConnection().Database.NaIfEmpty().ToValidFileName();
-                    var path = fs.PathCombine(dir.SubPath, $"{dbName}-{SmartstoreVersion.CurrentFullVersion}.bak");
+                    var backupName = _db.DataProvider.CreateBackupName();
+                    var path = fs.PathCombine(dir.SubPath, backupName);
 
                     var fullPath = fs.CheckUniqueFileName(path, out var newPath)
                         ? fs.MapPath(newPath)
@@ -711,6 +708,52 @@ namespace Smartstore.Admin.Controllers
             }
 
             return RedirectToAction("Index");
+        }
+
+        [HttpPost, MaxMediaFileSize]
+        [Permission(Permissions.System.Maintenance.Execute)]
+        public async Task<IActionResult> UploadBackup()
+        {
+            var success = false;
+            string message = null;
+            var uploadFile = Request.Form.Files.Count > 0 ? Request.Form.Files[0] : null;
+
+            if (uploadFile != null)
+            {
+                var name = uploadFile.FileName;
+                var backupInfo = _db.DataProvider.ParseBackupName(name);
+                if (backupInfo.Valid)
+                {
+                    var dir = await Services.ApplicationContext.TenantRoot.GetDirectoryAsync(BACKUP_DIR);
+                    var fs = dir.FileSystem;
+
+                    if (!fs.FileExists(name))
+                    {
+                        var targetFile = await dir.GetFileAsync(name);
+
+                        using var sourceStream = uploadFile.OpenReadStream();
+                        using var targetStream = targetFile.OpenWrite();
+                        await sourceStream.CopyToAsync(targetStream);
+
+                        message = T("Admin.System.Maintenance.DbBackup.BackupUploaded");
+                        success = true;
+                    }
+                    else
+                    {
+                        message = T("Admin.System.Maintenance.DbBackup.BackupExists", name.NaIfEmpty());
+                    }
+                }
+                else
+                {
+                    message = T("Admin.System.Maintenance.DbBackup.InvalidBackup", name.NaIfEmpty());
+                }
+            }
+            else
+            {
+                message = T("Admin.Common.UploadFile");
+            }
+
+            return Json(new { success, message });
         }
 
         [HttpPost]

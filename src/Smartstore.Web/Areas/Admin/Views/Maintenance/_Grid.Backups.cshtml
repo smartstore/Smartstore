@@ -18,6 +18,10 @@
                 <i class="fa fa-plus"></i>
                 <span>@T("Admin.System.Maintenance.DbBackup.Create")</span>
             </button>
+            <button type="button" class="btn btn-primary btn-flat" data-toggle="modal" data-target="#upload-backup-dialog">
+                <i class="far fa-upload"></i>
+                <span>@T("Admin.System.Maintenance.DbBackup.Upload")</span>
+            </button>
         </toolbar-group>
         <zone name="datagrid_toolbar_alpha"></zone>
         <toolbar-group class="omega"></toolbar-group>
@@ -52,7 +56,36 @@
     </columns>
 </datagrid>
 
+<modal id="upload-backup-dialog" sm-render-at-page-end="true" sm-size="Large">
+    <modal-header sm-title="@T("Admin.System.Maintenance.DbBackup.Upload")"></modal-header>
+    <modal-body>
+        <p class="text-muted">@T("Admin.System.Maintenance.DbBackup.BackupUploadNote")</p>
+        <file-uploader file-uploader-name="BackupFileUploader"
+                       upload-url='@Url.Action("UploadBackup")'
+                       type-filter=".bak"
+                       display-browse-media-button="false"
+                       display-remove-button="true"
+                       display-remove-button-after-upload="true"
+                       upload-text='@T("FileUploader.Dropzone.Message")'
+                       onuploadcompleted="onBackupUploadCompleted" />
+    </modal-body>
+    <modal-footer>
+        <button class="btn btn-secondary" data-dismiss="modal"><span>@T("Common.Cancel")</span></button>
+    </modal-footer>
+</modal>
+
 <script sm-target-zone="scripts" data-origin="dbbackups-grid">
+    window['onBackupUploadCompleted'] = function (file, response) {
+        if (response.success) {
+            $('#dbbackups-grid').parent().data('datagrid').read();
+        }
+
+        if (response.message) {
+            $('#upload-backup-dialog').modal('hide');
+            displayNotification(response.message, response.success ? 'success' : 'error');
+        }
+    }
+
     $(function () {
         $(document).on('click', '.grid-dbbackups-restore', function (e) {
             e.preventDefault();
