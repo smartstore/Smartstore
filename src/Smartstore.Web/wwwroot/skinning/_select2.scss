@@ -78,6 +78,7 @@ $s2bs-form-control-transition: none; // border-color ease-in-out .15s, box-shado
 
 .select2-container--bootstrap {
     --border-radius: #{$input-border-radius};
+    --shadow-intensity: 0.75;
     --select2-caret-width: calc(#{$input-height} - 2px);
     --select2-height: #{$input-height};
     --select2-line-height: #{$line-height-base};
@@ -223,31 +224,27 @@ $s2bs-form-control-transition: none; // border-color ease-in-out .15s, box-shado
 
     &.select2-container--open {
         .select2-selection {
+            --shadow-yoffset: 0.175;
             box-shadow: $s2bs-form-control-focus-box-shadow;
             border-color: $s2bs-input-border-focus;
-            clip-path: inset(-300px -300px 0 -300px); // cut off bottom shadow
+            clip-path: inset(-200px -200px 0 -200px); // cut off bottom shadow
         }
-    }
-
-    &.select2-container--open {
+        
         // Make the dropdown arrow point up while the dropdown is visible.
         .select2-selection .select2-selection__arrow b:after {
             content: '\f077'; // chevron-up
         }
         // Handle border radii of the container when the dropdown is showing.
-        &.select2-container--below {
-            .select2-selection {
-                @include border-bottom-radius(0);
-                border-bottom-color: transparent;
-            }
+        &.select2-container--below .select2-selection {
+            @include border-bottom-radius(0);
+            border-bottom-color: transparent;
         }
 
-        &.select2-container--above {
-            .select2-selection {
-                @include border-top-radius(0);
-                border-top-color: transparent;
-                clip-path: inset(0 -300px -300px -300px); // cut off top shadow
-            }
+        &.select2-container--above .select2-selection {
+            --shadow-yoffset: 0.175;
+            @include border-top-radius(0);
+            border-top-color: transparent;
+            clip-path: inset(0 -200px -200px -200px); // cut off top shadow
         }
     }
 
@@ -289,14 +286,17 @@ $s2bs-form-control-transition: none; // border-color ease-in-out .15s, box-shado
 
    // Dropdown border color and box-shadow.
     .select2-dropdown {
+        //--shadow-yoffset: 0.5;
         box-shadow: $s2bs-dropdown-box-shadow;
-        clip-path: inset(0 -300px -300px -300px); // cut off top shadow
+        clip-path: inset(0 -200px -200px -200px); // cut off top shadow
         border-color: $s2bs-input-border-focus;
         overflow-x: hidden;
         margin-top: -1px;
+        z-index: $zindex-dropdown;
 
         &--above {
-            clip-path: inset(-300px -300px 0 -300px); // cut off bottom shadow
+            //--shadow-yoffset: -0.5;
+            clip-path: inset(-200px -200px 0 -200px); // cut off bottom shadow
             margin-top: 1px;
         }
     }

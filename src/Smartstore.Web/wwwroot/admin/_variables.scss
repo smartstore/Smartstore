@@ -136,14 +136,14 @@ $border-radius-lg:              0.4rem;
 
 // Shadows
 
-$box-shadow-sm-var:             0 2px 16px -2px rgba(var(--shadow-colorbase-rgb), calc(var(--shadow-intensity) * 0.12)), 
-                                0 2px 3px -2px rgba(var(--shadow-color-rgb), calc(var(--shadow-intensity) * 0.15));
-$box-shadow-var:                0 6px 24px -5px rgba(var(--shadow-colorbase-rgb), calc(var(--shadow-intensity) * 0.12)), 
-                                0 5px 12px -5px rgba(var(--shadow-color-rgb), calc(var(--shadow-intensity) * 0.17));
-$box-shadow-lg-var:             0 10px 40px -4px rgba(var(--shadow-colorbase-rgb), calc(var(--shadow-intensity) * 0.14)), 
-                                0 12px 28px -12px rgba(var(--shadow-color-rgb), calc(var(--shadow-intensity) * 0.2));
-$box-shadow-xl-var:             0 17px 70px -7px rgba(var(--shadow-colorbase-rgb), calc(var(--shadow-intensity) * 0.14)), 
-                                0 20px 48px -12px rgba(var(--shadow-color-rgb), calc(var(--shadow-intensity) * 0.22));
+$box-shadow-sm-var:             0 calc(2px * var(--shadow-yoffset, 1)) 16px -2px rgba(var(--shadow-colorbase-rgb), calc(var(--shadow-intensity) * 0.12)), 
+                                0 calc(2px * var(--shadow-yoffset, 1)) 3px -2px rgba(var(--shadow-color-rgb), calc(var(--shadow-intensity) * 0.15));
+$box-shadow-var:                0 calc(6px * var(--shadow-yoffset, 1)) 24px -5px rgba(var(--shadow-colorbase-rgb), calc(var(--shadow-intensity) * 0.12)), 
+                                0 calc(5px * var(--shadow-yoffset, 1)) 12px -5px rgba(var(--shadow-color-rgb), calc(var(--shadow-intensity) * 0.17));
+$box-shadow-lg-var:             0 calc(10px * var(--shadow-yoffset, 1)) 40px -4px rgba(var(--shadow-colorbase-rgb), calc(var(--shadow-intensity) * 0.14)), 
+                                0 calc(12px * var(--shadow-yoffset, 1)) 28px -12px rgba(var(--shadow-color-rgb), calc(var(--shadow-intensity) * 0.2));
+$box-shadow-xl-var:             0 calc(17px * var(--shadow-yoffset, 1)) 70px -7px rgba(var(--shadow-colorbase-rgb), calc(var(--shadow-intensity) * 0.14)), 
+                                0 calc(20px * var(--shadow-yoffset, 1)) 48px -12px rgba(var(--shadow-color-rgb), calc(var(--shadow-intensity) * 0.22));
 
 $box-shadow-sm:                 var(--box-shadow);
 $box-shadow:                    var(--box-shadow);
@@ -194,7 +194,7 @@ $dropdown-min-width:            10rem;
 //$dropdown-box-shadow:			$box-shadow-var; // 0 3px 12px rgba(27,31,35, 0.15); //0 2px 6px rgba(#000, .15);
 //$dropdown-border-color:			rgba(#000, 0.05);
 $dropdown-bg:                   #fff;
-$dropdown-box-shadow:           0 calc(1px * var(--shadow-yoffset, 0)) 50px 0 rgba(var(--shadow-color-rgb), calc(var(--shadow-intensity, 1) * 0.12));
+$dropdown-box-shadow:           $box-shadow-lg-var;
 $dropdown-border-color:         $gray-200;
 $dropdown-link-color:           $gray-700;
 $dropdown-link-hover-color:     darken($dropdown-link-color, 5%);
