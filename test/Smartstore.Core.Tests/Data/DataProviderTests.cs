@@ -12,11 +12,11 @@ namespace Smartstore.Core.Tests.Data
         [TestCase("test_database-4.2.0.0-201905111020334-3.bak", true, 4, 2, 2019, 5, 11)]
         public void Can_parse_db_backup_filename(string name, bool valid, int major, int minor, int year, int month, int day)
         {
-            var result = DbContext.DataProvider.ParseBackupName(name);
+            var result = DbContext.DataProvider.ValidateBackupName(name);
 
-            Assert.AreEqual(result.Valid, valid);
+            Assert.AreEqual(result.IsValid, valid);
 
-            if (result.Valid)
+            if (result.IsValid)
             {
                 Assert.AreEqual(result.Version.Major, major);
                 Assert.AreEqual(result.Version.Minor, minor);

@@ -41,7 +41,7 @@
         </a>
         <a datarow-action="DataRowAction.Custom" class="grid-dbbackups-restore"
            :data-key="item.row.Name"
-           :data-is-current-version="item.row.IsCurrentVersion"
+           :data-matches-current-version="item.row.MatchesCurrentVersion"
            title="@T("Admin.System.Maintenance.DbBackup.Restore.Hint")">
             @T("Admin.System.Maintenance.DbBackup.Restore")
         </a>
@@ -49,7 +49,7 @@
     </row-commands>
     <columns>
         <column for="Name" hideable="false" width="2fr" />
-        <column for="IsCurrentVersion" halign="center" />
+        <column for="MatchesCurrentVersion" halign="center" />
         <column for="Version" visible="false" />
         <column for="CreatedOn" />
         <column for="LengthString" halign="center" />
@@ -91,15 +91,15 @@
             e.preventDefault();
 
             var btn = $(this);
-            var isCurrentVersion = btn.data('is-current-version');
+            var matchesCurrentVersion = btn.data('matches-current-version');
             var askToProceed = @T("Admin.Common.AskToProceed").JsValue;
             var warnDifferentVersion = @T("Admin.System.Maintenance.DbBackup.RestoreVersionWarning").JsValue;
 
             $(this).postData({
                 url: '@Url.Action("RestoreBackup", "Maintenance", new { area = "Admin" })',
                 data: { "name": btn.data('key') },
-                ask: isCurrentVersion ? askToProceed : warnDifferentVersion,
-                iconType: isCurrentVersion ? 'question' : 'warning'
+                ask: matchesCurrentVersion ? askToProceed : warnDifferentVersion,
+                iconType: matchesCurrentVersion ? 'question' : 'warning'
 			});
 
             return false;
@@ -108,7 +108,7 @@
 
     function dbbackupsGrid_onRowClass(row) {
         return {
-            "text-muted": !row.IsCurrentVersion
+            "text-muted": !row.MatchesCurrentVersion
         };
     }
 </script>

@@ -29,7 +29,7 @@ namespace Smartstore.Admin.Models.Maintenance
         [LocalizedDisplay("Admin.System.SystemInfo.AppVersion")]
         public string Version { get; set; }
 
-        [LocalizedDisplay("*IsCurrentVersion")]
-        public bool IsCurrentVersion { get; set; }
+        [LocalizedDisplay("*MatchesCurrentVersion")]
+        public bool MatchesCurrentVersion { get; set; }
     }
 }

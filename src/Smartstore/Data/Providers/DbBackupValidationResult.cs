@@ -1,11 +1,11 @@
 ﻿namespace Smartstore.Data.Providers
 {
     /// <summary>
-    /// Information about a database backup extracted from its file name.
+    /// Represents the result of a database backup name validation.
     /// </summary>
-    public class DbBackupInfo
+    public class DbBackupValidationResult
     {
-        public DbBackupInfo(string name)
+        public DbBackupValidationResult(string name)
         {
             Name = name;
         }
@@ -13,7 +13,7 @@
         /// <summary>
         /// A value indicating whether the backup is valid.
         /// </summary>
-        public bool Valid { get; init; }
+        public bool IsValid { get; init; }
 
         /// <summary>
         /// The file name of the database backup.
@@ -31,9 +31,9 @@
         public DateTime Timestamp { get; init; }
 
         /// <summary>
-        /// A value indicating whether the backup version equals current Smartstore version.
+        /// A value indicating whether the backup version matches current Smartstore version.
         /// </summary>
-        public bool IsCurrentVersion
+        public bool MatchesCurrentVersion
             => Version != null && Version == SmartstoreVersion.Version;
     }
 }

@@ -653,12 +653,12 @@ namespace Smartstore.Admin.Controllers
             var rows = backups
                 .Select(x =>
                 {
-                    var backupInfo = _db.DataProvider.ParseBackupName(x.Name);
+                    var validationResult = _db.DataProvider.ValidateBackupName(x.Name);
 
                     var model = new DbBackupModel(x)
                     {
-                        Version = backupInfo?.Version?.ToString(),
-                        IsCurrentVersion = backupInfo.IsCurrentVersion,
+                        Version = validationResult?.Version?.ToString(),
+                        MatchesCurrentVersion = validationResult.MatchesCurrentVersion,
                         CreatedOn = x.CreatedOn.LocalDateTime,
                         DownloadUrl = Url.Action(nameof(DownloadBackup), new { name = x.Name })
                     };
@@ -721,8 +721,8 @@ namespace Smartstore.Admin.Controllers
             if (uploadFile != null)
             {
                 var name = uploadFile.FileName;
-                var backupInfo = _db.DataProvider.ParseBackupName(name);
-                if (backupInfo.Valid)
+                var validationResult = _db.DataProvider.ValidateBackupName(name);
+                if (validationResult.IsValid)
                 {
                     var dir = await Services.ApplicationContext.TenantRoot.GetDirectoryAsync(BACKUP_DIR);
                     var fs = dir.FileSystem;

@@ -318,7 +318,7 @@ namespace Smartstore.Core.Data.Migrations
 
             builder.AddOrUpdate("Admin.System.Maintenance.DbBackup", "Database backups", "Datenbanksicherungen");
             builder.AddOrUpdate("Admin.System.Maintenance.DbBackup.Download", "Download database backup", "Datenbanksicherung herunterladen");
-            builder.AddOrUpdate("Admin.System.Maintenance.DbBackup.IsCurrentVersion", "Current version", "Aktuelle Version");
+            builder.AddOrUpdate("Admin.System.Maintenance.DbBackup.MatchesCurrentVersion", "Current version", "Aktuelle Version");
             builder.AddOrUpdate("Admin.System.Maintenance.DbBackup.Create", "Create backup", "Sicherung erstellen");
             builder.AddOrUpdate("Admin.System.Maintenance.DbBackup.Upload", "Upload backup", "Sicherung hochladen");
 

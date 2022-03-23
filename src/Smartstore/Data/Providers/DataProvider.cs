@@ -243,10 +243,10 @@ namespace Smartstore.Data.Providers
         }
 
         /// <summary>
-        /// Parses the file name of a database backup.
+        /// Validates the file name of a database backup.
         /// </summary>
         /// <param name="fileName">File name of a database backup.</param>
-        public virtual DbBackupInfo ParseBackupName(string fileName)
+        public virtual DbBackupValidationResult ValidateBackupName(string fileName)
         {
             if (fileName.HasValue())
             {
@@ -256,16 +256,16 @@ namespace Smartstore.Data.Providers
                     && Version.TryParse(match.Groups["Version"].Value, out var version)
                     && DateTime.TryParseExact(match.Groups["Timestamp"].Value, "yyyyMMddHHmmss", CultureInfo.InvariantCulture, DateTimeStyles.None, out var timestamp))
                 {
-                    return new DbBackupInfo(fileName)
+                    return new DbBackupValidationResult(fileName)
                     {
-                        Valid = true,
+                        IsValid = true,
                         Version = version,
                         Timestamp = timestamp
                     };
                 }
             }
 
-            return new DbBackupInfo(fileName);
+            return new DbBackupValidationResult(fileName);
         }
 
         /// <summary>
