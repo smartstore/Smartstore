@@ -27,7 +27,7 @@ namespace Smartstore.Core.Tests.Catalog.Pricing
     // TODO: (mh) (core) Whatever you add to the DbContext here, you must remove it after test is done!
 
     [TestFixture]
-    public class PriceCalculationServiceTests : ServiceTest
+    public class PriceCalculationServiceTests : ServiceTestBase
     {
         IPriceCalculationService _priceCalcService;
 

@@ -7,7 +7,7 @@ using Smartstore.Test.Common;
 namespace Smartstore.Core.Tests.Checkout.Orders
 {
     [TestFixture]
-    public class CheckoutAttributeExtensionsTests : ServiceTest
+    public class CheckoutAttributeExtensionsTests : ServiceTestBase
     {
         [Test]
         public void Can_remove_shippable_attributes()

@@ -11,7 +11,7 @@ using Smartstore.Test.Common;
 namespace Smartstore.Core.Tests.Checkout.Payment
 {
     [TestFixture]
-    public class PaymentServiceTests : ServiceTest
+    public class PaymentServiceTests : ServiceTestBase
     {
         IPaymentService _paymentService;
         PaymentSettings _paymentSettings;

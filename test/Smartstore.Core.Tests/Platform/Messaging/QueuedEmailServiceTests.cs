@@ -13,7 +13,7 @@ using Smartstore.Utilities;
 namespace Smartstore.Core.Tests.Platform.Messaging
 {
     [TestFixture]
-    public class QueuedEmailServiceTests : ServiceTest
+    public class QueuedEmailServiceTests : ServiceTestBase
     {
         IMailService _mailService;
         QueuedEmailService _queuedEmailService;

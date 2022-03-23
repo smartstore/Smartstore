@@ -5,7 +5,7 @@ using Smartstore.Test.Common;
 namespace Smartstore.Core.Tests.Catalog.Discounts
 {
     [TestFixture]
-    public class DiscountExtensionsTests : ServiceTest
+    public class DiscountExtensionsTests : ServiceTestBase
     {
         [Test]
         public void Can_calculate_discount_amount_percentage()

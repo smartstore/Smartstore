@@ -9,7 +9,7 @@ using Smartstore.Test.Common;
 namespace Smartstore.Core.Tests.Tax
 {
     [TestFixture]
-    public class TaxServiceTests : ServiceTest
+    public class TaxServiceTests : ServiceTestBase
     {
         ITaxService _taxService;
 

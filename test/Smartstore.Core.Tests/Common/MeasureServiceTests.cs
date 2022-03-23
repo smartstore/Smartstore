@@ -8,7 +8,7 @@ using Smartstore.Test.Common;
 namespace Smartstore.Core.Tests.Common
 {
     [TestFixture]
-    public class MeasureServiceTests : ServiceTest
+    public class MeasureServiceTests : ServiceTestBase
     {
         MeasureSettings _measureSettings;
         IMeasureService _measureService;

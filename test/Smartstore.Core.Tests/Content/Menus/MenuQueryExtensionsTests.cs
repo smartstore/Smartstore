@@ -11,7 +11,7 @@ using Smartstore.Core.Stores;
 namespace Smartstore.Core.Tests.Content.Menus
 {
     [TestFixture]
-    public class MenuQueryExtensionsTests : ServiceTest
+    public class MenuQueryExtensionsTests : ServiceTestBase
     {
         #region Test data
 

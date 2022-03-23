@@ -11,7 +11,7 @@ using Smartstore.Core.Stores;
 namespace Smartstore.Core.Tests.Catalog.Brands
 {
     [TestFixture]
-    public class ManufacturerQueryExtensionsTests : ServiceTest
+    public class ManufacturerQueryExtensionsTests : ServiceTestBase
     {
         #region Test data
 

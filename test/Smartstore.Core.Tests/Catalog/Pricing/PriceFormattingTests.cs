@@ -12,7 +12,7 @@ using Smartstore.Test.Common;
 namespace Smartstore.Core.Tests.Catalog.Pricing
 {
     [TestFixture]
-    public class PriceFormattingTests : ServiceTest
+    public class PriceFormattingTests : ServiceTestBase
     {
         ITaxService _taxService;
         ILocalizationService _localizationService;

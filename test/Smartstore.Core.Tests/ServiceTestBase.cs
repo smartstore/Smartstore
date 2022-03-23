@@ -37,12 +37,11 @@ using Smartstore.Utilities;
 namespace Smartstore.Core.Tests
 {
     [TestFixture]
-    public abstract class ServiceTest
+    public abstract class ServiceTestBase
     {
         private MockProviderManager _providerManager = new();
         private SmartDbContext _dbContext;
         private IEngine _engine;
-        [SuppressMessage("Style", "IDE0044:Add readonly modifier", Justification = "Wrong analysis")]
         private ILifetimeScope _lifetimeScope;
         private IDisposable _lifetimeToken;
 

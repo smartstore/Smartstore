@@ -10,7 +10,7 @@ using Smartstore.Core.Security;
 namespace Smartstore.Core.Tests.Platform.Security
 {
     [TestFixture]
-    public class PermissionServiceTests : ServiceTest
+    public class PermissionServiceTests : ServiceTestBase
     {
         private IPermissionService _permissionService;
         private ILocalizationService _localizationService;

@@ -10,7 +10,7 @@ using Smartstore.Test.Common;
 namespace Smartstore.Core.Tests.Common
 {
     [TestFixture]
-    public class CurrencyServiceTests : ServiceTest
+    public class CurrencyServiceTests : ServiceTestBase
     {
         CurrencySettings _currencySettings;
         TaxSettings _taxSettings;

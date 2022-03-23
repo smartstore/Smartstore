@@ -27,7 +27,7 @@ using Smartstore.Test.Common;
 namespace Smartstore.Core.Tests.Checkout.Orders
 {
     [TestFixture]
-    public class OrderProcessingServiceTests : ServiceTest
+    public class OrderProcessingServiceTests : ServiceTestBase
     {
         IWorkContext _workContext;
         ITaxService _taxService;

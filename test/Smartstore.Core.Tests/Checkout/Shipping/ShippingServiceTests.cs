@@ -15,7 +15,7 @@ using Smartstore.Test.Common;
 namespace Smartstore.Core.Tests.Shipping
 {
     [TestFixture]
-    public class ShippingServiceTests : ServiceTest
+    public class ShippingServiceTests : ServiceTestBase
     {
         ShippingSettings _shippingSettings;
         IShippingService _shippingService;

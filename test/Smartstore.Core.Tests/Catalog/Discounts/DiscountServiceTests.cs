@@ -15,7 +15,7 @@ using Smartstore.Test.Common;
 namespace Smartstore.Core.Tests.Catalog.Discounts
 {
     [TestFixture]
-    public class DiscountServiceTests : ServiceTest
+    public class DiscountServiceTests : ServiceTestBase
     {
         IDiscountService _discountService;
         IStoreContext _storeContext;

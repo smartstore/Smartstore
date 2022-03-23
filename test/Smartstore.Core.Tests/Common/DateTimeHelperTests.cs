@@ -10,7 +10,7 @@ using Smartstore.Test.Common;
 namespace Smartstore.Core.Tests.Common
 {
     [TestFixture]
-    public class DateTimeHelperTests : ServiceTest
+    public class DateTimeHelperTests : ServiceTestBase
     {
         IWorkContext _workContext;
         ISettingService _settingService;   

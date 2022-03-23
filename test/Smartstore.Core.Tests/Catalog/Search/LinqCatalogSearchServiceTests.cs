@@ -18,7 +18,7 @@ using Smartstore.Core.Stores;
 namespace Smartstore.Core.Tests.Catalog.Search
 {
     [TestFixture]
-    public class LinqCatalogSearchServiceTests : ServiceTest
+    public class LinqCatalogSearchServiceTests : ServiceTestBase
     {
         private LinqCatalogSearchService _linqCatalogSearchService;
         private MockCommonServices _services;
