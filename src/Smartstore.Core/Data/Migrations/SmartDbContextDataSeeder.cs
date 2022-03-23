@@ -349,20 +349,20 @@ namespace Smartstore.Core.Data.Migrations
                 "Die Sicherung wurde mit einer anderen Smartstore Version erstellt. Eine Wiederherstellung kann zu unvorhersehbaren Problemen führen. Möchten Sie trotzdem fortfahren?");
 
             builder.AddOrUpdate("Admin.System.Maintenance.DbBackup.InvalidBackup",
-                "The file \"{0}\" is not a valid database backup. The name of a backup has the format <database name>-<version>-<timestamp>.bak.",
-                "Bei der Datei \"{0}\" handelt es sich um kein gültiges Datenbank-Backup. Der Name eines Backups hat das Format <Datenbankname>-<Version>-<Zeitstempel>.bak.");
+                "The file \"{0}\" is not a valid database backup. The file name must have the format <database name>-<version>-<timestamp>.",
+                "Bei der Datei \"{0}\" handelt es sich um keine gültige Datenbanksicherung. Der Dateiname muss das Format <Datenbankname>-<Version>-<Zeitstempel> haben.");
 
             builder.AddOrUpdate("Admin.System.Maintenance.DbBackup.BackupExists",
-                "A backup with the name \"{0}\" already exists. Please upload only backups that do not yet exist.",
-                "Ein Backup mit dem Namen \"{0}\" existiert bereits. Bitte laden Sie nur noch nicht vorhandene Backups hoch.");
+                "A database backup with the name \"{0}\" already exists. Please upload only files that do not yet exist.",
+                "Ein Datenbanksicherung mit dem Namen \"{0}\" existiert bereits. Bitte laden Sie nur noch nicht vorhandene Dateien hoch.");
 
             builder.AddOrUpdate("Admin.System.Maintenance.DbBackup.BackupUploaded",
-                "The backup was successfully uploaded.",
-                "Das Backup wurde erfolgreich hochgeladen.");
+                "The database backup was successfully uploaded.",
+                "Die Datenbanksicherung wurde erfolgreich hochgeladen.");
 
             builder.AddOrUpdate("Admin.System.Maintenance.DbBackup.BackupUploadNote",
-                "Please note that uploading a database backup may take several minutes depending on the file size.",
-                "Bitte beachten Sie, dass der Upload einer Datenbanksicherung je nach Dateigröße mehrere Minuten in Anspruch nehmen kann.");
+                "Please make sure that the media setting \"Maximum file size\" is large enough for the upload. Uploading a database backup can take several minutes depending on the file size.",
+                "Bitte achten Sie darauf, dass die Medien-Einstellung \"Maximale Dateigröße\" für den Upload groß genug gewählt ist. Der Upload einer Datenbanksicherung kann je nach Dateigröße mehrere Minuten in Anspruch nehmen.");
 
             builder.AddOrUpdate("Admin.System.Maintenance.DeletedExportFilesAndFolders",
                 "{0} export files and {1} export folders have been deleted.",

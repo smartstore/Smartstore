@@ -27,7 +27,7 @@ namespace Smartstore.Admin.Models.Maintenance
             => Prettifier.HumanizeBytes(Backup.Length);
 
         [LocalizedDisplay("Admin.System.SystemInfo.AppVersion")]
-        public string Version { get; set; }
+        public Version Version { get; set; }
 
         [LocalizedDisplay("*MatchesCurrentVersion")]
         public bool MatchesCurrentVersion { get; set; }

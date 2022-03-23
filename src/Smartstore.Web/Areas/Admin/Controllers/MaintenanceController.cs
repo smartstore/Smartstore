@@ -16,6 +16,7 @@ using Smartstore.Core.Content.Media.Imaging;
 using Smartstore.Core.DataExchange.Export;
 using Smartstore.Core.DataExchange.Import;
 using Smartstore.Core.Identity;
+using Smartstore.Core.Logging;
 using Smartstore.Core.Packaging;
 using Smartstore.Core.Security;
 using Smartstore.Data;
@@ -657,7 +658,7 @@ namespace Smartstore.Admin.Controllers
 
                     var model = new DbBackupModel(x)
                     {
-                        Version = validationResult?.Version?.ToString(),
+                        Version = validationResult?.Version ?? new Version(),
                         MatchesCurrentVersion = validationResult.MatchesCurrentVersion,
                         CreatedOn = x.CreatedOn.LocalDateTime,
                         DownloadUrl = Url.Action(nameof(DownloadBackup), new { name = x.Name })
@@ -669,7 +670,7 @@ namespace Smartstore.Admin.Controllers
 
             return Json(new GridModel<DbBackupModel>
             {
-                Rows = rows.OrderByDescending(x => x.CreatedOn).ToList(),
+                Rows = rows.OrderByDescending(x => x.Version).ToList(),
                 Total = rows.Count
             });
         }
@@ -714,8 +715,6 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.System.Maintenance.Execute)]
         public async Task<IActionResult> UploadBackup()
         {
-            var success = false;
-            string message = null;
             var uploadFile = Request.Form.Files.Count > 0 ? Request.Form.Files[0] : null;
 
             if (uploadFile != null)
@@ -725,9 +724,7 @@ namespace Smartstore.Admin.Controllers
                 if (validationResult.IsValid)
                 {
                     var dir = await Services.ApplicationContext.TenantRoot.GetDirectoryAsync(BACKUP_DIR);
-                    var fs = dir.FileSystem;
-
-                    if (!fs.FileExists(name))
+                    if (!dir.FileSystem.FileExists(name))
                     {
                         var targetFile = await dir.GetFileAsync(name);
 
@@ -735,25 +732,24 @@ namespace Smartstore.Admin.Controllers
                         using var targetStream = targetFile.OpenWrite();
                         await sourceStream.CopyToAsync(targetStream);
 
-                        message = T("Admin.System.Maintenance.DbBackup.BackupUploaded");
-                        success = true;
+                        NotifyInfo(T("Admin.System.Maintenance.DbBackup.BackupUploaded"));
                     }
                     else
                     {
-                        message = T("Admin.System.Maintenance.DbBackup.BackupExists", name.NaIfEmpty());
+                        NotifyError(T("Admin.System.Maintenance.DbBackup.BackupExists", name.NaIfEmpty()));
                     }
                 }
                 else
                 {
-                    message = T("Admin.System.Maintenance.DbBackup.InvalidBackup", name.NaIfEmpty());
+                    NotifyError(T("Admin.System.Maintenance.DbBackup.InvalidBackup", name.NaIfEmpty()));
                 }
             }
             else
             {
-                message = T("Admin.Common.UploadFile");
+                NotifyError(T("Admin.Common.UploadFile"));
             }
 
-            return Json(new { success, message });
+            return RedirectToAction(nameof(Index));
         }
 
         [HttpPost]
