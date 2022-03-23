@@ -653,7 +653,7 @@ namespace Smartstore.Admin.Controllers
             var rows = backups
                 .Select(x =>
                 {
-                    var validationResult = _db.DataProvider.ValidateBackupName(x.Name);
+                    var validationResult = _db.DataProvider.ValidateBackupFileName(x.Name);
 
                     var model = new DbBackupModel(x)
                     {
@@ -686,7 +686,7 @@ namespace Smartstore.Admin.Controllers
                     var dir = await Services.ApplicationContext.TenantRoot.GetDirectoryAsync(BACKUP_DIR);
                     var fs = dir.FileSystem;
 
-                    var backupName = _db.DataProvider.CreateBackupName();
+                    var backupName = _db.DataProvider.CreateBackupFileName();
                     var path = fs.PathCombine(dir.SubPath, backupName);
 
                     var fullPath = fs.CheckUniqueFileName(path, out var newPath)
@@ -721,7 +721,7 @@ namespace Smartstore.Admin.Controllers
             if (uploadFile != null)
             {
                 var name = uploadFile.FileName;
-                var validationResult = _db.DataProvider.ValidateBackupName(name);
+                var validationResult = _db.DataProvider.ValidateBackupFileName(name);
                 if (validationResult.IsValid)
                 {
                     var dir = await Services.ApplicationContext.TenantRoot.GetDirectoryAsync(BACKUP_DIR);

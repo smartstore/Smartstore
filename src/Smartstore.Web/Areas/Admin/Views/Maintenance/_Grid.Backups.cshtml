@@ -2,6 +2,11 @@
 
 @model DbBackupModel
 
+@{ 
+    // TODO: (mg) (core) Don't use FileUploader, use native browser uploader instead.
+    // TODO: (mg) (core) You can't filter by ".bak" files: PostgreSql, Oracle etc. have other backup formats.
+}
+
 <datagrid id="dbbackups-grid"
           key-member="Name"
           allow-resize="true"
