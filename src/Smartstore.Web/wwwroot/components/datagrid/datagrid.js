@@ -550,9 +550,15 @@ Vue.component("sm-datagrid", {
     watch: {
         command: {
             handler: function (value, prev) {
-                // TODO: (core) Because value and prev equality check sometimes fails,
-                // this method gets called too often, e.g. when detail-view is collapsed or expanded.
-                this.read();
+                // Strange Vue behavior in nested grids: this handler is called for the child grid
+                // event when both value and prev are deep equal.
+                // So we gonna refresh only when sorting is not undefined (which indicates that this is a parent grid),
+                // OR (child grid), sorting is undefined AND value and prev are not deep equal.
+                let shouldRead = !_.isUndefined(value?.sorting) || !_.isEqual(value, prev);
+
+                if (shouldRead) {
+                    this.read();
+                }
             },
             deep: true
         },
@@ -810,7 +816,7 @@ Vue.component("sm-datagrid", {
 
             self.isBusy = true;
             self.$emit("data-binding", command);
-            
+
             $.ajax({
                 url: this.dataSource.read,
                 type: 'POST',
