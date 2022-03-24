@@ -4,9 +4,9 @@
     var parentModel = ViewData["Parent"] as TopCustomersReportModel;
 }
 
-<datagrid id="best-customers-grid" allow-resize="true" allow-column-reordering="true" max-height="700px">
+<datagrid id="best-customers-grid" allow-resize="true" allow-column-reordering="true">
     <datasource read="@Url.Action("ReportTopCustomersList")" />
-    <paging position="Bottom" show-size-chooser="true" />
+    <paging position="Both" show-size-chooser="true" />
     <sorting enabled="true" allow-unsort="true" allow-multisort="false">
         <sort by="OrderTotal" descending="true" />
     </sorting>

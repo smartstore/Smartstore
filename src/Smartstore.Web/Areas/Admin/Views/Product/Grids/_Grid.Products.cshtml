@@ -95,17 +95,6 @@
         <div class="dropdown-divider"></div>
         <a datarow-action="DataRowAction.Delete">@T("Common.Delete")</a>
     </row-commands>
-    <detail-view>
-        @*<div class="datagrid-root">
-            <sm-datagrid 
-                :options="{ keyMemberName: 'Id', vborders: true, hover: true, striped: true }" 
-                :data-source="{ read: '@Url.Action("ProductList")' }" 
-                :columns="[ { member: 'Name', name: 'Name', title: 'Name', visible: true } ]" 
-                :paging="{ enabled: true, pageSize: 5, pageIndex: 20 }" 
-                :sorting="{ enabled: true, descriptors: [] }">
-            </sm-datagrid>
-        </div>*@
-    </detail-view>
 </datagrid>
 
 <partial name="_CopyProductDialog" model="null" />
