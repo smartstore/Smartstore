@@ -98,11 +98,7 @@ namespace Smartstore.Core.Data.Migrations
 
         public void MigrateLocaleResources(LocaleResourcesBuilder builder)
         {
-            // TODO: (core) Uncomment all resource deletions before first public release.
-
             #region General
-
-            // TODO: (core) Delete all Telerik language resources (???)
 
             builder.AddOrUpdate("Admin.NewsFeed.Title", "Newsfeed", "Aktuelles");
             builder.AddOrUpdate("Admin.NewsFeed.ServerDown",
@@ -807,6 +803,9 @@ namespace Smartstore.Core.Data.Migrations
 
             #region Obsolete
 
+            // TODO: (core) Uncomment all resource deletions before first public release.
+            // TODO: (core) Delete all Telerik language resources
+            
             // Deletion at this time is a bit confusing if you run Classic and Core with the same database and the strings in Classic are suddenly gone.
             //builder.Delete(
             //    "Admin.Catalog.Categories.BackToList",
