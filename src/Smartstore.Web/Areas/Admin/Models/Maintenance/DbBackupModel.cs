@@ -23,6 +23,9 @@ namespace Smartstore.Admin.Models.Maintenance
         public DateTime CreatedOn { get; set; }
 
         [LocalizedDisplay("Admin.Common.FileSize")]
+        public long Length => Backup.Length;
+
+        [LocalizedDisplay("Admin.Common.FileSize")]
         public string LengthString
             => Prettifier.HumanizeBytes(Backup.Length);
 

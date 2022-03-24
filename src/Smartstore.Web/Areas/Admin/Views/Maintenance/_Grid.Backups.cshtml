@@ -2,11 +2,6 @@
 
 @model DbBackupModel
 
-@{ 
-    // TODO: (mg) (core) Don't use FileUploader, use native browser uploader instead.
-    // TODO: (mg) (core) You can't filter by ".bak" files: PostgreSql, Oracle etc. have other backup formats.
-}
-
 <datagrid id="dbbackups-grid"
           key-member="Name"
           allow-resize="true"
@@ -17,6 +12,10 @@
           onrowclass="dbbackupsGrid_onRowClass">
     <datasource read="@Url.Action("BackupList")" delete="@Url.Action("DeleteBackup")" />
     <paging enabled="false" position="Bottom" show-size-chooser="true" />
+    <sorting allow-unsort="true" allow-multisort="true">
+        <sort by="Version" descending="true" />
+        <sort by="CreatedOn" descending="true" />
+    </sorting>
     <toolbar>
         <toolbar-group>
             <button type="submit" name="execute-create-backup" value="execute-create-backup" class="btn btn-primary btn-flat confirm">
@@ -24,7 +23,7 @@
                 <span>@T("Admin.System.Maintenance.DbBackup.Create")</span>
             </button>
             <button type="button" class="btn btn-primary btn-flat" data-toggle="modal" data-target="#upload-backup-dialog">
-                <i class="far fa-upload"></i>
+                <i class="fa fa-upload"></i>
                 <span>@T("Admin.System.Maintenance.DbBackup.Upload")</span>
             </button>
         </toolbar-group>
@@ -55,9 +54,9 @@
     <columns>
         <column for="Name" hideable="false" width="2fr" />
         <column for="MatchesCurrentVersion" halign="center" />
-        <column for="Version" visible="false" />
+        <column for="Version" halign="center" />
         <column for="CreatedOn" />
-        <column for="LengthString" halign="center" />
+        <column for="LengthString" entity-member="Length" halign="center" />
     </columns>
 </datagrid>
 
@@ -69,13 +68,14 @@
                 @T("Admin.System.Maintenance.DbBackup.BackupUploadNote")
             </p>
             <div>
-                <input type="file" id="backupfile" name="backupfile" accept=".bak" />
+                <input type="file" id="backupfile" name="backupfile" />
             </div>
         </form>
     </modal-body>
     <modal-footer>
         <button class="btn btn-secondary" data-dismiss="modal"><span>@T("Common.Cancel")</span></button>
         <button id="upload-backup" type="button" class="btn btn-primary" disabled="disabled">
+            <i class="fa fa-upload"></i>
             <span>@T("Common.Upload")</span>
         </button>
     </modal-footer>
@@ -107,7 +107,12 @@
 
         $('#upload-backup').on('click', function (e) {
             e.preventDefault();
-            $('#upload-backup-dialog').find('form').submit();
+
+            var dialog = $('#upload-backup-dialog');
+            
+            $.throbber.show({ white: false, small: false, speed: 0, message: @T("FileUploader.StatusWindow.Uploading.File").JsValue});
+            dialog.find('form').submit();
+            dialog.modal('hide');
         });
     });
 

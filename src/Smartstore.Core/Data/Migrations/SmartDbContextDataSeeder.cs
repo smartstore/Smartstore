@@ -349,12 +349,8 @@ namespace Smartstore.Core.Data.Migrations
                 "Die Sicherung wurde mit einer anderen Smartstore Version erstellt. Eine Wiederherstellung kann zu unvorhersehbaren Problemen führen. Möchten Sie trotzdem fortfahren?");
 
             builder.AddOrUpdate("Admin.System.Maintenance.DbBackup.InvalidBackup",
-                "The file \"{0}\" is not a valid database backup. The file name must have the format <database name>-<version>-<timestamp>.",
-                "Bei der Datei \"{0}\" handelt es sich um keine gültige Datenbanksicherung. Der Dateiname muss das Format <Datenbankname>-<Version>-<Zeitstempel> haben.");
-
-            builder.AddOrUpdate("Admin.System.Maintenance.DbBackup.BackupExists",
-                "A database backup with the name \"{0}\" already exists. Please upload only files that do not yet exist.",
-                "Ein Datenbanksicherung mit dem Namen \"{0}\" existiert bereits. Bitte laden Sie nur noch nicht vorhandene Dateien hoch.");
+                "The file \"{0}\" is not a valid database backup. The file name must have the format [database name]-[version]-[timestamp].",
+                "Bei der Datei \"{0}\" handelt es sich um keine gültige Datenbanksicherung. Der Dateiname muss das Format [Datenbankname]-[Version]-[Zeitstempel] haben.");
 
             builder.AddOrUpdate("Admin.System.Maintenance.DbBackup.BackupUploaded",
                 "The database backup was successfully uploaded.",

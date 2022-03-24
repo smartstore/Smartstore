@@ -28,8 +28,7 @@ namespace Smartstore.Data.Providers
 
     public abstract class DataProvider : Disposable
     {
-        // TODO: (mg) (core) .bak ending: either move this to SqlServerDataProvider or make backup file ending configurable via protected member (or a similar, more flexible approach).
-        private static readonly Regex _dbNameRegex = new(@"^(?<DbName>.+)-(?<Version>\d+(\s*\.\s*\d+){0,3})-(?<Timestamp>[0-9]{14})(?<Suffix>.+?)?.bak", 
+        private static readonly Regex _dbNameRegex = new(@"^(?<DbName>.+)-(?<Version>\d+(\s*\.\s*\d+){0,3})-(?<Timestamp>[0-9]{14})(?<Suffix>.+?)?", 
             RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.Singleline | RegexOptions.IgnoreCase);
 
         protected DataProvider(DatabaseFacade database)
@@ -371,15 +370,20 @@ namespace Smartstore.Data.Providers
         #region Backup
 
         /// <summary>
+        /// Gets or sets the file extension (including the period ".") of a database backup. ".bak" by default.
+        /// </summary>
+        protected virtual string BackupFileExtension => ".bak";
+
+        /// <summary>
         /// Creates a file name for a database backup with the format:
-        /// {database name}-{Smartstore version}-{timestamp}.bak
+        /// {database name}-{Smartstore version}-{timestamp}{<see cref="BackupFileExtension"/>}
         /// </summary>
         public virtual string CreateBackupFileName()
         {
             var timestamp = DateTime.Now.ToString("yyyyMMddHHmmss");
             var dbName = Database.GetDbConnection().Database.NaIfEmpty().ToValidFileName().Replace('-', '_');
 
-            return $"{dbName}-{SmartstoreVersion.CurrentFullVersion}-{timestamp}.bak";
+            return $"{dbName}-{SmartstoreVersion.CurrentFullVersion}-{timestamp}{BackupFileExtension}";
         }
 
         /// <summary>
@@ -394,7 +398,8 @@ namespace Smartstore.Data.Providers
 
                 if (match.Success
                     && Version.TryParse(match.Groups["Version"].Value, out var version)
-                    && DateTime.TryParseExact(match.Groups["Timestamp"].Value, "yyyyMMddHHmmss", CultureInfo.InvariantCulture, DateTimeStyles.None, out var timestamp))
+                    && DateTime.TryParseExact(match.Groups["Timestamp"].Value, "yyyyMMddHHmmss", CultureInfo.InvariantCulture, DateTimeStyles.None, out var timestamp)
+                    && Path.GetExtension(fileName).EqualsNoCase(BackupFileExtension))
                 {
                     return new DbBackupValidationResult(fileName)
                     {

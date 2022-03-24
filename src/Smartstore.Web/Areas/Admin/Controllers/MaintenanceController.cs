@@ -642,7 +642,7 @@ namespace Smartstore.Admin.Controllers
         #region Database backup
 
         [Permission(Permissions.System.Maintenance.Read)]
-        public async Task<IActionResult> BackupList()
+        public async Task<IActionResult> BackupList(GridCommand command)
         {
             var root = Services.ApplicationContext.TenantRoot;
             await root.TryCreateDirectoryAsync(BACKUP_DIR);
@@ -666,11 +666,15 @@ namespace Smartstore.Admin.Controllers
 
                     return model;
                 })
+                .AsQueryable()
+                .OrderByDescending(x => x.Version)
+                .ThenByDescending(x => x.CreatedOn)
+                .ApplyGridCommand(command)
                 .ToList();
 
             return Json(new GridModel<DbBackupModel>
             {
-                Rows = rows.OrderByDescending(x => x.Version).ToList(),
+                Rows = rows,
                 Total = rows.Count
             });
         }
@@ -719,29 +723,27 @@ namespace Smartstore.Admin.Controllers
 
             if (uploadFile != null)
             {
-                var name = uploadFile.FileName;
-                var validationResult = _db.DataProvider.ValidateBackupFileName(name);
+                var backupName = uploadFile.FileName;
+                var validationResult = _db.DataProvider.ValidateBackupFileName(backupName);
                 if (validationResult.IsValid)
                 {
                     var dir = await Services.ApplicationContext.TenantRoot.GetDirectoryAsync(BACKUP_DIR);
-                    if (!dir.FileSystem.FileExists(name))
-                    {
-                        var targetFile = await dir.GetFileAsync(name);
+                    var fs = dir.FileSystem;
+                    var path = fs.PathCombine(dir.SubPath, backupName);
 
-                        using var sourceStream = uploadFile.OpenReadStream();
-                        using var targetStream = targetFile.OpenWrite();
-                        await sourceStream.CopyToAsync(targetStream);
+                    var targetFile = fs.CheckUniqueFileName(path, out var newPath)
+                        ? await fs.GetFileAsync(newPath)
+                        : await fs.GetFileAsync(path);
 
-                        NotifyInfo(T("Admin.System.Maintenance.DbBackup.BackupUploaded"));
-                    }
-                    else
-                    {
-                        NotifyError(T("Admin.System.Maintenance.DbBackup.BackupExists", name.NaIfEmpty()));
-                    }
+                    using var sourceStream = uploadFile.OpenReadStream();
+                    using var targetStream = targetFile.OpenWrite();
+                    await sourceStream.CopyToAsync(targetStream);
+
+                    NotifyInfo(T("Admin.System.Maintenance.DbBackup.BackupUploaded"));
                 }
                 else
                 {
-                    NotifyError(T("Admin.System.Maintenance.DbBackup.InvalidBackup", name.NaIfEmpty()));
+                    NotifyError(T("Admin.System.Maintenance.DbBackup.InvalidBackup", backupName.NaIfEmpty()));
                 }
             }
             else
