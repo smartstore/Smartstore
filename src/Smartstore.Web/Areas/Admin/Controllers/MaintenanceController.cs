@@ -651,10 +651,12 @@ namespace Smartstore.Admin.Controllers
                 .EnumerateFilesAsync(BACKUP_DIR)
                 .AsyncToList();
 
+            var dataProvider = _db.DataProvider;
+
             var rows = backups
                 .Select(x =>
                 {
-                    var validationResult = _db.DataProvider.ValidateBackupFileName(x.Name);
+                    var validationResult = dataProvider.ValidateBackupFileName(x.Name);
                     if (!validationResult.IsValid)
                     {
                         return null;
@@ -718,7 +720,7 @@ namespace Smartstore.Admin.Controllers
             return RedirectToAction("Index");
         }
 
-        [HttpPost, MaxMediaFileSize]
+        [HttpPost]
         [Permission(Permissions.System.Maintenance.Execute)]
         public async Task<IActionResult> UploadBackup()
         {
