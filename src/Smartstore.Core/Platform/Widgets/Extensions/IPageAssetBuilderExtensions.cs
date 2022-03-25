@@ -96,11 +96,10 @@ namespace Smartstore.Core.Widgets
             Guard.NotEmpty(name, nameof(name));
             Guard.NotEmpty(content, nameof(content));
 
-            var key = "meta_" + name + '_' + content;
             builder.AddHtmlContent(
                 "head",
                 new HtmlString($"<meta name='{name}' content='{content}' />"),
-                key);
+                $"meta_{name}");
         }
 
         private static void AddCanonicalUrlPartsInternal(IPageAssetBuilder builder, bool prepend, params string[] parts)
