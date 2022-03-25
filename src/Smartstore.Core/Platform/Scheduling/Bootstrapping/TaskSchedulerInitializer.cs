@@ -38,7 +38,7 @@ namespace Smartstore.Core.Bootstrapping
                 _appConfig.TaskSchedulerPollInterval, 
                 httpContext);
 
-            Logger.Info("Initialized TaskScheduler with base url '{0}'".FormatInvariant(scheduler.BaseUrl));
+            Logger.Info($"Initialized TaskScheduler with base url '{scheduler.BaseUrl}'");
         }
 
         public Task OnFailAsync(Exception exception, bool willRetry)

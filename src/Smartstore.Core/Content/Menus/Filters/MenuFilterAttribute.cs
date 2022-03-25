@@ -97,7 +97,7 @@ namespace Smartstore.Core.Content.Menus
                 }
 
                 // Add node data to head meta property as JSON.
-                _assetBuilder.AddHtmlContent("head", new HtmlString("<meta property='sm:pagedata' content='{0}' />".FormatInvariant(JsonConvert.SerializeObject(nodeData))));
+                _assetBuilder.AddHtmlContent("head", new HtmlString($"<meta property='sm:pagedata' content='{ JsonConvert.SerializeObject(nodeData) }' />"));
             }
 
             public async Task OnResultExecutionAsync(ResultExecutingContext context, ResultExecutionDelegate next)

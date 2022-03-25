@@ -99,7 +99,7 @@ namespace Smartstore.Core.Widgets
             var key = "meta_" + name + '_' + content;
             builder.AddHtmlContent(
                 "head",
-                new HtmlString("<meta name=\"{0}\" content=\"{1}\" />".FormatInvariant(name, content)),
+                new HtmlString($"<meta name='{name}' content='{content}' />"),
                 key);
         }
 
