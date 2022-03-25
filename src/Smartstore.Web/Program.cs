@@ -26,6 +26,7 @@ using Autofac.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Serilog;
@@ -59,7 +60,8 @@ var configuration = (IConfiguration)builder.Configuration
 // Setup Serilog logging
 Log.Logger = SetupSerilog(configuration);
 
-// Configure the host
+var maxRequestBodySize = configuration["Smartstore:MaxRequestBodySize"];
+
 builder.Host
     .UseServiceProviderFactory(new AutofacServiceProviderFactory())
     .ConfigureLogging(SetupLogging)
@@ -69,6 +71,20 @@ var startupLogger = new SerilogLoggerFactory(Log.Logger).CreateLogger("File");
 var appContext = new SmartApplicationContext(builder.Environment, configuration, startupLogger);
 var engine = EngineFactory.Create(appContext.AppConfiguration);
 var engineStarter = engine.Start(appContext);
+
+// Configure RequestSizeLimit and RequestFormLimits
+if (appContext.AppConfiguration.MaxRequestBodySize != null)
+{
+    builder.WebHost.ConfigureKestrel(kestrel =>
+    {
+        kestrel.Limits.MaxRequestBodySize = appContext.AppConfiguration.MaxRequestBodySize;
+    });
+
+    builder.Services.Configure<FormOptions>(form =>
+    {
+        form.MultipartBodyLengthLimit = appContext.AppConfiguration.MaxRequestBodySize.Value;
+    });
+}
 
 // Add NativeLibraryDirectory to PATH environment variable
 AddPathToEnv(appContext.RuntimeInfo.NativeLibraryDirectory);

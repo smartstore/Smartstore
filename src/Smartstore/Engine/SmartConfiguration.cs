@@ -118,6 +118,15 @@
         /// </summary>
         public long? MemoryCacheSizeLimit { get; set; }
 
+        /// <summary>
+        ///  Gets or sets the maximum allowed size of any request body in bytes. When set
+        ///  to null, the maximum request body size is unlimited. This limit has no effect
+        ///  on upgraded connections which are always unlimited. This can be overridden per-request
+        ///  via <see cref="Microsoft.AspNetCore.Http.Features.IHttpMaxRequestBodySizeFeature"/>.
+        ///  Defaults to 30,000,000 bytes, which is approximately 28.6MB.
+        /// </summary>
+        public long? MaxRequestBodySize { get; set; }
+
         public GoogleConfiguration Google { get; set; } = new();
 
         public class GoogleConfiguration
