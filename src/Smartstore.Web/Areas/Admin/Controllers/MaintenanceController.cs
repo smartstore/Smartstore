@@ -655,8 +655,11 @@ namespace Smartstore.Admin.Controllers
                 .Select(x =>
                 {
                     var validationResult = _db.DataProvider.ValidateBackupFileName(x.Name);
+                    if (!validationResult.IsValid)
+                    {
+                        return null;
+                    }
 
-                    // TODO: (mg) (core) Exclude invalid files from list/grid
                     var model = new DbBackupModel(x)
                     {
                         Version = validationResult?.Version ?? new Version(),
@@ -668,9 +671,7 @@ namespace Smartstore.Admin.Controllers
                     return model;
                 })
                 .AsQueryable()
-                // TODO: (mg) (core) Why do you sort here while having sort definitions on grid level?
-                .OrderByDescending(x => x.Version)
-                .ThenByDescending(x => x.CreatedOn)
+                .Where(x => x != null)
                 .ApplyGridCommand(command)
                 .ToList();
 
@@ -717,7 +718,7 @@ namespace Smartstore.Admin.Controllers
             return RedirectToAction("Index");
         }
 
-        [HttpPost]
+        [HttpPost, MaxMediaFileSize]
         [Permission(Permissions.System.Maintenance.Execute)]
         public async Task<IActionResult> UploadBackup()
         {
