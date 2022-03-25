@@ -32,6 +32,7 @@ README.md
 # Build
 # -------------------------------------
 
+build/artifacts
 build/packages
 
 # App specific
