@@ -103,7 +103,7 @@
 
         $('#backupfile').on('change', function () {
             $('#upload-backup').prop('disabled', $(this).val().length == 0);
-        });
+        }).trigger('change');
 
         $('#upload-backup').on('click', function (e) {
             e.preventDefault();
