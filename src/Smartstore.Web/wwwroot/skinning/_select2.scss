@@ -292,7 +292,7 @@ $s2bs-form-control-transition: none; // border-color ease-in-out .15s, box-shado
         border-color: $s2bs-input-border-focus;
         overflow-x: hidden;
         margin-top: -1px;
-        z-index: $zindex-dropdown;
+        z-index: $zindex-popover;
 
         &--above {
             //--shadow-yoffset: -0.5;

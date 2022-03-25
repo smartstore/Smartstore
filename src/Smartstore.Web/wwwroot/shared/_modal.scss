@@ -3,6 +3,22 @@
 /// <reference path="../lib/bs4/scss/bootstrap.scss" />
 
 
+// COMMON
+// ------------------------------------------------------------
+
+@if $modal-content-border-width == 0 {
+    .modal-dialog:not(.modal-flex) {
+	    .modal-header {
+            padding-bottom: 0;
+	    }
+
+	    .modal-footer {
+            padding-top: 0;
+	    }
+    }
+}
+
+
 // FLEX MODAL
 // ------------------------------------------------------------
 
@@ -72,7 +88,7 @@
 }
 
 .modal-title {
-	color: $gray-600;
+	color: $modal-title-color;
 }
 
 .modal-dialog:not(.modal-flex) iframe {
