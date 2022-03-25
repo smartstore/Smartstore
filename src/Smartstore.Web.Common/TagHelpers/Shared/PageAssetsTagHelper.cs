@@ -36,6 +36,7 @@ namespace Smartstore.Web.TagHelpers.Shared
                 // Render meta robots right before the title tag.
                 if (_seoSettings.MetaRobotsContent.HasValue())
                 {
+                    // TODO: (core) This code leads to duplicate robots meta data on all pages which call this function in the view Assets.AddMetaRobots();
                     output.PreElement.AppendHtml(string.Format("<meta name=\"robots\" content=\"{0}\"/>", _seoSettings.MetaRobotsContent));
                 }
             }
