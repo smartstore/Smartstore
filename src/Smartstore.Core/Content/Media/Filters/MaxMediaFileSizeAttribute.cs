@@ -9,23 +9,45 @@ namespace Smartstore.Core.Content.Media
     /// </summary>
     public sealed class MaxMediaFileSizeAttribute : TypeFilterAttribute
     {
+        private readonly long? _maxSize;
+        
         public MaxMediaFileSizeAttribute()
             : base(typeof(MaxMediaFileSizeFilter))
         {
+            Arguments = new object[] { this };
+        }
+
+        /// <param name="maxSize">
+        /// Overrides the the maximum allowed size (in KB) of an uploaded media file for a particular action. 
+        /// If <c>null</c>, uses <see cref="MediaSettings.MaxUploadFileSize"/>.
+        /// </param>
+        public MaxMediaFileSizeAttribute(long maxSize)
+            : this()
+        {
+            _maxSize = maxSize;
+        }
+
+        internal long? MaxUploadFileSize
+        {
+            get => _maxSize;
         }
 
         class MaxMediaFileSizeFilter : IAuthorizationFilter, IRequestFormLimitsPolicy
         {
+            private readonly MaxMediaFileSizeAttribute _attribute;
             private readonly MediaSettings _mediaSettings;
 
-            public MaxMediaFileSizeFilter(MediaSettings mediaSettings)
+            public MaxMediaFileSizeFilter(
+                MaxMediaFileSizeAttribute attribute, 
+                MediaSettings mediaSettings)
             {
+                _attribute = attribute;
                 _mediaSettings = mediaSettings;
             }
 
             public void OnAuthorization(AuthorizationFilterContext context)
             {
-                var maxFileSize = 1024 * _mediaSettings.MaxUploadFileSize;
+                var maxFileSize = 1024 * (_attribute.MaxUploadFileSize ?? _mediaSettings.MaxUploadFileSize);
 
                 var effectiveFormPolicy = context.FindEffectivePolicy<IRequestFormLimitsPolicy>();
                 if (effectiveFormPolicy == null || effectiveFormPolicy == this)
