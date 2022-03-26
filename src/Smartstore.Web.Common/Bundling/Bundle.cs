@@ -107,7 +107,7 @@ namespace Smartstore.Web.Bundling
             var index = normalizedRoute.IndexOfAny(new[] { '?', '#' });
             if (index > -1)
             {
-                normalizedRoute = normalizedRoute.Substring(0, index);
+                normalizedRoute = normalizedRoute[..index];
             }
 
             return normalizedRoute;

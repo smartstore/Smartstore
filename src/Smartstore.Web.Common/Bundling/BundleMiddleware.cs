@@ -34,7 +34,14 @@ namespace Smartstore.Web.Bundling
 
         public async Task InvokeAsync(HttpContext httpContext)
         {
-            var bundle = _bundles.GetBundleFor(httpContext.Request.Path);
+            var path = httpContext.Request.Path;
+            if (!path.HasValue)
+            {
+                await _next(httpContext);
+                return;
+            }
+
+            var bundle = _bundles.GetBundleFor(path);
             if (bundle == null)
             {
                 await _next(httpContext);

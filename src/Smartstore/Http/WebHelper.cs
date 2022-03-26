@@ -104,7 +104,7 @@ namespace Smartstore.Http
             if (path.Length >= applicationPath.Value.Length)
             {
                 var segment = new PathString(path);
-                if (segment.StartsWithSegments(path, StringComparison.InvariantCultureIgnoreCase, out var remaining))
+                if (segment.StartsWithSegments(applicationPath, StringComparison.InvariantCultureIgnoreCase, out var remaining))
                 {
                     relativePath = remaining;
                     return true;

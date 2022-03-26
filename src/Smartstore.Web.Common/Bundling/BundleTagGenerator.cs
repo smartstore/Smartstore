@@ -83,6 +83,11 @@ namespace Smartstore.Web.Bundling
         {
             bundle = null;
 
+            if (url.IsEmpty())
+            {
+                return false;
+            }
+
             if (!WebHelper.IsUrlLocalToHost(url))
             {
                 return false;
