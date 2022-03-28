@@ -63,7 +63,7 @@ namespace Smartstore.Web.Controllers
                 .Include(x => x.MediaFile)
                 .FindByIdAsync(product.SampleDownloadId.GetValueOrDefault(), false);
                 
-            if (download == null)
+            if (download == null || download.MediaFile == null)
             {
                 NotifyError(T("Common.Download.SampleNotAvailable"));
                 return RedirectToRoute("Product", new { SeName = await product.GetActiveSlugAsync() });
