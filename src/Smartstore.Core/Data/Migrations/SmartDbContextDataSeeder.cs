@@ -353,8 +353,8 @@ namespace Smartstore.Core.Data.Migrations
                 "Die Datenbanksicherung wurde erfolgreich hochgeladen.");
 
             builder.AddOrUpdate("Admin.System.Maintenance.DbBackup.BackupUploadNote",
-                "Please make sure that the media setting \"Maximum file size\" is large enough for the upload. Uploading a database backup can take several minutes depending on the file size.",
-                "Bitte achten Sie darauf, dass die Medien-Einstellung \"Maximale Dateigröße\" für den Upload groß genug gewählt ist. Der Upload einer Datenbanksicherung kann je nach Dateigröße mehrere Minuten in Anspruch nehmen.");
+                "Uploading a database backup can take several minutes depending on the file size.",
+                "Der Upload einer Datenbanksicherung kann je nach Dateigröße mehrere Minuten in Anspruch nehmen.");
 
             builder.AddOrUpdate("Admin.System.Maintenance.DeletedExportFilesAndFolders",
                 "{0} export files and {1} export folders have been deleted.",

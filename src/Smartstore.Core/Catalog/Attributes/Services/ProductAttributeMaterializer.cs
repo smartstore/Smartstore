@@ -245,32 +245,36 @@ namespace Smartstore.Core.Catalog.Attributes
                     case AttributeControlType.FileUpload:
                         if (getFilesFromRequest)
                         {
-                            var files = _httpContextAccessor?.HttpContext?.Request?.Form?.Files;
-                            if (files?.Any() ?? false)
+                            var request = _httpContextAccessor?.HttpContext?.Request;
+                            if (request != null && request.HasFormContentType)
                             {
-                                var postedFile = files[ProductVariantQueryItem.CreateKey(productId, bundleItemId, pva.ProductAttributeId, pva.Id)];
-                                if (postedFile != null && postedFile.FileName.HasValue())
+                                var files = request.Form.Files;
+                                if (files != null && files.Count > 0)
                                 {
-                                    if (postedFile.Length > _catalogSettings.Value.FileUploadMaximumSizeBytes)
+                                    var postedFile = files[ProductVariantQueryItem.CreateKey(productId, bundleItemId, pva.ProductAttributeId, pva.Id)];
+                                    if (postedFile != null && postedFile.FileName.HasValue())
                                     {
-                                        warnings.Add(T("ShoppingCart.MaximumUploadedFileSize", (int)(_catalogSettings.Value.FileUploadMaximumSizeBytes / 1024)));
-                                    }
-                                    else
-                                    {
-                                        var download = new Download
+                                        if (postedFile.Length > _catalogSettings.Value.FileUploadMaximumSizeBytes)
                                         {
-                                            DownloadGuid = Guid.NewGuid(),
-                                            UseDownloadUrl = false,
-                                            DownloadUrl = string.Empty,
-                                            UpdatedOnUtc = DateTime.UtcNow,
-                                            EntityId = productId,
-                                            EntityName = "ProductAttribute"
-                                        };
+                                            warnings.Add(T("ShoppingCart.MaximumUploadedFileSize", (int)(_catalogSettings.Value.FileUploadMaximumSizeBytes / 1024)));
+                                        }
+                                        else
+                                        {
+                                            var download = new Download
+                                            {
+                                                DownloadGuid = Guid.NewGuid(),
+                                                UseDownloadUrl = false,
+                                                DownloadUrl = string.Empty,
+                                                UpdatedOnUtc = DateTime.UtcNow,
+                                                EntityId = productId,
+                                                EntityName = "ProductAttribute"
+                                            };
 
-                                        using var stream = postedFile.OpenReadStream();
-                                        await _downloadService.Value.InsertDownloadAsync(download, stream, postedFile.FileName);
+                                            using var stream = postedFile.OpenReadStream();
+                                            await _downloadService.Value.InsertDownloadAsync(download, stream, postedFile.FileName);
 
-                                        selection.AddAttributeValue(pva.Id, download.DownloadGuid.ToString());
+                                            selection.AddAttributeValue(pva.Id, download.DownloadGuid.ToString());
+                                        }
                                     }
                                 }
                             }
