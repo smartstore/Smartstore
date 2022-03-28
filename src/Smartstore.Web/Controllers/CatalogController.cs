@@ -1,4 +1,5 @@
 ﻿using System.ServiceModel.Syndication;
+using Smartstore.Caching;
 using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Brands;
 using Smartstore.Core.Catalog.Categories;
@@ -173,7 +174,7 @@ namespace Smartstore.Web.Controllers
                 {
                     featuredProductsResult = await _catalogSearchService.SearchAsync(featuredProductsQuery);
                     hasFeaturedProductsCache = featuredProductsResult.TotalHitsCount > 0;
-                    await Services.Cache.PutAsync(cacheKey, hasFeaturedProductsCache);
+                    await Services.Cache.PutAsync(cacheKey, hasFeaturedProductsCache, new CacheEntryOptions().ExpiresIn(TimeSpan.FromHours(6)));
                 }
 
                 if (hasFeaturedProductsCache.Value && featuredProductsResult == null)

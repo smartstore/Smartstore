@@ -46,8 +46,7 @@ namespace Smartstore.Web.Controllers
 
         public async Task<IActionResult> Sample(int productId)
         {
-            var product = await _db.Products.FindByIdAsync(productId, false);
-                
+            var product = await _db.Products.FindByIdAsync(productId, false);                
             if (product == null)
             {
                 return NotFound();
@@ -62,16 +61,16 @@ namespace Smartstore.Web.Controllers
             var download = await _db.Downloads
                 .Include(x => x.MediaFile)
                 .FindByIdAsync(product.SampleDownloadId.GetValueOrDefault(), false);
-                
+
+            if (download?.UseDownloadUrl ?? false)
+            {
+                return new RedirectResult(download.DownloadUrl);
+            }
+
             if (download == null || download.MediaFile == null)
             {
                 NotifyError(T("Common.Download.SampleNotAvailable"));
                 return RedirectToRoute("Product", new { SeName = await product.GetActiveSlugAsync() });
-            }
-
-            if (download.UseDownloadUrl)
-            {
-                return new RedirectResult(download.DownloadUrl);
             }
             
             return await GetFileStreamResultForAsync(download);
