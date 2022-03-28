@@ -22,28 +22,8 @@ namespace Smartstore.Web.Controllers
             _customerSettings = customerSettings;
         }
 
-        private IActionResult GetFileStreamResultFor(Download download, Stream stream)
-        {
-            if (stream == null || stream.Length == 0)
-            {
-                NotifyError(T("Common.Download.NoDataAvailable"));
-                return new RedirectResult(Url.Action("Info", "Customer"));
-            }
-
-            var fileName = download.MediaFile.Name;
-            var contentType = download.MediaFile.MimeType;
-
-            return new FileStreamResult(stream, contentType)
-            {
-                FileDownloadName = fileName
-            };
-        }
-
-        private async Task<IActionResult> GetFileStreamResultForAsync(Download download)
-        {
-            return GetFileStreamResultFor(download, await _downloadService.OpenDownloadStreamAsync(download));
-        }
-
+        // INFO: overwriting 'SaveChanges' property at class level has no effect.
+        [SaveChanges(typeof(SmartDbContext), false)]
         public async Task<IActionResult> Sample(int productId)
         {
             var product = await _db.Products.FindByIdAsync(productId, false);                
@@ -62,20 +42,17 @@ namespace Smartstore.Web.Controllers
                 .Include(x => x.MediaFile)
                 .FindByIdAsync(product.SampleDownloadId.GetValueOrDefault(), false);
 
-            if (download?.UseDownloadUrl ?? false)
+            var result = await GetResultFor(download);
+            if (result != null)
             {
-                return new RedirectResult(download.DownloadUrl);
+                return result;
             }
 
-            if (download == null || download.MediaFile == null)
-            {
-                NotifyError(T("Common.Download.SampleNotAvailable"));
-                return RedirectToRoute("Product", new { SeName = await product.GetActiveSlugAsync() });
-            }
-            
-            return await GetFileStreamResultForAsync(download);
+            NotifyError(T("Common.Download.SampleNotAvailable"));
+            return RedirectToRoute("Product", new { SeName = await product.GetActiveSlugAsync() });
         }
 
+        [SaveChanges(typeof(SmartDbContext), false)]
         public async Task<IActionResult> GetDownload(Guid id, bool agree = false, string fileVersion = "")
         {
             if (id == Guid.Empty)
@@ -177,10 +154,11 @@ namespace Smartstore.Web.Controllers
                 orderItem.DownloadCount++;
                 await _db.SaveChangesAsync();
 
-                return GetFileStreamResultFor(download, await _downloadService.OpenDownloadStreamAsync(download));
+                return await GetFileStreamResultFor(download);
             }
         }
 
+        [SaveChanges(typeof(SmartDbContext), false)]
         public async Task<IActionResult> GetLicense(Guid id)
         {
             if (id == Guid.Empty)
@@ -228,20 +206,17 @@ namespace Smartstore.Web.Controllers
                 .Include(x => x.MediaFile)
                 .FindByIdAsync(orderItem.LicenseDownloadId ?? 0, false);
 
-            if (download == null)
+            var result = await GetResultFor(download);
+            if (result != null)
             {
-                NotifyError(T("Common.Download.NotAvailable"));
-                return RedirectToAction("DownloadableProducts", "Customer");
+                return result;
             }
 
-            if (download.UseDownloadUrl)
-            {
-                return new RedirectResult(download.DownloadUrl);
-            }
-            
-            return await GetFileStreamResultForAsync(download);
+            NotifyError(T("Common.Download.NotAvailable"));
+            return RedirectToAction("DownloadableProducts", "Customer");
         }
 
+        [SaveChanges(typeof(SmartDbContext), false)]
         public async Task<IActionResult> GetFileUpload(Guid downloadId)
         {
             var download = await _db.Downloads
@@ -249,19 +224,15 @@ namespace Smartstore.Web.Controllers
                 .Include(x => x.MediaFile)
                 .Where(x => x.DownloadGuid == downloadId)
                 .FirstOrDefaultAsync();
-                
-            if (download == null)
+
+            var result = await GetResultFor(download);
+            if (result != null)
             {
-                NotifyError(T("Common.Download.NotAvailable"));
-                return RedirectToAction("DownloadableProducts", "Customer");
+                return result;
             }
 
-            if (download.UseDownloadUrl)
-            {
-                return new RedirectResult(download.DownloadUrl);
-            }
-
-            return await GetFileStreamResultForAsync(download);
+            NotifyError(T("Common.Download.NotAvailable"));
+            return RedirectToAction("DownloadableProducts", "Customer");
         }
 
         public async Task<IActionResult> GetUserAgreement(int productId, bool? asPlainText)
@@ -287,6 +258,39 @@ namespace Smartstore.Web.Controllers
             }
 
             return Content(product.UserAgreementText);
+        }
+
+        private async Task<IActionResult> GetResultFor(Download download)
+        {
+            if (download != null)
+            {
+                if (download.UseDownloadUrl)
+                {
+                    return new RedirectResult(download.DownloadUrl);
+                }
+                else if (download.MediaFile != null)
+                {
+                    return await GetFileStreamResultFor(download);
+                }
+            }
+
+            return null;
+        }
+
+        private async Task<IActionResult> GetFileStreamResultFor(Download download)
+        {
+            var stream = await _downloadService.OpenDownloadStreamAsync(download);
+
+            if (stream == null || stream.Length == 0)
+            {
+                NotifyError(T("Common.Download.NoDataAvailable"));
+                return RedirectToAction("Info", "Customer");
+            }
+
+            return new FileStreamResult(stream, download.MediaFile.MimeType)
+            {
+                FileDownloadName = download.MediaFile.Name
+            };
         }
     }
 }
