@@ -29,7 +29,7 @@ namespace Smartstore.Core.Catalog.Search.Modelling
 
     public partial class CatalogSearchQueryFactory : SearchQueryFactoryBase, ICatalogSearchQueryFactory
     {
-		protected static readonly string[] _instantSearchFields = new string[] { "manufacturer", "sku", "gtin", "mpn", "attrname", "variantname" };
+		protected static readonly string[] _instantSearchFields = new[] { "manufacturer", "sku", "gtin", "mpn", "attrname", "variantname" };
 
 		protected readonly ICommonServices _services;
 		protected readonly ICatalogSearchQueryAliasMapper _catalogSearchQueryAliasMapper;
@@ -50,7 +50,7 @@ namespace Smartstore.Core.Catalog.Search.Modelling
 			_searchSettings = searchSettings;
 		}
 
-		protected override string[] Tokens => new string[] { "q", "i", "s", "o", "p", "c", "m", "r", "a", "n", "d", "v" };
+		protected override string[] Tokens => new[] { "q", "i", "s", "o", "p", "c", "m", "r", "a", "n", "d", "v" };
 
 		public CatalogSearchQuery Current { get; private set; }
 
@@ -65,7 +65,7 @@ namespace Smartstore.Core.Catalog.Search.Modelling
             var area = ctx.Request.RouteValues.GetAreaName();
             var controller = ctx.Request.RouteValues.GetControllerName();
             var action = ctx.Request.RouteValues.GetActionName();
-            var origin = "{0}{1}/{2}".FormatInvariant(area == null ? "" : area + "/", controller, action);
+            var origin = "{0}{1}/{2}".FormatInvariant(area.HasValue() ? area + "/" : string.Empty, controller, action);
             var fields = new List<string> { "name" };
             var term = GetValueFor<string>("q");
             var isInstantSearch = origin.EqualsNoCase("Search/InstantSearch");
@@ -347,7 +347,7 @@ namespace Smartstore.Core.Catalog.Search.Modelling
 
         protected virtual void ConvertCategory(CatalogSearchQuery query, string origin)
         {
-            if (origin == "Catalog/Category")
+            if (origin.EqualsNoCase("Catalog/Category"))
             {
                 // We don't need category facetting in category pages.
                 return;
