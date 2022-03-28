@@ -115,6 +115,9 @@ namespace Smartstore.Engine.Modularity
                 if (isLegacy)
                 {
                     lines = lines.Concat(new[] { "Smartstore.Blog", "Smartstore.Forums", "Smartstore.News", "Smartstore.Polls" });
+
+                    // After first migration, create and save new InstalledModules.txt
+                    _appContext.TenantRoot.WriteAllText(FileName, string.Join(Environment.NewLine, lines));
                 }
 
                 _installedModules.AddRange(lines);
