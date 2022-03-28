@@ -1,0 +1,12 @@
+﻿/// <reference path="../../../Smartstore.Web/Themes/Flex/wwwroot/theme.scss" />
+
+/*TODO: (mh) (core) A better solution must be found. Maybe something with an absolute position popup which doesn't disturb the flow */
+
+.widget-zone-info {
+    display: block;
+    background: #fff;
+    color: inherit;
+    border: 1px dashed $gray-400;
+    margin-bottom: 3px;
+    text-align: left;
+}
