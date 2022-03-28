@@ -219,16 +219,14 @@ namespace Smartstore.Imaging
 
         private static Size GetPixelSizeByImageFactory(Stream input, out IImageFormat imageFormat)
         {
-            imageFormat = null;
-
             var info = _imageFactory?.DetectInfo(input);
-            imageFormat = info.Format;
-
             if (info != null)
             {
+                imageFormat = info.Format;
                 return new Size(info.Width, info.Height);
             }
 
+            imageFormat = null;
             return Size.Empty;
         }
 
