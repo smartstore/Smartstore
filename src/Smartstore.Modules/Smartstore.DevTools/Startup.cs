@@ -39,7 +39,6 @@ namespace Smartstore.DevTools
                 //o.EnableDebugMode = true;
                 o.EnableMvcFilterProfiling = true;
                 o.EnableMvcViewProfiling = true;
-                o.EnableServerTimingHeader = true;
                 o.MaxUnviewedProfiles = 5;
 
                 o.ShouldProfile = ShouldProfile;
@@ -92,7 +91,7 @@ namespace Smartstore.DevTools
 
         public override void BuildPipeline(RequestPipelineBuilder builder)
         {
-            builder.Configure(StarterOrdering.FirstMiddleware, app =>
+            builder.Configure(StarterOrdering.AfterExceptionHandlerMiddleware, app =>
             {
                 app.UseMiniProfiler();
             });
