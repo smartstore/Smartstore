@@ -519,7 +519,24 @@ namespace Smartstore.Web.Controllers
                 DisplayPrices = await _services.Permissions.AuthorizeAsync(Permissions.Catalog.DisplayPrice)
             };
 
-            return await MapProductDetailsPageModelAsync(modelContext);
+            var model = await MapProductDetailsPageModelAsync(modelContext);
+
+            // Specifications
+            model.SpecificationAttributes = await PrepareProductSpecificationModelAsync(modelContext);
+
+            // Reviews
+            await PrepareProductReviewsModelAsync(model.ProductReviews, product, 10);
+
+            // Tags
+            await PrepareProductTagsModelAsync(model, product);
+
+            // Related products
+            await PrepareRelatedProductsModelAsync(model, product);
+
+            // Also purchased products
+            await PrepareAlsoPurchasedProductsModelAsync(model, product);
+
+            return model;
         }
 
         protected internal virtual async Task<ProductDetailsModel> MapProductDetailsPageModelAsync(ProductDetailsModelContext modelContext)
@@ -855,21 +872,6 @@ namespace Smartstore.Web.Controllers
 
             // GiftCards
             PrepareProductGiftCardsModel(model, modelContext);
-
-            // Specifications
-            model.SpecificationAttributes = await PrepareProductSpecificationModelAsync(modelContext);
-
-            // Reviews
-            await PrepareProductReviewsModelAsync(model.ProductReviews, product, 10);
-
-            // Tags
-            await PrepareProductTagsModelAsync(model, product);
-
-            // Related products
-            await PrepareRelatedProductsModelAsync(model, product);
-
-            // Also purchased products
-            await PrepareAlsoPurchasedProductsModelAsync(model, product);
 
             _services.DisplayControl.Announce(product);
         }

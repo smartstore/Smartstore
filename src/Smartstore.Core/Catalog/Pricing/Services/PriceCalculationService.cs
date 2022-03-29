@@ -336,8 +336,7 @@ namespace Smartstore.Core.Catalog.Pricing
             context.AttributePriceAdjustments.Each(x => x.Price = ConvertAmount(x.RawPriceAdjustment, context, taxRate, false, out _).Value);
 
             // Calculate price saving.
-            // The final price without discounts has priority over the old price.
-            // This avoids differing percentage discount in product lists and detail page.
+            // TODO: (mg) (core) find a way to avoid differing percentage discount in product lists and detail page.
             var priceWithoutDiscount = result.FinalPrice + result.DiscountAmount;
             
             var savingPrice = result.FinalPrice < priceWithoutDiscount 
