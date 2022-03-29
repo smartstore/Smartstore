@@ -26,7 +26,7 @@ using Smartstore.Utilities;
 namespace Smartstore.Core.Data.Migrations
 {
     [MigrationVersion("2022-03-29 13:00:00", "V5")]
-    internal class V5 : Migration, IDataSeeder<SmartDbContext>
+    internal class V5 : Migration, ILocaleResourcesProvider, IDataSeeder<SmartDbContext>
     {
         public override void Up()
         {
