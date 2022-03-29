@@ -162,6 +162,12 @@
   <LocaleResource Name="Progress.CreatingSampleData">
     <Value>Creating sample data</Value>
   </LocaleResource>
+  <LocaleResource Name="Progress.End1">
+    <Value>If you are not automatically redirected to the home page of the store please click</Value>
+  </LocaleResource>
+  <LocaleResource Name="Progress.End2">
+    <Value>here</Value>
+  </LocaleResource>
 
   <LocaleResource Name="InstallOptions">
     <Value>Options</Value>

@@ -157,9 +157,15 @@
     <Value>Schreibe erforderliche Daten</Value>
   </LocaleResource>
   <LocaleResource Name="Progress.CreatingSampleData">
-    <Value>Schreibe Beispiel Daten</Value>
+    <Value>Schreibe Beispieldaten</Value>
   </LocaleResource>
-
+  <LocaleResource Name="Progress.End1">
+    <Value>Sollten Sie nicht automatisch zur Startseite des Shops geleitet werden, klicken Sie bitte</Value>
+  </LocaleResource>
+  <LocaleResource Name="Progress.End2">
+    <Value>hier</Value>
+  </LocaleResource>
+    
   <LocaleResource Name="InstallOptions">
     <Value>Optionen</Value>
   </LocaleResource>

@@ -480,9 +480,9 @@
                     finalizeInstallation(data.Success);
 
                     if (data.Success) {
-                    	$("#install-message").html("@InstallService.GetResource("Common.StartShop")");
-                        $("#install-progress").html("");
-
+                        $("#install-message").html("@InstallService.GetResource("Common.StartShop")");
+                        $("#install-progress").html('@InstallService.GetResource("Progress.End1") <a style="color: #fff; text-decoration:underline" href="@Url.Action("Index", "Home")">' + "@InstallService.GetResource("Progress.End2")</a>.");
+                        
                         checkAliveInterval = setInterval(function () {
                             checkAlive(data.RedirectUrl);
                         }, 1000);
@@ -502,7 +502,6 @@
                 onComplete: function () {
                 	window.clearInterval(progressIntervall);
                     $("#install-button").removeAttr("disabled");
-                    $("#install-progress").html("");
                 }
             };
         })();
