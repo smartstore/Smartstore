@@ -42,7 +42,6 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
 
                 if (context.MinTierPrice.Value < context.FinalPrice)
                 {
-                    context.DiscountAmount += context.FinalPrice - context.MinTierPrice.Value;
                     context.FinalPrice = context.MinTierPrice.Value;
 
                     // Apply discount on minimum tier price (if any).
@@ -54,6 +53,7 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
                     if (discountOnTierPrice != null)
                     {
                         context.AppliedDiscounts.Add(discountOnTierPrice.Discount);
+                        context.DiscountAmount += discountOnTierPrice.DiscountAmount;
                         context.FinalPrice -= discountOnTierPrice.DiscountAmount;
                     }
                 }
