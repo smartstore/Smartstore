@@ -590,7 +590,7 @@ namespace Smartstore.Admin.Controllers
             var newUsername = model.Username.TrimSafe();
 
             // Email.
-            if (ModelState.IsValid && !newEmail.Equals(customer.Email, StringComparison.InvariantCultureIgnoreCase))
+            if (ModelState.IsValid && !newEmail.EqualsNoCase(customer.Email))
             {
                 var token = await _userManager.GenerateChangeEmailTokenAsync(customer, newEmail);
                 var result = await _userManager.ChangeEmailAsync(customer, newEmail, token);
