@@ -58,7 +58,7 @@ namespace Smartstore.Core.Seo.Routing
 
             Scheme = new UrlSegment(request.Scheme);
             Host = new UrlSegment(request.Host.Value);
-            PathBase = new UrlSegment(request.PathBase.Value?.Trim('/'));
+            PathBase = new UrlSegment(request.PathBase.Value);
             Culture = new UrlSegment(cultureCode);
             Path = new UrlSegment(path.Trim('/'));
             QueryString = new UrlSegment(request.QueryString.Value);
@@ -126,7 +126,6 @@ namespace Smartstore.Core.Seo.Routing
         /// if only right segments has changed, or the full absolute URL (including scheme and host)
         /// if any left segment has changed.
         /// </summary>
-        /// <returns></returns>
         public string GetModifiedUrl()
         {
             var leftMod = LeftPartIsModified;
@@ -146,25 +145,43 @@ namespace Smartstore.Core.Seo.Routing
                 return UriHelper.BuildAbsolute(
                     Scheme, 
                     new HostString(Host),
-                    new PathString(PathBase),
-                    new PathString(combinedPath),
+                    PathBase,
+                    combinedPath,
                     new QueryString(QueryString));
             }
 
             return UriHelper.BuildRelative(
-                new PathString(PathBase),
-                new PathString(combinedPath),
+                PathBase, 
+                combinedPath,
                 new QueryString(QueryString));
         }
 
         public static string CombineSegments(params string[] segments)
         {
-            var combined = segments
-                .Where(x => x.HasValue())
-                .StrJoin('/')
-                .EnsureStartsWith('/');
+            if (segments == null || segments.Length == 0)
+            {
+                return "/";
+            }
 
-            return combined;
+            var firstSegment = segments[0].EmptyNull().EnsureStartsWith("/");
+
+            if (segments.Length == 1)
+            {
+                return firstSegment;
+            }
+
+            var combined = new PathString(firstSegment);
+
+            for (var i = 1; i < segments.Length; i++)
+            {
+                var segment = segments[i];
+                if (segment.HasValue())
+                {
+                    combined = combined.Add(segment.EnsureStartsWith('/'));
+                }
+            }
+
+            return combined.Value;
         }
     }
 }
