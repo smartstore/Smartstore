@@ -46,7 +46,7 @@ namespace Smartstore.Core.Data.Migrations
             await MigrateSettingsAsync(context, cancelToken);
         }
 
-        public async Task MigrateSettingsAsync(SmartDbContext context, CancellationToken cancelToken = default)
+        private static async Task MigrateSettingsAsync(SmartDbContext context, CancellationToken cancelToken = default)
         {
             await context.MigrateSettingsAsync(builder =>
             {
