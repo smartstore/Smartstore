@@ -43,6 +43,11 @@
             margin-left: auto !important;
             margin-right: auto !important;
         }
+
+        .redirect-info > a {
+            color: #fff;
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
@@ -481,8 +486,8 @@
 
                     if (data.Success) {
                         $("#install-message").html("@InstallService.GetResource("Common.StartShop")");
-                        $("#install-progress").html('@InstallService.GetResource("Progress.End1") <a style="color: #fff; text-decoration:underline" href="@Url.Action("Index", "Home")">' + "@InstallService.GetResource("Progress.End2")</a>.");
-                        
+                        $("#install-progress").html('<span class="redirect-info">@Html.Raw(InstallService.GetResource("Progress.Redirect").FormatInvariant(Url.Action("Index", "Home")))</span>');
+
                         checkAliveInterval = setInterval(function () {
                             checkAlive(data.RedirectUrl);
                         }, 1000);

@@ -159,11 +159,8 @@
   <LocaleResource Name="Progress.CreatingSampleData">
     <Value>Schreibe Beispieldaten</Value>
   </LocaleResource>
-  <LocaleResource Name="Progress.End1">
-    <Value>Sollten Sie nicht automatisch zur Startseite des Shops geleitet werden, klicken Sie bitte</Value>
-  </LocaleResource>
-  <LocaleResource Name="Progress.End2">
-    <Value>hier</Value>
+  <LocaleResource Name="Progress.Redirect">
+    <Value><![CDATA[Sollten Sie nicht automatisch zur Startseite des Shops weitergeleitet werden, klicken Sie bitte <a href="{0}">hier</a>]]></Value>
   </LocaleResource>
     
   <LocaleResource Name="InstallOptions">
