@@ -35,7 +35,7 @@ namespace Smartstore.DevTools.Controllers
         }
 
         [AuthorizeAdmin]
-        public ActionResult ProductEditTab(int productId)
+        public IActionResult ProductEditTab(int productId)
         {
             var model = new BackendExtensionModel
             {
