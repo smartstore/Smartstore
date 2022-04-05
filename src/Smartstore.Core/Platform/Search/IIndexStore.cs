@@ -3,29 +3,14 @@
     public interface IIndexStore
     {
         /// <summary>
-        /// Creates a new index if it doesn't exist already
-        /// </summary>
-        void CreateIfNotExists();
-
-        /// <summary>
-        /// Deletes the index
-        /// </summary>
-        void Delete();
-
-        /// <summary>
-        /// Returns the name of the index
+        /// Returns the name of the index.
         /// </summary>
         string Scope { get; }
 
         /// <summary>
-        /// Checks whether the index is already existing or not
+        /// Checks whether the index is already existing or not.
         /// </summary>
         bool Exists { get; }
-
-        /// <summary>
-        /// Gets the size of the index in bytes.
-        /// </summary>
-        long IndexSize { get; }
 
         /// <summary>
         /// The identifier of the last added document.
@@ -33,54 +18,69 @@
         int LastAddedDocumentId { get; }
 
         /// <summary>
-        /// Gets the total number of indexed documents
+        /// Creates a new index if it doesn't exist already.
         /// </summary>
-        /// <param name="documentType">Type of document, use <c>null</c> to get all documents</param>
+        void CreateIfNotExists();
+
+        /// <summary>
+        /// Deletes the index.
+        /// </summary>
+        Task DeleteAsync();
+
+        /// <summary>
+        /// Gets the total number of indexed documents.
+        /// </summary>
+        /// <param name="documentType">Type of document, use <c>null</c> to get all documents.</param>
         int GetDocumentCount(SearchDocumentType? documentType);
 
         /// <summary>
-        /// Returns every field's name available in the index
+        /// Gets the size of the index in bytes.
+        /// </summary>
+        Task<long> GetIndexSizeAsync();
+
+        /// <summary>
+        /// Returns every field's name available in the index.
         /// </summary>
         IEnumerable<string> GetAllFields();
 
         /// <summary>
-        /// Removes all documents from the index
+        /// Removes all documents from the index.
         /// </summary>
         void Clear();
 
         /// <summary>
-        /// Acquires an index writer
+        /// Acquires an index writer.
         /// </summary>
-        /// <param name="writerContext">Provides information about the indexing operation</param>
+        /// <param name="writerContext">Provides information about the indexing operation.</param>
         /// <remarks>
         /// This method creates a transient writer instance which automatically gets released on dispose.
         /// </remarks>
-        IDisposable AcquireWriter(AcquireWriterContext writerContext);
+        IDisposable AcquireWriter(AcquireWriterContext writerContext, CancellationToken cancelToken = default);
 
         /// <summary>
-        /// Adds a set of new documents to the index
+        /// Adds a set of new documents to the index.
         /// </summary>
         /// <remarks>
-        /// This method will delete already existing documents before saving them
+        /// This method will delete already existing documents before saving them.
         /// </remarks>
         void SaveDocuments(IEnumerable<IIndexDocument> documents);
 
         /// <summary>
-        /// Removes a set of existing documents from the index
+        /// Removes a set of existing documents from the index.
         /// </summary>
         void DeleteDocuments(IEnumerable<IIndexDocument> documents);
 
         /// <summary>
-        /// Removes a set of existing documents from the index
+        /// Removes a set of existing documents from the index.
         /// </summary>
-        /// <param name="documentType">Type of document</param>
+        /// <param name="documentType">Type of document.</param>
         void DeleteDocuments(SearchDocumentType documentType);
     }
 
     public static class IIndexStoreExtensions
     {
         /// <summary>
-        /// Adds a new document to the index
+        /// Adds a new document to the index.
         /// </summary>
         /// <remarks>
         /// This method will delete a document with the same entity id - if it exists - before saving it.
@@ -91,7 +91,7 @@
         }
 
         /// <summary>
-        /// Removes an existing document from the index
+        /// Removes an existing document from the index.
         /// </summary>
         public static void DeleteDocument(this IIndexStore store, IIndexDocument document)
         {

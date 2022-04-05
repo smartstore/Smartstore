@@ -7,7 +7,7 @@
             return true;
         }
 
-        public abstract IEnumerable<string> EnumerateIndexes();
+        public abstract Task<IEnumerable<string>> EnumerateIndexesAsync();
 
         public virtual IIndexDocument CreateDocument(int id, SearchDocumentType? documentType)
         {

@@ -11,7 +11,7 @@
         /// Enumerates the names of all EXISTING indexes. 
         /// A name is required for the <see cref="GetIndexStore(string)"/> method.
         /// </summary>
-        IEnumerable<string> EnumerateIndexes();
+        Task<IEnumerable<string>> EnumerateIndexesAsync();
 
         /// <summary>
         /// Creates an empty document
