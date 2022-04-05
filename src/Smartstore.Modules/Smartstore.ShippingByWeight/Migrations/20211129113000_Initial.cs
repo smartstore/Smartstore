@@ -23,7 +23,6 @@ namespace Smartstore.ShippingByWeight.Migrations
                     .WithColumn(nameof(ShippingRateByWeight.UsePercentage)).AsBoolean().NotNullable()
                     .WithColumn(nameof(ShippingRateByWeight.ShippingChargePercentage)).AsDecimal(18, 2).NotNullable()
                     .WithColumn(nameof(ShippingRateByWeight.ShippingChargeAmount)).AsDecimal(18, 2).NotNullable()
-                    .WithColumn(nameof(ShippingRateByWeight.SmallQuantitySurcharge)).AsDecimal(18, 2).NotNullable()
                     .WithColumn(nameof(ShippingRateByWeight.SmallQuantitySurcharge)).AsDecimal(18, 2).NotNullable();
             }
         }
