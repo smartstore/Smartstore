@@ -57,7 +57,7 @@ namespace Smartstore.Core.Search
         /// Gets the facet map for drilldown navigation
         /// </summary>
         /// <returns>The facet groups</returns>
-        Task<Dictionary<string, FacetGroup>> GetFacetMapAsync(CancellationToken cancelToken = default);
+        Task<IDictionary<string, FacetGroup>> GetFacetMapAsync(CancellationToken cancelToken = default);
 
         /// <summary>
         /// Performs spell checking ("Diy you mean?")
