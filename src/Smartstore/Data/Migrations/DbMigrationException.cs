@@ -4,7 +4,7 @@
     {
         private const string MSG_DDL = "Migration {0} could not be applied due to following error: {1}.";
         private const string MSG_SEED = "Migration {0} could not be seeded due to following error: {1}.";
-        private const string MSG_SUFFIX = " All changes to the database were reversed to {2}. Please downgrade your application to a version which is known to be compatible with {2}.";
+        private const string MSG_SUFFIX = " All changes to the database were reversed to {0}. Please downgrade your application to a version which is known to be compatible with {0}.";
 
         public DbMigrationException(string message)
             : base(message)
