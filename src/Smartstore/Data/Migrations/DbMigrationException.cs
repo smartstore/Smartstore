@@ -16,23 +16,23 @@
         {
         }
 
-        public DbMigrationException(long? initialMigration, long targetMigration, Exception inner, bool isSeed)
+        public DbMigrationException(string initialMigration, string targetMigration, Exception inner, bool isSeed)
             : base(GetMessage(initialMigration, targetMigration, inner, isSeed), inner)
         {
             InitialMigration = initialMigration;
             TargetMigration = targetMigration;
         }
 
-        public long? InitialMigration { get; private set; }
-        public long TargetMigration { get; private set; }
+        public string InitialMigration { get; private set; }
+        public string TargetMigration { get; private set; }
 
-        private static string GetMessage(long? initialMigration, long targetMigration, Exception inner, bool isSeed)
+        private static string GetMessage(string initialMigration, string targetMigration, Exception inner, bool isSeed)
         {
             var msg = (isSeed ? MSG_SEED : MSG_DDL).FormatCurrent(targetMigration, inner?.Message.EmptyNull());
 
-            if (initialMigration.HasValue)
+            if (initialMigration.HasValue())
             {
-                return msg + MSG_SUFFIX.FormatInvariant(initialMigration.Value);
+                return msg + MSG_SUFFIX.FormatInvariant(initialMigration);
             }
 
             return msg;

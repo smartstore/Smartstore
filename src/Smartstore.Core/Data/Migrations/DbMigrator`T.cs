@@ -237,7 +237,7 @@ namespace Smartstore.Core.Data.Migrations
                         scope?.Cancel();
                     }
 
-                    throw new DbMigrationException(_lastSuccessfulMigration?.Version ?? _initialMigration?.Version, current.Version, ex.InnerException ?? ex, false);
+                    throw new DbMigrationException(_lastSuccessfulMigration?.Description ?? _initialMigration?.Description, current.Description, ex.InnerException ?? ex, false);
                 }
             }
 
@@ -283,7 +283,7 @@ namespace Smartstore.Core.Data.Migrations
                 {
                     if (seeder.RollbackOnFailure)
                     {
-                        _lastSeedException = new DbMigrationException(entry.PreviousMigration?.Version ?? _initialMigration?.Version, m.Version, ex.InnerException ?? ex, true);
+                        _lastSeedException = new DbMigrationException(entry.PreviousMigration?.Description ?? _initialMigration?.Name, m.Description, ex.InnerException ?? ex, true);
 
                         if (!cancelToken.IsCancellationRequested)
                         {
