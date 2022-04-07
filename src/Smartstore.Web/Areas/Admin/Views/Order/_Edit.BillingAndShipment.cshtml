@@ -26,7 +26,7 @@
                     @T("Order.Fax"): @billTo.FaxNumber
                 </div>
             </div>
-            <div class="card-footer d-flex p-0">
+            <div class="card-footer p-0">
                 <a asp-action="AddressEdit" asp-route-addressId="@billTo.Id" asp-route-orderId="@Model.Id" class="btn btn-warning btn-lg btn-flat rounded-0">
                     <i class="far fa-edit"></i>
                     <span>@T("Admin.Common.Edit")</span>
@@ -51,7 +51,7 @@
                         @T("Order.Fax"): @shipTo.FaxNumber
                     </div>
                 </div>
-                <div class="card-footer d-flex p-0">
+                <div class="card-footer p-0">
                     <a asp-action="AddressEdit" asp-route-addressId="@shipTo.Id" asp-route-orderId="@Model.Id" class="btn btn-warning btn-lg btn-flat rounded-0">
                         <i class="far fa-edit"></i>
                         <span>@T("Admin.Common.Edit")</span>
