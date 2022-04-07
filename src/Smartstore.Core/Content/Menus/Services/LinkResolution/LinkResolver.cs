@@ -96,7 +96,7 @@ namespace Smartstore.Core.Content.Menus
                 return new LinkResolutionResult(expression, LinkStatus.NotFound);
             }
 
-            if (expression.Schema == SchemaUrl)
+            if (expression.Schema == SchemaUrl || expression.Schema.Trim().StartsWith("http", StringComparison.OrdinalIgnoreCase))
             {
                 var url = expression.TargetAndQuery;
                 if (url.StartsWith('~'))
