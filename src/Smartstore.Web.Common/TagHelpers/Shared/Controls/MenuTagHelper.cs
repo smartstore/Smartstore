@@ -9,13 +9,6 @@ namespace Smartstore.Web.TagHelpers.Shared
         const string NameAttributeName = "name";
         const string TemplateAttributeName = "template";
 
-        private readonly IHttpContextAccessor _httpContextAccessor;
-
-        public MenuTagHelper(IHttpContextAccessor httpContextAccessor)
-        {
-            _httpContextAccessor = httpContextAccessor;
-        }
-
         [HtmlAttributeName(NameAttributeName)]
         public string Name { get; set; }
 
@@ -31,9 +24,15 @@ namespace Smartstore.Web.TagHelpers.Shared
                 return;
             }
 
+            // TODO: (mh) (core) Absolutely wrong approach! Never use session for simple modelling.
+            // Create extension methods for IDisplayHelper instead (e.g. [Get|Set]xyzName)
+            // and persist data in HttpContext.Items. See other IDisplayHelper extensions.
+            // Refactor dependencies accordingly.
+            // Besides: this feature seems useless as it is required to put the custom file into a core folder. TBD with MC.
+
             // Let plugin developers intercept.
             var menuComponentName = "Menu";
-            var session = _httpContextAccessor?.HttpContext?.Session;
+            var session = ViewContext.HttpContext.Session;
 
             if (session.ContainsKey("MainMenuCompenentName") && Name == "Main")
             {
