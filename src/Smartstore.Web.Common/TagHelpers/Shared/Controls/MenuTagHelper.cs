@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Razor.TagHelpers;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Razor.TagHelpers;
 
 namespace Smartstore.Web.TagHelpers.Shared
 {
@@ -7,6 +8,13 @@ namespace Smartstore.Web.TagHelpers.Shared
     {
         const string NameAttributeName = "name";
         const string TemplateAttributeName = "template";
+
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
+        public MenuTagHelper(IHttpContextAccessor httpContextAccessor)
+        {
+            _httpContextAccessor = httpContextAccessor;
+        }
 
         [HtmlAttributeName(NameAttributeName)]
         public string Name { get; set; }
@@ -23,7 +31,16 @@ namespace Smartstore.Web.TagHelpers.Shared
                 return;
             }
 
-            var widget = new ComponentWidgetInvoker("Menu", new { name = Name, template = Template });
+            // Let plugin developers intercept.
+            var menuComponentName = "Menu";
+            var session = _httpContextAccessor?.HttpContext?.Session;
+
+            if (session.ContainsKey("MainMenuCompenentName") && Name == "Main")
+            {
+                menuComponentName = session.GetString("MainMenuCompenentName");
+            }
+
+            var widget = new ComponentWidgetInvoker(menuComponentName, new { name = Name, template = Template });
 
             output.TagMode = TagMode.StartTagAndEndTag;
             //var partial = await HtmlHelper.PartialAsync("Menus/" + Template, model);
