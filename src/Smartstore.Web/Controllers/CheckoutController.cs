@@ -472,7 +472,7 @@ namespace Smartstore.Web.Controllers
                 // OR the current customer has no Reward Points, then the customer does not need to select a payment method.
 
                 customer.GenericAttributes.SelectedPaymentMethod = model.PaymentMethods?.FirstOrDefault()?.PaymentMethodSystemName;
-                await customer.GenericAttributes.SaveChangesAsync();
+                await _db.SaveChangesAsync();
 
                 var referrer = Services.WebHelper.GetUrlReferrer();
                 if (referrer != null && referrer.OriginalString.EndsWith('/' + nameof(Confirm)))
@@ -627,8 +627,8 @@ namespace Smartstore.Web.Controllers
                     // Check whether payment workflow is required.
                     var cartTotalBase = await _orderCalculationService.GetShoppingCartTotalAsync(cart, false);
 
-                    if (cartTotalBase.Total.HasValue && cartTotalBase.Total.Value == decimal.Zero 
-                        || _checkoutStateAccessor.CheckoutState.IsPaymentSelectionSkipped)
+                    if (!cartTotalBase.Total.HasValue && cartTotalBase.Total.Value != decimal.Zero 
+                        || !_checkoutStateAccessor.CheckoutState.IsPaymentSelectionSkipped)
                     {
                         return RedirectToAction(nameof(PaymentMethod));
                     }
