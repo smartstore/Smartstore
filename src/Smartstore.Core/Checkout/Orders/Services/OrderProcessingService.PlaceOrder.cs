@@ -879,8 +879,8 @@ namespace Smartstore.Core.Checkout.Orders
                 {
                     _db.DiscountUsageHistory.Add(new DiscountUsageHistory
                     {
-                        Discount = discount,
-                        Order = order,
+                        DiscountId = discount.Id,
+                        OrderId = order.Id,
                         CreatedOnUtc = ctx.Now
                     });
                 }
@@ -891,7 +891,7 @@ namespace Smartstore.Core.Checkout.Orders
                     giftCard.GiftCard.GiftCardUsageHistory.Add(new GiftCardUsageHistory
                     {
                         GiftCardId = giftCard.GiftCard.Id,
-                        UsedWithOrder = order,
+                        UsedWithOrderId = order.Id,
                         UsedValue = giftCard.UsableAmount.Amount,
                         CreatedOnUtc = ctx.Now
                     });
