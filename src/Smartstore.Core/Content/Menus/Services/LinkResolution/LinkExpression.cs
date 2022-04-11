@@ -53,7 +53,7 @@ namespace Smartstore.Core.Content.Menus
             var colonIndex = expression.RawExpression.IndexOf(':');
             if (colonIndex > -1)
             {
-                expression.Schema = expression.RawExpression.Substring(0, colonIndex).ToLower();
+                expression.Schema = expression.RawExpression[..colonIndex].ToLower();
                 if (expression.Schema.StartsWith("http"))
                 {
                     expression.Schema = null;
@@ -71,7 +71,7 @@ namespace Smartstore.Core.Content.Menus
             if (qmIndex > -1)
             {
                 expression.Query = expression.Target[qmIndex..];
-                expression.Target = expression.Target.Substring(0, qmIndex);
+                expression.Target = expression.Target[..qmIndex];
             }
             else
             {

@@ -96,6 +96,7 @@ namespace Smartstore.Core.Content.Menus
                 return new LinkResolutionResult(expression, LinkStatus.NotFound);
             }
 
+            // TODO: (mh) (core) Insufficient. Analyze LinkExpression.TokenizeExpression() thoroughly (Schema is null for full urls). TBD with MC.
             if (expression.Schema == SchemaUrl || expression.Schema.Trim().StartsWith("http", StringComparison.OrdinalIgnoreCase))
             {
                 var url = expression.TargetAndQuery;
