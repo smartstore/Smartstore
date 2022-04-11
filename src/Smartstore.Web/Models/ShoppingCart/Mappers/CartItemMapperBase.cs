@@ -203,9 +203,8 @@ namespace Smartstore.Web.Models.Cart
             }
 
             var itemWarnings = new List<string>();
-            var itemCart = new ShoppingCart(customer, store.Id, new[] { from });
-
-            if (!await ShoppingCartValidator.ValidateCartAsync(itemCart, itemWarnings))
+            
+            if (!await ShoppingCartValidator.ValidateProductAsync(from.Item, itemWarnings))
             {
                 to.Warnings.AddRange(itemWarnings);
             }
