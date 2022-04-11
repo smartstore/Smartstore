@@ -186,7 +186,7 @@ logs/
 *-symdir/
 [Ee]xternal[Ff]iles/
 /src/Smartstore.Modules/*-sym
-/src/Tests/*-sym
+/test/*-sym
 /src/Smartstore.Web/Themes/*-sym
 /src/Smartstore.Web/Themes/HP
 
