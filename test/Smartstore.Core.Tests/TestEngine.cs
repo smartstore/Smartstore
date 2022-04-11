@@ -4,7 +4,7 @@ using Smartstore.Engine;
 
 namespace Smartstore.Core.Tests
 {
-    internal class TestEngine : IEngine
+    public class TestEngine : IEngine
     {
         public IApplicationContext Application { get; set; }
         public ScopedServiceContainer Scope { get; set; }
