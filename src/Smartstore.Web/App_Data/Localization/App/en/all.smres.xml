@@ -13738,7 +13738,7 @@
 		<Value>The sitemap for the store is not reachable.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.System.Warnings.TaskScheduler.Fail">
-		<Value>The task scheduler cannot poll and execute tasks. Base URL: {0}, Status: {1}. Please specify a working base url in web.config, setting 'sm:TaskSchedulerBaseUrl'.</Value>
+		<Value>The task scheduler cannot poll and execute tasks. Base URL: {0}, Status: {1}. Please specify a working base url in appsettings.json, setting 'Smartstore.TaskSchedulerBaseUrl'.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.System.Warnings.TaskScheduler.OK">
 		<Value>The task scheduler can poll and execute tasks.</Value>

@@ -13405,7 +13405,7 @@
 		<Value>Die Sitemap für den Shop ist nicht erreichbar.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.System.Warnings.TaskScheduler.Fail">
-		<Value>Der Task-Scheduler kann keine Hintergrund-Aufgaben planen und ausführen. Basis-URL: {0}, Status: {1}. Bitte legen Sie eine vom Webserver erreichbare Basis-URL in der web.config Datei fest, Einstellung: 'sm:TaskSchedulerBaseUrl'.</Value>
+		<Value>Der Task-Scheduler kann keine Hintergrund-Aufgaben planen und ausführen. Basis-URL: {0}, Status: {1}. Bitte legen Sie eine vom Webserver erreichbare Basis-URL in der appsettings.json Datei fest, Einstellung: 'Smartstore.TaskSchedulerBaseUrl'.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.System.Warnings.TaskScheduler.OK">
 		<Value>Der Task-Scheduler kann Hintergrund-Aufgaben planen und ausführen.</Value>
