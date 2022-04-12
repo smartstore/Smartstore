@@ -30,7 +30,7 @@ namespace Smartstore.Core.Content.Menus
 
         public static LinkExpression Parse(string expression)
         {
-            var result = new LinkExpression { RawExpression = expression };
+            var result = new LinkExpression { RawExpression = expression.TrimSafe() };
 
             if (!TokenizeExpression(result) || string.IsNullOrWhiteSpace(result.Schema))
             {
@@ -42,7 +42,6 @@ namespace Smartstore.Core.Content.Menus
             return result;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static bool TokenizeExpression(LinkExpression expression)
         {
             if (string.IsNullOrWhiteSpace(expression.RawExpression))
