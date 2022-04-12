@@ -72,6 +72,9 @@ namespace Smartstore
 
         #region Page Identity
 
+        public static bool DisplaySmartstoreHint(this IDisplayHelper displayHelper)
+            => !displayHelper.HttpContext.Items.Keys.Contains(nameof(DisplaySmartstoreHint));
+
         public static bool IsMobileDevice(this IDisplayHelper displayHelper)
         {
             return displayHelper.HttpContext.GetItem(nameof(IsMobileDevice), () =>

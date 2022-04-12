@@ -14,6 +14,7 @@ namespace Smartstore.Web.Components
 
         private readonly IThemeRegistry _themeRegistry;
         private readonly IWidgetProvider _widgetProvider;
+        private readonly IDisplayHelper _displayHelper;
         private readonly ThemeSettings _themeSettings;
         private readonly CustomerSettings _customerSettings;
         private readonly TaxSettings _taxSettings;
@@ -23,6 +24,7 @@ namespace Smartstore.Web.Components
         public FooterViewComponent(
             IThemeRegistry themeRegistry,
             IWidgetProvider widgetProvider,
+            IDisplayHelper displayHelper,
             ThemeSettings themeSettings,
             CustomerSettings customerSettings,
             TaxSettings taxSettings,
@@ -31,6 +33,7 @@ namespace Smartstore.Web.Components
         {
             _themeRegistry = themeRegistry;
             _widgetProvider = widgetProvider;
+            _displayHelper = displayHelper;
             _themeSettings = themeSettings;
             _customerSettings = customerSettings;
             _taxSettings = taxSettings;
@@ -89,7 +92,7 @@ namespace Smartstore.Web.Components
                 await Services.DbContext.SaveChangesAsync();
             }
 
-            if(!HttpContext.Session.ContainsKey("RemoveBadge"))
+            if(_displayHelper.DisplaySmartstoreHint())
             {
                 model.SmartStoreHint = $"<a href='https://www.smartstore.com/' class='sm-hint' target='_blank'><strong>{hint}</strong></a> by SmartStore AG &copy; {DateTime.Now.Year}";
             }
