@@ -73,7 +73,7 @@
         public string[] IgnoredModules { get; set; }
 
         /// <summary>
-        /// Task Scheduler sweep interval in minutes (1 recommended)
+        /// Task Scheduler poll interval in minutes (1 recommended)
         /// </summary>
         public int TaskSchedulerPollInterval { get; set; } = 1;
 
@@ -109,7 +109,7 @@
 
         /// <summary>
         /// Gets or sets the minimum length of time between successive scans for expired items in memory cache.
-        ///  Default is 1 minute.
+        /// Default is 1 minute.
         /// </summary>
         public TimeSpan? MemoryCacheExpirationScanFrequency { get; set; }
 
