@@ -12,7 +12,7 @@ namespace Smartstore.Engine
             _scopeAccessor = scopeAccessor;
         }
 
-        internal Work(Func<T> resolver)
+        public Work(Func<T> resolver)
         {
             // For unit tests
             _resolver = resolver;
