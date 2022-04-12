@@ -1,6 +1,6 @@
-| <div align="left">:information_source: **Work in progress: Porting Smartstore to cross-platform ASP.NET Core**</div> |
+| <div align="left">:information_source: **Early Access: Smartstore 5 Beta was released**</div> |
 | --- |
-| In this repository we are currently working hard on porting Smartstore from classic ASP.NET MVC to ASP.NET Core 6. This project is currently under development and is **not yet suitable for use in production environment**. For production, use the latest stable release from [Smartstore.NET repository](https://github.com/smartstore/SmartStoreNET). Detailed information about our porting strategy can be found below in the section **ASP.NET Core 6**. |
+| The hard work on porting Smartstore from classic ASP.NET MVC to ASP.NET Core 6 is nearly finished and was worthwhile as we've created one he fastest full-featured cross-platform e-commerce solutions of the world. Detailed information about upgrading or installing your shop can be found below in the section **ASP.NET Core 6**. |
 
 <br/>
 
@@ -50,12 +50,11 @@ The state-of-the-art architecture of Smartstore - with `ASP.NET Core 6`, `Entity
 <p>&nbsp;</p>
 
 ## ASP.NET Core 6
-In this repository we are currently working hard on a cross-platform port of [Smartstore](https://github.com/smartstore/SmartStoreNET) to `ASP.NET Core 6`. For best code quality we decided to port **class by class** and adapt the existing code to the new environment. The porting is scheduled to be **completed by the beginning of the second quarter of 2022**. Once the first `ASP.NET Core` based release is published, Smartstore instances based on classic `ASP.NET MVC` can be upgraded seamlessly. To perform the upgrade, only the app files need to be replaced on your server - except for the `App_Data` directory - and **all data will be automatically transferred to the new system**. After the first public release in this repository upcoming development will only take place here. 
+This repository is a port of [Smartstore 4](https://github.com/smartstore/SmartStoreNET) - which is based on the classic .NET Framework 4.7.2 – to the new `ASP.NET Core 6` platform. 
+
+Smartstore instances based on classic `ASP.NET MVC` can be upgraded seamlessly. To perform the upgrade, only the app files need to be replaced on your server - except for the `App_Data` directory - and **all data will be automatically transferred to the new system**. [Detailed information about installing or upgrading](https://github.com/zihniartar/Smartstore-Core-Installation-Linux-Windows) your shop can be found [here](https://github.com/zihniartar/Smartstore-Core-Installation-Linux-Windows).
 
 **Give our new repository a star** to stay up-to-date, get involved or just watch how we're doing. Learn all about the latest development, participate actively and last but not least, don't miss the day of release.    
-
-**Important:** And once again... this project is currently under development and is **not yet suitable for use in production environment**. For production, use the latest stable release from [Smartstore.NET repository](https://github.com/smartstore/SmartStoreNET)..
-
 
 ## Highlights
 
@@ -111,10 +110,10 @@ In this repository we are currently working hard on a cross-platform port of [Sm
 
 ## Try it online
 
-(Smartstore classic based on ASP.NET MVC) We have set up a live online demo for you so you are able to test Smartstore without local installation. Get a first impression and test all available features in the front- and in the backend. Please keep in mind that the backend demo is shared and other testers can modify data at the same time.
+We have set up a live online demo for you so you are able to test Smartstore without local installation. Get a first impression and test all available features in the front- and in the backend. Please keep in mind that the backend demo is shared and other testers can modify data at the same time.
 
-* [**Frontend**](https://demo.smartstore.com/frontend/en) (User: demo, PWD: 1234)
-* [**Backend**](https://demo.smartstore.com/backend/en/login) (User: demo, PWD: 1234)
+* [**Frontend**](https://core.smartstore.com/frontend/en) (User: demo, PWD: 1234)
+* [**Backend**](https://core.smartstore.com/backend/en/login) (User: demo, PWD: 1234)
 
 ## License
 
