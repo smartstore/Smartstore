@@ -430,7 +430,7 @@
                                     }
                                 }
                             });
-                        }, 1000);
+                        }, 300);
                     }
                     else {
                         container.find(".placeholder").addClass("empty");
