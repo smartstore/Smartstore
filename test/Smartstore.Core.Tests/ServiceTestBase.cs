@@ -92,6 +92,9 @@ namespace Smartstore.Core.Tests
         {
             _lifetimeToken.Dispose();
             _dbContext.Dispose();
+
+            // INFO: required for IApplicationContext.TenantRoot to be not null after subsequent setups.
+            DataSettings.Reload();
         }
 
         private IHostBuilder CreateHostBuilder()
