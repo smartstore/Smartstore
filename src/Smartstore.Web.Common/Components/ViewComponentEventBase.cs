@@ -29,5 +29,10 @@ namespace Smartstore.Web.Components
         {
             get => ViewComponentContext.ViewComponentDescriptor;
         }
+
+        public Type ComponentType
+        {
+            get => Descriptor.TypeInfo.AsType();
+        }
     }
 }
