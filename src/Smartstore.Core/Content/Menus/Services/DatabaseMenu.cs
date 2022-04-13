@@ -217,7 +217,8 @@ namespace Smartstore.Core.Content.Menus
 
                 var query = db.Menus
                     .ApplyStandardFilter(Name, null, store.Id, customerRoleIds)
-                    .ApplyMenuItemFilter(store.Id, customerRoleIds);
+                    .ApplyMenuItemFilter(store.Id, customerRoleIds)
+                    .Include(x => x.Menu);
 
                 entities = await query.ToListAsync();
             }
