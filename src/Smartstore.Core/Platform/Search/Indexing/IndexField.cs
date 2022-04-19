@@ -1,4 +1,6 @@
-﻿namespace Smartstore.Core.Search.Indexing
+﻿using Smartstore.Core.Localization;
+
+namespace Smartstore.Core.Search.Indexing
 {
     public class IndexField
     {
@@ -27,6 +29,11 @@
         {
         }
 
+        public IndexField(Language language, string name, string value)
+            : this(CreateName(name, language?.LanguageCulture), value, IndexTypeCode.String)
+        {
+        }
+
         private IndexField(string name, object value, IndexTypeCode typeCode)
         {
             Guard.NotEmpty(name, nameof(name));
@@ -34,6 +41,14 @@
             Name = name;
             Value = value;
             TypeCode = typeCode;
+        }
+
+        public static string CreateName(string name, string languageCulture)
+        {
+            Guard.NotEmpty(name, nameof(name));
+            Guard.NotEmpty(languageCulture, nameof(languageCulture));
+
+            return $"{name}_l-{languageCulture.EmptyNull().ToLowerInvariant()}";
         }
 
         public IndexField Store(bool store = true)
