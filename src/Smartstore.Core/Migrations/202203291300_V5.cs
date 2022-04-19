@@ -19,6 +19,7 @@ using Smartstore.Core.Localization;
 using Smartstore.Core.Rules;
 using Smartstore.Core.Search;
 using Smartstore.Core.Search.Facets;
+using Smartstore.Core.Search.Indexing;
 using Smartstore.Core.Seo;
 using Smartstore.Data.Migrations;
 using Smartstore.Utilities;

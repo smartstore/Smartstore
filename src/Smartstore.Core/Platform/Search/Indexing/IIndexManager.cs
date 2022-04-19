@@ -1,4 +1,4 @@
-﻿namespace Smartstore.Core.Search
+﻿namespace Smartstore.Core.Search.Indexing
 {
     /// <summary>
     /// A simple factory for registered search index providers

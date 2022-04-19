@@ -1,4 +1,4 @@
-﻿namespace Smartstore.Core.Search
+﻿namespace Smartstore.Core.Search.Indexing
 {
     /// <summary>
     /// Abstraction of document to be stored in the underlying index providers

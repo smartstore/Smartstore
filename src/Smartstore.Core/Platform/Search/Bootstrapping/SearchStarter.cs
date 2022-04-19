@@ -1,6 +1,6 @@
 ﻿using Autofac;
-using Smartstore.Core.Search;
 using Smartstore.Core.Search.Facets;
+using Smartstore.Core.Search.Indexing;
 using Smartstore.Engine.Builders;
 
 namespace Smartstore.Core.Bootstrapping

@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using Smartstore.Collections;
 
-namespace Smartstore.Core.Search
+namespace Smartstore.Core.Search.Indexing
 {
     public class IndexDocument : IIndexDocument
     {

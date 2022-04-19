@@ -1,4 +1,4 @@
-﻿namespace Smartstore.Core.Search
+﻿namespace Smartstore.Core.Search.Indexing
 {
     public interface IIndexProvider
     {

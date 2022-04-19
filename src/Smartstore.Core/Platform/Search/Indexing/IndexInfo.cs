@@ -1,7 +1,7 @@
 ﻿using System.Xml.Linq;
 using Smartstore.Utilities;
 
-namespace Smartstore.Core.Search
+namespace Smartstore.Core.Search.Indexing
 {
     public enum IndexingStatus
     {
@@ -18,7 +18,7 @@ namespace Smartstore.Core.Search
             Guard.NotEmpty(scope, nameof(scope));
 
             Scope = scope;
-            Fields = new string[0];
+            Fields = Array.Empty<string>();
         }
 
         public string Scope { get; private set; }
@@ -43,18 +43,19 @@ namespace Smartstore.Core.Search
         public string ToXml()
         {
             return new XDocument(
-                    new XElement("info",
-                        new XElement("status", Status),
-                        new XElement("last-indexed-utc", LastIndexedUtc?.ToString("u")),
-                        new XElement("last-indexing-duration", LastIndexingDuration?.ToString("c")),
-                        new XElement("is-modified", IsModified ? "true" : "false"),
-                        new XElement("error", Error),
-                        new XElement("should-rebuild", ShouldRebuild ? "true" : "false"),
-                        new XElement("document-count", DocumentCount),
-                        new XElement("index-size", IndexSize),
-                        new XElement("last-added-document-id", LastAddedDocumentId),
-                        new XElement("fields", string.Join(", ", Fields ?? Enumerable.Empty<string>()))
-            )).ToString();
+                new XElement("info",
+                    new XElement("status", Status),
+                    new XElement("last-indexed-utc", LastIndexedUtc?.ToString("u")),
+                    new XElement("last-indexing-duration", LastIndexingDuration?.ToString("c")),
+                    new XElement("is-modified", IsModified ? "true" : "false"),
+                    new XElement("error", Error),
+                    new XElement("should-rebuild", ShouldRebuild ? "true" : "false"),
+                    new XElement("document-count", DocumentCount),
+                    new XElement("index-size", IndexSize),
+                    new XElement("last-added-document-id", LastAddedDocumentId),
+                    new XElement("fields", string.Join(", ", Fields ?? Enumerable.Empty<string>()))
+            ))
+            .ToString();
         }
 
         public static IndexInfo FromXml(string xml, string scope)
@@ -125,7 +126,9 @@ namespace Smartstore.Core.Search
                     info.ShouldRebuild = shouldRebuild.Convert<bool>();
                 }
             }
-            catch { }
+            catch 
+            {
+            }
 
             return info;
         }

@@ -5,7 +5,7 @@
 //using System.Threading.Tasks;
 //using Smartstore.Utilities;
 
-//namespace Smartstore.Core.Search
+//namespace Smartstore.Core.Search.Indexing
 //{
 //	public class NullIndexStore : IIndexStore
 //	{
