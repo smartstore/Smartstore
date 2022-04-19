@@ -15,13 +15,21 @@ namespace Smartstore.Core.Identity
 {
     public partial class CustomerService : ICustomerService
     {
-		#region Raw SQL
+        #region Raw SQL
 
-		private string GetSqlGuestCustomerIds(string paramClauses)
-		{
-			var tblOrder = _db.DataProvider.EncloseIdentifier("Order");
+        private static bool? _hasForumTables;
 
-			var sql = $@"SELECT c.Id FROM Customer c
+        private async Task<bool> HasForumTables()
+            => _hasForumTables ??= await _db.DataProvider.HasTableAsync("Forums_Post");
+
+        private async Task<string> GetSqlGuestCustomerIds(string paramClauses)
+        {
+            var tblOrder = _db.DataProvider.EncloseIdentifier("Order");
+            string sql;
+
+            if (await HasForumTables())
+            {
+                sql = $@"SELECT c.Id FROM Customer c
 LEFT OUTER JOIN {tblOrder} AS o ON c.Id = o.CustomerId
 LEFT OUTER JOIN CustomerContent AS cc ON c.Id = cc.CustomerId
 LEFT OUTER JOIN Forums_PrivateMessage AS pm ON c.Id = pm.ToCustomerId
@@ -34,11 +42,22 @@ AND (NOT EXISTS (SELECT 1 AS x FROM Forums_PrivateMessage AS pm1 WHERE c.Id = pm
 AND (NOT EXISTS (SELECT 1 AS x FROM Forums_Post AS fp1 WHERE c.Id = fp1.CustomerId))
 AND (NOT EXISTS (SELECT 1 AS x FROM Forums_Topic AS ft1 WHERE c.Id = ft1.CustomerId))
 ORDER BY c.Id";
+            }
+            else
+            {
+                sql = $@"SELECT c.Id FROM Customer c
+LEFT OUTER JOIN {tblOrder} AS o ON c.Id = o.CustomerId
+LEFT OUTER JOIN CustomerContent AS cc ON c.Id = cc.CustomerId
+WHERE c.Username IS Null AND c.Email IS NULL AND c.IsSystemAccount = 0{paramClauses}
+AND (NOT EXISTS (SELECT 1 AS x FROM {tblOrder} AS o1 WHERE c.Id = o1.CustomerId))
+AND (NOT EXISTS (SELECT 1 AS x FROM CustomerContent AS cc1 WHERE c.Id = cc1.CustomerId))
+ORDER BY c.Id";
+            }
 
-			return _db.DataProvider.ApplyPaging(sql, 0, 20000);
-		}
+            return _db.DataProvider.ApplyPaging(sql, 0, 20000);
+        }
 
-		private static string GetSqlDeleteGenericAttributes(string sqlGuestCustomerIds)
+        private static string GetSqlDeleteGenericAttributes(string sqlGuestCustomerIds)
         {
 			return $@"DELETE g FROM GenericAttribute g
 INNER JOIN (
@@ -188,7 +207,7 @@ INNER JOIN (
 				paramClauses.Append(" AND (NOT EXISTS (SELECT 1 AS C1 FROM ShoppingCartItem AS sci WHERE c.Id = sci.CustomerId))");
 			}
 
-			var sqlGuestCustomerIds = GetSqlGuestCustomerIds(paramClauses.ToString());
+			var sqlGuestCustomerIds = await GetSqlGuestCustomerIds(paramClauses.ToString());
 			var sqlGenericAttributes = GetSqlDeleteGenericAttributes(sqlGuestCustomerIds);
 			var sqlGuestCustomers = GetSqlDeleteGuestCustomers(sqlGuestCustomerIds);
 

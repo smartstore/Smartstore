@@ -31,30 +31,30 @@
 
                         @if (x.OrderState == OrderStatus.Pending)
                         {
-                            <td class="display-row d-flex align-items-center" title="@T("Enums.SmartStore.Core.Domain.Orders.OrderStatus.Pending")">
+                            <td class="display-row d-flex align-items-center" title="@T("Enums.OrderStatus.Pending")">
                                 <div class="bg-warning indicator"></div>
-                                <a asp-action="Edit" asp-controller="Order" asp-route-id="@x.OrderId" class="pl-2 text-dark text-truncate">@T("Enums.SmartStore.Core.Domain.Orders.OrderStatus.Pending")</a>
+                                <a asp-action="Edit" asp-controller="Order" asp-route-id="@x.OrderId" class="pl-2 text-dark text-truncate">@T("Enums.OrderStatus.Pending")</a>
                             </td>
                         }
                         else if (x.OrderState == OrderStatus.Processing)
                         {
-                            <td class="display-row d-flex align-items-center" title="@T("Enums.SmartStore.Core.Domain.Orders.OrderStatus.Processing")">
+                            <td class="display-row d-flex align-items-center" title="@T("Enums.OrderStatus.Processing")">
                                 <div class="bg-success indicator"></div>
-                                <a asp-action="Edit" asp-controller="Order" asp-route-id="@x.OrderId" class="pl-2 text-dark text-truncate">@T("Enums.SmartStore.Core.Domain.Orders.OrderStatus.Processing")</a>
+                                <a asp-action="Edit" asp-controller="Order" asp-route-id="@x.OrderId" class="pl-2 text-dark text-truncate">@T("Enums.OrderStatus.Processing")</a>
                             </td>
                         }
                         else if (x.OrderState == OrderStatus.Complete)
                         {
-                            <td class="display-row d-flex align-items-center" title="@T("Enums.SmartStore.Core.Domain.Orders.OrderStatus.Complete")">
+                            <td class="display-row d-flex align-items-center" title="@T("Enums.OrderStatus.Complete")">
                                 <div class="bg-primary indicator"></div>
-                                <a asp-action="Edit" asp-controller="Order" asp-route-id="@x.OrderId" class="pl-2 text-dark text-truncate">@T("Enums.SmartStore.Core.Domain.Orders.OrderStatus.Complete")</a>
+                                <a asp-action="Edit" asp-controller="Order" asp-route-id="@x.OrderId" class="pl-2 text-dark text-truncate">@T("Enums.OrderStatus.Complete")</a>
                             </td>
                         }
                         else if (x.OrderState == OrderStatus.Cancelled)
                         {
-                            <td class="display-row d-flex align-items-center" title="@T("Enums.SmartStore.Core.Domain.Orders.OrderStatus.Cancelled")">
+                            <td class="display-row d-flex align-items-center" title="@T("Enums.OrderStatus.Cancelled")">
                                 <div class="bg-danger indicator"></div>
-                                <a asp-action="Edit" asp-controller="Order" asp-route-id="@x.OrderId" class="pl-2 text-dark text-truncate">@T("Enums.SmartStore.Core.Domain.Orders.OrderStatus.Cancelled")</a>
+                                <a asp-action="Edit" asp-controller="Order" asp-route-id="@x.OrderId" class="pl-2 text-dark text-truncate">@T("Enums.OrderStatus.Cancelled")</a>
                             </td>
                         }
                     </tr>

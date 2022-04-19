@@ -35,9 +35,9 @@ namespace Smartstore.OfflinePayment.Controllers
         {
             var list = new List<SelectListItem>
             {
-                new SelectListItem { Text = T("Enums.SmartStore.Core.Domain.Payments.PaymentStatus.Pending"), Value = ((int)TransactMode.Pending).ToString() },
-                new SelectListItem { Text = T("Enums.SmartStore.Core.Domain.Payments.PaymentStatus.Authorized"), Value = ((int)TransactMode.Authorize).ToString() },
-                new SelectListItem { Text = T("Enums.SmartStore.Core.Domain.Payments.PaymentStatus.Paid"), Value = ((int)TransactMode.Paid).ToString() }
+                new SelectListItem { Text = T("Enums.PaymentStatus.Pending"), Value = ((int)TransactMode.Pending).ToString() },
+                new SelectListItem { Text = T("Enums.PaymentStatus.Authorized"), Value = ((int)TransactMode.Authorize).ToString() },
+                new SelectListItem { Text = T("Enums.PaymentStatus.Paid"), Value = ((int)TransactMode.Paid).ToString() }
             };
 
             return list;
