@@ -1,6 +1,4 @@
-﻿using Smartstore.Core.Search.Indexing;
-
-namespace Smartstore.Core.Search.Events
+﻿namespace Smartstore.Core.Search.Indexing
 {
     public class IndexSegmentProcessedEvent
     {

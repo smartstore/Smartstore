@@ -4,10 +4,9 @@ using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
-using Smartstore.Core.Search.Events;
+using Smartstore.Core.Search.Indexing;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
-using Smartstore.Data;
 using Smartstore.Data.Hooks;
 using Smartstore.Events;
 
