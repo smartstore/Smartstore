@@ -13,6 +13,7 @@ namespace Smartstore.Core.Bootstrapping
             builder.RegisterType<FacetUrlHelperProvider>().As<IFacetUrlHelperProvider>().InstancePerLifetimeScope();
             builder.RegisterType<FacetTemplateProvider>().As<IFacetTemplateProvider>().InstancePerLifetimeScope();
             builder.RegisterType<DefaultFacetTemplateSelector>().As<IFacetTemplateSelector>().SingleInstance();
+            builder.RegisterType<NullIndexBacklogService>().As<IIndexBacklogService>().SingleInstance();
         }
     }
 }

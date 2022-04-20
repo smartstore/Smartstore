@@ -5,7 +5,7 @@ using Smartstore.Core.Common;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Stores;
 
-namespace Smartstore.Core.Search
+namespace Smartstore.Core.Search.Indexing
 {
     public enum AcquirementReason
     {
@@ -33,7 +33,7 @@ namespace Smartstore.Core.Search
         /// <summary>
         /// Reason for writer acquirement
         /// </summary>
-        public AcquirementReason Reason { get; private set; }
+        public AcquirementReason Reason { get; }
 
         /// <summary>
         /// All languages
