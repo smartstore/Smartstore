@@ -14,6 +14,7 @@ namespace Smartstore.Core.Bootstrapping
             builder.RegisterType<FacetTemplateProvider>().As<IFacetTemplateProvider>().InstancePerLifetimeScope();
             builder.RegisterType<DefaultFacetTemplateSelector>().As<IFacetTemplateSelector>().SingleInstance();
             builder.RegisterType<NullIndexBacklogService>().As<IIndexBacklogService>().SingleInstance();
+            builder.RegisterType<NullIndexingService>().As<IIndexingService>().SingleInstance();
         }
     }
 }
