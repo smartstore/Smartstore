@@ -14,7 +14,7 @@
         $c: $site-bg;
     }
 
-    --tebg-start: rgba(var(--bg-color-rgb, '#{red($c)},#{green($c)},#{blue($c)}'), 0);
+    --tebg-start: rgba(var(--bg-color-rgb, #{red($c)},#{green($c)},#{blue($c)}), 0);
     --tebg-end: var(--bg-color, #{$c});
 
     .btn-text-expander {
