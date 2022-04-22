@@ -165,6 +165,10 @@
 }
 
 @each $color, $value in $theme-colors {
+    .bg-#{$color} {
+        @include bg-color-vars($value);
+    }
+
     .gradient-#{$color} {
         @include make-gradient-vars($color, $value, "darken");
     }

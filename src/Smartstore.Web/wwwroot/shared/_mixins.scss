@@ -4,6 +4,11 @@
 // Mixins
 // ========================================================================
 
+@mixin bg-color-vars($color: #fff) {
+    --bg-color: #{$color};
+    --bg-color-rgb: #{red($color)},#{green($color)},#{blue($color)};
+}
+
 @mixin center($xy: xy) {
     @if $xy == xy {
         left: 50%;
