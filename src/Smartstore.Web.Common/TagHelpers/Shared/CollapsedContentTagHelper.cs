@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Smartstore.Core.Catalog;
 
-namespace Smartstore.Web.TagHelpers.Public
+namespace Smartstore.Web.TagHelpers.Shared
 {
     [HtmlTargetElement("collapsed-content")]
     public class CollapsedContentTagHelper : TagHelper
