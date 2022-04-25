@@ -1,6 +1,6 @@
 # -----------------------------------------------------------
-# Creates a Windows Docker image by building and publishing 
-# the source within the container. Please ensure that Docker
+# Creates a Windows Docker image from an existing
+# build artifact. Please ensure that Docker
 # is running Windows containers.
 # -----------------------------------------------------------
 

@@ -11,6 +11,7 @@ WORKDIR /app
 COPY $SOLUTION ./
 COPY src/ ./src
 COPY test/ ./test
+COPY nuget.config ./
 
 # Create Modules dir if missing
 RUN mkdir /app/src/Smartstore.Web/Modules -p -v
