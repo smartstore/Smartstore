@@ -27,7 +27,7 @@ namespace Smartstore.Web.Controllers
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error(int? status)
         {
-            Enum.TryParse((status ?? 500).ToString(), true, out HttpStatusCode httpStatusCode);
+            Enum.TryParse((status ?? HttpContext.Response.StatusCode).ToString(), true, out HttpStatusCode httpStatusCode);
 
             var errorFeature = HttpContext.Features.Get<IExceptionHandlerPathFeature>();
             var reExecuteFeature = HttpContext.Features.Get<IStatusCodeReExecuteFeature>();

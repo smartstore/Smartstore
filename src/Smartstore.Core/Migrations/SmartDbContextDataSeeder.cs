@@ -30,6 +30,12 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.System.Warnings.TaskScheduler.Fail",
                 "The task scheduler cannot poll and execute tasks. Base URL: {0}, Status: {1}. Please specify a working base url in appsettings.json, setting 'Smartstore.TaskSchedulerBaseUrl'.",
                 "Der Task-Scheduler kann keine Hintergrund-Aufgaben planen und ausführen. Basis-URL: {0}, Status: {1}. Bitte legen Sie eine vom Webserver erreichbare Basis-URL in der Datei appsettings.json Datei fest, Einstellung: 'Smartstore.TaskSchedulerBaseUrl'.");
+
+            // Admin.Common.DataSuccessfullySaved
+            builder.AddOrUpdate("Admin.Common.DataSuccessfullySaved",
+                "The data was saved successfully",
+                "Die Daten wurden erfolgreich gespeichert");
+
         }
     }
 }
