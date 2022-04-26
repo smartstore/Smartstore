@@ -59,7 +59,7 @@ namespace Smartstore.Core.Configuration
                 .Select(x =>
                 {
                     var index = x.Name.LastIndexOf('.');
-                    return (index == -1 ? x.Name : x.Name.Substring(0, index)).ToLowerInvariant();
+                    return (index == -1 ? x.Name : x.Name[..index]).ToLowerInvariant();
                 })
                 .Distinct()
                 .ToArray();

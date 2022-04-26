@@ -18,9 +18,9 @@
 		<PackageReference Include="MaxMind.Db" Version="3.0.0" />
 		<PackageReference Include="MaxMind.GeoIP2" Version="4.1.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.2.0" />
-		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.1" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.3" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="6.0.3" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.4" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.4" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="6.0.4" />
 		<PackageReference Include="Parlot" Version="0.0.23" />
 		<PackageReference Include="PreMailer.Net" Version="2.4.0" />
 		<PackageReference Include="Serilog.AspNetCore" Version="4.1.0" />
