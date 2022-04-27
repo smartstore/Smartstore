@@ -29,6 +29,7 @@
 		<PackageReference Include="Serilog.Sinks.Map" Version="1.0.2" />
 		<PackageReference Include="Serilog.Sinks.PeriodicBatching" Version="2.3.1" />
 		<PackageReference Include="System.Linq.Dynamic.Core" Version="1.2.15" />
+		<PackageReference Include="System.Memory.Data" Version="6.0.0" />
 		<PackageReference Include="System.ServiceModel.Http" Version="4.9.0" />
 		<PackageReference Include="UAParser" Version="3.1.47" />
 		<PackageReference Include="XiaoYang.EntityFrameworkCore.Bulk" Version="6.0.28" />

@@ -18,7 +18,7 @@
         /// </summary>
         /// <param name="data">the input string</param>
         /// <returns>xxHash</returns>
-        public static unsafe UInt32 ComputeHash(string data)
+        public static unsafe uint ComputeHash(string data)
         {
             fixed (char* input = data)
             {
@@ -119,7 +119,7 @@
             return crc;
         }
 
-        private static UInt32 Rotl32(UInt32 x, int r)
+        private static uint Rotl32(uint x, int r)
         {
             return (x << r) | (x >> (32 - r));
         }

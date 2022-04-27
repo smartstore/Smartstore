@@ -73,7 +73,7 @@ namespace Smartstore.IO
         }
 
         /// <summary>
-        /// Always false.
+        /// Always true.
         /// </summary>
         public bool IsDirectory
         {
@@ -100,7 +100,8 @@ namespace Smartstore.IO
             }
         }
 
-        Stream IFileInfo.CreateReadStream() => throw new NotSupportedException();
+        Stream IFileInfo.CreateReadStream() 
+            => throw new NotSupportedException();
 
         public void Delete()
         {

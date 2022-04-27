@@ -286,7 +286,7 @@ namespace Smartstore.IO
 
         public static string EnsureTrailingSlash(string path)
         {
-            if (!string.IsNullOrEmpty(path) && path[path.Length - 1] != Path.DirectorySeparatorChar)
+            if (!string.IsNullOrEmpty(path) && path[^1] != Path.DirectorySeparatorChar)
             {
                 return path.TrimEnd(' ', Path.AltDirectorySeparatorChar) + Path.DirectorySeparatorChar;
             }
