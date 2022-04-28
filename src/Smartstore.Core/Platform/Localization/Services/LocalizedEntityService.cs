@@ -140,7 +140,7 @@ namespace Smartstore.Core.Localization
             if (languageId == 0)
                 return;
 
-            var collection = await GetLocalizedPropertyCollectionInternalAsync(localeKeyGroup, languageId, entityIds, isRange, isSorted);
+            var collection = await GetLocalizedPropertyCollectionInternal(localeKeyGroup, languageId, entityIds, isRange, isSorted);
 
             if (_prefetchedCollections.TryGetValue(localeKeyGroup, out var existing))
             {
@@ -154,10 +154,10 @@ namespace Smartstore.Core.Localization
 
         public virtual Task<LocalizedPropertyCollection> GetLocalizedPropertyCollectionAsync(string localeKeyGroup, int[] entityIds, bool isRange = false, bool isSorted = false)
         {
-            return GetLocalizedPropertyCollectionInternalAsync(localeKeyGroup, 0, entityIds, isRange, isSorted);
+            return GetLocalizedPropertyCollectionInternal(localeKeyGroup, 0, entityIds, isRange, isSorted);
         }
 
-        protected virtual async Task<LocalizedPropertyCollection> GetLocalizedPropertyCollectionInternalAsync(
+        protected virtual async Task<LocalizedPropertyCollection> GetLocalizedPropertyCollectionInternal(
             string localeKeyGroup, 
             int languageId, 
             int[] entityIds, 
@@ -184,7 +184,7 @@ namespace Smartstore.Core.Localization
                         }
 
                         var min = entityIds[0];
-                        var max = entityIds[entityIds.Length - 1];
+                        var max = entityIds[^1];
 
                         if (entityIds.Length == 2 && max > min + 1)
                         {

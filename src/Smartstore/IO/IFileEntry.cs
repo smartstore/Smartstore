@@ -33,7 +33,7 @@ namespace Smartstore.IO
         /// Deletes the file entry. Directories will be deleted recursively.
         /// An exception will be raised if the entry does not exists.
         /// </summary>
-        void Delete() => throw new NotSupportedException();
+        void Delete() => ThrowNotFound();
 
         /// <summary>
         /// Deletes the file entry if it exists. Directories will be deleted recursively.
@@ -49,7 +49,7 @@ namespace Smartstore.IO
         /// Moves an existing file entry to a new location.
         /// An exception will be raised if the destination exists.
         /// </summary>
-        void MoveTo(string newPath) => throw new NotSupportedException();
+        void MoveTo(string newPath) => ThrowNotFound();
 
         /// <summary>
         /// Moves an existing file entry to a new location.
@@ -59,6 +59,18 @@ namespace Smartstore.IO
         {
             MoveTo(newPath);
             return Task.CompletedTask;
+        }
+
+        private void ThrowNotFound()
+        {
+            if (IsDirectory)
+            {
+                throw new DirectoryNotFoundException($"Directory '{SubPath}' not found.");
+            }
+            else
+            {
+                throw new FileNotFoundException($"File '{SubPath}' not found.");
+            }
         }
     }
 }

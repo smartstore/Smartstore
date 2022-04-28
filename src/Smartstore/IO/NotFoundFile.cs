@@ -21,7 +21,7 @@ namespace Smartstore.IO
         public Size Size => Size.Empty;
 
         public string SubPath { get; }
-        public string Directory => _dir ??= SubPath.IsEmpty() ? string.Empty : SubPath[..^Name.Length];
+        public string Directory => _dir ??= SubPath.IsEmpty() ? string.Empty : SubPath[..(SubPath.Length - Name.Length - 1)];
         public string Name => SubPath.IsEmpty() ? string.Empty : Path.GetFileName(SubPath);
         public string NameWithoutExtension => SubPath.IsEmpty() ? string.Empty : Path.GetFileNameWithoutExtension(SubPath);
         public string Extension => SubPath.IsEmpty() ? string.Empty : Path.GetExtension(SubPath);

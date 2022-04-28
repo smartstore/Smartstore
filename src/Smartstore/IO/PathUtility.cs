@@ -132,7 +132,7 @@ namespace Smartstore.IO
 
             var result = paths[0];
 
-            if (paths.Length == 1)
+            if (paths.Length == 1 || (paths.Length == 2 && string.IsNullOrEmpty(paths[1])))
             {
                 return result;
             }   

@@ -132,7 +132,7 @@ namespace Smartstore.Caching
         {
             Guard.NotEmpty(key, nameof(key));
 
-            var entry = GetInternal(key, independent).Entry;
+            var entry = GetInternal(key, independent, false).Await().Entry;
             if (entry?.Value != null)
             {
                 return (T)entry.Value;
@@ -145,7 +145,7 @@ namespace Smartstore.Caching
         {
             Guard.NotEmpty(key, nameof(key));
 
-            var entry = (await GetInternalAsync(key, independent)).Entry;
+            var entry = (await GetInternal(key, independent, true)).Entry;
             if (entry?.Value != null)
             {
                 return (T)entry.Value;
@@ -159,7 +159,7 @@ namespace Smartstore.Caching
             Guard.NotEmpty(key, nameof(key));
 
             value = default;
-            var entry = GetInternal(key, false).Entry;
+            var entry = GetInternal(key, false, false).Await().Entry;
             if (entry != null)
             {
                 value = (T)entry.Value;
@@ -172,7 +172,7 @@ namespace Smartstore.Caching
         {
             Guard.NotEmpty(key, nameof(key));
 
-            var entry = (await GetInternalAsync(key, false)).Entry;
+            var entry = (await GetInternal(key, false, true)).Entry;
             if (entry != null)
             {
                 return new AsyncOut<T>(true, (T)entry.Value);
@@ -186,7 +186,7 @@ namespace Smartstore.Caching
             Guard.NotEmpty(key, nameof(key));
             Guard.NotNull(acquirer, nameof(acquirer));
 
-            var entry = GetInternal(key, independent).Entry;
+            var entry = GetInternal(key, independent, false).Await().Entry;
             if (entry != null)
             {
                 return entry.Value == null ? default : (T)entry.Value;
@@ -204,7 +204,7 @@ namespace Smartstore.Caching
             using (AcquireKeyLock(key))
             {
                 // Check again
-                entry = GetInternal(key, independent).Entry;
+                entry = GetInternal(key, independent, false).Await().Entry;
 
                 if (entry != null)
                 {
@@ -242,7 +242,7 @@ namespace Smartstore.Caching
             Guard.NotEmpty(key, nameof(key));
             Guard.NotNull(acquirer, nameof(acquirer));
 
-            var entry = (await GetInternalAsync(key, independent)).Entry;
+            var entry = (await GetInternal(key, independent, true)).Entry;
             if (entry != null)
             {
                 return entry.Value == null ? default : (T)entry.Value;
@@ -260,7 +260,7 @@ namespace Smartstore.Caching
             using (await AcquireAsyncKeyLock(key))
             {
                 // Check again
-                entry = (await GetInternalAsync(key, independent)).Entry;
+                entry = (await GetInternal(key, independent, true)).Entry;
 
                 if (entry != null)
                 {
@@ -461,13 +461,13 @@ namespace Smartstore.Caching
             return entry;
         }
 
-        private (CacheEntry Entry, ICacheStore Store, int Index) GetInternal(string key, bool independent)
+        private async ValueTask<(CacheEntry Entry, ICacheStore Store, int Index)> GetInternal(string key, bool independent, bool async)
         {
             int index = 0;
 
             foreach (var store in _stores)
             {
-                var entry = store.Get(key);
+                var entry = async ? await store.GetAsync(key) : store.Get(key);
                 if (entry != null)
                 {
                     // Make the parent scope's entry depend on this
@@ -483,50 +483,16 @@ namespace Smartstore.Caching
                         var entryClone = entry.Clone();
                         // Rely on message bus from distributed store to propagate expiration event to this downstream store.
                         entryClone.ApplyTimeExpirationPolicy = false;
-                        _stores[i].Put(key, entryClone);
-                        i--;
-                    }
 
-                    if (index < _lastIndex 
-                        && entry.SlidingExpiration.HasValue 
-                        && _stores[_lastIndex] is IDistributedCacheStore distributedStore)
-                    {
-                        // Refresh last access time and TTL in upstream distributed store (but only when entry has sliding expiration)
-                        distributedStore.Refresh(entry);
-                    }
-
-                    return (entry, store, index);
-                }
-
-                index++;
-            }
-
-            return (null, null, -1);
-        }
-
-        private async ValueTask<(CacheEntry Entry, ICacheStore Store, int Index)> GetInternalAsync(string key, bool independent)
-        {
-            int index = 0;
-
-            foreach (var store in _stores)
-            {
-                var entry = await store.GetAsync(key);
-                if (entry != null)
-                {
-                    // Make the parent scope's entry depend on this
-                    if (!independent)
-                    {
-                        _scopeAccessor.Value.PropagateKey(key);
-                    }
-
-                    // Put found entry to PREVIOUS cache stores.
-                    int i = index - 1;
-                    while (i >= 0)
-                    {
-                        var entryClone = entry.Clone();
-                        // Rely on message bus from distributed store to propagate expiration event to this downstream store.
-                        entryClone.ApplyTimeExpirationPolicy = false;
-                        await _stores[i].PutAsync(key, entryClone);
+                        if (async)
+                        {
+                            await _stores[i].PutAsync(key, entryClone);
+                        }
+                        else
+                        {
+                            _stores[i].Put(key, entryClone);
+                        }
+                        
                         i--;
                     }
 
@@ -536,7 +502,15 @@ namespace Smartstore.Caching
                     {
                         // Refresh last access time and TTL in upstream distributed store (but only when entry has sliding expiration)
                         // Fire & forget
-                        _ = distributedStore.RefreshAsync(entry);
+                        if (async)
+                        {
+                            _ = distributedStore.RefreshAsync(entry);
+                        }
+                        else
+                        {
+                            distributedStore.Refresh(entry);
+                        }
+                        
                     }
 
                     return (entry, store, index);
