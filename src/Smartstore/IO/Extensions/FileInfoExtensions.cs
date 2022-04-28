@@ -3,6 +3,12 @@
     public static class FileInfoExtensions
     {
         public static void WaitForUnlockAndExecute(this FileInfo file, Action<FileInfo> action)
+            => WaitForUnlockAndExecuteInternal(file, action, false).Await();
+
+        public static Task WaitForUnlockAndExecuteAsync(this FileInfo file, Action<FileInfo> action)
+            => WaitForUnlockAndExecuteInternal(file, action, true);
+
+        private static async Task WaitForUnlockAndExecuteInternal(FileInfo file, Action<FileInfo> action, bool async)
         {
             Guard.NotNull(file, nameof(file));
 
@@ -12,7 +18,11 @@
             }
             catch (IOException)
             {
-                if (!WaitForUnlock(file, 250))
+                var succeeded = async 
+                    ? await WaitForUnlockInternal(file, 250, true) 
+                    : WaitForUnlockInternal(file, 250, false).Await();
+
+                if (!succeeded)
                 {
                     throw;
                 }
@@ -21,26 +31,14 @@
             }
         }
 
-        public static async Task WaitForUnlockAndExecuteAsync(this FileInfo file, Action<FileInfo> action)
-        {
-            Guard.NotNull(file, nameof(file));
-
-            try
-            {
-                action(file);
-            }
-            catch (IOException)
-            {
-                if (!await WaitForUnlockAsync(file, 250))
-                {
-                    throw;
-                }
-
-                action(file);
-            }
-        }
 
         public static bool WaitForUnlock(this FileInfo file, int timeoutMs = 1000)
+            => WaitForUnlockInternal(file, timeoutMs, false).Await();
+
+        public static Task<bool> WaitForUnlockAsync(this FileInfo file, int timeoutMs = 1000)
+            => WaitForUnlockInternal(file, timeoutMs, true);
+
+        private static async Task<bool> WaitForUnlockInternal(FileInfo file, int timeoutMs, bool async)
         {
             Guard.NotNull(file, nameof(file));
 
@@ -56,34 +54,14 @@
                         return true;
                     }
 
-                    Task.Delay(wait).Wait();
-                }
-
-                return false;
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
-        public static async Task<bool> WaitForUnlockAsync(this FileInfo file, int timeoutMs = 1000)
-        {
-            Guard.NotNull(file, nameof(file));
-
-            var wait = TimeSpan.FromMilliseconds(50);
-            var attempts = Math.Floor(timeoutMs / wait.TotalMilliseconds);
-
-            try
-            {
-                for (var i = 0; i < attempts; i++)
-                {
-                    if (!IsFileLocked(file))
+                    if (async)
                     {
-                        return true;
+                        await Task.Delay(wait);
                     }
-
-                    await Task.Delay(wait);
+                    else
+                    {
+                        Task.Delay(wait).Wait();
+                    }
                 }
 
                 return false;
@@ -93,6 +71,7 @@
                 return false;
             }
         }
+
 
         public static bool IsFileLocked(this FileInfo file)
         {

@@ -1,4 +1,5 @@
-﻿using Smartstore.IO;
+﻿using System.Runtime.CompilerServices;
+using Smartstore.IO;
 
 namespace Smartstore
 {
@@ -10,25 +11,9 @@ namespace Smartstore
         /// <param name="subpath">The relative path to the file within the storage provider.</param>
         /// <returns>The directory of the file.</returns>
         /// <exception cref="ArgumentException">Throws if the file or the directory does not exist.</exception>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IDirectory GetDirectoryForFile(this IFileSystem fs, string subpath)
-        {
-            Guard.NotNull(fs, nameof(fs));
-            Guard.NotNull(subpath, nameof(subpath));
-
-            var file = fs.GetFile(subpath);
-            if (!file.Exists)
-            {
-                throw new FileNotFoundException("File " + subpath + " does not exist.");
-            }
-
-            var dir = fs.GetDirectory(file.Directory);
-            if (!dir.Exists)
-            {
-                throw new DirectoryNotFoundException("Directory " + subpath + " does not exist.");
-            }
-
-            return dir;
-        }
+            => GetDirectoryForFileInternal(fs, subpath, false).Await();
 
         /// <summary>
         /// Retrieves a directory for file path within the storage provider.
@@ -36,18 +21,22 @@ namespace Smartstore
         /// <param name="subpath">The relative path to the file within the storage provider.</param>
         /// <returns>The directory of the file.</returns>
         /// <exception cref="ArgumentException">Throws if the file or the directory does not exist.</exception>
-        public static async Task<IDirectory> GetDirectoryForFileAsync(this IFileSystem fs, string subpath)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Task<IDirectory> GetDirectoryForFileAsync(this IFileSystem fs, string subpath)
+            => GetDirectoryForFileInternal(fs, subpath, true);
+
+        public static async Task<IDirectory> GetDirectoryForFileInternal(IFileSystem fs, string subpath, bool async)
         {
             Guard.NotNull(fs, nameof(fs));
             Guard.NotNull(subpath, nameof(subpath));
 
-            var file = await fs.GetFileAsync(subpath);
+            var file = async ? await fs.GetFileAsync(subpath) : fs.GetFile(subpath);
             if (!file.Exists)
             {
                 throw new FileNotFoundException("File " + subpath + " does not exist.");
             }
 
-            var dir = await fs.GetDirectoryAsync(file.Directory);
+            var dir = async ? await fs.GetDirectoryAsync(file.Directory) : fs.GetDirectory(file.Directory);
             if (!dir.Exists)
             {
                 throw new DirectoryNotFoundException("Directory " + subpath + " does not exist.");
@@ -62,49 +51,38 @@ namespace Smartstore
         /// </summary>
         /// <param name="subpath">The relative path of the file to be deleted.</param>
         /// <returns><c>true</c> if the file was deleted; <c>false</c> if the file did not exist.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryDeleteFile(this IFileSystem fs, string subpath)
-            => TryDeleteFile(fs, fs.GetFile(subpath));
+            => TryDeleteFileInternal(fs, fs.GetFile(subpath), false).Await();
 
         /// <summary>
         /// Deletes a file if it exists.
         /// </summary>
         /// <param name="file">The file to delete.</param>
         /// <returns><c>true</c> if the file was deleted; <c>false</c> if the file did not exist.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryDeleteFile(this IFileSystem fs, IFile file)
-        {
-            Guard.NotNull(fs, nameof(fs));
-            Guard.NotNull(file, nameof(file));
-
-            if (!file.Exists)
-            {
-                return false;
-            }
-
-            try
-            {
-                file.Delete();
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
-        }
+            => TryDeleteFileInternal(fs, file, false).Await();
 
         /// <summary>
         /// Deletes a file if it exists.
         /// </summary>
         /// <param name="subpath">The relative path of the file to be deleted.</param>
         /// <returns><c>true</c> if the file was deleted; <c>false</c> if the file did not exist.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static async Task<bool> TryDeleteFileAsync(this IFileSystem fs, string subpath)
-            => await TryDeleteFileAsync(fs, await fs.GetFileAsync(subpath));
+            => await TryDeleteFileInternal(fs, await fs.GetFileAsync(subpath), true);
 
         /// <summary>
         /// Deletes a file if it exists.
         /// </summary>
         /// <param name="file">The file to deleted</param>
         /// <returns><c>true</c> if the file was deleted; <c>false</c> if the file did not exist.</returns>
-        public static async Task<bool> TryDeleteFileAsync(this IFileSystem fs, IFile file)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Task<bool> TryDeleteFileAsync(this IFileSystem fs, IFile file)
+            => TryDeleteFileInternal(fs, file, true);
+
+        private static async Task<bool> TryDeleteFileInternal(IFileSystem fs, IFile file, bool async)
         {
             Guard.NotNull(fs, nameof(fs));
             Guard.NotNull(file, nameof(file));
@@ -116,7 +94,15 @@ namespace Smartstore
 
             try
             {
-                await file.DeleteAsync();
+                if (async)
+                {
+                    await file.DeleteAsync();
+                }
+                else
+                {
+                    file.Delete();
+                }
+                
                 return true;
             }
             catch
@@ -124,6 +110,7 @@ namespace Smartstore
                 return false;
             }
         }
+
 
         /// <summary>
         /// Creates a new file from the contents of an input stream.
@@ -137,27 +124,9 @@ namespace Smartstore
         /// <remarks>
         /// If the specified path contains one or more directories, then those directories are created if they do not already exist.
         /// </remarks>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IFile CreateFile(this IFileSystem fs, string subpath, Stream inStream = null, bool overwrite = false)
-        {
-            Guard.NotNull(fs, nameof(fs));
-
-            if (fs.DirectoryExists(subpath))
-            {
-                throw new FileSystemException($"Cannot create file '{subpath}' because it already exists as a directory.");
-            }
-
-            var file = fs.GetFile(subpath);
-            if (!overwrite && file.Exists)
-            {
-                throw new FileSystemException($"Cannot create file '{subpath}' because it already exists.");
-            }
-
-            // Create directory path if it doesn't exist.
-            fs.TryCreateDirectory(file.Directory);
-
-            file.Create(inStream, overwrite);
-            return file;
-        }
+            => CreateFileInternal(fs, subpath, inStream, overwrite, false).Await();
 
         /// <summary>
         /// Creates a new file from the contents of an input stream.
@@ -171,27 +140,41 @@ namespace Smartstore
         /// <remarks>
         /// If the specified path contains one or more directories, then those directories are created if they do not already exist.
         /// </remarks>
-        public static async Task<IFile> CreateFileAsync(this IFileSystem fs, string subpath, Stream inStream, bool overwrite = false)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Task<IFile> CreateFileAsync(this IFileSystem fs, string subpath, Stream inStream, bool overwrite = false)
+            => CreateFileInternal(fs, subpath, inStream, overwrite, true);
+
+        private static async Task<IFile> CreateFileInternal(IFileSystem fs, string subpath, Stream inStream, bool overwrite, bool async)
         {
             Guard.NotNull(fs, nameof(fs));
 
-            if (await fs.DirectoryExistsAsync(subpath))
+            var dirExists = async ? await fs.DirectoryExistsAsync(subpath) : fs.DirectoryExists(subpath);
+            if (dirExists)
             {
                 throw new FileSystemException($"Cannot create file '{subpath}' because it already exists as a directory.");
             }
 
-            var file = await fs.GetFileAsync(subpath);
+            var file = async ? await fs.GetFileAsync(subpath) : fs.GetFile(subpath);
             if (!overwrite && file.Exists)
             {
                 throw new FileSystemException($"Cannot create file '{subpath}' because it already exists.");
             }
 
             // Create directory path if it doesn't exist.
-            await fs.TryCreateDirectoryAsync(file.Directory);
+            if (async)
+            {
+                await fs.TryCreateDirectoryAsync(file.Directory);
+                await file.CreateAsync(inStream, overwrite);
+            }
+            else
+            {
+                fs.TryCreateDirectory(file.Directory);
+                file.Create(inStream, overwrite);
+            }
 
-            await file.CreateAsync(inStream, overwrite);
             return file;
         }
+
 
         /// <summary>
         /// Creates a copy of a file.

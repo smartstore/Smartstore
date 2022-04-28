@@ -1,4 +1,5 @@
-﻿using Dasync.Collections;
+﻿using System.Runtime.CompilerServices;
+using Dasync.Collections;
 using Smartstore.IO;
 using Smartstore.Utilities;
 
@@ -36,10 +37,19 @@ namespace Smartstore
         /// <remarks>
         /// Results are grouped by entry type, where directories are followed by files.
         /// </remarks>
-        public static IAsyncEnumerable<IFileEntry> EnumerateEntriesAsync(this IFileSystem fs, string subpath = null, string pattern = "*", bool deep = false)
+        public static async IAsyncEnumerable<IFileEntry> EnumerateEntriesAsync(
+            this IFileSystem fs, 
+            string subpath = null, 
+            string pattern = "*", 
+            bool deep = false,
+            [EnumeratorCancellation] CancellationToken cancelToken = default)
         {
             Guard.NotNull(fs, nameof(fs));
-            return fs.GetDirectory(subpath).EnumerateEntriesAsync(pattern, deep);
+
+            await foreach (var entry in (await fs.GetDirectoryAsync(subpath)).EnumerateEntriesAsync(pattern, deep))
+            {
+                yield return entry;
+            };
         }
 
         /// <summary>
@@ -64,10 +74,19 @@ namespace Smartstore
         /// <param name="deep">A flag to indicate whether to get the files from just the top directory or from all sub-directories as well.</param>
         /// <returns>The list of files in the given directory.</returns>
         /// <exception cref="DirectoryNotFoundException">Thrown if the specified directory does not exist.</exception>
-        public static IAsyncEnumerable<IFile> EnumerateFilesAsync(this IFileSystem fs, string subpath = null, string pattern = "*", bool deep = false)
+        public static async IAsyncEnumerable<IFile> EnumerateFilesAsync(
+            this IFileSystem fs, 
+            string subpath = null, 
+            string pattern = "*", 
+            bool deep = false,
+            [EnumeratorCancellation] CancellationToken cancelToken = default)
         {
             Guard.NotNull(fs, nameof(fs));
-            return fs.GetDirectory(subpath).EnumerateFilesAsync(pattern, deep);
+
+            await foreach (var entry in (await fs.GetDirectoryAsync(subpath)).EnumerateFilesAsync(pattern, deep))
+            {
+                yield return entry;
+            };
         }
 
         /// <summary>
@@ -92,10 +111,19 @@ namespace Smartstore
         /// <param name="deep">A flag to indicate whether to get the directories from just the top directory or from all sub-directories as well.</param>
         /// <returns>The list of directories in the given directory.</returns>
         /// <exception cref="DirectoryNotFoundException">Thrown if the specified directory does not exist.</exception>
-        public static IAsyncEnumerable<IDirectory> EnumerateDirectoriesAsync(this IFileSystem fs, string subpath = null, string pattern = "*", bool deep = false)
+        public static async IAsyncEnumerable<IDirectory> EnumerateDirectoriesAsync(
+            this IFileSystem fs, 
+            string subpath = null, 
+            string pattern = "*", 
+            bool deep = false,
+            [EnumeratorCancellation] CancellationToken cancelToken = default)
         {
             Guard.NotNull(fs, nameof(fs));
-            return fs.GetDirectory(subpath).EnumerateDirectoriesAsync(pattern, deep);
+
+            await foreach (var entry in (await fs.GetDirectoryAsync(subpath)).EnumerateDirectoriesAsync(pattern, deep))
+            {
+                yield return entry;
+            };
         }
 
         #endregion
@@ -108,31 +136,9 @@ namespace Smartstore
         /// <param name="subpath">The path of the directory to be created.</param>
         /// <returns><c>true</c> if the directory was created; <c>false</c> if the directory already existed.</returns>
         /// <exception cref="FileSystemException">Thrown if the specified path exists but is not a directory.</exception>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryCreateDirectory(this IFileSystem fs, string subpath)
-        {
-            Guard.NotNull(fs, nameof(fs));
-
-            if (fs.FileExists(subpath))
-            {
-                throw new FileSystemException($"Cannot create directory because the path '{subpath}' already exists and is a file.");
-            }
-
-            var dir = fs.GetDirectory(subpath);
-            if (dir.Exists)
-            {
-                return false;
-            }
-
-            try
-            {
-                dir.Create();
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
-        }
+            => TryCreateDirectoryInternal(fs, subpath, false).Await();
 
         /// <summary>
         /// Creates all directories and subdirectories in the specified target unless they already exist.
@@ -140,16 +146,21 @@ namespace Smartstore
         /// <param name="subpath">The path of the directory to be created.</param>
         /// <returns><c>true</c> if the directory was created; <c>false</c> if the directory already existed.</returns>
         /// <exception cref="FileSystemException">Thrown if the specified path exists but is not a directory.</exception>
-        public static async Task<bool> TryCreateDirectoryAsync(this IFileSystem fs, string subpath)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Task<bool> TryCreateDirectoryAsync(this IFileSystem fs, string subpath)
+            => TryCreateDirectoryInternal(fs, subpath, true);
+
+        private static async Task<bool> TryCreateDirectoryInternal(IFileSystem fs, string subpath, bool async)
         {
             Guard.NotNull(fs, nameof(fs));
 
-            if (await fs.FileExistsAsync(subpath))
+            var fileExists = async ? await fs.FileExistsAsync(subpath) : fs.FileExists(subpath);
+            if (fileExists)
             {
                 throw new FileSystemException($"Cannot create directory because the path '{subpath}' already exists and is a file.");
             }
 
-            var dir = await fs.GetDirectoryAsync(subpath);
+            var dir = async ? await fs.GetDirectoryAsync(subpath) : fs.GetDirectory(subpath);
             if (dir.Exists)
             {
                 return false;
@@ -157,7 +168,15 @@ namespace Smartstore
 
             try
             {
-                await dir.CreateAsync();
+                if (async)
+                {
+                    await dir.CreateAsync();
+                }
+                else
+                {
+                    dir.Create();
+                }
+                
                 return true;
             }
             catch
@@ -166,64 +185,44 @@ namespace Smartstore
             }
         }
 
+
         /// <summary>
         /// Deletes a directory recursively if it exists.
         /// </summary>
         /// <param name="subpath">The path of the directory to be deleted.</param>
         /// <returns><c>true</c> if the directory was deleted; <c>false</c> if the directory did not exist.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryDeleteDirectory(this IFileSystem fs, string subpath)
-            => TryDeleteDirectory(fs, fs.GetDirectory(subpath));
+            => TryDeleteDirectoryInternal(fs, fs.GetDirectory(subpath), false).Await();
 
         /// <summary>
         /// Deletes a directory recursively if it exists.
         /// </summary>
         /// <param name="directory">The directory to delete.</param>
         /// <returns><c>true</c> if the directory was deleted; <c>false</c> if the directory did not exist.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryDeleteDirectory(this IFileSystem fs, IDirectory directory)
-        {
-            Guard.NotNull(fs, nameof(fs));
-            Guard.NotNull(directory, nameof(directory));
-
-            if (!directory.Exists)
-            {
-                return false;
-            }
-
-            try
-            {
-                directory.Delete();
-
-                // Wait for deletion to complete
-                var attempts = 0;
-                while (directory.Exists)
-                {
-                    attempts += 1;
-                    if (attempts > 10) return true;
-                    Thread.Sleep(100);
-                }
-
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
-        }
+            => TryDeleteDirectoryInternal(fs, directory, false).Await();
 
         /// <summary>
         /// Deletes a directory recursively if it exists.
         /// </summary>
         /// <param name="subpath">The path of the directory to be deleted.</param>
         /// <returns><c>true</c> if the directory was deleted; <c>false</c> if the directory did not exist.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static async Task<bool> TryDeleteDirectoryAsync(this IFileSystem fs, string subpath)
-            => await TryDeleteDirectoryAsync(fs, await fs.GetDirectoryAsync(subpath));
+            => await TryDeleteDirectoryInternal(fs, await fs.GetDirectoryAsync(subpath), true);
 
         /// <summary>
         /// Deletes a directory recursively if it exists.
         /// </summary>
         /// <param name="directory">The directory to delete.</param>
         /// <returns><c>true</c> if the directory was deleted; <c>false</c> if the directory did not exist.</returns>
-        public static async Task<bool> TryDeleteDirectoryAsync(this IFileSystem fs, IDirectory directory)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Task<bool> TryDeleteDirectoryAsync(this IFileSystem fs, IDirectory directory)
+            => TryDeleteDirectoryInternal(fs, directory, true);
+
+        private static async Task<bool> TryDeleteDirectoryInternal(IFileSystem fs, IDirectory directory, bool async)
         {
             Guard.NotNull(fs, nameof(fs));
             Guard.NotNull(directory, nameof(directory));
@@ -235,7 +234,14 @@ namespace Smartstore
 
             try
             {
-                await directory.DeleteAsync();
+                if (async)
+                {
+                    await directory.DeleteAsync();
+                }
+                else
+                {
+                    directory.Delete();
+                }
 
                 // Wait for deletion to complete
                 var attempts = 0;
@@ -243,7 +249,14 @@ namespace Smartstore
                 {
                     attempts += 1;
                     if (attempts > 10) return true;
-                    await Task.Delay(100);
+                    if (async)
+                    {
+                        await Task.Delay(100);
+                    }
+                    else
+                    {
+                        Thread.Sleep(100);
+                    }
                 }
 
                 return true;
@@ -253,6 +266,7 @@ namespace Smartstore
                 return false;
             }
         }
+
 
         /// <summary>
         /// Safe way to delete all directory content
@@ -261,11 +275,59 @@ namespace Smartstore
         /// <param name="deleteIfEmpfy">Delete dir too if it doesn't contain any entries after deletion anymore</param>
         /// <param name="olderThan">Delete only files older than this TimeSpan</param>
         /// <param name="ignoreFiles">Name of files to ignore (not to delete).</param>
-        public static void ClearDirectory(this IFileSystem fs,
+        public static void ClearDirectory(
+            this IFileSystem fs,
             IDirectory directory,
             bool deleteIfEmpfy,
             TimeSpan olderThan,
             params string[] ignoreFiles)
+            => ClearDirectoryInternal(
+                fs, 
+                directory, 
+                deleteIfEmpfy, 
+                olderThan, 
+                ignoreFiles, 
+                default, 
+                false).Await();
+
+        /// <summary>
+        /// Safe way to delete all directory content
+        /// </summary>
+        /// <param name="directory">Directory</param>
+        /// <param name="deleteIfEmpfy">Delete dir too if it doesn't contain any entries after deletion anymore</param>
+        /// <param name="olderThan">Delete only files older than this TimeSpan</param>
+        /// <param name="ignoreFiles">Name of files to ignore (not to delete).</param>
+        public static Task ClearDirectoryAsync(
+            this IFileSystem fs,
+            IDirectory directory,
+            bool deleteIfEmpfy,
+            TimeSpan olderThan,
+            CancellationToken cancelToken = default,
+            params string[] ignoreFiles)
+            => ClearDirectoryInternal(
+                fs,
+                directory,
+                deleteIfEmpfy,
+                olderThan,
+                ignoreFiles,
+                cancelToken,
+                true);
+
+        /// <summary>
+        /// Safe way to delete all directory content
+        /// </summary>
+        /// <param name="directory">Directory</param>
+        /// <param name="deleteIfEmpfy">Delete dir too if it doesn't contain any entries after deletion anymore</param>
+        /// <param name="olderThan">Delete only files older than this TimeSpan</param>
+        /// <param name="ignoreFiles">Name of files to ignore (not to delete).</param>
+        private static async Task ClearDirectoryInternal(
+            IFileSystem fs,
+            IDirectory directory,
+            bool deleteIfEmpfy,
+            TimeSpan olderThan,
+            string[] ignoreFiles,
+            CancellationToken cancelToken,
+            bool async)
         {
             Guard.NotNull(directory, nameof(directory));
 
@@ -278,26 +340,18 @@ namespace Smartstore
             {
                 try
                 {
-                    foreach (var entry in fs.EnumerateEntries(directory.SubPath))
+                    if (async)
                     {
-                        if (entry is IFile file)
+                        await foreach (var entry in fs.EnumerateEntriesAsync(directory.SubPath, cancelToken: cancelToken))
                         {
-                            if (file.LastModified >= olderThanDate)
-                                continue;
-
-                            if (ignoreFiles.Any(x => x.EqualsNoCase(file.Name)))
-                                continue;
-
-                            if (file is LocalFile fi && fi.AsFileInfo().IsReadOnly)
-                            {
-                                fi.AsFileInfo().IsReadOnly = false;
-                            }
-
-                            fs.TryDeleteFile(file.SubPath);
+                            await ProcessEntry(entry);
                         }
-                        else if (entry is IDirectory subDir)
+                    }
+                    else
+                    {
+                        foreach (var entry in fs.EnumerateEntries(directory.SubPath))
                         {
-                            ClearDirectory(fs, subDir, true, olderThan, ignoreFiles);
+                            ProcessEntry(entry).Await();
                         }
                     }
 
@@ -313,14 +367,54 @@ namespace Smartstore
             {
                 try
                 {
-                    if (!fs.EnumerateEntries(directory.SubPath).Any())
+                    if (async)
                     {
-                        fs.TryDeleteDirectory(directory.SubPath);
+                        if (!await directory.EnumerateEntriesAsync().AnyAsync(x => true))
+                        {
+                            await directory.DeleteAsync();
+                        }
+                    }
+                    else
+                    {
+                        if (!directory.EnumerateEntries().Any())
+                        {
+                            directory.Delete();
+                        }
                     }
                 }
                 catch (Exception ex)
                 {
                     ex.Dump();
+                }
+            }
+
+            async Task ProcessEntry(IFileEntry entry)
+            {
+                if (entry is IFile file)
+                {
+                    if (file.LastModified >= olderThanDate)
+                        return;
+
+                    if (ignoreFiles.Any(x => x.EqualsNoCase(file.Name)))
+                        return;
+
+                    if (file is LocalFile fi && fi.AsFileInfo().IsReadOnly)
+                    {
+                        fi.AsFileInfo().IsReadOnly = false;
+                    }
+
+                    _ = async ? await TryDeleteFileInternal(fs, file, true) : TryDeleteFileInternal(fs, file, false).Await();
+                }
+                else if (entry is IDirectory subDir)
+                {
+                    if (async)
+                    {
+                        await ClearDirectoryInternal(fs, subDir, true, olderThan, ignoreFiles, cancelToken, true);
+                    }
+                    else
+                    {
+                        ClearDirectoryInternal(fs, subDir, true, olderThan, ignoreFiles, cancelToken, false).Await();
+                    }
                 }
             }
         }
@@ -410,7 +504,12 @@ namespace Smartstore
         /// <param name="overwrite">Whether to overwrite existing files</param>
         /// <returns>The destination directory.</returns>
         /// <exception cref="DirectoryNotFoundException">Thrown if source directory does not exist.</exception>
-        public static async Task CopyDirectoryAsync(this IFileSystem fs, IDirectory source, IDirectory destination, bool overwrite = true, string[] ignorePatterns = null)
+        public static async Task CopyDirectoryAsync(
+            this IFileSystem fs, 
+            IDirectory source, 
+            IDirectory destination, 
+            bool overwrite = true, 
+            string[] ignorePatterns = null)
         {
             Guard.NotNull(fs, nameof(fs));
             Guard.NotNull(source, nameof(source));
@@ -446,7 +545,12 @@ namespace Smartstore
         /// <param name="predicate">Optional. Files not matching the predicate are ignored.</param>
         /// <param name="deep">Whether to sum up length in all subdirectories also.</param>
         /// <returns>Total length of all files.</returns>
-        public static long GetDirectorySize(this IFileSystem fs, string subpath, string pattern = "*", Func<string, bool> predicate = null, bool deep = true)
+        public static long GetDirectorySize(
+            this IFileSystem fs, 
+            string subpath, 
+            string pattern = "*", 
+            Func<string, bool> predicate = null, 
+            bool deep = true)
         {
             Guard.NotNull(fs, nameof(fs));
 
@@ -473,7 +577,12 @@ namespace Smartstore
         /// <param name="predicate">Optional. Files not matching the predicate are ignored.</param>
         /// <param name="deep">Whether to sum up length in all subdirectories also.</param>
         /// <returns>Total length of all files.</returns>
-        public static async Task<long> GetDirectorySizeAsync(this IFileSystem fs, string subpath, string pattern = "*", Func<string, bool> predicate = null, bool deep = true)
+        public static async Task<long> GetDirectorySizeAsync(
+            this IFileSystem fs, 
+            string subpath, 
+            string pattern = "*", 
+            Func<string, bool> predicate = null, 
+            bool deep = true)
         {
             Guard.NotNull(fs, nameof(fs));
 
@@ -499,7 +608,12 @@ namespace Smartstore
         /// <param name="predicate">Optional. Files not matching the predicate are ignored.</param>
         /// <param name="deep">Whether to count files in all subdirectories also</param>
         /// <returns>Total count of files.</returns>
-        public static long CountFiles(this IFileSystem fs, string subpath, string pattern = "*", Func<string, bool> predicate = null, bool deep = true)
+        public static long CountFiles(
+            this IFileSystem fs, 
+            string subpath, 
+            string pattern = "*", 
+            Func<string, bool> predicate = null, 
+            bool deep = true)
         {
             Guard.NotNull(fs, nameof(fs));
 
@@ -526,7 +640,12 @@ namespace Smartstore
         /// <param name="predicate">Optional. Files not matching the predicate are ignored.</param>
         /// <param name="deep">Whether to count files in all subdirectories also</param>
         /// <returns>Total count of files.</returns>
-        public static async Task<long> CountFilesAsync(this IFileSystem fs, string subpath, string pattern = "*", Func<string, bool> predicate = null, bool deep = true)
+        public static async Task<long> CountFilesAsync(
+            this IFileSystem fs, 
+            string subpath, 
+            string pattern = "*", 
+            Func<string, bool> predicate = null, 
+            bool deep = true)
         {
             Guard.NotNull(fs, nameof(fs));
 
@@ -624,7 +743,8 @@ namespace Smartstore
             return new DirectoryHasher(dir, storageDir, searchPattern, deep);
         }
 
-        private static void InternalCopyDirectory(IFileSystem fs,
+        private static void InternalCopyDirectory(
+            IFileSystem fs,
             IDirectory source,
             IDirectory destination,
             Wildcard[] ignores,
@@ -655,7 +775,8 @@ namespace Smartstore
             }
         }
 
-        private static async Task InternalCopyDirectoryAsync(IFileSystem fs,
+        private static async Task InternalCopyDirectoryAsync(
+            IFileSystem fs,
             IDirectory source,
             IDirectory destination,
             Wildcard[] ignores,
