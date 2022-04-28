@@ -233,7 +233,7 @@ namespace Smartstore.Core.Content.Media
             => ((IFile)this).DeleteAsync().Await();
 
         /// <inheritdoc/>
-        async Task IFileEntry.DeleteAsync()
+        async Task IFileEntry.DeleteAsync(CancellationToken cancelToken)
         {
             if (!Exists)
             {
@@ -249,7 +249,7 @@ namespace Smartstore.Core.Content.Media
             => ((IFile)this).CopyToAsync(newPath, overwrite).Await();
 
         /// <inheritdoc/>
-        async Task<IFile> IFile.CopyToAsync(string newPath, bool overwrite)
+        async Task<IFile> IFile.CopyToAsync(string newPath, bool overwrite, CancellationToken cancelToken)
         {
             if (!Exists)
             {
@@ -265,7 +265,7 @@ namespace Smartstore.Core.Content.Media
             => ((IFile)this).MoveToAsync(newPath).Await();
 
         /// <inheritdoc/>
-        async Task IFileEntry.MoveToAsync(string newPath)
+        async Task IFileEntry.MoveToAsync(string newPath, CancellationToken cancelToken)
         {
             if (!Exists)
             {
@@ -281,7 +281,7 @@ namespace Smartstore.Core.Content.Media
             => ((IFile)this).CreateAsync(inStream, overwrite).Await();
 
         /// <inheritdoc/>
-        async Task IFile.CreateAsync(Stream inStream, bool overwrite)
+        async Task IFile.CreateAsync(Stream inStream, bool overwrite, CancellationToken cancelToken)
         {
             var file = await _mediaService.SaveFileAsync(Path, inStream, false, overwrite ? DuplicateFileHandling.Overwrite : DuplicateFileHandling.ThrowError);
             Initialize(file.File, file.Directory);

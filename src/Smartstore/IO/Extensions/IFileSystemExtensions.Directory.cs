@@ -46,7 +46,7 @@ namespace Smartstore
         {
             Guard.NotNull(fs, nameof(fs));
 
-            await foreach (var entry in (await fs.GetDirectoryAsync(subpath)).EnumerateEntriesAsync(pattern, deep))
+            await foreach (var entry in (await fs.GetDirectoryAsync(subpath)).EnumerateEntriesAsync(pattern, deep, cancelToken))
             {
                 yield return entry;
             };
@@ -83,7 +83,7 @@ namespace Smartstore
         {
             Guard.NotNull(fs, nameof(fs));
 
-            await foreach (var entry in (await fs.GetDirectoryAsync(subpath)).EnumerateFilesAsync(pattern, deep))
+            await foreach (var entry in (await fs.GetDirectoryAsync(subpath)).EnumerateFilesAsync(pattern, deep, cancelToken))
             {
                 yield return entry;
             };
@@ -120,7 +120,7 @@ namespace Smartstore
         {
             Guard.NotNull(fs, nameof(fs));
 
-            await foreach (var entry in (await fs.GetDirectoryAsync(subpath)).EnumerateDirectoriesAsync(pattern, deep))
+            await foreach (var entry in (await fs.GetDirectoryAsync(subpath)).EnumerateDirectoriesAsync(pattern, deep, cancelToken))
             {
                 yield return entry;
             };

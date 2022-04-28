@@ -21,17 +21,15 @@ namespace Smartstore
 
             var file = async ? await fs.GetFileAsync(subpath) : fs.GetFile(subpath);
 
-            using (var stream = file.OpenWrite())
-            using (var streamWriter = new StreamWriter(stream, encoding ?? new UTF8Encoding(false, true)))
+            using var stream = file.OpenWrite();
+            using var streamWriter = new StreamWriter(stream, encoding ?? new UTF8Encoding(false, true));
+            if (async)
             {
-                if (async)
-                {
-                    await streamWriter.WriteAsync(contents);
-                }
-                else
-                {
-                    streamWriter.Write(contents);
-                }
+                await streamWriter.WriteAsync(contents);
+            }
+            else
+            {
+                streamWriter.Write(contents);
             }
         }
 

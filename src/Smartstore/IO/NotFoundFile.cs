@@ -1,4 +1,5 @@
 ﻿using System.Drawing;
+using Microsoft.Extensions.FileProviders;
 
 namespace Smartstore.IO
 {
@@ -33,6 +34,25 @@ namespace Smartstore.IO
             return false;
         }
 
-        public Stream CreateReadStream() => throw new NotSupportedException();
+        Stream IFileInfo.CreateReadStream()
+            => throw new FileNotFoundException($"File '{SubPath}' not found.");
+
+        void IFileEntry.Delete()
+            => throw new FileNotFoundException($"File '{SubPath}' not found.");
+
+        void IFileEntry.MoveTo(string newPath)
+            => throw new FileNotFoundException($"File '{SubPath}' not found.");
+
+        Stream IFile.OpenRead()
+            => throw new FileNotFoundException($"File '{SubPath}' not found.");
+
+        Stream IFile.OpenWrite()
+            => throw new NotSupportedException();
+
+        IFile IFile.CopyTo(string newPath, bool overwrite)
+            => throw new FileNotFoundException($"File '{SubPath}' not found.");
+
+        void IFile.Create(Stream inStream, bool overwrite)
+            => throw new NotSupportedException();
     }
 }
