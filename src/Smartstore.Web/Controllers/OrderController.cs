@@ -28,7 +28,8 @@ namespace Smartstore.Web.Controllers
         private readonly ProductUrlHelper _productUrlHelper;
         private readonly IProviderManager _providerManager;
         private readonly IPdfConverter _pdfConverter;
-        
+        private readonly OrderSettings _orderSettings;
+
         public OrderController(
             SmartDbContext db,
             IOrderProcessingService orderProcessingService,
@@ -38,7 +39,8 @@ namespace Smartstore.Web.Controllers
             IDateTimeHelper dateTimeHelper, 
             IProviderManager providerManager,
             ProductUrlHelper productUrlHelper,
-            IPdfConverter pdfConverter)
+            IPdfConverter pdfConverter,
+            OrderSettings orderSettings)
         {
             _db = db;
             _orderProcessingService = orderProcessingService;
@@ -49,6 +51,7 @@ namespace Smartstore.Web.Controllers
             _providerManager = providerManager;
             _productUrlHelper = productUrlHelper;
             _pdfConverter = pdfConverter;
+            _orderSettings = orderSettings;
         }
 
         [RequireSsl]
@@ -382,6 +385,11 @@ namespace Smartstore.Web.Controllers
             if (!await Services.Permissions.AuthorizeAsync(Permissions.Order.Read))
             {
                 result = result || (order.StoreId != 0 && order.StoreId != Services.StoreContext.CurrentStore.Id);
+
+                if (_orderSettings.DisplayOrdersOfAllStores)
+                {
+                    result = false;
+                }
             }
 
             return result;
