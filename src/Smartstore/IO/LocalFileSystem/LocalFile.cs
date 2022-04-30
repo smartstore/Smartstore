@@ -204,7 +204,7 @@ namespace Smartstore.IO
 
             if (!_fi.Exists)
             {
-                throw new FileSystemException($"The file '{SubPath}' does not exist.");
+                throw new FileNotFoundException($"The file '{SubPath}' does not exist.");
             }
 
             var fullDstPath = _fs.MapPathInternal(ref newPath, true);
@@ -234,7 +234,7 @@ namespace Smartstore.IO
 
             if (!_fi.Exists)
             {
-                throw new FileSystemException($"Cannot move file '{SubPath}' because it does not exist.");
+                throw new FileNotFoundException($"Cannot move file '{SubPath}' because it does not exist.");
             }
 
             var fullDstPath = _fs.MapPathInternal(ref newPath, true);
@@ -244,21 +244,38 @@ namespace Smartstore.IO
         }
 
         public void Create(Stream inStream, bool overwrite)
-        {
-            using var outputStream = _fi.Create();
-            if (inStream != null)
-            {
-                inStream.CopyTo(outputStream);
-            }
-        }
+            => CreateInternal(inStream, overwrite, false).Await();
 
-        public async Task CreateAsync(Stream inStream, bool overwrite)
+        public Task CreateAsync(Stream inStream, bool overwrite)
+            => CreateInternal(inStream, overwrite, true);
+
+        private async Task CreateInternal(Stream inStream, bool overwrite, bool async)
         {
+            Guard.NotNull(inStream, nameof(inStream));
+            
+            if (!overwrite && _fi.Exists)
+            {
+                throw new FileSystemException($"Cannot create file '{_fi.FullName}' because it already exists.");
+            }
+
+            // Ensure the directory exists
+            var dirName = Path.GetDirectoryName(_fi.FullName);
+            if (!System.IO.Directory.Exists(dirName))
+            {
+                System.IO.Directory.CreateDirectory(dirName);
+            }
+
             using var outputStream = _fi.Create();
-            if (inStream != null)
+            if (async)
             {
                 await inStream.CopyToAsync(outputStream);
             }
+            else
+            {
+                inStream.CopyTo(outputStream);
+            }
+
+            _fi.Refresh();
         }
     }
 }

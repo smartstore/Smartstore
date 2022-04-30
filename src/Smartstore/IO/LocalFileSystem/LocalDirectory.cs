@@ -126,7 +126,7 @@ namespace Smartstore.IO
 
             if (!_di.Exists)
             {
-                throw new FileSystemException($"Cannot move directory '{SubPath}' because it does not exist.");
+                throw new DirectoryNotFoundException($"Cannot move directory '{SubPath}' because it does not exist.");
             }
 
             var fullDstPath = _fs.MapPathInternal(ref newPath, true);
