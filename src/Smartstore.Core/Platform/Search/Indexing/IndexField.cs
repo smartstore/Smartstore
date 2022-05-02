@@ -43,12 +43,43 @@ namespace Smartstore.Core.Search.Indexing
             TypeCode = typeCode;
         }
 
+        /// <summary>
+        /// Creates the name for a localized index field.
+        /// </summary>
+        /// <param name="name">Field name.</param>
+        /// <param name="languageCulture">Language culture, e.g. "en-US".</param>
+        /// <returns>Name of a localized field.</returns>
         public static string CreateName(string name, string languageCulture)
         {
             Guard.NotEmpty(name, nameof(name));
             Guard.NotEmpty(languageCulture, nameof(languageCulture));
 
             return $"{name}_l-{languageCulture.EmptyNull().ToLowerInvariant()}";
+        }
+
+        /// <summary>
+        /// Gets the language culture from a localized field name, e.g. "en-us".
+        /// </summary>
+        /// <param name="name">Field name.</param>
+        /// <returns>Language culture in lower case. <c>null</c> if it does not exist.</returns>
+        public static string GetLanguageCulture(string name)
+        {
+            Guard.NotEmpty(name, nameof(name));
+
+            var index = name.IndexOf("_l-");
+
+            if (index != -1)
+            {
+                var namePart = name[..index];
+                var languageCulture = name[(index + 3)..];
+
+                if (namePart.HasValue() && languageCulture.HasValue())
+                {
+                    return languageCulture;
+                }
+            }
+
+            return null;
         }
 
         public IndexField Store(bool store = true)
