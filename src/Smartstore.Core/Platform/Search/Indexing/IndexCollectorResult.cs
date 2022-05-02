@@ -24,16 +24,16 @@
 
     public class IndexDataUnit
     {
-        public IndexDataUnit(IIndexDataSegmenter segmenter, SearchDocumentType type)
+        public IndexDataUnit(IIndexDataSegmenter segmenter, string documentType)
         {
             Guard.NotNull(segmenter, nameof(segmenter));
 
             Segmenter = segmenter;
-            DocumentType = type;
+            DocumentType = documentType;
         }
 
         public IIndexDataSegmenter Segmenter { get; }
-        public SearchDocumentType DocumentType { get; }
+        public string DocumentType { get; }
 
         public string Id { get; set; }
         public bool Rebuild { get; set; } = true;

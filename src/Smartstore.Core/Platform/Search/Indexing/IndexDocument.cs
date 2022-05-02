@@ -3,48 +3,64 @@ using Smartstore.Collections;
 
 namespace Smartstore.Core.Search.Indexing
 {
+    /*
+		Known tokens for document types:
+		===============================
+		p	-	Product
+		c	-	Category
+		m	-	Manufacturer
+		dt	-	Delivery time
+		a	-   Attribute
+		av	-	Attribute value
+		v	-	Variant
+		vv	-	Variant value
+		u	-	Customer
+		f	-	Forum
+		fp	-	Forum post	
+	*/
+
+
     public class IndexDocument : IIndexDocument
     {
-        protected readonly Multimap<string, IndexField> _fields;
+        protected readonly Multimap<string, IndexField> _fields = new(StringComparer.OrdinalIgnoreCase);
 
         public IndexDocument(int id)
             : this(id, null)
         {
         }
 
-        public IndexDocument(int id, SearchDocumentType? documentType)
+        public IndexDocument(int id, string documentType = null)
         {
-            _fields = new Multimap<string, IndexField>(StringComparer.OrdinalIgnoreCase);
-
             Add(new IndexField("id", id).Store());
 
-            if (documentType.HasValue)
+            if (documentType.HasValue())
             {
-                Add(new IndexField("doctype", (int)documentType.Value).Store());
-            }
-        }
-
-        public int Id => (int)_fields["id"].FirstOrDefault().Value;
-
-        public virtual SearchDocumentType? DocumentType
-        {
-            get
-            {
-                if (_fields.ContainsKey("doctype"))
-                {
-                    return (SearchDocumentType)_fields["doctype"].FirstOrDefault().Value;
-                }
-                return null;
+                Add(new IndexField("doctype", documentType).Store());
             }
         }
 
         public int Count => _fields.TotalValueCount;
 
+        public int Id => (int)_fields["id"].FirstOrDefault().Value;
+
+        public virtual string DocumentType
+        {
+            get
+            {
+                if (_fields.ContainsKey("doctype"))
+                {
+                    return _fields["doctype"].FirstOrDefault().Value as string;
+                }
+
+                return null;
+            }
+        }
+
         public virtual void Add(IndexField field)
         {
             if (field.Name.EqualsNoCase("id") && _fields.ContainsKey("id"))
             {
-                // special treatment for id field: allow only one!
+                // Special treatment for id and doctype field: allow only one!
                 _fields.RemoveAll("id");
             }
 
@@ -69,31 +85,14 @@ namespace Smartstore.Core.Search.Indexing
         }
 
         public bool Contains(string name)
-        {
-            return _fields.ContainsKey(name);
-        }
+            => _fields.ContainsKey(name);
 
         public IEnumerable<IndexField> this[string name]
-        {
-            get
-            {
-                if (_fields.ContainsKey(name))
-                {
-                    return _fields[name];
-                }
-
-                return Enumerable.Empty<IndexField>();
-            }
-        }
+            => _fields.ContainsKey(name) ? _fields[name] : Enumerable.Empty<IndexField>();
 
         public IEnumerator<IndexField> GetEnumerator()
-        {
-            return _fields.SelectMany(x => x.Value).GetEnumerator();
-        }
+            => _fields.SelectMany(x => x.Value).GetEnumerator();
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

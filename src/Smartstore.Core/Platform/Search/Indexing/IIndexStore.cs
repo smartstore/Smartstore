@@ -31,7 +31,7 @@
         /// Gets the total number of indexed documents.
         /// </summary>
         /// <param name="documentType">Type of document, use <c>null</c> to get all documents.</param>
-        int GetDocumentCount(SearchDocumentType? documentType);
+        int GetDocumentCount(string documentType);
 
         /// <summary>
         /// Gets the size of the index in bytes.
@@ -74,7 +74,7 @@
         /// Removes a set of existing documents from the index.
         /// </summary>
         /// <param name="documentType">Type of document.</param>
-        void DeleteDocuments(SearchDocumentType documentType);
+        void DeleteDocuments(string documentType);
     }
 
     public static class IIndexStoreExtensions

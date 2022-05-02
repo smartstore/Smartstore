@@ -12,6 +12,6 @@ namespace Smartstore.Core.Search.Indexing
             AcquireWriterContext context,
             DateTime? lastIndexedUtc,
             int continueDocumentId,
-            Func<int, SearchDocumentType?, IIndexDocument> newDocument);
+            Func<int, string, IIndexDocument> newDocument);
     }
 }

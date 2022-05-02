@@ -14,12 +14,12 @@
         Task<IEnumerable<string>> EnumerateIndexesAsync();
 
         /// <summary>
-        /// Creates an empty document
+        /// Creates an empty document.
         /// </summary>
-        /// <param name="id">The primary key of the indexed entity</param>
-        /// <param name="documentType">Identifies the type of a document, can be <c>null</c></param>
-        /// <returns>The document instance</returns>
-        IIndexDocument CreateDocument(int id, SearchDocumentType? documentType);
+        /// <param name="id">The primary key of the indexed entity.</param>
+        /// <param name="documentType">Identifies the type of a document, can be <c>null</c>.</param>
+        /// <returns>The document instance.</returns>
+        IIndexDocument CreateDocument(int id, string documentType = null);
 
         /// <summary>
         /// Returns a provider specific implementation of the <see cref="IIndexStore"/> interface

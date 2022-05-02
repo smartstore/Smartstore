@@ -2,19 +2,12 @@
 {
     public abstract class IndexProviderBase : IIndexProvider
     {
-        public virtual bool IsActive(string scope)
-        {
-            return true;
-        }
+        public virtual bool IsActive(string scope) => true;
 
         public abstract Task<IEnumerable<string>> EnumerateIndexesAsync();
 
-        public virtual IIndexDocument CreateDocument(int id, SearchDocumentType? documentType)
-        {
-            Guard.IsPositive(id, nameof(id));
-
-            return new IndexDocument(id, documentType);
-        }
+        public virtual IIndexDocument CreateDocument(int id, string documentType)
+            => new IndexDocument(id, documentType);
 
         public abstract IIndexStore GetIndexStore(string scope);
 
