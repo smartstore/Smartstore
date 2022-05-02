@@ -55,7 +55,7 @@
         /// <remarks>
         /// This method creates a transient writer instance which automatically gets released on dispose.
         /// </remarks>
-        IDisposable AcquireWriter(AcquireWriterContext writerContext, CancellationToken cancelToken = default);
+        IDisposable AcquireWriter(AcquireWriterContext writerContext);
 
         /// <summary>
         /// Adds a set of new documents to the index.

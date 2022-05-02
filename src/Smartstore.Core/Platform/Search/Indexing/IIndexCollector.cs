@@ -6,7 +6,7 @@ namespace Smartstore.Core.Search.Indexing
     {
         string Scope { get; }
 
-        Task<AcquireWriterContext> CreateWriterContextAsync(AcquirementReason reason, TaskExecutionContext taskContext);
+        Task<AcquireWriterContext> CreateWriterContextAsync(AcquirementReason reason, TaskExecutionContext taskContext, CancellationToken cancelToken = default);
 
         Task<IndexCollectorResult> CollectAsync(
             AcquireWriterContext context,

@@ -15,9 +15,10 @@ namespace Smartstore.Core.Search.Indexing
 
     public class AcquireWriterContext
     {
-        public AcquireWriterContext(AcquirementReason reason)
+        public AcquireWriterContext(AcquirementReason reason, CancellationToken cancelToken = default)
         {
             Reason = reason;
+            CancelToken = cancelToken;
             Languages = new List<Language>();
             Currencies = new List<Currency>();
             StoreMappings = new Multimap<int, int>();
@@ -34,6 +35,11 @@ namespace Smartstore.Core.Search.Indexing
         /// Reason for writer acquirement
         /// </summary>
         public AcquirementReason Reason { get; }
+
+        /// <summary>
+        /// Cancellation token.
+        /// </summary>
+        public CancellationToken CancelToken { get; }
 
         /// <summary>
         /// All languages
