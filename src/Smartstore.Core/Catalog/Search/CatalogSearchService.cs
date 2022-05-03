@@ -133,7 +133,7 @@ namespace Smartstore.Core.Catalog.Search
 
                     return searchedEvent.Result;
                 }
-                else if (searchQuery.Origin.EqualsNoCase("Search/Search"))
+                else if (searchQuery.IsSearchPage())
                 {
                     IndexingRequiredNotification(_services);
                 }

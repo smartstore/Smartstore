@@ -241,7 +241,7 @@ namespace Smartstore.Core.Search
 
             Origin = origin;
 
-            return (this as TQuery);
+            return this as TQuery;
         }
 
         #endregion

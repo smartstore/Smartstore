@@ -3,9 +3,9 @@
     public interface IIndexStore
     {
         /// <summary>
-        /// Returns the name of the index.
+        /// Gets the index info.
         /// </summary>
-        string Scope { get; }
+        IndexInfo IndexInfo { get; }
 
         /// <summary>
         /// Checks whether the index is already existing or not.

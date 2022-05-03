@@ -68,7 +68,7 @@ namespace Smartstore.Core.Catalog.Search.Modelling
             var origin = "{0}{1}/{2}".FormatInvariant(area.HasValue() ? area + "/" : string.Empty, controller, action);
             var fields = new List<string> { "name" };
             var term = GetValueFor<string>("q");
-            var isInstantSearch = origin.EqualsNoCase("Search/InstantSearch");
+            var isInstantSearch = action.EqualsNoCase("InstantSearch");
 
             if (isInstantSearch)
             {
@@ -97,7 +97,7 @@ namespace Smartstore.Core.Catalog.Search.Modelling
             // Visibility.
             query.VisibleOnly(!_services.DbContext.QuerySettings.IgnoreAcl ? _services.WorkContext.CurrentCustomer : null);
 
-            if (isInstantSearch || origin.EqualsNoCase("Search/Search"))
+            if (isInstantSearch || query.IsSearchPage())
             {
                 query.WithVisibility(ProductVisibility.SearchResults);
             }
@@ -143,7 +143,7 @@ namespace Smartstore.Core.Catalog.Search.Modelling
 			var orderBy = GetValueFor<ProductSortingEnum?>("o");
 			if (orderBy == null || orderBy == ProductSortingEnum.Initial)
 			{
-				orderBy = origin.EqualsNoCase("Search/Search") ? _searchSettings.DefaultSortOrder : _catalogSettings.DefaultSortOrder;
+				orderBy = query.IsSearchPage() ? _searchSettings.DefaultSortOrder : _catalogSettings.DefaultSortOrder;
 			}
 
 			query.CustomData["CurrentSortOrder"] = orderBy.Value;

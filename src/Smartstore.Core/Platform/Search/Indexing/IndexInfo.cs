@@ -18,16 +18,40 @@ namespace Smartstore.Core.Search.Indexing
             Guard.NotEmpty(scope, nameof(scope));
 
             Scope = scope;
-            Fields = Array.Empty<string>();
         }
 
-        public string Scope { get; private set; }
+        #region Provided by IIndexCollector
+
+        /// <summary>
+        /// Gets the name of the search index, e.g. "Catalog".
+        /// </summary>
+        public string Scope { get; }
+
+        /// <summary>
+        /// Gets the localized name of the search index.
+        /// </summary>
+        public string LocalizedName { get; init; }
+
+        /// <summary>
+        /// Gets or sets the type of the task that creates or updates the search index.
+        /// </summary>
+        public Type IndexingTaskType { get; init; }
+
+        /// <summary>
+        /// Gets or sets the type of the main index document, e.g. "p" (product) for catalog index.
+        /// </summary>
+        public string DocumentType { get; init; }
+
+        #endregion
+
+        #region Provided by IIndexingService
+
         public int DocumentCount { get; set; }
         public long IndexSize { get; set; }
         public int LastAddedDocumentId { get; set; }
-        public IEnumerable<string> Fields { get; set; }
+        public IEnumerable<string> Fields { get; set; } = Array.Empty<string>();
 
-        // loaded from status file
+        // Loaded from status file.
         public DateTime? LastIndexedUtc { get; set; }
         public TimeSpan? LastIndexingDuration { get; set; }
         public bool IsModified { get; set; }
@@ -35,10 +59,12 @@ namespace Smartstore.Core.Search.Indexing
         public string Error { get; set; }
 
         /// <summary>
-        /// Indicates that the index should be rebuilt from scratch, because
-        /// some global settings have changed (like tax rates for example)
+        /// Indicates that the index should be rebuilt from scratch,
+        /// because some global settings have changed (like tax rates for example).
         /// </summary>
         public bool ShouldRebuild { get; set; }
+
+        #endregion
 
         public string ToXml()
         {
@@ -58,79 +84,74 @@ namespace Smartstore.Core.Search.Indexing
             .ToString();
         }
 
-        public static IndexInfo FromXml(string xml, string scope)
+        public static void FromXml(IndexInfo info, string xml)
         {
-            var info = new IndexInfo(scope);
-
-            try
+            if (xml.IsEmpty())
             {
-                var doc = XDocument.Parse(xml);
-
-                var lastIndexed = doc.Descendants("last-indexed-utc").FirstOrDefault()?.Value;
-                if (lastIndexed.HasValue())
-                {
-                    info.LastIndexedUtc = lastIndexed.Convert<DateTime?>()?.ToUniversalTime();
-                }
-
-                var lastDuration = doc.Descendants("last-indexing-duration").FirstOrDefault()?.Value;
-                if (lastDuration.HasValue())
-                {
-                    info.LastIndexingDuration = lastDuration.Convert<TimeSpan?>();
-                }
-
-                var isModified = doc.Descendants("is-modified").FirstOrDefault()?.Value;
-                if (isModified.HasValue())
-                {
-                    info.IsModified = isModified.Convert<bool>();
-                }
-                else
-                {
-                    info.IsModified = lastIndexed.HasValue();
-                }
-
-                var status = doc.Descendants("status").FirstOrDefault()?.Value;
-                if (status.HasValue())
-                {
-                    info.Status = status.Convert<IndexingStatus>();
-                }
-
-                info.Error = doc.Descendants("error").FirstOrDefault()?.Value;
-
-                var documentCount = doc.Descendants("document-count").FirstOrDefault()?.Value;
-                if (documentCount.HasValue())
-                {
-                    info.DocumentCount = documentCount.ToInt();
-                }
-
-                var indexSize = doc.Descendants("index-size").FirstOrDefault()?.Value;
-                if (indexSize.HasValue() && CommonHelper.TryConvert(indexSize, out long size))
-                {
-                    info.IndexSize = size;
-                }
-
-                var lastAddedDocumentId = doc.Descendants("last-added-document-id").FirstOrDefault()?.Value;
-                if (lastAddedDocumentId.HasValue())
-                {
-                    info.LastAddedDocumentId = lastAddedDocumentId.ToInt();
-                }
-
-                var fields = doc.Descendants("fields").FirstOrDefault()?.Value;
-                if (fields.HasValue())
-                {
-                    info.Fields = fields.SplitSafe(", ");
-                }
-
-                var shouldRebuild = doc.Descendants("should-rebuild").FirstOrDefault()?.Value;
-                if (shouldRebuild.HasValue())
-                {
-                    info.ShouldRebuild = shouldRebuild.Convert<bool>();
-                }
-            }
-            catch 
-            {
+                return;
             }
 
-            return info;
+            var doc = XDocument.Parse(xml);
+
+            var lastIndexed = doc.Descendants("last-indexed-utc").FirstOrDefault()?.Value;
+            if (lastIndexed.HasValue())
+            {
+                info.LastIndexedUtc = lastIndexed.Convert<DateTime?>()?.ToUniversalTime();
+            }
+
+            var lastDuration = doc.Descendants("last-indexing-duration").FirstOrDefault()?.Value;
+            if (lastDuration.HasValue())
+            {
+                info.LastIndexingDuration = lastDuration.Convert<TimeSpan?>();
+            }
+
+            var isModified = doc.Descendants("is-modified").FirstOrDefault()?.Value;
+            if (isModified.HasValue())
+            {
+                info.IsModified = isModified.Convert<bool>();
+            }
+            else
+            {
+                info.IsModified = lastIndexed.HasValue();
+            }
+
+            var status = doc.Descendants("status").FirstOrDefault()?.Value;
+            if (status.HasValue())
+            {
+                info.Status = status.Convert<IndexingStatus>();
+            }
+
+            info.Error = doc.Descendants("error").FirstOrDefault()?.Value;
+
+            var documentCount = doc.Descendants("document-count").FirstOrDefault()?.Value;
+            if (documentCount.HasValue())
+            {
+                info.DocumentCount = documentCount.ToInt();
+            }
+
+            var indexSize = doc.Descendants("index-size").FirstOrDefault()?.Value;
+            if (indexSize.HasValue() && CommonHelper.TryConvert(indexSize, out long size))
+            {
+                info.IndexSize = size;
+            }
+
+            var lastAddedDocumentId = doc.Descendants("last-added-document-id").FirstOrDefault()?.Value;
+            if (lastAddedDocumentId.HasValue())
+            {
+                info.LastAddedDocumentId = lastAddedDocumentId.ToInt();
+            }
+
+            var fields = doc.Descendants("fields").FirstOrDefault()?.Value;
+            if (fields.HasValue())
+            {
+                info.Fields = fields.SplitSafe(", ");
+            }
+
+            var shouldRebuild = doc.Descendants("should-rebuild").FirstOrDefault()?.Value;
+            if (shouldRebuild.HasValue())
+            {
+                info.ShouldRebuild = shouldRebuild.Convert<bool>();
+            }
         }
     }
 }
