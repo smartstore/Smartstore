@@ -30,7 +30,7 @@
         /// <summary>
         /// Gets the total number of indexed documents.
         /// </summary>
-        /// <param name="documentType">Type of document, use <c>null</c> to get all documents.</param>
+        /// <param name="documentType">Type of document, use <c>null</c> to get all documents. <see cref="SearchDocumentTypes"/> for known types.</param>
         int GetDocumentCount(string documentType);
 
         /// <summary>
@@ -73,7 +73,7 @@
         /// <summary>
         /// Removes a set of existing documents from the index.
         /// </summary>
-        /// <param name="documentType">Type of document.</param>
+        /// <param name="documentType">Type of document. <see cref="SearchDocumentTypes"/> for known types.</param>
         void DeleteDocuments(string documentType);
     }
 

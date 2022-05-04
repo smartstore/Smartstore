@@ -17,7 +17,7 @@
         /// Creates an empty document.
         /// </summary>
         /// <param name="id">The primary key of the indexed entity.</param>
-        /// <param name="documentType">Identifies the type of a document, can be <c>null</c>.</param>
+        /// <param name="documentType">Identifies the type of a document, can be <c>null</c>. <see cref="SearchDocumentTypes"/> for known types.</param>
         /// <returns>The document instance.</returns>
         IIndexDocument CreateDocument(int id, string documentType = null);
 

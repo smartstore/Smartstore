@@ -41,8 +41,6 @@ namespace Smartstore.Core.Search.Indexing
             AcquireWriterContext context,
             DateTime? lastIndexedUtc,
             int continueDocumentId,
-            // TODO: (mg) (core) Replace obsolete SearchDocumentType enum with "SearchDocumentTypes" static class
-            // that provides public consts for KNOWN types. Working with strings is awkward.
             Func<int, string, IIndexDocument> newDocument);
     }
 }

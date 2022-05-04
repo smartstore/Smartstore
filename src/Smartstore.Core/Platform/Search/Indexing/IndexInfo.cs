@@ -38,7 +38,7 @@ namespace Smartstore.Core.Search.Indexing
         public Type IndexingTaskType { get; init; }
 
         /// <summary>
-        /// Gets or sets the type of the main index document, e.g. "p" (product) for catalog index.
+        /// Gets or sets the type of the main index document. <see cref="SearchDocumentTypes"/> for known types.
         /// </summary>
         public string DocumentType { get; init; }
 

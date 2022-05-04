@@ -3,23 +3,6 @@ using Smartstore.Collections;
 
 namespace Smartstore.Core.Search.Indexing
 {
-    /*
-		Known tokens for document types:
-		===============================
-		p	-	Product
-		c	-	Category
-		m	-	Manufacturer
-		dt	-	Delivery time
-		a	-   Attribute
-		av	-	Attribute value
-		v	-	Variant
-		vv	-	Variant value
-		u	-	Customer
-		f	-	Forum
-		fp	-	Forum post	
-	*/
-
-
     public class IndexDocument : IIndexDocument
     {
         protected readonly Multimap<string, IndexField> _fields = new(StringComparer.OrdinalIgnoreCase);
