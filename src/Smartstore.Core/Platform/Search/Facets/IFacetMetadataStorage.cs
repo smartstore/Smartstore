@@ -10,8 +10,14 @@
         public string[] ApplyOriginalFilters { get; init; } = Array.Empty<string>();
         
         public LoadFacetMetadataContext ParentContext { get; init; }
-        public Func<ISearchHit, IDictionary<object, FacetMetadata>, FacetMetadata> MetadataCreator { get; init; }
-        //...
+        public Func<ISearchHit, MetadataCreatorContext, FacetMetadata> MetadataCreator { get; init; }
+    }
+
+    public class MetadataCreatorContext
+    {
+        public ISearchEngine SearchEngine { get; init; }
+        public LoadFacetMetadataContext Context { get; init; }
+        public IDictionary<object, FacetMetadata> ParentData { get; init; }
     }
 
     // TODO: (mg) (core) add storing of facet metadata to IMetadataStorage.
