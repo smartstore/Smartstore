@@ -56,7 +56,7 @@ namespace Smartstore.IO
         long IDirectory.GetDirectorySize(string pattern, bool deep)
             => throw new DirectoryNotFoundException($"Directory '{SubPath}' not found.");
 
-        long IDirectory.CountFiles(string pattern, bool deep)
+        int IDirectory.CountFiles(string pattern, bool deep)
             => throw new DirectoryNotFoundException($"Directory '{SubPath}' not found.");
     }
 }

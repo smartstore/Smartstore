@@ -129,7 +129,7 @@ namespace Smartstore.IO
         /// <param name="pattern">The file pattern to match</param>
         /// <param name="deep">Whether to sum up length in all subdirectories also.</param>
         /// <returns>Total length of all files.</returns>
-        async Task<long> GetDirectorySizeAsync(string pattern = "*", bool deep = true, CancellationToken cancelToken = default)
+        async ValueTask<long> GetDirectorySizeAsync(string pattern = "*", bool deep = true, CancellationToken cancelToken = default)
             => await EnumerateFilesAsync(pattern, deep, cancelToken).SumAsync(x => x.Length, cancellationToken: cancelToken);
 
         /// <summary>
@@ -138,7 +138,7 @@ namespace Smartstore.IO
         /// <param name="pattern">The file pattern to match</param>
         /// <param name="deep">Whether to count files in all subdirectories also</param>
         /// <returns>Total count of files.</returns>
-        long CountFiles(string pattern = "*", bool deep = true)
+        int CountFiles(string pattern = "*", bool deep = true)
             => EnumerateFiles(pattern, deep).AsParallel().Count();
 
         /// <summary>
@@ -147,7 +147,7 @@ namespace Smartstore.IO
         /// <param name="pattern">The file pattern to match</param>
         /// <param name="deep">Whether to count files in all subdirectories also</param>
         /// <returns>Total count of files.</returns>
-        async Task<long> CountFilesAsync(string pattern = "*", bool deep = true, CancellationToken cancelToken = default)
+        async ValueTask<int> CountFilesAsync(string pattern = "*", bool deep = true, CancellationToken cancelToken = default)
             => await EnumerateFilesAsync(pattern, deep, cancelToken).CountAsync(cancellationToken: cancelToken);
     }
 }
