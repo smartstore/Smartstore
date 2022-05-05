@@ -1,4 +1,6 @@
-﻿namespace Smartstore.Core.Search
+﻿using Smartstore.Core.Search.Facets;
+
+namespace Smartstore.Core.Search
 {
     public interface ISearchProvider
     {
@@ -23,5 +25,7 @@
         /// <param name="languageCulture">Language culture.</param>
         /// <returns>Search fields.</returns>
         IList<SearchField> GetFields(ISearchQuery query, string languageCulture);
+
+        Task<IDictionary<object, FacetMetadata>> GetFacetMetadataAsync(FacetDescriptor descriptor, ISearchEngine searchEngine, IFacetMetadataStorage storage);
     }
 }
