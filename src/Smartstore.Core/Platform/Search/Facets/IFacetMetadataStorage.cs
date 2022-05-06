@@ -1,6 +1,6 @@
 ﻿namespace Smartstore.Core.Search.Facets
 {
-    public class LoadFacetMetadataContext
+    public class FacetMetadataContext
     {
         public bool Cache { get; init; }
         public string FieldName { get; init; }
@@ -10,14 +10,14 @@
         public string[] ApplyOriginalFilters { get; init; } = Array.Empty<string>();
 
         public FacetDescriptor Descriptor { get; init; }
-        public LoadFacetMetadataContext ParentContext { get; init; }
-        public Func<ISearchHit, MetadataCreatorContext, FacetMetadata> MetadataCreator { get; init; }
+        public FacetMetadataContext ParentContext { get; init; }
+        public Func<ISearchHit, MetadataGeneratorContext, FacetMetadata> MetadataGenerator { get; init; }
     }
 
-    public class MetadataCreatorContext
+    public class MetadataGeneratorContext
     {
         public ISearchEngine SearchEngine { get; init; }
-        public LoadFacetMetadataContext Context { get; init; }
+        public FacetMetadataContext Context { get; init; }
         public IDictionary<object, FacetMetadata> ParentData { get; init; }
     }
 
@@ -33,6 +33,6 @@
         /// <param name="searchEngine">Search engine instance.</param>
         /// <param name="context">Context for loading facet metadata.</param>
         /// <returns>Dictionary of <see cref="FacetValue.Value"/> to <see cref="FacetMetadata"/>.</returns>
-        Task<IDictionary<object, FacetMetadata>> LoadAsync(ISearchEngine searchEngine, LoadFacetMetadataContext context);
+        Task<IDictionary<object, FacetMetadata>> LoadAsync(ISearchEngine searchEngine, FacetMetadataContext context);
     }
 }
