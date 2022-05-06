@@ -26,6 +26,17 @@ namespace Smartstore.Core.Search
         /// <returns>Search fields.</returns>
         IList<SearchField> GetFields(ISearchQuery query, string languageCulture);
 
+        /// <summary>
+        /// Gets facet metadata for a <see cref="FacetDescriptor"/>. 
+        /// </summary>
+        /// <remarks>
+        /// Metadata defines which data should be faceted. It can be generated on-the-fly (e.g. for a 1-to-5 stars product rating)
+        /// or loaded via <see cref="IFacetMetadataStorage"/> from a medium (e.g. a file-based search index).
+        /// </remarks>
+        /// <param name="descriptor"><see cref="FacetDescriptor"/> to get metadata for.</param>
+        /// <param name="searchEngine">Search engine.</param>
+        /// <param name="storage">Storage to get the metadata from, e.g. to load from a search index.</param>
+        /// <returns>Dictionary of <see cref="FacetValue.Value"/> to <see cref="FacetMetadata"/>.</returns>
         Task<IDictionary<object, FacetMetadata>> GetFacetMetadataAsync(FacetDescriptor descriptor, ISearchEngine searchEngine, IFacetMetadataStorage storage);
     }
 }

@@ -5,10 +5,11 @@
         public bool Cache { get; init; }
         public string FieldName { get; init; }
         public string DocumentType { get; init; }
-        
+
         public ISearchQuery Query { get; init; } = new SearchQuery();
         public string[] ApplyOriginalFilters { get; init; } = Array.Empty<string>();
-        
+
+        public FacetDescriptor Descriptor { get; init; }
         public LoadFacetMetadataContext ParentContext { get; init; }
         public Func<ISearchHit, MetadataCreatorContext, FacetMetadata> MetadataCreator { get; init; }
     }
@@ -27,13 +28,11 @@
     public interface IFacetMetadataStorage
     {
         /// <summary>
-        /// Loads facet metadata.
+        /// Loads facet metadata from a medium like a file-based search index.
         /// </summary>
         /// <param name="searchEngine">Search engine instance.</param>
-        /// <param name="descriptor">Facet descriptor.</param>
-        /// <returns>Facet metadata for a facet descriptor.</returns>
-        Task<IDictionary<object, FacetMetadata>> LoadAsync(ISearchEngine searchEngine, FacetDescriptor descriptor);
-
+        /// <param name="context">Context for loading facet metadata.</param>
+        /// <returns>Dictionary of <see cref="FacetValue.Value"/> to <see cref="FacetMetadata"/>.</returns>
         Task<IDictionary<object, FacetMetadata>> LoadAsync(ISearchEngine searchEngine, LoadFacetMetadataContext context);
     }
 }
