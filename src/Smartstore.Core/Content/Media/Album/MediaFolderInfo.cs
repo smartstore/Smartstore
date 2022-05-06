@@ -204,7 +204,7 @@ namespace Smartstore.Core.Content.Media
 
             bool MatchesPattern(TreeNode<MediaFolderNode> node)
             {
-                return wildcard == null ? true : wildcard.IsMatch(node.Value.Name);
+                return wildcard == null || wildcard.IsMatch(node.Value.Name);
             }
         }
 

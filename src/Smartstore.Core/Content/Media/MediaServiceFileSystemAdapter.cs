@@ -81,17 +81,7 @@ namespace Smartstore.Core.Content.Media
 
         public override string Root => string.Empty;
 
-        public override bool CheckUniqueFileName(string subpath, out string newPath)
-        {
-            if (CheckUniqueFileNameAsync(subpath).Await().Out(out newPath))
-            {
-                return true;
-            }
-
-            return false;
-        }
-
-        public override Task<AsyncOut<string>> CheckUniqueFileNameAsync(string subpath)
+        protected internal override Task<AsyncOut<string>> CheckUniqueFileNameCore(string subpath, bool async)
         {
             return _mediaService.CheckUniqueFileNameAsync(subpath);
         }

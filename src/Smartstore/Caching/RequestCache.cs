@@ -104,7 +104,7 @@ namespace Smartstore.Caching
 
         protected IDictionary<object, object> GetItems()
         {
-            return _httpContextAccessor.HttpContext?.Items ?? _emptyDictionary;
+            return _httpContextAccessor?.HttpContext?.Items ?? _emptyDictionary;
         }
 
         public IEnumerable<string> Keys(string pattern)
