@@ -26,6 +26,16 @@ namespace Smartstore.Core.Search
         /// <returns>Search fields.</returns>
         IList<SearchField> GetFields(ISearchQuery query, string languageCulture);
 
+        #region Facets
+
+        /// <summary>
+        /// Gets a value indicating whether facets exist for an index field.
+        /// </summary>
+        /// <param name="fieldName">Field name.</param>
+        /// <param name="query">Search query.</param>
+        /// <returns><c>true</c> facets exist otherwise <c>false</c>.</returns>
+        bool IsFacetField(string fieldName, ISearchQuery query);
+
         /// <summary>
         /// Gets facet metadata for a <see cref="FacetDescriptor"/>. 
         /// </summary>
@@ -38,5 +48,7 @@ namespace Smartstore.Core.Search
         /// <param name="storage">Storage to get the metadata from, e.g. to load from a search index.</param>
         /// <returns>Dictionary of <see cref="FacetValue.Value"/> to <see cref="FacetMetadata"/>.</returns>
         Task<IDictionary<object, FacetMetadata>> GetFacetMetadataAsync(FacetDescriptor descriptor, ISearchEngine searchEngine, IFacetMetadataStorage storage);
+
+        #endregion
     }
 }

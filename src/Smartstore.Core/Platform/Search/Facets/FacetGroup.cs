@@ -47,6 +47,7 @@ namespace Smartstore.Core.Search.Facets
             Key = key;
             Label = label;
             IsMultiSelect = isMultiSelect;
+            HasChildren = hasChildren;
             DisplayOrder = displayOrder;
             IsScrollable = true;
 
