@@ -265,7 +265,7 @@ namespace Smartstore
                 try
                 {
                     var len = stream.Length;
-                    if (len > Int32.MaxValue)
+                    if (len > int.MaxValue)
                     {
                         return await ToByteArrayCopyAsync(stream);
                     }

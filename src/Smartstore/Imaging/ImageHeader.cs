@@ -39,7 +39,7 @@ namespace Smartstore.Imaging
         static ImageHeader()
         {
             _maxMagicBytesLength = _imageFormatDecoders.OrderByDescending(x => x.Marker.Length).First().Marker.Length;
-            _imageFactory = EngineContext.Current.Application.Services.ResolveOptional<IImageFactory>();
+            _imageFactory = EngineContext.Current?.Application?.Services?.ResolveOptional<IImageFactory>();
         }
 
         /// <summary>        
@@ -121,7 +121,7 @@ namespace Smartstore.Imaging
 
             var slowDetect = false;
 
-            if (!input.CanSeek || input.Length == 0)
+            if (leaveOpen && (!input.CanSeek || input.Length == 0))
             {
                 return (Size.Empty, null);
             }
@@ -157,9 +157,16 @@ namespace Smartstore.Imaging
                 // so get original size the classic way
                 try
                 {
-                    input.Seek(0, SeekOrigin.Begin);
-                    var size = GetPixelSizeByImageFactory(input, out var imageFormat);
-                    return (size, imageFormat);
+                    if (input.CanSeek)
+                    {
+                        input.Seek(0, SeekOrigin.Begin);
+                        var size = GetPixelSizeByImageFactory(input, out var imageFormat);
+                        return (size, imageFormat);
+                    }
+                    else
+                    {
+                        return (Size.Empty, null);
+                    }
                 }
                 catch
                 {
@@ -174,7 +181,10 @@ namespace Smartstore.Imaging
                 }
                 else
                 {
-                    input.Seek(0, SeekOrigin.Begin);
+                    if (input.CanSeek)
+                    {
+                        input.Seek(0, SeekOrigin.Begin);
+                    }
                 }
             }
         }
