@@ -1,6 +1,4 @@
-﻿using Smartstore.Core.Localization;
-
-namespace Smartstore.Core.Search.Indexing
+﻿namespace Smartstore.Core.Search.Indexing
 {
     public enum FieldAnalysisReason
     {
@@ -35,7 +33,7 @@ namespace Smartstore.Core.Search.Indexing
     public class FieldAnalysisInfo
     {
         public string[] FieldNames { get; init; }
-        public Language Language { get; init; }
         public FieldAnalysisType? AnalysisType { get; init; }
+        public string LanguageCulture { get; init; }
     }
 }

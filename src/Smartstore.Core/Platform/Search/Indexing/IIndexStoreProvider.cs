@@ -4,7 +4,7 @@ namespace Smartstore.Core.Search.Indexing
 {
     public interface IIndexStoreProvider
     {
-        FieldAnalysisType? GetDefaultAnalysisType(FieldAnalysisReason reason, Language defaultLanguage, IIndexStore indexStore);
+        FieldAnalysisType? GetDefaultAnalysisType(FieldAnalysisReason reason, IIndexStore indexStore);
 
         IList<FieldAnalysisInfo> GetFieldAnalysisInfos(FieldAnalysisReason reason, IList<Language> languages, IIndexStore indexStore);
     }
