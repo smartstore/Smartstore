@@ -7,7 +7,7 @@
         public string DocumentType { get; init; }
 
         public ISearchQuery Query { get; init; } = new SearchQuery();
-        public string[] ApplyOriginalFilters { get; init; } = Array.Empty<string>();
+        public Func<IAttributeSearchFilter, bool> ApplyOriginalFilters { get; set; }
 
         public FacetDescriptor Descriptor { get; init; }
         public FacetMetadataContext ParentContext { get; init; }
@@ -30,6 +30,10 @@
         /// <summary>
         /// Loads facet metadata from a medium like a file-based search index.
         /// </summary>
+        /// <remarks>
+        /// Metadata defines which data should be faceted. It can be generated on-the-fly (e.g. for a 1-to-5 stars product rating)
+        /// or loaded via <see cref="IFacetMetadataStorage"/> from a medium (e.g. a file-based search index).
+        /// </remarks>
         /// <param name="searchEngine">Search engine instance.</param>
         /// <param name="context">Context for loading facet metadata.</param>
         /// <returns>Dictionary of <see cref="FacetValue.Value"/> to <see cref="FacetMetadata"/>.</returns>

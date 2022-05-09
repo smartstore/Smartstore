@@ -13,11 +13,6 @@
         bool Exists { get; }
 
         /// <summary>
-        /// The identifier of the last added document.
-        /// </summary>
-        int LastAddedDocumentId { get; }
-
-        /// <summary>
         /// Creates a new index if it doesn't exist already.
         /// </summary>
         void CreateIfNotExists();

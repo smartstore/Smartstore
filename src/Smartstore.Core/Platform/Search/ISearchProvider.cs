@@ -4,6 +4,8 @@ namespace Smartstore.Core.Search
 {
     public interface ISearchProvider
     {
+        #region Search
+
         /// <summary>
         /// Gets the sort order to be applied to a specific sort field.
         /// This is intended for special cases, for example, where a different search index field 
@@ -26,6 +28,8 @@ namespace Smartstore.Core.Search
         /// <returns>Search fields.</returns>
         IList<SearchField> GetFields(ISearchQuery query, string languageCulture);
 
+        #endregion
+
         #region Facets
 
         /// <summary>
@@ -37,17 +41,20 @@ namespace Smartstore.Core.Search
         bool IsFacetField(string fieldName, ISearchQuery query);
 
         /// <summary>
-        /// Gets facet metadata for a <see cref="FacetDescriptor"/>. 
+        /// Gets the facet map for drilldown navigation.
         /// </summary>
-        /// <remarks>
-        /// Metadata defines which data should be faceted. It can be generated on-the-fly (e.g. for a 1-to-5 stars product rating)
-        /// or loaded via <see cref="IFacetMetadataStorage"/> from a medium (e.g. a file-based search index).
-        /// </remarks>
-        /// <param name="descriptor"><see cref="FacetDescriptor"/> to get metadata for.</param>
         /// <param name="searchEngine">Search engine.</param>
-        /// <param name="storage">Storage to get the metadata from, e.g. to load from a search index.</param>
-        /// <returns>Dictionary of <see cref="FacetValue.Value"/> to <see cref="FacetMetadata"/>.</returns>
-        Task<IDictionary<object, FacetMetadata>> GetFacetMetadataAsync(FacetDescriptor descriptor, ISearchEngine searchEngine, IFacetMetadataStorage storage);
+        /// <param name="storage">Facet metadata storage.</param>
+        /// <returns>Map of <see cref="FacetDescriptor.Key"/> to <see cref="FacetGroup"/>.</returns>
+        IDictionary<string, FacetGroup> GetFacetMap(ISearchEngine searchEngine, IFacetMetadataStorage storage);
+
+        /// <summary>
+        /// Gets the facet map for drilldown navigation.
+        /// </summary>
+        /// <param name="searchEngine">Search engine.</param>
+        /// <param name="storage">Facet metadata storage.</param>
+        /// <returns>Map of <see cref="FacetDescriptor.Key"/> to <see cref="FacetGroup"/>.</returns>
+        Task<IDictionary<string, FacetGroup>> GetFacetMapAsync(ISearchEngine searchEngine, IFacetMetadataStorage storage);
 
         #endregion
     }
