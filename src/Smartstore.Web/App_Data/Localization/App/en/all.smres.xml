@@ -7138,7 +7138,7 @@
 		<Value>Specifies additional search fields. The product name is always searched.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.Search.SearchFieldsNote">
-		<Value>The Name, SKU and Short Description fields can be searched in the standard search. Other fields require a search plugin such as the MegaSearch plugin from &lt;a href='http://www.smartstore.com/de/net#section-pricing' target='_blank'&gt;Premium Edition&lt;/a&gt;.</Value>
+		<Value>The Name, SKU and Short Description fields can be searched in the standard search. Other fields require a search plugin such as the MegaSearch plugin from &lt;a href='https://www.smartstore.com/de/net#section-pricing' target='_blank'&gt;Premium Edition&lt;/a&gt;.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.Search.SearchMode">
 		<Value>Search mode</Value>

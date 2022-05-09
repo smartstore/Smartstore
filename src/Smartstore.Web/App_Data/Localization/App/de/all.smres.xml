@@ -6979,7 +6979,7 @@
 		<Value>Legt zusätzlich zu durchsuchende Felder fest. Der Produktname wird grundsätzlich immer durchsucht.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.Search.SearchFieldsNote">
-		<Value>In der Standardsuche können die Felder Name, SKU und Kurzbeschreibung durchsucht werden. Für weitere Felder ist ein Such-Plugin wie etwa das MegaSearch-Plugin aus der &lt;a href='http://www.smartstore.com/de/net#section-pricing' target='_blank'&gt;Premium Edition&lt;/a&gt; notwendig.</Value>
+		<Value>In der Standardsuche können die Felder Name, SKU und Kurzbeschreibung durchsucht werden. Für weitere Felder ist ein Such-Plugin wie etwa das MegaSearch-Plugin aus der &lt;a href='https://www.smartstore.com/de/net#section-pricing' target='_blank'&gt;Premium Edition&lt;/a&gt; notwendig.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.Search.SearchMode">
 		<Value>Suchmodus</Value>
