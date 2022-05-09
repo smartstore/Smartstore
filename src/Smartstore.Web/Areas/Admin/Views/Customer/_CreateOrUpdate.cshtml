@@ -11,7 +11,7 @@
 <div asp-validation-summary="All"></div>
 <input sm-if="Model.Id == 0" asp-for="Id" type="hidden" />
 
-<tabstrip id="customer-edit" sm-nav-style="Material" sm-nav-position="Left">
+<tabstrip id="customer-edit" sm-nav-style="Material" sm-nav-position="Left" sm-onajaxsuccess="customerEditTab_onAjaxSuccess" >
     <tab sm-title="@T("Admin.Customers.Customers.Info")" sm-selected="true" sm-icon="bi:pencil">
         <partial name="_CreateOrUpdate.Info" model="Model" />
     </tab>
@@ -168,6 +168,13 @@
         </tab>
     }
 </tabstrip>
+
+<script sm-target-zone="Scripts" data-origin="customer-edit">
+    function customerEditTab_onAjaxSuccess(tab, pane) {
+        applyCommonPlugins(pane);
+        reinitFormValidator("#customer-form");
+    }
+</script>
 
 @{
     async Task PermissionNode(TreeNode<IPermissionNode> node)

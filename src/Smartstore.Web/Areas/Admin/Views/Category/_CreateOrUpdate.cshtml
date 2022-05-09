@@ -15,7 +15,7 @@
 <div asp-validation-summary="All"></div>
 <input type="hidden" asp-for="Id" />
 
-<tabstrip id="category-edit" sm-nav-style="Material" sm-nav-position="Left">
+<tabstrip id="category-edit" sm-nav-style="Material" sm-nav-position="Left" sm-onajaxsuccess="categoryEditTab_onAjaxSuccess">
 	<tab sm-title="@T("Admin.Common.General")" sm-icon="bi:pencil" sm-selected="true">
 		<div class="adminContent">
             <div sm-if="Model.Id != 0" class="adminRow">
@@ -475,6 +475,11 @@
 </tabstrip>
 
 <script sm-target-zone="scripts" data-origin="category-edit">
+    function categoryEditTab_onAjaxSuccess(tab, pane) {
+        applyCommonPlugins(pane);
+        reinitFormValidator("#category-form");
+    }
+
     $(function() {
         // Toggle page size.
         $('#@Html.IdFor(model => model.AllowCustomersToSelectPageSize)').on('change', function() {

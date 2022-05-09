@@ -7,7 +7,7 @@
 
 <input type="hidden" asp-for="Id" />
 
-<tabstrip id="topic-edit" sm-nav-style="Material">
+<tabstrip id="topic-edit" sm-nav-style="Material" sm-onajaxsuccess="topicEditTab_onAjaxSuccess">
     <tab sm-title="@T("Admin.Common.General")" sm-selected="true">
         <div class="adminContent mb-3">
             <div class="adminRow">
@@ -386,3 +386,10 @@
         </tab>
     }
 </tabstrip>
+
+<script sm-target-zone="Scripts" data-origin="topic-edit">
+    function topicEditTab_onAjaxSuccess(tab, pane) {
+        applyCommonPlugins(pane);
+        reinitFormValidator("#topic-form");
+    }
+</script>

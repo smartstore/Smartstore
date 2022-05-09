@@ -48,7 +48,7 @@
 
     <div asp-validation-summary="All"></div>
 
-    <tabstrip id="order-edit" sm-nav-style="Material" sm-nav-position="Left">
+    <tabstrip id="order-edit" sm-nav-style="Material" sm-nav-position="Left" sm-onajaxsuccess="orderEditTab_onAjaxSuccess">
         <tab sm-title="@T("Admin.Common.General")" sm-selected="true" sm-icon="bi:pencil">
             <partial name="_Edit.Info" />
         </tab>
@@ -68,3 +68,10 @@
 </form>
 
 <partial name="_UpdateOrderItemDialog" model="Model.UpdateOrderItem" />
+
+<script sm-target-zone="Scripts" data-origin="order-edit">
+    function orderEditTab_onAjaxSuccess(tab, pane) {
+        applyCommonPlugins(pane);
+        reinitFormValidator("#order-form");
+    }
+</script>
