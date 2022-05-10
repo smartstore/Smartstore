@@ -1,7 +1,7 @@
 ﻿namespace Smartstore.Core.Search.Indexing
 {
     /// <summary>
-    /// A simple factory for registered search index providers
+    /// Factory for registered search index providers
     /// </summary>
     public interface IIndexManager
     {
