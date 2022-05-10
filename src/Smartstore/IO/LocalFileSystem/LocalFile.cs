@@ -100,38 +100,34 @@ namespace Smartstore.IO
         }
 
         /// <inheritdoc/>
-        public Size Size
+        public Size GetPixelSize()
         {
-            get
+            if (_size == null)
             {
-                if (_size == null)
+                if (!Exists)
                 {
-                    if (!Exists)
-                    {
-                        _size = Size.Empty;
-                        return _size.Value;
-                    }
-
-                    try
-                    {
-                        var mime = MimeTypes.MapNameToMimeType(Name);
-                        if (mime.StartsWith("image/", StringComparison.OrdinalIgnoreCase))
-                        {
-                            _size = ImageHeader.GetPixelSize(OpenRead(), mime, false);
-                        }
-
-                        // Don't attemp again
-                        _size ??= Size.Empty;
-                    }
-                    catch
-                    {
-                        _size = Size.Empty;
-                    }
+                    _size = Size.Empty;
+                    return _size.Value;
                 }
 
-                return _size.Value;
+                try
+                {
+                    var mime = MimeTypes.MapNameToMimeType(Name);
+                    if (mime.StartsWith("image/", StringComparison.OrdinalIgnoreCase))
+                    {
+                        _size = ImageHeader.GetPixelSize(OpenRead(), mime, false);
+                    }
+
+                    // Don't attemp again
+                    _size ??= Size.Empty;
+                }
+                catch
+                {
+                    _size = Size.Empty;
+                }
             }
-            internal set => _size = value;
+
+            return _size.Value;
         }
 
         public bool IsSymbolicLink(out string finalTargetPath)
@@ -165,7 +161,7 @@ namespace Smartstore.IO
         }
 
         /// <inheritdoc/>
-        public Stream OpenWrite()
+        public Stream OpenWrite(string contentType = null)
         {
             var di = _fi.Directory;
             if (di == null && PhysicalPath.HasValue())

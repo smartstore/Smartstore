@@ -261,8 +261,8 @@ namespace Smartstore.Admin.Controllers
                 t = file.LastModified.ToUnixTime().ToString(),
                 m = GetMimeType(file),
                 s = file.Length.ToString(),
-                w = file.Size.Width.ToString(),
-                h = file.Size.Height.ToString()
+                w = file.GetPixelSize().Width.ToString(),
+                h = file.GetPixelSize().Height.ToString()
             }).ToArrayAsync();
 
             return Json(result);

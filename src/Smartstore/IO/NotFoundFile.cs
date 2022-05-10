@@ -19,7 +19,6 @@ namespace Smartstore.IO
         public DateTimeOffset CreatedOn => DateTimeOffset.MinValue;
         public DateTimeOffset LastModified => DateTimeOffset.MinValue;
         public long Length => -1;
-        public Size Size => Size.Empty;
 
         public string SubPath { get; }
         public string Directory => _dir ??= SubPath.IsEmpty() ? string.Empty : SubPath[..(SubPath.Length - Name.Length - 1)];
@@ -27,6 +26,9 @@ namespace Smartstore.IO
         public string NameWithoutExtension => SubPath.IsEmpty() ? string.Empty : Path.GetFileNameWithoutExtension(SubPath);
         public string Extension => SubPath.IsEmpty() ? string.Empty : Path.GetExtension(SubPath);
         public string PhysicalPath => null;
+
+        public Size GetPixelSize() 
+            => Size.Empty;
 
         public bool IsSymbolicLink(out string finalPhysicalPath)
         {
@@ -46,7 +48,7 @@ namespace Smartstore.IO
         Stream IFile.OpenRead()
             => throw new FileNotFoundException($"File '{SubPath}' not found.");
 
-        Stream IFile.OpenWrite()
+        Stream IFile.OpenWrite(string contentType)
             => throw new NotSupportedException();
 
         IFile IFile.CopyTo(string newPath, bool overwrite)

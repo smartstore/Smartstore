@@ -14,6 +14,7 @@ namespace Smartstore.Core.Content.Media
     {
         private string _alt;
         private string _title;
+        private Size _size;    
 
         private readonly IMediaService _mediaService;
         private readonly IMediaStorageProvider _storageProvider;
@@ -36,7 +37,7 @@ namespace Smartstore.Core.Content.Media
 
             if (file.Width != null && file.Height != null)
             {
-                Size = new Size(file.Width.Value, file.Height.Value);
+                _size = new Size(file.Width.Value, file.Height.Value);
             }
 
             _cachedUrls.Clear();
@@ -179,7 +180,8 @@ namespace Smartstore.Core.Content.Media
 
         /// <inheritdoc/>
         [JsonIgnore]
-        IFileSystem IFileEntry.FileSystem => throw new NotSupportedException();
+        IFileSystem IFileEntry.FileSystem 
+            => throw new NotSupportedException();
 
         /// <inheritdoc/>
         [JsonIgnore]
@@ -198,13 +200,18 @@ namespace Smartstore.Core.Content.Media
         public string Directory { get; private set; }
 
         [JsonProperty("title")]
-        public string NameWithoutExtension => System.IO.Path.GetFileNameWithoutExtension(Name);
+        public string NameWithoutExtension 
+            => System.IO.Path.GetFileNameWithoutExtension(Name);
 
         [JsonProperty("ext")]
-        public string Extension => File.Extension != null ? "." + File.Extension : null;
+        public string Extension 
+            => File.Extension != null ? "." + File.Extension : null;
 
         [JsonProperty("dimensions")]
-        public Size Size { get; private set; }
+        public Size Size
+        {
+            get => _size;
+        }
 
         /// <inheritdoc/>
         public Stream OpenRead()
@@ -243,6 +250,10 @@ namespace Smartstore.Core.Content.Media
             await _mediaService.DeleteFileAsync(File, true);
             Initialize(File, Directory);
         }
+
+        /// <inheritdoc/>
+        Size IFile.GetPixelSize()
+            => _size;
 
         /// <inheritdoc/>
         IFile IFile.CopyTo(string newPath, bool overwrite)

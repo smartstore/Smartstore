@@ -20,9 +20,17 @@ namespace Smartstore.IO
         string Extension { get; }
 
         /// <summary>
-        /// Dimensions, if the file is an image.
+        /// Determines the pixel size if the file is an image.
         /// </summary>
-        Size Size { get; }
+        /// <returns>The image pixel size or <see cref="Size.Empty"/>if file is not an image or pixel size could not be determined.</returns>
+        Size GetPixelSize();
+
+        /// <summary>
+        /// Determines the pixel size if the file is an image.
+        /// </summary>
+        /// <returns>The image pixel size or <see cref="Size.Empty"/>if file is not an image or pixel size could not be determined.</returns>
+        ValueTask<Size> GetPixelSizeAsync()
+            => ValueTask.FromResult(GetPixelSize());
 
         /// <summary>
         /// Creates a stream for reading from the file.
@@ -41,15 +49,21 @@ namespace Smartstore.IO
         /// <summary>
         /// Creates a stream for writing to the file. If the directory does not exist, it will be created.
         /// </summary>
+        /// <param name="contentType">
+        /// The content/mime type of the file that is about to be written to the stream. 
+        /// </param>
         /// <exception cref="FileSystemException">Thrown if the file does not exist and the directory could not be created.</exception>
-        Stream OpenWrite() 
+        Stream OpenWrite(string contentType = null) 
             => throw new NotImplementedException();
 
         /// <summary>
         /// Creates a stream for writing to the file. If the directory does not exist, it will be created.
         /// </summary>
+        /// <param name="contentType">
+        /// The content/mime type of the file that is about to be written to the stream. 
+        /// </param>
         /// <exception cref="FileSystemException">Thrown if the file does not exist and the directory could not be created.</exception>
-        Task<Stream> OpenWriteAsync(CancellationToken cancelToken = default) 
+        Task<Stream> OpenWriteAsync(string contentType = null, CancellationToken cancelToken = default) 
             => Task.FromResult(OpenWrite());
 
         /// <summary>

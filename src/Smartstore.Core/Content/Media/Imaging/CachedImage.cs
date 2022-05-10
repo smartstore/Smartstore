@@ -18,9 +18,7 @@ namespace Smartstore.Core.Content.Media.Imaging
 
         public CachedImage(IFile file)
         {
-            Guard.NotNull(file, nameof(file));
-
-            File = file;
+            File = Guard.NotNull(file, nameof(file));
         }
 
         /// <summary>
@@ -41,9 +39,11 @@ namespace Smartstore.Core.Content.Media.Imaging
         /// <summary>
         /// The name of the file (without path)
         /// </summary>
-        public string FileName => System.IO.Path.GetFileName(this.Path);
+        public string FileName 
+            => System.IO.Path.GetFileName(this.Path);
 
-        public long FileSize => !Exists ? 0 : File.Length;
+        public long FileSize 
+            => !Exists ? 0 : File.Length;
 
         /// <summary>
         /// The file extension (without 'dot')
@@ -53,14 +53,15 @@ namespace Smartstore.Core.Content.Media.Imaging
         /// <summary>
         /// The filemime type
         /// </summary>
-        public string MimeType => _mimeType ??= MimeTypes.MapNameToMimeType(FileName);
+        public string MimeType 
+            => _mimeType ??= MimeTypes.MapNameToMimeType(FileName);
 
         /// <summary>
         /// The image width and height.
         /// </summary>
-        public Size Size
+        public Size PixelSize
         {
-            get => _size ?? (_size = File.Size).Value;
+            get => _size ?? (_size = File.GetPixelSize()).Value;
             internal set => _size = value;
         }
 
@@ -72,7 +73,8 @@ namespace Smartstore.Core.Content.Media.Imaging
         /// <summary>
         /// The last modified date or <c>null</c> if the file does not exist
         /// </summary>
-        public DateTimeOffset? LastModifiedUtc => Exists ? File.LastModified : (DateTimeOffset?)null;
+        public DateTimeOffset? LastModifiedUtc 
+            => Exists ? File.LastModified : null;
 
         /// <summary>
         /// Checks whether the file is remote (outside the application's physical root)
