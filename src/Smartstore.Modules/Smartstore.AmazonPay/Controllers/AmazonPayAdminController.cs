@@ -100,44 +100,7 @@ namespace Smartstore.AmazonPay.Controllers
                 }
             }
 
-            ViewBag.PrimaryStoreCurrencyCode = Services.CurrencyService.PrimaryCurrency.CurrencyCode;
-
-            ViewBag.TransactionTypes = new List<SelectListItem>
-            {
-                new SelectListItem
-                {
-                    Text = T("Plugins.Payments.AmazonPay.TransactionType.AuthAndCapture"),
-                    Value = ((int)AmazonPayTransactionType.AuthorizeAndCapture).ToString(),
-                    Selected = model.TransactionType == AmazonPayTransactionType.AuthorizeAndCapture,
-                },
-                new SelectListItem
-                {
-                    Text = T("Plugins.Payments.AmazonPay.TransactionType.Auth"),
-                    Value = ((int)AmazonPayTransactionType.Authorize).ToString(),
-                    Selected = model.TransactionType == AmazonPayTransactionType.Authorize
-                }
-            };
-
-            ViewBag.SaveEmailAndPhones = new List<SelectListItem>
-            {
-                new SelectListItem
-                {
-                    Text = T("Common.Unspecified"),
-                    Value = string.Empty
-                },
-                new SelectListItem
-                {
-                    Text = T("Plugins.Payments.AmazonPay.AmazonPaySaveDataType.OnlyIfEmpty"),
-                    Value = ((int)AmazonPaySaveDataType.OnlyIfEmpty).ToString(),
-                    Selected = model.SaveEmailAndPhone == AmazonPaySaveDataType.OnlyIfEmpty,
-                },
-                new SelectListItem
-                {
-                    Text = T("Plugins.Payments.AmazonPay.AmazonPaySaveDataType.Always"),
-                    Value = ((int)AmazonPaySaveDataType.Always).ToString(),
-                    Selected = model.SaveEmailAndPhone == AmazonPaySaveDataType.Always
-                }
-            };
+            PrepareConfigurationModel(model);
 
             return View(model);
         }
@@ -147,10 +110,11 @@ namespace Smartstore.AmazonPay.Controllers
         {
             var storeScope = GetActiveStoreScopeConfiguration();
             var settings = await Services.SettingFactory.LoadSettingsAsync<AmazonPaySettings>(storeScope);
-
+            
             if (!ModelState.IsValid)
             {
-                return await Configure(settings);
+                PrepareConfigurationModel(model);
+                return View(model);
             }
 
             ModelState.Clear();
@@ -219,6 +183,48 @@ namespace Smartstore.AmazonPay.Controllers
             await Services.SettingFactory.SaveSettingsAsync(settings, storeScope);
 
             return RedirectToAction(nameof(Configure));
+        }
+
+        private void PrepareConfigurationModel(ConfigurationModel model)
+        {
+            ViewBag.PrimaryStoreCurrencyCode = Services.CurrencyService.PrimaryCurrency.CurrencyCode;
+
+            ViewBag.TransactionTypes = new List<SelectListItem>
+            {
+                new SelectListItem
+                {
+                    Text = T("Plugins.Payments.AmazonPay.TransactionType.AuthAndCapture"),
+                    Value = ((int)AmazonPayTransactionType.AuthorizeAndCapture).ToString(),
+                    Selected = model.TransactionType == AmazonPayTransactionType.AuthorizeAndCapture,
+                },
+                new SelectListItem
+                {
+                    Text = T("Plugins.Payments.AmazonPay.TransactionType.Auth"),
+                    Value = ((int)AmazonPayTransactionType.Authorize).ToString(),
+                    Selected = model.TransactionType == AmazonPayTransactionType.Authorize
+                }
+            };
+
+            ViewBag.SaveEmailAndPhones = new List<SelectListItem>
+            {
+                new SelectListItem
+                {
+                    Text = T("Common.Unspecified"),
+                    Value = string.Empty
+                },
+                new SelectListItem
+                {
+                    Text = T("Plugins.Payments.AmazonPay.AmazonPaySaveDataType.OnlyIfEmpty"),
+                    Value = ((int)AmazonPaySaveDataType.OnlyIfEmpty).ToString(),
+                    Selected = model.SaveEmailAndPhone == AmazonPaySaveDataType.OnlyIfEmpty,
+                },
+                new SelectListItem
+                {
+                    Text = T("Plugins.Payments.AmazonPay.AmazonPaySaveDataType.Always"),
+                    Value = ((int)AmazonPaySaveDataType.Always).ToString(),
+                    Selected = model.SaveEmailAndPhone == AmazonPaySaveDataType.Always
+                }
+            };
         }
     }
 }

@@ -63,7 +63,8 @@ namespace Smartstore.OfflinePayment.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return CashOnDeliveryConfigure(settings);
+                ViewBag.Provider = _providerManager.GetProvider("Payments.CashOnDelivery").Metadata;
+                return View(model);
             }
 
             ModelState.Clear();
@@ -93,7 +94,8 @@ namespace Smartstore.OfflinePayment.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return InvoiceConfigure(settings);
+                ViewBag.Provider = _providerManager.GetProvider("Payments.Invoice").Metadata;
+                return View(model);
             }
 
             ModelState.Clear();
@@ -123,7 +125,8 @@ namespace Smartstore.OfflinePayment.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return PayInStoreConfigure(settings);
+                ViewBag.Provider = _providerManager.GetProvider("Payments.PayInStore").Metadata;
+                return View(model);
             }
 
             ModelState.Clear();
@@ -153,7 +156,8 @@ namespace Smartstore.OfflinePayment.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return PrepaymentConfigure(settings);
+                ViewBag.Provider = _providerManager.GetProvider("Payments.Prepayment").Metadata;
+                return View(model);
             }
 
             ModelState.Clear();
@@ -183,7 +187,8 @@ namespace Smartstore.OfflinePayment.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return DirectDebitConfigure(settings);
+                ViewBag.Provider = _providerManager.GetProvider("Payments.DirectDebit").Metadata;
+                return View(model);
             }
 
             ModelState.Clear();
@@ -213,7 +218,8 @@ namespace Smartstore.OfflinePayment.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return PurchaseOrderNumberConfigure(settings);
+                ViewBag.Provider = _providerManager.GetProvider("Payments.PurchaseOrderNumber").Metadata;
+                return View(model);
             }
 
             ModelState.Clear();
@@ -254,7 +260,8 @@ namespace Smartstore.OfflinePayment.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return ManualConfigure(settings);
+                ViewBag.Provider = _providerManager.GetProvider("Payments.Manual").Metadata;
+                return View(model);
             }
 
             ModelState.Clear();

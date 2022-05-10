@@ -39,7 +39,8 @@ namespace Smartstore.Twitter.Auth.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return Configure(settings);
+                ViewBag.Provider = _providerManager.GetProvider("Smartstore.Twitter.Auth").Metadata;
+                return View(model);
             }
 
             MiniMapper.Map(model, settings);

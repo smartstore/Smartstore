@@ -39,7 +39,8 @@ namespace Smartstore.Microsoft.Auth.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return Configure(settings);
+                ViewBag.Provider = _providerManager.GetProvider("Smartstore.Microsoft.Auth").Metadata;
+                return View(model);
             }
 
             ModelState.Clear();

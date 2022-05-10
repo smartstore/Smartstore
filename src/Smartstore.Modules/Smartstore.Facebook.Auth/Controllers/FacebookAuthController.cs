@@ -40,7 +40,8 @@ namespace Smartstore.Facebook.Auth.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return Configure(settings);
+                ViewBag.Provider = _providerManager.GetProvider("Smartstore.Facebook.Auth").Metadata;
+                return View(model);
             }
 
             ModelState.Clear();

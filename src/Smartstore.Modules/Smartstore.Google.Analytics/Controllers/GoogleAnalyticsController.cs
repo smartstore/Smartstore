@@ -17,11 +17,7 @@ namespace Smartstore.Google.Analytics.Controllers
             var model = MiniMapper.Map<GoogleAnalyticsSettings, ConfigurationModel>(settings);
 
             model.WidgetZone = settings.WidgetZone;
-            ViewBag.AvailableZones = new List<SelectListItem>
-            {
-                new SelectListItem { Text = "<head> HTML tag", Value = "head", Selected = settings.WidgetZone == "head" },
-                new SelectListItem { Text = "Before <body> end HTML tag", Value = "end", Selected = settings.WidgetZone == "end" }
-            };
+            PrepareConfigModel(settings.WidgetZone);
 
             return View(model);
         }
@@ -31,7 +27,8 @@ namespace Smartstore.Google.Analytics.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return Configure(settings);
+                PrepareConfigModel(settings.WidgetZone);
+                return View(model);
             }
 
             ModelState.Clear();
@@ -49,6 +46,15 @@ namespace Smartstore.Google.Analytics.Controllers
             settings.EcommerceDetailScript = AnalyticsScriptUtility.GetEcommerceDetailScript();
 
             return RedirectToAction(nameof(Configure));
+        }
+
+        private void PrepareConfigModel(string widgetZone)
+        {
+            ViewBag.AvailableZones = new List<SelectListItem>
+            {
+                new SelectListItem { Text = "<head> HTML tag", Value = "head", Selected = widgetZone == "head" },
+                new SelectListItem { Text = "Before <body> end HTML tag", Value = "end", Selected = widgetZone == "end" }
+            };
         }
     }
 }

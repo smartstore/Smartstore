@@ -36,7 +36,7 @@ namespace Smartstore.PayPal.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return Configure(settings);
+                return View(model);
             }
 
             // Clear token from cache if ClientId or Secret have changed.

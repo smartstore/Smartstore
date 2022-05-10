@@ -281,7 +281,7 @@ namespace Smartstore.Admin.Controllers
 
             #endregion
 
-            await PrepareConfigurationModelAsync(model);
+            await PrepareGeneralCommonConfigurationModelAsync(model);
 
             return View(model);
         }
@@ -306,7 +306,7 @@ namespace Smartstore.Admin.Controllers
         {
             if (!ModelState.IsValid)
             {
-                await PrepareConfigurationModelAsync(model);
+                await PrepareGeneralCommonConfigurationModelAsync(model);
                 return View(model);
             }
 
@@ -381,12 +381,8 @@ namespace Smartstore.Admin.Controllers
         {
             var model = await MapperFactory.MapAsync<CatalogSettings, CatalogSettingsModel>(catalogSettings);
 
-            ViewBag.AvailableDefaultViewModes = new List<SelectListItem>
-            {
-                new SelectListItem { Value = "grid", Text = T("Common.Grid"), Selected = model.DefaultViewMode.EqualsNoCase("grid") },
-                new SelectListItem { Value = "list", Text = T("Common.List"), Selected = model.DefaultViewMode.EqualsNoCase("list") }
-            };
-            
+            PrepareCatalogConfigurationModel(model);
+
             return View(model);
         }
 
@@ -396,7 +392,8 @@ namespace Smartstore.Admin.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return await Catalog(catalogSettings);
+                PrepareCatalogConfigurationModel(model);
+                return View(model);
             }
 
             ModelState.Clear();
@@ -453,7 +450,7 @@ namespace Smartstore.Admin.Controllers
 
             if (!ModelState.IsValid)
             {
-                return await CustomerUser(storeScope, customerSettings, addressSettings, privacySettings);
+                return View(model);
             }
 
             ModelState.Clear();
@@ -562,8 +559,10 @@ namespace Smartstore.Admin.Controllers
         public async Task<IActionResult> CookieInfoCreatePopup(string btnId, string formId, CookieInfoModel model)
         {
             if (!ModelState.IsValid)
+            {
                 return View(model);
-
+            }
+            
             // Deserialize
             var ciList = JsonConvert.DeserializeObject<List<CookieInfo>>(_privacySettings.CookieInfos);
 
@@ -702,49 +701,7 @@ namespace Smartstore.Admin.Controllers
 
             model.IsMegaSearchInstalled = megaSearchDescriptor != null;
 
-            var availableSearchFields = new List<SelectListItem>();
-            var availableSearchModes = new List<SelectListItem>();
-
-            if (!model.IsMegaSearchInstalled)
-            {
-                model.SearchFieldsNote = T("Admin.Configuration.Settings.Search.SearchFieldsNote");
-
-                availableSearchFields.AddRange(new[]
-                {
-                    new SelectListItem { Text = T("Admin.Catalog.Products.Fields.ShortDescription"), Value = "shortdescription" },
-                    new SelectListItem { Text = T("Admin.Catalog.Products.Fields.Sku"), Value = "sku" },
-                });
-
-                availableSearchModes = searchSettings.SearchMode.ToSelectList().Where(x => x.Value.ToInt() != (int)SearchMode.ExactMatch).ToList();
-            }
-            else
-            {
-                availableSearchFields.AddRange(new[]
-                {
-                    new SelectListItem { Text = T("Admin.Catalog.Products.Fields.ShortDescription"), Value = "shortdescription" },
-                    new SelectListItem { Text = T("Admin.Catalog.Products.Fields.FullDescription"), Value = "fulldescription" },
-                    new SelectListItem { Text = T("Admin.Catalog.Products.Fields.ProductTags"), Value = "tagname" },
-                    new SelectListItem { Text = T("Admin.Catalog.Manufacturers"), Value = "manufacturer" },
-                    new SelectListItem { Text = T("Admin.Catalog.Categories"), Value = "category" },
-                    new SelectListItem { Text = T("Admin.Catalog.Products.Fields.Sku"), Value = "sku" },
-                    new SelectListItem { Text = T("Admin.Catalog.Products.Fields.GTIN"), Value = "gtin" },
-                    new SelectListItem { Text = T("Admin.Catalog.Products.Fields.ManufacturerPartNumber"), Value = "mpn" }
-                });
-
-                if (megaSearchPlusDescriptor != null)
-                {
-                    availableSearchFields.AddRange(new[]
-                    {
-                        new SelectListItem { Text = T("Search.Fields.SpecificationAttributeOptionName"), Value = "attrname" },
-                        new SelectListItem { Text = T("Search.Fields.ProductAttributeOptionName"), Value = "variantname" }
-                    });  
-                }
-
-                availableSearchModes = searchSettings.SearchMode.ToSelectList().ToList();
-            }
-
-            ViewBag.AvailableSearchFields = availableSearchFields;
-            ViewBag.AvailableSearchModes = availableSearchModes;
+            PrepareSearchConfigModel(model, searchSettings, megaSearchPlusDescriptor);
 
             // Common facets.
             model.BrandFacet.Disabled = searchSettings.BrandDisabled;
@@ -850,7 +807,9 @@ namespace Smartstore.Admin.Controllers
 
             if (!ModelState.IsValid)
             {
-                return await Search();
+                var megaSearchPlusDescriptor = Services.ApplicationContext.ModuleCatalog.GetModuleByName("Smartstore.MegaSearchPlus");
+                PrepareSearchConfigModel(model, settings, megaSearchPlusDescriptor);
+                return View(model);
             }
 
             CategoryTreeChangeReason? categoriesChange = model.AvailabilityFacet.IncludeNotAvailable != settings.IncludeNotAvailable
@@ -936,7 +895,7 @@ namespace Smartstore.Admin.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return DataExchange(settings);
+                return View(model);
             }
 
             ModelState.Clear();
@@ -974,7 +933,13 @@ namespace Smartstore.Admin.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return await Media(settings);
+                var currentStorageProvider = Services.Settings.GetSettingByKey<string>("Media.Storage.Provider");
+                ViewBag.AvailableStorageProvider = _providerManager.GetAllProviders<IMediaStorageProvider>()
+                    .Where(x => !x.Metadata.SystemName.EqualsNoCase(currentStorageProvider))
+                    .Select(x => new SelectListItem { Text = _moduleManager.Value.GetLocalizedFriendlyName(x.Metadata), Value = x.Metadata.SystemName })
+                    .ToList();
+
+                return View(model);
             }
 
             ModelState.Clear();
@@ -1019,7 +984,7 @@ namespace Smartstore.Admin.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return Payment(settings);
+                return View(model);
             }
 
             ModelState.Clear();
@@ -1154,7 +1119,7 @@ namespace Smartstore.Admin.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return await RewardPoints(settings, storeScope);
+                return View(model);
             }
 
             ModelState.Clear();
@@ -1184,7 +1149,7 @@ namespace Smartstore.Admin.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return await ShoppingCart(storeScope, settings);
+                return View(model);
             }
 
             ModelState.Clear();
@@ -1349,7 +1314,7 @@ namespace Smartstore.Admin.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return await Order(storeScope, settings);
+                return View(model);
             }
 
             ModelState.Clear();
@@ -1431,7 +1396,7 @@ namespace Smartstore.Admin.Controllers
             return RedirectToAction(actionMethod);
         }
 
-        private async Task PrepareConfigurationModelAsync(GeneralCommonSettingsModel model)
+        private async Task PrepareGeneralCommonConfigurationModelAsync(GeneralCommonSettingsModel model)
         {
             ViewBag.AvailableTimeZones = _dateTimeHelper.GetSystemTimeZones()
                 .ToSelectListItems(_dateTimeHelper.DefaultStoreTimeZone.Id);
@@ -1476,6 +1441,62 @@ namespace Smartstore.Admin.Controllers
             };
 
             #endregion
+        }
+
+        private void PrepareCatalogConfigurationModel(CatalogSettingsModel model)
+        {
+            ViewBag.AvailableDefaultViewModes = new List<SelectListItem>
+            {
+                new SelectListItem { Value = "grid", Text = T("Common.Grid"), Selected = model.DefaultViewMode.EqualsNoCase("grid") },
+                new SelectListItem { Value = "list", Text = T("Common.List"), Selected = model.DefaultViewMode.EqualsNoCase("list") }
+            };
+        }
+
+        private void PrepareSearchConfigModel(SearchSettingsModel model, SearchSettings searchSettings, IModuleDescriptor megaSearchPlusDescriptor)
+        {
+            var availableSearchFields = new List<SelectListItem>();
+            var availableSearchModes = new List<SelectListItem>();
+
+            if (!model.IsMegaSearchInstalled)
+            {
+                model.SearchFieldsNote = T("Admin.Configuration.Settings.Search.SearchFieldsNote");
+
+                availableSearchFields.AddRange(new[]
+                {
+                    new SelectListItem { Text = T("Admin.Catalog.Products.Fields.ShortDescription"), Value = "shortdescription" },
+                    new SelectListItem { Text = T("Admin.Catalog.Products.Fields.Sku"), Value = "sku" },
+                });
+
+                availableSearchModes = searchSettings.SearchMode.ToSelectList().Where(x => x.Value.ToInt() != (int)SearchMode.ExactMatch).ToList();
+            }
+            else
+            {
+                availableSearchFields.AddRange(new[]
+                {
+                    new SelectListItem { Text = T("Admin.Catalog.Products.Fields.ShortDescription"), Value = "shortdescription" },
+                    new SelectListItem { Text = T("Admin.Catalog.Products.Fields.FullDescription"), Value = "fulldescription" },
+                    new SelectListItem { Text = T("Admin.Catalog.Products.Fields.ProductTags"), Value = "tagname" },
+                    new SelectListItem { Text = T("Admin.Catalog.Manufacturers"), Value = "manufacturer" },
+                    new SelectListItem { Text = T("Admin.Catalog.Categories"), Value = "category" },
+                    new SelectListItem { Text = T("Admin.Catalog.Products.Fields.Sku"), Value = "sku" },
+                    new SelectListItem { Text = T("Admin.Catalog.Products.Fields.GTIN"), Value = "gtin" },
+                    new SelectListItem { Text = T("Admin.Catalog.Products.Fields.ManufacturerPartNumber"), Value = "mpn" }
+                });
+
+                if (megaSearchPlusDescriptor != null)
+                {
+                    availableSearchFields.AddRange(new[]
+                    {
+                        new SelectListItem { Text = T("Search.Fields.SpecificationAttributeOptionName"), Value = "attrname" },
+                        new SelectListItem { Text = T("Search.Fields.ProductAttributeOptionName"), Value = "variantname" }
+                    });
+                }
+
+                availableSearchModes = searchSettings.SearchMode.ToSelectList().ToList();
+            }
+
+            ViewBag.AvailableSearchFields = availableSearchFields;
+            ViewBag.AvailableSearchModes = availableSearchModes;
         }
 
         private SelectListItem ResToSelectListItem(string resourceKey)
