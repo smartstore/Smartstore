@@ -39,13 +39,13 @@ namespace Smartstore.Core.Search
         /// Search
         /// </summary>
         /// <returns>Search hits</returns>
-        IEnumerable<ISearchHit> Search(CancellationToken cancelToken = default);
+        IEnumerable<ISearchHit> Search();
 
         /// <summary>
         /// Search
         /// </summary>
         /// <returns>Search hits</returns>
-        Task<IEnumerable<ISearchHit>> SearchAsync(CancellationToken cancelToken = default);
+        Task<IEnumerable<ISearchHit>> SearchAsync();
 
         /// <summary>
         /// Gets the facet map for drilldown navigation

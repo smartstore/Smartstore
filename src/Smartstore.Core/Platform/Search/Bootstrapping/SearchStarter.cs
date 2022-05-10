@@ -10,6 +10,8 @@ namespace Smartstore.Core.Bootstrapping
         public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext)
         {
             builder.RegisterType<DefaultIndexManager>().As<IIndexManager>().InstancePerLifetimeScope();
+            builder.RegisterType<DefaultIndexScopeProvider>().As<IIndexScopeProvider>().InstancePerLifetimeScope();
+
             builder.RegisterType<FacetUrlHelperProvider>().As<IFacetUrlHelperProvider>().InstancePerLifetimeScope();
             builder.RegisterType<FacetTemplateProvider>().As<IFacetTemplateProvider>().InstancePerLifetimeScope();
             builder.RegisterType<DefaultFacetTemplateSelector>().As<IFacetTemplateSelector>().SingleInstance();

@@ -36,6 +36,21 @@ namespace Smartstore.Core.Data.Migrations
                 "The data was saved successfully",
                 "Die Daten wurden erfolgreich gespeichert");
 
+            builder.AddOrUpdate("Enums.IndexAnalyzerType.Standard",
+                "Standard (standard splitting and filtering)",
+                "Standard (Standardtrennung und -Filterung)");
+
+            builder.AddOrUpdate("Enums.IndexAnalyzerType.Whitespace",
+                "Whitespace (split only for blanks, no filtering)",
+                "Whitespace (nur bei Leerzeichen trennen, keine Filterung)");
+
+            builder.AddOrUpdate("Enums.IndexAnalyzerType.Keyword",
+                "Keyword (no splitting, no filtering)",
+                "Keyword (keine Trennung, keine Filterung)");
+
+            builder.AddOrUpdate("Enums.IndexAnalyzerType.Classic",
+                "Classic (classic splitting and filtering)",
+                "Classic (klassische Trennung und Filterung)");
         }
     }
 }
