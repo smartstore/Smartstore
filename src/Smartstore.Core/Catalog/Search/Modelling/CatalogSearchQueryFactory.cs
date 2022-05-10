@@ -284,47 +284,61 @@ namespace Smartstore.Core.Catalog.Search.Modelling
             Action<FacetDescriptor> addValues)
         {
             string fieldName;
+            string labelKey;
             var displayOrder = 0;
 
             switch (kind)
             {
                 case FacetGroupKind.Category:
                     fieldName = _catalogSettings.IncludeFeaturedProductsInNormalLists ? "categoryid" : "notfeaturedcategoryid";
+                    labelKey = "Search.Facet.Category";
                     break;
                 case FacetGroupKind.Brand:
                     if (_searchSettings.BrandDisabled)
                         return;
+
                     fieldName = "manufacturerid";
+                    labelKey = "Search.Facet.Manufacturer";
                     displayOrder = _searchSettings.BrandDisplayOrder;
                     break;
                 case FacetGroupKind.Price:
                     if (_searchSettings.PriceDisabled || !_services.Permissions.Authorize(Permissions.Catalog.DisplayPrice))
                         return;
+
                     fieldName = "price";
+                    labelKey = "Search.Facet.Price";
                     displayOrder = _searchSettings.PriceDisplayOrder;
                     break;
                 case FacetGroupKind.Rating:
                     if (_searchSettings.RatingDisabled)
                         return;
+
                     fieldName = "rating";
+                    labelKey = "Search.Facet.Rating";
                     displayOrder = _searchSettings.RatingDisplayOrder;
                     break;
                 case FacetGroupKind.DeliveryTime:
                     if (_searchSettings.DeliveryTimeDisabled)
                         return;
+
                     fieldName = "deliveryid";
+                    labelKey = "Search.Facet.DeliveryTime";
                     displayOrder = _searchSettings.DeliveryTimeDisplayOrder;
                     break;
                 case FacetGroupKind.Availability:
                     if (_searchSettings.AvailabilityDisabled)
                         return;
+
                     fieldName = "available";
+                    labelKey = "Search.Facet.Availability";
                     displayOrder = _searchSettings.AvailabilityDisplayOrder;
                     break;
                 case FacetGroupKind.NewArrivals:
                     if (_searchSettings.NewArrivalsDisabled)
                         return;
+
                     fieldName = "createdon";
+                    labelKey = "Search.Facet.NewArrivals";
                     displayOrder = _searchSettings.NewArrivalsDisplayOrder;
                     break;
                 default:
@@ -333,7 +347,7 @@ namespace Smartstore.Core.Catalog.Search.Modelling
 
             var descriptor = new FacetDescriptor(fieldName)
             {
-                Label = _services.Localization.GetResource(FacetUtility.GetLabelResourceKey(kind)) ?? kind.ToString(),
+                Label = _services.Localization.GetResource(labelKey, returnEmptyIfNotFound: true).NullEmpty() ?? kind.ToString(),
                 IsMultiSelect = isMultiSelect,
                 DisplayOrder = displayOrder,
                 OrderBy = sorting,
