@@ -13,12 +13,6 @@ namespace Smartstore.Core.Search.Indexing
         string Scope { get; }
 
         /// <summary>
-        /// Creates an <see cref="IndexInfo"/> instance.
-        /// </summary>
-        /// <returns><see cref="IndexInfo"/> instance.</returns>
-        IndexInfo CreateIndexInfo();
-
-        /// <summary>
         /// Create a context for writing to a search index.
         /// </summary>
         /// <param name="reason">Reason for acquirement.</param>
