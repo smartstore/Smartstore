@@ -1439,7 +1439,7 @@ Vue.component("sm-datagrid", {
                     const el = form.find("[name='" + key + "']");
                     el.val(null);
                     // Trigger change must be called here for every selectbox else they won't change display. The final event trigger is called a little later.
-                    // Numbers must also be triggered else initial values might still be visible and are overlaying placeholder.
+                    // Numbers must also be triggered, otherwise initial values might still be visible and are overlaying placeholder.
                     if (el.is("select") || el.is("[type='number']")) {
                         el.trigger('change');
                     }
