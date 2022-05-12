@@ -3,14 +3,10 @@
     public class DefaultIndexScopeManager : IIndexScopeManager
     {
         private readonly IEnumerable<Lazy<IIndexScope, IndexScopeMetadata>> _scopes;
-        private readonly Func<string, IIndexScope> _scopeFactory;
 
-        public DefaultIndexScopeManager(
-            IEnumerable<Lazy<IIndexScope, IndexScopeMetadata>> scopes,
-            Func<string, IIndexScope> scopeFactory)
+        public DefaultIndexScopeManager(IEnumerable<Lazy<IIndexScope, IndexScopeMetadata>> scopes)
         {
             _scopes = Guard.NotNull(scopes, nameof(scopes));
-            _scopeFactory = Guard.NotNull(scopeFactory, nameof(scopeFactory));
         }
 
         public IEnumerable<string> EnumerateScopes()
@@ -21,7 +17,14 @@
         public IIndexScope GetIndexScope(string scope)
         {
             Guard.NotEmpty(scope, nameof(scope));
-            return _scopeFactory(scope) ?? throw new InvalidOperationException($"An index scope implementation for '{scope}' is not registered in the service container.");
+
+            var indexScope = _scopes.FirstOrDefault(x => x.Metadata.Name.EqualsNoCase(scope));
+            if (indexScope == null)
+            {
+                throw new InvalidOperationException($"An index scope implementation for '{scope}' is not registered in the service container.");
+            }
+
+            return indexScope.Value;
         }
     }
 }

@@ -18,20 +18,7 @@ namespace Smartstore.Core.Bootstrapping
             // Scopes
             builder.RegisterType<DefaultIndexScopeManager>().As<IIndexScopeManager>().InstancePerLifetimeScope();
 
-            // Register custom resolver for IIndexScope (by scope name)
-            builder.Register<Func<string, IIndexScope>>(c =>
-            {
-                var cc = c.Resolve<IComponentContext>();
-                return scope =>
-                {
-                    if (cc.TryResolveNamed(scope, typeof(IIndexScope), out object instance))
-                    {
-                        return (IIndexScope)instance;
-                    }
-
-                    return null;
-                };
-            });
+            // TODO: (mg) (core) Implicit registration of IIndexScope impls missing.
         }
     }
 }
