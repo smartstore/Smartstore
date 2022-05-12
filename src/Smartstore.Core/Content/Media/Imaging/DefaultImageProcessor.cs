@@ -32,7 +32,6 @@ namespace Smartstore.Core.Content.Media.Imaging
             ValidateQuery(query);
 
             var watch = new Stopwatch();
-            long len;
             IProcessableImage image = null;
 
             try
@@ -46,24 +45,20 @@ namespace Smartstore.Core.Content.Media.Imaging
                 {
                     using var memStream = new MemoryStream(b);
                     image = await Factory.LoadAsync(memStream);
-                    len = b.LongLength;
                 }
                 else if (source is Stream s)
                 {
                     image = await Factory.LoadAsync(s);
-                    len = s.Length;
                 }
                 else if (source is string str)
                 {
                     str = NormalizePath(str);
                     image = Factory.Load(str);
-                    len = (new FileInfo(str)).Length;
                 }
                 else if (source is IFile file)
                 {
                     using var fs = file.OpenRead();
                     image = await Factory.LoadAsync(fs);
-                    len = file.Length;
                 }
                 else
                 {

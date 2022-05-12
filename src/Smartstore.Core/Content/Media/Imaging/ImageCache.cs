@@ -24,9 +24,9 @@ namespace Smartstore.Core.Content.Media.Imaging
         public virtual async Task PutAsync(CachedImage cachedImage, IImage image)
         {
             var path = BuildPath(cachedImage.Path);
-            using var stream = (await _fileSystem.GetFileAsync(path)).OpenWrite();
-
-            if (await PreparePut (cachedImage, stream))
+            using var stream = await (await _fileSystem.GetFileAsync(path)).OpenWriteAsync();
+            
+            if (await PreparePut(cachedImage, stream))
             {
                 await image.SaveAsync(stream);
                 image.Dispose();
