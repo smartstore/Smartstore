@@ -2,7 +2,7 @@
 {
     public abstract class IndexProviderBase : IIndexProvider
     {
-        public virtual bool IsActive(string scope) => true;
+        public virtual bool IsActive(string scope) => false;
 
         public abstract Task<IEnumerable<string>> EnumerateIndexesAsync();
 

@@ -1,10 +1,16 @@
 ﻿namespace Smartstore.Core.Search.Indexing
 {
     /// <summary>
-    /// Factory for registered scope managers
+    /// Factory for registered scope managers.
     /// </summary>
     public interface IIndexScopeManager
     {
+        /// <summary>
+        /// Gets all index scope names.
+        /// </summary>
+        /// <returns></returns>
+        IEnumerable<string> EnumerateScopes();
+
         /// <summary>
         /// Returns the instance of the first registered index scope provider (e.g. for "Catalog").
         /// </summary>

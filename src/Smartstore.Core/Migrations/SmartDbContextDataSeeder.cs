@@ -51,6 +51,8 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Enums.IndexAnalyzerType.Classic",
                 "Classic (classic splitting and filtering)",
                 "Classic (klassische Trennung und Filterung)");
+
+            builder.AddOrUpdate("Admin.Plugins.KnownGroup.Law", "Law", "Gesetz");
         }
     }
 }

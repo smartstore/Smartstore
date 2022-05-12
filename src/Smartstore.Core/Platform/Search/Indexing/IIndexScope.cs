@@ -3,6 +3,17 @@
 namespace Smartstore.Core.Search.Indexing
 {
     /// <summary>
+    /// Represents metadata for registration of <see cref="IIndexScope"/> implementations.
+    /// </summary>
+    public class IndexScopeMetadata
+    {
+        /// <summary>
+        /// The name of the index scope, e.g. "Catalog", "Forum" etc.
+        /// </summary>
+        public string Name { get; set; }
+    }
+
+    /// <summary>
     /// Provides all index scope related functions and services, e.g. "Catalog", "Forum" etc.
     /// </summary>
     public interface IIndexScope

@@ -2,11 +2,20 @@
 {
     public class DefaultIndexScopeManager : IIndexScopeManager
     {
+        private readonly IEnumerable<Lazy<IIndexScope, IndexScopeMetadata>> _scopes;
         private readonly Func<string, IIndexScope> _scopeFactory;
 
-        public DefaultIndexScopeManager(Func<string, IIndexScope> scopeFactory)
+        public DefaultIndexScopeManager(
+            IEnumerable<Lazy<IIndexScope, IndexScopeMetadata>> scopes,
+            Func<string, IIndexScope> scopeFactory)
         {
+            _scopes = Guard.NotNull(scopes, nameof(scopes));
             _scopeFactory = Guard.NotNull(scopeFactory, nameof(scopeFactory));
+        }
+
+        public IEnumerable<string> EnumerateScopes()
+        {
+            return _scopes.Select(x => x.Metadata.Name).OrderBy(x => x);
         }
 
         public IIndexScope GetIndexScope(string scope)

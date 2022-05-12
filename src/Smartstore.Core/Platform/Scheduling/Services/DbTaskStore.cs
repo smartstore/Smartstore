@@ -35,7 +35,10 @@ namespace Smartstore.Scheduling
             { nameof(QueuedMessagesClearTask), "SmartStore.Services.Messages.QueuedMessagesClearTask, SmartStore.Services" },
             { nameof(QueuedMessagesSendTask), "SmartStore.Services.Messages.QueuedMessagesSendTask, SmartStore.Services" },
             { nameof(TempFileCleanupTask), "SmartStore.Services.Common.TempFileCleanupTask, SmartStore.Services" },
-            { nameof(TransientMediaClearTask), "SmartStore.Services.Media.TransientMediaClearTask, SmartStore.Services" }
+            { nameof(TransientMediaClearTask), "SmartStore.Services.Media.TransientMediaClearTask, SmartStore.Services" },
+
+            { "CatalogIndexingTask", "SmartStore.MegaSearch.IndexingTask, SmartStore.MegaSearch" },
+            { "ForumIndexingTask", "SmartStore.MegaSearch.ForumIndexingTask, SmartStore.MegaSearch" }
         };
 
         private readonly SmartDbContext _db;
