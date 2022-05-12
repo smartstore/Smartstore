@@ -103,8 +103,8 @@ namespace Smartstore.Admin.Controllers
                             var dir = await _importProfileService.GetImportDirectoryAsync(profile, "Content", true);
                             var targetFile = await dir.GetFileAsync(importFile.Name);
 
-                            using (var sourceStream = importFile.OpenRead())
-                            using (var targetStream = targetFile.OpenWrite())
+                            using (var sourceStream = await importFile.OpenReadAsync())
+                            using (var targetStream = await targetFile.OpenWriteAsync())
                             {
                                 await sourceStream.CopyToAsync(targetStream);
                             }
@@ -452,7 +452,7 @@ namespace Smartstore.Admin.Controllers
                 var targetFile = await tempDir.GetFileAsync(fileName);
 
                 using (var sourceStream = sourceFile.OpenReadStream())
-                using (var targetStream = targetFile.OpenWrite())
+                using (var targetStream = await targetFile.OpenWriteAsync())
                 {
                     await sourceStream.CopyToAsync(targetStream);
                 }
@@ -488,7 +488,7 @@ namespace Smartstore.Admin.Controllers
                         var targetFile = await dir.GetFileAsync(fileName);
 
                         using (var sourceStream = sourceFile.OpenReadStream())
-                        using (var targetStream = targetFile.OpenWrite())
+                        using (var targetStream = await targetFile.OpenWriteAsync())
                         {
                             await sourceStream.CopyToAsync(targetStream);
                         }

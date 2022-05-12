@@ -42,7 +42,7 @@ namespace Smartstore.Core.DataExchange.Export.Deployment
                 foreach (var file in files)
                 {
                     num++;
-                    formData.Add(new StreamContent(file.OpenRead()), $"file {num}", file.Name);
+                    formData.Add(new StreamContent(await file.OpenReadAsync(cancelToken)), $"file {num}", file.Name);
                 }
 
                 var response = await client.PostAsync(uri, formData, cancelToken);
@@ -67,7 +67,7 @@ namespace Smartstore.Core.DataExchange.Export.Deployment
             {
                 foreach (var file in files)
                 {
-                    using var content = new StreamContent(file.OpenRead());
+                    using var content = new StreamContent(await file.OpenReadAsync(cancelToken));
                     await client.PostAsync(uri, content, cancelToken);
                     ++succeededFiles;
                 }

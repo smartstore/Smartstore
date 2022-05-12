@@ -176,7 +176,7 @@ namespace Smartstore.Core.Content.Media
                 }
 
                 // Create FileStreamResult object
-                var fileResult = CreateFileResult(responseFile, pathData);
+                var fileResult = await CreateFileResultAsync(responseFile, pathData);
 
                 // Cache control
                 ApplyResponseCaching(context, mediaSettings);
@@ -224,9 +224,9 @@ namespace Smartstore.Core.Content.Media
             #endregion
         }
 
-        private static FileStreamResult CreateFileResult(IFile file, MediaPathData pathData)
+        private static async Task<FileStreamResult> CreateFileResultAsync(IFile file, MediaPathData pathData)
         {
-            var stream = file.OpenRead();
+            var stream = await file.OpenReadAsync();
 
             if (stream == null)
             {

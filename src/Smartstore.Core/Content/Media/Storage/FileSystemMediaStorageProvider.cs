@@ -108,7 +108,7 @@ namespace Smartstore.Core.Content.Media.Storage
 
                 using (item)
                 {
-                    using var outStream = (await _fileSystem.GetFileAsync(filePath)).OpenWrite();
+                    using var outStream = await (await _fileSystem.GetFileAsync(filePath)).OpenWriteAsync();
                     await item.SaveToAsync(outStream, mediaFile);
                     //mediaFile.Size = (int)outStream.Length;
                 }

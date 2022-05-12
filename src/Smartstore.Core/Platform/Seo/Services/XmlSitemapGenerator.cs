@@ -138,7 +138,7 @@ namespace Smartstore.Core.Seo
                     LanguageId = language.Id,
                     StoreId = store.Id,
                     ModifiedOnUtc = file.LastModified.UtcDateTime,
-                    Stream = file.OpenRead()
+                    Stream = await file.OpenReadAsync()
                 };
             }
 

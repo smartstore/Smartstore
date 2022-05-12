@@ -79,7 +79,7 @@ namespace Smartstore.Core.Packaging
                     continue;
                 }
 
-                await CreateArchiveEntry(archive, file.SubPath, file.OpenRead());
+                await CreateArchiveEntry(archive, file.SubPath, await file.OpenReadAsync());
             }
         }
 
