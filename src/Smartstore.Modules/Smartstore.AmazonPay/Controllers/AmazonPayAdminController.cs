@@ -39,7 +39,6 @@ namespace Smartstore.AmazonPay.Controllers
         {
             var language = Services.WorkContext.WorkingLanguage;
             var store = Services.StoreContext.CurrentStore;
-            var allStores = Services.StoreContext.GetAllStores();
             var module = Services.ApplicationContext.ModuleCatalog.GetModuleByName("Smartstore.AmazonPay");
             var currentScheme = Services.WebHelper.IsCurrentConnectionSecured() ? "https" : "http";
 
@@ -66,30 +65,6 @@ namespace Smartstore.AmazonPay.Controllers
                 "es" => "es_ES",
                 _ => "de_DE",
             };
-
-            foreach (var entity in allStores)
-            {
-                // SSL required!
-                if (Uri.TryCreate(entity.SslEnabled ? entity.SecureUrl : entity.Url, UriKind.Absolute, out var uri))
-                {
-                    var loginUrl = uri.GetLeftPart(UriPartial.Scheme | UriPartial.Authority).EmptyNull().TrimEnd('/');
-                    if (loginUrl.HasValue())
-                    {
-                        var redirectUrl = loginUrl.EnsureEndsWith("/");
-
-                        // INFO: the need to specify additional URLs in Amazon Seller Central is probably no longer necessary,
-                        // as the return URLs are set on the server side and no longer via JavaScript (as in v1).
-                        model.MerchantLoginDomains.Add(loginUrl);
-                        model.MerchantLoginRedirectUrls.Add(redirectUrl);
-
-                        if (entity.Id == store.Id)
-                        {
-                            model.CurrentMerchantLoginDomains.Add(loginUrl);
-                            model.CurrentMerchantLoginRedirectUrls.Add(redirectUrl);
-                        }
-                    }
-                }
-            }
 
             if (_companyInformationSettings.CountryId != 0)
             {
@@ -187,6 +162,33 @@ namespace Smartstore.AmazonPay.Controllers
 
         private void PrepareConfigurationModel(ConfigurationModel model)
         {
+            var store = Services.StoreContext.CurrentStore;
+            var allStores = Services.StoreContext.GetAllStores();
+
+            foreach (var entity in allStores)
+            {
+                // SSL required!
+                if (Uri.TryCreate(entity.SslEnabled ? entity.SecureUrl : entity.Url, UriKind.Absolute, out var uri))
+                {
+                    var loginUrl = uri.GetLeftPart(UriPartial.Scheme | UriPartial.Authority).EmptyNull().TrimEnd('/');
+                    if (loginUrl.HasValue())
+                    {
+                        var redirectUrl = loginUrl.EnsureEndsWith("/");
+
+                        // INFO: the need to specify additional URLs in Amazon Seller Central is probably no longer necessary,
+                        // as the return URLs are set on the server side and no longer via JavaScript (as in v1).
+                        model.MerchantLoginDomains.Add(loginUrl);
+                        model.MerchantLoginRedirectUrls.Add(redirectUrl);
+
+                        if (entity.Id == store.Id)
+                        {
+                            model.CurrentMerchantLoginDomains.Add(loginUrl);
+                            model.CurrentMerchantLoginRedirectUrls.Add(redirectUrl);
+                        }
+                    }
+                }
+            }
+
             ViewBag.PrimaryStoreCurrencyCode = Services.CurrencyService.PrimaryCurrency.CurrencyCode;
 
             ViewBag.TransactionTypes = new List<SelectListItem>

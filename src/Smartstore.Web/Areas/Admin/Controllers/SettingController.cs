@@ -933,7 +933,9 @@ namespace Smartstore.Admin.Controllers
         {
             if (!ModelState.IsValid)
             {
-                var currentStorageProvider = Services.Settings.GetSettingByKey<string>("Media.Storage.Provider");
+                // TODO: (mh) (core) Getting the setting throws. Probably an async problem. When calling this twice it works for the first time :-/
+                //var test = await Services.Settings.GetSettingByKeyAsync<string>("Media.Storage.Provider");
+                var currentStorageProvider = await Services.Settings.GetSettingByKeyAsync<string>("Media.Storage.Provider");
                 ViewBag.AvailableStorageProvider = _providerManager.GetAllProviders<IMediaStorageProvider>()
                     .Where(x => !x.Metadata.SystemName.EqualsNoCase(currentStorageProvider))
                     .Select(x => new SelectListItem { Text = _moduleManager.Value.GetLocalizedFriendlyName(x.Metadata), Value = x.Metadata.SystemName })
