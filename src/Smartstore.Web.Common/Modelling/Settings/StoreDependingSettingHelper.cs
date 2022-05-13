@@ -39,9 +39,17 @@ namespace Smartstore.Web.Modelling.Settings
             get => ViewData[ViewDataKey] as StoreDependingSettingData;
         }
 
-        public static bool IsOverrideChecked(object settings, string name, IFormCollection form)
+        public static bool IsOverrideChecked<TSetting>(TSetting settingInstance, string name, IFormCollection form)
+            where TSetting : ISettings
+            => IsOverrideChecked(Guard.NotNull(settingInstance, nameof(settingInstance)).GetType(), name, form);
+
+        public static bool IsOverrideChecked(Type settingType, string name, IFormCollection form)
         {
-            var key = settings.GetType().Name + "." + name;
+            Guard.NotNull(settingType, nameof(settingType));
+            Guard.NotEmpty(name, nameof(name));
+            Guard.NotNull(form, nameof(form));
+
+            var key = settingType.Name + '.' + name;
             return IsOverrideChecked(key, form);
         }
 
