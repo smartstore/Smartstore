@@ -37,7 +37,7 @@ namespace Smartstore.Scheduling
             { nameof(TempFileCleanupTask), "SmartStore.Services.Common.TempFileCleanupTask, SmartStore.Services" },
             { nameof(TransientMediaClearTask), "SmartStore.Services.Media.TransientMediaClearTask, SmartStore.Services" },
 
-            { "CatalogIndexingTask", "SmartStore.MegaSearch.IndexingTask, SmartStore.MegaSearch" },
+            { "IndexingTask", "SmartStore.MegaSearch.IndexingTask, SmartStore.MegaSearch" },
             { "ForumIndexingTask", "SmartStore.MegaSearch.ForumIndexingTask, SmartStore.MegaSearch" }
         };
 
