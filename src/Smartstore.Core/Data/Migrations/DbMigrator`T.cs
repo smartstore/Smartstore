@@ -1,4 +1,5 @@
-﻿using Autofac;
+﻿using System.Reflection;
+using Autofac;
 using FluentMigrator;
 using FluentMigrator.Infrastructure;
 using FluentMigrator.Runner;
@@ -65,13 +66,13 @@ namespace Smartstore.Core.Data.Migrations
             => (IMigrationTable<TContext>)base.MigrationTable;
 
         /// <inheritdoc/>
-        public override Task<int> RunPendingMigrationsAsync(CancellationToken cancelToken = default)
+        public override Task<int> RunPendingMigrationsAsync(Assembly assembly = null, CancellationToken cancelToken = default)
         {
-            return MigrateAsync(null, cancelToken);
+            return MigrateAsync(null, assembly, cancelToken);
         }
 
         /// <inheritdoc/>
-        public override async Task<int> MigrateAsync(long? targetVersion = null, CancellationToken cancelToken = default)
+        public override async Task<int> MigrateAsync(long? targetVersion = null, Assembly assembly = null, CancellationToken cancelToken = default)
         {
             if (_lastSeedException != null)
             {
@@ -79,8 +80,8 @@ namespace Smartstore.Core.Data.Migrations
                 throw _lastSeedException;
             }
 
-            var localMigrations = MigrationTable.GetMigrations();
-            if (localMigrations.Count == 0)
+            var localMigrations = MigrationTable.GetMigrations(assembly);
+            if (!localMigrations.Any())
             {
                 return 0;
             }
@@ -90,7 +91,7 @@ namespace Smartstore.Core.Data.Migrations
                 throw new DbMigrationException($"{_db.GetType().Name} does not contain a database migration with version {targetVersion.Value}.");
             }
 
-            var appliedMigrations = MigrationTable.GetAppliedMigrations().ToArray();
+            var appliedMigrations = MigrationTable.GetAppliedMigrations(assembly).ToArray();
             var lastAppliedVersion = appliedMigrations.LastOrDefault();
             var versions = Enumerable.Empty<long>();
             var down = false;
@@ -102,7 +103,7 @@ namespace Smartstore.Core.Data.Migrations
             if (targetVersion == null)
             {
                 // null = run pending migrations up to last (inclusive).
-                versions = MigrationTable.GetPendingMigrations();
+                versions = MigrationTable.GetPendingMigrations(assembly);
             }
             else if (targetVersion == -1)
             {
