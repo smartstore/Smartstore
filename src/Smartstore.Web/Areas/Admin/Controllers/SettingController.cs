@@ -718,7 +718,7 @@ namespace Smartstore.Admin.Controllers
             model.NewArrivalsFacet.Disabled = searchSettings.NewArrivalsDisabled;
             model.NewArrivalsFacet.DisplayOrder = searchSettings.NewArrivalsDisplayOrder;
 
-            await _storeDependingSettingHelper.GetOverrideKeysAsync(searchSettings, model, storeScope);
+            await _storeDependingSettingHelper.DetectOverrideKeysAsync(searchSettings, model, storeScope);
 
             // Localized facet settings (CommonFacetSettingsLocalizedModel).
             var i = 0;
@@ -732,13 +732,13 @@ namespace Smartstore.Admin.Controllers
                 var availabilityFacetAliasSettingsKey = FacetUtility.GetFacetAliasSettingKey(FacetGroupKind.Availability, language.Id);
                 var newArrivalsFacetAliasSettingsKey = FacetUtility.GetFacetAliasSettingKey(FacetGroupKind.NewArrivals, language.Id);
 
-                await _storeDependingSettingHelper.GetOverrideKeyAsync($"CategoryFacet.Locales[{i}].Alias", categoryFacetAliasSettingsKey, storeScope);
-                await _storeDependingSettingHelper.GetOverrideKeyAsync($"BrandFacet.Locales[{i}].Alias", brandFacetAliasSettingsKey, storeScope);
-                await _storeDependingSettingHelper.GetOverrideKeyAsync($"PriceFacet.Locales[{i}].Alias", priceFacetAliasSettingsKey, storeScope);
-                await _storeDependingSettingHelper.GetOverrideKeyAsync($"RatingFacet.Locales[{i}].Alias", ratingFacetAliasSettingsKey, storeScope);
-                await _storeDependingSettingHelper.GetOverrideKeyAsync($"DeliveryTimeFacet.Locales[{i}].Alias", deliveryTimeFacetAliasSettingsKey, storeScope);
-                await _storeDependingSettingHelper.GetOverrideKeyAsync($"AvailabilityFacet.Locales[{i}].Alias", availabilityFacetAliasSettingsKey, storeScope);
-                await _storeDependingSettingHelper.GetOverrideKeyAsync($"NewArrivalsFacet.Locales[{i}].Alias", newArrivalsFacetAliasSettingsKey, storeScope);
+                await _storeDependingSettingHelper.DetectOverrideKeyAsync($"CategoryFacet.Locales[{i}].Alias", categoryFacetAliasSettingsKey, storeScope);
+                await _storeDependingSettingHelper.DetectOverrideKeyAsync($"BrandFacet.Locales[{i}].Alias", brandFacetAliasSettingsKey, storeScope);
+                await _storeDependingSettingHelper.DetectOverrideKeyAsync($"PriceFacet.Locales[{i}].Alias", priceFacetAliasSettingsKey, storeScope);
+                await _storeDependingSettingHelper.DetectOverrideKeyAsync($"RatingFacet.Locales[{i}].Alias", ratingFacetAliasSettingsKey, storeScope);
+                await _storeDependingSettingHelper.DetectOverrideKeyAsync($"DeliveryTimeFacet.Locales[{i}].Alias", deliveryTimeFacetAliasSettingsKey, storeScope);
+                await _storeDependingSettingHelper.DetectOverrideKeyAsync($"AvailabilityFacet.Locales[{i}].Alias", availabilityFacetAliasSettingsKey, storeScope);
+                await _storeDependingSettingHelper.DetectOverrideKeyAsync($"NewArrivalsFacet.Locales[{i}].Alias", newArrivalsFacetAliasSettingsKey, storeScope);
 
                 model.CategoryFacet.Locales.Add(new CommonFacetSettingsLocalizedModel
                 {
@@ -782,12 +782,12 @@ namespace Smartstore.Admin.Controllers
             // Facet settings (CommonFacetSettingsModel).
             foreach (var prefix in new string[] { "Brand", "Price", "Rating", "DeliveryTime", "Availability", "NewArrivals" })
             {
-                await _storeDependingSettingHelper.GetOverrideKeyAsync(prefix + "Facet.Disabled", prefix + "Disabled", searchSettings, storeScope);
-                await _storeDependingSettingHelper.GetOverrideKeyAsync(prefix + "Facet.DisplayOrder", prefix + "DisplayOrder", searchSettings, storeScope);
+                await _storeDependingSettingHelper.DetectOverrideKeyAsync(prefix + "Facet.Disabled", prefix + "Disabled", searchSettings, storeScope);
+                await _storeDependingSettingHelper.DetectOverrideKeyAsync(prefix + "Facet.DisplayOrder", prefix + "DisplayOrder", searchSettings, storeScope);
             }
 
             // Facet settings with a non-prefixed name.
-            await _storeDependingSettingHelper.GetOverrideKeyAsync("AvailabilityFacet.IncludeNotAvailable", "IncludeNotAvailable", searchSettings, storeScope);
+            await _storeDependingSettingHelper.DetectOverrideKeyAsync("AvailabilityFacet.IncludeNotAvailable", "IncludeNotAvailable", searchSettings, storeScope);
 
             return View(model);
         }
@@ -1190,7 +1190,7 @@ namespace Smartstore.Admin.Controllers
 
             ViewBag.TodayShipmentHours = todayShipmentHours;
 
-            await _storeDependingSettingHelper.GetOverrideKeysAsync(settings, model, storeScope);
+            await _storeDependingSettingHelper.DetectOverrideKeysAsync(settings, model, storeScope);
 
             // Shipping origin
             if (storeScope > 0 && await Services.Settings.SettingExistsAsync(settings, x => x.ShippingOriginAddressId, storeScope))

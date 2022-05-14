@@ -29,7 +29,7 @@ namespace Smartstore.Web.Modelling.Validation
             var activeStoreScope = GetActiveStoreScopeConfiguration(httpContext);
             if (activeStoreScope == 0)
             {
-                // Unnecessary to continue customizing validation. Just do it out-of-the-box.
+                // Unnecessary to continue customizing validation. Just do out-of-the-box stuff.
                 return commonContext;
             }
 

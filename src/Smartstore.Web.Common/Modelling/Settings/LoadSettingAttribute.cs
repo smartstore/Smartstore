@@ -133,7 +133,7 @@ namespace Smartstore.Web.Modelling.Settings
                         }
                     }
 
-                    await _settingHelper.GetOverrideKeysAsync(settingInstance, modelInstance, _storeId, !_attribute.IsRootedModel);
+                    await _settingHelper.DetectOverrideKeysAsync(settingInstance, modelInstance, _storeId, !_attribute.IsRootedModel);
                 }
             }
         }

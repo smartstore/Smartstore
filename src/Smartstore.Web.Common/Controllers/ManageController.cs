@@ -79,7 +79,7 @@ namespace Smartstore.Web.Controllers
         /// Get active store scope (for multi-store configuration mode)
         /// </summary>
         /// <returns>Store ID; 0 if we are in a shared mode</returns>
-        protected virtual int GetActiveStoreScopeConfiguration()
+        protected internal virtual int GetActiveStoreScopeConfiguration()
         {
             // Ensure that we have 2 (or more) stores
             if (Services.StoreContext.GetAllStores().Count < 2)

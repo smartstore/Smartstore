@@ -10,17 +10,20 @@ namespace Smartstore.Web.Modelling.Settings
 {
     public class StoreDependingSettingHelper
     {
+        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IViewDataAccessor _viewDataAccessor;
         private readonly SmartDbContext _db;
         private readonly ISettingService _settingService;
         private readonly ILocalizedEntityService _leService;
 
         public StoreDependingSettingHelper(
+            IHttpContextAccessor httpContextAccessor,
             IViewDataAccessor viewDataAccessor,
             SmartDbContext db,
             ISettingService settingService, 
             ILocalizedEntityService leService)
         {
+            _httpContextAccessor = httpContextAccessor;
             _viewDataAccessor = viewDataAccessor;
             _db = db;
             _settingService = settingService;
@@ -37,6 +40,26 @@ namespace Smartstore.Web.Modelling.Settings
         public StoreDependingSettingData Data
         {
             get => ViewData[ViewDataKey] as StoreDependingSettingData;
+        }
+
+        internal async Task<bool> IsOverridenSetting(string settingKey, bool allowEmpty, Func<Task<string>> storeAccessor)
+        {
+            bool overridden;
+            var request = _httpContextAccessor.HttpContext?.Request;
+
+            if (!request.HasFormContentType || request.Form == null)
+            {
+                // This is a GET operation (no form posted), so check against storage
+                var storedValue = await storeAccessor();
+                overridden = allowEmpty ? storedValue != null : storedValue.HasValue();
+            }
+            else
+            {
+                // A POST operation. Only check form.
+                overridden = IsOverrideChecked(settingKey, request.Form);
+            }
+
+            return overridden;
         }
 
         public static bool IsOverrideChecked<TSetting>(TSetting settingInstance, string name, IFormCollection form)
@@ -85,17 +108,17 @@ namespace Smartstore.Web.Modelling.Settings
             };
         }
 
-        public Task GetOverrideKeysAsync(
+        public Task DetectOverrideKeysAsync(
             object settings,
             object model,
             int storeId,
             bool isRootModel = true,
             Func<string, string> propertyNameMapper = null)
         {
-            return GetOverrideKeysInternal(settings, model, storeId, isRootModel, propertyNameMapper, null);
+            return DetectOverrideKeysInternal(settings, model, storeId, isRootModel, propertyNameMapper, null);
         }
 
-        private async Task GetOverrideKeysInternal(
+        private async Task DetectOverrideKeysInternal(
             object settings,
             object model,
             int storeId,
@@ -131,17 +154,18 @@ namespace Smartstore.Web.Modelling.Settings
 
                 if (localizedModelLocal == null)
                 {
-                    if (await _settingService.GetSettingByKeyAsync<string>(settingName + "." + name, storeId: storeId) != null)
+                    var localKey = $"{fieldPrefix ?? settingName}.{name}";
+                    if (await IsOverridenSetting(localKey, true, () => _settingService.GetSettingByKeyAsync<string>(settingName + "." + name, storeId: storeId)))
                     {
-                        key = $"{fieldPrefix ?? settingName}.{name}";
+                        key = localKey;
                     }
                 }
                 else if (localeIndex.HasValue)
                 {
-                    var value = await _leService.GetLocalizedValueAsync(localizedModelLocal.LanguageId, storeId, settingName, name);
-                    if (!string.IsNullOrEmpty(value))
+                    var localKey = $"{fieldPrefix ?? settingName}.Locales[{localeIndex.Value}].{name}";
+                    if (await IsOverridenSetting(localKey, false, () => _leService.GetLocalizedValueAsync(localizedModelLocal.LanguageId, storeId, settingName, name)))
                     {
-                        key = $"{fieldPrefix ?? settingName}.Locales[{localeIndex.Value}].{name}";
+                        key = localKey;
                     }
                 }
 
@@ -169,7 +193,7 @@ namespace Smartstore.Web.Modelling.Settings
                         int i = 0;
                         foreach (var locale in locales)
                         {
-                            await GetOverrideKeysInternal(settings, locale, storeId, false, propertyNameMapper, i);
+                            await DetectOverrideKeysInternal(settings, locale, storeId, false, propertyNameMapper, i);
                             i++;
                         }
                     }
@@ -184,9 +208,9 @@ namespace Smartstore.Web.Modelling.Settings
         /// <param name="settingName">Name of the setting (will be concatenated with name of settings seperated by dot e.g. SocalSettings.Facebook)</param>
         /// <param name="settings">Settings instance which contains the particular setting (will be concatenated with name of settings seperated by dot e.g. SocalSettings.Facebook)</param>
         /// <param name="storeId">Id of the configured store dependency.</param>
-        public async Task GetOverrideKeyAsync(string formKey, string settingName, object settings, int storeId)
+        public async Task DetectOverrideKeyAsync(string formKey, string settingName, object settings, int storeId)
         {
-            await GetOverrideKeyAsync(formKey, settings.GetType().Name + "." + settingName, storeId);
+            await DetectOverrideKeyAsync(formKey, settings.GetType().Name + "." + settingName, storeId);
         }
 
         /// <summary>
@@ -195,7 +219,7 @@ namespace Smartstore.Web.Modelling.Settings
         /// <param name="formKey">The key of the input element that represents the control.</param>
         /// <param name="fullSettingName">Fully qualified name of the setting (e.g. SocalSettings.Facebook)</param>
         /// <param name="storeId">Id of the configured store dependency.</param>
-        public async Task GetOverrideKeyAsync(string formKey, string fullSettingName, int storeId)
+        public async Task DetectOverrideKeyAsync(string formKey, string fullSettingName, int storeId)
         {
             if (storeId <= 0)
             {
