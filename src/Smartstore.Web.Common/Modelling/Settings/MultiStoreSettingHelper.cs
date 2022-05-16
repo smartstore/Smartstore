@@ -8,7 +8,7 @@ using Smartstore.Core.Web;
 
 namespace Smartstore.Web.Modelling.Settings
 {
-    public class StoreDependingSettingHelper
+    public class MultiStoreSettingHelper
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IViewDataAccessor _viewDataAccessor;
@@ -16,7 +16,7 @@ namespace Smartstore.Web.Modelling.Settings
         private readonly ISettingService _settingService;
         private readonly ILocalizedEntityService _leService;
 
-        public StoreDependingSettingHelper(
+        public MultiStoreSettingHelper(
             IHttpContextAccessor httpContextAccessor,
             IViewDataAccessor viewDataAccessor,
             SmartDbContext db,
@@ -30,16 +30,16 @@ namespace Smartstore.Web.Modelling.Settings
             _leService = leService;
         }
 
-        public static string ViewDataKey => "StoreDependingSettingData";
+        public static string ViewDataKey => "MultiStoreSettingData";
 
         public ViewDataDictionary ViewData
         {
             get => _viewDataAccessor.ViewData;
         }
 
-        public StoreDependingSettingData Data
+        public MultiStoreSettingData Data
         {
-            get => ViewData[ViewDataKey] as StoreDependingSettingData;
+            get => ViewData[ViewDataKey] as MultiStoreSettingData;
         }
 
         internal async Task<bool> IsOverridenSetting(string settingKey, bool allowEmpty, Func<Task<string>> storeAccessor)
@@ -101,7 +101,7 @@ namespace Smartstore.Web.Modelling.Settings
 
         public void CreateViewDataObject(int activeStoreScopeConfiguration, string rootSettingClass = null)
         {
-            ViewData[ViewDataKey] = new StoreDependingSettingData
+            ViewData[ViewDataKey] = new MultiStoreSettingData
             {
                 ActiveStoreScopeConfiguration = activeStoreScopeConfiguration,
                 RootSettingClass = rootSettingClass
@@ -133,7 +133,7 @@ namespace Smartstore.Web.Modelling.Settings
             }
 
             var fieldPrefix = ViewData?.TemplateInfo?.HtmlFieldPrefix.NullEmpty();
-            var data = Data ?? new StoreDependingSettingData();
+            var data = Data ?? new MultiStoreSettingData();
             var settingType = settings.GetType();
             var settingName = settingType.Name;
             var modelType = model.GetType();
@@ -235,7 +235,7 @@ namespace Smartstore.Web.Modelling.Settings
 
             if (key != null)
             {
-                var data = Data ?? new StoreDependingSettingData();
+                var data = Data ?? new MultiStoreSettingData();
                 data.OverrideSettingKeys.Add(key);
             }
         }

@@ -41,12 +41,12 @@ namespace Smartstore.Web.Modelling.Settings
 
         private readonly LoadSettingAttribute _attribute;
         protected readonly ICommonServices _services;
-        protected readonly StoreDependingSettingHelper _settingHelper;
+        protected readonly MultiStoreSettingHelper _settingHelper;
 
         protected int _storeId;
         protected SettingParam[] _settingParams;
 
-        public LoadSettingFilter(LoadSettingAttribute attribute, ICommonServices services, StoreDependingSettingHelper settingsHelper)
+        public LoadSettingFilter(LoadSettingAttribute attribute, ICommonServices services, MultiStoreSettingHelper settingsHelper)
         {
             _attribute = attribute;
             _services = services;

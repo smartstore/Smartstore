@@ -204,7 +204,7 @@ namespace Smartstore.Web
 
             builder.RegisterType<DefaultViewDataAccessor>().As<IViewDataAccessor>().InstancePerLifetimeScope();
             builder.RegisterType<GridCommandStateStore>().As<IGridCommandStateStore>().InstancePerLifetimeScope();
-            builder.RegisterType<StoreDependingSettingHelper>().AsSelf().InstancePerLifetimeScope();
+            builder.RegisterType<MultiStoreSettingHelper>().AsSelf().InstancePerLifetimeScope();
 
             // Convenience: Register IUrlHelper as transient dependency.
             builder.Register<IUrlHelper>(ResolveUrlHelper).InstancePerDependency();

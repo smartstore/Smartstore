@@ -53,7 +53,7 @@ namespace Smartstore.Web.TagHelpers.Admin
                 output.Content.SetHtmlContent(HtmlHelper.EditorFor(For, Template, additionalViewData));
             }
 
-            var data = HtmlHelper.ViewData[StoreDependingSettingHelper.ViewDataKey] as StoreDependingSettingData;
+            var data = HtmlHelper.ViewData[MultiStoreSettingHelper.ViewDataKey] as MultiStoreSettingData;
             if (data == null || data.ActiveStoreScopeConfiguration <= 0)
             {
                 output.TagName = null;
@@ -78,7 +78,7 @@ namespace Smartstore.Web.TagHelpers.Admin
             }
         }
 
-        private IHtmlContent SettingOverrideCheckboxInternal(StoreDependingSettingData data)
+        private IHtmlContent SettingOverrideCheckboxInternal(MultiStoreSettingData data)
         {
             var fieldPrefix = HtmlHelper.ViewData.TemplateInfo.HtmlFieldPrefix;
             var settingKey = For.Name;

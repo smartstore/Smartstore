@@ -76,7 +76,7 @@ namespace FluentValidation
 
                 // Reject property validator if property checkbox is unchecked.
                 // There is nothing to validate in that case, because only a patch of setting data is sent to the server.
-                var overridden = StoreDependingSettingHelper.IsOverrideChecked(_settingType, propertyPath, _form);
+                var overridden = MultiStoreSettingHelper.IsOverrideChecked(_settingType, propertyPath, _form);
                 return overridden;
             }
         }

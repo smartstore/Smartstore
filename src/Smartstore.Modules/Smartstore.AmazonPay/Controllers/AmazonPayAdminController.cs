@@ -19,13 +19,13 @@ namespace Smartstore.AmazonPay.Controllers
     {
         private readonly SmartDbContext _db;
         private readonly IAmazonPayService _amazonPayService;
-        private readonly StoreDependingSettingHelper _settingHelper;
+        private readonly MultiStoreSettingHelper _settingHelper;
         private readonly CompanyInformationSettings _companyInformationSettings;
 
         public AmazonPayAdminController(
             SmartDbContext db,
             IAmazonPayService amazonPayService,
-            StoreDependingSettingHelper settingHelper,
+            MultiStoreSettingHelper settingHelper,
             CompanyInformationSettings companyInformationSettings)
         {
             _db = db;
