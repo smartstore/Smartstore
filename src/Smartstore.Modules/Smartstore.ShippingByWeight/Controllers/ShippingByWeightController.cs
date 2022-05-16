@@ -63,7 +63,7 @@ namespace Smartstore.ShippingByWeight.Controllers
             return RedirectToAction(nameof(Configure));
         }
 
-        [LoadSetting]
+        [LoadSetting, AuthorizeAdmin]
         public async Task<IActionResult> Configure(ShippingByWeightSettings settings)
         {
             if (!await _db.ShippingMethods.AnyAsync())
@@ -78,7 +78,7 @@ namespace Smartstore.ShippingByWeight.Controllers
             return View(model);
         }
 
-        [HttpPost, SaveSetting]
+        [HttpPost, SaveSetting, AuthorizeAdmin]
         public IActionResult Configure(ByWeightListModel model, ShippingByWeightSettings settings)
         {
             MiniMapper.Map(model, settings);
@@ -89,7 +89,7 @@ namespace Smartstore.ShippingByWeight.Controllers
         }
 
         [HttpPost]
-        [Permission(Permissions.Configuration.Shipping.Read)]
+        [Permission(Permissions.Configuration.Shipping.Read), AuthorizeAdmin]
         public async Task<IActionResult> ShippingRateByWeightList(GridCommand command)
         {
             var shippingRates = await _db.ShippingRatesByWeight()
@@ -141,7 +141,7 @@ namespace Smartstore.ShippingByWeight.Controllers
         }
 
         [HttpPost]
-        [Permission(Permissions.Configuration.Shipping.Update)]
+        [Permission(Permissions.Configuration.Shipping.Update), AuthorizeAdmin]
         public async Task<IActionResult> ShippingRateByWeightUpdate(ByWeightModel model)
         {
             var success = false;
@@ -159,7 +159,7 @@ namespace Smartstore.ShippingByWeight.Controllers
         }
 
         [HttpPost]
-        [Permission(Permissions.Configuration.Shipping.Delete)]
+        [Permission(Permissions.Configuration.Shipping.Delete), AuthorizeAdmin]
         public async Task<IActionResult> ShippingRateByWeightDelete(GridSelection selection)
         {
             var success = false;
@@ -180,7 +180,7 @@ namespace Smartstore.ShippingByWeight.Controllers
         }
 
         [HttpPost]
-        [Permission(Permissions.Configuration.Shipping.Create)]
+        [Permission(Permissions.Configuration.Shipping.Create), AuthorizeAdmin]
         public async Task<IActionResult> AddShippingRateByWeight(ByWeightModel model)
         {
             var entity = MiniMapper.Map<ByWeightModel, ShippingRateByWeight>(model);

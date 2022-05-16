@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.ComponentModel;
+using Smartstore.Core.Security;
 using Smartstore.Google.Analytics.Models;
 using Smartstore.Google.Analytics.Settings;
 using Smartstore.Web.Controllers;
@@ -11,7 +12,7 @@ namespace Smartstore.Google.Analytics.Controllers
     [Area("Admin")]
     public class GoogleAnalyticsController : ModuleController
     {
-        [LoadSetting]
+        [LoadSetting, AuthorizeAdmin]
         public IActionResult Configure(GoogleAnalyticsSettings settings)
         {
             var model = MiniMapper.Map<GoogleAnalyticsSettings, ConfigurationModel>(settings);
@@ -22,7 +23,7 @@ namespace Smartstore.Google.Analytics.Controllers
             return View(model);
         }
 
-        [HttpPost, SaveSetting]
+        [HttpPost, SaveSetting, AuthorizeAdmin]
         public IActionResult Configure(ConfigurationModel model, GoogleAnalyticsSettings settings)
         {
             if (!ModelState.IsValid)
@@ -37,7 +38,7 @@ namespace Smartstore.Google.Analytics.Controllers
             return RedirectToAction(nameof(Configure));
         }
 
-        [HttpPost, SaveSetting]
+        [HttpPost, SaveSetting, AuthorizeAdmin]
         [ActionName("Configure"), FormValueRequired("restore-scripts")] 
         public IActionResult RestoreScripts(GoogleAnalyticsSettings settings)
         {

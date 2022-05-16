@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Smartstore.Caching;
 using Smartstore.ComponentModel;
+using Smartstore.Core.Security;
 using Smartstore.PayPal.Client;
 using Smartstore.Web.Controllers;
 using Smartstore.Web.Modelling.Settings;
@@ -19,7 +20,7 @@ namespace Smartstore.PayPal.Controllers
             _cacheFactory = cacheFactory;
         }
 
-        [LoadSetting]
+        [LoadSetting, AuthorizeAdmin]
         public IActionResult Configure(PayPalSettings settings)
         {
             var model = MiniMapper.Map<PayPalSettings, ConfigurationModel>(settings);
@@ -31,8 +32,8 @@ namespace Smartstore.PayPal.Controllers
             return View(model);
         }
 
-        [HttpPost, SaveSetting]
-        public async Task<IActionResult> ConfigureAsync(ConfigurationModel model, PayPalSettings settings)
+        [HttpPost, SaveSetting, AuthorizeAdmin]
+        public async Task<IActionResult> Configure(ConfigurationModel model, PayPalSettings settings)
         {
             if (!ModelState.IsValid)
             {
