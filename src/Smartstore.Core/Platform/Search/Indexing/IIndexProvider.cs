@@ -1,5 +1,8 @@
 ﻿namespace Smartstore.Core.Search.Indexing
 {
+    /// <summary>
+    /// Represents a provider of a search index.
+    /// </summary>
     public interface IIndexProvider
     {
         /// <summary>
@@ -12,14 +15,6 @@
         /// A name is required for the <see cref="GetIndexStore(string)"/> method.
         /// </summary>
         Task<IEnumerable<string>> EnumerateIndexesAsync();
-
-        /// <summary>
-        /// Creates an empty document.
-        /// </summary>
-        /// <param name="id">The primary key of the indexed entity.</param>
-        /// <param name="documentType">Identifies the type of a document, can be <c>null</c>. <see cref="SearchDocumentTypes"/> for known types.</param>
-        /// <returns>The document instance.</returns>
-        IIndexDocument CreateDocument(int id, string documentType = null);
 
         /// <summary>
         /// Returns a provider specific implementation of the <see cref="IIndexStore"/> interface

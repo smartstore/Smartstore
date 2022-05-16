@@ -17,7 +17,7 @@
         int Id { get; }
 
         /// <summary>
-        /// Identifies the type of a document, can be <c>null</c>.
+        /// Identifies the type of a document, can be <c>null</c>. <see cref="SearchDocumentTypes"/> for known types.
         /// </summary>
         string DocumentType { get; }
 

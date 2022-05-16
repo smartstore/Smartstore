@@ -30,11 +30,6 @@ namespace Smartstore.Core.Search.Indexing
         /// ID of the last processed index document. Typically <see cref="BaseEntity.Id"/>.
         /// Used to continue indexing at the point where it was aborted.
         /// </param>
-        /// <param name="newDocument">Function to create an <see cref="IIndexDocument"/> instance.</param>
-        Task<IndexCollectorResult> CollectAsync(
-            AcquireWriterContext context,
-            DateTime? lastIndexedUtc,
-            int continueDocumentId,
-            Func<int, string, IIndexDocument> newDocument);
+        Task<IndexCollectorResult> CollectAsync(AcquireWriterContext context, DateTime? lastIndexedUtc, int continueDocumentId);
     }
 }

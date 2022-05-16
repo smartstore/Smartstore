@@ -34,8 +34,9 @@
 
         public IIndexDataSegmenter Segmenter { get; }
         public string DocumentType { get; }
+        public virtual string LocalizedDocumentType { get; set; }
 
-        public string Id { get; set; }
-        public bool Rebuild { get; set; } = true;
+        public virtual string Id { get; set; }
+        public virtual bool Rebuild { get; set; } = true;
     }
 }

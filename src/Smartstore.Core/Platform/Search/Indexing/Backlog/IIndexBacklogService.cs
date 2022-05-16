@@ -4,15 +4,15 @@
     {
         DateTime ExpirationDate { get; }
 
-        Task AddAsync(params IndexBacklogItem[] items);
-        Task<int> RemoveAsync(params IndexBacklogItem[] items);
-        Task<int> PurgeAsync(string scope);
+        Task AddAsync(IndexBacklogItem[] items, CancellationToken cancelToken = default);
+        Task<int> RemoveAsync(IndexBacklogItem[] items, CancellationToken cancelToken = default);
+        Task<int> PurgeAsync(string scope, CancellationToken cancelToken = default);
         Task<int> GetBacklogCountAsync(string scope, DateTime? lastIndexedUtc);
 
         /// <summary>
         /// Removes all "Index" operation items followed by "Delete" for same entity.
         /// </summary>
-        Task<IDictionary<int, IndexBacklogItem>> GetBacklogAsync(string scope, DateTime? lastIndexedUtc);
+        Task<IDictionary<int, IndexBacklogItem>> GetBacklogAsync(string scope, DateTime? lastIndexedUtc, CancellationToken cancelToken = default);
     }
 
     public static class IIndexBacklogServiceExtensions

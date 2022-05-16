@@ -17,8 +17,6 @@ namespace Smartstore.Core.Bootstrapping
 
             // Scopes
             builder.RegisterType<DefaultIndexScopeManager>().As<IIndexScopeManager>().InstancePerLifetimeScope();
-
-            // TODO: (mg) (core) Implicit registration of IIndexScope impls missing.
         }
     }
 }

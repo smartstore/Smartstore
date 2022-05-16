@@ -20,7 +20,7 @@ namespace Smartstore.Core.Search.Indexing
             Scope = scope;
         }
 
-        #region Provided by IIndexCollector
+        #region Provided by IIndexScope
 
         /// <summary>
         /// Gets the name of the search index, e.g. "Catalog".
@@ -41,6 +41,11 @@ namespace Smartstore.Core.Search.Indexing
         /// Gets or sets the type of the main index document. <see cref="SearchDocumentTypes"/> for known types.
         /// </summary>
         public string DocumentType { get; init; }
+
+        /// <summary>
+        /// Gets or sets the localized document type.
+        /// </summary>
+        public string LocalizedDocumentType { get; init; }
 
         #endregion
 
