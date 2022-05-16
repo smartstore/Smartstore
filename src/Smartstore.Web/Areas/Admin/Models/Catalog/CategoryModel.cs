@@ -164,11 +164,11 @@ namespace Smartstore.Admin.Models.Catalog
         public string SeName { get; set; }
     }
 
-    public partial class CategoryValidator : AbstractValidator<CategoryModel>
+    public partial class CategoryValidator : SmartValidator<CategoryModel>
     {
-        public CategoryValidator()
+        public CategoryValidator(SmartDbContext db)
         {
-            RuleFor(x => x.Name).NotEmpty();
+            ApplyEntityRules<Category>(db);
         }
     }
 

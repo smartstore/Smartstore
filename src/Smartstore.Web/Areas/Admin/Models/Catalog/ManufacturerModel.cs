@@ -123,11 +123,11 @@ namespace Smartstore.Admin.Models.Catalog
         public string SeName { get; set; }
     }
 
-    public partial class ManufacturerValidator : AbstractValidator<ManufacturerModel>
+    public partial class ManufacturerValidator : SmartValidator<ManufacturerModel>
     {
-        public ManufacturerValidator()
+        public ManufacturerValidator(SmartDbContext db)
         {
-            RuleFor(x => x.Name).NotEmpty();
+            ApplyEntityRules<Manufacturer>(db);
         }
     }
 

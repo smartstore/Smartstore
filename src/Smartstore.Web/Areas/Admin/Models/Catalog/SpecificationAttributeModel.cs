@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Search.Facets;
 
 namespace Smartstore.Admin.Models.Catalog
@@ -67,11 +68,11 @@ namespace Smartstore.Admin.Models.Catalog
         public string Alias { get; set; }
     }
 
-    public partial class SpecificationAttributeValidator : AbstractValidator<SpecificationAttributeModel>
+    public partial class SpecificationAttributeValidator : SmartValidator<SpecificationAttributeModel>
     {
-        public SpecificationAttributeValidator()
+        public SpecificationAttributeValidator(SmartDbContext db)
         {
-            RuleFor(x => x.Name).NotEmpty();
+            ApplyEntityRules<SpecificationAttribute>(db);
         }
     }
 }
