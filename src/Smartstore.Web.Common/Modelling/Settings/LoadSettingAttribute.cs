@@ -76,18 +76,27 @@ namespace Smartstore.Web.Modelling.Settings
                 .SelectAsync(async x =>
                 {
                     // Load settings for the settings type obtained with FindActionParameters<ISettings>()
+                    var settingType = x.ParameterType;
                     var settings = _attribute.BindParameterFromStore
-                            ? await _services.SettingFactory.LoadSettingsAsync(x.ParameterType, _storeId)
+                            ? await _services.SettingFactory.LoadSettingsAsync(settingType, _storeId)
                             : context.ActionArguments[x.Name] as ISettings;
 
                     if (settings == null)
                     {
-                        throw new InvalidOperationException($"Could not load settings for type '{x.ParameterType.FullName}'.");
+                        throw new InvalidOperationException($"Could not load settings for type '{settingType.FullName}'.");
                     }
 
                     // Replace settings from action parameters with our loaded settings.
                     if (_attribute.BindParameterFromStore)
                     {
+                        // In save mode: DON'T pass the setting instance itself to the controller action.
+                        // Setting classes are chached as singletons. The action will most likely
+                        // update the instance.
+                        if (this is SaveSettingFilter)
+                        {
+                            settings = settings.Clone();
+                        }
+
                         context.ActionArguments[x.Name] = settings;
                     }
 
