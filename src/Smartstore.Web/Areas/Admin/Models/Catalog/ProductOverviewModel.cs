@@ -1,5 +1,5 @@
-﻿using Smartstore.Core.Catalog.Products;
-using Smartstore.Web.Modelling.Validation;
+﻿using FluentValidation;
+using Smartstore.Core.Catalog.Products;
 
 namespace Smartstore.Admin.Models.Catalog
 {

@@ -4,7 +4,6 @@ using FluentValidation;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Localization;
-using Smartstore.Web.Modelling.Validation;
 
 namespace Smartstore.Web.Models.Common
 {

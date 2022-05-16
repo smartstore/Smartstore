@@ -2,7 +2,6 @@
 using FluentValidation;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Security;
-using Smartstore.Web.Modelling.Validation;
 using Smartstore.Web.Models.Common;
 
 namespace Smartstore.Admin.Models.Customers

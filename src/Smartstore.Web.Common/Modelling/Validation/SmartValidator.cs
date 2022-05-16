@@ -1,11 +1,11 @@
 ﻿using System.Linq.Dynamic.Core;
-using FluentValidation;
 using FluentValidation.Internal;
 using FluentValidation.Validators;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Smartstore;
 using Smartstore.ComponentModel;
 
-namespace Smartstore.Web.Modelling.Validation
+namespace FluentValidation
 {
     public abstract class SmartValidator<TModel> : AbstractValidator<TModel> where TModel : class
     {

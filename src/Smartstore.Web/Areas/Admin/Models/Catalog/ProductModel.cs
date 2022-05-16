@@ -10,7 +10,6 @@ using Smartstore.Core.Content.Media;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Web;
-using Smartstore.Web.Modelling.Validation;
 
 namespace Smartstore.Admin.Models.Catalog
 {

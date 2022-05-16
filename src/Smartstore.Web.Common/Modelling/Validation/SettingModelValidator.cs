@@ -1,5 +1,4 @@
-﻿using FluentValidation;
-using FluentValidation.AspNetCore;
+﻿using FluentValidation.AspNetCore;
 using FluentValidation.Internal;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
@@ -7,7 +6,7 @@ using Smartstore.Core.Configuration;
 using Smartstore.Core.Stores;
 using Smartstore.Web.Modelling.Settings;
 
-namespace Smartstore.Web.Modelling.Validation
+namespace FluentValidation
 {
     /// <summary>
     /// An abstract validator that is capable of ignoring rules for unchecked setting properties
