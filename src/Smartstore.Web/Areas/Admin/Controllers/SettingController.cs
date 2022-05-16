@@ -928,7 +928,7 @@ namespace Smartstore.Admin.Controllers
 
         [Permission(Permissions.Configuration.Setting.Update)]
         [HttpPost, FormValueRequired("save")]
-        [SaveSetting(UpdateParameterFromStore = false)]
+        [SaveSetting(BindParameterFromStore = false)]
         public async Task<IActionResult> Media(MediaSettings settings, MediaSettingsModel model)
         {
             if (!ModelState.IsValid)

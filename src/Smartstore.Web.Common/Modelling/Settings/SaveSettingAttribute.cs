@@ -11,8 +11,8 @@ namespace Smartstore.Web.Modelling.Settings
         {
         }
 
-        public SaveSettingAttribute(bool updateParameterFromStore)
-            : base(typeof(SaveSettingFilter), updateParameterFromStore)
+        public SaveSettingAttribute(bool bindParameterFromStore)
+            : base(typeof(SaveSettingFilter), bindParameterFromStore)
         {
             Arguments = new object[] { this };
         }

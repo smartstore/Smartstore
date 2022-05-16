@@ -15,19 +15,19 @@ namespace Smartstore.Web.Modelling.Settings
         {
         }
 
-        public LoadSettingAttribute(bool updateParameterFromStore) 
-            : this(typeof(LoadSettingFilter), updateParameterFromStore)
+        public LoadSettingAttribute(bool bindParameterFromStore) 
+            : this(typeof(LoadSettingFilter), bindParameterFromStore)
         {
         }
 
-        protected LoadSettingAttribute(Type filterType, bool updateParameterFromStore)
+        protected LoadSettingAttribute(Type filterType, bool bindParameterFromStore)
             : base(filterType)
         {
-            UpdateParameterFromStore = updateParameterFromStore;
+            BindParameterFromStore = bindParameterFromStore;
             Arguments = new object[] { this };
         }
 
-        public bool UpdateParameterFromStore { get; set; } = true;
+        public bool BindParameterFromStore { get; set; }
         public bool IsRootedModel { get; set; }
     }
 
@@ -76,7 +76,7 @@ namespace Smartstore.Web.Modelling.Settings
                 .SelectAsync(async x =>
                 {
                     // Load settings for the settings type obtained with FindActionParameters<ISettings>()
-                    var settings = _attribute.UpdateParameterFromStore
+                    var settings = _attribute.BindParameterFromStore
                             ? await _services.SettingFactory.LoadSettingsAsync(x.ParameterType, _storeId)
                             : context.ActionArguments[x.Name] as ISettings;
 
@@ -86,7 +86,7 @@ namespace Smartstore.Web.Modelling.Settings
                     }
 
                     // Replace settings from action parameters with our loaded settings.
-                    if (_attribute.UpdateParameterFromStore)
+                    if (_attribute.BindParameterFromStore)
                     {
                         context.ActionArguments[x.Name] = settings;
                     }
