@@ -316,7 +316,7 @@ namespace Smartstore.Admin.Models
         public string Description { get; set; }
     }
 
-    public partial class CustomerUserSettingsValidator : AbstractValidator<CustomerUserSettingsModel>
+    public partial class CustomerUserSettingsValidator : SettingModelValidator<CustomerUserSettingsModel, CustomerSettings>
     {
         public CustomerUserSettingsValidator()
         {

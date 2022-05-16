@@ -139,7 +139,7 @@ namespace Smartstore.Admin.Models
         #endregion
     }
 
-    public partial class MediaSettingsValidator : AbstractValidator<MediaSettingsModel>
+    public partial class MediaSettingsValidator : SettingModelValidator<MediaSettingsModel, MediaSettings>
     {
         public MediaSettingsValidator()
         {

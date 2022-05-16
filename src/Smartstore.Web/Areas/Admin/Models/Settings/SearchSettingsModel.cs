@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Catalog.Search;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Search;
 
@@ -74,7 +75,7 @@ namespace Smartstore.Admin.Models
         public string Alias { get; set; }
     }
 
-    public class SearchSettingValidator : AbstractValidator<SearchSettingsModel>
+    public class SearchSettingValidator : SettingModelValidator<SearchSettingsModel, SearchSettings>
     {
         private const int MAX_INSTANT_SEARCH_ITEMS = 16;
 

@@ -1,7 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 
 namespace Smartstore.Admin.Models
@@ -375,7 +377,7 @@ namespace Smartstore.Admin.Models
         #endregion
     }
 
-    public partial class ContactDataSettingsValidator : AbstractValidator<GeneralCommonSettingsModel.ContactDataSettingsModel>
+    public partial class ContactDataSettingsValidator : SettingModelValidator<GeneralCommonSettingsModel.ContactDataSettingsModel, ContactDataSettings>
     {
         public ContactDataSettingsValidator()
         {
@@ -386,7 +388,7 @@ namespace Smartstore.Admin.Models
         }
     }
 
-    public partial class CaptchaSettingsValidator : AbstractValidator<GeneralCommonSettingsModel.CaptchaSettingsModel>
+    public partial class CaptchaSettingsValidator : SettingModelValidator<GeneralCommonSettingsModel.CaptchaSettingsModel, CaptchaSettings>
     {
         public CaptchaSettingsValidator(Localizer T)
         {
@@ -402,7 +404,7 @@ namespace Smartstore.Admin.Models
         }
     }
 
-    public partial class SocialSettingsValidator : AbstractValidator<GeneralCommonSettingsModel.SocialSettingsModel>
+    public partial class SocialSettingsValidator : SettingModelValidator<GeneralCommonSettingsModel.SocialSettingsModel, SocialSettings>
     {
         public SocialSettingsValidator(Localizer T)
         {

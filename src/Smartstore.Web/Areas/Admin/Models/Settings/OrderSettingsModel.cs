@@ -73,7 +73,7 @@ namespace Smartstore.Admin.Models
         public string ReturnRequestActions { get; set; }
     }
 
-    public partial class OrderSettingsValidator : AbstractValidator<OrderSettingsModel>
+    public partial class OrderSettingsValidator : SettingModelValidator<OrderSettingsModel, OrderSettings>
     {
         public OrderSettingsValidator(Localizer T)
         {
