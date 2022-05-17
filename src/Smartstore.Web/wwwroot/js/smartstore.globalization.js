@@ -196,7 +196,7 @@
         if (value.indexOf(culture.numberFormat.currency.symbol) > -1) {
             // remove currency symbol
             value = value.replace(culture.numberFormat.currency.symbol, "");
-            // replace decimal seperator
+            // replace decimal separator
             value = value.replace(culture.numberFormat.currency["."], culture.numberFormat["."]);
         }
 

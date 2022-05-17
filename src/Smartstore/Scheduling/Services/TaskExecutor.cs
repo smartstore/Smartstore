@@ -30,8 +30,6 @@ namespace Smartstore.Scheduling
             _componentContext = componentContext;
             _asyncState = asyncState;
             _asyncRunner = asyncRunner;
-
-            Logger = NullLogger.Instance;
         }
 
         public ILogger Logger { get; set; } = NullLogger.Instance;
