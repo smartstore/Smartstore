@@ -306,8 +306,19 @@ namespace Smartstore.Admin.Controllers
         {
             if (!ModelState.IsValid)
             {
-                await PrepareGeneralCommonConfigurationModelAsync(model);
-                return View(model);
+                return await GeneralCommon(storeScope,
+                    storeInformationSettings,
+                    seoSettings,
+                    dateTimeSettings,
+                    securitySettings,
+                    captchaSettings,
+                    pdfSettings,
+                    localizationSettings,
+                    companySettings,
+                    contactDataSettings,
+                    bankConnectionSettings,
+                    socialSettings,
+                    homePageSeoSettings);
             }
 
             ModelState.Clear();
@@ -392,8 +403,7 @@ namespace Smartstore.Admin.Controllers
         {
             if (!ModelState.IsValid)
             {
-                PrepareCatalogConfigurationModel(model);
-                return View(model);
+                return await Catalog(catalogSettings);
             }
 
             ModelState.Clear();
@@ -450,7 +460,7 @@ namespace Smartstore.Admin.Controllers
 
             if (!ModelState.IsValid)
             {
-                return View(model);
+                return await CustomerUser(storeScope, customerSettings, addressSettings, privacySettings);
             }
 
             ModelState.Clear();
@@ -800,6 +810,7 @@ namespace Smartstore.Admin.Controllers
             var storeScope = GetActiveStoreScopeConfiguration();
             var settings = await Services.SettingFactory.LoadSettingsAsync<SearchSettings>(storeScope);
 
+            // TODO: (mg) (core) Apply LoadSetting/SaveSetting attributes
             if (storeScope == 0 || MultiStoreSettingHelper.IsOverrideChecked(settings, nameof(model.InstantSearchNumberOfProducts), form))
             {
                 new SearchSettingValidator(T).Validate(model);
@@ -895,7 +906,7 @@ namespace Smartstore.Admin.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return View(model);
+                return DataExchange(settings);
             }
 
             ModelState.Clear();
@@ -941,7 +952,7 @@ namespace Smartstore.Admin.Controllers
                     .Select(x => new SelectListItem { Text = _moduleManager.Value.GetLocalizedFriendlyName(x.Metadata), Value = x.Metadata.SystemName })
                     .ToList();
 
-                return View(model);
+                return await Media(settings);
             }
 
             ModelState.Clear();
@@ -986,7 +997,7 @@ namespace Smartstore.Admin.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return View(model);
+                return Payment(settings);
             }
 
             ModelState.Clear();
@@ -1106,7 +1117,7 @@ namespace Smartstore.Admin.Controllers
 
         [Permission(Permissions.Configuration.Setting.Read)]
         [LoadSetting]
-        public async Task<IActionResult> RewardPoints(RewardPointsSettings settings, int storeScope)
+        public async Task<IActionResult> RewardPoints(RewardPointsSettings settings)
         {
             var model = await MapperFactory.MapAsync<RewardPointsSettings, RewardPointsSettingsModel>(settings);
 
@@ -1121,7 +1132,7 @@ namespace Smartstore.Admin.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return View(model);
+                return await RewardPoints(settings);
             }
 
             ModelState.Clear();
@@ -1151,7 +1162,7 @@ namespace Smartstore.Admin.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return View(model);
+                return await ShoppingCart(storeScope, settings);
             }
 
             ModelState.Clear();
@@ -1316,7 +1327,7 @@ namespace Smartstore.Admin.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return View(model);
+                return await Order(storeScope, settings);
             }
 
             ModelState.Clear();
