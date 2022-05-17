@@ -39,8 +39,7 @@ namespace Smartstore.Google.Auth.Controllers
         {
             if (!ModelState.IsValid)
             {
-                ViewBag.Provider = _providerManager.GetProvider("Smartstore.Google.Auth").Metadata;
-                return View(model);
+                return Configure(settings);
             }
 
             MiniMapper.Map(model, settings);

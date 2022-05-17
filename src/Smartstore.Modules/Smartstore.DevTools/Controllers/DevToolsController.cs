@@ -25,7 +25,7 @@ namespace Smartstore.DevTools.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return View(model);
+                return Configure(settings);
             }
 
             ModelState.Clear();

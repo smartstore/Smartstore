@@ -28,8 +28,7 @@ namespace Smartstore.Google.Analytics.Controllers
         {
             if (!ModelState.IsValid)
             {
-                PrepareConfigModel(settings.WidgetZone);
-                return View(model);
+                return Configure(settings);
             }
 
             ModelState.Clear();

@@ -63,8 +63,7 @@ namespace Smartstore.OfflinePayment.Controllers
         {
             if (!ModelState.IsValid)
             {
-                ViewBag.Provider = _providerManager.GetProvider("Payments.CashOnDelivery").Metadata;
-                return View(model);
+                return CashOnDeliveryConfigure(settings);
             }
 
             ModelState.Clear();
@@ -94,8 +93,7 @@ namespace Smartstore.OfflinePayment.Controllers
         {
             if (!ModelState.IsValid)
             {
-                ViewBag.Provider = _providerManager.GetProvider("Payments.Invoice").Metadata;
-                return View(model);
+                return InvoiceConfigure(settings);
             }
 
             ModelState.Clear();
@@ -125,8 +123,7 @@ namespace Smartstore.OfflinePayment.Controllers
         {
             if (!ModelState.IsValid)
             {
-                ViewBag.Provider = _providerManager.GetProvider("Payments.PayInStore").Metadata;
-                return View(model);
+                return PayInStoreConfigure(settings);
             }
 
             ModelState.Clear();
@@ -156,8 +153,7 @@ namespace Smartstore.OfflinePayment.Controllers
         {
             if (!ModelState.IsValid)
             {
-                ViewBag.Provider = _providerManager.GetProvider("Payments.Prepayment").Metadata;
-                return View(model);
+                return PrepaymentConfigure(settings);
             }
 
             ModelState.Clear();
@@ -187,8 +183,7 @@ namespace Smartstore.OfflinePayment.Controllers
         {
             if (!ModelState.IsValid)
             {
-                ViewBag.Provider = _providerManager.GetProvider("Payments.DirectDebit").Metadata;
-                return View(model);
+                return DirectDebitConfigure(settings);
             }
 
             ModelState.Clear();
@@ -218,8 +213,7 @@ namespace Smartstore.OfflinePayment.Controllers
         {
             if (!ModelState.IsValid)
             {
-                ViewBag.Provider = _providerManager.GetProvider("Payments.PurchaseOrderNumber").Metadata;
-                return View(model);
+                return PurchaseOrderNumberConfigure(settings);
             }
 
             ModelState.Clear();

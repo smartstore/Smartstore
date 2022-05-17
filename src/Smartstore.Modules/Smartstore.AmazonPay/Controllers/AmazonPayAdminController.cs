@@ -88,8 +88,7 @@ namespace Smartstore.AmazonPay.Controllers
             
             if (!ModelState.IsValid)
             {
-                PrepareConfigurationModel(model);
-                return View(model);
+                return await Configure(settings);
             }
 
             ModelState.Clear();
