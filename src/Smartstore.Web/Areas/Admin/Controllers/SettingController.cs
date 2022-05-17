@@ -828,6 +828,8 @@ namespace Smartstore.Admin.Controllers
                 : null;
 
             ModelState.Clear();
+
+            settings = ((ISettings)settings).Clone() as SearchSettings;
             MiniMapper.Map(model, settings);
 
             // Common facets.

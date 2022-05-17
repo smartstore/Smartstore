@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.AmazonPay.Services;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Common.Settings;
+using Smartstore.Core.Configuration;
 using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Data;
 using Smartstore.Core.Stores;
@@ -96,7 +97,8 @@ namespace Smartstore.AmazonPay.Controllers
             model.PublicKey = model.PublicKey.TrimSafe();
             model.ClientId = model.ClientId.TrimSafe();
             model.SellerId = model.SellerId.TrimSafe();
-
+            
+            settings = ((ISettings)settings).Clone() as AmazonPaySettings;
             MiniMapper.Map(model, settings);
 
             await _settingHelper.UpdateSettingsAsync(settings, form, storeScope);
