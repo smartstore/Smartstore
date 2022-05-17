@@ -64,11 +64,11 @@ namespace Smartstore.Core.Data.Migrations
 
         /// <inheritdoc />
         public virtual IEnumerable<long> GetAppliedMigrations(Assembly assembly = null)
-            => GetMigrations().Select(x => x.Version).Intersect(_versionLoader.VersionInfo.AppliedMigrations());
+            => GetMigrations(assembly).Select(x => x.Version).Intersect(_versionLoader.VersionInfo.AppliedMigrations());
 
         /// <inheritdoc />
         public virtual IEnumerable<long> GetPendingMigrations(Assembly assembly = null)
-            => GetMigrations().Select(x => x.Version).Except(GetAppliedMigrations());
+            => GetMigrations(assembly).Select(x => x.Version).Except(GetAppliedMigrations());
 
         /// <inheritdoc />
         public virtual void Reload()
