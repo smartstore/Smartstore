@@ -30,6 +30,11 @@ namespace Smartstore.Core.Catalog.Pricing
         public ICollection<CalculatedDiscount> CalculatedDiscounts { get; } = new List<CalculatedDiscount>();
 
         /// <summary>
+        /// Attribute combination whose price was applied during calculation.
+        /// </summary>
+        public ProductVariantAttributeCombination AppliedAttributeCombination { get; set; }
+
+        /// <summary>
         /// The regular price of the input <see cref="Product"/>, in the primary currency, usually <see cref="Product.Price"/>
         /// </summary>
         public decimal RegularPrice { get; private set; }

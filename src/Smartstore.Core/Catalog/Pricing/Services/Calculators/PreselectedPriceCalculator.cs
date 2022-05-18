@@ -63,6 +63,7 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
                 if ((selectedCombination?.IsActive ?? false) && selectedCombination.Price.HasValue)
                 {
                     context.FinalPrice = selectedCombination.Price.Value;
+                    context.AppliedAttributeCombination = selectedCombination;
 
                     // That comes too late because regular price has already been passed to child CalculatorContext:
                     //product.MergedDataValues = new Dictionary<string, object> { { "Price", selectedCombination.Price.Value } };

@@ -353,6 +353,21 @@ namespace Smartstore.Core.Catalog.Pricing
                 SavingAmount = hasSaving ? (savingPrice - result.FinalPrice).WithPostFormat(null) : null
             };
 
+            // In product lists, show the base price of the preselected attribute combination (instead of the base price set on product level).
+            var ac = context.AppliedAttributeCombination;
+            if (ac != null
+                && (ac.BasePriceAmount.HasValue || ac.BasePriceBaseAmount.HasValue)
+                && _catalogSettings.ShowBasePriceInProductLists)
+            {
+                product.MergedDataValues ??= new();
+
+                if (ac.BasePriceAmount.HasValue)
+                    product.MergedDataValues.Add("BasePriceAmount", ac.BasePriceAmount.Value);
+
+                if (ac.BasePriceBaseAmount.HasValue)
+                    product.MergedDataValues.Add("BasePriceBaseAmount", ac.BasePriceBaseAmount.Value);
+            }
+
             return result;
         }
 
