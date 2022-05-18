@@ -179,14 +179,14 @@ namespace Smartstore.Pdf.WkHtml
         {
             var data = new List<string>();
 
-            DataReceivedEventHandler onDataReceived = ((o, e) =>
+            DataReceivedEventHandler onDataReceived = (o, e) =>
             {
                 if (e.Data.HasValue())
                 {
                     data.Add(e.Data);
                     LogReceived?.Invoke(this, e);
                 }
-            });
+            };
 
             try
             {
