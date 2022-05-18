@@ -186,5 +186,8 @@ namespace Smartstore.Core.Search.Facets
             get;
             set;
         }
+
+        public override string ToString()
+            => $"{Kind} '{Label}' ({Key}): {Facets.Count()} values.";
     }
 }
