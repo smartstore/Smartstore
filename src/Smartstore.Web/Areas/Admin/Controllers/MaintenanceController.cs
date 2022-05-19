@@ -11,7 +11,6 @@ using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Common.Settings;
-using Smartstore.Core.Content.Media;
 using Smartstore.Core.Content.Media.Imaging;
 using Smartstore.Core.DataExchange.Export;
 using Smartstore.Core.DataExchange.Import;
@@ -22,6 +21,7 @@ using Smartstore.Core.Security;
 using Smartstore.Data;
 using Smartstore.Data.Caching;
 using Smartstore.Http;
+using Smartstore.Imaging;
 using Smartstore.IO;
 using Smartstore.Scheduling;
 using Smartstore.Utilities;
@@ -39,6 +39,7 @@ namespace Smartstore.Admin.Controllers
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IHostApplicationLifetime _hostApplicationLifetime;
         private readonly ICustomerService _customerService;
+        private readonly IImageFactory _imageFactory;
         private readonly Lazy<IImageCache> _imageCache;
         private readonly Lazy<IFilePermissionChecker> _filePermissionChecker;
         private readonly Lazy<ICurrencyService> _currencyService;
@@ -56,6 +57,7 @@ namespace Smartstore.Admin.Controllers
             IHttpClientFactory httpClientFactory,
             IHostApplicationLifetime hostApplicationLifetime,
             ICustomerService customerService,
+            IImageFactory imageFactory,
             Lazy<IImageCache> imageCache,
             Lazy<IFilePermissionChecker> filePermissionChecker,
             Lazy<ICurrencyService> currencyService,
@@ -72,6 +74,7 @@ namespace Smartstore.Admin.Controllers
             _httpClientFactory = httpClientFactory;
             _hostApplicationLifetime = hostApplicationLifetime;
             _customerService = customerService;
+            _imageFactory = imageFactory;
             _imageCache = imageCache;
             _filePermissionChecker = filePermissionChecker;
             _currencyService = currencyService;
@@ -354,10 +357,14 @@ namespace Smartstore.Admin.Controllers
         {
             try
             {
+                _imageFactory.ReleaseMemory();
+                await Task.Delay(500);
+
                 GC.Collect();
                 GC.WaitForPendingFinalizers();
                 GC.Collect();
                 await Task.Delay(500);
+
                 NotifySuccess(T("Admin.System.SystemInfo.GarbageCollectSuccessful"));
             }
             catch (Exception ex)
