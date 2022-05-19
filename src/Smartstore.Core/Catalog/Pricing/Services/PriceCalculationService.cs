@@ -362,10 +362,10 @@ namespace Smartstore.Core.Catalog.Pricing
                 product.MergedDataValues ??= new();
 
                 if (ac.BasePriceAmount.HasValue)
-                    product.MergedDataValues.Add("BasePriceAmount", ac.BasePriceAmount.Value);
+                    product.MergedDataValues["BasePriceAmount"] = ac.BasePriceAmount.Value;
 
                 if (ac.BasePriceBaseAmount.HasValue)
-                    product.MergedDataValues.Add("BasePriceBaseAmount", ac.BasePriceBaseAmount.Value);
+                    product.MergedDataValues["BasePriceBaseAmount"] = ac.BasePriceBaseAmount.Value;
             }
 
             return result;
