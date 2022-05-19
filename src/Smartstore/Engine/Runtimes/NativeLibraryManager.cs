@@ -3,6 +3,7 @@ using System.Runtime.InteropServices;
 using Microsoft.Extensions.Logging;
 using NuGet.Versioning;
 using Smartstore.Engine.Modularity.NuGet;
+using Smartstore.Utilities;
 
 namespace Smartstore.Engine.Runtimes
 {
@@ -53,7 +54,10 @@ namespace Smartstore.Engine.Runtimes
                 return fi;
             }
 
-            fi = new FileInfo(Path.Combine(_appContext.RuntimeInfo.BaseDirectory, fileName));
+            var baseDirectory = _appContext.RuntimeInfo.IsWindows && CommonHelper.IsDevEnvironment
+                ? _appContext.RuntimeInfo.NativeLibraryDirectory
+                : _appContext.RuntimeInfo.BaseDirectory;
+            fi = new FileInfo(Path.Combine(baseDirectory, fileName));
 
             if (fi.Exists)
             {

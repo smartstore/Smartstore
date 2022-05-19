@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using NuGet.Protocol;
 using Smartstore.Engine.Modularity.NuGet;
+using Smartstore.Utilities;
 
 namespace Smartstore.Engine.Runtimes
 {
@@ -81,8 +82,10 @@ namespace Smartstore.Engine.Runtimes
             //    _logger.Info($"Creating runtime directory '{_appContext.RuntimeInfo.RID}'.");
             //    Directory.CreateDirectory(_appContext.RuntimeInfo.NativeLibraryDirectory);
             //}
-            
-            var destination = _appContext.RuntimeInfo.BaseDirectory;
+
+            var destination = _appContext.RuntimeInfo.IsWindows && CommonHelper.IsDevEnvironment
+                ? _appContext.RuntimeInfo.NativeLibraryDirectory
+                : _appContext.RuntimeInfo.BaseDirectory;
             var packageDir = Path.GetDirectoryName(package.Path);
             var rid = _appContext.RuntimeInfo.RID;
 

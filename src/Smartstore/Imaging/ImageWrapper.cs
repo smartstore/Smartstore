@@ -43,31 +43,13 @@ namespace Smartstore.Imaging
 
         /// <inheritdoc/>
         public IImage Save(Stream stream, IImageFormat format = null)
-        {
-            Guard.NotNull(stream, nameof(stream));
-
-            if (stream.CanSeek)
-            {
-                stream.SetLength(0);
-            }
-
-            InStream.CopyTo(stream);
-
-            if (stream.CanSeek)
-            {
-                stream.Position = 0;
-            }
-
-            if (InStream.CanSeek)
-            {
-                InStream.Position = 0;
-            }
-
-            return this;
-        }
+            => SaveInternal(stream, format, false).Await();
 
         /// <inheritdoc/>
-        public async Task<IImage> SaveAsync(Stream stream, IImageFormat format = null)
+        public Task<IImage> SaveAsync(Stream stream, IImageFormat format = null)
+            => SaveInternal(stream, format, true);
+
+        private async Task<IImage> SaveInternal(Stream stream, IImageFormat format, bool async)
         {
             Guard.NotNull(stream, nameof(stream));
 
@@ -76,7 +58,14 @@ namespace Smartstore.Imaging
                 stream.SetLength(0);
             }
 
-            await InStream.CopyToAsync(stream);
+            if (async)
+            {
+                await InStream.CopyToAsync(stream);
+            }
+            else
+            {
+                InStream.CopyTo(stream);
+            }
 
             if (stream.CanSeek)
             {

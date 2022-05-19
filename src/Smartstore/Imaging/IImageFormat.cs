@@ -11,7 +11,7 @@
         string Name { get; }
 
         /// <summary>
-        /// Gets the default file extension.
+        /// Gets the default (dotless) file extension.
         /// </summary>
         string DefaultExtension { get; }
 
