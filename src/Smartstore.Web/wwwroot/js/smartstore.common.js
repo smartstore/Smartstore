@@ -60,9 +60,21 @@
         var keyValues = queryString.split('&');
 
         for (var i in keyValues) {
-            var key = keyValues[i].split('=');
-            if (key.length > 1)
-                assoc[decode(key[0]).toLowerCase()] = decode(key[1]);
+            var item = keyValues[i].split('=');
+            if (item.length > 1) {
+                var key = decode(item[0]).toLowerCase();
+                var val = decode(item[1]);
+                if (assoc[key] === undefined) {
+                    assoc[key] = val;
+                } else {
+                    var v = assoc[key];
+                    if (v.constructor != Array) {
+                        assoc[key] = [];
+                        assoc[key].push(v);
+                    }
+                    assoc[key].push(val);
+                }
+            }
         }
 
         return assoc;

@@ -699,36 +699,37 @@ namespace Smartstore.Admin.Controllers
         }
 
         [Permission(Permissions.Configuration.Setting.Read)]
-        public async Task<IActionResult> Search()
+        [LoadSetting]
+        public async Task<IActionResult> Search(SearchSettings settings, int storeScope)
         {
-            var storeScope = GetActiveStoreScopeConfiguration();
-            var searchSettings = await Services.SettingFactory.LoadSettingsAsync<SearchSettings>(storeScope);
+            //var storeScope = GetActiveStoreScopeConfiguration();
+            //var searchSettings = await Services.SettingFactory.LoadSettingsAsync<SearchSettings>(storeScope);
             var megaSearchDescriptor = Services.ApplicationContext.ModuleCatalog.GetModuleByName("Smartstore.MegaSearch");
             var megaSearchPlusDescriptor = Services.ApplicationContext.ModuleCatalog.GetModuleByName("Smartstore.MegaSearchPlus");
 
             var model = new SearchSettingsModel();
-            MiniMapper.Map(searchSettings, model);
+            MiniMapper.Map(settings, model);
 
             model.IsMegaSearchInstalled = megaSearchDescriptor != null;
 
-            PrepareSearchConfigModel(model, searchSettings, megaSearchPlusDescriptor);
+            PrepareSearchConfigModel(model, settings, megaSearchPlusDescriptor);
 
             // Common facets.
-            model.BrandFacet.Disabled = searchSettings.BrandDisabled;
-            model.BrandFacet.DisplayOrder = searchSettings.BrandDisplayOrder;
-            model.PriceFacet.Disabled = searchSettings.PriceDisabled;
-            model.PriceFacet.DisplayOrder = searchSettings.PriceDisplayOrder;
-            model.RatingFacet.Disabled = searchSettings.RatingDisabled;
-            model.RatingFacet.DisplayOrder = searchSettings.RatingDisplayOrder;
-            model.DeliveryTimeFacet.Disabled = searchSettings.DeliveryTimeDisabled;
-            model.DeliveryTimeFacet.DisplayOrder = searchSettings.DeliveryTimeDisplayOrder;
-            model.AvailabilityFacet.Disabled = searchSettings.AvailabilityDisabled;
-            model.AvailabilityFacet.DisplayOrder = searchSettings.AvailabilityDisplayOrder;
-            model.AvailabilityFacet.IncludeNotAvailable = searchSettings.IncludeNotAvailable;
-            model.NewArrivalsFacet.Disabled = searchSettings.NewArrivalsDisabled;
-            model.NewArrivalsFacet.DisplayOrder = searchSettings.NewArrivalsDisplayOrder;
+            model.BrandFacet.Disabled = settings.BrandDisabled;
+            model.BrandFacet.DisplayOrder = settings.BrandDisplayOrder;
+            model.PriceFacet.Disabled = settings.PriceDisabled;
+            model.PriceFacet.DisplayOrder = settings.PriceDisplayOrder;
+            model.RatingFacet.Disabled = settings.RatingDisabled;
+            model.RatingFacet.DisplayOrder = settings.RatingDisplayOrder;
+            model.DeliveryTimeFacet.Disabled = settings.DeliveryTimeDisabled;
+            model.DeliveryTimeFacet.DisplayOrder = settings.DeliveryTimeDisplayOrder;
+            model.AvailabilityFacet.Disabled = settings.AvailabilityDisabled;
+            model.AvailabilityFacet.DisplayOrder = settings.AvailabilityDisplayOrder;
+            model.AvailabilityFacet.IncludeNotAvailable = settings.IncludeNotAvailable;
+            model.NewArrivalsFacet.Disabled = settings.NewArrivalsDisabled;
+            model.NewArrivalsFacet.DisplayOrder = settings.NewArrivalsDisplayOrder;
 
-            await _multiStoreSettingHelper.DetectOverrideKeysAsync(searchSettings, model, storeScope);
+            await _multiStoreSettingHelper.DetectOverrideKeysAsync(settings, model, storeScope);
 
             // Localized facet settings (CommonFacetSettingsLocalizedModel).
             var i = 0;
@@ -790,37 +791,39 @@ namespace Smartstore.Admin.Controllers
             }
 
             // Facet settings (CommonFacetSettingsModel).
-            foreach (var prefix in new string[] { "Brand", "Price", "Rating", "DeliveryTime", "Availability", "NewArrivals" })
+            foreach (var prefix in new[] { "Brand", "Price", "Rating", "DeliveryTime", "Availability", "NewArrivals" })
             {
-                await _multiStoreSettingHelper.DetectOverrideKeyAsync(prefix + "Facet.Disabled", prefix + "Disabled", searchSettings, storeScope);
-                await _multiStoreSettingHelper.DetectOverrideKeyAsync(prefix + "Facet.DisplayOrder", prefix + "DisplayOrder", searchSettings, storeScope);
+                await _multiStoreSettingHelper.DetectOverrideKeyAsync(prefix + "Facet.Disabled", prefix + "Disabled", settings, storeScope);
+                await _multiStoreSettingHelper.DetectOverrideKeyAsync(prefix + "Facet.DisplayOrder", prefix + "DisplayOrder", settings, storeScope);
             }
 
             // Facet settings with a non-prefixed name.
-            await _multiStoreSettingHelper.DetectOverrideKeyAsync("AvailabilityFacet.IncludeNotAvailable", "IncludeNotAvailable", searchSettings, storeScope);
+            await _multiStoreSettingHelper.DetectOverrideKeyAsync("AvailabilityFacet.IncludeNotAvailable", "IncludeNotAvailable", settings, storeScope);
 
             return View(model);
         }
 
         [Permission(Permissions.Configuration.Setting.Update)]
-        [HttpPost]
-        public async Task<IActionResult> Search(SearchSettingsModel model)
+        [HttpPost, LoadSetting]
+        public async Task<IActionResult> Search(SearchSettingsModel model, SearchSettings settings, int storeScope)
         {
             var form = Request.Form;
-            var storeScope = GetActiveStoreScopeConfiguration();
-            var settings = await Services.SettingFactory.LoadSettingsAsync<SearchSettings>(storeScope);
+            //var storeScope = GetActiveStoreScopeConfiguration();
+            //var settings = await Services.SettingFactory.LoadSettingsAsync<SearchSettings>(storeScope);
 
             // TODO: (mg) (core) Apply LoadSetting/SaveSetting attributes
-            if (storeScope == 0 || MultiStoreSettingHelper.IsOverrideChecked(settings, nameof(model.InstantSearchNumberOfProducts), form))
-            {
-                new SearchSettingValidator(T).Validate(model);
-            }
+            //if (storeScope == 0 || MultiStoreSettingHelper.IsOverrideChecked(settings, nameof(model.InstantSearchNumberOfProducts), form))
+            //{
+            //    new SearchSettingValidator(T).Validate(model);
+            //}
 
             if (!ModelState.IsValid)
             {
                 var megaSearchPlusDescriptor = Services.ApplicationContext.ModuleCatalog.GetModuleByName("Smartstore.MegaSearchPlus");
                 PrepareSearchConfigModel(model, settings, megaSearchPlusDescriptor);
-                return View(model);
+
+                return await Search(settings, storeScope);
+                //return View(model);
             }
 
             CategoryTreeChangeReason? categoriesChange = model.AvailabilityFacet.IncludeNotAvailable != settings.IncludeNotAvailable
@@ -847,15 +850,15 @@ namespace Smartstore.Admin.Controllers
             settings.NewArrivalsDisabled = model.NewArrivalsFacet.Disabled;
             settings.NewArrivalsDisplayOrder = model.NewArrivalsFacet.DisplayOrder;
 
-            //await Services.SettingFactory.SaveSettingsAsync(settings, storeScope);
             await _multiStoreSettingHelper.UpdateSettingsAsync(settings, form, storeScope);
 
             await Services.Settings.ApplySettingAsync(settings, x => x.SearchFields);
 
             // Facet settings (CommonFacetSettingsModel).
+            // "SaveSetting" attribute comes too late for this. It would delete all facet settings.
             if (storeScope != 0)
             {
-                foreach (var prefix in new string[] { "Brand", "Price", "Rating", "DeliveryTime", "Availability", "NewArrivals" })
+                foreach (var prefix in new[] { "Brand", "Price", "Rating", "DeliveryTime", "Availability", "NewArrivals" })
                 {
                     await _multiStoreSettingHelper.ApplySettingAsync(prefix + "Facet.Disabled", prefix + "Disabled", settings, form, storeScope);
                     await _multiStoreSettingHelper.ApplySettingAsync(prefix + "Facet.DisplayOrder", prefix + "DisplayOrder", settings, form, storeScope);
@@ -1130,7 +1133,7 @@ namespace Smartstore.Admin.Controllers
 
         [Permission(Permissions.Configuration.Setting.Update)]
         [HttpPost, SaveSetting]
-        public async Task<IActionResult> RewardPoints(RewardPointsSettings settings, RewardPointsSettingsModel model, int storeScope)
+        public async Task<IActionResult> RewardPoints(RewardPointsSettings settings, RewardPointsSettingsModel model)
         {
             if (!ModelState.IsValid)
             {

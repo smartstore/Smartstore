@@ -238,13 +238,14 @@ $facet-selection-color:             darken($success, 15%);
 }
 
 .facet-group-header {
-	position: relative;
-	display: block;
+    position: relative;
+    display: block;
     padding: 0.75rem 0;
+    padding-right: 15px;
     font-size: 16px;
-	font-weight: $font-weight-medium;
-	color: $body-color !important;
-	text-decoration: none !important;
+    font-weight: $font-weight-medium;
+    color: $body-color !important;
+    text-decoration: none !important;
 }
 
 .facet-toggle {
