@@ -238,7 +238,7 @@
             try {
                 result = document.execCommand('copy');
             }
-            finally {
+            catch (ex) {
                 elContext.removeChild(textarea);
                 if (elFocus) {
                     elFocus.focus();
@@ -385,13 +385,20 @@
         }
 
         function decode(str) {
-            try {
-                if (str)
+            if (str) {
+                try {
+                    str = atob(str);
+                }
+                catch (e) { }
+
+                try {
                     return decodeURIComponent(escape(str));
+                }
+                catch (e) {
+                    return str;
+                }
             }
-            catch (e) {
-                return str;
-            }
+
             return str;
         }
 

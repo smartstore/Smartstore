@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System.Text;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
@@ -66,8 +67,8 @@ namespace Smartstore.Core.Logging
                 if (entry == null)
                     return;
 
-                response.Headers.Add("X-Message-Type", entry.Type.ToString().ToLower());
-                response.Headers.Add("X-Message", entry.Message.ToString());
+                response.Headers["X-Message-Type"] = entry.Type.ToString().ToLower();
+                response.Headers["X-Message"] = Convert.ToBase64String(Encoding.UTF8.GetBytes(entry.Message.ToString()));
             }
 
             private static NotifyEntriesHolder TrimSet(NotifyEntriesHolder holder)
