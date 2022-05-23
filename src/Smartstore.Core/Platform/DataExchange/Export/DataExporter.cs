@@ -618,7 +618,7 @@ namespace Smartstore.Core.DataExchange.Export
                     var associatedProducts = await _db.Products
                         .AsNoTracking()
                         .ApplyAssociatedProductsFilter(groupedProductIds, true)
-                        .ToListAsync();
+                        .ToListAsync(ctx.CancelToken);
 
                     associatedProductsMap = associatedProducts.ToMultimap(x => x.ParentGroupedProductId, x => x);
                 }
