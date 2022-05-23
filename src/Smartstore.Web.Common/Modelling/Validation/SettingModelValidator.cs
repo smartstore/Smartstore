@@ -8,15 +8,24 @@ using Smartstore.Web.Modelling.Settings;
 
 namespace FluentValidation
 {
+    public interface ISettingModelValidator
+    {
+        int StoreScope { get; }
+        bool IsOverrideChecked(string propertyPath);
+    }
+
     /// <summary>
     /// An abstract validator that is capable of ignoring rules for unchecked setting properties
     /// in a store-specific edit session.
+    /// Does not support manually validation by calling <see cref="AbstractValidator.Validate"/> directly.
     /// </summary>
     /// <typeparam name="TModel">Type of setting model</typeparam>
     /// <typeparam name="TSetting">Type of actual setting class that is being configured</typeparam>
-    public abstract class SettingModelValidator<TModel, TSetting> : AbstractValidator<TModel>, IValidatorInterceptor
+    public abstract class SettingModelValidator<TModel, TSetting> : AbstractValidator<TModel>, IValidatorInterceptor, ISettingModelValidator
         where TSetting : ISettings
     {
+        private MultiStoreSettingValidatorSelector _validatorSelector;
+
         IValidationContext IValidatorInterceptor.BeforeMvcValidation(ControllerContext controllerContext, IValidationContext commonContext)
         {
             var httpContext = controllerContext.HttpContext;
@@ -25,24 +34,29 @@ namespace FluentValidation
                 return commonContext;
             }
 
-            var activeStoreScope = GetActiveStoreScopeConfiguration(httpContext);
-            if (activeStoreScope == 0)
+            StoreScope = GetActiveStoreScopeConfiguration(httpContext);
+            if (StoreScope == 0)
             {
                 // Unnecessary to continue customizing validation. Just do out-of-the-box stuff.
                 return commonContext;
             }
 
-            var selector = new MultiStoreSettingValidatorSelector(
+            _validatorSelector = new MultiStoreSettingValidatorSelector(
                 typeof(TSetting),
-                controllerContext.HttpContext.Request.Form);
+                httpContext.Request.Form);
 
             var validationContext = new ValidationContext<TModel>(
                 (TModel)commonContext.InstanceToValidate,
                 commonContext.PropertyChain,
-                selector);
+                _validatorSelector);
 
             return validationContext;
         }
+
+        public int StoreScope { get; private set; }
+
+        public bool IsOverrideChecked(string propertyPath)
+            => _validatorSelector?.IsOverrideChecked(propertyPath) ?? false;
 
         ValidationResult IValidatorInterceptor.AfterMvcValidation(ControllerContext controllerContext, IValidationContext commonContext, ValidationResult result)
             => result;
@@ -66,6 +80,9 @@ namespace FluentValidation
                 _form = form;
             }
 
+            public bool IsOverrideChecked(string propertyPath)
+                => MultiStoreSettingHelper.IsOverrideChecked(_settingType, propertyPath, _form);
+
             public bool CanExecute(IValidationRule rule, string propertyPath, IValidationContext context)
             {
                 // By default we ignore any rules part of a RuleSet.
@@ -76,7 +93,7 @@ namespace FluentValidation
 
                 // Reject property validator if property checkbox is unchecked.
                 // There is nothing to validate in that case, because only a patch of setting data is sent to the server.
-                var overridden = MultiStoreSettingHelper.IsOverrideChecked(_settingType, propertyPath, _form);
+                var overridden = IsOverrideChecked(propertyPath);
                 return overridden;
             }
         }

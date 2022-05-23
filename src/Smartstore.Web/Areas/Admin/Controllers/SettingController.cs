@@ -702,8 +702,6 @@ namespace Smartstore.Admin.Controllers
         [LoadSetting]
         public async Task<IActionResult> Search(SearchSettings settings, int storeScope)
         {
-            //var storeScope = GetActiveStoreScopeConfiguration();
-            //var searchSettings = await Services.SettingFactory.LoadSettingsAsync<SearchSettings>(storeScope);
             var megaSearchDescriptor = Services.ApplicationContext.ModuleCatalog.GetModuleByName("Smartstore.MegaSearch");
             var megaSearchPlusDescriptor = Services.ApplicationContext.ModuleCatalog.GetModuleByName("Smartstore.MegaSearchPlus");
 
@@ -803,29 +801,17 @@ namespace Smartstore.Admin.Controllers
             return View(model);
         }
 
+        // INFO: do not use SaveSetting attribute here because it would delete all previously added facet settings if storeScope > 0.
         [Permission(Permissions.Configuration.Setting.Update)]
         [HttpPost, LoadSetting]
         public async Task<IActionResult> Search(SearchSettingsModel model, SearchSettings settings, int storeScope)
         {
-            var form = Request.Form;
-            //var storeScope = GetActiveStoreScopeConfiguration();
-            //var settings = await Services.SettingFactory.LoadSettingsAsync<SearchSettings>(storeScope);
-
-            // TODO: (mg) (core) Apply LoadSetting/SaveSetting attributes
-            //if (storeScope == 0 || MultiStoreSettingHelper.IsOverrideChecked(settings, nameof(model.InstantSearchNumberOfProducts), form))
-            //{
-            //    new SearchSettingValidator(T).Validate(model);
-            //}
-
             if (!ModelState.IsValid)
             {
-                var megaSearchPlusDescriptor = Services.ApplicationContext.ModuleCatalog.GetModuleByName("Smartstore.MegaSearchPlus");
-                PrepareSearchConfigModel(model, settings, megaSearchPlusDescriptor);
-
                 return await Search(settings, storeScope);
-                //return View(model);
             }
 
+            var form = Request.Form;
             CategoryTreeChangeReason? categoriesChange = model.AvailabilityFacet.IncludeNotAvailable != settings.IncludeNotAvailable
                 ? CategoryTreeChangeReason.ElementCounts
                 : null;
@@ -855,7 +841,6 @@ namespace Smartstore.Admin.Controllers
             await Services.Settings.ApplySettingAsync(settings, x => x.SearchFields);
 
             // Facet settings (CommonFacetSettingsModel).
-            // "SaveSetting" attribute comes too late for this. It would delete all facet settings.
             if (storeScope != 0)
             {
                 foreach (var prefix in new[] { "Brand", "Price", "Rating", "DeliveryTime", "Availability", "NewArrivals" })
