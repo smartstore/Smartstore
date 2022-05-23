@@ -11,7 +11,7 @@ namespace FluentValidation
     public interface ISettingModelValidator
     {
         int StoreScope { get; }
-        bool IsOverrideChecked(string propertyPath);
+        bool IsOverridenSetting(string propertyPath);
     }
 
     /// <summary>
@@ -55,7 +55,7 @@ namespace FluentValidation
 
         public int StoreScope { get; private set; }
 
-        public bool IsOverrideChecked(string propertyPath)
+        public bool IsOverridenSetting(string propertyPath)
             => _validatorSelector?.IsOverrideChecked(propertyPath) ?? false;
 
         ValidationResult IValidatorInterceptor.AfterMvcValidation(ControllerContext controllerContext, IValidationContext commonContext, ValidationResult result)

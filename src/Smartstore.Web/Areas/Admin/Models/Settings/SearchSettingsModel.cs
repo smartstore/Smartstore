@@ -84,7 +84,7 @@ namespace Smartstore.Admin.Models
             RuleFor(x => x.InstantSearchNumberOfProducts)
                 .Must(x => x >= 1 && x <= MAX_INSTANT_SEARCH_ITEMS)
                 //.When(x => (StoreScope == 0 && x.InstantSearchEnabled) || (StoreScope > 0 && IsOverrideChecked("InstantSearchNumberOfProducts")))
-                .WhenOverrideChecked((m, x) => m.InstantSearchEnabled)
+                .WhenSettingOverriden((m, x) => m.InstantSearchEnabled)
                 .WithMessage(T("Admin.Validation.ValueRange", 1, MAX_INSTANT_SEARCH_ITEMS));
         }
     }
