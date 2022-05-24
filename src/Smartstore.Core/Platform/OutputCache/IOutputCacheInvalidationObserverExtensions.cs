@@ -1,9 +1,9 @@
-﻿using Smartstore.Core.OutputCache;
+﻿using Smartstore.Core.Configuration;
 using Smartstore.Utilities;
 
-namespace Smartstore.Core.Configuration
+namespace Smartstore.Core.OutputCache
 {
-    public static class IOutputCacheInvalidationObserverSettingExtensions
+    public static class IOutputCacheInvalidationObserverExtensions
     {
         public static void ObserveSetting(this IOutputCacheInvalidationObserver observer, string settingKey)
         {
@@ -54,7 +54,7 @@ namespace Smartstore.Core.Configuration
             this IOutputCacheInvalidationObserver observer,
             Expression<Func<TSetting, object>> propertyAccessor) where TSetting : ISettings
         {
-            ObserveSettingProperty<TSetting>(observer, propertyAccessor, null);
+            ObserveSettingProperty(observer, propertyAccessor, null);
         }
 
         /// <summary>

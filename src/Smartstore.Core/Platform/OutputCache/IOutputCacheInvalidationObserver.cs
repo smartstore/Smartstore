@@ -15,7 +15,7 @@ namespace Smartstore.Core.OutputCache
     /// <summary>
     /// Allows registration of output cache invalidation handlers
     /// </summary>
-    public interface IOutputCacheInvalidationObserver
+    public partial interface IOutputCacheInvalidationObserver
     {
         /// <summary>
         /// Registers an entity observer. The passed observer is responsible for invalidating the output cache
@@ -30,9 +30,9 @@ namespace Smartstore.Core.OutputCache
         /// If your handler needs to call service methods, resolve required services
         /// with <see cref="ObserveEntityContext.ServiceContainer"/>.
         /// </remarks>
-        void ObserveEntity(Func<Task, ObserveEntityContext> observer);
+        void ObserveEntity(Func<ObserveEntityContext, Task> observer);
 
-        IEnumerable<Func<Task, ObserveEntityContext>> GetEntityObservers();
+        IEnumerable<Func<ObserveEntityContext, Task>> GetEntityObservers();
 
         /// <summary>
         /// Registers a setting key to be observed by the framework. If the value for the passed
@@ -44,9 +44,9 @@ namespace Smartstore.Core.OutputCache
         /// The invalidation action handler. If <c>null</c> is passed, the framework
         /// uses the default invalidator, which is <see cref="IOutputCacheProvider.RemoveAllAsync()"/>.
         /// </param>
-        void ObserveSetting(string settingKey, Func<Task, IOutputCacheProvider> invalidationAction);
+        void ObserveSetting(string settingKey, Func<IOutputCacheProvider, Task> invalidationAction);
 
-        Func<Task, IOutputCacheProvider> GetInvalidationActionForSetting(string settingKey);
+        Func<IOutputCacheProvider, Task> GetInvalidationActionForSetting(string settingKey);
     }
 
     public class NullOutputCacheInvalidationObserver : IOutputCacheInvalidationObserver
@@ -55,18 +55,18 @@ namespace Smartstore.Core.OutputCache
 
         public static IOutputCacheInvalidationObserver Instance => _instance;
 
-        public void ObserveEntity(Func<Task, ObserveEntityContext> observer)
+        public void ObserveEntity(Func<ObserveEntityContext, Task> observer)
         {
         }
 
-        public IEnumerable<Func<Task, ObserveEntityContext>> GetEntityObservers()
-            => Enumerable.Empty<Func<Task, ObserveEntityContext>>();
+        public IEnumerable<Func<ObserveEntityContext, Task>> GetEntityObservers()
+            => Enumerable.Empty<Func<ObserveEntityContext, Task>>();
 
-        public void ObserveSetting(string settingKey, Func<Task, IOutputCacheProvider> invalidationAction)
+        public void ObserveSetting(string settingKey, Func<IOutputCacheProvider, Task> invalidationAction)
         {
         }
 
-        public Func<Task, IOutputCacheProvider> GetInvalidationActionForSetting(string settingKey)
+        public Func<IOutputCacheProvider, Task> GetInvalidationActionForSetting(string settingKey)
             => null;
     }
 }

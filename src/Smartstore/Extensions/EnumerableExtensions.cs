@@ -369,6 +369,23 @@ namespace Smartstore
         }
 
         /// <summary>
+        /// Projects each element of a sequence into a new form and flattens the resulting sequences into one sequence.
+        /// </summary>
+        /// <param name="source">A sequence of values to project.</param>
+        /// <param name="selector">A transform function to apply to each source element.</param>
+        public static async IAsyncEnumerable<TResult> SelectManyAsync<TSource, TResult>(this IEnumerable<TSource> source, Func<TSource, Task<IEnumerable<TResult>>> selector)
+        {
+            await foreach (var item in source.ToAsyncEnumerable())
+            {
+                var manyItems = await selector(item);
+                foreach (var subItem in manyItems)
+                {
+                    yield return subItem;
+                }
+            }
+        }
+
+        /// <summary>
         /// Awaits all tasks in a sequence to complete.
         /// </summary>
         public static async Task<IEnumerable<T>> WhenAll<T>(this IEnumerable<Task<T>> source)
