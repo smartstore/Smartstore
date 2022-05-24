@@ -5,8 +5,8 @@ namespace Smartstore
     public static class DeliveryTimeExtensions
     {
         /// <summary>
-        /// Intended to be used for submission of products to third parties which require the delivery days as integer 
-        /// e.g. price comparison portals or after sales services.
+        /// Intended to be used for submission of products to third parties which require the delivery days as integer,
+        /// e.g. price comparison portals or after-sales services.
         /// </summary>
         /// <returns>Days as integer or null if no days are set for the current delivery time.</returns>
         public static int? GetMinOrMaxOrAverageDays(this DeliveryTime deliveryTime)
