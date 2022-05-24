@@ -97,7 +97,7 @@ namespace Smartstore.Core.DataExchange.Import
                                 ? (new CsvConfigurationConverter().ConvertFrom<CsvConfiguration>(profile.FileTypeConfiguration) ?? CsvConfiguration.ExcelFriendlyConfiguration)
                                 : CsvConfiguration.ExcelFriendlyConfiguration;
 
-                            using var stream = await file.File.OpenReadAsync();
+                            using var stream = await file.File.OpenReadAsync(cancelToken);
 
                             context.File = file;
                             context.ColumnMap = file.RelatedType.HasValue ? new ColumnMap() : ctx.ColumnMap;

@@ -38,7 +38,8 @@ namespace Smartstore.Scheduling
             { nameof(TransientMediaClearTask), "SmartStore.Services.Media.TransientMediaClearTask, SmartStore.Services" },
 
             { "IndexingTask", "SmartStore.MegaSearch.IndexingTask, SmartStore.MegaSearch" },
-            { "ForumIndexingTask", "SmartStore.MegaSearch.ForumIndexingTask, SmartStore.MegaSearch" }
+            { "ForumIndexingTask", "SmartStore.MegaSearch.ForumIndexingTask, SmartStore.MegaSearch" },
+            { "FileImportTask", "SmartStore.BMEcat.FileImportTask, SmartStore.BMEcat" }
         };
 
         private readonly SmartDbContext _db;
