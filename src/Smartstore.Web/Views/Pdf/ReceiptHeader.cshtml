@@ -3,9 +3,10 @@
 @model PdfReceiptSectionModel
 
 @{
-	Layout = ViewBag.IsPartial == true ? "" : "_Print";
+    var isPartial = (bool)ViewData["IsPartial"];
+    var imageUrl = await Url.MediaAsync(Model.LogoId, 0, null, false);
 
-	var imageUrl = await Url.MediaAsync(Model.LogoId, 0, null, false);
+    Layout = isPartial ? string.Empty : "_Print";
 }
 
 <header>

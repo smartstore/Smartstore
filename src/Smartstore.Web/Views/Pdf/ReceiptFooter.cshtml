@@ -3,12 +3,12 @@
 @model PdfReceiptSectionModel
 
 @{
-    Layout = ViewBag.IsPartial == true ? "" : "_Print";
-
+    var isPartial = (bool)ViewData["IsPartial"];
     var company = Model.MerchantCompanyInfo;
     var bank = Model.MerchantBankAccount;
     var contact = Model.MerchantContactData;
 
+    Layout = isPartial ? string.Empty : "_Print";
 }
 
 <footer>
