@@ -31,11 +31,11 @@
 
     public static class IPdfConverterExtensions
     {
-        ///// <summary>
-        ///// Converts html content to PDF
-        ///// </summary>
-        ///// <param name="settings">The settings to be used for the conversion process</param>
-        ///// <param name="output">The stream to write the PDF output to.</param>
+        /// <summary>
+        /// Converts html content to PDF
+        /// </summary>
+        /// <param name="settings">The settings to be used for the conversion process</param>
+        /// <param name="output">The stream to write the PDF output to.</param>
         public static async Task GeneratePdfAsync(this IPdfConverter converter, PdfConversionSettings settings, Stream output, CancellationToken cancelToken = default)
         {
             Guard.NotNull(converter, nameof(converter));

@@ -71,7 +71,7 @@ namespace Smartstore.Core.DataExchange.Export.Deployment
             }
 
             var succeededFiles = 0;
-            var files = await directory.EnumerateFilesAsync().ToListAsync(cancelToken);
+            var files = await directory.EnumerateFilesAsync(cancelToken: cancelToken).ToListAsync(cancelToken);
 
             foreach (var file in files)
             {
@@ -81,7 +81,7 @@ namespace Smartstore.Core.DataExchange.Export.Deployment
                 ++succeededFiles;
             }
 
-            var subdirs = await directory.EnumerateDirectoriesAsync().ToListAsync(cancelToken);
+            var subdirs = await directory.EnumerateDirectoriesAsync(cancelToken: cancelToken).ToListAsync(cancelToken);
 
             foreach (var subdir in subdirs)
             {
@@ -94,7 +94,7 @@ namespace Smartstore.Core.DataExchange.Export.Deployment
         private static async Task UploadFile(FtpClient client, IFile file, string relativePath, CancellationToken cancelToken)
         {
             await using var targetStream = await client.OpenFileWriteStreamAsync(relativePath);
-            await using var sourceStream = await file.OpenReadAsync();
+            await using var sourceStream = await file.OpenReadAsync(cancelToken);
 
             await sourceStream.CopyToAsync(targetStream, cancelToken);
         }

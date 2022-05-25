@@ -1293,7 +1293,7 @@ namespace Smartstore.Core.DataExchange.Export
 
                 if (context.Abort == DataExchangeAbortion.Hard && ctx.IsFileBasedExport && file.Exists)
                 {
-                    await file.DeleteAsync();
+                    await file.DeleteAsync(ctx.CancelToken);
                 }
 
                 if (method == "Execute")
@@ -1319,7 +1319,7 @@ namespace Smartstore.Core.DataExchange.Export
                         {
                             if (ctx.IsFileBasedExport && unitFile.Exists)
                             {
-                                await unitFile.DeleteAsync();
+                                await unitFile.DeleteAsync(ctx.CancelToken);
                             }
                         }
                         else
@@ -1598,7 +1598,7 @@ namespace Smartstore.Core.DataExchange.Export
                 return new LocalizedPropertyCollection(keyGroup, null, Enumerable.Empty<LocalizedProperty>());
             }
 
-            return await _localizedEntityService.GetLocalizedPropertyCollectionAsync(keyGroup, entities.Select(x => x.Id).Distinct().ToArray());
+            return await _localizedEntityService.GetLocalizedPropertyCollectionAsync(keyGroup, entities.ToDistinctArray(x => x.Id));
         }
 
         private async Task<UrlRecordCollection> CreateUrlRecordCollection(string entityName, IEnumerable<BaseEntity> entities)
@@ -1608,7 +1608,7 @@ namespace Smartstore.Core.DataExchange.Export
                 return new UrlRecordCollection(entityName, null, Enumerable.Empty<UrlRecord>());
             }
 
-            return await _urlService.GetUrlRecordCollectionAsync(entityName, null, entities.Select(x => x.Id).Distinct().ToArray());
+            return await _urlService.GetUrlRecordCollectionAsync(entityName, null, entities.ToDistinctArray(x => x.Id));
         }
 
         private string CreateLogHeader(DataExporterContext ctx)

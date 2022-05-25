@@ -25,7 +25,7 @@
                 {
                     var zipFile = await source.Parent.GetFileAsync(context.ZipFile.Name);
 
-                    using var stream = await zipFile.OpenReadAsync();
+                    using var stream = await zipFile.OpenReadAsync(cancelToken);
 
                     var newPath = deploymentDir.FileSystem.PathCombine(deploymentDir.SubPath, zipFile.Name);
                     var newFile = await deploymentDir.FileSystem.CreateFileAsync(newPath, stream, true);
