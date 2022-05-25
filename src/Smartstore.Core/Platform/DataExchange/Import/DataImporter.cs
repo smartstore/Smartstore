@@ -317,6 +317,7 @@ namespace Smartstore.Core.DataExchange.Import
             var executeContext = new ImportExecuteContext(T("Admin.DataExchange.Import.ProgressInfo"), cancelToken)
             {
                 Request = request,
+                ImportEntityType = profile.EntityType,
                 ProgressCallback = request.ProgressCallback,
                 UpdateOnly = profile.UpdateOnly,
                 KeyFieldNames = profile.KeyFieldNames.SplitSafe(',').ToArray(),

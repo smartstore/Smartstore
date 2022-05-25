@@ -24,6 +24,8 @@ namespace Smartstore.Core.DataExchange.Import
 
         public DataImportRequest Request { get; internal set; }
 
+        public ImportEntityType ImportEntityType { get; internal set; }
+
         /// <summary>
         /// The data source (CSV, Excel etc.).
         /// </summary>
