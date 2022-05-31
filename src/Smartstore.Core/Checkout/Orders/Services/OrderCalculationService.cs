@@ -244,6 +244,8 @@ namespace Smartstore.Core.Checkout.Orders
             {
                 Total = orderTotal.HasValue ? new(orderTotal.Value, _primaryCurrency) : null,
                 ToNearestRounding = new(toNearestRounding, _primaryCurrency),
+                ShippingAmount = shipping.ShippingTotal.HasValue ? new(shipping.ShippingTotal.Value, _primaryCurrency) : null,
+                PaymentFee = new(paymentFeeWithoutTax, _primaryCurrency),
                 DiscountAmount = new(discountAmount, _primaryCurrency),
                 AppliedDiscount = appliedDiscount,
                 RedeemedRewardPoints = redeemedRewardPoints,

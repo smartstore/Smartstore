@@ -26,6 +26,16 @@ namespace Smartstore.Core.Checkout.Cart
         public Money ToNearestRounding { get; init; }
 
         /// <summary>
+        /// The shipping amount. <c>null</c> if the shipping amount could not be calculated.
+        /// </summary>
+        public Money? ShippingAmount { get; init; }
+
+        /// <summary>
+        /// Additional payment fees.
+        /// </summary>
+        public Money PaymentFee { get; init; }
+
+        /// <summary>
         /// Applied discount amount in the primary currency.
         /// </summary>
         public Money DiscountAmount { get; init; }
