@@ -105,8 +105,11 @@ namespace Smartstore.Core.Checkout.Orders
         {
             Guard.NotNull(paymentRequest, nameof(paymentRequest));
 
-            initialOrder ??= await _db.Orders.FindByIdAsync(paymentRequest.InitialOrderId, false);
-            customer ??= await _db.Customers.FindByIdAsync(paymentRequest.CustomerId, false);
+            initialOrder ??= await _db.Orders.FindByIdAsync(paymentRequest.InitialOrderId);
+            
+            customer ??= await _db.Customers
+                .IncludeCustomerRoles()
+                .FindByIdAsync(paymentRequest.CustomerId);
 
             var warnings = new List<string>();
             ShoppingCart cart = null;
@@ -139,7 +142,7 @@ namespace Smartstore.Core.Checkout.Orders
                     };
                 }
 
-                if (!cart.Items.Any())
+                if (!cart.HasItems)
                 {
                     warnings.Add(T("ShoppingCart.CartIsEmpty"));
                     return (warnings, cart);
