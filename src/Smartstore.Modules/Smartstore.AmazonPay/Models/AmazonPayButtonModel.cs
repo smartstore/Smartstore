@@ -5,12 +5,12 @@
         public AmazonPayButtonModel(
             AmazonPaySettings settings,
             string buttonType,
-            string currencyCode,
+            string ledgerCurrency,
             string languageSeoCode = null)
         {
             Guard.NotNull(settings, nameof(settings));
             Guard.NotEmpty(buttonType, nameof(buttonType));
-            Guard.NotEmpty(currencyCode, nameof(currencyCode));
+            Guard.NotEmpty(ledgerCurrency, nameof(ledgerCurrency));
 
             var signIn = buttonType.EqualsNoCase("SignIn");
 
@@ -20,7 +20,7 @@
             SellerId = settings.SellerId;
             StoreId = settings.ClientId;
             
-            CurrencyCode = currencyCode;
+            LedgerCurrency = ledgerCurrency;
             ButtonType = buttonType;
             ButtonColor = signIn ? settings.AuthButtonColor : settings.PayButtonColor;
             ButtonPlacement = signIn ? "Other" : "Cart";
@@ -53,7 +53,7 @@
         public string Marketplace { get; }
         public string CheckoutScriptUrl { get; }
 
-        public string CurrencyCode { get; }
+        public string LedgerCurrency { get; }
         public string CheckoutLanguage { get; }
 
         /// <summary>

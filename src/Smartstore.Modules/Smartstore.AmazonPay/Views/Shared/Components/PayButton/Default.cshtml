@@ -9,7 +9,7 @@
         var amazonPayButton = amazon.Pay.renderButton('#amazonpay-button', {
             merchantId: '@Html.Raw(Model.SellerId)',
             publicKeyId: '@Html.Raw(Model.PublicKeyId)',
-            ledgerCurrency: '@Model.CurrencyCode',
+            ledgerCurrency: '@Model.LedgerCurrency',
             checkoutLanguage: '@Model.CheckoutLanguage',
             productType: '@Model.ButtonType',
             placement: '@Model.ButtonPlacement',

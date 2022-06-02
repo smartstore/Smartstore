@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Linq;
+using Microsoft.AspNetCore.Mvc;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
@@ -11,6 +12,8 @@ namespace Smartstore.AmazonPay.Components
     /// </summary>
     public class PayButtonViewComponent : SmartViewComponent
     {
+        private static readonly string[] _supportedLedgerCurrencies = new[] { "USD", "EUR", "GBP", "JPY" };
+
         private readonly IPaymentService _paymentService;
         private readonly IShoppingCartService _shoppingCartService;
         private readonly AmazonPaySettings _settings;
@@ -40,6 +43,12 @@ namespace Smartstore.AmazonPay.Components
                 return Empty();
             }
 
+            var currencyCode = Services.CurrencyService.PrimaryCurrency.CurrencyCode;
+            if (!_supportedLedgerCurrencies.Contains(currencyCode, StringComparer.OrdinalIgnoreCase))
+            {
+                return Empty();
+            }
+
             var store = Services.StoreContext.CurrentStore;
             var cart = await _shoppingCartService.GetCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
 
@@ -51,7 +60,7 @@ namespace Smartstore.AmazonPay.Components
             var model = new AmazonPayButtonModel(
                 _settings,
                 cart.IsShippingRequired() ? "PayAndShip" : "PayOnly",
-                Services.CurrencyService.PrimaryCurrency.CurrencyCode,
+                currencyCode,
                 Services.WorkContext.WorkingLanguage.UniqueSeoCode);
 
             return View(model);

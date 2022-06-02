@@ -7,7 +7,7 @@
         var amazonPaySignInButton = amazon.Pay.renderButton('#amazonpay-signin-button', {
             merchantId: '@Html.Raw(Model.SellerId)',
             publicKeyId: '@Html.Raw(Model.PublicKeyId)',
-            ledgerCurrency: '@Model.CurrencyCode',
+            ledgerCurrency: '@Model.LedgerCurrency',
             checkoutLanguage: '@Model.CheckoutLanguage',
             productType: '@Model.ButtonType',
             placement: '@Model.ButtonPlacement',
@@ -24,7 +24,7 @@
                         amazon.Pay.initCheckout({
                             merchantId: '@Html.Raw(Model.SellerId)',
                             publicKeyId: '@Html.Raw(Model.PublicKeyId)',
-                            ledgerCurrency: '@Model.CurrencyCode',
+                            ledgerCurrency: '@Model.LedgerCurrency',
                             checkoutLanguage: '@Model.CheckoutLanguage',
                             productType: '@Model.ButtonType',
                             placement: '@Model.ButtonPlacement',
