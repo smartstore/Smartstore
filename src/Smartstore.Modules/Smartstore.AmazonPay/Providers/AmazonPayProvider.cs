@@ -81,13 +81,13 @@ namespace Smartstore.AmazonPay.Providers
             var httpContext = _httpContextAccessor.HttpContext;
             httpContext.Session.TryRemove("AmazonPayResponseStatus");
 
-            if (state.SessionId.IsEmpty())
-            {
-                throw new AmazonPayException(T("Plugins.Payments.AmazonPay.MissingCheckoutSessionState"));
-            }
-
             try
             {
+                if (state.SessionId.IsEmpty())
+                {
+                    throw new AmazonPayException(T("Plugins.Payments.AmazonPay.MissingCheckoutSessionState"));
+                }
+
                 var orderTotal = new Money(processPaymentRequest.OrderTotal, _services.CurrencyService.PrimaryCurrency);
                 var client = GetClient(processPaymentRequest.StoreId);
                 var request = new CompleteCheckoutSessionRequest(orderTotal.RoundedAmount, _amazonPayService.GetAmazonPayCurrency());
@@ -142,9 +142,12 @@ namespace Smartstore.AmazonPay.Providers
             }
             finally
             {
-                // Avoid infinite loop where the confirm-form is automatically submitted over and over again.
-                state.SubmitForm = false;
-                _checkoutStateAccessor.SetAmazonPayCheckoutState(state);
+                if (state.SubmitForm)
+                {
+                    // Avoid infinite loop where the confirm-form is automatically submitted over and over again.
+                    state.SubmitForm = false;
+                    _checkoutStateAccessor.SetAmazonPayCheckoutState(state);
+                }
             }
 
             return result;
