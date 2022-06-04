@@ -1,5 +1,6 @@
 ﻿using Smartstore.Admin.Models.Orders;
 using Smartstore.Core.Checkout.Orders.Reporting;
+using Smartstore.Core.Security;
 
 namespace Smartstore.Admin.Components
 {
@@ -14,6 +15,11 @@ namespace Smartstore.Admin.Components
 
         public async Task<IViewComponentResult> InvokeAsync()
         {
+            if (!await Services.Permissions.AuthorizeAsync(Permissions.Order.Read))
+            {
+                return Empty();
+            }
+
             const int pageSize = 7;
 
             // INFO: join tables to ignore soft-deleted products and orders.

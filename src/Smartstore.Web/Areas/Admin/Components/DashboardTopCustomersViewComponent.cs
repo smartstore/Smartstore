@@ -1,5 +1,6 @@
 ﻿using Smartstore.Admin.Models.Customers;
 using Smartstore.Core.Checkout.Orders.Reporting;
+using Smartstore.Core.Security;
 
 namespace Smartstore.Admin.Components
 {
@@ -16,6 +17,11 @@ namespace Smartstore.Admin.Components
 
         public async Task<IViewComponentResult> InvokeAsync()
         {
+            if (!await Services.Permissions.AuthorizeAsync(Permissions.Customer.Read))
+            {
+                return Empty();
+            }
+
             var orderQuery = _db.Orders.Where(x => !x.Customer.Deleted);
 
             var reportByQuantity = await orderQuery

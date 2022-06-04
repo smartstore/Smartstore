@@ -1,5 +1,6 @@
 ﻿using Smartstore.Admin.Models.Orders;
 using Smartstore.Core.Common.Services;
+using Smartstore.Core.Security;
 
 namespace Smartstore.Admin.Components
 {
@@ -16,6 +17,11 @@ namespace Smartstore.Admin.Components
 
         public async Task<IViewComponentResult> InvokeAsync()
         {
+            if (!await Services.Permissions.AuthorizeAsync(Permissions.Order.Read))
+            {
+                return Empty();
+            }
+
             var model = new DashboardLatestOrdersModel();
             var latestOrders = await _db.Orders
                 .AsNoTracking()

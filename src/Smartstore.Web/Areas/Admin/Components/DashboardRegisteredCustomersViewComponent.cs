@@ -1,6 +1,7 @@
 ﻿using Smartstore.Admin.Models.Orders;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Identity;
+using Smartstore.Core.Security;
 
 namespace Smartstore.Admin.Components
 {
@@ -17,6 +18,11 @@ namespace Smartstore.Admin.Components
 
         public async Task<IViewComponentResult> InvokeAsync()
         {
+            if (!await Services.Permissions.AuthorizeAsync(Permissions.Customer.Read))
+            {
+                return Empty();
+            }
+
             // Get customers of at least last 28 days (if year is younger)
             var utcNow = DateTime.UtcNow;
             var beginningOfYear = new DateTime(utcNow.Year, 1, 1);
