@@ -1,7 +1,4 @@
-﻿using System.Linq;
-using Smartstore.Domain;
-
-namespace Smartstore.Core.Security
+﻿namespace Smartstore.Core.Security
 {
     public static partial class AclRecordQueryExtensions
     {

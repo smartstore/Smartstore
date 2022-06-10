@@ -1,15 +1,7 @@
-﻿using System;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Smartstore.Core;
-using Smartstore.Core.Data;
-using Smartstore.Core.Identity;
+﻿using Smartstore.Core.Identity;
 using Smartstore.Core.Localization.Routing;
 using Smartstore.Core.Messaging;
 using Smartstore.Core.Stores;
-using Smartstore.Web.Filters;
 using Smartstore.Web.Models.Newsletter;
 
 namespace Smartstore.Web.Controllers
@@ -38,6 +30,7 @@ namespace Smartstore.Web.Controllers
 
         [HttpPost]
         [GdprConsent]
+        [LocalizedRoute("Newsletter/Subscribe", Name = "SubscribeNewsletter")]
         public async Task<IActionResult> Subscribe(bool subscribe, string email)
         {
             string result;
@@ -123,7 +116,7 @@ namespace Smartstore.Web.Controllers
         }
 
         [HttpGet]
-        [LocalizedRoute("/newsletter/subscriptionactivation")]
+        [LocalizedRoute("/newsletter/subscriptionactivation/{token}/{active}", Name = "NewsletterActivation")]
         public async Task<IActionResult> SubscriptionActivation(Guid token, bool active)
         {
             var subscription = await _db.NewsletterSubscriptions

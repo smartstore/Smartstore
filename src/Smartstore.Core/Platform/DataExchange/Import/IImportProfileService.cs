@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using Smartstore.IO;
+﻿using Smartstore.IO;
 
 namespace Smartstore.Core.DataExchange.Import
 {
@@ -10,8 +8,8 @@ namespace Smartstore.Core.DataExchange.Import
         /// Gets a temporary directory for an import profile.
         /// </summary>
         /// <param name="profile">Import profile.</param>
-        /// <param name="subpath">Optional subpath, e.g. "Content" to get the content subfolder.</param>
-        /// <param name="createIfNotExists">A value indicating whether the folder should be created if it does not exist.</param>
+        /// <param name="subpath">Optional subpath, e.g. "Content" to get the content subdirectories.</param>
+        /// <param name="createIfNotExists">A value indicating whether the directory should be created if it does not exist.</param>
         /// <returns>Import directory.</returns>
         Task<IDirectory> GetImportDirectoryAsync(ImportProfile profile, string subpath = null, bool createIfNotExists = false);
 
@@ -47,6 +45,12 @@ namespace Smartstore.Core.DataExchange.Import
         /// </summary>
         /// <param name="profile">Import profile.</param>
         Task DeleteImportProfileAsync(ImportProfile profile);
+
+        /// <summary>
+        /// Deletes import directories that are no longer used by any import profile.
+        /// </summary>
+        /// <returns>Number of deleted directories.</returns>
+        Task<int> DeleteUnusedImportDirectoriesAsync();
 
         /// <summary>
         /// Gets the localized label of all entity properties.

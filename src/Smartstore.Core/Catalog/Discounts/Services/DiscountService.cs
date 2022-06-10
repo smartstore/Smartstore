@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using Smartstore.Caching;
+﻿using Smartstore.Caching;
 using Smartstore.Collections;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Rules;
@@ -12,7 +6,6 @@ using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Stores;
 using Smartstore.Data.Hooks;
-using Smartstore.Domain;
 using EState = Smartstore.Data.EntityState;
 
 namespace Smartstore.Core.Catalog.Discounts
@@ -136,7 +129,7 @@ namespace Smartstore.Core.Catalog.Discounts
         {
             var allIds = ids.ToArray();
 
-            foreach (var idsChunk in allIds.Slice(100))
+            foreach (var idsChunk in allIds.Chunk(100))
             {
                 var entities = await dbSet
                     .Include(x => x.AppliedDiscounts)
@@ -254,6 +247,8 @@ namespace Smartstore.Core.Catalog.Discounts
             }
 
             // Rulesets.
+            await _db.LoadCollectionAsync(discount, x => x.RuleSets);
+
             if (!await _cartRuleProvider.RuleMatchesAsync(discount))
             {
                 return Cached(false);

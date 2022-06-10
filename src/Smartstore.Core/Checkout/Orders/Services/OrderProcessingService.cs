@@ -1,12 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Globalization;
 using Dasync.Collections;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Pricing;
@@ -130,9 +123,112 @@ namespace Smartstore.Core.Checkout.Orders
         public Localizer T { get; set; } = NullLocalizer.Instance;
         public ILogger Logger { get; set; } = NullLogger.Instance;
 
+        public virtual Task<int> GetDispatchedItemsCountAsync(OrderItem orderItem, bool dispatched)
+        {
+            Guard.NotNull(orderItem, nameof(orderItem));
+
+            if (dispatched)
+            {
+                return SumUpQuantity(orderItem, x => x.ShippedDateUtc.HasValue, true);
+            }
+            else
+            {
+                return SumUpQuantity(orderItem, x => !x.ShippedDateUtc.HasValue, true);
+            }
+        }
+
+        public virtual async Task<bool> HasItemsToDispatchAsync(Order order)
+        {
+            Guard.NotNull(order, nameof(order));
+
+            await LoadNavigationProperties(order, false, true);
+
+            foreach (var orderItem in order.OrderItems.Where(x => x.Product.IsShippingEnabled))
+            {
+                var notDispatchedItems = await GetDispatchedItemsCountAsync(orderItem, false);
+                if (notDispatchedItems <= 0)
+                    continue;
+
+                // Yes, we have at least one item to ship.
+                return true;
+            }
+
+            return false;
+        }
+
+        public virtual Task<int> GetDeliveredItemsCountAsync(OrderItem orderItem, bool delivered)
+        {
+            Guard.NotNull(orderItem, nameof(orderItem));
+
+            if (delivered)
+            {
+                return SumUpQuantity(orderItem, x => x.DeliveryDateUtc.HasValue, true);
+            }
+            else
+            {
+                return SumUpQuantity(orderItem, x => !x.DeliveryDateUtc.HasValue, true);
+            }
+        }
+
+        public virtual async Task<bool> HasItemsToDeliverAsync(Order order)
+        {
+            Guard.NotNull(order, nameof(order));
+
+            await LoadNavigationProperties(order, false, true);
+
+            foreach (var orderItem in order.OrderItems.Where(x => x.Product.IsShippingEnabled))
+            {
+                var dispatchedItems = await GetDispatchedItemsCountAsync(orderItem, true);
+                var deliveredItems = await GetDeliveredItemsCountAsync(orderItem, true);
+
+                if (dispatchedItems <= deliveredItems)
+                    continue;
+
+                // Yes, we have at least one item to deliver.
+                return true;
+            }
+
+            return false;
+        }
+
+        public virtual async Task<int> GetShippableItemsCountAsync(OrderItem orderItem)
+        {
+            var itemsCount = await GetShipmentItemsCountAsync(orderItem);
+
+            return Math.Max(orderItem.Quantity - itemsCount, 0);
+        }
+
+        public virtual Task<int> GetShipmentItemsCountAsync(OrderItem orderItem)
+        {
+            Guard.NotNull(orderItem, nameof(orderItem));
+
+            return SumUpQuantity(orderItem, null, true);
+        }
+
+        public virtual async Task<bool> CanAddItemsToShipmentAsync(Order order)
+        {
+            Guard.NotNull(order, nameof(order));
+
+            await LoadNavigationProperties(order, false, true);
+
+            foreach (var orderItem in order.OrderItems.Where(x => x.Product.IsShippingEnabled))
+            {
+                var canBeAddedToShipment = await GetShippableItemsCountAsync(orderItem);
+                if (canBeAddedToShipment <= 0)
+                    continue;
+
+                // Yes, we have at least one item to create a new shipment.
+                return true;
+            }
+
+            return false;
+        }
+
         public virtual async Task CancelOrderAsync(Order order, bool notifyCustomer)
         {
             Guard.NotNull(order, nameof(order));
+
+            await LoadNavigationProperties(order, true);
 
             if (!order.CanCancelOrder())
             {
@@ -145,6 +241,7 @@ namespace Smartstore.Core.Checkout.Orders
 
             // Cancel recurring payments.
             var recurringPayments = await _db.RecurringPayments
+                .Include(x => x.InitialOrder)
                 .ApplyStandardFilter(order.Id)
                 .ToListAsync();
 
@@ -164,6 +261,8 @@ namespace Smartstore.Core.Checkout.Orders
 
         public virtual async Task CompleteOrderAsync(Order order)
         {
+            await LoadNavigationProperties(order, true);
+
             if (!order.CanCompleteOrder())
             {
                 throw new SmartException(T("Order.CannotMarkCompleted"));
@@ -189,10 +288,13 @@ namespace Smartstore.Core.Checkout.Orders
 
             if (order.OrderStatus != OrderStatus.Cancelled)
             {
+                await LoadNavigationProperties(order, true);
+
                 ApplyRewardPoints(order, true);
 
                 // Cancel recurring payments.
                 var recurringPayments = await _db.RecurringPayments
+                    .Include(x => x.InitialOrder)
                     .ApplyStandardFilter(order.Id)
                     .ToListAsync();
 
@@ -208,9 +310,7 @@ namespace Smartstore.Core.Checkout.Orders
                 }
             }
 
-            _db.Orders.Remove(order);
-
-            //order.AddOrderNote(T("Admin.OrderNotice.OrderDeleted"));
+            order.Deleted = true;
 
             await _db.SaveChangesAsync();
         }
@@ -218,6 +318,8 @@ namespace Smartstore.Core.Checkout.Orders
         public virtual async Task ReOrderAsync(Order order)
         {
             Guard.NotNull(order, nameof(order));
+
+            await LoadNavigationProperties(order, true);
 
             foreach (var orderItem in order.OrderItems)
             {
@@ -285,18 +387,19 @@ namespace Smartstore.Core.Checkout.Orders
         public virtual async Task ShipAsync(Shipment shipment, bool notifyCustomer)
         {
             Guard.NotNull(shipment, nameof(shipment));
+            Guard.NotNull(shipment.Order, nameof(shipment.Order));
 
             var order = shipment.Order;
-            if (order == null)
-                throw new SmartException(T("Order.NotFound", shipment.OrderId));
 
             if (shipment.ShippedDateUtc.HasValue)
+            {
                 throw new SmartException(T("Shipment.AlreadyShipped"));
+            }
 
             shipment.ShippedDateUtc = DateTime.UtcNow;
 
             // Check whether we have more items to ship.
-            order.ShippingStatusId = order.CanAddItemsToShipment() || order.HasItemsToDispatch()
+            order.ShippingStatusId = await CanAddItemsToShipmentAsync(order) || await HasItemsToDispatchAsync(order)
                 ? (int)ShippingStatus.PartiallyShipped
                 : (int)ShippingStatus.Shipped;
 
@@ -318,17 +421,15 @@ namespace Smartstore.Core.Checkout.Orders
         public virtual async Task DeliverAsync(Shipment shipment, bool notifyCustomer)
         {
             Guard.NotNull(shipment, nameof(shipment));
+            Guard.NotNull(shipment.Order, nameof(shipment.Order));
 
             var order = shipment.Order;
-            if (order == null)
-                throw new SmartException(T("Order.NotFound", shipment.OrderId));
-
-            if (shipment.DeliveryDateUtc.HasValue)
-                throw new SmartException(T("Shipment.AlreadyDelivered"));
 
             shipment.DeliveryDateUtc = DateTime.UtcNow;
 
-            if (!order.CanAddItemsToShipment() && !order.HasItemsToDispatch() && !order.HasItemsToDeliver())
+            if (!await CanAddItemsToShipmentAsync(order) && 
+                !await HasItemsToDispatchAsync(order) &&
+                !await HasItemsToDeliverAsync(order))
             {
                 order.ShippingStatusId = (int)ShippingStatus.Delivered;
             }
@@ -419,6 +520,8 @@ namespace Smartstore.Core.Checkout.Orders
         {
             Guard.NotNull(order, nameof(order));
 
+            await LoadNavigationProperties(order, true, true);
+
             Shipment shipment = null;
             decimal? totalWeight = null;
 
@@ -428,7 +531,7 @@ namespace Smartstore.Core.Checkout.Orders
                     continue;
 
                 // Ensure that this product can be shipped (have at least one item to ship).
-                var maxQtyToAdd = orderItem.GetShippableItemsCount();
+                var maxQtyToAdd = await GetShippableItemsCountAsync(orderItem);
                 if (maxQtyToAdd <= 0)
                     continue;
 
@@ -494,39 +597,70 @@ namespace Smartstore.Core.Checkout.Orders
             return null;
         }
 
-        public virtual async Task AutoUpdateOrderDetailsAsync(AutoUpdateOrderItemContext context)
+        public virtual async Task UpdateOrderDetailsAsync(OrderItem orderItem, UpdateOrderDetailsContext context)
         {
-            var oi = context.OrderItem;
+            Guard.NotNull(orderItem, nameof(orderItem));
+            Guard.NotNull(orderItem.Order, nameof(orderItem.Order));
 
-            context.RewardPointsOld = context.RewardPointsNew = oi.Order.Customer.GetRewardPointsBalance();
+            await LoadNavigationProperties(orderItem.Order, true, true);
+
+            var oi = orderItem;
+            var oldQuantity = context.OldQuantity ?? oi.Quantity;
+            var newQuantity = context.NewQuantity ?? oi.Quantity;
+            var oldPriceInclTax = context.OldPriceInclTax ?? oi.PriceInclTax;
+            var oldPriceExclTax = context.OldPriceExclTax ?? oi.PriceExclTax;
+
+            if (context.ReduceQuantity > 0)
+            {
+                var reduceQuantity = context.ReduceQuantity > oi.Quantity ? oi.Quantity : context.ReduceQuantity;
+                newQuantity = Math.Max(oi.Quantity - reduceQuantity, 0);
+            }
+
+            if (context.UpdateOrderItem)
+            {
+                if (newQuantity == 0)
+                {
+                    return;
+                }
+
+                oi.Quantity = newQuantity;
+                oi.UnitPriceInclTax = context.NewUnitPriceInclTax ?? oi.UnitPriceInclTax;
+                oi.UnitPriceExclTax = context.NewUnitPriceExclTax ?? oi.UnitPriceExclTax;
+                oi.TaxRate = context.NewTaxRate ?? oi.TaxRate;
+                oi.DiscountAmountInclTax = context.NewDiscountInclTax ?? oi.DiscountAmountInclTax;
+                oi.DiscountAmountExclTax = context.NewDiscountExclTax ?? oi.DiscountAmountExclTax;
+                oi.PriceInclTax = context.NewPriceInclTax ?? oi.PriceInclTax;
+                oi.PriceExclTax = context.NewPriceExclTax ?? oi.PriceExclTax;
+            }
+
+            context.OldRewardPoints = context.NewRewardPoints = oi.Order.Customer.GetRewardPointsBalance();
 
             if (context.UpdateTotals && oi.Order.OrderStatusId <= (int)OrderStatus.Pending)
             {
-                var currency = await _db.Currencies.AsNoTracking().FirstOrDefaultAsync(x => x.CurrencyCode == oi.Order.CustomerCurrencyCode);
+                var currency = await _db.Currencies
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(x => x.CurrencyCode == oi.Order.CustomerCurrencyCode) ?? _primaryCurrency;
 
-                decimal priceInclTax = currency.RoundIfEnabledFor(context.QuantityNew * oi.UnitPriceInclTax);
-                decimal priceExclTax = currency.RoundIfEnabledFor(context.QuantityNew * oi.UnitPriceExclTax);
+                decimal priceInclTax = currency.RoundIfEnabledFor(newQuantity * oi.UnitPriceInclTax);
+                decimal priceExclTax = currency.RoundIfEnabledFor(newQuantity * oi.UnitPriceExclTax);
 
-                decimal deltaPriceInclTax = context.IsNewOrderItem
-                    ? priceInclTax
-                    : priceInclTax - (context.PriceInclTaxOld?.Amount ?? oi.PriceInclTax);
+                decimal priceInclTaxDiff = priceInclTax - oldPriceInclTax;
+                decimal priceExclTaxDiff = priceExclTax - oldPriceExclTax;
 
-                decimal deltaPriceExclTax = context.IsNewOrderItem
-                    ? priceExclTax
-                    : priceExclTax - (context.PriceExclTaxOld?.Amount ?? oi.PriceExclTax);
-
-                oi.Quantity = context.QuantityNew;
+                oi.Quantity = newQuantity;
                 oi.PriceInclTax = currency.RoundIfEnabledFor(priceInclTax);
                 oi.PriceExclTax = currency.RoundIfEnabledFor(priceExclTax);
 
-                decimal subtotalInclTax = oi.Order.OrderSubtotalInclTax + deltaPriceInclTax;
-                decimal subtotalExclTax = oi.Order.OrderSubtotalExclTax + deltaPriceExclTax;
+                decimal subtotalInclTax = oi.Order.OrderSubtotalInclTax + priceInclTaxDiff;
+                decimal subtotalExclTax = oi.Order.OrderSubtotalExclTax + priceExclTaxDiff;
 
                 oi.Order.OrderSubtotalInclTax = currency.RoundIfEnabledFor(subtotalInclTax);
                 oi.Order.OrderSubtotalExclTax = currency.RoundIfEnabledFor(subtotalExclTax);
 
-                decimal discountInclTax = oi.DiscountAmountInclTax * context.QuantityChangeFactor;
-                decimal discountExclTax = oi.DiscountAmountExclTax * context.QuantityChangeFactor;
+                decimal quantityChangeFactor = oldQuantity != 0 ? newQuantity / oldQuantity : 1.0M;
+
+                decimal discountInclTax = oi.DiscountAmountInclTax * quantityChangeFactor;
+                decimal discountExclTax = oi.DiscountAmountExclTax * quantityChangeFactor;
 
                 //decimal deltaDiscountInclTax = discountInclTax - oi.DiscountAmountInclTax;
                 //decimal deltaDiscountExclTax = discountExclTax - oi.DiscountAmountExclTax;
@@ -534,14 +668,14 @@ namespace Smartstore.Core.Checkout.Orders
                 oi.DiscountAmountInclTax = currency.RoundIfEnabledFor(discountInclTax);
                 oi.DiscountAmountExclTax = currency.RoundIfEnabledFor(discountExclTax);
 
-                decimal total = Math.Max(oi.Order.OrderTotal + deltaPriceInclTax, 0);
-                decimal tax = Math.Max(oi.Order.OrderTax + (deltaPriceInclTax - deltaPriceExclTax), 0);
+                decimal total = Math.Max(oi.Order.OrderTotal + priceInclTaxDiff, 0);
+                decimal tax = Math.Max(oi.Order.OrderTax + (priceInclTaxDiff - priceExclTaxDiff), 0);
 
                 oi.Order.OrderTotal = currency.RoundIfEnabledFor(total);
                 oi.Order.OrderTax = currency.RoundIfEnabledFor(tax);
 
                 // Update tax rate value.
-                var deltaTax = deltaPriceInclTax - deltaPriceExclTax;
+                var deltaTax = priceInclTaxDiff - priceExclTaxDiff;
                 if (deltaTax != decimal.Zero)
                 {
                     var taxRates = oi.Order.TaxRatesDictionary;
@@ -556,20 +690,22 @@ namespace Smartstore.Core.Checkout.Orders
                 await _db.SaveChangesAsync();
             }
 
-            if (context.AdjustInventory && context.QuantityDelta != 0)
+            var quantityDiff = newQuantity - oldQuantity;
+
+            if (context.AdjustInventory && quantityDiff != 0)
             {
-                context.Inventory = await _productService.AdjustInventoryAsync(oi, context.QuantityDelta > 0, Math.Abs(context.QuantityDelta));
+                context.Inventory = await _productService.AdjustInventoryAsync(oi, quantityDiff > 0, Math.Abs(quantityDiff));
             }
 
-            if (context.UpdateRewardPoints && context.QuantityDelta < 0)
+            if (context.UpdateRewardPoints && quantityDiff < 0)
             {
                 // We reduce but we do not award points subsequently. They can be awarded once per order anyway (see Order.RewardPointsWereAdded).
                 // UpdateRewardPoints only visible for unpending orders (see RewardPointsSettingsValidator).
                 // Note: reducing can of course only work if oi.UnitPriceExclTax has not been changed!
-                decimal reduceAmount = Math.Abs(context.QuantityDelta) * oi.UnitPriceInclTax;
+                decimal reduceAmount = Math.Abs(quantityDiff) * oi.UnitPriceInclTax;
                 ApplyRewardPoints(oi.Order, true, reduceAmount);
 
-                context.RewardPointsNew = oi.Order.Customer.GetRewardPointsBalance();
+                context.NewRewardPoints = oi.Order.Customer.GetRewardPointsBalance();
             }
 
             await _db.SaveChangesAsync();
@@ -662,6 +798,7 @@ namespace Smartstore.Core.Checkout.Orders
 
             var giftCards = await _db.GiftCards
                 .Include(x => x.PurchasedWithOrderItem)
+                .ThenInclude(x => x.Order)
                 .ApplyOrderFilter(new[] { order.Id })
                 .ToListAsync();
 
@@ -739,13 +876,14 @@ namespace Smartstore.Core.Checkout.Orders
             }
 
             // Reward points.
-            if (_rewardPointsSettings.PointsForPurchases_Awarded == order.OrderStatus)
+            var rewardPointsAwarded = order.OrderStatus == _rewardPointsSettings.PointsForPurchases_Awarded;
+            var rewardPointsCanceled = order.OrderStatus == _rewardPointsSettings.PointsForPurchases_Canceled;
+            
+            if (rewardPointsAwarded || rewardPointsCanceled)
             {
-                ApplyRewardPoints(order, false);
-            }
-            if (_rewardPointsSettings.PointsForPurchases_Canceled == order.OrderStatus)
-            {
-                ApplyRewardPoints(order, true);
+                await LoadNavigationProperties(order, true, false);
+
+                ApplyRewardPoints(order, rewardPointsCanceled);
             }
 
             // Gift cards activation.
@@ -787,6 +925,62 @@ namespace Smartstore.Core.Checkout.Orders
             }
 
             await scope.CommitAsync();
+        }
+
+        private async Task<int> SumUpQuantity(OrderItem orderItem, Func<Shipment, bool> predicate, bool load = false)
+        {
+            if (load)
+            {
+                await _db.LoadReferenceAsync(orderItem, x => x.Order, false, q => q
+                    .Include(x => x.Shipments)
+                    .ThenInclude(x => x.ShipmentItems));
+            }
+
+            var result = 0;
+            var shipments = predicate != null
+                ? orderItem.Order.Shipments.Where(predicate)
+                : orderItem.Order.Shipments;
+
+            foreach (var shipment in shipments)
+            {
+                var item = shipment.ShipmentItems.FirstOrDefault(x => x.OrderItemId == orderItem.Id);
+                if (item != null)
+                {
+                    result += item.Quantity;
+                }
+            }
+
+            return result;
+        }
+
+        private async Task LoadNavigationProperties(Order order, bool includeCustomer = false, bool includeShipments = false)
+        {
+            // Resolve customer related navigation properties.
+            if (includeCustomer)
+            {
+                await _db.LoadReferenceAsync(order, x => x.RedeemedRewardPointsEntry);
+
+                await _db.LoadReferenceAsync(order, x => x.Customer, false, q => q
+                    .AsSplitQuery()
+                    .Include(x => x.RewardPointsHistory)
+                    .Include(x => x.CustomerRoleMappings)
+                    .ThenInclude(x => x.CustomerRole));
+            }
+
+            // Lazy load all order items in one go. Optionally also resolve more required navigation properties.
+            await _db.LoadCollectionAsync(order, x => x.OrderItems, false, q =>
+            {
+                q = q.Include(x => x.Product);
+
+                if (includeShipments)
+                {
+                    q = q.AsSplitQuery()
+                        .Include(x => x.Order.Shipments)
+                        .ThenInclude(x => x.ShipmentItems);
+                }
+
+                return q;
+            });
         }
 
         #endregion

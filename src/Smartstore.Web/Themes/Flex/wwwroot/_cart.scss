@@ -160,8 +160,11 @@
 }
 
 .offcanvas-cart-external-checkout {
-    background: #fff; 
-    padding: 0.5rem 1rem;
+    background: #fff;
+
+    > div:not(:empty) {
+        padding: 0.5rem 1rem;
+    }
 
     .external-checkout-button {
         margin: 2px 4px;

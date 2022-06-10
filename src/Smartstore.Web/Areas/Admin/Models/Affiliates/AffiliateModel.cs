@@ -1,7 +1,4 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
-using Smartstore.Core.Common;
-using Smartstore.Web.Modelling;
+﻿using System.ComponentModel.DataAnnotations;
 using Smartstore.Web.Models.Common;
 
 namespace Smartstore.Admin.Models.Affiliates
@@ -18,13 +15,9 @@ namespace Smartstore.Admin.Models.Affiliates
         [LocalizedDisplay("*Active")]
         public bool Active { get; set; }
 
-        public string AddressEmail { get; set; }
-        public string AddressFirstName { get; set; }
-        public string AddressLastName { get; set; }
-
-
         [UIHint("Address")]
         public AddressModel Address { get; set; } = new();
+
         public string EditUrl { get; set; }
         public bool UsernamesEnabled { get; set; }
 
@@ -63,6 +56,9 @@ namespace Smartstore.Admin.Models.Affiliates
 
             [LocalizedDisplay("*FullName")]
             public string FullName { get; set; }
+
+            [LocalizedDisplay("Common.CreatedOn")]
+            public DateTime CreatedOn { get; set; }
 
             public string EditUrl { get; set; }
         }

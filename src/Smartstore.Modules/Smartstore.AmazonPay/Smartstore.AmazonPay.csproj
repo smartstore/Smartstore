@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
+	<PropertyGroup>
+		<Product>Amazon Pay</Product>
+		<OutputPath>..\..\Smartstore.Web\Modules\Smartstore.AmazonPay</OutputPath>
+		<OutDir>$(OutputPath)</OutDir>
+	</PropertyGroup>
+	<ItemGroup>
+		<PackageReference Include="Amazon.Pay.API.SDK" Version="2.5.1" />
+	</ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\..\Smartstore.Web\Smartstore.Web.csproj">
+			<Private>False</Private>
+			<CopyLocal>False</CopyLocal>
+			<CopyLocalSatelliteAssemblies>False</CopyLocalSatelliteAssemblies>
+		</ProjectReference>
+	</ItemGroup>
+</Project>

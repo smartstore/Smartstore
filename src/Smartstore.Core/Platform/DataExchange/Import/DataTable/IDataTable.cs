@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Smartstore.Core.DataExchange.Import
+﻿namespace Smartstore.Core.DataExchange.Import
 {
     public interface IDataColumn
     {

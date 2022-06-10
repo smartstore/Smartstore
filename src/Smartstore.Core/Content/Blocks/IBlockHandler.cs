@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Html;
+﻿using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Smartstore.Core.Content.Blocks
@@ -39,7 +37,7 @@ namespace Smartstore.Core.Content.Blocks
         /// <param name="entity">
         /// The corresponding entity record for the block.
         /// </param>
-        void AfterSave(IBlockContainer container, IBlockEntity entity);
+        Task AfterSaveAsync(IBlockContainer container, IBlockEntity entity);
 
         /// <summary>
         /// Clones <see cref="IBlockEntity.Model"/>. In most cases it is sufficient to directly return the serialized model, but there may be cases
@@ -48,7 +46,7 @@ namespace Smartstore.Core.Content.Blocks
         /// <param name="sourceEntity">The source entity.</param>
         /// <param name="clonedEntity">The target entity clone which is about to be saved in the data storage.</param>
         /// <returns>The serialized block clone.</returns>
-        string Clone(IBlockEntity sourceEntity, IBlockEntity clonedEntity);
+        Task<string> CloneAsync(IBlockEntity sourceEntity, IBlockEntity clonedEntity);
 
         /// <summary>
         /// returns the block's render result as string.
@@ -77,7 +75,7 @@ namespace Smartstore.Core.Content.Blocks
         /// <param name="entity">The serialized entity to load a block instance for.</param>
         /// <param name="viewMode">Depending on view mode, some data may be loaded or not.</param>
         /// <returns>A concrete block implementation instance.</returns>
-        T Load(IBlockEntity entity, StoryViewMode viewMode);
+        Task<T> LoadAsync(IBlockEntity entity, StoryViewMode viewMode); // -------
 
         bool IsValid(T block);
 
@@ -89,6 +87,6 @@ namespace Smartstore.Core.Content.Blocks
         /// The corresponding entity record for the block. In most cases <paramref name="block"/> will
         /// be converted to JSON and assigned to <see cref="IBlockEntity.Model"/> property, which then will be saved in the data storage.
         /// </param>
-        void Save(T block, IBlockEntity entity);
+        Task SaveAsync(T block, IBlockEntity entity);
     }
 }

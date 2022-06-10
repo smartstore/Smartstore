@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Dynamic.Core;
-using System.Linq.Expressions;
-using Microsoft.EntityFrameworkCore;
+﻿using System.Linq.Dynamic.Core;
 using Smartstore.Collections;
 using Smartstore.Core.Data;
 using Smartstore.Core.Rules.Filters;
-using Smartstore.Engine;
 using Smartstore.Linq;
 
 namespace Smartstore.Core.Content.Media

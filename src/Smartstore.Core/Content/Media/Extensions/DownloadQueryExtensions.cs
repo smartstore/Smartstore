@@ -1,8 +1,4 @@
-﻿using System;
-using System.Linq;
-using Smartstore.Domain;
-
-namespace Smartstore.Core.Content.Media
+﻿namespace Smartstore.Core.Content.Media
 {
     public static class DownloadQueryExtensions
     {

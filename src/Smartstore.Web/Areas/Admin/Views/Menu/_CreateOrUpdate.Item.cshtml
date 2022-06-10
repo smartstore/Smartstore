@@ -1,0 +1,236 @@
+﻿@using Smartstore.Admin.Models.Menus
+
+@model MenuItemModel
+
+@{ 
+    var brandColors = Display.GetThemeVariable<string>("brand-colors");
+    var iconColors = brandColors
+        .Trim()
+        .SplitSafe(',')
+        .Select(x => new SelectListItem { Text = x, Value = x })
+        .ToList();
+    iconColors.Add(new SelectListItem { Text = T("Common.White"), Value = "white" });
+    iconColors.Add(new SelectListItem { Text = "gray-100", Value = "gray-100" });
+    iconColors.Add(new SelectListItem { Text = "gray-200", Value = "gray-200" });
+    iconColors.Add(new SelectListItem { Text = "gray-300", Value = "gray-300" });
+    iconColors.Add(new SelectListItem { Text = "gray-400", Value = "gray-400" });
+    iconColors.Add(new SelectListItem { Text = "gray-500", Value = "gray-500" });
+    iconColors.Add(new SelectListItem { Text = "gray-600", Value = "gray-600" });
+    iconColors.Add(new SelectListItem { Text = "gray-700", Value = "gray-700" });
+    iconColors.Add(new SelectListItem { Text = "gray-800", Value = "gray-800" });
+    iconColors.Add(new SelectListItem { Text = "gray-900", Value = "gray-900" });
+}
+
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden" />
+<input asp-for="MenuId" type="hidden" />
+<input asp-for="ProviderName" type="hidden" />
+
+<tabstrip id="menu-item-edit" sm-nav-style="Material">
+    <tab sm-title="@T("Admin.Common.General")" sm-selected="true">
+        <div id="menu-item-container">
+            <div class="adminContent mb-3">
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ProviderName"/>
+                    </div>
+                    <div class="adminData">
+                        @Html.Editor("Model", "MenuItem." + Model.ProviderName, "Model")
+                        <span asp-validation-for="Model"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ParentItemId"/>
+                    </div>
+                    <div class="adminData">
+                        <select asp-for="ParentItemId" asp-items="Model.AllItems">
+                            <option>@T("Common.Unspecified")</option>
+                        </select>
+                        <span asp-validation-for="ParentItemId"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="Published"/>
+                    </div>
+                    <div class="adminData">
+                        <input asp-for="Published" />
+                        <span asp-validation-for="Published"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div attr-class='(Model.ProviderAppendsMultipleItems, "d-none")'> @(Html.LocalizedEditor<MenuItemModel, MenuItemLocalizedModel>("menu-item-localized",
+                @<div class="adminContent">
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="Locales[item].Title"/>
+                        </div>
+                        <div class="adminData">
+                            @*IMPORTANT: Do not delete, this hidden element contains the id to assign localized values to the corresponding language *@
+                            <input asp-for="Locales[item].LanguageId" type="hidden" />
+                            <input asp-for="Locales[item].Title" />
+                            <span asp-validation-for="Locales[item].Title"></span>
+                        </div>
+                    </div>
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="Locales[item].ShortDescription"/>
+                        </div>
+				        <div class="adminData wide">
+                            <editor asp-for="Locales[item].ShortDescription" />
+                            <span asp-validation-for="Locales[item].ShortDescription"></span>
+				        </div>
+                    </div>
+                </div>
+                ,
+                @<div class="adminContent">
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="Title"/>
+                        </div>
+                        <div class="adminData">
+                            <input asp-for="Title" placeholder="@Model.TitlePlaceholder" />
+                            <span asp-validation-for="Title"></span>
+                        </div>
+                    </div>
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="ShortDescription"/>
+                        </div>
+                        <div class="adminData wide">
+                            <editor asp-for="ShortDescription" />
+                            <span asp-validation-for="ShortDescription"></span>
+                        </div>
+                    </div>
+                </div>
+            ))
+            </div>
+
+            <div class="adminContent">
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="PermissionNames"/>
+                    </div>
+                    <div class="adminData wide">
+                        <editor asp-for="PermissionNames" />
+                        <span asp-validation-for="PermissionNames"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="DisplayOrder"/>
+                    </div>
+                    <div class="adminData">
+                        <editor asp-for="DisplayOrder" />
+                        <span asp-validation-for="DisplayOrder"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="SelectedStoreIds"/>
+                    </div>
+                    <div class="adminData">
+                        <editor asp-for="SelectedStoreIds" />
+                        <span asp-validation-for="SelectedStoreIds"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="SelectedCustomerRoleIds"/>
+                    </div>
+                    <div class="adminData">
+                        <editor asp-for="SelectedCustomerRoleIds" />
+                        <span asp-validation-for="SelectedCustomerRoleIds"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="BeginGroup"/>
+                    </div>
+                    <div class="adminData">
+                        <input asp-for="BeginGroup" />
+                        <span asp-validation-for="BeginGroup"></span>
+                    </div>
+                </div>
+                <div class="adminRow" attr-class='(Model.ProviderAppendsMultipleItems, "d-none")'>
+                    <div class="adminTitle">
+                        <smart-label asp-for="Icon"/>
+                    </div>
+                    <div class="adminData">
+                        <partial name="FontAwesomeIcon" model="Model" />
+                        <span asp-validation-for="Icon"></span>
+                    </div>
+                </div>
+                <div class="adminRow" attr-class='(Model.ProviderAppendsMultipleItems, "d-none")'>
+                    <div class="adminTitle">
+                        <smart-label asp-for="IconColor"/>
+                    </div>
+                    <div class="adminData">
+                        <select asp-for="IconColor" asp-items="@iconColors" class="icon-color-chooser">
+                            <option>@T("Common.Unspecified")</option>
+                        </select>
+                        <span asp-validation-for="IconColor"></span>
+                    </div>
+                </div>
+                @*For later use.
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ShowExpanded"/>
+                    </div>
+                    <div class="adminData">
+                        @Html.EditorFor(model => model.ShowExpanded)
+                        <span asp-validation-for="ShowExpanded"></span>
+                    </div>
+                </div>*@
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="NoFollow"/>
+                    </div>
+                    <div class="adminData">
+                        <input asp-for="NoFollow" />
+                        <span asp-validation-for="NoFollow"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="NewWindow"/>
+                    </div>
+                    <div class="adminData">
+                        <input asp-for="NewWindow" />
+                        <span asp-validation-for="NewWindow"></span>
+                    </div>
+                </div>
+                <div class="adminRow" attr-class='(Model.ProviderAppendsMultipleItems, "d-none")'>
+                    <div class="adminTitle">
+                        <smart-label asp-for="HtmlId"/>
+                    </div>
+                    <div class="adminData">
+                        <input asp-for="HtmlId" />
+                        <span asp-validation-for="HtmlId"></span>
+                    </div>
+                </div>
+                <div class="adminRow" attr-class='(Model.ProviderAppendsMultipleItems, "d-none")'>
+                    <div class="adminTitle">
+                        <smart-label asp-for="CssClass"/>
+                    </div>
+                    <div class="adminData">
+                        <input asp-for="CssClass" />
+                        <span asp-validation-for="CssClass"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </tab>
+</tabstrip>
+
+<script sm-target-zone="scripts" data-origin="menu-item-create-or-update">
+    $(function () {
+        // Icon colors.
+        $('.icon-color-chooser > option').each(function () {
+            var option = $(this);
+            option.data("color", localStorage.getItem('--' + this.value));
+        });
+    });
+</script>

@@ -1,13 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using Autofac;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
+﻿using Autofac;
 using Smartstore.Core.Content.Media.Imaging;
 using Smartstore.Engine.Modularity;
 using Smartstore.IO;
@@ -48,7 +39,7 @@ namespace Smartstore.Core.Content.Media.Storage
             var ext = mediaFile.Extension.NullEmpty() ?? MimeTypes.MapMimeTypeToExtension(mediaFile.MimeType);
 
             var fileName = mediaFile.Id.ToString(ImageCache.IdFormatString).Grow(ext, ".");
-            var subfolder = fileName.Substring(0, ImageCache.MaxDirLength);
+            var subfolder = fileName[..ImageCache.MaxDirLength];
 
             path = _fileSystem.PathCombine(subfolder, fileName);
             path = _fileSystem.PathCombine(MediaRootPath, path);
@@ -84,18 +75,14 @@ namespace Smartstore.Core.Content.Media.Storage
 
         public virtual Stream OpenRead(MediaFile mediaFile)
         {
-            Guard.NotNull(mediaFile, nameof(mediaFile));
-
-            var file = _fileSystem.GetFile(GetPath(mediaFile));
+            var file = _fileSystem.GetFile(GetPath(Guard.NotNull(mediaFile, nameof(mediaFile))));
             return file.Exists ? file.OpenRead() : null;
         }
 
         public virtual async Task<Stream> OpenReadAsync(MediaFile mediaFile)
         {
-            Guard.NotNull(mediaFile, nameof(mediaFile));
-
-            var file = await _fileSystem.GetFileAsync(GetPath(mediaFile));
-            return file.Exists ? file.OpenRead() : null;
+            var file = await _fileSystem.GetFileAsync(GetPath(Guard.NotNull(mediaFile, nameof(mediaFile))));
+            return file.Exists ? await file.OpenReadAsync() : null;
         }
 
         public virtual async Task<byte[]> LoadAsync(MediaFile mediaFile)
@@ -121,8 +108,9 @@ namespace Smartstore.Core.Content.Media.Storage
 
                 using (item)
                 {
-                    using var outStream = (await _fileSystem.GetFileAsync(filePath)).OpenWrite();
+                    using var outStream = await (await _fileSystem.GetFileAsync(filePath)).OpenWriteAsync();
                     await item.SaveToAsync(outStream, mediaFile);
+                    //mediaFile.Size = (int)outStream.Length;
                 }
             }
             else

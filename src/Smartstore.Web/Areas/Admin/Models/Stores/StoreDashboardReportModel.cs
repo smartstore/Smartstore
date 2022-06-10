@@ -1,6 +1,4 @@
-﻿using Smartstore.Web.Modelling;
-
-namespace Smartstore.Admin.Models.Store
+﻿namespace Smartstore.Admin.Models.Store
 {
     public class StoreDashboardReportModel : ModelBase
     {

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Smartstore.Web.Models.Catalog;
+﻿using Smartstore.Web.Models.Catalog;
 
 namespace Smartstore.Web.Models.Cart
 {

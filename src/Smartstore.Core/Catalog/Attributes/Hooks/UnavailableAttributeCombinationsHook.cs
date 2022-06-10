@@ -1,15 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
-using Smartstore.Caching;
+﻿using Smartstore.Caching;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Data;
 using Smartstore.Data.Hooks;
-using Smartstore.Domain;
 using Smartstore.Utilities;
 
 namespace Smartstore.Core.Catalog.Attributes

@@ -1,12 +1,5 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Smartstore.Core.Content.Media;
-using Smartstore.Core.Data;
+﻿using Smartstore.Core.Content.Media;
 using Smartstore.Core.Security;
-using Smartstore.Web.Controllers;
 
 namespace Smartstore.Admin.Controllers
 {

@@ -1,12 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Dynamic.Core;
-using System.Threading.Tasks;
+﻿using System.Linq.Dynamic.Core;
 using Dasync.Collections;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Attributes;
@@ -30,7 +23,6 @@ namespace Smartstore.Core.Checkout.Shipping
         private readonly ShippingSettings _shippingSettings;
         private readonly IProviderManager _providerManager;
         private readonly ISettingFactory _settingFactory;
-        private readonly IStoreContext _storeContext;
         private readonly IWorkContext _workContext;
         private readonly SmartDbContext _db;
 
@@ -41,7 +33,6 @@ namespace Smartstore.Core.Checkout.Shipping
             ShippingSettings shippingSettings,
             IProviderManager providerManager,
             ISettingFactory settingFactory,
-            IStoreContext storeContext,
             IWorkContext workContext,
             SmartDbContext db)
         {
@@ -51,7 +42,6 @@ namespace Smartstore.Core.Checkout.Shipping
             _shippingSettings = shippingSettings;
             _providerManager = providerManager;
             _settingFactory = settingFactory;
-            _storeContext = storeContext;
             _workContext = workContext;
             _db = db;
         }
@@ -93,7 +83,14 @@ namespace Smartstore.Core.Checkout.Shipping
 
         public virtual async Task<List<ShippingMethod>> GetAllShippingMethodsAsync(int storeId = 0, bool matchRules = false)
         {
-            var shippingMethods = await _db.ShippingMethods
+            var query = _db.ShippingMethods.AsQueryable();
+
+            if (matchRules)
+            {
+                query = query.Include(x => x.RuleSets);
+            }
+
+            var shippingMethods = await query
                 .ApplyStoreFilter(storeId)
                 .OrderBy(x => x.DisplayOrder)
                 .ToListAsync();
@@ -101,7 +98,7 @@ namespace Smartstore.Core.Checkout.Shipping
             if (matchRules)
             {
                 return await shippingMethods
-                    .WhereAsync(async x => await _cartRuleProvider.RuleMatchesAsync(x))
+                    .WhereAsync(x => _cartRuleProvider.RuleMatchesAsync(x))
                     .AsyncToList();
             }
 
@@ -153,7 +150,7 @@ namespace Smartstore.Core.Checkout.Shipping
             };
         }
 
-        public virtual ShippingOptionResponse GetShippingOptions(ShippingOptionRequest request, string allowedShippingRateComputationMethodSystemName = null)
+        public virtual async Task<ShippingOptionResponse> GetShippingOptionsAsync(ShippingOptionRequest request, string allowedShippingRateComputationMethodSystemName = null)
         {
             Guard.NotNull(request, nameof(request));
 
@@ -167,17 +164,16 @@ namespace Smartstore.Core.Checkout.Shipping
             }
 
             // Get shipping options.
-            var primaryCurrency = _storeContext.CurrentStore.PrimaryStoreCurrency;
             var workingCurrency = _workContext.WorkingCurrency;
             var result = new ShippingOptionResponse();
 
             foreach (var method in computationMethods)
             {
-                var response = method.Value.GetShippingOptions(request);
+                var response = await method.Value.GetShippingOptionsAsync(request);
                 foreach (var option in response.ShippingOptions)
                 {
                     option.ShippingRateComputationMethodSystemName = method.Metadata.SystemName;
-                    option.Rate = new(workingCurrency.RoundIfEnabledFor(option.Rate.Amount), primaryCurrency);
+                    option.Rate = workingCurrency.RoundIfEnabledFor(option.Rate);
 
                     result.ShippingOptions.Add(option);
                 }

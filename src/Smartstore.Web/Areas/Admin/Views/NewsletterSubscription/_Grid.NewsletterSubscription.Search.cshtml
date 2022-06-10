@@ -1,0 +1,20 @@
+﻿@using Smartstore.Admin.Models.Messages
+
+@model NewsletterSubscriptionListModel
+
+@{
+    var isSingleStoreMode = (bool)ViewBag.IsSingleStoreMode;
+}
+
+<div class="form-group">
+    <smart-label asp-for="SearchEmail" />
+    <input asp-for="SearchEmail" />
+</div>
+<div class="form-group">
+    <smart-label asp-for="SearchCustomerRoleIds" />
+    <editor asp-for="SearchCustomerRoleIds" />
+</div>
+<div sm-if="!isSingleStoreMode" class="form-group">
+    <smart-label asp-for="SearchStoreId" />
+    <editor asp-for="SearchStoreId" />
+</div>

@@ -1,18 +1,15 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using Autofac;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
-using Smartstore.Utilities;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Routing;
-using Autofac;
 using Smartstore.Core.Localization;
+using Smartstore.Utilities;
 
 namespace Smartstore.Web.TagHelpers
 {
-	public abstract class SmartTagHelper : TagHelper
+    public abstract class SmartTagHelper : TagHelper
 	{
         private IActionContextAccessor _actionContextAccessor;
         private IHtmlHelper _htmlHelper;

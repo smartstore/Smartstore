@@ -1,45 +1,43 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Smartstore.Admin.Models.Customers;
+﻿using Smartstore.Admin.Models.Customers;
 using Smartstore.Core.Checkout.Orders.Reporting;
-using Smartstore.Core.Data;
-using Smartstore.Core.Identity;
-using Smartstore.Web.Components;
+using Smartstore.Core.Security;
 
 namespace Smartstore.Admin.Components
 {
     public class DashboardTopCustomersViewComponent : SmartViewComponent
     {
-        private readonly SmartDbContext _db;
-        private readonly CustomerHelper _customerHelper;
+        private const int NUM_REPORT_LINES = 7;
 
-        public DashboardTopCustomersViewComponent(SmartDbContext db, CustomerHelper customerHelper)
+        private readonly SmartDbContext _db;
+
+        public DashboardTopCustomersViewComponent(SmartDbContext db)
         {
             _db = db;
-            _customerHelper = customerHelper;
         }
 
         public async Task<IViewComponentResult> InvokeAsync()
         {
-            var pageSize = 7;
+            if (!await Services.Permissions.AuthorizeAsync(Permissions.Customer.Read))
+            {
+                return Empty();
+            }
 
-            var reportByQuantity = await _db.Customers
-                .SelectAsTopCustomerReportLine(sorting: ReportSorting.ByQuantityDesc)
-                .Take(pageSize)
+            var orderQuery = _db.Orders.Where(x => !x.Customer.Deleted);
+
+            var reportByQuantity = await orderQuery
+                .SelectAsTopCustomerReportLine(ReportSorting.ByQuantityDesc)
+                .Take(NUM_REPORT_LINES)
                 .ToListAsync();
 
-            var reportByAmount = await _db.Customers
-                .SelectAsTopCustomerReportLine(sorting: ReportSorting.ByAmountDesc)
-                .Take(pageSize)
+            var reportByAmount = await orderQuery
+                .SelectAsTopCustomerReportLine(ReportSorting.ByAmountDesc)
+                .Take(NUM_REPORT_LINES)
                 .ToListAsync();
 
             var model = new DashboardTopCustomersModel
             {
-                TopCustomersByQuantity = await _customerHelper.CreateCustomerReportLineModelAsync(reportByQuantity),
-                TopCustomersByAmount = await _customerHelper.CreateCustomerReportLineModelAsync(reportByAmount)
+                TopCustomersByQuantity = await reportByQuantity.MapAsync(_db),
+                TopCustomersByAmount = await reportByAmount.MapAsync(_db)
             };
 
             return View(model);

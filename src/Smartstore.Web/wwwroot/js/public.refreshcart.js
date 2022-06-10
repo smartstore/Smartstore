@@ -1,6 +1,4 @@
-﻿// TODO: (core) File should be merged/bundled with other shopping cart scripts
-// REMARK: (mh) (core) Really? It's only used on two pages Cart & Wishlist. This script can be spared from adding weight to our global scripts.
-;
+﻿;
 $(function () {
     var orderSummary = $(".cart-content");
     var isWishlist = orderSummary.is('.wishlist-content');

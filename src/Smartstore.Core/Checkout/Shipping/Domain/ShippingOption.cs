@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
+﻿using System.Globalization;
 using System.Text;
 using System.Xml.Serialization;
+using Smartstore.ComponentModel;
 using Smartstore.ComponentModel.TypeConverters;
-using Smartstore.Core.Common;
 
 namespace Smartstore.Core.Checkout.Shipping
 {
@@ -27,7 +24,7 @@ namespace Smartstore.Core.Checkout.Shipping
         /// <summary>
         /// Gets or sets a shipping rate (without discounts, additional shipping charges, etc)
         /// </summary>
-        public Money Rate { get; set; }
+        public decimal Rate { get; set; }
 
         /// <summary>
         /// Gets or sets a shipping option name
@@ -38,6 +35,25 @@ namespace Smartstore.Core.Checkout.Shipping
         /// Gets or sets a shipping option description
         /// </summary>
         public string Description { get; set; }
+    }
+
+    public class ShippingOptionConverterProvider : ITypeConverterProvider
+    {
+        static readonly ITypeConverter Default = new ShippingOptionConverter(true);
+
+        public ITypeConverter GetConverter(Type type)
+        {
+            if (type == typeof(ShippingOption))
+            {
+                return new ShippingOptionConverter(false);
+            }
+            else if (!type.IsArray && type.IsEnumerableType(out var elementType) && elementType == typeof(ShippingOption))
+            {
+                return Default;
+            }
+
+            return null;
+        }
     }
 
     public class ShippingOptionConverter : DefaultTypeConverter

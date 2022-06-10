@@ -1,9 +1,4 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using Smartstore.Engine;
-
-namespace Smartstore.Core.DataExchange.Export.Deployment
+﻿namespace Smartstore.Core.DataExchange.Export.Deployment
 {
     public class PublicFolderPublisher : IFilePublisher
     {
@@ -30,7 +25,7 @@ namespace Smartstore.Core.DataExchange.Export.Deployment
                 {
                     var zipFile = await source.Parent.GetFileAsync(context.ZipFile.Name);
 
-                    using var stream = await zipFile.OpenReadAsync();
+                    using var stream = await zipFile.OpenReadAsync(cancelToken);
 
                     var newPath = deploymentDir.FileSystem.PathCombine(deploymentDir.SubPath, zipFile.Name);
                     var newFile = await deploymentDir.FileSystem.CreateFileAsync(newPath, stream, true);

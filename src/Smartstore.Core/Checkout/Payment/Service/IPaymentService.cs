@@ -1,8 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using Smartstore.Core.Checkout.Cart;
+﻿using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
-using Smartstore.Core.Identity;
 using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Core.Checkout.Payment
@@ -117,17 +114,35 @@ namespace Smartstore.Core.Checkout.Payment
         Task<ProcessPaymentResult> ProcessRecurringPaymentAsync(ProcessPaymentRequest processPaymentRequest);
 
         /// <summary>
+        /// Gets masked credit card number.
+        /// </summary>
+        /// <param name="creditCardNumber">Credit card number.</param>
+        /// <returns>Masked credit card number.</returns>
+        string GetMaskedCreditCardNumber(string creditCardNumber);
+
+        #region Recurring payment
+
+        /// <summary>
+        /// Gets the next recurring payment date.
+        /// </summary>
+        /// <param name="recurringPayment">Recurring payment.</param>
+        /// <returns>Next recurring payment date. <c>null</c> if there is no next payment date.</returns>
+        Task<DateTime?> GetNextRecurringPaymentDateAsync(RecurringPayment recurringPayment);
+
+        /// <summary>
+        /// Gets the remaining cycles of a recurring payment.
+        /// </summary>
+        /// <param name="recurringPayment">Recurring payment.</param>
+        /// <returns>Remaining cycles of a recurring payment.</returns>
+        Task<int> GetRecurringPaymentRemainingCyclesAsync(RecurringPayment recurringPayment);
+
+        /// <summary>
         /// Cancels a recurring payment.
         /// </summary>
         /// <param name="cancelPaymentRequest">Cancel recurring payment request.</param>
         /// <returns>Cancel recurring payment result.</returns>
         Task<CancelRecurringPaymentResult> CancelRecurringPaymentAsync(CancelRecurringPaymentRequest cancelPaymentRequest);
 
-        /// <summary>
-        /// Gets masked credit card number.
-        /// </summary>
-        /// <param name="creditCardNumber">Credit card number.</param>
-        /// <returns>Masked credit card number.</returns>
-        string GetMaskedCreditCardNumber(string creditCardNumber);
+        #endregion
     }
 }

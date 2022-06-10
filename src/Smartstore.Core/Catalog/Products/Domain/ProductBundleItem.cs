@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Newtonsoft.Json;
 using Smartstore.Core.Localization;
-using Smartstore.Domain;
 
 namespace Smartstore.Core.Catalog.Products
 {
@@ -15,20 +11,19 @@ namespace Smartstore.Core.Catalog.Products
     {
         public void Configure(EntityTypeBuilder<ProductBundleItem> builder)
         {
-            // SQL Server does not support multiple cascade deletes.
+            // INFO: DeleteBehavior.ClientSetNull required because of cycles or multiple cascade paths.
             builder
                 .HasOne(c => c.Product)
                 .WithMany()
                 .HasForeignKey(c => c.ProductId)
-                .IsRequired(false);
-                //.OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.ClientSetNull);
 
+            // INFO: required because the property names do not meet the EF conventions.
             builder
                 .HasOne(c => c.BundleProduct)
                 .WithMany(c => c.ProductBundleItems)
                 .HasForeignKey(c => c.BundleProductId)
-                .IsRequired(false);
-                //.OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 

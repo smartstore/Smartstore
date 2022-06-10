@@ -1,8 +1,4 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Smartstore.Engine;
-using Smartstore.Scheduling;
+﻿using Smartstore.Scheduling;
 
 namespace Smartstore.Core.Common.Tasks
 {

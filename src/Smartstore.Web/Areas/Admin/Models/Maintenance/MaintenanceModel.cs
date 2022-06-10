@@ -1,7 +1,4 @@
-﻿using System;
-using Smartstore.Web.Modelling;
-
-namespace Smartstore.Admin.Models.Maintenance
+﻿namespace Smartstore.Admin.Models.Maintenance
 {
     public class MaintenanceModel : ModelBase
     {
@@ -10,6 +7,7 @@ namespace Smartstore.Admin.Models.Maintenance
         public DeleteImageCacheModel DeleteImageCache { get; set; } = new();
 
         public bool CanExecuteSql { get; set; }
+        public bool CanCreateBackup { get; set; }
 
         [LocalizedDisplay("Admin.System.Maintenance.SqlQuery")]
         public string SqlQuery { get; set; }

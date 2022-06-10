@@ -1,5 +1,4 @@
-﻿using System;
-namespace Smartstore.Core.Localization
+﻿namespace Smartstore.Core.Localization
 {
     public class LocalizationFileResolveResult
     {

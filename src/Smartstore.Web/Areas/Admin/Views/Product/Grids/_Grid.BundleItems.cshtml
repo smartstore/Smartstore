@@ -5,6 +5,7 @@
 }
 
 <datagrid id="bundleitems-grid"
+          allow-edit="true"
           allow-resize="true"
           allow-row-selection="true"
           allow-column-reordering="true"
@@ -30,7 +31,10 @@
                 <span>@T("Common.Cancel")</span>
             </button>
         </toolbar-group>
-        <toolbar-group class="omega">
+        <zone name="datagrid_toolbar_alpha"></zone>
+        <toolbar-group class="omega"></toolbar-group>
+        <zone name="datagrid_toolbar_omega"></zone>
+        <toolbar-group>
             <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger no-anims btn-flat">
                 <i class="far fa-trash-alt"></i>
                 <span>@T("Admin.Common.Delete.Selected")</span>
@@ -93,9 +97,9 @@
     });
 
     function bundleItems_onRowClass(row) {
-        if (!row.Published) {
-            return { 'text-muted': true };
-        }
+        return {
+            "text-muted": !row.Published
+        };
     }
 
     function PickBundleItems_Completed(ids) {

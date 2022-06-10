@@ -1,10 +1,6 @@
-﻿using System;
-using System.IO;
-using System.ServiceModel.Syndication;
+﻿using System.ServiceModel.Syndication;
 using System.Text;
-using System.Threading.Tasks;
 using System.Xml;
-using Microsoft.AspNetCore.Mvc;
 
 namespace Smartstore.Web.Controllers
 {

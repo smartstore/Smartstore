@@ -60,9 +60,21 @@
         var keyValues = queryString.split('&');
 
         for (var i in keyValues) {
-            var key = keyValues[i].split('=');
-            if (key.length > 1)
-                assoc[decode(key[0]).toLowerCase()] = decode(key[1]);
+            var item = keyValues[i].split('=');
+            if (item.length > 1) {
+                var key = decode(item[0]).toLowerCase();
+                var val = decode(item[1]);
+                if (assoc[key] === undefined) {
+                    assoc[key] = val;
+                } else {
+                    var v = assoc[key];
+                    if (v.constructor != Array) {
+                        assoc[key] = [];
+                        assoc[key].push(v);
+                    }
+                    assoc[key].push(val);
+                }
+            }
         }
 
         return assoc;
@@ -226,7 +238,7 @@
             try {
                 result = document.execCommand('copy');
             }
-            finally {
+            catch (ex) {
                 elContext.removeChild(textarea);
                 if (elFocus) {
                     elFocus.focus();
@@ -373,13 +385,20 @@
         }
 
         function decode(str) {
-            try {
-                if (str)
+            if (str) {
+                try {
+                    str = atob(str);
+                }
+                catch (e) { }
+
+                try {
                     return decodeURIComponent(escape(str));
+                }
+                catch (e) {
+                    return str;
+                }
             }
-            catch (e) {
-                return str;
-            }
+
             return str;
         }
 
@@ -445,6 +464,13 @@
         $(document).on('click', '.confirm', function (e) {
             var msg = $(this).data("confirm-message") || window.Res["Admin.Common.AskToProceed"];
             return confirm(msg);
+        });
+
+        // Switch toggle
+        $(document).on('click', 'label.switch', function (e) {
+            if ($(this).children('input[type="checkbox"]').is('[readonly]')) {
+                e.preventDefault();
+            }
         });
 
         // tab strip smart auto selection
@@ -522,12 +548,22 @@
                 else {
                     try {
                         var data = JSON.parse(xhr.responseText);
-                        if (data.error && data.message) {
+                        if (data.message) {
                             displayNotification(decode(data.message), "error");
                         }
                     }
                     catch (ex) {
-                        displayNotification(xhr.responseText, "error");
+                        function tryStripHeaders(message) {
+                            // Removes the annoying HEADERS part of message that
+                            // DeveloperExceptionPageMiddleware adds to the output.
+                            var idx = message?.indexOf("\r\nHEADERS\r\n=======");
+                            if (idx === undefined || idx === -1) {
+                                return message;
+                            }
+                            return message.substring(0, idx).trim();
+                        }
+
+                        displayNotification(tryStripHeaders(xhr.responseText), "error");
                     }
                 }
             });
@@ -601,11 +637,26 @@
                 }
             });
 
-            // handle nested dropdown menus
-            $(document).on('mouseenter mouseleave', '.dropdown-group', function (e) {
-                var li = $(this);
+            // Handle nested dropdown menus
+            $(document).on('mouseenter mouseleave click', '.dropdown-group', function (e) {
+                let li = $(this);
+                let type;
+                let leaveDelay = 250;
 
-                if (e.type == 'mouseenter') {
+                if (e.type === 'click') {
+                    let item = $(e.target).closest('.dropdown-item');
+                    if (item.length && item.parent().get(0) == this) {
+                        type = $(this).is('.show') ? 'leave' : 'enter';
+                        leaveDelay = 0;
+                        item.blur();
+                        e.preventDefault();
+                        e.stopPropagation();
+                    }
+                }
+
+                type = type || (e.type == 'mouseenter' ? 'enter' : 'leave');
+
+                if (type == 'enter') {
                     if (currentSubDrop) {
                         clearTimeout(closeTimeoutSub);
                         closeDrop(currentSubDrop);
@@ -615,7 +666,7 @@
                 }
                 else {
                     li.removeClass('show');
-                    closeTimeoutSub = window.setTimeout(function () { closeDrop(li); }, 250);
+                    closeTimeoutSub = window.setTimeout(function () { closeDrop(li); }, leaveDelay);
                 }
             });
         })();
@@ -645,28 +696,42 @@
         // state region dropdown
         $(document).on('change', '.country-selector', function () {
             var el = $(this);
-            var selectedItem = el.val();
+            var selectedCountryId = el.val();
             var ddlStates = $(el.data("region-control-selector"));
+
+            if (selectedCountryId == '0') {
+                // No data to load.
+                ddlStates.empty().val(null).trigger('change');
+                return;
+            }
 
             var ajaxUrl = el.data("states-ajax-url");
             var addEmptyStateIfRequired = el.data("addemptystateifrequired");
             var addAsterisk = el.data("addasterisk");
+            var initialLoad = ddlStates.children('option').length == 0;
+            var selectedId = ddlStates.data('select-selected-id');
 
             $.ajax({
                 cache: false,
                 type: "GET",
                 url: ajaxUrl,
-                data: { "countryId": selectedItem, "addEmptyStateIfRequired": addEmptyStateIfRequired, "addAsterisk": addAsterisk },
+                data: { "countryId": selectedCountryId, "addEmptyStateIfRequired": addEmptyStateIfRequired, "addAsterisk": addAsterisk },
                 success: function (data) {
                     if (data.error)
                         return;
 
-                    ddlStates.html('');
+                    ddlStates.empty();
+
                     $.each(data, function (id, option) {
-                        ddlStates.append($('<option></option>').val(option.id).html(option.name));
+                        var selected = initialLoad && option.Value == selectedId;
+                        ddlStates.append(new Option(option.Text, option.Value, selected, selected));
                     });
-                    ddlStates.val("");
-                    ddlStates.trigger("change");
+
+                    if (!initialLoad) {
+                        ddlStates.val(null);
+                    }
+
+                    ddlStates.trigger('change');
                 },
                 error: function (xhr, ajaxOptions, thrownError) {
                     alert('Failed to retrieve states.');

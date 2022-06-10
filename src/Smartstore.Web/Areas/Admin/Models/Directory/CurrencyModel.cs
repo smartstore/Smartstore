@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Smartstore.Core.Common;
 using Smartstore.Core.Localization;
-using Smartstore.Web.Modelling;
 
 namespace Smartstore.Admin.Models.Common
 {
@@ -36,14 +32,6 @@ namespace Smartstore.Admin.Models.Common
 
         [LocalizedDisplay("Common.CreatedOn")]
         public DateTime CreatedOn { get; set; }
-        public bool IsPrimaryStoreCurrency { get; set; }
-        public bool IsPrimaryExchangeRateCurrency { get; set; }
-
-        [LocalizedDisplay("*PrimaryStoreCurrencyStores")]
-        public List<SelectListItem> PrimaryStoreCurrencyStores { get; set; } = new();
-
-        [LocalizedDisplay("*PrimaryExchangeRateCurrencyStores")]
-        public List<SelectListItem> PrimaryExchangeRateCurrencyStores { get; set; } = new();
 
         [LocalizedDisplay("*DomainEndings")]
         public string DomainEndings { get; set; }
@@ -56,7 +44,7 @@ namespace Smartstore.Admin.Models.Common
             new SelectListItem { Text = ".ch", Value = ".ch" }
         };
 
-        public List<CurrencyLocalizedModel> Locales { get; set; } = new List<CurrencyLocalizedModel>();
+        public List<CurrencyLocalizedModel> Locales { get; set; } = new();
 
         [UIHint("Stores")]
         [AdditionalMetadata("multiple", true)]
@@ -65,6 +53,12 @@ namespace Smartstore.Admin.Models.Common
 
         [LocalizedDisplay("Admin.Common.Store.LimitedTo")]
         public bool LimitedToStores { get; set; }
+
+        [LocalizedDisplay("*IsPrimaryStoreCurrency")]
+        public bool IsPrimaryCurrency { get; set; }
+
+        [LocalizedDisplay("*IsPrimaryExchangeRateCurrency")]
+        public bool IsPrimaryExchangeCurrency { get; set; }
 
         public string EditUrl { get; set; }
 
@@ -85,7 +79,7 @@ namespace Smartstore.Admin.Models.Common
         [LocalizedDisplay("*RoundOrderTotalRule")]
         public CurrencyRoundingRule RoundOrderTotalRule { get; set; }
 
-        public Dictionary<string, string> RoundOrderTotalPaymentMethods { get; set; } = new Dictionary<string, string>();
+        public Dictionary<string, string> RoundOrderTotalPaymentMethods { get; set; } = new();
 
         #endregion Rounding
     }

@@ -31,7 +31,7 @@
         <a datarow-action="DataRowAction.InlineEdit">@T("Common.Edit")</a>
     </row-commands>
     <columns>
-        <column for="Id" visible="false" resizable="false" type="string" />
+        <column for="Id" visible="false" resizable="false" type="string" readonly="true" />
         <column for="Name" readonly="true" hideable="false">
             <display-template>
                 <div class="text-truncate"><a :href="item.row.EditUrl" class="text-truncate">{{ item.value }}</a></div>

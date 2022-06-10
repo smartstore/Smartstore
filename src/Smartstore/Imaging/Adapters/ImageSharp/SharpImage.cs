@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Threading.Tasks;
-using SixLabors.ImageSharp;
+﻿using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
 using SharpFormat = SixLabors.ImageSharp.Formats.IImageFormat;
 using Size = System.Drawing.Size;
@@ -74,25 +71,25 @@ namespace Smartstore.Imaging.Adapters.ImageSharp
 
         /// <inheritdoc/>
         public IImage Save(Stream stream, IImageFormat format = null)
-        {
-            var encoder = ((SharpImageFormat)(format ?? _format)).CreateEncoder();
-            _image.Save(stream, encoder);
-
-            // Remember format for next save
-            if (format != null)
-            {
-                Format = format;
-            }
-
-            return this;
-        }
+            => SaveInternal(stream, format, false).Await();
 
         /// <inheritdoc/>
-        public async Task<IImage> SaveAsync(Stream stream, IImageFormat format = null)
+        public Task<IImage> SaveAsync(Stream stream, IImageFormat format = null)
+            => SaveInternal(stream, format, true);
+
+        private async Task<IImage> SaveInternal(Stream stream, IImageFormat format, bool async)
         {
             var encoder = ((SharpImageFormat)(format ?? _format)).CreateEncoder();
-            await _image.SaveAsync(stream, encoder);
 
+            if (async)
+            {
+                await _image.SaveAsync(stream, encoder);
+            }
+            else
+            {
+                _image.Save(stream, encoder);
+            }
+            
             // Remember format for next save
             if (format != null)
             {

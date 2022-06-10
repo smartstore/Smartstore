@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using Smartstore.Core.Catalog.Products;
-using Smartstore.Core.Common;
+﻿using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Localization;
-using Smartstore.Web.Modelling;
 using Smartstore.Web.Models.Common;
 using Smartstore.Web.Models.Media;
 

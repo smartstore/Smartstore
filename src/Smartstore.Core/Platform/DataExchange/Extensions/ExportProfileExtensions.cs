@@ -1,5 +1,4 @@
-﻿using System;
-using System.Globalization;
+﻿using System.Globalization;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
 using Smartstore.Utilities;

@@ -1,0 +1,59 @@
+﻿@using Smartstore.Admin.Models.Messages
+
+@model NewsletterSubscriptionModel
+
+<datagrid id="newsletter-subscription-grid"
+          allow-resize="true"
+          allow-row-selection="true"
+          allow-column-reordering="true"
+          allow-edit="true">
+    <datasource read="@Url.Action("List", "NewsletterSubscription")"
+                update="@Url.Action("Update", "NewsletterSubscription")"
+                delete="@Url.Action("Delete", "NewsletterSubscription")" />
+    <sorting enabled="true">
+        <sort by="CreatedOn" descending="true" by-entity-member="CreatedOnUtc" />
+    </sorting>
+    <paging position="Bottom" show-size-chooser="true" />
+    <toolbar>
+        <toolbar-group>
+            <button datagrid-action="DataGridToolAction.ToggleSearchPanel" type="button" class="btn btn-light btn-icon">
+                <i class="fa fa-fw fa-filter"></i>
+            </button>
+            <button datagrid-action="DataGridToolAction.SaveChanges" type="button" class="btn btn-warning no-anims btn-flat">
+                <i class="fa fa-check"></i>
+                <span>@T("Admin.Common.SaveChanges")</span>
+            </button>
+            <button datagrid-action="DataGridToolAction.CancelEdit" type="button" class="btn btn-light btn-flat mr-auto">
+                <span>@T("Common.Cancel")</span>
+            </button>
+        </toolbar-group>
+        <zone name="datagrid_toolbar_alpha"></zone>
+        <toolbar-group class="omega"></toolbar-group>
+        <zone name="datagrid_toolbar_omega"></zone>
+        <toolbar-group>
+            <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger no-anims btn-flat">
+                <i class="far fa-trash-alt"></i>
+                <span>@T("Admin.Common.Delete.Selected")</span>
+            </button>
+        </toolbar-group>
+    </toolbar>
+    <search-panel>
+        <partial name="_Grid.NewsletterSubscription.Search" />
+    </search-panel>
+    <columns>
+        <column for="Email" width="2fr" hideable="false" />
+        <column for="Active" halign="center" />
+
+        @if (!(bool)ViewBag.IsSingleStoreMode)
+        {
+            <column for="StoreName" readonly sortable="false" />
+        }
+
+        <column for="CreatedOn" entity-member="CreatedOnUtc" readonly />
+    </columns>
+    <row-commands>
+        <a datarow-action="DataRowAction.InlineEdit">@T("Common.Edit")</a>
+        <a datarow-action="DataRowAction.Delete">@T("Common.Delete")</a>
+    </row-commands>
+</datagrid>
+

@@ -1,19 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
+﻿using System.Diagnostics;
 using Smartstore.Caching;
-using Smartstore.Scheduling;
 using Smartstore.Core.Data;
 using Smartstore.Core.Rules;
 using Smartstore.Core.Rules.Filters;
 using Smartstore.Core.Security;
 using Smartstore.Data;
-using Smartstore.Data.Batching;
 using Smartstore.Data.Hooks;
+using Smartstore.Scheduling;
 
 namespace Smartstore.Core.Identity.Rules
 {
@@ -60,6 +53,7 @@ namespace Smartstore.Core.Identity.Rules
                     .Include(x => x.RuleSets)
                     .ThenInclude(x => x.Rules)
                     .AsNoTracking()
+                    .AsSplitQuery()
                     .Where(x => x.Active && x.RuleSets.Any(y => y.IsActive))
                     .ToListAsync(cancelToken);
                 rolesCount = roles.Count;
@@ -82,7 +76,7 @@ namespace Smartstore.Core.Identity.Rules
                             var filterResult = _targetGroupService.ProcessFilter(expression, 0, 500);
                             var resultPager = new FastPager<Customer>(filterResult.SourceQuery, 500);
 
-                            while ((await resultPager.ReadNextPageAsync(x => x.Id, x => x)).Out(out var customerIds))
+                            while ((await resultPager.ReadNextPageAsync(x => x.Id, x => x, cancelToken)).Out(out var customerIds))
                             {
                                 ruleSetCustomerIds.AddRange(customerIds);
                             }
@@ -92,7 +86,7 @@ namespace Smartstore.Core.Identity.Rules
                     // Add mappings.
                     if (ruleSetCustomerIds.Any())
                     {
-                        foreach (var chunk in ruleSetCustomerIds.Slice(500))
+                        foreach (var chunk in ruleSetCustomerIds.Chunk(500))
                         {
                             if (cancelToken.IsCancellationRequested)
                                 return;
@@ -116,7 +110,9 @@ namespace Smartstore.Core.Identity.Rules
                         {
                             scope.DbContext.DetachEntities<CustomerRoleMapping>();
                         }
-                        catch { }
+                        catch 
+                        { 
+                        }
                     }
                 }
             }

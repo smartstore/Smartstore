@@ -1,9 +1,5 @@
-﻿using System;
-using System.Net;
+﻿using System.Net;
 using System.Net.Http;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
 
 namespace Smartstore.Core.DataExchange.Export.Deployment
 {
@@ -34,7 +30,6 @@ namespace Smartstore.Core.DataExchange.Export.Deployment
                 ? new NetworkCredential(deployment.Username, deployment.Password)
                 : null;
 
-            using var formData = new MultipartFormDataContent();
             var client = credentials == null
                 ? _httpClientFactory.CreateClient()
                 : new HttpClient(new HttpClientHandler { Credentials = credentials }, true);
@@ -42,10 +37,12 @@ namespace Smartstore.Core.DataExchange.Export.Deployment
             if (deployment.HttpTransmissionType == ExportHttpTransmissionType.MultipartFormDataPost)
             {
                 var num = 0;
-                
+                using var formData = new MultipartFormDataContent();
+
                 foreach (var file in files)
                 {
-                    formData.Add(new StreamContent(file.OpenRead()), "file {0}".FormatInvariant(++num), file.Name);
+                    num++;
+                    formData.Add(new StreamContent(await file.OpenReadAsync(cancelToken)), $"file {num}", file.Name);
                 }
 
                 var response = await client.PostAsync(uri, formData, cancelToken);
@@ -70,7 +67,7 @@ namespace Smartstore.Core.DataExchange.Export.Deployment
             {
                 foreach (var file in files)
                 {
-                    using var content = new StreamContent(file.OpenRead());
+                    using var content = new StreamContent(await file.OpenReadAsync(cancelToken));
                     await client.PostAsync(uri, content, cancelToken);
                     ++succeededFiles;
                 }

@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Smartstore.Data
+﻿namespace Smartstore.Data
 {
     /// <summary>
     /// Represents the possibility of data merging of two objects.

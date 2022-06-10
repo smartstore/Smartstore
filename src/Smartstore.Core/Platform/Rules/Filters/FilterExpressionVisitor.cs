@@ -1,6 +1,4 @@
-﻿using System.Linq.Expressions;
-
-namespace Smartstore.Core.Rules.Filters
+﻿namespace Smartstore.Core.Rules.Filters
 {
     internal sealed class FilterExpressionVisitor : ExpressionVisitor
     {

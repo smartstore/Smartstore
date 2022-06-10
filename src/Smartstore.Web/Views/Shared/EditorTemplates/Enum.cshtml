@@ -7,9 +7,10 @@
     var placeholder = attributes.Get("placeholder") ?? GetMetadata<string>("placeholder");
     if (isNullable && placeholder.IsEmpty())
     {
-        placeholder = T("Common.Unspecified");
+        <select asp-for="@Model" asp-items="items" asp-placeholder="@T("Common.Unspecified")" attrs="attributes"></select>
+    }
+    else
+    {
+        <select asp-for="@Model" asp-items="items" attrs="attributes"></select>
     }
 }
-
-<select asp-for="@Model" asp-items="items" asp-placeholder="@placeholder" attrs="attributes" sm-required="ViewData.ModelExplorer.Metadata.IsRequired">
-</select>

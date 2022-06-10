@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Smartstore.Caching
+﻿namespace Smartstore.Caching
 {
     public interface IScopedService
     {

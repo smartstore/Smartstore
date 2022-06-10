@@ -1,8 +1,4 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Smartstore.Core.Catalog;
-using Smartstore.Web.Controllers;
+﻿using Smartstore.Core.Catalog;
 
 namespace Smartstore.Web.Components
 {

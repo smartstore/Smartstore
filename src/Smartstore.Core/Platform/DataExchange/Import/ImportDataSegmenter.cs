@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
+﻿using System.Globalization;
 using System.Runtime.CompilerServices;
 using Smartstore.Collections;
-using Smartstore.Domain;
 
 namespace Smartstore.Core.DataExchange.Import
 {
@@ -202,7 +198,7 @@ namespace Smartstore.Core.DataExchange.Import
 
                 indexes = columns1.Concat(columns2)
                     .Distinct(StringComparer.OrdinalIgnoreCase)
-                    .Select(x => x.Substring(x.IndexOf("[", StringComparison.OrdinalIgnoreCase) + 1).TrimEnd(']'))
+                    .Select(x => x[(x.IndexOf("[", StringComparison.OrdinalIgnoreCase) + 1)..].TrimEnd(']'))
                     .ToArray();
 
                 _columnIndexes[name] = indexes;

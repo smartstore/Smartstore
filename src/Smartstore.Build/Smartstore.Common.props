@@ -1,0 +1,44 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<!--<RuntimeIdentifiers>win-x64; win-x86; osx-x64; linux-x64</RuntimeIdentifiers>-->
+		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+		<SatelliteResourceLanguages>ar; de; de-DE; es; fa; fr; it; ja; nl; pt; pt-BR; ru; sv; tr; vi; zh-CN</SatelliteResourceLanguages>
+		<CopyRefAssembliesToPublishDirectory>false</CopyRefAssembliesToPublishDirectory>
+		<ChecksumAlgorithm>SHA1</ChecksumAlgorithm>
+		<Configurations>Debug;Release;DebugNoRazorCompile</Configurations>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<Product>Smartstore</Product>
+		<Copyright>Copyright © Smartstore AG</Copyright>
+		<Company>Smartstore AG</Company>
+		<Authors>Smartstore AG</Authors>
+		<Version>5.0.0.0</Version>
+		<FileVersion>5.0.0.0</FileVersion>
+		<InformationalVersion>5.0.0.0</InformationalVersion>
+		<PackageProjectUrl>https://smartstore.com/</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/smartstore/Smartstore</RepositoryUrl>
+		<RepositoryType>Git</RepositoryType>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<PlatformTarget>AnyCPU</PlatformTarget>
+		<Optimize>false</Optimize>
+		<DefineConstants>DEBUG;TRACE</DefineConstants>
+		<WarningLevel>4</WarningLevel>
+		<TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+		<AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugNO|AnyCPU'">
+		<PlatformTarget>AnyCPU</PlatformTarget>
+		<Optimize>false</Optimize>
+		<DefineConstants>DEBUG;TRACE</DefineConstants>
+		<WarningLevel>4</WarningLevel>
+		<TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+		<AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+	</PropertyGroup>
+
+</Project>

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Smartstore.ComponentModel
+﻿namespace Smartstore.ComponentModel
 {
     /// <summary>
     /// Holder for untyped object instances.

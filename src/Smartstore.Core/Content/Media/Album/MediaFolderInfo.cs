@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Runtime.CompilerServices;
 using Dasync.Collections;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Newtonsoft.Json;
 using Smartstore.Collections;
@@ -19,6 +14,7 @@ namespace Smartstore.Core.Content.Media
         private readonly IMediaSearcher _mediaSearcher;
         private readonly IFolderService _folderService;
         private readonly MediaExceptionFactory _exceptionFactory;
+        private readonly DateTimeOffset _now;
 
         public MediaFolderInfo(
             TreeNode<MediaFolderNode> node,
@@ -32,6 +28,7 @@ namespace Smartstore.Core.Content.Media
             _mediaSearcher = mediaSearcher;
             _folderService = folderService;
             _exceptionFactory = exceptionFactory;
+            _now = DateTimeOffset.UtcNow;
         }
 
         [JsonIgnore]
@@ -63,7 +60,11 @@ namespace Smartstore.Core.Content.Media
 
         /// <inheritdoc/>
         [JsonIgnore]
-        DateTimeOffset IFileInfo.LastModified => DateTime.UtcNow;
+        DateTimeOffset IFileEntry.CreatedOn => _now;
+
+        /// <inheritdoc/>
+        [JsonIgnore]
+        DateTimeOffset IFileInfo.LastModified => _now;
 
         /// <inheritdoc/>
         [JsonIgnore]
@@ -110,9 +111,9 @@ namespace Smartstore.Core.Content.Media
             => ((IFileEntry)this).DeleteAsync().Await();
 
         /// <inheritdoc/>
-        async Task IFileEntry.DeleteAsync()
+        async Task IFileEntry.DeleteAsync(CancellationToken cancelToken)
         {
-            await _mediaService.DeleteFolderAsync(Path, FileHandling.Delete);
+            await _mediaService.DeleteFolderAsync(Path, FileHandling.Delete, cancelToken);
         }
 
         /// <inheritdoc/>
@@ -120,7 +121,7 @@ namespace Smartstore.Core.Content.Media
             => ((IDirectory)this).CreateAsync().Await();
 
         /// <inheritdoc/>
-        async Task IDirectory.CreateAsync()
+        async Task IDirectory.CreateAsync(CancellationToken cancelToken)
         {
             if (!Exists)
             {
@@ -133,7 +134,7 @@ namespace Smartstore.Core.Content.Media
             => ((IDirectory)this).CreateSubdirectoryAsync(path).Await();
 
         /// <inheritdoc/>
-        async Task<IDirectory> IDirectory.CreateSubdirectoryAsync(string path)
+        async Task<IDirectory> IDirectory.CreateSubdirectoryAsync(string path, CancellationToken cancelToken)
         {
             CheckExists();
 
@@ -150,7 +151,7 @@ namespace Smartstore.Core.Content.Media
             => ((IDirectory)this).MoveToAsync(newPath).Await();
 
         /// <inheritdoc/>
-        async Task IFileEntry.MoveToAsync(string newPath)
+        async Task IFileEntry.MoveToAsync(string newPath, CancellationToken cancelToken)
         {
             Guard.NotNull(newPath, nameof(newPath));
 
@@ -168,14 +169,17 @@ namespace Smartstore.Core.Content.Media
         }
 
         /// <inheritdoc/>
-        public async IAsyncEnumerable<IFileEntry> EnumerateEntriesAsync(string pattern = "*", bool deep = false)
+        public async IAsyncEnumerable<IFileEntry> EnumerateEntriesAsync(
+            string pattern = "*", 
+            bool deep = false, 
+            [EnumeratorCancellation] CancellationToken cancelToken = default)
         {
-            await foreach (var entry in EnumerateFilesAsync(pattern, deep))
+            await foreach (var entry in EnumerateFilesAsync(pattern, deep, cancelToken))
             {
                 yield return entry;
             }
 
-            await foreach (var entry in EnumerateDirectoriesAsync(pattern, deep))
+            await foreach (var entry in EnumerateDirectoriesAsync(pattern, deep, cancelToken))
             {
                 yield return entry;
             }
@@ -200,12 +204,15 @@ namespace Smartstore.Core.Content.Media
 
             bool MatchesPattern(TreeNode<MediaFolderNode> node)
             {
-                return wildcard == null ? true : wildcard.IsMatch(node.Value.Name);
+                return wildcard == null || wildcard.IsMatch(node.Value.Name);
             }
         }
 
         /// <inheritdoc/>
-        public IAsyncEnumerable<IDirectory> EnumerateDirectoriesAsync(string pattern = "*", bool deep = false)
+        public IAsyncEnumerable<IDirectory> EnumerateDirectoriesAsync(
+            string pattern = "*", 
+            bool deep = false, 
+            CancellationToken cancelToken = default)
             => EnumerateDirectories(pattern, deep).ToAsyncEnumerable();
 
         /// <inheritdoc/>
@@ -223,7 +230,10 @@ namespace Smartstore.Core.Content.Media
         }
 
         /// <inheritdoc/>
-        public async IAsyncEnumerable<IFile> EnumerateFilesAsync(string pattern = "*", bool deep = false)
+        public async IAsyncEnumerable<IFile> EnumerateFilesAsync(
+            string pattern = "*", 
+            bool deep = false, 
+            [EnumeratorCancellation] CancellationToken cancelToken = default)
         {
             CheckExists();
 
@@ -240,7 +250,7 @@ namespace Smartstore.Core.Content.Media
             => CountFilesAsync(pattern, deep).Await();
 
         /// <inheritdoc/>
-        public async Task<long> CountFilesAsync(string pattern = "*", bool deep = true)
+        public async Task<long> CountFilesAsync(string pattern = "*", bool deep = true, CancellationToken cancelToken = default)
         {
             CheckExists();
             return await _mediaService.CountFilesAsync(CreateSearchQuery(pattern, deep));
@@ -251,13 +261,13 @@ namespace Smartstore.Core.Content.Media
             => GetDirectorySizeAsync(pattern, deep).Await();
 
         /// <inheritdoc/>
-        public async Task<long> GetDirectorySizeAsync(string pattern = "*", bool deep = true)
+        public async Task<long> GetDirectorySizeAsync(string pattern = "*", bool deep = true, CancellationToken cancelToken = default)
         {
             CheckExists();
             
             return await _mediaSearcher.SearchFiles(CreateSearchQuery(pattern, deep))
                 .SourceQuery
-                .SumAsync(x => x.Size);
+                .SumAsync(x => x.Size, cancelToken);
         }
 
         private MediaSearchQuery CreateSearchQuery(string pattern, bool deep)

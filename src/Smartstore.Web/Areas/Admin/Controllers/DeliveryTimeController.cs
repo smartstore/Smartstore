@@ -1,22 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Dynamic.Core;
-using System.Threading.Tasks;
+﻿using System.Linq.Dynamic.Core;
 using Dasync.Collections;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Smartstore.Admin.Models.Common;
 using Smartstore.ComponentModel;
-using Smartstore.Core.Common;
 using Smartstore.Core.Common.Services;
-using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
-using Smartstore.Web.Controllers;
-using Smartstore.Web.Modelling;
-using Smartstore.Web.Models.DataGrid;
 using Smartstore.Web.Models;
+using Smartstore.Web.Models.DataGrid;
 
 namespace Smartstore.Admin.Controllers
 {
@@ -35,7 +25,7 @@ namespace Smartstore.Admin.Controllers
 
         public IActionResult Index()
         {
-            return RedirectToAction("List");
+            return RedirectToAction(nameof(List));
         }
 
         /// <summary>
@@ -77,15 +67,18 @@ namespace Smartstore.Admin.Controllers
         {
             var deliveryTimes = await _db.DeliveryTimes
                 .AsNoTracking()
+                .OrderBy(x => x.DisplayOrder)
                 .ApplyGridCommand(command)
                 .ToPagedList(command)
                 .LoadAsync();
 
+            var mapper = MapperFactory.GetMapper<DeliveryTime, DeliveryTimeModel>();
             var deliveryTimeModels = await deliveryTimes
                 .SelectAsync(async x =>
                 {
-                    var model = await MapperFactory.MapAsync<DeliveryTime, DeliveryTimeModel>(x);
+                    var model = await mapper.MapAsync(x);
                     model.DeliveryInfo = _deliveryTimeService.GetFormattedDeliveryDate(x);
+
                     return model;
                 })
                 .AsyncToList();
@@ -100,20 +93,30 @@ namespace Smartstore.Admin.Controllers
         }
 
         [HttpPost]
-        [Permission(Permissions.Configuration.DeliveryTime.Update)]
-        public async Task<IActionResult> Update(DeliveryTimeModel model)
+        [Permission(Permissions.Configuration.DeliveryTime.Delete)]
+        public async Task<IActionResult> DeliveryTimeDelete(GridSelection selection)
         {
             var success = false;
-            var deliveryTime = await _db.DeliveryTimes.FindByIdAsync(model.Id);
+            var numDeleted = 0;
+            var ids = selection.GetEntityIds();
 
-            if (deliveryTime != null)
+            if (ids.Any())
             {
-                await MapperFactory.MapAsync(model, deliveryTime);
-                await _db.SaveChangesAsync();
-                success = true;
+                try
+                {
+                    var deliveryTimes = await _db.DeliveryTimes.GetManyAsync(ids, true);
+                    _db.DeliveryTimes.RemoveRange(deliveryTimes);
+
+                    numDeleted = await _db.SaveChangesAsync();
+                    success = true;
+                }
+                catch (Exception ex)
+                {
+                    NotifyError(ex);
+                }
             }
 
-            return Json(new { success });
+            return Json(new { Success = success, Count = numDeleted });
         }
 
         [Permission(Permissions.Configuration.DeliveryTime.Create)]
@@ -141,6 +144,7 @@ namespace Smartstore.Admin.Controllers
                     await _db.SaveChangesAsync();
 
                     await UpdateLocalesAsync(deliveryTime, model);
+                    await _db.SaveChangesAsync();
 
                     NotifySuccess(T("Admin.Configuration.DeliveryTime.Added"));
                 }
@@ -181,7 +185,6 @@ namespace Smartstore.Admin.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         [Permission(Permissions.Configuration.DeliveryTime.Update)]
         public async Task<IActionResult> EditDeliveryTimePopup(DeliveryTimeModel model, string btnId, string formId)
         {
@@ -228,41 +231,6 @@ namespace Smartstore.Admin.Controllers
             return Json(new { Success = true });
         }
 
-        [HttpPost]
-        [Permission(Permissions.Configuration.DeliveryTime.Delete)]
-        public async Task<IActionResult> Delete(GridSelection selection)
-        {
-            var success = false;
-            var numDeleted = 0;
-            var ids = selection.GetEntityIds();
-
-            if (ids.Any())
-            {
-                var deliveryTimes = await _db.DeliveryTimes.GetManyAsync(ids, true);
-                var triedToDeleteDefault = false;
-
-                foreach (var deliveryTime in deliveryTimes)
-                {
-                    if (deliveryTime.IsDefault == true)
-                    {
-                        triedToDeleteDefault = true;
-                        NotifyError(T("Admin.Configuration.DeliveryTimes.CantDeleteDefault"));
-                    }
-                    else
-                    {
-                        _db.DeliveryTimes.Remove(deliveryTime);
-                    }
-                }
-
-                numDeleted = await _db.SaveChangesAsync();
-
-                success = triedToDeleteDefault && numDeleted == 0 ? false : true;
-            }
-
-            return Json(new { Success = success, Count = numDeleted });
-        }
-
-        [NonAction]
         private async Task UpdateLocalesAsync(DeliveryTime deliveryTime, DeliveryTimeModel model)
         {
             foreach (var localized in model.Locales)

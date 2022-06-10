@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Smartstore.Web.Modelling;
+﻿using Smartstore.Web.Modelling;
 using Smartstore.Web.Models.Customers;
 
 namespace Smartstore.Web.Models.Common

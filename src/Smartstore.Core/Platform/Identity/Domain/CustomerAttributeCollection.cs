@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using Smartstore.Core.Checkout.Attributes;
+﻿using Smartstore.Core.Checkout.Attributes;
 using Smartstore.Core.Checkout.GiftCards;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Common;
@@ -15,6 +13,9 @@ namespace Smartstore.Core.Identity
         }
 
         #region Form fields
+
+        // INFO: this address data is for information purposes only (e.g. on the customer profile page).
+        // Usually customer addresses are used for it (e.g. in checkout).
 
         public string StreetAddress
         {

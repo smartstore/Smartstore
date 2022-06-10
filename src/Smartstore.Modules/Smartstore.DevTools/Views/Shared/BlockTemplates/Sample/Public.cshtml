@@ -1,0 +1,15 @@
+﻿@model SampleBlock
+
+@using Smartstore
+@using Smartstore.DevTools.Blocks
+
+@{
+    if (!Model.Property.HasValue())
+    {
+        return;
+    }
+}
+
+<div class="g-dev">
+    @Model.Property
+</div>

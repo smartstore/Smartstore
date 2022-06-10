@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Smartstore.Core.Checkout.Shipping
+﻿namespace Smartstore.Core.Checkout.Shipping
 {
     /// <summary>
     /// Represents a response from get shipping options
@@ -15,7 +13,7 @@ namespace Smartstore.Core.Checkout.Shipping
         /// <summary>
         /// Gets or sets errors
         /// </summary>
-        public List<string> Errors { get; set; }
+        public List<string> Errors { get; set; } = new();
 
         /// <summary>
         /// Gets a value indicating whether the response is successful

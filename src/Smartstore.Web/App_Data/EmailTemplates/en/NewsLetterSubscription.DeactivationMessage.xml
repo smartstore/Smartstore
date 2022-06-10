@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <MessageTemplate>
-	<To>{{ NewsLetterSubscription.Email }}</To>
+	<To>{{ NewsletterSubscription.Email }}</To>
 	<Subject>{{ Store.Name }}. Cancel newsletter subscription</Subject>
-	<ModelTypes>NewsLetterSubscription</ModelTypes>
+	<ModelTypes>NewsletterSubscription</ModelTypes>
 	<Body><![CDATA[{% extends 'master' %}
 
 {% block 'body' %}
@@ -15,7 +15,7 @@
 </p>
 
 <p class="text-center mt-4 mb-4">
-  <a class="btn btn-danger" href="{{ NewsLetterSubscription.DeactivationUrl }}">Cancel subscription</a>
+  <a class="btn btn-danger" href="{{ NewsletterSubscription.DeactivationUrl }}">Cancel subscription</a>
 </p>
 
 <p>
@@ -23,7 +23,7 @@
 </p>
 
 <p>
-	<a href="{{ NewsLetterSubscription.DeactivationUrl }}">{{ NewsLetterSubscription.DeactivationUrl }}</a> 
+	<a href="{{ NewsletterSubscription.DeactivationUrl }}">{{ NewsletterSubscription.DeactivationUrl }}</a> 
 </p>
 {% endblock %}]]></Body>
 </MessageTemplate>

@@ -1,0 +1,185 @@
+﻿@using Smartstore.Admin.Models.Menus
+
+@model MenuEntityModel
+
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden" />
+
+<tabstrip id="menu-edit" sm-nav-style="Material">
+    <tab sm-title="@T("Admin.Common.General")" sm-selected="true">
+        <div class="adminContent mb-3">
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="SystemName"/>
+                </div>
+                <div class="adminData">
+                    <input asp-for="SystemName" attr-readonly='(Model.IsSystemMenu, "readonly")' />
+                    <span asp-validation-for="SystemName"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="Published"/>
+                </div>
+                <div class="adminData">
+                    <input asp-for="Published" attr-readonly='(Model.IsSystemMenu, "readonly")' />
+                    <span asp-validation-for="Published"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="Template"/>
+                </div>
+                <div class="adminData">
+                    @if (!Model.IsSystemMenu)
+                    {
+                        <select id="@Html.IdFor(x => x.Template)" name="@Html.NameFor(x => x.Template)" data-tags="true">
+                            @if (Model.IsCustomTemplate)
+                            {
+                                <option value="@Model.Template" selected="selected">@Model.Template</option>
+                            }
+                            @foreach (var template in Model.AllTemplates)
+                            {
+                                <option value="@template.Value" attr-selected='(!Model.IsCustomTemplate && template.Selected, "selected")'>@template.Text</option>
+                            }
+                        </select>
+                    }
+                    else
+                    {
+                        <input asp-for="Template" readonly="readonly" />
+                    }
+                    <span asp-validation-for="Template"></span>
+                </div>
+            </div>
+            <div class="adminRow" attr-class='(Model.IsSystemMenu, "d-none")'>
+                <div class="adminTitle">
+                    <smart-label asp-for="WidgetZone"/>
+                </div>
+                <div class="adminData">
+                    <editor asp-for="WidgetZone" />
+                    <span asp-validation-for="WidgetZone"></span>
+                </div>
+            </div>
+            <div class="adminRow" attr-class='(Model.IsSystemMenu, "d-none")'>
+                <div class="adminTitle">
+                    <smart-label asp-for="DisplayOrder"/>
+                </div>
+                <div class="adminData">
+                    <editor asp-for="DisplayOrder" />
+                    <span asp-validation-for="DisplayOrder"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="SelectedStoreIds"/>
+                </div>
+                <div class="adminData">
+                    <editor asp-for="SelectedStoreIds" />
+                    <span asp-validation-for="SelectedStoreIds"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="SelectedCustomerRoleIds"/>
+                </div>
+                <div class="adminData">
+                    <editor asp-for="SelectedCustomerRoleIds" />
+                    <span asp-validation-for="SelectedCustomerRoleIds"></span>
+                </div>
+            </div>
+        </div>
+
+        @(Html.LocalizedEditor<MenuEntityModel, MenuEntityLocalizedModel>("menu-info-localized",
+            @<div class="adminContent">
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="Locales[item].Title"/>
+                    </div>
+                    <div class="adminData">
+                        @*IMPORTANT: Do not delete, this hidden element contains the id to assign localized values to the corresponding language *@
+                        <input asp-for="Locales[item].LanguageId" type="hidden" />
+                        <input asp-for="Locales[item].Title" />
+                        <span asp-validation-for="Locales[item].Title"></span>
+                    </div>
+                </div>
+            </div>
+            ,
+            @<div class="adminContent">
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="Title"/>
+                    </div>
+                    <div class="adminData">
+                        <input asp-for="Title" />
+                        <span asp-validation-for="Title"></span>
+                    </div>
+                </div>
+            </div>
+        ))
+        @if (Model.Id > 0)
+        {
+            <h4 class="h4 mt-5 mb-4">@T("Admin.ContentManagement.MenuLinks")</h4>
+
+            <div id="menu-items-container" class="card mb-5">
+                <div class="card-header p-1">
+                    <div class="dropdown">
+                        <button type="button" class="btn btn-light btn-flat dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fa fa-plus"></i>
+                            <span>@T("Admin.ContentManagement.AddMenuItem")</span>
+                        </button>
+                        <div class="dropdown-menu @(WorkContext.WorkingLanguage.Rtl ? "dropdown-menu-right" : "dropdown-menu-left")">
+                            @foreach (var provider in Model.AllProviders)
+                            {
+                                <a class="dropdown-item" asp-action="CreateItem" asp-route-providerName="@provider.Value" asp-route-menuId="@Model.Id" asp-route-parentItemId="0">
+                                    <i class="fa fa-plus"></i>
+                                    <span>@provider.Text</span>
+                                </a>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <div id="menu-items" class="menu-item-list">
+                    <partial name="ItemList" model="Model" />
+                </div>
+            </div>
+        }
+    </tab>
+</tabstrip>
+
+<script sm-target-zone="scripts" data-origin="menu-create-or-update">
+    $(function () {
+        // Process item command.
+        $('#menu-items-container').on('click', '.menu-item-command:not(.disabled)', function (e) {
+            e.preventDefault();
+            var el = $(this);
+
+            switch (el.data('action')) {
+                case 'delete-item':
+					el.ajax({
+						type: 'POST',
+                        ask: @T("Admin.Common.AskToProceed").JsValue,
+                        success: function (response) {
+                            if (!_.isEmpty(response)) {
+                                $('#menu-items').html(response);
+                            }
+						}
+					});
+                    break;
+                case 'move-item-up':
+                case 'move-item-down':
+                    el.ajax({
+                        type: 'POST',
+                        success: function (response) {
+                            if (!_.isEmpty(response)) {
+                                $('#menu-items').html(response);
+                            }
+                        }
+                    });
+                    break;
+            }
+
+            return false;
+        });
+	});
+</script>

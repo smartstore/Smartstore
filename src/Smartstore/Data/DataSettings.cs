@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Runtime.Loader;
-using System.Threading;
 using Smartstore.Data.Providers;
 using Smartstore.Engine;
 using Smartstore.IO;
@@ -22,7 +17,7 @@ namespace Smartstore.Data
 
     public partial class DataSettings
     {
-        private static Func<IApplicationContext, DataSettings> _settingsFactory = new Func<IApplicationContext, DataSettings>(x => new DataSettings());
+        private static Func<IApplicationContext, DataSettings> _settingsFactory = new(x => new DataSettings());
         private static Action<DataSettings> _loadedCallback;
         private static readonly ReaderWriterLockSlim _rwLock = new();
 
@@ -78,6 +73,11 @@ namespace Smartstore.Data
 
                 return _instance;
             }
+            internal set
+            {
+                // For unit-tests
+                Interlocked.Exchange(ref _instance, value);
+            }
         }
 
         public static bool DatabaseIsInstalled()
@@ -126,19 +126,20 @@ namespace Smartstore.Data
 
         #region Instance members
 
-        private DataSettings()
+        internal DataSettings()
         {
+            // Internal for unit-test purposes
         }
 
         public IDictionary<string, string> RawDataSettings { get; } = new Dictionary<string, string>();
 
-        public string TenantName { get; private set; }
+        public string TenantName { get; internal set; }
 
-        public IFileSystem TenantRoot { get; private set; }
+        public IFileSystem TenantRoot { get; internal set; }
 
         public Version AppVersion { get; set; }
 
-        public DbFactory DbFactory { get; set; } // TODO: (core) Make internal again
+        public DbFactory DbFactory { get; internal set; }
 
         public string ConnectionString { get; set; }
 
@@ -152,6 +153,11 @@ namespace Smartstore.Data
                 Reset();
 
                 (TenantName, TenantRoot) = ResolveTenant();
+
+                if (TenantRoot == null)
+                {
+                    return false;
+                }
 
                 if (TenantRoot.FileExists(SETTINGS_FILENAME) && !_testMode)
                 {
@@ -191,9 +197,6 @@ namespace Smartstore.Data
                     break;
                 case "mysql":
                     assemblyName = "Smartstore.Data.MySql.dll";
-                    break;
-                case "sqlite":
-                    assemblyName = "Smartstore.Data.Sqlite.dll";
                     break;
             }
 
@@ -248,6 +251,11 @@ namespace Smartstore.Data
 
         protected virtual (string name, IFileSystem root) ResolveTenant()
         {
+            if (_appContext.AppDataRoot == null)
+            {
+                return default;
+            }
+            
             var fs = _appContext.AppDataRoot;
             var tenantsBaseDir = "Tenants";
             var curTenantFile = fs.PathCombine(tenantsBaseDir, "current.txt");
@@ -280,7 +288,7 @@ namespace Smartstore.Data
                 fs.TryCreateDirectory(tenantPath);
             }
 
-            var tenantRoot = new ExpandedFileSystem(tenantPath, fs);
+            var tenantRoot = new LocalFileSystem(Path.GetFullPath(Path.Combine(fs.Root, tenantPath)));
 
             return (curTenant.TrimEnd('/'), tenantRoot);
         }
@@ -322,9 +330,9 @@ namespace Smartstore.Data
         protected virtual string SerializeSettings()
         {
             return string.Format("AppVersion: {0}{3}DataProvider: {1}{3}DataConnectionString: {2}{3}",
-                this.AppVersion.ToString(),
-                this.DbFactory.DbSystem,
-                this.ConnectionString,
+                AppVersion.ToString(),
+                DbFactory.DbSystem,
+                ConnectionString,
                 Environment.NewLine);
         }
 

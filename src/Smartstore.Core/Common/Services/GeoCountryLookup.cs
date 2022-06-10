@@ -1,5 +1,4 @@
-﻿using System;
-using System.Net;
+﻿using System.Net;
 using MaxMind.GeoIP2;
 using Smartstore.Utilities;
 

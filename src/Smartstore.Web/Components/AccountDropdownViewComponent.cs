@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Smartstore.Core.Content.Menus;
+﻿using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Security;
 using Smartstore.Web.Models.Common;
 using Smartstore.Web.Rendering;
@@ -65,7 +63,7 @@ namespace Smartstore.Web.Components
                     .AsItem());
             }
 
-            model.MenuItems.Add(new MenuItem().ToBuilder().IsGroupHeader(true).AsItem());
+            model.MenuItems.Add(new MenuItem().ToBuilder().Id("logout-divider").IsGroupHeader(true).AsItem());
 
             model.MenuItems.Add(new MenuItem().ToBuilder()
                 .Route("Logout")

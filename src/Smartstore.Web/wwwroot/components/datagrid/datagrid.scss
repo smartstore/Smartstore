@@ -27,12 +27,16 @@ input.form-control-plaintext {
 .datagrid-root {
     --dg-border-color: #{$dg-border};
     --dg-header-bg: #{$light};
+    //--dg-header-bg: #fff;
+    --dg-footer-bg: #{$white};
     --dg-pager-bg: #{$light};
     --dg-toolbar-bg: #{$light};
+    //--dg-toolbar-bg: #{mix($light, #fff)};
     --dg-row-bg: #fff;
     --dg-row-even-bg: #fff;
     --dg-row-hover-color: #{$dg-hover};
     --dg-row-active-color: #{$dg-hover};
+    --dg-row-inactive-color: #{lighten($light, 1.5%)};
     --dg-cell-padding: 13px 16px;
     --dg-cell-align: center;
     --dg-cell-justify: flex-start;
@@ -49,6 +53,34 @@ input.form-control-plaintext {
     display: flex;
     flex-flow: row;
     height: 100%;
+    opacity: 0;
+    transform: scale(1.0124, 1.0124);
+    transition-property: transform, opacity;
+    transition-duration: 0.4s;
+    transition-timing-function: cubic-bezier(0, 0.55, 0.45, 1); // easeOutCirc
+
+    &.datagrid-ready {
+        opacity: 1 !important;
+        transform: scale(1, 1) !important;
+    }
+}
+
+.datagrid-loader,
+.dg-blocker {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 999;
+}
+
+.datagrid-loader {
+    background-color: #fff;
+
+    .datagrid-ready + & {
+        display: none;
+    }
 }
 
 .dg-grid {
@@ -69,13 +101,7 @@ input.form-control-plaintext {
 }
 
 .dg-blocker {
-    position: absolute;
-    left: 0;
-    top: 0;
-    right: 0;
-    bottom: 0;
     background-color: transparent;
-    z-index: 999;
 }
 
 .dg-no-data > td {
@@ -100,6 +126,7 @@ input.form-control-plaintext {
 
     .dg-thead,
     .dg-tbody,
+    .dg-tfoot,
     .dg-tr {
         display: contents;
     }
@@ -134,8 +161,26 @@ input.form-control-plaintext {
         --dg-row-even-bg: var(--dg-row-active-color) !important;
     }
 
+    .dg-tr.inactive {
+        --dg-row-bg: var(--dg-row-inactive-color) !important;
+        --dg-row-even-bg: var(--dg-row-inactive-color) !important;
+    }
+
     &.dg-resizing {
         cursor: col-resize;
+    }
+
+    .dg-tr-foot > td {
+        background-color: var(--dg-footer-bg);
+        background-color: darken($light, 1%);
+        z-index: 6;
+        overflow-x: hidden;
+    }
+
+    .dg-tr-foot.sticky > td {
+        position: sticky !important;
+        bottom: 0;
+        border-top: 1px solid var(--dg-border-color);
     }
 }
 
@@ -168,6 +213,10 @@ input.form-control-plaintext {
 
     &.dg-cell-wrap {
         white-space: normal;
+
+        p:last-child {
+            margin-bottom: 0;
+        }
     }
 }
 
@@ -194,7 +243,8 @@ input.form-control-plaintext {
 
 .dg-hborders {
     > thead > tr > .dg-th,
-    > tbody > tr > .dg-td {
+    > tbody > tr > .dg-td,
+    > tfoot > tr > .dg-td {
         border-right: 1px solid var(--dg-border-color);
 
         &:last-child {
@@ -214,7 +264,7 @@ input.form-control-plaintext {
 .dg-toolbar {
     background-color: var(--dg-toolbar-bg);
     border-bottom: 1px solid var(--dg-border-color);
-    padding: 0.5rem;
+    padding: 0.375rem;
 }
 
 .dg-toolbar .btn {
@@ -233,10 +283,14 @@ input.form-control-plaintext {
     margin-right: 0.5rem;
     border-right: 1px solid var(--dg-border-color);
 
-    &.omega {
+    &.omega,
+    &:last-child {
         border-right-width: 0;
         padding-right: 0;
         margin-right: 0;
+    }
+
+    &.omega {
         margin-left: auto;
     }
 }
@@ -295,7 +349,7 @@ input.form-control-plaintext {
 
 .dg-table:not(.dg-resizing) .dg-sortable {
     cursor: pointer;
-    //transition: background-color 0.1s ease-in-out;
+    //transition: background-color 0.1s;
 
     &:hover {
         background-color: rgba(#000, 0.035);
@@ -460,7 +514,6 @@ input.form-control-plaintext {
     }
 
     .input-validation-error {
-        // TODO: (core) Adopt SCSS theme colors once bundler is ported. And add bubble to error message.
         position: absolute;
         top: 0;
         background-color: #fff;
@@ -473,7 +526,7 @@ input.form-control-plaintext {
         z-index: 1000;
         white-space: nowrap;
         text-overflow: ellipsis;
-        --shadow-color-intensity: 0.75 !important;
+        --shadow-intensity: 0.75 !important;
     }
 }
 
@@ -492,7 +545,15 @@ input.form-control-plaintext {
 
     > .select2 {
         width: 100%;
-    } 
+    }
+
+    .select2-selection {
+        --select2-caret-width: 1.5rem !important;
+    }
+
+    .numberinput-group {
+        --ni-addon-width: 1.5rem !important;
+    }
 }
 
 

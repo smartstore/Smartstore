@@ -1,6 +1,4 @@
-﻿using System.Linq;
-
-namespace Smartstore.Core.Catalog.Products
+﻿namespace Smartstore.Core.Catalog.Products
 {
     public static partial class BackInStockSubscriptionQueryExtensions
     {

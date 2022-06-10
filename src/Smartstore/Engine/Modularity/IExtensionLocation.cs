@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.Extensions.FileProviders;
+﻿using Microsoft.Extensions.FileProviders;
 using Smartstore.IO;
 
 namespace Smartstore.Engine.Modularity

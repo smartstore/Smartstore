@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using FluentValidation;
+﻿using FluentValidation;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Smartstore.Admin.Models;
@@ -20,14 +14,12 @@ using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Checkout.Tax;
-using Smartstore.Core.Common;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Content.Media.Storage;
 using Smartstore.Core.Content.Menus;
-using Smartstore.Core.Data;
 using Smartstore.Core.DataExchange;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
@@ -38,10 +30,8 @@ using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
 using Smartstore.Engine.Modularity;
-using Smartstore.Web.Controllers;
-using Smartstore.Web.Modelling;
-using Smartstore.Web.Models.DataGrid;
 using Smartstore.Web.Modelling.Settings;
+using Smartstore.Web.Models.DataGrid;
 using Smartstore.Web.Rendering;
 
 namespace Smartstore.Admin.Controllers
@@ -49,9 +39,10 @@ namespace Smartstore.Admin.Controllers
     public class SettingController : AdminController
     {
         private readonly SmartDbContext _db;
+        private readonly ICurrencyService _currencyService;
         private readonly ILanguageService _languageService;
         private readonly ILocalizedEntityService _localizedEntityService;
-        private readonly StoreDependingSettingHelper _storeDependingSettingHelper;
+        private readonly MultiStoreSettingHelper _multiStoreSettingHelper;
         private readonly IDateTimeHelper _dateTimeHelper;
         private readonly ICookieConsentManager _cookieManager;
         private readonly IProviderManager _providerManager;
@@ -66,9 +57,10 @@ namespace Smartstore.Admin.Controllers
 
         public SettingController(
             SmartDbContext db,
+            ICurrencyService currencyService,
             ILanguageService languageService,
             ILocalizedEntityService localizedEntityService,
-            StoreDependingSettingHelper storeDependingSettingHelper,
+            MultiStoreSettingHelper multiStoreSettingHelper,
             IDateTimeHelper dateTimeHelper,
             ICookieConsentManager cookieManager,
             IProviderManager providerManager,
@@ -82,9 +74,10 @@ namespace Smartstore.Admin.Controllers
             Lazy<ModuleManager> moduleManager)
         {
             _db = db;
+            _currencyService = currencyService;
             _languageService = languageService;
             _localizedEntityService = localizedEntityService;
-            _storeDependingSettingHelper = storeDependingSettingHelper;
+            _multiStoreSettingHelper = multiStoreSettingHelper;
             _dateTimeHelper = dateTimeHelper;
             _cookieManager = cookieManager;
             _providerManager = providerManager;
@@ -109,7 +102,7 @@ namespace Smartstore.Admin.Controllers
 
         [HttpPost]
         [Permission(Permissions.Configuration.Setting.Read)]
-        public async Task<IActionResult> List(GridCommand command, SettingListModel model)
+        public async Task<IActionResult> SettingList(GridCommand command, SettingListModel model)
         {
             var stores = Services.StoreContext.GetAllStores();
 
@@ -131,40 +124,28 @@ namespace Smartstore.Admin.Controllers
             }
             
             var settings = await query
+                .OrderBy(x => x.Name)
                 .ApplyGridCommand(command)
                 .ToPagedList(command)
                 .LoadAsync();
 
-            var storesAll = T("Admin.Common.StoresAll").Value;
+            var allStoresStr = T("Admin.Common.StoresAll").Value;
+            var allStoreNames = Services.StoreContext.GetAllStores().ToDictionary(x => x.Id, x => x.Name);
 
-            var settingModels = settings
-                .Select(x =>
+            var rows = settings
+                .Select(x => new SettingModel
                 {
-                    var settingModel = new SettingModel
-                    {
-                        Id = x.Id,
-                        Name = x.Name,
-                        Value = x.Value,
-                        StoreId = x.StoreId
-                    };
-
-                    if (x.StoreId == 0)
-                    {
-                        settingModel.Store = storesAll;
-                    }
-                    else
-                    {
-                        var store = Services.StoreContext.GetStoreById(x.StoreId);
-                        settingModel.Store = store?.Name.NaIfEmpty();
-                    }
-
-                    return settingModel;
+                    Id = x.Id,
+                    Name = x.Name,
+                    Value = x.Value,
+                    StoreId = x.StoreId,
+                    Store = x.StoreId == 0 ? allStoresStr : allStoreNames.Get(x.StoreId).NaIfEmpty()
                 })
                 .ToList();
 
             var gridModel = new GridModel<SettingModel>
             {
-                Rows = settingModels,
+                Rows = rows,
                 Total = await settings.GetTotalCountAsync()
             };
 
@@ -173,7 +154,7 @@ namespace Smartstore.Admin.Controllers
 
         [HttpPost]
         [Permission(Permissions.Configuration.Setting.Update)]
-        public async Task<IActionResult> Update(SettingModel model)
+        public async Task<IActionResult> SettingUpdate(SettingModel model)
         {
             model.Name = model.Name.Trim();
 
@@ -197,7 +178,7 @@ namespace Smartstore.Admin.Controllers
 
         [HttpPost]
         [Permission(Permissions.Configuration.Setting.Create)]
-        public async Task<IActionResult> Insert(SettingModel model)
+        public async Task<IActionResult> SettingInsert(SettingModel model)
         {
             model.Name = model.Name.Trim();
 
@@ -217,7 +198,7 @@ namespace Smartstore.Admin.Controllers
 
         [HttpPost]
         [Permission(Permissions.Configuration.Setting.Delete)]
-        public async Task<IActionResult> Delete(GridSelection selection)
+        public async Task<IActionResult> SettingDelete(GridSelection selection)
         {
             var success = false;
             var numDeleted = 0;
@@ -300,7 +281,7 @@ namespace Smartstore.Admin.Controllers
 
             #endregion
 
-            await PrepareConfigurationModelAsync(model);
+            await PrepareGeneralCommonConfigurationModelAsync(model);
 
             return View(model);
         }
@@ -325,15 +306,25 @@ namespace Smartstore.Admin.Controllers
         {
             if (!ModelState.IsValid)
             {
-                await PrepareConfigurationModelAsync(model);
-                return View(model);
+                return await GeneralCommon(storeScope,
+                    storeInformationSettings,
+                    seoSettings,
+                    dateTimeSettings,
+                    securitySettings,
+                    captchaSettings,
+                    pdfSettings,
+                    localizationSettings,
+                    companySettings,
+                    contactDataSettings,
+                    bankConnectionSettings,
+                    socialSettings,
+                    homePageSeoSettings);
             }
 
             ModelState.Clear();
 
             // Necessary before mapping
             var resetUserSeoCharacterTable = seoSettings.SeoNameCharConversion != model.SeoSettings.SeoNameCharConversion;
-            var clearSeoFriendlyUrls = localizationSettings.SeoFriendlyUrlsForLanguagesEnabled != model.LocalizationSettings.SeoFriendlyUrlsForLanguagesEnabled;
             var prevPdfLogoId = pdfSettings.LogoPictureId;
 
             // Map model to entities
@@ -387,12 +378,6 @@ namespace Smartstore.Admin.Controllers
                 SeoHelper.ResetUserSeoCharacterTable();
             }
 
-            // TODO: (mh) (core) Do this right, if still needed.
-            //if (clearSeoFriendlyUrls)
-            //{
-            //    LocalizedRoute.ClearSeoFriendlyUrlsCachedValue();
-            //}
-
             #endregion
 
             // Does not contain any store specific settings.
@@ -407,12 +392,8 @@ namespace Smartstore.Admin.Controllers
         {
             var model = await MapperFactory.MapAsync<CatalogSettings, CatalogSettingsModel>(catalogSettings);
 
-            ViewBag.AvailableDefaultViewModes = new List<SelectListItem>
-            {
-                new SelectListItem { Value = "grid", Text = T("Common.Grid"), Selected = model.DefaultViewMode.EqualsNoCase("grid") },
-                new SelectListItem { Value = "list", Text = T("Common.List"), Selected = model.DefaultViewMode.EqualsNoCase("list") }
-            };
-            
+            PrepareCatalogConfigurationModel(model);
+
             return View(model);
         }
 
@@ -422,7 +403,7 @@ namespace Smartstore.Admin.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return View(model);
+                return await Catalog(catalogSettings);
             }
 
             ModelState.Clear();
@@ -479,7 +460,7 @@ namespace Smartstore.Admin.Controllers
 
             if (!ModelState.IsValid)
             {
-                return View(model);
+                return await CustomerUser(storeScope, customerSettings, addressSettings, privacySettings);
             }
 
             ModelState.Clear();
@@ -507,7 +488,7 @@ namespace Smartstore.Admin.Controllers
             return NotifyAndRedirect("CustomerUser");
         }
 
-        private bool ShouldUpdateIdentityOptions(CustomerUserSettingsModel.CustomerSettingsModel model, CustomerSettings settings) 
+        private static bool ShouldUpdateIdentityOptions(CustomerUserSettingsModel.CustomerSettingsModel model, CustomerSettings settings) 
         { 
             if (model.PasswordMinLength != settings.PasswordMinLength 
                 || model.PasswordRequireDigit != settings.PasswordRequireDigit
@@ -533,14 +514,6 @@ namespace Smartstore.Admin.Controllers
                     .OrderBy(x => x.CookieType)
                     .ThenBy(x => x.Name));
             }
-
-            // TODO: (mh) (core) Remove test cookie
-            systemCookies += " ,Test";
-            data.Add(new CookieInfo {
-                CookieType = CookieType.Required,
-                Name = "Test",
-                Description = "Test"
-            });
 
             var gridModel = new GridModel<CookieInfoModel>
             {
@@ -596,8 +569,10 @@ namespace Smartstore.Admin.Controllers
         public async Task<IActionResult> CookieInfoCreatePopup(string btnId, string formId, CookieInfoModel model)
         {
             if (!ModelState.IsValid)
+            {
                 return View(model);
-
+            }
+            
             // Deserialize
             var ciList = JsonConvert.DeserializeObject<List<CookieInfo>>(_privacySettings.CookieInfos);
 
@@ -724,78 +699,35 @@ namespace Smartstore.Admin.Controllers
         }
 
         [Permission(Permissions.Configuration.Setting.Read)]
-        public async Task<IActionResult> Search()
+        [LoadSetting]
+        public async Task<IActionResult> Search(SearchSettings settings, int storeScope)
         {
-            var storeScope = GetActiveStoreScopeConfiguration();
-            var searchSettings = await Services.SettingFactory.LoadSettingsAsync<SearchSettings>(storeScope);
             var megaSearchDescriptor = Services.ApplicationContext.ModuleCatalog.GetModuleByName("Smartstore.MegaSearch");
             var megaSearchPlusDescriptor = Services.ApplicationContext.ModuleCatalog.GetModuleByName("Smartstore.MegaSearchPlus");
 
             var model = new SearchSettingsModel();
-            MiniMapper.Map(searchSettings, model);
+            MiniMapper.Map(settings, model);
 
             model.IsMegaSearchInstalled = megaSearchDescriptor != null;
 
-            var availableSearchFields = new List<SelectListItem>();
-            var availableSearchModes = new List<SelectListItem>();
-
-            if (!model.IsMegaSearchInstalled)
-            {
-                model.SearchFieldsNote = T("Admin.Configuration.Settings.Search.SearchFieldsNote");
-
-                availableSearchFields.AddRange(new[]
-                {
-                    new SelectListItem { Text = T("Admin.Catalog.Products.Fields.ShortDescription"), Value = "shortdescription" },
-                    new SelectListItem { Text = T("Admin.Catalog.Products.Fields.Sku"), Value = "sku" },
-                });
-
-                availableSearchModes = searchSettings.SearchMode.ToSelectList().Where(x => x.Value.ToInt() != (int)SearchMode.ExactMatch).ToList();
-            }
-            else
-            {
-                availableSearchFields.AddRange(new[]
-                {
-                    new SelectListItem { Text = T("Admin.Catalog.Products.Fields.ShortDescription"), Value = "shortdescription" },
-                    new SelectListItem { Text = T("Admin.Catalog.Products.Fields.FullDescription"), Value = "fulldescription" },
-                    new SelectListItem { Text = T("Admin.Catalog.Products.Fields.ProductTags"), Value = "tagname" },
-                    new SelectListItem { Text = T("Admin.Catalog.Manufacturers"), Value = "manufacturer" },
-                    new SelectListItem { Text = T("Admin.Catalog.Categories"), Value = "category" },
-                    new SelectListItem { Text = T("Admin.Catalog.Products.Fields.Sku"), Value = "sku" },
-                    new SelectListItem { Text = T("Admin.Catalog.Products.Fields.GTIN"), Value = "gtin" },
-                    new SelectListItem { Text = T("Admin.Catalog.Products.Fields.ManufacturerPartNumber"), Value = "mpn" }
-                });
-
-                if (megaSearchPlusDescriptor != null)
-                {
-                    availableSearchFields.AddRange(new[]
-                    {
-                        new SelectListItem { Text = T("Search.Fields.SpecificationAttributeOptionName"), Value = "attrname" },
-                        new SelectListItem { Text = T("Search.Fields.ProductAttributeOptionName"), Value = "variantname" }
-                    });  
-                }
-
-                availableSearchModes = searchSettings.SearchMode.ToSelectList().ToList();
-            }
-
-            ViewBag.AvailableSearchFields = availableSearchFields;
-            ViewBag.AvailableSearchModes = availableSearchModes;
+            PrepareSearchConfigModel(model, settings, megaSearchPlusDescriptor);
 
             // Common facets.
-            model.BrandFacet.Disabled = searchSettings.BrandDisabled;
-            model.BrandFacet.DisplayOrder = searchSettings.BrandDisplayOrder;
-            model.PriceFacet.Disabled = searchSettings.PriceDisabled;
-            model.PriceFacet.DisplayOrder = searchSettings.PriceDisplayOrder;
-            model.RatingFacet.Disabled = searchSettings.RatingDisabled;
-            model.RatingFacet.DisplayOrder = searchSettings.RatingDisplayOrder;
-            model.DeliveryTimeFacet.Disabled = searchSettings.DeliveryTimeDisabled;
-            model.DeliveryTimeFacet.DisplayOrder = searchSettings.DeliveryTimeDisplayOrder;
-            model.AvailabilityFacet.Disabled = searchSettings.AvailabilityDisabled;
-            model.AvailabilityFacet.DisplayOrder = searchSettings.AvailabilityDisplayOrder;
-            model.AvailabilityFacet.IncludeNotAvailable = searchSettings.IncludeNotAvailable;
-            model.NewArrivalsFacet.Disabled = searchSettings.NewArrivalsDisabled;
-            model.NewArrivalsFacet.DisplayOrder = searchSettings.NewArrivalsDisplayOrder;
+            model.BrandFacet.Disabled = settings.BrandDisabled;
+            model.BrandFacet.DisplayOrder = settings.BrandDisplayOrder;
+            model.PriceFacet.Disabled = settings.PriceDisabled;
+            model.PriceFacet.DisplayOrder = settings.PriceDisplayOrder;
+            model.RatingFacet.Disabled = settings.RatingDisabled;
+            model.RatingFacet.DisplayOrder = settings.RatingDisplayOrder;
+            model.DeliveryTimeFacet.Disabled = settings.DeliveryTimeDisabled;
+            model.DeliveryTimeFacet.DisplayOrder = settings.DeliveryTimeDisplayOrder;
+            model.AvailabilityFacet.Disabled = settings.AvailabilityDisabled;
+            model.AvailabilityFacet.DisplayOrder = settings.AvailabilityDisplayOrder;
+            model.AvailabilityFacet.IncludeNotAvailable = settings.IncludeNotAvailable;
+            model.NewArrivalsFacet.Disabled = settings.NewArrivalsDisabled;
+            model.NewArrivalsFacet.DisplayOrder = settings.NewArrivalsDisplayOrder;
 
-            await _storeDependingSettingHelper.GetOverrideKeysAsync(searchSettings, model, storeScope);
+            await _multiStoreSettingHelper.DetectOverrideKeysAsync(settings, model, storeScope);
 
             // Localized facet settings (CommonFacetSettingsLocalizedModel).
             var i = 0;
@@ -809,13 +741,13 @@ namespace Smartstore.Admin.Controllers
                 var availabilityFacetAliasSettingsKey = FacetUtility.GetFacetAliasSettingKey(FacetGroupKind.Availability, language.Id);
                 var newArrivalsFacetAliasSettingsKey = FacetUtility.GetFacetAliasSettingKey(FacetGroupKind.NewArrivals, language.Id);
 
-                await _storeDependingSettingHelper.GetOverrideKeyAsync($"CategoryFacet.Locales[{i}].Alias", categoryFacetAliasSettingsKey, storeScope);
-                await _storeDependingSettingHelper.GetOverrideKeyAsync($"BrandFacet.Locales[{i}].Alias", brandFacetAliasSettingsKey, storeScope);
-                await _storeDependingSettingHelper.GetOverrideKeyAsync($"PriceFacet.Locales[{i}].Alias", priceFacetAliasSettingsKey, storeScope);
-                await _storeDependingSettingHelper.GetOverrideKeyAsync($"RatingFacet.Locales[{i}].Alias", ratingFacetAliasSettingsKey, storeScope);
-                await _storeDependingSettingHelper.GetOverrideKeyAsync($"DeliveryTimeFacet.Locales[{i}].Alias", deliveryTimeFacetAliasSettingsKey, storeScope);
-                await _storeDependingSettingHelper.GetOverrideKeyAsync($"AvailabilityFacet.Locales[{i}].Alias", availabilityFacetAliasSettingsKey, storeScope);
-                await _storeDependingSettingHelper.GetOverrideKeyAsync($"NewArrivalsFacet.Locales[{i}].Alias", newArrivalsFacetAliasSettingsKey, storeScope);
+                await _multiStoreSettingHelper.DetectOverrideKeyAsync($"CategoryFacet.Locales[{i}].Alias", categoryFacetAliasSettingsKey, storeScope);
+                await _multiStoreSettingHelper.DetectOverrideKeyAsync($"BrandFacet.Locales[{i}].Alias", brandFacetAliasSettingsKey, storeScope);
+                await _multiStoreSettingHelper.DetectOverrideKeyAsync($"PriceFacet.Locales[{i}].Alias", priceFacetAliasSettingsKey, storeScope);
+                await _multiStoreSettingHelper.DetectOverrideKeyAsync($"RatingFacet.Locales[{i}].Alias", ratingFacetAliasSettingsKey, storeScope);
+                await _multiStoreSettingHelper.DetectOverrideKeyAsync($"DeliveryTimeFacet.Locales[{i}].Alias", deliveryTimeFacetAliasSettingsKey, storeScope);
+                await _multiStoreSettingHelper.DetectOverrideKeyAsync($"AvailabilityFacet.Locales[{i}].Alias", availabilityFacetAliasSettingsKey, storeScope);
+                await _multiStoreSettingHelper.DetectOverrideKeyAsync($"NewArrivalsFacet.Locales[{i}].Alias", newArrivalsFacetAliasSettingsKey, storeScope);
 
                 model.CategoryFacet.Locales.Add(new CommonFacetSettingsLocalizedModel
                 {
@@ -857,41 +789,36 @@ namespace Smartstore.Admin.Controllers
             }
 
             // Facet settings (CommonFacetSettingsModel).
-            foreach (var prefix in new string[] { "Brand", "Price", "Rating", "DeliveryTime", "Availability", "NewArrivals" })
+            foreach (var prefix in new[] { "Brand", "Price", "Rating", "DeliveryTime", "Availability", "NewArrivals" })
             {
-                await _storeDependingSettingHelper.GetOverrideKeyAsync(prefix + "Facet.Disabled", prefix + "Disabled", searchSettings, storeScope);
-                await _storeDependingSettingHelper.GetOverrideKeyAsync(prefix + "Facet.DisplayOrder", prefix + "DisplayOrder", searchSettings, storeScope);
+                await _multiStoreSettingHelper.DetectOverrideKeyAsync(prefix + "Facet.Disabled", prefix + "Disabled", settings, storeScope);
+                await _multiStoreSettingHelper.DetectOverrideKeyAsync(prefix + "Facet.DisplayOrder", prefix + "DisplayOrder", settings, storeScope);
             }
 
             // Facet settings with a non-prefixed name.
-            await _storeDependingSettingHelper.GetOverrideKeyAsync("AvailabilityFacet.IncludeNotAvailable", "IncludeNotAvailable", searchSettings, storeScope);
+            await _multiStoreSettingHelper.DetectOverrideKeyAsync("AvailabilityFacet.IncludeNotAvailable", "IncludeNotAvailable", settings, storeScope);
 
             return View(model);
         }
 
+        // INFO: do not use SaveSetting attribute here because it would delete all previously added facet settings if storeScope > 0.
         [Permission(Permissions.Configuration.Setting.Update)]
-        [HttpPost]
-        public async Task<IActionResult> Search(SearchSettingsModel model)
+        [HttpPost, LoadSetting]
+        public async Task<IActionResult> Search(SearchSettingsModel model, SearchSettings settings, int storeScope)
         {
-            var form = Request.Form;
-            var storeScope = GetActiveStoreScopeConfiguration();
-            var settings = await Services.SettingFactory.LoadSettingsAsync<SearchSettings>(storeScope);
-
-            if (storeScope == 0 || StoreDependingSettingHelper.IsOverrideChecked(settings, nameof(model.InstantSearchNumberOfProducts), form))
-            {
-                new SearchSettingValidator(T).Validate(model);
-            }
-
             if (!ModelState.IsValid)
             {
-                return await Search();
+                return await Search(settings, storeScope);
             }
 
+            var form = Request.Form;
             CategoryTreeChangeReason? categoriesChange = model.AvailabilityFacet.IncludeNotAvailable != settings.IncludeNotAvailable
                 ? CategoryTreeChangeReason.ElementCounts
                 : null;
 
             ModelState.Clear();
+
+            settings = ((ISettings)settings).Clone() as SearchSettings;
             MiniMapper.Map(model, settings);
 
             // Common facets.
@@ -909,23 +836,22 @@ namespace Smartstore.Admin.Controllers
             settings.NewArrivalsDisabled = model.NewArrivalsFacet.Disabled;
             settings.NewArrivalsDisplayOrder = model.NewArrivalsFacet.DisplayOrder;
 
-            //await Services.SettingFactory.SaveSettingsAsync(settings, storeScope);
-            await _storeDependingSettingHelper.UpdateSettingsAsync(settings, form, storeScope);
+            await _multiStoreSettingHelper.UpdateSettingsAsync(settings, form, storeScope);
 
             await Services.Settings.ApplySettingAsync(settings, x => x.SearchFields);
 
             // Facet settings (CommonFacetSettingsModel).
             if (storeScope != 0)
             {
-                foreach (var prefix in new string[] { "Brand", "Price", "Rating", "DeliveryTime", "Availability", "NewArrivals" })
+                foreach (var prefix in new[] { "Brand", "Price", "Rating", "DeliveryTime", "Availability", "NewArrivals" })
                 {
-                    await _storeDependingSettingHelper.ApplySettingAsync(prefix + "Facet.Disabled", prefix + "Disabled", settings, form, storeScope);
-                    await _storeDependingSettingHelper.ApplySettingAsync(prefix + "Facet.DisplayOrder", prefix + "DisplayOrder", settings, form, storeScope);
+                    await _multiStoreSettingHelper.ApplySettingAsync(prefix + "Facet.Disabled", prefix + "Disabled", settings, form, storeScope);
+                    await _multiStoreSettingHelper.ApplySettingAsync(prefix + "Facet.DisplayOrder", prefix + "DisplayOrder", settings, form, storeScope);
                 }
             }
 
             // Facet settings with a non-prefixed name.
-            await _storeDependingSettingHelper.ApplySettingAsync("AvailabilityFacet.IncludeNotAvailable", "IncludeNotAvailable", settings, form, storeScope);
+            await _multiStoreSettingHelper.ApplySettingAsync("AvailabilityFacet.IncludeNotAvailable", "IncludeNotAvailable", settings, form, storeScope);
 
             // Localized facet settings (CommonFacetSettingsLocalizedModel).
             var num = 0;
@@ -965,7 +891,6 @@ namespace Smartstore.Admin.Controllers
         }
 
         [Permission(Permissions.Configuration.Setting.Update)]
-        [ValidateAntiForgeryToken]
         [HttpPost, SaveSetting]
         public IActionResult DataExchange(DataExchangeSettings settings, DataExchangeSettingsModel model)
         {
@@ -1004,16 +929,24 @@ namespace Smartstore.Admin.Controllers
 
         [Permission(Permissions.Configuration.Setting.Update)]
         [HttpPost, FormValueRequired("save")]
-        [SaveSetting(UpdateParameterFromStore = false)]
+        [SaveSetting(BindParameterFromStore = false)]
         public async Task<IActionResult> Media(MediaSettings settings, MediaSettingsModel model)
         {
             if (!ModelState.IsValid)
             {
-                return View(model);
+                // TODO: (mh) (core) Getting the setting throws. Probably an async problem. When calling this twice it works for the first time :-/
+                //var test = await Services.Settings.GetSettingByKeyAsync<string>("Media.Storage.Provider");
+                var currentStorageProvider = await Services.Settings.GetSettingByKeyAsync<string>("Media.Storage.Provider");
+                ViewBag.AvailableStorageProvider = _providerManager.GetAllProviders<IMediaStorageProvider>()
+                    .Where(x => !x.Metadata.SystemName.EqualsNoCase(currentStorageProvider))
+                    .Select(x => new SelectListItem { Text = _moduleManager.Value.GetLocalizedFriendlyName(x.Metadata), Value = x.Metadata.SystemName })
+                    .ToList();
+
+                return await Media(settings);
             }
 
             ModelState.Clear();
-            settings = await MapperFactory.MapAsync<MediaSettingsModel, MediaSettings>(model);
+            await MapperFactory.MapAsync<MediaSettingsModel, MediaSettings>(model);
 
             return NotifyAndRedirect("Media");
         }
@@ -1054,7 +987,7 @@ namespace Smartstore.Admin.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return View(model);
+                return Payment(settings);
             }
 
             ModelState.Clear();
@@ -1071,17 +1004,16 @@ namespace Smartstore.Admin.Controllers
             var model = await MapperFactory.MapAsync<TaxSettings, TaxSettingsModel>(settings);
             var taxCategories = await _db.TaxCategories
                 .AsNoTracking()
+                .OrderBy(x => x.DisplayOrder)
                 .ToListAsync();
 
             var countries = await _db.Countries
                 .AsNoTracking()
-                .Include(x => x.StateProvinces.OrderBy(x => x.DisplayOrder))
                 .ApplyStandardFilter(true)
                 .ToListAsync();
 
             var shippingTaxCategories = new List<SelectListItem>();
             var paymentMethodAdditionalFeeTaxCategories = new List<SelectListItem>();
-            var euVatShopCountries = new List<SelectListItem>();
 
             foreach (var tc in taxCategories)
             {
@@ -1089,19 +1021,13 @@ namespace Smartstore.Admin.Controllers
                 paymentMethodAdditionalFeeTaxCategories.Add(new SelectListItem { Text = tc.Name, Value = tc.Id.ToString(), Selected = tc.Id == settings.PaymentMethodAdditionalFeeTaxClassId });
             }
 
-            foreach (var c in countries)
-            {
-                euVatShopCountries.Add(new SelectListItem { Text = c.Name, Value = c.Id.ToString(), Selected = c.Id == settings.EuVatShopCountryId });
-            }
-
             ViewBag.ShippingTaxCategories = shippingTaxCategories;
             ViewBag.PaymentMethodAdditionalFeeTaxCategories = paymentMethodAdditionalFeeTaxCategories;
-            ViewBag.EuVatShopCountries = euVatShopCountries;
+            ViewBag.EuVatShopCountries = countries.ToSelectListItems(settings.EuVatShopCountryId);
 
             // Default tax address.
-            var defaultAddress = settings.DefaultTaxAddressId > 0
-                ? await _db.Addresses.FindByIdAsync(settings.DefaultTaxAddressId, false)
-                : null;
+            var defaultAddress = await _db.Addresses.FindByIdAsync(settings.DefaultTaxAddressId, false);
+            var stateProvinces = await _db.StateProvinces.GetStateProvincesByCountryIdAsync(defaultAddress?.CountryId ?? 0, true);
 
             if (defaultAddress != null)
             {
@@ -1110,35 +1036,19 @@ namespace Smartstore.Admin.Controllers
 
             if (storeScope > 0 && await Services.Settings.SettingExistsAsync(settings, x => x.DefaultTaxAddressId, storeScope))
             {
-                _storeDependingSettingHelper.AddOverrideKey(settings, "DefaultTaxAddress");
+                _multiStoreSettingHelper.AddOverrideKey(settings, "DefaultTaxAddress");
             }
 
-            foreach (var c in countries)
+            model.DefaultTaxAddress.AvailableCountries = countries.ToSelectListItems(defaultAddress?.CountryId ?? 0);
+
+            model.DefaultTaxAddress.AvailableStates = stateProvinces.ToSelectListItems(defaultAddress?.StateProvinceId ?? 0) ?? new List<SelectListItem>
             {
-                model.DefaultTaxAddress.AvailableCountries.Add(new SelectListItem
-                {
-                    Text = c.Name,
-                    Value = c.Id.ToString(),
-                    Selected = (defaultAddress != null && c.Id == defaultAddress.CountryId)
-                });
-            }
+                new SelectListItem { Text = T("Address.OtherNonUS"), Value = "0" }
+            };
 
-            var states = defaultAddress != null && defaultAddress.Country != null
-                ? countries.FirstOrDefault(x => x.Id == defaultAddress.Country.Id).StateProvinces.ToList()
-                : new List<StateProvince>();
-
-            if (states.Any())
-            {
-                foreach (var s in states)
-                {
-                    model.DefaultTaxAddress.AvailableStates.Add(new SelectListItem { Text = s.Name, Value = s.Id.ToString(), Selected = (s.Id == defaultAddress.StateProvinceId) });
-                }
-            }
-            else
-            {
-                model.DefaultTaxAddress.AvailableStates.Add(new SelectListItem { Text = T("Admin.Address.OtherNonUS"), Value = "0" });
-            }
-
+            model.DefaultTaxAddress.FirstNameEnabled = false;
+            model.DefaultTaxAddress.LastNameEnabled = false;
+            model.DefaultTaxAddress.EmailEnabled = false;
             model.DefaultTaxAddress.CountryEnabled = true;
             model.DefaultTaxAddress.StateProvinceEnabled = true;
             model.DefaultTaxAddress.ZipPostalCodeEnabled = true;
@@ -1156,7 +1066,7 @@ namespace Smartstore.Admin.Controllers
             // Note, model state is invalid here due to ShippingOriginAddress validation.
             await MapperFactory.MapAsync(model, settings);
 
-            await _storeDependingSettingHelper.UpdateSettingsAsync(settings, form, storeScope, propertyName =>
+            await _multiStoreSettingHelper.UpdateSettingsAsync(settings, form, storeScope, propertyName =>
             {
                 // Skip to prevent the address from being recreated every time you save.
                 if (propertyName.EqualsNoCase(nameof(settings.DefaultTaxAddressId)))
@@ -1166,7 +1076,7 @@ namespace Smartstore.Admin.Controllers
             });
 
             // Special case DefaultTaxAddressId\DefaultTaxAddress.
-            if (storeScope == 0 || StoreDependingSettingHelper.IsOverrideChecked(settings, "ShippingOriginAddress", form))
+            if (storeScope == 0 || MultiStoreSettingHelper.IsOverrideChecked(settings, "ShippingOriginAddress", form))
             {
                 var addressId = await Services.Settings.SettingExistsAsync(settings, x => x.DefaultTaxAddressId, storeScope) ? settings.DefaultTaxAddressId : 0;
                 var originAddress = await _db.Addresses.FindByIdAsync(addressId) ?? new Address { CreatedOnUtc = DateTime.UtcNow };
@@ -1197,12 +1107,11 @@ namespace Smartstore.Admin.Controllers
 
         [Permission(Permissions.Configuration.Setting.Read)]
         [LoadSetting]
-        public async Task<IActionResult> RewardPoints(RewardPointsSettings settings, int storeScope)
+        public async Task<IActionResult> RewardPoints(RewardPointsSettings settings)
         {
-            var store = storeScope == 0 ? Services.StoreContext.CurrentStore : Services.StoreContext.GetStoreById(storeScope);
             var model = await MapperFactory.MapAsync<RewardPointsSettings, RewardPointsSettingsModel>(settings);
 
-            model.PrimaryStoreCurrencyCode = store.PrimaryStoreCurrency.CurrencyCode;
+            model.PrimaryStoreCurrencyCode = _currencyService.PrimaryCurrency.CurrencyCode;
 
             return View(model);
         }
@@ -1213,7 +1122,7 @@ namespace Smartstore.Admin.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return View(model);
+                return await RewardPoints(settings);
             }
 
             ModelState.Clear();
@@ -1239,11 +1148,11 @@ namespace Smartstore.Admin.Controllers
 
         [Permission(Permissions.Configuration.Setting.Update)]
         [HttpPost, SaveSetting]
-        public async Task<IActionResult> ShoppingCart(int storeScope, ShoppingCartSettings settings, ShoppingCartSettingsModel model)
+        public async Task<IActionResult> ShoppingCart(ShoppingCartSettings settings, ShoppingCartSettingsModel model, int storeScope)
         {
             if (!ModelState.IsValid)
             {
-                return View(model);
+                return await ShoppingCart(storeScope, settings);
             }
 
             ModelState.Clear();
@@ -1265,7 +1174,7 @@ namespace Smartstore.Admin.Controllers
             var store = storeScope == 0 ? Services.StoreContext.CurrentStore : Services.StoreContext.GetStoreById(storeScope);
             var model = await MapperFactory.MapAsync<ShippingSettings, ShippingSettingsModel>(settings);
 
-            model.PrimaryStoreCurrencyCode = store.PrimaryStoreCurrency.CurrencyCode;
+            model.PrimaryStoreCurrencyCode = _currencyService.PrimaryCurrency.CurrencyCode;
 
             var todayShipmentHours = new List<SelectListItem>();
 
@@ -1282,17 +1191,15 @@ namespace Smartstore.Admin.Controllers
 
             ViewBag.TodayShipmentHours = todayShipmentHours;
 
-            await _storeDependingSettingHelper.GetOverrideKeysAsync(settings, model, storeScope);
+            await _multiStoreSettingHelper.DetectOverrideKeysAsync(settings, model, storeScope);
 
             // Shipping origin
             if (storeScope > 0 && await Services.Settings.SettingExistsAsync(settings, x => x.ShippingOriginAddressId, storeScope))
             {
-                _storeDependingSettingHelper.AddOverrideKey(settings, "ShippingOriginAddress");
+                _multiStoreSettingHelper.AddOverrideKey(settings, "ShippingOriginAddress");
             }
 
-            var originAddress = settings.ShippingOriginAddressId > 0
-                ? await _db.Addresses.FindByIdAsync(settings.ShippingOriginAddressId, false)
-                : null;
+            var originAddress = await _db.Addresses.FindByIdAsync(settings.ShippingOriginAddressId, false);
 
             if (originAddress != null)
             {
@@ -1301,35 +1208,21 @@ namespace Smartstore.Admin.Controllers
 
             var countries = await _db.Countries
                 .AsNoTracking()
-                .Include(x => x.StateProvinces.OrderBy(x => x.DisplayOrder))
                 .ApplyStandardFilter(true)
                 .ToListAsync();
 
-            foreach (var c in countries)
-            {
-                model.ShippingOriginAddress.AvailableCountries.Add(
-                    new SelectListItem { Text = c.Name, Value = c.Id.ToString(), Selected = (originAddress != null && c.Id == originAddress.CountryId) }
-                );
-            }
+            var stateProvinces = await _db.StateProvinces.GetStateProvincesByCountryIdAsync(originAddress?.CountryId ?? 0, true);
 
-            var states = originAddress != null && originAddress.Country != null
-                ? countries.FirstOrDefault(x => x.Id == originAddress.Country.Id).StateProvinces.ToList()
-                : new List<StateProvince>();
+            model.ShippingOriginAddress.AvailableCountries = countries.ToSelectListItems(originAddress?.CountryId ?? 0);
 
-            if (states.Count > 0)
+            model.ShippingOriginAddress.AvailableStates = stateProvinces.ToSelectListItems(originAddress?.StateProvinceId ?? 0) ?? new List<SelectListItem>
             {
-                foreach (var s in states)
-                {
-                    model.ShippingOriginAddress.AvailableStates.Add(
-                        new SelectListItem { Text = s.Name, Value = s.Id.ToString(), Selected = (s.Id == originAddress.StateProvinceId) }
-                    );
-                }
-            }
-            else
-            {
-                model.ShippingOriginAddress.AvailableStates.Add(new SelectListItem { Text = T("Admin.Address.OtherNonUS"), Value = "0" });
-            }
+                new SelectListItem { Text = T("Address.OtherNonUS"), Value = "0" }
+            };
 
+            model.ShippingOriginAddress.FirstNameEnabled = false;
+            model.ShippingOriginAddress.LastNameEnabled = false;
+            model.ShippingOriginAddress.EmailEnabled = false;
             model.ShippingOriginAddress.CountryEnabled = true;
             model.ShippingOriginAddress.StateProvinceEnabled = true;
             model.ShippingOriginAddress.ZipPostalCodeEnabled = true;
@@ -1347,7 +1240,7 @@ namespace Smartstore.Admin.Controllers
             // Note, model state is invalid here due to ShippingOriginAddress validation.
             await MapperFactory.MapAsync(model, settings);
 
-            await _storeDependingSettingHelper.UpdateSettingsAsync(settings, form, storeScope, propertyName =>
+            await _multiStoreSettingHelper.UpdateSettingsAsync(settings, form, storeScope, propertyName =>
             {
                 // Skip to prevent the address from being recreated every time you save.
                 if (propertyName.EqualsNoCase(nameof(settings.ShippingOriginAddressId)))
@@ -1357,7 +1250,7 @@ namespace Smartstore.Admin.Controllers
             });
 
             // Special case ShippingOriginAddressId\ShippingOriginAddress.
-            if (storeScope == 0 || StoreDependingSettingHelper.IsOverrideChecked(settings, "ShippingOriginAddress", form))
+            if (storeScope == 0 || MultiStoreSettingHelper.IsOverrideChecked(settings, "ShippingOriginAddress", form))
             {
                 var addressId = await Services.Settings.SettingExistsAsync(settings, x => x.ShippingOriginAddressId, storeScope) ? settings.ShippingOriginAddressId : 0;
                 var originAddress = await _db.Addresses.FindByIdAsync(addressId) ?? new Address { CreatedOnUtc = DateTime.UtcNow };
@@ -1394,8 +1287,18 @@ namespace Smartstore.Admin.Controllers
             var store = storeScope == 0 ? Services.StoreContext.CurrentStore : allStores.FirstOrDefault(x => x.Id == storeScope);
             var model = await MapperFactory.MapAsync<OrderSettings, OrderSettingsModel>(settings);
 
-            model.PrimaryStoreCurrencyCode = store.PrimaryStoreCurrency.CurrencyCode;
+            model.PrimaryStoreCurrencyCode = _currencyService.PrimaryCurrency.CurrencyCode;
             model.StoreCount = allStores.Count;
+
+            if (settings.GiftCards_Activated_OrderStatusId > 0)
+            {
+                model.GiftCardsActivatedOrderStatusId = settings.GiftCards_Activated_OrderStatusId;
+            }
+
+            if (settings.GiftCards_Deactivated_OrderStatusId > 0)
+            {
+                model.GiftCardsDeactivatedOrderStatusId = settings.GiftCards_Deactivated_OrderStatusId;
+            }
 
             AddLocales(model.Locales, (locale, languageId) =>
             {
@@ -1410,39 +1313,23 @@ namespace Smartstore.Admin.Controllers
 
         [Permission(Permissions.Configuration.Setting.Update)]
         [HttpPost, SaveSetting]
-        public async Task<IActionResult> Order(int storeScope, OrderSettings settings, OrderSettingsModel model)
+        public async Task<IActionResult> Order(OrderSettings settings, OrderSettingsModel model, int storeScope)
         {
             if (!ModelState.IsValid)
             {
-                return View(model);
+                return await Order(storeScope, settings);
             }
 
             ModelState.Clear();
 
             await MapperFactory.MapAsync(model, settings);
+            settings.GiftCards_Activated_OrderStatusId = Convert.ToInt32(model.GiftCardsActivatedOrderStatusId);
+            settings.GiftCards_Deactivated_OrderStatusId = Convert.ToInt32(model.GiftCardsDeactivatedOrderStatusId);
 
             foreach (var localized in model.Locales)
             {
                 await _localizedEntityService.ApplyLocalizedSettingAsync(settings, x => x.ReturnRequestActions, localized.ReturnRequestActions, localized.LanguageId, storeScope);
                 await _localizedEntityService.ApplyLocalizedSettingAsync(settings, x => x.ReturnRequestReasons, localized.ReturnRequestReasons, localized.LanguageId, storeScope);
-            }
-
-            if (model.GiftCards_Activated_OrderStatusId.HasValue)
-            {
-                await Services.Settings.ApplySettingAsync(settings, x => x.GiftCards_Activated_OrderStatusId);
-            }
-            else
-            {
-                await Services.Settings.RemoveSettingAsync(settings, x => x.GiftCards_Activated_OrderStatusId);
-            }
-
-            if (model.GiftCards_Deactivated_OrderStatusId.HasValue)
-            {
-                await Services.Settings.ApplySettingAsync(settings, x => x.GiftCards_Deactivated_OrderStatusId);
-            }
-            else
-            {
-                await Services.Settings.RemoveSettingAsync(settings, x => x.GiftCards_Deactivated_OrderStatusId);
             }
 
             await _db.SaveChangesAsync();
@@ -1512,41 +1399,19 @@ namespace Smartstore.Admin.Controllers
             return RedirectToAction(actionMethod);
         }
 
-        private async Task PrepareConfigurationModelAsync(GeneralCommonSettingsModel model)
+        private async Task PrepareGeneralCommonConfigurationModelAsync(GeneralCommonSettingsModel model)
         {
-            foreach (var timeZone in _dateTimeHelper.GetSystemTimeZones())
-            {
-                model.DateTimeSettings.AvailableTimeZones.Add(new SelectListItem
-                {
-                    Text = timeZone.DisplayName,
-                    Value = timeZone.Id,
-                    Selected = timeZone.Id.Equals(_dateTimeHelper.DefaultStoreTimeZone.Id, StringComparison.InvariantCultureIgnoreCase)
-                });
-            }
+            ViewBag.AvailableTimeZones = _dateTimeHelper.GetSystemTimeZones()
+                .ToSelectListItems(_dateTimeHelper.DefaultStoreTimeZone.Id);
 
             #region CompanyInfo custom mapping
 
-            ViewBag.AvailableCountries = new List<SelectListItem>
-            {
-                new SelectListItem { Text = T("Common.Unspecified"), Value = "0" }
-            };
-            
-            ViewBag.Salutations = new List<SelectListItem>();
-
             var countries = await _db.Countries
                 .AsNoTracking()
-                .ApplyStandardFilter()
+                .ApplyStandardFilter(true)
                 .ToListAsync();
 
-            foreach (var c in countries)
-            {
-                ViewBag.AvailableCountries.Add(new SelectListItem
-                {
-                    Text = c.GetLocalized(x => x.Name),
-                    Value = c.Id.ToString(),
-                    Selected = c.Id == model.CompanyInformationSettings.CountryId
-                });
-            }
+            ViewBag.AvailableCountries = countries.ToSelectListItems(model.CompanyInformationSettings.CountryId ?? 0);
 
             ViewBag.Salutations = new List<SelectListItem>();
             ViewBag.Salutations.AddRange(new[]
@@ -1579,6 +1444,62 @@ namespace Smartstore.Admin.Controllers
             };
 
             #endregion
+        }
+
+        private void PrepareCatalogConfigurationModel(CatalogSettingsModel model)
+        {
+            ViewBag.AvailableDefaultViewModes = new List<SelectListItem>
+            {
+                new SelectListItem { Value = "grid", Text = T("Common.Grid"), Selected = model.DefaultViewMode.EqualsNoCase("grid") },
+                new SelectListItem { Value = "list", Text = T("Common.List"), Selected = model.DefaultViewMode.EqualsNoCase("list") }
+            };
+        }
+
+        private void PrepareSearchConfigModel(SearchSettingsModel model, SearchSettings searchSettings, IModuleDescriptor megaSearchPlusDescriptor)
+        {
+            var availableSearchFields = new List<SelectListItem>();
+            var availableSearchModes = new List<SelectListItem>();
+
+            if (!model.IsMegaSearchInstalled)
+            {
+                model.SearchFieldsNote = T("Admin.Configuration.Settings.Search.SearchFieldsNote");
+
+                availableSearchFields.AddRange(new[]
+                {
+                    new SelectListItem { Text = T("Admin.Catalog.Products.Fields.ShortDescription"), Value = "shortdescription" },
+                    new SelectListItem { Text = T("Admin.Catalog.Products.Fields.Sku"), Value = "sku" },
+                });
+
+                availableSearchModes = searchSettings.SearchMode.ToSelectList().Where(x => x.Value.ToInt() != (int)SearchMode.ExactMatch).ToList();
+            }
+            else
+            {
+                availableSearchFields.AddRange(new[]
+                {
+                    new SelectListItem { Text = T("Admin.Catalog.Products.Fields.ShortDescription"), Value = "shortdescription" },
+                    new SelectListItem { Text = T("Admin.Catalog.Products.Fields.FullDescription"), Value = "fulldescription" },
+                    new SelectListItem { Text = T("Admin.Catalog.Products.Fields.ProductTags"), Value = "tagname" },
+                    new SelectListItem { Text = T("Admin.Catalog.Manufacturers"), Value = "manufacturer" },
+                    new SelectListItem { Text = T("Admin.Catalog.Categories"), Value = "category" },
+                    new SelectListItem { Text = T("Admin.Catalog.Products.Fields.Sku"), Value = "sku" },
+                    new SelectListItem { Text = T("Admin.Catalog.Products.Fields.GTIN"), Value = "gtin" },
+                    new SelectListItem { Text = T("Admin.Catalog.Products.Fields.ManufacturerPartNumber"), Value = "mpn" }
+                });
+
+                if (megaSearchPlusDescriptor != null)
+                {
+                    availableSearchFields.AddRange(new[]
+                    {
+                        new SelectListItem { Text = T("Search.Fields.SpecificationAttributeOptionName"), Value = "attrname" },
+                        new SelectListItem { Text = T("Search.Fields.ProductAttributeOptionName"), Value = "variantname" }
+                    });
+                }
+
+                availableSearchModes = searchSettings.SearchMode.ToSelectList().ToList();
+            }
+
+            ViewBag.AvailableSearchFields = availableSearchFields;
+            ViewBag.AvailableSearchModes = availableSearchModes;
         }
 
         private SelectListItem ResToSelectListItem(string resourceKey)

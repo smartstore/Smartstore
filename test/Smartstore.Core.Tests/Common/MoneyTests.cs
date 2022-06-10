@@ -1,11 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Smartstore.Core.Common;
 using NUnit.Framework;
-using Smartstore.Core.Stores;
+using Smartstore.Core.Common;
 using Smartstore.Test.Common;
 
 namespace Smartstore.Core.Tests.Common
@@ -14,9 +9,8 @@ namespace Smartstore.Core.Tests.Common
     public class MoneyTests
     {
         Currency currencyUSD, currencyRUR, currencyEUR;
-        Store store;
 
-        [SetUp]
+        [OneTimeSetUp]
         public void SetUp()
         {
             currencyUSD = new Currency
@@ -58,15 +52,6 @@ namespace Smartstore.Core.Tests.Common
                 CreatedOnUtc = DateTime.UtcNow,
                 UpdatedOnUtc = DateTime.UtcNow,
             };
-
-            store = new Store
-            {
-                Name = "Computer store",
-                Url = "http://www.yourStore.com",
-                Hosts = "yourStore.com,www.yourStore.com",
-                PrimaryStoreCurrency = currencyUSD,
-                PrimaryExchangeRateCurrency = currencyEUR
-            };
         }
 
         [Test]
@@ -81,11 +66,11 @@ namespace Smartstore.Core.Tests.Common
         [Test]
         public void Can_convert_currency_2()
         {
-            currencyEUR.AsMoney(10M).ExchangeTo(currencyRUR, store.PrimaryExchangeRateCurrency).Amount.ShouldEqual(345M);
-            currencyEUR.AsMoney(10.1M).ExchangeTo(currencyEUR, store.PrimaryExchangeRateCurrency).Amount.ShouldEqual(10.1M);
-            currencyRUR.AsMoney(10.1M).ExchangeTo(currencyRUR, store.PrimaryExchangeRateCurrency).Amount.ShouldEqual(10.1M);
-            currencyUSD.AsMoney(12M).ExchangeTo(currencyRUR, store.PrimaryExchangeRateCurrency).Amount.ShouldEqual(345M);
-            currencyRUR.AsMoney(345M).ExchangeTo(currencyUSD, store.PrimaryExchangeRateCurrency).Amount.ShouldEqual(12M);
+            currencyEUR.AsMoney(10M).ExchangeTo(currencyRUR, currencyEUR).Amount.ShouldEqual(345M);
+            currencyEUR.AsMoney(10.1M).ExchangeTo(currencyEUR, currencyEUR).Amount.ShouldEqual(10.1M);
+            currencyRUR.AsMoney(10.1M).ExchangeTo(currencyRUR, currencyEUR).Amount.ShouldEqual(10.1M);
+            currencyUSD.AsMoney(12M).ExchangeTo(currencyRUR, currencyEUR).Amount.ShouldEqual(345M);
+            currencyRUR.AsMoney(345M).ExchangeTo(currencyUSD, currencyEUR).Amount.ShouldEqual(12M);
         }
     }
 }

@@ -2,8 +2,8 @@
 
 <datagrid id="currencies-grid" allow-resize="true" allow-row-selection="true" allow-edit="true" allow-column-reordering="true">
     <datasource read="@Url.Action("CurrencyList", "Currency")"
-                update="@Url.Action("Update", "Currency")"
-                delete="@Url.Action("DeleteSelection", "Currency")" />
+                update="@Url.Action("CurrencyUpdate", "Currency")"
+                delete="@Url.Action("CurrencyDelete", "Currency")" />
     <sorting enabled="true">
         <sort by="DisplayOrder" />
     </sorting>
@@ -14,8 +14,18 @@
                 <i class="fa fa-plus"></i>
                 <span>@T("Admin.Common.AddNew")...</span>
             </a>
+            <button datagrid-action="DataGridToolAction.SaveChanges" type="button" class="btn btn-warning no-anims btn-flat">
+                <i class="fa fa-check"></i>
+                <span>@T("Admin.Common.SaveChanges")</span>
+            </button>
+            <button datagrid-action="DataGridToolAction.CancelEdit" type="button" class="btn btn-light btn-flat mr-auto">
+                <span>@T("Common.Cancel")</span>
+            </button>
         </toolbar-group>
-        <toolbar-group class="omega">
+        <zone name="datagrid_toolbar_alpha"></zone>
+        <toolbar-group class="omega"></toolbar-group>
+        <zone name="datagrid_toolbar_omega"></zone>
+        <toolbar-group>
             <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger no-anims btn-flat">
                 <i class="far fa-trash-alt"></i>
                 <span>@T("Admin.Common.Delete.Selected")</span>
@@ -32,13 +42,46 @@
         </column>
         <column for="CurrencyCode" halign="center" />
         <column for="Published" halign="center" />
-        <column for="Rate" halign="flex-end" format="{0:N5}"/>
+        <column for="Rate" halign="flex-end" format="{0:N5}" />
         <column for="DisplayOrder" halign="center" />
         <column for="LimitedToStores" halign="center" readonly="true" />
         <column for="DomainEndings" />
     </columns>
     <row-commands>
         <a datarow-action="DataRowAction.Custom" :href="item.row.EditUrl">@T("Common.Edit")</a>
+        <a datarow-action="DataRowAction.Custom" class="grid-set-primary-currency" :data-key="item.row.Id" v-bind:class="{ disabled: item.row.IsPrimaryCurrency }">
+            @T("Admin.Configuration.Currencies.SetAsPrimaryCurrency")
+        </a>
+        <a datarow-action="DataRowAction.Custom" class="grid-set-primary-currency grid-set-primary-exchange-currency" :data-key="item.row.Id"
+           v-bind:class="{ disabled: item.row.IsPrimaryExchangeCurrency }">
+            @T("Admin.Configuration.Currencies.SetAsPrimaryExchangeCurrency")
+        </a>
+        <div class="dropdown-divider"></div>
         <a datarow-action="DataRowAction.Delete">@T("Common.Delete")</a>
     </row-commands>
 </datagrid>
+
+<script sm-target-zone="scripts" data-origin="currencies-grid">
+    $(function () {
+        $(document).on('click', '.grid-set-primary-currency', function (e) {
+            e.preventDefault();
+            var btn = $(this);
+
+            $.ajax({
+				cache: false,
+				type: 'POST',
+				url: '@(Url.Action("SetPrimaryCurrency", "Currency"))',
+				data: {
+                    "id": btn.data("key"),
+                    "forExchange": btn.hasClass('grid-set-primary-exchange-currency')
+				},
+                success: function () {
+                    const currenciesGrid = $('#currencies-grid').parent().data('datagrid');
+                    currenciesGrid.read();
+                }
+            });
+
+            return false;
+        });
+    });
+</script>

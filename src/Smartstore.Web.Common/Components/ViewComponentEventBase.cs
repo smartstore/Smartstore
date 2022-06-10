@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.ViewComponents;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 
@@ -29,6 +28,11 @@ namespace Smartstore.Web.Components
         public ViewComponentDescriptor Descriptor
         {
             get => ViewComponentContext.ViewComponentDescriptor;
+        }
+
+        public Type ComponentType
+        {
+            get => Descriptor.TypeInfo.AsType();
         }
     }
 }

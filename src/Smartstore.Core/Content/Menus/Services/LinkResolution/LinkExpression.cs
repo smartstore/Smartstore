@@ -1,5 +1,4 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
 namespace Smartstore.Core.Content.Menus
@@ -31,7 +30,7 @@ namespace Smartstore.Core.Content.Menus
 
         public static LinkExpression Parse(string expression)
         {
-            var result = new LinkExpression { RawExpression = expression };
+            var result = new LinkExpression { RawExpression = expression.TrimSafe() };
 
             if (!TokenizeExpression(result) || string.IsNullOrWhiteSpace(result.Schema))
             {
@@ -43,7 +42,6 @@ namespace Smartstore.Core.Content.Menus
             return result;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static bool TokenizeExpression(LinkExpression expression)
         {
             if (string.IsNullOrWhiteSpace(expression.RawExpression))
@@ -54,7 +52,7 @@ namespace Smartstore.Core.Content.Menus
             var colonIndex = expression.RawExpression.IndexOf(':');
             if (colonIndex > -1)
             {
-                expression.Schema = expression.RawExpression.Substring(0, colonIndex).ToLower();
+                expression.Schema = expression.RawExpression[..colonIndex].ToLower();
                 if (expression.Schema.StartsWith("http"))
                 {
                     expression.Schema = null;
@@ -72,7 +70,7 @@ namespace Smartstore.Core.Content.Menus
             if (qmIndex > -1)
             {
                 expression.Query = expression.Target[qmIndex..];
-                expression.Target = expression.Target.Substring(0, qmIndex);
+                expression.Target = expression.Target[..qmIndex];
             }
             else
             {

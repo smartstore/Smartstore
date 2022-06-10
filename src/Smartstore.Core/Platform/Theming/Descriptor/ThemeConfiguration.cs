@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Smartstore.Core.Theming
+﻿namespace Smartstore.Core.Theming
 {
     public class ThemeConfiguration
     {

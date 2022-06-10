@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace Smartstore.Core.Search.Facets
+﻿namespace Smartstore.Core.Search.Facets
 {
     public static partial class FacetUtility
     {

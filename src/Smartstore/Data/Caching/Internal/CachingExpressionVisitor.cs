@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Threading;
+﻿using System.Collections.Concurrent;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Domain;
 
@@ -105,7 +100,7 @@ namespace Smartstore.Data.Caching.Internal
             ElementType = expression.Type;
             CachingPolicy = null;
 
-            if (expression.Type.IsSequenceType(out var elementType))
+            if (expression.Type.IsEnumerableType(out var elementType))
             {
                 IsSequenceType = true;
                 ElementType = elementType;

@@ -1,9 +1,6 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using FluentValidation;
 using Smartstore.Core.Identity;
-using Smartstore.Web.Modelling;
-using Smartstore.Web.Modelling.Validation;
 
 namespace Smartstore.Web.Models.Customers
 {
@@ -35,9 +32,11 @@ namespace Smartstore.Web.Models.Customers
         [LocalizedDisplay("*Title")]
         public string Title { get; set; }
 
+        public bool FirstNameRequired { get; set; }
         [LocalizedDisplay("*FirstName")]
         public string FirstName { get; set; }
 
+        public bool LastNameRequired { get; set; }
         [LocalizedDisplay("*LastName")]
         public string LastName { get; set; }
 

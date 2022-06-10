@@ -1,7 +1,4 @@
-﻿using System.Threading.Tasks;
-using Smartstore.Domain;
-
-namespace Smartstore.Core.Stores
+﻿namespace Smartstore.Core.Stores
 {
     /// <summary>
     /// Store mapping service interface

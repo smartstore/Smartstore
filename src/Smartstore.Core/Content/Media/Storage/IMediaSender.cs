@@ -1,9 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace Smartstore.Core.Content.Media.Storage
+﻿namespace Smartstore.Core.Content.Media.Storage
 {
     public interface IMediaSender
     {

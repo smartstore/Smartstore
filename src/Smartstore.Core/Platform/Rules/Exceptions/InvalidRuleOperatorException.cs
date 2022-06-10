@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Smartstore.Core.Rules
+﻿namespace Smartstore.Core.Rules
 {
     public sealed class InvalidRuleOperatorException : NotSupportedException
     {

@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Smartstore.Core.Localization;
+﻿using Smartstore.Core.Localization;
 using Smartstore.Core.Search;
-using Smartstore.Domain;
 using Smartstore.Web.Modelling;
 
 namespace Smartstore.Web.Models.Search

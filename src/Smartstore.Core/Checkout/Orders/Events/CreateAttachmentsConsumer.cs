@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
-using Smartstore.Core.Common.Settings;
+﻿using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Messaging;
@@ -35,8 +29,8 @@ namespace Smartstore.Core.Checkout.Orders.Events
 
             var handledTemplates = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase)
             {
-                { "OrderPlaced.CustomerNotification", _pdfSettings.AttachOrderPdfToOrderPlacedEmail },
-                { "OrderCompleted.CustomerNotification", _pdfSettings.AttachOrderPdfToOrderCompletedEmail }
+                { MessageTemplateNames.OrderPlacedCustomer, _pdfSettings.AttachOrderPdfToOrderPlacedEmail },
+                { MessageTemplateNames.OrderCompletedCustomer, _pdfSettings.AttachOrderPdfToOrderCompletedEmail }
             };
 
             if (handledTemplates.TryGetValue(ctx.MessageTemplate.Name, out var shouldHandle) && shouldHandle)

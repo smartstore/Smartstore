@@ -1,8 +1,5 @@
-﻿using System;
-using System.Threading.Tasks;
-using Humanizer;
+﻿using Humanizer;
 using Microsoft.AspNetCore.Razor.TagHelpers;
-using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Smartstore.Core.Content.Media.Imaging;
 using Smartstore.Imaging;
 using Smartstore.Web.Rendering;

@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Linq;
-using System.Runtime.Loader;
+﻿using System.Runtime.Loader;
 
 namespace Smartstore.Engine.Modularity
 {

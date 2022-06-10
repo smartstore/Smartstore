@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Razor.TagHelpers;
+﻿using Microsoft.AspNetCore.Html;
+using Microsoft.AspNetCore.Razor.TagHelpers;
 using Smartstore.Web.Rendering;
 
 namespace Smartstore.Web.TagHelpers.Shared
@@ -17,25 +18,40 @@ namespace Smartstore.Web.TagHelpers.Shared
 
         protected override void ProcessCore(TagHelperContext context, TagHelperOutput output)
         {
-            var value = For?.Model?.ToString() ?? string.Empty;
-            if (output.Attributes.TryGetAttribute("value", out var attr))
-            {
-                value = attr.Value.ToString();
-            }
+            IHtmlContent box;
 
-            var name = string.Empty;
-            if (output.Attributes.TryGetAttribute("name", out attr))
+            if (For != null)
             {
-                name = attr.Value.ToString();
+                box = HtmlHelper.ColorBoxFor(For, DefaultColor);
             }
-            else if (output.Attributes.TryGetAttribute("id", out attr))
+            else
             {
-                name = attr.Value.ToString();
+                var value = string.Empty;
+                if (output.Attributes.TryGetAttribute("value", out var attr))
+                {
+                    value = attr.ValueAsString();
+                }
+
+                var name = string.Empty;
+                if (output.Attributes.TryGetAttribute("name", out attr))
+                {
+                    name = attr.ValueAsString();
+                }
+                else if (output.Attributes.TryGetAttribute("id", out attr))
+                {
+                    name = attr.ValueAsString();
+                }
+
+                if (name.IsEmpty())
+                {
+                    throw new InvalidOperationException("The name of a colorbox field cannot be null or empty.");
+                }
+
+                box = HtmlHelper.ColorBox(name, value, DefaultColor);
             }
 
             output.SuppressOutput();
-
-            output.PostElement.AppendHtml(HtmlHelper.ColorBox(name, value, DefaultColor));
+            output.PostElement.AppendHtml(box);
         }
     }
 }

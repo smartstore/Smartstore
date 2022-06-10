@@ -1,6 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using Microsoft.Extensions.FileProviders;
 using Smartstore.Utilities;
 
@@ -52,7 +50,7 @@ namespace Smartstore.Net
                 .Add(discriminator)
                 .CombinedHashString;
 
-            return hash;
+            return '\"' + hash + '\"';
         }
     }
 }

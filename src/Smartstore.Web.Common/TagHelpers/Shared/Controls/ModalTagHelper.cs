@@ -1,9 +1,6 @@
-﻿using System;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Html;
+﻿using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Razor.TagHelpers;
-using Smartstore.Core.Widgets;
 
 namespace Smartstore.Web.TagHelpers.Shared
 {
@@ -14,6 +11,34 @@ namespace Smartstore.Web.TagHelpers.Shared
         Large,
         Flex,
         FlexSmall
+    }
+
+    public enum ModalBackdrop
+    {
+        /// <summary>
+        /// Enables default backdrop.
+        /// </summary>
+        Show,
+
+        /// <summary>
+        /// No backdrop.
+        /// </summary>
+        Hide,
+
+        /// <summary>
+        /// Enables default backdrop, but does not close on backdrop click.
+        /// </summary>
+        Static,
+
+        /// <summary>
+        /// Enables inverted (white) backdrop.
+        /// </summary>
+        Inverse,
+
+        /// <summary>
+        /// Enables backdrop, but makes it invisible.
+        /// </summary>
+        Invisible
     }
 
     [HtmlTargetElement("modal", Attributes = "id")]
@@ -27,7 +52,6 @@ namespace Smartstore.Web.TagHelpers.Shared
         const string BackdropAttributeName = "sm-backdrop";
         const string ShowAttributeName = "sm-show";
         const string CloseOnEscapePressAttributeName = "sm-close-on-escape-press";
-        const string CloseOnBackdropClickAttributeName = "sm-close-on-backdrop-click";
         const string CenterVerticallyAttributeName = "sm-center-vertically";
         const string CenterContentAttributeName = "sm-center-content";
         const string RenderAtPageEndAttributeName = "sm-render-at-page-end";
@@ -64,10 +88,10 @@ namespace Smartstore.Web.TagHelpers.Shared
         public bool Focus { get; set; } = true;
 
         /// <summary>
-        /// Whether to render modal backdrop. Default = true.
+        /// Specifies backdrop kind. Default = <see cref="ModalBackdrop.Show"/>.
         /// </summary>
         [HtmlAttributeName(BackdropAttributeName)]
-        public bool Backdrop { get; set; } = true;
+        public ModalBackdrop Backdrop { get; set; } = ModalBackdrop.Show;
 
         /// <summary>
         /// Whether to initially show modal. Default = true.
@@ -80,12 +104,6 @@ namespace Smartstore.Web.TagHelpers.Shared
         /// </summary>
         [HtmlAttributeName(CloseOnEscapePressAttributeName)]
         public bool CloseOnEscapePress { get; set; } = true;
-
-        /// <summary>
-        /// Whether to close modal on backdrop click. Default = true.
-        /// </summary>
-        [HtmlAttributeName(CloseOnBackdropClickAttributeName)]
-        public bool CloseOnBackdropClick { get; set; } = true;
 
         /// <summary>
         /// Whether to center modal vertically. Default = false.
@@ -121,6 +139,24 @@ namespace Smartstore.Web.TagHelpers.Shared
                 output.AppendCssClass("modal-box");
             }
 
+            var backdrop = "true";
+            if (Backdrop == ModalBackdrop.Hide)
+            {
+                backdrop = "false";
+            }
+            else if (Backdrop == ModalBackdrop.Static)
+            {
+                backdrop = "static";
+            }
+            else if (Backdrop == ModalBackdrop.Inverse)
+            {
+                backdrop = "invert";
+            }
+            else if (Backdrop == ModalBackdrop.Invisible)
+            {
+                backdrop = "invisible";
+            }
+
             output.MergeAttribute("role", "dialog");
             output.MergeAttribute("tabindex", -1);
             output.MergeAttribute("aria-hidden", "true");
@@ -128,7 +164,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             output.MergeAttribute("data-keyboard", CloseOnEscapePress.ToString().ToLower());
             output.MergeAttribute("data-show", Show.ToString().ToLower());
             output.MergeAttribute("data-focus", Focus.ToString().ToLower());
-            output.MergeAttribute("data-backdrop", Backdrop ? (CloseOnBackdropClick ? "true" : "static") : "false");
+            output.MergeAttribute("data-backdrop", backdrop);
 
             // .modal-dialog
             BuildDialog(output);

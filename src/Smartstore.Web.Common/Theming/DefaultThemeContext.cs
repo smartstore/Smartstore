@@ -1,7 +1,4 @@
-﻿using System;
-using System.Linq;
-using Microsoft.AspNetCore.Http;
-using Smartstore.Core;
+﻿using Microsoft.AspNetCore.Http;
 using Smartstore.Core.Theming;
 using Smartstore.Core.Web;
 

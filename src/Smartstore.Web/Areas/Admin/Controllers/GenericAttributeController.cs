@@ -1,18 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Smartstore.Admin.Models.Common;
+﻿using Smartstore.Admin.Models.Common;
 using Smartstore.Core.Checkout.Orders;
-using Smartstore.Core.Common;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Content.Topics;
-using Smartstore.Core.Data;
 using Smartstore.Core.Security;
-using Smartstore.Data.Batching;
-using Smartstore.Web.Controllers;
 using Smartstore.Web.Models.DataGrid;
 
 namespace Smartstore.Admin.Controllers
@@ -35,21 +25,25 @@ namespace Smartstore.Admin.Controllers
             var storeId = Services.StoreContext.CurrentStore.Id;
             ViewBag.StoreId = storeId;
 
+            var totalCount = 0;
             var attributesItems = new List<GenericAttributeModel>();
 
             if (entityName.HasValue() && entityId > 0)
             {
-                var infos = GetGenericAttributesInfos(entityName);
-                if (infos.ReadPermission.IsEmpty() || Services.Permissions.Authorize(infos.ReadPermission))
+                var (readPermission, _) = GetGenericAttributesInfos(entityName);
+
+                if (readPermission.IsEmpty() || Services.Permissions.Authorize(readPermission))
                 {
-                    var attributes = _genericAttributeService
-                        .GetAttributesForEntity(entityName, entityId).UnderlyingEntities
+                    var allAttributes = _genericAttributeService.GetAttributesForEntity(entityName, entityId).UnderlyingEntities;
+
+                    var attributes = allAttributes
                         .AsQueryable()
                         .ApplyGridCommand(command, true);
 
+                    totalCount = allAttributes.Count();
+
                     attributesItems = attributes
                         .Where(x => x.StoreId == storeId || x.StoreId == 0)
-                        .OrderBy(x => x.Key)
                         .Select(x => new GenericAttributeModel
                         {
                             Id = x.Id,
@@ -65,7 +59,7 @@ namespace Smartstore.Admin.Controllers
             var gridModel = new GridModel<GenericAttributeModel>
             {
                 Rows = attributesItems,
-                Total = attributesItems.Count
+                Total = totalCount
             };
 
             return Json(gridModel);

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Primitives;
 
@@ -84,6 +81,8 @@ namespace Smartstore.Collections
 
         public QueryString ToQueryString()
         {
+            // INFO: parameters with the same name\key are not comma-separated combined by QueryString.
+            // Not even if you pass the values via StringValues.
             return QueryString.Create(_store);
         }
 

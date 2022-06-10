@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
+﻿using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 
 namespace Smartstore.Web.TagHelpers.Shared
@@ -51,7 +49,7 @@ namespace Smartstore.Web.TagHelpers.Shared
                     }
                     else
                     {
-                        output.MergeAttribute(attr.Key, attr.Value, false);
+                        output.MergeAttribute(attr.Key, attr.Value, attr.Key == "value");
                     }
                 }
             }
@@ -68,7 +66,7 @@ namespace Smartstore.Web.TagHelpers.Shared
                         }
                         else
                         {
-                            output.MergeAttribute(kvp.Key, kvp.Value.Value, false);
+                            output.MergeAttribute(kvp.Key, kvp.Value.Value, kvp.Key == "value");
                         }
                     }
                 }

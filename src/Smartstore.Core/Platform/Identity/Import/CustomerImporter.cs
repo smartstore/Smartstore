@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Dasync.Collections;
-using Microsoft.EntityFrameworkCore;
+﻿using Dasync.Collections;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common;
 using Smartstore.Core.Common.Settings;
@@ -25,6 +18,7 @@ namespace Smartstore.Core.DataExchange.Import
     {
         private const string CARGO_DATA_KEY = "CustomerImporter.CargoData";
 
+        private readonly IFolderService _folderService;
         private readonly CustomerSettings _customerSettings;
         private readonly TaxSettings _taxSettings;
         private readonly PrivacySettings _privacySettings;
@@ -35,12 +29,15 @@ namespace Smartstore.Core.DataExchange.Import
             ILocalizedEntityService localizedEntityService,
             IStoreMappingService storeMappingService,
             IUrlService urlService,
+            IFolderService folderService,
+            SeoSettings seoSettings,
             CustomerSettings customerSettings,
             TaxSettings taxSettings,
             PrivacySettings privacySettings,
             DateTimeSettings dateTimeSettings)
-            : base(services, localizedEntityService, storeMappingService, urlService)
+            : base(services, localizedEntityService, storeMappingService, urlService, seoSettings)
         {
+            _folderService = folderService;
             _customerSettings = customerSettings;
             _taxSettings = taxSettings;
             _privacySettings = privacySettings;
@@ -55,7 +52,7 @@ namespace Smartstore.Core.DataExchange.Import
             var segmenter = context.DataSegmenter;
             var batch = segmenter.GetCurrentBatch<Customer>();
 
-            using (var scope = new DbContextScope(_services.DbContext, autoDetectChanges: false, minHookImportance: HookImportance.Important, deferCommit: true))
+            using (var scope = new DbContextScope(_db, autoDetectChanges: false, minHookImportance: HookImportance.Important, deferCommit: true))
             {
                 await context.SetProgressAsync(segmenter.CurrentSegmentFirstRowIndex - 1, segmenter.TotalRows);
 
@@ -148,8 +145,7 @@ namespace Smartstore.Core.DataExchange.Import
             var currentCustomer = _services.WorkContext.CurrentCustomer;
             var customerQuery = _db.Customers
                 .Include(x => x.Addresses)
-                .Include(x => x.CustomerRoleMappings)
-                .ThenInclude(x => x.CustomerRole);
+                .IncludeCustomerRoles();
 
             foreach (var row in batch)
             {
@@ -208,6 +204,7 @@ namespace Smartstore.Core.DataExchange.Import
                 }
                 else
                 {
+                    await _db.LoadCollectionAsync(customer, x => x.Addresses, false, null, context.CancelToken);
                     await _db.LoadCollectionAsync(customer, x => x.CustomerRoleMappings, false, q => q.Include(x => x.CustomerRole), context.CancelToken);
                 }
 
@@ -308,7 +305,7 @@ namespace Smartstore.Core.DataExchange.Import
             foreach (var row in batch)
             {
                 var customer = row.Entity;
-                var importRoleSystemNames = row.GetDataValue<List<string>>("CustomerRoleSystemNames");
+                var importRoleSystemNames = row.GetDataValue<List<string>>("CustomerRoleSystemNames") ?? new();
 
                 var assignedRoles = customer.CustomerRoleMappings
                     .Where(x => !x.IsSystemMapping)
@@ -406,6 +403,9 @@ namespace Smartstore.Core.DataExchange.Import
 
         protected virtual async Task<int> ProcessAvatarsAsync(ImportExecuteContext context, DbContextScope scope, IEnumerable<ImportRow<Customer>> batch)
         {
+            var cargo = await GetCargoData(context);
+            var newFiles = new List<FileBatchSource>();
+
             foreach (var row in batch)
             {
                 var urlOrPath = row.GetDataValue<string>("AvatarPictureUrl");
@@ -443,19 +443,38 @@ namespace Smartstore.Core.DataExchange.Import
                             }
                         }
 
-                        // An avatar may not be assigned to several customers. A customer could otherwise delete the avatar of another.
-                        // Overwriting is probably too dangerous here, because we could overwrite the avatar of another customer, so better rename.
-                        var path = _services.MediaService.CombinePaths(SystemAlbumProvider.Customers, image.FileName);
-                        var saveFileResult = await _services.MediaService.SaveFileAsync(path, stream, false, DuplicateFileHandling.Rename);
-                        if (saveFileResult.File.Id > 0)
+                        // Keep path for later batch import of new images.
+                        newFiles.Add(new FileBatchSource
                         {
-                            SetGenericAttribute(SystemCustomerAttributeNames.AvatarPictureId, saveFileResult.File.Id, row);
-                        }
+                            PhysicalPath = image.Path,
+                            FileName = image.FileName,
+                            State = row
+                        });
                     }
                 }
                 else
                 {
                     context.Result.AddInfo($"Download failed for avatar {image.Url}.", row.RowInfo, "AvatarPictureUrl");
+                }
+            }
+
+            if (newFiles.Count > 0)
+            {
+                // An avatar may not be assigned to several customers. A customer could otherwise delete the avatar of another.
+                // Overwriting is probably too dangerous here, because we could overwrite the avatar of another customer, so better rename.
+                var batchFileResult = await _services.MediaService.BatchSaveFilesAsync(
+                    newFiles.ToArray(),
+                    cargo.CustomersAlbum,
+                    false,
+                    DuplicateFileHandling.Rename,
+                    context.CancelToken);
+
+                foreach (var fileResult in batchFileResult)
+                {
+                    if (fileResult.Exception == null && fileResult.File?.Id > 0)
+                    {
+                        SetGenericAttribute(SystemCustomerAttributeNames.AvatarPictureId, fileResult.File.Id, fileResult.Source.State as ImportRow<Customer>);
+                    }
                 }
             }
 
@@ -669,6 +688,7 @@ namespace Smartstore.Core.DataExchange.Import
             var result = new ImporterCargoData
             {
                 AllowManagingCustomerRoles = allowManagingCustomerRoles,
+                CustomersAlbum = _folderService.GetNodeByPath(SystemAlbumProvider.Customers).Value,
                 AffiliateIds = affiliateIds,
                 CustomerNumbers = new HashSet<string>(customerNumbers, StringComparer.OrdinalIgnoreCase),
                 CustomerRoleIds = customerRoleIds.ToDictionarySafe(x => x.SystemName, x => x.Id, StringComparer.OrdinalIgnoreCase),
@@ -686,6 +706,7 @@ namespace Smartstore.Core.DataExchange.Import
         protected class ImporterCargoData
         {
             public bool AllowManagingCustomerRoles { get; init; }
+            public MediaFolderNode CustomersAlbum { get; init; }
             public List<int> AffiliateIds { get; init; }
             public HashSet<string> CustomerNumbers { get; init; }
             public Dictionary<string, int> CustomerRoleIds { get; init; }

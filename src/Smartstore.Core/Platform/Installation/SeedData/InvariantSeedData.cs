@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
-using System.Linq;
-using Microsoft.EntityFrameworkCore;
+﻿using System.Globalization;
+using Autofac;
 using Smartstore.Caching.Tasks;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Brands;
@@ -36,8 +32,6 @@ using Smartstore.Core.Rules;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
-using Smartstore.Domain;
-using Smartstore.Engine;
 using Smartstore.Scheduling;
 
 namespace Smartstore.Core.Installation
@@ -53,10 +47,10 @@ namespace Smartstore.Core.Installation
         {
         }
 
-        public void Initialize(SmartDbContext db, Language primaryLanguage, IApplicationContext appContext)
+        public void Initialize(SmartDbContext db, SeedDataConfiguration configuration, IApplicationContext appContext)
         {
             _db = db;
-            _language = primaryLanguage;
+            _language = configuration.Language;
             _appContext = appContext;
             _mediaUtility = new SampleMediaUtility(db, "/App_Data/Samples");
         }
@@ -85,14 +79,9 @@ namespace Smartstore.Core.Installation
         public IList<Store> Stores()
         {
             var imgCompanyLogo = _db.MediaFiles.Where(x => x.Name == "company-logo.png").FirstOrDefault();
+            var currency = _db.Currencies.FirstOrDefault(x => x.CurrencyCode == "EUR") ?? _db.Currencies.First();
 
-            var currency = _db.Currencies.FirstOrDefault(x => x.CurrencyCode == "EUR");
-            if (currency == null)
-            {
-                currency = _db.Currencies.First();
-            }
-
-            var entities = new List<Store>()
+            var entities = new List<Store>
             {
                 new Store
                 {
@@ -102,7 +91,7 @@ namespace Smartstore.Core.Installation
                     SslEnabled = false,
                     DisplayOrder = 1,
                     LogoMediaFileId = imgCompanyLogo?.Id ?? 0,
-                    PrimaryStoreCurrencyId = currency.Id,
+                    DefaultCurrencyId = currency.Id,
                     PrimaryExchangeRateCurrencyId = currency.Id
                 }
             };
@@ -579,7 +568,7 @@ namespace Smartstore.Core.Installation
                 .Select(x => Activator.CreateInstance(x))
                 .OfType<ISettings>()
                 .ToList();
-            
+
             var defaultLanguageId = _language.Id;
             var localizationSettings = settings.OfType<LocalizationSettings>().FirstOrDefault();
             if (localizationSettings != null)
@@ -608,11 +597,22 @@ namespace Smartstore.Core.Installation
                 };
             }
 
-            var defaultEmailAccountId = (_db.EmailAccounts.FirstOrDefault())?.Id ?? 0;
+            var defaultEmailAccountId = _db.EmailAccounts.FirstOrDefault()?.Id ?? 0;
             var emailAccountSettings = settings.OfType<EmailAccountSettings>().FirstOrDefault();
             if (emailAccountSettings != null)
             {
                 emailAccountSettings.DefaultEmailAccountId = defaultEmailAccountId;
+            }
+
+            var currencySettings = settings.OfType<CurrencySettings>().FirstOrDefault();
+            if (currencySettings != null)
+            {
+                var currency = _db.Currencies.FirstOrDefault(x => x.CurrencyCode == "EUR") ?? _db.Currencies.First();
+                if (currency != null)
+                {
+                    currencySettings.PrimaryCurrencyId = currency.Id;
+                    currencySettings.PrimaryExchangeCurrencyId = currency.Id;
+                }
             }
 
             Alter(settings);

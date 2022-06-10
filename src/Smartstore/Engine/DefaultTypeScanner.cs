@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
+﻿using System.Reflection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Smartstore.Engine.Modularity;
@@ -56,24 +53,24 @@ namespace Smartstore.Engine
         {
             Guard.NotNull(baseType, nameof(baseType));
 
+            var isOpenGeneric = baseType.IsGenericTypeDefinition;
+
             foreach (var t in assemblies.SelectMany(x => x.GetLoadableTypes()))
             {
-                if (t.IsInterface || t.IsDelegate() || t.IsCompilerGenerated())
+                if (t.IsInterface)
                     continue;
 
-                if (baseType.IsAssignableFrom(t) || t.IsOpenGenericTypeOf(baseType))
+                // INFO (perf): scanning is 2x faster without these extra checks.
+                //if (t.IsInterface || t.IsCompilerGenerated() || t.IsRazorCompiledItem() || t.IsDelegate())
+                //    continue;
+
+                var isCandidate = (!concreteTypesOnly || !t.IsAbstract) && (isOpenGeneric
+                    ? t.IsClosedGenericTypeOf(baseType)
+                    : baseType.IsAssignableFrom(t));
+
+                if (isCandidate)
                 {
-                    if (concreteTypesOnly)
-                    {
-                        if (t.IsClass && !t.IsAbstract)
-                        {
-                            yield return t;
-                        }
-                    }
-                    else
-                    {
-                        yield return t;
-                    }
+                    yield return t;
                 }
             }
         }

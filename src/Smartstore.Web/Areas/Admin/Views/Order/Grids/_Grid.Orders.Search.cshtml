@@ -1,0 +1,53 @@
+﻿@using Smartstore.Core.Checkout.Payment
+@using Smartstore.Core.Checkout.Shipping
+
+@model OrderListModel
+
+@{
+    var stores = ViewBag.Stores as IList<SelectListItem>;
+}
+
+<div class="form-group">
+    <div class="form-row">
+        <div class="col">
+            <smart-label asp-for="StartDate" />
+            <editor asp-for="StartDate" class="form-control-sm" />
+        </div>
+        <div class="col">
+            <smart-label asp-for="EndDate" />
+            <editor asp-for="EndDate" class="form-control-sm" />
+        </div>
+    </div>
+</div>
+<div class="form-group">
+    <smart-label asp-for="CustomerName" />
+    <editor asp-for="CustomerName" asp-template="SearchExpression" class="form-control-sm" />
+</div>
+<div class="form-group">
+    <smart-label asp-for="CustomerEmail" />
+    <editor asp-for="CustomerEmail" asp-template="SearchExpression" class="form-control-sm" />
+</div>
+<div class="form-group">
+    <smart-label asp-for="OrderNumber" />
+    <editor asp-for="OrderNumber" asp-template="SearchExpression" class="form-control-sm" />
+</div>
+<div class="form-group">
+    <smart-label asp-for="PaymentMethods" />
+    <select asp-for="PaymentMethods" asp-items="ViewBag.PaymentMethods" class="form-control-sm" multiple="multiple"></select>
+</div>
+<div sm-if="stores.Count > 1" class="form-group">
+    <smart-label asp-for="StoreId" />
+    <select asp-for="StoreId" asp-items="stores" class="form-control-sm" asp-placeholder="@T("Admin.Common.All")"></select>
+</div>
+<div class="form-group">
+    <smart-label asp-for="OrderStatusIds" />
+    <select asp-for="OrderStatusIds" asp-items="Html.GetLocalizedEnumSelectList(typeof(OrderStatus))" class="form-control-sm" multiple="multiple"></select>
+</div>
+<div class="form-group">
+    <smart-label asp-for="PaymentStatusIds" />
+    <select asp-for="PaymentStatusIds" asp-items="Html.GetLocalizedEnumSelectList(typeof(PaymentStatus))" class="form-control-sm" multiple="multiple"></select>
+</div>
+<div class="form-group">
+    <smart-label asp-for="ShippingStatusIds" />
+    <select asp-for="ShippingStatusIds" asp-items="Html.GetLocalizedEnumSelectList(typeof(ShippingStatus))" class="form-control-sm" multiple="multiple"></select>
+</div>

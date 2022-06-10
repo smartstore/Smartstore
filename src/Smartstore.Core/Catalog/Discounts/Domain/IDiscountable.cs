@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Smartstore.Core.Catalog.Discounts
+﻿namespace Smartstore.Core.Catalog.Discounts
 {
     /// <summary>
     /// Represents an entity with appliable discounts.

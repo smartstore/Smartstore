@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Newtonsoft.Json;
@@ -13,7 +10,6 @@ using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Rules;
 using Smartstore.Data.Caching;
-using Smartstore.Domain;
 
 namespace Smartstore.Core.Catalog.Discounts
 {
@@ -38,7 +34,11 @@ namespace Smartstore.Core.Catalog.Discounts
                         .HasForeignKey("Discount_Id")
                         .HasConstraintName("FK_dbo.RuleSet_Discount_Mapping_dbo.Discount_Discount_Id")
                         .OnDelete(DeleteBehavior.Cascade),
-                    c => c.HasKey("Discount_Id", "RuleSetEntity_Id"));
+                    c =>
+                    {
+                        c.HasIndex("Discount_Id");
+                        c.HasKey("Discount_Id", "RuleSetEntity_Id");
+                    });
 
             builder
                 .HasMany(c => c.AppliedToManufacturers)
@@ -57,7 +57,11 @@ namespace Smartstore.Core.Catalog.Discounts
                         .HasForeignKey("Discount_Id")
                         .HasConstraintName("FK_dbo.Discount_AppliedToManufacturers_dbo.Discount_Discount_Id")
                         .OnDelete(DeleteBehavior.Cascade),
-                    c => c.HasKey("Discount_Id", "Manufacturer_Id"));
+                    c =>
+                    {
+                        c.HasIndex("Discount_Id");
+                        c.HasKey("Discount_Id", "Manufacturer_Id");
+                    });
 
             builder
                 .HasMany(c => c.AppliedToCategories)
@@ -76,7 +80,11 @@ namespace Smartstore.Core.Catalog.Discounts
                         .HasForeignKey("Discount_Id")
                         .HasConstraintName("FK_dbo.Discount_AppliedToCategories_dbo.Discount_Discount_Id")
                         .OnDelete(DeleteBehavior.Cascade),
-                    c => c.HasKey("Discount_Id", "Category_Id"));
+                    c =>
+                    {
+                        c.HasIndex("Discount_Id");
+                        c.HasKey("Discount_Id", "Category_Id");
+                    });
 
             builder
                 .HasMany(c => c.AppliedToProducts)
@@ -95,7 +103,11 @@ namespace Smartstore.Core.Catalog.Discounts
                         .HasForeignKey("Discount_Id")
                         .HasConstraintName("FK_dbo.Discount_AppliedToProducts_dbo.Discount_Discount_Id")
                         .OnDelete(DeleteBehavior.Cascade),
-                    c => c.HasKey("Discount_Id", "Product_Id"));
+                    c =>
+                    {
+                        c.HasIndex("Discount_Id");
+                        c.HasKey("Discount_Id", "Product_Id");
+                    });
         }
     }
 

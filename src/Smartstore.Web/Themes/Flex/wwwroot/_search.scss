@@ -104,8 +104,7 @@ $facet-selection-color:             darken($success, 15%);
     max-width: calc(100% - 2px);
     min-height: 50px;
     border: 1px solid $searchbox-border-active-color;
-    --shadow-color-intensity: 0.5;
-    box-shadow: $box-shadow-lg-var; // 0 6px 6px 0 rgba(0,0,0, 0.12);
+    box-shadow: $dropdown-box-shadow;
     background-color: $dropdown-bg;
     z-index: $zindex-dropdown + 100;
     border-radius: 0 0 $border-radius $border-radius;   
@@ -239,13 +238,14 @@ $facet-selection-color:             darken($success, 15%);
 }
 
 .facet-group-header {
-	position: relative;
-	display: block;
+    position: relative;
+    display: block;
     padding: 0.75rem 0;
-    font-size: 16px;
-	font-weight: $font-weight-medium;
-	color: $body-color !important;
-	text-decoration: none !important;
+    padding-right: 1rem;
+    font-size: 1rem;
+    font-weight: $font-weight-medium;
+    color: $body-color !important;
+    text-decoration: none !important;
 }
 
 .facet-toggle {

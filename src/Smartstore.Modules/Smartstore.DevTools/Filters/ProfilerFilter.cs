@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Smartstore.Core;
 using Smartstore.Core.Widgets;
@@ -41,7 +40,7 @@ namespace Smartstore.DevTools.Filters
             var viewName = viewResult?.ViewName;
             if (viewName.IsEmpty())
             {
-                var action = (context.RouteData.Values.GetActionName()).EmptyNull();
+                var action = context.RouteData.Values.GetActionName().EmptyNull();
                 viewName = action;
             }
 

@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace Smartstore.Scheduling
+﻿namespace Smartstore.Scheduling
 {
     /// <summary>
     /// Storage for <see cref="TaskDescriptor"/> instances.

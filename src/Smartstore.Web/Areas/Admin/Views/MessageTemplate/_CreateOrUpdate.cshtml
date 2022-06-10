@@ -15,7 +15,7 @@
         <div class="adminContent mb-2">
             <div class="adminRow">
                 <div class="adminTitle">
-                    <smart-label asp-for="Name"></smart-label>
+                    <smart-label asp-for="Name"/>
                 </div>
                 <div class="adminData">
                     <div class="form-control-plaintext">
@@ -26,7 +26,7 @@
             </div>
             <div class="adminRow">
                 <div class="adminTitle">
-                    <smart-label asp-for="IsActive"></smart-label>
+                    <smart-label asp-for="IsActive"/>
                 </div>
                 <div class="adminData">
                     <input asp-for="IsActive" />
@@ -35,7 +35,7 @@
             </div>
             <div class="adminRow">
                 <div class="adminTitle">
-                    <smart-label asp-for="SendManually"></smart-label>
+                    <smart-label asp-for="SendManually"/>
                 </div>
                 <div class="adminData">
                     <input asp-for="SendManually" />
@@ -44,7 +44,7 @@
             </div>
             <div class="adminRow">
                 <div class="adminTitle">
-                    <smart-label asp-for="SelectedStoreIds"></smart-label>
+                    <smart-label asp-for="SelectedStoreIds"/>
                 </div>
                 <div class="adminData">
                     <editor asp-for="SelectedStoreIds" />
@@ -57,18 +57,19 @@
             @<div class="adminContent">
                 <div class="adminRow">
                     <div class="adminTitle">
-                        <smart-label asp-for="Name"></smart-label>
+                        <smart-label asp-for="Locales[item].EmailAccountId"/>
                     </div>
                     <div class="adminData">
                         @*IMPORTANT: Do not delete, this hidden element contains the id to assign localized values to the corresponding language *@
                         <input asp-for="Locales[item].LanguageId" type="hidden" />
+
                         <select asp-for="Locales[item].EmailAccountId" asp-items='new SelectList(ViewBag.EmailAccounts, "Id", "DisplayName", Model.Locales[item].EmailAccountId)'></select>
                         <span asp-validation-for="Locales[item].EmailAccountId"></span>
                     </div>
                 </div>
                 <div class="adminRow">
                     <div class="adminTitle">
-                        <smart-label asp-for="Locales[item].To"></smart-label>
+                        <smart-label asp-for="Locales[item].To"/>
                     </div>
                     <div class="adminData">
                         <input asp-for="Locales[item].To" />
@@ -77,7 +78,7 @@
                 </div>
                 <div class="adminRow">
                     <div class="adminTitle">
-                        <smart-label asp-for="Locales[item].ReplyTo"></smart-label>
+                        <smart-label asp-for="Locales[item].ReplyTo"/>
                     </div>
                     <div class="adminData">
                         <input asp-for="Locales[item].ReplyTo" />
@@ -86,7 +87,7 @@
                 </div>
                 <div class="adminRow">
                     <div class="adminTitle">
-                        <smart-label asp-for="Locales[item].BccEmailAddresses"></smart-label>
+                        <smart-label asp-for="Locales[item].BccEmailAddresses"/>
                     </div>
                     <div class="adminData">
                         <input asp-for="Locales[item].BccEmailAddresses" />
@@ -95,7 +96,7 @@
                 </div>
                 <div class="adminRow">
                     <div class="adminTitle">
-                        <smart-label asp-for="Locales[item].Subject"></smart-label>
+                        <smart-label asp-for="Locales[item].Subject"/>
                     </div>
                     <div class="adminData">
                         <input asp-for="Locales[item].Subject" />
@@ -104,7 +105,7 @@
                 </div>
                 <div class="adminRow">
                     <div class="adminTitle">
-                        <smart-label asp-for="Locales[item].Attachment1FileId"></smart-label>
+                        <smart-label asp-for="Locales[item].Attachment1FileId"/>
                     </div>
                     <div class="adminData">
                         <editor asp-for="Locales[item].Attachment1FileId" />
@@ -113,7 +114,7 @@
                 </div>
                 <div class="adminRow">
                     <div class="adminTitle">
-                        <smart-label asp-for="Locales[item].Attachment2FileId"></smart-label>
+                        <smart-label asp-for="Locales[item].Attachment2FileId"/>
                     </div>
                     <div class="adminData">
                         <editor asp-for="Locales[item].Attachment2FileId" />
@@ -122,7 +123,7 @@
                 </div>
                 <div class="adminRow">
                     <div class="adminTitle">
-                        <smart-label asp-for="Locales[item].Attachment3FileId"></smart-label>
+                        <smart-label asp-for="Locales[item].Attachment3FileId"/>
                     </div>
                     <div class="adminData">
                         <editor asp-for="Locales[item].Attachment3FileId" />
@@ -131,7 +132,7 @@
                 </div>
                 <div class="adminRow wide">
                     <div class="adminData">
-                        <editor asp-for="Locales[item].Body" TemplateName="@templateName" />
+                        <editor asp-for="Locales[item].Body" asp-additional-viewdata="new { templateName  }" />
                         <span asp-validation-for="Locales[item].Body"></span>
                     </div>
                 </div>
@@ -140,7 +141,7 @@
             @<div class="adminContent">
                 <div class="adminRow">
                     <div class="adminTitle">
-                        <smart-label asp-for="EmailAccountId"></smart-label>
+                        <smart-label asp-for="EmailAccountId"/>
                     </div>
                     <div class="adminData">
                         <select asp-for="EmailAccountId" asp-items='new SelectList(ViewBag.EmailAccounts, "Id", "DisplayName")'></select>
@@ -149,7 +150,7 @@
                 </div>
                 <div class="adminRow">
                     <div class="adminTitle">
-                        <smart-label asp-for="To"></smart-label>
+                        <smart-label asp-for="To"/>
                     </div>
                     <div class="adminData">
                         <input asp-for="To" />
@@ -158,7 +159,7 @@
                 </div>
                 <div class="adminRow">
                     <div class="adminTitle">
-                        <smart-label asp-for="ReplyTo"></smart-label>
+                        <smart-label asp-for="ReplyTo"/>
                     </div>
                     <div class="adminData">
                         <input asp-for="ReplyTo" />
@@ -167,7 +168,7 @@
                 </div>
                 <div class="adminRow">
                     <div class="adminTitle">
-                        <smart-label asp-for="BccEmailAddresses"></smart-label>
+                        <smart-label asp-for="BccEmailAddresses"/>
                     </div>
                     <div class="adminData">
                         <input asp-for="BccEmailAddresses" />
@@ -176,7 +177,7 @@
                 </div>
                 <div class="adminRow">
                     <div class="adminTitle">
-                        <smart-label asp-for="Subject"></smart-label>
+                        <smart-label asp-for="Subject"/>
                     </div>
                     <div class="adminData">
                         <input asp-for="Subject" />
@@ -185,7 +186,7 @@
                 </div>
                 <div class="adminRow">
                     <div class="adminTitle">
-                        <smart-label asp-for="Attachment1FileId"></smart-label>
+                        <smart-label asp-for="Attachment1FileId"/>
                     </div>
                     <div class="adminData">
                         <editor asp-for="Attachment1FileId" />
@@ -194,7 +195,7 @@
                 </div>
                 <div class="adminRow">
                     <div class="adminTitle">
-                        <smart-label asp-for="Attachment2FileId"></smart-label>
+                        <smart-label asp-for="Attachment2FileId"/>
                     </div>
                     <div class="adminData">
                         <editor asp-for="Attachment2FileId" />
@@ -203,7 +204,7 @@
                 </div>
                 <div class="adminRow">
                     <div class="adminTitle">
-                        <smart-label asp-for="Attachment3FileId"></smart-label>
+                        <smart-label asp-for="Attachment3FileId"/>
                     </div>
                     <div class="adminData">
                         <editor asp-for="Attachment3FileId" />
@@ -212,7 +213,7 @@
                 </div>
                 <div class="adminRow wide">
                     <div class="adminData">
-                        <editor asp-for="Body" TemplateName="@templateName" />
+                        <editor asp-for="Body" asp-additional-viewdata="new { templateName  }" />
                         <span asp-validation-for="Body"></span>
                     </div>
                 </div>

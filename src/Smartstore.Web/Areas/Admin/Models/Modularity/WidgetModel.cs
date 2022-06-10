@@ -1,6 +1,4 @@
-﻿using Smartstore.Web.Modelling;
-
-namespace Smartstore.Admin.Models.Modularity
+﻿namespace Smartstore.Admin.Models.Modularity
 {
     public class WidgetModel : ProviderModel, IActivatable
     {

@@ -1,9 +1,7 @@
-﻿using Smartstore.Core.Catalog;
+﻿using System.ComponentModel.DataAnnotations;
+using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
-using Smartstore.Core.Common;
-using Smartstore.Web.Modelling;
-using System.ComponentModel.DataAnnotations;
 
 namespace Smartstore.Admin.Models
 {

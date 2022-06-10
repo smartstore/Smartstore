@@ -32,7 +32,7 @@
     }
 }
 
-<select id="@id" name="@id" attrs="attributes">
+<select id="@id" name="@id" attrs="attributes" class="form-control">
     @if (remoteUrl.HasValue())
     {
         var selectedItems = Model.Metadata.TryGetValue("SelectedItems", out var objSelectedItems)
@@ -81,9 +81,3 @@
         }
     }
 </select>
-
-<script sm-target-zone="scripts" data-origin="rule-values">
-	$(function () {
-        $('#@id').selectWrapper();
-	});
-</script>

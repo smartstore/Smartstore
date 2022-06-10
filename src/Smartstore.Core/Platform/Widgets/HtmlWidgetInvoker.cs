@@ -1,24 +1,21 @@
-﻿using System;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Html;
+﻿using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Smartstore.Core.Widgets
 {
     public class HtmlWidgetInvoker : WidgetInvoker
     {
-        private readonly IHtmlContent _html;
-
-        public HtmlWidgetInvoker(IHtmlContent html)
+        public HtmlWidgetInvoker(IHtmlContent content)
         {
-            Guard.NotNull(html, nameof(html));
-            _html = html;
+            Content = Guard.NotNull(content, nameof(content));
         }
 
+        public IHtmlContent Content { get; }
+
         public override Task<IHtmlContent> InvokeAsync(ViewContext viewContext)
-            => Task.FromResult(_html);
+            => Task.FromResult(Content);
 
         public override Task<IHtmlContent> InvokeAsync(ViewContext viewContext, object model)
-            => Task.FromResult(_html);
+            => Task.FromResult(Content);
     }
 }

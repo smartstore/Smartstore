@@ -2,6 +2,8 @@
 
 @model CheckoutPaymentMethodModel
 
+@inject ILocalizationService LocalizationService
+
 @{
     Layout = "_Checkout";
     Assets.AppendTitleParts(T("PageTitle.Checkout"));
@@ -29,18 +31,21 @@
                     {
                         var paymentMethod = Model.PaymentMethods[i];
                         var widgetInvoker = paymentMethod.InfoWidget;
-                        var description = paymentMethod.FullDescription?.Value;
+
+                        var defaultPluginDescKey = "Plugins.PaymentInfo." + paymentMethod.PaymentMethodSystemName;
+                        var defaultPluginDesc = await LocalizationService.GetResourceAsync(defaultPluginDescKey, logIfNotFound: false, returnEmptyIfNotFound: true);
+                        var description = paymentMethod.FullDescription?.Value ?? defaultPluginDesc;
 
                         <li class="list-group-item opt-list-item payment-method-item" attr-class='(paymentMethod.Selected, "active")'>
                             <div class="opt-data">
                                 <div class="form-check opt-control option-name radio">
 
                                     <input id="paymentmethod_@(i)" type="radio" name="paymentmethod"
-                                       attr-checked='(paymentMethod.Selected, "checked")'
-                                       data-has-info='@(widgetInvoker != null ? "true" : "false")'
-                                       data-lazy-info='@(paymentMethod.RequiresInteraction ? "true" : "false")'
-                                       class="opt-radio form-check-input"
-                                       value="@(paymentMethod.PaymentMethodSystemName)" />
+                                           attr-checked='(paymentMethod.Selected, "checked")'
+                                           data-has-info='@(widgetInvoker != null ? "true" : "false")'
+                                           data-lazy-info='@(paymentMethod.RequiresInteraction ? "true" : "false")'
+                                           class="opt-radio form-check-input"
+                                           value="@(paymentMethod.PaymentMethodSystemName)" />
 
                                     <label class="form-check-label" for="paymentmethod_@(i)">
                                         <span class="opt-name">@paymentMethod.Name</span>
@@ -67,15 +72,29 @@
                                         @Html.ValidationSummary(false)
                                     </div>
 
-                                    @if (!(description.HasValue() && !paymentMethod.RequiresInteraction))
+                                    @if (!(description.HasValue() && !paymentMethod.RequiresInteraction) && paymentMethod.InfoWidget != null)
                                     {
-                                        await paymentMethod.InfoWidget.InvokeAsync(ViewContext);
+                                        @await paymentMethod.InfoWidget.InvokeAsync(ViewContext);
                                     }
                                 </div>
                             }
                         </li>
                     }
                 </ul>
+
+                <div class="buttons">
+                    <a asp-action="ShippingMethod" asp-controller="Checkout" class="btn btn-secondary btn-lg">
+                        <i class="fa fa-angle-left"></i>
+                        <span>@T("Common.Back")</span>
+                    </a>
+                    <input type="submit" name="nextstep" id="nextstep" class="d-none" />
+
+                    <button class="btn btn-warning btn-lg payment-method-next-step-button" onclick="$('#nextstep').trigger('click');return false;">
+                        <span>@T("Checkout.NextButton")</span>
+                        <i class="fa fa-angle-right"></i>
+                    </button>
+                    <zone name="checkout_payment_method_buttons" />
+                </div>
             }
             else
             {
@@ -83,19 +102,6 @@
                     @T("Checkout.NoPaymentMethods")
                 </div>
             }
-
-            <div sm-if="Model.PaymentMethods.Any()" class="buttons">
-                <a asp-action="ShippingMethod" asp-controller="Checkout" class="btn btn-secondary btn-lg">
-                    <i class="fa fa-angle-left"></i>
-                    <span>@T("Common.Back")</span>
-                </a>
-                <input type="submit" name="nextstep" id="nextstep" class="d-none" />
-
-                <button class="btn btn-warning btn-lg payment-method-next-step-button" onclick="$('#nextstep').trigger('click');return false;">
-                    <span>@T("Checkout.NextButton")</span>
-                    <i class="fa fa-angle-right"></i>
-                </button>
-            </div>
 
             <zone name="checkout_payment_method_bottom" />
         </form>

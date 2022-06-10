@@ -1,0 +1,84 @@
+﻿@using Smartstore.Google.Analytics.Models
+
+@model ConfigurationModel
+
+@{
+    Layout = "_ConfigureModule";
+}
+
+@await Component.InvokeAsync("StoreScope")
+
+<widget target-zone="admin_button_toolbar_before">
+    <button id="SaveConfigButton" type="submit" name="save" class="btn btn-warning" value="save">
+        <i class="fa fa-check"></i>
+        <span>@T("Admin.Common.Save")</span>
+    </button>
+</widget>
+
+<div class="alert alert-info">
+    @Html.Raw(@T("Plugins.Widgets.GoogleAnalytics.AdminInstruction"))
+</div>
+
+<form asp-action="Configure">
+    <div asp-validation-summary="All"></div>
+
+    <div class="adminContent">
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="WidgetZone" />
+            </div>
+            <div class="adminData">
+                <select asp-for="WidgetZone" asp-items="ViewBag.AvailableZones"></select>
+                <span asp-validation-for="WidgetZone"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="GoogleId" />
+            </div>
+            <div class="adminData">
+                <editor asp-for="GoogleId" />
+                <span asp-validation-for="GoogleId"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="TrackingScript" />
+            </div>
+            <div class="adminData wide">
+                <editor asp-for="TrackingScript" />
+                <span asp-validation-for="TrackingScript"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="EcommerceScript" />
+            </div>
+            <div class="adminData wide">
+                <editor asp-for="EcommerceScript" />
+                <span asp-validation-for="EcommerceScript"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="EcommerceDetailScript" />
+            </div>
+            <div class="adminData wide">
+                <editor asp-for="EcommerceDetailScript" />
+                <span asp-validation-for="EcommerceDetailScript"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+            </div>
+            <div class="adminData">
+                <button type="submit" name="restore-scripts" class="btn btn-danger" value="restore-scripts"
+                        title="@T("Plugins.Widgets.GoogleAnalytics.RestoreScripts.Hint")"
+                        onclick="return confirm(@T("Admin.Common.AreYouSure").JsValue);">
+                    <i class="far fa-bolt"></i>
+                    <span>@T("Plugins.Widgets.GoogleAnalytics.RestoreScripts")</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</form>

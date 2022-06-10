@@ -1,9 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Linq.Expressions;
-using Smartstore.Domain;
-
-namespace Smartstore.Core.Rules.Filters
+﻿namespace Smartstore.Core.Rules.Filters
 {
     public static class RuleQueryableExtensions
     {
@@ -86,7 +81,7 @@ namespace Smartstore.Core.Rules.Filters
         ///     </code>
         /// </example>
         public static IQueryable<T> ApplySearchFilterFor<T, TValue>(this IQueryable<T> query, Expression<Func<T, TValue>> memberExpression, string filter)
-            where T : BaseEntity
+            where T : class
         {
             return ApplySearchFilter(
                 query,
@@ -110,7 +105,7 @@ namespace Smartstore.Core.Rules.Filters
             string filter,
             LogicalRuleOperator logicalOperator,
             params Expression<Func<T, TValue>>[] memberExpressions)
-            where T : BaseEntity
+            where T : class
         {
             Guard.NotNull(query, nameof(query));
 
@@ -147,6 +142,7 @@ namespace Smartstore.Core.Rules.Filters
                 { 
                     LogicalOperator = logicalOperator 
                 };
+
                 return query.Where(compositeFilter).Cast<T>();
             }
         }

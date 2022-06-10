@@ -1,14 +1,10 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Content.Topics;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Seo;
-using Smartstore.Web.Modelling;
 
 namespace Smartstore.Admin.Models.Topics
 {
@@ -102,6 +98,9 @@ namespace Smartstore.Admin.Models.Topics
         [UIHint("WidgetZone")]
         public string[] WidgetZone { get; set; }
 
+        [LocalizedDisplay("*WidgetZone")]
+        public string WidgetZoneValue { get; set; }
+
         [LocalizedDisplay("*WidgetWrapContent")]
         public bool WidgetWrapContent { get; set; } = true;
 
@@ -117,6 +116,7 @@ namespace Smartstore.Admin.Models.Topics
         [LocalizedDisplay("*TitleTag")]
         public string TitleTag { get; set; }
 
+        [LocalizedDisplay("*IsSystemTopic")]
         public bool IsSystemTopic { get; set; }
 
         [LocalizedDisplay("Common.Published")]
@@ -130,8 +130,6 @@ namespace Smartstore.Admin.Models.Topics
         public Dictionary<string, string> MenuLinks { get; set; } = new();
 
         public string ViewUrl { get; set; }
-
-        public string WidgetZoneValue { get; set; }
     }
 
     [LocalizedDisplay("Admin.ContentManagement.Topics.Fields.")]
@@ -153,16 +151,16 @@ namespace Smartstore.Admin.Models.Topics
         [AdditionalMetadata("ForceRootBlock", false)]
         public string Body { get; set; }
 
-        [LocalizedDisplay("*MetaKeywords")]
+        [LocalizedDisplay("Admin.Configuration.Seo.MetaKeywords")]
         public string MetaKeywords { get; set; }
 
-        [LocalizedDisplay("*MetaDescription")]
+        [LocalizedDisplay("Admin.Configuration.Seo.MetaDescription")]
         public string MetaDescription { get; set; }
 
-        [LocalizedDisplay("*MetaTitle")]
+        [LocalizedDisplay("Admin.Configuration.Seo.MetaTitle")]
         public string MetaTitle { get; set; }
 
-        [LocalizedDisplay("*SeName")]
+        [LocalizedDisplay("Admin.Configuration.Seo.SeName")]
         public string SeName { get; set; }
     }
 

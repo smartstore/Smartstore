@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
+﻿using Microsoft.AspNetCore.Http;
 using Smartstore.Core.Localization;
 using Smartstore.Engine.Initialization;
 
@@ -51,6 +44,7 @@ namespace Smartstore.Engine.Modularity
 
             foreach (var pendingModule in modularState.PendingModules)
             {
+                
                 if (modularState.InstalledModules.Contains(pendingModule))
                 {
                     processedModules.Add(pendingModule);

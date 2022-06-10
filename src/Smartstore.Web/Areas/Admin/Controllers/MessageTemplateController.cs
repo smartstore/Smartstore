@@ -1,24 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 using Smartstore.Admin.Models.Messages;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Content.Media;
-using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Messaging;
 using Smartstore.Core.Rules.Filters;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
-using Smartstore.Engine;
 using Smartstore.Net.Mail;
-using Smartstore.Web.Controllers;
-using Smartstore.Web.Modelling;
 using Smartstore.Web.Models.DataGrid;
 
 namespace Smartstore.Admin.Controllers
@@ -77,8 +67,7 @@ namespace Smartstore.Admin.Controllers
 
         #region Utilities
 
-        [NonAction]
-        public async Task UpdateLocalesAsync(MessageTemplate mt, MessageTemplateModel model)
+        private async Task UpdateLocalesAsync(MessageTemplate mt, MessageTemplateModel model)
         {
             foreach (var localized in model.Locales)
             {
@@ -117,11 +106,8 @@ namespace Smartstore.Admin.Controllers
                 await _localizedEntityService.ApplyLocalizedValueAsync(mt, x => x.Attachment2FileId, localized.Attachment2FileId, lid);
                 await _localizedEntityService.ApplyLocalizedValueAsync(mt, x => x.Attachment3FileId, localized.Attachment3FileId, lid);
             }
-
-            await _db.SaveChangesAsync();
         }
 
-        [NonAction]
         private async Task PrepareStoresMappingModelAsync(MessageTemplateModel model, MessageTemplate messageTemplate, bool excludeProperties)
         {
             Guard.NotNull(model, nameof(model));
@@ -132,19 +118,15 @@ namespace Smartstore.Admin.Controllers
             }
         }
 
-        [NonAction]
         private async Task PrepareMessageTemplateModelAsync(MessageTemplate template)
         {
             ViewBag.LastModelTreeJson = template.LastModelTree;
             ViewBag.LastModelTree = _messageModelProvider.GetLastModelTree(template);
 
-            // available email accounts
+            var mapper = MapperFactory.GetMapper<EmailAccount, EmailAccountModel>();
             ViewBag.EmailAccounts = await _db.EmailAccounts
                 .AsNoTracking()
-                .SelectAsync(async x =>
-                {
-                    return await MapperFactory.MapAsync<EmailAccount, EmailAccountModel>(x); ;
-                })
+                .SelectAsync(async x => await mapper.MapAsync(x))
                 .AsyncToList();
         }
 
@@ -154,22 +136,19 @@ namespace Smartstore.Admin.Controllers
 
         public IActionResult Index()
         {
-            return RedirectToAction("List");
+            return RedirectToAction(nameof(List));
         }
 
         [Permission(Permissions.Cms.MessageTemplate.Read)]
         public IActionResult List()
         {
-            var model = new MessageTemplateListModel();
-
             ViewBag.IsSingleStoreMode = Services.StoreContext.IsSingleStoreMode();
-
-            return View(model);
+            return View();
         }
 
         [HttpPost]
         [Permission(Permissions.Cms.MessageTemplate.Read)]
-        public async Task<IActionResult> List(GridCommand command, MessageTemplateListModel model)
+        public async Task<IActionResult> MessageTemplateList(GridCommand command, MessageTemplateListModel model)
         {
             var query = _db.MessageTemplates.AsNoTracking();
 
@@ -188,11 +167,13 @@ namespace Smartstore.Admin.Controllers
                 .ToPagedList(command)
                 .LoadAsync();
 
+            var mapper = MapperFactory.GetMapper<MessageTemplate, MessageTemplateModel>();
             var messageTemplateModels = await messageTemplates
                 .SelectAsync(async x =>
                 {
-                    var model = await MapperFactory.MapAsync<MessageTemplate, MessageTemplateModel>(x);
+                    var model = await mapper.MapAsync(x);
                     model.EditUrl = Url.Action(nameof(Edit), "MessageTemplate", new { id = x.Id });
+
                     return model;
                 })
                 .AsyncToList();
@@ -252,14 +233,16 @@ namespace Smartstore.Admin.Controllers
             if (ModelState.IsValid)
             {
                 await MapperFactory.MapAsync(model, messageTemplate);
-                await SaveStoreMappingsAsync(messageTemplate, model.SelectedStoreIds);
+                await _storeMappingService.ApplyStoreMappingsAsync(messageTemplate, model.SelectedStoreIds);
                 await UpdateLocalesAsync(messageTemplate, model);
                 await _db.SaveChangesAsync();
 
                 await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, messageTemplate, form));
-
                 NotifySuccess(T("Admin.ContentManagement.MessageTemplates.Updated"));
-                return continueEditing ? RedirectToAction("Edit", messageTemplate.Id) : RedirectToAction("List");
+
+                return continueEditing 
+                    ? RedirectToAction(nameof(Edit), messageTemplate.Id) 
+                    : RedirectToAction(nameof(List));
             }
 
             await PrepareMessageTemplateModelAsync(messageTemplate);
@@ -282,13 +265,13 @@ namespace Smartstore.Admin.Controllers
 
             await _db.SaveChangesAsync();
             
-            NotifySuccess(_localizationService.GetResource("Admin.ContentManagement.MessageTemplates.Deleted"));
-            return RedirectToAction("List");
+            NotifySuccess(T("Admin.ContentManagement.MessageTemplates.Deleted"));
+            return RedirectToAction(nameof(List));
         }
 
         [HttpPost]
         [Permission(Permissions.Configuration.Measure.Delete)]
-        public async Task<IActionResult> DeleteSelection(GridSelection selection)
+        public async Task<IActionResult> MessageTemplateDelete(GridSelection selection)
         {
             var success = false;
             var numDeleted = 0;
@@ -419,9 +402,10 @@ namespace Smartstore.Admin.Controllers
             try
             {
                 var account = (await _db.EmailAccounts.FindByIdAsync(model.EmailAccountId, false)) ?? _emailAccountService.GetDefaultEmailAccount();
-                var msg = new MailMessage(to, model.Subject, model.Body, model.From);
 
+                using var msg = new MailMessage(to, model.Subject, model.Body, model.From);
                 using var client = await _mailService.Value.ConnectAsync(account);
+
                 await client.SendAsync(msg);
 
                 return Json(new { success = true });
@@ -457,11 +441,10 @@ namespace Smartstore.Admin.Controllers
                 NotifyError(ex);
             }
 
-            return RedirectToAction("Edit", template.Id);
+            return RedirectToAction(nameof(Edit), template.Id);
         }
 
-        [HttpPost, ActionName("Edit")]
-        [FormValueRequired("message-template-copy")]
+        [HttpPost]
         [Permission(Permissions.Cms.MessageTemplate.Create)]
         public async Task<IActionResult> CopyTemplate(MessageTemplateModel model)
         {
@@ -475,12 +458,14 @@ namespace Smartstore.Admin.Controllers
             {
                 var newTemplate = await _messageTemplateService.CopyTemplateAsync(template);
                 NotifySuccess(T("Admin.ContentManagement.MessageTemplates.SuccessfullyCopied"));
-                return RedirectToAction("Edit", new { id = newTemplate.Id });
+
+                return RedirectToAction(nameof(Edit), new { id = newTemplate.Id });
             }
-            catch (Exception exc)
+            catch (Exception ex)
             {
-                NotifyError(exc.Message);
-                return RedirectToAction("Edit", new { id = model.Id });
+                NotifyError(ex.Message);
+
+                return RedirectToAction(nameof(Edit), new { id = model.Id });
             }
         }
 
@@ -492,7 +477,7 @@ namespace Smartstore.Admin.Controllers
 
             NotifySuccess("All file based message templates imported successfully.");
 
-            return RedirectToAction("List");
+            return RedirectToAction(nameof(List));
         }
 
         #endregion

@@ -8,7 +8,7 @@ namespace Smartstore.Test.Common
     {
         protected MockRepository mocks;
 
-        [SetUp]
+        [OneTimeSetUp]
         public virtual void SetUp()
         {
             mocks = new MockRepository(MockBehavior.Loose);

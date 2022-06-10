@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Reflection;
+﻿using System.Reflection;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.AspNetCore.Razor.Hosting;
 
@@ -21,7 +19,8 @@ namespace Smartstore.Engine.Modularity.ApplicationParts
 
         public Assembly Assembly { get; }
 
-        public override string Name => Assembly.GetName().Name;
+        public override string Name 
+            => Assembly.GetName().Name;
 
         IEnumerable<RazorCompiledItem> IRazorCompiledItemProvider.CompiledItems
         {

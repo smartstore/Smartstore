@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections;
 using System.Diagnostics;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Smartstore
 {
@@ -36,6 +32,7 @@ namespace Smartstore
         {
         }
 
+        [DebuggerStepThrough]
         public ValueTask DisposeAsync()
         {
             // Still need to check if we've already disposed; can't do both.

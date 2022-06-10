@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using SixLabors.ImageSharp.Processing;
+﻿using SixLabors.ImageSharp.Processing;
 using SixLabors.ImageSharp.Processing.Processors.Quantization;
 using SixLabors.ImageSharp.Processing.Processors.Transforms;
 using SharpFormat = SixLabors.ImageSharp.Formats.IImageFormat;
@@ -34,6 +32,7 @@ namespace Smartstore.Imaging.Adapters.ImageSharp
             {
                 "PNG" => new PngFormat(sharpFormat),
                 "JPEG" => new JpegFormat(sharpFormat),
+                "WEBP" => new WebpFormat(sharpFormat),
                 "GIF" => new GifFormat(sharpFormat),
                 _ => new SharpImageFormat(sharpFormat),
             };

@@ -19,7 +19,7 @@
 
 <div class="megamenu simple">
 
-    @*TODO: (core) (mc) Find a better solution, maybe by extending ViewExpander *@
+    @*TODO: (core) Find a better solution, maybe by extending ViewExpander *@
 
     @{ await Html.RenderPartialAsync("Components/Menu/Navbar", Model); }
 </div>
@@ -32,12 +32,9 @@
         </div>
     }
 
-    @if (cutOffItems.Any())
-    {
-        <div id="dropdown-menu--1" data-id="-1">
-            @{ await CreateDrilldownMenuAsync(cutOffItems, true); }
-        </div>
-    }
+    <div sm-if="cutOffItems.Any()" id="dropdown-menu--1" data-id="-1">
+        @{ await CreateDrilldownMenuAsync(cutOffItems, true); }
+    </div>
 </div>
 
 @{
@@ -72,4 +69,4 @@
     $(function () {
         $(".megamenu-container").megaMenu();
     });
-</script>    
+</script>

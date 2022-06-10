@@ -1,10 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
-using Smartstore.Engine;
+﻿using Microsoft.AspNetCore.Http;
 using Smartstore.Engine.Initialization;
 using Smartstore.Scheduling;
 
@@ -44,7 +38,7 @@ namespace Smartstore.Core.Bootstrapping
                 _appConfig.TaskSchedulerPollInterval, 
                 httpContext);
 
-            Logger.Info("Initialized TaskScheduler with base url '{0}'".FormatInvariant(scheduler.BaseUrl));
+            Logger.Info($"Initialized TaskScheduler with base url '{scheduler.BaseUrl}'");
         }
 
         public Task OnFailAsync(Exception exception, bool willRetry)

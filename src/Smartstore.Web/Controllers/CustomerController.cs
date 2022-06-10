@@ -1,34 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using Smartstore.Caching;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Tax;
-using Smartstore.Core.Common;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Content.Media;
-using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Messaging;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
-using Smartstore.Engine.Modularity;
 using Smartstore.Utilities;
-using Smartstore.Web.Infrastructure.Hooks;
-using Smartstore.Web.Modelling;
 using Smartstore.Web.Models.Common;
 using Smartstore.Web.Models.Customers;
+using Smartstore.Web.Rendering;
 
 namespace Smartstore.Web.Controllers
 {
@@ -41,14 +30,13 @@ namespace Smartstore.Web.Controllers
         private readonly IOrderProcessingService _orderProcessingService;
         private readonly IOrderCalculationService _orderCalculationService;
         private readonly IOrderService _orderService;
+        private readonly IPaymentService _paymentService;
         private readonly IMediaService _mediaService;
         private readonly IDownloadService _downloadService;
         private readonly ICurrencyService _currencyService;
         private readonly IMessageFactory _messageFactory;
         private readonly UserManager<Customer> _userManager;
         private readonly SignInManager<Customer> _signInManager;
-        private readonly IProviderManager _providerManager;
-        private readonly ICacheManager _cache;
         private readonly IDateTimeHelper _dateTimeHelper;
         private readonly ProductUrlHelper _productUrlHelper;
         private readonly DateTimeSettings _dateTimeSettings;
@@ -67,14 +55,13 @@ namespace Smartstore.Web.Controllers
             IOrderProcessingService orderProcessingService,
             IOrderCalculationService orderCalculationService,
             IOrderService orderService,
+            IPaymentService paymentService,
             IMediaService mediaService,
             IDownloadService downloadService,
             ICurrencyService currencyService,
             IMessageFactory messageFactory,
             UserManager<Customer> userManager,
             SignInManager<Customer> signInManager,
-            IProviderManager providerManager,
-            ICacheManager cache,
             IDateTimeHelper dateTimeHelper,
             ProductUrlHelper productUrlHelper,
             DateTimeSettings dateTimeSettings,
@@ -92,14 +79,13 @@ namespace Smartstore.Web.Controllers
             _orderProcessingService = orderProcessingService;
             _orderCalculationService = orderCalculationService;
             _orderService = orderService;
+            _paymentService = paymentService;
             _mediaService = mediaService;
             _downloadService = downloadService;
             _currencyService = currencyService;
             _messageFactory = messageFactory;
             _userManager = userManager;
             _signInManager = signInManager;
-            _providerManager = providerManager;
-            _cache = cache;
             _dateTimeHelper = dateTimeHelper;
             _productUrlHelper = productUrlHelper;
             _dateTimeSettings = dateTimeSettings;
@@ -128,6 +114,7 @@ namespace Smartstore.Web.Controllers
         }
 
         [HttpPost]
+        [SaveChanges(typeof(SmartDbContext), false)]
         public async Task<IActionResult> Info(CustomerInfoModel model)
         {
             var customer = Services.WorkContext.CurrentCustomer;
@@ -139,11 +126,54 @@ namespace Smartstore.Web.Controllers
 
             if (model.Email.IsEmpty())
             {
-                ModelState.AddModelError(string.Empty, "Email is not provided.");
+                ModelState.AddModelError(string.Empty, T("Account.Register.Errors.EmailIsNotProvided"));
             }
             if (_customerSettings.CustomerLoginType != CustomerLoginType.Email && _customerSettings.AllowUsersToChangeUsernames && model.Username.IsEmpty())
             {
-                ModelState.AddModelError(string.Empty, "Username is not provided.");
+                ModelState.AddModelError(string.Empty, T("Account.Register.Errors.UsernameIsNotProvided"));
+            }
+
+            // INFO: update email and username requires SaveChangesAttribute to be set to 'false'.
+            var newEmail = model.Email.TrimSafe();
+            var newUsername = model.Username.TrimSafe();
+
+            // Email.
+            if (ModelState.IsValid && !newEmail.Equals(customer.Email, StringComparison.InvariantCultureIgnoreCase))
+            {
+                var token = await _userManager.GenerateChangeEmailTokenAsync(customer, newEmail);
+                var result = await _userManager.ChangeEmailAsync(customer, newEmail, token);
+                if (result.Succeeded)
+                {
+                    // Re-authenticate (if usernames are disabled).
+                    if (_customerSettings.CustomerLoginType == CustomerLoginType.Email)
+                    {
+                        await _signInManager.SignInAsync(customer, true);
+                    }
+                }
+                else
+                {
+                    result.Errors.Select(x => x.Description).Distinct()
+                        .Each(x => ModelState.AddModelError(nameof(model.Email), x));
+                }
+            }
+
+            // Username.
+            if (ModelState.IsValid
+                && _customerSettings.CustomerLoginType != CustomerLoginType.Email
+                && _customerSettings.AllowUsersToChangeUsernames
+                && !newUsername.EqualsNoCase(customer.Username))
+            {
+                var result = await _userManager.SetUserNameAsync(customer, newUsername);
+                if (result.Succeeded)
+                {
+                    // Re-authenticate.
+                    await _signInManager.SignInAsync(customer, true);
+                }
+                else
+                {
+                    result.Errors.Select(x => x.Description).Distinct()
+                        .Each(x => ModelState.AddModelError(nameof(model.Username), x));
+                }
             }
 
             try
@@ -152,30 +182,6 @@ namespace Smartstore.Web.Controllers
                 {
                     customer.FirstName = model.FirstName;
                     customer.LastName = model.LastName;
-
-                    // Username.
-                    if (_customerSettings.CustomerLoginType != CustomerLoginType.Email && _customerSettings.AllowUsersToChangeUsernames)
-                    {
-                        if (!customer.Username.EqualsNoCase(model.Username.Trim()))
-                        {
-                            // Change username.
-                            await _userManager.SetUserNameAsync(customer, model.Username.Trim());
-                            // Re-authenticate.
-                            await _signInManager.SignInAsync(customer, true);
-                        }
-                    }
-
-                    // Email.
-                    if (!customer.Email.Equals(model.Email.Trim(), StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        // Change email.
-                        await _userManager.SetEmailAsync(customer, model.Email.Trim());
-                        // Re-authenticate (if usernames are disabled).
-                        if (_customerSettings.CustomerLoginType == CustomerLoginType.Email)
-                        {
-                            await _signInManager.SignInAsync(customer, true);
-                        }
-                    }
 
                     // VAT number.
                     if (_taxSettings.EuVatEnabled)
@@ -199,32 +205,20 @@ namespace Smartstore.Web.Controllers
                     // Customer number.
                     if (_customerSettings.CustomerNumberMethod != CustomerNumberMethod.Disabled)
                     {
-                        var numberExists = await _db.Customers.Where(x => x.CustomerNumber == model.CustomerNumber).AnyAsync();
-
-                        if (model.CustomerNumber != customer.CustomerNumber && numberExists)
-                        {
-                            NotifyError("Common.CustomerNumberAlreadyExists");
-                        }
-                        else
-                        {
-                            customer.CustomerNumber = model.CustomerNumber;
-                        }
+                        customer.CustomerNumber = model.CustomerNumber;
                     }
 
                     if (_customerSettings.DateOfBirthEnabled)
                     {
                         try
                         {
-                            if (model.DateOfBirthYear.HasValue && model.DateOfBirthMonth.HasValue && model.DateOfBirthDay.HasValue)
-                            {
-                                customer.BirthDate = new DateTime(model.DateOfBirthYear.Value, model.DateOfBirthMonth.Value, model.DateOfBirthDay.Value);
-                            }
-                            else
-                            {
-                                customer.BirthDate = null;
-                            }
+                            customer.BirthDate = model.DateOfBirthYear.HasValue && model.DateOfBirthMonth.HasValue && model.DateOfBirthDay.HasValue
+                                ? new DateTime(model.DateOfBirthYear.Value, model.DateOfBirthMonth.Value, model.DateOfBirthDay.Value)
+                                : null;
                         }
-                        catch { }
+                        catch 
+                        { 
+                        }
                     }
 
                     if (_customerSettings.CompanyEnabled)
@@ -280,11 +274,18 @@ namespace Smartstore.Web.Controllers
                         customer.TimeZoneId = model.TimeZoneId;
                     }
 
-                    await _db.SaveChangesAsync();
+                    var updateResult = await _userManager.UpdateAsync(customer);
+                    if (updateResult.Succeeded)
+                    {
+                        await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, customer, Request.Form));
 
-                    await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, customer, Request.Form));
-
-                    return RedirectToAction("Info");
+                        return RedirectToAction(nameof(Info));
+                    }
+                    else
+                    {
+                        updateResult.Errors.Select(x => x.Description).Distinct()
+                            .Each(x => ModelState.AddModelError(string.Empty, x));
+                    }
                 }
             }
             catch (Exception ex)
@@ -300,37 +301,38 @@ namespace Smartstore.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> CheckUsernameAvailability(string username)
         {
+            username = username.TrimSafe();
+
             var usernameAvailable = false;
-            var statusText = T("Account.CheckUsernameAvailability.NotAvailable");
+            string statusText = null;
 
-            if (_customerSettings.CustomerLoginType != CustomerLoginType.Email && username != null)
+            if (_customerSettings.CustomerLoginType != CustomerLoginType.Email && username.HasValue())
             {
-                username = username.Trim();
-
-                if (username.HasValue())
+                var customer = Services.WorkContext.CurrentCustomer;
+                if (customer != null && customer.Username != null && customer.Username.EqualsNoCase(username))
                 {
-                    var customer = Services.WorkContext.CurrentCustomer;
-                    if (customer != null && customer.Username != null && customer.Username.EqualsNoCase(username))
-                    {
-                        statusText = T("Account.CheckUsernameAvailability.CurrentUsername");
-                    }
-                    else
-                    {
-                        var userExists = await _db.Customers
-                            .AsNoTracking()
-                            .ApplyIdentFilter(userName: username)
-                            .AnyAsync();
+                    statusText = T("Account.CheckUsernameAvailability.CurrentUsername");
+                }
+                else
+                {
+                    var userExists = await _db.Customers
+                        .IgnoreQueryFilters()
+                        .ApplyIdentFilter(null, username, null, true)
+                        .AnyAsync();
 
-                        if (!userExists)
-                        {
-                            statusText = T("Account.CheckUsernameAvailability.Available");
-                            usernameAvailable = true;
-                        }
+                    if (!userExists)
+                    {
+                        statusText = T("Account.CheckUsernameAvailability.Available");
+                        usernameAvailable = true;
                     }
                 }
             }
 
-            return Json(new { Available = usernameAvailable, Text = statusText.Value });
+            return Json(new 
+            {
+                Available = usernameAvailable, 
+                Text = statusText.NullEmpty() ?? T("Account.CheckUsernameAvailability.NotAvailable")
+            });
         }
 
         #region Addresses
@@ -344,17 +346,11 @@ namespace Smartstore.Web.Controllers
                 return new UnauthorizedResult();
             }
 
-            var model = new List<AddressModel>();
-            var countries = await GetAllCountriesAsync();
+            var models = await customer.Addresses
+                .SelectAsync(async x => await x.MapAsync())
+                .AsyncToList();
 
-            foreach (var address in customer.Addresses)
-            {
-                var addressModel = new AddressModel();
-                await address.MapAsync(addressModel, countries: countries);
-                model.Add(addressModel);
-            }
-
-            return View(model);
+            return View(models);
         }
 
         [RequireSsl]
@@ -379,7 +375,7 @@ namespace Smartstore.Web.Controllers
                 await _db.SaveChangesAsync();
             }
 
-            return RedirectToAction("Addresses");
+            return RedirectToAction(nameof(Addresses));
         }
 
         [RequireSsl]
@@ -392,8 +388,7 @@ namespace Smartstore.Web.Controllers
             }
 
             var model = new AddressModel();
-            await new Address().MapAsync(model, countries: await GetAllCountriesAsync());
-            model.Email = customer?.Email;
+            await PrepareAddressModel(new Address(), model);
 
             return View(model);
         }
@@ -407,19 +402,21 @@ namespace Smartstore.Web.Controllers
                 return new UnauthorizedResult();
             }
 
+            var address = new Address();
+
             if (ModelState.IsValid)
             {
-                var address = new Address();
                 MiniMapper.Map(model, address);
                 customer.Addresses.Add(address);
 
                 await _db.SaveChangesAsync();
 
-                return RedirectToAction("Addresses");
+                return RedirectToAction(nameof(Addresses));
             }
 
             // If we got this far something failed. Redisplay form.
-            await new Address().MapAsync(model, countries: await GetAllCountriesAsync());
+            await PrepareAddressModel(address, model);
+
             return View(model);
         }
 
@@ -441,11 +438,11 @@ namespace Smartstore.Web.Controllers
             var address = customer.Addresses.Where(a => a.Id == id).FirstOrDefault();
             if (address == null)
             {
-                return RedirectToAction("Addresses");
+                return RedirectToAction(nameof(Addresses));
             }
             
             var model = new AddressModel();
-            await address.MapAsync(model, countries: await GetAllCountriesAsync());
+            await PrepareAddressModel(address, model);
 
             return View(model);
         }
@@ -460,10 +457,10 @@ namespace Smartstore.Web.Controllers
             }
 
             // Find address and ensure that it belongs to the current customer.
-            var address = customer.Addresses.Where(a => a.Id == id).FirstOrDefault();
+            var address = customer.Addresses.FirstOrDefault(x => x.Id == id);
             if (address == null)
             {
-                return RedirectToAction("Addresses");
+                return RedirectToAction(nameof(Addresses));
             }
 
             if (ModelState.IsValid)
@@ -472,13 +469,29 @@ namespace Smartstore.Web.Controllers
                 _db.Addresses.Update(address);
                 await _db.SaveChangesAsync();
 
-                return RedirectToAction("Addresses");
+                return RedirectToAction(nameof(Addresses));
             }
 
             // If we got this far something failed. Redisplay form.
-            await new Address().MapAsync(model, countries: await GetAllCountriesAsync());
+            await PrepareAddressModel(address, model);
 
             return View(model);
+        }
+
+        private async Task PrepareAddressModel(Address from, AddressModel to)
+        {
+            await from.MapAsync(to);
+
+            if (to.CountryEnabled)
+            {
+                var countries = await _db.Countries
+                    .AsNoTracking()
+                    .ApplyStandardFilter(false, Services.StoreContext.CurrentStore.Id)
+                    .ToListAsync();
+
+                to.AvailableCountries = countries.ToSelectListItems(to.CountryId ?? 0);
+                to.AvailableCountries.Insert(0, new SelectListItem { Text = T("Address.SelectCountry"), Value = "0" });
+            }
         }
 
         #endregion
@@ -537,7 +550,7 @@ namespace Smartstore.Web.Controllers
                 return RedirectToAction("Orders");
             }
 
-            if (recurringPayment.IsCancelable(customer))
+            if (await _orderProcessingService.CanCancelRecurringPaymentAsync(recurringPayment, customer))
             {
                 var errors = await _orderProcessingService.CancelRecurringPaymentAsync(recurringPayment);
                 var model = await PrepareCustomerOrderListModelAsync(customer, 0, 0);
@@ -720,7 +733,7 @@ namespace Smartstore.Web.Controllers
         #region Avatar
 
         [RequireSsl]
-        public IActionResult Avatar()
+        public async Task<IActionResult> Avatar()
         {
             var customer = Services.WorkContext.CurrentCustomer;
 
@@ -736,7 +749,7 @@ namespace Smartstore.Web.Controllers
 
             var model = new CustomerAvatarEditModel
             {
-                Avatar = customer.ToAvatarModel(null, true),
+                Avatar = await customer.MapAsync(null, true),
                 MaxFileSize = Prettifier.HumanizeBytes(_customerSettings.AvatarMaximumSizeBytes)
             };
 
@@ -934,7 +947,7 @@ namespace Smartstore.Web.Controllers
 
         #region Utilities
 
-        protected async Task PrepareCustomerInfoModelAsync(CustomerInfoModel model, Customer customer, bool excludeProperties)
+        private async Task PrepareCustomerInfoModelAsync(CustomerInfoModel model, Customer customer, bool excludeProperties)
         {
             Guard.NotNull(model, nameof(model));
             Guard.NotNull(customer, nameof(customer));
@@ -942,17 +955,8 @@ namespace Smartstore.Web.Controllers
             model.Id = customer.Id;
             model.AllowCustomersToSetTimeZone = _dateTimeSettings.AllowCustomersToSetTimeZone;
 
-            var availableTimeZones = new List<SelectListItem>();
-            foreach (var tzi in _dateTimeHelper.GetSystemTimeZones())
-            {
-                availableTimeZones.Add(new SelectListItem
-                {
-                    Text = tzi.DisplayName,
-                    Value = tzi.Id,
-                    Selected = (excludeProperties ? tzi.Id == model.TimeZoneId : tzi.Id == _dateTimeHelper.CurrentTimeZone.Id)
-                });
-            }
-            ViewBag.AvailableTimeZones = availableTimeZones;
+            ViewBag.AvailableTimeZones = _dateTimeHelper.GetSystemTimeZones()
+                .ToSelectListItems(excludeProperties ? model.TimeZoneId : _dateTimeHelper.CurrentTimeZone.Id);
 
             if (!excludeProperties)
             {
@@ -998,62 +1002,30 @@ namespace Smartstore.Web.Controllers
                 }
             }
 
-            // TODO: (mh) (core) Create some generic solution for this always repeating code.
-            // Countries and states.
+            // Countries and state provinces.
             if (_customerSettings.CountryEnabled)
             {
-                var availableCountries = new List<SelectListItem>
-                {
-                    new SelectListItem { Text = T("Address.SelectCountry"), Value = "0" }
-                };
-
                 var countries = await _db.Countries
                     .AsNoTracking()
-                    .ApplyStandardFilter()
+                    .ApplyStandardFilter(false, Services.StoreContext.CurrentStore.Id)
                     .ToListAsync();
 
-                foreach (var c in countries)
-                {
-                    availableCountries.Add(new SelectListItem
-                    {
-                        Text = c.GetLocalized(x => x.Name),
-                        Value = c.Id.ToString(),
-                        Selected = c.Id == model.CountryId
-                    });
-                }
-
-                ViewBag.AvailableCountries = availableCountries;
+                ViewBag.AvailableCountries = countries.ToSelectListItems(model.CountryId);
+                ViewBag.AvailableCountries.Insert(0, new SelectListItem { Text = T("Address.SelectCountry"), Value = "0" });
 
                 if (_customerSettings.StateProvinceEnabled)
                 {
-                    var availableStates = new List<SelectListItem>();
+                    var stateProvinces = await _db.StateProvinces.GetStateProvincesByCountryIdAsync(model.CountryId);
 
-                    var states = await _db.StateProvinces
-                        .AsNoTracking()
-                        .ApplyCountryFilter(model.CountryId)
-                        .ToListAsync();
-
-                    if (states.Any())
+                    ViewBag.AvailableStates = stateProvinces.ToSelectListItems(model.StateProvinceId) ?? new List<SelectListItem>
                     {
-                        foreach (var s in states)
-                        {
-                            availableStates.Add(new SelectListItem
-                            {
-                                Text = s.GetLocalized(x => x.Name),
-                                Value = s.Id.ToString(),
-                                Selected = (s.Id == model.StateProvinceId)
-                            });
-                        }
-                    }
-                    else
-                    {
-                        availableStates.Add(new SelectListItem { Text = T("Address.OtherNonUS"), Value = "0" });
-                    }
-
-                    ViewBag.AvailableStates = availableStates;
+                        new SelectListItem { Text = T("Address.OtherNonUS"), Value = "0" }
+                    };
                 }
             }
 
+            model.FirstNameRequired = _customerSettings.FirstNameRequired;
+            model.LastNameRequired = _customerSettings.LastNameRequired;
             model.DisplayVatNumber = _taxSettings.EuVatEnabled;
             model.VatNumberStatusNote = await ((VatNumberStatus)customer.VatNumberStatusId).GetLocalizedEnumAsync(Services.WorkContext.WorkingLanguage.Id);
             model.GenderEnabled = _customerSettings.GenderEnabled;
@@ -1113,7 +1085,7 @@ namespace Smartstore.Web.Controllers
             }
         }
 
-        protected async Task<CustomerOrderListModel> PrepareCustomerOrderListModelAsync(Customer customer, int orderPageIndex, int recurringPaymentPageIndex)
+        private async Task<CustomerOrderListModel> PrepareCustomerOrderListModelAsync(Customer customer, int orderPageIndex, int recurringPaymentPageIndex)
         {
             Guard.NotNull(customer, nameof(customer));
 
@@ -1126,7 +1098,7 @@ namespace Smartstore.Web.Controllers
                 .ToPagedList(orderPageIndex, _orderSettings.OrderListPageSize)
                 .LoadAsync();
 
-            var customerCurrencyCodes = orders.Select(x => x.CustomerCurrencyCode).Distinct().ToArray();
+            var customerCurrencyCodes = orders.ToDistinctArray(x => x.CustomerCurrencyCode);
             var customerCurrencies = (await _db.Currencies
                 .AsNoTracking()
                 .Where(x => customerCurrencyCodes.Contains(x.CurrencyCode))
@@ -1136,20 +1108,19 @@ namespace Smartstore.Web.Controllers
             var orderModels = await orders
                 .SelectAsync(async x =>
                 {
+                    customerCurrencies.TryGetValue(x.CustomerCurrencyCode, out var customerCurrency);
+
+                    (var orderTotal, _) = await _orderService.GetOrderTotalInCustomerCurrencyAsync(x, customerCurrency);
+
                     var orderModel = new CustomerOrderListModel.OrderDetailsModel
                     {
                         Id = x.Id,
                         OrderNumber = x.GetOrderNumber(),
                         CreatedOn = _dateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc),
                         OrderStatus = await _localizationService.GetLocalizedEnumAsync(x.OrderStatus),
-                        IsReturnRequestAllowed = _orderProcessingService.IsReturnRequestAllowed(x)
+                        IsReturnRequestAllowed = _orderProcessingService.IsReturnRequestAllowed(x),
+                        OrderTotal = orderTotal
                     };
-
-                    // TODO: (mh) (core) Check format!
-                    customerCurrencies.TryGetValue(x.CustomerCurrencyCode, out var customerCurrency);
-
-                    (var orderTotal, var roundingAmount) = await _orderService.GetOrderTotalInCustomerCurrencyAsync(x, customerCurrency);
-                    orderModel.OrderTotal = orderTotal;
 
                     return orderModel;
                 })
@@ -1160,6 +1131,7 @@ namespace Smartstore.Web.Controllers
             // Recurring payments.
             var recurringPayments = await _db.RecurringPayments
                 .AsNoTracking()
+                .AsSplitQuery()
                 .Include(x => x.InitialOrder)
                 .ThenInclude(x => x.Customer)
                 .Include(x => x.RecurringPaymentHistory)
@@ -1170,16 +1142,18 @@ namespace Smartstore.Web.Controllers
             var rpModels = await recurringPayments
                 .SelectAsync(async x =>
                 {
+                    var nextPaymentDate = await _paymentService.GetNextRecurringPaymentDateAsync(x);
+
                     return new CustomerOrderListModel.RecurringPaymentModel
                     {
                         Id = x.Id,
-                        StartDate = _dateTimeHelper.ConvertToUserTime(x.StartDateUtc, DateTimeKind.Utc).ToString(),
+                        StartDate = _dateTimeHelper.ConvertToUserTime(x.StartDateUtc, DateTimeKind.Utc),
                         CycleInfo = $"{x.CycleLength} {await _localizationService.GetLocalizedEnumAsync(x.CyclePeriod)}",
-                        NextPayment = x.NextPaymentDate.HasValue ? _dateTimeHelper.ConvertToUserTime(x.NextPaymentDate.Value, DateTimeKind.Utc).ToString() : string.Empty,
+                        NextPayment = nextPaymentDate.HasValue ? _dateTimeHelper.ConvertToUserTime(nextPaymentDate.Value, DateTimeKind.Utc) : null,
                         TotalCycles = x.TotalCycles,
-                        CyclesRemaining = x.CyclesRemaining,
+                        CyclesRemaining = await _paymentService.GetRecurringPaymentRemainingCyclesAsync(x),
                         InitialOrderId = x.InitialOrder.Id,
-                        CanCancel = x.IsCancelable(customer)
+                        CanCancel = await _orderProcessingService.CanCancelRecurringPaymentAsync(x, customer)
                     };
                 })
                 .AsyncToList();
@@ -1189,54 +1163,6 @@ namespace Smartstore.Web.Controllers
             return model;
         }
 
-        protected async Task<List<Country>> GetAllCountriesAsync()
-        {
-            return await _db.Countries
-                .AsNoTracking()
-                .ApplyStandardFilter(storeId: Services.StoreContext.CurrentStore.Id)
-                .ToListAsync();
-        }
-
         #endregion
-
-        // INFO: (mh) (core) Current CountryController just has this one method. Details TBD.
-        // RE: But it does NOT belong here. Find another - perhaps more generic - controller please.
-        /// <summary>
-        /// This action method gets called via an ajax request.
-        /// </summary>
-        [HttpGet]
-        public async Task<IActionResult> StatesByCountryId(string countryId, bool addEmptyStateIfRequired)
-        {
-            // TODO: (mh) (core) Don't throw in frontend.
-            if (!countryId.HasValue())
-                throw new ArgumentNullException(nameof(countryId));
-
-            string cacheKey = string.Format(ModelCacheInvalidator.STATEPROVINCES_BY_COUNTRY_MODEL_KEY, countryId, addEmptyStateIfRequired, Services.WorkContext.WorkingLanguage.Id);
-            var cacheModel = await _cache.GetAsync(cacheKey, async () =>
-            {
-                var country = await _db.Countries
-                    .AsNoTracking()
-                    .Where(x => x.Id == Convert.ToInt32(countryId))
-                    .FirstOrDefaultAsync();
-
-                var states = await _db.StateProvinces
-                    .AsNoTracking()
-                    .ApplyCountryFilter(country != null ? country.Id : 0)
-                    .ToListAsync();
-
-                var result = (from s in states
-                              select new { id = s.Id, name = s.GetLocalized(x => x.Name).Value })
-                              .ToList();
-
-                if (addEmptyStateIfRequired && result.Count == 0)
-                {
-                    result.Insert(0, new { id = 0, name = T("Address.OtherNonUS").Value });
-                }
-                
-                return result;
-            });
-
-            return Json(cacheModel);
-        }
     }
 }

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO;
+﻿using System.Diagnostics;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.FileProviders.Physical;
 using Microsoft.Extensions.Primitives;
@@ -120,8 +118,7 @@ namespace Smartstore.IO
             _provider.Dispose();
         }
 
-        #endregion
-        
+        #endregion      
 
         #region Utils
 

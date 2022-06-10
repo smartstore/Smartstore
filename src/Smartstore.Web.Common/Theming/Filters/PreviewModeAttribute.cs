@@ -1,10 +1,6 @@
-﻿using System;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Filters;
-using Smartstore.Core;
+﻿using Microsoft.AspNetCore.Mvc.Filters;
 using Smartstore.Core.Security;
 using Smartstore.Core.Web;
-using Smartstore.Core.Widgets;
 
 namespace Smartstore.Web.Theming
 {
@@ -45,7 +41,7 @@ namespace Smartstore.Web.Theming
                 if (!_services.Permissions.Authorize(Permissions.Configuration.Theme.Read))
                     return;
 
-                _widgetProvider.RegisterWidget("body_end_html_tag_before", new ComponentWidgetInvoker("PreviewTool", null));
+                _widgetProvider.RegisterWidget("end", new ComponentWidgetInvoker("PreviewTool", null));
             }
 
             public void OnResultExecuted(ResultExecutedContext context)

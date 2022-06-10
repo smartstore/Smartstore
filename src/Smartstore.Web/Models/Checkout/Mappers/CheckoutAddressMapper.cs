@@ -1,15 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Dynamic;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.ComponentModel;
-using Smartstore.Core;
-using Smartstore.Core.Common;
-using Smartstore.Core.Data;
+using Smartstore.Core.Localization;
 using Smartstore.Web.Models.Checkout;
 using Smartstore.Web.Models.Common;
-using System;
-using System.Collections.Generic;
-using System.Dynamic;
-using System.Linq;
-using System.Threading.Tasks;
+using Smartstore.Web.Rendering;
 
 namespace Smartstore.Web.Models.Checkout
 {
@@ -33,12 +28,13 @@ namespace Smartstore.Web.Models.Checkout
         private readonly SmartDbContext _db;
         private readonly ICommonServices _services;
 
-        public CheckoutAddressMapper(SmartDbContext db,
-            ICommonServices services)
+        public CheckoutAddressMapper(SmartDbContext db, ICommonServices services)
         {
             _db = db;
             _services = services;
         }
+
+        public Localizer T { get; set; } = NullLocalizer.Instance;
 
         protected override void Map(IEnumerable<Address> from, CheckoutAddressModel to, dynamic parameters = null)
             => throw new NotImplementedException();
@@ -56,28 +52,30 @@ namespace Smartstore.Web.Models.Checkout
 
             foreach (var address in from)
             {
-                var addressModel = new AddressModel();
-                await address.MapAsync(addressModel);
-                to.ExistingAddresses.Add(addressModel);
+                to.ExistingAddresses.Add(await address.MapAsync());
             }
 
             // New address.
+            var countriesQuery = _db.Countries.AsNoTracking();
+
+            countriesQuery = shipping
+                ? countriesQuery.Where(x => x.AllowsShipping)
+                : countriesQuery.Where(x => x.AllowsBilling);
+
+            var countries = await countriesQuery
+                .ApplyStandardFilter(false, _services.StoreContext.CurrentStore.Id)
+                .ToListAsync();
+
+            await new Address().MapAsync(to.NewAddress);
+
             to.NewAddress.CountryId = selectedCountryId;
-
-            var query = _db.Countries
-                .AsNoTracking()
-                .ApplyStandardFilter(false, _services.StoreContext.CurrentStore.Id)                
-                .AsQueryable();
-
-            query = shipping
-                ? query.Where(x => x.AllowsShipping)
-                : query.Where(x => x.AllowsBilling);
-
-            var countries = await query.ToListAsync();
-
-            await new Address().MapAsync(to.NewAddress, true, countries);
-
             to.NewAddress.Email = _services.WorkContext.CurrentCustomer.Email;
+
+            if (to.NewAddress.CountryEnabled)
+            {
+                to.NewAddress.AvailableCountries = countries.ToSelectListItems(selectedCountryId ?? 0);
+                to.NewAddress.AvailableCountries.Insert(0, new SelectListItem { Text = T("Address.SelectCountry"), Value = "0" });
+            }
         }
     }
 }

@@ -1,15 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
-using Smartstore.Core.Content.Media;
+﻿using Smartstore.Core.Content.Media;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
-using Smartstore.Data.Batching;
 using Smartstore.Http;
 using Smartstore.Net.Mail;
 using Smartstore.Utilities;
@@ -63,7 +54,7 @@ namespace Smartstore.Core.Messaging
                 await using (var client = await _mailService.ConnectAsync(account))
                 {
                     // Limit email chunks to 100.
-                    foreach (var batch in group.Slice(100))
+                    foreach (var batch in group.Chunk(100))
                     {
                         if (cancelToken.IsCancellationRequested)
                             break;
@@ -75,19 +66,6 @@ namespace Smartstore.Core.Messaging
             }
 
             return result;
-        }
-
-        // TODO: (MH) (core) This is only used in one ocasion. Use code there (QueuedEmailController > DownloadAttachment) directly. 
-        public virtual byte[] LoadQueuedMailAttachmentBinary(QueuedEmailAttachment attachment)
-        {
-            Guard.NotNull(attachment, nameof(attachment));
-
-            if (attachment.StorageLocation == EmailAttachmentStorageLocation.Blob)
-            {
-                return attachment.MediaStorage?.Data ?? Array.Empty<byte>();
-            }
-
-            return null;
         }
 
         /// <summary>
@@ -170,7 +148,7 @@ namespace Smartstore.Core.Messaging
         private static ICollection<MailAddress> AddMailAddresses(string addresses, ICollection<MailAddress> target)
         {
             target.AddRange(addresses
-                .Trim()
+                .TrimSafe()
                 .SplitSafe(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
                 .Where(x => x.HasValue())
                 .Select(x => new MailAddress(x)));
@@ -225,7 +203,8 @@ namespace Smartstore.Core.Messaging
                             }
                             if (File.Exists(path))
                             {
-                                attachment = new MailAttachment(File.Open(path, FileMode.Open), qea.MimeType) { Name = qea.Name };
+                                var contentStream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
+                                attachment = new MailAttachment(contentStream, qea.MimeType) { Name = qea.Name };
                             }
                         }
                     }

@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using DotLiquid;
+﻿using DotLiquid;
 using Smartstore.ComponentModel;
-using Smartstore.Domain;
 
 namespace Smartstore.Templating.Liquid
 {
@@ -50,7 +47,7 @@ namespace Smartstore.Templating.Liquid
                     {
                         value = "{{ " + modelPrefix + " }}";
                     }
-                    else if (pi.PropertyType.IsPredefinedType())
+                    else if (pi.PropertyType.IsBasicOrNullableType())
                     {
                         value = "{{ " + modelPrefix + " }}";
                     }

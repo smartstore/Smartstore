@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Smartstore.Core.Content.Media
+﻿namespace Smartstore.Core.Content.Media
 {
     /// <summary>
     /// Media type resolver contract.

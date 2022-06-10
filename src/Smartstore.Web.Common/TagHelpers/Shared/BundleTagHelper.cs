@@ -1,10 +1,5 @@
-﻿using System;
-using System.IO;
-using System.Text.Encodings.Web;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Html;
+﻿using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Razor.TagHelpers;
-using Smartstore.Core.Widgets;
 
 namespace Smartstore.Web.TagHelpers.Shared
 {
@@ -93,23 +88,7 @@ namespace Smartstore.Web.TagHelpers.Shared
                 return null;
             }
 
-            if (attr.Value is string str)
-            {
-                return str;
-            }
-            else if (attr.Value is IHtmlContent content)
-            {
-                if (content is HtmlString htmlString)
-                {
-                    return htmlString.ToString();
-                }
-
-                using var writer = new StringWriter();
-                content.WriteTo(writer, HtmlEncoder.Default);
-                return writer.ToString();
-            }
-
-            return null;
+            return attr.ValueAsString();
         }
 
         protected string GetQuote(HtmlAttributeValueStyle style)

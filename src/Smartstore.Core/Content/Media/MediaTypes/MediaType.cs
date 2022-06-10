@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace Smartstore.Core.Content.Media
+﻿namespace Smartstore.Core.Content.Media
 {
     public class MediaType : IEquatable<MediaType>
     {

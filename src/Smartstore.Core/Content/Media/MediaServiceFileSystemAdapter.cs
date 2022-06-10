@@ -1,12 +1,9 @@
-﻿using System;
-using System.IO;
-using System.Threading.Tasks;
-using Smartstore.IO;
+﻿using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Primitives;
 using Smartstore.Collections;
 using Smartstore.Core.Content.Media.Storage;
+using Smartstore.IO;
 using Smartstore.Threading;
-using Microsoft.Extensions.FileProviders;
-using Microsoft.Extensions.Primitives;
 
 namespace Smartstore.Core.Content.Media
 {
@@ -84,17 +81,7 @@ namespace Smartstore.Core.Content.Media
 
         public override string Root => string.Empty;
 
-        public override bool CheckUniqueFileName(string subpath, out string newPath)
-        {
-            if (CheckUniqueFileNameAsync(subpath).Await().Out(out newPath))
-            {
-                return true;
-            }
-
-            return false;
-        }
-
-        public override Task<AsyncOut<string>> CheckUniqueFileNameAsync(string subpath)
+        protected internal override Task<AsyncOut<string>> CheckUniqueFileNameCore(string subpath, bool async)
         {
             return _mediaService.CheckUniqueFileNameAsync(subpath);
         }

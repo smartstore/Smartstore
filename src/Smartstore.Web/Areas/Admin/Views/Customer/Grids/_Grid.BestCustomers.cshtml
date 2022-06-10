@@ -4,7 +4,7 @@
     var parentModel = ViewData["Parent"] as TopCustomersReportModel;
 }
 
-<datagrid id="best-customers-grid" allow-resize="true" allow-column-reordering="true" style="min-height:800px">
+<datagrid id="best-customers-grid" allow-resize="true" allow-column-reordering="true">
     <datasource read="@Url.Action("ReportTopCustomersList")" />
     <paging position="Both" show-size-chooser="true" />
     <sorting enabled="true" allow-unsort="true" allow-multisort="false">
@@ -21,7 +21,7 @@
         <partial name="Grids/_Grid.BestCustomers.Search" model="parentModel" />
     </search-panel>
     <columns>
-        <column for="CustomerId" sortable="false"/>
+        <column for="CustomerId" sortable="false" halign="center" visible="false" type="string" />
         <column for="Email" hideable="false" sortable="false">
             <display-template>
                 <a :href="item.row.EditUrl" class="text-truncate">

@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Dasync.Collections;
+﻿using Dasync.Collections;
 using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Data;
 using Smartstore.Core.Security;
 using Smartstore.Net;
@@ -49,7 +44,7 @@ namespace Smartstore.Core.Catalog.Products
                 .SelectAuthorizedAsync(recentlyViewedProducts)
                 .AsyncToList();
 
-            return authorizedProducts;
+            return authorizedProducts.OrderBySequence(productIds).ToList();
         }
 
         public virtual void AddProductToRecentlyViewedList(int productId)

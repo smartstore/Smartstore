@@ -1,7 +1,4 @@
-﻿using System.Threading.Tasks;
-using Smartstore.Domain;
-
-namespace Smartstore.Core.Rules
+﻿namespace Smartstore.Core.Rules
 {
     /// <summary>
     /// Rule service interface.

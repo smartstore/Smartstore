@@ -1,0 +1,43 @@
+﻿<Language Name="English" IsDefault="false" IsRightToLeft="false">
+  <LocaleResource Name="Plugins.FriendlyName.Smartstore.Facebook.Auth" AppendRootKey="false">
+    <Value>Facebook Login</Value>
+  </LocaleResource>
+	<LocaleResource Name="Plugins.Description.Smartstore.Facebook.Auth" AppendRootKey="false">
+		<Value>Adds Facebook authentication to the store.</Value>
+	</LocaleResource>
+	<LocaleResource Name="AdminInstruction">
+		<Value>
+			<![CDATA[
+			<p>How to set up Facebook authentication:</p>
+			<ul>
+				<li>Create a new app on <a href="https://developers.facebook.com/apps/create/">Facebook</a>  of type <b>Consumer</b>. </li>
+				<li>Enter the access data (App-ID &amp; App-Secret) in the form below.</li>
+				<li>Enter the URL listed below in <b>My app &gt; Facebook Login &gt; Settings &gt; Valid OAuth Redirect URIs</b>.</li>
+				<li>Enter your domain in the advanced settings of the created APP in the Domain Manager.</li>
+				<li>Activate automatic registration in the shop's customer settings if you want to register externally authorized visitors automatically.</li>
+			</ul>
+			]]>
+		</Value>
+	</LocaleResource>
+	<LocaleResource Name="Login">
+		<Value>Sign in with Facebook</Value>
+	</LocaleResource>
+	<LocaleResource Name="ClientKeyIdentifier">
+		<Value>App ID</Value>
+	</LocaleResource>
+	<LocaleResource Name="ClientKeyIdentifier.Hint">
+		<Value>Enter your App ID here.</Value>
+	</LocaleResource>
+	<LocaleResource Name="ClientSecret">
+		<Value>App Secret</Value>
+	</LocaleResource>
+	<LocaleResource Name="ClientSecret.Hint">
+		<Value>Enter your app secret here.</Value>
+	</LocaleResource>
+	<LocaleResource Name="RedirectUri">
+		<Value>OAuth Redirect URI</Value>
+	</LocaleResource>
+	<LocaleResource Name="RedirectUri.Hint">
+		<Value>The OAuth Redirect URI to be entered on Facebook.</Value>
+	</LocaleResource>
+</Language>

@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
+﻿using System.Reflection;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
-using Microsoft.AspNetCore.Razor.Hosting;
-using Microsoft.Extensions.DependencyModel;
 
 namespace Smartstore.Engine.Modularity.ApplicationParts
 {
@@ -12,12 +7,11 @@ namespace Smartstore.Engine.Modularity.ApplicationParts
     /// A custom ApplicationPart implementation that will NOT raise an exception
     /// when resolving module main assembly path.
     /// </summary>
-    public class ModulePart : ApplicationPart, IApplicationPartTypeProvider, ICompilationReferencesProvider, IRazorCompiledItemProvider
+    public class ModulePart : ModuleRazorAssemblyPart, IApplicationPartTypeProvider, ICompilationReferencesProvider
     {
         public ModulePart(IModuleDescriptor descriptor)
+            : base(descriptor?.Module?.Assembly)
         {
-            Guard.NotNull(descriptor?.Module?.Assembly, nameof(descriptor));
-
             Descriptor = descriptor;
         }
 
@@ -28,17 +22,6 @@ namespace Smartstore.Engine.Modularity.ApplicationParts
 
         public IEnumerable<TypeInfo> Types 
             => Descriptor.Module.Assembly.DefinedTypes;
-
-        IEnumerable<RazorCompiledItem> IRazorCompiledItemProvider.CompiledItems
-        {
-            get
-            {
-                // Smartstore.MyModule.Views --> Smartstore.MyModule
-                var moduleName = Name.Replace(".Views", string.Empty);
-                var loader = new ModuleRazorCompiledItemLoader(moduleName);
-                return loader.LoadItems(Descriptor.Module.Assembly);
-            }
-        }
 
         public IEnumerable<string> GetReferencePaths()
         {
@@ -51,24 +34,17 @@ namespace Smartstore.Engine.Modularity.ApplicationParts
                 return Enumerable.Empty<string>();
             }
 
-            var dependencyContext = DependencyContext.Load(assembly);
+            // Try to find the smaller ref file in the "ref" subfolder and use its path (if it exists).
+            var location = assembly.Location;
+            var file = new FileInfo(location);
+            var refLocation = Path.Combine(file.DirectoryName, "ref", file.Name);
 
-            if (dependencyContext == null)
+            if (File.Exists(refLocation))
             {
-                // If an application has been compiled without preserveCompilationContext, return the path to the assembly
-                // as a reference. For runtime compilation, this will allow the compilation to succeed as long as it least
-                // one application part has been compiled with preserveCompilationContext and contains a super set of types
-                // required for the compilation to succeed.
-                return new[] { assembly.Location };
+                location = refLocation;
             }
-            else
-            {
-                // Skip the first library (the module main assembly itself), because path resolution will raise an exception...
-                var libs = dependencyContext.CompileLibraries.Skip(1).SelectMany(library => library.ResolveReferencePaths());
 
-                // ...instead prepend assembly location
-                return (new[] { assembly.Location }).Concat(libs);
-            }
+            return (new[] { location }).Concat(Descriptor.Module.PrivateReferences);
         }
     }
 }

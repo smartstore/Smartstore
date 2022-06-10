@@ -32,4 +32,4 @@
     var attributes = new AttributeDictionary().Merge(CommonHelper.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
 }
 
-<select asp-for="@Model" asp-items="items" asp-placeholder="@T("Admin.Common.StoresAll")" class="form-control edit-control" attrs="attributes" data-editor="select"></select>
+<select asp-for="@Model" asp-items="items" asp-placeholder="@T("Admin.Common.StoresAll")" class="edit-control" attrs="attributes" data-editor="select"></select>

@@ -1,17 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Reflection;
 using System.Transactions;
 using Autofac;
 using FluentMigrator;
-using FluentMigrator.Runner;
 using Microsoft.EntityFrameworkCore.Storage;
 using Smartstore.Data;
 using Smartstore.Data.Migrations;
-using Smartstore.Engine;
 
 namespace Smartstore.Core.Data.Migrations
 {
@@ -35,15 +28,21 @@ namespace Smartstore.Core.Data.Migrations
         /// <summary>
         /// Migrates the database to the latest version.
         /// </summary>
+        /// <param name="assembly">
+        ///     Pass an <see cref="Assembly"/> instance to reduce the set of processed migrations to migration classes found in the given assembly only.
+        /// </param>
         /// <returns>The number of applied migrations.</returns>
-        public abstract Task<int> RunPendingMigrationsAsync(CancellationToken cancelToken = default);
+        public abstract Task<int> RunPendingMigrationsAsync(Assembly assembly = null, CancellationToken cancelToken = default);
 
         /// <summary>
         /// Migrates the database to <paramref name="targetVersion"/> or to the latest version if no version was specified.
         /// </summary>
-        /// <param name="targetVersion">The target migration version.</param>
+        /// <param name="targetVersion">The target migration version. Pass -1 to perform a full rollback.</param>
+        /// <param name="assembly">
+        ///     Pass an <see cref="Assembly"/> instance to reduce the set of processed migrations to migration classes found in the given assembly only.
+        /// </param>
         /// <returns>The number of applied migrations.</returns>
-        public abstract Task<int> MigrateAsync(long? targetVersion = null, CancellationToken cancelToken = default);
+        public abstract Task<int> MigrateAsync(long? targetVersion = null, Assembly assembly = null, CancellationToken cancelToken = default);
 
         /// <summary>
         /// Creates an instance of the migration class.

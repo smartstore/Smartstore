@@ -1,7 +1,4 @@
-﻿using System;
-using System.Linq.Expressions;
-using System.Threading.Tasks;
-using Smartstore.Caching.OutputCache;
+﻿using Smartstore.Core.OutputCache;
 using Smartstore.Utilities;
 
 namespace Smartstore.Core.Configuration
@@ -41,7 +38,7 @@ namespace Smartstore.Core.Configuration
         /// </remarks>
         public static void ObserveSettings<TSetting>(
             this IOutputCacheInvalidationObserver observer,
-            Func<Task, IOutputCacheProvider> invalidationAction) where TSetting : ISettings
+            Func<IOutputCacheProvider, Task> invalidationAction) where TSetting : ISettings
         {
             var key = typeof(TSetting).Name + ".*";
             observer.ObserveSetting(key, invalidationAction);
@@ -73,7 +70,7 @@ namespace Smartstore.Core.Configuration
         public static void ObserveSettingProperty<TSetting>(
             this IOutputCacheInvalidationObserver observer,
             Expression<Func<TSetting, object>> propertyAccessor,
-            Func<Task, IOutputCacheProvider> invalidationAction) where TSetting : ISettings
+            Func<IOutputCacheProvider, Task> invalidationAction) where TSetting : ISettings
         {
             Guard.NotNull(propertyAccessor, nameof(propertyAccessor));
 

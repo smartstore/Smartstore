@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using Smartstore.Core.Checkout.Orders;
+using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
-using Smartstore.Web.Modelling;
 
 namespace Smartstore.Admin.Models
 {
@@ -36,7 +36,7 @@ namespace Smartstore.Admin.Models
         public string PrimaryStoreCurrencyCode { get; set; }
     }
 
-    public partial class RewardPointsSettingsValidator : AbstractValidator<RewardPointsSettingsModel>
+    public partial class RewardPointsSettingsValidator : SettingModelValidator<RewardPointsSettingsModel, RewardPointsSettings>
     {
         public RewardPointsSettingsValidator(Localizer T)
         {

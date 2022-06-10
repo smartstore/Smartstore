@@ -3,7 +3,7 @@
 @{
     string value = (string)ViewData.TemplateInfo.FormattedModelValue;
     var attributes = new AttributeDictionary().Merge(CommonHelper.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
-    string templateName = attributes["TemplateName"].ToString();
+    string templateName = GetMetadata<string>("templateName").NullEmpty();
     string width = GetMetadata<string>("width").NullEmpty();
     string height = GetMetadata<string>("height").NullEmpty();
 

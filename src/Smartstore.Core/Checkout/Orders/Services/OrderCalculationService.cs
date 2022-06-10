@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
+﻿using System.Runtime.CompilerServices;
 using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Catalog.Pricing;
@@ -249,6 +244,8 @@ namespace Smartstore.Core.Checkout.Orders
             {
                 Total = orderTotal.HasValue ? new(orderTotal.Value, _primaryCurrency) : null,
                 ToNearestRounding = new(toNearestRounding, _primaryCurrency),
+                ShippingAmount = shipping.ShippingTotal.HasValue ? new(shipping.ShippingTotal.Value, _primaryCurrency) : null,
+                PaymentFee = new(paymentFeeWithoutTax, _primaryCurrency),
                 DiscountAmount = new(discountAmount, _primaryCurrency),
                 AppliedDiscount = appliedDiscount,
                 RedeemedRewardPoints = redeemedRewardPoints,
@@ -356,15 +353,63 @@ namespace Smartstore.Core.Checkout.Orders
         public virtual async Task<Money> GetShoppingCartPaymentFeeAsync(ShoppingCart cart, string paymentMethodSystemName)
             => new(await GetCartPaymentFeeAsync(cart, paymentMethodSystemName), _primaryCurrency);
 
-        public virtual async Task<(Money Amount, Discount AppliedDiscount)> AdjustShippingRateAsync(
+        public virtual async Task<(decimal Amount, Discount AppliedDiscount)> AdjustShippingRateAsync(
             ShoppingCart cart,
-            Money shippingRate,
+            decimal shippingRate,
             ShippingOption shippingOption,
             IList<ShippingMethod> shippingMethods)
         {
-            var (amount, appliedDiscount) = await AdjustShippingRateAsync(cart, shippingRate.Amount, shippingOption, shippingMethods);
+            Guard.NotNull(cart, nameof(cart));
 
-            return (new(amount, _primaryCurrency), appliedDiscount);
+            if (await IsFreeShippingAsync(cart))
+            {
+                return (decimal.Zero, null);
+            }
+
+            var ignoreAdditionalShippingCharge = false;
+            var bundlePerItemShipping = decimal.Zero;
+            var adjustedRate = decimal.Zero;
+
+            foreach (var cartItem in cart.Items)
+            {
+                var item = cartItem.Item;
+
+                if (item.Product != null && item.Product.ProductType == ProductType.BundledProduct && item.Product.BundlePerItemShipping)
+                {
+                    foreach (var childItem in cartItem.ChildItems.Where(x => x.Item.IsShippingEnabled && !x.Item.IsFreeShipping))
+                    {
+                        bundlePerItemShipping += shippingRate;
+                    }
+                }
+                else if (adjustedRate == decimal.Zero)
+                {
+                    adjustedRate = shippingRate;
+                }
+            }
+
+            adjustedRate += bundlePerItemShipping;
+
+            if (shippingOption != null && shippingMethods != null)
+            {
+                var shippingMethod = shippingMethods.FirstOrDefault(x => x.Id == shippingOption.ShippingMethodId);
+                if (shippingMethod != null)
+                {
+                    ignoreAdditionalShippingCharge = shippingMethod.IgnoreCharges;
+                }
+            }
+
+            // Additional shipping charges.
+            if (!ignoreAdditionalShippingCharge)
+            {
+                var additionalShippingCharge = await GetShippingChargeAsync(cart);
+                adjustedRate += additionalShippingCharge;
+            }
+
+            // Discount.
+            var (discountAmount, discount) = await GetDiscountAmountAsync(adjustedRate, DiscountType.AssignedToShipping, cart.Customer);
+            adjustedRate = _workingCurrency.RoundIfEnabledFor(Math.Max(adjustedRate - discountAmount, decimal.Zero));
+
+            return (adjustedRate, discount);
         }
 
         public virtual async Task<(Money Amount, Discount AppliedDiscount)> GetDiscountAmountAsync(Money amount, DiscountType discountType, Customer customer)
@@ -451,14 +496,17 @@ namespace Smartstore.Core.Checkout.Orders
             if (customer != null)
             {
                 var values = await _checkoutAttributeMaterializer.MaterializeCheckoutAttributeValuesAsync(customer.GenericAttributes.CheckoutAttributes);
-                foreach (var value in values)
+                if (values != null)
                 {
-                    var attributeTax = await _taxCalculator.CalculateCheckoutAttributeTaxAsync(value, customer: customer);
+                    foreach (var value in values)
+                    {
+                        var attributeTax = await _taxCalculator.CalculateCheckoutAttributeTaxAsync(value, customer: customer);
 
-                    subtotalExclTaxWithoutDiscount += attributeTax.PriceNet;
-                    subtotalInclTaxWithoutDiscount += attributeTax.PriceGross;
+                        subtotalExclTaxWithoutDiscount += attributeTax.PriceNet;
+                        subtotalInclTaxWithoutDiscount += attributeTax.PriceGross;
 
-                    result.TaxRates.Add(attributeTax.Amount, attributeTax.Rate.Rate);
+                        result.TaxRates.Add(attributeTax.Amount, attributeTax.Rate.Rate);
+                    }
                 }
             }
 
@@ -839,65 +887,6 @@ namespace Smartstore.Core.Checkout.Orders
             return charge;
         }
 
-        protected virtual async Task<(decimal Amount, Discount AppliedDiscount)> AdjustShippingRateAsync(
-            ShoppingCart cart,
-            decimal shippingRate,
-            ShippingOption shippingOption,
-            IList<ShippingMethod> shippingMethods)
-        {
-            Guard.NotNull(cart, nameof(cart));
-
-            if (await IsFreeShippingAsync(cart))
-            {
-                return (decimal.Zero, null);
-            }
-
-            var ignoreAdditionalShippingCharge = false;
-            var bundlePerItemShipping = decimal.Zero;
-            var adjustedRate = decimal.Zero;
-
-            foreach (var cartItem in cart.Items)
-            {
-                var item = cartItem.Item;
-
-                if (item.Product != null && item.Product.ProductType == ProductType.BundledProduct && item.Product.BundlePerItemShipping)
-                {
-                    foreach (var childItem in cartItem.ChildItems.Where(x => x.Item.IsShippingEnabled && !x.Item.IsFreeShipping))
-                    {
-                        bundlePerItemShipping += shippingRate;
-                    }
-                }
-                else if (adjustedRate == decimal.Zero)
-                {
-                    adjustedRate = shippingRate;
-                }
-            }
-
-            adjustedRate += bundlePerItemShipping;
-
-            if (shippingOption != null && shippingMethods != null)
-            {
-                var shippingMethod = shippingMethods.FirstOrDefault(x => x.Id == shippingOption.ShippingMethodId);
-                if (shippingMethod != null)
-                {
-                    ignoreAdditionalShippingCharge = shippingMethod.IgnoreCharges;
-                }
-            }
-
-            // Additional shipping charges.
-            if (!ignoreAdditionalShippingCharge)
-            {
-                var additionalShippingCharge = await GetShippingChargeAsync(cart);
-                adjustedRate += additionalShippingCharge;
-            }
-
-            // Discount.
-            var (discountAmount, discount) = await GetDiscountAmountAsync(adjustedRate, DiscountType.AssignedToShipping, cart.Customer);
-            adjustedRate = _workingCurrency.RoundIfEnabledFor(Math.Max(adjustedRate - discountAmount, decimal.Zero));
-
-            return (adjustedRate, discount);
-        }
-
         protected virtual async Task<(decimal? Amount, Discount AppliedDiscount)> GetAdjustedShippingTotalAsync(ShoppingCart cart)
         {
             var shippingOption = cart.Customer?.GenericAttributes?.SelectedShippingOption?.Convert<ShippingOption>();
@@ -907,10 +896,12 @@ namespace Smartstore.Core.Checkout.Orders
                 // Use last shipping option (get from cache).
                 var shippingMethods = await _shippingService.GetAllShippingMethodsAsync(cart.StoreId);
 
-                return await AdjustShippingRateAsync(cart, shippingOption.Rate.Amount, shippingOption, shippingMethods);
+                return await AdjustShippingRateAsync(cart, shippingOption.Rate, shippingOption, shippingMethods);
             }
             else
             {
+                await _db.LoadReferenceAsync(cart.Customer, x => x.ShippingAddress);
+
                 // Use fixed rate (if possible).
                 var shippingAddress = cart.Customer?.ShippingAddress ?? null;
                 var shippingRateComputationMethods = _shippingService.LoadActiveShippingRateComputationMethods(cart.StoreId);
@@ -924,12 +915,12 @@ namespace Smartstore.Core.Checkout.Orders
                 {
                     var shippingRateComputationMethod = shippingRateComputationMethods.First();
                     var getShippingOptionRequest = _shippingService.CreateShippingOptionRequest(cart, shippingAddress, cart.StoreId);
-                    var fixedRate = shippingRateComputationMethod.Value.GetFixedRate(getShippingOptionRequest);
+                    var fixedRate = await shippingRateComputationMethod.Value.GetFixedRateAsync(getShippingOptionRequest);
 
                     if (fixedRate.HasValue)
                     {
                         // Ignore returned currency. The caller specifies it to avoid mixed currencies during calculation.
-                        return await AdjustShippingRateAsync(cart, fixedRate.Value.Amount, null, null);
+                        return await AdjustShippingRateAsync(cart, fixedRate.Value, null, null);
                     }
                 }
             }

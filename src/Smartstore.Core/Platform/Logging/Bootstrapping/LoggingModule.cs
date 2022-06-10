@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
+﻿using System.Reflection;
 using Autofac;
 using Autofac.Core;
 using Autofac.Core.Activators.Reflection;
 using Autofac.Core.Registration;
-using Microsoft.Extensions.Logging;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Logging;
 using Smartstore.Data;
@@ -64,7 +60,7 @@ namespace Smartstore.Core.Bootstrapping
                         Accessors = p.GetAccessors(false)
                     })
                     .Where(x => x.PropertyType == typeof(ILogger)) // must be a logger
-                    .Where(x => x.IndexParameters.Count() == 0) // must not be an indexer
+                    .Where(x => x.IndexParameters.Length == 0) // must not be an indexer
                     .Where(x => x.Accessors.Length != 1 || x.Accessors[0].ReturnType == typeof(void)) //must have get/set, or only set
                     .Select(x => FastProperty.Create(x.PropertyInfo))
                     .ToArray();

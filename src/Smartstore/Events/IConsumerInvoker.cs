@@ -1,7 +1,4 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
-
-namespace Smartstore.Events
+﻿namespace Smartstore.Events
 {
     /// <summary>
     /// Responsible for invoking event message handler methods.

@@ -1,21 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using FluentValidation.AspNetCore;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using FluentValidation.AspNetCore;
 using Smartstore.Admin.Models.Scheduling;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Security;
 using Smartstore.Scheduling;
 using Smartstore.Threading;
-using Smartstore.Web.Controllers;
-using Smartstore.Web.Modelling;
 using Smartstore.Web.Models.DataGrid;
-using Smartstore.Web.Razor;
 
 namespace Smartstore.Admin.Controllers
 {
@@ -43,7 +33,7 @@ namespace Smartstore.Admin.Controllers
 
         public IActionResult Index()
         {
-            return RedirectToAction("List");
+            return RedirectToAction(nameof(List));
         }
 
         [Permission(Permissions.System.ScheduleTask.Read)]
@@ -148,7 +138,7 @@ namespace Smartstore.Admin.Controllers
             _ = _taskScheduler.RunSingleTaskAsync(id, taskParams);
 
             // The most tasks are completed rather quickly. Wait a while...
-            Thread.Sleep(200);
+            await Task.Delay(200);
 
             // ...check and return suitable notifications.
             var lastExecutionInfo = await _taskStore.GetLastExecutionInfoByTaskIdAsync(id);
@@ -168,7 +158,7 @@ namespace Smartstore.Admin.Controllers
                 }
             }
 
-            return RedirectToReferrer(returnUrl, () => RedirectToAction("List"));
+            return RedirectToReferrer(returnUrl, () => RedirectToAction(nameof(List)));
         }
 
         [Permission(Permissions.System.ScheduleTask.Execute)]
@@ -234,14 +224,14 @@ namespace Smartstore.Admin.Controllers
 
             if (continueEditing)
             {
-                return RedirectToAction("Edit", new { id = model.Id, returnUrl });
+                return RedirectToAction(nameof(Edit), new { id = model.Id, returnUrl });
             }
             else if (returnUrl.HasValue())
             {
-                return RedirectToReferrer(returnUrl, () => RedirectToAction("List"));
+                return RedirectToReferrer(returnUrl, () => RedirectToAction(nameof(List)));
             }
 
-            return RedirectToAction("List");
+            return RedirectToAction(nameof(List));
         }
 
         [HttpPost]

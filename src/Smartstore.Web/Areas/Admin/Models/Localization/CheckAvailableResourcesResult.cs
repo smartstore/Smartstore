@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Smartstore.Admin.Models.Localization
+﻿namespace Smartstore.Admin.Models.Localization
 {
     [Serializable]
     public class CheckAvailableResourcesResult

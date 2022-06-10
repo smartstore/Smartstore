@@ -1,6 +1,4 @@
-﻿using System;
-using System.Linq;
-using Smartstore.Core.Messaging;
+﻿using Smartstore.Core.Messaging;
 using Smartstore.Core.Rules.Filters;
 
 namespace Smartstore

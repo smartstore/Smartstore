@@ -1,6 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using Smartstore.Core.Common.Services;
+﻿using Smartstore.Core.Common.Services;
 using Smartstore.Core.Rules;
 using Smartstore.Core.Web;
 

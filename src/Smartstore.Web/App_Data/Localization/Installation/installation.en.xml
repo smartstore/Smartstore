@@ -1,205 +1,200 @@
 ﻿<Language Name="English" IsDefault="true" IsRightToLeft="false" LanguageCulture="en-US" FlagImageFileName="us.png">
-  <LocaleResource Name="AdminEmail">
-    <Value>Admin user email</Value>
-  </LocaleResource>
-  <LocaleResource Name="AdminPassword">
-    <Value>Admin user password</Value>
-  </LocaleResource>
-  <LocaleResource Name="ConfigureDirectoryPermissions">
-    <Value>The '{0}' account is not granted with Modify permission on directory '{1}'. Please configure these permissions.</Value>
-  </LocaleResource>
-  <LocaleResource Name="ConfigureFilePermissions">
-    <Value>The '{0}' account is not granted with Modify permission on file '{1}'. Please configure these permissions.</Value>
-  </LocaleResource>
-  <LocaleResource Name="ConfirmPassword">
-    <Value>Confirm the password</Value>
-  </LocaleResource>
-  <LocaleResource Name="DbRawConnectionString">
-    <Value>Connection string</Value>
-  </LocaleResource>
-  <LocaleResource Name="ConnectionStringValues">
-    <Value>Enter connection values</Value>
-  </LocaleResource>
-  <LocaleResource Name="ConnectionStringWrongFormat">
-    <Value>Wrong connection string format</Value>
-  </LocaleResource>
-  <LocaleResource Name="CreateDatabaseIfDoesNotExist">
-    <Value>Create database if it doesn't exist</Value>
-  </LocaleResource>
-  <LocaleResource Name="CreateSampleData">
-    <Value>Create sample data</Value>
-  </LocaleResource>
-  <LocaleResource Name="CustomCollation">
-    <Value>Specify custom database collation</Value>
-  </LocaleResource>
-  <LocaleResource Name="DatabaseCreationError">
-    <Value>An error occurred while creating the database: {0}</Value>
-  </LocaleResource>
-  <LocaleResource Name="DatabaseInformation">
-    <Value>Database information</Value>
-  </LocaleResource>
-  <LocaleResource Name="DbName">
-    <Value>Database name</Value>
-  </LocaleResource>
-  <LocaleResource Name="DatabaseNotExists">
-    <Value>Database does not exist or you don't have permissions to connect to it</Value>
-  </LocaleResource>
-  <LocaleResource Name="Example">
-    <Value>Example</Value>
-  </LocaleResource>
-  <LocaleResource Name="Install">
-    <Value>Install</Value>
-  </LocaleResource>
-  <LocaleResource Name="Installing">
-    <Value>Installing Smartstore...</Value>
-  </LocaleResource>
-  <LocaleResource Name="PasswordsDoNotMatch">
-    <Value>The passwords do not match</Value>
-  </LocaleResource>
-  <LocaleResource Name="RawConnectionString">
-    <Value>Enter raw connection string (advanced)</Value>
-  </LocaleResource>
-  <LocaleResource Name="Recommended">
-    <Value>[Recommended]</Value>
-  </LocaleResource>
-  <LocaleResource Name="RestartInstallation">
-    <Value>Restart installation</Value>
-  </LocaleResource>
-  <LocaleResource Name="RestartInstallationTooltip">
-    <Value>Click to restart the installation process (clear all cached values)</Value>
-  </LocaleResource>
-  <LocaleResource Name="SetupFailed">
-    <Value>Setup failed: {0}</Value>
-  </LocaleResource>
-  <LocaleResource Name="SqlAuthentication">
-    <Value>SQL Server-Authentication</Value>
-  </LocaleResource>
-	<LocaleResource Name="WindowsAuthentication">
-		<Value>Windows-Authentication</Value>
-	</LocaleResource>
-  <LocaleResource Name="DbServer">
-    <Value>Server name</Value>
-  </LocaleResource>
-  <LocaleResource Name="DbPassword">
-    <Value>Password</Value>
-  </LocaleResource>
-  <LocaleResource Name="DbUserId">
-    <Value>Username</Value>
-  </LocaleResource>
-	<LocaleResource Name="UseSqlServer">
-		<Value>Microsoft SQL Server (Express)</Value>
-	</LocaleResource>
-	<LocaleResource Name="UseMySql">
-		<Value>MySql</Value>
-	</LocaleResource>
-  <LocaleResource Name="StoreInformation">
-    <Value>Store information</Value>
-  </LocaleResource>
-  <LocaleResource Name="Title">
-    <Value>Installation</Value>
-  </LocaleResource>
-  <LocaleResource Name="Tooltip1">
-    <Value>Smartstore is a powerful e-commerce solution for companies of any size. This wizard will guide you through the process of configuring Smartstore</Value>
-  </LocaleResource>
-  <LocaleResource Name="Tooltip2">
-    <Value>To complete this wizard, you must know some information regarding your database server ("connection string"). Please contact your ISP if necessary. If you're installing on a local machine or server, you might need information from your System Admin</Value>
-  </LocaleResource>
-  <LocaleResource Name="UseIntegratedAuthentication">
-    <Value>Use integrated Windows authentication</Value>
-  </LocaleResource>
-  
-  <LocaleResource Name="PrimaryLanguage">
-    <Value>Primary language</Value>
-  </LocaleResource>
-  <LocaleResource Name="PrimaryLanguageRequired">
-    <Value>Primary language is required</Value>
-  </LocaleResource>
-  <LocaleResource Name="ConfirmInstall">
-    <Value>Do you want to install Smartstore now?</Value>
-  </LocaleResource>
-  <LocaleResource Name="AdminEmailValue">
-    <Value>admin@mystore.com</Value>
-  </LocaleResource>
-  
-  <LocaleResource Name="MediaStorage.Label">
-    <Value>Media storage</Value>
-  </LocaleResource>
-  <LocaleResource Name="MediaStorage.Hint">
-    <Value>Select 'File system', if your database does not provide enough disk space (&lt; 500 MB). Otherwise, 'Database' is recommended.</Value>
-  </LocaleResource>
-  <LocaleResource Name="MediaStorage.DB">
-    <Value>Database</Value>
-  </LocaleResource>
-  <LocaleResource Name="MediaStorage.FS">
-    <Value>File system</Value>
-  </LocaleResource>
-
-  <LocaleResource Name="Common.Notification">
-    <Value>Alert</Value>
-  </LocaleResource>
-  <LocaleResource Name="Common.StartShop">
-    <Value>Yippieee! The installation was completed successfully ;-) Your shop is being started now...</Value>
-  </LocaleResource>
-  
-  <LocaleResource Name="Progress.CheckingRequirements">
-    <Value>Checking requirements</Value>
-  </LocaleResource>
-  <LocaleResource Name="Progress.BuildingDatabase">
-    <Value>Building database</Value>
-  </LocaleResource>
-  <LocaleResource Name="Progress.InstallingModules">
-    <Value>Installing module {0} of {1}</Value>
-  </LocaleResource>
-  <LocaleResource Name="Progress.ProcessingMedia">
-    <Value>Processing media files</Value>
-  </LocaleResource>
-  <LocaleResource Name="Progress.Finalizing">
-    <Value>Finalizing installation</Value>
-  </LocaleResource>
-  <LocaleResource Name="Progress.CreatingRequiredData">
-    <Value>Creating required data</Value>
-  </LocaleResource>
-  <LocaleResource Name="Progress.CreatingSampleData">
-    <Value>Creating sample data</Value>
-  </LocaleResource>
-
-  <LocaleResource Name="InstallOptions">
-    <Value>Options</Value>
-  </LocaleResource>
-
-  <LocaleResource Name="DbSystem">
-	  <Value>Database system</Value>
-  </LocaleResource>
-  <LocaleResource Name="Connection">
-	  <Value>Connection</Value>
-  </LocaleResource>
-	<LocaleResource Name="Server">
-		<Value>Server</Value>
-	</LocaleResource>
-  <LocaleResource Name="Authentication">
-	  <Value>Authentication</Value>
-  </LocaleResource>
-
-	<LocaleResource Name="AdminEmailRequired">
-		<Value>'Admin user email' is required</Value>
-	</LocaleResource>
-	<LocaleResource Name="AdminPasswordRequired">
-		<Value>'Admin user password' is required</Value>
-	</LocaleResource>
-	<LocaleResource Name="ConfirmPasswordRequired">
-		<Value>'Passwort confirmation' is required</Value>
-	</LocaleResource>
-	<LocaleResource Name="DbRawConnectionStringRequired">
-		<Value>'Connection string' is required</Value>
-	</LocaleResource>
-	<LocaleResource Name="DbServerRequired">
-		<Value>'Server name' is required</Value>
-	</LocaleResource>
-	<LocaleResource Name="DbNameRequired">
-		<Value>'Database name' is required</Value>
-	</LocaleResource>
-	<LocaleResource Name="DbUserIdRequired">
-		<Value>'Username' is required</Value>
-	</LocaleResource>
-
+    <LocaleResource Name="AdminEmail">
+        <Value>Admin user email</Value>
+    </LocaleResource>
+    <LocaleResource Name="AdminPassword">
+        <Value>Admin user password</Value>
+    </LocaleResource>
+    <LocaleResource Name="ConfigureDirectoryPermissions">
+        <Value>The '{0}' account is not granted with Modify permission on directory '{1}'. Please configure these permissions.</Value>
+    </LocaleResource>
+    <LocaleResource Name="ConfigureFilePermissions">
+        <Value>The '{0}' account is not granted with Modify permission on file '{1}'. Please configure these permissions.</Value>
+    </LocaleResource>
+    <LocaleResource Name="ConfirmPassword">
+        <Value>Confirm the password</Value>
+    </LocaleResource>
+    <LocaleResource Name="DbRawConnectionString">
+        <Value>Connection string</Value>
+    </LocaleResource>
+    <LocaleResource Name="ConnectionStringValues">
+        <Value>Enter connection values</Value>
+    </LocaleResource>
+    <LocaleResource Name="ConnectionStringWrongFormat">
+        <Value>Wrong connection string format</Value>
+    </LocaleResource>
+    <LocaleResource Name="CreateDatabaseIfDoesNotExist">
+        <Value>Create database if it doesn't exist</Value>
+    </LocaleResource>
+    <LocaleResource Name="CreateSampleData">
+        <Value>Create sample data</Value>
+    </LocaleResource>
+    <LocaleResource Name="CustomCollation">
+        <Value>Specify custom database collation</Value>
+    </LocaleResource>
+    <LocaleResource Name="DatabaseCreationError">
+        <Value>An error occurred while creating the database: {0}</Value>
+    </LocaleResource>
+    <LocaleResource Name="DatabaseInformation">
+        <Value>Database information</Value>
+    </LocaleResource>
+    <LocaleResource Name="DbName">
+        <Value>Database name</Value>
+    </LocaleResource>
+    <LocaleResource Name="DatabaseNotExists">
+        <Value>Database does not exist or you don't have permissions to connect to it</Value>
+    </LocaleResource>
+    <LocaleResource Name="Example">
+        <Value>Example</Value>
+    </LocaleResource>
+    <LocaleResource Name="Install">
+        <Value>Install</Value>
+    </LocaleResource>
+    <LocaleResource Name="Installing">
+        <Value>Installing Smartstore...</Value>
+    </LocaleResource>
+    <LocaleResource Name="PasswordsDoNotMatch">
+        <Value>The passwords do not match</Value>
+    </LocaleResource>
+    <LocaleResource Name="RawConnectionString">
+        <Value>Enter raw connection string (advanced)</Value>
+    </LocaleResource>
+    <LocaleResource Name="Recommended">
+        <Value>(recommended)</Value>
+    </LocaleResource>
+    <LocaleResource Name="RestartInstallation">
+        <Value>Restart installation</Value>
+    </LocaleResource>
+    <LocaleResource Name="RestartInstallationTooltip">
+        <Value>Click to restart the installation process (clear all cached values)</Value>
+    </LocaleResource>
+    <LocaleResource Name="SetupFailed">
+        <Value>Setup failed: {0}</Value>
+    </LocaleResource>
+    <LocaleResource Name="SqlAuthentication">
+        <Value>SQL Server-Authentication</Value>
+    </LocaleResource>
+    <LocaleResource Name="WindowsAuthentication">
+        <Value>Windows-Authentication</Value>
+    </LocaleResource>
+    <LocaleResource Name="DbServer">
+        <Value>Server name</Value>
+    </LocaleResource>
+    <LocaleResource Name="DbPassword">
+        <Value>Password</Value>
+    </LocaleResource>
+    <LocaleResource Name="DbUserId">
+        <Value>Username</Value>
+    </LocaleResource>
+    <LocaleResource Name="UseSqlServer">
+        <Value>Microsoft SQL Server (Express)</Value>
+    </LocaleResource>
+    <LocaleResource Name="UseMySql">
+        <Value>MySql</Value>
+    </LocaleResource>
+    <LocaleResource Name="StoreInformation">
+        <Value>Store information</Value>
+    </LocaleResource>
+    <LocaleResource Name="Title">
+        <Value>Installation</Value>
+    </LocaleResource>
+    <LocaleResource Name="Tooltip1">
+        <Value>Smartstore is a powerful e-commerce solution for companies of any size. This wizard will guide you through the process of configuring Smartstore</Value>
+    </LocaleResource>
+    <LocaleResource Name="Tooltip2">
+        <Value>To complete this wizard, you must know some information regarding your database server ("connection string"). Please contact your ISP if necessary. If you're installing on a local machine or server, you might need information from your System Admin</Value>
+    </LocaleResource>
+    <LocaleResource Name="UseIntegratedAuthentication">
+        <Value>Use integrated Windows authentication</Value>
+    </LocaleResource>
+    <LocaleResource Name="PrimaryLanguage">
+        <Value>Primary language</Value>
+    </LocaleResource>
+    <LocaleResource Name="PrimaryLanguageRequired">
+        <Value>Primary language is required</Value>
+    </LocaleResource>
+    <LocaleResource Name="ConfirmInstall">
+        <Value>Do you want to install Smartstore now?</Value>
+    </LocaleResource>
+    <LocaleResource Name="AdminEmailValue">
+        <Value>admin@mystore.com</Value>
+    </LocaleResource>
+    <LocaleResource Name="MediaStorage.Label">
+        <Value>Media storage</Value>
+    </LocaleResource>
+    <LocaleResource Name="MediaStorage.Hint">
+        <Value>'File system' provides the highest possible performance and stability and is ideally suited for production environment.</Value>
+    </LocaleResource>
+    <LocaleResource Name="MediaStorage.DB">
+        <Value>Database</Value>
+    </LocaleResource>
+    <LocaleResource Name="MediaStorage.FS">
+        <Value>File system</Value>
+    </LocaleResource>
+    <LocaleResource Name="Common.Notification">
+        <Value>Alert</Value>
+    </LocaleResource>
+    <LocaleResource Name="Common.StartShop">
+        <Value>Yippieee! The installation was completed successfully ;-) Your shop is being started now...</Value>
+    </LocaleResource>
+    <LocaleResource Name="Progress.CheckingRequirements">
+        <Value>Checking requirements</Value>
+    </LocaleResource>
+    <LocaleResource Name="Progress.BuildingDatabase">
+        <Value>Building database</Value>
+    </LocaleResource>
+    <LocaleResource Name="Progress.InstallingModules">
+        <Value>Installing module {0} of {1}</Value>
+    </LocaleResource>
+    <LocaleResource Name="Progress.ProcessingMedia">
+        <Value>Processing media files</Value>
+    </LocaleResource>
+    <LocaleResource Name="Progress.Finalizing">
+        <Value>Finalizing installation</Value>
+    </LocaleResource>
+    <LocaleResource Name="Progress.CreatingRequiredData">
+        <Value>Creating required data</Value>
+    </LocaleResource>
+    <LocaleResource Name="Progress.CreatingSampleData">
+        <Value>Creating sample data</Value>
+    </LocaleResource>
+    <LocaleResource Name="Progress.Redirect">
+        <Value><![CDATA[If you are not automatically redirected to the home page of the store please click <a href="{0}">here</a>]]></Value>
+    </LocaleResource>
+    <LocaleResource Name="InstallOptions">
+        <Value>Options</Value>
+    </LocaleResource>
+    <LocaleResource Name="DbSystem">
+        <Value>Database system</Value>
+    </LocaleResource>
+    <LocaleResource Name="Connection">
+        <Value>Connection</Value>
+    </LocaleResource>
+    <LocaleResource Name="Server">
+        <Value>Server</Value>
+    </LocaleResource>
+    <LocaleResource Name="Authentication">
+        <Value>Authentication</Value>
+    </LocaleResource>
+    <LocaleResource Name="AdminEmailRequired">
+        <Value>'Admin user email' is required</Value>
+    </LocaleResource>
+    <LocaleResource Name="AdminPasswordRequired">
+        <Value>'Admin user password' is required</Value>
+    </LocaleResource>
+    <LocaleResource Name="ConfirmPasswordRequired">
+        <Value>'Passwort confirmation' is required</Value>
+    </LocaleResource>
+    <LocaleResource Name="DbRawConnectionStringRequired">
+        <Value>'Connection string' is required</Value>
+    </LocaleResource>
+    <LocaleResource Name="DbServerRequired">
+        <Value>'Server name' is required</Value>
+    </LocaleResource>
+    <LocaleResource Name="DbNameRequired">
+        <Value>'Database name' is required</Value>
+    </LocaleResource>
+    <LocaleResource Name="DbUserIdRequired">
+        <Value>'Username' is required</Value>
+    </LocaleResource>
 </Language>

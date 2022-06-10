@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Common;
 using Smartstore.Core.Identity;
+using Smartstore.Core.Localization;
 using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Core.Checkout.Tax
@@ -52,6 +52,34 @@ namespace Smartstore.Core.Checkout.Tax
         /// <param name="customer">Customer. Obtained from <see cref="IWorkContext.CurrentCustomer"/> if <c>null</c>.</param>
         /// <returns>Tax rate.</returns>
         Task<TaxRate> GetTaxRateAsync(Product product, int? taxCategoryId = null, Customer customer = null);
+
+        /// <summary>
+        ///     Gets a tax formatting pattern that can be applied to
+        ///     <see cref="Money"/> values by calling <see cref="Money.WithPostFormat(string)"/>.
+        /// </summary>
+        /// <param name="displayTaxSuffix">
+        ///     A value indicating whether to display the tax suffix.
+        ///     If <c>null</c>, current setting will be obtained via <see cref="TaxSettings.DisplayTaxSuffix"/> and
+        ///     additionally via <see cref="TaxSettings.ShippingPriceIncludesTax"/> or <see cref="TaxSettings.PaymentMethodAdditionalFeeIncludesTax"/>
+        ///     according to <paramref name="target"/>.
+        /// </param>
+        /// <param name="priceIncludesTax">
+        ///     A value indicating whether given price includes tax already.
+        ///     If <c>null</c>, current setting will be obtained via <see cref="IWorkContext.TaxDisplayType"/>.
+        /// </param>
+        /// <param name="target">
+        ///     The target object to format price for. This parameter affects how <paramref name="displayTax"/>
+        ///     will be auto-resolved if it is <c>null</c>.
+        /// </param>
+        /// <param name="language">
+        ///     Language for tax suffix. If <c>null</c>, language will be obtained via <see cref="IWorkContext.WorkingLanguage"/>.
+        /// </param>
+        /// <returns>Money</returns>
+        string GetTaxFormat(
+            bool? displayTaxSuffix = null,
+            bool? priceIncludesTax = null,
+            PricingTarget target = PricingTarget.Product,
+            Language language = null);
 
         /// <summary>
         /// Checks the validity of a VAT number using an online service like VIES service of the EU.

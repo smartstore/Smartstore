@@ -103,6 +103,8 @@
 					<span class="pl-1">@priceModel.SavingAmount <span class="pd-saving-percent">(@priceModel.SavingPercent.ToString("N0") %)</span></span>
 				</div>
 			}
+
+            <zone name="@("productdetails_add_info{0}".FormatWith(isBundleItem ? "_bundle" : string.Empty))" />
         </div>
 
         <!-- Tier prices -->

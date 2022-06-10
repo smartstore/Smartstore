@@ -1,0 +1,22 @@
+﻿@model RecurringPaymentListModel
+
+@{
+    var stores = ViewBag.Stores as IList<SelectListItem>;
+}
+
+<div class="form-group">
+    <smart-label asp-for="CustomerName" />
+    <input asp-for="CustomerName" />
+</div>
+<div class="form-group">
+    <smart-label asp-for="CustomerEmail" />
+    <editor asp-for="CustomerEmail" asp-template="SearchExpression" />
+</div>
+<div class="form-group">
+    <smart-label asp-for="InitialOrderNumber" />
+    <input asp-for="InitialOrderNumber" />
+</div>
+<div sm-if="stores.Count > 1" class="form-group">
+    <smart-label asp-for="StoreId" />
+    <select asp-for="StoreId" asp-items="stores" asp-placeholder="@T("Admin.Common.All")"></select>
+</div>

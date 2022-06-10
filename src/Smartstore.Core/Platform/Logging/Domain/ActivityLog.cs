@@ -1,14 +1,11 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Newtonsoft.Json;
 using Smartstore.Core.Identity;
 using Smartstore.Data.Caching;
 using Smartstore.Data.Hooks;
-using Smartstore.Domain;
 
 namespace Smartstore.Core.Logging
 {
@@ -25,7 +22,6 @@ namespace Smartstore.Core.Logging
             builder
                 .HasOne(c => c.Customer)
                 .WithMany()
-                .IsRequired(false)
                 .HasForeignKey(c => c.CustomerId)
                 .OnDelete(DeleteBehavior.Cascade);
         }

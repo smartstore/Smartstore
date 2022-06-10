@@ -1,7 +1,4 @@
-﻿using System;
-using Smartstore.Domain;
-
-namespace Smartstore.Core.Seo
+﻿namespace Smartstore.Core.Seo
 {
     public class NamedEntity : BaseEntity, ISlugSupported
     {

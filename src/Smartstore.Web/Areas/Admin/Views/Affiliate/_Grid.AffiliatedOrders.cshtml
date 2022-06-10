@@ -4,7 +4,9 @@
 
 <datagrid id="order-grid" allow-resize="true" allow-column-reordering="true">
     <datasource read="@Url.Action("AffiliatedOrderList", "Affiliate", new { affiliateId = ViewData["AffiliateId"] })" />
-    <sorting enabled="true" />
+    <sorting enabled="true">
+        <sort by="CreatedOn" by-entity-member="CreatedOnUtc" descending="true" />
+    </sorting>
     <paging position="Bottom" show-size-chooser="true" />
     <columns>
         <column for="Id" hideable="false" type="string">
@@ -14,10 +16,10 @@
                 </a>
             </display-template>
         </column>
-        <column for="OrderStatus" />
-        <column for="PaymentStatus" />
-        <column for="ShippingStatus" />
-        <column for="CreatedOn" />
+        <column for="OrderStatus" entity-member="OrderStatusId" />
+        <column for="PaymentStatus" entity-member="PaymentStatusId" />
+        <column for="ShippingStatus" entity-member="ShippingStatusId" />
+        <column for="CreatedOn" entity-member="CreatedOnUtc" />
         <column for="OrderTotal" halign="flex-end" />
     </columns>
     <row-commands>

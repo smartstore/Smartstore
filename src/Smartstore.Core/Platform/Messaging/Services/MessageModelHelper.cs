@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Mvc;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Orders;
@@ -15,8 +10,7 @@ using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Messaging.Events;
 using Smartstore.Core.Stores;
-using Smartstore.Engine.Modularity;
-using Smartstore.Templating;
+using Smartstore.Events;
 using Smartstore.Utilities;
 using Smartstore.Utilities.Html;
 
@@ -25,40 +19,31 @@ namespace Smartstore.Core.Messaging
     public partial class MessageModelHelper
     {
         private readonly SmartDbContext _db;
-        private readonly ICommonServices _services;
-        private readonly ITemplateEngine _templateEngine;
-        private readonly IEmailAccountService _emailAccountService;
-        private readonly ILocalizationService _localizationService;
         private readonly IWorkContext _workContext;
+        private readonly IDateTimeHelper _dateTimeHelper;
+        private readonly IEventPublisher _eventPublisher;
+        private readonly ILocalizationService _localizationService;
         private readonly IMediaService _mediaService;
         private readonly IProductAttributeMaterializer _productAttributeMaterializer;
-        private readonly IDateTimeHelper _dtHelper;
-        private readonly ModuleManager _moduleManager;
-        private readonly IUrlHelper _urlHelper;
+        private readonly Lazy<IUrlHelper> _urlHelper;
 
         public MessageModelHelper(
             SmartDbContext db,
-            ICommonServices services,
-            ITemplateEngine templateEngine,
-            IEmailAccountService emailAccountService,
-            ILocalizationService localizationService,
             IWorkContext workContext,
+            IDateTimeHelper dateTimeHelper,
+            IEventPublisher eventPublisher,
+            ILocalizationService localizationService,
             IMediaService mediaService,
             IProductAttributeMaterializer productAttributeMaterializer,
-            IDateTimeHelper dtHelper,
-            ModuleManager moduleManager,
-            IUrlHelper urlHelper)
+            Lazy<IUrlHelper> urlHelper)
         {
             _db = db;
-            _services = services;
-            _templateEngine = templateEngine;
-            _emailAccountService = emailAccountService;
-            _localizationService = localizationService;
             _workContext = workContext;
+            _dateTimeHelper = dateTimeHelper;
+            _eventPublisher = eventPublisher;
+            _localizationService = localizationService;
             _mediaService = mediaService;
             _productAttributeMaterializer = productAttributeMaterializer;
-            _dtHelper = dtHelper;
-            _moduleManager = moduleManager;
             _urlHelper = urlHelper;
         }
 
@@ -77,25 +62,22 @@ namespace Smartstore.Core.Messaging
 
         public string BuildRouteUrl(object routeValues, MessageContext ctx)
         {
-            // TODO: (mh) (core) Test if URL resolution works correctly and ensure that routes did not change.
-            return ctx.BaseUri.GetLeftPart(UriPartial.Authority) + _urlHelper?.RouteUrl(routeValues);
+            return ctx.BaseUri.GetLeftPart(UriPartial.Authority) + _urlHelper.Value?.RouteUrl(routeValues);
         }
 
         public string BuildRouteUrl(string routeName, object routeValues, MessageContext ctx)
         {
-            // TODO: (mh) (core) Test if URL resolution works correctly and ensure that routes did not change.
-            return ctx.BaseUri.GetLeftPart(UriPartial.Authority) + _urlHelper?.RouteUrl(routeName, routeValues);
+            return ctx.BaseUri.GetLeftPart(UriPartial.Authority) + _urlHelper.Value?.RouteUrl(routeName, routeValues);
         }
 
         public string BuildActionUrl(string action, string controller, object routeValues, MessageContext ctx)
         {
-            // TODO: (mh) (core) Test if URL resolution works correctly and ensure that routes did not change.
-            return ctx.BaseUri.GetLeftPart(UriPartial.Authority) + _urlHelper?.Action(action, controller, routeValues);
+            return ctx.BaseUri.GetLeftPart(UriPartial.Authority) + _urlHelper.Value?.Action(action, controller, routeValues);
         }
 
         public async Task PublishModelPartCreatedEventAsync<T>(T source, dynamic part) where T : class
         {
-            await _services.EventPublisher.PublishAsync(new MessageModelPartCreatedEvent<T>(source, part));
+            await _eventPublisher.PublishAsync(new MessageModelPartCreatedEvent<T>(source, part));
         }
 
         public async Task<object> GetTopicAsync(string topicSystemName, MessageContext ctx)
@@ -118,11 +100,6 @@ namespace Smartstore.Core.Messaging
             };
         }
 
-        public string GetDisplayNameForCustomer(Customer customer)
-        {
-            return customer.GetFullName().NullEmpty() ?? customer.Username ?? customer.FindEmail();
-        }
-
         public string GetBoolResource(bool value, MessageContext ctx)
         {
             return _localizationService.GetResource(value ? "Common.Yes" : "Common.No", ctx.Language.Id);
@@ -133,10 +110,10 @@ namespace Smartstore.Core.Messaging
             if (utcDate == null)
                 return null;
 
-            return _dtHelper.ConvertToUserTime(
+            return _dateTimeHelper.ConvertToUserTime(
                 utcDate.Value,
                 TimeZoneInfo.Utc,
-                _dtHelper.GetCustomerTimeZone(messageContext.Customer));
+                _dateTimeHelper.GetCustomerTimeZone(messageContext.Customer));
         }
 
         public Money FormatPrice(decimal price, Order order, MessageContext messageContext)
@@ -216,7 +193,13 @@ namespace Smartstore.Core.Messaging
             return file;
         }
 
-        public object[] Concat(params object[] values)
+        public static string GetDisplayNameForCustomer(Customer customer)
+        {
+            return customer.GetFullName().NullEmpty() ?? customer.Username ?? customer.FindEmail();
+        }
+
+        // INFO: parameters must be of type 'string'. Type 'object' outputs nothing.
+        public static string[] GetValidValues(params string[] values)
         {
             return values.Where(x => CommonHelper.IsTruthy(x)).ToArray();
         }

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Smartstore.IO
+﻿namespace Smartstore.IO
 {
     public class FileSystemException : Exception
     {

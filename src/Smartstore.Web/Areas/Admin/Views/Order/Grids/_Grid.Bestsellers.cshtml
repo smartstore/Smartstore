@@ -1,0 +1,72 @@
+﻿@model BestsellersReportLineModel
+
+@{
+    var parentModel = ViewData["Parent"] as BestsellersReportModel;
+    var displayProductPictures = (bool)ViewBag.DisplayProductPictures;
+}
+
+<datagrid id="salesreport-grid"
+          allow-resize="true"
+          preserve-grid-state="true" preserve-command-state="true"
+          allow-column-reordering="true"
+          onrowclass="bestsellersGrid_onRowClass">
+    <datasource read="@Url.Action("BestsellersReportList")" />
+    <paging position="Bottom" show-size-chooser="true" />
+    <sorting allow-unsort="true" allow-multisort="false">
+        <sort by="TotalAmount" descending="true" />
+    </sorting>
+    <toolbar>
+        <toolbar-group>
+            <button datagrid-action="DataGridToolAction.ToggleSearchPanel" type="button" class="btn btn-light btn-icon">
+                <i class="fa fa-fw fa-filter"></i>
+            </button>
+        </toolbar-group>
+        <zone name="datagrid_toolbar_omega"></zone>
+    </toolbar>
+    <search-panel>
+        <partial name="Grids/_Grid.Bestsellers.Search" model="parentModel" />
+    </search-panel>
+    <columns>
+        @if (displayProductPictures)
+        {
+            <column for="PictureThumbnailUrl"
+                    title=""
+                    width="62px"
+                    sortable="false"
+                    visible="true"
+                    readonly="true"
+                    resizable="false"
+                    reorderable="false">
+                <display-template>
+                    <div v-if="item.row.Id > 0" class="d-flex align-items-center justify-content-center" style="position: absolute; width: 100%; height: 100%; left: 0; top: 0;">
+                        <img :alt="item.row.Id" :src="item.value" style="max-width: 42px; max-height: 32px;" />
+                    </div>
+                </display-template>
+            </column>
+        }
+        <column for="Id" halign="center" visible="false" type="string" sortable="false" />
+        <column for="Name" width="3fr" hideable="false" sortable="false">
+            <display-template>
+                @Html.LabeledProductName()
+            </display-template>
+        </column>
+        <column for="Sku" sortable="false" />
+        <column for="Gtin" visible="false" sortable="false" />
+        <column for="ManufacturerPartNumber" visible="false" sortable="false" />
+        <column for="Price" halign="flex-end" sortable="false" />
+        <column for="StockQuantity" halign="center" sortable="false" />
+        <column for="CreatedOn" entity-member="CreatedOnUtc" readonly="true" visible="false" sortable="false" />
+        <column for="UpdatedOn" entity-member="UpdatedOnUtc" readonly="true" visible="false" sortable="false" />
+        <column for="Published" halign="center" visible="false" sortable="false" />
+        <column for="TotalQuantity" halign="center" />
+        <column for="TotalAmount" halign="flex-end" />
+    </columns>
+</datagrid>
+
+<script sm-target-zone="scripts" data-origin="bestsellers-grid">
+    function bestsellersGrid_onRowClass(row) {
+        return {
+            "text-muted": row.TotalQuantity === '0'
+        };
+    }
+</script>

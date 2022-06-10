@@ -1,7 +1,4 @@
-﻿using System;
-using System.Threading;
-
-namespace Smartstore.Threading
+﻿namespace Smartstore.Threading
 {
     public sealed class UpgradeableReadLockDisposable : IDisposable
     {

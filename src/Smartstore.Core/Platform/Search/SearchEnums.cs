@@ -18,18 +18,13 @@
         Contains
     }
 
-    public enum SearchDocumentType
+    public enum IndexTypeCode
     {
-        Product = 0,
-        Category,
-        Manufacturer,
-        DeliveryTime,
-        Attribute,
-        AttributeValue,
-        Variant,
-        VariantValue,
-        Customer,
-        Forum,
-        ForumPost
+        Empty = 0,
+        Boolean = 3,
+        Int32 = 9,
+        Double = 14,
+        DateTime = 16,
+        String = 18
     }
 }

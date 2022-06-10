@@ -1,5 +1,4 @@
-﻿using System;
-using Autofac;
+﻿using Autofac;
 using Autofac.Core;
 using Microsoft.AspNetCore.Http;
 using Smartstore.ComponentModel;
@@ -9,6 +8,11 @@ namespace Smartstore
 {
     public static class HttpSessionExtensions
     {
+        public static bool ContainsKey(this ISession session, string key)
+        {
+            return session?.Get(key) != null;
+        }
+        
         public static T GetObject<T>(this ISession session, string key) where T : class
         {
             TryGetObject<T>(session, key, out var result);

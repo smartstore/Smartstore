@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-
-namespace Smartstore.Core.Rules.Rendering
+﻿namespace Smartstore.Core.Rules.Rendering
 {
     /// <summary>
     /// Interface to provide select list options (remote only) for rules. <seealso cref="RemoteRuleValueSelectList"/>.

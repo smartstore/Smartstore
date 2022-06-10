@@ -1,0 +1,97 @@
+﻿@model ConfigurationModel
+
+@{
+    Layout = "_ConfigureModule";
+}
+
+@await Component.InvokeAsync("StoreScope")
+
+<widget target-zone="admin_button_toolbar_before">
+    <button id="SaveConfigButton" type="submit" name="save" class="btn btn-warning" value="save">
+        <i class="fa fa-check"></i>
+        <span>@T("Admin.Common.Save")</span>
+    </button>
+</widget>
+
+<div class="plugin-configuration">
+    <div>
+        <div class="alert alert-info alert-dismissible">
+            @Html.Raw(@T("Plugins.Sms.Clickatell.AdminInstruction"))
+            <button class="close" data-dismiss="alert">&times;</button>
+        </div>
+    </div>
+    <div class="mt-5">
+        <a href="https://www.clickatell.com/" target="_blank">
+            <img src="@Url.Content("~/Modules/Smartstore.Clickatell/branding.png")" alt="Clickatell" />
+        </a>
+    </div>
+</div>
+
+<form asp-action="Configure">
+    <div asp-validation-summary="All"></div>
+
+    <div class="adminContent">
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="Enabled" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="Enabled"></setting-editor>
+                <span asp-validation-for="Enabled"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="PhoneNumber" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="PhoneNumber"></setting-editor>
+                <span asp-validation-for="PhoneNumber"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="ApiId" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="ApiId"></setting-editor>
+                <span asp-validation-for="ApiId"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="admin-config-group">
+                <div class="title">@T("Plugins.Sms.Clickatell.SendTest.Hint")</div>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="TestMessage" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="TestMessage"></setting-editor>
+                <span asp-validation-for="TestMessage"></span>
+            </div>
+        </div>
+        <div sm-if="Model.TestSmsResult.HasValue()" class="adminRow">
+            <div class="adminTitle">
+            </div>
+            <div class="adminData">
+                <div class="alert @(Model.TestSucceeded ? "alert-info" : "alert-danger") alert-dismissible">
+                    <div>@Model.TestSmsResult</div>
+                    <div>@Model.TestSmsDetailResult</div>
+                    <button class="close" data-dismiss="alert">&times;</button>
+                </div>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+            </div>
+            <div class="adminData">
+                <button type="submit" name="test-sms" value="test-sms" class="btn btn-secondary">
+                    <i class="fa fa-envelope"></i>
+                    <span>@T("Plugins.Sms.Clickatell.SendTest")</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</form>

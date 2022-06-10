@@ -1,18 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Smartstore.Core.Catalog.Brands;
+﻿using Smartstore.Core.Catalog.Brands;
 using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Content.Topics;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
-using Smartstore.Core.Widgets;
-using Smartstore.Domain;
 
 namespace Smartstore.Core.Content.Menus
 {
@@ -154,6 +145,7 @@ namespace Smartstore.Core.Content.Menus
                         Published = topic.IsPublished,
                         SubjectToAcl = topic.SubjectToAcl,
                         LimitedToStores = topic.LimitedToStores,
+                        // INFO: 'ShortTitle' is intended for links. 'Title' can be very long.
                         LocalizedPropertyNames = new[] { nameof(Topic.ShortTitle), nameof(Topic.Title) }
                     };
                 }

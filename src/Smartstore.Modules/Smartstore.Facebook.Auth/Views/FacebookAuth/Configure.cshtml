@@ -1,0 +1,54 @@
+﻿@using Smartstore.Facebook.Auth.Models
+
+@model ConfigurationModel
+
+@{
+    Layout = "_ConfigureProvider";
+}
+
+<div class="alert alert-info alert-dismissible">
+    @Html.Raw(T("Plugins.ExternalAuth.Facebook.AdminInstruction"))
+    <button class="close" data-dismiss="alert">&times;</button>
+</div>
+
+@await Component.InvokeAsync("StoreScope")
+
+<form asp-action="Configure">
+    <widget target-zone="admin_button_toolbar_before">
+        <button id="SaveConfigButton" type="submit" name="save" class="btn btn-warning" value="save">
+            <i class="fa fa-check"></i>
+            <span>@T("Admin.Common.Save")</span>
+        </button>
+    </widget>
+
+    <div asp-validation-summary="All"></div>
+
+    <div class="adminContent">
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="ClientKeyIdentifier" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="ClientKeyIdentifier"></setting-editor>
+                <span asp-validation-for="ClientKeyIdentifier"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="ClientSecret" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="ClientSecret"></setting-editor>
+                <span asp-validation-for="ClientSecret"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="RedirectUrl" />
+            </div>
+            <div class="adminData wide">
+                <input asp-for="RedirectUrl" class="form-control-plaintext" readonly />
+            </div>
+        </div>
+    </div>
+</form>

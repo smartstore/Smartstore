@@ -1,5 +1,4 @@
-﻿using System;
-using Smartstore.Core.Common.Settings;
+﻿using Smartstore.Core.Common.Settings;
 using Smartstore.Web.Modelling;
 
 namespace Smartstore.Web.Models.Pdf

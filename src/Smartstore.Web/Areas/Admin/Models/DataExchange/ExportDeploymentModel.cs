@@ -1,10 +1,8 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using FluentValidation;
 using Smartstore.Core.DataExchange;
 using Smartstore.Core.Localization;
 using Smartstore.IO;
-using Smartstore.Web.Modelling;
 
 namespace Smartstore.Admin.Models.Export
 {
@@ -53,9 +51,6 @@ namespace Smartstore.Admin.Models.Export
 
         [LocalizedDisplay("*EmailAccountId")]
         public int EmailAccountId { get; set; }
-
-        [LocalizedDisplay("*PassiveMode")]
-        public bool PassiveMode { get; set; }
 
         [LocalizedDisplay("*UseSsl")]
         public bool UseSsl { get; set; }

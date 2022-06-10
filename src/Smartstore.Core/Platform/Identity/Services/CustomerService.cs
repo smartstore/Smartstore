@@ -1,16 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using System.Text;
-using System.Threading.Tasks;
 using Dasync.Collections;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
@@ -22,49 +15,63 @@ namespace Smartstore.Core.Identity
 {
     public partial class CustomerService : ICustomerService
     {
-		#region Raw SQL
+        #region Raw SQL
 
-		private string GetSqlGenericAttributes(string paramClauses)
+        private static bool? _hasForumTables;
+
+        private async Task<bool> HasForumTables()
+            => _hasForumTables ??= await _db.DataProvider.HasTableAsync("Forums_Post");
+
+        private async Task<string> GetSqlGuestCustomerIds(string paramClauses)
         {
-			var tblOrder = _db.DataProvider.EncloseIdentifier("Order");
+            var tblOrder = _db.DataProvider.EncloseIdentifier("Order");
+            string sql;
 
-			return $@"
-DELETE TOP(50000) g
-  FROM GenericAttribute AS g
-  LEFT OUTER JOIN Customer AS c ON c.Id = g.EntityId
-  LEFT OUTER JOIN {tblOrder} AS o ON c.Id = o.CustomerId
-  LEFT OUTER JOIN CustomerContent AS cc ON c.Id = cc.CustomerId
-  LEFT OUTER JOIN Forums_PrivateMessage AS pm ON c.Id = pm.ToCustomerId
-  LEFT OUTER JOIN Forums_Post AS fp ON c.Id = fp.CustomerId
-  LEFT OUTER JOIN Forums_Topic AS ft ON c.Id = ft.CustomerId
-  WHERE g.KeyGroup = 'Customer' AND c.Username IS Null AND c.Email IS NULL AND c.IsSystemAccount = 0{paramClauses}
-	AND (NOT EXISTS (SELECT 1 AS C1 FROM {tblOrder} AS o1 WHERE c.Id = o1.CustomerId ))
-	AND (NOT EXISTS (SELECT 1 AS C1 FROM CustomerContent AS cc1 WHERE c.Id = cc1.CustomerId ))
-	AND (NOT EXISTS (SELECT 1 AS C1 FROM Forums_PrivateMessage AS pm1 WHERE c.Id = pm1.ToCustomerId ))
-	AND (NOT EXISTS (SELECT 1 AS C1 FROM Forums_Post AS fp1 WHERE c.Id = fp1.CustomerId ))
-	AND (NOT EXISTS (SELECT 1 AS C1 FROM Forums_Topic AS ft1 WHERE c.Id = ft1.CustomerId ))
-";
+            if (await HasForumTables())
+            {
+                sql = $@"SELECT c.Id FROM Customer c
+LEFT OUTER JOIN {tblOrder} AS o ON c.Id = o.CustomerId
+LEFT OUTER JOIN CustomerContent AS cc ON c.Id = cc.CustomerId
+LEFT OUTER JOIN Forums_PrivateMessage AS pm ON c.Id = pm.ToCustomerId
+LEFT OUTER JOIN Forums_Post AS fp ON c.Id = fp.CustomerId
+LEFT OUTER JOIN Forums_Topic AS ft ON c.Id = ft.CustomerId
+WHERE c.Username IS Null AND c.Email IS NULL AND c.IsSystemAccount = 0{paramClauses}
+AND (NOT EXISTS (SELECT 1 AS x FROM {tblOrder} AS o1 WHERE c.Id = o1.CustomerId))
+AND (NOT EXISTS (SELECT 1 AS x FROM CustomerContent AS cc1 WHERE c.Id = cc1.CustomerId))
+AND (NOT EXISTS (SELECT 1 AS x FROM Forums_PrivateMessage AS pm1 WHERE c.Id = pm1.ToCustomerId))
+AND (NOT EXISTS (SELECT 1 AS x FROM Forums_Post AS fp1 WHERE c.Id = fp1.CustomerId))
+AND (NOT EXISTS (SELECT 1 AS x FROM Forums_Topic AS ft1 WHERE c.Id = ft1.CustomerId))
+ORDER BY c.Id";
+            }
+            else
+            {
+                sql = $@"SELECT c.Id FROM Customer c
+LEFT OUTER JOIN {tblOrder} AS o ON c.Id = o.CustomerId
+LEFT OUTER JOIN CustomerContent AS cc ON c.Id = cc.CustomerId
+WHERE c.Username IS Null AND c.Email IS NULL AND c.IsSystemAccount = 0{paramClauses}
+AND (NOT EXISTS (SELECT 1 AS x FROM {tblOrder} AS o1 WHERE c.Id = o1.CustomerId))
+AND (NOT EXISTS (SELECT 1 AS x FROM CustomerContent AS cc1 WHERE c.Id = cc1.CustomerId))
+ORDER BY c.Id";
+            }
+
+            return _db.DataProvider.ApplyPaging(sql, 0, 20000);
+        }
+
+        private static string GetSqlDeleteGenericAttributes(string sqlGuestCustomerIds)
+        {
+			return $@"DELETE g FROM GenericAttribute g
+INNER JOIN (
+{sqlGuestCustomerIds}
+) sub_c on g.EntityId = sub_c.Id
+WHERE KeyGroup = 'Customer'";
 		}
 
-		private string GetSqlGuestCustomers(string paramClauses)
+		private static string GetSqlDeleteGuestCustomers(string sqlGuestCustomerIds)
 		{
-			var tblOrder = _db.DataProvider.EncloseIdentifier("Order");
-
-			return $@"
-DELETE TOP(20000) c
-  FROM Customer AS c
-  LEFT OUTER JOIN {tblOrder} AS o ON c.Id = o.CustomerId
-  LEFT OUTER JOIN CustomerContent AS cc ON c.Id = cc.CustomerId
-  LEFT OUTER JOIN Forums_PrivateMessage AS pm ON c.Id = pm.ToCustomerId
-  LEFT OUTER JOIN Forums_Post AS fp ON c.Id = fp.CustomerId
-  LEFT OUTER JOIN Forums_Topic AS ft ON c.Id = ft.CustomerId
-  WHERE c.Username IS Null AND c.Email IS NULL AND c.IsSystemAccount = 0{paramClauses}
-	AND (NOT EXISTS (SELECT 1 AS x FROM {tblOrder} AS o1 WHERE c.Id = o1.CustomerId ))
-	AND (NOT EXISTS (SELECT 1 AS x FROM CustomerContent AS cc1 WHERE c.Id = cc1.CustomerId ))
-	AND (NOT EXISTS (SELECT 1 AS x FROM Forums_PrivateMessage AS pm1 WHERE c.Id = pm1.ToCustomerId ))
-	AND (NOT EXISTS (SELECT 1 AS x FROM Forums_Post AS fp1 WHERE c.Id = fp1.CustomerId ))
-	AND (NOT EXISTS (SELECT 1 AS x FROM Forums_Topic AS ft1 WHERE c.Id = ft1.CustomerId ))
-";
+			return $@"DELETE c FROM Customer c
+INNER JOIN (
+{sqlGuestCustomerIds}
+) sub_c on c.Id = sub_c.Id";
 		}
 
 		#endregion
@@ -176,7 +183,8 @@ DELETE TOP(20000) c
 		public virtual async Task<int> DeleteGuestCustomersAsync(
 			DateTime? registrationFrom,
 			DateTime? registrationTo,
-			bool onlyWithoutShoppingCart)
+			bool onlyWithoutShoppingCart,
+			CancellationToken cancelToken = default)
 		{
 			var paramClauses = new StringBuilder();
 			var parameters = new List<object>();
@@ -196,16 +204,17 @@ DELETE TOP(20000) c
 			}
 			if (onlyWithoutShoppingCart)
 			{
-				paramClauses.Append(" AND (NOT EXISTS (SELECT 1 AS C1 FROM ShoppingCartItem AS sci WHERE c.Id = sci.CustomerId ))");
+				paramClauses.Append(" AND (NOT EXISTS (SELECT 1 AS C1 FROM ShoppingCartItem AS sci WHERE c.Id = sci.CustomerId))");
 			}
 
-			var sqlGenericAttributes = GetSqlGenericAttributes(paramClauses.ToString());
-			var sqlGuestCustomers = GetSqlGuestCustomers(paramClauses.ToString());
+			var sqlGuestCustomerIds = await GetSqlGuestCustomerIds(paramClauses.ToString());
+			var sqlGenericAttributes = GetSqlDeleteGenericAttributes(sqlGuestCustomerIds);
+			var sqlGuestCustomers = GetSqlDeleteGuestCustomers(sqlGuestCustomerIds);
 
 			// Delete generic attributes.
 			while (true)
 			{
-				var numDeleted = await _db.Database.ExecuteSqlRawAsync(sqlGenericAttributes, parameters.ToArray());
+				var numDeleted = await _db.Database.ExecuteSqlRawAsync(sqlGenericAttributes, parameters.ToArray(), cancelToken);
 				if (numDeleted <= 0)
 				{
 					break;
@@ -217,7 +226,7 @@ DELETE TOP(20000) c
 			// Delete guest customers.
 			while (true)
 			{
-				var numDeleted = await _db.Database.ExecuteSqlRawAsync(sqlGuestCustomers, parameters.ToArray());
+				var numDeleted = await _db.Database.ExecuteSqlRawAsync(sqlGuestCustomers, parameters.ToArray(), cancelToken);
 				if (numDeleted <= 0)
 				{
 					break;
@@ -356,7 +365,8 @@ DELETE TOP(20000) c
 
 			if (_rewardPointsSettings.Enabled && _rewardPointsSettings.PointsForProductReview > 0)
 			{
-				var message = T(add ? "RewardPoints.Message.EarnedForProductReview" : "RewardPoints.Message.ReducedForProductReview", product.GetLocalized(x => x.Name)).ToString();
+				var productName = product?.GetLocalized(x => x.Name) ?? StringExtensions.NotAvailable;
+				var message = T(add ? "RewardPoints.Message.EarnedForProductReview" : "RewardPoints.Message.ReducedForProductReview", productName).ToString();
 
 				customer.AddRewardPointsHistoryEntry(_rewardPointsSettings.PointsForProductReview * (add ? 1 : -1), message);
 			}

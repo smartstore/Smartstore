@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Smartstore.Imaging
+﻿namespace Smartstore.Imaging
 {
     /// <summary>
     /// Provides enumeration for the available image quantization methods.
@@ -14,21 +12,33 @@ namespace Smartstore.Imaging
     }
 
     /// <summary>
-    /// Enumerates the chroma subsampling method applied to the image.
+    /// Provides enumeration of available JPEG color types.
     /// </summary>
-    public enum JpegSubsample
+    public enum JpegColorType : byte
     {
         /// <summary>
-        /// High Quality - Each of the three Y'CbCr components have the same sample rate,
-        /// thus there is no chroma subsampling.
-        /// </summary>
-        Ratio444,
-
-        /// <summary>
+        /// YCbCr (luminance, blue chroma, red chroma) color as defined in the ITU-T T.871 specification.
         /// Medium Quality - The horizontal sampling is halved and the Cb and Cr channels are only
         /// sampled on each alternate line.
         /// </summary>
-        Ratio420
+        YCbCrRatio420 = 0,
+
+        /// <summary>
+        /// YCbCr (luminance, blue chroma, red chroma) color as defined in the ITU-T T.871 specification.
+        /// High Quality - Each of the three Y'CbCr components have the same sample rate,
+        /// thus there is no chroma subsampling.
+        /// </summary>
+        YCbCrRatio444 = 1,
+
+        /// <summary>
+        /// Single channel, luminance.
+        /// </summary>
+        Luminance = 5,
+
+        /// <summary>
+        /// The pixel data will be preserved as RGB without any sub sampling.
+        /// </summary>
+        Rgb = 6
     }
 
     /// <summary>
@@ -115,24 +125,14 @@ namespace Smartstore.Imaging
     public enum PngCompressionLevel
     {
         /// <summary>
-        /// Level 0. Equivalent to <see cref="NoCompression"/>.
+        /// No compression (Level 0).
         /// </summary>
-        Level0 = 0,
+        NoCompression = 0,
 
         /// <summary>
-        /// No compression. Equivalent to <see cref="Level0"/>.
+        /// Best speed compression level (Level 1).
         /// </summary>
-        NoCompression = Level0,
-
-        /// <summary>
-        /// Level 1. Equivalent to <see cref="BestSpeed"/>.
-        /// </summary>
-        Level1 = 1,
-
-        /// <summary>
-        /// Best speed compression level.
-        /// </summary>
-        BestSpeed = Level1,
+        BestSpeed = 1,
 
         /// <summary>
         /// Level 2.
@@ -155,14 +155,9 @@ namespace Smartstore.Imaging
         Level5 = 5,
 
         /// <summary>
-        /// Level 6. Equivalent to <see cref="DefaultCompression"/>.
+        /// The default compression level (Level 6).
         /// </summary>
-        Level6 = 6,
-
-        /// <summary>
-        /// The default compression level. Equivalent to <see cref="Level6"/>.
-        /// </summary>
-        DefaultCompression = Level6,
+        DefaultCompression = 6,
 
         /// <summary>
         /// Level 7.
@@ -175,14 +170,9 @@ namespace Smartstore.Imaging
         Level8 = 8,
 
         /// <summary>
-        /// Level 9. Equivalent to <see cref="BestCompression"/>.
+        /// Best compression level (Level 9).
         /// </summary>
-        Level9 = 9,
-
-        /// <summary>
-        /// Best compression level. Equivalent to <see cref="Level9"/>.
-        /// </summary>
-        BestCompression = Level9,
+        BestCompression = 9,
     }
 
     /// <summary>
@@ -253,5 +243,62 @@ namespace Smartstore.Imaging
         /// All ancillary chunks will be excluded.
         /// </summary>
         ExcludeAll = ~None
+    }
+
+    /// <summary>
+    /// Info about the webp file format used.
+    /// </summary>
+    public enum WebpFileFormatType
+    {
+        /// <summary>
+        /// The lossless webp format.
+        /// </summary>
+        Lossless,
+
+        /// <summary>
+        /// The lossy webp format.
+        /// </summary>
+        Lossy,
+    }
+
+    /// <summary>
+    /// Quality/speed trade-off for the webp encoding process (0=fast, 6=slower-better).
+    /// </summary>
+    public enum WebpEncodingMethod
+    {
+        /// <summary>
+        /// Fastest (Level 0), but quality compromise.
+        /// </summary>
+        Fastest = 0,
+
+        /// <summary>
+        /// Level1.
+        /// </summary>
+        Level1 = 1,
+
+        /// <summary>
+        /// Level 2.
+        /// </summary>
+        Level2 = 2,
+
+        /// <summary>
+        /// Level 3.
+        /// </summary>
+        Level3 = 3,
+
+        /// <summary>
+        /// BestQuality trade off between speed and quality (Level 4).
+        /// </summary>
+        Default = 4,
+
+        /// <summary>
+        /// Level 5.
+        /// </summary>
+        Level5 = 5,
+
+        /// <summary>
+        /// Slowest option, but best quality (Level 6).
+        /// </summary>
+        BestQuality = 6
     }
 }

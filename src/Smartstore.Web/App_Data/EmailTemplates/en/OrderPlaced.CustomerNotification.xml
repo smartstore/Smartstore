@@ -10,7 +10,7 @@
   Hello {{ Customer.FullName }},
 </h1>
 <p>
-  thanks for your order at <a href="{{ Store.URL }}">{{ Store.Name }}</a> which we hereby confirm. A summary for this order can be found below.
+  thanks for your order at <a href="{{ Store.Url }}">{{ Store.Name }}</a> which we hereby confirm. A summary for this order can be found below.
 </p>
 
 <table class="w-100 mb-3">

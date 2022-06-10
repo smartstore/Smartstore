@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Smartstore.Core.Content.Topics;
+﻿using Smartstore.Core.Content.Topics;
 
 namespace Smartstore.Core.Data
 {

@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+﻿using System.Net.Mime;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Products;
@@ -13,14 +8,12 @@ using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Common.Settings;
-using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Engine.Modularity;
 using Smartstore.Pdf;
 using Smartstore.Web.Models.Orders;
-using Smartstore.Web.Razor;
 
 namespace Smartstore.Web.Controllers
 {
@@ -34,10 +27,9 @@ namespace Smartstore.Web.Controllers
         private readonly IDateTimeHelper _dateTimeHelper;
         private readonly ProductUrlHelper _productUrlHelper;
         private readonly IProviderManager _providerManager;
-        private readonly Lazy<IUrlHelper> _urlHelper;
         private readonly IPdfConverter _pdfConverter;
-        private readonly PdfSettings _pdfSettings;
-        
+        private readonly OrderSettings _orderSettings;
+
         public OrderController(
             SmartDbContext db,
             IOrderProcessingService orderProcessingService,
@@ -47,9 +39,8 @@ namespace Smartstore.Web.Controllers
             IDateTimeHelper dateTimeHelper, 
             IProviderManager providerManager,
             ProductUrlHelper productUrlHelper,
-            Lazy<IUrlHelper> urlHelper,
             IPdfConverter pdfConverter,
-            PdfSettings pdfSettings)
+            OrderSettings orderSettings)
         {
             _db = db;
             _orderProcessingService = orderProcessingService;
@@ -59,9 +50,8 @@ namespace Smartstore.Web.Controllers
             _dateTimeHelper = dateTimeHelper;
             _providerManager = providerManager;
             _productUrlHelper = productUrlHelper;
-            _urlHelper = urlHelper;
             _pdfConverter = pdfConverter;
-            _pdfSettings = pdfSettings;
+            _orderSettings = orderSettings;
         }
 
         [RequireSsl]
@@ -80,6 +70,7 @@ namespace Smartstore.Web.Controllers
                 return new UnauthorizedResult();
 
             var model = await _orderHelper.PrepareOrderDetailsModelAsync(order);
+
             return View(model);
         }
 
@@ -112,28 +103,29 @@ namespace Smartstore.Web.Controllers
             IList<Order> orders = null;
             var totalCount = 0;
 
+            var orderQuery = _db.Orders
+                .IncludeBillingAddress()
+                .IncludeShippingAddress()
+                .AsNoTracking();
+
             if (ids != null)
             {
-                orders = await _db.Orders
-                    .AsNoTracking()
+                orders = await orderQuery
                     .Where(x => ids.ToIntArray().Contains(x.Id))
                     .ToListAsync();
 
                 totalCount = orders.Count;
             }
             else
-            {
-                var pagedOrders = _db.Orders
-                    .AsNoTracking()
+            {                   
+                totalCount = await orderQuery
                     .ApplyStandardFilter()
-                    .ToPagedList(0, 1);
-                    
-                totalCount = await pagedOrders.GetTotalCountAsync();
+                    .ToPagedList(0, 1)
+                    .GetTotalCountAsync();
 
                 if (totalCount > 0 && totalCount <= maxOrders)
                 {
-                    orders = await _db.Orders
-                        .AsNoTracking()
+                    orders = await orderQuery
                         .ApplyStandardFilter()
                         .ToPagedList(0, int.MaxValue)
                         .LoadAsync();
@@ -179,13 +171,13 @@ namespace Smartstore.Web.Controllers
                 {
                     Size = pdfSettings.LetterPageSizeEnabled ? PdfPageSize.Letter : PdfPageSize.A4,
                     Margins = new PdfPageMargins { Top = 35, Bottom = 35 },
-                    Header = _pdfConverter.CreateFileInput(_urlHelper.Value.Action("ReceiptHeader", "Pdf", routeValues)),
-                    Footer = _pdfConverter.CreateFileInput(_urlHelper.Value.Action("ReceiptFooter", "Pdf", routeValues)),
+                    Header = _pdfConverter.CreateFileInput(Url.Action("ReceiptHeader", "Pdf", routeValues)),
+                    Footer = _pdfConverter.CreateFileInput(Url.Action("ReceiptFooter", "Pdf", routeValues)),
                     Page = _pdfConverter.CreateHtmlInput(await InvokeViewAsync(viewName, model))
                 };
 
                 var output = await _pdfConverter.GeneratePdfAsync(conversionSettings);
-                return File(output, "application/pdf", pdfFileName);
+                return File(output, MediaTypeNames.Application.Pdf, pdfFileName);
             }
 
             return View(viewName, model);
@@ -205,10 +197,10 @@ namespace Smartstore.Web.Controllers
                 return new UnauthorizedResult();
 
             await _orderProcessingService.ReOrderAsync(order);
+
             return RedirectToRoute("ShoppingCart");
         }
 
-        // TODO: (mh) (core) || TODO: (mg) (core) Untested :-o Test when payment methods are available which permit RePostPayment.
         [HttpPost, ActionName("Details")]
         [FormValueRequired("repost-payment")]
         public async Task<IActionResult> RePostPayment(int id /* orderId */)
@@ -241,10 +233,11 @@ namespace Smartstore.Web.Controllers
             }
             catch (Exception ex)
             {
+                Logger.Error(ex);
                 NotifyError(ex);
             }
 
-            return RedirectToAction("Details", "Order", new { id = order.Id });
+            return RedirectToAction(nameof(Details), "Order", new { id = order.Id });
         }
 
         [RequireSsl]
@@ -358,7 +351,7 @@ namespace Smartstore.Web.Controllers
                     .Include(x => x.Product)
                     .FindByIdAsync(shipmentItem.OrderItemId, false);
                     
-                if (orderItem == null)
+                if (orderItem == null || orderItem.Product == null)
                     continue;
 
                 var attributeCombination = await _productAttributeMaterializer.FindAttributeCombinationAsync(orderItem.Product.Id, orderItem.AttributeSelection);
@@ -392,6 +385,11 @@ namespace Smartstore.Web.Controllers
             if (!await Services.Permissions.AuthorizeAsync(Permissions.Order.Read))
             {
                 result = result || (order.StoreId != 0 && order.StoreId != Services.StoreContext.CurrentStore.Id);
+
+                if (_orderSettings.DisplayOrdersOfAllStores)
+                {
+                    result = false;
+                }
             }
 
             return result;

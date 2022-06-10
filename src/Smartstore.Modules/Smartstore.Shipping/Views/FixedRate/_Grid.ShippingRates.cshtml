@@ -1,0 +1,20 @@
+﻿@using Smartstore.Shipping.Models
+
+@model FixedRateModel
+
+<datagrid id="fixed-rate-grid" 
+          key-member="ShippingMethodId"
+          allow-resize="true"
+          allow-column-reordering="true"
+          allow-edit="true">
+    <datasource read="@Url.Action("FixedRateList", "FixedRate")"
+                update="@Url.Action("FixedRateUpdate", "FixedRate")" />
+    <paging position="Bottom" page-index="1" show-size-chooser="true" />
+    <columns>
+        <column for="ShippingMethodName" width="2fr" hideable="false" readonly />
+        <column for="Rate" width="1fr" />
+    </columns>
+    <row-commands>
+        <a datarow-action="DataRowAction.InlineEdit">@T("Common.Edit")</a>
+    </row-commands>
+</datagrid>

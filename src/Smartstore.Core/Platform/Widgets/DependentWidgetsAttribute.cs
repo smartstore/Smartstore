@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Smartstore.Core.Widgets
+﻿namespace Smartstore.Core.Widgets
 {
     /// <summary>
     /// Enables provider developers to specify one or many widgets, which

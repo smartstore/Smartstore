@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Smartstore.Core.Identity;
+﻿using Smartstore.Core.Identity;
 using Smartstore.Web.Models.Common;
 
 namespace Smartstore.Web.Components

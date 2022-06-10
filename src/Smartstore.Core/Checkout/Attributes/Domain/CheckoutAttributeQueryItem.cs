@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Smartstore.Core.Checkout.Attributes
+﻿namespace Smartstore.Core.Checkout.Attributes
 {
     public class CheckoutAttributeQueryItem
     {

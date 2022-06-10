@@ -1,11 +1,7 @@
-﻿using System;
-using System.IO;
-using System.IO.Compression;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.IO.Compression;
 using Newtonsoft.Json;
-using Smartstore.Engine;
 using Smartstore.Engine.Modularity;
+using Smartstore.IO;
 using Smartstore.Utilities;
 
 namespace Smartstore.Core.Packaging
@@ -18,20 +14,25 @@ namespace Smartstore.Core.Packaging
             "*.obj", "*.pdb", "*.exclude", "*.cs", "*.deps.json"
         }.Select(x => new Wildcard(x)).ToArray();
 
-        private readonly IApplicationContext _appContext;
+        private readonly IFileSystem _contentRoot;
         
         public PackageBuilder(IApplicationContext appContext)
         {
-            _appContext = appContext;
+            _contentRoot = appContext.ContentRoot;
+        }
+
+        public PackageBuilder(IFileSystem contentRoot)
+        {
+            _contentRoot = Guard.NotNull(contentRoot, nameof(contentRoot));
         }
 
         public async Task<ExtensionPackage> BuildPackageAsync(IExtensionDescriptor extension)
         {
             Guard.NotNull(extension, nameof(extension));
             
-            if (extension is not IExtensionLocation location)
+            if (extension is not IExtensionLocation)
             {
-                throw new InvalidExtensionException();
+                throw new InvalidExtensionException($"Extension '{extension.Name}' cannot be packaged because it cannot be located on local file system.");
             }
 
             var manifest = new MinimalExtensionDescriptor(extension);
@@ -54,11 +55,7 @@ namespace Smartstore.Core.Packaging
 
         private async Task EmbedManifest(ZipArchive archive, MinimalExtensionDescriptor manifest)
         {
-            var json = JsonConvert.SerializeObject(manifest, new JsonSerializerSettings 
-            {
-                Formatting = Formatting.Indented,
-                NullValueHandling = NullValueHandling.Ignore
-            });
+            var json = JsonConvert.SerializeObject(manifest, Formatting.Indented);
 
             var memStream = new MemoryStream();
             using (var streamWriter = new StreamWriter(memStream, leaveOpen: true))
@@ -74,7 +71,7 @@ namespace Smartstore.Core.Packaging
         {
             var location = extension as IExtensionLocation;
 
-            foreach (var file in _appContext.ContentRoot.EnumerateFiles(location.Path, deep: true))
+            foreach (var file in _contentRoot.EnumerateFiles(location.Path, deep: true))
             {
                 // Skip ignores files
                 if (IgnoreFile(file.SubPath))
@@ -82,7 +79,7 @@ namespace Smartstore.Core.Packaging
                     continue;
                 }
 
-                await CreateArchiveEntry(archive, file.SubPath, file.OpenRead());
+                await CreateArchiveEntry(archive, file.SubPath, await file.OpenReadAsync());
             }
         }
 

@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using Smartstore.Core.Catalog.Products;
-using Smartstore.Core.Common;
+﻿using Smartstore.Core.Catalog.Products;
 
 namespace Smartstore.Core.Checkout.Payment
 {
     /// <summary>
     /// Represents a payment info holder.
     /// </summary>
-    public partial class ProcessPaymentRequest : PaymentRequest
+    public partial class ProcessPaymentRequest
     {
         /// <summary>
         /// Gets or sets a store identifier.
@@ -26,9 +23,10 @@ namespace Smartstore.Core.Checkout.Payment
         public Guid OrderGuid { get; set; }
 
         /// <summary>
-        /// Gets or sets an order total.
+        /// Gets or sets the order total in primary currency. 
+        /// This value is not rounded so that it can be converted to the <see cref="IWorkContext.WorkingCurrency"/> if required.
         /// </summary>
-        public Money OrderTotal { get; set; }
+        public decimal OrderTotal { get; set; }
 
         /// <summary>
         /// Gets or sets an order tax total.
@@ -44,10 +42,6 @@ namespace Smartstore.Core.Checkout.Payment
         /// Gets or sets a payment method identifier.
         /// </summary>
         public bool IsMultiOrder { get; set; }
-
-        // Obsolete! Use CheckoutState instead. (Was only used by Payone plugin in the early days anyway.)
-        /// <summary>Use that dictionary for any payment method or checkout flow specific data.</summary>
-        //public Dictionary<string, CustomPaymentRequestValue> CustomProperties { get; set; } = new();
 
         /// <summary>
         /// All shopping cart item identifiers.
@@ -87,9 +81,9 @@ namespace Smartstore.Core.Checkout.Payment
         public string CreditCardCvv2 { get; set; }
 
         /// <summary>
-        /// Gets or sets a paypal payer token (required for Paypal payment methods).
+        /// Gets or sets a PayPal order id.
         /// </summary>
-        public string PaypalToken { get; set; }
+        public string PaypalOrderId { get; set; }
 
         /// <summary>
         /// Gets or sets a paypal payer identifier (required for Paypal payment methods).
@@ -191,18 +185,5 @@ namespace Smartstore.Core.Checkout.Payment
         public int RecurringTotalCycles { get; set; }
 
         #endregion
-    }
-
-    public partial class CustomPaymentRequestValue
-    {
-        /// <summary>
-        /// The value of the custom property.
-        /// </summary>
-        public object Value { get; set; }
-
-        /// <summary>
-        /// A value indicating whether to automatically create a generic attribute if an order has been placed.
-        /// </summary>
-        public bool AutoCreateGenericAttribute { get; set; }
     }
 }

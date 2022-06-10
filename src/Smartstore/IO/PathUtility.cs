@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Linq;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using Microsoft.Extensions.Primitives;
 
 namespace Smartstore.IO
@@ -42,7 +39,7 @@ namespace Smartstore.IO
         /// <param name="toPath">To path</param>
         /// <param name="sep">Directory separator</param>
         /// <returns>The relative path</returns>
-        public static string MakeRelativePath(string fromPath, string toPath, string sep = "\\")
+        public static string MakeRelativePath(string fromPath, string toPath, char sep = '\\')
         {
             var fromParts = fromPath.Tokenize(PathSeparators, StringSplitOptions.RemoveEmptyEntries);
             var toParts = toPath.Tokenize(PathSeparators, StringSplitOptions.RemoveEmptyEntries);
@@ -135,7 +132,7 @@ namespace Smartstore.IO
 
             var result = paths[0];
 
-            if (paths.Length == 1)
+            if (paths.Length == 1 || (paths.Length == 2 && string.IsNullOrEmpty(paths[1])))
             {
                 return result;
             }   
@@ -289,7 +286,7 @@ namespace Smartstore.IO
 
         public static string EnsureTrailingSlash(string path)
         {
-            if (!string.IsNullOrEmpty(path) && path[path.Length - 1] != Path.DirectorySeparatorChar)
+            if (!string.IsNullOrEmpty(path) && path[^1] != Path.DirectorySeparatorChar)
             {
                 return path.TrimEnd(' ', Path.AltDirectorySeparatorChar) + Path.DirectorySeparatorChar;
             }

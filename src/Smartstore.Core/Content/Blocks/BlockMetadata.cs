@@ -1,5 +1,4 @@
-﻿using System;
-using Smartstore.Engine.Modularity;
+﻿using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Core.Content.Blocks
 {
@@ -8,7 +7,7 @@ namespace Smartstore.Core.Content.Blocks
     /// </summary>
     public interface IBlockMetadata : IProviderMetadata
     {
-        string AreaName { get; }
+        string ModuleName { get; }
         string Icon { get; }
         bool IsInternal { get; }
         bool IsInbuilt { get; }
@@ -18,7 +17,7 @@ namespace Smartstore.Core.Content.Blocks
 
     public class BlockMetadata : IBlockMetadata, ICloneable<BlockMetadata>
     {
-        public string AreaName { get; set; }
+        public string ModuleName { get; set; }
         public string SystemName { get; set; }
         public string FriendlyName { get; set; }
         public string Description { get; set; }

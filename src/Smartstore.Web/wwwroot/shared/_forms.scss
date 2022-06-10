@@ -200,15 +200,26 @@ fieldset.content-group {
 }
 
 .validation-summary-errors {
-    @extend .alert-danger; 
+    @extend .alert-danger;
+}
+
+.field-validation-error,
+.field-validation-valid {
+    display: block;
+    font-size: $font-size-sm;
+    width: 100%;
+
+    &:not(:empty) {
+        margin-top: 0.25rem;
+    }
 }
 
 .field-validation-error {
-	display: block;
 	color: $form-feedback-invalid-color;
-	font-size: $font-size-sm;
-	margin-top: 0.25rem;
-	width: 100%;
+}
+
+.field-validation-valid {
+	color: $form-feedback-valid-color;
 }
 
 .is-valid,

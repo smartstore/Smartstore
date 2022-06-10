@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Microsoft.Extensions.Logging
+﻿namespace Microsoft.Extensions.Logging
 {
     public static class LoggerExtensions
     {
@@ -135,7 +133,7 @@ namespace Microsoft.Extensions.Logging
 
         public static void Error(this ILogger l, Exception ex, params object[] args)
         {
-            l.LogError(ex, null, args);
+            l.LogError(ex, ex.Message, args);
         }
 
         public static void Error(this ILogger l, Func<string> msgFactory, params object[] args)

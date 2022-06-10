@@ -1,5 +1,4 @@
 ﻿using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 using Smartstore.Core.Rules;
 
 namespace Smartstore.Core.Checkout.Rules

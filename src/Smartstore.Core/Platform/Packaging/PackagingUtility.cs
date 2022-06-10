@@ -1,5 +1,4 @@
-﻿using System;
-using Smartstore.Engine.Modularity;
+﻿using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Core.Packaging
 {

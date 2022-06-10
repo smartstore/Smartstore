@@ -117,11 +117,13 @@
                         </div>
 
                         <div sm-if="item.Warnings.Any()" class="alert alert-danger">
-                            @foreach(var warning in item.Warnings)
+                            @foreach (var warning in item.Warnings)
                             {
                                 <p>@warning</p>
                             }
                         </div>
+                        
+                        <zone name="cartitem_desc_after" model="item.Id"></zone>
                     </div>
 
                     <div sm-if="Model.IsEditable" class="col col-auto">
@@ -163,7 +165,6 @@
                     {
                         htmlAttributes = new
                         {
-                            @class = "ajax-action-link",
                             data_href= Url.Action("UpdateCartItem", "ShoppingCart", new { sciItemId = item.Id, isCartPage = true }),
                             data_sci_item = item.Id,
                             id = $"itemquantity{item.Id}",

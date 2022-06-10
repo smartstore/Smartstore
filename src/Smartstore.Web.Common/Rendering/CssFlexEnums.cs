@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Smartstore.Web.Rendering
+﻿namespace Smartstore.Web.Rendering
 {
     public enum FlexFlow
     {

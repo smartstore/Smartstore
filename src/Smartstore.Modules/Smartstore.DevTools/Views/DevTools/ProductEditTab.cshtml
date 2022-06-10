@@ -1,0 +1,22 @@
+﻿@using Smartstore.DevTools.Models;
+
+@model BackendExtensionModel
+
+@{
+    Layout = "";
+}
+
+<input type="hidden" name="CustomProperties[DevTools].__Type__" value="@Model.GetType().AssemblyQualifiedName" />
+<input type="hidden" asp-for="ProductId" />
+
+<div class="adminContent">
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Welcome" />
+        </div>
+        <div class="adminData">
+            <input asp-for="Welcome" />
+            <span asp-validation-for="Welcome"></span>
+        </div>
+    </div>
+</div>

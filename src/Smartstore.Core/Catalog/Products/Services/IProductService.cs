@@ -1,10 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Smartstore.Collections;
+﻿using Smartstore.Collections;
 using Smartstore.Core.Catalog.Attributes;
-using Smartstore.Core.Catalog.Discounts;
-using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Stores;
@@ -29,28 +24,12 @@ namespace Smartstore.Core.Catalog.Products
             bool tracked = false);
 
         /// <summary>
-        /// Gets low stock products.
-        /// </summary>
-        /// <param name="tracked">A value indicating whether to put prefetched entities to EF change tracker.</param>
-        /// <returns>List of low stock products.</returns>
-        IQueryable<Product> GetLowStockProducts(bool tracked = false);
-
-        /// <summary>
         /// Gets product tags by product identifiers.
         /// </summary>
         /// <param name="productIds">Product identifiers.</param>
         /// <param name="includeHidden">A value indicating whether to include hidden products and product tags.</param>
         /// <returns>Map of product tags.</returns>
         Task<Multimap<int, ProductTag>> GetProductTagsByProductIdsAsync(int[] productIds, bool includeHidden = false);
-
-        /// <summary>
-        /// Get applied discounts by product identifiers.
-        /// </summary>
-        /// <param name="productIds">Product identifiers.</param>
-        /// <param name="includeHidden">A value indicating whether to include hidden products.</param>
-        /// <param name="tracked">A value indicating whether to put prefetched entities to EF change tracker.</param>
-        /// <returns>Map of discounts.</returns>
-        Task<Multimap<int, Discount>> GetAppliedDiscountsByProductIdsAsync(int[] productIds, bool includeHidden = false, bool tracked = false);
 
         /// <summary>
         /// Gets cross-sell products by shopping cart.

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using Smartstore.Collections;
+﻿using Smartstore.Collections;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Checkout.Orders;
@@ -87,32 +82,6 @@ namespace Smartstore.Core.Catalog.Products
             return (variantCombination?.Product, variantCombination);
         }
 
-        public virtual IQueryable<Product> GetLowStockProducts(bool tracked = false)
-        {
-            // TODO: (mh) (core) Create query extension method "ApplyLowStockFilter()" and remove this method (bad convention: GetXyz() should always return a resultset).
-            var query = _db.Products
-                .ApplyTracking(tracked)
-                .ApplyStandardFilter(true);
-
-            // Track inventory for product.
-            var query1 = 
-                from p in query
-                orderby p.MinStockQuantity
-                where p.ManageInventoryMethodId == (int)ManageInventoryMethod.ManageStock && p.MinStockQuantity >= p.StockQuantity
-                select p;
-
-            // Track inventory for product by product attributes.
-            var query2 = 
-                from p in query
-                from pvac in p.ProductVariantAttributeCombinations
-                where p.ManageInventoryMethodId == (int)ManageInventoryMethod.ManageStockByAttributes && pvac.StockQuantity <= 0
-                select p;
-
-            // INFO: (mh) (core) This will throw. EF is not able to "Concat" rows.
-            // The reason why this was not a query filter but a service method is because the list is a combination of 2 query results.
-            return query1.Concat(query2);
-        }
-
         public virtual async Task<Multimap<int, ProductTag>> GetProductTagsByProductIdsAsync(int[] productIds, bool includeHidden = false)
         {
             Guard.NotNull(productIds, nameof(productIds));
@@ -146,38 +115,6 @@ namespace Smartstore.Core.Catalog.Products
             foreach (var item in items)
             {
                 map.AddRange(item.ProductId, item.Tags);
-            }
-
-            return map;
-        }
-
-        public virtual async Task<Multimap<int, Discount>> GetAppliedDiscountsByProductIdsAsync(int[] productIds, bool includeHidden = false, bool tracked = false)
-        {
-            Guard.NotNull(productIds, nameof(productIds));
-
-            var map = new Multimap<int, Discount>();
-            if (!productIds.Any())
-            {
-                return map;
-            }
-
-            var query = _db.Products
-                .Include(x => x.AppliedDiscounts)
-                    .ThenInclude(y => y.RuleSets)
-                .ApplyTracking(tracked)
-                .Where(x => productIds.Contains(x.Id))
-                .ApplyStandardFilter(includeHidden)
-                .Select(x => new
-                {
-                    ProductId = x.Id,
-                    Discounts = x.AppliedDiscounts
-                });
-
-            var items = await query.ToListAsync();
-
-            foreach (var item in items)
-            {
-                map.AddRange(item.ProductId, item.Discounts);
             }
 
             return map;
@@ -367,7 +304,7 @@ namespace Smartstore.Core.Catalog.Products
                 .Where(x => x.ValueType == ProductVariantAttributeValueType.ProductLinkage)
                 .ToList();
 
-            foreach (var chunk in productLinkageValues.Slice(100))
+            foreach (var chunk in productLinkageValues.Chunk(100))
             {
                 var linkedProductIds = chunk.Select(x => x.LinkedProductId).Distinct().ToArray();
                 var linkedProducts = await _db.Products.GetManyAsync(linkedProductIds, true);
@@ -377,7 +314,7 @@ namespace Smartstore.Core.Catalog.Products
                 {
                     if (linkedProductsDic.TryGetValue(value.LinkedProductId, out var linkedProduct))
                     {
-                        await AdjustInventoryAsync(linkedProduct, null, decrease, quantity * value.Quantity);
+                        await AdjustInventoryAsync(linkedProduct, new ProductVariantAttributeSelection(null), decrease, quantity * value.Quantity);
                     }
                 }
             }
@@ -415,7 +352,7 @@ namespace Smartstore.Core.Catalog.Products
 
             var allAssociatedIds = await query.ToListAsync();
             var associatedIdsMap = allAssociatedIds.ToMultimap(x => x.ProductId2, x => x.ProductId1);
-            var added = 0;
+            var displayOrders = new Dictionary<int, int>();
 
             foreach (var id1 in productIds)
             {
@@ -425,32 +362,32 @@ namespace Smartstore.Core.Catalog.Products
 
                 foreach (var id2 in productIds)
                 {
-                    if (id1 == id2)
+                    if (id1 != id2 && !associatedIds.Any(x => x == id2))
                     {
-                        continue;
-                    }
-
-                    if (!associatedIds.Any(x => x == id2))
-                    {
-                        var maxDisplayOrder = await _db.RelatedProducts
-                            .Where(x => x.ProductId1 == id2)
-                            .OrderByDescending(x => x.DisplayOrder)
-                            .Select(x => x.DisplayOrder)
-                            .FirstOrDefaultAsync();
+                        if (!displayOrders.ContainsKey(id2))
+                        {
+                            displayOrders[id2] = await _db.RelatedProducts
+                                .Where(x => x.ProductId1 == id2)
+                                .OrderByDescending(x => x.DisplayOrder)
+                                .Select(x => x.DisplayOrder)
+                                .FirstOrDefaultAsync() + 1;
+                        }
+                        else
+                        {
+                            displayOrders[id2] = displayOrders[id2] + 1;
+                        }
 
                         _db.RelatedProducts.Add(new RelatedProduct
                         {
                             ProductId1 = id2,
                             ProductId2 = id1,
-                            DisplayOrder = maxDisplayOrder + 1
+                            DisplayOrder = displayOrders[id2]
                         });
-
-                        ++added;
                     }
                 }
             }
 
-            return added;
+            return await _db.SaveChangesAsync();
         }
 
         public virtual async Task<int> EnsureMutuallyCrossSellProductsAsync(int productId1)
@@ -483,7 +420,6 @@ namespace Smartstore.Core.Catalog.Products
 
             var allAssociatedIds = await query.ToListAsync();
             var associatedIdsMap = allAssociatedIds.ToMultimap(x => x.ProductId2, x => x.ProductId1);
-            var added = 0;
 
             foreach (var id1 in productIds)
             {
@@ -493,25 +429,18 @@ namespace Smartstore.Core.Catalog.Products
 
                 foreach (var id2 in productIds)
                 {
-                    if (id1 == id2)
-                    {
-                        continue;
-                    }
-
-                    if (!associatedIds.Any(x => x == id2))
+                    if (id1 != id2 && !associatedIds.Any(x => x == id2))
                     {
                         _db.CrossSellProducts.Add(new CrossSellProduct
                         {
                             ProductId1 = id2,
                             ProductId2 = id1
                         });
-
-                        ++added;
                     }
                 }
             }
 
-            return added;
+            return await _db.SaveChangesAsync();
         }
 
         public virtual ProductBatchContext CreateProductBatchContext(
@@ -532,13 +461,5 @@ namespace Smartstore.Core.Catalog.Products
     }
 
     // TODO: (mg) (core) Summary of various issues to be checked and done later:
-    // - Add fluent validations when inserting ProductBundleItem:
-    //      if (bundleItem.BundleProductId == 0) throw new SmartException("BundleProductId of a bundle item cannot be 0.");
-    //      if (bundleItem.ProductId == 0) throw new SmartException("ProductId of a bundle item cannot be 0.");
-    //      if (bundleItem.ProductId == bundleItem.BundleProductId) throw new SmartException("A bundle item cannot be an element of itself.");
-    // - Check callers of IProductService.GetAppliedDiscountsByProductIdsAsync. Must now be called with includeHidden (default value was previously 'true').
-    // - UI. Always show Currency.RoundNumDecimals on currency edit page. It is no longer used only for order item rounding.
     // - SystemCustomerAttributeNames.WalletEnabled belongs to Wallet module (as extension method for CustomerAttributeCollection).
-    // - Check callers of IPaymentMethod.IsPaymentDataValidAsync. Default return value is now null and not an empty list anymore.
-    // - String resources to be deleted (not used anymore): Admin.DataExchange.Export.FolderName.Validate
 }

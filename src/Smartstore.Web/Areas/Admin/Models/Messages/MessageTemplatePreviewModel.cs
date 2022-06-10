@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Smartstore.Admin.Models.Messages
+﻿namespace Smartstore.Admin.Models.Messages
 {
     [Serializable]
     public class MessageTemplatePreviewModel

@@ -62,31 +62,26 @@
     }
 </select>
 
-@* TODO: (mh) (core) Use NumericInput once available *@
 @*INFO: onRuleValueChanged (enables save button) called by handler in smartstore.rules.js.*@
 <div class="numberinput-group flex-grow-1 ml-2" style="max-width: 140px;">
-    <input id="@(id)-MinQuantity" name="@(id)-MinQuantity"
+    <input type="number"
+           id="@(id)-MinQuantity" 
+           name="@(id)-MinQuantity"
            attr-value='(minQuantity.HasValue(), minQuantity)'
-           type="number"
-           class="form-control"
            title="@fromStr"
            placeholder="@fromStr"
            min="0"
-           step="1" />
+           step="1"
+           class="form-control" />
 </div>
 <div class="numberinput-group flex-grow-1 ml-2 mr-2" style="max-width: 140px;">
-    <input id="@(id)-MaxQuantity" name="@(id)-MaxQuantity"
+    <input type="number"
+           id="@(id)-MaxQuantity" 
+           name="@(id)-MaxQuantity"
            attr-value='(maxQuantity.HasValue(), maxQuantity)'
-           type="number"
-           class="form-control"
            title="@toStr"
            placeholder="@toStr"
            min="0"
-           step="1" />
+           step="1"
+           class="form-control" />
 </div>
-
-<script sm-target-zone="scripts" data-origin="rule-values">
-	$(function () {
-        $('#@(id)-ProductId').selectWrapper();
-	});
-</script>

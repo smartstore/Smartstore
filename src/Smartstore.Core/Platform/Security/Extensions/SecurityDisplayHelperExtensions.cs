@@ -1,5 +1,4 @@
-﻿using System;
-using Smartstore.Core;
+﻿using Smartstore.Core;
 using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Security;
 

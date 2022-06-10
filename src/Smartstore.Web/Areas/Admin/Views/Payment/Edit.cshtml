@@ -1,0 +1,131 @@
+﻿@using Smartstore.Admin.Models.Payments
+
+@model PaymentMethodEditModel
+
+@{
+    ViewBag.Title = $"{T("Common.Edit")} - {(ViewBag.Title as string) ?? Model.SystemName}";
+}
+
+<form id="payment-method-form" asp-action="Edit">
+    <div class="section-header">
+        <div class="title">
+            <img src="@Url.Content(Model.IconUrl)" alt="@Model.FriendlyName" />
+            @ViewBag.Title
+            <a asp-action="Providers">(@T("Admin.Common.BackToList"))</a>
+        </div>
+        <div class="options">
+            <zone name="admin_button_toolbar_before"></zone>
+            <button type="submit" name="save" value="save" class="btn btn-warning">
+                <i class="fa fa-check"></i>
+                <span>@T("Admin.Common.Save")</span>
+            </button>
+            <button type="submit" name="save" value="save-continue" class="btn btn-secondary">
+                <span>@T("Admin.Common.SaveContinue")</span>
+            </button>
+            <zone name="admin_button_toolbar_after"></zone>
+        </div>
+    </div>
+
+    <input type="hidden" asp-for="SystemName" />
+
+    <div asp-validation-summary="All"></div>
+
+    <tabstrip id="payment-method-edit" sm-nav-style="Material" sm-nav-position="Top">
+        <tab sm-title="@T("Admin.Common.General")" sm-selected="true">
+            @(Html.LocalizedEditor<PaymentMethodEditModel, PaymentMethodLocalizedModel>("paymentmethod-general-localized",
+				@<div class="adminContent">
+					<div class="adminRow">
+						<div class="adminTitle">
+							<smart-label asp-for="Locales[item].FriendlyName" />
+						</div>
+                        <div class="adminData">
+                            @*IMPORTANT: Do not delete, this hidden element contains the id to assign localized values to the corresponding language *@
+                            <input asp-for="Locales[item].LanguageId" type="hidden" />
+                            <input asp-for="Locales[item].FriendlyName" />
+
+                            <span asp-validation-for="Locales[item].FriendlyName"></span>
+                        </div>
+					</div>
+					<div class="adminRow">
+						<div class="adminTitle">
+							<smart-label asp-for="Locales[item].Description" />
+						</div>
+						<div class="adminData">
+                            <editor asp-for="Locales[item].Description" />
+                            <span asp-validation-for="Locales[item].Description"></span>
+						</div>
+					</div>
+					<div class="adminRow">
+						<div class="adminTitle">
+							<smart-label asp-for="Locales[item].FullDescription" />
+						</div>
+                        <div class="adminData wide">
+                            <editor asp-for="Locales[item].FullDescription" />
+                            <span asp-validation-for="Locales[item].FullDescription"></span>
+                        </div>
+					</div>
+				</div>
+				,
+				@<div class="adminContent">
+					<div class="adminRow">
+						<div class="adminTitle">
+							<smart-label asp-for="FriendlyName" />
+						</div>
+						<div class="adminData">
+                            <input asp-for="FriendlyName" />
+                            <span asp-validation-for="FriendlyName"></span>
+						</div>
+					</div>
+					<div class="adminRow">
+						<div class="adminTitle">
+							<smart-label asp-for="Description" />
+						</div>
+                        <div class="adminData">
+                            <editor asp-for="Description" />
+                            <span asp-validation-for="Description"></span>
+                        </div>
+					</div>
+					<div class="adminRow">
+						<div class="adminTitle">
+							<smart-label asp-for="FullDescription" />
+						</div>
+                        <div class="adminData wide">
+                            <editor asp-for="FullDescription" />
+                            <span asp-validation-for="FullDescription"></span>
+                        </div>
+					</div>
+				</div>
+			))
+
+            <div class="adminContent">
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="RoundOrderTotalEnabled" />
+                    </div>
+                    <div class="adminData">
+                        <editor asp-for="RoundOrderTotalEnabled" />
+                        <span asp-validation-for="RoundOrderTotalEnabled"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="SelectedStoreIds" />
+                    </div>
+                    <div class="adminData">
+                        <editor asp-for="SelectedStoreIds" />
+                        <span asp-validation-for="SelectedStoreIds"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="SelectedRuleSetIds" />
+                    </div>
+                    <div class="adminData">
+                        <editor asp-for="SelectedRuleSetIds" />
+                        <span asp-validation-for="SelectedRuleSetIds"></span>
+                    </div>
+                </div>
+            </div>
+        </tab>
+    </tabstrip>
+</form>

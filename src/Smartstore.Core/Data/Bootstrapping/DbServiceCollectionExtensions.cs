@@ -1,16 +1,8 @@
-﻿using System;
-using FluentMigrator.Runner;
+﻿using FluentMigrator.Runner;
 using FluentMigrator.Runner.Initialization;
 using FluentMigrator.Runner.Processors;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using Smartstore.Core.Data;
 using Smartstore.Core.Data.Migrations;
-using Smartstore.Core.Security;
-using Smartstore.Core.Stores;
 using Smartstore.Data;
-using Smartstore.Engine;
 
 namespace Smartstore.Core.Bootstrapping
 {
@@ -23,24 +15,6 @@ namespace Smartstore.Core.Bootstrapping
 
     public static class DbServiceCollectionExtensions
     {
-        /// <summary>
-        /// Registers a scoped <see cref="DbQuerySettings" /> factory.
-        /// </summary>
-        public static IServiceCollection AddDbQuerySettings(this IServiceCollection services)
-        {
-            services.TryAddScoped<DbQuerySettings>(c => 
-            {
-                var storeContext = c.GetService<IStoreContext>();
-                var aclService = c.GetService<IAclService>();
-
-                return new DbQuerySettings(
-                    aclService != null && !aclService.HasActiveAcl(),
-                    storeContext?.IsSingleStoreMode() ?? false);
-            });
-
-            return services;
-        }
-
         /// <summary>
         /// Registers the open generic <see cref="DbMigrator{TContext}" /> as transient dependency.
         /// </summary>

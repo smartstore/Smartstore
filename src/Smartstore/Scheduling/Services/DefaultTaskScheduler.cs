@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net;
+﻿using System.Net;
 using System.Net.Http;
-using System.Threading;
-using System.Threading.Tasks;
+using Humanizer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using Humanizer;
 using Smartstore.Caching;
 using Smartstore.Http;
 
@@ -69,7 +65,7 @@ namespace Smartstore.Scheduling
 
             var qs = QueryString.Create(taskParameters);
 
-            return CallEndpoint("run/{1}{2}".FormatInvariant(taskId, qs.ToString()), false);
+            return CallEndpoint($"run/{taskId}{qs}", false);
         }
 
         public Task StartAsync(CancellationToken cancellationToken)

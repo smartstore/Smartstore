@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Smartstore.Caching;
+﻿using Smartstore.Caching;
 using Smartstore.Collections;
 using Smartstore.Core.Configuration;
 using Smartstore.Engine.Modularity;
@@ -13,24 +9,24 @@ namespace Smartstore.Core.Widgets
     {
         const string WIDGETS_ALLMETADATA_KEY = "widgets:allmetadata";
         const string WIDGETS_ACTIVE_KEY = "Smartstore.widgets.active-{0}";
-        const string WIDGETS_ZONEMAPPED_KEY = "Smartstore.widgets.zonemapped-{0}";
+        const string WIDGETS_BYZONE_KEY = "Smartstore.widgets.byzone-{0}-{1}";
 
         private readonly WidgetSettings _widgetSettings;
         private readonly IProviderManager _providerManager;
-        private readonly ICacheManager _cache;
+        private readonly ICacheFactory _cacheFactory;
         private readonly ISettingFactory _settingFactory;
         private readonly IRequestCache _requestCache;
 
         public WidgetService(
             WidgetSettings widgetSettings, 
             IProviderManager providerManager,
-            ICacheManager cache,
+            ICacheFactory cacheFactory,
             ISettingFactory settingFactory,
             IRequestCache requestCache)
         {
             _widgetSettings = widgetSettings;
             _providerManager = providerManager;
-            _cache = cache;
+            _cacheFactory = cacheFactory;
             _settingFactory = settingFactory;
             _requestCache = requestCache;
         }
@@ -48,11 +44,16 @@ namespace Smartstore.Core.Widgets
 
         public virtual IEnumerable<Provider<IWidget>> LoadActiveWidgetsByWidgetZone(string widgetZone, int storeId = 0)
         {
+            if (widgetZone.IsEmpty())
+            {
+                return Enumerable.Empty<Provider<IWidget>>();
+            }
+
             var map = GetWidgetMetadataMap();
 
-            if (widgetZone.HasValue() && map.TryGetValues(widgetZone.ToLower(), out var widgetMetadatas))
+            if (map.TryGetValues(widgetZone.ToLower(), out var widgetMetadatas))
             {
-                return _requestCache.Get(WIDGETS_ZONEMAPPED_KEY.FormatInvariant(storeId), () =>
+                return _requestCache.Get(WIDGETS_BYZONE_KEY.FormatInvariant(widgetZone, storeId), () =>
                 {
                     var providers = widgetMetadatas
                         .Where(m => _widgetSettings.ActiveWidgetSystemNames.Contains(m.SystemName, StringComparer.InvariantCultureIgnoreCase))
@@ -92,7 +93,7 @@ namespace Smartstore.Core.Widgets
 
         protected virtual Multimap<string, ProviderMetadata> GetWidgetMetadataMap()
         {
-            return _cache.Get(WIDGETS_ALLMETADATA_KEY, () =>
+            return _cacheFactory.GetMemoryCache().Get(WIDGETS_ALLMETADATA_KEY, () =>
             {
                 var widgets = _providerManager.GetAllProviders<IWidget>(0);
                 var map = new Multimap<string, ProviderMetadata>();

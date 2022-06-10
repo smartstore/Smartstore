@@ -5,6 +5,7 @@
 }
 
 <datagrid id="attributecombinations-grid"
+          allow-edit="true"
           allow-resize="true"
           allow-row-selection="true" 
           allow-column-reordering="true"
@@ -27,7 +28,10 @@
                 <span>@T("Admin.Catalog.Products.ProductVariantAttributes.AttributeCombinations.CreateAllCombinations")</span>
             </button>
         </toolbar-group>
-        <toolbar-group class="omega">
+        <zone name="datagrid_toolbar_alpha"></zone>
+        <toolbar-group class="omega"></toolbar-group>
+        <zone name="datagrid_toolbar_omega"></zone>
+        <toolbar-group>
             <button type="button" id="btnDeleteAllCombinations" class="btn btn-light btn-flat mr-auto" v-if="grid.rows.length > 0"
                     data-url='@Url.Action("DeleteAllAttributeCombinations", new { productId = parentModel.Id })'
                     data-ask="@T("Admin.Catalog.Products.ProductVariantAttributes.AttributeCombinations.AskToDeleteAll")">

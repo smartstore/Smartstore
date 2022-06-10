@@ -1,9 +1,5 @@
-﻿using System;
-using System.IO;
-using System.Linq;
-using System.Net.Security;
+﻿using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
-using System.Threading.Tasks;
 using MailKit.Net.Smtp;
 using MimeKit;
 using MimeKit.IO;
@@ -13,8 +9,6 @@ namespace Smartstore.Net.Mail
 {
     public partial class DefaultMailService : IMailService
     {
-        // TODO: (core) Get PickupDirectoryLocation from EmailAccountSettings in caller.
-
         public virtual ISmtpClient Connect(IMailAccount account, int timeout = 1000)
         {
             Guard.NotNull(account, nameof(account));

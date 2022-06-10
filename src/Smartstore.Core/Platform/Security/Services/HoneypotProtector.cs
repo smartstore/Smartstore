@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
@@ -10,7 +6,7 @@ using Smartstore.Utilities;
 
 namespace Smartstore.Core.Security
 {
-	public class HoneypotField
+    public class HoneypotField
 	{
 		public string Name { get; set; }
 		public DateTime CreatedOnUtc { get; set; }

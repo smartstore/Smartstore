@@ -17,6 +17,7 @@
         function (ctx) {
             ctx.find(".cph").tooltip({
                 selector: "a.hint",
+                boundary: 'window',
                 placement: Smartstore.globalization.culture.isRTL ? "right" : "left",
                 trigger: 'hover',
                 delay: { show: 400, hide: 0 }
@@ -27,8 +28,7 @@
             ctx.find(".adminData > input[type=checkbox], .multi-store-setting-control > input[type=checkbox], .switcher > input[type=checkbox]").each(function (i, el) {
                 $(el)
                     .wrap('<label class="switch"></label>')
-                    .after('<span class="switch-toggle" data-on="' + window.Res['Common.On'] + '" data-off="' + window.Res['Common.Off'] + '"></span>')
-                    .parent().on('click', function (e) { if ($(el).is('[readonly]')) { e.preventDefault(); } });
+                    .after('<span class="switch-toggle" data-on="' + window.Res['Common.On'] + '" data-off="' + window.Res['Common.Off'] + '"></span>');
             });
         },
         // btn-trigger
@@ -144,12 +144,12 @@
             }, 300);
         });
 
-        // check overridden store settings
+        // Check overridden store settings
         $('.multi-store-override-option').each(function (i, el) {
             Smartstore.Admin.checkOverriddenStoreValue(el);
         });
 
-        // publish entity commit messages
+        // Publish entity commit messages
         $('.entity-commit-trigger').on('click', function (e) {
             var el = $(this);
             if (el.data('commit-type')) {
@@ -161,7 +161,7 @@
             }
         });
 
-        // sticky section-header
+        // Sticky section-header
         var navbar = $("#navbar");
         var navbarHeight = navbar.height() || 1;
         var sectionHeader = $('.section-header');
@@ -241,6 +241,22 @@
 
             addEventListener('mousemove', onMouseMove);
             addEventListener('mouseup', onMouseUp);
+        });
+
+        // Popup toggle
+        $(document).on('click', '.popup-toggle', function (e) {
+            e.preventDefault();
+            openPopup({
+                url: this.href,
+                large: false,
+                flex: true,
+                closer: false,
+                keyboard: true,
+                backdrop: 'invisible',
+                centered: true,
+                scrollable: true
+            });
+            return false;
         });
 
         $(window).on('load', function () {

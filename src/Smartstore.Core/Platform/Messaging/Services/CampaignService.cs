@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using Smartstore.Core.Data;
+﻿using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Messaging.Events;
 using Smartstore.Core.Security;
@@ -47,6 +40,7 @@ namespace Smartstore.Core.Messaging
             int[] storeIds = null;
             int[] roleIds = null;
             var alreadyProcessedEmails = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
+            var campaignTemplate = await GetCampaignTemplate(cancelToken);
 
             if (campaign.LimitedToStores)
             {
@@ -59,7 +53,7 @@ namespace Smartstore.Core.Messaging
                     .ApplyEntityFilter(campaign)
                     .Select(x => x.CustomerRoleId)
                     .Distinct()
-                    .ToArrayAsync();
+                    .ToArrayAsync(cancelToken);
             }
 
             while (true)
@@ -83,8 +77,14 @@ namespace Smartstore.Core.Messaging
                         continue;
                     }
 
-                    var result = await CreateCampaignMessageAsync(campaign, subscriber);
-                    if ((result?.Email?.Id ?? 0) != 0)
+                    var messageContext = new MessageContext
+                    {
+                        MessageTemplate = campaignTemplate,
+                        Customer = subscriber.Customer
+                    };
+
+                    var result = await _messageFactory.CreateMessageAsync(messageContext, false, subscriber.Subscription, campaign);
+                    if (result.Email != null)
                     {
                         alreadyProcessedEmails.Add(subscriber.Subscription.Email);
                         ++totalEmailsSent;
@@ -95,7 +95,7 @@ namespace Smartstore.Core.Messaging
                             QueuedEmail = result.Email,
                             MessageContext = result.MessageContext,
                             MessageModel = result.MessageContext.Model
-                        });
+                        }, cancelToken);
 
                         // Queue emails so they can be saved later in one go.
                         _db.QueuedEmails.Add(result.Email);
@@ -114,7 +114,7 @@ namespace Smartstore.Core.Messaging
             return totalEmailsSent;
         }
 
-        public virtual Task<CreateMessageResult> CreateCampaignMessageAsync(Campaign campaign, NewsletterSubscriber subscriber)
+        public virtual async Task<CreateMessageResult> CreateCampaignMessageAsync(Campaign campaign, NewsletterSubscriber subscriber)
         {
             Guard.NotNull(campaign, nameof(campaign));
 
@@ -125,11 +125,11 @@ namespace Smartstore.Core.Messaging
 
             var messageContext = new MessageContext
             {
-                MessageTemplate = GetCampaignTemplate(),
+                MessageTemplate = await GetCampaignTemplate(),
                 Customer = subscriber.Customer
             };
 
-            return _messageFactory.CreateMessageAsync(messageContext, false /* do NOT queue */, subscriber.Subscription, campaign);
+            return await _messageFactory.CreateMessageAsync(messageContext, false /* do NOT queue */, subscriber.Subscription, campaign);
         }
 
         public virtual async Task<CreateMessageResult> PreviewAsync(Campaign campaign)
@@ -138,7 +138,7 @@ namespace Smartstore.Core.Messaging
 
             var messageContext = new MessageContext
             {
-                MessageTemplate = GetCampaignTemplate(),
+                MessageTemplate = await GetCampaignTemplate(),
                 TestMode = true
             };
 
@@ -148,16 +148,18 @@ namespace Smartstore.Core.Messaging
             return await _messageFactory.CreateMessageAsync(messageContext, false /* do NOT queue */, subscription, campaign);
         }
 
-        private MessageTemplate GetCampaignTemplate()
+        private async Task<MessageTemplate> GetCampaignTemplate(CancellationToken cancelToken = default)
         {
-            var messageTemplate = _db.MessageTemplates
+            var messageTemplate = await _db.MessageTemplates
                 .AsNoTracking()
                 .Where(x => x.Name == MessageTemplateNames.SystemCampaign)
                 .ApplyStoreFilter(_storeContext.CurrentStore.Id)
-                .FirstOrDefault();
+                .FirstOrDefaultAsync(cancelToken);
 
             if (messageTemplate == null)
+            {
                 throw new SmartException(T("Common.Error.NoMessageTemplate", MessageTemplateNames.SystemCampaign));
+            }
 
             return messageTemplate;
         }

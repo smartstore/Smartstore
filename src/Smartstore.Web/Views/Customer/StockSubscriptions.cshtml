@@ -23,12 +23,12 @@
 </div>
 
 <form asp-action="StockSubscriptions">
-    <div class="subscription-list table-responsive">
+    <div id="stock-subscription-list" class="table-responsive">
         <table class="table">
             <thead>
                 <tr>
                     <th style="width: 30px">
-                        <input type="checkbox" id="selectall" />
+                        <input type="checkbox" id="select-all-stock-subscriptions" />
                     </th>
                     <th>
                         @T("Account.BackInStockSubscriptions.ProductColumn")
@@ -56,7 +56,7 @@
         }
 
         <div class="buttons">
-            <button type="submit" class="btn btn-danger btn-lg delete-selected-biss-button">
+            <button id="btn-stock-subscriptions-delete" type="submit" class="btn btn-danger btn-lg disabled" disabled>
                 <span>@T("Account.BackInStockSubscriptions.DeleteSelected")</span>
             </button>
         </div>
@@ -65,14 +65,23 @@
 
 <script sm-target-zone="scripts" data-origin="stock-subscriptions">
     $(function () {
-        $('#selectall').on('click', function (e) {
-            $('.subscription-list .rowcheckbox').attr('checked', $(this).is(':checked')).change();
+        $('#select-all-stock-subscriptions').on('click', function () {
+            $('#stock-subscription-list .rowcheckbox').prop('checked', $(this).is(':checked')).trigger('change');
         });
 
-        $(document).on('change', '.subscription-list .rowcheckbox', function (e) {
-            var numChkBoxes = $('.subscription-list .rowcheckbox').length;
-            var numChkBoxesChecked = $('.subscription-list .rowcheckbox:checked').length;
-            $('#selectall').attr('checked', numChkBoxes == numChkBoxesChecked && numChkBoxes > 0);
+        $(document).on('change', '#stock-subscription-list .rowcheckbox', function () {
+            var numChkBoxes = $('#stock-subscription-list .rowcheckbox').length;
+            var numChkBoxesChecked = $('#stock-subscription-list .rowcheckbox:checked').length;
+            var buttons = $('#btn-stock-subscriptions-delete');
+
+            $('#select-all-stock-subscriptions').prop('checked', numChkBoxes == numChkBoxesChecked && numChkBoxes > 0);
+
+            if (numChkBoxesChecked > 0) {
+                buttons.prop('disabled', false).removeClass('disabled');
+            }
+            else {
+                buttons.addClass('disabled').prop('disabled', true);
+            }
         });
     });
 </script>

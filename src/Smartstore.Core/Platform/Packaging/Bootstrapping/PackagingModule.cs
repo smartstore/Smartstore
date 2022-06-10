@@ -1,5 +1,4 @@
-﻿using System;
-using Autofac;
+﻿using Autofac;
 using Smartstore.Core.Packaging;
 
 namespace Smartstore.Core.Bootstrapping
@@ -8,8 +7,13 @@ namespace Smartstore.Core.Bootstrapping
     {
         protected override void Load(ContainerBuilder builder)
         {
-            builder.RegisterType<PackageBuilder>().As<IPackageBuilder>().InstancePerLifetimeScope();
+            builder.RegisterType<PackageBuilder>()
+                .As<IPackageBuilder>()
+                .UsingConstructor(typeof(IApplicationContext))
+                .InstancePerLifetimeScope();
+
             builder.RegisterType<PackageInstaller>().As<IPackageInstaller>().InstancePerLifetimeScope();
+            builder.RegisterType<UpdateChecker>().AsSelf().InstancePerLifetimeScope();
         }
     }
 }

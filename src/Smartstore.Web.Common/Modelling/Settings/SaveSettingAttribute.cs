@@ -1,10 +1,5 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Filters;
-using Smartstore.Core;
 
 namespace Smartstore.Web.Modelling.Settings
 {
@@ -16,8 +11,8 @@ namespace Smartstore.Web.Modelling.Settings
         {
         }
 
-        public SaveSettingAttribute(bool updateParameterFromStore)
-            : base(typeof(SaveSettingFilter), updateParameterFromStore)
+        public SaveSettingAttribute(bool bindParameterFromStore)
+            : base(typeof(SaveSettingFilter), bindParameterFromStore)
         {
             Arguments = new object[] { this };
         }
@@ -27,7 +22,7 @@ namespace Smartstore.Web.Modelling.Settings
     {
         private IFormCollection _form;
 
-        public SaveSettingFilter(SaveSettingAttribute attribute, ICommonServices services, StoreDependingSettingHelper settingHelper)
+        public SaveSettingFilter(SaveSettingAttribute attribute, ICommonServices services, MultiStoreSettingHelper settingHelper)
             : base (attribute, services, settingHelper)
         {
         }
@@ -36,25 +31,22 @@ namespace Smartstore.Web.Modelling.Settings
         {
             await OnActionExecutingAsync(context);
 
-            if (!context.ModelState.IsValid)
+            if (context.ModelState.IsValid)
             {
-                await next();
-                return;
+                // Find the required FormCollection parameter in ActionDescriptor.GetParameters()
+                var formParam = FindActionParameters<IFormCollection>(context.ActionDescriptor, requireDefaultConstructor: false, throwIfNotFound: false).FirstOrDefault();
+                _form = formParam != null
+                    ? (IFormCollection)context.ActionArguments[formParam.Name]
+                    : await context.HttpContext.Request.ReadFormAsync();
             }
-
-            // Find the required FormCollection parameter in ActionDescriptor.GetParameters()
-            var formParam = FindActionParameters<IFormCollection>(context.ActionDescriptor, requireDefaultConstructor: false, throwIfNotFound: false).FirstOrDefault();
-            _form = formParam != null
-                ? (IFormCollection)context.ActionArguments[formParam.Name]
-                : await context.HttpContext.Request.ReadFormAsync();
 
             var executedContext = await next();
 
             if (executedContext.ModelState.IsValid)
             {
                 var updateSettings = true;
-                var redirectResult = context.Result as RedirectToRouteResult;
-                if (redirectResult != null)
+
+                if (context.Result is RedirectToRouteResult redirectResult)
                 {
                     var controllerName = redirectResult.RouteValues.GetControllerName();
                     var areaName = redirectResult.RouteValues.GetAreaName();

@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
+﻿using System.Diagnostics;
 using Smartstore.Core.Identity;
 
 namespace Smartstore.Core.Checkout.Cart
@@ -25,6 +23,12 @@ namespace Smartstore.Core.Checkout.Cart
         /// Array of cart items.
         /// </summary>
         public OrganizedShoppingCartItem[] Items { get; }
+
+        /// <summary>
+        /// A value indicating whether the cart contains cart items.
+        /// </summary>
+        public bool HasItems
+            => Items.Length > 0;
 
         /// <summary>
         /// Shopping cart type.

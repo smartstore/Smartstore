@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Autofac;
+﻿using Autofac;
 using Smartstore.Caching;
 using Smartstore.Engine;
 using Smartstore.Threading;
@@ -19,7 +15,6 @@ namespace Smartstore.Data.Caching
         public DbCache()
         {
             _cache = EngineContext.Current.Application.Services.Resolve<ICacheManager>();
-
             _cache.Expired += OnEntryExpired;
         }
 
@@ -61,6 +56,8 @@ namespace Smartstore.Data.Caching
 
             using (_cache.AcquireKeyLock(cacheKey))
             {
+                MemoryCacheStore.TryDropLazyLoader(value.Value);
+
                 _cache.Put(cacheKey, value, new CacheEntryOptions().ExpiresIn(policy.ExpirationTimeout.Value));
 
                 foreach (var set in key.EntitySets)

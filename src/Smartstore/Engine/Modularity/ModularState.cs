@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading;
-using Smartstore.IO;
+﻿using Smartstore.IO;
 using Smartstore.Utilities;
 
 namespace Smartstore.Engine.Modularity
@@ -14,7 +9,7 @@ namespace Smartstore.Engine.Modularity
 
         class ModulesHasher : DirectoryHasher
         {
-            private readonly IApplicationContext _appContext;
+            private readonly IApplicationContext _appContext; 
 
             public ModulesHasher(IApplicationContext appContext)
                 : base(appContext.ModulesRoot.GetDirectory(""), appContext.TenantRoot.GetDirectory(""))
@@ -114,11 +109,15 @@ namespace Smartstore.Engine.Modularity
             {
                 var content = file.ReadAllText();
                 var lines = content.GetLines(true, true)
-                    .Select(x => isLegacy ? x.Replace("SmartStore", "Smartstore") : x);
+                    .Select(x => isLegacy ? x.Replace("SmartStore", "Smartstore") : x)
+                    .Select(x => isLegacy ? x.Replace("GoogleAnalytics", "Google.Analytics") : x);
 
                 if (isLegacy)
                 {
                     lines = lines.Concat(new[] { "Smartstore.Blog", "Smartstore.Forums", "Smartstore.News", "Smartstore.Polls" });
+
+                    // After first migration, create and save new InstalledModules.txt
+                    _appContext.TenantRoot.WriteAllText(FileName, string.Join(Environment.NewLine, lines));
                 }
 
                 _installedModules.AddRange(lines);

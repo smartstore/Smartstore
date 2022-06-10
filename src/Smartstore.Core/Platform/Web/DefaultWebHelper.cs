@@ -1,20 +1,13 @@
-﻿using System;
-using System.IO;
-using System.Linq;
-using System.Net;
+﻿using System.Net;
+using System.Net.Http;
 using System.Net.Sockets;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Primitives;
 using Microsoft.Net.Http.Headers;
 using Smartstore.Collections;
-using Smartstore.Engine;
-using Smartstore.Utilities;
 using Smartstore.Core.Stores;
 using Smartstore.IO;
-using System.Net.Http;
-using System.Threading.Tasks;
-using System.Net.Http.Headers;
+using Smartstore.Utilities;
 
 namespace Smartstore.Core.Web
 {
@@ -36,7 +29,6 @@ namespace Smartstore.Core.Web
 
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IHttpClientFactory _httpClientFactory;
-        private readonly IHostApplicationLifetime _hostApplicationLifetime;
         private readonly Work<IStoreContext> _storeContext;
 
         private bool? _isCurrentConnectionSecured;
@@ -49,12 +41,10 @@ namespace Smartstore.Core.Web
         public DefaultWebHelper(
             IHttpContextAccessor httpContextaccessor,
             IHttpClientFactory httpClientFactory,
-            IHostApplicationLifetime hostApplicationLifetime,
             Work<IStoreContext> storeContext)
         {
             _httpContextAccessor = httpContextaccessor;
             _httpClientFactory = httpClientFactory;
-            _hostApplicationLifetime = hostApplicationLifetime;
             _storeContext = storeContext;
         }
 
@@ -370,7 +360,7 @@ namespace Smartstore.Core.Web
             if (hsIndex >= 0)
             {
                 curAnchor = url[hsIndex..];
-                url = url.Substring(0, hsIndex);
+                url = url[..hsIndex];
             }
 
             var parts = url.Split(new[] { '?' });
@@ -424,11 +414,6 @@ namespace Smartstore.Core.Web
             }
 
             return string.Empty;
-        }
-
-        public virtual void RestartAppDomain()
-        {
-            _hostApplicationLifetime.StopApplication();
         }
     }
 }

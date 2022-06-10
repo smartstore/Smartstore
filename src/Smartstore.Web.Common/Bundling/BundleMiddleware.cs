@@ -1,13 +1,8 @@
-﻿using System;
-using System.Diagnostics;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
-using Smartstore.Core;
 using Smartstore.Threading;
 
 namespace Smartstore.Web.Bundling
@@ -39,7 +34,14 @@ namespace Smartstore.Web.Bundling
 
         public async Task InvokeAsync(HttpContext httpContext)
         {
-            var bundle = _bundles.GetBundleFor(httpContext.Request.Path);
+            var path = httpContext.Request.Path;
+            if (!path.HasValue)
+            {
+                await _next(httpContext);
+                return;
+            }
+
+            var bundle = _bundles.GetBundleFor(path);
             if (bundle == null)
             {
                 await _next(httpContext);

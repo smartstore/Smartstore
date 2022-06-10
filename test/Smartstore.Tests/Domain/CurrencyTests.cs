@@ -1,9 +1,8 @@
 ﻿using System;
 using NUnit.Framework;
-using Smartstore;
 using Smartstore.Test.Common;
 
-namespace Smartstore.Tests.Domain.Common
+namespace Smartstore.Tests.Domain
 {
     [TestFixture]
     public class CurrencyTests

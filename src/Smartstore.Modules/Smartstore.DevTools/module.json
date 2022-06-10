@@ -1,12 +1,13 @@
 {
+  "$schema": "../module.schema.json",
   "Group": "Developer",
   "SystemName": "Smartstore.DevTools",
   "FriendlyName": "Smartstore Developer Tools (MiniProfiler and other goodies)",
   "Description": "",
   "Version": "5.0",
   "MinAppVersion": "5.0",
+  "Author": "SmartStore AG",
   "Order": 1,
-  "AssemblyName": "Smartstore.DevTools.dll",
   "ResourceRootKey": "Plugins.Developer.DevTools",
   "PrivateReferences": [
     "MiniProfiler.Shared",

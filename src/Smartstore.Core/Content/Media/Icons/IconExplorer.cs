@@ -1,14 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
+﻿using System.Text;
 using Newtonsoft.Json;
 using Smartstore.Collections;
-using Smartstore.ComponentModel;
-using Smartstore.Engine;
 using Smartstore.Utilities;
 
 namespace Smartstore.Core.Content.Media.Icons
@@ -112,7 +104,6 @@ namespace Smartstore.Core.Content.Media.Icons
                 // minified file did not exist: save it.
                 var settings = new JsonSerializerSettings
                 {
-                    ContractResolver = SmartContractResolver.Instance,
                     DefaultValueHandling = DefaultValueHandling.Ignore,
                     Formatting = Formatting.None
                 };

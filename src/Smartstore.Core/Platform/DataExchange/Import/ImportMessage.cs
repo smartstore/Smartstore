@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Smartstore.Core.DataExchange.Import
+﻿namespace Smartstore.Core.DataExchange.Import
 {
     public class ImportMessage
     {

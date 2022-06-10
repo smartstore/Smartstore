@@ -1,9 +1,5 @@
-﻿using System;
-using System.Linq;
-using Microsoft.AspNetCore.Html;
+﻿using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.Extensions.DependencyInjection;
-using Smartstore.Core;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Theming;
 using Smartstore.Web.Rendering;

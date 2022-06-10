@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using System.Linq;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.EntityFrameworkCore;
 using Smartstore.Collections;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
@@ -86,6 +81,22 @@ namespace Smartstore.Core.Seo.Routing
                 return null;
 
             return _urlPrefixes.FirstOrDefault(x => x.Value.Contains(entityName, StringComparer.OrdinalIgnoreCase)).Key;
+        }
+
+        public static RouteValueDictionary GetRouteValuesFor(UrlRecord urlRecord, RouteTarget routeTarget)
+        {
+            Guard.NotNull(urlRecord, nameof(urlRecord));
+
+            foreach (var router in _routers)
+            {
+                var values = router.GetRouteValues(urlRecord, null, routeTarget);
+                if (values != null)
+                {
+                    return values;
+                }
+            }
+
+            return null;
         }
 
         private static bool TryResolveUrlPrefix(string slug, out string urlPrefix, out string actualSlug, out ICollection<string> entityNames)

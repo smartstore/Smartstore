@@ -1,9 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using Smartstore.Core.Data;
+﻿using Smartstore.Core.Data;
 using Smartstore.Data.Hooks;
 using Smartstore.Events;
 
@@ -30,14 +25,12 @@ namespace Smartstore.Core.Checkout.Orders
                 .OfType<ReturnRequest>()
                 .ToList();
 
-            var orderItemIds = returnRequests
-                .Select(x => x.OrderItemId)
-                .Distinct()
-                .ToArray();
+            var orderItemIds = returnRequests.ToDistinctArray(x => x.OrderItemId);
 
             if (orderItemIds.Any())
             {
                 var orders = await _db.OrderItems
+                    .Include(x => x.Order)
                     .Where(x => orderItemIds.Contains(x.Id))
                     .Select(x => x.Order)
                     .ToListAsync(cancelToken);

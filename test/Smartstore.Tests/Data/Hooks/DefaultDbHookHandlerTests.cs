@@ -22,7 +22,7 @@ namespace Smartstore.Tests.Data.Hooks
         private IDbHookHandler _handler;
         private SmartDbContext _db;
 
-        [SetUp]
+        [OneTimeSetUp]
         public virtual void SetUp()
         {
             _db = new SmartDbContext(new Microsoft.EntityFrameworkCore.DbContextOptions<SmartDbContext>());

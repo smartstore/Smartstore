@@ -1,16 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Newtonsoft.Json;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
-using Smartstore.Domain;
 
 namespace Smartstore.Core.Content.Menus
 {
@@ -24,6 +19,8 @@ namespace Smartstore.Core.Content.Menus
     [Index(nameof(SubjectToAcl), Name = "IX_Menu_SubjectToAcl")]
     public class MenuEntity : EntityWithAttributes, ILocalizedEntity, IStoreRestricted, IAclRestricted
     {
+        const string EntityName = "MenuRecord";
+
         public MenuEntity()
         {
         }
@@ -33,6 +30,9 @@ namespace Smartstore.Core.Content.Menus
             : base(lazyLoader)
         {            
         }
+
+        public override string GetEntityName()
+            => EntityName;
 
         /// <summary>
         /// Gets or sets the system name. It identifies the menu.

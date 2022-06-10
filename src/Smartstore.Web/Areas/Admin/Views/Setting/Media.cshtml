@@ -24,268 +24,393 @@
 
     <div asp-validation-summary="All"></div>
 
-    <div class="adminContent">
-        <div class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="AutoGenerateAbsoluteUrls" />
-            </div>
-            <div class="adminData">
-                <setting-editor asp-for="AutoGenerateAbsoluteUrls"></setting-editor>
-                <span asp-validation-for="AutoGenerateAbsoluteUrls"></span>
-            </div>
-        </div>
-        <div class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="MakeFilesTransientWhenOrphaned" />
-            </div>
-            <div class="adminData">
-                <setting-editor asp-for="MakeFilesTransientWhenOrphaned"></setting-editor>
-                <span asp-validation-for="MakeFilesTransientWhenOrphaned"></span>
-            </div>
-        </div>
-        <div class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="DefaultPictureZoomEnabled" />
-            </div>
-            <div class="adminData">
-                <setting-editor asp-for="DefaultPictureZoomEnabled"></setting-editor>
-                <span asp-validation-for="DefaultPictureZoomEnabled"></span>
-            </div>
-        </div>
-        <div class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="MaxUploadFileSize" />
-            </div>
-            <div class="adminData">
-                <setting-editor asp-for="MaxUploadFileSize" sm-postfix="KB"></setting-editor>
-                <span asp-validation-for="MaxUploadFileSize"></span>
-            </div>
-        </div>
-        <div class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="MaximumImageSize" />
-            </div>
-            <div class="adminData">
-                <setting-editor asp-for="MaximumImageSize" sm-postfix="@T("Common.Pixel")"></setting-editor>
-                <span asp-validation-for="MaximumImageSize"></span>
-            </div>
-        </div>
-        <div class="adminRow">
-            <div class="admin-config-group">
-                <div class="title">
-                    @T("Admin.Configuration.Settings.Media.ImageSizes")
-                </div>
-            </div>
-        </div>
-        <div class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="ProductThumbPictureSizeOnProductDetailsPage" />
-            </div>
-            <div class="adminData">
-                <setting-editor asp-for="ProductThumbPictureSizeOnProductDetailsPage" sm-postfix="@T("Common.Pixel")"></setting-editor>
-                <span asp-validation-for="ProductThumbPictureSizeOnProductDetailsPage"></span>
-            </div>
-        </div>
-        <div class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="ProductThumbPictureSize" />
-            </div>
-            <div class="adminData">
-                <setting-editor asp-for="ProductThumbPictureSize" sm-postfix="@T("Common.Pixel")"></setting-editor>
-                <span asp-validation-for="ProductThumbPictureSize"></span>
-            </div>
-        </div>
-        <div class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="ProductDetailsPictureSize" />
-            </div>
-            <div class="adminData">
-                <setting-editor asp-for="ProductDetailsPictureSize" sm-postfix="@T("Common.Pixel")"></setting-editor>
-                <span asp-validation-for="ProductDetailsPictureSize"></span>
-            </div>
-        </div>
-        <div class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="AssociatedProductPictureSize" />
-            </div>
-            <div class="adminData">
-                <setting-editor asp-for="AssociatedProductPictureSize" sm-postfix="@T("Common.Pixel")"></setting-editor>
-                <span asp-validation-for="AssociatedProductPictureSize"></span>
-            </div>
-        </div>
-        <div class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="BundledProductPictureSize" />
-            </div>
-            <div class="adminData">
-                <setting-editor asp-for="BundledProductPictureSize" sm-postfix="@T("Common.Pixel")"></setting-editor>
-                <span asp-validation-for="BundledProductPictureSize"></span>
-            </div>
-        </div>
-        <div class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="MessageProductThumbPictureSize" />
-            </div>
-            <div class="adminData">
-                <setting-editor asp-for="MessageProductThumbPictureSize" sm-postfix="@T("Common.Pixel")"></setting-editor>
-                <span asp-validation-for="MessageProductThumbPictureSize"></span>
-            </div>
-        </div>
-        <div class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="CategoryThumbPictureSize" />
-            </div>
-            <div class="adminData">
-                <setting-editor asp-for="CategoryThumbPictureSize" sm-postfix="@T("Common.Pixel")"></setting-editor>
-                <span asp-validation-for="CategoryThumbPictureSize"></span>
-            </div>
-        </div>
-        <div class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="ManufacturerThumbPictureSize" />
-            </div>
-            <div class="adminData">
-                <setting-editor asp-for="ManufacturerThumbPictureSize" sm-postfix="@T("Common.Pixel")"></setting-editor>
-                <span asp-validation-for="ManufacturerThumbPictureSize"></span>
-            </div>
-        </div>
-        <div class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="CartThumbPictureSize" />
-            </div>
-            <div class="adminData">
-                <setting-editor asp-for="CartThumbPictureSize" sm-postfix="@T("Common.Pixel")"></setting-editor>
-                <span asp-validation-for="CartThumbPictureSize"></span>
-            </div>
-        </div>
-        <div class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="CartThumbBundleItemPictureSize" />
-            </div>
-            <div class="adminData">
-                <setting-editor asp-for="CartThumbBundleItemPictureSize" sm-postfix="@T("Common.Pixel")"></setting-editor>
-                <span asp-validation-for="CartThumbBundleItemPictureSize"></span>
-            </div>
-        </div>
-        <div class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="MiniCartThumbPictureSize" />
-            </div>
-            <div class="adminData">
-                <setting-editor asp-for="MiniCartThumbPictureSize" sm-postfix="@T("Common.Pixel")"></setting-editor>
-                <span asp-validation-for="MiniCartThumbPictureSize"></span>
-            </div>
-        </div>
-        <div class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="AvatarPictureSize" />
-            </div>
-            <div class="adminData">
-                <setting-editor asp-for="AvatarPictureSize" sm-postfix="@T("Common.Pixel")"></setting-editor>
-                <span asp-validation-for="AvatarPictureSize"></span>
-            </div>
-        </div>
-        <div class="adminRow">
-            <div colspan="2">
-                <div class="admin-config-group">
-                    <div class="title">
-                        @T("Admin.Configuration.Settings.Media.MediaTypes")
+    <tabstrip id="mediasettings-edit" sm-nav-style="Material">
+        <tab sm-title="@T("Common.General")" sm-selected="true">
+            <div class="adminContent">
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="AutoGenerateAbsoluteUrls" />
                     </div>
-                    <div class="text-muted">
-                        @T("Admin.Configuration.Settings.Media.MediaTypesNotes")
+                    <div class="adminData">
+                        <setting-editor asp-for="AutoGenerateAbsoluteUrls"></setting-editor>
+                        <span asp-validation-for="AutoGenerateAbsoluteUrls"></span>
                     </div>
                 </div>
-            </div>
-        </div>
-        <div class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="ImageTypes" />
-            </div>
-            <div class="adminData">
-                <setting-editor asp-for="ImageTypes"></setting-editor>
-                <span asp-validation-for="ImageTypes"></span>
-            </div>
-        </div>
-        <div class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="VideoTypes" />
-            </div>
-            <div class="adminData">
-                <setting-editor asp-for="VideoTypes"></setting-editor>
-                <span asp-validation-for="VideoTypes"></span>
-            </div>
-        </div>
-        <div class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="AudioTypes" />
-            </div>
-            <div class="adminData">
-                <setting-editor asp-for="AudioTypes"></setting-editor>
-                <span asp-validation-for="AudioTypes"></span>
-            </div>
-        </div>
-        <div class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="DocumentTypes" />
-            </div>
-            <div class="adminData">
-                <setting-editor asp-for="DocumentTypes"></setting-editor>
-                <span asp-validation-for="DocumentTypes"></span>
-            </div>
-        </div>
-        <div class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="TextTypes" />
-            </div>
-            <div class="adminData">
-                <setting-editor asp-for="TextTypes"></setting-editor>
-                <span asp-validation-for="TextTypes"></span>
-            </div>
-        </div>
-        <div class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="BinTypes" />
-            </div>
-            <div class="adminData">
-                <setting-editor asp-for="BinTypes"></setting-editor>
-                <span asp-validation-for="BinTypes"></span>
-            </div>
-        </div>
-
-        <div class="adminRow">
-            <div colspan="2">
-                <div class="admin-config-group">
-                    <div class="title">
-                        @(T("Admin.Configuration.Settings.Media.MediaIsStoredIn"))&hellip;
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="MakeFilesTransientWhenOrphaned" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="MakeFilesTransientWhenOrphaned"></setting-editor>
+                        <span asp-validation-for="MakeFilesTransientWhenOrphaned"></span>
                     </div>
                 </div>
-                <div class="alert alert-warning">
-                    <p>
-                        @T("Admin.Configuration.Settings.Media.MoveMediaNote")
-                    </p>
-                    <p>
-                        @(T("Admin.Configuration.Settings.Media.CurrentStorageLocation")):
-                        <strong>@Model.StorageProvider</strong>
-                    </p>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="DefaultPictureZoomEnabled" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="DefaultPictureZoomEnabled"></setting-editor>
+                        <span asp-validation-for="DefaultPictureZoomEnabled"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="MaxUploadFileSize" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="MaxUploadFileSize" sm-postfix="KB"></setting-editor>
+                        <span asp-validation-for="MaxUploadFileSize"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="MaximumImageSize" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="MaximumImageSize" sm-postfix="@T("Common.Pixel")"></setting-editor>
+                        <span asp-validation-for="MaximumImageSize"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="admin-config-group">
+                        <div class="title">
+                            @T("Admin.Configuration.Settings.Media.ImageSizes")
+                        </div>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ProductThumbPictureSizeOnProductDetailsPage" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="ProductThumbPictureSizeOnProductDetailsPage" sm-postfix="@T("Common.Pixel")"></setting-editor>
+                        <span asp-validation-for="ProductThumbPictureSizeOnProductDetailsPage"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ProductThumbPictureSize" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="ProductThumbPictureSize" sm-postfix="@T("Common.Pixel")"></setting-editor>
+                        <span asp-validation-for="ProductThumbPictureSize"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ProductDetailsPictureSize" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="ProductDetailsPictureSize" sm-postfix="@T("Common.Pixel")"></setting-editor>
+                        <span asp-validation-for="ProductDetailsPictureSize"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="AssociatedProductPictureSize" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="AssociatedProductPictureSize" sm-postfix="@T("Common.Pixel")"></setting-editor>
+                        <span asp-validation-for="AssociatedProductPictureSize"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="BundledProductPictureSize" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="BundledProductPictureSize" sm-postfix="@T("Common.Pixel")"></setting-editor>
+                        <span asp-validation-for="BundledProductPictureSize"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="MessageProductThumbPictureSize" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="MessageProductThumbPictureSize" sm-postfix="@T("Common.Pixel")"></setting-editor>
+                        <span asp-validation-for="MessageProductThumbPictureSize"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CategoryThumbPictureSize" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="CategoryThumbPictureSize" sm-postfix="@T("Common.Pixel")"></setting-editor>
+                        <span asp-validation-for="CategoryThumbPictureSize"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ManufacturerThumbPictureSize" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="ManufacturerThumbPictureSize" sm-postfix="@T("Common.Pixel")"></setting-editor>
+                        <span asp-validation-for="ManufacturerThumbPictureSize"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CartThumbPictureSize" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="CartThumbPictureSize" sm-postfix="@T("Common.Pixel")"></setting-editor>
+                        <span asp-validation-for="CartThumbPictureSize"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CartThumbBundleItemPictureSize" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="CartThumbBundleItemPictureSize" sm-postfix="@T("Common.Pixel")"></setting-editor>
+                        <span asp-validation-for="CartThumbBundleItemPictureSize"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="MiniCartThumbPictureSize" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="MiniCartThumbPictureSize" sm-postfix="@T("Common.Pixel")"></setting-editor>
+                        <span asp-validation-for="MiniCartThumbPictureSize"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="AvatarPictureSize" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="AvatarPictureSize" sm-postfix="@T("Common.Pixel")"></setting-editor>
+                        <span asp-validation-for="AvatarPictureSize"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="admin-config-group">
+                        <div class="title">
+                            @T("Admin.Configuration.Settings.Media.MediaTypes")
+                        </div>
+                        <div class="text-muted">
+                            @T("Admin.Configuration.Settings.Media.MediaTypesNotes")
+                        </div>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ImageTypes" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="ImageTypes"></setting-editor>
+                        <span asp-validation-for="ImageTypes"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="VideoTypes" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="VideoTypes"></setting-editor>
+                        <span asp-validation-for="VideoTypes"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="AudioTypes" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="AudioTypes"></setting-editor>
+                        <span asp-validation-for="AudioTypes"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="DocumentTypes" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="DocumentTypes"></setting-editor>
+                        <span asp-validation-for="DocumentTypes"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="TextTypes" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="TextTypes"></setting-editor>
+                        <span asp-validation-for="TextTypes"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="BinTypes" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="BinTypes"></setting-editor>
+                        <span asp-validation-for="BinTypes"></span>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="StorageProvider" />
-            </div>
-            <div class="adminData">
-                <select asp-for="StorageProvider" asp-items="ViewBag.AvailableStorageProvider"></select>
+        </tab>
+        <tab sm-title="@T("Admin.Configuration.Settings.Media.FileStorage")">
+            <div class="adminContent">
+                <div class="adminRow">
+                    <div>
+                        @*<div class="admin-config-group">
+                            <div class="title">
+                                @(T("Admin.Configuration.Settings.Media.MediaIsStoredIn"))&hellip;
+                            </div>
+                        </div>*@
+                        <div class="alert alert-warning">
+                            <p>
+                                @T("Admin.Configuration.Settings.Media.MoveMediaNote")
+                            </p>
+                            <p>
+                                @(T("Admin.Configuration.Settings.Media.CurrentStorageLocation")):
+                                <strong>@Model.StorageProvider</strong>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="StorageProvider" />
+                    </div>
+                    <div class="adminData">
+                        <select asp-for="StorageProvider" asp-items="ViewBag.AvailableStorageProvider"></select>
 
-                <button type="button" id="MoveMediaButton" class="btn btn-danger mt-3" data-url="@Url.Action("ChangeMediaStorage")">
-                    <i class="fa fa-fw fa-dolly"></i>
-                    <span>@(T("Admin.Common.MoveNow"))!</span>
-                </button>
+                        <button type="button" id="MoveMediaButton" class="btn btn-danger mt-3" data-url="@Url.Action("ChangeMediaStorage")">
+                            <i class="fa fa-fw fa-dolly"></i>
+                            <span>@(T("Admin.Common.MoveNow"))!</span>
+                        </button>
 
-                <span asp-validation-for="StorageProvider"></span>
+                        <span asp-validation-for="StorageProvider"></span>
+                    </div>
+                </div>
             </div>
-        </div>
-    </div>
+        </tab>
+        <tab sm-title="@T("Common.Advanced")">
+            <div class="adminContent">
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="DefaultResamplingMode" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="DefaultResamplingMode"></setting-editor>
+                        <span asp-validation-for="DefaultResamplingMode"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="DefaultImageQuality" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="DefaultImageQuality"></setting-editor>
+                        <span asp-validation-for="DefaultImageQuality"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="JpegColorType" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="JpegColorType"></setting-editor>
+                        <span asp-validation-for="JpegColorType"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="PngCompressionLevel" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="PngCompressionLevel"></setting-editor>
+                        <span asp-validation-for="PngCompressionLevel"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="PngQuantizationMethod" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="PngQuantizationMethod"></setting-editor>
+                        <span asp-validation-for="PngQuantizationMethod"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="PngInterlaced" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="PngInterlaced"></setting-editor>
+                        <span asp-validation-for="PngInterlaced"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="PngIgnoreMetadata" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="PngIgnoreMetadata"></setting-editor>
+                        <span asp-validation-for="PngIgnoreMetadata"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="GifQuantizationMethod" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="GifQuantizationMethod"></setting-editor>
+                        <span asp-validation-for="GifQuantizationMethod"></span>
+                    </div>
+                </div>
+
+                <div class="adminRow">
+                    <div class="admin-config-group">
+                        <div class="title">
+                            Response Caching
+                        </div>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ResponseCacheDuration" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="ResponseCacheDuration"></setting-editor>
+                        <span asp-validation-for="ResponseCacheDuration"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ResponseCacheLocation" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="ResponseCacheLocation"></setting-editor>
+                        <span asp-validation-for="ResponseCacheLocation"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ResponseCacheNoStore" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="ResponseCacheNoStore"></setting-editor>
+                        <span asp-validation-for="ResponseCacheNoStore"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="AppendFileVersionToUrl" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="AppendFileVersionToUrl"></setting-editor>
+                        <span asp-validation-for="AppendFileVersionToUrl"></span>
+                    </div>
+                </div>
+            </div>
+        </tab>
+    </tabstrip>
 </form>
 
 <script sm-target-zone="Scripts" data-origin="MediaSettings">

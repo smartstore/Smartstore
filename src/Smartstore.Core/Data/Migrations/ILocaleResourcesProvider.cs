@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-
-namespace Smartstore.Core.Data.Migrations
+﻿namespace Smartstore.Core.Data.Migrations
 {
     /// <summary>
     /// Seeds new or updated locale resources after a migration has run. 

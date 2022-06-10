@@ -1,32 +1,11 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Smartstore.Core.Checkout.Orders;
-using Smartstore.Domain;
 
 namespace Smartstore.Core.Identity
 {
-    internal class RewardPointsHistoryMap : IEntityTypeConfiguration<RewardPointsHistory>
-    {
-        public void Configure(EntityTypeBuilder<RewardPointsHistory> builder)
-        {
-            //builder.HasOne(c => c.Customer)
-            //    .WithMany(c => c.RewardPointsHistory)
-            //    .HasForeignKey(c => c.CustomerId)
-            //    .IsRequired(false)
-            //    .OnDelete(DeleteBehavior.Cascade);
-
-            //builder.HasOne(c => c.UsedWithOrder)
-            //    .WithOne(c => c.RedeemedRewardPointsEntry)
-            //    .HasForeignKey<RewardPointsHistory>(c => c.UsedWithOrderId)
-            //    .OnDelete(DeleteBehavior.SetNull);
-        }
-    }
-
     /// <summary>
     /// Represents a reward points history entry.
     /// </summary>

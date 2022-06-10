@@ -1,0 +1,61 @@
+﻿@model CurrentCartModel
+
+@{
+    var parentModel = ViewData["Parent"] as CurrentCartListModel;
+    var productString = T("Admin.CurrentCarts.Product");
+    var storeString = T("Admin.Common.Store");
+    var quantityString = T("Admin.CurrentCarts.Quantity");
+    var unitPriceString = T("Admin.CurrentCarts.UnitPrice");
+    var totalString = T("Admin.CurrentCarts.Total");
+}
+
+<datagrid id="current-carts-grid"
+          key-member="CustomerId"
+          allow-resize="true"
+          preserve-grid-state="true" preserve-command-state="true"
+          allow-column-reordering="true">
+    <datasource read="@Url.Action("CurrentCartList", new { cartType = parentModel.CartType })" />
+    <paging position="Bottom" show-size-chooser="true" />
+    <sorting enabled="false"></sorting>
+    <toolbar>
+        <toolbar-group>
+            <button datagrid-action="DataGridToolAction.ToggleSearchPanel" type="button" class="btn btn-light btn-icon">
+                <i class="fa fa-fw fa-filter"></i>
+            </button>
+        </toolbar-group>
+        <zone name="datagrid_toolbar_omega"></zone>
+    </toolbar>
+    <search-panel>
+        <partial name="_Grid.CurrentCarts.Search" model="parentModel" />
+    </search-panel>
+    <columns>
+        <column for="CustomerEmail" hideable="false">
+            <display-template>
+                <div class="text-truncate"><a :href="item.row.CustomerEditUrl" class="text-truncate">{{ item.row.CustomerEmail }}</a></div>
+            </display-template>
+        </column>
+        <column for="TotalItems" halign="center" width="1fr" />
+        <column for="LatestCartItemDate" width="1fr" />
+    </columns>
+    <detail-view>
+        <div class="datagrid-root">
+            <sm-datagrid :ref="'cart-items-grid' + item.row.CustomerId"
+                         :id="'cart-items-grid' + item.row.CustomerId"
+                         :options="{ keyMemberName: 'Id', vborders: true, hover: false, striped: true, allowRowSelection: false }"
+                         :data-source="{ read: '@Url.Action("CurrentCartDetailsList")?customerId=' + item.row.CustomerId + '&cartType=@parentModel.CartType' }"
+                         :columns="[
+                            { member: 'ProductName', name: '@productString', visible: true, title: '@productString' },
+                            { member: 'Store', name: '@storeString', visible: true, title: '@storeString' },
+                            { member: 'Quantity', name: 'Quantity', visible: true, halign: 'center', type: 'int', title: '@quantityString' },
+                            { member: 'UnitPrice', name: '@unitPriceString', visible: true, halign: 'right', title: '@unitPriceString' },
+                            { member: 'Total', name: '@totalString', visible: true, halign: 'right', title: '@totalString' } ]"
+                         :paging="{ enabled: false }"
+                         :sorting="{ enabled: false }">
+                <template v-slot:display-productname="item">
+                    <span class='mr-1 badge' v-bind:class="'badge-' + item.row.ProductTypeLabelHint">{{ item.row.ProductTypeName }}</span>
+                    <a class="text-truncate" v-bind:href="item.row.ProductEditUrl">{{ item.value }}</a>
+                </template>
+            </sm-datagrid>
+        </div>
+    </detail-view>
+</datagrid>

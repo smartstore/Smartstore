@@ -24,7 +24,7 @@ namespace Smartstore.Engine
         /// <summary>
         /// Returns a value indicating whether the engine has been started (after all starters).
         /// </summary>
-        bool IsStarted { get; }
+        bool IsStarted { get; set; }
 
         /// <summary>
         /// Returns a value indicating whether the engine has been initialized (after all starters AND initializers).

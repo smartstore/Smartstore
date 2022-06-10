@@ -1,84 +1,72 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-	<Import Project="..\Build\Smartstore.Common.props" />
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <WarningLevel>4</WarningLevel>
-    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-    <WarningsAsErrors>;NU1605</WarningsAsErrors>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <Optimize>false</Optimize>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <Compile Remove="Authentication\**" />
-    <Compile Remove="Caching\Redis\Common\**" />
-    <Compile Remove="Mocks\**" />
-    <Compile Remove="Utilities\ObjectPools\**" />
-    <Compile Remove="Web\**" />
-    <EmbeddedResource Remove="Authentication\**" />
-    <EmbeddedResource Remove="Caching\Redis\Common\**" />
-    <EmbeddedResource Remove="Mocks\**" />
-    <EmbeddedResource Remove="Utilities\ObjectPools\**" />
-    <EmbeddedResource Remove="Web\**" />
-    <None Remove="Authentication\**" />
-    <None Remove="Caching\Redis\Common\**" />
-    <None Remove="Mocks\**" />
-    <None Remove="Utilities\ObjectPools\**" />
-    <None Remove="Web\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Include="Caching\Redis\Common\IRedisConnectionFactory.cs" />
-    <Compile Include="Caching\Redis\Common\RedisConnectionFactory.cs" />
-    <Compile Include="Caching\Redis\Common\RedisLock.cs" />
-    <Compile Include="Caching\Redis\Common\RedisUtility.cs" />
-  </ItemGroup>
-  
-  <ItemGroup>
-    <FrameworkReference Include="Microsoft.AspNetCore.App" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Linq\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="AngleSharp" Version="0.16.0" />
-    <PackageReference Include="AngleSharp.Css" Version="0.16.1" />
-    <PackageReference Include="AsyncEnumerator" Version="4.0.2" />
-    <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="7.1.0" />
-    <PackageReference Include="CronExpressionDescriptor" Version="2.16.0" />
-    <PackageReference Include="HtmlSanitizer" Version="6.0.441" />
-    <PackageReference Include="Humanizer" Version="2.11.10" />
-    <PackageReference Include="MailKit" Version="2.15.0" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.0-rc.1.21452.10" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="6.0.0-rc.1.21452.10" />
-		<PackageReference Include="Microsoft.Extensions.DependencyModel" Version="5.0.0" />
-    <PackageReference Include="ncrontab" Version="3.3.1" />
-    <PackageReference Include="Newtonsoft.Json.Bson" Version="1.0.2" />
-    <PackageReference Include="SixLabors.ImageSharp" Version="1.0.4" />
-    <PackageReference Include="StackExchange.Redis" Version="2.2.50" />
-    <PackageReference Include="System.IO.FileSystem.AccessControl" Version="5.0.0" />
-    <PackageReference Include="System.Linq.Dynamic.Core" Version="1.2.12" />
-    <PackageReference Include="System.ServiceModel.Syndication" Version="5.0.0" />
-  </ItemGroup>
+	<Import Project="..\Smartstore.Build\Smartstore.Common.props" />
 
 	<ItemGroup>
-		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
-			<_Parameter1>Smartstore.Tests</_Parameter1>
-		</AssemblyAttribute>
-		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
-			<_Parameter1>Smartstore.Core</_Parameter1>
-		</AssemblyAttribute>
-		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
-			<_Parameter1>Smartstore.Web</_Parameter1>
-		</AssemblyAttribute>
+		<FrameworkReference Include="Microsoft.AspNetCore.App" />
 	</ItemGroup>
+	
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+        <DefineConstants>DEBUG;TRACE</DefineConstants>
+        <WarningLevel>4</WarningLevel>
+        <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+        <WarningsAsErrors>;NU1605</WarningsAsErrors>
+    </PropertyGroup>
+
+	<PropertyGroup>
+		<Optimize>false</Optimize>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+	</PropertyGroup>
+
+	<!--<ItemGroup>
+		<Compile Include="..\GlobalUsings.cs">
+			<Link>GlobalUsings.cs</Link>
+		</Compile>
+	</ItemGroup>-->
+	
+    <ItemGroup>
+        <PackageReference Include="AngleSharp" Version="0.16.1" />
+        <PackageReference Include="AngleSharp.Css" Version="0.16.3" />
+        <PackageReference Include="AsyncEnumerator" Version="4.0.2" />
+        <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="7.2.0" />
+        <PackageReference Include="CronExpressionDescriptor" Version="2.16.0" />
+        <PackageReference Include="HtmlSanitizer" Version="7.1.475" />
+        <PackageReference Include="Humanizer" Version="2.13.14" />
+        <PackageReference Include="MailKit" Version="3.1.0" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.4" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="6.0.4" />
+        <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="6.0.0" />
+        <PackageReference Include="ncrontab" Version="3.3.1" />
+        <PackageReference Include="Newtonsoft.Json.Bson" Version="1.0.2" />
+        <PackageReference Include="NuGet.Protocol" Version="6.0.0" />
+        <PackageReference Include="SixLabors.ImageSharp" Version="2.1.1" />
+        <PackageReference Include="System.IO.FileSystem.AccessControl" Version="5.0.0" />
+        <PackageReference Include="System.Linq.Dynamic.Core" Version="1.2.15" />
+        <PackageReference Include="System.ServiceModel.Syndication" Version="6.0.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+            <_Parameter1>Smartstore.Tests</_Parameter1>
+        </AssemblyAttribute>
+        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+            <_Parameter1>Smartstore.Core.Tests</_Parameter1>
+        </AssemblyAttribute>
+        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+	        <_Parameter1>Smartstore.Core</_Parameter1>
+        </AssemblyAttribute>
+        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+	        <_Parameter1>Smartstore.Web</_Parameter1>
+        </AssemblyAttribute>
+        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+	        <_Parameter1>Smartstore.Web.Common</_Parameter1>
+        </AssemblyAttribute>
+        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+            <_Parameter1>Smartstore.MegaSearch.Tests</_Parameter1>
+        </AssemblyAttribute>
+        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+            <_Parameter1>Smartstore.Azure.Tests</_Parameter1>
+        </AssemblyAttribute>
+    </ItemGroup>
 
 </Project>

@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
 using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
 using Smartstore.Caching;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Cart;
@@ -160,7 +155,6 @@ namespace Smartstore.Core.Catalog.Attributes
             return result;
         }
 
-        // TODO: (mg) (core) Check DynamicEntityHelper return value handling of MaterializeProductVariantAttributeValuesAsync (now returns IList instead of ICollection).
         public virtual async Task<IList<ProductVariantAttributeValue>> MaterializeProductVariantAttributeValuesAsync(ProductVariantAttributeSelection selection)
         {
             Guard.NotNull(selection, nameof(selection));
@@ -251,32 +245,36 @@ namespace Smartstore.Core.Catalog.Attributes
                     case AttributeControlType.FileUpload:
                         if (getFilesFromRequest)
                         {
-                            var files = _httpContextAccessor?.HttpContext?.Request?.Form?.Files;
-                            if (files?.Any() ?? false)
+                            var request = _httpContextAccessor?.HttpContext?.Request;
+                            if (request != null && request.HasFormContentType)
                             {
-                                var postedFile = files[ProductVariantQueryItem.CreateKey(productId, bundleItemId, pva.ProductAttributeId, pva.Id)];
-                                if (postedFile != null && postedFile.FileName.HasValue())
+                                var files = request.Form.Files;
+                                if (files != null && files.Count > 0)
                                 {
-                                    if (postedFile.Length > _catalogSettings.Value.FileUploadMaximumSizeBytes)
+                                    var postedFile = files[ProductVariantQueryItem.CreateKey(productId, bundleItemId, pva.ProductAttributeId, pva.Id)];
+                                    if (postedFile != null && postedFile.FileName.HasValue())
                                     {
-                                        warnings.Add(T("ShoppingCart.MaximumUploadedFileSize", (int)(_catalogSettings.Value.FileUploadMaximumSizeBytes / 1024)));
-                                    }
-                                    else
-                                    {
-                                        var download = new Download
+                                        if (postedFile.Length > _catalogSettings.Value.FileUploadMaximumSizeBytes)
                                         {
-                                            DownloadGuid = Guid.NewGuid(),
-                                            UseDownloadUrl = false,
-                                            DownloadUrl = string.Empty,
-                                            UpdatedOnUtc = DateTime.UtcNow,
-                                            EntityId = productId,
-                                            EntityName = "ProductAttribute"
-                                        };
+                                            warnings.Add(T("ShoppingCart.MaximumUploadedFileSize", (int)(_catalogSettings.Value.FileUploadMaximumSizeBytes / 1024)));
+                                        }
+                                        else
+                                        {
+                                            var download = new Download
+                                            {
+                                                DownloadGuid = Guid.NewGuid(),
+                                                UseDownloadUrl = false,
+                                                DownloadUrl = string.Empty,
+                                                UpdatedOnUtc = DateTime.UtcNow,
+                                                EntityId = productId,
+                                                EntityName = "ProductAttribute"
+                                            };
 
-                                        using var stream = postedFile.OpenReadStream();
-                                        await _downloadService.Value.InsertDownloadAsync(download, stream, postedFile.FileName);
+                                            using var stream = postedFile.OpenReadStream();
+                                            await _downloadService.Value.InsertDownloadAsync(download, stream, postedFile.FileName);
 
-                                        selection.AddAttributeValue(pva.Id, download.DownloadGuid.ToString());
+                                            selection.AddAttributeValue(pva.Id, download.DownloadGuid.ToString());
+                                        }
                                     }
                                 }
                             }
@@ -560,6 +558,7 @@ namespace Smartstore.Core.Catalog.Attributes
             return await _db.ProductVariantAttributeValues
                 .Include(x => x.ProductVariantAttribute)
                 .ThenInclude(x => x.ProductAttribute)
+                .AsSplitQuery()
                 .AsNoTracking()
                 .Where(x => attributeIds.Contains(x.ProductVariantAttributeId) && valueIds.Contains(x.Id))
                 .ApplyListTypeFilter()
@@ -570,10 +569,34 @@ namespace Smartstore.Core.Catalog.Attributes
             ProductVariantAttributeSelection selection,     
             ICollection<ProductVariantAttributeCombination> attributeCombinationsLookup)
         {
+            if (!attributeCombinationsLookup.Any())
+            {
+                return null;
+            }
+
+            ProductVariantAttributeSelection listTypeSelection;
+            var listTypeValues = await MaterializeProductVariantAttributeValuesAsync(selection);
+            var listTypeAttributesIds = listTypeValues.Select(x => x.ProductVariantAttributeId).ToArray();
+
+            if (selection.AttributesMap.Any(x => !listTypeAttributesIds.Contains(x.Key)))
+            {
+                // Remove attributes that are not of type list from selection.
+                listTypeSelection = new ProductVariantAttributeSelection(null);
+
+                foreach (var item in selection.AttributesMap.Where(x => listTypeAttributesIds.Contains(x.Key)))
+                {
+                    listTypeSelection.AddAttribute(item.Key, item.Value);
+                }
+            }
+            else
+            {
+                listTypeSelection = selection;
+            }
+
             // TODO: (core) (important) (future) Save combination hash in table and always lookup by hash instead of iterating thru local data to find a match.
             foreach (var combination in attributeCombinationsLookup)
             {
-                if (selection.Equals(combination.AttributeSelection))
+                if (listTypeSelection.Equals(combination.AttributeSelection))
                 {
                     return await _db.ProductVariantAttributeCombinations.FindByIdAsync(combination.Id);
                 }

@@ -9,8 +9,9 @@
           onrowclass="queuedEmails_onRowClass">
     <datasource read="@Url.Action("QueuedEmailList")" delete="@Url.Action("QueuedEmailDelete")" />
     <paging position="Bottom" show-size-chooser="true" />
-    <sorting enabled="true" allow-unsort="true" allow-multisort="false">
-        <sort by="CreatedOn" descending="true" />
+    <sorting enabled="true" allow-unsort="true" allow-multisort="true">
+        <sort by="Priority" descending="true" />
+        <sort by="CreatedOn" by-entity-member="CreatedOnUtc" descending="true" />
     </sorting>
     <toolbar>
         <toolbar-group>
@@ -18,7 +19,10 @@
                 <i class="fa fa-fw fa-filter"></i>
             </button>
         </toolbar-group>
-        <toolbar-group class="omega">
+        <zone name="datagrid_toolbar_alpha"></zone>
+        <toolbar-group class="omega"></toolbar-group>
+        <zone name="datagrid_toolbar_omega"></zone>
+        <toolbar-group>
             <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger btn-flat">
                 <i class="far fa-trash-alt"></i>
                 <span>@T("Admin.Common.Delete.Selected")</span>
@@ -40,13 +44,13 @@
             </display-template>
         </column>
         <column for="AttachmentsCount" halign="center" sortable="false" icon="fa fa-paperclip" width="max-content" resizable="false" title="" />
-        <column for="EmailAccountName" width="300px" title="@T("Admin.System.QueuedEmails.Fields.From")" />
+        <column for="EmailAccountName" width="300px" title="@T("Admin.System.QueuedEmails.Fields.From")" entity-member="EmailAccount.DisplayName" />
         <column for="To" width="300px" />
+        <column for="Priority" halign="center" />
         <column for="SentTries" halign="center" />
         <column for="SentOn" entity-member="SentOnUtc" />
         <column for="CreatedOn" entity-member="CreatedOnUtc" />
 
-        <column for="Priority" halign="center" visible="false" />
         <column for="SendManually" halign="center" visible="false" />
         <column for="From" visible="false" width="300px" />
         <column for="CC" visible="false" width="300px" />

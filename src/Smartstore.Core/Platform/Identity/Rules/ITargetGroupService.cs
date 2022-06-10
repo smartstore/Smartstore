@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using Smartstore.Collections;
+﻿using Smartstore.Collections;
 using Smartstore.Core.Rules;
 using Smartstore.Core.Rules.Filters;
 

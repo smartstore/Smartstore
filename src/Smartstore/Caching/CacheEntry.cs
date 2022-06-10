@@ -1,6 +1,4 @@
-﻿using System;
-using System.Threading;
-using Microsoft.Extensions.Caching.Memory;
+﻿using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json;
 using Smartstore.ComponentModel;
 using Smartstore.ComponentModel.JsonConverters;
@@ -48,20 +46,34 @@ namespace Smartstore.Caching
         public object Value { get; set; }
 
         /// <summary>
-        /// Gets or sets the creation date of the cache entry.
+        /// Gets or sets the creation UTC date of the cache entry.
         /// </summary>
         public DateTimeOffset CachedOn { get; set; } = DateTimeOffset.UtcNow;
 
         /// <summary>
-        /// Gets or sets the last accessed date of the cache entry.
+        /// Gets or sets the last accessed UTC date of the cache entry.
         /// </summary>
         /// <remarks>For future use.</remarks>
-        public DateTimeOffset LastAccessedOn { get; set; }
+        public DateTimeOffset? LastAccessedOn { get; set; }
 
         /// <summary>
-        /// Gets or sets the entries expiration timeout.
+        /// Gets or sets the entries absolute expiration relative to now.
         /// </summary>
-        public TimeSpan? Duration { get; set; }
+        public TimeSpan? AbsoluteExpiration { get; set; }
+
+        /// <summary>
+        /// Gets or sets how long a cache entry can be inactive (e.g. not accessed) before
+        //  it will be removed. This will not extend the entry lifetime beyond the absolute
+        //  expiration (if set).
+        /// </summary>
+        public TimeSpan? SlidingExpiration { get; set; }
+
+        /// <summary>
+        /// Whether time expiration policy should be applied to the entry
+        /// in the underlying cache store. Defaults to <c>true</c>.
+        /// </summary>
+        [JsonIgnore]
+        public bool ApplyTimeExpirationPolicy { get; set; } = true;
 
         /// <summary>
         /// Gets or sets the priority for keeping the cache entry in the cache during a
@@ -90,27 +102,40 @@ namespace Smartstore.Caching
         [JsonIgnore]
         public bool HasExpired
         {
-            get
-            {
-                if (Duration == null)
-                {
-                    return false;
-                }
-
-                return CachedOn.Add(Duration.Value) < DateTimeOffset.UtcNow;
-            }
+            get => GetTimeToLive() <= TimeSpan.Zero;
         }
 
         /// <summary>
-        ///  Returns the remaining time to live of an entry that has a timeout.
+        /// Returns the remaining time to live of an entry that has a timeout.
         /// </summary>
         /// <remarks>
         /// TTL, or <c>null</c> when entry does not have a timeout.
         /// </remarks>
-        [JsonIgnore]
-        public TimeSpan? TimeToLive
+        public TimeSpan? GetTimeToLive(DateTimeOffset? utcNow = null)
         {
-            get => Duration.HasValue ? CachedOn.Add(Duration.Value) - DateTimeOffset.UtcNow : null;
+            utcNow ??= DateTimeOffset.UtcNow;
+
+            if (SlidingExpiration.HasValue)
+            {
+                var slidingTime = ((LastAccessedOn ?? CachedOn) + SlidingExpiration) - utcNow;
+
+                if (AbsoluteExpiration.HasValue)
+                {
+                    var absTime = (CachedOn + AbsoluteExpiration) - utcNow;
+                    // Don't go beyond absolute expiration.
+                    return slidingTime < absTime ? slidingTime : absTime;
+                }
+                else
+                {
+                    return slidingTime;
+                }
+            }
+            else if (AbsoluteExpiration.HasValue)
+            {
+                return (CachedOn + AbsoluteExpiration) - utcNow;
+            }
+
+            return null;
         }
 
         object ICloneable.Clone() => Clone();
@@ -125,7 +150,9 @@ namespace Smartstore.Caching
                 Dependencies = this.Dependencies,
                 LastAccessedOn = this.LastAccessedOn,
                 CachedOn = DateTime.UtcNow,
-                Duration = this.TimeToLive,
+                AbsoluteExpiration = this.AbsoluteExpiration,
+                SlidingExpiration = this.SlidingExpiration,
+                ApplyTimeExpirationPolicy = this.ApplyTimeExpirationPolicy,
                 CancelTokenSourceOnRemove = this.CancelTokenSourceOnRemove
             };
         }

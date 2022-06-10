@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Smartstore.Domain;
+﻿using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Smartstore.Core.Catalog.Discounts
 {

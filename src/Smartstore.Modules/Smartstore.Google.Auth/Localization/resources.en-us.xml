@@ -1,0 +1,45 @@
+﻿<Language Name="English" IsDefault="false" IsRightToLeft="false">
+  <LocaleResource Name="Plugins.FriendlyName.Smartstore.Google.Auth" AppendRootKey="false">
+    <Value>Google Login</Value>
+  </LocaleResource>
+	<LocaleResource Name="Plugins.Description.Smartstore.Google.Auth" AppendRootKey="false">
+		<Value>Adds Google authentication to the store.</Value>
+	</LocaleResource>
+	<LocaleResource Name="AdminInstruction">
+		<Value>
+			<![CDATA[
+			<p>How to set up Google authentication: </p>
+				<ul>
+					<li>Create new credentials at <a href="https://console.developers.google.com/apis/credentials">Google</a>.
+							If not done already, a new project must be created on the <a href="https://console.cloud.google.com/">Google Cloud Platform</a> beforehand.
+					</li>
+					<li>Click <b>Create credentials &gt; OAuth client ID</b>.</li>
+					<li>Enter the credentials at the bottom of this form.</li>.
+					<li>The URL listed below must be entered at <b>Sign-in credentials &gt; Authorized forwarding URIs</b>.</li>.
+					<li>Activate automatic registration in the shop's customer settings if you want to register externally authorized visitors automatically.</li>
+				</ul>
+			]]>
+		</Value>
+	</LocaleResource>
+	<LocaleResource Name="Login">
+		<Value>Sign in with Google</Value>
+	</LocaleResource>
+	<LocaleResource Name="ClientKeyIdentifier">
+		<Value>API Key</Value>
+	</LocaleResource>
+	<LocaleResource Name="ClientKeyIdentifier.Hint">
+		<Value>Enter your API Key here.</Value>
+	</LocaleResource>
+	<LocaleResource Name="ClientSecret">
+		<Value>Secret</Value>
+	</LocaleResource>
+	<LocaleResource Name="ClientSecret.Hint">
+		<Value>Enter your consumer secret here.</Value>
+	</LocaleResource>
+	<LocaleResource Name="RedirectUri">
+		<Value>OAuth Redirect URI</Value>
+	</LocaleResource>
+	<LocaleResource Name="RedirectUri.Hint">
+		<Value>The OAuth Redirect URI to be entered on Google.</Value>
+	</LocaleResource>
+</Language>

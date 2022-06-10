@@ -1,7 +1,4 @@
-﻿using Smartstore.Web.Modelling;
-using System;
-
-namespace Smartstore.Admin.Models.Logging
+﻿namespace Smartstore.Admin.Models.Logging
 {
     [LocalizedDisplay("Admin.System.Log.Fields.")]
     public class LogModel : EntityModelBase

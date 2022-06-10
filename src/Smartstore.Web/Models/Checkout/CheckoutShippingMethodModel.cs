@@ -1,8 +1,4 @@
-﻿using Smartstore.Core.Common;
-using Smartstore.Web.Modelling;
-using System.Collections.Generic;
-
-namespace Smartstore.Web.Models.Checkout
+﻿namespace Smartstore.Web.Models.Checkout
 {
     public partial class CheckoutShippingMethodModel : ModelBase
     {

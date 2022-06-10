@@ -1,0 +1,52 @@
+﻿@using Smartstore.Admin.Models.Localization
+
+@model LanguageResourceListModel
+
+@{
+    ViewBag.Title = T("Admin.Configuration.Languages.Localization").Value;
+
+    var allLanguages = ViewBag.AllLanguages as List<SelectListItem>;
+
+    var gridViewData = new ViewDataDictionary(ViewData);
+    gridViewData["Parent"] = Model;
+}
+
+<div class="section-header">
+    <div class="title">
+        <i class="fa fa-language"></i>
+        <span>@ViewBag.Title</span>
+        <a asp-action="List">(@T("Admin.Common.BackToList"))</a>
+    </div>
+    <div class="options">
+        <zone name="admin_button_toolbar_before" />
+        <zone name="admin_button_toolbar_after" />
+    </div>
+</div>
+
+<p sm-if="allLanguages != null">
+    <div class="adminContent">
+        <div class="adminRow">
+            <div class="adminTitle">
+                @Html.SmartLabel("localeresource-language", T("Admin.Configuration.Languages.Select"))
+            </div>
+            <div class="adminData">
+                @Html.DropDownList("localeresource-language", (IEnumerable<SelectListItem>)ViewBag.AllLanguages)
+            </div>
+        </div>
+    </div>
+</p>
+
+<div class="alert alert-info alert-dismissible">
+    @T("Admin.Configuration.Languages.Resources.Description")
+    <button type="button" class="close" data-dismiss="alert">&times;</button>
+</div>
+
+<partial name="_Grid.Resources" model="null" view-data="gridViewData" />
+
+<script sm-target-zone="scripts" data-origin="language-resources">
+    $(function () {
+        $('#localeresource-language').on('change', function () {
+            window.location = '@(Url.Action("Resources") + "?languageId=")' + $(this).val();
+        });
+    });
+</script>

@@ -1,19 +1,16 @@
-﻿using System;
-using Autofac;
-using Microsoft.Extensions.Logging;
+﻿using Autofac;
 using Smartstore.Caching;
-using Smartstore.Caching.OutputCache;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Logging;
+using Smartstore.Core.OutputCache;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
 using Smartstore.Core.Web;
 using Smartstore.Diagnostics;
-using Smartstore.Engine;
 using Smartstore.Events;
 
 namespace Smartstore.Core
@@ -42,8 +39,6 @@ namespace Smartstore.Core
         IMediaService MediaService { get; }
         IDisplayControl DisplayControl { get; }
         ICurrencyService CurrencyService { get; }
-
-        // TODO: (core) Add more props to ICommonServices once they drop in.
     }
 
     public static class ICommonServicesExtensions

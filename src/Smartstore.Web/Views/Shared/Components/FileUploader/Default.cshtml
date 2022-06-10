@@ -11,8 +11,6 @@
     var maxFilesSize = Model.MaxFileSize ?? MediaSettings.MaxUploadFileSize;
 }
 
-<script src="/bundle/js/fileuploader.js" sm-target-zone="scripts" sm-key="fileuploader"></script>
-
 <div attr-class='(Model.MultiFile || !Model.HasTemplatePreview, "dropzone-container")'>
     <div class="dropzone-target">
         <div class="dropzone-file-info d-flex align-items-center">
@@ -125,7 +123,10 @@
         </div>
     }
 }
-<script sm-target-zone="scripts" data-origin="FileUploader">
+
+<script src="~/bundle/js/fileuploader.js" sm-target-zone="scripts" sm-key="fileuploader"></script>
+
+<script data-origin="FileUploader">
     $(function () {
         // Init dropzone
         $("#@Model.Name").dropzoneWrapper({

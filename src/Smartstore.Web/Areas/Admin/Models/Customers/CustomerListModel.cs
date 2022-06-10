@@ -1,14 +1,10 @@
-﻿using Smartstore.Web.Modelling;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Smartstore.Admin.Models.Customers
 {
     [LocalizedDisplay("Admin.Customers.Customers.List.")]
     public class CustomerListModel : ModelBase
     {
-        // TODO: (mh) (core) This aint save!!! Editor template values are retrieved via AJAX. No telling which call will be executed first.
-        // This ain't a problem when no value is preselected. But here the registered role is preselected.
-        // Sometimes it'll work sometimes not, depending on which AJAX call succeeds first.
         [UIHint("CustomerRoles")]
         [AdditionalMetadata("multiple", true)]
         [LocalizedDisplay("*CustomerRoles")]
@@ -24,11 +20,15 @@ namespace Smartstore.Admin.Models.Customers
         [LocalizedDisplay("*SearchTerm")]
         public string SearchTerm { get; set; }
 
+        [LocalizedDisplay("*SearchCustomerNumber")]
+        public string SearchCustomerNumber { get; set; }
 
         [LocalizedDisplay("*SearchDateOfBirth")]
         public string SearchDayOfBirth { get; set; }
         [LocalizedDisplay("*SearchDateOfBirth")]
         public string SearchMonthOfBirth { get; set; }
+        [LocalizedDisplay("*SearchDateOfBirth")]
+        public string SearchYearOfBirth { get; set; }
         public bool DateOfBirthEnabled { get; set; }
 
         public bool CompanyEnabled { get; set; }

@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using Smartstore.Core.Catalog.Attributes;
+﻿using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Attributes;
 using Smartstore.Core.Identity;
@@ -58,10 +56,10 @@ namespace Smartstore.Core.Checkout.Cart
         /// <summary>
         /// Validates cart item for <see cref="GiftCards.GiftCardInfo"/>.
         /// </summary>
-        /// <param name="cartItem">Shopping cart item with product and attribute selection informations.</param>
-        /// <param name="warnings">List of errors as string.</param>
-        /// <returns></returns>
-        bool ValidateGiftCardInfo(ShoppingCartItem cartItem, IList<string> warnings);
+        /// <param name="product">Product.</param>
+        /// <param name="selection">Selected product attributes.</param>
+        /// <param name="warnings">List of warnings.</param>
+        bool ValidateGiftCardInfo(Product product, ProductVariantAttributeSelection selection, IList<string> warnings);
 
         /// <summary>
         /// Validates product settings, authorization and availability.

@@ -1,8 +1,5 @@
-﻿using System;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 namespace Smartstore.Web.Rendering
@@ -27,7 +24,7 @@ namespace Smartstore.Web.Rendering
         {
             Guard.NotNull(model, nameof(model));
 
-            return Clone(viewContext, new ViewDataDictionary<TModel>(viewContext.ViewData, model));
+            return Clone(viewContext, (ViewDataDictionary)new ViewDataDictionary<TModel>(viewContext.ViewData, model));
         }
 
         /// <summary>

@@ -1,10 +1,6 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
+﻿using System.Diagnostics;
 using System.Text.Encodings.Web;
 using Microsoft.AspNetCore.Html;
-using Smartstore.Utilities;
 
 namespace Smartstore.Core.Localization
 {
@@ -14,8 +10,8 @@ namespace Smartstore.Core.Localization
     [DebuggerDisplay("{Value}")]
     public class LocalizedString : IHtmlContent
     {
-        public LocalizedString(string value)
-            : this(value, null, false, Array.Empty<object>())
+        public LocalizedString(string value, bool isResourceNotFound = false)
+            : this(value, null, isResourceNotFound, Array.Empty<object>())
         {
         }
 

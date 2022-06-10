@@ -1,6 +1,4 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
-using Smartstore.Web.Modelling;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Smartstore.Admin.Models.Scheduling
 {

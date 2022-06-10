@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Drawing;
 using System.Globalization;
-using System.IO;
 using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.FileProviders;
 using Newtonsoft.Json;
@@ -18,6 +14,7 @@ namespace Smartstore.Core.Content.Media
     {
         private string _alt;
         private string _title;
+        private Size _size;    
 
         private readonly IMediaService _mediaService;
         private readonly IMediaStorageProvider _storageProvider;
@@ -40,7 +37,7 @@ namespace Smartstore.Core.Content.Media
 
             if (file.Width != null && file.Height != null)
             {
-                Size = new Size(file.Width.Value, file.Height.Value);
+                _size = new Size(file.Width.Value, file.Height.Value);
             }
 
             _cachedUrls.Clear();
@@ -92,7 +89,7 @@ namespace Smartstore.Core.Content.Media
         public bool Hidden => File.Hidden;
 
         [JsonProperty("createdOn")]
-        public DateTime CreatedOn => File.CreatedOnUtc;
+        public DateTimeOffset CreatedOn => File.CreatedOnUtc;
 
         [JsonProperty("alt", NullValueHandling = NullValueHandling.Ignore)]
         public string Alt
@@ -183,7 +180,8 @@ namespace Smartstore.Core.Content.Media
 
         /// <inheritdoc/>
         [JsonIgnore]
-        IFileSystem IFileEntry.FileSystem => throw new NotSupportedException();
+        IFileSystem IFileEntry.FileSystem 
+            => throw new NotSupportedException();
 
         /// <inheritdoc/>
         [JsonIgnore]
@@ -202,46 +200,47 @@ namespace Smartstore.Core.Content.Media
         public string Directory { get; private set; }
 
         [JsonProperty("title")]
-        public string NameWithoutExtension => System.IO.Path.GetFileNameWithoutExtension(Name);
+        public string NameWithoutExtension 
+            => System.IO.Path.GetFileNameWithoutExtension(Name);
 
         [JsonProperty("ext")]
-        public string Extension => File.Extension != null ? "." + File.Extension : null;
+        public string Extension 
+            => File.Extension != null ? "." + File.Extension : null;
 
         [JsonProperty("dimensions")]
-        public Size Size { get; private set; }
+        public Size Size
+        {
+            get => _size;
+        }
 
         /// <inheritdoc/>
         public Stream OpenRead()
         {
-            if (!Exists)
+            if (Exists)
             {
-                throw new FileNotFoundException(Path);
+                return _storageProvider.OpenRead(File);
             }
 
-            return _storageProvider.OpenRead(File);
+            throw new FileNotFoundException(Path);
         }
 
         /// <inheritdoc/>
         public Task<Stream> OpenReadAsync()
         {
-            if (!Exists)
+            if (Exists)
             {
-                throw new FileNotFoundException(Path);
+                return _storageProvider.OpenReadAsync(File);
             }
 
-            return _storageProvider.OpenReadAsync(File);
+            throw new FileNotFoundException(Path);
         }
-
-        /// <inheritdoc/>
-        public Stream OpenWrite()
-            => throw new NotSupportedException();
 
         /// <inheritdoc/>
         void IFileEntry.Delete()
             => ((IFile)this).DeleteAsync().Await();
 
         /// <inheritdoc/>
-        async Task IFileEntry.DeleteAsync()
+        async Task IFileEntry.DeleteAsync(CancellationToken cancelToken)
         {
             if (!Exists)
             {
@@ -253,11 +252,15 @@ namespace Smartstore.Core.Content.Media
         }
 
         /// <inheritdoc/>
+        Size IFile.GetPixelSize()
+            => _size;
+
+        /// <inheritdoc/>
         IFile IFile.CopyTo(string newPath, bool overwrite)
             => ((IFile)this).CopyToAsync(newPath, overwrite).Await();
 
         /// <inheritdoc/>
-        async Task<IFile> IFile.CopyToAsync(string newPath, bool overwrite)
+        async Task<IFile> IFile.CopyToAsync(string newPath, bool overwrite, CancellationToken cancelToken)
         {
             if (!Exists)
             {
@@ -273,7 +276,7 @@ namespace Smartstore.Core.Content.Media
             => ((IFile)this).MoveToAsync(newPath).Await();
 
         /// <inheritdoc/>
-        async Task IFileEntry.MoveToAsync(string newPath)
+        async Task IFileEntry.MoveToAsync(string newPath, CancellationToken cancelToken)
         {
             if (!Exists)
             {
@@ -289,7 +292,7 @@ namespace Smartstore.Core.Content.Media
             => ((IFile)this).CreateAsync(inStream, overwrite).Await();
 
         /// <inheritdoc/>
-        async Task IFile.CreateAsync(Stream inStream, bool overwrite)
+        async Task IFile.CreateAsync(Stream inStream, bool overwrite, CancellationToken cancelToken)
         {
             var file = await _mediaService.SaveFileAsync(Path, inStream, false, overwrite ? DuplicateFileHandling.Overwrite : DuplicateFileHandling.ThrowError);
             Initialize(file.File, file.Directory);

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Smartstore.Scheduling
+﻿namespace Smartstore.Scheduling
 {
     public sealed class TaskActivationException : Exception
     {

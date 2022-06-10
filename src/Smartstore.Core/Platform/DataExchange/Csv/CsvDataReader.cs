@@ -6,11 +6,8 @@
 //
 //	MIT license (http://en.wikipedia.org/wiki/MIT_License)
 
-using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Data;
-using System.IO;
 using LumenWorks.Framework.IO.Csv;
 
 namespace Smartstore.Core.DataExchange.Csv
@@ -20,9 +17,6 @@ namespace Smartstore.Core.DataExchange.Csv
     /// </summary>
     public class CsvDataReader : Disposable, IDataReader, IEnumerable<string[]>
     {
-        // TODO: (core) CsvDataReader is a perfect candidate for Memory, Span & co. to reduce
-        // mem allocation. Try to refactor sometime in future.
-
         private readonly CsvReader _csv;
         private readonly IDataReader _reader;
 

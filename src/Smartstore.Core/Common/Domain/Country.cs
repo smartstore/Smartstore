@@ -1,14 +1,11 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Newtonsoft.Json;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Stores;
 using Smartstore.Data.Caching;
-using Smartstore.Domain;
 
 namespace Smartstore.Core.Common
 {
@@ -19,7 +16,8 @@ namespace Smartstore.Core.Common
             builder
                 .HasOne(x => x.DefaultCurrency)
                 .WithMany()
-                .HasForeignKey(x => x.DefaultCurrencyId);
+                .HasForeignKey(x => x.DefaultCurrencyId)
+                .OnDelete(DeleteBehavior.SetNull);
 
             builder
                 .HasMany(x => x.StateProvinces)
@@ -127,7 +125,6 @@ namespace Smartstore.Core.Common
         /// <summary>
         /// Gets or sets the state/provinces
         /// </summary>
-        [JsonIgnore]
         public ICollection<StateProvince> StateProvinces
         {
             get => _stateProvinces ?? LazyLoader.Load(this, ref _stateProvinces) ?? (_stateProvinces ??= new HashSet<StateProvince>());

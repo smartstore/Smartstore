@@ -2,7 +2,6 @@
 using Smartstore.Core.Localization;
 using Smartstore.Core.Stores;
 using Smartstore.Data.Caching;
-using Smartstore.Domain;
 
 namespace Smartstore.Core.Messaging
 {

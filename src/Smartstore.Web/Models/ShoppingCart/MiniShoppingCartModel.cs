@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Core.Catalog.Products;
-using Smartstore.Core.Common;
 using Smartstore.Core.Localization;
-using Smartstore.Web.Modelling;
 using Smartstore.Web.Models.Catalog;
 using Smartstore.Web.Models.Media;
 

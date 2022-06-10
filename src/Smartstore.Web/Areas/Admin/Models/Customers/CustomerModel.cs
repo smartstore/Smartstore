@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using FluentValidation;
-using Smartstore.Core.Common;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Security;
-using Smartstore.Web.Modelling;
-using Smartstore.Web.Modelling.Validation;
 using Smartstore.Web.Models.Common;
 
 namespace Smartstore.Admin.Models.Customers
@@ -142,13 +137,16 @@ namespace Smartstore.Admin.Models.Customers
         [LocalizedDisplay("Admin.Customers.CustomerRoles")]
         public int[] SelectedCustomerRoleIds { get; set; }
         public bool AllowManagingCustomerRoles { get; set; }
+
         public bool DisplayRewardPointsHistory { get; set; }
+        public bool DisplayProfileLink { get; set; }
 
         [LocalizedDisplay("Admin.Customers.Customers.AssociatedExternalAuth")]
         public List<AssociatedExternalAuthModel> AssociatedExternalAuthRecords { get; set; } = new();
 
         public bool Deleted { get; set; }
         public string EditUrl { get; set; }
+        public bool HasOrders { get; set; }
         public PermissionTree PermissionTree { get; set; }
         public List<AddressModel> Addresses { get; set; } = new();
 
@@ -220,19 +218,6 @@ namespace Smartstore.Admin.Models.Customers
             [LocalizedDisplay("Common.CreatedOn")]
             public DateTime CreatedOn { get; set; }
             public string EditUrl { get; set; }
-        }
-
-        [LocalizedDisplay("Admin.Customers.Customers.ActivityLog.")]
-        public partial class ActivityLogModel : EntityModelBase
-        {
-            [LocalizedDisplay("*ActivityLogType")]
-            public string ActivityLogTypeName { get; set; }
-
-            [LocalizedDisplay("*Comment")]
-            public string Comment { get; set; }
-
-            [LocalizedDisplay("Common.CreatedOn")]
-            public DateTime CreatedOn { get; set; }
         }
 
         public class SendEmailValidator : SmartValidator<SendEmailModel>

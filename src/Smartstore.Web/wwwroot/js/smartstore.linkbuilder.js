@@ -140,7 +140,7 @@
                 type = elem.data('type');
 
             var btn = cnt.find('.btn-linktype'),
-                icon = elem.find('> i').attr('class').replace('fa-fw ', ''),
+                icon = elem.find('> i').attr('class')?.replace('fa-fw ', ''), 
                 name = elem.find('span').text();
 
             btn.find('i').attr('class', icon);

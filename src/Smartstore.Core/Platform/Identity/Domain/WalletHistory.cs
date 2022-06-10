@@ -1,31 +1,10 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Smartstore.Core.Checkout.Orders;
-using Smartstore.Domain;
 
 namespace Smartstore.Core.Identity
 {
-    internal class WalletHistoryMap : IEntityTypeConfiguration<WalletHistory>
-    {
-        public void Configure(EntityTypeBuilder<WalletHistory> builder)
-        {
-            //builder.HasOne(c => c.Customer)
-            //    .WithMany(c => c.WalletHistory)
-            //    .HasForeignKey(c => c.CustomerId)
-            //    .OnDelete(DeleteBehavior.Cascade)
-            //    .IsRequired(false);
-
-            //builder.HasOne(c => c.Order)
-            //    .WithMany(c => c.WalletHistory)
-            //    .HasForeignKey(c => c.OrderId)
-            //    .OnDelete(DeleteBehavior.ClientSetNull);
-        }
-    }
-
     /// <summary>
     /// Represents a digital wallet history entry.
     /// </summary>

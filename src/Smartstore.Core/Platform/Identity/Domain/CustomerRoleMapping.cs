@@ -1,29 +1,8 @@
-﻿using System;
-using System.Diagnostics.CodeAnalysis;
-using Microsoft.EntityFrameworkCore;
+﻿using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Smartstore.Domain;
 
 namespace Smartstore.Core.Identity
 {
-    internal class CustomerRoleMappingMap : IEntityTypeConfiguration<CustomerRoleMapping>
-    {
-        public void Configure(EntityTypeBuilder<CustomerRoleMapping> builder)
-        {
-            //builder.HasOne(c => c.Customer)
-            //    .WithMany(c => c.CustomerRoleMappings)
-            //    .HasForeignKey(c => c.CustomerId)
-            //    .IsRequired(false)
-            //    .OnDelete(DeleteBehavior.Cascade);
-
-            //builder.HasOne(c => c.CustomerRole)
-            //    .WithMany()
-            //    .HasForeignKey(c => c.CustomerRoleId)
-            //    .OnDelete(DeleteBehavior.Cascade);
-        }
-    }
-
     /// <summary>
     /// Represents a customer to customer role mapping.
     /// </summary>

@@ -7,8 +7,11 @@
           allow-row-selection="true"
           allow-column-reordering="true">
     <datasource read="@Url.Action("EmailAccountList", "EmailAccount")"
-                delete="@Url.Action("DeleteEmailAccounts", "EmailAccount")" />
+                delete="@Url.Action("EmailAccountDelete", "EmailAccount")" />
     <paging position="Bottom" show-size-chooser="true" />
+    <sorting enabled="false">
+        <sort by="Id" />
+    </sorting>
     <toolbar>
         <toolbar-group>
             <a asp-action="Create" class="btn btn-primary btn-flat no-anims mr-auto">
@@ -16,7 +19,10 @@
                 <span>@T("Admin.Common.AddNew")...</span>
             </a>
         </toolbar-group>
-        <toolbar-group class="omega">
+        <zone name="datagrid_toolbar_alpha"></zone>
+        <toolbar-group class="omega"></toolbar-group>
+        <zone name="datagrid_toolbar_omega"></zone>
+        <toolbar-group>
             <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger no-anims btn-flat">
                 <i class="far fa-trash-alt"></i>
                 <span>@T("Admin.Common.Delete.Selected")</span>
@@ -33,7 +39,7 @@
         </column>
         <column for="DisplayName" width="1fr" />
         <column for="Host" width="1fr" />
-        <column for="Port" />
+        <column for="Port" halign="center" />
         <column for="EnableSsl" halign="center" />
         <column for="IsDefaultEmailAccount" halign="center" />
     </columns>

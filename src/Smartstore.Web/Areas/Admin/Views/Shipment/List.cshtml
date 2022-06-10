@@ -1,0 +1,23 @@
+﻿@model ShipmentListModel
+
+@{
+    ViewBag.Title = T("Admin.Orders.Shipments.List").Value;
+
+    Assets.BodyAttributes.AppendCssClass("spa-layout");
+
+    var gridViewData = new ViewDataDictionary(ViewData);
+    gridViewData["Parent"] = Model;
+}
+
+<div class="section-header">
+    <div class="title">
+        <i class="fa fa-truck-moving fa-flip-horizontal"></i>
+        <span>@ViewBag.Title</span>
+    </div>
+</div>
+<div class="options">
+    <zone name="admin_button_toolbar_before" />
+    <zone name="admin_button_toolbar_after" />
+</div>
+
+<partial name="_Grid.Shipments" model="null" view-data="gridViewData" />

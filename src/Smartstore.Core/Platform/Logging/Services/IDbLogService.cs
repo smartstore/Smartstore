@@ -1,8 +1,4 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace Smartstore.Core.Logging
+﻿namespace Smartstore.Core.Logging
 {
     /// <summary>
     /// Manager for log entity database storage.

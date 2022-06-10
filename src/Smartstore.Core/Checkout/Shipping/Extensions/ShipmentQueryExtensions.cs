@@ -1,7 +1,4 @@
-﻿using System;
-using System.Linq;
-
-namespace Smartstore.Core.Checkout.Shipping
+﻿namespace Smartstore.Core.Checkout.Shipping
 {
     /// <summary>
     /// Shipment query extensions
@@ -25,7 +22,7 @@ namespace Smartstore.Core.Checkout.Shipping
                 query = query.Where(x => x.CreatedOnUtc <= endTime);
             }
 
-            return query.OrderBy(x => x.CreatedOnUtc);
+            return query.OrderByDescending(x => x.CreatedOnUtc);
         }
 
         /// <summary>
@@ -54,17 +51,6 @@ namespace Smartstore.Core.Checkout.Shipping
                 .Where(x => shipmentIds.Contains(x.Id))
                 .OrderBy(x => x.Id)
                 .ThenBy(x => x.CreatedOnUtc);
-        }
-
-        /// <summary>
-        /// Applies tracking filter to shipment query
-        /// </summary>
-        public static IQueryable<Shipment> ApplyTrackingFilter(this IQueryable<Shipment> query, string trackingNumber)
-        {
-            Guard.NotNull(query, nameof(query));
-            Guard.NotEmpty(trackingNumber, nameof(trackingNumber));
-
-            return query.Where(x => x.TrackingNumber.Contains(trackingNumber));
         }
     }
 }

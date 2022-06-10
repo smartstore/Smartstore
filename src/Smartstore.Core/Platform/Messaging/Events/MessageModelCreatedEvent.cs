@@ -1,6 +1,4 @@
-﻿using Smartstore.Core.Messaging;
-
-namespace Smartstore.Core.Messaging.Events
+﻿namespace Smartstore.Core.Messaging.Events
 {
     /// <summary>
     /// Published after the message model has been completely created.

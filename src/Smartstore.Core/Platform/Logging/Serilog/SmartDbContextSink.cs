@@ -1,15 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Autofac;
-using Microsoft.EntityFrameworkCore;
+﻿using Autofac;
 using Serilog.Events;
 using Serilog.Sinks.PeriodicBatching;
 using Smartstore.Core.Data;
 using Smartstore.Data;
 using Smartstore.Data.Hooks;
-using Smartstore.Engine;
 
 namespace Smartstore.Core.Logging.Serilog
 {
@@ -61,20 +55,28 @@ namespace Smartstore.Core.Logging.Serilog
 
         private Log CovertLogEvent(LogEvent e)
         {
-            return new Log
+            var shortMessage = e.RenderMessage(_formatProvider);
+            if (shortMessage?.Length > 4000)
+            {
+                shortMessage = shortMessage.Truncate(4000);
+            }
+
+            var log = new Log
             {
                 LogLevelId = e.Level == LogEventLevel.Verbose ? 0 : (int)e.Level * 10,
-                ShortMessage = e.RenderMessage(_formatProvider),
+                ShortMessage = shortMessage,
                 FullMessage = e.Exception?.ToString(),
                 CreatedOnUtc = e.Timestamp.UtcDateTime,
                 Logger = e.GetSourceContext() ?? "Unknown", // TODO: "Unknown" or "Smartstore"??
-                IpAddress = e.GetScalarPropertyValue<string>("Ip"),
-                CustomerId = e.GetScalarPropertyValue<int?>("CustomerId"),
-                PageUrl = e.GetScalarPropertyValue<string>("Url"),
-                ReferrerUrl = e.GetScalarPropertyValue<string>("Referrer"),
-                HttpMethod = e.GetScalarPropertyValue<string>("HttpMethod"),
-                UserName = e.GetScalarPropertyValue<string>("UserName")
+                IpAddress = e.GetPropertyValue<string>("Ip"),
+                CustomerId = e.GetPropertyValue<int?>("CustomerId"),
+                PageUrl = e.GetPropertyValue<string>("Url"),
+                ReferrerUrl = e.GetPropertyValue<string>("Referrer"),
+                HttpMethod = e.GetPropertyValue<string>("HttpMethod"),
+                UserName = e.GetPropertyValue<string>("UserName")
             };
+
+            return log;
         }
     }
 }

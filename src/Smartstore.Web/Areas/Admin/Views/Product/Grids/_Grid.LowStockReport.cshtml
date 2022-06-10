@@ -1,0 +1,23 @@
+﻿@model ProductOverviewModel
+
+<datagrid id="low-stock-report-grid" allow-resize="true">
+    <datasource read="@Url.Action("LowStockReportList")" />
+    <paging position="Bottom" />
+    <sorting enabled="true"></sorting>
+    <columns>
+        <column for="Name" width="3fr" hideable="false">
+            <display-template>
+                @Html.LabeledProductName()
+            </display-template>
+        </column>
+        <column for="Sku" />
+        <column for="Gtin" visible="false" />
+        <column for="ManufacturerPartNumber" visible="false" />
+        <column for="Price" halign="flex-end" />
+        <column for="StockQuantity" halign="center" />
+        <column for="MinStockQuantity" halign="center" visible="false" />
+        <column for="CreatedOn" entity-member="CreatedOnUtc" readonly="true" visible="false" />
+        <column for="UpdatedOn" entity-member="UpdatedOnUtc" readonly="true" />
+        <column for="Published" halign="center" />
+    </columns>
+</datagrid>

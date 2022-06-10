@@ -1,20 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Runtime.CompilerServices;
 using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
 using Smartstore.Caching;
 using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
-using Smartstore.Core.Seo.Routing;
-using Smartstore.Data.Hooks;
-using Smartstore.Core.Stores;
-using Smartstore.Core.Web;
 using Smartstore.Core.Security;
+using Smartstore.Core.Seo.Routing;
+using Smartstore.Core.Stores;
+using Smartstore.Data.Hooks;
 
 namespace Smartstore.Core.Seo
 {
@@ -405,62 +398,77 @@ namespace Smartstore.Core.Seo
             {
                 throw new ArgumentException("Unvalidated slugs cannot be applied. Consider obtaining 'ValidateSlugResult' from 'ValidateSlugAsync()' method.", nameof(result));
             }
-            
-            if (string.IsNullOrWhiteSpace(result.Slug))
-            {
-                return null;
-            }
 
             var dirty = false;
             var entry = result.Found;
             var languageId = result.LanguageId ?? 0;
 
-            if (entry != null && result.FoundIsSelf)
+            if (string.IsNullOrWhiteSpace(result.Slug))
             {
-                // Found record refers to requested entity
-                if (entry.IsActive)
+                // Disable the previous active URL record.
+                var currentActive = await GetActiveEntryFromStoreAsync();
+                if (currentActive != null)
                 {
-                    // ...and is active. Do nothing, 'cause nothing changed.
-                }
-                else
-                {
-                    // ...and is inactive. Make it active
-                    entry.IsActive = true;
                     dirty = true;
+                    currentActive.IsActive = false;
+                }
+            }
+            else
+            {
+                if (entry != null && result.FoundIsSelf)
+                {
+                    // Found record refers to requested entity
+                    if (entry.IsActive)
+                    {
+                        // ...and is active. Do nothing, 'cause nothing changed.
+                    }
+                    else
+                    {
+                        // ...and is inactive. Make it active
+                        entry.IsActive = true;
+                        dirty = true;
 
-                    // ...and make the current active one(s) inactive.
+                        // ...and make the current active one(s) inactive.
+                        var currentActive = await GetActiveEntryFromStoreAsync();
+                        if (currentActive != null)
+                        {
+                            currentActive.IsActive = false;
+                        }
+                    }
+                }
+
+                if (entry == null || !result.FoundIsSelf)
+                {
+                    // Disable the previous active URL record.
                     var currentActive = await GetActiveEntryFromStoreAsync();
                     if (currentActive != null)
                     {
                         currentActive.IsActive = false;
                     }
+
+                    // Create new entry because no entry was found or found one refers to another entity.
+                    // Because unvalidated slugs cannot be passed to this method we assume slug uniqueness.
+                    entry = new UrlRecord
+                    {
+                        EntityId = result.Source.Id,
+                        EntityName = result.EntityName,
+                        Slug = result.Slug,
+                        LanguageId = languageId,
+                        IsActive = true,
+                    };
                 }
-            }
 
-            if (entry == null || !result.FoundIsSelf)
-            {
-                // Create new entry because no entry was found or found one refers to another entity.
-                // Because unvalidated slugs cannot be passed to this method we assume slug uniqueness.
-                entry = new UrlRecord
+                if (entry != null && entry.IsTransientRecord())
                 {
-                    EntityId = result.Source.Id,
-                    EntityName = result.EntityName,
-                    Slug = result.Slug,
-                    LanguageId = languageId,
-                    IsActive = true,
-                };
-            }
+                    // It's a freshly created record, add to set.
+                    _db.UrlRecords.Add(entry);
 
-            if (entry != null && entry.IsTransientRecord())
-            {
-                // It's a freshly created record, add to set.
-                _db.UrlRecords.Add(entry);
+                    // When we gonna save deferred, adding the new entry to our extra lookup
+                    // will ensure that subsequent validation does not miss new records.
+                    _extraSlugLookup[entry.Slug] = entry;
 
-                // When we gonna save deferred, adding the new entry to our extra lookup
-                // will ensure that subsequent validation does not miss new records.
-                _extraSlugLookup[entry.Slug] = entry;
-
-                dirty = true;
+                    dirty = true;
+                }
             }
 
             if (dirty && save)
@@ -483,7 +491,7 @@ namespace Smartstore.Core.Seo
                             return record.IsTransientRecord() ? null : record;
                         }
                     }
-                    
+
                     return await _db.UrlRecords
                         .ApplyEntityFilter(result.Source, languageId, true)
                         .FirstOrDefaultAsync();
@@ -495,23 +503,16 @@ namespace Smartstore.Core.Seo
 
         public virtual async ValueTask<ValidateSlugResult> ValidateSlugAsync<T>(T entity,
             string seName,
+            string displayName,
             bool ensureNotEmpty,
             int? languageId = null)
             where T : ISlugSupported
         {
             Guard.NotNull(entity, nameof(entity));
 
-            var displayName = entity.GetDisplayName();
-            var entityName = entity.GetEntityName();
-
-            // Use entity DisplayName if seName is not specified
+            // Use displayName if seName is not specified.
             if (string.IsNullOrWhiteSpace(seName) && !string.IsNullOrWhiteSpace(displayName))
             {
-                // TODO: (core) ValidateSlugAsync returns a slug even if ensureNotEmpty is False -> slug for a specific language can no longer be deleted using "URL alias" field.
-                // RE: I don't get it. This code here bahaves exactly like before. Hmmm ??
-                // 1.) Edit ForumGroup > add localized name for all languages > save (localized URL alias is not empty anymore) > try to remove localized URL alias > save > localized URL alias not removed.
-                // 2.) Create a new forum. Localized Editor shows 'Standard', DE, EN for me. I enter a name only for 'Standard', nothing else > Save.
-                // URL alias is created for 'Standard', DE and EN. But it must be created only for 'Standard'.
                 seName = displayName;
             }
 
@@ -527,17 +528,17 @@ namespace Smartstore.Core.Seo
                 if (ensureNotEmpty)
                 {
                     // Use entity identifier as slug if empty
-                    slug = entityName.ToLower() + entity.Id.ToStringInvariant();
+                    slug = entity.GetEntityName().ToLower() + entity.Id.ToStringInvariant();
                 }
                 else
                 {
                     // Return. no need for further processing
-                    return new ValidateSlugResult 
-                    { 
-                        Source = entity, 
-                        Slug = slug, 
-                        LanguageId = languageId, 
-                        WasValidated = true 
+                    return new ValidateSlugResult
+                    {
+                        Source = entity,
+                        Slug = slug,
+                        LanguageId = languageId,
+                        WasValidated = true
                     };
                 }
             }
@@ -561,7 +562,7 @@ namespace Smartstore.Core.Seo
             {
                 // Check whether such slug already exists in the database
                 var urlRecord = _extraSlugLookup.Get(tempSlug) ?? (await _db.UrlRecords.FirstOrDefaultAsync(x => x.Slug == tempSlug));
-                
+
                 // Check whether found record refers to requested entity
                 foundIsSelf = FoundRecordIsSelf(entity, urlRecord, languageId);
 

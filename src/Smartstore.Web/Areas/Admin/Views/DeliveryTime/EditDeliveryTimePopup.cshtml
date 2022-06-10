@@ -3,14 +3,14 @@
 @model DeliveryTimeModel
 
 @{
-    ViewBag.Title = T("Admin.Configuration.DeliveryTimes.EditDeliveryTimeDetails").Value;
+    ViewBag.Title = T("Admin.Configuration.DeliveryTime.EditDeliveryTimeDetails").Value;
     Layout = "_AdminPopupLayout";
 }
 
 <form asp-action="EditDeliveryTimePopup" asp-route-btnId="@ViewBag.BtnId" asp-route-formId="@ViewBag.FormId">
     <div class="section-header">
         <div class="title">
-            @T("Admin.Configuration.DeliveryTime.EditDeliveryTimeDetails")
+            @ViewBag.Title
         </div>
         <div class="options">
             <button type="submit" name="save" id="save" value="save" class="btn btn-warning">

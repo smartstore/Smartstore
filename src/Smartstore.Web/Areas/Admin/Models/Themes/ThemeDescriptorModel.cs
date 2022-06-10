@@ -1,5 +1,4 @@
-﻿using System;
-using Smartstore.Collections;
+﻿using Smartstore.Collections;
 using Smartstore.Core.Theming;
 
 namespace Smartstore.Admin.Models.Themes

@@ -1,19 +1,5 @@
-﻿using System;
-
-namespace Smartstore.Core.Content.Menus
+﻿namespace Smartstore.Core.Content.Menus
 {
-    //public enum LinkType
-    //{
-    //    Product = 0,
-    //    Category,
-    //    Manufacturer,
-    //    Topic,
-    //    BlogPost, // TODO: (core) Move LinkType.BlogPost & LinkType.NewsItem to external module somehow
-    //    NewsItem,
-    //    Url = 20,
-    //    File = 30
-    //}
-
     public enum LinkStatus
     {
         Ok,

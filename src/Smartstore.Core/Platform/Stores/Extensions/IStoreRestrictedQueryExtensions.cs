@@ -1,42 +1,36 @@
-﻿using System;
-using System.Linq;
-using Smartstore.Core.Data;
-using Smartstore.Domain;
+﻿using Smartstore.Core.Data;
 
 namespace Smartstore.Core.Stores
 {
     public static partial class IStoreRestrictedQueryExtensions
     {
+        /// <summary>
+        /// Applies filter for entities restricted by store.
+        /// </summary>
+        /// <param name="storeId">Store identifier to be filtered by. 0 to get all entities.</param>
         public static IQueryable<T> ApplyStoreFilter<T>(this IQueryable<T> query, int storeId)
-            where T : BaseEntity, IStoreRestricted
+            where T : BaseEntity, IStoreRestricted, new()
         {
             Guard.NotNull(query, nameof(query));
 
-            // TODO: (core) Find a way to make ApplyStoreFilter to work in cross-context scenarios.
-
-            var db = query.GetDbContext<SmartDbContext>();
-            if (storeId == 0 || db.QuerySettings.IgnoreMultiStore)
+            if (storeId == 0)
             {
                 return query;
             }
 
-            var entityName = typeof(T).Name;
+            var db = query.GetDbContext<SmartDbContext>();
+            if (db.QuerySettings.IgnoreMultiStore)
+            {
+                return query;
+            }
 
-            query = from x in query
-                    join m in db.StoreMappings
-                    on new { id = x.Id, name = entityName } equals new { id = m.EntityId, name = m.EntityName } into xm
-                    from sc in xm.DefaultIfEmpty()
-                    where !x.LimitedToStores || storeId == sc.StoreId
-                    select x;
+            var entityName = new T().GetEntityName();
 
-            // TODO: (core) Does not work with efcore5 anymore 
-            //query = query.Distinct();
+            var subQuery = db.StoreMappings
+                .Where(x => x.EntityName == entityName && x.StoreId == storeId)
+                .Select(x => x.EntityId);
 
-            //// Does not work anymore in efcore
-            //query = from c in query
-            //        group c by c.Id into cGroup
-            //        orderby cGroup.Key
-            //        select cGroup.FirstOrDefault();
+            query = query.Where(x => !x.LimitedToStores || subQuery.Contains(x.Id));
 
             return query;
         }

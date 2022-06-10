@@ -1,24 +1,9 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Smartstore.Domain;
 
 namespace Smartstore.Core.Localization
 {
-    internal class LocalizedPropertyMap : IEntityTypeConfiguration<LocalizedProperty>
-    {
-        public void Configure(EntityTypeBuilder<LocalizedProperty> builder)
-        {
-            builder
-                .HasOne(x => x.Language)
-                .WithMany(navigationName: null)
-                .HasForeignKey(x => x.LanguageId);
-        }
-    }
-
     /// <summary>
     /// Represents a localized property
     /// </summary>

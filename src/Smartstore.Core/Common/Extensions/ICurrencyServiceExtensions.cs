@@ -1,8 +1,6 @@
-﻿using Smartstore.Core.Catalog.Pricing;
-using Smartstore.Core.Checkout.Orders;
+﻿using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Common;
 using Smartstore.Core.Common.Services;
-using Smartstore.Core.Localization;
 
 namespace Smartstore
 {
@@ -93,124 +91,6 @@ namespace Smartstore
             Guard.NotNull(targetCurrency, nameof(targetCurrency));
 
             return amount.ExchangeTo(targetCurrency, service.PrimaryExchangeCurrency);
-        }
-
-        #endregion
-
-        #region Tax
-
-        /// <summary>
-        ///     Applies a tax formatting pattern to given <c>product</c> money <paramref name="source"/>,
-        ///     e.g. "{0} *", "{0} incl. tax"
-        /// </summary>
-        /// <param name="source">
-        ///     The source <see cref="Money"/> to apply formatting to.
-        /// </param>
-        /// <param name="displayTaxSuffix">
-        ///     A value indicating whether to display the tax suffix.
-        ///     If <c>null</c>, current setting will be obtained via <see cref="TaxSettings.DisplayTaxSuffix"/> and
-        ///     additionally via <see cref="TaxSettings.ShippingPriceIncludesTax"/> or <see cref="TaxSettings.PaymentMethodAdditionalFeeIncludesTax"/>
-        ///     according to <paramref name="target"/>.
-        /// </param>
-        /// <param name="priceIncludesTax">
-        ///     A value indicating whether given price includes tax already.
-        ///     If <c>null</c>, current setting will be obtained via <see cref="IWorkContext.TaxDisplayType"/>.
-        /// </param>
-        /// <param name="target">
-        ///     The target object to format price for. This parameter affects how <paramref name="displayTax"/>
-        ///     will be auto-resolved if it is <c>null</c>.
-        /// </param>
-        /// <param name="language">
-        ///     Language for tax suffix. If <c>null</c>, language will be obtained via <see cref="IWorkContext.WorkingLanguage"/>.
-        /// </param>
-        /// <returns>Money</returns>
-        public static Money ApplyTaxFormat(this ICurrencyService currencyService,
-            Money source,
-            bool? displayTaxSuffix = null,
-            bool? priceIncludesTax = null,
-            Language language = null)
-        {
-            if (source == 0)
-                return source;
-
-            var format = currencyService.GetTaxFormat(displayTaxSuffix, priceIncludesTax, PricingTarget.Product, language);
-            return source.WithPostFormat(format);
-        }
-
-        /// <summary>
-        ///     Applies a tax formatting pattern to given <c>shipping charge</c> money <paramref name="source"/>,
-        ///     e.g. "{0} *", "{0} incl. tax"
-        /// </summary>
-        /// <param name="source">
-        ///     The source <see cref="Money"/> to apply formatting to.
-        /// </param>
-        /// <param name="displayTaxSuffix">
-        ///     A value indicating whether to display the tax suffix.
-        ///     If <c>null</c>, current setting will be obtained via <see cref="TaxSettings.DisplayTaxSuffix"/> and
-        ///     additionally via <see cref="TaxSettings.ShippingPriceIncludesTax"/> or <see cref="TaxSettings.PaymentMethodAdditionalFeeIncludesTax"/>
-        ///     according to <paramref name="target"/>.
-        /// </param>
-        /// <param name="priceIncludesTax">
-        ///     A value indicating whether given price includes tax already.
-        ///     If <c>null</c>, current setting will be obtained via <see cref="IWorkContext.TaxDisplayType"/>.
-        /// </param>
-        /// <param name="target">
-        ///     The target object to format price for. This parameter affects how <paramref name="displayTax"/>
-        ///     will be auto-resolved if it is <c>null</c>.
-        /// </param>
-        /// <param name="language">
-        ///     Language for tax suffix. If <c>null</c>, language will be obtained via <see cref="IWorkContext.WorkingLanguage"/>.
-        /// </param>
-        /// <returns>Money</returns>
-        public static Money ApplyShippingChargeTaxFormat(this ICurrencyService currencyService,
-            Money source,
-            bool? displayTaxSuffix = null,
-            bool? priceIncludesTax = null,
-            Language language = null)
-        {
-            if (source == 0)
-                return source;
-
-            var format = currencyService.GetTaxFormat(displayTaxSuffix, priceIncludesTax, PricingTarget.ShippingCharge, language);
-            return source.WithPostFormat(format);
-        }
-
-        /// <summary>
-        ///     Applies a tax formatting pattern to given <c>payment fee</c> money <paramref name="source"/>,
-        ///     e.g. "{0} *", "{0} incl. tax"
-        /// </summary>
-        /// <param name="source">
-        ///     The source <see cref="Money"/> to apply formatting to.
-        /// </param>
-        /// <param name="displayTaxSuffix">
-        ///     A value indicating whether to display the tax suffix.
-        ///     If <c>null</c>, current setting will be obtained via <see cref="TaxSettings.DisplayTaxSuffix"/> and
-        ///     additionally via <see cref="TaxSettings.ShippingPriceIncludesTax"/> or <see cref="TaxSettings.PaymentMethodAdditionalFeeIncludesTax"/>
-        ///     according to <paramref name="target"/>.
-        /// </param>
-        /// <param name="priceIncludesTax">
-        ///     A value indicating whether given price includes tax already.
-        ///     If <c>null</c>, current setting will be obtained via <see cref="IWorkContext.TaxDisplayType"/>.
-        /// </param>
-        /// <param name="target">
-        ///     The target object to format price for. This parameter affects how <paramref name="displayTax"/>
-        ///     will be auto-resolved if it is <c>null</c>.
-        /// </param>
-        /// <param name="language">
-        ///     Language for tax suffix. If <c>null</c>, language will be obtained via <see cref="IWorkContext.WorkingLanguage"/>.
-        /// </param>
-        /// <returns>Money</returns>
-        public static Money ApplyPaymentFeeTaxFormat(this ICurrencyService currencyService,
-            Money source,
-            bool? displayTaxSuffix = null,
-            bool? priceIncludesTax = null,
-            Language language = null)
-        {
-            if (source == 0)
-                return source;
-
-            var format = currencyService.GetTaxFormat(displayTaxSuffix, priceIncludesTax, PricingTarget.PaymentFee, language);
-            return source.WithPostFormat(format);
         }
 
         #endregion

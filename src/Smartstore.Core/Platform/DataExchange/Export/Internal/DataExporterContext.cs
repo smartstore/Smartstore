@@ -1,8 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using Microsoft.Extensions.Logging;
-using Smartstore.Core.Catalog.Brands;
+﻿using Smartstore.Core.Catalog.Brands;
 using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
@@ -11,7 +7,6 @@ using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
-using Smartstore.Domain;
 using Smartstore.IO;
 
 namespace Smartstore.Core.DataExchange.Export.Internal
@@ -78,6 +73,7 @@ namespace Smartstore.Core.DataExchange.Export.Internal
         public Dictionary<int, Store> Stores { get; set; } = new();
         public Dictionary<int, Language> Languages { get; set; } = new();
         public Dictionary<int, Country> Countries { get; set; } = new();
+        public Dictionary<int, StateProvince> StateProvinces { get; set; } = new();
         public Dictionary<int, string> ProductTemplates { get; set; } = new();
         public Dictionary<int, string> CategoryTemplates { get; set; } = new();
         public HashSet<string> NewsletterSubscriptions { get; set; } = new();

@@ -1,7 +1,4 @@
-﻿using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Smartstore.Core.Catalog.Search;
 using Smartstore.Core.Web;
 
@@ -13,7 +10,7 @@ namespace Smartstore.Web.Models.Search
     }
 
     // TODO: (mc) (core) This may be obsolete. Remove it when not needed.
-    [ModelBinder(typeof(ISearchResultModel))]
+    //[ModelBinder(typeof(ISearchResultModel))]
     public class SearchResultModelBinder : IModelBinder
     {
         public Task BindModelAsync(ModelBindingContext bindingContext)

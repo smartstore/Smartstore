@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Linq.Expressions;
+﻿using System.Globalization;
 using System.Reflection;
 using Smartstore.Utilities;
 using EFCore = Microsoft.EntityFrameworkCore;
@@ -114,7 +110,7 @@ namespace Smartstore.Core.Rules.Filters
 
         public static Expression CreateValueExpression(Type targetType, object value, CultureInfo culture = null)
         {
-            var targetIsNullable = targetType.IsNullable(out var nonNullableType);
+            var targetIsNullable = targetType.IsNullableType(out var nonNullableType);
 
             if (((targetType != typeof(string)) && (!targetType.IsValueType || targetIsNullable)) && (string.Compare(value as string, "null", StringComparison.OrdinalIgnoreCase) == 0))
             {

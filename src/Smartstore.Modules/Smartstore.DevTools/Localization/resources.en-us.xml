@@ -13,10 +13,10 @@
     </LocaleResource>
 
     <LocaleResource Name="EnableMiniProfilerInPublicStore">
-        <Value>Enable Mini-Profiler in public store</Value>
+        <Value>Enable Mini-Profiler</Value>
     </LocaleResource>
     <LocaleResource Name="EnableMiniProfilerInPublicStore.Hint">
-        <Value>Activates the Mini-Profiler for the Frontend. With its help you can analyse requests of a page, including database requests. The display of the profiler is limited to administrators.</Value>
+        <Value>Activates the Mini-Profiler. With its help you can analyse requests of a page, including database requests. The display of the profiler is limited to administrators.</Value>
     </LocaleResource>
 	  <LocaleResource Name="MiniProfilerIgnorePaths">
 		  <Value>Mini-Profiler ignored paths</Value>

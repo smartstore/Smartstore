@@ -1,12 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Data;
@@ -14,7 +7,6 @@ using Smartstore.Core.Localization;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
 using Smartstore.Data.Hooks;
-using Smartstore.Engine;
 using Smartstore.Engine.Modularity;
 using Smartstore.Http;
 using Smartstore.IO;
@@ -34,7 +26,7 @@ namespace Smartstore.Core.DataExchange.Export
         private readonly IApplicationContext _appContext;
         private readonly IStoreContext _storeContext;
         private readonly ILocalizationService _localizationService;
-        private readonly IUrlHelper _urlHelper;
+        private readonly Lazy<IUrlHelper> _urlHelper;
         private readonly ITaskStore _taskStore;
         private readonly IProviderManager _providerManager;
         private readonly DataExchangeSettings _dataExchangeSettings;
@@ -44,7 +36,7 @@ namespace Smartstore.Core.DataExchange.Export
             IApplicationContext appContext,
             IStoreContext storeContext,
             ILocalizationService localizationService,
-            IUrlHelper urlHelper,
+            Lazy<IUrlHelper> urlHelper,
             ITaskStore taskStore,
             IProviderManager providerManager,
             DataExchangeSettings dataExchangeSettings)
@@ -65,8 +57,35 @@ namespace Smartstore.Core.DataExchange.Export
 
         protected override Task<HookResult> OnUpdatingAsync(ExportProfile entity, IHookedEntity entry, CancellationToken cancelToken)
         {
-            // No more validation of 'FolderName' necessary anymore. Contains only the name of the export folder (no more path information).
-            entity.FolderName = _regexFolderName.Replace(PathUtility.NormalizeRelativePath(entity.FolderName).TrimEnd('/'), string.Empty);
+            // Validation of 'FolderName' not necessary anymore. Contains only the name of the export folder (no more path information).
+            if (entity.FolderName.HasValue() && entity.FolderName[0] == '~')
+            {
+                // Map legacy folder names. Examples:
+                // ~/App_Data/ExportProfiles/smartstorecategorycsv
+                // ~/App_Data/Tenants/Default/ExportProfiles/smartstoreshoppingcartitemcsv
+                var newFolderName = _regexFolderName.Replace(PathUtility.NormalizeRelativePath(entity.FolderName).TrimEnd('/'), string.Empty);
+
+                if (newFolderName.IsEmpty())
+                {
+                    // Profile folder is root folder '~/App_Data/ExportProfiles/'.
+                    var cleanedProviderName = entity.ProviderSystemName
+                        .Replace("Exports.", string.Empty)
+                        .Replace("Feeds.", string.Empty)
+                        .Replace("/", string.Empty)
+                        .Replace("-", string.Empty);
+
+                    var folderName = SeoHelper.BuildSlug(cleanedProviderName, true, false, false)
+                        .ToValidPath()
+                        .Truncate(_dataExchangeSettings.MaxFileNameLength);
+
+                    newFolderName = _appContext.TenantRoot.CreateUniqueDirectoryName(EXPORT_FILE_ROOT, folderName);
+                }
+
+                if (newFolderName.HasValue())
+                {
+                    entity.FolderName = newFolderName;
+                }
+            }
 
             return Task.FromResult(HookResult.Ok);
         }
@@ -171,7 +190,7 @@ namespace Smartstore.Core.DataExchange.Export
                 // so that IIS application path can be prepended if applicable. 
                 var path = WebHelper.ToAppRelativePath(_appContext.WebRoot.PathCombine(DataExporter.PublicDirectoryName, deployment.SubFolder));
 
-                return store.Url.TrimEnd('/') + _urlHelper.Content(path).EnsureEndsWith("/");
+                return store.Url.TrimEnd('/') + _urlHelper.Value.Content(path).EnsureEndsWith("/");
             }
 
             return null;
@@ -299,20 +318,19 @@ namespace Smartstore.Core.DataExchange.Export
             profile.ProviderSystemName = providerSystemName;
             profile.TaskId = task.Id;
 
-            var cleanedSystemName = providerSystemName
+            var cleanedProviderName = providerSystemName
                 .Replace("Exports.", string.Empty)
                 .Replace("Feeds.", string.Empty)
                 .Replace("/", string.Empty)
                 .Replace("-", string.Empty);
 
-            var folderName = SeoHelper.BuildSlug(cleanedSystemName, true, false, false)
+            var folderName = SeoHelper.BuildSlug(cleanedProviderName, true, false, false)
                 .ToValidPath()
                 .Truncate(_dataExchangeSettings.MaxFileNameLength);
 
             profile.FolderName = _appContext.TenantRoot.CreateUniqueDirectoryName(EXPORT_FILE_ROOT, folderName);
-
             profile.SystemName = profileSystemName.IsEmpty() && isSystemProfile
-                ? cleanedSystemName
+                ? cleanedProviderName
                 : profileSystemName;
 
             _db.ExportProfiles.Add(profile);
@@ -401,86 +419,55 @@ namespace Smartstore.Core.DataExchange.Export
 
             return allProviders;
         }
+
+        public virtual async Task<(int DeletedFiles, int DeletedFolders)> DeleteExportFilesAsync(DateTime? startDate, DateTime? endDate)
+        {
+            var numFiles = 0;
+            var numFolders = 0;
+            var webRoot = _appContext.WebRoot;
+            var tenantRoot = _appContext.TenantRoot;
+            var directories = new List<IDirectory>
+            {
+                await webRoot.GetDirectoryAsync(webRoot.PathCombine(DataExporter.PublicDirectoryName)),
+                await tenantRoot.GetDirectoryAsync(tenantRoot.PathCombine(EXPORT_FILE_ROOT))
+            };
+
+            foreach (var dir in directories.Where(x => x.Exists))
+            {
+                var files = dir.EnumerateFiles(deep: true);
+
+                foreach (var file in files)
+                {
+                    if (!file.Name.EqualsNoCase("index.htm") && !file.Name.EqualsNoCase("placeholder"))
+                    {
+                        try
+                        {
+                            if ((!startDate.HasValue || startDate.Value < file.CreatedOn) &&
+                                (!endDate.HasValue || file.CreatedOn < endDate.Value))
+                            {
+                                await file.DeleteAsync();
+                                numFiles++;
+                            }
+                        }
+                        catch
+                        {
+                            // Do nothing. We are just cleaning up.
+                        }
+                    }
+                }
+
+                foreach (var subdir in dir.EnumerateDirectories())
+                {
+                    if ((!startDate.HasValue || startDate.Value < subdir.LastModified) &&
+                        (!endDate.HasValue || subdir.LastModified < endDate.Value))
+                    {
+                        dir.FileSystem.ClearDirectory(subdir, true, TimeSpan.Zero);
+                        numFolders++;
+                    }
+                }
+            }
+
+            return (numFiles, numFolders);
+        }
     }
-
-    // TODO: (mg) (core) remove test export providers later (required for porting backend's export section).
-    #region Export providers for testing
-
-    [SystemName("Exports.SmartStoreCategoryCsv")]
-    public class CategoryCsvExportProvider : ExportProviderBase
-    {
-        public override ExportEntityType EntityType => ExportEntityType.Category;
-        public override string FileExtension => "CSV";
-        protected override Task ExportAsync(ExportExecuteContext context, CancellationToken cancelToken) => throw new NotImplementedException();
-    }
-
-    [SystemName("Exports.SmartStoreProductCsv")]
-    [ExportFeatures(Features =
-        ExportFeatures.UsesRelatedDataUnits |
-        ExportFeatures.CanOmitGroupedProducts |
-        ExportFeatures.CanProjectAttributeCombinations |
-        ExportFeatures.CanProjectDescription)]
-    public class ProductCsvExportProvider : ExportProviderBase
-    {
-        public override string FileExtension => "CSV";
-        protected override Task ExportAsync(ExportExecuteContext context, CancellationToken cancelToken) => throw new NotImplementedException();
-    }
-
-    [SystemName("Exports.SmartStoreManufacturerCsv")]
-    public class ManufacturerCsvExportProvider : ExportProviderBase
-    {
-        public override ExportEntityType EntityType => ExportEntityType.Manufacturer;
-        //public override string FileExtension => "CSV";
-        protected override Task ExportAsync(ExportExecuteContext context, CancellationToken cancelToken) => throw new NotImplementedException();
-    }
-
-    [SystemName("Exports.SmartStoreCustomerCsv")]
-    public class CustomerCsvExportProvider : ExportProviderBase
-    {
-        public override ExportEntityType EntityType => ExportEntityType.Customer;
-        public override string FileExtension => "CSV";
-        protected override Task ExportAsync(ExportExecuteContext context, CancellationToken cancelToken) => throw new NotImplementedException();
-    }
-
-    [SystemName("Exports.SmartStoreOrderCsv")]
-    public class OrderCsvExportProvider : ExportProviderBase
-    {
-        public override ExportEntityType EntityType => ExportEntityType.Order;
-        public override string FileExtension => "CSV";
-        protected override Task ExportAsync(ExportExecuteContext context, CancellationToken cancelToken) => throw new NotImplementedException();
-    }
-
-    [SystemName("Exports.SmartStoreNewsSubscriptionCsv")]
-    public class SubscriberCsvExportProvider : ExportProviderBase
-    {
-        public override ExportEntityType EntityType => ExportEntityType.NewsletterSubscription;
-        public override string FileExtension => "CSV";
-        protected override Task ExportAsync(ExportExecuteContext context, CancellationToken cancelToken) => throw new NotImplementedException();
-    }
-
-    [SystemName("Exports.SmartStoreShoppingCartItemCsv")]
-    public class ShoppingCartItemCsvExportProvider : ExportProviderBase
-    {
-        public override ExportEntityType EntityType => ExportEntityType.ShoppingCartItem;
-        public override string FileExtension => "CSV";
-        protected override Task ExportAsync(ExportExecuteContext context, CancellationToken cancelToken) => throw new NotImplementedException();
-    }
-
-    [SystemName("Feeds.GoogleMerchantCenterProductXml")]
-    [ExportFeatures(Features =
-        ExportFeatures.CreatesInitialPublicDeployment |
-        ExportFeatures.CanOmitGroupedProducts |
-        ExportFeatures.CanProjectAttributeCombinations |
-        ExportFeatures.CanProjectDescription |
-        ExportFeatures.UsesSkuAsMpnFallback |
-        ExportFeatures.OffersBrandFallback |
-        ExportFeatures.UsesSpecialPrice |
-        ExportFeatures.UsesAttributeCombination)]
-    public class GmcXmlExportProvider : ExportProviderBase
-    {
-        public override string FileExtension => "XML";
-        protected override Task ExportAsync(ExportExecuteContext context, CancellationToken cancelToken) => throw new NotImplementedException();
-    }
-
-    #endregion
 }

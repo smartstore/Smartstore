@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Smartstore.Core.Catalog.Attributes;
+﻿using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Localization;
 
 namespace Smartstore.Core.Catalog.Products
@@ -216,11 +213,11 @@ namespace Smartstore.Core.Catalog.Products
         public static int[] ParseRequiredProductIds(this Product product)
         {
             Guard.NotNull(product, nameof(product));
-
+            
             return product.RequiredProductIds
                 .SplitSafe(',', StringSplitOptions.TrimEntries)
                 .Select(x => int.TryParse(x, out var id) ? id : int.MaxValue)
-                .Where(x => x > int.MaxValue)
+                .Where(x => x < int.MaxValue)
                 .ToArray();
         }
 

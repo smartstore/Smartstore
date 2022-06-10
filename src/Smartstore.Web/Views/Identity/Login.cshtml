@@ -17,17 +17,6 @@
     var currentUser = WorkContext.CurrentCustomer;
 }
 
-@*TODO: (mc) (core) Remove test code when not needed anymore*@
-@*@if (currentUser.IsRegistered())
-{
-	<div class="page-title">
-		<h3>@currentUser.GetDisplayName(T)</h3>
-    </div>
-    <p>Rollen: @string.Join(", ", currentUser.CustomerRoleMappings.Select(x => x.CustomerRole.Name))</p>
-    <a asp-route="Logout" class="btn btn-danger">Logout</a>
-    return;
-}*@
-
 <div class="page login-page">
 	<div class="page-title">
 		<h1>@T("Account.Login.Welcome")</h1>
@@ -108,10 +97,16 @@
                         </button>
                     </div>
 
-                    @*TODO: (mh) (core) Remove component once auth modules are available, which can render directly into the zone via PublicInfo methods or something similiar*@
-                    @await Component.InvokeAsync("ExternalAuthentication")
+                    <div sm-if="Model.DisplayExternalAuth" class="form-group external-auth-buttons mb-0">
+                        <div class="text-center text-uppercase mb-3">
+                            - @T("Common.Or") -
+                        </div>
+                        <div class="row flex-wrap justify-content-center xs-gutters">
+                            <zone name="external_auth_buttons" />
+                        </div>
+                    </div>
 
-                    <zone name="after_login_button" />
+                    <zone name="after_login_buttons" />
                 </form>
 			</div>
 		</div>

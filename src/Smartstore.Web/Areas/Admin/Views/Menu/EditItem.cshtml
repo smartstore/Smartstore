@@ -1,0 +1,32 @@
+﻿@using Smartstore.Admin.Models.Menus
+
+@model MenuItemModel
+
+@{
+    ViewBag.Title = T("Admin.ContentManagement.EditMenuItem").Value;
+}
+
+<form method="post" asp-action="EditItem">
+    <div class="section-header">
+        <div class="title">
+            @T("Admin.ContentManagement.EditMenuItem") - @Model.Title
+            <a asp-action="Edit" asp-route-id="@Model.MenuId">(@T("Common.Back"))</a>
+        </div>
+        <div class="options">
+            <button type="submit" name="save-item" value="save-item" class="btn btn-warning">
+                <i class="fa fa-check"></i>
+                <span>@T("Admin.Common.Save")</span>
+            </button>
+            <button type="submit" name="save-item-continue" value="save-item-continue" class="btn btn-secondary">
+                <span>@T("Admin.Common.SaveContinue")</span>
+            </button>
+            <button type="submit" name="delete-item" value="delete-item" id="delete-item" class="btn btn-danger">
+                <i class="far fa-trash-alt"></i>
+                <span>@T("Admin.Common.Delete")</span>
+            </button>
+            <confirm button-id="delete-item" action="DeleteItem" />
+        </div>
+    </div>
+
+    <partial name="_CreateOrUpdate.Item" model="Model" />
+</form>

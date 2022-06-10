@@ -5,6 +5,7 @@
 }
 
 <input asp-for="Id" type="hidden" />
+<input asp-for="CreatedOnUtc" type="hidden" />
 
 <div class="form-horizontal">
 
@@ -93,7 +94,7 @@
             <select asp-for="CountryId" asp-items="Model.AvailableCountries" sm-required="Model.CountryRequired"
                     class="country-input country-selector"
                     data-region-control-selector="#@Html.IdFor(x => x.StateProvinceId)"
-                    data-states-ajax-url="@Url.Action("StatesByCountryId", "Customer")"
+                    data-states-ajax-url="@Url.Action("StatesByCountryId", "Common")"
                     data-addEmptyStateIfRequired="true"></select>
             <span asp-validation-for="CountryId"></span>
         </div>
@@ -102,7 +103,7 @@
     <div sm-if="Model.CountryEnabled && Model.StateProvinceEnabled" class="form-group row">
         <label asp-for="StateProvinceId" class="col-@(breakpoint)-3 col-form-label@(Model.StateProvinceRequired ? " required" : "")"></label>
         <div class="col-@(breakpoint)-9">
-            <select asp-for="StateProvinceId" asp-items="Model.AvailableStates" sm-required="Model.StateProvinceRequired"></select>
+            <select asp-for="StateProvinceId" asp-items="Model.AvailableStates" sm-required="Model.StateProvinceRequired" data-select-selected-id="@Model.StateProvinceId"></select>
         </div>
     </div>
 
@@ -143,3 +144,13 @@
         </div>
     </div>
 </div>
+
+@if (Model.CountryEnabled && Model.StateProvinceEnabled && Model.AvailableStates.Count == 0)
+{
+    <script sm-target-zone="scripts" data-origin="create-update-address">
+        $(function () {
+            // No state provinces provided -> trigger country change to load them via AJAX (see smartstore.common.js).
+            $('#@Html.IdFor(x => x.CountryId)').trigger('change');
+        });
+    </script>
+}

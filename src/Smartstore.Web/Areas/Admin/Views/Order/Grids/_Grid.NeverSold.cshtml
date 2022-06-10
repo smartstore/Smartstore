@@ -1,0 +1,72 @@
+﻿@using Smartstore.Admin.Models.Catalog
+
+@model ProductOverviewModel
+
+@{
+    var parentModel = ViewData["Parent"] as NeverSoldReportModel;
+    var displayProductPictures = (bool)ViewBag.DisplayProductPictures;
+}
+
+<datagrid id="neversoldreport-grid"
+          allow-resize="true"
+          preserve-grid-state="true" preserve-command-state="true"
+          allow-column-reordering="true"
+          onrowclass="neverSoldGrid_onRowClass">
+    <datasource read="@Url.Action("NeverSoldReportList")" />
+    <paging position="Bottom" show-size-chooser="true" />
+    <sorting allow-unsort="true" allow-multisort="false">
+        <sort by="Name" />
+    </sorting>
+    <toolbar>
+        <toolbar-group>
+            <button datagrid-action="DataGridToolAction.ToggleSearchPanel" type="button" class="btn btn-light btn-icon">
+                <i class="fa fa-fw fa-filter"></i>
+            </button>
+        </toolbar-group>
+        <zone name="datagrid_toolbar_omega"></zone>
+    </toolbar>
+    <search-panel>
+        <partial name="Grids/_Grid.NeverSold.Search" model="parentModel" />
+    </search-panel>
+    <columns>
+        @if (displayProductPictures)
+        {
+            <column for="PictureThumbnailUrl"
+                    title=""
+                    width="62px"
+                    sortable="false"
+                    visible="true"
+                    readonly="true"
+                    resizable="false"
+                    reorderable="false">
+                <display-template>
+                    <div v-if="item.row.Id > 0" class="d-flex align-items-center justify-content-center" style="position: absolute; width: 100%; height: 100%; left: 0; top: 0;">
+                        <img :alt="item.row.Id" :src="item.value" style="max-width: 42px; max-height: 32px;" />
+                    </div>
+                </display-template>
+            </column>
+        }
+        <column for="Id" halign="center" visible="false" type="string" />
+        <column for="Name" width="3fr" hideable="false">
+            <display-template>
+                @Html.LabeledProductName()
+            </display-template>
+        </column>
+        <column for="Sku" />
+        <column for="Gtin" visible="false" />
+        <column for="ManufacturerPartNumber" visible="false" />
+        <column for="Price" halign="flex-end" />
+        <column for="StockQuantity" halign="center" />
+        <column for="CreatedOn" entity-member="CreatedOnUtc" readonly="true" />
+        <column for="UpdatedOn" entity-member="UpdatedOnUtc" readonly="true" visible="false" />
+        <column for="Published" halign="center" />
+    </columns>
+</datagrid>
+
+<script sm-target-zone="scripts" data-origin="never-sold-grid">
+    function neverSoldGrid_onRowClass(row) {
+        return {
+            "text-muted": !row.Published
+        };
+    }
+</script>

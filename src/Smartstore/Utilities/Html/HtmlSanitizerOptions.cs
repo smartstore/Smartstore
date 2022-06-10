@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Ganss.XSS;
+﻿using Ganss.XSS;
 
 namespace Smartstore.Utilities.Html
 {

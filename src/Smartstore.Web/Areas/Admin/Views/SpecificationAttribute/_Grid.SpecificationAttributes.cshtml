@@ -11,8 +11,9 @@
           allow-column-reordering="true">
     <datasource read="@Url.Action("SpecificationAttributeList")" delete="@Url.Action("SpecificationAttributeDelete")" />
     <paging position="Bottom" page-index="1" show-size-chooser="true" />
-    <sorting allow-unsort="true" allow-multisort="false">
+    <sorting allow-unsort="true" allow-multisort="true">
         <sort by="DisplayOrder" />
+        <sort by="Name" />
     </sorting>
     <search-panel>
         <partial name="_Grid.SpecificationAttributes.Search" model="parentModel" />
@@ -29,7 +30,10 @@
                 <span>@T("Admin.Common.AddNew")</span>
             </a>
         </toolbar-group>
-        <toolbar-group class="omega">
+        <zone name="datagrid_toolbar_alpha"></zone>
+        <toolbar-group class="omega"></toolbar-group>
+        <zone name="datagrid_toolbar_omega"></zone>
+        <toolbar-group>
             <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger btn-flat">
                 <i class="far fa-trash-alt"></i>
                 <span>@T("Admin.Common.Delete.Selected")</span>

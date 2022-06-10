@@ -1,0 +1,226 @@
+﻿@model OrderModel
+
+@*Credit card*@
+<div class="adminContent">
+    @if (Model.AllowStoringCreditCardNumber)
+    {
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="CardType" />
+            </div>
+            <div class="adminData cc-control">
+                <div class="form-control-plaintext">@Model.CardType</div>
+                <input asp-for="CardType" />
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="CardName" />
+            </div>
+            <div class="adminData cc-control">
+                <div class="form-control-plaintext">@Model.CardName</div>
+                <input asp-for="CardName" />
+            </div>
+        </div>
+    }
+    <div sm-if="Model.AllowStoringCreditCardNumber || Model.CardNumber.HasValue()" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="CardNumber" />
+        </div>
+        <div class="adminData cc-control">
+            <div class="form-control-plaintext">@Model.CardNumber</div>
+            <input asp-for="CardNumber" />
+        </div>
+    </div>
+    @if (Model.AllowStoringCreditCardNumber)
+    {
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="CardCvv2" />
+            </div>
+            <div class="adminData cc-control w-50">
+                <div class="form-control-plaintext">@Model.CardCvv2</div>
+                <input asp-for="CardCvv2" />
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="CardExpirationMonth" />
+            </div>
+            <div class="adminData cc-control">
+                <div class="form-control-plaintext">@Model.CardExpirationMonth</div>
+                <input asp-for="CardExpirationMonth" />
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="CardExpirationYear" />
+            </div>
+            <div class="adminData cc-control">
+                <div class="form-control-plaintext">@Model.CardExpirationYear</div>
+                <input asp-for="CardExpirationYear" />
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="w-auto">
+                <button type="submit" id="btnEditCC" name="btnEditCC" value="@T("Admin.Orders.Fields.EditCC")" class="btn btn-secondary">
+                    <i class="far fa-edit"></i>
+                    <span>@T("Admin.Orders.Fields.EditCC")</span>
+                </button>
+                <button type="submit" id="btnSaveCC" name="btnSaveCC" value="@T("Admin.Orders.Fields.SaveCC")" class="btn btn-warning confirm">
+                    <i class="fa fa-check"></i>
+                    <span>@T("Admin.Orders.Fields.SaveCC")</span>
+                </button>
+                <button type="submit" id="btnCancelCC" name="btnCancelCC" value="@T("Admin.Orders.Fields.CancelCC")" class="btn btn-secondary">
+                    <span>@T("Admin.Orders.Fields.CancelCC")</span>
+                </button>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminSeparator"><hr /></div>
+        </div>
+    }
+</div>
+
+@*Direct debit*@
+<div sm-if="Model.AllowStoringDirectDebit" class="adminContent">
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="DirectDebitAccountHolder" />
+        </div>
+        <div class="adminData dd-control">
+            <div class="form-control-plaintext">@Model.DirectDebitAccountHolder</div>
+            <input asp-for="DirectDebitAccountHolder" />
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="DirectDebitAccountNumber" />
+        </div>
+        <div class="adminData dd-control">
+            <div class="form-control-plaintext">@Model.DirectDebitAccountNumber</div>
+            <input asp-for="DirectDebitAccountNumber" />
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="DirectDebitBankCode" />
+        </div>
+        <div class="adminData dd-control">
+            <div class="form-control-plaintext">@Model.DirectDebitBankCode</div>
+            <input asp-for="DirectDebitBankCode" />
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="DirectDebitBankName" />
+        </div>
+        <div class="adminData dd-control">
+            <div class="form-control-plaintext">@Model.DirectDebitBankName</div>
+            <input asp-for="DirectDebitBankName" />
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="DirectDebitBIC" />
+        </div>
+        <div class="adminData dd-control">
+            <div class="form-control-plaintext">@Model.DirectDebitBIC</div>
+            <input asp-for="DirectDebitBIC" />
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="DirectDebitCountry" />
+        </div>
+        <div class="adminData dd-control">
+            <div class="form-control-plaintext">@Model.DirectDebitCountry</div>
+            <input asp-for="DirectDebitCountry" />
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="DirectDebitIban" />
+        </div>
+        <div class="adminData dd-control">
+            <div class="form-control-plaintext">@Model.DirectDebitIban</div>
+            <input asp-for="DirectDebitIban" />
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="w-auto">
+            <button type="submit" id="btnEditDD" name="btnEditDD" value="@T("Admin.Orders.Fields.EditDD")" class="btn btn-secondary">
+                <i class="far fa-edit"></i>
+                <span>@T("Admin.Orders.Fields.EditDD")</span>
+            </button>
+            <button type="submit" id="btnSaveDD" name="btnSaveDD" value="@T("Admin.Orders.Fields.SaveDD")" class="btn btn-warning confirm">
+                <i class="fa fa-check"></i>
+                <span>@T("Admin.Orders.Fields.SaveDD")</span>
+            </button>
+            <button type="submit" id="btnCancelDD" name="btnCancelDD" value="@T("Admin.Orders.Fields.CancelDD")" class="btn btn-secondary">
+                <span>@T("Admin.Orders.Fields.CancelDD")</span>
+            </button>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminSeparator"><hr /></div>
+    </div>
+</div>
+
+<script sm-target-zone="scripts" data-origin="order-edit-payment">
+    $(function () {
+        toggleCreditCard(false);
+        toggleDirectDebit(false);
+
+        $('#btnEditCC, #btnCancelCC').on('click', function (e) {
+            e.preventDefault();
+            toggleCreditCard($(this).attr('id') === 'btnEditCC');
+            return false;
+        });
+
+        $('#btnEditDD, #btnCancelDD').on('click', function (e) {
+            e.preventDefault();
+            toggleDirectDebit($(this).attr('id') === 'btnEditDD');
+            return false;
+        });
+
+
+        function toggleCreditCard(editmode) {
+            var ccControls = $('.cc-control');
+
+            if (editmode) {
+                ccControls.find('.form-control-plaintext').hide();
+                ccControls.find('input').show();
+                $('#btnEditCC').hide();
+                $('#btnSaveCC').show();
+                $('#btnCancelCC').show();
+            }
+            else {
+                ccControls.find('.form-control-plaintext').show();
+                ccControls.find('input').hide();
+                $('#btnEditCC').show();
+                $('#btnSaveCC').hide();
+                $('#btnCancelCC').hide();
+            }
+        }
+
+        function toggleDirectDebit(editmode) {
+            var ddControls = $('.dd-control');
+
+            if (editmode) {
+                ddControls.find('.form-control-plaintext').hide();
+                ddControls.find('input').show();
+                $('#btnEditDD').hide();
+                $('#btnSaveDD').show();
+                $('#btnCancelDD').show();
+            }
+            else {
+                ddControls.find('.form-control-plaintext').show();
+                ddControls.find('input').hide();
+                $('#btnEditDD').show();
+                $('#btnSaveDD').hide();
+                $('#btnCancelDD').hide();
+            }
+        }
+    });
+</script>

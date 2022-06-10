@@ -1,6 +1,5 @@
 ﻿using Smartstore.Core.Common;
 using Smartstore.Core.Stores;
-using System.Linq;
 
 namespace Smartstore
 {
@@ -11,7 +10,7 @@ namespace Smartstore
         /// </summary>
         /// <param name="query">Country query.</param>
         /// <param name="includeHidden">Applies filter by <see cref="Country.Published"/>.</param>
-        /// <param name="storeId">Store identifier to apply filter by store restriction.</param>
+        /// <param name="storeId">Store identifier to apply filter by store restriction. 0 to load all countries.</param>
         /// <returns>Country query.</returns>
         public static IOrderedQueryable<Country> ApplyStandardFilter(this IQueryable<Country> query, bool includeHidden = false, int storeId = 0)
         {

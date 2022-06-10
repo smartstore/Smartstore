@@ -1,0 +1,46 @@
+﻿/// <reference path="_variables-shared.scss" />
+/// <reference path="_mixins.scss" />
+/// <reference path="../lib/bs4/scss/bootstrap.scss" />
+
+// Bootstrap Icons
+// ------------------------------------
+
+.bi {
+    display: inline-block;
+    vertical-align: -0.2em;
+    overflow: visible;
+    width: 1em;
+    height: 1em;
+    min-width: 16px;
+    min-height: 16px;
+    line-height: 1;
+    //-webkit-backface-visibility: hidden;
+
+    > use,
+    > g {
+        transform-origin: center;
+    }
+}
+
+.bi-fw {
+    text-align: center;
+    width: 1.25em;
+}
+
+.bi-ul {
+    list-style-type: none;
+    margin-left: 2.5em;
+    padding-left: 0;
+
+    > li {
+        position: relative;
+    }
+}
+
+.bi-li {
+    left: -2em;
+    position: absolute;
+    text-align: center;
+    width: 2em;
+    line-height: inherit;
+}

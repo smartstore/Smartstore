@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
-
-namespace Smartstore.Core.Checkout.Payment
+﻿namespace Smartstore.Core.Checkout.Payment
 {
+    // TODO: (mg) (core) collecting payment errors gets obsolete. We are throwing exceptions now (looks like this will eliminate a lot of code).
+
     /// <summary>
     /// Represents a default payment result.
     /// </summary>

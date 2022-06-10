@@ -164,7 +164,7 @@
                 <smart-label asp-for="MaxNumberOfDownloads" />
             </div>
             <div class="adminData">
-                <input asp-for="MaxNumberOfDownloads" />
+                <editor asp-for="MaxNumberOfDownloads" />
                 <span asp-validation-for="MaxNumberOfDownloads"></span>
             </div>
         </div>
@@ -173,7 +173,7 @@
                 <smart-label asp-for="DownloadExpirationDays" />
             </div>
             <div class="adminData">
-                <input asp-for="DownloadExpirationDays" />
+                <editor asp-for="DownloadExpirationDays" sm-postfix="@T("Time.Days").Value" />
                 <span asp-validation-for="DownloadExpirationDays"></span>
             </div>
         </div>

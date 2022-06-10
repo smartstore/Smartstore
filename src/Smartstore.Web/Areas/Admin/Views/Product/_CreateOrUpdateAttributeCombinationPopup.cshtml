@@ -50,7 +50,7 @@
     <div sm-if="Model.Warnings.Count > 0" class="alert alert-warning">
         @foreach (var warning in Model.Warnings)
         {
-            <p><i class="fa fa-exclamation-triangle"></i>&nbsp;@warning</p>
+            <p>@warning</p>
         }
     </div>
 </div>
@@ -68,7 +68,7 @@
     <div class="adminRow">
         <div class="adminSeparator"><hr /></div>
     </div>
-    <div class="adminRow">
+    <div sm-if="Model.AssignablePictures.Count > 0" class="adminRow">
         <div class="adminTitle">
             <smart-label asp-for="AssignedPictureIds" />
         </div>
@@ -120,7 +120,7 @@
             <smart-label asp-for="Price" />
         </div>
         <div class="adminData">
-            <editor asp-for="Price" sm-postfix="@Model.PrimaryStoreCurrencyCode">
+            <editor asp-for="Price" sm-postfix="@Model.PrimaryStoreCurrencyCode" />
             <span asp-validation-for="Price"></span>
         </div>
     </div>
@@ -135,10 +135,19 @@
     </div>
     <div class="adminRow">
         <div class="adminTitle">
+            <smart-label asp-for="QuantityUnitId" />
+        </div>
+        <div class="adminData">
+            <select asp-for="QuantityUnitId" asp-items="ViewBag.QuantityUnits" asp-placeholder="@T("Common.Unspecified")"></select>
+            <span asp-validation-for="QuantityUnitId"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
             <smart-label asp-for="BasePriceBaseAmount" />
         </div>
         <div class="adminData">
-            <input asp-for="BasePriceBaseAmount" />
+            <editor asp-for="BasePriceBaseAmount" />
             <span asp-validation-for="BasePriceBaseAmount"></span>
         </div>
     </div>
@@ -189,7 +198,7 @@
             <smart-label asp-for="StockQuantity" />
         </div>
         <div class="adminData">
-            <input asp-for="StockQuantity" />
+            <editor asp-for="StockQuantity" />
             <span asp-validation-for="StockQuantity"></span>
         </div>
     </div>
@@ -206,23 +215,22 @@
 
 <script sm-target-zone="Scripts" data-origin="attribute-combination-popup">
     $(function () {
-		var container = $('#ProductVariantAttributeContainer'),
-			note = $('#CombinationExistenceNote');
-
-        container.find('select').selectWrapper();
-
         Smartstore.media.lazyLoadThumbnails($("#assigned-pictures"));
 
-		container.change(function() {
+        var container = $('#ProductVariantAttributeContainer');
+        container.find('select').selectWrapper();
+
+        container.change(function () {
+            var note = $('#CombinationExistenceNote');
 			note.empty();
             container.closest('form').ajax({
 				smallIcon: note,
 				url: '@Url.Action("CombinationExistenceNote", "Product", new { productId = Model.ProductId })',
 				success: function (resp) {
-					var cls = (resp.HasWarning ? 'warning' : 'info'),
-						ico = (resp.HasWarning ? 'warning-sign' : 'ok-sign');
+                    var cls = resp.HasWarning ? 'warning' : 'info';
+                    var html = `<div class="alert alert-${cls}" style="margin:0;">${resp.Message}</div>`;
 
-					note.html('<div class="alert alert-' + cls + '" style="margin:0;"><i class="fa fa-' + ico + '"></i>&nbsp;' + resp.Message + '</div>');
+                    note.html(html);
 				}
 			});
 		});

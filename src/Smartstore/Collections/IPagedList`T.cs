@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace Smartstore.Collections
+﻿namespace Smartstore.Collections
 {
     /// <summary>
     /// Paged list interface
@@ -29,6 +24,6 @@ namespace Smartstore.Collections
         /// </summary>
         /// <param name="force">When <c>true</c>, always reloads data. When <c>false</c>, first checks to see whether data has been loaded already and skips if so.</param>
         /// <returns>Returns itself for chaining.</returns>
-        Task<IPagedList<T>> LoadAsync(bool force = false);
+        Task<IPagedList<T>> LoadAsync(bool force = false, CancellationToken cancelToken = default);
     }
 }

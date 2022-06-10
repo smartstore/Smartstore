@@ -1,15 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net.Mime;
+﻿using System.Net.Mime;
 using System.Text;
-using System.Threading.Tasks;
 using Humanizer;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using Smartstore.Admin.Models.Export;
 using Smartstore.Admin.Models.Scheduling;
 using Smartstore.ComponentModel;
@@ -19,7 +12,7 @@ using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Payment;
-using Smartstore.Core.Data;
+using Smartstore.Core.Common.Services;
 using Smartstore.Core.DataExchange;
 using Smartstore.Core.DataExchange.Export;
 using Smartstore.Core.DataExchange.Export.Deployment;
@@ -32,8 +25,6 @@ using Smartstore.Engine.Modularity;
 using Smartstore.IO;
 using Smartstore.Scheduling;
 using Smartstore.Utilities;
-using Smartstore.Web.Controllers;
-using Smartstore.Web.Modelling;
 using Smartstore.Web.Models.DataGrid;
 using Smartstore.Web.Rendering;
 
@@ -53,6 +44,7 @@ namespace Smartstore.Admin.Controllers
         private readonly SmartDbContext _db;
         private readonly IExportProfileService _exportProfileService;
         private readonly ICategoryService _categoryService;
+        private readonly ICurrencyService _currencyService;
         private readonly IDataExporter _dataExporter;
         private readonly ITaskScheduler _taskScheduler;
         private readonly IProviderManager _providerManager;
@@ -65,6 +57,7 @@ namespace Smartstore.Admin.Controllers
             SmartDbContext db,
             IExportProfileService exportProfileService,
             ICategoryService categoryService,
+            ICurrencyService currencyService,
             IDataExporter dataExporter,
             ITaskScheduler taskScheduler,
             IProviderManager providerManager,
@@ -76,6 +69,7 @@ namespace Smartstore.Admin.Controllers
             _db = db;
             _exportProfileService = exportProfileService;
             _categoryService = categoryService;
+            _currencyService = currencyService;
             _dataExporter = dataExporter;
             _taskScheduler = taskScheduler;
             _providerManager = providerManager;
@@ -87,7 +81,7 @@ namespace Smartstore.Admin.Controllers
 
         public IActionResult Index()
         {
-            return RedirectToAction("List");
+            return RedirectToAction(nameof(List));
         }
 
         [Permission(Permissions.Configuration.Export.Read)]
@@ -196,13 +190,13 @@ namespace Smartstore.Admin.Controllers
                 {
                     var profile = await _exportProfileService.InsertExportProfileAsync(provider, false, null, model.CloneProfileId ?? 0);
 
-                    return RedirectToAction("Edit", new { id = profile.Id });
+                    return RedirectToAction(nameof(Edit), new { id = profile.Id });
                 }
             }
 
             NotifyError(T("Admin.Common.ProviderNotLoaded", model.ProviderSystemName.NaIfEmpty()));
 
-            return RedirectToAction("List");
+            return RedirectToAction(nameof(List));
         }
 
         [Permission(Permissions.Configuration.Export.Read)]
@@ -226,7 +220,7 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Configuration.Export.Update)]
         public async Task<IActionResult> Edit(ExportProfileModel model, bool continueEditing)
         {
-            var (profile, provider) = await LoadProfileAndProvider(model.Id, true);
+            var (profile, provider) = await LoadProfileAndProvider(model.Id);
             if (profile == null)
             {
                 return NotFound();
@@ -239,6 +233,8 @@ namespace Smartstore.Admin.Controllers
 
                 return View(model);
             }
+
+            var dtHelper = Services.DateTimeHelper;
 
             profile.Name = model.Name.NullEmpty() ?? provider.Metadata.FriendlyName.NullEmpty() ?? provider.Metadata.SystemName;
             profile.FileNamePattern = model.FileNamePattern;
@@ -273,6 +269,23 @@ namespace Smartstore.Admin.Controllers
                 filter.StoreId = model.Filter.StoreId ?? 0;
                 filter.CategoryIds = model.Filter.CategoryIds?.Where(x => x != 0)?.ToArray() ?? Array.Empty<int>();
 
+                if (model.Filter.CreatedFrom.HasValue)
+                {
+                    filter.CreatedFrom = dtHelper.ConvertToUtcTime(model.Filter.CreatedFrom.Value);
+                }
+                if (model.Filter.CreatedTo.HasValue)
+                {
+                    filter.CreatedTo = dtHelper.ConvertToUtcTime(model.Filter.CreatedTo.Value);
+                }
+                if (model.Filter.LastActivityFrom.HasValue)
+                {
+                    filter.LastActivityFrom = dtHelper.ConvertToUtcTime(model.Filter.LastActivityFrom.Value);
+                }
+                if (model.Filter.LastActivityTo.HasValue)
+                {
+                    filter.LastActivityTo = dtHelper.ConvertToUtcTime(model.Filter.LastActivityTo.Value);
+                }
+
                 profile.Filtering = XmlHelper.Serialize(filter);
             }
 
@@ -296,8 +309,8 @@ namespace Smartstore.Admin.Controllers
             NotifySuccess(T("Admin.Common.DataSuccessfullySaved"));
 
             return continueEditing 
-                ? RedirectToAction("Edit", new { id = profile.Id }) 
-                : RedirectToAction("List");
+                ? RedirectToAction(nameof(Edit), new { id = profile.Id }) 
+                : RedirectToAction(nameof(List));
         }
 
         [Permission(Permissions.Configuration.Export.Read)]
@@ -318,7 +331,7 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Configuration.Export.Delete)]
         public async Task<IActionResult> Delete(int id)
         {
-            var (profile, _) = await LoadProfileAndProvider(id, true);
+            var (profile, _) = await LoadProfileAndProvider(id);
             if (profile == null)
             {
                 return NotFound();
@@ -330,14 +343,14 @@ namespace Smartstore.Admin.Controllers
 
                 NotifySuccess(T("Admin.Common.TaskSuccessfullyProcessed"));
 
-                return RedirectToAction("List");
+                return RedirectToAction(nameof(List));
             }
             catch (Exception ex)
             {
                 NotifyError(ex);
             }
 
-            return RedirectToAction("Edit", new { id = profile.Id });
+            return RedirectToAction(nameof(Edit), new { id = profile.Id });
         }
 
         [HttpPost]
@@ -345,7 +358,7 @@ namespace Smartstore.Admin.Controllers
         public async Task<IActionResult> Execute(int id, string selectedIds)
         {
             // Permissions checked internally by DataExporter.
-            var (profile, provider) = await LoadProfileAndProvider(id);
+            var profile = await _db.ExportProfiles.FindByIdAsync(id, false);
             if (profile == null)
             {
                 return NotFound();
@@ -366,7 +379,9 @@ namespace Smartstore.Admin.Controllers
 
             NotifyInfo(T("Admin.System.ScheduleTasks.RunNow.Progress.DataExportTask"));
 
-            return RedirectToReferrer(null, () => RedirectToAction("List"));
+            TempData.Add("ExecutedProfileId", profile.Id.ToString());
+
+            return RedirectToReferrer(null, () => RedirectToAction(nameof(List)));
         }
 
         [Permission(Permissions.Configuration.Export.Read)]
@@ -393,7 +408,7 @@ namespace Smartstore.Admin.Controllers
                 }
             }
 
-            return RedirectToAction("List");
+            return RedirectToAction(nameof(List));
         }
 
         [HttpGet]
@@ -475,7 +490,7 @@ namespace Smartstore.Admin.Controllers
             {
                 NotifyInfo(T("Admin.DataExchange.Export.EnableProfileForPreview"));
 
-                return RedirectToAction("Edit", new { id = profile.Id });
+                return RedirectToAction(nameof(Edit), new { id = profile.Id });
             }
 
             var dir = await _exportProfileService.GetExportDirectoryAsync(profile);
@@ -700,11 +715,10 @@ namespace Smartstore.Admin.Controllers
 
         [HttpPost]
         [FormValueRequired("save", "save-continue"), ParameterBasedOnFormName("save-continue", "continueEditing")]
-        [Permission(Permissions.Configuration.Export.Update)]
+        [Permission(Permissions.Configuration.Export.CreateDeployment)]
         public async Task<IActionResult> CreateDeployment(ExportDeploymentModel model, bool continueEditing)
         {
-            var (profile, _) = await LoadProfileAndProvider(model.ProfileId);
-            if (profile == null)
+            if (!await _db.ExportProfiles.AnyAsync(x => x.Id == model.ProfileId))
             {
                 return NotFound();
             }
@@ -720,11 +734,11 @@ namespace Smartstore.Admin.Controllers
                 await _db.SaveChangesAsync();
 
                 return continueEditing ?
-                    RedirectToAction("EditDeployment", new { id = deployment.Id }) :
-                    RedirectToAction("Edit", new { id = profile.Id });
+                    RedirectToAction(nameof(EditDeployment), new { id = deployment.Id }) :
+                    RedirectToAction(nameof(Edit), new { id = model.ProfileId });
             }
 
-            return await CreateDeployment(profile.Id);
+            return await CreateDeployment(model.ProfileId);
         }
 
         [Permission(Permissions.Configuration.Export.Update)]
@@ -775,7 +789,7 @@ namespace Smartstore.Admin.Controllers
 
                 return continueEditing ?
                     RedirectToAction("EditDeployment", new { id = deployment.Id }) :
-                    RedirectToAction("Edit", new { id = profile.Id });
+                    RedirectToAction(nameof(Edit), new { id = profile.Id });
             }
 
             model = await CreateDeploymentModel(profile, deployment, provider, true);
@@ -793,8 +807,7 @@ namespace Smartstore.Admin.Controllers
                 return NotFound();
             }
 
-            var (profile, _) = await LoadProfileAndProvider(deployment.ProfileId);
-            if (profile == null)
+            if (!await _db.ExportProfiles.AnyAsync(x => x.Id == deployment.ProfileId))
             {
                 return NotFound();
             }
@@ -804,7 +817,7 @@ namespace Smartstore.Admin.Controllers
 
             NotifySuccess(T("Admin.Common.TaskSuccessfullyProcessed"));
 
-            return RedirectToAction("Edit", new { id = profile.Id });
+            return RedirectToAction(nameof(Edit), new { id = deployment.ProfileId });
         }
 
         #endregion
@@ -822,7 +835,7 @@ namespace Smartstore.Admin.Controllers
 
             var dir = await _exportProfileService.GetExportDirectoryAsync(profile);
             var logFile = await dir.GetFileAsync("log.txt");
-            //var moduleDescriptor = provider.Metadata.ModuleDescriptor;
+            var moduleDescriptor = provider.Metadata.ModuleDescriptor;
 
             model.TaskName = profile.Task.Name.NaIfEmpty();
             model.IsTaskRunning = lastExecutionInfo?.IsRunning ?? false;
@@ -839,9 +852,9 @@ namespace Smartstore.Admin.Controllers
                 ThumbnailUrl = GetThumbnailUrl(provider),
                 FriendlyName = _moduleManager.GetLocalizedFriendlyName(provider.Metadata),
                 Description = _moduleManager.GetLocalizedDescription(provider.Metadata),
-                //Url = descriptor?.Url,
-                //Author = descriptor?.Author,
-                //Version = descriptor?.Version?.ToString()
+                Url = moduleDescriptor?.ProjectUrl,
+                Author = moduleDescriptor?.Author,
+                Version = moduleDescriptor?.Version?.ToString()
             };
 
             if (!createForEdit)
@@ -875,7 +888,7 @@ namespace Smartstore.Admin.Controllers
             model.CompletedEmailAddresses = profile.CompletedEmailAddresses.SplitSafe(',').ToArray();
             model.CreateZipArchive = profile.CreateZipArchive;
             model.Cleanup = profile.Cleanup;
-            model.PrimaryStoreCurrencyCode = Services.StoreContext.CurrentStore.PrimaryStoreCurrency.CurrencyCode;
+            model.PrimaryStoreCurrencyCode = _currencyService.PrimaryCurrency.CurrencyCode;
             model.FileNamePatternExample = profile.ResolveFileNamePattern(store, 1, _dataExchangeSettings.MaxFileNameLength);
 
             ViewBag.EmailAccounts = emailAccounts
@@ -1003,18 +1016,6 @@ namespace Smartstore.Admin.Controllers
                         model.Provider.ConfigurationWidget = configInfo.ConfigurationWidget;
                         model.Provider.ConfigDataType = configInfo.ModelType;
                         model.Provider.ConfigData = XmlHelper.Deserialize(profile.ProviderConfigData, configInfo.ModelType);
-
-                        if (configInfo.Initialize != null)
-                        {
-                            try
-                            {
-                                configInfo.Initialize(model.Provider.ConfigData);
-                            }
-                            catch (Exception ex)
-                            {
-                                NotifyWarning(ex.ToAllMessages());
-                            }
-                        }
                     }
                 }
                 catch (Exception ex)
@@ -1068,7 +1069,7 @@ namespace Smartstore.Admin.Controllers
         {
             if (profileId != 0)
             {
-                var (profile, provider) = await LoadProfileAndProvider(profileId);
+                var (profile, _) = await LoadProfileAndProvider(profileId);
                 if (profile != null)
                 {
                     return await CreateFileDetailsModel(profile, null);
@@ -1228,12 +1229,13 @@ namespace Smartstore.Admin.Controllers
             fileInfos.Add(fi);
         }
 
-        public async Task<(ExportProfile Profile, Provider<IExportProvider> Provider)> LoadProfileAndProvider(int profileId, bool tracked = false)
+        private async Task<(ExportProfile Profile, Provider<IExportProvider> Provider)> LoadProfileAndProvider(int profileId)
         {
             if (profileId != 0)
             {
                 var profile = await _db.ExportProfiles
-                    .ApplyTracking(tracked)
+                    .Include(x => x.Deployments)
+                    .Include(x => x.Task)
                     .ApplyStandardFilter()
                     .FirstOrDefaultAsync(x => x.Id == profileId);
 

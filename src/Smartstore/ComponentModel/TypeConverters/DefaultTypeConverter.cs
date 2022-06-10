@@ -1,5 +1,4 @@
-﻿using System;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Globalization;
 
 namespace Smartstore.ComponentModel.TypeConverters
@@ -36,8 +35,7 @@ namespace Smartstore.ComponentModel.TypeConverters
 
         public virtual bool CanConvertFrom(Type type)
         {
-            // Use Convert.ChangeType if both types are IConvertible
-            if (_typeIsConvertible && typeof(IConvertible).IsAssignableFrom(type))
+            if (typeof(IConvertible).IsAssignableFrom(type) && (_typeIsConvertible || _typeIsEnum))
             {
                 return true;
             }
@@ -79,6 +77,12 @@ namespace Smartstore.ComponentModel.TypeConverters
                 return Convert.ChangeType(value, _type, culture);
             }
 
+            // Use Enum.ToObject if type is Enum and value is numeric 
+            if (_typeIsEnum && value != null && value.GetType().IsPrimitive)
+            {
+                return Enum.ToObject(_type, value);
+            }
+            
             if (SystemConverter != null)
             {
                 return SystemConverter.ConvertFrom(null, culture, value);

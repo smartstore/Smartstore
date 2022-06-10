@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using Autofac;
+﻿using Autofac;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using Smartstore.Engine;
 using Smartstore.Threading;
 using Smartstore.Utilities;
 
@@ -19,7 +14,6 @@ namespace Smartstore.Scheduling
         private readonly IComponentContext _componentContext;
         private readonly IAsyncState _asyncState;
         private readonly AsyncRunner _asyncRunner;
-        private readonly IApplicationContext _appContext;
 
         public const string CurrentCustomerIdParamName = "CurrentCustomerId";
         public const string CurrentStoreIdParamName = "CurrentStoreId";
@@ -29,17 +23,13 @@ namespace Smartstore.Scheduling
             ITaskActivator taskActivator,
             IComponentContext componentContext,
             IAsyncState asyncState,
-            AsyncRunner asyncRunner,
-            IApplicationContext appContext)
+            AsyncRunner asyncRunner)
         {
             _taskStore = taskStore;
             _taskActivator = taskActivator;
             _componentContext = componentContext;
             _asyncState = asyncState;
             _asyncRunner = asyncRunner;
-            _appContext = appContext;
-
-            Logger = NullLogger.Instance;
         }
 
         public ILogger Logger { get; set; } = NullLogger.Instance;
@@ -108,15 +98,7 @@ namespace Smartstore.Scheduling
                 Logger.Debug("Executing scheduled task: {0}", task.Type);
                 var ctx = new TaskExecutionContext(_taskStore, httpContext, _componentContext, executionInfo, taskParameters);
 
-                //// TODO: (core) Uncomment job.Run and remove Task.Delay()
-                //await job.Run(ctx, cts.Token);
-                await Task.Delay(1, cts.Token);
-
-                // Remove me later... just for testing:
-                //if (normalizedTypeName == "ProductRuleEvaluatorTask")
-                //    await job.Run(ctx, cts.Token);
-                //else
-                //    await Task.Delay(1, cts.Token);
+                await job.Run(ctx, cts.Token);
             }
             catch (Exception ex)
             {

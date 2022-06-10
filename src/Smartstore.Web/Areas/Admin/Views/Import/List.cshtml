@@ -51,7 +51,7 @@
 							{
 								<li title="@file.File.Name">
 									<file-icon file-extension="@file.File.Extension" />
-									<a asp-action="DownloadImportFile" asp-route-id="@Model.Id" asp-route-name="@file.File.Name" download>
+									<a asp-action="DownloadImportFile" asp-route-id="@profile.Id" asp-route-name="@file.File.Name" download>
 										@file.File.Name
 									</a>
 								</li>

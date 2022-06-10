@@ -1,7 +1,5 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Newtonsoft.Json;
@@ -9,7 +7,6 @@ using Smartstore.Core.Localization;
 using Smartstore.Core.Rules;
 using Smartstore.Core.Stores;
 using Smartstore.Data.Caching;
-using Smartstore.Domain;
 
 namespace Smartstore.Core.Checkout.Payment
 {
@@ -34,7 +31,11 @@ namespace Smartstore.Core.Checkout.Payment
                         .HasForeignKey("PaymentMethod_Id")
                         .HasConstraintName("FK_dbo.RuleSet_PaymentMethod_Mapping_dbo.PaymentMethod_PaymentMethod_Id")
                         .OnDelete(DeleteBehavior.Cascade),
-                    c => c.HasKey("PaymentMethod_Id", "RuleSetEntity_Id"));
+                    c =>
+                    {
+                        c.HasIndex("PaymentMethod_Id");
+                        c.HasKey("PaymentMethod_Id", "RuleSetEntity_Id");
+                    });
         }
     }
 
@@ -42,6 +43,7 @@ namespace Smartstore.Core.Checkout.Payment
     /// Represents a payment method.
     /// </summary>
     [CacheableEntity]
+    [Index(nameof(PaymentMethodSystemName))]
     public partial class PaymentMethod : EntityWithAttributes, ILocalizedEntity, IStoreRestricted, IRulesContainer
     {
         public PaymentMethod()
@@ -57,7 +59,7 @@ namespace Smartstore.Core.Checkout.Payment
         /// <summary>
         /// Gets or sets the payment method system name.
         /// </summary>
-        [Required, StringLength(4000)]
+        [Required, StringLength(255)]
         public string PaymentMethodSystemName { get; set; }
 
         /// <summary>

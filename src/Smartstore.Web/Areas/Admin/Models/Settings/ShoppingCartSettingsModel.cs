@@ -1,9 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Core.Checkout.Cart;
-using Smartstore.Core.Common;
-using Smartstore.Web.Modelling;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 
 namespace Smartstore.Admin.Models
 {
@@ -83,8 +80,8 @@ namespace Smartstore.Admin.Models
         public bool ShowEsdRevocationWaiverBox { get; set; }
 
         [LocalizedDisplay("*NewsletterSubscription")]
-        public CheckoutNewsletterSubscription NewsLetterSubscription { get; set; }
-        public SelectList AvailableNewsLetterSubscriptions { get; set; }
+        public CheckoutNewsletterSubscription NewsletterSubscription { get; set; }
+        public SelectList AvailableNewsletterSubscriptions { get; set; }
 
         [LocalizedDisplay("*ThirdPartyEmailHandOver")]
         public CheckoutThirdPartyEmailHandOver ThirdPartyEmailHandOver { get; set; }

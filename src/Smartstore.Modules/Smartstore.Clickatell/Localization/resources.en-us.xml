@@ -1,0 +1,64 @@
+﻿<Language Name="English" IsDefault="false" IsRightToLeft="false">
+  <LocaleResource Name="Plugins.FriendlyName.SmartStore.Clickatell" AppendRootKey="false">
+    <Value>Clickatell SMS Provider</Value>
+  </LocaleResource>
+  <LocaleResource Name="AdminInstruction">
+    <Value>
+      <![CDATA[
+        <p>To receive an SMS notification when an order is placed from your store, you need to follow the following steps:</p>
+        <ul>
+            <li><a href="https://www.clickatell.com/" target='_blank'>Register for a Clickatell account here</a>.</li>
+            <li>Create a new integration through <b>SMS integretation</b>.</li>
+            <li>Fill in the form below with the created API Key, including the number you want the notification messages to be sent to.</li>
+            <li>Click <b>Save</b>.</li>
+            <li>Now when you receive a new order, an SMS text message will be sent to the phone number you entered below.</li>
+        </ul>
+      ]]>
+    </Value>
+  </LocaleResource>
+  <LocaleResource Name="EnterMessage">
+    <Value>Please enter a message.</Value>
+  </LocaleResource>
+  <LocaleResource Name="OrderPlacedMessage">
+    <Value>New order with number {0} has been placed.</Value>
+  </LocaleResource>
+  <LocaleResource Name="SmsSentNote">
+    <Value>A SMS about the new order has been sent.</Value>
+  </LocaleResource>
+  <LocaleResource Name="TestFailed">
+    <Value>Test message sending failed.</Value>
+  </LocaleResource>
+  <LocaleResource Name="TestSuccess">
+    <Value>Test message was sent.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Fields.Enabled">
+    <Value>Enabled</Value>
+  </LocaleResource>
+  <LocaleResource Name="Fields.Enabled.Hint">
+    <Value>Specifies whether to send an SMS when a new order has been placed.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Fields.ApiId">
+    <Value>API Key</Value>
+  </LocaleResource>
+  <LocaleResource Name="Fields.ApiId.Hint">
+    <Value>Clickatell API Key</Value>
+  </LocaleResource>
+  <LocaleResource Name="Fields.PhoneNumber">
+    <Value>Phone number</Value>
+  </LocaleResource>
+  <LocaleResource Name="Fields.PhoneNumber.Hint">
+    <Value>The phone number where to send the SMS. You can enter multiple numbers separated by semicolon. Use the international format like +49231987654.</Value>
+  </LocaleResource>
+  <LocaleResource Name="Fields.TestMessage">
+    <Value>Message text</Value>
+  </LocaleResource>
+  <LocaleResource Name="Fields.TestMessage.Hint">
+    <Value>Text of the test message</Value>
+  </LocaleResource>
+  <LocaleResource Name="SendTest">
+    <Value>Send</Value>
+  </LocaleResource>
+  <LocaleResource Name="SendTest.Hint">
+    <Value>Send test message</Value>
+  </LocaleResource>
+</Language>

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Microsoft.AspNetCore.Mvc.Razor;
-using Microsoft.Extensions.DependencyInjection;
-using Smartstore.Core;
+﻿using Microsoft.AspNetCore.Mvc.Razor;
 using Smartstore.Core.Theming;
 
 namespace Smartstore.Web.Razor

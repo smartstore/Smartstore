@@ -1,10 +1,6 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
+﻿using System.ComponentModel.DataAnnotations;
 using FluentValidation;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Core.Localization;
-using Smartstore.Web.Modelling;
 
 namespace Smartstore.Admin.Models.Stores
 {
@@ -68,7 +64,6 @@ namespace Smartstore.Admin.Models.Stores
         [UIHint("Color")]
         public string MsTileColor { get; set; }
 
-
         [LocalizedDisplay("Common.DisplayOrder")]
         public int DisplayOrder { get; set; }
 
@@ -78,27 +73,10 @@ namespace Smartstore.Admin.Models.Stores
         [LocalizedDisplay("*ContentDeliveryNetwork")]
         public string ContentDeliveryNetwork { get; set; }
 
-        [LocalizedDisplay("*PrimaryStoreCurrencyId")]
-        public int PrimaryStoreCurrencyId { get; set; }
+        [LocalizedDisplay("*DefaultCurrencyId")]
+        public int DefaultCurrencyId { get; set; }
 
-        [LocalizedDisplay("*PrimaryStoreCurrencyId")]
-        public string PrimaryStoreCurrencyName
-        {
-            get => AvailableCurrencies.FirstOrDefault(x => x.Value == PrimaryStoreCurrencyId.ToString())?.Text;
-        }
-
-        [LocalizedDisplay("*PrimaryExchangeRateCurrencyId")]
-        public int PrimaryExchangeRateCurrencyId { get; set; }
-
-        [LocalizedDisplay("*PrimaryExchangeRateCurrencyId")]
-        public string PrimaryExchangeRateCurrencyName
-        {
-            get => AvailableCurrencies.FirstOrDefault(x => x.Value == PrimaryExchangeRateCurrencyId.ToString())?.Text;
-        }
-
-        public List<SelectListItem> AvailableCurrencies { get; set; } = new();
-
-        public string ViewUrl { get; set; }
+        public string EditUrl { get; set; }
     }
 
     public partial class StoreValidator : AbstractValidator<StoreModel>

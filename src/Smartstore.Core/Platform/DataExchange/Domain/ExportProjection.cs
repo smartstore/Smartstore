@@ -1,7 +1,6 @@
-﻿using System;
-using Smartstore.Core.Catalog.Products;
+﻿using System.Xml.Serialization;
 using Smartstore.Core.Catalog.Pricing;
-using System.Xml.Serialization;
+using Smartstore.Core.Catalog.Products;
 
 namespace Smartstore.Core.DataExchange
 {

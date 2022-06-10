@@ -1,9 +1,7 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using FluentValidation;
 using Smartstore.Core.Localization;
 using Smartstore.Scheduling;
-using Smartstore.Web.Modelling;
 
 namespace Smartstore.Admin.Models.Scheduling
 {

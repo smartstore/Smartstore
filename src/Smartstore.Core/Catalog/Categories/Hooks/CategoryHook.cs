@@ -1,11 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using Smartstore.Caching;
+﻿using Smartstore.Caching;
 using Smartstore.Core.Data;
-using Smartstore.Data.Batching;
 using Smartstore.Data.Hooks;
 
 namespace Smartstore.Core.Catalog.Categories
@@ -36,7 +30,7 @@ namespace Smartstore.Core.Catalog.Categories
                 .OfType<Category>()
                 .ToList();
 
-            foreach (var categoriesChunk in categories.Slice(100))
+            foreach (var categoriesChunk in categories.Chunk(100))
             {
                 var categoryIdsChunk = categoriesChunk
                     .Select(x => x.Id)
@@ -79,7 +73,6 @@ namespace Smartstore.Core.Catalog.Categories
             }
 
             _requestCache.RemoveByPattern(CategoryService.CATEGORIES_PATTERN_KEY);
-            _requestCache.RemoveByPattern(CategoryService.PRODUCTCATEGORIES_PATTERN_KEY);
         }
 
         private async Task<bool> IsValidCategoryHierarchy(int categoryId, int parentCategoryId, CancellationToken cancelToken)

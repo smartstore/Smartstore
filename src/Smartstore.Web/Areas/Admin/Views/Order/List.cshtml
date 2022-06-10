@@ -1,0 +1,48 @@
+﻿@model OrderListModel
+
+@{
+    ViewBag.Title = T("Admin.Orders").Value;
+
+    Assets.BodyAttributes.AppendCssClass("spa-layout");
+
+    var gridViewData = new ViewDataDictionary(ViewData);
+    gridViewData["Parent"] = Model;
+}
+
+<form method="post" asp-action="List">
+    <div class="section-header">
+        <div class="title">
+            <i class="far fa-chart-bar"></i>
+            <span>@ViewBag.Title</span>
+        </div>
+        <div class="options d-flex">
+            <zone name="admin_button_toolbar_before" />
+
+            <div class="input-group d-inline-flex" style="width: 400px">
+                <input asp-for="GoDirectlyToNumber" class="form-control" placeholder="@T("Admin.Orders.List.GoDirectlyToNumber")" />
+                <div class="input-group-append">
+                    <button type="submit" class="btn btn-secondary" 
+                            id="go-to-order-by-number" 
+                            name="go-to-order-by-number" 
+                            value="go-to-order-by-number"
+                            disabled="disabled"
+                            title="@T("Admin.Orders.List.GoDirectlyToNumber.Hint")">
+                        <i class="fa fa-search"></i>
+                    </button>
+                </div>
+            </div>
+
+            <zone name="admin_button_toolbar_after" />
+        </div>
+    </div>
+</form>
+
+<partial name="Grids/_Grid.Orders" model="null" view-data="gridViewData" />
+
+<script sm-target-zone="scripts" data-origin="orders-list">
+    $(function () {
+        $('#@Html.IdFor(x => x.GoDirectlyToNumber)').on('input change', function () {
+            $('#go-to-order-by-number').prop('disabled', $(this).val().isEmpty());
+        });
+    });
+</script>

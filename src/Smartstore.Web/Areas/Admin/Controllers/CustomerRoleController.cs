@@ -1,19 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Smartstore.Admin.Models.Customers;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Brands;
 using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Tax;
+using Smartstore.Core.Common.Services;
 using Smartstore.Core.Content.Topics;
-using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Identity.Rules;
 using Smartstore.Core.Localization;
@@ -22,10 +16,8 @@ using Smartstore.Core.Rules;
 using Smartstore.Core.Security;
 using Smartstore.Data;
 using Smartstore.Scheduling;
-using Smartstore.Web.Controllers;
-using Smartstore.Web.Modelling;
-using Smartstore.Web.Models.DataGrid;
 using Smartstore.Web.Models;
+using Smartstore.Web.Models.DataGrid;
 using Smartstore.Web.Rendering;
 
 namespace Smartstore.Admin.Controllers
@@ -35,6 +27,7 @@ namespace Smartstore.Admin.Controllers
         private readonly SmartDbContext _db;
         private readonly RoleManager<CustomerRole> _roleManager;
         private readonly IRuleService _ruleService;
+        private readonly ICurrencyService _currencyService;
         private readonly Lazy<ITaskStore> _taskStore;
         private readonly Lazy<ITaskScheduler> _taskScheduler;
         private readonly CustomerSettings _customerSettings;
@@ -43,6 +36,7 @@ namespace Smartstore.Admin.Controllers
             SmartDbContext db,
             RoleManager<CustomerRole> roleManager,
             IRuleService ruleService,
+            ICurrencyService currencyService,
             Lazy<ITaskStore> taskStore,
             Lazy<ITaskScheduler> taskScheduler,
             CustomerSettings customerSettings)
@@ -51,6 +45,7 @@ namespace Smartstore.Admin.Controllers
             _roleManager = roleManager;
             _taskStore = taskStore;
             _ruleService = ruleService;
+            _currencyService = currencyService;
             _taskScheduler = taskScheduler;
             _customerSettings = customerSettings;
         }
@@ -68,12 +63,12 @@ namespace Smartstore.Admin.Controllers
             
             if (!(includeSystemRoles ?? true))
             {
-                query = query.Where(x => x.IsSystemRole);
+                query = query.Where(x => !x.IsSystemRole);
             }
 
             query = query.ApplyStandardFilter(true);
 
-            var rolesPager = new FastPager<CustomerRole>(query, 500);
+            var rolesPager = new FastPager<CustomerRole>(query, 1000);
             var customerRoles = new List<CustomerRole>();
             var ids = selectedIds.ToIntArray();
 
@@ -107,7 +102,7 @@ namespace Smartstore.Admin.Controllers
 
         public IActionResult Index()
         {
-            return RedirectToAction("List");
+            return RedirectToAction(nameof(List));
         }
 
         [Permission(Permissions.Customer.Role.Read)]
@@ -121,14 +116,15 @@ namespace Smartstore.Admin.Controllers
         {
             var customerRoles = await _roleManager.Roles
                 .AsNoTracking()
-                .ApplyGridCommand(command, false)
+                .OrderBy(x => x.Name)
+                .ApplyGridCommand(command)
                 .ToPagedList(command)
                 .LoadAsync();
 
             var rows = customerRoles.Select(x =>
             {
                 var model = MiniMapper.Map<CustomerRole, CustomerRoleModel>(x);
-                model.EditUrl = Url.Action("Edit", "CustomerRole", new { id = x.Id, area = "Admin" });
+                model.EditUrl = Url.Action(nameof(Edit), "CustomerRole", new { id = x.Id, area = "Admin" });
                 return model;
             })
             .ToList();
@@ -160,14 +156,21 @@ namespace Smartstore.Admin.Controllers
             if (ModelState.IsValid)
             {
                 var role = MiniMapper.Map<CustomerRoleModel, CustomerRole>(model);   
-                await _roleManager.CreateAsync(role);
+                var result = await _roleManager.CreateAsync(role);
 
-                Services.ActivityLogger.LogActivity(KnownActivityLogTypes.AddNewCustomerRole, T("ActivityLog.AddNewCustomerRole"), role.Name);
-                NotifySuccess(T("Admin.Customers.CustomerRoles.Added"));
+                if (result.Succeeded)
+                {
+                    Services.ActivityLogger.LogActivity(KnownActivityLogTypes.AddNewCustomerRole, T("ActivityLog.AddNewCustomerRole"), role.Name);
+                    NotifySuccess(T("Admin.Customers.CustomerRoles.Added"));
 
-                return continueEditing 
-                    ? RedirectToAction("Edit", new { id = role.Id }) 
-                    : RedirectToAction("List");
+                    return continueEditing
+                        ? RedirectToAction(nameof(Edit), new { id = role.Id })
+                        : RedirectToAction(nameof(List));
+                }
+                else
+                {
+                    AddModelErrors(result, string.Empty);
+                }
             }
 
             await PrepareRoleModel(model, null);
@@ -208,17 +211,22 @@ namespace Smartstore.Admin.Controllers
 
                         var result = await _roleManager.UpdateAsync(role);
                         success = result.Succeeded;
-                    }
-                    else
-                    {
-                        var modelStateErrors = ModelState.Values.SelectMany(x => x.Errors).Select(x => x.ErrorMessage);
-                        NotifyError(string.Join(Environment.NewLine, modelStateErrors));
+
+                        if (!result.Succeeded)
+                        {
+                            AddModelErrors(result, string.Empty);
+                        }
                     }
                 }
             }
             else
             {
-                NotifyError(await Services.Permissions.GetUnauthorizedMessageAsync(Permissions.Customer.Role.Update));
+                ModelState.AddModelError(string.Empty, await Services.Permissions.GetUnauthorizedMessageAsync(Permissions.Customer.Role.Update));
+            }
+
+            if (!ModelState.IsValid)
+            {
+                ModelState.Values.SelectMany(x => x.Errors).Each(x => NotifyError(x.ErrorMessage));
             }
 
             return Json(new { success });
@@ -248,18 +256,24 @@ namespace Smartstore.Admin.Controllers
                     // INFO: cached permission tree removed by PermissionRoleMappingHook.
                     ApplyPermissionRoleMappings(role, form);
 
-                    await _roleManager.UpdateAsync(role);
+                    var result = await _roleManager.UpdateAsync(role);
+                    if (result.Succeeded)
+                    {
+                        Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditCustomerRole, T("ActivityLog.EditCustomerRole"), role.Name);
+                        NotifySuccess(T("Admin.Customers.CustomerRoles.Updated"));
 
-                    Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditCustomerRole, T("ActivityLog.EditCustomerRole"), role.Name);
-                    NotifySuccess(T("Admin.Customers.CustomerRoles.Updated"));
-
-                    return continueEditing
-                        ? RedirectToAction("Edit", new { id = role.Id })
-                        : RedirectToAction("List");
+                        return continueEditing
+                            ? RedirectToAction(nameof(Edit), new { id = role.Id })
+                            : RedirectToAction(nameof(List));
+                    }
+                    else
+                    {
+                        AddModelErrors(result, string.Empty);
+                    }
                 }
                 catch (Exception ex)
                 {
-                    NotifyError(ex);
+                    ModelState.AddModelError(string.Empty, ex.Message);
                 }
             }
 
@@ -280,18 +294,25 @@ namespace Smartstore.Admin.Controllers
 
             try
             {
-                await _roleManager.DeleteAsync(role);
+                var result = await _roleManager.DeleteAsync(role);
+                if (result.Succeeded)
+                {
+                    Services.ActivityLogger.LogActivity(KnownActivityLogTypes.DeleteCustomerRole, T("ActivityLog.DeleteCustomerRole"), role.Name);
+                    NotifySuccess(T("Admin.Customers.CustomerRoles.Deleted"));
 
-                Services.ActivityLogger.LogActivity(KnownActivityLogTypes.DeleteCustomerRole, T("ActivityLog.DeleteCustomerRole"), role.Name);
-                NotifySuccess(T("Admin.Customers.CustomerRoles.Deleted"));
-
-                return RedirectToAction("List");
+                    return RedirectToAction(nameof(List));
+                }
+                else
+                {
+                    result.Errors.Select(x => x.Description).Distinct().Each(x => NotifyError(x));
+                }
             }
             catch (Exception ex)
             {
                 NotifyError(ex.Message);
-                return RedirectToAction("Edit", new { id = role.Id });
             }
+
+            return RedirectToAction(nameof(Edit), new { id = role.Id });
         }
 
         [Permission(Permissions.Customer.Role.Read)]
@@ -301,6 +322,7 @@ namespace Smartstore.Admin.Controllers
                 .AsNoTracking()
                 .Include(x => x.Customer)
                 .Where(x => x.CustomerRoleId == id && x.Customer != null)
+                .OrderBy(x => x.IsSystemMapping)
                 .Select(x => new CustomerRoleMappingModel
                 {
                     Id = x.Id,
@@ -365,7 +387,7 @@ namespace Smartstore.Admin.Controllers
                 NotifyError(T("Admin.System.ScheduleTasks.TaskNotFound", nameof(TargetGroupEvaluatorTask)));
             }
 
-            return RedirectToAction("Edit", new { id = role.Id });
+            return RedirectToAction(nameof(Edit), new { id = role.Id });
         }
 
         private async Task PrepareRoleModel(CustomerRoleModel model, CustomerRole role)
@@ -390,7 +412,7 @@ namespace Smartstore.Admin.Controllers
 
                 ViewBag.ShowRuleApplyButton = showRuleApplyButton;
                 ViewBag.PermissionTree = await Services.Permissions.GetPermissionTreeAsync(role, true);
-                ViewBag.PrimaryStoreCurrencyCode = Services.StoreContext.CurrentStore.PrimaryStoreCurrency.CurrencyCode;
+                ViewBag.PrimaryStoreCurrencyCode = _currencyService.PrimaryCurrency.CurrencyCode;
             }
 
             ViewBag.TaxDisplayTypes = model.TaxDisplayType.HasValue
@@ -464,6 +486,17 @@ namespace Smartstore.Admin.Controllers
                 {
                     ModelState.AddModelError(nameof(model.SystemName), T("Admin.Customers.CustomerRoles.Fields.SystemName.CantEditSystem"));
                 }
+            }
+        }
+
+        private void AddModelErrors(IdentityResult result, string key)
+        {
+            if (!result.Succeeded)
+            {
+                result.Errors
+                    .Select(x => x.Description)
+                    .Distinct()
+                    .Each(x => ModelState.AddModelError(key, x));
             }
         }
     }

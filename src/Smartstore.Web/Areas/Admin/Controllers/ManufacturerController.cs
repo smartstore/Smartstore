@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using Smartstore.Admin.Models.Catalog;
 using Smartstore.Collections;
 using Smartstore.ComponentModel;
@@ -14,15 +8,12 @@ using Smartstore.Core.Catalog.Brands;
 using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Catalog.Products;
-using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Logging;
 using Smartstore.Core.Rules.Filters;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
-using Smartstore.Web.Controllers;
-using Smartstore.Web.Modelling;
 using Smartstore.Web.Models.DataGrid;
 
 namespace Smartstore.Admin.Controllers
@@ -120,7 +111,7 @@ namespace Smartstore.Admin.Controllers
 
         public IActionResult Index()
         {
-            return RedirectToAction("List");
+            return RedirectToAction(nameof(List));
         }
 
         [Permission(Permissions.Catalog.Manufacturer.Read)]
@@ -193,7 +184,7 @@ namespace Smartstore.Admin.Controllers
 
                 await _db.SaveChangesAsync();
 
-                var validateSlugResult = await manufacturer.ValidateSlugAsync(manufacturer.Name, true, 0);
+                var validateSlugResult = await manufacturer.ValidateSlugAsync(model.SeName, manufacturer.Name, true);
                 await _urlService.ApplySlugAsync(validateSlugResult);
                 model.SeName = validateSlugResult.Slug;
 
@@ -211,8 +202,8 @@ namespace Smartstore.Admin.Controllers
                 NotifySuccess(T("Admin.Catalog.Manufacturers.Added"));
 
                 return continueEditing 
-                    ? RedirectToAction("Edit", new { id = manufacturer.Id }) 
-                    : RedirectToAction("List");
+                    ? RedirectToAction(nameof(Edit), new { id = manufacturer.Id }) 
+                    : RedirectToAction(nameof(List));
             }
 
             await PrepareManufacturerModel(model, null);
@@ -269,7 +260,7 @@ namespace Smartstore.Admin.Controllers
                 var mapper = MapperFactory.GetMapper<ManufacturerModel, Manufacturer>();
                 await mapper.MapAsync(model, manufacturer);
 
-                var validateSlugResult = await manufacturer.ValidateSlugAsync(manufacturer.Name, true, 0);
+                var validateSlugResult = await manufacturer.ValidateSlugAsync(model.SeName, manufacturer.Name, true);
                 await _urlService.ApplySlugAsync(validateSlugResult);
                 model.SeName = validateSlugResult.Slug;
 
@@ -286,8 +277,8 @@ namespace Smartstore.Admin.Controllers
                 NotifySuccess(T("Admin.Catalog.Manufacturers.Updated"));
 
                 return continueEditing 
-                    ? RedirectToAction("Edit", manufacturer.Id) 
-                    : RedirectToAction("List");
+                    ? RedirectToAction(nameof(Edit), manufacturer.Id) 
+                    : RedirectToAction(nameof(List));
             }
 
             await PrepareManufacturerModel(model, manufacturer);
@@ -311,7 +302,7 @@ namespace Smartstore.Admin.Controllers
             Services.ActivityLogger.LogActivity(KnownActivityLogTypes.DeleteManufacturer, T("ActivityLog.DeleteManufacturer"), manufacturer.Name);
             NotifySuccess(T("Admin.Catalog.Manufacturers.Deleted"));
 
-            return RedirectToAction("List");
+            return RedirectToAction(nameof(List));
         }
 
         #region Product manufacturers
@@ -446,7 +437,6 @@ namespace Smartstore.Admin.Controllers
             ViewBag.ManufacturerTemplates = manufacturerTemplates
                 .Select(x => new SelectListItem { Text = x.Name, Value = x.Id.ToString() })
                 .ToList();
-
         }
 
         private async Task ApplyLocales(ManufacturerModel model, Manufacturer manufacturer)
@@ -460,7 +450,7 @@ namespace Smartstore.Admin.Controllers
                 await _localizedEntityService.ApplyLocalizedValueAsync(manufacturer, x => x.MetaDescription, localized.MetaDescription, localized.LanguageId);
                 await _localizedEntityService.ApplyLocalizedValueAsync(manufacturer, x => x.MetaTitle, localized.MetaTitle, localized.LanguageId);
 
-                var validateSlugResult = await manufacturer.ValidateSlugAsync(localized.Name, false, localized.LanguageId);
+                var validateSlugResult = await manufacturer.ValidateSlugAsync(localized.SeName, localized.Name, false, localized.LanguageId);
                 await _urlService.ApplySlugAsync(validateSlugResult);
             }
         }

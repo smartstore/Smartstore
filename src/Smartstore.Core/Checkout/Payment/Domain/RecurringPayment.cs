@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Orders;
-using Smartstore.Domain;
 
 namespace Smartstore.Core.Checkout.Payment
 {
@@ -17,11 +13,10 @@ namespace Smartstore.Core.Checkout.Payment
             // Globally exclude soft-deleted entities from all queries.
             builder.HasQueryFilter(c => !c.Deleted);
 
-            //builder.HasOne(x => x.InitialOrder)
-            //    .WithMany()
-            //    .HasForeignKey(x => x.InitialOrderId)
-            //    .IsRequired(false)
-            //    .OnDelete(DeleteBehavior.SetNull);
+            builder.HasOne(x => x.InitialOrder)
+                .WithMany()
+                .HasForeignKey(x => x.InitialOrderId)
+                .OnDelete(DeleteBehavior.NoAction);
         }
     }
 
@@ -88,44 +83,6 @@ namespace Smartstore.Core.Checkout.Payment
         /// Gets or sets the date and time of payment creation.
         /// </summary>
         public DateTime CreatedOnUtc { get; set; }
-
-        /// <summary>
-        /// Gets the next payment date.
-        /// </summary>
-        [NotMapped]
-        public DateTime? NextPaymentDate
-        {
-            get
-            {
-                if (!IsActive || RecurringPaymentHistory.Count >= TotalCycles)
-                    return null;
-
-                DateTime? result = null;
-                if (RecurringPaymentHistory.Count > 0)
-                {
-                    result = CyclePeriod switch
-                    {
-                        RecurringProductCyclePeriod.Days => StartDateUtc.AddDays((double)CycleLength * RecurringPaymentHistory.Count),
-                        RecurringProductCyclePeriod.Weeks => StartDateUtc.AddDays((double)(7 * CycleLength) * RecurringPaymentHistory.Count),
-                        RecurringProductCyclePeriod.Months => StartDateUtc.AddMonths(CycleLength * RecurringPaymentHistory.Count),
-                        RecurringProductCyclePeriod.Years => StartDateUtc.AddYears(CycleLength * RecurringPaymentHistory.Count),
-                        _ => throw new SmartException("Not supported cycle period"),
-                    };
-                }
-                else if (TotalCycles > 0)
-                {
-                    result = StartDateUtc;
-                }
-
-                return result;
-            }
-        }
-
-        /// <summary>
-        /// Gets the cycles remaining.
-        /// </summary>
-        [NotMapped]
-        public int CyclesRemaining => Math.Clamp(TotalCycles - RecurringPaymentHistory.Count, 0, int.MaxValue);
 
         private ICollection<RecurringPaymentHistory> _recurringPaymentHistory;
         /// <summary>

@@ -1,7 +1,4 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
-
-namespace Smartstore.Core.Catalog.Pricing.Calculators
+﻿namespace Smartstore.Core.Catalog.Pricing.Calculators
 {
     /// <summary>
     /// Calculates the lowest possible price a product can achieve. 

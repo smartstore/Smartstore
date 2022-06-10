@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Newtonsoft.Json;
 using Smartstore.Core.Rules;
 using Smartstore.Core.Security;
-using Smartstore.Domain;
 
 namespace Smartstore.Core.Identity
 {
@@ -35,7 +31,11 @@ namespace Smartstore.Core.Identity
                         .HasForeignKey("CustomerRole_Id")
                         .HasConstraintName("FK_dbo.RuleSet_CustomerRole_Mapping_dbo.CustomerRole_CustomerRole_Id")
                         .OnDelete(DeleteBehavior.Cascade),
-                    c => c.HasKey("CustomerRole_Id", "RuleSetEntity_Id"));
+                    c =>
+                    {
+                        c.HasIndex("CustomerRole_Id");
+                        c.HasKey("CustomerRole_Id", "RuleSetEntity_Id");
+                    });
         }
     }
 

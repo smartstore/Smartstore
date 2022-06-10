@@ -1,6 +1,4 @@
-﻿using System.Linq;
-
-namespace Smartstore.Core.Catalog.Attributes
+﻿namespace Smartstore.Core.Catalog.Attributes
 {
     public static partial class ProductVariantAttributeQueryExtensions
     {
@@ -18,6 +16,18 @@ namespace Smartstore.Core.Catalog.Attributes
             query = query.Where(x => productIds.Contains(x.ProductId));
 
             return query.OrderBy(x => x.DisplayOrder);
+        }
+
+        /// <summary>
+        /// Applies a filter for list control types.
+        /// </summary>
+        /// <param name="query"><see cref="ProductVariantAttribute"/> query.</param>
+        /// <returns><see cref="ProductVariantAttribute"/> query.</returns>
+        public static IQueryable<ProductVariantAttribute> ApplyListTypeFilter(this IQueryable<ProductVariantAttribute> query)
+        {
+            Guard.NotNull(query, nameof(query));
+
+            return query.Where(x => ProductAttributeMaterializer.AttributeListControlTypeIds.Contains(x.AttributeControlTypeId));
         }
     }
 }

@@ -1,24 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Smartstore.Caching.OutputCache;
+﻿using System.Runtime.CompilerServices;
 using Smartstore.Collections;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Catalog.Search;
-using Smartstore.Core.Common;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Localization;
+using Smartstore.Core.OutputCache;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Data;
 using Smartstore.Diagnostics;
-using Smartstore.Domain;
 using Smartstore.Web.Infrastructure.Hooks;
 using Smartstore.Web.Models.Catalog;
 using Smartstore.Web.Models.Media;
@@ -324,7 +317,7 @@ namespace Smartstore.Web.Controllers
                     AllowPrices = allowPrices,
                     AllowShoppingCart = allowShoppingCart,
                     AllowWishlist = allowWishlist,
-                    ShippingChargeTaxFormat = _currencyService.GetTaxFormat(priceIncludesTax: calculationOptions.TaxInclusive, target: PricingTarget.ShippingCharge, language: language),
+                    ShippingChargeTaxFormat = _taxService.GetTaxFormat(priceIncludesTax: calculationOptions.TaxInclusive, target: PricingTarget.ShippingCharge, language: language),
                 };
 
                 if (settings.MapPictures)

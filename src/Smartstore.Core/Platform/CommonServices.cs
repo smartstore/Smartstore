@@ -1,13 +1,9 @@
-﻿using System;
-using System.Linq;
-using System.Reflection;
+﻿using System.Reflection;
 using Autofac;
 using Autofac.Core;
 using Autofac.Core.Registration;
 using Autofac.Core.Resolving.Pipeline;
-using Microsoft.Extensions.Logging;
 using Smartstore.Caching;
-using Smartstore.Caching.OutputCache;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Configuration;
@@ -15,12 +11,12 @@ using Smartstore.Core.Content.Media;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Logging;
+using Smartstore.Core.OutputCache;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
 using Smartstore.Core.Web;
 using Smartstore.Data;
 using Smartstore.Diagnostics;
-using Smartstore.Engine;
 using Smartstore.Events;
 
 namespace Smartstore.Core

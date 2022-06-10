@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+﻿using System.Security;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace Smartstore.Web.Modelling
@@ -65,7 +60,7 @@ namespace Smartstore.Web.Modelling
                 else
                 {
                     // Is Complex type
-                    var modelName = key.Substring(0, key.Length - subPropertyName.Length - 1);
+                    var modelName = key[..(key.Length - subPropertyName.Length - 1)];
                     var valueType = GetValueType(keys, modelName, bindingContext.ValueProvider);
                     if (!valueType.HasAttribute<CustomModelPartAttribute>(false))
                     {

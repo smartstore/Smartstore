@@ -1,0 +1,62 @@
+﻿@model ManualPaymentInfoModel
+
+<input type="hidden" name="OfflinePaymentMethodType" value="Manual" />
+
+@if (Model.ThumbnailUrl.HasValue())
+{
+    <div class="media">
+        <img class="media-object img-fluid pr-2" src="@Model.ThumbnailUrl">
+        <div class="media-body">
+            @Html.Raw(Model.DescriptionText)
+        </div>
+    </div>
+}
+else
+{
+    <div class="text-muted">
+        @Html.Raw(Model.DescriptionText)
+    </div>
+}
+
+<div class="opt-form">
+    <div class="form-group row">
+        <label asp-for="CreditCardTypes" class="col-md-3 col-form-label required"></label>
+        <div class="col-md-9">
+            <select asp-for="CreditCardType" asp-items="@Model.CreditCardTypes" class="form-control noskin"></select>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label asp-for="CardholderName" class="col-md-3 col-form-label required"></label>
+        <div class="col-md-9">
+            <input asp-for="CardholderName" sm-required="true" />
+            <span asp-validation-for="CardholderName"></span>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label asp-for="CardNumber" class="col-md-3 col-form-label required"></label>
+        <div class="col-md-9">
+            <input asp-for="CardNumber" sm-required="true" />
+            <span asp-validation-for="CardNumber"></span>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label asp-for="ExpireMonth" class="col-md-3 col-form-label required"></label>
+        <div class="col-md-9">
+            <div class="row sm-gutters">
+                <div class="col-6">
+                    <select asp-for="ExpireMonth" asp-items="@Model.ExpireMonths" class="form-control noskin"></select>
+                </div>
+                <div class="col-6">
+                    <select asp-for="ExpireYear" asp-items="@Model.ExpireYears" class="form-control noskin"></select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label asp-for="CardCode" class="col-md-3 col-form-label required"></label>
+        <div class="col-md-9">
+            <input asp-for="CardCode" sm-required="true" />
+            <span asp-validation-for="CardCode"></span>
+        </div>
+    </div>
+</div>

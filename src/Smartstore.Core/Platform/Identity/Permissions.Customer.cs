@@ -10,7 +10,10 @@
             public const string Create = "customer.create";
             public const string Delete = "customer.delete";
             public const string Impersonate = "customer.impersonate";
+            public const string ReadAddress = "customer.readaddress";
+            public const string CreateAddress = "customer.createaddress";
             public const string EditAddress = "customer.editaddress";
+            public const string DeleteAddress = "customer.deleteaddress";
             public const string EditRole = "customer.editcustomerrole";
             public const string SendPm = "customer.sendpm";
 

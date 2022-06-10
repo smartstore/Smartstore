@@ -1,9 +1,7 @@
-﻿using System.Linq;
+﻿using Microsoft.EntityFrameworkCore.Query;
 using Smartstore.Core.Catalog.Brands;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Query;
-using Smartstore.Core.Identity;
 using Smartstore.Core.Content.Media;
+using Smartstore.Core.Identity;
 
 namespace Smartstore.Core.Catalog.Products
 {

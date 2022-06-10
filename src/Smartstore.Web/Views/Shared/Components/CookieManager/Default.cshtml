@@ -1,0 +1,168 @@
+﻿@using Smartstore.Web.Models.Common;
+@using Smartstore.Core.Identity;
+
+@model CookieManagerModel
+
+@{
+    Layout = "";
+
+    var requiredCookieInfos = new List<CookieInfo>();
+    var analyticsCookieInfos = new List<CookieInfo>();
+    var thirdPartyCookieInfos = new List<CookieInfo>();
+
+    if (Model.CookiesInfos != null)
+    {
+        requiredCookieInfos = Model.CookiesInfos.Where(x => x.CookieType == CookieType.Required).ToList();
+        analyticsCookieInfos = Model.CookiesInfos.Where(x => x.CookieType == CookieType.Analytics).ToList();
+        thirdPartyCookieInfos = Model.CookiesInfos.Where(x => x.CookieType == CookieType.ThirdParty).ToList();
+    }
+}
+
+<modal id="cookie-manager-window"
+       sm-backdrop="@(Model.ModalCookieConsent ? ModalBackdrop.Static : ModalBackdrop.Show)"
+       sm-close-on-escape-press="!Model.ModalCookieConsent"
+       sm-render-at-page-end="false">
+    <modal-header sm-show-close="!Model.ModalCookieConsent"></modal-header>
+    <modal-body>
+        <form id="cookie-manager-consent" sm-ajax asp-action="SetCookieManagerConsent" asp-controller="Common" method="post" sm-oncomplete="OnConsented">
+            <input asp-for="AcceptAll" type="hidden" />
+            <button sm-if="!Model.ModalCookieConsent" type="button" class="cm-close close" data-dismiss="modal"><span aria-hidden="true">&times;</span></button>
+
+            <div id="cookie-manager" class="container mt-3">
+                <div class="cm-header row mb-2">
+                    <div class="col">
+                        <h4 class="cm-title">
+                            @T("CookieManager.Dialog.Heading")
+                        </h4>
+                        <p class="cm-intro">
+                            @Html.Raw(T("CookieManager.Dialog.Intro", Url.Action("Info", "Customer"), await Url.TopicAsync("PrivacyInfo")))
+                        </p>
+                    </div>
+                </div>
+
+                <div class="cm-consent">
+                    <div class="row nav-toggler align-items-center no-gutters px-0">
+                        <div class="cm-consent-switch col col-auto">
+                            <input type="checkbox" asp-for="RequiredConsent" disabled sm-switch="true" />
+                        </div>
+                        <h5 class="cm-consent-title collapsed col pl-3" data-toggle="collapse" data-target="#required-cookies" aria-controls="required-cookies" aria-expanded="false">
+                            @T("CookieManager.Dialog.Required.Heading")
+                            <i class="fas fa-angle-down collapse-chevron"></i>
+                        </h5>
+                    </div>
+
+                    <div id="required-cookies" class="collapse nav-collapse" data-parent="#cookie-manager">
+                        <p class="cm-consent-intro">
+                            @T("CookieManager.Dialog.Required.Intro")
+                        </p>
+                        <table sm-if="requiredCookieInfos.Any()" class="cm-info-table table table-light">
+                            @foreach (var info in requiredCookieInfos)
+                            {
+                                <tr>
+                                    <th scope="row">@info.Name</th>
+                                    <td>@info.Description</td>
+                                </tr>
+                            }
+                        </table>
+                    </div>
+                </div>
+
+                <div class="cm-consent">
+                    <div class="row nav-toggler align-items-center no-gutters px-0">
+                        <div class="cm-consent-switch col col-auto">
+                            <input type="checkbox" asp-for="AnalyticsConsent" sm-switch="true" />
+                        </div>
+                        <h5 class="cm-consent-title collapsed col pl-3" data-toggle="collapse" data-target="#analytics-cookies" aria-controls="analytics-cookies" aria-expanded="false">
+                            @T("CookieManager.Dialog.Analytics.Heading")
+                            <i class="fas fa-angle-down collapse-chevron"></i>
+                        </h5>
+                    </div>
+
+                    <div id="analytics-cookies" class="collapse nav-collapse" data-parent="#cookie-manager">
+                        <p class="cm-consent-intro">
+                            @T("CookieManager.Dialog.Analytics.Intro")
+                        </p>
+                        <table sm-if="analyticsCookieInfos.Any()" class="cm-info-table table table-light">
+                            @foreach (var info in analyticsCookieInfos)
+                            {
+                                <tr>
+                                    <th scope="row">@info.Name</th>
+                                    <td>@info.Description</td>
+                                </tr>
+                            }
+                        </table>
+                    </div>
+                </div>
+
+                <div sm-if="thirdPartyCookieInfos.Any()" class="cm-consent">
+                    <div class="row nav-toggler align-items-center no-gutters px-0">
+                        <div class="cm-consent-switch col col-auto">
+                            <input type="checkbox" asp-for="ThirdPartyConsent" sm-switch="true" />
+                        </div>
+                        <h5 class="cm-consent-title collapsed col pl-3" data-toggle="collapse" data-target="#third-party-cookies" aria-controls="third-party-cookies" aria-expanded="false">
+                            @T("CookieManager.Dialog.ThirdParty.Heading")
+                            <i class="fas fa-angle-down collapse-chevron"></i>
+                        </h5>
+                    </div>
+
+                    <div id="third-party-cookies" class="collapse nav-collapse" data-parent="#cookie-manager">
+                        <p class="cm-consent-intro">
+                            @T("CookieManager.Dialog.ThirdParty.Intro")
+                        </p>
+
+                        <table class="cm-info-table table table-light">
+                            @foreach (var info in thirdPartyCookieInfos)
+                            {
+                                <tr>
+                                    <th scope="row">@info.Name</th>
+                                    <td>@info.Description</td>
+                                </tr>
+                            }
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </modal-body>
+    <modal-footer>
+        <div class="cm-footer container">
+            <div class="row">
+                <div class="col-6 pr-1">
+                    <button type="submit" id="accept-selected" name="accept-selected" class="btn btn-block btn-secondary submit-consent">
+                        @T("CookieManager.Dialog.Button.AcceptSelected")
+                    </button>
+                </div>
+                <div class="col-6 pl-1">
+                    <button type="submit" id="accept-all" name="accept-all" class="btn btn-block btn-primary submit-consent">
+                        @T("CookieManager.Dialog.Button.AcceptAll")
+                    </button>
+                </div>
+            </div>
+        </div>
+    </modal-footer>
+</modal>
+
+@*INFO: (mh) (core) No sm-target-zone here, because this partials is loaded via AJAX*@
+<script>
+	$(function () {
+        $('#cookie-manager-window').modal('show');
+
+        $(".submit-consent").on("click", function () {
+            var acceptAll = $(this).attr("id") == "accept-all";
+            var elem = $("#@Html.IdFor(x => x.AcceptAll)");
+			elem.val(acceptAll ? "True" : "False");
+
+            if (acceptAll) {
+				// Set all options of CookieManager view to true for next load via ajax.
+                $("#@Html.IdFor(x => x.AnalyticsConsent)").attr("checked", "checked");
+                $("#@Html.IdFor(x => x.ThirdPartyConsent)").attr("checked", "checked");
+            }
+
+            $("#cookie-manager-consent").submit();
+        });
+    });
+
+    function OnConsented() {
+        $('#cookie-manager-window').modal('hide');
+    };
+</script>

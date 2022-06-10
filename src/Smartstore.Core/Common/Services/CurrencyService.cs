@@ -1,19 +1,17 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
+using Smartstore.Data.Hooks;
 using Smartstore.Engine.Modularity;
+using EState = Smartstore.Data.EntityState;
 
 namespace Smartstore.Core.Common.Services
 {
-    public partial class CurrencyService : ICurrencyService
+    [Important]
+    public partial class CurrencyService : AsyncDbSaveHook<Currency>, ICurrencyService
     {
         private readonly SmartDbContext _db;
         private readonly ILocalizationService _localizationService;
@@ -44,6 +42,64 @@ namespace Smartstore.Core.Common.Services
             _settingFactory = settingFactory;
         }
 
+        public Localizer T { get; set; } = NullLocalizer.Instance;
+
+        #region Hook
+
+        private string _hookErrorMessage;
+
+        public override async Task<HookResult> OnBeforeSaveAsync(IHookedEntity entry, CancellationToken cancelToken)
+        {
+            if (entry.Entity is Currency currency)
+            {
+                if (entry.InitialState == EState.Deleted)
+                {
+                    // Ensure that we do not delete the primary or exchange currency.
+                    if (currency.Id == _currencySettings.PrimaryCurrencyId || currency.Id == _currencySettings.PrimaryExchangeCurrencyId)
+                    {
+                        _hookErrorMessage = currency.Id == _currencySettings.PrimaryCurrencyId
+                            ? T("Admin.Configuration.Currencies.CannotDeletePrimaryCurrency", currency.Name.NaIfEmpty())
+                            : T("Admin.Configuration.Currencies.CannotDeleteExchangeCurrency", currency.Name.NaIfEmpty());
+                    }
+                    else if (currency.Published && !await _db.Currencies.AnyAsync(x => x.Published && x.Id != currency.Id, cancelToken))
+                    {
+                        _hookErrorMessage = T("Admin.Configuration.Currencies.PublishedCurrencyRequired");
+                    }
+                }
+                else if (entry.InitialState == EState.Modified)
+                {
+                    // Ensure that we have at least one published currency.
+                    if (!currency.Published && !await _db.Currencies.AnyAsync(x => x.Published && x.Id != currency.Id, cancelToken))
+                    {
+                        _hookErrorMessage = T("Admin.Configuration.Currencies.PublishedCurrencyRequired");
+                    }
+                }
+
+                if (_hookErrorMessage.HasValue())
+                {
+                    entry.ResetState();
+                }
+            }
+
+            // We need to return HookResult.Ok instead of HookResult.Failed to be able to output an error notification.
+            return HookResult.Ok;
+        }
+
+        public override Task OnBeforeSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
+        {
+            if (_hookErrorMessage.HasValue())
+            {
+                var message = new string(_hookErrorMessage);
+                _hookErrorMessage = null;
+
+                throw new SmartException(message);
+            }
+
+            return Task.CompletedTask;
+        }
+
+        #endregion
+
         public virtual Currency PrimaryCurrency
         {
             get => _primaryCurrency ??= GetPrimaryCurrency(false);
@@ -58,8 +114,6 @@ namespace Smartstore.Core.Common.Services
 
         private Currency GetPrimaryCurrency(bool forExchange)
         {
-            // TODO: (mg) (core) migration of Store.PrimaryStoreCurrencyId to CurrencySettings.PrimaryCurrencyId required.
-            // Also Store.PrimaryExchangeRateCurrencyId to CurrencySettings.PrimaryExchangeCurrencyId.
             var currencyId = forExchange ? _currencySettings.PrimaryExchangeCurrencyId : _currencySettings.PrimaryCurrencyId;
             var currency = _db.Currencies.FindById(currencyId, false);
 
@@ -167,37 +221,6 @@ namespace Smartstore.Core.Common.Services
             }
 
             return new Money(price, currency, !displayCurrency);
-        }
-
-        public virtual string GetTaxFormat(
-            bool? displayTaxSuffix = null,
-            bool? priceIncludesTax = null,
-            PricingTarget target = PricingTarget.Product,
-            Language language = null)
-        {
-            // TODO: (core) Does GetTaxFormat belong to ITaxService? Hmmm... (?)
-
-            displayTaxSuffix ??= target == PricingTarget.Product
-                ? _taxSettings.DisplayTaxSuffix
-                : (target == PricingTarget.ShippingCharge
-                    ? _taxSettings.DisplayTaxSuffix && _taxSettings.ShippingIsTaxable
-                    : _taxSettings.DisplayTaxSuffix && _taxSettings.PaymentMethodAdditionalFeeIsTaxable);
-
-            if (displayTaxSuffix == true)
-            {
-                // Show tax suffix.
-                priceIncludesTax ??= _workContext.TaxDisplayType == TaxDisplayType.IncludingTax;
-                language ??= _workContext.WorkingLanguage;
-
-                string resource = _localizationService.GetResource(priceIncludesTax.Value ? "Products.InclTaxSuffix" : "Products.ExclTaxSuffix", language.Id, false);
-                var postFormat = resource.NullEmpty() ?? (priceIncludesTax.Value ? "{0} incl. tax" : "{0} excl. tax");
-
-                return postFormat;
-            }
-            else
-            {
-                return null;
-            }
         }
     }
 }

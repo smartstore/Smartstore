@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using Autofac;
+﻿using Autofac;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Primitives;
 using Smartstore.Core.Stores;
 using Smartstore.Core.Theming;
-using Smartstore.Engine;
 using Smartstore.Web.Theming;
 
 namespace Smartstore.Web.Bundling.Processors
@@ -41,7 +38,7 @@ namespace Smartstore.Web.Bundling.Processors
                 else
                 {
                     var theme = services.Resolve<IThemeContext>().CurrentTheme.Name;
-                    var storeId = _appContext.Services.Resolve<IStoreContext>().CurrentStore.Id;
+                    var storeId = services.Resolve<IStoreContext>().CurrentStore.Id;
                     return new ThemeVarsFileInfo(subpath, theme, storeId,repo);
                 }
             }

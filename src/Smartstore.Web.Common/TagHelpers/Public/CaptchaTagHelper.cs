@@ -1,8 +1,5 @@
-﻿using System;
-using Microsoft.AspNetCore.Razor.TagHelpers;
-using Smartstore.Core;
+﻿using Microsoft.AspNetCore.Razor.TagHelpers;
 using Smartstore.Core.Security;
-using Smartstore.Engine;
 using Smartstore.Utilities;
 
 namespace Smartstore.Web.TagHelpers.Public

@@ -1,8 +1,5 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
-using Microsoft.EntityFrameworkCore;
-using Smartstore.Domain;
 
 namespace Smartstore.Core.Configuration
 {

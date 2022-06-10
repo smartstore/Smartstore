@@ -1,0 +1,17 @@
+﻿@model string
+
+@{
+    var items = T("Plugins.Feed.Froogle.EnergyEfficiencyClasses").Value
+                .SplitSafe(',')
+                .Select(x => new SelectListItem { Value = x, Text = x })
+                .ToList();
+
+    var size = GetMetadata<string>("size");
+}
+
+<select asp-for="@Model" 
+        asp-items="items" 
+        asp-placeholder="@T("Common.Unspecified")"
+        data-editor="select"
+        class="edit-control"
+        attr-class='(size.HasValue(), "form-control-" + size)'></select>

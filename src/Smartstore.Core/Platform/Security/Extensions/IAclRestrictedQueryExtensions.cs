@@ -1,27 +1,31 @@
-﻿using System.Linq;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
-using Smartstore.Domain;
 
 namespace Smartstore.Core.Security
 {
     public static partial class IAclRestrictedQueryExtensions
     {
+        /// <summary>
+        /// Applies filter for entities restricted by ACL (access control list).
+        /// </summary>
+        /// <param name="customer">Customer to be filtered according to their assigned customer roles.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IQueryable<T> ApplyAclFilter<T>(this IQueryable<T> query, Customer customer)
-            where T : BaseEntity, IAclRestricted
+            where T : BaseEntity, IAclRestricted, new()
         {
             Guard.NotNull(customer, nameof(customer));
             return ApplyAclFilter(query, customer.GetRoleIds());
         }
 
+        /// <summary>
+        /// Applies filter for entities restricted by ACL (access control list).
+        /// </summary>
+        /// <param name="customerRoleIds">Customer role identifiers to be filtered by. <c>null</c> to get all entities.</param>
         public static IQueryable<T> ApplyAclFilter<T>(this IQueryable<T> query, int[] customerRoleIds)
-            where T : BaseEntity, IAclRestricted
+            where T : BaseEntity, IAclRestricted, new()
         {
             Guard.NotNull(query, nameof(query));
-
-            // TODO: (core) Find a way to make ApplyAclFilter to work in cross-context scenarios.
 
             if (customerRoleIds == null || !customerRoleIds.Any())
             {
@@ -34,24 +38,13 @@ namespace Smartstore.Core.Security
                 return query;
             }
 
-            var entityName = typeof(T).Name;
+            var entityName = new T().GetEntityName();
 
-            query =
-                from m in query
-                join a in db.AclRecords
-                on new { m1 = m.Id, m2 = entityName } equals new { m1 = a.EntityId, m2 = a.EntityName } into ma
-                from a in ma.DefaultIfEmpty()
-                where !m.SubjectToAcl || customerRoleIds.Contains(a.CustomerRoleId)
-                select m;
+            var subQuery = db.AclRecords
+                .Where(x => x.EntityName == entityName && customerRoleIds.Contains(x.CustomerRoleId))
+                .Select(x => x.EntityId);
 
-            // TODO: (core) Does not work with efcore5 anymore 
-            //query = query.Distinct();
-
-            //// Does not work anymore in efcore
-            //query = from c in query
-            //        group c by c.Id into cGroup
-            //        orderby cGroup.Key
-            //        select cGroup.FirstOrDefault();
+            query = query.Where(x => !x.SubjectToAcl || subQuery.Contains(x.Id));
 
             return query;
         }

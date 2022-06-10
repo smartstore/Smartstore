@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Smartstore.Utilities;
+﻿using Smartstore.Utilities;
 using Smartstore.Web.TagHelpers.Shared;
 
 namespace Smartstore.Web.Components

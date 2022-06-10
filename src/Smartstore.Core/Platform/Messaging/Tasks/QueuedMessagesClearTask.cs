@@ -1,11 +1,6 @@
-﻿using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Smartstore.Scheduling;
-using Smartstore.Core.Common.Settings;
+﻿using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Data;
-using Smartstore.Data.Batching;
+using Smartstore.Scheduling;
 
 namespace Smartstore.Core.Messaging.Tasks
 {

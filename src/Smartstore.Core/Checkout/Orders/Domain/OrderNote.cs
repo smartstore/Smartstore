@@ -1,11 +1,8 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Newtonsoft.Json;
-using Smartstore.Domain;
 
 namespace Smartstore.Core.Checkout.Orders
 {
@@ -16,7 +13,7 @@ namespace Smartstore.Core.Checkout.Orders
             builder.HasOne(x => x.Order)
                 .WithMany(x => x.OrderNotes)
                 .HasForeignKey(x => x.OrderId)
-                .IsRequired(false);
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 

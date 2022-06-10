@@ -1,15 +1,11 @@
-﻿using Smartstore.Web.Modelling;
-using System;
-using System.Collections.Generic;
-
-namespace Smartstore.Admin.Models.Localization
+﻿namespace Smartstore.Admin.Models.Localization
 {
     public class AvailableLanguageListModel : ModelBase
     {
         public string Version { get; set; }
         public int ResourceCount { get; set; }
 
-        public List<AvailableLanguageModel> Languages { get; set; }
+        public List<AvailableLanguageModel> Languages { get; set; } = new();
     }
 
     public class AvailableLanguageModel : LanguageModel
@@ -45,7 +41,8 @@ namespace Smartstore.Admin.Models.Localization
             SetId = setId;
         }
 
-        public int SetId { get; private set; }
+        public int SetId { get; }
+        public CancellationToken AppShutdownCancellationToken { get; set; }
         public CheckAvailableResourcesResult AvailableResources { get; set; }
     }
 }

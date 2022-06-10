@@ -1,6 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using Smartstore.Caching;
+﻿using Smartstore.Caching;
 
 namespace Smartstore
 {

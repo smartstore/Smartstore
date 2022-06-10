@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using Smartstore.Core.Localization;
+﻿using Smartstore.Core.Localization;
 using Smartstore.Core.Stores;
 using Smartstore.IO;
 using Smartstore.Net.Http;
@@ -28,6 +23,8 @@ namespace Smartstore.Core.DataExchange.Import
         public CancellationToken CancelToken { get; private set; }
 
         public DataImportRequest Request { get; internal set; }
+
+        public ImportEntityType ImportEntityType { get; internal set; }
 
         /// <summary>
         /// The data source (CSV, Excel etc.).

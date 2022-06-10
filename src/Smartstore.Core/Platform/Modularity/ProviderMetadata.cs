@@ -1,5 +1,4 @@
-﻿using System;
-using Smartstore.Core.DataExchange;
+﻿using Smartstore.Core.DataExchange;
 using Smartstore.Utilities;
 
 namespace Smartstore.Engine.Modularity
@@ -127,7 +126,7 @@ namespace Smartstore.Engine.Modularity
 
         public string GetSettingKey(string name)
         {
-            return SettingKeyPattern.FormatWith(SystemName, name);
+            return SettingKeyPattern.FormatCurrent(SystemName, name);
         }
 
         public override string ToString()

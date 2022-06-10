@@ -1,8 +1,6 @@
 ﻿using FluentValidation;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Localization;
-using Smartstore.Web.Modelling;
-using System.Collections.Generic;
 
 namespace Smartstore.Admin.Models
 {
@@ -43,10 +41,10 @@ namespace Smartstore.Admin.Models
         public int NumberOfDaysReturnRequestAvailable { get; set; }
 
         [LocalizedDisplay("*GiftCards_Activated")]
-        public int? GiftCards_Activated_OrderStatusId { get; set; }
+        public int? GiftCardsActivatedOrderStatusId { get; set; }
         
         [LocalizedDisplay("*GiftCards_Deactivated")]
-        public int? GiftCards_Deactivated_OrderStatusId { get; set; }
+        public int? GiftCardsDeactivatedOrderStatusId { get; set; }
 
         public string PrimaryStoreCurrencyCode { get; set; }
         public int StoreCount { get; set; }
@@ -58,7 +56,7 @@ namespace Smartstore.Admin.Models
         public bool DisplayOrdersOfAllStores { get; set; }
 
         [LocalizedDisplay("*OrderListPageSize")]
-        public int OrderListPageSize { get; set; }
+        public int OrderListPageSize { get; set; } = 10;
 
         public List<OrderSettingsLocalizedModel> Locales { get; set; } = new();
     }
@@ -75,14 +73,14 @@ namespace Smartstore.Admin.Models
         public string ReturnRequestActions { get; set; }
     }
 
-    public partial class OrderSettingsValidator : AbstractValidator<OrderSettingsModel>
+    public partial class OrderSettingsValidator : SettingModelValidator<OrderSettingsModel, OrderSettings>
     {
         public OrderSettingsValidator(Localizer T)
         {
-            RuleFor(x => x.GiftCards_Activated_OrderStatusId).NotEqual((int)OrderStatus.Pending)
+            RuleFor(x => x.GiftCardsActivatedOrderStatusId).NotEqual((int)OrderStatus.Pending)
                 .WithMessage(T("Admin.Configuration.Settings.RewardPoints.PointsForPurchases_Awarded.Pending"));
 
-            RuleFor(x => x.GiftCards_Deactivated_OrderStatusId).NotEqual((int)OrderStatus.Pending)
+            RuleFor(x => x.GiftCardsDeactivatedOrderStatusId).NotEqual((int)OrderStatus.Pending)
                 .WithMessage(T("Admin.Configuration.Settings.RewardPoints.PointsForPurchases_Canceled.Pending"));
 
             RuleFor(x => x.OrderListPageSize)

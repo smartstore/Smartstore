@@ -57,7 +57,7 @@
         <partial name="Product.GiftCard" model="Model.GiftCard" view-data="dataDictGiftCard" />
     }
 
-    <div sm-if="Model.ProductType != ProductType.BundledProduct && Model.ProductVariantAttributes.ShouldBeRendered()" class="pd-variants-container" data-partial="Variants">
+    <div sm-if="Model.ProductType != ProductType.BundledProduct && Model.ProductVariantAttributes.Any(x => x.ShouldBeRendered)" class="pd-variants-container" data-partial="Variants">
         @{
             var dataDictVariants = new ViewDataDictionary(ViewData);
             dataDictVariants.TemplateInfo.HtmlFieldPrefix = string.Format("attributes_{0}", Model.Id);
@@ -90,8 +90,8 @@
                 data: $(form).serialize(),
                 success: function (response) {
 					// Redirect to ask question get action
-					if (response.Data.redirect)
-						location.href = response.Data.redirect;
+					if (response.redirect)
+						location.href = response.redirect;
 				}
             });
         }

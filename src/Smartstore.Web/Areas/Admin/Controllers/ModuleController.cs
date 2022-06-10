@@ -1,25 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Routing;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.AspNetCore.Routing;
 using Smartstore.Admin.Models.Modularity;
 using Smartstore.Admin.Models.Stores;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Checkout.Tax;
+using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
-using Smartstore.Core.Widgets;
 using Smartstore.Engine.Modularity;
 using Smartstore.Licensing;
 using Smartstore.Utilities.Html;
-using Smartstore.Web.Controllers;
 
 namespace Smartstore.Admin.Controllers
 {
@@ -49,7 +41,7 @@ namespace Smartstore.Admin.Controllers
 
         public IActionResult Index()
         {
-            return RedirectToAction("List");
+            return RedirectToAction(nameof(List));
         }
 
         [Permission(Permissions.Configuration.Module.Read)]
@@ -101,10 +93,10 @@ namespace Smartstore.Admin.Controllers
                 NotifyError(ex);
             }
 
-            return RedirectToAction("List");
+            return RedirectToAction(nameof(List));
         }
 
-        [Permission(Permissions.Configuration.Module.Read)]
+        [Permission(Permissions.System.Maintenance.Execute)]
         public IActionResult ReloadList()
         {
             return RedirectToAction("RestartApplication", "Maintenance", new { returnUrl = Url.Action("List") });
@@ -428,7 +420,6 @@ namespace Smartstore.Admin.Controllers
                 return StatusCode(501, ex.Message);
             }
 
-            NotifySuccess(T("Admin.Common.DataSuccessfullySaved"));
             return StatusCode(200);
         }
 
@@ -436,8 +427,7 @@ namespace Smartstore.Admin.Controllers
         {
             string readPermission = null;
             string updatePermission = null;
-            string url = null;
-
+            
             var metadata = provider.Metadata;
 
             if (metadata.ProviderType == typeof(IPaymentMethod))
@@ -460,13 +450,11 @@ namespace Smartstore.Admin.Controllers
                 readPermission = Permissions.Cms.Widget.Read;
                 updatePermission = Permissions.Cms.Widget.Update;
             }
-            // TODO: (mh) (core) Do we still need IExternalAuthenticationMethod provider?
-            //else if (metadata.ProviderType == typeof(IExternalAuthenticationMethod))
-            //{
-            //    readPermission = Permissions.Configuration.Authentication.Read;
-            //    updatePermission = Permissions.Configuration.Authentication.Update;
-            //    url = Url.Action("Providers", "ExternalAuthentication");
-            //}
+            else if (metadata.ProviderType == typeof(IExternalAuthenticationMethod))
+            {
+                readPermission = Permissions.Configuration.Authentication.Read;
+                updatePermission = Permissions.Configuration.Authentication.Update;
+            }
 
             return (readPermission, updatePermission);
         }
@@ -582,12 +570,12 @@ namespace Smartstore.Admin.Controllers
                             NotifyError(result.ToString());
                         }
 
-                        return RedirectToAction("List");
+                        return RedirectToAction(nameof(List));
                     }
                 }
             }
 
-            return RedirectToAction("List");
+            return RedirectToAction(nameof(List));
         }
 
         [HttpPost]

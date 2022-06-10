@@ -1,23 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Smartstore.Admin.Models.Catalog;
+﻿using Smartstore.Admin.Models.Catalog;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Products;
-using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Logging;
 using Smartstore.Core.Rules.Filters;
 using Smartstore.Core.Security;
 using Smartstore.Data;
-using Smartstore.Web.Controllers;
-using Smartstore.Web.Modelling;
-using Smartstore.Web.Models.DataGrid;
 using Smartstore.Web.Models;
+using Smartstore.Web.Models.DataGrid;
 
 namespace Smartstore.Admin.Controllers
 {
@@ -33,16 +24,17 @@ namespace Smartstore.Admin.Controllers
         }
 
         // AJAX.
-        public IActionResult AllProductAttributes(string label, int selectedId)
+        public async Task<IActionResult> AllProductAttributes(string label, int selectedId)
         {
             var query = _db.ProductAttributes
                 .AsNoTracking()
-                .OrderBy(x => x.DisplayOrder);
+                .OrderBy(x => x.DisplayOrder)
+                .ThenBy(x => x.Name);
 
-            var pager = new FastPager<ProductAttribute>(query, 500);
+            var pager = new FastPager<ProductAttribute>(query, 1000);
             var allAttributes = new List<dynamic>();
 
-            while (pager.ReadNextPage(out var attributes))
+            while ((await pager.ReadNextPageAsync<ProductAttribute>()).Out(out var attributes))
             {
                 foreach (var attribute in attributes)
                 {
@@ -50,7 +42,7 @@ namespace Smartstore.Admin.Controllers
                     {
                         attribute.Id,
                         attribute.DisplayOrder,
-                        Name = attribute.GetLocalized(x => x.Name).Value
+                        attribute.Name
                     };
 
                     allAttributes.Add(obj);
@@ -59,6 +51,7 @@ namespace Smartstore.Admin.Controllers
 
             var data = allAttributes
                 .OrderBy(x => x.DisplayOrder)
+                .ThenBy(x => x.Name)
                 .Select(x => new ChoiceListItem
                 {
                     Id = x.Id.ToString(),
@@ -82,7 +75,7 @@ namespace Smartstore.Admin.Controllers
 
         public IActionResult Index()
         {
-            return RedirectToAction("List");
+            return RedirectToAction(nameof(List));
         }
 
         [Permission(Permissions.Catalog.Variant.Read)]
@@ -194,8 +187,8 @@ namespace Smartstore.Admin.Controllers
                 NotifySuccess(T("Admin.Catalog.Attributes.ProductAttributes.Added"));
 
                 return continueEditing
-                    ? RedirectToAction("Edit", new { id = attribute.Id })
-                    : RedirectToAction("List");
+                    ? RedirectToAction(nameof(Edit), new { id = attribute.Id })
+                    : RedirectToAction(nameof(List));
             }
 
             return View(model);
@@ -246,8 +239,8 @@ namespace Smartstore.Admin.Controllers
                 NotifySuccess(T("Admin.Catalog.Attributes.ProductAttributes.Updated"));
 
                 return continueEditing
-                    ? RedirectToAction("Edit", attribute.Id)
-                    : RedirectToAction("List");
+                    ? RedirectToAction(nameof(Edit), attribute.Id)
+                    : RedirectToAction(nameof(List));
             }
 
             return View(model);
@@ -269,7 +262,7 @@ namespace Smartstore.Admin.Controllers
             Services.ActivityLogger.LogActivity(KnownActivityLogTypes.DeleteProductAttribute, T("ActivityLog.DeleteProductAttribute"), attribute.Name);
             NotifySuccess(T("Admin.Catalog.Attributes.ProductAttributes.Deleted"));
 
-            return RedirectToAction("List");
+            return RedirectToAction(nameof(List));
         }
 
         #region Product attribute options sets

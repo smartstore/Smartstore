@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Smartstore.Core.Checkout.Cart
+﻿namespace Smartstore.Core.Checkout.Cart
 {
     /// <summary>
     /// Represents an organized shopping cart item.

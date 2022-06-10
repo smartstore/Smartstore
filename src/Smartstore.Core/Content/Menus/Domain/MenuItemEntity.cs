@@ -1,29 +1,14 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Newtonsoft.Json;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
-using Smartstore.Domain;
 
 namespace Smartstore.Core.Content.Menus
 {
-    internal class MenuItemMap : IEntityTypeConfiguration<MenuItemEntity>
-    {
-        public void Configure(EntityTypeBuilder<MenuItemEntity> builder)
-        {
-            //builder.HasOne(x => x.Menu)
-            //    .WithMany(x => x.Items)
-            //    .HasForeignKey(c => c.MenuId)
-            //    .OnDelete(DeleteBehavior.Cascade);
-            ////DeleteBehavior.NoAction TODO: (mh) (core) In classic there was no action on delete. Test!
-        }
-    }
-
     /// <summary>
     /// Represents a menu item.
     /// </summary>
@@ -35,6 +20,8 @@ namespace Smartstore.Core.Content.Menus
     [Index(nameof(SubjectToAcl), Name = "IX_MenuItem_SubjectToAcl")]
     public class MenuItemEntity : EntityWithAttributes, ILocalizedEntity, IStoreRestricted, IAclRestricted
     {
+        const string EntityName = "MenuItemRecord";
+
         public MenuItemEntity()
         {
         }
@@ -44,6 +31,9 @@ namespace Smartstore.Core.Content.Menus
             : base(lazyLoader)
         {     
         }
+
+        public override string GetEntityName()
+            => EntityName;
 
         /// <summary>
         /// Gets or sets the menu identifier.

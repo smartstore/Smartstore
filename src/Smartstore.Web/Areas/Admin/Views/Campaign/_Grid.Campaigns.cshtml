@@ -3,9 +3,11 @@
 @model CampaignModel
 
 <datagrid id="campaigns-grid" allow-resize="true" allow-row-selection="true" allow-column-reordering="true">
-    <datasource read="@Url.Action("List", "Campaign")"
-                delete="@Url.Action("DeleteSelection", "Campaign")" />
-    <sorting enabled="true" />
+    <datasource read="@Url.Action("CampaignList", "Campaign")"
+                delete="@Url.Action("CampaignDelete", "Campaign")" />
+    <sorting enabled="true">
+        <sort by="CreatedOn" by-entity-member="CreatedOnUtc" descending="true" />
+    </sorting>
     <paging position="Bottom" show-size-chooser="true" />
     <toolbar>
         <toolbar-group>
@@ -14,7 +16,10 @@
                 <span>@T("Admin.Common.AddNew")...</span>
             </a>
         </toolbar-group>
-        <toolbar-group class="omega">
+        <zone name="datagrid_toolbar_alpha"></zone>
+        <toolbar-group class="omega"></toolbar-group>
+        <zone name="datagrid_toolbar_omega"></zone>
+        <toolbar-group>
             <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger no-anims btn-flat">
                 <i class="far fa-trash-alt"></i>
                 <span>@T("Admin.Common.Delete.Selected")</span>
@@ -22,7 +27,7 @@
         </toolbar-group>
     </toolbar>
     <columns>
-        <column for="Name" hideable="false" width="350px">
+        <column for="Name" hideable="false">
             <display-template>
                 <a :href="item.row.EditUrl" class="text-truncate">
                     {{ item.value }}
@@ -30,8 +35,9 @@
             </display-template>
         </column>
         <column for="Subject" width="1fr" />
-        <column for="CreatedOn" />
-        <column for="LimitedToStores" readonly="true" halign="center" />
+        <column for="CreatedOn" entity-member="CreatedOnUtc" />
+        <column for="LimitedToStores" halign="center" />
+        <column for="SubjectToAcl" halign="center" />
     </columns>
     <row-commands>
         <a datarow-action="DataRowAction.Custom" :href="item.row.EditUrl">@T("Common.Edit")</a>

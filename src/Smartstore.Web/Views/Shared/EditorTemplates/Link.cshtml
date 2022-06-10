@@ -11,11 +11,11 @@
     var rtl = WorkContext.WorkingLanguage.Rtl;
     var rnd = CommonHelper.GenerateRandomInteger();
     var id = Html.IdForModel();
-    var metadata = LinkResolver.GetBuilderMetadata().ToDictionarySafe(x => x.Schema);
+    var metadata = LinkResolver.GetBuilderMetadata().ToDictionarySafe(x => x.Schema, StringComparer.OrdinalIgnoreCase);
     var link = await LinkResolver.ResolveAsync(Value);
     var expression = link.Expression;
     var hideQueryString = GetMetadata<bool>("hideQueryString");
-    var arr = GetMetadata<string>("allowedSchemas").SplitSafe(',');
+    var arr = GetMetadata<string>("allowedSchemas").SplitSafe(',').Select(x => x.ToLowerInvariant());
     var allowedSchemas = arr.Any() ? arr : metadata.Keys;
 }
 
@@ -104,7 +104,7 @@
                     <div class="input-group">
                         <input id="lb-file-url-@rnd" type="text" class="form-control transferable resettable bg-white text-muted" value="@label" readonly />
                         <div class="input-group-append">
-                            <a href="javascript:;" class="btn btn-secondary browse-files" data-url="@Url.Content("~/Admin/RoxyFileManager/")" data-field-id="lb-file-url-@rnd">
+                            <a href="javascript:;" class="btn btn-secondary browse-files" data-file-manager-url="@Display.GetFileManagerUrl()" data-field-id="lb-file-url-@rnd">
                                 <i class="fa fa-upload"></i>
                                 <span>@(T("Common.BrowseFiles"))&hellip;</span>
                             </a>

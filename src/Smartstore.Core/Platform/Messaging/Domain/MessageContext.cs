@@ -1,8 +1,6 @@
-﻿using System;
-using System.Globalization;
+﻿using System.Globalization;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
-using Smartstore.Core.Messaging;
 using Smartstore.Core.Stores;
 using Smartstore.Net.Mail;
 

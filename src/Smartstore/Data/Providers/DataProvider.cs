@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.Common;
-using System.IO;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Data.Common;
+using System.Globalization;
+using System.Text.RegularExpressions;
 using Dasync.Collections;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -28,17 +22,18 @@ namespace Smartstore.Data.Providers
         AccessIncrement = 1 << 5,
         StreamBlob = 1 << 6,
         ExecuteSqlScript = 1 << 7,
-        StoredProcedures = 1 << 8
+        StoredProcedures = 1 << 8,
+        ReadSequential = 1 << 9
     }
 
     public abstract class DataProvider : Disposable
     {
+        private static readonly Regex _dbNameRegex = new(@"^(?<DbName>.+)-(?<Version>\d+(\s*\.\s*\d+){0,3})-(?<Timestamp>[0-9]{14})(?<Suffix>.+?)?", 
+            RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.Singleline | RegexOptions.IgnoreCase);
+
         protected DataProvider(DatabaseFacade database)
         {
-            Guard.NotNull(database, nameof(database));
-            
-            // TODO: (core) Add more methods: EnsureColumn(), ... 
-            Database = database;
+            Database = Guard.NotNull(database, nameof(database));
         }
 
         public DatabaseFacade Database { get; }
@@ -85,6 +80,11 @@ namespace Smartstore.Data.Providers
         public bool CanStreamBlob
         {
             get => Features.HasFlag(DataProviderFeatures.StreamBlob);
+        }
+
+        public bool CanReadSequential
+        {
+            get => Features.HasFlag(DataProviderFeatures.ReadSequential);
         }
 
         public bool CanExecuteSqlScript
@@ -151,17 +151,9 @@ namespace Smartstore.Data.Providers
                 $"SELECT column_name From INFORMATION_SCHEMA.COLUMNS WHERE table_name = {tableName} And column_name = {columnName}").AnyAsync(x => true);
         }
 
-        public virtual string[] GetTableNames()
-        {
-            return Database.ExecuteQueryRaw<string>(
-                $"SELECT table_name From INFORMATION_SCHEMA.TABLES WHERE table_type = 'BASE TABLE'").ToArray();
-        }
+        public abstract string[] GetTableNames();
 
-        public virtual async Task<string[]> GetTableNamesAsync()
-        {
-            return await Database.ExecuteQueryRawAsync<string>(
-                $"SELECT table_name From INFORMATION_SCHEMA.TABLES WHERE table_type = 'BASE TABLE'").AsyncToArray();
-        }
+        public abstract Task<string[]> GetTableNamesAsync();
 
         #endregion
 
@@ -172,6 +164,13 @@ namespace Smartstore.Data.Providers
         /// </summary>
         /// <returns>The enclosed identifier, e.g. <c>MyColumn</c> --> <c>[MyColumn]</c>.</returns>
         public virtual string EncloseIdentifier(string identifier)
+            => throw new NotSupportedException();
+
+        /// <summary>
+        /// Applies paging to <paramref name="sql"/> to limit the number of records to be returned.
+        /// </summary>
+        /// <returns>SQL with included paging.</returns>
+        public virtual string ApplyPaging(string sql, int skip, int take)
             => throw new NotSupportedException();
 
         /// <summary>
@@ -229,34 +228,6 @@ namespace Smartstore.Data.Providers
         /// Gets the total size of the database in MB.
         /// </summary>
         public virtual Task<decimal> GetDatabaseSizeAsync()
-            => throw new NotSupportedException();
-
-        /// <summary>
-        /// Creates a database backup
-        /// </summary>
-        /// <param name="fullPath">The full physical path to the backup file.</param>
-        public virtual int BackupDatabase(string fullPath)
-            => throw new NotSupportedException();
-
-        /// <summary>
-        /// Creates a database backup
-        /// </summary>
-        /// <param name="fullPath">The full physical path to the backup file.</param>
-        public virtual Task<int> BackupDatabaseAsync(string fullPath, CancellationToken cancelToken = default)
-            => throw new NotSupportedException();
-
-        /// <summary>
-        /// Restores a database backup
-        /// </summary>
-        /// <param name="backupFullPath">The full physical path to the backup file to restore.</param>
-        public virtual int RestoreDatabase(string backupFullPath)
-            => throw new NotSupportedException();
-
-        /// <summary>
-        /// Restores a database backup
-        /// </summary>
-        /// <param name="backupFullPath">The full physical path to the backup file to restore.</param>
-        public virtual Task<int> RestoreDatabaseAsync(string backupFullPath, CancellationToken cancelToken = default)
             => throw new NotSupportedException();
 
         /// <summary>
@@ -392,6 +363,82 @@ namespace Smartstore.Data.Providers
             => throw new NotSupportedException();
 
         protected virtual Task SetTableIncrementCoreAsync(string tableName, int ident)
+            => throw new NotSupportedException();
+
+        #endregion
+
+        #region Backup
+
+        /// <summary>
+        /// Gets or sets the file extension (including the period ".") of a database backup. ".bak" by default.
+        /// </summary>
+        protected virtual string BackupFileExtension => ".bak";
+
+        /// <summary>
+        /// Creates a file name for a database backup with the format:
+        /// {database name}-{Smartstore version}-{timestamp}{<see cref="BackupFileExtension"/>}
+        /// </summary>
+        public virtual string CreateBackupFileName()
+        {
+            var timestamp = DateTime.Now.ToString("yyyyMMddHHmmss");
+            var dbName = Database.GetDbConnection().Database.NaIfEmpty().ToValidFileName().Replace('-', '_');
+
+            return $"{dbName}-{SmartstoreVersion.CurrentFullVersion}-{timestamp}{BackupFileExtension}";
+        }
+
+        /// <summary>
+        /// Validates the file name of a database backup.
+        /// </summary>
+        /// <param name="fileName">File name of a database backup.</param>
+        public virtual DbBackupValidationResult ValidateBackupFileName(string fileName)
+        {
+            if (fileName.HasValue())
+            {
+                var match = _dbNameRegex.Match(fileName.Trim());
+
+                if (match.Success
+                    && Version.TryParse(match.Groups["Version"].Value, out var version)
+                    && DateTime.TryParseExact(match.Groups["Timestamp"].Value, "yyyyMMddHHmmss", CultureInfo.InvariantCulture, DateTimeStyles.None, out var timestamp)
+                    && Path.GetExtension(fileName).EqualsNoCase(BackupFileExtension))
+                {
+                    return new DbBackupValidationResult(fileName)
+                    {
+                        IsValid = true,
+                        Version = version,
+                        Timestamp = timestamp
+                    };
+                }
+            }
+
+            return new DbBackupValidationResult(fileName);
+        }
+
+        /// <summary>
+        /// Creates a database backup
+        /// </summary>
+        /// <param name="fullPath">The full physical path to the backup file.</param>
+        public virtual int BackupDatabase(string fullPath)
+            => throw new NotSupportedException();
+
+        /// <summary>
+        /// Creates a database backup
+        /// </summary>
+        /// <param name="fullPath">The full physical path to the backup file.</param>
+        public virtual Task<int> BackupDatabaseAsync(string fullPath, CancellationToken cancelToken = default)
+            => throw new NotSupportedException();
+
+        /// <summary>
+        /// Restores a database backup
+        /// </summary>
+        /// <param name="backupFullPath">The full physical path to the backup file to restore.</param>
+        public virtual int RestoreDatabase(string backupFullPath)
+            => throw new NotSupportedException();
+
+        /// <summary>
+        /// Restores a database backup
+        /// </summary>
+        /// <param name="backupFullPath">The full physical path to the backup file to restore.</param>
+        public virtual Task<int> RestoreDatabaseAsync(string backupFullPath, CancellationToken cancelToken = default)
             => throw new NotSupportedException();
 
         #endregion

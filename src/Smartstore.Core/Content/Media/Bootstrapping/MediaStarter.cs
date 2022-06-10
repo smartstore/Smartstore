@@ -1,17 +1,13 @@
-﻿using System;
-using Autofac;
-using Microsoft.AspNetCore.Builder;
+﻿using Autofac;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Content.Media.Icons;
 using Smartstore.Core.Content.Media.Imaging;
 using Smartstore.Core.Content.Media.Storage;
-using Smartstore.Engine;
 using Smartstore.Engine.Builders;
 using Smartstore.Engine.Modularity;
 using Smartstore.Imaging;
 using Smartstore.Imaging.Adapters.ImageSharp;
-using Smartstore.Threading;
 
 namespace Smartstore.Core.Bootstrapping
 {
@@ -62,19 +58,7 @@ namespace Smartstore.Core.Bootstrapping
             builder.RegisterType<DefaultImageProcessor>().As<IImageProcessor>().InstancePerLifetimeScope();
 
             // Register factory for currently active media storage provider
-            if (appContext.IsInstalled)
-            {
-                builder.Register(MediaStorageProviderFactory);
-            }
-            else
-            {
-                builder.Register<Func<IMediaStorageProvider>>(c =>
-                {
-                    var fs = c.ResolveNamed<IMediaFileSystem>("local");
-                    var asyncRunner = c.Resolve<AsyncRunner>();
-                    return () => new FileSystemMediaStorageProvider(fs, asyncRunner);
-                });
-            }
+            builder.Register(MediaStorageProviderFactory);
 
             // Register all album providers
             var albumProviderTypes = appContext.TypeScanner.FindTypes<IAlbumProvider>();

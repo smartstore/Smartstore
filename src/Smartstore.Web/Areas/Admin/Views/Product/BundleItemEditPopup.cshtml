@@ -95,7 +95,7 @@
                         <smart-label asp-for="Quantity" />
                     </div>
                     <div class="adminData">
-                        <input asp-for="Quantity" />
+                        <editor asp-for="Quantity" />
                         <span asp-validation-for="Quantity"></span>
                     </div>
                 </div>
@@ -152,7 +152,7 @@
                         <smart-label asp-for="DisplayOrder" />
                     </div>
                     <div class="adminData">
-                        <input asp-for="DisplayOrder" />
+                        <editor asp-for="DisplayOrder" />
                         <span asp-validation-for="DisplayOrder"></span>
                     </div>
                 </div>
@@ -195,27 +195,26 @@
                     </div>
                 </div>
                 <div id="pnlAttributeFilters">
-                    @foreach (var attribute in Model.Attributes)
+                    @foreach (var attr in Model.Attributes)
                     {
-                        //TODO: (mh) (core) How to do this?
-                        @*<div class="adminRow">
+                        <div class="adminRow">
                             <div class="adminTitle">
-                                <smart-label asp-for="attribute.AttributeControlId" sm-text="@attribute.Name" />
+                                <smart-label asp-for="@attr.AttributeControlId" sm-text="@attr.Name"/>
                             </div>
                             <div class="adminData">
-                                @Html.DropDownList(attribute.AttributeControlId, attribute.Values, null, new { multiple = "multiple", @class = "form-control" })
+                                @Html.DropDownList(attr.AttributeControlId, attr.Values, null, new { multiple = "multiple", @class = "form-control" })
                             </div>
                         </div>
-                        <div sm-if="attribute.PreSelect.Count > 0" class="adminRow">
+                        <div sm-if="attr.PreSelect.Count > 0" class="adminRow">
                             <div class="adminTitle">
-                                <smart-label asp-for="attribute.PreSelectControlId" 
+                                <smart-label asp-for="@attr.PreSelectControlId"
                                              sm-text="@T("Admin.Catalog.Products.BundleItems.Fields.FilterPreSelect")"
                                              sm-hint="@T("Admin.Catalog.Products.BundleItems.Fields.FilterPreSelect.Hint")" />
                             </div>
                             <div class="adminData">
-                                @Html.DropDownList(attribute.PreSelectControlId, attribute.PreSelect, new { @class = "form-control" })
+                                @Html.DropDownList(attr.PreSelectControlId, attr.PreSelect, new { @class = "form-control" })
                             </div>
-                        </div>*@
+                        </div>
                     }
                 </div>
             </div>

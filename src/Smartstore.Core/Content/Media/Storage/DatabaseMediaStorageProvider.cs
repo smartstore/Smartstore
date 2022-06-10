@@ -1,12 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
+﻿using System.Runtime.CompilerServices;
 using Smartstore.Core.Data;
 using Smartstore.Engine.Modularity;
 
@@ -38,24 +30,25 @@ namespace Smartstore.Core.Content.Media.Storage
         public bool IsCloudStorage
             => false;
 
-        public virtual Task<long> GetLengthAsync(MediaFile mediaFile)
+        public virtual async Task<long> GetLengthAsync(MediaFile mediaFile)
         {
             Guard.NotNull(mediaFile, nameof(mediaFile));
 
             var id = mediaFile.MediaStorageId ?? 0;
             if (id == 0)
             {
-                return Task.FromResult(0L);
+                return 0L;
             }
 
-            if (_db.DataProvider.CanStreamBlob)
+            if (_db.DataProvider.CanReadSequential)
             {
                 using var stream = OpenBlobStream(id);
-                return Task.FromResult(stream.Length);
+                return stream.Length;
             }
             else
             {
-                return Task.FromResult(mediaFile.MediaStorage?.Data?.LongLength ?? 0);
+                await _db.LoadReferenceAsync(mediaFile, x => x.MediaStorage);
+                return mediaFile.MediaStorage?.Data?.LongLength ?? 0;
             }
         }
 
@@ -63,7 +56,7 @@ namespace Smartstore.Core.Content.Media.Storage
         {
             Guard.NotNull(mediaFile, nameof(mediaFile));
 
-            if (_db.DataProvider.CanStreamBlob)
+            if (_db.DataProvider.CanReadSequential)
             {
                 if (mediaFile.MediaStorageId > 0)
                 {
@@ -74,12 +67,30 @@ namespace Smartstore.Core.Content.Media.Storage
             }
             else
             {
+                _db.LoadReferenceAsync(mediaFile, x => x.MediaStorage).Await();
                 return mediaFile.MediaStorage?.Data?.ToStream();
             }
         }
 
-        public virtual Task<Stream> OpenReadAsync(MediaFile mediaFile)
-            => Task.FromResult<Stream>(OpenRead(mediaFile));
+        public virtual async Task<Stream> OpenReadAsync(MediaFile mediaFile)
+        {
+            Guard.NotNull(mediaFile, nameof(mediaFile));
+
+            if (_db.DataProvider.CanReadSequential)
+            {
+                if (mediaFile.MediaStorageId > 0)
+                {
+                    return OpenBlobStream(mediaFile.MediaStorageId.Value);
+                }
+
+                return null;
+            }
+            else
+            {
+                await _db.LoadReferenceAsync(mediaFile, x => x.MediaStorage);
+                return mediaFile.MediaStorage?.Data?.ToStream();
+            }
+        }
 
         public virtual async Task<byte[]> LoadAsync(MediaFile mediaFile)
         {
@@ -90,7 +101,7 @@ namespace Smartstore.Core.Content.Media.Storage
                 return Array.Empty<byte>();
             }
 
-            if (_db.DataProvider.CanStreamBlob)
+            if (_db.DataProvider.CanReadSequential)
             {
                 using (var stream = OpenBlobStream(mediaFile.MediaStorageId.Value))
                 {
@@ -99,6 +110,7 @@ namespace Smartstore.Core.Content.Media.Storage
             }
             else
             {
+                await _db.LoadReferenceAsync(mediaFile, x => x.MediaStorage);
                 return mediaFile.MediaStorage?.Data;
             }
         }
@@ -119,31 +131,20 @@ namespace Smartstore.Core.Content.Media.Storage
 
             if (item == null)
             {
-                media.ApplyBlob(null);
-                if (save)
-                {
-                    await _db.SaveChangesAsync();
-                }
-                return;
+                save = save && await RemoveInternalAsync(media) == 0;
+                media.MediaStorageId = null;
             }
-
-            using (item)
+            else
             {
-                if (_db.DataProvider.CanStreamBlob)
+                using (item)
                 {
                     await SaveFast(media, item);
                 }
-                else
-                {
-                    // BLOB stream unsupported
-                    var buffer = await item.SourceStream.ToByteArrayAsync();
-                    media.ApplyBlob(buffer);
-                    media.Size = buffer.Length;
-                    if (save)
-                    {
-                        await _db.SaveChangesAsync();
-                    }
-                }
+            }
+
+            if (save)
+            {
+                await _db.SaveChangesAsync();
             }
         }
 
@@ -152,20 +153,24 @@ namespace Smartstore.Core.Content.Media.Storage
             var sourceStream = item.SourceStream;
             media.Size = (int)sourceStream.Length;
 
-            var streamParam = _db.DataProvider.CreateParameter("p0", sourceStream);
+            object blobValue = _db.DataProvider.CanStreamBlob
+                ? sourceStream
+                : await sourceStream.ToByteArrayAsync();
+
+            var blobParam = _db.DataProvider.CreateParameter("p0", blobValue);
 
             if (media.MediaStorageId == null)
             {
                 // Insert new blob
                 var sql = "INSERT INTO MediaStorage (Data) Values(@p0)";
-                media.MediaStorageId = await _db.DataProvider.InsertIntoAsync(sql, streamParam);
+                media.MediaStorageId = await _db.DataProvider.InsertIntoAsync(sql, blobParam);
             }
             else
             {
                 // Update existing blob
                 var sql = "UPDATE MediaStorage SET Data = @p0 WHERE Id = @p1";
                 var idParam = _db.DataProvider.CreateParameter("p1", media.MediaStorageId.Value);
-                await _db.Database.ExecuteSqlRawAsync(sql, streamParam, idParam);
+                await _db.Database.ExecuteSqlRawAsync(sql, blobParam, idParam);
             }
 
             return media.MediaStorageId.Value;
@@ -173,15 +178,26 @@ namespace Smartstore.Core.Content.Media.Storage
 
         public virtual async Task RemoveAsync(params MediaFile[] mediaFiles)
         {
+            int numRemoved = 0;
+            
             foreach (var media in mediaFiles)
             {
-                media.ApplyBlob(null);
+                numRemoved += await RemoveInternalAsync(media);
             }
 
-            if (mediaFiles.Length > 0)
+            if (mediaFiles.Length > 0 && numRemoved < mediaFiles.Length)
             {
+                // Not all Blobs have been batch-deleted: commit here.
                 await _db.SaveChangesAsync();
             }
+        }
+
+        private async Task<int> RemoveInternalAsync(IMediaAware media)
+        {
+            // Do BatchDelete, we don't wanna load the Blob into memory.
+            return await _db.MediaStorage
+                .Where(x => x.Id == media.MediaStorageId.Value)
+                .BatchDeleteAsync();
         }
 
         public Task ChangeExtensionAsync(MediaFile mediaFile, string extension)
@@ -209,7 +225,6 @@ namespace Smartstore.Core.Content.Media.Storage
                 _db.MediaStorage.Remove(new MediaStorage { Id = mediaFile.MediaStorageId.Value });
 
                 mediaFile.MediaStorageId = null;
-                //mediaFile.MediaStorage = null;
             }
         }
 
@@ -222,7 +237,7 @@ namespace Smartstore.Core.Content.Media.Storage
             if (stream != null && stream.Length > 0)
             {
                 // Requires AutoDetectChanges set to true or remove explicit entity detaching
-                return SaveAsync(mediaFile, MediaStorageItem.FromStream(stream));
+                return ApplyBlobAsync(mediaFile, MediaStorageItem.FromStream(stream), false);
             }
 
             return Task.CompletedTask;

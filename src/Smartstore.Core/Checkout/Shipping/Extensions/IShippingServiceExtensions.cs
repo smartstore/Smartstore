@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Smartstore.Core.Checkout.Cart;
+﻿using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Common;
 
 namespace Smartstore.Core.Checkout.Shipping
@@ -17,7 +16,7 @@ namespace Smartstore.Core.Checkout.Shipping
         /// </param>
         /// <param name="storeId">Store identifier.</param>
         /// <returns>Shipping option response.</returns>
-        public static ShippingOptionResponse GetShippingOptions(
+        public static Task<ShippingOptionResponse> GetShippingOptionsAsync(
             this IShippingService shippingService,
             ShoppingCart cart,
             Address shippingAddress,
@@ -29,7 +28,7 @@ namespace Smartstore.Core.Checkout.Shipping
 
             var request = shippingService.CreateShippingOptionRequest(cart, shippingAddress, storeId);
 
-            return shippingService.GetShippingOptions(request, allowedShippingRateComputationMethodSystemName);
+            return shippingService.GetShippingOptionsAsync(request, allowedShippingRateComputationMethodSystemName);
         }
     }
 }

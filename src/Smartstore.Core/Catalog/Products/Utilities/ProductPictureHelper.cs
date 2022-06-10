@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
+﻿using System.Runtime.CompilerServices;
 using Smartstore.Collections;
 using Smartstore.Core.Data;
-using EfState = Microsoft.EntityFrameworkCore.EntityState;
 
 namespace Smartstore.Core.Catalog.Products.Utilities
 {
@@ -105,7 +99,7 @@ namespace Smartstore.Core.Catalog.Products.Utilities
             }
 
             // 2nd pass.
-            foreach (var chunk in toUpdate.Slice(1000))
+            foreach (var chunk in toUpdate.Chunk(1000))
             {
                 using var transaction = await db.Database.BeginTransactionAsync();
 

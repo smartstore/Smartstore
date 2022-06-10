@@ -111,7 +111,7 @@
 
         if (options.targetInput && !_.isArray(options.selected)) {
             var val = $(options.targetInput).val();
-            if (val.length > 0) {
+            if (val && val.length > 0) {
                 options.selected = _.map(val.split(options.delim), function (x) {
                     var result = x.trim();
                     if (options.returnField.toLowerCase() === 'id') {

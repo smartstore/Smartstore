@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
+﻿using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Routing;
 using Newtonsoft.Json;
 
@@ -54,7 +53,11 @@ namespace Smartstore.Core.Content.Menus
 
         public int? ImageId { get; set; }
 
+        public string IconLibrary { get; set; }
+
         public string Icon { get; set; }
+
+        public string IconClass { get; set; }
 
         public string Text { get; set; }
 

@@ -1,7 +1,4 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
-using Microsoft.EntityFrameworkCore;
-using Smartstore.Domain;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Smartstore.Core.Common
 {

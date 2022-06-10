@@ -4,39 +4,39 @@
 
 @functions
 {
-    private string Value
+    private int[] Value
     {
         get
         {
-            if (ViewData.Model != null)
+            if (ViewData.Model is int[] intArray)
             {
-                // Be careful with the conversion here because it's very vulnerable to errors.
-                if (ViewData.Model is int[])
-                {
-                    return string.Join(",", ViewData.Model);
-                }
-
-                if (CommonHelper.TryConvert(ViewData.Model, typeof(string), CultureInfo.InvariantCulture, out object obj) && obj != null)
-                {
-                    return obj.ToString();
-                }
+                return intArray;
+            }
+            else if (ViewData.Model is int intValue)
+            {
+                return new[] { intValue };
             }
 
-            return null;
+            return Array.Empty<int>();
         }
     }
 }
 
 @{
     var id = Html.IdForModel();
-    var strValue = Value;
+    var strValue = string.Join(',', Value);
     var ruleScope = TryGetMetadata<RuleScope>("scope", out var scope) ? scope : (RuleScope?)null;
     var url = Url.Action("Edit", "Rule", new { id = "__id__", area = "Admin" });
 
     var attributes = new AttributeDictionary().Merge(CommonHelper.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
 
     attributes["data-select-url"] = Url.Action("AllRuleSets", "Rule", new { selectedIds = strValue, scope = ruleScope, area = "Admin" });
-    attributes["data-select-init-load"] = strValue.HasValue().ToString().ToLower();
+    attributes["data-select-init-load"] = (Value.Length > 0).ToString().ToLower();
     attributes.Merge("data-placeholder", T("Common.Unspecified").Value);
 }
-<select asp-for="@Model" id="@id" name="@Html.NameForModel()" class="form-control rule-sets edit-control" attrs="attributes" data-editor="rule-sets"></select>
+<select asp-for="@Model" id="@id" name="@Html.NameForModel()" class="rule-sets edit-control" attrs="attributes" data-editor="rule-sets">
+    @foreach (var val in Value)
+    {
+        <option selected value="@val">@val</option>
+    }
+</select>

@@ -1,35 +1,30 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
+﻿using System.Diagnostics;
 using System.Net;
 using System.Net.Http;
 using System.Reflection;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Hosting;
 using Smartstore.Admin.Models.Maintenance;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Content.Media.Imaging;
-using Smartstore.Core.Data;
+using Smartstore.Core.DataExchange.Export;
+using Smartstore.Core.DataExchange.Import;
 using Smartstore.Core.Identity;
+using Smartstore.Core.Logging;
+using Smartstore.Core.Packaging;
 using Smartstore.Core.Security;
 using Smartstore.Data;
 using Smartstore.Data.Caching;
 using Smartstore.Http;
+using Smartstore.Imaging;
 using Smartstore.IO;
 using Smartstore.Scheduling;
 using Smartstore.Utilities;
-using Smartstore.Web.Controllers;
 using Smartstore.Web.Models.DataGrid;
 
 namespace Smartstore.Admin.Controllers
@@ -42,40 +37,52 @@ namespace Smartstore.Admin.Controllers
         private readonly IMemoryCache _memCache;
         private readonly ITaskScheduler _taskScheduler;
         private readonly IHttpClientFactory _httpClientFactory;
+        private readonly IHostApplicationLifetime _hostApplicationLifetime;
         private readonly ICustomerService _customerService;
+        private readonly IImageFactory _imageFactory;
         private readonly Lazy<IImageCache> _imageCache;
         private readonly Lazy<IFilePermissionChecker> _filePermissionChecker;
         private readonly Lazy<ICurrencyService> _currencyService;
         private readonly Lazy<IPaymentService> _paymentService;
         private readonly Lazy<IShippingService> _shippingService;
-        private readonly Lazy<CurrencySettings> _currencySettings;
-        private readonly Lazy<MeasureSettings> _measureSettings;
+        private readonly Lazy<IExportProfileService> _exportProfileService;
+        private readonly Lazy<IImportProfileService> _importProfileService;
+        private readonly Lazy<UpdateChecker> _updateChecker;
+        private readonly MeasureSettings _measureSettings;
 
         public MaintenanceController(
             SmartDbContext db,
             IMemoryCache memCache,
             ITaskScheduler taskScheduler,
             IHttpClientFactory httpClientFactory,
+            IHostApplicationLifetime hostApplicationLifetime,
             ICustomerService customerService,
+            IImageFactory imageFactory,
             Lazy<IImageCache> imageCache,
             Lazy<IFilePermissionChecker> filePermissionChecker,
             Lazy<ICurrencyService> currencyService,
             Lazy<IPaymentService> paymentService,
             Lazy<IShippingService> shippingService,
-            Lazy<CurrencySettings> currencySettings,
-            Lazy<MeasureSettings> measureSettings)
+            Lazy<IExportProfileService> exportProfileService,
+            Lazy<IImportProfileService> importProfileService,
+            Lazy<UpdateChecker> updateChecker,
+            MeasureSettings measureSettings)
         {
             _db = db;
             _memCache = memCache;
             _taskScheduler = taskScheduler;
             _httpClientFactory = httpClientFactory;
+            _hostApplicationLifetime = hostApplicationLifetime;
             _customerService = customerService;
+            _imageFactory = imageFactory;
             _imageCache = imageCache;
             _filePermissionChecker = filePermissionChecker;
             _currencyService = currencyService;
             _paymentService = paymentService;
             _shippingService = shippingService;
-            _currencySettings = currencySettings;
+            _exportProfileService = exportProfileService;
+            _importProfileService = importProfileService;
+            _updateChecker = updateChecker;
             _measureSettings = measureSettings;
         }
 
@@ -86,7 +93,8 @@ namespace Smartstore.Admin.Controllers
         {
             var model = new MaintenanceModel 
             {
-                CanExecuteSql = _db.DataProvider.CanExecuteSqlScript
+                CanExecuteSql = _db.DataProvider.CanExecuteSqlScript,
+                CanCreateBackup = _db.DataProvider.CanBackup
             };
 
             model.DeleteGuests.EndDate = DateTime.UtcNow.AddDays(-7);
@@ -137,10 +145,25 @@ namespace Smartstore.Admin.Controllers
         [HttpPost, ActionName("Index")]
         [FormValueRequired("delete-export-files")]
         [Permission(Permissions.System.Maintenance.Execute)]
-        public async Task<IActionResult> DeleteExportFiles()
+        public async Task<IActionResult> DeleteExportFiles(MaintenanceModel model)
         {
-            // TODO: (mg) (core) Implement MaintenanceController.DeleteExportFiles(). But move the heavy stuff to IExportProfileService and just call it from here.
-            await Task.Delay(100);
+            var dtHelper = Services.DateTimeHelper;
+
+            DateTime? startDateUtc = model.DeleteExportedFiles.StartDate == null
+                ? null
+                : dtHelper.ConvertToUtcTime(model.DeleteExportedFiles.StartDate.Value, dtHelper.CurrentTimeZone);
+
+            DateTime? endDateUtc = model.DeleteExportedFiles.EndDate == null
+                ? null
+                : dtHelper.ConvertToUtcTime(model.DeleteExportedFiles.EndDate.Value, dtHelper.CurrentTimeZone).AddDays(1);
+
+            var (numFiles, numFolders) = await _exportProfileService.Value.DeleteExportFilesAsync(startDateUtc, endDateUtc);
+
+            // Also delete unused import profile folders.
+            numFolders += await _importProfileService.Value.DeleteUnusedImportDirectoriesAsync();
+
+            NotifyInfo(T("Admin.System.Maintenance.DeletedExportFilesAndFolders", numFiles, numFolders));
+
             return RedirectToAction("Index");
         }
 
@@ -156,15 +179,36 @@ namespace Smartstore.Admin.Controllers
                     var rowsAffected = await _db.DataProvider.ExecuteSqlScriptAsync(model.SqlQuery);
                     NotifySuccess(T("Admin.System.Maintenance.SqlQuery.Succeeded", rowsAffected));
                 }
-                catch (Exception exception)
+                catch (Exception ex)
                 {
-                    NotifyError(exception);
+                    NotifyError(ex);
                     return View(model);
                 }
             }
 
             return RedirectToAction("Index");
         }
+
+        #endregion
+
+        #region Update
+
+        [Permission(Permissions.System.Maintenance.Read)]
+        public async Task<IActionResult> CheckUpdate(bool enforce = false)
+        {
+            var model = await _updateChecker.Value.CheckUpdateAsync(enforce);
+            return View(model);
+        }
+
+        [HttpPost]
+        [Permission(Permissions.System.Maintenance.Execute)]
+        public async Task<IActionResult> CheckUpdateSuppress(string myVersion, string newVersion)
+        {
+            await _updateChecker.Value.SuppressMessageAsync(myVersion, newVersion);
+            return Json(new { Success = true });
+        }
+
+        // TODO: (core) Think about whether "InstallUpdate" does still makes sense?
 
         #endregion
 
@@ -181,7 +225,7 @@ namespace Smartstore.Admin.Controllers
         [HttpPost]
         public IActionResult RestartApplication()
         {
-            Services.WebHelper.RestartAppDomain();
+            _hostApplicationLifetime.StopApplication();
             return new EmptyResult();
         }
 
@@ -313,10 +357,14 @@ namespace Smartstore.Admin.Controllers
         {
             try
             {
+                _imageFactory.ReleaseMemory();
+                await Task.Delay(500);
+
                 GC.Collect();
                 GC.WaitForPendingFinalizers();
                 GC.Collect();
                 await Task.Delay(500);
+
                 NotifySuccess(T("Admin.System.SystemInfo.GarbageCollectSuccessful"));
             }
             catch (Exception ex)
@@ -396,11 +444,11 @@ namespace Smartstore.Admin.Controllers
 
                 model.Add(warningModel);
             }
-            catch (Exception exception)
+            catch (Exception ex)
             {
-                var msg = T("Admin.System.Warnings.TaskScheduler.Fail", _taskScheduler.BaseUrl, exception.Message);
+                var msg = T("Admin.System.Warnings.TaskScheduler.Fail", _taskScheduler.BaseUrl, ex.Message);
                 AddEntry(SystemWarningLevel.Fail, msg);
-                Logger.Error(exception, msg);
+                Logger.Error(ex, msg);
             }
 
             // Sitemap reachability
@@ -440,10 +488,10 @@ namespace Smartstore.Admin.Controllers
 
                 model.Add(warningModel);
             }
-            catch (Exception exception)
+            catch (Exception ex)
             {
                 AddEntry(SystemWarningLevel.Warning, T("Admin.System.Warnings.SitemapReachable.Wrong"));
-                Logger.Warn(exception, T("Admin.System.Warnings.SitemapReachable.Wrong"));
+                Logger.Warn(ex, T("Admin.System.Warnings.SitemapReachable.Wrong"));
             }
 
             // Primary exchange rate currency
@@ -478,7 +526,7 @@ namespace Smartstore.Admin.Controllers
 
             // Base measure weight
             // ====================================
-            var baseWeight = await _db.MeasureWeights.FindByIdAsync(_measureSettings.Value.BaseWeightId, false);
+            var baseWeight = await _db.MeasureWeights.FindByIdAsync(_measureSettings.BaseWeightId, false);
             if (baseWeight != null)
             {
                 AddEntry(SystemWarningLevel.Pass, T("Admin.System.Warnings.DefaultWeight.Set"));
@@ -496,7 +544,7 @@ namespace Smartstore.Admin.Controllers
 
             // Base dimension weight
             // ====================================
-            var baseDimension = await _db.MeasureDimensions.FindByIdAsync(_measureSettings.Value.BaseDimensionId, false);
+            var baseDimension = await _db.MeasureDimensions.FindByIdAsync(_measureSettings.BaseDimensionId, false);
             if (baseDimension != null)
             {
                 AddEntry(SystemWarningLevel.Pass, T("Admin.System.Warnings.DefaultDimension.Set"));
@@ -601,32 +649,50 @@ namespace Smartstore.Admin.Controllers
         #region Database backup
 
         [Permission(Permissions.System.Maintenance.Read)]
-        public async Task<IActionResult> BackupList()
+        public async Task<IActionResult> BackupList(GridCommand command)
         {
-            var backups = await Services.ApplicationContext.TenantRoot
+            var root = Services.ApplicationContext.TenantRoot;
+            await root.TryCreateDirectoryAsync(BACKUP_DIR);
+
+            var backups = await root
                 .EnumerateFilesAsync(BACKUP_DIR)
                 .AsyncToList();
+
+            var dataProvider = _db.DataProvider;
 
             var rows = backups
                 .Select(x =>
                 {
+                    var validationResult = dataProvider.ValidateBackupFileName(x.Name);
+                    if (!validationResult.IsValid)
+                    {
+                        return null;
+                    }
+
                     var model = new DbBackupModel(x)
                     {
-                        UpdatedOn = Services.DateTimeHelper.ConvertToUserTime(x.LastModified.UtcDateTime, DateTimeKind.Utc)
+                        Version = validationResult?.Version ?? new Version(),
+                        MatchesCurrentVersion = validationResult.MatchesCurrentVersion,
+                        CreatedOn = x.CreatedOn.LocalDateTime,
+                        DownloadUrl = Url.Action(nameof(DownloadBackup), new { name = x.Name })
                     };
 
                     return model;
                 })
+                .AsQueryable()
+                .Where(x => x != null)
+                .ApplyGridCommand(command)
                 .ToList();
 
             return Json(new GridModel<DbBackupModel>
             {
-                Rows = rows.OrderByDescending(x => x.UpdatedOn).ToList(),
+                Rows = rows,
                 Total = rows.Count
             });
         }
 
-        [HttpPost]
+        [HttpPost, ActionName("Index")]
+        [FormValueRequired("execute-create-backup")]
         [Permission(Permissions.System.Maintenance.Execute)]
         public async Task<IActionResult> CreateBackup()
         {
@@ -634,34 +700,99 @@ namespace Smartstore.Admin.Controllers
             {
                 if (_db.DataProvider.CanBackup)
                 {
-                    const string extension = ".bak";
                     var dir = await Services.ApplicationContext.TenantRoot.GetDirectoryAsync(BACKUP_DIR);
                     var fs = dir.FileSystem;
 
-                    var dbName = _db.DataProvider.Database.GetDbConnection().Database.NaIfEmpty().ToValidFileName();
-                    var fileName = $"{dbName}-{SmartstoreVersion.CurrentFullVersion}";
-                    var i = 1;
+                    var backupName = _db.DataProvider.CreateBackupFileName();
+                    var path = fs.PathCombine(dir.SubPath, backupName);
 
-                    // TODO: (mg) (core) Call fs.CheckUniqueFileName()
-                    for (; i < 10000; i++)
-                    {
-                        if (!await fs.FileExistsAsync(fs.PathCombine(dir.SubPath, $"{fileName}-{i}{extension}")))
-                        {
-                            break;
-                        }
-                    }
-
-                    fileName = $"{fileName}-{i}{extension}";
-
-                    var fullPath = fs.MapPath(fs.PathCombine(dir.SubPath, fileName));
+                    var fullPath = fs.CheckUniqueFileName(path, out var newPath)
+                        ? fs.MapPath(newPath)
+                        : fs.MapPath(path);
 
                     await _db.DataProvider.BackupDatabaseAsync(fullPath);
-                    // TODO: (mg) (core) notify
+
+                    NotifyInfo(T("Admin.System.Maintenance.DbBackup.BackupCreated"));
                 }
                 else
                 {
-                    // TODO: (mg) (core) notify about backup error.
-                    NotifyError("");
+                    NotifyError(T("Admin.System.Maintenance.DbBackup.BackupNotSupported", _db.DataProvider.ProviderType.ToString().NaIfEmpty()));
+                }
+            }
+            catch (Exception ex)
+            {
+                NotifyError(ex);
+            }
+
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        [Permission(Permissions.System.Maintenance.Execute)]
+        public async Task<IActionResult> UploadBackup()
+        {
+            var uploadFile = Request.Form.Files.Count > 0 ? Request.Form.Files[0] : null;
+
+            if (uploadFile != null)
+            {
+                var backupName = uploadFile.FileName;
+                var validationResult = _db.DataProvider.ValidateBackupFileName(backupName);
+                if (validationResult.IsValid)
+                {
+                    var dir = await Services.ApplicationContext.TenantRoot.GetDirectoryAsync(BACKUP_DIR);
+                    var fs = dir.FileSystem;
+                    var path = fs.PathCombine(dir.SubPath, backupName);
+
+                    var targetFile = fs.CheckUniqueFileName(path, out var newPath)
+                        ? await fs.GetFileAsync(newPath)
+                        : await fs.GetFileAsync(path);
+
+                    using var sourceStream = uploadFile.OpenReadStream();
+                    using var targetStream = await targetFile.OpenWriteAsync();
+                    await sourceStream.CopyToAsync(targetStream);
+
+                    NotifyInfo(T("Admin.System.Maintenance.DbBackup.BackupUploaded"));
+                }
+                else
+                {
+                    NotifyError(T("Admin.System.Maintenance.DbBackup.InvalidBackup", backupName.NaIfEmpty()));
+                }
+            }
+            else
+            {
+                NotifyError(T("Admin.Common.UploadFile"));
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        [Permission(Permissions.System.Maintenance.Execute)]
+        public async Task<IActionResult> RestoreBackup(string name)
+        {
+            if (PathUtility.HasInvalidFileNameChars(name))
+            {
+                throw new BadHttpRequestException("Invalid file name: " + name.NaIfEmpty());
+            }
+
+            try
+            {
+                if (_db.DataProvider.CanRestore)
+                {
+                    var dir = await Services.ApplicationContext.TenantRoot.GetDirectoryAsync(BACKUP_DIR);
+                    var fs = dir.FileSystem;
+                    var fullPath = fs.MapPath(fs.PathCombine(dir.SubPath, name));
+
+                    await _db.DataProvider.RestoreDatabaseAsync(fullPath);
+
+                    await ClearCache();
+                    await ClearDatabaseCache();
+
+                    NotifyInfo(T("Admin.System.Maintenance.DbBackup.DatabaseRestored"));
+                }
+                else
+                {
+                    NotifyError(T("Admin.System.Maintenance.DbBackup.RestoreNotSupported", _db.DataProvider.ProviderType.ToString().NaIfEmpty()));
                 }
             }
             catch (Exception ex)
@@ -691,22 +822,22 @@ namespace Smartstore.Admin.Controllers
         }
 
         [Permission(Permissions.System.Maintenance.Execute)]
-        public async Task<IActionResult> DownloadBackup(string fileName)
+        public async Task<IActionResult> DownloadBackup(string name)
         {
-            if (PathUtility.HasInvalidFileNameChars(fileName))
+            if (PathUtility.HasInvalidFileNameChars(name))
             {
-                throw new BadHttpRequestException("Invalid file name: " + fileName.NaIfEmpty());
+                throw new BadHttpRequestException("Invalid file name: " + name.NaIfEmpty());
             }
 
             var root = Services.ApplicationContext.TenantRoot;
-            var backup = await root.GetFileAsync(BACKUP_DIR + "\\" + fileName);
+            var backup = await root.GetFileAsync(BACKUP_DIR + "\\" + name);
             var contentType = MimeTypes.MapNameToMimeType(backup.PhysicalPath);
 
             try
             {
                 return new FileStreamResult(backup.OpenRead(), contentType)
                 {
-                    FileDownloadName = fileName
+                    FileDownloadName = name
                 };
             }
             catch (IOException)

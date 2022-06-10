@@ -1,17 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Smartstore.Core.Checkout.Tax;
+﻿using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Theming;
-using Smartstore.Core.Widgets;
 using Smartstore.Utilities;
 using Smartstore.Web.Models.Common;
-using Smartstore.Web.Theming;
 
 namespace Smartstore.Web.Components
 {
@@ -21,6 +14,7 @@ namespace Smartstore.Web.Components
 
         private readonly IThemeRegistry _themeRegistry;
         private readonly IWidgetProvider _widgetProvider;
+        private readonly IDisplayHelper _displayHelper;
         private readonly ThemeSettings _themeSettings;
         private readonly CustomerSettings _customerSettings;
         private readonly TaxSettings _taxSettings;
@@ -30,6 +24,7 @@ namespace Smartstore.Web.Components
         public FooterViewComponent(
             IThemeRegistry themeRegistry,
             IWidgetProvider widgetProvider,
+            IDisplayHelper displayHelper,
             ThemeSettings themeSettings,
             CustomerSettings customerSettings,
             TaxSettings taxSettings,
@@ -38,6 +33,7 @@ namespace Smartstore.Web.Components
         {
             _themeRegistry = themeRegistry;
             _widgetProvider = widgetProvider;
+            _displayHelper = displayHelper;
             _themeSettings = themeSettings;
             _customerSettings = customerSettings;
             _taxSettings = taxSettings;
@@ -96,8 +92,11 @@ namespace Smartstore.Web.Components
                 await Services.DbContext.SaveChangesAsync();
             }
 
-            model.SmartStoreHint = $"<a href='https://www.smartstore.com/' class='sm-hint' target='_blank'><strong>{hint}</strong></a> by SmartStore AG &copy; {DateTime.Now.Year}";
-
+            if(_displayHelper.DisplaySmartstoreHint())
+            {
+                model.SmartStoreHint = $"<a href='https://www.smartstore.com/' class='sm-hint' target='_blank'><strong>{hint}</strong></a> by SmartStore AG &copy; {DateTime.Now.Year}";
+            }
+            
             if (ShouldRenderGDPR()) 
             {
                 _widgetProvider.RegisterWidget("gdpr_consent_small",

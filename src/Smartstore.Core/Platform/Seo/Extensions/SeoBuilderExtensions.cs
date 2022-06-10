@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.AspNetCore.Routing;
+﻿using Microsoft.AspNetCore.Routing;
 using Smartstore;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Seo.Routing;

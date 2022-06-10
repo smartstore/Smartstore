@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Http;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Widgets;
@@ -87,13 +86,18 @@ namespace Smartstore.Core.Checkout.Payment
         /// <returns>The fixed fee or a percentage value. If UsePercentage is <c>true</c>, the fee is calculated as a percentage of the order total.</returns>
         Task<(decimal FixedFeeOrPercentage, bool UsePercentage)> GetPaymentFeeInfoAsync(ShoppingCart cart);
 
-        // TODO: (mg) (core) Provide raw payment form data required by IsPaymentDataValidAsync and GetPaymentSummaryAsync of IPaymentMethod somehow (was formerly a FormCollection).
+        /// <summary>
+        /// Handles payment data entered by customer on checkout's payment page.
+        /// </summary>
+        /// <param name="cart">Shopping cart.</param>
+        /// <param name="request">Payment info required for order processing.</param>
+        Task<ProcessPaymentRequest> GetPaymentInfoAsync(IFormCollection form);
 
         /// <summary>
         /// Validates payment data entered by customer on checkout's payment page.
         /// </summary>
         /// <returns><c>null</c> if the payment data is valid, otherwise a list of warnings to be displayed.</returns>
-        Task<IList<string>> IsPaymentDataValidAsync();
+        Task<List<string>> GetPaymentDataWarningsAsync();
 
         /// <summary>
         /// Gets a short summary of payment data entered by customer in checkout that is displayed on the checkout's confirm page.
@@ -143,11 +147,6 @@ namespace Smartstore.Core.Checkout.Payment
         /// <param name="order">Order placed</param>
         /// <returns>Value indicating wheter it is possible to repost process payment.</returns>
         Task<bool> CanRePostProcessPaymentAsync(Order order);
-
-        /// <summary>
-        /// Gets the widget invoker for provider configuration. Returns <c>null</c> when there is nothing to render.
-        /// </summary>
-        WidgetInvoker GetConfigurationWidget();
 
         /// <summary>
         /// Gets the widget invoker for payment info. Return <c>null</c> when there's nothing to render.

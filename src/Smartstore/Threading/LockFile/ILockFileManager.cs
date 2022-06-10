@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-
-namespace Smartstore.Threading
+﻿namespace Smartstore.Threading
 {
     /// <summary>
     /// Abstraction for application-wide lock files creation.

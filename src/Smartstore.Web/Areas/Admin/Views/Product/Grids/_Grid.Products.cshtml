@@ -32,29 +32,15 @@
                 <span>@T("Common.Cancel")</span>
             </button>
         </toolbar-group>
-
+        <zone name="datagrid_toolbar_alpha"></zone>
         <toolbar-group class="omega"></toolbar-group>
-
-        <toolbar-group class="border-right-0 mr-0 pr-0">
+        <zone name="datagrid_toolbar_omega"></zone>
+        <toolbar-group>
             <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger no-anims btn-flat">
                 <i class="far fa-trash-alt"></i>
                 <span>@T("Admin.Common.Delete.Selected")</span>
             </button>
         </toolbar-group>
-
-        <zone name="datagrid_toolbar_after"></zone>
-        @* TODO: (mg) (core) Inject export dropdowns like this from modules *@
-        @*<toolbar-group class="border-right-0 border-left mr-0 pr-0 pl-2 ml-2">
-            <div class="dropdown">
-                <button v-bind:class="{ disabled: !grid.hasSelection }" type="button" class="btn btn-light btn-flat dropdown-toggle" data-toggle="dropdown" data-boundary="window">
-                    <i class="far fa-upload"></i>
-                    <span>Exportieren</span>
-                </button>
-                <div class="dropdown-menu dropdown-menu-right">
-                    <a href="#" class="dropdown-item">Hallo</a>
-                </div>
-            </div>
-        </toolbar-group>*@
     </toolbar>
     <search-panel>
         <partial name="Grids/_Grid.Products.Search" model="parentModel" />
@@ -109,17 +95,6 @@
         <div class="dropdown-divider"></div>
         <a datarow-action="DataRowAction.Delete">@T("Common.Delete")</a>
     </row-commands>
-    <detail-view>
-        @*<div class="datagrid-root">
-            <sm-datagrid 
-                :options="{ keyMemberName: 'Id', vborders: true, hover: true, striped: true }" 
-                :data-source="{ read: '@Url.Action("ProductList")' }" 
-                :columns="[ { member: 'Name', name: 'Name', title: 'Name', visible: true } ]" 
-                :paging="{ enabled: true, pageSize: 5, pageIndex: 20 }" 
-                :sorting="{ enabled: true, descriptors: [] }">
-            </sm-datagrid>
-        </div>*@
-    </detail-view>
 </datagrid>
 
 <partial name="_CopyProductDialog" model="null" />

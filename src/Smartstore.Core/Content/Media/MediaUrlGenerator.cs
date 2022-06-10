@@ -1,10 +1,7 @@
-﻿using System;
-using System.Globalization;
+﻿using System.Globalization;
 using Microsoft.AspNetCore.Http;
 using Smartstore.Core.Configuration;
-using Smartstore.Core.Content.Media.Imaging;
 using Smartstore.Core.Stores;
-using Smartstore.Engine;
 using Smartstore.Net;
 using Smartstore.Utilities;
 

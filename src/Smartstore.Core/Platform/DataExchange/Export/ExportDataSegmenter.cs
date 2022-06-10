@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Smartstore.Domain;
-
-namespace Smartstore.Core.DataExchange.Export
+﻿namespace Smartstore.Core.DataExchange.Export
 {
     public interface IExportDataSegmenterConsumer
     {
@@ -41,7 +36,7 @@ namespace Smartstore.Core.DataExchange.Export
     public class ExportDataSegmenter<T> : Disposable, IExportDataSegmenterProvider where T : BaseEntity
     {
         private readonly Func<Task<IEnumerable<T>>> _dataLoader;
-        private readonly Action<ICollection<T>> _loadedCallback;
+        private readonly Func<ICollection<T>, Task> _dataLoaded;
         private readonly Func<T, Task<IEnumerable<dynamic>>> _dataConverter;
 
         private readonly int _offset;
@@ -55,7 +50,7 @@ namespace Smartstore.Core.DataExchange.Export
 
         public ExportDataSegmenter(
             Func<Task<IEnumerable<T>>> dataLoader,
-            Action<ICollection<T>> loadedCallback,
+            Func<ICollection<T>, Task> dataLoaded,
             Func<T, Task<IEnumerable<dynamic>>> dataConverter,
             int offset,
             int take,
@@ -64,7 +59,7 @@ namespace Smartstore.Core.DataExchange.Export
             int totalRecords)
         {
             _dataLoader = dataLoader;
-            _loadedCallback = loadedCallback;
+            _dataLoaded = dataLoaded;
             _dataConverter = dataConverter;
             _offset = offset;
             _take = take;
@@ -190,7 +185,10 @@ namespace Smartstore.Core.DataExchange.Export
             }
 
             // Give provider the opportunity to do something based on loaded entities.
-            _loadedCallback?.Invoke(_data.AsReadOnly());
+            if (_dataLoaded != null)
+            {
+                await _dataLoaded(_data.AsReadOnly());
+            }
 
             return _data.Count > 0;
         }

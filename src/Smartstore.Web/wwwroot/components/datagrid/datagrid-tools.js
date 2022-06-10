@@ -7,43 +7,43 @@
             <div class="dg-tools-dropdown dropdown-menu dropdown-menu-right" v-on:click="$event.stopPropagation()">
                 <div class="dg-tools-group px-3 pt-1">
                     <label class="d-flex align-items-center justify-content-between switcher-sm m-0">
-                        <span>Zeilen liniert</span>
+                        <span>{{ T.vborders }}</span>
                         <label class="switch">
                             <input type="checkbox" v-model="options.vborders">
                             <span class="switch-toggle"></span>
                         </label>
                     </label>
                     <label class="d-flex align-items-center justify-content-between switcher-sm m-0">
-                        <span>Spalten liniert</span>
+                        <span>{{ T.hborders }}</span>
                         <label class="switch">
                             <input type="checkbox" v-model="options.hborders">
                             <span class="switch-toggle"></span>
                         </label>
                     </label>
                     <label class="d-flex align-items-center justify-content-between switcher-sm m-0">
-                        <span>Gestreift</span>
+                        <span>{{ T.striped }}</span>
                         <label class="switch">
                             <input type="checkbox" v-model="options.striped">
                             <span class="switch-toggle"></span>
                         </label>
                     </label>
                     <label class="d-flex align-items-center justify-content-between switcher-sm m-0">
-                        <span>Hover</span>
+                        <span>{{ T.hover }}</span>
                         <label class="switch">
                             <input type="checkbox" v-model="options.hover">
                             <span class="switch-toggle"></span>
                         </label>
                     </label>
                     <label v-if="paging.enabled" class="d-flex align-items-center justify-content-between m-0">
-                        <span>Pager</span>
+                        <span>{{ T.pagerPos }}</span>
                         <select class="form-control form-control-sm noskin w-auto px-1" v-model="paging.position">
-                            <option value="top">Oben</option>
-                            <option value="bottom">Unten</option>
-                            <option value="both">Oben & unten</option>
+                            <option value="top">{{ T.pagerTop }}</option>
+                            <option value="bottom">{{ T.pagerBottom }}</option>
+                            <option value="both">{{ T.pagerBoth }}</option>
                         </select>
                     </label>
                     <button type="button" class="btn btn-sm btn-block btn-secondary mt-2" @click="$parent.$parent.resetState()">
-                        Zurücksetzen
+                        {{ T.resetState }}
                     </button>
                 </div>
                 <div class="dropdown-divider"></div>
@@ -61,5 +61,9 @@
         options: Object,
         paging: Object,
         columns: Array
+    },
+
+    created() {
+        this.T = window.Res.DataGrid;
     }
 });

@@ -1,14 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using Smartstore.Caching;
+﻿using Smartstore.Caching;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
-using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
-using Smartstore.Data.Batching;
 
 namespace Smartstore.Core.Content.Menus
 {
@@ -52,11 +45,9 @@ namespace Smartstore.Core.Content.Menus
             var userMenusInfo = await _cache.GetAsync(cacheKey, async () =>
             {
                 var query = _db.Menus
-                    .Where(x => !x.IsSystemMenu)
-                    .ApplyStoreFilter(storeId)
-                    .ApplyAclFilter(roleIds.ToArray())
-                    .ApplyStandardFilter(false, true, true)
-                    .AsNoTracking();
+                    .AsNoTracking()
+                    .ApplyStandardFilter(null, false, storeId, roleIds.ToArray())
+                    .ApplySorting();
 
                 var data = await query.Select(x => new
                 {
@@ -135,7 +126,7 @@ namespace Smartstore.Core.Content.Menus
                 var ids = new HashSet<int> { item.Id };
                 await GetChildIdsAsync(item.Id, ids);
 
-                foreach (var chunk in ids.Slice(200))
+                foreach (var chunk in ids.Chunk(200))
                 {
                     var items = await _db.MenuItems
                         .Where(x => chunk.Contains(x.Id))

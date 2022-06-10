@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Smartstore.Core.Catalog.Products;
+﻿using Smartstore.Core.Catalog.Products;
 
 namespace Smartstore.Core.Catalog.Pricing.Calculators
 {
@@ -45,8 +42,20 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
 
                 if (context.MinTierPrice.Value < context.FinalPrice)
                 {
-                    context.DiscountAmount += context.FinalPrice - context.MinTierPrice.Value;
                     context.FinalPrice = context.MinTierPrice.Value;
+
+                    // Apply discount on minimum tier price (if any).
+                    var discountOnTierPrice = context.CalculatedDiscounts
+                        .Where(x => x.Origin == nameof(context.MinTierPrice))
+                        .OrderByDescending(x => x.DiscountAmount)
+                        .FirstOrDefault();
+
+                    if (discountOnTierPrice != null)
+                    {
+                        context.AppliedDiscounts.Add(discountOnTierPrice.Discount);
+                        context.DiscountAmount += discountOnTierPrice.DiscountAmount;
+                        context.FinalPrice -= discountOnTierPrice.DiscountAmount;
+                    }
                 }
 
                 context.FinalPrice += context.AdditionalCharge;

@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.AspNetCore.Razor.TagHelpers;
+﻿using Microsoft.AspNetCore.Razor.TagHelpers;
 using Smartstore.Core.Localization;
 
 namespace Smartstore.Web.TagHelpers.Shared
@@ -27,6 +26,25 @@ namespace Smartstore.Web.TagHelpers.Shared
             {
                 output.Attributes.Add(new TagHelperAttribute("controls", null, HtmlAttributeValueStyle.Minimized));
             }
+        }
+    }
+
+    [HtmlTargetElement(SourceTagName, Attributes = FileAttributeName)]
+    [HtmlTargetElement(SourceTagName, Attributes = FileIdAttributeName)]
+    public class SourceTagHelper : BaseMediaTagHelper
+    {
+        const string SourceTagName = "source";
+
+        protected override void ProcessMedia(TagHelperContext context, TagHelperOutput output)
+        {
+            if (Src.IsEmpty() || File == null)
+            {
+                output.SuppressOutput();
+                return;
+            }
+
+            output.MergeAttribute("src", Src);
+            output.MergeAttribute("type", File.MimeType);
         }
     }
 }

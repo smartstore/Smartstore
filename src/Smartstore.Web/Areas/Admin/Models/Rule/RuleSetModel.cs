@@ -1,8 +1,6 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using FluentValidation;
 using Smartstore.Core.Rules;
-using Smartstore.Web.Modelling;
 
 namespace Smartstore.Admin.Models.Rules
 {
@@ -30,6 +28,9 @@ namespace Smartstore.Admin.Models.Rules
 
         [LocalizedDisplay("*LogicalOperator")]
         public LogicalRuleOperator LogicalOperator { get; set; }
+
+        [LocalizedDisplay("Common.CreatedOn")]
+        public DateTime CreatedOn { get; set; }
 
         public DateTime CreatedOnUtc { get; set; }
         public DateTime UpdatedOnUtc { get; set; }

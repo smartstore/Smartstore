@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Autofac;
+﻿using Autofac;
 using Microsoft.AspNetCore.Http;
 
 namespace Smartstore.Scheduling
@@ -70,6 +67,16 @@ namespace Smartstore.Scheduling
         /// <param name="maximum">Progress maximum (denominator)</param>
         /// <param name="message">Progress message. Can be <c>null</c>.</param>
         /// <param name="immediately">if <c>true</c>, saves the updated task immediately, or lazily with the next commit otherwise.</param>
+        public void SetProgress(int value, int maximum, string message, bool immediately = false)
+            => SetProgressAsync(value, maximum, message, immediately).Await();
+
+        /// <summary>
+        /// Persists a task's progress information to the store
+        /// </summary>
+        /// <param name="value">Progress value (numerator)</param>
+        /// <param name="maximum">Progress maximum (denominator)</param>
+        /// <param name="message">Progress message. Can be <c>null</c>.</param>
+        /// <param name="immediately">if <c>true</c>, saves the updated task immediately, or lazily with the next commit otherwise.</param>
         public Task SetProgressAsync(int value, int maximum, string message, bool immediately = false)
         {
             if (value == 0 && maximum == 0)
@@ -84,6 +91,15 @@ namespace Smartstore.Scheduling
                 return SetProgressAsync(Math.Min(Math.Max(percentage, 0), 100), message, immediately);
             }
         }
+
+        /// <summary>
+        /// Persists a task's progress information to the task store
+        /// </summary>
+        /// <param name="progress">Percentual progress. Can be <c>null</c> or a value between 0 and 100.</param>
+        /// <param name="message">Progress message. Can be <c>null</c>.</param>
+        /// <param name="immediately">if <c>true</c>, saves the updated task entity immediately, or lazily with the next commit otherwise.</param>
+        public virtual void SetProgress(int? progress, string message, bool immediately = false)
+            => SetProgressAsync(progress, message, immediately).Await();
 
         /// <summary>
         /// Persists a task's progress information to the task store

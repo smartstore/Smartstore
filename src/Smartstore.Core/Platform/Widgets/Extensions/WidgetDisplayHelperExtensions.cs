@@ -1,5 +1,4 @@
-﻿using System;
-using Smartstore.Core.Widgets;
+﻿using Smartstore.Core.Widgets;
 
 namespace Smartstore
 {

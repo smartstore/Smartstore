@@ -119,10 +119,10 @@
   </LocaleResource>
 
   <LocaleResource Name="MediaStorage.Label">
-    <Value>Speicherort für Medien</Value>
+    <Value>Dateispeicher für Medien</Value>
   </LocaleResource>
   <LocaleResource Name="MediaStorage.Hint">
-    <Value>Wählen Sie 'Dateisystem', falls Ihre Datenbank zu wenig Speicherplatz bietet (&lt; 500 MB). Ansonsten ist die Option 'Datenbank' empfohlen.</Value>
+	<Value>'Dateisystem' bietet größtmögliche Performance und Stabilität und ist bestens geeignet für den produktiven Einsatz.</Value>
   </LocaleResource>
   <LocaleResource Name="MediaStorage.DB">
     <Value>Datenbank</Value>
@@ -157,9 +157,12 @@
     <Value>Schreibe erforderliche Daten</Value>
   </LocaleResource>
   <LocaleResource Name="Progress.CreatingSampleData">
-    <Value>Schreibe Beispiel Daten</Value>
+    <Value>Schreibe Beispieldaten</Value>
   </LocaleResource>
-
+  <LocaleResource Name="Progress.Redirect">
+    <Value><![CDATA[Sollten Sie nicht automatisch zur Startseite des Shops weitergeleitet werden, klicken Sie bitte <a href="{0}">hier</a>]]></Value>
+  </LocaleResource>
+    
   <LocaleResource Name="InstallOptions">
     <Value>Optionen</Value>
   </LocaleResource>

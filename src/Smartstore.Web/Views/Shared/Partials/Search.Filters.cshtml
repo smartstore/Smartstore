@@ -25,6 +25,7 @@
             var selectedFilters = group.SelectedFacets.ToArray();
             var selectedCount = selectedFilters.Length;
             var expanded = i <= 3 || selectedCount > 0;
+            var widget = templateProvider.GetTemplateWidget(group);
 
             <div class="facet-group" data-key="@group.Key">
                 <a class="facet-group-header facet-toggle@(!expanded ? " collapsed" : "")@(selectedCount > 0 ? " has-selection" : "")"
@@ -37,9 +38,11 @@
                     <span sm-if="selectedCount > 0" class="facet-selection">@T("Search.Facet.SelectedCount", selectedCount)</span>
                     @(group.Label ?? group.Key)
                 </a>
-                <div id="facet-body-@(group.Key)" class="facet-body collapse@(expanded ? " show" : "")" aria-expanded="@expanded.ToString().ToLower()">
-                    @* TODO: (core) Find a way to check view components and partials for emptiness *@
-                    @await templateProvider.GetTemplateWidget(group).InvokeAsync(ViewContext)
+                <div id="facet-body-@(group.Key)" class="facet-body collapse" attr-class='(expanded, "show")' aria-expanded="@expanded.ToString().ToLower()">
+                    @if (widget != null)
+                    {
+                        @await widget.InvokeAsync(ViewContext)
+                    }
                     @if (selectedCount > 0)
                     {
                         <a href="@Url.FacetRemove(selectedFilters)" class="btn-remove-group-filters">

@@ -1,15 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Dynamic.Core;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
+﻿using System.Linq.Dynamic.Core;
 using Smartstore.Caching;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Attributes;
 using Smartstore.Core.Checkout.Cart.Events;
 using Smartstore.Core.Common;
+using Smartstore.Core.Common.Services;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
@@ -36,6 +32,7 @@ namespace Smartstore.Core.Checkout.Cart
         private readonly IProductAttributeMaterializer _productAttributeMaterializer;
         private readonly ICheckoutAttributeMaterializer _checkoutAttributeMaterializer;
         private readonly ShoppingCartSettings _shoppingCartSettings;
+        private readonly RewardPointsSettings _rewardPointsSettings;
         private readonly Currency _primaryCurrency;
 
         public ShoppingCartService(
@@ -47,6 +44,8 @@ namespace Smartstore.Core.Checkout.Cart
             IShoppingCartValidator cartValidator,
             IProductAttributeMaterializer productAttributeMaterializer,
             ICheckoutAttributeMaterializer checkoutAttributeMaterializer,
+            ICurrencyService currencyService,
+            RewardPointsSettings rewardPointsSettings,
             ShoppingCartSettings shoppingCartSettings)
         {
             _db = db;
@@ -57,8 +56,10 @@ namespace Smartstore.Core.Checkout.Cart
             _cartValidator = cartValidator;
             _productAttributeMaterializer = productAttributeMaterializer;
             _checkoutAttributeMaterializer = checkoutAttributeMaterializer;
+            _rewardPointsSettings = rewardPointsSettings;
             _shoppingCartSettings = shoppingCartSettings;
-            _primaryCurrency = storeContext.CurrentStore.PrimaryStoreCurrency;
+
+            _primaryCurrency = currencyService.PrimaryCurrency;
         }
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
@@ -94,6 +95,7 @@ namespace Smartstore.Core.Checkout.Cart
             ctx.StoreId ??= _storeContext.CurrentStore.Id;
 
             ctx.Customer.ResetCheckoutData(ctx.StoreId.Value);
+            await _db.SaveChangesAsync();
 
             // Get raw attributes from variant query.
             if (ctx.VariantQuery != null)
@@ -104,7 +106,8 @@ namespace Smartstore.Core.Checkout.Cart
                     ctx.VariantQuery,
                     ctx.Product.ProductVariantAttributes,
                     ctx.Product.Id,
-                    ctx.BundleItemId);
+                    ctx.BundleItemId,
+                    false);
 
                 if (ctx.Product.IsGiftCard)
                 {
@@ -322,12 +325,17 @@ namespace Smartstore.Core.Checkout.Cart
             return !ctx.Warnings.Any();
         }
 
-        public virtual async Task<int> DeleteCartItemAsync(ShoppingCartItem cartItem, bool resetCheckoutData = true, bool removeInvalidCheckoutAttributes = false)
+        public virtual async Task DeleteCartItemAsync(ShoppingCartItem cartItem, bool resetCheckoutData = true, bool removeInvalidCheckoutAttributes = false)
         {
             Guard.NotNull(cartItem, nameof(cartItem));
 
             var customer = cartItem.Customer;
             var storeId = cartItem.StoreId;
+
+            if (resetCheckoutData)
+            {
+                customer?.ResetCheckoutData(storeId);
+            }
 
             _db.ShoppingCartItems.Remove(cartItem);
 
@@ -341,21 +349,14 @@ namespace Smartstore.Core.Checkout.Cart
                 _db.ShoppingCartItems.RemoveRange(childItems);
             }
 
-            var num = await _db.SaveChangesAsync();
+            await _db.SaveChangesAsync();
 
             _requestCache.RemoveByPattern(CART_ITEMS_PATTERN_KEY);
-
-            if (resetCheckoutData)
-            {
-                customer?.ResetCheckoutData(storeId);
-            }
 
             if (removeInvalidCheckoutAttributes && cartItem.ShoppingCartType == ShoppingCartType.ShoppingCart && customer != null)
             {
                 await RemoveInvalidCheckoutAttributesAsync(customer, storeId);
             }
-
-            return num;
         }
 
         public virtual async Task<int> DeleteCartAsync(ShoppingCart cart, bool resetCheckoutData = true, bool removeInvalidCheckoutAttributes = false)
@@ -481,47 +482,75 @@ namespace Smartstore.Core.Checkout.Cart
                 return warnings;
             }
 
+            if (newQuantity <= 0)
+            {
+                await DeleteCartItemAsync(cartItem, resetCheckoutData, true);
+                return warnings;
+            }
+
             if (resetCheckoutData)
             {
                 customer.ResetCheckoutData(cartItem.StoreId);
             }
 
-            if (newQuantity > 0)
+            var ctx = new AddToCartContext
             {
-                var ctx = new AddToCartContext
-                {
-                    Customer = customer,
-                    CartType = cartItem.ShoppingCartType,
-                    Product = cartItem.Product,
-                    StoreId = cartItem.StoreId,
-                    RawAttributes = cartItem.AttributeSelection.AsJson(),
-                    CustomerEnteredPrice = new Money(cartItem.CustomerEnteredPrice, _primaryCurrency),
-                    Quantity = newQuantity,
-                    AutomaticallyAddRequiredProducts = false,
-                };
+                Customer = customer,
+                CartType = cartItem.ShoppingCartType,
+                Product = cartItem.Product,
+                StoreId = cartItem.StoreId,
+                RawAttributes = cartItem.AttributeSelection.AsJson(),
+                CustomerEnteredPrice = new Money(cartItem.CustomerEnteredPrice, _primaryCurrency),
+                Quantity = newQuantity,
+                AutomaticallyAddRequiredProducts = false,
+            };
 
-                var cart = await GetCartAsync(customer, cartItem.ShoppingCartType, cartItem.StoreId);
+            var cart = await GetCartAsync(customer, cartItem.ShoppingCartType, cartItem.StoreId);
 
-                if (await _cartValidator.ValidateAddToCartItemAsync(ctx, cartItem, cart.Items))
-                {
-                    cartItem.Quantity = newQuantity;
-                    cartItem.UpdatedOnUtc = DateTime.UtcNow;
-
-                    await _db.SaveChangesAsync();
-                }
-                else
-                {
-                    warnings.AddRange(ctx.Warnings);
-                }
+            if (await _cartValidator.ValidateAddToCartItemAsync(ctx, cartItem, cart.Items))
+            {
+                cartItem.Quantity = newQuantity;
+                cartItem.UpdatedOnUtc = DateTime.UtcNow;
             }
             else
             {
-                await DeleteCartItemAsync(cartItem, resetCheckoutData, true);
+                warnings.AddRange(ctx.Warnings);
             }
+
+            await _db.SaveChangesAsync();
 
             _requestCache.RemoveByPattern(CART_ITEMS_PATTERN_KEY);
 
             return warnings;
+        }
+
+        public virtual async Task<bool> SaveCartDataAsync(
+            ShoppingCart cart,
+            IList<string> warnings,
+            ProductVariantQuery query, 
+            bool? useRewardPoints = null,
+            bool resetCheckoutData = true,
+            bool validateCheckoutAttributes = true)
+        {
+            cart ??= await GetCartAsync(storeId: _storeContext.CurrentStore.Id);
+
+            if (resetCheckoutData)
+            {
+                // Clear payment and shipping method selected in checkout.
+                cart.Customer.ResetCheckoutData(cart.StoreId);
+            }
+
+            cart.Customer.GenericAttributes.CheckoutAttributes = await _checkoutAttributeMaterializer.CreateCheckoutAttributeSelectionAsync(query, cart);
+
+            if (_rewardPointsSettings.Enabled && useRewardPoints.HasValue)
+            {
+                cart.Customer.GenericAttributes.UseRewardPointsDuringCheckout = useRewardPoints.Value;
+            }
+
+            // INFO: we must save before validating the cart.
+            await _db.SaveChangesAsync();
+
+            return await _cartValidator.ValidateCartAsync(cart, warnings, validateCheckoutAttributes);
         }
 
         protected virtual async Task<List<OrganizedShoppingCartItem>> OrganizeCartItemsAsync(ICollection<ShoppingCartItem> items)

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Xml;
+﻿using System.Xml;
 using Microsoft.Extensions.FileProviders;
 using Newtonsoft.Json;
 using Smartstore.Collections;
@@ -26,8 +22,9 @@ namespace Smartstore.Engine.Modularity
         /// Creates a module descriptor.
         /// </summary>
         /// <param name="directory">The module directory.</param>
+        /// <param name="root">The <see cref="IFileSystem"/> instance used to enumrate the module directories.</param>
         /// <returns>The descriptor instance or <c>null</c> if directory does not exist or does not contain a 'module.json' file.</returns>
-        public static ModuleDescriptor Create(IDirectory directory)
+        public static ModuleDescriptor Create(IDirectory directory, IFileSystem root)
         {
             Guard.NotNull(directory, nameof(directory));
 
@@ -68,7 +65,7 @@ namespace Smartstore.Engine.Modularity
                 // Try to point file provider to source code directory in dev mode.
                 var sourceRoot = IOPath.GetFullPath(IOPath.Combine(CommonHelper.ContentRoot.Root, @"..\Smartstore.Modules"));
                 var dirNamesToCheck = new[] { directory.Name, directory.Name + "-sym" };
-                
+
                 foreach (var name in dirNamesToCheck)
                 {
                     var dir = new DirectoryInfo(IOPath.Combine(sourceRoot, name));
@@ -84,7 +81,7 @@ namespace Smartstore.Engine.Modularity
 
             descriptor.ContentRoot = descriptor.SourcePhysicalPath != null
                 ? new LocalFileSystem(descriptor.SourcePhysicalPath)
-                : new ExpandedFileSystem(directory.Name, directory.FileSystem);
+                : new ExpandedFileSystem(directory.Name, root);
 
             return descriptor;
         }
@@ -270,7 +267,7 @@ namespace Smartstore.Engine.Modularity
                         var key = doc.SelectSingleNode(@"//Language/LocaleResource")?.Attributes["Name"]?.InnerText;
                         if (key.HasValue() && key.Contains('.'))
                         {
-                            return key.Substring(0, key.LastIndexOf('.'));
+                            return key[..key.LastIndexOf('.')];
                         }
                     }
                 }
@@ -315,7 +312,7 @@ namespace Smartstore.Engine.Modularity
         public string GetSettingKey(string name)
         {
             // Compat: DON'T change Plugin > Module
-            return "PluginSetting.{0}.{1}".FormatWith(SystemName, name);
+            return "PluginSetting.{0}.{1}".FormatCurrent(SystemName, name);
         }
 
         public override string ToString()

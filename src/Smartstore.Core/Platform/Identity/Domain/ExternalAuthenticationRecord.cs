@@ -1,27 +1,13 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Smartstore.Domain;
 
 namespace Smartstore.Core.Identity
 {
-    internal class ExternalAuthenticationRecordMap : IEntityTypeConfiguration<ExternalAuthenticationRecord>
-    {
-        public void Configure(EntityTypeBuilder<ExternalAuthenticationRecord> builder)
-        {
-            //builder.HasOne(c => c.Customer)
-            //    .WithMany(c => c.ExternalAuthenticationRecords)
-            //    .HasForeignKey(c => c.CustomerId)
-            //    .IsRequired(false)
-            //    .OnDelete(DeleteBehavior.Cascade);
-        }
-    }
-
     /// <summary>
     /// Represents an external authentication record.
     /// </summary>
+    [Index(nameof(ProviderSystemName), nameof(ExternalIdentifier))]
     public partial class ExternalAuthenticationRecord : BaseEntity
     {
         public ExternalAuthenticationRecord()
@@ -52,19 +38,19 @@ namespace Smartstore.Core.Identity
         /// <summary>
         /// Gets or sets the external email.
         /// </summary>
-        [StringLength(4000)]
+        [StringLength(255)]
         public string Email { get; set; }
 
         /// <summary>
         /// Gets or sets the external identifier.
         /// </summary>
-        [StringLength(4000)]
+        [StringLength(400)]
         public string ExternalIdentifier { get; set; }
 
         /// <summary>
         /// Gets or sets the external display identifier.
         /// </summary>
-        [StringLength(4000)]
+        [StringLength(400)]
         public string ExternalDisplayIdentifier { get; set; }
 
         /// <summary>
@@ -82,7 +68,7 @@ namespace Smartstore.Core.Identity
         /// <summary>
         /// Gets or sets the provider system name.
         /// </summary>
-        [StringLength(4000)]
+        [StringLength(255)]
         public string ProviderSystemName { get; set; }
     }
 }

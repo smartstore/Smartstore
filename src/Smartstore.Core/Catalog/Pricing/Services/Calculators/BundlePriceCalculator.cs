@@ -1,6 +1,4 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
-using Smartstore.Core.Catalog.Products;
+﻿using Smartstore.Core.Catalog.Products;
 
 namespace Smartstore.Core.Catalog.Pricing.Calculators
 {
@@ -56,6 +54,10 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
                     // Add price of part to root final price (unit price * contained quantity in this bundle).
                     context.FinalPrice += decimal.Multiply(childCalculation.FinalPrice, bundleItem.Quantity);
 
+                    /// No copying of discounts to <see cref="CalculatorContext.AppliedDiscounts"/>. For BundlePerItemPricing they are only
+                    /// virtual stub discounts (<see cref="DiscountPriceCalculator"/> and <see cref="ProductBundleItem.Discount"/>).
+                    context.DiscountAmount += decimal.Multiply(childCalculation.DiscountAmount, bundleItem.Quantity);
+
                     // TODO: (mg) (core) Is it not better to continue the pipeline here (unlike in Smartstore classic)? Continuation could
                     // apply OfferPrice and/or further discounts to the automatically calculated final price here. TBD with MC please.
                 }
@@ -88,7 +90,10 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
                 options.ChildProductsBatchContext = _productService.CreateProductBatchContext(bundleItemProducts, options.Store, options.Customer, false);
             }
 
-            options.BatchContext = options.ChildProductsBatchContext;
+            if (options.ChildProductsBatchContext != null)
+            {
+                options.BatchContext = options.ChildProductsBatchContext;
+            }
         }
     }
 }

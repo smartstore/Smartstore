@@ -1,9 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using Smartstore.IO;
-using Smartstore.Utilities;
+﻿using Smartstore.IO;
 
 namespace Smartstore
 {
@@ -57,7 +52,7 @@ namespace Smartstore
         /// <param name="subpath">The relative path to the file or the directory to be renamed/moved.</param>
         /// <param name="newPath">The new path after entry was moved/renamed.</param>
         /// <exception cref="FileSystemException">Thrown if source does not exist or if <paramref name="newPath"/> already exists.</exception>
-        public static void MoveEntry(this IFileSystem fs, string subpath, string newPath, bool overwrite = false)
+        public static void MoveEntry(this IFileSystem fs, string subpath, string newPath)
         {
             Guard.NotNull(newPath, nameof(newPath));
             fs.GetEntry(subpath).MoveTo(newPath);
@@ -109,7 +104,9 @@ namespace Smartstore
                 return source;
             }
 
-            if (source.FileSystem.GetType() != fs.GetType())
+            var sourceType = source.FileSystem.GetType();
+            var thisType = fs.GetType();
+            if (sourceType != thisType && (sourceType.BaseType == null || sourceType.BaseType != thisType))
             {
                 throw new FileSystemException("While attaching entries, both file system implementations must be of same type.");
             }

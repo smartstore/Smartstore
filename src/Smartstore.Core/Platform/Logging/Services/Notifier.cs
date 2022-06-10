@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Smartstore.Core.Localization;
-
-namespace Smartstore.Core.Logging
+﻿namespace Smartstore.Core.Logging
 {
     /// <summary>
     /// Represents a UI notifier

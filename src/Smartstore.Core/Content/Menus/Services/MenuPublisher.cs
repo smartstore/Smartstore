@@ -1,8 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using Smartstore.Caching;
+﻿using Smartstore.Caching;
 using Smartstore.Collections;
-using Smartstore.Engine;
 
 namespace Smartstore.Core.Content.Menus
 {
@@ -41,7 +38,9 @@ namespace Smartstore.Core.Content.Menus
                             var provider = EngineContext.Current.Scope.ResolveUnregistered(type) as IMenuProvider;
                             instances.Add(provider);
                         }
-                        catch { }
+                        catch 
+                        { 
+                        }
                     }
 
                     return instances;

@@ -1,11 +1,30 @@
-﻿using System;
-using System.Globalization;
+﻿using System.Globalization;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Smartstore.Web.Rendering
 {
     public static class TagBuilderExtensions
     {
+        public static void AppendCssClass(this TagBuilder builder, Func<string> cssClass)
+        {
+            builder.Attributes.AddInValue("class", ' ', cssClass(), false);
+        }
+
+        public static void PrependCssClass(this TagBuilder builder, Func<string> cssClass)
+        {
+            builder.Attributes.AddInValue("class", ' ', cssClass(), true);
+        }
+
+        public static void AppendCssClass(this TagBuilder builder, string cssClass)
+        {
+            builder.Attributes.AddInValue("class", ' ', cssClass, false);
+        }
+
+        public static void PrependCssClass(this TagBuilder builder, string cssClass)
+        {
+            builder.Attributes.AddInValue("class", ' ', cssClass, true);
+        }
+
         /// <summary>
         /// Creates a DOM-like CSS class list object. Call 'Dispose()' to flush
         /// the result back to <paramref name="builder"/>.

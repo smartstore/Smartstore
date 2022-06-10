@@ -1,8 +1,6 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Smartstore.Core.Identity;
@@ -16,14 +14,14 @@ namespace Smartstore.Core.Catalog.Products
             builder.HasOne(c => c.Product)
                 .WithMany(c => c.ProductReviews)
                 .HasForeignKey(c => c.ProductId)
-                .IsRequired(false);
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 
     /// <summary>
     /// Represents a product review.
     /// </summary>
-    [Table("ProductReview")] // Enables EF TPT inheritance
+    [Table("ProductReview")]
     public partial class ProductReview : CustomerContent
     {
         public ProductReview()

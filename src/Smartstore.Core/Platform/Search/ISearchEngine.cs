@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using Smartstore.Core.Search.Facets;
+﻿using Smartstore.Core.Search.Facets;
 
 namespace Smartstore.Core.Search
 {
@@ -48,7 +45,7 @@ namespace Smartstore.Core.Search
         /// Search
         /// </summary>
         /// <returns>Search hits</returns>
-        Task<IEnumerable<ISearchHit>> SearchAsync(CancellationToken cancelToken = default);
+        Task<IEnumerable<ISearchHit>> SearchAsync();
 
         /// <summary>
         /// Gets the facet map for drilldown navigation
@@ -59,8 +56,30 @@ namespace Smartstore.Core.Search
         /// <summary>
         /// Gets the facet map for drilldown navigation
         /// </summary>
-        /// <returns>The facet groups</returns>
-        Task<Dictionary<string, FacetGroup>> GetFacetMapAsync(CancellationToken cancelToken = default);
+        /// <returns>Map of <see cref="FacetDescriptor.Key"/> to <see cref="FacetGroup"/>.</returns>
+        Task<IDictionary<string, FacetGroup>> GetFacetMapAsync();
+
+        /// <summary>
+        /// Gets the number of facets (also known as cardinality).
+        /// </summary>
+        /// <remarks>
+        /// This core faceting method can be invoked extremely often. It is typically called internally by <see cref="ISearchProvider"/>.
+        /// </remarks>
+        /// <param name="value">The value to be faceted.</param>
+        /// <param name="context">Context for counting facets.</param>
+        /// <returns>Number of facets. Returns <see cref="long.MaxValue"/> indicating to cancel faceting immediately.</returns>
+        long GetFacetCount(FacetValue value, FacetValueContext context);
+
+        /// <summary>
+        /// Gets the number of facets (also known as cardinality).
+        /// </summary>
+        /// <remarks>
+        /// This core faceting method can be invoked extremely often. It is typically called internally by <see cref="ISearchProvider"/>.
+        /// </remarks>
+        /// <param name="value">The value to be faceted.</param>
+        /// <param name="context">Context for counting facets.</param>
+        /// <returns>Number of facets. Returns <see cref="long.MaxValue"/> indicating to cancel faceting immediately.</returns>
+        Task<long> GetFacetCountAsync(FacetValue value, FacetValueContext context);
 
         /// <summary>
         /// Performs spell checking ("Diy you mean?")

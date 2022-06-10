@@ -1,5 +1,4 @@
-﻿using System;
-using Smartstore.Core.Checkout.Tax;
+﻿using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;

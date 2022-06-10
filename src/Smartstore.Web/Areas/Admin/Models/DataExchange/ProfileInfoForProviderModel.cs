@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using Smartstore.Web.Modelling;
-
-namespace Smartstore.Admin.Models.Export
+﻿namespace Smartstore.Admin.Models.Export
 {
     public class ProfileInfoForProviderModel : ModelBase
     {

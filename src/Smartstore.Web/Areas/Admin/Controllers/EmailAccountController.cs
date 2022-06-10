@@ -1,20 +1,9 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Smartstore.Admin.Models.Messages;
+﻿using Smartstore.Admin.Models.Messages;
 using Smartstore.ComponentModel;
-using Smartstore.Core.Configuration;
-using Smartstore.Core.Data;
-using Smartstore.Core.Localization;
 using Smartstore.Core.Messaging;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
-using Smartstore.Data.Caching;
 using Smartstore.Net.Mail;
-using Smartstore.Web.Controllers;
-using Smartstore.Web.Modelling;
 using Smartstore.Web.Models.DataGrid;
 
 namespace Smartstore.Admin.Controllers
@@ -22,24 +11,18 @@ namespace Smartstore.Admin.Controllers
     public class EmailAccountController : AdminController
     {
         private readonly SmartDbContext _db;
-        private readonly ILocalizationService _localizationService;
-        private readonly ISettingService _settingService;
         private readonly IStoreContext _storeContext;
         private readonly EmailAccountSettings _emailAccountSettings;
         private readonly Lazy<IMailService> _mailService;
 
         public EmailAccountController(
             SmartDbContext db,
-            ILocalizationService localizationService,
-            ISettingService settingService,
             IStoreContext storeContext,
             EmailAccountSettings emailAccountSettings,
             Lazy<IMailService> mailService)
         {
             _db = db;
-            _localizationService = localizationService;
             _emailAccountSettings = emailAccountSettings;
-            _settingService = settingService;
             _storeContext = storeContext;
             _mailService = mailService;
         }
@@ -53,22 +36,20 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Configuration.EmailAccount.Read)]
         public async Task<IActionResult> EmailAccountList(GridCommand command)
         {
-            // INFO: (mh) (core) Very weird caching issue. With AsNoTracking created or deleted entities won't be removed/added to db cache.
-            // RE: In backend listings, it's better not to overstress db cache: cache key computation can be expensive because it varies by paging, sorting, conditions etc.
-            // RE: OK, but the code worked everywhere else for cachable entities. So this is clearly a reproduceable bug.
-            //     Should we apply the current code changes (.AsNoCaching()) to all other listings of cachable entities?
-            var emailAccounts = await _db.EmailAccounts              
+            var emailAccounts = await _db.EmailAccounts
                 .AsNoTracking()
-                .AsNoCaching()
+                .OrderBy(x => x.Id)
                 .ApplyGridCommand(command)
                 .ToPagedList(command)
                 .LoadAsync();
 
+            var mapper = MapperFactory.GetMapper<EmailAccount, EmailAccountModel>();
             var emailAccountModels = await emailAccounts.SelectAsync(async x =>
             {
-                var model = await MapperFactory.MapAsync<EmailAccount, EmailAccountModel>(x);
+                var model = await mapper.MapAsync(x);
                 model.IsDefaultEmailAccount = x.Id == _emailAccountSettings.DefaultEmailAccountId;
                 model.EditUrl = Url.Action(nameof(Edit), "EmailAccount", new { id = x.Id });
+
                 return model;
             })
             .AsyncToList();
@@ -83,14 +64,44 @@ namespace Smartstore.Admin.Controllers
         }
 
         [HttpPost]
+        [Permission(Permissions.Configuration.EmailAccount.Delete)]
+        public async Task<IActionResult> EmailAccountDelete(GridSelection selection)
+        {
+            var success = false;
+            var numDeleted = 0;
+            var ids = selection.GetEntityIds();
+
+            if (ids.Any())
+            {
+                try
+                {
+                    var emailAccounts = await _db.EmailAccounts.GetManyAsync(ids, true);
+                    _db.EmailAccounts.RemoveRange(emailAccounts);
+
+                    numDeleted = await _db.SaveChangesAsync();
+                    success = true;
+                }
+                catch (Exception ex)
+                {
+                    NotifyError(ex);
+                }
+            }
+
+            return Json(new { Success = success, Count = numDeleted });
+        }
+
+        [HttpPost]
         [Permission(Permissions.Configuration.EmailAccount.Update)]
         public async Task<IActionResult> SetDefaultEmailAccount(int id)
         {
-            Guard.NotZero(id, nameof(id));
+            var emailAccount = await _db.EmailAccounts.FindByIdAsync(id, false);
+            if (emailAccount == null)
+            {
+                return NotFound();
+            }
 
-            _emailAccountSettings.DefaultEmailAccountId = id;
-            await Services.Settings.ApplySettingAsync(_emailAccountSettings, x => x.DefaultEmailAccountId);
-            await _db.SaveChangesAsync();
+            _emailAccountSettings.DefaultEmailAccountId = emailAccount.Id;
+            await Services.SettingFactory.SaveSettingsAsync(_emailAccountSettings);
 
             return Json(new { Success = true });
         }
@@ -116,8 +127,17 @@ namespace Smartstore.Admin.Controllers
                 _db.EmailAccounts.Add(emailAccount);
                 await _db.SaveChangesAsync();
 
+                if (model.IsDefaultEmailAccount)
+                {
+                    _emailAccountSettings.DefaultEmailAccountId = emailAccount.Id;
+                    await Services.SettingFactory.SaveSettingsAsync(_emailAccountSettings);
+                }
+
                 NotifySuccess(T("Admin.Configuration.EmailAccounts.Added"));
-                return continueEditing ? RedirectToAction(nameof(Edit), new { id = emailAccount.Id }) : RedirectToAction(nameof(List));
+                
+                return continueEditing 
+                    ? RedirectToAction(nameof(Edit), new { id = emailAccount.Id }) 
+                    : RedirectToAction(nameof(List));
             }
 
             // If we got this far something failed. Redisplay form.
@@ -135,6 +155,7 @@ namespace Smartstore.Admin.Controllers
 
             var model = await MapperFactory.MapAsync<EmailAccount, EmailAccountModel>(emailAccount);
             model.IsDefaultEmailAccount = emailAccount.Id == _emailAccountSettings.DefaultEmailAccountId;
+
             return View(model);
         }
 
@@ -152,17 +173,20 @@ namespace Smartstore.Admin.Controllers
             if (ModelState.IsValid)
             {
                 await MapperFactory.MapAsync(model, emailAccount);
-                await _db.SaveChangesAsync();
 
                 if (model.IsDefaultEmailAccount && _emailAccountSettings.DefaultEmailAccountId != emailAccount.Id)
                 {
                     _emailAccountSettings.DefaultEmailAccountId = emailAccount.Id;
                     await Services.Settings.ApplySettingAsync(_emailAccountSettings, x => x.DefaultEmailAccountId);
-                    await _db.SaveChangesAsync();
                 }
 
+                await _db.SaveChangesAsync();
+
                 NotifySuccess(T("Admin.Configuration.EmailAccounts.Updated"));
-                return continueEditing ? RedirectToAction(nameof(Edit), new { id = emailAccount.Id }) : RedirectToAction(nameof(List));
+
+                return continueEditing 
+                    ? RedirectToAction(nameof(Edit), new { id = emailAccount.Id }) 
+                    : RedirectToAction(nameof(List));
             }
 
             // If we got this far something failed. Redisplay form.
@@ -179,53 +203,11 @@ namespace Smartstore.Admin.Controllers
                 return NotFound();
             }
 
-            if (emailAccount.Id == _emailAccountSettings.DefaultEmailAccountId)
-            {
-                NotifyError(T("Admin.Configuration.EmailAccounts.CantDeleteDefault"));
-            }
-            else
-            {
-                _db.EmailAccounts.Remove(emailAccount);
-                await _db.SaveChangesAsync();
-                NotifySuccess(T("Admin.Configuration.EmailAccounts.Deleted"));
-            }
+            _db.EmailAccounts.Remove(emailAccount);
+            await _db.SaveChangesAsync();
+            NotifySuccess(T("Admin.Configuration.EmailAccounts.Deleted"));
 
             return RedirectToAction(nameof(List));
-        }
-
-        [HttpPost]
-        [Permission(Permissions.Configuration.EmailAccount.Delete)]
-        public async Task<IActionResult> DeleteEmailAccounts(GridSelection selection)
-        {
-            var success = false;
-            var numDeleted = 0;
-            var ids = selection.GetEntityIds();
-
-            if (ids.Any())
-            {
-                var EmailAccounts = await _db.EmailAccounts.GetManyAsync(ids, true);
-                var triedToDeleteDefault = false;
-
-                foreach (var emailAccount in EmailAccounts)
-                {
-                    if (emailAccount.Id == _emailAccountSettings.DefaultEmailAccountId)
-                    {
-                        triedToDeleteDefault = true;
-                        // TODO: (mh) (core) Add resource
-                        NotifyError(T("Admin.Configuration.EmailAccounts.CantDeleteDefault"));
-                    }
-                    else
-                    {
-                        _db.EmailAccounts.Remove(emailAccount);
-                    }
-                }
-
-                numDeleted = await _db.SaveChangesAsync();
-
-                success = !triedToDeleteDefault || numDeleted != 0;
-            }
-
-            return Json(new { Success = success, Count = numDeleted });
         }
 
         [HttpPost, ActionName("Edit")]
@@ -252,9 +234,9 @@ namespace Smartstore.Admin.Controllers
                         .RegexReplace(@"\p{C}+", " ")
                         .TrimSafe();
 
-                    var msg = new MailMessage(model.SendTestEmailTo, subject, T("Admin.Common.EmailSuccessfullySent"), emailAccount.Email);
-
+                    using var msg = new MailMessage(model.SendTestEmailTo, subject, T("Admin.Common.EmailSuccessfullySent"), emailAccount.Email);
                     using var client = await _mailService.Value.ConnectAsync(emailAccount);
+
                     await client.SendAsync(msg);
 
                     NotifySuccess(T("Admin.Configuration.EmailAccounts.SendTestEmail.Success"), false);

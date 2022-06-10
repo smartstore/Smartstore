@@ -1,23 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Content.Media;
-using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Web;
-using Smartstore.Web.Modelling;
-using Smartstore.Web.Modelling.Validation;
 
 namespace Smartstore.Admin.Models.Catalog
 {
@@ -27,7 +19,7 @@ namespace Smartstore.Admin.Models.Catalog
         [LocalizedDisplay("*AssociatedToProductName")]
         public int AssociatedToProductId { get; set; }
 
-        [LocalizedDisplay("*.AssociatedToProductName")]
+        [LocalizedDisplay("*AssociatedToProductName")]
         public string AssociatedToProductName { get; set; }
 
         [LocalizedDisplay("*Visibility")]
@@ -65,7 +57,7 @@ namespace Smartstore.Admin.Models.Catalog
         public bool AllowCustomerReviews { get; set; }
 
         [LocalizedDisplay("*ProductTags")]
-        public string[] ProductTags { get; set; }
+        public string[] ProductTagNames { get; set; }
 
         [LocalizedDisplay("*CountryOfOriginId")]
         public int? CountryOfOriginId { get; set; }
@@ -268,6 +260,7 @@ namespace Smartstore.Admin.Models.Catalog
         public int NumberOfAvailableCategories { get; set; }
         public int NumberOfAvailableManufacturers { get; set; }
         public int NumberOfAvailableProductAttributes { get; set; }
+        public bool HasOrders { get; set; }
 
         //Pictures.
         [LocalizedDisplay("*HasPreviewPicture")]
@@ -282,7 +275,7 @@ namespace Smartstore.Admin.Models.Catalog
         [LocalizedDisplay("Admin.Promotions.Discounts.AppliedDiscounts")]
         public int[] SelectedDiscountIds { get; set; }
 
-        public AddProductSpecificationAttributeModel AddSpecificationAttributeModel { get; set; }
+        public AddProductSpecificationAttributeModel AddSpecificationAttributeModel { get; set; } = new();
 
         //BasePrice
         [LocalizedDisplay("*BasePriceEnabled")]

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Linq;
-using Autofac;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Autofac;
 using Smartstore.Core.Checkout.Attributes;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.GiftCards;
@@ -14,7 +11,6 @@ using Smartstore.Core.Checkout.Shipping.Rules;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Rules;
 using Smartstore.Core.Rules.Rendering;
-using Smartstore.Engine;
 using Smartstore.Engine.Builders;
 using Smartstore.Net;
 using Smartstore.Net.Http;
@@ -38,6 +34,7 @@ namespace Smartstore.Core.Bootstrapping
         {
             builder.RegisterType<CheckoutAttributeMaterializer>().As<ICheckoutAttributeMaterializer>().InstancePerLifetimeScope();
             builder.RegisterType<CheckoutAttributeFormatter>().As<ICheckoutAttributeFormatter>().InstancePerLifetimeScope();
+            builder.RegisterType<DefaultCheckoutStateAccessor>().As<ICheckoutStateAccessor>().InstancePerLifetimeScope();
             builder.RegisterType<OrderCalculationService>().As<IOrderCalculationService>().InstancePerLifetimeScope();
             builder.RegisterType<OrderProcessingService>().As<IOrderProcessingService>().InstancePerLifetimeScope();
             builder.RegisterType<ShoppingCartValidator>().As<IShoppingCartValidator>().InstancePerLifetimeScope();

@@ -1,0 +1,15 @@
+{
+  "$schema": "../module.schema.json",
+  "Group": "Security",
+  "SystemName": "Smartstore.Twitter.Auth",
+  "FriendlyName": "Twitter Authentication",
+  "Description": "Enables login with Twitter account.",
+  "Version": "5.0",
+  "MinAppVersion": "5.0",
+  "Author": "SmartStore AG",
+  "Order": 1,
+  "ResourceRootKey": "Plugins.ExternalAuth.Twitter",
+  "PrivateReferences": [
+    "Microsoft.AspNetCore.Authentication.Twitter"
+  ]
+}

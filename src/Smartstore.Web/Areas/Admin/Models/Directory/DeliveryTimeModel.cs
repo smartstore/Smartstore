@@ -1,9 +1,7 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using FluentValidation;
 using Smartstore.Core.Localization;
-using Smartstore.Web.Modelling;
 
 namespace Smartstore.Admin.Models.Common
 {
@@ -14,7 +12,6 @@ namespace Smartstore.Admin.Models.Common
         public string Name { get; set; }
         public string DeliveryInfo { get; set; }
 
-        [LocalizedDisplay("*DisplayLocale")]
         public string DisplayLocale { get; set; }
 
         [UIHint("Color")]
@@ -36,6 +33,7 @@ namespace Smartstore.Admin.Models.Common
         public List<DeliveryTimeLocalizedModel> Locales { get; set; } = new();
     }
 
+    [LocalizedDisplay("Admin.Configuration.DeliveryTimes.Fields.")]
     public class DeliveryTimeLocalizedModel : ILocalizedLocaleModel
     {
         public int LanguageId { get; set; }
@@ -56,8 +54,10 @@ namespace Smartstore.Admin.Models.Common
                 {
                     try
                     {
-                        if (string.IsNullOrEmpty(x))
+                        if (x.IsEmpty())
+                        {
                             return true;
+                        }
 
                         var culture = new CultureInfo(x);
                         return culture != null;

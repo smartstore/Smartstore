@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
+﻿using System.Runtime.CompilerServices;
 using Autofac;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Engine;
@@ -60,11 +56,11 @@ namespace Smartstore.ComponentModel
 
             foreach (var type in mapperTypes)
             {
-                foreach (var intface in type.GetInterfaces())
+                var closedTypes = type.GetClosedGenericTypesOf(typeof(IMapper<,>));
+                foreach (var closedType in closedTypes)
                 {
-                    intface.IsSubClass(typeof(IMapper<,>), out var impl);
-                    var genericArguments = impl.GetGenericArguments();
-                    var typePair = new TypePair(genericArguments[0], genericArguments[1]);
+                    var args = closedType.GetGenericArguments();
+                    var typePair = new TypePair(args[0], args[1]);
                     _mapperTypes.Add(typePair, type);
                 }
             }
@@ -134,14 +130,13 @@ namespace Smartstore.ComponentModel
 
             var key = new TypePair(typeof(TFrom), typeof(TTo));
 
-            var implType = _mapperTypes.Get(key);
-            if (implType != null)
+            if (_mapperTypes.TryGetValue(key, out var mapperType))
             {
                 var scope = EngineContext.Current.Scope;
-                var instance = scope?.ResolveUnregistered(implType);
+                var instance = scope?.ResolveUnregistered(mapperType);
                 if (instance != null)
                 {
-                    scope.InjectUnsetProperties(instance);
+                    scope.InjectProperties(instance);
                     return (IMapper<TFrom, TTo>)instance;
                 }
             }

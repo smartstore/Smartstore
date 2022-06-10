@@ -1,10 +1,6 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO;
-using System.Threading.Tasks;
+﻿using System.Diagnostics;
 using Smartstore.Core.Content.Media.Storage;
 using Smartstore.Core.Data;
-using Smartstore.Engine;
 using Smartstore.Imaging;
 using Smartstore.IO;
 
@@ -17,7 +13,6 @@ namespace Smartstore.Core.Content.Media
     public class SampleMediaUtility
     {
         private readonly string _rootPath;
-        private readonly bool _appIsInstalled;
         private readonly SmartDbContext _db;
         private readonly IFileSystem _contentRoot;
         private readonly IMediaTypeResolver _mediaTypeResolver;
@@ -31,13 +26,8 @@ namespace Smartstore.Core.Content.Media
             var engine = EngineContext.Current;
 
             _contentRoot = engine.Application.ContentRoot;
-            _appIsInstalled = engine.Application.IsInstalled;
             _mediaTypeResolver = engine.ResolveService<IMediaTypeResolver>();
-
-            if (_appIsInstalled)
-            {
-                _storageProvider = engine.ResolveService<Func<IMediaStorageProvider>>().Invoke();
-            }
+            _storageProvider = engine.ResolveService<Func<IMediaStorageProvider>>().Invoke();
         }
 
         public async Task<MediaFile> CreateMediaFileAsync(string subpath, string seoFileName = null)
@@ -69,14 +59,12 @@ namespace Smartstore.Core.Content.Media
                     MimeType = mimeType,
                     Extension = ext.EmptyNull().TrimStart('.'),
                     CreatedOnUtc = now,
-                    UpdatedOnUtc = now
+                    UpdatedOnUtc = now,
+                    // So that FolderId is set later during track detection
+                    Version = 1
                 };
 
-                var applier = _appIsInstalled
-                    ? ApplyToStorage(file, mediaFile)
-                    : ApplyToBlob(file, mediaFile);
-
-                await applier;
+                await ApplyToStorage(file, mediaFile);
 
                 return mediaFile;
             }
@@ -84,28 +72,6 @@ namespace Smartstore.Core.Content.Media
             {
                 Debug.WriteLine(ex.Message);
                 throw;
-            }
-        }
-
-        private async Task ApplyToBlob(IFile source, MediaFile mediaFile)
-        {
-            // Is app installation
-            
-            var buffer = await source.ReadAllBytesAsync();
-            mediaFile.Size = buffer.Length;
-            mediaFile.MediaStorage = new MediaStorage { Data = buffer };
-
-            // So that FolderId is set later during track detection
-            mediaFile.Version = 1;
-
-            if (mediaFile.MediaType == MediaType.Image)
-            {
-                var pixelSize = ImageHeader.GetPixelSize(buffer, mediaFile.MimeType);
-                if (!pixelSize.IsEmpty)
-                {
-                    mediaFile.Width = pixelSize.Width;
-                    mediaFile.Height = pixelSize.Height;
-                }
             }
         }
 
@@ -117,6 +83,8 @@ namespace Smartstore.Core.Content.Media
             {
                 if (mediaFile.MediaType == MediaType.Image)
                 {
+                    mediaFile.Size = (int)stream.Length;
+                    
                     var pixelSize = ImageHeader.GetPixelSize(stream);
                     if (!pixelSize.IsEmpty)
                     {

@@ -1,0 +1,15 @@
+﻿@model string
+
+@{
+    var defaultAgeGroup = ViewBag.DefaultAgeGroup ?? T("Common.Unspecified");
+    var size = GetMetadata<string>("size");
+}
+
+<select asp-for="@Model" 
+        class="edit-control" 
+        attr-class='(size.HasValue(), "form-control-" + size)'
+        data-editor="select" 
+        asp-placeholder="@defaultAgeGroup">
+    <option value="adult">@T("Plugins.Feed.Froogle.AgeGroupAdult")</option>
+    <option value="kids">@T("Plugins.Feed.Froogle.AgeGroupKids")</option>
+</select>

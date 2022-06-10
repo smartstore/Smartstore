@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-
-namespace Smartstore.Core.Checkout.Orders
+﻿namespace Smartstore.Core.Checkout.Orders
 {
     /// <summary>
     /// Represents the result of an order placement.
@@ -22,6 +19,11 @@ namespace Smartstore.Core.Checkout.Orders
         /// <c>true</c> if <see cref="Errors"/> does not contain any elements.
         /// </summary>
         public bool Success
-            => !Errors.Any();
+            => Errors.Count == 0;
+
+        /// <summary>
+        /// Gets or sets an URL to be redirected to, e.g. if an error occurred during payment.
+        /// </summary>
+        public string RedirectUrl { get; set; }
     }
 }

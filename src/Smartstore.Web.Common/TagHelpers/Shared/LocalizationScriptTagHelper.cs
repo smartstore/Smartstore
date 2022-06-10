@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.AspNetCore.Razor.TagHelpers;
+﻿using Microsoft.AspNetCore.Razor.TagHelpers;
 using Smartstore.Core.Localization;
 
 namespace Smartstore.Web.TagHelpers.Shared
@@ -14,10 +13,12 @@ namespace Smartstore.Web.TagHelpers.Shared
         const string LocaleFallbackAttributeName = "sm-locale-fallback";
 
         private readonly ILocalizationFileResolver _fileResolver;
+        private readonly Lazy<IUrlHelper> _urlHelper;
 
-        public LocalizationScriptTagHelper(ILocalizationFileResolver fileResolver)
+        public LocalizationScriptTagHelper(ILocalizationFileResolver fileResolver, Lazy<IUrlHelper> urlHelper)
         {
             _fileResolver = fileResolver;
+            _urlHelper = urlHelper;
         }
 
         // Must run BEFORE UrlResolutionTagHelper
@@ -52,7 +53,7 @@ namespace Smartstore.Web.TagHelpers.Shared
 
         public override void Process(TagHelperContext context, TagHelperOutput output)
         {
-            var src = output.Attributes["src"].Value.ToString();
+            var src = output.Attributes["src"].ValueAsString();
 
             if (src.Length < 11)
             {
@@ -64,7 +65,7 @@ namespace Smartstore.Web.TagHelpers.Shared
 
             if (resolveResult?.Success == true)
             {
-                output.Attributes.SetAttribute("src", resolveResult.VirtualPath);
+                output.Attributes.SetAttribute("src", _urlHelper.Value.Content(resolveResult.VirtualPath));
                 output.MergeAttribute("charset", "UTF-8");
             }
             else

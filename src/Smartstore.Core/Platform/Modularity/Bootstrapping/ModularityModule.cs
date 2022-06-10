@@ -1,9 +1,6 @@
-﻿using System;
-using System.Linq;
-using Autofac;
+﻿using Autofac;
 using Autofac.Builder;
 using Humanizer;
-using Smartstore.Caching.OutputCache;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Checkout.Tax;
@@ -11,8 +8,9 @@ using Smartstore.Core.Common.Services;
 using Smartstore.Core.Content.Media.Storage;
 using Smartstore.Core.DataExchange;
 using Smartstore.Core.DataExchange.Export;
+using Smartstore.Core.Identity;
+using Smartstore.Core.OutputCache;
 using Smartstore.Core.Widgets;
-using Smartstore.Engine;
 using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Core.Bootstrapping
@@ -28,6 +26,7 @@ namespace Smartstore.Core.Bootstrapping
 
         protected override void Load(ContainerBuilder builder)
         {
+            builder.RegisterType<StoreModuleConstraint>().As<IModuleConstraint>().InstancePerLifetimeScope();
             builder.RegisterType<ProviderManager>().As<IProviderManager>().InstancePerLifetimeScope();
             builder.RegisterType<ModuleManager>().AsSelf().InstancePerLifetimeScope();
 
@@ -142,7 +141,7 @@ namespace Smartstore.Core.Bootstrapping
                 RegisterAsSpecificProvider<IExportProvider>(type, systemName, registration);
                 RegisterAsSpecificProvider<IOutputCacheProvider>(type, systemName, registration);
                 RegisterAsSpecificProvider<IMediaStorageProvider>(type, systemName, registration);
-                //RegisterAsSpecificProvider<IExternalAuthenticationMethod>(type, systemName, registration);
+                RegisterAsSpecificProvider<IExternalAuthenticationMethod>(type, systemName, registration);
             }
         }
 

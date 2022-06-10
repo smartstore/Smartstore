@@ -1,37 +1,8 @@
 ﻿namespace Smartstore.Engine
 {
-    /// <summary>
-    /// Memory managers are used to allocate memory for image processing operations.
-    /// </summary>
-    public enum ImagingMemoryAllocation
-    {
-        /// <summary>
-        /// For environments with very limited memory capabilities, only small buffers like
-        //  image rows are pooled.
-        /// </summary>
-        Minimal,
-
-        /// <summary>
-        /// For environments with limited memory capabilities, only small array requests
-        //  are pooled, which can result in reduced throughput.
-        /// </summary>
-        Moderate,
-
-        /// <summary>
-        /// Should be good for most use cases.
-        /// </summary>
-        Default,
-
-        /// <summary>
-        /// For environments where memory capabilities are not an issue, the maximum amount
-        //  of array requests are pooled which results in optimal throughput.
-        /// </summary>
-        Aggressive
-    }
-
     public partial class SmartConfiguration
     {
-        public string ApplicationName { get; set; } = "Smartstore";
+        public string ApplicationName { get; set; }
         public bool EnableDynamicDiscovery { get; set; } = true;
         public string ThemesBasePath { get; set; } = "/Themes";
         public string ModulesBasePath { get; set; } = "/Plugins";
@@ -51,6 +22,12 @@
         public bool EnableViewLocationCacheDuringDebug { get; set; } = true;
         public bool ShowCustomErrors { get; set; } = true;
         public bool EnableLegacyRoutesMapping { get; set; }
+
+        /// <summary>
+        /// Set this to "false" if you don't intend to edit view files during runtime. 
+        /// Disabling razor runtime compilation uses less resources.
+        /// </summary>
+        public bool EnableRazorRuntimeCompilation { get; set; } = true;
 
         /// <summary>
         /// Increase timeout if you run into database related timeout problems during regular operations (Default: 30 sec.)
@@ -85,9 +62,10 @@
         public string MediaPublicPath { get; set; } = "media";
 
         /// <summary>
-        /// The amount of memory allocated for image processing operations.
+        /// A value defining the maximum size of the image processor
+        /// internal memory pool in Megabytes. <c>null</c> means platform default.
         /// </summary>
-        public ImagingMemoryAllocation ImagingMemoryAllocation { get; set; } = ImagingMemoryAllocation.Minimal;
+        public int? ImagingMaxPoolSizeMB { get; set; }
 
         /// <summary>
         /// List of module names to ignore during app installation.
@@ -95,7 +73,7 @@
         public string[] IgnoredModules { get; set; }
 
         /// <summary>
-        /// Task Scheduler sweep interval in minutes (1 recommended)
+        /// Task Scheduler poll interval in minutes (1 recommended)
         /// </summary>
         public int TaskSchedulerPollInterval { get; set; } = 1;
 
@@ -125,9 +103,29 @@
         /// <summary>
         /// Gets or sets a value indicating whether to display exception
         /// always with full stack trace and other infos, even in production mode.
-        /// Default is False.
+        /// Default is <c>null</c> (fall back to current host's environment name).
         /// </summary>
-        public bool UseDeveloperExceptionPage { get; set; }
+        public bool? UseDeveloperExceptionPage { get; set; }
+
+        /// <summary>
+        /// Gets or sets the minimum length of time between successive scans for expired items in memory cache.
+        /// Default is 1 minute.
+        /// </summary>
+        public TimeSpan? MemoryCacheExpirationScanFrequency { get; set; }
+
+        /// <summary>
+        /// Gets or sets the maximum size of the memory cache.
+        /// </summary>
+        public long? MemoryCacheSizeLimit { get; set; }
+
+        /// <summary>
+        ///  Gets or sets the maximum allowed size of any request body in bytes. When set
+        ///  to null, the maximum request body size is unlimited. This limit has no effect
+        ///  on upgraded connections which are always unlimited. This can be overridden per-request
+        ///  via <see cref="Microsoft.AspNetCore.Http.Features.IHttpMaxRequestBodySizeFeature"/>.
+        ///  Defaults to 30,000,000 bytes, which is approximately 28.6MB.
+        /// </summary>
+        public long? MaxRequestBodySize { get; set; }
 
         public GoogleConfiguration Google { get; set; } = new();
 

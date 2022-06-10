@@ -1,6 +1,4 @@
-﻿using Smartstore.Web.Modelling;
-
-namespace Smartstore.Web.Models.Common
+﻿namespace Smartstore.Web.Models.Common
 {
     public partial class ShopBarModel : ModelBase
     {

@@ -1,15 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Text;
 using DotLiquid;
 using Humanizer;
 using Newtonsoft.Json;
-using Smartstore.ComponentModel;
 using Smartstore.Core.Common;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Data;
-using Smartstore.Engine;
 using Smartstore.Utilities;
 
 namespace Smartstore.Templating.Liquid
@@ -112,7 +107,6 @@ namespace Smartstore.Templating.Liquid
 
             return JsonConvert.SerializeObject(input, new JsonSerializerSettings
             {
-                ContractResolver = SmartContractResolver.Instance,
                 ReferenceLoopHandling = ReferenceLoopHandling.Ignore
             });
         }

@@ -1,9 +1,6 @@
-﻿using System;
-using System.Linq;
-using Microsoft.AspNetCore.Html;
+﻿using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
-using Smartstore.Core.Widgets;
 using Smartstore.Http;
 
 namespace Smartstore.Web.Bundling
@@ -85,6 +82,11 @@ namespace Smartstore.Web.Bundling
         private bool TryGetBundle(string url, out Bundle bundle)
         {
             bundle = null;
+
+            if (url.IsEmpty())
+            {
+                return false;
+            }
 
             if (!WebHelper.IsUrlLocalToHost(url))
             {

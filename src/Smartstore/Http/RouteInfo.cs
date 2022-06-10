@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.AspNetCore.Routing;
+﻿using Microsoft.AspNetCore.Routing;
 using Newtonsoft.Json;
 
 namespace Smartstore.Http
 {
-	[JsonConverter(typeof(RouteInfoConverter))]
+    [JsonConverter(typeof(RouteInfoConverter))]
 	public class RouteInfo
 	{
 		public RouteInfo(RouteInfo cloneFrom)
@@ -72,19 +70,12 @@ namespace Smartstore.Http
 
 	#region JsonConverter
 
-	internal class RouteInfoConverter : JsonConverter
+	internal class RouteInfoConverter : JsonConverter<RouteInfo>
 	{
 		public override bool CanWrite
-		{
-			get { return false; }
-		}
+			=> false;
 
-		public override bool CanConvert(Type objectType)
-		{
-			return objectType == typeof(RouteInfo);
-		}
-
-		public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+		public override RouteInfo ReadJson(JsonReader reader, Type objectType, RouteInfo existingValue, bool hasExistingValue, JsonSerializer serializer)
 		{
 			string action = null;
 			string controller = null;
@@ -119,10 +110,10 @@ namespace Smartstore.Http
 
 			var routeInfo = Activator.CreateInstance(objectType, new object[] { action, controller, routeValues });
 
-			return routeInfo;
+			return (RouteInfo)routeInfo;
 		}
 
-		public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+		public override void WriteJson(JsonWriter writer, RouteInfo value, JsonSerializer serializer)
 		{
 			throw new NotSupportedException();
 		}

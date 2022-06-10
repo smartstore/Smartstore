@@ -1,6 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.AspNetCore.Routing;
+﻿using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.DependencyModel;
 using Smartstore.Core.Content.Menus;
 using Smartstore.Utilities;
 
@@ -153,9 +152,16 @@ namespace Smartstore.Web.Rendering.Builders
             return (this as TBuilder);
         }
 
-        public TBuilder Icon(string value)
+        public TBuilder Icon(string value, string libary = null)
         {
+            Item.IconLibrary = libary;
             Item.Icon = value;
+            return (this as TBuilder);
+        }
+
+        public TBuilder IconClass(string value)
+        {
+            Item.IconClass = value;
             return (this as TBuilder);
         }
 

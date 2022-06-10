@@ -1,12 +1,8 @@
-﻿using System;
-using System.Runtime.CompilerServices;
-using System.Threading;
+﻿using System.Runtime.CompilerServices;
 using Autofac;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyModel;
-using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Smartstore.Data;
@@ -36,6 +32,7 @@ namespace Smartstore.Engine
             HostEnvironment = hostEnvironment;
             Configuration = configuration;
             Logger = logger;
+            RuntimeInfo = new RuntimeInfo(hostEnvironment);
 
             ConfigureFileSystem(hostEnvironment);
             DataSettings.SetApplicationContext(this, OnDataSettingsLoaded);
@@ -68,13 +65,24 @@ namespace Smartstore.Engine
             }
 
             // TODO: (core) Read stuff from config and resolve tenant. Check folders and create them also.
-            ThemesRoot = new ExpandedFileSystem("Themes", ContentRoot);
-            ModulesRoot = new ExpandedFileSystem("Modules", ContentRoot);
-            AppDataRoot = new ExpandedFileSystem("App_Data", ContentRoot);
-
-            if (!AppDataRoot.DirectoryExists("Tenants"))
+            if (ContentRoot.DirectoryExists("Modules"))
             {
-                AppDataRoot.TryCreateDirectory("Tenants");
+                ModulesRoot = new ExpandedFileSystem("Modules", ContentRoot);
+            }
+
+            if (ContentRoot.DirectoryExists("Themes"))
+            {
+                ThemesRoot = new ExpandedFileSystem("Themes", ContentRoot);
+            }
+
+            if (ContentRoot.DirectoryExists("App_Data"))
+            {
+                AppDataRoot = new ExpandedFileSystem("App_Data", ContentRoot);
+
+                if (!AppDataRoot.DirectoryExists("Tenants"))
+                {
+                    AppDataRoot.TryCreateDirectory("Tenants");
+                }
             }
 
             CommonHelper.ContentRoot = ContentRoot;
@@ -127,7 +135,7 @@ namespace Smartstore.Engine
             get => DataSettings.DatabaseIsInstalled();
         }
 
-        public RuntimeInfo RuntimeInfo { get; } = new();
+        public RuntimeInfo RuntimeInfo { get; }
         public IOSIdentity OSIdentity { get; } = new GenericOSIdentity();
         public IFileSystem ContentRoot => (IFileSystem)HostEnvironment.ContentRootFileProvider;
         public IFileSystem WebRoot { get; private set; }

@@ -9,7 +9,9 @@
 <form method="post" asp-action="Create">
     <div class="section-header">
         <div class="title">
-            @T("Admin.Configuration.Stores.AddNew") <a asp-action="List">(@T("Admin.Configuration.Stores.BackToList"))</a>
+            <i class="fa fa-globe"></i>
+            <span>@ViewBag.Title</span>
+            <a asp-action="List">(@T("Admin.Common.BackToList"))</a>
         </div>
         <div class="options">
             <button type="submit" name="save" value="save" class="btn btn-primary">

@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-
-namespace Smartstore.Core.Messaging
+﻿namespace Smartstore.Core.Messaging
 {
     public partial interface INewsletterSubscriptionService
     {

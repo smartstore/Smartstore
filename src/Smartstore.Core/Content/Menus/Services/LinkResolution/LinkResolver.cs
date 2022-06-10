@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Dasync.Collections;
+﻿using Dasync.Collections;
 using Microsoft.AspNetCore.Mvc;
 using Smartstore.Caching;
 using Smartstore.Core.Identity;
@@ -112,7 +108,10 @@ namespace Smartstore.Core.Content.Menus
             }
             else if (expression.Schema == SchemaFile)
             {
-                return new LinkResolutionResult(expression, new LinkTranslationResult { Link = expression.Target }, LinkStatus.Ok);
+                return new LinkResolutionResult(
+                    expression,
+                    new LinkTranslationResult { Link = expression.Target, Label = expression.Target },
+                    LinkStatus.Ok);
             }
 
             if (roles == null)
@@ -229,7 +228,7 @@ namespace Smartstore.Core.Content.Menus
 
             if (result.Label.IsEmpty())
             {
-                result.Label = summary.ShortTitle.NullEmpty() ?? summary.Title.NullEmpty() ?? summary.Name;
+                result.Label = summary.Title.NullEmpty() ?? summary.ShortTitle.NullEmpty() ?? summary.Name;
             }
         }
     }

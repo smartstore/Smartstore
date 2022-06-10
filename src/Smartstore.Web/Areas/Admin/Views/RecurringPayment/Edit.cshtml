@@ -1,0 +1,136 @@
+﻿@using Smartstore.Core.Catalog.Products
+
+@model RecurringPaymentModel
+
+@{
+    ViewBag.Title = T("Admin.RecurringPayments.EditPaymentDetails");
+
+    var gridViewData = new ViewDataDictionary(ViewData);
+    gridViewData["Parent"] = Model;
+}
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="Id" />
+
+    <div class="section-header">
+        <div class="title">
+            <i class="fa fa-redo"></i>
+            <span>@ViewBag.Title</span>
+            <a asp-action="List">(@T("Admin.Common.BackToList"))</a>
+        </div>
+        <div class="options">
+            <zone name="admin_button_toolbar_before" />
+
+            <button type="submit" name="save" value="save" class="btn btn-warning">
+                <i class="fa fa-check"></i>
+                <span>@T("Admin.Common.Save")</span>
+            </button>
+            <button type="submit" name="save" value="save-continue" class="btn btn-secondary">
+                <span>@T("Admin.Common.SaveContinue")</span>
+            </button>
+            <button type="submit" id="recurringpayment-delete" name="recurringpayment-delete" class="btn btn-danger">
+                <i class="far fa-trash-alt"></i>
+                <span>@T("Admin.Common.Delete")</span>
+            </button>
+            <confirm button-id="recurringpayment-delete" />
+
+            <zone name="admin_button_toolbar_after" />
+        </div>
+    </div>
+
+    <div asp-validation-summary="All"></div>
+
+    <tabstrip id="recurringpayment-edit" sm-nav-style="Material">
+        <tab sm-title="@T("Admin.RecurringPayments.Info")" sm-selected="true">
+            <div class="adminContent">
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="InitialOrderId" />
+                    </div>
+                    <div class="adminData">
+                        <div class="form-control-plaintext">
+                            <a href="@Model.InitialOrderEditUrl">@Model.InitialOrderNumber</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CustomerId" />
+                    </div>
+                    <div class="adminData">
+                        <div class="form-control-plaintext">
+                            <a href="@Model.CustomerEditUrl">@Model.CustomerFullName</a> (@Model.CustomerId)
+                        </div>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CycleLength" />
+                    </div>
+                    <div class="adminData">
+                        <editor asp-for="CycleLength" />
+                        <span asp-validation-for="CycleLength"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CyclePeriodId" />
+                    </div>
+                    <div class="adminData">
+                        <select asp-for="CyclePeriodId" asp-items="Html.GetLocalizedEnumSelectList(typeof(RecurringProductCyclePeriod))"></select>
+                        <span asp-validation-for="CyclePeriodId"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="TotalCycles" />
+                    </div>
+                    <div class="adminData">
+                        <editor asp-for="TotalCycles" />
+                        <span asp-validation-for="TotalCycles"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CyclesRemaining" />
+                    </div>
+                    <div class="adminData">
+                        <input asp-for="CyclesRemaining" sm-plaintext="true" readonly />
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="PaymentType" />
+                    </div>
+                    <div class="adminData">
+                        <input asp-for="PaymentType" sm-plaintext="true" readonly />
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="StartDate" />
+                    </div>
+                    <div class="adminData">
+                        <input asp-for="StartDate" sm-plaintext="true" readonly />
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="IsActive" />
+                    </div>
+                    <div class="adminData">
+                        <input asp-for="IsActive" />
+                        <span asp-validation-for="IsActive"></span>
+                    </div>
+                </div>
+            </div>
+        </tab>
+        <tab sm-title="@T("Admin.RecurringPayments.History")">
+            <div sm-if="Model.NextPaymentDate.HasValue" class="alert alert-info">
+                @T("Admin.RecurringPayments.History.NextPaymentDate"): <strong>@Model.NextPaymentDate</strong>
+            </div>
+
+            <partial name="_Grid.RecurringPaymentHistory" model="null" view-data="gridViewData" />
+        </tab>
+    </tabstrip>
+</form>

@@ -1,37 +1,9 @@
-﻿using System;
-using System.IO;
-using Smartstore.Imaging;
+﻿using Smartstore.Imaging;
 
 namespace Smartstore.Core.Content.Media
 {
     public static class MediaFileExtensions
     {
-        /// <summary>
-        /// Applies Blob to file
-        /// </summary>
-        /// <param name="blob">The file binary (can be null)</param>
-        public static void ApplyBlob(this IMediaAware media, byte[] blob)
-        {
-            Guard.NotNull(media, nameof(media));
-
-            if (blob == null || blob.LongLength == 0)
-            {
-                media.MediaStorageId = null;
-                media.MediaStorage = null;
-            }
-            else
-            {
-                if (media.MediaStorage != null)
-                {
-                    media.MediaStorage.Data = blob;
-                }
-                else
-                {
-                    media.MediaStorage = new MediaStorage { Data = blob };
-                }
-            }
-        }
-
         /// <summary>
         /// Refreshes file metadata like size, dimensions etc.
         /// </summary>

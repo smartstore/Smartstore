@@ -1,15 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Query;
+﻿using Microsoft.EntityFrameworkCore.Query;
 using Smartstore.Core.Catalog.Products;
-using Smartstore.Core.Checkout.Cart;
-using Smartstore.Core.Checkout.Orders;
-using Smartstore.Core.Checkout.Orders.Reporting;
-using Smartstore.Core.Checkout.Payment;
-using Smartstore.Core.Checkout.Shipping;
-using Smartstore.Core.Common;
 using Smartstore.Core.Data;
 
 namespace Smartstore.Core.Identity
@@ -251,110 +241,6 @@ namespace Smartstore.Core.Identity
                 .Select(z => z.Customer);
 
             return query;
-        }
-
-        /// <summary>
-        /// Selects only customers with shopping carts and sorts by <see cref="Customer.CreatedOnUtc"/> descending.
-        /// </summary>
-        /// <param name="cartType">Type of cart to match. <c>null</c> to match any type.</param>
-        public static IQueryable<Customer> ApplyHasCartFilter(this IQueryable<Customer> query, ShoppingCartType? cartType = null)
-        {
-            Guard.NotNull(query, nameof(query));
-
-            var cartItemQuery = query
-                .GetDbContext<SmartDbContext>()
-                .ShoppingCartItems
-                .AsNoTracking()
-                .Include(x => x.Customer)
-                .AsQueryable();
-
-            if (cartType.HasValue)
-            {
-                cartItemQuery = cartItemQuery.Where(x => x.ShoppingCartTypeId == (int)cartType.Value);
-            }
-
-            var groupQuery =
-                from sci in cartItemQuery
-                group sci by sci.CustomerId into grp
-                select grp
-                    .OrderByDescending(x => x.CreatedOnUtc)
-                    .Select(x => new
-                    {
-                        x.Customer,
-                        x.CreatedOnUtc
-                    })
-                    .FirstOrDefault();
-
-            // We have to sort again because of paging.
-            query = groupQuery
-                .OrderByDescending(x => x.CreatedOnUtc)
-                .Select(x => x.Customer);
-
-            return query;
-        }
-
-        /// <summary>
-        /// Applies a selection for top customers report.
-        /// </summary>
-        /// <param name="query">Customer query to select the report from.</param>
-        /// <param name="startTime">Defines start time order filter.</param>
-        /// <param name="endTime">Defines end time order filter.</param>
-        /// <param name="orderStatus">Defines order filter by <see cref="OrderStatus"/>.</param>
-        /// <param name="paymentStatus">Defines order filter by <see cref="PaymentStatus"/>.</param>
-        /// <param name="shippingStatus">Defines order filter by <see cref="ShippingStatus"/>.</param>
-        /// <param name="sorting">Defines sorting by <see cref="ReportSorting"/>.</param>
-        /// <returns>Query of top customers report.</returns>
-        public static IQueryable<TopCustomerReportLine> SelectAsTopCustomerReportLine(
-            this IQueryable<Customer> query,
-            DateTime? startTime = null,
-            DateTime? endTime = null,
-            OrderStatus? orderStatus = null,
-            PaymentStatus? paymentStatus = null,
-            ShippingStatus? shippingStatus = null,
-            ReportSorting sorting = ReportSorting.ByQuantityDesc)
-        {
-            Guard.NotNull(query, nameof(query));
-
-            // TODO: (mh) (core) Bad API-design: a method named .SelectAs...() indicates that only projection
-            // is applied (...select new TopCustomerReportLine {}). But this method does also filtering. That is
-            // the ONE thing we wanted to avoid: monolithic code. This method needs a split-up: a filter part
-            // and a projection part. Details with MC.
-
-            var orderStatusId = orderStatus.HasValue ? (int)orderStatus.Value : (int?)null;
-            var paymentStatusId = paymentStatus.HasValue ? (int)paymentStatus.Value : (int?)null;
-            var shippingStatusId = shippingStatus.HasValue ? (int)shippingStatus.Value : (int?)null;
-
-            var db = query.GetDbContext<SmartDbContext>();
-
-            var query2 =
-                from c in query.AsNoTracking()
-                join o in db.Orders.AsNoTracking() on c.Id equals o.CustomerId
-                where (!startTime.HasValue || startTime.Value <= o.CreatedOnUtc) &&
-                (!endTime.HasValue || endTime.Value >= o.CreatedOnUtc) &&
-                (!orderStatusId.HasValue || orderStatusId == o.OrderStatusId) &&
-                (!paymentStatusId.HasValue || paymentStatusId == o.PaymentStatusId) &&
-                (!shippingStatusId.HasValue || shippingStatusId == o.ShippingStatusId)
-                select new { c, o };
-
-            var groupedQuery =
-                from co in query2
-                group co by co.c.Id into g
-                select new TopCustomerReportLine
-                {
-                    CustomerId = g.Key,
-                    OrderTotal = g.Sum(x => x.o.OrderTotal),
-                    OrderCount = g.Count()
-                };
-
-            groupedQuery = sorting switch
-            {
-                ReportSorting.ByAmountAsc => groupedQuery.OrderBy(x => x.OrderTotal),
-                ReportSorting.ByAmountDesc => groupedQuery.OrderByDescending(x => x.OrderTotal),
-                ReportSorting.ByQuantityAsc => groupedQuery.OrderBy(x => x.OrderCount).ThenByDescending(x => x.OrderTotal),
-                _ => groupedQuery.OrderByDescending(x => x.OrderCount).ThenByDescending(x => x.OrderTotal),
-            };
-
-            return groupedQuery;
         }
     }
 }

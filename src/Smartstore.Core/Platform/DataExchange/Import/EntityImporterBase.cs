@@ -1,19 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Globalization;
 using Autofac;
-using Microsoft.Extensions.Logging;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
 using Smartstore.Data;
-using Smartstore.Domain;
 using Smartstore.Http;
 using Smartstore.IO;
 using Smartstore.Net.Http;
@@ -23,28 +14,33 @@ namespace Smartstore.Core.DataExchange.Import
 {
     public abstract partial class EntityImporterBase : IEntityImporter
     {
-        // Maps (per batch) already downloaded URLs to file names.
-        // Background: in some imports subsequent products (e.g. associated products)
-        // share the same images, where multiple downloading is unnecessary.
-        private readonly Dictionary<string, string> _downloadedItems = new();
+        /// Maximum number of URLs cached in <see cref="_downloadUrls"/>.
+        private const int MAX_CACHED_DOWNLOAD_URLS = 1000;
+
+        // Maps downloaded URLs to file names to not download the file again.
+        // Sometimes subsequent products (e.g. associated products) share the same image.
+        private readonly Dictionary<string, string> _downloadUrls = new();
 
         protected SmartDbContext _db;
         protected ICommonServices _services;
         protected ILocalizedEntityService _localizedEntityService;
         protected IStoreMappingService _storeMappingService;
         protected IUrlService _urlService;
+        protected SeoSettings _seoSettings;
 
         protected EntityImporterBase(
             ICommonServices services,
             ILocalizedEntityService localizedEntityService,
             IStoreMappingService storeMappingService,
-            IUrlService urlService)
+            IUrlService urlService,
+            SeoSettings seoSettings)
         {
             _db = services.DbContext;
             _services = services;
             _localizedEntityService = localizedEntityService;
             _storeMappingService = storeMappingService;
             _urlService = urlService;
+            _seoSettings = seoSettings;
 
             // Always turn image post-processing off during imports. It can heavily decrease processing time.
             _services.MediaService.ImagePostProcessingEnabled = false;
@@ -75,6 +71,7 @@ namespace Smartstore.Core.DataExchange.Import
             ImportExecuteContext context,
             DbContextScope scope,
             IEnumerable<ImportRow<TEntity>> batch,
+            string keyGroup,
             IDictionary<string, Expression<Func<TEntity, string>>> localizableProperties)
             where TEntity : BaseEntity, ILocalizedEntity
         {
@@ -100,9 +97,8 @@ namespace Smartstore.Core.DataExchange.Import
             }
 
             var shouldSave = false;
-            var keyGroup = nameof(TEntity);
             var collection = await _localizedEntityService.GetLocalizedPropertyCollectionAsync(keyGroup, entityIds);
-
+            
             foreach (var row in batch)
             {
                 foreach (var prop in localizedProps)
@@ -112,8 +108,9 @@ namespace Smartstore.Core.DataExchange.Import
                     {
                         if (row.TryGetDataValue(prop /* ColumnName */, language.UniqueSeoCode, out string value))
                         {
-                            var localizedProperty = collection.Find(language.Id, row.Entity.Id, keyGroup);
-                            if (localizedProperty != null)
+                            var localizedProperty = collection.Find(language.Id, row.Entity.Id, prop);
+
+                            if (localizedProperty != null && localizedProperty.Id != 0)
                             {
                                 if (string.IsNullOrEmpty(value))
                                 {
@@ -171,7 +168,8 @@ namespace Smartstore.Core.DataExchange.Import
         protected virtual async Task<int> ProcessStoreMappingsAsync<TEntity>(
             ImportExecuteContext context,
             DbContextScope scope,
-            IEnumerable<ImportRow<TEntity>> batch)
+            IEnumerable<ImportRow<TEntity>> batch,
+            string entityName)
             where TEntity : BaseEntity, IStoreRestricted
         {
             var shouldSave = false;
@@ -181,7 +179,7 @@ namespace Smartstore.Core.DataExchange.Import
                 return 0;
             }
 
-            var collection = await _storeMappingService.GetStoreMappingCollectionAsync(nameof(TEntity), entityIds);
+            var collection = await _storeMappingService.GetStoreMappingCollectionAsync(entityName, entityIds);
 
             foreach (var row in batch)
             {
@@ -259,7 +257,11 @@ namespace Smartstore.Core.DataExchange.Import
                 {
                     if (row.TryGetDataValue("SeName", out string seName) || row.IsNew || row.NameChanged)
                     {
-                        scope.ApplySlugs(await _urlService.ValidateSlugAsync(row.Entity, seName, true));
+                        scope.ApplySlugs(new ValidateSlugResult
+                        {
+                            Source = row.Entity,
+                            Slug = SeoHelper.BuildSlug(seName.NullEmpty() ?? row.EntityDisplayName, _seoSettings)
+                        });
 
                         // Process localized slugs.
                         foreach (var language in context.Languages)
@@ -269,14 +271,12 @@ namespace Smartstore.Core.DataExchange.Import
 
                             if (hasSeName || hasLocalizedName)
                             {
-                                // ValidateSlugAsync has no 'name' parameter anymore.
-                                // We ourselves must ensure that 'Name[<UniqueSeoCode>]' is taken into account.
-                                if (string.IsNullOrWhiteSpace(seName))
+                                scope.ApplySlugs(new ValidateSlugResult
                                 {
-                                    seName = localizedName;
-                                }
-
-                                scope.ApplySlugs(await _urlService.ValidateSlugAsync(row.Entity, seName, false, language.Id));
+                                    Source = row.Entity,
+                                    Slug = SeoHelper.BuildSlug(seName.NullEmpty() ?? localizedName, _seoSettings),
+                                    LanguageId = language.Id
+                                });
                             }
                         }
                     }
@@ -307,48 +307,114 @@ namespace Smartstore.Core.DataExchange.Import
 
             try
             {
-                var item = new DownloadManagerItem
-                {
-                    Id = displayOrder,
-                    DisplayOrder = displayOrder
-                };
-
-                if (urlOrPath.IsWebUrl())
-                {
-                    // We append quality to avoid importing of image duplicates.
-                    item.Url = _services.WebHelper.ModifyQueryString(urlOrPath, "q=100", null);
-
-                    if (_downloadedItems.ContainsKey(urlOrPath))
-                    {
-                        // URL has already been downloaded.
-                        item.Success = true;
-                        item.FileName = _downloadedItems[urlOrPath];
-                    }
-                    else
-                    {
-                        item.FileName = WebHelper.GetFileNameFromUrl(urlOrPath) ?? Path.GetRandomFileName();
-                    }
-
-                    item.Path = GetAbsolutePath(context.ImageDownloadDirectory, item.FileName);
-                }
-                else
-                {
-                    item.Success = true;
-                    item.FileName = Path.GetFileName(urlOrPath).ToValidFileName().NullEmpty() ?? Path.GetRandomFileName();
-
-                    item.Path = Path.IsPathRooted(urlOrPath)
-                        ? urlOrPath
-                        : GetAbsolutePath(context.ImageDirectory, urlOrPath);
-                }
-
-                item.MimeType = MimeTypes.MapNameToMimeType(item.FileName);
-
+                var item = CreateDownloadItem(context, urlOrPath, displayOrder, null);
                 return item;
             }
             catch
             {
                 context.Result.AddWarning($"Failed to prepare image download for '{urlOrPath.NaIfEmpty()}'. Skipping file.");
                 return null;
+            }
+        }
+
+        /// <summary>
+        /// Creates download manager items from URLs or file pathes.
+        /// </summary>
+        /// <param name="context">Import execution context.</param>
+        /// <param name="urlOrPathes">URLs or pathes to download.</param>
+        /// <param name="maxItems">Maximum number of returned items, <c>null</c> to return all items.</param>
+        /// <returns>Download manager items.</returns>
+        protected virtual List<DownloadManagerItem> CreateDownloadItems(ImportExecuteContext context, string[] urlOrPathes, int? maxItems = null)
+        {
+            var items = new List<DownloadManagerItem>();
+            var existingNames = new HashSet<string>(StringComparer.CurrentCultureIgnoreCase);
+            var itemNum = 0;
+
+            foreach (var urlOrPath in urlOrPathes)
+            {
+                if (urlOrPath.HasValue())
+                {
+                    try
+                    {
+                        var item = CreateDownloadItem(context, urlOrPath, ++itemNum, existingNames);
+                        items.Add(item);
+                    }
+                    catch
+                    {
+                        context.Result.AddWarning($"Failed to prepare image download for '{urlOrPath.NaIfEmpty()}'. Skipping file.");
+                    }
+
+                    if (maxItems.HasValue && items.Count >= maxItems.Value)
+                    {
+                        break;
+                    }
+                }
+            }
+
+            return items;
+        }
+
+        private DownloadManagerItem CreateDownloadItem(
+            ImportExecuteContext context, 
+            string urlOrPath, 
+            int displayOrder,
+            HashSet<string> existingFileNames)
+        {
+            var item = new DownloadManagerItem();
+
+            if (urlOrPath.IsWebUrl())
+            {
+                // We append quality to avoid importing of image duplicates.
+                item.Url = _services.WebHelper.ModifyQueryString(urlOrPath, "q=100", null);
+
+                if (_downloadUrls.ContainsKey(urlOrPath))
+                {
+                    // URL has already been downloaded.
+                    item.Success = true;
+                    item.FileName = _downloadUrls[urlOrPath];
+                }
+                else
+                {
+                    var fileName = WebHelper.GetFileNameFromUrl(urlOrPath) ?? Path.GetRandomFileName();
+                    item.FileName = GetUniqueFileName(fileName, existingFileNames);
+
+                    existingFileNames?.Add(item.FileName);
+                }
+
+                item.Path = GetAbsolutePath(context.ImageDownloadDirectory, item.FileName);
+            }
+            else
+            {
+                item.Success = true;
+                item.FileName = Path.GetFileName(urlOrPath).ToValidFileName().NullEmpty() ?? Path.GetRandomFileName();
+
+                item.Path = Path.IsPathRooted(urlOrPath)
+                    ? urlOrPath
+                    : GetAbsolutePath(context.ImageDirectory, urlOrPath);
+            }
+
+            item.MimeType = MimeTypes.MapNameToMimeType(item.FileName);
+            item.Id = displayOrder;
+            item.DisplayOrder = displayOrder;
+
+            return item;
+
+            static string GetUniqueFileName(string fileName, HashSet<string> lookup)
+            {
+                if (lookup?.Contains(fileName) ?? false)
+                {
+                    var i = 0;
+                    var name = Path.GetFileNameWithoutExtension(fileName);
+                    var ext = Path.GetExtension(fileName);
+
+                    do
+                    {
+                        fileName = $"{name}-{++i}{ext}";
+                    }
+                    while (lookup.Contains(fileName));
+                }
+
+                return fileName;
             }
 
             static string GetAbsolutePath(IDirectory directory, string fileNameOrRelativePath)
@@ -367,10 +433,15 @@ namespace Smartstore.Core.DataExchange.Import
         {
             if (item.Success && File.Exists(item.Path))
             {
-                // "Cache" URL to not download it again during this batch.
-                if (item.Url.HasValue() && !_downloadedItems.ContainsKey(item.Url))
+                // "Cache" URL to not download it again.
+                if (item.Url.HasValue() && !_downloadUrls.ContainsKey(item.Url))
                 {
-                    _downloadedItems[item.Url] = Path.GetFileName(item.Path);
+                    if (_downloadUrls.Count >= MAX_CACHED_DOWNLOAD_URLS)
+                    {
+                        _downloadUrls.Clear();
+                    }
+
+                    _downloadUrls[item.Url] = Path.GetFileName(item.Path);
                 }
 
                 return true;

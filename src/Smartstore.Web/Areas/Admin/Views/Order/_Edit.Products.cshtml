@@ -1,0 +1,409 @@
+﻿@using Smartstore.Core.Catalog.Products
+@using Smartstore.Core.Checkout.Tax
+
+@model OrderModel
+
+@{
+    var taxTypeSelectable = (bool)ViewBag.AllowCustomersToSelectTaxDisplayType;
+    var taxType = (TaxDisplayType)ViewBag.TaxDisplayType;
+}
+
+<style>
+    .order-edit-cnt .edit-label {
+        font-size: 0.75rem;
+    }
+
+    .order-edit-cnt .edit-value {
+        max-width: 100%;
+    }
+</style>
+
+<div sm-if="Model.UpdateOrderItemInfo.HasValue()" class="alert alert-info alert-dismissible">
+    <button type="button" class="close" data-dismiss="alert">&times;</button>
+    @Html.Raw(Model.UpdateOrderItemInfo)
+</div>
+
+<div>
+    <div class="table-responsive">
+        <table id="orderitem-table" class="table admin-table">
+            <caption class="table-toolbar">
+                <a id="btn-add-product-to-order" asp-action="AddProductToOrder" asp-controller="Order" asp-route-orderId="@Model.Id" class="btn btn-flat btn-primary">
+                    <i class="fa fa-plus"></i>
+                    <span>@T("Admin.Orders.Products.AddNew")</span>
+                </a>
+            </caption>
+            <thead>
+                <tr>
+                    <th style="width: 25%;">
+                        @T("Admin.Orders.Products.ProductName")
+                    </th>
+                    <th sm-if="Model.HasDownloadableProducts" style="width: 10%;">
+                        @T("Admin.Orders.Products.Download")
+                    </th>
+                    <th class="text-center" style="width: 18%;">
+                        @T("Admin.Orders.Products.Price")
+                    </th>
+                    <th class="text-center" style="width: 8%;">
+                        @T("Admin.Orders.Products.Quantity")
+                    </th>
+                    <th class="text-center" style="width: 18%;">
+                        @T("Admin.Orders.Products.Discount")
+                    </th>
+                    <th class="text-center" style="width: 18%;">
+                        @T("Admin.Orders.Products.Total")
+                    </th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (var i = 0; i < Model.Items.Count; i++)
+                {
+                    var item = Model.Items[i];
+                    <tr>
+                        <td class="align-top">
+                            <div>
+                                <div class="mb-2">
+                                    @Html.BadgedProductName(item.ProductId, item.ProductName, item.ProductTypeName, item.ProductTypeLabelHint)
+                                </div>
+                                <div sm-if="item.AttributeDescription.HasValue()">
+                                    @Html.Raw(item.AttributeDescription)
+                                </div>
+                                <div sm-if="item.RecurringInfo.HasValue()">
+                                    @Html.Raw(item.RecurringInfo)
+                                </div>
+                                <div sm-if="item.Sku.HasValue()">
+                                    <span class="fwm">@T("Admin.Orders.Products.SKU")</span>: @item.Sku
+                                </div>
+                                <div sm-if="item.ProductType == ProductType.BundledProduct && item.BundleItems != null">
+                                    <div class="bundle-items-container pt-2 pl-4">
+                                        @foreach (var bi in item.BundleItems.OrderBy(x => x.DisplayOrder))
+                                        {
+                                            <div class="bundle-item mt-2">
+                                                <div class="bundle-item-name">
+                                                    <a asp-action="Edit" asp-controller="Product" asp-route-id="@bi.ProductId">@bi.ProductName</a>
+                                                    <span sm-if="bi.Quantity > 1">&#215;&nbsp;@bi.Quantity</span>
+                                                </div>
+                                                <div sm-if="bi.PriceWithDiscount.HasValue()" class="bundle-item-price">
+                                                    @Html.Raw(bi.PriceWithDiscount)
+                                                </div>
+                                                <div sm-if="bi.AttributesInfo.HasValue()" class="bundle-item-attribute-info text-muted fs-sm">
+                                                    @Html.Raw(bi.AttributesInfo)
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                                <div sm-if="item.ReturnRequests.Any()">
+                                    <hr />
+                                    @foreach (var rr in item.ReturnRequests)
+                                    {
+                                        <div>
+                                            <span class="badge badge-@(rr.StatusLabel) mr-1">@rr.StatusString</span>
+                                            <a asp-action="Edit" asp-controller="ReturnRequest" asp-route-id="@rr.Id">
+                                                @T("Admin.Orders.Products.ReturnRequest") @rr.Id
+                                            </a>
+                                            , @T("Admin.ReturnRequests.Fields.Quantity") @rr.Quantity
+                                        </div>
+                                    }
+                                </div>
+                                <div sm-if="item.PurchasedGiftCardIds.Any()">
+                                    <hr />
+                                    @(T("Admin.Orders.Products.GiftCards")):
+                                    @for (var j = 0; j < item.PurchasedGiftCardIds.Count; j++)
+                                    {
+                                        <a asp-action="Edit" asp-controller="GiftCard" asp-route-id="@item.PurchasedGiftCardIds[j]">@item.PurchasedGiftCardIds[j]</a>
+                                        if (j != item.PurchasedGiftCardIds.Count - 1)
+                                        { <text>,</text>}
+                                }
+                                </div>
+                            </div>
+                        </td>
+                        <td sm-if="Model.HasDownloadableProducts" class="align-top text-center">
+                            <div sm-if="item.IsDownload">
+                                <div>
+                                    @T("Admin.Orders.Products.Download.DownloadCount", item.DownloadCount)
+                                    <input type="submit" id="btnResetDownloadCount@(item.Id)" name="btnResetDownloadCount@(item.Id)"
+                                           class="btn btn-block btn-sm btn-secondary btn-to-danger mt-1"
+                                           value="@T("Admin.Orders.Products.Download.ResetDownloadCount")"
+                                           title="@T("Admin.Orders.Products.Download.ResetDownloadCount.Title")" />
+                                </div>
+                                <div sm-if="item.DownloadActivationType == DownloadActivationType.Manually">
+                                    <input type="submit" id="btnPvActivateDownload@(item.Id)" name="btnPvActivateDownload@(item.Id)"
+                                           class="btn btn-block btn-sm btn-success mt-2"
+                                           value='@T(item.IsDownloadActivated ? "Admin.Orders.Products.Download.Deactivate" : "Admin.Orders.Products.Download.Activate")' />
+                                </div>
+                                <div class="mt-1">
+                                    <b class="fwm">@T("Admin.Orders.Products.License")</b>
+                                    @if (item.LicenseDownloadId.GetValueOrDefault() > 0)
+                                    {
+                                        <a asp-action="DownloadFile" asp-controller="Download" asp-route-downloadId="@item.LicenseDownloadId.Value">
+                                            @T("Admin.Orders.Products.License.DownloadLicense")
+                                        </a>
+                                    }
+                                    <input type="submit" id="pvlicensefile@(item.Id)" name="pvlicensefile@(item.Id)"
+                                           value="@T("Admin.Orders.Products.License.UploadFile")"
+                                           data-url="@Url.Action("UploadLicenseFilePopup", "Order", new { id = Model.Id, orderItemId = item.Id, btnId = "btnRefreshPage", formId = "order-form" })"
+                                           class="btn btn-sm btn-secondary btn-block mt-1 btn-license-file" />
+                                </div>
+                            </div>
+                        </td>
+                        <td class="align-top">
+                            <div class="text-center">
+                                @if (taxTypeSelectable)
+                                {
+                                    <div>@item.UnitPriceInclTaxString</div>
+                                    <div>@item.UnitPriceExclTaxString</div>
+                                }
+                                else
+                                {
+                                    @(taxType == TaxDisplayType.ExcludingTax ? item.UnitPriceExclTaxString : item.UnitPriceInclTaxString)
+                                }
+                            </div>
+                            <div id="pnlEditUnitPrice@(item.Id)" class="order-edit-cnt mt-3">
+                                <div class="container mb-1">
+                                    <div class="row">
+                                        <div class="col-5">
+                                            <span class="edit-label">@T("Admin.Orders.Products.Edit.InclTax")</span>
+                                        </div>
+                                        <div class="col-7">
+                                            <editor asp-for="Items[i].UnitPriceInclTax" class="form-control-sm edit-value" data-id="oi-unit-price-incl-tax-@item.Id" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="container mb-1">
+                                    <div class="row">
+                                        <div class="col-5">
+                                            <span class="edit-label">@T("Admin.Orders.Products.Edit.ExclTax")</span>
+                                        </div>
+                                        <div class="col-7">
+                                            <editor asp-for="Items[i].UnitPriceExclTax" class="form-control-sm edit-value" data-id="oi-unit-price-excl-tax-@item.Id" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="container mb-1">
+                                    <div class="row">
+                                        <div class="col-5">
+                                            <span class="edit-label">@T("Admin.Orders.Products.AddNew.TaxRate")</span>
+                                        </div>
+                                        <div class="col-7">
+                                            <editor asp-for="Items[i].TaxRate" class="form-control-sm edit-value" data-id="oi-tax-rate-@item.Id" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="text-center align-top">
+                            <div>@item.Quantity</div>
+                            <div id="pnlEditQuantity@(item.Id)" class="order-edit-cnt mt-3">
+                                <div class="mb-1">
+                                    <editor asp-for="Items[i].Quantity" class="form-control-sm edit-value" data-id="oi-quantity-@item.Id" />
+                                </div>
+                            </div>
+                        </td>
+                        <td class="text-center align-top">
+                            <div>
+                                @if (taxTypeSelectable)
+                                {
+                                    <div>@item.DiscountAmountInclTaxString</div>
+                                    <div>@item.DiscountAmountExclTaxString</div>
+                                }
+                                else
+                                {
+                                    @(taxType == TaxDisplayType.ExcludingTax ? item.DiscountAmountExclTaxString : item.DiscountAmountInclTaxString)
+                                }
+                            </div>
+                            <div id="pnlEditDiscount@(item.Id)" class="order-edit-cnt mt-3">
+                                <div class="container mb-1">
+                                    <div class="row">
+                                        <div class="col-5">
+                                            <span class="edit-label">@T("Admin.Orders.Products.Edit.InclTax")</span>
+                                        </div>
+                                        <div class="col-7">
+                                            <editor asp-for="Items[i].DiscountAmountInclTax" class="form-control-sm edit-value" data-id="oi-discount-incl-tax-@item.Id" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="container mb-1">
+                                    <div class="row">
+                                        <div class="col-5">
+                                            <span class="edit-label">@T("Admin.Orders.Products.Edit.ExclTax")</span>
+                                        </div>
+                                        <div class="col-7">
+                                            <editor asp-for="Items[i].DiscountAmountExclTax" class="form-control-sm edit-value" data-id="oi-discount-excl-tax-@item.Id" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="text-center align-top">
+                            <div>
+                                @if (taxTypeSelectable)
+                                {
+                                    <div>@item.PriceInclTaxString</div>
+                                    <div>@item.PriceExclTaxString</div>
+                                }
+                                else
+                                {
+                                    @(taxType == TaxDisplayType.ExcludingTax ? item.PriceExclTaxString : item.PriceInclTaxString)
+                                }
+                            </div>
+                            <div id="pnlEditPrice@(item.Id)" class="order-edit-cnt mt-3">
+                                <div class="container mb-1">
+                                    <div class="row">
+                                        <div class="col-5">
+                                            <span class="edit-label">@T("Admin.Orders.Products.Edit.InclTax")</span>
+                                        </div>
+                                        <div class="col-7">
+                                            <editor asp-for="Items[i].PriceInclTax" class="form-control-sm edit-value" data-id="oi-price-incl-tax-@item.Id" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="container mb-1">
+                                    <div class="row">
+                                        <div class="col-5">
+                                            <span class="edit-label">@T("Admin.Orders.Products.Edit.ExclTax")</span>
+                                        </div>
+                                        <div class="col-7">
+                                            <editor asp-for="Items[i].PriceExclTax" class="form-control-sm edit-value" data-id="oi-price-excl-tax-@item.Id" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="omega text-truncate align-top">
+                            <input sm-if="item.IsReturnRequestPossible" type="submit" id="btnAddReturnRequest@(item.Id)" name="btnAddReturnRequest@(item.Id)"
+                                   value="@T("Admin.Orders.Products.ReturnRequest.Create")"
+                                   class="btn btn-sm btn-secondary confirm" />
+
+                            <input type="submit" id="btnEditOrderItem@(item.Id)" name="btnEditOrderItem@(item.Id)"
+                                   value="@T("Admin.Common.Edit")"
+                                   class="btn btn-sm btn-warning btn-edit-orderitem"
+                                   data-id="@(item.Id)" />
+
+                            <input type="button" id="btnDeleteOrderItem@(item.Id)" name="btnDeleteOrderItem@(item.Id)"
+                                   value="@T("Admin.Common.Delete")"
+                                   class="btn btn-sm btn-danger btn-delete-orderitem"
+                                   data-id="@(item.Id)"
+                                   data-url="@Url.Action("DeleteOrderItem")" />
+
+                            <input type="button" id="btnSaveOrderItem@(item.Id)" name="btnSaveOrderItem@(item.Id)"
+                                   value="@T("Admin.Common.Save")"
+                                   class="btn btn-sm btn-warning btn-save-orderitem d-none"
+                                   data-id="@(item.Id)"
+                                   data-url="@Url.Action("EditOrderItem")" />
+
+                            <input type="submit" id="btnCancelOrderItem@(item.Id)" name="btnCancelOrderItem@(item.Id)"
+                                   value="@T("Admin.Common.Cancel")"
+                                   class="btn btn-sm btn-secondary btn-cancel-orderitem d-none"
+                                   data-id="@(item.Id)" />
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div sm-if="Model.CheckoutAttributeInfo.HasValue()" class="alert alert-info checkout-attributes">
+    @Html.Raw(Model.CheckoutAttributeInfo)
+</div>
+
+<entity-picker icon-css-class="fa fa-plus"
+               caption='@T("Admin.Common.Search")'
+               dialog-title='@T("Admin.Orders.Products.AddNew")'
+               max-items="1"
+               disable-grouped-products="true"
+               onselectioncompleted="AddProductToOrder_Completed"
+               class="add-product-to-order-picker"
+               style="display:none" />
+
+<script sm-target-zone="scripts" data-origin="order-edit-products">
+    function AddProductToOrder_Completed(ids) {
+        var url = $('#btn-add-product-to-order').attr('href') + '&productId=' + ids;
+        setLocation(url);
+        return true;
+    };
+
+    $(function () {
+		@foreach (var item in Model.Items)
+		{
+			<text>toggleOrderItemEdit(</text>@(item.Id)<text>, false);</text>
+		}
+
+        var orderItemTable = $('#orderitem-table');
+
+        orderItemTable.on('click', '.btn-license-file', function (e) {
+            e.preventDefault();
+            openPopup($(this).data('url'), true, false);
+            return false;
+        });
+
+        orderItemTable.on('click', '.btn-edit-orderitem', function (e) {
+            e.preventDefault();
+            toggleOrderItemEdit($(this).data('id'), true)
+            return false;
+        });
+
+        orderItemTable.on('click', '.btn-cancel-orderitem', function (e) {
+            e.preventDefault();
+            toggleOrderItemEdit($(this).data('id'), false);
+            return false;
+        });
+
+        // Edit\delete order item.
+        orderItemTable.on('click', '.btn-delete-orderitem, .btn-save-orderitem', function () {
+            var btn = $(this);
+            var form = $('#update-orderitem-form');
+            var orderItemId = btn.data('id');
+
+            form.find('input[name=Id]').val(orderItemId);
+            form.prop('action', btn.data('url'));
+
+            if (btn.hasClass('btn-save-orderitem')) {
+                form.find('input[name=NewUnitPriceInclTax]').val(orderItemTable.find('[data-id=oi-unit-price-incl-tax-' + orderItemId + ']').val());
+                form.find('input[name=NewUnitPriceExclTax]').val(orderItemTable.find('[data-id=oi-unit-price-excl-tax-' + orderItemId + ']').val());
+                form.find('input[name=NewTaxRate]').val(orderItemTable.find('[data-id=oi-tax-rate-' + orderItemId + ']').val());
+                form.find('input[name=NewQuantity]').val(orderItemTable.find('[data-id=oi-quantity-' + orderItemId + ']').val());
+                form.find('input[name=NewDiscountInclTax]').val(orderItemTable.find('[data-id=oi-discount-incl-tax-' + orderItemId + ']').val());
+                form.find('input[name=NewDiscountExclTax]').val(orderItemTable.find('[data-id=oi-discount-excl-tax-' + orderItemId + ']').val());
+                form.find('input[name=NewPriceInclTax]').val(orderItemTable.find('[data-id=oi-price-incl-tax-' + orderItemId + ']').val());
+                form.find('input[name=NewPriceExclTax]').val(orderItemTable.find('[data-id=oi-price-excl-tax-' + orderItemId + ']').val());
+            }
+
+            $('#update-orderitem-dialog').modal();
+        });
+
+        // Open entity picker to add product to order.
+        $(document).on('click', '#btn-add-product-to-order', function (e) {
+            e.preventDefault();
+            $('.add-product-to-order-picker').trigger('click');
+            return false;
+        });
+
+        function toggleOrderItemEdit(itemId, editMode) {
+            if (editMode) {
+                $('#pnlEditUnitPrice' + itemId).show();
+                $('#pnlEditQuantity' + itemId).show();
+                $('#pnlEditDiscount' + itemId).show();
+                $('#pnlEditPrice' + itemId).show();
+                $('#btnEditOrderItem' + itemId).hide();
+                $('#btnDeleteOrderItem' + itemId).hide();
+                $('#btnAddReturnRequest' + itemId).hide();
+                $('#btnSaveOrderItem' + itemId).removeClass("d-none");
+                $('#btnCancelOrderItem' + itemId).removeClass("d-none");
+            }
+            else {
+                $('#pnlEditUnitPrice' + itemId).hide();
+                $('#pnlEditQuantity' + itemId).hide();
+                $('#pnlEditDiscount' + itemId).hide();
+                $('#pnlEditPrice' + itemId).hide();
+                $('#btnEditOrderItem' + itemId).show();
+                $('#btnDeleteOrderItem' + itemId).show();
+                $('#btnAddReturnRequest' + itemId).show();
+                $('#btnSaveOrderItem' + itemId).addClass("d-none");
+                $('#btnCancelOrderItem' + itemId).addClass("d-none");
+            }
+        }
+    });
+</script>

@@ -1,6 +1,4 @@
-﻿using Smartstore.Domain;
-
-namespace Smartstore.Core.Seo
+﻿namespace Smartstore.Core.Seo
 {
     /// <summary>
     /// Represents an entity which supports slug (SEO friendly one-word URLs)

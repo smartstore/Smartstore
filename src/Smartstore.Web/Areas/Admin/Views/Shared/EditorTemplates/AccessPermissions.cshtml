@@ -38,5 +38,9 @@
     {
         attributes["data-placeholder"] = T("Common.Unspecified").Value;
     }
+    if (!attributes.ContainsKey("multiple"))
+    {
+        attributes["multiple"] = "multiple";
+    }
 }
-<select asp-for="@Model" class="form-control edit-control" attrs="attributes" data-editor="select"></select>
+<select asp-for="@Model" class="edit-control" attrs="attributes" data-editor="select"></select>

@@ -1,8 +1,4 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore;
-using Smartstore.Domain;
-
-namespace Smartstore.Core.Catalog.Products
+﻿namespace Smartstore.Core.Catalog.Products
 {
     /// <summary>
     /// Represents a related product.

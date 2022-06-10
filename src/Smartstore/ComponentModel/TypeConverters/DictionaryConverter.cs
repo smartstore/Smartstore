@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Dynamic;
+﻿using System.Dynamic;
 using System.Globalization;
 using Microsoft.AspNetCore.Routing;
 using Smartstore.Utilities;
@@ -16,7 +14,7 @@ namespace Smartstore.ComponentModel.TypeConverters
 
         public override bool CanConvertFrom(Type type)
         {
-            return type.IsPlainObjectType() || type.IsAnonymous();
+            return type.IsPlainObjectType() || type.IsAnonymousType();
         }
 
         public override bool CanConvertTo(Type type)

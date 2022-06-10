@@ -1,39 +1,37 @@
-﻿using System;
-using System.Linq;
-using Autofac;
+﻿using Autofac;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.Routing;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Mvc.ViewFeatures.Infrastructure;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Bootstrapping;
+using Smartstore.Core.Common.JsonConverters;
 using Smartstore.Core.Localization.Routing;
-using Smartstore.Core.Logging.Serilog;
 using Smartstore.Core.Web;
-using Smartstore.Engine;
 using Smartstore.Engine.Builders;
 using Smartstore.Engine.Modularity.ApplicationParts;
 using Smartstore.Net;
+using Smartstore.Web.Controllers;
 using Smartstore.Web.Filters;
 using Smartstore.Web.Modelling;
 using Smartstore.Web.Modelling.Settings;
 using Smartstore.Web.Modelling.Validation;
 using Smartstore.Web.Models.DataGrid;
 using Smartstore.Web.Razor;
+using Smartstore.Web.Rendering;
+using Smartstore.Web.Routing;
 
 namespace Smartstore.Web
 {
@@ -54,7 +52,6 @@ namespace Smartstore.Web
 
             services.AddRouting(o =>
             {
-                // TODO: (core) Make this behave like in SMNET
                 o.AppendTrailingSlash = true;
                 o.LowercaseUrls = true;
             });
@@ -62,6 +59,13 @@ namespace Smartstore.Web
             // Replace BsonTempDataSerializer that was registered by AddNewtonsoftJson()
             // with our own serializer which is capable of serializing more stuff.
             services.AddSingleton<TempDataSerializer, SmartTempDataSerializer>();
+
+            // Replaces inbuilt IHtmlGenerator with SmartHtmlGenerator
+            // that is capable of applying custom Bootstrap classes to generated html.
+            services.AddSingleton<IHtmlGenerator, SmartHtmlGenerator>();
+
+            // ActionResult executor for LazyFileContentResult
+            services.AddSingleton<IActionResultExecutor<LazyFileContentResult>, LazyFileContentResultExecutor>();
 
             // Provide custom database related exceptions to DeveloperExceptionPageMiddleware
             services.AddDatabaseDeveloperPageExceptionFilter();
@@ -78,12 +82,8 @@ namespace Smartstore.Web
                 .AddMvcOptions(o =>
                 {
                     //o.EnableEndpointRouting = false;
-                    // TODO: (core) AddModelBindingMessagesLocalizer
                     o.Filters.AddService<IViewDataAccessor>(int.MinValue);
 
-                    // TODO: (core) More MVC config?
-                    var complexBinderProvider = o.ModelBinderProviders.OfType<ComplexObjectModelBinderProvider>().First();
-                    o.ModelBinderProviders.Insert(0, new GridCommandModelBinderProvider(complexBinderProvider));
                     o.ModelBinderProviders.Insert(0, new InvariantFloatingPointTypeModelBinderProvider());
 
                     // Register custom metadata provider
@@ -102,10 +102,6 @@ namespace Smartstore.Web
                         {
                             return validatorLanguageManager.GetString("NonPropertyMustBeANumber");
                         });
-                        //o.ModelBindingMessageProvider.SetValueMustNotBeNullAccessor(x =>
-                        //{
-                        //    return validatorLanguageManager.GetErrorMessage(nameof(NotEmptyValidator), x);
-                        //});
                     }
                 })
                 .AddRazorOptions(o => 
@@ -114,7 +110,6 @@ namespace Smartstore.Web
                     {
                         o.ViewLocationExpanders.Add(new ThemeViewLocationExpander());
                         o.ViewLocationExpanders.Add(new ModuleViewLocationExpander(appContext.ModuleCatalog));
-                        //o.ViewLocationExpanders.Add(new AdminViewLocationExpander());
                         o.ViewLocationExpanders.Add(new PartialViewLocationExpander());
                     }
 
@@ -122,11 +117,6 @@ namespace Smartstore.Web
                     {
                         o.ViewLocationExpanders.Add(new LanguageViewLocationExpander(LanguageViewLocationExpanderFormat.Suffix));
                     }
-                })
-                .AddRazorRuntimeCompilation(o =>
-                {
-                    o.FileProviders.Clear();
-                    o.FileProviders.Add(new RazorRuntimeFileProvider(appContext, true));
                 })
                 .AddFluentValidation(c =>
                 {
@@ -164,12 +154,13 @@ namespace Smartstore.Web
                 {
                     var settings = o.SerializerSettings;
                     settings.ContractResolver = SmartContractResolver.Instance;
-                    settings.TypeNameHandling = TypeNameHandling.Objects;
+                    settings.TypeNameHandling = TypeNameHandling.None;
                     settings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
                     settings.ObjectCreationHandling = ObjectCreationHandling.Replace;
                     settings.NullValueHandling = NullValueHandling.Ignore;
+                    settings.DateFormatHandling = DateFormatHandling.IsoDateFormat;
                     settings.MaxDepth = 32;
-                    //settings.DateFormatHandling = DateFormatHandling.MicrosoftDateFormat;
+                    settings.Converters.Add(new UTCDateTimeConverter(new IsoDateTimeConverter()));
                 })
                 .AddControllersAsServices()
                 .AddAppLocalization()
@@ -180,6 +171,16 @@ namespace Smartstore.Web
                     // Client validation (must come last - after "FluentValidationClientModelValidatorProvider")
                     o.ClientModelValidatorProviders.Add(new SmartClientModelValidatorProvider(appContext, validatorLanguageManager));
                 });
+
+            // Add Razor runtime compilation if enabled
+            if (appContext.AppConfiguration.EnableRazorRuntimeCompilation)
+            {
+                mvcBuilder.AddRazorRuntimeCompilation(o =>
+                {
+                    o.FileProviders.Clear();
+                    o.FileProviders.Add(new RazorRuntimeFileProvider(appContext, true));
+                });
+            }
 
             // Add TempData feature
             if (appContext.AppConfiguration.UseCookieTempDataProvider)
@@ -203,26 +204,10 @@ namespace Smartstore.Web
 
             builder.RegisterType<DefaultViewDataAccessor>().As<IViewDataAccessor>().InstancePerLifetimeScope();
             builder.RegisterType<GridCommandStateStore>().As<IGridCommandStateStore>().InstancePerLifetimeScope();
-            builder.RegisterType<StoreDependingSettingHelper>().AsSelf().InstancePerLifetimeScope();
+            builder.RegisterType<MultiStoreSettingHelper>().AsSelf().InstancePerLifetimeScope();
 
             // Convenience: Register IUrlHelper as transient dependency.
-            builder.Register<IUrlHelper>(c =>
-            {
-                var httpContext = c.Resolve<IHttpContextAccessor>().HttpContext;
-                if (httpContext?.Items != null && httpContext.Items.TryGetValue(typeof(IUrlHelper), out var value) && value is IUrlHelper urlHelper)
-                {
-                    // We know for sure that IUrlHelper is saved in HttpContext.Items
-                    return urlHelper;
-                }
-
-                var actionContext = c.Resolve<IActionContextAccessor>().ActionContext;
-                if (actionContext != null)
-                {
-                    return c.Resolve<IUrlHelperFactory>().GetUrlHelper(actionContext);
-                }
-
-                throw new InvalidOperationException($"Cannot resolve '{nameof(IUrlHelper)}' because '{nameof(ActionContext)}' was null. Pass '{typeof(Lazy<IUrlHelper>).Name}' or '{typeof(IUrlHelperFactory).Name}' to the constructor instead.");
-            }).InstancePerDependency();
+            builder.Register<IUrlHelper>(ResolveUrlHelper).InstancePerDependency();
 
             if (appContext.IsInstalled)
             {
@@ -233,24 +218,6 @@ namespace Smartstore.Web
 
         public override void BuildPipeline(RequestPipelineBuilder builder)
         {
-            var appContext = builder.ApplicationContext;
-
-            builder.Configure(StarterOrdering.BeforeStaticFilesMiddleware, app => 
-            {
-                if (appContext.HostEnvironment.IsDevelopment() || appContext.AppConfiguration.UseDeveloperExceptionPage)
-                {
-                    app.UseDeveloperExceptionPage();
-                }
-                else
-                {
-                    app.UseExceptionHandler("/Error");
-                    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-                    app.UseHsts();
-                }
-
-                app.UseStatusCodePagesWithReExecute("/Error/{0}");
-            });
-
             builder.Configure(StarterOrdering.RoutingMiddleware, app =>
             {
                 app.UseRouting();
@@ -260,25 +227,6 @@ namespace Smartstore.Web
             {
                 // TODO: (core) Use Swagger
                 // TODO: (core) Use Response compression
-            });
-
-            builder.Configure(StarterOrdering.EarlyMiddleware, app =>
-            {
-                // TODO: (core) Configure session
-                app.UseSession();
-
-                if (appContext.IsInstalled)
-                {
-                    app.UseUrlPolicy();
-                    app.UseRequestCulture();
-                    app.UseMiddleware<SerilogHttpContextMiddleware>();
-                }
-            });
-
-            builder.Configure(StarterOrdering.DefaultMiddleware, app =>
-            {
-                // TODO: (core) Configure cookie policy
-                app.UseCookiePolicy();
             });
         }
 
@@ -298,6 +246,45 @@ namespace Smartstore.Web
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
             });
+        }
+
+        private static IUrlHelper ResolveUrlHelper(IComponentContext c)
+        {
+            var httpContext = c.Resolve<IHttpContextAccessor>().HttpContext;
+
+            if (httpContext?.Items == null)
+            {
+                throw new InvalidOperationException($"Cannot resolve '{nameof(IUrlHelper)}' because '{nameof(HttpContext)}.{nameof(HttpContext.Items)}' was null. Pass '{typeof(Lazy<IUrlHelper>).Name}' or '{typeof(IUrlHelperFactory).Name}' to the constructor instead.");
+            }
+
+            if (httpContext.Items.TryGetValue(typeof(IUrlHelper), out var value) && value is IUrlHelper urlHelper)
+            {
+                // We know for sure that IUrlHelper is saved in HttpContext.Items
+                return urlHelper;
+            }
+
+            var actionContext = c.Resolve<IActionContextAccessor>().ActionContext;
+            if (actionContext != null)
+            {
+                // ActionContext is available (also Endpoint). Resolve EndpointRoutingUrlHelper.
+                return c.Resolve<IUrlHelperFactory>().GetUrlHelper(actionContext);
+            }
+
+            // No ActionContext. Create an IUrlHelper that can work outside of routing endpoints (e.g. in middlewares)
+            var routeData = httpContext.GetRouteData();
+            if (routeData == null)
+            {
+                routeData = new RouteData();
+            }
+
+            urlHelper = new SmartUrlHelper(
+                new ActionContext(httpContext, routeData, new ActionDescriptor()), 
+                c.Resolve<LinkGenerator>());
+
+            // Better not to interfere with UrlHelperFactory, so don't save in Items.
+            // httpContext.Items[typeof(IUrlHelper)] = urlHelper;
+
+            return urlHelper;
         }
     }
 }

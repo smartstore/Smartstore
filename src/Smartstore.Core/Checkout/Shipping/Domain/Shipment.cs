@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Smartstore.Core.Checkout.Orders;
-using Smartstore.Domain;
 
 namespace Smartstore.Core.Checkout.Shipping
 {
@@ -17,7 +13,7 @@ namespace Smartstore.Core.Checkout.Shipping
             builder.HasOne(x => x.Order)
                 .WithMany(x => x.Shipments)
                 .HasForeignKey(x => x.OrderId)
-                .IsRequired(false);
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 

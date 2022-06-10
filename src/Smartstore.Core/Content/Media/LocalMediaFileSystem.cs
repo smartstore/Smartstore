@@ -1,5 +1,4 @@
-﻿using Smartstore.Engine;
-using Smartstore.IO;
+﻿using Smartstore.IO;
 
 namespace Smartstore.Core.Content.Media
 {

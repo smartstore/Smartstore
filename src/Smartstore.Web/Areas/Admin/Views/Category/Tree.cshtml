@@ -12,14 +12,11 @@
     <div class="title">
         <i class="fa fa-sitemap"></i>
         <span>@ViewBag.Title</span>
-
-        @* TBD: (mg) (core) I remember having that fixed. It looks ugly with align-top. Why?  *@
-        @* RE: you have removed it from the list view but left it unchanged in the tree view. *@
         <div class="btn-group ml-2">
             <a asp-action="List" class="btn btn-outline-secondary btn-sm tooltip-toggle" title="@T("Admin.Catalog.Categories.SwitchToListView")">
                 <i class="fa fa-bars"></i>
             </a>
-            <a class="btn btn-outline-secondary btn-sm tooltip-toggle active" style="cursor:default" href="javascript:void(0)">
+            <a class="btn btn-outline-secondary btn-sm tooltip-toggle active" style="cursor:default" href="javascript:;">
                 <i class="fa fa-sitemap"></i>
             </a>
         </div>

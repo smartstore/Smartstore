@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq.Expressions;
-using System.Reflection;
+﻿using System.Reflection;
 using Smartstore.Utilities;
 
 namespace Smartstore.Linq
@@ -58,10 +55,9 @@ namespace Smartstore.Linq
 
                 DoExpand(t, member);
 
-                if (memberType.IsSequenceType())
-                    t = TypeHelper.GetElementType(memberType); //TypeHelper.GetListItemType(memberType);
-                else
-                    t = memberType;
+                t = memberType.IsSequenceType()
+                    ? TypeHelper.GetElementType(memberType)
+                    : memberType;
             }
         }
 

@@ -1,12 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
+﻿using System.Globalization;
 using System.Linq.Dynamic.Core;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Smartstore.Admin.Models.Catalog;
 using Smartstore.Admin.Models.Customers;
@@ -19,7 +12,6 @@ using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Rules;
 using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Content.Media;
-using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Identity.Rules;
 using Smartstore.Core.Localization;
@@ -29,12 +21,9 @@ using Smartstore.Core.Rules.Rendering;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
 using Smartstore.Engine.Modularity;
-using Smartstore.Web.Controllers;
-using Smartstore.Web.Modelling;
-using Smartstore.Web.Models.DataGrid;
 using Smartstore.Web.Models;
+using Smartstore.Web.Models.DataGrid;
 using Smartstore.Web.Rendering;
-using Smartstore.Web.Razor;
 
 namespace Smartstore.Admin.Controllers
 {
@@ -110,7 +99,7 @@ namespace Smartstore.Admin.Controllers
 
         public IActionResult Index()
         {
-            return RedirectToAction("List");
+            return RedirectToAction(nameof(List));
         }
 
         [Permission(Permissions.System.Rule.Read)]
@@ -120,12 +109,12 @@ namespace Smartstore.Admin.Controllers
         }
 
         [Permission(Permissions.System.Rule.Read)]
-        public async Task<IActionResult> RuleList(GridCommand command)
+        public async Task<IActionResult> RuleSetList(GridCommand command)
         {
             var ruleSets = await _db.RuleSets
                 .AsNoTracking()
                 .ApplyStandardFilter(null, false, true)
-                .ApplyGridCommand(command, false)
+                .ApplyGridCommand(command)
                 .ToPagedList(command)
                 .LoadAsync();
 
@@ -133,7 +122,8 @@ namespace Smartstore.Admin.Controllers
             {
                 var model = MiniMapper.Map<RuleSetEntity, RuleSetModel>(x);
                 model.ScopeName = await Services.Localization.GetLocalizedEnumAsync(x.Scope);
-                model.EditUrl = Url.Action("Edit", "Rule", new { id = x.Id, area = "Admin" });
+                model.CreatedOn = Services.DateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc);
+                model.EditUrl = Url.Action(nameof(Edit), "Rule", new { id = x.Id, area = "Admin" });
 
                 return model;
             })
@@ -142,7 +132,7 @@ namespace Smartstore.Admin.Controllers
             var gridModel = new GridModel<RuleSetModel>
             {
                 Rows = rows,
-                Total = ruleSets.TotalCount
+                Total = await ruleSets.GetTotalCountAsync()
             };
 
             return Json(gridModel);
@@ -176,8 +166,8 @@ namespace Smartstore.Admin.Controllers
             NotifySuccess(T("Admin.Rules.RuleSet.Added"));
 
             return continueEditing
-                ? RedirectToAction("Edit", new { id = ruleSet.Id })
-                : RedirectToAction("List");
+                ? RedirectToAction(nameof(Edit), new { id = ruleSet.Id })
+                : RedirectToAction(nameof(List));
         }
 
         [Permission(Permissions.System.Rule.Read)]
@@ -234,8 +224,8 @@ namespace Smartstore.Admin.Controllers
             await _db.SaveChangesAsync();
 
             return continueEditing
-                ? RedirectToAction("Edit", new { id = ruleSet.Id })
-                : RedirectToAction("List");
+                ? RedirectToAction(nameof(Edit), new { id = ruleSet.Id })
+                : RedirectToAction(nameof(List));
         }
 
         [HttpPost]
@@ -253,7 +243,7 @@ namespace Smartstore.Admin.Controllers
 
             NotifySuccess(T("Admin.Rules.RuleSet.Deleted"));
 
-            return RedirectToAction("List");
+            return RedirectToAction(nameof(List));
         }
 
         [Permission(Permissions.System.Rule.Execute)]
@@ -309,8 +299,7 @@ namespace Smartstore.Admin.Controllers
                             FullName = x.GetFullName(),
                             CreatedOn = Services.DateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc),
                             LastActivityDate = Services.DateTimeHelper.ConvertToUserTime(x.LastActivityDateUtc, DateTimeKind.Utc),
-                            // TODO: (mg) (core) verify action URL (Customer.Edit).
-                            EditUrl = Url.Action("Edit, Customer", new { id = x.Id, area = "Admin" })
+                            EditUrl = Url.Action("Edit", "Customer", new { id = x.Id, area = "Admin" })
                         };
 
                         return customerModel;
@@ -326,47 +315,13 @@ namespace Smartstore.Admin.Controllers
                 var expression = await _ruleService.CreateExpressionGroupAsync(ruleSet, provider, true) as SearchFilterExpression;
                 var searchResult = await provider.SearchAsync(new[] { expression }, command.Page - 1, command.PageSize);
                 var hits = await searchResult.GetHitsAsync();
+                var rows = await hits.MapAsync(Services.MediaService);
 
-                var fileIds = hits
-                    .AsQueryable()
-                    .Select(x => x.MainPictureId ?? 0)
-                    .Where(x => x != 0)
-                    .Distinct()
-                    .ToArray();
-                var files = (await Services.MediaService.GetFilesByIdsAsync(fileIds)).ToDictionarySafe(x => x.Id);
-
-                var model = new GridModel<ProductOverviewModel>
+                return new JsonResult(new GridModel<ProductOverviewModel>
                 {
                     Total = searchResult.TotalHitsCount,
-                    Rows = hits.Select(x =>
-                    {
-                        var productModel = new ProductOverviewModel
-                        {
-                            Id = x.Id,
-                            Sku = x.Sku,
-                            Published = x.Published,
-                            ProductTypeLabelHint = x.ProductTypeLabelHint,
-                            ProductTypeName = x.GetProductTypeLabel(Services.Localization),
-                            Name = x.Name,
-                            StockQuantity = x.StockQuantity,
-                            Price = x.Price,
-                            LimitedToStores = x.LimitedToStores,
-                            UpdatedOn = Services.DateTimeHelper.ConvertToUserTime(x.UpdatedOnUtc, DateTimeKind.Utc),
-                            CreatedOn = Services.DateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc),
-                            EditUrl = Url.Action("Edit", "Product", new { id = x.Id, area = "Admin" })
-                        };
-
-                        files.TryGetValue(x.MainPictureId ?? 0, out var file);
-
-                        productModel.PictureThumbnailUrl = Services.MediaService.GetUrl(file, _mediaSettings.CartThumbPictureSize, null, true);
-                        productModel.NoThumb = file == null;
-
-                        return productModel;
-                    })
-                    .ToList()
-                };
-
-                return new JsonResult(model);
+                    Rows = rows
+                });
             }
 
             return new JsonResult(null);
@@ -694,7 +649,6 @@ namespace Smartstore.Admin.Controllers
             {
                 if (rules.TryGetValue(data.RuleId, out var entity))
                 {
-                    // TODO? Ugly. There should be a better way. Do not store culture variant values.
                     if (data.Value.HasValue())
                     {
                         var descriptor = descriptors.FindDescriptor(entity.RuleType);
@@ -703,14 +657,6 @@ namespace Smartstore.Admin.Controllers
                             data.Op == RuleOperator.IsNull || data.Op == RuleOperator.IsNotNull)
                         {
                             data.Value = null;
-                        }
-                        else if (descriptor.RuleType == RuleType.Money)
-                        {
-                            data.Value = data.Value.Convert<decimal>(CultureInfo.CurrentCulture).ToString(CultureInfo.InvariantCulture);
-                        }
-                        else if (descriptor.RuleType == RuleType.Float || descriptor.RuleType == RuleType.NullableFloat)
-                        {
-                            data.Value = data.Value.Convert<float>(CultureInfo.CurrentCulture).ToString(CultureInfo.InvariantCulture);
                         }
                         else if (descriptor.RuleType == RuleType.DateTime || descriptor.RuleType == RuleType.NullableDateTime)
                         {

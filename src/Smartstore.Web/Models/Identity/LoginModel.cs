@@ -1,8 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using FluentValidation;
 using Smartstore.Core.Identity;
-using Smartstore.Web.Modelling;
-using Smartstore.Web.Modelling.Validation;
 
 namespace Smartstore.Web.Models.Identity
 {
@@ -31,6 +29,8 @@ namespace Smartstore.Web.Models.Identity
         public bool RememberMe { get; set; }
 
         public bool DisplayCaptcha { get; set; }
+
+        public bool DisplayExternalAuth { get; set; }
     }
 
     public class LoginValidator : SmartValidator<LoginModel>

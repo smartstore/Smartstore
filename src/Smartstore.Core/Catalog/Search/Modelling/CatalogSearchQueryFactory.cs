@@ -1,15 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
 using Microsoft.AspNetCore.Http;
 using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Search;
 using Smartstore.Core.Search.Facets;
 using Smartstore.Core.Security;
-using Smartstore.Domain;
 
 namespace Smartstore.Core.Catalog.Search.Modelling
 {
@@ -34,7 +29,7 @@ namespace Smartstore.Core.Catalog.Search.Modelling
 
     public partial class CatalogSearchQueryFactory : SearchQueryFactoryBase, ICatalogSearchQueryFactory
     {
-		protected static readonly string[] _instantSearchFields = new string[] { "manufacturer", "sku", "gtin", "mpn", "attrname", "variantname" };
+		protected static readonly string[] _instantSearchFields = new[] { "manufacturer", "sku", "gtin", "mpn", "attrname", "variantname" };
 
 		protected readonly ICommonServices _services;
 		protected readonly ICatalogSearchQueryAliasMapper _catalogSearchQueryAliasMapper;
@@ -55,7 +50,7 @@ namespace Smartstore.Core.Catalog.Search.Modelling
 			_searchSettings = searchSettings;
 		}
 
-		protected override string[] Tokens => new string[] { "q", "i", "s", "o", "p", "c", "m", "r", "a", "n", "d", "v" };
+		protected override string[] Tokens => new[] { "q", "i", "s", "o", "p", "c", "m", "r", "a", "n", "d", "v" };
 
 		public CatalogSearchQuery Current { get; private set; }
 
@@ -70,10 +65,10 @@ namespace Smartstore.Core.Catalog.Search.Modelling
             var area = ctx.Request.RouteValues.GetAreaName();
             var controller = ctx.Request.RouteValues.GetControllerName();
             var action = ctx.Request.RouteValues.GetActionName();
-            var origin = "{0}{1}/{2}".FormatInvariant(area == null ? "" : area + "/", controller, action);
+            var origin = "{0}{1}/{2}".FormatInvariant(area.HasValue() ? area + "/" : string.Empty, controller, action);
             var fields = new List<string> { "name" };
             var term = GetValueFor<string>("q");
-            var isInstantSearch = origin.EqualsNoCase("Search/InstantSearch");
+            var isInstantSearch = action.EqualsNoCase("InstantSearch");
 
             if (isInstantSearch)
             {
@@ -102,7 +97,7 @@ namespace Smartstore.Core.Catalog.Search.Modelling
             // Visibility.
             query.VisibleOnly(!_services.DbContext.QuerySettings.IgnoreAcl ? _services.WorkContext.CurrentCustomer : null);
 
-            if (isInstantSearch || origin.EqualsNoCase("Search/Search"))
+            if (isInstantSearch || query.IsSearchPage())
             {
                 query.WithVisibility(ProductVisibility.SearchResults);
             }
@@ -148,7 +143,7 @@ namespace Smartstore.Core.Catalog.Search.Modelling
 			var orderBy = GetValueFor<ProductSortingEnum?>("o");
 			if (orderBy == null || orderBy == ProductSortingEnum.Initial)
 			{
-				orderBy = origin.EqualsNoCase("Search/Search") ? _searchSettings.DefaultSortOrder : _catalogSettings.DefaultSortOrder;
+				orderBy = query.IsSearchPage() ? _searchSettings.DefaultSortOrder : _catalogSettings.DefaultSortOrder;
 			}
 
 			query.CustomData["CurrentSortOrder"] = orderBy.Value;
@@ -289,47 +284,61 @@ namespace Smartstore.Core.Catalog.Search.Modelling
             Action<FacetDescriptor> addValues)
         {
             string fieldName;
+            string labelKey;
             var displayOrder = 0;
 
             switch (kind)
             {
                 case FacetGroupKind.Category:
                     fieldName = _catalogSettings.IncludeFeaturedProductsInNormalLists ? "categoryid" : "notfeaturedcategoryid";
+                    labelKey = "Search.Facet.Category";
                     break;
                 case FacetGroupKind.Brand:
                     if (_searchSettings.BrandDisabled)
                         return;
+
                     fieldName = "manufacturerid";
+                    labelKey = "Search.Facet.Manufacturer";
                     displayOrder = _searchSettings.BrandDisplayOrder;
                     break;
                 case FacetGroupKind.Price:
                     if (_searchSettings.PriceDisabled || !_services.Permissions.Authorize(Permissions.Catalog.DisplayPrice))
                         return;
+
                     fieldName = "price";
+                    labelKey = "Search.Facet.Price";
                     displayOrder = _searchSettings.PriceDisplayOrder;
                     break;
                 case FacetGroupKind.Rating:
                     if (_searchSettings.RatingDisabled)
                         return;
+
                     fieldName = "rating";
+                    labelKey = "Search.Facet.Rating";
                     displayOrder = _searchSettings.RatingDisplayOrder;
                     break;
                 case FacetGroupKind.DeliveryTime:
                     if (_searchSettings.DeliveryTimeDisabled)
                         return;
+
                     fieldName = "deliveryid";
+                    labelKey = "Search.Facet.DeliveryTime";
                     displayOrder = _searchSettings.DeliveryTimeDisplayOrder;
                     break;
                 case FacetGroupKind.Availability:
                     if (_searchSettings.AvailabilityDisabled)
                         return;
+
                     fieldName = "available";
+                    labelKey = "Search.Facet.Availability";
                     displayOrder = _searchSettings.AvailabilityDisplayOrder;
                     break;
                 case FacetGroupKind.NewArrivals:
                     if (_searchSettings.NewArrivalsDisabled)
                         return;
+
                     fieldName = "createdon";
+                    labelKey = "Search.Facet.NewArrivals";
                     displayOrder = _searchSettings.NewArrivalsDisplayOrder;
                     break;
                 default:
@@ -338,7 +347,7 @@ namespace Smartstore.Core.Catalog.Search.Modelling
 
             var descriptor = new FacetDescriptor(fieldName)
             {
-                Label = _services.Localization.GetResource(FacetUtility.GetLabelResourceKey(kind)) ?? kind.ToString(),
+                Label = _services.Localization.GetResource(labelKey, returnEmptyIfNotFound: true).NullEmpty() ?? kind.ToString(),
                 IsMultiSelect = isMultiSelect,
                 DisplayOrder = displayOrder,
                 OrderBy = sorting,
@@ -352,7 +361,7 @@ namespace Smartstore.Core.Catalog.Search.Modelling
 
         protected virtual void ConvertCategory(CatalogSearchQuery query, string origin)
         {
-            if (origin == "Catalog/Category")
+            if (origin.EqualsNoCase("Catalog/Category"))
             {
                 // We don't need category facetting in category pages.
                 return;

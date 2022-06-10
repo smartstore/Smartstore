@@ -1,0 +1,33 @@
+﻿@model IDictionary<string, object>
+
+@{
+    var message = (string)Model["Message"];
+    if (message.IsEmpty())
+    {
+        return;
+    }
+
+    Layout = (string)Model["LayoutName"];
+
+    Assets.AppendTitleParts(T("Admin.Plugins.AddOnLicensing"));
+}
+
+<div class="page license-required-page">
+    <div class="page-body">
+        <div class="alert alert-danger">
+            <h4>@T("Admin.Plugins.AddOnLicensing")</h4>
+            <p>
+                <strong class="pr-1">Systemname:</strong>
+                <span>@Model["SystemName"]</span>
+                <br />
+                <strong class="pr-1">Controller:</strong>
+                <span>@Model["ControllerName"],</span>
+                <strong class="pr-1">Action:</strong>
+                <span>@Model["ActionName"]</span>
+            </p>
+            <p>
+                <span>@Html.Raw(message)</span>
+            </p>
+        </div>
+    </div>
+</div>

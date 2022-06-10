@@ -1,22 +1,24 @@
-﻿@using Smartstore.Admin.Models.ShoppingCart
+﻿@using Smartstore.Admin.Models.Cart
 @using Smartstore.Core.Checkout.Cart
    
 @model ShoppingCartItemModel
 
-@{ 
-    // TODO: (mh) (core) Nothing is sortable here.
-}
-
-<datagrid id="currentshoppingcart-grid" allow-resize="true" >
+<datagrid id="currentshoppingcart-grid" allow-resize="true" max-height="600px">
     <datasource read="@Url.Action("GetCartList", new { customerId = ViewData["CustomerId"], cartTypeId = (int)ShoppingCartType.ShoppingCart })"/>
     <paging position="Bottom" />
-    <sorting enabled="true" />
     <columns>
-        <column for="ProductName" hideable="false" />
-        <column for="Quantity" />
-        <column for="UnitPrice" />
-        <column for="Total" />
-        <column for="Store" />
+        <column for="ProductName" width="3fr" hideable="false">
+            <display-template>
+                @Html.LabeledProductName(urlExpression: "item.row.ProductEditUrl", valueExpression: "item.row.ProductName")
+            </display-template>
+        </column>
+        <column for="Quantity" halign="center" />
+        <column for="UnitPrice" halign="right" />
+        <column for="Total" halign="right" />
+        @if (!(bool)ViewBag.IsSingleStoreMode)
+        {
+            <column for="Store" />
+        }
         <column for="UpdatedOn" />
     </columns>
 </datagrid>

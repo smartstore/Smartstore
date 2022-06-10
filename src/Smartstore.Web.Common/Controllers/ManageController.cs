@@ -1,16 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Smartstore.Core;
+﻿using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
-using Smartstore.Domain;
 using Smartstore.Web.Modelling;
 
 namespace Smartstore.Web.Controllers
 {
+    [RequireSsl]
+    [TrackActivity(Order = 100)]
+    [SaveChanges(typeof(SmartDbContext), Order = int.MaxValue)]
     public abstract class ManageController : SmartController
     {
         /// <summary>
@@ -56,12 +54,12 @@ namespace Smartstore.Web.Controllers
         /// <typeparam name="T">Entity type.</typeparam>
         /// <param name="entity">The entity.</param>
         /// <param name="selectedStoreIds">Selected store identifiers.</param>
-        protected virtual async Task SaveStoreMappingsAsync<T>(T entity, int[] selectedStoreIds) where T : BaseEntity, IStoreRestricted
+        protected virtual async Task<int> SaveStoreMappingsAsync<T>(T entity, int[] selectedStoreIds) where T : BaseEntity, IStoreRestricted
         {
             Guard.NotNull(entity, nameof(entity));
 
             await Services.Resolve<IStoreMappingService>().ApplyStoreMappingsAsync(entity, selectedStoreIds);
-            await Services.DbContext.SaveChangesAsync();
+            return await Services.DbContext.SaveChangesAsync();
         }
 
         /// <summary>
@@ -69,19 +67,19 @@ namespace Smartstore.Web.Controllers
         /// </summary>
         /// <typeparam name="T">Entity type</typeparam>
         /// <param name="entity">The entity</param>
-        protected virtual async Task SaveAclMappingsAsync<T>(T entity, params int[] selectedCustomerRoleIds) where T : BaseEntity, IAclRestricted
+        protected virtual async Task<int> SaveAclMappingsAsync<T>(T entity, params int[] selectedCustomerRoleIds) where T : BaseEntity, IAclRestricted
         {
             Guard.NotNull(entity, nameof(entity));
 
             await Services.Resolve<IAclService>().ApplyAclMappingsAsync(entity, selectedCustomerRoleIds);
-            await Services.DbContext.SaveChangesAsync();
+            return await Services.DbContext.SaveChangesAsync();
         }
 
         /// <summary>
         /// Get active store scope (for multi-store configuration mode)
         /// </summary>
         /// <returns>Store ID; 0 if we are in a shared mode</returns>
-        protected virtual int GetActiveStoreScopeConfiguration()
+        protected internal virtual int GetActiveStoreScopeConfiguration()
         {
             // Ensure that we have 2 (or more) stores
             if (Services.StoreContext.GetAllStores().Count < 2)

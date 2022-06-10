@@ -1,28 +1,27 @@
-﻿using System;
-using System.Linq.Expressions;
-
-namespace Smartstore.Utilities
+﻿namespace Smartstore.Utilities
 {
     public static class TypeHelper
     {
         public static Type GetElementType(Type type)
         {
-            if (!type.IsPredefinedSimpleType())
+            if (type.IsBasicType())
             {
-                if (type.HasElementType)
-                {
-                    return GetElementType(type.GetElementType());
-                }
-                if (type.IsPredefinedGenericType())
-                {
-                    return GetElementType(type.GetGenericArguments()[0]);
-                }
-                Type type2 = type.FindIEnumerable();
-                if (type2 != null)
-                {
-                    Type type3 = type2.GetGenericArguments()[0];
-                    return GetElementType(type3);
-                }
+                return type;
+            }
+            
+            if (type.HasElementType)
+            {
+                return GetElementType(type.GetElementType());
+            }
+
+            if (type.IsNullableType(out var underlyingType))
+            {
+                return underlyingType;
+            }
+
+            if (type.IsSequenceType(out var elemenType))
+            {
+                return GetElementType(elemenType);
             }
 
             return type;

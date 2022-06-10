@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using Smartstore.Collections;
+﻿using Smartstore.Collections;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Brands;
 using Smartstore.Core.Catalog.Categories;
@@ -28,10 +23,11 @@ namespace Smartstore.Core.Catalog.Products
         private readonly List<int> _groupedProductIds = new();
         private readonly List<int> _mainMediaFileIds = new();
 
+        protected ICommonServices _services;
+        protected IProductService _productService;
+        protected ICategoryService _categoryService;
+        protected IManufacturerService _manufacturerService;
         protected readonly SmartDbContext _db;
-        protected readonly IProductService _productService;
-        protected readonly ICategoryService _categoryService;
-        protected readonly IManufacturerService _manufacturerService;
         protected readonly bool _includeHidden;
         protected readonly bool _loadMainMediaOnly;
 
@@ -60,10 +56,8 @@ namespace Smartstore.Core.Catalog.Products
             Guard.NotNull(store, nameof(store));
             Guard.NotNull(customer, nameof(customer));
 
+            _services = services;
             _db = services.DbContext;
-            _productService = services.Resolve<IProductService>();
-            _categoryService = services.Resolve<ICategoryService>();
-            _manufacturerService = services.Resolve<IManufacturerService>();
             Store = store;
             Customer = customer;
             _includeHidden = includeHidden;
@@ -82,6 +76,27 @@ namespace Smartstore.Core.Catalog.Products
                     _mainMediaFileIds.AddRange(products.Select(x => x.MainPictureId ?? 0).Where(x => x != 0).Distinct());
                 }
             }
+        }
+
+        internal IProductService ProductService 
+        { 
+            get => _productService ??= _services.Resolve<IProductService>(); 
+            // For testing purposes
+            set => _productService = value; 
+        }
+
+        internal ICategoryService CategoryService
+        {
+            get => _categoryService ??= _services.Resolve<ICategoryService>();
+            // For testing purposes
+            set => _categoryService = value;
+        }
+
+        internal IManufacturerService ManufacturerService
+        {
+            get => _manufacturerService ??= _services.Resolve<IManufacturerService>();
+            // For testing purposes
+            set => _manufacturerService = value;
         }
 
         public Store Store { get; }
@@ -235,22 +250,22 @@ namespace Smartstore.Core.Catalog.Products
 
         protected virtual async Task<Multimap<int, ProductCategory>> LoadProductCategories(int[] ids)
         {
-            var productCategories = await _categoryService.GetProductCategoriesByProductIdsAsync(ids, _includeHidden);
+            var productCategories = await CategoryService.GetProductCategoriesByProductIdsAsync(ids, _includeHidden);
             return productCategories.ToMultimap(x => x.ProductId, x => x);
         }
 
         protected virtual async Task<Multimap<int, ProductManufacturer>> LoadProductManufacturers(int[] ids)
         {
-            var productManufacturers = await _manufacturerService.GetProductManufacturersByProductIdsAsync(ids, _includeHidden);
+            var productManufacturers = await ManufacturerService.GetProductManufacturersByProductIdsAsync(ids, _includeHidden);
             return productManufacturers.ToMultimap(x => x.ProductId, x => x);
         }
 
         protected virtual async Task<Multimap<int, Discount>> LoadAppliedDiscounts(int[] ids)
         {
+            // INFO: AppliedDiscounts.RuleSets are not eager loaded anymore to avoid MultipleCollectionIncludeWarning.
             var discounts = await _db.Products
                 .AsNoTracking()
                 .Include(x => x.AppliedDiscounts)
-                    .ThenInclude(x => x.RuleSets)
                 .Where(x => ids.Contains(x.Id))
                 .Select(x => new
                 {
@@ -317,7 +332,7 @@ namespace Smartstore.Core.Catalog.Products
 
         protected virtual async Task<Multimap<int, ProductTag>> LoadProductTags(int[] ids)
         {
-            return await _productService.GetProductTagsByProductIdsAsync(ids, _includeHidden);
+            return await ProductService.GetProductTagsByProductIdsAsync(ids, _includeHidden);
         }
 
         protected virtual async Task<Multimap<int, ProductSpecificationAttribute>> LoadSpecificationAttributes(int[] ids)

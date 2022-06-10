@@ -1,13 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Autofac;
+﻿using Autofac;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 using Smartstore.Caching;
 using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Localization;
@@ -15,8 +7,6 @@ using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Data;
 using Smartstore.Data.Migrations;
-using Smartstore.Domain;
-using Smartstore.Engine;
 
 namespace Smartstore.Core.Data.Migrations
 {
@@ -189,10 +179,16 @@ namespace Smartstore.Core.Data.Migrations
             return Context.SaveChangesAsync();
         }
 
-        protected Task SaveRangeAsync<TEntity>(IEnumerable<TEntity> entities) where TEntity : BaseEntity
+        protected async Task SaveRangeAsync<TEntity>(IEnumerable<TEntity> entities) where TEntity : BaseEntity
         {
-            Context.Set<TEntity>().AddRange(Guard.NotNull(entities, nameof(entities)));
-            return Context.SaveChangesAsync();
+            Guard.NotNull(entities, nameof(entities));
+
+            // INFO: chunk to avoid MySqlException "Error submitting ...MB packet; ensure 'max_allowed_packet' is greater than ...MB".
+            foreach (var chunk in entities.Chunk(10))
+            {
+                Context.Set<TEntity>().AddRange(chunk);
+                await Context.SaveChangesAsync();
+            }
         }
 
         #endregion

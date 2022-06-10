@@ -1,29 +1,24 @@
-using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Threading.Tasks;
+using System.Runtime.CompilerServices;
 using System.Xml.Linq;
+using Dasync.Collections;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
-using Dasync.Collections;
 using Smartstore.Collections;
+using Smartstore.Core.Configuration;
 using Smartstore.Core.Data;
+using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Stores;
 using Smartstore.Data;
+using Smartstore.Data.Hooks;
 using Smartstore.IO;
 using Smartstore.Threading;
 using Smartstore.Utilities;
-using Smartstore.Core.Identity;
-using System.Threading;
-using System.Runtime.CompilerServices;
 
 namespace Smartstore.Core.Seo
 {
-    public partial class XmlSitemapGenerator : IXmlSitemapGenerator
+    public partial class XmlSitemapGenerator : AsyncDbSaveHook<BaseEntity>, IXmlSitemapGenerator
     {
         private const string SitemapsNamespace = "http://www.sitemaps.org/schemas/sitemap/0.9";
         private const string XhtmlNamespace = "http://www.w3.org/1999/xhtml";
@@ -91,6 +86,35 @@ namespace Smartstore.Core.Seo
 
         public ILogger Logger { get; set; } = NullLogger.Instance;
 
+        #region Hook
+
+        public override Task<HookResult> OnAfterSaveAsync(IHookedEntity entry, CancellationToken cancelToken)
+        {
+            if (entry.Entity is Store store && entry.InitialState != EntityState.Added)
+            {
+                Invalidate(store.Id, null);
+                return Task.FromResult(HookResult.Ok);
+            }
+            else if (entry.Entity is Language lang && entry.InitialState != EntityState.Added)
+            {
+                InvalidateAll();
+                return Task.FromResult(HookResult.Ok);
+            }
+            else if (entry.Entity is Setting setting)
+            {
+                if (setting.Name.EqualsNoCase(TypeHelper.NameOf<LocalizationSettings>(x => x.DefaultLanguageRedirectBehaviour)))
+                {
+                    InvalidateAll();
+                }
+
+                return Task.FromResult(HookResult.Ok);
+            }
+
+            return Task.FromResult(HookResult.Void);
+        }
+
+        #endregion
+
         public virtual async Task<XmlSitemapPartition> GetSitemapPartAsync(int index = 0)
         {
             return await GetSitemapPartAsync(index, false);
@@ -114,7 +138,7 @@ namespace Smartstore.Core.Seo
                     LanguageId = language.Id,
                     StoreId = store.Id,
                     ModifiedOnUtc = file.LastModified.UtcDateTime,
-                    Stream = file.OpenRead()
+                    Stream = await file.OpenReadAsync()
                 };
             }
 
@@ -212,14 +236,6 @@ namespace Smartstore.Core.Seo
         {
             Guard.NotNull(ctx, nameof(ctx));
 
-            // TODO: (core) Check later if this is still necessary
-            //var dataTokens = _httpContextAccessor.HttpContext?.GetRouteData()?.DataTokens;
-            //if (dataTokens != null)
-            //{
-            //    // Double seo code otherwise
-            //    dataTokens["CultureCodeReplacement"] = string.Empty;
-            //}
-
             var languageData = new Dictionary<int, LanguageData>();
 
             foreach (var language in ctx.Languages)
@@ -284,7 +300,6 @@ namespace Smartstore.Core.Seo
                 // Impersonate
                 var prevCustomer = _services.WorkContext.CurrentCustomer;
                 // no need to vary xml sitemap by customer roles: it's relevant to crawlers only.
-                // TODO: (core) Do not attempt to update CurrentCustomer entity if it is untracked (determine where applicable)
                 _services.WorkContext.CurrentCustomer = (await _customerService.GetCustomerBySystemNameAsync(SystemCustomerNames.SearchEngine, false)) ?? prevCustomer;
 
                 try
@@ -305,7 +320,7 @@ namespace Smartstore.Core.Seo
                     {
                         var entities = EnlistEntitiesAsync(providers);
 
-                        await foreach (var batch in entities.SliceAsync(ctx.CancellationToken, MaximumSiteMapNodeCount))
+                        await foreach (var batch in entities.ChunkAsync(MaximumSiteMapNodeCount, ctx.CancellationToken))
                         {
                             if (ctx.CancellationToken.IsCancellationRequested)
                             {
@@ -682,8 +697,6 @@ namespace Smartstore.Core.Seo
 
         public virtual void Invalidate(int storeId, int? languageId)
         {
-            // TODO: (core) Auto-invalidate when dependant settings change:
-            // Store, Language, LanguageSettings.DefaultLanguageRedirectBehaviour
             var dir = BuildSitemapDirPath(storeId, languageId);
             _tenantRoot.TryDeleteDirectory(dir);
         }

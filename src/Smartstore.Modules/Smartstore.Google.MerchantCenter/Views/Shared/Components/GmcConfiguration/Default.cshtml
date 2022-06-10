@@ -1,0 +1,187 @@
+﻿@using Smartstore.Google.MerchantCenter.Providers;
+
+@model ProfileConfigurationModel
+
+@{
+    Layout = null;
+
+    var listAvailability = new List<SelectListItem>
+    {
+        new SelectListItem { Text = T("Common.Auto"), Value = string.Empty },
+        new SelectListItem { Text = T("Common.Unspecified"), Value = GmcXmlExportProvider.Unspecified },
+        new SelectListItem { Text = T("Plugins.Feed.Froogle.AvailabilityInStock"), Value = "in stock" },
+        new SelectListItem { Text = T("Plugins.Feed.Froogle.AvailabilityOutOfStock"), Value = "out of stock" },
+        new SelectListItem { Text = T("Plugins.Feed.Froogle.AvailabilityPreorder"), Value = "preorder" }
+    };
+
+    // INFO: editor templates can't be used here because of extra options 'auto' & 'unspecified'
+    var listGender = new List<SelectListItem>
+    {
+        new SelectListItem { Text = T("Common.Auto"), Value = string.Empty },
+        new SelectListItem { Text = T("Common.Unspecified"), Value = GmcXmlExportProvider.Unspecified },
+        new SelectListItem { Text = T("Plugins.Feed.Froogle.GenderMale"), Value = "male" },
+        new SelectListItem { Text = T("Plugins.Feed.Froogle.GenderFemale"), Value = "female" },
+        new SelectListItem { Text = T("Plugins.Feed.Froogle.GenderUnisex"), Value = "unisex" }
+    };
+
+    var ageGroupList = new List<SelectListItem>
+    {
+        new SelectListItem { Text = T("Common.Auto"), Value = string.Empty },
+        new SelectListItem { Text = T("Common.Unspecified"), Value = GmcXmlExportProvider.Unspecified },
+        new SelectListItem { Text = T("Plugins.Feed.Froogle.AgeGroupAdult"), Value = "adult" },
+        new SelectListItem { Text = T("Plugins.Feed.Froogle.AgeGroupKids"), Value = "kids" }
+    };
+
+    var languageSeoCode = WorkContext.WorkingLanguage.UniqueSeoCode.EmptyNull().ToLower();
+
+    var availableCategories = Model.DefaultGoogleCategory.HasValue()
+        ? new List<SelectListItem> { new SelectListItem { Text = Model.DefaultGoogleCategory, Value = Model.DefaultGoogleCategory, Selected = true } }
+        : new List<SelectListItem>();
+}
+
+<script sm-target-zone="scripts" src="~/Modules/Smartstore.Google.MerchantCenter/js/taxonomy.js"></script>
+
+<div class="adminContent">
+    <div class="adminRow">
+        <div class="admin-config-group">
+            <div class="head">@T("Plugins.Feed.Froogle.GeneralSettings")</div>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="ExportShipping"></smart-label>
+        </div>
+        <div class="adminData">
+            <editor asp-for="ExportShipping" />
+            <span asp-validation-for="ExportShipping"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="SpecialPrice"></smart-label>
+        </div>
+        <div class="adminData">
+            <editor asp-for="SpecialPrice" />
+            <span asp-validation-for="SpecialPrice"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="ExportBasePrice"></smart-label>
+        </div>
+        <div class="adminData">
+            <editor asp-for="ExportBasePrice" />
+            <span asp-validation-for="ExportBasePrice"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="AdditionalImages"></smart-label>
+        </div>
+        <div class="adminData">
+            <editor asp-for="AdditionalImages" />
+            <span asp-validation-for="AdditionalImages"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="admin-config-group">
+            <div class="title">@T("Plugins.Feed.Froogle.DefaultValueSettings")</div>
+            <div class="alert alert-info alert-dismissible">
+                @T("Plugins.Feed.Froogle.DefaultValueSettingsNote")
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+            </div>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="DefaultGoogleCategory"></smart-label>
+        </div>
+        <div class="adminData wide">
+            <select asp-for="DefaultGoogleCategory"
+                    asp-items="availableCategories"
+                    data-select-url="@Url.Action("GetGoogleCategories", "GoogleMerchantCenter")"
+                    data-default-category=""
+                    data-language-seo-code="@languageSeoCode">
+            </select>
+            <span asp-validation-for="DefaultGoogleCategory"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="ExpirationDays"></smart-label>
+        </div>
+        <div class="adminData">
+            <editor asp-for="ExpirationDays" sm-postfix="@T("Time.Days").Value" />
+            <span asp-validation-for="ExpirationDays"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Availability"></smart-label>
+        </div>
+        <div class="adminData">
+            <select asp-for="Availability" asp-items="listAvailability"></select>
+            <span asp-validation-for="Availability"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Gender"></smart-label>
+        </div>
+        <div class="adminData">
+            <select asp-for="Gender" asp-items="listGender"></select>
+            <span asp-validation-for="Gender"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="AgeGroup"></smart-label>
+        </div>
+        <div class="adminData">
+            <select asp-for="AgeGroup" asp-items="ageGroupList"></select>
+            <span asp-validation-for="AgeGroup"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Color"></smart-label>
+        </div>
+        <div class="adminData">
+            <editor asp-for="Color" />
+            <span asp-validation-for="Color"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Size"></smart-label>
+        </div>
+        <div class="adminData">
+            <editor asp-for="Size" />
+            <span asp-validation-for="Size"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Material"></smart-label>
+        </div>
+        <div class="adminData">
+            <editor asp-for="Material" />
+            <span asp-validation-for="Material"></span>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Pattern"></smart-label>
+        </div>
+        <div class="adminData">
+            <editor asp-for="Pattern" />
+            <span asp-validation-for="Pattern"></span>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        window.initGoogleProductTaxonomy($('#@Html.IdFor(model => model.DefaultGoogleCategory)'));
+    });
+</script>

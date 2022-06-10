@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using FluentValidation;
-using Smartstore.Web.Modelling;
 
 namespace Smartstore.Admin.Models.Messages
 {
@@ -20,10 +19,12 @@ namespace Smartstore.Admin.Models.Messages
         public int Port { get; set; }
 
         [LocalizedDisplay("*Username")]
+        [DisplayFormat(ConvertEmptyStringToNull = false)]
         public string Username { get; set; }
 
         [LocalizedDisplay("*Password")]
         [DataType(DataType.Password)]
+        [DisplayFormat(ConvertEmptyStringToNull = false)]
         public string Password { get; set; }
 
         [LocalizedDisplay("*EnableSsl")]
@@ -49,8 +50,6 @@ namespace Smartstore.Admin.Models.Messages
             RuleFor(x => x.Email).NotEmpty().EmailAddress();
             RuleFor(x => x.DisplayName).NotEmpty();
             RuleFor(x => x.Host).NotEmpty();
-            RuleFor(x => x.Username).NotEmpty();
-            RuleFor(x => x.Password).NotEmpty();
         }
     }
 }

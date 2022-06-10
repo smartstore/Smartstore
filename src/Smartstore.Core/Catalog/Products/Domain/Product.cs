@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Newtonsoft.Json;
@@ -16,13 +13,11 @@ using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Checkout.GiftCards;
 using Smartstore.Core.Common;
 using Smartstore.Core.Content.Media;
-using Smartstore.Core.Seo;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
+using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
 using Smartstore.Data;
-using Smartstore.Domain;
-using System.Threading.Tasks;
 
 namespace Smartstore.Core.Catalog.Products
 {
@@ -70,7 +65,11 @@ namespace Smartstore.Core.Catalog.Products
                         .HasForeignKey("Product_Id")
                         .HasConstraintName("FK_dbo.Product_ProductTag_Mapping_dbo.Product_Product_Id")
                         .OnDelete(DeleteBehavior.Cascade),
-                    c => c.HasKey("Product_Id", "ProductTag_Id"));
+                    c =>
+                    {
+                        c.HasIndex("Product_Id");
+                        c.HasKey("Product_Id", "ProductTag_Id");
+                    });
         }
     }
 
@@ -208,7 +207,6 @@ namespace Smartstore.Core.Catalog.Products
         /// <summary>
         /// Gets or sets the admin comment.
         /// </summary>
-        [StringLength(4000)]
         public string AdminComment { get; set; }
 
         /// <summary>
@@ -417,7 +415,6 @@ namespace Smartstore.Core.Catalog.Products
         /// <summary>
         /// Gets or sets the license agreement text.
         /// </summary>
-        [StringLength(4000)]
         public string UserAgreementText { get; set; }
 
         /// <summary>

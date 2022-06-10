@@ -1,7 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-
-namespace Smartstore.Data.Caching
+﻿namespace Smartstore.Data.Caching
 {
     /// <summary>
     /// Database cache store.

@@ -1,11 +1,9 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Newtonsoft.Json;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Identity;
-using Smartstore.Domain;
 
 namespace Smartstore.Core.Catalog.Pricing
 {
@@ -16,7 +14,7 @@ namespace Smartstore.Core.Catalog.Pricing
             builder.HasOne(c => c.Product)
                 .WithMany(c => c.TierPrices)
                 .HasForeignKey(c => c.ProductId)
-                .IsRequired(false);
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.HasOne(c => c.CustomerRole)
                 .WithMany()

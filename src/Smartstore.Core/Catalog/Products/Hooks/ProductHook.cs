@@ -1,10 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using Smartstore.Core.Data;
-using Smartstore.Data.Batching;
+﻿using Smartstore.Core.Data;
 using Smartstore.Data.Hooks;
 
 namespace Smartstore.Core.Catalog.Products
@@ -68,7 +62,7 @@ namespace Smartstore.Core.Catalog.Products
                 .ToList();
 
             // Process in batches to avoid errors due to too long SQL statements.
-            foreach (var productsChunk in products.Slice(100))
+            foreach (var productsChunk in products.Chunk(100))
             {
                 var productIdsChunk = productsChunk
                     .Select(x => x.Id)

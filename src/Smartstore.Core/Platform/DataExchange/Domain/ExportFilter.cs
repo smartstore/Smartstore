@@ -1,5 +1,4 @@
-﻿using System;
-using Smartstore.Core.Catalog.Products;
+﻿using Smartstore.Core.Catalog.Products;
 
 namespace Smartstore.Core.DataExchange
 {

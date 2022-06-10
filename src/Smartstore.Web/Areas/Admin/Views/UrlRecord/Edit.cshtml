@@ -1,0 +1,36 @@
+﻿@using Smartstore.Admin.Models.UrlRecord
+
+@model UrlRecordModel
+
+@{
+    ViewBag.Title = T("Admin.Common.Edit") + " - " + Model.Slug;
+}
+
+<form asp-action="Edit">
+    <div class="section-header">
+        <div class="title">
+            <i class="fa fa-search"></i>
+            <span>@ViewBag.Title <a asp-action="List">(@T("Admin.Common.BackToList"))</a></span>
+        </div>
+        <div class="options">
+            <a href="@Model.EntityUrl" class="btn btn-secondary">
+                <i class="fa fa-external-link-alt"></i>
+                <span>@T("Admin.Common.Entity")</span>
+            </a>
+            <button type="submit" name="save" value="save" class="btn btn-warning">
+                <i class="fa fa-check"></i>
+                <span>@T("Admin.Common.Save")</span>
+            </button>
+            <button type="submit" name="save" value="save-continue" class="btn btn-secondary">
+                <span>@T("Admin.Common.SaveContinue")</span>
+            </button>
+            <button type="submit" id="urlrecord-delete" name="urlrecord-delete" class="btn btn-danger">
+                <i class="far fa-trash-alt"></i>
+                <span>@T("Admin.Common.Delete")</span>
+            </button>
+            <confirm button-id="urlrecord-delete" />
+        </div>
+    </div>
+
+    <partial name="_CreateOrUpdate" />
+</form>

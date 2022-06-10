@@ -1,19 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Routing;
 using Smartstore.Caching;
+using Smartstore.Collections;
 using Smartstore.Core.Content.Topics;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
-using Smartstore.Core.Stores;
 using Smartstore.Core.Localization;
-using Smartstore.Collections;
-using Smartstore.Caching.OutputCache;
-using Smartstore.Domain;
+using Smartstore.Core.OutputCache;
+using Smartstore.Core.Stores;
 using Smartstore.Data.Hooks;
-using System.Threading;
 
 namespace Smartstore.Core.Widgets
 {
@@ -32,6 +27,13 @@ namespace Smartstore.Core.Widgets
         const string TOPIC_WIDGET_ALL_MODEL_KEY = "pres:topic:widget-all-{0}-{1}-{2}";
         const string TOPIC_WIDGET_PATTERN_KEY = "pres:topic:widget*";
 
+        private readonly static Dictionary<string, string> _legacyWidgetNameMap = new()
+        {
+            { "body_start_html_tag_after", "start" },
+            { "body_end_html_tag_before", "end" },
+            { "head_html_tag", "start" }
+        };
+
         private readonly SmartDbContext _db;
         private readonly ICacheManager _cache;
         private readonly IRequestCache _requestCache;
@@ -40,7 +42,7 @@ namespace Smartstore.Core.Widgets
         private readonly IWorkContext _workContext;
         private readonly IStoreContext _storeContext;
         private readonly IDisplayControl _displayControl;
-
+        
         public DefaultWidgetSelector(
             SmartDbContext db,
             ICacheManager cache,
@@ -89,88 +91,101 @@ namespace Smartstore.Core.Widgets
 
         #endregion
 
-        public async Task<IEnumerable<WidgetInvoker>> GetWidgetsAsync(string zone, object model = null)
+        public async Task<IEnumerable<WidgetInvoker>> GetWidgetsAsync(string zone, ViewContext viewContext, object model = null)
         {
             Guard.NotEmpty(zone, nameof(zone));
 
+            if (_legacyWidgetNameMap.ContainsKey(zone))
+            {
+                zone = _legacyWidgetNameMap[zone];
+            }
+            
             var storeId = _storeContext.CurrentStore.Id;
+            var isPublicArea = viewContext.HttpContext.GetRouteData().Values.GetAreaName().IsEmpty();
+            var widgets = Enumerable.Empty<WidgetInvoker>();
 
             #region Module Widgets
 
-            var widgets = _widgetService.LoadActiveWidgetsByWidgetZone(zone, storeId)
-                .Select(x => x.Value.GetDisplayWidget(zone, model, storeId))
-                .Where(x => x != null);
+            if (isPublicArea)
+            {
+                widgets = _widgetService.LoadActiveWidgetsByWidgetZone(zone, storeId)
+                    .Select(x => x.Value.GetDisplayWidget(zone, model, storeId))
+                    .Where(x => x != null);
+            }
 
             #endregion
 
             #region Topic Widgets
 
-            // Get topic widgets from STATIC cache
-            var allTopicsCacheKey = string.Format(TOPIC_WIDGET_ALL_MODEL_KEY, storeId, _workContext.WorkingLanguage.Id, _workContext.CurrentCustomer.GetRolesIdent());
-
-            var topicWidgets = await _cache.GetAsync(allTopicsCacheKey, async () =>
+            if (isPublicArea)
             {
-                var allTopicWidgets = await _db.Topics
-                    .AsNoTracking()
-                    .ApplyStandardFilter(customerRoleIds: _workContext.CurrentCustomer.GetRoleIds(), storeId: storeId)
-                    .Where(x => x.RenderAsWidget)
-                    .ToListAsync();
+                // Get topic widgets from STATIC cache
+                var allTopicsCacheKey = string.Format(TOPIC_WIDGET_ALL_MODEL_KEY, storeId, _workContext.WorkingLanguage.Id, _workContext.CurrentCustomer.GetRolesIdent());
 
-                var stubs = allTopicWidgets
-                    .Select(t =>
-                    {
-                        var locTitle = t.GetLocalized(x => t.Title);
-                        var locBody = t.GetLocalized(x => t.Body, detectEmptyHtml: false);
-
-                        return new TopicWidget
-                        {
-                            Id = t.Id,
-                            Bordered = t.WidgetBordered,
-                            WrapContent = !t.WidgetWrapContent.HasValue || t.WidgetWrapContent.Value,
-                            ShowTitle = t.WidgetShowTitle,
-                            SystemName = t.SystemName.SanitizeHtmlId(),
-                            ShortTitle = t.GetLocalized(x => x.ShortTitle),
-                            Title = locTitle,
-                            TitleRtl = locTitle.CurrentLanguage.Rtl,
-                            Intro = t.GetLocalized(x => x.Intro),
-                            Body = locBody,
-                            BodyRtl = locBody.CurrentLanguage.Rtl,
-                            TitleTag = t.TitleTag,
-                            WidgetZones = t.GetWidgetZones().ToArray(),
-                            Priority = t.Priority,
-                            CookieType = t.CookieType
-                        };
-                    })
-                    .OrderBy(t => t.Priority)
-                    .ToList();
-
-                return stubs;
-            });
-
-            // Save widgets to zones map in request cache
-            var topicsByZone = _requestCache.Get(ByZoneTopicsCacheKey, () =>
-            {
-                var map = new Multimap<string, TopicWidgetInvoker>(StringComparer.OrdinalIgnoreCase);
-
-                foreach (var topicWidget in topicWidgets)
+                var topicWidgets = await _cache.GetAsync(allTopicsCacheKey, async () =>
                 {
-                    var zones = topicWidget.WidgetZones;
-                    if (zones != null && zones.Any())
-                    {
-                        foreach (var zone in zones)
+                    var allTopicWidgets = await _db.Topics
+                        .AsNoTracking()
+                        .ApplyStandardFilter(customerRoleIds: _workContext.CurrentCustomer.GetRoleIds(), storeId: storeId)
+                        .Where(x => x.RenderAsWidget)
+                        .ToListAsync();
+
+                    var stubs = allTopicWidgets
+                        .Select(t =>
                         {
-                            var topicWidgetInvoker = new TopicWidgetInvoker(topicWidget);
-                            map.Add(zone, topicWidgetInvoker);
+                            var locTitle = t.GetLocalized(x => t.Title);
+                            var locBody = t.GetLocalized(x => t.Body, detectEmptyHtml: false);
+
+                            return new TopicWidget
+                            {
+                                Id = t.Id,
+                                Bordered = t.WidgetBordered,
+                                WrapContent = !t.WidgetWrapContent.HasValue || t.WidgetWrapContent.Value,
+                                ShowTitle = t.WidgetShowTitle,
+                                SystemName = t.SystemName.SanitizeHtmlId(),
+                                ShortTitle = t.GetLocalized(x => x.ShortTitle),
+                                Title = locTitle,
+                                TitleRtl = locTitle.CurrentLanguage.Rtl,
+                                Intro = t.GetLocalized(x => x.Intro),
+                                Body = locBody,
+                                BodyRtl = locBody.CurrentLanguage.Rtl,
+                                TitleTag = t.TitleTag,
+                                WidgetZones = t.GetWidgetZones().ToArray(),
+                                Priority = t.Priority,
+                                CookieType = t.CookieType
+                            };
+                        })
+                        .OrderBy(t => t.Priority)
+                        .ToList();
+
+                    return stubs;
+                });
+
+                // Save widgets to zones map in request cache
+                var topicsByZone = _requestCache.Get(ByZoneTopicsCacheKey, () =>
+                {
+                    var map = new Multimap<string, TopicWidgetInvoker>(StringComparer.OrdinalIgnoreCase);
+
+                    foreach (var topicWidget in topicWidgets)
+                    {
+                        var zones = topicWidget.WidgetZones;
+                        if (zones != null && zones.Any())
+                        {
+                            foreach (var zone in zones)
+                            {
+                                var topicWidgetInvoker = new TopicWidgetInvoker(topicWidget);
+                                map.Add(zone, topicWidgetInvoker);
+                            }
                         }
                     }
+
+                    return map;
+                });
+
+                if (topicsByZone.ContainsKey(zone))
+                {
+                    widgets = widgets.Concat(topicsByZone[zone]);
                 }
-
-                return map;
-            });
-
-            if (topicsByZone.ContainsKey(zone))
-            {
-                widgets = widgets.Concat(topicsByZone[zone]);
             }
 
             #endregion

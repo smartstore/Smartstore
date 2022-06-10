@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.GiftCards;
@@ -14,13 +6,12 @@ using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Content.Media;
-using Smartstore.Core.Identity;
 using Smartstore.Core.Data;
+using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Logging;
 using Smartstore.Core.Messaging.Events;
 using Smartstore.Core.Stores;
-using Smartstore.Domain;
 using Smartstore.Events;
 using Smartstore.Net.Mail;
 using Smartstore.Templating;
@@ -32,7 +23,7 @@ namespace Smartstore.Core.Messaging
     {
         const string LoremIpsum = "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.";
 
-        private Dictionary<string, Func<Task<object>>> _testModelFactories = new(StringComparer.OrdinalIgnoreCase);
+        private Dictionary<string, Func<Task<object>>> _testModelFactories;
 
         private readonly SmartDbContext _db;
         private readonly ICommonServices _services;
@@ -137,7 +128,12 @@ namespace Smartstore.Core.Messaging
 
             // Model tree
             var modelTree = _modelProvider.BuildModelTree(model);
-            var modelTreeJson = JsonConvert.SerializeObject(modelTree, Formatting.None);
+            var modelTreeJson = JsonConvert.SerializeObject(modelTree, new JsonSerializerSettings 
+            { 
+                Formatting = Formatting.None,
+                TypeNameHandling = TypeNameHandling.Objects
+            });
+
             if (modelTreeJson != messageTemplate.LastModelTree)
             {
                 messageContext.MessageTemplate.LastModelTree = modelTreeJson;
@@ -378,8 +374,8 @@ namespace Smartstore.Core.Messaging
                     throw new ArgumentException("'MessageTemplateName' must not be empty if 'MessageTemplate' is null.", nameof(ctx));
                 }
 
+                // INFO: tracked because entity is updated in CreateMessageAsync.
                 ctx.MessageTemplate = _db.MessageTemplates
-                    .AsNoTracking()
                     .Where(x => x.Name == ctx.MessageTemplateName)
                     .ApplyStoreFilter(ctx.Store.Id)
                     .FirstOrDefault();
@@ -532,6 +528,14 @@ namespace Smartstore.Core.Messaging
                             ["Address"] = "VatAddress"
                         });
                         break;
+                    case MessageTemplateNames.SystemGeneric:
+                        result.Add(new NamedModelPart("Generic")
+                        {
+                            ["Email"] = "john@doe.com",
+                            ["Subject"] = "Subject",
+                            ["Body"] = LoremIpsum
+                        });
+                        break;
                 }
             }
 
@@ -638,7 +642,14 @@ namespace Smartstore.Core.Messaging
                     }
                 }
 
-                return factory?.Invoke();
+                if (factory != null)
+                {
+                    return await factory.Invoke();
+                }
+
+                // If no random entity exists in the database (e.g. RecurringPayment), then the associated parent model is
+                // of type 'TestDrop' and the child model may not be resolved (e.g. RecurringPayment.InitialOrder).
+                return null;
             }
         }
 
@@ -665,7 +676,7 @@ namespace Smartstore.Core.Messaging
 
                 if (entity is NewsletterSubscription subscription)
                 {
-                    // Campaign preview requires NewsLetterSubscription entity.
+                    // Campaign preview requires NewsletterSubscription entity.
                     subscription.NewsletterSubscriptionGuid = Guid.NewGuid();
                     subscription.Email = "john@doe.com";
                     subscription.Active = true;

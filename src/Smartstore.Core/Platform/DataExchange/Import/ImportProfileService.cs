@@ -1,16 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Diagnostics;
 using Dasync.Collections;
-using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Common;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Seo;
-using Smartstore.Engine;
 using Smartstore.IO;
 using Smartstore.Scheduling;
 
@@ -68,7 +61,7 @@ namespace Smartstore.Core.DataExchange.Import
 
             if (directory.Exists)
             {
-                var files = await directory.EnumerateFilesAsync().ToListAsync();
+                var files = directory.EnumerateFiles();
                 if (files.Any())
                 {
                     foreach (var file in files)
@@ -195,6 +188,32 @@ namespace Smartstore.Core.DataExchange.Import
             }
         }
 
+        public virtual async Task<int> DeleteUnusedImportDirectoriesAsync()
+        {
+            var numFolders = 0;
+            var tenantRoot = _appContext.TenantRoot;
+
+            var importProfileFolders = await _db.ImportProfiles
+                .ApplyStandardFilter()
+                .Select(x => x.FolderName)
+                .ToListAsync();
+
+            var dir = await tenantRoot.GetDirectoryAsync(tenantRoot.PathCombine(IMPORT_FILE_ROOT));
+            if (dir.Exists)
+            {
+                foreach (var subdir in dir.EnumerateDirectories())
+                {
+                    if (!importProfileFolders.Contains(subdir.Name))
+                    {
+                        dir.FileSystem.ClearDirectory(subdir, true, TimeSpan.Zero);
+                        numFolders++;
+                    }
+                }
+            }
+
+            return numFolders;
+        }
+
         #region Localized entity properties labels
 
         public virtual IDictionary<string, string> GetEntityPropertiesLabels(ImportEntityType entityType)
@@ -317,7 +336,7 @@ namespace Smartstore.Core.DataExchange.Import
                         : "Admin.Customers.Customers.Fields." + property;
                     break;
                 case ImportEntityType.NewsletterSubscription:
-                    key = "Admin.Promotions.NewsLetterSubscriptions.Fields." + property;
+                    key = "Admin.Promotions.NewsletterSubscriptions.Fields." + property;
                     break;
             }
 

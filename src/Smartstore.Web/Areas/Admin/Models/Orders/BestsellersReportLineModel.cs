@@ -1,36 +1,15 @@
-﻿using Smartstore.Core.Common;
-using Smartstore.Web.Modelling;
+﻿using Smartstore.Admin.Models.Catalog;
 
 namespace Smartstore.Admin.Models.Orders
 {
-    [LocalizedDisplay("Admin.SalesReport.Bestsellers.Fields.")]
-    public class BestsellersReportLineModel : ModelBase
+    // INFO: must be 'Admin.Catalog.Products.Fields.' for ProductOverviewModel.
+    [LocalizedDisplay("Admin.Catalog.Products.Fields.")]
+    public class BestsellersReportLineModel : ProductOverviewModel
     {
-        [LocalizedDisplay("*TotalAmount")]
+        [LocalizedDisplay("Admin.SalesReport.Bestsellers.Fields.TotalAmount")]
         public Money TotalAmount { get; set; }
 
-        [LocalizedDisplay("*TotalQuantity")]
+        [LocalizedDisplay("Admin.SalesReport.Bestsellers.Fields.TotalQuantity")]
         public string TotalQuantity { get; set; }
-
-        [LocalizedDisplay("Admin.Common.Entity.Fields.Id")]
-        public int ProductId { get; set; }
-        public string ProductTypeName { get; set; }
-        public string ProductTypeLabelHint { get; set; }
-
-        [LocalizedDisplay("Admin.Catalog.Products.Fields.PictureThumbnailUrl")]
-        public string PictureThumbnailUrl { get; set; }
-        public bool NoThumb { get; set; }
-
-        [LocalizedDisplay("*Name")]
-        public string ProductName { get; set; }
-
-        [LocalizedDisplay("Admin.Catalog.Products.Fields.Sku")]
-        public string Sku { get; set; }
-
-        [LocalizedDisplay("Admin.Catalog.Products.Fields.StockQuantity")]
-        public int StockQuantity { get; set; }
-
-        [LocalizedDisplay("Admin.Catalog.Products.Fields.Price")]
-        public decimal Price { get; set; }
     }
 }

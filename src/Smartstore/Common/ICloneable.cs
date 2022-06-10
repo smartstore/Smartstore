@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Smartstore
+﻿namespace Smartstore
 {
     /// <summary>
     /// Generic variant of <see cref="ICloneable" />.

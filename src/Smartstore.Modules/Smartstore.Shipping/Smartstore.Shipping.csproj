@@ -1,0 +1,7 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
+  <PropertyGroup>
+		<Product>Smartstore Shipping</Product>
+		<OutputPath>..\..\Smartstore.Web\Modules\Smartstore.Shipping</OutputPath>
+		<OutDir>$(OutputPath)</OutDir>
+  </PropertyGroup>
+</Project>

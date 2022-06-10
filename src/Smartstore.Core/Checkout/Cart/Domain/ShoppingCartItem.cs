@@ -1,38 +1,13 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Identity;
-using Smartstore.Domain;
 
 namespace Smartstore.Core.Checkout.Cart
 {
-    internal class ShoppingCartItemMap : IEntityTypeConfiguration<ShoppingCartItem>
-    {
-        public void Configure(EntityTypeBuilder<ShoppingCartItem> builder)
-        {
-            //builder.HasOne(x => x.Customer)
-            //    .WithMany(x => x.ShoppingCartItems)
-            //    .HasForeignKey(x => x.CustomerId)
-            //    .IsRequired(false);
-
-            //builder.HasOne(x => x.Product)
-            //    .WithMany()
-            //    .HasForeignKey(x => x.ProductId)
-            //    .IsRequired(false);
-
-            builder.HasOne(x => x.BundleItem)
-                .WithMany()
-                .HasForeignKey(x => x.BundleItemId)
-                .OnDelete(DeleteBehavior.SetNull);
-        }
-    }
-
     /// <summary>
     /// Represents a shopping cart item
     /// </summary>

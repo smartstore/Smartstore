@@ -10,8 +10,7 @@ $art-price-offer-color:         $red;
 $art-border-color:              transparent;
 $art-divider-color:             $gray-300;
 $art-border-radius:             $border-radius-sm;
-$art-box-shadow:                0 0 1px rgba(#000, 0.1), 0 1px 2px rgba(#000, 0.2), 0 1px 10px rgba(#000, 0.15);
-$art-drop-box-shadow:           0 0 1px rgba(#000, 0.1), 0 2px 2px rgba(#000, 0.12), 0 4px 8px rgba(#000, 0.15);
+$art-box-shadow:                $box-shadow-sm-var;
 
 @mixin make-art-row() {
     display: flex;
@@ -53,7 +52,7 @@ $art-drop-box-shadow:           0 0 1px rgba(#000, 0.1), 0 2px 2px rgba(#000, 0.
     }
 
     .btn { 
-        border-radius: 0; 
+        //border-radius: 0; 
         transition: none; 
     }
 
@@ -333,14 +332,15 @@ $art-drop-box-shadow:           0 0 1px rgba(#000, 0.1), 0 2px 2px rgba(#000, 0.
 }
 
 .art-drop {
+    --shadow-yoffset: 1;
     position: absolute;
     left: -1px;
     right: -1px;
     bottom: 0;
     background: $art-active-bg-color;
-    box-shadow: $art-drop-box-shadow;
+    box-shadow: $art-box-shadow;
     padding-top: 1px;
-    clip-path: inset(0 -5px -15px -5px);
+    clip-path: inset(0 -20px -20px -20px);
     border-radius: 0 0 $art-border-radius $art-border-radius;
     overflow: hidden;
     opacity: 0;
@@ -634,10 +634,6 @@ $art-drop-box-shadow:           0 0 1px rgba(#000, 0.1), 0 2px 2px rgba(#000, 0.
         min-height: calc(var(--art-font-size-sm) * #{$art-line-height});
         @include text-truncate();
     }
-
-    /*.art-price-block {
-        margin-top: 0.5rem;
-    }*/
 
     .art-oldprice {
         min-height: calc(var(--art-font-size) * 0.925);

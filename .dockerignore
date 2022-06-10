@@ -1,0 +1,58 @@
+**/.classpath
+**/.dockerignore
+**/.env
+**/.DS_Store
+**/.git
+**/.gitignore
+**/.project
+**/.settings
+**/.toolstarget
+**/.vs
+**/.vscode
+**/*.*proj.user
+**/*.dbmdl
+**/*.jfm
+**/azds.yaml
+**/DataProtection-Keys
+**/Desktop.ini
+**/bin
+**/charts
+**/docker-compose*
+**/Dockerfile*
+**/node_modules
+**/npm-debug.log
+**/obj
+**/secrets.dev.yaml
+**/[Tt]humbs.db
+**/values.dev.yaml
+LICENSE
+README.md
+
+
+# Build
+# -------------------------------------
+
+build/packages
+
+# App specific
+# -------------------------------------
+
+# Backups
+**/[Bb]ackup*
+**/_[Bb]ackup*
+**/*.bak
+**/*.orig
+**/Kopie von*
+
+src/Smartstore.Web/Modules/*
+src/Smartstore.Web/App_Data/*
+!src/Smartstore.Web/App_Data/EmailTemplates/*
+!src/Smartstore.Web/App_Data/Geo/*
+!src/Smartstore.Web/App_Data/Localization/*
+!src/Smartstore.Web/App_Data/Samples/*
+!src/Smartstore.Web/App_Data/icons.json
+!src/Smartstore.Web/App_Data/widgetzones.json
+
+src/Smartstore.Web/wwwroot/[Ee]xchange/*
+src/Smartstore.Web/[Cc]onfig/usersettings*
+src/Smartstore.Web/Themes/FlexMuseo/*

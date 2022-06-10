@@ -74,20 +74,20 @@
                     </div>
 
                     <div sm-if="Model.UsernamesEnabled" class="form-group row">
-                        <label asp-for="UserName" class="col-md-3 col-form-label required"></label>
+                        <label asp-for="Username" class="col-md-3 col-form-label required"></label>
                         <div class="col-md-9">
                             @if (Model.CheckUsernameAvailabilityEnabled)
                             {
                                 <div class="input-group">
-                                    <input asp-for="UserName" class="remember" />
+                                    <input asp-for="Username" class="remember" />
                                     <partial name="_CheckUsernameAvailability" />
                                 </div>
                             }
                             else
                             {
-                                <input asp-for="UserName" class="remember" />
+                                <input asp-for="Username" class="remember" />
                             }
-                            <span asp-validation-for="UserName"></span>
+                            <span asp-validation-for="Username"></span>
                         </div>
                     </div>
 
@@ -182,8 +182,8 @@
                         <div class="col-md-9">
                             <select asp-for="CountryId" asp-items="ViewBag.AvailableCountries"
                                     class="country-input country-selector remember"
-                                    data-region-control-selector="#@Html.NameFor(x => x.StateProvinceId)"
-                                    data-states-ajax-url="@Url.Action("StatesByCountryId", "Customer")"
+                                    data-region-control-selector="#@Html.IdFor(x => x.StateProvinceId)"
+                                    data-states-ajax-url="@Url.Action("StatesByCountryId", "Common")"
                                     data-addEmptyStateIfRequired="true">
                             </select>
                         </div>
@@ -219,9 +219,9 @@
                 <fieldset sm-if="Model.NewsletterEnabled" class="content-group">
                     <legend><span>@T("Account.Options")</span></legend>
                     <div class="form-group row">
-                        <div class="col">
+                        <div class="col form-control-plaintext">
                             <div class="form-check">
-                                <input asp-for="Newsletter" sm-ignore-label="true" sm-switch="false" class="remember" />
+                                <input asp-for="Newsletter" sm-ignore-label="true" sm-switch="false" class="remember form-check-input" />
                                 <label class="form-check-label" for="Newsletter">
                                     @Html.Raw(T("Account.Fields.Newsletter", await Url.TopicAsync("PrivacyInfo")))
                                 </label>

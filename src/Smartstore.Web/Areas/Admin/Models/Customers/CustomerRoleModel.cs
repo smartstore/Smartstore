@@ -2,7 +2,6 @@
 using FluentValidation;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Rules;
-using Smartstore.Web.Modelling;
 
 namespace Smartstore.Admin.Models.Customers
 {

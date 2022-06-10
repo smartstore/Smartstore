@@ -1,0 +1,17 @@
+﻿/// <reference path="../../../Presentation/SmartStore.Web/Administration/Content/theme.scss" />
+
+.widget-zone-info {
+    display: block;
+    background: #fff;
+    color: inherit;
+    border: 1px dashed $gray-400;
+    margin-bottom: 3px;
+    text-align: left;
+}
+
+#header,
+.options {
+    .widget-zone-info {
+        display: inline-block;
+    }
+}

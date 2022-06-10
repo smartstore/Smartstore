@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Xml;
+﻿using System.Xml;
 using Microsoft.Extensions.FileProviders;
 using Smartstore.Collections;
 using Smartstore.Engine.Modularity;

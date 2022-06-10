@@ -93,25 +93,24 @@
                 </div>
                 <div class="adminRow">
                     <div class="adminTitle">
-                        <smart-label asp-for="GiftCards_Activated_OrderStatusId" />
+                        <smart-label asp-for="GiftCardsActivatedOrderStatusId" />
                     </div>
                     <div class="adminData">
-                        @*TODO: (mh) (core) Model validation fails if no value is selected. Probably global problem for nullable types in selects*@
-                        <setting-editor asp-for="GiftCards_Activated_OrderStatusId">
-                            <select asp-for="GiftCards_Activated_OrderStatusId" asp-items="Html.GetLocalizedEnumSelectList(typeof(OrderStatus))" asp-placeholder="@T("Common.PleaseSelect")"></select>
+                        <setting-editor asp-for="GiftCardsActivatedOrderStatusId">
+                            <select asp-for="GiftCardsActivatedOrderStatusId" asp-items="Html.GetLocalizedEnumSelectList(typeof(OrderStatus))" asp-placeholder="@T("Common.PleaseSelect")"></select>
                         </setting-editor>
-                        <span asp-validation-for="GiftCards_Activated_OrderStatusId"></span>
+                        <span asp-validation-for="GiftCardsActivatedOrderStatusId"></span>
                     </div>
                 </div>
                 <div class="adminRow">
                     <div class="adminTitle">
-                        <smart-label asp-for="GiftCards_Deactivated_OrderStatusId" />
+                        <smart-label asp-for="GiftCardsDeactivatedOrderStatusId" />
                     </div>
                     <div class="adminData">
-                        <setting-editor asp-for="GiftCards_Deactivated_OrderStatusId">
-                            <select asp-for="GiftCards_Deactivated_OrderStatusId" asp-items="Html.GetLocalizedEnumSelectList(typeof(OrderStatus))" asp-placeholder="@T("Common.PleaseSelect")"></select>
+                        <setting-editor asp-for="GiftCardsDeactivatedOrderStatusId">
+                            <select asp-for="GiftCardsDeactivatedOrderStatusId" asp-items="Html.GetLocalizedEnumSelectList(typeof(OrderStatus))" asp-placeholder="@T("Common.PleaseSelect")"></select>
                         </setting-editor>
-                        <span asp-validation-for="GiftCards_Deactivated_OrderStatusId"></span>
+                        <span asp-validation-for="GiftCardsDeactivatedOrderStatusId"></span>
                     </div>
                 </div>
                 <div class="adminRow">

@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Identity;
 
 namespace Smartstore.Core.Checkout.Cart
@@ -44,8 +43,7 @@ namespace Smartstore.Core.Checkout.Cart
         /// A value indicating whether to remove invalid checkout attributes.
         /// For example removes checkout attributes that require shipping, if the cart does not require shipping at all.
         /// </param>
-        /// <returns>Number of deleted shopping cart items.</returns>
-        Task<int> DeleteCartItemAsync(ShoppingCartItem cartItem, bool resetCheckoutData = true, bool removeInvalidCheckoutAttributes = false);
+        Task DeleteCartItemAsync(ShoppingCartItem cartItem, bool resetCheckoutData = true, bool removeInvalidCheckoutAttributes = false);
 
         /// <summary>
         /// Deletes all shopping cart items in a cart (including child items like bundle items).
@@ -82,8 +80,28 @@ namespace Smartstore.Core.Checkout.Cart
         /// <param name="customer">Customer of cart items.</param>
         /// <param name="cartItemId">Cart item to update.</param>
         /// <param name="newQuantity">New quantitiy.</param>
-        /// <param name="resetCheckoutData">Value indicating whether to reset checkout data.</param>
+        /// <param name="resetCheckoutData">A value indicating whether to reset customer's checkout data.</param>
         /// <returns>List of error messages.</returns>
         Task<IList<string>> UpdateCartItemAsync(Customer customer, int cartItemId, int newQuantity, bool resetCheckoutData);
+
+        /// <summary>
+        /// Saves data entered on the shopping cart page (checkout attributes and whether to use reward points).
+        /// Typically called right before entering checkout.
+        /// It is used for example by payment buttons that skip checkout and redirect on a payment provider page.
+        /// </summary>
+        /// <param name="cart">Shopping cart, if <c>null</c> the cart of the current customer and store is loaded.</param>
+        /// <param name="warnings">List of returned warnings.</param>
+        /// <param name="query"><see cref="ProductVariantQuery"/> with checkout attributes to save.</param>
+        /// <param name="useRewardPoints">A value indicating whether to use reward points during checkout. <c>null</c> to ignore.</param>
+        /// <param name="resetCheckoutData">A value indicating whether to reset customer's checkout data.</param>
+        /// <param name="validateCheckoutAttributes">A value indicating whether to validate checkout attributes.</param>
+        /// <returns><c>True</c> when the shopping cart is valid, otherwise <c>false</c>.</returns>
+        Task<bool> SaveCartDataAsync(
+            ShoppingCart cart,
+            IList<string> warnings,
+            ProductVariantQuery query,
+            bool? useRewardPoints = null,
+            bool resetCheckoutData = true,
+            bool validateCheckoutAttributes = true);
     }
 }

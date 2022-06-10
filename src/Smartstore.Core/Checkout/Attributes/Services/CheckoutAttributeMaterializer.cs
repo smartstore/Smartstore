@@ -1,8 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Dynamic.Core;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
+﻿using System.Linq.Dynamic.Core;
+using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Data;
 
@@ -87,6 +84,91 @@ namespace Smartstore.Core.Checkout.Attributes
             }
 
             return checkoutAttributes;
+        }
+
+        public async Task<CheckoutAttributeSelection> CreateCheckoutAttributeSelectionAsync(ProductVariantQuery query, ShoppingCart cart)
+        {
+            Guard.NotNull(query, nameof(query));
+            Guard.NotNull(cart, nameof(cart));
+
+            var selection = new CheckoutAttributeSelection(string.Empty);
+
+            if (!query.CheckoutAttributes.Any())
+            {
+                return selection;
+            }
+
+            var checkoutAttributes = await GetCheckoutAttributesAsync(cart, cart.StoreId);
+
+            foreach (var attribute in checkoutAttributes)
+            {
+                var selectedItems = query.CheckoutAttributes.Where(x => x.AttributeId == attribute.Id);
+
+                switch (attribute.AttributeControlType)
+                {
+                    case AttributeControlType.DropdownList:
+                    case AttributeControlType.RadioList:
+                    case AttributeControlType.Boxes:
+                        {
+                            var selectedValue = selectedItems.FirstOrDefault()?.Value;
+                            if (selectedValue.HasValue())
+                            {
+                                var selectedAttributeValueId = selectedValue.SplitSafe(',').FirstOrDefault()?.ToInt();
+                                if (selectedAttributeValueId.GetValueOrDefault() > 0)
+                                {
+                                    selection.AddAttributeValue(attribute.Id, selectedAttributeValueId.Value);
+                                }
+                            }
+                        }
+                        break;
+
+                    case AttributeControlType.Checkboxes:
+                        {
+                            foreach (var item in selectedItems)
+                            {
+                                var selectedValue = item.Value.SplitSafe(',').FirstOrDefault()?.ToInt();
+                                if (selectedValue.GetValueOrDefault() > 0)
+                                {
+                                    selection.AddAttributeValue(attribute.Id, selectedValue);
+                                }
+                            }
+                        }
+                        break;
+
+                    case AttributeControlType.TextBox:
+                    case AttributeControlType.MultilineTextbox:
+                        {
+                            var selectedValue = string.Join(",", selectedItems.Select(x => x.Value));
+                            if (selectedValue.HasValue())
+                            {
+                                selection.AddAttributeValue(attribute.Id, selectedValue);
+                            }
+                        }
+                        break;
+
+                    case AttributeControlType.Datepicker:
+                        {
+                            var selectedValue = selectedItems.FirstOrDefault()?.Date;
+                            if (selectedValue.HasValue)
+                            {
+                                selection.AddAttributeValue(attribute.Id, selectedValue.Value);
+                            }
+                        }
+                        break;
+
+                    case AttributeControlType.FileUpload:
+                        {
+                            var selectedValue = string.Join(",", selectedItems.Select(x => x.Value));
+                            if (selectedValue.HasValue())
+                            {
+                                selection.AddAttributeValue(attribute.Id, selectedValue);
+                            }
+                        }
+                        break;
+                }
+            }
+
+            return selection;
         }
     }
 }

@@ -1,7 +1,5 @@
-﻿using System.Linq;
-using Autofac;
+﻿using Autofac;
 using Smartstore.Core.Content.Menus;
-using Smartstore.Engine;
 using Smartstore.Engine.Builders;
 
 namespace Smartstore.Core.Bootstrapping

@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
+﻿using System.Runtime.CompilerServices;
 using Autofac;
 using Dasync.Collections;
 using Smartstore.Core.Checkout.Rules.Impl;
+using Smartstore.Core.Common.Services;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Rules;
 using Smartstore.Core.Stores;
@@ -16,18 +13,21 @@ namespace Smartstore.Core.Checkout.Rules
     {
         private readonly IComponentContext _componentContext;
         private readonly IRuleService _ruleService;
+        private readonly ICurrencyService _currencyService;
         private readonly IWorkContext _workContext;
         private readonly IStoreContext _storeContext;
 
         public CartRuleProvider(
             IComponentContext componentContext,
             IRuleService ruleService,
+            ICurrencyService currencyService,
             IWorkContext workContext,
             IStoreContext storeContext)
             : base(RuleScope.Cart)
         {
             _componentContext = componentContext;
             _ruleService = ruleService;
+            _currencyService = currencyService;
             _workContext = workContext;
             _storeContext = storeContext;
         }
@@ -165,7 +165,7 @@ namespace Smartstore.Core.Checkout.Rules
         protected override Task<IEnumerable<RuleDescriptor>> LoadDescriptorsAsync()
         {
             var language = _workContext.WorkingLanguage;
-            var currencyCode = _storeContext.CurrentStore.PrimaryStoreCurrency.CurrencyCode;
+            var currencyCode = _currencyService.PrimaryCurrency.CurrencyCode;
 
             var stores = _storeContext.GetAllStores()
                 .Select(x => new RuleValueSelectListOption { Value = x.Id.ToString(), Text = x.Name })

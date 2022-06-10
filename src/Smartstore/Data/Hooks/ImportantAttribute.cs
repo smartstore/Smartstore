@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Smartstore.Data.Hooks
+﻿namespace Smartstore.Data.Hooks
 {
     /// <summary>
     /// Specifies importance of a hook.

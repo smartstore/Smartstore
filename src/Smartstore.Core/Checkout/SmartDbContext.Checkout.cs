@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Smartstore.Core.Checkout.Affiliates;
+﻿using Smartstore.Core.Checkout.Affiliates;
 using Smartstore.Core.Checkout.Attributes;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.GiftCards;
@@ -14,6 +13,7 @@ namespace Smartstore.Core.Data
     {
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderItem> OrderItems { get; set; }
+        public DbSet<OrderNote> OrderNotes { get; set; }
         public DbSet<TaxCategory> TaxCategories { get; set; }
         public DbSet<GiftCard> GiftCards { get; set; }
         public DbSet<GiftCardUsageHistory> GiftCardUsageHistory { get; set; }

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Smartstore.Engine.Modularity
+﻿namespace Smartstore.Engine.Modularity
 {
     public enum ExtensionType
     {

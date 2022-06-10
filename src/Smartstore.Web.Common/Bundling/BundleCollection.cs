@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using Smartstore.Core.Theming;
-using Smartstore.Engine;
 
 namespace Smartstore.Web.Bundling
 {
@@ -76,31 +72,34 @@ namespace Smartstore.Web.Bundling
 
             route = Bundle.NormalizeRoute(route);
 
-            if (_staticBundles.TryGetValue(route, out var bundle))
+            if (route.HasValue())
             {
-                return bundle;
-            }
-
-            if (_dynamicBundles.Count > 0)
-            {
-                foreach (var dynamicBundle in _dynamicBundles.Values)
+                if (_staticBundles.TryGetValue(route, out var bundle))
                 {
-                    if (dynamicBundle.TryMatchRoute(route, out var routeValues))
+                    return bundle;
+                }
+
+                if (_dynamicBundles.Count > 0)
+                {
+                    foreach (var dynamicBundle in _dynamicBundles.Values)
                     {
-                        var dynamicBundleConext = new DynamicBundleContext
+                        if (dynamicBundle.TryMatchRoute(route, out var routeValues))
                         {
-                            Path = route,
-                            RouteValues = routeValues,
-                            Bundle = dynamicBundle,
-                            HttpContext = _httpContextAccessor.HttpContext,
-                            ApplicationContext = _appContext,
-                            ThemeRegistry = _themeRegistry,
-                            BundlingOptions = _options.CurrentValue
-                        };
-                        
-                        if (dynamicBundle.IsStatisfiedByConstraints(dynamicBundleConext))
-                        {
-                            return new DynamicBundleMatch(dynamicBundleConext);
+                            var dynamicBundleConext = new DynamicBundleContext
+                            {
+                                Path = route,
+                                RouteValues = routeValues,
+                                Bundle = dynamicBundle,
+                                HttpContext = _httpContextAccessor.HttpContext,
+                                ApplicationContext = _appContext,
+                                ThemeRegistry = _themeRegistry,
+                                BundlingOptions = _options.CurrentValue
+                            };
+
+                            if (dynamicBundle.IsStatisfiedByConstraints(dynamicBundleConext))
+                            {
+                                return new DynamicBundleMatch(dynamicBundleConext);
+                            }
                         }
                     }
                 }

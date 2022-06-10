@@ -1,0 +1,62 @@
+﻿@model AmazonPayButtonModel
+
+<div class="my-2 ml-3">
+    <div id="amazonpay-button"></div>
+</div>
+
+<script data-origin="amazonpay-button">
+    loadAmazonPayScript(function () {
+        var amazonPayButton = amazon.Pay.renderButton('#amazonpay-button', {
+            merchantId: '@Html.Raw(Model.SellerId)',
+            publicKeyId: '@Html.Raw(Model.PublicKeyId)',
+            ledgerCurrency: '@Model.LedgerCurrency',
+            checkoutLanguage: '@Model.CheckoutLanguage',
+            productType: '@Model.ButtonType',
+            placement: '@Model.ButtonPlacement',
+            buttonColor: '@Model.ButtonColor',
+            sandbox: @(Model.UseSandbox.ToString().ToLower())
+        });
+
+        amazonPayButton.onClick(function () {
+            // INFO: we are decoupling button render and checkout initiation
+            // by creating and signing the payload later using AJAX to reduce net traffic.
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("CreateCheckoutSession", "AmazonPay")',
+                data: $('#startcheckout').closest('form').serialize(),
+			    success: function (response) {
+                    if (response.success) {
+                        // INFO: this forces a redirect to AmazonPay in the same browser window.
+                        amazonPayButton.initCheckout({
+                            createCheckoutSessionConfig: {
+                                payloadJSON: response.payload,
+                                signature: response.signature,
+                                publicKeyId: '@Html.Raw(Model.PublicKeyId)'
+                            }
+                        });
+				    }
+				    else {
+					    displayNotification(response.message, response.messageType);
+				    }
+			    }
+		    });
+        });
+    });
+
+    function loadAmazonPayScript(callback) {
+        if (window.amazon && window.amazon.Pay) {
+            callback();
+            return;
+        }
+
+        var elem = document.createElement('script');
+        elem.type = 'text/javascript';
+        elem.async = true;
+        elem.src = '@Html.Raw(Model.CheckoutScriptUrl)';
+
+        elem.addEventListener('load', callback, false);
+
+        var s = document.getElementsByTagName('script')[0];
+        s.parentNode.insertBefore(elem, s);
+    }
+</script>

@@ -1,552 +1,609 @@
-﻿using System;
+﻿using System.ComponentModel;
 using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
 using Newtonsoft.Json;
+using Smartstore.ComponentModel.TypeConverters;
 
 namespace Smartstore
 {
     /// <summary>
-    /// A semantic version implementation.
-    /// Conforms with v2.0.0 of http://semver.org
+    /// A hybrid implementation of SemVer that supports semantic versioning as described at http://semver.org while not strictly enforcing it to 
+    /// allow older 4-digit versioning schemes to continue working.
     /// </summary>
     [JsonConverter(typeof(SemanticVersionJsonConverter))]
-    public class SemanticVersion : IComparable<SemanticVersion>, IComparable
+    [TypeConverter(typeof(SemanticVersionConverter))]
+    public sealed class SemanticVersion : IComparable, IComparable<SemanticVersion>, IEquatable<SemanticVersion>
     {
-        private static readonly Regex ParseEx =
-            new(@"^(?<major>\d+)" +
-                @"(?>\.(?<minor>\d+))?" +
-                @"(?>\.(?<patch>\d+))?" +
-                @"(?>\-(?<pre>[0-9A-Za-z\-\.]+))?" +
-                @"(?>\+(?<build>[0-9A-Za-z\-\.]+))?$",
-                RegexOptions.CultureInvariant | RegexOptions.ExplicitCapture,
-                TimeSpan.FromSeconds(0.5));
+        private const RegexOptions _flags = RegexOptions.Compiled | RegexOptions.ExplicitCapture;
+
+        // Versions containing up to 4 digits
+        private static readonly Regex _semanticVersionRegex = new(@"^(?<Version>\d+(\s*\.\s*\d+){0,3})(?<Release>-([0]\b|[0]$|[0][0-9]*[A-Za-z-]+|[1-9A-Za-z-][0-9A-Za-z-]*)+(\.([0]\b|[0]$|[0][0-9]*[A-Za-z-]+|[1-9A-Za-z-][0-9A-Za-z-]*)+)*)?(?<Metadata>\+[0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*)?$", _flags);
+
+        // Strict SemVer 2.0.0 format, this may contain only 3 digits.
+        private static readonly Regex _strictSemanticVersionRegex = new(@"^(?<Version>([0-9]|[1-9][0-9]*)(\.([0-9]|[1-9][0-9]*)){2})(?<Release>-([0]\b|[0]$|[0][0-9]*[A-Za-z-]+|[1-9A-Za-z-][0-9A-Za-z-]*)+(\.([0]\b|[0]$|[0][0-9]*[A-Za-z-]+|[1-9A-Za-z-][0-9A-Za-z-]*)+)*)?(?<Metadata>\+[0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*)?$", _flags);
+
+        private readonly string _originalString;
+        private string _normalizedVersionString;
 
         /// <summary>
-        /// Constructs a new instance of the <see cref="SemanticVersion" /> class.
+        /// SemanticVersion
         /// </summary>
-        /// <param name="major">The major version.</param>
-        /// <param name="minor">The minor version.</param>
-        /// <param name="patch">The patch version.</param>
-        /// <param name="prerelease">The prerelease version (e.g. "alpha").</param>
-        /// <param name="build">The build metadata (e.g. "nightly.232").</param>
-        public SemanticVersion(int major, int minor = 0, int patch = 0, string prerelease = "", string build = "")
+        /// <param name="version">Version string.</param>
+        public SemanticVersion(string version)
+            : this(Parse(version))
         {
-            Major = major;
-            Minor = minor;
-            Patch = patch;
-
-            Prerelease = prerelease ?? string.Empty;
-            Build = build ?? string.Empty;
+            // The constructor normalizes the version string so that it we do not need to normalize it every time we need to operate on it. 
+            // The original string represents the original form in which the version is represented to be used when printing.
+            _originalString = version;
         }
 
         /// <summary>
-        /// Constructs a new instance of the <see cref="SemanticVersion"/> class from
-        /// a <see cref="System.Version"/>.
+        /// SemanticVersion
         /// </summary>
-        /// <param name="version">The <see cref="Version"/> that is used to initialize
-        /// the Major, Minor, Patch and Build.</param>
-        /// <returns>A <see cref="SemanticVersion"/> with the same Major and Minor version.
-        /// The Patch version will be the fourth part of the version number. The
-        /// build meta data will contain the third part of the version number if
-        /// it is greater than zero.</returns>
+        /// <param name="major">Major version X.y.z</param>
+        /// <param name="minor">Minor version x.Y.z</param>
+        /// <param name="build">Patch version x.y.Z</param>
+        /// <param name="revision">Revision version x.y.z.R</param>
+        public SemanticVersion(int major, int minor = 0, int build = 0, int revision = 0)
+            : this(new Version(major, minor, build, revision))
+        {
+        }
+
+        /// <summary>
+        /// SemanticVersion
+        /// </summary>
+        /// <param name="major">Major version X.y.z</param>
+        /// <param name="minor">Minor version x.Y.z</param>
+        /// <param name="build">Patch version x.y.Z</param>
+        /// <param name="specialVersion">Release label</param>
+        public SemanticVersion(int major, int minor, int build, string specialVersion)
+            : this(new Version(major, minor, build), specialVersion)
+        {
+        }
+
+        /// <summary>
+        /// SemanticVersion
+        /// </summary>
+        /// <param name="major">Major version X.y.z</param>
+        /// <param name="minor">Minor version x.Y.z</param>
+        /// <param name="build">Patch version x.y.Z</param>
+        /// <param name="specialVersion">Release label</param>
+        /// <param name="metadata">Build metadata</param>
+        public SemanticVersion(int major, int minor, int build, string specialVersion, string metadata)
+            : this(new Version(major, minor, build), specialVersion, metadata)
+        {
+        }
+
+        /// <summary>
+        /// SemanticVersion
+        /// </summary>
         public SemanticVersion(Version version)
+            : this(version, string.Empty)
         {
-            if (version == null)
-                throw new ArgumentNullException(nameof(version));
-
-            Major = version.Major;
-            Minor = version.Minor;
-
-            if (version.Revision >= 0)
-                Patch = version.Revision;
-
-            Prerelease = string.Empty;
-
-            Build = version.Build > 0 ? version.Build.ToString(CultureInfo.InvariantCulture) : string.Empty;
         }
 
         /// <summary>
-        /// Converts the string representation of a semantic version to its <see cref="SemanticVersion"/> equivalent.
+        /// SemanticVersion
         /// </summary>
-        /// <param name="version">The version string.</param>
-        /// <param name="strict">If set to <see langword="true"/> minor and patch version are required,
-        /// otherwise they are optional.</param>
-        /// <returns>The <see cref="SemanticVersion"/> object.</returns>
-        /// <exception cref="ArgumentNullException">The <paramref name="version"/> is <see langword="null"/>.</exception>
-        /// <exception cref="ArgumentException">The <paramref name="version"/> has an invalid format.</exception>
-        /// <exception cref="InvalidOperationException">The <paramref name="version"/> is missing Minor or Patch versions and <paramref name="strict"/> is <see langword="true"/>.</exception>
-        /// <exception cref="OverflowException">The Major, Minor, or Patch versions are larger than <code>int.MaxValue</code>.</exception>
-        public static SemanticVersion Parse(string version, bool strict = false)
+        /// <param name="specialVersion">Release label</param>
+        public SemanticVersion(Version version, string specialVersion)
+            : this(version, specialVersion, metadata: null, originalString: null)
         {
-            var match = ParseEx.Match(version);
-            if (!match.Success)
-                throw new ArgumentException($"Invalid version '{version}'.", nameof(version));
-
-            var major = int.Parse(match.Groups["major"].Value, CultureInfo.InvariantCulture);
-
-            var minorMatch = match.Groups["minor"];
-            int minor = 0;
-            if (minorMatch.Success)
-                minor = int.Parse(minorMatch.Value, CultureInfo.InvariantCulture);
-            else if (strict)
-                throw new InvalidOperationException("Invalid version (no minor version given in strict mode)");
-
-            var patchMatch = match.Groups["patch"];
-            int patch = 0;
-            if (patchMatch.Success)
-                patch = int.Parse(patchMatch.Value, CultureInfo.InvariantCulture);
-            else if (strict)
-                throw new InvalidOperationException("Invalid version (no patch version given in strict mode)");
-
-            var prerelease = match.Groups["pre"].Value;
-            var build = match.Groups["build"].Value;
-
-            return new SemanticVersion(major, minor, patch, prerelease, build);
         }
 
         /// <summary>
-        /// Converts the string representation of a semantic version to its <see cref="SemanticVersion"/>
-        /// equivalent and returns a value that indicates whether the conversion succeeded.
+        /// SemanticVersion
         /// </summary>
-        /// <param name="version">The version string.</param>
-        /// <param name="semver">When the method returns, contains a <see cref="SemanticVersion"/> instance equivalent
-        /// to the version string passed in, if the version string was valid, or <see langword="null"/> if the
-        /// version string was not valid.</param>
-        /// <param name="strict">If set to <see langword="true"/> minor and patch version are required,
-        /// otherwise they are optional.</param>
-        /// <returns><see langword="false"/> when a invalid version string is passed, otherwise <see langword="true"/>.</returns>
-        public static bool TryParse(string version, out SemanticVersion semver, bool strict = false)
+        /// <param name="specialVersion">Release label</param>
+        /// <param name="metadata">Build metadata</param>
+        public SemanticVersion(Version version, string specialVersion, string metadata)
+         : this(version, specialVersion, metadata, originalString: null)
         {
-            semver = null;
-            if (version is null) return false;
+        }
 
-            var match = ParseEx.Match(version);
-            if (!match.Success) return false;
+        private SemanticVersion(Version version, string specialVersion, string metadata, string originalString)
+        {
+            Guard.NotNull(version, nameof(version));
 
-            if (!int.TryParse(match.Groups["major"].Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var major))
-                return false;
+            Version = NormalizeVersionValue(version);
+            SpecialVersion = specialVersion ?? string.Empty;
+            Metadata = metadata;
 
-            var minorMatch = match.Groups["minor"];
-            int minor = 0;
-            if (minorMatch.Success)
+            _originalString = string.IsNullOrEmpty(originalString) ? version.ToString()
+                + (!string.IsNullOrEmpty(specialVersion) ? '-' + specialVersion : null)
+                + (!string.IsNullOrEmpty(metadata) ? '+' + metadata : null)
+                : originalString;
+        }
+
+        internal SemanticVersion(SemanticVersion semVer)
+        {
+            _originalString = semVer.ToOriginalString();
+            Version = semVer.Version;
+            SpecialVersion = semVer.SpecialVersion;
+            Metadata = semVer.Metadata;
+        }
+
+        /// <summary>
+        /// Gets the normalized version portion.
+        /// </summary>
+        public Version Version
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
+        /// Gets the optional release label. For SemVer 2.0.0 this may contain multiple '.' separated parts.
+        /// </summary>
+        public string SpecialVersion
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
+        /// SemVer 2.0.0 build metadata. This is not used for comparing or sorting.
+        /// </summary>
+        public string Metadata
+        {
+            get;
+            private set;
+        }
+
+        public string[] GetOriginalVersionComponents()
+        {
+            if (!string.IsNullOrEmpty(_originalString))
             {
-                if (!int.TryParse(minorMatch.Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out minor))
-                    return false;
-            }
-            else if (strict) return false;
+                string original;
 
-            var patchMatch = match.Groups["patch"];
-            int patch = 0;
-            if (patchMatch.Success)
-            {
-                if (!int.TryParse(patchMatch.Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out patch))
-                    return false;
-            }
-            else if (strict) return false;
-
-            var prerelease = match.Groups["pre"].Value;
-            var build = match.Groups["build"].Value;
-
-            semver = new SemanticVersion(major, minor, patch, prerelease, build);
-            return true;
-        }
-
-        /// <summary>
-        /// Checks whether two semantic versions are equal.
-        /// </summary>
-        /// <param name="versionA">The first version to compare.</param>
-        /// <param name="versionB">The second version to compare.</param>
-        /// <returns><see langword="true"/> if the two values are equal, otherwise <see langword="false"/>.</returns>
-        public static bool Equals(SemanticVersion versionA, SemanticVersion versionB)
-        {
-            if (ReferenceEquals(versionA, versionB)) return true;
-            if (versionA is null || versionB is null) return false;
-            return versionA.Equals(versionB);
-        }
-
-        /// <summary>
-        /// Compares the specified versions.
-        /// </summary>
-        /// <param name="versionA">The first version to compare.</param>
-        /// <param name="versionB">The second version to compare.</param>
-        /// <returns>A signed number indicating the relative values of <paramref name="versionA"/> and <paramref name="versionB"/>.</returns>
-        public static int Compare(SemanticVersion versionA, SemanticVersion versionB)
-        {
-            if (ReferenceEquals(versionA, versionB)) return 0;
-            if (versionA is null) return -1;
-            if (versionB is null) return 1;
-            return versionA.CompareTo(versionB);
-        }
-
-        /// <summary>
-        /// Make a copy of the current instance with changed properties.
-        /// </summary>
-        /// <param name="major">The value to replace the major version or <see langword="null"/> to leave it unchanged.</param>
-        /// <param name="minor">The value to replace the minor version or <see langword="null"/> to leave it unchanged.</param>
-        /// <param name="patch">The value to replace the patch version or <see langword="null"/> to leave it unchanged.</param>
-        /// <param name="prerelease">The value to replace the prerelease version or <see langword="null"/> to leave it unchanged.</param>
-        /// <param name="build">The value to replace the build metadata or <see langword="null"/> to leave it unchanged.</param>
-        /// <returns>The new version object.</returns>
-        /// <remarks>
-        /// The change method is intended to be called using named argument syntax, passing only
-        /// those fields to be changed.
-        /// </remarks>
-        /// <example>
-        /// To change only the patch version:
-        /// <code>version.Change(patch: 4)</code>
-        /// </example>
-        public SemanticVersion Change(int? major = null, int? minor = null, int? patch = null, string prerelease = null, string build = null)
-        {
-            return new SemanticVersion(
-                major ?? Major,
-                minor ?? Minor,
-                patch ?? Patch,
-                prerelease ?? Prerelease,
-                build ?? Build);
-        }
-
-        /// <summary>
-        /// Gets the major version.
-        /// </summary>
-        /// <value>
-        /// The major version.
-        /// </value>
-        public int Major { get; }
-
-        /// <summary>
-        /// Gets the minor version.
-        /// </summary>
-        /// <value>
-        /// The minor version.
-        /// </value>
-        public int Minor { get; }
-
-        /// <summary>
-        /// Gets the patch version.
-        /// </summary>
-        /// <value>
-        /// The patch version.
-        /// </value>
-        public int Patch { get; }
-
-        /// <summary>
-        /// Gets the prerelease version.
-        /// </summary>
-        /// <value>
-        /// The prerelease version. Empty string if this is a release version.
-        /// </value>
-        public string Prerelease { get; }
-
-        /// <summary>
-        /// Gets the build metadata.
-        /// </summary>
-        /// <value>
-        /// The build metadata. Empty string if there is no build metadata.
-        /// </value>
-        public string Build { get; }
-
-        /// <summary>
-        /// Returns the <see cref="string" /> equivalent of this version.
-        /// </summary>
-        /// <returns>
-        /// The <see cref="string" /> equivalent of this version.
-        /// </returns>
-        public override string ToString()
-        {
-            // Assume all separators ("..-+"), at most 2 extra chars
-            var estimatedLength = 4 + Major.NumDigits() + Minor.NumDigits() + Patch.NumDigits()
-                                  + Prerelease.Length + Build.Length;
-            var version = new StringBuilder(estimatedLength);
-            version.Append(Major);
-            version.Append('.');
-            version.Append(Minor);
-            version.Append('.');
-            version.Append(Patch);
-            if (Prerelease.Length > 0)
-            {
-                version.Append('-');
-                version.Append(Prerelease);
-            }
-            if (Build.Length > 0)
-            {
-                version.Append('+');
-                version.Append(Build);
-            }
-            return version.ToString();
-        }
-
-        /// <summary>
-        /// Compares the current instance with another object of the same type and returns an integer that indicates
-        /// whether the current instance precedes, follows, or occurs in the same position in the sort order as the
-        /// other object.
-        /// </summary>
-        /// <param name="obj">An object to compare with this instance.</param>
-        /// <returns>
-        /// A value that indicates the relative order of the objects being compared.
-        /// The return value has these meanings:
-        ///  Less than zero: This instance precedes <paramref name="obj" /> in the sort order.
-        ///  Zero: This instance occurs in the same position in the sort order as <paramref name="obj" />.
-        ///  Greater than zero: This instance follows <paramref name="obj" /> in the sort order.
-        /// </returns>
-        /// <exception cref="InvalidCastException">The <paramref name="obj"/> is not a <see cref="SemanticVersion"/>.</exception>
-        public int CompareTo(object obj)
-        {
-            return CompareTo((SemanticVersion)obj);
-        }
-
-        /// <summary>
-        /// Compares the current instance with another object of the same type and returns an integer that indicates
-        /// whether the current instance precedes, follows, or occurs in the same position in the sort order as the
-        /// other object.
-        /// </summary>
-        /// <param name="other">An object to compare with this instance.</param>
-        /// <returns>
-        /// A value that indicates the relative order of the objects being compared.
-        /// The return value has these meanings:
-        ///  Less than zero: This instance precedes <paramref name="other" /> in the sort order.
-        ///  Zero: This instance occurs in the same position in the sort order as <paramref name="other" />.
-        ///  Greater than zero: This instance follows <paramref name="other" /> in the sort order.
-        /// </returns>
-        public int CompareTo(SemanticVersion other)
-        {
-            var r = CompareByPrecedence(other);
-            if (r != 0) return r;
-
-#pragma warning disable CA1062 // Validate arguments of public methods
-            // If other is null, CompareByPrecedence() returns 1
-            return CompareComponent(Build, other.Build);
-#pragma warning restore CA1062 // Validate arguments of public methods
-        }
-
-        /// <summary>
-        /// Returns whether two semantic versions have the same precedence. Versions
-        /// that differ only by build metadata have the same precedence.
-        /// </summary>
-        /// <param name="other">The semantic version to compare to.</param>
-        /// <returns><see langword="true"/> if the version precedences are equal.</returns>
-        public bool PrecedenceMatches(SemanticVersion other)
-        {
-            return CompareByPrecedence(other) == 0;
-        }
-
-        /// <summary>
-        /// Compares two semantic versions by precedence as defined in the SemVer spec. Versions
-        /// that differ only by build metadata have the same precedence.
-        /// </summary>
-        /// <param name="other">The semantic version.</param>
-        /// <returns>
-        /// A value that indicates the relative order of the objects being compared.
-        /// The return value has these meanings:
-        ///  Less than zero: This instance precedes <paramref name="other" /> in the sort order.
-        ///  Zero: This instance occurs in the same position in the sort order as <paramref name="other" />.
-        ///  Greater than zero: This instance follows <paramref name="other" /> in the sort order.
-        /// </returns>
-        public int CompareByPrecedence(SemanticVersion other)
-        {
-            if (other is null)
-                return 1;
-
-            var r = Major.CompareTo(other.Major);
-            if (r != 0) return r;
-
-            r = Minor.CompareTo(other.Minor);
-            if (r != 0) return r;
-
-            r = Patch.CompareTo(other.Patch);
-            if (r != 0) return r;
-
-            return CompareComponent(Prerelease, other.Prerelease, true);
-        }
-
-        private static int CompareComponent(string a, string b, bool nonemptyIsLower = false)
-        {
-            var aEmpty = string.IsNullOrEmpty(a);
-            var bEmpty = string.IsNullOrEmpty(b);
-            if (aEmpty && bEmpty)
-                return 0;
-
-            if (aEmpty)
-                return nonemptyIsLower ? 1 : -1;
-            if (bEmpty)
-                return nonemptyIsLower ? -1 : 1;
-
-            var aComps = a.Split('.');
-            var bComps = b.Split('.');
-
-            var minLen = Math.Min(aComps.Length, bComps.Length);
-            for (int i = 0; i < minLen; i++)
-            {
-                var ac = aComps[i];
-                var bc = bComps[i];
-                var aIsNum = int.TryParse(ac, out var aNum);
-                var bIsNum = int.TryParse(bc, out var bNum);
-                int r;
-                if (aIsNum && bIsNum)
+                // search the start of the SpecialVersion part or metadata, if any
+                int labelIndex = _originalString.IndexOfAny(new char[] { '-', '+' });
+                if (labelIndex != -1)
                 {
-                    r = aNum.CompareTo(bNum);
-                    if (r != 0) return r;
+                    // remove the SpecialVersion or metadata part
+                    original = _originalString[..labelIndex];
                 }
                 else
                 {
-                    if (aIsNum)
-                        return -1;
-                    if (bIsNum)
-                        return 1;
-                    r = string.CompareOrdinal(ac, bc);
-                    if (r != 0)
-                        return r;
+                    original = _originalString;
+                }
+
+                return SplitAndPadVersionString(original);
+            }
+            else
+            {
+                return SplitAndPadVersionString(Version.ToString());
+            }
+        }
+
+        private static string[] SplitAndPadVersionString(string version)
+        {
+            string[] a = version.Split('.');
+            if (a.Length == 4)
+            {
+                return a;
+            }
+            else
+            {
+                // if 'a' has less than 4 elements, we pad the '0' at the end 
+                // to make it 4.
+                var b = new string[4] { "0", "0", "0", "0" };
+                Array.Copy(a, 0, b, 0, a.Length);
+                return b;
+            }
+        }
+
+        /// <summary>
+        /// Parses a version string using loose semantic versioning rules that allows 2-4 version components followed by an optional special version.
+        /// </summary>
+        public static SemanticVersion Parse(string version)
+        {
+            Guard.NotEmpty(version, nameof(version));
+
+            if (!TryParse(version, out var semVer))
+            {
+                throw new ArgumentException($"Invalid version string '{version}'.", nameof(version));
+            }
+            return semVer;
+        }
+
+        /// <summary>
+        /// Parses a version string using loose semantic versioning rules that allows 2-4 version components followed by an optional special version.
+        /// </summary>
+        public static bool TryParse(string version, out SemanticVersion value)
+        {
+            return TryParseInternal(version, _semanticVersionRegex, out value);
+        }
+
+        /// <summary>
+        /// Parses a version string using strict semantic versioning rules that allows exactly 3 components and an optional special version.
+        /// </summary>
+        public static bool TryParseStrict(string version, out SemanticVersion value)
+        {
+            return TryParseInternal(version, _strictSemanticVersionRegex, out value);
+        }
+
+        private static bool TryParseInternal(string version, Regex regex, out SemanticVersion semVer)
+        {
+            semVer = null;
+            if (string.IsNullOrEmpty(version))
+            {
+                return false;
+            }
+
+            var match = regex.Match(version.Trim());
+            if (!match.Success || !Version.TryParse(match.Groups["Version"].Value, out var versionValue))
+            {
+                return false;
+            }
+
+            semVer = new SemanticVersion(
+                NormalizeVersionValue(versionValue),
+                RemoveLeadingChar(match.Groups["Release"].Value),
+                RemoveLeadingChar(match.Groups["Metadata"].Value),
+                version.Replace(" ", ""));
+
+            return true;
+        }
+
+        // Remove the - or + from a version section.
+        private static string RemoveLeadingChar(string s)
+        {
+            if (s != null && s.Length > 0)
+            {
+                return s[1..];
+            }
+
+            return s;
+        }
+
+        /// <summary>
+        /// Attempts to parse the version token as a SemanticVersion.
+        /// </summary>
+        /// <returns>An instance of SemanticVersion if it parses correctly, null otherwise.</returns>
+        public static SemanticVersion ParseOptionalVersion(string version)
+        {
+            _ = TryParse(version, out var semVer);
+            return semVer;
+        }
+
+        private static Version NormalizeVersionValue(Version version)
+        {
+            return new Version(version.Major,
+                               version.Minor,
+                               Math.Max(version.Build, 0),
+                               Math.Max(version.Revision, 0));
+        }
+
+        public int CompareTo(object obj)
+        {
+            if (obj is null)
+            {
+                return 1;
+            }
+
+            if (obj is not SemanticVersion other)
+            {
+                throw new ArgumentException("Type to compare must be an instance of SemanticVersion.", nameof(obj));
+
+            }
+
+            return CompareTo(other);
+        }
+
+        public int CompareTo(SemanticVersion other)
+        {
+            if (other is null)
+            {
+                return 1;
+            }
+
+            int result = Version.CompareTo(other.Version);
+
+            if (result != 0)
+            {
+                return result;
+            }
+
+            bool empty = string.IsNullOrEmpty(SpecialVersion);
+            bool otherEmpty = string.IsNullOrEmpty(other.SpecialVersion);
+            if (empty && otherEmpty)
+            {
+                return 0;
+            }
+            else if (empty)
+            {
+                return 1;
+            }
+            else if (otherEmpty)
+            {
+                return -1;
+            }
+
+            // Compare the release labels using SemVer 2.0.0 comparision rules.
+            var releaseLabels = SpecialVersion.Split('.');
+            var otherReleaseLabels = other.SpecialVersion.Split('.');
+
+            return CompareReleaseLabels(releaseLabels, otherReleaseLabels);
+        }
+
+        public static bool operator ==(SemanticVersion version1, SemanticVersion version2)
+        {
+            if (version1 is null)
+            {
+                return version2 is null;
+            }
+
+            return version1.Equals(version2);
+        }
+
+        public static bool operator !=(SemanticVersion version1, SemanticVersion version2)
+        {
+            return !(version1 == version2);
+        }
+
+        public static bool operator <(SemanticVersion version1, SemanticVersion version2)
+        {
+            Guard.NotNull(version1, nameof(version1));
+            return version1.CompareTo(version2) < 0;
+        }
+
+        public static bool operator <=(SemanticVersion version1, SemanticVersion version2)
+        {
+            return (version1 == version2) || (version1 < version2);
+        }
+
+        public static bool operator >(SemanticVersion version1, SemanticVersion version2)
+        {
+            Guard.NotNull(version1, nameof(version1));
+            return version2 < version1;
+        }
+
+        public static bool operator >=(SemanticVersion version1, SemanticVersion version2)
+        {
+            return (version1 == version2) || (version1 > version2);
+        }
+
+        /// <summary>
+        /// Returns the original version string without build metadata.
+        /// </summary>
+        /// <remarks>SemVer 2.0.0 versions using build metadata or multiple release labels will be normalized.
+        /// SemVer 1.0.0 versions cannot be normalized in this method for backwards compatibility reasons.</remarks>
+        public override string ToString()
+        {
+            if (IsSemVer2())
+            {
+                // Normalize semver2 to match Versioning
+                return ToNormalizedString();
+            }
+            else
+            {
+                // Remove metadata from the original string if it exists.
+                var plusIndex = _originalString.IndexOf('+');
+
+                if (plusIndex > -1)
+                {
+                    return _originalString[..plusIndex];
                 }
             }
 
-            return aComps.Length.CompareTo(bComps.Length);
+            return _originalString;
         }
 
         /// <summary>
-        /// Determines whether the specified <see cref="object" /> is equal to this instance.
+        /// Returns the normalized string representation of this instance of <see cref="SemanticVersion"/>.
+        /// If the instance can be strictly parsed as a <see cref="SemanticVersion"/>, the normalized version
+        /// string if of the format {major}.{minor}.{build}[-{special-version}]. If the instance has a non-zero
+        /// value for <see cref="Version.Revision"/>, the format is {major}.{minor}.{build}.{revision}[-{special-version}].
         /// </summary>
-        /// <param name="obj">The <see cref="object" /> to compare with this instance.</param>
-        /// <returns>
-        ///   <see langword="true"/> if the specified <see cref="object" /> is equal to this instance, otherwise <see langword="false"/>.
-        /// </returns>
-        /// <exception cref="InvalidCastException">The <paramref name="obj"/> is not a <see cref="SemanticVersion"/>.</exception>
+        /// <remarks>Build metadata is not included.</remarks>
+        /// <returns>The normalized string representation.</returns>
+        public string ToNormalizedString()
+        {
+            if (_normalizedVersionString == null)
+            {
+                var builder = new StringBuilder();
+                builder
+                    .Append(Version.Major)
+                    .Append('.')
+                    .Append(Version.Minor)
+                    .Append('.')
+                    .Append(Math.Max(0, Version.Build));
+
+                if (Version.Revision > 0)
+                {
+                    builder.Append('.')
+                           .Append(Version.Revision);
+                }
+
+                if (!string.IsNullOrEmpty(SpecialVersion))
+                {
+                    builder.Append('-')
+                           .Append(SpecialVersion);
+                }
+
+                _normalizedVersionString = builder.ToString();
+            }
+
+            return _normalizedVersionString;
+        }
+
+        /// <summary>
+        /// Returns the full normalized string including build metadata.
+        /// </summary>
+        public string ToFullString()
+        {
+            var s = ToNormalizedString();
+
+            if (!string.IsNullOrEmpty(Metadata))
+            {
+                s = string.Format(CultureInfo.InvariantCulture, "{0}+{1}", s, Metadata);
+            }
+
+            return s;
+        }
+
+        /// <summary>
+        /// Returns the original string used to construct the version. This includes metadata.
+        /// </summary>
+        public string ToOriginalString()
+        {
+            return _originalString;
+        }
+
+        /// <summary>
+        /// True if the version contains metadata or multiple release labels.
+        /// </summary>
+        public bool IsSemVer2()
+        {
+            return !string.IsNullOrEmpty(Metadata)
+                || (!string.IsNullOrEmpty(SpecialVersion) && SpecialVersion.Contains('.'));
+        }
+
+        public bool Equals(SemanticVersion other)
+        {
+            return other is not null &&
+                   Version.Equals(other.Version) &&
+                   SpecialVersion.Equals(other.SpecialVersion, StringComparison.OrdinalIgnoreCase);
+        }
+
         public override bool Equals(object obj)
         {
-            if (obj is null)
-                return false;
-
-            if (ReferenceEquals(this, obj))
-                return true;
-
-            var other = (SemanticVersion)obj;
-
-            return Major == other.Major
-                && Minor == other.Minor
-                && Patch == other.Patch
-                && string.Equals(Prerelease, other.Prerelease, StringComparison.Ordinal)
-                && string.Equals(Build, other.Build, StringComparison.Ordinal);
+            SemanticVersion semVer = obj as SemanticVersion;
+            return semVer is not null && Equals(semVer);
         }
 
-        /// <summary>
-        /// Returns a hash code for this instance.
-        /// </summary>
-        /// <returns>
-        /// A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table.
-        /// </returns>
         public override int GetHashCode()
         {
-            unchecked
+            int hashCode = Version.GetHashCode();
+            if (SpecialVersion != null)
             {
-                // TODO verify this. Some versions start result = 17. Some use 37 instead of 31
-                int result = Major.GetHashCode();
-                result = result * 31 + Minor.GetHashCode();
-                result = result * 31 + Patch.GetHashCode();
-                result = result * 31 + Prerelease.GetHashCode();
-                result = result * 31 + Build.GetHashCode();
-                return result;
+                hashCode = hashCode * 4567 + SpecialVersion.GetHashCode();
             }
-        }
 
-#pragma warning disable CA2225 // Operator overloads have named alternates
-        /// <summary>
-        /// Implicit conversion from <see cref="string"/> to <see cref="SemanticVersion"/>.
-        /// </summary>
-        /// <param name="version">The semantic version.</param>
-        /// <returns>The <see cref="SemanticVersion"/> object.</returns>
-        /// <exception cref="ArgumentNullException">The <paramref name="version"/> is <see langword="null"/>.</exception>
-        /// <exception cref="ArgumentException">The version number has an invalid format.</exception>
-        /// <exception cref="OverflowException">The Major, Minor, or Patch versions are larger than <code>int.MaxValue</code>.</exception>
-        public static implicit operator SemanticVersion(string version)
-#pragma warning restore CA2225 // Operator overloads have named alternates
-        {
-            return Parse(version);
+            return hashCode;
         }
 
         /// <summary>
-        /// Compares two semantic versions for equality.
+        /// Compares sets of release labels.
         /// </summary>
-        /// <param name="left">The left value.</param>
-        /// <param name="right">The right value.</param>
-        /// <returns>If left is equal to right <see langword="true"/>, otherwise <see langword="false"/>.</returns>
-        public static bool operator ==(SemanticVersion left, SemanticVersion right)
+        private static int CompareReleaseLabels(IEnumerable<string> version1, IEnumerable<string> version2)
         {
-            return Equals(left, right);
+            var result = 0;
+
+            var a = version1.GetEnumerator();
+            var b = version2.GetEnumerator();
+
+            var aExists = a.MoveNext();
+            var bExists = b.MoveNext();
+
+            while (aExists || bExists)
+            {
+                if (!aExists && bExists)
+                {
+                    return -1;
+                }
+
+                if (aExists && !bExists)
+                {
+                    return 1;
+                }
+
+                // compare the labels
+                result = CompareRelease(a.Current, b.Current);
+
+                if (result != 0)
+                {
+                    return result;
+                }
+
+                aExists = a.MoveNext();
+                bExists = b.MoveNext();
+            }
+
+            return result;
         }
 
         /// <summary>
-        /// Compares two semantic versions for inequality.
+        /// Release labels are compared as numbers if they are numeric, otherwise they will be compared
+        /// as strings.
         /// </summary>
-        /// <param name="left">The left value.</param>
-        /// <param name="right">The right value.</param>
-        /// <returns>If left is not equal to right <see langword="true"/>, otherwise <see langword="false"/>.</returns>
-        public static bool operator !=(SemanticVersion left, SemanticVersion right)
+        private static int CompareRelease(string version1, string version2)
         {
-            return !Equals(left, right);
-        }
+            // check if the identifiers are numeric
+            var v1IsNumeric = int.TryParse(version1, out int version1Num);
+            var v2IsNumeric = int.TryParse(version2, out int version2Num);
 
-        /// <summary>
-        /// Compares two semantic versions.
-        /// </summary>
-        /// <param name="left">The left value.</param>
-        /// <param name="right">The right value.</param>
-        /// <returns>If left is greater than right <see langword="true"/>, otherwise <see langword="false"/>.</returns>
-        public static bool operator >(SemanticVersion left, SemanticVersion right)
-        {
-            return Compare(left, right) > 0;
-        }
+            int result;
+            // if both are numeric compare them as numbers
+            if (v1IsNumeric && v2IsNumeric)
+            {
+                result = version1Num.CompareTo(version2Num);
+            }
+            else if (v1IsNumeric || v2IsNumeric)
+            {
+                // numeric labels come before alpha labels
+                if (v1IsNumeric)
+                {
+                    result = -1;
+                }
+                else
+                {
+                    result = 1;
+                }
+            }
+            else
+            {
+                // Ignoring 2.0.0 case sensitive compare. Everything will be compared case insensitively as 2.0.1 specifies.
+                result = StringComparer.OrdinalIgnoreCase.Compare(version1, version2);
+            }
 
-        /// <summary>
-        /// Compares two semantic versions.
-        /// </summary>
-        /// <param name="left">The left value.</param>
-        /// <param name="right">The right value.</param>
-        /// <returns>If left is greater than or equal to right <see langword="true"/>, otherwise <see langword="false"/>.</returns>
-        public static bool operator >=(SemanticVersion left, SemanticVersion right)
-        {
-            return Equals(left, right) || Compare(left, right) > 0;
-        }
-
-        /// <summary>
-        /// Compares two semantic versions.
-        /// </summary>
-        /// <param name="left">The left value.</param>
-        /// <param name="right">The right value.</param>
-        /// <returns>If left is less than right <see langword="true"/>, otherwise <see langword="false"/>.</returns>
-        public static bool operator <(SemanticVersion left, SemanticVersion right)
-        {
-            return Compare(left, right) < 0;
-        }
-
-        /// <summary>
-        /// Compares two semantic versions.
-        /// </summary>
-        /// <param name="left">The left value.</param>
-        /// <param name="right">The right value.</param>
-        /// <returns>If left is less than or equal to right <see langword="true"/>, otherwise <see langword="false"/>.</returns>
-        public static bool operator <=(SemanticVersion left, SemanticVersion right)
-        {
-            return Equals(left, right) || Compare(left, right) < 0;
+            return result;
         }
     }
 
-    internal sealed class SemanticVersionJsonConverter : JsonConverter
+    internal sealed class SemanticVersionConverter : DefaultTypeConverter
     {
-        public override bool CanConvert(Type objectType)
-            => typeof(SemanticVersion).IsAssignableFrom(objectType);
+        public SemanticVersionConverter() : base(typeof(object))
+        {
+        }
 
+        public override bool CanConvertFrom(Type type)
+            => type == typeof(string);
+
+        public override object ConvertFrom(CultureInfo culture, object value)
+        {
+            if (value is string str && str.HasValue() && SemanticVersion.TryParse(str, out var semVer))
+            {
+                return semVer;
+            }
+
+            return null;
+        }
+    }
+
+    internal sealed class SemanticVersionJsonConverter : JsonConverter<SemanticVersion>
+    {
         public override bool CanRead
             => true;
 
         public override bool CanWrite
             => true;
 
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        public override SemanticVersion ReadJson(JsonReader reader, Type objectType, SemanticVersion existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
             reader.Read();
-            return (SemanticVersion)reader.ReadAsString();
+            var str = reader.ReadAsString();
+            if (str.HasValue() && SemanticVersion.TryParse(str, out var semVer))
+            {
+                return semVer;
+            }
+
+            return null;
         }
 
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, SemanticVersion value, JsonSerializer serializer)
         {
             serializer.Serialize(writer, value.ToString());
         }

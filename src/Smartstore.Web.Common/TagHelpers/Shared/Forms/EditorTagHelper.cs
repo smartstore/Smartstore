@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
-using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
+using Smartstore.Utilities;
 using Smartstore.Web.Rendering;
 
 namespace Smartstore.Web.TagHelpers.Admin
@@ -12,6 +12,7 @@ namespace Smartstore.Web.TagHelpers.Admin
     {
         const string EditorTagName = "editor";
         const string TemplateAttributeName = "asp-template";
+        const string AdditionalViewDataAttributeName = "asp-additional-viewdata";
         //const string ValueAttributeName = "asp-value";
         const string PostfixAttributeName = "sm-postfix";
 
@@ -35,22 +36,45 @@ namespace Smartstore.Web.TagHelpers.Admin
         [HtmlAttributeName(PostfixAttributeName)]
         public string Postfix { get; set; }
 
+        /// <summary>
+        /// An anonymous <see cref="object"/> or <see cref="System.Collections.Generic.IDictionary{String, Object}"/>
+        /// that can contain additional view data that will be merged into the
+        /// <see cref="ViewDataDictionary{TModel}"/> instance created for the template.
+        /// </summary>
+        [HtmlAttributeName(AdditionalViewDataAttributeName)]
+        public object AdditionalViewData { get; set; }
+
         protected override void ProcessCore(TagHelperContext context, TagHelperOutput output)
         {
             output.SuppressOutput();
 
-            var htmlAttributes = new Dictionary<string, object>();
-            var attrs = output.Attributes;
-            
-            if (attrs != null && attrs.Count > 0)
+            var viewData = CommonHelper.ObjectToDictionary(AdditionalViewData);
+
+            if (Postfix != null)
             {
-                foreach (var attr in attrs)
-                {
-                    htmlAttributes[attr.Name] = attr.Value;
-                }
+                viewData["postfix"] = Postfix;
             }
 
-            output.Content.SetHtmlContent(HtmlHelper.EditorFor(For, Template, new { htmlAttributes, postfix = Postfix }));
+            if (output.Attributes != null && output.Attributes.Count > 0)
+            {
+                var htmlAttributes = new Dictionary<string, object>();
+
+                foreach (var attr in output.Attributes)
+                {
+                    htmlAttributes[attr.Name] = attr.ValueAsString();
+                }
+
+                viewData["htmlAttributes"] = htmlAttributes;
+            }
+
+            if (viewData.Count > 0)
+            {
+                output.Content.SetHtmlContent(HtmlHelper.EditorFor(For, Template, viewData));
+            }
+            else
+            {
+                output.Content.SetHtmlContent(HtmlHelper.EditorFor(For, Template));
+            }
         }
     }
 }

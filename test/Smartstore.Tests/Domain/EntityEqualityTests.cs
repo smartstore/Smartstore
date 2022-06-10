@@ -11,7 +11,6 @@ namespace Smartstore.Tests.Domain
         [Test]
         public void Two_transient_entities_should_not_be_equal()
         {
-
             var p1 = new Product();
             var p2 = new Product();
 
@@ -21,7 +20,6 @@ namespace Smartstore.Tests.Domain
         [Test]
         public void Two_references_to_same_transient_entity_should_be_equal()
         {
-
             var p1 = new Product();
             var p2 = p1;
 
@@ -31,7 +29,6 @@ namespace Smartstore.Tests.Domain
         [Test]
         public void Two_references_with_the_same_id_should_be_equal()
         {
-
             int id = 10;
             var p1 = new Product { Id = id };
             var p2 = new Product { Id = id };
@@ -42,7 +39,6 @@ namespace Smartstore.Tests.Domain
         [Test]
         public void Entities_with_different_id_should_not_be_equal()
         {
-
             var p1 = new Product { Id = 2 };
             var p2 = new Product { Id = 5 };
 
@@ -52,7 +48,6 @@ namespace Smartstore.Tests.Domain
         [Test]
         public void Entity_should_not_equal_transient_entity()
         {
-
             var p1 = new Product { Id = 1 };
             var p2 = new Product();
 
@@ -73,7 +68,6 @@ namespace Smartstore.Tests.Domain
         [Test]
         public void Equality_works_using_operators()
         {
-
             var p1 = new Product { Id = 1 };
             var p2 = new Product { Id = 1 };
 
@@ -87,7 +81,6 @@ namespace Smartstore.Tests.Domain
         [Test]
         public void Equality_works_with_HashSets()
         {
-
             var p1 = new Product { Id = 1 };
             var p2 = new Product { Id = 1 };
 

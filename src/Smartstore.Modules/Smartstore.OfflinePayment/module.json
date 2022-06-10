@@ -1,0 +1,12 @@
+{
+  "$schema": "../module.schema.json",
+  "Group": "Payment",
+  "SystemName": "Smartstore.OfflinePayment",
+  "FriendlyName": "Adds offline payment methods to the store",
+  "Description": "",
+  "Version": "5.0",
+  "MinAppVersion": "5.0",
+  "Author": "SmartStore AG",
+  "Order": 1,
+  "ResourceRootKey": "Plugins.Smartstore.OfflinePayment"
+}

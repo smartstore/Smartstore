@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-
-namespace Smartstore.Core.Content.Menus
+﻿namespace Smartstore.Core.Content.Menus
 {
     public interface IMenuResolver
     {

@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Smartstore.Core.Identity
+﻿namespace Smartstore.Core.Identity
 {
     /// <summary>
     /// An event message that will be published after customer has been exported by GDPR tool.

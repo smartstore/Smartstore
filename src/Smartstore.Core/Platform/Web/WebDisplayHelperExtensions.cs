@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.AspNetCore.Routing;
+﻿using Microsoft.AspNetCore.Routing;
 using Smartstore.Core;
 using Smartstore.Core.Web;
 
@@ -72,6 +71,9 @@ namespace Smartstore
         #endregion
 
         #region Page Identity
+
+        public static bool DisplaySmartstoreHint(this IDisplayHelper displayHelper)
+            => !displayHelper.HttpContext.Items.Keys.Contains(nameof(DisplaySmartstoreHint));
 
         public static bool IsMobileDevice(this IDisplayHelper displayHelper)
         {

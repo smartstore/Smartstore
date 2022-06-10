@@ -1,18 +1,19 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using SixLabors.ImageSharp.Formats;
+﻿using SixLabors.ImageSharp.Formats;
 using SixLabors.ImageSharp.Formats.Gif;
 using SixLabors.ImageSharp.Formats.Jpeg;
 using SixLabors.ImageSharp.Formats.Png;
 using SharpFormat = SixLabors.ImageSharp.Formats.IImageFormat;
-using SharpGifColorTableMode = SixLabors.ImageSharp.Formats.Gif.GifColorTableMode;
-using SharpJpegSubsample = SixLabors.ImageSharp.Formats.Jpeg.JpegSubsample;
+using SharpJpgColorType = SixLabors.ImageSharp.Formats.Jpeg.JpegColorType;
 using SharpPngBitDepth = SixLabors.ImageSharp.Formats.Png.PngBitDepth;
 using SharpPngChunkFilter = SixLabors.ImageSharp.Formats.Png.PngChunkFilter;
 using SharpPngColorType = SixLabors.ImageSharp.Formats.Png.PngColorType;
 using SharpPngCompressionLevel = SixLabors.ImageSharp.Formats.Png.PngCompressionLevel;
 using SharpPngInterlaceMode = SixLabors.ImageSharp.Formats.Png.PngInterlaceMode;
 using SharpPngTransparentColorMode = SixLabors.ImageSharp.Formats.Png.PngTransparentColorMode;
+using SharpWebpFileFormatType = SixLabors.ImageSharp.Formats.Webp.WebpFileFormatType;
+using SharpWebpEncodingMethod = SixLabors.ImageSharp.Formats.Webp.WebpEncodingMethod;
+using SharpGifColorTableMode = SixLabors.ImageSharp.Formats.Gif.GifColorTableMode;
+using SixLabors.ImageSharp.Formats.Webp;
 
 namespace Smartstore.Imaging.Adapters.ImageSharp
 {
@@ -56,37 +57,16 @@ namespace Smartstore.Imaging.Adapters.ImageSharp
         }
 
         public int? Quality { get; set; }
-        public JpegSubsample? Subsample { get; set; }
+        public JpegColorType? ColorType { get; set; }
 
         public override IImageEncoder CreateEncoder()
         {
-            if (Quality != null || Subsample != null)
+            if (Quality != null || ColorType != null)
             {
-                return new JpegEncoder { Quality = Quality, Subsample = (SharpJpegSubsample?)Subsample };
-            }
-
-            return base.CreateEncoder();
-        }
-    }
-
-    internal class GifFormat : SharpImageFormat, IGifFormat
-    {
-        public GifFormat(SharpFormat sharpFormat)
-            : base(sharpFormat)
-        {
-        }
-
-        public QuantizationMethod? QuantizationMethod { get; set; }
-        public GifColorTableMode? ColorTableMode { get; set; }
-
-        public override IImageEncoder CreateEncoder()
-        {
-            if (QuantizationMethod != null || ColorTableMode != null)
-            {
-                return new GifEncoder
-                {
-                    ColorTableMode = (SharpGifColorTableMode?)ColorTableMode,
-                    Quantizer = ImageSharpUtility.CreateQuantizer(QuantizationMethod)
+                return new JpegEncoder 
+                { 
+                    Quality = Quality, 
+                    ColorType = (SharpJpgColorType?)ColorType 
                 };
             }
 
@@ -137,21 +117,96 @@ namespace Smartstore.Imaging.Adapters.ImageSharp
                 };
 
                 if (TransparentColorMode != null)
-                {
                     encoder.TransparentColorMode = (SharpPngTransparentColorMode)TransparentColorMode.Value;
-                }
-
                 if (CompressionLevel != null)
-                {
                     encoder.CompressionLevel = (SharpPngCompressionLevel)CompressionLevel;
-                }
-
                 if (Threshold != null)
-                {
                     encoder.Threshold = Threshold.Value;
-                }
 
                 return encoder;
+            }
+
+            return base.CreateEncoder();
+        }
+    }
+
+    internal class WebpFormat : SharpImageFormat, IWebpFormat
+    {
+        public WebpFormat(SharpFormat sharpFormat)
+            : base(sharpFormat)
+        {
+        }
+
+        public WebpFileFormatType? FileFormat { get; set; }
+        public int? Quality { get; set; }
+        public WebpEncodingMethod? Method { get; set; }
+        public bool? UseAlphaCompression { get; set; }
+        public int? EntropyPasses { get; set; }
+        public int? SpatialNoiseShaping { get; set; }
+        public int? FilterStrength { get; set; }
+        public bool? NearLossless { get; set; }
+        public int? NearLosslessQuality { get; set; }
+
+        public override IImageEncoder CreateEncoder()
+        {
+            if (FileFormat != null
+                || Quality != null
+                || Method != null
+                || UseAlphaCompression != null
+                || EntropyPasses != null
+                || SpatialNoiseShaping != null
+                || FilterStrength != null
+                || NearLossless != null
+                || NearLosslessQuality != null)
+            {
+                var encoder = new WebpEncoder
+                {
+                    FileFormat = (SharpWebpFileFormatType?)FileFormat
+                };
+
+                if (Quality != null)
+                    encoder.Quality = Quality.Value;
+                if (Method != null) 
+                    encoder.Method = (SharpWebpEncodingMethod)Method.Value;
+                if (UseAlphaCompression != null)
+                    encoder.UseAlphaCompression = UseAlphaCompression.Value;
+                if (EntropyPasses != null)
+                    encoder.EntropyPasses = EntropyPasses.Value;
+                if (SpatialNoiseShaping != null)
+                    encoder.SpatialNoiseShaping = SpatialNoiseShaping.Value;
+                if (FilterStrength != null)
+                    encoder.FilterStrength = FilterStrength.Value;
+                if (NearLossless != null)
+                    encoder.NearLossless = NearLossless.Value;
+                if (NearLosslessQuality != null)
+                    encoder.NearLosslessQuality = NearLosslessQuality.Value;
+
+                return encoder;
+            }
+
+            return base.CreateEncoder();
+        }
+    }
+
+    internal class GifFormat : SharpImageFormat, IGifFormat
+    {
+        public GifFormat(SharpFormat sharpFormat)
+            : base(sharpFormat)
+        {
+        }
+
+        public QuantizationMethod? QuantizationMethod { get; set; }
+        public GifColorTableMode? ColorTableMode { get; set; }
+
+        public override IImageEncoder CreateEncoder()
+        {
+            if (QuantizationMethod != null || ColorTableMode != null)
+            {
+                return new GifEncoder
+                {
+                    ColorTableMode = (SharpGifColorTableMode?)ColorTableMode,
+                    Quantizer = ImageSharpUtility.CreateQuantizer(QuantizationMethod)
+                };
             }
 
             return base.CreateEncoder();

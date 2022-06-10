@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Localization;
 using Smartstore.Engine.Modularity;
@@ -80,33 +78,5 @@ namespace Smartstore.Core.Common.Services
         /// </param>
         /// <returns>Money</returns>
         Money CreateMoney(decimal price, bool displayCurrency = true, object currencyCodeOrObj = null);
-
-        /// <summary>
-        ///     Gets a tax formatting pattern that can be applied to
-        ///     <see cref="Money"/> values by calling <see cref="Money.WithPostFormat(string)"/>.
-        /// </summary>
-        /// <param name="displayTaxSuffix">
-        ///     A value indicating whether to display the tax suffix.
-        ///     If <c>null</c>, current setting will be obtained via <see cref="TaxSettings.DisplayTaxSuffix"/> and
-        ///     additionally via <see cref="TaxSettings.ShippingPriceIncludesTax"/> or <see cref="TaxSettings.PaymentMethodAdditionalFeeIncludesTax"/>
-        ///     according to <paramref name="target"/>.
-        /// </param>
-        /// <param name="priceIncludesTax">
-        ///     A value indicating whether given price includes tax already.
-        ///     If <c>null</c>, current setting will be obtained via <see cref="IWorkContext.TaxDisplayType"/>.
-        /// </param>
-        /// <param name="target">
-        ///     The target object to format price for. This parameter affects how <paramref name="displayTax"/>
-        ///     will be auto-resolved if it is <c>null</c>.
-        /// </param>
-        /// <param name="language">
-        ///     Language for tax suffix. If <c>null</c>, language will be obtained via <see cref="IWorkContext.WorkingLanguage"/>.
-        /// </param>
-        /// <returns>Money</returns>
-        string GetTaxFormat(
-            bool? displayTaxSuffix = null,
-            bool? priceIncludesTax = null,
-            PricingTarget target = PricingTarget.Product,
-            Language language = null);
     }
 }

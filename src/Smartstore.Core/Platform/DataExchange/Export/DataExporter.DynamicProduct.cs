@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Web;
-using Microsoft.EntityFrameworkCore;
+﻿using System.Web;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
@@ -48,8 +43,17 @@ namespace Smartstore.Core.DataExchange.Export
 
                 foreach (var combination in productContext.Combinations.Where(x => x.IsActive))
                 {
-                    var attachedProduct = _db.Attach(product);
-                    product = attachedProduct.Entity;
+                    var trackedProduct = _db.FindTracked<Product>(product.Id);
+                    if (trackedProduct == null)
+                    {
+                        var attachedProduct = _db.Attach(product);
+                        product = attachedProduct.Entity;
+                    }
+                    else
+                    {
+                        product = trackedProduct;
+                    }
+
                     var entry = dbContext.Entry(product);
 
                     // The returned object is not the entity and is not being tracked by the context.
@@ -190,7 +194,7 @@ namespace Smartstore.Core.DataExchange.Export
             calculationContext.AddSelectedAttributes(combination?.AttributeSelection, product.Id);
             var price = await _priceCalculationService.CalculatePriceAsync(calculationContext);
 
-            dynamic dynObject = ToDynamic(product, ctx, productContext.SeName, price.FinalPrice);
+            dynamic dynObject = await ToDynamic(product, ctx, productContext.SeName, price.FinalPrice);
             dynObject._IsParent = isParent;
             dynObject._CategoryName = null;
             dynObject._CategoryPath = null;

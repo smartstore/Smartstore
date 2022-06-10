@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Smartstore.Core.Data.Migrations
+﻿namespace Smartstore.Core.Data.Migrations
 {
     internal class LocaleResourceEntry
     {

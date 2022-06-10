@@ -1,14 +1,7 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Smartstore.Core.Catalog.Categories;
+﻿using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Content.Media;
-using Smartstore.Core.Data;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
-using Smartstore.Web.Controllers;
 
 namespace Smartstore.Web.Components
 {

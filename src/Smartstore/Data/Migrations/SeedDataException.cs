@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Smartstore.Data.Migrations
+﻿namespace Smartstore.Data.Migrations
 {
     public class SeedDataException : Exception
     {

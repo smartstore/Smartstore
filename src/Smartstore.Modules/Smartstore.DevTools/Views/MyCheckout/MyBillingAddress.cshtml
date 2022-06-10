@@ -1,0 +1,16 @@
+﻿@using Smartstore.Web.Models.Checkout;
+@using Smartstore.Core.Widgets;
+ 
+@model CheckoutAddressModel
+
+@{
+    Layout = "_Checkout";
+
+    Assets.AppendTitleParts(T("PageTitle.Checkout"));
+}
+
+<widget target-zone="order_progress">
+    <partial name="CheckoutProgress" model="new CheckoutProgressModel { CheckoutProgressStep = CheckoutProgressStep.Address }" />
+</widget>
+
+<h1>Hallo Welt</h1>

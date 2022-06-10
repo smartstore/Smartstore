@@ -7,19 +7,7 @@
 @{
     ViewBag.Title = T("Admin.System.SystemInfo").Value;
 
-    //var cacheStats = Model.MemoryCacheStats;
-    //var cacheSize = cacheStats.Values.Sum(x => x);
-
-    //var cacheSummary = new Multimap<string, long>(StringComparer.OrdinalIgnoreCase);
-    //foreach (var kvp in cacheStats)
-    //{
-    //    var lidx = kvp.Key.LastIndexOf(':');
-    //    if (lidx > -1)
-    //    {
-    //        var subKey = kvp.Key.Substring(0, lidx);
-    //        cacheSummary.Add(subKey, kvp.Value);
-    //    }
-    //}
+    var variables = Environment.GetEnvironmentVariables(EnvironmentVariableTarget.Process);
 }
 
 <style sm-target-zone="stylesheets" data-origin="SystemInfo">
@@ -42,16 +30,18 @@
 
 <script sm-target-zone="scripts" data-origin="SystemInfo">
 	$(function () {
-		$('.toggle-panel').on('click', function (e) {
+        $(document).on('click', '.toggle-panel', function (e) {
 			var btn = $(this);
-			var panel = btn.parent().next();
+            var panel = btn.parent().next();
+
 			if (panel.hasClass('d-none')) {
-				btn.html(@T("Admin.Common.Show").JsValue);
+                btn.html(@T("Admin.Common.Hide").JsValue);
+                panel.removeClass('d-none');
 			}
 			else {
-				btn.html(@T("Admin.Common.Hide").JsValue);
+                btn.html(@T("Admin.Common.Show").JsValue);
+                panel.addClass('d-none');
 			}
-			panel.toggleClass('d-none');
 		});
 	});
 </script>
@@ -170,51 +160,6 @@
             </div>
         </div>
     </div>
-    @*<div sm-if="cacheStats != null" class="adminRow">
-        <div class="adminTitle">
-            @Html.SmartLabel("", "Cache size")
-        </div>
-        <div class="adminData wide">
-            <div class="form-control-plaintext">
-                <span>@Prettifier.HumanizeBytes(cacheSize) (@cacheStats.Count)</span>
-                <a class="toggle-panel pl-3" href="javascript:;">@T("Admin.Common.Show")</a>
-            </div>
-            <div class="d-none mt-3">
-                <h5 class="text-muted mb-3">Summary</h5>
-                <div class="table-responsive">
-                    <table class="table table-striped table-servervars">
-                        <tbody>
-                            @foreach (var kvp in cacheSummary.OrderByDescending(x => x.Value.Count))
-                            {
-                                <tr>
-                                    <td nowrap>@kvp.Key</td>
-                                    <td class="text-nowrap" style="width: 100%;">
-                                        <span style="font-weight: 600; width: 50px; display: inline-block;" class="pr-2 text-right">@kvp.Value.Count</span>
-                                        <span>@Prettifier.HumanizeBytes(kvp.Value.Sum(x => x))</span>
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
-
-                <h5 class="text-muted mb-3">Top 100 entries</h5>
-                <div class="table-responsive">
-                    <table class="table table-striped table-servervars">
-                        <tbody>
-                            @foreach (var kvp in cacheStats.OrderByDescending(x => x.Value).Take(100))
-                            {
-                                <tr>
-                                    <td class="sv-key text-nowrap" style="width: 100px; font-weight: 600">@Prettifier.HumanizeBytes(kvp.Value)</td>
-                                    <td><div class="sv-value">@kvp.Key</div></td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>*@
     <div class="adminRow">
         <div class="adminTitle">
             <smart-label asp-for="LoadedAssemblies" />
@@ -255,6 +200,31 @@
                                 <tr>
                                     <td class="sv-key" style="min-width: 200px">@(header.Key):</td>
                                     <td><div class="sv-value">@header.Value</div></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            @Html.SmartLabel("", T("Admin.Common.EnvironmentVariables"))
+        </div>
+        <div class="adminData wide">
+            <div class="form-control-plaintext">
+                <a class="toggle-panel" href="javascript:;">@T("Admin.Common.Show")</a>
+            </div>
+            <div class="d-none mt-3">
+                <div class="table-responsive">
+                    <table class="table table-striped table-servervars">
+                        <tbody>
+                            @foreach (var key in variables.Keys.OfType<string>())
+                            {
+                                <tr>
+                                    <td class="sv-key" style="min-width: 200px">@(key):</td>
+                                    <td><div class="sv-value">@variables[key]</div></td>
                                 </tr>
                             }
                         </tbody>

@@ -1,0 +1,59 @@
+/// <reference path="_variables-shared.scss" />
+/// <reference path="_mixins.scss" />
+/// <reference path="../lib/bs4/scss/bootstrap.scss" />
+
+.more-less {
+    display: block;
+    position: relative;
+    max-height: 260px;
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+
+    $c: $body-bg;
+    @if alpha($body-bg) == 0 {
+        $c: $site-bg;
+    }
+
+    --tebg-start: rgba(var(--bg-color-rgb, #{red($c)},#{green($c)},#{blue($c)}), 0);
+    --tebg-end: var(--bg-color, #{$c});
+
+    .btn-text-expander {
+        display: none;
+		align-items: center;
+        justify-content: var(--text-expander-justify-content, initial);
+        position: absolute;
+        color: inherit;
+        font-weight: $font-weight-medium;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 2;
+        text-decoration: none !important;
+    }
+
+    .btn-text-expander--expand::after {
+        content: '';
+        position: absolute;
+        z-index: -1;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: var(--text-expander-height, #{($font-size-base * $line-height-base) * 3});
+
+        background: linear-gradient(to bottom, var(--tebg-start), var(--tebg-end) 70%, var(--tebg-end) 100%);
+    }
+
+    .btn-text-expander--collapse {
+        position: relative;
+        font-weight: normal;
+    }
+
+    &.collapsed {
+        .btn-text-expander--expand { display: flex; }
+    }
+
+    &.expanded {
+        max-height: none !important;
+        .btn-text-expander--collapse { display: flex; }
+    }
+}

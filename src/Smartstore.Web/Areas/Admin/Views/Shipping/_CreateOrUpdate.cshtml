@@ -1,0 +1,95 @@
+﻿@using Smartstore.Admin.Models.Shipping
+
+@model ShippingMethodModel
+
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden" />
+
+<tabstrip id="shipping-method-edit" sm-nav-style="Material" sm-nav-position="Top">
+    <tab sm-title="@T("Admin.Common.General")" sm-selected="true">
+        @(Html.LocalizedEditor<ShippingMethodModel, ShippingMethodLocalizedModel>("shipping-method-localized",
+		@<div class="adminContent">
+			<div class="adminRow">
+				<div class="adminTitle">
+					<smart-label asp-for="Locales[item].Name" />
+				</div>
+				<div class="adminData">
+					@*IMPORTANT: Do not delete, this hidden element contains the id to assign localized values to the corresponding language *@
+                    <input type="hidden" asp-for="Locales[item].LanguageId" />
+                    <input asp-for="Locales[item].Name" />
+                    <span asp-validation-for="Locales[item].Name"></span>
+				</div>
+			</div>
+			<div class="adminRow">
+				<div class="adminTitle">
+                    <smart-label asp-for="Locales[item].Description" />
+				</div>
+				<div class="adminData wide">
+                    <editor asp-for="Locales[item].Description" />
+                    <span asp-validation-for="Locales[item].Description"></span>
+				</div>
+			</div>
+		</div>
+		,
+		@<div class="adminContent">
+			<div class="adminRow">
+				<div class="adminTitle">
+					<smart-label asp-for="Name" />
+				</div>
+				<div class="adminData">
+					<input asp-for="Name" />
+                    <span asp-validation-for="Name"></span>
+				</div>
+			</div>
+			<div class="adminRow">
+				<div class="adminTitle">
+                    <smart-label asp-for="Description" />
+				</div>
+				<div class="adminData wide">
+                    <editor asp-for="Description" />
+                    <span asp-validation-for="Description"></span>
+				</div>
+			</div>
+		</div>
+		))
+
+        <div class="adminContent">
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="DisplayOrder" />
+                </div>
+                <div class="adminData">
+                    <editor asp-for="DisplayOrder" />
+                    <span asp-validation-for="DisplayOrder"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="IgnoreCharges" />
+                </div>
+                <div class="adminData">
+                    <input asp-for="IgnoreCharges" />
+                    <span asp-validation-for="IgnoreCharges"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="SelectedStoreIds" />
+                </div>
+                <div class="adminData">
+                    <editor asp-for="SelectedStoreIds" />
+                    <span asp-validation-for="SelectedStoreIds"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="SelectedRuleSetIds" />
+                </div>
+                <div class="adminData">
+                    <editor asp-for="SelectedRuleSetIds" />
+                    <span asp-validation-for="SelectedRuleSetIds"></span>
+                </div>
+            </div>
+        </div>
+    </tab>
+</tabstrip>

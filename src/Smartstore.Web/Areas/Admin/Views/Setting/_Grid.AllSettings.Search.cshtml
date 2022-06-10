@@ -1,16 +1,60 @@
-﻿@model SettingListModel
+﻿@using Smartstore.Engine
+@using Smartstore.Core.Configuration
+
+@model SettingListModel
+
+@inject ITypeScanner TypeScanner
+
+@{
+    var allSettingTypes = TypeScanner.FindTypes<ISettings>()
+        .Select(t => t.Name + ".*")
+        .OrderBy(x => x)
+        .ToArray();
+}
 
 <div class="form-group">
     <smart-label asp-for="SearchSettingName" />
-    <input asp-for="SearchSettingName" />
+
+    <div class="row xs-gutters">
+        <div class="col-auto">
+            <div class="dropdown">
+                <button class="btn btn-outline-secondary no-chevron dropdown-toggle"
+                        type="button" data-toggle="dropdown" aria-expanded="false"
+                        title="@T("Admin.Configuration.Settings.AllSettings.AllTypes")">
+                    <i class="fa fa-ellipsis"></i>
+                </button>
+                <div class="dropdown-menu setting-patterns py-0">
+                    <div style="max-height: 400px; overflow-y: auto">
+                        @foreach (var settingType in allSettingTypes)
+                        {
+                            <a class="dropdown-item setting-pattern" href="javascript:;" data-pattern="@settingType.ToLowerInvariant()">@settingType</a>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <editor asp-for="SearchSettingName" asp-template="SearchExpression" />
+        </div>
+    </div>
 </div>
 
 <div class="form-group">
     <smart-label asp-for="SearchSettingValue" />
-    <input asp-for="SearchSettingValue" />
+    <editor asp-for="SearchSettingValue" asp-template="SearchExpression" />
 </div>
 
 <div sm-if="!Model.IsSingleStoreMode" class="form-group">
     <smart-label asp-for="SearchStoreId" />
     <editor asp-for="SearchStoreId" />
 </div>
+
+<script sm-target-zone="end" data-origin="allsettings-search">
+    $(function () {
+        $(".setting-patterns").on("click", ".setting-pattern", function () {
+            var input = $("#@Html.IdFor(x => x.SearchSettingName)");
+            input.val($(this).data("pattern"));
+            input.trigger("blur");
+        });
+    });
+</script>

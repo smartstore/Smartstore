@@ -1,0 +1,14 @@
+﻿@model ConfigurationModel
+
+<div class="form-group">
+    <smart-label asp-for="SearchProductName" />
+    <editor asp-for="SearchProductName" asp-template="SearchExpression" />
+</div>
+<div class="form-group">
+    <smart-label asp-for="SearchProductSku" />
+    <editor asp-for="SearchProductSku" asp-template="SearchExpression" />
+</div>
+<div class="form-group">
+    <smart-label asp-for="SearchIsTouched" />
+    <editor asp-for="SearchIsTouched" />
+</div>

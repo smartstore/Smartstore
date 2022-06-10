@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
+﻿using System.Data;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
@@ -464,7 +458,7 @@ namespace Smartstore
             }
 
             var collection = entry.Collection(navigationProperty);
-            // TODO: (Core) Entities with hashSets as collections always return true here, as they are never null (for example: Product.ProductVariantAttributes).
+            // TODO: (core) Entities with hashSets as collections always return true here, as they are never null (for example: Product.ProductVariantAttributes).
             var isLoaded = collection.CurrentValue != null || collection.IsLoaded;
 
             if (!isLoaded && entry.State == EfState.Detached)

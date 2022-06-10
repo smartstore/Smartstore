@@ -1,0 +1,64 @@
+﻿@model ReturnRequestModel
+
+@{
+    var parentModel = ViewData["Parent"] as ReturnRequestListModel;
+    var stores = ViewBag.Stores as IList<SelectListItem>;
+}
+
+<datagrid id="returnrequests-grid"
+          allow-resize="true"
+          preserve-grid-state="true" preserve-command-state="true"
+          allow-column-reordering="true">
+    <datasource read="@Url.Action("ReturnRequestList")" />
+    <paging position="Bottom" show-size-chooser="true" />
+    <sorting allow-unsort="true" allow-multisort="false">
+        <sort by="CreatedOn" by-entity-member="CreatedOnUtc" descending="true" />
+    </sorting>
+    <toolbar>
+        <toolbar-group>
+            <button datagrid-action="DataGridToolAction.ToggleSearchPanel" type="button" class="btn btn-light btn-icon">
+                <i class="fa fa-fw fa-filter"></i>
+            </button>
+        </toolbar-group>
+        <zone name="datagrid_toolbar_omega"></zone>
+    </toolbar>
+    <search-panel>
+        <partial name="_Grid.ReturnRequests.Search" model="parentModel" />
+    </search-panel>
+    <columns>
+        <column for="Id" halign="center" hideable="false">
+            <display-template>
+                <div class="text-truncate"><a :href="item.row.EditUrl" class="text-truncate">{{ item.value }}</a></div>
+            </display-template>
+        </column>
+        <column for="ProductName" width="2fr" sortable="false">
+            <display-template>
+                @Html.LabeledProductName(urlExpression: "item.row.ProductEditUrl", valueExpression: "item.row.ProductName")
+            </display-template>
+        </column>
+        <column for="Quantity" halign="center" />
+        <column for="CustomerId" sortable="false">
+            <display-template>
+                <div class="text-truncate"><a :href="item.row.CustomerEditUrl" class="text-truncate">{{ item.row.CustomerFullName }}</a></div>
+            </display-template>
+        </column>
+        <column for="OrderId" sortable="false">
+            <display-template>
+                <div class="text-truncate"><a :href="item.row.OrderEditUrl" class="text-truncate">{{ item.row.OrderNumber }}</a></div>
+            </display-template>
+        </column>
+        <column for="ReturnRequestStatusString" entity-member="ReturnRequestStatusId" />
+        <column for="CreatedOn" entity-member="CreatedOnUtc" />
+        <column for="UpdatedOn" entity-member="UpdatedOnUtc" visible="false" />
+        @if (stores.Count > 1)
+        {
+            <column for="StoreName" sortable="false" />
+        }
+        <column for="StaffNotes" visible="false" wrap="true" />
+        <column for="AdminComment" visible="false" wrap="true" />
+        <column for="CustomerComments" visible="false" wrap="true" />
+    </columns>
+    <row-commands>
+        <a datarow-action="DataRowAction.Custom" :href="item.row.EditUrl">@T("Common.Edit")</a>
+    </row-commands>
+</datagrid>

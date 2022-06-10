@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using Smartstore.Core.Catalog.Brands;
+﻿using Smartstore.Core.Catalog.Brands;
 using Smartstore.Core.Catalog.Discounts;
 
 namespace Smartstore.Core.Installation

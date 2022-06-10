@@ -1,19 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq.Expressions;
-using System.Reflection;
-using System.Threading.Tasks;
+﻿using System.Reflection;
 using Humanizer;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Html;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
-using Microsoft.Extensions.DependencyInjection;
-using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Utilities;
 using Smartstore.Web.Modelling;
@@ -86,6 +79,64 @@ namespace Smartstore.Web.Rendering
             {
                 return helper.Editor(htmlFieldName ?? expression.Name, templateName, additionalViewData);
             }
+        }
+
+        #endregion
+
+        #region DropDownList Extensions
+
+        /// <summary>
+        /// Returns a single-selection HTML select element for the enum expression with localized enum values.
+        /// </summary>
+        /// <typeparam name="TEnum">The type of enumeration.</typeparam>
+        public static IHtmlContent DropDownListForEnum<TModel, TEnum>(
+            this IHtmlHelper<TModel> helper,
+            Expression<Func<TModel, TEnum>> expression) where TEnum : struct
+        {
+            return DropDownListForEnum(helper, expression, optionLabel: null, htmlAttributes: null);
+        }
+
+        /// <summary>
+        /// Returns a single-selection HTML select element for the enum expression with localized enum values.
+        /// </summary>
+        /// <typeparam name="TEnum">The type of enumeration.</typeparam>
+        public static IHtmlContent DropDownListForEnum<TModel, TEnum>(
+            this IHtmlHelper<TModel> helper,
+            Expression<Func<TModel, TEnum>> expression,
+            object htmlAttributes) where TEnum : struct
+        {
+            return DropDownListForEnum(helper, expression, optionLabel: null, htmlAttributes: htmlAttributes);
+        }
+
+        /// <summary>
+        /// Returns a single-selection HTML select element for the enum expression with localized enum values.
+        /// </summary>
+        /// <typeparam name="TEnum">The type of enumeration.</typeparam>
+        public static IHtmlContent DropDownListForEnum<TModel, TEnum>(
+            this IHtmlHelper<TModel> helper,
+            Expression<Func<TModel, TEnum>> expression,
+            string optionLabel) where TEnum : struct
+        {
+            return DropDownListForEnum(helper, expression, optionLabel: optionLabel, htmlAttributes: null);
+        }
+
+        /// <summary>
+        /// Returns a single-selection HTML select element for the enum expression with localized enum values.
+        /// </summary>
+        /// <typeparam name="TEnum">The type of enumeration.</typeparam>
+        public static IHtmlContent DropDownListForEnum<TModel, TEnum>(
+            this IHtmlHelper<TModel> helper,
+            Expression<Func<TModel, TEnum>> expression,
+            string optionLabel,
+            object htmlAttributes) where TEnum : struct
+        {
+            Guard.IsEnumType(typeof(TEnum), nameof(expression));
+
+            return helper.DropDownListFor(
+                expression,
+                helper.GetLocalizedEnumSelectList(typeof(TEnum)), 
+                optionLabel, 
+                htmlAttributes);
         }
 
         #endregion
@@ -215,21 +266,31 @@ namespace Smartstore.Web.Rendering
 
         #region ColorBox
 
-        public static IHtmlContent ColorBoxFor(this IHtmlHelper helper, ModelExpression expression, string defaultColor = null)
+        public static IHtmlContent ColorBoxFor(
+            this IHtmlHelper helper,
+            ModelExpression expression, 
+            string defaultColor = null)
         {
             Guard.NotNull(expression, nameof(expression));
 
             return ColorBox(helper, expression.Name, expression.Model?.ToString().EmptyNull(), defaultColor);
         }
 
-        public static IHtmlContent ColorBoxFor<TModel>(this IHtmlHelper<TModel> helper, Expression<Func<TModel, string>> expression, string defaultColor = null)
+        public static IHtmlContent ColorBoxFor<TModel>(
+            this IHtmlHelper<TModel> helper, 
+            Expression<Func<TModel, string>> expression, 
+            string defaultColor = null)
         {
             Guard.NotNull(expression, nameof(expression));
 
             return ColorBox(helper, helper.NameFor(expression), helper.ValueFor(expression), defaultColor);
         }
 
-        public static IHtmlContent ColorBox(this IHtmlHelper helper, string name, string color, string defaultColor = null)
+        public static IHtmlContent ColorBox(
+            this IHtmlHelper helper, 
+            string name, 
+            string color, 
+            string defaultColor = null)
         {
             defaultColor = defaultColor.EmptyNull();
             var isDefault = color.EqualsNoCase(defaultColor);
@@ -250,7 +311,33 @@ namespace Smartstore.Web.Rendering
 
         #region Labels & Hints
 
-        public static IHtmlContent SmartLabel(this IHtmlHelper helper, string expression, string labelText, string hint = null, object htmlAttributes = null)
+        public static IHtmlContent SmartLabelFor<TModel, TResult>(this IHtmlHelper<TModel> helper,
+            Expression<Func<TModel, TResult>> expression,
+            object htmlAttributes = null)
+        {
+            return SmartLabelFor(helper, expression, true, htmlAttributes);
+        }
+
+        public static IHtmlContent SmartLabelFor<TModel, TResult>(this IHtmlHelper<TModel> helper, 
+            Expression<Func<TModel, TResult>> expression, 
+            bool displayHint,
+            object htmlAttributes = null)
+        {
+            Guard.NotNull(expression, nameof(expression));
+
+            var modelExpression = helper.ModelExpressionFor(expression);
+            var metadata = modelExpression.Metadata;
+            var labelText = metadata.DisplayName ?? metadata.PropertyName?.SplitPascalCase();
+            var hintText = displayHint ? metadata.Description : null;
+
+            return SmartLabel(helper, modelExpression.Name, labelText, hintText, htmlAttributes);
+        }
+
+        public static IHtmlContent SmartLabel(this IHtmlHelper helper, 
+            string expression, 
+            string labelText, 
+            string hint = null, 
+            object htmlAttributes = null)
         {
             var div = new TagBuilder("div");
             div.Attributes["class"] = "ctl-label";
@@ -525,6 +612,135 @@ namespace Smartstore.Web.Rendering
             }
 
             return HtmlString.Empty;
+        }
+
+        #endregion
+
+        #region Icon
+
+        /// <summary>
+        /// Generates HTML for a <c>FontAwesome (fa)</c> or a <c>Bootstrap (bi)</c> icon.
+        /// </summary>
+        /// <param name="name">
+        /// If <c>fa</c>: the fully qualified CSS class, e.g. "far fa-envelope fa-fw".
+        /// If <c>bi</c>: The icon name prefixed with <c>bi:</c>, e.g. "bi:envelope".
+        /// </param>
+        public static IHtmlContent Icon(this IHtmlHelper helper, string name, object htmlAttributes = null)
+        {
+            Guard.NotNull(name, nameof(name));
+
+            if (name.StartsWith("bi:"))
+            {
+                return helper.BootstrapIcon(
+                    name[3..],
+                    fill: "currentColor",
+                    fontScale: null,
+                    animation: null,
+                    transforms: null,
+                    htmlAttributes: htmlAttributes);
+            }
+
+            var i = new TagBuilder("i");
+            i.Attributes["class"] = name;
+
+            if (htmlAttributes != null)
+            {
+                i.Attributes.Merge(CommonHelper.ObjectToStringDictionary(htmlAttributes));
+            }
+
+            return i;
+        }
+
+        public static IHtmlContent BootstrapIcon(this IHtmlHelper helper,
+            string name,
+            string fill = "currentColor",
+            float? fontScale = null,
+            CssAnimation? animation = null,
+            string transforms = null,
+            object htmlAttributes = null)
+        {
+            return helper.BootstrapIcon(
+                name,
+                false,
+                fill, 
+                fontScale, 
+                animation, 
+                transforms, 
+                htmlAttributes);
+        }
+
+        internal static IHtmlContent BootstrapIcon(this IHtmlHelper helper, 
+            string name,
+            bool isStackItem = false,
+            string fill = null,
+            float? fontScale = null,
+            CssAnimation? animation = null,
+            string transforms = null,
+            object htmlAttributes = null)
+        {
+            Guard.NotNull(name, nameof(name));
+
+            var svg = new TagBuilder("svg");
+
+            // Root attributes
+            svg.Attributes["fill"] = fill.NullEmpty() ?? "currentColor";
+
+            if (!isStackItem)
+            {
+                if (fontScale > 0)
+                {
+                    svg.AddCssStyle("font-size", $"{fontScale.Value * 100}%");
+                }
+
+                svg.Attributes["width"] = "1em";
+                svg.Attributes["height"] = "1em";
+                svg.Attributes["role"] = "img";
+                svg.Attributes["focusable"] = "false";
+            }
+
+            // Use tag
+            var urlHelper = helper.ViewContext.HttpContext.RequestServices.GetService<IUrlHelper>();
+            var symbol = new TagBuilder("use");
+            symbol.Attributes["xlink:href"] = urlHelper.Content($"~/lib/bi/bootstrap-icons.svg#{name}");
+
+            var el = symbol;
+
+            if (htmlAttributes != null)
+            {
+                svg.Attributes.Merge(CommonHelper.ObjectToStringDictionary(htmlAttributes));
+            }
+
+            svg.AppendCssClass("bi");
+
+            // Animation
+            if (animation != null)
+            {
+                var animClass = $"animate-{animation.Value.ToString().Kebaberize()}";
+                if (isStackItem)
+                {
+                    el.AppendCssClass(animClass);
+                }
+                else
+                {
+                    svg.AppendCssClass(animClass);
+                }
+            }
+
+            if (transforms.HasValue())
+            {
+                if (isStackItem)
+                {
+                    // Apply transforms to inner <g> when stacked item.
+                    el = new TagBuilder("g");
+                    el.InnerHtml.AppendHtml(symbol);
+                }
+
+                el.Attributes["transform"] = string.Join(' ', transforms);
+            }
+
+            svg.InnerHtml.AppendHtml(el);
+
+            return svg;
         }
 
         #endregion

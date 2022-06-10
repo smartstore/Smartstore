@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using Smartstore.Collections;
+﻿using Smartstore.Collections;
 using Smartstore.Core.Localization;
 
 namespace Smartstore.Core.Content.Menus
@@ -20,14 +19,16 @@ namespace Smartstore.Core.Content.Menus
             {
                 node.ApplyRouteData(request.Entity.Model);
             }
-            catch { }
+            catch 
+            { 
+            }
 
             if (request.IsEditMode)
             {
                 var item = node.Value;
 
                 item.Summary = T("Providers.MenuItems.FriendlyName.Route");
-                item.Icon = "fas fa-directions";
+                item.Icon = "fas fa-route";
 
                 if (!item.HasRoute)
                 {

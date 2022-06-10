@@ -1,6 +1,5 @@
 ﻿using Autofac;
 using Smartstore.Caching;
-using Smartstore.Caching.OutputCache;
 using Smartstore.Threading;
 
 namespace Smartstore.Bootstrapping
@@ -9,10 +8,6 @@ namespace Smartstore.Bootstrapping
     {
         protected override void Load(ContainerBuilder builder)
         {
-            builder.RegisterType<NullDisplayControl>()
-                .As<IDisplayControl>()
-                .InstancePerLifetimeScope();
-
             builder.RegisterType<RequestCache>()
                 .As<IRequestCache>()
                 .InstancePerLifetimeScope();

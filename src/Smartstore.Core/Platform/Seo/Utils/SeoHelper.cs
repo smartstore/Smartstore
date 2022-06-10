@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
+﻿using System.Globalization;
 using System.Runtime.CompilerServices;
-using Smartstore.Domain;
-using Smartstore.Engine;
 using Smartstore.Utilities;
 
 namespace Smartstore.Core.Seo
@@ -142,19 +138,22 @@ namespace Smartstore.Core.Seo
             }
 
             // Trim allocation-free
-            if (prevdash)
+            if (sb.Length > 0)
             {
-                sb.Remove(sb.Length - 1, 1);
-            }
+                if (prevdash)
+                {
+                    sb.Remove(sb.Length - 1, 1);
+                }
 
-            if (sb[0] == '/')
-            {
-                sb.Remove(0, 1);
-            }
+                if (sb[0] == '/')
+                {
+                    sb.Remove(0, 1);
+                }
 
-            if (sb[^1] == '/')
-            {
-                sb.Remove(sb.Length - 1, 1);
+                if (sb[^1] == '/')
+                {
+                    sb.Remove(sb.Length - 1, 1);
+                }
             }
 
             return sb.ToString();

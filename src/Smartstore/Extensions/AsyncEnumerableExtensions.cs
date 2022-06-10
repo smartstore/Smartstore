@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections;
 using System.Runtime.CompilerServices;
-using System.Threading;
-using System.Threading.Tasks;
 using Dasync.Collections;
 
 // Source: https://github.com/dotnet/reactive/tree/9329157592c13e97ce2d3251c91b2871aed875c9/Ix.NET/Source/System.Linq.Async/System/Linq/Operators
@@ -98,6 +93,46 @@ namespace Smartstore
             return source.ToDictionaryAsync(keySelector, elementSelector, comparer, cancellationToken);
         }
 
+        /// <summary>
+        /// Converts an <see cref="IAsyncEnumerable{T}"/> to <see cref="IEnumerable{T}"/>.
+        /// Use with CAUTION: call this method only if you are sure that the async iteration block
+        /// does not contain any async method call.
+        /// </summary>
+        /// <param name="source">The collection of elements to convert</param>
+        public static IEnumerable<T> ToEnumerable<T>(this IAsyncEnumerable<T> source)
+        {
+            Guard.NotNull(source, nameof(source));
+
+            return source is IEnumerable<T> enumerable 
+                ? enumerable 
+                : new EnumerableAdapter<T>(source);
+        }
+
+        class EnumerableAdapter<T> : IEnumerable<T>
+        {
+            private readonly IAsyncEnumerable<T> _source;
+
+            public EnumerableAdapter(IAsyncEnumerable<T> source)
+                => _source = source;
+
+            public IEnumerator<T> GetEnumerator() => new EnumeratorAdapter<T>(_source.GetAsyncEnumerator());
+            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+        }
+
+        class EnumeratorAdapter<T> : IEnumerator<T>
+        {
+            private readonly IAsyncEnumerator<T> _source;
+
+            public EnumeratorAdapter(IAsyncEnumerator<T> source)
+                => _source = source;
+
+            public T Current => _source.Current;
+            object IEnumerator.Current => Current;
+            public void Dispose() => _source.DisposeAsync().Await();
+            public bool MoveNext() => _source.MoveNextAsync().Await();
+            public void Reset() => throw new NotSupportedException();
+        }
+
         #endregion
 
         #region Count
@@ -120,7 +155,7 @@ namespace Smartstore
             {
                 ICollection<TSource> collection => new ValueTask<int>(collection.Count),
                 ICollection collection => new ValueTask<int>(collection.Count),
-                _ => Core(source, cancellationToken),
+                _ => Core(source, cancellationToken)
             };
 
             static async ValueTask<int> Core(IAsyncEnumerable<TSource> source, CancellationToken cancellationToken)

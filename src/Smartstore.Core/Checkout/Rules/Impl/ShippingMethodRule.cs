@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using Smartstore.Core.Checkout.Shipping;
+﻿using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Rules;
 

@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Newtonsoft.Json;
@@ -16,7 +13,6 @@ using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common;
 using Smartstore.Core.Identity;
-using Smartstore.Domain;
 
 namespace Smartstore.Core.Checkout.Orders
 {
@@ -37,17 +33,24 @@ namespace Smartstore.Core.Checkout.Orders
             builder
                 .HasOne(o => o.BillingAddress)
                 .WithMany()
-                .HasForeignKey(o => o.BillingAddressId);
+                .HasForeignKey(o => o.BillingAddressId)
+                .OnDelete(DeleteBehavior.NoAction);
 
             builder
                 .HasOne(o => o.ShippingAddress)
                 .WithMany()
-                .HasForeignKey(o => o.ShippingAddressId);
+                .HasForeignKey(o => o.ShippingAddressId)
+                .OnDelete(DeleteBehavior.SetNull);
         }
     }
 
     [Index(nameof(Deleted), Name = "IX_Deleted")]
     [Index(nameof(CustomerId), Name = "IX_Order_CustomerId")]
+    [Index(nameof(OrderGuid))]
+    // INFO: MySQL max key length is 3072 bytes, so we can index up to 768 characters for utf8mb4.
+    [Index(nameof(PaymentMethodSystemName), nameof(AuthorizationTransactionId))]
+    [Index(nameof(PaymentMethodSystemName), nameof(AuthorizationTransactionCode))]
+    [Index(nameof(PaymentMethodSystemName), nameof(CaptureTransactionId))]
     public partial class Order : EntityWithAttributes, IAuditable, ISoftDeletable
     {
         public Order()
@@ -65,7 +68,7 @@ namespace Smartstore.Core.Checkout.Orders
         /// <summary>
         /// Gets or sets the (formatted) order number
         /// </summary>
-        [StringLength(4000)]
+        [StringLength(400)]
         public string OrderNumber { get; set; }
 
         /// <summary>
@@ -96,13 +99,13 @@ namespace Smartstore.Core.Checkout.Orders
         /// <summary>
         /// Gets or sets the payment method system name
         /// </summary>
-        [StringLength(4000)]
+        [StringLength(255)]
         public string PaymentMethodSystemName { get; set; }
 
         /// <summary>
         /// Gets or sets the customer currency code (at the moment of order placing)
         /// </summary>
-        [StringLength(4000)]
+        [StringLength(5)]
         public string CustomerCurrencyCode { get; set; }
 
         /// <summary>
@@ -113,7 +116,7 @@ namespace Smartstore.Core.Checkout.Orders
         /// <summary>
         /// Gets or sets the VAT number (the European Union Value Added Tax)
         /// </summary>
-        [StringLength(4000)]
+        [StringLength(400)]
         public string VatNumber { get; set; }
 
         /// <summary>
@@ -210,14 +213,12 @@ namespace Smartstore.Core.Checkout.Orders
         /// <summary>
         /// Gets or sets the checkout attribute description
         /// </summary>
-        [StringLength(4000)]
         public string CheckoutAttributeDescription { get; set; }
 
         /// <summary>
         /// Gets or sets the checkout attributes in XML or JSON format
         /// </summary>
         [Column("CheckoutAttributesXml")]
-        [StringLength(4000)]
         public string RawAttributes { get; set; }
 
         /// <summary>
@@ -233,7 +234,7 @@ namespace Smartstore.Core.Checkout.Orders
         /// <summary>
         /// Gets or sets the customer IP address
         /// </summary>
-        [StringLength(4000)]
+        [StringLength(200)]
         public string CustomerIp { get; set; }
 
         /// <summary>
@@ -244,49 +245,42 @@ namespace Smartstore.Core.Checkout.Orders
         /// <summary>
         /// Gets or sets the card type
         /// </summary>
-        [StringLength(4000)]
         public string CardType { get; set; }
 
         /// <summary>
         /// Gets or sets the card name
         /// </summary>
         [JsonIgnore]
-        [StringLength(4000)]
         public string CardName { get; set; }
 
         /// <summary>
         /// Gets or sets the card number
         /// </summary>
         [JsonIgnore]
-        [StringLength(4000)]
         public string CardNumber { get; set; }
 
         /// <summary>
         /// Gets or sets the masked credit card number
         /// </summary>
         [JsonIgnore]
-        [StringLength(4000)]
         public string MaskedCreditCardNumber { get; set; }
 
         /// <summary>
         /// Gets or sets the card CVV2
         /// </summary>
         [JsonIgnore]
-        [StringLength(4000)]
         public string CardCvv2 { get; set; }
 
         /// <summary>
         /// Gets or sets the card expiration month
         /// </summary>
         [JsonIgnore]
-        [StringLength(4000)]
         public string CardExpirationMonth { get; set; }
 
         /// <summary>
         /// Gets or sets the card expiration year
         /// </summary>
         [JsonIgnore]
-        [StringLength(4000)]
         public string CardExpirationYear { get; set; }
 
         /// <summary>
@@ -299,49 +293,42 @@ namespace Smartstore.Core.Checkout.Orders
         /// Gets or sets the direct debit account holder
         /// </summary>
         [JsonIgnore]
-        [StringLength(4000)]
         public string DirectDebitAccountHolder { get; set; }
 
         /// <summary>
         /// Gets or sets the direct debit account number
         /// </summary>
         [JsonIgnore]
-        [StringLength(4000)]
         public string DirectDebitAccountNumber { get; set; }
 
         /// <summary>
         /// Gets or sets the direct debit bank code
         /// </summary>
         [JsonIgnore]
-        [StringLength(4000)]
         public string DirectDebitBankCode { get; set; }
 
         /// <summary>
         /// Gets or sets the direct debit bank name
         /// </summary>
         [JsonIgnore]
-        [StringLength(4000)]
         public string DirectDebitBankName { get; set; }
 
         /// <summary>
         /// Gets or sets the direct debit bic
         /// </summary>
         [JsonIgnore]
-        [StringLength(4000)]
         public string DirectDebitBIC { get; set; }
 
         /// <summary>
         /// Gets or sets the direct debit country
         /// </summary>
         [JsonIgnore]
-        [StringLength(4000)]
         public string DirectDebitCountry { get; set; }
 
         /// <summary>
         /// Gets or sets the direct debit iban
         /// </summary>
         [JsonIgnore]
-        [StringLength(4000)]
         public string DirectDebitIban { get; set; }
 
         /// <summary>
@@ -351,45 +338,51 @@ namespace Smartstore.Core.Checkout.Orders
         public string CustomerOrderComment { get; set; }
 
         /// <summary>
-        /// Gets or sets the authorization transaction identifier
+        /// Gets or sets the authorization transaction identifier.
+        /// Typically this is the authorization ID of the payment provider referenced by <see cref="PaymentMethodSystemName"/>.
         /// </summary>
-        [StringLength(4000)]
+        [StringLength(400)]
         public string AuthorizationTransactionId { get; set; }
 
         /// <summary>
-        /// Gets or sets the authorization transaction code
+        /// Gets or sets the authorization transaction code.
+        /// Not used by Smartstore. Can be used to store another ID or payment code of the payment provider.
+        /// Use <see cref="GenericAttribute"/> if you want to store even more payment data for an order.
         /// </summary>
-        [StringLength(4000)]
+        [StringLength(400)]
         public string AuthorizationTransactionCode { get; set; }
 
         /// <summary>
-        /// Gets or sets the authorization transaction result
+        /// Gets or sets the authorization transaction result.
+        /// Not used by Smartstore. Can be used to inform about the current authorization payment status.
         /// </summary>
-        [StringLength(4000)]
+        [StringLength(400)]
         public string AuthorizationTransactionResult { get; set; }
 
         /// <summary>
-        /// Gets or sets the capture transaction identifier
+        /// Gets or sets the capture transaction identifier.
+        /// Typically this is the capture ID of the payment provider referenced by <see cref="PaymentMethodSystemName"/>.
         /// </summary>
-        [StringLength(4000)]
+        [StringLength(400)]
         public string CaptureTransactionId { get; set; }
 
         /// <summary>
-        /// Gets or sets the capture transaction result
+        /// Gets or sets the capture transaction result.
+        /// Not used by Smartstore. Can be used to inform about the current capture payment status.
         /// </summary>
-        [StringLength(4000)]
+        [StringLength(400)]
         public string CaptureTransactionResult { get; set; }
 
         /// <summary>
-        /// Gets or sets the subscription transaction identifier
+        /// Gets or sets the subscription transaction identifier.
         /// </summary>
-        [StringLength(4000)]
+        [StringLength(400)]
         public string SubscriptionTransactionId { get; set; }
 
         /// <summary>
         /// Gets or sets the purchase order number
         /// </summary>
-        [StringLength(4000)]
+        [StringLength(400)]
         public string PurchaseOrderNumber { get; set; }
 
         /// <summary>
@@ -400,13 +393,13 @@ namespace Smartstore.Core.Checkout.Orders
         /// <summary>
         /// Gets or sets the shipping method
         /// </summary>
-        [StringLength(4000)]
+        [StringLength(400)]
         public string ShippingMethod { get; set; }
 
         /// <summary>
         /// Gets or sets the shipping rate computation method identifier
         /// </summary>
-        [StringLength(4000)]
+        [StringLength(400)]
         public string ShippingRateComputationMethodSystemName { get; set; }
 
         /// <summary>
@@ -426,7 +419,9 @@ namespace Smartstore.Core.Checkout.Orders
         public int? RewardPointsRemaining { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether a new payment notification arrived (IPN, webhook, callback etc.)
+        /// Gets or sets a value indicating whether a new payment notification arrived.
+        /// Set this to <c>true</c> if a new IPN, webhook notification or payment provider message arrived.
+        /// Use an <see cref="OrderNote"/> to save the notification.
         /// </summary>
         public bool HasNewPaymentNotification { get; set; }
 

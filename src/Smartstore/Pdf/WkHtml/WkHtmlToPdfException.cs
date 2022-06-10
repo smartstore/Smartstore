@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Smartstore.Pdf.WkHtml
+﻿namespace Smartstore.Pdf.WkHtml
 {
     public sealed class WkHtmlToPdfException : Exception
     {

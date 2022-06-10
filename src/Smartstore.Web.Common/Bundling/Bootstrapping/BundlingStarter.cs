@@ -1,12 +1,9 @@
-﻿using System;
-using Autofac;
+﻿using Autofac;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
 using Smartstore.Core.Theming;
-using Smartstore.Core.Widgets;
-using Smartstore.Engine;
 using Smartstore.Engine.Builders;
 using Smartstore.IO;
 using Smartstore.Web.Bundling;
@@ -29,7 +26,7 @@ namespace Smartstore.Web.Bootstrapping
 
         private static IFileProvider ResolveModuleFileProvider(string moduleName, IApplicationContext appContext)
         {
-            return appContext.ModuleCatalog.GetModuleByName(moduleName, true)?.WebRoot;
+            return appContext.ModuleCatalog.GetModuleByName(moduleName, false)?.WebRoot;
         }
 
         public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext)
@@ -56,7 +53,10 @@ namespace Smartstore.Web.Bootstrapping
         {
             builder.Configure(StarterOrdering.BeforeStaticFilesMiddleware, app =>
             {
-                app.UseMiddleware<BundleMiddleware>();
+                app.UseWhen(ctx => ctx.Request.Method == HttpMethods.Get, x =>
+                {
+                    x.UseMiddleware<BundleMiddleware>();
+                });
 
                 var bundles = app.ApplicationServices.GetRequiredService<IBundleCollection>();
                 var publisher = new BundlePublisher();

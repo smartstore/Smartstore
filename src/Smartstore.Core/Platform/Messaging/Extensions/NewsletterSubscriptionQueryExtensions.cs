@@ -1,6 +1,4 @@
-﻿using System.Linq;
-using Microsoft.EntityFrameworkCore;
-using Smartstore.Core.Data;
+﻿using Smartstore.Core.Data;
 using Smartstore.Core.Messaging;
 
 namespace Smartstore
@@ -67,7 +65,7 @@ namespace Smartstore
                 joinedQuery = joinedQuery.Where(x => x.Subscription.Active);
             }
 
-            if (storeIds?.Any() ?? false)
+            if ((storeIds?.Any() ?? false) && storeIds.FirstOrDefault() != 0)
             {
                 joinedQuery = joinedQuery.Where(x => storeIds.Contains(x.Subscription.StoreId));
             }

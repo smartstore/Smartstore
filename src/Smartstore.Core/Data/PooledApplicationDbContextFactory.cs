@@ -1,18 +1,14 @@
-﻿using System;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 using Autofac;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Internal;
 using Smartstore.Data;
-using Smartstore.Engine;
-
-// TODO: (core) After switching to FluentMigrator we won't need PooledApplicationDbContextFactory anymore. Remove later!
 
 namespace Smartstore.Core.Data
 {
     /// <summary>
     /// Provides support for multi-provider-aware pooled DbContext factories.
     /// </summary>
+    /// <remarks>After switching to FluentMigrator we won't need PooledApplicationDbContextFactory anymore. Maybe remove later.</remarks>
     [SuppressMessage("Usage", "EF1001:Internal EF Core API usage.", Justification = "Support for multi-provider pooled factory")]
     public sealed class PooledApplicationDbContextFactory<TContext, TContextImpl> : IDbContextFactory<TContext>
         where TContextImpl : HookingDbContext, TContext

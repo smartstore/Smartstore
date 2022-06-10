@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Collections.Concurrent;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
@@ -104,7 +99,6 @@ namespace Smartstore.Data
                     {
                         _ctx.ChangeTracker.AutoDetectChangesEnabled = autoDetectChanges;
 
-                        // TODO: (core) implement IMergedData stuff
                         IgnoreMergedData(mergeableEntities, false);
                     }
                 }
@@ -175,7 +169,6 @@ namespace Smartstore.Data
                     {
                         _ctx.ChangeTracker.AutoDetectChangesEnabled = autoDetectChanges;
 
-                        // TODO: (core) implement IMergedData stuff
                         IgnoreMergedData(mergeableEntities, false);
                     }
                 }

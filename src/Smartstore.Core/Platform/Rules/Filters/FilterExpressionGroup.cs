@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-
-namespace Smartstore.Core.Rules.Filters
+﻿namespace Smartstore.Core.Rules.Filters
 {
     public class FilterExpressionGroup : FilterExpression, IRuleExpressionGroup
     {
-        private readonly List<IRuleExpression> _expressions = new();
+        private List<IRuleExpression> _expressions = new();
 
         internal FilterExpressionGroup(params FilterExpression[] expressions)
             : this(null, expressions)
@@ -21,7 +16,7 @@ namespace Smartstore.Core.Rules.Filters
             Operator = RuleOperator.IsEqualTo;
             Value = true;
 
-            _expressions.AddRange(expressions);
+            AddExpressions(expressions);
         }
 
         public int RefRuleId { get; set; }
@@ -35,7 +30,25 @@ namespace Smartstore.Core.Rules.Filters
         public void AddExpressions(IEnumerable<IRuleExpression> expressions)
         {
             Guard.NotNull(expressions, nameof(expressions));
-            _expressions.AddRange(expressions.OfType<FilterExpression>());
+
+            _expressions.AddRange(expressions
+                .OfType<FilterExpression>()
+                .Select(GetSelfOrCloneIfGroup));
+        }
+
+        private static FilterExpression GetSelfOrCloneIfGroup(FilterExpression expression)
+        {
+            if (expression is FilterExpressionGroup group && !group.IsSubGroup)
+            {
+                var clone = (FilterExpressionGroup)group.MemberwiseClone();
+
+                // This is why we have to clone
+                clone.IsSubGroup = true;
+
+                return clone;
+            }
+            
+            return expression;
         }
 
         public Expression ToPredicate(IQueryProvider provider)

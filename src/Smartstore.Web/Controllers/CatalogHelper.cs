@@ -1,16 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Dasync.Collections;
+﻿using Dasync.Collections;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.EntityFrameworkCore;
 using Smartstore.Caching;
 using Smartstore.Collections;
-using Smartstore.Core;
 using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Brands;
@@ -21,23 +14,19 @@ using Smartstore.Core.Catalog.Search;
 using Smartstore.Core.Catalog.Search.Modelling;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Tax;
-using Smartstore.Core.Common;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Content.Menus;
-using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
 using Smartstore.Diagnostics;
-using Smartstore.Http;
 using Smartstore.Web.Infrastructure.Hooks;
 using Smartstore.Web.Models.Catalog;
 using Smartstore.Web.Models.Catalog.Mappers;
-using Smartstore.Web.Models.Common;
 using Smartstore.Web.Models.Media;
 
 namespace Smartstore.Web.Controllers
@@ -59,7 +48,6 @@ namespace Smartstore.Web.Controllers
         private readonly IMediaService _mediaService;
         private readonly ILocalizationService _localizationService;
         private readonly IPriceCalculationService _priceCalculationService;
-        private readonly IDateTimeHelper _dateTimeHelper;
         private readonly IStockSubscriptionService _stockSubscriptionService;
         private readonly MediaSettings _mediaSettings;
         private readonly CatalogSettings _catalogSettings;
@@ -67,7 +55,6 @@ namespace Smartstore.Web.Controllers
         private readonly CaptchaSettings _captchaSettings;
         private readonly TaxSettings _taxSettings;
         private readonly PerformanceSettings _performanceSettings;
-        private readonly IMeasureService _measureService;
         private readonly MeasureSettings _measureSettings;
         private readonly IDeliveryTimeService _deliveryTimeService;
         private readonly ICatalogSearchService _catalogSearchService;
@@ -78,7 +65,6 @@ namespace Smartstore.Web.Controllers
         private readonly ILocalizedEntityService _localizedEntityService;
         private readonly IUrlService _urlService;
         private readonly ILinkResolver _linkResolver;
-        private readonly SocialSettings _socialSettings;
         private readonly ContactDataSettings _contactDataSettings;
         private readonly IProductTagService _productTagService;        
 
@@ -95,13 +81,11 @@ namespace Smartstore.Web.Controllers
             ICurrencyService currencyService,
             IMediaService mediaService,
             IPriceCalculationService priceCalculationService,
-            IDateTimeHelper dateTimeHelper,
             IStockSubscriptionService stockSubscriptionService,
             MediaSettings mediaSettings,
             CatalogSettings catalogSettings,
             CustomerSettings customerSettings,
             CaptchaSettings captchaSettings,
-            IMeasureService measureService,
             MeasureSettings measureSettings,
             TaxSettings taxSettings,
             PerformanceSettings performanceSettings,
@@ -113,7 +97,6 @@ namespace Smartstore.Web.Controllers
             ILocalizedEntityService localizedEntityService,
             IUrlService urlService,
             ILinkResolver linkResolver,
-            SocialSettings socialSettings,
             ContactDataSettings contactDataSettings,
             IProductTagService productTagService)
         {
@@ -132,9 +115,7 @@ namespace Smartstore.Web.Controllers
             _mediaService = mediaService;
             _localizationService = _services.Localization;
             _priceCalculationService = priceCalculationService;
-            _dateTimeHelper = dateTimeHelper;
             _stockSubscriptionService = stockSubscriptionService;
-            _measureService = measureService;
             _measureSettings = measureSettings;
             _taxSettings = taxSettings;
             _performanceSettings = performanceSettings;
@@ -151,7 +132,6 @@ namespace Smartstore.Web.Controllers
             _urlService = urlService;
             _linkResolver = linkResolver;
             _httpRequest = _urlHelper.ActionContext.HttpContext.Request;
-            _socialSettings = socialSettings;
             _contactDataSettings = contactDataSettings;
             _productTagService = productTagService;
         }
@@ -539,7 +519,24 @@ namespace Smartstore.Web.Controllers
                 DisplayPrices = await _services.Permissions.AuthorizeAsync(Permissions.Catalog.DisplayPrice)
             };
 
-            return await MapProductDetailsPageModelAsync(modelContext);
+            var model = await MapProductDetailsPageModelAsync(modelContext);
+
+            // Specifications
+            model.SpecificationAttributes = await PrepareProductSpecificationModelAsync(modelContext);
+
+            // Reviews
+            await PrepareProductReviewsModelAsync(model.ProductReviews, product, 10);
+
+            // Tags
+            await PrepareProductTagsModelAsync(model, product);
+
+            // Related products
+            await PrepareRelatedProductsModelAsync(model, product);
+
+            // Also purchased products
+            await PrepareAlsoPurchasedProductsModelAsync(model, product);
+
+            return model;
         }
 
         protected internal virtual async Task<ProductDetailsModel> MapProductDetailsPageModelAsync(ProductDetailsModelContext modelContext)
@@ -682,7 +679,6 @@ namespace Smartstore.Web.Controllers
                 if (_catalogSettings.ShowManufacturerPicturesInProductDetail)
                 {
                     var brands = _db.IsCollectionLoaded(product, x => x.ProductManufacturers)
-                        // TODO: (core) Authorize for and ACL? But does make no sense here?! Hmmm...
                         ? product.ProductManufacturers
                         : await batchContext.ProductManufacturers.GetOrLoadAsync(product.Id);
                     
@@ -876,21 +872,6 @@ namespace Smartstore.Web.Controllers
 
             // GiftCards
             PrepareProductGiftCardsModel(model, modelContext);
-
-            // Specifications
-            model.SpecificationAttributes = await PrepareProductSpecificationModelAsync(modelContext);
-
-            // Reviews
-            await PrepareProductReviewsModelAsync(model.ProductReviews, product, 10);
-
-            // Tags
-            await PrepareProductTagsModelAsync(model, product);
-
-            // Related products
-            await PrepareRelatedProductsModelAsync(model, product);
-
-            // Also purchased products
-            await PrepareAlsoPurchasedProductsModelAsync(model, product);
 
             _services.DisplayControl.Announce(product);
         }
@@ -1183,7 +1164,7 @@ namespace Smartstore.Web.Controllers
             }
             else
             {
-                var (selection, _) = await _productAttributeMaterializer.CreateAttributeSelectionAsync(query, attributes, product.Id, bundleItemId, false);
+                var (selection, _) = await _productAttributeMaterializer.CreateAttributeSelectionAsync(query, attributes, product.Id, bundleItemId);
                 modelContext.SelectedAttributes = selection;
             }
 
@@ -1281,10 +1262,12 @@ namespace Smartstore.Web.Controllers
                 // Cases where stock inventory is not functional (what ShoppingCartService.GetStandardWarnings and ProductService.AdjustInventory does not handle).
                 model.IsAvailable = true;
 
-                _db.IsCollectionLoaded(product, x => x.ProductVariantAttributeCombinations, out var collectionEntry);
-                var hasAttributeCombinations = await collectionEntry
-                    .Query()
-                    .AnyAsync();
+                product = _db.FindTracked<Product>(product.Id) ?? product;
+                var collectionLoaded = _db.IsCollectionLoaded(product, x => x.ProductVariantAttributeCombinations, out var collectionEntry);
+
+                var hasAttributeCombinations = collectionLoaded
+                    ? product.ProductVariantAttributeCombinations.Count > 0
+                    : await collectionEntry.Query().AnyAsync();
 
                 model.StockAvailability = !hasAttributeCombinations ? product.FormatStockMessage(_localizationService) : string.Empty;
             }
@@ -1331,7 +1314,6 @@ namespace Smartstore.Web.Controllers
             var defaultTaxRate = string.Empty;
             if (_taxSettings.DisplayTaxRates)
             {
-                // INFO: (mh) (core) Taxrate always contains a Rate of 0 because not all TaxProviders are implemented yet.
                 var taxRate = await _taxService.GetTaxRateAsync(product, customer: customer);
                 if (taxRate.Rate != 0)
                 {
@@ -1350,10 +1332,9 @@ namespace Smartstore.Web.Controllers
 
             if (!product.IsShippingEnabled || (addShippingPrice == 0 && product.IsFreeShipping))
             {
-                model.LegalInfo += "{0} {1}, {2}".FormatInvariant(
-                    product.IsTaxExempt ? string.Empty : taxInfo,
-                    product.IsTaxExempt ? string.Empty : defaultTaxRate,
-                    T("Common.FreeShipping"));
+                model.LegalInfo += product.IsTaxExempt
+                    ? T("Common.FreeShipping")
+                    : "{0} {1}, {2}".FormatInvariant(taxInfo, defaultTaxRate, T("Common.FreeShipping"));
             }
             else
             {
@@ -1375,6 +1356,8 @@ namespace Smartstore.Web.Controllers
                         shippingInfoUrl);
                 }
             }
+
+            model.LegalInfo = model.LegalInfo.TrimSafe();
 
             var dimension = await _db.MeasureDimensions.AsNoTracking().FirstOrDefaultAsync(x => x.Id == _measureSettings.BaseDimensionId);
             var weight = await _db.MeasureWeights.AsNoTracking().FirstOrDefaultAsync(x => x.Id == _measureSettings.BaseDimensionId);
@@ -1477,7 +1460,7 @@ namespace Smartstore.Web.Controllers
             }
 
             var applyDiscountNote = false;
-            var taxFormat = _currencyService.GetTaxFormat();
+            var taxFormat = _taxService.GetTaxFormat();
             var calculationOptions = _priceCalculationService.CreateDefaultOptions(false, customer, currency, modelContext.BatchContext);
             var calculationContext = new PriceCalculationContext(product, selectedQuantity, calculationOptions)
             {
@@ -1631,28 +1614,32 @@ namespace Smartstore.Web.Controllers
         {
             var storeId = _services.StoreContext.CurrentStore.Id;
             var cacheKey = string.Format(ModelCacheInvalidator.PRODUCTTAG_BY_PRODUCT_MODEL_KEY, product.Id, _services.WorkContext.WorkingLanguage.Id, storeId);
-            var cacheModel = await _services.CacheFactory.GetMemoryCache().GetAsync(cacheKey, async () =>
+
+            model.ProductTags = await _services.CacheFactory.GetMemoryCache().GetAsync(cacheKey, async (o) =>
             {
-                var productTags = await product.ProductTags
-                    .WhereAsync(async x => x.Published && (await _productTagService.CountProductsByTagIdAsync(x.Id, storeId: storeId)) > 0)
-                    .AsyncToList();
+                o.ExpiresIn(TimeSpan.FromHours(3));
 
-                var tagModel = await productTags.SelectAsync(async x =>
+                await _db.LoadCollectionAsync(product, x => x.ProductTags);
+
+                var models = new List<ProductTagModel>();
+                var productCountsMap = await _productTagService.GetProductCountsMapAsync(null, storeId);
+
+                foreach (var tag in product.ProductTags.Where(x => x.Published))
+                {
+                    if (productCountsMap.TryGetValue(tag.Id, out var productCount) && productCount > 0)
                     {
-                        return new ProductTagModel
+                        models.Add(new ProductTagModel
                         {
-                            Id = x.Id,
-                            Name = x.GetLocalized(y => y.Name),
-                            Slug = x.BuildSlug(),
-                            ProductCount = await _productTagService.CountProductsByTagIdAsync(x.Id, storeId: storeId)
-                        };
-                    })
-                    .AsyncToList();
+                            Id = tag.Id,
+                            Name = tag.GetLocalized(x => x.Name),
+                            Slug = tag.BuildSlug(),
+                            ProductCount = productCount
+                        });
+                    }
+                }
 
-                return tagModel;
+                return models.OrderBy(x => x.Name).ToList();
             });
-
-            model.ProductTags = cacheModel;
         }
 
         protected async Task PrepareRelatedProductsModelAsync(ProductDetailsModel model, Product product)
@@ -1917,26 +1904,22 @@ namespace Smartstore.Web.Controllers
                 .Query()
                 .Where(x => x.IsApproved);
 
-            if (collectionLoaded)
-            {
-                model.TotalReviewsCount = product.ProductReviews.Count;
-            }
-            else
-            {
-                model.TotalReviewsCount = await query.CountAsync();
-            }
+            model.TotalReviewsCount = collectionLoaded
+                ? product.ProductReviews.Count
+                : await query.CountAsync();
 
             if (model.TotalReviewsCount > 0)
             {
+                query = query.OrderByDescending(x => x.CreatedOnUtc);
+
                 if (take.HasValue)
                 {
                     query = query.Take(take.Value);
                 }
                 
-                var reviews = collectionLoaded ? product.ProductReviews.Take(take ?? int.MaxValue).ToList() : await query
-                    .OrderByDescending(y => y.CreatedOnUtc)
-                    .Include(x => x.Customer)
-                    .ToListAsync();
+                var reviews = collectionLoaded 
+                    ? product.ProductReviews.Take(take ?? int.MaxValue).ToList() 
+                    : await query.Include(x => x.Customer).ToListAsync();
 
                 foreach (var review in reviews)
                 {
@@ -1955,7 +1938,7 @@ namespace Smartstore.Web.Controllers
                             HelpfulYesTotal = review.HelpfulYesTotal,
                             HelpfulNoTotal = review.HelpfulNoTotal,
                         },
-                        WrittenOnStr = _dateTimeHelper.ConvertToUserTime(review.CreatedOnUtc, DateTimeKind.Utc).ToString("D"),
+                        WrittenOnStr = _services.DateTimeHelper.ConvertToUserTime(review.CreatedOnUtc, DateTimeKind.Utc).ToString("D"),
                         WrittenOn = review.CreatedOnUtc
                     });
                 }
@@ -1977,19 +1960,5 @@ namespace Smartstore.Web.Controllers
         }
 
         #endregion
-
-        // INFO: (mh) (core) Ported CatalogSearchQuery.GetViewMode() like this because there was no proper place for the old extension method.
-        // TODO: (mh) (core) RE: This method does not belong here. Find another place please.
-        public ProductSummaryViewMode GetSearchQueryViewMode(CatalogSearchQuery query)
-        {
-            Guard.NotNull(query, nameof(query));
-
-            if (query.CustomData.Get("ViewMode") is string viewMode && viewMode.EqualsNoCase("list"))
-            {
-                return ProductSummaryViewMode.List;
-            }
-
-            return ProductSummaryViewMode.Grid;
-        }
     }
 }

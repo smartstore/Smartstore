@@ -1,57 +1,32 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using Smartstore.Admin.Models.Affiliates;
+﻿using Smartstore.Admin.Models.Affiliates;
 using Smartstore.ComponentModel;
-using Smartstore.Core;
 using Smartstore.Core.Checkout.Affiliates;
-using Smartstore.Core.Common;
-using Smartstore.Core.Common.Services;
-using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
-using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
-using Smartstore.Core.Web;
-using Smartstore.Web.Controllers;
-using Smartstore.Web.Modelling;
-using Smartstore.Web.Models.DataGrid;
 using Smartstore.Web.Models.Common;
+using Smartstore.Web.Models.DataGrid;
+using Smartstore.Web.Rendering;
 
 namespace Smartstore.Admin.Controllers
 {
     public class AffiliateController : AdminController
     {
         private readonly SmartDbContext _db;
-        private readonly ICommonServices _services;
-        private readonly IDateTimeHelper _dateTimeHelper;
-        private readonly IWebHelper _webHelper;
         private readonly CustomerSettings _customerSettings;
 
-        public AffiliateController(
-            SmartDbContext db,
-            ICommonServices services,
-            IDateTimeHelper dateTimeHelper, 
-            IWebHelper webHelper,
-            CustomerSettings customerSettings)
+        public AffiliateController(SmartDbContext db, CustomerSettings customerSettings)
         {
             _db = db;
-            _services = services;
-            _dateTimeHelper = dateTimeHelper;
-            _webHelper = webHelper;
             _customerSettings = customerSettings;
         }
         
-        [NonAction]
-        protected async Task PrepareAffiliateModelAsync(AffiliateModel model, Affiliate affiliate, bool excludeProperties)
+        private async Task PrepareAffiliateModelAsync(AffiliateModel model, Affiliate affiliate, bool excludeProperties)
         {
             if (affiliate != null)
             {
                 model.Id = affiliate.Id;
-                model.Url = _webHelper.ModifyQueryString(_webHelper.GetStoreLocation(false), "affiliateid=" + affiliate.Id, null);
+                model.Url = Services.WebHelper.ModifyQueryString(Services.WebHelper.GetStoreLocation(false), "affiliateid=" + affiliate.Id, null);
+
                 if (!excludeProperties)
                 {
                     model.Active = affiliate.Active;
@@ -76,51 +51,10 @@ namespace Smartstore.Admin.Controllers
 
             var countries = await _db.Countries
                 .AsNoTracking()
-                .Include(x => x.StateProvinces.OrderBy(x => x.DisplayOrder))
                 .ApplyStandardFilter(true)
                 .ToListAsync();
 
-            foreach (var c in countries)
-            {
-                model.Address.AvailableCountries.Add(new SelectListItem
-                { 
-                    Text = c.Name, 
-                    Value = c.Id.ToString(), 
-                    Selected = affiliate != null && c.Id == affiliate.Address.CountryId 
-                });
-            }
-
-            var availableStates = new List<SelectListItem>();
-            if (model.Address.CountryId != null)
-            {
-                var states = await _db.StateProvinces
-                    .AsNoTracking()
-                    .ApplyCountryFilter(model.Address.CountryId.Value)
-                    .ToListAsync();
-
-                if (states.Any())
-                {
-                    foreach (var s in states)
-                    {
-                        availableStates.Add(new SelectListItem
-                        {
-                            Text = s.GetLocalized(x => x.Name),
-                            Value = s.Id.ToString(),
-                            Selected = s.Id == affiliate.Address.StateProvinceId
-                        });
-                    }
-                }
-                else
-                {
-                    availableStates.Add(new SelectListItem { Text = T("Address.OtherNonUS"), Value = "0" });
-                }
-            }
-            else
-            {
-                availableStates.Add(new SelectListItem { Text = T("Address.OtherNonUS"), Value = "0" });
-            }
-
-            model.Address.AvailableStates = availableStates;
+            model.Address.AvailableCountries = countries.ToSelectListItems(affiliate?.Address?.CountryId ?? 0);
         }
 
         public IActionResult Index()
@@ -136,35 +70,32 @@ namespace Smartstore.Admin.Controllers
 
         [HttpPost]
         [Permission(Permissions.Promotion.Affiliate.Read)]
-        public async Task<IActionResult> List(GridCommand command)
+        public async Task<IActionResult> AffiliateList(GridCommand command)
         {
             var affiliates = await _db.Affiliates
                 .AsNoTracking()
                 .Include(x => x.Address)
+                .OrderBy(x => x.Id)
                 .ApplyGridCommand(command)
                 .ToPagedList(command)
                 .LoadAsync();
 
-            var affiliateModels = affiliates
-                .Select(x =>
+            var addressMapper = MapperFactory.GetMapper<Address, AddressModel>();
+            var rows = await affiliates
+                .SelectAsync(async x => new AffiliateModel
                 {
-                    return new AffiliateModel {
-                        Id = x.Id,
-                        AddressEmail = x.Address.Email,
-                        AddressFirstName = x.Address.FirstName,
-                        AddressLastName = x.Address.LastName,
-                        EditUrl = Url.Action("Edit", "Affiliate", new { id = x.Id })
-                    };
+                    Id = x.Id,
+                    Active = x.Active,
+                    EditUrl = Url.Action(nameof(Edit), new { id = x.Id }),
+                    Address = await addressMapper.MapAsync(x.Address)
                 })
-                .ToList();
+                .AsyncToList();
 
-            var gridModel = new GridModel<AffiliateModel>
+            return Json(new GridModel<AffiliateModel>
             {
-                Rows = affiliateModels,
+                Rows = rows,
                 Total = await affiliates.GetTotalCountAsync()
-            };
-
-            return Json(gridModel);
+            });
         }
 
         [Permission(Permissions.Promotion.Affiliate.Create)]
@@ -194,7 +125,10 @@ namespace Smartstore.Admin.Controllers
                 await _db.SaveChangesAsync();
 
                 NotifySuccess(T("Admin.Affiliates.Added"));
-                return continueEditing ? RedirectToAction("Edit", new { id = affiliate.Id }) : RedirectToAction("List");
+                
+                return continueEditing 
+                    ? RedirectToAction(nameof(Edit), new { id = affiliate.Id }) 
+                    : RedirectToAction(nameof(List));
             }
 
             await PrepareAffiliateModelAsync(model, null, true);
@@ -237,7 +171,10 @@ namespace Smartstore.Admin.Controllers
                 await _db.SaveChangesAsync();
 
                 NotifySuccess(T("Admin.Affiliates.Updated"));
-                return continueEditing ? RedirectToAction("Edit", affiliate.Id) : RedirectToAction("List");
+                
+                return continueEditing 
+                    ? RedirectToAction(nameof(Edit), affiliate.Id) 
+                    : RedirectToAction(nameof(List));
             }
 
             await PrepareAffiliateModelAsync(model, affiliate, true);
@@ -258,12 +195,12 @@ namespace Smartstore.Admin.Controllers
             await _db.SaveChangesAsync();
 
             NotifySuccess(T("Admin.Affiliates.Deleted"));
-            return RedirectToAction("List");
+            return RedirectToAction(nameof(List));
         }
 
         [HttpPost]
         [Permission(Permissions.System.Message.Delete)]
-        public async Task<IActionResult> AffiliatesDelete(GridSelection selection)
+        public async Task<IActionResult> AffiliateDelete(GridSelection selection)
         {
             var success = false;
             var numDeleted = 0;
@@ -292,24 +229,23 @@ namespace Smartstore.Admin.Controllers
         {
             var orders = await _db.Orders
                 .Where(x => x.AffiliateId == affiliateId)
+                .OrderByDescending(x => x.CreatedOnUtc)
                 .ApplyGridCommand(command)
                 .ToPagedList(command)
                 .LoadAsync();
 
-            var orderModels = await orders.SelectAsync(async order =>
-            {
-                var orderModel = new AffiliateModel.AffiliatedOrderModel
+            var orderModels = await orders
+                .SelectAsync(async x => new AffiliateModel.AffiliatedOrderModel
                 {
-                    Id = order.Id,
-                    OrderStatus = await _services.Localization.GetLocalizedEnumAsync(order.OrderStatus),
-                    PaymentStatus = await _services.Localization.GetLocalizedEnumAsync(order.PaymentStatus),
-                    ShippingStatus = await _services.Localization.GetLocalizedEnumAsync(order.ShippingStatus),
-                    OrderTotal = Services.CurrencyService.PrimaryCurrency.AsMoney(order.OrderTotal),
-                    CreatedOn = _dateTimeHelper.ConvertToUserTime(order.CreatedOnUtc, DateTimeKind.Utc),
-                    EditUrl = Url.Action("Edit", "Order", new { id = order.Id })
-                };
-                return orderModel;
-            }).AsyncToList();
+                    Id = x.Id,
+                    OrderStatus = await Services.Localization.GetLocalizedEnumAsync(x.OrderStatus),
+                    PaymentStatus = await Services.Localization.GetLocalizedEnumAsync(x.PaymentStatus),
+                    ShippingStatus = await Services.Localization.GetLocalizedEnumAsync(x.ShippingStatus),
+                    OrderTotal = Services.CurrencyService.PrimaryCurrency.AsMoney(x.OrderTotal),
+                    CreatedOn = Services.DateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc),
+                    EditUrl = Url.Action("Edit", "Order", new { id = x.Id })
+                })
+                .AsyncToList();
 
             var gridModel = new GridModel<AffiliateModel.AffiliatedOrderModel>
             {
@@ -326,22 +262,22 @@ namespace Smartstore.Admin.Controllers
         {
             var customers = await _db.Customers
                 .Where(x => x.AffiliateId == affiliateId)
+                .OrderByDescending(x => x.CreatedOnUtc)
                 .ApplyGridCommand(command)
                 .ToPagedList(command)
                 .LoadAsync();
 
-            var customerModels = customers.Select(customer =>
-            {
-                return new AffiliateModel.AffiliatedCustomerModel
+            var customerModels = customers
+                .Select(x => new AffiliateModel.AffiliatedCustomerModel
                 {
-                    Id = customer.Id,
-                    Email = customer.Email,
-                    Username = customer.Username,
-                    FullName = customer.GetFullName(),
-                    EditUrl = Url.Action("Edit", "Customer", new { id = customer.Id })
-            };
-
-            }).ToList();
+                    Id = x.Id,
+                    Email = x.Email,
+                    Username = x.Username,
+                    FullName = x.GetFullName(),
+                    CreatedOn = Services.DateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc),
+                    EditUrl = Url.Action("Edit", "Customer", new { id = x.Id })
+                })
+                .ToList();
 
             var gridModel = new GridModel<AffiliateModel.AffiliatedCustomerModel>
             {

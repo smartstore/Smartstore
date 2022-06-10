@@ -1,0 +1,17 @@
+﻿@using Smartstore.Admin.Models.UrlRecord
+
+@model UrlRecordListModel
+
+@{
+    ViewBag.Title = T("Admin.System.SeNames").Value;
+    Assets.BodyAttributes.AppendCssClass("spa-layout");
+}
+
+<div class="section-header">
+    <div class="title">
+        <i class="fa fa-search"></i>
+        @T("Admin.System.SeNames")
+    </div>
+</div>
+
+<partial name="_Grid.UrlRecords" model="null" />

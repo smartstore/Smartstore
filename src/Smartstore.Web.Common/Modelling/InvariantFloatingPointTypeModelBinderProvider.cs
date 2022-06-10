@@ -1,7 +1,5 @@
-﻿using System;
-using System.Globalization;
+﻿using System.Globalization;
 using System.Runtime.ExceptionServices;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace Smartstore.Web.Modelling
@@ -72,14 +70,19 @@ namespace Smartstore.Web.Modelling
                 }
                 else if (type == typeof(T))
                 {
-                    if (TryParse(value, SupportedStyles, out var result))
+                    if (TryParse(value, SupportedStyles, CultureInfo.InvariantCulture, out var result))
                     {
+                        model = result;
+                    }
+                    else if (TryParse(value, NumberStyles.Float | NumberStyles.AllowThousands, valueProviderResult.Culture, out result))
+                    {
+                        // Try again with UI culture, because some controls may send formatted values (like range slider).
                         model = result;
                     }
                 }
                 else
                 {
-                    // unreachable
+                    // Unreachable
                     throw new NotSupportedException();
                 }
 
@@ -116,24 +119,24 @@ namespace Smartstore.Web.Modelling
             return Task.CompletedTask;
         }
 
-        protected abstract bool TryParse(string value, NumberStyles supportedStyles, out T result);
+        protected abstract bool TryParse(string value, NumberStyles supportedStyles, CultureInfo culture, out T result);
     }
 
     internal class InvariantDecimalModelBinder : InvariantFloatingPointModelBinder<decimal>
     {
-        protected override bool TryParse(string value, NumberStyles supportedStyles, out decimal result)
-            => decimal.TryParse(value, supportedStyles, CultureInfo.InvariantCulture, out result);
+        protected override bool TryParse(string value, NumberStyles supportedStyles, CultureInfo culture, out decimal result)
+            => decimal.TryParse(value, supportedStyles, culture, out result);
     }
 
     internal class InvariantDoubleModelBinder : InvariantFloatingPointModelBinder<double>
     {
-        protected override bool TryParse(string value, NumberStyles supportedStyles, out double result)
-            => double.TryParse(value, supportedStyles, CultureInfo.InvariantCulture, out result);
+        protected override bool TryParse(string value, NumberStyles supportedStyles, CultureInfo culture, out double result)
+            => double.TryParse(value, supportedStyles, culture, out result);
     }
 
     internal class InvariantFloatModelBinder : InvariantFloatingPointModelBinder<float>
     {
-        protected override bool TryParse(string value, NumberStyles supportedStyles, out float result)
-             => float.TryParse(value, supportedStyles, CultureInfo.InvariantCulture, out result);
+        protected override bool TryParse(string value, NumberStyles supportedStyles, CultureInfo culture, out float result)
+             => float.TryParse(value, supportedStyles, culture, out result);
     }
 }

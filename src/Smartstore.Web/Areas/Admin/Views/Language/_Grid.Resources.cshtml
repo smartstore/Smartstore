@@ -1,0 +1,64 @@
+﻿@using Smartstore.Admin.Models.Localization
+
+@model LanguageResourceModel
+
+@{
+    var parentModel = ViewData["Parent"] as LanguageResourceListModel;
+}
+
+<datagrid id="resources-grid"
+          allow-resize="true"
+          allow-column-reordering="true"
+          allow-row-selection="true"
+          allow-edit="true">
+    <datasource read="@Url.Action("LocaleStringResourceList", new { languageId = parentModel.LanguageId })"
+                update="@Url.Action("LocaleStringResourceUpdate")"
+                insert="@Url.Action("LocaleStringResourceInsert", new { languageId = parentModel.LanguageId })"
+                delete="@Url.Action("LocaleStringResourceDelete")" />
+    <paging position="Both" show-size-chooser="true" />
+    <sorting allow-unsort="true" allow-multisort="false">
+        <sort by="ResourceName" />
+    </sorting>
+    <toolbar>
+        <toolbar-group>
+            <button datagrid-action="DataGridToolAction.ToggleSearchPanel" type="button" class="btn btn-light btn-icon">
+                <i class="fa fa-fw fa-filter"></i>
+            </button>
+        </toolbar-group>
+        <toolbar-group>
+            <button datagrid-action="DataGridToolAction.InsertRow" class="btn btn-primary btn-flat">
+                <i class="fa fa-plus"></i>
+                <span>@T("Admin.Common.AddNew")</span>
+            </button>
+            <button datagrid-action="DataGridToolAction.SaveChanges" type="button" class="btn btn-warning no-anims btn-flat">
+                <i class="fa fa-check"></i>
+                <span>@T("Admin.Common.SaveChanges")</span>
+            </button>
+            <button datagrid-action="DataGridToolAction.CancelEdit" type="button" class="btn btn-light btn-flat mr-auto">
+                <span>@T("Common.Cancel")</span>
+            </button>
+        </toolbar-group>
+        <zone name="datagrid_toolbar_alpha"></zone>
+        <toolbar-group class="omega"></toolbar-group>
+        <zone name="datagrid_toolbar_omega"></zone>
+        <toolbar-group>
+            <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger no-anims btn-flat">
+                <i class="far fa-trash-alt"></i>
+                <span>@T("Admin.Common.Delete.Selected")</span>
+            </button>
+        </toolbar-group>
+    </toolbar>
+    <search-panel>
+        <partial name="_Grid.Resources.Search" model="parentModel" />
+    </search-panel>
+    <columns>
+        <column for="Id" halign="center" visible="false" readonly="true" type="string" />
+        <column for="LanguageName" readonly="true" width="1fr" sortable="false" />
+        <column for="ResourceName" hideable="false" />
+        <column for="ResourceValue" wrap="true" width="3fr" />
+    </columns>
+    <row-commands>
+        <a datarow-action="DataRowAction.InlineEdit">@T("Common.Edit")</a>
+        <a datarow-action="DataRowAction.Delete">@T("Common.Delete")</a>
+    </row-commands>
+</datagrid>

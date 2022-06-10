@@ -63,7 +63,7 @@
                             </div>
                         </div>
                         <div class="col col-auto">
-                            <a asp-action="BillingAddress" asp-controller="Checkout" class="btn btn-primary btn-sm change-checkout-data">
+                            <a asp-action="BillingAddress" asp-controller="Checkout" class="btn btn-primary btn-sm change-checkout-data change-billing-address">
                                 @T("Common.Change")
                             </a>
                         </div>
@@ -78,7 +78,7 @@
                             </div>
                         </div>
                         <div class="col col-auto">
-                            <a asp-action="ShippingAddress" asp-controller="Checkout" class="btn btn-primary btn-sm change-checkout-data">
+                            <a asp-action="ShippingAddress" asp-controller="Checkout" class="btn btn-primary btn-sm change-checkout-data change-shipping-address">
                                 @T("Common.Change")
                             </a>
                         </div>
@@ -99,7 +99,7 @@
                                 </div>
                             </div>
                             <div sm-if="Model.DisplayShippingMethodChangeOption" class="col col-auto">
-                                <a asp-action="ShippingMethod" asp-controller="Checkout" class="btn btn-primary btn-sm change-checkout-data">
+                                <a asp-action="ShippingMethod" asp-controller="Checkout" class="btn btn-primary btn-sm change-checkout-data change-shipping-method">
                                     @T("Common.Change")
                                 </a>
                             </div>
@@ -115,7 +115,7 @@
                                 </div>
                             </div>
                             <div sm-if="Model.DisplayPaymentMethodChangeOption" class="col col-auto">
-                                <a asp-action="PaymentMethod" asp-controller="Checkout" class="btn btn-primary btn-sm change-checkout-data">
+                                <a asp-action="PaymentMethod" asp-controller="Checkout" class="btn btn-primary btn-sm change-checkout-data change-payment-method">
                                     @T("Common.Change")
                                 </a>
                             </div>
@@ -133,7 +133,7 @@
             <div class="card">
                 <div class="card-header d-flex flex-nowrap justify-content-between">
                     <h5 class="m-0">@T("Order.BillingAddress")</h5>
-                    <a asp-action="BillingAddress" asp-controller="Checkout" class="change-checkout-data">
+                    <a asp-action="BillingAddress" asp-controller="Checkout" class="change-checkout-data change-billing-address">
                         @T("Common.Change")
                     </a>
                 </div>
@@ -147,7 +147,7 @@
             <div class="card">
                 <div class="card-header d-flex flex-nowrap justify-content-between">
                     <h5 class="m-0">@T("Order.ShippingAddress")</h5>
-                    <a asp-action="ShippingAddress" asp-controller="Checkout" class="change-checkout-data">
+                    <a asp-action="ShippingAddress" asp-controller="Checkout" class="change-checkout-data change-shipping-address">
                         @T("Common.Change")
                     </a>
                 </div>
@@ -164,7 +164,7 @@
                 <h5 class="m-0">@T("Order.PaymentMethod")</h5>
                 @if (!Model.IsPaymentSelectionSkipped)
                 {
-                    <a asp-action="PaymentMethod" asp-controller="Checkout" class="change-checkout-data">
+                    <a asp-action="PaymentMethod" asp-controller="Checkout" class="change-checkout-data change-payment-method">
                         @T("Common.Change")
                     </a>
                 }
@@ -179,7 +179,7 @@
         <div class="card">
             <div class="card-header d-flex flex-nowrap justify-content-between">
                 <h5 class="m-0">@T("Order.ShippingMethod")</h5>
-                <a asp-action="ShippingMethod" asp-controller="Checkout" class="change-checkout-data">
+                <a asp-action="ShippingMethod" asp-controller="Checkout" class="change-checkout-data change-shipping-method">
                     @T("Common.Change")
                 </a>
             </div>

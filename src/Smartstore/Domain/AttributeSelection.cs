@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Xml;
+﻿using System.Xml;
 using System.Xml.Linq;
 using Newtonsoft.Json;
 using Smartstore.Collections;
@@ -150,6 +147,11 @@ namespace Smartstore.Domain
             if (_rawAttributes.HasValue() && _isJson && !_dirty)
             {
                 return _rawAttributes;
+            }
+
+            if (_attributes.Attributes.Count == 0 && _attributes.CustomAttributes.Count == 0)
+            {
+                return null;
             }
 
             try

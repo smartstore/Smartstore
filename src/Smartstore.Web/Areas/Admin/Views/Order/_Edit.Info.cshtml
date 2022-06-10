@@ -1,0 +1,439 @@
+﻿@using Smartstore.Core.Checkout.Tax
+
+@model OrderModel
+
+@{
+    var isSingleStoreMode = (bool)ViewBag.IsSingleStoreMode;
+    var taxTypeSelectable = (bool)ViewBag.AllowCustomersToSelectTaxDisplayType;
+    var displayTaxRates = (bool)ViewBag.DisplayTaxRates;
+    var taxType = (TaxDisplayType)ViewBag.TaxDisplayType;
+    var showExclTax = taxTypeSelectable || taxType == TaxDisplayType.ExcludingTax;
+    var showInclTax = taxTypeSelectable || taxType == TaxDisplayType.IncludingTax;
+}
+
+<zone name="order_edit_top" />
+
+<div class="adminContent">
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="OrderStatus" />
+        </div>
+        <div class="adminData">
+            <input asp-for="OrderStatusString" sm-plaintext="true" readonly />
+            <div>
+                <button sm-if="Model.CanCancelOrder" type="submit" name="cancelorder" id="cancelorder" class="btn btn-sm btn-danger confirm"
+                        value="@T("Admin.Orders.Fields.OrderStatus.Cancel")">
+                    <span>@T("Admin.Orders.Fields.OrderStatus.Cancel")</span>
+                </button>
+                <button sm-if="Model.CanCompleteOrder" type="submit" name="completeorder" id="completeorder" class="btn btn-sm btn-warning confirm"
+                        value="@T("Enums.OrderStatus.Complete")">
+                    <i class="fa fa-check"></i>
+                    <span>@T("Enums.OrderStatus.Complete")</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="OrderNumber" />
+        </div>
+        <div class="adminData">
+            <input asp-for="OrderNumber" sm-plaintext="true" readonly />
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="OrderGuid" />
+        </div>
+        <div class="adminData">
+            <input asp-for="OrderGuid" sm-plaintext="true" readonly />
+        </div>
+    </div>
+    <div sm-if="!isSingleStoreMode" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="StoreName" />
+        </div>
+        <div class="adminData">
+            <input asp-for="StoreName" sm-plaintext="true" readonly />
+        </div>
+    </div>
+    <div sm-if="Model.AffiliateId != 0" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="AffiliateId" />
+        </div>
+        <div class="adminData">
+            <div class="form-control-plaintext">
+                <a asp-action="Edit" asp-controller="Affiliate" asp-route-id="@Model.AffiliateId">@Model.AffiliateFullName</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="adminRow">
+        <div class="adminSeparator"><hr /></div>
+    </div>
+
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="CustomerId" />
+        </div>
+        <div class="adminData">
+            <div class="form-control-plaintext">
+                <a asp-action="Edit" asp-controller="Customer" asp-route-id="@Model.CustomerId">@Model.CustomerName</a>
+            </div>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="CustomerIp" />
+        </div>
+        <div class="adminData">
+            <input asp-for="CustomerIp" sm-plaintext="true" readonly />
+        </div>
+    </div>
+    <div sm-if="Model.RecurringPaymentId != 0" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="RecurringPaymentId" />
+        </div>
+        <div class="adminData">
+            <div class="form-control-plaintext">
+                <a asp-action="Edit" asp-controller="RecurringPayment" asp-route-id="@Model.RecurringPaymentId">@T("Admin.Common.View")</a>
+            </div>
+        </div>
+    </div>
+    <div sm-if="Model.VatNumber.HasValue()" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="VatNumber" />
+        </div>
+        <div class="adminData">
+            <input asp-for="VatNumber" sm-plaintext="true" readonly />
+        </div>
+    </div>
+    <div sm-if="showInclTax" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="OrderSubtotalInclTaxString" />
+        </div>
+        <div class="adminData">
+            <input asp-for="OrderSubtotalInclTaxString" sm-plaintext="true" readonly />
+        </div>
+    </div>
+    <div sm-if="showExclTax" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="OrderSubtotalExclTaxString" />
+        </div>
+        <div class="adminData">
+            <input asp-for="OrderSubtotalExclTaxString" sm-plaintext="true" readonly />
+        </div>
+    </div>
+    <div sm-if="showInclTax && Model.OrderSubTotalDiscountInclTaxString.HasValue()" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="OrderSubTotalDiscountInclTaxString" />
+        </div>
+        <div class="adminData">
+            <input asp-for="OrderSubTotalDiscountInclTaxString" sm-plaintext="true" readonly />
+        </div>
+    </div>
+    <div sm-if="showExclTax && Model.OrderSubTotalDiscountExclTaxString.HasValue()" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="OrderSubTotalDiscountExclTaxString" />
+        </div>
+        <div class="adminData">
+            <input asp-for="OrderSubTotalDiscountExclTaxString" sm-plaintext="true" readonly />
+        </div>
+    </div>
+    <div sm-if="showInclTax" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="OrderShippingInclTaxString" />
+        </div>
+        <div class="adminData">
+            <input asp-for="OrderShippingInclTaxString" sm-plaintext="true" readonly />
+        </div>
+    </div>
+    <div sm-if="showExclTax" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="OrderShippingExclTaxString" />
+        </div>
+        <div class="adminData">
+            <input asp-for="OrderShippingExclTaxString" sm-plaintext="true" readonly />
+        </div>
+    </div>
+    <div sm-if="showInclTax && Model.PaymentMethodAdditionalFeeInclTaxString.HasValue()" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="PaymentMethodAdditionalFeeInclTaxString" />
+        </div>
+        <div class="adminData">
+            <input asp-for="PaymentMethodAdditionalFeeInclTaxString" sm-plaintext="true" readonly />
+        </div>
+    </div>
+    <div sm-if="showExclTax && Model.PaymentMethodAdditionalFeeExclTaxString.HasValue()" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="PaymentMethodAdditionalFeeExclTaxString" />
+        </div>
+        <div class="adminData">
+            <input asp-for="PaymentMethodAdditionalFeeExclTaxString" sm-plaintext="true" readonly />
+        </div>
+    </div>
+    @if (displayTaxRates)
+    {
+        foreach (var rate in Model.TaxRatesList)
+        {
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="OrderTaxString" />
+                </div>
+                <div class="adminData">
+                    <div class="form-control-plaintext">@rate.Rate% - @rate.Value</div>
+                </div>
+            </div>
+        }
+    }
+    <div sm-if="!displayTaxRates || !Model.TaxRatesList.Any()" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="OrderTaxString" />
+        </div>
+        <div class="adminData">
+            <input asp-for="OrderTaxString" sm-plaintext="true" readonly />
+        </div>
+    </div>
+    <div sm-if="Model.OrderDiscountString.HasValue()" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="OrderDiscountString" />
+        </div>
+        <div class="adminData">
+            <input asp-for="OrderDiscountString" sm-plaintext="true" readonly />
+        </div>
+    </div>
+    @foreach (var gc in Model.GiftCards)
+    {
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="GiftCards[0].CouponCode" />
+                (<a asp-action="Edit" asp-controller="GiftCard" asp-route-id="@gc.GiftCardId">@gc.CouponCode</a>)
+            </div>
+            <div class="adminData">
+                <input asp-for="@gc.Amount" sm-plaintext="true" readonly />
+            </div>
+        </div>
+    }
+    <div sm-if="Model.RedeemedRewardPoints > 0" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="RedeemedRewardPoints" />
+        </div>
+        <div class="adminData">
+            <div class="form-control-plaintext">
+                @Model.RedeemedRewardPoints @T("Admin.Orders.Fields.RedeemedRewardPoints.Points")
+                /
+                @Model.RedeemedRewardPointsAmountString
+            </div>
+        </div>
+    </div>
+    <div sm-if="Model.CreditBalanceString.HasValue()" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="CreditBalanceString" />
+        </div>
+        <div class="adminData">
+            <input asp-for="CreditBalanceString" sm-plaintext="true" readonly />
+        </div>
+    </div>
+    <div sm-if="Model.OrderTotalRoundingString.HasValue()" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="OrderTotalRoundingString" />
+        </div>
+        <div class="adminData">
+            <input asp-for="OrderTotalRoundingString" sm-plaintext="true" readonly />
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="OrderTotalString" />
+        </div>
+        <div class="adminData">
+            <input asp-for="OrderTotalString" class="fwm" sm-plaintext="true" readonly />
+        </div>
+    </div>
+    <div sm-if="Model.RefundedAmountString.HasValue()" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="RefundedAmountString" />
+        </div>
+        <div class="adminData">
+            <input asp-for="RefundedAmountString" sm-plaintext="true" readonly class="text-danger" />
+        </div>
+    </div>
+</div>
+
+@*Edit subtotals, fees, tax etc.*@
+<partial name="_Edit.OrderTotals" />
+
+@*Edit credit card and direct debit data.*@
+<partial name="_Edit.Payment" />
+
+<div class="adminContent">
+    <div sm-if="Model.DisplayCompletePaymentNote" class="adminRow">
+        <div class="alert alert-warning">
+            @Html.Raw(T("Order.CompletePayment.AdminNote", Url.Action("Details", "Order", new { id = Model.Id, area = "" })))
+        </div>
+    </div>
+    <div sm-if="Model.DisplayPurchaseOrderNumber" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="PurchaseOrderNumber" />
+        </div>
+        <div class="adminData">
+            <input asp-for="PurchaseOrderNumber" sm-plaintext="true" readonly />
+        </div>
+    </div>
+    <div sm-if="Model.AuthorizationTransactionId.HasValue()" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="AuthorizationTransactionId" />
+        </div>
+        <div class="adminData">
+            <input asp-for="AuthorizationTransactionId" sm-plaintext="true" readonly />
+        </div>
+    </div>
+    <div sm-if="Model.AuthorizationTransactionResult.HasValue()" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="AuthorizationTransactionResult" />
+        </div>
+        <div class="adminData">
+            <input asp-for="AuthorizationTransactionResult" sm-plaintext="true" readonly />
+        </div>
+    </div>
+    <div sm-if="Model.CaptureTransactionId.HasValue()" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="CaptureTransactionId" />
+        </div>
+        <div class="adminData">
+            <input asp-for="CaptureTransactionId" sm-plaintext="true" readonly />
+        </div>
+    </div>
+    <div sm-if="Model.CaptureTransactionResult.HasValue()" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="CaptureTransactionResult" />
+        </div>
+        <div class="adminData">
+            <input asp-for="CaptureTransactionResult" sm-plaintext="true" readonly />
+        </div>
+    </div>
+    <div sm-if="Model.SubscriptionTransactionId.HasValue()" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="SubscriptionTransactionId" />
+        </div>
+        <div class="adminData">
+            <input asp-for="SubscriptionTransactionId" sm-plaintext="true" readonly />
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="PaymentMethod" />
+        </div>
+        <div class="adminData">
+            <div class="form-control-plaintext">
+                <span>@Model.PaymentMethod</span>
+                <span sm-if="Model.PaymentMethodSystemName.HasValue() && !Model.PaymentMethodSystemName.EqualsNoCase(Model.PaymentMethod)" class="muted">
+                    (@Model.PaymentMethodSystemName)
+                </span>
+            </div>
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="PaymentStatus" />
+        </div>
+        <div class="adminData wide">
+            <span class="pr-2 w-auto fwm form-control-plaintext d-inline-block">
+                @Model.PaymentStatusString
+            </span>
+
+            <input sm-if="Model.CanMarkOrderAsPaid" type="submit" id="markorderaspaid" name="markorderaspaid" class="btn btn-secondary confirm"
+                   value="@T("Admin.Orders.Fields.MarkAsPaid")"
+                   title="@T("Admin.Orders.Fields.MarkAsPaid.Hint")" />
+
+            <input sm-if="Model.CanCapture" type="submit" id="captureorder" name="captureorder" class="btn btn-primary confirm"
+                   value="@T("Admin.Orders.Fields.Capture")"
+                   title="@T("Admin.Orders.Fields.Capture.Hint")" />
+
+            <input sm-if="Model.CanRefund" type="submit" id="refundorder" name="refundorder" class="btn btn-primary confirm"
+                   value="@T("Admin.Orders.Fields.Refund")"
+                   title="@T("Admin.Orders.Fields.Refund.Hint")" />
+
+            <input sm-if="Model.CanRefundOffline" type="submit" id="refundorderoffline" name="refundorderoffline" class="btn btn-secondary confirm"
+                   value="@T("Admin.Orders.Fields.RefundOffline")"
+                   title="@T("Admin.Orders.Fields.RefundOffline.Hint")" />
+
+            <input sm-if="Model.CanPartiallyRefund" type="submit" id="partiallyrefundorder" name="partiallyrefundorder" class="btn btn-primary"
+                   value="@T("Admin.Orders.Fields.PartialRefund")"
+                   title="@T("Admin.Orders.Fields.PartialRefund.Hint")" />
+
+            <input sm-if="Model.CanPartiallyRefundOffline" type="submit" id="partiallyrefundorderoffline" name="partiallyrefundorderoffline" class="btn btn-secondary"
+                   value="@T("Admin.Orders.Fields.PartialRefundOffline")"
+                   title="@T("Admin.Orders.Fields.PartialRefundOffline.Hint")" />
+
+            <input sm-if="Model.CanVoid" type="submit" id="voidorder" name="voidorder" class="btn btn-primary confirm"
+                   value="@T("Admin.Orders.Fields.Void")"
+                   title="@T("Admin.Orders.Fields.Void.Hint")" />
+
+            <input sm-if="Model.CanVoidOffline" type="submit" id="voidorderoffline" name="voidorderoffline" class="btn btn-secondary confirm"
+                   value="@T("Admin.Orders.Fields.VoidOffline")"
+                   title="@T("Admin.Orders.Fields.VoidOffline.Hint")" />
+
+            <zone name="admin_order_edit_payment_buttons_after" />
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="CreatedOn" />
+        </div>
+        <div class="adminData">
+            <input asp-for="CreatedOnString" sm-plaintext="true" readonly />
+        </div>
+    </div>
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="UpdatedOn" />
+        </div>
+        <div class="adminData">
+            <input asp-for="UpdatedOnString" sm-plaintext="true" readonly />
+        </div>
+    </div>
+
+    <div class="adminRow">
+        <div class="adminSeparator"><hr /></div>
+    </div>
+
+    <div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="AcceptThirdPartyEmailHandOver" />
+        </div>
+        <div class="adminData">
+            <div class="form-control-plaintext">
+                @(Model.AcceptThirdPartyEmailHandOver ? T("Common.Yes") : T("Common.No"))
+            </div>
+        </div>
+    </div>
+</div>
+
+<div sm-if="Model.CustomerOrderComment.HasValue()">
+    <h5 class="mt-4">@T("Admin.Order.CustomerComment.Heading")</h5>
+    <div class="alert alert-info">
+        @Model.CustomerOrderComment
+    </div>
+</div>
+
+<script sm-target-zone="scripts" data-origin="order-edit-info">
+    $(function () {
+        $('#btnRefreshPage').on('click', function () {
+            location.reload();
+        });
+
+        // Refund dialogs.
+        $('#partiallyrefundorder').on('click', function (e) {
+            e.preventDefault();
+            openPopup('@Url.Action("PartiallyRefundOrderPopup", "Order", new { id = Model.Id, online = "true", btnId = "btnRefreshPage", formId = "order-form" })');
+            return false;
+        });
+
+        $('#partiallyrefundorderoffline').on('click', function (e) {
+            e.preventDefault();
+            openPopup('@Url.Action("PartiallyRefundOrderPopup", "Order", new { id = Model.Id, online = "false", btnId = "btnRefreshPage", formId = "order-form" })');
+            return false;
+        });
+    });
+</script>

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Linq;
-using Smartstore.Core.Checkout.GiftCards;
-using Smartstore.Core.Checkout.Orders;
+﻿using Smartstore.Core.Checkout.GiftCards;
 
 namespace Smartstore
 {
@@ -15,10 +12,8 @@ namespace Smartstore
         /// </summary>
         /// <param name="query">Gift cards query.</param>
         /// <param name="isActivated">Filter by <see cref="GiftCard.IsGiftCardActivated"/>.</param>
-        /// <param name="storeId">Filter by <see cref="Order.StoreId"/>.</param>
-        /// <remarks>Accesses <see cref="GiftCard.PurchasedWithOrderItem"/>. The caller is responsible for eager loading.</remarks>
         /// <returns>Gift cards query.</returns>
-        public static IOrderedQueryable<GiftCard> ApplyStandardFilter(this IQueryable<GiftCard> query, int storeId = 0, bool includeInactive = false)
+        public static IOrderedQueryable<GiftCard> ApplyStandardFilter(this IQueryable<GiftCard> query, bool includeInactive = false)
         {
             Guard.NotNull(query, nameof(query));
 
@@ -26,10 +21,6 @@ namespace Smartstore
             {
                 query = query.Where(x => x.IsGiftCardActivated);
             }
-
-            query = query.Where(x => storeId == 0
-                || x.PurchasedWithOrderItem.Order.StoreId == 0
-                || x.PurchasedWithOrderItem.Order.StoreId == storeId);
 
             return query.OrderByDescending(x => x.CreatedOnUtc);
         }

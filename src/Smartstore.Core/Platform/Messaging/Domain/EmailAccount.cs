@@ -1,13 +1,13 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 using Smartstore.Data.Caching;
-using Smartstore.Domain;
 using Smartstore.Net.Mail;
 
 namespace Smartstore.Core.Messaging
 {
+    // TODO: (mg) (core) remove required attribute at EmailAccount.Username and EmailAccount.Password later (migration required).
+
     /// <summary>
     /// Represents an email account.
     /// </summary>

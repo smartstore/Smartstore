@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Smartstore.Core.Common;
+﻿using Smartstore.Core.Common;
 
 namespace Smartstore.Core.Installation
 {

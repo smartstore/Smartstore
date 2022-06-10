@@ -1,8 +1,8 @@
 ﻿@model CustomerModel.RewardPointsHistoryModel
 
-<datagrid id="rewardpoints-grid" allow-resize="true" allow-edit="true">
+<datagrid id="rewardpoints-grid" allow-resize="true" allow-edit="true" max-height="800px">
     <datasource read="@Url.Action("RewardPointsHistoryList", new { customerId = ViewData["CustomerId"] })"
-                insert="@Url.Action("RewardPointsInsert", new { customerId = ViewData["CustomerId"] })" /> 
+                insert="@Url.Action("RewardPointsInsert", new { customerId = ViewData["CustomerId"] })" />
     <paging position="Bottom" />
     <sorting enabled="true">
         <sort by="CreatedOn" by-entity-member="CreatedOnUtc" descending="true"></sort>
@@ -25,7 +25,7 @@
     <columns>
         <column for="Points" hideable="false" />
         <column for="PointsBalance" readonly="true" />
-        <column for="Message" width="2fr" />
-        <column for="CreatedOn" readonly="true" />
+        <column for="Message" width="2fr" sortable="false" />
+        <column for="CreatedOn" entity-member="CreatedOnUtc" readonly="true" />
     </columns>
 </datagrid>

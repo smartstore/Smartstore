@@ -1,9 +1,6 @@
 ﻿@{
     ViewBag.Title = T("Admin.ContentManagement.MessageTemplates").Value;
     Assets.BodyAttributes.AppendCssClass("spa-layout");
-
-    var gridViewData = new ViewDataDictionary(ViewData);
-    gridViewData["Parent"] = Model;
 }
 
 <div class="section-header">
@@ -17,4 +14,4 @@
     </div>
 </div>
 
-<partial name="_Grid.MessageTemplates" model="null" view-data="gridViewData" />
+<partial name="_Grid.MessageTemplates" model="null" />

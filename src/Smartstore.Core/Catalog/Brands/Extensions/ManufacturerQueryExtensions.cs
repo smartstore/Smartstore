@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using Smartstore.Core.Security;
+﻿using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
 
 namespace Smartstore.Core.Catalog.Brands

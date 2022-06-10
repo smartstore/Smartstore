@@ -1,41 +1,48 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using Smartstore.ComponentModel;
-using Smartstore.Core;
+﻿using Smartstore.ComponentModel;
+using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common.Services;
+using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Web.Models.Checkout
 {
     public static partial class ShoppingCartMappingExtensions
     {
-        public static async Task MapAsync(this ShoppingCart cart, CheckoutShippingMethodModel model)
+        public static async Task MapAsync(this ShoppingCart cart, CheckoutShippingMethodModel model, dynamic parameters = null)
         {
-            await MapperFactory.MapAsync(cart, model, null);
+            await MapperFactory.MapAsync(cart, model, parameters);
         }
     }
 
     public class CheckoutShippingMethodMapper : Mapper<ShoppingCart, CheckoutShippingMethodModel>
     {
         private readonly ICommonServices _services;
+        private readonly IProviderManager _providerManager;
+        private readonly ModuleManager _moduleManager;
         private readonly ICurrencyService _currencyService;
+        private readonly ITaxService _taxService;
         private readonly IShippingService _shippingService;
         private readonly IOrderCalculationService _orderCalculationService;
         private readonly ITaxCalculator _taxCalculator;
 
         public CheckoutShippingMethodMapper(
             ICommonServices services,
+            IProviderManager providerManager,
+            ModuleManager moduleManager,
             ICurrencyService currencyService,
+            ITaxService taxService,
             IShippingService shippingService,
             IOrderCalculationService orderCalculationService,
             ITaxCalculator taxCalculator)
         {
             _services = services;
+            _providerManager = providerManager;
+            _moduleManager = moduleManager;
             _currencyService = currencyService;
+            _taxService = taxService;
             _shippingService = shippingService;
             _orderCalculationService = orderCalculationService;
             _taxCalculator = taxCalculator;
@@ -44,85 +51,87 @@ namespace Smartstore.Web.Models.Checkout
         protected override void Map(ShoppingCart from, CheckoutShippingMethodModel to, dynamic parameters = null)
             => throw new NotImplementedException();
 
-        public override Task MapAsync(ShoppingCart from, CheckoutShippingMethodModel to, dynamic parameters = null)
+        public override async Task MapAsync(ShoppingCart from, CheckoutShippingMethodModel to, dynamic parameters = null)
         {
             Guard.NotNull(from, nameof(from));
             Guard.NotNull(to, nameof(to));
 
-            var storeId = _services.StoreContext.CurrentStore.Id;
+            var shippingOptionResponse = (parameters?.ShippingOptionResponse as ShippingOptionResponse) ?? new ShippingOptionResponse();
+            Guard.NotNull(shippingOptionResponse, nameof(shippingOptionResponse));
+
+            var store = _services.StoreContext.CurrentStore;
             var customer = _services.WorkContext.CurrentCustomer;
 
-            // TODO: (mh) (core) Wait with implementation until any provider for shipping rate computation has been implemented.
-            //var getShippingOptionResponse = _shippingService.GetShippingOptions(from.ToList(), customer.ShippingAddress, storeId: storeId);
-            //if (!getShippingOptionResponse.Success)
-            //{
-            //    foreach (var error in getShippingOptionResponse.Errors)
-            //    {
-            //        to.Warnings.Add(error);
-            //    }
-
-            //    return;
-            //}
-
-            //// Performance optimization. Cache returned shipping options.
-            //// We will use them later (after the customer has selected an option).
-            //customer.GenericAttributes.OfferedShippingOptions = getShippingOptionResponse.ShippingOptions;
-            //await customer.GenericAttributes.SaveChangesAsync();
-
-            //var shippingMethods = await _shippingService.GetAllShippingMethodsAsync(storeId);
-
-            //foreach (var shippingOption in getShippingOptionResponse.ShippingOptions)
-            //{
-            //    var model = new CheckoutShippingMethodModel.ShippingMethodModel
-            //    {
-            //        ShippingMethodId = shippingOption.ShippingMethodId,
-            //        Name = shippingOption.Name,
-            //        Description = shippingOption.Description,
-            //        ShippingRateComputationMethodSystemName = shippingOption.ShippingRateComputationMethodSystemName,
-            //    };
-
-            //    // TODO: (mh) (core) Wait with implmenentation until any provider for shipping rate computation has been implemented.
-            //    //var provider = _shippingService.LoadActiveShippingRateComputationMethods(systemName: shippingOption.ShippingRateComputationMethodSystemName);
-            //    //if (provider != null)
-            //    //{
-            //    //    // TODO: (mh) (core) Wait for PluginMediator implementation
-            //    //    //model.BrandUrl = _pluginMediator.GetBrandImageUrl(srcmProvider.Metadata);
-            //    //}
-
-            //    // Adjust tax rate.
-            //    var (Shipping, Discount) = await _orderCalculationService.AdjustShippingRateAsync(from.ToList(), shippingOption.Rate, shippingOption, shippingMethods);
-            //    var tax = await _taxCalculator.CalculateShippingTaxAsync(Shipping.Amount);
-            //    var rate = _currencyService.ConvertFromPrimaryCurrency(tax.Rate.Rate, _services.WorkContext.WorkingCurrency);
-            //    model.FeeRaw = rate.Amount;
-            //    model.Fee = rate.ToString(true);
-
-            //    to.ShippingMethods.Add(model);
-            //}
-
-            // Find a (previously) selected shipping method.
-            var selectedShippingOption = customer.GenericAttributes.SelectedShippingOption;
-            if (customer.GenericAttributes.SelectedShippingOption != null)
+            if (shippingOptionResponse.Success)
             {
-                var shippingOptionToSelect = to.ShippingMethods.Find(x => x.Name.EqualsNoCase(selectedShippingOption.Name)
-                    && x.ShippingRateComputationMethodSystemName.EqualsNoCase(selectedShippingOption.ShippingRateComputationMethodSystemName));
+                // Performance optimization. cache returned shipping options.
+                // We'll use them later (after a customer has selected an option).
+                customer.GenericAttributes.OfferedShippingOptions = shippingOptionResponse.ShippingOptions;
 
-                if (shippingOptionToSelect != null)
+                var shippingMethods = await _shippingService.GetAllShippingMethodsAsync(store.Id);
+
+                foreach (var shippingOption in shippingOptionResponse.ShippingOptions)
                 {
-                    shippingOptionToSelect.Selected = true;
+                    var soModel = new CheckoutShippingMethodModel.ShippingMethodModel
+                    {
+                        ShippingMethodId = shippingOption.ShippingMethodId,
+                        Name = shippingOption.Name,
+                        Description = shippingOption.Description,
+                        ShippingRateComputationMethodSystemName = shippingOption.ShippingRateComputationMethodSystemName,
+                    };
+
+                    var srcmProvider = _providerManager.GetProvider<IShippingRateComputationMethod>(shippingOption.ShippingRateComputationMethodSystemName);
+
+                    if (srcmProvider != null)
+                    {
+                        soModel.BrandUrl = _moduleManager.GetBrandImageUrl(srcmProvider.Metadata);
+                    }
+
+                    // Adjust rate.
+                    var shippingTaxFormat = _taxService.GetTaxFormat(null, null, PricingTarget.ShippingCharge);
+                    var (shippingAmount, _) = await _orderCalculationService.AdjustShippingRateAsync(from, shippingOption.Rate, shippingOption, shippingMethods);
+                    var rateBase = await _taxCalculator.CalculateShippingTaxAsync(shippingAmount);
+                    var rate = _currencyService.ConvertFromPrimaryCurrency(rateBase.Price, _services.WorkContext.WorkingCurrency);
+                    soModel.Fee = rate.WithPostFormat(shippingTaxFormat);
+
+                    to.ShippingMethods.Add(soModel);
+                }
+
+                // Find a selected (previously) shipping method.
+                var selectedShippingOption = customer.GenericAttributes.SelectedShippingOption;
+                if (selectedShippingOption != null)
+                {
+                    var shippingOptionToSelect = to.ShippingMethods
+                        .ToList()
+                        .Find(
+                            so => so.Name.HasValue() &&
+                                  so.Name.EqualsNoCase(selectedShippingOption.Name) &&
+                                  so.ShippingRateComputationMethodSystemName.HasValue() &&
+                                  so.ShippingRateComputationMethodSystemName.EqualsNoCase(selectedShippingOption.ShippingRateComputationMethodSystemName));
+
+                    if (shippingOptionToSelect != null)
+                    {
+                        shippingOptionToSelect.Selected = true;
+                    }
+                }
+
+                // If no option has been selected, let's do it for the first one.
+                if (to.ShippingMethods.Where(so => so.Selected).FirstOrDefault() == null)
+                {
+                    var shippingOptionToSelect = to.ShippingMethods.FirstOrDefault();
+                    if (shippingOptionToSelect != null)
+                    {
+                        shippingOptionToSelect.Selected = true;
+                    }
                 }
             }
-
-            // If no option has been selected, just try selecting the first one.
-            if (to.ShippingMethods.FirstOrDefault(x => x.Selected) == null)
+            else
             {
-                var shippingOptionToSelect = to.ShippingMethods.FirstOrDefault();
-                if (shippingOptionToSelect != null)
+                foreach (var error in shippingOptionResponse.Errors)
                 {
-                    shippingOptionToSelect.Selected = true;
+                    to.Warnings.Add(error);
                 }
             }
-
-            return Task.CompletedTask;
         }
     }
 }

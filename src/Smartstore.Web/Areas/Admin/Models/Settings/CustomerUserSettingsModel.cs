@@ -1,9 +1,7 @@
-﻿using FluentValidation;
+﻿using System.ComponentModel.DataAnnotations;
+using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Smartstore.Core.Identity;
-using Smartstore.Web.Modelling;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 
 namespace Smartstore.Admin.Models
 {
@@ -40,7 +38,7 @@ namespace Smartstore.Admin.Models
             [UIHint("CustomerRoles")]
             [AdditionalMetadata("includeSystemRoles", false)]
             [LocalizedDisplay("*RegisterCustomerRole")]
-            public int RegisterCustomerRoleId { get; set; }
+            public int? RegisterCustomerRoleId { get; set; }
 
             [LocalizedDisplay("*AllowCustomersToUploadAvatars")]
             public bool AllowCustomersToUploadAvatars { get; set; }
@@ -150,7 +148,7 @@ namespace Smartstore.Admin.Models
             public PasswordFormat DefaultPasswordFormat { get; set; }
 
             [LocalizedDisplay("*PasswordMinLength")]
-            public int PasswordMinLength { get; set; }
+            public int PasswordMinLength { get; set; } = 6;
 
             [LocalizedDisplay("*PasswordRequireDigit")]
             public bool PasswordRequireDigit { get; set; }
@@ -318,11 +316,10 @@ namespace Smartstore.Admin.Models
         public string Description { get; set; }
     }
 
-    public partial class CustomerUserSettingsValidator : AbstractValidator<CustomerUserSettingsModel>
+    public partial class CustomerUserSettingsValidator : SettingModelValidator<CustomerUserSettingsModel, CustomerSettings>
     {
         public CustomerUserSettingsValidator()
         {
-            // TODO: (mh) (core) Validation fails if store scope was selected.
             RuleFor(x => x.CustomerSettings.PasswordMinLength).GreaterThanOrEqualTo(4);
         }
     }

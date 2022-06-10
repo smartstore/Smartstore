@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Smartstore
+﻿namespace Smartstore
 {
     public static class StackExtensions
     {

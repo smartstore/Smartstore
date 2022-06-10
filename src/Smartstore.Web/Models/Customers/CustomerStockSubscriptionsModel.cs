@@ -1,7 +1,5 @@
-﻿using System.Collections.Generic;
-using Smartstore.Collections;
+﻿using Smartstore.Collections;
 using Smartstore.Core.Localization;
-using Smartstore.Web.Modelling;
 
 namespace Smartstore.Web.Models.Customers
 {

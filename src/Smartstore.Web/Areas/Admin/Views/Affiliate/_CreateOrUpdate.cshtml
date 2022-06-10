@@ -16,7 +16,7 @@
             {
                 <div class="adminRow">
                     <div class="adminTitle">
-                        <smart-label asp-for="Id"></smart-label>
+                        <smart-label asp-for="Id"/>
                     </div>
                     <div class="adminData">
                         <input asp-for="Id" sm-plaintext readonly />
@@ -25,7 +25,7 @@
                 </div>
                 <div class="adminRow">
                     <div class="adminTitle">
-                        <smart-label asp-for="Url"></smart-label>
+                        <smart-label asp-for="Url"/>
                     </div>
                     <div class="adminData">
                         <div class="form-control-plaintext">
@@ -36,7 +36,7 @@
             }
             <div class="adminRow">
                 <div class="adminTitle">
-                    <smart-label asp-for="Active"></smart-label>
+                    <smart-label asp-for="Active"/>
                 </div>
                 <div class="adminData">
                     <input asp-for="Active" />
@@ -51,10 +51,10 @@
     @if (Model.Id > 0)
     {
         <tab sm-title="@T("Admin.Affiliates.Customers")">
-            <partial name="_Grid.AffiliatedCustomers.cshtml" model="null" view-data="gridViewData" />
+            <partial name="_Grid.AffiliatedCustomers" model="null" view-data="gridViewData" />
         </tab>
         <tab sm-title="@T("Admin.Affiliates.Orders")">
-            <partial name="_Grid.AffiliatedOrders.cshtml" model="null" view-data="gridViewData"  />
+            <partial name="_Grid.AffiliatedOrders" model="null" view-data="gridViewData"  />
         </tab>
     }
-</tabstrip>>
+</tabstrip>

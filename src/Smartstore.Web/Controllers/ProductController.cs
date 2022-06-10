@@ -1,19 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Content.Menus;
-using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Logging;
@@ -23,7 +16,6 @@ using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
 using Smartstore.Core.Web;
 using Smartstore.Utilities.Html;
-using Smartstore.Web.Filters;
 using Smartstore.Web.Models.Catalog;
 using Smartstore.Web.Models.Catalog.Mappers;
 
@@ -49,7 +41,6 @@ namespace Smartstore.Web.Controllers
         private readonly CaptchaSettings _captchaSettings;
         private readonly LocalizationSettings _localizationSettings;
         private readonly PrivacySettings _privacySettings;
-        private readonly Lazy<IUrlHelper> _urlHelper;
         private readonly Lazy<IMessageFactory> _messageFactory;
         private readonly Lazy<ProductUrlHelper> _productUrlHelper;
         private readonly Lazy<IProductAttributeFormatter> _productAttributeFormatter;
@@ -75,7 +66,6 @@ namespace Smartstore.Web.Controllers
             CaptchaSettings captchaSettings,
             LocalizationSettings localizationSettings,
             PrivacySettings privacySettings,
-            Lazy<IUrlHelper> urlHelper,
             Lazy<IMessageFactory> messageFactory,
             Lazy<ProductUrlHelper> productUrlHelper,
             Lazy<IProductAttributeFormatter> productAttributeFormatter,
@@ -100,7 +90,6 @@ namespace Smartstore.Web.Controllers
             _captchaSettings = captchaSettings;
             _localizationSettings = localizationSettings;
             _privacySettings = privacySettings;
-            _urlHelper = urlHelper;
             _messageFactory = messageFactory;
             _productUrlHelper = productUrlHelper;
             _productAttributeFormatter = productAttributeFormatter;
@@ -113,6 +102,7 @@ namespace Smartstore.Web.Controllers
         public async Task<IActionResult> ProductDetails(int productId, ProductVariantQuery query)
         {
             var product = await _db.Products
+                .AsSplitQuery()
                 .IncludeMedia()
                 .IncludeManufacturers()
                 .FindByIdAsync(productId);
@@ -164,7 +154,7 @@ namespace Smartstore.Web.Controllers
             model.HotlineTelephoneNumber = _contactDataSettings.HotlineTelephoneNumber.NullEmpty();
             if (_seoSettings.CanonicalUrlsEnabled)
             {
-                model.CanonicalUrl = _urlHelper.Value.RouteUrl("Product", new { model.SeName }, Request.Scheme);
+                model.CanonicalUrl = Url.RouteUrl("Product", new { model.SeName }, Request.Scheme);
             }
 
             model.MetaProperties =  await model.MapMetaPropertiesAsync();
@@ -398,7 +388,7 @@ namespace Smartstore.Web.Controllers
             }
             else
             {
-                var dataDictAddToCart = new ViewDataDictionary(ViewData) { Model = model };
+                var dataDictAddToCart = new ViewDataDictionary<ProductDetailsModel>(ViewData, model);
                 dataDictAddToCart.TemplateInfo.HtmlFieldPrefix = $"addtocart_{model.Id}";
 
                 partials = new
@@ -464,7 +454,7 @@ namespace Smartstore.Web.Controllers
         }
 
         [HttpPost, ActionName("Reviews")]
-        [ValidateCaptcha]
+        [ValidateCaptcha(CaptchaSettingName = nameof(CaptchaSettings.ShowOnProductReviewPage))]
         [GdprConsent]
         public async Task<IActionResult> ReviewsAdd(int id, ProductReviewsModel model, string captchaError)
         {
@@ -510,6 +500,7 @@ namespace Smartstore.Web.Controllers
                     HelpfulYesTotal = 0,
                     HelpfulNoTotal = 0,
                     IsApproved = isApproved,
+                    Product = product
                 };
 
                 product.ProductReviews.Add(productReview);
@@ -659,8 +650,8 @@ namespace Smartstore.Web.Controllers
         }
 
         [HttpPost, ActionName("AskQuestion")]
-        [ValidateCaptcha, ValidateHoneypot]
-        [GdprConsent]
+        [ValidateCaptcha(CaptchaSettingName = nameof(CaptchaSettings.ShowOnAskQuestionPage))]
+        [ValidateHoneypot, GdprConsent]
         public async Task<IActionResult> AskQuestionSend(ProductAskQuestionModel model, string captchaError)
         {
             if (!_catalogSettings.AskQuestionEnabled)
@@ -767,7 +758,7 @@ namespace Smartstore.Web.Controllers
         }
 
         [HttpPost, ActionName("EmailAFriend")]
-        [ValidateCaptcha]
+        [ValidateCaptcha(CaptchaSettingName = nameof(CaptchaSettings.ShowOnEmailProductToFriendPage))]
         [GdprConsent]
         public async Task<IActionResult> EmailAFriendSend(ProductEmailAFriendModel model, int id, string captchaError)
         {

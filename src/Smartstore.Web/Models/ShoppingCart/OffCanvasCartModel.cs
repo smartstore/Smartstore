@@ -1,5 +1,3 @@
-using Smartstore.Web.Modelling;
-
 namespace Smartstore.Web.Models.Cart
 {
     public partial class OffCanvasCartModel : ModelBase

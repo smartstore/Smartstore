@@ -1,9 +1,5 @@
-﻿using System;
-using System.Linq;
-using System.Linq.Dynamic.Core;
-using System.Threading.Tasks;
+﻿using System.Linq.Dynamic.Core;
 using Dasync.Collections;
-using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Cart;
@@ -89,7 +85,7 @@ namespace Smartstore.Core.Catalog.Pricing
                 DetermineLowestPrice = forListing && priceDisplay == PriceDisplayType.LowestPrice,
                 DeterminePreselectedPrice = determinePreselectedPrice,
                 ApplyPreselectedAttributes = determinePreselectedPrice,
-                TaxFormat = _currencyService.GetTaxFormat(null, taxInclusive, PricingTarget.Product, language),
+                TaxFormat = _taxService.GetTaxFormat(null, taxInclusive, PricingTarget.Product, language),
                 PriceRangeFormat = T("Products.PriceRangeFrom").Value,
                 RoundingCurrency = targetCurrency == _primaryCurrency ? _workContext.WorkingCurrency : targetCurrency
             };
@@ -249,7 +245,7 @@ namespace Smartstore.Core.Catalog.Pricing
             }
 
             var basePrice = Convert.ToDecimal((price / product.BasePriceAmount) * product.BasePriceBaseAmount);
-            var basePriceAmount = _currencyService.ApplyTaxFormat(
+            var basePriceAmount = _taxService.ApplyTaxFormat(
                 new Money(basePrice, targetCurrency ?? _workContext.WorkingCurrency),
                 includePackageContentPerUnit ? null : false,
                 null,
@@ -340,8 +336,7 @@ namespace Smartstore.Core.Catalog.Pricing
             context.AttributePriceAdjustments.Each(x => x.Price = ConvertAmount(x.RawPriceAdjustment, context, taxRate, false, out _).Value);
 
             // Calculate price saving.
-            // The final price without discounts has priority over the old price.
-            // This avoids differing percentage discount in product lists and detail page.
+            // TODO: (mg) (core) find a way to avoid differing percentage discount in product lists and detail page.
             var priceWithoutDiscount = result.FinalPrice + result.DiscountAmount;
             
             var savingPrice = result.FinalPrice < priceWithoutDiscount 
@@ -358,15 +353,29 @@ namespace Smartstore.Core.Catalog.Pricing
                 SavingAmount = hasSaving ? (savingPrice - result.FinalPrice).WithPostFormat(null) : null
             };
 
+            // In product lists, show the base price of the preselected attribute combination (instead of the base price set on product level).
+            var ac = context.AppliedAttributeCombination;
+            if (ac != null
+                && (ac.BasePriceAmount.HasValue || ac.BasePriceBaseAmount.HasValue)
+                && _catalogSettings.ShowBasePriceInProductLists)
+            {
+                product.MergedDataValues ??= new();
+
+                if (ac.BasePriceAmount.HasValue)
+                    product.MergedDataValues["BasePriceAmount"] = ac.BasePriceAmount.Value;
+
+                if (ac.BasePriceBaseAmount.HasValue)
+                    product.MergedDataValues["BasePriceBaseAmount"] = ac.BasePriceBaseAmount.Value;
+            }
+
             return result;
         }
 
         private Money? ConvertAmount(decimal? amount, CalculatorContext context, TaxRate taxRate, bool isFinalPrice, out Tax? tax)
         {
-            tax = null;
-
             if (amount == null)
             {
+                tax = null;
                 return null;
             }
 
@@ -378,14 +387,11 @@ namespace Smartstore.Core.Catalog.Pricing
                 amount = 0;
             }
 
-            if (amount != 0)
-            {
-                tax = options.IsGrossPrice
-                     ? _taxCalculator.CalculateTaxFromGross(amount.Value, taxRate, options.TaxInclusive, options.RoundingCurrency)
-                     : _taxCalculator.CalculateTaxFromNet(amount.Value, taxRate, options.TaxInclusive, options.RoundingCurrency);
+            tax = options.IsGrossPrice
+                 ? _taxCalculator.CalculateTaxFromGross(amount.Value, taxRate, options.TaxInclusive, options.RoundingCurrency)
+                 : _taxCalculator.CalculateTaxFromNet(amount.Value, taxRate, options.TaxInclusive, options.RoundingCurrency);
 
-                amount = tax.Value.Price;
-            }
+            amount = tax.Value.Price;
 
             var money = _currencyService.ConvertFromPrimaryCurrency(amount.Value, options.TargetCurrency);
 

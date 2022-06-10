@@ -1,0 +1,30 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+	<PropertyGroup>
+		<!-- TODO: Describe Razor compilation -->
+		<AddRazorSupportForMvc>true</AddRazorSupportForMvc>
+		<MvcRazorCompileOnBuild>false</MvcRazorCompileOnBuild>
+		<MvcRazorCompileOnPublish>true</MvcRazorCompileOnPublish>
+		<RazorCompileOnBuild>true</RazorCompileOnBuild>
+		<RazorCompileOnPublish>true</RazorCompileOnPublish>
+	
+		<!-- TODO: (core) Think about Razor precompilation strategy and implement decently -->
+		<!--
+			<CopyRazorGenerateFilesToPublishDirectory>true</CopyRazorGenerateFilesToPublishDirectory>
+			<CopyRefAssembliesToPublishDirectory>false</CopyRefAssembliesToPublishDirectory>
+		-->
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<RazorCompileOnBuild>true</RazorCompileOnBuild>
+	</PropertyGroup>
+		
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugNoRazorCompile|AnyCPU'">
+		<RazorCompileOnBuild>false</RazorCompileOnBuild>
+	</PropertyGroup>
+	
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+		<RazorCompileOnBuild>true</RazorCompileOnBuild>
+	</PropertyGroup>
+
+</Project>

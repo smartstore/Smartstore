@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Smartstore.Utilities
+﻿namespace Smartstore.Utilities
 {
     /// <summary>
     /// Allows action to be executed when it is disposed

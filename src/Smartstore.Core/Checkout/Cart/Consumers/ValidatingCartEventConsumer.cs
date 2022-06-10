@@ -1,6 +1,4 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
-using Smartstore.Core.Checkout.Cart.Events;
+﻿using Smartstore.Core.Checkout.Cart.Events;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Localization;

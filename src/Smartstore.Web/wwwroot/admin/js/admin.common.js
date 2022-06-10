@@ -10,7 +10,7 @@ function openModalWindow(modalId) {
     $('#' + modalId).modal('show');
 }
 
-// global Admin namespace
+// Global Admin namespace
 Smartstore.Admin = {
     modelTrees: {},
     checkboxCheck: function (obj, checked) {
@@ -163,7 +163,9 @@ Smartstore.Admin = {
                         },
                         error: function (xhr, ajaxOptions, thrownError) {
                             window.clearInterval(interval);
-                            console.error(thrownError);
+                            if (thrownError) {
+                                console.error(thrownError);
+                            }
                         }
                     });
                 }

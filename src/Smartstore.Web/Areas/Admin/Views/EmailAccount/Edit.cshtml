@@ -9,8 +9,9 @@
 <form asp-action="Edit" id="email-accounts-edit">
     <div class="section-header">
         <div class="title">
-            @T("Admin.Configuration.EmailAccounts.EditEmailAccountDetails") - @Model.DisplayName
-            <a asp-action="List">(@T("Admin.Configuration.EmailAccounts.BackToList"))</a>
+            <i class="fa fa-envelope"></i>
+            <span>@ViewBag.Title - @Model.DisplayName</span>
+            <a asp-action="List">(@T("Admin.Common.BackToList"))</a>
         </div>
         <div class="options">
             <button type="submit" name="save" value="save" class="btn btn-warning">

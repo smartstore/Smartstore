@@ -1,36 +1,17 @@
-﻿using System;
-using System.IO;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
 using Smartstore.Core.Packaging;
 using Smartstore.Core.Security;
-using Smartstore.Core.Theming;
 using Smartstore.Engine.Modularity;
-using Smartstore.Web.Controllers;
 
 namespace Smartstore.Controllers
 {
     public class PackagingController : AdminController
     {
         private readonly IPackageInstaller _packageInstaller;
-        private readonly IPackageBuilder _packageBuilder;
-        private readonly IThemeRegistry _themeRegistry;
 
-        public PackagingController(IPackageInstaller packageInstaller, IPackageBuilder packageBuilder, IThemeRegistry themeRegistry)
+        public PackagingController(IPackageInstaller packageInstaller)
         {
             _packageInstaller = packageInstaller;
-            _packageBuilder = packageBuilder;
-            _themeRegistry = themeRegistry;
-        }
-
-        public async Task<IActionResult> BuildPackage(string theme)
-        {
-            // TODO: (core) Remove later
-            var themeDescriptor = _themeRegistry.GetThemeDescriptor(theme);
-            using var package = await _packageBuilder.BuildPackageAsync(themeDescriptor);
-
-            return File(package.ArchiveStream, "application/zip", package.FileName);
         }
 
         [HttpPost]

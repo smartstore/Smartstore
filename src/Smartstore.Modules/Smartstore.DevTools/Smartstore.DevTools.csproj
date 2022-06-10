@@ -1,14 +1,22 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
-  <PropertyGroup>
-		<Product>Smartstore DevTools</Product>
-		<OutputPath>..\..\Smartstore.Web\Modules\Smartstore.DevTools</OutputPath>
-		<OutDir>$(OutputPath)</OutDir>
-  </PropertyGroup>
+    <PropertyGroup>
+	    <Product>Smartstore DevTools</Product>
+	    <OutputPath>..\..\Smartstore.Web\Modules\Smartstore.DevTools</OutputPath>
+	    <OutDir>$(OutputPath)</OutDir>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="MiniProfiler.AspNetCore.Mvc" Version="4.2.22" />
-    <PackageReference Include="MiniProfiler.EntityFrameworkCore" Version="4.2.22" />
-  </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="MiniProfiler.AspNetCore.Mvc" Version="4.2.53" />
+        <PackageReference Include="MiniProfiler.EntityFrameworkCore" Version="4.2.53" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\Smartstore.Web\Smartstore.Web.csproj">
+            <Private>False</Private>
+            <CopyLocal>False</CopyLocal>
+            <CopyLocalSatelliteAssemblies>False</CopyLocalSatelliteAssemblies>
+        </ProjectReference>
+    </ItemGroup>
 
 </Project>

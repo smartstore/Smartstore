@@ -1,6 +1,4 @@
-﻿using System;
-using System.IO;
-using Smartstore.IO;
+﻿using Smartstore.IO;
 
 namespace Smartstore.Net.Mail
 {

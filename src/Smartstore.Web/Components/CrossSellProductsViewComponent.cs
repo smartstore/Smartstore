@@ -1,13 +1,8 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using Dasync.Collections;
-using Microsoft.AspNetCore.Mvc;
+﻿using Dasync.Collections;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
-using Smartstore.Web.Controllers;
 using Smartstore.Web.Models.Catalog;
 
 namespace Smartstore.Web.Components

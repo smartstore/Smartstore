@@ -1,12 +1,8 @@
-﻿using FluentValidation;
-using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using System.ComponentModel.DataAnnotations;
+using FluentValidation;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Content.Media;
-using Smartstore.Web.Modelling;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Threading.Tasks;
+using Smartstore.Imaging;
 
 namespace Smartstore.Admin.Models
 {
@@ -20,7 +16,7 @@ namespace Smartstore.Admin.Models
         public int MaximumImageSize { get; set; }
 
         [LocalizedDisplay("*MaxUploadFileSize")]
-        public long MaxUploadFileSize { get; set; }
+        public long MaxUploadFileSize { get; set; } = 102400;
 
         [LocalizedDisplay("*MakeFilesTransientWhenOrphaned")]
         public bool MakeFilesTransientWhenOrphaned { get; set; }
@@ -106,12 +102,50 @@ namespace Smartstore.Admin.Models
         public string BinTypes { get; set; }
 
         #endregion
+
+        #region Image processing
+
+        public ResamplingMode DefaultResamplingMode { get; set; }
+
+        [AdditionalMetadata("min", 0)]
+        [AdditionalMetadata("max", 100)]
+        public int DefaultImageQuality { get; set; }
+
+        public JpegColorType? JpegColorType { get; set; }
+
+        public PngCompressionLevel PngCompressionLevel { get; set; }
+
+        public QuantizationMethod PngQuantizationMethod { get; set; }
+
+        public bool PngInterlaced { get; set; }
+
+        public bool PngIgnoreMetadata { get; set; }
+
+        public QuantizationMethod GifQuantizationMethod { get; set; }
+
+        #endregion
+
+        #region Response Caching
+
+        [AdditionalMetadata("min", 0)]
+        public int ResponseCacheDuration { get; set; }
+
+        public ResponseCacheLocation ResponseCacheLocation { get; set; }
+
+        public bool ResponseCacheNoStore { get; set; }
+
+        public bool AppendFileVersionToUrl { get; set; }
+
+        #endregion
     }
 
-    public partial class MediaSettingsValidator : AbstractValidator<MediaSettingsModel>
+    public partial class MediaSettingsValidator : SettingModelValidator<MediaSettingsModel, MediaSettings>
     {
         public MediaSettingsValidator()
         {
+            // INFO: Such a rule for a settings model requires that the model property has a valid default value.
+            // Typically, this is the same as in the settings class.
+            // Otherwise you will run into a validation error if you deactivate the multistore checkbox.
             RuleFor(x => x.MaxUploadFileSize).GreaterThan(0);
         }
     }

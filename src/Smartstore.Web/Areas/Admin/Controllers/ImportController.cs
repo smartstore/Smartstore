@@ -1,17 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net.Mime;
+﻿using System.Net.Mime;
 using System.Text;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using Smartstore.Admin.Models.Import;
 using Smartstore.Admin.Models.Scheduling;
-using Smartstore.Core.Data;
 using Smartstore.Core.DataExchange;
 using Smartstore.Core.DataExchange.Csv;
 using Smartstore.Core.DataExchange.Import;
@@ -19,8 +11,6 @@ using Smartstore.Core.Security;
 using Smartstore.IO;
 using Smartstore.Scheduling;
 using Smartstore.Utilities;
-using Smartstore.Web.Controllers;
-using Smartstore.Web.Modelling;
 
 namespace Smartstore.Admin.Controllers
 {
@@ -45,7 +35,7 @@ namespace Smartstore.Admin.Controllers
 
         public IActionResult Index()
         {
-            return RedirectToAction("List");
+            return RedirectToAction(nameof(List));
         }
 
         [Permission(Permissions.Configuration.Import.Read)]
@@ -60,10 +50,8 @@ namespace Smartstore.Admin.Controllers
                 .ToDictionarySafe(x => x.TaskDescriptorId);
 
             var profiles = await _db.ImportProfiles
-                .Include(x => x.Task)
                 .AsNoTracking()
-                .OrderBy(x => x.EntityTypeId)
-                .ThenBy(x => x.Name)
+                .ApplyStandardFilter()
                 .ToListAsync();
 
             foreach (var profile in profiles)
@@ -104,8 +92,8 @@ namespace Smartstore.Admin.Controllers
                 if (model.TempFileName.HasValue() && !PathUtility.HasInvalidFileNameChars(model.TempFileName))
                 {
                     var root = Services.ApplicationContext.TenantRoot;
-                    var tenantTempDir = Services.ApplicationContext.GetTenantTempDirectory();
-                    var importFile = await tenantTempDir.GetFileAsync(model.TempFileName);
+                    var tempDir = Services.ApplicationContext.GetTenantTempDirectory();
+                    var importFile = await tempDir.GetFileAsync(model.TempFileName);
 
                     if (importFile.Exists)
                     {
@@ -113,11 +101,17 @@ namespace Smartstore.Admin.Controllers
                         if (profile?.Id > 0)
                         {
                             var dir = await _importProfileService.GetImportDirectoryAsync(profile, "Content", true);
+                            var targetFile = await dir.GetFileAsync(importFile.Name);
 
-                            await root.CopyFileAsync(importFile.SubPath, root.PathCombine(dir.SubPath, importFile.Name), true);
-                            await root.TryDeleteFileAsync(importFile.SubPath);
+                            using (var sourceStream = await importFile.OpenReadAsync())
+                            using (var targetStream = await targetFile.OpenWriteAsync())
+                            {
+                                await sourceStream.CopyToAsync(targetStream);
+                            }
 
-                            return RedirectToAction("Edit", new { id = profile.Id });
+                            await tempDir.FileSystem.TryDeleteFileAsync(importFile);
+
+                            return RedirectToAction(nameof(Edit), new { id = profile.Id });
                         }
                     }
                     else
@@ -127,7 +121,7 @@ namespace Smartstore.Admin.Controllers
                 }
                 else
                 {
-                    NotifyError("Invalid file name.");
+                    NotifyError(T("Admin.Common.InvalidFileName"));
                 }
             }
             catch (Exception ex)
@@ -135,7 +129,7 @@ namespace Smartstore.Admin.Controllers
                 NotifyError(ex);
             }
 
-            return RedirectToAction("List");
+            return RedirectToAction(nameof(List));
         }
 
         [Permission(Permissions.Configuration.Import.Read)]
@@ -286,8 +280,8 @@ namespace Smartstore.Admin.Controllers
             }
 
             return continueEditing
-                ? RedirectToAction("Edit", new { id = profile.Id })
-                : RedirectToAction("List");
+                ? RedirectToAction(nameof(Edit), new { id = profile.Id })
+                : RedirectToAction(nameof(List));
         }
 
         [HttpPost]
@@ -305,7 +299,7 @@ namespace Smartstore.Admin.Controllers
 
             NotifySuccess(T("Admin.Common.TaskSuccessfullyProcessed"));
 
-            return RedirectToAction("Edit", new { id = profile.Id });
+            return RedirectToAction(nameof(Edit), new { id = profile.Id });
         }
 
         [HttpPost]
@@ -324,14 +318,14 @@ namespace Smartstore.Admin.Controllers
 
                 NotifySuccess(T("Admin.Common.TaskSuccessfullyProcessed"));
 
-                return RedirectToAction("List");
+                return RedirectToAction(nameof(List));
             }
             catch (Exception ex)
             {
                 NotifyError(ex);
             }
 
-            return RedirectToAction("Edit", new { id = profile.Id });
+            return RedirectToAction(nameof(Edit), new { id = profile.Id });
         }
 
         [HttpPost]
@@ -345,11 +339,11 @@ namespace Smartstore.Admin.Controllers
             }
 
             var dir = await _importProfileService.GetImportDirectoryAsync(profile, "Content");
-            var subpath = dir.FileSystem.PathCombine(dir.SubPath, name);
-            
-            await dir.FileSystem.TryDeleteFileAsync(subpath);
+            var file = await dir.GetFileAsync(name);
 
-            return RedirectToAction("Edit", new { id });
+            await dir.FileSystem.TryDeleteFileAsync(file);
+
+            return RedirectToAction(nameof(Edit), new { id });
         }
 
         [Permission(Permissions.Configuration.Import.Read)]
@@ -376,7 +370,7 @@ namespace Smartstore.Admin.Controllers
                 }
             }
 
-            return RedirectToAction("List");
+            return RedirectToAction(nameof(List));
         }
 
         [HttpGet]
@@ -451,14 +445,14 @@ namespace Smartstore.Admin.Controllers
 
             if (id == 0)
             {
-                var root = Services.ApplicationContext.TenantRoot;
-                var tenantTempDir = Services.ApplicationContext.GetTenantTempDirectory();
+                var tempDir = Services.ApplicationContext.GetTenantTempDirectory();
 
-                await tenantTempDir.FileSystem.TryDeleteFileAsync(fileName);
-                var targetFile = await tenantTempDir.GetFileAsync(fileName);
+                await tempDir.FileSystem.TryDeleteFileAsync(await tempDir.GetFileAsync(fileName));
+
+                var targetFile = await tempDir.GetFileAsync(fileName);
 
                 using (var sourceStream = sourceFile.OpenReadStream())
-                using (var targetStream = targetFile.OpenWrite())
+                using (var targetStream = await targetFile.OpenWriteAsync())
                 {
                     await sourceStream.CopyToAsync(targetStream);
                 }
@@ -472,7 +466,7 @@ namespace Smartstore.Admin.Controllers
                 else
                 {
                     error = message;
-                    await tenantTempDir.FileSystem.TryDeleteFileAsync(fileName);
+                    await tempDir.FileSystem.TryDeleteFileAsync(await tempDir.GetFileAsync(fileName));
                 }
             }
             else
@@ -494,7 +488,7 @@ namespace Smartstore.Admin.Controllers
                         var targetFile = await dir.GetFileAsync(fileName);
 
                         using (var sourceStream = sourceFile.OpenReadStream())
-                        using (var targetStream = targetFile.OpenWrite())
+                        using (var targetStream = await targetFile.OpenWriteAsync())
                         {
                             await sourceStream.CopyToAsync(targetStream);
                         }
@@ -555,7 +549,7 @@ namespace Smartstore.Admin.Controllers
 
             NotifyInfo(T("Admin.System.ScheduleTasks.RunNow.Progress.DataImportTask"));
 
-            return RedirectToReferrer(null, () => RedirectToAction("List"));
+            return RedirectToReferrer(null, () => RedirectToAction(nameof(List)));
         }
 
         #region Utilities
@@ -587,6 +581,7 @@ namespace Smartstore.Admin.Controllers
             model.FolderName = dir.Name;
             model.EntityTypeName = await Services.Localization.GetLocalizedEnumAsync(profile.EntityType);
             model.ExistingFiles = await _importProfileService.GetImportFilesAsync(profile);
+            model.FileType = profile.FileType;
 
             foreach (var file in model.ExistingFiles.Where(x => x.RelatedType.HasValue))
             {
@@ -603,19 +598,14 @@ namespace Smartstore.Admin.Controllers
                 return;
             }
 
-            CsvConfiguration csvConfiguration = null;
+            var csvConfiguration = (profile.FileType == ImportFileType.Csv
+                ? new CsvConfigurationConverter().ConvertFrom<CsvConfiguration>(profile.FileTypeConfiguration)
+                : null) ?? CsvConfiguration.ExcelFriendlyConfiguration;
 
-            if (profile.FileType == ImportFileType.Csv)
+            model.CsvConfiguration = new CsvConfigurationModel(csvConfiguration)
             {
-                var csvConverter = new CsvConfigurationConverter();
-                csvConfiguration = csvConverter.ConvertFrom<CsvConfiguration>(profile.FileTypeConfiguration) ?? CsvConfiguration.ExcelFriendlyConfiguration;
-
-                model.CsvConfiguration = new CsvConfigurationModel(csvConfiguration);
-            }
-            else
-            {
-                csvConfiguration = CsvConfiguration.ExcelFriendlyConfiguration;
-            }
+                Validate = profile.FileType == ImportFileType.Csv
+            };
 
             // Common configuration.
             var extraData = XmlHelper.Deserialize<ImportExtraData>(profile.ExtraData);

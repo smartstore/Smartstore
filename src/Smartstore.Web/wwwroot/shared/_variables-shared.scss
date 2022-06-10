@@ -8,6 +8,7 @@
 $alert-info-is-primary:		false !default;
 $enable-lightbtn-tweak:		false !default;
 $enable-social-buttons:		true !default;
+$site-bg:                   #fff !default;
 
 
 //
@@ -22,22 +23,38 @@ $headings-sm-font-weight:   $font-weight-medium !default;
 
 
 // Pagination Mini
-// ==============================================================
+// --------------------------------------------------
 
 $pagination-padding-y-xs:           0.25rem;
 $pagination-padding-x-xs:           0.5rem;
 
 
 // Material tabs
-// ==============================================================
+// --------------------------------------------------
 
 $mtab-text-transform:		none !default;
+$mtab-font-size:			1rem !default;
 $mtab-font-weight:			$font-weight-medium !default;
-$mtab-color:				inherit !default;
+$mtab-color:				$gray-600 !default;
+$mtab-active-color:			$nav-tabs-link-active-color !default;
+
+
+// Dropdowns
+// --------------------------------------------------
+
+$dropdown-font-size:		$font-size-sm !default;
+$dropdown-font-weight:	    $font-weight-medium !default;
+$dropdown-icon-color:		mix($gray-600, $gray-700, 50%) !default;
+
+
+// Modal
+// --------------------------------------------------
+
+$modal-title-color:         inherit !default;
 
 
 // Offcanvas
-// ==============================================================
+// --------------------------------------------------
 
 $offcanvas-width:                   320px !default;
 $offcanvas-width-lg:                480px !default;
@@ -50,7 +67,22 @@ $offcanvas-z-index:                 99999 !default;
 $offcanvas-shadow:                  0 0 24px rgba(#000, 0.3) !default;
 
 
-//
+// Shadows
+// --------------------------------------------------
+
+$shadow-intensity:              1 !default;
+$box-shadow-xs-var:             0 1px 8px -2px rgba(var(--shadow-colorbase-rgb), calc(var(--shadow-intensity) * 0.12)), 
+                                0 1px 1px -2px rgba(var(--shadow-color-rgb), calc(var(--shadow-intensity) * 0.3)) !default;
+$box-shadow-sm-var:             0 2px 16px -2px rgba(var(--shadow-colorbase-rgb), calc(var(--shadow-intensity) * 0.12)), 
+                                0 2px 3px -2px rgba(var(--shadow-color-rgb), calc(var(--shadow-intensity) * 0.15)) !default;
+$box-shadow-var:                0 6px 24px -5px rgba(var(--shadow-colorbase-rgb), calc(var(--shadow-intensity) * 0.12)), 
+                                0 5px 12px -5px rgba(var(--shadow-color-rgb), calc(var(--shadow-intensity) * 0.17)) !default;
+$box-shadow-lg-var:             0 10px 40px -4px rgba(var(--shadow-colorbase-rgb), calc(var(--shadow-intensity) * 0.14)), 
+                                0 12px 28px -12px rgba(var(--shadow-color-rgb), calc(var(--shadow-intensity) * 0.2)) !default;
+$box-shadow-xl-var:             0 17px 70px -7px rgba(var(--shadow-colorbase-rgb), calc(var(--shadow-intensity) * 0.14)), 
+                                0 20px 48px -12px rgba(var(--shadow-color-rgb), calc(var(--shadow-intensity) * 0.22)) !default;
+
+
 // Boxes
 // --------------------------------------------------
 
@@ -243,7 +275,7 @@ $fa-free-regular-icons: (
 // Brand color variables
 // --------------------------------------------------
 
-$clr-brand-facebook:            #3b5998 !default;
+$clr-brand-facebook:            #1778F2 !default;
 $clr-brand-twitter:             #55acee !default;
 $clr-brand-github:              #bd2c00 !default;
 $clr-brand-github2:             #ff9933 !default;
@@ -253,7 +285,6 @@ $clr-brand-google2:             #db4437 !default;
 $clr-brand-google3:             #f4b400 !default;
 $clr-brand-google4:             #0f9d58 !default;
 $clr-brand-google5:             #e7e6dd !default;
-$clr-brand-googleplus:          #dd4b39 !default;
 $clr-brand-amazon:              #ff9900 !default;
 $clr-brand-atlassian:           #003366 !default;
 $clr-brand-dropbox:             #007ee5 !default;
@@ -272,3 +303,43 @@ $clr-brand-youtube:             #cd201f !default;
 $clr-brand-microsoft:           #f65314 !default;
 $clr-brand-windows:             #00bcf2 !default;
 $clr-brand-bitbucket:           #205081 !default;
+
+
+//
+// CSS vars
+// -------------------------------------------------
+
+:root {
+    $varnames: ();
+
+    @each $color, $value in $colors {
+        $varnames: $varnames + '--' + $color + ",";
+    }
+
+    @each $color, $value in $theme-colors {
+        $varnames: $varnames + '--' + $color + ",";
+    }
+
+    @each $color, $value in $grays {
+        $varnames: $varnames + '--gray-' + $color + ",";
+        --gray-#{$color}: #{$value};
+    }
+
+    $varnames: $varnames + '--body,--muted,--black';
+
+    --varnames: #{$varnames};
+    --body: #{$body-color};
+    --muted: #{$text-muted};
+    --black: #000;
+
+    @if alpha($body-bg) == 0 {
+        --body-bg: #{$site-bg};
+    }
+    @else {
+        --body-bg: #{$body-bg};
+    }
+
+    @if ($fa-use-pro == true) {
+        --fa-font-family: 'Font Awesome 5 Pro';
+    }
+}

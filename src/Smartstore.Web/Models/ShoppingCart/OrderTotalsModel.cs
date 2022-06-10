@@ -1,8 +1,4 @@
-﻿using System.Collections.Generic;
-using Smartstore.Core.Common;
-using Smartstore.Web.Modelling;
-
-namespace Smartstore.Web.Models.Cart
+﻿namespace Smartstore.Web.Models.Cart
 {
     public partial class OrderTotalsModel : ModelBase
     {        

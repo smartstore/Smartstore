@@ -1,18 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+﻿using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Net.Http.Headers;
 using Smartstore.Utilities;
 using uap = UAParser;
 
 namespace Smartstore.Core.Web
 {
-	public class UAParserUserAgent : IUserAgent
+    public class UAParserUserAgent : IUserAgent
 	{
 		private readonly static uap.Parser s_uap;
 		private static readonly Regex s_pdfConverterPattern = new (@"wkhtmltopdf", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);

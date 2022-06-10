@@ -1,5 +1,4 @@
 ﻿using Smartstore.Core.Catalog.Products;
-using Smartstore.Core.Common;
 using Smartstore.Core.Localization;
 
 namespace Smartstore.Core.Checkout.Orders
@@ -7,83 +6,56 @@ namespace Smartstore.Core.Checkout.Orders
     /// <summary>
     /// Contains data that is used to recalculate details of an order.
     /// </summary>
-    public class AutoUpdateOrderItemContext
+    public class UpdateOrderDetailsContext
     {
-        public static string InfoKey => "UpdateOrderItemContextInfo";
+        public static string InfoKey => "UpdateOrderDetailsContextInfo";
 
         /// <summary>
-        /// [IN] Whether order item is new
+        /// Indicates whether to update the order item.
         /// </summary>
-        public bool IsNewOrderItem { get; set; }
+        public bool UpdateOrderItem { get; set; }
 
         /// <summary>
-        /// [IN] Order item
-        /// </summary>
-        public OrderItem OrderItem { get; set; }
-
-        /// <summary>
-        /// [IN] Whether to adjust the inventory
-        /// </summary>
-        public bool AdjustInventory { get; set; }
-
-        /// <summary>
-        /// [IN] Whether to update order totals if order is in pending state
+        /// Indicates whether to update order totals if order is in pending state.
         /// </summary>
         public bool UpdateTotals { get; set; }
 
         /// <summary>
-        /// [IN] Whether to update reward points
+        /// Indicates whether to update reward points.
         /// </summary>
         public bool UpdateRewardPoints { get; set; }
 
         /// <summary>
-        /// [IN] Quantity old
+        /// Indicates whether to adjust the inventory.
         /// </summary>
-        public int QuantityOld { get; set; }
+        public bool AdjustInventory { get; set; }
 
         /// <summary>
-        /// [IN] Quantity new
-        /// </summary>
-        public int QuantityNew { get; set; }
-
-        /// <summary>
-        /// [IN] Old price incl. tax.
-        /// </summary>
-        public Money? PriceInclTaxOld { get; set; }
-
-        /// <summary>
-        /// [IN] Old price excl. tax.
-        /// </summary>
-        public Money? PriceExclTaxOld { get; set; }
-
-        /// <summary>
-        /// [OUT] Inventory changes
+        /// Result of adjusting the inventory.
         /// </summary>
         public AdjustInventoryResult Inventory { get; set; }
 
-        /// <summary>
-        /// [OUT] Reward points old
-        /// </summary>
-        public int RewardPointsOld { get; set; }
+        public int? OldQuantity { get; set; }
+        public int? NewQuantity { get; set; }
+        public int ReduceQuantity { get; set; }
 
-        /// <summary>
-        /// [OUT] Reward points new
-        /// </summary>
-        public int RewardPointsNew { get; set; }
+        public decimal? NewUnitPriceInclTax { get; set; }
+        public decimal? NewUnitPriceExclTax { get; set; }
+        public decimal? NewTaxRate { get; set; }
+        public decimal? NewDiscountInclTax { get; set; }
+        public decimal? NewDiscountExclTax { get; set; }
 
-        /// <summary>
-        /// The value to which the quantity amount has changed
-        /// </summary>
-        public int QuantityDelta => QuantityNew - QuantityOld;
+        public decimal? OldPriceInclTax { get; set; }
+        public decimal? OldPriceExclTax { get; set; }
+        public decimal? NewPriceInclTax { get; set; }
+        public decimal? NewPriceExclTax { get; set; }
 
-        /// <summary>
-        /// Returns quantity changed by factor if it is greater than 0, otherwise 1
-        /// </summary>
-        public decimal QuantityChangeFactor => QuantityOld != 0 ? QuantityNew / QuantityOld : 1.0M;
+        public int OldRewardPoints { get; set; }
+        public int NewRewardPoints { get; set; }
 
         public string ToString(ILocalizationService localizationService)
         {
-            if (Inventory == null && RewardPointsOld == 0 && RewardPointsNew == 0)
+            if (Inventory == null && OldRewardPoints == 0 && NewRewardPoints == 0)
                 return string.Empty;
 
             string stockOld = null;
@@ -96,7 +68,7 @@ namespace Smartstore.Core.Checkout.Orders
             }
 
             return localizationService.GetResource("Admin.Orders.OrderItem.Update.Info")
-                .FormatInvariant(stockOld.NaIfEmpty(), stockNew.NaIfEmpty(), RewardPointsOld, RewardPointsNew);
+                .FormatInvariant(stockOld.NaIfEmpty(), stockNew.NaIfEmpty(), OldRewardPoints, NewRewardPoints);
         }
     }
 }

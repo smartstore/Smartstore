@@ -2,12 +2,8 @@
 
 @model IList<ProductDetailsModel.ProductVariantAttributeModel>
 
-@{
-    var attributes = Model.Where(x => x.ShouldBeRendered()).ToList();
-}
-
 <div class="pd-variants">
-    @foreach (var attribute in attributes)
+    @foreach (var attribute in Model.Where(x => x.ShouldBeRendered))
     {
         <partial name="ChoiceTemplates/Choice" model="attribute" />
     }

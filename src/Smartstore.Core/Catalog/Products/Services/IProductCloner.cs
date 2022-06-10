@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-
-namespace Smartstore.Core.Catalog.Products
+﻿namespace Smartstore.Core.Catalog.Products
 {
     /// <summary>
     /// Product cloner interface.

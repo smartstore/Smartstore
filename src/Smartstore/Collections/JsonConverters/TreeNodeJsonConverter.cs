@@ -1,6 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Smartstore.ComponentModel;
 
 namespace Smartstore.Collections.JsonConverters
@@ -20,7 +19,7 @@ namespace Smartstore.Collections.JsonConverters
 
             object objValue = null;
             object objChildren = null;
-            string id = null;
+            object id = null;
             Dictionary<string, object> metadata = null;
 
             reader.Read();
@@ -45,7 +44,19 @@ namespace Smartstore.Collections.JsonConverters
                 else if (string.Equals(a, "Id", StringComparison.OrdinalIgnoreCase))
                 {
                     reader.Read();
-                    id = serializer.Deserialize<string>(reader);
+                    id = serializer.Deserialize<object>(reader);
+
+                    if (id is JArray jarr)
+                    {
+                        id = jarr.Select(token =>
+                        {
+                            // Newtonsoft holds ints as Int64, but we need Int32 here.
+                            return token.Type == JTokenType.Integer
+                                ? token.ToObject<int>()
+                                : token.ToObject<object>();
+                        })
+                        .ToArray();
+                    }
                 }
                 else
                 {
@@ -69,7 +80,7 @@ namespace Smartstore.Collections.JsonConverters
             }
 
             // Set Id
-            if (id.HasValue())
+            if (id != null)
             {
                 var idProp = FastProperty.GetProperty(objectType, "Id", PropertyCachingStrategy.Cached);
                 idProp.SetValue(treeNode, id);

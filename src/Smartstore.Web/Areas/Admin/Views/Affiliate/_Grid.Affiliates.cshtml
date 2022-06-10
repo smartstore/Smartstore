@@ -3,8 +3,8 @@
 @model AffiliateModel
 
 <datagrid id="affiliates-grid" allow-resize="true" allow-row-selection="true" allow-column-reordering="true">
-    <datasource read="@Url.Action("List", "Affiliate")"
-                delete="@Url.Action("AffiliatesDelete", "Affiliate")" />
+    <datasource read="@Url.Action("AffiliateList", "Affiliate")"
+                delete="@Url.Action("AffiliateDelete", "Affiliate")" />
     <sorting enabled="true" />
     <paging position="Bottom" show-size-chooser="true" />
     <toolbar>
@@ -14,7 +14,10 @@
                 <span>@T("Admin.Common.AddNew")...</span>
             </a>
         </toolbar-group>
-        <toolbar-group class="omega">
+        <zone name="datagrid_toolbar_alpha"></zone>
+        <toolbar-group class="omega"></toolbar-group>
+        <zone name="datagrid_toolbar_omega"></zone>
+        <toolbar-group>
             <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger no-anims btn-flat">
                 <i class="far fa-trash-alt"></i>
                 <span>@T("Admin.Common.Delete.Selected")</span>
@@ -22,15 +25,15 @@
         </toolbar-group>
     </toolbar>
     <columns>
-        <column for="AddressEmail" entity-member="Address.Email" hideable="false">
+        <column for="Address.Email" entity-member="Address.Email" hideable="false">
             <display-template>
                 <a :href="item.row.EditUrl" class="text-truncate">
                     {{ item.value }}
                 </a>
             </display-template>
         </column>
-        <column for="AddressFirstName" entity-member="Address.FirstName" />
-        <column for="AddressLastName" entity-member="Address.LastName" />
+        <column for="Address.FirstName" entity-member="Address.FirstName" />
+        <column for="Address.LastName" entity-member="Address.LastName" />
         <column for="Active" halign="center" />
     </columns>
     <row-commands>

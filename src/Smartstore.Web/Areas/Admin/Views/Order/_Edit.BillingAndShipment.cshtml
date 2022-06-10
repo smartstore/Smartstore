@@ -1,0 +1,90 @@
+﻿@model OrderModel
+
+@{
+    var billTo = Model.BillingAddress;
+    var shipTo = Model.ShippingAddress;
+
+    var gridViewData = new ViewDataDictionary(ViewData);
+    gridViewData["Parent"] = Model;
+}
+
+<div class="row">
+    <div class="card-deck card-cols-sm-1 card-cols-lg-3 col-md-12">
+        <div class="card">
+            <div class="card-body">
+                <h6 class="card-title">@T("Order.BillingAddress")</h6>
+                <div class="mb-2">
+                    @Html.Raw(billTo.FormattedAddress)
+                </div>
+                <div class="email">
+                    @T("Order.Email"): @billTo.Email
+                </div>
+                <div sm-if="billTo.PhoneEnabled && billTo.PhoneNumber.HasValue()" class="phone">
+                    @T("Order.Phone"): @billTo.PhoneNumber
+                </div>
+                <div sm-if="billTo.FaxEnabled && billTo.FaxNumber.HasValue()" class="fax">
+                    @T("Order.Fax"): @billTo.FaxNumber
+                </div>
+            </div>
+            <div class="card-footer p-0">
+                <a asp-action="AddressEdit" asp-route-addressId="@billTo.Id" asp-route-orderId="@Model.Id" class="btn btn-warning btn-lg btn-flat rounded-0">
+                    <i class="far fa-edit"></i>
+                    <span>@T("Admin.Common.Edit")</span>
+                </a>
+            </div>
+        </div>
+        <div class="card">
+            @if (Model.IsShippable && shipTo != null)
+            {
+                <div class="card-body">
+                    <h6 class="card-title">@T("Order.ShippingAddress")</h6>
+                    <div class="mb-2">
+                        @Html.Raw(shipTo.FormattedAddress)
+                    </div>
+                    <div class="email">
+                        @T("Order.Email"): @shipTo.Email
+                    </div>
+                    <div sm-if="shipTo.PhoneEnabled && shipTo.PhoneNumber.HasValue()" class="phone">
+                        @T("Order.Phone"): @shipTo.PhoneNumber
+                    </div>
+                    <div sm-if="shipTo.FaxEnabled && shipTo.FaxNumber.HasValue()" class="fax">
+                        @T("Order.Fax"): @shipTo.FaxNumber
+                    </div>
+                </div>
+                <div class="card-footer p-0">
+                    <a asp-action="AddressEdit" asp-route-addressId="@shipTo.Id" asp-route-orderId="@Model.Id" class="btn btn-warning btn-lg btn-flat rounded-0">
+                        <i class="far fa-edit"></i>
+                        <span>@T("Admin.Common.Edit")</span>
+                    </a>
+                    <a href="@Html.Raw(Model.ShippingAddressGoogleMapsUrl)" class="btn btn-warning btn-lg btn-flat rounded-0" target="_blank">
+                        <i class="fab fa-google"></i>
+                        <span>@T("Admin.Orders.Fields.ShippingAddress.ViewOnGoogleMaps")</span>
+                    </a>
+                </div>
+            }
+            else
+            {
+                <div class="card-body">
+                    @T("Admin.Orders.ShippingInfo.NotRequired")
+                </div>
+            }
+        </div>
+        <div class="card border-0">
+            @if (Model.IsShippable)
+            {
+                <h6>@T("Admin.Orders.Fields.ShippingMethod")</h6>
+                <p>@Model.ShippingMethod</p>
+
+                <h6>@T("Admin.Orders.Fields.ShippingStatus")</h6>
+                <p>@Model.ShippingStatusString</p>
+            }
+        </div>
+    </div>
+</div>
+
+<div sm-if="Model.IsShippable && Model.ShippingAddress.Id != 0">
+    <h5 class="text-muted mb-3">@T("Admin.Orders.Shipments")</h5>
+    <div>
+        <partial name="~/Areas/Admin/Views/Shipment/_Grid.Shipments.cshtml" model="null" view-data="gridViewData" />
+    </div>
+</div>

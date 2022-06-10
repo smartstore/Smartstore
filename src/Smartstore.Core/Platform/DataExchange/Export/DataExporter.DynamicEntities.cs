@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection;
-using System.Threading.Tasks;
+﻿using System.Reflection;
 using Dasync.Collections;
-using Microsoft.Extensions.Logging;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Brands;
@@ -22,13 +16,12 @@ using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Messaging;
 using Smartstore.Core.Stores;
-using Smartstore.Domain;
 
 namespace Smartstore.Core.DataExchange.Export
 {
     public partial class DataExporter
     {
-        private readonly string[] _orderCustomerAttributes = new[]
+        private readonly static string[] _orderCustomerAttributes = new[]
         {
             SystemCustomerAttributeNames.VatNumber,
             SystemCustomerAttributeNames.ImpersonatedCustomerId
@@ -42,31 +35,41 @@ namespace Smartstore.Core.DataExchange.Export
             await ctx.OrderBatchContext.Addresses.GetOrLoadAsync(order.BillingAddressId);
 
             var customers = await ctx.OrderBatchContext.Customers.GetOrLoadAsync(order.CustomerId);
-            var genericAttributes = await ctx.OrderBatchContext.CustomerGenericAttributes.GetOrLoadAsync(order.CustomerId);
-            var rewardPointsHistories = await ctx.OrderBatchContext.RewardPointsHistories.GetOrLoadAsync(order.CustomerId);
+            var customer = customers.FirstOrDefault(x => x.Id == order.CustomerId);
             var orderItems = await ctx.OrderBatchContext.OrderItems.GetOrLoadAsync(order.Id);
             var shipments = await ctx.OrderBatchContext.Shipments.GetOrLoadAsync(order.Id);
 
             dynamic dynObject = await ToDynamic(order, ctx);
-            dynObject.Customer = ToDynamic(customers.FirstOrDefault(x => x.Id == order.CustomerId));
 
-            // We do not export all customer generic attributes because otherwise the export file gets too big.
-            dynObject.Customer._GenericAttributes = genericAttributes
-                .Where(x => x.Value.HasValue() && _orderCustomerAttributes.Contains(x.Key))
-                .Select(x => CreateDynamic(x))
-                .ToList();
-
-            dynObject.Customer.RewardPointsHistory = rewardPointsHistories
-                .Select(x => CreateDynamic(x))
-                .ToList();
-
-            if (rewardPointsHistories.Any())
+            if (customer != null)
             {
-                dynObject.Customer._RewardPointsBalance = rewardPointsHistories
-                    .OrderByDescending(x => x.CreatedOnUtc)
-                    .ThenByDescending(x => x.Id)
-                    .FirstOrDefault()
-                    .PointsBalance;
+                var genericAttributes = await ctx.OrderBatchContext.CustomerGenericAttributes.GetOrLoadAsync(order.CustomerId);
+                var rewardPointsHistories = await ctx.OrderBatchContext.RewardPointsHistories.GetOrLoadAsync(order.CustomerId);
+
+                dynObject.Customer = ToDynamic(customer);
+
+                // We do not export all customer generic attributes because otherwise the export file gets too big.
+                dynObject.Customer._GenericAttributes = genericAttributes
+                    .Where(x => x.Value.HasValue() && _orderCustomerAttributes.Contains(x.Key))
+                    .Select(x => CreateDynamic(x))
+                    .ToList();
+
+                dynObject.Customer.RewardPointsHistory = rewardPointsHistories
+                    .Select(x => CreateDynamic(x))
+                    .ToList();
+
+                if (rewardPointsHistories.Any())
+                {
+                    dynObject.Customer._RewardPointsBalance = rewardPointsHistories
+                        .OrderByDescending(x => x.CreatedOnUtc)
+                        .ThenByDescending(x => x.Id)
+                        .FirstOrDefault()
+                        .PointsBalance;
+                }
+            }
+            else
+            {
+                dynObject.Customer = null;
             }
 
             dynObject.BillingAddress = ctx.OrderBatchContext.Addresses.TryGetValues(order.BillingAddressId, out var billingAddresses)
@@ -79,7 +82,7 @@ namespace Smartstore.Core.DataExchange.Export
 
             dynObject.OrderItems = await orderItems
                 .SelectAsync(async x => await ToDynamic(x, ctx))
-                .ToListAsync();
+                .AsyncToList();
 
             dynObject.Shipments = shipments
                 .Select(x => ToDynamic(x, ctx))
@@ -295,16 +298,24 @@ namespace Smartstore.Core.DataExchange.Export
                 return null;
             }
 
+            var country = address.CountryId.HasValue
+                ? ctx.Countries.Get(address.CountryId.Value)
+                : null;
+
+            var stateProvince = address.StateProvinceId.HasValue
+                ? ctx.StateProvinces.Get(address.StateProvinceId.Value)
+                : null;
+
             dynamic result = new DynamicEntity(address);
 
-            result.Country = ToDynamic(address.Country, ctx);
+            result.Country = ToDynamic(country, ctx);
 
-            if (address.StateProvinceId.GetValueOrDefault() > 0)
+            if (stateProvince != null)
             {
-                dynamic sp = new DynamicEntity(address.StateProvince);
+                dynamic sp = new DynamicEntity(stateProvince);
 
-                sp.Name = ctx.GetTranslation(address.StateProvince, nameof(address.StateProvince.Name), address.StateProvince.Name);
-                sp._Localized = GetLocalized(ctx, address.StateProvince, x => x.Name);
+                sp.Name = ctx.GetTranslation(stateProvince, nameof(stateProvince.Name), stateProvince.Name);
+                sp._Localized = GetLocalized(ctx, stateProvince, x => x.Name);
 
                 result.StateProvince = sp;
             }
@@ -357,10 +368,6 @@ namespace Smartstore.Core.DataExchange.Export
             }
 
             dynamic result = new DynamicEntity(store);
-
-            result.PrimaryStoreCurrency = ToDynamic(store.PrimaryStoreCurrency, ctx);
-            result.PrimaryExchangeRateCurrency = ToDynamic(store.PrimaryExchangeRateCurrency, ctx);
-
             return result;
         }
 
@@ -614,7 +621,7 @@ namespace Smartstore.Core.DataExchange.Export
             result.Shipments = null;
 
             result.Store = ctx.Stores.ContainsKey(order.StoreId)
-                ? ToDynamic(ctx.Stores[order.StoreId], ctx)
+                ? DataExporter.ToDynamic(ctx.Stores[order.StoreId], ctx)
                 : null;
 
             if (!ctx.IsPreview)
@@ -635,7 +642,7 @@ namespace Smartstore.Core.DataExchange.Export
             await _productAttributeMaterializer.MergeWithCombinationAsync(orderItem.Product, orderItem.AttributeSelection);
 
             dynamic result = new DynamicEntity(orderItem);
-            result.Product = ToDynamic(orderItem.Product, ctx);
+            result.Product = await ToDynamic(orderItem.Product, ctx);
 
             return result;
         }
@@ -660,7 +667,7 @@ namespace Smartstore.Core.DataExchange.Export
             return result;
         }
 
-        private static dynamic ToDynamic(NewsletterSubscription subscription, DataExporterContext ctx)
+        private dynamic ToDynamic(NewsletterSubscription subscription, DataExporterContext ctx)
         {
             if (subscription == null)
             {
@@ -670,7 +677,7 @@ namespace Smartstore.Core.DataExchange.Export
             dynamic result = new DynamicEntity(subscription);
 
             result.Store = ctx.Stores.ContainsKey(subscription.StoreId)
-                ? ToDynamic(ctx.Stores[subscription.StoreId], ctx)
+                ? DataExporter.ToDynamic(ctx.Stores[subscription.StoreId], ctx)
                 : null;
 
             return result;
@@ -688,7 +695,7 @@ namespace Smartstore.Core.DataExchange.Export
             await _productAttributeMaterializer.MergeWithCombinationAsync(cartItem.Product, cartItem.AttributeSelection);
 
             result.Store = ctx.Stores.ContainsKey(cartItem.StoreId)
-                ? ToDynamic(ctx.Stores[cartItem.StoreId], ctx)
+                ? DataExporter.ToDynamic(ctx.Stores[cartItem.StoreId], ctx)
                 : null;
 
             result.Customer = ToDynamic(cartItem.Customer);

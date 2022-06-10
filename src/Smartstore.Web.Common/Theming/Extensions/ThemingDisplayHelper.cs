@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Dynamic;
-using Microsoft.Extensions.DependencyInjection;
+﻿using System.Dynamic;
 using Smartstore.Core.Stores;
 using Smartstore.Core.Theming;
 using Smartstore.Web.Theming;
@@ -40,6 +38,15 @@ namespace Smartstore
                 }
             });
         }
+
+        /// <summary>
+        /// Gets a runtime theme variable value as string.
+        /// </summary>
+        /// <param name="name">The name of the variable</param>
+        /// <param name="defaultValue">The default value to return if the variable does not exist</param>
+        /// <returns>The theme variable value</returns>
+        public static string GetThemeVariable(this IDisplayHelper displayHelper, string name, string defaultValue = "")
+            => GetThemeVariable<string>(displayHelper, name, defaultValue);
 
         /// <summary>
         /// Gets a runtime theme variable value

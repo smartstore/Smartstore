@@ -1,20 +1,21 @@
-﻿using System;
-using System.Reflection;
+﻿using System.Reflection;
 using Autofac;
 using Autofac.Core;
 using Autofac.Core.Registration;
 using Autofac.Core.Resolving.Pipeline;
 using Smartstore.ComponentModel;
-using Smartstore.Core.Seo;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Localization.Rules;
 using Smartstore.Core.Rules.Rendering;
+using Smartstore.Core.Seo;
 using Smartstore.Data;
 
 namespace Smartstore.Core.Bootstrapping
 {
     internal sealed class LocalizationModule : Autofac.Module
     {
+        const string PropName = "Property.T";
+
         protected override void Load(ContainerBuilder builder)
         {
             builder.RegisterType<CultureUrlFilter>().As<IUrlFilter>().SingleInstance();
@@ -47,7 +48,7 @@ namespace Smartstore.Core.Bootstrapping
             if (userProperty == null)
                 return;
 
-            registration.Metadata.Add("Property.T", FastProperty.Create(userProperty));
+            registration.Metadata.Add(PropName, FastProperty.Create(userProperty));
 
             registration.PipelineBuilding += (sender, pipeline) =>
             {
@@ -56,7 +57,7 @@ namespace Smartstore.Core.Bootstrapping
                 {
                     next(context);
 
-                    if (!context.NewInstanceActivated || context.Registration.Metadata.Get("Property.T") is not FastProperty prop)
+                    if (!context.NewInstanceActivated || context.Registration.Metadata.Get(PropName) is not FastProperty prop)
                     {
                         return;
                     }
@@ -75,7 +76,9 @@ namespace Smartstore.Core.Bootstrapping
                             prop.SetValue(context.Instance, localizerEx);
                         }
                     }
-                    catch { }
+                    catch 
+                    {
+                    }
                 });
             };
         }

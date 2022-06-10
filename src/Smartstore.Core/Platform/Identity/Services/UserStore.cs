@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
+﻿using Microsoft.AspNetCore.Identity;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Data.Hooks;
@@ -192,6 +184,7 @@ namespace Smartstore.Core.Identity
             cancellationToken.ThrowIfCancellationRequested();
 
             return _users
+                .IgnoreQueryFilters()
                 .IncludeCustomerRoles()
                 .FirstOrDefaultAsync(x => x.Username == normalizedUserName, cancellationToken);
         }
@@ -260,6 +253,7 @@ namespace Smartstore.Core.Identity
             cancellationToken.ThrowIfCancellationRequested();
 
             return _users
+                .IgnoreQueryFilters()
                 .IncludeCustomerRoles()
                 .FirstOrDefaultAsync(x => x.Email == normalizedEmail, cancellationToken);
         }
@@ -461,7 +455,8 @@ namespace Smartstore.Core.Identity
                 .Where(x => x.CustomerId == user.Id)
                 .ToListAsync(cancellationToken);
 
-            var infos = records.Select(x => {
+            var infos = records.Select(x => 
+            {
                 return new UserLoginInfo
                 (
                     TranslateSystemNameToProvider(x.ProviderSystemName),
@@ -507,10 +502,8 @@ namespace Smartstore.Core.Identity
                 case "google":
                     return "Smartstore.GoogleAuth";
                 default:
-                    break;
+                    return provider;
             }
-
-            return string.Empty;
         }
 
         public static string TranslateSystemNameToProvider(string systemName)
@@ -526,10 +519,8 @@ namespace Smartstore.Core.Identity
                 case "smartstore.googleauth":
                     return "Google";
                 default:
-                    break;
+                    return systemName;
             }
-
-            return string.Empty;
         }
 
         #endregion

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Smartstore.Core.Installation
+﻿namespace Smartstore.Core.Installation
 {
     public class InstallationResult : ICloneable<InstallationResult>
     {

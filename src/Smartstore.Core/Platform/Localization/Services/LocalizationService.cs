@@ -1,15 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Humanizer;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
+﻿using Humanizer;
 using Smartstore.Caching;
 using Smartstore.Core.Data;
-using Smartstore.Data.Batching;
 using Smartstore.Data.Hooks;
 
 namespace Smartstore.Core.Localization
@@ -252,7 +243,6 @@ namespace Smartstore.Core.Localization
         {
             Guard.IsEnumType(typeof(T), nameof(enumValue));
 
-            // TODO: (core) (perf) Put all enum (alias) names to a static map.
             var enumName = typeof(T).GetAttribute<EnumAliasNameAttribute>(false)?.Name ?? typeof(T).Name;
             var resourceName = $"Enums.{enumName}.{enumValue}";
 
@@ -277,7 +267,6 @@ namespace Smartstore.Core.Localization
         {
             Guard.IsEnumType(typeof(T), nameof(enumValue));
 
-            // TODO: (core) (perf) Put all enum (alias) names to a static map.
             var enumName = typeof(T).GetAttribute<EnumAliasNameAttribute>(false)?.Name ?? typeof(T).Name;
             var resourceName = $"Enums.{enumName}.{enumValue}";
 
@@ -350,11 +339,6 @@ namespace Smartstore.Core.Localization
             try
             {
                 var pattern = (key.EndsWith(".") || !keyIsRootKey ? key : key + ".") + "%";
-                // TODO: (core) BatchDeleteAsync fails in DeleteLocaleStringResourcesAsync for MySQL.
-                // Exception: "You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '[`l`]"
-                // Current SQL looks somewhat like: DELETE [`l`] FROM `LocaleStringResource` AS `l` WHERE `l`.`ResourceName` LIKE...
-                // Following would work:            DELETE `l` FROM `LocaleStringResource` AS `l` WHERE `l`.`ResourceName` LIKE...
-                // Probably BatchUtil, line 50 is wrong.
                 result = await _db.LocaleStringResources.Where(x => EF.Functions.Like(x.ResourceName, pattern)).BatchDeleteAsync();
                 await ClearCacheSegmentAsync(null);
             }

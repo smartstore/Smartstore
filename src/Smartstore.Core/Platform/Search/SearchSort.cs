@@ -2,7 +2,7 @@
 {
     public class SearchSort
     {
-        private SearchSort(string name, IndexTypeCode typeCode, bool descending)
+        public SearchSort(string name, IndexTypeCode typeCode, bool descending)
         {
             FieldName = name;
             TypeCode = typeCode;

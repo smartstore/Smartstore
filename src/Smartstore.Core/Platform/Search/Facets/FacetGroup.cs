@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
+﻿using System.Diagnostics;
 
 namespace Smartstore.Core.Search.Facets
 {
@@ -50,6 +47,7 @@ namespace Smartstore.Core.Search.Facets
             Key = key;
             Label = label;
             IsMultiSelect = isMultiSelect;
+            HasChildren = hasChildren;
             DisplayOrder = displayOrder;
             IsScrollable = true;
 
@@ -188,5 +186,8 @@ namespace Smartstore.Core.Search.Facets
             get;
             set;
         }
+
+        public override string ToString()
+            => $"{Kind} '{Label}' ({Key}): {Facets.Count()} values.";
     }
 }

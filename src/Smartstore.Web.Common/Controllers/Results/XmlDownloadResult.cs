@@ -1,8 +1,5 @@
-﻿using System;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
 using System.Xml;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Net.Http.Headers;
 using Smartstore.Utilities;
 

@@ -1,0 +1,13 @@
+{
+  "$schema": "../module.schema.json",
+  "Author": "SmartStore AG",
+  "Group": "Payment",
+  "SystemName": "Smartstore.PayPal",
+  "FriendlyName": "Smartstore.PayPal",
+  "Description": "Enables payments with PayPal",
+  "Version": "5.0",
+  "MinAppVersion": "5.0",
+  "Order": 1,
+  "ResourceRootKey": "Plugins.Smartstore.PayPal",
+  "ProjectUrl": "http://community.smartstore.com/marketplace/file/29-paypal-payment-plugins/"
+}

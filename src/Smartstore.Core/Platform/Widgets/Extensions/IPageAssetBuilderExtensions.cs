@@ -1,6 +1,4 @@
-﻿using System;
-using System.Linq;
-using Microsoft.AspNetCore.Html;
+﻿using Microsoft.AspNetCore.Html;
 
 namespace Smartstore.Core.Widgets
 {
@@ -98,11 +96,10 @@ namespace Smartstore.Core.Widgets
             Guard.NotEmpty(name, nameof(name));
             Guard.NotEmpty(content, nameof(content));
 
-            var key = "meta_" + name + '_' + content;
             builder.AddHtmlContent(
                 "head",
-                new HtmlString("<meta name=\"{0}\" content=\"{1}\" />".FormatInvariant(name, content)),
-                key);
+                new HtmlString($"<meta name='{name}' content='{content}' />"),
+                $"meta_{name}");
         }
 
         private static void AddCanonicalUrlPartsInternal(IPageAssetBuilder builder, bool prepend, params string[] parts)

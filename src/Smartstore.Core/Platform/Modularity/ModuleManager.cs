@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
-using Autofac;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
+﻿using Autofac;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
@@ -22,9 +14,7 @@ namespace Smartstore.Engine.Modularity
     {
         private readonly IApplicationContext _appContext;
         private readonly SmartDbContext _db;
-        private readonly IComponentContext _ctx;
         private readonly ILocalizationService _locService;
-        private readonly ISettingFactory _settingFactory;
         private readonly ISettingService _settingService;
         private readonly IWidgetService _widgetService;
         private readonly Func<string, IModule> _moduleByNameFactory;
@@ -33,9 +23,7 @@ namespace Smartstore.Engine.Modularity
         public ModuleManager(
             IApplicationContext appContext,
             SmartDbContext db,
-            IComponentContext ctx,
             ILocalizationService locService, 
-            ISettingFactory settingFactory, 
             ISettingService settingService,
             IWidgetService widgetService,
             Func<string, IModule> moduleByNameFactory,
@@ -43,9 +31,7 @@ namespace Smartstore.Engine.Modularity
         {
             _appContext = appContext;
             _db = db;
-            _ctx = ctx;
             _locService = locService;
-            _settingFactory = settingFactory;
             _settingService = settingService;
             _widgetService = widgetService;
             _moduleByNameFactory = moduleByNameFactory;
@@ -120,7 +106,7 @@ namespace Smartstore.Engine.Modularity
 
             if (descriptor.WebRoot.GetFileInfo("icon.png").Exists)
             {
-                return "~{0}/{1}".FormatInvariant(descriptor.Path, "icon.png");
+                return "~{0}{1}".FormatInvariant(descriptor.Path.EnsureEndsWith('/'), "icon.png");
             }
             else
             {

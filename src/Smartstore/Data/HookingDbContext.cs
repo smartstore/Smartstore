@@ -1,16 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
+﻿using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Smartstore.Data.Hooks;
 using Smartstore.Data.Providers;
 using Smartstore.Domain;
@@ -23,6 +18,16 @@ namespace Smartstore.Data
         private DbSaveChangesOperation _currentSaveOperation;
         private DataProvider _dataProvider;
         private IDbHookHandler _hookHandler;
+
+        private static readonly ValueConverter _dateTimeConverter = 
+            new ValueConverter<DateTime, DateTime>(
+                v => v, 
+                v => DateTime.SpecifyKind(v, DateTimeKind.Utc));
+
+        private static readonly ValueConverter _nullableDateTimeConverter = 
+            new ValueConverter<DateTime?, DateTime?>(
+                v => v, 
+                v => v.HasValue ? DateTime.SpecifyKind(v.Value, DateTimeKind.Utc) : v);
 
         public HookingDbContext(DbContextOptions options)
             : base(options)
@@ -95,7 +100,6 @@ namespace Smartstore.Data
         /// </summary>
         internal bool DeferCommit { get; set; }
 
-        [SuppressMessage("Performance", "CA1822:Member can be static", Justification = "Seriously?")]
         protected internal IDbHookHandler DbHookHandler
         {
             get => _hookHandler ?? EngineContext.Current.Scope.ResolveOptional<IDbHookHandler>() ?? NullDbHookHandler.Instance;
@@ -240,7 +244,6 @@ namespace Smartstore.Data
 
             foreach (var type in entityTypes)
             {
-                // TODO: (core) Are we safe to add an entity model twice? ('cause EF did this already for publicly declared DbSet properties in SmartDbContext)
                 modelBuilder.Entity(type);
             }
         }
@@ -257,73 +260,17 @@ namespace Smartstore.Data
         {
             foreach (var entityType in modelBuilder.Model.GetEntityTypes())
             {
-                // TODO: (core) Add more proper conventions (set StringLength to 4000 by default?)
-                // TODO: (core) Make provider for conventions
                 ApplySingularTableNameConvention(entityType);
-                
-                var decimalProperties = entityType.GetProperties();
-                foreach (var property in decimalProperties)
+
+                var properties = entityType.GetProperties();
+                foreach (var property in properties)
                 {
                     // decimal HasPrecision(18, 4) convention
                     ApplyDecimalPrecisionConvention(property);
+
+                    // DateTime UTC convention.
+                    ApplyDateTimeUtcConvention(property);
                 }
-
-                // Add ILazyLoader service property
-                AddLazyLoaderServiceProperty(entityType);
-            }
-        }
-
-        private static void AddLazyLoaderServiceProperty(IMutableEntityType entityType)
-        {
-            // EF Core 5 is buggy when it comes to discovering protected service properties in base types.
-            // The default "ServicePropertyDiscoveryConvention" complains about duplicate properties, although
-            // we have only one ILazyLoader property in BaseEntity. EF is not capable of discovering the hierarchy chain.
-            // In EF 6 (11/2021) this will be fixed, but we cannot wait until then. Therefore we remove
-            // "ServicePropertyDiscoveryConvention" (see FixedRuntimeConventionSetBuilder class) and apply
-            // ILazyLoader service properties here.
-
-            if (entityType.IsPropertyBag)
-            {
-                return;
-            }
-
-            if (entityType.BaseType != null)
-            {
-                // TPH inheritance: derived type maps to base type table.
-                return;
-            }
-
-            if (!typeof(BaseEntity).IsAssignableFrom(entityType.ClrType))
-            {
-                return;
-            }
-
-            var hasNavigation = entityType.GetDeclaredNavigations().Any();
-            if (!hasNavigation)
-            {
-                // An entity without nav properties has no need for lazy/eager loading.
-                return;
-            }
-
-            var lazyLoaderProperty = entityType.ClrType.GetRuntimeProperties().FirstOrDefault(x => x.PropertyType == typeof(ILazyLoader));
-            if (lazyLoaderProperty == null)
-            {
-                return;
-            }
-
-            try
-            {
-                var serviceProperty = entityType.AddServiceProperty(lazyLoaderProperty);
-
-                // TODO: (core) (net6) What to do?
-                //serviceProperty.ParameterBinding = new DependencyInjectionParameterBinding(
-                //    lazyLoaderProperty.PropertyType,
-                //    lazyLoaderProperty.PropertyType,
-                //    serviceProperty);
-            }
-            catch
-            {
-                // Ignore duplicate property exception in the TPH types ProductReview and MediaFolder.
             }
         }
 
@@ -366,6 +313,34 @@ namespace Smartstore.Data
                     // Apply scale convention only when no convention exists or existing convention is "Conventional" (NOT Explicit or DataAnnotation).
                     property.SetScale(4);
                 }
+            }
+        }
+
+        [SuppressMessage("Usage", "EF1001:Internal EF Core API usage.", Justification = "Required")]
+        private static void ApplyDateTimeUtcConvention(IMutableProperty property)
+        {
+            if (property.ClrType == typeof(DateTime) && CanConvert())
+            {
+                property.SetValueConverter(_dateTimeConverter);
+            }
+            else if (property.ClrType == typeof(DateTime?) && CanConvert())
+            {
+                property.SetValueConverter(_nullableDateTimeConverter);
+            }
+
+            bool CanConvert()
+            {
+                // Not all DateTime properties contain UTC values (e.g. Customer.BirthDate), so we only convert those whose names end in "Utc".
+                if (property.Name.EndsWith("Utc"))
+                {
+                    if (property.FindAnnotation(CoreAnnotationNames.ValueConverter) is not IConventionAnnotation converterAnnotation
+                        || converterAnnotation.GetConfigurationSource() == ConfigurationSource.Convention)
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
             }
         }
 

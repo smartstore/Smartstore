@@ -75,17 +75,20 @@
     // get selected items
     var selectedValues = zones.Where(x => x.Selected == true).Select(x => x.Value.ToString()).ToArray();
 
-    var cssClass = "form-control x-select2-hidden-accessible";
+    var cssClass = "x-select2-hidden-accessible";
     var size = GetMetadata<string>("size");
     if (size.HasValue())
     {
         cssClass += " form-control-" + size;
     }
+
+    var name = Html.NameForModel();
+    var id = Html.GenerateIdFromName(name);
 }
 
 <select asp-items="@(new MultiSelectList(zones, "Value", "Text", selectedValues, "Group.Name"))"
-        name="@Html.NameForModel()"
-        id="@Html.IdForModel()"
+        name="@name"
+        id="@id"
         class="@cssClass"
         size="1"
         multiple

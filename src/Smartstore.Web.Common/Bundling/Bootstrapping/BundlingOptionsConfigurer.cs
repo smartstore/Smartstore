@@ -1,10 +1,8 @@
-﻿using System;
+﻿using Autofac;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
-using Autofac;
 using Smartstore.Core.Theming;
-using Smartstore.Engine;
 using Smartstore.Web.Bundling;
 
 namespace Smartstore.Web.Bootstrapping

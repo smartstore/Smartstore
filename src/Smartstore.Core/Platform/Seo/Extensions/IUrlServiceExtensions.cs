@@ -1,14 +1,11 @@
-﻿using System;
-using System.Threading.Tasks;
-
-namespace Smartstore.Core.Seo
+﻿namespace Smartstore.Core.Seo
 {
     public static partial class IUrlServiceExtensions
     {
         /// <summary>
         /// Applies a slug without sanitization or uniqueness check. This method
         /// throws if the given slug already exists in the database. The recommended
-        /// way to apply a slug is to call <see cref="IUrlService.ValidateSlugAsync{T}(T, string, bool, int?)"/>
+        /// way to apply a slug is to call <see cref="IUrlService.ValidateSlugAsync{T}(T, string, string, bool, int?)"/>
         /// first, then to call <see cref="IUrlService.ApplySlugAsync(ValidateSlugResult, bool)"/> by passing
         /// the return value from first call.
         /// </summary>

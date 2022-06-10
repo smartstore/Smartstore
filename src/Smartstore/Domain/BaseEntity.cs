@@ -1,8 +1,9 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Newtonsoft.Json;
+using Smartstore.Data;
 
 namespace Smartstore.Domain
 {
@@ -11,17 +12,24 @@ namespace Smartstore.Domain
     /// </summary>
     public abstract partial class BaseEntity : INamedEntity, IEquatable<BaseEntity>
     {
+        private ILazyLoader _lazyLoader;
+        
         protected BaseEntity()
         {
         }
 
         protected BaseEntity(ILazyLoader lazyLoader)
         {
-            LazyLoader = lazyLoader;
+            _lazyLoader = lazyLoader;
         }
 
         //[NotMapped] // TODO: (core) Remove [NotMappedAttribute] once the EF bug (https://github.com/dotnet/efcore/issues/23968) is fixed.
-        protected virtual ILazyLoader LazyLoader { get; set; }
+        [JsonIgnore]
+        protected internal virtual ILazyLoader LazyLoader 
+        {
+            get => _lazyLoader ?? NullLazyLoader.Instance;
+            set => _lazyLoader = value;
+        }
 
         /// <summary>
         /// Gets or sets the entity identifier

@@ -1,14 +1,10 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Razor.TagHelpers;
-using Smartstore.Core.Widgets;
 using Smartstore.Web.Rendering;
 
 namespace Smartstore.Web.TagHelpers.Shared
 {
-	[HtmlTargetElement("zone", Attributes = NameAttributeName)]
+    [HtmlTargetElement("zone", Attributes = NameAttributeName)]
 	public class ZoneTagHelper : SmartTagHelper
 	{
 		const string NameAttributeName = "name";
@@ -50,7 +46,7 @@ namespace Smartstore.Web.TagHelpers.Shared
         {
 			var isHtmlTag = output.TagName != "zone";
 
-			var widgets = await _widgetSelector.GetWidgetsAsync(ZoneName, ViewContext.ViewData.Model);
+			var widgets = await _widgetSelector.GetWidgetsAsync(ZoneName, ViewContext, Model ?? ViewContext.ViewData.Model);
 
 			if (!isHtmlTag)
 			{
@@ -67,10 +63,18 @@ namespace Smartstore.Web.TagHelpers.Shared
 
 				foreach (var widget in widgets)
 				{
-					var target = widget.Prepend ? output.PreContent : output.PostContent;
-					var viewContext = Model == null ? ViewContext : ViewContext.Clone(Model);
+					var model = widget is PartialViewWidgetInvoker partialInvoker
+						? partialInvoker.Model
+						: Model;
 
-					target.AppendHtml(await widget.InvokeAsync(viewContext));
+					var target = widget.Prepend ? output.PreContent : output.PostContent;
+					var viewContext = model == null ? ViewContext : ViewContext.Clone(model);
+
+                    // TODO: (mh) (core) I don't know why you did this, but ViewData is mostly global across partials.
+                    // You are overriding the very same entry each time. Are you sure?
+                    viewContext.ViewData["widgetzone"] = ZoneName;
+
+                    target.AppendHtml(await widget.InvokeAsync(viewContext));
 				}
 			}
 			else

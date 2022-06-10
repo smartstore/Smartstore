@@ -40,6 +40,7 @@
                 $el.find("> .summernote-editor").summernote($.extend(true, {}, summernote_global_config, { lang: $el.data("lang") }));
             }
         },
+
         // RuleSets
         "rule-sets": function (el) {
             $(el)
@@ -227,6 +228,9 @@
                 var initializer = editorMap[template];
                 if (_.isFunction(initializer)) {
                     initializer(el);
+                }
+                else {
+                    EventBroker.publish("editcontrol.initializing", el);
                 }
             }
         });

@@ -17,6 +17,9 @@
         /// Not used by Smartstore
         /// </summary>
         public const int FirstMiddleware = -1000;
+        public const int BeforeExceptionHandlerMiddleware = -805;
+        public const int ExceptionHandlerMiddleware = -800;
+        public const int AfterExceptionHandlerMiddleware = -795;
         public const int BeforeStaticFilesMiddleware = -705;
         public const int StaticFilesMiddleware = -700;
         public const int AfterStaticFilesMiddleware = -695;

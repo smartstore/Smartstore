@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using SixLabors.ImageSharp.Processing;
+﻿using SixLabors.ImageSharp.Processing;
 using SixLabors.ImageSharp.Processing.Processors.Dithering;
 #region Gdi vs. ImageSharp
 using Size = System.Drawing.Size;
@@ -18,7 +16,6 @@ using SharpResizeOptions = SixLabors.ImageSharp.Processing.ResizeOptions;
 using SharpFlipMode = SixLabors.ImageSharp.Processing.FlipMode;
 using SharpPixelAlphaCompositionMode = SixLabors.ImageSharp.PixelFormats.PixelAlphaCompositionMode;
 using SharpPixelColorBlendingMode = SixLabors.ImageSharp.PixelFormats.PixelColorBlendingMode;
-using System.IO;
 #endregion
 
 namespace Smartstore.Imaging.Adapters.ImageSharp

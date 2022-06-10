@@ -1,0 +1,15 @@
+﻿@model SampleBlock
+
+@using Smartstore.DevTools.Blocks
+
+<div class="adminContent">
+	<div class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Property" />
+        </div>
+        <div class="adminData">
+            <input asp-for="Property" />
+            <span asp-validation-for="Property"></span>
+        </div>
+	</div>
+</div>

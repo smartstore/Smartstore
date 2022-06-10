@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Http;
 using Smartstore.Core.Catalog.Search;
 using Smartstore.Core.Data;
 using Smartstore.Net;
@@ -57,7 +52,7 @@ namespace Smartstore.Core.Catalog.Products
                 .ApplyStandardFilter()
                 .ToListAsync();
 
-            return comparedProducts;
+            return comparedProducts.OrderBySequence(productIds).ToList();
         }
 
         public virtual void ClearCompareList()
@@ -117,8 +112,7 @@ namespace Smartstore.Core.Catalog.Products
             {
                 Expires = DateTime.Now.AddDays(10.0),
                 HttpOnly = true,
-                IsEssential = true,
-                Secure = true           //TODO: (mh) (core) Check if this can be set without further implications & if it must be set every time a cookie shall be deleted.
+                IsEssential = true
             };
 
             cookies.Delete(cookieName, options);

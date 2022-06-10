@@ -1,21 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Smartstore.Admin.Models.Logging;
+﻿using Smartstore.Admin.Models.Logging;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Common.Settings;
-using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Logging;
 using Smartstore.Core.Rules.Filters;
 using Smartstore.Core.Security;
-using Smartstore.Data.Batching;
-using Smartstore.Web.Controllers;
 using Smartstore.Web.Models.DataGrid;
-using Smartstore.Web.Rendering;
+using LogLevel = Smartstore.Core.Logging.LogLevel;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Smartstore.Admin.Controllers
 {
@@ -32,7 +24,7 @@ namespace Smartstore.Admin.Controllers
             { LogLevel.Fatal, "dark" },
             { LogLevel.Error, "danger" },
             { LogLevel.Warning, "warning" },
-            { LogLevel.Information, "info" },
+            { LogLevel.Information, "primary" },
             { LogLevel.Debug, "secondary" },
             { LogLevel.Verbose, "secondary" }
         };
@@ -164,7 +156,7 @@ namespace Smartstore.Admin.Controllers
                 var token = tokens[i];
                 name += i == tokens.Length - 1
                     ? token
-                    : token.Substring(0, 1) + "...";
+                    : string.Concat(token.AsSpan(0, 1), "...");
             }
 
             return name;

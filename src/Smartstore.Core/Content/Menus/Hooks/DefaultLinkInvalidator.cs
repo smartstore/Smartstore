@@ -1,17 +1,11 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using Smartstore.Core.Catalog.Brands;
+﻿using Smartstore.Core.Catalog.Brands;
 using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Products;
-using Smartstore.Core.Seo;
 using Smartstore.Core.Content.Topics;
 using Smartstore.Core.Data;
+using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
 using Smartstore.Data.Hooks;
-using Smartstore.Domain;
 
 namespace Smartstore.Core.Content.Menus.Hooks
 {

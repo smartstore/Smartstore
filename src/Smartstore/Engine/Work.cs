@@ -1,16 +1,31 @@
-﻿using System;
+﻿using Autofac;
 
 namespace Smartstore.Engine
 {
     public class Work<T> where T : class
     {
-        private readonly Func<Work<T>, T> _resolve;
+        private readonly Func<T> _resolver;
+        private readonly ILifetimeScopeAccessor _scopeAccessor;
 
-        public Work(Func<Work<T>, T> resolve)
+        public Work(ILifetimeScopeAccessor scopeAccessor)
         {
-            _resolve = resolve;
+            _scopeAccessor = scopeAccessor;
         }
 
-        public T Value => _resolve(this);
+        internal Work(Func<T> resolver)
+        {
+            // For unit tests
+            _resolver = resolver;
+        }
+
+        public T Value 
+        {
+            get
+            {
+                return _resolver != null 
+                    ? _resolver() 
+                    : _scopeAccessor.LifetimeScope.Resolve<T>();
+            }
+        }
     }
 }

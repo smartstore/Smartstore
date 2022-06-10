@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.Runtime.InteropServices;
 using Microsoft.AspNetCore.Http;
 using Smartstore.Http;
 using Smartstore.IO;
@@ -27,7 +26,7 @@ namespace Smartstore.Pdf.WkHtml
         {
             get
             {
-                if (Path.IsPathFullyQualified(_urlOrPath) || _urlOrPath.Contains(Uri.SchemeDelimiter))
+                if (IsPathRooted(_urlOrPath) || _urlOrPath.Contains(Uri.SchemeDelimiter))
                 {
                     return _urlOrPath;
                 }
@@ -53,6 +52,16 @@ namespace Smartstore.Pdf.WkHtml
         public void Teardown()
         {
             // Noop
+        }
+
+        private static bool IsPathRooted(string path)
+        {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                return Path.IsPathFullyQualified(path);
+            }
+
+            return false;
         }
     }
 }

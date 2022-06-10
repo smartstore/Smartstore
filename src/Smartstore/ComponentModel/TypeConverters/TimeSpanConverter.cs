@@ -1,5 +1,4 @@
-﻿using System;
-using System.Globalization;
+﻿using System.Globalization;
 
 namespace Smartstore.ComponentModel.TypeConverters
 {
@@ -19,30 +18,24 @@ namespace Smartstore.ComponentModel.TypeConverters
 
         public override object ConvertFrom(CultureInfo culture, object value)
         {
-            if (value is DateTime)
+            if (value is DateTime time)
             {
-                var time = (DateTime)value;
                 return new TimeSpan(time.Ticks);
             }
 
-            if (value is string)
+            if (value is string str)
             {
-                var str = (string)value;
-
-                TimeSpan span;
-                if (TimeSpan.TryParse(str, culture, out span))
+                if (TimeSpan.TryParse(str, culture, out var span))
                 {
                     return span;
                 }
 
-                long lng;
-                if (long.TryParse(str, NumberStyles.None, culture, out lng))
+                if (long.TryParse(str, NumberStyles.None, culture, out var lng))
                 {
                     return new TimeSpan(lng.FromUnixTime().Ticks);
                 }
 
-                double dbl;
-                if (double.TryParse(str, NumberStyles.None, culture, out dbl))
+                if (double.TryParse(str, NumberStyles.None, culture, out var dbl))
                 {
                     return new TimeSpan(DateTime.FromOADate(dbl).Ticks);
                 }
@@ -52,7 +45,9 @@ namespace Smartstore.ComponentModel.TypeConverters
             {
                 return (TimeSpan)System.Convert.ChangeType(value, typeof(TimeSpan), culture);
             }
-            catch { }
+            catch 
+            { 
+            }
 
             return base.ConvertFrom(culture, value);
         }

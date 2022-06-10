@@ -1,0 +1,15 @@
+{
+  "$schema": "../module.schema.json",
+  "Group": "Security",
+  "SystemName": "Smartstore.Google.Auth",
+  "FriendlyName": "Google Authentication",
+  "Description": "Enables login with Google account.",
+  "Version": "5.0",
+  "MinAppVersion": "5.0",
+  "Author": "SmartStore AG",
+  "Order": 1,
+  "ResourceRootKey": "Plugins.Smartstore.Google.Auth",
+  "PrivateReferences": [
+    "Microsoft.AspNetCore.Authentication.Google"
+  ]
+}

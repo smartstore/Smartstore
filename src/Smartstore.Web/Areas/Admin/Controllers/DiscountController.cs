@@ -1,23 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Dynamic.Core;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using System.Linq.Dynamic.Core;
 using Smartstore.Admin.Models.Discounts;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Discounts;
-using Smartstore.Core.Data;
+using Smartstore.Core.Common.Services;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Logging;
 using Smartstore.Core.Rules;
 using Smartstore.Core.Rules.Filters;
 using Smartstore.Core.Security;
-using Smartstore.Web.Controllers;
-using Smartstore.Web.Modelling;
-using Smartstore.Web.Models.DataGrid;
 using Smartstore.Web.Models;
+using Smartstore.Web.Models.DataGrid;
 
 namespace Smartstore.Admin.Controllers
 {
@@ -25,11 +17,16 @@ namespace Smartstore.Admin.Controllers
     {
         private readonly SmartDbContext _db;
         private readonly IRuleService _ruleService;
+        private readonly ICurrencyService _currencyService;
 
-        public DiscountController(SmartDbContext db, IRuleService ruleService)
+        public DiscountController(
+            SmartDbContext db, 
+            IRuleService ruleService,
+            ICurrencyService currencyService)
         {
             _db = db;
             _ruleService = ruleService;
+            _currencyService = currencyService;
         }
 
         /// <summary>
@@ -67,7 +64,7 @@ namespace Smartstore.Admin.Controllers
 
         public IActionResult Index()
         {
-            return RedirectToAction("List");
+            return RedirectToAction(nameof(List));
         }
 
         [Permission(Permissions.Promotion.Discount.Read)]
@@ -79,7 +76,6 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Promotion.Discount.Read)]
         public async Task<IActionResult> DiscountList(GridCommand command, DiscountListModel model)
         {
-            var mapper = MapperFactory.GetMapper<Discount, DiscountModel>();
             var query = _db.Discounts.AsNoTracking();
 
             if (model.SearchName.HasValue())
@@ -103,32 +99,14 @@ namespace Smartstore.Admin.Controllers
                 .Include(x => x.RuleSets)
                 .OrderBy(x => x.Name)
                 .ThenBy(x => x.Id)
-                .ApplyGridCommand(command, false)
+                .ApplyGridCommand(command)
                 .ToPagedList(command)
                 .LoadAsync();
 
-            var rows = await discounts.SelectAsync(async x =>
-            {
-                var m = await mapper.MapAsync(x);
-                m.EditUrl = Url.Action("Edit", "Discount", new { id = x.Id, area = "Admin" });
-                m.NumberOfRules = x.RuleSets.Count;
-                m.DiscountTypeName = await Services.Localization.GetLocalizedEnumAsync(x.DiscountType);
-                m.FormattedDiscountAmount = !x.UsePercentage
-                    ? Services.CurrencyService.PrimaryCurrency.AsMoney(x.DiscountAmount).ToString(true)
-                    : string.Empty;
-
-                if (x.StartDateUtc.HasValue)
-                {
-                    m.StartDate = Services.DateTimeHelper.ConvertToUserTime(x.StartDateUtc.Value, DateTimeKind.Utc);
-                }
-                if (x.EndDateUtc.HasValue)
-                {
-                    m.EndDate = Services.DateTimeHelper.ConvertToUserTime(x.EndDateUtc.Value, DateTimeKind.Utc);
-                }
-
-                return m;
-            })
-            .AsyncToList();
+            var mapper = MapperFactory.GetMapper<Discount, DiscountModel>();
+            var rows = await discounts
+                .SelectAsync(async x => await mapper.MapAsync(x))
+                .AsyncToList();
 
             return Json(new GridModel<DiscountModel>
             {
@@ -156,10 +134,8 @@ namespace Smartstore.Admin.Controllers
         {
             if (ModelState.IsValid)
             {
-                var mapper = MapperFactory.GetMapper<DiscountModel, Discount>();
-                var discount = await mapper.MapAsync(model);
+                var discount = await MapperFactory.MapAsync<DiscountModel, Discount>(model);
                 _db.Discounts.Add(discount);
-
                 await _db.SaveChangesAsync();
 
                 await _ruleService.ApplyRuleSetMappingsAsync(discount, model.SelectedRuleSetIds);
@@ -169,7 +145,7 @@ namespace Smartstore.Admin.Controllers
                 NotifySuccess(T("Admin.Promotions.Discounts.Added"));
 
                 return continueEditing
-                    ? RedirectToAction("Edit", new { id = discount.Id })
+                    ? RedirectToAction(nameof(Edit), new { id = discount.Id })
                     : RedirectToAction("Index");
             }
 
@@ -182,6 +158,7 @@ namespace Smartstore.Admin.Controllers
         {
             // INFO: CacheableEntity! Always load "tracked" otherwise RuleSets loaded with old values after saving.
             var discount = await _db.Discounts
+                .AsSplitQuery()
                 .Include(x => x.RuleSets)
                 .Include(x => x.AppliedToCategories)
                 .Include(x => x.AppliedToManufacturers)
@@ -193,8 +170,7 @@ namespace Smartstore.Admin.Controllers
                 return NotFound();
             }
 
-            var mapper = MapperFactory.GetMapper<Discount, DiscountModel>();
-            var model = await mapper.MapAsync(discount);
+            var model = await MapperFactory.MapAsync<Discount, DiscountModel>(discount);
 
             PrepareDiscountModel(model, discount);
 
@@ -206,6 +182,7 @@ namespace Smartstore.Admin.Controllers
         public async Task<IActionResult> Edit(DiscountModel model, bool continueEditing)
         {
             var discount = await _db.Discounts
+                .AsSplitQuery()
                 .Include(x => x.RuleSets)
                 .Include(x => x.AppliedToCategories)
                 .Include(x => x.AppliedToManufacturers)
@@ -219,18 +196,15 @@ namespace Smartstore.Admin.Controllers
 
             if (ModelState.IsValid)
             {
-                var mapper = MapperFactory.GetMapper<DiscountModel, Discount>();
-                await mapper.MapAsync(model, discount);
-
+                await MapperFactory.MapAsync(model, discount);
                 await _ruleService.ApplyRuleSetMappingsAsync(discount, model.SelectedRuleSetIds);
-
                 await _db.SaveChangesAsync();
 
                 Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditDiscount, T("ActivityLog.EditDiscount"), discount.Name);
                 NotifySuccess(T("Admin.Promotions.Discounts.Updated"));
 
                 return continueEditing
-                    ? RedirectToAction("Edit", new { id = discount.Id })
+                    ? RedirectToAction(nameof(Edit), new { id = discount.Id })
                     : RedirectToAction("Index");
             }
 
@@ -254,7 +228,7 @@ namespace Smartstore.Admin.Controllers
             Services.ActivityLogger.LogActivity(KnownActivityLogTypes.DeleteDiscount, T("ActivityLog.DeleteDiscount"), discount.Name);
             NotifySuccess(T("Admin.Promotions.Discounts.Deleted"));
 
-            return RedirectToAction("List");
+            return RedirectToAction(nameof(List));
         }
 
         #region Discount usage history
@@ -342,7 +316,7 @@ namespace Smartstore.Admin.Controllers
                 ViewBag.AppliedToProducts = new List<DiscountAppliedToEntityModel>();
             }
 
-            ViewBag.PrimaryStoreCurrencyCode = Services.StoreContext.CurrentStore.PrimaryStoreCurrency.CurrencyCode;
+            ViewBag.PrimaryStoreCurrencyCode = _currencyService.PrimaryCurrency.CurrencyCode;
         }
     }
 }

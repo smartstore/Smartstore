@@ -7,19 +7,19 @@
     {
         // INFO: This remains as decimal type to allow easy calculation (e.g. in OrderQueryExtensions) without currency dependency.
         /// <summary>
-        /// Gets or sets the tax summary.
+        /// Gets or sets the order tax sum.
         /// </summary>
         public decimal SumTax { get; set; }
 
         // INFO: This remains as decimal type to allow easy calculation (e.g. in OrderQueryExtensions) without currency dependency.
         /// <summary>
-        /// Gets or sets the order total summary.
+        /// Gets or sets the order total sum.
         /// </summary>
-        public decimal SumOrders { get; set; }
+        public decimal SumOrderTotal { get; set; }
 
         /// <summary>
-        /// Gets or sets the count.
+        /// Gets or sets the order count.
         /// </summary>
-        public int CountOrders { get; set; }
+        public int OrderCount { get; set; }
     }
 }

@@ -1,10 +1,6 @@
-using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Dynamic;
 using System.Globalization;
-using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -74,9 +70,8 @@ namespace Smartstore.Utilities
             }
             else
             {
-                // TODO: (core) Test thoroughly!
                 // Not hosted. For example, running in unit tests or EF tooling
-                string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+                string baseDirectory = AppContext.BaseDirectory;
                 path = PathUtility.NormalizeRelativePath(path);
 
                 var testPath = Path.Combine(baseDirectory, path);
@@ -118,7 +113,7 @@ namespace Smartstore.Utilities
             return false;
         }
 
-        private static DirectoryInfo FindSolutionRoot(string currentDir)
+        internal static DirectoryInfo FindSolutionRoot(string currentDir)
         {
             var dir = Directory.GetParent(currentDir);
             while (true)
@@ -224,18 +219,13 @@ namespace Smartstore.Utilities
 
             if (value == null || value == DBNull.Value)
             {
-                return to == typeof(string) || to.IsPredefinedSimpleType() == false;
+                return to == typeof(string) || to.IsBasicType() == false;
             }
 
             if (to != typeof(object) && to.IsInstanceOfType(value))
             {
                 convertedValue = value;
                 return true;
-            }
-
-            if (value is StringValues stringValues)
-            {
-                value = stringValues.ToString();
             }
 
             Type from = value.GetType();
@@ -326,9 +316,9 @@ namespace Smartstore.Utilities
                     return x.GetEnumerator().MoveNext();
             }
 
-            if (value.GetType().IsNullable(out var wrappedType))
+            if (value.GetType().IsNullableType(out var underlyingType))
             {
-                return IsTruthy(Convert.ChangeType(value, wrappedType));
+                return IsTruthy(Convert.ChangeType(value, underlyingType));
             }
 
             return true;
@@ -456,7 +446,7 @@ namespace Smartstore.Utilities
             }
             else if (type.IsClass)
             {
-                if (ObjectAnalyzed(obj, type))
+                if (ObjectAnalyzed(obj))
                 {
                     return _pointerSize;
                 }
@@ -479,7 +469,7 @@ namespace Smartstore.Utilities
 
             return 0;
 
-            bool ObjectAnalyzed(object o, Type t)
+            bool ObjectAnalyzed(object o)
             {
                 if (instanceLookup == null)
                 {

@@ -1,5 +1,4 @@
 ﻿using Smartstore.Core.Localization;
-using Smartstore.Web.Modelling;
 
 namespace Smartstore.Web.Models.Catalog
 {

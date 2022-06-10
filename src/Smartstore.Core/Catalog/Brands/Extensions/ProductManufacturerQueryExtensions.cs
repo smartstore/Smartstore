@@ -1,7 +1,4 @@
-﻿using System.Linq;
-using Microsoft.EntityFrameworkCore;
-
-namespace Smartstore.Core.Catalog.Brands
+﻿namespace Smartstore.Core.Catalog.Brands
 {
     public static partial class ProductManufacturerQueryExtensions
     {

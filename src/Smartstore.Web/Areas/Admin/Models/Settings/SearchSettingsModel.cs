@@ -1,9 +1,8 @@
-﻿using System.Collections.Generic;
-using FluentValidation;
+﻿using FluentValidation;
 using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Catalog.Search;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Search;
-using Smartstore.Web.Modelling;
 
 namespace Smartstore.Admin.Models
 {
@@ -76,7 +75,7 @@ namespace Smartstore.Admin.Models
         public string Alias { get; set; }
     }
 
-    public class SearchSettingValidator : AbstractValidator<SearchSettingsModel>
+    public class SearchSettingValidator : SettingModelValidator<SearchSettingsModel, SearchSettings>
     {
         private const int MAX_INSTANT_SEARCH_ITEMS = 16;
 
@@ -84,7 +83,8 @@ namespace Smartstore.Admin.Models
         {
             RuleFor(x => x.InstantSearchNumberOfProducts)
                 .Must(x => x >= 1 && x <= MAX_INSTANT_SEARCH_ITEMS)
-                .When(x => x.InstantSearchEnabled)
+                //.When(x => (StoreScope == 0 && x.InstantSearchEnabled) || (StoreScope > 0 && IsOverrideChecked("InstantSearchNumberOfProducts")))
+                .WhenSettingOverriden((m, x) => m.InstantSearchEnabled)
                 .WithMessage(T("Admin.Validation.ValueRange", 1, MAX_INSTANT_SEARCH_ITEMS));
         }
     }

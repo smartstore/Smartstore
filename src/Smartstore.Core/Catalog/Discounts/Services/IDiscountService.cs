@@ -1,8 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using Smartstore.Core.Identity;
+﻿using Smartstore.Core.Identity;
 using Smartstore.Core.Stores;
-using Smartstore.Domain;
 
 namespace Smartstore.Core.Catalog.Discounts
 {

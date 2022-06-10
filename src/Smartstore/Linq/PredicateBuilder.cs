@@ -1,7 +1,4 @@
-﻿using System;
-using System.Linq.Expressions;
-
-namespace Smartstore.Linq
+﻿namespace Smartstore.Linq
 {
     /// <summary> The Predicate Operator </summary>
     public enum PredicateOperator

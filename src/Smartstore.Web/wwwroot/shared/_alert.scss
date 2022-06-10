@@ -27,7 +27,7 @@
 	&:after {
 		display: block;
 		position: absolute;
-		color: #fff;
+		color: var(--bg-color, #fff);
         @include fontawesome-font('', regular);
 		left: 0;
 		top: 50%;
@@ -39,6 +39,17 @@
 	}
 }
 
+@each $color, $value in $theme-colors {
+    .alert-#{$color} {
+        @if ($color == 'info' and $alert-info-is-primary) {
+            @include bg-color-vars(theme-color-level(primary, $alert-bg-level));
+        }
+        @else {
+            @include bg-color-vars(theme-color-level($color, $alert-bg-level));
+        }
+    }
+}
+
 .alert-danger {
 	&:before {
 		background-color: $danger;
@@ -46,18 +57,16 @@
 
 	&:after {
 		content: "\f071"; // exclamation-triangle
-		color: theme-color-level(danger, $alert-bg-level);
 	}
 }
 
 .alert-info {
     @if $alert-info-is-primary {
 		// info should have primary color
-		@include alert-variant(theme-color-level(primary, $alert-bg-level), theme-color-level(primary, $alert-border-level), theme-color-level(primary, $alert-color-level));
+		@include alert-variant(var(--bg-color), theme-color-level(primary, $alert-border-level), theme-color-level(primary, $alert-color-level));
     }
 
 	&:before {
-		
 		@if $alert-info-is-primary {
 			background-color: $primary;
 		}
@@ -68,12 +77,6 @@
 
 	&:after {
 		content: "\f129"; // info
-		@if $alert-info-is-primary {
-			color: theme-color-level(primary, $alert-bg-level);
-		}
-		@else {
-			color: theme-color-level(info, $alert-bg-level);
-		}
 	}
 }
 
@@ -84,7 +87,6 @@
 
 	&:after {
 		content: "\f00c"; // check
-		color: theme-color-level(success, $alert-bg-level);
 	}
 }
 
@@ -95,7 +97,6 @@
 
 	&:after {
 		content: "\f12a"; // exclamation
-		color: theme-color-level(warning, $alert-bg-level);
 	}
 }
 

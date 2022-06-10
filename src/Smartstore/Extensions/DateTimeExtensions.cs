@@ -1,5 +1,4 @@
-﻿using System;
-using System.Globalization;
+﻿using System.Globalization;
 using System.Runtime.CompilerServices;
 
 namespace Smartstore
@@ -148,6 +147,15 @@ namespace Smartstore
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static long ToUnixTime(this DateTime value)
+        {
+            return Convert.ToInt64((value.ToUniversalTime() - BeginOfEpoch).TotalSeconds);
+        }
+
+        /// <summary>
+        /// Epoch time. Number of seconds since midnight (UTC) on 1st January 1970.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static long ToUnixTime(this DateTimeOffset value)
         {
             return Convert.ToInt64((value.ToUniversalTime() - BeginOfEpoch).TotalSeconds);
         }

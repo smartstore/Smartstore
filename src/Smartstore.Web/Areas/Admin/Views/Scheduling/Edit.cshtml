@@ -14,7 +14,7 @@
         new SelectListItem { Value = "1", Text = T("Admin.System.ScheduleTasks.Priority.High") }
     };
 
-    var gridViewData = new ViewDataDictionary(this.ViewData) { { "Parent", Model } };
+    var gridViewData = new ViewDataDictionary(this.ViewData) { ["Parent"] = Model };
 }
 
 <form asp-action="Edit">
@@ -42,7 +42,7 @@
         </div>
     </div>
 
-	<div asp-validation-summary="All" />
+	<div asp-validation-summary="All"></div>
 
 	<tabstrip id="task-edit" sm-nav-style="Material">
 		<tab sm-title="@T("Common.General")" sm-selected="true">

@@ -1,19 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Dasync.Collections;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
+﻿using Dasync.Collections;
 using Smartstore.Caching;
 using Smartstore.Collections;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Data;
-using Smartstore.Data.Batching;
 using Smartstore.Data.Hooks;
 using EState = Smartstore.Data.EntityState;
 
@@ -49,7 +40,7 @@ namespace Smartstore.Core.Security
             { "affiliate", "Admin.Affiliates" },
             { "campaign", "Admin.Promotions.Campaigns" },
             { "discount", "Admin.Promotions.Discounts" },
-            { "newsletter", "Admin.Promotions.NewsLetterSubscriptions" },
+            { "newsletter", "Admin.Promotions.NewsletterSubscriptions" },
             { "cms", "Admin.ContentManagement" },
             { "poll", "Admin.ContentManagement.Polls" },
             { "news", "Admin.ContentManagement.News" },
@@ -178,7 +169,7 @@ namespace Smartstore.Core.Security
 
             customer ??= _workContext.CurrentCustomer;
 
-            var cacheKey = $"permission.{customer.Id}.{allowByChildPermission}.{permissionSystemName}";
+            var cacheKey = $"permission:{customer.Id}.{allowByChildPermission}.{permissionSystemName}";
 
             var authorized = _cache.Get(cacheKey, o =>
             {
@@ -214,7 +205,7 @@ namespace Smartstore.Core.Security
 
             customer ??= _workContext.CurrentCustomer;
 
-            var cacheKey = $"permission.{customer.Id}.{allowByChildPermission}.{permissionSystemName}";
+            var cacheKey = $"permission:{customer.Id}.{allowByChildPermission}.{permissionSystemName}";
 
             var authorized = await _cache.GetAsync(cacheKey, async o =>
             {
@@ -236,7 +227,7 @@ namespace Smartstore.Core.Security
                 }
 
                 return false;
-            });
+            }, independent: true, allowRecursion: true);
 
             return authorized;
         }
@@ -481,7 +472,7 @@ namespace Smartstore.Core.Security
                         {
                             clearCache = true;
 
-                            foreach (var chunk in toDelete.Slice(500))
+                            foreach (var chunk in toDelete.Chunk(500))
                             {
                                 await _db.PermissionRecords
                                     .AsQueryable()

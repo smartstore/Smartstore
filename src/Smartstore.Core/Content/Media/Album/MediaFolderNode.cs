@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Smartstore.Core.Content.Media
+﻿namespace Smartstore.Core.Content.Media
 {
     public class MediaFolderNode
     {

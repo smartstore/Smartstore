@@ -1,6 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using Microsoft.Extensions.FileProviders;
+﻿using Microsoft.Extensions.FileProviders;
 
 namespace Smartstore.IO
 {
@@ -18,6 +16,11 @@ namespace Smartstore.IO
         string SubPath { get; }
 
         /// <summary>
+        /// When the entry was created (UTC)
+        /// </summary>
+        DateTimeOffset CreatedOn { get; }
+
+        /// <summary>
         /// Determines whether this file system entry is a symbolic link.
         /// </summary>
         /// <param name="finalTargetPath">The final target path if the entry is a symbolic link, <c>null</c> otherwise</param>
@@ -30,13 +33,14 @@ namespace Smartstore.IO
         /// Deletes the file entry. Directories will be deleted recursively.
         /// An exception will be raised if the entry does not exists.
         /// </summary>
-        void Delete() => throw new NotSupportedException();
+        void Delete() 
+            => throw new NotImplementedException();
 
         /// <summary>
         /// Deletes the file entry if it exists. Directories will be deleted recursively.
         /// An exception will be raised if the entry does not exists.
         /// </summary>
-        Task DeleteAsync()
+        Task DeleteAsync(CancellationToken cancelToken = default)
         {
             Delete();
             return Task.CompletedTask;
@@ -46,13 +50,14 @@ namespace Smartstore.IO
         /// Moves an existing file entry to a new location.
         /// An exception will be raised if the destination exists.
         /// </summary>
-        void MoveTo(string newPath) => throw new NotSupportedException();
+        void MoveTo(string newPath)
+            => throw new NotImplementedException();
 
         /// <summary>
         /// Moves an existing file entry to a new location.
         /// An exception will be raised if the destination exists.
         /// </summary>
-        Task MoveToAsync(string newPath)
+        Task MoveToAsync(string newPath, CancellationToken cancelToken = default)
         {
             MoveTo(newPath);
             return Task.CompletedTask;

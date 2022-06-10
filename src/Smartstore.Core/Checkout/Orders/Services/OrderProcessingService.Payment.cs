@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using Smartstore.Core.Checkout.Payment;
+﻿using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Common;
+using Smartstore.Core.Identity;
 
 namespace Smartstore.Core.Checkout.Orders
 {
@@ -83,7 +79,7 @@ namespace Smartstore.Core.Checkout.Orders
                     var paidDate = result.NewPaymentStatus == PaymentStatus.Paid ? DateTime.UtcNow : order.PaidDateUtc;
 
                     order.CaptureTransactionId = result.CaptureTransactionId;
-                    order.CaptureTransactionResult = result.CaptureTransactionResult;
+                    order.CaptureTransactionResult = result.CaptureTransactionResult.Truncate(400);
                     order.PaymentStatus = result.NewPaymentStatus;
                     order.PaidDateUtc = paidDate;
 
@@ -375,9 +371,42 @@ namespace Smartstore.Core.Checkout.Orders
             await CheckOrderStatusAsync(order);
         }
 
+        public virtual async Task<bool> CanCancelRecurringPaymentAsync(RecurringPayment recurringPayment, Customer customerToValidate)
+        {
+            Guard.NotNull(recurringPayment, nameof(recurringPayment));
+            Guard.NotNull(customerToValidate, nameof(customerToValidate));
+
+            await _db.LoadReferenceAsync(recurringPayment, x => x.InitialOrder, false, q => q.Include(x => x.Customer));
+            await _db.LoadCollectionAsync(customerToValidate, x => x.CustomerRoleMappings, false, q => q.Include(x => x.CustomerRole));
+
+            var initialOrder = recurringPayment.InitialOrder;
+            var customer = initialOrder?.Customer;
+
+            if (initialOrder == null || customer == null)
+            {
+                return false;
+            }
+
+            if (initialOrder.OrderStatus == OrderStatus.Cancelled ||
+                (!customerToValidate.IsAdmin() && customer.Id != customerToValidate.Id))
+            {
+                return false;
+            }
+
+            var nextPaymentDate = await _paymentService.GetNextRecurringPaymentDateAsync(recurringPayment);
+            if (!nextPaymentDate.HasValue)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
         public virtual async Task<IList<string>> CancelRecurringPaymentAsync(RecurringPayment recurringPayment)
         {
             Guard.NotNull(recurringPayment, nameof(recurringPayment));
+
+            await _db.LoadReferenceAsync(recurringPayment, x => x.InitialOrder, false, q => q.Include(x => x.Customer));
 
             var initialOrder = recurringPayment.InitialOrder;
             if (initialOrder == null)
@@ -430,6 +459,8 @@ namespace Smartstore.Core.Checkout.Orders
                 if (!recurringPayment.IsActive)
                     throw new SmartException(T("Payment.RecurringPaymentNotActive"));
 
+                await _db.LoadReferenceAsync(recurringPayment, x => x.InitialOrder, false, q => q.Include(x => x.Customer));
+
                 var initialOrder = recurringPayment.InitialOrder;
                 if (initialOrder == null)
                     throw new SmartException(T("Order.InitialOrderDoesNotExistForRecurringPayment"));
@@ -438,7 +469,7 @@ namespace Smartstore.Core.Checkout.Orders
                 if (customer == null)
                     throw new SmartException(T("Customer.DoesNotExist"));
 
-                var nextPaymentDate = recurringPayment.NextPaymentDate;
+                var nextPaymentDate = await _paymentService.GetNextRecurringPaymentDateAsync(recurringPayment);
                 if (!nextPaymentDate.HasValue)
                     throw new SmartException(T("Payment.CannotCalculateNextPaymentDate"));
 

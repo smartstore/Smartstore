@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Autofac;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Web;
-using Smartstore.Engine;
+using Smartstore.Engine.Modularity;
 using Smartstore.Net;
 
 namespace Smartstore.Core.Identity
@@ -20,17 +17,20 @@ namespace Smartstore.Core.Identity
         private readonly IWebHelper _webHelper;
         private readonly ITypeScanner _typeScanner;
         private readonly PrivacySettings _privacySettings;
+        private readonly IComponentContext _componentContext;
 
         public CookieConsentManager(
             IHttpContextAccessor httpContextAccessor,
             IWebHelper webHelper,
             ITypeScanner typeScanner, 
-            PrivacySettings privacySettings)
+            PrivacySettings privacySettings,
+            IComponentContext componentContext)
         {
             _httpContextAccessor = httpContextAccessor;
             _webHelper = webHelper;
             _typeScanner = typeScanner;
             _privacySettings = privacySettings;
+            _componentContext = componentContext;
         }
 
         public virtual async Task<IList<CookieInfo>> GetAllCookieInfosAsync(bool getCookiesFromSetting = false)
@@ -70,7 +70,7 @@ namespace Smartstore.Core.Identity
             Guard.NotNull(cookieType, nameof(cookieType));
 
             var request = _httpContextAccessor?.HttpContext?.Request;
-            if (request != null && request.Cookies.TryGetValue(CookieNames.GdprConsent, out var value) && value.HasValue())
+            if (request != null && request.Cookies.TryGetValue(CookieNames.CookieConsent, out var value) && value.HasValue())
             {
                 try
                 {
@@ -99,15 +99,14 @@ namespace Smartstore.Core.Identity
             var context = _httpContextAccessor?.HttpContext;
             if (context != null)
             {
-                var cookieName = CookieNames.GdprConsent;
-                string value = null;
+                var cookieName = CookieNames.CookieConsent;
 
                 if (context.Items.TryGetValue(cookieName, out var obj))
                 {
                     return obj as ConsentCookie;
                 }
 
-                if (context.Request?.Cookies?.TryGetValue(cookieName, out value) ?? false)
+                if (context.Request?.Cookies?.TryGetValue(cookieName, out string value) ?? false)
                 {
                     try
                     {
@@ -137,7 +136,7 @@ namespace Smartstore.Core.Identity
                 };
 
                 var cookies = context.Response.Cookies;
-                var cookieName = CookieNames.GdprConsent;
+                var cookieName = CookieNames.CookieConsent;
 
                 var options = new CookieOptions
                 {
@@ -166,7 +165,15 @@ namespace Smartstore.Core.Identity
             }
 
             var cookiePublishers = _cookiePublisherTypes
-                .Select(x => EngineContext.Current.Scope.ResolveUnregistered(x) as ICookiePublisher)
+                .Select(type => 
+                {
+                    if (typeof(ModuleBase).IsAssignableFrom(type) && _componentContext.TryResolve(type, out var module))
+                    {
+                        return (ICookiePublisher)module;
+                    }
+
+                    return _componentContext.ResolveUnregistered(type) as ICookiePublisher; 
+                })
                 .ToArray();
 
             return cookiePublishers;

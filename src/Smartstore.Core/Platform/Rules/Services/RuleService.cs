@@ -1,11 +1,6 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using Autofac;
+﻿using Autofac;
 using Dasync.Collections;
-using Microsoft.EntityFrameworkCore;
 using Smartstore.Core.Data;
-using Smartstore.Domain;
 
 namespace Smartstore.Core.Rules
 {

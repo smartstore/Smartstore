@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.Extensions.ObjectPool;
+﻿using Microsoft.Extensions.ObjectPool;
 using Smartstore.Utilities;
 
 namespace Smartstore

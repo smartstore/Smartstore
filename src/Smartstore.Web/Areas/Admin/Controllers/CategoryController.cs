@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using Smartstore.Admin.Models.Catalog;
 using Smartstore.Collections;
 using Smartstore.ComponentModel;
@@ -14,7 +8,6 @@ using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Catalog.Rules;
-using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Logging;
 using Smartstore.Core.Rules;
@@ -23,10 +16,8 @@ using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
 using Smartstore.Scheduling;
-using Smartstore.Web.Controllers;
-using Smartstore.Web.Modelling;
-using Smartstore.Web.Models.DataGrid;
 using Smartstore.Web.Models;
+using Smartstore.Web.Models.DataGrid;
 
 namespace Smartstore.Admin.Controllers
 {
@@ -143,7 +134,7 @@ namespace Smartstore.Admin.Controllers
                 return RedirectToAction("Tree");
             }
 
-            return RedirectToAction("List");
+            return RedirectToAction(nameof(List));
         }
 
         [Permission(Permissions.Catalog.Category.Read)]
@@ -175,7 +166,6 @@ namespace Smartstore.Admin.Controllers
         public async Task<IActionResult> CategoryList(GridCommand command, CategoryListModel model)
         {
             var languageId = Services.WorkContext.WorkingLanguage.Id;
-            var mapper = MapperFactory.GetMapper<Category, CategoryModel>();
             var query = _db.Categories.AsNoTracking();
 
             if (model.SearchCategoryName.HasValue())
@@ -356,7 +346,7 @@ namespace Smartstore.Admin.Controllers
 
                 await _db.SaveChangesAsync();
 
-                var validateSlugResult = await category.ValidateSlugAsync(category.Name, true, 0);
+                var validateSlugResult = await category.ValidateSlugAsync(model.SeName, category.Name, true);
                 await _urlService.ApplySlugAsync(validateSlugResult);
                 model.SeName = validateSlugResult.Slug;
 
@@ -375,8 +365,8 @@ namespace Smartstore.Admin.Controllers
                 NotifySuccess(T("Admin.Catalog.Categories.Added"));
 
                 return continueEditing 
-                    ? RedirectToAction("Edit", new { id = category.Id }) 
-                    : RedirectToAction("Index");
+                    ? RedirectToAction(nameof(Edit), new { id = category.Id }) 
+                    : RedirectToAction(nameof(Index));
             }
 
             await PrepareCategoryModel(model, null);
@@ -388,6 +378,7 @@ namespace Smartstore.Admin.Controllers
         public async Task<IActionResult> Edit(int id)
         {
             var category = await _db.Categories
+                .AsSplitQuery()
                 .Include(x => x.AppliedDiscounts)
                 .Include(x => x.RuleSets)
                 .FindByIdAsync(id, false);
@@ -423,6 +414,7 @@ namespace Smartstore.Admin.Controllers
         public async Task<IActionResult> Edit(CategoryModel model, bool continueEditing, IFormCollection form)
         {
             var category = await _db.Categories
+                .AsSplitQuery()
                 .Include(x => x.AppliedDiscounts)
                 .Include(x => x.RuleSets)
                 .FindByIdAsync(model.Id);
@@ -436,8 +428,9 @@ namespace Smartstore.Admin.Controllers
             {
                 var mapper = MapperFactory.GetMapper<CategoryModel, Category>();
                 await mapper.MapAsync(model, category);
+                category.ParentCategoryId = model.ParentCategoryId ?? 0;
 
-                var validateSlugResult = await category.ValidateSlugAsync(category.Name, true, 0);
+                var validateSlugResult = await category.ValidateSlugAsync(model.SeName, category.Name, true);
                 await _urlService.ApplySlugAsync(validateSlugResult);
                 model.SeName = validateSlugResult.Slug;
 
@@ -455,8 +448,8 @@ namespace Smartstore.Admin.Controllers
                 NotifySuccess(T("Admin.Catalog.Categories.Updated"));
 
                 return continueEditing
-                    ? RedirectToAction("Edit", category.Id)
-                    : RedirectToAction("Index");
+                    ? RedirectToAction(nameof(Edit), category.Id)
+                    : RedirectToAction(nameof(Index));
             }
 
             await PrepareCategoryModel(model, category);
@@ -489,7 +482,7 @@ namespace Smartstore.Admin.Controllers
         {
             await _categoryService.InheritAclIntoChildrenAsync(model.Id, false, true, false);
 
-            return RedirectToAction("Edit", "Category", new { id = model.Id });
+            return RedirectToAction(nameof(Edit), new { id = model.Id });
         }
 
         [HttpPost]
@@ -499,7 +492,7 @@ namespace Smartstore.Admin.Controllers
         {
             await _categoryService.InheritStoresIntoChildrenAsync(model.Id, false, true, false);
 
-            return RedirectToAction("Edit", "Category", new { id = model.Id });
+            return RedirectToAction(nameof(Edit), new { id = model.Id });
         }
 
         #region Product categories
@@ -638,7 +631,7 @@ namespace Smartstore.Admin.Controllers
                 NotifyError(T("Admin.System.ScheduleTasks.TaskNotFound", nameof(ProductRuleEvaluatorTask)));
             }
 
-            return RedirectToAction("Edit", new { id = category.Id });
+            return RedirectToAction(nameof(Edit), new { id = category.Id });
         }
 
         #endregion
@@ -678,7 +671,7 @@ namespace Smartstore.Admin.Controllers
                 }
                 else
                 {
-                    model.ParentCategoryId = 0;
+                    model.ParentCategoryId = null;
                 }
             }
 
@@ -725,7 +718,7 @@ namespace Smartstore.Admin.Controllers
                 await _localizedEntityService.ApplyLocalizedValueAsync(category, x => x.MetaDescription, localized.MetaDescription, localized.LanguageId);
                 await _localizedEntityService.ApplyLocalizedValueAsync(category, x => x.MetaTitle, localized.MetaTitle, localized.LanguageId);
 
-                var validateSlugResult = await category.ValidateSlugAsync(localized.Name, false, localized.LanguageId);
+                var validateSlugResult = await category.ValidateSlugAsync(localized.SeName, localized.Name, false, localized.LanguageId);
                 await _urlService.ApplySlugAsync(validateSlugResult);
             }
         }

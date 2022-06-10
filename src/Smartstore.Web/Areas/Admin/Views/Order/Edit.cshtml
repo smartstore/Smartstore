@@ -1,0 +1,77 @@
+﻿@using Smartstore.Admin.Models.Common
+
+@model OrderModel
+
+@{
+    ViewBag.Title = T("Admin.Orders.EditOrderDetails") + " - " + Model.OrderNumber;
+
+    var displayPdfInvoice = (bool)ViewBag.DisplayPdfInvoice;
+
+    var gridViewData = new ViewDataDictionary(ViewData);
+    gridViewData["Parent"] = Model;
+}
+
+<form id="order-form" asp-action="Edit" method="post">
+    <input type="hidden" asp-for="Id" />
+    <div class="section-header">
+        <div class="title">
+            <i class="far fa-chart-bar"></i>
+            <span>@ViewBag.Title</span>
+            <a asp-action="List">(@T("Admin.Common.BackToList"))</a>
+        </div>
+        <div class="options">
+            <zone name="admin_button_toolbar_before" />
+
+            <a asp-action="Print" asp-route-orderId="@Model.Id" asp-route-pdf="false" target="print" class="btn btn-secondary print-order-button">
+                <i class="fa fa-print"></i>
+                <span>@T("Order.Print")</span>
+            </a>
+            @if (displayPdfInvoice)
+            {
+                <a asp-action="Print" asp-route-orderId="@Model.Id" asp-route-pdf="true" class="btn btn-secondary">
+                    <i class="far fa-file-pdf"></i>
+                    <span>@T("Admin.Orders.PdfInvoice")</span>
+                </a>
+            }
+
+            <button type="submit" id="order-delete" name="order-delete" class="btn btn-danger">
+                <i class="far fa-trash-alt"></i>
+                <span>@T("Admin.Common.Delete")</span>
+            </button>
+            <confirm button-id="order-delete" />
+
+            <input type="submit" id="btnRefreshPage" name="btnRefreshPage" class="d-none" />
+
+            <zone name="admin_button_toolbar_after" />
+        </div>
+    </div>
+
+    <div asp-validation-summary="All"></div>
+
+    <tabstrip id="order-edit" sm-nav-style="Material" sm-nav-position="Left" sm-onajaxsuccess="orderEditTab_onAjaxSuccess">
+        <tab sm-title="@T("Admin.Common.General")" sm-selected="true" sm-icon="bi:pencil">
+            <partial name="_Edit.Info" />
+        </tab>
+        <tab sm-title="@T("Admin.Orders.BillingAndShipment")" sm-icon="bi:receipt">
+            <partial name="_Edit.BillingAndShipment" />
+        </tab>
+        <tab sm-title="@T("Admin.Orders.Products")" sm-icon="bi:box">
+            <partial name="_Edit.Products" />
+        </tab>
+        <tab sm-title="@T("Admin.Orders.OrderNotes")" sm-icon="bi:stickies">
+            <partial name="Grids/_Grid.OrderNotes" model="null" view-data="gridViewData" />
+        </tab>
+        <tab sm-title="@T("Admin.Common.GenericAttributes")" sm-icon="bi:card-checklist">
+            <partial name="_Grid.GenericAttributes" model='new GenericAttributeModel { EntityName = "Order", AttributeEntityId = Model.Id }' />
+        </tab>
+    </tabstrip>
+</form>
+
+<partial name="_UpdateOrderItemDialog" model="Model.UpdateOrderItem" />
+
+<script sm-target-zone="Scripts" data-origin="order-edit">
+    function orderEditTab_onAjaxSuccess(tab, pane) {
+        applyCommonPlugins(pane);
+        reinitFormValidator("#order-form");
+    }
+</script>

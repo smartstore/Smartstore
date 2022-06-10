@@ -1,10 +1,6 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
-using System.IO;
-using Smartstore.Collections;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
-using Microsoft.AspNetCore.Http;
+using Smartstore.Collections;
 using Smartstore.Imaging;
 
 namespace Smartstore.Core.Content.Media.Imaging

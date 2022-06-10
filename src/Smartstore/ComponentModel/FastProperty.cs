@@ -1,13 +1,9 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
@@ -131,7 +127,7 @@ namespace Smartstore.ComponentModel
                 if (!_isComplexType.HasValue)
                 {
                     var type = Property.PropertyType;
-                    _isComplexType = (type.IsClass || type.IsInterface) && !type.IsPredefinedType();
+                    _isComplexType = (type.IsClass || type.IsInterface) && !type.IsBasicOrNullableType();
                 }
                 return _isComplexType.Value;
             }
@@ -145,7 +141,7 @@ namespace Smartstore.ComponentModel
                 {
                     var type = Property.PropertyType;
                     _isSequenceType = type != typeof(string)
-                        && (type.IsSubClass(typeof(IEnumerable<>)) || type.IsSubClass(typeof(IAsyncEnumerable<>)));
+                        && (type.IsClosedGenericTypeOf(typeof(IEnumerable<>)) || type.IsClosedGenericTypeOf(typeof(IAsyncEnumerable<>)));
                 }
                 return _isSequenceType.Value;
             }

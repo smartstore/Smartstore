@@ -1,11 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Smartstore.Admin.Models.Modularity;
+﻿using Smartstore.Admin.Models.Modularity;
 using Smartstore.Core.Security;
-using Smartstore.Core.Widgets;
 using Smartstore.Engine.Modularity;
-using Smartstore.Web.Controllers;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Smartstore.Admin.Controllers
 {

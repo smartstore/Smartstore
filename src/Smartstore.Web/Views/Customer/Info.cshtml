@@ -41,16 +41,16 @@
             </div>
         </div>
         <div class="form-group row">
-            <label asp-for="FirstName" class="col-lg-3 col-form-label required"></label>
+            <label asp-for="FirstName" class="col-lg-3 col-form-label" attr-class='(Model.FirstNameRequired, "required")'></label>
             <div class="col-lg-9">
-                <input asp-for="FirstName" sm-required="true" />
+                <input asp-for="FirstName" sm-required="Model.FirstNameRequired" />
                 <span asp-validation-for="FirstName"></span>
             </div>
         </div>
         <div class="form-group row">
-            <label asp-for="LastName" class="col-lg-3 col-form-label required"></label>
+            <label asp-for="LastName" class="col-lg-3 col-form-label" attr-class='(Model.LastNameRequired, "required")'></label>
             <div class="col-lg-9">
-                <input asp-for="LastName" sm-required="true" />
+                <input asp-for="LastName" sm-required="Model.LastNameRequired" />
                 <span asp-validation-for="LastName"></span>
             </div>
         </div>
@@ -205,9 +205,10 @@
             <div class="col-lg-9">
                 <select asp-for="CountryId" asp-items="ViewBag.AvailableCountries"
                         class="country-input country-selector"
-                        data-region-control-selector="#@Html.NameFor(x => x.StateProvinceId)"
-                        data-states-ajax-url="@Url.Action("StatesByCountryId", "Customer")"
+                        data-region-control-selector="#@Html.IdFor(x => x.StateProvinceId)"
+                        data-states-ajax-url="@Url.Action("StatesByCountryId", "Common")"
                         data-addEmptyStateIfRequired="true"></select>
+                <span asp-validation-for="CountryId"></span>
             </div>
         </div>
 
@@ -215,6 +216,7 @@
             <label asp-for="StateProvinceId" class="col-lg-3 col-form-label"></label>
             <div class="col-lg-9">
                 <select asp-for="StateProvinceId" asp-items="ViewBag.AvailableStates"></select>
+                <span asp-validation-for="StateProvinceId"></span>
             </div>
         </div>
     </fieldset>

@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Html;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Newtonsoft.Json;
-using Smartstore.ComponentModel;
 using Smartstore.Utilities;
 
 namespace Smartstore.Web.TagHelpers.Shared
@@ -48,7 +46,7 @@ namespace Smartstore.Web.TagHelpers.Shared
         public string Caption { get; set; }
 
         /// <summary>
-        /// Sets the icon of the button which opens the dialog. Default = "fa fa-search"
+        /// Sets the icon of the button which opens the dialog, Default: "fa fa-search"
         /// </summary>
         [HtmlAttributeName(IconCssClassAttributeName)]
         public string IconCssClass { get; set; } = "fa fa-search";
@@ -141,7 +139,7 @@ namespace Smartstore.Web.TagHelpers.Shared
         {
             if (For != null)
             {
-                TargetInputSelector = "#" + HtmlHelper.GenerateIdFromName(For.Name);
+                TargetInputSelector = "#" + HtmlHelper.Id(For.Name);
             }
             
             var options = new
@@ -175,6 +173,11 @@ namespace Smartstore.Web.TagHelpers.Shared
             if (IconCssClass.HasValue())
             {
                 output.Content.AppendHtml($"<i class='{ IconCssClass }'></i>");
+
+                if (Caption.IsEmpty())
+                {
+                    output.AppendCssClass("btn-icon");
+                }
             }
 
             if (Caption.HasValue())
@@ -182,12 +185,7 @@ namespace Smartstore.Web.TagHelpers.Shared
                 output.Content.AppendHtml($"<span>{ Caption }</span>");
             }
 
-            var json = JsonConvert.SerializeObject(options, new JsonSerializerSettings
-            {
-                ContractResolver = SmartContractResolver.Instance,
-                Formatting = Formatting.None,
-                NullValueHandling = NullValueHandling.Ignore
-            });
+            var json = JsonConvert.SerializeObject(options, Formatting.None);
 
             output.PreElement.AppendHtmlLine(@$"<script data-origin='EntityPicker'>$(function() {{ $('#{buttonId}').entityPicker({json}); }})</script>");
         }

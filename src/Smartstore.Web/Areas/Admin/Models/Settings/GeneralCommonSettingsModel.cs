@@ -1,10 +1,10 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
-using Smartstore.Web.Modelling;
 
 namespace Smartstore.Admin.Models
 {
@@ -12,7 +12,18 @@ namespace Smartstore.Admin.Models
     {
         public StoreInformationSettingsModel StoreInformationSettings { get; set; } = new();
         public DateTimeSettingsModel DateTimeSettings { get; set; } = new();
+
+        [AdditionalMetadata("MetaTitleResKey", "Admin.Configuration.Settings.GeneralCommon.DefaultTitle")]
+        [AdditionalMetadata("MetaDescriptionResKey", "Admin.Configuration.Settings.GeneralCommon.DefaultMetaDescription")]
+        [AdditionalMetadata("MetaKeywordsResKey", "Admin.Configuration.Settings.GeneralCommon.DefaultMetaKeywords")]
+        [LocalizedDisplay("Admin.Configuration.Settings.GeneralCommon.")]
         public SeoSettingsModel SeoSettings { get; set; } = new();
+
+        [AdditionalMetadata("MetaTitleResKey", "Admin.Configuration.Settings.GeneralCommon.HomepageTitle")]
+        [AdditionalMetadata("MetaDescriptionResKey", "Admin.Configuration.Settings.GeneralCommon.HomepageMetaDescription")]
+        [AdditionalMetadata("MetaKeywordsResKey", "Admin.Configuration.Settings.GeneralCommon.HomepageMetaKeywords")]
+        public HomepageSettingsModel HomepageSettings { get; set; } = new();
+
         public SecuritySettingsModel SecuritySettings { get; set; } = new();
         public CaptchaSettingsModel CaptchaSettings { get; set; } = new();
         public PdfSettingsModel PdfSettings { get; set; } = new();
@@ -21,13 +32,8 @@ namespace Smartstore.Admin.Models
         public ContactDataSettingsModel ContactDataSettings { get; set; } = new();
         public BankConnectionSettingsModel BankConnectionSettings { get; set; } = new();
         public SocialSettingsModel SocialSettings { get; set; } = new();
-        public HomepageSettingsModel HomepageSettings { get; set; } = new();
 
         #region Nested classes
-
-        [AdditionalMetadata("MetaTitleResKey", "Admin.Configuration.Settings.GeneralCommon.HomepageTitle")]
-        [AdditionalMetadata("MetaDescriptionResKey", "Admin.Configuration.Settings.GeneralCommon.HomepageMetaDescription")]
-        [AdditionalMetadata("MetaKeywordsResKey", "Admin.Configuration.Settings.GeneralCommon.HomepageMetaKeywords")]
         public partial class HomepageSettingsModel : ISeoModel
         {
             public string MetaTitle { get; set; }
@@ -55,17 +61,10 @@ namespace Smartstore.Admin.Models
             [LocalizedDisplay("*AllowCustomersToSetTimeZone")]
             public bool AllowCustomersToSetTimeZone { get; set; }
 
-            [Required]
             [LocalizedDisplay("*DefaultStoreTimeZone")]
             public string DefaultStoreTimeZoneId { get; set; }
-
-            [LocalizedDisplay("*DefaultStoreTimeZone")]
-            public List<SelectListItem> AvailableTimeZones { get; set; } = new();
         }
 
-        [AdditionalMetadata("MetaTitleResKey", "Admin.Configuration.Settings.GeneralCommon.DefaultTitle")]
-        [AdditionalMetadata("MetaDescriptionResKey", "Admin.Configuration.Settings.GeneralCommon.DefaultMetaDescription")]
-        [AdditionalMetadata("MetaKeywordsResKey", "Admin.Configuration.Settings.GeneralCommon.DefaultMetaKeywords")]
         [LocalizedDisplay("Admin.Configuration.Settings.GeneralCommon.")]
         public partial class SeoSettingsModel : ISeoModel
         {
@@ -378,7 +377,7 @@ namespace Smartstore.Admin.Models
         #endregion
     }
 
-    public partial class ContactDataSettingsValidator : AbstractValidator<GeneralCommonSettingsModel.ContactDataSettingsModel>
+    public partial class ContactDataSettingsValidator : SettingModelValidator<GeneralCommonSettingsModel.ContactDataSettingsModel, ContactDataSettings>
     {
         public ContactDataSettingsValidator()
         {
@@ -389,7 +388,7 @@ namespace Smartstore.Admin.Models
         }
     }
 
-    public partial class CaptchaSettingsValidator : AbstractValidator<GeneralCommonSettingsModel.CaptchaSettingsModel>
+    public partial class CaptchaSettingsValidator : SettingModelValidator<GeneralCommonSettingsModel.CaptchaSettingsModel, CaptchaSettings>
     {
         public CaptchaSettingsValidator(Localizer T)
         {
@@ -405,7 +404,7 @@ namespace Smartstore.Admin.Models
         }
     }
 
-    public partial class SocialSettingsValidator : AbstractValidator<GeneralCommonSettingsModel.SocialSettingsModel>
+    public partial class SocialSettingsValidator : SettingModelValidator<GeneralCommonSettingsModel.SocialSettingsModel, SocialSettings>
     {
         public SocialSettingsValidator(Localizer T)
         {

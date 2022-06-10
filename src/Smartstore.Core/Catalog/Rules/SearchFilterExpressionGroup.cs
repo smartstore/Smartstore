@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using Smartstore.Core.Catalog.Search;
+﻿using Smartstore.Core.Catalog.Search;
 using Smartstore.Core.Rules;
 
 namespace Smartstore.Core.Catalog.Rules

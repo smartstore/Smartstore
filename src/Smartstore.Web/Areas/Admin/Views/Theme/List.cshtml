@@ -34,7 +34,7 @@
         <div class="adminContent adminContent-boxed">
             <div class="adminRow">
                 <div class="adminTitle">
-                    <smart-label asp-for="StoreId"></smart-label>
+                    <smart-label asp-for="StoreId"/>
                 </div>
                 <div class="adminData">
                     <select asp-for="StoreId" asp-items="Model.AvailableStores" onchange="location.href='@(Url.Action("List"))?storeId=' + this.value;"></select>
@@ -73,7 +73,7 @@
             <div class="adminContent">
                 <div class="adminRow">
                     <div class="adminTitle">
-                        <smart-label asp-for="AllowCustomerToSelectTheme"></smart-label>
+                        <smart-label asp-for="AllowCustomerToSelectTheme"/>
                     </div>
                     <div class="adminData">
                         <input asp-for="AllowCustomerToSelectTheme" data-toggler-for="#pnlSaveThemeChoiceInCookie" />
@@ -81,7 +81,7 @@
                 </div>
                 <div class="adminRow" id="pnlSaveThemeChoiceInCookie">
                     <div class="adminTitle">
-                        <smart-label asp-for="SaveThemeChoiceInCookie"></smart-label>
+                        <smart-label asp-for="SaveThemeChoiceInCookie"/>
                     </div>
                     <div class="adminData">
                         <input asp-for="SaveThemeChoiceInCookie" />
@@ -101,7 +101,7 @@
                 </div>
                 <div class="adminRow">
                     <div class="adminTitle">
-                        <smart-label asp-for="BundleOptimizationEnabled"></smart-label>
+                        <smart-label asp-for="BundleOptimizationEnabled"/>
                     </div>
                     <div class="adminData">
                         <select asp-for="BundleOptimizationEnabled" asp-items="Model.AvailableBundleOptimizationValues"></select>
@@ -110,7 +110,7 @@
                 </div>
                 <div class="adminRow">
                     <div class="adminTitle">
-                        <smart-label asp-for="AssetCachingEnabled"></smart-label>
+                        <smart-label asp-for="AssetCachingEnabled"/>
                     </div>
                     <div class="adminData">
                         <select asp-for="AssetCachingEnabled" asp-items="Model.AvailableAssetCachingValues"></select>

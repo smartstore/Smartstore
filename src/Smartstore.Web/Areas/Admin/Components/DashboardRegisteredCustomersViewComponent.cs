@@ -1,14 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Smartstore.Admin.Models.Orders;
+﻿using Smartstore.Admin.Models.Orders;
 using Smartstore.Core.Common.Services;
-using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
-using Smartstore.Web.Components;
+using Smartstore.Core.Security;
 
 namespace Smartstore.Admin.Components
 {
@@ -25,6 +18,11 @@ namespace Smartstore.Admin.Components
 
         public async Task<IViewComponentResult> InvokeAsync()
         {
+            if (!await Services.Permissions.AuthorizeAsync(Permissions.Customer.Read))
+            {
+                return Empty();
+            }
+
             // Get customers of at least last 28 days (if year is younger)
             var utcNow = DateTime.UtcNow;
             var beginningOfYear = new DateTime(utcNow.Year, 1, 1);
@@ -106,8 +104,6 @@ namespace Smartstore.Admin.Components
             }
 
             // Get registrations for corresponding period to calculate change in percentage; TODO: only apply to similar time of day?
-
-            // TODO: (mh) (core) I don't get it. Codecomment says [...count for month before] but code says something else (something wierd...). 
             var registeredCountMonthBefore = await _db.Customers
                 .ApplyRegistrationFilter(beginningOfYear.AddDays(-56), utcNow.Date.AddDays(-28))
                 .ApplyRolesFilter(new[] { registeredRole.Id })

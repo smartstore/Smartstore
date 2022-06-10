@@ -1,7 +1,4 @@
-﻿using System;
-using Smartstore.Engine;
-
-namespace Smartstore.Web.Bundling
+﻿namespace Smartstore.Web.Bundling
 {
     public interface IBundleProvider
     {

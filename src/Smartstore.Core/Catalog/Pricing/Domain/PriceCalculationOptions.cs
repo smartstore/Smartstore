@@ -1,5 +1,4 @@
-﻿using System;
-using Smartstore.Core.Catalog.Attributes;
+﻿using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Common;
 using Smartstore.Core.Identity;
@@ -139,11 +138,6 @@ namespace Smartstore.Core.Catalog.Pricing
         /// Gets or sets a value indicating whether resulting monetary amounts (after the pipeline has been invoked) should include sales taxes.
         /// </summary>
         public bool TaxInclusive { get; set; }
-
-        /// <summary>
-        /// Gets cash rounding options.
-        /// </summary>
-        //public CashRoundingOptions CashRounding { get; init; } = new();
 
         /// <summary>
         /// Gets or sets the optional tax format string (e.g. "{0} *", "{0} incl. tax")

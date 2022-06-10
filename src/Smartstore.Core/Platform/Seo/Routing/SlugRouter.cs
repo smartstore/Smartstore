@@ -3,6 +3,22 @@
 namespace Smartstore.Core.Seo.Routing
 {
     /// <summary>
+    /// The target (action) of the route.
+    /// </summary>
+    public enum RouteTarget
+    {
+        /// <summary>
+        /// Target is the public view in frontend.
+        /// </summary>
+        PublicView,
+
+        /// <summary>
+        /// Target is the edit page in backend.
+        /// </summary>
+        Edit
+    }
+    
+    /// <summary>
     /// Builds a <see cref="RouteValueDictionary"/> instance for a given <see cref="UrlRecord"/> entity.
     /// </summary>
     public abstract class SlugRouter
@@ -13,7 +29,7 @@ namespace Smartstore.Core.Seo.Routing
         /// <param name="entity">The matched entity for current slug in request url.</param>
         /// <param name="values">The route values associated with the current match. Implementations should not modify values.</param>
         /// <returns>An instance of <see cref="RouteValueDictionary"/> or <c>null</c> if no route matches.</returns>
-        public abstract RouteValueDictionary GetRouteValues(UrlRecord entity, RouteValueDictionary values);
+        public abstract RouteValueDictionary GetRouteValues(UrlRecord entity, RouteValueDictionary values, RouteTarget routeTarget = RouteTarget.PublicView);
 
         /// <summary>
         /// Maps routes solely needed for URL creation, NOT for route matching.

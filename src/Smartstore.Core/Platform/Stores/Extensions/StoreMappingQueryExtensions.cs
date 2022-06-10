@@ -1,7 +1,4 @@
-﻿using System.Linq;
-using Smartstore.Domain;
-
-namespace Smartstore.Core.Stores
+﻿namespace Smartstore.Core.Stores
 {
     public static partial class StoreMappingQueryExtensions
     {

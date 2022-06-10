@@ -1,6 +1,4 @@
-﻿using System;
-using Smartstore.Engine;
-using Smartstore.Web.Bundling;
+﻿using Smartstore.Web.Bundling;
 
 namespace Smartstore.Web.Infrastructure
 {

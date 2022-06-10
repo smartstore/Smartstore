@@ -1,13 +1,10 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Search;
-using Smartstore.Domain;
 
 namespace Smartstore.Core.Catalog.Attributes
 {
@@ -19,7 +16,6 @@ namespace Smartstore.Core.Catalog.Attributes
             builder.HasOne(c => c.ProductAttributeOptionsSet)
                 .WithMany(c => c.ProductAttributeOptions)
                 .HasForeignKey(c => c.ProductAttributeOptionsSetId)
-                .IsRequired(false)
                 .OnDelete(DeleteBehavior.Cascade);
         }
     }

@@ -1,8 +1,7 @@
-﻿using System;
-using System.IO;
-using System.Text;
+﻿using System.Text;
 using System.Xml;
 using Humanizer;
+using Newtonsoft.Json.Linq;
 
 namespace Smartstore.Utilities
 {
@@ -41,6 +40,25 @@ namespace Smartstore.Utilities
 
                 var result = sb.ToString();
                 return result;
+            }
+        }
+
+        public static string PrettifyJSON(string json)
+        {
+            if (json.IsEmpty())
+            {
+                return json;
+            }
+
+            try
+            {
+                return json.StartsWith('[')
+                    ? JArray.Parse(json).ToString()
+                    : JToken.Parse(json).ToString();
+            }
+            catch
+            {
+                return json;
             }
         }
     }

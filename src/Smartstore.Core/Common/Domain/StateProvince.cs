@@ -1,11 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Newtonsoft.Json;
 using Smartstore.Core.Localization;
 using Smartstore.Data.Caching;
-using Smartstore.Domain;
 
 namespace Smartstore.Core.Common
 {
@@ -67,6 +66,7 @@ namespace Smartstore.Core.Common
         /// <summary>
         /// Gets or sets the country
         /// </summary>
+        [JsonIgnore]
         public Country Country
         {
             get => _country ?? LazyLoader.Load(this, ref _country);

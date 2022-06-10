@@ -1,0 +1,130 @@
+﻿@model List<Smartstore.Admin.Models.Localization.LanguageModel>
+
+@{
+    ViewBag.Title = T("Admin.Configuration.Languages").Value;
+
+    var defaultLanguageNote = ViewBag.DefaultLanguageNote as LocalizedString;
+}
+
+<div class="section-header">
+    <div class="title">
+        <i class="fa fa-language"></i>
+        <span>@ViewBag.Title</span>
+    </div>
+    <div class="options">
+        <zone name="admin_button_toolbar_before" />
+
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="fa fa-plus"></i>
+            <span>@T("Admin.Common.AddNew")</span>
+        </a>
+
+        <zone name="admin_button_toolbar_after" />
+    </div>
+</div>
+
+<div>
+    <h5 class="mb-3">@T("Admin.Configuration.Languages.InstalledLanguages")</h5>
+    <div sm-if="defaultLanguageNote.Value.HasValue()" class="alert alert-info">
+        @Html.Raw(defaultLanguageNote)
+    </div>
+
+    <div class="table-responsive">
+        <table class="table admin-table installed-languages-list language-list">
+            <thead>
+                <tr>
+                    <th style="width: 350px;">@T("Admin.Configuration.Languages.Fields.Name")</th>
+                    <th style="width: 160px;" class="text-center">@T("Admin.Configuration.Languages.Fields.LanguageCulture")</th>
+                    <th style="width: 140px;" class="text-center">@T("Admin.Configuration.Languages.Fields.UniqueSeoCode")</th>
+                    <th style="width: 160px;" class="text-center">@T("Admin.Configuration.Languages.Fields.Published")</th>
+                    <th style="width: 200px;">@T("Admin.Configuration.Languages.Fields.LastResourcesImportOn")</th>
+                    <th style="width: 160px;" class="text-center">@T("Admin.Common.Store.LimitedTo")</th>
+                    <th class="text-center">@T("Common.DisplayOrder")</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var language in Model)
+                {
+                    <tr attr-class='(!language.Published, "disabled")'>
+                        <td>
+                            @if (language.FlagImageFileName.HasValue())
+                            {
+                                <img src="@Url.Content("~/images/flags/" + language.FlagImageFileName)" class="flag-icon mr-1 mb-1" />
+                            }
+                            <a asp-action="Edit" asp-route-id="@language.Id">@language.Name</a>
+                        </td>
+                        <td class="text-center">
+                            @language.LanguageCulture
+                        </td>
+                        <td class="text-center">
+                            @language.UniqueSeoCode
+                        </td>
+                        <td class="text-center">
+                            <i class="fa fa-fw icon-active-@language.Published.ToString().ToLower()"></i>
+                        </td>
+                        <td>
+                            @if (language.LastResourcesImportOn.HasValue)
+                            {
+                                <span title="@language.LastResourcesImportOn.Value.ToString()">@language.LastResourcesImportOnString</span>
+                            }
+                            else
+                            {
+                                <i class="fa fa-fw icon-active-false"></i>
+                            }
+                        </td>
+                        <td class="text-center">
+                            <i class="fa fa-fw icon-active-@language.LimitedToStores.ToString().ToLower()"></i>
+                        </td>
+                        <td class="text-center">
+                            @language.DisplayOrder
+                        </td>
+                        <td class="omega text-truncate">
+                            <a asp-action="Edit" asp-route-id="@language.Id" class="btn btn-warning btn-sm">
+                                <span>@T("Admin.Common.Edit")</span>
+                            </a>
+                            <a asp-action="Resources" asp-route-languageId="@language.Id" class="btn btn-secondary btn-sm">
+                                <span>@T("Admin.Configuration.Languages.Resources.View")</span>
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="mt-5">
+    <h5 class="mb-3">@T("Admin.Configuration.Languages.AvailableLanguages")</h5>
+    <div id="AvailableLanguages"></div>
+</div>
+
+<script sm-target-zone="scripts" data-origin="language-list">
+    $(function () {
+        // Load available languages.
+	    $({}).ajax({
+	        url: '@Url.Action("AvailableLanguages")',
+	        smallIcon: '#AvailableLanguages',
+	        success: function (resp) {
+	            $('#AvailableLanguages').html(resp);
+	        }
+	    });
+
+        // Watch language download progress.
+        Smartstore.Admin.TaskWatcher.startWatching({
+            context: $('#AvailableLanguages'),
+            elementsSelector: '.task-progress',
+            defaultProgressMessage: @T("Admin.System.ScheduleTasks.RunNow.IsRunning").JsValue,
+            pollUrl: '@Url.Action("DownloadProgress", "Language")',
+            onTaskStarted: function (task, el) {
+                var tr = el.closest('tr');
+
+                $('#AvailableLanguages').find('a.download-language').addClass('hide');
+                $('body, html').animate({ scrollTop: tr.offset().top }, 'slow');
+            },
+            onTaskCompleted: function (taskId, el) {
+               window.location = '@Url.Action("List")';
+            }
+        });
+    });
+</script>

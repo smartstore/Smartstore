@@ -1,6 +1,4 @@
-﻿using Smartstore.Domain;
-
-namespace Smartstore.Core.Catalog.Products
+﻿namespace Smartstore.Core.Catalog.Products
 {
     /// <summary>
     /// Represents a cross-sell product.

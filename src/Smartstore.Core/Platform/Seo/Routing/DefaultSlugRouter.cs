@@ -1,13 +1,17 @@
-﻿using System;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 
 namespace Smartstore.Core.Seo.Routing
 {
     public class DefaultSlugRouter : SlugRouter
     {
-        public override RouteValueDictionary GetRouteValues(UrlRecord urlRecord, RouteValueDictionary values)
+        public override RouteValueDictionary GetRouteValues(UrlRecord urlRecord, RouteValueDictionary values, RouteTarget routeTarget = RouteTarget.PublicView)
         {
+            if (routeTarget == RouteTarget.Edit)
+            {
+                return null;
+            }
+
             switch (urlRecord.EntityName.ToLowerInvariant())
             {
                 case "product":
@@ -53,7 +57,6 @@ namespace Smartstore.Core.Seo.Routing
 
         public override void MapRoutes(IEndpointRouteBuilder routes)
         {
-            // TODO: (core) check all these SEO routes for correctness once all slug supporting entities are ported.
             routes.MapLocalizedControllerRoute("Product", UrlPatternFor("Product"), new { controller = "Product", action = "ProductDetails" });
             routes.MapLocalizedControllerRoute("Category", UrlPatternFor("Category"), new { controller = "Catalog", action = "Category" });
             routes.MapLocalizedControllerRoute("Manufacturer", UrlPatternFor("Manufacturer"), new { controller = "Catalog", action = "Manufacturer" });

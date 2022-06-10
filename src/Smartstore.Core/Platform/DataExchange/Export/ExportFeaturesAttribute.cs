@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Smartstore.Core.DataExchange.Export
+﻿namespace Smartstore.Core.DataExchange.Export
 {
     /// <summary>
     /// Declares data processing types supported by an export provider.

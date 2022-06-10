@@ -1,12 +1,10 @@
-﻿using System;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Html;
+﻿using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Smartstore.Core.Widgets
 {
     // TODO: (core) Make Json converters for invoker implementations.
-    
+
     /// <summary>
     /// Base class for widgets.
     /// </summary>
@@ -29,13 +27,13 @@ namespace Smartstore.Core.Widgets
         public string Key { get; set; }
 
         /// <summary>
-        /// Invokes (renders) the widget.
+        /// Invokes the widget and returns its content.
         /// </summary>
         /// <returns>The result HTML content.</returns>
         public abstract Task<IHtmlContent> InvokeAsync(ViewContext viewContext);
 
         /// <summary>
-        /// Invokes (renders) the widget.
+        /// Invokes the widget and returns its content.
         /// </summary>
         /// <param name="model">Optional model</param>
         /// <returns>The result HTML content.</returns>

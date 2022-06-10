@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Runtime.InteropServices;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using Smartstore.Engine;
@@ -50,16 +47,6 @@ namespace Smartstore.Bootstrapping
             {
                 Guard.NotNull(options, nameof(options));
 
-                string toolName;
-
-                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                    toolName = "wkhtmltopdf.exe";
-                else
-                    toolName = "wkhtmltopdf";
-
-                var runtime = _appContext.RuntimeInfo;
-                options.PdfToolPath = $"{runtime.BaseDirectory}runtimes\\{runtime.RID}\\native\\";
-                options.PdfToolName = toolName;
                 options.TempFilesPath = _appContext.GetTenantTempDirectory("PdfGen").PhysicalPath.EnsureEndsWith(Path.DirectorySeparatorChar);
 
                 var baseUrl = _appContext.AppConfiguration.PdfEngineBaseUrl.TrimSafe().NullEmpty();

@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections;
 using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
 using Dasync.Collections;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
@@ -11,6 +7,8 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
 using Smartstore.Collections;
+using Smartstore.Data;
+using Smartstore.Domain;
 using Smartstore.Events;
 using Smartstore.Threading;
 using Smartstore.Utilities;
@@ -86,24 +84,24 @@ namespace Smartstore.Caching
         public bool IsDistributed { get; }
 
         public virtual bool Contains(string key)
-        {
-            return _keys.Contains(key);
-        }
+            => _keys.Contains(key);
 
         public virtual Task<bool> ContainsAsync(string key)
-        {
-            return Task.FromResult(Contains(key));
-        }
+            => Task.FromResult(Contains(key));
 
         public virtual CacheEntry Get(string key)
         {
-            return _cache.Get<CacheEntry>(key);
+            var entry = _cache.Get<CacheEntry>(key);
+            if (entry != null)
+            {
+                entry.LastAccessedOn = DateTimeOffset.UtcNow;
+            }
+
+            return entry;
         }
 
         public virtual Task<CacheEntry> GetAsync(string key)
-        {
-            return Task.FromResult(Get(key));
-        }
+            => Task.FromResult(Get(key));
 
         public virtual ISet GetHashSet(string key, Func<IEnumerable<string>> acquirer = null)
         {
@@ -162,12 +160,22 @@ namespace Smartstore.Caching
         {
             _keys.Add((string)entry.Key);
 
+            TryDropLazyLoader(item.Value);
+
             entry.SetValue(item);
             entry.SetPriority((CacheItemPriority)item.Priority);
 
-            if (item.Duration != null)
+            if (item.ApplyTimeExpirationPolicy)
             {
-                entry.SetAbsoluteExpiration(item.Duration.Value);
+                if (item.AbsoluteExpiration != null)
+                {
+                    entry.SetAbsoluteExpiration(item.AbsoluteExpiration.Value);
+                }
+
+                if (item.SlidingExpiration != null)
+                {
+                    entry.SetSlidingExpiration(item.SlidingExpiration.Value);
+                }
             }
 
             // Ensure that cancelling the token removes this item from the cache
@@ -219,6 +227,21 @@ namespace Smartstore.Caching
             entry.Dispose();
         }
 
+        internal static void TryDropLazyLoader(object value)
+        {
+            if (value is BaseEntity entity)
+            {
+                entity.LazyLoader = NullLazyLoader.Instance;
+            }
+            else if (value is IEnumerable e)
+            {
+                foreach (var item in e.OfType<BaseEntity>())
+                {
+                    item.LazyLoader = NullLazyLoader.Instance;
+                }
+            }
+        }
+
         public virtual void Remove(string key)
         {
             _cache.Remove(key);
@@ -249,9 +272,7 @@ namespace Smartstore.Caching
         }
 
         public virtual Task<long> RemoveByPatternAsync(string pattern)
-        {
-            return Task.FromResult(RemoveByPattern(pattern));
-        }
+            => Task.FromResult(RemoveByPattern(pattern));
 
         public virtual IEnumerable<string> Keys(string pattern = "*")
         {
@@ -267,19 +288,13 @@ namespace Smartstore.Caching
         }
 
         public virtual IAsyncEnumerable<string> KeysAsync(string pattern = "*")
-        {
-            return Keys(pattern).ToAsyncEnumerable();
-        }
+            => Keys(pattern).ToAsyncEnumerable();
 
         public virtual IDisposable AcquireKeyLock(string key)
-        {
-            return AsyncLock.Keyed("memcache:" + key, TimeSpan.FromSeconds(5));
-        }
+            => AsyncLock.Keyed("memcache:" + key, TimeSpan.FromSeconds(5));
 
         public virtual Task<IDisposable> AcquireAsyncKeyLock(string key, CancellationToken cancelToken = default)
-        {
-            return AsyncLock.KeyedAsync("memcache:" + key, TimeSpan.FromSeconds(5), cancelToken);
-        }
+            => AsyncLock.KeyedAsync("memcache:" + key, TimeSpan.FromSeconds(5), cancelToken);
 
         public virtual void Clear()
         {
@@ -298,7 +313,7 @@ namespace Smartstore.Caching
         }
 
         public virtual TimeSpan? GetTimeToLive(string key)
-            => Get(key)?.TimeToLive;
+            => Get(key)?.GetTimeToLive();
 
         public virtual Task<TimeSpan?> GetTimeToLiveAsync(string key)
             => Task.FromResult(GetTimeToLive(key));
@@ -306,10 +321,10 @@ namespace Smartstore.Caching
         public virtual bool SetTimeToLive(string key, TimeSpan? duration)
         {
             var entry = Get(key);
-            if (entry != null && entry.TimeToLive != duration)
+            if (entry != null && entry.GetTimeToLive() != duration)
             {
                 var clone = entry.Clone();
-                clone.Duration = duration;
+                clone.AbsoluteExpiration = duration;
                 clone.CancellationTokenSource = entry.CancellationTokenSource;
 
                 Put(key, clone);

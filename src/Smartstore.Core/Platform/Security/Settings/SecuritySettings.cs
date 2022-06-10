@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Smartstore.Core.Configuration;
+﻿using Smartstore.Core.Configuration;
 using Smartstore.Utilities;
 
 namespace Smartstore.Core.Security

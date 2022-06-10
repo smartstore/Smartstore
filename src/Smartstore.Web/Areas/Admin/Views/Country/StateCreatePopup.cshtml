@@ -10,7 +10,7 @@
 <form asp-action="StateCreatePopup" id="state-regions" asp-route-btnId="@ViewBag.BtnId" asp-route-formId="@ViewBag.FormId">
     <div class="section-header">
         <div class="title">
-            @T("Admin.Configuration.Countries.States.AddNew")
+            @ViewBag.Title
         </div>
         <div class="options">
             <button type="submit" name="save" value="save" class="btn btn-primary">

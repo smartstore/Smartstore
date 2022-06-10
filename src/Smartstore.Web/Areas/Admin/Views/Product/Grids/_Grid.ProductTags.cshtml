@@ -8,21 +8,15 @@
     <datasource read="@Url.Action("ProductTagsList")" 
                 delete="@Url.Action("ProductTagsDelete")"
                 update="@Url.Action("ProductTagsUpdate")"/>
-    <paging position="Both" />
+    <paging position="Bottom" />
     <sorting enabled="true">
-        <sort by="ProductCount" descending="true"></sort>
+        <sort by="Name"></sort>
     </sorting>
     <toolbar>
+        <zone name="datagrid_toolbar_alpha"></zone>
+        <toolbar-group class="omega"></toolbar-group>
+        <zone name="datagrid_toolbar_omega"></zone>
         <toolbar-group>
-            <button datagrid-action="DataGridToolAction.SaveChanges" type="button" class="btn btn-warning no-anims btn-flat">
-                <i class="fa fa-check"></i>
-                <span>@T("Admin.Common.SaveChanges")</span>
-            </button>
-            <button datagrid-action="DataGridToolAction.CancelEdit" type="button" class="btn btn-light btn-flat mr-auto">
-                <span>@T("Common.Cancel")</span>
-            </button>
-        </toolbar-group>
-        <toolbar-group class="omega">
             <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger no-anims btn-flat">
                 <i class="far fa-trash-alt"></i>
                 <span>@T("Admin.Common.Delete.Selected")</span>
@@ -30,8 +24,14 @@
         </toolbar-group>
     </toolbar>
     <columns>
-        <column for="Name" hideable="false" readonly />
-        <column for="ProductCount" entity-member="Products.Count" halign="center" readonly />
+        <column for="Name" hideable="false" readonly>
+            <display-template>
+                <a href="#" class="grid-product-tags text-truncate" :data-key="item.row.Id">
+                    {{ item.value }}
+                </a>
+            </display-template>
+        </column>
+        <column for="ProductCount" halign="center" sortable="false" readonly />
         <column for="Published" halign="center" />
     </columns>
     <row-commands>

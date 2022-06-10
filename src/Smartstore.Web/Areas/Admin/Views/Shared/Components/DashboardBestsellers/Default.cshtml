@@ -27,8 +27,8 @@
                         @foreach (var x in Model.BestsellersByQuantity)
                         {
                             <tr>
-                                <td class="display-row" title="@x.ProductName">
-                                    @Html.BadgedProductName(x.ProductId, x.ProductName, x.ProductTypeName, x.ProductTypeLabelHint)
+                                <td class="display-row" title="@x.Name">
+                                    @Html.BadgedProductName(x.Id, x.Name, x.ProductTypeName, x.ProductTypeLabelHint)
                                 </td>
                                 <td class="display-row text-center font-weight-medium" title="@x.TotalQuantity">@x.TotalQuantity</td>
                                 <td class="display-row text-right" title="@x.TotalAmount @T("Tax.ExclVAT")">@x.TotalAmount</td>
@@ -52,8 +52,8 @@
                         @foreach (var x in Model.BestsellersByAmount)
                         {
                             <tr>
-                                <td class="display-row" title="@x.ProductName">
-                                    @Html.BadgedProductName(x.ProductId, x.ProductName, x.ProductTypeName, x.ProductTypeLabelHint)
+                                <td class="display-row" title="@x.Name">
+                                    @Html.BadgedProductName(x.Id, x.Name, x.ProductTypeName, x.ProductTypeLabelHint)
                                 </td>
                                 <td class="display-row text-center" title="@x.TotalQuantity">@x.TotalQuantity</td>
                                 <td class="display-row text-right font-weight-medium" title="@x.TotalAmount @T("Tax.ExclVAT")">@x.TotalAmount</td>

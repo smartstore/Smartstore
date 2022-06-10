@@ -270,11 +270,11 @@
     </div>
     <div class="adminRow">
         <div class="adminTitle">
-            <smart-label asp-for="ProductTags" />
+            <smart-label asp-for="ProductTagNames" />
         </div>
         <div class="adminData">
-            <select asp-for="ProductTags" asp-items="ViewBag.AvailableProductTags" multiple="multiple" data-tags="true"></select>
-            <span asp-validation-for="ProductTags"></span>
+            <select asp-for="ProductTagNames" asp-items="ViewBag.AvailableProductTags" multiple="multiple" data-tags="true"></select>
+            <span asp-validation-for="ProductTagNames"></span>
         </div>
     </div>
     <div class="adminRow">
@@ -363,21 +363,22 @@
                 <smart-label asp-for="RequiredProductIds" />
             </div>
             <div class="adminData">
-                <div class="input-group">
-                    <input asp-for="RequiredProductIds" readonly />
-                    <span class="input-group-append">
-                        <a class="btn btn-secondary" id="reset-required-productids" title="@T("Admin.Common.Reset")">
-                            <i class="fa fa-times"></i>
+                <div class="row xs-gutters">
+                    <div class="input-group col">
+                        <input asp-for="RequiredProductIds" readonly />
+                        <span class="input-group-append">
+                            <entity-picker button-id="reset-required-productids"
+                                           asp-for="RequiredProductIds"
+                                           icon-css-class="fa fa-plus"
+                                           max-items="10"
+                                           dialog-title="@T("Admin.Catalog.Products.Fields.RequireOtherProducts")" />
+                        </span>
+                    </div>
+                    <div class="col-auto">
+                        <a class="btn btn-secondary btn-to-danger btn-icon" id="reset-required-productids" title="@T("Admin.Common.Reset")">
+                            <i class="far fa-trash-alt"></i>
                         </a>
-                    </span>
-                    <span class="input-group-append">
-                        <entity-picker button-id="reset-required-productids"
-                                       asp-for="RequiredProductIds"
-                                       icon-css-class="fa fa-plus"
-                                       max-items="10"
-                                       caption="@T("Admin.Common.Search")"
-                                       dialog-title="@T("Admin.Catalog.Products.Fields.RequireOtherProducts")" />
-                    </span>
+                    </div>
                 </div>
                 <span asp-validation-for="RequiredProductIds"></span>
             </div>
@@ -568,7 +569,7 @@
             <smart-label asp-for="IsTaxExempt" />
         </div>
         <div class="adminData">
-            <input asp-for="IsTaxExempt" data-toggler-for="pnlIsTaxExempt" data-toggler-reverse="true" />
+            <input asp-for="IsTaxExempt" data-toggler-for="#pnlIsTaxExempt" data-toggler-reverse="true" />
             <span asp-validation-for="IsTaxExempt"></span>
         </div>
     </div>

@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Threading.Tasks;
+﻿using System.Reflection;
 using Dasync.Collections;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.Filters;
-using Smartstore.Core;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Stores;
 
@@ -21,19 +15,19 @@ namespace Smartstore.Web.Modelling.Settings
         {
         }
 
-        public LoadSettingAttribute(bool updateParameterFromStore) 
-            : this(typeof(LoadSettingFilter), updateParameterFromStore)
+        public LoadSettingAttribute(bool bindParameterFromStore) 
+            : this(typeof(LoadSettingFilter), bindParameterFromStore)
         {
         }
 
-        protected LoadSettingAttribute(Type filterType, bool updateParameterFromStore)
+        protected LoadSettingAttribute(Type filterType, bool bindParameterFromStore)
             : base(filterType)
         {
-            UpdateParameterFromStore = updateParameterFromStore;
+            BindParameterFromStore = bindParameterFromStore;
             Arguments = new object[] { this };
         }
 
-        public bool UpdateParameterFromStore { get; set; } = true;
+        public bool BindParameterFromStore { get; set; }
         public bool IsRootedModel { get; set; }
     }
 
@@ -47,12 +41,12 @@ namespace Smartstore.Web.Modelling.Settings
 
         private readonly LoadSettingAttribute _attribute;
         protected readonly ICommonServices _services;
-        protected readonly StoreDependingSettingHelper _settingHelper;
+        protected readonly MultiStoreSettingHelper _settingHelper;
 
         protected int _storeId;
         protected SettingParam[] _settingParams;
 
-        public LoadSettingFilter(LoadSettingAttribute attribute, ICommonServices services, StoreDependingSettingHelper settingsHelper)
+        public LoadSettingFilter(LoadSettingAttribute attribute, ICommonServices services, MultiStoreSettingHelper settingsHelper)
         {
             _attribute = attribute;
             _services = services;
@@ -82,18 +76,27 @@ namespace Smartstore.Web.Modelling.Settings
                 .SelectAsync(async x =>
                 {
                     // Load settings for the settings type obtained with FindActionParameters<ISettings>()
-                    var settings = _attribute.UpdateParameterFromStore
-                            ? await _services.SettingFactory.LoadSettingsAsync(x.ParameterType, _storeId)
+                    var settingType = x.ParameterType;
+                    var settings = _attribute.BindParameterFromStore
+                            ? await _services.SettingFactory.LoadSettingsAsync(settingType, _storeId)
                             : context.ActionArguments[x.Name] as ISettings;
 
                     if (settings == null)
                     {
-                        throw new InvalidOperationException($"Could not load settings for type '{x.ParameterType.FullName}'.");
+                        throw new InvalidOperationException($"Could not load settings for type '{settingType.FullName}'.");
                     }
 
                     // Replace settings from action parameters with our loaded settings.
-                    if (_attribute.UpdateParameterFromStore)
+                    if (_attribute.BindParameterFromStore)
                     {
+                        // In save mode: DON'T pass the setting instance itself to the controller action.
+                        // Setting classes are chached as singletons. The action will most likely
+                        // update the instance.
+                        if (this is SaveSettingFilter)
+                        {
+                            settings = settings.Clone();
+                        }
+
                         context.ActionArguments[x.Name] = settings;
                     }
 
@@ -139,7 +142,7 @@ namespace Smartstore.Web.Modelling.Settings
                         }
                     }
 
-                    await _settingHelper.GetOverrideKeysAsync(settingInstance, modelInstance, _storeId, !_attribute.IsRootedModel);
+                    await _settingHelper.DetectOverrideKeysAsync(settingInstance, modelInstance, _storeId, !_attribute.IsRootedModel);
                 }
             }
         }

@@ -1,0 +1,22 @@
+services:
+    web:
+        volumes:
+            - "D:/mount/smtenants/sqlserver:/app/App_Data/Tenants"
+    db:
+        image: "mcr.microsoft.com/mssql/server"
+        container_name: sqlserver
+        environment:
+            SA_PASSWORD: "Smartstore2022!"
+            ACCEPT_EULA: "Y"
+            MSSQL_PID: "Express"
+        ports:
+          - '1434:1433'
+        expose:
+          - '1433'
+        volumes:
+          - mssql_system:/var/opt/mssql/
+          - mssql_user:/var/opt/sqlserver/
+
+volumes:
+  mssql_system:
+  mssql_user:

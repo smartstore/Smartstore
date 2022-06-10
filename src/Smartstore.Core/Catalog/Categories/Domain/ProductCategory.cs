@@ -1,11 +1,8 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Smartstore.Core.Catalog.Products;
-using Smartstore.Domain;
 
 namespace Smartstore.Core.Catalog.Categories
 {
@@ -16,12 +13,12 @@ namespace Smartstore.Core.Catalog.Categories
             builder.HasOne(c => c.Category)
                 .WithMany()
                 .HasForeignKey(c => c.CategoryId)
-                .IsRequired(false);
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.HasOne(c => c.Product)
                 .WithMany(c => c.ProductCategories)
                 .HasForeignKey(c => c.ProductId)
-                .IsRequired(false);
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 
@@ -31,6 +28,7 @@ namespace Smartstore.Core.Catalog.Categories
     [Table("Product_Category_Mapping")]
     [Index(nameof(IsFeaturedProduct), Name = "IX_IsFeaturedProduct")]
     [Index(nameof(IsSystemMapping), Name = "IX_IsSystemMapping")]
+    [Index(nameof(CategoryId), Name = "IX_CategoryId")]
     [Index(nameof(CategoryId), nameof(ProductId), Name = "IX_PCM_Product_and_Category")]
     public partial class ProductCategory : BaseEntity, IDisplayOrder
     {

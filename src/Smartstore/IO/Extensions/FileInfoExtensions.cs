@@ -1,12 +1,44 @@
-﻿using System;
-using System.IO;
-using System.Threading.Tasks;
-
-namespace Smartstore
+﻿namespace Smartstore
 {
     public static class FileInfoExtensions
     {
+        public static void WaitForUnlockAndExecute(this FileInfo file, Action<FileInfo> action)
+            => WaitForUnlockAndExecuteInternal(file, action, false).Await();
+
+        public static Task WaitForUnlockAndExecuteAsync(this FileInfo file, Action<FileInfo> action)
+            => WaitForUnlockAndExecuteInternal(file, action, true);
+
+        private static async Task WaitForUnlockAndExecuteInternal(FileInfo file, Action<FileInfo> action, bool async)
+        {
+            Guard.NotNull(file, nameof(file));
+
+            try
+            {
+                action(file);
+            }
+            catch (IOException)
+            {
+                var succeeded = async 
+                    ? await WaitForUnlockInternal(file, 250, true) 
+                    : WaitForUnlockInternal(file, 250, false).Await();
+
+                if (!succeeded)
+                {
+                    throw;
+                }
+
+                action(file);
+            }
+        }
+
+
         public static bool WaitForUnlock(this FileInfo file, int timeoutMs = 1000)
+            => WaitForUnlockInternal(file, timeoutMs, false).Await();
+
+        public static Task<bool> WaitForUnlockAsync(this FileInfo file, int timeoutMs = 1000)
+            => WaitForUnlockInternal(file, timeoutMs, true);
+
+        private static async Task<bool> WaitForUnlockInternal(FileInfo file, int timeoutMs, bool async)
         {
             Guard.NotNull(file, nameof(file));
 
@@ -22,7 +54,14 @@ namespace Smartstore
                         return true;
                     }
 
-                    Task.Delay(wait).Wait();
+                    if (async)
+                    {
+                        await Task.Delay(wait);
+                    }
+                    else
+                    {
+                        Task.Delay(wait).Wait();
+                    }
                 }
 
                 return false;
@@ -32,6 +71,7 @@ namespace Smartstore
                 return false;
             }
         }
+
 
         public static bool IsFileLocked(this FileInfo file)
         {

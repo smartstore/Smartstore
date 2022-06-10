@@ -1,5 +1,4 @@
-﻿using System;
-using System.Globalization;
+﻿using System.Globalization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -16,7 +15,7 @@ namespace Smartstore.ComponentModel.TypeConverters
         {
             return type == typeof(string)
                 || type.IsPlainObjectType()
-                || type.IsAnonymous();
+                || type.IsAnonymousType();
 
         }
 

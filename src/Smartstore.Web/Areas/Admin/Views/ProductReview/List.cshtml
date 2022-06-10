@@ -1,0 +1,25 @@
+﻿@model ProductReviewListModel
+
+@{
+    ViewBag.Title = T("Admin.Catalog.ProductReviews").Value;
+
+	Assets.BodyAttributes.AppendCssClass("spa-layout");
+
+    var gridViewData = new ViewDataDictionary(ViewData);
+    gridViewData["Parent"] = Model;
+}
+
+<div class="section-header">
+    <div class="title">
+        <i class="fa fa-star"></i>
+        <i class="fa fa-star"></i>
+        <i class="fa fa-star-half"></i>
+        <span>@ViewBag.Title</span>
+    </div>
+    <div class="options">
+		<zone name="admin_button_toolbar_before" />
+		<zone name="admin_button_toolbar_after" />
+    </div>
+</div>
+
+<partial name="_Grid.ProductReviews" model="null" view-data="gridViewData" />

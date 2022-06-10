@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-
-namespace Smartstore.Core.Catalog.Brands
+﻿namespace Smartstore.Core.Catalog.Brands
 {
     /// <summary>
     /// Manufacturer service interface.

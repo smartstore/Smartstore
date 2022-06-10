@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.AspNetCore.Html;
+﻿using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.FileProviders;
 using Smartstore.Core.Seo;
@@ -41,8 +39,6 @@ namespace Smartstore.Core.Widgets
         /// <param name="parts">The parts to push.</param>
         /// <param name="prepend"><c>true</c> to insert <paramref name="parts"/> at the beginning of the current parts list.</param>
         void AddMetaKeywordParts(IEnumerable<string> parts, bool prepend = false);
-
-        // TODO: (mh) (core) WTF bro?! There are two extension methods for canonical URLs already.
 
         /// <summary>
         /// Adds script files to the currently rendered page.

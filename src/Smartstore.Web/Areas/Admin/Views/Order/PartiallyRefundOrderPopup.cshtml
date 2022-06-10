@@ -1,0 +1,42 @@
+﻿@model OrderModel.RefundModel
+
+@{
+    Layout = "_AdminPopupLayout";
+    ViewBag.Title = T("Admin.Orders.Fields.PartialRefund").Value;
+
+    var primaryStoreCurrencyCode = (string)ViewBag.PrimaryStoreCurrencyCode;
+}
+
+<form asp-action="PartiallyRefundOrderPopup" asp-route-btnId="@ViewBag.BtnId" asp-route-formId="@ViewBag.FormId" asp-route-online="@ViewBag.Online">
+    <div class="section-header">
+        <div class="title">
+            @T("Admin.Orders.Fields.PartialRefund.OrderInfo", Model.Id)
+        </div>
+    </div>
+
+    <div asp-validation-summary="All"></div>
+
+    <div class="adminContent">
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="AmountToRefund" />
+            </div>
+            <div class="adminData">
+                <editor asp-for="AmountToRefund" sm-postfix="@primaryStoreCurrencyCode" />
+                <div class="alert alert-info mt-3">
+                    @T("Admin.Orders.Fields.PartialRefund.AmountToRefund.Max", Model.MaxAmountToRefundString, string.Empty)
+                </div>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+            </div>
+            <div class="adminData">
+                <button type="submit" id="partialrefundorder" name="partialrefundorder" value="@T("Admin.Orders.Fields.Refund")" class="btn btn-warning">
+                    <i class="fa fa-check"></i>
+                    <span>@T("Admin.Orders.Fields.Refund")</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</form>

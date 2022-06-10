@@ -1,9 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using Smartstore.Core.Data;
+﻿using Smartstore.Core.Data;
 using Smartstore.Data.Hooks;
 using Smartstore.Events;
 
@@ -33,15 +28,11 @@ namespace Smartstore.Core.Checkout.Payment.Hooks
                 .OfType<RecurringPayment>()
                 .ToList();
 
-            var orderIds = recurringPayments
-                .Select(x => x.InitialOrderId)
-                .Distinct()
-                .ToArray();
+            var orderIds = recurringPayments.ToDistinctArray(x => x.InitialOrderId);
 
             if (orderIds.Any())
             {
                 var orders = await _db.Orders
-                    .AsNoTracking()
                     .Where(x => orderIds.Contains(x.Id))
                     .ToListAsync(cancelToken);
 

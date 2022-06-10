@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 
 namespace Smartstore.Utilities
 {
@@ -19,7 +17,7 @@ namespace Smartstore.Utilities
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool Check(string key, TimeSpan interval, Func<bool> check)
         {
-            return CheckAsync(key, interval, false, () => Task.FromResult(check())).GetAwaiter().GetResult();
+            return CheckAsync(key, interval, false, () => Task.FromResult(check())).Await();
         }
 
         /// <summary>
@@ -33,7 +31,7 @@ namespace Smartstore.Utilities
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool Check(string key, TimeSpan interval, bool recheckWhenFalse, Func<bool> check)
         {
-            return CheckAsync(key, interval, recheckWhenFalse, () => Task.FromResult(check())).GetAwaiter().GetResult();
+            return CheckAsync(key, interval, recheckWhenFalse, () => Task.FromResult(check())).Await();
         }
 
         /// <summary>
@@ -65,13 +63,14 @@ namespace Smartstore.Utilities
             bool added = false;
             var now = DateTime.UtcNow;
 
-            var entry = _checks.GetOrAdd(key, x =>
+            if (!_checks.TryGetValue(key, out var entry))
             {
                 added = true;
-                return new CheckEntry { Value = check(), NextCheckUtc = (now + interval) };
-            });
+                entry = new CheckEntry { Value = await check(), NextCheckUtc = (now + interval) };
+                _checks.TryAdd(key, entry);
+            }
 
-            var ok = await entry.Value;
+            var ok = entry.Value;
 
             if (added)
             {
@@ -83,8 +82,8 @@ namespace Smartstore.Utilities
             if (isOverdue)
             {
                 // Check is overdue: recheck
-                _checks.TryUpdate(key, new CheckEntry { Value = check(), NextCheckUtc = (now + interval) }, entry);
                 ok = await check();
+                _checks.TryUpdate(key, new CheckEntry { Value = ok, NextCheckUtc = (now + interval) }, entry);
             }
 
             return ok;
@@ -92,7 +91,7 @@ namespace Smartstore.Utilities
 
         class CheckEntry
         {
-            public Task<bool> Value { get; set; }
+            public bool Value { get; set; }
             public DateTime NextCheckUtc { get; set; }
         }
     }

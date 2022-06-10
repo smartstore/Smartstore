@@ -1,7 +1,4 @@
-﻿using System;
-using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.Extensions.DependencyInjection;
-using Smartstore.Core;
+﻿using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace Smartstore.Web.Theming
 {

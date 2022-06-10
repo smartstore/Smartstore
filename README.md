@@ -1,6 +1,6 @@
-| <div align="left">:information_source: **Work in progress: Porting Smartstore to cross-platform ASP.NET Core**</div> |
+| <div align="left">:information_source: **Early Access: Smartstore 5 Beta was released**</div> |
 | --- |
-| In this repository we are currently working hard on porting Smartstore from classic ASP.NET MVC to ASP.NET Core 5. This project is currently under development and is **not yet suitable for use in production environment**. For production, use the latest stable release from [Smartstore.NET repository](https://github.com/smartstore/SmartStoreNET). Detailed information about our porting strategy can be found below in the section **ASP.NET Core 5**. |
+| The hard work on porting Smartstore from classic ASP.NET MVC to ASP.NET Core 6 is nearly finished and it was worth it because we created one of the fastest full-featured cross-platform e-commerce solutions of the world. Detailed information about upgrading or installing your shop can be found below in the section **ASP.NET Core 6**. |
 
 <br/>
 
@@ -36,9 +36,10 @@ A comprehensive set of tools for CRM & CMS, sales, marketing, payment & shipping
 <p align="center">
   <img src="assets/sm4-devices.png" alt="Smartstore.NET Demoshop" />
 </p>
-**Smartstore delivers a beautiful and configurable shop front-end out-of-the-box**, built with a design approach on the highest level, including components like `Bootstrap 4`, `Sass` and others. The supplied theme _Flex_ is modern, clean and fully responsive, giving buyers the best possible shopping experience on any device. 
 
-The state-of-the-art architecture of Smartstore - with `ASP.NET Core 5`, `Entity Framework Core 5` and Domain Driven Design approach - makes it easy to extend, extremely flexible and essentially fun to work with ;-)
+**Smartstore delivers a beautiful and configurable shop front-end out-of-the-box**, built with a design approach on the highest level, including components like `Vue.js`, `Sass`, `Bootstrap` and others. The supplied theme _Flex_ is modern, clean and fully responsive, giving buyers the best possible shopping experience on any device. 
+
+The state-of-the-art architecture of Smartstore - with `ASP.NET Core 6`, `Entity Framework Core 6` and Domain Driven Design approach - makes it easy to extend, extremely flexible and essentially fun to work with ;-)
 
 * **Website:** [http://www.smartstore.com/en/net](http://www.smartstore.com/en/net)
 * **Forum:** [http://community.smartstore.com](http://community.smartstore.com)
@@ -48,27 +49,26 @@ The state-of-the-art architecture of Smartstore - with `ASP.NET Core 5`, `Entity
 
 <p>&nbsp;</p>
 
-## ASP.NET Core 5
-In this repository we are currently working hard on a cross-platform port of [Smartstore](https://github.com/smartstore/SmartStoreNET) to `ASP.NET Core 5`. For best code quality we decided to port **class by class** and adapt the existing code to the new environment. The porting is scheduled to be **completed by the beginning of the second quarter of 2021**. Once the first `ASP.NET Core` based release is published, Smartstore instances based on classic `ASP.NET MVC` can be upgraded seamlessly. To perform the upgrade, only the app files need to be replaced on your server - except for the `App_Data` directory - and **all data will be automatically transferred to the new system**. After the first public release in this repository upcoming development will only take place here. 
+## ASP.NET Core 6
+This repository is a port of [Smartstore 4](https://github.com/smartstore/SmartStoreNET) - which is based on the classic .NET Framework 4.7.2 – to the new `ASP.NET Core 6` platform. 
+
+Smartstore instances based on classic `ASP.NET MVC` can be upgraded seamlessly. To perform the upgrade, only the app files need to be replaced on your server - except for the `App_Data` directory - and **all data will be automatically transferred to the new system**. [Detailed information about installing or upgrading](https://github.com/zihniartar/Smartstore-Core-Installation-Linux-Windows) your shop can be found [here](https://github.com/zihniartar/Smartstore-Core-Installation-Linux-Windows).
 
 **Give our new repository a star** to stay up-to-date, get involved or just watch how we're doing. Learn all about the latest development, participate actively and last but not least, don't miss the day of release.    
-
-**Important:** And once again... this project is currently under development and is **not yet suitable for use in production environment**. For production, use the latest stable release from [Smartstore.NET repository](https://github.com/smartstore/SmartStoreNET)..
-
 
 ## Highlights
 
 ### Technology & Design
 
-* State of the art architecture thanks to `ASP.NET Core 5`, `Entity Framework Core 5` and Domain Driven Design
+* State of the art architecture thanks to `ASP.NET Core 6`, `Entity Framework Core 6` and Domain Driven Design
 * Easy to extend and extremely flexible thanks to modular design
 * Highly scalable thanks to full page caching and web farm support 
 * A powerful theming engine lets you create themes & skins with minimum effort thanks to theme inheritance
-* Point&Click Theme configuration
+* Point&Click theme configuration
 * Highly professional search framework based on Lucene.NET, delivering ultra fast faceted search results
 * Powerful and lightning-fast media manager
 * Powerful rule system for visual business rule creation
-* Consistent and sophisticated use of modern components such as `Bootstrap 4`, `Vue.js`, `Sass` & more in the front and back end.
+* Consistent and sophisticated use of modern components such as `Vue.js`, `Sass`, `Bootstrap` & more in the front and back end.
 * Easy shop management thanks to modern and clean UI
 
 ### Features
@@ -82,7 +82,7 @@ In this repository we are currently working hard on a cross-platform port of [Sm
 * RESTful WebApi
 * CMS Page Builder
 * CMS Menu Builder
-* Modern, clean, SEO-optimized and fully responsive Theme based on Bootstrap 4
+* Modern, clean, SEO-optimized and fully responsive theme based on `Bootstrap`
 * Ultra fast search framework with faceted search support
 * Extremely scalable thanks to output caching, REDIS & Microsoft Azure support
 * Tree-based permission management (ACL) with inheritance support
@@ -102,19 +102,19 @@ In this repository we are currently working hard on a cross-platform port of [Sm
 
 ### System requirements
 
-* Windows 7 SP1 (or higher) / Windows Server 2008 R2 SP1 (or higher)
-* Mac OS X 10.11, 10.12
-* Red Hat Enterprise Linux 7
-* Ubuntu 14.04, 16.04, 17
-* MS SQL Server 2008 Express (or higher), MySQL or SQLite
+* Windows 10 (or higher) / Windows Server 2012 R2 (or higher)
+* Ubuntu 14.04+
+* Debian 11+
+* Mac OS X 10.11+
+* MS SQL Server 2008 Express (or higher), MySQL
 
 ## Try it online
 
-(Smartstore classic based on ASP.NET MVC) We have set up a live online demo for you so you are able to test Smartstore without local installation. Get a first impression and test all available features in the front- and in the backend. Please keep in mind that the backend demo is shared and other testers can modify data at the same time.
+We have set up a live online demo for you so you are able to test Smartstore without local installation. Get a first impression and test all available features in the front- and in the backend. Please keep in mind that the backend demo is shared and other testers can modify data at the same time.
 
-* [**Frontend**](https://demo.smartstore.com/frontend/en) (User: demo, PWD: 1234)
-* [**Backend**](https://demo.smartstore.com/backend/en/login) (User: demo, PWD: 1234)
+* [**Frontend**](https://core.smartstore.com/frontend/en) (User: demo, PWD: 1234)
+* [**Backend**](https://core.smartstore.com/backend/en/login) (User: demo, PWD: 1234)
 
 ## License
 
-Smartstore Community Edition is released under the [GPLv3 license](http://www.gnu.org/licenses/gpl-3.0.txt).
+Smartstore Community Edition is released under the [AGPL license](https://www.gnu.org/licenses/agpl-3.0.de.html).

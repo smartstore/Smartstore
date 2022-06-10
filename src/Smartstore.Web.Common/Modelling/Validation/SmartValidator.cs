@@ -1,18 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Dynamic.Core;
-using System.Linq.Expressions;
-using FluentValidation;
+﻿using System.Linq.Dynamic.Core;
 using FluentValidation.Internal;
-using FluentValidation.Results;
 using FluentValidation.Validators;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Smartstore;
 using Smartstore.ComponentModel;
-using Smartstore.Domain;
 
-namespace Smartstore.Web.Modelling.Validation
+namespace FluentValidation
 {
     public abstract class SmartValidator<TModel> : AbstractValidator<TModel> where TModel : class
     {
@@ -25,7 +18,7 @@ namespace Smartstore.Web.Modelling.Validation
             // Get all model properties
             var modelProps = FastProperty.GetProperties(typeof(TModel), PropertyCachingStrategy.EagerCached);
 
-            foreach (var modelProp in modelProps.Values.Where(x => !x.Property.PropertyType.IsNullable(out _) && x.Property.PropertyType.IsValueType))
+            foreach (var modelProp in modelProps.Values.Where(x => !x.Property.PropertyType.IsNullableType(out _) && x.Property.PropertyType.IsValueType))
             {
                 // If the model property is a non-nullable value type, then MVC will have already generated a non-localized Required rule.
                 // We should provide our own localized required rule and rely on FV to remove the MVC one. 

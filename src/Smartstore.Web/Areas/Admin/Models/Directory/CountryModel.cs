@@ -1,10 +1,6 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 using FluentValidation;
 using Smartstore.ComponentModel;
-using Smartstore.Core.Common;
-using Smartstore.Web.Modelling;
 
 namespace Smartstore.Admin.Models.Common
 {
@@ -79,10 +75,8 @@ namespace Smartstore.Admin.Models.Common
         public CountryValidator()
         {
             RuleFor(x => x.Name).NotNull();
-            RuleFor(x => x.TwoLetterIsoCode).NotEmpty();
-            RuleFor(x => x.TwoLetterIsoCode).Length(2);
-            RuleFor(x => x.ThreeLetterIsoCode).NotEmpty();
-            RuleFor(x => x.ThreeLetterIsoCode).Length(3);
+            RuleFor(x => x.TwoLetterIsoCode).NotEmpty().Length(2);
+            RuleFor(x => x.ThreeLetterIsoCode).NotEmpty().Length(3);
         }
     }
 

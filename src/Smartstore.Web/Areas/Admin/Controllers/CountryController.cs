@@ -1,21 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using Smartstore.Admin.Models.Common;
 using Smartstore.ComponentModel;
-using Smartstore.Core.Common;
-using Smartstore.Core.Common.Services;
-using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
-using Smartstore.Web.Controllers;
-using Smartstore.Web.Modelling;
 using Smartstore.Web.Models.DataGrid;
 
 namespace Smartstore.Admin.Controllers
@@ -23,31 +12,21 @@ namespace Smartstore.Admin.Controllers
     public class CountryController : AdminController
     {
         private readonly SmartDbContext _db;
-        private readonly IAddressService _addressService;
         private readonly ILocalizedEntityService _localizedEntityService;
-        private readonly ILanguageService _languageService;
         private readonly IStoreMappingService _storeMappingService;
-        private readonly ICurrencyService _currencyService;
 
         public CountryController(
             SmartDbContext db,
-            IAddressService addressService,
             ILocalizedEntityService localizedEntityService,
-            ILanguageService languageService,
-            IStoreMappingService storeMappingService,
-            ICurrencyService currencyService)
+            IStoreMappingService storeMappingService)
         {
             _db = db;
-            _addressService = addressService;
             _localizedEntityService = localizedEntityService;
-            _languageService = languageService;
             _storeMappingService = storeMappingService;
-            _currencyService = currencyService;
         }
 
         #region Utilities 
 
-        [NonAction]
         private async Task UpdateLocalesAsync(Country country, CountryModel model)
         {
             foreach (var localized in model.Locales)
@@ -56,7 +35,6 @@ namespace Smartstore.Admin.Controllers
             }
         }
 
-        [NonAction]
         private async Task UpdateLocalesAsync(StateProvince stateProvince, StateProvinceModel model)
         {
             foreach (var localized in model.Locales)
@@ -65,7 +43,6 @@ namespace Smartstore.Admin.Controllers
             }
         }
 
-        [NonAction]
         private async Task PrepareCountryModelAsync(CountryModel model, Country country)
         {
             Guard.NotNull(model, nameof(model));
@@ -78,10 +55,10 @@ namespace Smartstore.Admin.Controllers
             
             var currencies = await _db.Currencies
                 .AsNoTracking()
-                .ApplyStandardFilter(true)
+                .ApplyStandardFilter(false)
                 .ToListAsync();
 
-            ViewBag.AllCurrencies = currencies
+            ViewBag.Currencies = currencies
                 .Select(x => new SelectListItem { Text = x.GetLocalized(y => y.Name), Value = x.Id.ToString() })
                 .ToList();
         }
@@ -92,7 +69,7 @@ namespace Smartstore.Admin.Controllers
 
         public IActionResult Index()
         {
-            return RedirectToAction("List");
+            return RedirectToAction(nameof(List));
         }
 
         [Permission(Permissions.Configuration.Country.Read)]
@@ -107,15 +84,18 @@ namespace Smartstore.Admin.Controllers
         {
             var countries = await _db.Countries
                 .AsNoTracking()
+                .OrderBy(x => x.DisplayOrder)
                 .ApplyGridCommand(command)
                 .ToPagedList(command)
                 .LoadAsync();
-            
+
+            var mapper = MapperFactory.GetMapper<Country, CountryModel>();
             var countryModels = await countries
                 .SelectAsync(async x =>
                 {
-                    var model = await MapperFactory.MapAsync<Country, CountryModel>(x);
+                    var model = await mapper.MapAsync(x);
                     model.EditUrl = Url.Action(nameof(Edit), "Country", new { id = x.Id });
+
                     return model;
                 })
                 .AsyncToList();
@@ -153,7 +133,7 @@ namespace Smartstore.Admin.Controllers
             var country = await _db.Countries.FindByIdAsync(id);
             if (country == null)
             {
-                return RedirectToAction("List");
+                return RedirectToAction(nameof(List));
             }
 
             // Don't delete associated countries.
@@ -235,11 +215,15 @@ namespace Smartstore.Admin.Controllers
                 await _db.SaveChangesAsync();
 
                 await UpdateLocalesAsync(country, model);
-                await SaveStoreMappingsAsync(country, model.SelectedStoreIds);
-                await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, country, form));
+                await _storeMappingService.ApplyStoreMappingsAsync(country, model.SelectedStoreIds);
+                await _db.SaveChangesAsync();
 
+                await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, country, form));
                 NotifySuccess(T("Admin.Configuration.Countries.Added"));
-                return continueEditing ? RedirectToAction("Edit", new { id = country.Id }) : RedirectToAction("List");
+
+                return continueEditing 
+                    ? RedirectToAction(nameof(Edit), new { id = country.Id }) 
+                    : RedirectToAction(nameof(List));
             }
 
             await PrepareCountryModelAsync(model, null);
@@ -288,13 +272,15 @@ namespace Smartstore.Admin.Controllers
             {
                 await MapperFactory.MapAsync(model, country);
                 await UpdateLocalesAsync(country, model);
-                await SaveStoreMappingsAsync(country, model.SelectedStoreIds);
+                await _storeMappingService.ApplyStoreMappingsAsync(country, model.SelectedStoreIds);
                 await _db.SaveChangesAsync();
 
                 await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, country, form));
-
                 NotifySuccess(T("Admin.Configuration.Countries.Updated"));
-                return continueEditing ? RedirectToAction("Edit", new { id = country.Id }) : RedirectToAction("List");
+
+                return continueEditing 
+                    ? RedirectToAction(nameof(Edit), new { id = country.Id }) 
+                    : RedirectToAction(nameof(List));
             }
 
             await PrepareCountryModelAsync(model, country);
@@ -316,11 +302,9 @@ namespace Smartstore.Admin.Controllers
                 .ToPagedList(command)
                 .LoadAsync();
 
+            var mapper = MapperFactory.GetMapper<StateProvince, StateProvinceModel>();
             var stateProvinceModels = await stateProvinces
-                .SelectAsync(async x =>
-                {
-                    return await MapperFactory.MapAsync<StateProvince, StateProvinceModel>(x);
-                })
+                .SelectAsync(async x => await mapper.MapAsync(x))
                 .AsyncToList();
 
             var gridModel = new GridModel<StateProvinceModel>

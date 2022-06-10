@@ -18,8 +18,8 @@
 </div>
 
 <div id="export-profile-lists">
-    <partial name="_ProfileList" model="Model.Where(x => !x.IsSystemProfile)" view-data='new ViewDataDictionary(ViewData) { { "IsSystemProfile", false } }' />
-    <partial name="_ProfileList" model="Model.Where(x => x.IsSystemProfile)" view-data='new ViewDataDictionary(ViewData) { { "IsSystemProfile", true } }' />
+    <partial name="_ProfileList" model="Model.Where(x => !x.IsSystemProfile)" view-data='new ViewDataDictionary(ViewData) { ["IsSystemProfile"] = false }' />
+    <partial name="_ProfileList" model="Model.Where(x => x.IsSystemProfile)" view-data='new ViewDataDictionary(ViewData) { ["IsSystemProfile"] = true }' />
 </div>
 
 <modal id="export-profile-dialog" sm-render-at-page-end="true" sm-size="Large">
@@ -41,7 +41,12 @@
 
 <script sm-target-zone="scripts" data-origin="ExportList">
     $(function() {
-        var dialog = $('#export-profile-dialog');
+		var dialog = $('#export-profile-dialog');
+		var executedProfileId = '@(TempData["ExecutedProfileId"] as string)';
+
+		if (executedProfileId) {
+            $('body, html').animate({ scrollTop: $('#export-profile-' + executedProfileId).offset().top - 70 }, 'slow');
+		}
 
         // Show profile dialog.
         $(document).on('click', '.export-profile-button', function (e) {
@@ -206,8 +211,6 @@
 				tr.find('.btn-cancel-task').removeClass('hide');
 				tr.find('.btn-log').addClass('hide');
 				tr.find('.next-run-info').addClass('hide');
-
-				$('body, html').animate({ scrollTop: tr.offset().top - 70 }, 'slow');
 			},
 			onTaskCompleted: function (taskId, el) {
 				var tr = el.closest('tr');

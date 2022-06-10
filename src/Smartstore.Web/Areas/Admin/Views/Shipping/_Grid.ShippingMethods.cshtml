@@ -1,0 +1,48 @@
+﻿@using Smartstore.Admin.Models.Shipping
+
+@model ShippingMethodModel
+
+<datagrid id="shippingmethod-grid"
+          allow-resize="true"
+          allow-row-selection="true"
+          allow-column-reordering="true">
+    <datasource read="@Url.Action("ShippingMethodList", "Shipping")"
+                delete="@Url.Action("ShippingMethodDelete", "Shipping")" />
+    <toolbar>
+        <toolbar-group>
+            <a asp-action="Create" class="btn btn-primary btn-flat no-anims mr-auto">
+                <i class="fa fa-plus"></i>
+                <span>@T("Admin.Common.AddNew")...</span>
+            </a>
+        </toolbar-group>
+        <zone name="datagrid_toolbar_alpha"></zone>
+        <toolbar-group class="omega"></toolbar-group>
+        <zone name="datagrid_toolbar_omega"></zone>
+        <toolbar-group>
+            <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger no-anims btn-flat">
+                <i class="far fa-trash-alt"></i>
+                <span>@T("Admin.Common.Delete.Selected")</span>
+            </button>
+        </toolbar-group>
+    </toolbar>
+    <columns>
+        <column for="Name" width="350px" hideable="false">
+            <display-template>
+                <div class="text-truncate"><a :href="item.row.EditUrl" class="text-truncate">{{ item.value }}</a></div>
+            </display-template>
+        </column>
+        <column for="Description" width="1fr" wrap="true" v-bind:value="item.value">
+            <display-template>
+                <div v-html="item.value"></div>
+            </display-template>
+        </column>
+        <column for="NumberOfRules" halign="center" />
+        <column for="LimitedToStores" halign="center" />
+        <column for="IgnoreCharges" halign="center" />
+        <column for="DisplayOrder" halign="center" />
+    </columns>
+    <row-commands>
+        <a datarow-action="DataRowAction.Custom" :href="item.row.EditUrl">@T("Common.Edit")</a>
+        <a datarow-action="DataRowAction.Delete">@T("Common.Delete")</a>
+    </row-commands>
+</datagrid>

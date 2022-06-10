@@ -1,0 +1,36 @@
+﻿@model OrderModel.UploadLicenseModel
+
+@{
+    Layout = "_AdminPopupLayout";
+    ViewBag.Title = T("Admin.Orders.Products.License.UploadFile").Value;
+}
+
+<form asp-action="UploadLicenseFilePopup" asp-route-btnId="@ViewBag.BtnId" asp-route-formId="@ViewBag.FormId">
+    <input type="hidden" asp-for="OrderId" />
+    <input type="hidden" asp-for="OrderItemId" />
+    <input type="hidden" asp-for="OldLicenseDownloadId" />
+
+    <div class="section-header">
+        <div class="title">
+            @ViewBag.Title
+        </div>
+    </div>
+
+    <div asp-validation-summary="All"></div>
+
+    <div class="adminContent">
+        <div class="adminRow">
+            <editor asp-for="LicenseDownloadId" class="w-100" />
+        </div>
+        <div class="adminRow pl-5">
+            <button type="submit" name="uploadlicense" id="uploadlicense" value="uploadlicense" class="btn btn-warning mr-2">
+                <i class="fa fa-check"></i>
+                <span>@T("Admin.Common.Save")</span>
+            </button>
+            <button sm-if="Model.LicenseDownloadId > 0" type="submit" name="deletelicense" id="deletelicense" value="deletelicense" class="btn btn-danger">
+                <i class="far fa-trash-alt"></i>
+                <span>@T("Admin.Common.Delete")</span>
+            </button>
+        </div>
+    </div>
+</form>

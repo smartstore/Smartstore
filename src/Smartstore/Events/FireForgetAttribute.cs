@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Smartstore.Events
+﻿namespace Smartstore.Events
 {
     /// <summary>
     /// Specifies whether an event consumer method should be invoked asynchronously without awaiting.

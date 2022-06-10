@@ -1,7 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-
-namespace Smartstore.Templating
+﻿namespace Smartstore.Templating
 {
     /// <summary>
     /// A compiled template intended to be stored in a singleton storage.

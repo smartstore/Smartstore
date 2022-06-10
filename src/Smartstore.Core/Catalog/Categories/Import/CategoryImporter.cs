@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using Smartstore.Core.Catalog.Categories;
+﻿using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.DataExchange.Import.Events;
 using Smartstore.Core.Localization;
@@ -41,8 +33,9 @@ namespace Smartstore.Core.DataExchange.Import
             ILocalizedEntityService localizedEntityService,
             IStoreMappingService storeMappingService,
             IUrlService urlService,
-            IFolderService folderService)
-            : base(services, localizedEntityService, storeMappingService, urlService)
+            IFolderService folderService,
+            SeoSettings seoSettings)
+            : base(services, localizedEntityService, storeMappingService, urlService, seoSettings)
         {
             _folderService = folderService;
         }
@@ -52,6 +45,7 @@ namespace Smartstore.Core.DataExchange.Import
 
         protected override async Task ProcessBatchAsync(ImportExecuteContext context, CancellationToken cancelToken = default)
         {
+            var entityName = nameof(Category);
             var segmenter = context.DataSegmenter;
             var batch = segmenter.GetCurrentBatch<Category>();
 
@@ -93,11 +87,16 @@ namespace Smartstore.Core.DataExchange.Import
                 {
                     try
                     {
-                        await ProcessSlugsAsync(context, batch, typeof(Category).Name);
+                        scope.DbContext.SuppressCommit = false;
+                        await ProcessSlugsAsync(context, batch, entityName);
                     }
                     catch (Exception ex)
                     {
                         context.Result.AddError(ex, segmenter.CurrentSegment, nameof(ProcessSlugsAsync));
+                    }
+                    finally
+                    {
+                        scope.DbContext.SuppressCommit = true;
                     }
                 }
 
@@ -108,7 +107,7 @@ namespace Smartstore.Core.DataExchange.Import
                 {
                     try
                     {
-                        await ProcessStoreMappingsAsync(context, scope, batch);
+                        await ProcessStoreMappingsAsync(context, scope, batch, entityName);
                     }
                     catch (Exception ex)
                     {
@@ -121,7 +120,7 @@ namespace Smartstore.Core.DataExchange.Import
                 // ===========================================================================
                 try
                 {
-                    await ProcessLocalizationsAsync(context, scope, batch, _localizableProperties);
+                    await ProcessLocalizationsAsync(context, scope, batch, entityName, _localizableProperties);
                 }
                 catch (Exception ex)
                 {
@@ -183,7 +182,7 @@ namespace Smartstore.Core.DataExchange.Import
                             break;
                         case "Name":
                             if (name.HasValue())
-                                category = await _db.Categories.FirstOrDefaultAsync(x => x.Name == name);
+                                category = await _db.Categories.FirstOrDefaultAsync(x => x.Name == name, context.CancelToken);
                             break;
                     }
 
@@ -268,7 +267,7 @@ namespace Smartstore.Core.DataExchange.Import
             // Required for parent category relationship.
             var targetCategoryIds = context.GetCustomProperty<Dictionary<int, int>>(TARGET_CATEGORY_IDS_KEY);
 
-            foreach (var row in batch)
+            foreach (var row in batch.Where(x => x.Entity != null))
             {
                 var id = row.GetDataValue<int>("Id");
                 if (id != 0)
@@ -280,15 +279,14 @@ namespace Smartstore.Core.DataExchange.Import
             return num;
         }
 
-        protected virtual async Task<int> ProcessPicturesAsync(ImportExecuteContext context, DbContextScope scope, IEnumerable<ImportRow<Category>> batch)
+        protected virtual async Task ProcessPicturesAsync(ImportExecuteContext context, DbContextScope scope, IEnumerable<ImportRow<Category>> batch)
         {
             var cargo = await GetCargoData(context);
+            var newFiles = new List<FileBatchSource>();
+
             var allFileIds = batch
                 .Where(row => row.HasDataValue("ImageUrl") && row.Entity.MediaFileId > 0)
-                .Select(row => row.Entity.MediaFileId.Value)
-                .Distinct()
-                .ToArray();
-
+                .ToDistinctArray(row => row.Entity.MediaFileId.Value);
             var allFiles = await _services.MediaService.GetFilesByIdsAsync(allFileIds);
             var allFilesMap = allFiles.ToDictionary(x => x.Id, x => x.File);
 
@@ -330,23 +328,21 @@ namespace Smartstore.Core.DataExchange.Import
                                 }
                             }
 
-                            var fileId = 0;
-                            var equalityCheck = await _services.MediaService.FindEqualFileAsync(stream, image.FileName, cargo.CatalogAlbumId, true);
+                            var equalityCheck = await _services.MediaService.FindEqualFileAsync(stream, image.FileName, cargo.CatalogAlbum.Id, true);
                             if (equalityCheck.Success)
                             {
-                                fileId = equalityCheck.Value.Id;
+                                row.Entity.MediaFileId = equalityCheck.Value.Id;
                                 context.Result.AddInfo($"Found equal file in catalog album for '{image.FileName}'. Assigning existing file instead.", row.RowInfo, "ImageUrl");
                             }
                             else
                             {
-                                var path = _services.MediaService.CombinePaths(SystemAlbumProvider.Catalog, image.FileName);
-                                var saveFileResult = await _services.MediaService.SaveFileAsync(path, stream, false, DuplicateFileHandling.Rename);
-                                fileId = saveFileResult.File.Id;
-                            }
-
-                            if (fileId != 0)
-                            {
-                                row.Entity.MediaFileId = fileId;
+                                // Keep path for later batch import of new images.
+                                newFiles.Add(new FileBatchSource
+                                {
+                                    PhysicalPath = image.Path,
+                                    FileName = image.FileName,
+                                    State = row.Entity
+                                });
                             }
                         }
                     }
@@ -361,8 +357,25 @@ namespace Smartstore.Core.DataExchange.Import
                 }
             }
 
-            var num = await scope.CommitAsync(context.CancelToken);
-            return num;
+            if (newFiles.Count > 0)
+            {
+                var batchFileResult = await _services.MediaService.BatchSaveFilesAsync(
+                    newFiles.ToArray(),
+                    cargo.CatalogAlbum,
+                    false,
+                    DuplicateFileHandling.Rename,
+                    context.CancelToken);
+
+                foreach (var fileResult in batchFileResult)
+                {
+                    if (fileResult.Exception == null && fileResult.File?.Id > 0)
+                    {
+                        (fileResult.Source.State as Category).MediaFileId = fileResult.File.Id;
+                    }
+                }
+            }
+
+            await scope.CommitAsync(context.CancelToken);
         }
 
         protected virtual async Task<int> ProcessParentMappingsAsync(ImportExecuteContext context, DbContextScope scope, IEnumerable<ImportRow<Category>> batch)
@@ -395,7 +408,7 @@ namespace Smartstore.Core.DataExchange.Import
             parentCategoryIds.Clear();
             var childIds = newIds.Keys.ToArray();
 
-            foreach (var childIdsChunk in childIds.Slice(100))
+            foreach (var childIdsChunk in childIds.Chunk(100))
             {
                 var childCategories = await _db.Categories
                     .AsQueryable()
@@ -423,8 +436,6 @@ namespace Smartstore.Core.DataExchange.Import
                 return (ImporterCargoData)value;
             }
 
-            var catalogAlbumId = _folderService.GetNodeByPath(SystemAlbumProvider.Catalog).Value.Id;
-
             var categoryTemplates = await _db.CategoryTemplates
                 .AsNoTracking()
                 .OrderBy(x => x.DisplayOrder)
@@ -433,7 +444,8 @@ namespace Smartstore.Core.DataExchange.Import
             // Do not pass entities here because of batch scope!
             var result = new ImporterCargoData
             {
-                TemplateViewPaths = categoryTemplates.ToDictionarySafe(x => x.ViewPath, x => x.Id)
+                TemplateViewPaths = categoryTemplates.ToDictionarySafe(x => x.ViewPath, x => x.Id),
+                CatalogAlbum = _folderService.GetNodeByPath(SystemAlbumProvider.Catalog).Value
             };
 
             context.CustomProperties[CARGO_DATA_KEY] = result;
@@ -445,7 +457,7 @@ namespace Smartstore.Core.DataExchange.Import
         /// </summary>
         protected class ImporterCargoData
         {
-            public int CatalogAlbumId { get; init; }
+            public MediaFolderNode CatalogAlbum { get; init; }
             public Dictionary<string, int> TemplateViewPaths { get; init; }
         }
     }

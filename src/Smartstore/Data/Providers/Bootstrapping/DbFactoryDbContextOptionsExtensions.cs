@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
@@ -61,18 +60,22 @@ namespace Smartstore.Data.Providers
                 extension = new DbFactoryOptionsExtension(optionsBuilder.Options);
 
                 optionsBuilder
-                    .ReplaceService<IConventionSetBuilder, FixedRuntimeConventionSetBuilder>()
                     //.EnableSensitiveDataLogging(true)
                     .ConfigureWarnings(w =>
                     {
-                    // EF throws when query is untracked otherwise
-                    w.Ignore(CoreEventId.DetachedLazyLoadingWarning);
+                        // EF throws when query is untracked otherwise
+                        w.Ignore(CoreEventId.DetachedLazyLoadingWarning);
 
-                    #region Test
-                    //// To identify the query that's triggering MultipleCollectionIncludeWarning.
-                    ////w.Throw(RelationalEventId.MultipleCollectionIncludeWarning);
-                    ////w.Ignore(RelationalEventId.MultipleCollectionIncludeWarning);
-                    #endregion
+                        // Turn off the global query filter warning. We use global query filters only for ISoftDeletable.
+                        // Related entities are not required but we do not want to configure that for each relationship.
+                        // This way we can leave the configuration of the relationship to EF in many cases.
+                        w.Ignore(CoreEventId.PossibleIncorrectRequiredNavigationWithQueryFilterInteractionWarning);
+
+                        #region Test
+                        //// To identify the query that's triggering MultipleCollectionIncludeWarning.
+                        //w.Throw(RelationalEventId.MultipleCollectionIncludeWarning);
+                        //w.Ignore(RelationalEventId.MultipleCollectionIncludeWarning);
+                        #endregion
                 });
             }
 

@@ -1,12 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Linq.Dynamic.Core;
+﻿using System.Linq.Dynamic.Core;
 using System.Runtime.CompilerServices;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 using Smartstore.Collections;
 using Smartstore.Data;
 
@@ -228,9 +221,7 @@ namespace Smartstore.Core.Content.Media
             if (doDupeCheck)
             {
                 // Get all files in destination folder for faster dupe selection
-                destFiles = (await _searcher
-                    .SearchFiles(new MediaSearchQuery { FolderId = destNode.Value.Id }, MediaLoadFlags.None).LoadAsync())
-                    .ToDictionarySafe(x => x.Name);
+                destFiles = await GetCachedFilesByFolderAsync(destNode.Value.Id);
 
                 // Make a HashSet from all file names in the destination folder for faster unique file name lookups
                 destNames = new HashSet<string>(destFiles.Keys, StringComparer.CurrentCultureIgnoreCase);
@@ -240,7 +231,7 @@ namespace Smartstore.Core.Content.Media
             var tuples = new List<(MediaFile, MediaFile)>(500);
 
             // Copy files batched
-            foreach (var batch in files.Slice(500))
+            foreach (var batch in files.Chunk(500))
             {
                 if (cancelToken.IsCancellationRequested)
                     break;
@@ -385,7 +376,7 @@ namespace Smartstore.Core.Content.Media
                     ? _folderService.FindAlbum(folder.Id).Value.Id
                     : (int?)null;
 
-                foreach (var batch in files.Slice(500))
+                foreach (var batch in files.Chunk(500))
                 {
                     if (cancelToken.IsCancellationRequested)
                         break;

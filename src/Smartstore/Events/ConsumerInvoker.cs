@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Autofac;
+﻿using Autofac;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Smartstore.ComponentModel;
-using Smartstore.Engine;
 using Smartstore.Threading;
 
 namespace Smartstore.Events
@@ -15,13 +9,11 @@ namespace Smartstore.Events
     public class ConsumerInvoker : IConsumerInvoker
     {
         private readonly IConsumerResolver _resolver;
-        private readonly ILifetimeScopeAccessor _scopeAccessor;
         private readonly AsyncRunner _asyncRunner;
 
-        public ConsumerInvoker(IConsumerResolver resolver, ILifetimeScopeAccessor scopeAccessor, AsyncRunner asyncRunner)
+        public ConsumerInvoker(IConsumerResolver resolver, AsyncRunner asyncRunner)
         {
             _resolver = resolver;
-            _scopeAccessor = scopeAccessor;
             _asyncRunner = asyncRunner;
         }
 

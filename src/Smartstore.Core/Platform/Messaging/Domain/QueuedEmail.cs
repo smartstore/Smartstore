@@ -1,25 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Smartstore.Domain;
 
 namespace Smartstore.Core.Messaging
 {
-    internal class QueuedEmailMap : IEntityTypeConfiguration<QueuedEmail>
-    {
-        public void Configure(EntityTypeBuilder<QueuedEmail> builder)
-        {
-            //builder.HasOne(x => x.EmailAccount)
-            //    .WithMany()
-            //    .HasForeignKey(x => x.EmailAccountId)
-            //    .OnDelete(DeleteBehavior.Cascade);
-        }
-    }
-
     /// <summary>
     /// Represents a queued email item.
     /// </summary>

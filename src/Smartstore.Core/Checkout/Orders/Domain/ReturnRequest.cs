@@ -1,27 +1,11 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Smartstore.Core.Identity;
-using Smartstore.Domain;
 
 namespace Smartstore.Core.Checkout.Orders
 {
-    internal class ReturnRequestMap : IEntityTypeConfiguration<ReturnRequest>
-    {
-        public void Configure(EntityTypeBuilder<ReturnRequest> builder)
-        {
-            //builder.HasOne(c => c.Customer)
-            //    .WithMany(c => c.ReturnRequests)
-            //    .HasForeignKey(c => c.CustomerId)
-            //    .OnDelete(DeleteBehavior.Cascade)
-            //    .IsRequired(false);
-        }
-    }
-
     /// <summary>
     /// Represents a return request.
     /// </summary>
@@ -87,13 +71,11 @@ namespace Smartstore.Core.Checkout.Orders
         /// <summary>
         /// Gets or sets the customer comments.
         /// </summary>
-        [StringLength(4000)]
         public string CustomerComments { get; set; }
 
         /// <summary>
         /// Gets or sets the staff notes.
         /// </summary>
-        [StringLength(4000)]
         public string StaffNotes { get; set; }
 
         /// <summary>

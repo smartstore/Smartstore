@@ -1,6 +1,4 @@
-﻿using Smartstore.Web.Modelling;
-using Smartstore.Web.Models.Common;
-using System.Collections.Generic;
+﻿using Smartstore.Web.Models.Common;
 
 namespace Smartstore.Web.Models.Checkout
 {

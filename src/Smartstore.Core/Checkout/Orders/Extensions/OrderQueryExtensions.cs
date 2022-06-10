@@ -1,19 +1,105 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore.Query;
 using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Checkout.GiftCards;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Orders.Reporting;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Shipping;
+using Smartstore.Core.Common;
 using Smartstore.Core.Data;
+using Smartstore.Core.Identity;
 
 namespace Smartstore
 {
     public static class OrderQueryExtensions
     {
+        /// <summary>
+        /// Includes the billing address graph for eager loading.
+        /// </summary>
+        public static IIncludableQueryable<Order, Country> IncludeBillingAddress(this IQueryable<Order> query)
+        {
+            Guard.NotNull(query, nameof(query));
+
+            return query
+                .Include(x => x.BillingAddress.StateProvince)
+                .Include(x => x.BillingAddress.Country);
+        }
+
+        /// <summary>
+        /// Includes the shipping address graph for eager loading.
+        /// </summary>
+        public static IIncludableQueryable<Order, Country> IncludeShippingAddress(this IQueryable<Order> query)
+        {
+            Guard.NotNull(query, nameof(query));
+
+            return query
+                .Include(x => x.ShippingAddress.StateProvince)
+                .Include(x => x.ShippingAddress.Country);
+        }
+
+        /// <summary>
+        /// Includes the gift card history graph for eager loading.
+        /// </summary>
+        public static IIncludableQueryable<Order, GiftCard> IncludeGiftCardHistory(this IQueryable<Order> query)
+        {
+            Guard.NotNull(query, nameof(query));
+
+            return query
+                .AsSplitQuery()
+                .Include(x => x.GiftCardUsageHistory)
+                .ThenInclude(x => x.GiftCard);
+        }
+
+        /// <summary>
+        /// Includes the customer graph for eager loading.
+        /// </summary>
+        public static IIncludableQueryable<Order, CustomerRole> IncludeCustomer(this IQueryable<Order> query,
+            bool includeRewardPoints = false)
+        {
+            Guard.NotNull(query, nameof(query));
+
+            if (includeRewardPoints)
+            {
+                query = query
+                    .Include(x => x.RedeemedRewardPointsEntry)
+                    .Include(x => x.Customer.RewardPointsHistory);
+            }
+
+            return query
+                .AsSplitQuery()
+                .Include(x => x.Customer)
+                .ThenInclude(x => x.CustomerRoleMappings)
+                .ThenInclude(x => x.CustomerRole);
+        }
+
+        /// <summary>
+        /// Includes the order item graph for eager loading.
+        /// </summary>
+        public static IIncludableQueryable<Order, Product> IncludeOrderItems(this IQueryable<Order> query)
+        {
+            Guard.NotNull(query, nameof(query));
+
+            return query
+                .AsSplitQuery()
+                .Include(x => x.OrderItems)
+                .ThenInclude(x => x.Product);
+        }
+
+        /// <summary>
+        /// Includes the shipments graph for eager loading.
+        /// </summary>
+        public static IIncludableQueryable<Order, ICollection<ShipmentItem>> IncludeShipments(this IQueryable<Order> query)
+        {
+            Guard.NotNull(query, nameof(query));
+
+            return query
+                .AsSplitQuery()
+                .Include(x => x.ShippingAddress)
+                .Include(x => x.Shipments)
+                .ThenInclude(x => x.ShipmentItems);
+        }
+
+
         /// <summary>
         /// Applies a standard filter and sorts by <see cref="Order.CreatedOnUtc"/> descending.
         /// </summary>
@@ -36,28 +122,6 @@ namespace Smartstore
             }
 
             return query.OrderByDescending(o => o.CreatedOnUtc);
-        }
-
-        /// <summary>
-        /// Applies a date time filter.
-        /// </summary>
-        /// <param name="fromUtc">Start date in UTC.</param>
-        /// <param name="toUtc">End date in UTC</param>
-        public static IQueryable<Order> ApplyDateFilter(this IQueryable<Order> query, DateTime? fromUtc = null, DateTime? toUtc = null)
-        {
-            Guard.NotNull(query, nameof(query));
-
-            if (fromUtc.HasValue)
-            {
-                query = query.Where(x => fromUtc.Value <= x.CreatedOnUtc);
-            }
-
-            if (toUtc.HasValue)
-            {
-                query = query.Where(x => toUtc.Value >= x.CreatedOnUtc);
-            }
-
-            return query;
         }
 
         /// <summary>
@@ -204,25 +268,6 @@ namespace Smartstore
         }
 
         /// <summary>
-        /// Selects <see cref="OrderAverageReportLine"/> from query.
-        /// </summary>
-        /// <param name="query">Order query from which to select.</param>
-        /// <returns><see cref="IQueryable"/> of <see cref="OrderAverageReportLine"/>.</returns>
-        public static IQueryable<OrderAverageReportLine> SelectAsOrderAverageReportLine(this IQueryable<Order> query)
-        {
-            Guard.NotNull(query, nameof(query));
-
-            return query
-                .GroupBy(x => 1)
-                .Select(x => new OrderAverageReportLine
-                {
-                    CountOrders = x.Count(),
-                    SumTax = x.Sum(x => x.OrderTax),
-                    SumOrders = x.Sum(x => x.OrderTotal)
-                });
-        }
-
-        /// <summary>
         /// Selects <see cref="OrderDataPoint"/> from query.
         /// </summary>
         /// <param name="query">Order query from which to select.</param>
@@ -231,15 +276,46 @@ namespace Smartstore
         {
             Guard.NotNull(query, nameof(query));
 
-            return query
-                .Select(x => new OrderDataPoint
+            return query.Select(x => new OrderDataPoint
+            {
+                CreatedOn = x.CreatedOnUtc,
+                OrderTotal = x.OrderTotal,
+                OrderStatusId = x.OrderStatusId,
+                PaymentStatusId = x.PaymentStatusId,
+                ShippingStatusId = x.ShippingStatusId
+            });
+        }
+
+        /// <summary>
+        /// Groups orders by <see cref="Order.CustomerId"/> and selects <see cref="TopCustomerReportLine"/> from <paramref name="query"/>.
+        /// </summary>
+        /// <param name="query">Order query.</param>
+        /// <param name="sorting"><see cref="ReportSorting"/> to apply.</param>
+        /// <returns><see cref="TopCustomerReportLine"/> query.</returns>
+        public static IQueryable<TopCustomerReportLine> SelectAsTopCustomerReportLine(this IQueryable<Order> query,
+            ReportSorting sorting = ReportSorting.ByQuantityDesc)
+        {
+            Guard.NotNull(query, nameof(query));
+
+            var groupedQuery =
+                from o in query
+                group o by o.CustomerId into grp
+                select new TopCustomerReportLine
                 {
-                    CreatedOn = x.CreatedOnUtc,
-                    OrderTotal = x.OrderTotal,
-                    OrderStatusId = x.OrderStatusId,
-                    PaymentStatusId = x.PaymentStatusId,
-                    ShippingStatusId = x.ShippingStatusId
-                });
+                    CustomerId = grp.Key,
+                    OrderTotal = grp.Sum(x => x.OrderTotal),
+                    OrderCount = grp.Count()
+                };
+
+            groupedQuery = sorting switch
+            {
+                ReportSorting.ByAmountAsc => groupedQuery.OrderBy(x => x.OrderTotal),
+                ReportSorting.ByAmountDesc => groupedQuery.OrderByDescending(x => x.OrderTotal),
+                ReportSorting.ByQuantityAsc => groupedQuery.OrderBy(x => x.OrderCount).ThenByDescending(x => x.OrderTotal),
+                _ => groupedQuery.OrderByDescending(x => x.OrderCount).ThenByDescending(x => x.OrderTotal),
+            };
+
+            return groupedQuery;
         }
 
         /// <summary>
@@ -268,22 +344,6 @@ namespace Smartstore
             Guard.NotNull(query, nameof(query));
 
             return query.SumAsync(x => (decimal?)x.OrderTotal ?? decimal.Zero);
-        }
-
-        /// <summary>
-        /// Gets orders profit (sum - tax - product costs) async.
-        /// </summary>
-        /// <param name="query">Order query.</param>
-        /// <returns>Orders profit.</returns>
-        public static async Task<decimal> GetProfitAsync(this IQueryable<Order> query)
-        {
-            Guard.NotNull(query, nameof(query));
-
-            var productCost = await GetOrdersProductCostsAsync(query);
-            var summary = await SelectAsOrderAverageReportLine(query).FirstOrDefaultAsync() ?? new OrderAverageReportLine();
-            var profit = summary.SumOrders - summary.SumTax - productCost;
-
-            return profit;
         }
     }
 }

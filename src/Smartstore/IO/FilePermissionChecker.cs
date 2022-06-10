@@ -1,7 +1,4 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
+﻿using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 using System.Security.AccessControl;
@@ -22,7 +19,8 @@ namespace Smartstore.IO
             "App_Data",
             $"App_Data/Tenants/{DataSettings.Instance.TenantName}",
             $"App_Data/Tenants/{DataSettings.Instance.TenantName}/Media",
-            "Modules"
+            "Modules",
+            $"runtimes/{RuntimeInfo.GetRuntimeIdentifier()}/native"
         };
 
         /// <summary>
@@ -41,13 +39,13 @@ namespace Smartstore.IO
             _osIdentity = osIdentity;
         }
 
-        public virtual bool CanAccess(IFileEntry entry, FileEntryRights rights)
+        public virtual bool CanAccess(FileSystemInfo entry, FileEntryRights rights)
         {
             Guard.NotNull(entry, nameof(entry));
 
-            if (entry is not (LocalFile or LocalDirectory) || !entry.Exists)
+            if (!entry.Exists)
             {
-                throw new InvalidOperationException($"For file permission checks given entry must be an existing local/physical file or directory. Entry: '{entry.SubPath}'");
+                throw new InvalidOperationException($"For file permission checks given entry must be an existing local/physical file or directory. Entry: '{entry.FullName}'");
             }
 
             switch (Environment.OSVersion.Platform)
@@ -64,7 +62,7 @@ namespace Smartstore.IO
         }
 
         [SupportedOSPlatform("windows")]
-        protected virtual bool CanAccessOnWindows(IFileEntry entry, FileEntryRights rights)
+        protected virtual bool CanAccessOnWindows(FileSystemInfo entry, FileEntryRights rights)
         {
             var canAccess = true;
             var identity = WindowsIdentity.GetCurrent();
@@ -129,18 +127,18 @@ namespace Smartstore.IO
 
             return canAccess;
 
-            static FileSystemSecurity GetAccessControl(IFileEntry fileEntry)
+            static FileSystemSecurity GetAccessControl(FileSystemInfo entry)
             {
-                if (fileEntry is LocalDirectory dir)
+                if (entry is DirectoryInfo dir)
                 {
-                    return dir.AsDirectoryInfo().GetAccessControl();
+                    return dir.GetAccessControl();
                 }
-                else if (fileEntry is LocalFile file)
+                else if (entry is FileInfo file)
                 {
-                    return file.AsFileInfo().GetAccessControl();
+                    return file.GetAccessControl();
                 }
 
-                throw new InvalidOperationException($"Cannot get access control list for entry '{fileEntry.PhysicalPath}'");
+                throw new InvalidOperationException($"Cannot get access control list for entry '{entry.FullName}'");
             }
 
             void CheckRule(FileSystemAccessRule rule)
@@ -176,12 +174,12 @@ namespace Smartstore.IO
             }
         }
 
-        protected virtual bool CanAccessOnLinux(IFileEntry entry, FileEntryRights rights)
+        protected virtual bool CanAccessOnLinux(FileSystemInfo entry, FileEntryRights rights)
         {
             // MacOSX file permission check differs slightly from linux
             var arguments = RuntimeInformation.IsOSPlatform(OSPlatform.OSX)
-                ? $"-c \"stat -f '%A %u %g' {entry.PhysicalPath}\""
-                : $"-c \"stat -c '%a %u %g' {entry.PhysicalPath}\"";
+                ? $"-c \"stat -f '%A %u %g' {entry.FullName}\""
+                : $"-c \"stat -c '%a %u %g' {entry.FullName}\"";
 
             try
             {
@@ -194,7 +192,7 @@ namespace Smartstore.IO
                         RedirectStandardInput = true,
                         RedirectStandardOutput = true,
                         UseShellExecute = false,
-                        FileName = "sh",
+                        FileName = "/bin/sh",
                         Arguments = arguments
                     }
                 };
@@ -205,7 +203,7 @@ namespace Smartstore.IO
                 // Where 555 - file permissions, 1111 - file owner ID, 2222 - file group ID
                 var result = process.StandardOutput.ReadToEnd().Trim('\n').Split(' ');
 
-                var filePermissions = result[0].Select(p => (int)char.GetNumericValue(p)).ToList();
+                var filePermissions = result[0].Select(p => (int)char.GetNumericValue(p)).ToArray();
                 var isOwner = _osIdentity.UserId == result[1];
                 var isInGroup = _osIdentity.Groups.Contains(result[2]);
 
@@ -214,8 +212,9 @@ namespace Smartstore.IO
 
                 return CheckUserFilePermissions(filePermission);
             }
-            catch
+            catch (Exception ex)
             {
+                Console.WriteLine($"FilePermissionChecker error: {ex.Message}");
                 return false;
             }
 

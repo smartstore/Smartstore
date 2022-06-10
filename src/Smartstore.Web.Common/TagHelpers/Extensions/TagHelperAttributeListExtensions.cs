@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Smartstore.Web.Rendering;
@@ -19,7 +18,7 @@ namespace Smartstore.Web.TagHelpers
 
             foreach (var attr in attributes)
             {
-                target[attr.Name] = attr.Value.ToString();
+                target[attr.Name] = attr.ValueAsString();
             }
         }
 
@@ -79,7 +78,7 @@ namespace Smartstore.Web.TagHelpers
 
             if (attributes.TryGetAttribute(name, out var attribute))
             {
-                return target.MergeAttribute(name, () => attribute.Value?.ToString(), replaceExisting, ignoreNull);
+                return target.MergeAttribute(name, () => attribute.ValueAsString(), replaceExisting, ignoreNull);
             }
 
             return false;
@@ -101,7 +100,7 @@ namespace Smartstore.Web.TagHelpers
 
             if (attributes.TryGetAttribute(name, out var attribute))
             {
-                if (target.MergeAttribute(name, () => attribute.Value?.ToString(), replaceExisting, ignoreNull))
+                if (target.MergeAttribute(name, () => attribute.ValueAsString(), replaceExisting, ignoreNull))
                 {
                     attributes.RemoveAll(name);
                     return true;

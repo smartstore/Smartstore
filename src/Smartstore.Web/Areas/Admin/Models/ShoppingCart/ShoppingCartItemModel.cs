@@ -1,8 +1,4 @@
-﻿using Smartstore.Core.Common;
-using Smartstore.Web.Modelling;
-using System;
-
-namespace Smartstore.Admin.Models.ShoppingCart
+﻿namespace Smartstore.Admin.Models.Cart
 {
     [LocalizedDisplay("Admin.CurrentCarts.")]
     public class ShoppingCartItemModel : EntityModelBase
@@ -17,6 +13,7 @@ namespace Smartstore.Admin.Models.ShoppingCart
         public string ProductName { get; set; }
         public string ProductTypeName { get; set; }
         public string ProductTypeLabelHint { get; set; }
+        public string ProductEditUrl { get; set; }
 
         [LocalizedDisplay("*UnitPrice")]
         public Money UnitPrice { get; set; }

@@ -1,10 +1,7 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Content.Media;
-using Smartstore.Web.Modelling;
 
 namespace Smartstore.Admin.Models.Catalog
 {
@@ -32,6 +29,9 @@ namespace Smartstore.Admin.Models.Catalog
         [UIHint("DeliveryTimes")]
         [LocalizedDisplay("Admin.Catalog.Products.Fields.DeliveryTime")]
         public int? DeliveryTimeId { get; set; }
+
+        [LocalizedDisplay("Admin.Catalog.Products.Fields.QuantityUnit")]
+        public int? QuantityUnitId { get; set; }
 
         [LocalizedDisplay("*Pictures")]
         public int[] AssignedPictureIds { get; set; } = new int[0];

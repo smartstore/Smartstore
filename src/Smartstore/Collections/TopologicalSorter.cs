@@ -1,7 +1,4 @@
 ﻿// CREDITS to Tawani Anyangwe: http://tawani.blogspot.de/2009/02/topological-sorting-and-cyclic.html
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Smartstore.Collections
 {

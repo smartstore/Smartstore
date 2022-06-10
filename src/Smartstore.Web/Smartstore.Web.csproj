@@ -1,23 +1,45 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
-	<Import Project="..\Build\Smartstore.Common.props" />
+	<Import Project="..\Smartstore.Build\Smartstore.Common.props" />
+	<Import Project="..\Smartstore.Build\Smartstore.Razor.props" />
 
 	<PropertyGroup>
-		<CopyRefAssembliesToPublishDirectory>false</CopyRefAssembliesToPublishDirectory>
 		<UserSecretsId>b35c0f56-dfa8-4120-b29b-a677578afcd1</UserSecretsId>
+		<CopyRefAssembliesToPublishDirectory>true</CopyRefAssembliesToPublishDirectory>
+		<RuntimeIdentifiers>win-x64; win-x86; linux-x64; osx-x64</RuntimeIdentifiers>
+		<!--<PublishReadyToRun>true</PublishReadyToRun>-->
 	</PropertyGroup>
 
 	<ItemGroup>
-		<Compile Remove="App_Data\**" />
-		<Compile Remove="Modules\*\**" />
-		<Content Remove="App_Data\**" />
-		<Content Remove="Modules\*\**" />
-		<EmbeddedResource Remove="App_Data\**" />
-		<EmbeddedResource Remove="Modules\*\**" />
-		<None Remove="App_Data\**" />
-		<None Remove="Modules\*\**" />
+		<PackageReference Include="Autofac.Extensions.DependencyInjection" Version="7.2.0" />
+		<PackageReference Include="FluentValidation.AspNetCore" Version="9.5.3" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.4" />
+		<PackageReference Include="Microsoft.ClearScript.V8.Native.linux-x64" Version="7.2.4" />
+		<PackageReference Include="Microsoft.ClearScript.V8.Native.osx-x64" Version="7.2.4" />
+		<PackageReference Include="Microsoft.ClearScript.V8.Native.win-x64" Version="7.2.4" />
+		<PackageReference Include="Microsoft.ClearScript.V8.Native.win-x86" Version="7.2.4" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.4">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
 	</ItemGroup>
 
+	<ItemGroup>
+		<ProjectReference Include="..\Smartstore.Data\Smartstore.Data.MySql\Smartstore.Data.MySql.csproj" />
+		<ProjectReference Include="..\Smartstore.Data\Smartstore.Data.SqlServer\Smartstore.Data.SqlServer.csproj" />
+		<ProjectReference Include="..\Smartstore\Smartstore.csproj" />
+		<ProjectReference Include="..\Smartstore.Core\Smartstore.Core.csproj" />
+		<ProjectReference Include="..\Smartstore.Web.Common\Smartstore.Web.Common.csproj" />
+	</ItemGroup>
+	
+	<ItemGroup>
+		<Compile Remove="App_Data\**; Modules\**; Themes\**" />
+		<Content Remove="App_Data\**; Modules\**; Themes\**" />
+		<EmbeddedResource Remove="App_Data\**; Modules\**; Themes\**" />
+		<None Remove="App_Data\**; Modules\**; Themes\**" />
+	</ItemGroup>
+	
+	<!-- Copy publishable files in App_Data directory -->
 	<ItemGroup>
 		<None Include="App_Data\icons.json" CopyToPublishDirectory="PreserveNewest" />
 		<None Include="App_Data\widgetzones.json" CopyToPublishDirectory="PreserveNewest" />
@@ -27,68 +49,56 @@
 		<None Include="App_Data\Samples\**" CopyToPublishDirectory="PreserveNewest" />
 	</ItemGroup>
 
+	<!-- Copy publishable files in Areas directory -->
 	<ItemGroup>
-		<None Remove="Areas\Admin\sitemap.xml" />
-		<None Remove="Themes\Flex\Views\Shared\EmailTemplates\address.liquid" />
-		<None Remove="Themes\Flex\Views\Shared\EmailTemplates\footer.liquid" />
-		<None Remove="Themes\Flex\Views\Shared\EmailTemplates\header.liquid" />
-		<None Remove="Themes\Flex\Views\Shared\EmailTemplates\master.liquid" />
-		<None Remove="Themes\Flex\Views\Shared\EmailTemplates\order.liquid" />
-		<None Remove="Themes\Flex\Views\Shared\EmailTemplates\shipment.liquid" />
+		<Content Include="Areas\Admin\sitemap.xml" CopyToPublishDirectory="PreserveNewest" />
+		<None Include="Areas\Admin\Views\**\*.cshtml" CopyToPublishDirectory="PreserveNewest" />
+	</ItemGroup>
+
+	<!-- Copy publishable files in Modules directory -->
+	<ItemGroup>
+		<None Include="Modules\**" Exclude="Modules\**\*.pdb; Modules\**\runtimes\**; Modules\**\refs\**" CopyToPublishDirectory="PreserveNewest" />
+	</ItemGroup>
+
+	<!-- Copy publishable files in Themes directory -->
+	<ItemGroup>
+		<Content Include="Themes\**" Exclude="Themes\*\Views\**\*.cshtml" CopyToPublishDirectory="PreserveNewest" />
+		<None Include="Themes\*\Views\**\*.cshtml" CopyToPublishDirectory="PreserveNewest" />
+	</ItemGroup>
+
+	<!-- Copy publishable files in Views directory -->
+	<ItemGroup>
+		<None Include="Views\**\*.cshtml" CopyToPublishDirectory="PreserveNewest" />
+	</ItemGroup>
+    
+    <!-- Don't publish static/raw files -->
+	<ItemGroup>
+        <Content Remove="wwwroot\lib\bi\bootstrap-icons-all.svg" CopyToPublishDirectory="Never" />
+        <Content Remove="wwwroot\lib\fontastic\icomoon\**" CopyToPublishDirectory="Never" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Autofac.Extensions.DependencyInjection" Version="7.1.0" />
-		<PackageReference Include="FluentValidation.AspNetCore" Version="9.5.3" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.0-rc.1.21452.10">
-		<PrivateAssets>all</PrivateAssets>
-		<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-	</PackageReference>
-	</ItemGroup>
-
-	<ItemGroup>
-		<ProjectReference Include="..\Data\Smartstore.Data.MySql\Smartstore.Data.MySql.csproj" />
-		<ProjectReference Include="..\Data\Smartstore.Data.SqlServer\Smartstore.Data.SqlServer.csproj" />
-		<ProjectReference Include="..\Smartstore.Core\Smartstore.Core.csproj" />
-		<ProjectReference Include="..\Smartstore.Web.Common\Smartstore.Web.Common.csproj" />
-		<ProjectReference Include="..\Smartstore\Smartstore.csproj" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<Content Update="appsettings.Development.json">
+		<Content Update="appsettings.Development.json" CopyToPublishDirectory="Never">
 			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
 		</Content>
-		<Content Update="Config\usersettings.Development.json">
+		<Content Update="Config\usersettings.Development.json" CopyToPublishDirectory="Never">
 			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
 		</Content>
-		<Content Update="Config\usersettings.json">
+		<Content Update="Config\usersettings.json" CopyToPublishDirectory="PreserveNewest">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
 	</ItemGroup>
 
 	<ItemGroup>
-		<None Update="Modules\placeholder.txt">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</None>
+		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+			<_Parameter1>Smartstore.Web.Tests</_Parameter1>
+		</AssemblyAttribute>
 	</ItemGroup>
-  
+
 	<PropertyGroup>
 		<!--Set this parameter to true to get the dlls copied from the NuGet cache to the output of your project-->
 		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
 		<AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>
-
-		<AddRazorSupportForMvc>true</AddRazorSupportForMvc>
-		<MvcRazorCompileOnPublish>true</MvcRazorCompileOnPublish>
-		<RazorCompileOnBuild>true</RazorCompileOnBuild>
-		<RazorCompileOnPublish>true</RazorCompileOnPublish>
-
-		<!-- TODO: (core) Think about Razor precompilation strategy and implement decently -->
-		<!--
-			<CopyRazorGenerateFilesToPublishDirectory>true</CopyRazorGenerateFilesToPublishDirectory>
-			<CopyRefAssembliesToPublishDirectory>false</CopyRefAssembliesToPublishDirectory>
-			<MvcRazorCompileOnPublish>false</MvcRazorCompileOnPublish>
-			<RazorCompileOnBuild>false</RazorCompileOnBuild>
-		-->
 
 		<!--The common language runtime (CLR) supports two types of garbage collection:
 		workstation garbage collection, which is available on all systems, and server garbage collection,
@@ -99,8 +109,8 @@
 		Server garbage collection should be the fastest option for more than two processors.
       
 		More details about GC you can see here: https://docs.microsoft.com/en-us/dotnet/standard/garbage-collection/fundamentals-->
-      
 		<ServerGarbageCollection>false</ServerGarbageCollection>
+		
 		<!--In workstation or server garbage collection, you can enable concurrent garbage collection,
 		which enables threads to run concurrently with a dedicated thread that performs the garbage
 		collection for most of the duration of the collection.
@@ -114,38 +124,8 @@
       
 		More details here: https://docs.microsoft.com/en-us/dotnet/standard/garbage-collection/fundamentals#concurrent-garbage-collection-->
 		<ConcurrentGarbageCollection>false</ConcurrentGarbageCollection>
+		
 		<AssemblyName>Smartstore.Web</AssemblyName>
 	</PropertyGroup>
-  
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-		<PlatformTarget>AnyCPU</PlatformTarget>
-		<Optimize>false</Optimize>
-		<DefineConstants>DEBUG;TRACE</DefineConstants>
-		<WarningLevel>4</WarningLevel>
-		<TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-		<AllowUnsafeBlocks>false</AllowUnsafeBlocks>
-	</PropertyGroup>
-
-	<ItemGroup>
-		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
-			<_Parameter1>Smartstore.Web.Tests</_Parameter1>
-		</AssemblyAttribute>
-	</ItemGroup>
-
-	<ItemGroup>
-		<Content Include="Areas\Admin\sitemap.xml">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</Content>
-		<Content Include="Themes\Flex\Views\Shared\EmailTemplates\address.liquid" />
-		<Content Include="Themes\Flex\Views\Shared\EmailTemplates\footer.liquid" />
-		<Content Include="Themes\Flex\Views\Shared\EmailTemplates\header.liquid" />
-		<Content Include="Themes\Flex\Views\Shared\EmailTemplates\master.liquid" />
-		<Content Include="Themes\Flex\Views\Shared\EmailTemplates\order.liquid" />
-		<Content Include="Themes\Flex\Views\Shared\EmailTemplates\shipment.liquid" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<Folder Include="wwwroot\lib\vue\" />
-	</ItemGroup>
 
 </Project>

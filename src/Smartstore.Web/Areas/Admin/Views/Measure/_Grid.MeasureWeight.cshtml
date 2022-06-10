@@ -1,0 +1,105 @@
+﻿@using Smartstore.Admin.Models.Common
+
+@model MeasureWeightModel
+
+<datagrid id="measure-weight-grid" 
+          allow-resize="true" 
+          allow-row-selection="true" 
+          allow-edit="true"
+          allow-column-reordering="true">
+    <datasource read="@Url.Action("MeasureWeightList", "Measure")"
+                update="@Url.Action("MeasureWeightUpdate", "Measure")"
+                delete="@Url.Action("MeasureWeightDelete", "Measure")" />
+    <sorting enabled="true">
+        <sort by="DisplayOrder" />
+    </sorting>
+    <paging position="Bottom" show-size-chooser="true" />
+    <toolbar>
+        <toolbar-group>
+            <a href="#" class="add-measure-weight btn btn-primary btn-flat">
+                <i class="fa fa-plus"></i>
+                <span>@T("Admin.Common.AddNew")...</span>
+            </a>
+            <button datagrid-action="DataGridToolAction.SaveChanges" type="button" class="btn btn-warning no-anims btn-flat">
+                <i class="fa fa-check"></i>
+                <span>@T("Admin.Common.SaveChanges")</span>
+            </button>
+            <button datagrid-action="DataGridToolAction.CancelEdit" type="button" class="btn btn-light btn-flat mr-auto">
+                <span>@T("Common.Cancel")</span>
+            </button>
+        </toolbar-group>
+        <zone name="datagrid_toolbar_alpha"></zone>
+        <toolbar-group class="omega"></toolbar-group>
+        <zone name="datagrid_toolbar_omega"></zone>
+        <toolbar-group>
+            <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger no-anims btn-flat">
+                <i class="far fa-trash-alt"></i>
+                <span>@T("Admin.Common.Delete.Selected")</span>
+            </button>
+        </toolbar-group>
+    </toolbar>
+    <columns>
+        <column for="Name" width="1fr" hideable="false">
+            <display-template>
+                <a href="#" class="grid-edit-measure-weight text-truncate" :data-key="item.row.Id">
+                    {{ item.value }}
+                </a>
+            </display-template>
+        </column>
+        <column for="SystemKeyword" halign="center" width="1fr" />
+        <column for="Ratio" halign="center" width="1fr" format="{0:N8}" />
+        <column for="IsPrimaryWeight" halign="center" sortable="false" width="1fr" />
+        <column for="DisplayOrder" halign="center" />
+    </columns>
+    <row-commands>
+        <a datarow-action="DataRowAction.Custom" class="grid-edit-measure-weight" :data-key="item.row.Id">@T("Common.Edit")</a>
+        <a datarow-action="DataRowAction.Custom" class="grid-set-default" :data-key="item.row.Id" v-bind:class="{ disabled: item.row.IsPrimaryWeight }">@T("Common.SetDefault")</a>
+        <div class="dropdown-divider"></div>
+        <a datarow-action="DataRowAction.Delete">@T("Common.Delete")</a>
+    </row-commands>
+</datagrid>
+
+<script sm-target-zone="scripts" data-origin="measure-weight-grid">
+    $(function () {
+        $(document).on('click', '.add-measure-weight', function (e) {
+            e.preventDefault();
+
+            var href = "@Url.Content("~/Admin/Measure/CreateWeightPopup/")?btnId=btnRefresh&formId=measure-weights";
+            openPopup(href);
+            return false;
+        });
+
+        $(document).on('click', '.grid-edit-measure-weight', function (e) {
+            e.preventDefault();
+
+            var id = $(this).data("key");
+            var href = "@Url.Content("~/Admin/Measure/EditWeightPopup/")" + id + "?btnId=btnRefresh&formId=measure-weights";
+            openPopup(href);
+            return false;
+        });
+
+        $(document).on('click', '.grid-set-default', function (e) {
+            e.preventDefault();
+            
+            $.ajax({
+				cache: false,
+				type: 'POST',
+				url: '@(Url.Action("SetDefaultWeight", "Measure"))',
+				data: {
+					"id": $(this).data("key")
+				},
+                success: function () {
+                    window["measure-weight-grid"].$children[0].read();
+                }
+            });
+
+            return false;
+        });
+
+        // Refresh grid after popup edit dialog was closed.
+        $(document).on('click', '#btnRefresh', function () {
+            window["measure-weight-grid"].$children[0].read();
+            return false;
+        });
+    });
+</script>

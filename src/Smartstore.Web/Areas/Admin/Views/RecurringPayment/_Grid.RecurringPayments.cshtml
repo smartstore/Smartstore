@@ -1,0 +1,56 @@
+﻿@model RecurringPaymentModel
+
+@{
+    var parentModel = ViewData["Parent"] as RecurringPaymentListModel;
+    var stores = ViewBag.Stores as IList<SelectListItem>;
+}
+
+<datagrid id="recurringpayments-grid"
+          allow-resize="true"
+          preserve-grid-state="true" preserve-command-state="true"
+          allow-column-reordering="true">
+    <datasource read="@Url.Action("RecurringPaymentList")" />
+    <paging position="Bottom" show-size-chooser="true" />
+    <sorting allow-unsort="true" allow-multisort="false">
+        <sort by="StartDate" by-entity-member="StartDateUtc" />
+    </sorting>
+    <toolbar>
+        <toolbar-group>
+            <button datagrid-action="DataGridToolAction.ToggleSearchPanel" type="button" class="btn btn-light btn-icon">
+                <i class="fa fa-fw fa-filter"></i>
+            </button>
+        </toolbar-group>
+        <zone name="datagrid_toolbar_omega"></zone>
+    </toolbar>
+    <search-panel>
+        <partial name="_Grid.RecurringPayments.Search" model="parentModel" />
+    </search-panel>
+    <columns>
+        <column for="Id" halign="center" hideable="false">
+            <display-template>
+                <div class="text-truncate"><a :href="item.row.EditUrl" class="text-truncate">{{ item.value }}</a></div>
+            </display-template>
+        </column>
+        <column for="CustomerId" sortable="false">
+            <display-template>
+                <div class="text-truncate"><a :href="item.row.CustomerEditUrl" class="text-truncate">{{ item.row.CustomerFullName }}</a></div>
+            </display-template>
+        </column>
+        <column for="CycleLength" halign="center" />
+        <column for="CyclePeriodString" halign="center" entity-member="CyclePeriodId" />
+        <column for="IsActive" halign="center" />
+        <column for="InitialOrderId" sortable="false">
+            <display-template>
+                <div class="text-truncate"><a :href="item.row.InitialOrderEditUrl" class="text-truncate">{{ item.row.InitialOrderNumber }}</a></div>
+            </display-template>
+        </column>
+        <column for="StartDate" entity-member="StartDateUtc" />
+        <column for="NextPaymentDate" sortable="false" />
+        <column for="TotalCycles" halign="center" />
+        <column for="CyclesRemaining" halign="center" sortable="false" />
+        <column for="CreatedOn" entity-member="CreatedOnUtc" visible="false" />
+    </columns>
+    <row-commands>
+        <a datarow-action="DataRowAction.Custom" :href="item.row.EditUrl">@T("Common.Edit")</a>
+    </row-commands>
+</datagrid>

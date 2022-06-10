@@ -8,7 +8,7 @@
 <div asp-validation-summary="All"></div>
 <input type="hidden" asp-for="Id" />
 
-<tabstrip id="manufacturer-edit" sm-nav-style="Material">
+<tabstrip id="manufacturer-edit" sm-nav-style="Material" sm-onajaxsuccess="manufacturerEditTab_onAjaxSuccess">
 	<tab sm-title="@T("Admin.Common.General")" sm-selected="true">
 		<div class="adminContent">
             <div sm-if="Model.Id != 0" class="adminRow">
@@ -25,7 +25,7 @@
                     <smart-label asp-for="DisplayOrder" />
                 </div>
                 <div class="adminData">
-                    <input asp-for="DisplayOrder" />
+                    <editor asp-for="DisplayOrder" />
                     <span asp-validation-for="DisplayOrder"></span>
                 </div>
             </div>
@@ -329,6 +329,11 @@
 </tabstrip>
 
 <script sm-target-zone="scripts" data-origin="manufacturer-edit">
+    function manufacturerEditTab_onAjaxSuccess(tab, pane) {
+        applyCommonPlugins(pane);
+        reinitFormValidator("#manufacturer-form");
+    }
+
     $(function() {
         // Toggle page size.
         $('#@Html.IdFor(model => model.AllowCustomersToSelectPageSize)').on('change', function() {

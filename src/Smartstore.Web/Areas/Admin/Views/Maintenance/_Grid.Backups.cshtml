@@ -1,0 +1,128 @@
+﻿@using Smartstore.Admin.Models.Maintenance;
+
+@model DbBackupModel
+
+<datagrid id="dbbackups-grid"
+          key-member="Name"
+          allow-resize="true"
+          allow-row-selection="true"
+          preserve-grid-state="true" preserve-command-state="true"
+          allow-column-reordering="true"
+          max-height="600px"
+          onrowclass="dbbackupsGrid_onRowClass">
+    <datasource read="@Url.Action("BackupList")" delete="@Url.Action("DeleteBackup")" />
+    <paging enabled="false" position="Bottom" show-size-chooser="true" />
+    <sorting allow-unsort="true" allow-multisort="true">
+        <sort by="Version" descending="true" />
+        <sort by="CreatedOn" descending="true" />
+    </sorting>
+    <toolbar>
+        <toolbar-group>
+            <button type="submit" name="execute-create-backup" value="execute-create-backup" class="btn btn-primary btn-flat confirm">
+                <i class="fa fa-plus"></i>
+                <span>@T("Admin.System.Maintenance.DbBackup.Create")</span>
+            </button>
+            <button type="button" class="btn btn-secondary btn-flat" data-toggle="modal" data-target="#upload-backup-dialog">
+                <i class="fa fa-upload"></i>
+                <span>@T("Admin.System.Maintenance.DbBackup.Upload")</span>
+            </button>
+        </toolbar-group>
+        <zone name="datagrid_toolbar_alpha"></zone>
+        <toolbar-group class="omega"></toolbar-group>
+        <zone name="datagrid_toolbar_omega"></zone>
+        <toolbar-group>
+            <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger btn-flat">
+                <i class="far fa-trash-alt"></i>
+                <span>@T("Admin.Common.Delete.Selected")</span>
+            </button>
+        </toolbar-group>
+    </toolbar>
+    <row-commands>
+        <a datarow-action="DataRowAction.Custom" class="grid-dbbackups-download"
+           :href="item.row.DownloadUrl"
+           title="@T("Admin.System.Maintenance.DbBackup.Download")">
+            @T("Common.Download")
+        </a>
+        <a datarow-action="DataRowAction.Custom" class="grid-dbbackups-restore"
+           :data-key="item.row.Name"
+           :data-matches-current-version="item.row.MatchesCurrentVersion"
+           title="@T("Admin.System.Maintenance.DbBackup.Restore.Hint")">
+            @T("Admin.System.Maintenance.DbBackup.Restore")
+        </a>
+        <a datarow-action="DataRowAction.Delete">@T("Common.Delete")</a>
+    </row-commands>
+    <columns>
+        <column for="Name" hideable="false" width="2fr" />
+        <column for="MatchesCurrentVersion" halign="center" />
+        <column for="Version" halign="center" />
+        <column for="CreatedOn" />
+        <column for="LengthString" entity-member="Length" halign="center" />
+    </columns>
+</datagrid>
+
+<modal id="upload-backup-dialog">
+    <modal-header sm-title="@T("Admin.System.Maintenance.DbBackup.Upload")"></modal-header>
+    <modal-body>
+        <form enctype="multipart/form-data" method="post" asp-action="UploadBackup">
+            <p class="text-muted">
+                @T("Admin.System.Maintenance.DbBackup.BackupUploadNote")
+            </p>
+            <div>
+                <input type="file" id="backupfile" name="backupfile" />
+            </div>
+            @*<div class="custom-file">
+                <input type="file" class="custom-file-input" id="backupfile" name="backupfile">
+                <label class="custom-file-label" for="backupfile">Choose file</label>
+            </div>*@
+        </form>
+    </modal-body>
+    <modal-footer>
+        <button class="btn btn-secondary" data-dismiss="modal"><span>@T("Common.Cancel")</span></button>
+        <button id="upload-backup" type="button" class="btn btn-primary" disabled="disabled">
+            <i class="fa fa-upload"></i>
+            <span>@T("Common.Upload")</span>
+        </button>
+    </modal-footer>
+</modal>
+
+<script sm-target-zone="scripts" data-origin="dbbackups-grid">
+    $(function () {
+        $(document).on('click', '.grid-dbbackups-restore', function (e) {
+            e.preventDefault();
+
+            var btn = $(this);
+            var matchesCurrentVersion = btn.data('matches-current-version');
+            var askToProceed = @T("Admin.Common.AskToProceed").JsValue;
+            var warnDifferentVersion = @T("Admin.System.Maintenance.DbBackup.RestoreVersionWarning").JsValue;
+
+            $(this).postData({
+                url: '@Url.Action("RestoreBackup", "Maintenance", new { area = "Admin" })',
+                data: { "name": btn.data('key') },
+                ask: matchesCurrentVersion ? askToProceed : warnDifferentVersion,
+                iconType: matchesCurrentVersion ? 'question' : 'warning'
+			});
+
+            return false;
+        });
+
+        $('#backupfile').on('change', function () {
+            $('#upload-backup').prop('disabled', $(this).val().length == 0);
+        }).trigger('change');
+
+        $('#upload-backup').on('click', function (e) {
+            e.preventDefault();
+
+            var dialog = $('#upload-backup-dialog');
+            
+            $.throbber.show({ white: false, small: false, speed: 0, message: @T("FileUploader.StatusWindow.Uploading.File").JsValue});
+            dialog.find('form').submit();
+            dialog.modal('hide');
+        });
+    });
+
+    function dbbackupsGrid_onRowClass(row) {
+        return {
+            "text-muted": !row.MatchesCurrentVersion
+        };
+    }
+</script>

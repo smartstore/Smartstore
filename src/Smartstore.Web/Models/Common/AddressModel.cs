@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.Text;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Localization;
-using Smartstore.Web.Modelling;
-using Smartstore.Web.Modelling.Validation;
 
 namespace Smartstore.Web.Models.Common
 {
@@ -98,9 +94,9 @@ namespace Smartstore.Web.Models.Common
         public bool FaxRequired { get; set; }
         public DateTime CreatedOnUtc { get; set; }
 
-        public List<SelectListItem> AvailableCountries { get; set; } = new();
-        public List<SelectListItem> AvailableStates { get; set; } = new();
-        public List<SelectListItem> AvailableSalutations { get; set; } = new();
+        public IList<SelectListItem> AvailableCountries { get; set; } = new List<SelectListItem>();
+        public IList<SelectListItem> AvailableStates { get; set; } = new List<SelectListItem>();
+        public IList<SelectListItem> AvailableSalutations { get; set; } = new List<SelectListItem>();
 
         public string FormattedAddress { get; set; }
 

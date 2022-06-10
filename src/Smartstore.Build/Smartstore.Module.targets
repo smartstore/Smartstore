@@ -1,0 +1,21 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+	<ItemGroup>
+		<BuildModule Include="$(MSBuildProjectDirectory)\..\..\Smartstore.Build\Smartstore.ModuleBuilder\Smartstore.BuildModule.proj" />
+	</ItemGroup>
+
+	<Target Name="BuildModule" AfterTargets="Build">
+		<!-- Copy private module references and delete unnecessary files and directories. -->
+		<MSBuild Projects="@(BuildModule)" Properties="ModulePath=$(MSBuildProjectDirectory)\$(OutDir)" Targets="BuildModule" />
+	</Target>
+
+	<!-- Remove files from copy local that would not be published as they are provided by the platform package -->
+	<!--
+	<Target Name="FilterCopyLocal" DependsOnTargets="RunResolvePublishAssemblies" BeforeTargets="ResolveLockFileCopyLocalProjectDeps">
+		<ItemGroup>
+			<_CopyLocalButNotPublished Include="@(AllCopyLocalItems)" Exclude="@(ResolvedAssembliesToPublish)" />
+			<AllCopyLocalItems Remove="@(_CopyLocalButNotPublished)" />
+		</ItemGroup>
+	</Target>-->
+	
+</Project>

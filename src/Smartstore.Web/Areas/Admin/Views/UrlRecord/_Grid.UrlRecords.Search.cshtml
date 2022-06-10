@@ -1,0 +1,24 @@
+﻿@using Smartstore.Admin.Models.UrlRecord
+
+@model UrlRecordListModel
+
+<div class="form-group">
+    <smart-label asp-for="SeName" />
+    <editor asp-for="SeName" />
+</div>
+<div class="form-group">
+    <smart-label asp-for="EntityName" />
+    <select asp-for="EntityName" asp-items="ViewBag.EntityNames" asp-placeholder="@T("Common.Unspecified")"></select>
+</div>
+<div class="form-group">
+    <smart-label asp-for="EntityId" />
+    <editor asp-for="EntityId" />
+</div>
+<div class="form-group">
+    <smart-label asp-for="IsActive" />
+    <editor asp-for="IsActive" />
+</div>
+<div class="form-group">
+    <smart-label asp-for="LanguageId" />
+    <select asp-for="LanguageId" asp-items="ViewBag.AvailableLanguages" asp-placeholder="@T("Common.Unspecified")"></select>
+</div>

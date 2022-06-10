@@ -1,11 +1,13 @@
 ﻿@{
     ViewBag.Title = T("Admin.Common.Stores").Value;
+
+    Assets.BodyAttributes.AppendCssClass("spa-layout");
 }
 
 <div class="section-header">
     <div class="title">
-        <i class="fa fa-shopping-cart"></i>
-        @T("Admin.Common.Stores")
+        <i class="fa fa-globe"></i>
+        <span>@ViewBag.Title</span>
     </div>
 </div>
 

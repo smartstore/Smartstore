@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Smartstore.ComponentModel
+﻿namespace Smartstore.ComponentModel
 {
     public sealed partial class GenericEqualityComparer<T> : IEqualityComparer<T>
     {

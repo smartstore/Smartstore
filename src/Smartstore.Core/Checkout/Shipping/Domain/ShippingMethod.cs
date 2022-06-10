@@ -1,7 +1,5 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Newtonsoft.Json;
@@ -9,7 +7,6 @@ using Smartstore.Core.Localization;
 using Smartstore.Core.Rules;
 using Smartstore.Core.Stores;
 using Smartstore.Data.Caching;
-using Smartstore.Domain;
 
 namespace Smartstore.Core.Checkout.Shipping
 {
@@ -34,7 +31,11 @@ namespace Smartstore.Core.Checkout.Shipping
                         .HasForeignKey("ShippingMethod_Id")
                         .HasConstraintName("FK_dbo.RuleSet_ShippingMethod_Mapping_dbo.ShippingMethod_ShippingMethod_Id")
                         .OnDelete(DeleteBehavior.Cascade),
-                    c => c.HasKey("ShippingMethod_Id", "RuleSetEntity_Id"));
+                    c =>
+                    {
+                        c.HasIndex("ShippingMethod_Id");
+                        c.HasKey("ShippingMethod_Id", "RuleSetEntity_Id");
+                    });
         }
     }
 

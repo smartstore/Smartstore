@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Globalization;
-using System.IO;
 using System.IO.Compression;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using Smartstore.Utilities;
 
 namespace Smartstore
@@ -269,7 +265,7 @@ namespace Smartstore
                 try
                 {
                     var len = stream.Length;
-                    if (len > Int32.MaxValue)
+                    if (len > int.MaxValue)
                     {
                         return await ToByteArrayCopyAsync(stream);
                     }
@@ -430,11 +426,30 @@ namespace Smartstore
             if (buffer == null)
                 throw new ArgumentNullException(nameof(buffer));
 
+            using (var inStream = new MemoryStream(buffer))
             using (var compressedStream = new MemoryStream())
             using (var zipStream = new GZipStream(compressedStream, CompressionMode.Compress))
             {
-                zipStream.Write(buffer, 0, buffer.Length);
-                zipStream.Close();
+                inStream.CopyTo(zipStream);
+                return compressedStream.ToArray();
+            }
+        }
+
+        /// <summary>
+        /// Compresses the input buffer with <see cref="GZipStream"/>
+        /// </summary>
+        /// <param name="buffer">Decompressed input</param>
+        /// <returns>The compressed result</returns>
+        public static async Task<byte[]> ZipAsync(this byte[] buffer)
+        {
+            if (buffer == null)
+                throw new ArgumentNullException(nameof(buffer));
+
+            using (var inStream = new MemoryStream(buffer))
+            using (var compressedStream = new MemoryStream())
+            using (var zipStream = new GZipStream(compressedStream, CompressionMode.Compress))
+            {
+                await inStream.CopyToAsync(zipStream);
                 return compressedStream.ToArray();
             }
         }
@@ -454,6 +469,25 @@ namespace Smartstore
             using (var resultStream = new MemoryStream())
             {
                 zipStream.CopyTo(resultStream);
+                return resultStream.ToArray();
+            }
+        }
+
+        /// <summary>
+        /// Decompresses the input buffer with <see cref="GZipStream"/> decompression
+        /// </summary>
+        /// <param name="buffer">Compressed input</param>
+        /// <returns>The decompressed result</returns>
+        public static async Task<byte[]> UnzipAsync(this byte[] buffer)
+        {
+            if (buffer == null)
+                throw new ArgumentNullException(nameof(buffer));
+
+            using (var compressedStream = new MemoryStream(buffer))
+            using (var zipStream = new GZipStream(compressedStream, CompressionMode.Decompress))
+            using (var resultStream = new MemoryStream())
+            {
+                await zipStream.CopyToAsync(resultStream);
                 return resultStream.ToArray();
             }
         }

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Runtime.CompilerServices;
 using Dasync.Collections;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Primitives;
@@ -23,9 +20,7 @@ namespace Smartstore.IO
 
         /// <inheritdoc/>
         public virtual string PathCombine(params string[] paths)
-        {
-            return PathUtility.Combine(paths);
-        }
+            => PathUtility.Combine(paths);
 
         /// <inheritdoc/>
         public abstract string MapPath(string subpath);
@@ -59,51 +54,40 @@ namespace Smartstore.IO
             => Task.FromResult(GetDirectory(subpath));
 
         /// <inheritdoc/>
-        public virtual bool CheckUniqueFileName(string subpath, out string newPath)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool CheckUniqueFileName(string subpath, out string newPath)
         {
-            Guard.NotEmpty(subpath, nameof(subpath));
-
-            newPath = null;
-
-            var file = GetFile(subpath);
-            if (!file.Exists)
+            if (CheckUniqueFileNameCore(subpath, false).Await().Out(out newPath))
             {
-                return false;
+                return true;
             }
 
-            var pattern = file.NameWithoutExtension + "-*" + file.Extension;
-            var dir = GetDirectory(file.Directory);
-            var files = new HashSet<string>(dir.EnumerateFiles(pattern, false).Select(x => x.Name), StringComparer.OrdinalIgnoreCase);
-
-            int i = 1;
-            while (true)
-            {
-                var fileName = string.Concat(file.NameWithoutExtension, "-", i, file.Extension);
-                if (!files.Contains(fileName))
-                {
-                    // Found our gap
-                    newPath = PathCombine(dir.SubPath, fileName);
-                    return true;
-                }
-
-                i++;
-            }
+            return false;
         }
 
         /// <inheritdoc/>
-        public virtual async Task<AsyncOut<string>> CheckUniqueFileNameAsync(string subpath)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Task<AsyncOut<string>> CheckUniqueFileNameAsync(string subpath)
+            => CheckUniqueFileNameCore(subpath, true);
+
+        protected internal virtual async Task<AsyncOut<string>> CheckUniqueFileNameCore(string subpath, bool async)
         {
             Guard.NotEmpty(subpath, nameof(subpath));
 
-            var file = await GetFileAsync(subpath);
+            var file = async ? await GetFileAsync(subpath) : GetFile(subpath);
             if (!file.Exists)
             {
                 return AsyncOut<string>.Empty;
             }
 
             var pattern = file.NameWithoutExtension + "-*" + file.Extension;
-            var dir = await GetDirectoryAsync(file.Directory);
-            var names = await dir.EnumerateFilesAsync(pattern, false).Select(x => x.Name).AsyncToArray();
+            var dir = async 
+                ? await GetDirectoryAsync(file.Directory) 
+                : GetDirectory(file.Directory);
+            var names = async 
+                ? await dir.EnumerateFilesAsync(pattern, false).Select(x => x.Name).AsyncToArray()
+                : dir.EnumerateFiles(pattern, false).Select(x => x.Name);
+
             var files = new HashSet<string>(names, StringComparer.OrdinalIgnoreCase);
 
             int i = 1;

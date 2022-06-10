@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Smartstore.Core.Content.Blocks
+﻿namespace Smartstore.Core.Content.Blocks
 {
     /// <summary>
     /// Applies metadata to concrete block types which implement <see cref="IBlock"/>.

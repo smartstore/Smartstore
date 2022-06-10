@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using Smartstore.Core.Catalog.Products.Utilities;
+﻿using Smartstore.Core.Catalog.Products.Utilities;
 using Smartstore.Core.Data;
 using Smartstore.Data.Hooks;
 
@@ -55,7 +49,7 @@ namespace Smartstore.Core.Catalog.Products
                 var productIds = deletedMediaFiles.Select(x => x.ProductId).Distinct().ToArray();
 
                 // Process the products in batches as they can have a large number of variant combinations assigned to them.
-                foreach (var productIdsChunk in productIds.Slice(100))
+                foreach (var productIdsChunk in productIds.Chunk(100))
                 {
                     var combinations = await _db.ProductVariantAttributeCombinations
                         .Where(x => productIdsChunk.Contains(x.ProductId) && !string.IsNullOrEmpty(x.AssignedMediaFileIds))

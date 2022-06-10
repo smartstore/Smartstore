@@ -1,17 +1,11 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Smartstore.Core.Checkout.Cart;
+﻿using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Cart.Events;
 using Smartstore.Core.Checkout.GiftCards;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Checkout.Tax;
-using Smartstore.Core.Common;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Common.Settings;
-using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Web.Models.Cart;
 
@@ -109,8 +103,7 @@ namespace Smartstore.Web.Components
             }
 
             // Shipping info
-            // TODO: (mh) (core) Re-implement when any payment method has been implemented
-            model.RequiresShipping = false;// cart.IsShippingRequired();
+            model.RequiresShipping = cart.IsShippingRequired();
             if (model.RequiresShipping)
             {
                 var shippingTotal = await _orderCalculationService.GetShoppingCartShippingTotalAsync(cart);
@@ -145,21 +138,21 @@ namespace Smartstore.Web.Components
             }
             else
             {
-                (Money Price, TaxRatesDictionary TaxRates) cartTaxBase = (new Money(1.19m, currency), new TaxRatesDictionary());//await _orderCalculationService.GetShoppingCartTaxTotalAsync(cart);
-                var cartTax = _currencyService.ConvertFromPrimaryCurrency(cartTaxBase.Price.Amount, currency);
+                (Money price, TaxRatesDictionary taxRates) = await _orderCalculationService.GetShoppingCartTaxTotalAsync(cart);
+                var cartTax = _currencyService.ConvertFromPrimaryCurrency(price.Amount, currency);
 
-                if (cartTaxBase.Price == decimal.Zero && _taxSettings.HideZeroTax)
+                if (price == decimal.Zero && _taxSettings.HideZeroTax)
                 {
                     displayTax = false;
                     displayTaxRates = false;
                 }
                 else
                 {
-                    displayTaxRates = _taxSettings.DisplayTaxRates && cartTaxBase.TaxRates.Count > 0;
+                    displayTaxRates = _taxSettings.DisplayTaxRates && taxRates.Count > 0;
                     displayTax = !displayTaxRates;
                     model.Tax = cartTax.ToString(true);
 
-                    foreach (var taxRate in cartTaxBase.TaxRates)
+                    foreach (var taxRate in taxRates)
                     {
                         var rate = _taxService.FormatTaxRate(taxRate.Key);
                         var labelKey = "ShoppingCart.Totals.TaxRateLine" + (Services.WorkContext.TaxDisplayType == TaxDisplayType.IncludingTax ? "Incl" : "Excl");
@@ -180,25 +173,7 @@ namespace Smartstore.Web.Components
             model.ShowConfirmOrderLegalHint = _shoppingCartSettings.ShowConfirmOrderLegalHint;
 
             // Cart total
-            // TODO: (mh) (core) Re-implement when any payment method has been implemented
-            //var cartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(cart);
-
-            var cartTotal = new ShoppingCartTotal
-            {
-                Total = new(decimal.Zero, currency),
-                ToNearestRounding = new(decimal.Zero, currency),
-                DiscountAmount = new(15, currency),
-                AppliedDiscount = (await _db.Discounts.FirstOrDefaultAsync()) ?? new(),
-                RedeemedRewardPoints = 10,
-                RedeemedRewardPointsAmount = new(10, currency),
-                CreditBalance = new(decimal.Zero, currency),
-                AppliedGiftCards = new() { new() { GiftCard = (await _db.GiftCards.Include(x=>x.GiftCardUsageHistory).FirstOrDefaultAsync()) ?? new(), UsableAmount = new(50m, _currencyService.PrimaryCurrency) } },
-                ConvertedAmount = new ShoppingCartTotal.ConvertedAmounts
-                {
-                    Total = new(decimal.Zero, currency),
-                    ToNearestRounding = new(decimal.Zero, currency)
-                }
-            };
+            var cartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(cart);
 
             if (cartTotal.ConvertedAmount.Total.HasValue)
             {
@@ -237,7 +212,7 @@ namespace Smartstore.Web.Components
                     var amountCanBeUsed = _currencyService.ConvertFromPrimaryCurrency(appliedGiftCard.UsableAmount.Amount, currency);
                     gcModel.Amount = amountCanBeUsed * -1;
 
-                    var remainingAmountBase = _giftCardService.GetRemainingAmount(appliedGiftCard.GiftCard) - appliedGiftCard.UsableAmount;
+                    var remainingAmountBase = await _giftCardService.GetRemainingAmountAsync(appliedGiftCard.GiftCard) - appliedGiftCard.UsableAmount;
                     var remainingAmount = _currencyService.ConvertFromPrimaryCurrency(remainingAmountBase.Amount, currency);
                     gcModel.Remaining = remainingAmount;
 
@@ -245,7 +220,7 @@ namespace Smartstore.Web.Components
                 }
             }
 
-           // Reward points
+            // Reward points
             if (cartTotal.RedeemedRewardPointsAmount > decimal.Zero)
             {
                 var redeemedRewardPointsAmountInCustomerCurrency = _currencyService.ConvertFromPrimaryCurrency(cartTotal.RedeemedRewardPointsAmount.Amount, currency);

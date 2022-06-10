@@ -1,8 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Dynamic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
+﻿using System.Dynamic;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Products;
@@ -13,7 +9,6 @@ using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common;
-using Smartstore.Core.Common.Services;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
@@ -73,16 +68,14 @@ namespace Smartstore.Core.Messaging
             d.PaidOn = _helper.ToUserDate(part.PaidDateUtc, messageContext);
 
             // Payment method
-            var paymentMethodName = part.PaymentMethodSystemName;
             var paymentMethod = _services.Resolve<IProviderManager>().GetProvider<IPaymentMethod>(part.PaymentMethodSystemName);
-            if (paymentMethod != null)
-            {
-                paymentMethodName = _moduleManager.GetLocalizedFriendlyName(paymentMethod.Metadata, messageContext.Language.Id);
-            }
+            var paymentMethodName = paymentMethod != null
+                ? _moduleManager.GetLocalizedFriendlyName(paymentMethod.Metadata, messageContext.Language.Id)
+                : part.PaymentMethodSystemName;
             d.PaymentMethod = paymentMethodName.NullEmpty();
 
             d.Url = part.Customer != null && !part.Customer.IsGuest()
-                ? _helper.BuildActionUrl("Details", "Order", new { id = part.Id, area = "" }, messageContext)
+                ? _helper.BuildActionUrl("Details", "Order", new { id = part.Id, area = string.Empty }, messageContext)
                 : null;
 
             // Overrides
@@ -90,7 +83,11 @@ namespace Smartstore.Core.Messaging
             m.Properties["AcceptThirdPartyEmailHandOver"] = _helper.GetBoolResource(part.AcceptThirdPartyEmailHandOver, messageContext);
 
             // Items, Totals & Co.
-            d.Items = await part.OrderItems.Where(x => x.Product != null).SelectAsync(async x => await CreateModelPartAsync(x, messageContext)).AsyncToList();
+            d.Items = await part.OrderItems
+                .Where(x => x.Product != null)
+                .SelectAsync(async x => await CreateModelPartAsync(x, messageContext))
+                .AsyncToList();
+
             d.Totals = await CreateOrderTotalsPartAsync(part, messageContext);
 
             // Checkout Attributes
@@ -110,38 +107,22 @@ namespace Smartstore.Core.Messaging
             Guard.NotNull(order, nameof(order));
 
             var language = messageContext.Language;
-            var currencyService = _services.Resolve<ICurrencyService>();
             var giftCardService = _services.Resolve<IGiftCardService>();
-            //var paymentService = _services.Resolve<IPaymentService>();
+            var orderService = _services.Resolve<IOrderService>();
             var taxService = _services.Resolve<ITaxService>();
             var taxSettings = await _services.SettingFactory.LoadSettingsAsync<TaxSettings>(messageContext.Store.Id);
 
             var taxRates = new SortedDictionary<decimal, decimal>();
             Money cusTaxTotal = new();
-            Money cusDiscount = new();
-            Money cusRounding = new();
-            Money cusTotal = new();
 
             var customerCurrency = (await _db.Currencies
                 .AsNoTracking()
                 .Where(x => x.CurrencyCode == order.CustomerCurrencyCode)
                 .FirstOrDefaultAsync()) ?? new Currency { CurrencyCode = order.CustomerCurrencyCode };
 
-            var subTotals = GetSubTotals(order, messageContext);
-
-            // Shipping
-            bool dislayShipping = order.ShippingStatus != ShippingStatus.ShippingNotRequired;
-
-            // Payment method fee
-            bool displayPaymentMethodFee = true;
-            if (order.PaymentMethodAdditionalFeeExclTax == decimal.Zero)
-            {
-                displayPaymentMethodFee = false;
-            }
-
             // Tax
-            bool displayTax = true;
-            bool displayTaxRates = true;
+            var displayTax = true;
+            var displayTaxRates = true;
             if (taxSettings.HideTaxInOrderSummary && order.CustomerTaxDisplayType == TaxDisplayType.IncludingTax)
             {
                 displayTax = false;
@@ -169,39 +150,40 @@ namespace Smartstore.Core.Messaging
                 }
             }
 
-            // Discount
-            bool dislayDiscount = false;
-            if (order.OrderDiscount > decimal.Zero)
-            {
-                cusDiscount = _helper.FormatPrice(-order.OrderDiscount, order, messageContext);
-                dislayDiscount = true;
-            }
+            var subTotals = GetSubTotals(order, messageContext);
+            (var orderTotal, var roundingAmount) = await orderService.GetOrderTotalInCustomerCurrencyAsync(order, customerCurrency);
 
-            // TODO: (mh) (core) Uncomment when available.
-            // Total
-            //var roundingAmount = decimal.Zero;
-            //var orderTotal = order.GetOrderTotalInCustomerCurrency(currencyService, paymentService, out roundingAmount);
-            //cusTotal = FormatPrice(orderTotal, customerCurrency, messageContext);
-
-            //// Rounding
-            //if (roundingAmount != decimal.Zero)
-            //{
-            //    cusRounding = FormatPrice(roundingAmount, customerCurrency, messageContext);
-            //}
-
-            //// Model
+            // Model
             dynamic m = new ExpandoObject();
 
-            // TODO: (mh) (core) Uncomment when available.
-            //m.SubTotal = subTotals.SubTotal;
-            //m.SubTotalDiscount = subTotals.DisplaySubTotalDiscount ? subTotals.SubTotalDiscount : null;
-            //m.Shipping = dislayShipping ? subTotals.ShippingTotal : null;
-            //m.Payment = displayPaymentMethodFee ? subTotals.PaymentFee : null;
-            //m.Tax = displayTax ? cusTaxTotal : null;
-            //m.Discount = dislayDiscount ? cusDiscount : null;
-            //m.RoundingDiff = cusRounding;
-            //m.Total = cusTotal;
-            //m.IsGross = order.CustomerTaxDisplayType == TaxDisplayType.IncludingTax;
+            m.Total = _helper.FormatPrice(orderTotal.Amount, customerCurrency, messageContext);
+            m.SubTotal = subTotals.SubTotal;
+            m.IsGross = order.CustomerTaxDisplayType == TaxDisplayType.IncludingTax;
+
+            if (subTotals.DisplaySubTotalDiscount)
+            {
+                m.SubTotalDiscount = subTotals.SubTotalDiscount;
+            }
+            if (order.ShippingStatus != ShippingStatus.ShippingNotRequired)
+            {
+                m.Shipping = subTotals.ShippingTotal;
+            }
+            if (order.PaymentMethodAdditionalFeeExclTax != decimal.Zero)
+            {
+                m.Payment = subTotals.PaymentFee;
+            }
+            if (displayTax)
+            {
+                m.Tax = cusTaxTotal;
+            }
+            if (order.OrderDiscount > decimal.Zero)
+            {
+                m.Discount = _helper.FormatPrice(-order.OrderDiscount, order, messageContext);
+            }
+            if (roundingAmount != decimal.Zero)
+            {
+                m.RoundingDiff = _helper.FormatPrice(roundingAmount.Amount, customerCurrency, messageContext);
+            }
 
             // TaxRates
             m.TaxRates = !displayTaxRates ? null : taxRates.Select(x =>
@@ -213,11 +195,10 @@ namespace Smartstore.Core.Messaging
                 };
             }).ToArray();
 
-
             // Gift Cards
-            m.GiftCardUsage = order.GiftCardUsageHistory.Count == 0 ? null : order.GiftCardUsageHistory.Select(x =>
+            m.GiftCardUsage = order.GiftCardUsageHistory.Count == 0 ? null : await order.GiftCardUsageHistory.SelectAsync(async x =>
             {
-                var remainingAmount = giftCardService.GetRemainingAmount(x.GiftCard);
+                var remainingAmount = await giftCardService.GetRemainingAmountAsync(x.GiftCard);
 
                 return new
                 {
@@ -225,7 +206,7 @@ namespace Smartstore.Core.Messaging
                     UsedAmount = _helper.FormatPrice(-x.UsedValue, order, messageContext),
                     RemainingAmount = _helper.FormatPrice(remainingAmount.Amount, order, messageContext)
                 };
-            }).ToArray();
+            }).AsyncToArray();
 
             // Reward Points
             m.RedeemedRewardPoints = order.RedeemedRewardPointsEntry == null ? null : new
@@ -280,10 +261,29 @@ namespace Smartstore.Core.Messaging
             var isNet = order.CustomerTaxDisplayType == TaxDisplayType.ExcludingTax;
             var product = part.Product;
             var attributeCombination = await productAttributeMaterializer.FindAttributeCombinationAsync(product.Id, part.AttributeSelection);
+
             product.MergeWithCombination(attributeCombination);
 
+            var downloadUrl = downloadService.IsDownloadAllowed(part) 
+                ? _helper.BuildActionUrl("GetDownload", "Download", new { id = part.OrderItemGuid, area = string.Empty }, messageContext)
+                : null;
+
+            var m = new Dictionary<string, object>
+            {
+                { "DownloadUrl", downloadUrl },
+                { "AttributeDescription", part.AttributeDescription.NullEmpty() },
+                { "Weight", part.ItemWeight },
+                { "TaxRate", part.TaxRate },
+                { "Qty", part.Quantity },
+                { "UnitPrice", _helper.FormatPrice(isNet ? part.UnitPriceExclTax : part.UnitPriceInclTax, part.Order, messageContext) },
+                { "LineTotal", _helper.FormatPrice(isNet ? part.PriceExclTax : part.PriceInclTax, part.Order, messageContext) },
+                { "Product", await CreateModelPartAsync(product, messageContext, part.AttributeSelection) },
+                { "IsGross", !isNet },
+                { "DisplayDeliveryTime", part.DisplayDeliveryTime },
+            };
+
             // Bundle items.
-            object bundleItems = null;
+            List<object> bundleItems = null;
             if (product.ProductType == ProductType.BundledProduct && part.BundleData.HasValue())
             {
                 var bundleData = part.GetBundleData();
@@ -293,32 +293,16 @@ namespace Smartstore.Core.Messaging
                     var products = await _db.Products.GetManyAsync(productIds);
                     var productsDic = products.ToDictionarySafe(x => x.Id, x => x);
 
-                    bundleItems = bundleData
+                    bundleItems = await bundleData
                         .OrderBy(x => x.DisplayOrder)
-                        .Select(async x =>
-                        {
-                            productsDic.TryGetValue(x.ProductId, out Product bundleItemProduct);
-                            return await CreateModelPartAsync(x, part, bundleItemProduct, messageContext);
-                        })
-                        .ToList();
+                        .SelectAsync(async x => await CreateModelPartAsync(x, part, productsDic.Get(x.ProductId), messageContext))
+                        .AsyncToList();
                 }
             }
-            
-            var m = new Dictionary<string, object>
-            {
-                { "DownloadUrl", !downloadService.IsDownloadAllowed(part) ? null : _helper.BuildActionUrl("GetDownload", "Download", new { id = part.OrderItemGuid, area = "" }, messageContext) },
-                { "AttributeDescription", part.AttributeDescription.NullEmpty() },
-                { "Weight", part.ItemWeight },
-                { "TaxRate", part.TaxRate },
-                { "Qty", part.Quantity },
-                { "UnitPrice", _helper.FormatPrice(isNet ? part.UnitPriceExclTax : part.UnitPriceInclTax, part.Order, messageContext) },
-                { "LineTotal", _helper.FormatPrice(isNet ? part.PriceExclTax : part.PriceInclTax, part.Order, messageContext) },
-                { "Product", await CreateModelPartAsync(product, messageContext, part.AttributeSelection) },
-                { "BundleItems", bundleItems },
-                { "IsGross", !isNet },
-                { "DisplayDeliveryTime", part.DisplayDeliveryTime },
-            };
 
+            m["BundleItems"] = bundleItems;
+
+            // Delivery time.
             if (part.DeliveryTimeId.HasValue)
             {
                 var deliveryTime = await _db.DeliveryTimes.FindByIdAsync(part.DeliveryTimeId ?? 0, false);
@@ -400,10 +384,13 @@ namespace Smartstore.Core.Messaging
             Guard.NotNull(part, nameof(part));
 
             var itemParts = new List<object>();
-
-            // TODO: (mh) (core) ToListAsync, ToMultimap, ToDictionarySafe. Debug & Test. 
             var db = _services.Resolve<SmartDbContext>();
-            var orderItems = await db.OrderItems.AsNoTracking().ApplyStandardFilter(part.OrderId).ToListAsync();
+            var orderItems = await db.OrderItems
+                .AsNoTracking()
+                .Include(x => x.Product)
+                .Include(x => x.Order)
+                .ApplyStandardFilter(part.OrderId)
+                .ToListAsync();
             var map = orderItems.ToMultimap(x => x.OrderId, x => x);
             var orderItemsDic = orderItems.ToDictionarySafe(x => x.Id);
 
@@ -463,15 +450,19 @@ namespace Smartstore.Core.Messaging
             Guard.NotNull(messageContext, nameof(messageContext));
             Guard.NotNull(part, nameof(part));
 
+            var paymentService = _services.Resolve<IPaymentService>();
+            var nextPaymentDate = await paymentService.GetNextRecurringPaymentDateAsync(part);
+            var remaingCycles = await paymentService.GetRecurringPaymentRemainingCyclesAsync(part);
+
             var m = new Dictionary<string, object>
             {
                 { "Id", part.Id },
                 { "CreatedOn", _helper.ToUserDate(part.CreatedOnUtc, messageContext) },
                 { "StartedOn", _helper.ToUserDate(part.StartDateUtc, messageContext) },
-                { "NextOn", _helper.ToUserDate(part.NextPaymentDate, messageContext) },
+                { "NextOn", _helper.ToUserDate(nextPaymentDate, messageContext) },
                 { "CycleLength", part.CycleLength },
                 { "CyclePeriod", part.CyclePeriod.GetLocalizedEnum(messageContext.Language.Id) },
-                { "CyclesRemaining", part.CyclesRemaining },
+                { "CyclesRemaining", remaingCycles },
                 { "TotalCycles", part.TotalCycles },
                 { "Url", _helper.BuildActionUrl("Edit", "RecurringPayment", new { id = part.Id, area = "Admin" }, messageContext) }
             };

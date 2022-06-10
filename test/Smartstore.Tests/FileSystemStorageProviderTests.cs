@@ -14,7 +14,7 @@ namespace Smartstore.Tests
         private string _folderPath;
         private IFileSystem _fileSystem;
 
-        [SetUp]
+        [OneTimeSetUp]
         public void Init()
         {
             _folderPath = Path.Combine(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Media"), "Default");
@@ -34,8 +34,8 @@ namespace Smartstore.Tests
             _fileSystem = new LocalFileSystem(_folderPath);
         }
 
-        [TearDown]
-        public void Term()
+        [OneTimeTearDown]
+        public void Teardown()
         {
             Directory.Delete(_folderPath, true);
         }
@@ -73,8 +73,8 @@ namespace Smartstore.Tests
             var one = files.Single(x => x.Name == "one.txt");
             var two = files.Single(x => x.Name == "two.txt");
 
-            Assert.That(one.SubPath, Is.EqualTo("Subfolder1/one.txt"));
-            Assert.That(two.SubPath, Is.EqualTo("Subfolder1/two.txt"));
+            Assert.That(one.SubPath, Is.EqualTo($"Subfolder1{PathUtility.PathSeparators[0]}one.txt"));
+            Assert.That(two.SubPath, Is.EqualTo($"Subfolder1{PathUtility.PathSeparators[0]}two.txt"));
         }
 
 

@@ -1,0 +1,44 @@
+﻿<Language Name="English" IsDefault="false" IsRightToLeft="false">
+  <LocaleResource Name="Plugins.FriendlyName.Smartstore.Microsoft.Auth" AppendRootKey="false">
+    <Value>Microsoft Login</Value>
+  </LocaleResource>
+	<LocaleResource Name="Plugins.Description.Smartstore.Microsoft.Auth" AppendRootKey="false">
+		<Value>Adds Microsoft authentication to the store.</Value>
+	</LocaleResource>
+	<LocaleResource Name="AdminInstruction">
+		<Value>
+			<![CDATA[
+			<p>How to set up Microsoft authentication:</p>
+				<ul>
+					<li>Create a new app at <a href="https://go.microsoft.com/fwlink/?linkid=2083908">Microsoft</a>.</li>
+					<li>Specify the URL listed below as the <b>Redirect URI</b>.</li>
+					<li>From the menu on the left side select <b>Certificates & Secrets</b>.</li>
+					<li>Click the <b>New client secret</b> button in the tab <b>Client Secrets</b>.</li>
+					<li>Enter the value of the key in the following form as a secret client key and enter the <b>Application ID</b>.</li>
+					<li>Activate automatic registration in the shop's customer settings if you want to register externally authorized visitors automatically.</li>
+				</ul>
+			]]>
+		</Value>
+	</LocaleResource>
+	<LocaleResource Name="Login">
+		<Value>Sign in with Microsoft</Value>
+	</LocaleResource>
+	<LocaleResource Name="ClientKeyIdentifier">
+		<Value>Application ID</Value>
+	</LocaleResource>
+	<LocaleResource Name="ClientKeyIdentifier.Hint">
+		<Value>Enter your Application ID here.</Value>
+	</LocaleResource>
+	<LocaleResource Name="ClientSecret">
+		<Value>Client Secret</Value>
+	</LocaleResource>
+	<LocaleResource Name="ClientSecret.Hint">
+		<Value>Enter the value of your client secret here.</Value>
+	</LocaleResource>
+	<LocaleResource Name="RedirectUri">
+		<Value>Redirect URI</Value>
+	</LocaleResource>
+	<LocaleResource Name="RedirectUri.Hint">
+		<Value>The Redirect URI to be entered on Microsoft.</Value>
+	</LocaleResource>
+</Language>

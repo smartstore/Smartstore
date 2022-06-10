@@ -1,9 +1,7 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using FluentValidation;
 using Newtonsoft.Json;
 using Smartstore.Collections;
-using Smartstore.Web.Modelling;
 
 namespace Smartstore.Admin.Models.Messages
 {

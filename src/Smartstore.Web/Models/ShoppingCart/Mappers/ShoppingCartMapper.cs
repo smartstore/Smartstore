@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Dynamic;
+﻿using System.Dynamic;
 using System.Globalization;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using Smartstore.ComponentModel;
-using Smartstore.Core;
 using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Discounts;
@@ -23,13 +17,12 @@ using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Content.Media;
-using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
-using Smartstore.Core.Stores;
 using Smartstore.Engine.Modularity;
 using Smartstore.Utilities.Html;
+using Smartstore.Web.Rendering;
 
 namespace Smartstore.Web.Models.Cart
 {
@@ -81,9 +74,11 @@ namespace Smartstore.Web.Models.Cart
         private readonly IPaymentService _paymentService;
         private readonly IDiscountService _discountService;
         private readonly ICurrencyService _currencyService;
+        private readonly ITaxService _taxService;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IShoppingCartValidator _shoppingCartValidator;
         private readonly IOrderCalculationService _orderCalculationService;
+        private readonly ICheckoutStateAccessor _checkoutStateAccessor;
         private readonly ICheckoutAttributeFormatter _checkoutAttributeFormatter;
         private readonly ICheckoutAttributeMaterializer _checkoutAttributeMaterializer;
         private readonly ModuleManager _moduleManager;
@@ -100,9 +95,11 @@ namespace Smartstore.Web.Models.Cart
             IPaymentService paymentService,
             IDiscountService discountService,
             ICurrencyService currencyService,
+            ITaxService taxService,
             IHttpContextAccessor httpContextAccessor,
             IShoppingCartValidator shoppingCartValidator,
             IOrderCalculationService orderCalculationService,
+            ICheckoutStateAccessor checkoutStateAccessor,
             ICheckoutAttributeFormatter checkoutAttributeFormatter,
             ICheckoutAttributeMaterializer checkoutAttributeMaterializer,
             ModuleManager moduleManager,
@@ -122,9 +119,11 @@ namespace Smartstore.Web.Models.Cart
             _paymentService = paymentService;
             _discountService = discountService;
             _currencyService = currencyService;
+            _taxService = taxService;
             _httpContextAccessor = httpContextAccessor;
             _shoppingCartValidator = shoppingCartValidator;
             _orderCalculationService = orderCalculationService;
+            _checkoutStateAccessor = checkoutStateAccessor;
             _checkoutAttributeFormatter = checkoutAttributeFormatter;
             _checkoutAttributeMaterializer = checkoutAttributeMaterializer;
             _moduleManager = moduleManager;
@@ -241,7 +240,7 @@ namespace Smartstore.Web.Models.Cart
 
                 if (attribute.IsListTypeAttribute)
                 {
-                    var taxFormat = _currencyService.GetTaxFormat(null, null, PricingTarget.Product);
+                    var taxFormat = _taxService.GetTaxFormat(null, null, PricingTarget.Product);
                     var caValues = await _db.CheckoutAttributeValues
                         .AsNoTracking()
                         .Where(x => x.CheckoutAttributeId == attribute.Id)
@@ -389,52 +388,29 @@ namespace Smartstore.Web.Models.Cart
 
                 if (to.EstimateShipping.Enabled)
                 {
-                    // Countries.
-                    var defaultEstimateCountryId = setEstimateShippingDefaultAddress && customer.ShippingAddress != null
-                        ? customer.ShippingAddress.CountryId
-                        : to.EstimateShipping.CountryId;
-
+                    // Countries and state provinces.
                     var countriesForShipping = await _db.Countries
                         .AsNoTracking()
-                        .ApplyStoreFilter(store.Id)
                         .Where(x => x.AllowsShipping)
+                        .ApplyStandardFilter(false, store.Id)
                         .ToListAsync();
 
-                    foreach (var countries in countriesForShipping)
-                    {
-                        to.EstimateShipping.AvailableCountries.Add(new SelectListItem
-                        {
-                            Text = countries.GetLocalized(x => x.Name),
-                            Value = countries.Id.ToString(),
-                            Selected = countries.Id == defaultEstimateCountryId
-                        });
-                    }
+                    var defaultCountryId = (setEstimateShippingDefaultAddress && customer.ShippingAddress != null
+                        ? customer.ShippingAddress.CountryId
+                        : to.EstimateShipping.CountryId) ?? countriesForShipping.FirstOrDefault()?.Id;
 
-                    // States.
-                    var states = defaultEstimateCountryId.HasValue
-                        ? await _db.StateProvinces.AsNoTracking().ApplyCountryFilter(defaultEstimateCountryId.Value).ToListAsync()
-                        : new();
+                    to.EstimateShipping.AvailableCountries = countriesForShipping.ToSelectListItems(defaultCountryId ?? 0);
 
-                    if (states.Any())
-                    {
-                        var defaultEstimateStateId = setEstimateShippingDefaultAddress && customer.ShippingAddress != null
-                            ? customer.ShippingAddress.StateProvinceId
-                            : to.EstimateShipping.StateProvinceId;
+                    var stateProvinces = await _db.StateProvinces.GetStateProvincesByCountryIdAsync(defaultCountryId ?? 0);
 
-                        foreach (var s in states)
-                        {
-                            to.EstimateShipping.AvailableStates.Add(new SelectListItem
-                            {
-                                Text = s.GetLocalized(x => x.Name),
-                                Value = s.Id.ToString(),
-                                Selected = s.Id == defaultEstimateStateId
-                            });
-                        }
-                    }
-                    else
+                    var defaultStateProvinceId = setEstimateShippingDefaultAddress && customer.ShippingAddress != null
+                        ? customer.ShippingAddress.StateProvinceId
+                        : to.EstimateShipping.StateProvinceId;
+
+                    to.EstimateShipping.AvailableStates = stateProvinces.ToSelectListItems(defaultStateProvinceId ?? 0) ?? new List<SelectListItem>
                     {
-                        to.EstimateShipping.AvailableStates.Add(new SelectListItem { Text = T("Address.OtherNonUS"), Value = "0" });
-                    }
+                        new SelectListItem { Text = T("Address.OtherNonUS"), Value = "0" }
+                    };
 
                     if (setEstimateShippingDefaultAddress && customer.ShippingAddress != null)
                     {
@@ -456,7 +432,7 @@ namespace Smartstore.Web.Models.Cart
             var subtotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(from, null, batchContext);
 
             dynamic itemParameters = new ExpandoObject();
-            itemParameters.TaxFormat = _currencyService.GetTaxFormat();
+            itemParameters.TaxFormat = _taxService.GetTaxFormat();
             itemParameters.BatchContext = batchContext;
             itemParameters.CartSubtotal = subtotal;
 
@@ -475,7 +451,7 @@ namespace Smartstore.Web.Models.Cart
 
             if (prepareAndDisplayOrderReviewData)
             {
-                var checkoutState = _httpContextAccessor.HttpContext?.GetCheckoutState();
+                var checkoutState = _checkoutStateAccessor.CheckoutState;
 
                 to.OrderReviewData.Display = true;
 

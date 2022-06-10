@@ -1,9 +1,7 @@
-﻿using System;
-using Autofac;
+﻿using Autofac;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Smartstore.Core.Identity;
-using Smartstore.Engine;
 
 namespace Smartstore.Core.Bootstrapping
 {
@@ -21,7 +19,7 @@ namespace Smartstore.Core.Bootstrapping
             var customerSettings = _appContext.Services.Resolve<CustomerSettings>();
             
             var usr = options.User;
-            usr.RequireUniqueEmail = false;
+            usr.RequireUniqueEmail = true;
             // INFO: Add space to default list of allowed chars.
             usr.AllowedUserNameCharacters += ' ';
 
@@ -37,10 +35,6 @@ namespace Smartstore.Core.Bootstrapping
             signIn.RequireConfirmedAccount = false;
             signIn.RequireConfirmedPhoneNumber = false;
             signIn.RequireConfirmedEmail = false;
-
-            // TODO: (mh) (core) Read and apply more IdentityOptions from settings.
-            // TODO: (mh) (core) Update IdentityOptions whenever settings change by calling this method from controller with current options.
-            //                   This must also be called when setting is changing via all settings grid.
         }
     }
 }

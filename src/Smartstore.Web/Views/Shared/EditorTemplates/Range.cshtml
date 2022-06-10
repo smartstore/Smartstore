@@ -21,7 +21,8 @@
 
     var sliderCssClass = "form-control-range px-0 custom-range";
 
-    var id = ViewData.TemplateInfo.GetFullHtmlFieldName(string.Empty);
+    var name = ViewData.TemplateInfo.GetFullHtmlFieldName(string.Empty);
+    var id = Html.GenerateIdFromName(name);
 
     var min = (GetMetadata<decimal?>("min") ?? 0m).ToString(CultureInfo.InvariantCulture);
     var max = (GetMetadata<decimal?>("max") ?? 100m).ToString(CultureInfo.InvariantCulture);
@@ -37,7 +38,7 @@
     @*TODO: (mh) (core) Default validation was inserted by this*@
     @*@Html.Hidden(string.Empty, ViewData.Model)*@
 
-    <input asp-for="@Model" type="hidden" attrs="attributes" />
+    <input type="hidden" asp-for="@Model" attrs="attributes" />
     <input type="range" class="@sliderCssClass" data-target="#@id" min="@min" max="@max" step="@step" value="@invariantValue" />
 
     <div class="range-value" data-placement="left">

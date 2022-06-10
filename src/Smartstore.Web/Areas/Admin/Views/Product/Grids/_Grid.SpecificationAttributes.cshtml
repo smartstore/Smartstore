@@ -14,19 +14,23 @@
                 delete="@Url.Action("ProductSpecAttrDelete")"
                 update="@Url.Action("ProductSpecAttrUpdate")" />
     <paging position="Bottom" page-index="1" show-size-chooser="false" />
-    <sorting enabled="true">
+    <sorting>
         <sort by="DisplayOrder" />
-        <sort by="SpecificationAttributeName" />
     </sorting>
     <toolbar>
-        <button datagrid-action="DataGridToolAction.SaveChanges" type="button" class="btn btn-warning no-anims btn-flat">
-            <i class="fa fa-check"></i>
-            <span>@T("Admin.Common.SaveChanges")</span>
-        </button>
-        <button datagrid-action="DataGridToolAction.CancelEdit" type="button" class="btn btn-light btn-flat mr-auto">
-            <span>@T("Common.Cancel")</span>
-        </button>
-        <toolbar-group class="omega">
+        <toolbar-group class="border-right-0">
+            <button datagrid-action="DataGridToolAction.SaveChanges" type="button" class="btn btn-warning no-anims btn-flat">
+                <i class="fa fa-check"></i>
+                <span>@T("Admin.Common.SaveChanges")</span>
+            </button>
+            <button datagrid-action="DataGridToolAction.CancelEdit" type="button" class="btn btn-light btn-flat mr-auto">
+                <span>@T("Common.Cancel")</span>
+            </button>
+        </toolbar-group>
+        <zone name="datagrid_toolbar_alpha"></zone>
+        <toolbar-group class="omega"></toolbar-group>
+        <zone name="datagrid_toolbar_omega"></zone>
+        <toolbar-group>
             <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger no-anims btn-flat">
                 <i class="far fa-trash-alt"></i>
                 <span>@T("Admin.Common.Delete.Selected")</span>
@@ -35,10 +39,9 @@
     </toolbar>
     <columns>
         <column for="SpecificationAttributeName" hideable="false" readonly="true" width="2fr" entity-member="SpecificationAttributeOption.SpecificationAttribute.Name" />
-        <column for="SpecificationAttributeOptionName" halign="center" width="1fr" entity-member="SpecificationAttributeOption.Name">
+        <column for="SpecificationAttributeOptionName" width="1fr" entity-member="SpecificationAttributeOption.Name">
             <edit-template>
                 <select name="SpecificationAttributeOptionId"
-                        id="SpecificationAttributeOptionId"
                         class="form-control d-block edit-control w-100"
                         data-editor="select"
                         v-bind:data-select-selected-id="item.row.SpecificationAttributeOptionId"

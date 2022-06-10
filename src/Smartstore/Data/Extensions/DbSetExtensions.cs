@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query;
 using Smartstore.Data;
@@ -180,6 +174,27 @@ namespace Smartstore
         /// Loads many entities from database sorted by the given id sequence.
         /// Sort is applied in-memory.
         /// </summary>
+        public static IList<TEntity> GetMany<TEntity, TProperty>(this IIncludableQueryable<TEntity, TProperty> query, IEnumerable<int> ids, bool tracked = false)
+            where TEntity : BaseEntity
+        {
+            Guard.NotNull(query, nameof(query));
+            Guard.NotNull(ids, nameof(ids));
+
+            if (!ids.Any())
+                return new List<TEntity>();
+
+            var items = query
+                .ApplyTracking(tracked)
+                .Where(a => ids.Contains(a.Id))
+                .ToList();
+
+            return items.OrderBySequence(ids).ToList();
+        }
+
+        /// <summary>
+        /// Loads many entities from database sorted by the given id sequence.
+        /// Sort is applied in-memory.
+        /// </summary>
         public static async Task<List<TEntity>> GetManyAsync<TEntity>(this DbSet<TEntity> dbSet, IEnumerable<int> ids, bool tracked = false)
             where TEntity : BaseEntity
         {
@@ -197,6 +212,27 @@ namespace Smartstore
             return items.OrderBySequence(ids).ToList();
         }
 
+        /// <summary>
+        /// Loads many entities from database sorted by the given id sequence.
+        /// Sort is applied in-memory.
+        /// </summary>
+        public static async Task<List<TEntity>> GetManyAsync<TEntity, TProperty>(this IIncludableQueryable<TEntity, TProperty> query, IEnumerable<int> ids, bool tracked = false)
+            where TEntity : BaseEntity
+        {
+            Guard.NotNull(query, nameof(query));
+            Guard.NotNull(ids, nameof(ids));
+
+            if (!ids.Any())
+                return new List<TEntity>();
+
+            var items = await query
+                .ApplyTracking(tracked)
+                .Where(a => ids.Contains(a.Id))
+                .ToListAsync();
+
+            return items.OrderBySequence(ids).ToList();
+        }
+
         #endregion
 
         #region Remove
@@ -205,18 +241,41 @@ namespace Smartstore
         {
             Guard.NotZero(id, nameof(id));
 
-            dbSet.Remove(new TEntity { Id = id });
+            var entity = dbSet.GetDbContext().FindTracked<TEntity>(id);
+            if (entity == null && dbSet.Any(x => x.Id == id))
+            {
+                entity = new TEntity { Id = id };
+            }
+
+            if (entity != null)
+            {
+                dbSet.Remove(entity);
+            }
         }
 
         public static void RemoveRange<TEntity>(this DbSet<TEntity> dbSet, IEnumerable<int> ids) where TEntity : BaseEntity, new()
         {
             Guard.NotNull(ids, nameof(ids));
 
-            var entities = ids
-                .Where(id => id > 0)
-                .Select(id => new TEntity { Id = id });
+            var distinctIds = ids.Where(id => id > 0).Distinct();
+            if (!distinctIds.Any())
+            {
+                return;
+            }
 
-            dbSet.RemoveRange(entities);
+            var context = dbSet.GetDbContext();
+
+            var localEntities = distinctIds
+                .Select(id => context.FindTracked<TEntity>(id))
+                .ToList();
+
+            var untrackedIds = distinctIds.Except(localEntities.Select(x => x.Id)).ToArray();
+            var dbEntities = dbSet
+                .Where(x => untrackedIds.Contains(x.Id))
+                .Select(x => new TEntity { Id = x.Id })
+                .ToList();
+
+            dbSet.RemoveRange(localEntities.Concat(dbEntities));
         }
 
         /// <summary>
@@ -248,16 +307,16 @@ namespace Smartstore
                 if (cascade)
                 {
                     var records = query.ToList();
-                    foreach (var chunk in records.Slice(500))
+                    foreach (var chunk in records.Chunk(500))
                     {
-                        dbSet.RemoveRange(chunk.ToList());
+                        dbSet.RemoveRange(chunk);
                         numDeleted += ctx.SaveChanges();
                     }
                 }
                 else
                 {
                     var entities = query.Select(x => new TEntity { Id = x.Id }).ToList();
-                    foreach (var chunk in entities.Slice(500))
+                    foreach (var chunk in entities.Chunk(500))
                     {
                         dbSet.RemoveRange(chunk);
                         numDeleted += ctx.SaveChanges();
@@ -297,16 +356,16 @@ namespace Smartstore
                 if (cascade)
                 {
                     var records = await query.ToListAsync();
-                    foreach (var chunk in records.Slice(500))
+                    foreach (var chunk in records.Chunk(500))
                     {
-                        dbSet.RemoveRange(chunk.ToList());
+                        dbSet.RemoveRange(chunk);
                         numDeleted += await ctx.SaveChangesAsync();
                     }
                 }
                 else
                 {
                     var entities = await query.Select(x => new T { Id = x.Id }).ToListAsync();
-                    foreach (var chunk in entities.Slice(500))
+                    foreach (var chunk in entities.Chunk(500))
                     {
                         dbSet.RemoveRange(chunk);
                         numDeleted += await ctx.SaveChangesAsync();

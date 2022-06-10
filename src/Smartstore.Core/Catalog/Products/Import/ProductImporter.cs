@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Threading;
-using System.Threading.Tasks;
-using Dasync.Collections;
-using Microsoft.EntityFrameworkCore;
+﻿using Dasync.Collections;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Brands;
 using Smartstore.Core.Catalog.Categories;
@@ -20,14 +12,21 @@ using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
 using Smartstore.Data;
 using Smartstore.Data.Hooks;
-using Smartstore.Net.Http;
 
 namespace Smartstore.Core.DataExchange.Import
 {
     public class ProductImporter : EntityImporterBase
     {
         private const string CARGO_DATA_KEY = "ProductImporter.CargoData";
+
+        /// <summary>
+        /// Old Product.Id -> new Product.Id
+        /// </summary>
         private const string TARGET_PRODUCT_IDS_KEY = "ProductImporter.TargetProductIds";
+
+        /// <summary>
+        /// Old Product.Id -> old Product.ParentGroupedProductId
+        /// </summary>
         private const string PARENT_PRODUCT_IDS_KEY = "ProductImporter.ParentProductIds";
 
         private static readonly Dictionary<string, Expression<Func<Product, string>>> _localizableProperties = new()
@@ -48,8 +47,9 @@ namespace Smartstore.Core.DataExchange.Import
             ILocalizedEntityService localizedEntityService,
             IStoreMappingService storeMappingService,
             IUrlService urlService,
-            IFolderService folderService)
-            : base(services, localizedEntityService, storeMappingService, urlService)
+            IFolderService folderService,
+            SeoSettings seoSettings)
+            : base(services, localizedEntityService, storeMappingService, urlService, seoSettings)
         {
             _folderService = folderService;
         }
@@ -84,14 +84,11 @@ namespace Smartstore.Core.DataExchange.Import
 
         protected virtual async Task ProcessProductsAsync(ImportExecuteContext context)
         {
+            var entityName = nameof(Product);
             var segmenter = context.DataSegmenter;
             var batch = segmenter.GetCurrentBatch<Product>();
 
-            // TODO: (mg) (core) this is wrong design. Hooks must not be running during an import. It messes up the import. An importer must not rely on hook execution.
-            // "The property 'LocalizedProperty.Id' has a temporary value while attempting to change the entity's state to 'Deleted'."
-            // "Cannot insert duplicate key row in object 'dbo.UrlRecord' with unique index 'IX_UrlRecord_Slug'."
-            // RE: (info) The IX_UrlRecord_Slug uniqueness violation is a known bug in IUrlService.
-            using (var scope = new DbContextScope(_services.DbContext, autoDetectChanges: false, minHookImportance: HookImportance.Important, deferCommit: true))
+            using (var scope = new DbContextScope(_db, autoDetectChanges: false, minHookImportance: HookImportance.Important, deferCommit: true))
             {
                 await context.SetProgressAsync(segmenter.CurrentSegmentFirstRowIndex - 1, segmenter.TotalRows);
 
@@ -123,11 +120,16 @@ namespace Smartstore.Core.DataExchange.Import
                 {
                     try
                     {
-                        await ProcessSlugsAsync(context, batch, typeof(Product).Name);
+                        scope.DbContext.SuppressCommit = false;
+                        await ProcessSlugsAsync(context, batch, entityName);
                     }
                     catch (Exception ex)
                     {
                         context.Result.AddError(ex, segmenter.CurrentSegment, nameof(ProcessSlugsAsync));
+                    }
+                    finally
+                    {
+                        scope.DbContext.SuppressCommit = true;
                     }
                 }
 
@@ -138,7 +140,7 @@ namespace Smartstore.Core.DataExchange.Import
                 {
                     try
                     {
-                        await ProcessStoreMappingsAsync(context, scope, batch);
+                        await ProcessStoreMappingsAsync(context, scope, batch, entityName);
                     }
                     catch (Exception ex)
                     {
@@ -151,7 +153,7 @@ namespace Smartstore.Core.DataExchange.Import
                 // ===========================================================================
                 try
                 {
-                    await ProcessLocalizationsAsync(context, scope, batch, _localizableProperties);
+                    await ProcessLocalizationsAsync(context, scope, batch, entityName, _localizableProperties);
                 }
                 catch (Exception ex)
                 {
@@ -255,37 +257,40 @@ namespace Smartstore.Core.DataExchange.Import
 
                 foreach (var keyName in context.KeyFieldNames)
                 {
-                    var keyValue = row.GetDataValue<string>(keyName);
-                    if (keyValue.HasValue() || id > 0)
+                    if (keyName == "Id")
                     {
-                        switch (keyName)
+                        product = await _db.Products.FindByIdAsync(id, true, context.CancelToken);
+                    }
+                    else
+                    {
+                        var keyValue = row.GetDataValue<string>(keyName).TrimSafe();
+                        if (keyValue.HasValue())
                         {
-                            case "Id":
-                                product = await _db.Products.FindByIdAsync(id, true, context.CancelToken);
-                                break;
-                            case "Sku":
-                                product = await _db.Products
-                                    .ApplySkuFilter(keyValue)
-                                    .FirstOrDefaultAsync(context.CancelToken);
-                                break;
-                            case "Gtin":
-                                product = await _db.Products
-                                    .ApplyGtinFilter(keyValue)
-                                    .FirstOrDefaultAsync(context.CancelToken);
-                                break;
-                            case "ManufacturerPartNumber":
-                                product = await _db.Products
-                                    .ApplyMpnFilter(keyValue)
-                                    .FirstOrDefaultAsync(context.CancelToken);
-                                break;
-                            case "Name":
-                                keyValue = keyValue.Trim();
-                                product = await _db.Products
-                                    .AsQueryable()
-                                    .Where(x => x.Name == keyValue)
-                                    .OrderBy(x => x.Id)
-                                    .FirstOrDefaultAsync(context.CancelToken);
-                                break;
+                            switch (keyName)
+                            {
+                                case "Sku":
+                                    product = await _db.Products
+                                        .ApplySkuFilter(keyValue)
+                                        .FirstOrDefaultAsync(context.CancelToken);
+                                    break;
+                                case "Gtin":
+                                    product = await _db.Products
+                                        .ApplyGtinFilter(keyValue)
+                                        .FirstOrDefaultAsync(context.CancelToken);
+                                    break;
+                                case "ManufacturerPartNumber":
+                                    product = await _db.Products
+                                        .ApplyMpnFilter(keyValue)
+                                        .FirstOrDefaultAsync(context.CancelToken);
+                                    break;
+                                case "Name":
+                                    product = await _db.Products
+                                        .AsQueryable()
+                                        .Where(x => x.Name == keyValue)
+                                        .OrderBy(x => x.Id)
+                                        .FirstOrDefaultAsync(context.CancelToken);
+                                    break;
+                            }
                         }
                     }
 
@@ -393,8 +398,8 @@ namespace Smartstore.Core.DataExchange.Import
                 row.SetProperty(context.Result, (x) => x.CustomerEntersPrice);
                 row.SetProperty(context.Result, (x) => x.MinimumCustomerEnteredPrice);
                 row.SetProperty(context.Result, (x) => x.MaximumCustomerEnteredPrice, 1000);
-                // HasTierPrices... ignore as long as no tier prices are imported
-                // LowestAttributeCombinationPrice... ignore as long as no combinations are imported
+                // HasTierPrices: see ProcessTierPricesAsync.
+                // LowestAttributeCombinationPrice: see ProcessAttributeCombinationsAsync.
                 row.SetProperty(context.Result, (x) => x.Weight);
                 row.SetProperty(context.Result, (x) => x.Length);
                 row.SetProperty(context.Result, (x) => x.Width);
@@ -464,7 +469,7 @@ namespace Smartstore.Core.DataExchange.Import
             // Required to assign associated products to their parent products.
             var targetProductIds = context.GetCustomProperty<Dictionary<int, int>>(TARGET_PRODUCT_IDS_KEY);
 
-            foreach (var row in batch)
+            foreach (var row in batch.Where(x => x.Entity != null))
             {
                 var id = row.GetDataValue<int>("Id");
                 if (id != 0)
@@ -568,6 +573,7 @@ namespace Smartstore.Core.DataExchange.Import
         {
             var cargo = await GetCargoData(context);
             var numberOfPictures = context.ExtraData.NumberOfPictures ?? int.MaxValue;
+            var newFiles = new List<FileBatchSource>();
             var displayOrder = -1;
 
             var productIds = batch
@@ -575,12 +581,12 @@ namespace Smartstore.Core.DataExchange.Import
                 .Where(x => x != 0)
                 .ToArray();
 
-            var existingMediaFiles = await _db.ProductMediaFiles
+            var existingFiles = await _db.ProductMediaFiles
                 .AsNoTracking()
                 .Include(x => x.MediaFile)
                 .Where(x => productIds.Contains(x.ProductId))
                 .ToListAsync(context.CancelToken);
-            var existingMediaFilesMap = existingMediaFiles.ToMultimap(x => x.ProductId, x => x);
+            var existingFilesMap = existingFiles.ToMultimap(x => x.ProductId, x => x);
 
             foreach (var row in batch)
             {
@@ -594,43 +600,19 @@ namespace Smartstore.Core.DataExchange.Import
                 }
 
                 displayOrder = -1;
-
                 var product = row.Entity;
-                var imageNumber = 0;
-                var downloadItems = new List<DownloadManagerItem>();
-
-                // Collect required image file infos.
-                foreach (var urlOrPath in imageUrls)
-                {
-                    var item = CreateDownloadItem(context, urlOrPath, ++imageNumber);
-                    if (item != null)
-                    {
-                        downloadItems.Add(item);
-                        if (downloadItems.Count >= numberOfPictures)
-                            break;
-                    }
-                }
+                var downloadItems = CreateDownloadItems(context, imageUrls, numberOfPictures);
 
                 // Download images.
                 if (downloadItems.Any(x => x.Url.HasValue()))
                 {
+                    // TODO: (mg) (core) Make this fire&forget somehow and sync later.
                     await context.DownloadManager.DownloadFilesAsync(
                         downloadItems.Where(x => x.Url.HasValue() && !x.Success),
                         context.CancelToken);
-
-                    var hasDuplicateFileNames = downloadItems
-                        .Where(x => x.Url.HasValue())
-                        .Select(x => x.FileName)
-                        .GroupBy(x => x)
-                        .Any(x => x.Count() > 1);
-
-                    if (hasDuplicateFileNames)
-                    {
-                        context.Result.AddWarning($"Found duplicate names (not supported yet). File names in URLs have to be unique!", row.RowInfo, "ImageUrls");
-                    }
                 }
 
-                // Import images.
+                // Process downloaded images.
                 foreach (var image in downloadItems.OrderBy(x => x.DisplayOrder))
                 {
                     try
@@ -641,8 +623,8 @@ namespace Smartstore.Core.DataExchange.Import
 
                             if (stream?.Length > 0)
                             {
-                                var currentFiles = existingMediaFilesMap.ContainsKey(product.Id) 
-                                    ? existingMediaFilesMap[product.Id]
+                                var currentFiles = existingFilesMap.ContainsKey(product.Id)
+                                    ? existingFilesMap[product.Id]
                                     : Enumerable.Empty<ProductMediaFile>();
 
                                 if (displayOrder == -1)
@@ -653,21 +635,29 @@ namespace Smartstore.Core.DataExchange.Import
                                 var equalityCheck = await _services.MediaService.FindEqualFileAsync(stream, currentFiles.Select(x => x.MediaFile), true);
                                 if (equalityCheck.Success)
                                 {
+                                    // INFO: may occur during a initial import when products have the same SKU and
+                                    // the first product was overwritten with the data of the second one.
                                     context.Result.AddInfo($"Found equal file in product data for '{image.FileName}'. Skipping file.", row.RowInfo, "ImageUrls");
                                 }
                                 else
                                 {
-                                    equalityCheck = await _services.MediaService.FindEqualFileAsync(stream, image.FileName, cargo.CatalogAlbumId, true);
+                                    equalityCheck = await _services.MediaService.FindEqualFileAsync(stream, image.FileName, cargo.CatalogAlbum.Id, true);
                                     if (equalityCheck.Success)
                                     {
+                                        // INFO: may occur during a subsequent import when products have the same SKU and
+                                        // the images of the second product are additionally assigned to the first one.
                                         AddProductMediaFile(equalityCheck.Value, product);
                                         context.Result.AddInfo($"Found equal file in catalog album for '{image.FileName}'. Assigning existing file instead.", row.RowInfo, "ImageUrls");
                                     }
                                     else
                                     {
-                                        var path = _services.MediaService.CombinePaths(SystemAlbumProvider.Catalog, image.FileName);
-                                        var saveFileResult = await _services.MediaService.SaveFileAsync(path, stream, false, DuplicateFileHandling.Rename);
-                                        AddProductMediaFile(saveFileResult?.File, product);
+                                        // Keep path for later batch import of new images.
+                                        newFiles.Add(new FileBatchSource
+                                        {
+                                            PhysicalPath = image.Path,
+                                            FileName = image.FileName,
+                                            State = row.Entity
+                                        });
                                     }
                                 }
                             }
@@ -684,27 +674,42 @@ namespace Smartstore.Core.DataExchange.Import
                 }
             }
 
+            if (newFiles.Count > 0)
+            {
+                var batchFileResult = await _services.MediaService.BatchSaveFilesAsync(
+                    newFiles.ToArray(),
+                    cargo.CatalogAlbum,
+                    false,
+                    DuplicateFileHandling.Rename,
+                    context.CancelToken);
+
+                foreach (var fileResult in batchFileResult)
+                {
+                    if (fileResult.Exception == null && fileResult.File?.Id > 0)
+                    {
+                        AddProductMediaFile(fileResult.File.File, fileResult.Source.State as Product);
+                    }
+                }
+            }
+
             await scope.CommitAsync(context.CancelToken);
 
             void AddProductMediaFile(MediaFile file, Product product)
             {
-                if (file?.Id > 0)
+                var productMediaFile = new ProductMediaFile
                 {
-                    var productMediaFile = new ProductMediaFile
-                    {
-                        ProductId = product.Id,
-                        MediaFileId = file.Id,
-                        DisplayOrder = ++displayOrder
-                    };
+                    ProductId = product.Id,
+                    MediaFileId = file.Id,
+                    DisplayOrder = ++displayOrder
+                };
 
-                    _db.ProductMediaFiles.Add(productMediaFile);
+                _db.ProductMediaFiles.Add(productMediaFile);
                     
-                    productMediaFile.MediaFile = file;
-                    existingMediaFilesMap.Add(product.Id, productMediaFile);
+                productMediaFile.MediaFile = file;
+                existingFilesMap.Add(product.Id, productMediaFile);
 
-                    // Update for FixProductMainPictureIds.
-                    product.UpdatedOnUtc = DateTime.UtcNow;
-                }
+                // Update for FixProductMainPictureIds.
+                product.UpdatedOnUtc = DateTime.UtcNow;
             }
         }
 
@@ -844,7 +849,7 @@ namespace Smartstore.Core.DataExchange.Import
             parentProductIds.Clear();
             var associatedIds = newIds.Keys.ToArray();
 
-            foreach (var associatedIdsChunk in associatedIds.Slice(100))
+            foreach (var associatedIdsChunk in associatedIds.Chunk(100))
             {
                 var associatedProducts = await _db.Products
                     .AsQueryable()
@@ -872,7 +877,7 @@ namespace Smartstore.Core.DataExchange.Import
             var entityName = await _services.Localization.GetLocalizedEnumAsync(RelatedEntityType.TierPrice, _services.WorkContext.WorkingLanguage.Id);
             var savedEntities = 0;
 
-            using (var scope = new DbContextScope(_services.DbContext, autoDetectChanges: false, minHookImportance: HookImportance.Important, deferCommit: true))
+            using (var scope = new DbContextScope(_db, autoDetectChanges: false, minHookImportance: HookImportance.Important, deferCommit: true))
             {
                 await context.SetProgressAsync(T("Admin.Common.ProcessingInfo", entityName, segmenter.CurrentSegmentFirstRowIndex - 1, segmenter.TotalRows));
 
@@ -891,8 +896,20 @@ namespace Smartstore.Core.DataExchange.Import
                                 continue;
                             }
 
-                            // ProductId is required for new tier prices.
+                            // Product-ID is required for new tier prices.
                             var productId = row.GetDataValue<int>("ProductId");
+                            
+                            if (productId == 0 &&
+                                context.KeyFieldNames.Contains("Sku") && 
+                                row.TryGetDataValue<string>("ProductSku", out var sku) && 
+                                sku.HasValue())
+                            {
+                                productId = await _db.Products
+                                    .ApplySkuFilter(sku)
+                                    .Select(x => x.Id)
+                                    .FirstOrDefaultAsync(context.CancelToken);
+                            }
+
                             if (productId == 0)
                             {
                                 ++context.Result.SkippedRecords;
@@ -937,9 +954,7 @@ namespace Smartstore.Core.DataExchange.Import
                 context.Result.NewRecords += batch.Count(x => x.IsNew);
                 context.Result.ModifiedRecords += Math.Max(0, savedEntities - context.Result.NewRecords);
 
-                // TODO: (mg) (core) this is wrong design. An importer must NOT rely on a hook. Hooks must not be running during an import.
-                // Updating HasTierPrices property not necessary anymore.
-                // This is done by the TierPriceHook (minHookImportance is set to HookImportance.Important).
+                // INFO: Product.HasTierPrices is updated by TierPriceHook.
             }
 
             await _services.EventPublisher.PublishAsync(new ImportBatchExecutedEvent<TierPrice>(context, batch));
@@ -952,7 +967,7 @@ namespace Smartstore.Core.DataExchange.Import
             var entityName = await _services.Localization.GetLocalizedEnumAsync(RelatedEntityType.ProductVariantAttributeValue, _services.WorkContext.WorkingLanguage.Id);
             var savedEntities = 0;
 
-            using (var scope = new DbContextScope(_services.DbContext, autoDetectChanges: false, minHookImportance: HookImportance.Important, deferCommit: true))
+            using (var scope = new DbContextScope(_db, autoDetectChanges: false, minHookImportance: HookImportance.Important, deferCommit: true))
             {
                 await context.SetProgressAsync(T("Admin.Common.ProcessingInfo", entityName, segmenter.CurrentSegmentFirstRowIndex - 1, segmenter.TotalRows));
 
@@ -1036,7 +1051,7 @@ namespace Smartstore.Core.DataExchange.Import
             var entityName = await _services.Localization.GetLocalizedEnumAsync(RelatedEntityType.ProductVariantAttributeCombination, _services.WorkContext.WorkingLanguage.Id);
             var savedEntities = 0;
 
-            using (var scope = new DbContextScope(_services.DbContext, autoDetectChanges: false, minHookImportance: HookImportance.Important, deferCommit: true))
+            using (var scope = new DbContextScope(_db, autoDetectChanges: false, minHookImportance: HookImportance.Important, deferCommit: true))
             {
                 await context.SetProgressAsync(T("Admin.Common.ProcessingInfo", entityName, segmenter.CurrentSegmentFirstRowIndex - 1, segmenter.TotalRows));
 
@@ -1120,9 +1135,7 @@ namespace Smartstore.Core.DataExchange.Import
                 context.Result.NewRecords += batch.Count(x => x.IsNew);
                 context.Result.ModifiedRecords += Math.Max(0, savedEntities - context.Result.NewRecords);
 
-                // TODO: (mg) (core) this is wrong design. An importer must NOT rely on a hook. Hooks must not be running during an import.
-                // Updating LowestAttributeCombinationPrice property not necessary anymore.
-                // This is done by the ProductVariantAttributeCombinationHook (minHookImportance is set to HookImportance.Important).
+                // INFO: Product.LowestAttributeCombinationPrice is updated by ProductVariantAttributeCombinationHook.
             }
 
             await _services.EventPublisher.PublishAsync(new ImportBatchExecutedEvent<ProductVariantAttributeCombination>(context, batch));
@@ -1139,7 +1152,6 @@ namespace Smartstore.Core.DataExchange.Import
             }
 
             var segmenter = context.DataSegmenter;
-            var catalogAlbumId = _folderService.GetNodeByPath(SystemAlbumProvider.Catalog).Value.Id;
 
             var productTemplates = await _db.ProductTemplates
                 .AsNoTracking()
@@ -1149,24 +1161,18 @@ namespace Smartstore.Core.DataExchange.Import
             // Do not pass entities here because of batch scope!
             var result = new ImporterCargoData
             {
-                CatalogAlbumId = catalogAlbumId,
-                TemplateViewPaths = productTemplates.ToDictionarySafe(x => x.ViewPath, x => x.Id)
+                TemplateViewPaths = productTemplates.ToDictionarySafe(x => x.ViewPath, x => x.Id),
+                CatalogAlbum = _folderService.GetNodeByPath(SystemAlbumProvider.Catalog).Value
             };
 
             if (segmenter.HasColumn("CategoryIds"))
             {
-                result.CategoryIds = await _db.Categories
-                    .AsNoTracking()
-                    .Select(x => x.Id)
-                    .ToListAsync(context.CancelToken);
+                result.CategoryIds = await _db.Categories.Select(x => x.Id).ToListAsync(context.CancelToken);
             }
 
             if (segmenter.HasColumn("ManufacturerIds"))
             {
-                result.ManufacturerIds = await _db.Manufacturers
-                    .AsNoTracking()
-                    .Select(x => x.Id)
-                    .ToListAsync(context.CancelToken);
+                result.ManufacturerIds = await _db.Manufacturers.Select(x => x.Id).ToListAsync(context.CancelToken);
             }
 
             context.CustomProperties[CARGO_DATA_KEY] = result;
@@ -1178,8 +1184,8 @@ namespace Smartstore.Core.DataExchange.Import
         /// </summary>
         protected class ImporterCargoData
         {
-            public int CatalogAlbumId { get; init; }
             public Dictionary<string, int> TemplateViewPaths { get; init; }
+            public MediaFolderNode CatalogAlbum { get; init; }
             public List<int> CategoryIds { get; set; }
             public List<int> ManufacturerIds { get; set; }
         }

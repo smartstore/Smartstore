@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using Smartstore.Core.Catalog.Brands;
+﻿using Smartstore.Core.Catalog.Brands;
 using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Common;
@@ -16,7 +11,7 @@ namespace Smartstore.Core.Catalog.Search
 {
     public partial class LinqCatalogSearchService : SearchServiceBase, ICatalogSearchService
     {
-        private static readonly int[] _priceThresholds = new int[] { 10, 25, 50, 100, 250, 500, 1000 };
+        private static readonly int[] _priceThresholds = new[] { 10, 25, 50, 100, 250, 500, 1000 };
 
         private readonly SmartDbContext _db;
         private readonly ICommonServices _services;
@@ -53,9 +48,9 @@ namespace Smartstore.Core.Catalog.Search
                 //totalHits = await query.Select(x => x.Id).Distinct().CountAsync();
 
                 // Fix paging boundaries.
-                if (searchQuery.Skip > 0 && searchQuery.Skip >= totalHits)
+                if (searchQuery.Skip > 0 && searchQuery.Skip > totalHits)
                 {
-                    searchQuery.Slice((totalHits / searchQuery.Take) * searchQuery.Take, searchQuery.Take);
+                    searchQuery.Slice(totalHits, searchQuery.Take);
                 }
 
                 if (searchQuery.ResultFlags.HasFlag(SearchResultFlags.WithHits))
@@ -122,7 +117,6 @@ namespace Smartstore.Core.Catalog.Search
             var categoryIds = GetIdList(ctx.Filters, "categoryid");
             if (categoryIds.Any())
             {
-                ctx.IsGroupingRequired = true;
                 ctx.CategoryId ??= categoryIds.First();
                 if (categoryIds.Count == 1 && ctx.CategoryId == 0)
                 {
@@ -131,6 +125,7 @@ namespace Smartstore.Core.Catalog.Search
                 }
                 else
                 {
+                    ctx.IsGroupingRequired = true;
                     query = ApplyCategoriesFilter(query, categoryIds, null);
                 }
             }
@@ -153,7 +148,6 @@ namespace Smartstore.Core.Catalog.Search
             var manufacturerIds = GetIdList(ctx.Filters, "manufacturerid");
             if (manufacturerIds.Any())
             {
-                ctx.IsGroupingRequired = true;
                 ctx.ManufacturerId ??= manufacturerIds.First();
                 if (manufacturerIds.Count == 1 && ctx.ManufacturerId == 0)
                 {
@@ -162,6 +156,7 @@ namespace Smartstore.Core.Catalog.Search
                 }
                 else
                 {
+                    ctx.IsGroupingRequired = true;
                     query = ApplyManufacturersFilter(query, manufacturerIds, null);
                 }
             }
@@ -228,9 +223,9 @@ namespace Smartstore.Core.Catalog.Search
                     else if (filter.FieldName == "rating")
                     {
                         if (filter.Occurence == SearchFilterOccurence.MustNot)
-                            query = query.Where(x => x.ApprovedTotalReviews != 0 && ((double)x.ApprovedRatingSum / (double)x.ApprovedTotalReviews) != (double)filter.Term);
+                            query = query.Where(x => x.ApprovedTotalReviews > 0 && ((double)x.ApprovedRatingSum / (double)x.ApprovedTotalReviews) != (double)filter.Term);
                         else
-                            query = query.Where(x => x.ApprovedTotalReviews != 0 && ((double)x.ApprovedRatingSum / (double)x.ApprovedTotalReviews) == (double)filter.Term);
+                            query = query.Where(x => x.ApprovedTotalReviews > 0 && ((double)x.ApprovedRatingSum / (double)x.ApprovedTotalReviews) == (double)filter.Term);
                     }
                     else if (filter.FieldName == "createdon")
                     {
@@ -346,6 +341,7 @@ namespace Smartstore.Core.Catalog.Search
             //        select grp.FirstOrDefault();
             //}
 
+            // INFO: Distinct does not preserve ordering.
             if (ctx.IsGroupingRequired)
             {
                 // Distinct is very slow if there are many products.
@@ -610,7 +606,6 @@ namespace Smartstore.Core.Catalog.Search
                 // Has any category.
                 if (1 == ((rf.Term as int?) ?? 0) && int.MaxValue == ((rf.UpperTerm as int?) ?? 0))
                 {
-                    ctx.IsGroupingRequired = true;
                     query = query.Where(x => x.ProductCategories.Count > 0);
                 }
             }
@@ -619,7 +614,6 @@ namespace Smartstore.Core.Catalog.Search
                 // Has any manufacturer.
                 if (1 == ((rf.Term as int?) ?? 0) && int.MaxValue == ((rf.UpperTerm as int?) ?? 0))
                 {
-                    ctx.IsGroupingRequired = true;
                     query = query.Where(x => x.ProductManufacturers.Count > 0);
                 }
             }
@@ -715,17 +709,17 @@ namespace Smartstore.Core.Catalog.Search
                 if (lower.HasValue)
                 {
                     if (rf.IncludesLower)
-                        query = query.Where(x => x.ApprovedTotalReviews != 0 && ((double)x.ApprovedRatingSum / (double)x.ApprovedTotalReviews) >= lower.Value);
+                        query = query.Where(x => x.ApprovedTotalReviews > 0 && ((double)x.ApprovedRatingSum / (double)x.ApprovedTotalReviews) >= lower.Value);
                     else
-                        query = query.Where(x => x.ApprovedTotalReviews != 0 && ((double)x.ApprovedRatingSum / (double)x.ApprovedTotalReviews) > lower.Value);
+                        query = query.Where(x => x.ApprovedTotalReviews > 0 && ((double)x.ApprovedRatingSum / (double)x.ApprovedTotalReviews) > lower.Value);
                 }
 
                 if (upper.HasValue)
                 {
                     if (rf.IncludesUpper)
-                        query = query.Where(x => x.ApprovedTotalReviews != 0 && ((double)x.ApprovedRatingSum / (double)x.ApprovedTotalReviews) <= upper.Value);
+                        query = query.Where(x => x.ApprovedTotalReviews > 0 && ((double)x.ApprovedRatingSum / (double)x.ApprovedTotalReviews) <= upper.Value);
                     else
-                        query = query.Where(x => x.ApprovedTotalReviews != 0 && ((double)x.ApprovedRatingSum / (double)x.ApprovedTotalReviews) < upper.Value);
+                        query = query.Where(x => x.ApprovedTotalReviews > 0 && ((double)x.ApprovedRatingSum / (double)x.ApprovedTotalReviews) < upper.Value);
                 }
             }
             else if (rf.FieldName == "createdon")
@@ -817,15 +811,12 @@ namespace Smartstore.Core.Catalog.Search
                 var storeIds = GetIdList(ctx.Filters, "storeid");
                 if (storeIds.Any())
                 {
-                    ctx.IsGroupingRequired = true;
+                    var entityName = nameof(Product);
+                    var subQuery = _db.StoreMappings
+                        .Where(x => x.EntityName == entityName && storeIds.Contains(x.StoreId))
+                        .Select(x => x.EntityId);
 
-                    // Do not use ApplyStoreFilter extension method to avoid multiple grouping.
-                    query =
-                        from p in query
-                        join sm in _db.StoreMappings.AsNoTracking() on new { pid = p.Id, pname = "Product" } equals new { pid = sm.EntityId, pname = sm.EntityName } into psm
-                        from sm in psm.DefaultIfEmpty()
-                        where !p.LimitedToStores || storeIds.Contains(sm.StoreId)
-                        select p;
+                    query = query.Where(x => !x.LimitedToStores || subQuery.Contains(x.Id));
                 }
             }
 
@@ -839,15 +830,12 @@ namespace Smartstore.Core.Catalog.Search
                 var roleIds = GetIdList(ctx.Filters, "roleid");
                 if (roleIds.Any())
                 {
-                    ctx.IsGroupingRequired = true;
+                    var entityName = nameof(Product);
+                    var subQuery = _db.AclRecords
+                        .Where(x => x.EntityName == entityName && roleIds.Contains(x.CustomerRoleId))
+                        .Select(x => x.EntityId);
 
-                    // Do not use ApplyAclFilter extension method to avoid multiple grouping.
-                    query =
-                        from p in query
-                        join acl in _db.AclRecords.AsNoTracking() on new { pid = p.Id, pname = "Product" } equals new { pid = acl.EntityId, pname = acl.EntityName } into pacl
-                        from acl in pacl.DefaultIfEmpty()
-                        where !p.SubjectToAcl || roleIds.Contains(acl.CustomerRoleId)
-                        select p;
+                    query = query.Where(x => !x.SubjectToAcl || subQuery.Contains(x.Id));
                 }
             }
 

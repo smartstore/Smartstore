@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections;
 
 namespace Smartstore.Templating.Liquid
 {
@@ -29,17 +27,12 @@ namespace Smartstore.Templating.Liquid
                 {
                     fn = x => new DictionaryDrop((IDictionary<string, object>)x);
                 }
-                else if (valueType.IsSequenceType())
+                else if (valueType.IsEnumerableType(out var elementType))
                 {
-                    var genericArgs = valueType.GetGenericArguments();
-                    var isEnumerable = genericArgs.Length == 1 && valueType.IsSubClass(typeof(IEnumerable<>));
-                    if (isEnumerable)
+                    var seqType = elementType;
+                    if (!IsSafeType(seqType))
                     {
-                        var seqType = genericArgs[0];
-                        if (!IsSafeType(seqType))
-                        {
-                            fn = x => new EnumerableWrapper((IEnumerable)x);
-                        }
+                        fn = x => new EnumerableWrapper((IEnumerable)x);
                     }
                 }
                 else if (valueType.IsPlainObjectType())
@@ -55,7 +48,7 @@ namespace Smartstore.Templating.Liquid
 
         public static bool IsSafeType(Type type)
         {
-            return type.IsPredefinedType();
+            return type.IsBasicOrNullableType();
         }
     }
 }

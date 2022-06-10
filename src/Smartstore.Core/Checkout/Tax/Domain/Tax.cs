@@ -1,5 +1,4 @@
-﻿using System;
-using System.Globalization;
+﻿using System.Globalization;
 using System.Runtime.CompilerServices;
 using Smartstore.Core.Common;
 
@@ -10,7 +9,6 @@ namespace Smartstore.Core.Checkout.Tax
     /// </summary>
     public readonly struct Tax
     {
-        // TODO: (core) Move Money, Tax & (I)Currency to Smartstore.Financial later.
         public readonly static Tax Zero;
 
         /// <summary>

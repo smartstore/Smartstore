@@ -397,8 +397,7 @@
 		$(document).on('click', '.module-licence', function (e) {
 			e.preventDefault();
 
-            let dialog = $('#module-licence-modal'),
-				url = $(this).attr('href');
+            let dialog = $('#module-licence-modal');
 
     		dialog.find('.modal-body').empty();
 
@@ -480,7 +479,7 @@
 
                             <div sm-if="module.Installed" class="module-actions dropdown">
                                 <button class="btn btn-outline-secondary btn-icon dropdown-toggle no-chevron" type="button" data-toggle="dropdown">
-                                    <i class="fa fa-ellipsis-v"></i>
+                                    <i class="fa fa-ellipsis-h"></i>
                                 </button>
                                 <div class="dropdown-menu dropdown-menu-right">
                                     <a asp-action="UpdateStringResources" class="dropdown-item module-update-resources" data-module="@module.SystemName">

@@ -1,13 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-using Dasync.Collections;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
+﻿using System.Runtime.CompilerServices;
 using Smartstore.Imaging;
 
 namespace Smartstore.Core.Content.Media.Imaging
@@ -33,9 +24,9 @@ namespace Smartstore.Core.Content.Media.Imaging
         public virtual async Task PutAsync(CachedImage cachedImage, IImage image)
         {
             var path = BuildPath(cachedImage.Path);
-            using var stream = (await _fileSystem.GetFileAsync(path)).OpenWrite();
-
-            if (await PreparePut (cachedImage, stream))
+            using var stream = await (await _fileSystem.GetFileAsync(path)).OpenWriteAsync();
+            
+            if (await PreparePut(cachedImage, stream))
             {
                 await image.SaveAsync(stream);
                 image.Dispose();

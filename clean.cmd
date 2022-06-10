@@ -1,0 +1,2 @@
+build --target clean
+pause

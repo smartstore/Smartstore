@@ -1,0 +1,95 @@
+﻿@model MenuEntityModel
+
+@using Smartstore.Admin.Models.Menus
+@using Smartstore.Collections
+
+@{
+    Layout = "";
+    async Task ItemGroup(TreeNode<MenuItem> node, int level, int padding)
+    {
+        var item = node.Value;
+        var parentId = node.Parent != null ? node.Parent.Value.EntityId : 0;
+        var indentStyle = $" style='padding-left: {padding}px;'";
+        var rtl = WorkContext.WorkingLanguage.Rtl;
+
+        <div class="list-group-item menu-item d-flex align-items-center p-1@(level > 0 ? " bg-light" : "")" attr-class='(level == 0, "sub-item")' data-id="@item.EntityId" data-parentid="@parentId">
+            <div class="item-commands dropdown">
+                <button type="button" class="btn btn-secondary btn-flat btn-item-menu dropdown-toggle no-chevron" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <i class="fa fa-ellipsis-v"></i>
+                </button>
+                <div class="dropdown-menu @(rtl ? "dropdown-menu-right" : "dropdown-menu-left")">
+                    <div class="dropdown-header h6 text-uppercase">
+                        @T("Admin.ContentManagement.AddMenuItem")
+                    </div>
+                    @foreach (var provider in Model.AllProviders)
+                    {
+                        <a class="dropdown-item" asp-action="CreateItem" asp-route-providerName="@provider.Value" asp-route-menuId="@Model.Id" asp-route-parentItemId="@item.EntityId">
+                            <i class="fa fa-fw fa-plus"></i>
+                            <span>@provider.Text</span>
+                        </a>
+                    }
+                    <div class="dropdown-divider"></div>
+                    <a class="menu-item-command dropdown-item@(node.Previous == null ? " disabled" : "")" href="#" data-action="move-item-up" data-url="@Url.Action("MoveItem", new { menuId = Model.Id, sourceId = item.EntityId, direction = "up" })">
+                        <i class="fa fa-fw fa-angle-up"></i>
+                        <span>@T("Common.MoveUp")</span>
+                    </a>
+                    <a class="menu-item-command dropdown-item@(node.Next == null ? " disabled" : "")" href="#" data-action="move-item-down" data-url="@Url.Action("MoveItem", new { menuId = Model.Id, sourceId = item.EntityId, direction = "down" })">
+                        <i class="fa fa-fw fa-angle-down"></i>
+                        <span>@T("Common.MoveDown")</span>
+                    </a>
+                    <a class="dropdown-item" asp-action="EditItem" asp-route-id="@item.EntityId">
+                        <i class="far fa-fw fa-edit"></i>
+                        <span>@T("Common.Edit")</span>
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a class="menu-item-command dropdown-item" href="#" data-action="delete-item" data-url="@Url.Action("DeleteItem", new { id = item.EntityId })">
+                        <i class="far fa-fw fa-trash-alt"></i>
+                        <span>@T("Common.Delete")</span>
+                    </a>
+                </div>
+            </div>
+            <div class="item-text" @Html.Raw(indentStyle)>
+                @if (item.Icon.HasValue())
+                {
+                    <i class="mr-1 fa-fw fs-h6 @item.Icon" title="@item.Summary"></i>
+                }
+                <a attr-class='(!item.Visible, "muted")' asp-action="EditItem" asp-route-id="@item.EntityId">
+                    @if (item.Text.HasValue())
+                    {
+                        <span>@item.Text</span>
+                    }
+                    else
+                    {
+                        <span>(@T(item.ResKey.NullEmpty() ?? "Common.NoTitle"))</span>
+                    }
+                </a>
+            </div>
+        </div>
+
+        if (node.HasChildren)
+        {
+            <div class="list-group">
+                @foreach (var child in node.Children)
+                {
+                    await ItemGroup(child, level + 1, padding + 24);
+                }
+            </div>
+        }
+    }
+}
+
+@if (Model.ItemTree.HasChildren)
+{
+    <div class="list-group list-group-flush">
+        @foreach (var item in Model.ItemTree.Children)
+        {
+            await ItemGroup(item, 0, 8);
+        }
+    </div>
+}
+else
+{
+    <div class="text-muted p-3">
+        @T("Admin.ContentManagement.Menus.NoMenuItemsAvailable")
+    </div>
+}

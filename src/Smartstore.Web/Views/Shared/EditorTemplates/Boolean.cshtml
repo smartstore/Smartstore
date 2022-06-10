@@ -30,13 +30,31 @@
 
 @{
     var attributes = new AttributeDictionary().Merge(CommonHelper.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
+
+    // Hack to force the missing "checked" when calling the GET action method directly in case of an invalid ModelState.
+    @if(!ViewData.ModelMetadata.IsNullableValueType && !attributes.ContainsKey("checked") && (Value ?? false) == true)
+    {
+        attributes["checked"] = "checked";
+    }
 }
 
 @if (!ViewData.ModelMetadata.IsNullableValueType)
 {
-    <input asp-for="@Model" attr-value="(Value ?? false, (Value ?? false).ToString())" class="check-box form-check-input" type="checkbox" attrs="attributes" />
+    <input asp-for="@Model" 
+           attr-value="(Value ?? false, (Value ?? false).ToString())" 
+           class="check-box form-check-input" 
+           type="checkbox" 
+           attrs="attributes" />
 }
 else
 {
-    <select id="@Html.IdForModel()" name="@Html.NameForModel()" asp-items="TriStateValues" class="list-box tri-state" attrs="attributes"></select>
+    var size = GetMetadata<string>("size");
+
+    <select id="@Html.IdForModel()" 
+            name="@Html.NameForModel()" 
+            asp-items="TriStateValues" 
+            class="list-box tri-state edit-control"
+            attr-class='(size.HasValue(), "form-control-" + size)'
+            attrs="attributes" 
+            data-editor="select"></select>
 }

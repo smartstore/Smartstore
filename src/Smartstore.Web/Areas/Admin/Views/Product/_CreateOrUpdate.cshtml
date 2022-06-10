@@ -7,12 +7,12 @@
 <tabstrip id="product-edit" sm-nav-style="Material" sm-onajaxsuccess="productEditTab_onAjaxSuccess" data-product-id="@Model.Id" sm-nav-position="Left">
     <tab sm-title="@T("Admin.Catalog.Products.Info")"
          sm-selected="true"
-         sm-icon="fa fa-pencil-alt fa-lg fa-fw"
+         sm-icon="bi:pencil"
          sm-name="Info">
         <partial name="_CreateOrUpdate.Info" model="Model" />
     </tab>
     <tab sm-title="@T("Admin.Catalog.Products.Inventory")"
-         sm-icon="fa fa-archive fa-lg fa-fw"
+         sm-icon="bi:archive"
          sm-visible="Model.ProductTypeId == (int)ProductType.SimpleProduct || (Model.ProductTypeId == (int)ProductType.BundledProduct && !Model.BundlePerItemShoppingCart)"
          sm-ajax="true"
          href="@Url.Action("LoadEditTab", "Product", new { id = Model.Id, tabName = "Inventory" })"
@@ -24,7 +24,7 @@
         if (Model.ProductTypeId == (int)ProductType.GroupedProduct)
         {
             <tab sm-title="@T("Admin.Catalog.Products.AssociatedProducts")"
-                 sm-icon="fa fa-link fa-lg fa-fw"
+                 sm-icon="bi:link-45deg"
                  sm-ajax="true"
                  href="@Url.Action("LoadEditTab", "Product", new { id = Model.Id, tabName = "AssociatedProducts" })"
                  sm-name="AssociatedProducts">
@@ -33,7 +33,7 @@
         else if (Model.ProductTypeId == (int)ProductType.BundledProduct)
         {
             <tab sm-title="@T("Admin.Catalog.Products.BundleItems")"
-                 sm-icon="fa fa-link fa-lg fa-fw"
+                 sm-icon="bi:link-45deg"
                  sm-ajax="true"
                  href="@Url.Action("LoadEditTab", "Product", new { id = Model.Id, tabName = "BundleItems" })"
                  sm-name="BundleItems">
@@ -44,7 +44,7 @@
     @if (Model.ProductTypeId != (int)ProductType.GroupedProduct)
     {
         <tab sm-title="@T("Admin.Catalog.Products.Price")"
-             sm-icon="fa fa-euro-sign fa-lg fa-fw"
+             sm-icon="bi:currency-euro"
              sm-ajax="true"
              href="@Url.Action("LoadEditTab", "Product", new { id = Model.Id, tabName = "Price" })"
              sm-name="Price">
@@ -52,25 +52,24 @@
     }
 
     <tab sm-title="@T("Admin.Catalog.Products.Pictures")"
-         sm-icon="far fa-image fa-lg fa-fw"
-         sm-ajax="true"
-         href="@Url.Action("LoadEditTab", "Product", new { id = Model.Id, tabName = "Pictures" })"
+         sm-icon="bi:card-image"
          sm-name="Pictures">
+        <partial name="_CreateOrUpdate.Pictures" model="Model" />
     </tab>
     <tab sm-title="@T("Admin.Catalog.Products.Categories")"
-         sm-icon="fa fa-sitemap fa-lg fa-fw"
+         sm-icon="bi:diagram-3"
          sm-ajax="true"
          href="@Url.Action("LoadEditTab", "Product", new { id = Model.Id, tabName = "Categories" })"
          sm-name="Categories">
     </tab>
     <tab sm-title="@T("Admin.Catalog.Products.Manufacturers")"
-         sm-icon="far fa-building fa-lg fa-fw"
+         sm-icon="bi:building"
          sm-ajax="true"
          href="@Url.Action("LoadEditTab", "Product", new { id = Model.Id, tabName = "Manufacturers" })"
          sm-name="Manufacturers">
     </tab>
     <tab sm-title="@T("Admin.Catalog.Products.Promotion")"
-         sm-icon="fa fa-bullhorn fa-lg fa-fw"
+         sm-icon="bi:megaphone"
          sm-ajax="true"
          href="@Url.Action("LoadEditTab", "Product", new { id = Model.Id, tabName = "Promotion" })"
          sm-name="Promotion">
@@ -79,7 +78,7 @@
     @if (Model.ProductTypeId != (int)ProductType.BundledProduct)
     {
         <tab sm-title="@T("Admin.Catalog.Products.ProductVariantAttributes.Attributes")"
-             sm-icon="far fa-list-alt fa-lg fa-fw"
+             sm-icon="bi:card-checklist"
              sm-ajax="true"
              href="@Url.Action("LoadEditTab", "Product", new { id = Model.Id, tabName = "Attributes" })"
              sm-name="Attributes">
@@ -87,27 +86,30 @@
     }
 
     <tab sm-title="@T("Admin.Catalog.Products.SpecificationAttributes")"
-         sm-icon="fa fa-bars fa-lg fa-fw"
+         sm-icon="bi:list-check"
          sm-ajax="true"
          href="@Url.Action("LoadEditTab", "Product", new { id = Model.Id, tabName = "SpecificationAttributes" })"
          sm-name="SpecificationAttributes">
     </tab>
     <tab sm-title="@T("Admin.Common.SEO")"
-         sm-icon="fa fa-search fa-lg fa-fw"
-         sm-name="SpecificationAttributes">
+         sm-icon="bi:search"
+         sm-name="SEO">
         <partial name="_CreateOrUpdate.SEO" model="Model" />
     </tab>
     <tab sm-title="@T("Common.Downloads")"
-         sm-icon="fa fa-download fa-lg fa-fw"
+         sm-icon="bi:download"
          sm-name="Downloads">
         <partial name="_CreateOrUpdate.Downloads" model="Model" />
     </tab>
-    <tab sm-title="@T("Admin.Orders")"
-         sm-icon="fa fa-chart-bar fa-lg fa-fw"
-         sm-ajax="true"
-         href="@Url.Action("LoadEditTab", "Product", new { id = Model.Id, tabName = "Orders" })"
-         sm-name="Orders">
-    </tab>
+    @if (Model.Id > 0)
+    {
+        <tab sm-title="@T("Admin.Orders")"
+             sm-icon="bi:graph-up"
+             sm-ajax="true"
+             href="@Url.Action("LoadEditTab", "Product", new { id = Model.Id, tabName = "Orders" })"
+             sm-name="Orders">
+        </tab>
+    }
 </tabstrip>
 
 <script sm-target-zone="Scripts" data-origin="product-edit">

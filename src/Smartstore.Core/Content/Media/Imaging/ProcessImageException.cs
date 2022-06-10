@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Smartstore.Core.Content.Media.Imaging
+﻿namespace Smartstore.Core.Content.Media.Imaging
 {
     public sealed class ProcessImageException : Exception
     {

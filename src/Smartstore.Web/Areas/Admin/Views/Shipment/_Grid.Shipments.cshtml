@@ -1,0 +1,128 @@
+﻿@model ShipmentModel
+
+@{
+    var orderId = 0;
+    var canAddNewShipments = false;
+    var parentModel = ViewData["Parent"] as ShipmentListModel;
+
+    if (parentModel == null && ViewData["Parent"] is OrderModel orderModel)
+    {
+        orderId = orderModel.Id;
+        canAddNewShipments = orderModel.CanAddNewShipments;
+    }
+
+    var isOrderEditPage = orderId > 0;
+    var sortDesc = !isOrderEditPage;
+
+    var displayPdfPackagingSlip = ViewBag.DisplayPdfPackagingSlip != null
+        ? (bool)ViewBag.DisplayPdfPackagingSlip
+        : false;
+}
+
+<datagrid id="shipments-grid"
+          allow-resize="true"
+          allow-row-selection="displayPdfPackagingSlip"
+          preserve-grid-state="true" preserve-command-state="true"
+          allow-column-reordering="true">
+    <datasource read="@Url.Action("ShipmentList", "Shipment", new { orderId })" />
+    <paging position="Bottom" show-size-chooser="true" />
+    <sorting allow-unsort="true" allow-multisort="false" enabled="!isOrderEditPage">
+        <sort by="CreatedOn" by-entity-member="CreatedOnUtc" descending="@sortDesc" />
+    </sorting>
+    <toolbar>
+        @if (isOrderEditPage)
+        {
+            if (canAddNewShipments)
+            {
+                <toolbar-group>
+                    <a asp-action="Create" asp-controller="Shipment" asp-route-orderId="@orderId" class="btn btn-primary btn-flat">
+                        <i class="fa fa-plus"></i>
+                        <span>@T("Admin.Orders.Shipments.AddNew")</span>
+                    </a>
+                </toolbar-group>
+            }
+        }
+        else
+        {
+            <toolbar-group>
+                <button datagrid-action="DataGridToolAction.ToggleSearchPanel" type="button" class="btn btn-light btn-icon">
+                    <i class="fa fa-fw fa-filter"></i>
+                </button>
+            </toolbar-group>
+            <toolbar-group class="dropdown">
+                <button type="button" class="btn btn-flat btn-light dropdown-toggle" data-toggle="dropdown">
+                    <i class="fa fa-print"></i>
+                    <span>@T("Admin.Common.Print")</span>
+                </button>
+                <div class="dropdown-menu">
+                    <a id="packaging-slip-selected" class="dropdown-item" href="javascript:;" v-bind:class="{ 'disabled': !grid.hasSelection }">
+                        @T("Admin.Orders.Shipments.PrintPackagingSlip.Selected")
+                    </a>
+                    <a id="packaging-slip-all" class="dropdown-item" href="javascript:;">
+                        @T("Admin.Orders.Shipments.PrintPackagingSlip.All")
+                    </a>
+                </div>
+            </toolbar-group>
+        }
+        <zone name="datagrid_toolbar_omega"></zone>
+    </toolbar>
+    @if (!isOrderEditPage)
+    {
+        <search-panel>
+            <partial name="_Grid.Shipments.Search" model="parentModel" />
+        </search-panel>
+    }
+    <columns>
+        <column for="Id" hideable="false" halign="center">
+            <display-template>
+                <div class="text-truncate"><a :href="item.row.EditUrl" class="text-truncate">{{ item.value }}</a></div>
+            </display-template>
+        </column>
+        @if (!isOrderEditPage)
+        {
+            <column for="OrderNumber" entity-member="Order.OrderNumber">
+                <display-template>
+                    <div class="text-truncate"><a :href="item.row.OrderEditUrl" class="text-truncate">{{ item.value }}</a></div>
+                </display-template>
+            </column>
+        }
+        <column for="TrackingNumber" />
+        <column for="TrackingUrl" visible="false">
+            <display-template>
+                <div class="text-truncate">
+                    <a :href="item.row.TrackingUrl" class="text-truncate" target="_blank" v-bind:class="{ hide: item.row.TrackingUrl }">{{ item.value }}</a>
+                </div>
+            </display-template>
+        </column>
+        <column for="TotalWeightString" entity-member="TotalWeight" />
+        <column for="ShippedDate" entity-member="ShippedDateUtc" />
+        <column for="DeliveryDate" entity-member="DeliveryDateUtc" />
+        <column for="ShippingMethod" visible="false" entity-member="Order.ShippingMethod" />
+        <column for="CreatedOn" entity-member="CreatedOnUtc" />
+    </columns>
+    <row-commands>
+        <a datarow-action="DataRowAction.Custom" :href="item.row.EditUrl">@T("Common.Edit")</a>
+    </row-commands>
+</datagrid>
+
+<script sm-if="displayPdfPackagingSlip" sm-target-zone="scripts" data-origin="shipments-grid">
+    $(function () {
+        // Print packaging slip.
+        $('#packaging-slip-all, #packaging-slip-selected').on('click', function () {
+            var btn = $(this);
+
+            const grid = $('#shipments-grid').parent().data('datagrid');
+            var selectedIds = grid.selectedRowKeys;
+            var url = '@Url.Action("PdfPackagingSlips", "Shipment", new { area = "Admin" })';
+
+            if (btn.attr('id') === 'packaging-slip-all') {
+                url += '?all=true';
+            }
+
+            $({}).postData({
+                url: url,
+                data: { selectedIds }
+    		});
+        });
+    });
+</script>

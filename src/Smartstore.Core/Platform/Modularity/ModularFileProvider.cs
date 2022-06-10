@@ -1,6 +1,4 @@
-﻿using System;
-using Autofac;
-using Microsoft.Extensions.FileProviders;
+﻿using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Primitives;
 
 namespace Smartstore.Engine.Modularity

@@ -1,0 +1,15 @@
+{
+  "$schema": "../module.schema.json",
+  "Group": "Security",
+  "SystemName": "Smartstore.Microsoft.Auth",
+  "FriendlyName": "Microsoft Authentication",
+  "Description": "Enables login with Microsoft account.",
+  "Version": "5.0",
+  "MinAppVersion": "5.0",
+  "Author": "SmartStore AG",
+  "Order": 1,
+  "ResourceRootKey": "Plugins.Smartstore.Microsoft.Auth",
+  "PrivateReferences": [
+    "Microsoft.AspNetCore.Authentication.MicrosoftAccount"
+  ]
+}

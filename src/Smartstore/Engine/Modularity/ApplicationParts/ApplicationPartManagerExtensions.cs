@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
+﻿using System.Reflection;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 
 namespace Smartstore.Engine.Modularity.ApplicationParts
@@ -18,7 +15,7 @@ namespace Smartstore.Engine.Modularity.ApplicationParts
                 PopulateModuleParts(partManager, descriptor);
             }
 
-            if (appContext.IsInstalled)
+            if (appContext.IsInstalled && ModularState.Instance.HasChanged)
             {
                 ModularState.Instance.SaveStateHash();
             }

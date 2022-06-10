@@ -1,8 +1,4 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
-using Smartstore.Web.Modelling;
-
-namespace Smartstore.DevTools.Models
+﻿namespace Smartstore.DevTools.Models
 {
     [LocalizedDisplay("Plugins.Developer.DevTools.")]
     public class ConfigurationModel : ModelBase

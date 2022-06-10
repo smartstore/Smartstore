@@ -1,5 +1,4 @@
-﻿using System;
-using System.Globalization;
+﻿using System.Globalization;
 using Smartstore.Utilities;
 
 namespace Smartstore.Core.Search.Facets

@@ -1,10 +1,8 @@
-﻿using System.Collections.Generic;
-using FluentValidation;
+﻿using FluentValidation;
 using Smartstore.Admin.Models.Scheduling;
 using Smartstore.Core.DataExchange;
 using Smartstore.Core.DataExchange.Import;
 using Smartstore.Core.Localization;
-using Smartstore.Web.Modelling;
 
 namespace Smartstore.Admin.Models.Import
 {
@@ -58,6 +56,7 @@ namespace Smartstore.Admin.Models.Import
         [LocalizedDisplay("*FolderName")]
         public string FolderName { get; set; }
 
+        public ImportFileType FileType { get; set; }
         public CsvConfigurationModel CsvConfiguration { get; set; }
         public ExtraDataModel ExtraData { get; set; } = new();
 

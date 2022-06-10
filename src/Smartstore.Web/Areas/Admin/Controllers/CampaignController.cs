@@ -1,16 +1,8 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Smartstore.Admin.Models.Messages;
+﻿using Smartstore.Admin.Models.Messages;
 using Smartstore.ComponentModel;
-using Smartstore.Core.Data;
 using Smartstore.Core.Messaging;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
-using Smartstore.Web.Controllers;
-using Smartstore.Web.Modelling;
 using Smartstore.Web.Models.DataGrid;
 
 namespace Smartstore.Admin.Controllers
@@ -51,7 +43,7 @@ namespace Smartstore.Admin.Controllers
 
         public IActionResult Index()
         {
-            return RedirectToAction("List");
+            return RedirectToAction(nameof(List));
         }
 
         [Permission(Permissions.Promotion.Campaign.Read)]
@@ -62,20 +54,23 @@ namespace Smartstore.Admin.Controllers
 
         [HttpPost]
         [Permission(Permissions.Configuration.Currency.Read)]
-        public async Task<IActionResult> List(GridCommand command)
+        public async Task<IActionResult> CampaignList(GridCommand command)
         {
             var campaigns = await _db.Campaigns
                 .AsNoTracking()
+                .OrderByDescending(x => x.CreatedOnUtc)
                 .ApplyGridCommand(command)
                 .ToPagedList(command)
                 .LoadAsync();
 
+            var mapper = MapperFactory.GetMapper<Campaign, CampaignModel>();
             var campaignModels = await campaigns
                 .SelectAsync(async x =>
                 {
-                    var model = await MapperFactory.MapAsync<Campaign, CampaignModel>(x);
+                    var model = await mapper.MapAsync(x);
                     model.EditUrl = Url.Action(nameof(Edit), "Campaign", new { id = x.Id });
                     model.CreatedOn = Services.DateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc);
+
                     return model;
                 })
                 .AsyncToList();
@@ -87,6 +82,27 @@ namespace Smartstore.Admin.Controllers
             };
 
             return Json(gridModel);
+        }
+
+        [HttpPost]
+        [Permission(Permissions.Promotion.Campaign.Delete)]
+        public async Task<IActionResult> CampaignDelete(GridSelection selection)
+        {
+            var success = false;
+            var numDeleted = 0;
+            var ids = selection.GetEntityIds();
+
+            if (ids.Any())
+            {
+                var campaigns = await _db.Campaigns.GetManyAsync(ids, true);
+
+                _db.Campaigns.RemoveRange(campaigns);
+
+                numDeleted = await _db.SaveChangesAsync();
+                success = true;
+            }
+
+            return Json(new { Success = success, Count = numDeleted });
         }
 
         [Permission(Permissions.Promotion.Campaign.Create)]
@@ -114,7 +130,7 @@ namespace Smartstore.Admin.Controllers
                 await SaveStoreMappingsAsync(campaign, model.SelectedStoreIds);
 
                 NotifySuccess(T("Admin.Promotions.Campaigns.Added"));
-                return continueEditing ? RedirectToAction("Edit", new { id = campaign.Id }) : RedirectToAction("List");
+                return continueEditing ? RedirectToAction(nameof(Edit), new { id = campaign.Id }) : RedirectToAction(nameof(List));
             }
 
             await PrepareCampaignModelAsync(model, null);
@@ -157,7 +173,7 @@ namespace Smartstore.Admin.Controllers
                 await SaveStoreMappingsAsync(campaign, model.SelectedStoreIds);
 
                 NotifySuccess(T("Admin.Promotions.Campaigns.Updated"));
-                return continueEditing ? RedirectToAction("Edit", new { id = campaign.Id }) : RedirectToAction("List");
+                return continueEditing ? RedirectToAction(nameof(Edit), new { id = campaign.Id }) : RedirectToAction(nameof(List));
             }
 
             await PrepareCampaignModelAsync(model, campaign);
@@ -186,11 +202,11 @@ namespace Smartstore.Admin.Controllers
                 NotifyError(ex, false);
             }
 
-            return RedirectToAction("Edit", new { id = model.Id });
+            return RedirectToAction(nameof(Edit), new { id = model.Id });
         }
 
         [HttpPost]
-        [Permission(Permissions.Configuration.Currency.Delete)]
+        [Permission(Permissions.Promotion.Campaign.Delete)]
         public async Task<IActionResult> Delete(int id)
         {
             var campaign = await _db.Campaigns.FindByIdAsync(id);
@@ -203,28 +219,7 @@ namespace Smartstore.Admin.Controllers
             await _db.SaveChangesAsync();
 
             NotifySuccess(T("Admin.Promotions.Campaigns.Deleted"));
-            return RedirectToAction("List");
-        }
-
-        [HttpPost]
-        [Permission(Permissions.Configuration.Currency.Delete)]
-        public async Task<IActionResult> DeleteSelection(GridSelection selection)
-        {
-            var success = false;
-            var numDeleted = 0;
-            var ids = selection.GetEntityIds();
-
-            if (ids.Any())
-            {
-                var campaigns = await _db.Campaigns.GetManyAsync(ids, true);
-
-                _db.Campaigns.RemoveRange(campaigns);
-
-                numDeleted = await _db.SaveChangesAsync();
-                success = true;
-            }
-
-            return Json(new { Success = success, Count = numDeleted });
+            return RedirectToAction(nameof(List));
         }
     }
 }

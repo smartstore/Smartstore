@@ -1,0 +1,105 @@
+﻿@using Smartstore.Core.Packaging
+
+@model CheckUpdateResult
+
+@{
+    ViewBag.Title = T("Admin.CheckUpdate").Value;
+}
+
+<div class="section-header">
+    <div class="title">
+        <i class="fa fa-level-up-alt"></i>
+        @ViewBag.Title
+    </div>
+</div>
+
+<div class="check-update-page" style="max-width: 1000px">
+    @if (!Model.UpdateAvailable)
+    {
+        <dl>
+            <dt>@T("Admin.CheckUpdate.YourVersion")</dt>
+            <dd>@Model.CurrentVersion</dd>
+        </dl>
+        <div class="alert alert-info">
+            @T("Admin.CheckUpdate.IsUpToDate")
+        </div>
+    }
+    else
+    {
+        <h3 class="text-danger">@T("Admin.CheckUpdate.UpdateAvailable")!</h3>
+        <dl>
+            <dt>@T("Admin.CheckUpdate.YourVersion")</dt>
+            <dd>@Model.CurrentVersion</dd>
+            <dt>@T("Admin.CheckUpdate.CurrentVersion")</dt>
+            <dd class="text-danger">@Model.Version</dd>
+            <dt>@T("Common.Date")</dt>
+            <dd>@Model.ReleaseDateUtc.ToShortDateString().ReplaceNativeDigits()</dd>
+        </dl>
+
+        <div sm-if="Model.AutoUpdatePossible && Model.AutoUpdatePackageUrl.IsWebUrl()" class="alert alert-success mt-0">
+            <h4>@T("Admin.CheckUpdate.AutoUpdatePossible")</h4>
+            @Html.Raw(T("Admin.CheckUpdate.AutoUpdatePossibleInfo"))
+            <p class="mt-4">
+                <a id="install-update" class="btn btn-primary confirm" href="#" data-url='@Url.Action("InstallUpdate")'>
+                    <i class="fa fa-level-up-alt"></i>
+                    <span>@T("Admin.CheckUpdate.UpdateNow")</span>
+                </a>
+            </p>
+        </div>
+
+        <div class="admin-config-group">
+            <div class="title">@T("Admin.CheckUpdate.ReleaseNotes")</div>
+            <div>@Html.Raw(Model.ReleaseNotes)</div>
+        </div>
+
+        <div class="mt-5">
+            <a class="btn btn-primary" href='@Model.InfoUrl' target="UpdateInfoWnd">
+                <span>@T("Common.MoreInfo")</span>
+            </a>
+
+            <a sm-if="Model.DownloadUrl.HasValue()" class="btn btn-secondary ml-2" href='@Model.DownloadUrl'>
+                <i class="fa fa-download"></i>
+                <span>@T("Common.Download")</span>
+            </a>
+
+            <a id="check-update-suppress" class="btn btn-link ml-2" href="#" data-url="@Url.Action("CheckUpdateSuppress")">
+                <span>@T("Admin.CheckUpdate.DontNotifyAnymore")</span>
+            </a>
+        </div>
+    }
+</div>
+
+<script sm-target-zone="scripts" data-origin="CheckUpdate">
+    $(function () {
+        $("#check-update-suppress").on('click', function (e) {
+            e.preventDefault();
+            console.log($(this).data("url"));
+            $({}).ajax({
+                type: 'POST',
+                url: $(this).data("url"),
+                data: { "myVersion": "@Model.CurrentVersion", "newVersion": "@Model.Version" },
+                success: function (data) {
+					displayNotification(data.Message, 'success');
+                }
+            });
+
+            return false;
+        });
+
+		$("#install-update").on('click', function (e) {
+            e.preventDefault();
+
+            $({}).ajax({
+                type: 'POST',
+                url: $(this).data("url"),
+                data: { "packageUrl": "@Model.AutoUpdatePackageUrl" },
+                success: function (data) {
+					displayNotification(data.Message, 'success');
+                }
+            });
+
+            return false;
+        });
+    });
+</script>
+

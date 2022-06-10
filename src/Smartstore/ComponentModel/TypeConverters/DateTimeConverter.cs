@@ -1,5 +1,4 @@
-﻿using System;
-using System.Globalization;
+﻿using System.Globalization;
 
 namespace Smartstore.ComponentModel.TypeConverters
 {
@@ -31,43 +30,37 @@ namespace Smartstore.ComponentModel.TypeConverters
 
         public override object ConvertFrom(CultureInfo culture, object value)
         {
-            if (value is TimeSpan)
+            if (value is TimeSpan span)
             {
-                var span = (TimeSpan)value;
                 return new DateTime(span.Ticks);
             }
 
-            if (value is string)
+            if (value is string str)
             {
-                var str = (string)value;
-
-                DateTime time;
-                if (DateTime.TryParse(str, culture, DateTimeStyles.None, out time))
+                if (DateTime.TryParse(str, culture, DateTimeStyles.None, out var time))
                 {
                     return time;
                 }
 
-                long lng;
-                if (long.TryParse(str, NumberStyles.None, culture, out lng))
+                if (long.TryParse(str, NumberStyles.None, culture, out var lng))
                 {
                     return lng.FromUnixTime();
                 }
 
-                double dbl;
-                if (double.TryParse(str, NumberStyles.AllowDecimalPoint, culture, out dbl))
+                if (double.TryParse(str, NumberStyles.AllowDecimalPoint, culture, out var dbl))
                 {
                     return DateTime.FromOADate(dbl);
                 }
             }
 
-            if (value is long)
+            if (value is long lng2)
             {
-                return ((long)value).FromUnixTime();
+                return lng2.FromUnixTime();
             }
 
-            if (value is double)
+            if (value is double dbl2)
             {
-                return DateTime.FromOADate((double)value);
+                return DateTime.FromOADate(dbl2);
             }
 
             return base.ConvertFrom(culture, value);
@@ -81,17 +74,14 @@ namespace Smartstore.ComponentModel.TypeConverters
             {
                 return new DateTimeOffset(time);
             }
-
             if (to == typeof(TimeSpan))
             {
                 return new TimeSpan(time.Ticks);
             }
-
             if (to == typeof(double))
             {
                 return time.ToOADate();
             }
-
             if (to == typeof(long))
             {
                 return time.ToUnixTime();

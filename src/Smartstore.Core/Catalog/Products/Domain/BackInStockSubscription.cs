@@ -1,31 +1,9 @@
-﻿using System;
-using System.Diagnostics.CodeAnalysis;
-using Microsoft.EntityFrameworkCore;
+﻿using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Smartstore.Core.Identity;
-using Smartstore.Domain;
 
 namespace Smartstore.Core.Catalog.Products
 {
-    internal class BackInStockSubscriptionMap : IEntityTypeConfiguration<BackInStockSubscription>
-    {
-        public void Configure(EntityTypeBuilder<BackInStockSubscription> builder)
-        {
-            //builder.HasOne(c => c.Product)
-            //    .WithMany()
-            //    .HasForeignKey(c => c.ProductId)
-            //    .IsRequired(false)
-            //    .OnDelete(DeleteBehavior.Cascade);
-
-            //builder.HasOne(c => c.Customer)
-            //    .WithMany()
-            //    .HasForeignKey(c => c.CustomerId)
-            //    .IsRequired(false)
-            //    .OnDelete(DeleteBehavior.Cascade);
-        }
-    }
-
     /// <summary>
     /// Represents a back in stock subscription.
     /// </summary>

@@ -1,14 +1,9 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO;
+﻿using System.Diagnostics;
 using System.Drawing;
-using Smartstore.Utilities;
 using Smartstore.Events;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
-using System.Threading.Tasks;
-using Smartstore.IO;
 using Smartstore.Imaging;
+using Smartstore.IO;
+using Smartstore.Utilities;
 
 namespace Smartstore.Core.Content.Media.Imaging
 {
@@ -37,7 +32,6 @@ namespace Smartstore.Core.Content.Media.Imaging
             ValidateQuery(query);
 
             var watch = new Stopwatch();
-            long len;
             IProcessableImage image = null;
 
             try
@@ -51,26 +45,20 @@ namespace Smartstore.Core.Content.Media.Imaging
                 {
                     using var memStream = new MemoryStream(b);
                     image = await Factory.LoadAsync(memStream);
-                    len = b.LongLength;
                 }
                 else if (source is Stream s)
                 {
                     image = await Factory.LoadAsync(s);
-                    len = s.Length;
                 }
                 else if (source is string str)
                 {
                     str = NormalizePath(str);
                     image = Factory.Load(str);
-                    len = (new FileInfo(str)).Length;
                 }
                 else if (source is IFile file)
                 {
-                    using (var fs = file.OpenRead())
-                    {
-                        image = await Factory.LoadAsync(fs);
-                        len = file.Length;
-                    }
+                    using var fs = await file.OpenReadAsync();
+                    image = await Factory.LoadAsync(fs);
                 }
                 else
                 {
@@ -178,7 +166,7 @@ namespace Smartstore.Core.Content.Media.Imaging
             if (image.Format is IJpegFormat jpegFormat)
             {
                 jpegFormat.Quality = query.Quality ?? _mediaSettings.DefaultImageQuality;
-                jpegFormat.Subsample = _mediaSettings.JpegSubsampling;
+                jpegFormat.ColorType = _mediaSettings.JpegColorType;
             }
             else if (image.Format is IPngFormat pngFormat)
             {

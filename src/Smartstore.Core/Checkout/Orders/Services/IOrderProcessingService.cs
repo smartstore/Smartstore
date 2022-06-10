@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using Smartstore.Core.Checkout.Cart;
+﻿using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Identity;
@@ -13,6 +11,57 @@ namespace Smartstore.Core.Checkout.Orders
     /// </summary>
     public partial interface IOrderProcessingService
     {
+        /// <summary>
+        /// Gets the total number of dispatched or not dispatched items.
+        /// </summary>
+        /// <param name="orderItem">Order item.</param>
+        /// <param name="dispatched"><c>true</c> count dispatched items, <c>false</c> count not dispatched items.</param>
+        /// <returns>Total number of dispatched items.</returns>
+        Task<int> GetDispatchedItemsCountAsync(OrderItem orderItem, bool dispatched);
+
+        /// <summary>
+        /// Gets a value indicating whether an order has items to dispatch.
+        /// </summary>
+        /// <param name="order">Order.</param>
+        /// <returns>A value indicating whether an order has items to dispatch.</returns>
+        Task<bool> HasItemsToDispatchAsync(Order order);
+
+        /// <summary>
+        /// Gets the total number of delivered or not delivered shipment items.
+        /// </summary>
+        /// <param name="orderItem">Order item.</param>
+        /// <param name="delivered"><c>true</c> count delivered items, <c>false</c> count not delivered items.</param>
+        /// <returns>Total number of already delivered items.</returns>
+        Task<int> GetDeliveredItemsCountAsync(OrderItem orderItem, bool delivered);
+
+        /// <summary>
+        /// Gets a value indicating whether an order has items to deliver.
+        /// </summary>
+        /// <param name="order">Order.</param>
+        /// <returns>A value indicating whether an order has items to deliver.</returns>
+        Task<bool> HasItemsToDeliverAsync(Order order);
+
+        /// <summary>
+        /// Gets the total number of items which can be added to new shipments.
+        /// </summary>
+        /// <param name="orderItem">Order item.</param>
+        /// <returns>Total number of items which can be added to new shipments.</returns>
+        Task<int> GetShippableItemsCountAsync(OrderItem orderItem);
+
+        /// <summary>
+        /// Gets the total number of items in all shipments.
+        /// </summary>
+        /// <param name="orderItem">Order item.</param>
+        /// <returns>Total number of items in all shipments.</returns>
+        Task<int> GetShipmentItemsCountAsync(OrderItem orderItem);
+
+        /// <summary>
+        /// Gets a value indicating whether an order has items to be added to a shipment.
+        /// </summary>
+        /// <param name="order">Order.</param>
+        /// <returns>A value indicating whether an order has items to be added to a shipment.</returns>
+        Task<bool> CanAddItemsToShipmentAsync(Order order);
+
         /// <summary>
         /// Cancels an order.
         /// </summary>
@@ -80,10 +129,12 @@ namespace Smartstore.Core.Checkout.Orders
         Task<Shipment> AddShipmentAsync(Order order, string trackingNumber, string trackingUrl, Dictionary<int, int> quantities);
 
         /// <summary>
-        /// Auto update order details, e.g. when the user has manually edited order items.
+        /// Update order details like order item quantity, stock quantity or order total 
+        /// when the merchant has manually edited an order item.
         /// </summary>
-        /// <param name="context">Auto update context.</param>
-        Task AutoUpdateOrderDetailsAsync(AutoUpdateOrderItemContext context);
+        /// <param name="orderItem">Order item.</param>
+        /// <param name="context">Update order details context.</param>
+        Task UpdateOrderDetailsAsync(OrderItem orderItem, UpdateOrderDetailsContext context);
 
         #region Place order
 
@@ -206,6 +257,14 @@ namespace Smartstore.Core.Checkout.Orders
         /// </summary>
         /// <param name="order">Order.</param>
         Task VoidOfflineAsync(Order order);
+
+        /// <summary>
+        /// Gets a value indicating whether the recurring payment can be canceled (by the customer).
+        /// </summary>
+        /// <param name="recurringPayment">The <see cref="RecurringPayment"/> to be canceled.</param>
+        /// <param name="customerToValidate">The <see cref="Customer"/> who wants to cancel.</param>
+        /// <returns><c>True</c> when the <paramref name="recurringPayment"/> can be canceled by <paramref name="customerToValidate"/>, otherwise <c>false</c>.</returns>
+        Task<bool> CanCancelRecurringPaymentAsync(RecurringPayment recurringPayment, Customer customerToValidate);
 
         /// <summary>
         /// Cancels a recurring payment.

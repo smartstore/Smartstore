@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Smartstore.Collections;
+﻿using Microsoft.AspNetCore.Http;
 using Smartstore.Net;
 
 namespace Smartstore.Web.Theming
@@ -31,7 +23,7 @@ namespace Smartstore.Web.Theming
             var cookies = context.Response.Cookies;
             var cookieName = CookieNames.UserThemeChoice;
 
-            cookies.Delete(CookieNames.UserThemeChoice);
+            cookies.Delete(cookieName);
 
             if (value.IsEmpty())
             {

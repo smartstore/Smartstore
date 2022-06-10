@@ -1,6 +1,6 @@
-@import '../../_variables.scss';
-@import '../../../../Content/bs4/scss/_functions.scss';
-@import '../../../../Content/bs4/scss/_variables.scss';
+@import '../../../admin/_variables.scss';
+@import '../../bs4/scss/_functions.scss';
+@import '../../bs4/scss/_variables.scss';
 
 $fi-selected-bg: $gray-400;
 $fi-selected-bg: $component-active-bg;
@@ -71,6 +71,11 @@ ul {
 		margin-left: 22px;
 		width: 130px;
 		white-space: nowrap;
+	}
+
+	.file-icon {
+		position: relative;
+		opacity: 1;
 	}
 
 	&.thumbView {

@@ -1,15 +1,10 @@
-﻿using System;
-using System.IO;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Html;
+﻿using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Routing;
 using Smartstore.Core.Web;
-using Smartstore.Core.Widgets;
 using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Web.Razor
@@ -44,6 +39,8 @@ namespace Smartstore.Web.Razor
             get => _viewDataAccessor.ViewData;
         }
 
+        #region Invoke*
+
         public Task<HtmlString> InvokeViewAsync(string viewName, string module, ViewDataDictionary viewData)
         {
             Guard.NotEmpty(viewName, nameof(viewName));
@@ -56,7 +53,7 @@ namespace Smartstore.Web.Razor
                 TempData = _tempDataFactory.GetTempData(actionContext.HttpContext)
             };
 
-            return ExecuteResultAsync(actionContext, result);
+            return ExecuteResultCapturedAsync(actionContext, result);
         }
 
         public Task<HtmlString> InvokePartialViewAsync(string viewName, string module, ViewDataDictionary viewData)
@@ -71,7 +68,7 @@ namespace Smartstore.Web.Razor
                 TempData = _tempDataFactory.GetTempData(actionContext.HttpContext)
             };
 
-            return ExecuteResultAsync(actionContext, result);
+            return ExecuteResultCapturedAsync(actionContext, result);
         }
 
         public Task<HtmlString> InvokeComponentAsync(string componentName, string module, ViewDataDictionary viewData, object arguments)
@@ -79,15 +76,16 @@ namespace Smartstore.Web.Razor
             Guard.NotEmpty(componentName, nameof(componentName));
 
             var actionContext = GetActionContext(module);
+            viewData ??= ViewData;
             var result = new ViewComponentResult
             {
                 ViewComponentName = componentName,
-                Arguments = arguments,
-                ViewData = viewData ?? ViewData,
+                Arguments = arguments ?? viewData.Model,
+                ViewData = viewData,
                 TempData = _tempDataFactory.GetTempData(actionContext.HttpContext)
             };
 
-            return ExecuteResultAsync(actionContext, result);
+            return ExecuteResultCapturedAsync(actionContext, result);
         }
 
         public Task<HtmlString> InvokeComponentAsync(Type componentType, ViewDataDictionary viewData, object arguments)
@@ -95,18 +93,21 @@ namespace Smartstore.Web.Razor
             Guard.NotNull(componentType, nameof(componentType));
 
             var actionContext = GetActionContext(ResolveModule(componentType));
+            viewData ??= ViewData;
             var result = new ViewComponentResult
             {
                 ViewComponentType = componentType,
-                Arguments = arguments,
-                ViewData = viewData ?? ViewData,
+                Arguments = arguments ?? viewData.Model,
+                ViewData = viewData,
                 TempData = _tempDataFactory.GetTempData(actionContext.HttpContext)
             };
 
-            return ExecuteResultAsync(actionContext, result);
+            return ExecuteResultCapturedAsync(actionContext, result);
         }
 
-        protected virtual async Task<HtmlString> ExecuteResultAsync(ActionContext actionContext, IActionResult result)
+        #endregion
+
+        protected virtual async Task<HtmlString> ExecuteResultCapturedAsync(ActionContext actionContext, IActionResult result)
         {
             var response = actionContext.HttpContext.Response;
             var body = response.Body;

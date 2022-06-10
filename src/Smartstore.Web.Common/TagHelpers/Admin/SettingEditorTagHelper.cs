@@ -4,8 +4,6 @@ using Microsoft.AspNetCore.Razor.TagHelpers;
 using Microsoft.AspNetCore.Routing;
 using Smartstore.Web.Modelling.Settings;
 using Smartstore.Web.Rendering;
-using System;
-using System.Threading.Tasks;
 
 namespace Smartstore.Web.TagHelpers.Admin
 {
@@ -49,13 +47,13 @@ namespace Smartstore.Web.TagHelpers.Admin
                 if (output.Attributes.TryGetAttribute("data-toggler-for", out var attr))
                 {
                     // TODO: (mh) (core) Find a better solution to pass custom attributes to auto-generated editors.
-                    additionalViewData["htmlAttributes"] = new { data_toggler_for = attr.Value.ToString() };
+                    additionalViewData["htmlAttributes"] = new { data_toggler_for = attr.ValueAsString() };
                 }
 
                 output.Content.SetHtmlContent(HtmlHelper.EditorFor(For, Template, additionalViewData));
             }
 
-            var data = HtmlHelper.ViewData[StoreDependingSettingHelper.ViewDataKey] as StoreDependingSettingData;
+            var data = HtmlHelper.ViewData[MultiStoreSettingHelper.ViewDataKey] as MultiStoreSettingData;
             if (data == null || data.ActiveStoreScopeConfiguration <= 0)
             {
                 output.TagName = null;
@@ -80,7 +78,7 @@ namespace Smartstore.Web.TagHelpers.Admin
             }
         }
 
-        private IHtmlContent SettingOverrideCheckboxInternal(StoreDependingSettingData data)
+        private IHtmlContent SettingOverrideCheckboxInternal(MultiStoreSettingData data)
         {
             var fieldPrefix = HtmlHelper.ViewData.TemplateInfo.HtmlFieldPrefix;
             var settingKey = For.Name;

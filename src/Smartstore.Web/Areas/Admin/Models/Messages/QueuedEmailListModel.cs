@@ -1,7 +1,4 @@
-﻿using Smartstore.Web.Modelling;
-using System;
-
-namespace Smartstore.Admin.Models.Messages
+﻿namespace Smartstore.Admin.Models.Messages
 {
     [LocalizedDisplay("Admin.System.QueuedEmails.List.")]
     public class QueuedEmailListModel : ModelBase

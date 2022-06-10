@@ -1,0 +1,152 @@
+﻿@using Smartstore.Tax.Models
+
+@model ByRegionTaxRateModel
+
+<datagrid id="tax-by-region-grid"
+          allow-resize="true"
+          allow-row-selection="true"
+          allow-column-reordering="true"
+          allow-edit="true">
+    <datasource read="@Url.Action("TaxRateList", "TaxByRegion")"
+                update="@Url.Action("TaxRateUpdate", "TaxByRegion")"
+                delete="@Url.Action("TaxRateDelete", "TaxByRegion")" />
+    <paging position="Bottom" page-index="1" show-size-chooser="true" />
+    <sorting allow-unsort="true" allow-multisort="true">
+        <sort by="CountryId" />
+        <sort by="StateProvinceId" />
+        <sort by="Zip" />
+        <sort by="TaxCategoryId" />
+    </sorting>
+    <toolbar>
+        <toolbar-group>
+            <a class="btn btn-primary btn-flat" href="#addrecord-window" data-toggle="modal">
+                <i class="fa fa-plus"></i>
+                <span>@T("Plugins.Tax.CountryStateZip.AddRecord.Hint")</span>
+            </a>
+            <button datagrid-action="DataGridToolAction.SaveChanges" type="button" class="btn btn-warning no-anims btn-flat">
+                <i class="fa fa-check"></i>
+                <span>@T("Admin.Common.SaveChanges")</span>
+            </button>
+            <button datagrid-action="DataGridToolAction.CancelEdit" type="button" class="btn btn-light btn-flat mr-auto">
+                <span>@T("Common.Cancel")</span>
+            </button>
+        </toolbar-group>
+        <zone name="datagrid_toolbar_alpha"></zone>
+        <toolbar-group class="omega"></toolbar-group>
+        <zone name="datagrid_toolbar_omega"></zone>
+        <toolbar-group>
+            <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger no-anims btn-flat">
+                <i class="far fa-trash-alt"></i>
+                <span>@T("Admin.Common.Delete.Selected")</span>
+            </button>
+        </toolbar-group>
+    </toolbar>
+    <columns>
+        <column for="CountryName" readonly entity-member="CountryId" hideable="false" />
+        <column for="StateProvinceName" readonly entity-member="StateProvinceId" />
+        <column for="Zip" />
+        <column for="TaxCategoryName" readonly entity-member="TaxCategoryId" />
+        <column for="Percentage" />
+    </columns>
+    <row-commands>
+        <a datarow-action="DataRowAction.InlineEdit">@T("Common.Edit")</a>
+        <a datarow-action="DataRowAction.Delete">@T("Common.Delete")</a>
+    </row-commands>
+</datagrid>
+
+<modal id="addrecord-window" sm-render-at-page-end="true" sm-size="Large">
+    <modal-header sm-title="@T("Plugins.Tax.CountryStateZip.AddRecord.Hint")"></modal-header>
+    <modal-body>
+        <form action="#">
+            <div class="adminContent">
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="CountryId" />
+                    </div>
+                    <div class="adminData">
+                        <select asp-for="CountryId" asp-items="ViewBag.AvailableCountries"
+                                class="country-input country-selector"
+                                data-region-control-selector="#@Html.IdFor(x => x.StateProvinceId)"
+                                data-states-ajax-url="@Url.Action("StatesByCountryId", "Common", new { area = string.Empty })"
+                                data-addEmptyStateIfRequired="true">
+                        </select>
+                        <span asp-validation-for="CountryId"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="StateProvinceId" />
+                    </div>
+                    <div class="adminData">
+                        <select asp-for="StateProvinceId" asp-items="ViewBag.AvailableStates"></select>
+                        <span asp-validation-for="StateProvinceId"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="Zip" />
+                    </div>
+                    <div class="adminData">
+                        <input asp-for="Zip" />
+                        <span asp-validation-for="Zip"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="TaxCategoryId" />
+                    </div>
+                    <div class="adminData">
+                        <select asp-for="TaxCategoryId" asp-items="ViewBag.AvailableTaxCategories"></select>
+                        <span asp-validation-for="TaxCategoryId"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="Percentage" />
+                    </div>
+                    <div class="adminData">
+                        <input asp-for="Percentage" />
+                        <span asp-validation-for="Percentage"></span>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </modal-body>
+    <modal-footer>
+        <button type="button" class="btn btn-secondary btn-flat" data-dismiss="modal">
+            <span>@T("Admin.Common.Cancel")</span>
+        </button>
+        <button id="addtaxbyregionrecord" name="addtaxrate" value="addtaxrate" type="submit" class="btn btn-primary">
+            <i class="fa fa-check"></i>
+            <span>@T("Common.AddNew")</span>
+        </button>
+    </modal-footer>
+</modal>
+
+<script sm-target-zone="scripts" data-origin="tax-by-region-grid">
+     $(function() {
+			$('#addtaxbyregionrecord').on("click", function (e) {
+				e.preventDefault();
+
+				var form = $("#addrecord-window").find("form");
+
+				$.ajax({
+					cache: false,
+					type: 'POST',
+					url: '@Url.Action("AddTaxByRegionRecord")',
+					data: form.serialize(),
+					dataType: 'json',
+					success: function (data) {
+                        window["tax-by-region-grid"].$children[0].read();
+					},
+					error: function (xhr, ajaxOptions, thrownError) {
+						alert('Failed to add record.');
+					},
+					complete: function () {
+						$('#addrecord-window').modal('hide');
+					}
+				});
+				return false;
+			});
+        });
+</script>

@@ -1,0 +1,34 @@
+﻿@model OnlineCustomerModel
+
+<datagrid id="online-customers-grid" allow-resize="true" allow-column-reordering="true" onrowclass="onlineCustomersGrid_onRowClass">
+    <datasource read="@Url.Action("OnlineCustomersList")" />
+    <paging position="Bottom" show-size-chooser="true" />
+    <sorting enabled="true" allow-unsort="true" allow-multisort="false">
+        <sort by="LastActivityDate" by-entity-member="LastActivityDateUtc" descending="true" />
+    </sorting>
+    <columns>
+        <column for="Id" halign="center" visible="false" type="string" />
+        <column for="CustomerInfo" hideable="false" entity-member="Email">
+            <display-template>
+                <a :href="item.row.EditUrl" class="text-truncate">
+                    {{ item.value }}
+                </a>
+            </display-template>
+        </column>
+        <column for="CustomerNumber" visible="false" />
+        <column for="Active" halign="center" />
+        <column for="LastIpAddress" />
+        <column for="Location" sortable="false" />
+        <column for="LastActivityDate" entity-member="LastActivityDateUtc" />
+        <column for="CreatedOn" entity-member="CreatedOnUtc" visible="false" />
+        <column for="LastVisitedPage" sortable="false" />
+    </columns>
+</datagrid>
+
+<script sm-target-zone="scripts" data-origin="online-customers-grid">
+    function onlineCustomersGrid_onRowClass(row) {
+        return {
+            "text-muted": !row.Active
+        };
+    }
+</script>

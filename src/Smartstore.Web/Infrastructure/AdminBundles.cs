@@ -1,6 +1,4 @@
-﻿using System;
-using Smartstore.Engine;
-using Smartstore.Web.Bundling;
+﻿using Smartstore.Web.Bundling;
 
 namespace Smartstore.Web.Infrastructure
 {
@@ -30,7 +28,7 @@ namespace Smartstore.Web.Infrastructure
             -----------------------------------------------------*/
             bundles.Add(new StyleBundle("/bundle/css/admin-common.css").Include(
                 lib + "fontastic/fontastic.css",
-                lib + "fa5/css/all.css",
+                lib + "fa6/css/all.css",
                 lib + "pnotify/css/pnotify.css",
                 lib + "pnotify/css/pnotify.mobile.css",
                 lib + "pnotify/css/pnotify.buttons.css"));
@@ -157,16 +155,19 @@ namespace Smartstore.Web.Infrastructure
             /* Roxy File Manager--> /bundle/js/filemanager.js
 			------------------------------------------------------*/
             var roxy = "/lib/roxyfm/js/";
-            bundles.Add(new StyleBundle("/bundle/js/roxyfm.js").Include(
+            // Script
+            bundles.Add(new ScriptBundle("/bundle/js/roxyfm.js").Include(
                 roxy + "jquery-2.1.1.min.js",
                 roxy + "jquery-ui-1.10.4.custom.min.js",
                 roxy + "filetypes.js",
                 roxy + "custom.js",
-                roxy + "main.js",
                 roxy + "utils.js",
+                roxy + "main.js",
                 roxy + "file.js",
                 roxy + "directory.js",
                 roxy + "jquery-dateFormat.min.js"));
+            // CSS
+            bundles.Add(new StyleBundle("/bundle/css/roxyfm.css").Include("/lib/roxyfm/css/main.scss"));
         }
     }
 }

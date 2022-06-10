@@ -3,8 +3,7 @@
 @model ConfirmModel
 
 <modal id="modal-@Model.ButtonId" 
-       sm-backdrop="Model.Backdrop" 
-       sm-close-on-backdrop-click="false" 
+       sm-backdrop="@(Model.Backdrop ? ModalBackdrop.Static : ModalBackdrop.Hide)" 
        sm-fade="true"
        sm-center-vertically="Model.Center" 
        sm-center-content="true" 

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Smartstore.Core.Common
+﻿namespace Smartstore.Core.Common
 {
     /// <summary>
     /// Represents how to present delivery times.

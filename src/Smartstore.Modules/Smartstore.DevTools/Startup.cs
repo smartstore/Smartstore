@@ -1,6 +1,4 @@
-﻿using System;
-using System.Linq;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -31,13 +29,13 @@ namespace Smartstore.DevTools
             services.AddTransient<IDbContextConfigurationSource<SmartDbContext>, SmartDbContextConfigurer>();
 
             services.AddScoped<IChronometer, MiniProfilerChronometer>();
+            //services.AddScoped<IFacetTemplateSelector, CustomFacetTemplateSelector>();
 
             services.AddMiniProfiler(o =>
             {
                 //o.EnableDebugMode = true;
                 o.EnableMvcFilterProfiling = true;
                 o.EnableMvcViewProfiling = true;
-                o.EnableServerTimingHeader = true;
                 o.MaxUnviewedProfiles = 5;
 
                 o.ShouldProfile = ShouldProfile;
@@ -69,12 +67,28 @@ namespace Smartstore.DevTools
 
                 o.Filters.AddConditional<MachineNameFilter>(
                     context => context.ControllerIs<SmartController>());
+
+                o.Filters.AddConditional<WidgetZoneFilter>(
+                    context => context.ControllerIs<SmartController>());
+
+                //o.Filters.AddConditional<SampleProductDetailActionFilter>(
+                //    context => context.ControllerIs<ProductController>());
+
+                //o.Filters.AddConditional<SampleResultFilter>(
+                //    context => context.ControllerIs<CatalogController>());
+
+                //o.Filters.AddConditional<SampleActionFilter>(
+                //    context => context.ControllerIs<PublicController>());
+
+                //o.Filters.AddConditional<SampleCheckoutFilter>(
+                //    context => context.ControllerIs<CheckoutController>());
+
             });
         }
 
         public override void BuildPipeline(RequestPipelineBuilder builder)
         {
-            builder.Configure(StarterOrdering.FirstMiddleware, app =>
+            builder.Configure(StarterOrdering.AfterExceptionHandlerMiddleware, app =>
             {
                 app.UseMiniProfiler();
             });
@@ -82,10 +96,10 @@ namespace Smartstore.DevTools
 
         public override void MapRoutes(EndpointRoutingBuilder builder)
         {
-            //builder.MapRoutes(0, routes => 
+            //builder.MapRoutes(0, routes =>
             //{
-            //    //routes.MapControllerRoute("SmartStore.DevTools",
-            //    //     "Module/Smartstore.DevTools/{action=Configure}/{id?}"
+            //    //routes.MapControllerRoute("Smartstore.DevTools",
+            //    //     "devtools/{action=Configure}/{id?}"
             //    //);
             //});
         }

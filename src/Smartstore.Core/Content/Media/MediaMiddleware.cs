@@ -1,17 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Routing.Template;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
 using Smartstore.Core.Content.Media.Imaging;
 using Smartstore.Core.Security;
-using Smartstore.Engine;
 using Smartstore.Events;
 using Smartstore.IO;
 using Smartstore.Net;
@@ -78,14 +71,6 @@ namespace Smartstore.Core.Content.Media
                 return;
             }
 
-            var method = context.Request.Method;
-
-            if (method != HttpMethods.Get && method != HttpMethods.Head)
-            {
-                await NotFound(null);
-                return;
-            }
-
             var mediaFileId = routeValues["id"].Convert<int>();
             var path = routeValues["path"].Convert<string>();
 
@@ -107,6 +92,7 @@ namespace Smartstore.Core.Content.Media
                 }
 
                 mediaFile = await mediaService.GetFileByIdAsync(mediaFileId, MediaLoadFlags.AsNoTracking);
+
                 if (mediaFile == null || mediaFile.FolderId == null || mediaFile.Deleted)
                 {
                     await NotFound(mediaFile?.MimeType);
@@ -190,7 +176,7 @@ namespace Smartstore.Core.Content.Media
                 }
 
                 // Create FileStreamResult object
-                var fileResult = CreateFileResult(responseFile, pathData);
+                var fileResult = await CreateFileResultAsync(responseFile, pathData);
 
                 // Cache control
                 ApplyResponseCaching(context, mediaSettings);
@@ -225,21 +211,34 @@ namespace Smartstore.Core.Content.Media
 
             async Task SendStatus(int code, string message)
             {
-                context.Response.StatusCode = code;
-                await context.Response.WriteAsync(message);
+                if (!context.Response.HasStarted)
+                {
+                    context.Response.StatusCode = code;
+                    if (code != 204)
+                    {
+                        await context.Response.WriteAsync(message);
+                    }
+                }
             }
 
             #endregion
         }
 
-        private static FileStreamResult CreateFileResult(IFile file, MediaPathData pathData)
+        private static async Task<FileStreamResult> CreateFileResultAsync(IFile file, MediaPathData pathData)
         {
-            return new FileStreamResult(file.OpenRead(), pathData.MimeType)
+            var stream = await file.OpenReadAsync();
+
+            if (stream == null)
+            {
+                throw new MediaFileNotFoundException($"The data stream for media file '{file.SubPath}' could not be opened for reading. Blob missing?");  
+            }
+            
+            return new FileStreamResult(stream, pathData.MimeType)
             {
                 EnableRangeProcessing = true,
-                // INFO: (core)(perf)I think ETag is sufficient and ignoring this reduces header comparison by one item.
+                // INFO: (core)(perf) I think ETag is sufficient and ignoring this reduces header comparison by one item.
                 //LastModified = file.LastModified,
-                EntityTag = new EntityTagHeaderValue('\"' + ETagUtility.GenerateETag(file) + '\"')
+                EntityTag = new EntityTagHeaderValue(ETagUtility.GenerateETag(file))
             };
         }
 

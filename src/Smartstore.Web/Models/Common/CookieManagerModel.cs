@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using Smartstore.Core.Identity;
-using Smartstore.Web.Modelling;
+﻿using Smartstore.Core.Identity;
 
 namespace Smartstore.Web.Models.Common
 {

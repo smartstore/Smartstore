@@ -1,7 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-
-namespace Smartstore.Caching
+﻿namespace Smartstore.Caching
 {
     /// <summary>
     /// Request cache interface

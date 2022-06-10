@@ -1,9 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
-using Smartstore.Core.Content.Media.Imaging;
+﻿using Smartstore.Core.Content.Media.Imaging;
 using Smartstore.Core.Localization;
 using Smartstore.Threading;
 
@@ -103,13 +98,6 @@ namespace Smartstore.Core.Content.Media
                             context.Executed = true;
                             return;
                         }
-                        finally
-                        {
-                            if (inputStream != null)
-                            {
-                                inputStream.Dispose();
-                            }
-                        }
 
                         if (context.ResultImage != null)
                         {
@@ -131,6 +119,12 @@ namespace Smartstore.Core.Content.Media
 
         protected abstract bool IsProcessable(MediaHandlerContext context);
 
-        protected abstract Task ProcessImageAsync(MediaHandlerContext context, CachedImage cachedImage, Stream inputStream);
+        /// <summary>
+        /// The handler implementation. <see cref="inputStream"/> should be closed by implementor.
+        /// </summary>
+        protected abstract Task ProcessImageAsync(
+            MediaHandlerContext context, 
+            CachedImage cachedImage, 
+            Stream inputStream);
     }
 }

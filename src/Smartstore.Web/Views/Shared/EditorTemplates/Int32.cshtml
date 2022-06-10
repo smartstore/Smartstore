@@ -1,5 +1,4 @@
-﻿@using Microsoft.AspNetCore.Routing
-@using Smartstore.Utilities
+﻿@using Smartstore.Utilities
 
 @{
     var attributes = new AttributeDictionary().Merge(CommonHelper.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
@@ -10,7 +9,6 @@
        attrs="attributes"
        sm-decimals="@(GetMetadata<uint?>("decimals") ?? 0)"
        sm-postfix="@(GetMetadata<string>("postfix"))"
-       class="form-control"
        placeholder="@(GetMetadata<string>("placeholder") ?? T("Common.Empty").Value)"
        min="@(GetMetadata<int?>("min"))"
        max="@(GetMetadata<int?>("max"))"

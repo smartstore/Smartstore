@@ -1,18 +1,9 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.FileSystemGlobbing;
 using Microsoft.Extensions.FileSystemGlobbing.Abstractions;
-using Smartstore.Core.Widgets;
 using Smartstore.IO;
 using Smartstore.Web.Bundling.Processors;
 
@@ -116,7 +107,7 @@ namespace Smartstore.Web.Bundling
             var index = normalizedRoute.IndexOfAny(new[] { '?', '#' });
             if (index > -1)
             {
-                normalizedRoute = normalizedRoute.Substring(0, index);
+                normalizedRoute = normalizedRoute[..index];
             }
 
             return normalizedRoute;

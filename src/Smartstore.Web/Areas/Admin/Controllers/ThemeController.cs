@@ -1,24 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Options;
 using Smartstore.Admin.Models.Themes;
 using Smartstore.Collections;
 using Smartstore.ComponentModel;
-using Smartstore.Core.Data;
+using Smartstore.Core.Content.Media.Icons;
 using Smartstore.Core.Logging;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
 using Smartstore.Core.Theming;
 using Smartstore.Web.Bundling;
-using Smartstore.Web.Controllers;
-using Smartstore.Web.Modelling;
 using Smartstore.Web.Rendering;
-using Smartstore.Web.Theming;
 
 namespace Smartstore.Admin.Controllers
 {
@@ -29,6 +21,7 @@ namespace Smartstore.Admin.Controllers
         private readonly IThemeVariableService _themeVarService;
         private readonly IThemeContext _themeContext;
         private readonly IBundleCache _bundleCache;
+        private readonly Lazy<IIconExplorer> _iconExplorer;
         private readonly IOptionsMonitorCache<BundlingOptions> _bundlingOptionsCache;
 
         public ThemeController(
@@ -37,6 +30,7 @@ namespace Smartstore.Admin.Controllers
             IThemeVariableService themeVarService,
             IThemeContext themeContext,
             IBundleCache bundleCache,
+            Lazy<IIconExplorer> iconExplorer,
             IOptionsMonitorCache<BundlingOptions> bundlingOptionsCache)
         {
             _db = db;
@@ -45,13 +39,14 @@ namespace Smartstore.Admin.Controllers
             _themeContext = themeContext;
             _bundleCache = bundleCache;
             _bundlingOptionsCache = bundlingOptionsCache;
+            _iconExplorer = iconExplorer;
         }
 
         #region Themes
 
         public IActionResult Index()
         {
-            return RedirectToAction("List");
+            return RedirectToAction(nameof(List));
         }
 
         [Permission(Permissions.Configuration.Theme.Read)]
@@ -148,7 +143,7 @@ namespace Smartstore.Admin.Controllers
 
             NotifySuccess(T("Admin.Configuration.Updated"));
 
-            return RedirectToAction("List", new { storeId = model.StoreId });
+            return RedirectToAction(nameof(List), new { storeId = model.StoreId });
         }
 
         [Permission(Permissions.Configuration.Theme.Read)]
@@ -156,7 +151,7 @@ namespace Smartstore.Admin.Controllers
         {
             if (!_themeRegistry.ContainsTheme(theme))
             {
-                return RedirectToAction("List", new { storeId });
+                return RedirectToAction(nameof(List), new { storeId });
             }
 
             var model = new ConfigureThemeModel
@@ -176,7 +171,7 @@ namespace Smartstore.Admin.Controllers
         {
             if (!_themeRegistry.ContainsTheme(theme))
             {
-                return RedirectToAction("List", new { storeId });
+                return RedirectToAction(nameof(List), new { storeId });
             }
 
             try
@@ -193,7 +188,7 @@ namespace Smartstore.Admin.Controllers
 
                 return continueEditing
                     ? RedirectToAction("Configure", new { theme, storeId })
-                    : RedirectToAction("List", new { storeId });
+                    : RedirectToAction(nameof(List), new { storeId });
             }
             catch (ThemeValidationException ex)
             {
@@ -239,7 +234,7 @@ namespace Smartstore.Admin.Controllers
         public IActionResult ReloadThemes(int? storeId)
         {
             _themeRegistry.ReloadThemes();
-            return RedirectToAction("List", new { storeId });
+            return RedirectToAction(nameof(List), new { storeId });
         }
 
         [HttpPost, FormValueRequired("reset-vars"), ActionName("Configure")]
@@ -248,7 +243,7 @@ namespace Smartstore.Admin.Controllers
         {
             if (!_themeRegistry.ContainsTheme(theme))
             {
-                return RedirectToAction("List", new { storeId });
+                return RedirectToAction(nameof(List), new { storeId });
             }
 
             await _themeVarService.DeleteThemeVariablesAsync(theme, storeId);
@@ -265,7 +260,7 @@ namespace Smartstore.Admin.Controllers
         {
             if (!_themeRegistry.ContainsTheme(theme))
             {
-                return RedirectToAction("List", new { storeId });
+                return RedirectToAction(nameof(List), new { storeId });
             }
 
             try
@@ -299,7 +294,7 @@ namespace Smartstore.Admin.Controllers
         {
             if (!_themeRegistry.ContainsTheme(theme))
             {
-                return RedirectToAction("List", new { storeId });
+                return RedirectToAction(nameof(List), new { storeId });
             }
 
             try
@@ -437,6 +432,50 @@ namespace Smartstore.Admin.Controllers
             NotifySuccess(T("Admin.Configuration.Updated"));
 
             return ExitPreview();
+        }
+
+        #endregion
+
+        #region UI Helpers
+
+        [HttpPost]
+        public JsonResult SearchIcons(string term, string selected = null, int page = 1)
+        {
+            const int pageSize = 250;
+
+            var iconExplorer = _iconExplorer.Value;
+            var icons = iconExplorer.All.AsEnumerable();
+
+            if (term.HasValue())
+            {
+                icons = iconExplorer.FindIcons(term, true);
+            }
+
+            var result = new PagedList<IconDescription>(icons, page - 1, pageSize);
+
+            if (selected.HasValue() && term.IsEmpty())
+            {
+                var selIcon = iconExplorer.GetIconByName(selected);
+                if (!selIcon.IsPro && !result.Contains(selIcon))
+                {
+                    result.Insert(0, selIcon);
+                }
+            }
+
+            return Json(new
+            {
+                results = result.Select(x => new
+                {
+                    id = x.Name,
+                    text = x.Name,
+                    hasRegularStyle = x.HasRegularStyle,
+                    isBrandIcon = x.IsBrandIcon,
+                    isPro = x.IsPro,
+                    label = x.Label,
+                    styles = x.Styles
+                }),
+                pagination = new { more = result.HasNextPage }
+            });
         }
 
         #endregion

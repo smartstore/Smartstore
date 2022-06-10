@@ -1,21 +1,14 @@
-﻿using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Autofac;
-using Microsoft.Extensions.Logging;
+﻿using Autofac;
 using Smartstore.Collections;
 using Smartstore.Core.Common.Settings;
 using Smartstore.Core.DataExchange.Csv;
 using Smartstore.Core.DataExchange.Import.Events;
 using Smartstore.Core.DataExchange.Import.Internal;
-using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Logging;
 using Smartstore.Core.Messaging;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
-using Smartstore.Engine;
 using Smartstore.IO;
 using Smartstore.Net.Http;
 using Smartstore.Net.Mail;
@@ -104,7 +97,7 @@ namespace Smartstore.Core.DataExchange.Import
                                 ? (new CsvConfigurationConverter().ConvertFrom<CsvConfiguration>(profile.FileTypeConfiguration) ?? CsvConfiguration.ExcelFriendlyConfiguration)
                                 : CsvConfiguration.ExcelFriendlyConfiguration;
 
-                            using var stream = file.File.OpenRead();
+                            using var stream = await file.File.OpenReadAsync(cancelToken);
 
                             context.File = file;
                             context.ColumnMap = file.RelatedType.HasValue ? new ColumnMap() : ctx.ColumnMap;
@@ -124,6 +117,10 @@ namespace Smartstore.Core.DataExchange.Import
                             while (context.Abort == DataExchangeAbortion.None && segmenter.ReadNextBatch())
                             {
                                 using var batchScope = _scopeAccessor.LifetimeScope.BeginLifetimeScope();
+
+                                // Apply changes made by TaskContextVirtualizer.VirtualizeAsync (e.g. required for checking permissions).
+                                batchScope.Resolve<IWorkContext>().CurrentCustomer = _services.WorkContext.CurrentCustomer;
+                                batchScope.Resolve<IStoreContext>().CurrentStore = _services.StoreContext.CurrentStore;
 
                                 // It would be nice if we could make all dependencies use our TraceLogger.
                                 var importerFactory = batchScope.Resolve<Func<ImportEntityType, IEntityImporter>>();
@@ -239,6 +236,11 @@ namespace Smartstore.Core.DataExchange.Import
         private async Task SendCompletionEmail(ImportProfile profile, DataImporterContext ctx)
         {
             var emailAccount = _emailAccountService.GetDefaultEmailAccount();
+            if (emailAccount.Host.IsEmpty())
+            {
+                return;
+            }
+
             var result = ctx.ExecuteContext.Result;
             var store = _services.StoreContext.CurrentStore;
             var storeInfo = $"{store.Name} ({store.Url})";
@@ -268,7 +270,7 @@ namespace Smartstore.Core.DataExchange.Import
 
             body.Append("</p>");
 
-            var message = new MailMessage
+            using var message = new MailMessage
             {
                 From = new(emailAccount.Email, emailAccount.DisplayName),
                 Subject = T("Admin.DataExchange.Import.CompletedEmail.Subject").Value.FormatInvariant(profile.Name),
@@ -315,6 +317,7 @@ namespace Smartstore.Core.DataExchange.Import
             var executeContext = new ImportExecuteContext(T("Admin.DataExchange.Import.ProgressInfo"), cancelToken)
             {
                 Request = request,
+                ImportEntityType = profile.EntityType,
                 ProgressCallback = request.ProgressCallback,
                 UpdateOnly = profile.UpdateOnly,
                 KeyFieldNames = profile.KeyFieldNames.SplitSafe(',').ToArray(),
@@ -353,7 +356,7 @@ namespace Smartstore.Core.DataExchange.Import
             sb.AppendLine();
             sb.AppendLine(new string('-', 40));
             sb.AppendLine("Smartstore: v." + SmartstoreVersion.CurrentFullVersion);
-            sb.AppendLine("Import profile: " + profile.Name);
+            sb.Append("Import profile: " + profile.Name);
             sb.AppendLine(profile.Id == 0 ? " (transient)" : $" (ID {profile.Id})");
 
             foreach (var fileGroup in files)
@@ -413,12 +416,13 @@ namespace Smartstore.Core.DataExchange.Import
         private async Task<bool> HasPermission()
         {
             var customer = _services.WorkContext.CurrentCustomer;
-            if (customer.SystemName == SystemCustomerNames.BackgroundTask)
+
+            if (customer.IsBackgroundTaskAccount())
             {
                 return true;
             }
 
-            return await _services.Permissions.AuthorizeAsync(Permissions.Configuration.Import.Execute);
+            return await _services.Permissions.AuthorizeAsync(Permissions.Configuration.Import.Execute, customer);
         }
 
         #endregion

@@ -1,9 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using Smartstore.Core.Data;
+﻿using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Data.Hooks;
 using EState = Smartstore.Data.EntityState;
@@ -24,8 +19,11 @@ namespace Smartstore.Core.Identity
 		private readonly SmartDbContext _db;
 		private readonly CustomerSettings _customerSettings;
 		private string _hookErrorMessage;
+        
+        // Key: old email. Value: new email.
+        private readonly Dictionary<string, string> _modifiedEmails = new(StringComparer.OrdinalIgnoreCase);
 
-		public CustomerHook(SmartDbContext db, CustomerSettings customerSettings)
+        public CustomerHook(SmartDbContext db, CustomerSettings customerSettings)
         {
 			_db = db;
 			_customerSettings = customerSettings;
@@ -37,36 +35,30 @@ namespace Smartstore.Core.Identity
 		{
 			if (entry.Entity is Customer customer)
 			{
-				if (customer.Deleted && customer.IsSystemAccount)
-				{
-					_hookErrorMessage = $"System customer account '{customer.SystemName}' cannot be deleted.";
-				}
-				else if (entry.InitialState == EState.Added)
-				{
-					if (customer.Email.HasValue() && await _db.Customers.AsQueryable().AnyAsync(x => x.Email == customer.Email, cancelToken))
-					{
-						_hookErrorMessage = T("Identity.Error.DuplicateEmail", customer.Email);
-					}
-					else if (customer.Username.HasValue() &&
-						_customerSettings.CustomerLoginType != CustomerLoginType.Email &&
-						await _db.Customers.AsQueryable().AnyAsync(x => x.Username == customer.Username, cancelToken))
-					{
-						_hookErrorMessage = T("Identity.Error.DuplicateUserName", customer.Username);
-					}
-					else
-					{
-						UpdateFullName(customer);
-					}
-				}
-				else if (entry.InitialState == EState.Modified)
-				{
-					UpdateFullName(customer);
-				}
+                if (await ValidateCustomer(customer, cancelToken))
+                {
+                    if (entry.InitialState == EState.Added || entry.InitialState == EState.Modified)
+                    {
+                        UpdateFullName(customer);
 
-				if (_hookErrorMessage.HasValue())
-				{
-					return RevertChanges(entry);
-				}
+                        if (entry.Entry.TryGetModifiedProperty(nameof(customer.Email), out var originalValue) 
+                            && originalValue != null 
+                            && customer.Email != null)
+                        {
+                            var oldEmail = originalValue.ToString();
+                            var newEmail = customer.Email.EmptyNull().Trim().Truncate(255);
+
+                            if (newEmail.IsEmail())
+                            {
+                                _modifiedEmails[oldEmail] = newEmail;
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    entry.ResetState();
+                }
 			}
 
 			return HookResult.Ok;
@@ -85,48 +77,95 @@ namespace Smartstore.Core.Identity
 			return Task.CompletedTask;
 		}
 
-		private static HookResult RevertChanges(IHookedEntity entry)
-		{
-			if (entry.State == EState.Modified)
-			{
-				entry.State = EState.Unchanged;
-			}
-			else if (entry.State == EState.Added)
-			{
-				entry.State = EState.Detached;
-			}
+        protected override Task<HookResult> OnUpdatedAsync(Customer entity, IHookedEntity entry, CancellationToken cancelToken)
+            => Task.FromResult(HookResult.Ok);
 
-			// We need to return HookResult.Ok instead of HookResult.Failed to be able to output an error notification.
-			return HookResult.Ok;
-		}
+        public override async Task OnAfterSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
+        {
+            // Update newsletter subscription if email changed.
+            if (_modifiedEmails.Any())
+            {
+                var oldEmails = _modifiedEmails.Keys.ToArray();
 
-		private void UpdateFullName(Customer entity)
-		{
-			var shouldUpdate = entity.IsTransientRecord();
+                foreach (var oldEmailsChunk in oldEmails.Chunk(50))
+                {
+                    var subscriptions = await _db.NewsletterSubscriptions
+                        .Where(x => oldEmailsChunk.Contains(x.Email))
+                        .ToListAsync(cancelToken);
 
-			if (!shouldUpdate)
-			{
-				shouldUpdate = entity.FullName.IsEmpty() && (entity.FirstName.HasValue() || entity.LastName.HasValue());
-			}
+                    // INFO: we do not use BatchUpdateAsync because of NewsletterSubscription hook.
+                    subscriptions.Each(x => x.Email = _modifiedEmails[x.Email]);
 
-			if (!shouldUpdate)
-			{
-				var modProps = _db.GetModifiedProperties(entity);
-				shouldUpdate = _candidateProps.Any(x => modProps.ContainsKey(x));
-			}
+                    await _db.SaveChangesAsync(cancelToken);
+                }
 
-			if (shouldUpdate)
-			{
-				var parts = new[]
-				{
-					entity.Salutation,
-					entity.Title,
-					entity.FirstName,
-					entity.LastName
-				};
+                _modifiedEmails.Clear();
+            }
+        }
 
-				entity.FullName = string.Join(" ", parts.Where(x => x.HasValue())).NullEmpty();
-			}
-		}
-	}
+        private async Task<bool> ValidateCustomer(Customer customer, CancellationToken cancelToken)
+        {
+            // INFO: do not validate email and username here. UserValidator is responsible for this.
+
+            if (customer.Deleted && customer.IsSystemAccount)
+            {
+                _hookErrorMessage = $"System customer account '{customer.SystemName}' cannot be deleted.";
+                return false;
+            }
+
+            if (!await ValidateCustomerNumber(customer, cancelToken))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        private async Task<bool> ValidateCustomerNumber(Customer customer, CancellationToken cancelToken)
+        {
+            if (customer.CustomerNumber.HasValue() && _customerSettings.CustomerNumberMethod != CustomerNumberMethod.Disabled)
+            {
+                var customerNumberExists = await _db.Customers
+                    .IgnoreQueryFilters()
+                    .AnyAsync(x => x.CustomerNumber == customer.CustomerNumber && (customer.Id == 0 || customer.Id != x.Id), cancelToken);
+
+                if (customerNumberExists)
+                {
+                    _hookErrorMessage = T("Common.CustomerNumberAlreadyExists");
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        private void UpdateFullName(Customer entity)
+        {
+            var shouldUpdate = entity.IsTransientRecord();
+
+            if (!shouldUpdate)
+            {
+                shouldUpdate = entity.FullName.IsEmpty() && (entity.FirstName.HasValue() || entity.LastName.HasValue());
+            }
+
+            if (!shouldUpdate)
+            {
+                var modProps = _db.GetModifiedProperties(entity);
+                shouldUpdate = _candidateProps.Any(x => modProps.ContainsKey(x));
+            }
+
+            if (shouldUpdate)
+            {
+                var parts = new[]
+                {
+                    entity.Salutation,
+                    entity.Title,
+                    entity.FirstName,
+                    entity.LastName
+                };
+
+                entity.FullName = string.Join(" ", parts.Where(x => x.HasValue())).NullEmpty();
+            }
+        }
+    }
 }

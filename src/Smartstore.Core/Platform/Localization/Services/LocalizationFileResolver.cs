@@ -1,9 +1,6 @@
-﻿using System;
-using System.Globalization;
-using System.IO;
+﻿using System.Globalization;
 using System.Text.RegularExpressions;
 using Smartstore.Caching;
-using Smartstore.Engine;
 using Smartstore.Http;
 using Smartstore.IO;
 
@@ -121,7 +118,7 @@ namespace Smartstore.Core.Localization
             {
                 result.Success = true;
                 result.Culture = resolvedCulture;
-                result.VirtualPath = WebHelper.ToAbsolutePath(dirPath + pattern.Replace(LangToken, resolvedCulture));
+                result.VirtualPath = dirPath + pattern.Replace(LangToken, resolvedCulture);
 
                 return result;
             }

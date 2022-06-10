@@ -1,0 +1,24 @@
+﻿@model string
+
+@inject AmazonPaySettings _settings
+
+<p sm-if="Model.HasValue()">@Html.Raw(Model)</p>
+
+@if (_settings.ShowSignoutButton)
+{
+    <script src="@Html.Raw(_settings.GetCheckoutScriptUrl())"></script>
+    <p>
+        <button id="amazonpay-signout" class="btn btn-sm btn-secondary">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>@T("Plugins.Payments.AmazonPay.Signout")</span>
+        </button>
+    </p>
+    <script data-origin="amazonpay-completed">
+        $(function () {
+            $('#amazonpay-signout').on('click', function () {
+                amazon.Pay.signout();
+                displayNotification(@T("Plugins.Payments.AmazonPay.SuccessfullySignedOut").JsValue, 'info');
+            });
+        });
+    </script>
+}

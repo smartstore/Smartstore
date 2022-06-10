@@ -1,5 +1,4 @@
-﻿using System;
-using Smartstore.Core.Content.Media;
+﻿using Smartstore.Core.Content.Media;
 using Smartstore.Web.Modelling;
 using Smartstore.Web.Rendering;
 

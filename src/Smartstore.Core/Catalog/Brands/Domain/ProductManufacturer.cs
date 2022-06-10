@@ -1,11 +1,8 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Smartstore.Core.Catalog.Products;
-using Smartstore.Domain;
 
 namespace Smartstore.Core.Catalog.Brands
 {
@@ -16,12 +13,12 @@ namespace Smartstore.Core.Catalog.Brands
             builder.HasOne(c => c.Manufacturer)
                 .WithMany()
                 .HasForeignKey(c => c.ManufacturerId)
-                .IsRequired(false);
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.HasOne(c => c.Product)
                 .WithMany(c => c.ProductManufacturers)
                 .HasForeignKey(c => c.ProductId)
-                .IsRequired(false);
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 
@@ -30,6 +27,7 @@ namespace Smartstore.Core.Catalog.Brands
     /// </summary>
     [Table("Product_Manufacturer_Mapping")]
     [Index(nameof(IsFeaturedProduct), Name = "IX_IsFeaturedProduct")]
+    [Index(nameof(ManufacturerId), Name = "IX_ManufacturerId")]
     [Index(nameof(ManufacturerId), nameof(ProductId), Name = "IX_PMM_Product_and_Manufacturer")]
     public partial class ProductManufacturer : BaseEntity, IDisplayOrder
     {

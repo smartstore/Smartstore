@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Smartstore.Core.Content.Menus;
+﻿using Smartstore.Core.Content.Menus;
 
 namespace Smartstore.Core.Data
 {

@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Smartstore.Core.Data;
+﻿using Smartstore.Core.Data;
 using Smartstore.Core.Seo.Routing;
-using Smartstore.Domain;
 
 namespace Smartstore.Core.Seo
 {
@@ -102,16 +98,21 @@ namespace Smartstore.Core.Seo
         /// </summary>
         /// <typeparam name="T">Type of slug supporting entity</typeparam>
         /// <param name="entity">Entity instance</param>
-        /// <param name="seName">Search engine display name to validate. If null or empty, name will be resolved from <see cref="IDisplayedEntity.GetDisplayName()"/>.</param>
+        /// <param name="seName">Search engine name to validate. If <c>null</c> or empty, the slug will be resolved from <paramref name="displayName"/>.</param>
+        /// <param name="displayName">Display name used to resolve the slug if <paramref name="seName"/> is empty.</param>
         /// <param name="ensureNotEmpty">Ensure that slug is not empty</param>
         /// <returns>A system unique slug</returns>
-        ValueTask<ValidateSlugResult> ValidateSlugAsync<T>(T entity, string seName, bool ensureNotEmpty, int? languageId = null)
+        ValueTask<ValidateSlugResult> ValidateSlugAsync<T>(T entity,
+            string seName,
+            string displayName,
+            bool ensureNotEmpty,
+            int? languageId = null)
             where T : ISlugSupported;
 
         /// <summary>
         /// Applies a slug.
         /// </summary>
-        /// <param name="result">Result data from <see cref="ValidateSlugAsync{T}(T, string, bool, int?)"/> method call.</param>
+        /// <param name="result">Result data from <see cref="ValidateSlugAsync{T}(T, string, string, bool, int?)"/> method call.</param>
         /// <param name="save"><c>true</c> will commit result to database.</param>
         /// <returns>
         /// The affected <see cref="UrlRecord"/> instance, either new or existing as tracked entity.

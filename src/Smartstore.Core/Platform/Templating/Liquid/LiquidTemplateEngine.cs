@@ -1,7 +1,4 @@
-﻿using System;
-using System.Globalization;
-using System.IO;
-using System.Threading.Tasks;
+﻿using System.Globalization;
 using DotLiquid;
 using DotLiquid.FileSystems;
 using DotLiquid.NamingConventions;
@@ -10,8 +7,6 @@ using Microsoft.Extensions.FileProviders;
 using Smartstore.Core.Common;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Theming;
-using Smartstore.Domain;
-using Smartstore.Engine;
 using Smartstore.Events;
 using Smartstore.IO;
 using IFileSystem = Smartstore.IO.IFileSystem;

@@ -11,7 +11,7 @@
         <div class="adminContent adminContent-boxed">
             <div class="adminRow">
                 <div class="adminTitle">
-                    <smart-label asp-for="StoreId"></smart-label>
+                    <smart-label asp-for="StoreId"/>
                 </div>
                 <div class="adminData">
                     <select asp-for="StoreId" asp-items="Model.AvailableStores" onchange="location.href='@(ViewData["ConfigureThemeUrl"])&storeId=' + this.value;"></select>

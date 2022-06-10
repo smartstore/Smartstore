@@ -1,17 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using Smartstore.Core.Data;
+﻿using Smartstore.Core.Data;
 
 namespace Smartstore.Core.Seo
 {
     internal class UrlServiceBatchScope : Disposable, IUrlServiceBatchScope
     {
         private UrlService _urlService;
-        private SmartDbContext _db;
+        private readonly SmartDbContext _db;
         private DbSet<UrlRecord> _dbSet;
         private readonly List<ValidateSlugResult> _batch = new();
 
@@ -77,19 +71,13 @@ namespace Smartstore.Core.Seo
         {
             var batch2 = batch.Where(x => x.Source != null && x.Slug.HasValue());
 
-            // TODO: (core) Refactor UrlServiceBatchScope.ValidateBatchAsync > uniqueness is not guaranteed within a large batch.
-            // Idea: Catch UniquenessViolationException and validate only then.
-
             var unvalidatedSlugsMap = batch2
                 .Where(x => !x.WasValidated)
-                //.ToDictionarySafe(x => x.Slug, x => x.Found, StringComparer.OrdinalIgnoreCase);
-                //.Select(x => x.Slug)
                 .DistinctBy(x => x.Slug)
                 .ToDictionary(x => x.Slug, x => x.Found, StringComparer.OrdinalIgnoreCase);
 
             var unvalidatedSlugs = unvalidatedSlugsMap.Keys;
-
-            var foundRecords = await _dbSet.Where(x => unvalidatedSlugs.Contains(x.Slug)).ToListAsync();
+            var foundRecords = await _dbSet.Where(x => unvalidatedSlugs.Contains(x.Slug)).ToListAsync(cancelToken);
 
             foundRecords.Each(x => unvalidatedSlugsMap[x.Slug] = x);
             _urlService._extraSlugLookup.Each(x => unvalidatedSlugsMap[x.Key] = x.Value);
@@ -102,24 +90,45 @@ namespace Smartstore.Core.Seo
                         return slug;
                     }
 
-                    var isReserved = _urlService._seoSettings.ReservedUrlRecordSlugs.Contains(slug.Slug);
+                    ValidateSlugResult result;
                     var found = unvalidatedSlugsMap.Get(slug.Slug);
                     var foundIsSelf = _urlService.FoundRecordIsSelf(slug.Source, found, slug.LanguageId);
-                    
-                    if (foundIsSelf)
-                    {
-                        return new ValidateSlugResult(slug) { WasValidated = true, Found = found, FoundIsSelf = true };
-                    }
+                    var isReserved = _urlService._seoSettings.ReservedUrlRecordSlugs.Contains(slug.Slug);
+                    var alreadyProcessed = _urlService._extraSlugLookup.ContainsKey(slug.Slug);
 
-                    if (found != null || isReserved)
+                    if (!foundIsSelf && (found != null || isReserved || alreadyProcessed))
                     {
                         // The existence of a UrlRecord instance for a given slug implies that the slug
-                        // needs to run through the default validation process
-                        // to ensure uniqueness.
-                        return await _urlService.ValidateSlugAsync(slug.Source, slug.Slug, true, slug.LanguageId).AsTask();
+                        // needs to run through the default validation process to ensure uniqueness.
+                        result = await _urlService.ValidateSlugAsync(
+                            slug.Source,
+                            slug.Slug,
+                            null,
+                            slug.LanguageId.GetValueOrDefault() == 0,
+                            slug.LanguageId).AsTask();
+                    }
+                    else
+                    {
+                        result = new ValidateSlugResult(slug)
+                        {
+                            WasValidated = true,
+                            Found = found,
+                            FoundIsSelf = true
+                        };
                     }
 
-                    return new ValidateSlugResult(slug) { WasValidated = true };
+                    //$"{slug.Source.Id} {slug.Slug} -> {result.Slug}: {foundIsSelf == false} {found != null} {isReserved} {alreadyProcessed}".Dump();
+
+                    _urlService._extraSlugLookup[result.Slug] = new UrlRecord
+                    {
+                        EntityId = result.Source.Id,
+                        EntityName = result.EntityName,
+                        Slug = result.Slug,
+                        LanguageId = result.LanguageId ?? 0,
+                        IsActive = true
+                    };
+
+                    return result;
                 });
 
             return await validatedBatch.AsyncToList(cancelToken);

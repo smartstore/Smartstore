@@ -1,20 +1,13 @@
-﻿using System;
-using System.Linq;
-using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Http;
 using Smartstore.Caching;
-using Smartstore.Core;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Identity;
-using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Stores;
 using Smartstore.Core.Web;
-using System.Threading.Tasks;
 using Smartstore.Net;
-using System.Collections.Generic;
 
 namespace Smartstore.Web
 {
@@ -27,6 +20,7 @@ namespace Smartstore.Web
         private readonly ICustomerService _customerService;
         private readonly Lazy<ITaxService> _taxService;
         private readonly Lazy<ICurrencyService> _currencyService;
+        private readonly PrivacySettings _privacySettings;
         private readonly TaxSettings _taxSettings;
         private readonly ICacheManager _cache;
         private readonly IUserAgent _userAgent;
@@ -50,6 +44,7 @@ namespace Smartstore.Web
             ICustomerService customerService,
             Lazy<ITaxService> taxService,
             Lazy<ICurrencyService> currencyService,
+            PrivacySettings privacySettings,
             TaxSettings taxSettings,
             ICacheManager cache,
             IUserAgent userAgent,
@@ -61,6 +56,7 @@ namespace Smartstore.Web
             _languageResolver = languageResolver;
             _storeContext = storeContext;
             _customerService = customerService;
+            _privacySettings = privacySettings;
             _taxSettings = taxSettings;
             _taxService = taxService;
             _currencyService = currencyService;
@@ -194,8 +190,21 @@ namespace Smartstore.Web
                 {
                     Expires = cookieExpiry,
                     HttpOnly = true,
-                    IsEssential = true
+                    IsEssential = true,
+                    Secure = _webHelper.IsCurrentConnectionSecured(),
+                    SameSite = SameSiteMode.Lax
                 };
+
+                // INFO: Global OnAppendCookie does not always run for visitor cookie.
+                if (cookieOptions.Secure)
+                {
+                    cookieOptions.SameSite = _privacySettings.SameSiteMode;
+                }
+
+                if (context.Request.PathBase.HasValue)
+                {
+                    cookieOptions.Path = context.Request.PathBase;
+                }
 
                 var cookies = context.Response.Cookies;
                 try
@@ -278,7 +287,7 @@ namespace Smartstore.Web
                 {
                     // Find current customer currency
                     var customer = CurrentCustomer;
-                    var storeCurrenciesMap = query.ApplyStandardFilter(storeId: _storeContext.CurrentStore.Id).ToDictionary(x => x.Id);
+                    var storeCurrenciesMap = query.ApplyStandardFilter(false, _storeContext.CurrentStore.Id).ToDictionary(x => x.Id);
 
                     if (customer != null && !customer.IsSearchEngineAccount())
                     {
@@ -333,7 +342,13 @@ namespace Smartstore.Web
                         }
                     }
 
-                    // Get PrimaryStoreCurrency
+                    // Get default currency.
+                    if (currency == null)
+                    {
+                        currency = VerifyCurrency(storeCurrenciesMap.Get(_storeContext.CurrentStore.DefaultCurrencyId));
+                    }
+
+                    // Get primary currency.
                     if (currency == null)
                     {
                         currency = VerifyCurrency(_currencyService.Value.PrimaryCurrency);

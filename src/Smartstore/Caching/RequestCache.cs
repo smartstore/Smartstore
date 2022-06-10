@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+﻿using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Http;
 using Smartstore.Utilities;
 
@@ -108,7 +104,7 @@ namespace Smartstore.Caching
 
         protected IDictionary<object, object> GetItems()
         {
-            return _httpContextAccessor.HttpContext?.Items ?? _emptyDictionary;
+            return _httpContextAccessor?.HttpContext?.Items ?? _emptyDictionary;
         }
 
         public IEnumerable<string> Keys(string pattern)

@@ -1,17 +1,10 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-
-namespace Smartstore.Core.DataExchange.Csv
+﻿namespace Smartstore.Core.DataExchange.Csv
 {
     /// <summary>
     /// Simple utility class used to write CSV files.
     /// </summary>
     public class CsvWriter : Disposable
     {
-        // TODO: (core) CsvWriter is a perfect candidate for Memory, Span & co. to reduce
-        // mem allocation. Try to refactor sometime in future.
-        
         private TextWriter _writer;
         private readonly IList<string> _currentRow = new List<string>();
         private int? _fieldCount;
@@ -90,7 +83,7 @@ namespace Smartstore.Core.DataExchange.Csv
 
                 if (shouldQuote
                     || field[0] == ' '
-                    || field[field.Length - 1] == ' '
+                    || field[^1] == ' '
                     || field.IndexOfAny(Configuration.QuotableChars) > -1)
                 {
                     shouldQuote = true;

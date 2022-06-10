@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Http;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Attributes;
@@ -17,11 +11,9 @@ using Smartstore.Core.Checkout.GiftCards;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Checkout.Tax;
-using Smartstore.Core.Common;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Content.Menus;
-using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization.Routing;
 using Smartstore.Core.Logging;
@@ -29,10 +21,7 @@ using Smartstore.Core.Messaging;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Utilities.Html;
-using Smartstore.Web.Components;
-using Smartstore.Web.Filters;
 using Smartstore.Web.Models.Cart;
-using Smartstore.Web.Razor;
 
 namespace Smartstore.Web.Controllers
 {
@@ -45,20 +34,19 @@ namespace Smartstore.Web.Controllers
         private readonly IMediaService _mediaService;
         private readonly IShippingService _shippingService;
         private readonly ICurrencyService _currencyService;
+        private readonly ITaxService _taxService;
         private readonly IDiscountService _discountService;
         private readonly IGiftCardService _giftCardService;
         private readonly IDownloadService _downloadService;
         private readonly IShoppingCartService _shoppingCartService;
         private readonly IProductCompareService _productCompareService;
         private readonly IOrderCalculationService _orderCalculationService;
-        private readonly IShoppingCartValidator _shoppingCartValidator;
         private readonly ICheckoutAttributeMaterializer _checkoutAttributeMaterializer;
         private readonly ShoppingCartSettings _shoppingCartSettings;
         private readonly CaptchaSettings _captchaSettings;
         private readonly OrderSettings _orderSettings;
         private readonly MediaSettings _mediaSettings;
         private readonly CustomerSettings _customerSettings;
-        private readonly RewardPointsSettings _rewardPointsSettings;
         private readonly CatalogSettings _catalogSettings;
 
         public ShoppingCartController(
@@ -69,20 +57,19 @@ namespace Smartstore.Web.Controllers
             IMediaService mediaService,
             IShippingService shippingService,
             ICurrencyService currencyService,
+            ITaxService taxService,
             IDiscountService discountService,
             IGiftCardService giftCardService,
             IDownloadService downloadService,
             IShoppingCartService shoppingCartService,
             IProductCompareService productCompareService,
             IOrderCalculationService orderCalculationService,
-            IShoppingCartValidator shoppingCartValidator,
             ICheckoutAttributeMaterializer checkoutAttributeMaterializer,
             ShoppingCartSettings shoppingCartSettings,
             CaptchaSettings captchaSettings,
             OrderSettings orderSettings,
             MediaSettings mediaSettings,
             CustomerSettings customerSettings,
-            RewardPointsSettings rewardPointsSettings,
             CatalogSettings catalogSettings)
         {
             _db = db;
@@ -92,132 +79,21 @@ namespace Smartstore.Web.Controllers
             _mediaService = mediaService;
             _shippingService = shippingService;
             _currencyService = currencyService;
+            _taxService = taxService;
             _discountService = discountService;
             _giftCardService = giftCardService;
             _downloadService = downloadService;
             _shoppingCartService = shoppingCartService;
             _productCompareService = productCompareService;
             _orderCalculationService = orderCalculationService;
-            _shoppingCartValidator = shoppingCartValidator;
             _checkoutAttributeMaterializer = checkoutAttributeMaterializer;
             _shoppingCartSettings = shoppingCartSettings;
             _captchaSettings = captchaSettings;
             _orderSettings = orderSettings;
             _mediaSettings = mediaSettings;
             _customerSettings = customerSettings;
-            _rewardPointsSettings = rewardPointsSettings;
             _catalogSettings = catalogSettings;
         }
-
-        #region Utilities
-
-        protected async Task<bool> ValidateAndSaveCartDataAsync(ProductVariantQuery query, List<string> warnings, bool useRewardPoints = false)
-        {
-            Guard.NotNull(query, nameof(query));
-
-            var customer = Services.WorkContext.CurrentCustomer;
-            var cart = await _shoppingCartService.GetCartAsync(customer, storeId: Services.StoreContext.CurrentStore.Id);
-
-            if (query.CheckoutAttributes.Any())
-            {
-                await ParseAndSaveCheckoutAttributesAsync(cart, query);
-            }
-
-            // Validate checkout attributes.
-            var isValid = await _shoppingCartValidator.ValidateCartAsync(cart, warnings, true);
-            if (isValid && _rewardPointsSettings.Enabled)
-            {
-                // Reward points.
-                customer.GenericAttributes.UseRewardPointsDuringCheckout = useRewardPoints;
-                await customer.GenericAttributes.SaveChangesAsync();
-            }
-
-            return isValid;
-        }
-
-        protected async Task ParseAndSaveCheckoutAttributesAsync(ShoppingCart cart, ProductVariantQuery query)
-        {
-            Guard.NotNull(cart, nameof(cart));
-            Guard.NotNull(query, nameof(query));
-
-            var selectedAttributes = new CheckoutAttributeSelection(string.Empty);
-            var customer = cart.Customer ?? Services.WorkContext.CurrentCustomer;
-            var checkoutAttributes = await _checkoutAttributeMaterializer.GetCheckoutAttributesAsync(cart, Services.StoreContext.CurrentStore.Id);
-
-            foreach (var attribute in checkoutAttributes)
-            {
-                var selectedItems = query.CheckoutAttributes.Where(x => x.AttributeId == attribute.Id);
-
-                switch (attribute.AttributeControlType)
-                {
-                    case AttributeControlType.DropdownList:
-                    case AttributeControlType.RadioList:
-                    case AttributeControlType.Boxes:
-                        {
-                            var selectedValue = selectedItems.FirstOrDefault()?.Value;
-                            if (selectedValue.HasValue())
-                            {
-                                var selectedAttributeValueId = selectedValue.SplitSafe(',').FirstOrDefault()?.ToInt();
-                                if (selectedAttributeValueId.GetValueOrDefault() > 0)
-                                {
-                                    selectedAttributes.AddAttributeValue(attribute.Id, selectedAttributeValueId.Value);
-                                }
-                            }
-                        }
-                        break;
-
-                    case AttributeControlType.Checkboxes:
-                        {
-                            foreach (var item in selectedItems)
-                            {
-                                var selectedValue = item.Value.SplitSafe(',').FirstOrDefault()?.ToInt();
-                                if (selectedValue.GetValueOrDefault() > 0)
-                                {
-                                    selectedAttributes.AddAttributeValue(attribute.Id, selectedValue);
-                                }
-                            }
-                        }
-                        break;
-
-                    case AttributeControlType.TextBox:
-                    case AttributeControlType.MultilineTextbox:
-                        {
-                            var selectedValue = string.Join(",", selectedItems.Select(x => x.Value));
-                            if (selectedValue.HasValue())
-                            {
-                                selectedAttributes.AddAttributeValue(attribute.Id, selectedValue);
-                            }
-                        }
-                        break;
-
-                    case AttributeControlType.Datepicker:
-                        {
-                            var selectedValue = selectedItems.FirstOrDefault()?.Date;
-                            if (selectedValue.HasValue)
-                            {
-                                selectedAttributes.AddAttributeValue(attribute.Id, selectedValue.Value);
-                            }
-                        }
-                        break;
-
-                    case AttributeControlType.FileUpload:
-                        {
-                            var selectedValue = string.Join(",", selectedItems.Select(x => x.Value));
-                            if (selectedValue.HasValue())
-                            {
-                                selectedAttributes.AddAttributeValue(attribute.Id, selectedValue);
-                            }
-                        }
-                        break;
-                }
-            }
-
-            customer.GenericAttributes.CheckoutAttributes = selectedAttributes;
-            _db.TryUpdate(customer);
-            await _db.SaveChangesAsync();
-        }
-
-        #endregion
 
         #region Shopping cart
 
@@ -276,14 +152,14 @@ namespace Smartstore.Web.Controllers
 
             var cart = await _shoppingCartService.GetCartAsync(storeId: Services.StoreContext.CurrentStore.Id);
 
+            // Allow to fill checkout attributes with values from query string.
             if (query.CheckoutAttributes.Any())
             {
-                await ParseAndSaveCheckoutAttributesAsync(cart, query);
+                cart.Customer.GenericAttributes.CheckoutAttributes = await _checkoutAttributeMaterializer.CreateCheckoutAttributeSelectionAsync(query, cart);
+                await _db.SaveChangesAsync();
             }
 
             var model = await cart.MapAsync();
-
-            HttpContext.Session.TrySetObject(CheckoutState.CheckoutStateSessionKey, new CheckoutState());
 
             return View(model);
         }
@@ -325,20 +201,20 @@ namespace Smartstore.Web.Controllers
         [LocalizedRoute("/cart", Name = "ShoppingCart")]
         public async Task<IActionResult> StartCheckout(ProductVariantQuery query, bool useRewardPoints = false)
         {
-            var customer = Services.WorkContext.CurrentCustomer;
+            var cart = await _shoppingCartService.GetCartAsync(storeId: Services.StoreContext.CurrentStore.Id);
             var warnings = new List<string>();
 
-            if (!await ValidateAndSaveCartDataAsync(query, warnings, useRewardPoints))
+            // Save data entered on cart page.
+            var isCartValid = await _shoppingCartService.SaveCartDataAsync(cart, warnings, query, useRewardPoints, false);
+            if (!isCartValid)
             {
                 // Something is wrong with the checkout data. Redisplay shopping cart.
-                var cart = await _shoppingCartService.GetCartAsync(customer, storeId: Services.StoreContext.CurrentStore.Id);
                 var model = await cart.MapAsync(validateCheckoutAttributes: true);
 
                 return View(model);
             }
 
-            // Everything is OK.
-            if (customer.IsGuest())
+            if (cart.Customer.IsGuest())
             {
                 if (_customerSettings.UserRegistrationType == UserRegistrationType.Disabled)
                 {
@@ -390,8 +266,6 @@ namespace Smartstore.Web.Controllers
             var model = new MiniShoppingCartModel();
             await cart.MapAsync(model);
 
-            HttpContext.Session.TrySetObject(CheckoutState.CheckoutStateSessionKey, new CheckoutState());
-
             return PartialView(model);
         }
 
@@ -415,21 +289,18 @@ namespace Smartstore.Web.Controllers
         #region Modify shopping cart
 
         /// <summary>
-        /// Validates and saves cart data.
+        /// AJAX. Saves checkout attributes, whether to use reward points and validates the shopping cart.
+        /// This action method is intended for payment buttons that skip checkout and redirect on a payment provider page.
         /// </summary>
-        /// <param name="query">The <see cref="ProductVariantQuery"/>.</param>
-        /// <param name="useRewardPoints">A value indicating whether to use reward points.</param>        
+        /// <param name="query"><see cref="ProductVariantQuery"/> with selected checkout attributes.</param>
+        /// <param name="useRewardPoints">A value indicating whether to use reward points. <c>null</c> if it is called from the off-canvas card.</param>
         [HttpPost]
-        public async Task<IActionResult> SaveCartData(ProductVariantQuery query, bool useRewardPoints = false)
+        public async Task<IActionResult> SaveCartData(ProductVariantQuery query, bool? useRewardPoints)
         {
             var warnings = new List<string>();
-            var success = await ValidateAndSaveCartDataAsync(query, warnings, useRewardPoints);
+            var success = await _shoppingCartService.SaveCartDataAsync(null, warnings, query, useRewardPoints);
 
-            return Json(new
-            {
-                success,
-                message = string.Join(Environment.NewLine, warnings)
-            });
+            return Json(new { success, warnings });
         }
 
         /// <summary>
@@ -453,6 +324,7 @@ namespace Smartstore.Web.Controllers
 
             var cartHtml = string.Empty;
             var totalsHtml = string.Empty;
+            var newItemPrice = string.Empty;
 
             var cart = await _shoppingCartService.GetCartAsync(
                 customer,
@@ -474,6 +346,9 @@ namespace Smartstore.Web.Controllers
 
                     cartHtml = await InvokePartialViewAsync("CartItems", model);
                     totalsHtml = await InvokeComponentAsync(typeof(OrderTotalsViewComponent), ViewData, new { isEditable = true });
+
+                    var sci = model.Items.Where(x => x.Id == sciItemId).FirstOrDefault();
+                    newItemPrice = sci.UnitPrice.ToString();
                 }
             }
 
@@ -486,7 +361,8 @@ namespace Smartstore.Web.Controllers
                 message = warnings,
                 cartHtml,
                 totalsHtml,
-                displayCheckoutButtons = true
+                displayCheckoutButtons = true,
+                newItemPrice
             });
         }
 
@@ -569,7 +445,7 @@ namespace Smartstore.Web.Controllers
         [LocalizedRoute("/cart/addproductsimple/{productId:int}", Name = "AddProductToCartSimple")]
         public async Task<IActionResult> AddProductSimple(int productId, int shoppingCartTypeId = 1, bool forceRedirection = false)
         {
-            var product = await _db.Products.FindByIdAsync(productId, false);
+            var product = await _db.Products.FindByIdAsync(productId);
             if (product == null)
             {
                 return Json(new
@@ -655,7 +531,7 @@ namespace Smartstore.Web.Controllers
         {
             // Adds a product to cart. This method is used on product details page.
             var form = HttpContext.Request.Form;
-            var product = await _db.Products.FindByIdAsync(productId, false);
+            var product = await _db.Products.FindByIdAsync(productId);
             if (product == null)
             {
                 return Json(new
@@ -970,7 +846,7 @@ namespace Smartstore.Web.Controllers
 
         [HttpPost, ActionName("EmailWishlist")]
         [FormValueRequired("send-email")]
-        [ValidateCaptcha]
+        [ValidateCaptcha(CaptchaSettingName = nameof(CaptchaSettings.ShowOnEmailWishlistToFriendPage))]
         [GdprConsent]
         public async Task<IActionResult> EmailWishlistSend(WishlistEmailAFriendModel model, string captchaError)
         {
@@ -1026,15 +902,12 @@ namespace Smartstore.Web.Controllers
         [LocalizedRoute("/cart", Name = "ShoppingCart")]
         public async Task<IActionResult> GetEstimateShipping(EstimateShippingModel shippingModel, ProductVariantQuery query)
         {
-            // TODO: (mh) (core) Testing when there are payment / shipping methods ready
             var storeId = Services.StoreContext.CurrentStore.Id;
             var currency = Services.WorkContext.WorkingCurrency;
             var cart = await _shoppingCartService.GetCartAsync(storeId: storeId);
 
-            if (query.CheckoutAttributes.Any())
-            {
-                await ParseAndSaveCheckoutAttributesAsync(cart, query);
-            }
+            cart.Customer.GenericAttributes.CheckoutAttributes = await _checkoutAttributeMaterializer.CreateCheckoutAttributeSelectionAsync(query, cart);
+            await _db.SaveChangesAsync();
 
             var model = await cart.MapAsync(setEstimateShippingDefaultAddress: false);
 
@@ -1044,7 +917,7 @@ namespace Smartstore.Web.Controllers
 
             if (cart.IncludesMatchingItems(x => x.IsShippingEnabled))
             {
-                var shippingInfoUrl = Url.TopicAsync("ShippingInfo").ToString();
+                var shippingInfoUrl = await Url.TopicAsync("ShippingInfo");
                 if (shippingInfoUrl.HasValue())
                 {
                     model.EstimateShipping.ShippingInfoUrl = shippingInfoUrl;
@@ -1059,7 +932,7 @@ namespace Smartstore.Web.Controllers
                     ZipPostalCode = shippingModel.ZipPostalCode,
                 };
 
-                var getShippingOptionResponse = _shippingService.GetShippingOptions(cart, address, storeId: storeId);
+                var getShippingOptionResponse = await _shippingService.GetShippingOptionsAsync(cart, address, storeId: storeId);
                 if (!getShippingOptionResponse.Success)
                 {
                     model.EstimateShipping.Warnings.AddRange(getShippingOptionResponse.Errors);
@@ -1069,7 +942,7 @@ namespace Smartstore.Web.Controllers
                     if (getShippingOptionResponse.ShippingOptions.Any())
                     {
                         var shippingMethods = await _shippingService.GetAllShippingMethodsAsync(storeId);
-                        var shippingTaxFormat = _currencyService.GetTaxFormat(null, null, PricingTarget.ShippingCharge);
+                        var shippingTaxFormat = _taxService.GetTaxFormat(null, null, PricingTarget.ShippingCharge);
 
                         foreach (var shippingOption in getShippingOptionResponse.ShippingOptions)
                         {
@@ -1081,7 +954,7 @@ namespace Smartstore.Web.Controllers
                             };
 
                             var (shippingAmount, _) = await _orderCalculationService.AdjustShippingRateAsync(cart, shippingOption.Rate, shippingOption, shippingMethods);
-                            var rateBase = await _taxCalculator.CalculateShippingTaxAsync(shippingAmount.Amount);
+                            var rateBase = await _taxCalculator.CalculateShippingTaxAsync(shippingAmount);
                             var rate = _currencyService.ConvertFromPrimaryCurrency(rateBase.Price, currency);
                             soModel.Price = rate.WithPostFormat(shippingTaxFormat).ToString();
 
@@ -1219,15 +1092,10 @@ namespace Smartstore.Web.Controllers
         [LocalizedRoute("/cart", Name = "ShoppingCart")]
         public async Task<IActionResult> ApplyDiscountCoupon(ProductVariantQuery query, string discountCouponcode)
         {
-            var customer = Services.WorkContext.CurrentCustomer;
-            var cart = await _shoppingCartService.GetCartAsync(customer, storeId: Services.StoreContext.CurrentStore.Id);
-
-            if (query.CheckoutAttributes.Any())
-            {
-                await ParseAndSaveCheckoutAttributesAsync(cart, query);
-            }
-
+            var cart = await _shoppingCartService.GetCartAsync(storeId: Services.StoreContext.CurrentStore.Id);
             var model = await cart.MapAsync();
+
+            cart.Customer.GenericAttributes.CheckoutAttributes = await _checkoutAttributeMaterializer.CreateCheckoutAttributeSelectionAsync(query, cart);
 
             model.DiscountBox.IsWarning = true;
 
@@ -1239,14 +1107,14 @@ namespace Smartstore.Web.Controllers
 
                 var isDiscountValid = discount != null
                     && discount.RequiresCouponCode
-                    && await _discountService.IsDiscountValidAsync(discount, customer, discountCouponcode);
+                    && await _discountService.IsDiscountValidAsync(discount, cart.Customer, discountCouponcode);
 
                 if (isDiscountValid)
                 {
                     var discountApplied = true;
                     var oldCartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(cart);
 
-                    customer.GenericAttributes.DiscountCouponCode = discountCouponcode;
+                    cart.Customer.GenericAttributes.DiscountCouponCode = discountCouponcode;
 
                     if (oldCartTotal.Total.HasValue)
                     {
@@ -1263,7 +1131,7 @@ namespace Smartstore.Web.Controllers
                     {
                         model.DiscountBox.Message = T("ShoppingCart.DiscountCouponCode.NoMoreDiscount");
 
-                        customer.GenericAttributes.DiscountCouponCode = null;
+                        cart.Customer.GenericAttributes.DiscountCouponCode = null;
                     }
                 }
                 else
@@ -1275,6 +1143,8 @@ namespace Smartstore.Web.Controllers
             {
                 model.DiscountBox.Message = T("ShoppingCart.DiscountCouponCode.WrongDiscount");
             }
+
+            await _db.SaveChangesAsync();
 
             return View(model);
         }
@@ -1315,18 +1185,11 @@ namespace Smartstore.Web.Controllers
         [LocalizedRoute("/cart", Name = "ShoppingCart")]
         public async Task<IActionResult> ApplyGiftCard(ProductVariantQuery query, string giftCardCouponCode)
         {
-            var customer = Services.WorkContext.CurrentCustomer;
-            var storeId = Services.StoreContext.CurrentStore.Id;
-            var cart = await _shoppingCartService.GetCartAsync(customer, storeId: storeId);
-
-            if (query.CheckoutAttributes.Any())
-            {
-                await ParseAndSaveCheckoutAttributesAsync(cart, query);
-            }
-
+            var cart = await _shoppingCartService.GetCartAsync(storeId: Services.StoreContext.CurrentStore.Id);
             var model = await cart.MapAsync();
-
             model.GiftCardBox.IsWarning = true;
+
+            cart.Customer.GenericAttributes.CheckoutAttributes = await _checkoutAttributeMaterializer.CreateCheckoutAttributeSelectionAsync(query, cart);
 
             if (!cart.IncludesMatchingItems(x => x.IsRecurring))
             {
@@ -1338,15 +1201,15 @@ namespace Smartstore.Web.Controllers
                         .ApplyCouponFilter(new[] { giftCardCouponCode })
                         .FirstOrDefaultAsync();
 
-                    var isGiftCardValid = giftCard != null && _giftCardService.ValidateGiftCard(giftCard, storeId);
+                    var isGiftCardValid = giftCard != null && await _giftCardService.ValidateGiftCardAsync(giftCard, cart.StoreId);
                     if (isGiftCardValid)
                     {
-                        var couponCodes = new List<GiftCardCouponCode>(customer.GenericAttributes.GiftCardCouponCodes);
-                        if (couponCodes.Select(x => x.Value).Contains(giftCardCouponCode))
+                        var couponCodes = new List<GiftCardCouponCode>(cart.Customer.GenericAttributes.GiftCardCouponCodes);
+                        if (!couponCodes.Select(x => x.Value).Contains(giftCardCouponCode))
                         {
-                            var giftCardCoupon = new GiftCardCouponCode(giftCardCouponCode);
-                            couponCodes.Add(giftCardCoupon);
-                            customer.GenericAttributes.GiftCardCouponCodes = couponCodes;
+                            couponCodes.Add(new GiftCardCouponCode(giftCardCouponCode));
+
+                            cart.Customer.GenericAttributes.GiftCardCouponCodes = couponCodes;
                         }
 
                         model.GiftCardBox.Message = T("ShoppingCart.GiftCardCouponCode.Applied");
@@ -1366,6 +1229,8 @@ namespace Smartstore.Web.Controllers
             {
                 model.GiftCardBox.Message = T("ShoppingCart.GiftCardCouponCode.DontWorkWithAutoshipProducts");
             }
+
+            await _db.SaveChangesAsync();
 
             return View(model);
         }
@@ -1410,20 +1275,16 @@ namespace Smartstore.Web.Controllers
         [LocalizedRoute("/cart", Name = "ShoppingCart")]
         public async Task<IActionResult> ApplyRewardPoints(ProductVariantQuery query, bool useRewardPoints = false)
         {
-            var customer = Services.WorkContext.CurrentCustomer;
-            var cart = await _shoppingCartService.GetCartAsync(customer, storeId: Services.StoreContext.CurrentStore.Id);
-
-            if (query.CheckoutAttributes.Any())
-            {
-                await ParseAndSaveCheckoutAttributesAsync(cart, query);
-            }
-
+            var cart = await _shoppingCartService.GetCartAsync(storeId: Services.StoreContext.CurrentStore.Id);
             var model = new ShoppingCartModel();
             await cart.MapAsync(model);
 
             model.RewardPoints.UseRewardPoints = useRewardPoints;
 
-            customer.GenericAttributes.UseRewardPointsDuringCheckout = useRewardPoints;
+            cart.Customer.GenericAttributes.CheckoutAttributes = await _checkoutAttributeMaterializer.CreateCheckoutAttributeSelectionAsync(query, cart);
+            cart.Customer.GenericAttributes.UseRewardPointsDuringCheckout = useRewardPoints;
+
+            await _db.SaveChangesAsync();
 
             return View(model);
         }

@@ -1,18 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Smartstore.Admin.Models.Orders;
+﻿using Smartstore.Admin.Models.Orders;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Orders.Reporting;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Common.Services;
-using Smartstore.Core.Data;
 using Smartstore.Core.Security;
-using Smartstore.Web.Components;
 
 namespace Smartstore.Admin.Components
 {
@@ -52,7 +44,7 @@ namespace Smartstore.Admin.Components
             var startDate = (utcNow.Date - beginningOfYear).Days < 28 ? utcNow.AddDays(-28).Date : beginningOfYear;
             var dataPoints = await _db.Orders
                 .AsNoTracking()
-                .ApplyDateFilter(startDate, null)
+                .ApplyAuditDateFilter(startDate, null)
                 .ApplyIncompleteOrdersFilter()
                 .Select(x => new OrderDataPoint
                 {

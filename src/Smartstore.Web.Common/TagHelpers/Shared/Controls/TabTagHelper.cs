@@ -1,6 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Razor.TagHelpers;
+﻿using Microsoft.AspNetCore.Razor.TagHelpers;
 using Smartstore.Web.Rendering;
 
 namespace Smartstore.Web.TagHelpers.Shared
@@ -16,6 +14,7 @@ namespace Smartstore.Web.TagHelpers.Shared
         const string VisibleAttributeName = "sm-visible";
         const string AjaxAttributeName = "sm-ajax";
         const string IconAttributeName = "sm-icon";
+        const string IconClassAttributeName = "sm-icon-class";
         const string BadgeTextAttributeName = "sm-badge-text";
         const string BadgeStyleAttributeName = "sm-badge-style";
         const string SummaryAttributeName = "sm-summary";
@@ -82,10 +81,16 @@ namespace Smartstore.Web.TagHelpers.Shared
         public bool Ajax { get; set; }
 
         /// <summary>
-        /// Icon class name (e.g. "fa fa-user")
+        /// Icon (class) name (e.g. "fa fa-user", or "bi:user" for Bootstrap icons)
         /// </summary>
         [HtmlAttributeName(IconAttributeName)]
         public string Icon { get; set; }
+
+        /// <summary>
+        /// Extra CSS classes for the icon.
+        /// </summary>
+        [HtmlAttributeName(IconClassAttributeName)]
+        public string IconClass { get; set; }
 
         /// <summary>
         /// Badge text.

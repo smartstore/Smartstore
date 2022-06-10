@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.AspNetCore.Mvc.ViewFeatures.Infrastructure;
+﻿using Microsoft.AspNetCore.Mvc.ViewFeatures.Infrastructure;
 using Smartstore.ComponentModel;
 
 namespace Smartstore.Web.Modelling

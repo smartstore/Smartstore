@@ -1,13 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Smartstore.Admin.Models.Orders;
+﻿using Smartstore.Admin.Models.Orders;
 using Smartstore.Core.Common.Services;
-using Smartstore.Core.Data;
-using Smartstore.Web.Components;
+using Smartstore.Core.Security;
 
 namespace Smartstore.Admin.Components
 {
@@ -24,10 +17,18 @@ namespace Smartstore.Admin.Components
 
         public async Task<IViewComponentResult> InvokeAsync()
         {
+            if (!await Services.Permissions.AuthorizeAsync(Permissions.Order.Read))
+            {
+                return Empty();
+            }
+
             var model = new DashboardLatestOrdersModel();
             var latestOrders = await _db.Orders
                 .AsNoTracking()
-                .Include(x => x.Customer).ThenInclude(x => x.CustomerRoleMappings).ThenInclude(x => x.CustomerRole)
+                .AsSplitQuery()
+                .Include(x => x.Customer)
+                    .ThenInclude(x => x.CustomerRoleMappings)
+                    .ThenInclude(x => x.CustomerRole)
                 .Include(x => x.OrderItems)
                 .OrderByDescending(x => x.CreatedOnUtc)
                 .Take(7)

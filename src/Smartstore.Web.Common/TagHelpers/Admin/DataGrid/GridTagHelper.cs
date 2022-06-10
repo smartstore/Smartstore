@@ -1,22 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Antiforgery;
+﻿using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
-using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
-using Smartstore.ComponentModel;
+using Smartstore.Utilities;
 using Smartstore.Web.Models.DataGrid;
 using Smartstore.Web.Rendering;
 
 namespace Smartstore.Web.TagHelpers.Admin
 {
-    // TODO: (core) Remove $('.t-grid.grid-preservestate').on('dataBound', ...) handler from smartstore.common.js
-
     [Flags]
     public enum DataGridBorderStyle
     {
@@ -30,6 +23,8 @@ namespace Smartstore.Web.TagHelpers.Admin
     [RestrictChildren("columns", "datasource", "paging", "toolbar", "sorting", "search-panel", "row-commands", "detail-view")]
     public class GridTagHelper : SmartTagHelper
     {
+        const string LoaderHtml = "<div class='datagrid-loader spinner-container w-100 h-100 active'><div class='spinner'><svg style='width:64px; height:64px' viewBox='0 0 64 64'><circle class='circle' cx='32' cy='32' r='30' fill='none' stroke-width='2'></circle></svg></div></div>";
+
         const string BorderAttributeName = "border-style";
         const string StripedAttributeName = "striped";
         const string HoverAttributeName = "hover";
@@ -39,6 +34,7 @@ namespace Smartstore.Web.TagHelpers.Admin
         const string AllowColumnReorderingAttributeName = "allow-column-reordering";
         const string AllowEditAttributeName = "allow-edit";
         const string HideHeaderAttributeName = "hide-header";
+        const string StickyFooterAttributeName = "sticky-footer";
         const string KeyMemberAttributeName = "key-member";
         const string MaxHeightAttributeName = "max-height";
         const string PreserveCommandStateAttributeName = "preserve-command-state";
@@ -121,6 +117,12 @@ namespace Smartstore.Web.TagHelpers.Admin
         /// </summary>
         [HtmlAttributeName(HideHeaderAttributeName)]
         public bool HideHeader { get; set; }
+
+        /// <summary>
+        /// Whether to fix grid footer position while scrolling. Default: <c>true</c>.
+        /// </summary>
+        [HtmlAttributeName(StickyFooterAttributeName)]
+        public bool StickyFooter { get; set; } = true;
 
         /// <summary>
         /// Key member expression. If <c>null</c>, any property named <c>Id</c> will be key member.
@@ -248,6 +250,11 @@ namespace Smartstore.Web.TagHelpers.Admin
 
             // Root wrapper div .datagrid-root
             output.PreElement.AppendHtml($"<div class='{cssClass}'>");
+
+            // Append .datagrid-loader
+            output.PostElement.AppendHtml(LoaderHtml);
+
+            // Close .datagrid-root
             output.PostElement.AppendHtml("</div>");
 
             output.TagName = "sm-datagrid";
@@ -286,11 +293,53 @@ namespace Smartstore.Web.TagHelpers.Admin
                     
                     output.Content.AppendHtml(editorSlot);
                 }
+
+                if (column.FooterTemplate != null && !column.FooterTemplate.IsEmptyOrWhiteSpace)
+                {
+                    var footerSlot = new TagBuilder("template");
+                    footerSlot.Attributes["v-slot:colfooter-" + column.NormalizedMemberName] = "item";
+                    footerSlot.InnerHtml.AppendHtml(column.FooterTemplate);
+                    output.Content.AppendHtml(footerSlot);
+                }
             }
 
             GridCommand preservedCommandState = PreserveCommandState ? await _gridCommandStateStore.LoadStateAsync(Id) : null;
 
-            output.PostElement.AppendHtmlLine(@$"<script>$(function() {{ window['{Id}'] = new Vue({GenerateVueJson(preservedCommandState)}); }})</script>");
+            output.PostElement.AppendHtmlLine(@$"
+<script>
+    $(function() {{ 
+        window.Res.DataGrid = {GenerateClientRes()};
+        window['{Id}'] = new Vue({GenerateVueJson(preservedCommandState)}); 
+    }})
+</script>");
+        }
+
+        private string GenerateClientRes()
+        {
+            var resRoot = "Admin.DataGrid.";
+            var clientRes = new Dictionary<string, string>
+            {
+                ["saveChanges"] = T("Admin.Common.SaveChanges"),
+                ["cancel"] = T("Common.Cancel"),
+                ["resetState"] = T(resRoot + "ResetState"),
+                ["noData"] = T(resRoot + "NoData"),
+                ["vborders"] = T(resRoot + "VBorders"),
+                ["hborders"] = T(resRoot + "HBorders"),
+                ["striped"] = T(resRoot + "Striped"),
+                ["hover"] = T(resRoot + "Hover"),
+                ["pagerPos"] = T(resRoot + "PagerPos"),
+                ["pagerTop"] = T(resRoot + "PagerTop"),
+                ["pagerBottom"] = T(resRoot + "PagerBottom"),
+                ["pagerBoth"] = T(resRoot + "PagerBoth"),
+                ["xPerPage"] = T(resRoot + "XPerPage"),
+                ["displayingItems"] = T(resRoot + "DisplayingItems"),
+                ["displayingItemsShort"] = T(resRoot + "DisplayingItemsShort"),
+                ["confirmDelete"] = T(resRoot + "ConfirmDelete"),
+                ["confirmDeleteMany"] = T(resRoot + "ConfirmDeleteMany"),
+                ["deleteSuccess"] = T(resRoot + "DeleteSuccess"),
+            };
+
+            return SerializeObject(clientRes);
         }
 
         private string GenerateVueJson(GridCommand command)
@@ -332,6 +381,7 @@ namespace Smartstore.Web.TagHelpers.Admin
                     allowColumnReordering = AllowColumnReordering,
                     allowEdit = AllowEdit,
                     hideHeader = HideHeader,
+                    stickyFooter = StickyFooter,
                     maxHeight = MaxHeight,
                     showSearch = false,
                     searchPanelWidth = SearchPanel?.Width,
@@ -360,14 +410,17 @@ namespace Smartstore.Web.TagHelpers.Admin
 
             dict["data"] = data;
 
-            var json = JsonConvert.SerializeObject(dict, new JsonSerializerSettings
-            {
-                ContractResolver = SmartContractResolver.Instance,
-                NullValueHandling = NullValueHandling.Ignore,
-                Formatting = Formatting.None
-            });
+            var json = SerializeObject(dict);
 
             return json;
+        }
+
+        private static string SerializeObject(object obj)
+        {
+            return JsonConvert.SerializeObject(obj, new JsonSerializerSettings
+            {
+                Formatting = CommonHelper.IsDevEnvironment ? Formatting.Indented : Formatting.None
+            });
         }
     }
 }

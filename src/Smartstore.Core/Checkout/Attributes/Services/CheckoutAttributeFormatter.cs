@@ -1,8 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Web;
-using Microsoft.EntityFrameworkCore;
+﻿using System.Web;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common.Services;
@@ -19,6 +15,7 @@ namespace Smartstore.Core.Checkout.Attributes
     {
         private readonly ICheckoutAttributeMaterializer _checkoutAttributeMaterializer;
         private readonly ICurrencyService _currencyService;
+        private readonly ITaxService _taxService;
         private readonly IWorkContext _workContext;
         private readonly ITaxCalculator _taxCalculator;
         private readonly IWebHelper _webHelper;
@@ -28,6 +25,7 @@ namespace Smartstore.Core.Checkout.Attributes
             ICheckoutAttributeMaterializer attributeMaterializer,
             ICurrencyService currencyService,
             IWorkContext workContext,
+            ITaxService taxService,
             ITaxCalculator taxCalculator,
             IWebHelper webHelper,
             SmartDbContext db)
@@ -35,6 +33,7 @@ namespace Smartstore.Core.Checkout.Attributes
             _checkoutAttributeMaterializer = attributeMaterializer;
             _currencyService = currencyService;
             _workContext = workContext;
+            _taxService = taxService;
             _taxCalculator = taxCalculator;
             _webHelper = webHelper;
             _db = db;
@@ -149,7 +148,7 @@ namespace Smartstore.Core.Checkout.Attributes
                                     if (adjustment.Price > 0m)
                                     {
                                         var convertedAdjustment = _currencyService.ConvertToWorkingCurrency(adjustment.Price);
-                                        attributeStr += $" [+{_currencyService.ApplyTaxFormat(convertedAdjustment).ToString()}]";
+                                        attributeStr += $" [+{_taxService.ApplyTaxFormat(convertedAdjustment).ToString()}]";
                                     }
                                 }
                             }

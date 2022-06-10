@@ -1,11 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Newtonsoft.Json;
 using Smartstore.Core.Catalog.Products;
-using Smartstore.Domain;
 
 namespace Smartstore.Core.Catalog.Attributes
 {
@@ -20,7 +18,7 @@ namespace Smartstore.Core.Catalog.Attributes
             builder.HasOne(c => c.Product)
                 .WithMany(c => c.ProductSpecificationAttributes)
                 .HasForeignKey(c => c.ProductId)
-                .IsRequired(false);
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 
@@ -28,6 +26,7 @@ namespace Smartstore.Core.Catalog.Attributes
     /// Represents a product specification attribute mapping.
     /// </summary>
     [Table("Product_SpecificationAttribute_Mapping")]
+    [Index(nameof(SpecificationAttributeOptionId), Name = "IX_SpecificationAttributeOptionId")]
     public partial class ProductSpecificationAttribute : BaseEntity, IDisplayOrder
     {
         public ProductSpecificationAttribute()

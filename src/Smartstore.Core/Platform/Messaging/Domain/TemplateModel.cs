@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Smartstore.ComponentModel;
+﻿using Smartstore.ComponentModel;
 
 namespace Smartstore.Core.Messaging
 {

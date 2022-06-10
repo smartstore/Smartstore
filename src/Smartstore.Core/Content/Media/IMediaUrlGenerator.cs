@@ -1,6 +1,4 @@
-﻿using System;
-using Microsoft.AspNetCore.Http;
-using Smartstore.Core.Content.Media.Imaging;
+﻿using Microsoft.AspNetCore.Http;
 
 namespace Smartstore.Core.Content.Media
 {

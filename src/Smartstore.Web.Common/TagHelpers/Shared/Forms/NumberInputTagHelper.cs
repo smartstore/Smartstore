@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Smartstore.Core.Localization;
@@ -54,6 +53,10 @@ namespace Smartstore.Web.TagHelpers.Shared
         /// </summary>
         [HtmlAttributeName(StyleAttributeName)]
         public NumberInputStyle Style { get; set; }
+
+        [HtmlAttributeNotBound]
+        [ViewContext]
+        public ViewContext ViewContext { get; set; }
 
         public override void Process(TagHelperContext context, TagHelperOutput output)
         {
@@ -120,6 +123,10 @@ namespace Smartstore.Web.TagHelpers.Shared
                 }
 
                 context.Items.Add("IsNumberInput", true);
+            }
+            else if (ViewContext.ViewData.TryGetValue("size", out var size) && size is string sizeStr)
+            {
+                group.AppendCssClass($"input-group-{sizeStr}");
             }
 
             output.WrapElementWith(group);

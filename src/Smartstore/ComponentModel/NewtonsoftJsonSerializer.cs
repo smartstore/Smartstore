@@ -1,19 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Bson;
+using Smartstore.Utilities;
 
 namespace Smartstore.ComponentModel
 {
     public class NewtonsoftJsonSerializer : IJsonSerializer
     {
-        private readonly JsonSerializer _jsonSerializer = JsonSerializer.Create(CreateSerializerSettings());
+        private readonly JsonSerializer _jsonSerializer = JsonSerializer.CreateDefault(new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.Objects });
 
         private static readonly byte[] NullResult = Encoding.UTF8.GetBytes("null");
 
@@ -21,20 +16,20 @@ namespace Smartstore.ComponentModel
         private readonly HashSet<Type> _unSerializableTypes = new() { typeof(Task), typeof(Task<>) };
         private readonly HashSet<Type> _unDeserializableTypes = new() { typeof(Task), typeof(Task<>) };
 
-        private static JsonSerializerSettings CreateSerializerSettings()
-        {
-            var settings = new JsonSerializerSettings
-            {
-                ContractResolver = SmartContractResolver.Instance,
-                TypeNameHandling = TypeNameHandling.Objects,
-                ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-                ObjectCreationHandling = ObjectCreationHandling.Auto,
-                NullValueHandling = NullValueHandling.Ignore,
-                MaxDepth = 32
-            };
+        //private static JsonSerializerSettings CreateSerializerSettings()
+        //{
+        //    var settings = new JsonSerializerSettings
+        //    {
+        //        ContractResolver = SmartContractResolver.Instance,
+        //        TypeNameHandling = TypeNameHandling.Objects,
+        //        ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+        //        ObjectCreationHandling = ObjectCreationHandling.Auto,
+        //        NullValueHandling = NullValueHandling.Ignore,
+        //        MaxDepth = 32
+        //    };
 
-            return settings;
-        }
+        //    return settings;
+        //}
 
         public ILogger Logger { get; set; } = NullLogger.Instance;
 
@@ -98,7 +93,7 @@ namespace Smartstore.ComponentModel
             }
             catch
             {
-                if (!(typeof(IObjectContainer).IsAssignableFrom(objectType) || objectType == typeof(object) || objectType.IsPredefinedType()))
+                if (!(typeof(IObjectContainer).IsAssignableFrom(objectType) || objectType == typeof(object) || objectType.IsBasicOrNullableType()))
                 {
                     _unDeserializableTypes.Add(objectType);
                     Logger.Debug("Type '{0}' cannot be DEserialized", objectType);
@@ -126,9 +121,8 @@ namespace Smartstore.ComponentModel
                 value = value.Unzip();
             }
 
-            using var stream = new MemoryStream(value);
-            using var reader = new BsonDataReader(stream);
-
+            var json = Encoding.UTF8.GetString(value);
+            using var reader = new StringReader(json);
             return _jsonSerializer.Deserialize(reader, objectType);
         }
 
@@ -139,11 +133,12 @@ namespace Smartstore.ComponentModel
                 return NullResult;
             }
 
-            using var stream = new MemoryStream();
-            using var writer = new BsonDataWriter(stream);
-
+            //using var stream = new MemoryStream();
+            using var psb = StringBuilderPool.Instance.Get(out var sb);
+            using var writer = new StringWriter(sb);
+            
             _jsonSerializer.Serialize(writer, item);
-            var buffer = stream.ToArray();
+            var buffer = Encoding.UTF8.GetBytes(sb.ToString());
 
             if (compress)
             {
@@ -168,8 +163,7 @@ namespace Smartstore.ComponentModel
 
             if (objectType.IsGenericType)
             {
-                var gtDefinition = objectType.GetGenericTypeDefinition();
-                if (set.Contains(gtDefinition))
+                if (set.Contains(objectType.GetGenericTypeDefinition()))
                 {
                     return false;
                 }

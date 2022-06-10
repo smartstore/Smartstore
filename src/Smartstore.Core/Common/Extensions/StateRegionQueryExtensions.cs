@@ -1,43 +1,26 @@
 ﻿using Smartstore.Core.Common;
-using System.Linq;
 
 namespace Smartstore
 {
     public static class StateRegionQueryExtensions
     {
         /// <summary>
-        /// Applies filter by <see cref="StateProvince.Abbreviation"/>
-        /// </summary>
-        public static IQueryable<StateProvince> ApplyAbbreviationFilter(this IQueryable<StateProvince> query, string abbreviation)
-        {
-            Guard.NotNull(query, nameof(query));
-
-            query = from x in query
-                    where x.Abbreviation == abbreviation
-                    select x;
-
-            return query;
-        }
-
-        /// <summary>
         /// Applies filter by <see cref="StateProvince.CountryId"/> and orders by <see cref="StateProvince.DisplayOrder"/>
         /// </summary>
-        public static IQueryable<StateProvince> ApplyCountryFilter(this IQueryable<StateProvince> query, int countryId)
+        /// <param name="countryId">Country identifier.</param>
+        /// <param name="includeHidden">Applies filter by <see cref="StateProvince.Published"/>.</param>
+        public static IOrderedQueryable<StateProvince> ApplyCountryFilter(this IQueryable<StateProvince> query, int countryId, bool includeHidden = false)
         {
             Guard.NotNull(query, nameof(query));
 
-            // INFO: If countryId == 0 an empty query should be returned.
-            //if (countryId == 0)
-            //{
-            //    return query;
-            //}
+            query = query.Where(x => x.CountryId == countryId);
 
-            query = from x in query                   
-                    where x.CountryId == countryId
-                    orderby x.DisplayOrder
-                    select x;
+            if (!includeHidden)
+            {
+                query = query.Where(x => x.Published);
+            }
 
-            return query;
+            return query.OrderBy(x => x.DisplayOrder);
         }
     }
 }

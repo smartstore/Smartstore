@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using Smartstore.Core.Messaging;
+﻿using Smartstore.Core.Messaging;
 
 namespace Smartstore.Core.Checkout.Payment
 {

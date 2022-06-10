@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Core.Checkout.Payment;
-using Smartstore.Web.Modelling;
-using System.Collections.Generic;
 
 namespace Smartstore.Admin.Models
 {

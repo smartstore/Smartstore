@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Smartstore.Core.Search.Facets;
+﻿using Smartstore.Core.Search.Facets;
 
 namespace Smartstore.Core.Search
 {
@@ -49,5 +48,20 @@ namespace Smartstore.Core.Search
         // Misc
         string Origin { get; }
         IDictionary<string, object> CustomData { get; }
+    }
+
+    public static class ISearchQueryExtensions
+    {
+        /// <summary>
+        /// Gets a value indicating whether the origin is instant search.
+        /// </summary>
+        public static bool IsInstantSearch(this ISearchQuery query)
+            => query?.Origin?.EndsWith("/InstantSearch", StringComparison.OrdinalIgnoreCase) ?? false;
+
+        /// <summary>
+        /// Gets a value indicating whether the origin is the search page.
+        /// </summary>
+        public static bool IsSearchPage(this ISearchQuery query)
+            => query?.Origin?.EndsWith("/Search", StringComparison.OrdinalIgnoreCase) ?? false;
     }
 }

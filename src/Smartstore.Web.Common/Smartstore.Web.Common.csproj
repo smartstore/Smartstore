@@ -1,33 +1,31 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-	<Import Project="..\Build\Smartstore.Common.props" />
+	<Import Project="..\Smartstore.Build\Smartstore.Common.props" />
 	
-  <PropertyGroup>
-    <RootNamespace>Smartstore.Web</RootNamespace>
-  </PropertyGroup>
+	<PropertyGroup>
+		<RootNamespace>Smartstore.Web</RootNamespace>
+	</PropertyGroup>
   
-  <ItemGroup>
-    <FrameworkReference Include="Microsoft.AspNetCore.App" />
-  </ItemGroup>
+	<ItemGroup>
+		<FrameworkReference Include="Microsoft.AspNetCore.App" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="7.1.0" />
-    <PackageReference Include="AutoprefixerHost" Version="3.0.13" />
-    <PackageReference Include="DouglasCrockford.JsMin" Version="2.1.0" />
-    <PackageReference Include="FluentValidation.AspNetCore" Version="9.5.3" />
-    <PackageReference Include="JavaScriptEngineSwitcher.V8" Version="3.13.2" />
-    <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="6.0.0-rc.1.21452.15" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="6.0.0-rc.1.21452.15" />
-    <PackageReference Include="Microsoft.ClearScript.V8.Native.win-x64" Version="7.1.6" />
-    <PackageReference Include="Microsoft.ClearScript.V8.Native.win-x86" Version="7.1.6" />
-    <PackageReference Include="NUglify" Version="1.16.1" />
-    <PackageReference Include="SharpScss" Version="2.0.0" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Autofac.Extensions.DependencyInjection" Version="7.2.0" />
+		<PackageReference Include="AutoprefixerHost" Version="3.0.17" />
+		<PackageReference Include="DouglasCrockford.JsMin" Version="2.1.0" />
+		<PackageReference Include="FluentValidation.AspNetCore" Version="9.5.3" />
+		<PackageReference Include="JavaScriptEngineSwitcher.V8" Version="3.17.1" />
+		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="6.0.4" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="6.0.4" />
+		<PackageReference Include="NUglify" Version="1.17.10" />
+		<PackageReference Include="SharpScss" Version="2.0.0" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Smartstore.Core\Smartstore.Core.csproj" />
-    <ProjectReference Include="..\Smartstore\Smartstore.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\Smartstore.Core\Smartstore.Core.csproj" />
+		<ProjectReference Include="..\Smartstore\Smartstore.csproj" />
+	</ItemGroup>
 
 	<ItemGroup>
 		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">

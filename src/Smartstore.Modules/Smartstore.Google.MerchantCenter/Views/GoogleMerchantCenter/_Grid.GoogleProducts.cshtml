@@ -1,0 +1,202 @@
+﻿@model GoogleProductModel
+
+@{
+    var parentModel = ViewData["Parent"] as ConfigurationModel;
+    var emptyCell = T("Plugins.Feed.Froogle.EmptyGridCell");
+
+    async Task DisplayTemplate()
+    {
+        <span v-if="item.value != null">{{ item.value }}</span>
+        <span v-else class="text-muted font-italic">@emptyCell</span>
+    }
+
+    // TODO: (mh) (core) Default column sizing has to be thoroghly thought about and be optimized!!! It is very clumsy!
+}
+
+<widget target-zone="scripts" key="gmc-products-grid">
+    <script src="~/Modules/Smartstore.Google.MerchantCenter/js/taxonomy.js"></script>
+</widget>
+
+<datagrid id="gmc-products-grid"
+          allow-resize="true"
+          key-member="ProductId"
+          allow-column-reordering="true"
+          allow-edit="true">
+    <datasource read="@Url.Action("GoogleProductList", "GoogleMerchantCenter")"
+                update="@Url.Action("GoogleProductUpsert", "GoogleMerchantCenter")" />
+    <paging position="Both" page-index="1" show-size-chooser="true" />
+    <sorting allow-unsort="true" allow-multisort="false">
+        <sort by="Name" />
+    </sorting>
+    <toolbar>
+        <toolbar-group>
+            <button datagrid-action="DataGridToolAction.ToggleSearchPanel" type="button" class="btn btn-light btn-icon">
+                <i class="fa fa-fw fa-filter"></i>
+            </button>
+        </toolbar-group>
+        <toolbar-group>
+            <button type="button" class="btn btn-warning no-anims btn-flat" v-bind:class="{ disabled: !grid.editing.active }" v-on:click.prevent="grid.saveChanges">
+                <i class="fa fa-check"></i>
+                <span>@T("Admin.Common.SaveChanges")</span>
+            </button>
+            <button type="button" class="btn btn-light btn-flat mr-auto" v-bind:class="{ disabled: !grid.editing.active }" v-on:click.prevent="grid.cancelEdit">
+                <span>@T("Common.Cancel")</span>
+            </button>
+        </toolbar-group>
+    </toolbar>
+    <search-panel>
+        <partial name="_Grid.GoogleProducts.Search" model="parentModel" />
+    </search-panel>
+    <columns>
+        <column for="ProductId" readonly visible="false" type="string" />
+        <column for="Name" width="1.5fr" hideable="false" readonly>
+            <display-template>
+                @Html.LabeledProductName()
+            </display-template>
+        </column>
+        <column for="Sku" width="200px" readonly visible="false" />
+        <column for="Export" halign="center" sortable="false" />
+
+        <column for="Taxonomy" width="2fr" sortable="false" hint="@T("Plugins.Feed.Froogle.Products.GoogleCategory.Hint")">
+            <display-template>
+                @{ await DisplayTemplate(); }
+            </display-template>
+            <edit-template>
+                @Html.EditorFor(model => model.Taxonomy, new { size = "sm" })
+            </edit-template>
+        </column>
+        <column for="Gender" visible="false" width="140px" sortable="false" hint="@T("Plugins.Feed.Froogle.Gender.Hint")">
+            <display-template>
+                <span v-if="item.value != null">{{ item.row.GenderLocalized }}</span>
+                <span v-else class="text-muted font-italic">@emptyCell</span>
+            </display-template>
+            <edit-template>
+                @Html.EditorFor(model => model.Gender, new { size = "sm" })
+            </edit-template>
+        </column>
+        <column for="AgeGroup" visible="false" width="140px" sortable="false" hint="@T("Plugins.Feed.Froogle.AgeGroup.Hint")">
+            <display-template>
+                <span v-if="item.value != null">{{ item.row.AgeGroupLocalized }}</span>
+                <span v-else class="text-muted font-italic">@emptyCell</span>
+            </display-template>
+            <edit-template>
+                @Html.EditorFor(model => model.AgeGroup, new { size = "sm" })
+            </edit-template>
+        </column>
+        <column for="IsAdult" visible="false" sortable="false" halign="center" hint="@T("Plugins.Feed.Froogle.IsAdult.Hint")">
+            <display-template>
+                <span v-if="item.value != null">{{ item.row.IsAdultLocalized }}</span>
+                <span v-else class="text-muted font-italic">@emptyCell</span>
+            </display-template>
+            <edit-template>
+                @Html.EditorFor(model => model.IsAdult, new { size = "sm" })
+            </edit-template>
+        </column>
+        <column for="Color" sortable="false" hint="@T("Plugins.Feed.Froogle.Color.Hint")">
+            <display-template>
+                @{ await DisplayTemplate(); }
+            </display-template>
+            <edit-template>
+                <input asp-for="Color" class="form-control-sm" />
+            </edit-template>
+        </column>
+        <column for="Size" sortable="false" hint="@T("Plugins.Feed.Froogle.Size.Hint")">
+            <display-template>
+                @{ await DisplayTemplate(); }
+            </display-template>
+            <edit-template>
+                <input asp-for="Size" class="form-control-sm" />
+            </edit-template>
+        </column>
+        <column for="Material" visible="false" sortable="false" hint="@T("Plugins.Feed.Froogle.Material.Hint")">
+            <display-template>
+                @{ await DisplayTemplate(); }
+            </display-template>
+            <edit-template>
+                <input asp-for="Material" class="form-control-sm" />
+            </edit-template>
+        </column>
+        <column for="Pattern" visible="false" sortable="false" hint="@T("Plugins.Feed.Froogle.Pattern.Hint")">
+            <display-template>
+                @{ await DisplayTemplate(); }
+            </display-template>
+            <edit-template>
+                <input asp-for="Pattern" class="form-control-sm" />
+            </edit-template>
+        </column>
+        <column for="Multipack" visible="false" sortable="false" halign="center" hint="@T("Plugins.Feed.Froogle.Multipack.Hint")">
+            <display-template>
+                @{ await DisplayTemplate(); }
+            </display-template>
+            <edit-template>
+                @Html.EditorFor(model => model.Multipack, new { size = "sm" })
+            </edit-template>
+        </column>
+        <column for="IsBundle" visible="false" sortable="false" halign="center" hint="@T("Plugins.Feed.Froogle.IsBundle.Hint")">
+            <display-template>
+                <span v-if="item.value != null">{{ item.row.IsBundleLocalized }}</span>
+                <span v-else class="text-muted font-italic">@emptyCell</span>
+            </display-template>
+            <edit-template>
+                @Html.EditorFor(model => model.IsBundle, new { size = "sm" })
+            </edit-template>
+        </column>
+        <column for="EnergyEfficiencyClass" visible="false" sortable="false" hint="@T("Plugins.Feed.Froogle.EnergyEfficiencyClass.Hint")">
+            <display-template>
+                @{ await DisplayTemplate(); }
+            </display-template>
+            <edit-template>
+                @Html.EditorFor(model => model.EnergyEfficiencyClass, new { size = "sm" })
+            </edit-template>
+        </column>
+        <column for="CustomLabel0" visible="false" sortable="false" hint="@T("Plugins.Feed.Froogle.CustomLabel0.Hint")">
+            <display-template>
+                @{ await DisplayTemplate(); }
+            </display-template>
+            <edit-template>
+                <input asp-for="CustomLabel0" class="form-control-sm" />
+            </edit-template>
+        </column>
+        <column for="CustomLabel1" visible="false" sortable="false" hint="@T("Plugins.Feed.Froogle.CustomLabel1.Hint")">
+            <display-template>
+                @{ await DisplayTemplate(); }
+            </display-template>
+            <edit-template>
+                <input asp-for="CustomLabel1" class="form-control-sm" />
+            </edit-template>
+        </column>
+        <column for="CustomLabel2" visible="false" sortable="false" hint="@T("Plugins.Feed.Froogle.CustomLabel2.Hint")">
+            <display-template>
+                @{ await DisplayTemplate(); }
+            </display-template>
+            <edit-template>
+                <input asp-for="CustomLabel2" class="form-control-sm" />
+            </edit-template>
+        </column>
+        <column for="CustomLabel3" visible="false" sortable="false" hint="@T("Plugins.Feed.Froogle.CustomLabel3.Hint")">
+            <display-template>
+                @{ await DisplayTemplate(); }
+            </display-template>
+            <edit-template>
+                <input asp-for="CustomLabel3" class="form-control-sm" />
+            </edit-template>
+        </column>
+        <column for="CustomLabel4" visible="false" sortable="false" hint="@T("Plugins.Feed.Froogle.CustomLabel4.Hint")">
+            <display-template>
+                @{ await DisplayTemplate(); }
+            </display-template>
+            <edit-template>
+                <input asp-for="CustomLabel4" class="form-control-sm" />
+            </edit-template>
+        </column>
+    </columns>
+    <row-commands>
+        <a datarow-action="DataRowAction.InlineEdit">@T("Common.Edit")</a>
+    </row-commands>
+</datagrid>
+
+<script sm-target-zone="scripts" data-origin="gmc-products-grid">
+    EventBroker.subscribe("editcontrol.initializing", function (e, el) {
+        window.initGoogleProductTaxonomy(el);
+    });
+</script>

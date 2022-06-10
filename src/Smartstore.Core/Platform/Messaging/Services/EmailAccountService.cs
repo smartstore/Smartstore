@@ -1,8 +1,5 @@
-﻿using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using Smartstore.Core.Data;
+﻿using Smartstore.Core.Data;
+using Smartstore.Core.Localization;
 using Smartstore.Data.Hooks;
 
 namespace Smartstore.Core.Messaging
@@ -19,19 +16,43 @@ namespace Smartstore.Core.Messaging
             _emailAccountSettings = emailAccountSettings;
         }
 
+        public Localizer T { get; set; } = NullLocalizer.Instance;
+
         #region Hook 
+
+        private string _hookErrorMessage;
 
         protected override async Task<HookResult> OnDeletingAsync(EmailAccount entity, IHookedEntity entry, CancellationToken cancelToken)
         {
-            if ((await _db.EmailAccounts.CountAsync(cancellationToken: cancelToken)) == 1)
-                throw new SmartException("You cannot delete this email account. At least one account is required.");
+            if (entity.Id == _emailAccountSettings.DefaultEmailAccountId)
+            {
+                entry.ResetState();
+                _hookErrorMessage = T("Admin.Configuration.EmailAccounts.CannotDeleteDefaultAccount", entity.Email.NaIfEmpty());
+            }
+            else if (await _db.EmailAccounts.CountAsync(cancelToken) == 1)
+            {
+                entry.ResetState();
+                _hookErrorMessage = T("Admin.Configuration.EmailAccounts.CannotDeleteLastAccount", entity.Email.NaIfEmpty());
+            }
 
             return HookResult.Ok;
         }
 
+        public override Task OnBeforeSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
+        {
+            if (_hookErrorMessage.HasValue())
+            {
+                var message = new string(_hookErrorMessage);
+                _hookErrorMessage = null;
+
+                throw new SmartException(message);
+            }
+
+            return Task.CompletedTask;
+        }
+
         #endregion
 
-        // TODO: (mh) (core) Don't forget model validation on insert
         public virtual EmailAccount GetDefaultEmailAccount()
         {
             var defaultEmailAccount = _db.EmailAccounts

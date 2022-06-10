@@ -1,8 +1,5 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Drawing;
-using System.IO;
-using System.Threading.Tasks;
 using Microsoft.Extensions.FileProviders;
 using Smartstore.Imaging;
 
@@ -65,6 +62,12 @@ namespace Smartstore.IO
         }
 
         /// <inheritdoc />
+        public DateTimeOffset CreatedOn
+        {
+            get => _fi.CreationTimeUtc;
+        }
+
+        /// <inheritdoc />
         public DateTimeOffset LastModified
         {
             get => _fi.LastWriteTimeUtc;
@@ -97,38 +100,34 @@ namespace Smartstore.IO
         }
 
         /// <inheritdoc/>
-        public Size Size
+        public Size GetPixelSize()
         {
-            get
+            if (_size == null)
             {
-                if (_size == null)
+                if (!Exists)
                 {
-                    if (!Exists)
-                    {
-                        _size = Size.Empty;
-                        return _size.Value;
-                    }
-
-                    try
-                    {
-                        var mime = MimeTypes.MapNameToMimeType(Name);
-                        if (mime.StartsWith("image/", StringComparison.OrdinalIgnoreCase))
-                        {
-                            _size = ImageHeader.GetPixelSize(OpenRead(), mime, false);
-                        }
-
-                        // Don't attemp again
-                        _size ??= Size.Empty;
-                    }
-                    catch
-                    {
-                        _size = Size.Empty;
-                    }
+                    _size = Size.Empty;
+                    return _size.Value;
                 }
 
-                return _size.Value;
+                try
+                {
+                    var mime = MimeTypes.MapNameToMimeType(Name);
+                    if (mime.StartsWith("image/", StringComparison.OrdinalIgnoreCase))
+                    {
+                        _size = ImageHeader.GetPixelSize(OpenRead(), mime, false);
+                    }
+
+                    // Don't attemp again
+                    _size ??= Size.Empty;
+                }
+                catch
+                {
+                    _size = Size.Empty;
+                }
             }
-            internal set => _size = value;
+
+            return _size.Value;
         }
 
         public bool IsSymbolicLink(out string finalTargetPath)
@@ -140,10 +139,6 @@ namespace Smartstore.IO
 
         Stream IFileInfo.CreateReadStream()
             => OpenRead();
-
-        /// <inheritdoc/>
-        public Task<Stream> OpenReadAsync()
-            => Task.FromResult(OpenRead());
 
         /// <inheritdoc/>
         public Stream OpenRead()
@@ -166,7 +161,7 @@ namespace Smartstore.IO
         }
 
         /// <inheritdoc/>
-        public Stream OpenWrite()
+        public Stream OpenWrite(string contentType = null)
         {
             var di = _fi.Directory;
             if (di == null && PhysicalPath.HasValue())
@@ -196,7 +191,7 @@ namespace Smartstore.IO
 
         public void Delete()
         {
-            WaitForUnlockAndExecute(_fi, x => x.Delete());
+            _fi.WaitForUnlockAndExecute(x => x.Delete());
         }
 
         public IFile CopyTo(string newPath, bool overwrite)
@@ -205,7 +200,7 @@ namespace Smartstore.IO
 
             if (!_fi.Exists)
             {
-                throw new FileSystemException($"The file '{SubPath}' does not exist.");
+                throw new FileNotFoundException($"The file '{SubPath}' does not exist.");
             }
 
             var fullDstPath = _fs.MapPathInternal(ref newPath, true);
@@ -221,7 +216,7 @@ namespace Smartstore.IO
             }
 
             FileInfo copy = null;
-            WaitForUnlockAndExecute(_fi, x => 
+            _fi.WaitForUnlockAndExecute(x => 
             { 
                 copy = x.CopyTo(fullDstPath, overwrite); 
             });
@@ -235,48 +230,48 @@ namespace Smartstore.IO
 
             if (!_fi.Exists)
             {
-                throw new FileSystemException($"Cannot move file '{SubPath}' because it does not exist.");
+                throw new FileNotFoundException($"Cannot move file '{SubPath}' because it does not exist.");
             }
 
             var fullDstPath = _fs.MapPathInternal(ref newPath, true);
-            WaitForUnlockAndExecute(_fi, x => _fi.MoveTo(fullDstPath, false));
+            _fi.WaitForUnlockAndExecute(x => _fi.MoveTo(fullDstPath, false));
 
             SubPath = newPath;
         }
 
         public void Create(Stream inStream, bool overwrite)
-        {
-            using var outputStream = _fi.Create();
-            if (inStream != null)
-            {
-                inStream.CopyTo(outputStream);
-            }
-        }
+            => CreateInternal(inStream, overwrite, false).Await();
 
-        public async Task CreateAsync(Stream inStream, bool overwrite)
+        public Task CreateAsync(Stream inStream, bool overwrite)
+            => CreateInternal(inStream, overwrite, true);
+
+        private async Task CreateInternal(Stream inStream, bool overwrite, bool async)
         {
+            Guard.NotNull(inStream, nameof(inStream));
+            
+            if (!overwrite && _fi.Exists)
+            {
+                throw new FileSystemException($"Cannot create file '{_fi.FullName}' because it already exists.");
+            }
+
+            // Ensure the directory exists
+            var dirName = Path.GetDirectoryName(_fi.FullName);
+            if (!System.IO.Directory.Exists(dirName))
+            {
+                System.IO.Directory.CreateDirectory(dirName);
+            }
+
             using var outputStream = _fi.Create();
-            if (inStream != null)
+            if (async)
             {
                 await inStream.CopyToAsync(outputStream);
             }
-        }
-
-        private static void WaitForUnlockAndExecute(FileInfo fi, Action<FileInfo> action)
-        {
-            try
+            else
             {
-                action(fi);
+                inStream.CopyTo(outputStream);
             }
-            catch (IOException)
-            {
-                if (!fi.WaitForUnlock(250))
-                {
-                    throw;
-                }
 
-                action(fi);
-            }
+            _fi.Refresh();
         }
     }
 }

@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Dynamic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Dynamic;
 using System.Xml;
 using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
 using Smartstore.Caching;
-using Smartstore.Core.Data;
 using Smartstore.Core.Theming;
 using Smartstore.Utilities;
 using Smartstore.Web.Bundling;

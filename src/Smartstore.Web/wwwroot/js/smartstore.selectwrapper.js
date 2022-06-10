@@ -33,6 +33,7 @@
             url: url,
             dataType: 'json',
             success: function (data) {
+                select.empty();
                 _.each(data, function (item) {
                     var option = new Option(item.text, item.id, item.selected, item.selected);
                     select.append(option);

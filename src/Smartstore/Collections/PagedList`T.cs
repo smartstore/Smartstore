@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Collections.ObjectModel;
 
 namespace Smartstore.Collections
 {
@@ -42,7 +38,7 @@ namespace Smartstore.Collections
             return this;
         }
 
-        public async Task<IPagedList<T>> LoadAsync(bool force = false)
+        public async Task<IPagedList<T>> LoadAsync(bool force = false, CancellationToken cancelToken = default)
         {
             // Returns instance for chaining.
             if (force && List != null)
@@ -51,7 +47,7 @@ namespace Smartstore.Collections
                 List = null;
             }
 
-            await EnsureIsLoadedAsync();
+            await EnsureIsLoadedAsync(cancelToken);
 
             return this;
         }

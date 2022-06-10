@@ -1,10 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using Smartstore.Core.Data;
-using Smartstore.Data.Batching;
+﻿using Smartstore.Core.Data;
 
 namespace Smartstore.Core.Logging
 {
@@ -19,7 +13,7 @@ namespace Smartstore.Core.Logging
 
         public virtual async Task<int> ClearLogsAsync(CancellationToken cancelToken = default)
         {
-            var numDeleted = await _db.Logs.CountAsync();
+            var numDeleted = await _db.Logs.CountAsync(cancelToken);
             
             using var tx = await _db.Database.BeginTransactionAsync(cancelToken);
 

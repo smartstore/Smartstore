@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Dasync.Collections;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
+﻿using Dasync.Collections;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Catalog.Products;
@@ -28,89 +22,77 @@ namespace Smartstore.Core.Checkout.Orders
 
             extraData ??= new();
 
+            if (paymentRequest.OrderGuid == Guid.Empty)
+            {
+                paymentRequest.OrderGuid = Guid.NewGuid();
+            }
+
             var result = new OrderPlacementResult();
+            var initialOrder = await _db.Orders.FindByIdAsync(paymentRequest.InitialOrderId);
 
-            try
+            var customer = await _db.Customers
+                .IncludeCustomerRoles()
+                .FindByIdAsync(paymentRequest.CustomerId);
+
+            var (warnings, cart) = await ValidateOrderPlacementAsync(paymentRequest, initialOrder, customer);
+            if (warnings.Count > 0)
             {
-                if (paymentRequest.OrderGuid == Guid.Empty)
-                {
-                    paymentRequest.OrderGuid = Guid.NewGuid();
-                }
-
-                var initialOrder = await _db.Orders.FindByIdAsync(paymentRequest.InitialOrderId);
-                var customer = await _db.Customers.FindByIdAsync(paymentRequest.CustomerId);
-
-                var (warnings, cart) = await ValidateOrderPlacementAsync(paymentRequest, initialOrder, customer);
-                if (warnings.Any())
-                {
-                    result.Errors.AddRange(warnings);
-                    Logger.Warn(string.Join(" ", result.Errors));
-                    return result;
-                }
-
-                var context = new PlaceOrderContext
-                {
-                    Result = result,
-                    InitialOrder = initialOrder,
-                    Customer = customer,
-                    Cart = cart,
-                    ExtraData = extraData,
-                    PaymentRequest = paymentRequest
-                };
-
-                if (!paymentRequest.IsRecurringPayment)
-                {
-                    context.CartRequiresShipping = cart.IsShippingRequired();
-                }
-                else
-                {
-                    context.CartRequiresShipping = initialOrder.ShippingStatus != ShippingStatus.ShippingNotRequired;
-                    paymentRequest.PaymentMethodSystemName = initialOrder.PaymentMethodSystemName;
-                }
-
-                // Collect data for new order.
-                // Also applies data (like order and tax total) to paymentRequest for payment processing below.
-                await ApplyCustomerData(context);
-                await ApplyPricingData(context);
-
-                if (await ProcessPayment(context))
-                {
-                    _db.Orders.Add(context.Order);
-
-                    // Save, we need the primary key.
-                    // Payment has been made. Order MUST be saved immediately!
-                    await _db.SaveChangesAsync();
-
-                    context.Result.PlacedOrder = context.Order;
-
-                    // Also applies data (like discounts) required for saving associated data.
-                    await AddOrderItems(context);
-                    await AddAssociatedData(context);
-
-                    // Email messages, order notes etc.
-                    await FinalizeOrderPlacement(context);
-
-                    // Saves changes to database.
-                    await CheckOrderStatusAsync(context.Order);
-
-                    // Events.
-                    await _eventPublisher.PublishOrderPlacedAsync(context.Order);
-
-                    if (context.Order.PaymentStatus == PaymentStatus.Paid)
-                    {
-                        await _eventPublisher.PublishOrderPaidAsync(context.Order);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.Error(ex);
-                result.Errors.Add(ex.Message);
+                result.Errors.AddRange(warnings);
+                return result;
             }
 
-            if (result.Errors.Any())
+            var context = new PlaceOrderContext
             {
-                Logger.Error(string.Join(" ", result.Errors));
+                Result = result,
+                InitialOrder = initialOrder,
+                Customer = customer,
+                Cart = cart,
+                ExtraData = extraData,
+                PaymentRequest = paymentRequest
+            };
+
+            if (!paymentRequest.IsRecurringPayment)
+            {
+                context.CartRequiresShipping = cart.IsShippingRequired();
+            }
+            else
+            {
+                context.CartRequiresShipping = initialOrder.ShippingStatus != ShippingStatus.ShippingNotRequired;
+                paymentRequest.PaymentMethodSystemName = initialOrder.PaymentMethodSystemName;
+            }
+
+            // Collect data for new order.
+            // Also applies data (like order and tax total) to paymentRequest for payment processing below.
+            await ApplyCustomerData(context);
+            await ApplyPricingData(context);
+
+            if (await ProcessPayment(context))
+            {
+                _db.Orders.Add(context.Order);
+
+                // Save, we need the primary key.
+                // Payment has been made. Order MUST be saved immediately!
+                await _db.SaveChangesAsync();
+
+                context.Result.PlacedOrder = context.Order;
+
+                // Also applies data (like discounts) required for saving associated data.
+                await AddOrderItems(context);
+                await AddAssociatedData(context);
+
+                // Email messages, order notes etc.
+                await FinalizeOrderPlacement(context);
+
+                // Saves changes to database.
+                await CheckOrderStatusAsync(context.Order);
+
+                // Events.
+                await _eventPublisher.PublishOrderPlacedAsync(context.Order);
+
+                if (context.Order.PaymentStatus == PaymentStatus.Paid)
+                {
+                    await _eventPublisher.PublishOrderPaidAsync(context.Order);
+                }
             }
 
             return result;
@@ -123,8 +105,11 @@ namespace Smartstore.Core.Checkout.Orders
         {
             Guard.NotNull(paymentRequest, nameof(paymentRequest));
 
-            initialOrder ??= await _db.Orders.FindByIdAsync(paymentRequest.InitialOrderId, false);
-            customer ??= await _db.Customers.FindByIdAsync(paymentRequest.CustomerId, false);
+            initialOrder ??= await _db.Orders.FindByIdAsync(paymentRequest.InitialOrderId);
+            
+            customer ??= await _db.Customers
+                .IncludeCustomerRoles()
+                .FindByIdAsync(paymentRequest.CustomerId);
 
             var warnings = new List<string>();
             ShoppingCart cart = null;
@@ -139,7 +124,7 @@ namespace Smartstore.Core.Checkout.Orders
             }
 
             // Check whether guest checkout is allowed.
-            if (customer.IsGuest() && !_orderSettings.AnonymousCheckoutAllowed)
+            if (!_orderSettings.AnonymousCheckoutAllowed && customer.IsGuest())
             {
                 warnings.Add(T("Checkout.AnonymousNotAllowed"));
                 return (warnings, cart);
@@ -157,7 +142,7 @@ namespace Smartstore.Core.Checkout.Orders
                     };
                 }
 
-                if (!cart.Items.Any())
+                if (!cart.HasItems)
                 {
                     warnings.Add(T("ShoppingCart.CartIsEmpty"));
                     return (warnings, cart);
@@ -303,12 +288,11 @@ namespace Smartstore.Core.Checkout.Orders
             // Payment.
             if (!warnings.Any() && !skipPaymentWorkflow)
             {
-                // TODO: (mh) (core) Wait for implementation of any payment method.
-                //var isPaymentMethodActive = await _paymentService.IsPaymentMethodActiveAsync(paymentMethodSystemName, customer, cart, paymentRequest.StoreId);
-                //if (!isPaymentMethodActive)
-                //{
-                //    warnings.Add(T("Payment.MethodNotAvailable"));
-                //}
+                var isPaymentMethodActive = await _paymentService.IsPaymentMethodActiveAsync(paymentMethodSystemName, cart, paymentRequest.StoreId);
+                if (!isPaymentMethodActive)
+                {
+                    warnings.Add(T("Payment.MethodNotAvailable"));
+                }
             }
 
             // Recurring or standard shopping cart?
@@ -544,7 +528,7 @@ namespace Smartstore.Core.Checkout.Orders
             }
 
             ctx.PaymentRequest.OrderTax = order.OrderTax;
-            ctx.PaymentRequest.OrderTotal = ctx.CartTotal.Total.Value;
+            ctx.PaymentRequest.OrderTotal = ctx.CartTotal.Total.Value.Amount;
         }
 
         private async Task<bool> ProcessPayment(PlaceOrderContext ctx)
@@ -695,7 +679,7 @@ namespace Smartstore.Core.Checkout.Orders
                 order.AuthorizationTransactionCode = result.AuthorizationTransactionCode;
                 order.AuthorizationTransactionResult = result.AuthorizationTransactionResult;
                 order.CaptureTransactionId = result.CaptureTransactionId;
-                order.CaptureTransactionResult = result.CaptureTransactionResult;
+                order.CaptureTransactionResult = result.CaptureTransactionResult.Truncate(400);
                 order.SubscriptionTransactionId = result.SubscriptionTransactionId;
                 order.PurchaseOrderNumber = pr.PurchaseOrderNumber;
                 order.PaymentStatus = result.NewPaymentStatus;
@@ -898,8 +882,8 @@ namespace Smartstore.Core.Checkout.Orders
                 {
                     _db.DiscountUsageHistory.Add(new DiscountUsageHistory
                     {
-                        Discount = discount,
-                        Order = order,
+                        DiscountId = discount.Id,
+                        OrderId = order.Id,
                         CreatedOnUtc = ctx.Now
                     });
                 }
@@ -910,7 +894,7 @@ namespace Smartstore.Core.Checkout.Orders
                     giftCard.GiftCard.GiftCardUsageHistory.Add(new GiftCardUsageHistory
                     {
                         GiftCardId = giftCard.GiftCard.Id,
-                        UsedWithOrder = order,
+                        UsedWithOrderId = order.Id,
                         UsedValue = giftCard.UsableAmount.Amount,
                         CreatedOnUtc = ctx.Now
                     });
@@ -996,21 +980,6 @@ namespace Smartstore.Core.Checkout.Orders
                 _db.RecurringPayments.Add(rp);
             }
 
-            // Obsolete: use CheckoutState instead.
-            // Add generic attributes automatically for custom payment properties.
-            //var customAttributes = ctx.PaymentRequest.CustomProperties
-            //    .Where(x => x.Key.HasValue() && x.Value.AutoCreateGenericAttribute)
-            //    .Select(x => new GenericAttribute
-            //    {
-            //        EntityId = order.Id,
-            //        KeyGroup = nameof(Order),
-            //        Key = x.Key,
-            //        Value = x.Value.Value.Convert<string>(),
-            //        StoreId = order.StoreId
-            //    })
-            //    .ToList();
-            //_db.GenericAttributes.AddRange(customAttributes);
-
             // INFO: CheckOrderStatus performs commit.
         }
 
@@ -1034,12 +1003,12 @@ namespace Smartstore.Core.Checkout.Orders
             }
 
             // Newsletter subscription.
-            if (_shoppingCartSettings.NewsletterSubscription != CheckoutNewsletterSubscription.None && ctx.ExtraData.TryGetValue("SubscribeToNewsLetter", out var addSubscription))
+            if (_shoppingCartSettings.NewsletterSubscription != CheckoutNewsletterSubscription.None && ctx.ExtraData.TryGetValue("SubscribeToNewsletter", out var addSubscription))
             {
                 var subscriptionResult = await _newsletterSubscriptionService.ApplySubscriptionAsync(addSubscription.ToBool(), ctx.Customer.Email, order.StoreId);
                 if (subscriptionResult.HasValue)
                 {
-                    order.AddOrderNote(T(subscriptionResult.Value ? "Admin.OrderNotice.NewsLetterSubscriptionAdded" : "Admin.OrderNotice.NewsLetterSubscriptionRemoved"));
+                    order.AddOrderNote(T(subscriptionResult.Value ? "Admin.OrderNotice.NewsletterSubscriptionAdded" : "Admin.OrderNotice.NewsletterSubscriptionRemoved"));
                 }
             }
 

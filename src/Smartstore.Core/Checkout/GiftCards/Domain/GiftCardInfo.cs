@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Smartstore.Core.Checkout.GiftCards
+﻿namespace Smartstore.Core.Checkout.GiftCards
 {
     public interface IGiftCardInfo
     {

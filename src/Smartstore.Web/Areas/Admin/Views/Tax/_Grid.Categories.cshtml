@@ -1,0 +1,46 @@
+﻿@using Smartstore.Admin.Models.Tax
+
+@model TaxCategoryModel
+
+<datagrid id="taxcategory-grid"
+          allow-resize="true"
+          allow-row-selection="true"
+          allow-column-reordering="true"
+          allow-edit="true">
+    <datasource read="@Url.Action("TaxCategoryList", "Tax")"
+                insert="@Url.Action("TaxCategoryInsert", "Tax")"
+                update="@Url.Action("TaxCategoryUpdate", "Tax")"
+                delete="@Url.Action("TaxCategoryDelete", "Tax")" />
+    <toolbar>
+        <toolbar-group>
+            <button datagrid-action="DataGridToolAction.InsertRow" class="btn btn-primary btn-flat">
+                <i class="fa fa-plus"></i>
+                <span>@T("Admin.Common.AddNew")</span>
+            </button>
+            <button datagrid-action="DataGridToolAction.SaveChanges" type="button" class="btn btn-warning no-anims btn-flat">
+                <i class="fa fa-check"></i>
+                <span>@T("Admin.Common.SaveChanges")</span>
+            </button>
+            <button datagrid-action="DataGridToolAction.CancelEdit" type="button" class="btn btn-light btn-flat mr-auto">
+                <span>@T("Common.Cancel")</span>
+            </button>
+        </toolbar-group>
+        <zone name="datagrid_toolbar_alpha"></zone>
+        <toolbar-group class="omega"></toolbar-group>
+        <zone name="datagrid_toolbar_omega"></zone>
+        <toolbar-group>
+            <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger no-anims btn-flat">
+                <i class="far fa-trash-alt"></i>
+                <span>@T("Admin.Common.Delete.Selected")</span>
+            </button>
+        </toolbar-group>
+    </toolbar>
+    <columns>
+        <column for="Name" width="2fr" hideable="false" />
+        <column for="DisplayOrder" halign="center" />
+    </columns>
+    <row-commands>
+        <a datarow-action="DataRowAction.InlineEdit">@T("Common.Edit")</a>
+        <a datarow-action="DataRowAction.Delete">@T("Common.Delete")</a>
+    </row-commands>
+</datagrid>

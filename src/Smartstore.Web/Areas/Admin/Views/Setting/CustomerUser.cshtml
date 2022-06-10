@@ -108,7 +108,9 @@
                         <smart-label asp-for="CustomerSettings.RegisterCustomerRoleId" />
                     </div>
                     <div class="adminData">
-                        <setting-editor asp-for="CustomerSettings.RegisterCustomerRoleId"></setting-editor>
+                        <setting-editor asp-for="CustomerSettings.RegisterCustomerRoleId">
+                            <editor asp-for="CustomerSettings.RegisterCustomerRoleId" data-placeholder="@T("Common.Unspecified")" />
+                        </setting-editor>
                         <span asp-validation-for="CustomerSettings.RegisterCustomerRoleId"></span>
                     </div>
                 </div>

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Security;
 using Smartstore.DevTools.Models;
@@ -36,7 +31,19 @@ namespace Smartstore.DevTools.Controllers
             ModelState.Clear();
             MiniMapper.Map(model, settings);
 
-            return RedirectToAction("Configure");
+            return RedirectToAction(nameof(Configure));
+        }
+
+        [AuthorizeAdmin]
+        public IActionResult ProductEditTab(int productId)
+        {
+            var model = new BackendExtensionModel
+            {
+                Welcome = "Hello world!"
+            };
+
+            ViewData.TemplateInfo.HtmlFieldPrefix = "CustomProperties[DevTools]";
+            return View(model);
         }
     }
 }

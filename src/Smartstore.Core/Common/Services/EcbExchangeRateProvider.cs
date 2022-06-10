@@ -1,11 +1,7 @@
-﻿using Smartstore.Engine.Modularity;
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
+﻿using System.Globalization;
 using System.Net.Http;
-using System.Threading.Tasks;
 using System.Xml;
+using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Core.Common.Services
 {

@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections;
 using System.Globalization;
-using System.IO;
-using System.Linq;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using System.Xml;
-using Microsoft.EntityFrameworkCore;
 using Smartstore.Caching;
 using Smartstore.Core.Data;
 using Smartstore.Core.DataExchange;
@@ -62,7 +56,7 @@ namespace Smartstore.Core.Localization
 
             foreach (var resource in resources)
             {
-                if (resource.IsFromPlugin == false)
+                if (resource.IsFromPlugin.GetValueOrDefault() == false)
                 {
                     xmlWriter.WriteStartElement("LocaleResource");
                     xmlWriter.WriteAttributeString("Name", resource.ResourceName);
@@ -106,7 +100,7 @@ namespace Smartstore.Core.Localization
                 if (rootKey.HasValue())
                 {
                     if (!xel.GetAttributeText("AppendRootKey").EqualsNoCase("false"))
-                        name = "{0}.{1}".FormatWith(rootKey, name);
+                        name = "{0}.{1}".FormatCurrent(rootKey, name);
                 }
 
                 if (resources.TryGetValue(name, out var resource))

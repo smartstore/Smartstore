@@ -1,16 +1,11 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.GiftCards;
-using Smartstore.Core.Common;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Stores;
-using Smartstore.Web.Modelling;
 using Smartstore.Web.Models.Common;
 using Smartstore.Web.Models.Media;
 using Smartstore.Web.Rendering.Choices;
@@ -281,6 +276,9 @@ namespace Smartstore.Web.Models.Catalog
             {
                 return url.Action("UploadFileProductAttribute", "ShoppingCart", new { productId = ProductId, productAttributeId = ProductAttributeId });
             }
+
+            public bool ShouldBeRendered
+                => !(ProductAttribute?.IsListTypeAttribute() ?? false) || Values.Count > 0;
         }
 
         public partial class ProductVariantAttributeValueModel : ChoiceItemModel
@@ -314,28 +312,5 @@ namespace Smartstore.Web.Models.Catalog
         }
 
         #endregion
-    }
-
-    // TODO: (mh) (core) This doesn't belong here. Find a proper place.
-    public static class ProductDetailsExtensions
-    {
-        public static bool ShouldBeRendered(this ProductDetailsModel.ProductVariantAttributeModel variantAttribute)
-        {
-            switch (variantAttribute.AttributeControlType)
-            {
-                case AttributeControlType.DropdownList:
-                case AttributeControlType.RadioList:
-                case AttributeControlType.Checkboxes:
-                case AttributeControlType.Boxes:
-                    return variantAttribute.Values.Count > 0;
-                default:
-                    return true;
-            }
-        }
-
-        public static bool ShouldBeRendered(this IEnumerable<ProductDetailsModel.ProductVariantAttributeModel> variantAttributes)
-        {
-            return variantAttributes?.FirstOrDefault(x => x.ShouldBeRendered()) != null;
-        }
     }
 }

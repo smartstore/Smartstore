@@ -1,20 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.Common;
-using System.Linq;
+﻿using System.Data.Common;
 using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Xml;
 using Autofac;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 using Smartstore.Core;
 using Smartstore.Core.Content.Media;
-using Smartstore.Core.Content.Media.Storage;
 using Smartstore.Core.Data;
 using Smartstore.Core.Data.Migrations;
 using Smartstore.Core.Localization;
@@ -22,7 +13,6 @@ using Smartstore.Core.Messaging;
 using Smartstore.Data;
 using Smartstore.Data.Hooks;
 using Smartstore.Data.Providers;
-using Smartstore.Engine;
 using Smartstore.Engine.Modularity;
 using Smartstore.IO;
 using Smartstore.Threading;
@@ -40,7 +30,6 @@ namespace Smartstore.Core.Installation
         private readonly IFilePermissionChecker _filePermissionChecker;
         private readonly IAsyncState _asyncState;
         private readonly IUrlHelper _urlHelper;
-        private readonly Func<IMediaStorageProvider> _mediaStorageProvider;
         private readonly IEnumerable<Lazy<InvariantSeedData, InstallationAppLanguageMetadata>> _seedDatas;
 
         public InstallationService(
@@ -49,7 +38,6 @@ namespace Smartstore.Core.Installation
             IFilePermissionChecker filePermissionChecker,
             IAsyncState asyncState,
             IUrlHelper urlHelper,
-            Func<IMediaStorageProvider> mediaStorageProvider,
             IEnumerable<Lazy<InvariantSeedData, InstallationAppLanguageMetadata>> seedDatas)
         {
             _httpContextAccessor = httpContextAccessor;
@@ -57,7 +45,6 @@ namespace Smartstore.Core.Installation
             _filePermissionChecker = filePermissionChecker;
             _asyncState = asyncState;
             _urlHelper = urlHelper;
-            _mediaStorageProvider = mediaStorageProvider;
             _seedDatas = seedDatas;
 
             Logger = _appContext.Logger;
@@ -136,7 +123,7 @@ namespace Smartstore.Core.Installation
                 });
             }
 
-            // Check FS access rights
+            //// Check FS access rights
             CheckFileSystemAccessRights(GetInstallResult().Errors);
 
             if (GetInstallResult().HasErrors)
@@ -238,7 +225,7 @@ namespace Smartstore.Core.Installation
 
                 // ===>>> Seeds data.
                 var templateService = scope.Resolve<IMessageTemplateService>(TypedParameter.From(db));
-                var seeder = new InstallationDataSeeder(_appContext, migrator, templateService, seedConfiguration, Logger, _httpContextAccessor);
+                var seeder = new InstallationDataSeeder(_appContext, migrator, templateService, seedConfiguration, Logger);
                 await seeder.SeedAsync(db, cancelToken);
                 cancelToken.ThrowIfCancellationRequested();
 
@@ -251,12 +238,6 @@ namespace Smartstore.Core.Installation
                     x.ProgressMessage = GetResource("Progress.ProcessingMedia");
                     Logger.Info(x.ProgressMessage);
                 });
-
-                if (!seedConfiguration.StoreMediaInDB)
-                {
-                    // All pictures have initially been stored in the DB. Move the binaries to disk as configured.
-                    await MoveMedia(db);
-                }
 
                 var mediaTracker = scope.Resolve<IMediaTracker>();
                 foreach (var album in scope.Resolve<IAlbumRegistry>().GetAlbumNames(true))
@@ -301,7 +282,7 @@ namespace Smartstore.Core.Installation
                     }
                 }
 
-                //// Clear provider settings if something got wrong
+                // Clear provider settings if something got wrong
                 DataSettings.Delete();
 
                 var msg = ex.Message;
@@ -336,65 +317,38 @@ namespace Smartstore.Core.Installation
 
             modularState.InstalledModules.Clear();
 
-            using (var dbScope = new DbContextScope(db, minHookImportance: HookImportance.Essential, retainConnection: true))
+            using var dbScope = new DbContextScope(db, minHookImportance: HookImportance.Essential, retainConnection: true);
+
+            var installContext = new ModuleInstallationContext
             {
-                var installContext = new ModuleInstallationContext
-                {
-                    ApplicationContext = _appContext,
-                    SeedSampleData = model.InstallSampleData,
-                    Culture = model.PrimaryLanguage,
-                    Stage = ModuleInstallationStage.AppInstallation,
-                    Logger = Logger
-                };
+                ApplicationContext = _appContext,
+                SeedSampleData = model.InstallSampleData,
+                Culture = model.PrimaryLanguage,
+                Stage = ModuleInstallationStage.AppInstallation,
+                Logger = Logger
+            };
 
-                foreach (var module in modules)
-                {
-                    try
-                    {
-                        idx++;
-                        UpdateResult(x =>
-                        {
-                            x.ProgressMessage = GetResource("Progress.InstallingModules").FormatInvariant(idx, modules.Length);
-                            Logger.Info(x.ProgressMessage);
-                        });
-
-                        var moduleInstance = scope.Resolve<Func<IModuleDescriptor, IModule>>().Invoke(module);
-                        installContext.ModuleDescriptor = module;
-                        await moduleInstance.InstallAsync(installContext);
-                        await dbScope.CommitAsync(cancelToken);
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.Error(ex);
-                        modularState.InstalledModules.Remove(module.SystemName);
-                    }
-                }
-            }
-        }
-
-        private async Task MoveMedia(SmartDbContext db)
-        {
-            // All pictures have initially been stored in the DB. Move the binaries to disk as configured.
-            var fileSystemStorageProvider = _mediaStorageProvider.Invoke();
-            
-            using (var scope = new DbContextScope(db, autoDetectChanges: true))
+            foreach (var module in modules)
             {
-                var mediaFiles = await db.MediaFiles
-                    .Include(x => x.MediaStorage)
-                    .Where(x => x.MediaStorageId != null)
-                    .ToListAsync();
-
-                foreach (var mediaFile in mediaFiles)
+                try
                 {
-                    if (mediaFile.MediaStorage?.Data?.LongLength > 0)
+                    idx++;
+                    UpdateResult(x =>
                     {
-                        await fileSystemStorageProvider.SaveAsync(mediaFile, MediaStorageItem.FromStream(mediaFile.MediaStorage.Data.ToStream()));
-                        mediaFile.MediaStorageId = null;
-                        mediaFile.MediaStorage = null;
-                    }
-                }
+                        x.ProgressMessage = GetResource("Progress.InstallingModules").FormatInvariant(idx, modules.Length);
+                        Logger.Info(x.ProgressMessage);
+                    });
 
-                await scope.CommitAsync();
+                    var moduleInstance = scope.Resolve<Func<IModuleDescriptor, IModule>>().Invoke(module);
+                    installContext.ModuleDescriptor = module;
+                    await moduleInstance.InstallAsync(installContext);
+                    await dbScope.CommitAsync(cancelToken);
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error(ex);
+                    modularState.InstalledModules.Remove(module.SystemName);
+                }
             }
         }
 

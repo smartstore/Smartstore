@@ -1,5 +1,5 @@
-﻿using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
+﻿using System.Diagnostics;
+using System.Runtime.CompilerServices;
 
 namespace Smartstore
 {
@@ -10,6 +10,7 @@ namespace Smartstore
         /// Shortcut for <code>task.GetAwaiter().GetResult()</code>.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [DebuggerStepThrough]
         public static void Await(this Task task)
         {
             task.GetAwaiter().GetResult();
@@ -20,6 +21,7 @@ namespace Smartstore
         /// Shortcut for <code>task.GetAwaiter().GetResult()</code>.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [DebuggerStepThrough]
         public static T Await<T>(this Task<T> task)
         {
             return task.GetAwaiter().GetResult();
@@ -30,6 +32,7 @@ namespace Smartstore
         /// Shortcut for <code>task.GetAwaiter().GetResult()</code>.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [DebuggerStepThrough]
         public static void Await(this ValueTask task)
         {
             task.GetAwaiter().GetResult();
@@ -40,6 +43,7 @@ namespace Smartstore
         /// Shortcut for <code>task.GetAwaiter().GetResult()</code>.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [DebuggerStepThrough]
         public static T Await<T>(this ValueTask<T> task)
         {
             return task.GetAwaiter().GetResult();

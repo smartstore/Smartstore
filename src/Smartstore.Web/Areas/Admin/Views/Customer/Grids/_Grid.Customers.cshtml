@@ -2,10 +2,6 @@
 
 @{
     var parentModel = ViewData["Parent"] as CustomerListModel;
-    // TODO: (mh) (core) Find some more initially hidden columns for the datagrid.
-    // TODO: (mh) (core) Don't forget: "Export" button in grid toolbar needs special consideration.
-    // TODO: (mh) (core) Don't forget: Inline (non .spa-layout) grids need "max-height".
-    // TODO: (mh) (core) Concerning inline grids: always think thoroughly about whether it makes sense to make a grid sortable.
 }
 
 <datagrid id="customers-grid"
@@ -16,7 +12,7 @@
     <datasource read="@Url.Action("CustomerList")" delete="@Url.Action("CustomerDelete")" />
     <paging position="Bottom" show-size-chooser="true" />
     <sorting enabled="true" allow-unsort="true" allow-multisort="false">
-        <sort by="CreatedOn" descending="true" />
+        <sort by="CreatedOn" by-entity-member="CreatedOnUtc" descending="true" />
     </sorting>
     <toolbar>
         <toolbar-group>
@@ -30,7 +26,10 @@
                 <span>@T("Admin.Common.AddNew")...</span>
             </a>
         </toolbar-group>
-        <toolbar-group class="omega">
+        <zone name="datagrid_toolbar_alpha"></zone>
+        <toolbar-group class="omega"></toolbar-group>
+        <zone name="datagrid_toolbar_omega"></zone>
+        <toolbar-group>
             <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger btn-flat">
                 <i class="far fa-trash-alt"></i>
                 <span>@T("Admin.Common.Delete.Selected")</span>
@@ -57,21 +56,29 @@
         <column for="FullName" />
         <column for="CustomerRoleNames" sortable="false" />
 
-        @if (parentModel.UsernamesEnabled)
+        @if (parentModel.CompanyEnabled)
         {
             <column for="Company" />
         }
         @if (parentModel.PhoneEnabled)
         {
-            <column for="Phone" />
+            <column for="Phone" sortable="false" />
         }
         @if (parentModel.ZipPostalCodeEnabled)
         {
-            <column for="ZipPostalCode" />
+            <column for="ZipPostalCode" sortable="false" />
         }
         <column for="Active" halign="center" />
         <column for="CreatedOn" entity-member="CreatedOnUtc" />
         <column for="LastActivityDate" entity-member="LastActivityDateUtc" />
+
+        <!-- Initially hidden columns -->
+        <column for="IsTaxExempt" halign="center" visible="false" />
+        <column for="LastIpAddress" visible="false" />
+        <column for="CustomerNumber" visible="false" />
+        <column for="DateOfBirth" visible="false" sortable="false" />
+        <column for="Gender" visible="false" />
+        <column for="VatNumber" visible="false" sortable="false" />
     </columns>
 </datagrid>
 

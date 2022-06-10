@@ -1,0 +1,29 @@
+﻿@model PurchaseOrderNumberPaymentInfoModel
+
+<input type="hidden" name="OfflinePaymentMethodType" value="PurchaseOrderNumber" />
+
+@if (Model.ThumbnailUrl.HasValue())
+{
+    <div class="media">
+        <img class="media-object img-fluid pr-2" src="@Model.ThumbnailUrl">
+        <div class="media-body">
+            @Html.Raw(Model.DescriptionText)
+        </div>
+    </div>
+}
+else
+{
+    <div class="text-muted">
+        @Html.Raw(Model.DescriptionText)
+    </div>
+}
+
+<div class="opt-form">
+    <div class="form-group row">
+        <label asp-for="PurchaseOrderNumber" class="col-md-3 col-form-label required"></label>
+        <div class="col-md-9">
+            <input asp-for="PurchaseOrderNumber" sm-required="true" />
+            <span asp-validation-for="PurchaseOrderNumber"></span>
+        </div>
+    </div>
+</div>

@@ -1,18 +1,38 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Smartstore.Core.Packaging
+﻿namespace Smartstore.Core.Packaging
 {
-    public class InvalidExtensionException : SmartException
+    public class InvalidExtensionException : Exception
     {
-        // TODO: (core) Ctor
+        public InvalidExtensionException()
+            : base()
+        {
+        }
+
+        public InvalidExtensionException(string message)
+            : base(message)
+        {
+        }
+
+        public InvalidExtensionException(string message, Exception innerException)
+            : base(message, innerException)
+        {
+        }
     }
 
-    public class InvalidExtensionPackageException : SmartException
+    public class InvalidExtensionPackageException : Exception
     {
-        // TODO: (core) Ctor
+        public InvalidExtensionPackageException()
+            : base()
+        {
+        }
+
+        public InvalidExtensionPackageException(string message)
+            : base(message)
+        {
+        }
+
+        public InvalidExtensionPackageException(string message, Exception innerException)
+            : base(message, innerException)
+        {
+        }
     }
 }

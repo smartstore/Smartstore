@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.IO;
-using System.Linq;
+﻿using System.Drawing;
 using System.Text;
 using System.Xml;
 using Autofac;
@@ -18,7 +14,6 @@ namespace Smartstore.Imaging
     /// </summary>
     public static class ImageHeader
     {
-        // TODO: (core) Investigate huge performance diff between debug and release.
         // Maybe removing this class in favor of ImageFactory.Detect* (in release mode) is the better choice (?)
 
         internal class UnknownImageFormatException : ArgumentException
@@ -31,20 +26,26 @@ namespace Smartstore.Imaging
 
         private static readonly List<(string Format, byte[] Marker, Func<BinaryReader, Size> Parser)> _imageFormatDecoders = new()
         {
-            ("bmp", new byte[] { 0x42, 0x4D }, DecodeBitmap),
+            ("jpg", new byte[] { 0xff, 0xd8 }, DecodeJpeg),
+            ("png", new byte[] { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A }, DecodePng),
             ("gif", new byte[] { 0x47, 0x49, 0x46, 0x38, 0x37, 0x61 }, DecodeGif),
             ("gif", new byte[] { 0x47, 0x49, 0x46, 0x38, 0x39, 0x61 }, DecodeGif),
-            ("png", new byte[] { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A }, DecodePng),
-            ("jpg", new byte[] { 0xff, 0xd8 }, DecodeJpeg),
+            ("bmp", new byte[] { 0x42, 0x4D }, DecodeBitmap),
         };
 
         private static readonly int _maxMagicBytesLength = 0;
-        private static readonly IImageFactory _imageFactory;
+        private static IImageFactory _imageFactory;
 
         static ImageHeader()
         {
             _maxMagicBytesLength = _imageFormatDecoders.OrderByDescending(x => x.Marker.Length).First().Marker.Length;
-            _imageFactory = EngineContext.Current.Application.Services.ResolveOptional<IImageFactory>();
+        }
+
+        internal static IImageFactory ImageFactory
+        {
+            get => _imageFactory ??= EngineContext.Current?.Application?.Services?.ResolveOptional<IImageFactory>();
+            // For unit tests
+            set => _imageFactory = value;
         }
 
         /// <summary>        
@@ -126,7 +127,7 @@ namespace Smartstore.Imaging
 
             var slowDetect = false;
 
-            if (!input.CanSeek || input.Length == 0)
+            if (leaveOpen && (!input.CanSeek || input.Length == 0))
             {
                 return (Size.Empty, null);
             }
@@ -141,9 +142,9 @@ namespace Smartstore.Imaging
                 using (var reader = new BinaryReader(input, Encoding.Unicode, true))
                 {
                     var size = GetPixelSize(reader, out var format);
-                    if (format.HasValue() && _imageFactory != null)
+                    if (format.HasValue() && ImageFactory != null)
                     {
-                        return (size, _imageFactory.FindFormatByExtension(format));
+                        return (size, ImageFactory.FindFormatByExtension(format));
                     }
                     else
                     {
@@ -162,9 +163,16 @@ namespace Smartstore.Imaging
                 // so get original size the classic way
                 try
                 {
-                    input.Seek(0, SeekOrigin.Begin);
-                    var size = GetPixelSizeByImageFactory(input, out var imageFormat);
-                    return (size, imageFormat);
+                    if (input.CanSeek)
+                    {
+                        input.Seek(0, SeekOrigin.Begin);
+                        var size = GetPixelSizeByImageFactory(input, out var imageFormat);
+                        return (size, imageFormat);
+                    }
+                    else
+                    {
+                        return (Size.Empty, null);
+                    }
                 }
                 catch
                 {
@@ -179,7 +187,10 @@ namespace Smartstore.Imaging
                 }
                 else
                 {
-                    input.Seek(0, SeekOrigin.Begin);
+                    if (input.CanSeek)
+                    {
+                        input.Seek(0, SeekOrigin.Begin);
+                    }
                 }
             }
         }
@@ -224,16 +235,14 @@ namespace Smartstore.Imaging
 
         private static Size GetPixelSizeByImageFactory(Stream input, out IImageFormat imageFormat)
         {
-            imageFormat = null;
-
-            var info = _imageFactory?.DetectInfo(input);
-            imageFormat = info.Format;
-
+            var info = ImageFactory?.DetectInfo(input);
             if (info != null)
             {
+                imageFormat = info.Format;
                 return new Size(info.Width, info.Height);
             }
 
+            imageFormat = null;
             return Size.Empty;
         }
 

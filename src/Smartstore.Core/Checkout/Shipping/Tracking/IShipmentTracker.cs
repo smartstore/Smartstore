@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using Smartstore.Core.Checkout.Shipping.Events;
+﻿using Smartstore.Core.Checkout.Shipping.Events;
 
 namespace Smartstore.Core.Checkout.Shipping
 {

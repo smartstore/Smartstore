@@ -7,12 +7,21 @@
 <input type="hidden" asp-for="Id" />
 
 <div class="adminContent">
+    <div sm-if="Model.Id != 0" class="adminRow">
+        <div class="adminTitle">
+            <smart-label asp-for="Id" />
+        </div>
+        <div class="adminData">
+            <input asp-for="Id" sm-plaintext="true" readonly />
+            <span asp-validation-for="Id"></span>
+        </div>
+    </div>
     <div class="adminRow">
         <div class="adminTitle">
             <smart-label asp-for="Priority" />
         </div>
         <div class="adminData">
-            <input asp-for="Priority" />
+            <editor asp-for="Priority" />
             <span asp-validation-for="Priority"></span>
         </div>
     </div>
@@ -100,7 +109,7 @@
             <smart-label asp-for="SentTries" />
         </div>
         <div class="adminData">
-            <input asp-for="SentTries" />
+            <editor asp-for="SentTries" />
             <span asp-validation-for="SentTries"></span>
         </div>
     </div>

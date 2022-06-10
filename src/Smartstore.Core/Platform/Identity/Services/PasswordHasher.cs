@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Smartstore.Core.Security;
 
 namespace Smartstore.Core.Identity
@@ -37,7 +36,7 @@ namespace Smartstore.Core.Identity
             Guard.NotNull(providedPassword, nameof(providedPassword));
 
             // TODO: (core) Remove after testing
-            return PasswordVerificationResult.Success;
+            //return PasswordVerificationResult.Success;
 
             string pwd = providedPassword;
             switch (user.PasswordFormat)

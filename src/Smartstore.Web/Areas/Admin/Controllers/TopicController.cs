@@ -1,12 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Dasync.Collections;
-using Microsoft.AspNetCore.Mvc;
+﻿using Dasync.Collections;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using Smartstore.Admin.Models.Topics;
 using Smartstore.Collections;
 using Smartstore.ComponentModel;
@@ -15,17 +8,14 @@ using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Content.Topics;
-using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Rules.Filters;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
-using Smartstore.Web.Controllers;
-using Smartstore.Web.Modelling;
-using Smartstore.Web.Models.DataGrid;
 using Smartstore.Web.Models;
+using Smartstore.Web.Models.DataGrid;
 
 namespace Smartstore.Admin.Controllers
 {
@@ -59,7 +49,7 @@ namespace Smartstore.Admin.Controllers
 
         public IActionResult Index()
         {
-            return RedirectToAction("List");
+            return RedirectToAction(nameof(List));
         }
 
         [Permission(Permissions.Cms.Topic.Read)]
@@ -78,8 +68,8 @@ namespace Smartstore.Admin.Controllers
         public async Task<IActionResult> TopicList(GridCommand command, TopicListModel model)
         {
             var query = _db.Topics
-                .ApplyStoreFilter(model.SearchStoreId)
-                .AsNoTracking();
+                .AsNoTracking()
+                .ApplyStoreFilter(model.SearchStoreId);                
 
             if (model.SystemName.HasValue())
             {
@@ -101,43 +91,48 @@ namespace Smartstore.Admin.Controllers
                 query = query.Where(x => x.WidgetZone.Contains(model.WidgetZone));
             }
 
-            query = query.ApplyGridCommand(command, false);
+            var topics = await query
+                .OrderBy(x => x.SystemName)
+                .ApplyGridCommand(command)
+                .ToPagedList(command)
+                .LoadAsync();
 
-            var topicItems = await query.ToPagedList(command).LoadAsync();
+            var mapper = MapperFactory.GetMapper<Topic, TopicModel>();
+            var rows = await topics
+                .SelectAsync(async x =>
+                {
+                    var model = await mapper.MapAsync(x);
+                    await PrepareTopicModelAsync(x, model);
+
+                    model.WidgetZoneValue = string.Join(", ", x.GetWidgetZones());
+                    model.CookieType = (int?)x.CookieType;
+                    model.Body = string.Empty;  // Otherwise maxJsonLength could be exceeded.
+                    model.Intro = string.Empty; // Otherwise grind may slow down
+                    model.ViewUrl = Url.Action(nameof(Edit), "Topic", new { id = x.Id });
+
+                    return model;
+                })
+                .AsyncToList();
+
             var gridModel = new GridModel<TopicModel>
             {
-                Rows = await topicItems.AsEnumerable().SelectAsync(async x => await PrepareTopicListModelAsync(x)).AsyncToList(),
-                Total = topicItems.TotalCount
+                Rows = rows,
+                Total = await topics.GetTotalCountAsync()
             };
 
             return Json(gridModel);
         }
 
-        private async Task<TopicModel> PrepareTopicListModelAsync(Topic topic)
-        {
-            var model = new TopicModel();
-            await MapperFactory.MapAsync(topic, model);
-            await PrepareTopicModelAsync(topic, model);
-
-            // TODO: (mh) (core) Maybe we need a DisplayTemplate for this.
-            model.WidgetZoneValue = topic.WidgetZone;
-            model.CookieType = (int?)topic.CookieType;
-            model.Body = string.Empty;                          // Otherwise maxJsonLength could be exceeded.
-            model.Intro = string.Empty;                          // Otherwise grind may slow down
-            model.ViewUrl = Url.Action("Edit", "Topic", new { id = topic.Id });
-
-            return model;
-        }
-
         [Permission(Permissions.Cms.Topic.Create)]
         public IActionResult Create()
         {
-            var model = new TopicModel();
+            var model = new TopicModel
+            {
+                TitleTag = "h1"
+            };
 
             AddLocales(model.Locales);
             AddCookieTypes(model);
-
-            model.TitleTag = "h1";
 
             return View(model);
         }
@@ -165,19 +160,21 @@ namespace Smartstore.Admin.Controllers
                 _db.Topics.Add(topic);
                 await _db.SaveChangesAsync();
 
-                var slugResult = await topic.ValidateSlugAsync(model.SeName, true);
+                var slugResult = await topic.ValidateSlugAsync(model.SeName, topic.Title.NullEmpty() ?? topic.SystemName, true);
                 model.SeName = slugResult.Slug;
                 await _urlService.ApplySlugAsync(slugResult, true);
 
-                await SaveStoreMappingsAsync(topic, model.SelectedStoreIds);
-                await SaveAclMappingsAsync(topic, model.SelectedCustomerRoleIds);
                 await UpdateLocalesAsync(topic, model);
+                await _storeMappingService.ApplyStoreMappingsAsync(topic, model.SelectedStoreIds);
+                await _aclService.ApplyAclMappingsAsync(topic, model.SelectedCustomerRoleIds);
+
                 AddCookieTypes(model, model.CookieType);
-
                 await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, topic, Request.Form));
-
                 NotifySuccess(T("Admin.ContentManagement.Topics.Updated"));
-                return continueEditing ? RedirectToAction("Edit", new { id = topic.Id }) : RedirectToAction("List");
+
+                return continueEditing 
+                    ? RedirectToAction(nameof(Edit), new { id = topic.Id }) 
+                    : RedirectToAction(nameof(List));
             }
 
             // If we got this far something failed. Redisplay form.
@@ -190,7 +187,7 @@ namespace Smartstore.Admin.Controllers
             var topic = await _db.Topics.FindByIdAsync(id, false);
             if (topic == null)
             {
-                return RedirectToAction("List");
+                return RedirectToAction(nameof(List));
             }
 
             var model = await MapperFactory.MapAsync<Topic, TopicModel>(topic);
@@ -218,10 +215,11 @@ namespace Smartstore.Admin.Controllers
             do
             {
                 menus = await _db.Menus
-                    .ApplyStandardFilter(true)
+                    .ApplyStandardFilter(includeHidden: true)
+                    .ApplySorting()
                     .ToPagedList(pageIndex++, 500)
                     .LoadAsync();
-                
+
                 foreach (var menu in menus)
                 {
                     foreach (var item in menu.Items.Where(x => x.ProviderName != null && x.ProviderName == "entity"))
@@ -232,9 +230,9 @@ namespace Smartstore.Admin.Controllers
                             var url = Url.Action("EditItem", "Menu", new { id = item.Id, area = "Admin" });
 
                             var label = string.Concat(
-                                menu.Title.NullEmpty() ?? menu.SystemName.NullEmpty() ?? "".NaIfEmpty(),
+                                menu.Title.NullEmpty() ?? menu.SystemName.NullEmpty() ?? StringExtensions.NotAvailable,
                                 " » ",
-                                item.Title.NullEmpty() ?? link.Label.NullEmpty() ?? "".NaIfEmpty());
+                                item.Title.NullEmpty() ?? link.Label.NullEmpty() ?? StringExtensions.NotAvailable);
 
                             model.MenuLinks[url] = label;
                         }
@@ -254,7 +252,7 @@ namespace Smartstore.Admin.Controllers
             var topic = await _db.Topics.FindByIdAsync(model.Id);
             if (topic == null)
             {
-                return RedirectToAction("List");
+                return RedirectToAction(nameof(List));
             }
 
             if (!model.IsPasswordProtected)
@@ -273,21 +271,25 @@ namespace Smartstore.Admin.Controllers
 
                 topic.CookieType = (CookieType?)model.CookieType;
 
+                var slugResult = await topic.ValidateSlugAsync(model.SeName, topic.Title.NullEmpty() ?? topic.SystemName, true);
+                model.SeName = slugResult.Slug;
+                await _urlService.ApplySlugAsync(slugResult);
+
                 await _db.SaveChangesAsync();
 
-                var slugResult = await topic.ValidateSlugAsync(model.SeName, true);
-                model.SeName = slugResult.Slug;
-                await _urlService.ApplySlugAsync(slugResult, true);
-                
-                await SaveStoreMappingsAsync(topic, model.SelectedStoreIds);
-                await SaveAclMappingsAsync(topic, model.SelectedCustomerRoleIds);
                 await UpdateLocalesAsync(topic, model);
+                await _storeMappingService.ApplyStoreMappingsAsync(topic, model.SelectedStoreIds);
+                await _aclService.ApplyAclMappingsAsync(topic, model.SelectedCustomerRoleIds);
+
+                await _db.SaveChangesAsync();
+
                 AddCookieTypes(model, model.CookieType);
-
                 await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, topic, Request.Form));
-
                 NotifySuccess(T("Admin.ContentManagement.Topics.Updated"));
-                return continueEditing ? RedirectToAction("Edit", new { id = topic.Id }) : RedirectToAction("List");
+
+                return continueEditing 
+                    ? RedirectToAction(nameof(Edit), new { id = topic.Id }) 
+                    : RedirectToAction(nameof(List));
             }
 
             // If we got this far something failed. Redisplay form.
@@ -389,11 +391,9 @@ namespace Smartstore.Admin.Controllers
                 await _localizedEntityService.ApplyLocalizedValueAsync(topic, x => x.MetaDescription, localized.MetaDescription, localized.LanguageId);
                 await _localizedEntityService.ApplyLocalizedValueAsync(topic, x => x.MetaTitle, localized.MetaTitle, localized.LanguageId);
 
-                await _db.SaveChangesAsync();
-
-                var slugResult = await topic.ValidateSlugAsync(localized.SeName, true);
+                var slugResult = await topic.ValidateSlugAsync(localized.SeName, localized.Title.NullEmpty() ?? localized.ShortTitle, false, localized.LanguageId);
                 model.SeName = slugResult.Slug;
-                await _urlService.ApplySlugAsync(slugResult, true);
+                await _urlService.ApplySlugAsync(slugResult);
             }
         }
 

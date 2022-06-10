@@ -1,0 +1,79 @@
+﻿@using Smartstore.Admin.Models.Common
+
+@model FeedModel
+
+<div class="report sticky-report">
+    <div class="report-title-row">
+        <div class="report-title">@T("Admin.NewsFeed.Title")</div>
+    </div>
+    @if (!Model.NewsFeedCannels.Any())
+    {
+        <p class="alert alert-danger m-4 mt-0">@Html.Raw(T("Admin.NewsFeed.ServerDown"))</p>
+        return;
+    }
+
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="m-4 mt-0" asp-validation-summary="ModelOnly"></div>
+        return;
+    }
+
+    <div class="newsfeed-body">
+        <div class="accordion" id="news-feed-accordion">
+            @{
+                var isFirst = true;
+                var i = 0;
+            }
+
+            @foreach (var channel in Model.NewsFeedCannels)
+            {
+                if (!channel.NewsFeedItems.Any())
+                {
+                    continue;
+                }
+
+                if (Model.NewsFeedCannels.Count > 1)
+                {
+                    <a class="admin-config-group" attr-class='(!isFirst, "collapsed")' data-toggle="collapse" href="#pnl-@(i)" role="button" aria-expanded="@isFirst">
+                        <span class="title fs-h6 font-weight-medium my-0">@channel.Name</span>
+                    </a>
+                }
+
+                <div id="pnl-@(i)" class="collapse" attr-class='(isFirst, "show")' data-parent="#news-feed-accordion">
+                    @foreach (var item in channel.NewsFeedItems)
+                    {
+                        <figure sm-if="item.ThumbnailUrl.HasValue()" class="newsfeed-thumbnail">
+                            <img class="file-img" src="@item.ThumbnailUrl" />
+                        </figure>
+                        <div class="newsfeed-item py-3" attr-class='(item.IsPinned, "pinned")'>
+                            <div class="newsfeed-item-title">
+                                @if (item.Link.HasValue())
+                                {
+                                    <a href="@item.Link" target="NewsfeedWindow">@item.Title</a>
+                                }
+                                else
+                                {
+                                    @item.Title
+                                }
+                            </div>
+                            <div class="muted">@item.PublishDate.Humanize()</div>
+                            <div>
+                                @Html.Raw(item.Short)
+                                <a sm-if="item.Link.HasValue()" href="@item.Link" target="NewsfeedWindow" class="more-info">@T("Common.MoreInfo").Value.ToLower()...</a>
+                            </div>
+                        </div>
+                    }
+
+                    <div class="btn-newsfeed" sm-if="@(channel.ButtonText.HasValue() && @channel.ButtonLink.HasValue())">
+                        <a class="btn btn-primary btn-block btn-3d" href="@channel.ButtonLink" target="NewsfeedWindow">
+                            <span>@channel.ButtonText</span>
+                        </a>
+                    </div>
+                </div>
+
+                i++;
+                isFirst = false;
+            }
+        </div>
+    </div>
+</div>

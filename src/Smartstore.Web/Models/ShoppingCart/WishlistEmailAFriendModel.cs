@@ -1,7 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using FluentValidation;
-using Smartstore.Web.Modelling;
-using Smartstore.Web.Modelling.Validation;
 
 namespace Smartstore.Web.Models.Cart
 {

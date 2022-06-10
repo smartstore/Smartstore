@@ -4,7 +4,6 @@
 @inherits RazorPage<InstallationModel>
 @removeTagHelper Smartstore.Web.TagHelpers.*, Smartstore.Web.Common
 @addTagHelper Smartstore.Web.TagHelpers.Shared.AjaxFormTagHelper, Smartstore.Web.Common
-@addTagHelper Smartstore.Web.TagHelpers.Shared.ValidationTagHelper, Smartstore.Web.Common
 @inject IInstallationService InstallService
 
 @{
@@ -31,7 +30,7 @@
     </script>
 
     <link rel="stylesheet" href="~/lib/fontastic/fontastic.css" />
-    <link rel="stylesheet" href="~/lib/fa5/css/all.min.css" />
+    <link rel="stylesheet" href="~/lib/fa6/css/all.min.css" />
     <link rel="stylesheet" href="~/bundle/css/admin-theme.css" />
 
     <script src="~/lib/modernizr/modernizr.js"></script>
@@ -43,6 +42,11 @@
             max-width: 990px !important;
             margin-left: auto !important;
             margin-right: auto !important;
+        }
+
+        .redirect-info > a {
+            color: #fff;
+            text-decoration: underline;
         }
     </style>
 </head>
@@ -140,16 +144,13 @@
                                     <div class="form-group row">
                                         <label class="col-md-3 col-form-label" asp-for="DataProvider">@InstallService.GetResource("DbSystem")</label>
                                         <div class="col-md-9">
-                                            <select name="DataProvider" id="DataProvider" class="form-control remember">
-                                                <option value="sqlserver">@InstallService.GetResource("UseSqlServer")</option>
-                                                <option value="mysql">@InstallService.GetResource("UseMySql")</option>
-                                            </select>
+                                            <select asp-for="DataProvider" asp-items="ViewBag.AvailableDataProviders" class="form-control remember"></select>
                                             <span asp-validation-for="DataProvider"></span>
                                         </div>
                                     </div>
 
                                     <!-- Connection root -->
-                                    <div id="ConnectionPanel" style="x-display: none">
+                                    <div id="ConnectionPanel">
                                         <div class="form-group row">
                                             <label class="col-md-3 col-form-label" asp-for="UseRawConnectionString">@InstallService.GetResource("Connection")</label>
                                             <div class="col-md-9">
@@ -390,9 +391,16 @@
                 type: "GET",
                 cache: false,
                 url: "@checkAliveUrl",
-                success() {
+                global: false,
+                success: function() {
                     clearInterval(checkAliveInterval);
-                    location.replace(redirectUrl);
+
+                    // Redirection sometimes fails in Chrome. Therefore we we delay and repeat the call until it succeeds.
+                    setTimeout(() => {
+                        setInterval(() => {
+                            location.replace(redirectUrl);
+                        }, 1000);
+                    }, 1000);
                 }
             });
         }
@@ -433,6 +441,7 @@
                     data: { restart: success },
                     dataType: "json",
                     async: false,
+                    global: false,
                     type: "POST"
                 });
             }
@@ -476,8 +485,8 @@
                     finalizeInstallation(data.Success);
 
                     if (data.Success) {
-                    	$("#install-message").html("@InstallService.GetResource("Common.StartShop")");
-                        $("#install-progress").html("");
+                        $("#install-message").html("@InstallService.GetResource("Common.StartShop")");
+                        $("#install-progress").html('<span class="redirect-info">@Html.Raw(InstallService.GetResource("Progress.Redirect").FormatInvariant(Url.Action("Index", "Home")))</span>');
 
                         checkAliveInterval = setInterval(function () {
                             checkAlive(data.RedirectUrl);
@@ -498,7 +507,6 @@
                 onComplete: function () {
                 	window.clearInterval(progressIntervall);
                     $("#install-button").removeAttr("disabled");
-                    $("#install-progress").html("");
                 }
             };
         })();

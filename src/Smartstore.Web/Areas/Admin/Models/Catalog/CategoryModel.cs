@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 using FluentValidation;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Rules;
 using Smartstore.Core.Seo;
-using Smartstore.Web.Modelling;
 
 namespace Smartstore.Admin.Models.Catalog
 {
@@ -168,11 +164,11 @@ namespace Smartstore.Admin.Models.Catalog
         public string SeName { get; set; }
     }
 
-    public partial class CategoryValidator : AbstractValidator<CategoryModel>
+    public partial class CategoryValidator : SmartValidator<CategoryModel>
     {
-        public CategoryValidator()
+        public CategoryValidator(SmartDbContext db)
         {
-            RuleFor(x => x.Name).NotEmpty();
+            ApplyEntityRules<Category>(db);
         }
     }
 

@@ -1,14 +1,8 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+﻿using System.Runtime.InteropServices;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 using Smartstore.Core.Installation;
-using Smartstore.Engine;
 using Smartstore.Threading;
 
 namespace Smartstore.Web.Controllers
@@ -31,6 +25,11 @@ namespace Smartstore.Web.Controllers
             _asyncState = asyncState;
         }
 
+        private string T(string resourceName)
+        {
+            return _installService.GetResource(resourceName);
+        }
+
         public override async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
             if (_appContext.IsInstalled)
@@ -46,7 +45,7 @@ namespace Smartstore.Web.Controllers
         {
             var model = new InstallationModel
             {
-                AdminEmail = _installService.GetResource("AdminEmailValue")
+                AdminEmail = T("AdminEmailValue")
             };
 
             var curLanguage = _installService.GetCurrentLanguage();
@@ -80,13 +79,21 @@ namespace Smartstore.Web.Controllers
                 appLanguages.FirstOrDefault(x => x.Value.EqualsNoCase("en")).Selected = true;
             }
 
+            var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+            var dataProviders = new List<SelectListItem> 
+            { 
+                new SelectListItem { Value = "mysql", Text = T("UseMySql"), Selected = !isWindows },
+                new SelectListItem { Value = "sqlserver", Text = T("UseSqlServer"), Selected = isWindows }
+            };
+
             ViewBag.AvailableInstallationLanguages = installLanguages;
             ViewBag.AvailableAppLanguages = appLanguages;
+            ViewBag.AvailableDataProviders = dataProviders;
 
             ViewBag.AvailableMediaStorages = new[] 
             {
-                new SelectListItem { Value = "fs", Text = _installService.GetResource("MediaStorage.FS"), Selected = true },
-                new SelectListItem { Value = "db", Text = _installService.GetResource("MediaStorage.DB") }
+                new SelectListItem { Value = "fs", Text = T("MediaStorage.FS") + " " + T("Recommended"), Selected = true },
+                new SelectListItem { Value = "db", Text = T("MediaStorage.DB") }
             };
 
             return View(model);

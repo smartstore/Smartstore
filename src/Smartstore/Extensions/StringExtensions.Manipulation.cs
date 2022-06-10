@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Globalization;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -45,11 +42,6 @@ namespace Smartstore
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string FormatCurrentUI(this string format, params object[] objects)
             => string.Format(CultureInfo.CurrentUICulture, format, objects);
-
-        [DebuggerStepThrough]
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static string FormatWith(this string format, params object[] args)
-            => FormatWith(format, CultureInfo.CurrentCulture, args);
 
         [DebuggerStepThrough]
         public static string FormatWith(this string format, IFormatProvider provider, params object[] args)
@@ -101,7 +93,7 @@ namespace Smartstore
 
             if (value != null && value.Length > maxLength)
             {
-                return value.Substring(0, subStringLength).Trim() + end;
+                return value[..subStringLength].Trim() + end;
             }
             else
             {

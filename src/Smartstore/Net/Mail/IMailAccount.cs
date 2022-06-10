@@ -5,8 +5,6 @@
     /// </summary>
     public interface IMailAccount
     {
-        // TODO: (core) Apply IMailAccount to EmailAccount entity
-
         /// <summary>
         /// Gets or sets an email host
         /// </summary>

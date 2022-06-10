@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Smartstore.Web.Modelling
+﻿namespace Smartstore.Web.Modelling
 {
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
     public sealed class LocalizedDisplayAttribute : Attribute

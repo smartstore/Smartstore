@@ -1,8 +1,5 @@
-﻿using System;
-using System.Linq;
-using Autofac;
+﻿using Autofac;
 using Autofac.Core.Resolving.Pipeline;
-using Microsoft.Extensions.Logging;
 using Smartstore.ComponentModel;
 
 namespace Smartstore.Core.Bootstrapping

@@ -1,0 +1,95 @@
+﻿@{
+    Layout = "";
+}
+
+<table class="table table-sm table-striped small mb-4">
+    <thead>
+        <tr>
+            <th>Beispiel</th>
+            <th>Ergebnis</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td nowrap>banana joe</td>
+            <td>Enthält "banana" oder enthält "joe"</td>
+        </tr>
+        <tr>
+            <td nowrap>banana and !*.joe</td>
+            <td>Enthält "banana" aber entspricht nicht "*.joe"</td>
+        </tr>
+        <tr>
+            <td nowrap>banana and (!~"hallo welt" or !*jim)</td>
+            <td>Enthält "banana", aber enthält nicht "hallo welt" oder endet nicht auf "jim"</td>
+        </tr>
+        <tr>
+            <td nowrap>*Leder and !(Sofa* Jacke*)</td>
+            <td>Endet auf "Leder", aber fängt nicht mit "Sofa" oder "Jacke" an</td>
+        </tr>
+        <tr>
+            <td nowrap>(&gt;=10 and &lt;=100) or 1 or &gt;1000</td>
+            <td>Zahl liegt zwischen 10 and 100, oder entspricht 1, oder ist größer als 1000</td>
+        </tr>
+    </tbody>
+</table>
+
+<h6 class="mb-3">Suchbegriff</h6>
+
+<p class="mb-4">
+    Suchbegriff in Anführungszeichen (doppelte oder einfache), oder Suchbegriff ohne Anführungszeichen sowie ohne Leerzeichen.
+    <i>banana joe</i> (ohne Anführungszeichen) entspricht beispielsweise <i>~banana or ~joe</i>,
+    wohingegen <i>"banana joe"</i> (mit Anführungszeichen) nach einer exakten Übereinstimmung sucht.
+    Unterstützt Platzhalter (* oder ?). Wenn Platzhalter vorhanden sind, wird der Standardoperator
+    auf "Gleich" umgestellt (=). "Ungleich" (!) negiert die Phrase.
+</p>
+
+<h6 class="mb-3">Gruppen</h6>
+
+<p class="mb-4">
+    Sie können mehrere Suchbegriffe gruppieren, indem Sie sie in Klammern einschließen.
+    Jede Gruppe kann mit einem vorangestellten ! (Ausrufezeichen) negiert werden, z.B. <i>!(banana and joe)</i>.
+    Gruppen können beliebig oft verschachtelt werden.
+</p>
+
+<h6 class="mb-3">Operatoren</h6>
+
+<table class="table table-sm table-striped small mb-4">
+    <tbody>
+        <tr>
+            <td>=[=]</td>
+            <td>Gleich (Standard bei numerischen Suchfeldern)</td>
+        </tr>
+        <tr>
+            <td>![=]</td>
+            <td>Ungleich</td>
+        </tr>
+        <tr>
+            <td>&gt;</td>
+            <td>Größer als</td>
+        </tr>
+        <tr>
+            <td>&gt;=</td>
+            <td>Mindestens</td>
+        </tr>
+        <tr>
+            <td>&lt;</td>
+            <td>Kleiner als</td>
+        </tr>
+        <tr>
+            <td>&lt;=</td>
+            <td>Höchstens</td>
+        </tr>
+        <tr>
+            <td>~</td>
+            <td>Enthält (Standard bei Text Suchfeldern)</td>
+        </tr>
+        <tr>
+            <td>!~</td>
+            <td>Enthält nicht</td>
+        </tr>
+        <tr>
+            <td nowrap>and, or</td>
+            <td>Logische Begriffskombinatoren (und, oder). Wenn ausgelassen, ist "or" Standard.</td>
+        </tr>
+    </tbody>
+</table>

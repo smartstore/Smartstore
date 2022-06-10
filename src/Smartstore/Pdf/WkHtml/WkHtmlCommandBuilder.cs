@@ -1,7 +1,5 @@
-﻿using System;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Smartstore.Pdf.WkHtml
 {
@@ -64,9 +62,10 @@ namespace Smartstore.Pdf.WkHtml
             if (input != null)
             {
                 await ProcessInputAsync(flag, input);
-                if (input.Content.HasValue())
+                var content = input.Content;
+                if (content.HasValue())
                 {
-                    TryAppendOption($"--{flag}-html", input.Content, builder);
+                    TryAppendOption($"--{flag}-html", content, builder);
                     BuildSectionCommandFragment(options, flag, builder);
                 }
             }
@@ -94,7 +93,7 @@ namespace Smartstore.Pdf.WkHtml
         protected virtual void BuildGlobalCommandFragment(PdfConversionSettings settings, StringBuilder builder)
         {
             // Commons
-            TryAppendOption("--quiet", settings.Quiet, builder);
+            TryAppendOption("--quiet", true, builder);
             TryAppendOption("-g", settings.Grayscale, builder);
             TryAppendOption("-l", settings.LowQuality, builder);
             TryAppendOption("--title", settings.Title, builder);

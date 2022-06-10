@@ -1,18 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.IO;
-using System.Linq;
+﻿using System.Drawing;
 using System.Linq.Dynamic.Core;
 using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 using Smartstore.Core.Content.Media.Imaging;
 using Smartstore.Core.Content.Media.Storage;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Logging;
+using Smartstore.Data;
 using Smartstore.Events;
 using Smartstore.Imaging;
 using Smartstore.Threading;
@@ -35,6 +29,8 @@ namespace Smartstore.Core.Content.Media
         private readonly MediaExceptionFactory _exceptionFactory;
         private readonly IMediaStorageProvider _storageProvider;
         private readonly MediaHelper _helper;
+
+        private Dictionary<int, Dictionary<string, MediaFile>> _cachedFilesByFolder;
 
         public MediaService(
             SmartDbContext db,
@@ -87,6 +83,7 @@ namespace Smartstore.Core.Content.Media
 
         public async Task<FileCountResult> CountFilesGroupedAsync(MediaFilesFilter filter)
         {
+            // TODO: (core) Throws
             Guard.NotNull(filter, nameof(filter));
 
             // Base db query
@@ -101,13 +98,14 @@ namespace Smartstore.Core.Content.Media
             // Determine counts
             var result = await (from f in q
                                 group f by 1 into g
+                                orderby 1
                                 select new FileCountResult
                                 {
                                     Total = g.Count(),
                                     Trash = g.Count(x => x.Deleted),
                                     Unassigned = g.Count(x => !x.Deleted && x.FolderId == null),
                                     Transient = g.Count(x => !x.Deleted && x.IsTransient == true),
-                                    Orphan = g.Count(x => !x.Deleted && x.FolderId > 0 && !untrackableFolderIds.Contains(x.FolderId.Value) && !x.Tracks.Any())
+                                    //Orphan = g.Count(x => !x.Deleted && x.FolderId > 0 && !untrackableFolderIds.Contains(x.FolderId.Value) && !x.Tracks.Any())
                                 }).FirstOrDefaultAsync() ?? new FileCountResult();
 
             if (result.Total == 0)
@@ -116,16 +114,22 @@ namespace Smartstore.Core.Content.Media
                 return result;
             }
 
+            // Cannot be executed on the server by the above query.
+            result.Orphan = await q
+                .Where(x => !x.Deleted && x.FolderId > 0 && !untrackableFolderIds.Contains(x.FolderId.Value) && !x.Tracks.Any())
+                .CountAsync();
+
             // Determine file count for each folder
-            var byFolders = from f in q
+            var byFoldersQuery = from f in q
                             where f.FolderId > 0 && !f.Deleted
                             group f by f.FolderId.Value into grp
-                            select grp;
+                            select new
+                            {
+                                FolderId = grp.Key,
+                                Count = grp.Count()
+                            };
 
-            result.Folders = await byFolders
-                .Select(grp => new { FolderId = grp.Key, Count = grp.Count() })
-                .ToDictionaryAsync(k => k.FolderId, v => v.Count);
-
+            result.Folders = await byFoldersQuery.ToDictionaryAsync(k => k.FolderId, v => v.Count);
             result.Filter = filter;
 
             return result;
@@ -250,7 +254,7 @@ namespace Smartstore.Core.Content.Media
 
             string newPath = null;
 
-            if (await CheckUniqueFileName(pathData))
+            if (await CheckUniqueFileNameAsync(pathData))
             {
                 newPath = pathData.FullPath;
             }
@@ -258,8 +262,10 @@ namespace Smartstore.Core.Content.Media
             return new AsyncOut<string>(newPath != null, newPath);
         }
 
-        protected internal virtual async Task<bool> CheckUniqueFileName(MediaPathData pathData)
+        protected internal virtual async Task<bool> CheckUniqueFileNameAsync(MediaPathData pathData)
         {
+            Guard.NotNull(pathData, nameof(pathData));
+            
             // (perf) First make fast check
             var exists = await _db.MediaFiles.AnyAsync(x => x.Name == pathData.FileName && x.FolderId == pathData.Folder.Id);
             if (!exists)
@@ -277,7 +283,15 @@ namespace Smartstore.Core.Content.Media
             var query = _searcher.PrepareQuery(q, MediaLoadFlags.AsNoTracking).Select(x => x.Name);
             var files = new HashSet<string>(await query.ToListAsync(), StringComparer.CurrentCultureIgnoreCase);
 
-            if (_helper.CheckUniqueFileName(pathData.FileTitle, pathData.Extension, files, out var uniqueName))
+            return CheckUniqueFileName(pathData, files);
+        }
+
+        protected internal virtual bool CheckUniqueFileName(MediaPathData pathData, HashSet<string> destFileNames)
+        {
+            Guard.NotNull(pathData, nameof(pathData));
+            Guard.NotNull(destFileNames, nameof(destFileNames));
+
+            if (_helper.CheckUniqueFileName(pathData.FileTitle, pathData.Extension, destFileNames, out var uniqueName))
             {
                 pathData.FileName = uniqueName;
                 return true;
@@ -304,13 +318,11 @@ namespace Smartstore.Core.Content.Media
                 {
                     source.Seek(0, SeekOrigin.Begin);
 
-                    using (var other = _storageProvider.OpenRead(file))
+                    using var other = _storageProvider.OpenRead(file);
+                    if (source.ContentsEqual(other, true))
                     {
-                        if (source.ContentsEqual(other, true))
-                        {
-                            equalFile = file;
-                            return true;
-                        }
+                        equalFile = file;
+                        return true;
                     }
                 }
 
@@ -340,12 +352,10 @@ namespace Smartstore.Core.Content.Media
                 {
                     source.Seek(0, SeekOrigin.Begin);
 
-                    await using (var other = await _storageProvider.OpenReadAsync(file))
+                    await using var other = await _storageProvider.OpenReadAsync(file);
+                    if (await source.ContentsEqualAsync(other, true))
                     {
-                        if (await source.ContentsEqualAsync(other, true))
-                        {
-                            return new AsyncOut<MediaFile>(true, file);
-                        }
+                        return new AsyncOut<MediaFile>(true, file);
                     }
                 }
 
@@ -378,11 +388,18 @@ namespace Smartstore.Core.Content.Media
             var pathData = CreatePathData(fileInfo.Path);
             pathData.FileName = newFileName;
 
-            var result = await ProcessFile(file, pathData, inStream, false, DuplicateFileHandling.Overwrite, MimeValidationType.MediaTypeMustMatch);
+            var result = await ProcessFileAsync(
+                file, 
+                pathData, 
+                inStream, 
+                isTransient: false, 
+                dupeFileHandling: DuplicateFileHandling.Overwrite, 
+                mediaValidationType: MimeValidationType.MediaTypeMustMatch);
 
             try
             {
                 await _storageProvider.SaveAsync(result.File, result.StorageItem);
+                await _db.SaveChangesAsync();
             }
             catch (Exception ex)
             {
@@ -392,28 +409,41 @@ namespace Smartstore.Core.Content.Media
             return fileInfo;
         }
 
-        public async Task<MediaFileInfo> SaveFileAsync(string path, Stream stream, bool isTransient = true, DuplicateFileHandling dupeFileHandling = DuplicateFileHandling.ThrowError)
+        public async Task<MediaFileInfo> SaveFileAsync(
+            string path, 
+            Stream stream, 
+            bool isTransient = true, 
+            DuplicateFileHandling dupeFileHandling = DuplicateFileHandling.ThrowError)
         {
             var pathData = CreatePathData(path);
 
             var file = await _db.MediaFiles.FirstOrDefaultAsync(x => x.Name == pathData.FileName && x.FolderId == pathData.Folder.Id);
-            var isNewFile = file == null;
-            var result = await ProcessFile(file, pathData, stream, isTransient, dupeFileHandling);
+            var isDupe = file != null;
+            var result = await ProcessFileAsync(
+                file, 
+                pathData, 
+                stream,
+                isTransient: false,
+                dupeFileHandling: dupeFileHandling);
+
             file = result.File;
+
+            // We can't defer commit in this operation, MediaFile MUST be committed before saving stream.
+            using var scope = new DbContextScope(_db, deferCommit: false);
 
             if (file.Id == 0)
             {
                 _db.MediaFiles.Add(file);
-                await _db.SaveChangesAsync();
             }
 
             try
             {
+                await _db.SaveChangesAsync();
                 await _storageProvider.SaveAsync(file, result.StorageItem);
             }
             catch (Exception ex)
             {
-                if (isNewFile)
+                if (!isDupe && file.Id > 0)
                 {
                     // New file's metadata should be removed on storage save failure immediately
                     await DeleteFileAsync(file, true, true);
@@ -426,9 +456,141 @@ namespace Smartstore.Core.Content.Media
             return ConvertMediaFile(file, pathData.Folder);
         }
 
+        public async Task<IList<FileBatchResult>> BatchSaveFilesAsync(
+            FileBatchSource[] sources,
+            MediaFolderNode destinationFolder,
+            bool isTransient = true,
+            DuplicateFileHandling dupeFileHandling = DuplicateFileHandling.ThrowError,
+            CancellationToken cancelToken = default)
+        {
+            Guard.NotNull(sources, nameof(sources));
+            Guard.NotNull(destinationFolder, nameof(destinationFolder));
+
+            var batchResults = new List<FileBatchResult>(sources.Length);
+
+            if (sources.Length == 0)
+            {
+                return batchResults;
+            }
+
+            // Get all files in destination folder for faster dupe selection
+            var destFiles = await GetCachedFilesByFolderAsync(destinationFolder.Id);
+
+            // Make a HashSet from all file names in the destination folder for faster unique file name lookups
+            var destNames = new HashSet<string>(destFiles.Keys, StringComparer.CurrentCultureIgnoreCase);
+
+            foreach (var source in sources)
+            {
+                var path = CombinePaths(destinationFolder.Path, source.FileName);
+                var pathData = CreatePathData(path);
+
+                try
+                {
+                    var file = destFiles.Get(pathData.FileName);
+                    var isDupe = file != null;
+                    var processFileResult = await ProcessFileAsync(
+                        file, 
+                        pathData, 
+                        inStream: File.OpenRead(source.PhysicalPath),
+                        destFileNames: destNames,
+                        isTransient: isTransient,
+                        dupeFileHandling: dupeFileHandling,
+                        mediaValidationType: MimeValidationType.MediaTypeMustMatch);
+
+                    file = processFileResult.File;
+
+                    batchResults.Add(new FileBatchResult 
+                    {
+                        Source = source,
+                        File = ConvertMediaFile(file, pathData.Folder),
+                        StorageItem = processFileResult.StorageItem,
+                        PathData = pathData,
+                        IsDuplicate = isDupe,
+                        UniquePath = isDupe ? pathData.FullPath : null
+                    });
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error(ex);
+                    batchResults.Add(new FileBatchResult
+                    {
+                        Source = source,
+                        PathData = pathData,
+                        Exception = ex
+                    });
+                }
+            }
+
+            cancelToken.ThrowIfCancellationRequested();
+
+            // 2nd pass: Commit all new MediaFile entities in one go
+            foreach (var result in batchResults)
+            {
+                if (result.Exception == null && result.File != null && result.File.Id == 0) 
+                {
+                    _db.MediaFiles.Add(result.File.File);
+                }
+            }
+
+            // ...now commit
+            using (var scope = new DbContextScope(_db, deferCommit: false))
+            {
+                // We can't defer commit in this operation, MediaFile MUST be committed before saving to storage.
+                await _db.SaveChangesAsync(cancelToken);
+            }
+
+            cancelToken.ThrowIfCancellationRequested();
+
+            // 3rd pass: save file stream to storage
+            var hasError = false;
+            foreach (var result in batchResults)
+            {
+                var file = result.File?.File;
+
+                if (result.Exception != null
+                    || file == null
+                    || file.Id == 0
+                    || result.StorageItem == null)
+                {
+                    continue;
+                }
+
+                try
+                {
+                    await _storageProvider.SaveAsync(result.File.File, result.StorageItem);
+                }
+                catch (Exception ex)
+                {
+                    hasError = true;
+                    Logger.Error(ex);
+                    result.Exception = ex;
+
+                    // New file's metadata should be removed on storage save failure
+                    _db.MediaFiles.Remove(file);
+                }
+                finally
+                {
+                    // INFO: StorageItem already disposed by StorageProvider
+                    result.StorageItem = null;
+                }
+            }
+
+            if (hasError)
+            {
+                await _db.SaveChangesAsync(cancelToken);
+            }
+
+            return batchResults;
+        }
+
         public async Task DeleteFileAsync(MediaFile file, bool permanent, bool force = false)
         {
             Guard.NotNull(file, nameof(file));
+
+            if (file.Id == 0)
+            {
+                return;
+            }
 
             // Delete thumb
             await _imageCache.DeleteAsync(file);
@@ -447,12 +609,12 @@ namespace Smartstore.Core.Content.Media
                         throw _exceptionFactory.DeleteTrackedFile(file, null);
                     }
 
-                    // Delete entity
+                    // Delete BLOB
+                    await _storageProvider.RemoveAsync(file);
+
+                    // Delete media entity
                     _db.MediaFiles.Remove(file);
                     await _db.SaveChangesAsync();
-
-                    // Delete from storage
-                    await _storageProvider.RemoveAsync(file);
                 }
                 catch (DbUpdateException ex)
                 {
@@ -489,25 +651,31 @@ namespace Smartstore.Core.Content.Media
             return pathData;
         }
 
-        protected async Task<(MediaStorageItem StorageItem, MediaFile File)> ProcessFile(
+        protected async Task<(MediaStorageItem StorageItem, MediaFile File)> ProcessFileAsync(
             MediaFile file,
             MediaPathData pathData,
             Stream inStream,
+            HashSet<string> destFileNames = null,
             bool isTransient = true,
             DuplicateFileHandling dupeFileHandling = DuplicateFileHandling.ThrowError,
             MimeValidationType mediaValidationType = MimeValidationType.MimeTypeMustMatch)
         {
             if (file != null)
             {
+                var madeUniqueFileName = dupeFileHandling == DuplicateFileHandling.Overwrite 
+                    ? false 
+                    : (destFileNames != null 
+                        ? CheckUniqueFileName(pathData, destFileNames) 
+                        : await CheckUniqueFileNameAsync(pathData));
+                
                 if (dupeFileHandling == DuplicateFileHandling.ThrowError)
                 {
                     var fullPath = pathData.FullPath;
-                    await CheckUniqueFileName(pathData);
                     throw _exceptionFactory.DuplicateFile(fullPath, ConvertMediaFile(file, pathData.Folder), pathData.FullPath);
                 }
                 else if (dupeFileHandling == DuplicateFileHandling.Rename)
                 {
-                    if (await CheckUniqueFileName(pathData))
+                    if (madeUniqueFileName)
                     {
                         file = null;
                     }
@@ -561,11 +729,14 @@ namespace Smartstore.Core.Content.Media
             // Process image
             if (inStream != null && inStream.Length > 0 && file.MediaType == MediaType.Image && (await ProcessImage(file, inStream)).Out(out var outImage))
             {
+                var storageItem = MediaStorageItem.FromImage(outImage);
+
                 file.Width = outImage.Width;
                 file.Height = outImage.Height;
                 file.PixelSize = outImage.Width * outImage.Height;
+                file.Size = (int)storageItem.SourceStream.Length;
 
-                return (MediaStorageItem.FromImage(outImage), file);
+                return (storageItem, file);
             }
             else
             {
@@ -617,12 +788,11 @@ namespace Smartstore.Core.Content.Media
             }
 
             query.MaxSize = maxSize;
+            
+            using var result = await _imageProcessor.ProcessImageAsync(query, false);
+            outImage = result.Image;
 
-            using (var result = await _imageProcessor.ProcessImageAsync(query, false))
-            {
-                outImage = result.Image;
-                return new AsyncOut<IImage>(true, outImage);
-            }
+            return new AsyncOut<IImage>(true, outImage);
         }
 
         #endregion
@@ -650,7 +820,7 @@ namespace Smartstore.Core.Content.Media
                 true /* copyData */,
                 (DuplicateEntryHandling)((int)dupeFileHandling),
                 () => Task.FromResult(dupe),
-                p => CheckUniqueFileName(p));
+                p => CheckUniqueFileNameAsync(p));
 
             return new FileOperationResult
             {
@@ -728,6 +898,8 @@ namespace Smartstore.Core.Content.Media
             {
                 _db.MediaFiles.Add(copy);
             }
+
+            await _db.SaveChangesAsync();
 
             // Copy data: blob, alt, title etc.
             if (copyData)
@@ -902,6 +1074,25 @@ namespace Smartstore.Core.Content.Media
         public MediaFileInfo ConvertMediaFile(MediaFile file)
         {
             return ConvertMediaFile(file, _folderService.FindNode(file)?.Value);
+        }
+
+        protected async Task<IDictionary<string, MediaFile>> GetCachedFilesByFolderAsync(int folderId)
+        {
+            if (_cachedFilesByFolder == null)
+            {
+                _cachedFilesByFolder = new Dictionary<int, Dictionary<string, MediaFile>>();
+            }
+
+            if (!_cachedFilesByFolder.TryGetValue(folderId, out var files))
+            {
+                files = (await _searcher
+                    .SearchFiles(new MediaSearchQuery { FolderId = folderId }, MediaLoadFlags.None).LoadAsync())
+                    .ToDictionarySafe(x => x.Name);
+
+                _cachedFilesByFolder[folderId] = files;
+            }
+
+            return files;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

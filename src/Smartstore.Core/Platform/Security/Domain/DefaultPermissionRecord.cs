@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Smartstore.Core.Security
+﻿namespace Smartstore.Core.Security
 {
     /// <summary>
     /// Represents a default permission record

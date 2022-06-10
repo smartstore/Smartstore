@@ -1,21 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Admin.Models.Orders;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Checkout.GiftCards;
-using Smartstore.Core.Data;
+using Smartstore.Core.Common.Services;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Logging;
 using Smartstore.Core.Messaging;
 using Smartstore.Core.Rules.Filters;
 using Smartstore.Core.Security;
-using Smartstore.Web.Controllers;
-using Smartstore.Web.Modelling;
 using Smartstore.Web.Models.DataGrid;
 
 namespace Smartstore.Admin.Controllers
@@ -27,11 +19,13 @@ namespace Smartstore.Admin.Controllers
         private readonly ILanguageService _languageService;
         private readonly IMessageFactory _messageFactory;
         private readonly LocalizationSettings _localizationSettings;
+        private readonly Currency _primaryCurrency;
 
         public GiftCardController(
             SmartDbContext db, 
             IGiftCardService giftCardService,
             ILanguageService languageService,
+            ICurrencyService currencyService,
             IMessageFactory messageFactory,
             LocalizationSettings localizationSettings)
         {
@@ -40,11 +34,13 @@ namespace Smartstore.Admin.Controllers
             _languageService = languageService;
             _messageFactory = messageFactory;
             _localizationSettings = localizationSettings;
+
+            _primaryCurrency = currencyService.PrimaryCurrency;
         }
 
         public IActionResult Index()
         {
-            return RedirectToAction("List");
+            return RedirectToAction(nameof(List));
         }
 
         [Permission(Permissions.Order.GiftCard.Read)]
@@ -87,7 +83,7 @@ namespace Smartstore.Admin.Controllers
                 .SelectAsync(async x =>
                 {
                     var model = await mapper.MapAsync(x);
-                    PrepareGiftCardModel(model, x);
+                    await PrepareGiftCardModel(model, x);
                     return model;
                 })
                 .AsyncToList();
@@ -132,7 +128,7 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Order.GiftCard.Create)]
         public IActionResult Create()
         {
-            ViewBag.PrimaryStoreCurrencyCode = Services.StoreContext.CurrentStore.PrimaryStoreCurrency.CurrencyCode;
+            ViewBag.PrimaryStoreCurrencyCode = _primaryCurrency.CurrencyCode;
 
             return View(new GiftCardModel());
         }
@@ -154,11 +150,11 @@ namespace Smartstore.Admin.Controllers
                 NotifySuccess(T("Admin.GiftCards.Added"));
 
                 return continueEditing 
-                    ? RedirectToAction("Edit", new { id = giftCard.Id }) 
-                    : RedirectToAction("List");
+                    ? RedirectToAction(nameof(Edit), new { id = giftCard.Id }) 
+                    : RedirectToAction(nameof(List));
             }
 
-            ViewBag.PrimaryStoreCurrencyCode = Services.StoreContext.CurrentStore.PrimaryStoreCurrency.CurrencyCode;
+            ViewBag.PrimaryStoreCurrencyCode = _primaryCurrency.CurrencyCode;
 
             return View(model);
         }
@@ -168,7 +164,7 @@ namespace Smartstore.Admin.Controllers
         {
             var giftCard = await _db.GiftCards
                 .Include(x => x.PurchasedWithOrderItem)
-                .FindByIdAsync(id, false);
+                .FindByIdAsync(id);
 
             if (giftCard == null)
             {
@@ -178,9 +174,9 @@ namespace Smartstore.Admin.Controllers
             var mapper = MapperFactory.GetMapper<GiftCard, GiftCardModel>();
             var model = await mapper.MapAsync(giftCard);
 
-            PrepareGiftCardModel(model, giftCard);
+            await PrepareGiftCardModel(model, giftCard);
 
-            ViewBag.PrimaryStoreCurrencyCode = Services.StoreContext.CurrentStore.PrimaryStoreCurrency.CurrencyCode;
+            ViewBag.PrimaryStoreCurrencyCode = _primaryCurrency.CurrencyCode;
 
             return View(model);
         }
@@ -210,13 +206,13 @@ namespace Smartstore.Admin.Controllers
                 NotifySuccess(T("Admin.GiftCards.Updated"));
 
                 return continueEditing 
-                    ? RedirectToAction("Edit", giftCard.Id) 
-                    : RedirectToAction("List");
+                    ? RedirectToAction(nameof(Edit), giftCard.Id) 
+                    : RedirectToAction(nameof(List));
             }
 
-            PrepareGiftCardModel(model, giftCard);
+            await PrepareGiftCardModel(model, giftCard);
 
-            ViewBag.PrimaryStoreCurrencyCode = Services.StoreContext.CurrentStore.PrimaryStoreCurrency.CurrencyCode;
+            ViewBag.PrimaryStoreCurrencyCode = _primaryCurrency.CurrencyCode;
 
             return View(model);
         }
@@ -244,7 +240,7 @@ namespace Smartstore.Admin.Controllers
             Services.ActivityLogger.LogActivity(KnownActivityLogTypes.DeleteGiftCard, T("ActivityLog.DeleteGiftCard"), giftCard.GiftCardCouponCode);
             NotifySuccess(T("Admin.GiftCards.Deleted"));
 
-            return RedirectToAction("List");
+            return RedirectToAction(nameof(List));
         }
 
         [HttpPost, ActionName("Edit")]
@@ -287,7 +283,7 @@ namespace Smartstore.Admin.Controllers
 
                             NotifySuccess(T("Admin.Common.TaskSuccessfullyProcessed"));
 
-                            return RedirectToAction("Edit", giftCard.Id);
+                            return RedirectToAction(nameof(Edit), giftCard.Id);
                         }
                     }
                     else
@@ -305,18 +301,18 @@ namespace Smartstore.Admin.Controllers
                 NotifyError(ex, false);
             }
 
-            PrepareGiftCardModel(model, giftCard);
+            await PrepareGiftCardModel(model, giftCard);
 
-            ViewBag.PrimaryStoreCurrencyCode = Services.StoreContext.CurrentStore.PrimaryStoreCurrency.CurrencyCode;
+            ViewBag.PrimaryStoreCurrencyCode = _primaryCurrency.CurrencyCode;
 
             return View(model);
         }
 
-        private void PrepareGiftCardModel(GiftCardModel model, GiftCard giftCard)
+        private async Task PrepareGiftCardModel(GiftCardModel model, GiftCard giftCard)
         {
             if (giftCard != null)
             {
-                var remainAmount = _giftCardService.GetRemainingAmount(giftCard);
+                var remainAmount = await _giftCardService.GetRemainingAmountAsync(giftCard);
 
                 model.CreatedOn = Services.DateTimeHelper.ConvertToUserTime(giftCard.CreatedOnUtc, DateTimeKind.Utc);
                 model.AmountStr = Services.CurrencyService.PrimaryCurrency.AsMoney(giftCard.Amount).ToString(true);

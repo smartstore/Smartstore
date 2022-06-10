@@ -1,5 +1,4 @@
 ﻿using Smartstore.Core.Widgets;
-using Smartstore.Domain;
 
 namespace Smartstore.Core.Search.Facets
 {

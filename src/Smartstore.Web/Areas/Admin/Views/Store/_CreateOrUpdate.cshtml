@@ -54,20 +54,11 @@
     </div>
     <div class="adminRow">
         <div class="adminTitle">
-            <smart-label asp-for="PrimaryStoreCurrencyId" />
+            <smart-label asp-for="DefaultCurrencyId" />
         </div>
         <div class="adminData">
-            <select asp-for="PrimaryStoreCurrencyId" asp-items="Model.AvailableCurrencies"></select>
-            <span asp-validation-for="PrimaryStoreCurrencyId"></span>
-        </div>
-    </div>
-    <div class="adminRow">
-        <div class="adminTitle">
-            <smart-label asp-for="PrimaryExchangeRateCurrencyId" />
-        </div>
-        <div class="adminData">
-            <select asp-for="PrimaryExchangeRateCurrencyId" asp-items="Model.AvailableCurrencies"></select>
-            <span asp-validation-for="PrimaryExchangeRateCurrencyId"></span>
+            <select asp-for="DefaultCurrencyId" asp-items="ViewBag.Currencies"></select>
+            <span asp-validation-for="DefaultCurrencyId"></span>
         </div>
     </div>
     <div class="adminRow">
@@ -113,7 +104,7 @@
             <smart-label asp-for="DisplayOrder" />
         </div>
         <div class="adminData">
-            <input asp-for="DisplayOrder" />
+            <editor asp-for="DisplayOrder" />
             <span asp-validation-for="DisplayOrder"></span>
         </div>
     </div>

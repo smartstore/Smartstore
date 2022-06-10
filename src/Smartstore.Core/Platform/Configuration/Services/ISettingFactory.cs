@@ -1,7 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-
-namespace Smartstore.Core.Configuration
+﻿namespace Smartstore.Core.Configuration
 {
     /// <summary>
     /// Responsible for activating and populating setting class instances that implement <see cref="ISettings"/>.

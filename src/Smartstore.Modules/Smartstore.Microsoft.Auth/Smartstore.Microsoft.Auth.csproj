@@ -1,0 +1,10 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
+  <PropertyGroup>
+		<Product>Smartstore Microsoft Authentication</Product>
+		<OutputPath>..\..\Smartstore.Web\Modules\Smartstore.Microsoft.Auth</OutputPath>
+		<OutDir>$(OutputPath)</OutDir>
+  </PropertyGroup>
+  <ItemGroup>
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.MicrosoftAccount" Version="6.0.4" />
+  </ItemGroup>
+</Project>

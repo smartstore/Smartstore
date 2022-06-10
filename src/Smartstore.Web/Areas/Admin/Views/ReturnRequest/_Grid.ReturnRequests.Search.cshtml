@@ -1,0 +1,32 @@
+﻿@using Smartstore.Core.Checkout.Orders
+
+@model ReturnRequestListModel
+
+@{
+    var stores = ViewBag.Stores as IList<SelectListItem>;
+}
+
+<div class="form-group">
+    <smart-label asp-for="SearchId" />
+    <editor asp-for="SearchId" />
+</div>
+<div class="form-group">
+    <smart-label asp-for="CustomerName" />
+    <input asp-for="CustomerName" />
+</div>
+<div class="form-group">
+    <smart-label asp-for="CustomerEmail" />
+    <editor asp-for="CustomerEmail" asp-template="SearchExpression" />
+</div>
+<div class="form-group">
+    <smart-label asp-for="OrderNumber" />
+    <input asp-for="OrderNumber" />
+</div>
+<div class="form-group">
+    <smart-label asp-for="SearchReturnRequestStatusId" />
+    <select asp-for="SearchReturnRequestStatusId" asp-items="Html.GetLocalizedEnumSelectList(typeof(ReturnRequestStatus))" asp-placeholder="@T("Admin.Common.All")"></select>
+</div>
+<div sm-if="stores.Count > 1" class="form-group">
+    <smart-label asp-for="SearchStoreId" />
+    <select asp-for="SearchStoreId" asp-items="stores" asp-placeholder="@T("Admin.Common.All")"></select>
+</div>

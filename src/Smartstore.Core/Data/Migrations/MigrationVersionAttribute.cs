@@ -1,5 +1,4 @@
-﻿using System;
-using System.Globalization;
+﻿using System.Globalization;
 using FluentMigrator;
 
 namespace Smartstore.Core.Data.Migrations
@@ -40,7 +39,7 @@ namespace Smartstore.Core.Data.Migrations
             }
             else
             {
-                throw new ArgumentException($"Cannot get migration version because of unsupported timestamp format. Please use one of these formats: {string.Join(", ", _timestampFormats)}.");
+                throw new ArgumentException($"Cannot get migration version because of unsupported timestamp format '{timestamp}'. Please use one of these formats: {string.Join(", ", _timestampFormats)}.");
             }
         }
 

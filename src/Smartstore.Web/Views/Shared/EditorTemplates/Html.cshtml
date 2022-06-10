@@ -9,7 +9,8 @@
     var htmlIsEmpty = !html.HasValue() || html == "<p></p>" || html == "<p>&nbsp;</p>" || html == "<p><br></p>";
     string culture = WorkContext.WorkingLanguage.LanguageCulture;
 
-    //Html.AddBodyAttribute("data-file-manager-url", base.FileManagerUrl);
+
+    Assets.BodyAttributes["data-file-manager-url"] = Display.GetFileManagerUrl();
 
     var attributes = new AttributeDictionary().Merge(CommonHelper.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
 }
@@ -26,7 +27,6 @@
 <link rel="stylesheet" href="~/lib/editors/summernote/summernote-bs4.css" sm-key="summernote" sm-target-zone="stylesheets" />
 <link rel="stylesheet" href="~/bundle/css/codemirror.css" sm-key="codemirror" sm-target-zone="stylesheets" />
 
-@*TODO: (mh) (core) Implement RoxyFileManager > ProcessRequest.*@
 <div class="html-editor-root edit-control"
      data-summernote-image-upload-url="@Html.Raw(Url.Action("ProcessRequest", "RoxyFileManager"))"
      data-editor="html"

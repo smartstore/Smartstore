@@ -1,30 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Smartstore.Core.Content.Media;
-using Smartstore.Domain;
 
 namespace Smartstore.Core.Catalog.Products
 {
-    internal class ProductMediaFileMap : IEntityTypeConfiguration<ProductMediaFile>
-    {
-        public void Configure(EntityTypeBuilder<ProductMediaFile> builder)
-        {
-            //builder.HasOne(c => c.MediaFile)
-            //    .WithMany(c => c.ProductMediaFiles)
-            //    .HasForeignKey(c => c.MediaFileId)
-            //    .OnDelete(DeleteBehavior.Cascade);
-
-            //builder.HasOne(c => c.Product)
-            //    .WithMany(c => c.ProductPictures)
-            //    .HasForeignKey(c => c.ProductId)
-            //    .IsRequired(false)
-            //    .OnDelete(DeleteBehavior.Cascade);
-        }
-    }
-
     /// <summary>
     /// Represents a product media file mapping.
     /// </summary>

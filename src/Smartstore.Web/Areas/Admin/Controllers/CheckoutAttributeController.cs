@@ -1,21 +1,13 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Admin.Models.Orders;
 using Smartstore.ComponentModel;
-using Smartstore.Core;
 using Smartstore.Core.Checkout.Attributes;
+using Smartstore.Core.Common.Services;
 using Smartstore.Core.Common.Settings;
-using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Logging;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
-using Smartstore.Web.Controllers;
-using Smartstore.Web.Modelling;
 using Smartstore.Web.Models.DataGrid;
 
 namespace Smartstore.Admin.Controllers
@@ -23,29 +15,29 @@ namespace Smartstore.Admin.Controllers
     public class CheckoutAttributeController : AdminController
     {
         private readonly SmartDbContext _db;
-        private readonly ICommonServices _services;
         private readonly IActivityLogger _activityLogger;
         private readonly ILanguageService _languageService;
         private readonly ILocalizedEntityService _localizedEntityService;
+        private readonly ICurrencyService _currencyService;
         private readonly IStoreMappingService _storeMappingService;
         private readonly MeasureSettings _measureSettings;
         private readonly AdminAreaSettings _adminAreaSettings;
 
         public CheckoutAttributeController(
             SmartDbContext db,
-            ICommonServices services,
             IActivityLogger activityLogger,
             ILanguageService languageService,
             ILocalizedEntityService localizedEntityService,
+            ICurrencyService currencyService,
             MeasureSettings measureSettings,
             IStoreMappingService storeMappingService,
             AdminAreaSettings adminAreaSettings)
         {
             _db = db;
-            _services = services;
             _activityLogger = activityLogger;
             _languageService = languageService;
             _localizedEntityService = localizedEntityService;
+            _currencyService = currencyService;
             _measureSettings = measureSettings;
             _storeMappingService = storeMappingService;
             _adminAreaSettings = adminAreaSettings;
@@ -106,7 +98,7 @@ namespace Smartstore.Admin.Controllers
 
             model.CheckoutAttributeId = attribute?.Id ?? 0;
             model.IsListTypeAttribute = attribute?.IsListTypeAttribute ?? false;
-            model.PrimaryStoreCurrencyCode = _services.StoreContext.CurrentStore.PrimaryStoreCurrency.CurrencyCode;
+            model.PrimaryStoreCurrencyCode = _currencyService.PrimaryCurrency.CurrencyCode;
             model.BaseWeightIn = baseWeight != null ? baseWeight.GetLocalized(x => x.Name) : string.Empty;
         }
 
@@ -116,7 +108,7 @@ namespace Smartstore.Admin.Controllers
 
         public IActionResult Index()
         {
-            return RedirectToAction("List");
+            return RedirectToAction(nameof(List));
         }
 
         [Permission(Permissions.Cart.CheckoutAttribute.Read)]
@@ -140,12 +132,14 @@ namespace Smartstore.Admin.Controllers
                 .ToPagedList(command)
                 .LoadAsync();
 
+            var mapper = MapperFactory.GetMapper<CheckoutAttribute, CheckoutAttributeModel>();
             var checkoutAttributesModels = await checkoutAttributes
                 .SelectAsync(async x =>
                 {
-                    var model = await MapperFactory.MapAsync<CheckoutAttribute, CheckoutAttributeModel>(x);
-                    model.AttributeControlTypeName = x.AttributeControlType.GetLocalizedEnum(_services.WorkContext.WorkingLanguage.Id);
+                    var model = await mapper.MapAsync(x);
+                    model.AttributeControlTypeName = x.AttributeControlType.GetLocalizedEnum(Services.WorkContext.WorkingLanguage.Id);
                     model.EditUrl = Url.Action(nameof(Edit), "CheckoutAttribute", new { id = x.Id });
+
                     return model;
                 })
                 .AsyncToList();
@@ -205,7 +199,7 @@ namespace Smartstore.Admin.Controllers
                 _activityLogger.LogActivity(KnownActivityLogTypes.AddNewCheckoutAttribute, T("ActivityLog.AddNewCheckoutAttribute"), checkoutAttribute.Name);
 
                 NotifySuccess(T("Admin.Catalog.Attributes.CheckoutAttributes.Added"));
-                return continueEditing ? RedirectToAction("Edit", new { id = checkoutAttribute.Id }) : RedirectToAction("List");
+                return continueEditing ? RedirectToAction(nameof(Edit), new { id = checkoutAttribute.Id }) : RedirectToAction(nameof(List));
             }
 
             await PrepareCheckoutAttributeModelAsync(model, null, true);
@@ -255,7 +249,7 @@ namespace Smartstore.Admin.Controllers
                 _activityLogger.LogActivity(KnownActivityLogTypes.EditCheckoutAttribute, T("ActivityLog.EditCheckoutAttribute"), checkoutAttribute.Name);
 
                 NotifySuccess(T("Admin.Catalog.Attributes.CheckoutAttributes.Updated"));
-                return continueEditing ? RedirectToAction("Edit", checkoutAttribute.Id) : RedirectToAction("List");
+                return continueEditing ? RedirectToAction(nameof(Edit), checkoutAttribute.Id) : RedirectToAction(nameof(List));
             }
 
             await PrepareCheckoutAttributeModelAsync(model, checkoutAttribute, true);
@@ -279,7 +273,7 @@ namespace Smartstore.Admin.Controllers
             _activityLogger.LogActivity(KnownActivityLogTypes.DeleteCheckoutAttribute, T("ActivityLog.DeleteCheckoutAttribute"), checkoutAttribute.Name);
 
             NotifySuccess(T("Admin.Catalog.Attributes.CheckoutAttributes.Deleted"));
-            return RedirectToAction("List");
+            return RedirectToAction(nameof(List));
         }
 
         [HttpPost]
@@ -318,11 +312,13 @@ namespace Smartstore.Admin.Controllers
                  .ToPagedList(command)
                  .LoadAsync();
 
+            var mapper = MapperFactory.GetMapper<CheckoutAttributeValue, CheckoutAttributeValueModel>();
             var valuesModel = await values
                 .SelectAsync(async x =>
                 {
-                    var model = await MapperFactory.MapAsync<CheckoutAttributeValue, CheckoutAttributeValueModel>(x);
+                    var model = await mapper.MapAsync(x);
                     model.NameString = (x.Color.IsEmpty() ? x.Name : $"{x.Name} - {x.Color}").HtmlEncode();
+
                     return model;
                 })
                 .AsyncToList();

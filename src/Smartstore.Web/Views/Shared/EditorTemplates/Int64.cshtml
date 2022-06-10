@@ -10,7 +10,6 @@
        attrs="attributes"
        sm-decimals="@(GetMetadata<uint?>("decimals") ?? 0)"
        sm-postfix="@(GetMetadata<string>("postfix"))"
-       class="form-control"
        placeholder="@(GetMetadata<string>("placeholder") ?? T("Common.Empty").Value)"
        min="@(GetMetadata<long?>("min"))"
        max="@(GetMetadata<long?>("max"))"

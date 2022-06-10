@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.AspNetCore.Html;
+﻿using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Core.Content.Menus;
-using Smartstore.Core.Widgets;
 using Smartstore.Utilities;
 
 namespace Smartstore.Web.Rendering.Builders

@@ -1,7 +1,6 @@
 ﻿using Autofac;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using Smartstore.Core.DataExchange;
@@ -10,7 +9,6 @@ using Smartstore.Core.Identity;
 using Smartstore.Core.Identity.Rules;
 using Smartstore.Core.Rules;
 using Smartstore.Core.Rules.Rendering;
-using Smartstore.Engine;
 using Smartstore.Engine.Builders;
 using Smartstore.Net;
 
@@ -51,19 +49,10 @@ namespace Smartstore.Core.Bootstrapping
                     options.ReturnUrlParameter = "returnUrl";
                 });
 
-                // TODO: (mh) (core) Shift this to Facebook Auth module.
-                // TODO: (mh) (core) Remove Microsoft.AspNetCore.Authentication.Facebook from packages in Smartstore.Core and add to Facebook Auth module.
-                services.AddAuthentication()
-                    .AddCookie(CookieNames.ExternalAuthentication)
-                    .AddFacebook(facebookOptions =>
-                    {
-                        // TODO: (mh) (core) Replace values with module settings.
-                        facebookOptions.AppId = "491190308988489";
-                        facebookOptions.AppSecret = "bff1464d674c5992a517ea6b5eeb0f1e";
-                    });
+                services.AddAuthentication().AddCookie(CookieNames.ExternalAuthentication);
             }
 
-            // TODO: (core) // Add Identity IEmailSender and ISmsSender to service collection.
+            // TODO: (mh) (core) // Add Identity IEmailSender and ISmsSender to service collection.
             // RE: This won't be needed right now. Will be implemented when we offer real 2FA.
         }
 
@@ -94,7 +83,6 @@ namespace Smartstore.Core.Bootstrapping
             {
                 builder.Configure(StarterOrdering.AuthenticationMiddleware, app =>
                 {
-                    // TODO: (core) Check whether it's ok to run authentication middleware before routing. We desperately need auth before any RouteValueTransformer.
                     app.UseAuthentication();
                 });
 

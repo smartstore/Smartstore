@@ -1,16 +1,11 @@
-﻿using System;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Html;
+﻿using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 
 namespace Smartstore.Core.Widgets
 {
     public class PartialViewWidgetInvoker : WidgetInvoker
     {
-        private readonly string _partialName;
-        private readonly string _module;
-
         /// <summary>
         /// Creates a new instance of <see cref="PartialViewWidgetInvoker"/>.
         /// </summary>
@@ -20,20 +15,43 @@ namespace Smartstore.Core.Widgets
         {
             Guard.NotEmpty(partialName, nameof(partialName));
 
-            _partialName = partialName;
-            _module = module;
+            PartialName = partialName;
+            Module = module;
         }
 
-        public override async Task<IHtmlContent> InvokeAsync(ViewContext viewContext)
+        /// <summary>
+        /// Creates a new instance of <see cref="PartialViewWidgetInvoker"/>.
+        /// </summary>
+        /// <param name="partialName">Name of partial view to invoke.</param>
+        /// <param name="model">Model instance to pass to partial view..</param>
+        /// <param name="module">Optional: system name of a module to additionally search for view files in.</param>
+        public PartialViewWidgetInvoker(string partialName, object model, string module = null)
         {
-            var viewInvoker = viewContext.HttpContext.RequestServices.GetRequiredService<IViewInvoker>();
-            return await viewInvoker.InvokePartialViewAsync(_partialName, module: _module, viewData: viewContext.ViewData);
+            Guard.NotEmpty(partialName, nameof(partialName));
+
+            PartialName = partialName;
+            Module = module;
+            Model = model;
         }
+
+        public string PartialName { get; }
+        public string Module { get; }
+        public object Model { get; }
+
+        public override Task<IHtmlContent> InvokeAsync(ViewContext viewContext)
+            => InvokeAsync(viewContext, null);
 
         public override async Task<IHtmlContent> InvokeAsync(ViewContext viewContext, object model)
         {
+            var viewData = model == null
+                ? viewContext.ViewData
+                : new ViewDataDictionary<object>(viewContext.ViewData, model);
+
             var viewInvoker = viewContext.HttpContext.RequestServices.GetRequiredService<IViewInvoker>();
-            return await viewInvoker.InvokePartialViewAsync(_partialName, module: _module, model: model);
+            return await viewInvoker.InvokePartialViewAsync(
+                PartialName, 
+                module: Module, 
+                viewData: viewData);
         }
     }
 }

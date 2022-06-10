@@ -9,7 +9,8 @@
           allow-row-selection="true"
           preserve-grid-state="true" preserve-command-state="true"
           allow-column-reordering="true">
-    <datasource read="@Url.Action("SpecificationAttributeOptionList", new { specificationAttributeId = parentModel.Id })" delete="@Url.Action("SpecificationAttributeOptionDelete")" />
+    <datasource read="@Url.Action("SpecificationAttributeOptionList", new { specificationAttributeId = parentModel.Id })" 
+                delete="@Url.Action("SpecificationAttributeOptionDelete")" />
     <paging position="Bottom" page-index="1" show-size-chooser="true" />
     <sorting allow-unsort="true" allow-multisort="false">
         <sort by="DisplayOrder" />
@@ -21,7 +22,10 @@
                 <span>@T("Admin.Catalog.Attributes.SpecificationAttributes.Options.AddNew")</span>
             </button>
         </toolbar-group>
-        <toolbar-group class="omega">
+        <zone name="datagrid_toolbar_alpha"></zone>
+        <toolbar-group class="omega"></toolbar-group>
+        <zone name="datagrid_toolbar_omega"></zone>
+        <toolbar-group>
             <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger btn-flat">
                 <i class="far fa-trash-alt"></i>
                 <span>@T("Admin.Common.Delete.Selected")</span>

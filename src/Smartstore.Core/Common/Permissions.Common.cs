@@ -20,6 +20,7 @@
                 public const string Update = "configuration.currency.update";
                 public const string Create = "configuration.currency.create";
                 public const string Delete = "configuration.currency.delete";
+                public const string EditExchangeRate = "configuration.currency.editexchangerate";
             }
 
             public static class DeliveryTime

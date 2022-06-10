@@ -1,15 +1,7 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections;
 using System.Drawing;
 using System.Dynamic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 using Smartstore.Collections;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog;
@@ -31,7 +23,6 @@ using Smartstore.Core.Localization;
 using Smartstore.Core.Messaging.Events;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
-using Smartstore.Domain;
 using Smartstore.Engine.Modularity;
 using Smartstore.Http;
 using Smartstore.Imaging;
@@ -63,7 +54,7 @@ namespace Smartstore.Core.Messaging
         private readonly ILocalizationService _localizationService;
         private readonly ModuleManager _moduleManager;
         private readonly MessageModelHelper _helper;
-        private readonly IUrlHelper _urlHelper;
+        private readonly Lazy<IUrlHelper> _urlHelper;
         
         public MessageModelProvider(
             SmartDbContext db,
@@ -73,7 +64,7 @@ namespace Smartstore.Core.Messaging
             ILocalizationService localizationService,
             ModuleManager moduleManager,
             MessageModelHelper helper,
-            IUrlHelper urlHelper)
+            Lazy<IUrlHelper> urlHelper)
         {
             _db = db;
             _services = services;
@@ -263,7 +254,7 @@ namespace Smartstore.Core.Messaging
                     var partType = part.GetType();
                     modelPart = part;
 
-                    if (partType.IsPlainObjectType() && !partType.IsAnonymous())
+                    if (partType.IsPlainObjectType() && !partType.IsAnonymousType())
                     {
                         var evt = new MessageModelPartMappingEvent(part, messageContext);
                         await _services.EventPublisher.PublishAsync(evt);
@@ -312,7 +303,6 @@ namespace Smartstore.Core.Messaging
                     if (name == nameof(NewsletterSubscription))
                     {
                         // Info: Legacy code to support old message template tokens. 
-                        // TODO: (mh) (core) Write migration to translate this token in the database. Then change it in all email templates.
                         model["NewsLetterSubscription"] = modelPart;
                     }
                 }
@@ -382,13 +372,13 @@ namespace Smartstore.Core.Messaging
 
             dynamic m = new HybridExpando(settings, true);
 
-            m.NameLine = _helper.Concat(settings.Salutation, settings.Title, settings.Firstname, settings.Lastname);
-            m.StreetLine = _helper.Concat(settings.Street, settings.Street2);
-            m.CityLine = _helper.Concat(settings.ZipCode, settings.City);
+            m.NameLine = MessageModelHelper.GetValidValues(settings.Salutation, settings.Title, settings.Firstname, settings.Lastname);
+            m.StreetLine = MessageModelHelper.GetValidValues(settings.Street, settings.Street2);
+            m.CityLine = MessageModelHelper.GetValidValues(settings.ZipCode, settings.City);
 
             if (country != null)
             {
-                m.CountryLine = _helper.Concat(country.GetLocalized(x => x.Name), settings.Region);
+                m.CountryLine = MessageModelHelper.GetValidValues(country.GetLocalized(x => x.Name), settings.Region);
             }
 
             await _helper.PublishModelPartCreatedEventAsync<CompanyInformationSettings>(settings, m);
@@ -406,7 +396,7 @@ namespace Smartstore.Core.Messaging
         protected virtual async Task<object> CreateContactModelPartAsync(MessageContext messageContext)
         {
             var settings = await _services.SettingFactory.LoadSettingsAsync<ContactDataSettings>(messageContext.Store.Id);
-            var contact = new HybridExpando(settings, true) as dynamic;
+            dynamic contact = new HybridExpando(settings, true);
 
             // Aliases
             contact.Phone = new
@@ -464,8 +454,8 @@ namespace Smartstore.Core.Messaging
                 { "Name", part.Name },
                 { "Url", host },
                 { "Cdn", part.ContentDeliveryNetwork },
-                { "PrimaryStoreCurrency", part.PrimaryStoreCurrency?.CurrencyCode },
-                { "PrimaryExchangeRateCurrency", part.PrimaryExchangeRateCurrency?.CurrencyCode },
+                { "PrimaryStoreCurrency", _services.CurrencyService.PrimaryCurrency.CurrencyCode },
+                { "PrimaryExchangeRateCurrency", _services.CurrencyService.PrimaryExchangeCurrency.CurrencyCode },
                 { "Logo", await CreateModelPartAsync(logoFile, messageContext, host, null, new Size(400, 75)) },
                 { "Company", await CreateCompanyModelPartAsync(messageContext) },
                 { "Contact", await CreateContactModelPartAsync(messageContext) },
@@ -593,10 +583,9 @@ namespace Smartstore.Core.Messaging
             var accountActivationToken = part.GenericAttributes.AccountActivationToken;
             var customerVatStatus = (VatNumberStatus)part.VatNumberStatusId;
 
-            // TODO: (mh) (core) > Uncomment when available
-            //int rewardPointsBalance = part.GetRewardPointsBalance();
-            //decimal rewardPointsAmountBase = _services.Resolve<IOrderTotalCalculationService>().ConvertRewardPointsToAmount(rewardPointsBalance);
-            //decimal rewardPointsAmount = _services.Resolve<ICurrencyService>().ConvertFromPrimaryStoreCurrency(rewardPointsAmountBase, _services.WorkContext.WorkingCurrency);
+            int rewardPointsBalance = part.GetRewardPointsBalance();
+            var rewardPointsAmountBase = _services.Resolve<IOrderCalculationService>().ConvertRewardPointsToAmount(rewardPointsBalance);
+            var rewardPointsAmount = _services.Resolve<ICurrencyService>().ConvertFromPrimaryCurrency(rewardPointsAmountBase.Amount, _services.WorkContext.WorkingCurrency);
 
             var m = new Dictionary<string, object>
             {
@@ -609,7 +598,7 @@ namespace Smartstore.Core.Messaging
                 ["CreatedOn"] = _helper.ToUserDate(part.CreatedOnUtc, messageContext),
                 ["LastLoginOn"] = _helper.ToUserDate(part.LastLoginDateUtc, messageContext),
                 ["LastActivityOn"] = _helper.ToUserDate(part.LastActivityDateUtc, messageContext),
-                ["FullName"] = _helper.GetDisplayNameForCustomer(part).NullEmpty(),
+                ["FullName"] = MessageModelHelper.GetDisplayNameForCustomer(part).NullEmpty(),
                 ["VatNumber"] = part.GenericAttributes.VatNumber,
                 ["VatNumberStatus"] = customerVatStatus.GetLocalizedEnum(messageContext.Language.Id).NullEmpty(),
                 ["CustomerNumber"] = part.CustomerNumber.NullEmpty(),
@@ -618,7 +607,7 @@ namespace Smartstore.Core.Messaging
                 // URLs
                 ["WishlistUrl"] = _helper.BuildRouteUrl("Wishlist", new { customerGuid = part.CustomerGuid }, messageContext),
                 ["EditUrl"] = _helper.BuildActionUrl("Edit", "Customer", new { id = part.Id, area = "Admin" }, messageContext),
-                ["PasswordRecoveryURL"] = pwdRecoveryToken == null ? null : _helper.BuildActionUrl("passwordrecoveryconfirm", "customer",
+                ["PasswordRecoveryURL"] = pwdRecoveryToken == null ? null : _helper.BuildActionUrl("passwordrecoveryconfirm", "identity",
                     new { token = pwdRecoveryToken, email, area = "" }, 
                     messageContext),
                 ["AccountActivationURL"] = accountActivationToken == null ? null : _helper.BuildActionUrl("activation", "customer", 
@@ -629,11 +618,10 @@ namespace Smartstore.Core.Messaging
                 ["BillingAddress"] = await CreateModelPartAsync(part.BillingAddress ?? new Address(), messageContext),
                 ["ShippingAddress"] = part.ShippingAddress == null ? null : await CreateModelPartAsync(part.ShippingAddress, messageContext),
 
-                // TODO: (mh) (core) > Uncomment when available
                 // Reward Points
-                //["RewardPointsAmount"] = rewardPointsAmount,
-                //["RewardPointsBalance"] = FormatPrice(rewardPointsAmount, messageContext),
-                //["RewardPointsHistory"] = part.RewardPointsHistory.Count == 0 ? null : part.RewardPointsHistory.Select(x => CreateModelPart(x, messageContext)).ToList(),
+                ["RewardPointsAmount"] = rewardPointsAmount.Amount,
+                ["RewardPointsBalance"] = _helper.FormatPrice(rewardPointsAmount.Amount, messageContext),
+                ["RewardPointsHistory"] = part.RewardPointsHistory.Count == 0 ? null : part.RewardPointsHistory.Select(async x => await CreateModelPartAsync(x, messageContext)).ToList(),
             };
 
             await _helper.PublishModelPartCreatedEventAsync(part, m);
@@ -670,7 +658,7 @@ namespace Smartstore.Core.Messaging
             var order = part?.PurchasedWithOrderItem?.Order;
             if (order != null)
             {
-                var remainingAmountBase = _services.Resolve<IGiftCardService>().GetRemainingAmount(part);
+                var remainingAmountBase = await _services.Resolve<IGiftCardService>().GetRemainingAmountAsync(part);
                 remainingAmount = _helper.FormatPrice(remainingAmountBase.Amount, order, messageContext);
             }
             m["RemainingAmount"] = remainingAmount;
@@ -813,10 +801,10 @@ namespace Smartstore.Core.Messaging
                 { "Fax", settings.FaxEnabled ? part.FaxNumber : null }
             };
 
-            m["NameLine"] = _helper.Concat(salutation, title, firstName, lastName);
-            m["StreetLine"] = _helper.Concat(street1, street2);
-            m["CityLine"] = _helper.Concat(zip, city);
-            m["CountryLine"] = _helper.Concat(country, state);
+            m["NameLine"] = MessageModelHelper.GetValidValues(salutation, title, firstName, lastName);
+            m["StreetLine"] = MessageModelHelper.GetValidValues(street1, street2);
+            m["CityLine"] = MessageModelHelper.GetValidValues(zip, city);
+            m["CountryLine"] = MessageModelHelper.GetValidValues(country, state);
 
             await _helper.PublishModelPartCreatedEventAsync(part, m);
 
@@ -930,11 +918,11 @@ namespace Smartstore.Core.Messaging
         {
             var t = instance?.GetType();
             TreeNode<ModelTreeMember> node;
-            if (t == null || t.IsPredefinedType())
+            if (t == null || t.IsBasicOrNullableType())
             {
                 node = new TreeNode<ModelTreeMember>(new ModelTreeMember { Name = modelName, Kind = ModelTreeMemberKind.Primitive });
             }
-            else if (t.IsSequenceType() && !(instance is IDictionary<string, object>))
+            else if (t.IsSequenceType() && !t.IsDictionaryType())
             {
                 node = new TreeNode<ModelTreeMember>(new ModelTreeMember { Name = modelName, Kind = ModelTreeMemberKind.Collection });
             }
@@ -966,7 +954,7 @@ namespace Smartstore.Core.Messaging
             return node;
         }
 
-        private IEnumerable<TreeNode<ModelTreeMember>> BuildModelTreePartForClass(object instance)
+        private IEnumerable<TreeNode<ModelTreeMember>> BuildModelTreePartForClass(object instance, HashSet<object> instanceLookup = null)
         {
             var type = instance?.GetType();
 
@@ -979,7 +967,7 @@ namespace Smartstore.Core.Messaging
             {
                 var pi = prop.Property;
 
-                if (pi.PropertyType.IsPredefinedType())
+                if (pi.PropertyType.IsBasicOrNullableType())
                 {
                     yield return new TreeNode<ModelTreeMember>(new ModelTreeMember { Name = prop.Name, Kind = ModelTreeMemberKind.Primitive });
                 }
@@ -991,11 +979,25 @@ namespace Smartstore.Core.Messaging
                 {
                     yield return new TreeNode<ModelTreeMember>(new ModelTreeMember { Name = prop.Name, Kind = ModelTreeMemberKind.Collection });
                 }
-                else
+                else if (pi.PropertyType.IsClass)
                 {
-                    var node = new TreeNode<ModelTreeMember>(new ModelTreeMember { Name = prop.Name, Kind = ModelTreeMemberKind.Complex });
-                    node.AppendRange(BuildModelTreePartForClass(prop.GetValue(instance)));
-                    yield return node;
+                    if (instanceLookup == null)
+                    {
+                        instanceLookup = new HashSet<object>(ReferenceEqualityComparer.Instance) { instance };
+                    }
+
+                    var childInstance = prop.GetValue(instance);
+                    if (childInstance != null)
+                    {
+                        if (!instanceLookup.Contains(childInstance))
+                        {
+                            instanceLookup.Add(childInstance);
+
+                            var node = new TreeNode<ModelTreeMember>(new ModelTreeMember { Name = prop.Name, Kind = ModelTreeMemberKind.Complex });
+                            node.AppendRange(BuildModelTreePartForClass(childInstance, instanceLookup));
+                            yield return node;
+                        }
+                    }
                 }
             }
         }

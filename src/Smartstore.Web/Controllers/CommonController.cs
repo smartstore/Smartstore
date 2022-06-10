@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
 using System.Xml.Linq;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Smartstore.Core.Common.Services;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Smartstore.Caching;
 using Smartstore.Core.Content.Media;
-using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Localization.Routing;
@@ -16,57 +10,52 @@ using Smartstore.Core.Seo;
 using Smartstore.Core.Seo.Routing;
 using Smartstore.Core.Stores;
 using Smartstore.Core.Theming;
-using Smartstore.Core.Web;
 using Smartstore.Http;
 using Smartstore.Utilities;
+using Smartstore.Web.Infrastructure.Hooks;
 using Smartstore.Web.Models.Common;
+using Smartstore.Web.Rendering;
 
 namespace Smartstore.Web.Controllers
 {
     public class CommonController : PublicController
     {
         private readonly SmartDbContext _db;
-        private readonly IGeoCountryLookup _countryLookup;
         private readonly ICookieConsentManager _cookieConsentManager;
         private readonly Lazy<IMediaService> _mediaService;
         private readonly ILanguageService _languageService;
         private readonly UrlPolicy _urlPolicy;
-        private readonly IWebHelper _webHelper;
         private readonly IThemeContext _themeContext;
         private readonly IThemeRegistry _themeRegistry;
+        private readonly ICacheManager _cache;
         private readonly ThemeSettings _themeSettings;
         private readonly SeoSettings _seoSettings;
         private readonly LocalizationSettings _localizationSettings;
-        private readonly PrivacySettings _privacySettings;
         
         public CommonController(
             SmartDbContext db,
-            IGeoCountryLookup countryLookup,
             ICookieConsentManager cookieConsentManager,
             Lazy<IMediaService> mediaService,
             ILanguageService languageService,
             UrlPolicy urlPolicy,
-            IWebHelper webHelper,
             IThemeContext themeContext, 
-            IThemeRegistry themeRegistry, 
+            IThemeRegistry themeRegistry,
+            ICacheManager cache,
             ThemeSettings themeSettings,
             SeoSettings seoSettings,
-            LocalizationSettings localizationSettings,
-            PrivacySettings privacySettings)
+            LocalizationSettings localizationSettings)
         {
             _db = db;
-            _countryLookup = countryLookup;
             _cookieConsentManager = cookieConsentManager;
             _mediaService = mediaService;
             _languageService = languageService;
             _urlPolicy = urlPolicy;
-            _webHelper = webHelper;
             _themeContext = themeContext;
             _themeRegistry = themeRegistry;
+            _cache = cache;
             _themeSettings = themeSettings;
             _seoSettings = seoSettings;
             _localizationSettings = localizationSettings;
-            _privacySettings = privacySettings;
         }
 
         [CheckStoreClosed(false)]
@@ -230,70 +219,39 @@ namespace Smartstore.Web.Controllers
             return RedirectToReferrer(returnUrl);
         }
 
-        #region CookieManager
+        /// <summary>
+        /// This action method gets called via an AJAX request.
+        /// </summary>
+        [HttpGet]
+        public async Task<IActionResult> StatesByCountryId(string countryId, bool addEmptyStateIfRequired)
+        {
+            // This should never happen. But just in case we return an empty List to don't throw in frontend.
+            if (!countryId.HasValue())
+            {
+                return Json(new List<SelectListItem>());
+            }
+
+            var cacheKey = string.Format(ModelCacheInvalidator.STATEPROVINCES_BY_COUNTRY_MODEL_KEY, countryId, addEmptyStateIfRequired, Services.WorkContext.WorkingLanguage.Id);
+            var cacheModel = await _cache.GetAsync(cacheKey, async () =>
+            {
+                var stateProvinces = await _db.StateProvinces.GetStateProvincesByCountryIdAsync(Convert.ToInt32(countryId));
+                var result = stateProvinces.ToSelectListItems() ?? new List<SelectListItem>();
+
+                if (addEmptyStateIfRequired && result.Count == 0)
+                {
+                    result.Add(new SelectListItem { Text = T("Address.OtherNonUS"), Value = "0" });
+                }
+
+                return result;
+            });
+
+            return Json(cacheModel);
+        }
 
         [LocalizedRoute("/cookiemanager", Name = "CookieManager")]
-        public async Task<IActionResult> CookieManager()
+        public IActionResult CookieManager()
         {
-            if (!_privacySettings.EnableCookieConsent)
-            {
-                return new EmptyResult();
-            }
-
-            // If current country doesn't need cookie consent, don't display cookie manager.
-            if (!await DisplayForCountryAsync())
-            {
-                return new EmptyResult();
-            }
-
-            var cookieData = _cookieConsentManager.GetCookieData();
-
-            if (cookieData != null && !HttpContext.Request.IsAjaxRequest())
-            {
-                return new EmptyResult();
-            }
-
-            var model = new CookieManagerModel();
-
-            await PrepareCookieManagerModelAsync(model);
-
-            return PartialView(model);
-        }
-
-        private async Task<bool> DisplayForCountryAsync()
-        {
-            var ipAddress = _webHelper.GetClientIpAddress();
-            var lookUpCountryResponse = _countryLookup.LookupCountry(ipAddress);
-            if (lookUpCountryResponse?.IsoCode == null)
-            {
-                // No country was found (e.g. localhost), so we better return true.
-                return true;
-            }
-
-            var country = await _db.Countries
-                .AsNoTracking()
-                .ApplyIsoCodeFilter(lookUpCountryResponse.IsoCode)
-                .FirstOrDefaultAsync();
-            
-            if (country != null && country.DisplayCookieManager)
-            {
-                // Country was configured to display cookie manager.
-                return true;
-            }
-
-            return false;
-        }
-
-        private async Task PrepareCookieManagerModelAsync(CookieManagerModel model)
-        {
-            // Get cookie infos from plugins.
-            model.CookiesInfos = (await _cookieConsentManager.GetAllCookieInfosAsync(true)).ToList();
-
-            var cookie = _cookieConsentManager.GetCookieData();
-
-            model.AnalyticsConsent = cookie != null && cookie.AllowAnalytics;
-            model.ThirdPartyConsent = cookie != null && cookie.AllowThirdParty;
-            model.ModalCookieConsent = _privacySettings.ModalCookieConsent;
+            return ViewComponent("CookieManager");
         }
 
         [HttpPost]
@@ -314,7 +272,5 @@ namespace Smartstore.Web.Controllers
 
             return Json(new { Success = true });
         }
-
-        #endregion
     }
 }

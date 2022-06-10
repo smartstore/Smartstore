@@ -1,9 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.ComponentModel;
-using Smartstore.Core;
 using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Pricing;
@@ -11,7 +7,6 @@ using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Content.Media;
-using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Seo;
 
@@ -208,9 +203,8 @@ namespace Smartstore.Web.Models.Cart
             }
 
             var itemWarnings = new List<string>();
-            var itemCart = new ShoppingCart(customer, store.Id, new[] { from });
-
-            if (!await ShoppingCartValidator.ValidateCartAsync(itemCart, itemWarnings))
+            
+            if (!await ShoppingCartValidator.ValidateProductAsync(from.Item, itemWarnings))
             {
                 to.Warnings.AddRange(itemWarnings);
             }

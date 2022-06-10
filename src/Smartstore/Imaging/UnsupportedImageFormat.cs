@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Smartstore.Imaging
+﻿namespace Smartstore.Imaging
 {
     public class UnsupportedImageFormat : IImageFormat
     {

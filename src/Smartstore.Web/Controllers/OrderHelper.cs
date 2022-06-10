@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Humanizer;
-using Microsoft.EntityFrameworkCore;
+﻿using Humanizer;
 using Smartstore.ComponentModel;
-using Smartstore.Core;
 using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Products;
@@ -15,11 +9,9 @@ using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Checkout.Tax;
-using Smartstore.Core.Common;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Content.Media;
-using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
@@ -278,7 +270,6 @@ namespace Smartstore.Web.Controllers
             var catalogSettings = await settingFactory.LoadSettingsAsync<CatalogSettings>(store.Id);
             var taxSettings = await settingFactory.LoadSettingsAsync<TaxSettings>(store.Id);
             var pdfSettings = await settingFactory.LoadSettingsAsync<PdfSettings>(store.Id);
-            var addressSettings = await settingFactory.LoadSettingsAsync<AddressSettings>(store.Id);
             var companyInfoSettings = await settingFactory.LoadSettingsAsync<CompanyInformationSettings>(store.Id);
             var shoppingCartSettings = await settingFactory.LoadSettingsAsync<ShoppingCartSettings>(store.Id);
             var mediaSettings = await settingFactory.LoadSettingsAsync<MediaSettings>(store.Id);
@@ -312,6 +303,8 @@ namespace Smartstore.Web.Controllers
                 model.ShippingMethod = order.ShippingMethod;
 
                 // Shipments (only already shipped).
+                await _db.LoadCollectionAsync(order, x => x.Shipments);
+
                 var shipments = order.Shipments.Where(x => x.ShippedDateUtc.HasValue).OrderBy(x => x.CreatedOnUtc).ToList();
                 foreach (var shipment in shipments)
                 {
@@ -476,9 +469,11 @@ namespace Smartstore.Web.Controllers
             }
 
             // Gift cards.
+            await _db.LoadCollectionAsync(order, x => x.GiftCardUsageHistory, false, q => q.Include(x => x.GiftCard));
+
             foreach (var gcuh in order.GiftCardUsageHistory)
             {
-                var remainingAmountBase = _giftCardService.GetRemainingAmount(gcuh.GiftCard);
+                var remainingAmountBase = await _giftCardService.GetRemainingAmountAsync(gcuh.GiftCard);
                 var remainingAmount = _currencyService.ConvertToExchangeRate(remainingAmountBase.Amount, order.CurrencyRate, customerCurrency);
                 var usedAmount = _currencyService.ConvertToExchangeRate(gcuh.UsedValue, order.CurrencyRate, customerCurrency);
 
@@ -492,7 +487,9 @@ namespace Smartstore.Web.Controllers
                 model.GiftCards.Add(gcModel);
             }
 
-            // Reward points         .  
+            // Reward points.
+            await _db.LoadReferenceAsync(order, x => x.RedeemedRewardPointsEntry);
+
             if (order.RedeemedRewardPointsEntry != null)
             {
                 var usedAmount = _currencyService.ConvertToExchangeRate(order.RedeemedRewardPointsEntry.UsedAmount, order.CurrencyRate, customerCurrency);

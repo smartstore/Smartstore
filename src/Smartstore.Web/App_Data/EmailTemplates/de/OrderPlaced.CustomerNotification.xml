@@ -10,7 +10,7 @@
   Hallo {{ Customer.FullName }},
 </h1>
 <p>
-  herzlichen Dank für Ihre Bestellung bei <a href="{{ Store.URL }}">{{ Store.Name }}</a>, deren Erhalt wir hiermit bestätigen. Eine Übersicht über Ihre Bestellung finden Sie unten.
+  herzlichen Dank für Ihre Bestellung bei <a href="{{ Store.Url }}">{{ Store.Name }}</a>, deren Erhalt wir hiermit bestätigen. Eine Übersicht über Ihre Bestellung finden Sie unten.
 </p>
 
 <table class="w-100 mb-3">

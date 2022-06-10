@@ -1,15 +1,11 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Newtonsoft.Json;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Common;
-using Smartstore.Domain;
 
 namespace Smartstore.Core.Catalog.Attributes
 {
@@ -20,7 +16,7 @@ namespace Smartstore.Core.Catalog.Attributes
             builder.HasOne(c => c.Product)
                 .WithMany(c => c.ProductVariantAttributeCombinations)
                 .HasForeignKey(c => c.ProductId)
-                .IsRequired(false);
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.HasOne(c => c.DeliveryTime)
                 .WithMany()

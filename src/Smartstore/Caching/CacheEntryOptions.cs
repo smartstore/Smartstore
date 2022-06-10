@@ -1,23 +1,37 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace Smartstore.Caching
+﻿namespace Smartstore.Caching
 {
     public sealed class CacheEntryOptions
     {
-        private TimeSpan? _duration;
+        private TimeSpan? _absoluteExpiration;
+        private TimeSpan? _slidingExpiration;
         private HashSet<string> _dependencies;
 
         public CacheEntryOptions ExpiresIn(TimeSpan duration)
         {
-            _duration = duration;
+            if (duration <= TimeSpan.Zero)
+            {
+                throw new ArgumentOutOfRangeException(nameof(duration), duration, "The expiration value must be positive.");
+            }
+            
+            _absoluteExpiration = duration;
+            return this;
+        }
+
+        public CacheEntryOptions SetSlidingExpiration(TimeSpan duration)
+        {
+            if (duration <= TimeSpan.Zero)
+            {
+                throw new ArgumentOutOfRangeException(nameof(duration), duration, "The expiration value must be positive.");
+            }
+
+            _slidingExpiration = duration;
             return this;
         }
 
         public CacheEntryOptions NoExpiration()
         {
-            _duration = null;
+            _absoluteExpiration = null;
+            _slidingExpiration = null;
             return this;
         }
 
@@ -45,7 +59,8 @@ namespace Smartstore.Caching
                 Key = key,
                 Value = value,
                 ValueType = value?.GetType(),
-                Duration = _duration
+                AbsoluteExpiration = _absoluteExpiration,
+                SlidingExpiration = _slidingExpiration
             };
 
             if (_dependencies != null)

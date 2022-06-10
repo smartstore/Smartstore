@@ -1,18 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
+﻿using System.Runtime.CompilerServices;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Search;
 using Smartstore.Core.Search.Facets;
+using Smartstore.Core.Search.Indexing;
 using Smartstore.Core.Seo;
 using Smartstore.Diagnostics;
 
@@ -77,9 +70,9 @@ namespace Smartstore.Core.Catalog.Search
                         {
                             totalCount = await searchEngine.CountAsync();
                             // Fix paging boundaries.
-                            if (searchQuery.Skip > 0 && searchQuery.Skip >= totalCount)
+                            if (searchQuery.Skip > 0 && searchQuery.Skip > totalCount)
                             {
-                                searchQuery.Slice((totalCount / searchQuery.Take) * searchQuery.Take, searchQuery.Take);
+                                searchQuery.Slice(totalCount, searchQuery.Take);
                             }
                         }
 
@@ -140,7 +133,7 @@ namespace Smartstore.Core.Catalog.Search
 
                     return searchedEvent.Result;
                 }
-                else if (searchQuery.Origin.EqualsNoCase("Search/Search"))
+                else if (searchQuery.IsSearchPage())
                 {
                     IndexingRequiredNotification(_services);
                 }

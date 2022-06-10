@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Smartstore.Data.Hooks
+﻿namespace Smartstore.Data.Hooks
 {
     /// <summary>
     /// Turns hooking for a specific entity type explicitly on or off.

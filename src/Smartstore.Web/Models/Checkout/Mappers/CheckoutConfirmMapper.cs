@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-using Smartstore.ComponentModel;
-using Smartstore.Core;
+﻿using Smartstore.ComponentModel;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
@@ -45,7 +43,7 @@ namespace Smartstore.Web.Models.Checkout
             to.TermsOfServiceEnabled = _orderSettings.TermsOfServiceEnabled;
             to.ShowEsdRevocationWaiverBox = _shoppingCartSettings.ShowEsdRevocationWaiverBox;
             to.BypassPaymentMethodInfo = _paymentSettings.BypassPaymentMethodInfo;
-            to.NewsLetterSubscription = _shoppingCartSettings.NewsletterSubscription;
+            to.NewsletterSubscription = _shoppingCartSettings.NewsletterSubscription;
             to.ThirdPartyEmailHandOver = _shoppingCartSettings.ThirdPartyEmailHandOver;
             
             if (_shoppingCartSettings.ThirdPartyEmailHandOver != CheckoutThirdPartyEmailHandOver.None)

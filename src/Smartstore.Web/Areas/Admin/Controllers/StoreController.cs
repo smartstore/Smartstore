@@ -1,27 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Dynamic.Core;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+﻿using System.Linq.Dynamic.Core;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using Smartstore.Admin.Models.Store;
 using Smartstore.Admin.Models.Stores;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Search;
 using Smartstore.Core.Checkout.Cart;
+using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Content.Media;
-using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
-using Smartstore.Data.Batching;
-using Smartstore.Web.Controllers;
-using Smartstore.Web.Modelling;
-using Smartstore.Web.Models.DataGrid;
 using Smartstore.Web.Models;
+using Smartstore.Web.Models.DataGrid;
 
 namespace Smartstore.Admin.Controllers
 {
@@ -29,179 +20,16 @@ namespace Smartstore.Admin.Controllers
     {
         private readonly SmartDbContext _db;
         private readonly ICatalogSearchService _catalogSearchService;
+        private readonly CurrencySettings _currencySettings;
 
-        public StoreController(SmartDbContext db, ICatalogSearchService catalogSearchService)
+        public StoreController(
+            SmartDbContext db, 
+            ICatalogSearchService catalogSearchService,
+            CurrencySettings currencySettings)
         {
             _db = db;
             _catalogSearchService = catalogSearchService;
-        }
-
-        private async Task PrepareStoreModelAsync(StoreModel model, Store store)
-        {
-            var currencies = await _db.Currencies
-                .AsNoTracking()
-                .ApplyStandardFilter(false, store == null ? 0 : store.Id)
-                .ToListAsync();
-
-            model.AvailableCurrencies = currencies
-                .Select(x => new SelectListItem
-                {
-                    Text = x.GetLocalized(y => y.Name),
-                    Value = x.Id.ToString()
-                })
-                .ToList();
-        }
-
-        public IActionResult Index()
-        {
-            return RedirectToAction("List");
-        }
-
-        [Permission(Permissions.Configuration.Store.Read)]
-        public IActionResult List()
-        {
-            return View();
-        }
-
-        [HttpPost]
-        [Permission(Permissions.Configuration.Store.Read)]
-        public async Task<IActionResult> StoreList(GridCommand command)
-        {
-            var storeModels = await Services.StoreContext.GetAllStores()
-                .AsQueryable()
-                .ApplyGridCommand(command)
-                .SelectAsync(async x =>
-                {
-                    var model = await MapperFactory.MapAsync<Store, StoreModel>(x);
-
-                    await PrepareStoreModelAsync(model, x);
-
-                    model.HostList = model.Hosts.Convert<string[]>();
-                    model.ViewUrl = Url.Action("Edit", "Store", new { id = x.Id });
-
-                    return model;
-                })
-                .AsyncToList();
-
-            var stores = await storeModels
-                .ToPagedList(command.Page - 1, command.PageSize)
-                .LoadAsync();
-
-            var gridModel = new GridModel<StoreModel>
-            {
-                Rows = storeModels,
-                Total = stores.TotalCount
-            };
-
-            return Json(gridModel);
-        }
-
-        [Permission(Permissions.Configuration.Store.Create)]
-        public async Task<IActionResult> Create()
-        {
-            var model = new StoreModel();
-            await PrepareStoreModelAsync(model, null);
-
-            return View(model);
-        }
-
-        [HttpPost, ParameterBasedOnFormName("save-continue", "continueEditing")]
-        [Permission(Permissions.Configuration.Store.Create)]
-        public async Task<IActionResult> Create(StoreModel model, bool continueEditing)
-        {
-            if (ModelState.IsValid)
-            {
-                var store = await MapperFactory.MapAsync<StoreModel, Store>(model);
-
-                // Ensure we have "/" at the end.
-                store.Url = store.Url.EnsureEndsWith("/");
-                _db.Stores.Add(store);
-                await _db.SaveChangesAsync();
-
-                NotifySuccess(T("Admin.Configuration.Stores.Added"));
-                return continueEditing ? RedirectToAction("Edit", new { id = store.Id }) : RedirectToAction("List");
-            }
-
-            await PrepareStoreModelAsync(model, null);
-            return View(model);
-        }
-
-        [Permission(Permissions.Configuration.Store.Read)]
-        public async Task<IActionResult> Edit(int id)
-        {
-            var store = Services.StoreContext.GetStoreById(id);
-            if (store == null)
-            {
-                return RedirectToAction("List");
-            }
-
-            var model = await MapperFactory.MapAsync<Store, StoreModel>(store);
-            await PrepareStoreModelAsync(model, store);
-
-            return View(model);
-        }
-
-        [HttpPost, ParameterBasedOnFormName("save-continue", "continueEditing")]
-        [FormValueRequired("save", "save-continue")]
-        [Permission(Permissions.Configuration.Store.Update)]
-        public async Task<IActionResult> Edit(StoreModel model, bool continueEditing)
-        {
-            var store = await _db.Stores.FindByIdAsync(model.Id);
-            if (store == null)
-            {
-                return RedirectToAction("List");
-            }
-
-            if (ModelState.IsValid)
-            {
-                await MapperFactory.MapAsync(model, store);
-
-                // Ensure we have "/" at the end.
-                store.Url = store.Url.EnsureEndsWith("/");
-                await _db.SaveChangesAsync();
-                
-                NotifySuccess(T("Admin.Configuration.Stores.Updated"));
-                return continueEditing ? RedirectToAction("Edit", new { id = store.Id }) : RedirectToAction("List");
-            }
-
-            await PrepareStoreModelAsync(model, store);
-            return View(model);
-        }
-
-        [HttpPost]
-        [Permission(Permissions.Configuration.Store.Delete)]
-        public async Task<IActionResult> Delete(int id)
-        {
-            var store = await _db.Stores.FindByIdAsync(id);
-            if (store == null)
-            {
-                return RedirectToAction("List");
-            }
-
-            try
-            {
-                _db.Stores.Remove(store);
-                await _db.SaveChangesAsync();
-                
-                // When we delete a store we should also ensure that all "per store" settings will also be deleted.
-                await _db.Settings.Where(x => x.StoreId == id).BatchDeleteAsync();
-
-                // When we had two stores and now have only one store, we also should delete all "per store" settings.
-                var allStores = await _db.Stores.ToListAsync();
-                if (allStores.Count == 1)
-                {
-                    await _db.Settings.Where(x => x.StoreId == allStores[0].Id).BatchDeleteAsync();
-                }
-
-                NotifySuccess(T("Admin.Configuration.Stores.Deleted"));
-                return RedirectToAction("List");
-            }
-            catch (Exception ex)
-            {
-                NotifyError(ex);
-            }
-
-            return RedirectToAction("Edit", new { id = store.Id });
+            _currencySettings = currencySettings;
         }
 
         /// <summary>
@@ -220,15 +48,173 @@ namespace Smartstore.Admin.Controllers
                 stores.Insert(0, new Store { Name = label, Id = 0 });
             }
 
-            var list = from m in stores
-                select new ChoiceListItem
+            var list = stores
+                .Select(x => new ChoiceListItem
                 {
-                    Id = m.Id.ToString(),
-                    Text = m.Name,
-                    Selected = ids.Contains(m.Id)
-                };
+                    Id = x.Id.ToString(),
+                    Text = x.Name,
+                    Selected = ids.Contains(x.Id)
+                })
+                .ToList();
 
-            return new JsonResult(list.ToList());
+            return new JsonResult(list);
+        }
+
+        public IActionResult Index()
+        {
+            return RedirectToAction(nameof(List));
+        }
+
+        [Permission(Permissions.Configuration.Store.Read)]
+        public IActionResult List()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [Permission(Permissions.Configuration.Store.Read)]
+        public async Task<IActionResult> StoreList(GridCommand command)
+        {
+            var stores = Services.StoreContext.GetAllStores();
+            var mapper = MapperFactory.GetMapper<Store, StoreModel>();
+
+            var rows = await stores
+                .AsQueryable()
+                .ApplyGridCommand(command)
+                .SelectAsync(async x =>
+                {
+                    var model = await mapper.MapAsync(x);
+                    model.HostList = model.Hosts.Convert<string[]>();
+                    model.EditUrl = Url.Action(nameof(Edit), "Store", new { id = x.Id });
+
+                    return model;
+                })
+                .AsyncToList();
+
+            return Json(new GridModel<StoreModel>
+            {
+                Rows = rows,
+                Total = rows.Count
+            });
+        }
+
+        [Permission(Permissions.Configuration.Store.Create)]
+        public async Task<IActionResult> Create()
+        {
+            await PrepareViewBag(null);
+
+            var model = new StoreModel
+            {
+                DefaultCurrencyId = _currencySettings.PrimaryCurrencyId
+            };
+
+            return View(model);
+        }
+
+        [HttpPost, ParameterBasedOnFormName("save-continue", "continueEditing")]
+        [Permission(Permissions.Configuration.Store.Create)]
+        public async Task<IActionResult> Create(StoreModel model, bool continueEditing)
+        {
+            if (ModelState.IsValid)
+            {
+                var store = await MapperFactory.MapAsync<StoreModel, Store>(model);
+
+                // Ensure we have "/" at the end.
+                store.Url = store.Url.EnsureEndsWith("/");
+
+                // INFO: we have to do this because we have a foreign key constraint on these fields.
+                store.PrimaryExchangeRateCurrencyId = _currencySettings.PrimaryExchangeCurrencyId;
+
+                _db.Stores.Add(store);
+                await _db.SaveChangesAsync();
+
+                NotifySuccess(T("Admin.Configuration.Stores.Added"));
+
+                return continueEditing 
+                    ? RedirectToAction(nameof(Edit), new { id = store.Id }) 
+                    : RedirectToAction(nameof(List));
+            }
+
+            await PrepareViewBag(null);
+
+            return View(model);
+        }
+
+        [Permission(Permissions.Configuration.Store.Read)]
+        public async Task<IActionResult> Edit(int id)
+        {
+            var store = Services.StoreContext.GetStoreById(id);
+            if (store == null)
+            {
+                return RedirectToAction(nameof(List));
+            }
+
+            var model = await MapperFactory.MapAsync<Store, StoreModel>(store);
+
+            await PrepareViewBag(store);
+
+            return View(model);
+        }
+
+        [HttpPost, ParameterBasedOnFormName("save-continue", "continueEditing")]
+        [FormValueRequired("save", "save-continue")]
+        [Permission(Permissions.Configuration.Store.Update)]
+        public async Task<IActionResult> Edit(StoreModel model, bool continueEditing)
+        {
+            var store = await _db.Stores.FindByIdAsync(model.Id);
+            if (store == null)
+            {
+                return RedirectToAction(nameof(List));
+            }
+
+            if (ModelState.IsValid)
+            {
+                await MapperFactory.MapAsync(model, store);
+
+                // Ensure we have "/" at the end.
+                store.Url = store.Url.EnsureEndsWith("/");
+                
+                // INFO: we have to do this because we have a foreign key constraint on these fields.
+                store.PrimaryExchangeRateCurrencyId = _currencySettings.PrimaryExchangeCurrencyId;
+
+                await _db.SaveChangesAsync();
+                
+                NotifySuccess(T("Admin.Configuration.Stores.Updated"));
+
+                return continueEditing 
+                    ? RedirectToAction(nameof(Edit), new { id = store.Id }) 
+                    : RedirectToAction(nameof(List));
+            }
+
+            await PrepareViewBag(store);
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [Permission(Permissions.Configuration.Store.Delete)]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var store = await _db.Stores.FindByIdAsync(id);
+            if (store == null)
+            {
+                return RedirectToAction(nameof(List));
+            }
+
+            try
+            {
+                _db.Stores.Remove(store);
+                await _db.SaveChangesAsync();
+                
+                NotifySuccess(T("Admin.Configuration.Stores.Deleted"));
+                return RedirectToAction(nameof(List));
+            }
+            catch (Exception ex)
+            {
+                NotifyError(ex);
+            }
+
+            return RedirectToAction(nameof(Edit), new { id = store.Id });
         }
 
         [SaveChanges(typeof(SmartDbContext), false)]
@@ -265,6 +251,22 @@ namespace Smartstore.Admin.Controllers
             };
 
             return new JsonResult(new { model });
+        }
+
+        private async Task PrepareViewBag(Store store)
+        {
+            var currencies = await _db.Currencies
+                .AsNoTracking()
+                .ApplyStandardFilter(false, store?.Id ?? 0)
+                .ToListAsync();
+
+            ViewBag.Currencies = currencies
+                .Select(x => new SelectListItem
+                {
+                    Text = x.GetLocalized(y => y.Name),
+                    Value = x.Id.ToString()
+                })
+                .ToList();
         }
     }
 }

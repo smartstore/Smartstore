@@ -1,7 +1,4 @@
-﻿using System;
-using System.Threading;
-
-namespace Smartstore.Web.Bundling
+﻿namespace Smartstore.Web.Bundling
 {
     public interface IBundleContextAccessor
     {

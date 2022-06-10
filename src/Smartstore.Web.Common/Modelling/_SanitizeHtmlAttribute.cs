@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Smartstore.Web.Modelling
+﻿namespace Smartstore.Web.Modelling
 {
     // TODO: (core) Finish implementation and usage of SanitizeHtmlAttribute
 

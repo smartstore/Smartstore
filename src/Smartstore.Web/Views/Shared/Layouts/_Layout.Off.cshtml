@@ -3,8 +3,6 @@
 @{
     Layout = "_Document";
 
-    <zone name="body_start_html_tag_after"></zone>
-
     Assets.BodyAttributes.AppendCssClass("lyt-cols-1");
 
     if (Display.GetThemeVariable<bool>("boxed"))
@@ -25,7 +23,7 @@
 
             <partial name="JavaScriptDisabledWarning" />
 
-            <zone name="content-before"></zone>
+            <zone name="content_before"></zone>
 
             <section id="content" class="container">
                 <div id="content-body" class="row">
@@ -52,5 +50,3 @@
 </div>
 
 <partial name="Notifications" />
-
-<zone name="body_end_html_tag_before"></zone>

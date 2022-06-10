@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
+﻿using System.Diagnostics;
 using Microsoft.Extensions.FileProviders;
 
 namespace Smartstore.IO
@@ -65,13 +61,19 @@ namespace Smartstore.IO
         }
 
         /// <inheritdoc />
+        public DateTimeOffset CreatedOn
+        {
+            get => _di.CreationTimeUtc;
+        }
+
+        /// <inheritdoc />
         public DateTimeOffset LastModified
         {
             get => _di.LastWriteTimeUtc;
         }
 
         /// <summary>
-        /// Always false.
+        /// Always true.
         /// </summary>
         public bool IsDirectory
         {
@@ -98,7 +100,8 @@ namespace Smartstore.IO
             }
         }
 
-        Stream IFileInfo.CreateReadStream() => throw new NotSupportedException();
+        Stream IFileInfo.CreateReadStream() 
+            => throw new NotSupportedException();
 
         public void Delete()
         {
@@ -123,7 +126,7 @@ namespace Smartstore.IO
 
             if (!_di.Exists)
             {
-                throw new FileSystemException($"Cannot move directory '{SubPath}' because it does not exist.");
+                throw new DirectoryNotFoundException($"Cannot move directory '{SubPath}' because it does not exist.");
             }
 
             var fullDstPath = _fs.MapPathInternal(ref newPath, true);
@@ -133,7 +136,7 @@ namespace Smartstore.IO
                 throw new FileSystemException($"Cannot move directory because the target path '{newPath}' already exists.");
             }
 
-            _di.MoveTo(newPath);
+            _di.MoveTo(fullDstPath);
         }
 
         public IEnumerable<IFileEntry> EnumerateEntries(string pattern = "*", bool deep = false)

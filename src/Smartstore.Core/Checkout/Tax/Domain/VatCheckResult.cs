@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Smartstore.Core.Checkout.Tax
+﻿namespace Smartstore.Core.Checkout.Tax
 {
     /// <summary>
     /// Represents the result of VAT number check.

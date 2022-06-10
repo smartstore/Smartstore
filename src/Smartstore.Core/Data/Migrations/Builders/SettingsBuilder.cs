@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace Smartstore.Core.Data.Migrations
+﻿namespace Smartstore.Core.Data.Migrations
 {
     internal class SettingEntry
     {

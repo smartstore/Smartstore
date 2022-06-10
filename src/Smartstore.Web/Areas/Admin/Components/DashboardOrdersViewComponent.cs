@@ -1,14 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Smartstore.Admin.Models.Orders;
+﻿using Smartstore.Admin.Models.Orders;
 using Smartstore.Core.Checkout.Orders.Reporting;
 using Smartstore.Core.Common.Services;
-using Smartstore.Core.Data;
-using Smartstore.Web.Components;
+using Smartstore.Core.Security;
 
 namespace Smartstore.Admin.Components
 {
@@ -25,13 +18,18 @@ namespace Smartstore.Admin.Components
 
         public async Task<IViewComponentResult> InvokeAsync()
         {
+            if (!await Services.Permissions.AuthorizeAsync(Permissions.Order.Read))
+            {
+                return Empty();
+            }
+
             // Get orders of at least last 28 days (if year is younger)
             var utcNow = DateTime.UtcNow;
             var beginningOfYear = new DateTime(utcNow.Year, 1, 1);
             var startDate = (utcNow.Date - beginningOfYear).Days < 28 ? utcNow.AddDays(-27).Date : beginningOfYear;
             var orderDataPoints = await _db.Orders
                 .AsNoTracking()
-                .ApplyDateFilter(startDate, null)
+                .ApplyAuditDateFilter(startDate, null)
                 .Select(x => new OrderDataPoint
                 {
                     CreatedOn = x.CreatedOnUtc,
@@ -123,10 +121,10 @@ namespace Smartstore.Admin.Components
                 ).Sum(x => x.OrderTotal),
 
                 // Get orders count for month.
-                await _db.Orders.ApplyDateFilter(beginningOfYear.AddDays(-56), utcNow.Date.AddDays(-28)).GetOrdersTotalAsync(),
+                await _db.Orders.ApplyAuditDateFilter(beginningOfYear.AddDays(-56), utcNow.Date.AddDays(-28)).GetOrdersTotalAsync(),
 
                 // Get orders count for year.
-                await _db.Orders.ApplyDateFilter(beginningOfYear.AddYears(-1), utcNow.AddYears(-1)).GetOrdersTotalAsync()
+                await _db.Orders.ApplyAuditDateFilter(beginningOfYear.AddYears(-1), utcNow.AddYears(-1)).GetOrdersTotalAsync()
             };
 
             // Format percentage value

@@ -1,18 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Runtime.CompilerServices;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
+﻿using System.Runtime.CompilerServices;
 using Smartstore.Caching;
 using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Data;
 using Smartstore.Data;
 using Smartstore.Data.Hooks;
-using Smartstore.Domain;
 
 namespace Smartstore.Core.Localization
 {
@@ -148,7 +140,7 @@ namespace Smartstore.Core.Localization
             if (languageId == 0)
                 return;
 
-            var collection = await GetLocalizedPropertyCollectionInternalAsync(localeKeyGroup, languageId, entityIds, isRange, isSorted);
+            var collection = await GetLocalizedPropertyCollectionInternal(localeKeyGroup, languageId, entityIds, isRange, isSorted);
 
             if (_prefetchedCollections.TryGetValue(localeKeyGroup, out var existing))
             {
@@ -162,10 +154,10 @@ namespace Smartstore.Core.Localization
 
         public virtual Task<LocalizedPropertyCollection> GetLocalizedPropertyCollectionAsync(string localeKeyGroup, int[] entityIds, bool isRange = false, bool isSorted = false)
         {
-            return GetLocalizedPropertyCollectionInternalAsync(localeKeyGroup, 0, entityIds, isRange, isSorted);
+            return GetLocalizedPropertyCollectionInternal(localeKeyGroup, 0, entityIds, isRange, isSorted);
         }
 
-        protected virtual async Task<LocalizedPropertyCollection> GetLocalizedPropertyCollectionInternalAsync(
+        protected virtual async Task<LocalizedPropertyCollection> GetLocalizedPropertyCollectionInternal(
             string localeKeyGroup, 
             int languageId, 
             int[] entityIds, 
@@ -180,6 +172,7 @@ namespace Smartstore.Core.Localization
                             where x.LocaleKeyGroup == localeKeyGroup
                             select x;
 
+                var splitEntityIds = false;
                 var requestedSet = entityIds;
 
                 if (entityIds != null && entityIds.Length > 0)
@@ -192,7 +185,7 @@ namespace Smartstore.Core.Localization
                         }
 
                         var min = entityIds[0];
-                        var max = entityIds[entityIds.Length - 1];
+                        var max = entityIds[^1];
 
                         if (entityIds.Length == 2 && max > min + 1)
                         {
@@ -205,7 +198,15 @@ namespace Smartstore.Core.Localization
                     else
                     {
                         requestedSet = entityIds;
-                        query = query.Where(x => entityIds.Contains(x.EntityId));
+
+                        if (entityIds.Length > 5000)
+                        {
+                            splitEntityIds = true;
+                        }
+                        else
+                        {
+                            query = query.Where(x => entityIds.Contains(x.EntityId));
+                        }
                     }
                 }
 
@@ -214,7 +215,20 @@ namespace Smartstore.Core.Localization
                     query = query.Where(x => x.LanguageId == languageId);
                 }
 
-                return new LocalizedPropertyCollection(localeKeyGroup, requestedSet, await query.ToListAsync());
+                if (splitEntityIds)
+                {
+                    var items = new List<LocalizedProperty>();
+                    foreach (var chunk in entityIds.Chunk(5000))
+                    {
+                        items.AddRange(await query.Where(x => chunk.Contains(x.EntityId)).ToListAsync());
+                    }
+
+                    return new LocalizedPropertyCollection(localeKeyGroup, requestedSet, items);
+                }
+                else
+                {
+                    return new LocalizedPropertyCollection(localeKeyGroup, requestedSet, await query.ToListAsync());
+                }
             }
         }
 

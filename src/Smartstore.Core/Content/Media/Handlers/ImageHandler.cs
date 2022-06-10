@@ -1,8 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using Smartstore.Core.Content.Media.Imaging;
+﻿using Smartstore.Core.Content.Media.Imaging;
 
 namespace Smartstore.Core.Content.Media
 {
@@ -31,6 +27,7 @@ namespace Smartstore.Core.Content.Media
                 DisposeSource = false
             };
 
+            await using (inputStream)
             using (var result = await _imageProcessor.ProcessImageAsync(processQuery, false))
             {
                 Logger.Debug($"Processed image '{cachedImage.FileName}' in {result.ProcessTimeMs} ms.");

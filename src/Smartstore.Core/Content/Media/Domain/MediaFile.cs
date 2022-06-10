@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Newtonsoft.Json;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Localization;
-using Smartstore.Domain;
 
 namespace Smartstore.Core.Content.Media
 {
@@ -42,7 +38,11 @@ namespace Smartstore.Core.Content.Media
                         .HasForeignKey("MediaFile_Id")
                         .HasConstraintName("FK_dbo.MediaFile_Tag_Mapping_dbo.MediaFile_MediaFile_Id")
                         .OnDelete(DeleteBehavior.Cascade),
-                    c => c.HasKey("MediaFile_Id", "MediaTag_Id"));
+                    c =>
+                    {
+                        c.HasIndex("MediaFile_Id");
+                        c.HasKey("MediaFile_Id", "MediaTag_Id");
+                    });
         }
     }
 
@@ -182,6 +182,12 @@ namespace Smartstore.Core.Content.Media
         [JsonIgnore]
         public bool Deleted { get; set; }
 
+        bool ISoftDeletable.ForceDeletion
+        {
+            // User decides whether media file should be deleted permanently/physically.
+            get => true;
+        }
+
         /// <summary>
         /// Gets or sets a value indicating whether the file is hidden.
         /// </summary>
@@ -190,7 +196,7 @@ namespace Smartstore.Core.Content.Media
 
         /// <summary>
         /// Internally used for migration stuff only.
-        /// 0 = needs migration because existed in previous versions already, 1 = was migrated by migrator, 2 = relations has been detected.
+        /// 0 = needs migration because existed in previous versions already, 1 = was migrated by migrator, 2 = relations have been detected.
         /// </summary>
         [JsonIgnore]
         public int Version { get; set; } = 2;

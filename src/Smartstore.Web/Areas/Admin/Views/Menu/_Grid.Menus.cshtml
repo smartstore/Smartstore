@@ -1,0 +1,49 @@
+﻿@using Smartstore.Admin.Models.Menus
+
+@model MenuEntityModel
+
+@{
+    var parentModel = ViewData["Parent"] as MenuEntityListModel;
+}
+
+<datagrid id="menus-grid"
+          allow-resize="true"
+          allow-row-selection="false"
+          allow-column-reordering="true">
+    <datasource read="@Url.Action("MenuEntityList", "Menu")" delete="@Url.Action("MenuEntityDelete", "Menu")" />
+    <sorting enabled="true">
+        <sort by="SystemName" />
+    </sorting>
+    <paging position="Bottom" show-size-chooser="true" />
+    <toolbar>
+        <toolbar-group>
+            <button datagrid-action="DataGridToolAction.ToggleSearchPanel" type="button" class="btn btn-light btn-icon">
+                <i class="fa fa-fw fa-filter"></i>
+            </button>
+        </toolbar-group>
+        <toolbar-group>
+            <a asp-action="Create" class="btn btn-primary btn-flat no-anims mr-auto">
+                <i class="fa fa-plus"></i>
+                <span>@T("Admin.Common.AddNew")...</span>
+            </a>
+        </toolbar-group>
+    </toolbar>
+    <search-panel>
+        <partial name="_Grid.Menus.Search" model="parentModel" />
+    </search-panel>
+    <columns>
+        <column for="SystemName" hideable="false">
+            <display-template>
+                <div class="text-truncate"><a :href="item.row.EditUrl" class="text-truncate">{{ item.value }}</a></div>
+            </display-template>
+        </column>
+        <column for="Title" />
+        <column for="Published" halign="center" />
+        <column for="DisplayOrder" halign="center" />
+        <column for="LimitedToStores" halign="center" />
+    </columns>
+    <row-commands>
+        <a datarow-action="DataRowAction.Custom" :href="item.row.EditUrl">@T("Common.Edit")</a>
+        <a datarow-action="DataRowAction.Delete" v-bind:class="{ disabled: item.row.IsSystemMenu }">@T("Common.Delete")</a>
+    </row-commands>
+</datagrid>

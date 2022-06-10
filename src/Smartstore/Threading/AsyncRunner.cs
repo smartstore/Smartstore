@@ -1,7 +1,4 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Autofac;
+﻿using Autofac;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -23,7 +20,6 @@ namespace Smartstore.Threading
             _appLifetime = appLifetime;
             _scopeAccessor = scopeAccessor;
 
-            _appLifetime.ApplicationStopping.Register(OnAppShutdown);
             AppShutdownCancellationToken = _appLifetime.ApplicationStopping;
         }
 
@@ -42,11 +38,6 @@ namespace Smartstore.Threading
             return userCancellationToken == CancellationToken.None
                 ? AppShutdownCancellationToken
                 : CancellationTokenSource.CreateLinkedTokenSource(AppShutdownCancellationToken, userCancellationToken).Token;
-        }
-
-        private void OnAppShutdown()
-        {
-            // TODO: (core) Do what exactly? Is this necessary?
         }
 
         #region Run methods

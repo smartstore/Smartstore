@@ -1,17 +1,12 @@
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Newtonsoft.Json;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Common;
-using Smartstore.Domain;
 
 namespace Smartstore.Core.Identity
 {
@@ -39,8 +34,13 @@ namespace Smartstore.Core.Identity
                         .HasForeignKey("Customer_Id")
                         .HasConstraintName("FK_dbo.CustomerAddresses_dbo.Customer_Customer_Id")
                         .OnDelete(DeleteBehavior.Cascade),
-                    c => c.HasKey("Customer_Id", "Address_Id"));
+                    c =>
+                    {
+                        c.HasIndex("Customer_Id");
+                        c.HasKey("Customer_Id", "Address_Id");
+                    });
 
+            // INFO: we cannot set both addresses to DeleteBehavior.SetNull. It would produce cycles or multiple cascade paths.
             builder
                 .HasOne(c => c.BillingAddress)
                 .WithOne(navigationName: null)
@@ -49,7 +49,8 @@ namespace Smartstore.Core.Identity
             builder
                 .HasOne(c => c.ShippingAddress)
                 .WithOne(navigationName: null)
-                .HasForeignKey<Customer>(c => c.ShippingAddressId);
+                .HasForeignKey<Customer>(c => c.ShippingAddressId)
+                .OnDelete(DeleteBehavior.SetNull);
         }
     }
 
@@ -155,6 +156,12 @@ namespace Smartstore.Core.Identity
         /// Gets or sets a value indicating whether the customer has been deleted
         /// </summary>
         public bool Deleted { get; set; }
+
+        bool ISoftDeletable.ForceDeletion
+        {
+            // We don't want to soft-delete ordinary guest customer accounts.
+            get => !IsSystemAccount && Email == null && Username == null;
+        }
 
         /// <summary>
         /// Gets or sets a value indicating whether the customer account is system

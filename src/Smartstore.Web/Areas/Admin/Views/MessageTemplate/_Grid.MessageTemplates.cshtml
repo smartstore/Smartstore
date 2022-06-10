@@ -2,17 +2,12 @@
 
 @model MessageTemplateModel
 
-@{
-    var parentModel = ViewData["Parent"] as SettingListModel;
-    // TODO: (mh) (core) Add more hidden fields to grid (like To, ReplyTo etc.)
-}
-
 <datagrid id="templates-grid"
           allow-resize="true"
           allow-row-selection="true"
           allow-column-reordering="true">
-    <datasource read="@Url.Action("List", "MessageTemplate")"
-                delete="@Url.Action("DeleteSelection", "MessageTemplate")" />
+    <datasource read="@Url.Action("MessageTemplateList", "MessageTemplate")"
+                delete="@Url.Action("MessageTemplateDelete", "MessageTemplate")" />
     <sorting enabled="true">
         <sort by="Name" />
     </sorting>
@@ -23,7 +18,10 @@
                 <i class="fa fa-fw fa-filter"></i>
             </button>
         </toolbar-group>
-        <toolbar-group class="omega">
+        <zone name="datagrid_toolbar_alpha"></zone>
+        <toolbar-group class="omega"></toolbar-group>
+        <zone name="datagrid_toolbar_omega"></zone>
+        <toolbar-group>
             <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger no-anims btn-flat">
                 <i class="far fa-trash-alt"></i>
                 <span>@T("Admin.Common.Delete.Selected")</span>
@@ -31,7 +29,7 @@
         </toolbar-group>
     </toolbar>
     <search-panel>
-        <partial name="_Grid.MessageTemplates.Search" model="parentModel" />
+        <partial name="_Grid.MessageTemplates.Search" />
     </search-panel>
     <columns>
         <column for="Name" width="350px" hideable="false">
@@ -43,6 +41,10 @@
         <column for="IsActive" halign="center" />
         <column for="SendManually" halign="center" />
         <column for="LimitedToStores" halign="center" />
+
+        <column for="To" halign="center" visible="false" />
+        <column for="ReplyTo" halign="center" visible="false" />
+        <column for="BccEmailAddresses" halign="center" visible="false" />
     </columns>
     <row-commands>
         <a datarow-action="DataRowAction.Custom" :href="item.row.EditUrl">@T("Common.Edit")</a>

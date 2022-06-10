@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Smartstore.Core.Checkout.Orders.Reporting
+﻿namespace Smartstore.Core.Checkout.Orders.Reporting
 {
     /// <summary>
     /// Represents a order chart data point.

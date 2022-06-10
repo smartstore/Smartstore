@@ -1,24 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using Smartstore.ComponentModel;
+﻿using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Brands;
 using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Content.Media;
-using Smartstore.Core.Seo;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
 using Smartstore.Data;
-using Smartstore.Diagnostics;
-using Smartstore.Domain;
 using Smartstore.Data.Hooks;
-using EfState = Microsoft.EntityFrameworkCore.EntityState;
+using Smartstore.Diagnostics;
 
 namespace Smartstore.Core.Catalog.Products
 {
@@ -221,14 +213,14 @@ namespace Smartstore.Core.Catalog.Products
 
         private async Task ProcessSlugs(Product product, Product clone, IEnumerable<Language> languages)
         {
-            var slugResult = await _urlService.ValidateSlugAsync(clone, clone.Name, true);
+            var slugResult = await _urlService.ValidateSlugAsync(clone, string.Empty, clone.Name, true);
             await _urlService.ApplySlugAsync(slugResult, true);
 
             foreach (var lang in languages)
             {
                 string name = product.GetLocalized(x => x.Name, lang, false, false);
 
-                slugResult = await _urlService.ValidateSlugAsync(clone, name, false, lang.Id);
+                slugResult = await _urlService.ValidateSlugAsync(clone, string.Empty, name, false, lang.Id);
                 await _urlService.ApplySlugAsync(slugResult, true);
             }
         }
