@@ -1360,9 +1360,9 @@ namespace Smartstore.Web.Controllers
             model.LegalInfo = model.LegalInfo.TrimSafe();
 
             var dimension = await _db.MeasureDimensions.AsNoTracking().FirstOrDefaultAsync(x => x.Id == _measureSettings.BaseDimensionId);
-            var weight = await _db.MeasureWeights.AsNoTracking().FirstOrDefaultAsync(x => x.Id == _measureSettings.BaseDimensionId);
+            var weight = await _db.MeasureWeights.AsNoTracking().FirstOrDefaultAsync(x => x.Id == _measureSettings.BaseWeightId);
             var dimensionSystemKeyword = dimension?.SystemKeyword ?? string.Empty;
-            var weightSystemKeyword = dimension?.SystemKeyword ?? string.Empty;
+            var weightSystemKeyword = weight?.SystemKeyword ?? string.Empty;
 
             // INFO: model.WeightValue already calculated in previous helper methods.
             model.Weight = (model.WeightValue > 0) ? $"{model.WeightValue:N2} {weightSystemKeyword}" : string.Empty;
