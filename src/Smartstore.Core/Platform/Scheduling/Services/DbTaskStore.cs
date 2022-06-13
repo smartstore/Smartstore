@@ -39,7 +39,7 @@ namespace Smartstore.Scheduling
 
             { "IndexingTask", "SmartStore.MegaSearch.IndexingTask, SmartStore.MegaSearch" },
             { "ForumIndexingTask", "SmartStore.MegaSearch.ForumIndexingTask, SmartStore.MegaSearch" },
-            { "FileImportTask", "SmartStore.BMEcat.FileImportTask, SmartStore.BMEcat" }
+            { "BMEcatImportTask", "SmartStore.BMEcat.FileImportTask, SmartStore.BMEcat" }
         };
 
         private readonly SmartDbContext _db;
