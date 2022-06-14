@@ -167,6 +167,8 @@ namespace Smartstore.Net.Mail
                 multipart.Add(BuildMimePart(attachment));
             }
 
+            msg.Body = multipart;
+
             // Headers
             foreach (var kvp in original.Headers)
             {
