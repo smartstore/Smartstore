@@ -755,6 +755,7 @@ namespace Smartstore.Admin.Controllers
             return View(model);
         }
 
+        // TODO: (mg) (core) ajaxify POST PartiallyRefundOrderPopup (feels bad this way because it may take a while).
         [HttpPost]
         [FormValueRequired("partialrefundorder")]
         [Permission(Permissions.Order.Update)]

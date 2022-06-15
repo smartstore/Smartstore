@@ -114,16 +114,23 @@
                                 </button>
                             </div>
 
-                            <div sm-if="Model.ButtonPaymentMethods.Items.Any()" class="addon-buttons">
+                            @{
+                                var paymentButtons = (await Model.ButtonPaymentMethods.Items
+                                    .SelectAsync(async x => await x.InvokeAsync(ViewContext))
+                                    .AsyncToList())
+                                    .Where(x => !x.ToString().IsEmpty());
+                            }
+
+                            <div sm-if="paymentButtons.Any()" class="addon-buttons">
                                 <div class="d-flex justify-content-sm-end justify-content-center flex-wrap">
                                     <div class="mt-3 mb-1 d-block col-12 text-center text-sm-right">
                                         <span>@T("ShoppingCart.AlternativePaymentButtons")</span>
                                     </div>
 
                                     @*Payment method buttons (e.g. Paypal, Amazon Pay)*@
-                                    @foreach (var item in Model.ButtonPaymentMethods.Items)
+                                    @foreach (var item in paymentButtons)
                                     {
-                                        @await item.InvokeAsync(ViewContext)
+                                        @item
                                     }
                                 </div>
                             </div>

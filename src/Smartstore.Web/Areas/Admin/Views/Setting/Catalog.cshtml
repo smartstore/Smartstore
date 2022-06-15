@@ -37,6 +37,15 @@
                 </div>
                 <div class="adminRow">
                     <div class="adminTitle">
+                        <smart-label asp-for="UseSmallProductBoxOnHomePage" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="UseSmallProductBoxOnHomePage"></setting-editor>
+                        <span asp-validation-for="UseSmallProductBoxOnHomePage"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
                         <smart-label asp-for="ShowBestsellersOnHomepage" />
                     </div>
                     <div class="adminData">
@@ -72,7 +81,7 @@
                 </div>
                 <div class="adminRow">
                     <div class="adminTitle">
-                        <smart-label asp-for="ShowBestsellersOnHomepage" />
+                        <smart-label asp-for="ShowProductSku" />
                     </div>
                     <div class="adminData">
                         <setting-editor asp-for="ShowProductSku"></setting-editor>

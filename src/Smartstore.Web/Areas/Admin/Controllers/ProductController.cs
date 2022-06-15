@@ -556,6 +556,24 @@ namespace Smartstore.Admin.Controllers
             return RedirectToAction(nameof(Edit), new { id = copyModel.Id });
         }
 
+        [HttpPost]
+        public async Task<IActionResult> GetBasePrice(int productId, string basePriceMeasureUnit, decimal basePriceAmount, int basePriceBaseAmount)
+        {
+            var product = await _db.Products.FindByIdAsync(productId);
+            string basePrice = string.Empty;
+
+            if (basePriceAmount != decimal.Zero)
+            {
+                var basePriceValue = Convert.ToDecimal(product.Price / basePriceAmount * basePriceBaseAmount);
+                var basePriceFormatted = _currencyService.ConvertFromPrimaryCurrency(basePriceValue, _workContext.WorkingCurrency).ToString();
+                var unit = $"{basePriceBaseAmount} {basePriceMeasureUnit}";
+
+                basePrice = T("Admin.Catalog.Products.Fields.BasePriceInfo", $"{basePriceAmount:G29} {basePriceMeasureUnit}", basePriceFormatted, unit);
+            }
+
+            return Json(new { Result = true, BasePrice = basePrice });
+        }
+
         #endregion
 
         #region Product categories
