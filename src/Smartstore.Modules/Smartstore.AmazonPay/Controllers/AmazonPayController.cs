@@ -585,7 +585,7 @@ namespace Smartstore.AmazonPay.Controllers
 
             // Get and process order.
             // Lock so that the order does not have the same processing several times, resulting in redundant order notes.
-            using (await AsyncLock.KeyedAsync("amazonpay:ipn:" + chargePermissionId))
+            using (await AsyncLock.KeyedAsync("amazonpay:ipn:" + chargePermissionId, TimeSpan.FromSeconds(30)))
             {
                 var order = await _db.Orders.FirstOrDefaultAsync(x => x.PaymentMethodSystemName == AmazonPayProvider.SystemName && x.AuthorizationTransactionCode == chargePermissionId);
                 if (order == null)
