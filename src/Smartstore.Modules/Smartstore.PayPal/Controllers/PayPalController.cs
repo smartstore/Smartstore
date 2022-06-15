@@ -104,7 +104,7 @@ namespace Smartstore.PayPal.Controllers
                         return NotFound();
                     }
                     
-                    Order order = order = await _db.Orders.FirstOrDefaultAsync(x => x.OrderGuid == orderGuid);
+                    var order = await _db.Orders.FirstOrDefaultAsync(x => x.OrderGuid == orderGuid);
 
                     if (order == null)
                     {

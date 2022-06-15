@@ -32,7 +32,7 @@
         <PackageReference Include="CronExpressionDescriptor" Version="2.16.0" />
         <PackageReference Include="HtmlSanitizer" Version="7.1.475" />
         <PackageReference Include="Humanizer" Version="2.13.14" />
-        <PackageReference Include="MailKit" Version="3.1.0" />
+        <PackageReference Include="MailKit" Version="3.3.0" />
         <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.4" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="6.0.4" />
         <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="6.0.0" />
