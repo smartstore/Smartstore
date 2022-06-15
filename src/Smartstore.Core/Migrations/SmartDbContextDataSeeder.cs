@@ -19,6 +19,12 @@ namespace Smartstore.Core.Data.Migrations
 
         public void MigrateLocaleResources(LocaleResourcesBuilder builder)
         {
+            builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.UseSmallProductBoxOnHomePage",
+                "Use small product box on homepage",
+                "Kleine Produktbox auf der Homepage verwenden",
+                "Defines the size of the product boxes on the homepage of your store.",
+                "Bestimmt die Größe der Produktboxen auf der Startseite Ihres Shops.");
+
             builder.AddOrUpdate("Admin.Configuration.Themes.Option.AssetCachingEnabled.Hint",
                 "Determines whether compiled asset files should be cached in file system in order to speed up application restarts. Select 'Auto' if caching should depend on the current environment (Debug = disabled, Production = enabled).",
                 "Legt fest, ob kompilierte JS- und CSS-Dateien wie bspw. 'Sass' im Dateisystem zwischengespeichert werden sollen, um den Programmstart zu beschleunigen. Wählen Sie 'Automatisch', wenn das Caching von der aktuellen Umgebung abhängig sein soll (Debug = deaktiviert, Produktiv = aktiviert).");

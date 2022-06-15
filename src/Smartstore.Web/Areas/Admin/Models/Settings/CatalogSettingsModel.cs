@@ -55,6 +55,9 @@ namespace Smartstore.Admin.Models
         [LocalizedDisplay("*IncludeFullDescriptionInCompareProducts")]
         public bool IncludeFullDescriptionInCompareProducts { get; set; }
 
+        [LocalizedDisplay("*UseSmallProductBoxOnHomePage")]
+        public bool UseSmallProductBoxOnHomePage { get; set; }
+
         [LocalizedDisplay("*ShowBestsellersOnHomepage")]
         public bool ShowBestsellersOnHomepage { get; set; }
 
