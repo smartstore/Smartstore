@@ -122,7 +122,7 @@ namespace Smartstore.Admin.Controllers
             {
                 query = query.Where(x => x.StoreId == model.SearchStoreId);
             }
-            
+
             var settings = await query
                 .OrderBy(x => x.Name)
                 .ApplyGridCommand(command)
@@ -162,6 +162,7 @@ namespace Smartstore.Admin.Controllers
             {
                 model.Value = model.Value.Trim();
             }
+            model.StoreId = model.StoreId.GetValueOrDefault();
 
             var success = false;
             var setting = await _db.Settings.FindByIdAsync(model.Id);
@@ -186,13 +187,13 @@ namespace Smartstore.Admin.Controllers
             {
                 model.Value = model.Value.Trim();
             }
-            
+
             var success = true;
             var setting = new Setting();
             await MapperFactory.MapAsync(model, setting);
             _db.Settings.Add(setting);
             await _db.SaveChangesAsync();
-            
+
             return Json(new { success });
         }
 
@@ -424,7 +425,7 @@ namespace Smartstore.Admin.Controllers
         [LoadSetting(IsRootedModel = true)]
         public async Task<IActionResult> CustomerUser(
             int storeScope,
-            CustomerSettings customerSettings, 
+            CustomerSettings customerSettings,
             AddressSettings addressSettings,
             PrivacySettings privacySettings)
         {
@@ -445,8 +446,8 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Configuration.Setting.Update)]
         [HttpPost, SaveSetting(IsRootedModel = true)]
         public async Task<IActionResult> CustomerUser(
-            CustomerUserSettingsModel model, 
-            int storeScope, 
+            CustomerUserSettingsModel model,
+            int storeScope,
             CustomerSettings customerSettings,
             AddressSettings addressSettings,
             PrivacySettings privacySettings)
@@ -474,7 +475,7 @@ namespace Smartstore.Admin.Controllers
                 await Services.SettingFactory.SaveSettingsAsync(customerSettings, storeScope);
                 _identityOptionsConfigurer.Value.Configure(_identityOptions.Value);
             }
-            
+
             await MapperFactory.MapAsync(model.AddressSettings, addressSettings);
             await MapperFactory.MapAsync(model.PrivacySettings, privacySettings);
 
@@ -488,9 +489,9 @@ namespace Smartstore.Admin.Controllers
             return NotifyAndRedirect("CustomerUser");
         }
 
-        private static bool ShouldUpdateIdentityOptions(CustomerUserSettingsModel.CustomerSettingsModel model, CustomerSettings settings) 
-        { 
-            if (model.PasswordMinLength != settings.PasswordMinLength 
+        private static bool ShouldUpdateIdentityOptions(CustomerUserSettingsModel.CustomerSettingsModel model, CustomerSettings settings)
+        {
+            if (model.PasswordMinLength != settings.PasswordMinLength
                 || model.PasswordRequireDigit != settings.PasswordRequireDigit
                 || model.PasswordRequireUppercase != settings.PasswordRequireUppercase
                 || model.PasswordRequiredUniqueChars != settings.PasswordRequiredUniqueChars
@@ -539,15 +540,15 @@ namespace Smartstore.Admin.Controllers
         public async Task<IActionResult> CookieInfoDelete(GridSelection selection)
         {
             var numDeleted = 0;
-            
+
             // First deserialize setting.
             var ciList = JsonConvert.DeserializeObject<List<CookieInfo>>(_privacySettings.CookieInfos);
-            foreach(var name in selection.SelectedKeys)
+            foreach (var name in selection.SelectedKeys)
             {
                 ciList.Remove(x => x.Name.EqualsNoCase(name));
                 numDeleted++;
             }
-            
+
             // Now serialize again.
             _privacySettings.CookieInfos = JsonConvert.SerializeObject(ciList, Formatting.None);
 
@@ -572,7 +573,7 @@ namespace Smartstore.Admin.Controllers
             {
                 return View(model);
             }
-            
+
             // Deserialize
             var ciList = JsonConvert.DeserializeObject<List<CookieInfo>>(_privacySettings.CookieInfos);
 
@@ -965,7 +966,7 @@ namespace Smartstore.Admin.Controllers
             {
                 NotifySuccess(T("Admin.Common.TaskSuccessfullyProcessed"));
             }
-            
+
             return RedirectToAction("Media");
         }
 
@@ -977,7 +978,7 @@ namespace Smartstore.Admin.Controllers
             {
                 CapturePaymentReason = settings.CapturePaymentReason
             };
-            
+
             return View(model);
         }
 
@@ -1126,7 +1127,7 @@ namespace Smartstore.Admin.Controllers
             }
 
             ModelState.Clear();
-            
+
             await MapperFactory.MapAsync(model, settings);
 
             return NotifyAndRedirect("RewardPoints");
