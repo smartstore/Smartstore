@@ -265,7 +265,7 @@
                 if (xhr && xhr.getResponseHeader) {
                     var msg = xhr.getResponseHeader('X-Message');
                     if (msg) {
-                        showNotification(decode(msg), xhr.getResponseHeader('X-Message-Type'));
+                        showNotification(msg, xhr.getResponseHeader('X-Message-Type'));
                     }
                 }
 
@@ -1040,11 +1040,7 @@
         }
     }
 
-    var showNotification = _.throttle(function (msg, type) {
-        displayNotification(decodeURIComponent(escape(msg)), type);
-    }, 750, { leading: true, trailing: true });
-
-    function decode(str) {
+    function decodeMessage(str) {
         if (str) {
             try {
                 str = atob(str);
@@ -1052,7 +1048,7 @@
             catch (e) { }
 
             try {
-                return decodeURIComponent(unescape(str));
+                return decodeURIComponent(escape(str));
             }
             catch (e) {
                 return str;
@@ -1061,6 +1057,10 @@
 
         return str;
     }
+
+    var showNotification = _.throttle(function (msg, type) {
+        displayNotification(decodeMessage(msg), type);
+    }, 750, { leading: true, trailing: true });
 
 })(jQuery);
 
