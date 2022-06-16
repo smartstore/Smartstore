@@ -128,15 +128,23 @@
         else if (opts.smallIcon) {
             $(opts.smallIcon).append(window.createCircularSpinner(16, true));
         }
+        else if (opts.buttonIcon) {
+            $(opts.buttonIcon).prop('disabled', true).prepend('<i class="fa fa-fw fa-spinner fa-spin"></i>');
+        }
     }
 
     function hideAnimation(opts) {
-        if (opts.curtainTitle)
+        if (opts.curtainTitle) {
             $.throbber.hide(true);
-        if (opts.throbber)
+        }
+        if (opts.throbber) {
             $(opts.throbber).data('throbber').hide(true);
+        }
         if (opts.smallIcon) {
             $(opts.smallIcon).find('.spinner').remove();
+        }
+        if (opts.buttonIcon) {
+            $(opts.buttonIcon).prop('disabled', false).find('.fa-spinner').remove();
         }
     }
 

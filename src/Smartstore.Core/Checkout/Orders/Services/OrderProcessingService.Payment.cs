@@ -490,7 +490,7 @@ namespace Smartstore.Core.Checkout.Orders
                 if (result.Success)
                 {
                     if (result.PlacedOrder == null)
-                        throw new SmartException(T("Order.NotFound", "".NaIfEmpty()));
+                        throw new SmartException(T("Order.NotFound", StringExtensions.NotAvailable));
 
                     recurringPayment.RecurringPaymentHistory.Add(new RecurringPaymentHistory
                     {

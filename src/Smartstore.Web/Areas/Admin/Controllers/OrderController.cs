@@ -731,9 +731,9 @@ namespace Smartstore.Admin.Controllers
         }
 
         [Permission(Permissions.Order.Update)]
-        public async Task<IActionResult> PartiallyRefundOrderPopup(string btnId, string formId, int id, bool online)
+        public async Task<IActionResult> PartiallyRefundOrderPopup(int id, bool online)
         {
-            var order = await _db.Orders.FindByIdAsync(id);
+            var order = await _db.Orders.FindByIdAsync(id, false);
             if (order == null)
             {
                 return NotFound();
@@ -748,60 +748,61 @@ namespace Smartstore.Admin.Controllers
                 MaxAmountToRefundString = Format(maxAmountToRefund)
             };
 
-            ViewBag.BtnId = btnId;
-            ViewBag.FormId = formId;
             ViewBag.Online = online;
+            ViewBag.PrimaryStoreCurrencyCode = _primaryCurrency.CurrencyCode;
 
             return View(model);
         }
 
-        // TODO: (mg) (core) ajaxify POST PartiallyRefundOrderPopup (feels bad this way because it may take a while).
         [HttpPost]
-        [FormValueRequired("partialrefundorder")]
         [Permission(Permissions.Order.Update)]
-        public async Task<IActionResult> PartiallyRefundOrderPopup(string btnId, string formId, bool online, OrderModel.RefundModel model)
+        public async Task<IActionResult> PartiallyRefundOrder(OrderModel.RefundModel model, bool online)
         {
-            var order = await _db.Orders.FindByIdAsync(model.Id);
-            if (order == null)
-            {
-                return NotFound();
-            }
+            var success = false;
 
             try
             {
-                IList<string> errors = null;
-                var amountToRefund = model.AmountToRefund;
-                var maxAmountToRefund = order.OrderTotal - order.RefundedAmount;
+                var order = await _db.Orders.FindByIdAsync(model.Id);
+                if (order != null)
+                {
+                    var maxAmountToRefund = order.OrderTotal - order.RefundedAmount;
+                    var amountToRefund = model.AmountToRefund;
 
-                if (amountToRefund > maxAmountToRefund)
-                {
-                    amountToRefund = maxAmountToRefund;
-                }
+                    if (amountToRefund > maxAmountToRefund)
+                    {
+                        amountToRefund = maxAmountToRefund;
+                    }
 
-                if (amountToRefund <= decimal.Zero)
-                {
-                    errors = new List<string> { T("Admin.OrderNotice.RefundAmountError") };
-                }
-                else if (online)
-                {
-                    errors = await _orderProcessingService.PartiallyRefundAsync(order, amountToRefund);
+                    if (amountToRefund <= decimal.Zero)
+                    {
+                        NotifyError(T("Admin.OrderNotice.RefundAmountError"));
+                    }
+                    else if (online)
+                    {
+                        var errors = await _orderProcessingService.PartiallyRefundAsync(order, amountToRefund);
+                        if (errors.Count == 0)
+                        {
+                            success = true;
+                        }
+                        else
+                        {
+                            errors.Each(x => NotifyError(x, false));
+                        }
+                    }
+                    else
+                    {
+                        await _orderProcessingService.PartiallyRefundOfflineAsync(order, amountToRefund);
+                        success = true;
+                    }
+
+                    if (success)
+                    {
+                        Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditOrder, T("ActivityLog.EditOrder"), order.GetOrderNumber());
+                    }
                 }
                 else
                 {
-                    await _orderProcessingService.PartiallyRefundOfflineAsync(order, amountToRefund);
-                }
-
-                if (errors?.Any() ?? false)
-                {
-                    errors.Each(x => NotifyError(x, false));
-                }
-                else
-                {
-                    Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditOrder, T("ActivityLog.EditOrder"), order.GetOrderNumber());
-
-                    ViewBag.RefreshPage = true;
-                    ViewBag.BtnId = btnId;
-                    ViewBag.FormId = formId;
+                    NotifyError(T("Order.NotFound", model.Id));
                 }
             }
             catch (Exception ex)
@@ -810,10 +811,7 @@ namespace Smartstore.Admin.Controllers
                 NotifyError(ex, false);
             }
 
-            model.MaxAmountToRefund = order.OrderTotal - order.RefundedAmount;
-            model.MaxAmountToRefundString = Format(model.MaxAmountToRefund);
-
-            return View(model);
+            return Json(new { success });
         }
 
         #endregion

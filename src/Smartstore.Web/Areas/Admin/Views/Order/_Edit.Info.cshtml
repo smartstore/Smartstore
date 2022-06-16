@@ -426,13 +426,13 @@
         // Refund dialogs.
         $('#partiallyrefundorder').on('click', function (e) {
             e.preventDefault();
-            openPopup('@Url.Action("PartiallyRefundOrderPopup", "Order", new { id = Model.Id, online = "true", btnId = "btnRefreshPage", formId = "order-form" })');
+            openPopup('@Url.Action("PartiallyRefundOrderPopup", "Order", new { id = Model.Id, online = "true" })');
             return false;
         });
 
         $('#partiallyrefundorderoffline').on('click', function (e) {
             e.preventDefault();
-            openPopup('@Url.Action("PartiallyRefundOrderPopup", "Order", new { id = Model.Id, online = "false", btnId = "btnRefreshPage", formId = "order-form" })');
+            openPopup('@Url.Action("PartiallyRefundOrderPopup", "Order", new { id = Model.Id, online = "false" })');
             return false;
         });
     });
