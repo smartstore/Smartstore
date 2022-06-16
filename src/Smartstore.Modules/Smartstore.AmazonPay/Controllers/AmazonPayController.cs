@@ -229,7 +229,6 @@ namespace Smartstore.AmazonPay.Controllers
                 }
             }
 
-
             // Update customer.
             var billingAddress = customer.FindAddress(billTo.Address);
             if (billingAddress != null)

@@ -182,7 +182,7 @@ namespace Smartstore.Admin.Models
 
         private static string MapMediaType(string types, MediaType mediaType)
         {
-            return types.NullEmpty() ?? string.Join(" ", mediaType.DefaultExtensions);
+            return types.NullEmpty() ?? string.Join(' ', mediaType.DefaultExtensions);
         }
     }
 }

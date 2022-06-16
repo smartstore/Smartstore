@@ -920,7 +920,7 @@ namespace Smartstore.Admin.Controllers
 
             model.StorageProvider = provider != null ? _moduleManager.Value.GetLocalizedFriendlyName(provider.Metadata) : null;
 
-            ViewBag.AvailableStorageProvider = _providerManager.GetAllProviders<IMediaStorageProvider>()
+            ViewBag.AvailableStorageProviders = _providerManager.GetAllProviders<IMediaStorageProvider>()
                 .Where(x => !x.Metadata.SystemName.EqualsNoCase(currentStorageProvider))
                 .Select(x => new SelectListItem { Text = _moduleManager.Value.GetLocalizedFriendlyName(x.Metadata), Value = x.Metadata.SystemName })
                 .ToList();
@@ -930,24 +930,16 @@ namespace Smartstore.Admin.Controllers
 
         [Permission(Permissions.Configuration.Setting.Update)]
         [HttpPost, FormValueRequired("save")]
-        [SaveSetting(BindParameterFromStore = false)]
+        [SaveSetting]
         public async Task<IActionResult> Media(MediaSettings settings, MediaSettingsModel model)
         {
             if (!ModelState.IsValid)
             {
-                // TODO: (mh) (core) Getting the setting throws. Probably an async problem. When calling this twice it works for the first time :-/
-                //var test = await Services.Settings.GetSettingByKeyAsync<string>("Media.Storage.Provider");
-                var currentStorageProvider = await Services.Settings.GetSettingByKeyAsync<string>("Media.Storage.Provider");
-                ViewBag.AvailableStorageProvider = _providerManager.GetAllProviders<IMediaStorageProvider>()
-                    .Where(x => !x.Metadata.SystemName.EqualsNoCase(currentStorageProvider))
-                    .Select(x => new SelectListItem { Text = _moduleManager.Value.GetLocalizedFriendlyName(x.Metadata), Value = x.Metadata.SystemName })
-                    .ToList();
-
                 return await Media(settings);
             }
 
             ModelState.Clear();
-            await MapperFactory.MapAsync<MediaSettingsModel, MediaSettings>(model);
+            await MapperFactory.MapAsync(model, settings);
 
             return NotifyAndRedirect("Media");
         }
