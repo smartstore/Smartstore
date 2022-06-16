@@ -278,7 +278,7 @@
                         <smart-label asp-for="StorageProvider" />
                     </div>
                     <div class="adminData">
-                        <select asp-for="StorageProvider" asp-items="ViewBag.AvailableStorageProvider"></select>
+                        <select asp-for="StorageProvider" asp-items="ViewBag.AvailableStorageProviders"></select>
 
                         <button type="button" id="MoveMediaButton" class="btn btn-danger mt-3" data-url="@Url.Action("ChangeMediaStorage")">
                             <i class="fa fa-fw fa-dolly"></i>
