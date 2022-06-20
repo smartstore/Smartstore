@@ -1,4 +1,5 @@
-﻿using Smartstore.Caching.Tasks;
+﻿using Microsoft.EntityFrameworkCore.Query;
+using Smartstore.Caching.Tasks;
 using Smartstore.Core.Catalog.Rules;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Common.Settings;
@@ -404,7 +405,14 @@ namespace Smartstore.Scheduling
 
             query = query.ApplyCurrentMachineNameFilter();
 
-            return await ExecuteWithRetry(() => query.FirstOrDefaultAsync());
+            if (query is IAsyncQueryProvider)
+            {
+                return await ExecuteWithRetry(() => query.FirstOrDefaultAsync());
+            }
+            else
+            {
+                return query.FirstOrDefault();
+            }
         }
 
         public virtual Task InsertExecutionInfoAsync(TaskExecutionInfo info)
