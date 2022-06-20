@@ -39,6 +39,12 @@ namespace Smartstore.Google.Analytics.Components
 
         public async Task<IViewComponentResult> InvokeAsync() 
         { 
+            // If GoogleId is empty or is default don't render anything.
+            if (!_settings.GoogleId.HasValue() || _settings.GoogleId == "UA-0000000-0")
+            {
+                return Empty();
+            }
+
             var globalScript = string.Empty;
             var routeData = HttpContext.GetRouteData();
 
