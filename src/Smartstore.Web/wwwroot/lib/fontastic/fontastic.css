@@ -1,8 +1,8 @@
 @font-face {
     font-family: 'fontastic';
-    src: url('fonts/fontastic.ttf?syejbu') format('truetype'), 
-         url('fonts/fontastic.woff?syejbu') format('woff'), 
-         url('fonts/fontastic.svg?syejbu#fontastic') format('svg');
+    src: url('fonts/fontastic.ttf?rad6zi') format('truetype'), 
+         url('fonts/fontastic.woff?rad6zi') format('woff'), 
+         url('fonts/fontastic.svg?rad6zi#fontastic') format('svg');
     font-weight: normal;
     font-style: normal;
     font-display: block;
@@ -24,6 +24,10 @@
 
 .icm-home:before {
     content: "\e600";
+}
+
+.icm-color-sampler:before {
+    content: "\e627";
 }
 
 .icm-database:before {
@@ -82,6 +86,18 @@
     content: "\e74d";
 }
 
+.icm-cart-full:before {
+    content: "\e74f";
+}
+
+.icm-tag:before {
+    content: "\e755";
+}
+
+.icm-tags:before {
+    content: "\e756";
+}
+
 .icm-credit-card:before {
     content: "\e759";
 }
@@ -96,6 +112,18 @@
 
 .icm-calculator:before {
     content: "\e766";
+}
+
+.icm-power-switch:before {
+    content: "\e7b8";
+}
+
+.icm-bubble:before {
+    content: "\e7d6";
+}
+
+.icm-bubbles:before {
+    content: "\e7d7";
 }
 
 .icm-bubble-dots:before {
@@ -154,8 +182,20 @@
     content: "\e8b5";
 }
 
+.icm-mic:before {
+    content: "\e8cb";
+}
+
 .icm-refresh:before {
     content: "\e8d3";
+}
+
+.icm-undo:before {
+    content: "\e8d5";
+}
+
+.icm-redo:before {
+    content: "\e8d6";
 }
 
 .icm-sync:before {
@@ -170,8 +210,28 @@
     content: "\e8f6";
 }
 
+.icm-bug:before {
+    content: "\e90a";
+}
+
+.icm-code:before {
+    content: "\e90b";
+}
+
+.icm-link2:before {
+    content: "\e917";
+}
+
+.icm-unlink2:before {
+    content: "\e918";
+}
+
 .icm-thumbs-up:before {
     content: "\e919";
+}
+
+.icm-thumbs-down:before {
+    content: "\e91a";
 }
 
 .icm-magnifier:before {
@@ -180,6 +240,10 @@
 
 .icm-cross:before {
     content: "\e92a";
+}
+
+.icm-menu:before {
+    content: "\e92b";
 }
 
 .icm-list:before {
@@ -200,6 +264,10 @@
 
 .icm-plus:before {
     content: "\e936";
+}
+
+.icm-percent:before {
+    content: "\e938";
 }
 
 .icm-chevron-left:before {
@@ -234,6 +302,74 @@
     content: "\e94b";
 }
 
+.icm-expand2:before {
+    content: "\e94c";
+}
+
+.icm-contract2:before {
+    content: "\e94d";
+}
+
+.icm-move:before {
+    content: "\e94e";
+}
+
+.icm-tab:before {
+    content: "\e94f";
+}
+
+.icm-expand3:before {
+    content: "\e951";
+}
+
+.icm-expand4:before {
+    content: "\e952";
+}
+
+.icm-contract3:before {
+    content: "\e953";
+}
+
+.icm-frame-expand:before {
+    content: "\e971";
+}
+
+.icm-frame-contract:before {
+    content: "\e972";
+}
+
+.icm-grid:before {
+    content: "\e975";
+}
+
+.icm-layers:before {
+    content: "\e977";
+}
+
+.icm-funnel:before {
+    content: "\e97c";
+}
+
+.icm-page-break:before {
+    content: "\e9b3";
+}
+
+.icm-page-break2:before {
+    content: "\e9b4";
+}
+
+.icm-sort-amount-asc:before {
+    content: "\e9b9";
+}
+
+.icm-sort-amount-desc:before {
+    content: "\e9ba";
+}
+
+.icm-ellipsis:before {
+    content: "\e9e9";
+}
+
 .icm-server:before {
     content: "\e666";
 }
@@ -252,6 +388,42 @@
 
 .icm-box:before {
     content: "\e69f";
+}
+
+.icm-eye:before {
+    content: "\e6a5";
+}
+
+.icm-eye-crossed:before {
+    content: "\e6a6";
+}
+
+.icm-printer:before {
+    content: "\e6b1";
+}
+
+.icm-document2:before {
+    content: "\e6d9";
+}
+
+.icm-medal-empty:before {
+    content: "\e6dd";
+}
+
+.icm-film-play:before {
+    content: "\e6f8";
+}
+
+.icm-picture:before {
+    content: "\e70e";
+}
+
+.icm-share:before {
+    content: "\e91f";
+}
+
+.icm-share2:before {
+    content: "\e920";
 }
 
 .icm-chevron-up:before {
