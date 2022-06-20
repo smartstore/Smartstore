@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.Text;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -65,7 +66,7 @@ namespace Smartstore.Core.Security
                     if (message.HasValue())
                     {
                         context.HttpContext.Response.Headers.Add("X-Message-Type", "error");
-                        context.HttpContext.Response.Headers.Add("X-Message", message);
+                        context.HttpContext.Response.Headers.Add("X-Message", Convert.ToBase64String(Encoding.UTF8.GetBytes(message)));
                     }
 
                     var acceptTypes = request.Headers?.GetCommaSeparatedValues(HeaderNames.Accept);

@@ -84,7 +84,7 @@
                     setSingleFilePreviewIcon(fuContainer, $el.data("type-filter"));
                 }
                 else {
-                    
+
                     // Load thumbnail.
                     Smartstore.media.lazyLoadThumbnails(fuContainer.find('.fu-thumb'));
 
@@ -183,7 +183,7 @@
                     if (directory)
                         formData.append("directory", directory);
                 }
-                
+
                 // Send type filter if set.
                 var typeFilter = $el.data('type-filter');
                 if (typeFilter) {
@@ -328,7 +328,7 @@
 
             el.on("queuecomplete", function () {
                 logEvent("queuecomplete");
-                
+
                 var dupeFiles = this.getFilesWithStatus(Dropzone.ERROR).filter(file => file.media && file.media.dupe === true);
                 var successFiles = this.getFilesWithStatus(Dropzone.SUCCESS);
 

@@ -1382,6 +1382,7 @@ Vue.component("sm-datagrid", {
                         self.$emit("saved-changes", editing.row);
                         self.read(true);
                         self.cancelEdit();
+                        self.options.defaultDataRow = {};
                     }
                     else {
                         self.isBusy = false;
