@@ -1,4 +1,6 @@
-﻿using Smartstore.Core.Catalog.Categories;
+﻿using Smartstore.Collections;
+using Smartstore.Core.Catalog.Categories;
+using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Web;
 using Smartstore.Data;
@@ -40,10 +42,155 @@ namespace Smartstore.Core.DataExchange.Import
         /// </summary>
         public Action<ImportMessage, DownloadManagerItem> MessageHandler { get; init; }
 
+        /// <summary>
+        /// Imports a batch of product images.
+        /// </summary>
+        /// <param name="items">Collection of product images to be imported. Images are downloaded if <see cref="DownloadManagerItem.Url"/> is specified.</param>
+        /// <param name="duplicateFileHandling">A value indicating how to handle duplicate images.</param>
+        /// <returns>Number of saved files.</returns>
+        public virtual async Task<int> ImportProductImagesAsync(
+            DbContextScope scope,
+            ICollection<DownloadManagerItem> items,
+            DuplicateFileHandling duplicateFileHandling = DuplicateFileHandling.Rename,
+            CancellationToken cancelToken = default)
+        {
+            Guard.NotNull(scope, nameof(scope));
+
+            if (items.IsNullOrEmpty())
+            {
+                return 0;
+            }
+
+            var newFiles = new List<FileBatchSource>();
+            var catalogAlbum = _folderService.GetNodeByPath(SystemAlbumProvider.Catalog).Value;
+            var itemsMap = items.ToMultimap(x => x.Entity.Id, x => x);
+
+            // TODO: (mg) (core) load existing product images.
+            var existingFiles = new Multimap<int, ProductMediaFile>();
+
+            foreach (var pair in itemsMap)
+            {
+                try
+                {
+                    // Download images per product.
+                    if (pair.Value.Any(x => x.Url.HasValue()))
+                    {
+                        // TODO: (mg) (core) Make this fire&forget somehow and sync later.
+                        await _downloadManager.DownloadFilesAsync(
+                            pair.Value.Where(x => x.Url.HasValue() && !x.Success),
+                            cancelToken);
+                    }
+
+                    foreach (var item in pair.Value.OrderBy(x => x.DisplayOrder))
+                    {
+                        var product = item.Entity as Product;
+                        if (product == null)
+                        {
+                            AddMessage("DownloadManagerItem does not contain the product entity to which it belongs.", ImportMessageType.Error);
+                            continue;
+                        }
+
+                        if (DownloadSucceeded(item))
+                        {
+                            using var stream = File.OpenRead(item.Path);
+
+                            if (stream?.Length > 0)
+                            {
+                                var currentFiles = existingFiles.ContainsKey(product.Id)
+                                    ? existingFiles[product.Id]
+                                    : Enumerable.Empty<ProductMediaFile>();
+
+                                var equalityCheck = await _mediaService.FindEqualFileAsync(stream, currentFiles.Select(x => x.MediaFile), true);
+                                if (equalityCheck.Success)
+                                {
+                                    // INFO: may occur during a initial import when products have the same SKU and
+                                    // the first product was overwritten with the data of the second one.
+                                    AddMessage($"Found equal file in product data for '{item.FileName}'. Skipping file.");
+                                }
+                                else
+                                {
+                                    equalityCheck = await _mediaService.FindEqualFileAsync(stream, item.FileName, catalogAlbum.Id, true);
+                                    if (equalityCheck.Success)
+                                    {
+                                        // INFO: may occur during a subsequent import when products have the same SKU and
+                                        // the images of the second product are additionally assigned to the first one.
+                                        AddProductMediaFile(equalityCheck.Value, item);
+                                        AddMessage($"Found equal file in catalog album for '{item.FileName}'. Assigning existing file instead.");
+                                    }
+                                    else
+                                    {
+                                        // Keep path for later batch import of new images.
+                                        newFiles.Add(new FileBatchSource
+                                        {
+                                            PhysicalPath = item.Path,
+                                            FileName = item.FileName,
+                                            State = item
+                                        });
+                                    }
+                                }
+                            }
+                        }
+
+                        void AddMessage(string msg, ImportMessageType messageType = ImportMessageType.Info)
+                        {
+                            MessageHandler?.Invoke(new ImportMessage(msg, messageType) { AffectedField = $"Product image URL #{item.DisplayOrder}" }, item);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageHandler?.Invoke(new ImportMessage(ex.ToAllMessages(), ImportMessageType.Error) { AffectedField = $"Product image URL" }, null);
+                }
+            }
+
+            if (newFiles.Count > 0)
+            {
+                var batchFileResult = await _mediaService.BatchSaveFilesAsync(
+                    newFiles.ToArray(),
+                    catalogAlbum,
+                    false,
+                    duplicateFileHandling,
+                    cancelToken);
+
+                foreach (var fileResult in batchFileResult)
+                {
+                    if (fileResult.Exception == null && fileResult.File?.Id > 0)
+                    {
+                        AddProductMediaFile(fileResult.File.File, fileResult.Source.State as DownloadManagerItem);
+                    }
+                }
+            }
+
+            return await scope.CommitAsync(cancelToken);
+
+            void AddProductMediaFile(MediaFile file, DownloadManagerItem item)
+            {
+                var productMediaFile = new ProductMediaFile
+                {
+                    ProductId = item.Entity.Id,
+                    MediaFileId = file.Id,
+                    DisplayOrder = item.DisplayOrder
+                };
+
+                scope.DbContext.Add(productMediaFile);
+
+                productMediaFile.MediaFile = file;
+                existingFiles.Add(item.Entity.Id, productMediaFile);
+
+                // Update for FixProductMainPictureIds.
+                ((Product)item.Entity).UpdatedOnUtc = DateTime.UtcNow;
+            }
+        }
+
+        /// <summary>
+        /// Imports a batch of category images.
+        /// </summary>
+        /// <param name="items">Collection of category images to be imported. Images are downloaded if <see cref="DownloadManagerItem.Url"/> is specified.</param>
+        /// <param name="duplicateFileHandling">A value indicating how to handle duplicate images.</param>
+        /// <returns>Number of saved files.</returns>
         public virtual async Task<int> ImportCategoryImagesAsync(
             DbContextScope scope,
             ICollection<DownloadManagerItem> items,
-            Dictionary<int, MediaFile> fileLookup = null,
             DuplicateFileHandling duplicateFileHandling = DuplicateFileHandling.Rename,
             CancellationToken cancelToken = default)
         {
@@ -57,16 +204,28 @@ namespace Smartstore.Core.DataExchange.Import
             var newFiles = new List<FileBatchSource>();
             var catalogAlbum = _folderService.GetNodeByPath(SystemAlbumProvider.Catalog).Value;
 
+            var existingFileIds = items
+                .Select(x => x.Entity as Category)
+                .Where(x => x != null)
+                .Select(x => x.MediaFileId ?? 0)
+                .Where(x => x != 0)
+                .Distinct()
+                .ToArray();
+
+            var files = await _mediaService.GetFilesByIdsAsync(existingFileIds);
+            var existingFiles = files.ToDictionary(x => x.Id, x => x.File);
+
             foreach (var item in items)
             {
-                var category = item.Entity as Category;
-                if (category == null)
-                {
-                    throw new SmartException("DownloadManagerItem does not contain the entity reference to which it belongs.");
-                }
-
                 try
                 {
+                    var category = item.Entity as Category;
+                    if (category == null)
+                    {
+                        AddMessage("DownloadManagerItem does not contain the category entity to which it belongs.", ImportMessageType.Error);
+                        continue;
+                    }
+
                     // Download image.
                     if (item.Url.HasValue() && !item.Success)
                     {
@@ -79,9 +238,7 @@ namespace Smartstore.Core.DataExchange.Import
 
                         if (stream?.Length > 0)
                         {
-                            if (category.MediaFileId.HasValue
-                                && fileLookup != null
-                                && fileLookup.TryGetValue(category.MediaFileId.Value, out var assignedFile))
+                            if (category.MediaFileId.HasValue && existingFiles.TryGetValue(category.MediaFileId.Value, out var assignedFile))
                             {
                                 var isEqualData = await _mediaService.FindEqualFileAsync(stream, new[] { assignedFile }, true);
                                 if (isEqualData.Success)
@@ -138,7 +295,7 @@ namespace Smartstore.Core.DataExchange.Import
                 {
                     if (fileResult.Exception == null && fileResult.File?.Id > 0)
                     {
-                        (fileResult.Source.State as Category).MediaFileId = fileResult.File.Id;
+                        ((Category)fileResult.Source.State).MediaFileId = fileResult.File.Id;
                     }
                 }
             }
