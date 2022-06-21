@@ -1,7 +1,7 @@
-﻿using Smartstore.Collections;
-using Smartstore.Core.Catalog.Categories;
+﻿using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Content.Media;
+using Smartstore.Core.Data;
 using Smartstore.Core.Web;
 using Smartstore.Data;
 using Smartstore.Http;
@@ -10,9 +10,14 @@ using Smartstore.Net.Http;
 
 namespace Smartstore.Core.DataExchange.Import
 {
-    // TODO: (mg) (core) code-comment when finished.
+    /// <summary>
+    /// Helper to import product and category images in a performant way.
+    /// Images are downloaded if <see cref="DownloadManagerItem.Url"/> is specified and
+    /// they will not be imported if they already exist (duplicate check).
+    /// </summary>
     public partial class ImageImportHelper
     {
+        private readonly SmartDbContext _db;
         private readonly IWebHelper _webHelper;
         private readonly IMediaService _mediaService;
         private readonly IFolderService _folderService;
@@ -22,15 +27,14 @@ namespace Smartstore.Core.DataExchange.Import
         // Sometimes subsequent products (e.g. associated products) share the same image.
         private readonly Dictionary<string, string> _downloadUrls = new();
 
-        // TODO: (mg) (core) better to manually pass dependencies because of MessageHandler, multi-usage of downloadManager, downloadManager.Timeout etc.
-        //DataExchangeSettings dataExchangeSettings
-        //_downloadManager.HttpClient.Timeout = TimeSpan.FromMinutes(dataExchangeSettings.ImageDownloadTimeout);
         public ImageImportHelper(
+            SmartDbContext db,
             IWebHelper webHelper,
             IMediaService mediaService,
             IFolderService folderService,
             DownloadManager downloadManager)
         {
+            _db = Guard.NotNull(db, nameof(db));
             _webHelper = Guard.NotNull(webHelper, nameof(webHelper));
             _mediaService = Guard.NotNull(mediaService, nameof(mediaService));
             _folderService = Guard.NotNull(folderService, nameof(folderService));
@@ -63,10 +67,15 @@ namespace Smartstore.Core.DataExchange.Import
 
             var newFiles = new List<FileBatchSource>();
             var catalogAlbum = _folderService.GetNodeByPath(SystemAlbumProvider.Catalog).Value;
-            var itemsMap = items.ToMultimap(x => x.Entity.Id, x => x);
+            var itemsMap = items.Where(x => x.Entity != null).ToMultimap(x => x.Entity.Id, x => x);
 
-            // TODO: (mg) (core) load existing product images.
-            var existingFiles = new Multimap<int, ProductMediaFile>();
+            var files = await _db.ProductMediaFiles
+                .AsNoTracking()
+                .Include(x => x.MediaFile)
+                .Where(x => itemsMap.Keys.Contains(x.ProductId))
+                .ToListAsync(cancelToken);
+
+            var existingFiles = files.ToMultimap(x => x.ProductId, x => x);
 
             foreach (var pair in itemsMap)
             {
@@ -130,6 +139,10 @@ namespace Smartstore.Core.DataExchange.Import
                                 }
                             }
                         }
+                        else if (item.Url.HasValue())
+                        {
+                            AddMessage($"Download failed for image {item.Url}.");
+                        }
 
                         void AddMessage(string msg, ImportMessageType messageType = ImportMessageType.Info)
                         {
@@ -139,7 +152,7 @@ namespace Smartstore.Core.DataExchange.Import
                 }
                 catch (Exception ex)
                 {
-                    MessageHandler?.Invoke(new ImportMessage(ex.ToAllMessages(), ImportMessageType.Error) { AffectedField = $"Product image URL" }, null);
+                    MessageHandler?.Invoke(new ImportMessage(ex.ToAllMessages(), ImportMessageType.Warning) { AffectedField = $"Product image URL" }, null);
                 }
             }
 
@@ -206,11 +219,8 @@ namespace Smartstore.Core.DataExchange.Import
 
             var existingFileIds = items
                 .Select(x => x.Entity as Category)
-                .Where(x => x != null)
-                .Select(x => x.MediaFileId ?? 0)
-                .Where(x => x != 0)
-                .Distinct()
-                .ToArray();
+                .Where(x => x != null && x.MediaFileId > 0)
+                .ToDistinctArray(x => x.MediaFileId.Value);
 
             var files = await _mediaService.GetFilesByIdsAsync(existingFileIds);
             var existingFiles = files.ToDictionary(x => x.Id, x => x.File);
