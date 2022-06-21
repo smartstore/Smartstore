@@ -10,6 +10,8 @@ namespace Smartstore
 {
     public static partial class StringExtensions
     {
+        private static readonly Regex _rgInvalidXmlChars = new(@"[^\u0009\u000A\u000D\u0020-\uD7FF\uE000-\uFFFD]", RegexOptions.Compiled);
+
         /// <summary>
         /// Formats a string to an invariant culture
         /// </summary>
@@ -58,7 +60,7 @@ namespace Smartstore
         {
             if (value.HasValue())
             {
-                return value.Substring(0, length) + new string('*', value.Length - length);
+                return string.Concat(value.AsSpan(0, length), new string('*', value.Length - length));
             }   
 
             return value;
@@ -445,7 +447,7 @@ namespace Smartstore
             if (s.IsEmpty())
                 return s;
 
-            return Regex.Replace(s, @"[^\u0009\u000A\u000D\u0020-\uD7FF\uE000-\uFFFD]", "", RegexOptions.Compiled);
+            return _rgInvalidXmlChars.Replace(s, string.Empty);
         }
 
         [DebuggerStepThrough]
