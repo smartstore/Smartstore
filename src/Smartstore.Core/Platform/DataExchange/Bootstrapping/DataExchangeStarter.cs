@@ -20,6 +20,7 @@ namespace Smartstore.Core.Bootstrapping
             builder.RegisterType<ImportProfileService>().As<IImportProfileService>().InstancePerLifetimeScope();
             builder.RegisterType<DataExporter>().As<IDataExporter>().InstancePerLifetimeScope();
             builder.RegisterType<DataImporter>().As<IDataImporter>().InstancePerLifetimeScope();
+            builder.RegisterType<ImageImportHelper>().InstancePerLifetimeScope();
 
             builder.Register<Func<ImportEntityType, IEntityImporter>>(c =>
             {
