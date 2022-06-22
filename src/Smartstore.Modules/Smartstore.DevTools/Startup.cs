@@ -63,7 +63,7 @@ namespace Smartstore.DevTools
                 }
 
                 o.Filters.AddConditional<ProfilerFilter>(
-                    context => ShouldProfile(context.HttpContext.Request));
+                    context => context.ControllerIs<SmartController>() && ShouldProfile(context.HttpContext.Request));
 
                 o.Filters.AddConditional<MachineNameFilter>(
                     context => context.ControllerIs<SmartController>());

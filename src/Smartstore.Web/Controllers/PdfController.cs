@@ -25,9 +25,7 @@ namespace Smartstore.Web.Controllers
             ViewData["SectionVars"] = vars;
             ViewData["IsPartial"] = isPartial;
 
-            if (isPartial)
-                return PartialView(model);
-            return View(model);
+            return isPartial ? PartialView(model) : View(model);
         }
 
         [NeverAuthorize]
@@ -38,9 +36,7 @@ namespace Smartstore.Web.Controllers
             ViewData["SectionVars"] = vars;
             ViewData["IsPartial"] = isPartial;
 
-            if (isPartial)
-                return PartialView(model);
-            return View(model);
+            return isPartial ? PartialView(model) : View(model);
         }
 
         private async Task<PdfReceiptSectionModel> PreparePdfReceiptSectionModelAsync(int storeId)

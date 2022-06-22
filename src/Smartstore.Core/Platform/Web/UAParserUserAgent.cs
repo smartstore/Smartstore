@@ -8,8 +8,8 @@ namespace Smartstore.Core.Web
     public class UAParserUserAgent : IUserAgent
 	{
 		private readonly static uap.Parser s_uap;
-		private static readonly Regex s_pdfConverterPattern = new (@"wkhtmltopdf", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
-		private static readonly Regex s_tabletPattern = new(@"iPad|Kindle Fire|Nexus 10|Xoom|Transformer|MI PAD|IdeaTab", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+		private static readonly Regex _pdfConverterPattern = new (@"wkhtmltopdf", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+		private static readonly Regex _tabletPattern = new(@"iPad|Kindle Fire|Nexus 10|Xoom|Transformer|MI PAD|IdeaTab", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
 		#region Mobile UAs, OS & Devices
 
@@ -227,7 +227,7 @@ namespace Smartstore.Core.Web
 			{
 				if (!_isTablet.HasValue)
 				{
-					_isTablet = s_tabletPattern.IsMatch(Device.Family) || OS.Family == "BlackBerry Tablet OS";
+					_isTablet = _tabletPattern.IsMatch(Device.Family) || OS.Family == "BlackBerry Tablet OS";
 				}
 
 				return _isTablet.Value;
@@ -240,7 +240,7 @@ namespace Smartstore.Core.Web
 			{
 				if (!_isPdfConverter.HasValue)
 				{
-					_isPdfConverter = s_pdfConverterPattern.IsMatch(RawValue);
+					_isPdfConverter = _pdfConverterPattern.IsMatch(RawValue);
 				}
 
 				return _isPdfConverter.Value;
