@@ -22,14 +22,14 @@ namespace Smartstore.Core.DataExchange.Import
         private readonly TaxSettings _taxSettings;
         private readonly PrivacySettings _privacySettings;
         private readonly DateTimeSettings _dateTimeSettings;
-        private readonly ImageImportHelper _imageImportHelper;
+        private readonly IMediaImporter _mediaImporter;
 
         public CustomerImporter(
             ICommonServices services,
             ILocalizedEntityService localizedEntityService,
             IStoreMappingService storeMappingService,
             IUrlService urlService,
-            ImageImportHelper imageImportHelper,
+            IMediaImporter mediaImporter,
             SeoSettings seoSettings,
             CustomerSettings customerSettings,
             TaxSettings taxSettings,
@@ -37,7 +37,7 @@ namespace Smartstore.Core.DataExchange.Import
             DateTimeSettings dateTimeSettings)
             : base(services, localizedEntityService, storeMappingService, urlService, seoSettings)
         {
-            _imageImportHelper = imageImportHelper;
+            _mediaImporter = mediaImporter;
             _customerSettings = customerSettings;
             _taxSettings = taxSettings;
             _privacySettings = privacySettings;
@@ -403,7 +403,7 @@ namespace Smartstore.Core.DataExchange.Import
 
         protected virtual async Task<int> ProcessAvatarsAsync(ImportExecuteContext context, DbContextScope scope, IEnumerable<ImportRow<Customer>> batch)
         {
-            _imageImportHelper.MessageHandler ??= (msg, item) => context.Result.AddMessage(msg.Message, msg.MessageType);
+            _mediaImporter.MessageHandler ??= (msg, item) => context.Result.AddMessage(msg.Message, msg.MessageType);
 
             var items = batch
                 .Select(row => new
@@ -412,10 +412,10 @@ namespace Smartstore.Core.DataExchange.Import
                     Url = row.GetDataValue<string>("AvatarPictureUrl")
                 })
                 .Where(x => x.Url.HasValue())
-                .Select(x => _imageImportHelper.CreateDownloadItem(context.ImageDirectory, context.ImageDownloadDirectory, x.Entity, x.Url, 1))
+                .Select(x => _mediaImporter.CreateDownloadItem(context.ImageDirectory, context.ImageDownloadDirectory, x.Entity, x.Url, 1))
                 .ToList();
 
-            return await _imageImportHelper.ImportCustomerAvatarsAsync(scope, items, DuplicateFileHandling.Rename, context.CancelToken);
+            return await _mediaImporter.ImportCustomerAvatarsAsync(scope, items, DuplicateFileHandling.Rename, context.CancelToken);
         }
 
         protected virtual async Task<int> ProcessAddressesAsync(ImportExecuteContext context, DbContextScope scope, IEnumerable<ImportRow<Customer>> batch)
