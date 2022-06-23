@@ -429,6 +429,8 @@ namespace Smartstore.Scheduling
 
             try
             {
+                // INFO: entity is not attached so without immediately SetProgressAsync always fails.
+                //var attached = _db.TryUpdate(info);
                 _db.TryUpdate(info);
                 return _db.SaveChangesAsync();
             }

@@ -31,6 +31,7 @@ namespace Smartstore.Scheduling
             HttpContext = httpContext;
             Parameters = taskParameters ?? new Dictionary<string, string>();
             TaskStore = taskStore;
+            // TODO: (core) Maybe this is the cause why entity isn't attached.
             ExecutionInfo = _originalExecutionInfo.Clone();
         }
 
@@ -121,7 +122,6 @@ namespace Smartstore.Scheduling
             // Update original task.
             _originalExecutionInfo.ProgressPercent = progress;
             _originalExecutionInfo.ProgressMessage = message;
-
             if (immediately)
             {
                 // Dont't let this abort the task on failure.
@@ -133,6 +133,11 @@ namespace Smartstore.Scheduling
                 {
                 }
             }
+            // INFO: Proposal to solve the problem.
+            //else
+            //{
+            //    _db.TryUpdate(_originalExecutionInfo);
+            //}
         }
     }
 }
