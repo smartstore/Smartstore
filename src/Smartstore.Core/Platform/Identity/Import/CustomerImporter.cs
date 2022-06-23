@@ -403,16 +403,23 @@ namespace Smartstore.Core.DataExchange.Import
 
         protected virtual async Task<int> ProcessAvatarsAsync(ImportExecuteContext context, DbContextScope scope, IEnumerable<ImportRow<Customer>> batch)
         {
-            _mediaImporter.MessageHandler ??= (msg, item) => context.Result.AddMessage(msg.Message, msg.MessageType);
+            _mediaImporter.MessageHandler ??= (msg, item) =>
+            {
+                var rowInfo = item?.State != null
+                    ? ((ImportRow<Customer>)item.State).RowInfo
+                    : null;
+
+                context.Result.AddMessage(msg.Message, msg.MessageType, rowInfo);
+            };
 
             var items = batch
                 .Select(row => new
                 {
-                    row.Entity,
+                    Row = row,
                     Url = row.GetDataValue<string>("AvatarPictureUrl")
                 })
                 .Where(x => x.Url.HasValue())
-                .Select(x => _mediaImporter.CreateDownloadItem(context.ImageDirectory, context.ImageDownloadDirectory, x.Entity, x.Url, 1))
+                .Select(x => _mediaImporter.CreateDownloadItem(context.ImageDirectory, context.ImageDownloadDirectory, x.Row.Entity, x.Url, x.Row, 1))
                 .ToList();
 
             return await _mediaImporter.ImportCustomerAvatarsAsync(scope, items, DuplicateFileHandling.Rename, context.CancelToken);

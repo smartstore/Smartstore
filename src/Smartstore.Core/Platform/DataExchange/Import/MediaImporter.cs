@@ -38,6 +38,9 @@ namespace Smartstore.Core.DataExchange.Import
             _downloadManager = downloadManager;
 
             _downloadManager.HttpClient.Timeout = TimeSpan.FromMinutes(dataExchangeSettings.ImageDownloadTimeout);
+
+            // Always turn image post-processing off during imports. It can heavily decrease processing time.
+            _mediaService.ImagePostProcessingEnabled = false;
         }
 
         public Action<ImportMessage, DownloadManagerItem> MessageHandler { get; set; }
@@ -47,123 +50,68 @@ namespace Smartstore.Core.DataExchange.Import
             IDirectory downloadDirectory,
             BaseEntity entity,
             string urlOrPath,
-            int displayOrder)
+            object state = null,
+            int displayOrder = 0,
+            HashSet<string> fileNameLookup = null)
         {
+            Guard.NotNull(imageDirectory, nameof(imageDirectory));
+            Guard.NotNull(downloadDirectory, nameof(downloadDirectory));
+
             if (urlOrPath.IsEmpty())
             {
                 return null;
             }
 
-            try
-            {
-                var item = CreateDownloadItemCore(imageDirectory, downloadDirectory, entity, urlOrPath, displayOrder, null);
-                return item;
-            }
-            catch
-            {
-                MessageHandler?.Invoke(new ImportMessage($"Failed to prepare image download for '{urlOrPath}'. Skipping file.", ImportMessageType.Error), null);
-                return null;
-            }
-        }
-
-        /// <summary>
-        /// Creates download manager items from URLs or file pathes.
-        /// </summary>
-        /// <param name="imageDirectory">
-        /// Directory with images to be imported. 
-        /// In that case, the images in the import file are referenced by file path (absolute or relative).
-        /// </param>
-        /// <param name="downloadDirectory">Directory in which the downloaded images will be saved.</param>
-        /// <param name="urlOrPathes">URLs or pathes to download.</param>
-        /// <param name="maxItems">Maximum number of returned items, <c>null</c> to return all items.</param>
-        /// <returns>Download manager items.</returns>
-        protected List<DownloadManagerItem> CreateDownloadItems(
-            IDirectory imageDirectory,
-            IDirectory downloadDirectory,
-            BaseEntity entity,
-            string[] urlOrPathes,
-            int? maxItems = null)
-        {
-            var items = new List<DownloadManagerItem>();
-            var existingNames = new HashSet<string>(StringComparer.CurrentCultureIgnoreCase);
-            var itemNum = 0;
-
-            foreach (var urlOrPath in urlOrPathes)
-            {
-                if (urlOrPath.HasValue())
-                {
-                    try
-                    {
-                        var item = CreateDownloadItemCore(imageDirectory, downloadDirectory, entity, urlOrPath, ++itemNum, existingNames);
-                        items.Add(item);
-                    }
-                    catch
-                    {
-                        MessageHandler?.Invoke(new ImportMessage($"Failed to prepare image download for '{urlOrPath}'. Skipping file.", ImportMessageType.Error), null);
-                    }
-
-                    if (maxItems.HasValue && items.Count >= maxItems.Value)
-                    {
-                        break;
-                    }
-                }
-            }
-
-            return items;
-        }
-
-        protected virtual DownloadManagerItem CreateDownloadItemCore(
-            IDirectory imageDirectory,
-            IDirectory downloadDirectory,
-            BaseEntity entity,
-            string urlOrPath,
-            int displayOrder,
-            HashSet<string> existingFileNames)
-        {
-            Guard.NotNull(imageDirectory, nameof(imageDirectory));
-            Guard.NotNull(downloadDirectory, nameof(downloadDirectory));
-
             var item = new DownloadManagerItem
             {
                 Entity = entity,
                 Id = displayOrder,
-                DisplayOrder = displayOrder
+                DisplayOrder = displayOrder,
+                State = state
             };
 
-            if (urlOrPath.IsWebUrl())
+            try
             {
-                // We append quality to avoid importing of image duplicates.
-                item.Url = _webHelper.ModifyQueryString(urlOrPath, "q=100", null);
-
-                if (_downloadUrls.ContainsKey(urlOrPath))
+                if (urlOrPath.IsWebUrl())
                 {
-                    // URL has already been downloaded.
-                    item.Success = true;
-                    item.FileName = _downloadUrls[urlOrPath];
+                    // We append quality to avoid importing of image duplicates.
+                    item.Url = _webHelper.ModifyQueryString(urlOrPath, "q=100", null);
+
+                    if (_downloadUrls.ContainsKey(urlOrPath))
+                    {
+                        // URL has already been downloaded.
+                        item.Success = true;
+                        item.FileName = _downloadUrls[urlOrPath];
+                    }
+                    else
+                    {
+                        var fileName = WebHelper.GetFileNameFromUrl(urlOrPath) ?? Path.GetRandomFileName();
+                        item.FileName = GetUniqueFileName(fileName, fileNameLookup);
+
+                        fileNameLookup?.Add(item.FileName);
+                    }
+
+                    item.Path = GetAbsolutePath(downloadDirectory, item.FileName);
                 }
                 else
                 {
-                    var fileName = WebHelper.GetFileNameFromUrl(urlOrPath) ?? Path.GetRandomFileName();
-                    item.FileName = GetUniqueFileName(fileName, existingFileNames);
+                    item.Success = true;
+                    item.FileName = Path.GetFileName(urlOrPath).ToValidFileName().NullEmpty() ?? Path.GetRandomFileName();
 
-                    existingFileNames?.Add(item.FileName);
+                    item.Path = Path.IsPathRooted(urlOrPath)
+                        ? urlOrPath
+                        : GetAbsolutePath(imageDirectory, urlOrPath);
                 }
 
-                item.Path = GetAbsolutePath(downloadDirectory, item.FileName);
+                item.MimeType = MimeTypes.MapNameToMimeType(item.FileName);
+
+                return item;
             }
-            else
+            catch
             {
-                item.Success = true;
-                item.FileName = Path.GetFileName(urlOrPath).ToValidFileName().NullEmpty() ?? Path.GetRandomFileName();
-
-                item.Path = Path.IsPathRooted(urlOrPath)
-                    ? urlOrPath
-                    : GetAbsolutePath(imageDirectory, urlOrPath);
+                MessageHandler?.Invoke(new ImportMessage($"Failed to prepare image download for '{urlOrPath}'. Skipping file.", ImportMessageType.Error), item);
+                return null;
             }
-
-            item.MimeType = MimeTypes.MapNameToMimeType(item.FileName);
-
-            return item;
 
             static string GetUniqueFileName(string fileName, HashSet<string> lookup)
             {
@@ -218,16 +166,28 @@ namespace Smartstore.Core.DataExchange.Import
             {
                 try
                 {
+                    var productId = pair.Key;
+                    var downloadItems = pair.Value;
+                    var maxDisplayOrder = int.MaxValue;
+
+                    // Be kind and assign a continuous DisplayOrder if none has been explicitly specified by the caller.
+                    if (downloadItems.All(x => x.DisplayOrder == 0))
+                    {
+                        maxDisplayOrder = existingFiles.TryGetValues(productId, out var pmf) && pmf.Count > 0
+                            ? pmf.Select(x => x.DisplayOrder).Max()
+                            : 0;
+                    }
+
                     // Download images per product.
-                    if (pair.Value.Any(x => x.Url.HasValue()))
+                    if (downloadItems.Any(x => x.Url.HasValue()))
                     {
                         // TODO: (mg) (core) Make this fire&forget somehow and sync later.
                         await _downloadManager.DownloadFilesAsync(
-                            pair.Value.Where(x => x.Url.HasValue() && !x.Success),
+                            downloadItems.Where(x => x.Url.HasValue() && !x.Success),
                             cancelToken);
                     }
-
-                    foreach (var item in pair.Value.OrderBy(x => x.DisplayOrder))
+                    
+                    foreach (var item in downloadItems.OrderBy(x => x.DisplayOrder))
                     {
                         var product = item.Entity as Product;
                         if (product == null)
@@ -255,6 +215,11 @@ namespace Smartstore.Core.DataExchange.Import
                                 }
                                 else
                                 {
+                                    if (maxDisplayOrder != int.MaxValue)
+                                    {
+                                        item.DisplayOrder = ++maxDisplayOrder;
+                                    }
+
                                     equalityCheck = await _mediaService.FindEqualFileAsync(stream, item.FileName, catalogAlbum.Id, true);
                                     if (equalityCheck.Success)
                                     {
