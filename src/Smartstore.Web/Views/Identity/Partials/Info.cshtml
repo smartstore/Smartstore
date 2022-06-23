@@ -3,10 +3,10 @@
 @model ProfileInfoModel
 
 <div class="profile-info-box row">
-    <div class="user-details col-2 text-center">
+    <div class="user-details col-2 pl-0 text-center">
         <partial name="Customer.Avatar" model="Model.Avatar" />
         
-        <div sm-if="Model.LocationEnabled" class="profile-stat">
+        <div sm-if="Model.LocationEnabled" class="profile-stat mt-2">
             <span class="pr-1">@T("Profile.Country"):</span>
             <span class="profile-stat-value">@Model.Location</span>
         </div>
