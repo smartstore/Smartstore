@@ -39,8 +39,7 @@ namespace Smartstore.Core.DataExchange.Import
 
             _downloadManager.HttpClient.Timeout = TimeSpan.FromMinutes(dataExchangeSettings.ImageDownloadTimeout);
 
-            // Always turn image post-processing off during imports. It can heavily decrease processing time.
-            _mediaService.ImagePostProcessingEnabled = false;
+            // INFO: (mg) (core) PostProcessing is turned off way too early and is never turned on again. Extremely bad flow decision. More thoroughness please!
         }
 
         public Action<ImportMessage, DownloadManagerItem> MessageHandler { get; set; }
@@ -260,19 +259,31 @@ namespace Smartstore.Core.DataExchange.Import
 
             if (newFiles.Count > 0)
             {
-                var batchFileResult = await _mediaService.BatchSaveFilesAsync(
-                    newFiles.ToArray(),
-                    catalogAlbum,
-                    false,
-                    duplicateFileHandling,
-                    cancelToken);
+                var postProcessingEnabled = _mediaService.ImagePostProcessingEnabled;
 
-                foreach (var fileResult in batchFileResult)
+                try
                 {
-                    if (fileResult.Exception == null && fileResult.File?.Id > 0)
+                    // Always turn image post-processing off during imports. It can heavily decrease processing time.
+                    _mediaService.ImagePostProcessingEnabled = false;
+
+                    var batchFileResult = await _mediaService.BatchSaveFilesAsync(
+                        newFiles.ToArray(),
+                        catalogAlbum,
+                        false,
+                        duplicateFileHandling,
+                        cancelToken);
+
+                    foreach (var fileResult in batchFileResult)
                     {
-                        AddProductMediaFile(fileResult.File.File, fileResult.Source.State as DownloadManagerItem);
+                        if (fileResult.Exception == null && fileResult.File?.Id > 0)
+                        {
+                            AddProductMediaFile(fileResult.File.File, fileResult.Source.State as DownloadManagerItem);
+                        }
                     }
+                }
+                finally
+                {
+                    _mediaService.ImagePostProcessingEnabled = postProcessingEnabled;
                 }
             }
 
@@ -390,19 +401,31 @@ namespace Smartstore.Core.DataExchange.Import
 
             if (newFiles.Count > 0)
             {
-                var batchFileResult = await _mediaService.BatchSaveFilesAsync(
-                    newFiles.ToArray(),
-                    catalogAlbum,
-                    false,
-                    duplicateFileHandling,
-                    cancelToken);
+                var postProcessingEnabled = _mediaService.ImagePostProcessingEnabled;
 
-                foreach (var fileResult in batchFileResult)
+                try
                 {
-                    if (fileResult.Exception == null && fileResult.File?.Id > 0)
+                    // Always turn image post-processing off during imports. It can heavily decrease processing time.
+                    _mediaService.ImagePostProcessingEnabled = false;
+
+                    var batchFileResult = await _mediaService.BatchSaveFilesAsync(
+                        newFiles.ToArray(),
+                        catalogAlbum,
+                        false,
+                        duplicateFileHandling,
+                        cancelToken);
+
+                    foreach (var fileResult in batchFileResult)
                     {
-                        ((Category)fileResult.Source.State).MediaFileId = fileResult.File.Id;
+                        if (fileResult.Exception == null && fileResult.File?.Id > 0)
+                        {
+                            ((Category)fileResult.Source.State).MediaFileId = fileResult.File.Id;
+                        }
                     }
+                }
+                finally
+                {
+                    _mediaService.ImagePostProcessingEnabled = postProcessingEnabled;
                 }
             }
 
@@ -486,22 +509,34 @@ namespace Smartstore.Core.DataExchange.Import
 
             if (newFiles.Count > 0)
             {
-                // An avatar may not be assigned to several customers. A customer could otherwise delete the avatar of another.
-                // Overwriting is probably too dangerous here, because we could overwrite the avatar of another customer, so better rename.
-                var batchFileResult = await _mediaService.BatchSaveFilesAsync(
-                    newFiles.ToArray(),
-                    customersAlbum,
-                    false,
-                    duplicateFileHandling,
-                    cancelToken);
+                var postProcessingEnabled = _mediaService.ImagePostProcessingEnabled;
 
-                foreach (var fileResult in batchFileResult)
+                try
                 {
-                    if (fileResult.Exception == null && fileResult.File?.Id > 0)
+                    // Always turn image post-processing off during imports. It can heavily decrease processing time.
+                    _mediaService.ImagePostProcessingEnabled = false;
+
+                    // An avatar may not be assigned to several customers. A customer could otherwise delete the avatar of another.
+                    // Overwriting is probably too dangerous here, because we could overwrite the avatar of another customer, so better rename.
+                    var batchFileResult = await _mediaService.BatchSaveFilesAsync(
+                        newFiles.ToArray(),
+                        customersAlbum,
+                        false,
+                        duplicateFileHandling,
+                        cancelToken);
+
+                    foreach (var fileResult in batchFileResult)
                     {
-                        var customer = (Customer)fileResult.Source.State;
-                        customer.GenericAttributes.Set(SystemCustomerAttributeNames.AvatarPictureId, fileResult.File.Id);
+                        if (fileResult.Exception == null && fileResult.File?.Id > 0)
+                        {
+                            var customer = (Customer)fileResult.Source.State;
+                            customer.GenericAttributes.Set(SystemCustomerAttributeNames.AvatarPictureId, fileResult.File.Id);
+                        }
                     }
+                }
+                finally
+                {
+                    _mediaService.ImagePostProcessingEnabled = postProcessingEnabled;
                 }
             }
 
