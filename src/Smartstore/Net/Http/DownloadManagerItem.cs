@@ -118,11 +118,11 @@ namespace Smartstore.Net.Http
 
         public override string ToString()
         {
-            return "DownloadManagerItem: {0} {1}{2}, {3}".FormatInvariant(
-                Success,
-                ExceptionStatus.ToString(),
-                ErrorMessage.HasValue() ? $" ({ErrorMessage})" : string.Empty,
-                Path);
+            return
+                @"Success:  {0}
+                Web Status: {1}
+                Path:       {2}
+                Error:      {3}.".FormatInvariant(Success, ExceptionStatus.ToString(), ErrorMessage, Path);
         }
     }
 }

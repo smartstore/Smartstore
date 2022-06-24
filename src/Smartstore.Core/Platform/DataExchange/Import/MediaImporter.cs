@@ -143,15 +143,19 @@ namespace Smartstore.Core.DataExchange.Import
             CancellationToken cancelToken = default)
         {
             Guard.NotNull(scope, nameof(scope));
+            Guard.NotNull(items, nameof(items));
 
-            if (items.IsNullOrEmpty())
+            var itemsMap = items
+                .Where(x => x?.Entity != null)
+                .ToMultimap(x => x.Entity.Id, x => x);
+
+            if (itemsMap.Count == 0)
             {
                 return 0;
             }
 
             var newFiles = new List<FileBatchSource>();
             var catalogAlbum = _folderService.GetNodeByPath(SystemAlbumProvider.Catalog).Value;
-            var itemsMap = items.Where(x => x.Entity != null).ToMultimap(x => x.Entity.Id, x => x);
 
             var files = await _db.ProductMediaFiles
                 .AsNoTracking()
@@ -315,8 +319,10 @@ namespace Smartstore.Core.DataExchange.Import
             CancellationToken cancelToken = default)
         {
             Guard.NotNull(scope, nameof(scope));
+            Guard.NotNull(items, nameof(items));
 
-            if (items.IsNullOrEmpty())
+            var itemsArr = items.Where(x => x != null).ToArray();
+            if (itemsArr.Length == 0)
             {
                 return 0;
             }
@@ -324,7 +330,7 @@ namespace Smartstore.Core.DataExchange.Import
             var newFiles = new List<FileBatchSource>();
             var catalogAlbum = _folderService.GetNodeByPath(SystemAlbumProvider.Catalog).Value;
 
-            var existingFileIds = items
+            var existingFileIds = itemsArr
                 .Select(x => x.Entity as Category)
                 .Where(x => x != null && x.MediaFileId > 0)
                 .ToDistinctArray(x => x.MediaFileId.Value);
@@ -332,7 +338,7 @@ namespace Smartstore.Core.DataExchange.Import
             var files = await _mediaService.GetFilesByIdsAsync(existingFileIds);
             var existingFiles = files.ToDictionary(x => x.Id, x => x.File);
 
-            foreach (var item in items)
+            foreach (var item in itemsArr)
             {
                 try
                 {
@@ -439,8 +445,10 @@ namespace Smartstore.Core.DataExchange.Import
             CancellationToken cancelToken = default)
         {
             Guard.NotNull(scope, nameof(scope));
+            Guard.NotNull(items, nameof(items));
 
-            if (items.IsNullOrEmpty())
+            var itemsArr = items.Where(x => x != null).ToArray();
+            if (itemsArr.Length == 0)
             {
                 return 0;
             }
@@ -448,7 +456,7 @@ namespace Smartstore.Core.DataExchange.Import
             var newFiles = new List<FileBatchSource>();
             var customersAlbum = _folderService.GetNodeByPath(SystemAlbumProvider.Customers).Value;
 
-            foreach (var item in items)
+            foreach (var item in itemsArr)
             {
                 try
                 {

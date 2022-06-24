@@ -144,6 +144,7 @@ namespace Smartstore.Core.DataExchange.Import
             var cargo = await GetCargoData(context);
             var currentCustomer = _services.WorkContext.CurrentCustomer;
             var customerQuery = _db.Customers
+                .AsSplitQuery()
                 .Include(x => x.Addresses)
                 .IncludeCustomerRoles();
 
