@@ -31,7 +31,7 @@ namespace Smartstore.Data.MySql
                 Password = password,
                 Pooling = true,
                 MinimumPoolSize = 1,
-                MaximumPoolSize = 100,
+                MaximumPoolSize = 1024,
                 AllowUserVariables = true,
                 UseAffectedRows = false
             };

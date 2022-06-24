@@ -31,7 +31,7 @@ namespace Smartstore.Data.SqlServer
                 UserInstance = false,
                 Pooling = true,
                 MinPoolSize = 1,
-                MaxPoolSize = 100,
+                MaxPoolSize = 1024,
                 Enlist = false
             };
             
