@@ -20,8 +20,6 @@ namespace Smartstore.Core.Bootstrapping
             builder.RegisterType<ImportProfileService>().As<IImportProfileService>().InstancePerLifetimeScope();
             builder.RegisterType<DataExporter>().As<IDataExporter>().InstancePerLifetimeScope();
             builder.RegisterType<DataImporter>().As<IDataImporter>().InstancePerLifetimeScope();
-            // INFO: (mg) (core) Do not register configurable types (MessageHandler property) as lifetime scoped.
-            // INFO: (mg) (core) Defining virtual methods in a self-registered type is meaningless, because there is no way to overwrite them.
             builder.RegisterType<MediaImporter>().As<IMediaImporter>().InstancePerDependency();
 
             builder.Register<Func<ImportEntityType, IEntityImporter>>(c =>

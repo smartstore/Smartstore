@@ -38,8 +38,6 @@ namespace Smartstore.Core.DataExchange.Import
             _downloadManager = downloadManager;
 
             _downloadManager.HttpClient.Timeout = TimeSpan.FromMinutes(dataExchangeSettings.ImageDownloadTimeout);
-
-            // INFO: (mg) (core) PostProcessing is turned off way too early and is never turned on again. Extremely bad flow decision. More thoroughness please!
         }
 
         public Action<ImportMessage, DownloadManagerItem> MessageHandler { get; set; }
