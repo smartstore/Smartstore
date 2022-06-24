@@ -42,7 +42,7 @@ namespace Smartstore.Core.Seo
 
             Task OnProgress(int value, int max, string msg)
             {
-                return ctx.SetProgressAsync(value, max, msg, true);
+                return ctx.SetProgressAsync(value, max, msg);
             }
         }
     }

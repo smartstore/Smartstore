@@ -67,9 +67,8 @@ namespace Smartstore.Scheduling
         /// <param name="value">Progress value (numerator)</param>
         /// <param name="maximum">Progress maximum (denominator)</param>
         /// <param name="message">Progress message. Can be <c>null</c>.</param>
-        /// <param name="immediately">if <c>true</c>, saves the updated task immediately, or lazily with the next commit otherwise.</param>
-        public void SetProgress(int value, int maximum, string message, bool immediately = false)
-            => SetProgressAsync(value, maximum, message, immediately).Await();
+        public void SetProgress(int value, int maximum, string message)
+            => SetProgressAsync(value, maximum, message).Await();
 
         /// <summary>
         /// Persists a task's progress information to the store
@@ -77,19 +76,18 @@ namespace Smartstore.Scheduling
         /// <param name="value">Progress value (numerator)</param>
         /// <param name="maximum">Progress maximum (denominator)</param>
         /// <param name="message">Progress message. Can be <c>null</c>.</param>
-        /// <param name="immediately">if <c>true</c>, saves the updated task immediately, or lazily with the next commit otherwise.</param>
-        public Task SetProgressAsync(int value, int maximum, string message, bool immediately = false)
+        public Task SetProgressAsync(int value, int maximum, string message)
         {
             if (value == 0 && maximum == 0)
             {
-                return SetProgressAsync(null, message, immediately);
+                return SetProgressAsync(null, message);
             }
             else
             {
                 float fraction = (float)value / (float)Math.Max(maximum, 1f);
                 int percentage = (int)Math.Round(fraction * 100f, 0);
 
-                return SetProgressAsync(Math.Min(Math.Max(percentage, 0), 100), message, immediately);
+                return SetProgressAsync(Math.Min(Math.Max(percentage, 0), 100), message);
             }
         }
 
@@ -98,17 +96,15 @@ namespace Smartstore.Scheduling
         /// </summary>
         /// <param name="progress">Percentual progress. Can be <c>null</c> or a value between 0 and 100.</param>
         /// <param name="message">Progress message. Can be <c>null</c>.</param>
-        /// <param name="immediately">if <c>true</c>, saves the updated task entity immediately, or lazily with the next commit otherwise.</param>
-        public virtual void SetProgress(int? progress, string message, bool immediately = false)
-            => SetProgressAsync(progress, message, immediately).Await();
+        public virtual void SetProgress(int? progress, string message)
+            => SetProgressAsync(progress, message).Await();
 
         /// <summary>
         /// Persists a task's progress information to the task store
         /// </summary>
         /// <param name="progress">Percentual progress. Can be <c>null</c> or a value between 0 and 100.</param>
         /// <param name="message">Progress message. Can be <c>null</c>.</param>
-        /// <param name="immediately">if <c>true</c>, saves the updated task entity immediately, or lazily with the next commit otherwise.</param>
-        public virtual async Task SetProgressAsync(int? progress, string message, bool immediately = false)
+        public virtual async Task SetProgressAsync(int? progress, string message)
         {
             if (progress.HasValue)
             {
@@ -122,22 +118,15 @@ namespace Smartstore.Scheduling
             // Update original task.
             _originalExecutionInfo.ProgressPercent = progress;
             _originalExecutionInfo.ProgressMessage = message;
-            if (immediately)
+
+            // Dont't let this abort the task on failure.
+            try
             {
-                // Dont't let this abort the task on failure.
-                try
-                {
-                    await TaskStore.UpdateExecutionInfoAsync(_originalExecutionInfo);
-                }
-                catch
-                {
-                }
+                await TaskStore.UpdateExecutionInfoAsync(_originalExecutionInfo);
             }
-            // INFO: Proposal to solve the problem.
-            //else
-            //{
-            //    _db.TryUpdate(_originalExecutionInfo);
-            //}
+            catch
+            {
+            }
         }
     }
 }
