@@ -66,10 +66,12 @@ namespace Smartstore.Scheduling
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
 
-        protected override void OnDispose(bool disposing)
+        protected override ValueTask OnDisposeAsync(bool disposing)
         {
             if (disposing)
-                _db.Dispose();
+                return _db.DisposeAsync();
+
+            return ValueTask.CompletedTask;
         }
 
         protected virtual Task<T> ExecuteWithRetry<T>(Func<Task<T>> action)

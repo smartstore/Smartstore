@@ -16,13 +16,11 @@ namespace Smartstore.Core.Identity
 
     internal class RoleStore : AsyncDbSaveHook<CustomerRole>, IRoleStore
     {
-        private readonly SmartDbContext _db;
-        private readonly DbSet<CustomerRole> _roles;
+        private readonly Lazy<SmartDbContext> _db;
 
-        public RoleStore(SmartDbContext db, IdentityErrorDescriber errorDescriber)
+        public RoleStore(Lazy<SmartDbContext> db, IdentityErrorDescriber errorDescriber)
         {
             _db = db;
-            _roles = _db.CustomerRoles;
 
             ErrorDescriber = errorDescriber;
         }
@@ -41,16 +39,16 @@ namespace Smartstore.Core.Identity
 
         protected Task SaveChanges(CancellationToken cancellationToken)
         {
-            return AutoSaveChanges ? _db.SaveChangesAsync(cancellationToken) : Task.CompletedTask;
+            return AutoSaveChanges ? _db.Value.SaveChangesAsync(cancellationToken) : Task.CompletedTask;
         }
 
-        public IQueryable<CustomerRole> Roles => _roles;
+        public IQueryable<CustomerRole> Roles => _db.Value.CustomerRoles;
 
         public Task<CustomerRole> FindByIdAsync(string roleId, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            return _roles
+            return _db.Value.CustomerRoles
                 .Include(x => x.RuleSets)
                 .FindByIdAsync(roleId.Convert<int>(), cancellationToken: cancellationToken)
                 .AsTask();
@@ -60,7 +58,7 @@ namespace Smartstore.Core.Identity
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            return _roles
+            return _db.Value.CustomerRoles
                 .Include(x => x.RuleSets)
                 .FirstOrDefaultAsync(x => x.Name == normalizedRoleName, cancellationToken: cancellationToken);
         }
@@ -70,7 +68,7 @@ namespace Smartstore.Core.Identity
             cancellationToken.ThrowIfCancellationRequested();
             Guard.NotNull(role, nameof(role));
 
-            _roles.Add(role);
+            _db.Value.CustomerRoles.Add(role);
             await SaveChanges(cancellationToken);
             return IdentityResult.Success;
         }
@@ -82,7 +80,7 @@ namespace Smartstore.Core.Identity
 
             // TODO: (core) Add CustomerRole.ConcurrencyStamp field (?)
             //role.ConcurrencyStamp = Guid.NewGuid().ToString();
-            _db.TryUpdate(role);
+            _db.Value.TryUpdate(role);
 
             try
             {
@@ -106,7 +104,7 @@ namespace Smartstore.Core.Identity
                 throw new SmartException("System roles cannot be deleted");
             }
 
-            _roles.Remove(role);
+            _db.Value.CustomerRoles.Remove(role);
 
             try
             {
