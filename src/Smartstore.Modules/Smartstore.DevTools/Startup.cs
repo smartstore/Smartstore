@@ -143,6 +143,12 @@ namespace Smartstore.DevTools
 
         internal static bool ResultsAuthorize(HttpRequest request)
         {
+            var ua = request.HttpContext.RequestServices.GetRequiredService<IUserAgent>();
+            if (ua.IsPdfConverter || ua.IsBot)
+            {
+                return false;
+            }
+
             return request.HttpContext.RequestServices.GetRequiredService<IWorkContext>().CurrentCustomer.IsAdmin();
         }
 

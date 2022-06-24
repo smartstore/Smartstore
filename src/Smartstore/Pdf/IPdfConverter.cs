@@ -6,7 +6,8 @@
         /// Creates a provider specific URL or local physical path input type <see cref="IPdfInput"/>.
         /// </summary>
         /// <param name="urlOrPath">The input URL (relative or absolute) or a physical file path.</param>
-        IPdfInput CreateFileInput(string urlOrPath);
+        /// <param name="prefetch">Whether to download <paramref name="urlOrPath"/> before processing starts. Does not apply to local physical paths.</param>
+        IPdfInput CreateFileInput(string urlOrPath, bool prefetch = false);
 
         /// <summary>
         /// Creates a provider specific HTML content input type <see cref="IPdfInput"/>.
@@ -50,7 +51,7 @@
 
     internal class NullPdfConverter : IPdfConverter
     {
-        public IPdfInput CreateFileInput(string urlOrPath)
+        public IPdfInput CreateFileInput(string urlOrPath, bool prefetch = false)
             => null;
 
         public IPdfInput CreateHtmlInput(string html)

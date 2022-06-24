@@ -9,12 +9,10 @@ namespace Smartstore.Scheduling
         internal const string RunAction = "run";
         internal const string NoopAction = "noop";
 
-        private readonly RequestDelegate _next;
         private readonly ITaskScheduler _scheduler;
 
         public TaskSchedulerMiddleware(RequestDelegate next, ITaskScheduler scheduler)
         {
-            _next = next;
             _scheduler = scheduler;
         }
 
@@ -109,7 +107,6 @@ namespace Smartstore.Scheduling
 
         private static Task Noop(HttpContext context)
         {
-            var ua = context.Request.UserAgent();
             context.Response.StatusCode = StatusCodes.Status200OK;
             return context.Response.WriteAsync("noop");
         }
