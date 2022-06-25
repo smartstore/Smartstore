@@ -24,17 +24,17 @@ namespace Smartstore.Pdf.WkHtml
             // Global
             BuildGlobalCommandFragment(settings, builder);
 
-            // Header content & options
-            await ProcessSectionAsync("header", settings.Header, settings.HeaderOptions, builder);
-
-            // Footer content & options
-            await ProcessSectionAsync("footer", settings.Footer, settings.FooterOptions, builder);
-
             // Custom global args
             if (settings.CustomArguments.HasValue())
             {
                 builder.Append(" " + settings.CustomArguments);
             }
+
+            // Header content & options
+            await ProcessSectionAsync("header", settings.Header, settings.HeaderOptions, builder);
+
+            // Footer content & options
+            await ProcessSectionAsync("footer", settings.Footer, settings.FooterOptions, builder);
 
             // Cover
             if (settings.Cover != null)
@@ -103,8 +103,10 @@ namespace Smartstore.Pdf.WkHtml
         {
             // Commons
             TryAppendOption("--quiet", true, builder);
+            TryAppendOption("--encoding", "utf-8", builder, false);
             TryAppendOption("-g", settings.Grayscale, builder);
             TryAppendOption("-l", settings.LowQuality, builder);
+            TryAppendOption("--outline-depth", settings.OutlineDepth, builder);
             TryAppendOption("--title", settings.Title, builder);
 
             // Margins

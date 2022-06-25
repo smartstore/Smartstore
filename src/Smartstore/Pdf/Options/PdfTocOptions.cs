@@ -13,9 +13,9 @@
         public string TocHeaderText { get; set; }
 
         /// <summary>
-        /// Do not use dotted lines in the toc
+        /// Do not use dotted lines in the TOC. Default: true.
         /// </summary>
-        public bool DisableDottedLines { get; set; }
+        public bool DisableDottedLines { get; set; } = true;
 
         /// <summary>
         /// Do not link from toc to sections

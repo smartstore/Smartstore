@@ -67,6 +67,11 @@ a img {
     border: none;
 }
 
+.img-fluid {
+    max-width: 100%;
+    height: auto;
+}
+
 a:link,
 a:visited {
     background: transparent;
@@ -78,7 +83,7 @@ a:visited {
 a:link[href^="http://"]:after,
 a[href^="http://"]:visited:after {
     content: " (" attr(href) ") ";
-    font-size: 0.9;
+    font-size: 90%;
 }
 
 abbr[title]:after {
