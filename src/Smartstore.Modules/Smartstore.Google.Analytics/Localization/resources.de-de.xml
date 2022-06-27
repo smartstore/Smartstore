@@ -24,7 +24,7 @@
   <LocaleResource Name="ScriptUpdateInfo">
     <Value>
       <![CDATA[
-            In diesem Plugin wird ein veraltetes Script genutzt. Bitte klicken Sie, weiter unten auf dieser Seite, auf den Button <b>Scripte wiederherstellen</b>, 
+            In diesem Plugin wird ein veraltetes Script genutzt. Bitte klicken Sie weiter unten auf dieser Seite auf den Button <b>Scripte wiederherstellen</b>, 
             um die aktuellste Version zu verwenden.
         ]]>
     </Value>
