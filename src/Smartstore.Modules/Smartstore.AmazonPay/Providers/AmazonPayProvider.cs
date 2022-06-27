@@ -72,7 +72,7 @@ namespace Smartstore.AmazonPay.Providers
             => new("Configure", "AmazonPayAdmin", new { area = "Admin" });
 
         public override WidgetInvoker GetPaymentInfoWidget()
-            => new ComponentWidgetInvoker(typeof(PayButtonViewComponent), new { providerName = nameof(AmazonPayProvider) });
+            => new ComponentWidgetInvoker(typeof(PayButtonViewComponent));
 
         public override async Task<ProcessPaymentResult> ProcessPaymentAsync(ProcessPaymentRequest processPaymentRequest)
         {
