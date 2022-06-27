@@ -9,20 +9,28 @@
     /// </remarks>
     internal static class AnalyticsScriptUtility
 	{
-		internal static string GetTrackingScript()
+        /// Current information about cookie consent
+        /// https://support.google.com/analytics/answer/9976101?hl=de
+        internal static string GetTrackingScript()
 		{
 			return @"<!-- Google code for Analytics tracking -->
+<script async src='https://www.googletagmanager.com/gtag/js?id={GOOGLEID}'></script>
 <script>
 	{OPTOUTCOOKIE}
 
-	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-	})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){window.dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', '{GOOGLEID}', { 'anonymize_ip': true });
 
-	ga('create', '{GOOGLEID}', {STORAGETYPE});
-	ga('set', 'anonymizeIp', true); 
-	ga('send', 'pageview');
+    gtag('consent', 'default', {
+      'ad_storage': '{STORAGETYPE}',
+      'analytics_storage': '{STORAGETYPE}',
+    });
+
+    gtag('config', 'GA_MEASUREMENT_ID', {
+      'user_id': '{USERID}'
+    });    
 
 	{ECOMMERCE}
 </script>";
@@ -30,31 +38,26 @@
 
 		internal static string GetEcommerceScript()
 		{
-			return @"ga('require', 'ecommerce');
-ga('ecommerce:addTransaction', {
-	'id': '{ORDERID}',
-	'affiliation': '{SITE}',
-	'revenue': '{TOTAL}',
-	'shipping': '{SHIP}',
-	'tax': '{TAX}',
-	'currency': '{CURRENCY}'
-});
-
-{DETAILS}
-
-ga('ecommerce:send');";
+			return @"gtag('event', 'purchase', {
+  'transaction_id': '{ORDERID}',
+  'affiliation': '{SITE}',
+  'value': {TOTAL},
+  'currency': '{CURRENCY}',
+  'tax': {TAX},
+  'shipping': {SHIP},
+  'items': [{DETAILS}]
+});";
 		}
 
 		internal static string GetEcommerceDetailScript()
 		{
-			return @"ga('ecommerce:addItem', {
-	'id': '{ORDERID}',
+			return @"{
+	'id': '{PRODUCTSKU}',
 	'name': '{PRODUCTNAME}',
-	'sku': '{PRODUCTSKU}',
 	'category': '{CATEGORYNAME}',
-	'price': '{UNITPRICE}',
-	'quantity': '{QUANTITY}'
-});";
+	'quantity': {QUANTITY},
+	'price': '{UNITPRICE}'
+},";
 		}
 	}
 }

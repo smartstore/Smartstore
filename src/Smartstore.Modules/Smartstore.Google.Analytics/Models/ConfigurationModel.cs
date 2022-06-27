@@ -20,5 +20,7 @@
         [LocalizedDisplay("*EcommerceDetailScript")]
         [UIHint("TextArea"), AdditionalMetadata("rows", 8)]
         public string EcommerceDetailScript { get; set; }
+
+        public bool ScriptUpdateRecommended { get; set; }
     }
 }

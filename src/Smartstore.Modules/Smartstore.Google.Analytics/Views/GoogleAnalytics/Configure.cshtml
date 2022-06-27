@@ -15,6 +15,10 @@
     </button>
 </widget>
 
+<div sm-if="Model.ScriptUpdateRecommended" class="alert alert-danger">
+    @Html.Raw(@T("Plugins.Widgets.GoogleAnalytics.ScriptUpdateInfo"))
+</div>
+
 <div class="alert alert-info">
     @Html.Raw(@T("Plugins.Widgets.GoogleAnalytics.AdminInstruction"))
 </div>

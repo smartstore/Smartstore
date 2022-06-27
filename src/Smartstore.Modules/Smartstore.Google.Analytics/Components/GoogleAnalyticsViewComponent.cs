@@ -105,30 +105,15 @@ namespace Smartstore.Google.Analytics.Components
             return script;
         }
 
-        private string GetStorageScript()
-        {
-            // If no consent to analytical cookies was given, set storage to none.
-            var script = @"
-                {
-                  'storage': 'none',
-                  'clientId': '" + Services.WorkContext.CurrentCustomer.CustomerGuid + @"',
-                  'storeGac': false
-                }
-			";
-
-            script += "\n";
-
-            return script;
-        }
-
         private string GetTrackingScript(bool cookiesAllowed)
         {
             var script = _settings.TrackingScript + "\n";
             script = script.Replace("{GOOGLEID}", _settings.GoogleId);
             script = script.Replace("{ECOMMERCE}", "");
             script = script.Replace("{OPTOUTCOOKIE}", GetOptOutCookieScript());
-            script = script.Replace("{STORAGETYPE}", cookiesAllowed ? "'auto'" : GetStorageScript());
-
+            script = script.Replace("{STORAGETYPE}", cookiesAllowed ? "'granted'" : "'denied'");
+            script = script.Replace("{USERID}", Services.WorkContext.CurrentCustomer.CustomerGuid.ToString());
+            
             return script;
         }
 
@@ -196,7 +181,8 @@ namespace Smartstore.Google.Analytics.Components
                 script = script.Replace("{ECOMMERCE}", ecScript);
 
                 // If no consent to third party cookies was given, set storage to none.
-                script = script.Replace("{STORAGETYPE}", cookiesAllowed ? "'auto'" : GetStorageScript());
+                script = script.Replace("{STORAGETYPE}", cookiesAllowed ? "'granted'" : "'denied'");
+                script = script.Replace("{USERID}", Services.WorkContext.CurrentCustomer.CustomerGuid.ToString());
             }
 
             return script;

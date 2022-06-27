@@ -20,6 +20,9 @@ namespace Smartstore.Google.Analytics.Controllers
             model.WidgetZone = settings.WidgetZone;
             PrepareConfigModel(settings.WidgetZone);
 
+            // If old script is used display hint to click on the 'Restore Scripts' button to get up-to-date scrpt snippets.
+            model.ScriptUpdateRecommended = settings.EcommerceScript.Contains("analytics.js");
+
             return View(model);
         }
 
