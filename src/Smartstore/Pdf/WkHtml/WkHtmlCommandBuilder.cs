@@ -24,18 +24,6 @@ namespace Smartstore.Pdf.WkHtml
             // Global
             BuildGlobalCommandFragment(settings, builder);
 
-            // Custom global args
-            if (settings.CustomArguments.HasValue())
-            {
-                builder.Append(" " + settings.CustomArguments);
-            }
-
-            // Header content & options
-            await ProcessSectionAsync("header", settings.Header, settings.HeaderOptions, builder);
-
-            // Footer content & options
-            await ProcessSectionAsync("footer", settings.Footer, settings.FooterOptions, builder);
-
             // Cover
             if (settings.Cover != null)
             {
@@ -53,13 +41,21 @@ namespace Smartstore.Pdf.WkHtml
                 BuildTocCommandFragment(settings.TocOptions, builder);
             }
 
-            // Main page
+            // Main page input
             await ProcessInputAsync("page", settings.Page);
             var content = settings.Page.Kind == PdfInputKind.Html
                 ? "-" // we gonna pump in via StdInput
                 : settings.Page.Content;
             builder.Append($" \"{content}\"");
+
+            // Main page options
             BuildPageCommandFragment(settings.PageOptions, builder);
+
+            // Header content & options
+            await ProcessSectionAsync("header", settings.Header, settings.HeaderOptions, builder);
+
+            // Footer content & options
+            await ProcessSectionAsync("footer", settings.Footer, settings.FooterOptions, builder);
 
             // INFO: Output file comes later in converter
         }
@@ -120,6 +116,12 @@ namespace Smartstore.Pdf.WkHtml
             TryAppendOption("-s", settings.Size?.ToString(), builder, false);
             TryAppendOption("--page-width", settings.PageWidth, builder);
             TryAppendOption("--page-height", settings.PageHeight, builder);
+
+            // Custom global args
+            if (settings.CustomArguments.HasValue())
+            {
+                builder.Append(" " + settings.CustomArguments);
+            }
         }
 
         protected virtual void BuildPageCommandFragment(PdfPageOptions options, StringBuilder builder)
