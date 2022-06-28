@@ -175,13 +175,13 @@ th, td {
  	catalog
 -------------------------------------------------------------- */
 
-.additional-products {
+.child-product {
     float: right;
     margin-left: 20px;
     margin-right: auto;
 }
 
-.additional-products .picture {
+.child-product-picture {
     float: right;
     margin-left: 20px;
     margin-right: auto;
