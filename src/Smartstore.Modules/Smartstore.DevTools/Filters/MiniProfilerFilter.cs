@@ -2,16 +2,16 @@
 using Microsoft.AspNetCore.Mvc.Filters;
 using Smartstore.Core;
 using Smartstore.Core.Widgets;
-using StackExchange.Profiling;
+using Smartstore.DevTools.Components;
 
 namespace Smartstore.DevTools.Filters
 {
-    internal class ProfilerFilter : IActionFilter, IResultFilter
+    internal class MiniProfilerFilter : IActionFilter, IResultFilter
     {
         private readonly ICommonServices _services;
         private readonly IWidgetProvider _widgetProvider;
 
-        public ProfilerFilter(ICommonServices services, IWidgetProvider widgetProvider)
+        public MiniProfilerFilter(ICommonServices services, IWidgetProvider widgetProvider)
         {
             _services = services;
             _widgetProvider = widgetProvider;
@@ -46,8 +46,7 @@ namespace Smartstore.DevTools.Filters
 
             _services.Chronometer.StepStart("ResultFilter", $"View: {viewName}");
 
-            _widgetProvider.RegisterHtml("head",
-                MiniProfiler.Current.RenderIncludes(context.HttpContext, null));
+            _widgetProvider.RegisterViewComponent<MiniProfilerViewComponent>("head");
         }
 
         public void OnResultExecuted(ResultExecutedContext context)

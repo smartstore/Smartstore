@@ -62,7 +62,7 @@ namespace Smartstore.DevTools
                     o.Filters.Remove(originalFilter);
                 }
 
-                o.Filters.AddConditional<ProfilerFilter>(
+                o.Filters.AddConditional<MiniProfilerFilter>(
                     context => context.ControllerIs<SmartController>() && ShouldProfile(context.HttpContext.Request));
 
                 o.Filters.AddConditional<MachineNameFilter>(
