@@ -27,6 +27,9 @@ namespace Smartstore.Core.Checkout.Payment
 
         public IDictionary<string, string> Headers { get; }
 
+        public bool HasBody
+            => _body != null;
+
         public T Body<T>()
             => (T)_body;
     }
