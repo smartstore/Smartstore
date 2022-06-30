@@ -181,6 +181,10 @@
     display: -webkit-box !important;
     display: -ms-flexbox !important;
 }
+
+.force-redraw:before {
+    content: ""
+}
 //
 // Vars
 // -------------------------------------------------
