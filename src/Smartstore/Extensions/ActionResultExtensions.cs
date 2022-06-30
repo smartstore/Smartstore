@@ -13,7 +13,7 @@ namespace Smartstore
 
             if (result is ContentResult contentResult)
             {
-                return contentResult.ContentType.EqualsNoCase("text/html");
+                return contentResult.ContentType.StartsWith("text/html");
             }
 
             return result is (ViewResult or PartialViewResult or ViewComponentResult);
