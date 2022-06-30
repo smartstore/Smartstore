@@ -86,11 +86,6 @@ namespace Smartstore.Core.Bootstrapping
                 };
             });
 
-            //if (!_appContext.IsInstalled)
-            //{
-            //    return;
-            //}
-
             var providerTypes = _appContext.TypeScanner.FindTypes<IProvider>().ToList();
 
             foreach (var type in providerTypes)
@@ -107,30 +102,45 @@ namespace Smartstore.Core.Bootstrapping
                 var isEditable = typeof(IUserEditable).IsAssignableFrom(type);
                 var isHidden = GetIsHidden(type);
                 var exportFeature = GetExportFeature(type);
+                var lifetime = type.GetAttribute<ServiceLifetimeAttribute>(false)?.Lifetime ?? ServiceLifetime.Scoped;
 
                 var registration = builder
                     .RegisterType(type)
                     .Named<IProvider>(systemName)
                     .Keyed<IProvider>(systemName)
-                    .InstancePerLifetimeScope()
-                    .PropertiesAutowired(PropertyWiringOptions.None)
-                    .WithMetadata<ProviderMetadata>(m =>
-                    {
-                        m.For(em => em.ModuleDescriptor, moduleDescriptor);
-                        m.For(em => em.GroupName, groupName);
-                        m.For(em => em.SystemName, systemName);
-                        m.For(em => em.ImplType, type);
-                        m.For(em => em.ResourceKeyPattern, resPattern);
-                        m.For(em => em.SettingKeyPattern, settingPattern);
-                        m.For(em => em.FriendlyName, friendlyName.Name);
-                        m.For(em => em.Description, friendlyName.Description);
-                        m.For(em => em.DisplayOrder, displayOrder);
-                        m.For(em => em.DependentWidgets, dependentWidgets);
-                        m.For(em => em.IsConfigurable, isConfigurable);
-                        m.For(em => em.IsEditable, isEditable);
-                        m.For(em => em.IsHidden, isHidden);
-                        m.For(em => em.ExportFeatures, exportFeature);
-                    });
+                    .PropertiesAutowired(PropertyWiringOptions.None);
+
+                if (lifetime == ServiceLifetime.Singleton)
+                {
+                    registration.SingleInstance();
+                }
+                else if (lifetime == ServiceLifetime.Transient)
+                {
+                    registration.InstancePerDependency();
+                }
+                else
+                {
+                    registration.InstancePerLifetimeScope();
+                }
+
+
+                registration.WithMetadata<ProviderMetadata>(m =>
+                {
+                    m.For(em => em.ModuleDescriptor, moduleDescriptor);
+                    m.For(em => em.GroupName, groupName);
+                    m.For(em => em.SystemName, systemName);
+                    m.For(em => em.ImplType, type);
+                    m.For(em => em.ResourceKeyPattern, resPattern);
+                    m.For(em => em.SettingKeyPattern, settingPattern);
+                    m.For(em => em.FriendlyName, friendlyName.Name);
+                    m.For(em => em.Description, friendlyName.Description);
+                    m.For(em => em.DisplayOrder, displayOrder);
+                    m.For(em => em.DependentWidgets, dependentWidgets);
+                    m.For(em => em.IsConfigurable, isConfigurable);
+                    m.For(em => em.IsEditable, isEditable);
+                    m.For(em => em.IsHidden, isHidden);
+                    m.For(em => em.ExportFeatures, exportFeature);
+                });
 
                 // Register specific provider type.
                 RegisterAsSpecificProvider<ITaxProvider>(type, systemName, registration);

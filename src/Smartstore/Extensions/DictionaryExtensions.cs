@@ -86,8 +86,7 @@ namespace Smartstore
 
         public static ExpandoObject ToExpandoObject(this IDictionary<string, object> source, bool castIfPossible = false)
         {
-            if (source == null)
-                throw new ArgumentNullException(nameof(source));
+            Guard.NotNull(source, nameof(source));
 
             if (castIfPossible && source is ExpandoObject)
             {
