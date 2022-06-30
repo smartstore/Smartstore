@@ -28,9 +28,7 @@ namespace Smartstore.PayPal.Filters
             // should only run on a full view rendering result or HTML ContentResult
             if (filterContext.Result is StatusCodeResult || filterContext.Result.IsHtmlViewResult())
             {
-                _widgetProvider.RegisterWidget(
-                    "offcanvas_cart_summary", 
-                    new ComponentWidgetInvoker(typeof(PayPalViewComponent)));
+                _widgetProvider.RegisterViewComponent<PayPalViewComponent>("offcanvas_cart_summary");
             }
         }
 

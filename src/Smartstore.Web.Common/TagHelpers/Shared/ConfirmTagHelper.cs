@@ -176,8 +176,7 @@ namespace Smartstore.Web.TagHelpers.Shared
 
             // Render confirm dialog.
             var partial = await HtmlHelper.PartialAsync("Confirm", model, null);
-            var widget = new HtmlWidgetInvoker(partial);
-            _widgetProvider.RegisterWidget("end", widget);
+            _widgetProvider.RegisterHtml("end", partial);
         }
     
         private static string GetIconClass(ConfirmActionType confirmType)

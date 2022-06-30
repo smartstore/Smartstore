@@ -22,8 +22,7 @@ namespace Smartstore.AmazonPay.Filters
         {
             if (_amazonPaySettings.ShowButtonInMiniShoppingCart && context.Result.IsHtmlViewResult())
             {
-                _widgetProvider.RegisterWidget("offcanvas_cart_summary",
-                    new ComponentWidgetInvoker(typeof(PayButtonViewComponent)));
+                _widgetProvider.RegisterViewComponent<PayButtonViewComponent>("offcanvas_cart_summary");
             }
         }
 

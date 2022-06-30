@@ -99,9 +99,7 @@ namespace Smartstore.Web.Components
             
             if (ShouldRenderGDPR()) 
             {
-                _widgetProvider.RegisterWidget("gdpr_consent_small",
-                    new ComponentWidgetInvoker("GdprConsent", new { isSmall = true }));
-
+                _widgetProvider.RegisterViewComponent<GdprConsentViewComponent>("gdpr_consent_small", new { isSmall = true });
                 HttpContext.Items["GdprConsentRendered"] = true;
             }
 

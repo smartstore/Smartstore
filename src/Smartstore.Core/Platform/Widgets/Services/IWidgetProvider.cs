@@ -1,5 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Html;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Smartstore.Core.Widgets
 {
@@ -51,8 +52,6 @@ namespace Smartstore.Core.Widgets
 
     public static class IWidgetProviderExtensions
     {
-        // TODO: (core) Implement IWidgetProviderExtensions.RegisterViewComponent()
-
         /// <summary>
         /// Registers a custom widget for a single widget zone.
         /// </summary>
@@ -90,12 +89,61 @@ namespace Smartstore.Core.Widgets
         /// <summary>
         /// Registers custom HTML content for multiple widget zones by pattern
         /// </summary>
-        /// <param name="zones">The widget zone pattern to inject the HTML content to</param>
+        /// <param name="zonePattern">The widget zone pattern to inject the HTML content to</param>
         /// <param name="html">HTML to inject</param>
         /// <param name="order">Sort order within the specified widget zones</param>
         public static void RegisterHtml(this IWidgetProvider provider, Regex zonePattern, IHtmlContent html, int order = 0)
         {
             provider.RegisterWidget(zonePattern, new HtmlWidgetInvoker(html) { Order = order });
+        }
+
+        /// <summary>
+        /// Registers a view component for a single widget zone
+        /// </summary>
+        /// <param name="zone">The name of the widget zones to inject the view component to</param>
+        /// <param name="arguments">
+        /// An <see cref="object"/> with properties representing arguments to be passed to the invoked view component
+        /// method. Alternatively, an <see cref="IDictionary{String, Object}"/> instance
+        /// containing the invocation arguments.
+        /// </param>
+        /// <param name="order">Sort order within the specified widget zone</param>
+        public static void RegisterViewComponent<TComponent>(this IWidgetProvider provider, string zone, object arguments = null, int order = 0)
+            where TComponent : ViewComponent
+        {
+            Guard.NotEmpty(zone, nameof(zone));
+            provider.RegisterWidget(new[] { zone }, new ComponentWidgetInvoker(typeof(TComponent), arguments) { Order = order });
+        }
+
+        /// <summary>
+        /// Registers a view component for a single widget zone
+        /// </summary>
+        /// <param name="zones">The names of the widget zones to inject the view component to</param>
+        /// <param name="arguments">
+        /// An <see cref="object"/> with properties representing arguments to be passed to the invoked view component
+        /// method. Alternatively, an <see cref="IDictionary{String, Object}"/> instance
+        /// containing the invocation arguments.
+        /// </param>
+        /// <param name="order">Sort order within the specified widget zone</param>
+        public static void RegisterViewComponent<TComponent>(this IWidgetProvider provider, string[] zones, object arguments = null, int order = 0)
+            where TComponent : ViewComponent
+        {
+            provider.RegisterWidget(zones, new ComponentWidgetInvoker(typeof(TComponent), arguments) { Order = order });
+        }
+
+        /// <summary>
+        /// Registers a view component for a single widget zone
+        /// </summary>
+        /// <param name="zonePattern">The widget zone pattern to inject the view component to</param>
+        /// <param name="arguments">
+        /// An <see cref="object"/> with properties representing arguments to be passed to the invoked view component
+        /// method. Alternatively, an <see cref="IDictionary{String, Object}"/> instance
+        /// containing the invocation arguments.
+        /// </param>
+        /// <param name="order">Sort order within the specified widget zone</param>
+        public static void RegisterViewComponent<TComponent>(this IWidgetProvider provider, Regex zonePattern, object arguments = null, int order = 0)
+            where TComponent : ViewComponent
+        {
+            provider.RegisterWidget(zonePattern, new ComponentWidgetInvoker(typeof(TComponent), arguments) { Order = order });
         }
     }
 }
