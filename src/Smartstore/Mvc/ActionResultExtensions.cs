@@ -16,7 +16,17 @@ namespace Smartstore
                 return contentResult.ContentType.StartsWith("text/html");
             }
 
-            return result is (ViewResult or PartialViewResult or ViewComponentResult);
+            if (result is (ViewResult or PartialViewResult or ViewComponentResult))
+            {
+                return true;
+            }
+
+            if (result is IActionResultContainer container)
+            {
+                return IsHtmlViewResult(container.InnerResult);
+            }
+
+            return false;
         }
     }
 }

@@ -46,9 +46,6 @@ namespace Smartstore.Core.Content.Menus
                 if (context.HttpContext.Request.IsAjax())
                     return;
 
-                //if (filterContext.HttpContext.Request.HttpMethod != "GET")
-                //	return;
-
                 if (!executedContext.Result.IsHtmlViewResult())
                     return;
 
@@ -102,13 +99,10 @@ namespace Smartstore.Core.Content.Menus
 
             public async Task OnResultExecutionAsync(ResultExecutingContext context, ResultExecutionDelegate next)
             {
-                if (!context.Result.IsHtmlViewResult())
+                if (context.Result.IsHtmlViewResult())
                 {
-                    await next();
-                    return;
+                    await ProcessUserMenusAsync();
                 }
-
-                await ProcessUserMenusAsync();
 
                 await next();
             }
