@@ -6,9 +6,9 @@
     <meta name="HandheldFriendly" content="true">
     <meta name="description" content="@Assets.GetMetaDescription()" />
     <meta name="keywords" content="@Assets.GetMetaKeywords()" />
-    <meta name="__rvt" content="@Html.GetAntiforgeryToken()" />
     <meta name="generator" content="Smartstore @SmartstoreVersion.CurrentFullVersion" />
     <meta property="sm:root" content="@Url.Content("~/")" />
+    @await Component.InvokeAsync("AntiForgeryToken")
 
     <title itemprop="name">@Assets.GetDocumentTitle(true)</title>
 

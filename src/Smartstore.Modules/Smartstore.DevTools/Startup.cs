@@ -96,7 +96,7 @@ namespace Smartstore.DevTools
 
             // OutputCache invalidation configuration
             var observer = builder.ApplicationBuilder.ApplicationServices.GetRequiredService<IOutputCacheInvalidationObserver>();
-            observer.ObserveSettingProperty<ProfilerSettings>(x => x.EnableMiniProfilerInPublicStore);
+            //observer.ObserveSettingProperty<ProfilerSettings>(x => x.EnableMiniProfilerInPublicStore);
             observer.ObserveSettingProperty<ProfilerSettings>(x => x.DisplayMachineName);
         }
 
