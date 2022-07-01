@@ -11,6 +11,8 @@ namespace Smartstore
         /// <returns>Days as integer or null if no days are set for the current delivery time.</returns>
         public static int? GetMinOrMaxOrAverageDays(this DeliveryTime deliveryTime)
         {
+            Guard.NotNull(deliveryTime, nameof(deliveryTime));
+
             var minDays = deliveryTime.MinDays;
             var maxDays = deliveryTime.MaxDays;
 
