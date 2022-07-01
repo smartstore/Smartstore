@@ -44,10 +44,7 @@ namespace Smartstore.Core.Identity
                 if (request == null)
                     return false;
 
-                if (request.IsAjaxRequest())
-                    return false;
-
-                if (request.Method != HttpMethods.Get)
+                if (!request.IsNonAjaxGet())
                     return false;
 
                 return true;

@@ -78,7 +78,7 @@ namespace Smartstore.Core.Identity
 
         private void DoTrack(ActionExecutingContext context)
         {
-            if (!HttpMethods.IsGet(context.HttpContext.Request.Method))
+            if (!context.HttpContext.Request.IsGet())
                 return;
 
             var customer = _workContext.CurrentCustomer;

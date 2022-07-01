@@ -43,7 +43,7 @@ namespace Smartstore.Core.Content.Menus
             {
                 var executedContext = await next();
 
-                if (context.HttpContext.Request.IsAjaxRequest())
+                if (context.HttpContext.Request.IsAjax())
                     return;
 
                 //if (filterContext.HttpContext.Request.HttpMethod != "GET")

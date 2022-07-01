@@ -24,7 +24,7 @@ namespace Smartstore.Core.Security
             
             // Only redirect for GET requests, otherwise the browser might not propagate
             // the verb and request body correctly.
-            if (!HttpMethods.IsGet(httpContext.Request.Method))
+            if (!httpContext.Request.IsGet())
             {
                 return;
             }

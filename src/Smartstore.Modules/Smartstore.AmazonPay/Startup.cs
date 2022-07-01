@@ -23,7 +23,7 @@ namespace Smartstore.AmazonPay
                     context => context.RouteData?.Values?.IsSameRoute("ShoppingCart", nameof(ShoppingCartController.OffCanvasShoppingCart)) ?? false);
 
                 o.Filters.AddConditional<CheckoutFilter>(
-                    context => context.ControllerIs<CheckoutController>() && !context.HttpContext.Request.IsAjaxRequest());
+                    context => context.ControllerIs<CheckoutController>() && !context.HttpContext.Request.IsAjax());
             });
         }
     }

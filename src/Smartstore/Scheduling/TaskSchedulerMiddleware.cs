@@ -22,7 +22,7 @@ namespace Smartstore.Scheduling
 
             if (action == PollAction || action == RunAction)
             {
-                if (!HttpMethods.IsPost(context.Request.Method))
+                if (!context.Request.IsPost())
                 {
                     context.Response.StatusCode = StatusCodes.Status405MethodNotAllowed;
                     return;

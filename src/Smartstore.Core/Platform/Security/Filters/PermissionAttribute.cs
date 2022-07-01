@@ -61,7 +61,7 @@ namespace Smartstore.Core.Security
                     ? await _permissionService.GetUnauthorizedMessageAsync(_requirement.SystemName)
                     : string.Empty;
 
-                if (request.IsAjaxRequest())
+                if (request.IsAjax())
                 {
                     if (message.HasValue())
                     {

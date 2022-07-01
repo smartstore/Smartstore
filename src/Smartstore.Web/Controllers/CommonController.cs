@@ -173,7 +173,7 @@ namespace Smartstore.Web.Controllers
 
             _themeContext.WorkingThemeName = themeName;
 
-            if (HttpContext.Request.IsAjaxRequest())
+            if (HttpContext.Request.IsAjax())
             {
                 return Json(new { Success = true });
             }
@@ -265,7 +265,7 @@ namespace Smartstore.Web.Controllers
 
             _cookieConsentManager.SetConsentCookie(model.AnalyticsConsent, model.ThirdPartyConsent);
 
-            if (!HttpContext.Request.IsAjaxRequest())
+            if (!HttpContext.Request.IsAjax())
             {
                 return RedirectToReferrer();
             }

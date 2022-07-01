@@ -42,7 +42,7 @@ namespace Smartstore.Core.Localization
             Thread.CurrentThread.CurrentCulture = culture;
             Thread.CurrentThread.CurrentUICulture = culture;
 
-            if (!context.Request.IsAjaxRequest())
+            if (!context.Request.IsAjax())
             {
                 var widgetProvider = context.RequestServices.GetService<IWidgetProvider>();
 

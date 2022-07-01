@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Core;
 using Smartstore.Core.Data;
+using Smartstore.Core.OutputCache;
 using Smartstore.Core.Web;
 using Smartstore.Data;
 using Smartstore.Data.Providers;
@@ -66,10 +67,10 @@ namespace Smartstore.DevTools
                     context => context.ControllerIs<SmartController>() && ShouldProfile(context.HttpContext.Request));
 
                 o.Filters.AddConditional<MachineNameFilter>(
-                    context => context.ControllerIs<SmartController>());
+                    context => context.ControllerIs<SmartController>() && context.HttpContext.Request.IsNonAjaxGet());
 
                 o.Filters.AddConditional<WidgetZoneFilter>(
-                    context => context.ControllerIs<SmartController>());
+                    context => context.ControllerIs<SmartController>() && context.HttpContext.Request.IsNonAjaxGet());
 
                 //o.Filters.AddConditional<SampleProductDetailActionFilter>(
                 //    context => context.ControllerIs<ProductController>());
@@ -92,6 +93,11 @@ namespace Smartstore.DevTools
             {
                 app.UseMiniProfiler();
             });
+
+            // OutputCache invalidation configuration
+            var observer = builder.ApplicationBuilder.ApplicationServices.GetRequiredService<IOutputCacheInvalidationObserver>();
+            observer.ObserveSettingProperty<ProfilerSettings>(x => x.EnableMiniProfilerInPublicStore);
+            observer.ObserveSettingProperty<ProfilerSettings>(x => x.DisplayMachineName);
         }
 
         public override void MapRoutes(EndpointRoutingBuilder builder)
