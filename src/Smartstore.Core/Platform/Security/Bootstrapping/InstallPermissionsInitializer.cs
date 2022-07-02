@@ -47,7 +47,7 @@ namespace Smartstore.Core.Bootstrapping
                     else
                     {
                         removeUnusedPermissions = false;
-                        Logger.Warn($"Cannot create instance of IPermissionProvider {type.Name.NaIfEmpty()}.");
+                        Logger.Warn($"Cannot create instance of {nameof(IPermissionProvider)} {type.Name.NaIfEmpty()}.");
                     }
                 }
             }

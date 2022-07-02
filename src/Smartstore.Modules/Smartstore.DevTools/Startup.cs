@@ -43,6 +43,9 @@ namespace Smartstore.DevTools
                 o.ResultsAuthorize = ResultsAuthorize;
                 o.ResultsListAuthorize = ResultsAuthorize;
 
+                o.IgnoredPaths.Clear();
+                o.IgnorePath("/favicon.ico");
+
                 //// INFO: Handled by settings now.
                 //o.IgnorePath("/admin/");
                 //o.IgnorePath("/themes/");
@@ -96,7 +99,6 @@ namespace Smartstore.DevTools
 
             // OutputCache invalidation configuration
             var observer = builder.ApplicationBuilder.ApplicationServices.GetRequiredService<IOutputCacheInvalidationObserver>();
-            //observer.ObserveSettingProperty<ProfilerSettings>(x => x.EnableMiniProfilerInPublicStore);
             observer.ObserveSettingProperty<ProfilerSettings>(x => x.DisplayMachineName);
         }
 

@@ -10,7 +10,6 @@ namespace Smartstore.Core.Bootstrapping
             Guard.NotNull(services, nameof(services));
 
             services.TryAddScoped<IDisplayControl, DisplayControl>();
-            services.TryAddScoped<ICacheableRouteRegistrar, NullCacheableRouteRegistrar>();
             services.TryAddSingleton(NullOutputCacheInvalidationObserver.Instance);
 
             return services;
