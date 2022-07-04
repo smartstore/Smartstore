@@ -34,6 +34,26 @@ namespace Smartstore.Admin.Infrastructure.Menus
             return Task.FromResult(rootNode);
         }
 
+        protected override Task OnMenuBuilt(TreeNode<MenuItem> root)
+        {
+            // Rearrange order of "Plugins" child nodes (ensure that "Manage Plugins" comes last).
+            var modulesNode = root.SelectNodeById("modules");
+            var sepNode = root.SelectNodeById("modules-sep-1");
+            var manageNode = root.SelectNodeById("modules-manage");
+
+            if (sepNode != null)
+            {
+                modulesNode.Append(sepNode);
+            }
+
+            if (manageNode != null)
+            {
+                modulesNode.Append(manageNode);
+            }
+
+            return Task.CompletedTask;
+        }
+
         protected virtual TreeNode<MenuItem> ConvertXmlNodeToMenuItemNode(XmlElement node)
         {
             var item = new MenuItem();

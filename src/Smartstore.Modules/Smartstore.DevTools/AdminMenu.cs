@@ -16,7 +16,7 @@ namespace Smartstore.DevTools
                 .Action("Configure", "DevTools", new { area = "Admin" })
                 .AsItem();
 
-            modulesNode.Prepend(menuItem);
+            modulesNode.Append(menuItem);
 
             #region Sample
 

@@ -15,7 +15,7 @@ namespace Smartstore.Clickatell
                 .Action("Configure", "Clickatell", new { area = "Admin" })
                 .AsItem();
 
-            modulesNode.Prepend(menuItem);
+            modulesNode.Append(menuItem);
         }
     }
 }

@@ -15,7 +15,7 @@ namespace Smartstore.Google.MerchantCenter
                 .Action("Configure", "GoogleMerchantCenter", new { area = "Admin" })
                 .AsItem();
 
-            modulesNode.Prepend(menuItem);
+            modulesNode.Append(menuItem);
         }
     }
 }

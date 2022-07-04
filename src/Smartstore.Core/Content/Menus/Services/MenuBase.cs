@@ -46,6 +46,7 @@ namespace Smartstore.Core.Content.Menus
                         await DoApplyPermissionsAsync(root);
                     }
 
+                    await OnMenuBuilt(root);
                     await Services.EventPublisher.PublishAsync(new MenuBuiltEvent(Name, root));
 
                     return root;
@@ -53,6 +54,12 @@ namespace Smartstore.Core.Content.Menus
             });
 
             return rootNode;
+        }
+
+        protected virtual Task OnMenuBuilt(TreeNode<MenuItem> root)
+        {
+            // for integrators
+            return Task.CompletedTask;
         }
 
         protected virtual Task DoApplyPermissionsAsync(TreeNode<MenuItem> root)
