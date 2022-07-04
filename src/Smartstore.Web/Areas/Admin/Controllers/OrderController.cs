@@ -211,6 +211,15 @@ namespace Smartstore.Admin.Controllers
             {
                 orderQuery = orderQuery.ApplySearchFilterFor(x => x.OrderNumber, model.OrderNumber);
             }
+            if (model.PaymentId.HasValue())
+            {
+                orderQuery = orderQuery.ApplySearchFilter(
+                    model.PaymentId,
+                    LogicalRuleOperator.Or,
+                    x => x.CaptureTransactionId,
+                    x => x.AuthorizationTransactionId,
+                    x => x.AuthorizationTransactionCode);
+            }
             if (model.StoreId > 0)
             {
                 orderQuery = orderQuery.Where(x => x.StoreId == model.StoreId);

@@ -59,6 +59,12 @@ namespace Smartstore.Core.Data.Migrations
                 "Classic (klassische Trennung und Filterung)");
 
             builder.AddOrUpdate("Admin.Plugins.KnownGroup.Law", "Law", "Gesetz");
+
+            builder.AddOrUpdate("Admin.Orders.List.PaymentId",
+                "Payment ID",
+                "Zahlungs-ID",
+                "Search by the payment transaction ID (authorization or capturing)",
+                "Suche über die Zahlungstransaktions-ID (Autorisierung oder Buchung)");
         }
     }
 }

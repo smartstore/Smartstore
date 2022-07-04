@@ -35,6 +35,10 @@
     <smart-label asp-for="PaymentMethods" />
     <select asp-for="PaymentMethods" asp-items="ViewBag.PaymentMethods" class="form-control-sm" multiple="multiple"></select>
 </div>
+<div class="form-group">
+    <smart-label asp-for="PaymentId" />
+    <editor asp-for="PaymentId" asp-template="SearchExpression" class="form-control-sm" />
+</div>
 <div sm-if="stores.Count > 1" class="form-group">
     <smart-label asp-for="StoreId" />
     <select asp-for="StoreId" asp-items="stores" class="form-control-sm" asp-placeholder="@T("Admin.Common.All")"></select>
