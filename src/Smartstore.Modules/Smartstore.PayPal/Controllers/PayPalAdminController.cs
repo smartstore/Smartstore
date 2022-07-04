@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Smartstore.Caching;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Security;
+using Smartstore.Engine.Modularity;
 using Smartstore.PayPal.Client;
 using Smartstore.Web.Controllers;
 using Smartstore.Web.Modelling.Settings;
@@ -14,10 +15,12 @@ namespace Smartstore.PayPal.Controllers
     public class PayPalAdminController : ModuleController
     {
         private readonly ICacheFactory _cacheFactory;
+        private readonly IProviderManager _providerManager;
 
-        public PayPalAdminController(ICacheFactory cacheFactory)
+        public PayPalAdminController(ICacheFactory cacheFactory, IProviderManager providerManager)
         {
             _cacheFactory = cacheFactory;
+            _providerManager = providerManager;
         }
 
         [LoadSetting, AuthorizeAdmin]
@@ -28,6 +31,8 @@ namespace Smartstore.PayPal.Controllers
             model.EnabledFundings = settings.EnabledFundings.SplitSafe(',').ToArray();
             model.DisabledFundings = settings.DisabledFundings.SplitSafe(',').ToArray();
             model.WebhookUrl = Url.Action(nameof(PayPalController.WebhookHandler), "PayPal", null, "https");
+
+            ViewBag.Provider = _providerManager.GetProvider("Payments.PayPalStandard").Metadata;
 
             return View(model);
         }

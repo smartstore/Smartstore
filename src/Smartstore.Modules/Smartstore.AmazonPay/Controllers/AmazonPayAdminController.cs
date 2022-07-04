@@ -9,6 +9,7 @@ using Smartstore.Core.Configuration;
 using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Data;
 using Smartstore.Core.Stores;
+using Smartstore.Engine.Modularity;
 using Smartstore.Http;
 using Smartstore.Web.Controllers;
 using Smartstore.Web.Modelling.Settings;
@@ -20,17 +21,20 @@ namespace Smartstore.AmazonPay.Controllers
     {
         private readonly SmartDbContext _db;
         private readonly IAmazonPayService _amazonPayService;
+        private readonly IProviderManager _providerManager;
         private readonly MultiStoreSettingHelper _settingHelper;
         private readonly CompanyInformationSettings _companyInformationSettings;
 
         public AmazonPayAdminController(
             SmartDbContext db,
             IAmazonPayService amazonPayService,
+            IProviderManager providerManager,
             MultiStoreSettingHelper settingHelper,
             CompanyInformationSettings companyInformationSettings)
         {
             _db = db;
             _amazonPayService = amazonPayService;
+            _providerManager = providerManager;
             _settingHelper = settingHelper;
             _companyInformationSettings = companyInformationSettings;
         }
@@ -191,6 +195,7 @@ namespace Smartstore.AmazonPay.Controllers
             }
 
             ViewBag.PrimaryStoreCurrencyCode = Services.CurrencyService.PrimaryCurrency.CurrencyCode;
+            ViewBag.Provider = _providerManager.GetProvider(AmazonPayProvider.SystemName).Metadata;
 
             ViewBag.TransactionTypes = new List<SelectListItem>
             {
