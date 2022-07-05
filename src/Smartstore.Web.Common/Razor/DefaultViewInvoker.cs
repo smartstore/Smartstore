@@ -14,7 +14,6 @@ namespace Smartstore.Web.Razor
     public class DefaultViewInvoker : IViewInvoker
     {
         private readonly IServiceProvider _serviceProvider;
-        private readonly ITempDataDictionaryFactory _tempDataFactory;
         private readonly IViewDataAccessor _viewDataAccessor;
         private readonly IActionContextAccessor _actionContextAccessor;
         private readonly IHttpContextAccessor _httpContextAccessor;
@@ -22,14 +21,12 @@ namespace Smartstore.Web.Razor
 
         public DefaultViewInvoker(
             IServiceProvider serviceProvider,
-            ITempDataDictionaryFactory tempDataFactory,
             IViewDataAccessor viewDataAccessor,
             IActionContextAccessor actionContextAccessor, 
             IHttpContextAccessor httpContextAccessor,
             IModuleCatalog moduleCatalog)
         {
             _serviceProvider = serviceProvider;
-            _tempDataFactory = tempDataFactory;
             _viewDataAccessor = viewDataAccessor;
             _actionContextAccessor = actionContextAccessor;
             _httpContextAccessor = httpContextAccessor;
@@ -51,8 +48,7 @@ namespace Smartstore.Web.Razor
             var result = new ViewResult
             {
                 ViewName = viewName,
-                ViewData = viewData ?? ViewData,
-                TempData = _tempDataFactory.GetTempData(actionContext.HttpContext)
+                ViewData = viewData ?? ViewData
             };
 
             return ExecuteResultCapturedAsync(actionContext, result);
@@ -66,8 +62,7 @@ namespace Smartstore.Web.Razor
             var result = new PartialViewResult
             {
                 ViewName = viewName,
-                ViewData = viewData ?? ViewData,
-                TempData = _tempDataFactory.GetTempData(actionContext.HttpContext)
+                ViewData = viewData ?? ViewData
             };
 
             return ExecuteResultCapturedAsync(actionContext, result);
@@ -83,8 +78,7 @@ namespace Smartstore.Web.Razor
             {
                 ViewComponentName = componentName,
                 Arguments = arguments ?? viewData.Model,
-                ViewData = viewData,
-                TempData = _tempDataFactory.GetTempData(actionContext.HttpContext)
+                ViewData = viewData
             };
 
             return ExecuteResultCapturedAsync(actionContext, result);
@@ -100,8 +94,7 @@ namespace Smartstore.Web.Razor
             {
                 ViewComponentType = componentType,
                 Arguments = arguments ?? viewData.Model,
-                ViewData = viewData,
-                TempData = _tempDataFactory.GetTempData(actionContext.HttpContext)
+                ViewData = viewData
             };
 
             return ExecuteResultCapturedAsync(actionContext, result);
