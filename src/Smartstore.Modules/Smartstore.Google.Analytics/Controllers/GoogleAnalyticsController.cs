@@ -37,6 +37,8 @@ namespace Smartstore.Google.Analytics.Controllers
             ModelState.Clear();
             MiniMapper.Map(model, settings);
 
+            NotifySuccess(T("Admin.Common.DataSuccessfullySaved"));
+
             return RedirectToAction(nameof(Configure));
         }
 

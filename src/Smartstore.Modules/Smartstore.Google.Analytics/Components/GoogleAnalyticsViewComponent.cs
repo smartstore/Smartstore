@@ -111,7 +111,7 @@ namespace Smartstore.Google.Analytics.Components
             script = script.Replace("{GOOGLEID}", _settings.GoogleId);
             script = script.Replace("{ECOMMERCE}", "");
             script = script.Replace("{OPTOUTCOOKIE}", GetOptOutCookieScript());
-            script = script.Replace("{STORAGETYPE}", cookiesAllowed ? "'granted'" : "'denied'");
+            script = script.Replace("{STORAGETYPE}", cookiesAllowed ? "granted" : "denied");
             script = script.Replace("{USERID}", Services.WorkContext.CurrentCustomer.CustomerGuid.ToString());
             
             return script;
