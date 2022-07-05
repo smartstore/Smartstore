@@ -413,7 +413,7 @@ namespace Smartstore.Admin.Controllers
                 try
                 {
                     var currency = _db.Currencies.FindById(currencyId, false);
-                    var clone = currency.Clone();
+                    var clone = currency?.Clone() ?? new Currency();
                     clone.Id = 0;
                     clone.CustomFormatting = customFormat;
 
