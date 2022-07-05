@@ -122,8 +122,7 @@ namespace Smartstore.Web.Razor
                 response.Body = body;
             }
 
-            _ = MediaTypeHeaderValue.TryParse(response.ContentType, out var mediaType);
-
+            var mediaType = response.GetTypedHeaders().ContentType;
             var responseEncoding = mediaType?.Encoding ?? Encoding.UTF8;
             var buffer = captureStream.ToArray();
             var html = responseEncoding.GetString(buffer);
