@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Html;
+﻿using System.Text;
+using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Net.Http.Headers;
 using Smartstore.Core.Web;
 using Smartstore.Engine.Modularity;
 
@@ -113,25 +115,27 @@ namespace Smartstore.Web.Razor
             var body = response.Body;
             var statusCode = response.StatusCode;
             var contentType = response.ContentType;
+            using var captureStream = new MemoryStream();
 
             try
             {
-                using var stream = new MemoryStream();
-                response.Body = stream;
+                response.Body = captureStream;
                 await result.ExecuteResultAsync(actionContext);
-
-                stream.Position = 0;
-                using var reader = stream.ToStreamReader(true);
-                var html = await reader.ReadToEndAsync();
-
-                return new HtmlString(html);
             }
             finally
             {
-                response.Body = body;
                 response.ContentType = contentType;
                 response.StatusCode = statusCode;
+                response.Body = body;
             }
+
+            _ = MediaTypeHeaderValue.TryParse(response.ContentType, out var mediaType);
+
+            var responseEncoding = mediaType?.Encoding ?? Encoding.UTF8;
+            var buffer = captureStream.ToArray();
+            var html = responseEncoding.GetString(buffer);
+
+            return new HtmlString(html);
         } 
 
         private ActionContext GetActionContext(string module)
