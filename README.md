@@ -21,7 +21,7 @@
 <p align="center">
 	<a href="#try-it-online">Try Online</a> ∙ 
 	<a href="http://community.smartstore.com">Forum</a> ∙ 
-	<a href="http://community.smartstore.com/marketplace">Marketplace</a> ∙ 
+	<a href="http://community.smartstore.com/index.php?/files">Marketplace</a> ∙ 
 	<a href="http://translate.smartstore.com/">Translations</a>
 </p>
 <br/>
@@ -43,7 +43,7 @@ The state-of-the-art architecture of Smartstore - with `ASP.NET Core 6`, `Entity
 
 * **Website:** [http://www.smartstore.com/en/net](http://www.smartstore.com/en/net)
 * **Forum:** [http://community.smartstore.com](http://community.smartstore.com)
-* **Marketplace:** [http://community.smartstore.com/marketplace](http://community.smartstore.com/marketplace)
+* **Marketplace:** [http://community.smartstore.com/index.php?/files](http://community.smartstore.com/index.php?/files)
 * **Translations:** [http://translate.smartstore.com/](http://translate.smartstore.com/)
 * **Documentation:** [Smartstore Documentation in English](http://docs.smartstore.com/display/SMNET)
 
