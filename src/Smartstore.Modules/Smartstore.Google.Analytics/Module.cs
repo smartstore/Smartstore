@@ -56,7 +56,7 @@ namespace Smartstore.Google.Analytics
         }
 
         public WidgetInvoker GetDisplayWidget(string widgetZone, object model, int storeId)
-            => new ComponentWidgetInvoker(typeof(GoogleAnalyticsViewComponent), null);
+            => new ComponentWidgetInvoker(typeof(GoogleAnalyticsViewComponent), model);
 
         public string[] GetWidgetZones()
         {

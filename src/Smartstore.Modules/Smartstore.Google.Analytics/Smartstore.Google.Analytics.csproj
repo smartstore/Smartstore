@@ -4,7 +4,11 @@
 		<OutputPath>..\..\Smartstore.Web\Modules\Smartstore.Google.Analytics</OutputPath>
 		<OutDir>$(OutputPath)</OutDir>
   </PropertyGroup>
-  <ItemGroup>
-    <None Remove="Views\_ViewImports.cshtml" />
-  </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\..\Smartstore.Web\Smartstore.Web.csproj">
+            <Private>False</Private>
+            <CopyLocal>False</CopyLocal>
+            <CopyLocalSatelliteAssemblies>False</CopyLocalSatelliteAssemblies>
+        </ProjectReference>
+    </ItemGroup>
 </Project>
