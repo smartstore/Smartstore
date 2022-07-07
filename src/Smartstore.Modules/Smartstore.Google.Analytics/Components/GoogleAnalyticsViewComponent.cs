@@ -1,8 +1,10 @@
 ﻿using System.Globalization;
+using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Products;
@@ -267,7 +269,15 @@ namespace Smartstore.Google.Analytics.Components
               {CATEGORIES}
               item_list_name: '{ITEMLISTNAME}',
               price: {PRICE}
-            },";
+            }";
+
+            // TODO: (mh) (core) Make it so
+            //var obj = new
+            //{
+            //    item_id = FixIllegalJavaScriptChars(sku),
+            //    item_name = "fsdfsdf"
+            //};
+            //JsonConvert.SerializeObject(obj);
 
             itemsScriptTemplate = itemsScriptTemplate.Replace("{PRODUCTSKU}", FixIllegalJavaScriptChars(sku));
             itemsScriptTemplate = itemsScriptTemplate.Replace("{PRODUCTNAME}", FixIllegalJavaScriptChars(productName));
@@ -327,7 +337,7 @@ namespace Smartstore.Google.Analytics.Components
         private async Task<string> GetOrderCompletedScriptAsync(Order order)
         {
             var usCulture = new CultureInfo("en-US");
-            var ecScript = _settings.EcommerceScript + "\n";
+            var ecScript = _settings.EcommerceScript + '\n';
 
             if (order != null)
             {
@@ -335,7 +345,7 @@ namespace Smartstore.Google.Analytics.Components
                     .EmptyNull()
                     .Replace("http://", string.Empty)
                     .Replace("https://", string.Empty)
-                    .Replace("/", string.Empty);
+                    .Replace("/", string.Empty); // TODO: (mh) (core) Kaputt!!
     
                 ecScript = ecScript.Replace("{ORDERID}", order.GetOrderNumber());
                 ecScript = ecScript.Replace("{SITE}", FixIllegalJavaScriptChars(site));
@@ -391,7 +401,56 @@ namespace Smartstore.Google.Analytics.Components
         private static string FixIllegalJavaScriptChars(string text)
         {
             //replace ' with \' (http://stackoverflow.com/questions/4292761/need-to-url-encode-labels-when-tracking-events-with-google-analytics)
-            return text?.Replace("'", "\\'") ?? string.Empty;
+
+            if (string.IsNullOrEmpty(text))
+            {
+                return string.Empty;
+            }
+
+            if (text.Contains('\''))
+            {
+                return text.Replace("'", "\\'") ?? string.Empty;
+            }
+
+            return text;
         }
+
+
+
+        #region Pseudo
+
+        private void GenerateScript()
+        {
+            var writer = new StringWriter();
+            var script = "ga.test( bla: {ECOMMERCE}; blub: {YO});";
+            Parse(script, writer, new Dictionary<string, Func<string>>
+            {
+                ["ECOMMERCE"] = () => "Result",
+                ["JADA"] = () => "Result2"
+            });
+
+            var content = writer.ToString();
+        }
+
+        private void Parse(string template, TextWriter writer, IDictionary<string, Func<string>> tokens)
+        {
+            var rg = new Regex("{}", RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.Compiled);
+
+            var replacedScript = rg.Replace(template, match =>
+            {
+                var token = match.Value;
+
+                if (tokens.TryGetValue(token, out var myToken))
+                {
+                    myToken();
+                }
+
+                return string.Empty;
+            });
+
+            writer.Write(replacedScript);
+        }
+
+        #endregion
     }
 }
