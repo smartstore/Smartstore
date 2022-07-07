@@ -1,32 +1,19 @@
-﻿using System.ComponentModel;
-using Smartstore.Collections;
+﻿using Smartstore.Collections;
+using Smartstore.ComponentModel;
 
 namespace Smartstore.Core.Checkout.Orders
 {
-    public partial class CheckoutState : INotifyPropertyChanged
+    public partial class CheckoutState : ObservableObject
     {
         public static string CheckoutStateSessionKey => ".Smart.CheckoutState";
-
-        private string _paymentSummary;
-        private bool _isPaymentSelectionSkipped;
-
-        public event PropertyChangedEventHandler PropertyChanged;
 
         /// <summary>
         /// The payment summary as displayed on the checkout confirmation page
         /// </summary>
-        public string PaymentSummary 
+        public string PaymentSummary
         {
-            get => _paymentSummary;
-            set
-            {
-                if (_paymentSummary != value)
-                {
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PaymentSummary)));
-                }
-
-                _paymentSummary = value;
-            }
+            get => GetProperty<string>();
+            set => SetProperty(value);
         }
 
         /// <summary>
@@ -34,16 +21,8 @@ namespace Smartstore.Core.Checkout.Orders
         /// </summary>
         public bool IsPaymentSelectionSkipped
         {
-            get => _isPaymentSelectionSkipped;
-            set
-            {
-                if (_isPaymentSelectionSkipped != value)
-                {
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsPaymentSelectionSkipped)));
-                }
-
-                _isPaymentSelectionSkipped = value;
-            }
+            get => GetProperty<bool>();
+            set => SetProperty(value);
         }
 
         /// <summary>

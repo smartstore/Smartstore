@@ -13,12 +13,8 @@ namespace Smartstore.Collections
     public class ObservableDictionary<TKey, TValue> 
         : IDictionary<TKey, TValue>, IReadOnlyDictionary<TKey, TValue>, INotifyCollectionChanged, INotifyPropertyChanged
     {
-        private const string CountString = nameof(ICollection.Count);
-        private const string IndexerName = "Item[]";
-        private const string KeysName = "Keys";
-        private const string ValuesName = "Values";
-
         private readonly IDictionary<TKey, TValue> _dict;
+        private readonly Dictionary<INotifyPropertyChanged, string> _observerKeyMap = new();
 
         public ObservableDictionary() 
             : this(0, null)
@@ -50,8 +46,120 @@ namespace Smartstore.Collections
             _dict = new Dictionary<TKey, TValue>(capacity, comparer);
         }
 
-        public event NotifyCollectionChangedEventHandler CollectionChanged;
-        public event PropertyChangedEventHandler PropertyChanged;
+        #region Notifications
+
+        /// <summary>
+        /// PropertyChanged event (per <see cref="INotifyPropertyChanged" />).
+        /// </summary>
+        public virtual event PropertyChangedEventHandler PropertyChanged;
+
+        /// <summary>
+        /// Occurs when the collection changes, either by adding or removing an item.
+        /// </summary>
+        /// <remarks>
+        /// see <seealso cref="INotifyCollectionChanged"/>
+        /// </remarks>
+        public virtual event NotifyCollectionChangedEventHandler CollectionChanged;
+
+        protected virtual void OnPropertyChanged(string propertyName)
+        {
+            if (PropertyChanged != null && !string.IsNullOrEmpty(propertyName))
+            {
+                PropertyChanged.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }
+
+        protected virtual void OnPropertyChanged(PropertyChangedEventArgs e)
+        {
+            PropertyChanged?.Invoke(this, e);
+        }
+
+        private void OnCollectionChanged(NotifyCollectionChangedAction action, KeyValuePair<TKey, TValue> changedItem)
+        {
+            OnCollectionChanged(
+                new NotifyCollectionChangedEventArgs(
+                    action: action,
+                    changedItem: changedItem));
+        }
+
+        private void OnCollectionChanged(NotifyCollectionChangedAction action, KeyValuePair<TKey, TValue> newItem, KeyValuePair<TKey, TValue> oldItem)
+        {
+            OnCollectionChanged(
+                new NotifyCollectionChangedEventArgs(
+                    action: action,
+                    newItem: newItem,
+                    oldItem: oldItem));
+        }
+
+        private void OnCollectionReset()
+        {
+            OnCollectionChanged(EventArgsCache.ResetCollectionChanged);
+        }
+
+        private void OnCollectionChanged(NotifyCollectionChangedEventArgs e)
+        {
+            CollectionChanged?.Invoke(this, e);
+        }
+
+        /// <summary>
+        /// Watches for deep changes in value types that implement <see cref="INotifyPropertyChanged"/>
+        /// and raises the local <see cref="INotifyPropertyChanged.PropertyChanged"/> event.
+        /// </summary>
+        public void StartObserveValues()
+        {
+            foreach (var kvp in _dict)
+            {
+                StartObserve(kvp.Key, kvp.Value);
+            }
+        }
+
+        /// <summary>
+        /// Stops watching for deep changes in value types that implement <see cref="INotifyPropertyChanged"/>.
+        /// </summary>
+        public void StopObserveValues()
+        {
+            foreach (var kvp in _dict)
+            {
+                StopObserve(kvp.Key, kvp.Value);
+            }
+        }
+
+        private void StartObserve(TKey key, TValue value)
+        {
+            if (key is string strKey && value is INotifyPropertyChanged notifyPropChanged)
+            {
+                if (!_observerKeyMap.ContainsKey(notifyPropChanged))
+                {
+                    _observerKeyMap[notifyPropChanged] = strKey;
+                    notifyPropChanged.PropertyChanged += OnValuePropertyChanged;
+                }
+            }
+        }
+
+        private void StopObserve(TKey key, TValue value)
+        {
+            if (key is string strKey && value is INotifyPropertyChanged notifyPropChanged)
+            {
+                if (_observerKeyMap.Remove(notifyPropChanged))
+                {
+                    notifyPropChanged.PropertyChanged += OnValuePropertyChanged;
+                }
+            }
+        }
+
+        private void OnValuePropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            // Watch for deep changes
+            if (sender is INotifyPropertyChanged notifyPropChanged)
+            {
+                if (_observerKeyMap.TryGetValue(notifyPropChanged, out var key))
+                {
+                    OnPropertyChanged(key);
+                }
+            }
+        }
+
+        #endregion
 
         #region IDictionary<TKey, TValue>
 
@@ -63,26 +171,7 @@ namespace Smartstore.Collections
             }
             set
             {
-                if (InsertItem(
-                    key: key,
-                    value: value,
-                    appendMode: AppendMode.Replace,
-                    out var oldValue))
-                {
-                    if (oldValue != null)
-                    {
-                        OnCollectionChanged(
-                            action: NotifyCollectionChangedAction.Replace,
-                            newItem: new KeyValuePair<TKey, TValue>(key, value),
-                            oldItem: new KeyValuePair<TKey, TValue>(key, oldValue));
-                    }
-                    else
-                    {
-                        OnCollectionChanged(
-                            action: NotifyCollectionChangedAction.Add,
-                            changedItem: new KeyValuePair<TKey, TValue>(key, value));
-                    }
-                };
+                SetItem(key, value, appendMode: AppendMode.Replace);
             }
         }
 
@@ -100,28 +189,12 @@ namespace Smartstore.Collections
 
         public void Add(TKey key, TValue value)
         {
-            if (InsertItem(
-                key: key,
-                value: value,
-                appendMode: AppendMode.Add))
-            {
-                OnCollectionChanged(
-                    action: NotifyCollectionChangedAction.Add,
-                    changedItem: new KeyValuePair<TKey, TValue>(key, value));
-            };
+            SetItem(key, value, appendMode: AppendMode.Add);
         }
 
         public void Add(KeyValuePair<TKey, TValue> item)
         {
-            if (InsertItem(
-                key: item.Key,
-                value: item.Value,
-                appendMode: AppendMode.Add))
-            {
-                OnCollectionChanged(
-                    action: NotifyCollectionChangedAction.Add,
-                    changedItem: new KeyValuePair<TKey, TValue>(item.Key, item.Value));
-            };
+            SetItem(item.Key, item.Value, appendMode: AppendMode.Add);
         }
 
         public void Clear()
@@ -134,10 +207,23 @@ namespace Smartstore.Collections
             var removedItems = new List<KeyValuePair<TKey, TValue>>(_dict.AsEnumerable());
             _dict.Clear();
 
-            OnCollectionChanged(
-                action: NotifyCollectionChangedAction.Reset,
-                newItems: null,
-                oldItems: removedItems);
+            if (removedItems.Count > 0)
+            {
+                OnPropertyChanged(EventArgsCache.CountPropertyChanged);
+                OnPropertyChanged(EventArgsCache.IndexerPropertyChanged);
+                OnPropertyChanged(EventArgsCache.KeysPropertyChanged);
+                OnPropertyChanged(EventArgsCache.ValuesPropertyChanged);
+                OnCollectionReset();
+
+                if (typeof(TKey) == typeof(string) && PropertyChanged != null)
+                {
+                    foreach (var kvp in removedItems)
+                    {
+                        StopObserve(kvp.Key, kvp.Value);
+                        OnPropertyChanged(new PropertyChangedEventArgs(kvp.Key as string));
+                    }
+                }
+            }
         }
 
         public bool Contains(KeyValuePair<TKey, TValue> item)
@@ -157,10 +243,7 @@ namespace Smartstore.Collections
         {
             if (_dict.Remove(key, out var value))
             {
-                OnCollectionChanged(
-                    action: NotifyCollectionChangedAction.Remove,
-                    changedItem: new KeyValuePair<TKey, TValue>(key, value));
-
+                OnRemove(new KeyValuePair<TKey, TValue>(key, value));
                 return true;
             }
 
@@ -171,13 +254,24 @@ namespace Smartstore.Collections
         {
             if (_dict.Remove(item))
             {
-                OnCollectionChanged(
-                    action: NotifyCollectionChangedAction.Remove,
-                    changedItem: item);
-
+                OnRemove(item);
                 return true;
             }
+
             return false;
+        }
+
+        private void OnRemove(KeyValuePair<TKey, TValue> item)
+        {
+            StopObserve(item.Key, item.Value);
+            OnPropertyChanged(EventArgsCache.CountPropertyChanged);
+            OnPropertyChanged(EventArgsCache.IndexerPropertyChanged);
+            OnPropertyChanged(EventArgsCache.KeysPropertyChanged);
+            OnPropertyChanged(EventArgsCache.ValuesPropertyChanged);
+            OnPropertyChanged(item.Key as string);
+            OnCollectionChanged(
+                action: NotifyCollectionChangedAction.Remove,
+                changedItem: item);
         }
 
         public bool TryGetValue(TKey key, out TValue value)
@@ -203,108 +297,59 @@ namespace Smartstore.Collections
 
         #region ObservableDictionary inner methods
 
-        private bool InsertItem(TKey key, TValue value, AppendMode appendMode)
-            => InsertItem(key, value, appendMode, out _);
-
-        private bool InsertItem(TKey key, TValue value, AppendMode appendMode, out TValue oldValue)
+        private void SetItem(TKey key, TValue value, AppendMode appendMode)
         {
             Guard.NotNull(key, nameof(key));
-            
-            oldValue = default;
 
-            if (_dict.TryGetValue(key, out var item))
+            if (!_dict.TryGetValue(key, out var oldValue))
+            {
+                _dict[key] = value;
+
+                OnPropertyChanged(EventArgsCache.CountPropertyChanged);
+                OnPropertyChanged(EventArgsCache.IndexerPropertyChanged);
+                OnPropertyChanged(EventArgsCache.KeysPropertyChanged);
+                OnPropertyChanged(EventArgsCache.ValuesPropertyChanged);
+                OnPropertyChanged(key as string);
+                OnCollectionChanged(
+                    action: NotifyCollectionChangedAction.Add,
+                    changedItem: new KeyValuePair<TKey, TValue>(key, value));
+
+                StartObserve(key, value);
+            }
+            else
             {
                 if (appendMode == AppendMode.Add)
                 {
                     throw new ArgumentException($"Item with the key '{key}' has already been added.");
                 }
 
-                if (Equals(item, value))
+                if (!Equals(oldValue, value))
                 {
-                    return false;
+                    StopObserve(key, oldValue);
+                    
+                    _dict[key] = value;
+
+                    OnPropertyChanged(EventArgsCache.ValuesPropertyChanged);
+                    OnPropertyChanged(key as string);
+                    OnCollectionChanged(
+                        action: NotifyCollectionChangedAction.Replace,
+                        newItem: new KeyValuePair<TKey, TValue>(key, value),
+                        oldItem: new KeyValuePair<TKey, TValue>(key, oldValue));
+
+                    StartObserve(key, value);
                 }
-
-                _dict[key] = value;
-                oldValue = item;
-                return true;
             }
-            else
-            {
-                _dict[key] = value;
-                return true;
-            }
-        }
-
-        private void OnPropertyChanged()
-        {
-            OnPropertyChanged(CountString);
-            OnPropertyChanged(IndexerName);
-            OnPropertyChanged(KeysName);
-            OnPropertyChanged(ValuesName);
-        }
-
-        private void OnPropertyChanged(string propertyName)
-        {
-            if (string.IsNullOrWhiteSpace(propertyName))
-            {
-                OnPropertyChanged();
-            }
-
-            var handler = PropertyChanged;
-            handler?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-        private void OnCollectionChanged()
-        {
-            OnPropertyChanged();
-            var handler = CollectionChanged;
-            handler?.Invoke(
-                this, new NotifyCollectionChangedEventArgs(
-                    action: NotifyCollectionChangedAction.Reset));
-        }
-
-        private void OnCollectionChanged(NotifyCollectionChangedAction action, KeyValuePair<TKey, TValue> changedItem)
-        {
-            OnPropertyChanged();
-            var handler = CollectionChanged;
-            handler?.Invoke(
-                this, new NotifyCollectionChangedEventArgs(
-                    action: action,
-                    changedItem: changedItem));
-        }
-
-        private void OnCollectionChanged(NotifyCollectionChangedAction action, KeyValuePair<TKey, TValue> newItem, KeyValuePair<TKey, TValue> oldItem)
-        {
-            OnPropertyChanged();
-            var handler = CollectionChanged;
-            handler?.Invoke(
-                this, new NotifyCollectionChangedEventArgs(
-                    action: action,
-                    newItem: newItem,
-                    oldItem: oldItem));
-        }
-
-        private void OnCollectionChanged(NotifyCollectionChangedAction action, IList newItems)
-        {
-            OnPropertyChanged();
-            var handler = CollectionChanged;
-            handler?.Invoke(
-                this, new NotifyCollectionChangedEventArgs(
-                    action: action,
-                    changedItems: newItems));
-        }
-
-        private void OnCollectionChanged(NotifyCollectionChangedAction action, IList newItems, IList oldItems)
-        {
-            OnPropertyChanged();
-            var handler = CollectionChanged;
-            handler?.Invoke(
-                this, new NotifyCollectionChangedEventArgs(
-                    action: action,
-                    newItems: newItems,
-                    oldItems: oldItems));
         }
 
         #endregion
+
+        static class EventArgsCache
+        {
+            internal static readonly PropertyChangedEventArgs CountPropertyChanged = new("Count");
+            internal static readonly PropertyChangedEventArgs KeysPropertyChanged = new("Keys");
+            internal static readonly PropertyChangedEventArgs ValuesPropertyChanged = new("Values");
+            internal static readonly PropertyChangedEventArgs IndexerPropertyChanged = new("Item[]");
+            internal static readonly NotifyCollectionChangedEventArgs ResetCollectionChanged = new(NotifyCollectionChangedAction.Reset);
+        }
     }
 }

@@ -52,8 +52,11 @@ namespace Smartstore.Core.Checkout.Orders
                     }
 
                     _state.PropertyChanged += OnPropertyChanged;
-                    _state.PaymentData.CollectionChanged += OnCollectionChanged;
-                    _state.CustomProperties.CollectionChanged += OnCollectionChanged;
+                    _state.PaymentData.PropertyChanged += OnPropertyChanged;
+                    _state.CustomProperties.PropertyChanged += OnPropertyChanged;
+
+                    _state.PaymentData.StartObserveValues();
+                    _state.CustomProperties.StartObserveValues();
                 }
                 
                 return _state;
