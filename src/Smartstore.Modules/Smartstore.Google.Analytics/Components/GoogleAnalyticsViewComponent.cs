@@ -160,12 +160,6 @@ namespace Smartstore.Google.Analytics.Components
 
         private async Task<string> GetViewItemScriptAsync(ProductDetailsModel model)
         {
-            var script = @"gtag('event', 'view_item', {
-              currency: '{CURRENCY}',
-              value: {PRICE},
-              {ITEMS}
-            });";
-
             var brand = model.Brands.FirstOrDefault();
             var categoryId = 0; // productDetailsModel. // TODO: (mh) (core) Get category id > main cat must be set in productdetails action
             var categoryPathScript = categoryId != 0 ? await GetCategoryPathAsync(categoryId) : string.Empty;
@@ -178,23 +172,19 @@ namespace Smartstore.Google.Analytics.Components
                 model.ProductPrice.Price.Amount.ToStringInvariant(),
                 categoryPathScript);
 
-            script = script.Replace("{CURRENCY}", Services.WorkContext.WorkingCurrency.CurrencyCode);
-            script = script.Replace("{PRICE}", model.ProductPrice.Price.Amount.ToStringInvariant());
-            script = script.Replace("{ITEMS}", $"items: [{productsScript}]");
-
-            return script;
+            return @$"gtag('event', 'view_item', {{
+              currency: '{Services.WorkContext.WorkingCurrency.CurrencyCode}',
+              value: {model.ProductPrice.Price.Amount.ToStringInvariant()},
+              'items: [{productsScript}]
+            }});";
         }
 
-        private async Task<string> GetListScriptAsync(List<ProductSummaryModel.SummaryItem> products, string listName, int categoryId = 0) {
-            var script = @"gtag('event', 'view_item_list', {
-                item_list_name: '{LISTNAME}',
-                {ITEMS}
-            });";
-
-            script = script.Replace("{LISTNAME}", listName);
-            script = script.Replace("{ITEMS}", await GetItemsScriptAsync(products, listName, categoryId));
-
-            return script;
+        private async Task<string> GetListScriptAsync(List<ProductSummaryModel.SummaryItem> products, string listName, int categoryId = 0) 
+        {
+            return @$"gtag('event', 'view_item_list', {{
+                item_list_name: '{listName}',
+                {await GetItemsScriptAsync(products, listName, categoryId)}
+            }});";
         }
 
         /// <summary>
@@ -205,35 +195,13 @@ namespace Smartstore.Google.Analytics.Components
         /// <returns></returns>
         private async Task<string> GetItemsScriptAsync(List<ProductSummaryModel.SummaryItem> products, string listName, int categoryId = 0)
         {
-            var itemsScriptTemplate = @"{
-              item_id: '{PRODUCTSKU}',
-              item_name: '{PRODUCTNAME}',
-              currency: '{CURRENCY}',
-              discount: {DISCOUNT},
-              index: {LISTPOSITION},
-              item_brand: '{BRAND}',
-              {CATEGORIES}
-              item_list_name: '{ITEMLISTNAME}',
-              price: {PRICE}
-            },";
-
             var productsScript = string.Empty;
             var categoryPathScript = categoryId != 0 ? await GetCategoryPathAsync(categoryId) : string.Empty;
             
             var i = 0;
             foreach (var product in products)
             {
-                var productScript = itemsScriptTemplate;
                 var discount = product.Price.SavingAmount;
-                //productScript = productScript.Replace("{PRODUCTSKU}", FixIllegalJavaScriptChars(product.Sku));
-                //productScript = productScript.Replace("{PRODUCTNAME}", FixIllegalJavaScriptChars(product.Name));
-                //productScript = productScript.Replace("{CURRENCY}", Services.WorkContext.WorkingCurrency.CurrencyCode);
-                //productScript = productScript.Replace("{DISCOUNT}", discount != null ? discount.Value.Amount.ToStringInvariant() : "0");
-                //productScript = productScript.Replace("{LISTPOSITION}", i++.ToString());
-                //productScript = productScript.Replace("{BRAND}", product.Brand != null ? product.Brand.Name : string.Empty);
-                //productScript = productScript.Replace("{ITEMLISTNAME}", listName);
-                //productScript = productScript.Replace("{PRICE}", product.Price.Price.Amount.ToStringInvariant());
-                //productScript = productScript.Replace("{CATEGORIES}", categoryPathScript);
 
                 productsScript += GetItemScript(
                     product.Sku, 
@@ -243,53 +211,33 @@ namespace Smartstore.Google.Analytics.Components
                     product.Price.Price.Amount.ToStringInvariant(),
                     categoryPathScript,
                     listName,
-                    i);
+                    ++i);
             }
 
             return $"items: [{productsScript}]";
         }
 
         private string GetItemScript(
-            string sku, 
-            string productName, 
-            string discount, 
-            string brandName, 
-            string price, 
+            string sku,
+            string productName,
+            string discount,
+            string brandName,
+            string price,
             string categories,
             string listName = "",
-            int index = 0) 
+            int index = 0)
         {
-            var itemsScriptTemplate = @"{
-              item_id: '{PRODUCTSKU}',
-              item_name: '{PRODUCTNAME}',
-              currency: '{CURRENCY}',
-              discount: {DISCOUNT},
-              index: {LISTPOSITION},
-              item_brand: '{BRAND}',
-              {CATEGORIES}
-              item_list_name: '{ITEMLISTNAME}',
-              price: {PRICE}
-            }";
-
-            // TODO: (mh) (core) Make it so
-            //var obj = new
-            //{
-            //    item_id = FixIllegalJavaScriptChars(sku),
-            //    item_name = "fsdfsdf"
-            //};
-            //JsonConvert.SerializeObject(obj);
-
-            itemsScriptTemplate = itemsScriptTemplate.Replace("{PRODUCTSKU}", FixIllegalJavaScriptChars(sku));
-            itemsScriptTemplate = itemsScriptTemplate.Replace("{PRODUCTNAME}", FixIllegalJavaScriptChars(productName));
-            itemsScriptTemplate = itemsScriptTemplate.Replace("{CURRENCY}", Services.WorkContext.WorkingCurrency.CurrencyCode);
-            itemsScriptTemplate = itemsScriptTemplate.Replace("{DISCOUNT}", discount);
-            itemsScriptTemplate = itemsScriptTemplate.Replace("{LISTPOSITION}", index.ToString());
-            itemsScriptTemplate = itemsScriptTemplate.Replace("{BRAND}", brandName);
-            itemsScriptTemplate = itemsScriptTemplate.Replace("{ITEMLISTNAME}", listName);
-            itemsScriptTemplate = itemsScriptTemplate.Replace("{PRICE}", price);
-            itemsScriptTemplate = itemsScriptTemplate.Replace("{CATEGORIES}", categories);
-
-            return itemsScriptTemplate;
+            return @$"{{
+              item_id: '{FixIllegalJavaScriptChars(sku)}',
+              item_name: '{FixIllegalJavaScriptChars(productName)}',
+              currency: '{Services.WorkContext.WorkingCurrency.CurrencyCode}',
+              discount: {discount},
+              index: {index},
+              item_brand: '{brandName}',
+              {categories}
+              item_list_name: '{listName}',
+              price: {price}
+            }},";
         }
 
         /// <summary>
