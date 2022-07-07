@@ -290,10 +290,10 @@ namespace Smartstore.Caching
         public virtual IAsyncEnumerable<string> KeysAsync(string pattern = "*")
             => Keys(pattern).ToAsyncEnumerable();
 
-        public virtual IDisposable AcquireKeyLock(string key)
-            => AsyncLock.Keyed("memcache:" + key, TimeSpan.FromSeconds(5));
+        public virtual ILockHandle AcquireKeyLock(string key, CancellationToken cancelToken = default)
+            => AsyncLock.Keyed("memcache:" + key, TimeSpan.FromSeconds(5), cancelToken);
 
-        public virtual Task<IDisposable> AcquireAsyncKeyLock(string key, CancellationToken cancelToken = default)
+        public virtual Task<ILockHandle> AcquireAsyncKeyLock(string key, CancellationToken cancelToken = default)
             => AsyncLock.KeyedAsync("memcache:" + key, TimeSpan.FromSeconds(5), cancelToken);
 
         public virtual void Clear()

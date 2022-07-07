@@ -16,9 +16,9 @@ namespace Smartstore
     /// </summary>
     public abstract class ComparableObject
     {
-        private readonly HashSet<string> _extraSignatureProperties = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        private readonly HashSet<string> _extraSignatureProperties = new(StringComparer.OrdinalIgnoreCase);
 
-        private static readonly ConcurrentDictionary<Type, string[]> _signaturePropertyNames = new ConcurrentDictionary<Type, string[]>();
+        private static readonly ConcurrentDictionary<Type, string[]> _signaturePropertyNames = new();
 
         public override bool Equals(object obj)
         {

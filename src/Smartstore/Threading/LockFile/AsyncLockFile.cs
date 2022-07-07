@@ -2,7 +2,7 @@
 
 namespace Smartstore.Threading
 {
-    public class AsyncLockFile : Disposable, ILockFile
+    public class AsyncLockFile : Disposable, ILockHandle
     {
         private readonly string _path;
         private readonly string _content;
@@ -34,6 +34,11 @@ namespace Smartstore.Threading
 
         public void Release()
         {
+            if (_released)
+            {
+                return;
+            }
+
             using (_asyncLock.Lock())
             {
                 var lockFile = _fs.GetFile(_path);
@@ -56,6 +61,11 @@ namespace Smartstore.Threading
 
         public async Task ReleaseAsync()
         {
+            if (_released)
+            {
+                return;
+            }
+
             using (await AsyncLock.KeyedAsync($"AsyncLockFile.{_path}"))
             {
                 var lockFile = await _fs.GetFileAsync(_path);

@@ -7,27 +7,26 @@ namespace Smartstore.Threading
     {
         #region static
 
-        private static readonly TimeSpan _noTimeout = TimeSpan.FromMilliseconds(-1);
-        private static readonly ConcurrentDictionary<object, AsyncLock> _keyedLocks = new ConcurrentDictionary<object, AsyncLock>();
+        static readonly ConcurrentDictionary<object, AsyncLock> _keyedLocks = new();
 
         public static bool IsLockHeld(object key)
         {
             return _keyedLocks.ContainsKey(key);
         }
 
-        public static IDisposable Keyed(object key, TimeSpan? timeout = null)
+        public static ILockHandle Keyed(object key, TimeSpan? timeout = null, CancellationToken cancelToken = default)
         {
             var keyedLock = GetOrCreateLock(key);
-            return keyedLock.Lock(timeout);
+            return keyedLock.Lock(timeout, cancelToken);
         }
 
-        public static Task<IDisposable> KeyedAsync(object key, TimeSpan? timeout = null, CancellationToken cancellationToken = default)
+        public static Task<ILockHandle> KeyedAsync(object key, TimeSpan? timeout = null, CancellationToken cancelToken = default)
         {
             var keyedLock = GetOrCreateLock(key);
-            return keyedLock.LockAsync(timeout, cancellationToken);
+            return keyedLock.LockAsync(timeout, cancelToken);
         }
 
-        private static AsyncLock GetOrCreateLock(object key)
+        internal static AsyncLock GetOrCreateLock(object key)
         {
             Guard.NotNull(key, nameof(key));
 
@@ -42,8 +41,7 @@ namespace Smartstore.Threading
 
         private readonly object _key;
         private readonly SemaphoreSlim _semaphore;
-        private readonly IDisposable _releaser;
-        private readonly Task<IDisposable> _releaserTask;
+        private readonly ILockHandle _handle;
 
         private AsyncLock(object key)
             : this()
@@ -54,8 +52,6 @@ namespace Smartstore.Threading
         public AsyncLock()
         {
             _semaphore = new SemaphoreSlim(1, 1);
-            _releaser = new Releaser(this);
-            _releaserTask = Task.FromResult(_releaser);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -64,55 +60,68 @@ namespace Smartstore.Threading
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void DecrementCount() => Interlocked.Decrement(ref _waiterCount);
 
-        public IDisposable Lock(TimeSpan? timeout = null)
+        public ILockHandle Lock(TimeSpan? timeout = null, CancellationToken cancelToken = default)
         {
-            _semaphore.Wait(timeout ?? _noTimeout);
-
-            return _releaser;
+            _semaphore.Wait(timeout ?? Timeout.InfiniteTimeSpan, cancelToken);
+            return new AsyncLockHandle(this);
         }
 
-        public Task<IDisposable> LockAsync(TimeSpan? timeout = null, CancellationToken cancellationToken = default)
+        public Task<ILockHandle> LockAsync(TimeSpan? timeout = null, CancellationToken cancelToken = default)
         {
-            var wait = _semaphore.WaitAsync(timeout ?? _noTimeout, cancellationToken);
+            var handle = new AsyncLockHandle(this) as ILockHandle;
+            var wait = _semaphore.WaitAsync(timeout ?? Timeout.InfiniteTimeSpan, cancelToken);
 
             return wait.IsCompleted
-                ? _releaserTask
+                ? Task.FromResult(handle)
                 : wait.ContinueWith(
-                    (_, state) => ((AsyncLock)state)._releaser,
-                    this,
+                    (_, state) => (ILockHandle)state,
+                    handle,
                     CancellationToken.None,
                     TaskContinuationOptions.ExecuteSynchronously,
                     TaskScheduler.Default);
         }
 
-        public readonly struct Releaser : IDisposable
+        public readonly struct AsyncLockHandle : ILockHandle
         {
-            private readonly AsyncLock _toRelease;
+            private readonly AsyncLock _lock;
 
-            public Releaser(AsyncLock toRelease)
+            public AsyncLockHandle(AsyncLock @lock)
             {
-                _toRelease = toRelease;
+                _lock = @lock;
             }
 
-            public void Dispose()
-            {
-                if (_toRelease._key != null)
-                {
-                    _toRelease.DecrementCount();
+            public ValueTask DisposeAsync()
+                => new(ReleaseAsync());
 
-                    if (_toRelease._waiterCount == 0)
+            public void Dispose()
+                => Release();
+
+            public Task ReleaseAsync()
+            {
+                Release();
+                return Task.CompletedTask;
+            }
+
+            public void Release()
+            {
+                if (_lock._key != null)
+                {
+                    if (_lock._waiterCount > 0)
+                    {
+                        _lock.DecrementCount();
+                    }
+
+                    if (_lock._waiterCount == 0)
                     {
                         // Remove from dict if keyed lock
-                        _keyedLocks.TryRemove(_toRelease._key, out _);
+                        _keyedLocks.TryRemove(_lock._key, out _);
                     }
                 }
                 
-                if (_toRelease._semaphore.CurrentCount == 0)
+                if (_lock._semaphore.CurrentCount == 0)
                 {
-                    _toRelease._semaphore.Release();
+                    _lock._semaphore.Release();
                 }
-
-                //_toRelease._semaphore.Dispose();
             }
         }
     }

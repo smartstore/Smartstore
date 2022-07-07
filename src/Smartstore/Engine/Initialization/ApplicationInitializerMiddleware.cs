@@ -57,8 +57,7 @@ namespace Smartstore.Engine.Initialization
         {
             if (!_initialized)
             {
-                // TODO: (core) Implement *distributed* lock and use it here.
-                using (await _asyncLock.LockAsync(cancellationToken: _asyncRunner.AppShutdownCancellationToken))
+                using (await _asyncLock.LockAsync(cancelToken: _asyncRunner.AppShutdownCancellationToken))
                 {
                     if (!_initialized)
                     {

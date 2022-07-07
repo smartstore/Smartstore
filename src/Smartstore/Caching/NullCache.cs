@@ -69,10 +69,10 @@ namespace Smartstore.Caching
         public Task<long> RemoveByPatternAsync(string pattern)
             => Task.FromResult((long)0);
 
-        public IDisposable AcquireKeyLock(string key)
-            => ActionDisposable.Empty;
+        public ILockHandle AcquireKeyLock(string key, CancellationToken cancelToken = default)
+            => NullLockHandle.Instance;
 
-        public Task<IDisposable> AcquireAsyncKeyLock(string key, CancellationToken cancelToken = default)
+        public Task<ILockHandle> AcquireAsyncKeyLock(string key, CancellationToken cancelToken = default)
             => Task.FromResult(AcquireKeyLock(key));
 
         public void Clear()

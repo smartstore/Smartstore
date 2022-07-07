@@ -32,5 +32,12 @@ namespace Smartstore.Bootstrapping
             services.AddSingleton<ILockFileManager, LockFileManager>();
             return services;
         }
+
+        public static IServiceCollection AddDistributedSemaphoreLockProvider(this IServiceCollection services)
+        {
+            Guard.NotNull(services, nameof(services));
+            services.AddSingleton<IDistributedLockProvider, DistributedSemaphoreLockProvider>();
+            return services;
+        }
     }
 }

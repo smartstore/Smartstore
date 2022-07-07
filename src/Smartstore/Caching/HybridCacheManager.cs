@@ -257,7 +257,7 @@ namespace Smartstore.Caching
 
             // Get the (semaphore) locker specific to this key from LAST store.
             // Atomic operation must be outer locked
-            using (await AcquireAsyncKeyLock(key))
+            await using (await AcquireAsyncKeyLock(key))
             {
                 // Check again
                 entry = (await GetInternal(key, independent, true)).Entry;
@@ -419,12 +419,12 @@ namespace Smartstore.Caching
             return counts.Max();
         }
 
-        public IDisposable AcquireKeyLock(string key)
+        public ILockHandle AcquireKeyLock(string key, CancellationToken cancelToken = default)
         {
-            return _stores[_lastIndex].AcquireKeyLock(key);
+            return _stores[_lastIndex].AcquireKeyLock(key, cancelToken);
         }
 
-        public Task<IDisposable> AcquireAsyncKeyLock(string key, CancellationToken cancelToken = default)
+        public Task<ILockHandle> AcquireAsyncKeyLock(string key, CancellationToken cancelToken = default)
         {
             return _stores[_lastIndex].AcquireAsyncKeyLock(key, cancelToken);
         }

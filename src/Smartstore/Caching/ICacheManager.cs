@@ -197,12 +197,12 @@ namespace Smartstore.Caching
         /// <summary>
         /// Acquires a keyed lock from the last store.
         /// </summary>
-        IDisposable AcquireKeyLock(string key);
+        ILockHandle AcquireKeyLock(string key, CancellationToken cancelToken = default);
 
         /// <summary>
         /// Acquires a keyed lock for an async operation from the last store.
         /// </summary>
-        Task<IDisposable> AcquireAsyncKeyLock(string key, CancellationToken cancelToken = default);
+        Task<ILockHandle> AcquireAsyncKeyLock(string key, CancellationToken cancelToken = default);
 
         /// <summary>
         /// Clear all cache data
