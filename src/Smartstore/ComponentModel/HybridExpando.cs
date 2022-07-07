@@ -203,7 +203,9 @@ namespace Smartstore.ComponentModel
                 {
                     exists = GetProperty(_instance, name, out result);
                 }
-                catch { }
+                catch 
+                { 
+                }
             }
 
             // Falsy check
@@ -247,7 +249,9 @@ namespace Smartstore.ComponentModel
                     if (result)
                         return true;
                 }
-                catch { }
+                catch 
+                { 
+                }
             }
 
             // no match - set or add to dictionary
@@ -286,7 +290,9 @@ namespace Smartstore.ComponentModel
                     if (InvokeMethod(_instance, binder.Name, args, out result))
                         return true;
                 }
-                catch { }
+                catch 
+                { 
+                }
             }
 
             result = null;
