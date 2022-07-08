@@ -274,7 +274,7 @@ namespace Smartstore.AmazonPay.Controllers
             await _db.SaveChangesAsync();
             result.Success = true;
 
-            var state = _checkoutStateAccessor.CheckoutState.GetAmazonPayCheckoutState();
+            var state = _checkoutStateAccessor.CheckoutState.GetCustomState<AmazonPayCheckoutState>();
             state.SessionId = checkoutSessionId;
 
             if (session.PaymentPreferences != null)
@@ -307,7 +307,7 @@ namespace Smartstore.AmazonPay.Controllers
             {
                 var store = Services.StoreContext.CurrentStore;
                 var customer = Services.WorkContext.CurrentCustomer;
-                var state = _checkoutStateAccessor.CheckoutState.GetAmazonPayCheckoutState();
+                var state = _checkoutStateAccessor.CheckoutState.GetCustomState<AmazonPayCheckoutState>();
 
                 if (state.SessionId.IsEmpty())
                 {
@@ -398,7 +398,7 @@ namespace Smartstore.AmazonPay.Controllers
         [Route("amazonpay/confirmationresult")]
         public IActionResult ConfirmationResult()
         {
-            var state = _checkoutStateAccessor.CheckoutState.GetAmazonPayCheckoutState();
+            var state = _checkoutStateAccessor.CheckoutState.GetCustomState<AmazonPayCheckoutState>();
             state.SubmitForm = false;
 
             try

@@ -72,7 +72,7 @@ namespace Smartstore.AmazonPay.Filters
                 return;
             }
 
-            var state = _checkoutStateAccessor.CheckoutState.GetAmazonPayCheckoutState();
+            var state = _checkoutStateAccessor.CheckoutState.GetCustomState<AmazonPayCheckoutState>();
 
             if (state.SessionId.HasValue() && IsAmazonPaySelected())
             {

@@ -77,7 +77,7 @@ namespace Smartstore.AmazonPay.Providers
         public override async Task<ProcessPaymentResult> ProcessPaymentAsync(ProcessPaymentRequest processPaymentRequest)
         {
             var result = new ProcessPaymentResult();
-            var state = _checkoutStateAccessor.CheckoutState.GetAmazonPayCheckoutState();
+            var state = _checkoutStateAccessor.CheckoutState.GetCustomState<AmazonPayCheckoutState>();
             var httpContext = _httpContextAccessor.HttpContext;
             httpContext.Session.TryRemove("AmazonPayResponseStatus");
 

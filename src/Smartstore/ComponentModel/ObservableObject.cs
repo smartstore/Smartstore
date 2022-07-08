@@ -32,11 +32,11 @@ namespace Smartstore.ComponentModel
 
         protected virtual void SetProperty(object value, [CallerMemberName] string name = null)
         {
-            var hasProperty = _properties.TryGetValue(name, out var oldValue);
+            _properties.TryGetValue(name, out var oldValue);
 
             _properties[name] = value;
 
-            if (!hasProperty || value != oldValue)
+            if (value != oldValue)
             {
                 OnPropertyChanged(name);
             }
