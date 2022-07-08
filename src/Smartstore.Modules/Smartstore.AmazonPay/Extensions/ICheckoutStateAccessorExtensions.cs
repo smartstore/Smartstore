@@ -2,6 +2,8 @@
 
 namespace Smartstore.AmazonPay
 {
+    // TODO: (mg) (core) rework this to new custom checkout state pattern.
+    // TODO: (mg) (core) check also if delayed IPN processing is required.
     internal static class ICheckoutStateAccessorExtensions
     {
         public static AmazonPayCheckoutState GetAmazonPayCheckoutState(this ICheckoutStateAccessor checkoutStateAccessor)
