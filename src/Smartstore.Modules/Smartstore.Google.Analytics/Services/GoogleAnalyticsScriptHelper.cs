@@ -14,8 +14,12 @@ using Smartstore.Web.Models.Catalog;
 
 namespace Smartstore.Google.Analytics.Services
 {
+    // TODO: (mh) (core) Use StringWriter alongside the whole script generation chain.
+    // Don't mix up strings and writer, you win nothing.
     public class GoogleAnalyticsScriptHelper
     {
+        private readonly static Regex _rgScript = new (@"{(?<token>([A-Z]+))}", RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.Compiled);
+
         private readonly SmartDbContext _db;
         private readonly GoogleAnalyticsSettings _settings;
         private readonly ICategoryService _categoryService;
@@ -183,8 +187,6 @@ namespace Smartstore.Google.Analytics.Services
                 {
                     foreach (var item in order.OrderItems)
                     {
-                        var ecDetailScript = _settings.EcommerceDetailScript;
-
                         // TODO: (mh) (core) This doesn't look to good :-)
                         var defaultProductCategory = (await _categoryService.GetProductCategoriesByProductIdsAsync(new[] { item.ProductId })).FirstOrDefault();
                         var categoryName = defaultProductCategory != null ? defaultProductCategory.Category.Name : string.Empty;
@@ -196,17 +198,18 @@ namespace Smartstore.Google.Analytics.Services
                             item.Product.MergeWithCombination(attributeCombination);
                         }
 
+                        // TODO: (mh) (core) Test/change Regex parser --> {} has been removed from tokens.
                         var itemTokens = new Dictionary<string, Func<string>>
                         {
-                            ["{ORDERID}"] = () => order.GetOrderNumber(),
-                            ["{PRODUCTSKU}"] = () => FixIllegalJavaScriptChars(item.Product.Sku),
-                            ["{PRODUCTNAME}"] = () => FixIllegalJavaScriptChars(item.Product.Name),
-                            ["{CATEGORYNAME}"] = () => FixIllegalJavaScriptChars(categoryName),
-                            ["{UNITPRICE}"] = () => item.UnitPriceInclTax.ToStringInvariant("0.00"),
-                            ["{QUANTITY}"] = () => item.Quantity.ToString()
+                            ["ORDERID"] = () => order.GetOrderNumber(),
+                            ["PRODUCTSKU"] = () => FixIllegalJavaScriptChars(item.Product.Sku),
+                            ["PRODUCTNAME"] = () => FixIllegalJavaScriptChars(item.Product.Name),
+                            ["CATEGORYNAME"] = () => FixIllegalJavaScriptChars(categoryName),
+                            ["UNITPRICE"] = () => item.UnitPriceInclTax.ToStringInvariant("0.00"),
+                            ["QUANTITY"] = () => item.Quantity.ToString()
                         };
 
-                        ecDetailScript = GenerateScript(ecDetailScript, itemTokens);
+                        var ecDetailScript = GenerateScript(_settings.EcommerceDetailScript, itemTokens);
 
                         sb.AppendLine(ecDetailScript);
                     }
@@ -215,19 +218,19 @@ namespace Smartstore.Google.Analytics.Services
                 ecScript = ecScript.Replace("{DETAILS}", sb.ToString());
                 var orderTokens = new Dictionary<string, Func<string>>
                 {
-                    ["{ORDERID}"] = () => order.GetOrderNumber(),
-                    ["{TOTAL}"] = () => order.OrderTotal.ToStringInvariant("0.00"),
-                    ["{TAX}"] = () => order.OrderTax.ToStringInvariant("0.00"),
-                    ["{SHIP}"] = () => order.OrderShippingInclTax.ToStringInvariant("0.00"),
-                    ["{CURRENCY}"] = () => order.CustomerCurrencyCode,
-                    ["{CITY}"] = () => order.BillingAddress == null ? string.Empty : FixIllegalJavaScriptChars(order.BillingAddress.City),
-                    ["{STATEPROVINCE}"] = () => order.BillingAddress == null || order.BillingAddress.StateProvince == null
+                    ["ORDERID"] = () => order.GetOrderNumber(),
+                    ["TOTAL"] = () => order.OrderTotal.ToStringInvariant("0.00"),
+                    ["TAX"] = () => order.OrderTax.ToStringInvariant("0.00"),
+                    ["SHIP"] = () => order.OrderShippingInclTax.ToStringInvariant("0.00"),
+                    ["CURRENCY"] = () => order.CustomerCurrencyCode,
+                    ["CITY"] = () => order.BillingAddress == null ? string.Empty : FixIllegalJavaScriptChars(order.BillingAddress.City),
+                    ["STATEPROVINCE"] = () => order.BillingAddress == null || order.BillingAddress.StateProvince == null
                         ? string.Empty
                         : FixIllegalJavaScriptChars(order.BillingAddress.StateProvince.Name),
-                    ["{COUNTRY}"] = () => order.BillingAddress == null || order.BillingAddress.Country == null
+                    ["COUNTRY"] = () => order.BillingAddress == null || order.BillingAddress.Country == null
                         ? string.Empty
                         : FixIllegalJavaScriptChars(order.BillingAddress.Country.Name),
-                    ["{DETAILS}"] = () => sb.ToString()
+                    ["DETAILS"] = () => sb.ToString()
                 };
 
                 ecScript = GenerateScript(ecScript, orderTokens);
@@ -258,15 +261,13 @@ namespace Smartstore.Google.Analytics.Services
         private static string GenerateScript(string script, Dictionary<string, Func<string>> tokens)
         {
             var writer = new StringWriter();
-            Parse(script, writer, tokens);
+            ParseScript(script, writer, tokens);
             return writer.ToString();
         }
 
-        private static void Parse(string template, TextWriter writer, IDictionary<string, Func<string>> tokens)
+        private static void ParseScript(string input, TextWriter writer, IDictionary<string, Func<string>> tokens)
         {
-            var rg = new Regex(@"{(?<token>([A-Z]+))}", RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.Compiled);
-
-            var replacedScript = rg.Replace(template, match =>
+            var replacedScript = _rgScript.Replace(input, match =>
             {
                 var token = match.Value;
 
@@ -284,6 +285,9 @@ namespace Smartstore.Google.Analytics.Services
         private async Task<Order> GetLastOrderAsync()
         {
             var order = await _db.Orders
+                .AsNoTracking()
+                .IncludeOrderItems()
+                .IncludeBillingAddress()
                 .ApplyStandardFilter(_workContext.CurrentCustomer.Id, _storeContext.CurrentStore.Id)
                 .FirstOrDefaultAsync();
 
