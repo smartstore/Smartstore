@@ -274,10 +274,8 @@ namespace Smartstore.AmazonPay.Controllers
             await _db.SaveChangesAsync();
             result.Success = true;
 
-            _checkoutStateAccessor.SetAmazonPayCheckoutState(new AmazonPayCheckoutState
-            {
-                SessionId = checkoutSessionId
-            });
+            var state = _checkoutStateAccessor.CheckoutState.GetAmazonPayCheckoutState();
+            state.SessionId = checkoutSessionId;
 
             if (session.PaymentPreferences != null)
             {
@@ -309,7 +307,7 @@ namespace Smartstore.AmazonPay.Controllers
             {
                 var store = Services.StoreContext.CurrentStore;
                 var customer = Services.WorkContext.CurrentCustomer;
-                var state = _checkoutStateAccessor.GetAmazonPayCheckoutState();
+                var state = _checkoutStateAccessor.CheckoutState.GetAmazonPayCheckoutState();
 
                 if (state.SessionId.IsEmpty())
                 {
@@ -364,8 +362,6 @@ namespace Smartstore.AmazonPay.Controllers
                                 success = true;
                                 state.IsConfirmed = true;
                                 state.FormData = formData.EmptyNull();
-
-                                _checkoutStateAccessor.SetAmazonPayCheckoutState(state);
                             }
                             else
                             {
@@ -402,7 +398,7 @@ namespace Smartstore.AmazonPay.Controllers
         [Route("amazonpay/confirmationresult")]
         public IActionResult ConfirmationResult()
         {
-            var state = _checkoutStateAccessor.GetAmazonPayCheckoutState();
+            var state = _checkoutStateAccessor.CheckoutState.GetAmazonPayCheckoutState();
             state.SubmitForm = false;
 
             try
@@ -436,10 +432,6 @@ namespace Smartstore.AmazonPay.Controllers
             {
                 Logger.Error(ex);
                 NotifyError(ex.Message);
-            }
-            finally
-            {
-                _checkoutStateAccessor.SetAmazonPayCheckoutState(state);
             }
 
             if (state.SubmitForm)
