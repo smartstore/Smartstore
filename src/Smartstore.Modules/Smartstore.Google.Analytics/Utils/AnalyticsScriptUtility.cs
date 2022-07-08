@@ -40,7 +40,6 @@
 		{
 			return @"gtag('event', 'purchase', {
   'transaction_id': '{ORDERID}',
-  'affiliation': '{SITE}',
   'value': {TOTAL},
   'currency': '{CURRENCY}',
   'tax': {TAX},

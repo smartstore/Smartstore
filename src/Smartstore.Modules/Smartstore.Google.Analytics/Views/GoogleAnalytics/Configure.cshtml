@@ -29,20 +29,38 @@
     <div class="adminContent">
         <div class="adminRow">
             <div class="adminTitle">
-                <smart-label asp-for="WidgetZone" />
-            </div>
-            <div class="adminData">
-                <select asp-for="WidgetZone" asp-items="ViewBag.AvailableZones"></select>
-                <span asp-validation-for="WidgetZone"></span>
-            </div>
-        </div>
-        <div class="adminRow">
-            <div class="adminTitle">
                 <smart-label asp-for="GoogleId" />
             </div>
             <div class="adminData">
                 <editor asp-for="GoogleId" />
                 <span asp-validation-for="GoogleId"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="RenderCatalogScripts" />
+            </div>
+            <div class="adminData">
+                <editor asp-for="RenderCatalogScripts" />
+                <span asp-validation-for="RenderCatalogScripts"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="RenderCheckoutScripts" />
+            </div>
+            <div class="adminData">
+                <editor asp-for="RenderCheckoutScripts" />
+                <span asp-validation-for="RenderCheckoutScripts"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="MinifyScripts" />
+            </div>
+            <div class="adminData">
+                <editor asp-for="MinifyScripts" />
+                <span asp-validation-for="MinifyScripts"></span>
             </div>
         </div>
         <div class="adminRow">

@@ -4,6 +4,9 @@
 		<OutputPath>..\..\Smartstore.Web\Modules\Smartstore.Google.Analytics</OutputPath>
 		<OutDir>$(OutputPath)</OutDir>
   </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="DouglasCrockford.JsMin" Version="2.1.0" />
+  </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\..\Smartstore.Web\Smartstore.Web.csproj">
             <Private>False</Private>

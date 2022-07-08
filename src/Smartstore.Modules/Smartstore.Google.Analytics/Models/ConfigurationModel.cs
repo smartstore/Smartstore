@@ -2,10 +2,7 @@
 {
     [LocalizedDisplay("Plugins.Widgets.GoogleAnalytics.")]
     public class ConfigurationModel : ModelBase
-    {
-        [LocalizedDisplay("Admin.ContentManagement.Widgets.ChooseZone")]
-        public string WidgetZone { get; set; }
-        
+    {   
         [LocalizedDisplay("*GoogleId")]
         public string GoogleId { get; set; }
 
@@ -22,5 +19,16 @@
         public string EcommerceDetailScript { get; set; }
 
         public bool ScriptUpdateRecommended { get; set; }
+
+
+        // TODO: (mh) (core) Resources
+        [LocalizedDisplay("*RenderCatalogScripts")]
+        public bool RenderCatalogScripts { get; set; }
+
+        [LocalizedDisplay("*RenderCheckoutScripts")]
+        public bool RenderCheckoutScripts { get; set; }
+
+        [LocalizedDisplay("*MinifyScripts")]
+        public bool MinifyScripts { get; set; }
     }
 }

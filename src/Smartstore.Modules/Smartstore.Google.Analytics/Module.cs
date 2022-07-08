@@ -23,10 +23,7 @@ namespace Smartstore.Google.Analytics
         private readonly IProviderManager _providerManager;
         private readonly WidgetSettings _widgetSettings;
 
-        public Module(
-            GoogleAnalyticsSettings googleAnalyticsSettings,         
-            IProviderManager providerManager,
-            WidgetSettings widgetSettings)
+        public Module(GoogleAnalyticsSettings googleAnalyticsSettings, IProviderManager providerManager, WidgetSettings widgetSettings)
         {
             _googleAnalyticsSettings = googleAnalyticsSettings;
             _providerManager = providerManager;
@@ -59,11 +56,7 @@ namespace Smartstore.Google.Analytics
             => new ComponentWidgetInvoker(typeof(GoogleAnalyticsViewComponent), model);
 
         public string[] GetWidgetZones()
-        {
-            return _googleAnalyticsSettings.WidgetZone.HasValue()
-                ? new[] { _googleAnalyticsSettings.WidgetZone }
-                : new[] { "head" };
-        }
+            => new[] { "head" };
 
         public override async Task InstallAsync(ModuleInstallationContext context)
         {
