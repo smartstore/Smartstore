@@ -679,7 +679,7 @@ namespace Smartstore.AmazonPay.Controllers
 
                     order.OrderNotes.Add(new OrderNote
                     {
-                        Note = $"<img src='{faviconUrl}' class='mr-2' />" + note,
+                        Note = $"<img src='{faviconUrl}' class='align-text-top mr-1' />" + note,
                         DisplayToCustomer = false,
                         CreatedOnUtc = DateTime.UtcNow
                     });
