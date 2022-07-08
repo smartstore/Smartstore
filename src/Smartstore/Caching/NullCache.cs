@@ -69,6 +69,9 @@ namespace Smartstore.Caching
         public Task<long> RemoveByPatternAsync(string pattern)
             => Task.FromResult((long)0);
 
+        public IDistributedLock GetLock(string key)
+            => new DistributedSemaphoreLock(key);
+
         public ILockHandle AcquireKeyLock(string key, CancellationToken cancelToken = default)
             => NullLockHandle.Instance;
 

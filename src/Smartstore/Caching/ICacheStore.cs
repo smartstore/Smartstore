@@ -226,14 +226,10 @@ namespace Smartstore.Caching
         IAsyncEnumerable<string> KeysAsync(string pattern = "*");
 
         /// <summary>
-        /// Acquires a keyed lock.
+        /// Gets a <see cref="IDistributedLock"/> instance for the given <paramref name="key"/>
+        /// used to synchronize access to cache storage.
         /// </summary>
-        ILockHandle AcquireKeyLock(string key, CancellationToken cancelToken = default);
-
-        /// <summary>
-        /// Acquires a keyed lock for an async operation.
-        /// </summary>
-        Task<ILockHandle> AcquireAsyncKeyLock(string key, CancellationToken cancelToken = default);
+        IDistributedLock GetLock(string key);
 
         /// <summary>
         /// Clear all cache data

@@ -290,6 +290,9 @@ namespace Smartstore.Caching
         public virtual IAsyncEnumerable<string> KeysAsync(string pattern = "*")
             => Keys(pattern).ToAsyncEnumerable();
 
+        public IDistributedLock GetLock(string key)
+            => new DistributedSemaphoreLock("memcache:" + key);
+
         public virtual ILockHandle AcquireKeyLock(string key, CancellationToken cancelToken = default)
             => AsyncLock.Keyed("memcache:" + key, TimeSpan.FromSeconds(5), cancelToken);
 
