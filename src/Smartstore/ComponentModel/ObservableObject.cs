@@ -4,6 +4,18 @@ using Newtonsoft.Json;
 
 namespace Smartstore.ComponentModel
 {
+    /// <summary>
+    /// A base object that implements <see cref="INotifyPropertyChanged"/>.
+    /// Changes to any property value will raise the <see cref="PropertyChanged"/>
+    /// event handler automatically. Property usage:
+    /// <code>
+    ///     public string MyProperty
+    ///     {
+    ///         get => GetProperty<string>(() => "MyDefaultValue");
+    ///         set => SetProperty(value);
+    ///     }
+    /// </code>
+    /// </summary>
     public abstract class ObservableObject : INotifyPropertyChanged
     {
         private readonly Dictionary<string, object> _properties = new();

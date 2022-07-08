@@ -4,15 +4,26 @@ using System.ComponentModel;
 
 namespace Smartstore.Collections
 {
-    internal enum AppendMode
-    {
-        Add,
-        Replace
-    }
-
+    /// <summary>
+    /// Implementation of a dictionary implementing <see cref="INotifyCollectionChanged"/>
+    /// and <see cref="INotifyPropertyChanged"/> to notify listeners
+    /// when items get added, removed, updated or the whole dictionary is refreshed.
+    /// <para>
+    /// For every item added, removed or updated, the <see cref="INotifyPropertyChanged.PropertyChanged"/>
+    /// event handler will also be raised (as the key representing the property name). If the value itself
+    /// implements <see cref="INotifyPropertyChanged"/> this dictionary will listen to deep property changes
+    /// and also raise <see cref="INotifyPropertyChanged.PropertyChanged"/> subsequently.
+    /// </para>
+    /// </summary>
     public class ObservableDictionary<TKey, TValue> 
         : IDictionary<TKey, TValue>, IReadOnlyDictionary<TKey, TValue>, INotifyCollectionChanged, INotifyPropertyChanged
     {
+        enum AppendMode
+        {
+            Add,
+            Replace
+        }
+
         private readonly IDictionary<TKey, TValue> _dict;
         private readonly Dictionary<INotifyPropertyChanged, string> _observerKeyMap = new();
 
@@ -163,6 +174,7 @@ namespace Smartstore.Collections
 
         #region IDictionary<TKey, TValue>
 
+        /// <inheritdoc/>
         public TValue this[TKey key]
         {
             get
@@ -175,28 +187,35 @@ namespace Smartstore.Collections
             }
         }
 
+        /// <inheritdoc/>
         public ICollection<TKey> Keys 
             => _dict.Keys;
 
+        /// <inheritdoc/>
         public ICollection<TValue> Values 
             => _dict.Values;
 
+        /// <inheritdoc/>
         public int Count 
             => _dict.Count;
 
+        /// <inheritdoc/>
         public bool IsReadOnly
             => _dict.IsReadOnly;
 
+        /// <inheritdoc/>
         public void Add(TKey key, TValue value)
         {
             SetItem(key, value, appendMode: AppendMode.Add);
         }
 
+        /// <inheritdoc/>
         public void Add(KeyValuePair<TKey, TValue> item)
         {
             SetItem(item.Key, item.Value, appendMode: AppendMode.Add);
         }
 
+        /// <inheritdoc/>
         public void Clear()
         {
             if (!_dict.Any())
@@ -226,12 +245,15 @@ namespace Smartstore.Collections
             }
         }
 
+        /// <inheritdoc/>
         public bool Contains(KeyValuePair<TKey, TValue> item)
             => _dict.Contains(item);
 
+        /// <inheritdoc/>
         public bool ContainsKey(TKey key)
             => _dict.ContainsKey(key);
 
+        /// <inheritdoc/>
         public void CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex)
         {
             _dict.CopyTo(
@@ -239,6 +261,7 @@ namespace Smartstore.Collections
                 arrayIndex: arrayIndex);
         }
 
+        /// <inheritdoc/>
         public bool Remove(TKey key)
         {
             if (_dict.Remove(key, out var value))
@@ -250,6 +273,7 @@ namespace Smartstore.Collections
             return false;
         }
 
+        /// <inheritdoc/>
         public bool Remove(KeyValuePair<TKey, TValue> item)
         {
             if (_dict.Remove(item))
@@ -274,12 +298,15 @@ namespace Smartstore.Collections
                 changedItem: item);
         }
 
+        /// <inheritdoc/>
         public bool TryGetValue(TKey key, out TValue value)
             => _dict.TryGetValue(key, out value);
 
+        /// <inheritdoc/>
         IEnumerator IEnumerable.GetEnumerator()
             => _dict.GetEnumerator();
 
+        /// <inheritdoc/>
         public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()
             => _dict.GetEnumerator();
 
