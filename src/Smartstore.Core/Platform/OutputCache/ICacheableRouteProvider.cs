@@ -1,9 +1,13 @@
-﻿namespace Smartstore.Core.OutputCache
+﻿using System.Diagnostics;
+using Smartstore.Utilities;
+
+namespace Smartstore.Core.OutputCache
 {
     /// <summary>
     /// Represents a route to a resource (page or component) that can be cached by output cache.
     /// </summary>
-    public class CacheableRoute
+    [DebuggerDisplay("Route: {Route}, Duration: {Duration}")]
+    public class CacheableRoute : IEquatable<CacheableRoute>
     {
         public CacheableRoute(string route)
         {
@@ -36,6 +40,24 @@
         public int? Duration { get; set; }
 
         public int? Tolerance { get; set; }
+
+        public override bool Equals(object other)
+        {
+            return Equals(other as CacheableRoute);
+        }
+
+        public bool Equals(CacheableRoute other)
+        {
+            if (other == null)
+                return false;
+
+            return string.Equals(Route, other.Route, StringComparison.OrdinalIgnoreCase);
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCodeCombiner.Start().Add(typeof(CacheableRoute)).Add(Route).CombinedHash;
+        }
     }
 
     /// <summary>

@@ -16,7 +16,7 @@ namespace Smartstore.Core.OutputCache
     public abstract class OutputCacheItemMetadata
     {
         // used for serialization compatibility
-        public static readonly string Version = "1";
+        public static readonly string Version = "2";
 
         public string CacheKey { get; set; }
         public string RouteKey { get; set; }
@@ -33,6 +33,7 @@ namespace Smartstore.Core.OutputCache
         public string CustomerRoles { get; set; }
 
         public string ContentType { get; set; }
+        public int? ContentLength { get; set; }
 
         [JsonIgnore]
         public DateTime ExpiresOnUtc => CachedOnUtc.AddSeconds(Duration);
