@@ -359,7 +359,7 @@ namespace Smartstore.Core.DataExchange.Import
                 row.SetProperty(context.Result, (x) => x.DownloadExpirationDays);
                 row.SetProperty(context.Result, (x) => x.DownloadActivationTypeId, 1);
                 row.SetProperty(context.Result, (x) => x.HasSampleDownload);
-                row.SetProperty(context.Result, (x) => x.SampleDownloadId, null, ZeroToNull);    // TODO: global scope
+                row.SetProperty(context.Result, (x) => x.SampleDownloadId, null, ImportUtility.ZeroToNull);    // TODO: global scope
                 row.SetProperty(context.Result, (x) => x.HasUserAgreement);
                 row.SetProperty(context.Result, (x) => x.UserAgreementText);
                 row.SetProperty(context.Result, (x) => x.IsRecurring);
@@ -943,6 +943,7 @@ namespace Smartstore.Core.DataExchange.Import
             var segmenter = context.DataSegmenter;
             var batch = segmenter.GetCurrentBatch<ProductVariantAttributeCombination>();
             var entityName = await _services.Localization.GetLocalizedEnumAsync(RelatedEntityType.ProductVariantAttributeCombination, _services.WorkContext.WorkingLanguage.Id);
+            var attributesColumnName = nameof(ProductVariantAttributeCombination.RawAttributes);
             var savedEntities = 0;
 
             using (var scope = new DbContextScope(_db, autoDetectChanges: false, minHookImportance: HookImportance.Important, deferCommit: true))
@@ -1014,7 +1015,18 @@ namespace Smartstore.Core.DataExchange.Import
                         row.SetProperty(context.Result, (x) => x.AllowOutOfStockOrders);
                         row.SetProperty(context.Result, (x) => x.DeliveryTimeId);
                         row.SetProperty(context.Result, (x) => x.QuantityUnitId);
-                        row.SetProperty(context.Result, (x) => x.RawAttributes);
+
+                        if (row.TryGetDataValue<string>(attributesColumnName, out var rawAttributes) && rawAttributes.HasValue())
+                        {
+                            if (ImportUtility.ValidateXmlOrJson(rawAttributes))
+                            {
+                                combination.RawAttributes = rawAttributes;
+                            }
+                            else
+                            {
+                                context.Result.AddWarning($"Ignored {attributesColumnName} because it contains invalid XML or JSON.", row.RowInfo, attributesColumnName);
+                            }
+                        }
                     }
 
                     savedEntities = await scope.CommitAsync(context.CancelToken);
