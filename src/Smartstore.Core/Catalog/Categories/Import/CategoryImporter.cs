@@ -11,19 +11,19 @@ namespace Smartstore.Core.DataExchange.Import
 {
     public class CategoryImporter : EntityImporterBase
     {
-        private const string CARGO_DATA_KEY = "CategoryImporter.CargoData";
-        private const string TARGET_CATEGORY_IDS_KEY = "CategoryImporter.TargetCategoryIds";
-        private const string PARENT_CATEGORY_IDS_KEY = "CategoryImporter.ParentCategoryIds";
+        const string CargoDataKey = "CategoryImporter.CargoData";
+        const string TargetCategoryIdsKey = "CategoryImporter.TargetCategoryIds";
+        const string ParentCategoryIdsKey = "CategoryImporter.ParentCategoryIds";
 
         private static readonly Dictionary<string, Expression<Func<Category, string>>> _localizableProperties = new()
         {
-            { "Name", x => x.Name },
-            { "FullName", x => x.FullName },
-            { "Description", x => x.Description },
-            { "BottomDescription", x => x.BottomDescription },
-            { "MetaKeywords", x => x.MetaKeywords },
-            { "MetaDescription", x => x.MetaDescription },
-            { "MetaTitle", x => x.MetaTitle }
+            { nameof(Category.Name), x => x.Name },
+            { nameof(Category.FullName), x => x.FullName },
+            { nameof(Category.Description), x => x.Description },
+            { nameof(Category.BottomDescription), x => x.BottomDescription },
+            { nameof(Category.MetaKeywords), x => x.MetaKeywords },
+            { nameof(Category.MetaDescription), x => x.MetaDescription },
+            { nameof(Category.MetaTitle), x => x.MetaTitle }
         };
 
         private readonly IMediaImporter _mediaImporter;
@@ -40,8 +40,8 @@ namespace Smartstore.Core.DataExchange.Import
             _mediaImporter = mediaImporter;
         }
 
-        public static string[] SupportedKeyFields => new[] { "Id", "Name" };
-        public static string[] DefaultKeyFields => new[] { "Name", "Id" };
+        public static string[] SupportedKeyFields => new[] { nameof(Category.Id), nameof(Category.Name) };
+        public static string[] DefaultKeyFields => new[] { nameof(Category.Name), nameof(Category.Id) };
 
         protected override async Task ProcessBatchAsync(ImportExecuteContext context, CancellationToken cancelToken = default)
         {
@@ -148,9 +148,9 @@ namespace Smartstore.Core.DataExchange.Import
                     // ===========================================================================
                     // Process parent category mappings.
                     // ===========================================================================
-                    if (segmenter.HasColumn("Id") &&
-                        segmenter.HasColumn("ParentCategoryId") &&
-                        !segmenter.IsIgnored("ParentCategoryId"))
+                    if (segmenter.HasColumn(nameof(Category.Id)) &&
+                        segmenter.HasColumn(nameof(Category.ParentCategoryId)) &&
+                        !segmenter.IsIgnored(nameof(Category.ParentCategoryId)))
                     {
                         await ProcessParentMappingsAsync(context, scope, batch);
                     }
@@ -165,22 +165,22 @@ namespace Smartstore.Core.DataExchange.Import
             var cargo = await GetCargoData(context);
             var defaultTemplateId = cargo.TemplateViewPaths["CategoryTemplate.ProductsInGridOrLines"];
             var hasNameColumn = context.DataSegmenter.HasColumn("Name");
-            var parentCategoryIds = context.GetCustomProperty<Dictionary<int, int>>(PARENT_CATEGORY_IDS_KEY);
+            var parentCategoryIds = context.GetCustomProperty<Dictionary<int, int>>(ParentCategoryIdsKey);
 
             foreach (var row in batch)
             {
                 Category category = null;
-                var id = row.GetDataValue<int>("Id");
-                var name = row.GetDataValue<string>("Name");
+                var id = row.GetDataValue<int>(nameof(Category.Id));
+                var name = row.GetDataValue<string>(nameof(Category.Name));
 
                 foreach (var keyName in context.KeyFieldNames)
                 {
                     switch (keyName)
                     {
-                        case "Id":
+                        case nameof(Category.Id):
                             category = await _db.Categories.FindByIdAsync(id, true, context.CancelToken);
                             break;
-                        case "Name":
+                        case nameof(Category.Name):
                             if (name.HasValue())
                                 category = await _db.Categories.FirstOrDefaultAsync(x => x.Name == name, context.CancelToken);
                             break;
@@ -199,10 +199,10 @@ namespace Smartstore.Core.DataExchange.Import
                     }
 
                     // A name is required for new categories.
-                    if (!row.HasDataValue("Name"))
+                    if (!row.HasDataValue(nameof(Category.Name)))
                     {
                         ++context.Result.SkippedRecords;
-                        context.Result.AddError("The 'Name' field is required for new categories. Skipping row.", row.RowInfo, "Name");
+                        context.Result.AddMissingFieldError(row.RowInfo, nameof(Category), nameof(Category.Name));
                         continue;
                     }
 
@@ -247,7 +247,7 @@ namespace Smartstore.Core.DataExchange.Import
                 if (row.IsTransient)
                 {
                     // Only update parent category relationship if child and parent were inserted.
-                    if (row.TryGetDataValue("ParentCategoryId", out int parentId) && parentId != 0 && id != 0)
+                    if (row.TryGetDataValue(nameof(Category.ParentCategoryId), out int parentId) && parentId != 0 && id != 0)
                     {
                         parentCategoryIds[id] = parentId;
                     }
@@ -265,11 +265,11 @@ namespace Smartstore.Core.DataExchange.Import
 
             // Get new category ids.
             // Required for parent category relationship.
-            var targetCategoryIds = context.GetCustomProperty<Dictionary<int, int>>(TARGET_CATEGORY_IDS_KEY);
+            var targetCategoryIds = context.GetCustomProperty<Dictionary<int, int>>(TargetCategoryIdsKey);
 
             foreach (var row in batch.Where(x => x.Entity != null))
             {
-                var id = row.GetDataValue<int>("Id");
+                var id = row.GetDataValue<int>(nameof(Category.Id));
                 if (id != 0)
                 {
                     targetCategoryIds[id] = row.Entity.Id;
@@ -305,13 +305,13 @@ namespace Smartstore.Core.DataExchange.Import
 
         protected virtual async Task<int> ProcessParentMappingsAsync(ImportExecuteContext context, DbContextScope scope, IEnumerable<ImportRow<Category>> batch)
         {
-            var parentCategoryIds = context.GetCustomProperty<Dictionary<int, int>>(PARENT_CATEGORY_IDS_KEY);
+            var parentCategoryIds = context.GetCustomProperty<Dictionary<int, int>>(ParentCategoryIdsKey);
             if (!parentCategoryIds.Any())
             {
                 return 0;
             }
 
-            var categoryIds = context.GetCustomProperty<Dictionary<int, int>>(TARGET_CATEGORY_IDS_KEY);
+            var categoryIds = context.GetCustomProperty<Dictionary<int, int>>(TargetCategoryIdsKey);
             var newIds = new Dictionary<int, int>();
             var num = 0;
 
@@ -356,7 +356,7 @@ namespace Smartstore.Core.DataExchange.Import
 
         private async Task<ImporterCargoData> GetCargoData(ImportExecuteContext context)
         {
-            if (context.CustomProperties.TryGetValue(CARGO_DATA_KEY, out object value))
+            if (context.CustomProperties.TryGetValue(CargoDataKey, out object value))
             {
                 return (ImporterCargoData)value;
             }
@@ -372,7 +372,7 @@ namespace Smartstore.Core.DataExchange.Import
                 TemplateViewPaths = categoryTemplates.ToDictionarySafe(x => x.ViewPath, x => x.Id)
             };
 
-            context.CustomProperties[CARGO_DATA_KEY] = result;
+            context.CustomProperties[CargoDataKey] = result;
             return result;
         }
 

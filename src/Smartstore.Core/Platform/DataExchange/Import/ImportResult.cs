@@ -40,6 +40,9 @@
         public ImportMessage AddError(string message, ImportRowInfo affectedRow = null, string affectedField = null)
             => AddMessage(message, ImportMessageType.Error, affectedRow, affectedField);
 
+        public ImportMessage AddMissingFieldError(ImportRowInfo affectedRow, string affectedEntity, string affectedField)
+            => AddError($"The '{affectedField}' field is required for new {affectedEntity}. Skipping row.", affectedRow, affectedField);
+
         public ImportMessage AddError(Exception exception, string message)
             => AddMessage(message ?? exception.ToAllMessages(), ImportMessageType.Error, null, null, exception.StackTrace);
 

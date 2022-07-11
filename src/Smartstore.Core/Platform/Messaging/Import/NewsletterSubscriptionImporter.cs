@@ -14,8 +14,8 @@ namespace Smartstore.Core.DataExchange.Import
             _services = services;
         }
 
-        public static string[] SupportedKeyFields => new[] { "Email" };
-        public static string[] DefaultKeyFields => new[] { "Email" };
+        public static string[] SupportedKeyFields => new[] { nameof(NewsletterSubscription.Email) };
+        public static string[] DefaultKeyFields => new[] { nameof(NewsletterSubscription.Email) };
 
         public async Task ExecuteAsync(ImportExecuteContext context, CancellationToken cancelToken)
         {
@@ -32,15 +32,15 @@ namespace Smartstore.Core.DataExchange.Import
                     try
                     {
                         NewsletterSubscription subscription = null;
-                        var email = row.GetDataValue<string>("Email");
-                        var storeId = row.GetDataValue<int>("StoreId");
+                        var email = row.GetDataValue<string>(nameof(NewsletterSubscription.Email));
+                        var storeId = row.GetDataValue<int>(nameof(NewsletterSubscription.StoreId));
 
                         if (storeId == 0)
                         {
                             storeId = currentStoreId;
                         }
 
-                        if (row.HasDataValue("Active") && row.TryGetDataValue("Active", out bool active))
+                        if (row.HasDataValue(nameof(NewsletterSubscription.Active)) && row.TryGetDataValue(nameof(NewsletterSubscription.Active), out bool active))
                         {
                         }
                         else
@@ -50,19 +50,19 @@ namespace Smartstore.Core.DataExchange.Import
 
                         if (email.IsEmpty())
                         {
-                            context.Result.AddWarning("Skipped empty email address.", row.RowInfo, "Email");
+                            context.Result.AddWarning("Skipped empty email address.", row.RowInfo, nameof(NewsletterSubscription.Email));
                             continue;
                         }
 
                         if (email.Length > 255)
                         {
-                            context.Result.AddWarning($"Skipped email address '{email}'. It exceeds the maximum allowed length of 255.", row.RowInfo, "Email");
+                            context.Result.AddWarning($"Skipped email address '{email}'. It exceeds the maximum allowed length of 255.", row.RowInfo, nameof(NewsletterSubscription.Email));
                             continue;
                         }
 
                         if (!email.IsEmail())
                         {
-                            context.Result.AddWarning($"Skipped invalid email address '{email}'.", row.RowInfo, "Email");
+                            context.Result.AddWarning($"Skipped invalid email address '{email}'.", row.RowInfo, nameof(NewsletterSubscription.Email));
                             continue;
                         }
 
@@ -70,7 +70,7 @@ namespace Smartstore.Core.DataExchange.Import
                         {
                             switch (keyName)
                             {
-                                case "Email":
+                                case nameof(NewsletterSubscription.Email):
                                     subscription = await _services.DbContext.NewsletterSubscriptions
                                         .OrderBy(x => x.Id)
                                         .FirstOrDefaultAsync(x => x.Email == email && x.StoreId == storeId, cancelToken);
