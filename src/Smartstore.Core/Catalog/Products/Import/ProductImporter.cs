@@ -1031,7 +1031,7 @@ namespace Smartstore.Core.DataExchange.Import
 
                         if (row.TryGetDataValue<string>(attributesColumnName, out var rawAttributes) && rawAttributes.HasValue())
                         {
-                            if (ImportUtility.ValidateXmlOrJson(rawAttributes))
+                            if (ImportUtility.ValidateXmlOrJson(ref rawAttributes))
                             {
                                 combination.RawAttributes = rawAttributes;
                             }

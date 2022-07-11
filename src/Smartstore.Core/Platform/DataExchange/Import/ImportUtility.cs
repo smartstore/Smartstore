@@ -88,10 +88,12 @@ namespace Smartstore.Core.DataExchange.Import
         /// </summary>
         /// <param name="xmlOrJson">XML or JSON formatted string.</param>
         /// <returns><c>true</c> valid XML ot JSON otherwise <c>false</c>.</returns>
-        public static bool ValidateXmlOrJson(string xmlOrJson)
+        public static bool ValidateXmlOrJson(ref string xmlOrJson)
         {
             if (xmlOrJson != null && xmlOrJson.Length > 0)
             {
+                xmlOrJson = xmlOrJson.TrimStart();
+
                 if (xmlOrJson[0] == '<')
                 {
                     return ValidateXml(xmlOrJson);
