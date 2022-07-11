@@ -41,6 +41,13 @@ namespace Smartstore.Core.OutputCache
 
         public int? Tolerance { get; set; }
 
+        public bool IsEnabled { get; set; } = true;
+
+        public bool IsComponentRoute()
+        {
+            return Route.StartsWith("vc:");
+        }
+
         public override bool Equals(object other)
         {
             return Equals(other as CacheableRoute);

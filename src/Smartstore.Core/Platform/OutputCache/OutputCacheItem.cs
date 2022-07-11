@@ -5,15 +5,7 @@ namespace Smartstore.Core.OutputCache
 {
     [Serializable]
     [DebuggerDisplay("{CacheKey}, Url: {Url}, Query: {QueryString}, Duration: {Duration}, Tags: {Tags}")]
-    public class OutputCacheItem : OutputCacheItemMetadata, ICloneable<OutputCacheItem>
-    {
-        public string Content { get; set; }
-
-        public OutputCacheItem Clone() => (OutputCacheItem)MemberwiseClone();
-        object ICloneable.Clone() => MemberwiseClone();
-    }
-
-    public abstract class OutputCacheItemMetadata
+    public class OutputCacheItem : ICloneable<OutputCacheItem>
     {
         // used for serialization compatibility
         public static readonly string Version = "2";
@@ -36,6 +28,9 @@ namespace Smartstore.Core.OutputCache
         public int? ContentLength { get; set; }
 
         [JsonIgnore]
+        public string Content { get; set; }
+
+        [JsonIgnore]
         public DateTime ExpiresOnUtc => CachedOnUtc.AddSeconds(Duration);
 
         public bool IsValid(DateTime utcNow)
@@ -50,5 +45,8 @@ namespace Smartstore.Core.OutputCache
 
             return string.Join(';', Tags);
         }
+
+        public OutputCacheItem Clone() => (OutputCacheItem)MemberwiseClone();
+        object ICloneable.Clone() => MemberwiseClone();
     }
 }
