@@ -600,7 +600,7 @@ namespace Smartstore.Admin.Controllers
 
         private bool IsAjaxUpload(string method = null)
         {
-            return method == "ajax" || Request.IsAjaxRequest();
+            return method == "ajax" || Request.IsAjax();
             
         }
 

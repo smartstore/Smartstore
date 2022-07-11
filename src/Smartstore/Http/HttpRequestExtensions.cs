@@ -147,14 +147,37 @@ namespace Smartstore
         }
 
         /// <summary>
+        /// Checks whether the current request is a GET request.
+        /// </summary>
+        public static bool IsGet(this HttpRequest httpRequest)
+        {
+            return HttpMethods.IsGet(httpRequest.Method);
+        }
+
+        /// <summary>
+        /// Checks whether the current request is a POST request.
+        /// </summary>
+        public static bool IsPost(this HttpRequest httpRequest)
+        {
+            return HttpMethods.IsPost(httpRequest.Method);
+        }
+
+        /// <summary>
         /// Checks whether the current request is an AJAX request.
         /// </summary>
-        /// <param name="httpRequest"></param>
-        public static bool IsAjaxRequest(this HttpRequest httpRequest)
+        public static bool IsAjax(this HttpRequest httpRequest)
         {
             return
                 string.Equals(httpRequest.Headers[HeaderNames.XRequestedWith], "XMLHttpRequest", StringComparison.Ordinal) ||
                 string.Equals(httpRequest.Query[HeaderNames.XRequestedWith], "XMLHttpRequest", StringComparison.Ordinal);
+        }
+
+        /// <summary>
+        /// Checks whether the current request is a regular non-AJAX GET request.
+        /// </summary>
+        public static bool IsNonAjaxGet(this HttpRequest httpRequest)
+        {
+            return HttpMethods.IsGet(httpRequest.Method) && !IsAjax(httpRequest);
         }
 
         /// <summary>

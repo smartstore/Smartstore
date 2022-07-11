@@ -47,7 +47,7 @@ namespace Smartstore.Web.Controllers
                 model.ActionDescriptor = model.Endpoint.Metadata.OfType<ControllerActionDescriptor>().FirstOrDefault();
             }
 
-            if (Request.IsAjaxRequest())
+            if (Request.IsAjax())
             {
                 return Json(model);
             }

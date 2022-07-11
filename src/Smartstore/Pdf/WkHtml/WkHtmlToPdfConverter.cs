@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Net.Http;
 using System.Text;
 using Autofac;
 using Microsoft.AspNetCore.Http;
@@ -8,6 +9,7 @@ using Microsoft.Extensions.Options;
 using Smartstore.Diagnostics;
 using Smartstore.Engine;
 using Smartstore.Engine.Runtimes;
+using Smartstore.Http;
 using Smartstore.Threading;
 using Smartstore.Utilities;
 
@@ -32,18 +34,21 @@ namespace Smartstore.Pdf.WkHtml
 
         private readonly IWkHtmlCommandBuilder _commandBuilder;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IHttpClientFactory _httpClientFactory;
         private readonly WkHtmlToPdfOptions _options;
         private readonly AsyncRunner _asyncRunner;
 
         public WkHtmlToPdfConverter(
             IWkHtmlCommandBuilder commandBuilder, 
             IHttpContextAccessor httpContextAccessor,
+            IHttpClientFactory httpClientFactory,
             IOptions<WkHtmlToPdfOptions> options,
             AsyncRunner asyncRunner,
             ILogger<WkHtmlToPdfConverter> logger)
         {
             _commandBuilder = commandBuilder;
             _httpContextAccessor = httpContextAccessor;
+            _httpClientFactory = httpClientFactory;
             _options = options.Value;
             _asyncRunner = asyncRunner;
 
@@ -100,10 +105,30 @@ namespace Smartstore.Pdf.WkHtml
         /// </remarks>
         public event EventHandler<DataReceivedEventArgs> LogReceived;
 
-        public virtual IPdfInput CreateFileInput(string urlOrPath)
+        public virtual IPdfInput CreateFileInput(string urlOrPath, bool prefetch = false)
         {
             Guard.NotEmpty(urlOrPath, nameof(urlOrPath));
+
+            if (prefetch && (urlOrPath.IsWebUrl() || WebHelper.IsUrlLocalToHost(urlOrPath)))
+            {
+                var content = PrefetchFileInput(urlOrPath);
+                return CreateHtmlInput(content);
+            }
+
             return new WkFileInput(urlOrPath, _options, _httpContextAccessor.HttpContext);
+        }
+
+        private string PrefetchFileInput(string url)
+        {
+            var fileInput = new WkFileInput(url, _options, _httpContextAccessor.HttpContext);
+            // Make url absolute
+            url = fileInput.Content;
+
+            var httpClient = _httpClientFactory.CreateClient("local");
+            // Download content
+            var content = httpClient.GetStringAsync(url).Await();
+
+            return content;
         }
 
         public virtual IPdfInput CreateHtmlInput(string html)

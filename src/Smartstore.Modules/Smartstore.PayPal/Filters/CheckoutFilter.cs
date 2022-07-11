@@ -48,9 +48,7 @@ namespace Smartstore.PayPal.Filters
 
             if (!checkoutState.CustomProperties.ContainsKey("PayPalButtonUsed"))
             {
-                _widgetProvider.Value.RegisterWidget(
-                    "checkout_payment_method_buttons", 
-                    new ComponentWidgetInvoker(typeof(PayPalViewComponent), false));
+                _widgetProvider.Value.RegisterViewComponent<PayPalViewComponent>("checkout_payment_method_buttons", false);
 
                 await next();
                 return;

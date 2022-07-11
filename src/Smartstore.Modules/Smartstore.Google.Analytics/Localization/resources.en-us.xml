@@ -21,6 +21,13 @@
       ]]>
     </Value>
   </LocaleResource>
+  <LocaleResource Name="ScriptUpdateInfo">
+    <Value>
+        <![CDATA[
+            This plugin uses an outdated script. Please click the <b>Restore Scripts</b> button further down this page to use the latest version.
+        ]]>
+    </Value>
+  </LocaleResource>
   <LocaleResource Name="GoogleId">
     <Value>ID</Value>
   </LocaleResource>

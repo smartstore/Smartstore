@@ -126,8 +126,7 @@ namespace Smartstore
 
         protected static void DisposeMember(object member)
         {
-            IDisposable disposable = member as IDisposable;
-            if (disposable != null)
+            if (member is IDisposable disposable)
             {
                 disposable.Dispose();
             }

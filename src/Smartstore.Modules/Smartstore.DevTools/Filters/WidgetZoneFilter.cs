@@ -33,10 +33,10 @@ namespace Smartstore.DevTools.Filters
 
         public void OnActionExecuting(ActionExecutingContext context)
         {
-            if (!_profilerSettings.DisplayWidgetZones)
-                return;
-
-            _displayControl.MarkRequestAsUncacheable();
+            if (_profilerSettings.DisplayWidgetZones)
+            {
+                _displayControl.MarkRequestAsUncacheable();
+            }
         }
 
         public void OnActionExecuted(ActionExecutedContext context)
@@ -57,9 +57,7 @@ namespace Smartstore.DevTools.Filters
                 }
 
                 // INFO: Don't render in zones where replace-content is true & no <head> zones
-                _widgetProvider.RegisterWidget(
-                    _widgetZonePattern,
-                    new ComponentWidgetInvoker(typeof(WidgetZoneViewComponent), null));
+                _widgetProvider.RegisterViewComponent<WidgetZoneViewComponent>(_widgetZonePattern);
             }
         }
 
@@ -71,7 +69,7 @@ namespace Smartstore.DevTools.Filters
         {
             if (!_services.WorkContext.CurrentCustomer.IsAdmin())
             {
-                if (request.Path.ToString().StartsWith("/common/pdfreceipt", StringComparison.InvariantCultureIgnoreCase))
+                if (request.Path.StartsWithSegments("/pdf", StringComparison.InvariantCultureIgnoreCase))
                 {
                     return false;
                 }

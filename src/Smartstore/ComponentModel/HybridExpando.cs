@@ -32,6 +32,7 @@
 #endregion
 
 using System.Collections;
+using System.ComponentModel;
 using System.Dynamic;
 using System.Reflection;
 using Smartstore.Utilities;
@@ -63,7 +64,7 @@ namespace Smartstore.ComponentModel
     /// Dictionary: Any of the extended properties are accessible via IDictionary interface
     /// </summary>
     [Serializable]
-    public class HybridExpando : DynamicObject, IDictionary<string, object>
+    public class HybridExpando : DynamicObject, IDictionary<string, object>, INotifyPropertyChanged
     {
         /// <summary>
         /// Instance of object passed in
@@ -86,12 +87,14 @@ namespace Smartstore.ComponentModel
         /// stored on this object/instance
         /// </summary>        
         /// <remarks>Using PropertyBag to support XML Serialization of the dictionary</remarks>
-        public PropertyBag Properties = new PropertyBag();
+        public PropertyBag Properties = new();
 
         private readonly HashSet<string> _optMembers;
         private readonly MemberOptMethod _optMethod;
 
         private readonly bool _returnNullWhenFalsy;
+
+        private PropertyChangedEventHandler _propertyChanged;
 
         /// <summary>
         /// This constructor just works off the internal dictionary and any 
@@ -142,6 +145,12 @@ namespace Smartstore.ComponentModel
             {
                 _optMembers = new HashSet<string>(optMembers);
             }
+        }
+
+        event PropertyChangedEventHandler INotifyPropertyChanged.PropertyChanged
+        {
+            add { _propertyChanged += value; }
+            remove { _propertyChanged -= value; }
         }
 
         protected void Initialize(object instance)
@@ -203,7 +212,9 @@ namespace Smartstore.ComponentModel
                 {
                     exists = GetProperty(_instance, name, out result);
                 }
-                catch { }
+                catch 
+                { 
+                }
             }
 
             // Falsy check
@@ -231,41 +242,59 @@ namespace Smartstore.ComponentModel
 
         protected virtual bool TrySetMemberCore(string name, object value)
         {
-            // first check to see if there's a dictionary entry to set
-            if (Properties.ContainsKey(name))
+            var result = false;
+            
+            // First check to see if there's a dictionary entry to set
+            if (Properties.TryGetValue(name, out var oldValue))
             {
                 Properties[name] = value;
-                return true;
+                result = true;
             }
 
             // Check to see if there's a native property to set
-            if (_instance != null)
+            if (!result && _instance != null)
             {
                 try
                 {
-                    bool result = SetProperty(_instance, name, value);
-                    if (result)
-                        return true;
+                    result = SetProperty(_instance, name, value, out oldValue);
                 }
-                catch { }
+                catch 
+                { 
+                }
             }
 
             // no match - set or add to dictionary
-            Properties[name] = value;
+            if (!result)
+            {
+                Properties[name] = value;
+            }
+
+            // Notify property changed
+            if (_propertyChanged != null && value != oldValue)
+            {
+                _propertyChanged(this, new PropertyChangedEventArgs(name));
+            }
+
             return true;
         }
 
         /// <summary>
         /// Dynamic invocation method. Currently allows only for Reflection based
-        /// operation (no ability to add methods dynamically).
+        /// operation (no ability to add members dynamically).
         /// </summary>
-        /// <param name="binder"></param>
-        /// <param name="args"></param>
-        /// <param name="result"></param>
         public void Override(string name, object value = null)
         {
             Guard.NotEmpty(name, nameof(name));
+
+            Properties.TryGetValue(name, out var oldValue);
+
             Properties[name] = value;
+
+            // Notify property changed
+            if (_propertyChanged != null && value != oldValue)
+            {
+                _propertyChanged(this, new PropertyChangedEventArgs(name));
+            }
         }
 
         /// <returns></returns>
@@ -286,7 +315,9 @@ namespace Smartstore.ComponentModel
                     if (InvokeMethod(_instance, binder.Name, args, out result))
                         return true;
                 }
-                catch { }
+                catch 
+                { 
+                }
             }
 
             result = null;
@@ -320,11 +351,15 @@ namespace Smartstore.ComponentModel
         /// <param name="name"></param>
         /// <param name="value"></param>
         /// <returns></returns>
-        protected bool SetProperty(object instance, string name, object value)
+        protected bool SetProperty(object instance, string name, object value, out object oldValue)
         {
+            oldValue = null;
+
             if (GetInstanceProperties().TryGetValue(name, out var fastProp))
             {
+                oldValue = fastProp.GetValue(instance ?? this);
                 fastProp.SetValue(instance ?? this, value);
+
                 return true;
             }
 

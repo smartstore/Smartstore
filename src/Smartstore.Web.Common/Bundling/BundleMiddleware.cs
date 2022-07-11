@@ -68,6 +68,7 @@ namespace Smartstore.Web.Bundling
 
                 if (bundleResponse != null)
                 {
+                    _logger.Debug("Serving bundle '{0}' from cache.", bundle.Route);
                     await ServeBundleResponse(bundleResponse, httpContext, options);
                     return;
                 }

@@ -526,7 +526,7 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Cms.Menu.Delete)]
         public async Task<IActionResult> DeleteItem(int id)
         {
-            var isAjax = Request.IsAjaxRequest();
+            var isAjax = Request.IsAjax();
 
             var item = await _db.MenuItems.FindByIdAsync(id);
             if (item == null)

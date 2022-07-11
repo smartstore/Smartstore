@@ -61,7 +61,7 @@ namespace Smartstore.Web.TagHelpers.Shared
                 return;
             }
 
-            if (ViewContext.HttpContext.Request.IsAjaxRequest())
+            if (ViewContext.HttpContext.Request.IsAjax())
             {
                 //// Don't re-inject content during AJAX requests, the target zones are most probably rendered already.
                 //// Just output the content in-place.

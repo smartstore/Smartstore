@@ -193,12 +193,21 @@ namespace Smartstore.Http
             Guard.NotEmpty(protocol, nameof(protocol));
             Guard.NotEmpty(host, nameof(host));
 
-            string baseUrl = protocol.EnsureEndsWith("://") + host.TrimEnd('/');
+            var scheme = protocol.TrimEnd('/').TrimEnd(':');
+            var baseUrl = scheme + "://" + host.TrimEnd('/');
 
             string evaluator(Match match)
             {
                 var url = match.Groups["url"].Value;
-                return baseUrl + url.EnsureStartsWith('/');
+
+                if (url.StartsWith("//"))
+                {
+                    return scheme + ':' + url;
+                }
+                else
+                {
+                    return baseUrl + url.EnsureStartsWith('/');
+                }
             }
 
             html = _htmlPathPattern.Replace(html, evaluator);

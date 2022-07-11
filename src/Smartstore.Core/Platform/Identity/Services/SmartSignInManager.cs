@@ -8,7 +8,7 @@ namespace Smartstore.Core.Identity
 {
     public class SmartSignInManager : SignInManager<Customer>
     {
-        private readonly SmartDbContext _db;
+        private readonly Lazy<SmartDbContext> _db;
         private readonly CustomerSettings _customerSettings;
 
         public SmartSignInManager(UserManager<Customer> userManager,
@@ -18,7 +18,7 @@ namespace Smartstore.Core.Identity
             ILogger<SignInManager<Customer>> logger,
             IAuthenticationSchemeProvider schemes,
             IUserConfirmation<Customer> confirmation,
-            SmartDbContext db,
+            Lazy<SmartDbContext> db,
             CustomerSettings customerSettings)
             : base(userManager, contextAccessor, claimsFactory, optionsAccessor, logger, schemes, confirmation)
         {
@@ -75,8 +75,8 @@ namespace Smartstore.Core.Identity
             if (result.Succeeded)
             {
                 user.LastLoginDateUtc = DateTime.UtcNow;
-                _db.TryUpdate(user);
-                await _db.SaveChangesAsync();
+                _db.Value.TryUpdate(user);
+                await _db.Value.SaveChangesAsync();
             }
 
             return result;

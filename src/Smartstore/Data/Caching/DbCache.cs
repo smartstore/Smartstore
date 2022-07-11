@@ -54,7 +54,7 @@ namespace Smartstore.Data.Caching
         {
             var cacheKey = BuildKey(key.Key);
 
-            using (_cache.AcquireKeyLock(cacheKey))
+            using (_cache.GetLock(cacheKey).Acquire(TimeSpan.FromSeconds(5)))
             {
                 MemoryCacheStore.TryDropLazyLoader(value.Value);
 

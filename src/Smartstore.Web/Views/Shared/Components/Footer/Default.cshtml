@@ -97,54 +97,60 @@
                     @if (!Model.HideNewsletterBlock)
                     {
                         <div class="footer-newsletter nav-collapsible" data-subscription-url="@(Url.Action("Subscribe", "Newsletter"))" data-subscription-failure="@T("Newsletter.SubscriptionFailed")">
-                            <div id="newsletter-subscribe-block">
-                                <div class="input-group has-icon mb-2">
-                                    <input asp-for="NewsletterEmail" id="newsletter-email" placeholder="@T("Newsletter.Email")" />
-                                    <span class="input-group-icon text-muted">
-                                        <i class="fa fa-envelope"></i>
-                                    </span>
-                                    <div class="input-group-append">
-                                        <button id="newsletter-subscribe-button" class="btn btn-primary btn-icon" title="@T("Newsletter.Button")">
-                                            <i class="fa fa-angle-right"></i>
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <div class="d-none d-lg-block">
-                                    <div class="form-inline">
-                                        <div class="form-check form-check-inline">
-                                            <input class="form-check-input" type="radio" id="newsletter-subscribe" value="newsletter-subscribe" name="optionsRadios" checked="checked">
-                                            <label class="form-check-label" for="newsletter-subscribe">
-                                                <span>@T("Newsletter.Subscribe")</span>
-                                            </label>
-                                        </div>
-
-                                        <div class="form-check form-check-inline">
-                                            <input class="form-check-input" type="radio" id="newsletter-unsubscribe" value="newsletter-unsubscribe" name="optionsRadios">
-                                            <label class="form-check-label" for="newsletter-unsubscribe">
-                                                <span>@T("Newsletter.Unsubscribe")</span>
-                                            </label>
+                            <h4 class="footer-title nav-toggler collapsed" data-toggle="collapse" data-target="#footer-newsletter" aria-controls="footer-newsletter" aria-expanded="false">@T("Newsletter.Title")</h4>
+                            <div class="collapse nav-collapse" id="footer-newsletter">
+                                <div id="newsletter-subscribe-block">
+                                    <div class="input-group has-icon mb-2">
+                                        <input asp-for="NewsletterEmail" id="newsletter-email" placeholder="@T("Newsletter.Email")" />
+                                        <span class="input-group-icon text-muted">
+                                            <i class="fa fa-envelope"></i>
+                                        </span>
+                                        <div class="input-group-append">
+                                            <button id="newsletter-subscribe-button" class="btn btn-primary btn-icon" title="@T("Newsletter.Button")">
+                                                <i class="fa fa-angle-right"></i>
+                                            </button>
                                         </div>
                                     </div>
+
+                                    <div class="d-none d-lg-block">
+                                        <div class="form-inline">
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input" type="radio" id="newsletter-subscribe" value="newsletter-subscribe" name="optionsRadios" checked="checked">
+                                                <label class="form-check-label" for="newsletter-subscribe">
+                                                    <span>@T("Newsletter.Subscribe")</span>
+                                                </label>
+                                            </div>
+
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input" type="radio" id="newsletter-unsubscribe" value="newsletter-unsubscribe" name="optionsRadios">
+                                                <label class="form-check-label" for="newsletter-unsubscribe">
+                                                    <span>@T("Newsletter.Unsubscribe")</span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <zone name="gdpr_consent_small"></zone>
+
+                                    <span asp-validation-for="NewsletterEmail"></span>
+
                                 </div>
-
-                                <zone name="gdpr_consent_small"></zone>
-
-                                <span asp-validation-for="NewsletterEmail"></span>
-
+                                <div id="newsletter-result-block" class="alert alert-success d-none mt-2"></div>
                             </div>
-                            <div id="newsletter-result-block" class="alert alert-success d-none mt-2"></div>
                         </div>
                     }
 
-                    <div sm-if="Model.ShowThemeSelector" class="theme-selector d-none d-md-block@(!Model.HideNewsletterBlock ? " mt-3" : "")">
-                        <h4>@T("Footer.Themes")</h4>
-                        <div class="content">
-                            @{
-                                @await Component.InvokeAsync("StoreThemeSelector")
-                            }
+                    @if (Model.ShowThemeSelector)
+                    {
+                        <div class="theme-selector d-none d-md-block" attr-class='(!Model.HideNewsletterBlock, "mt-3")'>
+                            <h4 class="footer-title">@T("Footer.Themes")</h4>
+                            <div class="content">
+                                @{
+                                    @await Component.InvokeAsync("StoreThemeSelector")
+                                }
+                            </div>
                         </div>
-                    </div>
+                    }
 
                     <zone name="footer_col_4_after"></zone>
                 </div>

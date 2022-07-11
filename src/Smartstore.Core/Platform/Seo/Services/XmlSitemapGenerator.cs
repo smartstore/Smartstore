@@ -50,7 +50,6 @@ namespace Smartstore.Core.Seo
         private readonly ICommonServices _services;
         private readonly ICustomerService _customerService;
         private readonly ILockFileManager _lockFileManager;
-        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly LinkGenerator _linkGenerator;
         private readonly AsyncRunner _asyncRunner;
 
@@ -65,7 +64,6 @@ namespace Smartstore.Core.Seo
             ICommonServices services,
             ICustomerService customerService,
             ILockFileManager lockFileManager,
-            IHttpContextAccessor httpContextAccessor,
             LinkGenerator linkGenerator,
             AsyncRunner asyncRunner)
         {
@@ -76,7 +74,6 @@ namespace Smartstore.Core.Seo
             _services = services;
             _customerService = customerService;
             _lockFileManager = lockFileManager;
-            _httpContextAccessor = httpContextAccessor;
             _linkGenerator = linkGenerator;
             _asyncRunner = asyncRunner;
 
@@ -255,7 +252,7 @@ namespace Smartstore.Core.Seo
                         {
                             Store = ctx.Store,
                             Language = language,
-                            LockFile = lockFile,
+                            LockHandle = lockFile,
                             LockFilePath = lockFilePath,
                             TempDir = sitemapDir + "~",
                             FinalDir = sitemapDir,
@@ -291,7 +288,7 @@ namespace Smartstore.Core.Seo
             {
                 foreach (var data in languageData.Values)
                 {
-                    await data.LockFile.ReleaseAsync();
+                    await data.LockHandle.ReleaseAsync();
                 }
             });
 
@@ -723,7 +720,7 @@ namespace Smartstore.Core.Seo
         {
             public Store Store { get; init; }
             public Language Language { get; init; }
-            public ILockFile LockFile { get; init; }
+            public ILockHandle LockHandle { get; init; }
             public string LockFilePath { get; init; }
             public string TempDir { get; init; }
             public string FinalDir { get; init; }

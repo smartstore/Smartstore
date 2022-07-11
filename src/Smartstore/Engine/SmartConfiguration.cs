@@ -42,7 +42,7 @@
         /// <summary>
         /// The size of pool for <see cref="Microsoft.EntityFrameworkCore.DbContext"/> instances
         /// </summary>
-        public int DbContextPoolSize { get; set; } = 128;
+        public int DbContextPoolSize { get; set; } = 1024;
 
         /// <summary>
         /// Storage path for media files and assets like thumbs, uploads, email attachments etc.

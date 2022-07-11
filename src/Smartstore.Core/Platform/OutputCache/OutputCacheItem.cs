@@ -1,13 +1,22 @@
 ﻿using System.Diagnostics;
+using Newtonsoft.Json;
 
 namespace Smartstore.Core.OutputCache
 {
     [Serializable]
     [DebuggerDisplay("{CacheKey}, Url: {Url}, Query: {QueryString}, Duration: {Duration}, Tags: {Tags}")]
-    public class OutputCacheItem : ICloneable<OutputCacheItem>
+    public class OutputCacheItem : OutputCacheItemMetadata, ICloneable<OutputCacheItem>
+    {
+        public string Content { get; set; }
+
+        public OutputCacheItem Clone() => (OutputCacheItem)MemberwiseClone();
+        object ICloneable.Clone() => MemberwiseClone();
+    }
+
+    public abstract class OutputCacheItemMetadata
     {
         // used for serialization compatibility
-        public static readonly string Version = "1";
+        public static readonly string Version = "2";
 
         public string CacheKey { get; set; }
         public string RouteKey { get; set; }
@@ -24,8 +33,9 @@ namespace Smartstore.Core.OutputCache
         public string CustomerRoles { get; set; }
 
         public string ContentType { get; set; }
-        public string Content { get; set; }
+        public int? ContentLength { get; set; }
 
+        [JsonIgnore]
         public DateTime ExpiresOnUtc => CachedOnUtc.AddSeconds(Duration);
 
         public bool IsValid(DateTime utcNow)
@@ -39,16 +49,6 @@ namespace Smartstore.Core.OutputCache
                 return string.Empty;
 
             return string.Join(';', Tags);
-        }
-
-        public OutputCacheItem Clone()
-        {
-            return (OutputCacheItem)this.MemberwiseClone();
-        }
-
-        object ICloneable.Clone()
-        {
-            return this.MemberwiseClone();
         }
     }
 }

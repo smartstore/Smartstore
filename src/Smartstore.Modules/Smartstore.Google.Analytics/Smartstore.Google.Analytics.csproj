@@ -5,6 +5,13 @@
 		<OutDir>$(OutputPath)</OutDir>
   </PropertyGroup>
   <ItemGroup>
-    <None Remove="Views\_ViewImports.cshtml" />
+    <PackageReference Include="DouglasCrockford.JsMin" Version="2.1.0" />
   </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\..\Smartstore.Web\Smartstore.Web.csproj">
+            <Private>False</Private>
+            <CopyLocal>False</CopyLocal>
+            <CopyLocalSatelliteAssemblies>False</CopyLocalSatelliteAssemblies>
+        </ProjectReference>
+    </ItemGroup>
 </Project>

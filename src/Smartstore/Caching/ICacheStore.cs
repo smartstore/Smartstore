@@ -1,4 +1,6 @@
-﻿namespace Smartstore.Caching
+﻿using Smartstore.Threading;
+
+namespace Smartstore.Caching
 {
     public enum CacheEntryRemovedReason
     {
@@ -224,14 +226,10 @@
         IAsyncEnumerable<string> KeysAsync(string pattern = "*");
 
         /// <summary>
-        /// Acquires a keyed lock.
+        /// Gets a <see cref="IDistributedLock"/> instance for the given <paramref name="key"/>
+        /// used to synchronize access to cache storage.
         /// </summary>
-        IDisposable AcquireKeyLock(string key);
-
-        /// <summary>
-        /// Acquires a keyed lock for an async operation.
-        /// </summary>
-        Task<IDisposable> AcquireAsyncKeyLock(string key, CancellationToken cancelToken = default);
+        IDistributedLock GetLock(string key);
 
         /// <summary>
         /// Clear all cache data

@@ -1,14 +1,17 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Net.Http;
+using System.Runtime.InteropServices;
 using Microsoft.AspNetCore.Http;
 using Smartstore.Http;
 using Smartstore.IO;
 
 namespace Smartstore.Pdf.WkHtml
 {
-    // TODO: (core) SendAuthCookie (?)
     internal class WkFileInput : IPdfInput
     {
+        private string _normalizedUrlOrPath;
+        
         private readonly string _urlOrPath;
+        private readonly bool _isLocalUrl;
         private readonly WkHtmlToPdfOptions _options;
         private readonly HttpContext _httpContext;
 
@@ -16,19 +19,26 @@ namespace Smartstore.Pdf.WkHtml
         {
             _urlOrPath = urlOrPath;
             _options = options;
+            _isLocalUrl = WebHelper.IsUrlLocalToHost(urlOrPath);
             // Can be null
             _httpContext = httpContext;
         }
 
         public PdfInputKind Kind => PdfInputKind.File;
+        public bool IsLocalUrl => _isLocalUrl;
 
         public string Content
         {
             get
             {
+                if (_normalizedUrlOrPath != null)
+                {
+                    return _normalizedUrlOrPath;
+                }
+                
                 if (IsPathRooted(_urlOrPath) || _urlOrPath.Contains(Uri.SchemeDelimiter))
                 {
-                    return _urlOrPath;
+                    _normalizedUrlOrPath = _urlOrPath;
                 }
                 else if (_options.BaseUrl != null)
                 {
@@ -38,14 +48,18 @@ namespace Smartstore.Pdf.WkHtml
                         url = WebHelper.ToAbsolutePath(url);
                     }
 
-                    return _options.BaseUrl.ToString() + PathUtility.NormalizeRelativePath(url);
+                    _normalizedUrlOrPath = _options.BaseUrl.ToString() + PathUtility.NormalizeRelativePath(url);
                 }
                 else if (_httpContext?.Request != null)
                 {
-                    return WebHelper.GetAbsoluteUrl(_urlOrPath, _httpContext.Request);
+                    _normalizedUrlOrPath = WebHelper.GetAbsoluteUrl(_urlOrPath, _httpContext.Request);
+                }
+                else
+                {
+                    _normalizedUrlOrPath = _urlOrPath;
                 }
 
-                return _urlOrPath;
+                return _normalizedUrlOrPath;
             }
         }
 
@@ -54,7 +68,7 @@ namespace Smartstore.Pdf.WkHtml
             // Noop
         }
 
-        private static bool IsPathRooted(string path)
+        internal static bool IsPathRooted(string path)
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {

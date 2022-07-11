@@ -5,6 +5,11 @@ namespace Smartstore.Scheduling
 {
     public class TaskActivator : ITaskActivator
     {
+        private readonly static Dictionary<string, string> _legacyTypeNamesMap = new(StringComparer.OrdinalIgnoreCase)
+        {
+            { "FileImportTask", "BMEcatImportTask" }
+        };
+
         private readonly static ConcurrentDictionary<string, string> _normalizedTypeNames = new(StringComparer.OrdinalIgnoreCase);
 
         private readonly IComponentContext _componentContext;
@@ -33,6 +38,12 @@ namespace Smartstore.Scheduling
                         .Split(',', StringSplitOptions.RemoveEmptyEntries)[0].Trim()
                         .Split('.')
                         .Last();
+
+                    if (_legacyTypeNamesMap.TryGetValue(name, out var mappedName))
+                    {
+                        // E.g.: map FileImportTask --> BMEcatImportTask
+                        name = mappedName;
+                    }
                 }
 
                 return name;

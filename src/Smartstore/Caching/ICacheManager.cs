@@ -195,14 +195,10 @@ namespace Smartstore.Caching
         Task<long> RemoveByPatternAsync(string pattern);
 
         /// <summary>
-        /// Acquires a keyed lock from the last store.
+        /// Gets a <see cref="IDistributedLock"/> instance for the given <paramref name="key"/>
+        /// used to synchronize access to the underlying cache storage.
         /// </summary>
-        IDisposable AcquireKeyLock(string key);
-
-        /// <summary>
-        /// Acquires a keyed lock for an async operation from the last store.
-        /// </summary>
-        Task<IDisposable> AcquireAsyncKeyLock(string key, CancellationToken cancelToken = default);
+        IDistributedLock GetLock(string key);
 
         /// <summary>
         /// Clear all cache data

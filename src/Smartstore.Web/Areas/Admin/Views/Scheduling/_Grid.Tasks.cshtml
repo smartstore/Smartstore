@@ -31,7 +31,7 @@
         </column>
         <column for="NextRunInfo" width="300px">
             <display-template>
-                <div class="dg-cell-value">
+                <div class="dg-cell-value w-100">
                     <div class="next-run-info text-truncate" v-html="item.value"></div>
                     <div class="task-progress text-muted text-truncate"
                          v-bind:class="{ hide: !item.row.LastExecutionInfo.IsRunning }"

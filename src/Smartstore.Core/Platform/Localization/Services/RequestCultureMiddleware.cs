@@ -42,7 +42,7 @@ namespace Smartstore.Core.Localization
             Thread.CurrentThread.CurrentCulture = culture;
             Thread.CurrentThread.CurrentUICulture = culture;
 
-            if (!context.Request.IsAjaxRequest())
+            if (!context.Request.IsAjax())
             {
                 var widgetProvider = context.RequestServices.GetService<IWidgetProvider>();
 
@@ -55,7 +55,7 @@ namespace Smartstore.Core.Localization
 
                         using var psb = StringBuilderPool.Instance.Get(out var sb);
                         sb.Append("<script data-origin='globalization'>");
-                        sb.Append("jQuery(function () { if (Smartstore.globalization) { Smartstore.globalization.culture = ");
+                        sb.Append("document.addEventListener('DOMContentLoaded', function () { if (Smartstore.globalization) { Smartstore.globalization.culture = ");
                         sb.Append(json);
                         sb.Append("; }; });");
                         sb.Append("</script>");

@@ -72,12 +72,12 @@ namespace Smartstore.AmazonPay.Providers
             => new("Configure", "AmazonPayAdmin", new { area = "Admin" });
 
         public override WidgetInvoker GetPaymentInfoWidget()
-            => new ComponentWidgetInvoker(typeof(PayButtonViewComponent), new { providerName = nameof(AmazonPayProvider) });
+            => new ComponentWidgetInvoker(typeof(PayButtonViewComponent));
 
         public override async Task<ProcessPaymentResult> ProcessPaymentAsync(ProcessPaymentRequest processPaymentRequest)
         {
             var result = new ProcessPaymentResult();
-            var state = _checkoutStateAccessor.GetAmazonPayCheckoutState();
+            var state = _checkoutStateAccessor.CheckoutState.GetCustomState<AmazonPayCheckoutState>();
             var httpContext = _httpContextAccessor.HttpContext;
             httpContext.Session.TryRemove("AmazonPayResponseStatus");
 
@@ -146,7 +146,6 @@ namespace Smartstore.AmazonPay.Providers
                 {
                     // Avoid infinite loop where the confirm-form is automatically submitted over and over again.
                     state.SubmitForm = false;
-                    _checkoutStateAccessor.SetAmazonPayCheckoutState(state);
                 }
             }
 

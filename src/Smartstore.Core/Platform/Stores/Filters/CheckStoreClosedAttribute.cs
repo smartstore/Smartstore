@@ -81,7 +81,7 @@ namespace Smartstore.Core.Stores
                 }
                 else
                 {
-                    if (context.HttpContext.Request.IsAjaxRequest())
+                    if (context.HttpContext.Request.IsAjax())
                     {
                         var storeClosedMessage = "{0} {1}".FormatCurrentUI(
                             T("StoreClosed"),

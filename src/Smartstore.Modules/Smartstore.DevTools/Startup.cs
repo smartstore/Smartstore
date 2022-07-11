@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Core;
 using Smartstore.Core.Data;
+using Smartstore.Core.OutputCache;
 using Smartstore.Core.Web;
 using Smartstore.Data;
 using Smartstore.Data.Providers;
@@ -42,6 +43,9 @@ namespace Smartstore.DevTools
                 o.ResultsAuthorize = ResultsAuthorize;
                 o.ResultsListAuthorize = ResultsAuthorize;
 
+                o.IgnoredPaths.Clear();
+                o.IgnorePath("/favicon.ico");
+
                 //// INFO: Handled by settings now.
                 //o.IgnorePath("/admin/");
                 //o.IgnorePath("/themes/");
@@ -62,14 +66,14 @@ namespace Smartstore.DevTools
                     o.Filters.Remove(originalFilter);
                 }
 
-                o.Filters.AddConditional<ProfilerFilter>(
-                    context => ShouldProfile(context.HttpContext.Request));
+                o.Filters.AddConditional<MiniProfilerFilter>(
+                    context => context.ControllerIs<SmartController>() && ShouldProfile(context.HttpContext.Request));
 
                 o.Filters.AddConditional<MachineNameFilter>(
-                    context => context.ControllerIs<SmartController>());
+                    context => context.ControllerIs<SmartController>() && context.HttpContext.Request.IsNonAjaxGet());
 
                 o.Filters.AddConditional<WidgetZoneFilter>(
-                    context => context.ControllerIs<SmartController>());
+                    context => context.ControllerIs<SmartController>() && context.HttpContext.Request.IsNonAjaxGet());
 
                 //o.Filters.AddConditional<SampleProductDetailActionFilter>(
                 //    context => context.ControllerIs<ProductController>());
@@ -92,6 +96,10 @@ namespace Smartstore.DevTools
             {
                 app.UseMiniProfiler();
             });
+
+            // OutputCache invalidation configuration
+            var observer = builder.ApplicationBuilder.ApplicationServices.GetRequiredService<IOutputCacheInvalidationObserver>();
+            observer.ObserveSettingProperty<ProfilerSettings>(x => x.DisplayMachineName);
         }
 
         public override void MapRoutes(EndpointRoutingBuilder builder)
@@ -143,6 +151,12 @@ namespace Smartstore.DevTools
 
         internal static bool ResultsAuthorize(HttpRequest request)
         {
+            var ua = request.HttpContext.RequestServices.GetRequiredService<IUserAgent>();
+            if (ua.IsPdfConverter || ua.IsBot)
+            {
+                return false;
+            }
+
             return request.HttpContext.RequestServices.GetRequiredService<IWorkContext>().CurrentCustomer.IsAdmin();
         }
 

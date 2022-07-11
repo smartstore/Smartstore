@@ -44,7 +44,7 @@ namespace Smartstore.Web.Filters
 
                 var httpContext = context.HttpContext;
 
-                if (HttpMethods.IsPost(httpContext.Request.Method))
+                if (httpContext.Request.IsPost())
                 {
                     var hasConsentedToGdpr = httpContext.Request.Form["GdprConsent"].ToString();
 
@@ -62,7 +62,7 @@ namespace Smartstore.Web.Filters
                         }
                         else
                         {
-                            if (!httpContext.Request.IsAjaxRequest())
+                            if (!httpContext.Request.IsAjax())
                             {
                                 // Add a validation message
                                 context.ModelState.AddModelError(string.Empty, _services.Localization.GetResource("Gdpr.Consent.ValidationMessage"));

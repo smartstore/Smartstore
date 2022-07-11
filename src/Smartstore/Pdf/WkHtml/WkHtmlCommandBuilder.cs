@@ -1,5 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Text;
+using Microsoft.AspNetCore.Http;
+using Smartstore.Net;
 
 namespace Smartstore.Pdf.WkHtml
 {
@@ -10,22 +12,17 @@ namespace Smartstore.Pdf.WkHtml
 
     public partial class WkHtmlCommandBuilder : IWkHtmlCommandBuilder
     {
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
+        public WkHtmlCommandBuilder(IHttpContextAccessor httpContextAccessor)
+        {
+            _httpContextAccessor = httpContextAccessor;
+        }
+
         public virtual async Task BuildCommandAsync(PdfConversionSettings settings, StringBuilder builder)
         {
             // Global
             BuildGlobalCommandFragment(settings, builder);
-
-            // Header content & options
-            await ProcessSectionAsync("header", settings.Header, settings.HeaderOptions, builder);
-
-            // Footer content & options
-            await ProcessSectionAsync("footer", settings.Footer, settings.FooterOptions, builder);
-
-            // Custom global args
-            if (settings.CustomArguments.HasValue())
-            {
-                builder.Append(" " + settings.CustomArguments);
-            }
 
             // Cover
             if (settings.Cover != null)
@@ -44,13 +41,21 @@ namespace Smartstore.Pdf.WkHtml
                 BuildTocCommandFragment(settings.TocOptions, builder);
             }
 
-            // Main page
+            // Main page input
             await ProcessInputAsync("page", settings.Page);
             var content = settings.Page.Kind == PdfInputKind.Html
                 ? "-" // we gonna pump in via StdInput
                 : settings.Page.Content;
             builder.Append($" \"{content}\"");
+
+            // Main page options
             BuildPageCommandFragment(settings.PageOptions, builder);
+
+            // Header content & options
+            await ProcessSectionAsync("header", settings.Header, settings.HeaderOptions, builder);
+
+            // Footer content & options
+            await ProcessSectionAsync("footer", settings.Footer, settings.FooterOptions, builder);
 
             // INFO: Output file comes later in converter
         }
@@ -66,7 +71,7 @@ namespace Smartstore.Pdf.WkHtml
                 if (content.HasValue())
                 {
                     TryAppendOption($"--{flag}-html", content, builder);
-                    BuildSectionCommandFragment(options, flag, builder);
+                    BuildSectionCommandFragment(input, options, flag, builder);
                 }
             }
         }
@@ -94,8 +99,10 @@ namespace Smartstore.Pdf.WkHtml
         {
             // Commons
             TryAppendOption("--quiet", true, builder);
+            TryAppendOption("--encoding", "utf-8", builder, false);
             TryAppendOption("-g", settings.Grayscale, builder);
             TryAppendOption("-l", settings.LowQuality, builder);
+            TryAppendOption("--outline-depth", settings.OutlineDepth, builder);
             TryAppendOption("--title", settings.Title, builder);
 
             // Margins
@@ -109,6 +116,12 @@ namespace Smartstore.Pdf.WkHtml
             TryAppendOption("-s", settings.Size?.ToString(), builder, false);
             TryAppendOption("--page-width", settings.PageWidth, builder);
             TryAppendOption("--page-height", settings.PageHeight, builder);
+
+            // Custom global args
+            if (settings.CustomArguments.HasValue())
+            {
+                builder.Append(" " + settings.CustomArguments);
+            }
         }
 
         protected virtual void BuildPageCommandFragment(PdfPageOptions options, StringBuilder builder)
@@ -152,11 +165,28 @@ namespace Smartstore.Pdf.WkHtml
             BuildPageCommandFragment(options, builder);
         }
 
-        protected virtual void BuildSectionCommandFragment(PdfSectionOptions options, string flag, StringBuilder builder)
+        protected virtual void BuildSectionCommandFragment(IPdfInput input, PdfSectionOptions options, string flag, StringBuilder builder)
         {
             if (options == null)
                 return;
-            
+
+            // Send auth cookie if input is a file and points to a url local to host.
+            if (input is WkFileInput fileInput && fileInput.IsLocalUrl)
+            {
+                var httpRequest = _httpContextAccessor.HttpContext?.Request;
+                if (httpRequest != null)
+                {
+                    if (httpRequest.Cookies.TryGetValue(CookieNames.Identity, out var cookieValue))
+                    {
+                        TryAppendOption("--cookie", $"{CookieNames.Identity} {cookieValue.UrlEncode()}", builder, false);
+                    }
+                    else if (httpRequest.Cookies.TryGetValue(CookieNames.Visitor, out cookieValue))
+                    {
+                        TryAppendOption("--cookie", $"{CookieNames.Visitor} {cookieValue.UrlEncode()}", builder, false);
+                    }
+                }
+            }
+
             TryAppendOption(() => $"--{flag}-spacing", options.Spacing, builder);
             TryAppendOption(() => $"--{flag}-line", options.ShowLine, builder);
 

@@ -47,41 +47,84 @@ namespace Smartstore
             return new SeekableReadOnlyStream(stream, (int)stream.Length);
         }
 
-        public static async Task<bool> ToFileAsync(this Stream srcStream, string path)
+        public static async Task<bool> CopyToFileAsync(this Stream stream, string destinationPath, bool leaveOpen = true)
         {
-            if (srcStream == null)
-                return false;
-
-            const int BuffSize = 32768;
-            var result = true;
-            Stream dstStream = null;
-            var buffer = new byte[BuffSize];
+            Guard.NotNull(stream, nameof(stream));
+            Guard.NotEmpty(destinationPath, nameof(destinationPath));
 
             try
             {
-                await using (dstStream = File.Open(path, FileMode.Create))
+                using (var outStream = new FileStream(
+                    destinationPath,
+                    FileMode.Create,
+                    FileAccess.Write,
+                    FileShare.None,
+                    bufferSize: 4096,
+                    useAsync: true))
                 {
-                    int len;
-                    while ((len = await srcStream.ReadAsync(buffer.AsMemory(0, BuffSize))) > 0)
-                    {
-                        await dstStream.WriteAsync(buffer.AsMemory(0, len));
-                    }
+                    await stream.CopyToAsync(outStream);
                 }
+ 
+                return File.Exists(destinationPath);
             }
-            catch
+            catch (Exception ex)
             {
-                result = false;
+                Debug.Fail(ex.Message);
+                return false;
             }
             finally
             {
-                if (dstStream != null)
+                if (leaveOpen)
                 {
-                    dstStream.Close();
-                    await dstStream.DisposeAsync();
+                    if (stream.CanSeek)
+                    {
+                        stream.Seek(0, SeekOrigin.Begin);
+                    }
+                }
+                else
+                {
+                    stream.Close();
+                    await stream.DisposeAsync();
                 }
             }
+        }
 
-            return (result && File.Exists(path));
+        public static async Task<bool> CopyToFileAsync(this Stream stream, IFile destinationFile, bool leaveOpen = true)
+        {
+            Guard.NotNull(stream, nameof(stream));
+            Guard.NotNull(destinationFile, nameof(destinationFile));
+
+            try
+            {
+                using (var outStream = await destinationFile.OpenWriteAsync())
+                {
+                    await stream.CopyToAsync(outStream);
+                }
+
+                // Refresh & check
+                destinationFile = await destinationFile.FileSystem.GetFileAsync(destinationFile.SubPath);
+                return destinationFile.Exists;
+            }
+            catch (Exception ex)
+            {
+                Debug.Fail(ex.Message);
+                return false;
+            }
+            finally
+            {
+                if (leaveOpen)
+                {
+                    if (stream.CanSeek)
+                    {
+                        stream.Seek(0, SeekOrigin.Begin);
+                    }
+                }
+                else
+                {
+                    stream.Close();
+                    await stream.DisposeAsync();
+                }
+            }
         }
 
         public static bool ContentsEqual(this Stream src, Stream other, bool? forceLengthCompare = null)

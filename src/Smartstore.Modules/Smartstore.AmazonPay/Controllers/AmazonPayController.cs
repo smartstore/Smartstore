@@ -274,10 +274,8 @@ namespace Smartstore.AmazonPay.Controllers
             await _db.SaveChangesAsync();
             result.Success = true;
 
-            _checkoutStateAccessor.SetAmazonPayCheckoutState(new AmazonPayCheckoutState
-            {
-                SessionId = checkoutSessionId
-            });
+            var state = _checkoutStateAccessor.CheckoutState.GetCustomState<AmazonPayCheckoutState>();
+            state.SessionId = checkoutSessionId;
 
             if (session.PaymentPreferences != null)
             {
@@ -309,7 +307,7 @@ namespace Smartstore.AmazonPay.Controllers
             {
                 var store = Services.StoreContext.CurrentStore;
                 var customer = Services.WorkContext.CurrentCustomer;
-                var state = _checkoutStateAccessor.GetAmazonPayCheckoutState();
+                var state = _checkoutStateAccessor.CheckoutState.GetCustomState<AmazonPayCheckoutState>();
 
                 if (state.SessionId.IsEmpty())
                 {
@@ -364,8 +362,6 @@ namespace Smartstore.AmazonPay.Controllers
                                 success = true;
                                 state.IsConfirmed = true;
                                 state.FormData = formData.EmptyNull();
-
-                                _checkoutStateAccessor.SetAmazonPayCheckoutState(state);
                             }
                             else
                             {
@@ -402,7 +398,7 @@ namespace Smartstore.AmazonPay.Controllers
         [Route("amazonpay/confirmationresult")]
         public IActionResult ConfirmationResult()
         {
-            var state = _checkoutStateAccessor.GetAmazonPayCheckoutState();
+            var state = _checkoutStateAccessor.CheckoutState.GetCustomState<AmazonPayCheckoutState>();
             state.SubmitForm = false;
 
             try
@@ -436,10 +432,6 @@ namespace Smartstore.AmazonPay.Controllers
             {
                 Logger.Error(ex);
                 NotifyError(ex.Message);
-            }
-            finally
-            {
-                _checkoutStateAccessor.SetAmazonPayCheckoutState(state);
             }
 
             if (state.SubmitForm)
@@ -583,119 +575,115 @@ namespace Smartstore.AmazonPay.Controllers
             }
 
             // Get and process order.
-            // Lock so that the order does not have the same processing several times, resulting in redundant order notes.
-            using (await AsyncLock.KeyedAsync("amazonpay:ipn:" + chargePermissionId, TimeSpan.FromSeconds(30)))
+            var order = await _db.Orders.FirstOrDefaultAsync(x => x.PaymentMethodSystemName == AmazonPayProvider.SystemName && x.AuthorizationTransactionCode == chargePermissionId);
+            if (order == null)
             {
-                var order = await _db.Orders.FirstOrDefaultAsync(x => x.PaymentMethodSystemName == AmazonPayProvider.SystemName && x.AuthorizationTransactionCode == chargePermissionId);
-                if (order == null)
+                Logger.Warn(T("Plugins.Payments.AmazonPay.OrderNotFound", chargePermissionId));
+                return;
+            }
+
+            if (!await _paymentService.IsPaymentMethodActiveAsync(AmazonPayProvider.SystemName, null, order.StoreId))
+            {
+                return;
+            }
+            
+            //Console.WriteLine($"AmazonPay {Request.Method} IPN. OrderId:{order.Id} {message.ObjectType} {newState} authorize:{authorize} paid:{paid} void:{voidOffline} refund:{refund} id:{message.ObjectId}");
+
+            var oldState = order.CaptureTransactionResult.NullEmpty() ?? order.AuthorizationTransactionResult.NullEmpty() ?? "-";
+
+            // INFO: order must be authorized for all other state changes.
+            // That is why we call MarkAsAuthorizedAsync, even though the payment is not necessarily considered authorized at AmazonPay.
+            if (authorize && order.CanMarkOrderAsAuthorized())
+            {
+                order.AuthorizationTransactionResult = newState;
+
+                await _orderProcessingService.MarkAsAuthorizedAsync(order);
+                orderUpdated = true;
+            }
+
+            if (paid && order.CanMarkOrderAsPaid())
+            {
+                order.CaptureTransactionResult = newState;
+
+                await _orderProcessingService.MarkOrderAsPaidAsync(order);
+                orderUpdated = true;
+            }
+
+            if (voidOffline && order.CanVoidOffline())
+            {
+                order.CaptureTransactionResult = newState;
+
+                await _orderProcessingService.VoidOfflineAsync(order);
+                orderUpdated = true;
+            }
+
+            if (refund && refundAmount > decimal.Zero)
+            {
+                var refundIds = order.GenericAttributes.Get<List<string>>(AmazonPayProvider.SystemName + ".RefundIds") ?? new List<string>();
+                if (!refundIds.Contains(message.ObjectId, StringComparer.OrdinalIgnoreCase))
                 {
-                    Logger.Warn(T("Plugins.Payments.AmazonPay.OrderNotFound", chargePermissionId));
-                    return;
-                }
-
-                if (!await _paymentService.IsPaymentMethodActiveAsync(AmazonPayProvider.SystemName, null, order.StoreId))
-                {
-                    return;
-                }
-
-                //$"-- Order {order.Id}: {message.ObjectType} {newState} authorize:{authorize} paid:{paid} void:{voidOffline} refund:{refund} id:{message.ObjectId}".Dump();
-
-                var oldState = order.CaptureTransactionResult.NullEmpty() ?? order.AuthorizationTransactionResult.NullEmpty() ?? "-";
-
-                // INFO: order must be authorized for all other state changes.
-                // That is why we call MarkAsAuthorizedAsync, even though the payment is not necessarily considered authorized at AmazonPay.
-                if (authorize && order.CanMarkOrderAsAuthorized())
-                {
-                    order.AuthorizationTransactionResult = newState;
-
-                    await _orderProcessingService.MarkAsAuthorizedAsync(order);
-                    orderUpdated = true;
-                }
-
-                if (paid && order.CanMarkOrderAsPaid())
-                {
-                    order.CaptureTransactionResult = newState;
-
-                    await _orderProcessingService.MarkOrderAsPaidAsync(order);
-                    orderUpdated = true;
-                }
-
-                if (voidOffline && order.CanVoidOffline())
-                {
-                    order.CaptureTransactionResult = newState;
-
-                    await _orderProcessingService.VoidOfflineAsync(order);
-                    orderUpdated = true;
-                }
-
-                if (refund && refundAmount > decimal.Zero)
-                {
-                    var refundIds = order.GenericAttributes.Get<List<string>>(AmazonPayProvider.SystemName + ".RefundIds") ?? new List<string>();
-                    if (!refundIds.Contains(message.ObjectId, StringComparer.OrdinalIgnoreCase))
+                    decimal receivable = order.OrderTotal - refundAmount;
+                    if (receivable <= decimal.Zero)
                     {
-                        decimal receivable = order.OrderTotal - refundAmount;
-                        if (receivable <= decimal.Zero)
+                        if (order.CanRefundOffline())
                         {
-                            if (order.CanRefundOffline())
-                            {
-                                order.CaptureTransactionResult = newState;
+                            order.CaptureTransactionResult = newState;
 
-                                await _orderProcessingService.RefundOfflineAsync(order);
-                                orderUpdated = true;
-                            }
+                            await _orderProcessingService.RefundOfflineAsync(order);
+                            orderUpdated = true;
                         }
-                        else
-                        {
-                            if (order.CanPartiallyRefundOffline(refundAmount))
-                            {
-                                order.CaptureTransactionResult = newState;
-
-                                await _orderProcessingService.PartiallyRefundOfflineAsync(order, refundAmount);
-                                orderUpdated = true;
-                            }
-                        }
-
-                        refundIds.Add(message.ObjectId);
-                        order.GenericAttributes.Set(AmazonPayProvider.SystemName + ".RefundIds", refundIds);
-                        await _db.SaveChangesAsync();
-                    }
-                }
-
-                // Add order note.
-                if ((orderUpdated || chargeback) && _settings.AddOrderNotes)
-                {
-                    var faviconUrl = Services.WebHelper.GetStoreLocation() + "Modules/Smartstore.AmazonPay/favicon.png";
-                    string note;
-
-                    if (chargeback)
-                    {
-                        note = T("Plugins.Payments.AmazonPay.IpnChargebackOrderNote",
-                            messageId.NaIfEmpty(),
-                            message.NotificationType, message.NotificationId,
-                            message.ObjectType, message.ObjectId,
-                            message.ChargePermissionId.NaIfEmpty());
                     }
                     else
                     {
-                        note = T("Plugins.Payments.AmazonPay.IpnOrderNote",
-                            messageId.NaIfEmpty(),
-                            message.NotificationType, message.NotificationId,
-                            message.ObjectType, message.ObjectId,
-                            message.ChargePermissionId.NaIfEmpty(),
-                            oldState, newState.NullEmpty() ?? "-");
+                        if (order.CanPartiallyRefundOffline(refundAmount))
+                        {
+                            order.CaptureTransactionResult = newState;
+
+                            await _orderProcessingService.PartiallyRefundOfflineAsync(order, refundAmount);
+                            orderUpdated = true;
+                        }
                     }
 
-                    order.OrderNotes.Add(new OrderNote
-                    {
-                        Note = $"<img src='{faviconUrl}' class='mr-2' />" + note,
-                        DisplayToCustomer = false,
-                        CreatedOnUtc = DateTime.UtcNow
-                    });
-
-                    order.HasNewPaymentNotification = true;
-
+                    refundIds.Add(message.ObjectId);
+                    order.GenericAttributes.Set(AmazonPayProvider.SystemName + ".RefundIds", refundIds);
                     await _db.SaveChangesAsync();
                 }
+            }
+
+            // Add order note.
+            if ((orderUpdated || chargeback) && _settings.AddOrderNotes)
+            {
+                var faviconUrl = Services.WebHelper.GetStoreLocation() + "Modules/Smartstore.AmazonPay/favicon.png";
+                string note;
+
+                if (chargeback)
+                {
+                    note = T("Plugins.Payments.AmazonPay.IpnChargebackOrderNote",
+                        messageId.NaIfEmpty(),
+                        message.NotificationType, message.NotificationId,
+                        message.ObjectType, message.ObjectId,
+                        message.ChargePermissionId.NaIfEmpty());
+                }
+                else
+                {
+                    note = T("Plugins.Payments.AmazonPay.IpnOrderNote",
+                        messageId.NaIfEmpty(),
+                        message.NotificationType, message.NotificationId,
+                        message.ObjectType, message.ObjectId,
+                        message.ChargePermissionId.NaIfEmpty(),
+                        oldState, newState.NullEmpty() ?? "-");
+                }
+
+                order.OrderNotes.Add(new OrderNote
+                {
+                    Note = $"<img src='{faviconUrl}' class='align-text-top mr-1' />" + note,
+                    DisplayToCustomer = false,
+                    CreatedOnUtc = DateTime.UtcNow
+                });
+
+                order.HasNewPaymentNotification = true;
+
+                await _db.SaveChangesAsync();
             }
         }
 

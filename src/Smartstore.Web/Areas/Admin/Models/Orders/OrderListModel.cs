@@ -30,16 +30,17 @@
         [LocalizedDisplay("Order.PaymentMethod")]
         public string PaymentMethods { get; set; }
 
+        [LocalizedDisplay("*PaymentId")]
+        public string PaymentId { get; set; }
+
         [LocalizedDisplay("*OrderNumber")]
         public string OrderNumber { get; set; }
 
         [LocalizedDisplay("*GoDirectlyToNumber")]
         public string GoDirectlyToNumber { get; set; }
 
-
-        // ProductId is only filled in context of product details (orders)
-        // It is empty (null) in orders list
+        // ProductId is only filled in context of product details (orders).
+        // It is empty (null) in orders list.
         public int? ProductId { get; set; }
-
     }
 }

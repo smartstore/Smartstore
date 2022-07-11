@@ -6,10 +6,10 @@ namespace Smartstore.Core.Identity
 {
     public class UserValidator : PasswordValidator<Customer>, IUserValidator<Customer>
     {
-        private readonly SmartDbContext _db;
+        private readonly Lazy<SmartDbContext> _db;
         private readonly CustomerSettings _customerSettings;
 
-        public UserValidator(SmartDbContext db, CustomerSettings customerSettings, IdentityErrorDescriber errors = null)
+        public UserValidator(Lazy<SmartDbContext> db, CustomerSettings customerSettings, IdentityErrorDescriber errors = null)
             : base(errors)
         {
             _db = db;
@@ -24,7 +24,7 @@ namespace Smartstore.Core.Identity
             Guard.NotNull(manager, nameof(manager));
             Guard.NotNull(user, nameof(user));
 
-            var registeredRole = _db.CustomerRoles
+            var registeredRole = _db.Value.CustomerRoles
                 .AsNoTracking()
                 .Where(x => x.SystemName == SystemCustomerRoleNames.Registered)
                 .FirstOrDefault();

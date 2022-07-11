@@ -56,6 +56,11 @@
         public float? PageHeight { get; set; }
 
         /// <summary>
+        /// The depth of the document outline. Default: 1.
+        /// </summary>
+        public byte OutlineDepth { get; set; } = 1;
+
+        /// <summary>
         /// Custom global pdf tool arguments/options
         /// </summary>
         public string CustomArguments { get; set; }

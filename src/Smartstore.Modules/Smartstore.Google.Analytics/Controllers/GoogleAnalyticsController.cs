@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Security;
 using Smartstore.Google.Analytics.Models;
@@ -17,8 +16,8 @@ namespace Smartstore.Google.Analytics.Controllers
         {
             var model = MiniMapper.Map<GoogleAnalyticsSettings, ConfigurationModel>(settings);
 
-            model.WidgetZone = settings.WidgetZone;
-            PrepareConfigModel(settings.WidgetZone);
+            // If old script is used display hint to click on the 'Restore Scripts' button to get up-to-date scrpt snippets.
+            model.ScriptUpdateRecommended = settings.EcommerceScript.Contains("analytics.js");
 
             return View(model);
         }
@@ -34,6 +33,8 @@ namespace Smartstore.Google.Analytics.Controllers
             ModelState.Clear();
             MiniMapper.Map(model, settings);
 
+            NotifySuccess(T("Admin.Common.DataSuccessfullySaved"));
+
             return RedirectToAction(nameof(Configure));
         }
 
@@ -46,15 +47,6 @@ namespace Smartstore.Google.Analytics.Controllers
             settings.EcommerceDetailScript = AnalyticsScriptUtility.GetEcommerceDetailScript();
 
             return RedirectToAction(nameof(Configure));
-        }
-
-        private void PrepareConfigModel(string widgetZone)
-        {
-            ViewBag.AvailableZones = new List<SelectListItem>
-            {
-                new SelectListItem { Text = "<head> HTML tag", Value = "head", Selected = widgetZone == "head" },
-                new SelectListItem { Text = "Before <body> end HTML tag", Value = "end", Selected = widgetZone == "end" }
-            };
         }
     }
 }

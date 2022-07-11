@@ -111,6 +111,7 @@ namespace Smartstore.Web.Controllers
             }
 
             customer.ResetCheckoutData(storeId);
+            _checkoutStateAccessor.Abandon();
 
             // Validate checkout attributes.
             var warnings = new List<string>();

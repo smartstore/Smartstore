@@ -578,7 +578,7 @@ namespace Smartstore.Admin.Controllers
             model.IsTaskRunning = lastExecutionInfo?.IsRunning ?? false;
             model.IsTaskEnabled = profile.Task.Enabled;
             model.LogFileExists = logFile.Exists;
-            model.FolderName = dir.Name;
+            model.FolderName = PathUtility.MakeRelativePath(CommonHelper.ContentRoot.Root, dir.PhysicalPath);
             model.EntityTypeName = await Services.Localization.GetLocalizedEnumAsync(profile.EntityType);
             model.ExistingFiles = await _importProfileService.GetImportFilesAsync(profile);
             model.FileType = profile.FileType;

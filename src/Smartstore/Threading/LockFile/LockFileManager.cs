@@ -27,9 +27,9 @@ namespace Smartstore.Threading
             private set;
         }
 
-        public bool TryAcquireLock(string path, out ILockFile lockFile)
+        public bool TryAcquireLock(string path, out ILockHandle lockHandle)
         {
-            lockFile = null;
+            lockHandle = null;
 
             try
             {
@@ -38,7 +38,7 @@ namespace Smartstore.Threading
                     return false;
                 }
 
-                lockFile = new AsyncLockFile(_root, path, DateTime.UtcNow.ToString("u"), _asyncLock);
+                lockHandle = new AsyncLockFile(_root, path, DateTime.UtcNow.ToString("u"), _asyncLock);
                 return true;
             }
             catch
@@ -48,22 +48,22 @@ namespace Smartstore.Threading
             }
         }
 
-        public async Task<AsyncOut<ILockFile>> TryAcquireLockAsync(string path)
+        public async Task<AsyncOut<ILockHandle>> TryAcquireLockAsync(string path)
         {
             try
             {
                 if (await IsLockedInternalAsync(path))
                 {
-                    return AsyncOut<ILockFile>.Empty;
+                    return AsyncOut<ILockHandle>.Empty;
                 }
 
                 var lockFile = new AsyncLockFile(_root, path, DateTime.UtcNow.ToString("u"), _asyncLock);
-                return new AsyncOut<ILockFile>(true, lockFile);
+                return new AsyncOut<ILockHandle>(true, lockFile);
             }
             catch
             {
                 // An error occured while reading/creating the lock file
-                return AsyncOut<ILockFile>.Empty;
+                return AsyncOut<ILockHandle>.Empty;
             }
         }
 

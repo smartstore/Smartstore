@@ -23,25 +23,19 @@ namespace Smartstore.Core.Identity
 
     internal class UserStore : AsyncDbSaveHook<Customer>, IUserStore
     {
-        private readonly SmartDbContext _db;
+        private readonly Lazy<SmartDbContext> _db;
         private readonly Lazy<IGdprTool> _gdprTool;
-        
-        private readonly DbSet<Customer> _users;
-        private readonly DbSet<CustomerRole> _roles;
-        private readonly DbSet<CustomerRoleMapping> _roleMappings;
-        private readonly DbSet<ExternalAuthenticationRecord> _externalAuthentication;
 
-        public UserStore(SmartDbContext db, Lazy<IGdprTool> gdprTool, CustomerSettings customerSettings, IdentityErrorDescriber errorDescriber)
+        public UserStore(
+            Lazy<SmartDbContext> db, 
+            Lazy<IGdprTool> gdprTool, 
+            CustomerSettings customerSettings, 
+            IdentityErrorDescriber errorDescriber)
         {
             _db = db;
             _gdprTool = gdprTool;
             
             ErrorDescriber = errorDescriber;
-
-            _users = _db.Customers;
-            _roles = _db.CustomerRoles;
-            _roleMappings = _db.CustomerRoleMappings;
-            _externalAuthentication = _db.ExternalAuthenticationRecords;
         }
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
@@ -56,17 +50,18 @@ namespace Smartstore.Core.Identity
 
         protected Task SaveChanges(CancellationToken cancellationToken)
         {
-            return AutoSaveChanges ? _db.SaveChangesAsync(cancellationToken) : Task.CompletedTask;
+            return AutoSaveChanges ? _db.Value.SaveChangesAsync(cancellationToken) : Task.CompletedTask;
         }
 
         protected Task<CustomerRole> FindRoleAsync(string normalizedRoleName, bool activeOnly = true, CancellationToken cancellationToken = default)
         {
-            return _roles.SingleOrDefaultAsync(x => x.Name == normalizedRoleName && (!activeOnly || x.Active), cancellationToken);
+            return _db.Value.CustomerRoles
+                .SingleOrDefaultAsync(x => x.Name == normalizedRoleName && (!activeOnly || x.Active), cancellationToken);
         }
 
         protected Task<int?> FindRoleIdAsync(string normalizedRoleName, bool activeOnly = true, CancellationToken cancellationToken = default)
         {
-            return _roles
+            return _db.Value.CustomerRoles
                 .Where(x => x.Name == normalizedRoleName && (!activeOnly || x.Active))
                 .Select(x => (int?)x.Id)
                 .SingleOrDefaultAsync(cancellationToken);
@@ -74,7 +69,7 @@ namespace Smartstore.Core.Identity
 
         protected async Task<IEnumerable<CustomerRole>> GetOrLoadRolesAsync(Customer user, bool activeOnly = true)
         {
-            await _db.LoadCollectionAsync(user, x => x.CustomerRoleMappings, false, q => q.Include(n => n.CustomerRole));
+            await _db.Value.LoadCollectionAsync(user, x => x.CustomerRoleMappings, false, q => q.Include(n => n.CustomerRole));
 
             return user.CustomerRoleMappings
                 .Select(x => x.CustomerRole)
@@ -125,7 +120,7 @@ namespace Smartstore.Core.Identity
 
             if (dirty)
             {
-                await _db.SaveChangesAsync(cancelToken);
+                await _db.Value.SaveChangesAsync(cancelToken);
             }
         }
 
@@ -133,14 +128,14 @@ namespace Smartstore.Core.Identity
 
         #region IUserStore
 
-        public IQueryable<Customer> Users => _users;
+        public IQueryable<Customer> Users => _db.Value.Customers;
 
         public async Task<IdentityResult> CreateAsync(Customer user, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
             Guard.NotNull(user, nameof(user));
 
-            _users.Add(user);
+            _db.Value.Customers.Add(user);
             await SaveChanges(cancellationToken);
             return IdentityResult.Success;
         }
@@ -155,7 +150,7 @@ namespace Smartstore.Core.Identity
                 throw new SmartException($"System customer account ({user.SystemName}) cannot be deleted.");
             }
 
-            _db.Remove(user);
+            _db.Value.Remove(user);
 
             try
             {
@@ -173,7 +168,7 @@ namespace Smartstore.Core.Identity
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            return _users
+            return _db.Value.Customers
                 .IncludeCustomerRoles()
                 .FindByIdAsync(userId.Convert<int>(), cancellationToken: cancellationToken)
                 .AsTask();
@@ -183,7 +178,7 @@ namespace Smartstore.Core.Identity
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            return _users
+            return _db.Value.Customers
                 .IgnoreQueryFilters()
                 .IncludeCustomerRoles()
                 .FirstOrDefaultAsync(x => x.Username == normalizedUserName, cancellationToken);
@@ -230,7 +225,7 @@ namespace Smartstore.Core.Identity
 
             // TODO: (core) Add Customer.ConcurrencyStamp field (?)
             //user.ConcurrencyStamp = Guid.NewGuid().ToString();
-            _db.TryUpdate(user);
+            _db.Value.TryUpdate(user);
 
             try
             {
@@ -252,7 +247,7 @@ namespace Smartstore.Core.Identity
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            return _users
+            return _db.Value.Customers
                 .IgnoreQueryFilters()
                 .IncludeCustomerRoles()
                 .FirstOrDefaultAsync(x => x.Email == normalizedEmail, cancellationToken);
@@ -338,10 +333,10 @@ namespace Smartstore.Core.Identity
 
             if (roleId.HasValue)
             {
-                var mapping = await _roleMappings.FirstOrDefaultAsync(x => x.CustomerRoleId == roleId.Value && x.CustomerId == user.Id, cancellationToken);
+                var mapping = await _db.Value.CustomerRoleMappings.FirstOrDefaultAsync(x => x.CustomerRoleId == roleId.Value && x.CustomerId == user.Id, cancellationToken);
                 if (mapping != null)
                 {
-                    _roleMappings.Remove(mapping);
+                    _db.Value.CustomerRoleMappings.Remove(mapping);
                 }
             }
         }
@@ -364,7 +359,7 @@ namespace Smartstore.Core.Identity
 
             if (roleId.HasValue)
             {
-                return await _roleMappings.AnyAsync(x => x.CustomerRoleId == roleId.Value && x.CustomerId == user.Id, cancellationToken);
+                return await _db.Value.CustomerRoleMappings.AnyAsync(x => x.CustomerRoleId == roleId.Value && x.CustomerId == user.Id, cancellationToken);
             }
 
             return false;
@@ -379,7 +374,7 @@ namespace Smartstore.Core.Identity
 
             if (roleId.HasValue)
             {
-                return await _roleMappings
+                return await _db.Value.CustomerRoleMappings
                     .Where(x => x.CustomerRoleId == roleId.Value)
                     .Select(x => x.Customer)
                     .ToListAsync(cancellationToken);
@@ -418,7 +413,7 @@ namespace Smartstore.Core.Identity
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            _externalAuthentication.Add(new ExternalAuthenticationRecord 
+            _db.Value.ExternalAuthenticationRecords.Add(new ExternalAuthenticationRecord 
             { 
                 CustomerId = user.Id,
                 Email = user.Email,
@@ -434,7 +429,7 @@ namespace Smartstore.Core.Identity
             cancellationToken.ThrowIfCancellationRequested();
 
             var providerSystemName = TranslateProviderToSystemName(loginProvider);
-            var record = await _externalAuthentication
+            var record = await _db.Value.ExternalAuthenticationRecords
                 .Where(x => x.ExternalIdentifier == providerKey 
                     && x.CustomerId == user.Id 
                     && x.ProviderSystemName == providerSystemName)
@@ -442,7 +437,7 @@ namespace Smartstore.Core.Identity
             
             if (record != null)
             {
-                _externalAuthentication.Remove(record);
+                _db.Value.ExternalAuthenticationRecords.Remove(record);
                 await SaveChanges(cancellationToken);
             }
         }
@@ -451,7 +446,7 @@ namespace Smartstore.Core.Identity
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var records = await _db.ExternalAuthenticationRecords
+            var records = await _db.Value.ExternalAuthenticationRecords
                 .Where(x => x.CustomerId == user.Id)
                 .ToListAsync(cancellationToken);
 
@@ -473,13 +468,13 @@ namespace Smartstore.Core.Identity
             cancellationToken.ThrowIfCancellationRequested();
 
             var providerSystemName = TranslateProviderToSystemName(loginProvider);
-            var record = await _externalAuthentication
+            var record = await _db.Value.ExternalAuthenticationRecords
                 .FirstOrDefaultAsync(x => x.ExternalIdentifier == providerKey 
                     && x.ProviderSystemName == providerSystemName, cancellationToken);
             
             if (record != null)
             {
-                return await _users.FirstOrDefaultAsync(x => x.Id == record.CustomerId, cancellationToken);
+                return await _db.Value.Customers.FirstOrDefaultAsync(x => x.Id == record.CustomerId, cancellationToken);
             }
             
             return null;

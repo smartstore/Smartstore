@@ -128,6 +128,7 @@ namespace Smartstore.Engine
             // Add Async/Threading stuff
             services.AddAsyncRunner();
             services.AddLockFileManager();
+            services.AddDistributedSemaphoreLockProvider();
 
             services.AddSingleton<INativeLibraryManager, NativeLibraryManager>();
             services.AddSingleton(x => NullChronometer.Instance);

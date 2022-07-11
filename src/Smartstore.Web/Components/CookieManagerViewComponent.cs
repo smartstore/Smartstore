@@ -42,7 +42,7 @@ namespace Smartstore.Web.Components
 
             var cookieData = _cookieConsentManager.GetCookieData();
 
-            if (cookieData != null && !HttpContext.Request.IsAjaxRequest())
+            if (cookieData != null && !HttpContext.Request.IsAjax())
             {
                 return Empty();
             }

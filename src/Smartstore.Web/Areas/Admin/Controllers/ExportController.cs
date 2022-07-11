@@ -379,7 +379,7 @@ namespace Smartstore.Admin.Controllers
 
             NotifyInfo(T("Admin.System.ScheduleTasks.RunNow.Progress.DataExportTask"));
 
-            TempData.Add("ExecutedProfileId", profile.Id.ToString());
+            TempData["ExecutedProfileId"] = profile.Id.ToString();
 
             return RedirectToReferrer(null, () => RedirectToAction(nameof(List)));
         }

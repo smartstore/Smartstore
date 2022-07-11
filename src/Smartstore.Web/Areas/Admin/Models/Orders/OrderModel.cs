@@ -82,6 +82,7 @@ namespace Smartstore.Admin.Models.Orders
 
         [LocalizedDisplay("*OrderTotalRounding")]
         public decimal OrderTotalRounding { get; set; }
+        [LocalizedDisplay("*OrderTotalRounding")]
         public string OrderTotalRoundingString { get; set; }
 
         [LocalizedDisplay("*Edit.OrderTotal")]

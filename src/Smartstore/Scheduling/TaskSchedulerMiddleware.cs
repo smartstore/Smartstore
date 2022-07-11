@@ -9,12 +9,10 @@ namespace Smartstore.Scheduling
         internal const string RunAction = "run";
         internal const string NoopAction = "noop";
 
-        private readonly RequestDelegate _next;
         private readonly ITaskScheduler _scheduler;
 
         public TaskSchedulerMiddleware(RequestDelegate next, ITaskScheduler scheduler)
         {
-            _next = next;
             _scheduler = scheduler;
         }
 
@@ -24,7 +22,7 @@ namespace Smartstore.Scheduling
 
             if (action == PollAction || action == RunAction)
             {
-                if (!HttpMethods.IsPost(context.Request.Method))
+                if (!context.Request.IsPost())
                 {
                     context.Response.StatusCode = StatusCodes.Status405MethodNotAllowed;
                     return;
@@ -109,7 +107,6 @@ namespace Smartstore.Scheduling
 
         private static Task Noop(HttpContext context)
         {
-            var ua = context.Request.UserAgent();
             context.Response.StatusCode = StatusCodes.Status200OK;
             return context.Response.WriteAsync("noop");
         }

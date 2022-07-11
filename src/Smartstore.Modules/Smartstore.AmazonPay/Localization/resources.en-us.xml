@@ -108,7 +108,7 @@ Text suggestions:</div><ul>
 	</LocaleResource>
 	<LocaleResource Name="IpnOrderNote">
 		<Value>
-			<![CDATA[Amazon Pay data processed:<br />Message ID: {0}<br />Notification: {1} {2}<br />Transaction: {3} {4}<br />Charge Permission: {5}<br />State (old\new): {6} -&gt; {7}]]>
+			<![CDATA[Amazon Pay notification:<br />Message ID: {0}<br />Notification: {1} {2}<br />Transaction: {3} {4}<br />Charge Permission: {5}<br />State (old\new): {6} -&gt; {7}]]>
 		</Value>
 	</LocaleResource>
 	<LocaleResource Name="IpnChargebackOrderNote">

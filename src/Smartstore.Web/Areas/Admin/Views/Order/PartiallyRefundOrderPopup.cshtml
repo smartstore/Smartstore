@@ -3,11 +3,9 @@
 @{
     Layout = "_AdminPopupLayout";
     ViewBag.Title = T("Admin.Orders.Fields.PartialRefund").Value;
-
-    var primaryStoreCurrencyCode = (string)ViewBag.PrimaryStoreCurrencyCode;
 }
 
-<form asp-action="PartiallyRefundOrderPopup" asp-route-btnId="@ViewBag.BtnId" asp-route-formId="@ViewBag.FormId" asp-route-online="@ViewBag.Online">
+<form id="PartiallyRefundForm" asp-action="PartiallyRefundOrder" asp-route-id="@Model.Id" asp-route-online="@ViewBag.Online">
     <div class="section-header">
         <div class="title">
             @T("Admin.Orders.Fields.PartialRefund.OrderInfo", Model.Id)
@@ -22,8 +20,8 @@
                 <smart-label asp-for="AmountToRefund" />
             </div>
             <div class="adminData">
-                <editor asp-for="AmountToRefund" sm-postfix="@primaryStoreCurrencyCode" />
-                <div class="alert alert-info mt-3">
+                <editor asp-for="AmountToRefund" sm-postfix="@ViewBag.PrimaryStoreCurrencyCode" />
+                <div class="alert alert-info mb-1 mt-2">
                     @T("Admin.Orders.Fields.PartialRefund.AmountToRefund.Max", Model.MaxAmountToRefundString, string.Empty)
                 </div>
             </div>
@@ -32,7 +30,7 @@
             <div class="adminTitle">
             </div>
             <div class="adminData">
-                <button type="submit" id="partialrefundorder" name="partialrefundorder" value="@T("Admin.Orders.Fields.Refund")" class="btn btn-warning">
+                <button type="button" id="partialrefundorder" class="btn btn-warning">
                     <i class="fa fa-check"></i>
                     <span>@T("Admin.Orders.Fields.Refund")</span>
                 </button>
@@ -40,3 +38,22 @@
         </div>
     </div>
 </form>
+
+<script sm-target-zone="scripts" data-origin="partially-refund">
+    $(function () {
+        $('#partialrefundorder').on('click', function (e) {
+            e.preventDefault();
+
+            $('#PartiallyRefundForm').ajax({
+                buttonIcon: '#partialrefundorder',
+	            success: function (resp) {
+                    if (resp.success) {
+                        window.parent.document.getElementById('btnRefreshPage').click();
+                    }
+	            }
+	        });
+
+            return false;
+        });
+    });
+</script>

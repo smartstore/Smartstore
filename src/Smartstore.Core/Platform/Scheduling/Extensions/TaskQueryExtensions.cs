@@ -43,8 +43,8 @@ namespace Smartstore.Scheduling
         /// </summary>
         public static IQueryable<TaskExecutionInfo> ApplyCurrentMachineNameFilter(this IQueryable<TaskExecutionInfo> query)
         {
-            var appContext = EngineContext.Current.Application.Services.Resolve<IApplicationContext>();
-            return query.Where(x => x.MachineName == appContext.RuntimeInfo.MachineName);
+            var machineName = EngineContext.Current.Application.RuntimeInfo.MachineName;
+            return query.Where(x => x.MachineName == machineName);
         }
     }
 }

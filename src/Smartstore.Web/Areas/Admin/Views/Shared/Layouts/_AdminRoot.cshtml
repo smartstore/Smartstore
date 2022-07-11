@@ -15,11 +15,10 @@
     <title>@adminPageTitle</title>
     <meta charset="utf-8" />
     <meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
-    <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover, shrink-to-fit=no" />
     <meta name="HandheldFriendly" content="true">
-    <meta name="__rvt" content="@Html.GetAntiforgeryToken()" />
     <meta property="sm:root" content="@Url.Content("~/")" />
+    @await Component.InvokeAsync("AntiForgeryToken") 
 
     <partial name="ConditionalComments" />
     <partial name="_ClientRes" />

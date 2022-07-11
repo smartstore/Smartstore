@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc.Filters;
 using Smartstore.Core;
 using Smartstore.Core.Widgets;
+using Smartstore.DevTools.Components;
 using Smartstore.Engine;
 
 namespace Smartstore.DevTools.Filters
@@ -28,41 +29,22 @@ namespace Smartstore.DevTools.Filters
         public void OnResultExecuting(ResultExecutingContext filterContext)
         {
             if (!_profilerSettings.DisplayMachineName)
+            {
                 return;
+            }
 
-            var result = filterContext.Result;
+            if (!filterContext.HttpContext.Request.IsNonAjaxGet())
+            {
+                return;
+            }
 
             // should only run on a full view rendering result or HTML ContentResult
-            if (!result.IsHtmlViewResult())
-                return;
-
-            if (!_services.WorkContext.CurrentCustomer.IsAdmin() && !filterContext.HttpContext.Connection.IsLocal())
+            if (!filterContext.Result.IsHtmlViewResult())
             {
                 return;
             }
             
-            var css = @"<style>
-	            .devtools-machinename {
-		            position: fixed;
-		            right: 0;
-		            bottom: 0;
-		            z-index: 999999;
-		            background: #333;
-		            color: #fff;
-		            font-size: 0.9em;
-		            font-weight: 600;
-		            padding: 0.3em 1em;
-		            opacity: 0.92;
-		            border: 1px solid #fff;
-                    border-right-width: 0;
-                    border-bottom-width: 0;
-		            border-top-left-radius: 4px;
-	            }
-            </style>";
-
-            var html = $"<div class='devtools-machinename'>{_appContext.RuntimeInfo.EnvironmentIdentifier}</div>";
-
-            _widgetProvider.RegisterHtml("end", new HtmlString(css + html));
+            _widgetProvider.RegisterViewComponent<MachineNameViewComponent>("end");
         }
 
         public void OnResultExecuted(ResultExecutedContext filterContext)

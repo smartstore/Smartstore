@@ -72,7 +72,7 @@ namespace Smartstore.Core.Tests.Platform.Messaging
             
             var path1 = "~/Attachment.pdf";
             var path2 = CommonHelper.MapPath(path1, false);
-            Assert.IsTrue(await pdfStream.ToFileAsync(path2));
+            Assert.IsTrue(await pdfStream.CopyToFileAsync(path2));
             
             var attachBlob = new QueuedEmailAttachment
             {
