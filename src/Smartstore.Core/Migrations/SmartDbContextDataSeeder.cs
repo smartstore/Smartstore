@@ -65,6 +65,8 @@ namespace Smartstore.Core.Data.Migrations
                 "Zahlungs-ID",
                 "Search by the payment transaction ID (authorization or capturing)",
                 "Suche über die Zahlungstransaktions-ID (Autorisierung oder Buchung)");
+
+            builder.AddOrUpdate("Identity.AuthenticationCredentials", "Authentication credentials", "Zugangsdaten");
         }
     }
 }

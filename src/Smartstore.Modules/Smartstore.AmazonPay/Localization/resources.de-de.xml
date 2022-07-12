@@ -100,9 +100,9 @@ Textvorschläge:</div><ul>
 	<LocaleResource Name="MissingBillingAddress">
 		<Value>Die Amazon Rechnungsanschrift fehlt. Bitte hinterlegen Sie eine Rechnungsanschrift bei Amazon oder wählen Sie eine andere Zahlart.</Value>
 	</LocaleResource>
-	<LocaleResource Name="ConfigGroups">
-		<Value>Zugangsdaten;Datenaustausch;Layout;Verschiedenes</Value>
-	</LocaleResource>
+    <LocaleResource Name="Layout">
+        <Value>Layout</Value>
+    </LocaleResource>
 	<LocaleResource Name="CloseChargeReason">
 		<Value>Keine weiteren Buchungen erforderlich.</Value>
 	</LocaleResource>

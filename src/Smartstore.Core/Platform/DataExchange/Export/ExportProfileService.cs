@@ -57,7 +57,7 @@ namespace Smartstore.Core.DataExchange.Export
 
         protected override Task<HookResult> OnUpdatingAsync(ExportProfile entity, IHookedEntity entry, CancellationToken cancelToken)
         {
-            // Validation of 'FolderName' not necessary anymore. Contains only the name of the export folder (no more path information).
+            // INFO: validation of 'FolderName' not necessary anymore. Contains only the name of the export folder (no more path information).
             if (entity.FolderName.HasValue() && entity.FolderName[0] == '~')
             {
                 // Map legacy folder names. Examples:

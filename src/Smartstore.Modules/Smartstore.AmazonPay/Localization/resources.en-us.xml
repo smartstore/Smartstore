@@ -73,36 +73,36 @@ Text suggestions:</div><ul>
 	</LocaleResource>
 	<LocaleResource Name="RegisterNote">
 		<Value>
-			<![CDATA[Click <b>Register now</b> if you don't have an account yet. Amazon Pay will provide you with a set of new access data, which you can enter in the <b>Paste access data</b> dialog.]]>
+			<![CDATA[Click <b>Register now</b> if you don't have an account yet. Amazon Pay will provide you with a set of new authentication credentials, which you can enter in the <b>Paste authentication credentials</b> dialog.]]>
 		</Value>
 	</LocaleResource>
 	<LocaleResource Name="SaveAccessData">
-		<Value>Save access data</Value>
+		<Value>Save authentication credentials</Value>
 	</LocaleResource>
 	<LocaleResource Name="PasteAccessData">
-		<Value>Paste access data</Value>
+		<Value>Paste authentication credentials</Value>
 	</LocaleResource>
 	<LocaleResource Name="PasteAccessData.Hint">
-		<Value>Paste here your access data (merchant_id, public_key_id, store_id etc.)...</Value>
+		<Value>Paste here your authentication credentials (merchant_id, public_key_id, store_id etc.)...</Value>
 	</LocaleResource>
 	<LocaleResource Name="MissingAccessToken">
 		<Value>Missing token parameter for sign-in with Amazon Pay!</Value>
 	</LocaleResource>
 	<LocaleResource Name="SaveAccessDataSucceeded">
-		<Value>The access data has been saved successfully.</Value>
+		<Value>The authentication credentials has been saved successfully.</Value>
 	</LocaleResource>
 	<LocaleResource Name="MissingPayloadParameter">
 		<Value>The payload parameter is missing.</Value>
 	</LocaleResource>
 	<LocaleResource Name="EncryptionNotSupported">
-		<Value>Encryption of access data is not supported.</Value>
+		<Value>Encryption of authentication credentials is not supported.</Value>
 	</LocaleResource>
 	<LocaleResource Name="MissingBillingAddress">
 		<Value>Missing Amazon billing address of the customer. Please enter a billing address at Amazon or choose another payment method.</Value>
 	</LocaleResource>
-	<LocaleResource Name="ConfigGroups">
-		<Value>Access data;Data exchange;Layout;Miscellaneous</Value>
-	</LocaleResource>
+    <LocaleResource Name="Layout">
+        <Value>Layout</Value>
+    </LocaleResource>
 	<LocaleResource Name="CloseChargeReason">
 		<Value>No more charges required.</Value>
 	</LocaleResource>
