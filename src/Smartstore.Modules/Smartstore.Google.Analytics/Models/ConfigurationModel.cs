@@ -18,8 +18,6 @@
         [UIHint("TextArea"), AdditionalMetadata("rows", 8)]
         public string EcommerceDetailScript { get; set; }
 
-        public bool ScriptUpdateRecommended { get; set; }
-
         [LocalizedDisplay("*RenderCatalogScripts")]
         public bool RenderCatalogScripts { get; set; }
 
@@ -28,5 +26,7 @@
 
         [LocalizedDisplay("*MinifyScripts")]
         public bool MinifyScripts { get; set; }
+
+        public bool ScriptUpdateRecommended { get; set; }
     }
 }

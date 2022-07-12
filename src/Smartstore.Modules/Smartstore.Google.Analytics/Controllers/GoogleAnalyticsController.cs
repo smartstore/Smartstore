@@ -16,7 +16,7 @@ namespace Smartstore.Google.Analytics.Controllers
         {
             var model = MiniMapper.Map<GoogleAnalyticsSettings, ConfigurationModel>(settings);
 
-            // If old script is used display hint to click on the 'Restore Scripts' button to get up-to-date scrpt snippets.
+            // If old script is used display hint to click on the 'Restore Scripts' button to get up-to-date script snippets.
             model.ScriptUpdateRecommended = settings.EcommerceScript.Contains("analytics.js");
 
             return View(model);

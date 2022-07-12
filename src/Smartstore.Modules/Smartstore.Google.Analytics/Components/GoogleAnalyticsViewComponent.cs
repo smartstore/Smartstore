@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using Smartstore.Core.Identity;
 using Smartstore.Google.Analytics.Services;
 using Smartstore.Google.Analytics.Settings;
+using Smartstore.Http;
 using Smartstore.Web.Components;
 using Smartstore.Web.Models.Cart;
 using Smartstore.Web.Models.Catalog;
@@ -16,7 +17,6 @@ namespace Smartstore.Google.Analytics.Components
     // - Get rid of all .Replace("{
     // - Should we also consider offcanvas cart? May this would be zu viel des guten :-)
     // - Maybe pass another list id & list name to GetListScriptAsync(...)
-    // - Make sure none of the new code will be rendered when old (unmigrated) js-code is still used.
     public class GoogleAnalyticsViewComponent : SmartViewComponent
     {
         private static readonly JsMinifier Minifier = new();
@@ -45,17 +45,21 @@ namespace Smartstore.Google.Analytics.Components
 
             var globalScript = string.Empty;
             var specificScript = string.Empty;
+            var includeScriptFile = false;
 
             try
             {
                 var routeData = HttpContext.GetRouteData();
                 var controller = routeData.Values.GetControllerName();
                 var action = routeData.Values.GetActionName();
-                
-                var cookiesAllowed = _cookieConsentManager.IsCookieAllowed(CookieType.Analytics);
-                globalScript = _googleAnalyticsScriptHelper.GetTrackingScript(cookiesAllowed);
 
-                if (_settings.RenderCatalogScripts)
+                // None of the Google Tag Manager code should be rendered when old (unmigrated) tracking code is still used.
+                var isOldScript = _settings.EcommerceScript.Contains("analytics.js");
+
+                var cookiesAllowed = _cookieConsentManager.IsCookieAllowed(CookieType.Analytics);
+                globalScript += _googleAnalyticsScriptHelper.GetTrackingScript(cookiesAllowed);
+
+                if (_settings.RenderCatalogScripts && !isOldScript)
                 {
                     if (controller.EqualsNoCase("product") && action.EqualsNoCase("productdetails"))
                     {
@@ -88,11 +92,14 @@ namespace Smartstore.Google.Analytics.Components
                         // If there are no products in the list return just global script.
                         if (productList.Count > 0)
                         {
+                            includeScriptFile = true;
                             specificScript = await _googleAnalyticsScriptHelper.GetListScriptAsync(productList, action.ToLower(), catId);
                         }
                     }
                     else if (controller.EqualsNoCase("search") && action.EqualsNoCase("search"))
                     {
+                        includeScriptFile = true;
+
                         var searchModel = (SearchResultModel)model;
                         var productList = searchModel.TopProducts.Items;
 
@@ -100,10 +107,12 @@ namespace Smartstore.Google.Analytics.Components
                         specificScript += await _googleAnalyticsScriptHelper.GetListScriptAsync(productList, action.ToLower());
                     }
                 }
-                else if (_settings.RenderCheckoutScripts)
+                else if (_settings.RenderCheckoutScripts && !isOldScript)
                 {
                     if (controller.EqualsNoCase("shoppingcart") && action.EqualsNoCase("cart"))
                     {
+                        includeScriptFile = true;
+
                         // Cart page > view_cart + remove_from_cart 
                         specificScript = await _googleAnalyticsScriptHelper.GetCartScriptAsync((ShoppingCartModel)model);
                     }
@@ -124,12 +133,12 @@ namespace Smartstore.Google.Analytics.Components
                             // Confirm order page > add_payment_info
                             specificScript = await _googleAnalyticsScriptHelper.GetCheckoutScriptAsync(addPaymentInfo: true);
                         }
-                        else if (action.EqualsNoCase("completed"))
-                        {
-                            // Checkout completed page > purchase
-                            specificScript = await _googleAnalyticsScriptHelper.GetOrderCompletedScriptAsync();
-                        }
                     }
+                }
+                else if (controller.EqualsNoCase("checkout") && action.EqualsNoCase("completed"))
+                {
+                    // Checkout completed page > purchase
+                    specificScript = await _googleAnalyticsScriptHelper.GetOrderCompletedScriptAsync();
                 }
 
                 globalScript = globalScript.Replace("{ECOMMERCE}", specificScript);
@@ -143,7 +152,14 @@ namespace Smartstore.Google.Analytics.Components
             {
                 globalScript = Minifier.Minify(globalScript);
             }
-            
+
+            // Include script only when product lists or cart will be rendered
+            if (includeScriptFile)
+            {
+                var path = WebHelper.ToAbsolutePath("~/Modules/Smartstore.Google.Analytics/js/google-analytics.utils.js");
+                globalScript = $"<script src='{path}'></script>\n{globalScript}";
+            }
+
             return HtmlContent(globalScript);
         }
     }
