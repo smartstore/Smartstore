@@ -778,7 +778,7 @@ namespace Smartstore.Core.Installation
             var couponCodeDiscount = new Discount
             {
                 Name = "Sample discount with coupon code",
-                DiscountType = DiscountType.AssignedToSkus,
+                DiscountType = DiscountType.AssignedToOrderSubTotal,
                 DiscountLimitation = DiscountLimitationType.Unlimited,
                 UsePercentage = false,
                 DiscountAmount = 10,
