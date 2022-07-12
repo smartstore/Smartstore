@@ -1,5 +1,4 @@
-﻿using System.Text.RegularExpressions;
-using DouglasCrockford.JsMin;
+﻿using DouglasCrockford.JsMin;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
@@ -7,13 +6,17 @@ using Smartstore.Core.Identity;
 using Smartstore.Google.Analytics.Services;
 using Smartstore.Google.Analytics.Settings;
 using Smartstore.Web.Components;
+using Smartstore.Web.Models.Cart;
 using Smartstore.Web.Models.Catalog;
+using Smartstore.Web.Models.Search;
 
 namespace Smartstore.Google.Analytics.Components
 {
     // TODO: (mh) (core)
-    // - For select_item we might need an AJAX call on success we fire gtag("event", "select_item", {...
     // - Get rid of all .Replace("{
+    // - Should we also consider offcanvas cart? May this would be zu viel des guten :-)
+    // - Maybe pass another list id & list name to GetListScriptAsync(...)
+    // - Make sure none of the new code will be rendered when old (unmigrated) js-code is still used.
     public class GoogleAnalyticsViewComponent : SmartViewComponent
     {
         private static readonly JsMinifier Minifier = new();
@@ -40,76 +43,103 @@ namespace Smartstore.Google.Analytics.Components
                 return Empty();
             }
 
-            var cookiesAllowed = _cookieConsentManager.IsCookieAllowed(CookieType.Analytics);
-            var globalScript = _googleAnalyticsScriptHelper.GetTrackingScript(cookiesAllowed);
-            var routeData = HttpContext.GetRouteData();
+            var globalScript = string.Empty;
+            var specificScript = string.Empty;
 
             try
             {
+                var routeData = HttpContext.GetRouteData();
                 var controller = routeData.Values.GetControllerName();
                 var action = routeData.Values.GetActionName();
+                
+                var cookiesAllowed = _cookieConsentManager.IsCookieAllowed(CookieType.Analytics);
+                globalScript = _googleAnalyticsScriptHelper.GetTrackingScript(cookiesAllowed);
 
-                if (controller.EqualsNoCase("product") && action.EqualsNoCase("productdetails") && _settings.RenderCatalogScripts)
+                if (_settings.RenderCatalogScripts)
                 {
-                    // TODO: (mh) (core) Test product detail output.
-                    // Product details page
-                    var viewItemScript = await _googleAnalyticsScriptHelper.GetViewItemScriptAsync((ProductDetailsModel)model);
-                    globalScript = globalScript.Replace("{ECOMMERCE}", viewItemScript);
-                }
-                else if (controller.EqualsNoCase("catalog") && _settings.RenderCatalogScripts)
-                {
-                    // TODO: (mh) (core) Make plugin setting to define whether this should be rendered???
-                    var catId = 0;
-                    var productList = new List<ProductSummaryModel.SummaryItem>();
+                    if (controller.EqualsNoCase("product") && action.EqualsNoCase("productdetails"))
+                    {
+                        // Product details page > view_item
+                        specificScript = await _googleAnalyticsScriptHelper.GetViewItemScriptAsync((ProductDetailsModel)model);
+                    }
+                    else if (controller.EqualsNoCase("catalog"))
+                    {
+                        var catId = 0;
+                        var productList = new List<ProductSummaryModel.SummaryItem>();
 
-                    // Category, Manufacturer, RecentlyViewedProducts, RecentlyAddedProducts & CompareProducts pages
-                    if (action.EqualsNoCase("category"))
-                    {
-                        var categoryModel = (CategoryModel)model;
-                        productList = categoryModel.Products.Items;
-                        catId = categoryModel.Id;
-                    }
-                    else if (action.EqualsNoCase("manufacturer"))
-                    {
-                        productList = ((BrandModel)model).Products.Items;
-                    }
-                    else if (action.EqualsNoCase("recentlyviewedproducts") ||
-                             action.EqualsNoCase("recentlyaddedproducts") ||
-                             action.EqualsNoCase("compareproducts"))
-                    {
-                        productList = ((ProductSummaryModel)model).Items;
-                    }
+                        // Category, Manufacturer, RecentlyViewedProducts, RecentlyAddedProducts & CompareProducts pages
+                        if (action.EqualsNoCase("category"))
+                        {
+                            var categoryModel = (CategoryModel)model;
+                            productList = categoryModel.Products.Items;
+                            catId = categoryModel.Id;
+                        }
+                        else if (action.EqualsNoCase("manufacturer"))
+                        {
+                            productList = ((BrandModel)model).Products.Items;
+                        }
+                        else if (action.EqualsNoCase("recentlyviewedproducts") ||
+                                 action.EqualsNoCase("recentlyaddedproducts") ||
+                                 action.EqualsNoCase("compareproducts"))
+                        {
+                            productList = ((ProductSummaryModel)model).Items;
+                        }
 
-                    // If there are no products in the list return just global script.
-                    if (productList.Count > 0)
-                    {
-                        // TODO: (mh) (core) Maybe pass another list id & list name
-                        var itemsScript = await _googleAnalyticsScriptHelper.GetListScriptAsync(productList, action.ToLower(), catId);
-                        globalScript = globalScript.Replace("{ECOMMERCE}", itemsScript);
+                        // If there are no products in the list return just global script.
+                        if (productList.Count > 0)
+                        {
+                            specificScript = await _googleAnalyticsScriptHelper.GetListScriptAsync(productList, action.ToLower(), catId);
+                        }
                     }
-                    else
+                    else if (controller.EqualsNoCase("search") && action.EqualsNoCase("search"))
                     {
-                        globalScript = globalScript.Replace("{ECOMMERCE}", string.Empty);
+                        var searchModel = (SearchResultModel)model;
+                        var productList = searchModel.TopProducts.Items;
+
+                        specificScript = _googleAnalyticsScriptHelper.GetSearchTermScript(searchModel.Term);
+                        specificScript += await _googleAnalyticsScriptHelper.GetListScriptAsync(productList, action.ToLower());
                     }
                 }
-                else if (controller.EqualsNoCase("checkout") && action.EqualsNoCase("completed"))
+                else if (_settings.RenderCheckoutScripts)
                 {
-                    // Checkout completed
-                    var orderCompletedScript = await _googleAnalyticsScriptHelper.GetOrderCompletedScriptAsync();
-                    globalScript = globalScript.Replace("{ECOMMERCE}", orderCompletedScript);
+                    if (controller.EqualsNoCase("shoppingcart") && action.EqualsNoCase("cart"))
+                    {
+                        // Cart page > view_cart + remove_from_cart 
+                        specificScript = await _googleAnalyticsScriptHelper.GetCartScriptAsync((ShoppingCartModel)model);
+                    }
+                    else if (controller.EqualsNoCase("checkout"))
+                    {
+                        if (action.EqualsNoCase("billingaddress"))
+                        {
+                            // Select billing address > begin_checkout
+                            specificScript = await _googleAnalyticsScriptHelper.GetCheckoutScriptAsync();
+                        }
+                        else if (action.EqualsNoCase("paymentmethod"))
+                        {
+                            // Payment method page > add_shipping_info
+                            specificScript = await _googleAnalyticsScriptHelper.GetCheckoutScriptAsync(addShippingInfo: true);
+                        }
+                        else if (action.EqualsNoCase("confirm"))
+                        {
+                            // Confirm order page > add_payment_info
+                            specificScript = await _googleAnalyticsScriptHelper.GetCheckoutScriptAsync(addPaymentInfo: true);
+                        }
+                        else if (action.EqualsNoCase("completed"))
+                        {
+                            // Checkout completed page > purchase
+                            specificScript = await _googleAnalyticsScriptHelper.GetOrderCompletedScriptAsync();
+                        }
+                    }
                 }
-                else
-                {
-                    // Global
-                    globalScript = globalScript.Replace("{ECOMMERCE}", string.Empty);
-                }
+
+                globalScript = globalScript.Replace("{ECOMMERCE}", specificScript);
             }
             catch (Exception ex)
             {
                 Logger.Error(ex, "Error creating scripts for google ecommerce tracking");
             }
 
-            if (_settings.MinifyScripts)
+            if (_settings.MinifyScripts && globalScript.HasValue())
             {
                 globalScript = Minifier.Minify(globalScript);
             }

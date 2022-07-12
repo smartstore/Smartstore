@@ -20,8 +20,6 @@
 
         public bool ScriptUpdateRecommended { get; set; }
 
-
-        // TODO: (mh) (core) Resources
         [LocalizedDisplay("*RenderCatalogScripts")]
         public bool RenderCatalogScripts { get; set; }
 

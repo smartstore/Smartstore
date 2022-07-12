@@ -8,8 +8,6 @@ namespace Smartstore.Google.Analytics.Settings
         public string TrackingScript { get; set; } 
         public string EcommerceScript { get; set; }
         public string EcommerceDetailScript { get; set; }
-
-        // TODO: (mh) (core) Make sure none of the new code will be rendered when old (unmigrated) js-code is still used.
         public bool RenderCatalogScripts { get; set; } = false;
         public bool RenderCheckoutScripts { get; set; } = false;
         public bool MinifyScripts { get; set; } = true;
