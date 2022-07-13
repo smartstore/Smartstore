@@ -6,6 +6,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using Smartstore.Utilities;
+using System;
 
 namespace Smartstore
 {
@@ -426,11 +427,11 @@ namespace Smartstore
             if (buffer == null)
                 throw new ArgumentNullException(nameof(buffer));
 
-            using (var inStream = new MemoryStream(buffer))
             using (var compressedStream = new MemoryStream())
             using (var zipStream = new GZipStream(compressedStream, CompressionMode.Compress))
             {
-                inStream.CopyTo(zipStream);
+                zipStream.Write(buffer, 0, buffer.Length);
+                zipStream.Close();
                 return compressedStream.ToArray();
             }
         }
@@ -445,11 +446,11 @@ namespace Smartstore
             if (buffer == null)
                 throw new ArgumentNullException(nameof(buffer));
 
-            using (var inStream = new MemoryStream(buffer))
             using (var compressedStream = new MemoryStream())
             using (var zipStream = new GZipStream(compressedStream, CompressionMode.Compress))
             {
-                await inStream.CopyToAsync(zipStream);
+                await zipStream.WriteAsync(buffer);
+                zipStream.Close();
                 return compressedStream.ToArray();
             }
         }

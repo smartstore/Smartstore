@@ -16,7 +16,7 @@ namespace Smartstore.Core.DataExchange.Import
 {
     public class CustomerImporter : EntityImporterBase
     {
-        private const string CARGO_DATA_KEY = "CustomerImporter.CargoData";
+        const string CargoDataKey = "CustomerImporter.CargoData";
 
         private readonly CustomerSettings _customerSettings;
         private readonly TaxSettings _taxSettings;
@@ -44,8 +44,19 @@ namespace Smartstore.Core.DataExchange.Import
             _dateTimeSettings = dateTimeSettings;
         }
 
-        public static string[] SupportedKeyFields => new[] { "Id", "CustomerGuid", "Email", "Username" };
-        public static string[] DefaultKeyFields => new[] { "Email", "CustomerGuid" };
+        public static string[] SupportedKeyFields => new[]
+        {
+            nameof(Customer.Id),
+            nameof(Customer.CustomerGuid),
+            nameof(Customer.Email),
+            nameof(Customer.Username)
+        };
+        
+        public static string[] DefaultKeyFields => new[] 
+        { 
+            nameof(Customer.Email),
+            nameof(Customer.CustomerGuid)
+        };
 
         protected override async Task ProcessBatchAsync(ImportExecuteContext context, CancellationToken cancelToken = default)
         {
@@ -151,32 +162,32 @@ namespace Smartstore.Core.DataExchange.Import
             foreach (var row in batch)
             {
                 Customer customer = null;
-                var id = row.GetDataValue<int>("Id");
-                var email = row.GetDataValue<string>("Email");
-                var userName = row.GetDataValue<string>("Username");
+                var id = row.GetDataValue<int>(nameof(Customer.Id));
+                var email = row.GetDataValue<string>(nameof(Customer.Email));
+                var userName = row.GetDataValue<string>(nameof(Customer.Username));
 
                 foreach (var keyName in context.KeyFieldNames)
                 {
                     switch (keyName)
                     {
-                        case "Id":
+                        case nameof(Customer.Id):
                             customer = await _db.Customers.FindByIdAsync(id, true, context.CancelToken);
                             break;
-                        case "CustomerGuid":
-                            var customerGuid = row.GetDataValue<string>("CustomerGuid");
+                        case nameof(Customer.CustomerGuid):
+                            var customerGuid = row.GetDataValue<string>(nameof(Customer.CustomerGuid));
                             if (customerGuid.HasValue())
                             {
                                 var guid = new Guid(customerGuid);
                                 customer = await customerQuery.FirstOrDefaultAsync(x => x.CustomerGuid == guid, context.CancelToken);
                             }
                             break;
-                        case "Email":
+                        case nameof(Customer.Email):
                             if (email.HasValue())
                             {
                                 customer = await customerQuery.FirstOrDefaultAsync(x => x.Email == email, context.CancelToken);
                             }
                             break;
-                        case "Username":
+                        case nameof(Customer.Username):
                             if (userName.HasValue())
                             {
                                 customer = await customerQuery.FirstOrDefaultAsync(x => x.Username == userName, context.CancelToken);
@@ -209,7 +220,7 @@ namespace Smartstore.Core.DataExchange.Import
                     await _db.LoadCollectionAsync(customer, x => x.CustomerRoleMappings, false, q => q.Include(x => x.CustomerRole), context.CancelToken);
                 }
 
-                var affiliateId = row.GetDataValue<int>("AffiliateId");
+                var affiliateId = row.GetDataValue<int>(nameof(Customer.AffiliateId));
 
                 row.Initialize(customer, email ?? id.ToString());
 
@@ -235,7 +246,7 @@ namespace Smartstore.Core.DataExchange.Import
 
                 if (email.HasValue() && currentCustomer.Email.EqualsNoCase(email))
                 {
-                    context.Result.AddInfo("Security. Ignored password of current customer (who started this import).", row.RowInfo, "Password");
+                    context.Result.AddInfo("Security. Ignored password of current customer (who started this import).", row.RowInfo, nameof(Customer.Password));
                 }
                 else
                 {
@@ -269,9 +280,9 @@ namespace Smartstore.Core.DataExchange.Import
                 {
                     customerNumber = row.Entity.Id.ToString();
                 }
-                else if (_customerSettings.CustomerNumberMethod == CustomerNumberMethod.Enabled && !row.IsTransient && row.HasDataValue("CustomerNumber"))
+                else if (_customerSettings.CustomerNumberMethod == CustomerNumberMethod.Enabled && !row.IsTransient && row.HasDataValue(nameof(Customer.CustomerNumber)))
                 {
-                    customerNumber = row.GetDataValue<string>("CustomerNumber");
+                    customerNumber = row.GetDataValue<string>(nameof(Customer.CustomerNumber));
                 }
 
                 if (customerNumber.HasValue() || !cargo.CustomerNumbers.Contains(customerNumber))
@@ -466,20 +477,20 @@ namespace Smartstore.Core.DataExchange.Import
             var childRow = new ImportRow<Address>(row.Segmenter, row.DataRow, row.Position);
             childRow.Initialize(address, row.EntityDisplayName);
 
-            childRow.SetProperty(context.Result, fieldPrefix + "Salutation", x => x.Salutation);
-            childRow.SetProperty(context.Result, fieldPrefix + "Title", x => x.Title);
-            childRow.SetProperty(context.Result, fieldPrefix + "FirstName", x => x.FirstName);
-            childRow.SetProperty(context.Result, fieldPrefix + "LastName", x => x.LastName);
-            childRow.SetProperty(context.Result, fieldPrefix + "Email", x => x.Email);
-            childRow.SetProperty(context.Result, fieldPrefix + "Company", x => x.Company);
-            childRow.SetProperty(context.Result, fieldPrefix + "City", x => x.City);
-            childRow.SetProperty(context.Result, fieldPrefix + "Address1", x => x.Address1);
-            childRow.SetProperty(context.Result, fieldPrefix + "Address2", x => x.Address2);
-            childRow.SetProperty(context.Result, fieldPrefix + "ZipPostalCode", x => x.ZipPostalCode);
-            childRow.SetProperty(context.Result, fieldPrefix + "PhoneNumber", x => x.PhoneNumber);
-            childRow.SetProperty(context.Result, fieldPrefix + "FaxNumber", x => x.FaxNumber);
+            childRow.SetProperty(context.Result, fieldPrefix + nameof(Address.Salutation), x => x.Salutation);
+            childRow.SetProperty(context.Result, fieldPrefix + nameof(Address.Title), x => x.Title);
+            childRow.SetProperty(context.Result, fieldPrefix + nameof(Address.FirstName), x => x.FirstName);
+            childRow.SetProperty(context.Result, fieldPrefix + nameof(Address.LastName), x => x.LastName);
+            childRow.SetProperty(context.Result, fieldPrefix + nameof(Address.Email), x => x.Email);
+            childRow.SetProperty(context.Result, fieldPrefix + nameof(Address.Company), x => x.Company);
+            childRow.SetProperty(context.Result, fieldPrefix + nameof(Address.City), x => x.City);
+            childRow.SetProperty(context.Result, fieldPrefix + nameof(Address.Address1), x => x.Address1);
+            childRow.SetProperty(context.Result, fieldPrefix + nameof(Address.Address2), x => x.Address2);
+            childRow.SetProperty(context.Result, fieldPrefix + nameof(Address.ZipPostalCode), x => x.ZipPostalCode);
+            childRow.SetProperty(context.Result, fieldPrefix + nameof(Address.PhoneNumber), x => x.PhoneNumber);
+            childRow.SetProperty(context.Result, fieldPrefix + nameof(Address.FaxNumber), x => x.FaxNumber);
 
-            childRow.SetProperty(context.Result, fieldPrefix + "CountryId", x => x.CountryId);
+            childRow.SetProperty(context.Result, fieldPrefix + nameof(Address.CountryId), x => x.CountryId);
             if (childRow.Entity.CountryId == null)
             {
                 // Try with country code.
@@ -489,9 +500,9 @@ namespace Smartstore.Core.DataExchange.Import
             var countryId = childRow.Entity.CountryId;
             if (countryId.HasValue)
             {
-                if (row.HasDataValue(fieldPrefix + "StateProvinceId"))
+                if (row.HasDataValue(fieldPrefix + nameof(Address.StateProvinceId)))
                 {
-                    childRow.SetProperty(context.Result, fieldPrefix + "StateProvinceId", x => x.StateProvinceId);
+                    childRow.SetProperty(context.Result, fieldPrefix + nameof(Address.StateProvinceId), x => x.StateProvinceId);
                 }
                 else
                 {
@@ -588,7 +599,7 @@ namespace Smartstore.Core.DataExchange.Import
 
         private async Task<ImporterCargoData> GetCargoData(ImportExecuteContext context)
         {
-            if (context.CustomProperties.TryGetValue(CARGO_DATA_KEY, out object value))
+            if (context.CustomProperties.TryGetValue(CargoDataKey, out object value))
             {
                 return (ImporterCargoData)value;
             }
@@ -639,7 +650,7 @@ namespace Smartstore.Core.DataExchange.Import
                 StateProvinces = stateProvinces.ToDictionarySafe(x => new Tuple<int, string>(x.CountryId, x.Abbreviation), x => x.Id)
             };
 
-            context.CustomProperties[CARGO_DATA_KEY] = result;
+            context.CustomProperties[CargoDataKey] = result;
             return result;
         }
 

@@ -1,4 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore.Query;
+using Polly;
+using Polly.Retry;
 using Smartstore.Caching.Tasks;
 using Smartstore.Core.Catalog.Rules;
 using Smartstore.Core.Common.Services;
@@ -16,7 +18,6 @@ using Smartstore.Core.Messaging.Tasks;
 using Smartstore.Core.Seo;
 using Smartstore.Data;
 using Smartstore.Data.Hooks;
-using Smartstore.Utilities;
 
 namespace Smartstore.Scheduling
 {
@@ -48,6 +49,7 @@ namespace Smartstore.Scheduling
         private readonly IDateTimeHelper _dtHelper;
         private readonly Lazy<CommonSettings> _commonSettings;
         private SmartDbContext _db;
+        private AsyncRetryPolicy _retryPolicy;
 
         public DbTaskStore(
             IDbContextFactory<SmartDbContext> dbFactory, 
@@ -91,7 +93,19 @@ namespace Smartstore.Scheduling
 
         protected virtual Task<T> ExecuteWithRetry<T>(Func<Task<T>> action)
         {
-            return Retry.RunAsync(action, 3, TimeSpan.FromMilliseconds(100), RetryOnTransientException);
+            return GetRetryPolicy().ExecuteAsync(action);
+        }
+
+        private AsyncRetryPolicy GetRetryPolicy()
+        {
+            if (_retryPolicy == null)
+            {
+                _retryPolicy = Policy
+                    .Handle<Exception>(ex => Db.DataProvider.IsTransientException(ex))
+                    .WaitAndRetryAsync(3, attempt => TimeSpan.FromMilliseconds(100));
+            }
+
+            return _retryPolicy;
         }
 
         #region Task
@@ -344,15 +358,6 @@ namespace Smartstore.Scheduling
             }
 
             return null;
-        }
-
-        private void RetryOnTransientException(int attemp, Exception ex)
-        {
-            if (!Db.DataProvider.IsTransientException(ex))
-            {
-                // We only want to retry on transient/deadlock stuff.
-                throw ex;
-            }
         }
 
         #endregion

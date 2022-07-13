@@ -89,12 +89,12 @@ namespace Smartstore.Core.Platform.DataExchange.Export
                 GenericAttribute entity = genericAttribute.Entity;
 
                 _writer.WriteStartElement("GenericAttribute");
-                _writer.WriteElementString("Id", entity.Id.ToString());
-                _writer.WriteElementString("EntityId", entity.EntityId.ToString());
-                _writer.WriteElementString("KeyGroup", entity.KeyGroup);
-                _writer.WriteElementString("Key", entity.Key);
-                _writer.WriteElementString("Value", (string)genericAttribute.Value);
-                _writer.WriteElementString("StoreId", entity.StoreId.ToString());
+                _writer.WriteElementString(nameof(GenericAttribute.Id), entity.Id.ToString());
+                _writer.WriteElementString(nameof(GenericAttribute.EntityId), entity.EntityId.ToString());
+                _writer.WriteElementString(nameof(GenericAttribute.KeyGroup), entity.KeyGroup);
+                _writer.WriteElementString(nameof(GenericAttribute.Key), entity.Key);
+                _writer.WriteElementString(nameof(GenericAttribute.Value), (string)genericAttribute.Value);
+                _writer.WriteElementString(nameof(GenericAttribute.StoreId), entity.StoreId.ToString());
                 _writer.WriteEndElement();
             }
             _writer.WriteEndElement();
@@ -112,22 +112,22 @@ namespace Smartstore.Core.Platform.DataExchange.Export
                 _writer.WriteStartElement(node);
             }
 
-            _writer.WriteElementString("Id", entity.Id.ToString());
-            _writer.WriteElementString("Salutation", entity.Salutation);
-            _writer.WriteElementString("Title", entity.Title);
-            _writer.WriteElementString("FirstName", entity.FirstName);
-            _writer.WriteElementString("LastName", entity.LastName);
-            _writer.WriteElementString("Email", entity.Email);
-            _writer.WriteElementString("Company", entity.Company);
-            _writer.WriteElementString("CountryId", entity.CountryId.HasValue ? entity.CountryId.Value.ToString() : string.Empty);
-            _writer.WriteElementString("StateProvinceId", entity.StateProvinceId.HasValue ? entity.StateProvinceId.Value.ToString() : string.Empty);
-            _writer.WriteElementString("City", entity.City);
-            _writer.WriteElementString("Address1", entity.Address1);
-            _writer.WriteElementString("Address2", entity.Address2);
-            _writer.WriteElementString("ZipPostalCode", entity.ZipPostalCode);
-            _writer.WriteElementString("PhoneNumber", entity.PhoneNumber);
-            _writer.WriteElementString("FaxNumber", entity.FaxNumber);
-            _writer.WriteElementString("CreatedOnUtc", entity.CreatedOnUtc.ToString(_culture));
+            _writer.WriteElementString(nameof(Address.Id), entity.Id.ToString());
+            _writer.WriteElementString(nameof(Address.Salutation), entity.Salutation);
+            _writer.WriteElementString(nameof(Address.Title), entity.Title);
+            _writer.WriteElementString(nameof(Address.FirstName), entity.FirstName);
+            _writer.WriteElementString(nameof(Address.LastName), entity.LastName);
+            _writer.WriteElementString(nameof(Address.Email), entity.Email);
+            _writer.WriteElementString(nameof(Address.Company), entity.Company);
+            _writer.WriteElementString(nameof(Address.CountryId), entity.CountryId?.ToString() ?? string.Empty);
+            _writer.WriteElementString(nameof(Address.StateProvinceId), entity.StateProvinceId?.ToString() ?? string.Empty);
+            _writer.WriteElementString(nameof(Address.City), entity.City);
+            _writer.WriteElementString(nameof(Address.Address1), entity.Address1);
+            _writer.WriteElementString(nameof(Address.Address2), entity.Address2);
+            _writer.WriteElementString(nameof(Address.ZipPostalCode), entity.ZipPostalCode);
+            _writer.WriteElementString(nameof(Address.PhoneNumber), entity.PhoneNumber);
+            _writer.WriteElementString(nameof(Address.FaxNumber), entity.FaxNumber);
+            _writer.WriteElementString(nameof(Address.CreatedOnUtc), entity.CreatedOnUtc.ToString(_culture));
 
             if (address.Country != null)
             {
@@ -135,17 +135,17 @@ namespace Smartstore.Core.Platform.DataExchange.Export
                 Country entityCountry = address.Country.Entity;
 
                 _writer.WriteStartElement("Country");
-                _writer.WriteElementString("Id", entityCountry.Id.ToString());
-                _writer.WriteElementString("Name", (string)country.Name);
-                _writer.WriteElementString("AllowsBilling", entityCountry.AllowsBilling.ToString());
-                _writer.WriteElementString("AllowsShipping", entityCountry.AllowsShipping.ToString());
-                _writer.WriteElementString("TwoLetterIsoCode", entityCountry.TwoLetterIsoCode);
-                _writer.WriteElementString("ThreeLetterIsoCode", entityCountry.ThreeLetterIsoCode);
-                _writer.WriteElementString("NumericIsoCode", entityCountry.NumericIsoCode.ToString());
-                _writer.WriteElementString("SubjectToVat", entityCountry.SubjectToVat.ToString());
-                _writer.WriteElementString("Published", entityCountry.Published.ToString());
-                _writer.WriteElementString("DisplayOrder", entityCountry.DisplayOrder.ToString());
-                _writer.WriteElementString("LimitedToStores", entityCountry.LimitedToStores.ToString());
+                _writer.WriteElementString(nameof(Country.Id), entityCountry.Id.ToString());
+                _writer.WriteElementString(nameof(Country.Name), (string)country.Name);
+                _writer.WriteElementString(nameof(Country.AllowsBilling), entityCountry.AllowsBilling.ToString());
+                _writer.WriteElementString(nameof(Country.AllowsShipping), entityCountry.AllowsShipping.ToString());
+                _writer.WriteElementString(nameof(Country.TwoLetterIsoCode), entityCountry.TwoLetterIsoCode);
+                _writer.WriteElementString(nameof(Country.ThreeLetterIsoCode), entityCountry.ThreeLetterIsoCode);
+                _writer.WriteElementString(nameof(Country.NumericIsoCode), entityCountry.NumericIsoCode.ToString());
+                _writer.WriteElementString(nameof(Country.SubjectToVat), entityCountry.SubjectToVat.ToString());
+                _writer.WriteElementString(nameof(Country.Published), entityCountry.Published.ToString());
+                _writer.WriteElementString(nameof(Country.DisplayOrder), entityCountry.DisplayOrder.ToString());
+                _writer.WriteElementString(nameof(Country.LimitedToStores), entityCountry.LimitedToStores.ToString());
 
                 WriteLocalized(country);
                 _writer.WriteEndElement();
@@ -157,12 +157,12 @@ namespace Smartstore.Core.Platform.DataExchange.Export
                 StateProvince entityStateProvince = address.StateProvince.Entity;
 
                 _writer.WriteStartElement("StateProvince");
-                _writer.WriteElementString("Id", entityStateProvince.Id.ToString());
-                _writer.WriteElementString("CountryId", entityStateProvince.CountryId.ToString());
-                _writer.WriteElementString("Name", (string)stateProvince.Name);
-                _writer.WriteElementString("Abbreviation", (string)stateProvince.Abbreviation);
-                _writer.WriteElementString("Published", entityStateProvince.Published.ToString());
-                _writer.WriteElementString("DisplayOrder", entityStateProvince.DisplayOrder.ToString());
+                _writer.WriteElementString(nameof(StateProvince.Id), entityStateProvince.Id.ToString());
+                _writer.WriteElementString(nameof(StateProvince.CountryId), entityStateProvince.CountryId.ToString());
+                _writer.WriteElementString(nameof(StateProvince.Name), (string)stateProvince.Name);
+                _writer.WriteElementString(nameof(StateProvince.Abbreviation), (string)stateProvince.Abbreviation);
+                _writer.WriteElementString(nameof(StateProvince.Published), entityStateProvince.Published.ToString());
+                _writer.WriteElementString(nameof(StateProvince.DisplayOrder), entityStateProvince.DisplayOrder.ToString());
 
                 WriteLocalized(stateProvince);
                 _writer.WriteEndElement();
@@ -186,23 +186,23 @@ namespace Smartstore.Core.Platform.DataExchange.Export
                 _writer.WriteStartElement(node);
             }
 
-            _writer.WriteElementString("Id", entity.Id.ToString());
-            _writer.WriteElementString("Name", (string)currency.Name);
-            _writer.WriteElementString("CurrencyCode", entity.CurrencyCode);
-            _writer.WriteElementString("Rate", entity.Rate.ToString(_culture));
-            _writer.WriteElementString("DisplayLocale", entity.DisplayLocale);
-            _writer.WriteElementString("CustomFormatting", entity.CustomFormatting);
-            _writer.WriteElementString("LimitedToStores", entity.LimitedToStores.ToString());
-            _writer.WriteElementString("Published", entity.Published.ToString());
-            _writer.WriteElementString("DisplayOrder", entity.DisplayOrder.ToString());
-            _writer.WriteElementString("CreatedOnUtc", entity.CreatedOnUtc.ToString(_culture));
-            _writer.WriteElementString("UpdatedOnUtc", entity.UpdatedOnUtc.ToString(_culture));
-            _writer.WriteElementString("DomainEndings", entity.DomainEndings);
-            _writer.WriteElementString("RoundOrderItemsEnabled", entity.RoundOrderItemsEnabled.ToString());
-            _writer.WriteElementString("RoundNumDecimals", entity.RoundNumDecimals.ToString());
-            _writer.WriteElementString("RoundOrderTotalEnabled", entity.RoundOrderTotalEnabled.ToString());
-            _writer.WriteElementString("RoundOrderTotalDenominator", entity.RoundOrderTotalDenominator.ToString(_culture));
-            _writer.WriteElementString("RoundOrderTotalRule", ((int)entity.RoundOrderTotalRule).ToString());
+            _writer.WriteElementString(nameof(Currency.Id), entity.Id.ToString());
+            _writer.WriteElementString(nameof(Currency.Name), (string)currency.Name);
+            _writer.WriteElementString(nameof(Currency.CurrencyCode), entity.CurrencyCode);
+            _writer.WriteElementString(nameof(Currency.Rate), entity.Rate.ToString(_culture));
+            _writer.WriteElementString(nameof(Currency.DisplayLocale), entity.DisplayLocale);
+            _writer.WriteElementString(nameof(Currency.CustomFormatting), entity.CustomFormatting);
+            _writer.WriteElementString(nameof(Currency.LimitedToStores), entity.LimitedToStores.ToString());
+            _writer.WriteElementString(nameof(Currency.Published), entity.Published.ToString());
+            _writer.WriteElementString(nameof(Currency.DisplayOrder), entity.DisplayOrder.ToString());
+            _writer.WriteElementString(nameof(Currency.CreatedOnUtc), entity.CreatedOnUtc.ToString(_culture));
+            _writer.WriteElementString(nameof(Currency.UpdatedOnUtc), entity.UpdatedOnUtc.ToString(_culture));
+            _writer.WriteElementString(nameof(Currency.DomainEndings), entity.DomainEndings);
+            _writer.WriteElementString(nameof(Currency.RoundOrderItemsEnabled), entity.RoundOrderItemsEnabled.ToString());
+            _writer.WriteElementString(nameof(Currency.RoundNumDecimals), entity.RoundNumDecimals.ToString());
+            _writer.WriteElementString(nameof(Currency.RoundOrderTotalEnabled), entity.RoundOrderTotalEnabled.ToString());
+            _writer.WriteElementString(nameof(Currency.RoundOrderTotalDenominator), entity.RoundOrderTotalDenominator.ToString(_culture));
+            _writer.WriteElementString(nameof(Currency.RoundOrderTotalRule), ((int)entity.RoundOrderTotalRule).ToString());
 
             WriteLocalized(currency);
 
@@ -224,17 +224,17 @@ namespace Smartstore.Core.Platform.DataExchange.Export
                 _writer.WriteStartElement(node);
             }
 
-            _writer.WriteElementString("Id", entity.Id.ToString());
-            _writer.WriteElementString("Name", entity.Name);
-            _writer.WriteElementString("AllowsBilling", entity.AllowsBilling.ToString());
-            _writer.WriteElementString("AllowsShipping", entity.AllowsShipping.ToString());
-            _writer.WriteElementString("TwoLetterIsoCode", entity.TwoLetterIsoCode);
-            _writer.WriteElementString("ThreeLetterIsoCode", entity.ThreeLetterIsoCode);
-            _writer.WriteElementString("NumericIsoCode", entity.NumericIsoCode.ToString());
-            _writer.WriteElementString("SubjectToVat", entity.SubjectToVat.ToString());
-            _writer.WriteElementString("Published", entity.Published.ToString());
-            _writer.WriteElementString("DisplayOrder", entity.DisplayOrder.ToString());
-            _writer.WriteElementString("LimitedToStores", entity.LimitedToStores.ToString());
+            _writer.WriteElementString(nameof(Country.Id), entity.Id.ToString());
+            _writer.WriteElementString(nameof(Country.Name), entity.Name);
+            _writer.WriteElementString(nameof(Country.AllowsBilling), entity.AllowsBilling.ToString());
+            _writer.WriteElementString(nameof(Country.AllowsShipping), entity.AllowsShipping.ToString());
+            _writer.WriteElementString(nameof(Country.TwoLetterIsoCode), entity.TwoLetterIsoCode);
+            _writer.WriteElementString(nameof(Country.ThreeLetterIsoCode), entity.ThreeLetterIsoCode);
+            _writer.WriteElementString(nameof(Country.NumericIsoCode), entity.NumericIsoCode.ToString());
+            _writer.WriteElementString(nameof(Country.SubjectToVat), entity.SubjectToVat.ToString());
+            _writer.WriteElementString(nameof(Country.Published), entity.Published.ToString());
+            _writer.WriteElementString(nameof(Country.DisplayOrder), entity.DisplayOrder.ToString());
+            _writer.WriteElementString(nameof(Country.LimitedToStores), entity.LimitedToStores.ToString());
 
             WriteLocalized(country);
 
@@ -259,13 +259,13 @@ namespace Smartstore.Core.Platform.DataExchange.Export
                 RewardPointsHistory entity = rewardPoint.Entity;
 
                 _writer.WriteStartElement("RewardPointsHistory");
-                _writer.WriteElementString("Id", entity.ToString());
-                _writer.WriteElementString("CustomerId", entity.ToString());
-                _writer.WriteElementString("Points", entity.Points.ToString());
-                _writer.WriteElementString("PointsBalance", entity.PointsBalance.ToString());
-                _writer.WriteElementString("UsedAmount", entity.UsedAmount.ToString(_culture));
-                _writer.WriteElementString("Message", (string)rewardPoint.Message);
-                _writer.WriteElementString("CreatedOnUtc", entity.CreatedOnUtc.ToString(_culture));
+                _writer.WriteElementString(nameof(RewardPointsHistory.Id), entity.ToString());
+                _writer.WriteElementString(nameof(RewardPointsHistory.CustomerId), entity.ToString());
+                _writer.WriteElementString(nameof(RewardPointsHistory.Points), entity.Points.ToString());
+                _writer.WriteElementString(nameof(RewardPointsHistory.PointsBalance), entity.PointsBalance.ToString());
+                _writer.WriteElementString(nameof(RewardPointsHistory.UsedAmount), entity.UsedAmount.ToString(_culture));
+                _writer.WriteElementString(nameof(RewardPointsHistory.Message), (string)rewardPoint.Message);
+                _writer.WriteElementString(nameof(RewardPointsHistory.CreatedOnUtc), entity.CreatedOnUtc.ToString(_culture));
                 _writer.WriteEndElement();
             }
 
@@ -287,14 +287,14 @@ namespace Smartstore.Core.Platform.DataExchange.Export
                 _writer.WriteStartElement(node);
             }
 
-            _writer.WriteElementString("Id", entity.Id.ToString());
-            _writer.WriteElementString("Name", (string)deliveryTime.Name);
-            _writer.WriteElementString("DisplayLocale", entity.DisplayLocale);
-            _writer.WriteElementString("ColorHexValue", entity.ColorHexValue);
-            _writer.WriteElementString("DisplayOrder", entity.DisplayOrder.ToString());
-            _writer.WriteElementString("IsDefault", entity.IsDefault.ToString());
-            _writer.WriteElementString("MinDays", entity.MinDays.HasValue ? entity.MinDays.Value.ToString() : string.Empty);
-            _writer.WriteElementString("MaxDays", entity.MaxDays.HasValue ? entity.MaxDays.Value.ToString() : string.Empty);
+            _writer.WriteElementString(nameof(DeliveryTime.Id), entity.Id.ToString());
+            _writer.WriteElementString(nameof(DeliveryTime.Name), (string)deliveryTime.Name);
+            _writer.WriteElementString(nameof(DeliveryTime.DisplayLocale), entity.DisplayLocale);
+            _writer.WriteElementString(nameof(DeliveryTime.ColorHexValue), entity.ColorHexValue);
+            _writer.WriteElementString(nameof(DeliveryTime.DisplayOrder), entity.DisplayOrder.ToString());
+            _writer.WriteElementString(nameof(DeliveryTime.IsDefault), entity.IsDefault.ToString());
+            _writer.WriteElementString(nameof(DeliveryTime.MinDays), entity.MinDays?.ToString() ?? string.Empty);
+            _writer.WriteElementString(nameof(DeliveryTime.MaxDays), entity.MaxDays?.ToString() ?? string.Empty);
 
             WriteLocalized(deliveryTime);
 
@@ -316,13 +316,13 @@ namespace Smartstore.Core.Platform.DataExchange.Export
                 _writer.WriteStartElement(node);
             }
 
-            _writer.WriteElementString("Id", entity.Id.ToString());
-            _writer.WriteElementString("Name", (string)quantityUnit.Name);
-            _writer.WriteElementString("NamePlural", (string)quantityUnit.NamePlural);
-            _writer.WriteElementString("Description", (string)quantityUnit.Description);
-            _writer.WriteElementString("DisplayLocale", entity.DisplayLocale);
-            _writer.WriteElementString("DisplayOrder", entity.DisplayOrder.ToString());
-            _writer.WriteElementString("IsDefault", entity.IsDefault.ToString());
+            _writer.WriteElementString(nameof(QuantityUnit.Id), entity.Id.ToString());
+            _writer.WriteElementString(nameof(QuantityUnit.Name), (string)quantityUnit.Name);
+            _writer.WriteElementString(nameof(QuantityUnit.NamePlural), (string)quantityUnit.NamePlural);
+            _writer.WriteElementString(nameof(QuantityUnit.Description), (string)quantityUnit.Description);
+            _writer.WriteElementString(nameof(QuantityUnit.DisplayLocale), entity.DisplayLocale);
+            _writer.WriteElementString(nameof(QuantityUnit.DisplayOrder), entity.DisplayOrder.ToString());
+            _writer.WriteElementString(nameof(QuantityUnit.IsDefault), entity.IsDefault.ToString());
 
             WriteLocalized(quantityUnit);
 
@@ -332,28 +332,28 @@ namespace Smartstore.Core.Platform.DataExchange.Export
             }
         }
 
-        public void WritePicture(dynamic picture, string node)
+        public void WriteMediaFile(dynamic file, string node)
         {
-            if (picture == null)
+            if (file == null)
                 return;
 
-            MediaFile entity = picture.Entity;
+            MediaFile entity = file.Entity;
 
             if (node.HasValue())
             {
                 _writer.WriteStartElement(node);
             }
 
-            var seoName = (string)picture.Name;
+            var seoName = (string)file.Name;
             seoName = Path.GetFileNameWithoutExtension(seoName.EmptyNull());
 
-            _writer.WriteElementString("Id", entity.Id.ToString());
+            _writer.WriteElementString(nameof(MediaFile.Id), entity.Id.ToString());
             _writer.WriteElementString("SeoFilename", seoName);
-            _writer.WriteElementString("MimeType", (string)picture.MimeType);
-            _writer.WriteElementString("ThumbImageUrl", (string)picture._ThumbImageUrl);
-            _writer.WriteElementString("ImageUrl", (string)picture._ImageUrl);
-            _writer.WriteElementString("FullSizeImageUrl", (string)picture._FullSizeImageUrl);
-            _writer.WriteElementString("FileName", (string)picture._FileName);
+            _writer.WriteElementString(nameof(MediaFile.MimeType), (string)file.MimeType);
+            _writer.WriteElementString("ThumbImageUrl", (string)file._ThumbImageUrl);
+            _writer.WriteElementString("ImageUrl", (string)file._ImageUrl);
+            _writer.WriteElementString("FullSizeImageUrl", (string)file._FullSizeImageUrl);
+            _writer.WriteElementString("FileName", (string)file._FileName);
 
             if (node.HasValue())
             {
@@ -373,38 +373,38 @@ namespace Smartstore.Core.Platform.DataExchange.Export
                 _writer.WriteStartElement(node);
             }
 
-            _writer.WriteElementString("Id", entity.Id.ToString());
+            _writer.WriteElementString(nameof(Category.Id), entity.Id.ToString());
 
             if (!Exclude.HasFlag(ExportXmlExclude.Category))
             {
-                _writer.WriteElementString("Name", (string)category.Name);
-                _writer.WriteElementString("FullName", (string)category.FullName);
-                _writer.WriteElementString("Description", ((string)category.Description).RemoveInvalidXmlChars());
-                _writer.WriteElementString("BottomDescription", ((string)category.BottomDescription).RemoveInvalidXmlChars());
-                _writer.WriteElementString("CategoryTemplateId", entity.CategoryTemplateId.ToString());
+                _writer.WriteElementString(nameof(Category.Name), (string)category.Name);
+                _writer.WriteElementString(nameof(Category.FullName), (string)category.FullName);
+                _writer.WriteElementString(nameof(Category.Description), ((string)category.Description).RemoveInvalidXmlChars());
+                _writer.WriteElementString(nameof(Category.BottomDescription), ((string)category.BottomDescription).RemoveInvalidXmlChars());
+                _writer.WriteElementString(nameof(Category.CategoryTemplateId), entity.CategoryTemplateId.ToString());
                 _writer.WriteElementString("CategoryTemplateViewPath", (string)category._CategoryTemplateViewPath);
-                _writer.WriteElementString("MetaKeywords", (string)category.MetaKeywords);
-                _writer.WriteElementString("MetaDescription", (string)category.MetaDescription);
-                _writer.WriteElementString("MetaTitle", (string)category.MetaTitle);
+                _writer.WriteElementString(nameof(Category.MetaKeywords), (string)category.MetaKeywords);
+                _writer.WriteElementString(nameof(Category.MetaDescription), (string)category.MetaDescription);
+                _writer.WriteElementString(nameof(Category.MetaTitle), (string)category.MetaTitle);
                 _writer.WriteElementString("SeName", (string)category.SeName);
-                _writer.WriteElementString("ParentCategoryId", entity.ParentCategoryId.ToString());
-                _writer.WriteElementString("PictureId", entity.MediaFileId.ToString());
-                _writer.WriteElementString("PageSize", entity.PageSize.ToString());
-                _writer.WriteElementString("AllowCustomersToSelectPageSize", entity.AllowCustomersToSelectPageSize.ToString());
-                _writer.WriteElementString("PageSizeOptions", entity.PageSizeOptions);
-                _writer.WriteElementString("ShowOnHomePage", entity.ShowOnHomePage.ToString());
-                _writer.WriteElementString("HasDiscountsApplied", entity.HasDiscountsApplied.ToString());
-                _writer.WriteElementString("Published", entity.Published.ToString());
-                _writer.WriteElementString("Deleted", entity.Deleted.ToString());
-                _writer.WriteElementString("DisplayOrder", entity.DisplayOrder.ToString());
-                _writer.WriteElementString("CreatedOnUtc", entity.CreatedOnUtc.ToString(_culture));
-                _writer.WriteElementString("UpdatedOnUtc", entity.UpdatedOnUtc.ToString(_culture));
-                _writer.WriteElementString("SubjectToAcl", entity.SubjectToAcl.ToString());
-                _writer.WriteElementString("LimitedToStores", entity.LimitedToStores.ToString());
-                _writer.WriteElementString("Alias", (string)category.Alias);
-                _writer.WriteElementString("DefaultViewMode", entity.DefaultViewMode);
+                _writer.WriteElementString(nameof(Category.ParentCategoryId), entity.ParentCategoryId.ToString());
+                _writer.WriteElementString(nameof(Category.MediaFileId), entity.MediaFileId.ToString());
+                _writer.WriteElementString(nameof(Category.PageSize), entity.PageSize.ToString());
+                _writer.WriteElementString(nameof(Category.AllowCustomersToSelectPageSize), entity.AllowCustomersToSelectPageSize.ToString());
+                _writer.WriteElementString(nameof(Category.PageSizeOptions), entity.PageSizeOptions);
+                _writer.WriteElementString(nameof(Category.ShowOnHomePage), entity.ShowOnHomePage.ToString());
+                _writer.WriteElementString(nameof(Category.HasDiscountsApplied), entity.HasDiscountsApplied.ToString());
+                _writer.WriteElementString(nameof(Category.Published), entity.Published.ToString());
+                _writer.WriteElementString(nameof(Category.Deleted), entity.Deleted.ToString());
+                _writer.WriteElementString(nameof(Category.DisplayOrder), entity.DisplayOrder.ToString());
+                _writer.WriteElementString(nameof(Category.CreatedOnUtc), entity.CreatedOnUtc.ToString(_culture));
+                _writer.WriteElementString(nameof(Category.UpdatedOnUtc), entity.UpdatedOnUtc.ToString(_culture));
+                _writer.WriteElementString(nameof(Category.SubjectToAcl), entity.SubjectToAcl.ToString());
+                _writer.WriteElementString(nameof(Category.LimitedToStores), entity.LimitedToStores.ToString());
+                _writer.WriteElementString(nameof(Category.Alias), (string)category.Alias);
+                _writer.WriteElementString(nameof(Category.DefaultViewMode), entity.DefaultViewMode);
 
-                WritePicture(category.Picture, "Picture");
+                WriteMediaFile(category.Picture, "Picture");
                 WriteLocalized(category);
             }
 
@@ -426,29 +426,29 @@ namespace Smartstore.Core.Platform.DataExchange.Export
                 _writer.WriteStartElement(node);
             }
 
-            _writer.WriteElementString("Id", entity.Id.ToString());
-            _writer.WriteElementString("Name", (string)manufacturer.Name);
+            _writer.WriteElementString(nameof(Manufacturer.Id), entity.Id.ToString());
+            _writer.WriteElementString(nameof(Manufacturer.Name), (string)manufacturer.Name);
             _writer.WriteElementString("SeName", (string)manufacturer.SeName);
-            _writer.WriteElementString("Description", ((string)manufacturer.Description).RemoveInvalidXmlChars());
-            _writer.WriteElementString("BottomDescription", ((string)manufacturer.BottomDescription).RemoveInvalidXmlChars());
-            _writer.WriteElementString("ManufacturerTemplateId", entity.ManufacturerTemplateId.ToString());
-            _writer.WriteElementString("MetaKeywords", (string)manufacturer.MetaKeywords);
-            _writer.WriteElementString("MetaDescription", (string)manufacturer.MetaDescription);
-            _writer.WriteElementString("MetaTitle", (string)manufacturer.MetaTitle);
-            _writer.WriteElementString("PictureId", entity.MediaFileId.ToString());
-            _writer.WriteElementString("PageSize", entity.PageSize.ToString());
-            _writer.WriteElementString("AllowCustomersToSelectPageSize", entity.AllowCustomersToSelectPageSize.ToString());
-            _writer.WriteElementString("PageSizeOptions", entity.PageSizeOptions);
-            _writer.WriteElementString("Published", entity.Published.ToString());
-            _writer.WriteElementString("Deleted", entity.Deleted.ToString());
-            _writer.WriteElementString("DisplayOrder", entity.DisplayOrder.ToString());
-            _writer.WriteElementString("CreatedOnUtc", entity.CreatedOnUtc.ToString(_culture));
-            _writer.WriteElementString("UpdatedOnUtc", entity.UpdatedOnUtc.ToString(_culture));
-            _writer.WriteElementString("HasDiscountsApplied", entity.HasDiscountsApplied.ToString());
-            _writer.WriteElementString("SubjectToAcl", entity.SubjectToAcl.ToString());
-            _writer.WriteElementString("LimitedToStores", entity.LimitedToStores.ToString());
+            _writer.WriteElementString(nameof(Manufacturer.Description), ((string)manufacturer.Description).RemoveInvalidXmlChars());
+            _writer.WriteElementString(nameof(Manufacturer.BottomDescription), ((string)manufacturer.BottomDescription).RemoveInvalidXmlChars());
+            _writer.WriteElementString(nameof(Manufacturer.ManufacturerTemplateId), entity.ManufacturerTemplateId.ToString());
+            _writer.WriteElementString(nameof(Manufacturer.MetaKeywords), (string)manufacturer.MetaKeywords);
+            _writer.WriteElementString(nameof(Manufacturer.MetaDescription), (string)manufacturer.MetaDescription);
+            _writer.WriteElementString(nameof(Manufacturer.MetaTitle), (string)manufacturer.MetaTitle);
+            _writer.WriteElementString(nameof(Manufacturer.MediaFileId), entity.MediaFileId.ToString());
+            _writer.WriteElementString(nameof(Manufacturer.PageSize), entity.PageSize.ToString());
+            _writer.WriteElementString(nameof(Manufacturer.AllowCustomersToSelectPageSize), entity.AllowCustomersToSelectPageSize.ToString());
+            _writer.WriteElementString(nameof(Manufacturer.PageSizeOptions), entity.PageSizeOptions);
+            _writer.WriteElementString(nameof(Manufacturer.Published), entity.Published.ToString());
+            _writer.WriteElementString(nameof(Manufacturer.Deleted), entity.Deleted.ToString());
+            _writer.WriteElementString(nameof(Manufacturer.DisplayOrder), entity.DisplayOrder.ToString());
+            _writer.WriteElementString(nameof(Manufacturer.CreatedOnUtc), entity.CreatedOnUtc.ToString(_culture));
+            _writer.WriteElementString(nameof(Manufacturer.UpdatedOnUtc), entity.UpdatedOnUtc.ToString(_culture));
+            _writer.WriteElementString(nameof(Manufacturer.HasDiscountsApplied), entity.HasDiscountsApplied.ToString());
+            _writer.WriteElementString(nameof(Manufacturer.SubjectToAcl), entity.SubjectToAcl.ToString());
+            _writer.WriteElementString(nameof(Manufacturer.LimitedToStores), entity.LimitedToStores.ToString());
 
-            WritePicture(manufacturer.Picture, "Picture");
+            WriteMediaFile(manufacturer.Picture, "Picture");
             WriteLocalized(manufacturer);
 
             if (node.HasValue())
@@ -469,29 +469,29 @@ namespace Smartstore.Core.Platform.DataExchange.Export
                 _writer.WriteStartElement(node);
             }
 
-            _writer.WriteElementString("Id", entity.Id.ToString());
-            _writer.WriteElementString("CustomerGuid", entity.CustomerGuid.ToString());
-            _writer.WriteElementString("Username", entity.Username);
-            _writer.WriteElementString("Email", entity.Email);
-            _writer.WriteElementString("AdminComment", entity.AdminComment);
-            _writer.WriteElementString("IsTaxExempt", entity.IsTaxExempt.ToString());
-            _writer.WriteElementString("AffiliateId", entity.AffiliateId.ToString());
-            _writer.WriteElementString("Active", entity.Active.ToString());
-            _writer.WriteElementString("Deleted", entity.Deleted.ToString());
-            _writer.WriteElementString("IsSystemAccount", entity.IsSystemAccount.ToString());
-            _writer.WriteElementString("SystemName", entity.SystemName);
-            _writer.WriteElementString("LastIpAddress", entity.LastIpAddress);
-            _writer.WriteElementString("CreatedOnUtc", entity.CreatedOnUtc.ToString(_culture));
-            _writer.WriteElementString("LastLoginDateUtc", entity.LastLoginDateUtc.HasValue ? entity.LastLoginDateUtc.Value.ToString(_culture) : string.Empty);
-            _writer.WriteElementString("LastActivityDateUtc", entity.LastActivityDateUtc.ToString(_culture));
-            _writer.WriteElementString("Salutation", entity.Salutation);
-            _writer.WriteElementString("Title", entity.Title);
-            _writer.WriteElementString("FirstName", entity.FirstName);
-            _writer.WriteElementString("LastName", entity.LastName);
-            _writer.WriteElementString("FullName", entity.FullName);
-            _writer.WriteElementString("Company", entity.Company);
-            _writer.WriteElementString("CustomerNumber", entity.CustomerNumber);
-            _writer.WriteElementString("BirthDate", entity.BirthDate.HasValue ? entity.BirthDate.Value.ToString(_culture) : string.Empty);
+            _writer.WriteElementString(nameof(Customer.Id), entity.Id.ToString());
+            _writer.WriteElementString(nameof(Customer.CustomerGuid), entity.CustomerGuid.ToString());
+            _writer.WriteElementString(nameof(Customer.Username), entity.Username);
+            _writer.WriteElementString(nameof(Customer.Email), entity.Email);
+            _writer.WriteElementString(nameof(Customer.AdminComment), entity.AdminComment);
+            _writer.WriteElementString(nameof(Customer.IsTaxExempt), entity.IsTaxExempt.ToString());
+            _writer.WriteElementString(nameof(Customer.AffiliateId), entity.AffiliateId.ToString());
+            _writer.WriteElementString(nameof(Customer.Active), entity.Active.ToString());
+            _writer.WriteElementString(nameof(Customer.Deleted), entity.Deleted.ToString());
+            _writer.WriteElementString(nameof(Customer.IsSystemAccount), entity.IsSystemAccount.ToString());
+            _writer.WriteElementString(nameof(Customer.SystemName), entity.SystemName);
+            _writer.WriteElementString(nameof(Customer.LastIpAddress), entity.LastIpAddress);
+            _writer.WriteElementString(nameof(Customer.CreatedOnUtc), entity.CreatedOnUtc.ToString(_culture));
+            _writer.WriteElementString(nameof(Customer.LastLoginDateUtc), entity.LastLoginDateUtc?.ToString(_culture) ?? string.Empty);
+            _writer.WriteElementString(nameof(Customer.LastActivityDateUtc), entity.LastActivityDateUtc.ToString(_culture));
+            _writer.WriteElementString(nameof(Customer.Salutation), entity.Salutation);
+            _writer.WriteElementString(nameof(Customer.Title), entity.Title);
+            _writer.WriteElementString(nameof(Customer.FirstName), entity.FirstName);
+            _writer.WriteElementString(nameof(Customer.LastName), entity.LastName);
+            _writer.WriteElementString(nameof(Customer.FullName), entity.FullName);
+            _writer.WriteElementString(nameof(Customer.Company), entity.Company);
+            _writer.WriteElementString(nameof(Customer.CustomerNumber), entity.CustomerNumber);
+            _writer.WriteElementString(nameof(Customer.BirthDate), entity.BirthDate?.ToString(_culture) ?? string.Empty);
             _writer.WriteElementString("RewardPointsBalance", ((int)customer._RewardPointsBalance).ToString());
 
             if (customer.CustomerRoles != null)
@@ -502,22 +502,22 @@ namespace Smartstore.Core.Platform.DataExchange.Export
                     CustomerRole entityRole = role.Entity;
 
                     _writer.WriteStartElement("CustomerRole");
-                    _writer.WriteElementString("Id", entityRole.Id.ToString());
-                    _writer.WriteElementString("Name", (string)role.Name);
-                    _writer.WriteElementString("FreeShipping", entityRole.FreeShipping.ToString());
-                    _writer.WriteElementString("TaxExempt", entityRole.TaxExempt.ToString());
-                    _writer.WriteElementString("TaxDisplayType", entityRole.TaxDisplayType.HasValue ? entityRole.TaxDisplayType.Value.ToString() : string.Empty);
-                    _writer.WriteElementString("Active", entityRole.Active.ToString());
-                    _writer.WriteElementString("IsSystemRole", entityRole.IsSystemRole.ToString());
-                    _writer.WriteElementString("SystemName", entityRole.SystemName);
+                    _writer.WriteElementString(nameof(CustomerRole.Id), entityRole.Id.ToString());
+                    _writer.WriteElementString(nameof(CustomerRole.Name), (string)role.Name);
+                    _writer.WriteElementString(nameof(CustomerRole.FreeShipping), entityRole.FreeShipping.ToString());
+                    _writer.WriteElementString(nameof(CustomerRole.TaxExempt), entityRole.TaxExempt.ToString());
+                    _writer.WriteElementString(nameof(CustomerRole.TaxDisplayType), entityRole.TaxDisplayType?.ToString() ?? string.Empty);
+                    _writer.WriteElementString(nameof(CustomerRole.Active), entityRole.Active.ToString());
+                    _writer.WriteElementString(nameof(CustomerRole.IsSystemRole), entityRole.IsSystemRole.ToString());
+                    _writer.WriteElementString(nameof(CustomerRole.SystemName), entityRole.SystemName);
                     _writer.WriteEndElement();
                 }
                 _writer.WriteEndElement();
             }
 
             WriteRewardPointsHistory(customer.RewardPointsHistory, "RewardPointsHistories");
-            WriteAddress(customer.BillingAddress, "BillingAddress");
-            WriteAddress(customer.ShippingAddress, "ShippingAddress");
+            WriteAddress(customer.BillingAddress, nameof(Customer.BillingAddress));
+            WriteAddress(customer.ShippingAddress, nameof(Customer.ShippingAddress));
 
             if (customer.Addresses != null)
             {
@@ -549,21 +549,21 @@ namespace Smartstore.Core.Platform.DataExchange.Export
                 _writer.WriteStartElement(node);
             }
 
-            _writer.WriteElementString("Id", entity.Id.ToString());
-            _writer.WriteElementString("StoreId", entity.StoreId.ToString());
-            _writer.WriteElementString("ParentItemId", entity.ParentItemId.HasValue ? entity.ParentItemId.Value.ToString() : string.Empty);
-            _writer.WriteElementString("BundleItemId", entity.BundleItemId.HasValue ? entity.BundleItemId.Value.ToString() : string.Empty);
-            _writer.WriteElementString("ShoppingCartTypeId", entity.ShoppingCartTypeId.ToString());
-            _writer.WriteElementString("CustomerId", entity.CustomerId.ToString());
-            _writer.WriteElementString("ProductId", entity.ProductId.ToString());
-            _writer.WriteCData("AttributesXml", entity.RawAttributes);
-            _writer.WriteElementString("CustomerEnteredPrice", entity.CustomerEnteredPrice.ToString(_culture));
-            _writer.WriteElementString("Quantity", entity.Quantity.ToString());
-            _writer.WriteElementString("CreatedOnUtc", entity.CreatedOnUtc.ToString(_culture));
-            _writer.WriteElementString("UpdatedOnUtc", entity.UpdatedOnUtc.ToString(_culture));
+            _writer.WriteElementString(nameof(ShoppingCartItem.Id), entity.Id.ToString());
+            _writer.WriteElementString(nameof(ShoppingCartItem.StoreId), entity.StoreId.ToString());
+            _writer.WriteElementString(nameof(ShoppingCartItem.ParentItemId), entity.ParentItemId?.ToString() ?? string.Empty);
+            _writer.WriteElementString(nameof(ShoppingCartItem.BundleItemId), entity.BundleItemId?.ToString() ?? string.Empty);
+            _writer.WriteElementString(nameof(ShoppingCartItem.ShoppingCartTypeId), entity.ShoppingCartTypeId.ToString());
+            _writer.WriteElementString(nameof(ShoppingCartItem.CustomerId), entity.CustomerId.ToString());
+            _writer.WriteElementString(nameof(ShoppingCartItem.ProductId), entity.ProductId.ToString());
+            _writer.WriteCData(nameof(ShoppingCartItem.RawAttributes), entity.RawAttributes);
+            _writer.WriteElementString(nameof(ShoppingCartItem.CustomerEnteredPrice), entity.CustomerEnteredPrice.ToString(_culture));
+            _writer.WriteElementString(nameof(ShoppingCartItem.Quantity), entity.Quantity.ToString());
+            _writer.WriteElementString(nameof(ShoppingCartItem.CreatedOnUtc), entity.CreatedOnUtc.ToString(_culture));
+            _writer.WriteElementString(nameof(ShoppingCartItem.UpdatedOnUtc), entity.UpdatedOnUtc.ToString(_culture));
 
-            WriteCustomer(shoppingCartItem.Customer, "Customer");
-            WriteProduct(shoppingCartItem.Product, "Product");
+            WriteCustomer(shoppingCartItem.Customer, nameof(ShoppingCartItem.Customer));
+            WriteProduct(shoppingCartItem.Product, nameof(ShoppingCartItem.Product));
 
             if (node.HasValue())
             {
@@ -587,117 +587,117 @@ namespace Smartstore.Core.Platform.DataExchange.Export
             int? basePriceBaseAmount = product.BasePriceBaseAmount;
             decimal? lowestAttributeCombinationPrice = product.LowestAttributeCombinationPrice;
 
-            _writer.WriteElementString("Id", entity.Id.ToString());
-            _writer.WriteElementString("Name", (string)product.Name);
+            _writer.WriteElementString(nameof(Product.Id), entity.Id.ToString());
+            _writer.WriteElementString(nameof(Product.Name), (string)product.Name);
             _writer.WriteElementString("SeName", (string)product.SeName);
-            _writer.WriteElementString("ShortDescription", (string)product.ShortDescription);
-            _writer.WriteElementString("FullDescription", ((string)product.FullDescription).RemoveInvalidXmlChars());
-            _writer.WriteElementString("AdminComment", (string)product.AdminComment);
-            _writer.WriteElementString("ProductTemplateId", entity.ProductTemplateId.ToString());
+            _writer.WriteElementString(nameof(Product.ShortDescription), (string)product.ShortDescription);
+            _writer.WriteElementString(nameof(Product.FullDescription), ((string)product.FullDescription).RemoveInvalidXmlChars());
+            _writer.WriteElementString(nameof(Product.AdminComment), (string)product.AdminComment);
+            _writer.WriteElementString(nameof(Product.ProductTemplateId), entity.ProductTemplateId.ToString());
             _writer.WriteElementString("ProductTemplateViewPath", (string)product._ProductTemplateViewPath);
-            _writer.WriteElementString("ShowOnHomePage", entity.ShowOnHomePage.ToString());
-            _writer.WriteElementString("HomePageDisplayOrder", entity.HomePageDisplayOrder.ToString());
-            _writer.WriteElementString("MetaKeywords", (string)product.MetaKeywords);
-            _writer.WriteElementString("MetaDescription", (string)product.MetaDescription);
-            _writer.WriteElementString("MetaTitle", (string)product.MetaTitle);
-            _writer.WriteElementString("AllowCustomerReviews", entity.AllowCustomerReviews.ToString());
-            _writer.WriteElementString("ApprovedRatingSum", entity.ApprovedRatingSum.ToString());
-            _writer.WriteElementString("NotApprovedRatingSum", entity.NotApprovedRatingSum.ToString());
-            _writer.WriteElementString("ApprovedTotalReviews", entity.ApprovedTotalReviews.ToString());
-            _writer.WriteElementString("NotApprovedTotalReviews", entity.NotApprovedTotalReviews.ToString());
-            _writer.WriteElementString("Published", entity.Published.ToString());
-            _writer.WriteElementString("CreatedOnUtc", entity.CreatedOnUtc.ToString(_culture));
-            _writer.WriteElementString("UpdatedOnUtc", entity.UpdatedOnUtc.ToString(_culture));
-            _writer.WriteElementString("SubjectToAcl", entity.SubjectToAcl.ToString());
-            _writer.WriteElementString("LimitedToStores", entity.LimitedToStores.ToString());
-            _writer.WriteElementString("ProductTypeId", entity.ProductTypeId.ToString());
-            _writer.WriteElementString("ParentGroupedProductId", entity.ParentGroupedProductId.ToString());
-            _writer.WriteElementString("Sku", (string)product.Sku);
-            _writer.WriteElementString("ManufacturerPartNumber", (string)product.ManufacturerPartNumber);
-            _writer.WriteElementString("Gtin", (string)product.Gtin);
-            _writer.WriteElementString("IsGiftCard", entity.IsGiftCard.ToString());
-            _writer.WriteElementString("GiftCardTypeId", entity.GiftCardTypeId.ToString());
-            _writer.WriteElementString("RequireOtherProducts", entity.RequireOtherProducts.ToString());
-            _writer.WriteElementString("RequiredProductIds", entity.RequiredProductIds);
-            _writer.WriteElementString("AutomaticallyAddRequiredProducts", entity.AutomaticallyAddRequiredProducts.ToString());
-            _writer.WriteElementString("IsDownload", entity.IsDownload.ToString());
-            _writer.WriteElementString("UnlimitedDownloads", entity.UnlimitedDownloads.ToString());
-            _writer.WriteElementString("MaxNumberOfDownloads", entity.MaxNumberOfDownloads.ToString());
-            _writer.WriteElementString("DownloadExpirationDays", entity.DownloadExpirationDays.HasValue ? entity.DownloadExpirationDays.Value.ToString() : string.Empty);
-            _writer.WriteElementString("DownloadActivationTypeId", entity.DownloadActivationTypeId.ToString());
-            _writer.WriteElementString("HasSampleDownload", entity.HasSampleDownload.ToString());
-            _writer.WriteElementString("SampleDownloadId", entity.SampleDownloadId.HasValue ? entity.SampleDownloadId.Value.ToString() : string.Empty);
-            _writer.WriteElementString("HasUserAgreement", entity.HasUserAgreement.ToString());
-            _writer.WriteElementString("UserAgreementText", entity.UserAgreementText);
-            _writer.WriteElementString("IsRecurring", entity.IsRecurring.ToString());
-            _writer.WriteElementString("RecurringCycleLength", entity.RecurringCycleLength.ToString());
-            _writer.WriteElementString("RecurringCyclePeriodId", entity.RecurringCyclePeriodId.ToString());
-            _writer.WriteElementString("RecurringTotalCycles", entity.RecurringTotalCycles.ToString());
-            _writer.WriteElementString("IsShipEnabled", entity.IsShippingEnabled.ToString());
-            _writer.WriteElementString("IsFreeShipping", entity.IsFreeShipping.ToString());
-            _writer.WriteElementString("AdditionalShippingCharge", entity.AdditionalShippingCharge.ToString(_culture));
-            _writer.WriteElementString("IsTaxExempt", entity.IsTaxExempt.ToString());
-            _writer.WriteElementString("TaxCategoryId", entity.TaxCategoryId.ToString());
-            _writer.WriteElementString("ManageInventoryMethodId", entity.ManageInventoryMethodId.ToString());
-            _writer.WriteElementString("StockQuantity", entity.StockQuantity.ToString());
-            _writer.WriteElementString("DisplayStockAvailability", entity.DisplayStockAvailability.ToString());
-            _writer.WriteElementString("DisplayStockQuantity", entity.DisplayStockQuantity.ToString());
-            _writer.WriteElementString("MinStockQuantity", entity.MinStockQuantity.ToString());
-            _writer.WriteElementString("LowStockActivityId", entity.LowStockActivityId.ToString());
-            _writer.WriteElementString("NotifyAdminForQuantityBelow", entity.NotifyAdminForQuantityBelow.ToString());
-            _writer.WriteElementString("BackorderModeId", entity.BackorderModeId.ToString());
-            _writer.WriteElementString("AllowBackInStockSubscriptions", entity.AllowBackInStockSubscriptions.ToString());
-            _writer.WriteElementString("OrderMinimumQuantity", entity.OrderMinimumQuantity.ToString());
-            _writer.WriteElementString("OrderMaximumQuantity", entity.OrderMaximumQuantity.ToString());
-            _writer.WriteElementString("QuantityStep", entity.QuantityStep.ToString());
-            _writer.WriteElementString("QuantityControlType", ((int)entity.QuantityControlType).ToString());
-            _writer.WriteElementString("HideQuantityControl", entity.HideQuantityControl.ToString());
-            _writer.WriteElementString("AllowedQuantities", entity.AllowedQuantities);
-            _writer.WriteElementString("DisableBuyButton", entity.DisableBuyButton.ToString());
-            _writer.WriteElementString("DisableWishlistButton", entity.DisableWishlistButton.ToString());
-            _writer.WriteElementString("AvailableForPreOrder", entity.AvailableForPreOrder.ToString());
-            _writer.WriteElementString("CallForPrice", entity.CallForPrice.ToString());
-            _writer.WriteElementString("Price", entity.Price.ToString(_culture));
-            _writer.WriteElementString("OldPrice", entity.OldPrice.ToString(_culture));
-            _writer.WriteElementString("ProductCost", entity.ProductCost.ToString(_culture));
-            _writer.WriteElementString("SpecialPrice", entity.SpecialPrice.HasValue ? entity.SpecialPrice.Value.ToString(_culture) : string.Empty);
-            _writer.WriteElementString("SpecialPriceStartDateTimeUtc", entity.SpecialPriceStartDateTimeUtc.HasValue ? entity.SpecialPriceStartDateTimeUtc.Value.ToString(_culture) : string.Empty);
-            _writer.WriteElementString("SpecialPriceEndDateTimeUtc", entity.SpecialPriceEndDateTimeUtc.HasValue ? entity.SpecialPriceEndDateTimeUtc.Value.ToString(_culture) : string.Empty);
-            _writer.WriteElementString("CustomerEntersPrice", entity.CustomerEntersPrice.ToString());
-            _writer.WriteElementString("MinimumCustomerEnteredPrice", entity.MinimumCustomerEnteredPrice.ToString(_culture));
-            _writer.WriteElementString("MaximumCustomerEnteredPrice", entity.MaximumCustomerEnteredPrice.ToString(_culture));
-            _writer.WriteElementString("HasTierPrices", entity.HasTierPrices.ToString());
-            _writer.WriteElementString("HasDiscountsApplied", entity.HasDiscountsApplied.ToString());
-            _writer.WriteElementString("MainPictureId", entity.MainPictureId.HasValue ? entity.MainPictureId.Value.ToString() : string.Empty);
-            _writer.WriteElementString("Weight", ((decimal)product.Weight).ToString(_culture));
-            _writer.WriteElementString("Length", ((decimal)product.Length).ToString(_culture));
-            _writer.WriteElementString("Width", ((decimal)product.Width).ToString(_culture));
-            _writer.WriteElementString("Height", ((decimal)product.Height).ToString(_culture));
-            _writer.WriteElementString("AvailableStartDateTimeUtc", entity.AvailableStartDateTimeUtc.HasValue ? entity.AvailableStartDateTimeUtc.Value.ToString(_culture) : string.Empty);
-            _writer.WriteElementString("AvailableEndDateTimeUtc", entity.AvailableEndDateTimeUtc.HasValue ? entity.AvailableEndDateTimeUtc.Value.ToString(_culture) : string.Empty);
-            _writer.WriteElementString("BasePriceEnabled", ((bool)product.BasePriceEnabled).ToString());
-            _writer.WriteElementString("BasePriceMeasureUnit", (string)product.BasePriceMeasureUnit);
-            _writer.WriteElementString("BasePriceAmount", basePriceAmount.HasValue ? basePriceAmount.Value.ToString(_culture) : string.Empty);
-            _writer.WriteElementString("BasePriceBaseAmount", basePriceBaseAmount.HasValue ? basePriceBaseAmount.Value.ToString() : string.Empty);
-            _writer.WriteElementString("BasePriceHasValue", ((bool)product.BasePriceHasValue).ToString());
+            _writer.WriteElementString(nameof(Product.ShowOnHomePage), entity.ShowOnHomePage.ToString());
+            _writer.WriteElementString(nameof(Product.HomePageDisplayOrder), entity.HomePageDisplayOrder.ToString());
+            _writer.WriteElementString(nameof(Product.MetaKeywords), (string)product.MetaKeywords);
+            _writer.WriteElementString(nameof(Product.MetaDescription), (string)product.MetaDescription);
+            _writer.WriteElementString(nameof(Product.MetaTitle), (string)product.MetaTitle);
+            _writer.WriteElementString(nameof(Product.AllowCustomerReviews), entity.AllowCustomerReviews.ToString());
+            _writer.WriteElementString(nameof(Product.ApprovedRatingSum), entity.ApprovedRatingSum.ToString());
+            _writer.WriteElementString(nameof(Product.NotApprovedRatingSum), entity.NotApprovedRatingSum.ToString());
+            _writer.WriteElementString(nameof(Product.ApprovedTotalReviews), entity.ApprovedTotalReviews.ToString());
+            _writer.WriteElementString(nameof(Product.NotApprovedTotalReviews), entity.NotApprovedTotalReviews.ToString());
+            _writer.WriteElementString(nameof(Product.Published), entity.Published.ToString());
+            _writer.WriteElementString(nameof(Product.CreatedOnUtc), entity.CreatedOnUtc.ToString(_culture));
+            _writer.WriteElementString(nameof(Product.UpdatedOnUtc), entity.UpdatedOnUtc.ToString(_culture));
+            _writer.WriteElementString(nameof(Product.SubjectToAcl), entity.SubjectToAcl.ToString());
+            _writer.WriteElementString(nameof(Product.LimitedToStores), entity.LimitedToStores.ToString());
+            _writer.WriteElementString(nameof(Product.ProductTypeId), entity.ProductTypeId.ToString());
+            _writer.WriteElementString(nameof(Product.ParentGroupedProductId), entity.ParentGroupedProductId.ToString());
+            _writer.WriteElementString(nameof(Product.Sku), (string)product.Sku);
+            _writer.WriteElementString(nameof(Product.ManufacturerPartNumber), (string)product.ManufacturerPartNumber);
+            _writer.WriteElementString(nameof(Product.Gtin), (string)product.Gtin);
+            _writer.WriteElementString(nameof(Product.IsGiftCard), entity.IsGiftCard.ToString());
+            _writer.WriteElementString(nameof(Product.GiftCardTypeId), entity.GiftCardTypeId.ToString());
+            _writer.WriteElementString(nameof(Product.RequireOtherProducts), entity.RequireOtherProducts.ToString());
+            _writer.WriteElementString(nameof(Product.RequiredProductIds), entity.RequiredProductIds);
+            _writer.WriteElementString(nameof(Product.AutomaticallyAddRequiredProducts), entity.AutomaticallyAddRequiredProducts.ToString());
+            _writer.WriteElementString(nameof(Product.IsDownload), entity.IsDownload.ToString());
+            _writer.WriteElementString(nameof(Product.UnlimitedDownloads), entity.UnlimitedDownloads.ToString());
+            _writer.WriteElementString(nameof(Product.MaxNumberOfDownloads), entity.MaxNumberOfDownloads.ToString());
+            _writer.WriteElementString(nameof(Product.DownloadExpirationDays), entity.DownloadExpirationDays?.ToString() ?? string.Empty);
+            _writer.WriteElementString(nameof(Product.DownloadActivationTypeId), entity.DownloadActivationTypeId.ToString());
+            _writer.WriteElementString(nameof(Product.HasSampleDownload), entity.HasSampleDownload.ToString());
+            _writer.WriteElementString(nameof(Product.SampleDownloadId), entity.SampleDownloadId?.ToString() ?? string.Empty);
+            _writer.WriteElementString(nameof(Product.HasUserAgreement), entity.HasUserAgreement.ToString());
+            _writer.WriteElementString(nameof(Product.UserAgreementText), entity.UserAgreementText);
+            _writer.WriteElementString(nameof(Product.IsRecurring), entity.IsRecurring.ToString());
+            _writer.WriteElementString(nameof(Product.RecurringCycleLength), entity.RecurringCycleLength.ToString());
+            _writer.WriteElementString(nameof(Product.RecurringCyclePeriodId), entity.RecurringCyclePeriodId.ToString());
+            _writer.WriteElementString(nameof(Product.RecurringTotalCycles), entity.RecurringTotalCycles.ToString());
+            _writer.WriteElementString(nameof(Product.IsShippingEnabled), entity.IsShippingEnabled.ToString());
+            _writer.WriteElementString(nameof(Product.IsFreeShipping), entity.IsFreeShipping.ToString());
+            _writer.WriteElementString(nameof(Product.AdditionalShippingCharge), entity.AdditionalShippingCharge.ToString(_culture));
+            _writer.WriteElementString(nameof(Product.IsTaxExempt), entity.IsTaxExempt.ToString());
+            _writer.WriteElementString(nameof(Product.TaxCategoryId), entity.TaxCategoryId.ToString());
+            _writer.WriteElementString(nameof(Product.ManageInventoryMethodId), entity.ManageInventoryMethodId.ToString());
+            _writer.WriteElementString(nameof(Product.StockQuantity), entity.StockQuantity.ToString());
+            _writer.WriteElementString(nameof(Product.DisplayStockAvailability), entity.DisplayStockAvailability.ToString());
+            _writer.WriteElementString(nameof(Product.DisplayStockQuantity), entity.DisplayStockQuantity.ToString());
+            _writer.WriteElementString(nameof(Product.MinStockQuantity), entity.MinStockQuantity.ToString());
+            _writer.WriteElementString(nameof(Product.LowStockActivityId), entity.LowStockActivityId.ToString());
+            _writer.WriteElementString(nameof(Product.NotifyAdminForQuantityBelow), entity.NotifyAdminForQuantityBelow.ToString());
+            _writer.WriteElementString(nameof(Product.BackorderModeId), entity.BackorderModeId.ToString());
+            _writer.WriteElementString(nameof(Product.AllowBackInStockSubscriptions), entity.AllowBackInStockSubscriptions.ToString());
+            _writer.WriteElementString(nameof(Product.OrderMinimumQuantity), entity.OrderMinimumQuantity.ToString());
+            _writer.WriteElementString(nameof(Product.OrderMaximumQuantity), entity.OrderMaximumQuantity.ToString());
+            _writer.WriteElementString(nameof(Product.QuantityStep), entity.QuantityStep.ToString());
+            _writer.WriteElementString(nameof(Product.QuantityControlType), ((int)entity.QuantityControlType).ToString());
+            _writer.WriteElementString(nameof(Product.HideQuantityControl), entity.HideQuantityControl.ToString());
+            _writer.WriteElementString(nameof(Product.AllowedQuantities), entity.AllowedQuantities);
+            _writer.WriteElementString(nameof(Product.DisableBuyButton), entity.DisableBuyButton.ToString());
+            _writer.WriteElementString(nameof(Product.DisableWishlistButton), entity.DisableWishlistButton.ToString());
+            _writer.WriteElementString(nameof(Product.AvailableForPreOrder), entity.AvailableForPreOrder.ToString());
+            _writer.WriteElementString(nameof(Product.CallForPrice), entity.CallForPrice.ToString());
+            _writer.WriteElementString(nameof(Product.Price), entity.Price.ToString(_culture));
+            _writer.WriteElementString(nameof(Product.OldPrice), entity.OldPrice.ToString(_culture));
+            _writer.WriteElementString(nameof(Product.ProductCost), entity.ProductCost.ToString(_culture));
+            _writer.WriteElementString(nameof(Product.SpecialPrice), entity.SpecialPrice?.ToString(_culture) ?? string.Empty);
+            _writer.WriteElementString(nameof(Product.SpecialPriceStartDateTimeUtc), entity.SpecialPriceStartDateTimeUtc?.ToString(_culture) ?? string.Empty);
+            _writer.WriteElementString(nameof(Product.SpecialPriceEndDateTimeUtc), entity.SpecialPriceEndDateTimeUtc?.ToString(_culture) ?? string.Empty);
+            _writer.WriteElementString(nameof(Product.CustomerEntersPrice), entity.CustomerEntersPrice.ToString());
+            _writer.WriteElementString(nameof(Product.MinimumCustomerEnteredPrice), entity.MinimumCustomerEnteredPrice.ToString(_culture));
+            _writer.WriteElementString(nameof(Product.MaximumCustomerEnteredPrice), entity.MaximumCustomerEnteredPrice.ToString(_culture));
+            _writer.WriteElementString(nameof(Product.HasTierPrices), entity.HasTierPrices.ToString());
+            _writer.WriteElementString(nameof(Product.HasDiscountsApplied), entity.HasDiscountsApplied.ToString());
+            _writer.WriteElementString(nameof(Product.MainPictureId), entity.MainPictureId?.ToString() ?? string.Empty);
+            _writer.WriteElementString(nameof(Product.Weight), ((decimal)product.Weight).ToString(_culture));
+            _writer.WriteElementString(nameof(Product.Length), ((decimal)product.Length).ToString(_culture));
+            _writer.WriteElementString(nameof(Product.Width), ((decimal)product.Width).ToString(_culture));
+            _writer.WriteElementString(nameof(Product.Height), ((decimal)product.Height).ToString(_culture));
+            _writer.WriteElementString(nameof(Product.AvailableStartDateTimeUtc), entity.AvailableStartDateTimeUtc?.ToString(_culture) ?? string.Empty);
+            _writer.WriteElementString(nameof(Product.AvailableEndDateTimeUtc), entity.AvailableEndDateTimeUtc?.ToString(_culture) ?? string.Empty);
+            _writer.WriteElementString(nameof(Product.BasePriceEnabled), ((bool)product.BasePriceEnabled).ToString());
+            _writer.WriteElementString(nameof(Product.BasePriceMeasureUnit), (string)product.BasePriceMeasureUnit);
+            _writer.WriteElementString(nameof(Product.BasePriceAmount), basePriceAmount?.ToString(_culture) ?? string.Empty);
+            _writer.WriteElementString(nameof(Product.BasePriceBaseAmount), basePriceBaseAmount?.ToString() ?? string.Empty);
+            _writer.WriteElementString(nameof(Product.BasePriceHasValue), ((bool)product.BasePriceHasValue).ToString());
             _writer.WriteElementString("BasePriceInfo", (string)product._BasePriceInfo);
-            _writer.WriteElementString("Visibility", ((int)entity.Visibility).ToString());
-            _writer.WriteElementString("Condition", ((int)entity.Condition).ToString());
-            _writer.WriteElementString("DisplayOrder", entity.DisplayOrder.ToString());
-            _writer.WriteElementString("IsSystemProduct", entity.IsSystemProduct.ToString());
-            _writer.WriteElementString("BundleTitleText", entity.BundleTitleText);
-            _writer.WriteElementString("BundlePerItemPricing", entity.BundlePerItemPricing.ToString());
-            _writer.WriteElementString("BundlePerItemShipping", entity.BundlePerItemShipping.ToString());
-            _writer.WriteElementString("BundlePerItemShoppingCart", entity.BundlePerItemShoppingCart.ToString());
-            _writer.WriteElementString("LowestAttributeCombinationPrice", lowestAttributeCombinationPrice.HasValue ? lowestAttributeCombinationPrice.Value.ToString(_culture) : string.Empty);
-            _writer.WriteElementString("AttributeChoiceBehaviour", ((int)entity.AttributeChoiceBehaviour).ToString());
-            _writer.WriteElementString("IsEsd", entity.IsEsd.ToString());
-            _writer.WriteElementString("CustomsTariffNumber", entity.CustomsTariffNumber);
+            _writer.WriteElementString(nameof(Product.Visibility), ((int)entity.Visibility).ToString());
+            _writer.WriteElementString(nameof(Product.Condition), ((int)entity.Condition).ToString());
+            _writer.WriteElementString(nameof(Product.DisplayOrder), entity.DisplayOrder.ToString());
+            _writer.WriteElementString(nameof(Product.IsSystemProduct), entity.IsSystemProduct.ToString());
+            _writer.WriteElementString(nameof(Product.BundleTitleText), entity.BundleTitleText);
+            _writer.WriteElementString(nameof(Product.BundlePerItemPricing), entity.BundlePerItemPricing.ToString());
+            _writer.WriteElementString(nameof(Product.BundlePerItemShipping), entity.BundlePerItemShipping.ToString());
+            _writer.WriteElementString(nameof(Product.BundlePerItemShoppingCart), entity.BundlePerItemShoppingCart.ToString());
+            _writer.WriteElementString(nameof(Product.LowestAttributeCombinationPrice), lowestAttributeCombinationPrice?.ToString(_culture) ?? string.Empty);
+            _writer.WriteElementString(nameof(Product.AttributeChoiceBehaviour), ((int)entity.AttributeChoiceBehaviour).ToString());
+            _writer.WriteElementString(nameof(Product.IsEsd), entity.IsEsd.ToString());
+            _writer.WriteElementString(nameof(Product.CustomsTariffNumber), entity.CustomsTariffNumber);
 
             WriteLocalized(product);
-            WriteDeliveryTime(product.DeliveryTime, "DeliveryTime");
-            WriteQuantityUnit(product.QuantityUnit, "QuantityUnit");
-            WriteCountry(product.CountryOfOrigin, "CountryOfOrigin");
+            WriteDeliveryTime(product.DeliveryTime, nameof(Product.DeliveryTime));
+            WriteQuantityUnit(product.QuantityUnit, nameof(Product.QuantityUnit));
+            WriteCountry(product.CountryOfOrigin, nameof(Product.CountryOfOrigin));
             WriteAttributes(product);
 
             if (product.AppliedDiscounts != null)
@@ -708,18 +708,18 @@ namespace Smartstore.Core.Platform.DataExchange.Export
                     Discount entityDiscount = discount.Entity;
 
                     _writer.WriteStartElement("AppliedDiscount");
-                    _writer.WriteElementString("Id", entityDiscount.Id.ToString());
-                    _writer.WriteElementString("Name", (string)discount.Name);
-                    _writer.WriteElementString("DiscountTypeId", entityDiscount.DiscountTypeId.ToString());
-                    _writer.WriteElementString("UsePercentage", entityDiscount.UsePercentage.ToString());
-                    _writer.WriteElementString("DiscountPercentage", entityDiscount.DiscountPercentage.ToString(_culture));
-                    _writer.WriteElementString("DiscountAmount", entityDiscount.DiscountAmount.ToString(_culture));
-                    _writer.WriteElementString("StartDateUtc", entityDiscount.StartDateUtc.HasValue ? entityDiscount.StartDateUtc.Value.ToString(_culture) : string.Empty);
-                    _writer.WriteElementString("EndDateUtc", entityDiscount.EndDateUtc.HasValue ? entityDiscount.EndDateUtc.Value.ToString(_culture) : string.Empty);
-                    _writer.WriteElementString("RequiresCouponCode", entityDiscount.RequiresCouponCode.ToString());
-                    _writer.WriteElementString("CouponCode", entityDiscount.CouponCode);
-                    _writer.WriteElementString("DiscountLimitationId", entityDiscount.DiscountLimitationId.ToString());
-                    _writer.WriteElementString("LimitationTimes", entityDiscount.LimitationTimes.ToString());
+                    _writer.WriteElementString(nameof(Discount.Id), entityDiscount.Id.ToString());
+                    _writer.WriteElementString(nameof(Discount.Name), (string)discount.Name);
+                    _writer.WriteElementString(nameof(Discount.DiscountTypeId), entityDiscount.DiscountTypeId.ToString());
+                    _writer.WriteElementString(nameof(Discount.UsePercentage), entityDiscount.UsePercentage.ToString());
+                    _writer.WriteElementString(nameof(Discount.DiscountPercentage), entityDiscount.DiscountPercentage.ToString(_culture));
+                    _writer.WriteElementString(nameof(Discount.DiscountAmount), entityDiscount.DiscountAmount.ToString(_culture));
+                    _writer.WriteElementString(nameof(Discount.StartDateUtc), entityDiscount.StartDateUtc?.ToString(_culture) ?? string.Empty);
+                    _writer.WriteElementString(nameof(Discount.EndDateUtc), entityDiscount.EndDateUtc?.ToString(_culture) ?? string.Empty);
+                    _writer.WriteElementString(nameof(Discount.RequiresCouponCode), entityDiscount.RequiresCouponCode.ToString());
+                    _writer.WriteElementString(nameof(Discount.CouponCode), entityDiscount.CouponCode);
+                    _writer.WriteElementString(nameof(Discount.DiscountLimitationId), entityDiscount.DiscountLimitationId.ToString());
+                    _writer.WriteElementString(nameof(Discount.LimitationTimes), entityDiscount.LimitationTimes.ToString());
                     _writer.WriteEndElement();
                 }
                 _writer.WriteEndElement();
@@ -734,22 +734,22 @@ namespace Smartstore.Core.Platform.DataExchange.Export
                     var mediaFile = downloadEntity.MediaFile;
 
                     _writer.WriteStartElement("Download");
-                    _writer.WriteElementString("Id", downloadEntity.Id.ToString());
-                    _writer.WriteElementString("DownloadGuid", downloadEntity.DownloadGuid.ToString());
-                    _writer.WriteElementString("UseDownloadUrl", downloadEntity.UseDownloadUrl.ToString());
-                    _writer.WriteElementString("DownloadUrl", downloadEntity.DownloadUrl);
-                    _writer.WriteElementString("IsTransient", downloadEntity.IsTransient.ToString());
-                    _writer.WriteElementString("UpdatedOnUtc", downloadEntity.UpdatedOnUtc.ToString(_culture));
-                    _writer.WriteElementString("EntityId", downloadEntity.EntityId.ToString());
-                    _writer.WriteElementString("EntityName", downloadEntity.EntityName);
-                    _writer.WriteElementString("FileVersion", downloadEntity.FileVersion);
-                    _writer.WriteElementString("Changelog", downloadEntity.Changelog);
+                    _writer.WriteElementString(nameof(Download.Id), downloadEntity.Id.ToString());
+                    _writer.WriteElementString(nameof(Download.DownloadGuid), downloadEntity.DownloadGuid.ToString());
+                    _writer.WriteElementString(nameof(Download.UseDownloadUrl), downloadEntity.UseDownloadUrl.ToString());
+                    _writer.WriteElementString(nameof(Download.DownloadUrl), downloadEntity.DownloadUrl);
+                    _writer.WriteElementString(nameof(Download.IsTransient), downloadEntity.IsTransient.ToString());
+                    _writer.WriteElementString(nameof(Download.UpdatedOnUtc), downloadEntity.UpdatedOnUtc.ToString(_culture));
+                    _writer.WriteElementString(nameof(Download.EntityId), downloadEntity.EntityId.ToString());
+                    _writer.WriteElementString(nameof(Download.EntityName), downloadEntity.EntityName);
+                    _writer.WriteElementString(nameof(Download.FileVersion), downloadEntity.FileVersion);
+                    _writer.WriteElementString(nameof(Download.Changelog), downloadEntity.Changelog);
                     if (!downloadEntity.UseDownloadUrl && mediaFile != null)
                     {
-                        _writer.WriteElementString("ContentType", mediaFile.MimeType);
+                        _writer.WriteElementString(nameof(MediaFile.MimeType), mediaFile.MimeType);
                         _writer.WriteElementString("Filename", mediaFile.Name);
-                        _writer.WriteElementString("Extension", mediaFile.Extension);
-                        _writer.WriteElementString("MediaStorageId", mediaFile.MediaStorageId.HasValue ? mediaFile.MediaStorageId.Value.ToString() : string.Empty);
+                        _writer.WriteElementString(nameof(MediaFile.Extension), mediaFile.Extension);
+                        _writer.WriteElementString(nameof(MediaFile.MediaStorageId), mediaFile.MediaStorageId?.ToString() ?? string.Empty);
                     }
                     _writer.WriteEndElement();
                 }
@@ -764,13 +764,13 @@ namespace Smartstore.Core.Platform.DataExchange.Export
                     TierPrice entityTierPrice = tierPrice.Entity;
 
                     _writer.WriteStartElement("TierPrice");
-                    _writer.WriteElementString("Id", entityTierPrice.Id.ToString());
-                    _writer.WriteElementString("ProductId", entityTierPrice.ProductId.ToString());
-                    _writer.WriteElementString("StoreId", entityTierPrice.StoreId.ToString());
-                    _writer.WriteElementString("CustomerRoleId", entityTierPrice.CustomerRoleId.HasValue ? entityTierPrice.CustomerRoleId.Value.ToString() : string.Empty);
-                    _writer.WriteElementString("Quantity", entityTierPrice.Quantity.ToString());
-                    _writer.WriteElementString("Price", entityTierPrice.Price.ToString(_culture));
-                    _writer.WriteElementString("CalculationMethod", ((int)entityTierPrice.CalculationMethod).ToString());
+                    _writer.WriteElementString(nameof(TierPrice.Id), entityTierPrice.Id.ToString());
+                    _writer.WriteElementString(nameof(TierPrice.ProductId), entityTierPrice.ProductId.ToString());
+                    _writer.WriteElementString(nameof(TierPrice.StoreId), entityTierPrice.StoreId.ToString());
+                    _writer.WriteElementString(nameof(TierPrice.CustomerRoleId), entityTierPrice.CustomerRoleId?.ToString() ?? string.Empty);
+                    _writer.WriteElementString(nameof(TierPrice.Quantity), entityTierPrice.Quantity.ToString());
+                    _writer.WriteElementString(nameof(TierPrice.Price), entityTierPrice.Price.ToString(_culture));
+                    _writer.WriteElementString(nameof(TierPrice.CalculationMethod), ((int)entityTierPrice.CalculationMethod).ToString());
                     _writer.WriteEndElement();
                 }
                 _writer.WriteEndElement();
@@ -784,10 +784,10 @@ namespace Smartstore.Core.Platform.DataExchange.Export
                     ProductTag entityTag = tag.Entity;
 
                     _writer.WriteStartElement("ProductTag");
-                    _writer.WriteElementString("Id", ((int)tag.Id).ToString());
-                    _writer.WriteElementString("Name", (string)tag.Name);
+                    _writer.WriteElementString(nameof(ProductTag.Id), ((int)tag.Id).ToString());
+                    _writer.WriteElementString(nameof(ProductTag.Name), (string)tag.Name);
                     _writer.WriteElementString("SeName", (string)tag.SeName);
-                    _writer.WriteElementString("Published", entityTag.Published.ToString());
+                    _writer.WriteElementString(nameof(ProductTag.Published), entityTag.Published.ToString());
 
                     WriteLocalized(tag);
 
@@ -804,10 +804,10 @@ namespace Smartstore.Core.Platform.DataExchange.Export
                     ProductMediaFile entityProductPicture = productPicture.Entity;
 
                     _writer.WriteStartElement("ProductPicture");
-                    _writer.WriteElementString("Id", entityProductPicture.Id.ToString());
-                    _writer.WriteElementString("DisplayOrder", entityProductPicture.DisplayOrder.ToString());
+                    _writer.WriteElementString(nameof(ProductMediaFile.Id), entityProductPicture.Id.ToString());
+                    _writer.WriteElementString(nameof(ProductMediaFile.DisplayOrder), entityProductPicture.DisplayOrder.ToString());
 
-                    WritePicture(productPicture.Picture, "Picture");
+                    WriteMediaFile(productPicture.Picture, "Picture");
                     _writer.WriteEndElement();
                 }
                 _writer.WriteEndElement();
@@ -821,9 +821,9 @@ namespace Smartstore.Core.Platform.DataExchange.Export
                     ProductCategory entityProductCategory = productCategory.Entity;
 
                     _writer.WriteStartElement("ProductCategory");
-                    _writer.WriteElementString("Id", entityProductCategory.Id.ToString());
-                    _writer.WriteElementString("DisplayOrder", entityProductCategory.DisplayOrder.ToString());
-                    _writer.WriteElementString("IsFeaturedProduct", entityProductCategory.IsFeaturedProduct.ToString());
+                    _writer.WriteElementString(nameof(ProductCategory.Id), entityProductCategory.Id.ToString());
+                    _writer.WriteElementString(nameof(ProductCategory.DisplayOrder), entityProductCategory.DisplayOrder.ToString());
+                    _writer.WriteElementString(nameof(ProductCategory.IsFeaturedProduct), entityProductCategory.IsFeaturedProduct.ToString());
 
                     WriteCategory(productCategory.Category, "Category");
                     _writer.WriteEndElement();
@@ -839,9 +839,9 @@ namespace Smartstore.Core.Platform.DataExchange.Export
                     ProductManufacturer entityProductManu = productManu.Entity;
 
                     _writer.WriteStartElement("ProductManufacturer");
-                    _writer.WriteElementString("Id", entityProductManu.Id.ToString());
-                    _writer.WriteElementString("DisplayOrder", entityProductManu.DisplayOrder.ToString());
-                    _writer.WriteElementString("IsFeaturedProduct", entityProductManu.IsFeaturedProduct.ToString());
+                    _writer.WriteElementString(nameof(ProductManufacturer.Id), entityProductManu.Id.ToString());
+                    _writer.WriteElementString(nameof(ProductManufacturer.DisplayOrder), entityProductManu.DisplayOrder.ToString());
+                    _writer.WriteElementString(nameof(ProductManufacturer.IsFeaturedProduct), entityProductManu.IsFeaturedProduct.ToString());
 
                     WriteManufacturer(productManu.Manufacturer, "Manufacturer");
                     _writer.WriteEndElement();
@@ -857,21 +857,21 @@ namespace Smartstore.Core.Platform.DataExchange.Export
                     ProductBundleItem entityPbi = bundleItem.Entity;
 
                     _writer.WriteStartElement("ProductBundleItem");
-                    _writer.WriteElementString("Id", entityPbi.Id.ToString());
-                    _writer.WriteElementString("ProductId", entityPbi.ProductId.ToString());
-                    _writer.WriteElementString("BundleProductId", entityPbi.BundleProductId.ToString());
-                    _writer.WriteElementString("Quantity", entityPbi.Quantity.ToString());
-                    _writer.WriteElementString("Discount", entityPbi.Discount.HasValue ? entityPbi.Discount.Value.ToString(_culture) : string.Empty);
-                    _writer.WriteElementString("DiscountPercentage", entityPbi.DiscountPercentage.ToString());
-                    _writer.WriteElementString("Name", (string)bundleItem.Name);
-                    _writer.WriteElementString("ShortDescription", (string)bundleItem.ShortDescription);
-                    _writer.WriteElementString("FilterAttributes", entityPbi.FilterAttributes.ToString());
-                    _writer.WriteElementString("HideThumbnail", entityPbi.HideThumbnail.ToString());
-                    _writer.WriteElementString("Visible", entityPbi.Visible.ToString());
-                    _writer.WriteElementString("Published", entityPbi.Published.ToString());
-                    _writer.WriteElementString("DisplayOrder", ((int)bundleItem.DisplayOrder).ToString());
-                    _writer.WriteElementString("CreatedOnUtc", entityPbi.CreatedOnUtc.ToString(_culture));
-                    _writer.WriteElementString("UpdatedOnUtc", entityPbi.UpdatedOnUtc.ToString(_culture));
+                    _writer.WriteElementString(nameof(ProductBundleItem.Id), entityPbi.Id.ToString());
+                    _writer.WriteElementString(nameof(ProductBundleItem.ProductId), entityPbi.ProductId.ToString());
+                    _writer.WriteElementString(nameof(ProductBundleItem.BundleProductId), entityPbi.BundleProductId.ToString());
+                    _writer.WriteElementString(nameof(ProductBundleItem.Quantity), entityPbi.Quantity.ToString());
+                    _writer.WriteElementString(nameof(ProductBundleItem.Discount), entityPbi.Discount?.ToString(_culture) ?? string.Empty);
+                    _writer.WriteElementString(nameof(ProductBundleItem.DiscountPercentage), entityPbi.DiscountPercentage.ToString());
+                    _writer.WriteElementString(nameof(ProductBundleItem.Name), (string)bundleItem.Name);
+                    _writer.WriteElementString(nameof(ProductBundleItem.ShortDescription), (string)bundleItem.ShortDescription);
+                    _writer.WriteElementString(nameof(ProductBundleItem.FilterAttributes), entityPbi.FilterAttributes.ToString());
+                    _writer.WriteElementString(nameof(ProductBundleItem.HideThumbnail), entityPbi.HideThumbnail.ToString());
+                    _writer.WriteElementString(nameof(ProductBundleItem.Visible), entityPbi.Visible.ToString());
+                    _writer.WriteElementString(nameof(ProductBundleItem.Published), entityPbi.Published.ToString());
+                    _writer.WriteElementString(nameof(ProductBundleItem.DisplayOrder), ((int)bundleItem.DisplayOrder).ToString());
+                    _writer.WriteElementString(nameof(ProductBundleItem.CreatedOnUtc), entityPbi.CreatedOnUtc.ToString(_culture));
+                    _writer.WriteElementString(nameof(ProductBundleItem.UpdatedOnUtc), entityPbi.UpdatedOnUtc.ToString(_culture));
 
                     WriteLocalized(bundleItem);
                     _writer.WriteEndElement();  // ProductBundleItem
@@ -896,21 +896,21 @@ namespace Smartstore.Core.Platform.DataExchange.Export
                     ProductAttribute entityPa = pva.Attribute.Entity;
 
                     _writer.WriteStartElement("ProductAttribute");
-                    _writer.WriteElementString("Id", entityPva.Id.ToString());
-                    _writer.WriteElementString("TextPrompt", (string)pva.TextPrompt);
-                    _writer.WriteElementString("IsRequired", entityPva.IsRequired.ToString());
-                    _writer.WriteElementString("AttributeControlTypeId", entityPva.AttributeControlTypeId.ToString());
-                    _writer.WriteElementString("DisplayOrder", entityPva.DisplayOrder.ToString());
+                    _writer.WriteElementString(nameof(ProductVariantAttribute.Id), entityPva.Id.ToString());
+                    _writer.WriteElementString(nameof(ProductVariantAttribute.TextPrompt), (string)pva.TextPrompt);
+                    _writer.WriteElementString(nameof(ProductVariantAttribute.IsRequired), entityPva.IsRequired.ToString());
+                    _writer.WriteElementString(nameof(ProductVariantAttribute.AttributeControlTypeId), entityPva.AttributeControlTypeId.ToString());
+                    _writer.WriteElementString(nameof(ProductVariantAttribute.DisplayOrder), entityPva.DisplayOrder.ToString());
 
                     _writer.WriteStartElement("Attribute");
-                    _writer.WriteElementString("Id", entityPa.Id.ToString());
-                    _writer.WriteElementString("Alias", entityPa.Alias);
-                    _writer.WriteElementString("Name", entityPa.Name);
-                    _writer.WriteElementString("Description", entityPa.Description);
-                    _writer.WriteElementString("AllowFiltering", entityPa.AllowFiltering.ToString());
-                    _writer.WriteElementString("DisplayOrder", entityPa.DisplayOrder.ToString());
-                    _writer.WriteElementString("FacetTemplateHint", ((int)entityPa.FacetTemplateHint).ToString());
-                    _writer.WriteElementString("IndexOptionNames", entityPa.IndexOptionNames.ToString());
+                    _writer.WriteElementString(nameof(ProductAttribute.Id), entityPa.Id.ToString());
+                    _writer.WriteElementString(nameof(ProductAttribute.Alias), entityPa.Alias);
+                    _writer.WriteElementString(nameof(ProductAttribute.Name), entityPa.Name);
+                    _writer.WriteElementString(nameof(ProductAttribute.Description), entityPa.Description);
+                    _writer.WriteElementString(nameof(ProductAttribute.AllowFiltering), entityPa.AllowFiltering.ToString());
+                    _writer.WriteElementString(nameof(ProductAttribute.DisplayOrder), entityPa.DisplayOrder.ToString());
+                    _writer.WriteElementString(nameof(ProductAttribute.FacetTemplateHint), ((int)entityPa.FacetTemplateHint).ToString());
+                    _writer.WriteElementString(nameof(ProductAttribute.IndexOptionNames), entityPa.IndexOptionNames.ToString());
 
                     WriteLocalized(pva.Attribute);
                     _writer.WriteEndElement();  // Attribute
@@ -921,17 +921,17 @@ namespace Smartstore.Core.Platform.DataExchange.Export
                         ProductVariantAttributeValue entityPvav = value.Entity;
 
                         _writer.WriteStartElement("AttributeValue");
-                        _writer.WriteElementString("Id", entityPvav.Id.ToString());
-                        _writer.WriteElementString("Alias", (string)value.Alias);
-                        _writer.WriteElementString("Name", (string)value.Name);
-                        _writer.WriteElementString("Color", (string)value.Color);
-                        _writer.WriteElementString("PriceAdjustment", ((decimal)value.PriceAdjustment).ToString(_culture));
-                        _writer.WriteElementString("WeightAdjustment", ((decimal)value.WeightAdjustment).ToString(_culture));
-                        _writer.WriteElementString("IsPreSelected", entityPvav.IsPreSelected.ToString());
-                        _writer.WriteElementString("DisplayOrder", entityPvav.DisplayOrder.ToString());
-                        _writer.WriteElementString("ValueTypeId", entityPvav.ValueTypeId.ToString());
-                        _writer.WriteElementString("LinkedProductId", entityPvav.LinkedProductId.ToString());
-                        _writer.WriteElementString("Quantity", entityPvav.Quantity.ToString());
+                        _writer.WriteElementString(nameof(ProductVariantAttributeValue.Id), entityPvav.Id.ToString());
+                        _writer.WriteElementString(nameof(ProductVariantAttributeValue.Alias), (string)value.Alias);
+                        _writer.WriteElementString(nameof(ProductVariantAttributeValue.Name), (string)value.Name);
+                        _writer.WriteElementString(nameof(ProductVariantAttributeValue.Color), (string)value.Color);
+                        _writer.WriteElementString(nameof(ProductVariantAttributeValue.PriceAdjustment), ((decimal)value.PriceAdjustment).ToString(_culture));
+                        _writer.WriteElementString(nameof(ProductVariantAttributeValue.WeightAdjustment), ((decimal)value.WeightAdjustment).ToString(_culture));
+                        _writer.WriteElementString(nameof(ProductVariantAttributeValue.IsPreSelected), entityPvav.IsPreSelected.ToString());
+                        _writer.WriteElementString(nameof(ProductVariantAttributeValue.DisplayOrder), entityPvav.DisplayOrder.ToString());
+                        _writer.WriteElementString(nameof(ProductVariantAttributeValue.ValueTypeId), entityPvav.ValueTypeId.ToString());
+                        _writer.WriteElementString(nameof(ProductVariantAttributeValue.LinkedProductId), entityPvav.LinkedProductId.ToString());
+                        _writer.WriteElementString(nameof(ProductVariantAttributeValue.Quantity), entityPvav.Quantity.ToString());
 
                         WriteLocalized(value);
                         _writer.WriteEndElement();  // AttributeValue
@@ -950,29 +950,31 @@ namespace Smartstore.Core.Platform.DataExchange.Export
                     ProductVariantAttributeCombination entityPvac = combination.Entity;
 
                     _writer.WriteStartElement("ProductAttributeCombination");
-                    _writer.WriteElementString("Id", entityPvac.Id.ToString());
-                    _writer.WriteElementString("StockQuantity", entityPvac.StockQuantity.ToString());
-                    _writer.WriteElementString("AllowOutOfStockOrders", entityPvac.AllowOutOfStockOrders.ToString());
-                    _writer.WriteElementString("AttributesXml", entityPvac.RawAttributes);
-                    _writer.WriteElementString("Sku", entityPvac.Sku);
-                    _writer.WriteElementString("Gtin", entityPvac.Gtin);
-                    _writer.WriteElementString("ManufacturerPartNumber", entityPvac.ManufacturerPartNumber);
-                    _writer.WriteElementString("Price", entityPvac.Price.HasValue ? entityPvac.Price.Value.ToString(_culture) : string.Empty);
-                    _writer.WriteElementString("Length", entityPvac.Length.HasValue ? entityPvac.Length.Value.ToString(_culture) : string.Empty);
-                    _writer.WriteElementString("Width", entityPvac.Width.HasValue ? entityPvac.Width.Value.ToString(_culture) : string.Empty);
-                    _writer.WriteElementString("Height", entityPvac.Height.HasValue ? entityPvac.Height.Value.ToString(_culture) : string.Empty);
-                    _writer.WriteElementString("BasePriceAmount", entityPvac.BasePriceAmount.HasValue ? entityPvac.BasePriceAmount.Value.ToString(_culture) : string.Empty);
-                    _writer.WriteElementString("BasePriceBaseAmount", entityPvac.BasePriceBaseAmount.HasValue ? entityPvac.BasePriceBaseAmount.Value.ToString() : string.Empty);
-                    _writer.WriteElementString("AssignedPictureIds", entityPvac.AssignedMediaFileIds);
-                    _writer.WriteElementString("IsActive", entityPvac.IsActive.ToString());
+                    _writer.WriteElementString(nameof(ProductVariantAttributeCombination.Id), entityPvac.Id.ToString());
+                    _writer.WriteElementString(nameof(ProductVariantAttributeCombination.StockQuantity), entityPvac.StockQuantity.ToString());
+                    _writer.WriteElementString(nameof(ProductVariantAttributeCombination.AllowOutOfStockOrders), entityPvac.AllowOutOfStockOrders.ToString());
+                    _writer.WriteElementString(nameof(ProductVariantAttributeCombination.RawAttributes), entityPvac.RawAttributes);
+                    _writer.WriteElementString(nameof(ProductVariantAttributeCombination.Sku), entityPvac.Sku);
+                    _writer.WriteElementString(nameof(ProductVariantAttributeCombination.Gtin), entityPvac.Gtin);
+                    _writer.WriteElementString(nameof(ProductVariantAttributeCombination.ManufacturerPartNumber), entityPvac.ManufacturerPartNumber);
 
-                    WriteDeliveryTime(combination.DeliveryTime, "DeliveryTime");
-                    WriteQuantityUnit(combination.QuantityUnit, "QuantityUnit");
+                    _writer.WriteElementString(nameof(ProductVariantAttributeCombination.Price), entityPvac.Price?.ToString(_culture) ?? string.Empty);
+                    _writer.WriteElementString(nameof(ProductVariantAttributeCombination.Price), entityPvac.Price?.ToString(_culture) ?? string.Empty);
+                    _writer.WriteElementString(nameof(ProductVariantAttributeCombination.Length), entityPvac.Length?.ToString(_culture) ?? string.Empty);
+                    _writer.WriteElementString(nameof(ProductVariantAttributeCombination.Width), entityPvac.Width?.ToString(_culture) ?? string.Empty);
+                    _writer.WriteElementString(nameof(ProductVariantAttributeCombination.Height), entityPvac.Height?.ToString(_culture) ?? string.Empty);
+                    _writer.WriteElementString(nameof(ProductVariantAttributeCombination.BasePriceAmount), entityPvac.BasePriceAmount?.ToString(_culture) ?? string.Empty);
+                    _writer.WriteElementString(nameof(ProductVariantAttributeCombination.BasePriceBaseAmount), entityPvac.BasePriceBaseAmount?.ToString() ?? string.Empty);
+                    _writer.WriteElementString(nameof(ProductVariantAttributeCombination.AssignedMediaFileIds), entityPvac.AssignedMediaFileIds);
+                    _writer.WriteElementString(nameof(ProductVariantAttributeCombination.IsActive), entityPvac.IsActive.ToString());
+
+                    WriteDeliveryTime(combination.DeliveryTime, nameof(ProductVariantAttributeCombination.DeliveryTime));
+                    WriteQuantityUnit(combination.QuantityUnit, nameof(ProductVariantAttributeCombination.QuantityUnit));
 
                     _writer.WriteStartElement("Pictures");
                     foreach (dynamic assignedPicture in combination.Pictures)
                     {
-                        WritePicture(assignedPicture, "Picture");
+                        WriteMediaFile(assignedPicture, "Picture");
                     }
                     _writer.WriteEndElement();  // Pictures
                     _writer.WriteEndElement();  // ProductAttributeCombination
@@ -988,38 +990,38 @@ namespace Smartstore.Core.Platform.DataExchange.Export
                     ProductSpecificationAttribute entityPsa = psa.Entity;
 
                     _writer.WriteStartElement("ProductSpecificationAttribute");
-                    _writer.WriteElementString("Id", entityPsa.Id.ToString());
-                    _writer.WriteElementString("ProductId", entityPsa.ProductId.ToString());
-                    _writer.WriteElementString("SpecificationAttributeOptionId", entityPsa.SpecificationAttributeOptionId.ToString());
-                    _writer.WriteElementString("AllowFiltering", entityPsa.AllowFiltering.ToString());
-                    _writer.WriteElementString("ShowOnProductPage", entityPsa.ShowOnProductPage.ToString());
-                    _writer.WriteElementString("DisplayOrder", entityPsa.DisplayOrder.ToString());
+                    _writer.WriteElementString(nameof(ProductSpecificationAttribute.Id), entityPsa.Id.ToString());
+                    _writer.WriteElementString(nameof(ProductSpecificationAttribute.ProductId), entityPsa.ProductId.ToString());
+                    _writer.WriteElementString(nameof(ProductSpecificationAttribute.SpecificationAttributeOptionId), entityPsa.SpecificationAttributeOptionId.ToString());
+                    _writer.WriteElementString(nameof(ProductSpecificationAttribute.AllowFiltering), entityPsa.AllowFiltering.ToString());
+                    _writer.WriteElementString(nameof(ProductSpecificationAttribute.ShowOnProductPage), entityPsa.ShowOnProductPage.ToString());
+                    _writer.WriteElementString(nameof(ProductSpecificationAttribute.DisplayOrder), entityPsa.DisplayOrder.ToString());
 
                     dynamic option = psa.SpecificationAttributeOption;
                     SpecificationAttributeOption entitySao = option.Entity;
                     SpecificationAttribute entitySa = option.SpecificationAttribute.Entity;
 
                     _writer.WriteStartElement("SpecificationAttributeOption");
-                    _writer.WriteElementString("Id", entitySao.Id.ToString());
-                    _writer.WriteElementString("SpecificationAttributeId", entitySao.SpecificationAttributeId.ToString());
-                    _writer.WriteElementString("DisplayOrder", entitySao.DisplayOrder.ToString());
-                    _writer.WriteElementString("NumberValue", ((decimal)option.NumberValue).ToString(_culture));
-                    _writer.WriteElementString("Color", (string)option.Color);
-                    _writer.WriteElementString("Name", (string)option.Name);
-                    _writer.WriteElementString("Alias", (string)option.Alias);
+                    _writer.WriteElementString(nameof(SpecificationAttributeOption.Id), entitySao.Id.ToString());
+                    _writer.WriteElementString(nameof(SpecificationAttributeOption.SpecificationAttributeId), entitySao.SpecificationAttributeId.ToString());
+                    _writer.WriteElementString(nameof(SpecificationAttributeOption.DisplayOrder), entitySao.DisplayOrder.ToString());
+                    _writer.WriteElementString(nameof(SpecificationAttributeOption.NumberValue), ((decimal)option.NumberValue).ToString(_culture));
+                    _writer.WriteElementString(nameof(SpecificationAttributeOption.Color), (string)option.Color);
+                    _writer.WriteElementString(nameof(SpecificationAttributeOption.Name), (string)option.Name);
+                    _writer.WriteElementString(nameof(SpecificationAttributeOption.Alias), (string)option.Alias);
 
                     WriteLocalized(option);
 
                     _writer.WriteStartElement("SpecificationAttribute");
-                    _writer.WriteElementString("Id", entitySa.Id.ToString());
-                    _writer.WriteElementString("Name", (string)option.SpecificationAttribute.Name);
-                    _writer.WriteElementString("Alias", (string)option.SpecificationAttribute.Alias);
-                    _writer.WriteElementString("DisplayOrder", entitySa.DisplayOrder.ToString());
-                    _writer.WriteElementString("AllowFiltering", entitySa.AllowFiltering.ToString());
-                    _writer.WriteElementString("ShowOnProductPage", entitySa.ShowOnProductPage.ToString());
-                    _writer.WriteElementString("FacetSorting", ((int)entitySa.FacetSorting).ToString());
-                    _writer.WriteElementString("FacetTemplateHint", ((int)entitySa.FacetTemplateHint).ToString());
-                    _writer.WriteElementString("IndexOptionNames", entitySa.IndexOptionNames.ToString());
+                    _writer.WriteElementString(nameof(SpecificationAttribute.Id), entitySa.Id.ToString());
+                    _writer.WriteElementString(nameof(SpecificationAttribute.Name), (string)option.SpecificationAttribute.Name);
+                    _writer.WriteElementString(nameof(SpecificationAttribute.Alias), (string)option.SpecificationAttribute.Alias);
+                    _writer.WriteElementString(nameof(SpecificationAttribute.DisplayOrder), entitySa.DisplayOrder.ToString());
+                    _writer.WriteElementString(nameof(SpecificationAttribute.AllowFiltering), entitySa.AllowFiltering.ToString());
+                    _writer.WriteElementString(nameof(SpecificationAttribute.ShowOnProductPage), entitySa.ShowOnProductPage.ToString());
+                    _writer.WriteElementString(nameof(SpecificationAttribute.FacetSorting), ((int)entitySa.FacetSorting).ToString());
+                    _writer.WriteElementString(nameof(SpecificationAttribute.FacetTemplateHint), ((int)entitySa.FacetTemplateHint).ToString());
+                    _writer.WriteElementString(nameof(SpecificationAttribute.IndexOptionNames), entitySa.IndexOptionNames.ToString());
 
                     WriteLocalized(option.SpecificationAttribute);
 
@@ -1031,7 +1033,6 @@ namespace Smartstore.Core.Platform.DataExchange.Export
                 _writer.WriteEndElement();  // ProductSpecificationAttributes
             }
         }
-
 
         protected override void OnDispose(bool disposing)
         {

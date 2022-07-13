@@ -17,7 +17,7 @@ using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Common;
 using Smartstore.Core.Data;
-using Smartstore.Threading;
+using Smartstore.Http;
 using Smartstore.Utilities.Html;
 using Smartstore.Web.Controllers;
 
@@ -653,7 +653,11 @@ namespace Smartstore.AmazonPay.Controllers
             // Add order note.
             if ((orderUpdated || chargeback) && _settings.AddOrderNotes)
             {
-                var faviconUrl = Services.WebHelper.GetStoreLocation() + "Modules/Smartstore.AmazonPay/favicon.png";
+                var faviconUrl = WebHelper.GetAbsoluteUrl(
+                    Url.Content("~/Modules/Smartstore.AmazonPay/favicon.png"),
+                    HttpContext.Request,
+                    true);
+
                 string note;
 
                 if (chargeback)

@@ -127,7 +127,7 @@ namespace Smartstore.Admin.Controllers
         }
 
         [Permission(Permissions.System.ScheduleTask.Execute)]
-        public async Task<IActionResult> RunJob(int id, string returnUrl = "")
+        public async Task<IActionResult> RunJob(int id, string returnUrl)
         {
             var taskParams = new Dictionary<string, string>
             {
@@ -162,7 +162,7 @@ namespace Smartstore.Admin.Controllers
         }
 
         [Permission(Permissions.System.ScheduleTask.Execute)]
-        public IActionResult CancelJob(int id /* taskId */, string returnUrl = "")
+        public IActionResult CancelJob(int id /* taskId */, string returnUrl)
         {
             if (_asyncState.Cancel<TaskDescriptor>(id.ToString()))
             {

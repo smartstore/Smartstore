@@ -1,11 +1,9 @@
-﻿using System.Globalization;
-using Autofac;
+﻿using Autofac;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
 using Smartstore.Data;
-using Smartstore.Utilities;
 
 namespace Smartstore.Core.DataExchange.Import
 {
@@ -276,21 +274,6 @@ namespace Smartstore.Core.DataExchange.Import
 
             // Commit whole batch at once.
             return await scope.CommitAsync(context.CancelToken);
-        }
-
-        /// <summary>
-        /// Converts a raw import value and returns <c>null</c> for a value of zero.
-        /// </summary>
-        /// <param name="value">Import value.</param>
-        /// <param name="culture">Culture info.</param>
-        protected static int? ZeroToNull(object value, CultureInfo culture)
-        {
-            if (CommonHelper.TryConvert(value, culture, out int result) && result > 0)
-            {
-                return result;
-            }
-
-            return null;
         }
     }
 }

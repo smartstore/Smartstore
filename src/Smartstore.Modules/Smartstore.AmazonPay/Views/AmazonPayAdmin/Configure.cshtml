@@ -3,8 +3,6 @@
 @{
     Layout = "_ConfigureProvider";
 
-    var configGroups = T("Plugins.Payments.AmazonPay.ConfigGroups").Value.SplitSafe(';');
-
     var marketplace = new List<SelectListItem>
     {
         new SelectListItem { Text = T("Plugins.Payments.AmazonPay.Marketplace.De"), Value = "de" },
@@ -50,7 +48,7 @@
     <div id="amazonpay-config" class="adminContent">
         <div class="adminRow">
             <div class="admin-config-group">
-                <div class="head">@configGroups.ElementAtOrDefault(0)</div>
+                <div class="head">@T("Identity.AuthenticationCredentials")</div>
             </div>
         </div>
         <div class="adminRow">
@@ -171,7 +169,7 @@
 
         <div class="adminRow">
             <div class="admin-config-group">
-                <div class="title">@configGroups.ElementAtOrDefault(1)</div>
+                <div class="title">@T("Admin.Common.DataExchange")</div>
             </div>
         </div>
         <div class="adminRow">
@@ -232,7 +230,7 @@
 
         <div class="adminRow">
             <div class="admin-config-group">
-                <div class="title">@configGroups.ElementAtOrDefault(2)</div>
+                <div class="title">@T("Plugins.Payments.AmazonPay.Layout")</div>
             </div>
         </div>
         <div class="adminRow">
@@ -260,7 +258,7 @@
 
         <div class="adminRow">
             <div class="admin-config-group">
-                <div class="title">@configGroups.ElementAtOrDefault(3)</div>
+                <div class="title">@T("Common.Misc")</div>
             </div>
         </div>
         <div class="adminRow">
@@ -375,12 +373,12 @@
             $('#register-now-form').submit();
         });
 
-        // Save access data.
+        // Save authentication credentials.
         $('#amazon-save-access-data').on('click', function () {
             $('#access-data-form').submit();
         });
 
-        // Paste access data.
+        // Paste authentication credentials.
         $('.paste-access-data').click(function () {
             //$('#amazon-access-data').trigger('change');
             $('#register-now-dialog').modal('show');

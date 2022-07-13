@@ -18,27 +18,27 @@ namespace Smartstore.Core.DataExchange.Import
 {
     public class ProductImporter : EntityImporterBase
     {
-        private const string CARGO_DATA_KEY = "ProductImporter.CargoData";
+        const string CargoDataKey = "ProductImporter.CargoData";
 
         /// <summary>
         /// Old Product.Id -> new Product.Id
         /// </summary>
-        private const string TARGET_PRODUCT_IDS_KEY = "ProductImporter.TargetProductIds";
+        const string TargetProductIdsKey = "ProductImporter.TargetProductIds";
 
         /// <summary>
         /// Old Product.Id -> old Product.ParentGroupedProductId
         /// </summary>
-        private const string PARENT_PRODUCT_IDS_KEY = "ProductImporter.ParentProductIds";
+        const string ParentProductIdsKey = "ProductImporter.ParentProductIds";
 
         private static readonly Dictionary<string, Expression<Func<Product, string>>> _localizableProperties = new()
         {
-            { "Name", x => x.Name },
-            { "ShortDescription", x => x.ShortDescription },
-            { "FullDescription", x => x.FullDescription },
-            { "MetaKeywords", x => x.MetaKeywords },
-            { "MetaDescription", x => x.MetaDescription },
-            { "MetaTitle", x => x.MetaTitle },
-            { "BundleTitleText", x => x.BundleTitleText }
+            { nameof(Product.Name), x => x.Name },
+            { nameof(Product.ShortDescription), x => x.ShortDescription },
+            { nameof(Product.FullDescription), x => x.FullDescription },
+            { nameof(Product.MetaKeywords), x => x.MetaKeywords },
+            { nameof(Product.MetaDescription), x => x.MetaDescription },
+            { nameof(Product.MetaTitle), x => x.MetaTitle },
+            { nameof(Product.BundleTitleText), x => x.BundleTitleText }
         };
 
         private readonly IMediaImporter _mediaImporter;
@@ -57,8 +57,21 @@ namespace Smartstore.Core.DataExchange.Import
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
 
-        public static string[] SupportedKeyFields => new[] { "Id", "Sku", "Gtin", "ManufacturerPartNumber", "Name" };
-        public static string[] DefaultKeyFields => new[] { "Sku", "Gtin", "ManufacturerPartNumber" };
+        public static string[] SupportedKeyFields => new[]
+        {
+            nameof(Product.Id),
+            nameof(Product.Sku),
+            nameof(Product.Gtin),
+            nameof(Product.ManufacturerPartNumber),
+            nameof(Product.Name)
+        };
+
+        public static string[] DefaultKeyFields => new[] 
+        {
+            nameof(Product.Sku),
+            nameof(Product.Gtin),
+            nameof(Product.ManufacturerPartNumber)
+        };
 
         protected override async Task ProcessBatchAsync(ImportExecuteContext context, CancellationToken cancelToken = default)
         {
@@ -227,9 +240,9 @@ namespace Smartstore.Core.DataExchange.Import
                     // ===========================================================================
                     // 9.) Map parent ID of inserted products.
                     // ===========================================================================
-                    if (segmenter.HasColumn("Id") &&
-                        segmenter.HasColumn("ParentGroupedProductId") &&
-                        !segmenter.IsIgnored("ParentGroupedProductId"))
+                    if (segmenter.HasColumn(nameof(Product.Id)) &&
+                        segmenter.HasColumn(nameof(Product.ParentGroupedProductId)) &&
+                        !segmenter.IsIgnored(nameof(Product.ParentGroupedProductId)))
                     {
                         await ProcessGroupedProductsAsync(context, scope);
                     }
@@ -248,17 +261,17 @@ namespace Smartstore.Core.DataExchange.Import
         {
             var cargo = await GetCargoData(context);
             var defaultTemplateId = cargo.TemplateViewPaths["Product"];
-            var hasNameColumn = context.DataSegmenter.HasColumn("Name");
-            var parentProductIds = context.GetCustomProperty<Dictionary<int, int>>(PARENT_PRODUCT_IDS_KEY);
+            var hasNameColumn = context.DataSegmenter.HasColumn(nameof(Product.Name));
+            var parentProductIds = context.GetCustomProperty<Dictionary<int, int>>(ParentProductIdsKey);
 
             foreach (var row in batch)
             {
                 Product product = null;
-                var id = row.GetDataValue<int>("Id");
+                var id = row.GetDataValue<int>(nameof(Product.Id));
 
                 foreach (var keyName in context.KeyFieldNames)
                 {
-                    if (keyName == "Id")
+                    if (keyName == nameof(Product.Id))
                     {
                         product = await _db.Products.FindByIdAsync(id, true, context.CancelToken);
                     }
@@ -269,22 +282,22 @@ namespace Smartstore.Core.DataExchange.Import
                         {
                             switch (keyName)
                             {
-                                case "Sku":
+                                case nameof(Product.Sku):
                                     product = await _db.Products
                                         .ApplySkuFilter(keyValue)
                                         .FirstOrDefaultAsync(context.CancelToken);
                                     break;
-                                case "Gtin":
+                                case nameof(Product.Gtin):
                                     product = await _db.Products
                                         .ApplyGtinFilter(keyValue)
                                         .FirstOrDefaultAsync(context.CancelToken);
                                     break;
-                                case "ManufacturerPartNumber":
+                                case nameof(Product.ManufacturerPartNumber):
                                     product = await _db.Products
                                         .ApplyMpnFilter(keyValue)
                                         .FirstOrDefaultAsync(context.CancelToken);
                                     break;
-                                case "Name":
+                                case nameof(Product.Name):
                                     product = await _db.Products
                                         .AsQueryable()
                                         .Where(x => x.Name == keyValue)
@@ -308,17 +321,17 @@ namespace Smartstore.Core.DataExchange.Import
                     }
 
                     // A name is required for new products.
-                    if (!row.HasDataValue("Name"))
+                    if (!row.HasDataValue(nameof(Product.Name)))
                     {
                         ++context.Result.SkippedRecords;
-                        context.Result.AddError("The 'Name' field is required for new products. Skipping row.", row.RowInfo, "Name");
+                        context.Result.AddMissingFieldError(row.RowInfo, nameof(Product), nameof(Product.Name));
                         continue;
                     }
 
                     product = new Product();
                 }
 
-                var name = row.GetDataValue<string>("Name");
+                var name = row.GetDataValue<string>(nameof(Product.Name));
 
                 row.Initialize(product, name ?? product.Name);
 
@@ -359,7 +372,7 @@ namespace Smartstore.Core.DataExchange.Import
                 row.SetProperty(context.Result, (x) => x.DownloadExpirationDays);
                 row.SetProperty(context.Result, (x) => x.DownloadActivationTypeId, 1);
                 row.SetProperty(context.Result, (x) => x.HasSampleDownload);
-                row.SetProperty(context.Result, (x) => x.SampleDownloadId, null, ZeroToNull);    // TODO: global scope
+                row.SetProperty(context.Result, (x) => x.SampleDownloadId, null, ImportUtility.ZeroToNull);    // TODO: global scope
                 row.SetProperty(context.Result, (x) => x.HasUserAgreement);
                 row.SetProperty(context.Result, (x) => x.UserAgreementText);
                 row.SetProperty(context.Result, (x) => x.IsRecurring);
@@ -424,19 +437,19 @@ namespace Smartstore.Core.DataExchange.Import
                 row.SetProperty(context.Result, (x) => x.CustomsTariffNumber);
                 row.SetProperty(context.Result, (x) => x.CountryOfOriginId);
 
-                if (row.TryGetDataValue("QuantityControlType", out int qct))
+                if (row.TryGetDataValue(nameof(Product.QuantityControlType), out int qct))
                 {
                     product.QuantityControlType = (QuantityControlType)qct;
                 }
-                if (row.TryGetDataValue("AttributeChoiceBehaviour", out int attributeChoiceBehaviour))
+                if (row.TryGetDataValue(nameof(Product.AttributeChoiceBehaviour), out int attributeChoiceBehaviour))
                 {
                     product.AttributeChoiceBehaviour = (AttributeChoiceBehaviour)attributeChoiceBehaviour;
                 }
-                if (row.TryGetDataValue("Visibility", out int visibilityValue))
+                if (row.TryGetDataValue(nameof(Product.Visibility), out int visibilityValue))
                 {
                     product.Visibility = (ProductVisibility)visibilityValue;
                 }
-                if (row.TryGetDataValue("Condition", out int conditionValue))
+                if (row.TryGetDataValue(nameof(Product.Condition), out int conditionValue))
                 {
                     product.Condition = (ProductCondition)conditionValue;
                 }
@@ -448,7 +461,7 @@ namespace Smartstore.Core.DataExchange.Import
                         : defaultTemplateId;
                 }
 
-                if (row.TryGetDataValue("ParentGroupedProductId", out int parentId) && parentId != 0 && id != 0)
+                if (row.TryGetDataValue(nameof(Product.ParentGroupedProductId), out int parentId) && parentId != 0 && id != 0)
                 {
                     parentProductIds[id] = parentId;
                 }
@@ -468,11 +481,11 @@ namespace Smartstore.Core.DataExchange.Import
 
             // Get new product ids.
             // Required to assign associated products to their parent products.
-            var targetProductIds = context.GetCustomProperty<Dictionary<int, int>>(TARGET_PRODUCT_IDS_KEY);
+            var targetProductIds = context.GetCustomProperty<Dictionary<int, int>>(TargetProductIdsKey);
 
             foreach (var row in batch.Where(x => x.Entity != null))
             {
-                var id = row.GetDataValue<int>("Id");
+                var id = row.GetDataValue<int>(nameof(Product.Id));
                 if (id != 0)
                 {
                     targetProductIds[id] = row.Entity.Id;
@@ -715,13 +728,13 @@ namespace Smartstore.Core.DataExchange.Import
 
         protected virtual async Task<int> ProcessGroupedProductsAsync(ImportExecuteContext context, DbContextScope scope)
         {
-            var parentProductIds = context.GetCustomProperty<Dictionary<int, int>>(PARENT_PRODUCT_IDS_KEY);
+            var parentProductIds = context.GetCustomProperty<Dictionary<int, int>>(ParentProductIdsKey);
             if (!parentProductIds.Any())
             {
                 return 0;
             }
 
-            var productIds = context.GetCustomProperty<Dictionary<int, int>>(TARGET_PRODUCT_IDS_KEY);
+            var productIds = context.GetCustomProperty<Dictionary<int, int>>(TargetProductIdsKey);
             var newIds = new Dictionary<int, int>();
             var num = 0;
 
@@ -779,7 +792,7 @@ namespace Smartstore.Core.DataExchange.Import
                 {
                     foreach (var row in batch)
                     {
-                        var id = row.GetDataValue<int>("Id");
+                        var id = row.GetDataValue<int>(nameof(TierPrice.Id));
                         var tierPrice = await _db.TierPrices.FindByIdAsync(id, true, context.CancelToken);
 
                         if (tierPrice == null)
@@ -791,7 +804,7 @@ namespace Smartstore.Core.DataExchange.Import
                             }
 
                             // Product-ID is required for new tier prices.
-                            var productId = row.GetDataValue<int>("ProductId");
+                            var productId = row.GetDataValue<int>(nameof(TierPrice.ProductId));
                             
                             if (productId == 0 &&
                                 context.KeyFieldNames.Contains("Sku") && 
@@ -807,7 +820,7 @@ namespace Smartstore.Core.DataExchange.Import
                             if (productId == 0)
                             {
                                 ++context.Result.SkippedRecords;
-                                context.Result.AddError("The 'ProductId' field is required for new tier prices. Skipping row.", row.RowInfo, "ProductId");
+                                context.Result.AddMissingFieldError(row.RowInfo, nameof(TierPrice), nameof(TierPrice.ProductId));
                                 continue;
                             }
 
@@ -825,7 +838,7 @@ namespace Smartstore.Core.DataExchange.Import
                         row.SetProperty(context.Result, (x) => x.Quantity);
                         row.SetProperty(context.Result, (x) => x.Price);
 
-                        if (row.TryGetDataValue("CalculationMethod", out int calcMethod))
+                        if (row.TryGetDataValue(nameof(TierPrice.CalculationMethod), out int calcMethod))
                         {
                             tierPrice.CalculationMethod = (TierPriceCalculationMethod)calcMethod;
                         }
@@ -869,7 +882,7 @@ namespace Smartstore.Core.DataExchange.Import
                 {
                     foreach (var row in batch)
                     {
-                        var id = row.GetDataValue<int>("Id");
+                        var id = row.GetDataValue<int>(nameof(ProductVariantAttributeValue.Id));
                         var attributeValue = await _db.ProductVariantAttributeValues.FindByIdAsync(id, true, context.CancelToken);
 
                         if (attributeValue == null)
@@ -881,18 +894,18 @@ namespace Smartstore.Core.DataExchange.Import
                             }
 
                             // ProductVariantAttributeId is required for new attribute values.
-                            var pvaId = row.GetDataValue<int>("ProductVariantAttributeId");
+                            var pvaId = row.GetDataValue<int>(nameof(ProductVariantAttributeValue.ProductVariantAttributeId));
                             if (pvaId == 0)
                             {
                                 ++context.Result.SkippedRecords;
-                                context.Result.AddError("The 'ProductVariantAttributeId' field is required for new attribute values. Skipping row.", row.RowInfo, "ProductVariantAttributeId");
+                                context.Result.AddMissingFieldError(row.RowInfo, nameof(ProductVariantAttributeValue), nameof(ProductVariantAttributeValue.ProductVariantAttributeId));
                                 continue;
                             }
 
-                            if (!row.HasDataValue("Name"))
+                            if (!row.HasDataValue(nameof(ProductVariantAttributeValue.Name)))
                             {
                                 ++context.Result.SkippedRecords;
-                                context.Result.AddError("The 'Name' field is required for new attribute values. Skipping row.", row.RowInfo, "Name");
+                                context.Result.AddMissingFieldError(row.RowInfo, nameof(ProductVariantAttributeValue), nameof(ProductVariantAttributeValue.Name));
                                 continue;
                             }
 
@@ -943,6 +956,7 @@ namespace Smartstore.Core.DataExchange.Import
             var segmenter = context.DataSegmenter;
             var batch = segmenter.GetCurrentBatch<ProductVariantAttributeCombination>();
             var entityName = await _services.Localization.GetLocalizedEnumAsync(RelatedEntityType.ProductVariantAttributeCombination, _services.WorkContext.WorkingLanguage.Id);
+            var attributesColumnName = nameof(ProductVariantAttributeCombination.RawAttributes);
             var savedEntities = 0;
 
             using (var scope = new DbContextScope(_db, autoDetectChanges: false, minHookImportance: HookImportance.Important, deferCommit: true))
@@ -953,7 +967,7 @@ namespace Smartstore.Core.DataExchange.Import
                 {
                     foreach (var row in batch)
                     {
-                        var id = row.GetDataValue<int>("Id");
+                        var id = row.GetDataValue<int>(nameof(Product.Id));
                         var combination = await _db.ProductVariantAttributeCombinations.FindByIdAsync(id, true, context.CancelToken);
 
                         if (combination == null)
@@ -965,17 +979,17 @@ namespace Smartstore.Core.DataExchange.Import
                                 {
                                     switch (keyName)
                                     {
-                                        case "Sku":
+                                        case nameof(Product.Sku):
                                             combination = await _db.ProductVariantAttributeCombinations
                                                 .ApplySkuFilter(keyValue)
                                                 .FirstOrDefaultAsync(context.CancelToken);
                                             break;
-                                        case "Gtin":
+                                        case nameof(Product.Gtin):
                                             combination = await _db.ProductVariantAttributeCombinations
                                                 .ApplyGtinFilter(keyValue)
                                                 .FirstOrDefaultAsync(context.CancelToken);
                                             break;
-                                        case "ManufacturerPartNumber":
+                                        case nameof(Product.ManufacturerPartNumber):
                                             combination = await _db.ProductVariantAttributeCombinations
                                                 .ApplyMpnFilter(keyValue)
                                                 .FirstOrDefaultAsync(context.CancelToken);
@@ -1014,7 +1028,18 @@ namespace Smartstore.Core.DataExchange.Import
                         row.SetProperty(context.Result, (x) => x.AllowOutOfStockOrders);
                         row.SetProperty(context.Result, (x) => x.DeliveryTimeId);
                         row.SetProperty(context.Result, (x) => x.QuantityUnitId);
-                        row.SetProperty(context.Result, (x) => x.RawAttributes);
+
+                        if (row.TryGetDataValue<string>(attributesColumnName, out var rawAttributes) && rawAttributes.HasValue())
+                        {
+                            if (ImportUtility.ValidateXmlOrJson(ref rawAttributes))
+                            {
+                                combination.RawAttributes = rawAttributes;
+                            }
+                            else
+                            {
+                                context.Result.AddWarning($"Ignored {attributesColumnName} because it contains invalid XML or JSON.", row.RowInfo, attributesColumnName);
+                            }
+                        }
                     }
 
                     savedEntities = await scope.CommitAsync(context.CancelToken);
@@ -1040,7 +1065,7 @@ namespace Smartstore.Core.DataExchange.Import
         /// </summary>
         private async Task<ImporterCargoData> GetCargoData(ImportExecuteContext context)
         {
-            if (context.CustomProperties.TryGetValue(CARGO_DATA_KEY, out object value))
+            if (context.CustomProperties.TryGetValue(CargoDataKey, out object value))
             {
                 return (ImporterCargoData)value;
             }
@@ -1068,7 +1093,7 @@ namespace Smartstore.Core.DataExchange.Import
                 result.ManufacturerIds = await _db.Manufacturers.Select(x => x.Id).ToListAsync(context.CancelToken);
             }
 
-            context.CustomProperties[CARGO_DATA_KEY] = result;
+            context.CustomProperties[CargoDataKey] = result;
             return result;
         }
 
