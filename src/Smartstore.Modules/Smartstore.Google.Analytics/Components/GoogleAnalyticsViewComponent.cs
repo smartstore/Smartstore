@@ -41,7 +41,7 @@ namespace Smartstore.Google.Analytics.Components
                 return Empty();
             }
 
-            var script = string.Empty;
+            var rootScript = string.Empty;
             
             try
             {
@@ -51,14 +51,9 @@ namespace Smartstore.Google.Analytics.Components
 
                 // None of the Google Tag Manager code should be rendered when old (unmigrated) tracking code is still used.
                 var isOldScript = _settings.EcommerceScript.Contains("analytics.js");
-                var cookiesAllowed = _cookieConsentManager.IsCookieAllowed(CookieType.Analytics);
 
                 using var psb = StringBuilderPool.Instance.Get(out var sb);
                 using var writer = new StringWriter(sb);
-
-                _googleAnalyticsScriptHelper.WriteTrackingScript(writer, sb, cookiesAllowed);
-                script = writer.ToString();
-                sb.Clear();
 
                 if (!isOldScript)
                 {
@@ -142,22 +137,25 @@ namespace Smartstore.Google.Analytics.Components
                     await _googleAnalyticsScriptHelper.WriteOrderCompletedScriptAsync(writer, sb);
                 }
 
-                script = script.Replace("{ECOMMERCE}", writer.ToString());
+                var cookiesAllowed = _cookieConsentManager.IsCookieAllowed(CookieType.Analytics);
+
+                rootScript = _googleAnalyticsScriptHelper.GetTrackingScript(cookiesAllowed)
+                    .Replace("{ECOMMERCE}", writer.ToString());
             }
             catch (Exception ex)
             {
                 Logger.Error(ex, "Error creating scripts for google ecommerce tracking");
             }
 
-            if (_settings.MinifyScripts && script.HasValue())
+            if (_settings.MinifyScripts && rootScript.HasValue())
             {
-                script = Minifier.Minify(script);
+                rootScript = Minifier.Minify(rootScript);
             }
 
-            var path = WebHelper.ToAbsolutePath("~/Modules/Smartstore.Google.Analytics/js/google-analytics.utils.js");
-            script = $"<script src='{path}'></script>\n{script}";
+            var path = Url.Content("~/Modules/Smartstore.Google.Analytics/js/google-analytics.utils.js");
+            rootScript = $"<script src='{path}'></script>\n{rootScript}";
         
-            return HtmlContent(script);
+            return HtmlContent(rootScript);
         }
     }
 }

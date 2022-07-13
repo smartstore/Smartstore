@@ -13,6 +13,12 @@ using Smartstore.Core.Stores;
 
 namespace Smartstore.Google.Analytics.Services
 {
+    // TODO: (mh) (core) What you did here makes absolutely no sense. I gave up reviewing.
+    // - Why do you pass the StringBuilder alongside the StringWriter?
+    // - The goal was to minimize string allocations. That does not happen!
+    // - The trick with TextWriter is: you create it once and pass it to all methods in your chain. These methods "contribute" some content directly INTO the writer.
+    // TBD with MC.
+    
     /// <summary>
     /// Helper class to prepare script parts for Google Analytics (GA) according to 
     /// https://developers.google.com/analytics/devguides/collection/ga4/ecommerce?client_type=gtag
@@ -59,16 +65,14 @@ namespace Smartstore.Google.Analytics.Services
         /// Generates global GA script
         /// </summary>
         /// <param name="cookiesAllowed">Defines whether cookies can be used by Google and sets ad_storage & analytics_storage of the consent tag accordingly.</param>
-        public void WriteTrackingScript(StringWriter writer, StringBuilder sb, bool cookiesAllowed)
+        public string GetTrackingScript(bool cookiesAllowed)
         {
-            BuildOptOutCookieScript(sb);
-            var cookieScript = sb.ToString();
-            sb.Clear();
+            using var writer = new StringWriter();
 
             var globalTokens = new Dictionary<string, Func<string>>
             {
                 ["GOOGLEID"] = () => _settings.GoogleId,
-                ["OPTOUTCOOKIE"] = () => cookieScript,
+                ["OPTOUTCOOKIE"] = GetOptOutCookieScript,
 
                 // If no consent to third party cookies was given, set storage type to denied.
                 ["STORAGETYPE"] = () => cookiesAllowed ? "granted" : "denied",
@@ -76,6 +80,8 @@ namespace Smartstore.Google.Analytics.Services
             };
             
             ParseScript(_settings.TrackingScript, writer, globalTokens);
+
+            return writer.ToString();
         }
 
         /// <summary>
@@ -83,7 +89,7 @@ namespace Smartstore.Google.Analytics.Services
         /// Writes script part to fire GA event view_item.
         /// </summary>
         /// <param name="model">ProductDetailsModel already prepared by product controller for product details view.</param>
-        public async Task WriteViewItemScriptAsync(StringWriter writer, StringBuilder sb, ProductDetailsModel model)
+        public async Task WriteViewItemScriptAsync(TextWriter writer, StringBuilder sb, ProductDetailsModel model)
         {
             var brand = model.Brands.FirstOrDefault();
             var defaultProductCategory = (await _categoryService.GetProductCategoriesByProductIdsAsync(new[] { model.Id })).FirstOrDefault();
@@ -122,7 +128,7 @@ namespace Smartstore.Google.Analytics.Services
         /// Writes script part to fire GA event view_cart.
         /// </summary>
         /// <param name="model">ShoppingCartModel already prepared by shoppingcart controller.</param>
-        public async Task WriteCartScriptAsync(StringWriter writer, StringBuilder sb, ShoppingCartModel model)
+        public async Task WriteCartScriptAsync(TextWriter writer, StringBuilder sb, ShoppingCartModel model)
         {
             var currency = _workContext.WorkingCurrency;
             var cart = await _shoppingCartService.GetCartAsync(_workContext.CurrentCustomer, ShoppingCartType.ShoppingCart, _storeContext.CurrentStore.Id);
@@ -155,7 +161,7 @@ namespace Smartstore.Google.Analytics.Services
         /// </summary>
         /// <param name="addShippingInfo">Specifies whether shipping_tier property shoud be added to the event. True if we are on payment selection page.</param>
         /// <param name="addPaymentInfo">Specifies whether payment_type property shoud be added to the event. True if we are on payment selection page.</param>
-        public async Task WriteCheckoutScriptAsync(StringWriter writer, StringBuilder sb, bool addShippingInfo = false, bool addPaymentInfo = false)
+        public async Task WriteCheckoutScriptAsync(TextWriter writer, StringBuilder sb, bool addShippingInfo = false, bool addPaymentInfo = false)
         {
             var currency = _workContext.WorkingCurrency;
             var cart = await _shoppingCartService.GetCartAsync(_workContext.CurrentCustomer, ShoppingCartType.ShoppingCart, _storeContext.CurrentStore.Id);
@@ -252,7 +258,7 @@ namespace Smartstore.Google.Analytics.Services
         /// <param name="products"><see cref="List<ProductSummaryModel.SummaryItem>"/> already prepared by category controller.</param>
         /// <param name="listName">List identifier (action or view component name e.g. category-list, RecentlyViewedProducts, etc.).</param>
         /// <param name="categoryId">First category of the product, when called form category view.</param>
-        public async Task WriteListScriptAsync(StringWriter writer, StringBuilder sb, List<ProductSummaryModel.SummaryItem> products, string listName, int categoryId = 0)
+        public async Task WriteListScriptAsync(TextWriter writer, StringBuilder sb, List<ProductSummaryModel.SummaryItem> products, string listName, int categoryId = 0)
         {
             await BuildItemsScriptAsync(sb, products, listName, categoryId);
             var items = sb.ToString();
@@ -347,7 +353,7 @@ namespace Smartstore.Google.Analytics.Services
         /// Will be rendered after global GA script.
         /// Writes script part to fire GA event search.
         /// </summary>
-        public void WriteSearchTermScript(StringWriter writer, string searchTerm)
+        public void WriteSearchTermScript(TextWriter writer, string searchTerm)
         {
             var eventScript = @$"
                 gtag('event', 'search', {{
@@ -363,7 +369,7 @@ namespace Smartstore.Google.Analytics.Services
         /// Will be rendered after global GA script.
         /// Writes script part to fire GA event purchase.
         /// </summary>
-        public async Task WriteOrderCompletedScriptAsync(StringWriter writer, StringBuilder sb)
+        public async Task WriteOrderCompletedScriptAsync(TextWriter writer, StringBuilder sb)
         {
             var order = await GetLastOrderAsync();
             
@@ -429,9 +435,9 @@ namespace Smartstore.Google.Analytics.Services
         /// <summary>
         /// Builds script to provide functions for cookie usage opt-out. Usage is described in AdminInstruction.
         /// </summary>
-        private void BuildOptOutCookieScript(StringBuilder sb)
+        private string GetOptOutCookieScript()
         {
-            sb.AppendLine(@$"
+            return @$"
 				var gaProperty = '{_settings.GoogleId}'; 
 				var disableStr = 'ga-disable-' + gaProperty; 
 				if (document.cookie.indexOf(disableStr + '=true') > -1) {{ 
@@ -441,8 +447,7 @@ namespace Smartstore.Google.Analytics.Services
 					document.cookie = disableStr + '=true; expires=Thu, 31 Dec 2099 23:59:59 UTC; path=/'; 
 					window[disableStr] = true; 
 					alert({T("Plugins.Widgets.GoogleAnalytics.OptOutNotification").JsValue});
-                }}
-			");
+                }}";
         }
 
         // TODO: (mh) (core) Maybe we don't need two methods for this.

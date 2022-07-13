@@ -41,7 +41,6 @@ namespace Smartstore.Threading
 
         private readonly object _key;
         private readonly SemaphoreSlim _semaphore;
-        private readonly ILockHandle _handle;
 
         private AsyncLock(object key)
             : this()
