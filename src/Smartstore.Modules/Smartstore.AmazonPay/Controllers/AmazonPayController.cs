@@ -17,7 +17,7 @@ using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Common;
 using Smartstore.Core.Data;
-using Smartstore.Threading;
+using Smartstore.Http;
 using Smartstore.Utilities.Html;
 using Smartstore.Web.Controllers;
 
@@ -34,6 +34,7 @@ namespace Smartstore.AmazonPay.Controllers
         private readonly IOrderProcessingService _orderProcessingService;
         private readonly IOrderCalculationService _orderCalculationService;
         private readonly IPaymentService _paymentService;
+        private readonly IUrlHelper _urlHelper;
         private readonly AmazonPaySettings _settings;
         private readonly OrderSettings _orderSettings;
 
@@ -47,6 +48,7 @@ namespace Smartstore.AmazonPay.Controllers
             IOrderProcessingService orderProcessingService,
             IOrderCalculationService orderCalculationService,
             IPaymentService paymentService,
+            IUrlHelper urlHelper,
             AmazonPaySettings amazonPaySettings,
             OrderSettings orderSettings)
         {
@@ -59,6 +61,7 @@ namespace Smartstore.AmazonPay.Controllers
             _orderProcessingService = orderProcessingService;
             _orderCalculationService = orderCalculationService;
             _paymentService = paymentService;
+            _urlHelper = urlHelper;
             _settings = amazonPaySettings;
             _orderSettings = orderSettings;
         }
@@ -653,7 +656,11 @@ namespace Smartstore.AmazonPay.Controllers
             // Add order note.
             if ((orderUpdated || chargeback) && _settings.AddOrderNotes)
             {
-                var faviconUrl = Services.WebHelper.GetStoreLocation() + "Modules/Smartstore.AmazonPay/favicon.png";
+                var faviconUrl = WebHelper.GetAbsoluteUrl(
+                    _urlHelper.Content("~/Modules/Smartstore.AmazonPay/favicon.png"),
+                    _urlHelper.ActionContext.HttpContext.Request,
+                    true);
+
                 string note;
 
                 if (chargeback)
