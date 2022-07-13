@@ -34,7 +34,6 @@ namespace Smartstore.AmazonPay.Controllers
         private readonly IOrderProcessingService _orderProcessingService;
         private readonly IOrderCalculationService _orderCalculationService;
         private readonly IPaymentService _paymentService;
-        private readonly IUrlHelper _urlHelper;
         private readonly AmazonPaySettings _settings;
         private readonly OrderSettings _orderSettings;
 
@@ -48,7 +47,6 @@ namespace Smartstore.AmazonPay.Controllers
             IOrderProcessingService orderProcessingService,
             IOrderCalculationService orderCalculationService,
             IPaymentService paymentService,
-            IUrlHelper urlHelper,
             AmazonPaySettings amazonPaySettings,
             OrderSettings orderSettings)
         {
@@ -61,7 +59,6 @@ namespace Smartstore.AmazonPay.Controllers
             _orderProcessingService = orderProcessingService;
             _orderCalculationService = orderCalculationService;
             _paymentService = paymentService;
-            _urlHelper = urlHelper;
             _settings = amazonPaySettings;
             _orderSettings = orderSettings;
         }
@@ -657,8 +654,8 @@ namespace Smartstore.AmazonPay.Controllers
             if ((orderUpdated || chargeback) && _settings.AddOrderNotes)
             {
                 var faviconUrl = WebHelper.GetAbsoluteUrl(
-                    _urlHelper.Content("~/Modules/Smartstore.AmazonPay/favicon.png"),
-                    _urlHelper.ActionContext.HttpContext.Request,
+                    Url.Content("~/Modules/Smartstore.AmazonPay/favicon.png"),
+                    HttpContext.Request,
                     true);
 
                 string note;
