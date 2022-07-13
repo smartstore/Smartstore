@@ -13,9 +13,6 @@ using Smartstore.Core.Stores;
 
 namespace Smartstore.Google.Analytics.Services
 {
-    // TODO: (mh) (core) Correct docs they don't return nothing anymore.
-    // TODO: (mh) (core) Correct method names e.g. form GetTrackingScript to WriteTrackingScript
-
     /// <summary>
     /// Helper class to prepare script parts for Google Analytics (GA) according to 
     /// https://developers.google.com/analytics/devguides/collection/ga4/ecommerce?client_type=gtag
@@ -62,9 +59,9 @@ namespace Smartstore.Google.Analytics.Services
         /// Generates global GA script
         /// </summary>
         /// <param name="cookiesAllowed">Defines whether cookies can be used by Google and sets ad_storage & analytics_storage of the consent tag accordingly.</param>
-        public void GetTrackingScript(StringWriter writer, StringBuilder sb, bool cookiesAllowed)
+        public void WriteTrackingScript(StringWriter writer, StringBuilder sb, bool cookiesAllowed)
         {
-            GetOptOutCookieScript(sb);
+            BuildOptOutCookieScript(sb);
             var cookieScript = sb.ToString();
             sb.Clear();
 
@@ -83,10 +80,10 @@ namespace Smartstore.Google.Analytics.Services
 
         /// <summary>
         /// Generates partial script for product details view. Will be rendered after global GA script.
+        /// Writes script part to fire GA event view_item.
         /// </summary>
         /// <param name="model">ProductDetailsModel already prepared by product controller for product details view.</param>
-        /// <returns>Script part to fire GA event view_item</returns>
-        public async Task GetViewItemScriptAsync(StringWriter writer, StringBuilder sb, ProductDetailsModel model)
+        public async Task WriteViewItemScriptAsync(StringWriter writer, StringBuilder sb, ProductDetailsModel model)
         {
             var brand = model.Brands.FirstOrDefault();
             var defaultProductCategory = (await _categoryService.GetProductCategoriesByProductIdsAsync(new[] { model.Id })).FirstOrDefault();
@@ -94,13 +91,13 @@ namespace Smartstore.Google.Analytics.Services
             
             if (categoryId != 0)
             {
-                await GetCategoryPathAsync(sb, categoryId);
+                await BuildCategoryPathAsync(sb, categoryId);
             }
 
             var categoryPathScript = sb.ToString();
             sb.Clear();
 
-            GetItemScript(sb,
+            BuildItemScript(sb,
                 model.Id,
                 model.Sku,
                 model.Name,
@@ -122,17 +119,17 @@ namespace Smartstore.Google.Analytics.Services
 
         /// <summary>
         /// Generates partial script for shopping cart view. Will be rendered after global GA script.
+        /// Writes script part to fire GA event view_cart.
         /// </summary>
         /// <param name="model">ShoppingCartModel already prepared by shoppingcart controller.</param>
-        /// <returns>Script part to fire GA event view_cart</returns>
-        public async Task GetCartScriptAsync(StringWriter writer, StringBuilder sb, ShoppingCartModel model)
+        public async Task WriteCartScriptAsync(StringWriter writer, StringBuilder sb, ShoppingCartModel model)
         {
             var currency = _workContext.WorkingCurrency;
             var cart = await _shoppingCartService.GetCartAsync(_workContext.CurrentCustomer, ShoppingCartType.ShoppingCart, _storeContext.CurrentStore.Id);
             var cartSubTotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(cart);
             var subTotalConverted = _currencyService.ConvertFromPrimaryCurrency(cartSubTotal.SubtotalWithoutDiscount.Amount, currency);
 
-            GetShoppingCartItemsScript(sb, model.Items.ToList());
+            BuildShoppingCartItemsScript(sb, model.Items.ToList());
             var cartItemsScript = sb.ToString();
             sb.Clear();
 
@@ -154,11 +151,11 @@ namespace Smartstore.Google.Analytics.Services
         /// <summary>
         /// Generates partial script for billing address, payment and shipping selection pages. 
         /// Will be rendered after global GA script.
+        /// Writes script part to fire GA event begin_checkout, add_shipping_info or add_payment_info.
         /// </summary>
         /// <param name="addShippingInfo">Specifies whether shipping_tier property shoud be added to the event. True if we are on payment selection page.</param>
         /// <param name="addPaymentInfo">Specifies whether payment_type property shoud be added to the event. True if we are on payment selection page.</param>
-        /// <returns>Script part to fire GA event begin_checkout, add_shipping_info or add_payment_info</returns>
-        public async Task GetCheckoutScriptAsync(StringWriter writer, StringBuilder sb, bool addShippingInfo = false, bool addPaymentInfo = false)
+        public async Task WriteCheckoutScriptAsync(StringWriter writer, StringBuilder sb, bool addShippingInfo = false, bool addPaymentInfo = false)
         {
             var currency = _workContext.WorkingCurrency;
             var cart = await _shoppingCartService.GetCartAsync(_workContext.CurrentCustomer, ShoppingCartType.ShoppingCart, _storeContext.CurrentStore.Id);
@@ -166,7 +163,7 @@ namespace Smartstore.Google.Analytics.Services
             var subTotalConverted = _currencyService.ConvertFromPrimaryCurrency(cartSubTotal.SubtotalWithoutDiscount.Amount, currency);
 
             var model = await cart.MapAsync();
-            GetShoppingCartItemsScript(sb, model.Items.ToList());
+            BuildShoppingCartItemsScript(sb, model.Items.ToList());
             var cartItemsScript = sb.ToString();
             sb.Clear();
 
@@ -198,15 +195,15 @@ namespace Smartstore.Google.Analytics.Services
         /// <summary>
         /// Generates partial script for shopping cart items. 
         /// Will be rendered for checkout events begin_checkout, add_shipping_info, add_payment_info & view_cart.
+        /// Builds e.g.: [{item_id: "SKU_12345",...}, {...}, n]
         /// </summary>
         /// <param name="products">List of ShoppingCartItemModel</param>
-        /// <returns>e.g.: items: [{item_id: "SKU_12345",...}, {...}, n] </returns>
-        private void GetShoppingCartItemsScript(StringBuilder sb, List<ShoppingCartModel.ShoppingCartItemModel> products)
+        private void BuildShoppingCartItemsScript(StringBuilder sb, List<ShoppingCartModel.ShoppingCartItemModel> products)
         {
             var i = 0;
             foreach (var product in products)
             {
-                GetItemScript(
+                BuildItemScript(
                     sb,
                     product.Id,
                     product.Sku,
@@ -224,18 +221,16 @@ namespace Smartstore.Google.Analytics.Services
 
         /// <summary>
         /// Builds json properties for the category tree as defined by Google.
-        /// </summary>
-        /// <param name="catId">Id of the target category</param>
-        /// <returns>
-        /// Category path in this form:
+        /// Builds category path in this form:
         /// 
         /// item_category: 'Apparel',
         /// item_category2: 'Adult',
         /// item_category3: 'Shirts',
         /// item_category4: 'Crew',
         /// item_category5: 'Short sleeve',
-        /// </returns>
-        private async Task GetCategoryPathAsync(StringBuilder sb, int catId)
+        /// </summary>
+        /// <param name="catId">Id of the target category</param>
+        private async Task BuildCategoryPathAsync(StringBuilder sb, int catId)
         {
             var i = 0;
             var catNode = await _categoryService.GetCategoryTreeAsync(catId, true);
@@ -252,14 +247,14 @@ namespace Smartstore.Google.Analytics.Services
         /// <summary>
         /// Generates partial script for product lists. Used for pages (eg. category, manufacturer) as well as for view components (e.g. HomepageBestsellers, RecentlyViewedProducts)
         /// Will be rendered after global GA script.
+        /// Writes script part to fire GA event view_item_list.
         /// </summary>
         /// <param name="products"><see cref="List<ProductSummaryModel.SummaryItem>"/> already prepared by category controller.</param>
         /// <param name="listName">List identifier (action or view component name e.g. category-list, RecentlyViewedProducts, etc.).</param>
         /// <param name="categoryId">First category of the product, when called form category view.</param>
-        /// <returns>Script part to fire GA event view_item_list</returns>
-        public async Task GetListScriptAsync(StringWriter writer, StringBuilder sb, List<ProductSummaryModel.SummaryItem> products, string listName, int categoryId = 0)
+        public async Task WriteListScriptAsync(StringWriter writer, StringBuilder sb, List<ProductSummaryModel.SummaryItem> products, string listName, int categoryId = 0)
         {
-            await GetItemsScriptAsync(sb, products, listName, categoryId);
+            await BuildItemsScriptAsync(sb, products, listName, categoryId);
             var items = sb.ToString();
             sb.Clear();
 
@@ -278,19 +273,17 @@ namespace Smartstore.Google.Analytics.Services
 
         /// <summary>
         /// Generates script for items property of view_item_list event.
-        /// Used by GetListScriptAsync.
+        /// Used by WriteListScriptAsync.
+        /// Builds e.g.: items: [{item_id: "SKU_12345",...}, {...}, n]
         /// </summary>
         /// <param name="products"><see cref="List<ProductSummaryModel.SummaryItem>"/> already prepared by category controller.</param>
         /// <param name="listName">List identifier (action or view component name e.g. category-list, RecentlyViewedProducts, etc.).</param>
         /// <param name="categoryId">First category of the product, when called form category view.</param>
-        /// <returns>e.g.: items: [{item_id: "SKU_12345",...}, {...}, n] </returns>
-        private async Task GetItemsScriptAsync(StringBuilder sb, List<ProductSummaryModel.SummaryItem> products, string listName, int categoryId = 0)
+        private async Task BuildItemsScriptAsync(StringBuilder sb, List<ProductSummaryModel.SummaryItem> products, string listName, int categoryId = 0)
         {
-            //var categoryPathScript = categoryId != 0 ? await GetCategoryPathAsync(categoryId) : string.Empty;
-
             if (categoryId != 0)
             {
-                await GetCategoryPathAsync(sb, categoryId);
+                await BuildCategoryPathAsync(sb, categoryId);
             }
 
             var categoryPathScript = sb.ToString();
@@ -301,7 +294,7 @@ namespace Smartstore.Google.Analytics.Services
             {
                 var discount = product.Price.SavingAmount;
 
-                GetItemScript(
+                BuildItemScript(
                     sb,
                     product.Id,
                     product.Sku,
@@ -321,9 +314,9 @@ namespace Smartstore.Google.Analytics.Services
 
         /// <summary>
         /// Generates partial script for one item of items property. Inclusive comma.
+        /// Builds e.g.: {item_id: "SKU_12345",...},
         /// </summary>
-        /// <returns>e.g.: {item_id: "SKU_12345",...},</returns>
-        private void GetItemScript(
+        private void BuildItemScript(
             StringBuilder sb,
             int entityId,
             string sku,
@@ -352,9 +345,9 @@ namespace Smartstore.Google.Analytics.Services
         /// <summary>
         /// Generates partial script for search page. 
         /// Will be rendered after global GA script.
+        /// Writes script part to fire GA event search.
         /// </summary>
-        /// <returns>Script part to fire GA event search.</returns>
-        public void GetSearchTermScript(StringWriter writer, string searchTerm)
+        public void WriteSearchTermScript(StringWriter writer, string searchTerm)
         {
             var eventScript = @$"
                 gtag('event', 'search', {{
@@ -368,9 +361,9 @@ namespace Smartstore.Google.Analytics.Services
         /// <summary>
         /// Generates partial script for order completed page. 
         /// Will be rendered after global GA script.
+        /// Writes script part to fire GA event purchase.
         /// </summary>
-        /// <returns>Script part to fire GA event purchase.</returns>
-        public async Task GetOrderCompletedScriptAsync(StringWriter writer, StringBuilder sb)
+        public async Task WriteOrderCompletedScriptAsync(StringWriter writer, StringBuilder sb)
         {
             var order = await GetLastOrderAsync();
             
@@ -433,8 +426,10 @@ namespace Smartstore.Google.Analytics.Services
             }
         }
 
-        // TODO: (mh) (core) Docs & evaluate whether this can be placed in js file somehow.
-        private void GetOptOutCookieScript(StringBuilder sb)
+        /// <summary>
+        /// Builds script to provide functions for cookie usage opt-out. Usage is described in AdminInstruction.
+        /// </summary>
+        private void BuildOptOutCookieScript(StringBuilder sb)
         {
             sb.AppendLine(@$"
 				var gaProperty = '{_settings.GoogleId}'; 

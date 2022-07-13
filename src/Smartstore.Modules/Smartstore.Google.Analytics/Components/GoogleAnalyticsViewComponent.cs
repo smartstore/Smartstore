@@ -56,7 +56,7 @@ namespace Smartstore.Google.Analytics.Components
                 using var psb = StringBuilderPool.Instance.Get(out var sb);
                 using var writer = new StringWriter(sb);
 
-                _googleAnalyticsScriptHelper.GetTrackingScript(writer, sb, cookiesAllowed);
+                _googleAnalyticsScriptHelper.WriteTrackingScript(writer, sb, cookiesAllowed);
                 script = writer.ToString();
                 sb.Clear();
 
@@ -67,7 +67,7 @@ namespace Smartstore.Google.Analytics.Components
                         if (controller.EqualsNoCase("product") && action.EqualsNoCase("productdetails"))
                         {
                             // Product details page > view_item
-                            await _googleAnalyticsScriptHelper.GetViewItemScriptAsync(writer, sb, (ProductDetailsModel)model);
+                            await _googleAnalyticsScriptHelper.WriteViewItemScriptAsync(writer, sb, (ProductDetailsModel)model);
                         }
                         else if (controller.EqualsNoCase("catalog"))
                         {
@@ -95,7 +95,7 @@ namespace Smartstore.Google.Analytics.Components
                             // If there are no products in the list return just global script.
                             if (productList.Count > 0)
                             {
-                                await _googleAnalyticsScriptHelper.GetListScriptAsync(writer, sb, productList, action.ToLower(), catId);
+                                await _googleAnalyticsScriptHelper.WriteListScriptAsync(writer, sb, productList, action.ToLower(), catId);
                             }
                         }
                         else if (controller.EqualsNoCase("search") && action.EqualsNoCase("search"))
@@ -103,8 +103,8 @@ namespace Smartstore.Google.Analytics.Components
                             var searchModel = (SearchResultModel)model;
                             var productList = searchModel.TopProducts.Items;
 
-                            _googleAnalyticsScriptHelper.GetSearchTermScript(writer, searchModel.Term);
-                            await _googleAnalyticsScriptHelper.GetListScriptAsync(writer, sb, productList, action.ToLower());
+                            _googleAnalyticsScriptHelper.WriteSearchTermScript(writer, searchModel.Term);
+                            await _googleAnalyticsScriptHelper.WriteListScriptAsync(writer, sb, productList, action.ToLower());
                         }
                     }
                     if (_settings.RenderCheckoutScripts)
@@ -112,24 +112,24 @@ namespace Smartstore.Google.Analytics.Components
                         if (controller.EqualsNoCase("shoppingcart") && action.EqualsNoCase("cart"))
                         {
                             // Cart page > view_cart + remove_from_cart 
-                            await _googleAnalyticsScriptHelper.GetCartScriptAsync(writer, sb, (ShoppingCartModel)model);
+                            await _googleAnalyticsScriptHelper.WriteCartScriptAsync(writer, sb, (ShoppingCartModel)model);
                         }
                         else if (controller.EqualsNoCase("checkout"))
                         {
                             if (action.EqualsNoCase("billingaddress"))
                             {
                                 // Select billing address > begin_checkout
-                                await _googleAnalyticsScriptHelper.GetCheckoutScriptAsync(writer, sb);
+                                await _googleAnalyticsScriptHelper.WriteCheckoutScriptAsync(writer, sb);
                             }
                             else if (action.EqualsNoCase("paymentmethod"))
                             {
                                 // Payment method page > add_shipping_info
-                                await _googleAnalyticsScriptHelper.GetCheckoutScriptAsync(writer, sb, addShippingInfo: true);
+                                await _googleAnalyticsScriptHelper.WriteCheckoutScriptAsync(writer, sb, addShippingInfo: true);
                             }
                             else if (action.EqualsNoCase("confirm"))
                             {
                                 // Confirm order page > add_payment_info
-                                await _googleAnalyticsScriptHelper.GetCheckoutScriptAsync(writer, sb, addPaymentInfo: true);
+                                await _googleAnalyticsScriptHelper.WriteCheckoutScriptAsync(writer, sb, addPaymentInfo: true);
                             }
                         }
                     }
@@ -139,7 +139,7 @@ namespace Smartstore.Google.Analytics.Components
                 if (controller.EqualsNoCase("checkout") && action.EqualsNoCase("completed") && _settings.RenderCheckoutScripts)
                 {
                     // Checkout completed page > purchase
-                    await _googleAnalyticsScriptHelper.GetOrderCompletedScriptAsync(writer, sb);
+                    await _googleAnalyticsScriptHelper.WriteOrderCompletedScriptAsync(writer, sb);
                 }
 
                 script = script.Replace("{ECOMMERCE}", writer.ToString());

@@ -53,7 +53,7 @@ namespace Smartstore.Google.Analytics
                     using var psb = StringBuilderPool.Instance.Get(out var sb);
                     using var writer = new StringWriter(sb);
 
-                    await _googleAnalyticsScriptHelper.GetListScriptAsync(writer, sb, productList, componentName);
+                    await _googleAnalyticsScriptHelper.WriteListScriptAsync(writer, sb, productList, componentName);
 
                     var itemsScript = writer.ToString();
 
