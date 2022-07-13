@@ -2,7 +2,6 @@
 using Smartstore.ComponentModel;
 using Smartstore.Core.Security;
 using Smartstore.Google.Analytics.Models;
-using Smartstore.Google.Analytics.Settings;
 using Smartstore.Web.Controllers;
 using Smartstore.Web.Modelling.Settings;
 

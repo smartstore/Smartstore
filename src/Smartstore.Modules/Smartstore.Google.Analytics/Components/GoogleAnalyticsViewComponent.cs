@@ -4,11 +4,9 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
 using Smartstore.Core.Identity;
 using Smartstore.Google.Analytics.Services;
-using Smartstore.Google.Analytics.Settings;
 using Smartstore.Http;
+using Smartstore.Utilities;
 using Smartstore.Web.Components;
-using Smartstore.Web.Models.Cart;
-using Smartstore.Web.Models.Catalog;
 using Smartstore.Web.Models.Search;
 
 namespace Smartstore.Google.Analytics.Components
@@ -43,10 +41,8 @@ namespace Smartstore.Google.Analytics.Components
                 return Empty();
             }
 
-            var globalScript = string.Empty;
-            var specificScript = string.Empty;
-            var includeScriptFile = false;
-
+            var script = string.Empty;
+            
             try
             {
                 var routeData = HttpContext.GetRouteData();
@@ -55,112 +51,113 @@ namespace Smartstore.Google.Analytics.Components
 
                 // None of the Google Tag Manager code should be rendered when old (unmigrated) tracking code is still used.
                 var isOldScript = _settings.EcommerceScript.Contains("analytics.js");
-
                 var cookiesAllowed = _cookieConsentManager.IsCookieAllowed(CookieType.Analytics);
-                globalScript += _googleAnalyticsScriptHelper.GetTrackingScript(cookiesAllowed);
 
-                if (_settings.RenderCatalogScripts && !isOldScript)
+                using var psb = StringBuilderPool.Instance.Get(out var sb);
+                using var writer = new StringWriter(sb);
+
+                _googleAnalyticsScriptHelper.GetTrackingScript(writer, sb, cookiesAllowed);
+                script = writer.ToString();
+                sb.Clear();
+
+                if (!isOldScript)
                 {
-                    if (controller.EqualsNoCase("product") && action.EqualsNoCase("productdetails"))
+                    if (_settings.RenderCatalogScripts)
                     {
-                        // Product details page > view_item
-                        specificScript = await _googleAnalyticsScriptHelper.GetViewItemScriptAsync((ProductDetailsModel)model);
+                        if (controller.EqualsNoCase("product") && action.EqualsNoCase("productdetails"))
+                        {
+                            // Product details page > view_item
+                            await _googleAnalyticsScriptHelper.GetViewItemScriptAsync(writer, sb, (ProductDetailsModel)model);
+                        }
+                        else if (controller.EqualsNoCase("catalog"))
+                        {
+                            var catId = 0;
+                            var productList = new List<ProductSummaryModel.SummaryItem>();
+
+                            // Category, Manufacturer, RecentlyViewedProducts, RecentlyAddedProducts & CompareProducts pages
+                            if (action.EqualsNoCase("category"))
+                            {
+                                var categoryModel = (CategoryModel)model;
+                                productList = categoryModel.Products.Items;
+                                catId = categoryModel.Id;
+                            }
+                            else if (action.EqualsNoCase("manufacturer"))
+                            {
+                                productList = ((BrandModel)model).Products.Items;
+                            }
+                            else if (action.EqualsNoCase("recentlyviewedproducts") ||
+                                     action.EqualsNoCase("recentlyaddedproducts") ||
+                                     action.EqualsNoCase("compareproducts"))
+                            {
+                                productList = ((ProductSummaryModel)model).Items;
+                            }
+
+                            // If there are no products in the list return just global script.
+                            if (productList.Count > 0)
+                            {
+                                await _googleAnalyticsScriptHelper.GetListScriptAsync(writer, sb, productList, action.ToLower(), catId);
+                            }
+                        }
+                        else if (controller.EqualsNoCase("search") && action.EqualsNoCase("search"))
+                        {
+                            var searchModel = (SearchResultModel)model;
+                            var productList = searchModel.TopProducts.Items;
+
+                            _googleAnalyticsScriptHelper.GetSearchTermScript(writer, searchModel.Term);
+                            await _googleAnalyticsScriptHelper.GetListScriptAsync(writer, sb, productList, action.ToLower());
+                        }
                     }
-                    else if (controller.EqualsNoCase("catalog"))
+                    if (_settings.RenderCheckoutScripts)
                     {
-                        var catId = 0;
-                        var productList = new List<ProductSummaryModel.SummaryItem>();
-
-                        // Category, Manufacturer, RecentlyViewedProducts, RecentlyAddedProducts & CompareProducts pages
-                        if (action.EqualsNoCase("category"))
+                        if (controller.EqualsNoCase("shoppingcart") && action.EqualsNoCase("cart"))
                         {
-                            var categoryModel = (CategoryModel)model;
-                            productList = categoryModel.Products.Items;
-                            catId = categoryModel.Id;
+                            // Cart page > view_cart + remove_from_cart 
+                            await _googleAnalyticsScriptHelper.GetCartScriptAsync(writer, sb, (ShoppingCartModel)model);
                         }
-                        else if (action.EqualsNoCase("manufacturer"))
+                        else if (controller.EqualsNoCase("checkout"))
                         {
-                            productList = ((BrandModel)model).Products.Items;
+                            if (action.EqualsNoCase("billingaddress"))
+                            {
+                                // Select billing address > begin_checkout
+                                await _googleAnalyticsScriptHelper.GetCheckoutScriptAsync(writer, sb);
+                            }
+                            else if (action.EqualsNoCase("paymentmethod"))
+                            {
+                                // Payment method page > add_shipping_info
+                                await _googleAnalyticsScriptHelper.GetCheckoutScriptAsync(writer, sb, addShippingInfo: true);
+                            }
+                            else if (action.EqualsNoCase("confirm"))
+                            {
+                                // Confirm order page > add_payment_info
+                                await _googleAnalyticsScriptHelper.GetCheckoutScriptAsync(writer, sb, addPaymentInfo: true);
+                            }
                         }
-                        else if (action.EqualsNoCase("recentlyviewedproducts") ||
-                                 action.EqualsNoCase("recentlyaddedproducts") ||
-                                 action.EqualsNoCase("compareproducts"))
-                        {
-                            productList = ((ProductSummaryModel)model).Items;
-                        }
-
-                        // If there are no products in the list return just global script.
-                        if (productList.Count > 0)
-                        {
-                            includeScriptFile = true;
-                            specificScript = await _googleAnalyticsScriptHelper.GetListScriptAsync(productList, action.ToLower(), catId);
-                        }
-                    }
-                    else if (controller.EqualsNoCase("search") && action.EqualsNoCase("search"))
-                    {
-                        includeScriptFile = true;
-
-                        var searchModel = (SearchResultModel)model;
-                        var productList = searchModel.TopProducts.Items;
-
-                        specificScript = _googleAnalyticsScriptHelper.GetSearchTermScript(searchModel.Term);
-                        specificScript += await _googleAnalyticsScriptHelper.GetListScriptAsync(productList, action.ToLower());
                     }
                 }
-                else if (_settings.RenderCheckoutScripts && !isOldScript)
-                {
-                    if (controller.EqualsNoCase("shoppingcart") && action.EqualsNoCase("cart"))
-                    {
-                        includeScriptFile = true;
 
-                        // Cart page > view_cart + remove_from_cart 
-                        specificScript = await _googleAnalyticsScriptHelper.GetCartScriptAsync((ShoppingCartModel)model);
-                    }
-                    else if (controller.EqualsNoCase("checkout"))
-                    {
-                        if (action.EqualsNoCase("billingaddress"))
-                        {
-                            // Select billing address > begin_checkout
-                            specificScript = await _googleAnalyticsScriptHelper.GetCheckoutScriptAsync();
-                        }
-                        else if (action.EqualsNoCase("paymentmethod"))
-                        {
-                            // Payment method page > add_shipping_info
-                            specificScript = await _googleAnalyticsScriptHelper.GetCheckoutScriptAsync(addShippingInfo: true);
-                        }
-                        else if (action.EqualsNoCase("confirm"))
-                        {
-                            // Confirm order page > add_payment_info
-                            specificScript = await _googleAnalyticsScriptHelper.GetCheckoutScriptAsync(addPaymentInfo: true);
-                        }
-                    }
-                }
-                else if (controller.EqualsNoCase("checkout") && action.EqualsNoCase("completed"))
+                // Special case: must be rendered also for old script
+                if (controller.EqualsNoCase("checkout") && action.EqualsNoCase("completed") && _settings.RenderCheckoutScripts)
                 {
                     // Checkout completed page > purchase
-                    specificScript = await _googleAnalyticsScriptHelper.GetOrderCompletedScriptAsync();
+                    await _googleAnalyticsScriptHelper.GetOrderCompletedScriptAsync(writer, sb);
                 }
 
-                globalScript = globalScript.Replace("{ECOMMERCE}", specificScript);
+                script = script.Replace("{ECOMMERCE}", writer.ToString());
             }
             catch (Exception ex)
             {
                 Logger.Error(ex, "Error creating scripts for google ecommerce tracking");
             }
 
-            if (_settings.MinifyScripts && globalScript.HasValue())
+            if (_settings.MinifyScripts && script.HasValue())
             {
-                globalScript = Minifier.Minify(globalScript);
+                script = Minifier.Minify(script);
             }
 
-            // Include script only when product lists or cart will be rendered
-            if (includeScriptFile)
-            {
-                var path = WebHelper.ToAbsolutePath("~/Modules/Smartstore.Google.Analytics/js/google-analytics.utils.js");
-                globalScript = $"<script src='{path}'></script>\n{globalScript}";
-            }
-
-            return HtmlContent(globalScript);
+            var path = WebHelper.ToAbsolutePath("~/Modules/Smartstore.Google.Analytics/js/google-analytics.utils.js");
+            script = $"<script src='{path}'></script>\n{script}";
+        
+            return HtmlContent(script);
         }
     }
 }

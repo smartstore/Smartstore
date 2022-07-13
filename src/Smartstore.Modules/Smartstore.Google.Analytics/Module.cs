@@ -5,27 +5,27 @@ global using System.IO;
 global using System.Linq;
 global using System.Threading.Tasks;
 global using Smartstore.Core.Localization;
+global using Smartstore.Google.Analytics.Settings;
 global using Smartstore.Web.Modelling;
+global using Smartstore.Web.Models.Cart;
+global using Smartstore.Web.Models.Catalog;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Widgets;
 using Smartstore.Engine.Modularity;
 using Smartstore.Google.Analytics.Components;
-using Smartstore.Google.Analytics.Settings;
 using Smartstore.Http;
 
 namespace Smartstore.Google.Analytics
 {
     internal class Module : ModuleBase, IConfigurable, IWidget, ICookiePublisher
     {
-        private readonly GoogleAnalyticsSettings _googleAnalyticsSettings;
         private readonly IProviderManager _providerManager;
         private readonly WidgetSettings _widgetSettings;
 
-        public Module(GoogleAnalyticsSettings googleAnalyticsSettings, IProviderManager providerManager, WidgetSettings widgetSettings)
+        public Module(IProviderManager providerManager, WidgetSettings widgetSettings)
         {
-            _googleAnalyticsSettings = googleAnalyticsSettings;
             _providerManager = providerManager;
             _widgetSettings = widgetSettings;
         }
