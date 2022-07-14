@@ -201,7 +201,7 @@ namespace Smartstore
         /// </summary>
         public static string ToNativeString(this DateTime value, string format, IFormatProvider provider)
         {
-            provider = provider ?? CultureInfo.CurrentCulture;
+            provider ??= CultureInfo.CurrentCulture;
             return value.ToString(format, provider).ReplaceNativeDigits(provider);
         }
 

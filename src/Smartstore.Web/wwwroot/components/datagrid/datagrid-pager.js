@@ -7,7 +7,7 @@
                 </a>
             </div>
             
-            <template v-if="paging.enabled && totalPages > 1">
+            <template v-if="paging.enabled">
                 <a href="#" class="dg-page dg-page-arrow btn btn-light btn-sm" @click.prevent="pageTo(1)" :class="{ disabled: !hasPrevPage }"><i class="fa fa-angle-double-left"></i></a>
                 <a href="#" class="dg-page dg-page-arrow btn btn-light btn-sm" @click.prevent="pageTo(currentPageIndex - 1)" :class="{ disabled: !hasPrevPage }"><i class="fa fa-angle-left"></i></a>
             
@@ -20,7 +20,7 @@
             </template>
 
             <div class="ml-auto d-flex">
-                <div v-if="rows.length > 0" class="d-flex align-items-center">
+                <div class="d-flex align-items-center">
                     <span v-if="paging.enabled && paging.showInfo" class="dg-page text-muted text-truncate d-none d-md-inline pl-2">
                         <span class="d-none d-lg-inline">{{ T.displayingItems.format(firstItemIndex.toLocaleString(), lastItemIndex.toLocaleString(), total.toLocaleString()) }}</span>
                         <span class="d-inline d-lg-none">{{ T.displayingItemsShort.format(firstItemIndex.toLocaleString(), lastItemIndex.toLocaleString(), total.toLocaleString()) }}</span>
@@ -83,7 +83,7 @@
         },
 
         firstItemIndex() {
-            return ((this.currentPageIndex - 1) * this.currentPageSize) + 1;
+            return Math.min(this.lastItemIndex, ((this.currentPageIndex - 1) * this.currentPageSize) + 1);
         },
 
         lastItemIndex() {
