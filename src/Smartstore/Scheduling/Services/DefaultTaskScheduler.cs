@@ -65,7 +65,7 @@ namespace Smartstore.Scheduling
 
             var qs = QueryString.Create(taskParameters);
 
-            return CallEndpoint($"run/{taskId}{qs}", false);
+            return CallEndpointAsync($"run/{taskId}{qs}", false);
         }
 
         public Task StartAsync(CancellationToken cancellationToken)
@@ -148,10 +148,10 @@ namespace Smartstore.Scheduling
 
         private void DoPoll(object state)
         {
-            _ = CallEndpoint((string)state, true);
+            _ = CallEndpointAsync((string)state, true);
         }
 
-        private async Task CallEndpoint(string action, bool isPoll)
+        private async Task CallEndpointAsync(string action, bool isPoll)
         {
             if (_shuttingDown || _errCount >= 10)
                 return;
@@ -179,7 +179,7 @@ namespace Smartstore.Scheduling
                     {
                         // 10 failed attempts in succession. Stop the timer!
                         _timer?.Change(Timeout.Infinite, 0);
-                        Logger.Info("Stopping TaskScheduler poll timer. Too many failed requests in succession.");
+                        Logger.Info("Stopping TaskScheduler poll timer. Too many consecutive failed requests.");
                     }
                 }
             }

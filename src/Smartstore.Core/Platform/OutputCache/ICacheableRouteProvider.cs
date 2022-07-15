@@ -37,11 +37,13 @@ namespace Smartstore.Core.OutputCache
         /// Only applies to pages, not view components. Set <c>null</c> to fall back to
         /// default duration as specified by the output cache global settings (usually 5 minutes).
         /// </summary>
-        public int? Duration { get; set; }
+        public int? Duration { get; init; }
 
-        public int? Tolerance { get; set; }
+        public int? Tolerance { get; init; }
 
-        public bool IsEnabled { get; set; } = true;
+        public bool IsEnabled { get; init; } = true;
+
+        public bool IsUserRoute { get; init; }
 
         public bool IsComponentRoute()
         {
@@ -73,6 +75,6 @@ namespace Smartstore.Core.OutputCache
     public interface ICacheableRouteProvider
     {
         int Order { get; }
-        IEnumerable<CacheableRoute> GetCacheableRoutes();
+        IEnumerable<string> GetCacheableRoutes();
     }
 }
