@@ -50,8 +50,13 @@ namespace Smartstore.Web.Components
                         var model = new LanguageModel
                         {
                             Id = x.Id,
+
+                            // TODO: (core) This is very confusing! ISOCode contains no ISOcode but culture code and vise versa (meaning CultureCode contains ISOcode).
+                            // When I tried to change this I saw you used the ISO-code in LocalizedUrlHelper.PrependCultureCode with the terminology culture code.
+                            // So I did nothing for now.
                             ISOCode = x.LanguageCulture,
                             CultureCode = x.UniqueSeoCode,
+
                             FlagImageFileName = x.FlagImageFileName,
                             Name = CultureHelper.NormalizeLanguageDisplayName(x.Name, stripRegion: false, culture: culture),
                             ShortName = CultureHelper.NormalizeLanguageDisplayName(x.Name, stripRegion: true, culture: culture),
