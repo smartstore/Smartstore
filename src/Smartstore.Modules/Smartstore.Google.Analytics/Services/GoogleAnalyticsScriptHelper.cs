@@ -110,13 +110,22 @@ namespace Smartstore.Google.Analytics.Services
                 model.ProductPrice.SavingAmount.Amount.ToStringInvariant(),
                 brand != null ? brand.Name : string.Empty,
                 model.ProductPrice.Price.Amount.ToStringInvariant(),
-                categoryPathScript);
+                categoryPathScript, addComma: false);
 
-            var eventScript = @$"gtag('event', 'view_item', {{
-              currency: '{_workContext.WorkingCurrency.CurrencyCode}',
-              value: {model.ProductPrice.Price.Amount.ToStringInvariant()},
-              items: [{sb}]
-            }});";
+            var eventScript = @$"
+                let pdItem = {sb};
+                let list = {{
+                    item_list_name: 'product-detail',
+                    items: [pdItem]
+                }}
+
+                window.gaListDataStore.push(list);
+            
+                gtag('event', 'view_item', {{
+                  currency: '{_workContext.WorkingCurrency.CurrencyCode}',
+                  value: {model.ProductPrice.Price.Amount.ToStringInvariant()},
+                  items: [pdItem]
+                }});";
 
             sb.Clear();
 
@@ -141,14 +150,19 @@ namespace Smartstore.Google.Analytics.Services
 
             // TODO: (mh) (core) Create GetEventScript method (nearly every event script looks the same)?
             var eventScript = @$"
-                let eventDataCart = {cartItemsScript};
+                let cartItems = {cartItemsScript};
 
-                window.gaListDataStore.push(eventDataCart);
+                let cartItemList = {{
+                    item_list_name: 'cart',
+                    items: cartItems
+                }}
+
+                window.gaListDataStore.push(cartItemList);
 
                 gtag('event', 'view_cart', {{
                     currency: '{currency.CurrencyCode}',
                     value: {subTotalConverted.Amount.ToStringInvariant()},
-                    items: eventDataCart
+                    items: cartItemList
                 }});";
 
             writer.Write(eventScript);
@@ -332,7 +346,8 @@ namespace Smartstore.Google.Analytics.Services
             string price,
             string categories = "",
             string listName = "",
-            int index = 0)
+            int index = 0,
+            bool addComma = true)
         {
             sb.AppendLine(@$"{{
               entity_id: {entityId},
@@ -345,7 +360,12 @@ namespace Smartstore.Google.Analytics.Services
               {categories}
               item_list_name: '{listName}',
               price: {price}
-            }},");
+            }}");
+
+            if (addComma)
+            {
+                sb.AppendLine(",");
+            }
         }
 
         /// <summary>
