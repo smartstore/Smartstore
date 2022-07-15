@@ -178,6 +178,19 @@
 .fit-scale-down { object-fit: scale-down; }
 .fit-none       { object-fit: none; }
 
+
+//
+// Flag icon
+// --------------------------------------------------
+
+img[src*="/images/flags/"] {
+    width: 20px;
+    min-height: 10px;
+    border-radius: 1px;
+    box-shadow: 0 0 0 1px rgba(#000, 0.15);
+}
+
+
 //
 // Bootstrap overrides and tweaks
 // --------------------------------------------------

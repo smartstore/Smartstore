@@ -38,7 +38,7 @@
                             <div>
                                 @if (language.FlagImageFileName.HasValue())
                                 {
-                                    <img src="@Url.Content("~/images/flags/" + language.FlagImageFileName)" class="flag-icon mr-1 mb-1" />
+                                    <img style="border: 1px solid rgba(0,0,0, 0.1)" src="@Url.Content("~/images/flags/" + language.FlagImageFileName)" class="flag-icon mr-1 mb-1" />
                                 }
                                 @language.Name
                             </div>

@@ -782,9 +782,9 @@ namespace Smartstore.Admin.Controllers
                 x => x.GetLocalized(y => y.Name, Services.WorkContext.WorkingLanguage, true, false));
 
             var flagsDir = await Services.ApplicationContext.WebRoot.GetDirectoryAsync("images/flags");
-            var flags = await flagsDir.EnumerateFilesAsync().ToListAsync();
+            var flags = flagsDir.EnumerateFilesAsync();
 
-            foreach (var flag in flags)
+            await foreach (var flag in flags)
             {
                 var name = flag.NameWithoutExtension.EmptyNull().ToLower();
                 string countryDescription = null;
@@ -829,7 +829,9 @@ namespace Smartstore.Admin.Controllers
                         cultureParentName = ci.Parent.Name;
                     }
                 }
-                catch { }
+                catch 
+                { 
+                }
 
                 ViewBag.DownloadableLanguages = checkResult.Resources
                     .Where(x => x.Published)
