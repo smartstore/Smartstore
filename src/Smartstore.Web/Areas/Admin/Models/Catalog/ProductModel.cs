@@ -524,9 +524,8 @@ namespace Smartstore.Admin.Models.Catalog
             public int AttributeControlTypeId { get; set; }
             public string AttributeControlType { get; set; }
 
-            // We don't name it DisplayOrder to avoid model binding conflicts with product property.
             [LocalizedDisplay("Common.DisplayOrder")]
-            public int DisplayOrder1 { get; set; }
+            public int DisplayOrder { get; set; }
 
             [LocalizedDisplay("Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values")]
             public string EditUrl { get; set; }

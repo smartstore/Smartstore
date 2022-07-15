@@ -15,7 +15,7 @@
                 update="@Url.Action("ProductVariantAttributeUpdate")"
                 insert="@Url.Action("ProductVariantAttributeInsert", new { productId = parentModel.Id })" />
     <sorting enabled="true">
-        <sort by="DisplayOrder1" by-entity-member="DisplayOrder" />
+        <sort by="DisplayOrder" by-entity-member="DisplayOrder" />
     </sorting>
     <paging enabled="true" page-size="10" />
     <toolbar>
@@ -56,7 +56,7 @@
         <column for="TextPrompt" width="1fr" visible="false" />
         <column for="CustomData" width="1fr" visible="false" />
         <column for="IsRequired" halign="center" />
-        <column for="DisplayOrder1" entity-member="DisplayOrder" halign="center" />
+        <column for="DisplayOrder" entity-member="DisplayOrder" halign="center" />
         <column for="EditUrl" width="1fr" sortable="false">
             <display-template>
                 <a :href="item.row.EditUrl">

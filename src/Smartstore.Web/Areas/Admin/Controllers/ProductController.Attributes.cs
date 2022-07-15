@@ -158,7 +158,7 @@ namespace Smartstore.Admin.Controllers
                     IsRequired = x.IsRequired,
                     AttributeControlType = Services.Localization.GetLocalizedEnum(x.AttributeControlType),
                     AttributeControlTypeId = x.AttributeControlTypeId,
-                    DisplayOrder1 = x.DisplayOrder
+                    DisplayOrder = x.DisplayOrder
                 };
 
                 if (x.IsListTypeAttribute())
@@ -200,7 +200,7 @@ namespace Smartstore.Admin.Controllers
                 CustomData = model.CustomData,
                 IsRequired = model.IsRequired,
                 AttributeControlTypeId = model.AttributeControlTypeId,
-                DisplayOrder = model.DisplayOrder1
+                DisplayOrder = model.DisplayOrder
             };
 
             try
@@ -227,7 +227,7 @@ namespace Smartstore.Admin.Controllers
             pva.CustomData = model.CustomData;
             pva.IsRequired = model.IsRequired;
             pva.AttributeControlTypeId = model.AttributeControlTypeId;
-            pva.DisplayOrder = model.DisplayOrder1;
+            pva.DisplayOrder = model.DisplayOrder;
 
             try
             {
