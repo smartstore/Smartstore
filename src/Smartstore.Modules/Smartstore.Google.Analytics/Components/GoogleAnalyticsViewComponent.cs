@@ -4,8 +4,6 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
 using Smartstore.Core.Identity;
 using Smartstore.Google.Analytics.Services;
-using Smartstore.Http;
-using Smartstore.Utilities;
 using Smartstore.Web.Components;
 using Smartstore.Web.Models.Search;
 
@@ -42,7 +40,8 @@ namespace Smartstore.Google.Analytics.Components
             }
 
             var rootScript = string.Empty;
-            
+            var specificScript = string.Empty;
+
             try
             {
                 var routeData = HttpContext.GetRouteData();
@@ -52,9 +51,6 @@ namespace Smartstore.Google.Analytics.Components
                 // None of the Google Tag Manager code should be rendered when old (unmigrated) tracking code is still used.
                 var isOldScript = _settings.EcommerceScript.Contains("analytics.js");
 
-                using var psb = StringBuilderPool.Instance.Get(out var sb);
-                using var writer = new StringWriter(sb);
-
                 if (!isOldScript)
                 {
                     if (_settings.RenderCatalogScripts)
@@ -62,7 +58,7 @@ namespace Smartstore.Google.Analytics.Components
                         if (controller.EqualsNoCase("product") && action.EqualsNoCase("productdetails"))
                         {
                             // Product details page > view_item
-                            await _googleAnalyticsScriptHelper.WriteViewItemScriptAsync(writer, sb, (ProductDetailsModel)model);
+                            specificScript = await _googleAnalyticsScriptHelper.GetViewItemScriptAsync((ProductDetailsModel)model);
                         }
                         else if (controller.EqualsNoCase("catalog"))
                         {
@@ -90,7 +86,7 @@ namespace Smartstore.Google.Analytics.Components
                             // If there are no products in the list return just global script.
                             if (productList.Count > 0)
                             {
-                                await _googleAnalyticsScriptHelper.WriteListScriptAsync(writer, sb, productList, action.ToLower(), catId);
+                                specificScript = await _googleAnalyticsScriptHelper.GetListScriptAsync(productList, action.ToLower(), catId);
                             }
                         }
                         else if (controller.EqualsNoCase("search") && action.EqualsNoCase("search"))
@@ -98,8 +94,8 @@ namespace Smartstore.Google.Analytics.Components
                             var searchModel = (SearchResultModel)model;
                             var productList = searchModel.TopProducts.Items;
 
-                            _googleAnalyticsScriptHelper.WriteSearchTermScript(writer, searchModel.Term);
-                            await _googleAnalyticsScriptHelper.WriteListScriptAsync(writer, sb, productList, action.ToLower());
+                            specificScript = _googleAnalyticsScriptHelper.GetSearchTermScript(searchModel.Term);
+                            specificScript += await _googleAnalyticsScriptHelper.GetListScriptAsync(productList, action.ToLower());
                         }
                     }
                     if (_settings.RenderCheckoutScripts)
@@ -107,24 +103,24 @@ namespace Smartstore.Google.Analytics.Components
                         if (controller.EqualsNoCase("shoppingcart") && action.EqualsNoCase("cart"))
                         {
                             // Cart page > view_cart + remove_from_cart 
-                            await _googleAnalyticsScriptHelper.WriteCartScriptAsync(writer, sb, (ShoppingCartModel)model);
+                            specificScript = await _googleAnalyticsScriptHelper.GetCartScriptAsync((ShoppingCartModel)model);
                         }
                         else if (controller.EqualsNoCase("checkout"))
                         {
                             if (action.EqualsNoCase("billingaddress"))
                             {
                                 // Select billing address > begin_checkout
-                                await _googleAnalyticsScriptHelper.WriteCheckoutScriptAsync(writer, sb);
+                                specificScript = await _googleAnalyticsScriptHelper.GetCheckoutScriptAsync();
                             }
                             else if (action.EqualsNoCase("paymentmethod"))
                             {
                                 // Payment method page > add_shipping_info
-                                await _googleAnalyticsScriptHelper.WriteCheckoutScriptAsync(writer, sb, addShippingInfo: true);
+                                specificScript = await _googleAnalyticsScriptHelper.GetCheckoutScriptAsync(addShippingInfo: true);
                             }
                             else if (action.EqualsNoCase("confirm"))
                             {
                                 // Confirm order page > add_payment_info
-                                await _googleAnalyticsScriptHelper.WriteCheckoutScriptAsync(writer, sb, addPaymentInfo: true);
+                                specificScript = await _googleAnalyticsScriptHelper.GetCheckoutScriptAsync(addPaymentInfo: true);
                             }
                         }
                     }
@@ -134,13 +130,13 @@ namespace Smartstore.Google.Analytics.Components
                 if (controller.EqualsNoCase("checkout") && action.EqualsNoCase("completed") && _settings.RenderCheckoutScripts)
                 {
                     // Checkout completed page > purchase
-                    await _googleAnalyticsScriptHelper.WriteOrderCompletedScriptAsync(writer, sb);
+                    specificScript = await _googleAnalyticsScriptHelper.GetOrderCompletedScriptAsync();
                 }
 
                 var cookiesAllowed = _cookieConsentManager.IsCookieAllowed(CookieType.Analytics);
 
                 rootScript = _googleAnalyticsScriptHelper.GetTrackingScript(cookiesAllowed)
-                    .Replace("{ECOMMERCE}", writer.ToString());
+                    .Replace("{ECOMMERCE}", specificScript);
             }
             catch (Exception ex)
             {

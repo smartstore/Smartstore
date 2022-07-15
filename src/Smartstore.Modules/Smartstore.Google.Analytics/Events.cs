@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Html;
 using Smartstore.Core.Widgets;
 using Smartstore.Events;
 using Smartstore.Google.Analytics.Services;
-using Smartstore.Utilities;
 using Smartstore.Web.Components;
 
 namespace Smartstore.Google.Analytics
@@ -50,12 +49,7 @@ namespace Smartstore.Google.Analytics
 
                 if (productList.Count > 0)
                 {
-                    using var psb = StringBuilderPool.Instance.Get(out var sb);
-                    using var writer = new StringWriter(sb);
-
-                    await _googleAnalyticsScriptHelper.WriteListScriptAsync(writer, sb, productList, componentName);
-
-                    var itemsScript = writer.ToString();
+                    var itemsScript = await _googleAnalyticsScriptHelper.GetListScriptAsync(productList, componentName);
 
                     if (_settings.MinifyScripts)
                     {
