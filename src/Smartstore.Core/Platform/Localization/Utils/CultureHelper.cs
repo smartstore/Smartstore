@@ -5,8 +5,7 @@ namespace Smartstore.Core.Localization
 {
     public static class CultureHelper
     {
-        private readonly static HashSet<string> _cultureCodes =
-            new HashSet<string>(
+        private readonly static HashSet<string> _cultureCodes = new(
                 CultureInfo.GetCultures(CultureTypes.NeutralCultures | CultureTypes.SpecificCultures | CultureTypes.UserCustomCulture)
                 .Select(x => x.IetfLanguageTag)
                 .Where(x => !string.IsNullOrWhiteSpace(x)), StringComparer.OrdinalIgnoreCase);
@@ -82,36 +81,6 @@ namespace Smartstore.Core.Localization
             return null;
         }
 
-        public static string GetLanguageNativeName(string locale, bool englishName, bool shortName = false)
-        {
-            try
-            {
-                if (locale.HasValue())
-                {
-                    var info = CultureInfo.GetCultureInfoByIetfLanguageTag(locale);
-                    if (info != null)
-                    {
-                        if (shortName)
-                        {
-                            info = info.Parent;
-                        }
-
-                        if (englishName)
-                        {
-                            return info.EnglishName;
-                        }
-                        else
-                        {
-                            return info.NativeName;
-                        }
-                    }
-                }
-            }
-            catch { }
-
-            return null;
-        }
-
         public static string NormalizeLanguageDisplayName(string languageName, bool stripRegion = false, CultureInfo culture = null)
         {
             if (string.IsNullOrEmpty(languageName) || languageName.Length == 0)
@@ -166,7 +135,9 @@ namespace Smartstore.Core.Localization
                         return info.CurrencySymbol;
                 }
             }
-            catch { }
+            catch 
+            {
+            }
 
             return null;
         }
