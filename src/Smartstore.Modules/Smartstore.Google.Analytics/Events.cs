@@ -9,7 +9,6 @@ namespace Smartstore.Google.Analytics
 {
     public class Events : IConsumer
     {
-        // TODO: (mh) (core) Maybe we must shift home_page_after_products & home_page_after_bestsellers into the components.
         private static readonly Dictionary<Type, string> _interceptableViewComponents = new()
         {
             { typeof(HomeProductsViewComponent), "home_page_after_products" },

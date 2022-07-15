@@ -10,8 +10,6 @@
                 <ul>
                     <li><a href="http://www.google.com/analytics/" target="_blank">Create a Google Analytics account</a> and follow the wizard to add your website.</li>
                     <li>Copy the Google Analytics ID into the ID field below.</li>
-                    <li>Copy the tracking code from Google Analytics into the Tracking Code field below.</li>
-                    <li>Click the Save button below.</li>
                     <li>Activate the Google Analytics widget under <b>CMS > Widgets</b> to integrate Google Analytics into your store.</li>
                 </ul>
 		            <p>

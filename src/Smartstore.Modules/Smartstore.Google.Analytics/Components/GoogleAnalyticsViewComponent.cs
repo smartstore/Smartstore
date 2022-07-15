@@ -9,10 +9,6 @@ using Smartstore.Web.Models.Search;
 
 namespace Smartstore.Google.Analytics.Components
 {
-    // TODO: (mh) (core)
-    // - Get rid of all .Replace("{
-    // - Should we also consider offcanvas cart? May this would be zu viel des guten :-)
-    // - Maybe pass another list id & list name to GetListScriptAsync(...)
     public class GoogleAnalyticsViewComponent : SmartViewComponent
     {
         private static readonly JsMinifier Minifier = new();

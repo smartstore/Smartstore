@@ -1,5 +1,4 @@
-﻿using System.Text;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore;
 using Smartstore.Core;
 using Smartstore.Core.Catalog.Attributes;
@@ -128,10 +127,8 @@ namespace Smartstore.Google.Analytics.Services
             var cart = await _shoppingCartService.GetCartAsync(_workContext.CurrentCustomer, ShoppingCartType.ShoppingCart, _storeContext.CurrentStore.Id);
             var cartSubTotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(cart);
             var subTotalConverted = _currencyService.ConvertFromPrimaryCurrency(cartSubTotal.SubtotalWithoutDiscount.Amount, currency);
-
             var cartItemsScript = GetShoppingCartItemsScript(model.Items.ToList());
 
-            // TODO: (mh) (core) Create GetEventScript method (nearly every event script looks the same)?
             return @$"
                 let cartItems = {cartItemsScript};
 
@@ -145,7 +142,7 @@ namespace Smartstore.Google.Analytics.Services
                 gtag('event', 'view_cart', {{
                     currency: '{currency.CurrencyCode}',
                     value: {subTotalConverted.Amount.ToStringInvariant()},
-                    items: cartItemList
+                    items: cartItems
                 }});";
         }
 
@@ -174,9 +171,7 @@ namespace Smartstore.Google.Analytics.Services
             if (addPaymentInfo) eventType = "add_payment_info";
 
             return @$"
-                let eventDataCart = {cartItemsScript};
-
-                window.gaListDataStore.push(eventDataCart);
+                let cartItems = {cartItemsScript};
 
                 gtag('event', '{eventType}', {{
                     currency: '{currency.CurrencyCode}',
@@ -184,7 +179,7 @@ namespace Smartstore.Google.Analytics.Services
                     coupon: '{model.DiscountBox.CurrentCode}',
                     {(addShippingInfo ? $"shipping_tier: '{model.OrderReviewData.ShippingMethod}'," : string.Empty)}
                     {(addPaymentInfo ? $"payment_type: '{model.OrderReviewData.PaymentMethod}'," : string.Empty)}
-                    items: eventDataCart
+                    items: cartItems
                 }});
             ";
         }
@@ -322,10 +317,10 @@ namespace Smartstore.Google.Analytics.Services
               currency: '{_workContext.WorkingCurrency.CurrencyCode}',
               discount: {discount},
               index: {index},
-              item_brand: '{brandName}',
               {categories}
-              item_list_name: '{listName}',
-              price: {price}
+              price: {price},
+              {(!string.IsNullOrEmpty(listName) ? $"item_list_name: '{listName}'," : string.Empty)}
+              {(!string.IsNullOrEmpty(brandName) ? $"item_brand: '{brandName}'," : string.Empty)}
             }}";
 
             if (addComma)

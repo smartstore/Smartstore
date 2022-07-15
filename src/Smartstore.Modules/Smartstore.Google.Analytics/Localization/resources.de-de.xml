@@ -10,8 +10,6 @@
                 <ul>
                     <li><a href="http://www.google.com/analytics/" target="_blank">Erstellen Sie hier einen Google-Analytics-Account</a> und folgen Sie dem Wizard um Ihre Webseite zuzufügen.</li>
                     <li>Kopieren Sie die Google-Analytics-ID in das entspechende Feld in folgendem Formular.</li>
-                    <li>Kopieren Sie den Tracking-Code in die Tracking-Code-Box in folgendem Formular.</li>
-                    <li>Klicken Sie den Speichern-Button.</li>
                     <li>Aktivieren Sie das Google Analytics Widget unter <b>CMS > Widgets</b> und Google Analytics wird in Ihre Webseite integriert.</li>
                 </ul>
 		        <p>

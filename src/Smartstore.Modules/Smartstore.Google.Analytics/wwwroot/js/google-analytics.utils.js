@@ -7,8 +7,8 @@
         // Event handler for product list clicks.
         $('.artlist').on('click', '.art-picture, .art-name > a, .add-to-cart-button, .add-to-wishlist-button, .product-details-button', function (e) {
             var $el = $(e.currentTarget);
-            var eventType = getGAEventTypeForListClick($el);
             var id = $el.closest('.art').data('id');
+            var eventType = getGAEventTypeForListClick($el);
             var listName = getProductListName($el.closest('.product-grid'));
 
             fireEvent(listName, id, eventType);
