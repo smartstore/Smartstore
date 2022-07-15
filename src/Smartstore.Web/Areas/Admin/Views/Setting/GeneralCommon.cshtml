@@ -524,6 +524,15 @@
                         <span asp-validation-for="LocalizationSettings.DetectBrowserUserLanguage"></span>
                     </div>
                 </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="LocalizationSettings.DisplayRegionInLanguageSelector" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="LocalizationSettings.DisplayRegionInLanguageSelector"></setting-editor>
+                        <span asp-validation-for="LocalizationSettings.DisplayRegionInLanguageSelector"></span>
+                    </div>
+                </div>
             </div>
         </tab>
         <tab sm-title="@T("Admin.Configuration.Settings.GeneralCommon.PdfSettings")">

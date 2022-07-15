@@ -37,14 +37,29 @@ namespace Smartstore.Web.Components
                     .ToListAsync();
 
                 var result = languages
-                    .Select(x => new LanguageModel
+                    .Select(x => 
                     {
-                        Id = x.Id,
-                        Name = x.Name,
-                        NativeName = CultureHelper.GetLanguageNativeName(x.LanguageCulture) ?? x.Name,
-                        ISOCode = x.LanguageCulture,
-                        CultureCode = x.UniqueSeoCode,
-                        FlagImageFileName = x.FlagImageFileName
+                        CultureHelper.TryGetCultureInfoForLocale(x.LanguageCulture, out var culture);
+                        CultureHelper.TryGetCultureInfoForLocale(x.GetTwoLetterISOLanguageName(), out var neutralCulture);
+
+                        neutralCulture ??= culture?.Parent ?? culture;
+
+                        var nativeName = culture?.NativeName ?? x.Name;
+                        var shortNativeName = neutralCulture?.NativeName ?? x.Name;
+
+                        var model = new LanguageModel
+                        {
+                            Id = x.Id,
+                            ISOCode = x.LanguageCulture,
+                            CultureCode = x.UniqueSeoCode,
+                            FlagImageFileName = x.FlagImageFileName,
+                            Name = CultureHelper.NormalizeLanguageDisplayName(x.Name, stripRegion: false, culture: culture),
+                            ShortName = CultureHelper.NormalizeLanguageDisplayName(x.Name, stripRegion: true, culture: culture),
+                            NativeName = CultureHelper.NormalizeLanguageDisplayName(nativeName, stripRegion: false, culture: culture),
+                            ShortNativeName = CultureHelper.NormalizeLanguageDisplayName(shortNativeName, stripRegion: true, culture: culture)
+                        };
+
+                        return model;
                     })
                     .ToList();
 
@@ -83,6 +98,7 @@ namespace Smartstore.Web.Components
 
             ViewBag.ReturnUrls = returnUrls;
             ViewBag.UseImages = _localizationSettings.UseImagesForLanguageSelection;
+            ViewBag.DisplayLongName = _localizationSettings.DisplayRegionInLanguageSelector;
 
             return View();
         }
