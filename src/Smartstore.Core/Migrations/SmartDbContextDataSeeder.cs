@@ -67,6 +67,12 @@ namespace Smartstore.Core.Data.Migrations
                 "Suche über die Zahlungstransaktions-ID (Autorisierung oder Buchung)");
 
             builder.AddOrUpdate("Identity.AuthenticationCredentials", "Authentication credentials", "Zugangsdaten");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.GeneralCommon.DisplayRegionInLanguageSelector",
+                "Display region in language selector",
+                "Region in der Sprachauswahl anzeigen",
+                "Whether to display region/country name in language selector (e.g. 'Deutsch (Deutschland)' instead of 'Deutsch')",
+                "Zeigt den Namen der Region/des Landes in der Sprachauswahl an (z. B. 'Deutsch (Deutschland)' statt 'Deutsch')");
         }
     }
 }

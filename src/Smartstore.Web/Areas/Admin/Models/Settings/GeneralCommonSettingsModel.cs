@@ -240,7 +240,6 @@ namespace Smartstore.Admin.Models
             [LocalizedDisplay("*DetectBrowserUserLanguage")]
             public bool DetectBrowserUserLanguage { get; set; }
 
-            // TODO: (mh) (core) missing localization
             [LocalizedDisplay("*DisplayRegionInLanguageSelector")]
             public bool DisplayRegionInLanguageSelector { get; set; }
         }
