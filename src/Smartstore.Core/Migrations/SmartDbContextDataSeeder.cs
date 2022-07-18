@@ -73,6 +73,14 @@ namespace Smartstore.Core.Data.Migrations
                 "Region in der Sprachauswahl anzeigen",
                 "Whether to display region/country name in language selector (e.g. 'Deutsch (Deutschland)' instead of 'Deutsch')",
                 "Zeigt den Namen der Region/des Landes in der Sprachauswahl an (z. B. 'Deutsch (Deutschland)' statt 'Deutsch')");
+
+            builder.AddOrUpdate("Payment.PaymentFailure",
+                "A problem has occurred with this payment method. Please try again or select another payment method.",
+                "Mit dieser Zahlungsart ist ein Problem aufgetreten. Bitte versuchen Sie es erneut oder wählen Sie eine andere Zahlungsart aus.");
+
+            builder.AddOrUpdate("Payment.MissingCheckoutState",
+                "Missing checkout session state ({0}). Your payment cannot be processed. Please go to your shopping cart and checkout again.",
+                "Fehlender Checkout-Sitzungsstatus ({0}). Ihre Zahlung kann leider nicht bearbeitet werden. Bitte gehen Sie zurück zum Warenkorb und Durchlaufen Sie den Checkout erneut.");
         }
     }
 }
