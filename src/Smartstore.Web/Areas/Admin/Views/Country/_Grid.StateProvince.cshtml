@@ -5,7 +5,7 @@
     var countryId = ViewData["CountryId"];
 }
 
-<datagrid id="states-grid" allow-resize="true" allow-row-selection="true" allow-edit="true" max-height="800px" allow-column-reordering="true">
+<datagrid id="states-grid" class="h-100" allow-resize="true" allow-row-selection="true" allow-edit="true" allow-column-reordering="true">
     <datasource read="@Url.Action("States", "Country", new { countryId = countryId })"
                 update="@Url.Action("StateUpdate", "Country")"
                 delete="@Url.Action("StateDelete", "Country")" />

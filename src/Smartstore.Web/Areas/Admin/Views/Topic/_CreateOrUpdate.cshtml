@@ -381,7 +381,7 @@
 
     @if (Model.Id > 0)
     {
-        <tab sm-title="@T("Admin.Common.GenericAttributes")">
+        <tab sm-title="@T("Admin.Common.GenericAttributes")" sm-adaptive-height="true">
             <partial name="_Grid.GenericAttributes" model='new GenericAttributeModel {  EntityName = "Topic", AttributeEntityId = Model.Id }' />
         </tab>
     }

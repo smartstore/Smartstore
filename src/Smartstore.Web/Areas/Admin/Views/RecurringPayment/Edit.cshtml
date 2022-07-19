@@ -125,12 +125,14 @@
                 </div>
             </div>
         </tab>
-        <tab sm-title="@T("Admin.RecurringPayments.History")">
-            <div sm-if="Model.NextPaymentDate.HasValue" class="alert alert-info">
-                @T("Admin.RecurringPayments.History.NextPaymentDate"): <strong>@Model.NextPaymentDate</strong>
-            </div>
+        <tab sm-title="@T("Admin.RecurringPayments.History")" sm-adaptive-height="true">
+            <div class="d-flex flex-column h-100">
+                <div sm-if="Model.NextPaymentDate.HasValue" class="alert alert-info">
+                    @T("Admin.RecurringPayments.History.NextPaymentDate"): <strong>@Model.NextPaymentDate</strong>
+                </div>
 
-            <partial name="_Grid.RecurringPaymentHistory" model="null" view-data="gridViewData" />
+                <partial name="_Grid.RecurringPaymentHistory" model="null" view-data="gridViewData" />
+            </div>
         </tab>
     </tabstrip>
 </form>

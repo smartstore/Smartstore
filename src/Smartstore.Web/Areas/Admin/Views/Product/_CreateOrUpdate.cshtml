@@ -27,7 +27,8 @@
                  sm-icon="bi:link-45deg"
                  sm-ajax="true"
                  href="@Url.Action("LoadEditTab", "Product", new { id = Model.Id, tabName = "AssociatedProducts" })"
-                 sm-name="AssociatedProducts">
+                 sm-name="AssociatedProducts"
+                 sm-adaptive-height="true">
             </tab>
         }
         else if (Model.ProductTypeId == (int)ProductType.BundledProduct)
@@ -60,13 +61,15 @@
          sm-icon="bi:diagram-3"
          sm-ajax="true"
          href="@Url.Action("LoadEditTab", "Product", new { id = Model.Id, tabName = "Categories" })"
-         sm-name="Categories">
+         sm-name="Categories"
+         sm-adaptive-height="true">
     </tab>
     <tab sm-title="@T("Admin.Catalog.Products.Manufacturers")"
          sm-icon="bi:building"
          sm-ajax="true"
          href="@Url.Action("LoadEditTab", "Product", new { id = Model.Id, tabName = "Manufacturers" })"
-         sm-name="Manufacturers">
+         sm-name="Manufacturers"
+         sm-adaptive-height="true">
     </tab>
     <tab sm-title="@T("Admin.Catalog.Products.Promotion")"
          sm-icon="bi:megaphone"
@@ -107,7 +110,8 @@
              sm-icon="bi:graph-up"
              sm-ajax="true"
              href="@Url.Action("LoadEditTab", "Product", new { id = Model.Id, tabName = "Orders" })"
-             sm-name="Orders">
+             sm-name="Orders"
+             sm-adaptive-height="true">
         </tab>
     }
 </tabstrip>

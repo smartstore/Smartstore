@@ -4,12 +4,11 @@
     var parentModel = ViewData["Parent"] as RecurringPaymentModel;
 }
 
-<datagrid id="recurring-payment-history-grid"
+<datagrid id="recurring-payment-history-grid" class="h-100"
           key-member="Id"
           allow-resize="true"
           allow-column-reordering="false"
-          preserve-grid-state="true"
-          max-height="650px">
+          preserve-grid-state="true">
     <datasource read="@Url.Action("RecurringPaymentHistoryList", new { recurringPaymentId = parentModel.Id })" />
     <paging position="Bottom" show-size-chooser="true" enabled="false" />
     <sorting enabled="false"></sorting>

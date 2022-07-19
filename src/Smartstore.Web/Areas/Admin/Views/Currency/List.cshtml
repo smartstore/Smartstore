@@ -23,13 +23,13 @@
     </div>
 
     <tabstrip id="currency-edit" sm-nav-style="Material" sm-nav-position="Top">
-        <tab sm-title="@T("Admin.Configuration.Currencies")" sm-selected="true">
+        <tab sm-title="@T("Admin.Configuration.Currencies")" sm-selected="true" sm-adaptive-height="true">
             <partial name="_Grid.Currencies" model="null" />
         </tab>
 
         @if (Model.DisplayLiveRates)
         {
-            <tab sm-title="@T("Admin.Configuration.Currencies.LiveRates")">
+            <tab sm-title="@T("Admin.Configuration.Currencies.LiveRates")" sm-adaptive-height="true">
                 <partial name="_Grid.LiveRates" model="null" />
             </tab>
         }

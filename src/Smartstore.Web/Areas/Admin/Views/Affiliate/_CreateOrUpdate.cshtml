@@ -50,10 +50,10 @@
 
     @if (Model.Id > 0)
     {
-        <tab sm-title="@T("Admin.Affiliates.Customers")">
+        <tab sm-title="@T("Admin.Affiliates.Customers")" sm-adaptive-height="true">
             <partial name="_Grid.AffiliatedCustomers" model="null" view-data="gridViewData" />
         </tab>
-        <tab sm-title="@T("Admin.Affiliates.Orders")">
+        <tab sm-title="@T("Admin.Affiliates.Orders")" sm-adaptive-height="true">
             <partial name="_Grid.AffiliatedOrders" model="null" view-data="gridViewData"  />
         </tab>
     }

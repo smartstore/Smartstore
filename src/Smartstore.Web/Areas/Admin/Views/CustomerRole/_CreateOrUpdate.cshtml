@@ -128,24 +128,26 @@
             </div>
         }
 	</tab>
-	<tab sm-title="@T("Admin.Customers")">
+	<tab sm-title="@T("Admin.Customers")" sm-adaptive-height="true">
         @if (Model.Id > 0)
         {
-            <div class="adminContent">
-                <div class="adminRow">
-                    <div class="adminTitle">
-                        <smart-label asp-for="SelectedRuleSetIds" />
-                    </div>
-                    <div class="adminData">
-                        <editor asp-for="SelectedRuleSetIds" />
-                        <span asp-validation-for="SelectedRuleSetIds"></span>
+            <div class="d-flex flex-column h-100">
+                <div class="adminContent">
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="SelectedRuleSetIds" />
+                        </div>
+                        <div class="adminData">
+                            <editor asp-for="SelectedRuleSetIds" />
+                            <span asp-validation-for="SelectedRuleSetIds"></span>
+                        </div>
                     </div>
                 </div>
+                <div sm-if="Model.SelectedRuleSetIds.Any()" class="alert alert-info">
+                    @T("Admin.CustomerRoleMapping.RoleMappingListDescription")
+                </div>
+                <partial name="_Grid.RoleMappings" model="null" view-data="roleMappingsViewData" />
             </div>
-            <div sm-if="Model.SelectedRuleSetIds.Any()" class="alert alert-info">
-                @T("Admin.CustomerRoleMapping.RoleMappingListDescription")
-            </div>
-            <partial name="_Grid.RoleMappings" model="null" view-data="roleMappingsViewData" />
         }
         else
         {

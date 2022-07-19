@@ -58,7 +58,7 @@
                 </div>
             }
         </tab>
-        <tab sm-title="@T("Admin.Customers.Customers.Orders")" sm-icon="bi:graph-up-arrow">
+        <tab sm-title="@T("Admin.Customers.Customers.Orders")" sm-icon="bi:graph-up-arrow" sm-adaptive-height="true">
             @if (Model.HasOrders)
             {
                 var orderGridViewData = new ViewDataDictionary(this.ViewData);
@@ -76,7 +76,7 @@
 
         if (Model.DisplayRewardPointsHistory)
         {
-            <tab sm-title="@T("Admin.Customers.Customers.RewardPoints")" sm-icon="bi:trophy">
+            <tab sm-title="@T("Admin.Customers.Customers.RewardPoints")" sm-icon="bi:trophy" sm-adaptive-height="true">
                 <partial name="Grids/_Grid.RewardPoints" model="null" view-data="gridViewData" />
             </tab>
         }

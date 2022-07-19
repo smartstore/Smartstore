@@ -149,7 +149,7 @@
     </tab>
     @if (Model.Id > 0)
     {
-        <tab sm-title="@T("Admin.GiftCards.History")">
+        <tab sm-title="@T("Admin.GiftCards.History")" sm-adaptive-height="true">
             <partial name="_Grid.GiftCardUsageHistory" model="null" view-data="giftCardUsageHistoryViewData" />
         </tab>
     }

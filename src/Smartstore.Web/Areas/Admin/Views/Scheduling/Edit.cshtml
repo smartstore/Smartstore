@@ -164,12 +164,14 @@
                 </div>
             </div>
 		</tab>
-		<tab sm-title="@T("Common.History")">
-            <div class="alert alert-info">
-                @Html.Raw((string)ViewBag.HistoryCleanupNote)
+        <tab sm-title="@T("Common.History")" sm-adaptive-height="true">
+            <div class="d-flex flex-column h-100">
+                <div class="alert alert-info">
+                    @Html.Raw((string)ViewBag.HistoryCleanupNote)
+                </div>
+                <partial name="_Grid.TaskExecutionInfos" model="null" view-data="gridViewData" />
             </div>
-            <partial name="_Grid.TaskExecutionInfos" model="null" view-data="gridViewData" />
-		</tab>
+        </tab>
 	</tabstrip>
 </form>
 

@@ -2,7 +2,7 @@
 
 @model AffiliateModel.AffiliatedCustomerModel
 
-<datagrid id="customers-grid" allow-resize="true" allow-column-reordering="true">
+<datagrid id="customers-grid" class="h-100" allow-resize="true" allow-column-reordering="true">
     <datasource read="@Url.Action("AffiliatedCustomerList", "Affiliate", new { affiliateId = ViewData["AffiliateId"] })" />
     <sorting enabled="true">
         <sort by="CreatedOn" by-entity-member="CreatedOnUtc" descending="true" />

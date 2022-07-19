@@ -58,10 +58,10 @@
         <tab sm-title="@T("Admin.Orders.Products")" sm-icon="bi:box">
             <partial name="_Edit.Products" />
         </tab>
-        <tab sm-title="@T("Admin.Orders.OrderNotes")" sm-icon="bi:stickies">
+        <tab sm-title="@T("Admin.Orders.OrderNotes")" sm-icon="bi:stickies" sm-adaptive-height="true">
             <partial name="Grids/_Grid.OrderNotes" model="null" view-data="gridViewData" />
         </tab>
-        <tab sm-title="@T("Admin.Common.GenericAttributes")" sm-icon="bi:card-checklist">
+        <tab sm-title="@T("Admin.Common.GenericAttributes")" sm-icon="bi:card-checklist" sm-adaptive-height="true">
             <partial name="_Grid.GenericAttributes" model='new GenericAttributeModel { EntityName = "Order", AttributeEntityId = Model.Id }' />
         </tab>
     </tabstrip>

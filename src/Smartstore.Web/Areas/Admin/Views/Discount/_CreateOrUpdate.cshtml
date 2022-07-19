@@ -168,7 +168,7 @@
     </tab>
     @if (Model.Id > 0)
     {
-        <tab sm-title="@T("Admin.Promotions.Discounts.History")">
+        <tab sm-title="@T("Admin.Promotions.Discounts.History")" sm-adaptive-height="true">
             <partial name="_Grid.DiscountUsageHistory" model="null" view-data="discountUsageHistoryViewData" />
         </tab>
     }

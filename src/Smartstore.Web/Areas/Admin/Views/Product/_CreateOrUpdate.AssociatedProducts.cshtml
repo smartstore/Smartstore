@@ -13,11 +13,13 @@
     gridViewData["Parent"] = Model;
 }
 
-<div class="alert alert-info">
-    <ul>
-        <li>@T("Admin.Catalog.Products.AssociatedProducts.Note1")</li>
-        <li>@T("Admin.Catalog.Products.AssociatedProducts.Note2")</li>
-    </ul>
-</div>
+<div class="d-flex flex-column h-100">
+    <div class="alert alert-info">
+        <ul>
+            <li>@T("Admin.Catalog.Products.AssociatedProducts.Note1")</li>
+            <li>@T("Admin.Catalog.Products.AssociatedProducts.Note2")</li>
+        </ul>
+    </div>
 
-<partial name="Grids/_Grid.AssociatedProducts" model="null" view-data="gridViewData" />
+    <partial name="Grids/_Grid.AssociatedProducts" model="null" view-data="gridViewData" />
+</div>
