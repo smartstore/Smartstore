@@ -411,6 +411,11 @@ namespace Smartstore.Web.TagHelpers.Shared
                 classList.Add("active");
             }
 
+            if (tab.AdaptiveHeight)
+            {
+                classList.Add("tab-pane-adaptive");
+            }
+
             div.GenerateId(tab.Id, "-");
             div.MergeAttribute("aria-labelledby", $"{div.Attributes["id"]}-tab");
             div.MergeAttribute("data-tab-name", tab.Name);
@@ -439,6 +444,11 @@ namespace Smartstore.Web.TagHelpers.Shared
             if (!tab.Selected && !tab.Visible)
             {
                 li.AppendCssClass("d-none");
+            }
+
+            if (tab.AdaptiveHeight)
+            {
+                li.AppendCssClass("tab-adaptive");
             }
 
             {

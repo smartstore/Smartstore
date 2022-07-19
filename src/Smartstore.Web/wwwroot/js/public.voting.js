@@ -1,9 +1,5 @@
-﻿
-;
-(function ($, window, document, undefined) {
-
+﻿; (function ($, window, document, undefined) {
     $(function () {
-
         $('.btn-votenow').on('click', function () {
             var btn = $(this);
             var id = btn.data("id");
@@ -47,6 +43,5 @@
         });
 
     });
-
 })(jQuery, this, document);
 

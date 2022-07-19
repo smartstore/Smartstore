@@ -72,6 +72,7 @@ namespace Smartstore.Web.Infrastructure
                 js + "smartstore.ajax.js",
                 js + "smartstore.eventbroker.js",
                 js + "smartstore.common.js",
+                js + "smartstore.tabs.js",
                 js + "smartstore.dialogs.js",
                 js + "smartstore.selectwrapper.js",
                 js + "smartstore.throbber.js",

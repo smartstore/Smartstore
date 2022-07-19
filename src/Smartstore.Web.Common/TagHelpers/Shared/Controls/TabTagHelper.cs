@@ -19,6 +19,7 @@ namespace Smartstore.Web.TagHelpers.Shared
         const string BadgeStyleAttributeName = "sm-badge-style";
         const string SummaryAttributeName = "sm-summary";
         const string ImageUrlAttributeName = "sm-image-url";
+        const string AdaptiveHeightAttributeName = "sm-adaptive-height";
 
         public override void Init(TagHelperContext context)
         {
@@ -115,6 +116,13 @@ namespace Smartstore.Web.TagHelpers.Shared
         /// </summary>
         [HtmlAttributeName(ImageUrlAttributeName)]
         public string ImageUrl { get; set; }
+
+        /// <summary>
+        /// An adaptive tab panel docks to the viewport bottom and responds to window resize.
+        /// Perfectly suited for datagrid controls. Default: false.
+        /// </summary>
+        [HtmlAttributeName(AdaptiveHeightAttributeName)]
+        public bool AdaptiveHeight { get; set; }
 
         [HtmlAttributeNotBound]
         internal TabStripTagHelper Parent { get; set; }
