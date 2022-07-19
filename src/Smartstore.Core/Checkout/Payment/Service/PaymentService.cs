@@ -247,10 +247,12 @@ namespace Smartstore.Core.Checkout.Payment
 
         public virtual async Task PostProcessPaymentAsync(PostProcessPaymentRequest postProcessPaymentRequest)
         {
-            if (!postProcessPaymentRequest.Order.PaymentMethodSystemName.HasValue())
+            var order = postProcessPaymentRequest.Order;
+
+            if (order.PaymentMethodSystemName.IsEmpty() || order.OrderTotal == decimal.Zero)
                 return;
 
-            var paymentMethod = await LoadPaymentMethodBySystemNameAsync(postProcessPaymentRequest.Order.PaymentMethodSystemName);
+            var paymentMethod = await LoadPaymentMethodBySystemNameAsync(order.PaymentMethodSystemName);
             if (paymentMethod == null)
                 throw new SmartException(T("Payment.CouldNotLoadMethod"));
 

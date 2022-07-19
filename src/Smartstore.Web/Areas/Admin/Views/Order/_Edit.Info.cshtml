@@ -320,7 +320,7 @@
             <input asp-for="SubscriptionTransactionId" sm-plaintext="true" readonly />
         </div>
     </div>
-    <div class="adminRow">
+    <div sm-if="Model.PaymentMethod.HasValue()" class="adminRow">
         <div class="adminTitle">
             <smart-label asp-for="PaymentMethod" />
         </div>
