@@ -57,7 +57,7 @@ namespace Smartstore.Core.Data.Migrations
                     "CustomerSettings.MinSpecialCharsInPassword",
                     "CustomerSettings.MinUppercaseCharsInPassword");
 
-                builder.Add(TypeHelper.NameOf<PerformanceSettings>(x => x.UseResponseCaching, true), "False");
+                builder.Add(TypeHelper.NameOf<PerformanceSettings>(x => x.UseResponseCompression, true), "False");
             });
 
             // Remark: In classic code, we always made the mistake to query for FirstOrDefault and thus ignoring multistore settings.

@@ -65,7 +65,6 @@ namespace Smartstore.Web.Bootstrapping
 
             builder.Configure(StarterOrdering.StaticFilesMiddleware, app =>
             {
-                // TODO: (core) Set StaticFileOptions
                 app.UseStaticFiles(new StaticFileOptions
                 {
                     FileProvider = builder.ApplicationBuilder.ApplicationServices.GetRequiredService<IAssetFileProvider>(),

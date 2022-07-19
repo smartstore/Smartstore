@@ -41,6 +41,6 @@ namespace Smartstore.Core.Common.Settings
         /// (html, css, js, svg etc.). Turn this off if the webserver handles response
         /// compression already. Changing the value requires an application restart to take effect.
         /// </summary>
-        public bool UseResponseCaching { get; set; }
+        public bool UseResponseCompression { get; set; }
     }
 }

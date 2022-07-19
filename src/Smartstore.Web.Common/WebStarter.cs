@@ -165,7 +165,7 @@ namespace Smartstore.Web
                 }
             });
 
-            if (appContext.Services.Resolve<PerformanceSettings>().UseResponseCaching)
+            if (appContext.Services.Resolve<PerformanceSettings>().UseResponseCompression)
             {
                 builder.Configure(StarterOrdering.BeforeStaticFilesMiddleware - 5, app =>
                 {
