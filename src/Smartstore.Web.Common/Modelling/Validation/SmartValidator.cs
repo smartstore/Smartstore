@@ -58,6 +58,10 @@ namespace FluentValidation
                 .Where(x => x.ClrType == typeof(string) && !ignoreProperties.Contains(x.Name))
                 .OfType<IMutableProperty>();
 
+            // TODO: (core) 'entityProps' is always empty. No property of type IMutableProperty found.
+            // Tested by creating a category without a name. Runs into SqlException: Cannot insert the value NULL into column 'Name', table 'dbo.Category'
+            // Can we just omit 'OfType<IMutableProperty>'? Then it would work.
+
             // Loop thru all entity string properties
             foreach (var entityProp in entityProps)
             {
