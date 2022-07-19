@@ -456,7 +456,6 @@ namespace Smartstore.Web.Controllers
 
             // Check whether payment workflow is required. We ignore reward points during cart total calculation.
             Money? shoppingCartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(cart, false);
-            var isPaymentWorkflowRequired = shoppingCartTotal.GetValueOrDefault() != decimal.Zero;
 
             var model = new CheckoutPaymentMethodModel();
             await cart.MapAsync(model);
@@ -465,7 +464,8 @@ namespace Smartstore.Web.Controllers
 
             var checkoutState = _checkoutStateAccessor.CheckoutState;
             checkoutState.CustomProperties["HasOnlyOneActivePaymentMethod"] = model.PaymentMethods.Count == 1;
-            checkoutState.IsPaymentSelectionSkipped = !isPaymentWorkflowRequired || _paymentSettings.BypassPaymentMethodSelectionIfOnlyOne && onlyOnePassiveMethod;
+            checkoutState.IsPaymentRequired = shoppingCartTotal.GetValueOrDefault() != decimal.Zero;
+            checkoutState.IsPaymentSelectionSkipped = !checkoutState.IsPaymentRequired || _paymentSettings.BypassPaymentMethodSelectionIfOnlyOne && onlyOnePassiveMethod;
 
             if (checkoutState.IsPaymentSelectionSkipped)
             {

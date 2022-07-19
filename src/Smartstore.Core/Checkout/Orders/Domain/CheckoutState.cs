@@ -17,6 +17,16 @@ namespace Smartstore.Core.Checkout.Orders
         }
 
         /// <summary>
+        /// Indicates whether a payment is required.
+        /// If the total amount is 0, no payment is necessary.
+        /// </summary>
+        public bool IsPaymentRequired
+        {
+            get => GetProperty<bool>();
+            set => SetProperty(value);
+        }
+
+        /// <summary>
         /// Indicates whether the payment method selection page was skipped
         /// </summary>
         public bool IsPaymentSelectionSkipped

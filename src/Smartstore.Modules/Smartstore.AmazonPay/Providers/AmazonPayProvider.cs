@@ -85,7 +85,7 @@ namespace Smartstore.AmazonPay.Providers
             {
                 if (state.SessionId.IsEmpty())
                 {
-                    throw new AmazonPayException(T("Plugins.Payments.AmazonPay.MissingCheckoutSessionState"));
+                    throw new AmazonPayException(T("Payment.MissingCheckoutState", "AmazonPayCheckoutState." + nameof(state.SessionId)));
                 }
 
                 var orderTotal = new Money(processPaymentRequest.OrderTotal, _services.CurrencyService.PrimaryCurrency);

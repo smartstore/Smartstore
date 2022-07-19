@@ -170,7 +170,7 @@ namespace Smartstore.AmazonPay.Controllers
 
             if (checkoutSessionId.IsEmpty())
             {
-                NotifyWarning(T("Plugins.Payments.AmazonPay.PaymentFailure"));
+                NotifyWarning(T("Payment.PaymentFailure"));
                 return result;
             }
 
@@ -311,7 +311,7 @@ namespace Smartstore.AmazonPay.Controllers
 
                 if (state.SessionId.IsEmpty())
                 {
-                    throw new AmazonPayException(T("Plugins.Payments.AmazonPay.MissingCheckoutSessionState"));
+                    throw new AmazonPayException(T("Payment.MissingCheckoutState", "AmazonPayCheckoutState." + nameof(state.SessionId)));
                 }
 
                 if (!HttpContext.Session.TryGetObject<ProcessPaymentRequest>("OrderPaymentInfo", out var paymentRequest) || paymentRequest == null)
@@ -365,12 +365,12 @@ namespace Smartstore.AmazonPay.Controllers
                             }
                             else
                             {
-                                throw new AmazonPayException(T("Plugins.Payments.AmazonPay.PaymentFailure"), response);
+                                throw new AmazonPayException(T("Payment.PaymentFailure"), response);
                             }
                         }
                         else
                         {
-                            throw new AmazonPayException(T("Plugins.Payments.AmazonPay.PaymentFailure"), response);
+                            throw new AmazonPayException(T("Payment.PaymentFailure"), response);
                         }
                     }
                     else
@@ -406,7 +406,7 @@ namespace Smartstore.AmazonPay.Controllers
                 // INFO: amazonCheckoutSessionId query parameter is provided here too but it is more secure to use the state object.
                 if (state.SessionId.IsEmpty())
                 {
-                    throw new AmazonPayException(T("Plugins.Payments.AmazonPay.MissingCheckoutSessionState"));
+                    throw new AmazonPayException(T("Payment.MissingCheckoutState", "AmazonPayCheckoutState." + nameof(state.SessionId)));
                 }
 
                 var client = HttpContext.GetAmazonPayApiClient(Services.StoreContext.CurrentStore.Id);
@@ -442,6 +442,15 @@ namespace Smartstore.AmazonPay.Controllers
             return RedirectToRoute("ShoppingCart");
         }
 
+        /// <summary>
+        /// AmazonPay sends payment notifications (IPNs) to this action method.
+        /// </summary>
+        /// <remarks>
+        /// INFO: multistore settings... because I keep stumbling over it.
+        /// Is a mapping of a domain to the settings of the associated store: requested domain -> store entity -> multistore settings of the store.
+        /// So LoadSettingsAsync(0) and LoadSettingsAsync(CurrentStore.Id) are the same thing.
+        /// So for IPN-URLs it is not necessary to append the Store.Id (double information). The assignment to the store is always done via the domain.
+        /// </remarks>
         [HttpPost]
         [Route("amazonpay/ipnhandler")]
         public async Task<IActionResult> IPNHandler()
