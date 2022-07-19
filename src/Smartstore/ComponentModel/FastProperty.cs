@@ -33,6 +33,13 @@ namespace Smartstore.ComponentModel
         private static readonly ConcurrentDictionary<Type, IDictionary<string, FastProperty>> _propertiesCache = new ConcurrentDictionary<Type, IDictionary<string, FastProperty>>();
         private static readonly ConcurrentDictionary<Type, IDictionary<string, FastProperty>> _visiblePropertiesCache = new ConcurrentDictionary<Type, IDictionary<string, FastProperty>>();
 
+        // We need to be able to check if a type is a 'ref struct' - but we need to be able to compile
+        // for platforms where the attribute is not defined. So we can fetch the attribute
+        // by late binding. If the attribute isn't defined, then we assume we won't encounter any
+        // 'ref struct' types.
+        private static readonly Type IsByRefLikeAttribute = Type.GetType("System.Runtime.CompilerServices.IsByRefLikeAttribute", throwOnError: false);
+
+
         private Func<object, object> _valueGetter;
         private Action<object, object> _valueSetter;
         private bool? _isPublicSettable;
@@ -468,13 +475,31 @@ namespace Smartstore.ComponentModel
             return properties;
         }
 
-        // Indexed properties are not useful (or valid) for grabbing properties off an object.
         private static bool IsCandidateProperty(PropertyInfo property)
         {
+            // For improving application startup time, do not use GetIndexParameters() api early in this check as it
+            // creates a copy of parameter array and also we would like to check for the presence of a get method
+            // and short circuit asap.
             return property.GetIndexParameters().Length == 0 &&
                 property.GetMethod != null &&
                 property.GetMethod.IsPublic &&
-                !property.GetMethod.IsStatic;
+                !property.GetMethod.IsStatic &&
+                // FastProperty can't work with ref structs.
+                !IsRefStructProperty(property) &&
+                // Indexed properties are not useful (or valid) for grabbing properties off an object.
+                property.GetMethod.GetParameters().Length == 0;
+        }
+
+        // FastProperty can't really interact with ref-struct properties since they can't be 
+        // boxed and can't be used as generic types. We just ignore them.
+        //
+        // see: https://github.com/aspnet/Mvc/issues/8545
+        private static bool IsRefStructProperty(PropertyInfo property)
+        {
+            return
+                IsByRefLikeAttribute != null &&
+                property.PropertyType.IsValueType &&
+                property.PropertyType.IsDefined(IsByRefLikeAttribute);
         }
 
         private static ConcurrentDictionary<Type, IDictionary<string, FastProperty>> CreateVolatileCache()
