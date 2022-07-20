@@ -1,6 +1,7 @@
 ﻿using Autofac;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Diagnostics;
 using Smartstore.Events;
 using Smartstore.Threading;
 
@@ -57,11 +58,17 @@ namespace Smartstore.Engine.Initialization
         {
             if (!_initialized)
             {
-                using (await _asyncLock.LockAsync(cancelToken: _asyncRunner.AppShutdownCancellationToken))
+                var errorFeature = context.Features.Get<IExceptionHandlerPathFeature>();
+
+                if (errorFeature == null)
                 {
-                    if (!_initialized)
+                    // Don't run initializers when re-execution after an exception is in progress.
+                    using (await _asyncLock.LockAsync(cancelToken: _asyncRunner.AppShutdownCancellationToken))
                     {
-                        await Initialize(context);
+                        if (!_initialized)
+                        {
+                            await InitializeAsync(context);
+                        }
                     }
                 }
             }
@@ -69,7 +76,7 @@ namespace Smartstore.Engine.Initialization
             await _next(context);
         }
 
-        private async Task Initialize(HttpContext context)
+        private async Task InitializeAsync(HttpContext context)
         {
             var scope = context.GetServiceScope();
             var pendingModules = GetInitModuleInfos();
