@@ -64,7 +64,9 @@
                 for (int i = 0; i < Model.Files.Count; i++)
                 {
                     var file = Model.Files[i];
-                    var srcAttr = $"{(i == Model.GalleryStartIndex ? "src" : "data-lazy")}={file.GetUrl(Model.ImageSize)}";
+                    var attrName = (i == Model.GalleryStartIndex ? "src" : "data-lazy");
+                    var attrValue = file.GetUrl(Model.ImageSize);
+                    var srcAttributes = new AttributeDictionary { [attrName] = attrValue };
 
                     <div class="gal-item">
                         <a class="gal-item-viewport" href="@file.GetUrl()"
@@ -74,7 +76,7 @@
                             @if (file.MediaType == MediaType.Image)
                             {
                                 <img class="gal-item-content file-img"
-                                     @srcAttr
+                                     attrs="@srcAttributes"
                                      data-zoom="@file.GetUrl()"
                                      data-zoom-width="@file.Size.Width"
                                      data-zoom-height="@file.Size.Height"
@@ -86,7 +88,7 @@
                             {
                                 <figure class="file-figure gal-item-content">
                                     <picture class="file-thumb show fs-display-3" data-type="video" title="@file.TitleAttribute">
-                                        <img class="file-img" @srcAttr alt="@file.Alt" />
+                                        <img class="file-img" attrs="@srcAttributes" alt="@file.Alt" />
                                     </picture>
                                 </figure>
                             }
