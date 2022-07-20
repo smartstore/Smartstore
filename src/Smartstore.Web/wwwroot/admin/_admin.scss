@@ -987,7 +987,6 @@ legend {
     width: 100%;
     text-decoration: none;
     color: inherit;
-    cursor: pointer;
 
     &:hover {
         text-decoration: none;
@@ -1033,6 +1032,7 @@ legend {
 
 .admin-config-group[data-toggle=collapse] {
     position: relative;
+    cursor: pointer;
 
     &:after {
         @include fontawesome-font("\f078", regular); // chevron-down

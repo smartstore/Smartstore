@@ -53,7 +53,7 @@ namespace Smartstore.Web.Bootstrapping
         {
             builder.Configure(StarterOrdering.BeforeStaticFilesMiddleware, app =>
             {
-                app.UseWhen(ctx => ctx.Request.Method == HttpMethods.Get, x =>
+                app.UseWhen(ctx => ctx.Request.IsGet(), x =>
                 {
                     x.UseMiddleware<BundleMiddleware>();
                 });
