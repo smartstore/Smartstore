@@ -45,7 +45,7 @@
         [LocalizedDisplay("Admin.Configuration.Payment.Methods.AdditionalFeePercentage")]
         public bool AdditionalFeePercentage { get; set; }
 
-        [LocalizedDisplay("*AddOrderNotes")]
+        [LocalizedDisplay("Admin.Configuration.Payment.Methods.AddOrderNotes")]
         public bool AddOrderNotes { get; set; }
 
         [LocalizedDisplay("*PayButtonColor")]

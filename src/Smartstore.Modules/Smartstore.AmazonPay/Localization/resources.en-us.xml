@@ -253,12 +253,6 @@ Text suggestions:</div><ul>
 	<LocaleResource Name="ShowSignoutButton.Hint">
 		<Value>Specifies whether to show the Amazon Pay sign out button on the order completed page.</Value>
 	</LocaleResource>
-	<LocaleResource Name="AddOrderNotes">
-		<Value>Create order notes</Value>
-	</LocaleResource>
-	<LocaleResource Name="AddOrderNotes.Hint">
-		<Value>Specifies that order notes should be created in context of the data exchange with Amazon Pay.</Value>
-	</LocaleResource>
 	<LocaleResource Name="CookieInfo">
 		<Value>Amazon Pay uses cookies to display and process the payment or sign-in transaction.</Value>
 	</LocaleResource>

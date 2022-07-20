@@ -253,12 +253,6 @@ Textvorschläge:</div><ul>
 	<LocaleResource Name="ShowSignoutButton.Hint">
 		<Value>Legt fest, ob der Amazon Pay Logout-Button auf der Bestellbestätigungsseite angezeigt werden soll.</Value>
 	</LocaleResource>
-	<LocaleResource Name="AddOrderNotes">
-		<Value>Auftragsnotizen anlegen</Value>
-	</LocaleResource>
-	<LocaleResource Name="AddOrderNotes.Hint">
-		<Value>Legt fest, dass Auftragsnotizen hinsichtlich des Datenaustausches mit Amazon Pay angelegt werden sollen.</Value>
-	</LocaleResource>
 	<LocaleResource Name="CookieInfo">
 		<Value>Amazon Pay nutzt Cookies zur Darstellung und Abwicklung des Zahlungs- bzw. Anmeldevorgangs.</Value>
 	</LocaleResource>

@@ -81,6 +81,16 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Payment.MissingCheckoutState",
                 "Missing checkout session state ({0}). Your payment cannot be processed. Please go to your shopping cart and checkout again.",
                 "Fehlender Checkout-Sitzungsstatus ({0}). Ihre Zahlung kann leider nicht bearbeitet werden. Bitte gehen Sie zurück zum Warenkorb und Durchlaufen Sie den Checkout erneut.");
+
+            builder.AddOrUpdate("Payment.InvalidCredentials",
+                "The credentials for the payment provider are incomplete. Please enter the required credentials in the configuration area of the payment method.",
+                "Die Zugangsdaten zum Zahlungsanbieter sind unvollständig. Bitte geben Sie die erforderlichen Zugangsdaten im Konfigurationsbereich der Zahlungsart ein.");
+
+            builder.AddOrUpdate("Admin.Configuration.Payment.Methods.AddOrderNotes",
+                "Create order notes",
+                "Auftragsnotizen anlegen",
+                "Specifies whether to create order notes when exchanging data with the payment provider.",
+                "Legt fest, ob beim Datenaustausch mit dem Zahlungsanbieter Auftragsnotizen angelegt werden sollen.");
         }
     }
 }
