@@ -13,7 +13,7 @@ namespace Smartstore.Core.Bootstrapping
             _appConfig = appConfig;
         }
 
-        public int Order => int.MinValue;
+        public int Order => int.MinValue + 20;
         public int MaxAttempts => 10;
         public bool ThrowOnError => false;
 
@@ -49,7 +49,7 @@ namespace Smartstore.Core.Bootstrapping
             }
             else
             {
-                Logger.Warn("Stopped trying to initialize the Task Scheduler: too many failed attempts in succession (10+). Maybe setting 'Smartstore.TaskSchedulerBaseUrl' to a valid base url in appsettings.json solves the problem?");
+                Logger.Warn("Stopped trying to initialize the Task Scheduler: too many failed consecutive attempts (10+). Maybe setting 'Smartstore.TaskSchedulerBaseUrl' to a valid base url in appsettings.json solves the problem?");
             }
 
             return Task.CompletedTask;

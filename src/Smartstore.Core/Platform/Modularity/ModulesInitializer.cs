@@ -12,7 +12,7 @@ namespace Smartstore.Engine.Modularity
     {
         public ILogger Logger { get; set; } = NullLogger.Instance;
 
-        public int Order => int.MinValue;
+        public int Order => int.MinValue + 10;
         public bool ThrowOnError => true;
         public int MaxAttempts => 1;
 

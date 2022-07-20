@@ -120,9 +120,6 @@ app.Lifetime.ApplicationStarted.Register(() =>
 });
 engineStarter.ConfigureApplication(app);
 
-// Initialize databases
-await InitializeDatabasesAsync();
-
 // Run application
 app.Run();
 
@@ -238,22 +235,6 @@ bool IsFileSource(LogEvent e)
 {
     var source = e.GetSourceContext();
     return source != null && (source.Equals("File", StringComparison.OrdinalIgnoreCase) || source.StartsWith("File/", StringComparison.OrdinalIgnoreCase));
-}
-
-async Task InitializeDatabasesAsync()
-{
-    if (appContext.IsInstalled)
-    {
-        var scopeAccessor = app.Services.GetRequiredService<ILifetimeScopeAccessor>();
-        using (scopeAccessor.BeginContextAwareScope(out var scope))
-        {
-            var initializer = scope.ResolveOptional<IDatabaseInitializer>();
-            if (initializer != null)
-            {
-                await initializer.InitializeDatabasesAsync(app.Lifetime?.ApplicationStopping ?? CancellationToken.None);
-            }
-        }
-    }
 }
 
 #endregion
