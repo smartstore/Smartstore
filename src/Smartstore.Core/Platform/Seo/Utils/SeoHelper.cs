@@ -82,7 +82,7 @@ namespace Smartstore.Core.Seo
                     c = char.ToLowerInvariant(c);
                 }
 
-                if (charConversions != null && _userSeoCharacterTable != null && _userSeoCharacterTable.TryGetValue(c, out string userChar))
+                if (charConversions != null && _userSeoCharacterTable != null && _userSeoCharacterTable.TryGetValue(c, out var userChar))
                 {
                     sb.Append(userChar);
                     prevdash = false;

@@ -23,6 +23,8 @@ namespace Smartstore.Core.Seo.Routing
     /// </summary>
     public abstract class SlugRouter
     {
+        const string CatchAllToken = "{**SeName}";
+
         /// <summary>
         /// Builds a <see cref="RouteValueDictionary"/> instance for a given <see cref="UrlRecord"/> entity.
         /// </summary>
@@ -41,14 +43,15 @@ namespace Smartstore.Core.Seo.Routing
 
         protected static string UrlPatternFor(string entityName)
         {
-            var url = "{SeName}";
             var prefix = SlugRouteTransformer.GetUrlPrefixFor(entityName);
             if (prefix.HasValue())
             {
-                return prefix + "/" + "{SeName}";
+                return prefix + '/' + CatchAllToken;
             }
-
-            return url;
+            else
+            {
+                return CatchAllToken;
+            }
         }
     }
 }
