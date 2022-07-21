@@ -23,7 +23,7 @@ namespace Smartstore.Web.Controllers
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
 
-        [Route("/Error/{status?}")]
+        [Route("/error/{status?}")]
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error(int? status)
         {

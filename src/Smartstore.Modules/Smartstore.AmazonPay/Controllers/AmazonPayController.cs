@@ -139,7 +139,6 @@ namespace Smartstore.AmazonPay.Controllers
         /// <summary>
         /// The buyer is redirected to this action method after they complete checkout on the AmazonPay hosted page.
         /// </summary>
-        [Route("amazonpay/checkoutreview")]
         public async Task<IActionResult> CheckoutReview(string amazonCheckoutSessionId)
         {
             try
@@ -395,7 +394,6 @@ namespace Smartstore.AmazonPay.Controllers
         /// <summary>
         /// The buyer is redirected to this action method after checkout is completed on the AmazonPay hosted page.
         /// </summary>
-        [Route("amazonpay/confirmationresult")]
         public IActionResult ConfirmationResult()
         {
             var state = _checkoutStateAccessor.CheckoutState.GetCustomState<AmazonPayCheckoutState>();
@@ -452,7 +450,6 @@ namespace Smartstore.AmazonPay.Controllers
         /// So for IPN-URLs it is not necessary to append the Store.Id (double information). The assignment to the store is always done via the domain.
         /// </remarks>
         [HttpPost]
-        [Route("amazonpay/ipnhandler")]
         public async Task<IActionResult> IPNHandler()
         {
             string json = null;
@@ -704,7 +701,6 @@ namespace Smartstore.AmazonPay.Controllers
         /// The merchant is redirected to this action method after he clicked the "smart registration" button on AmazonPay configuration page.
         /// As a result of this registration, AmazonPay provides here JSON formatted API access keys.
         /// </summary>
-        [Route("amazonpay/sharekey")]
         public async Task<IActionResult> ShareKey(string payload)
         {
             Response.Headers.Add("Access-Control-Allow-Origin", "https://payments.amazon.com");
@@ -781,7 +777,6 @@ namespace Smartstore.AmazonPay.Controllers
         /// <summary>
         /// The buyer is redirected to this action method after they click the sign-in button.
         /// </summary>
-        [Route("amazonpay/signin")]
         [Authorize(AuthenticationSchemes = "Smartstore.AmazonPay")]
         public IActionResult SignIn(/*string buyerToken*/)
         {

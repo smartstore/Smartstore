@@ -12,7 +12,6 @@ using Smartstore.Web.Modelling.Settings;
 
 namespace Smartstore.OfflinePayment.Controllers
 {
-    [Route("[area]/offlinepayment/{action=index}/{id?}")]
     public class OfflinePaymentController : AdminController
     {
         private readonly IComponentContext _ctx;

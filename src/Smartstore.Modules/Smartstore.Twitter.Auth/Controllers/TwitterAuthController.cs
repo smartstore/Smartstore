@@ -8,7 +8,6 @@ using Smartstore.Web.Modelling.Settings;
 
 namespace Smartstore.Twitter.Auth.Controllers
 {
-    [Route("[area]/twitterauth/{action=index}/{id?}")]
     public class TwitterAuthController : AdminController
     {
         private readonly IOptionsMonitorCache<TwitterOptions> _optionsCache;

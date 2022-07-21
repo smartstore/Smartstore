@@ -15,7 +15,7 @@ using Smartstore.Web.Rendering;
 
 namespace Smartstore.Shipping.Controllers
 {
-    [Route("[area]/[controller]/{action=index}/{id?}")]
+    [Route("[area]/shippingbytotal/{action=index}/{id?}")]
     public class ByTotalController : AdminController
     {
         private readonly SmartDbContext _db;

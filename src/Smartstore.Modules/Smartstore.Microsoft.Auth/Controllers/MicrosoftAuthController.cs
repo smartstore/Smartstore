@@ -8,7 +8,6 @@ using Smartstore.Web.Modelling.Settings;
 
 namespace Smartstore.Microsoft.Auth.Controllers
 {
-    [Route("[area]/microsoft/auth/{action=index}/{id?}")]
     public class MicrosoftAuthController : AdminController
     {
         private readonly IOptionsMonitorCache<MicrosoftAccountOptions> _optionsCache;

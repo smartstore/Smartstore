@@ -6,7 +6,7 @@ using Smartstore.Web.Models.DataGrid;
 
 namespace Smartstore.Shipping.Controllers
 {
-    [Route("[area]/[controller]/{action=index}/{id?}")]
+    [Route("[area]/fixedrateshipping/{action=index}/{id?}")]
     public class FixedRateController : AdminController
     {
         private readonly SmartDbContext _db;

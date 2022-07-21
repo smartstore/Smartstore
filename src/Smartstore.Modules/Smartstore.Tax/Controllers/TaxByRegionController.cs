@@ -11,7 +11,6 @@ using Smartstore.Web.Rendering;
 
 namespace Smartstore.Tax.Controllers
 {
-    [Route("[area]/taxbyregion/{action=index}/{id?}")]
     public class TaxByRegionController : AdminController
     {
         private readonly SmartDbContext _db;
