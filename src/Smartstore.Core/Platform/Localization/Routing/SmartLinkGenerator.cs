@@ -6,6 +6,8 @@ namespace Smartstore.Core.Localization.Routing
 {
     public class SmartLinkGenerator : LinkGenerator, IDisposable
     {
+        const string AreaParam = "area";
+        
         private readonly LinkGenerator _inner;
         private readonly IServiceProvider _serviceProvider;
         private readonly IHttpContextAccessor _httpContextAccessor;
@@ -65,9 +67,7 @@ namespace Smartstore.Core.Localization.Routing
 
                 if (currentCultureCode != null)
                 {
-                    var addressingScheme = _serviceProvider.GetRequiredService<IEndpointAddressScheme<TAddress>>();
-                    var endpoints = addressingScheme.FindEndpoints(address).OfType<RouteEndpoint>();
-                    var isLocalizedRouteEndpoint = endpoints.SelectMany(x => x.Metadata).OfType<LocalizedRouteMetadata>().Any();
+                    var isLocalizedRouteEndpoint = IsLocalizedRouteEndpoint(routeValueAddress);
 
                     if (isLocalizedRouteEndpoint)
                     {
@@ -86,6 +86,48 @@ namespace Smartstore.Core.Localization.Routing
                     }
                 }
             }
+        }
+
+        private bool IsLocalizedRouteEndpoint(RouteValuesAddress address)
+        {
+            var addressingScheme = _serviceProvider.GetRequiredService<IEndpointAddressScheme<RouteValuesAddress>>();
+
+            // Find all route endpoint candidates that match the given address
+            var endpoints = addressingScheme.FindEndpoints(address).OfType<RouteEndpoint>();
+
+            // Check whether current address contains a non-empty area token (either ambient or explicit)
+            var hasArea = address.AmbientValues.TryGetValue(AreaParam, out var area) || address.ExplicitValues.TryGetValue(AreaParam, out area);
+            hasArea = hasArea && area is string str && !string.IsNullOrEmpty(str);
+
+            // Reduce the set of candidate endpoints by evaluating area:
+            // Both current address and candidate endpoint must contain or NOT contain area.
+            foreach (var endpoint in endpoints)
+            {
+                var pattern = endpoint.RoutePattern;
+                var endpointContainsArea = pattern.Defaults.ContainsKey(AreaParam);
+
+                if (!endpointContainsArea)
+                {
+                    for (var i = 0; i < pattern.Parameters.Count; i++)
+                    {
+                        if (pattern.Parameters[i].Name == AreaParam)
+                        {
+                            endpointContainsArea = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (hasArea == endpointContainsArea)
+                {
+                    if (endpoint.Metadata.OfType<LocalizedRouteMetadata>().Any())
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
         }
 
         public override string GetPathByAddress<TAddress>(HttpContext httpContext, TAddress address, RouteValueDictionary values, RouteValueDictionary ambientValues = null, PathString? pathBase = null, FragmentString fragment = default, LinkOptions options = null)
