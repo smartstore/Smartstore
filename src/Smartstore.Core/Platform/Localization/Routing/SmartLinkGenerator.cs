@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System.Collections.Concurrent;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Smartstore.Core.Seo.Routing;
 
@@ -6,8 +7,16 @@ namespace Smartstore.Core.Localization.Routing
 {
     public class SmartLinkGenerator : LinkGenerator, IDisposable
     {
-        const string AreaParam = "area";
+        protected struct EndpointInfo
+        {
+            public bool HasArea { get; set; }
+            public bool IsLocalized { get; set; }
+        }
+
+        private readonly static ConcurrentDictionary<string, EndpointInfo> _endpointInfoCache = new();
         
+        const string AreaParam = "area";
+
         private readonly LinkGenerator _inner;
         private readonly IServiceProvider _serviceProvider;
         private readonly IHttpContextAccessor _httpContextAccessor;
@@ -103,24 +112,33 @@ namespace Smartstore.Core.Localization.Routing
             // Both current address and candidate endpoint must contain or NOT contain area.
             foreach (var endpoint in endpoints)
             {
-                var pattern = endpoint.RoutePattern;
-                var endpointContainsArea = pattern.Defaults.ContainsKey(AreaParam);
-
-                if (!endpointContainsArea)
+                var endpointInfo = _endpointInfoCache.GetOrAdd(endpoint.RoutePattern.RawText, key => 
                 {
-                    for (var i = 0; i < pattern.Parameters.Count; i++)
+                    var pattern = endpoint.RoutePattern;
+                    var endpointContainsArea = pattern.Defaults.ContainsKey(AreaParam);
+
+                    if (!endpointContainsArea)
                     {
-                        if (pattern.Parameters[i].Name == AreaParam)
+                        for (var i = 0; i < pattern.Parameters.Count; i++)
                         {
-                            endpointContainsArea = true;
-                            break;
+                            if (pattern.Parameters[i].Name == AreaParam)
+                            {
+                                endpointContainsArea = true;
+                                break;
+                            }
                         }
                     }
-                }
 
-                if (hasArea == endpointContainsArea)
+                    return new EndpointInfo 
+                    { 
+                        HasArea = endpointContainsArea, 
+                        IsLocalized = endpoint.Metadata.OfType<LocalizedRouteMetadata>().Any()
+                    };
+                });
+
+                if (hasArea == endpointInfo.HasArea)
                 {
-                    if (endpoint.Metadata.OfType<LocalizedRouteMetadata>().Any())
+                    if (endpointInfo.IsLocalized)
                     {
                         return true;
                     }
