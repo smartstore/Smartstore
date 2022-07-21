@@ -2,11 +2,9 @@
 using System.Globalization;
 using System.IO.Compression;
 using System.Runtime.CompilerServices;
-using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using Smartstore.Utilities;
-using System;
 
 namespace Smartstore
 {
@@ -357,37 +355,6 @@ namespace Smartstore
         public static Stream ToStream(this byte[] bytes)
         {
             return new MemoryStream(bytes);
-        }
-
-        /// <summary>
-        /// Computes the MD5 hash of a byte array
-        /// </summary>
-        /// <param name="value">The byte array to compute the hash for</param>
-        /// <returns>The hash value</returns>
-        [DebuggerStepThrough]
-        public static string Hash(this byte[] value, bool toBase64 = false)
-        {
-            Guard.NotNull(value, nameof(value));
-
-            using MD5 md5 = MD5.Create();
-
-            if (toBase64)
-            {
-                byte[] hash = md5.ComputeHash(value);
-                return System.Convert.ToBase64String(hash);
-            }
-            else
-            {
-                using var psb = StringBuilderPool.Instance.Get(out var sb);
-
-                byte[] hashBytes = md5.ComputeHash(value);
-                foreach (byte b in hashBytes)
-                {
-                    sb.Append(b.ToString("x2").ToLower());
-                }
-
-                return sb.ToString();
-            }
         }
 
         /// <summary>

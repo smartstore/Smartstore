@@ -42,10 +42,10 @@ namespace Smartstore
             return $"{XxHashUnsafe.ComputeHash(value):X}";
         }
 
-        /// <remarks>
-        /// To get equivalent result to PHPs md5 function call Hash("my value", Encoding.ASCII, false).
-        /// </remarks>
+        /// <summary>
+        /// </summary>
         [DebuggerStepThrough]
+        [Obsolete("Microsoft recommends SHA256 or SHA512 class instead of MD5. Use MD5 only for compatibility with legacy applications and data.")]
         public static string Hash(this string value, Encoding encoding, bool toBase64 = false)
         {
             if (value.IsEmpty())
