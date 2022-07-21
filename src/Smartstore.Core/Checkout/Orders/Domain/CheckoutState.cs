@@ -8,7 +8,8 @@ namespace Smartstore.Core.Checkout.Orders
         public static string CheckoutStateSessionKey => ".Smart.CheckoutState";
 
         /// <summary>
-        /// The payment summary as displayed on the checkout confirmation page
+        /// The payment summary as displayed on the checkout confirmation page.
+        /// Set after selecting the payment method, if not skipped by a payment module.
         /// </summary>
         public string PaymentSummary
         {
@@ -17,8 +18,8 @@ namespace Smartstore.Core.Checkout.Orders
         }
 
         /// <summary>
-        /// Indicates whether a payment is required.
-        /// If the total amount is 0, no payment is necessary.
+        /// Indicates whether a payment is required. <c>false</c> if the order total is 0 (nothing to pay).
+        /// Set on the payment selection page, if not skipped by a payment module.
         /// </summary>
         public bool IsPaymentRequired
         {
@@ -27,7 +28,8 @@ namespace Smartstore.Core.Checkout.Orders
         }
 
         /// <summary>
-        /// Indicates whether the payment method selection page was skipped
+        /// Indicates whether the payment method selection page was skipped.
+        /// Set on the payment selection page, if not skipped by a payment module.
         /// </summary>
         public bool IsPaymentSelectionSkipped
         {
