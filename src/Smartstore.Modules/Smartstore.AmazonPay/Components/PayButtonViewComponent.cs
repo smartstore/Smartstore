@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
+using Smartstore.Core.Common;
 using Smartstore.Web.Components;
 
 namespace Smartstore.AmazonPay.Components
@@ -16,17 +17,20 @@ namespace Smartstore.AmazonPay.Components
 
         private readonly IPaymentService _paymentService;
         private readonly IShoppingCartService _shoppingCartService;
+        private readonly Lazy<IOrderCalculationService> _orderCalculationService;
         private readonly AmazonPaySettings _settings;
         private readonly OrderSettings _orderSettings;
 
         public PayButtonViewComponent(
             IPaymentService paymentService,
             IShoppingCartService shoppingCartService,
+            Lazy<IOrderCalculationService> orderCalculationService,
             AmazonPaySettings amazonPaySettings,
             OrderSettings orderSettings)
         {
             _paymentService = paymentService;
             _shoppingCartService = shoppingCartService;
+            _orderCalculationService = orderCalculationService;
             _settings = amazonPaySettings;
             _orderSettings = orderSettings;
         }
@@ -53,6 +57,14 @@ namespace Smartstore.AmazonPay.Components
             var cart = await _shoppingCartService.GetCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
 
             if (!cart.HasItems || !await _paymentService.IsPaymentMethodActiveAsync(AmazonPayProvider.SystemName, cart, store.Id))
+            {
+                return Empty();
+            }
+
+            // Do not render AmazonPay button if there's nothing to pay.
+            // Avoids InvalidParameterValue: The value '0' provided for 'chargeAmount.Amount' is invalid.
+            var cartTotal = (Money?)await _orderCalculationService.Value.GetShoppingCartTotalAsync(cart);
+            if (cartTotal.HasValue && cartTotal.Value == decimal.Zero)
             {
                 return Empty();
             }

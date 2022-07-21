@@ -5,7 +5,6 @@ using Amazon.Pay.API.WebStore.CheckoutSession;
 using Amazon.Pay.API.WebStore.Interfaces;
 using Amazon.Pay.API.WebStore.Refund;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Smartstore.AmazonPay.Components;
@@ -32,22 +31,19 @@ namespace Smartstore.AmazonPay.Providers
         private readonly IAmazonPayService _amazonPayService;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ICheckoutStateAccessor _checkoutStateAccessor;
-        private readonly IUrlHelper _urlHelper;
 
         public AmazonPayProvider(
             SmartDbContext db,
             ICommonServices services,
             IAmazonPayService amazonPayService,
             IHttpContextAccessor httpContextAccessor,
-            ICheckoutStateAccessor checkoutStateAccessor,
-            IUrlHelper urlHelper)
+            ICheckoutStateAccessor checkoutStateAccessor)
         {
             _db = db;
             _services = services;
             _amazonPayService = amazonPayService;
             _httpContextAccessor = httpContextAccessor;
             _checkoutStateAccessor = checkoutStateAccessor;
-            _urlHelper = urlHelper;
         }
 
         public ILogger Logger { get; set; } = NullLogger.Instance;
