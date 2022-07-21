@@ -1,7 +1,9 @@
 ﻿using DouglasCrockford.JsMin;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
+using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Identity;
 using Smartstore.Google.Analytics.Services;
 using Smartstore.Web.Components;
@@ -16,15 +18,18 @@ namespace Smartstore.Google.Analytics.Components
         private readonly GoogleAnalyticsSettings _settings;
         private readonly ICookieConsentManager _cookieConsentManager;
         private readonly GoogleAnalyticsScriptHelper _googleAnalyticsScriptHelper;
-        
+        private readonly OrderSettings _orderSettings;
+
         public GoogleAnalyticsViewComponent(
             GoogleAnalyticsSettings settings,
             ICookieConsentManager cookieConsentManager,
-            GoogleAnalyticsScriptHelper googleAnalyticsScriptHelper)
+            GoogleAnalyticsScriptHelper googleAnalyticsScriptHelper,
+            OrderSettings orderSettings)
         {
             _settings = settings;
             _cookieConsentManager = cookieConsentManager;
             _googleAnalyticsScriptHelper = googleAnalyticsScriptHelper;
+            _orderSettings = orderSettings;
         }
 
         public async Task<IViewComponentResult> InvokeAsync(object model) 
@@ -127,6 +132,16 @@ namespace Smartstore.Google.Analytics.Components
                 {
                     // Checkout completed page > purchase
                     specificScript = await _googleAnalyticsScriptHelper.GetOrderCompletedScriptAsync();
+                }
+                else if (controller.EqualsNoCase("order") && action.EqualsNoCase("details") && _orderSettings.DisableOrderCompletedPage)
+                {
+                    // If order was just being completed render script.
+                    var orderCompleted = HttpContext.Session.GetString("GA-OrderCompleted").ToBool();
+                    if (orderCompleted)
+                    {
+                        // Order details page
+                        specificScript = await _googleAnalyticsScriptHelper.GetOrderCompletedScriptAsync();
+                    }
                 }
 
                 var cookiesAllowed = _cookieConsentManager.IsCookieAllowed(CookieType.Analytics);
