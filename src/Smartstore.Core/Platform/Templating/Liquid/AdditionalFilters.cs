@@ -53,7 +53,7 @@ namespace Smartstore.Templating.Liquid
             if (input == null)
                 return input;
 
-            return MD5.HashData(Encoding.UTF8.GetBytes(input)).ToHexString().ToLower();
+            return MD5.HashData(Encoding.UTF8.GetBytes(input)).ToHexString();
         }
 
         #endregion

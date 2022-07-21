@@ -9,12 +9,12 @@
 
         public static string NormalizeFileName(string fileName)
         {
-            return string.Join("-", fileName.ToSafe().Split(_invalidFileNameChars));
+            return string.Join('-', fileName.ToSafe().Split(_invalidFileNameChars));
         }
 
         public static string NormalizeFolderName(string folderName)
         {
-            return string.Join("-", folderName.ToSafe().Split(_invalidFolderNameChars));
+            return string.Join('-', folderName.ToSafe().Split(_invalidFolderNameChars));
         }
 
         #endregion
@@ -66,7 +66,7 @@
             int i = 1;
             while (true)
             {
-                var test = string.Concat(title, "-", i, ".", ext.TrimStart('.'));
+                var test = string.Concat(title, '-', i, '.', ext.TrimStart('.'));
                 if (!destFileNames.Contains(test))
                 {
                     // Found our gap

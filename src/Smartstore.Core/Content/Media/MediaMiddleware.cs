@@ -55,13 +55,13 @@ namespace Smartstore.Core.Content.Media
         }
 
         public async Task Invoke(
-            HttpContext context, 
-            IMediaService mediaService,
-            IFolderService folderService,
-            IPermissionService permissionService,
-            IWorkContext workContext,
+            HttpContext context,
             MediaSettings mediaSettings,
-            MediaHelper mediaHelper,
+            Lazy<IMediaService> mediaService,
+            Lazy<IFolderService> folderService,
+            Lazy<IPermissionService> permissionService,
+            Lazy<IWorkContext> workContext,
+            Lazy<MediaHelper> mediaHelper,
             Lazy<IEnumerable<IMediaHandler>> mediaHandlers,
             ILogger<MediaMiddleware> logger)
         {
@@ -71,8 +71,8 @@ namespace Smartstore.Core.Content.Media
                 return;
             }
 
-            var mediaFileId = routeValues["id"].Convert<int>();
-            var path = routeValues["path"].Convert<string>();
+            var mediaFileId = (int)routeValues["id"];
+            var path = (string)routeValues["path"];
 
             MediaFileInfo mediaFile = null;
             MediaPathData pathData = null;
@@ -82,16 +82,16 @@ namespace Smartstore.Core.Content.Media
                 // This is most likely a request for a default placeholder image
                 pathData = new MediaPathData(path);
             }
-            else if (!mediaHelper.TokenizePath(path, false, out pathData))
+            else if (!mediaHelper.Value.TokenizePath(path, false, out pathData))
             {
                 // Missing or malformed Uri: get file metadata from DB by id, but only when current user has media manage rights
-                if (!(await permissionService.AuthorizeAsync(Permissions.Media.Update)))
+                if (!(await permissionService.Value.AuthorizeAsync(Permissions.Media.Update)))
                 {
                     await NotFound(null);
                     return;
                 }
 
-                mediaFile = await mediaService.GetFileByIdAsync(mediaFileId, MediaLoadFlags.AsNoTracking);
+                mediaFile = await mediaService.Value.GetFileByIdAsync(mediaFileId, MediaLoadFlags.AsNoTracking);
 
                 if (mediaFile == null || mediaFile.FolderId == null || mediaFile.Deleted)
                 {
@@ -99,7 +99,7 @@ namespace Smartstore.Core.Content.Media
                     return;
                 }
 
-                pathData = new MediaPathData(folderService.GetNodeById(mediaFile.FolderId.Value), mediaFile.Name)
+                pathData = new MediaPathData(folderService.Value.GetNodeById(mediaFile.FolderId.Value), mediaFile.Name)
                 {
                     Extension = mediaFile.Extension,
                     MimeType = mediaFile.MimeType
@@ -123,11 +123,11 @@ namespace Smartstore.Core.Content.Media
             {
                 ApplicationContext = _appContext,
                 HttpContext = context,
-                CurrentCustomer = workContext.CurrentCustomer,
-                PermissionService = permissionService,
+                CurrentCustomer = workContext.Value.CurrentCustomer,
+                PermissionService = permissionService.Value,
                 MediaFileId = mediaFileId,
                 RawPath = path,
-                MediaService = mediaService,
+                MediaService = mediaService.Value,
                 PathData = pathData,
                 ImageQuery = q
             };
@@ -199,7 +199,7 @@ namespace Smartstore.Core.Content.Media
             {
                 return size.GetValueOrDefault() == 0
                     || mediaSettings.IsAllowedThumbnailSize(size.Value)
-                    || permissionService.Authorize(Permissions.Media.Update, workContext.CurrentCustomer);
+                    || permissionService.Value.Authorize(Permissions.Media.Update, workContext.Value.CurrentCustomer);
             }
 
             async Task NotFound(string mime)

@@ -1,5 +1,4 @@
-﻿using System.Globalization;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace Smartstore
@@ -37,28 +36,17 @@ namespace Smartstore
 
         public static string ToUnicode(this char ch)
         {
-            using (var w = new StringWriter(CultureInfo.InvariantCulture))
+            var chars = new[]
             {
-                WriteCharAsUnicode(ch, w);
-                return w.ToString();
-            }
-        }
+                '\\',
+                'u',
+                ((ch >> 12) & '\x000f').ToHex(),
+                ((ch >> 8) & '\x000f').ToHex(),
+                ((ch >> 4) & '\x000f').ToHex(),
+                (ch & '\x000f').ToHex()
+            };
 
-        internal static void WriteCharAsUnicode(char ch, TextWriter writer)
-        {
-            Guard.NotNull(writer, "writer");
-
-            char h1 = ((ch >> 12) & '\x000f').ToHex();
-            char h2 = ((ch >> 8) & '\x000f').ToHex();
-            char h3 = ((ch >> 4) & '\x000f').ToHex();
-            char h4 = (ch & '\x000f').ToHex();
-
-            writer.Write('\\');
-            writer.Write('u');
-            writer.Write(h1);
-            writer.Write(h2);
-            writer.Write(h3);
-            writer.Write(h4);
+            return new string(chars);
         }
 
         public static char TryRemoveDiacritic(this char ch)

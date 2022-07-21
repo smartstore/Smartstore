@@ -73,7 +73,7 @@ namespace Smartstore.Core.Content.Media
         public int[] GetAllowedThumbnailSizes()
         {
             EnsureThumbSizeWhitelist();
-            return _allowedThumbSizes.OrderBy(x => x).ToArray();
+            return _allowedThumbSizes.ToArray();
         }
 
         public bool IsAllowedThumbnailSize(int size)
@@ -84,8 +84,14 @@ namespace Smartstore.Core.Content.Media
 
         public int GetNextValidThumbnailSize(int currentSize)
         {
-            var allowedSizes = GetAllowedThumbnailSizes();
-            foreach (var size in allowedSizes)
+            EnsureThumbSizeWhitelist();
+
+            if (_allowedThumbSizes.Contains(currentSize))
+            {
+                return currentSize;
+            }
+
+            foreach (var size in _allowedThumbSizes)
             {
                 if (size >= currentSize)
                 {
@@ -99,9 +105,13 @@ namespace Smartstore.Core.Content.Media
         private void EnsureThumbSizeWhitelist()
         {
             if (_allowedThumbSizes != null)
+            {
                 return;
+            }
 
-            _allowedThumbSizes = new HashSet<int>
+            var numExtraSizes = AllowedExtraThumbnailSizes?.Count ?? 0;
+
+            var sizes = new int[] 
             {
                 48, ThumbnailSizeXxs, ThumbnailSizeXs, ThumbnailSizeSm, ThumbnailSizeMd, ThumbnailSizeLg, ThumbnailSizeXl, ThumbnailSizeXxl,
                 AvatarPictureSize,
@@ -119,12 +129,11 @@ namespace Smartstore.Core.Content.Media
                 VariantValueThumbPictureSize,
                 AttributeOptionThumbPictureSize,
                 MaxImageSize
-            };
-
-            if (AllowedExtraThumbnailSizes?.Count > 0)
-            {
-                _allowedThumbSizes.AddRange(AllowedExtraThumbnailSizes);
             }
+            .Concat(numExtraSizes > 0 ? AllowedExtraThumbnailSizes : Enumerable.Empty<int>())
+            .OrderBy(x => x);
+
+            _allowedThumbSizes = new HashSet<int>(sizes);
         }
 
         #endregion

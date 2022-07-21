@@ -52,7 +52,10 @@ namespace Smartstore.Core.Content.Media
             return false;
         }
 
-        public async Task Invoke(HttpContext context, IMediaService mediaService, IMediaUrlGenerator mediaUrlGenerator)
+        public async Task Invoke(
+            HttpContext context, 
+            Lazy<IMediaService> mediaService, 
+            Lazy<IMediaUrlGenerator> mediaUrlGenerator)
         {
             if (!TryMatchRoute(context.Request.Path, out var routeValues))
             {
@@ -60,7 +63,7 @@ namespace Smartstore.Core.Content.Media
                 return;
             }
 
-            var path = routeValues["path"].Convert<string>();
+            var path = (string)routeValues["path"];
             if (path.IsEmpty())
             {
                 // Cannot operate without path
@@ -70,24 +73,24 @@ namespace Smartstore.Core.Content.Media
                 return;
             }
             
-            var mediaFileId = routeValues["id"].Convert<int?>();
+            var mediaFileId = (int?)routeValues["id"];
 
             MediaFileInfo mediaFile;
 
             if (mediaFileId.HasValue)
             {
                 /// Redirect legacy URL "/{pub}/image/234/file.png" to "/{pub}/234/catalog/path/to/file.png"
-                mediaFile = await mediaService.GetFileByIdAsync(mediaFileId.Value, MediaLoadFlags.AsNoTracking);
+                mediaFile = await mediaService.Value.GetFileByIdAsync(mediaFileId.Value, MediaLoadFlags.AsNoTracking);
             }
             else
             {
                 // Redirect legacy URL "/{tenant?}/uploaded/some/file.png" to "/file/1234/some/file.png"
-                mediaFile = await mediaService.GetFileByPathAsync(
+                mediaFile = await mediaService.Value.GetFileByPathAsync(
                     SystemAlbumProvider.Files + "/" + path, 
                     MediaLoadFlags.AsNoTracking);
             }
 
-            var url = mediaUrlGenerator.GenerateUrl(mediaFile, context.Request.QueryString, string.Empty, false);
+            var url = mediaUrlGenerator.Value.GenerateUrl(mediaFile, context.Request.QueryString, string.Empty, false);
 
             if (url.IsEmpty())
             {

@@ -370,9 +370,9 @@ namespace Smartstore
 
             using var psb = StringBuilderPool.Instance.Get(out var sb);
 
-            foreach (byte b in value)
+            for (var i = 1; i < value.Length; i++)
             {
-                sb.Append(b.ToString("x2"));
+                sb.Append(value[i].ToString("x2"));
 
                 if (length > 0 && sb.Length >= length)
                 {

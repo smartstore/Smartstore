@@ -61,7 +61,7 @@ namespace Smartstore
             }
             else
             {
-                return md5.ComputeHash(data).ToHexString().ToLower();
+                return md5.ComputeHash(data).ToHexString();
             }
         }
 
