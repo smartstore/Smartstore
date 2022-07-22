@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 using System.Runtime.CompilerServices;
+using Autofac;
 using Smartstore.Utilities;
 
 namespace Smartstore.Core.Seo
@@ -13,13 +14,13 @@ namespace Smartstore.Core.Seo
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string Slugify(string input, SeoSettings seoSettings)
         {
-            seoSettings ??= EngineContext.Current.Scope.ResolveOptional<SeoSettings>();
+            seoSettings ??= EngineContext.Current.Application.Services.ResolveOptional<SeoSettings>() ?? new SeoSettings();
             return Slugify(input, new SlugifyOptions
             {
-                RemoveDiacritic = seoSettings?.ConvertNonWesternChars ?? true,
-                AllowUnicodeChars = seoSettings?.AllowUnicodeCharsInUrls ?? false,
+                RemoveDiacritic = seoSettings.ConvertNonWesternChars,
+                AllowUnicodeChars = seoSettings.AllowUnicodeCharsInUrls,
                 AllowForwardSlash = true,
-                CharConversionMap = seoSettings?.GetCharConversionMap()
+                CharConversionMap = seoSettings.GetCharConversionMap()
             });
         }
 

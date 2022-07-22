@@ -117,34 +117,6 @@ namespace Smartstore
             return result;
         }
 
-        /// <summary>Smart way to create a HTML attribute with a leading space.</summary>
-        /// <param name="value">Name of the attribute.</param>
-        /// <param name="name"></param>
-        /// <param name="htmlEncode"></param>
-        public static string ToAttribute(this string value, string name, bool htmlEncode = true)
-        {
-            if (name.IsEmpty())
-                return "";
-
-            if (value == "" && name != "value" && !name.StartsWith("data"))
-                return "";
-
-            if (name == "maxlength" && (value == "" || value == "0"))
-                return "";
-
-            if (name == "checked" || name == "disabled" || name == "multiple")
-            {
-                if (value == "" || string.Compare(value, "false", true) == 0)
-                    return "";
-                value = (string.Compare(value, "true", true) == 0 ? name : value);
-            }
-
-            if (name.StartsWith("data"))
-                name = name.Insert(4, "-");
-
-            return string.Format(" {0}=\"{1}\"", name, htmlEncode ? HttpUtility.HtmlEncode(value) : value);
-        }
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string SanitizeHtmlId(this string value)
         {
