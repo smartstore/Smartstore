@@ -8,7 +8,9 @@ using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Web;
+using Smartstore.Data;
 using Smartstore.Data.Caching;
+using Smartstore.Data.Hooks;
 using Smartstore.Diagnostics;
 
 namespace Smartstore.Core.Identity
@@ -112,7 +114,7 @@ INNER JOIN (
 
 		public virtual async Task<Customer> CreateGuestCustomerAsync(Guid? customerGuid = null)
 		{
-			var customer = new Customer
+            var customer = new Customer
 			{
 				CustomerGuid = customerGuid ?? Guid.NewGuid(),
 				Active = true,
@@ -127,18 +129,27 @@ INNER JOIN (
 				throw new SmartException("'Guests' role could not be loaded");
 			}
 
-			// Ensure that entities are saved to db in any case
-			customer.CustomerRoleMappings.Add(new CustomerRoleMapping { CustomerId = customer.Id, CustomerRoleId = guestRole.Id });
-			_db.Customers.Add(customer);
+            using (new DbContextScope(_db, minHookImportance: HookImportance.Essential))
+            {
+                // Non-essential hooks should NOT react to the insertion of a guest customer record.
+                // We want to prevent cache key lock recursion flaws this way: because a hook can trigger
+                // actions which - in rare cases, e.g. in a singleton scope - may result in a new guest customer
+                // entity inserted to the database, which would now result in calling the source hook again
+                // (if it handled the Customer entity).
+                
+                // Ensure that entities are saved to db in any case
+                customer.CustomerRoleMappings.Add(new CustomerRoleMapping { CustomerId = customer.Id, CustomerRoleId = guestRole.Id });
+                _db.Customers.Add(customer);
 
-			await _db.SaveChangesAsync();
+                await _db.SaveChangesAsync();
 
-			var clientIdent = _webHelper.GetClientIdent();
-			if (clientIdent.HasValue())
-			{
-				customer.GenericAttributes.ClientIdent = clientIdent;
-				await _db.SaveChangesAsync();
-			}
+                var clientIdent = _webHelper.GetClientIdent();
+                if (clientIdent.HasValue())
+                {
+                    customer.GenericAttributes.ClientIdent = clientIdent;
+                    await _db.SaveChangesAsync();
+                }
+            }
 
 			//Logger.DebugFormat("Guest account created for anonymous visitor. Id: {0}, ClientIdent: {1}", customer.CustomerGuid, clientIdent ?? "n/a");
 
