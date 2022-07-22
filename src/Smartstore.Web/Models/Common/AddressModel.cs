@@ -159,9 +159,9 @@ namespace Smartstore.Web.Models.Common
                         .WithMessage(T("Admin.Address.Fields.Country.Required"));
                 }
 
-                RuleFor(x => x.CountryId).MustAsync(async (id, cancellation) =>
+                RuleFor(x => x.CountryId).MustAsync(async (id, cancelToken) =>
                 {
-                    var country = await db.Countries.FindByIdAsync((int)id, cancellationToken: cancellation);
+                    var country = await db.Countries.FindByIdAsync(id ?? 0, false, cancelToken);
                     if (country != null)
                     {
                         return country.Published;
