@@ -1,4 +1,5 @@
-﻿@using Smartstore.Web.Models.Checkout;
+﻿@using Microsoft.AspNetCore.Mvc.ModelBinding;
+@using Smartstore.Web.Models.Checkout;
 
 @model CheckoutAddressModel
 
@@ -72,7 +73,7 @@
                 <form asp-action="BillingAddress" asp-controller="Checkout" method="post">
                     <div class="enter-address-body">
                         @{
-                            var dataDictAddress = new ViewDataDictionary(ViewData);
+                            var dataDictAddress = new ViewDataDictionary(new EmptyModelMetadataProvider(), new ModelStateDictionary());
                             dataDictAddress["breakpoint"] = "sm";
                             // Merge ModelState (required for validation).
                             dataDictAddress.ModelState.Merge(ViewData.ModelState);
