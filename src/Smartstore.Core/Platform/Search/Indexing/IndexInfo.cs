@@ -28,9 +28,9 @@ namespace Smartstore.Core.Search.Indexing
         public string Scope { get; }
 
         /// <summary>
-        /// Gets the localized name of the search index.
+        /// Gets or sets the resource key of the localized scope name.
         /// </summary>
-        public string LocalizedName { get; init; }
+        public string ScopeKey { get; init; }
 
         /// <summary>
         /// Gets or sets the type of the task that creates or updates the search index.
@@ -43,9 +43,9 @@ namespace Smartstore.Core.Search.Indexing
         public string DocumentType { get; init; }
 
         /// <summary>
-        /// Gets or sets the localized document type.
+        /// Gets or sets the resource key of the localized document type.
         /// </summary>
-        public string LocalizedDocumentType { get; init; }
+        public string DocumentTypeKey { get; init; }
 
         #endregion
 
