@@ -15,7 +15,6 @@
 					<li>From the menu on the left side select <b>Certificates & Secrets</b>.</li>
 					<li>Click the <b>New client secret</b> button in the tab <b>Client Secrets</b>.</li>
 					<li>Enter the value of the key in the following form as a secret client key and enter the <b>Application ID</b>.</li>
-					<li>Activate automatic registration in the shop's customer settings if you want to register externally authorized visitors automatically.</li>
 				</ul>
 			]]>
 		</Value>

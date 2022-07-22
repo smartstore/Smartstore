@@ -16,7 +16,6 @@
 					<li>Klicken Sie auf <b>Anmeldeinformationen erstellen &gt; OAuth-Client-ID</b>.</li>
 					<li>Tragen Sie die Zugangsdaten unten in das Formular ein.</li>
 					<li>Bei Google muss unter <b>Anmeldedaten &gt; Autorisierte Weiterleitungs-URIs &gt; URIs</b> die unten aufgeführte URL eingetragen werden.</li>
-					<li>Aktivieren Sie in den Kundeneinstellungen des Shops die automatische Registrierung, falls extern autorisierte Besucher automatisch registriert werden sollen.</li>
 				</ul>
 			]]>
 		</Value>

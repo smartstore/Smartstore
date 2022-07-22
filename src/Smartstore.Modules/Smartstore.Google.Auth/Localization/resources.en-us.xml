@@ -16,7 +16,6 @@
 					<li>Click <b>Create credentials &gt; OAuth client ID</b>.</li>
 					<li>Enter the credentials at the bottom of this form.</li>.
 					<li>The URL listed below must be entered at <b>Sign-in credentials &gt; Authorized forwarding URIs</b>.</li>.
-					<li>Activate automatic registration in the shop's customer settings if you want to register externally authorized visitors automatically.</li>
 				</ul>
 			]]>
 		</Value>

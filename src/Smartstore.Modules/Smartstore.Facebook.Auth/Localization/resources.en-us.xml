@@ -14,7 +14,6 @@
 				<li>Enter the access data (App-ID &amp; App-Secret) in the form below.</li>
 				<li>Enter the URL listed below in <b>My app &gt; Facebook Login &gt; Settings &gt; Valid OAuth Redirect URIs</b>.</li>
 				<li>Enter your domain in the advanced settings of the created APP in the Domain Manager.</li>
-				<li>Activate automatic registration in the shop's customer settings if you want to register externally authorized visitors automatically.</li>
 			</ul>
 			]]>
 		</Value>

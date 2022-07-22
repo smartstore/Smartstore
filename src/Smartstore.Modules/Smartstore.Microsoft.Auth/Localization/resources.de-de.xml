@@ -15,7 +15,6 @@
 					<li>Wählen Sie aus dem Menü auf der linken Seite den Punkt <b>Zertifikate & Geheimnisse</b>.</li>
 					<li>Klicken Sie im Tab <b>Client Secrets</b> auf den Button <b>Neuer geheimer Clientschlüssel</b>.</li>
 					<li>Geben Sie den Wert des Schlüssels im folgenden Formular als geheimen Clientschlüssel an und tragen sie die Anwendungs-ID ein.</li>
-					<li>Aktivieren Sie in den Kundeneinstellungen des Shops die automatische Registrierung, falls extern autorisierte Besucher automatisch registriert werden sollen.</li>
 				</ul>
 			]]>
 		</Value>

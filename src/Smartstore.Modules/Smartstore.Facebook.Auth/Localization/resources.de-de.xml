@@ -14,7 +14,6 @@
 					<li>Tragen Sie die Zugangsdaten unten in das Formular ein.</li>
 					<li>Unter <b>Meine App &gt; Facebook Login &gt; Einstellungen &gt; Gültige OAuth Redirect URIs</b> wird die unten aufgeführte URL eingetragen.</li>
 					<li>Tragen Sie Ihre Domain in den erweiterten Einstellungen der erstellten APP in den Domainmanager ein.</li>
-					<li>Aktivieren Sie in den Kundeneinstellungen des Shops die automatische Registrierung, falls extern autorisierte Besucher automatisch registriert werden sollen.</li>
 				</ul>
 			]]>
 		</Value>

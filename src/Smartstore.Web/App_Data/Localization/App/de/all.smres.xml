@@ -5393,12 +5393,6 @@
 	<LocaleResource Name="Admin.Configuration.Settings.CustomerUser.DisplayCustomerNumber.Hint">
 		<Value>Bestimmt ob Kunden ihre Kundennummer in Ihrem Account-Bereich einsehen können.</Value>
 	</LocaleResource>
-	<LocaleResource Name="Admin.Configuration.Settings.CustomerUser.ExternalAuthenticationAutoRegisterEnabled">
-		<Value>Automatische Registrierung aktiviert</Value>
-	</LocaleResource>
-	<LocaleResource Name="Admin.Configuration.Settings.CustomerUser.ExternalAuthenticationAutoRegisterEnabled.Hint">
-		<Value>Aktiviert die automatische Registrierung, falls externe Authentifikation verwendet wird.</Value>
-	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.CustomerUser.ExternalAuthenticationSettings">
 		<Value>Externe Authentifikation</Value>
 	</LocaleResource>

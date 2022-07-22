@@ -14,7 +14,6 @@
 				<li>Enter the access data (App-ID &amp; App-Secret) in the form below.</li>
 				<li>Enter the URL listed below in <b>Apps &gt; App settings &gt; Authentication settings &gt; Callback URLs</b>.</li>
 				<li>Activate the option <b>Request email address from users</b></li>
-				<li>Activate automatic registration in the shop's customer settings if you want to register externally authorized visitors automatically.</li>
 			</ul>
 			]]>
 		</Value>
