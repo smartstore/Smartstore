@@ -73,7 +73,7 @@ namespace Smartstore.Core.Identity
 
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
-            await DoTrackAsync(context);
+            DoTrack(context);
 
             if (context.Result == null)
             {
@@ -81,7 +81,7 @@ namespace Smartstore.Core.Identity
             }
         }
 
-        private async Task DoTrackAsync(ActionExecutingContext context)
+        private void DoTrack(ActionExecutingContext context)
         {
             if (!context.HttpContext.Request.IsGet())
             {
