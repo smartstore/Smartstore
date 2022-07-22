@@ -235,6 +235,8 @@ namespace Smartstore.Admin.Models.Customers
     {
         public CustomerValidator(CustomerSettings customerSettings)
         {
+            RuleFor(x => x.Password).NotEmpty();
+
             if (customerSettings.FirstNameRequired)
                 RuleFor(x => x.FirstName).NotEmpty();
 
