@@ -517,11 +517,11 @@ namespace Smartstore.Core.Seo
             }
 
             // Validation
-            var slug = SeoHelper.BuildSlug(seName,
+            var slug = SlugUtility.Slugify(seName,
                 _seoSettings.ConvertNonWesternChars,
                 _seoSettings.AllowUnicodeCharsInUrls,
                 true,
-                _seoSettings.SeoNameCharConversion);
+                _seoSettings.GetCharConversionMap());
 
             if (string.IsNullOrWhiteSpace(slug))
             {

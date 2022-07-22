@@ -71,7 +71,7 @@ namespace Smartstore.Core.Content.Media
                 return;
             }
 
-            var mediaFileId = (int)routeValues["id"];
+            var mediaFileId = routeValues["id"].Convert<int>();
             var path = (string)routeValues["path"];
 
             MediaFileInfo mediaFile = null;

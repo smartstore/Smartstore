@@ -171,7 +171,7 @@ namespace Smartstore.Core.Data.Migrations
         }
 
         protected string BuildSlug(string name)
-            => SeoHelper.BuildSlug(name);
+            => SlugUtility.Slugify(name);
 
         protected Task SaveAsync<TEntity>(TEntity entity) where TEntity : BaseEntity
         {

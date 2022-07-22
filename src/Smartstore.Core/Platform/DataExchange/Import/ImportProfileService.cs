@@ -140,7 +140,7 @@ namespace Smartstore.Core.DataExchange.Import
                     break;
             }
 
-            var folderName = SeoHelper.BuildSlug(name, true, false, false)
+            var folderName = SlugUtility.Slugify(name, true, false, false)
                 .ToValidPath()
                 .Truncate(_dataExchangeSettings.MaxFileNameLength);
 

@@ -201,7 +201,7 @@ namespace Smartstore.Core.Catalog.Search
                 // Check alias duplicate.
                 if (entry.InitialState == EState.Added || entry.InitialState == EState.Modified)
                 {
-                    prop.LocaleValue = SeoHelper.BuildSlug(prop.LocaleValue, _seoSettings);
+                    prop.LocaleValue = SlugUtility.Slugify(prop.LocaleValue, _seoSettings);
 
                     if (prop.LocaleValue.HasValue() && await HasAliasDuplicate(prop, cancelToken))
                     {
@@ -252,7 +252,7 @@ namespace Smartstore.Core.Catalog.Search
             {
                 if (baseEntity is ISearchAlias entity)
                 {
-                    entity.Alias = SeoHelper.BuildSlug(entity.Alias, _seoSettings);
+                    entity.Alias = SlugUtility.Slugify(entity.Alias, _seoSettings);
                     if (entity.Alias.HasValue())
                     {
                         var dbSet = _db.Set<TEntity>().AsNoTracking();
@@ -284,7 +284,7 @@ namespace Smartstore.Core.Catalog.Search
             {
                 if (baseEntity is ISearchAlias entity)
                 {
-                    entity.Alias = SeoHelper.BuildSlug(entity.Alias, _seoSettings);
+                    entity.Alias = SlugUtility.Slugify(entity.Alias, _seoSettings);
                     if (entity.Alias.HasValue())
                     {
                         var entities1 = _db.Set<T1>().AsNoTracking() as IQueryable<ISearchAlias>;

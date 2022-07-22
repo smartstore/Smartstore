@@ -1316,7 +1316,7 @@ namespace Smartstore.Core.Installation
         }
 
         protected string BuildSlug(string name)
-            => SeoHelper.BuildSlug(name);
+            => SlugUtility.Slugify(name);
 
         protected static Currency CreateCurrency(string locale, decimal rate = 1M, string formatting = "", bool published = false, int order = 1)
         {

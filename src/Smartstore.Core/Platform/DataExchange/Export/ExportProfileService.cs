@@ -74,7 +74,7 @@ namespace Smartstore.Core.DataExchange.Export
                         .Replace("/", string.Empty)
                         .Replace("-", string.Empty);
 
-                    var folderName = SeoHelper.BuildSlug(cleanedProviderName, true, false, false)
+                    var folderName = SlugUtility.Slugify(cleanedProviderName, true, false, false)
                         .ToValidPath()
                         .Truncate(_dataExchangeSettings.MaxFileNameLength);
 
@@ -324,7 +324,7 @@ namespace Smartstore.Core.DataExchange.Export
                 .Replace("/", string.Empty)
                 .Replace("-", string.Empty);
 
-            var folderName = SeoHelper.BuildSlug(cleanedProviderName, true, false, false)
+            var folderName = SlugUtility.Slugify(cleanedProviderName, true, false, false)
                 .ToValidPath()
                 .Truncate(_dataExchangeSettings.MaxFileNameLength);
 

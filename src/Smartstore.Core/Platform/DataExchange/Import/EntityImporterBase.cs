@@ -245,7 +245,7 @@ namespace Smartstore.Core.DataExchange.Import
                         scope.ApplySlugs(new ValidateSlugResult
                         {
                             Source = row.Entity,
-                            Slug = SeoHelper.BuildSlug(seName.NullEmpty() ?? row.EntityDisplayName, _seoSettings)
+                            Slug = SlugUtility.Slugify(seName.NullEmpty() ?? row.EntityDisplayName, _seoSettings)
                         });
 
                         // Process localized slugs.
@@ -259,7 +259,7 @@ namespace Smartstore.Core.DataExchange.Import
                                 scope.ApplySlugs(new ValidateSlugResult
                                 {
                                     Source = row.Entity,
-                                    Slug = SeoHelper.BuildSlug(seName.NullEmpty() ?? localizedName, _seoSettings),
+                                    Slug = SlugUtility.Slugify(seName.NullEmpty() ?? localizedName, _seoSettings),
                                     LanguageId = language.Id
                                 });
                             }

@@ -325,7 +325,6 @@ namespace Smartstore.Admin.Controllers
             ModelState.Clear();
 
             // Necessary before mapping
-            var resetUserSeoCharacterTable = seoSettings.SeoNameCharConversion != model.SeoSettings.SeoNameCharConversion;
             var prevPdfLogoId = pdfSettings.LogoPictureId;
 
             // Map model to entities
@@ -373,11 +372,6 @@ namespace Smartstore.Admin.Controllers
             }
 
             await _db.SaveChangesAsync();
-
-            if (resetUserSeoCharacterTable)
-            {
-                SeoHelper.ResetUserSeoCharacterTable();
-            }
 
             #endregion
 
@@ -1348,11 +1342,11 @@ namespace Smartstore.Admin.Controllers
         public IActionResult TestSeoNameCreation(SeoSettings settings, GeneralCommonSettingsModel model)
         {
             // We always test against persisted settings.
-            var result = SeoHelper.BuildSlug(
+            var result = SlugUtility.Slugify(
                 model.SeoSettings.TestSeoNameCreation,
                 settings.ConvertNonWesternChars,
                 settings.AllowUnicodeCharsInUrls,
-                settings.SeoNameCharConversion);
+                SeoSettings.CreateCharConversionMap(settings.SeoNameCharConversion));
 
             return Content(result);
         }

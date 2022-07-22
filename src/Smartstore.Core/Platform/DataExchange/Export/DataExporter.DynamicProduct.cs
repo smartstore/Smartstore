@@ -369,7 +369,7 @@ namespace Smartstore.Core.DataExchange.Export
                     var localizedName = ctx.GetTranslation(x, nameof(x.Name), x.Name);
                     dynamic dyn = new DynamicEntity(x);
                     dyn.Name = localizedName;
-                    dyn.SeName = SeoHelper.BuildSlug(localizedName, _seoSettings);
+                    dyn.SeName = SlugUtility.Slugify(localizedName, _seoSettings);
                     dyn._Localized = GetLocalized(ctx, x, y => y.Name);
 
                     return dyn;

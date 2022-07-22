@@ -17,7 +17,7 @@ namespace Smartstore.Core.Seo
                 name = le.GetLocalized(entity.GetDisplayNameMemberName(), name, languageId);
             }
 
-            return SeoHelper.BuildSlug(name);
+            return SlugUtility.Slugify(name);
         }
 
         /// <summary>

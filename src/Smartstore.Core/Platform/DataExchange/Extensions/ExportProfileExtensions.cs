@@ -38,11 +38,11 @@ namespace Smartstore.Core.DataExchange.Export
 
             if (fileNamePattern.Contains("%Profile.SeoName%"))
             {
-                sb.Replace("%Profile.SeoName%", SeoHelper.BuildSlug(profile.Name, true, false, false).Replace("-", ""));
+                sb.Replace("%Profile.SeoName%", SlugUtility.Slugify(profile.Name, true, false, false).Replace("-", ""));
             }
             if (fileNamePattern.Contains("%Store.SeoName%"))
             {
-                sb.Replace("%Store.SeoName%", profile.PerStore ? SeoHelper.BuildSlug(store.Name, true, false, true) : "allstores");
+                sb.Replace("%Store.SeoName%", profile.PerStore ? SlugUtility.Slugify(store.Name, true, false, true) : "allstores");
             }
             if (fileNamePattern.Contains("%Random.Number%"))
             {

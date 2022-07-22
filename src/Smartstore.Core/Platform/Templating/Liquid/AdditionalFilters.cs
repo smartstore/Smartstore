@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using Smartstore.Core.Common;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Data;
+using Smartstore.Core.Seo;
 using Smartstore.Utilities;
 
 namespace Smartstore.Templating.Liquid
@@ -27,7 +28,7 @@ namespace Smartstore.Templating.Liquid
             }
             else if (input is string s)
             {
-                return s.Slugify(allowSpace);
+                return SlugUtility.Slugify(s, new SlugifyOptions { AllowSpace = allowSpace });
             }
 
             return null;
