@@ -147,13 +147,30 @@ namespace Smartstore.Web.Models.Common
 
     public class AddressValidator : SmartValidator<AddressModel>
     {
-        public AddressValidator(Localizer T, AddressSettings addressSettings)
+        public AddressValidator(Localizer T, AddressSettings addressSettings, SmartDbContext db)
         {
-            if (addressSettings.CountryRequired && addressSettings.CountryEnabled)
+            if (addressSettings.CountryEnabled)
             {
-                RuleFor(x => x.CountryId).NotNull().NotEqual(0);
-            }
+                if (addressSettings.CountryRequired)
+                {
+                    RuleFor(x => x.CountryId)
+                        .NotNull()
+                        .NotEqual(0)
+                        .WithMessage(T("Admin.Address.Fields.Country.Required"));
+                }
 
+                RuleFor(x => x.CountryId).MustAsync(async (id, cancellation) =>
+                {
+                    var country = await db.Countries.FindByIdAsync((int)id, cancellationToken: cancellation);
+                    if (country != null)
+                    {
+                        return country.Published;
+                    }
+
+                    return true;
+                }).WithMessage(T("Admin.Address.Fields.Country.MustBePublished"));
+            }
+            
             if (addressSettings.StateProvinceRequired && addressSettings.StateProvinceEnabled)
             {
                 RuleFor(x => x.StateProvinceId).NotNull().NotEqual(0);
@@ -194,10 +211,13 @@ namespace Smartstore.Web.Models.Common
                 RuleFor(x => x.FaxNumber).NotEmpty();
             }
 
+            RuleFor(x => x.Email).EmailAddress();
+
             if (addressSettings.ValidateEmailAddress)
             {
                 RuleFor(x => x.EmailMatch)
                     .NotEmpty()
+                    .EmailAddress()
                     .Equal(x => x.Email)
                     .WithMessage(T("Admin.Address.Fields.EmailMatch.MustMatchEmail"));
             }

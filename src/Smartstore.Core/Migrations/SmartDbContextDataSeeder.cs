@@ -91,6 +91,10 @@ namespace Smartstore.Core.Data.Migrations
                 "Auftragsnotizen anlegen",
                 "Specifies whether to create order notes when exchanging data with the payment provider.",
                 "Legt fest, ob beim Datenaustausch mit dem Zahlungsanbieter Auftragsnotizen angelegt werden sollen.");
+
+            builder.AddOrUpdate("Admin.Address.Fields.Country.MustBePublished",
+                "Invalid country",
+                "Ungültiges Land");
         }
     }
 }
