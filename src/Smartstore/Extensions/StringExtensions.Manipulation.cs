@@ -495,7 +495,7 @@ namespace Smartstore
         /// <returns>The Capitalized word.</returns>
         public static string Capitalize(this string word)
         {
-            return word.Substring(0, 1).ToUpper() + word[1..].ToLower();
+            return word[..1].ToUpper() + word[1..].ToLower();
         }
 
         /// <summary>
@@ -505,7 +505,24 @@ namespace Smartstore
         /// <returns></returns>
         public static string Uncapitalize(this string word)
         {
-            return word.Substring(0, 1).ToLower() + word[1..];
+            return word[..1].ToLower() + word[1..];
+        }
+
+        public static string RemoveDiacritics(this string value)
+        {
+            var normalized = value.Normalize(NormalizationForm.FormD);
+            var sb = new StringBuilder(normalized.Length);
+
+            for (int i = 0; i < normalized.Length; i++)
+            {
+                var uc = CharUnicodeInfo.GetUnicodeCategory(normalized[i]);
+                if (uc != UnicodeCategory.NonSpacingMark)
+                {
+                    sb.Append(normalized[i]);
+                }
+            }
+
+            return sb.ToString().Normalize(NormalizationForm.FormC);
         }
     }
 }

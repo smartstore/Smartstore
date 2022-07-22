@@ -49,7 +49,7 @@ namespace Smartstore
             return new string(chars);
         }
 
-        public static char TryRemoveDiacritic(this char ch)
+        public static char RemoveDiacritic(this char ch)
         {
             var normalized = ch.AsString().Normalize(NormalizationForm.FormD);
             if (normalized.Length > 1)
@@ -58,6 +58,20 @@ namespace Smartstore
             }
 
             return ch;
+        }
+
+        public static bool TryRemoveDiacritic(this char ch, out char normalized)
+        {
+            normalized = default;
+
+            var formD = ch.AsString().Normalize(NormalizationForm.FormD);
+            if (formD.Length > 1)
+            {
+                normalized = formD[0];
+                return true;
+            }
+
+            return false;
         }
 
         public static bool IsInRange(this char ch, char a, char b)

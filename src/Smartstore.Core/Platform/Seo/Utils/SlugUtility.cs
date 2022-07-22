@@ -1,7 +1,7 @@
 ﻿using System.Globalization;
 using System.Runtime.CompilerServices;
+using System.Text;
 using Autofac;
-using Smartstore.Utilities;
 
 namespace Smartstore.Core.Seo
 {
@@ -86,11 +86,10 @@ namespace Smartstore.Core.Seo
             bool? dash = null;
             bool? space;
 
-            using var psb = StringBuilderPool.Instance.Get(out var sb);
+            var sb = new StringBuilder(len);
 
             options ??= new();
             var charConversionMap = options.CharConversionMap;
-            var allowedChars = options.AllowedChars;
 
             char c;
 
@@ -191,16 +190,13 @@ namespace Smartstore.Core.Seo
 
                 if (c >= 128)
                 {
-                    var c2 = c;
-
-                    if (options.RemoveDiacritic)
+                    if (options.RemoveDiacritic && c.TryRemoveDiacritic(out var normalized))
                     {
-                        c2 = c.TryRemoveDiacritic();
+                        sb.Append(normalized);
                     }
-
-                    if ((c2 >= 'a' && c2 <= 'z') || (options.AllowUnicodeChars && char.IsLetterOrDigit(c2)))
+                    else if (options.AllowUnicodeChars && char.IsLetterOrDigit(c))
                     {
-                        sb.Append(c2);
+                        sb.Append(c);
                     }
                 }
             }
