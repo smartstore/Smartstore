@@ -107,7 +107,7 @@ namespace Smartstore
 
             using (new ActionDisposable(() => ctx.ChangeTracker.AutoDetectChangesEnabled = detectChanges))
             {
-                // (perf) turning off autoDetectChanges prevents that ctx.Entry() performs change detection internally.
+                // (perf) turning off AutoDetectChangesEnabled prevents that ctx.Entry() performs change detection internally.
                 var entry = ctx.Entry(entity);
                 return entry.TryUpdate();
             }

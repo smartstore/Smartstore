@@ -36,6 +36,11 @@ namespace Smartstore.Core.Identity
         /// Whether to save current customer's user agent string in <see cref="Customer.LastUserAgent"/>. Default is <c>true</c>.
         /// </summary>
         public bool TrackUserAgent { get; set; } = true;
+
+        /// <summary>
+        /// Whether to save current customer's device family name in <see cref="Customer.LastUserDeviceType"/>. Default is <c>true</c>.
+        /// </summary>
+        public bool TrackDeviceFamily { get; set; } = true;
     }
 
     internal class TrackActivityFilter : IAsyncActionFilter
@@ -68,7 +73,7 @@ namespace Smartstore.Core.Identity
 
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
-            DoTrack(context);
+            await DoTrackAsync(context);
 
             if (context.Result == null)
             {
@@ -76,11 +81,14 @@ namespace Smartstore.Core.Identity
             }
         }
 
-        private void DoTrack(ActionExecutingContext context)
+        private async Task DoTrackAsync(ActionExecutingContext context)
         {
             if (!context.HttpContext.Request.IsGet())
+            {
                 return;
+            } 
 
+            var now = DateTime.UtcNow;
             var customer = _workContext.CurrentCustomer;
             if (customer == null || customer.Deleted || customer.IsSystemAccount)
                 return;
@@ -88,9 +96,9 @@ namespace Smartstore.Core.Identity
             bool dirty = false;
 
             // Last activity date
-            if (_attribute.TrackDate && customer.LastActivityDateUtc.AddMinutes(1.0) < DateTime.UtcNow)
+            if (_attribute.TrackDate && customer.LastActivityDateUtc.AddMinutes(1.0) < now)
             {
-                customer.LastActivityDateUtc = DateTime.UtcNow;
+                customer.LastActivityDateUtc = now;
                 dirty = true;
             }
 
@@ -100,8 +108,8 @@ namespace Smartstore.Core.Identity
                 var currentIpAddress = _webHelper.GetClientIpAddress().ToString();
                 if (currentIpAddress.HasValue())
                 {
+                    dirty = dirty || customer.LastIpAddress != currentIpAddress;
                     customer.LastIpAddress = currentIpAddress;
-                    dirty = true;
                 }
             }
 
@@ -111,20 +119,32 @@ namespace Smartstore.Core.Identity
                 var currentUrl = _webHelper.GetCurrentPageUrl(true);
                 if (currentUrl.HasValue())
                 {
+                    dirty = dirty || customer.GenericAttributes.LastVisitedPage != currentUrl;
                     customer.GenericAttributes.LastVisitedPage = currentUrl;
-                    dirty = true;
                 }
             }
 
             // Last user agent
-            if (_attribute.TrackUserAgent && _customerSettings.StoreLastVisitedPage)
+            if (_attribute.TrackUserAgent)
             {
                 // TODO: (mh) (core) Make new setting CustomerSettings.StoreLastUserAgent
                 var currentUserAgent = _userAgent.RawValue;
                 if (currentUserAgent.HasValue())
                 {
+                    dirty = dirty || customer.LastUserAgent != currentUserAgent;
                     customer.LastUserAgent = currentUserAgent;
-                    dirty = true;
+                }
+            }
+
+            // Last device type
+            if (_attribute.TrackDeviceFamily)
+            {
+                // TODO: (mh) (core) Make new setting CustomerSettings.StoreLastDeviceFamily
+                var currentDeviceFamily = _userAgent.Device.Family;
+                if (currentDeviceFamily.HasValue())
+                {
+                    dirty = dirty || customer.LastUserDeviceType != currentDeviceFamily;
+                    customer.LastUserDeviceType = currentDeviceFamily;
                 }
             }
 

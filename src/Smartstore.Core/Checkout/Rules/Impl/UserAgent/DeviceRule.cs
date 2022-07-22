@@ -12,7 +12,7 @@ namespace Smartstore.Core.Checkout.Rules.Impl
             _userAgent = userAgent;
         }
 
-        public static RuleValueSelectListOption[] GetDefaultValues()
+        public static RuleValueSelectListOption[] GetDefaultOptions()
         {
             return new[]
             {
@@ -27,9 +27,12 @@ namespace Smartstore.Core.Checkout.Rules.Impl
                 "Kindle",
                 "Kindle Fire",
                 "Lumia",
+                "Mac",
+                "Microsoft Surface RT",
                 "Motorola",
                 "Nokia",
                 "Palm",
+                "Samsung",
                 "Spider",
                 "Other"
             }
@@ -40,7 +43,6 @@ namespace Smartstore.Core.Checkout.Rules.Impl
         public Task<bool> MatchAsync(CartRuleContext context, RuleExpression expression)
         {
             var match = expression.HasListMatch(_userAgent.Device.Family.NullEmpty());
-
             return Task.FromResult(match);
         }
     }

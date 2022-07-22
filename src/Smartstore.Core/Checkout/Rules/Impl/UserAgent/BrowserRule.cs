@@ -12,7 +12,7 @@ namespace Smartstore.Core.Checkout.Rules.Impl
             _userAgent = userAgent;
         }
 
-        public static RuleValueSelectListOption[] GetDefaultValues()
+        public static RuleValueSelectListOption[] GetDefaultOptions()
         {
             return new[]
             {
@@ -37,7 +37,6 @@ namespace Smartstore.Core.Checkout.Rules.Impl
         public Task<bool> MatchAsync(CartRuleContext context, RuleExpression expression)
         {
             var match = expression.HasListMatch(_userAgent.UserAgent.Family.NullEmpty());
-
             return Task.FromResult(match);
         }
     }

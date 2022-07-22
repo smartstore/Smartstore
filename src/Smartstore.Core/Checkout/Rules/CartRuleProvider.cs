@@ -418,7 +418,7 @@ namespace Smartstore.Core.Checkout.Rules
                     GroupKey = "Admin.Rules.FilterDescriptor.Group.BrowserUserAgent",
                     RuleType = RuleType.StringArray,
                     ProcessorType = typeof(DeviceRule),
-                    SelectList = new LocalRuleValueSelectList(DeviceRule.GetDefaultValues()) { Multiple = true, Tags = true }
+                    SelectList = new LocalRuleValueSelectList(DeviceRule.GetDefaultOptions()) { Multiple = true, Tags = true }
                 },
                 new CartRuleDescriptor
                 {
@@ -427,7 +427,7 @@ namespace Smartstore.Core.Checkout.Rules
                     GroupKey = "Admin.Rules.FilterDescriptor.Group.BrowserUserAgent",
                     RuleType = RuleType.StringArray,
                     ProcessorType = typeof(OSRule),
-                    SelectList = new LocalRuleValueSelectList(OSRule.GetDefaultValues()) { Multiple = true, Tags = true }
+                    SelectList = new LocalRuleValueSelectList(OSRule.GetDefaultOptions()) { Multiple = true, Tags = true }
                 },
                 new CartRuleDescriptor
                 {
@@ -436,7 +436,7 @@ namespace Smartstore.Core.Checkout.Rules
                     GroupKey = "Admin.Rules.FilterDescriptor.Group.BrowserUserAgent",
                     RuleType = RuleType.StringArray,
                     ProcessorType = typeof(BrowserRule),
-                    SelectList = new LocalRuleValueSelectList(BrowserRule.GetDefaultValues()) { Multiple = true, Tags = true }
+                    SelectList = new LocalRuleValueSelectList(BrowserRule.GetDefaultOptions()) { Multiple = true, Tags = true }
                 },
                 new CartRuleDescriptor
                 {
