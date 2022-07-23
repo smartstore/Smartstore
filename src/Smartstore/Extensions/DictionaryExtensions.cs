@@ -14,6 +14,7 @@ namespace Smartstore
                 {
                     throw new ArgumentException("An item with the same key has already been added.");
                 }
+
                 values.Add(kvp);
             }
         }
@@ -82,6 +83,18 @@ namespace Smartstore
         {
             Guard.NotNull(instance, nameof(instance)).TryGetValue(key, out var val);
             return val;
+        }
+
+        public static bool TryGetValue<TValue>(this IReadOnlyDictionary<string, object> instance, string key, out TValue value)
+        {
+            if (instance.TryGetValue(key, out var obj) && obj is TValue tvalue)
+            {
+                value = tvalue;
+                return true;
+            }
+
+            value = default;
+            return false;
         }
 
         public static ExpandoObject ToExpandoObject(this IDictionary<string, object> source, bool castIfPossible = false)
