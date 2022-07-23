@@ -75,7 +75,9 @@ namespace Smartstore
         public static string EnsureNumericOnly(this string str)
         {
             if (string.IsNullOrEmpty(str))
+            {
                 return string.Empty;
+            } 
 
             return new string(str.Where(c => char.IsDigit(c)).ToArray());
         }
@@ -83,19 +85,19 @@ namespace Smartstore
         [DebuggerStepThrough]
         public static string Truncate(this string value, int maxLength, string end = "")
         {
-            if (end == null)
-                throw new ArgumentNullException(nameof(end));
-
+            Guard.NotNull(end, nameof(end));
             Guard.IsPositive(maxLength, nameof(maxLength));
 
-            int subStringLength = maxLength - end.Length;
+            int lenSubStr = maxLength - end.Length;
 
-            if (subStringLength <= 0)
+            if (lenSubStr <= 0)
+            {
                 throw new ArgumentException("Length of suffix string is greater or equal to maximumLength", nameof(maxLength));
+            }    
 
             if (value != null && value.Length > maxLength)
             {
-                return value[..subStringLength].Trim() + end;
+                return value[..lenSubStr].Trim() + end;
             }
             else
             {
@@ -113,23 +115,21 @@ namespace Smartstore
         {
             Guard.NotNull(input, nameof(input));
 
-            using var psb = StringBuilderPool.Instance.Get(out var sb);
+            var sb = new StringBuilder();
             var lines = GetLines(input.Trim(), true, removeEmptyLines).ToArray();
 
             foreach (var line in lines)
             {
                 var len = line.Length;
-                var sbLine = StringBuilderPool.Instance.Get();
+                var sbLine = new StringBuilder();
                 var isChar = false;
-                var isLiteral = false; // When we detect the ~! literal
-                int i = 0;
-                var eof = false;
+                int i;
 
                 for (i = 0; i < len; i++)
                 {
                     var c = line[i];
-
-                    eof = i == len - 1;
+                    bool eof = i == len - 1;
+                    bool isLiteral;
 
                     if (char.IsWhiteSpace(c))
                     {
@@ -140,7 +140,6 @@ namespace Smartstore
                             sbLine.Append(' ');
                         }
 
-                        isLiteral = false;
                         isChar = false;
                     }
                     else
@@ -164,91 +163,159 @@ namespace Smartstore
 
                 // Append the compacted and trimmed line
                 sb.AppendLine(sbLine.ToString().Trim().Trim(','));
-                StringBuilderPool.Instance.Return(sbLine);
             }
 
             return sb.ToString().Trim();
         }
 
         /// <summary>
-        /// Ensure that a string starts with a string.
-        /// </summary>
-        /// <param name="value">The target string</param>
-        /// <param name="startsWith">The string the target string should start with</param>
-        /// <param name="comparison">Comparison rule</param>
-        /// <returns>The resulting string</returns>
-        [DebuggerStepThrough]
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static string EnsureStartsWith(this string value, string startsWith, StringComparison comparison = StringComparison.OrdinalIgnoreCase)
-        {
-            if (value == null)
-                throw new ArgumentNullException(nameof(value));
-
-            if (startsWith == null)
-                throw new ArgumentNullException(nameof(startsWith));
-
-            return value.StartsWith(startsWith, comparison) ? value : (startsWith + value);
-        }
-
-        /// <summary>
         /// Ensure that a string starts with a given char.
         /// </summary>
         /// <param name="value">The target string</param>
-        /// <param name="startsWith">The char the target string should start with</param>
+        /// <param name="prefix">The char the target string should start with</param>
         /// <returns>The resulting string</returns>
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static string EnsureStartsWith(this string value, char startsWith)
+        public static string EnsureStartsWith(this string value, char prefix)
         {
             if (value == null)
+            {
                 throw new ArgumentNullException(nameof(value));
+            }
 
-            return value.StartsWith(startsWith) ? value : (startsWith + value);
+            return value.StartsWith(prefix) ? value : (prefix + value);
         }
 
         /// <summary>
-        /// Ensures the target string ends with the specified string.
+        /// Ensure that a string starts with a string.
         /// </summary>
-        /// <param name="endsWith">The target.</param>
-        /// <param name="value">The value.</param>
+        /// <param name="value">The target string</param>
+        /// <param name="prefix">The string the target string should start with</param>
         /// <param name="comparison">Comparison rule</param>
-        /// <returns>The target string with the value string at the end.</returns>
+        /// <returns>The resulting string</returns>
         [DebuggerStepThrough]
-        public static string EnsureEndsWith(this string value, string endsWith, StringComparison comparison = StringComparison.OrdinalIgnoreCase)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static string EnsureStartsWith(this string value, string prefix, StringComparison comparison = StringComparison.OrdinalIgnoreCase)
         {
             if (value == null)
-                throw new ArgumentNullException(nameof(value));
-
-            if (endsWith == null)
-                throw new ArgumentNullException(nameof(endsWith));
-
-            if (value.Length >= endsWith.Length)
             {
-                if (string.Compare(value, value.Length - endsWith.Length, endsWith, 0, endsWith.Length, comparison) == 0)
-                    return value;
+                throw new ArgumentNullException(nameof(value));
+            }  
 
-                string trimmedString = value.TrimEnd(null);
+            if (prefix == null)
+            {
+                throw new ArgumentNullException(nameof(prefix));
+            }     
 
-                if (string.Compare(trimmedString, trimmedString.Length - endsWith.Length, endsWith, 0, endsWith.Length, comparison) == 0)
-                    return value;
+            if (value.Length == 0)
+            {
+                return prefix;
             }
 
-            return value + endsWith;
+            if (prefix.Length == 0)
+            {
+                return value;
+            }
+
+            var valueSpan = value.AsSpan();
+            var affixSpan = prefix.AsSpan();
+
+            if (valueSpan.StartsWith(affixSpan, comparison))
+            {
+                return value;
+            }
+
+            if (prefix.Length > 1)
+            {
+                var offset = 1;
+
+                while (offset < prefix.Length)
+                {
+                    var partialMatch = valueSpan.StartsWith(affixSpan[offset..], comparison);
+                    if (partialMatch)
+                    {
+                        return affixSpan[..offset].ToString() + value;
+                    }
+
+                    offset++;
+                }
+            }
+
+            return prefix + value;
         }
 
         /// <summary>
         /// Ensures the target string ends with the specified char.
         /// </summary>
-        /// <param name="endsWith">The char the target string should end with.</param>
+        /// <param name="suffix">The char the target string should end with.</param>
         /// <param name="value">The value.</param>
         /// <returns>The target string with the value string at the end.</returns>
         [DebuggerStepThrough]
-        public static string EnsureEndsWith(this string value, char endsWith)
+        public static string EnsureEndsWith(this string value, char suffix)
         {
             if (value == null)
+            {
                 throw new ArgumentNullException(nameof(value));
+            }
 
-            return value.EndsWith(endsWith) ? value : (value + endsWith);
+            return value.EndsWith(suffix) ? value : (value + suffix);
+        }
+
+        /// <summary>
+        /// Ensures the target string ends with the specified string.
+        /// </summary>
+        /// <param name="suffix">The target.</param>
+        /// <param name="value">The value.</param>
+        /// <param name="comparison">Comparison rule</param>
+        /// <returns>The target string with the value string at the end.</returns>
+        [DebuggerStepThrough]
+        public static string EnsureEndsWith(this string value, string suffix, StringComparison comparison = StringComparison.OrdinalIgnoreCase)
+        {
+            if (value == null)
+            {
+                throw new ArgumentNullException(nameof(value));
+            }
+
+            if (suffix == null)
+            {
+                throw new ArgumentNullException(nameof(suffix));
+            }
+
+            if (value.Length == 0)
+            {
+                return suffix;
+            }
+
+            if (suffix.Length == 0)
+            {
+                return value;
+            }
+
+            var valueSpan = value.AsSpan();
+            var suffixSpan = suffix.AsSpan();
+
+            if (valueSpan.EndsWith(suffixSpan, comparison))
+            {
+                return value;
+            }
+
+            if (suffix.Length > 1)
+            {
+                var offset = 0;
+
+                while (offset < suffix.Length - 1)
+                {
+                    var partialMatch = valueSpan.EndsWith(suffixSpan[..(offset + 1)], comparison);
+                    if (partialMatch)
+                    {
+                        return value + suffixSpan[(offset + 1)..].ToString();
+                    }
+
+                    offset++;
+                }
+            }
+
+            return value + suffix;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -367,52 +434,15 @@ namespace Smartstore
         }
 
         /// <summary>
-        /// Replaces substring with position x1 to x2 by replaceBy.
-        /// </summary>
-        [DebuggerStepThrough]
-        public static string Replace(this string value, int x1, int x2, string replaceBy = null)
-        {
-            if (!string.IsNullOrWhiteSpace(value) && x1 > 0 && x2 > x1 && x2 < value.Length)
-            {
-                return value.Substring(0, x1) + (replaceBy.EmptyNull()) + value[(x2 + 1)..];
-            }
-
-            return value;
-        }
-
-        [DebuggerStepThrough]
-        public static string Replace(this string value, string oldValue, string newValue, StringComparison comparisonType)
-        {
-            try
-            {
-                int startIndex = 0;
-                while (true)
-                {
-                    startIndex = value.IndexOf(oldValue, startIndex, comparisonType);
-                    if (startIndex == -1)
-                        break;
-
-                    value = value.Substring(0, startIndex) + newValue + value[(startIndex + oldValue.Length)..];
-
-                    startIndex += newValue.Length;
-                }
-            }
-            catch (Exception exc)
-            {
-                exc.Dump();
-            }
-
-            return value;
-        }
-
-        /// <summary>
         /// Replaces digits in a string with culture native digits (if digit substitution for culture is required)
         /// </summary>
         [DebuggerStepThrough]
         public static string ReplaceNativeDigits(this string value, IFormatProvider provider = null)
         {
             if (value == null)
+            {
                 throw new ArgumentNullException(nameof(value));
+            }
 
             provider ??= NumberFormatInfo.CurrentInfo;
             var nfi = NumberFormatInfo.GetInstance(provider);
@@ -442,26 +472,29 @@ namespace Smartstore
         }
 
         [DebuggerStepThrough]
-        public static string RemoveInvalidXmlChars(this string s)
+        public static string RemoveInvalidXmlChars(this string value)
         {
-            if (s.IsEmpty())
-                return s;
+            if (value.IsEmpty())
+            {
+                return value;
+            }
 
-            return _rgInvalidXmlChars.Replace(s, string.Empty);
+            return _rgInvalidXmlChars.Replace(value, string.Empty);
         }
 
         [DebuggerStepThrough]
-        public static string ReplaceCsvChars(this string s)
+        public static string ReplaceCsvChars(this string value)
         {
-            if (s.IsEmpty())
+            if (value.IsEmpty())
             {
                 return string.Empty;
             }
 
-            s = s.Replace(';', ',');
-            s = s.Replace('\r', ' ');
-            s = s.Replace('\n', ' ');
-            return s.Replace("'", "");
+            return value
+                .Replace(';', ',')
+                .Replace('\r', ' ')
+                .Replace('\n', ' ')
+                .Replace("'", string.Empty);
         }
 
         [DebuggerStepThrough]
