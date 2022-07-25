@@ -39,7 +39,7 @@
 }
 
 @{
-    var attributes = new AttributeDictionary().Merge(CommonHelper.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
+    var attributes = new AttributeDictionary().Merge(ConvertUtility.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
 }
 
 <select asp-for="@Model" asp-items="ButtonTypes" attrs="attributes"></select>

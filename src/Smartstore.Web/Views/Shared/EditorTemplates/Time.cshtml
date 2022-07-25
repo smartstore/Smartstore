@@ -38,7 +38,7 @@
         value = Value.Value.ToShortTimeString();
     }
 
-    var attributes = new AttributeDictionary().Merge(CommonHelper.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
+    var attributes = new AttributeDictionary().Merge(ConvertUtility.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
 }
 
 <div class="input-group date datetimepicker-group" id="@id-parent" data-date="@value" data-target-input="nearest">

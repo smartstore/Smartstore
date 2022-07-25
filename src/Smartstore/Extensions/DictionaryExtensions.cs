@@ -32,7 +32,7 @@ namespace Smartstore
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IDictionary<string, object> Merge(this IDictionary<string, object> instance, object values, bool replaceExisting = true)
         {
-            return instance.Merge(CommonHelper.ObjectToDictionary(values), replaceExisting);
+            return instance.Merge(ConvertUtility.ObjectToDictionary(values), replaceExisting);
         }
 
         public static IDictionary<TKey, TValue> Merge<TKey, TValue>(this IDictionary<TKey, TValue> instance, IDictionary<TKey, TValue> from, bool replaceExisting = true)

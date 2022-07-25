@@ -3,7 +3,7 @@
 @using Smartstore.Utilities
 
 @{ 
-    var model = CommonHelper.ToExpando(Model);
+    var model = ConvertUtility.ToExpando(Model);
     var isTheme = model.isTheme == true;
     string dialogTitle = isTheme ? T("Admin.Packaging.UploadTheme") : T("Admin.Packaging.UploadPlugin");
     string dialogInfo = isTheme ? T("Admin.Packaging.Dialog.ThemeInfo") : T("Admin.Packaging.Dialog.PluginInfo");

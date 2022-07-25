@@ -31,7 +31,7 @@
     var format = GetMetadata<string>("format") ?? "{0}";
 
     var invariantValue = ViewData.Model.Convert<decimal>().ToString(CultureInfo.InvariantCulture);
-    var attributes = new AttributeDictionary().Merge(CommonHelper.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
+    var attributes = new AttributeDictionary().Merge(ConvertUtility.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
 }
 
 <div class="@containerCssClass" data-format="@Html.Raw(format)" data-editor="range">

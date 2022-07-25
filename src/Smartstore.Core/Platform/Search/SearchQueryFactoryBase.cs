@@ -81,10 +81,10 @@ namespace Smartstore.Core.Search
             // Format: from~to || from[~] || ~to
             var arr = query.Split('~').Select(x => x.Trim()).Take(2).ToArray();
 
-            CommonHelper.TryConvert(arr[0], out min);
+            ConvertUtility.TryConvert(arr[0], out min);
             if (arr.Length == 2)
             {
-                CommonHelper.TryConvert(arr[1], out max);
+                ConvertUtility.TryConvert(arr[1], out max);
             }
 
             return min != null || max != null;

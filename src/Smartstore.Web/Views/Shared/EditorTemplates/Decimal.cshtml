@@ -1,7 +1,7 @@
 ﻿@using Smartstore.Utilities
 
 @{
-    var attributes = new AttributeDictionary().Merge(CommonHelper.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
+    var attributes = new AttributeDictionary().Merge(ConvertUtility.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
     var step = GetMetadata<double>("step");
 }
 

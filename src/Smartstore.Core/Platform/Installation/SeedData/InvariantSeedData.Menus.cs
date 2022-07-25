@@ -309,7 +309,7 @@ namespace Smartstore.Core.Installation
             {
                 try
                 {
-                    if (settings.TryGetValue(name, out var str) && CommonHelper.TryConvert(str, out T value))
+                    if (settings.TryGetValue(name, out var str) && ConvertUtility.TryConvert(str, out T value))
                     {
                         return value;
                     }

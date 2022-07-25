@@ -645,7 +645,7 @@ namespace Smartstore.Web.Rendering
 
             if (htmlAttributes != null)
             {
-                i.Attributes.Merge(CommonHelper.ObjectToStringDictionary(htmlAttributes));
+                i.Attributes.Merge(ConvertUtility.ObjectToStringDictionary(htmlAttributes));
             }
 
             return i;
@@ -707,7 +707,7 @@ namespace Smartstore.Web.Rendering
 
             if (htmlAttributes != null)
             {
-                svg.Attributes.Merge(CommonHelper.ObjectToStringDictionary(htmlAttributes));
+                svg.Attributes.Merge(ConvertUtility.ObjectToStringDictionary(htmlAttributes));
             }
 
             svg.AppendCssClass("bi");

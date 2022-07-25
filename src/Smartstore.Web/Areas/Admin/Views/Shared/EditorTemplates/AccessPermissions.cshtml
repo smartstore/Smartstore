@@ -16,7 +16,7 @@
                     return string.Join(",", ViewData.Model);
                 }
 
-                if (CommonHelper.TryConvert(ViewData.Model, typeof(string), CultureInfo.InvariantCulture, out object obj) && obj != null)
+                if (ConvertUtility.TryConvert(ViewData.Model, typeof(string), CultureInfo.InvariantCulture, out object obj) && obj != null)
                 {
                     return obj.ToString();
                 }
@@ -29,7 +29,7 @@
 
 @{
     var strValue = Value;
-    var attributes = new AttributeDictionary().Merge(CommonHelper.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
+    var attributes = new AttributeDictionary().Merge(ConvertUtility.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
 
     attributes["data-select-url"] = Url.Action("AllAccessPermissions", "Security", new { selected = strValue, area = "Admin" });
     attributes["data-select-init-load"] = strValue.HasValue().ToString().ToLower();

@@ -64,7 +64,7 @@ namespace Smartstore.Web.Rendering.Builders
 
         public TBuilder ContentHtmlAttributes(object attributes)
         {
-            return ContentHtmlAttributes(CommonHelper.ObjectToStringDictionary(attributes));
+            return ContentHtmlAttributes(ConvertUtility.ObjectToStringDictionary(attributes));
         }
 
         public TBuilder ContentHtmlAttributes(IDictionary<string, string> attributes)

@@ -57,7 +57,7 @@
     {
         value = PickTime ? Value.Value.ToString() : Value.Value.ToShortDateString();
     }
-    var attributes = new AttributeDictionary().Merge(CommonHelper.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
+    var attributes = new AttributeDictionary().Merge(ConvertUtility.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
 }
 
 <div class="@CssClass" id="@id-parent" data-date="@value" data-target-input="nearest" data-keep-open="false">

@@ -22,7 +22,7 @@
 
 @{
     // INFO: values come via HTML attributes or directly via ViewData.
-    var attributes = new AttributeDictionary().Merge(CommonHelper.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
+    var attributes = new AttributeDictionary().Merge(ConvertUtility.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
     var minimalMode = GetAttribute("minimalMode", false, attributes);
     var fieldName = GetAttribute("fieldName", ViewData.TemplateInfo.GetFullHtmlFieldName(string.Empty), attributes);
     var entityId = GetAttribute("entityId", 0, attributes);

@@ -45,7 +45,7 @@ namespace Smartstore
             var routeValue = httpContext.GetRouteValue(key);
             if (routeValue != null)
             {
-                return CommonHelper.TryConvert(routeValue, out value);
+                return ConvertUtility.TryConvert(routeValue, out value);
             }
 
             return false;

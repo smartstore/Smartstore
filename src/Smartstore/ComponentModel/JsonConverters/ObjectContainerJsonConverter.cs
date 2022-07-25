@@ -37,7 +37,7 @@ namespace Smartstore.ComponentModel.JsonConverters
 
             if (result.Value is not JToken valueToken)
             {
-                if (result.Value != null && result.Value.GetType() != result.ValueType && CommonHelper.TryConvert(result.Value, result.ValueType, out var converted))
+                if (result.Value != null && result.Value.GetType() != result.ValueType && ConvertUtility.TryConvert(result.Value, result.ValueType, out var converted))
                 {
                     result.Value = converted;
                 }

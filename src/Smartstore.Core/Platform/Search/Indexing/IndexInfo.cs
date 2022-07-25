@@ -135,7 +135,7 @@ namespace Smartstore.Core.Search.Indexing
             }
 
             var indexSize = doc.Descendants("index-size").FirstOrDefault()?.Value;
-            if (indexSize.HasValue() && CommonHelper.TryConvert(indexSize, out long size))
+            if (indexSize.HasValue() && ConvertUtility.TryConvert(indexSize, out long size))
             {
                 info.IndexSize = size;
             }

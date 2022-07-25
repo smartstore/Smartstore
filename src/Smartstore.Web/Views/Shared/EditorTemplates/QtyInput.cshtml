@@ -25,7 +25,7 @@
     var inputStyle = "spinner";
     //var inputStyle = Model.QuantityControlType;
 
-    var attributes = new AttributeDictionary().Merge(CommonHelper.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
+    var attributes = new AttributeDictionary().Merge(ConvertUtility.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
 }
 
 <div class="qty-input">

@@ -21,7 +21,7 @@ namespace Smartstore.Templating.Liquid
 
         public static string Prettify(object input, bool allowSpace)
         {
-            if (CommonHelper.TryConvert<long>(input, out var l))
+            if (ConvertUtility.TryConvert<long>(input, out var l))
             {
                 return Prettifier.HumanizeBytes(l);
             }

@@ -10,78 +10,6 @@ namespace Smartstore
 {
     public static class ConversionExtensions
     {
-        #region Object
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T Convert<T>(this object value)
-        {
-            if (!CommonHelper.TryConvert(value, typeof(T), CultureInfo.InvariantCulture, out object result))
-            {
-                return default;
-            }
-
-            return (T)result;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T Convert<T>(this object value, T defaultValue)
-        {
-            if (!CommonHelper.TryConvert(value, typeof(T), CultureInfo.InvariantCulture, out object result))
-            {
-                return defaultValue;
-            }
-
-            return (T)result;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T Convert<T>(this object value, CultureInfo culture)
-        {
-            if (!CommonHelper.TryConvert(value, typeof(T), culture, out object result))
-            {
-                return default;
-            }
-
-            return (T)result;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T Convert<T>(this object value, T defaultValue, CultureInfo culture)
-        {
-            if (!CommonHelper.TryConvert(value, typeof(T), culture, out object result))
-            {
-                return defaultValue;
-            }
-
-            return (T)result;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static object Convert(this object value, Type to)
-        {
-            if (!CommonHelper.TryConvert(value, to, CultureInfo.InvariantCulture, out object result))
-            {
-                return null;
-                //throw Error.InvalidCast(value?.GetType(), to);
-            }
-
-            return result;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static object Convert(this object value, Type to, CultureInfo culture)
-        {
-            if (!CommonHelper.TryConvert(value, to, culture, out object result))
-            {
-                return null;
-                //throw Error.InvalidCast(value?.GetType(), to);
-            }
-
-            return result;
-        }
-
-        #endregion
-
         #region int
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -102,7 +30,7 @@ namespace Smartstore
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int ToInt(this string value, int defaultValue = 0)
         {
-            if (CommonHelper.TryConvert(value, typeof(int), CultureInfo.InvariantCulture, out object result))
+            if (ConvertUtility.TryConvert(value, typeof(int), CultureInfo.InvariantCulture, out object result))
             {
                 return (int)result;
             }
@@ -124,7 +52,7 @@ namespace Smartstore
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float ToFloat(this string value, float defaultValue = 0)
         {
-            if (CommonHelper.TryConvert(value, typeof(float), CultureInfo.InvariantCulture, out object result))
+            if (ConvertUtility.TryConvert(value, typeof(float), CultureInfo.InvariantCulture, out object result))
             {
                 return (float)result;
             }
@@ -135,7 +63,7 @@ namespace Smartstore
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool ToBool(this string value, bool defaultValue = false)
         {
-            if (CommonHelper.TryConvert(value, typeof(bool), out object result))
+            if (ConvertUtility.TryConvert(value, typeof(bool), out object result))
             {
                 return (bool)result;
             }

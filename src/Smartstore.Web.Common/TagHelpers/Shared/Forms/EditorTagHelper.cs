@@ -48,7 +48,7 @@ namespace Smartstore.Web.TagHelpers.Admin
         {
             output.SuppressOutput();
 
-            var viewData = CommonHelper.ObjectToDictionary(AdditionalViewData);
+            var viewData = ConvertUtility.ObjectToDictionary(AdditionalViewData);
 
             if (Postfix != null)
             {

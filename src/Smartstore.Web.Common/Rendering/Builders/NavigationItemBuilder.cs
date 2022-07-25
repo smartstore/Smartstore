@@ -97,7 +97,7 @@ namespace Smartstore.Web.Rendering.Builders
 
         public TBuilder HtmlAttributes(object attributes)
         {
-            return HtmlAttributes(CommonHelper.ObjectToStringDictionary(attributes));
+            return HtmlAttributes(ConvertUtility.ObjectToStringDictionary(attributes));
         }
 
         public TBuilder HtmlAttributes(IDictionary<string, string> attributes)
@@ -114,7 +114,7 @@ namespace Smartstore.Web.Rendering.Builders
 
         public TBuilder LinkHtmlAttributes(object attributes)
         {
-            return LinkHtmlAttributes(CommonHelper.ObjectToStringDictionary(attributes));
+            return LinkHtmlAttributes(ConvertUtility.ObjectToStringDictionary(attributes));
         }
 
         public TBuilder LinkHtmlAttributes(IDictionary<string, string> attributes)
@@ -131,7 +131,7 @@ namespace Smartstore.Web.Rendering.Builders
 
         public TBuilder BadgeHtmlAttributes(object attributes)
         {
-            return BadgeHtmlAttributes(CommonHelper.ObjectToStringDictionary(attributes));
+            return BadgeHtmlAttributes(ConvertUtility.ObjectToStringDictionary(attributes));
         }
 
         public TBuilder BadgeHtmlAttributes(IDictionary<string, string> attributes)

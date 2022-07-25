@@ -16,7 +16,7 @@
             }
             else if (ViewData.Model != null)
             {
-                if (CommonHelper.TryConvert(ViewData.Model, typeof(string), CultureInfo.InvariantCulture, out object obj) && obj != null)
+                if (ConvertUtility.TryConvert(ViewData.Model, typeof(string), CultureInfo.InvariantCulture, out object obj) && obj != null)
                 {
                     return ((string)obj).ToIntArray();
                 }
@@ -29,7 +29,7 @@
 
 @{
     var items = StoreContext.GetAllStores().ToSelectListItems(SelectedIds);
-    var attributes = new AttributeDictionary().Merge(CommonHelper.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
+    var attributes = new AttributeDictionary().Merge(ConvertUtility.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
 }
 
 <select asp-for="@Model" asp-items="items" asp-placeholder="@T("Admin.Common.StoresAll")" class="edit-control" attrs="attributes" data-editor="select"></select>

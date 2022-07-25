@@ -58,7 +58,7 @@ namespace Smartstore
 
             if (request.TryGetValue(key, out var values))
             {
-                return CommonHelper.TryConvert(values.ToString(), out value);
+                return ConvertUtility.TryConvert(values.ToString(), out value);
             }
 
             return false;

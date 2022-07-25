@@ -21,7 +21,7 @@ namespace Smartstore.Core.DataExchange.Import
         /// <param name="culture">Culture info.</param>
         public static int? ZeroToNull(object value, CultureInfo culture)
         {
-            if (CommonHelper.TryConvert(value, culture, out int result) && result > 0)
+            if (ConvertUtility.TryConvert(value, culture, out int result) && result > 0)
             {
                 return result;
             }

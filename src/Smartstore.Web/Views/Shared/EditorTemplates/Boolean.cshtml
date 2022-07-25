@@ -29,7 +29,7 @@
 }
 
 @{
-    var attributes = new AttributeDictionary().Merge(CommonHelper.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
+    var attributes = new AttributeDictionary().Merge(ConvertUtility.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
 
     // Hack to force the missing "checked" when calling the GET action method directly in case of an invalid ModelState.
     @if(!ViewData.ModelMetadata.IsNullableValueType && !attributes.ContainsKey("checked") && (Value ?? false) == true)

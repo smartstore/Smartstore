@@ -23,7 +23,7 @@
 
 @{
     var strValue = string.Join(',', Value);
-    var attributes = new AttributeDictionary().Merge(CommonHelper.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
+    var attributes = new AttributeDictionary().Merge(ConvertUtility.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
 
     attributes["data-select-url"] = Url.Action("AllDeliveryTimes", "DeliveryTime", new { selectedIds = strValue, area = "Admin" });
     attributes["data-select-init-load"] = (Value.Length > 0).ToString().ToLower();

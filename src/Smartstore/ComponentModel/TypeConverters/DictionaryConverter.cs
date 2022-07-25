@@ -25,7 +25,7 @@ namespace Smartstore.ComponentModel.TypeConverters
         public override object ConvertFrom(CultureInfo culture, object value)
         {
             // Obj > Dict
-            var dict = CommonHelper.ObjectToDictionary(value);
+            var dict = ConvertUtility.ObjectToDictionary(value);
             var to = typeof(T);
 
             if (to == typeof(RouteValueDictionary))

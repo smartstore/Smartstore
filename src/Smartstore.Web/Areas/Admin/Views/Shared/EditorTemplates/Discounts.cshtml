@@ -25,7 +25,7 @@
 @{
     var strValue = string.Join(',', Value);
     var discountType = TryGetMetadata<DiscountType>("discountType", out var type) ? type : (DiscountType?)null;
-    var attributes = new AttributeDictionary().Merge(CommonHelper.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
+    var attributes = new AttributeDictionary().Merge(ConvertUtility.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
 
     attributes["data-select-url"] = Url.Action("AllDiscounts", "Discount", new { selectedIds = strValue, type = discountType, area = "Admin" });
     attributes["data-select-init-load"] = (Value.Length > 0).ToString().ToLower();

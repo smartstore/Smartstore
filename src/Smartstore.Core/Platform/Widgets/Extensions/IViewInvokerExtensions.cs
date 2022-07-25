@@ -39,7 +39,7 @@ namespace Smartstore
 
             if (additionalViewData != null)
             {
-                viewData.Merge(CommonHelper.ObjectToDictionary(additionalViewData));
+                viewData.Merge(ConvertUtility.ObjectToDictionary(additionalViewData));
 
                 if (additionalViewData is ViewDataDictionary vdd)
                 {
@@ -104,7 +104,7 @@ namespace Smartstore
 
             if (additionalViewData != null)
             {
-                viewData.Merge(CommonHelper.ObjectToDictionary(additionalViewData));
+                viewData.Merge(ConvertUtility.ObjectToDictionary(additionalViewData));
 
                 if (additionalViewData is ViewDataDictionary vdd)
                 {

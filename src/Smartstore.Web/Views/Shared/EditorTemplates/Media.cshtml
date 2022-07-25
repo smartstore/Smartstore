@@ -99,7 +99,7 @@
     var random = CommonHelper.GenerateRandomInteger();
     var currentFile = Model != null ? await MediaService.GetFileByIdAsync((int)Model) : null;
     var defaultValue = Model != null ? 0 : (int?)null;
-    var attributes = new AttributeDictionary().Merge(CommonHelper.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
+    var attributes = new AttributeDictionary().Merge(ConvertUtility.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
 }
 
 <div class="fu-container" attr-class='(MultiFile, "xl")'>

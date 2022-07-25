@@ -50,7 +50,7 @@ namespace Smartstore.ComponentModel
 
         private static bool TryMap(object from, Type fromType, Type toType, CultureInfo culture, out object result)
         {
-            if (CommonHelper.TryConvert(from, toType, culture, out result))
+            if (ConvertUtility.TryConvert(from, toType, culture, out result))
             {
                 return true;
             }

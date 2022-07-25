@@ -12,7 +12,7 @@
 
     Assets.BodyAttributes["data-file-manager-url"] = Display.GetFileManagerUrl();
 
-    var attributes = new AttributeDictionary().Merge(CommonHelper.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
+    var attributes = new AttributeDictionary().Merge(ConvertUtility.ObjectToDictionary(ViewData["htmlAttributes"] ?? new object()));
 }
 
 <script src="~/bundle/js/codemirror.js" sm-key="codemirror" sm-target-zone="scripts"></script>
