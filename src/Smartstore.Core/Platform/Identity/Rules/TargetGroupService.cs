@@ -3,6 +3,7 @@ using Dasync.Collections;
 using Smartstore.Collections;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
+using Smartstore.Core.Checkout.Rules.Impl;
 using Smartstore.Core.Checkout.Shipping;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common;
@@ -226,6 +227,13 @@ namespace Smartstore.Core.Identity.Rules
                     Name = "LastUserAgent",
                     DisplayName = T("Admin.Rules.FilterDescriptor.LastUserAgent"),
                     RuleType = RuleType.String
+                },
+                new FilterDescriptor<Customer, string>(x => x.LastUserDeviceType)
+                {
+                    Name = "LastDeviceFamily",
+                    DisplayName = T("Admin.Rules.FilterDescriptor.LastDeviceFamily"),
+                    RuleType = RuleType.StringArray,
+                    SelectList = new LocalRuleValueSelectList(DeviceRule.GetDefaultOptions()) { Multiple = true }
                 },
                 new FilterDescriptor<Customer, int?>(x => x.BillingAddress != null ? x.BillingAddress.CountryId : 0)
                 {

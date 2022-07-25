@@ -95,6 +95,14 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.Address.Fields.Country.MustBePublished",
                 "Invalid country",
                 "Ungültiges Land");
+
+            builder.AddOrUpdate("Admin.Rules.FilterDescriptor.LastDeviceFamily",
+                "Last device family",
+                "Zuletzt genutzte Endgerätefamilie");
+
+            // TODO: (mg) (core) unclear how this could be translated in an understandable way.
+            builder.AddOrUpdate("Admin.Rules.RuleOperator.LikeOperator", "Like", "Like");
+            builder.AddOrUpdate("Admin.Rules.RuleOperator.NotLikeOperator", "Not like", "Not like");
         }
     }
 }
