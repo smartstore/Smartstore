@@ -27,7 +27,8 @@ namespace Smartstore.Core.Checkout.Rules.Impl
                 if (rawValue.HasValue())
                 {
                     dynamic json = JObject.Parse(rawValue);
-                    productId = ((string)json.ProductId).ToInt();
+                    var rawProductId = ((string)json.ProductId).NullEmpty() ?? (string)json.EntityId;
+                    productId = rawProductId.ToInt();
 
                     var str = (string)json.MinQuantity;
                     if (str.HasValue())
@@ -47,42 +48,36 @@ namespace Smartstore.Core.Checkout.Rules.Impl
                 Logger.Error(ex);
             }
 
-            if (productId == 0)
+            if (productId != 0)
             {
-                return false;
-            }
-
-            var cart = await _shoppingCartService.GetCartAsync(context.Customer, ShoppingCartType.ShoppingCart, context.Store.Id);
-            var items = cart.Items.Where(x => x.Item.ProductId == productId);
-            if (!items.Any())
-            {
-                return false;
-            }
-
-            var quantity = items.Sum(x => x.Item.Quantity);
-            if (quantity == 0)
-            {
-                return false;
-            }
-
-            if (minQuantity.HasValue && maxQuantity.HasValue)
-            {
-                if (minQuantity == maxQuantity)
+                var cart = await _shoppingCartService.GetCartAsync(context.Customer, ShoppingCartType.ShoppingCart, context.Store.Id);
+                var items = cart.Items.Where(x => x.Item.ProductId == productId);
+                if (items.Any())
                 {
-                    return quantity == minQuantity;
+                    var quantity = items.Sum(x => x.Item.Quantity);
+                    if (quantity > 0)
+                    {
+                        if (minQuantity.HasValue && maxQuantity.HasValue)
+                        {
+                            if (minQuantity == maxQuantity)
+                            {
+                                return quantity == minQuantity;
+                            }
+                            else
+                            {
+                                return quantity >= minQuantity && quantity <= maxQuantity;
+                            }
+                        }
+                        else if (minQuantity.HasValue)
+                        {
+                            return quantity >= minQuantity;
+                        }
+                        else if (maxQuantity.HasValue)
+                        {
+                            return quantity <= maxQuantity;
+                        }
+                    }
                 }
-                else
-                {
-                    return quantity >= minQuantity && quantity <= maxQuantity;
-                }
-            }
-            else if (minQuantity.HasValue)
-            {
-                return quantity >= minQuantity;
-            }
-            else if (maxQuantity.HasValue)
-            {
-                return quantity <= maxQuantity;
             }
 
             return false;

@@ -180,13 +180,31 @@ namespace Smartstore.Core.Checkout.Rules
                 Operators = new[] { RuleOperator.IsEqualTo }
             };
             cartItemQuantity.Metadata["ValueTemplateName"] = "ValueTemplates/CartItemQuantity";
-            cartItemQuantity.Metadata["ProductRuleDescriptor"] = new CartRuleDescriptor
+            cartItemQuantity.Metadata["ChildRuleDescriptor"] = new CartRuleDescriptor
             {
-                Name = "CartItemQuantity-Product",
+                Name = "CartItemQuantity.Product",
                 RuleType = RuleType.Int,
                 ProcessorType = typeof(CartItemQuantityRule),
                 Operators = new[] { RuleOperator.IsEqualTo },
                 SelectList = new RemoteRuleValueSelectList("Product")
+            };
+
+            var cartItemFromCategoryQuantity = new CartRuleDescriptor
+            {
+                Name = "CartItemFromCategoryQuantity",
+                DisplayName = T("Admin.Rules.FilterDescriptor.CartItemFromCategoryQuantity"),
+                RuleType = RuleType.String,
+                ProcessorType = typeof(CartItemFromCategoryQuantityRule),
+                Operators = new[] { RuleOperator.IsEqualTo }
+            };
+            cartItemFromCategoryQuantity.Metadata["ValueTemplateName"] = "ValueTemplates/CartItemQuantity";
+            cartItemFromCategoryQuantity.Metadata["ChildRuleDescriptor"] = new CartRuleDescriptor
+            {
+                Name = "CartItemQuantity.Category",
+                RuleType = RuleType.Int,
+                ProcessorType = typeof(CartItemFromCategoryQuantityRule),
+                Operators = new[] { RuleOperator.IsEqualTo },
+                SelectList = new RemoteRuleValueSelectList("Category")
             };
 
             var descriptors = new List<CartRuleDescriptor>
@@ -296,6 +314,7 @@ namespace Smartstore.Core.Checkout.Rules
                     ProcessorType = typeof(CartProductCountRule)
                 },
                 cartItemQuantity,
+                cartItemFromCategoryQuantity,
                 new CartRuleDescriptor
                 {
                     Name = "ProductInCart",

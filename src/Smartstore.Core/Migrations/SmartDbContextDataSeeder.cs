@@ -103,6 +103,10 @@ namespace Smartstore.Core.Data.Migrations
             // TODO: (mg) (core) unclear how this could be translated in an understandable way.
             builder.AddOrUpdate("Admin.Rules.RuleOperator.LikeOperator", "Like", "Like");
             builder.AddOrUpdate("Admin.Rules.RuleOperator.NotLikeOperator", "Not like", "Not like");
+
+            builder.AddOrUpdate("Admin.Rules.FilterDescriptor.CartItemFromCategoryQuantity",
+                "Product quantity from category is in range",
+                "Produktmenge aus Warengruppe liegt in folgendem Bereich");
         }
     }
 }

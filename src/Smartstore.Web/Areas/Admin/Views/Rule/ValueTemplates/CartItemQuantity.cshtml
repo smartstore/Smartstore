@@ -6,17 +6,19 @@
     var id = "rule-value-" + Model.Id;
     string fromStr = T("Common.From");
     string toStr = T("Common.To");
-    string productId = null;
+    string entityId = null;
     string minQuantity = null;
     string maxQuantity = null;
-    RuleValueSelectListOption selectedProduct = null;
+    RuleValueSelectListOption selectedEntity = null;
+    var childDescriptor = Model.Descriptor.Metadata.Get("ChildRuleDescriptor") as RuleDescriptor;
 
     try
     {
         if (Model.RawValue.HasValue())
         {
             dynamic json = JObject.Parse(Model.RawValue);
-            productId = (string)json.ProductId;
+            // INFO: 'ProductId' has been replaced by 'EntityId'.
+            entityId = ((string)json.ProductId).NullEmpty() ?? (string)json.EntityId;
             minQuantity = (string)json.MinQuantity;
             maxQuantity = (string)json.MaxQuantity;
         }
@@ -30,35 +32,32 @@
         reason = RuleOptionsRequestReason.SelectListOptions,
         ruleId = Model.Id,
         rootRuleSetId = (int)ViewBag.RootRuleSetId,
-        descriptorMetadataKey = "ProductRuleDescriptor",
-        rawValue = productId
+        descriptorMetadataKey = "ChildRuleDescriptor",
+        rawValue = entityId
     });
 
-    if (productId.HasValue() &&
-        Model.Descriptor.Metadata.TryGetValue("ProductRuleDescriptor", out var descriptorObj) && 
-        descriptorObj is RuleDescriptor productRuleDescriptor &&
-        productRuleDescriptor.SelectList is RemoteRuleValueSelectList list)
+    if (entityId.HasValue() && childDescriptor.SelectList is RemoteRuleValueSelectList list)
     {
         var ruleOptionsProviders = Resolve<IEnumerable<IRuleOptionsProvider>>();
-        var productOptionsProvider = ruleOptionsProviders.FirstOrDefault(x => x.Matches(list.DataSource));
-        if (productOptionsProvider != null)
+        var optionsProvider = ruleOptionsProviders.FirstOrDefault(x => x.Matches(list.DataSource));
+        if (optionsProvider != null)
         {
-            var productOptions = await productOptionsProvider.GetOptionsAsync(new RuleOptionsContext(RuleOptionsRequestReason.SelectedDisplayNames, productRuleDescriptor)
+            var options = await optionsProvider.GetOptionsAsync(new RuleOptionsContext(RuleOptionsRequestReason.SelectedDisplayNames, childDescriptor)
             {
-                Value = productId,
+                Value = entityId,
                 PageSize = int.MaxValue,
                 Language = WorkContext.WorkingLanguage
             });
-            selectedProduct = productOptions.Options.FirstOrDefault(x => x.Value.EqualsNoCase(productId));
+            selectedEntity = options.Options.FirstOrDefault(x => x.Value.EqualsNoCase(entityId));
         }
     }
 }
 
-<select id="@(id)-ProductId" name="@(id)-ProductId" data-placeholder="@T("Common.Unspecified")" data-remote-url="@remoteUrl">
-    @if (selectedProduct != null)
+<select id="@(id)-EntityId" name="@(id)-EntityId" data-placeholder="@T("Common.Unspecified")" data-remote-url="@remoteUrl">
+    @if (selectedEntity != null)
     {
-        <option value="@selectedProduct.Value" selected="selected" attr-data-hint='(selectedProduct.Hint?.HasValue() ?? false, selectedProduct.Hint)'>
-        @(selectedProduct.Text.NullEmpty() ?? selectedProduct.Value)</option>
+        <option value="@selectedEntity.Value" selected="selected" attr-data-hint='(selectedEntity.Hint?.HasValue() ?? false, selectedEntity.Hint)'>
+        @(selectedEntity.Text.NullEmpty() ?? selectedEntity.Value)</option>
     }
 </select>
 

@@ -44,7 +44,7 @@
             : base(scope)
         {
             RuleType = RuleType.String;
-            Constraints = new IRuleConstraint[0];
+            Constraints = Array.Empty<IRuleConstraint>();
         }
     }
 }
