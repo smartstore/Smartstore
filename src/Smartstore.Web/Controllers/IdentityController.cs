@@ -1,5 +1,4 @@
 ﻿using System.Security.Claims;
-using System.Web;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -744,7 +743,7 @@ namespace Smartstore.Web.Controllers
                     var redirectUrl = Url.RouteUrl("RegisterResult", new { resultId = (int)UserRegistrationType.Standard });
                     if (returnUrl.HasValue())
                     {
-                        redirectUrl = _webHelper.ModifyQueryString(redirectUrl, "returnUrl=" + HttpUtility.UrlEncode(returnUrl), null);
+                        redirectUrl = _webHelper.ModifyQueryString(redirectUrl, "returnUrl=" + returnUrl.UrlEncode(), null);
                     }
                             
                     return Redirect(redirectUrl);

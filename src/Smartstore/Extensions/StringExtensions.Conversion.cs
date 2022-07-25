@@ -75,42 +75,30 @@ namespace Smartstore
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string UrlEncode(this string value)
-        {
-            return HttpUtility.UrlEncode(value);
-        }
+            => HttpUtility.UrlEncode(value);
 
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string UrlDecode(this string value)
-        {
-            return HttpUtility.UrlDecode(value);
-        }
+            => HttpUtility.UrlDecode(value);
 
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string AttributeEncode(this string value)
-        {
-            return HttpUtility.HtmlAttributeEncode(value);
-        }
+            => HttpUtility.HtmlAttributeEncode(value);
 
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string HtmlEncode(this string value)
-        {
-            return HttpUtility.HtmlEncode(value);
-        }
+            => HttpUtility.HtmlEncode(value);
 
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string HtmlDecode(this string value)
-        {
-            return HttpUtility.HtmlDecode(value);
-        }
+            => HttpUtility.HtmlDecode(value);
 
         public static string EncodeJsString(this string value)
-        {
-            return EncodeJsString(value, '"', true);
-        }
+            => EncodeJsString(value, '"', true);
 
         public static string EncodeJsString(this string value, char delimiter, bool appendDelimiters)
         {
