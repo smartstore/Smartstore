@@ -3,7 +3,6 @@ using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Encodings.Web;
-using System.Text.RegularExpressions;
 using System.Web;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Utilities;
@@ -12,21 +11,28 @@ namespace Smartstore
 {
     public static partial class StringExtensions
     {
+        /// <summary>
+        /// Encodes all the characters in the specified string into a sequence of bytes.
+        /// </summary>
+        /// <param name="value">String value to encode</param>
+        /// <param name="encoding">The encoder to use. Default: <see cref="Encoding.UTF8"/></param>
+        /// <returns>A byte array containing the results of encoding the specified set of characters.</returns>
+        [DebuggerStepThrough]
+        public static byte[] GetBytes(this string value, Encoding encoding = null)
+        {
+            return (encoding ?? Encoding.UTF8).GetBytes(value);
+        }
+        
         [DebuggerStepThrough]
         public static T ToEnum<T>(this string value, T defaultValue)
+            where T : struct
         {
-            if (!value.HasValue())
+            if (Enum.TryParse<T>(value, out var enumValue))
             {
-                return defaultValue;
+                return enumValue;
             }
-            try
-            {
-                return (T)Enum.Parse(typeof(T), value, true);
-            }
-            catch (ArgumentException)
-            {
-                return defaultValue;
-            }
+
+            return defaultValue;
         }
 
         /// <summary>
@@ -34,6 +40,7 @@ namespace Smartstore
         /// </summary>
         /// <param name="value">The input string</param>
         /// <returns>xxHash</returns>
+        [DebuggerStepThrough]
         public static string XxHash(this string value)
         {
             if (value.IsEmpty())

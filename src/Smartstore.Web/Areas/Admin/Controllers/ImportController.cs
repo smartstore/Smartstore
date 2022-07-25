@@ -425,7 +425,7 @@ namespace Smartstore.Admin.Controllers
                 message = T("Admin.Common.ResourceNotFound");
             }
 
-            return File(Encoding.UTF8.GetBytes(message), MediaTypeNames.Text.Plain, "DownloadImportFile.txt");
+            return File(message.GetBytes(), MediaTypeNames.Text.Plain, "DownloadImportFile.txt");
         }
 
         [HttpPost]

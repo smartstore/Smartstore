@@ -1297,7 +1297,7 @@ namespace Smartstore.Admin.Controllers
                 TypeNameHandling = TypeNameHandling.Objects
             });
 
-            return File(Encoding.UTF8.GetBytes(json), "application/json", "customer-{0}.json".FormatInvariant(customer.Id));
+            return File(json.GetBytes(), "application/json", "customer-{0}.json".FormatInvariant(customer.Id));
         }
 
         #endregion

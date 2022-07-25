@@ -1,5 +1,4 @@
 ﻿using System.Security.Cryptography;
-using System.Text;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.FileProviders;
 using Newtonsoft.Json;
@@ -92,7 +91,7 @@ namespace Smartstore.Web.Bundling
         internal static string ComputeHash(string content)
         {
             using var algo = SHA1.Create();
-            byte[] hash = algo.ComputeHash(Encoding.UTF8.GetBytes(content));
+            byte[] hash = algo.ComputeHash(content.GetBytes());
             return WebEncoders.Base64UrlEncode(hash);
         }
     }

@@ -48,7 +48,7 @@ namespace Smartstore.Core.Security
 			Guard.NotNull(token, nameof(token));
 
 			var json = JsonConvert.SerializeObject(token);
-			var encoded = _protector.Protect(Encoding.UTF8.GetBytes(json));
+			var encoded = _protector.Protect(json.GetBytes());
 
 			var result = Convert.ToBase64String(encoded);
 			return result;

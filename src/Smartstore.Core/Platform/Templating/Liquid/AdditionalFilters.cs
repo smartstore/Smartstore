@@ -1,5 +1,4 @@
 ﻿using System.Security.Cryptography;
-using System.Text;
 using DotLiquid;
 using Humanizer;
 using Newtonsoft.Json;
@@ -54,7 +53,7 @@ namespace Smartstore.Templating.Liquid
             if (input == null)
                 return input;
 
-            return MD5.HashData(Encoding.UTF8.GetBytes(input)).ToHexString();
+            return MD5.HashData(input.GetBytes()).ToHexString();
         }
 
         #endregion

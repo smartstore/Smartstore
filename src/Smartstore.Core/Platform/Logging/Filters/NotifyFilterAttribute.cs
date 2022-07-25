@@ -68,7 +68,7 @@ namespace Smartstore.Core.Logging
                     return;
 
                 response.Headers["X-Message-Type"] = entry.Type.ToString().ToLower();
-                response.Headers["X-Message"] = Convert.ToBase64String(Encoding.UTF8.GetBytes(entry.Message.ToString()));
+                response.Headers["X-Message"] = Convert.ToBase64String(entry.Message.ToString().GetBytes());
             }
 
             private static NotifyEntriesHolder TrimSet(NotifyEntriesHolder holder)

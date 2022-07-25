@@ -1,5 +1,4 @@
-﻿using System.Text;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
@@ -132,7 +131,7 @@ namespace Smartstore.Web.Bundling
             if (bundleResponse.Content?.Length > 0)
             {
                 SetCompressionMode(httpContext, options);
-                var buffer = Encoding.UTF8.GetBytes(bundleResponse.Content);
+                var buffer = bundleResponse.Content.GetBytes();
                 return response.Body.WriteAsync(buffer.AsMemory(0, buffer.Length));
             }
 
@@ -146,7 +145,7 @@ namespace Smartstore.Web.Bundling
             response.StatusCode = 500;
 
             var content = $"/*\n{ex.ToAllMessages()}\n*/";
-            var buffer = Encoding.UTF8.GetBytes(content);
+            var buffer = content.GetBytes();
             return response.Body.WriteAsync(buffer.AsMemory(0, buffer.Length));
         }
 

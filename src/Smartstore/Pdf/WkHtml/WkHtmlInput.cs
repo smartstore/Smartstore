@@ -1,5 +1,4 @@
-﻿using System.Text;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Smartstore.Http;
 
 namespace Smartstore.Pdf.WkHtml
@@ -83,7 +82,7 @@ namespace Smartstore.Pdf.WkHtml
             }
 
             _tempFilePath = WkHtmlToPdfConverter.GetTempFileName(_options, ".html");
-            await File.WriteAllBytesAsync(_tempFilePath, Encoding.UTF8.GetBytes(_html));
+            await File.WriteAllBytesAsync(_tempFilePath, _html.GetBytes());
             Kind = PdfInputKind.File;
         }
 

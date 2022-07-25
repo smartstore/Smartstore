@@ -138,7 +138,7 @@ namespace Smartstore.ComponentModel
             using var writer = new StringWriter(sb);
             
             _jsonSerializer.Serialize(writer, item);
-            var buffer = Encoding.UTF8.GetBytes(sb.ToString());
+            var buffer = sb.ToString().GetBytes();
 
             if (compress)
             {

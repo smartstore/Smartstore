@@ -30,7 +30,7 @@ namespace Smartstore.Core.Security
             if (algorithm == null)
                 throw new ArgumentException("Unrecognized hash algorithm name.", nameof(hashAlgorithm));
 
-            var data = Encoding.UTF8.GetBytes(string.Concat(password, saltkey));
+            var data = string.Concat(password, saltkey).GetBytes();
 
             return BitConverter.ToString(algorithm.ComputeHash(data)).Replace("-", string.Empty);
         }

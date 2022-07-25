@@ -1,5 +1,4 @@
-﻿using System.Text;
-using System.Xml;
+﻿using System.Xml;
 using Microsoft.Net.Http.Headers;
 using Smartstore.Utilities;
 
@@ -34,7 +33,7 @@ namespace Smartstore.Web.Controllers
             response.Headers[HeaderNames.ContentEncoding] = "utf-8";
             response.Headers[HeaderNames.ContentDisposition] = string.Format("attachment; filename={0}", FileDownloadName);
 
-            var buffer = Encoding.UTF8.GetBytes(Prettifier.PrettifyXML(document.InnerXml));
+            var buffer = Prettifier.PrettifyXML(document.InnerXml).GetBytes();
             await response.Body.WriteAsync(buffer.AsMemory(0, buffer.Length));
         }
     }
