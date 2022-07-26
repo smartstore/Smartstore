@@ -146,6 +146,7 @@ Smartstore.Admin.Media = (function () {
                 cache: false,
                 type: 'POST',
                 url: this._url,
+                data: {},
                 success(response) {
                     $("body").append($(response));
                     self._dialog = $("#duplicate-window");

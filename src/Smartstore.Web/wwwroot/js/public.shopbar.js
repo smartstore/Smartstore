@@ -165,6 +165,7 @@ var ShopBar = (function ($) {
                     cache: false,
                     type: "POST",
                     url: button.data("summary-href"),
+                    data: {},
                     success: function (data) {
                         button.bindData(data, { fade: fade });
                         if (_.isFunction(fn)) {
@@ -197,6 +198,7 @@ var ShopBar = (function ($) {
                 cache: false,
                 type: "POST",
                 url: cnt.data("href"),
+                data: {},
                 success: function (data) {
                     cnt.find('.shopbar-flyout-inner').remove();
                     cnt.append(data);

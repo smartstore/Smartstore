@@ -38,7 +38,7 @@ var AjaxCart = (function ($, window, document, undefined) {
             type: el.data("type") || "cart", // or "wishlist" or "compare",
             action: el.data("action") || "add", // or "remove" or "addfromwishlist" or "addfromcart"
             href: el.data("href") || el.attr("href"),
-            data: undefined // handled further below
+            data: {} // handled further below
         };
 
         if (el.data("form-selector")) {
@@ -336,6 +336,7 @@ var ShopBar = (function ($) {
                     cache: false,
                     type: "POST",
                     url: shopBarTools.data("summary-href"),
+                    data: {},
                     success: function (data) {
                         shopBarTools.bindData(data, { animate: animate });
                         offcanvasCart.bindData(data, { animate: animate });
@@ -358,6 +359,7 @@ var ShopBar = (function ($) {
                     cache: false,
                     type: "POST",
                     url: button.data("summary-href"),
+                    data: {},
                     success: function (data) {
                         tools[type].bindData(data, { animate: animate });
                         button.bindData(data, { animate: animate });
@@ -381,6 +383,7 @@ var ShopBar = (function ($) {
                 cache: false,
                 type: "POST",
                 url: tool.data("url"),
+                data: {},
                 success: function (data) {
                     cnt.find('.offcanvas-cart-body').remove();
                     cnt.find('.offcanvas-cart-footer').remove();

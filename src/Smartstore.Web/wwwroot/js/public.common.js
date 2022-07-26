@@ -144,6 +144,7 @@
                         cache: false,
                         type: "POST",
                         url: url,
+                        data: {},
                         success: function (data) {
                             $("body").append(data);
                         }

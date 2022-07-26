@@ -215,7 +215,7 @@ var summernote_image_upload_url;
 			url: summernote_image_upload_url,
 			cache: false,
 			contentType: false,
-			processData: false,
+            processData: false,
 			success: function (result) {
 				if (result.Success) {
 					$(editor).summernote('insertImage', result.Url);

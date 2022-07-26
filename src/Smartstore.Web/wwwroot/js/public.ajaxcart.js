@@ -35,7 +35,7 @@ var AjaxCart = (function ($, window, document, undefined) {
             type: el.data("type") || "cart", // or "wishlist" or "compare",
             action: el.data("action") || "add", // or "remove" or "addfromwishlist" or "addfromcart"
             href: el.data("href") || el.attr("href"),
-            data: undefined // wird weiter unten
+            data: {} // will be set below
         };
 
         if (el.data("form-selector")) {

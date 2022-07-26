@@ -463,6 +463,11 @@
 
         // Handle ajax notifications
         $(document)
+            .ajaxSend(function (e, xhr, opts) {
+                if (opts.data == null || opts.data == undefined) {
+                    opts.data = '';
+                }
+            })
             .ajaxSuccess(function (e, xhr) {
                 var msg = xhr.getResponseHeader('X-Message');
                 if (msg) {
