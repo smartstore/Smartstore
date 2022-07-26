@@ -178,7 +178,6 @@ namespace Smartstore.Web.Controllers
                     if (categoryUrl.HasValue())
                     {
                         customer.GenericAttributes.LastContinueShoppingPage = categoryUrl;
-                        await _db.SaveChangesAsync();
                     }
                 }
 

@@ -110,7 +110,6 @@ namespace Smartstore.Web.Controllers
             if (!customer.IsSystemAccount)
             {
                 customer.GenericAttributes.LastContinueShoppingPage = HttpContext.Request.RawUrl();
-                await Services.DbContext.SaveChangesAsync();
             }
 
             try

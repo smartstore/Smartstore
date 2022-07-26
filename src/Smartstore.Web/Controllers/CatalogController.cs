@@ -99,7 +99,6 @@ namespace Smartstore.Web.Controllers
             if (!customer.IsSystemAccount)
             {
                 customer.GenericAttributes.LastContinueShoppingPage = HttpContext.Request.RawUrl();
-                await Services.DbContext.SaveChangesAsync();
             }
 
             var model = await _helper.PrepareCategoryModelAsync(category);
@@ -241,7 +240,6 @@ namespace Smartstore.Web.Controllers
             if (!customer.IsSystemAccount)
             {
                 customer.GenericAttributes.LastContinueShoppingPage = HttpContext.Request.RawUrl();
-                await Services.DbContext.SaveChangesAsync();
             }
 
             var model = await _helper.PrepareBrandModelAsync(manufacturer);
