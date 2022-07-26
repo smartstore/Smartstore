@@ -289,7 +289,9 @@ namespace Smartstore.Core.DataExchange.Import
                 }
             }
 
-            return await scope.CommitAsync(cancelToken);
+            await scope.CommitAsync(cancelToken);
+
+            return newFiles.Count;
 
             void AddProductMediaFile(MediaFile file, DownloadManagerItem item)
             {
@@ -433,7 +435,9 @@ namespace Smartstore.Core.DataExchange.Import
                 }
             }
 
-            return await scope.CommitAsync(cancelToken);
+            await scope.CommitAsync(cancelToken);
+
+            return newFiles.Count;
         }
 
         public virtual async Task<int> ImportCustomerAvatarsAsync(
@@ -546,7 +550,9 @@ namespace Smartstore.Core.DataExchange.Import
                 }
             }
 
-            return await scope.CommitAsync(cancelToken);
+            await scope.CommitAsync(cancelToken);
+
+            return newFiles.Count;
         }
 
         /// <summary>

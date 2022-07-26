@@ -99,6 +99,7 @@ namespace Smartstore.Core.DataExchange.Import
         protected virtual async Task ProcessProductsAsync(ImportExecuteContext context)
         {
             var entityName = nameof(Product);
+            var cargo = await GetCargoData(context);
             var segmenter = context.DataSegmenter;
             var batch = segmenter.GetCurrentBatch<Product>();
 
@@ -112,7 +113,7 @@ namespace Smartstore.Core.DataExchange.Import
                 var savedProducts = 0;
                 try
                 {
-                    savedProducts = await InternalProcessProductsAsync(context, scope, batch);
+                    savedProducts = await InternalProcessProductsAsync(context, cargo, scope, batch);
                 }
                 catch (Exception ex)
                 {
@@ -181,7 +182,7 @@ namespace Smartstore.Core.DataExchange.Import
                 {
                     try
                     {
-                        await ProcessProductCategoriesAsync(context, scope, batch);
+                        await ProcessProductCategoriesAsync(context, cargo, scope, batch);
                     }
                     catch (Exception ex)
                     {
@@ -196,7 +197,7 @@ namespace Smartstore.Core.DataExchange.Import
                 {
                     try
                     {
-                        await ProcessProductManufacturersAsync(context, scope, batch);
+                        await ProcessProductManufacturersAsync(context, cargo, scope, batch);
                     }
                     catch (Exception ex)
                     {
@@ -211,7 +212,7 @@ namespace Smartstore.Core.DataExchange.Import
                 {
                     try
                     {
-                        await ProcessProductPicturesAsync(context, scope, batch);
+                        cargo.NumberOfNewImages += await ProcessProductPicturesAsync(context, scope, batch);
                     }
                     catch (Exception ex)
                     {
@@ -251,15 +252,23 @@ namespace Smartstore.Core.DataExchange.Import
                     // 10.) PostProcess: normalization.
                     // ===========================================================================          
                     await ProductPictureHelper.FixProductMainPictureIds(_db, context.UtcNow);
+
+                    if (cargo.NumberOfNewImages > 0)
+                    {
+                        context.Result.AddWarning("Importing new images may result in image duplicates if TinyImage is installed or the images are larger than \"Maximum image size\" setting.");
+                    }
                 }
             }
 
             await _services.EventPublisher.PublishAsync(new ImportBatchExecutedEvent<Product>(context, batch), context.CancelToken);
         }
 
-        protected virtual async Task<int> InternalProcessProductsAsync(ImportExecuteContext context, DbContextScope scope, IEnumerable<ImportRow<Product>> batch)
+        protected virtual async Task<int> InternalProcessProductsAsync(
+            ImportExecuteContext context,
+            ImporterCargoData cargo,
+            DbContextScope scope, 
+            IEnumerable<ImportRow<Product>> batch)
         {
-            var cargo = await GetCargoData(context);
             var defaultTemplateId = cargo.TemplateViewPaths["Product"];
             var hasNameColumn = context.DataSegmenter.HasColumn(nameof(Product.Name));
             var parentProductIds = context.GetCustomProperty<Dictionary<int, int>>(ParentProductIdsKey);
@@ -495,10 +504,12 @@ namespace Smartstore.Core.DataExchange.Import
             return num;
         }
 
-        protected virtual async Task<int> ProcessProductCategoriesAsync(ImportExecuteContext context, DbContextScope scope, IEnumerable<ImportRow<Product>> batch)
+        protected virtual async Task<int> ProcessProductCategoriesAsync(
+            ImportExecuteContext context,
+            ImporterCargoData cargo,
+            DbContextScope scope, 
+            IEnumerable<ImportRow<Product>> batch)
         {
-            var cargo = await GetCargoData(context);
-
             foreach (var row in batch)
             {
                 var categoryIds = row.GetDataValue<List<int>>("CategoryIds");
@@ -539,10 +550,12 @@ namespace Smartstore.Core.DataExchange.Import
             return num;
         }
 
-        protected virtual async Task<int> ProcessProductManufacturersAsync(ImportExecuteContext context, DbContextScope scope, IEnumerable<ImportRow<Product>> batch)
+        protected virtual async Task<int> ProcessProductManufacturersAsync(
+            ImportExecuteContext context,
+            ImporterCargoData cargo,
+            DbContextScope scope, 
+            IEnumerable<ImportRow<Product>> batch)
         {
-            var cargo = await GetCargoData(context);
-
             foreach (var row in batch)
             {
                 var manufacturerIds = row.GetDataValue<List<int>>("ManufacturerIds");
@@ -1105,6 +1118,7 @@ namespace Smartstore.Core.DataExchange.Import
             public Dictionary<string, int> TemplateViewPaths { get; init; }
             public List<int> CategoryIds { get; set; }
             public List<int> ManufacturerIds { get; set; }
+            public int NumberOfNewImages { get; set; }
         }
     }
 }

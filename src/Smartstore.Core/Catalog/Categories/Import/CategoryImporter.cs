@@ -46,6 +46,7 @@ namespace Smartstore.Core.DataExchange.Import
         protected override async Task ProcessBatchAsync(ImportExecuteContext context, CancellationToken cancelToken = default)
         {
             var entityName = nameof(Category);
+            var cargo = await GetCargoData(context);
             var segmenter = context.DataSegmenter;
             var batch = segmenter.GetCurrentBatch<Category>();
 
@@ -59,7 +60,7 @@ namespace Smartstore.Core.DataExchange.Import
                 var savedCategories = 0;
                 try
                 {
-                    savedCategories = await ProcessCategoriesAsync(context, scope, batch);
+                    savedCategories = await ProcessCategoriesAsync(context, cargo, scope, batch);
                 }
                 catch (Exception ex)
                 {
@@ -134,7 +135,7 @@ namespace Smartstore.Core.DataExchange.Import
                 {
                     try
                     {
-                        await ProcessPicturesAsync(context, scope, batch);
+                        cargo.NumberOfNewImages += await ProcessPicturesAsync(context, scope, batch);
                     }
                     catch (Exception ex)
                     {
@@ -154,15 +155,23 @@ namespace Smartstore.Core.DataExchange.Import
                     {
                         await ProcessParentMappingsAsync(context, scope, batch);
                     }
+
+                    if (cargo.NumberOfNewImages > 0)
+                    {
+                        context.Result.AddWarning("Importing new images may result in image duplicates if TinyImage is installed or the images are larger than \"Maximum image size\" setting.");
+                    }
                 }
             }
 
             await _services.EventPublisher.PublishAsync(new ImportBatchExecutedEvent<Category>(context, batch), cancelToken);
         }
 
-        protected virtual async Task<int> ProcessCategoriesAsync(ImportExecuteContext context, DbContextScope scope, IEnumerable<ImportRow<Category>> batch)
+        protected virtual async Task<int> ProcessCategoriesAsync(
+            ImportExecuteContext context,
+            ImporterCargoData cargo,
+            DbContextScope scope, 
+            IEnumerable<ImportRow<Category>> batch)
         {
-            var cargo = await GetCargoData(context);
             var defaultTemplateId = cargo.TemplateViewPaths["CategoryTemplate.ProductsInGridOrLines"];
             var hasNameColumn = context.DataSegmenter.HasColumn("Name");
             var parentCategoryIds = context.GetCustomProperty<Dictionary<int, int>>(ParentCategoryIdsKey);
@@ -382,6 +391,7 @@ namespace Smartstore.Core.DataExchange.Import
         protected class ImporterCargoData
         {
             public Dictionary<string, int> TemplateViewPaths { get; init; }
+            public int NumberOfNewImages { get; set; }
         }
     }
 }

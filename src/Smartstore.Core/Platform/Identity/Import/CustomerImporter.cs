@@ -60,6 +60,7 @@ namespace Smartstore.Core.DataExchange.Import
 
         protected override async Task ProcessBatchAsync(ImportExecuteContext context, CancellationToken cancelToken = default)
         {
+            var cargo = await GetCargoData(context);
             var segmenter = context.DataSegmenter;
             var batch = segmenter.GetCurrentBatch<Customer>();
 
@@ -72,7 +73,7 @@ namespace Smartstore.Core.DataExchange.Import
                 // ===========================================================================
                 try
                 {
-                    await ProcessCustomersAsync(context, scope, batch);
+                    await ProcessCustomersAsync(context, cargo, scope, batch);
                 }
                 catch (Exception ex)
                 {
@@ -94,7 +95,7 @@ namespace Smartstore.Core.DataExchange.Import
                 {
                     try
                     {
-                        await ProcessCustomerRolesAsync(context, scope, batch);
+                        await ProcessCustomerRolesAsync(context, cargo, scope, batch);
                     }
                     catch (Exception ex)
                     {
@@ -107,7 +108,7 @@ namespace Smartstore.Core.DataExchange.Import
                 // ===========================================================================
                 try
                 {
-                    await ProcessGenericAttributesAsync(context, scope, batch);
+                    await ProcessGenericAttributesAsync(context, cargo, scope, batch);
                 }
                 catch (Exception ex)
                 {
@@ -121,7 +122,7 @@ namespace Smartstore.Core.DataExchange.Import
                 {
                     try
                     {
-                        await ProcessAvatarsAsync(context, scope, batch);
+                        cargo.NumberOfNewImages += await ProcessAvatarsAsync(context, scope, batch);
                     }
                     catch (Exception ex)
                     {
@@ -134,7 +135,7 @@ namespace Smartstore.Core.DataExchange.Import
                 // ===========================================================================
                 try
                 {
-                    await ProcessAddressesAsync(context, scope, batch);
+                    await ProcessAddressesAsync(context, cargo, scope, batch);
                 }
                 catch (Exception ex)
                 {
@@ -144,15 +145,24 @@ namespace Smartstore.Core.DataExchange.Import
                 if (segmenter.IsLastSegment)
                 {
                     AddInfoForDeprecatedFields(context);
+
+                    if (cargo.NumberOfNewImages > 0)
+                    {
+                        context.Result.AddWarning("Importing new images may result in image duplicates if TinyImage is installed or the images are larger than \"Maximum image size\" setting.");
+                    }
                 }
             }
 
             await _services.EventPublisher.PublishAsync(new ImportBatchExecutedEvent<Customer>(context, batch), cancelToken);
         }
 
-        protected virtual async Task<int> ProcessCustomersAsync(ImportExecuteContext context, DbContextScope scope, IEnumerable<ImportRow<Customer>> batch)
+        protected virtual async Task<int> ProcessCustomersAsync(
+            ImportExecuteContext context,
+            ImporterCargoData cargo,
+            DbContextScope scope, 
+            IEnumerable<ImportRow<Customer>>
+            batch)
         {
-            var cargo = await GetCargoData(context);
             var currentCustomer = _services.WorkContext.CurrentCustomer;
             var customerQuery = _db.Customers
                 .AsSplitQuery()
@@ -306,9 +316,12 @@ namespace Smartstore.Core.DataExchange.Import
             return num;
         }
 
-        protected virtual async Task<int> ProcessCustomerRolesAsync(ImportExecuteContext context, DbContextScope scope, IEnumerable<ImportRow<Customer>> batch)
+        protected virtual async Task<int> ProcessCustomerRolesAsync(
+            ImportExecuteContext context,
+            ImporterCargoData cargo,
+            DbContextScope scope, 
+            IEnumerable<ImportRow<Customer>> batch)
         {
-            var cargo = await GetCargoData(context);
             if (!cargo.AllowManagingCustomerRoles)
             {
                 return 0;
@@ -365,10 +378,13 @@ namespace Smartstore.Core.DataExchange.Import
             return num;
         }
 
-        protected virtual async Task<int> ProcessGenericAttributesAsync(ImportExecuteContext context, DbContextScope scope, IEnumerable<ImportRow<Customer>> batch)
+        protected virtual async Task<int> ProcessGenericAttributesAsync(
+            ImportExecuteContext context,
+            ImporterCargoData cargo,
+            DbContextScope scope, 
+            IEnumerable<ImportRow<Customer>> batch)
         {
             // TODO: (mg) (core) (perf) (low) Prefetch all generic attributes for whole batch and work against batch (to be implemented after initial release).
-            var cargo = await GetCargoData(context);
 
             foreach (var row in batch)
             {
@@ -437,10 +453,12 @@ namespace Smartstore.Core.DataExchange.Import
             return await _mediaImporter.ImportCustomerAvatarsAsync(scope, items, DuplicateFileHandling.Rename, context.CancelToken);
         }
 
-        protected virtual async Task<int> ProcessAddressesAsync(ImportExecuteContext context, DbContextScope scope, IEnumerable<ImportRow<Customer>> batch)
+        protected virtual async Task<int> ProcessAddressesAsync(
+            ImportExecuteContext context,
+            ImporterCargoData cargo,
+            DbContextScope scope, 
+            IEnumerable<ImportRow<Customer>> batch)
         {
-            var cargo = await GetCargoData(context);
-
             foreach (var row in batch)
             {
                 ImportAddress("BillingAddress.", row, context, cargo);
@@ -665,6 +683,7 @@ namespace Smartstore.Core.DataExchange.Import
             public Dictionary<string, int> CustomerRoleIds { get; init; }
             public Dictionary<string, int> Countries { get; init; }
             public Dictionary<Tuple<int, string>, int> StateProvinces { get; init; }
+            public int NumberOfNewImages { get; set; }
         }
     }
 }

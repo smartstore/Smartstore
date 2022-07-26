@@ -45,7 +45,7 @@ namespace Smartstore.Core.DataExchange.Import
         /// </summary>
         /// <param name="items">Collection of product images to be imported. Images are downloaded if <see cref="DownloadManagerItem.Url"/> is specified.</param>
         /// <param name="duplicateFileHandling">A value indicating how to handle duplicate images.</param>
-        /// <returns>Number of state entries written to the database.</returns>
+        /// <returns>Number of new images.</returns>
         Task<int> ImportProductImagesAsync(
             DbContextScope scope,
             ICollection<DownloadManagerItem> items,
@@ -57,7 +57,7 @@ namespace Smartstore.Core.DataExchange.Import
         /// </summary>
         /// <param name="items">Collection of category images to be imported. Images are downloaded if <see cref="DownloadManagerItem.Url"/> is specified.</param>
         /// <param name="duplicateFileHandling">A value indicating how to handle duplicate images.</param>
-        /// <returns>Number of state entries written to the database.</returns>
+        /// <returns>Number of new images.</returns>
         Task<int> ImportCategoryImagesAsync(
             DbContextScope scope,
             ICollection<DownloadManagerItem> items,
@@ -69,7 +69,7 @@ namespace Smartstore.Core.DataExchange.Import
         /// </summary>
         /// <param name="items">Collection of customer avatars to be imported. Images are downloaded if <see cref="DownloadManagerItem.Url"/> is specified.</param>
         /// <param name="duplicateFileHandling">A value indicating how to handle duplicate images.</param>
-        /// <returns>Number of state entries written to the database.</returns>
+        /// <returns>Number of new images.</returns>
         Task<int> ImportCustomerAvatarsAsync(
             DbContextScope scope,
             ICollection<DownloadManagerItem> items,
