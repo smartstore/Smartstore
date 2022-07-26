@@ -237,41 +237,9 @@ namespace Smartstore
 
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static string ToValidFileName(this string input, string replacement = "-")
+        public static int[] ToIntArray(this string value)
         {
-            return string.Join(
-                replacement ?? "-",
-                input.ToSafe().Tokenize(Path.GetInvalidFileNameChars()));
-        }
-
-        [DebuggerStepThrough]
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static string ToValidPath(this string input, string replacement = "-")
-        {
-            return string.Join(
-                replacement ?? "-",
-                input.ToSafe().Tokenize(Path.GetInvalidPathChars()));
-        }
-
-        [DebuggerStepThrough]
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int[] ToIntArray(this string s)
-        {
-            return s.SplitSafe(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-                .Select(v => int.Parse(v))
-                .ToArray();
-        }
-
-        [DebuggerStepThrough]
-        public static bool ToIntArrayContains(this string s, int value, bool defaultValue)
-        {
-            if (s == null)
-                return defaultValue;
-            var arr = s.ToIntArray();
-            if (arr == null || arr.Length <= 0)
-                return defaultValue;
-
-            return arr.Contains(value);
+            return value.Convert<int[]>();
         }
     }
 }

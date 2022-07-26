@@ -2,6 +2,7 @@
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Data.Hooks;
+using Smartstore.IO;
 
 namespace Smartstore.Core.Content.Menus.Hooks
 {
@@ -26,14 +27,14 @@ namespace Smartstore.Core.Content.Menus.Hooks
         protected override Task<HookResult> OnInsertingAsync(MenuEntity entity, IHookedEntity entry, CancellationToken cancelToken)
         {
             // Ensure valid system name.
-            entity.SystemName = entity.SystemName.ToValidPath();
+            entity.SystemName = PathUtility.SanitizePath(entity.SystemName);
             return Task.FromResult(HookResult.Ok);
         }
 
         protected override Task<HookResult> OnUpdatingAsync(MenuEntity entity, IHookedEntity entry, CancellationToken cancelToken)
         {
             // Ensure valid system name.
-            entity.SystemName = entity.SystemName.ToValidPath();
+            entity.SystemName = PathUtility.SanitizePath(entity.SystemName);
 
             var modProps = _db.GetModifiedProperties(entity);
 

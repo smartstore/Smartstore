@@ -93,7 +93,7 @@ namespace Smartstore.Core.DataExchange.Import
                 else
                 {
                     item.Success = true;
-                    item.FileName = Path.GetFileName(urlOrPath).ToValidFileName().NullEmpty() ?? Path.GetRandomFileName();
+                    item.FileName = PathUtility.SanitizeFileName(Path.GetFileName(urlOrPath).NullEmpty() ?? Path.GetRandomFileName();
 
                     item.Path = Path.IsPathRooted(urlOrPath)
                         ? urlOrPath

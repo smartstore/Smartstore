@@ -112,7 +112,7 @@ namespace Smartstore.IO
                 key += "_d";
 
             if (_searchPattern.HasValue() && _searchPattern != "*")
-                key += "_" + _searchPattern.ToLower().ToValidFileName("x");
+                key += "_" + PathUtility.SanitizeFileName(_searchPattern.ToLower(), "x");
 
             return key.Trim(PathUtility.PathSeparators);
         }

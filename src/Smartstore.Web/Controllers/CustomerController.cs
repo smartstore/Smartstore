@@ -14,6 +14,7 @@ using Smartstore.Core.Localization;
 using Smartstore.Core.Messaging;
 using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
+using Smartstore.IO;
 using Smartstore.Utilities;
 using Smartstore.Web.Models.Common;
 using Smartstore.Web.Models.Customers;
@@ -781,7 +782,7 @@ namespace Smartstore.Web.Controllers
                             await _mediaService.DeleteFileAsync(oldAvatar, true);
                         }                        
 
-                        var path = _mediaService.CombinePaths(SystemAlbumProvider.Customers, uploadedFile.FileName.ToValidFileName());
+                        var path = _mediaService.CombinePaths(SystemAlbumProvider.Customers, PathUtility.SanitizeFileName(uploadedFile.FileName));
 
                         using var stream = uploadedFile.OpenReadStream();
                         var newAvatar = await _mediaService.SaveFileAsync(path, stream, false, DuplicateFileHandling.Rename);

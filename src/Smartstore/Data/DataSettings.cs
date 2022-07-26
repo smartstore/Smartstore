@@ -265,7 +265,7 @@ namespace Smartstore.Data
             if (fs.FileExists(curTenantFile))
             {
                 curTenant = fs.ReadAllText(curTenantFile).EmptyNull().Trim().NullEmpty();
-                if (curTenant != curTenant.EmptyNull().ToValidPath())
+                if (curTenant != PathUtility.SanitizePath(curTenant))
                 {
                     // File contains invalid path string
                     curTenant = null;

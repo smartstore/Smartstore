@@ -265,9 +265,7 @@ namespace Smartstore.Http
                 localPath = uri.LocalPath;
             }
 
-            var fileName = Path.GetFileName(localPath)
-                .UrlDecode()
-                .ToValidFileName()
+            var fileName = PathUtility.SanitizeFileName(Path.GetFileName(localPath).UrlDecode())
                 .NullEmpty();
 
             return fileName;

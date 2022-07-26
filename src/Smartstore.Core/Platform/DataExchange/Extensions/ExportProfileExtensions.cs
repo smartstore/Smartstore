@@ -1,6 +1,7 @@
 ﻿using System.Globalization;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
+using Smartstore.IO;
 using Smartstore.Utilities;
 
 namespace Smartstore.Core.DataExchange.Export
@@ -53,8 +54,8 @@ namespace Smartstore.Core.DataExchange.Export
                 sb.Replace("%Timestamp%", DateTime.UtcNow.ToString("s", CultureInfo.InvariantCulture));
             }
 
-            var result = sb.ToString()
-                .ToValidFileName(string.Empty)
+            var result = PathUtility
+                .SanitizeFileName(sb.ToString(), string.Empty)
                 .Truncate(maxFileNameLength);
 
             return result;

@@ -9,6 +9,7 @@ using Smartstore.Core.Logging;
 using Smartstore.Core.Security;
 using Smartstore.Core.Stores;
 using Smartstore.Core.Theming;
+using Smartstore.IO;
 using Smartstore.Web.Bundling;
 using Smartstore.Web.Rendering;
 
@@ -308,7 +309,8 @@ namespace Smartstore.Admin.Controllers
                 else
                 {
                     string profileName = form["exportprofilename"];
-                    string fileName = "themevars-{0}{1}-{2}.xml".FormatCurrent(theme, profileName.HasValue() ? '-' + profileName.ToValidFileName() : string.Empty, DateTime.Now.ToString("yyyyMMdd"));
+                    string fileName = "themevars-{0}{1}-{2}.xml".FormatCurrent(theme, 
+                        profileName.HasValue() ? '-' + PathUtility.SanitizeFileName(profileName) : string.Empty, DateTime.Now.ToString("yyyyMMdd"));
 
                     Services.ActivityLogger.LogActivity(KnownActivityLogTypes.ExportThemeVars, T("ActivityLog.ExportThemeVars"), theme);
 

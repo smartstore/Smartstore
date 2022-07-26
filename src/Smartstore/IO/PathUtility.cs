@@ -210,43 +210,43 @@ namespace Smartstore.IO
         }
 
         /// <summary>
-        /// Checks whether a path is a safe app root path.
-        /// </summary>
-        /// <param name="path">Relative path</param>
-        public static bool IsSafeAppRootPath_TODO(string path)
-        {
-            // TODO: (core) Refactor
-            //if (path.EmptyNull().Length > 2 && !path.IsCaseInsensitiveEqual("con") && !HasInvalidPathChars(path))
-            //{
-            //    try
-            //    {
-            //        var mappedPath = CommonHelper.MapPath(path);
-            //        var appPath = CommonHelper.MapPath("~/");
-            //        return !mappedPath.IsCaseInsensitiveEqual(appPath);
-            //    }
-            //    catch { }
-            //}
-
-            return false;
-        }
-
-        /// <summary>
-        /// Replaces all occurences of any illegal path or file name char by '-'
+        /// Replaces all occurences of any illegal path or file name char by <paramref name="replacement"/>
         /// </summary>
         /// <param name="name">Path/File name</param>
         /// <returns>Sanitized path/file name</returns>
-        public static string SanitizeFileName(string name)
+        public static string SanitizeFileName(string fileName, string replacement = "-")
         {
-            if (name.IsEmpty())
-                return name;
+            if (fileName.IsEmpty())
+            {
+                return fileName;
+            }   
 
-            return _invalidCharsPattern.Replace(name, "-");
+            return _invalidCharsPattern.Replace(fileName, replacement);
+        }
+
+        /// <summary>
+        /// Replaces all occurences of any illegal path char by <paramref name="replacement"/>
+        /// </summary>
+        /// <param name="path">path</param>
+        /// <returns>Sanitized path</returns>
+        public static string SanitizePath(string path, string replacement = "-")
+        {
+            if (path.IsEmpty())
+            {
+                return path;
+            }
+
+            return string.Join(
+                replacement ?? "-",
+                path.Tokenize(_invalidPathChars));
         }
 
         public static bool HasInvalidPathChars(string path, bool checkWildcardChars = false)
         {
             if (path == null)
+            {
                 return false;
+            }     
 
             return path.IndexOfAny(_invalidPathChars) >= 0
                 || (checkWildcardChars && ContainsWildcardChars(path, 0));

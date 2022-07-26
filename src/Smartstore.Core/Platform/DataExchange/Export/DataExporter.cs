@@ -159,7 +159,7 @@ namespace Smartstore.Core.DataExchange.Export
             // The export directory is the "Content" subfolder. ZIP and LOG file are in the parent folder.
             var dir = await _exportProfileService.GetExportDirectoryAsync(profile, "Content", true);
             var logFile = await dir.Parent.GetFileAsync("log.txt");
-            var zipFile = await dir.Parent.GetFileAsync(dir.Parent.Name.ToValidFileName() + ".zip");
+            var zipFile = await dir.Parent.GetFileAsync(PathUtility.SanitizeFileName(dir.Parent.Name) + ".zip");
 
             await dir.FileSystem.TryDeleteFileAsync(logFile);
             await dir.FileSystem.TryDeleteFileAsync(zipFile);

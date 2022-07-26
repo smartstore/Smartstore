@@ -75,7 +75,6 @@ namespace Smartstore.Core.DataExchange.Export
                         .Replace("-", string.Empty);
 
                     var folderName = SlugUtility.Slugify(cleanedProviderName, true, false, false)
-                        .ToValidPath()
                         .Truncate(_dataExchangeSettings.MaxFileNameLength);
 
                     newFolderName = _appContext.TenantRoot.CreateUniqueDirectoryName(EXPORT_FILE_ROOT, folderName);
@@ -325,7 +324,6 @@ namespace Smartstore.Core.DataExchange.Export
                 .Replace("-", string.Empty);
 
             var folderName = SlugUtility.Slugify(cleanedProviderName, true, false, false)
-                .ToValidPath()
                 .Truncate(_dataExchangeSettings.MaxFileNameLength);
 
             profile.FolderName = _appContext.TenantRoot.CreateUniqueDirectoryName(EXPORT_FILE_ROOT, folderName);

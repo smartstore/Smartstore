@@ -141,7 +141,6 @@ namespace Smartstore.Core.DataExchange.Import
             }
 
             var folderName = SlugUtility.Slugify(name, true, false, false)
-                .ToValidPath()
                 .Truncate(_dataExchangeSettings.MaxFileNameLength);
 
             profile.FolderName = _appContext.TenantRoot.CreateUniqueDirectoryName(IMPORT_FILE_ROOT, folderName);

@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 using Smartstore.Domain;
+using Smartstore.IO;
 
 namespace Smartstore.Data.Providers
 {
@@ -381,7 +382,7 @@ namespace Smartstore.Data.Providers
         public virtual string CreateBackupFileName()
         {
             var timestamp = DateTime.Now.ToString("yyyyMMddHHmmss");
-            var dbName = Database.GetDbConnection().Database.NaIfEmpty().ToValidFileName().Replace('-', '_');
+            var dbName = PathUtility.SanitizeFileName(Database.GetDbConnection().Database.NaIfEmpty(), "_");
 
             return $"{dbName}-{SmartstoreVersion.CurrentFullVersion}-{timestamp}{BackupFileExtension}";
         }

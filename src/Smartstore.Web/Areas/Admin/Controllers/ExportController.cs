@@ -1105,7 +1105,7 @@ namespace Smartstore.Admin.Controllers
 
                 // Add export files.
                 var dir = await _exportProfileService.GetExportDirectoryAsync(profile, "Content");
-                var zipFile = await dir.Parent.GetFileAsync(dir.Parent.Name.ToValidFileName() + ".zip");
+                var zipFile = await dir.Parent.GetFileAsync(PathUtility.SanitizeFileName(dir.Parent.Name) + ".zip");
                 var resultInfo = XmlHelper.Deserialize<DataExportResult>(profile.ResultInfo);
 
                 if (deployment == null)
