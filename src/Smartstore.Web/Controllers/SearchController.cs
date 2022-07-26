@@ -106,7 +106,12 @@ namespace Smartstore.Web.Controllers
                 return View(model);
             }
 
-            Services.WorkContext.CurrentCustomer.GenericAttributes.LastContinueShoppingPage = HttpContext.Request.RawUrl();
+            var customer = Services.WorkContext.CurrentCustomer;
+            if (!customer.IsSystemAccount)
+            {
+                customer.GenericAttributes.LastContinueShoppingPage = HttpContext.Request.RawUrl();
+                await Services.DbContext.SaveChangesAsync();
+            }
 
             try
             {

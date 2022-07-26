@@ -170,6 +170,18 @@ namespace Smartstore.Web.Controllers
             {
                 await _helper.GetBreadcrumbAsync(_breadcrumb, ControllerContext, product);
 
+                // 'Continue shopping' URL.
+                var customer = Services.WorkContext.CurrentCustomer;
+                if (!customer.IsSystemAccount)
+                {
+                    var categoryUrl = _breadcrumb.Trail?.LastOrDefault()?.GenerateUrl(Url);
+                    if (categoryUrl.HasValue())
+                    {
+                        customer.GenericAttributes.LastContinueShoppingPage = categoryUrl;
+                        await _db.SaveChangesAsync();
+                    }
+                }
+
                 _breadcrumb.Track(new MenuItem
                 {
                     Text = model.Name,

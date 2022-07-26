@@ -207,7 +207,7 @@ namespace Smartstore.Web.Controllers
         {
             referrer ??= Url.Referrer();
 
-            if (referrer.HasValue())
+            if (referrer.HasValue() && !referrer.EqualsNoCase(Request.RawUrl()))
             {
                 return Redirect(referrer);
             }
