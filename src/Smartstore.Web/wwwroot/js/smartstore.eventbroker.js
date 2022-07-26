@@ -46,7 +46,9 @@ Derivation on:
         }
 
         for (i = 0, j = subscribers.length; i < j; i++) {
-            callSubscriber(subscribers[i].func, originalMessage, data);
+            if (subscribers[i]) {
+                callSubscriber(subscribers[i].func, originalMessage, data);
+            }
         }
     }
 
