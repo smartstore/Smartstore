@@ -1,4 +1,5 @@
-﻿using System.Dynamic;
+﻿using System.Collections.Concurrent;
+using System.Dynamic;
 using System.Runtime.CompilerServices;
 using Smartstore.Utilities;
 
@@ -21,6 +22,11 @@ namespace Smartstore
             Guard.NotNull(key, nameof(key));
             Guard.NotNull(valueFactory, nameof(valueFactory));
 
+            if (source is ConcurrentDictionary<TKey, TValue> concurrentDict)
+            {
+                return concurrentDict.GetOrAdd(key, valueFactory);
+            }
+
             if (!source.TryGetValue(key, out var value))
             {
                 source[key] = value = valueFactory(key);
@@ -42,6 +48,11 @@ namespace Smartstore
             if (source == null || key == null)
             {
                 return false;
+            }
+
+            if (source is ConcurrentDictionary<TKey, TValue> concurrentDict)
+            {
+                return concurrentDict.TryAdd(key, value);
             }
 
             if (source.ContainsKey(key))
@@ -73,6 +84,11 @@ namespace Smartstore
         public static bool TryRemove<TKey, TValue>(this IDictionary<TKey, TValue> source, TKey key, out TValue value)
         {
             value = default;
+
+            if (source is ConcurrentDictionary<TKey, TValue> concurrentDict)
+            {
+                return concurrentDict.TryRemove(key, out value);
+            }
 
             if (source != null && key != null && source.TryGetValue(key, out value))
             {
