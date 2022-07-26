@@ -107,6 +107,11 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.Rules.FilterDescriptor.CartItemFromCategoryQuantity",
                 "Product quantity from category is in range",
                 "Produktmenge aus Warengruppe liegt in folgendem Bereich");
+
+            builder.AddOrUpdate("PDFInvoice.TaxNumber")
+                .Value("en", "Tax Number:");
+            builder.AddOrUpdate("PDFInvoice.VatId")
+                .Value("en", "Vat-ID:");
         }
     }
 }
