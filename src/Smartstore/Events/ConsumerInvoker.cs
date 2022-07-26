@@ -125,7 +125,7 @@ namespace Smartstore.Events
 
             if (!descriptor.FireForget)
             {
-                throw ex;
+                ex.ReThrow();
             }
         }
 

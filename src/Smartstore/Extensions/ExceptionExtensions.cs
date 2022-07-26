@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Runtime.ExceptionServices;
+using System.Runtime.InteropServices;
 using System.Security;
 using Smartstore.Utilities;
 
@@ -6,6 +7,13 @@ namespace Smartstore
 {
     public static class ExceptionExtensions
     {
+        /// <summary>
+        /// Uses <see cref="ExceptionDispatchInfo.Capture"/> method to re-throw exception
+        /// while preserving stack trace.
+        /// </summary>
+        public static void ReThrow(this Exception exception)
+            => ExceptionDispatchInfo.Capture(exception).Throw();
+
         public static bool IsFatal(this Exception ex)
         {
             return ex is StackOverflowException ||

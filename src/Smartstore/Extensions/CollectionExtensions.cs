@@ -5,6 +5,8 @@ namespace Smartstore
 {
     public static class CollectionExtensions
     {
+        #region Collection
+
         public static void AddRange<T>(this ICollection<T> initial, IEnumerable<T> other)
         {
             if (other == null)
@@ -43,6 +45,10 @@ namespace Smartstore
             return source == null || source.Count == 0;
         }
 
+        #endregion
+
+        #region List
+
         /// <summary>
         /// Safe way to remove selected entries from a list.
         /// </summary>
@@ -68,5 +74,37 @@ namespace Smartstore
 
             return count;
         }
+
+        #endregion
+
+        #region Stack
+
+        public static bool TryPeek<T>(this Stack<T> stack, out T value)
+        {
+            value = default;
+
+            if (stack.Count > 0)
+            {
+                value = stack.Peek();
+                return true;
+            }
+
+            return false;
+        }
+
+        public static bool TryPop<T>(this Stack<T> stack, out T value)
+        {
+            value = default;
+
+            if (stack.Count > 0)
+            {
+                value = stack.Pop();
+                return true;
+            }
+
+            return false;
+        }
+
+        #endregion
     }
 }

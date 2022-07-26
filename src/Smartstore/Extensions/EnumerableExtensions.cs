@@ -9,57 +9,6 @@ using Smartstore.Domain;
 
 namespace Smartstore
 {
-    public static class CollectionChunker
-    {
-        /// <summary>
-        /// Split the elements of a sequence into chunks of size at most <paramref name="size"/>.
-        /// </summary>
-        /// <remarks>
-        /// Every chunk except the last will be of size <paramref name="size"/>.
-        /// The last chunk will contain the remaining elements and may be of a smaller size.
-        /// </remarks>
-        /// <param name="source">An <see cref="IAsyncEnumerable{T}"/> whose elements to chunk.</param>
-        /// <param name="size">Maximum size of each chunk.</param>
-        /// <typeparam name="TSource">The type of the elements of source.</typeparam>
-        /// <returns>
-        /// An <see cref="IAsyncEnumerable{T}"/> that contains the elements the input sequence split into chunks of size <paramref name="size"/>.
-        /// </returns>
-        public static IAsyncEnumerable<T[]> ChunkAsync<T>(this IAsyncEnumerable<T> source, int size, CancellationToken cancelToken = default)
-        {
-            Guard.NotNull(source, nameof(source));
-            Guard.IsPositive(size, nameof(size));
-
-            return AsyncChunkIterator(source, size, cancelToken);
-        }
-
-        private static async IAsyncEnumerable<TSource[]> AsyncChunkIterator<TSource>(IAsyncEnumerable<TSource> source, int size, [EnumeratorCancellation] CancellationToken cancelToken = default)
-        {
-            await using IAsyncEnumerator<TSource> e = source.GetAsyncEnumerator(cancelToken);
-            while (await e.MoveNextAsync())
-            {
-                TSource[] chunk = new TSource[size];
-                chunk[0] = e.Current;
-
-                int i = 1;
-                for (; i < chunk.Length && await e.MoveNextAsync(); i++)
-                {
-                    chunk[i] = e.Current;
-                }
-
-                if (i == chunk.Length)
-                {
-                    yield return chunk;
-                }
-                else
-                {
-                    Array.Resize(ref chunk, i);
-                    yield return chunk;
-                    yield break;
-                }
-            }
-        }
-    }
-
     public static class EnumerableExtensions
     {
         #region Nested classes
@@ -111,23 +60,6 @@ namespace Smartstore
 
         /// <summary>
         /// Performs an action on each item while iterating through a list. 
-        /// This is a handy shortcut for <c>foreach(item in list) { await ... }</c>
-        /// </summary>
-        /// <typeparam name="T">The type of the items.</typeparam>
-        /// <param name="source">The list, which holds the objects.</param>
-        /// <param name="action">The action delegate which is called on each item while iterating.</param>
-        [DebuggerStepThrough]
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static async Task EachAsync<T>(this IEnumerable<T> source, Func<T, Task> action)
-        {
-            foreach (T t in source)
-            {
-                await action(t).ConfigureAwait(false);
-            }
-        }
-
-        /// <summary>
-        /// Performs an action on each item while iterating through a list. 
         /// This is a handy shortcut for <c>foreach(item in list) { ... }</c>
         /// </summary>
         /// <typeparam name="T">The type of the items.</typeparam>
@@ -147,7 +79,9 @@ namespace Smartstore
         public static ReadOnlyCollection<T> AsReadOnly<T>(this IEnumerable<T> source)
         {
             if (source == null || !source.Any())
+            {
                 return DefaultReadOnlyCollection<T>.Empty;
+            }
 
             if (source is ReadOnlyCollection<T> readOnly)
             {
@@ -222,14 +156,20 @@ namespace Smartstore
              IEqualityComparer<TKey> comparer)
         {
             if (source == null)
+            {
                 throw new ArgumentNullException(nameof(source));
-
+            }
+                
             if (keySelector == null)
+            {
                 throw new ArgumentNullException(nameof(keySelector));
-
+            }
+                
             if (elementSelector == null)
+            {
                 throw new ArgumentNullException(nameof(elementSelector));
-
+            }
+                
             var dictionary = new Dictionary<TKey, TElement>(comparer);
 
             foreach (var local in source)
@@ -277,11 +217,15 @@ namespace Smartstore
             where TEntity : BaseEntity
         {
             if (source == null)
+            {
                 throw new ArgumentNullException(nameof(source));
-
+            }
+                
             if (ids == null)
+            {
                 throw new ArgumentNullException(nameof(ids));
-
+            }
+                
             var sorted = from id in ids
                          join entity in source on id equals entity.Id
                          select entity;
@@ -310,6 +254,23 @@ namespace Smartstore
         #endregion
 
         #region Async
+
+        /// <summary>
+        /// Performs an action on each item while iterating through a list. 
+        /// This is a handy shortcut for <c>foreach(item in list) { await ... }</c>
+        /// </summary>
+        /// <typeparam name="T">The type of the items.</typeparam>
+        /// <param name="source">The list, which holds the objects.</param>
+        /// <param name="action">The action delegate which is called on each item while iterating.</param>
+        [DebuggerStepThrough]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static async Task EachAsync<T>(this IEnumerable<T> source, Func<T, Task> action)
+        {
+            foreach (T t in source)
+            {
+                await action(t);
+            }
+        }
 
         /// <summary>
         /// Performs an action on each item while iterating through a list. 

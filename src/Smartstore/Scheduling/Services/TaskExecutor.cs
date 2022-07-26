@@ -181,7 +181,7 @@ namespace Smartstore.Scheduling
 
             if (throwOnError && exception != null)
             {
-                throw exception;
+                exception.ReThrow();
             }
         }
     }

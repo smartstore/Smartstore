@@ -53,7 +53,7 @@ namespace Smartstore
             var controller = values.GetControllerName();
             var action = values.GetActionName();
 
-            return "{0}{1}.{2}".FormatInvariant(area.HasValue() ? area + "." : "", controller, action);
+            return "{0}{1}.{2}".FormatInvariant(area.HasValue() ? area + '.' : string.Empty, controller, action);
         }
 
         public static bool IsSameRoute(this RouteValueDictionary values, string area, string controller, string action)

@@ -147,6 +147,21 @@ namespace Smartstore
 
         #endregion
 
+        #region IComparable
+
+        /// <summary>
+        /// Checks whether given <paramref name="value"/> is between a minimum and a maximum value (inclusively).
+        /// </summary>
+        /// <param name="value">The value to be checked</param>
+        /// <param name="min">Minimum (inclusive) value</param>
+        /// <param name="max">Maximum (inclusive) value</param>
+        public static bool IsBetween<T>(this T value, T min, T max) where T : IComparable<T>
+        {
+            return value.CompareTo(min) >= 0 && value.CompareTo(max) <= 0;
+        }
+
+        #endregion
+
         #region IFormattable
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
