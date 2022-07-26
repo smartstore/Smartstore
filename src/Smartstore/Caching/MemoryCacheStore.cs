@@ -276,15 +276,16 @@ namespace Smartstore.Caching
 
         public virtual IEnumerable<string> Keys(string pattern = "*")
         {
-            var keys = _keys.AsParallel();
-
             if (pattern.IsEmpty() || pattern == "*")
             {
-                return keys.ToArray();
+                return _keys.ToArray();
             }
 
             var wildcard = new Wildcard(pattern, RegexOptions.IgnoreCase);
-            return keys.Where(x => wildcard.IsMatch(x)).ToArray();
+            return _keys
+                .AsParallel()
+                .Where(x => wildcard.IsMatch(x))
+                .ToArray();
         }
 
         public virtual IAsyncEnumerable<string> KeysAsync(string pattern = "*")
