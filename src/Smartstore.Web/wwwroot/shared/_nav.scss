@@ -57,27 +57,10 @@
 
 .nav-tabs-line {
 	position: relative;
-    border-top-width: 0;
-    border-bottom-width: 0;
 
 	.nav-item {
 		position: relative;
 	}
-
-    &:not(.nav-stacked) > .nav-item:first-child > .nav-link {
-        margin-left: 0;
-    }
-
-    &:not(.nav-stacked) {
-        .nav-link {
-            padding: 0.825rem 0;
-            margin: 0 0.75rem;
-        }
-
-        > .nav-item:first-child > .nav-link {
-            margin-left: 0;
-        }
-    }
 
 	.nav-link {
 		color: $mtab-color;
@@ -122,6 +105,22 @@
 			}
 		}
 	}
+
+    &.nav-tabs-line-dense {
+        border-top-width: 0;
+        border-bottom-width: 0;
+
+        &:not(.nav-stacked) {
+            .nav-link {
+                padding: 0.825rem 0;
+                margin: 0 0.75rem;
+            }
+
+            > .nav-item:first-child > .nav-link {
+                margin-left: 0;
+            }
+        }
+    }
 
     &.nav-inverse .nav-link {
         color: rgba($yiq-text-light, 0.4);

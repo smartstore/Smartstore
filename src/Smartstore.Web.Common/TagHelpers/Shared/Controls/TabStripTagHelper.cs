@@ -293,7 +293,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             }
             else if (Style == TabsStyle.Material)
             {
-                classList.Add("nav-tabs", "nav-tabs-line");
+                classList.Add("nav-tabs", "nav-tabs-line", "nav-tabs-line-dense");
             }
 
             if (HideSingleItem && Tabs.Count == 1)

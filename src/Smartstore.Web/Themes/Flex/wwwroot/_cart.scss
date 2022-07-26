@@ -17,10 +17,11 @@
     top: -9px;
 }
 
-.touchevents .label-cart-amount {
-    // fix 'too high' label placement on some mobile devices
-    line-height: 18px;
-} 
+// INFO: (mc) does never look good in my tests, therefore I disabled it.
+//.touchevents .label-cart-amount {
+    //// fix 'too high' label placement on some mobile devices
+    //line-height: 18px;
+//}
 
 
 // OffCanvas Cart
