@@ -6,6 +6,83 @@ namespace Smartstore
 {
     public static class DictionaryExtensions
     {
+        /// <summary>
+        /// Adds a key/value pair to the <paramref name="source"/> dictionary 
+        /// if the key does not already exist.
+        /// </summary>
+        /// <param name="key">The key of the element to add.</param>
+        /// <param name="valueFactory">The function used to generate a value for the key</param>
+        /// <returns>The value for the key. This will be either the existing value for the key if the
+        /// key is already in the dictionary, or the new value for the key as returned by <paramref name="valueFactory"/>
+        /// if the key was not in the dictionary.</returns>
+        public static TValue GetOrAdd<TKey, TValue>(this IDictionary<TKey, TValue> source, TKey key, Func<TKey, TValue> valueFactory)
+        {
+            Guard.NotNull(source, nameof(source));
+            Guard.NotNull(key, nameof(key));
+            Guard.NotNull(valueFactory, nameof(valueFactory));
+
+            if (!source.TryGetValue(key, out var value))
+            {
+                source[key] = value = valueFactory(key);
+            }
+
+            return value;
+        }
+
+        /// <summary>
+        /// Attempts to add the specified key and value to the <paramref name="source"/> dictionary.
+        /// </summary>
+        /// <param name="key">The key of the element to add.</param>
+        /// <param name="value">The value of the element to add. The value can be a null reference for reference types.</param>
+        /// <returns>
+        /// true if the key/value pair was added to the dictionary successfully; otherwise, false.
+        /// </returns>
+        public static bool TryAdd<TKey, TValue>(this IDictionary<TKey, TValue> source, TKey key, TValue value, bool updateIfExists = false)
+        {
+            if (source == null || key == null)
+            {
+                return false;
+            }
+
+            if (source.ContainsKey(key))
+            {
+                if (updateIfExists)
+                {
+                    source[key] = value;
+                    return true;
+                }
+            }
+            else
+            {
+                source.Add(key, value);
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Attempts to remove and return the value with the specified key from the <paramref name="source"/> dictionary.
+        /// </summary>
+        /// <param name="key">The key of the element to remove and return.</param>
+        /// <param name="value">
+        /// When this method returns, <paramref name="value"/> contains the object removed from the
+        /// dictionary or the default value of <typeparamref name="TValue"/> if the operation failed.
+        /// </param>
+        /// <returns>true if an object was removed successfully; otherwise, false.</returns>
+        public static bool TryRemove<TKey, TValue>(this IDictionary<TKey, TValue> source, TKey key, out TValue value)
+        {
+            value = default;
+
+            if (source != null && key != null && source.TryGetValue(key, out value))
+            {
+                source.Remove(key);
+                return true;
+            }
+
+            return false;
+        }
+
         public static void AddRange<TKey, TValue>(this IDictionary<TKey, TValue> values, IEnumerable<KeyValuePair<TKey, TValue>> other)
         {
             foreach (var kvp in other)
@@ -110,44 +187,6 @@ namespace Smartstore
             result.AddRange(source);
 
             return result;
-        }
-
-
-        public static bool TryAdd<TKey, TValue>(this IDictionary<TKey, TValue> source, TKey key, TValue value, bool updateIfExists = false)
-        {
-            if (source == null || key == null)
-            {
-                return false;
-            }
-
-            if (source.ContainsKey(key))
-            {
-                if (updateIfExists)
-                {
-                    source[key] = value;
-                    return true;
-                }
-            }
-            else
-            {
-                source.Add(key, value);
-                return true;
-            }
-
-            return false;
-        }
-
-        public static bool TryRemove<TKey, TValue>(this IDictionary<TKey, TValue> source, TKey key, out TValue value)
-        {
-            value = default;
-
-            if (source != null && key != null && source.TryGetValue(key, out value))
-            {
-                source.Remove(key);
-                return true;
-            }
-
-            return false;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
