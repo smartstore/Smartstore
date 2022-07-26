@@ -7,6 +7,17 @@ namespace Smartstore
     {
         #region int
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static char ToHex(this int value)
+        {
+            if (value <= 9)
+            {
+                return (char)(value + 48);
+            }
+
+            return (char)((value - 10) + 97);
+        }
+
         public static (int lower, int upper) GetRange(this int id, int size = 500)
         {
             // Max [size] values per cache item
@@ -133,6 +144,18 @@ namespace Smartstore
         {
             return Math.Round(value, decimals).ToString("0.00", CultureInfo.InvariantCulture);
         }
+
+        #endregion
+
+        #region IFormattable
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static string ToStringInvariant(this IFormattable source)
+            => source.ToString(null, CultureInfo.InvariantCulture);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static string ToStringInvariant(this IFormattable source, string format)
+            => source.ToString(format, CultureInfo.InvariantCulture);
 
         #endregion
 

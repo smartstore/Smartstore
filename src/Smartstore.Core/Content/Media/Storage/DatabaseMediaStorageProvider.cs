@@ -68,7 +68,7 @@ namespace Smartstore.Core.Content.Media.Storage
             else
             {
                 _db.LoadReferenceAsync(mediaFile, x => x.MediaStorage).Await();
-                return mediaFile.MediaStorage?.Data?.ToStream();
+                return new MemoryStream(mediaFile.MediaStorage?.Data);
             }
         }
 
@@ -88,7 +88,7 @@ namespace Smartstore.Core.Content.Media.Storage
             else
             {
                 await _db.LoadReferenceAsync(mediaFile, x => x.MediaStorage);
-                return mediaFile.MediaStorage?.Data?.ToStream();
+                return new MemoryStream(mediaFile.MediaStorage?.Data);
             }
         }
 

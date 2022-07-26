@@ -189,7 +189,7 @@ namespace Smartstore.Core.Messaging
 
                         if (data != null && data.LongLength > 0)
                         {
-                            attachment = new MailAttachment(data.ToStream(), qea.Name, qea.MimeType);
+                            attachment = new MailAttachment(new MemoryStream(data), qea.Name, qea.MimeType);
                         }
                     }
                     else if (qea.StorageLocation == EmailAttachmentStorageLocation.Path)
