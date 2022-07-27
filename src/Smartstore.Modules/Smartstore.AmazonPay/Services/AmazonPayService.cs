@@ -154,8 +154,8 @@ namespace Smartstore.AmazonPay.Services
                             Address1 = address1,
                             Address2 = address2,
                             City = src.County
-                                .Grow(src.District, " ")
-                                .Grow(src.City, " ")
+                                .Grow(src.District)
+                                .Grow(src.City)
                                 .TrimSafe()
                                 .Truncate(100),
                             ZipPostalCode = src.PostalCode.TrimSafe().Truncate(50),

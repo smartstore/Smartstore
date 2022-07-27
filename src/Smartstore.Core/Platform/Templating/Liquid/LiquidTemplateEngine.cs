@@ -53,14 +53,10 @@ namespace Smartstore.Templating.Liquid
             Template.FileSystem = this;
         }
 
-        #region Services
-
         public LocalizedString T(string key, int languageId, params object[] args)
         {
             return _localizer.Value(key, languageId, args);
         }
-
-        #endregion
 
         #region ITemplateEngine
 

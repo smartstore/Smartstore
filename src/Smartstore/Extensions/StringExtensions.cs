@@ -9,7 +9,6 @@ namespace Smartstore
 
         public const string NotAvailable = "n/a";
         public const string CarriageReturnLineFeed = "\r\n";
-        public const string Empty = "";
         public const char CarriageReturn = '\r';
         public const char LineFeed = '\n';
         public const char Tab = '\t';
@@ -38,7 +37,7 @@ namespace Smartstore
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string EmptyNull(this string value)
         {
-            return (value ?? string.Empty).Trim();
+            return value ?? string.Empty;
         }
 
         [DebuggerStepThrough]

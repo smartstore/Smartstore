@@ -47,7 +47,7 @@ namespace Smartstore.Core.Data.Migrations
         {
             Guard.NotEmpty(description, nameof(description));
 
-            return SmartstoreVersion.CurrentFullVersion.Grow(description, " ");
+            return SmartstoreVersion.CurrentFullVersion.Grow(description);
         }
     }
 }

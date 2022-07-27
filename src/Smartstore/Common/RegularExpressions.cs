@@ -10,6 +10,7 @@ namespace Smartstore
         internal static readonly Regex HasTwoDot = new("[0-9]*[.][0-9]*[.][0-9]*", RegexOptions.Compiled);
         internal static readonly Regex HasTwoMinus = new("[0-9]*[-][0-9]*[-][0-9]*", RegexOptions.Compiled);
 
+        public static readonly Regex IsDigit = new(@"\d", RegexOptions.Compiled);
         public static readonly Regex IsAlpha = new("[^a-zA-Z]", RegexOptions.Compiled);
         public static readonly Regex IsAlphaNumeric = new("[^a-zA-Z0-9]", RegexOptions.Compiled);
         public static readonly Regex IsNotNumber = new("[^0-9.-]", RegexOptions.Compiled);

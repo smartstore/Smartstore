@@ -99,7 +99,7 @@ namespace Smartstore.AmazonPay.Providers
                     // Can either be requested for a one-time or recurring payment scenario.
                     result.AuthorizationTransactionCode = response.ChargePermissionId;
 
-                    result.AuthorizationTransactionResult = response.StatusDetails.State.Grow(response.StatusDetails.ReasonCode, " ");
+                    result.AuthorizationTransactionResult = response.StatusDetails.State.Grow(response.StatusDetails.ReasonCode);
 
                     if (response.Status == 200)
                     {
@@ -186,7 +186,7 @@ namespace Smartstore.AmazonPay.Providers
             {
                 var state = response.StatusDetails.State;
 
-                result.CaptureTransactionResult = state.Grow(response.StatusDetails.ReasonCode, " ");
+                result.CaptureTransactionResult = state.Grow(response.StatusDetails.ReasonCode);
 
                 if (state.EqualsNoCase("Captured"))
                 {

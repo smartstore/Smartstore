@@ -97,7 +97,7 @@ namespace Smartstore
         /// </remarks>
         public static DateTime? ToDateTimeIso8601(this string value)
         {
-            if (value.HasValue())
+            if (!string.IsNullOrEmpty(value))
             {
                 if (DateTime.TryParseExact(value, "o", CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal, out DateTime dt))
                     return dt;

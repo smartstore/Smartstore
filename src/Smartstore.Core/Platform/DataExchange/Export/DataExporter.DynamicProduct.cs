@@ -219,7 +219,7 @@ namespace Smartstore.Core.DataExchange.Export
                         .Select(x => ctx.GetTranslation(x, nameof(x.Name), x.Name))
                         .ToList();
 
-                    dynObject.Name = ((string)dynObject.Name).Grow(string.Join(", ", valueNames), " ");
+                    dynObject.Name = ((string)dynObject.Name).Grow(string.Join(", ", valueNames));
                 }
             }
             else
@@ -607,11 +607,11 @@ namespace Smartstore.Core.DataExchange.Export
                 }
                 else if (ctx.Projection.DescriptionMerging == ExportDescriptionMerging.NameAndShortDescription)
                 {
-                    description = ((string)dynObject.Name).Grow((string)dynObject.ShortDescription, " ");
+                    description = ((string)dynObject.Name).Grow((string)dynObject.ShortDescription);
                 }
                 else if (ctx.Projection.DescriptionMerging == ExportDescriptionMerging.NameAndDescription)
                 {
-                    description = ((string)dynObject.Name).Grow((string)dynObject.FullDescription, " ");
+                    description = ((string)dynObject.Name).Grow((string)dynObject.FullDescription);
                 }
                 else if (ctx.Projection.DescriptionMerging == ExportDescriptionMerging.ManufacturerAndNameAndShortDescription ||
                     ctx.Projection.DescriptionMerging == ExportDescriptionMerging.ManufacturerAndNameAndDescription)
@@ -624,10 +624,10 @@ namespace Smartstore.Core.DataExchange.Export
                         description = ctx.GetTranslation(manufacturer, nameof(manufacturer.Name), manufacturer.Name);
                     }
 
-                    description = description.Grow((string)dynObject.Name, " ");
+                    description = description.Grow((string)dynObject.Name);
                     description = ctx.Projection.DescriptionMerging == ExportDescriptionMerging.ManufacturerAndNameAndShortDescription
-                        ? description.Grow((string)dynObject.ShortDescription, " ")
-                        : description.Grow((string)dynObject.FullDescription, " ");
+                        ? description.Grow((string)dynObject.ShortDescription)
+                        : description.Grow((string)dynObject.FullDescription);
                 }
 
                 // Append text.
@@ -637,7 +637,7 @@ namespace Smartstore.Core.DataExchange.Export
                     if (appendText.Length > 0)
                     {
                         var rnd = CommonHelper.GenerateRandomInteger(0, appendText.Length - 1);
-                        description = description.Grow(appendText.ElementAtOrDefault(rnd), " ");
+                        description = description.Grow(appendText.ElementAtOrDefault(rnd));
                     }
                 }
 

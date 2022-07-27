@@ -509,7 +509,7 @@ namespace Smartstore.AmazonPay.Controllers
                 if (response.Success)
                 {
                     var d = response.StatusDetails;
-                    newState = d.State.Grow(d.Reasons?.LastOrDefault()?.ReasonCode, " ").Truncate(400);
+                    newState = d.State.Grow(d.Reasons?.LastOrDefault()?.ReasonCode).Truncate(400);
                     authorize = true;
                     voidOffline = d.State.EqualsNoCase("Closed") || d.State.EqualsNoCase("NonChargeable");
                 }
@@ -525,7 +525,7 @@ namespace Smartstore.AmazonPay.Controllers
                 {
                     var d = response.StatusDetails;
                     var isDeclined = d.State.EqualsNoCase("Declined");
-                    newState = d.State.Grow(d.ReasonCode, " ").Truncate(400);
+                    newState = d.State.Grow(d.ReasonCode).Truncate(400);
 
                     // Authorize if not still pending.
                     authorize = !d.State.EqualsNoCase("AuthorizationInitiated");
@@ -559,7 +559,7 @@ namespace Smartstore.AmazonPay.Controllers
                 if (response.Success)
                 {
                     var d = response.StatusDetails;
-                    newState = d.State.Grow(d.ReasonCode, " ").Truncate(400);
+                    newState = d.State.Grow(d.ReasonCode).Truncate(400);
                     refund = d.State.EqualsNoCase("Refunded");
 
                     if (refund)

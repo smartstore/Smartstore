@@ -92,7 +92,7 @@ namespace Smartstore
 
             if (lenSubStr <= 0)
             {
-                throw new ArgumentException("Length of suffix string is greater or equal to maximumLength", nameof(maxLength));
+                throw new ArgumentException("Length of suffix string is greater than or equal to maxLength", nameof(maxLength));
             }    
 
             if (value != null && value.Length > maxLength)
@@ -324,15 +324,9 @@ namespace Smartstore
             return HtmlUtility.StripTags(source).Trim().HtmlDecode();
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static string RemoveEncloser(this string value, string encloser)
+        public static string RemoveEncloser(this string value, string encloser, StringComparison comparison = StringComparison.OrdinalIgnoreCase)
         {
-            return value.RemoveEncloser(encloser, StringComparison.CurrentCulture);
-        }
-
-        public static string RemoveEncloser(this string value, string encloser, StringComparison comparisonType)
-        {
-            if (value.IsEnclosedIn(encloser, comparisonType))
+            if (value.IsEnclosedIn(encloser, comparison))
             {
                 int len = encloser.Length / 2;
                 return value.Substring(
@@ -343,15 +337,9 @@ namespace Smartstore
             return value;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static string RemoveEncloser(this string value, string start, string end)
+        public static string RemoveEncloser(this string value, string start, string end, StringComparison comparison = StringComparison.OrdinalIgnoreCase)
         {
-            return value.RemoveEncloser(start, end, StringComparison.CurrentCulture);
-        }
-
-        public static string RemoveEncloser(this string value, string start, string end, StringComparison comparisonType)
-        {
-            if (value.IsEnclosedIn(start, end, comparisonType))
+            if (value.IsEnclosedIn(start, end, comparison))
                 return value.Substring(
                     start.Length,
                     value.Length - (start.Length + end.Length));
@@ -362,44 +350,42 @@ namespace Smartstore
         /// <summary>
         /// Appends a string and uses the delimiter if the string is not empty.
         /// </summary>
-        /// <param name="value">Source string.</param>
-        /// <param name="strToAppend">The string to be appended.</param>
-        /// <param name="delimiter">Delimiter.</param>
+        /// <param name="value">Source string</param>
+        /// <param name="append">The string to be appended</param>
+        /// <param name="delimiter">Delimiter</param>
         [DebuggerStepThrough]
-        public static string Grow(this string value, string strToAppend, string delimiter)
+        public static string Grow(this string value, string append, string delimiter = " ")
         {
             if (string.IsNullOrEmpty(value))
             {
-                return string.IsNullOrEmpty(strToAppend) ? string.Empty : strToAppend;
+                return string.IsNullOrEmpty(append) ? string.Empty : append;
             }
 
-            if (string.IsNullOrEmpty(strToAppend))
+            if (string.IsNullOrEmpty(append))
             {
                 return string.IsNullOrEmpty(value) ? string.Empty : value;
             }
 
-            return value + delimiter + strToAppend;
+            return value + delimiter + append;
         }
 
         /// <summary>
         /// Appends a string and uses the delimiter if the string is not empty.
         /// </summary>
-        /// <param name="sb">Target string builder.</param>
-        /// <param name="strToAppend">The string to be appended.</param>
-        /// <param name="delimiter">Delimiter.</param>
+        /// <param name="sb">Target string builder</param>
+        /// <param name="append">The string to be appended</param>
+        /// <param name="delimiter">Delimiter</param>
         [DebuggerStepThrough]
-        public static void Grow(this StringBuilder sb, string strToAppend, string delimiter)
+        public static void Grow(this StringBuilder sb, string append, string delimiter = " ")
         {
-            Guard.NotNull(delimiter, nameof(delimiter));
-
-            if (!string.IsNullOrWhiteSpace(strToAppend))
+            if (!string.IsNullOrWhiteSpace(append))
             {
-                if (sb.Length > 0)
+                if (sb.Length > 0 && delimiter != null)
                 {
                     sb.Append(delimiter);
                 }
 
-                sb.Append(strToAppend);
+                sb.Append(append);
             }
         }
 
@@ -410,10 +396,15 @@ namespace Smartstore
         public static string LeftPad(this string value, string format = null, char pad = ' ', int count = 1)
         {
             if (string.IsNullOrEmpty(value))
+            {
                 return string.Empty;
+            }
+                
 
             if (count < 1)
+            {
                 return value;
+            }   
 
             var left = new string(pad, count);
             var right = value;
@@ -436,7 +427,7 @@ namespace Smartstore
         /// <summary>
         /// Replaces digits in a string with culture native digits (if digit substitution for culture is required)
         /// </summary>
-        [DebuggerStepThrough]
+        //[DebuggerStepThrough]
         public static string ReplaceNativeDigits(this string value, IFormatProvider provider = null)
         {
             if (value == null)
@@ -453,9 +444,8 @@ namespace Smartstore
             }
 
             var nativeDigits = nfi.NativeDigits;
-            var rg = new Regex(@"\d");
 
-            var result = rg.Replace(value, m => nativeDigits[m.Value.ToInt()]);
+            var result = RegularExpressions.IsDigit.Replace(value, m => nativeDigits[Convert.ToByte(m.Value)]);
             return result;
         }
 

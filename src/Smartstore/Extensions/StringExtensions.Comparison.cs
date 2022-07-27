@@ -1,6 +1,8 @@
 ﻿using System.Diagnostics;
+using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
+using Smartstore.Utilities;
 
 namespace Smartstore
 {
@@ -42,10 +44,14 @@ namespace Smartstore
         public static bool IsWhiteSpace(this string value)
         {
             if (value == null)
+            {
                 throw new ArgumentNullException(nameof(value));
+            } 
 
             if (value.Length == 0)
+            {
                 return false;
+            }  
 
             for (int i = 0; i < value.Length; i++)
             {
@@ -56,6 +62,9 @@ namespace Smartstore
             return true;
         }
 
+        /// <summary>
+        /// Determines whether the string contains at least one non-whitespace char.
+        /// </summary>
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool HasValue(this string value)
@@ -63,10 +72,26 @@ namespace Smartstore
             return !string.IsNullOrWhiteSpace(value);
         }
 
+        [DebuggerStepThrough]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsWebUrl(this string value)
+        {
+            return IsWebUrlInternal(value, false);
+        }
+
+        [DebuggerStepThrough]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsWebUrl(this string value, bool schemeIsOptional)
+        {
+            return IsWebUrlInternal(value, schemeIsOptional);
+        }
+
         private static bool IsWebUrlInternal(string value, bool schemeIsOptional)
         {
-            if (String.IsNullOrEmpty(value))
+            if (string.IsNullOrEmpty(value))
+            {
                 return false;
+            }   
 
             value = value.Trim().ToLowerInvariant();
 
@@ -80,22 +105,12 @@ namespace Smartstore
         }
 
         [DebuggerStepThrough]
-        public static bool IsWebUrl(this string value)
-        {
-            return IsWebUrlInternal(value, false);
-        }
-
-        [DebuggerStepThrough]
-        public static bool IsWebUrl(this string value, bool schemeIsOptional)
-        {
-            return IsWebUrlInternal(value, schemeIsOptional);
-        }
-
-        [DebuggerStepThrough]
         public static bool IsEmail(this string value)
         {
             if (string.IsNullOrEmpty(value))
+            {
                 return false;
+            }   
 
             // Only return true if there is only 1 '@' character
             // and it is neither the first nor the last character
@@ -111,12 +126,11 @@ namespace Smartstore
         public static bool IsNumeric(this string value)
         {
             if (string.IsNullOrEmpty(value))
+            {
                 return false;
+            }
 
-            return !RegularExpressions.IsNotNumber.IsMatch(value) &&
-                   !RegularExpressions.HasTwoDot.IsMatch(value) &&
-                   !RegularExpressions.HasTwoMinus.IsMatch(value) &&
-                   RegularExpressions.IsNumeric.IsMatch(value);
+            return ConvertUtility.TryConvert(value, typeof(decimal), CultureInfo.InvariantCulture, out _);
         }
 
         [DebuggerStepThrough]
@@ -131,30 +145,27 @@ namespace Smartstore
             return RegularExpressions.IsAlphaNumeric.IsMatch(value);
         }
 
-
         [DebuggerStepThrough]
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool IsEnclosedIn(this string value, string enclosedIn)
+        public static bool IsEnclosedIn(this string value, string enclosedIn, StringComparison comparison = StringComparison.OrdinalIgnoreCase)
         {
-            return value.IsEnclosedIn(enclosedIn, StringComparison.CurrentCulture);
-        }
-
-        [DebuggerStepThrough]
-        public static bool IsEnclosedIn(this string value, string enclosedIn, StringComparison comparisonType)
-        {
-            if (String.IsNullOrEmpty(enclosedIn))
+            if (string.IsNullOrEmpty(enclosedIn))
+            {
                 return false;
+            } 
 
             if (enclosedIn.Length == 1)
-                return value.IsEnclosedIn(enclosedIn, enclosedIn, comparisonType);
+            {
+                return IsEnclosedIn(value, enclosedIn, enclosedIn, comparison);
+            } 
 
             if (enclosedIn.Length % 2 == 0)
             {
                 int len = enclosedIn.Length / 2;
-                return value.IsEnclosedIn(
-                    enclosedIn.Substring(0, len),
+                return IsEnclosedIn(
+                    value,
+                    enclosedIn[..len],
                     enclosedIn.Substring(len, len),
-                    comparisonType);
+                    comparison);
 
             }
 
@@ -163,16 +174,9 @@ namespace Smartstore
 
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool IsEnclosedIn(this string value, string start, string end)
+        public static bool IsEnclosedIn(this string value, string start, string end, StringComparison comparison = StringComparison.OrdinalIgnoreCase)
         {
-            return value.IsEnclosedIn(start, end, StringComparison.CurrentCulture);
-        }
-
-        [DebuggerStepThrough]
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool IsEnclosedIn(this string value, string start, string end, StringComparison comparisonType)
-        {
-            return value.StartsWith(start, comparisonType) && value.EndsWith(end, comparisonType);
+            return value.StartsWith(start, comparison) && value.EndsWith(end, comparison);
         }
 
         [DebuggerStepThrough]
