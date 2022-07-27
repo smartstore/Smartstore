@@ -20,19 +20,24 @@ namespace Smartstore.AmazonPay
         public bool UseSandbox { get; set; }
 
         /// <summary>
-        /// Public Key-ID to access API (Checkout v2).
+        /// Public Key-ID to access API (Checkout v2), e.g. SANDBOX-ACFGIC3ZV2.......
         /// </summary>
         public string PublicKeyId { get; set; }
 
         /// <summary>
-        /// Private key to access API (Checkout v2). Provided by AmazonPay as a .pem file.
+        /// Private key to access API (Checkout v2), e.g. -----BEGIN PRIVATE KEY----- MIIEvgIBADANBgk..................
+        /// Provided by AmazonPay as a .pem file.
         /// </summary>
         public string PrivateKey { get; set; }
 
+        /// <summary>
+        /// Also named "Merchant-ID" (Checkout v2), e.g. A2OJ13VBAM92IX.
+        /// Required to load the AmazonPay script.
+        /// </summary>
         public string SellerId { get; set; }
 
         /// <summary>
-        /// Also named "Store-ID" (Checkout v2). E.g. amzn1.application-oa2-client.1ab987....
+        /// Also named "Store-ID" (Checkout v2), e.g. amzn1.application-oa2-client.1ab987....
         /// </summary>
         public string ClientId { get; set; }
         public string Marketplace { get; set; } = "de";

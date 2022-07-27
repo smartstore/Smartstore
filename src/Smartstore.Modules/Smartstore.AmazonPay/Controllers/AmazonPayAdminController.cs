@@ -46,18 +46,22 @@ namespace Smartstore.AmazonPay.Controllers
             var store = Services.StoreContext.CurrentStore;
             var module = Services.ApplicationContext.ModuleCatalog.GetModuleByName("Smartstore.AmazonPay");
             var currentScheme = Services.WebHelper.IsCurrentConnectionSecured() ? "https" : "http";
+            var topicUrl = await Url.TopicAsync("privacyinfo");
 
             var model = MiniMapper.Map<AmazonPaySettings, ConfigurationModel>(settings);
 
-            model.IpnUrl = Url.Action(nameof(AmazonPayController.IPNHandler), "AmazonPay", null, "https");
-            model.KeyShareUrl = Url.Action(nameof(AmazonPayController.ShareKey), "AmazonPay", null, currentScheme);
+            model.IpnUrl = Url.Action(nameof(AmazonPayController.IPNHandler), "AmazonPay", new { area = string.Empty}, "https");
+            model.KeyShareUrl = Url.Action(nameof(AmazonPayController.ShareKey), "AmazonPay", new { area = string.Empty }, currentScheme);
             model.ModuleVersion = module.Version.ToString();
             model.LeadCode = AmazonPayProvider.LeadCode;
             model.PlatformId = AmazonPayProvider.PlatformId;
             // Not implemented. Not available for europe at the moment.
             model.PublicKey = string.Empty;
             model.MerchantStoreDescription = store.Name.Truncate(2048);
-            model.MerchantPrivacyNoticeUrl = WebHelper.GetAbsoluteUrl(await Url.TopicAsync("privacyinfo"), Request, true, currentScheme);
+            if (topicUrl.HasValue())
+            {
+                model.MerchantPrivacyNoticeUrl = WebHelper.GetAbsoluteUrl(topicUrl, Request, true, currentScheme);
+            }
             model.MerchantSandboxIpnUrl = model.IpnUrl;
             model.MerchantProductionIpnUrl = model.IpnUrl;
             model.HasPrivateKey = settings.PrivateKey.HasValue();

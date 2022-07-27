@@ -23,7 +23,7 @@
 <li>Create a <b>Login with Amazon</b> application in your <a class="alert-link" href="https://sellercentral-europe.amazon.com" target="_blank">Amazon Seller Central</a> account. For this, use <b>Allowed JavaScript Origins</b> and <b>Allowed Return URLs</b> listed below (SSL required!).</li>
 <li>Enter your Amazon credentials in the fields provided below.
 To do this, create API keys in your <a class="alert-link" href="https://sellercentral-europe.amazon.com" target="_blank">Amazon Seller Central</a> account at the top left under <b>Integration > Integration Central</b>.
-You will receive the Private Key as a file with the extension .pem, which you will need to upload below.</li>
+You will receive the Private Key as a file with the extension .pem, which you will need to upload below. It cannot be viewed afterwards. Keep it in a safe place or create new keys if necessary.</li>
 <li>If you would like to receive instant payment notifications (SSL required!) enter the IPN URL listed bewlow under <b>Integration Settings - Instant Notification Settings - Merchant URL</b>.</li>
 </ul>
 <div class="mb-1">Please add information about <b>Login and Pay with Amazon</b> on your payment page (see <b>CMS > Topics</b>). You will find picture material <a class="alert-link" href="https://payments.amazon.de/resources#marks">here</a>.
@@ -120,13 +120,13 @@ Text suggestions:</div><ul>
 		<Value>Check the box to use the sandbox (testing environment).</Value>
 	</LocaleResource>
 	<LocaleResource Name="PublicKeyId">
-		<Value>Your Public Key-ID</Value>
+		<Value>Public Key ID</Value>
 	</LocaleResource>
 	<LocaleResource Name="PublicKeyId.Hint">
-		<Value>The Public Key ID is your unique identifier used to access the Amazon Pay API. You can find it at Amazon's Seller Central under Integration - Integration Central.</Value>
+		<Value>The Public Key ID is your unique identifier used to access the Amazon Pay API, e.g. SANDBOX-ACFGIC3ZV2...</Value>
 	</LocaleResource>
 	<LocaleResource Name="PrivateKey">
-		<Value>Your Private Key</Value>
+		<Value>Private Key</Value>
 	</LocaleResource>
 	<LocaleResource Name="PrivateKey.Hint">
 		<Value>The Private Key for accessing the Amazon Pay API. You will get the Private Key as a downloadable file with the extension .pem after you have created the API keys at Amazon's Seller Central under Integration - Integration Central.</Value>
@@ -138,8 +138,14 @@ Text suggestions:</div><ul>
 		<Value>Your Merchant ID</Value>
 	</LocaleResource>
 	<LocaleResource Name="SellerId.Hint">
-		<Value>The Merchant ID you received during registration at Amazon's Seller Central.</Value>
+		<Value>The Merchant ID you received during registration at Amazon's Seller Central, e.g. A2OJ13VBAM92IX.</Value>
 	</LocaleResource>
+	<LocaleResource Name="ClientId">
+		<Value>Store ID</Value>
+	</LocaleResource>
+	<LocaleResource Name="ClientId.Hint">
+		<Value>Your store Id references a specific website configuration such as logo(s) and website name(s), e.g. amzn1.application-oa2-client.1ab987...</Value>
+	</LocaleResource>    
 	<LocaleResource Name="Marketplace">
 		<Value>Currency</Value>
 	</LocaleResource>
@@ -157,12 +163,6 @@ Text suggestions:</div><ul>
 	</LocaleResource>
 	<LocaleResource Name="Marketplace.Jp">
 		<Value>JPY (Japanese Yen)</Value>
-	</LocaleResource>
-	<LocaleResource Name="ClientId">
-		<Value>Your Client ID</Value>
-	</LocaleResource>
-	<LocaleResource Name="ClientId.Hint">
-		<Value>You can find the Client ID at Amazon's Seller Central under Integration - MWS Access Key.</Value>
 	</LocaleResource>
 	<LocaleResource Name="MerchantLoginDomains">
 		<Value>Allowed JavaScript origins</Value>
