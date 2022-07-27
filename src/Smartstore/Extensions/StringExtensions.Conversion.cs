@@ -239,7 +239,7 @@ namespace Smartstore
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int[] ToIntArray(this string value)
         {
-            return value.Convert<int[]>();
+            return value.Convert<int[]>() ?? Array.Empty<int>();
         }
     }
 }
