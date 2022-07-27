@@ -147,8 +147,11 @@ namespace Smartstore.Web
 
             builder.Configure(StarterOrdering.AfterStaticFilesMiddleware, app =>
             {
-                // Executes IApplicationInitializer implementations during the very first request.
-                app.UseApplicationInitializer();
+                if (appContext.IsInstalled)
+                {
+                    // Executes IApplicationInitializer implementations during the very first request.
+                    app.UseApplicationInitializer();
+                }
             });
 
             builder.Configure(StarterOrdering.BeforeAuthenticationMiddleware, app =>
