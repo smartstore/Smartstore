@@ -1,4 +1,5 @@
-﻿using Amazon.Pay.API.WebStore.CheckoutSession;
+﻿using System.Linq;
+using Amazon.Pay.API.WebStore.CheckoutSession;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
 using Smartstore.Core;
@@ -11,6 +12,8 @@ namespace Smartstore.AmazonPay.Services
 {
     public class AmazonPayService : IAmazonPayService
     {
+        private static readonly string[] _supportedLedgerCurrencies = new[] { "USD", "EUR", "GBP", "JPY" };
+
         private readonly SmartDbContext _db;
         private readonly ICommonServices _services;
 
@@ -213,6 +216,9 @@ namespace Smartstore.AmazonPay.Services
 
             return (string.Empty, string.Empty);
         }
+
+        internal static bool IsLedgerCurrencySupported(string currencyCode)
+            => currencyCode.HasValue() && _supportedLedgerCurrencies.Contains(currencyCode, StringComparer.OrdinalIgnoreCase);
 
         #endregion
     }

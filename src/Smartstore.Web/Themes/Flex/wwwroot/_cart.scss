@@ -165,22 +165,9 @@
 
     > div:not(:empty) {
         padding: 0.5rem 1rem;
-    }
 
-    .external-checkout-button {
-        margin: 2px 4px;
-        height: 40px;
-        display: flex;
-        align-items: center;
-
-        img {
-            cursor: pointer;
-            max-height: 40px;
-            max-width: 150px;
-
-            @include media-breakpoint-up(sm) {
-                max-width: 170px;
-            }
+        > div {
+            margin: 0.2rem;
         }
     }
 }

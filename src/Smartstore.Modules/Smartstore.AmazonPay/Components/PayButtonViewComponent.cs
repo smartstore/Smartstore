@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using Microsoft.AspNetCore.Mvc;
+using Smartstore.AmazonPay.Services;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
@@ -13,8 +14,6 @@ namespace Smartstore.AmazonPay.Components
     /// </summary>
     public class PayButtonViewComponent : SmartViewComponent
     {
-        private static readonly string[] _supportedLedgerCurrencies = new[] { "USD", "EUR", "GBP", "JPY" };
-
         private readonly IPaymentService _paymentService;
         private readonly IShoppingCartService _shoppingCartService;
         private readonly Lazy<IOrderCalculationService> _orderCalculationService;
@@ -48,7 +47,7 @@ namespace Smartstore.AmazonPay.Components
             }
 
             var currencyCode = Services.CurrencyService.PrimaryCurrency.CurrencyCode;
-            if (!_supportedLedgerCurrencies.Contains(currencyCode, StringComparer.OrdinalIgnoreCase))
+            if (!AmazonPayService.IsLedgerCurrencySupported(currencyCode))
             {
                 return Empty();
             }

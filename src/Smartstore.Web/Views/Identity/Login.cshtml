@@ -6,14 +6,14 @@
 @{
     Assets.AppendTitleParts(T("PageTitle.Login"));
     Assets.AddMetaRobots();
-    
+
     var registerUrl = Url.RouteUrl("Register");
     var returnUrl = Context.Request.Query["returnUrl"].ToString();
     if (returnUrl.HasValue())
     {
         registerUrl = Display.ModifyQueryString(registerUrl, "returnUrl=" + returnUrl.UrlEncode(), null);
     }
-    
+
     var currentUser = WorkContext.CurrentCustomer;
 }
 
@@ -97,12 +97,23 @@
                         </button>
                     </div>
 
-                    <div sm-if="Model.DisplayExternalAuth" class="form-group external-auth-buttons mb-0">
-                        <div class="text-center text-uppercase mb-3">
+                    @{
+                        var widgetInvokers = ViewBag.ExternalAuthButtonWidgets as List<WidgetInvoker>;
+                        var externalAuthButtons = (await widgetInvokers
+                            .SelectAsync(async x => await x.InvokeAsync(ViewContext))
+                            .AsyncToList())
+                            .Where(x => x.ToString().HasValue());
+                    }
+
+                    <div sm-if="externalAuthButtons.Any()" class="form-group external-auth-buttons mb-0">
+                        <div class="text-center text-uppercase">
                             - @T("Common.Or") -
                         </div>
                         <div class="row flex-wrap justify-content-center xs-gutters">
-                            <zone name="external_auth_buttons" />
+                            @foreach (var button in externalAuthButtons)
+                            {
+                                <div class="mt-2">@button</div>
+                            }
                         </div>
                     </div>
 

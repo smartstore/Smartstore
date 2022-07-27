@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Linq;
+using Microsoft.AspNetCore.Mvc;
+using Smartstore.AmazonPay.Services;
 using Smartstore.Web.Components;
 
 namespace Smartstore.AmazonPay.Components
@@ -22,10 +24,17 @@ namespace Smartstore.AmazonPay.Components
                 return Empty();
             }
 
+            // INFO: AmazonPay script does not render anything if current currency is not supported.
+            var currencyCode = Services.CurrencyService.PrimaryCurrency.CurrencyCode;
+            if (!AmazonPayService.IsLedgerCurrencySupported(currencyCode))
+            {
+                return Empty();
+            }
+
             var model = new AmazonPayButtonModel(
                 _settings, 
                 "SignIn",
-                Services.CurrencyService.PrimaryCurrency.CurrencyCode,
+                currencyCode,
                 Services.WorkContext.WorkingLanguage.UniqueSeoCode);
 
             return View(model);

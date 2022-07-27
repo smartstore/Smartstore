@@ -53,6 +53,9 @@
         public string Marketplace { get; }
         public string CheckoutScriptUrl { get; }
 
+        /// <summary>
+        /// Required. AmazonPay script fails if ledger currency is missing or not supported.
+        /// </summary>
         public string LedgerCurrency { get; }
         public string CheckoutLanguage { get; }
 
