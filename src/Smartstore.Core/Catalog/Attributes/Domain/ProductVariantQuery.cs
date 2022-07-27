@@ -79,12 +79,12 @@ namespace Smartstore.Core.Catalog.Attributes
         {
             var groups = new string[]
             {
-                string.Join("&", Variants.Select(x => x.ToString())),
-                string.Join("&", GiftCards.Select(x => x.ToString())),
-                string.Join("&", CheckoutAttributes.Select(x => x.ToString()))
+                string.Join('&', Variants.Select(x => x.ToString())),
+                string.Join('&', GiftCards.Select(x => x.ToString())),
+                string.Join('&', CheckoutAttributes.Select(x => x.ToString()))
             };
 
-            return string.Join("&", groups.Where(x => x.HasValue()));
+            return string.Join('&', groups.Where(x => x.HasValue()));
         }
     }
 }

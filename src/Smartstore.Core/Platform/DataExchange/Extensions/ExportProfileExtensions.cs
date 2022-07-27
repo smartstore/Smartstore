@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using System.Text;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
 using Smartstore.IO;
@@ -29,7 +30,7 @@ namespace Smartstore.Core.DataExchange.Export
         {
             fileNamePattern ??= profile.FileNamePattern;
 
-            using var psb = StringBuilderPool.Instance.Get(out var sb);
+            var sb = new StringBuilder();
             sb.Append(fileNamePattern);
 
             sb.Replace("%Profile.Id%", profile.Id.ToString());

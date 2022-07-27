@@ -133,7 +133,6 @@ namespace Smartstore.ComponentModel
                 return NullResult;
             }
 
-            //using var stream = new MemoryStream();
             using var psb = StringBuilderPool.Instance.Get(out var sb);
             using var writer = new StringWriter(sb);
             

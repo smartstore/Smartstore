@@ -1,6 +1,6 @@
-﻿using System.Text.Encodings.Web;
+﻿using System.Text;
+using System.Text.Encodings.Web;
 using Microsoft.AspNetCore.Html;
-using Smartstore.Utilities;
 
 namespace Smartstore.Web.Rendering
 {
@@ -16,7 +16,7 @@ namespace Smartstore.Web.Rendering
             }
             else
             {
-                using var psb = StringBuilderPool.Instance.Get(out var sb);
+                var sb = new StringBuilder();
                 using var writer = new StringWriter(sb);
                 htmlContent.WriteTo(writer, HtmlEncoder.Default);
 

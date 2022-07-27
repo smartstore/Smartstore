@@ -1,5 +1,6 @@
 ﻿using System.Data;
 using System.Linq.Dynamic.Core;
+using System.Text;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Admin.Models.Catalog;
@@ -30,7 +31,6 @@ using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
 using Smartstore.Engine.Modularity;
-using Smartstore.Utilities;
 using Smartstore.Utilities.Html;
 using Smartstore.Web.Models.Common;
 using Smartstore.Web.Models.DataGrid;
@@ -501,7 +501,7 @@ namespace Smartstore.Admin.Controllers
                 }
             }
 
-            using var psb = StringBuilderPool.Instance.Get(out var msg);
+            var msg = new StringBuilder();
             msg.Append(T("Admin.Orders.ProcessingResult", success, ids.Length, skipped, skipped == 0 ? " class='hide'" : ""));
             errorMessages.Take(maxErrors).Each(x => msg.Append($"<div class='text-danger mt-2'>{x}</div>"));
 

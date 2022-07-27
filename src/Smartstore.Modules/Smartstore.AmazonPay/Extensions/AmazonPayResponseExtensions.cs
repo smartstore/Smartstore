@@ -1,4 +1,5 @@
-﻿using Amazon.Pay.API.Types;
+﻿using System.Text;
+using Amazon.Pay.API.Types;
 using Microsoft.AspNetCore.WebUtilities;
 using Smartstore.Utilities;
 
@@ -18,7 +19,7 @@ namespace Smartstore.AmazonPay
                 return string.Empty;
             }
 
-            using var psb = StringBuilderPool.Instance.Get(out var sb);
+            var sb = new StringBuilder();
 
             sb.AppendLine($"{response.Method} {response.Url}");
             sb.AppendLine($"Status: {ReasonPhrases.GetReasonPhrase(response.Status)} ({response.Status})");

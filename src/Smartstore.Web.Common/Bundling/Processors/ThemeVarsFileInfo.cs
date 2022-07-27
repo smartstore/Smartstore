@@ -40,7 +40,7 @@ namespace Smartstore.Web.Bundling.Processors
         }
 
         public ThemeVarsFileInfo(IDictionary<string, string> variables, ThemeVariableRepository repo)
-            : this(repo.GenerateSass(variables), repo)
+            : this(ThemeVariableRepository.GenerateSass(variables), repo)
         {
         }
 

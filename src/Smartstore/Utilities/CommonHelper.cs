@@ -151,7 +151,7 @@ namespace Smartstore.Utilities
                 buffer[i] = (byte)GetRandomizer().Next(10);
             }
 
-            return string.Join("", buffer);
+            return string.Join(string.Empty, buffer);
         }
 
         /// <summary>

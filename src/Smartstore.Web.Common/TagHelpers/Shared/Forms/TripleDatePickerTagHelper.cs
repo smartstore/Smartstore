@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using System.Text;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Smartstore.Core.Localization;
@@ -95,7 +96,7 @@ namespace Smartstore.Web.TagHelpers.Shared
                     daySelect.Attributes.Add("disabled", "disabled");
                 }
 
-                using var _ = StringBuilderPool.Instance.Get(out var days);
+                var days = new StringBuilder();
 
                 // Add initial option.
                 days.AppendFormat("<option value=''>{0}</option>", _localizationService.GetResource("Common.Day"));
@@ -131,7 +132,7 @@ namespace Smartstore.Web.TagHelpers.Shared
                     monthSelect.Attributes.Add("disabled", "disabled");
                 }
 
-                using var __ = StringBuilderPool.Instance.Get(out var months);
+                var months = new StringBuilder();
 
                 // Add initial option.
                 months.AppendFormat("<option value=''>{0}</option>", _localizationService.GetResource("Common.Month"));
@@ -168,7 +169,7 @@ namespace Smartstore.Web.TagHelpers.Shared
                     yearSelect.Attributes.Add("disabled", "disabled");
                 }
 
-                using var ___ = StringBuilderPool.Instance.Get(out var years);
+                var years = new StringBuilder();
 
                 years.AppendFormat("<option value=''>{0}</option>", _localizationService.GetResource("Common.Year"));
 

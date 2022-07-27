@@ -70,7 +70,7 @@ namespace Smartstore.Data
             }
         }
 
-        private string ReadNextSqlStatement(TextReader reader)
+        private static string ReadNextSqlStatement(TextReader reader)
         {
             using var psb = StringBuilderPool.Instance.Get(out var sb);
 

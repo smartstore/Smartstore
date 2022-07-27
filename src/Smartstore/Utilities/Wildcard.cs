@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Smartstore.Utilities
 {
@@ -127,11 +128,13 @@ namespace Smartstore.Utilities
         {
             Guard.NotNull(input, nameof(input));
 
+            var sb = new StringBuilder();
+
             for (int i = 0; i < input.Length; i++)
             {
                 if (IsMetachar(input[i]))
                 {
-                    using var psb = StringBuilderPool.Instance.Get(out var sb);
+                    sb.Clear();
                     sb.Append('^');
 
                     char ch = input[i];

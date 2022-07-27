@@ -1,6 +1,7 @@
 ﻿using System.Runtime.ExceptionServices;
 using System.Runtime.InteropServices;
 using System.Security;
+using System.Text;
 using Smartstore.Utilities;
 
 namespace Smartstore
@@ -55,7 +56,7 @@ namespace Smartstore
 
         public static string ToAllMessages(this Exception ex, bool includeStackTrace = false)
         {
-            using var psb = StringBuilderPool.Instance.Get(out var sb);
+            var sb = new StringBuilder();
 
             while (ex != null)
             {

@@ -163,7 +163,7 @@ namespace Smartstore.Web.Theming
             }
         }
 
-        internal string GenerateSass(IDictionary<string, string> variables)
+        internal static string GenerateSass(IDictionary<string, string> variables)
         {
             if (variables == null || variables.Count == 0)
                 return string.Empty;

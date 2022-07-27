@@ -1,9 +1,9 @@
 ﻿using System.Dynamic;
+using System.Text;
 using System.Xml;
 using Microsoft.AspNetCore.Http;
 using Smartstore.Caching;
 using Smartstore.Core.Theming;
-using Smartstore.Utilities;
 using Smartstore.Web.Bundling;
 using Smartstore.Web.Bundling.Processors;
 
@@ -320,7 +320,7 @@ namespace Smartstore.Web.Theming
 
             var infos = _themeRegistry.GetThemeDescriptor(themeName).Variables;
 
-            using var psb = StringBuilderPool.Instance.Get(out var sb);
+            var sb = new StringBuilder();
 
             using (var xmlWriter = XmlWriter.Create(sb))
             {

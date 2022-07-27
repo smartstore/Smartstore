@@ -1,7 +1,7 @@
-﻿using Smartstore.Core.Common;
+﻿using System.Text;
+using Smartstore.Core.Common;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Search.Facets;
-using Smartstore.Utilities;
 
 namespace Smartstore.Core.Search
 {
@@ -248,7 +248,7 @@ namespace Smartstore.Core.Search
 
         public override string ToString()
         {
-            using var psb = StringBuilderPool.Instance.Get(out var sb);
+            var sb = new StringBuilder();
 
             var fields = (Fields?.Any() ?? false) ? string.Join(", ", Fields) : "".NaIfEmpty();
             var parameters = string.Join(" ", EscapeTerm ? "escape" : "", IsFuzzySearch ? "fuzzy" : Mode.ToString()).TrimSafe();

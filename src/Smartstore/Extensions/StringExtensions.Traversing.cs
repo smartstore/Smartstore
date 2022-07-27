@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using System.Text;
 using Microsoft.Extensions.Primitives;
 using Smartstore.Utilities;
 
@@ -48,7 +49,7 @@ namespace Smartstore
         [DebuggerStepThrough]
         public static string SplitPascalCase(this string value)
         {
-            using var psb = StringBuilderPool.Instance.Get(out var sb);
+            var sb = new StringBuilder();
             char[] ca = value.ToCharArray();
 
             sb.Append(ca[0]);
@@ -159,7 +160,7 @@ namespace Smartstore
                 return false;
             }
 
-            leftPart = value.Substring(0, idx);
+            leftPart = value[..idx];
             rightPart = value[(idx + delimiter.Length)..];
 
             return true;

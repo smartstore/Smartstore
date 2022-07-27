@@ -1,4 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
+using System.Text;
 using Dasync.Collections;
 using Smartstore.Caching;
 using Smartstore.Collections;
@@ -10,7 +11,6 @@ using Smartstore.Core.Security;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
 using Smartstore.Data;
-using Smartstore.Utilities;
 
 namespace Smartstore.Core.Catalog.Categories
 {
@@ -461,7 +461,7 @@ namespace Smartstore.Core.Catalog.Categories
             }
 
             var trail = treeNode.Trail;
-            using var psb = StringBuilderPool.Instance.Get(out var sb);
+            var sb = new StringBuilder();
 
             foreach (var node in trail)
             {

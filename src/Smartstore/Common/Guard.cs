@@ -137,7 +137,7 @@ namespace Smartstore
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T NotZero<T>(T arg, string argName) where T : struct, IComparable<T>
         {
-            if (arg.CompareTo(default(T)) == 0)
+            if (arg.CompareTo(default) == 0)
             {
                 throw new ArgumentOutOfRangeException(argName, string.Format(NotZeroMessage, argName, arg));
             }
@@ -190,7 +190,7 @@ namespace Smartstore
 
             if (!Enum.IsDefined(enumType, arg))
             {
-                throw new ArgumentException(string.Format(IsEnumTypeMessage2, enumType.FullName), argName);
+                throw new ArgumentException(string.Format(IsEnumTypeMessage2, arg, enumType.FullName), argName);
             }
         }
 

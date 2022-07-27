@@ -467,7 +467,7 @@ namespace Smartstore.Core.Catalog.Attributes
                 return null;
             }
 
-            using var pool = StringBuilderPool.Instance.Get(out var builder);
+            using var psb = StringBuilderPool.Instance.Get(out var sb);
             var selectedValuesMap = selectedValues.ToMultimap(x => x.ProductVariantAttributeId, x => x);
 
             if (attributes == null || currentValue == null)
@@ -475,7 +475,7 @@ namespace Smartstore.Core.Catalog.Attributes
                 // Create key to test selectedValues.
                 foreach (var kvp in selectedValuesMap.OrderBy(x => x.Key))
                 {
-                    Append(builder, kvp.Key, kvp.Value.Select(x => x.Id).Distinct());
+                    Append(sb, kvp.Key, kvp.Value.Select(x => x.Id).Distinct());
                 }
             }
             else
@@ -518,11 +518,11 @@ namespace Smartstore.Core.Catalog.Attributes
                         }
                     }
 
-                    Append(builder, attribute.Id, valueIds);
+                    Append(sb, attribute.Id, valueIds);
                 }
             }
 
-            var key = builder.ToString();
+            var key = sb.ToString();
             //$"{!unavailableCombinations.ContainsKey(key),-5} {currentValue.ProductVariantAttributeId}:{currentValue.Id} -> {key}".Dump();
 
             if (unavailableCombinations.TryGetValue(key, out var availability))

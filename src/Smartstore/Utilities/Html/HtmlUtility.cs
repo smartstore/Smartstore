@@ -250,10 +250,11 @@ namespace Smartstore.Utilities.Html
         public static string ConvertPlainTextToTable(string text, string tableCssClass = null)
         {
             if (string.IsNullOrEmpty(text))
+            {
                 return string.Empty;
+            }
 
-            text = text.Replace("\r\n", "\n").Replace("\r", "\n");
-            text += "\n\n";
+            text = text.Replace("\r\n", "\n").Replace("\r", "\n") + "\n\n";
 
             var lines = text.Tokenize(new char[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
 
@@ -262,7 +263,7 @@ namespace Smartstore.Utilities.Html
                 return string.Empty;
             }
 
-            using var psb = StringBuilderPool.Instance.Get(out var sb);
+            var sb = new StringBuilder(text.Length * 4);
 
             sb.AppendFormat("<table{0}>", tableCssClass.HasValue() ? "class='" + tableCssClass + "'" : "");
 

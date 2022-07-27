@@ -4,6 +4,21 @@
 /// <reference path="../lib/rfs/_rfs.scss" />
 
 
+
+// Returns a CSS clamp function which resolves to $min-view-width 
+// when page width is below $min-size, $size-at-max-width when 
+// page width is above $max-size, and linearly scales between the 
+// two between $min-width and $max-size
+// --------------------------------------------------------------
+
+@function clamp-calc($min-width, $max-width, $size-at-min-width, $size-at-max-width) {
+    $slope: ($size-at-max-width - $size-at-min-width) / ($max-width - $min-width);
+    $y-axis-intersection: -1 * $min-width * $slope + $size-at-min-width;
+    $return-value: clamp(#{$size-at-min-width}, #{$y-axis-intersection} + #{$slope} * 100vw, #{$size-at-max-width});
+    @return $return-value;
+}
+
+
 // Font Sizes
 // ==============================================================
 
@@ -11,10 +26,12 @@
     // Overwrite original sizes only if RFS is enabled to reduce class cluttering
     h1, .h1 {
         @include font-size($h1-font-size);
+        //font-size: clamp-calc(1rem, 75rem, 1.25rem, $h1-font-size);
     }
 
     h2, .h2 {
         @include font-size($h2-font-size);
+        //font-size: clamp-calc(1rem, 75rem, 1.25rem, $h2-font-size);
     }
 
     h3, .h3 {

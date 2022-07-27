@@ -1,4 +1,4 @@
-﻿using Smartstore.Utilities;
+﻿using System.Text;
 
 namespace Smartstore.Web.Razor
 {
@@ -16,7 +16,7 @@ namespace Smartstore.Web.Razor
 
         private static string GenerateMessage(string viewName, IEnumerable<string> searchedLocations)
         {
-            using var pool = StringBuilderPool.Instance.Get(out var locations);
+            var locations = new StringBuilder();
             locations.AppendLine();
 
             foreach (string location in searchedLocations)
