@@ -5,17 +5,19 @@
 	<LocaleResource Name="Plugins.FriendlyName.Payments.AmazonPay" AppendRootKey="false">
 		<Value>Amazon Pay</Value>
 	</LocaleResource>
+    
 	<LocaleResource Name="Plugins.Description.Payments.AmazonPay" AppendRootKey="false">
 		<Value>Adds the Amazon Pay payment feature to the store.</Value>
 	</LocaleResource>
-	<LocaleResource Name="Plugins.FriendlyName.Authentications.AmazonPay" AppendRootKey="false">
-		<Value>Amazon sign-in</Value>
-	</LocaleResource>
-	<LocaleResource Name="Plugins.Description.Authentications.AmazonPay" AppendRootKey="false">
-		<Value>Adds the Amazon Pay sign-in feature to the store.</Value>
-	</LocaleResource>
+    <LocaleResource Name="Plugins.Description.Smartstore.AmazonPay" AppendRootKey="false">
+        <Value>Adds the Amazon Pay payment and sign-in features to the store.</Value>
+    </LocaleResource>
 
-	<LocaleResource Name="AdminInstruction">
+    <LocaleResource Name="Plugins.FriendlyName.Authentications.AmazonPay" AppendRootKey="false">
+        <Value>Amazon sign-in</Value>
+    </LocaleResource>
+
+    <LocaleResource Name="AdminInstruction">
 		<Value>
 			<![CDATA[<div class="mb-1">How to set up <b>Login and Pay with Amazon</b>:</div><ul>
 <li>Create a <b>Login with Amazon</b> application in your <a class="alert-link" href="https://sellercentral-europe.amazon.com" target="_blank">Amazon Seller Central</a> account. For this, use <b>Allowed JavaScript Origins</b> and <b>Allowed Return URLs</b> listed below (SSL required!).</li>

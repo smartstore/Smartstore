@@ -1,13 +1,13 @@
 ﻿<Language Name="Deutsch" IsDefault="true" IsRightToLeft="false">
-  <LocaleResource Name="Plugins.FriendlyName.Smartstore.Facebook.Auth" AppendRootKey="false">
-    <Value>Facebook Login</Value>
-  </LocaleResource>
-	<LocaleResource Name="Plugins.Description.Smartstore.Facebook.Auth" AppendRootKey="false">
-		<Value>Erweitert den Shop um die Loginfunktion von Facebook.</Value>
-	</LocaleResource>
-	<LocaleResource Name="AdminInstruction">
-		<Value>
-			<![CDATA[
+    <LocaleResource Name="Plugins.FriendlyName.Smartstore.Facebook.Auth" AppendRootKey="false">
+        <Value>Facebook Login</Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.Description.Smartstore.Facebook.Auth" AppendRootKey="false">
+        <Value>Erweitert den Shop um die Loginfunktion von Facebook.</Value>
+    </LocaleResource>
+    <LocaleResource Name="AdminInstruction">
+        <Value>
+            <![CDATA[
 				<p>So richten Sie die Facebook Authentifizierungen ein:</p>
 				<ul>
 					<li>Erstellen Sie bei <a href="https://developers.facebook.com/apps/create/">Facebook</a> eine neue App vom Typ <b>Konsument</b>.</li>
@@ -16,27 +16,27 @@
 					<li>Tragen Sie Ihre Domain in den erweiterten Einstellungen der erstellten APP in den Domainmanager ein.</li>
 				</ul>
 			]]>
-		</Value>
-	</LocaleResource>
-	<LocaleResource Name="Login">
-		<Value>Mit Facebook anmelden</Value>
-	</LocaleResource>
-	<LocaleResource Name="ClientKeyIdentifier">
-		<Value>App-ID</Value>
-	</LocaleResource>
-	<LocaleResource Name="ClientKeyIdentifier.Hint">
-		<Value>Geben Sie hier Ihre App-ID an.</Value>
-	</LocaleResource>
-	<LocaleResource Name="ClientSecret">
-		<Value>App-Geheimcode (App Secret)</Value>
-	</LocaleResource>
-	<LocaleResource Name="ClientSecret.Hint">
-		<Value>Geben Sie hier Ihren App-Geheimcode (App Secret) an.</Value>
-	</LocaleResource>
-	<LocaleResource Name="RedirectUri">
-		<Value>Weiterleitungs-URL (OAuth Redirect URI)</Value>
-	</LocaleResource>
-	<LocaleResource Name="RedirectUri.Hint">
-		<Value>Die bei Facebook einzutragende Weiterleitungs-URL (OAuth Redirect URI).</Value>
-	</LocaleResource>
+        </Value>
+    </LocaleResource>
+    <LocaleResource Name="Login">
+        <Value>Mit Facebook anmelden</Value>
+    </LocaleResource>
+    <LocaleResource Name="ClientKeyIdentifier">
+        <Value>App-ID</Value>
+    </LocaleResource>
+    <LocaleResource Name="ClientKeyIdentifier.Hint">
+        <Value>Geben Sie hier Ihre App-ID an.</Value>
+    </LocaleResource>
+    <LocaleResource Name="ClientSecret">
+        <Value>App-Geheimcode (App Secret)</Value>
+    </LocaleResource>
+    <LocaleResource Name="ClientSecret.Hint">
+        <Value>Geben Sie hier Ihren App-Geheimcode (App Secret) an.</Value>
+    </LocaleResource>
+    <LocaleResource Name="RedirectUri">
+        <Value>Weiterleitungs-URL (OAuth Redirect URI)</Value>
+    </LocaleResource>
+    <LocaleResource Name="RedirectUri.Hint">
+        <Value>Die bei Facebook einzutragende Weiterleitungs-URL (OAuth Redirect URI).</Value>
+    </LocaleResource>
 </Language>

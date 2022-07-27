@@ -1,13 +1,13 @@
 ﻿<Language Name="Deutsch" IsDefault="true" IsRightToLeft="false">
-  <LocaleResource Name="Plugins.FriendlyName.Smartstore.Google.Auth" AppendRootKey="false">
-    <Value>Google Login</Value>
-  </LocaleResource>
-	<LocaleResource Name="Plugins.Description.Smartstore.Google.Auth" AppendRootKey="false">
-		<Value>Erweitert den Shop um die Loginfunktion von Google.</Value>
-	</LocaleResource>
-	<LocaleResource Name="AdminInstruction">
-		<Value>
-			<![CDATA[
+    <LocaleResource Name="Plugins.FriendlyName.Smartstore.Google.Auth" AppendRootKey="false">
+        <Value>Google Login</Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.Description.Smartstore.Google.Auth" AppendRootKey="false">
+        <Value>Erweitert den Shop um die Loginfunktion von Google.</Value>
+    </LocaleResource>
+    <LocaleResource Name="AdminInstruction">
+        <Value>
+            <![CDATA[
 				<p>So richten Sie die Google Authentifizierung ein:</p>
 				<ul>
 					<li>Erstellen Sie bei <a href="https://console.developers.google.com/apis/credentials">Google</a> neue Anmeldeinformationen.
@@ -18,27 +18,27 @@
 					<li>Bei Google muss unter <b>Anmeldedaten &gt; Autorisierte Weiterleitungs-URIs &gt; URIs</b> die unten aufgeführte URL eingetragen werden.</li>
 				</ul>
 			]]>
-		</Value>
-	</LocaleResource>
-	<LocaleResource Name="Login">
-		<Value>Mit Google anmelden</Value>
-	</LocaleResource>
-	<LocaleResource Name="ClientKeyIdentifier">
-		<Value>Client-ID</Value>
-	</LocaleResource>
-	<LocaleResource Name="ClientKeyIdentifier.Hint">
-		<Value>Geben Sie hier Ihre Client-ID an.</Value>
-	</LocaleResource>
-	<LocaleResource Name="ClientSecret">
-		<Value>Clientschlüssel</Value>
-	</LocaleResource>
-	<LocaleResource Name="ClientSecret.Hint">
-		<Value>Geben Sie hier Ihren Sicherheitsschlüssel (Clientschlüssel) an.</Value>
-	</LocaleResource>
-	<LocaleResource Name="RedirectUri">
-		<Value>Weiterleitungs URI</Value>
-	</LocaleResource>
-	<LocaleResource Name="RedirectUri.Hint">
-		<Value>Die bei Google einzutragende Weiterleitungs-URL (OAuth Redirect URI).</Value>
-	</LocaleResource>
+        </Value>
+    </LocaleResource>
+    <LocaleResource Name="Login">
+        <Value>Mit Google anmelden</Value>
+    </LocaleResource>
+    <LocaleResource Name="ConsumerKey">
+        <Value>Client-ID</Value>
+    </LocaleResource>
+    <LocaleResource Name="ConsumerKey.Hint">
+        <Value>Geben Sie hier Ihre Client-ID an.</Value>
+    </LocaleResource>
+    <LocaleResource Name="ConsumerSecret">
+        <Value>Clientschlüssel</Value>
+    </LocaleResource>
+    <LocaleResource Name="ConsumerSecret.Hint">
+        <Value>Geben Sie hier Ihren Sicherheitsschlüssel (Clientschlüssel) an.</Value>
+    </LocaleResource>
+    <LocaleResource Name="RedirectUri">
+        <Value>Weiterleitungs URI</Value>
+    </LocaleResource>
+    <LocaleResource Name="RedirectUri.Hint">
+        <Value>Die bei Google einzutragende Weiterleitungs-URL (OAuth Redirect URI).</Value>
+    </LocaleResource>
 </Language>

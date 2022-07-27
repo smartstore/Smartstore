@@ -9,7 +9,7 @@
         [LocalizedDisplay("*ConsumerSecret")]
         public string ConsumerSecret { get; set; }
 
-        [LocalizedDisplay("*RedirectUrl")]
+        [LocalizedDisplay("*RedirectUri")]
         public string RedirectUrl { get; set; }
     }
 }

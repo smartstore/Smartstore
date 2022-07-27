@@ -1,13 +1,13 @@
 ﻿<Language Name="Deutsch" IsDefault="true" IsRightToLeft="false">
-  <LocaleResource Name="Plugins.FriendlyName.Smartstore.Microsoft.Auth" AppendRootKey="false">
-    <Value>Microsoft Login</Value>
-  </LocaleResource>
-	<LocaleResource Name="Plugins.Description.Smartstore.Microsoft.Auth" AppendRootKey="false">
-		<Value>Erweitert den Shop um die Loginfunktion von Microsoft.</Value>
-	</LocaleResource>
-	<LocaleResource Name="AdminInstruction">
-		<Value>
-			<![CDATA[
+    <LocaleResource Name="Plugins.FriendlyName.Smartstore.Microsoft.Auth" AppendRootKey="false">
+        <Value>Microsoft Login</Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.Description.Smartstore.Microsoft.Auth" AppendRootKey="false">
+        <Value>Erweitert den Shop um die Loginfunktion von Microsoft.</Value>
+    </LocaleResource>
+    <LocaleResource Name="AdminInstruction">
+        <Value>
+            <![CDATA[
 				<p>So richten Sie die Microsoft Authentifizierungen ein:</p>
 				<ul>
 					<li>Erstellen Sie bei <a href="https://go.microsoft.com/fwlink/?linkid=2083908">Microsoft</a> eine neue App.</li>
@@ -17,27 +17,27 @@
 					<li>Geben Sie den Wert des Schlüssels im folgenden Formular als geheimen Clientschlüssel an und tragen sie die Anwendungs-ID ein.</li>
 				</ul>
 			]]>
-		</Value>
-	</LocaleResource>
-	<LocaleResource Name="Login">
-		<Value>Mit Microsoft anmelden</Value>
-	</LocaleResource>
-	<LocaleResource Name="ClientKeyIdentifier">
-		<Value>Anwendungs-ID</Value>
-	</LocaleResource>
-	<LocaleResource Name="ClientKeyIdentifier.Hint">
-		<Value>Geben Sie hier Ihre Anwendungs-ID (Client) an.</Value>
-	</LocaleResource>
-	<LocaleResource Name="ClientSecret">
-		<Value>Geheimer Clientschlüssel</Value>
-	</LocaleResource>
-	<LocaleResource Name="ClientSecret.Hint">
-		<Value>Geben Sie hier Ihren geheimen Clientschlüssel an.</Value>
-	</LocaleResource>
-	<LocaleResource Name="RedirectUri">
-		<Value>Umleitungs-URI</Value>
-	</LocaleResource>
-	<LocaleResource Name="RedirectUri.Hint">
-		<Value>Der bei Microsoft einzutragende Umleitungs-URI.</Value>
-	</LocaleResource>
+        </Value>
+    </LocaleResource>
+    <LocaleResource Name="Login">
+        <Value>Mit Microsoft anmelden</Value>
+    </LocaleResource>
+    <LocaleResource Name="ClientKeyIdentifier">
+        <Value>Anwendungs-ID</Value>
+    </LocaleResource>
+    <LocaleResource Name="ClientKeyIdentifier.Hint">
+        <Value>Geben Sie hier Ihre Anwendungs-ID (Client) an.</Value>
+    </LocaleResource>
+    <LocaleResource Name="ClientSecret">
+        <Value>Geheimer Clientschlüssel</Value>
+    </LocaleResource>
+    <LocaleResource Name="ClientSecret.Hint">
+        <Value>Geben Sie hier Ihren geheimen Clientschlüssel an.</Value>
+    </LocaleResource>
+    <LocaleResource Name="RedirectUri">
+        <Value>Umleitungs-URI</Value>
+    </LocaleResource>
+    <LocaleResource Name="RedirectUri.Hint">
+        <Value>Der bei Microsoft einzutragende Umleitungs-URI.</Value>
+    </LocaleResource>
 </Language>

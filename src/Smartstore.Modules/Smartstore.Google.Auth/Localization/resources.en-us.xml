@@ -1,13 +1,13 @@
 ﻿<Language Name="English" IsDefault="false" IsRightToLeft="false">
-  <LocaleResource Name="Plugins.FriendlyName.Smartstore.Google.Auth" AppendRootKey="false">
-    <Value>Google Login</Value>
-  </LocaleResource>
-	<LocaleResource Name="Plugins.Description.Smartstore.Google.Auth" AppendRootKey="false">
-		<Value>Adds Google authentication to the store.</Value>
-	</LocaleResource>
-	<LocaleResource Name="AdminInstruction">
-		<Value>
-			<![CDATA[
+    <LocaleResource Name="Plugins.FriendlyName.Smartstore.Google.Auth" AppendRootKey="false">
+        <Value>Google Login</Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.Description.Smartstore.Google.Auth" AppendRootKey="false">
+        <Value>Adds Google authentication to the store.</Value>
+    </LocaleResource>
+    <LocaleResource Name="AdminInstruction">
+        <Value>
+            <![CDATA[
 			<p>How to set up Google authentication: </p>
 				<ul>
 					<li>Create new credentials at <a href="https://console.developers.google.com/apis/credentials">Google</a>.
@@ -18,27 +18,27 @@
 					<li>The URL listed below must be entered at <b>Sign-in credentials &gt; Authorized forwarding URIs</b>.</li>.
 				</ul>
 			]]>
-		</Value>
-	</LocaleResource>
-	<LocaleResource Name="Login">
-		<Value>Sign in with Google</Value>
-	</LocaleResource>
-	<LocaleResource Name="ClientKeyIdentifier">
-		<Value>API Key</Value>
-	</LocaleResource>
-	<LocaleResource Name="ClientKeyIdentifier.Hint">
-		<Value>Enter your API Key here.</Value>
-	</LocaleResource>
-	<LocaleResource Name="ClientSecret">
-		<Value>Secret</Value>
-	</LocaleResource>
-	<LocaleResource Name="ClientSecret.Hint">
-		<Value>Enter your consumer secret here.</Value>
-	</LocaleResource>
-	<LocaleResource Name="RedirectUri">
-		<Value>OAuth Redirect URI</Value>
-	</LocaleResource>
-	<LocaleResource Name="RedirectUri.Hint">
-		<Value>The OAuth Redirect URI to be entered on Google.</Value>
-	</LocaleResource>
+        </Value>
+    </LocaleResource>
+    <LocaleResource Name="Login">
+        <Value>Sign in with Google</Value>
+    </LocaleResource>
+    <LocaleResource Name="ConsumerKey">
+        <Value>API Key</Value>
+    </LocaleResource>
+    <LocaleResource Name="ConsumerKey.Hint">
+        <Value>Enter your API Key here.</Value>
+    </LocaleResource>
+    <LocaleResource Name="ConsumerSecret">
+        <Value>Secret</Value>
+    </LocaleResource>
+    <LocaleResource Name="ConsumerSecret.Hint">
+        <Value>Enter your consumer secret here.</Value>
+    </LocaleResource>
+    <LocaleResource Name="RedirectUri">
+        <Value>OAuth Redirect URI</Value>
+    </LocaleResource>
+    <LocaleResource Name="RedirectUri.Hint">
+        <Value>The OAuth Redirect URI to be entered on Google.</Value>
+    </LocaleResource>
 </Language>

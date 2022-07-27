@@ -1,13 +1,13 @@
 ﻿<Language Name="English" IsDefault="false" IsRightToLeft="false">
-  <LocaleResource Name="Plugins.FriendlyName.Smartstore.Twitter.Auth" AppendRootKey="false">
-    <Value>Twitter Login</Value>
-  </LocaleResource>
-	<LocaleResource Name="Plugins.Description.Smartstore.Twitter.Auth" AppendRootKey="false">
-		<Value>Adds Twitter authentication to the store.</Value>
-	</LocaleResource>
-	<LocaleResource Name="AdminInstruction">
-		<Value>
-			<![CDATA[
+    <LocaleResource Name="Plugins.FriendlyName.Smartstore.Twitter.Auth" AppendRootKey="false">
+        <Value>Twitter Login</Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.Description.Smartstore.Twitter.Auth" AppendRootKey="false">
+        <Value>Adds Twitter authentication to the store.</Value>
+    </LocaleResource>
+    <LocaleResource Name="AdminInstruction">
+        <Value>
+            <![CDATA[
 			<p>How to set up Twitter authentication: </p>
 			<ul>
 				<li>Create a new app on Twitter of type <a href="https://developer.twitter.com/en/apps">Twitter</a>.</li>
@@ -16,27 +16,27 @@
 				<li>Activate the option <b>Request email address from users</b></li>
 			</ul>
 			]]>
-		</Value>
-	</LocaleResource>
-	<LocaleResource Name="Login">
-		<Value>Sign in with Twitter</Value>
-	</LocaleResource>
-	<LocaleResource Name="ClientKeyIdentifier">
-		<Value>API Key</Value>
-	</LocaleResource>
-	<LocaleResource Name="ClientKeyIdentifier.Hint">
-		<Value>Enter your API Key here.</Value>
-	</LocaleResource>
-	<LocaleResource Name="ClientSecret">
-		<Value>Secret</Value>
-	</LocaleResource>
-	<LocaleResource Name="ClientSecret.Hint">
-		<Value>Enter your consumer secret here.</Value>
-	</LocaleResource>
-	<LocaleResource Name="RedirectUri">
-		<Value>OAuth Redirect URI</Value>
-	</LocaleResource>
-	<LocaleResource Name="RedirectUri.Hint">
-		<Value>The OAuth Redirect URI to be entered on Twitter.</Value>
-	</LocaleResource>
+        </Value>
+    </LocaleResource>
+    <LocaleResource Name="Login">
+        <Value>Sign in with Twitter</Value>
+    </LocaleResource>
+    <LocaleResource Name="ConsumerKey">
+        <Value>API Key</Value>
+    </LocaleResource>
+    <LocaleResource Name="ConsumerKey.Hint">
+        <Value>Enter your API Key here.</Value>
+    </LocaleResource>
+    <LocaleResource Name="ConsumerSecret">
+        <Value>Secret</Value>
+    </LocaleResource>
+    <LocaleResource Name="ConsumerSecret.Hint">
+        <Value>Enter your consumer secret here.</Value>
+    </LocaleResource>
+    <LocaleResource Name="RedirectUri">
+        <Value>OAuth Redirect URI</Value>
+    </LocaleResource>
+    <LocaleResource Name="RedirectUri.Hint">
+        <Value>The OAuth Redirect URI to be entered on Twitter.</Value>
+    </LocaleResource>
 </Language>

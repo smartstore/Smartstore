@@ -1,13 +1,13 @@
 ﻿<Language Name="English" IsDefault="false" IsRightToLeft="false">
-  <LocaleResource Name="Plugins.FriendlyName.Smartstore.Microsoft.Auth" AppendRootKey="false">
-    <Value>Microsoft Login</Value>
-  </LocaleResource>
-	<LocaleResource Name="Plugins.Description.Smartstore.Microsoft.Auth" AppendRootKey="false">
-		<Value>Adds Microsoft authentication to the store.</Value>
-	</LocaleResource>
-	<LocaleResource Name="AdminInstruction">
-		<Value>
-			<![CDATA[
+    <LocaleResource Name="Plugins.FriendlyName.Smartstore.Microsoft.Auth" AppendRootKey="false">
+        <Value>Microsoft Login</Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.Description.Smartstore.Microsoft.Auth" AppendRootKey="false">
+        <Value>Adds Microsoft authentication to the store.</Value>
+    </LocaleResource>
+    <LocaleResource Name="AdminInstruction">
+        <Value>
+            <![CDATA[
 			<p>How to set up Microsoft authentication:</p>
 				<ul>
 					<li>Create a new app at <a href="https://go.microsoft.com/fwlink/?linkid=2083908">Microsoft</a>.</li>
@@ -17,27 +17,27 @@
 					<li>Enter the value of the key in the following form as a secret client key and enter the <b>Application ID</b>.</li>
 				</ul>
 			]]>
-		</Value>
-	</LocaleResource>
-	<LocaleResource Name="Login">
-		<Value>Sign in with Microsoft</Value>
-	</LocaleResource>
-	<LocaleResource Name="ClientKeyIdentifier">
-		<Value>Application ID</Value>
-	</LocaleResource>
-	<LocaleResource Name="ClientKeyIdentifier.Hint">
-		<Value>Enter your Application ID here.</Value>
-	</LocaleResource>
-	<LocaleResource Name="ClientSecret">
-		<Value>Client Secret</Value>
-	</LocaleResource>
-	<LocaleResource Name="ClientSecret.Hint">
-		<Value>Enter the value of your client secret here.</Value>
-	</LocaleResource>
-	<LocaleResource Name="RedirectUri">
-		<Value>Redirect URI</Value>
-	</LocaleResource>
-	<LocaleResource Name="RedirectUri.Hint">
-		<Value>The Redirect URI to be entered on Microsoft.</Value>
-	</LocaleResource>
+        </Value>
+    </LocaleResource>
+    <LocaleResource Name="Login">
+        <Value>Sign in with Microsoft</Value>
+    </LocaleResource>
+    <LocaleResource Name="ClientKeyIdentifier">
+        <Value>Application ID</Value>
+    </LocaleResource>
+    <LocaleResource Name="ClientKeyIdentifier.Hint">
+        <Value>Enter your Application ID here.</Value>
+    </LocaleResource>
+    <LocaleResource Name="ClientSecret">
+        <Value>Client Secret</Value>
+    </LocaleResource>
+    <LocaleResource Name="ClientSecret.Hint">
+        <Value>Enter the value of your client secret here.</Value>
+    </LocaleResource>
+    <LocaleResource Name="RedirectUri">
+        <Value>Redirect URI</Value>
+    </LocaleResource>
+    <LocaleResource Name="RedirectUri.Hint">
+        <Value>The Redirect URI to be entered on Microsoft.</Value>
+    </LocaleResource>
 </Language>

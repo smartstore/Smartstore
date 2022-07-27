@@ -5,17 +5,19 @@
 	<LocaleResource Name="Plugins.FriendlyName.Payments.AmazonPay" AppendRootKey="false">
 		<Value>Amazon Pay</Value>
 	</LocaleResource>
-	<LocaleResource Name="Plugins.Description.Payments.AmazonPay" AppendRootKey="false">
-		<Value>Erweitert den Shop um die Zahlungsfunktion von Amazon Pay.</Value>
-	</LocaleResource>
-	<LocaleResource Name="Plugins.FriendlyName.Authentications.AmazonPay" AppendRootKey="false">
-		<Value>Anmeldung mit Amazon</Value>
-	</LocaleResource>
-	<LocaleResource Name="Plugins.Description.Authentications.AmazonPay" AppendRootKey="false">
-		<Value>Erweitert den Shop um die Anmeldefunktion von Amazon Pay.</Value>
-	</LocaleResource>
 
-	<LocaleResource Name="AdminInstruction">
+    <LocaleResource Name="Plugins.Description.Payments.AmazonPay" AppendRootKey="false">
+        <Value>Erweitert den Shop um die Zahlungsfunktion von Amazon Pay.</Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.Description.Smartstore.AmazonPay" AppendRootKey="false">
+        <Value>Erweitert den Shop um die Anmelde- und Zahlungsfunktion von Amazon Pay.</Value>
+    </LocaleResource>
+
+    <LocaleResource Name="Plugins.FriendlyName.Authentications.AmazonPay" AppendRootKey="false">
+        <Value>Anmeldung mit Amazon</Value>
+    </LocaleResource>
+
+    <LocaleResource Name="AdminInstruction">
 		<Value>
 			<![CDATA[<div class="mb-1">So richten Sie <b>Login und Bezahlen mit Amazon</b> ein:</div><ul>
 <li>Legen Sie in Ihrem <a class="alert-link" href="https://sellercentral-europe.amazon.com" target="_blank">Amazon Seller Central</a> Konto eine <b>Login mit Amazon</b> Anwendung an. Verwenden Sie dabei die unten aufgeführten <b>Zulässige JavaScript-Ursprünge</b> und <b>Zulässige Rückleitungs-URLs</b> (SSL zwingend erforderlich!).</li>

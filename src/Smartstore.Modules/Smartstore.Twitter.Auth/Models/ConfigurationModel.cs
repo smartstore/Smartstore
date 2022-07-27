@@ -1,6 +1,6 @@
 ﻿namespace Smartstore.Twitter.Auth.Models
 {
-    [LocalizedDisplay("Plugins.Smartstore.Twitter.Auth.")]
+    [LocalizedDisplay("Plugins.ExternalAuth.Twitter.")]
     public class ConfigurationModel : ModelBase
     {
         [LocalizedDisplay("*ConsumerKey")]
@@ -9,7 +9,7 @@
         [LocalizedDisplay("*ConsumerSecret")]
         public string ConsumerSecret { get; set; }
 
-        [LocalizedDisplay("*RedirectUrl")]
+        [LocalizedDisplay("*RedirectUri")]
         public string RedirectUrl { get; set; }
     }
 }
