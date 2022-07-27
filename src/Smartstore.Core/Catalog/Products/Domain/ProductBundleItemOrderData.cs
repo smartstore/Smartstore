@@ -129,7 +129,7 @@ namespace Smartstore.Core.Catalog.Products
 
             if (value != null && (value is ProductBundleItemOrderData || value is IList<ProductBundleItemOrderData>))
             {
-                var sb = new StringBuilder();
+                var sb = new StringBuilder(100);
                 using var writer = new StringWriter(sb);
                 var serializer = new XmlSerializer(_forList ? typeof(List<ProductBundleItemOrderData>) : typeof(ProductBundleItemOrderData));
                 serializer.Serialize(writer, value);

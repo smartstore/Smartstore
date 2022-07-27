@@ -299,7 +299,9 @@ namespace Smartstore.Utilities.Html
         public static string ConvertPlainTextToParagraph(string text)
         {
             if (string.IsNullOrEmpty(text))
+            {
                 return string.Empty;
+            } 
 
             if (text.IndexOfAny(new[] { '<', '\r', '\n' }) == -1)
             {
@@ -314,7 +316,7 @@ namespace Smartstore.Utilities.Html
             text = text.Replace("\n\n", "\n");
 
             var lines = text.Tokenize('\n', StringSplitOptions.TrimEntries);
-            var sb = new StringBuilder();
+            var sb = new StringBuilder(text.Length * 2);
             foreach (string str in lines)
             {
                 if (str != null && str.Length > 0)

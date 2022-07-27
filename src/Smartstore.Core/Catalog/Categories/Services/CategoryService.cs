@@ -461,7 +461,7 @@ namespace Smartstore.Core.Catalog.Categories
             }
 
             var trail = treeNode.Trail;
-            var sb = new StringBuilder();
+            var sb = new StringBuilder(200);
 
             foreach (var node in trail)
             {

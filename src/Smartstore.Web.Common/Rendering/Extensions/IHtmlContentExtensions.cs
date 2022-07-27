@@ -16,7 +16,7 @@ namespace Smartstore.Web.Rendering
             }
             else
             {
-                var sb = new StringBuilder();
+                var sb = new StringBuilder(100);
                 using var writer = new StringWriter(sb);
                 htmlContent.WriteTo(writer, HtmlEncoder.Default);
 

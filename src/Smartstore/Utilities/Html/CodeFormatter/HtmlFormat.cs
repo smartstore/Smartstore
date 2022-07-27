@@ -108,7 +108,7 @@ namespace Smartstore.Utilities.Html.CodeFormatter
                 {
                     if (sb.Length > 0)
                     {
-                        sb.Append("\n");
+                        sb.Append('\n');
                     }
                     sb.Append("<span class=\"rem\">");
                     sb.Append(line);

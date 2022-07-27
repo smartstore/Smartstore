@@ -96,7 +96,7 @@ namespace Smartstore.Web.TagHelpers.Shared
                     daySelect.Attributes.Add("disabled", "disabled");
                 }
 
-                var days = new StringBuilder();
+                var days = new StringBuilder(1000);
 
                 // Add initial option.
                 days.AppendFormat("<option value=''>{0}</option>", _localizationService.GetResource("Common.Day"));
@@ -132,7 +132,7 @@ namespace Smartstore.Web.TagHelpers.Shared
                     monthSelect.Attributes.Add("disabled", "disabled");
                 }
 
-                var months = new StringBuilder();
+                var months = new StringBuilder(1000);
 
                 // Add initial option.
                 months.AppendFormat("<option value=''>{0}</option>", _localizationService.GetResource("Common.Month"));
@@ -169,7 +169,7 @@ namespace Smartstore.Web.TagHelpers.Shared
                     yearSelect.Attributes.Add("disabled", "disabled");
                 }
 
-                var years = new StringBuilder();
+                var years = new StringBuilder(1000);
 
                 years.AppendFormat("<option value=''>{0}</option>", _localizationService.GetResource("Common.Year"));
 

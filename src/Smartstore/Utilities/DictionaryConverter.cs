@@ -56,17 +56,20 @@ namespace Smartstore.Utilities
         private static string CreateMessage(ICollection<ConvertProblem> problems)
         {
             var counter = 0;
-            var builder = new StringBuilder();
-            builder.Append("Could not convert all input values into their expected types:");
-            builder.Append(System.Environment.NewLine);
+            var sb = new StringBuilder((problems.Count * 100) + 100);
+
+            sb.Append("Could not convert all input values into their expected types:");
+            sb.Append(System.Environment.NewLine);
+
             foreach (var prob in problems)
             {
-                builder.AppendFormat("-----Problem[{0}]---------------------", counter++);
-                builder.Append(System.Environment.NewLine);
-                builder.Append(prob);
-                builder.Append(System.Environment.NewLine);
+                sb.AppendFormat("-----Problem[{0}]---------------------", counter++);
+                sb.Append(System.Environment.NewLine);
+                sb.Append(prob);
+                sb.Append(System.Environment.NewLine);
             }
-            return builder.ToString();
+
+            return sb.ToString();
         }
     }
 

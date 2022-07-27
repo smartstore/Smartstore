@@ -197,7 +197,7 @@ INNER JOIN (
 			bool onlyWithoutShoppingCart,
 			CancellationToken cancelToken = default)
 		{
-			var paramClauses = new StringBuilder();
+			var paramClauses = new StringBuilder(200);
 			var parameters = new List<object>();
 			var numberOfDeletedCustomers = 0;
 			var numberOfDeletedAttributes = 0;

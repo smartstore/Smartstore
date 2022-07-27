@@ -19,17 +19,17 @@ namespace Smartstore.Linq.Expressions
         {
             get
             {
-                var pathString = new StringBuilder();
+                var sb = new StringBuilder();
 
                 foreach (string path in _path)
                 {
-                    if (pathString.Length == 0)
-                        pathString.Append(path);
+                    if (sb.Length == 0)
+                        sb.Append(path);
                     else
-                        pathString.AppendFormat(".{0}", path);
+                        sb.AppendFormat(".{0}", path);
                 }
 
-                return pathString.ToString();
+                return sb.ToString();
             }
         }
 
@@ -43,7 +43,9 @@ namespace Smartstore.Linq.Expressions
             if (methodExp.Member.MemberType != MemberTypes.Field && methodExp.Member.MemberType != MemberTypes.Property)
                 throw new NotSupportedException("MemberAccessPathVisitor does not support a member access of type " +
                                                 methodExp.Member.MemberType.ToString());
+
             _path.Push(methodExp.Member.Name);
+
             return base.VisitMemberAccess(methodExp);
         }
 

@@ -181,10 +181,14 @@ namespace Smartstore.Utilities.Html.CodeFormatter
         protected abstract string MatchEval(Match match);
 
         //does the formatting job
-        private string FormatCode(string source, bool lineNumbers,
-            bool alternate, bool embedStyleSheet, bool subCode)
+        private string FormatCode(
+            string source, 
+            bool lineNumbers,
+            bool alternate, 
+            bool embedStyleSheet, 
+            bool subCode)
         {
-            //replace special characters
+            // Replace special characters
             var sb = new StringBuilder(source);
 
             if (!subCode)
@@ -198,7 +202,7 @@ namespace Smartstore.Utilities.Html.CodeFormatter
             //color the code
             source = codeRegex.Replace(sb.ToString(), new MatchEvaluator(this.MatchEval));
 
-            sb = new StringBuilder();
+            sb = new StringBuilder(1000);
 
             if (embedStyleSheet)
             {

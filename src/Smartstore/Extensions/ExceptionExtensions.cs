@@ -41,43 +41,46 @@ namespace Smartstore
         /// <summary>
         /// Gets the message of the most inner exception.
         /// </summary>
-        public static string GetInnerMessage(this Exception ex)
+        public static string GetInnerMessage(this Exception exception)
         {
             while (true)
             {
-                if (ex.InnerException == null)
+                if (exception.InnerException == null)
                 {
-                    return ex.Message;
+                    return exception.Message;
                 }
 
-                ex = ex.InnerException;
+                exception = exception.InnerException;
             }
         }
 
-        public static string ToAllMessages(this Exception ex, bool includeStackTrace = false)
+        public static string ToAllMessages(this Exception exception, bool includeStackTrace = false)
         {
-            var sb = new StringBuilder();
-
-            while (ex != null)
+            if (exception == null)
             {
-                if (!sb.ToString().EmptyNull().Contains(ex.Message))
+                return string.Empty;
+            }
+            
+            var sb = new StringBuilder(includeStackTrace ? exception.Message.Length * 3 : exception.Message.Length);
+
+            while (exception != null)
+            {
+                // TODO: (mg) (core) Find a better way to skip redundant messages
+                if (includeStackTrace)
                 {
-                    if (includeStackTrace)
+                    if (sb.Length > 0)
                     {
-                        if (sb.Length > 0)
-                        {
-                            sb.AppendLine();
-                            sb.AppendLine();
-                        }
-                        sb.AppendLine(ex.ToString());
+                        sb.AppendLine();
+                        sb.AppendLine();
                     }
-                    else
-                    {
-                        sb.Grow(ex.Message, " * ");
-                    }
+                    sb.AppendLine(exception.ToString());
+                }
+                else
+                {
+                    sb.Grow(exception.Message, " * ");
                 }
 
-                ex = ex.InnerException;
+                exception = exception.InnerException;
             }
 
             return sb.ToString();

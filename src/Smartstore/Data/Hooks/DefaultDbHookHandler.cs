@@ -9,18 +9,18 @@ namespace Smartstore.Data.Hooks
     {
         private readonly IEnumerable<Lazy<IDbSaveHook, HookMetadata>> _saveHooks;
 
-        private readonly Multimap<RequestHookKey, IDbSaveHook> _hooksRequestCache = new Multimap<RequestHookKey, IDbSaveHook>();
+        private readonly Multimap<RequestHookKey, IDbSaveHook> _hooksRequestCache = new();
 
         // Prevents repetitive hooking of the same entity/state/[pre|post] combination within a single request
-        private readonly HashSet<HookedEntityKey> _hookedEntities = new HashSet<HookedEntityKey>();
+        private readonly HashSet<HookedEntityKey> _hookedEntities = new();
 
-        private readonly static object _lock = new object();
+        private readonly static object _lock = new();
 
         // Contains all IDbSaveHook/EntityType/State/Stage combinations in which
         // the implementor threw either NotImplementedException or NotSupportedException.
         // This boosts performance because these VOID combinations are not processed again
         // and frees us mostly from the obligation always to detect changes.
-        private readonly static HashSet<HookKey> _voidHooks = new HashSet<HookKey>();
+        private readonly static HashSet<HookKey> _voidHooks = new();
 
         public DefaultDbHookHandler(IEnumerable<Lazy<IDbSaveHook, HookMetadata>> hooks)
         {

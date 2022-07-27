@@ -16,12 +16,12 @@ namespace Smartstore
             return ReplaceGroupInternal(regex, input, replacement, m => m.Groups[groupNum]);
         }
 
-        private static string ReplaceGroupInternal(this Regex regex, string input, string replacement, Func<Match, Group> groupGetter)
+        private static string ReplaceGroupInternal(this Regex regex, string input, string replacement, Func<Match, Group> groupSelector)
         {
             return regex.Replace(input, match =>
             {
-                var group = groupGetter(match);
-                var sb = new StringBuilder();
+                var group = groupSelector(match);
+                var sb = new StringBuilder(input.Length);
                 var previousCaptureEnd = 0;
 
                 foreach (var capture in group.Captures.Cast<Capture>())

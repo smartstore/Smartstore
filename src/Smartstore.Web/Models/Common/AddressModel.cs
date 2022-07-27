@@ -102,21 +102,19 @@ namespace Smartstore.Web.Models.Common
 
         public string GetFormattedName()
         {
-            var sb = new StringBuilder();
-
-            sb.Append(FirstName);
-            if (FirstName.HasValue() && LastName.HasValue())
+            if (LastName.IsEmpty())
             {
-                sb.Append(' ');
+                return FirstName.EmptyNull();
             }
-            sb.Append(LastName);
-
-            return sb.ToString();
+            else
+            {
+                return FirstName.RightPad() + LastName;
+            }
         }
 
         public string GetFormattedCityStateZip()
         {
-            var sb = new StringBuilder();
+            var sb = new StringBuilder(50);
 
             if (CityEnabled && City.HasValue())
             {

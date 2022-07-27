@@ -134,8 +134,9 @@ namespace Smartstore.Core.Catalog.Categories
         {
             Guard.NotNull(treeNode, nameof(treeNode));
 
-            var sb = new StringBuilder();
+            var sb = new StringBuilder(100);
             var indentSize = treeNode.Depth - 1;
+
             for (int i = 0; i < indentSize; i++)
             {
                 sb.Append(indentWith);
@@ -153,7 +154,7 @@ namespace Smartstore.Core.Catalog.Categories
             {
                 sb.Append(" (");
                 sb.Append(cat.Alias);
-                sb.Append(")");
+                sb.Append(')');
             }
 
             return sb.ToString();

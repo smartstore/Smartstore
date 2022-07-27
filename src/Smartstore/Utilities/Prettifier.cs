@@ -26,13 +26,15 @@ namespace Smartstore.Utilities
         public static string PrettifyXML(string xml)
         {
             if (xml.IsEmpty() || xml.IsWhiteSpace())
+            {
                 return xml;
+            }  
 
             // first read the xml ignoring whitespace
             using (var xmlReader = XmlReader.Create(new StringReader(xml), new XmlReaderSettings { IgnoreWhitespace = true, CheckCharacters = false }))
             {
                 // then write it out with indentation
-                var sb = new StringBuilder();
+                var sb = new StringBuilder(xml.Length * 2);
                 using (XmlWriter writer = XmlWriter.Create(sb, new XmlWriterSettings { Indent = true, IndentChars = "\t", CheckCharacters = false }))
                 {
                     writer.WriteNode(xmlReader, true);

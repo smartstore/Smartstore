@@ -83,7 +83,7 @@ namespace Smartstore.Utilities.Html.CodeFormatter
         /// <summary/>
         protected CodeFormat()
         {
-            //generate the keyword and preprocessor regexes from the keyword lists
+            // generate the keyword and preprocessor regexes from the keyword lists
             Regex r;
             r = new Regex(@"\w+|-\w+|#\w+|@@\w+|#(?:\\(?:s|w)(?:\*|\+)?\w+)+|@\\w\*+");
             string regKeyword = r.Replace(Keywords, @"(?<=^|\W)$0(?=\W)");
@@ -97,9 +97,9 @@ namespace Smartstore.Utilities.Html.CodeFormatter
                 regPreproc = "(?!.*)_{37}(?<!.*)"; //use something quite impossible...
             }
 
-            //build a master regex with capturing groups
-            var regAll = new StringBuilder();
-            regAll.Append("(");
+            // build a master regex with capturing groups
+            var regAll = new StringBuilder(1000);
+            regAll.Append('(');
             regAll.Append(CommentRegex);
             regAll.Append(")|(");
             regAll.Append(StringRegex);
@@ -110,7 +110,7 @@ namespace Smartstore.Utilities.Html.CodeFormatter
             }
             regAll.Append(")|(");
             regAll.Append(regKeyword);
-            regAll.Append(")");
+            regAll.Append(')');
 
             RegexOptions caseInsensitive = CaseSensitive ? 0 : RegexOptions.IgnoreCase;
             CodeRegex = new Regex(regAll.ToString(), RegexOptions.Singleline | caseInsensitive);
@@ -130,16 +130,18 @@ namespace Smartstore.Utilities.Html.CodeFormatter
                 var reader = new StringReader(match.ToString());
                 string line;
                 var sb = new StringBuilder();
+
                 while ((line = reader.ReadLine()) != null)
                 {
                     if (sb.Length > 0)
                     {
-                        sb.Append("\n");
+                        sb.Append('\n');
                     }
                     sb.Append("<span class=\"rem\">");
                     sb.Append(line);
                     sb.Append("</span>");
                 }
+
                 return sb.ToString();
             }
             if (match.Groups[2].Success) //string literal

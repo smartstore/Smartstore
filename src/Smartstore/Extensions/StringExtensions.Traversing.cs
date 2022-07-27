@@ -49,7 +49,12 @@ namespace Smartstore
         [DebuggerStepThrough]
         public static string SplitPascalCase(this string value)
         {
-            var sb = new StringBuilder();
+            if (string.IsNullOrEmpty(value))
+            {
+                return value;
+            }
+            
+            var sb = new StringBuilder(value.Length + 5);
             char[] ca = value.ToCharArray();
 
             sb.Append(ca[0]);

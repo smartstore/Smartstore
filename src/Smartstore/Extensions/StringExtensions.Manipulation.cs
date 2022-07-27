@@ -115,13 +115,13 @@ namespace Smartstore
         {
             Guard.NotNull(input, nameof(input));
 
-            var sb = new StringBuilder();
+            var sb = new StringBuilder(input.Length);
             var lines = GetLines(input.Trim(), true, removeEmptyLines).ToArray();
 
             foreach (var line in lines)
             {
                 var len = line.Length;
-                var sbLine = new StringBuilder();
+                var sbLine = new StringBuilder(len);
                 var isChar = false;
                 int i;
 
@@ -390,7 +390,7 @@ namespace Smartstore
         }
 
         /// <summary>
-        /// Left-pads a string. Always returns empty string if source is null or empty.
+        /// Left-pads a string. Always returns empty string if source <paramref name="value"/> is null or empty.
         /// </summary>
         [DebuggerStepThrough]
         public static string LeftPad(this string value, string format = null, char pad = ' ', int count = 1)
@@ -417,6 +417,41 @@ namespace Smartstore
             if (right.StartsWith(left))
             {
                 return right;
+            }
+            else
+            {
+                return left + right;
+            }
+        }
+
+        /// <summary>
+        /// Right-pads a string. Always returns empty string if source <paramref name="value"/> is null or empty.
+        /// </summary>
+        [DebuggerStepThrough]
+        public static string RightPad(this string value, string format = null, char pad = ' ', int count = 1)
+        {
+            if (string.IsNullOrEmpty(value))
+            {
+                return string.Empty;
+            }
+
+
+            if (count < 1)
+            {
+                return value;
+            }
+
+            var left = value;
+            var right = new string(pad, count);
+
+            if (!string.IsNullOrWhiteSpace(format))
+            {
+                left = string.Format(CultureInfo.InvariantCulture, format, value);
+            }
+
+            if (left.EndsWith(right))
+            {
+                return left;
             }
             else
             {

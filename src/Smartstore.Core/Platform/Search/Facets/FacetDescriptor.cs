@@ -115,10 +115,10 @@ namespace Smartstore.Core.Search.Facets
 
         public override string ToString()
         {
-            var sb = new StringBuilder();
+            var sb = new StringBuilder((_values.Count * 50) + 50);
 
-            sb.Append("FieldName: ").Append(Key).Append(" ");
-            sb.Append("Values: " + string.Join(",", _values.Select(x => x.Value.ToString()))).Append(" ");
+            sb.Append("FieldName: ").Append(Key).Append(' ');
+            sb.Append("Values: " + string.Join(",", _values.Select(x => x.Value.ToString()))).Append(' ');
 
             return sb.ToString();
         }

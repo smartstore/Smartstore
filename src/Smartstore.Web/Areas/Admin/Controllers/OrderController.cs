@@ -501,8 +501,8 @@ namespace Smartstore.Admin.Controllers
                 }
             }
 
-            var msg = new StringBuilder();
-            msg.Append(T("Admin.Orders.ProcessingResult", success, ids.Length, skipped, skipped == 0 ? " class='hide'" : ""));
+            var msg = new StringBuilder((errorMessages.Count * 100) + 100);
+            msg.Append(T("Admin.Orders.ProcessingResult", success, ids.Length, skipped, skipped == 0 ? " class='hide'" : string.Empty));
             errorMessages.Take(maxErrors).Each(x => msg.Append($"<div class='text-danger mt-2'>{x}</div>"));
 
             NotifyInfo(msg.ToString());

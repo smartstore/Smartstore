@@ -10,19 +10,24 @@ namespace Smartstore
         /// Converts bytes into hex characters.
         /// </summary>
         /// <param name="toUpperCase">Indicates whether to convert to lowercase or uppercase hex characters.</param>
-        /// <param name="maxLength">The maximum length of the returned string. 0 to convert all of <paramref name="value"/>.</param>
+        /// <param name="maxLength">The maximum length of the returned string. <c>null</c> to convert all of <paramref name="value"/>.</param>
         /// <remarks>
-        /// ToHexString(true, 0) produces the same result as <see cref="Convert.ToHexString(byte[])"/>.
+        /// ToHexString(true) produces the same result as <see cref="Convert.ToHexString(byte[])"/>.
         /// </remarks>
         [DebuggerStepThrough]
-        public static string ToHexString(this byte[] value, bool toUpperCase = false, int maxLength = 0)
+        public static string ToHexString(this byte[] value, bool toUpperCase = false, int? maxLength = null)
         {
             if (value == null || value.Length <= 0)
             {
                 return string.Empty;
             }
 
-            var sb = new StringBuilder();
+            if (maxLength.HasValue && maxLength < 2)
+            {
+                throw new ArgumentOutOfRangeException(nameof(maxLength), "maxLength must be greater than 1.");
+            }
+
+            var sb = new StringBuilder(value.Length * 2);
             var format = toUpperCase ? "X2" : "x2";
 
             for (var i = 0; i < value.Length; i++)

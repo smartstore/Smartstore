@@ -16,7 +16,7 @@ namespace Smartstore.Web.Razor
 
         private static string GenerateMessage(string viewName, IEnumerable<string> searchedLocations)
         {
-            var locations = new StringBuilder();
+            var locations = new StringBuilder(400);
             locations.AppendLine();
 
             foreach (string location in searchedLocations)

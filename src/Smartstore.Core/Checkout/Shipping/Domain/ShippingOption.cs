@@ -106,7 +106,7 @@ namespace Smartstore.Core.Checkout.Shipping
             
             if (value is not null and (ShippingOption or IList<ShippingOption>))
             {
-                var sb = new StringBuilder();
+                var sb = new StringBuilder(100);
                 using var writer = new StringWriter(sb);
                 var serializer = new XmlSerializer(_forList ? typeof(List<ShippingOption>) : typeof(ShippingOption));
                 serializer.Serialize(writer, value);

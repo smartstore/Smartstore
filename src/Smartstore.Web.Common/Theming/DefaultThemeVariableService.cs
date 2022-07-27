@@ -320,7 +320,7 @@ namespace Smartstore.Web.Theming
 
             var infos = _themeRegistry.GetThemeDescriptor(themeName).Variables;
 
-            var sb = new StringBuilder();
+            var sb = new StringBuilder(1000);
 
             using (var xmlWriter = XmlWriter.Create(sb))
             {

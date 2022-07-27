@@ -248,7 +248,7 @@ namespace Smartstore.Core.Search
 
         public override string ToString()
         {
-            var sb = new StringBuilder();
+            var sb = new StringBuilder(100);
 
             var fields = (Fields?.Any() ?? false) ? string.Join(", ", Fields) : "".NaIfEmpty();
             var parameters = string.Join(" ", EscapeTerm ? "escape" : "", IsFuzzySearch ? "fuzzy" : Mode.ToString()).TrimSafe();

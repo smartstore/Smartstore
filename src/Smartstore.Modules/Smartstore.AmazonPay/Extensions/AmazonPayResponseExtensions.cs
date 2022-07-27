@@ -19,7 +19,7 @@ namespace Smartstore.AmazonPay
                 return string.Empty;
             }
 
-            var sb = new StringBuilder();
+            var sb = new StringBuilder(200);
 
             sb.AppendLine($"{response.Method} {response.Url}");
             sb.AppendLine($"Status: {ReasonPhrases.GetReasonPhrase(response.Status)} ({response.Status})");
