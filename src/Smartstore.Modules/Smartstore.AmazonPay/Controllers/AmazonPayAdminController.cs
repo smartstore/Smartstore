@@ -174,6 +174,11 @@ namespace Smartstore.AmazonPay.Controllers
             var store = Services.StoreContext.CurrentStore;
             var allStores = Services.StoreContext.GetAllStores();
 
+            // INFO: it's unclear if it's necessary to specify additional URLs in Amazon Seller Central for Checkout v2,
+            // as the return URLs are set on the server side and no longer via JavaScript (as in v1).
+            // However, the documentation states to still add them:
+            // https://developer.amazon.com/de/docs/amazon-pay-checkout/get-set-up-for-integration.html#2-add-domains-to-seller-central
+
             foreach (var entity in allStores)
             {
                 // SSL required!
@@ -182,18 +187,25 @@ namespace Smartstore.AmazonPay.Controllers
                     var loginUrl = uri.GetLeftPart(UriPartial.Scheme | UriPartial.Authority).EmptyNull().TrimEnd('/');
                     if (loginUrl.HasValue())
                     {
-                        var redirectUrl = loginUrl.EnsureEndsWith("/");
-
-                        // INFO: the need to specify additional URLs in Amazon Seller Central is probably no longer necessary,
-                        // as the return URLs are set on the server side and no longer via JavaScript (as in v1).
                         model.MerchantLoginDomains.Add(loginUrl);
-                        model.MerchantLoginRedirectUrls.Add(redirectUrl);
 
                         if (entity.Id == store.Id)
                         {
                             model.CurrentMerchantLoginDomains.Add(loginUrl);
-                            model.CurrentMerchantLoginRedirectUrls.Add(redirectUrl);
                         }
+                    }
+
+                    var storeScheme = entity.SslEnabled ? "https" : "http";
+                    var checkoutReviewUrl = Url.Action(nameof(AmazonPayController.CheckoutReview), "AmazonPay", new { area = string.Empty }, storeScheme).TrimEnd('/');
+                    var signIn = Url.Action(nameof(AmazonPayController.SignIn), "AmazonPay", new { area = string.Empty }, storeScheme).TrimEnd('/');
+
+                    model.MerchantLoginRedirectUrls.Add(checkoutReviewUrl);
+                    model.MerchantLoginRedirectUrls.Add(signIn);
+
+                    if (entity.Id == store.Id)
+                    {
+                        model.CurrentMerchantLoginRedirectUrls.Add(checkoutReviewUrl);
+                        model.CurrentMerchantLoginRedirectUrls.Add(signIn);
                     }
                 }
             }
