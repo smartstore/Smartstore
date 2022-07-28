@@ -19,13 +19,9 @@ namespace Smartstore.Core.Bootstrapping
 
         protected override void Load(ContainerBuilder builder)
         {
-            //builder.RegisterType<DefaultDbHookRegistry>()
-            //    .As<IDbHookRegistry>()
-            //    .SingleInstance();
-
-            builder.RegisterType<DefaultDbHookHandler>()
-                .As<IDbHookHandler>()
-                .InstancePerLifetimeScope();
+            builder.RegisterType<DefaultDbHookRegistry>().As<IDbHookRegistry>().SingleInstance();
+            builder.RegisterType<DefaultDbHookActivator>().As<IDbHookActivator>().InstancePerLifetimeScope();
+            builder.RegisterType<DefaultDbHookHandler>().As<IDbHookHandler>().InstancePerLifetimeScope();
 
             var appInstalled = _appContext.IsInstalled;
             var hookTypes = _appContext.TypeScanner.FindTypes<IDbSaveHook>();
@@ -43,45 +39,33 @@ namespace Smartstore.Core.Bootstrapping
 
                 var types = DiscoverHookTypes(hookType);
 
+                // Find other interfaces that the impl type implements and override
+                // a possibly existing previous registration. E.g.: SettingService
+                // also implements IDbSaveHook directly. But we don't want two different registrations,
+                // we want Autofac to resolve the same instance of SettingsService, 
+                // either injected as ISettingService or IDbSaveHook.
+                var serviceTypes = hookType.GetTypeInfo().ImplementedInterfaces
+                    .Where(x => !x.IsGenericType)
+                    .Except(EventsModule.IgnoredInterfaces.Concat(new[] { typeof(IDbSaveHook), typeof(IConsumer) }))
+                    .ToArray();
+
                 var registration = builder.RegisterType(hookType)
                     .As<IDbSaveHook>()
+                    .InstancePerAttributedLifetime()
                     .WithMetadata<HookMetadata>(m =>
                     {
                         m.For(em => em.HookedType, types.EntityType);
+                        m.For(em => em.ServiceTypes, serviceTypes.Length > 0 ? serviceTypes : new[] { hookType });
                         m.For(em => em.ImplType, hookType);
                         m.For(em => em.DbContextType, types.ContextType ?? typeof(SmartDbContext));
                         m.For(em => em.Importance, importantAttribute?.Importance ?? HookImportance.Normal);
                         m.For(em => em.Order, hookType.GetAttribute<OrderAttribute>(false)?.Order ?? 0);
                     });
 
-                var lifetime = hookType.GetAttribute<ServiceLifetimeAttribute>(false)?.Lifetime ?? ServiceLifetime.Scoped;
-                if (lifetime == ServiceLifetime.Singleton)
-                {
-                    registration.SingleInstance();
-                }
-                else if (lifetime == ServiceLifetime.Transient)
-                {
-                    registration.InstancePerDependency();
-                }
-                else
-                {
-                    registration.InstancePerLifetimeScope();
-                }
-
-                // Find other interfaces that the impl type implements and override
-                // a possibly existing previous registration. E.g.: SettingService
-                // also implements IDbSaveHook directly. But we don't want two different registrations,
-                // we want Autofac to resolve the same instance of SettingsService, 
-                // either injected as ISettingService or IDbSaveHook.
-                var interfaces = hookType.GetTypeInfo().ImplementedInterfaces
-                    .Where(x => !x.IsGenericType)
-                    .Except(EventsModule.IgnoredInterfaces.Concat(new[] { typeof(IDbSaveHook), typeof(IConsumer) }))
-                    .ToArray();
-
-                if (interfaces.Length > 0)
+                if (serviceTypes.Length > 0)
                 {
                     // This call actually overrides any former registration for the interface.
-                    registration.As(interfaces);
+                    registration.As(serviceTypes);
                 }
             }
         }

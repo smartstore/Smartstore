@@ -64,22 +64,10 @@ namespace Smartstore.Bootstrapping
                 var registration = builder
                     .RegisterType(consumerType)
                     .As<IConsumer>()
-                    .Keyed<IConsumer>(consumerType);
+                    .Keyed<IConsumer>(consumerType)
+                    .InstancePerAttributedLifetime();
 
                 var moduleDescriptor = moduleCatalog.GetModuleByAssembly(consumerType.Assembly);
-                var lifetime = consumerType.GetAttribute<ServiceLifetimeAttribute>(false)?.Lifetime ?? ServiceLifetime.Scoped;
-                if (lifetime == ServiceLifetime.Singleton)
-                {
-                    registration.SingleInstance();
-                }
-                else if (lifetime == ServiceLifetime.Transient)
-                {
-                    registration.InstancePerDependency();
-                }
-                else
-                {
-                    registration.InstancePerLifetimeScope();
-                }
 
                 registration.WithMetadata<EventConsumerMetadata>(m =>
                 {

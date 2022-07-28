@@ -102,27 +102,13 @@ namespace Smartstore.Core.Bootstrapping
                 var isEditable = typeof(IUserEditable).IsAssignableFrom(type);
                 var isHidden = GetIsHidden(type);
                 var exportFeature = GetExportFeature(type);
-                var lifetime = type.GetAttribute<ServiceLifetimeAttribute>(false)?.Lifetime ?? ServiceLifetime.Scoped;
 
                 var registration = builder
                     .RegisterType(type)
                     .Named<IProvider>(systemName)
                     .Keyed<IProvider>(systemName)
+                    .InstancePerAttributedLifetime()
                     .PropertiesAutowired(PropertyWiringOptions.None);
-
-                if (lifetime == ServiceLifetime.Singleton)
-                {
-                    registration.SingleInstance();
-                }
-                else if (lifetime == ServiceLifetime.Transient)
-                {
-                    registration.InstancePerDependency();
-                }
-                else
-                {
-                    registration.InstancePerLifetimeScope();
-                }
-
 
                 registration.WithMetadata<ProviderMetadata>(m =>
                 {

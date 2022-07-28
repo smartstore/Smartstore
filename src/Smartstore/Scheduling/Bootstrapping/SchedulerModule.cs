@@ -1,5 +1,4 @@
 ﻿using Autofac;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Smartstore.Engine;
 using Smartstore.Scheduling;
@@ -34,25 +33,12 @@ namespace Smartstore.Bootstrapping
                 var registration = builder.RegisterType(taskType)
                     .Named<ITask>(typeName)
                     .Keyed<ITask>(taskType)
+                    .InstancePerAttributedLifetime()
                     .WithMetadata<TaskMetadata>(m =>
                     {
                         m.For(em => em.Name, typeName);
                         m.For(em => em.Type, taskType);
                     });
-
-                var lifetime = taskType.GetAttribute<ServiceLifetimeAttribute>(false)?.Lifetime ?? ServiceLifetime.Scoped;
-                if (lifetime == ServiceLifetime.Singleton)
-                {
-                    registration.SingleInstance();
-                }
-                else if (lifetime == ServiceLifetime.Transient)
-                {
-                    registration.InstancePerDependency();
-                }
-                else
-                {
-                    registration.InstancePerLifetimeScope();
-                }
             }
         }
     }

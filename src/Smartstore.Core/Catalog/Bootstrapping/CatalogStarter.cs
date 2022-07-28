@@ -93,27 +93,13 @@ namespace Smartstore.Core.Bootstrapping
                     .RegisterType(calculatorType)
                     .As<IPriceCalculator>()
                     .Keyed<IPriceCalculator>(calculatorType)
+                    .InstancePerAttributedLifetime()
                     .WithMetadata<PriceCalculatorMetadata>(m => 
                     {
                         m.For(em => em.CalculatorType, calculatorType);
                         m.For(em => em.ValidTargets, usageAttribute?.ValidTargets ?? CalculatorTargets.All);
                         m.For(em => em.Order, usageAttribute?.Order ?? CalculatorOrdering.Default);
                     });
-
-                var lifetime = calculatorType.GetAttribute<ServiceLifetimeAttribute>(false)?.Lifetime ?? ServiceLifetime.Scoped;
-
-                if (lifetime == ServiceLifetime.Singleton)
-                {
-                    registration.SingleInstance();
-                }
-                else if (lifetime == ServiceLifetime.Transient)
-                {
-                    registration.InstancePerDependency();
-                }
-                else
-                {
-                    registration.InstancePerLifetimeScope();
-                }
             }
 
             // Register calculator resolve delegate
