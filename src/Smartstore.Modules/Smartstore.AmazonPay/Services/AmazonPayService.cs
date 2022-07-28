@@ -25,63 +25,6 @@ namespace Smartstore.AmazonPay.Services
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
 
-        //public async Task<bool> AddCustomerOrderNoteLoopAsync(AmazonPayActionState state, CancellationToken cancelToken = default)
-        //{
-        //    if (state == null || state.OrderGuid == Guid.Empty)
-        //    {
-        //        return false;
-        //    }
-
-        //    try
-        //    {
-        //        const int sleepMillSec = 4000;
-        //        const int loopMillSec = 40000;
-        //        var startTime = DateTime.Now.TimeOfDay;
-
-        //        for (var i = 0; i < 99 && (DateTime.Now.TimeOfDay.Milliseconds - startTime.Milliseconds) <= loopMillSec; ++i)
-        //        {
-        //            var order = await _db.Orders
-        //                .Where(x => x.OrderGuid == state.OrderGuid)
-        //                .FirstOrDefaultAsync(cancelToken);
-
-        //            if (order != null)
-        //            {
-        //                using var psb = StringBuilderPool.Instance.Get(out var sb);
-        //                sb.AppendLine(T("Plugins.Payments.AmazonPay.AuthorizationHardDeclineMessage"));
-
-        //                if (state.Errors?.Any() ?? false)
-        //                {
-        //                    foreach (var error in state.Errors)
-        //                    {
-        //                        sb.AppendFormat("<p>{0}</p>", error);
-        //                    }
-        //                }
-
-        //                var orderNote = new OrderNote
-        //                {
-        //                    DisplayToCustomer = true,
-        //                    Note = sb.ToString(),
-        //                    CreatedOnUtc = DateTime.UtcNow,
-        //                };
-
-        //                order.OrderNotes.Add(orderNote);
-        //                await _db.SaveChangesAsync(cancelToken);
-
-        //                await _messageFactory.SendNewOrderNoteAddedCustomerNotificationAsync(orderNote, _services.WorkContext.WorkingLanguage.Id);
-        //                break;
-        //            }
-
-        //            Thread.Sleep(sleepMillSec);
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Logger.Error(ex);
-        //    }
-
-        //    return false;
-        //}
-
         public async Task<int> UpdateAccessKeysAsync(string json, int storeId)
         {
             if (json.IsEmpty())
