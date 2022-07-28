@@ -1,8 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Smartstore.Utilities;
 
 namespace Smartstore.Data.Hooks
 {
-    public class HookMetadata
+    public class HookMetadata : IEquatable<HookMetadata>
     {
         /// <summary>
         /// The type of entity
@@ -28,6 +29,35 @@ namespace Smartstore.Data.Hooks
         /// The execution order.
         /// </summary>
         public int Order { get; set; }
+
+        public override string ToString()
+        {
+            return $"{ImplType.Name}, HookedType: {HookedType.Name}, Importance: {Importance}";
+        }
+
+        public override bool Equals(object other)
+        {
+            return Equals(other as HookMetadata);
+        }
+
+        public bool Equals(HookMetadata other)
+        {
+            if (other == null)
+            {
+                return false;
+            }     
+
+            return ImplType == other.ImplType && HookedType == other.HookedType;
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCodeCombiner.Start()
+                .Add(typeof(HookMetadata))
+                .Add(ImplType)
+                .Add(HookedType)
+                .CombinedHash;
+        }
 
         public static HookMetadata Create<THook, TContext>(Type hookedType, HookImportance importance = HookImportance.Normal)
             where THook : IDbSaveHook

@@ -1,8 +1,6 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Smartstore.Core.Data;
-using Smartstore.Data;
 using Smartstore.Data.Hooks;
 using Smartstore.Domain;
 using EntityState = Smartstore.Data.EntityState;

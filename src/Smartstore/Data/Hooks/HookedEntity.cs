@@ -28,7 +28,7 @@ namespace Smartstore.Data.Hooks
 
         public BaseEntity Entity => Entry.Entity as BaseEntity;
 
-        public Type EntityType => _entityType ??= this.Entity?.GetType();
+        public Type EntityType => _entityType ??= Entry.Entity?.GetType();
 
         public EntityState InitialState
         {

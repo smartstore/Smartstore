@@ -19,6 +19,10 @@ namespace Smartstore.Core.Bootstrapping
 
         protected override void Load(ContainerBuilder builder)
         {
+            //builder.RegisterType<DefaultDbHookRegistry>()
+            //    .As<IDbHookRegistry>()
+            //    .SingleInstance();
+
             builder.RegisterType<DefaultDbHookHandler>()
                 .As<IDbHookHandler>()
                 .InstancePerLifetimeScope();
@@ -82,7 +86,7 @@ namespace Smartstore.Core.Bootstrapping
             }
         }
 
-        private static (Type ContextType, Type EntityType) DiscoverHookTypes(Type type)
+        internal static (Type ContextType, Type EntityType) DiscoverHookTypes(Type type)
         {
             var x = type.BaseType;
             while (x != null && x != typeof(object))
