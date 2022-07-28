@@ -143,7 +143,9 @@ namespace Smartstore
                 : Tokenize(input, separator, options);
         }
 
-        /// <summary>Splits a string into two strings</summary>
+        /// <summary>
+        /// Splits a string into two strings
+        /// </summary>
         /// <returns>true: success, false: failure</returns>
         [DebuggerStepThrough]
         public static bool SplitToPair(this string value, out string leftPart, out string rightPart, string delimiter, bool splitAfterLast = false)

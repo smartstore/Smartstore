@@ -24,19 +24,22 @@ namespace Smartstore
             }
         }
 
-        public static SyncedCollection<T> AsSynchronized<T>(this ICollection<T> source)
+        public static SyncedCollection<T> AsSynchronized<T>(this ICollection<T> source, bool readLockFree = false)
         {
-            return AsSynchronized(source, new object());
+            return AsSynchronized(source, new object(), readLockFree);
         }
 
-        public static SyncedCollection<T> AsSynchronized<T>(this ICollection<T> source, object syncRoot)
+        public static SyncedCollection<T> AsSynchronized<T>(this ICollection<T> source, object syncRoot, bool readLockFree = false)
         {
             if (source is SyncedCollection<T> sc)
             {
                 return sc;
             }
 
-            return new SyncedCollection<T>(source, syncRoot);
+            return new SyncedCollection<T>(source, syncRoot) 
+            { 
+                ReadLockFree = readLockFree 
+            };
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

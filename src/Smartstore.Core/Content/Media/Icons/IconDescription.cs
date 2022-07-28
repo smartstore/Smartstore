@@ -90,7 +90,10 @@ namespace Smartstore.Core.Content.Media.Icons
 
         public override int GetHashCode()
         {
-            return HashCodeCombiner.Start().Add(typeof(IconDescription)).Add(this.Name).CombinedHash;
+            return HashCodeCombiner.Start()
+                .Add(typeof(IconDescription))
+                .Add(this.Name)
+                .CombinedHash;
         }
 
         public class Search

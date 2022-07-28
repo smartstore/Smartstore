@@ -46,7 +46,7 @@ namespace Smartstore.Collections
             IEqualityComparer<TKey> comparer,
             Func<IEnumerable<TValue>, ICollection<TValue>> collectionCreator)
         {
-            _collectionCreator = collectionCreator;
+            _collectionCreator = collectionCreator ?? Multimap<TKey, TValue>.DefaultCollectionCreator;
             _dict = new ConcurrentDictionary<TKey, SyncedCollection<TValue>>(
                 ConvertItems(items),
                 comparer ?? EqualityComparer<TKey>.Default);
@@ -55,7 +55,9 @@ namespace Smartstore.Collections
         private IEnumerable<KeyValuePair<TKey, SyncedCollection<TValue>>> ConvertItems(IEnumerable<KeyValuePair<TKey, ICollection<TValue>>> items)
         {
             if (items == null)
+            {
                 yield break;
+            }   
 
             foreach (var item in items)
             {
@@ -65,9 +67,7 @@ namespace Smartstore.Collections
 
         protected virtual SyncedCollection<TValue> CreateCollection(IEnumerable<TValue> values)
         {
-            var creator = _collectionCreator ?? Multimap<TKey, TValue>.DefaultCollectionCreator;
-            var col = creator(values ?? Enumerable.Empty<TValue>());
-
+            var col = _collectionCreator(values ?? Enumerable.Empty<TValue>());
             return col.AsSynchronized();
         }
 
@@ -76,10 +76,7 @@ namespace Smartstore.Collections
         /// </summary>
         public int Count
         {
-            get
-            {
-                return _dict.Keys.Count;
-            }
+            get => _dict.Keys.Count;
         }
 
         /// <summary>
@@ -87,10 +84,7 @@ namespace Smartstore.Collections
         /// </summary>
         public int TotalValueCount
         {
-            get
-            {
-                return this._dict.Values.Sum(x => x.Count);
-            }
+            get => _dict.Values.Sum(x => x.Count);
         }
 
         /// <summary>
@@ -124,7 +118,7 @@ namespace Smartstore.Collections
         /// </summary>
         public virtual ICollection<TKey> Keys
         {
-            get { return _dict.Keys; }
+            get => _dict.Keys;
         }
 
         /// <summary>
@@ -132,7 +126,7 @@ namespace Smartstore.Collections
         /// </summary>
         public virtual ICollection<SyncedCollection<TValue>> Values
         {
-            get { return _dict.Values; }
+            get => _dict.Values;
         }
 
         /// <summary>
@@ -172,12 +166,13 @@ namespace Smartstore.Collections
         public virtual bool TryRemove(TKey key, TValue value)
         {
             if (!_dict.ContainsKey(key))
+            {
                 return false;
-
+            }
+                
             var col = _dict[key];
-            var removed = false;
+            var removed = col.Remove(value);
 
-            removed = col.Remove(value);
             if (col.Count == 0)
             {
                 _dict.TryRemove(key, out _);

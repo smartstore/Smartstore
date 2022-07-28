@@ -133,13 +133,13 @@ namespace Smartstore.Collections
             {
                 if (ReadLockFree)
                 {
-                    return _col.Count();
+                    return _col.Count;
                 }
                 else
                 {
                     lock (SyncRoot)
                     {
-                        return _col.Count();
+                        return _col.Count;
                     }
                 }
             }
@@ -201,17 +201,7 @@ namespace Smartstore.Collections
 
         public IEnumerator<T> GetEnumerator()
         {
-            if (ReadLockFree)
-            {
-                return _col.GetEnumerator();
-            }
-            else
-            {
-                lock (SyncRoot)
-                {
-                    return _col.GetEnumerator();
-                }
-            }
+            return _col.GetEnumerator();
         }
 
         #endregion
