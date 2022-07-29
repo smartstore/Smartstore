@@ -97,23 +97,12 @@
                         </button>
                     </div>
 
-                    @{
-                        var widgetInvokers = ViewBag.ExternalAuthButtonWidgets as List<WidgetInvoker>;
-                        var externalAuthButtons = (await widgetInvokers
-                            .SelectAsync(async x => await x.InvokeAsync(ViewContext))
-                            .AsyncToList())
-                            .Where(x => x.ToString().HasValue());
-                    }
-
-                    <div sm-if="externalAuthButtons.Any()" class="form-group external-auth-buttons mb-0">
+                    <div sm-if='Display.ZoneHasContent("external_auth_buttons")' class="form-group external-auth-buttons mb-0">
                         <div class="text-center text-uppercase">
                             - @T("Common.Or") -
                         </div>
                         <div class="row flex-wrap justify-content-center xs-gutters">
-                            @foreach (var button in externalAuthButtons)
-                            {
-                                @button
-                            }
+                            <zone name="external_auth_buttons" />
                         </div>
                     </div>
 

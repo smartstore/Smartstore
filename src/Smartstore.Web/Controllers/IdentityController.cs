@@ -86,6 +86,7 @@ namespace Smartstore.Web.Controllers
         #region Login / Logout / Register
 
         [HttpGet]
+        [TypeFilter(typeof(DisplayExternalAuthWidgets))]
         [RequireSsl, AllowAnonymous, NeverAuthorize, CheckStoreClosed(false)]
         [LocalizedRoute("/login", Name = "Login")]
         public IActionResult Login(bool? checkoutAsGuest, string returnUrl = null)
@@ -98,12 +99,12 @@ namespace Smartstore.Web.Controllers
             };
 
             ViewBag.ReturnUrl = returnUrl ?? Url.Content("~/");
-            ViewBag.ExternalAuthButtonWidgets = GetExternalAuthButtonWidgets();
 
             return View(model);
         }
 
         [HttpPost]
+        [TypeFilter(typeof(DisplayExternalAuthWidgets))]
         [AllowAnonymous, NeverAuthorize]
         [ValidateCaptcha(CaptchaSettingName = nameof(CaptchaSettings.ShowOnLoginPage))]
         [ValidateAntiForgeryToken, CheckStoreClosed(false)]
@@ -171,8 +172,6 @@ namespace Smartstore.Web.Controllers
             // If we got this far something failed. Redisplay form!
             model.CustomerLoginType = _customerSettings.CustomerLoginType;
             model.DisplayCaptcha = _captchaSettings.CanDisplayCaptcha && _captchaSettings.ShowOnLoginPage;
-
-            ViewBag.ExternalAuthButtonWidgets = GetExternalAuthButtonWidgets();
 
             return View(model);
         }
@@ -930,17 +929,6 @@ namespace Smartstore.Web.Controllers
         private IActionResult RedirectToLocal(string returnUrl)
         {
             return RedirectToReferrer(returnUrl, () => RedirectToRoute("Login"));
-        }
-
-        private List<WidgetInvoker> GetExternalAuthButtonWidgets()
-        {
-            var store = Services.StoreContext.CurrentStore;
-
-            return _providerManager.GetAllProviders<IExternalAuthenticationMethod>(store.Id)
-                .Where(x => x.IsMethodActive(_externalAuthenticationSettings))
-                .Select(x => x.Value.GetDisplayWidget(store.Id))
-                .Where(x => x != null)
-                .ToList();
         }
 
         #endregion
