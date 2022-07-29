@@ -13,18 +13,6 @@ namespace Smartstore.Core.Catalog.Search
     [Important]
     internal class SearchQueryAliasHook : AsyncDbSaveHook<BaseEntity>
     {
-        private static readonly HashSet<Type> _candidateTypes = new(new Type[]
-        {
-            typeof(LocalizedProperty),
-            typeof(SpecificationAttribute),
-            typeof(SpecificationAttributeOption),
-            typeof(ProductSpecificationAttribute),
-            typeof(ProductAttribute),
-            typeof(ProductAttributeOption),
-            typeof(ProductVariantAttribute),
-            typeof(ProductVariantAttributeValue)
-        });
-
         private readonly SmartDbContext _db;
         private readonly Lazy<ICatalogSearchQueryAliasMapper> _catalogSearchQueryAliasMapper;
         private readonly SeoSettings _seoSettings;
@@ -46,10 +34,7 @@ namespace Smartstore.Core.Catalog.Search
 
         public override async Task<HookResult> OnBeforeSaveAsync(IHookedEntity entry, CancellationToken cancelToken)
         {
-            if (!_candidateTypes.Contains(entry.EntityType))
-            {
-                return HookResult.Void;
-            }
+            // TODO: (mg) (core) Please thoroughly check whether you need to hook every state. return Void for useless states.
 
             var type = entry.EntityType;
             var entity = entry.Entity;
@@ -222,6 +207,10 @@ namespace Smartstore.Core.Catalog.Search
                         await _catalogSearchQueryAliasMapper.Value.ClearVariantCacheAsync();
                     }
                 }
+            }
+            else
+            {
+                return HookResult.Void;
             }
 
             return HookResult.Ok;
