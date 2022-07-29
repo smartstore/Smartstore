@@ -317,7 +317,7 @@ namespace Smartstore
         }
 
         /// <summary>
-        /// Projects each element of a sequence into a new form.
+        /// Projects each element of a sequence into a new form asynchronously.
         /// </summary>
         /// <param name="source">A sequence of values to invoke a transform function on.</param>
         /// <param name="selector">A transform function to apply to each source element.</param>
@@ -330,7 +330,7 @@ namespace Smartstore
         }
 
         /// <summary>
-        /// Projects each element of a sequence into a new form and flattens the resulting sequences into one sequence.
+        /// Projects each element of a sequence into a new form and flattens the resulting sequences into one sequence asynchronously.
         /// </summary>
         /// <param name="source">A sequence of values to project.</param>
         /// <param name="selector">A transform function to apply to each source element.</param>
@@ -347,15 +347,7 @@ namespace Smartstore
         }
 
         /// <summary>
-        /// Awaits all tasks in a sequence to complete.
-        /// </summary>
-        public static async Task<IEnumerable<T>> WhenAll<T>(this IEnumerable<Task<T>> source)
-        {
-            return await Task.WhenAll(source);
-        }
-
-        /// <summary>
-        /// Determines whether any element of a sequence satisfies a condition. 
+        /// Determines whether any element of a sequence satisfies a condition asynchronously. 
         /// </summary>
         /// <typeparam name="T">The type of the elements of source.</typeparam>
         /// <param name="source">The source sequence whose elements to apply the predicate to.</param>

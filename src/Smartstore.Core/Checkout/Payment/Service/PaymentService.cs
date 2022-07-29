@@ -119,7 +119,7 @@ namespace Smartstore.Core.Checkout.Payment
                         filterRequest.PaymentMethod = p;
 
                         // Only payment methods that have not been filtered out.
-                        if (await allFilters.AnyAsync(async x => { return await x.IsExcludedAsync(filterRequest); }))
+                        if (await allFilters.AnyAsync(x => x.IsExcludedAsync(filterRequest)))
                         {
                             return false;
                         }

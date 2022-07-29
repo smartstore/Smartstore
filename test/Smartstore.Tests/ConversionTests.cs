@@ -19,18 +19,6 @@ namespace Smartstore.Tests
     public class ConversionTests
     {
         [Test]
-        public void APerfTest()
-        {
-            const string str = "CustomerIdAndSomeOtherStuffWillDo";
-
-            for (var i = 0; i < 10000; i++)
-            {
-                str.SplitPascalCase();
-            }
-        }
-
-
-        [Test]
         public void CanConvertNullables()
         {
             var r1 = ((double)3).Convert<double?>();

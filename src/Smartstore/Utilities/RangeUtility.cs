@@ -4,7 +4,7 @@
     /// Helper class with shortcut methods for managing enumerables.
     /// Useful for inlining object generation in tests
     /// </summary>
-    public static class Range
+    public static class RangeUtility
     {
         /// <summary> Returns empty enumerator </summary>
         /// <typeparam name="T">type of the item to enumerate</typeparam>
