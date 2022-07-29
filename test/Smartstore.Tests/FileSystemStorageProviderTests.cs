@@ -160,10 +160,8 @@ namespace Smartstore.Tests
         {
             Assert.That(_fileSystem.EnumerateFiles(@"Subfolder1").Count(), Is.EqualTo(2));
 
-            using var testStream = new MemoryStream(Array.Empty<byte>());
-
-            var alpha = _fileSystem.CreateFile(@"SubFolder1/alpha.txt", testStream);
-            var beta = _fileSystem.CreateFile(@"SubFolder1\beta.txt", testStream);
+            var alpha = _fileSystem.CreateFile(@"SubFolder1/alpha.txt");
+            var beta = _fileSystem.CreateFile(@"SubFolder1\beta.txt");
             Assert.That(_fileSystem.EnumerateFiles(@"Subfolder1").Count(), Is.EqualTo(4));
             Assert.That(alpha.SubPath, Is.EqualTo("SubFolder1/alpha.txt"));
             Assert.That(beta.SubPath, Is.EqualTo("SubFolder1/beta.txt"));
