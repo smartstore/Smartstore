@@ -63,18 +63,6 @@ namespace Smartstore.Core.Catalog.Categories
             nameof(Category.BadgeStyle)
         };
 
-        private static readonly HashSet<Type> _candidateTypes = new()
-        {
-            typeof(Product),
-            typeof(Category),
-            typeof(ProductCategory),
-            typeof(Setting),
-            typeof(Language),
-            typeof(LocalizedProperty),
-            typeof(StoreMapping),
-            typeof(AclRecord)
-        };
-
         #endregion
 
         private readonly SmartDbContext _db;
@@ -202,11 +190,6 @@ namespace Smartstore.Core.Catalog.Categories
                 return HookResult.Ok;
             }
 
-            if (!_candidateTypes.Contains(entry.EntityType))
-            {
-                return HookResult.Void;
-            }
-
             // INFO: Acl & StoreMapping affect element counts.
 
             var isNewOrDeleted = entry.InitialState == EntityState.Added || entry.InitialState == EntityState.Deleted;
@@ -283,6 +266,10 @@ namespace Smartstore.Core.Catalog.Categories
                         await PublishEvent(CategoryTreeChangeReason.Acl);
                     }
                 }
+            }
+            else
+            {
+                return HookResult.Void;
             }
 
             return HookResult.Ok;
