@@ -160,12 +160,18 @@
 		<Value>Anzahl der Tage, nach dem die Artikel verfallen bzw. nicht mehr angezeigt werden sollen. Der Wert 0 bewirkt, dass kein Verfallsdatum exportiert wird.</Value>
 	</LocaleResource>
 	<LocaleResource Name="ExportShipping">
-		<Value>Versanddaten exportieren</Value>
+		<Value>Versandgewicht exportieren</Value>
 	</LocaleResource>
 	<LocaleResource Name="ExportShipping.Hint">
 		<Value>Legt fest, ob das Gewicht eines Produktes exportiert werden soll.</Value>
 	</LocaleResource>
-	<LocaleResource Name="ExportBasePrice">
+    <LocaleResource Name="ExportShippingTime">
+        <Value>Lieferzeit exportieren</Value>
+    </LocaleResource>
+    <LocaleResource Name="ExportShippingTime.Hint">
+        <Value>Legt fest, ob die Lieferzeit eines Produktes exportiert werden soll.</Value>
+    </LocaleResource>
+    <LocaleResource Name="ExportBasePrice">
 		<Value>Grundpreis exportieren</Value>
 	</LocaleResource>
 	<LocaleResource Name="ExportBasePrice.Hint">

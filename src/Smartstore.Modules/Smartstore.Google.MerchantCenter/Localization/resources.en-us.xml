@@ -159,12 +159,18 @@
 		<Value>Number of days after products should expire or no longer appear. A value of 0 causes that no expiry date will be exported.</Value>
 	</LocaleResource>
 	<LocaleResource Name="ExportShipping">
-		<Value>Export shipping data</Value>
+		<Value>Export shipping weight</Value>
 	</LocaleResource>
 	<LocaleResource Name="ExportShipping.Hint">
 		<Value>Activate this option if you want to export the weight of the product.</Value>
 	</LocaleResource>
-	<LocaleResource Name="ExportBasePrice">
+    <LocaleResource Name="ExportShippingTime">
+        <Value>Export delivery time</Value>
+    </LocaleResource>
+    <LocaleResource Name="ExportShippingTime.Hint">
+        <Value>Activate this option if you want to export the delivery time of the product.</Value>
+    </LocaleResource>
+    <LocaleResource Name="ExportBasePrice">
 		<Value>Export base price</Value>
 	</LocaleResource>
 	<LocaleResource Name="ExportBasePrice.Hint">

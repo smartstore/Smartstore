@@ -42,6 +42,9 @@
         [LocalizedDisplay("Plugins.Feed.Froogle.ExportShipping")]
         public bool ExportShipping { get; set; }
 
+        [LocalizedDisplay("Plugins.Feed.Froogle.ExportShippingTime")]
+        public bool ExportShippingTime { get; set; }
+
         [LocalizedDisplay("Plugins.Feed.Froogle.ExportBasePrice")]
         public bool ExportBasePrice { get; set; }
     }

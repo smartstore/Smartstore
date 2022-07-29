@@ -28,6 +28,7 @@ namespace Smartstore.Google.MerchantCenter.Providers
         ExportFeatures.CanProjectDescription |
         ExportFeatures.UsesSkuAsMpnFallback |
         ExportFeatures.OffersBrandFallback |
+        ExportFeatures.OffersShippingTimeFallback |
         ExportFeatures.UsesSpecialPrice |
         ExportFeatures.UsesAttributeCombination)]
     public class GmcXmlExportProvider : ExportProviderBase
@@ -381,8 +382,16 @@ namespace Smartstore.Google.MerchantCenter.Providers
 
                         if (config.ExportShipping)
                         {
-                            var weight = ((decimal)product.Weight).FormatInvariant() + " " + measureWeight;
-                            WriteString(writer, "shipping_weight", weight);
+                            var weight = (decimal)product.Weight;
+                            if (weight > 0)
+                            {
+                                WriteString(writer, "shipping_weight", weight.FormatInvariant() + " " + measureWeight);
+                            }
+                        }
+
+                        if (config.ExportShippingTime)
+                        {
+                            WriteString(writer, "transit_time_label", (string)product._ShippingTime);
                         }
 
                         if (config.ExportBasePrice && entity.BasePriceHasValue)
