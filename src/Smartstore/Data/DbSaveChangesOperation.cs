@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Data.Caching;
 using Smartstore.Data.Hooks;
+using Smartstore.Domain;
 using Smartstore.Utilities;
 using EfState = Microsoft.EntityFrameworkCore.EntityState;
 
@@ -37,83 +38,25 @@ namespace Smartstore.Data
 
         public int Execute(bool acceptAllChangesOnSuccess)
         {
-            Exception exception = null;
-
-            using (DoExecute())
-            {
-                try
-                {
-                    return _ctx.SaveChangesCore(acceptAllChangesOnSuccess);
-                }
-                catch (Exception ex)
-                {
-                    exception = ex;
-                    throw;
-                }
-            }
-
-            IDisposable DoExecute()
-            {
-                var autoDetectChanges = _ctx.ChangeTracker.AutoDetectChangesEnabled;
-
-                // Suppress implicit DetectChanges() calls by EF,
-                // e.g. called by SaveChanges(), ChangeTracker.Entries() etc.
-                _ctx.ChangeTracker.AutoDetectChangesEnabled = false;
-
-                IEnumerable<IMergedData> mergeableEntities = null;
-
-                // Get all attached entries implementing IMergedData,
-                // we need to ignore merge on them. Otherwise
-                // EF's change detection may think that properties has changed
-                // where they actually didn't.
-                mergeableEntities = _ctx.ChangeTracker.GetMergeableEntities().ToArray();
-
-                // Now ignore merged data, otherwise merged data will be saved to database
-                IgnoreMergedData(mergeableEntities, true);
-
-                // We must detect changes earlier in the process
-                // before hooks are executed. Therefore we suppressed the
-                // implicit DetectChanges() call by EF and call it here explicitly.
-                _ctx.ChangeTracker.DetectChanges();
-
-                // Now get changed entries
-                _changedEntries = GetChangedEntries();
-
-                // pre
-                var preResult = PreExecuteAsync(CancellationToken.None).Await();
-
-                return new ActionDisposable(EndExecute);
-
-                void EndExecute()
-                {
-                    try
-                    {
-                        // Post
-                        if (exception == null)
-                        {
-                            // Post execute only on successful commit
-                            PostExecuteAsync(preResult.Entries, CancellationToken.None).Await();
-                        }
-                    }
-                    finally
-                    {
-                        _ctx.ChangeTracker.AutoDetectChangesEnabled = autoDetectChanges;
-
-                        IgnoreMergedData(mergeableEntities, false);
-                    }
-                }
-            }
+            return ExecuteInternal(acceptAllChangesOnSuccess, false).Await();
         }
 
-        public async Task<int> ExecuteAsync(bool acceptAllChangesOnSuccess, CancellationToken cancelToken)
+        public Task<int> ExecuteAsync(bool acceptAllChangesOnSuccess, CancellationToken cancelToken)
+        {
+            return ExecuteInternal(acceptAllChangesOnSuccess, true, cancelToken);
+        }
+
+        public async Task<int> ExecuteInternal(bool acceptAllChangesOnSuccess, bool async, CancellationToken cancelToken = default)
         {
             Exception exception = null;
 
-            await using (await DoExecuteAsync())
+            await using (await DoExecute())
             {
                 try
                 {
-                    return await _ctx.SaveChangesCoreAsync(acceptAllChangesOnSuccess, cancelToken);
+                    return async 
+                        ? await _ctx.SaveChangesCoreAsync(acceptAllChangesOnSuccess, cancelToken)
+                        : _ctx.SaveChangesCore(acceptAllChangesOnSuccess);
                 }
                 catch (Exception ex)
                 {
@@ -122,7 +65,7 @@ namespace Smartstore.Data
                 }
             }
 
-            async Task<IAsyncDisposable> DoExecuteAsync()
+            async Task<IAsyncDisposable> DoExecute()
             {
                 var autoDetectChanges = _ctx.ChangeTracker.AutoDetectChangesEnabled;
 
@@ -130,13 +73,11 @@ namespace Smartstore.Data
                 // e.g. called by SaveChanges(), ChangeTracker.Entries() etc.
                 _ctx.ChangeTracker.AutoDetectChangesEnabled = false;
 
-                IEnumerable<IMergedData> mergeableEntities = null;
-
                 // Get all attached entries implementing IMergedData,
                 // we need to ignore merge on them. Otherwise
                 // EF's change detection may think that properties has changed
                 // where they actually didn't.
-                mergeableEntities = _ctx.ChangeTracker.GetMergeableEntities().ToArray();
+                var mergeableEntities = _ctx.ChangeTracker.GetMergeableEntities().ToArray();
 
                 // Now ignore merged data, otherwise merged data will be saved to database
                 IgnoreMergedData(mergeableEntities, true);
@@ -187,8 +128,8 @@ namespace Smartstore.Data
                 var contextType = _ctx.GetType();
 
                 var entries = _changedEntries
+                    .Where(x => IsHookableEntityType(x.Entity))
                     .Select(x => new HookedEntity(x))
-                    .Where(x => IsHookableEntityType(x.EntityType))
                     .ToArray();
 
                 // Regardless of validation (possible fixing validation errors too)
@@ -207,16 +148,18 @@ namespace Smartstore.Data
             {
                 // because the state of at least one entity has been changed during pre hooking
                 // we have to further reduce the set of hookable entities (for the POST hooks)
-                result.Entries = result.Entries.Where(x => x.InitialState > EntityState.Unchanged);
+                result.Entries = result.Entries.Where(x => x.InitialState > EntityState.Unchanged).ToArray();
             }
 
             return result;
         }
 
-        private async Task<DbSaveChangesResult> PostExecuteAsync(IEnumerable<IHookedEntity> changedHookEntries, CancellationToken cancelToken)
+        private async Task<DbSaveChangesResult> PostExecuteAsync(IHookedEntity[] changedHookEntries, CancellationToken cancelToken)
         {
-            if (changedHookEntries == null || !changedHookEntries.Any())
+            if (changedHookEntries == null || changedHookEntries.Length == 0)
+            {
                 return DbSaveChangesResult.Empty;
+            }
 
             // The existence of hook entries actually implies that hooking is enabled.
 
@@ -236,23 +179,23 @@ namespace Smartstore.Data
             return _ctx.ChangeTracker.Entries().Where(x => x.State > EfState.Unchanged);
         }
 
-        private static void IgnoreMergedData(IEnumerable<IMergedData> entries, bool ignore)
+        private static void IgnoreMergedData(IMergedData[] entries, bool ignore)
         {
-            foreach (var entry in entries)
+            for (var i = 0; i < entries.Length; i++)
             {
-                entry.MergedDataIgnore = ignore;
+                entries[i].MergedDataIgnore = ignore;
             }
         }
 
-        private static bool IsHookableEntityType(Type entityType)
+        private static bool IsHookableEntityType(object instance)
         {
             // Property bags and intermediate entities (do not inherit from BaseEntity) are not hookable.
-            if (entityType == null)
+            if (instance is not BaseEntity)
             {
                 return false;
             }
 
-            var isHookable = _hookableEntities.GetOrAdd(entityType, t =>
+            var isHookable = _hookableEntities.GetOrAdd(instance.GetType(), t =>
             {
                 var attr = t.GetAttribute<HookableAttribute>(true);
                 if (attr != null)

@@ -67,6 +67,10 @@ namespace Smartstore.Core.Bootstrapping
                     // This call actually overrides any former registration for the interface.
                     registration.As(serviceTypes);
                 }
+                else
+                {
+                    registration.AsSelf();
+                }
             }
         }
 

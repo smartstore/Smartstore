@@ -2,7 +2,7 @@
 {
     public class DbSavingChangesResult : DbSaveChangesResult
     {
-        public static readonly new DbSavingChangesResult Empty = new DbSavingChangesResult(Enumerable.Empty<IDbSaveHook>(), false);
+        public static readonly new DbSavingChangesResult Empty = new(Array.Empty<IDbSaveHook>(), false);
 
         public DbSavingChangesResult(IEnumerable<IDbSaveHook> processedHooks, bool anyStateChanged)
             : base(processedHooks)
@@ -10,13 +10,13 @@
             AnyStateChanged = anyStateChanged;
         }
 
-        public IEnumerable<IHookedEntity> Entries { get; set; } = Enumerable.Empty<IHookedEntity>();
+        public IHookedEntity[] Entries { get; set; } = Array.Empty<IHookedEntity>();
         public bool AnyStateChanged { get; }
     }
 
     public class DbSaveChangesResult
     {
-        public static readonly DbSaveChangesResult Empty = new(Enumerable.Empty<IDbSaveHook>());
+        public static readonly DbSaveChangesResult Empty = new(Array.Empty<IDbSaveHook>());
 
         public DbSaveChangesResult(IEnumerable<IDbSaveHook> processedHooks)
         {
@@ -40,7 +40,7 @@
         /// </param>
         /// <returns>The list of actually processed hook instances and a value indicating whether the state of at least one entity has changed.</returns>
         Task<DbSavingChangesResult> SavingChangesAsync(
-            IEnumerable<IHookedEntity> entries, 
+            IHookedEntity[] entries, 
             HookImportance minHookImportance = HookImportance.Normal, 
             CancellationToken cancelToken = default);
 
@@ -53,7 +53,7 @@
         /// </param>
         /// <returns>The list of actually processed hook instances</returns>
         Task<DbSaveChangesResult> SavedChangesAsync(
-            IEnumerable<IHookedEntity> entries,
+            IHookedEntity[] entries,
             HookImportance minHookImportance = HookImportance.Normal,
             CancellationToken cancelToken = default);
     }
@@ -63,7 +63,7 @@
         public static IDbHookHandler Instance { get; } = new NullDbHookHandler();
 
         public Task<DbSavingChangesResult> SavingChangesAsync(
-            IEnumerable<IHookedEntity> entries,
+            IHookedEntity[] entries,
             HookImportance minHookImportance = HookImportance.Normal,
             CancellationToken cancelToken = default)
         {
@@ -71,7 +71,7 @@
         }
 
         public Task<DbSaveChangesResult> SavedChangesAsync(
-            IEnumerable<IHookedEntity> entries,
+            IHookedEntity[] entries,
             HookImportance minHookImportance = HookImportance.Normal,
             CancellationToken cancelToken = default)
         {

@@ -44,7 +44,7 @@ namespace Smartstore.Data.Hooks
                 }
             }
 
-            if (minHookImportance > HookImportance.Normal)
+            if (hooks.Length > 0 && minHookImportance > HookImportance.Normal)
             {
                 // Only select hook types with Importance >= minHookImportance
                 return hooks.Where(x => x.Importance >= minHookImportance).ToArray();

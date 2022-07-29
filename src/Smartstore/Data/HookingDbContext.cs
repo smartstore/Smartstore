@@ -102,7 +102,9 @@ namespace Smartstore.Data
 
         protected internal IDbHookHandler DbHookHandler
         {
-            get => _hookHandler ?? EngineContext.Current.Scope.ResolveOptional<IDbHookHandler>() ?? NullDbHookHandler.Instance;
+            get => _hookHandler 
+                ?? EngineContext.Current?.Scope?.ResolveOptional<IDbHookHandler>() 
+                ?? NullDbHookHandler.Instance;
             set => _hookHandler = value;
         }
 

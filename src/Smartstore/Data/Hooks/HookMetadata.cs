@@ -11,6 +11,11 @@ namespace Smartstore.Data.Hooks
         public Type HookedType { get; set; }
 
         /// <summary>
+        /// All possible types/interfaces used to resolve the hook implementation from service registry
+        /// </summary>
+        public Type[] ServiceTypes { get; set; }
+
+        /// <summary>
         /// The type of the hook class itself
         /// </summary>
         public Type ImplType { get; set; }
