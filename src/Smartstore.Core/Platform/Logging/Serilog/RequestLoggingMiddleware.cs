@@ -103,7 +103,7 @@ namespace Smartstore.Core.Logging
             }
             else
             {
-                if (!collector.TryComplete(out var collectedProperties))
+                if (!collector.TryComplete(out var collectedProperties, out _))
                 {
                     collectedProperties = Array.Empty<LogEventProperty>();
                 }
