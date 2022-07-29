@@ -86,6 +86,9 @@ namespace Smartstore.PayPal.Client
         {
             Guard.NotNull(request, nameof(request));
 
+            // TODO: (mh) (core) this can lead to exception "Value cannot be null. Parameter 'stringToEscape'" (see Wolfgang's mail 28.07.).
+            // Sessions can expire, so mandatory data in them must be validated when they are used. If PaypalOrderId is missing, then an info like
+            // Payment.MissingCheckoutState should be displayed, including redirection to payment method list or shopping cart page.
             var ordersPatchRequest = new OrdersPatchRequest<object>(request.PaypalOrderId);
 
             var amount = new AmountWithBreakdown
@@ -176,6 +179,8 @@ namespace Smartstore.PayPal.Client
 
             // TODO: (mh) (core) If ERPs are used this ain't the real Invoice-Id > Make optional or remove (TBD with MC)
             var message = new CaptureMessage { InvoiceId = request.Order.OrderNumber };
+            // TODO: (mh) (core) Produces exception "Value cannot be null. Parameter 'stringToEscape'".
+            // CaptureTransactionId is null here. Payment is not captured yet. Maybe you want to use AuthorizationTransactionId?
             var voidRequest = new AuthorizationsCaptureRequest(request.Order.CaptureTransactionId).WithBody(message);
             var response = await ExecuteRequestAsync(voidRequest, request.Order.StoreId, cancelToken);
             var capture = response.Body<Capture>();
@@ -197,6 +202,8 @@ namespace Smartstore.PayPal.Client
         {
             Guard.NotNull(request, nameof(request));
 
+            // TODO: (mh) (core) Produces exception "Value cannot be null. Parameter 'stringToEscape'".
+            // CaptureTransactionId is null here. Payment is not captured yet. Maybe you want to use AuthorizationTransactionId?
             var voidRequest = new AuthorizationsVoidRequest(request.Order.CaptureTransactionId);
             var response = await ExecuteRequestAsync(voidRequest, request.Order.StoreId, cancelToken);
 

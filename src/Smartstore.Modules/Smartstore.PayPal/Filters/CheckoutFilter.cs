@@ -10,6 +10,8 @@ using Smartstore.PayPal.Components;
 
 namespace Smartstore.PayPal.Filters
 {
+    // TODO: (mh) (core) An order cannot be placed when using PayPal button on payment list page.
+    // Produces "Nullable object must have a value" when placing the order because the selected shipping method is missing\getting lost.
     public class CheckoutFilter : IAsyncResultFilter
     {
         private readonly SmartDbContext _db;
