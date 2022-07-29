@@ -247,8 +247,6 @@ namespace Smartstore.IO
 
         private async Task CreateInternal(Stream inStream, bool overwrite, bool async)
         {
-            Guard.NotNull(inStream, nameof(inStream));
-            
             if (!overwrite && _fi.Exists)
             {
                 throw new FileSystemException($"Cannot create file '{_fi.FullName}' because it already exists.");
@@ -261,7 +259,9 @@ namespace Smartstore.IO
                 System.IO.Directory.CreateDirectory(dirName);
             }
 
+            inStream ??= new MemoryStream();
             using var outputStream = _fi.Create();
+
             if (async)
             {
                 await inStream.CopyToAsync(outputStream);

@@ -422,7 +422,7 @@ namespace Smartstore.Core.Content.Media
             var result = await ProcessFileAsync(
                 file, 
                 pathData, 
-                stream,
+                stream ?? new MemoryStream(),
                 isTransient: false,
                 dupeFileHandling: dupeFileHandling);
 
