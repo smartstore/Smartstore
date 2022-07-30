@@ -44,7 +44,7 @@ namespace Smartstore.Web.TagHelpers.Shared
 
 		protected override async Task ProcessCoreAsync(TagHelperContext context, TagHelperOutput output)
         {
-			var isHtmlTag = output.TagName != "zone";
+            var isHtmlTag = output.TagName != "zone";
 
 			var widgets = await _widgetSelector.GetWidgetsAsync(ZoneName, ViewContext, Model ?? ViewContext.ViewData.Model);
 

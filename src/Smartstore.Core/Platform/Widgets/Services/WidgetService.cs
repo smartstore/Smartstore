@@ -51,12 +51,12 @@ namespace Smartstore.Core.Widgets
 
             var map = GetWidgetMetadataMap();
 
-            if (map.TryGetValues(widgetZone.ToLower(), out var widgetMetadatas))
+            if (map.TryGetValues(widgetZone, out var widgetMetadatas))
             {
-                return _requestCache.Get(WIDGETS_BYZONE_KEY.FormatInvariant(widgetZone, storeId), () =>
+                return _requestCache.Get(WIDGETS_BYZONE_KEY.FormatInvariant(widgetZone.ToLower(), storeId), () =>
                 {
                     var providers = widgetMetadatas
-                        .Where(m => _widgetSettings.ActiveWidgetSystemNames.Contains(m.SystemName, StringComparer.InvariantCultureIgnoreCase))
+                        .Where(m => _widgetSettings.ActiveWidgetSystemNames.Contains(m.SystemName, StringComparer.OrdinalIgnoreCase))
                         .Select(m => _providerManager.GetProvider<IWidget>(m.SystemName, storeId))
                         .Where(x => x != null)
                         .ToList();
@@ -96,16 +96,16 @@ namespace Smartstore.Core.Widgets
             return _cacheFactory.GetMemoryCache().Get(WIDGETS_ALLMETADATA_KEY, () =>
             {
                 var widgets = _providerManager.GetAllProviders<IWidget>(0);
-                var map = new Multimap<string, ProviderMetadata>();
+                var map = new Multimap<string, ProviderMetadata>(StringComparer.OrdinalIgnoreCase);
 
                 foreach (var widget in widgets)
                 {
                     var zones = widget.Value.GetWidgetZones();
-                    if (zones != null && zones.Any())
+                    if (zones != null)
                     {
-                        foreach (var zone in zones.Select(x => x.ToLower()))
+                        for (var i = 0; i < zones.Length; i++)
                         {
-                            map.Add(zone, widget.Metadata);
+                            map.Add(zones[i], widget.Metadata);
                         }
                     }
                 }

@@ -8,7 +8,7 @@ namespace Smartstore.Caching
     {
         const string RegionName = "Smartstore:";
 
-        private readonly IDictionary<object, object> _emptyDictionary = new Dictionary<object, object>();
+        private Dictionary<object, object> _localDictionary;
 
         private readonly IHttpContextAccessor _httpContextAccessor;
 
@@ -104,7 +104,7 @@ namespace Smartstore.Caching
 
         protected IDictionary<object, object> GetItems()
         {
-            return _httpContextAccessor?.HttpContext?.Items ?? _emptyDictionary;
+            return _httpContextAccessor?.HttpContext?.Items ?? (_localDictionary ??= new());
         }
 
         public IEnumerable<string> Keys(string pattern)

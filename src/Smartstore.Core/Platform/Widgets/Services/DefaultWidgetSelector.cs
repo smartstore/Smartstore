@@ -169,12 +169,12 @@ namespace Smartstore.Core.Widgets
                     foreach (var topicWidget in topicWidgets)
                     {
                         var zones = topicWidget.WidgetZones;
-                        if (zones != null && zones.Any())
+                        if (zones != null)
                         {
-                            foreach (var zone in zones)
+                            for (var i = 0; i < zones.Length; i++)
                             {
                                 var topicWidgetInvoker = new TopicWidgetInvoker(topicWidget);
-                                map.Add(zone, topicWidgetInvoker);
+                                map.Add(zones[i], topicWidgetInvoker);
                             }
                         }
                     }
@@ -182,9 +182,9 @@ namespace Smartstore.Core.Widgets
                     return map;
                 });
 
-                if (topicsByZone.ContainsKey(zone))
+                if (topicsByZone.TryGetValues(zone, out var values))
                 {
-                    widgets = widgets.Concat(topicsByZone[zone]);
+                    widgets = widgets.Concat(values);
                 }
             }
 
