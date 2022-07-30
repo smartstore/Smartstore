@@ -212,7 +212,7 @@ namespace Smartstore.Caching
                 }
                 else
                 {
-                    // Create value by invokin acquirer
+                    // Create value by invoking acquirer
                     var scope = !allowRecursion ? _scopeAccessor.Value.BeginScope(key) : ActionDisposable.Empty;
                     using (scope)
                     {
