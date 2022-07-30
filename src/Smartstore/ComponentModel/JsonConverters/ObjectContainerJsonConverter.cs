@@ -41,7 +41,7 @@ namespace Smartstore.ComponentModel.JsonConverters
                 {
                     result.Value = converted;
                 }
-                
+
                 return result;
             }
 

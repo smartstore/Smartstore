@@ -51,7 +51,7 @@ namespace Smartstore.Utilities.Html
             var sanitizer = new HtmlSanitizer(
                 allowedTags: MergeSets(options.AllowedTags, options.DisallowedTags, HtmlSanitizerOptions.DefaultAllowedTags),
                 allowedAttributes: MergeSets(options.AllowedAttributes, options.DisallowedAttributes, HtmlSanitizerOptions.DefaultAllowedAttributes),
-                uriAttributes: options.UriAttributes) 
+                uriAttributes: options.UriAttributes)
             {
                 KeepChildNodes = options.KeepChildNodes,
                 AllowDataAttributes = options.AllowDataAttributes
@@ -301,7 +301,7 @@ namespace Smartstore.Utilities.Html
             if (string.IsNullOrEmpty(text))
             {
                 return string.Empty;
-            } 
+            }
 
             if (text.IndexOfAny(new[] { '<', '\r', '\n' }) == -1)
             {

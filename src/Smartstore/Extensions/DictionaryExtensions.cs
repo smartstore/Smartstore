@@ -308,7 +308,7 @@ namespace Smartstore
                     }
                 }
             }
-            
+
             return mergedValue != null;
         }
     }

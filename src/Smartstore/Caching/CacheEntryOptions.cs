@@ -12,7 +12,7 @@
             {
                 throw new ArgumentOutOfRangeException(nameof(duration), duration, "The expiration value must be positive.");
             }
-            
+
             _absoluteExpiration = duration;
             return this;
         }

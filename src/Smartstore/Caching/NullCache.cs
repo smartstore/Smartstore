@@ -1,6 +1,5 @@
 ﻿
 using Smartstore.Threading;
-using Smartstore.Utilities;
 
 namespace Smartstore.Caching
 {

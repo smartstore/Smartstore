@@ -9,7 +9,7 @@ namespace Smartstore.Engine.Modularity
     {
         private bool? _isConfigurable;
         private List<string> _privateReferences;
-        
+
         public ModuleAssemblyInfo(IModuleDescriptor descriptor)
         {
             Descriptor = Guard.NotNull(descriptor, nameof(descriptor));

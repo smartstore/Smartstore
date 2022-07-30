@@ -17,7 +17,7 @@ namespace Smartstore.Scheduling
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
         private TaskExecutionInfo(ILazyLoader lazyLoader)
             : base(lazyLoader)
-        {            
+        {
         }
 
         // Legacy compat

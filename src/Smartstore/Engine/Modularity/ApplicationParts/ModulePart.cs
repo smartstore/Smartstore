@@ -17,10 +17,10 @@ namespace Smartstore.Engine.Modularity.ApplicationParts
 
         public IModuleDescriptor Descriptor { get; }
 
-        public override string Name 
+        public override string Name
             => Descriptor.Name;
 
-        public IEnumerable<TypeInfo> Types 
+        public IEnumerable<TypeInfo> Types
             => Descriptor.Module.Assembly.DefinedTypes;
 
         public IEnumerable<string> GetReferencePaths()

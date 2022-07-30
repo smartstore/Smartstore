@@ -14,7 +14,7 @@ namespace Smartstore.Engine.Modularity
         /// </summary>
         ModuleInstallation
     }
-    
+
     /// <summary>
     /// Module installation context.
     /// </summary>
@@ -29,7 +29,7 @@ namespace Smartstore.Engine.Modularity
         /// The descriptor of module currently being installed.
         /// </summary>
         public IModuleDescriptor ModuleDescriptor { get; internal set; }
-        
+
         /// <summary>
         /// Gets a value indicating whether sample data should be seeded. During 
         /// app installation, reflects the choice the user made in the install wizard.
@@ -53,7 +53,7 @@ namespace Smartstore.Engine.Modularity
         /// </summary>
         public ILogger Logger { get; init; }
     }
-    
+
     /// <summary>
     /// Responsible for installing or uninstalling modules.
     /// Implementations are auto-discovered on app startup and registered as transient

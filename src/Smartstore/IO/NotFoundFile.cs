@@ -27,7 +27,7 @@ namespace Smartstore.IO
         public string Extension => SubPath.IsEmpty() ? string.Empty : Path.GetExtension(SubPath);
         public string PhysicalPath => null;
 
-        public Size GetPixelSize() 
+        public Size GetPixelSize()
             => Size.Empty;
 
         public bool IsSymbolicLink(out string finalPhysicalPath)

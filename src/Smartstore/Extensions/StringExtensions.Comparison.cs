@@ -46,12 +46,12 @@ namespace Smartstore
             if (value == null)
             {
                 throw new ArgumentNullException(nameof(value));
-            } 
+            }
 
             if (value.Length == 0)
             {
                 return false;
-            }  
+            }
 
             for (int i = 0; i < value.Length; i++)
             {
@@ -91,7 +91,7 @@ namespace Smartstore
             if (string.IsNullOrEmpty(value))
             {
                 return false;
-            }   
+            }
 
             value = value.Trim().ToLowerInvariant();
 
@@ -110,7 +110,7 @@ namespace Smartstore
             if (string.IsNullOrEmpty(value))
             {
                 return false;
-            }   
+            }
 
             // Only return true if there is only 1 '@' character
             // and it is neither the first nor the last character
@@ -151,12 +151,12 @@ namespace Smartstore
             if (string.IsNullOrEmpty(enclosedIn))
             {
                 return false;
-            } 
+            }
 
             if (enclosedIn.Length == 1)
             {
                 return IsEnclosedIn(value, enclosedIn, enclosedIn, comparison);
-            } 
+            }
 
             if (enclosedIn.Length % 2 == 0)
             {

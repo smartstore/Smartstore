@@ -212,8 +212,8 @@ namespace Smartstore.ComponentModel
                 {
                     exists = GetProperty(_instance, name, out result);
                 }
-                catch 
-                { 
+                catch
+                {
                 }
             }
 
@@ -243,7 +243,7 @@ namespace Smartstore.ComponentModel
         protected virtual bool TrySetMemberCore(string name, object value)
         {
             var result = false;
-            
+
             // First check to see if there's a dictionary entry to set
             if (Properties.TryGetValue(name, out var oldValue))
             {
@@ -258,8 +258,8 @@ namespace Smartstore.ComponentModel
                 {
                     result = SetProperty(_instance, name, value, out oldValue);
                 }
-                catch 
-                { 
+                catch
+                {
                 }
             }
 
@@ -315,8 +315,8 @@ namespace Smartstore.ComponentModel
                     if (InvokeMethod(_instance, binder.Name, args, out result))
                         return true;
                 }
-                catch 
-                { 
+                catch
+                {
                 }
             }
 

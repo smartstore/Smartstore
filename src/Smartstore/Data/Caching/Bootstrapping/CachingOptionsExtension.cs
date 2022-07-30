@@ -112,10 +112,10 @@ namespace Smartstore.Data.Caching
             {
             }
 
-            public override bool IsDatabaseProvider 
+            public override bool IsDatabaseProvider
                 => false;
 
-            private new CachingOptionsExtension Extension 
+            private new CachingOptionsExtension Extension
                 => (CachingOptionsExtension)base.Extension;
 
             public override bool ShouldUseSameServiceProvider(DbContextOptionsExtensionInfo other)
@@ -141,7 +141,7 @@ namespace Smartstore.Data.Caching
                 return _serviceProviderHash.Value.Convert<int>();
             }
 
-            public override string LogFragment 
+            public override string LogFragment
                 => $"Using '{nameof(CachingOptionsExtension)}'";
 
             public override void PopulateDebugInfo(IDictionary<string, string> debugInfo)

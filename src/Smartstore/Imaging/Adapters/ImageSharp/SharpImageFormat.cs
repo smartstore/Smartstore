@@ -2,7 +2,9 @@
 using SixLabors.ImageSharp.Formats.Gif;
 using SixLabors.ImageSharp.Formats.Jpeg;
 using SixLabors.ImageSharp.Formats.Png;
+using SixLabors.ImageSharp.Formats.Webp;
 using SharpFormat = SixLabors.ImageSharp.Formats.IImageFormat;
+using SharpGifColorTableMode = SixLabors.ImageSharp.Formats.Gif.GifColorTableMode;
 using SharpJpgColorType = SixLabors.ImageSharp.Formats.Jpeg.JpegColorType;
 using SharpPngBitDepth = SixLabors.ImageSharp.Formats.Png.PngBitDepth;
 using SharpPngChunkFilter = SixLabors.ImageSharp.Formats.Png.PngChunkFilter;
@@ -10,10 +12,8 @@ using SharpPngColorType = SixLabors.ImageSharp.Formats.Png.PngColorType;
 using SharpPngCompressionLevel = SixLabors.ImageSharp.Formats.Png.PngCompressionLevel;
 using SharpPngInterlaceMode = SixLabors.ImageSharp.Formats.Png.PngInterlaceMode;
 using SharpPngTransparentColorMode = SixLabors.ImageSharp.Formats.Png.PngTransparentColorMode;
-using SharpWebpFileFormatType = SixLabors.ImageSharp.Formats.Webp.WebpFileFormatType;
 using SharpWebpEncodingMethod = SixLabors.ImageSharp.Formats.Webp.WebpEncodingMethod;
-using SharpGifColorTableMode = SixLabors.ImageSharp.Formats.Gif.GifColorTableMode;
-using SixLabors.ImageSharp.Formats.Webp;
+using SharpWebpFileFormatType = SixLabors.ImageSharp.Formats.Webp.WebpFileFormatType;
 
 namespace Smartstore.Imaging.Adapters.ImageSharp
 {
@@ -63,10 +63,10 @@ namespace Smartstore.Imaging.Adapters.ImageSharp
         {
             if (Quality != null || ColorType != null)
             {
-                return new JpegEncoder 
-                { 
-                    Quality = Quality, 
-                    ColorType = (SharpJpgColorType?)ColorType 
+                return new JpegEncoder
+                {
+                    Quality = Quality,
+                    ColorType = (SharpJpgColorType?)ColorType
                 };
             }
 
@@ -166,7 +166,7 @@ namespace Smartstore.Imaging.Adapters.ImageSharp
 
                 if (Quality != null)
                     encoder.Quality = Quality.Value;
-                if (Method != null) 
+                if (Method != null)
                     encoder.Method = (SharpWebpEncodingMethod)Method.Value;
                 if (UseAlphaCompression != null)
                     encoder.UseAlphaCompression = UseAlphaCompression.Value;

@@ -1,6 +1,5 @@
 ﻿using System.Reflection;
 using Autofac;
-using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Caching;
 using Smartstore.Data.Hooks;
 using Smartstore.Engine;

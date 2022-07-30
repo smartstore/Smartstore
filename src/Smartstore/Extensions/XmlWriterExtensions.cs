@@ -47,11 +47,11 @@ namespace Smartstore
                 if (asCData)
                 {
                     writer.WriteCData(value.RemoveInvalidXmlChars());
-                }  
+                }
                 else
                 {
                     writer.WriteString(value.RemoveInvalidXmlChars());
-                }  
+                }
 
                 writer.WriteEndElement();
             }

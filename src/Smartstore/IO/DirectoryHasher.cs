@@ -34,7 +34,7 @@ namespace Smartstore.IO
             _deep = deep;
         }
 
-        public bool HasChanged 
+        public bool HasChanged
             => LastHash != CurrentHash;
 
         public int? LastHash
@@ -50,10 +50,10 @@ namespace Smartstore.IO
             }
         }
 
-        public int CurrentHash 
+        public int CurrentHash
             => ((int?)(_currentHash ??= ComputeHash())).Value;
 
-        public string LookupKey 
+        public string LookupKey
             => _lookupKey ??= BuildLookupKey();
 
         public void Refresh()

@@ -50,7 +50,7 @@ namespace Smartstore
                 list.ForEach(action);
                 return;
             }
-            
+
             foreach (T t in source)
             {
                 action(t);
@@ -158,17 +158,17 @@ namespace Smartstore
             {
                 throw new ArgumentNullException(nameof(source));
             }
-                
+
             if (keySelector == null)
             {
                 throw new ArgumentNullException(nameof(keySelector));
             }
-                
+
             if (elementSelector == null)
             {
                 throw new ArgumentNullException(nameof(elementSelector));
             }
-                
+
             var dictionary = new Dictionary<TKey, TElement>(comparer);
 
             foreach (var local in source)
@@ -219,12 +219,12 @@ namespace Smartstore
             {
                 throw new ArgumentNullException(nameof(source));
             }
-                
+
             if (ids == null)
             {
                 throw new ArgumentNullException(nameof(ids));
             }
-                
+
             var sorted = from id in ids
                          join entity in source on id equals entity.Id
                          select entity;

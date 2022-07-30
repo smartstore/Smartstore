@@ -14,7 +14,7 @@ namespace Smartstore.ComponentModel.TypeConverters
             {
                 return null;
             }
-            
+
             if (type == typeof(RouteValueDictionary))
             {
                 return new DictionaryTypeConverter<RouteValueDictionary>();

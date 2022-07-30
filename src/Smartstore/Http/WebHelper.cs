@@ -4,7 +4,6 @@ using System.Net.Http;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
-using System.Web;
 using Autofac;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
@@ -329,7 +328,7 @@ namespace Smartstore.Http
                         return false;
                     }
                 }
-                
+
                 if (i == 1)
                 {
                     extensionName = segment.Value;

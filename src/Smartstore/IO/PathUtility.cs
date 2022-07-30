@@ -65,7 +65,7 @@ namespace Smartstore.IO
             if (string.IsNullOrEmpty(path))
             {
                 return path;
-            }   
+            }
 
             // Trim whitespace
             var trim = char.IsWhiteSpace(path[0]) || (path.Length > 1 && char.IsWhiteSpace(path[^1]));
@@ -135,7 +135,7 @@ namespace Smartstore.IO
             if (paths.Length == 1 || (paths.Length == 2 && string.IsNullOrEmpty(paths[1])))
             {
                 return result;
-            }   
+            }
 
             for (var i = 1; i < paths.Length; i++)
             {
@@ -193,7 +193,7 @@ namespace Smartstore.IO
                     segments.Add(segment);
                 }
             }
-            
+
             var result = string.Join('/', segments);
 
             if (PathSeparators.Contains(left[0]))
@@ -219,7 +219,7 @@ namespace Smartstore.IO
             if (fileName.IsEmpty())
             {
                 return fileName;
-            }   
+            }
 
             return _invalidCharsPattern.Replace(fileName, replacement);
         }
@@ -246,7 +246,7 @@ namespace Smartstore.IO
             if (path == null)
             {
                 return false;
-            }     
+            }
 
             return path.IndexOfAny(_invalidPathChars) >= 0
                 || (checkWildcardChars && ContainsWildcardChars(path, 0));

@@ -57,7 +57,7 @@ namespace Smartstore.Collections
             if (items == null)
             {
                 yield break;
-            }   
+            }
 
             foreach (var item in items)
             {
@@ -169,7 +169,7 @@ namespace Smartstore.Collections
             {
                 return false;
             }
-                
+
             var col = _dict[key];
             var removed = col.Remove(value);
 

@@ -18,10 +18,10 @@ namespace Smartstore.Engine.Modularity.NuGet
         public override void Log(ILogMessage message)
         {
             _logger.Log(
-                ConvertLevel(message.Level), 
+                ConvertLevel(message.Level),
                 0,
-                message.FormatWithCode(), 
-                null, 
+                message.FormatWithCode(),
+                null,
                 _messageFormatter);
         }
 

@@ -89,7 +89,7 @@ namespace Smartstore.Imaging.Adapters.ImageSharp
             {
                 _image.Save(stream, encoder);
             }
-            
+
             // Remember format for next save
             if (format != null)
             {

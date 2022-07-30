@@ -14,7 +14,7 @@
         // Hook instance should run in any case. Hooks that are required even during installation (e.g. AuditHook) should be essential.
         Essential
     }
-    
+
     /// <summary>
     /// Indicates that a hook instance should run in any case, even when hooking has been turned off.
     /// </summary>

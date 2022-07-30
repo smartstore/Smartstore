@@ -343,7 +343,7 @@ namespace Smartstore.Caching
                     // Rely on message bus from distributed store to propagate expiration event to this downstream store.
                     entry.ApplyTimeExpirationPolicy = false;
                 }
-                
+
                 _stores[i].Put(key, entry);
             }
         }
@@ -487,7 +487,7 @@ namespace Smartstore.Caching
                         {
                             _stores[i].Put(key, entryClone);
                         }
-                        
+
                         i--;
                     }
 
@@ -505,7 +505,7 @@ namespace Smartstore.Caching
                         {
                             distributedStore.Refresh(entry);
                         }
-                        
+
                     }
 
                     return (entry, store, index);

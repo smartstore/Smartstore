@@ -36,9 +36,9 @@ namespace Smartstore
                 return sc;
             }
 
-            return new SyncedCollection<T>(source, syncRoot) 
-            { 
-                ReadLockFree = readLockFree 
+            return new SyncedCollection<T>(source, syncRoot)
+            {
+                ReadLockFree = readLockFree
             };
         }
 

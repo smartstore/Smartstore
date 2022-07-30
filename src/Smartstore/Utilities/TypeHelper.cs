@@ -8,7 +8,7 @@
             {
                 return type;
             }
-            
+
             if (type.HasElementType)
             {
                 return GetElementType(type.GetElementType());

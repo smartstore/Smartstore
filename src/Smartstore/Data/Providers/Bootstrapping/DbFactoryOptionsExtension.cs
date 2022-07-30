@@ -3,7 +3,6 @@ using AngleSharp.Common;
 using Autofac;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Data.Migrations;
 using Smartstore.Engine;
@@ -67,7 +66,7 @@ namespace Smartstore.Data.Providers
             {
                 Guard.IsPositive(commandTimeout.Value, nameof(commandTimeout));
             }
-            
+
             var clone = Clone();
             clone.CommandTimeout = commandTimeout;
             return clone;
@@ -136,7 +135,7 @@ namespace Smartstore.Data.Providers
             {
                 throw new InvalidOperationException($"The data seeder '{typeof(TSeeder)}' is not compatible with the configured DbContext type '{_options.ContextType}'.");
             }
-            
+
             var clone = Clone();
             clone.DataSeederTypes = (DataSeederTypes ?? Type.EmptyTypes).Concat(new[] { typeof(TSeeder) });
             return clone;
@@ -155,7 +154,7 @@ namespace Smartstore.Data.Providers
             {
             }
 
-            public override bool IsDatabaseProvider 
+            public override bool IsDatabaseProvider
                 => false;
 
             private new DbFactoryOptionsExtension Extension

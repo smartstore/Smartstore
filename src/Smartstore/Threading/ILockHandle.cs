@@ -32,7 +32,7 @@
         {
         }
 
-        public Task ReleaseAsync() 
+        public Task ReleaseAsync()
             => Task.CompletedTask;
     }
 }

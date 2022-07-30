@@ -13,7 +13,7 @@ namespace Smartstore.Bootstrapping
         {
             Guard.NotNull(services, nameof(services));
 
-            services.AddHttpClient<DownloadManager>((sp, client) => 
+            services.AddHttpClient<DownloadManager>((sp, client) =>
             {
                 var cache = new CacheControlHeaderValue { NoCache = true };
 

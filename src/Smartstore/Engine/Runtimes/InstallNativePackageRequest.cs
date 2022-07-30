@@ -21,7 +21,7 @@
         public string LibraryName { get; }
         public bool IsExecutable { get; }
 
-        public string PackageId { get;}
+        public string PackageId { get; }
 
         /// <summary>
         /// Whether to append the current runtime identifier (win-x64, linux-x64 etc.) to the package id automatically. Default: <c>true</c>.

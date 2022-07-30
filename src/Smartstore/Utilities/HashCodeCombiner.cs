@@ -77,7 +77,7 @@ namespace Smartstore.Utilities
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public HashCodeCombiner Add(object o)
         {
-            int hashCode = (o != null) 
+            int hashCode = (o != null)
                 ? (o is string s ? (int)XxHashUnsafe.ComputeHash(s) : o.GetHashCode())
                 : 0;
 

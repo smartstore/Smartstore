@@ -23,10 +23,10 @@ namespace Smartstore.ComponentModel
         public event PropertyChangedEventHandler PropertyChanged;
 
         [JsonIgnore]
-        protected IReadOnlyDictionary<string, object> Properties 
-        { 
+        protected IReadOnlyDictionary<string, object> Properties
+        {
             get => _properties;
-        } 
+        }
 
         protected virtual T GetProperty<T>(Func<T> defaultValue = null, [CallerMemberName] string name = null)
         {

@@ -79,7 +79,7 @@ namespace Smartstore.Engine.Runtimes
                     }
                 }
             }
-            
+
             return fi;
         }
 

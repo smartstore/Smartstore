@@ -96,8 +96,8 @@ namespace Smartstore.ComponentModel
             where TTo : class
         {
             return GetMapper<TFrom, TTo>().MapAsync(
-                Guard.NotNull(from, nameof(from)), 
-                Guard.NotNull(to, nameof(to)), 
+                Guard.NotNull(from, nameof(from)),
+                Guard.NotNull(to, nameof(to)),
                 parameters);
         }
 

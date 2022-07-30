@@ -13,9 +13,9 @@ namespace Smartstore.Domain
         /// If <c>false</c> (default) the deletion is suppressed and the <see cref="Deleted"/> property is set to <c>true</c> instead.
         /// </summary>
         [NotMapped, JsonIgnore]
-        bool ForceDeletion 
-        { 
-            get { return false; } 
+        bool ForceDeletion
+        {
+            get { return false; }
         }
     }
 }

@@ -18,7 +18,7 @@ using Smartstore.Pdf;
 
 namespace Smartstore.Engine
 {
-    public abstract class EngineStarter<TEngine> : Disposable, IEngineStarter 
+    public abstract class EngineStarter<TEngine> : Disposable, IEngineStarter
         where TEngine : IEngine
     {
         private TEngine _engine;
@@ -139,7 +139,7 @@ namespace Smartstore.Engine
             services.AddScoped<IDisplayHelper, DefaultDisplayHelper>();
             services.AddHttpContextAccessor();
 
-            services.AddMemoryCache(o => 
+            services.AddMemoryCache(o =>
             {
                 o.SizeLimit = app.AppConfiguration.MemoryCacheSizeLimit;
 

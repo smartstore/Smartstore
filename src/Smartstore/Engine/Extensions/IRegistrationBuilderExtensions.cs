@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Autofac.Builder;
-using Autofac.Features.Scanning;
+﻿using Autofac.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Smartstore;
 

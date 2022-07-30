@@ -13,7 +13,7 @@ namespace Smartstore
             return ReadAllTextInternal(fs.GetFile(subpath), encoding, false).Await();
         }
 
-        public static string ReadAllText(this IFile file, Encoding encoding = null) 
+        public static string ReadAllText(this IFile file, Encoding encoding = null)
             => ReadAllTextInternal(file, encoding, false).Await();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -24,7 +24,7 @@ namespace Smartstore
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Task<string> ReadAllTextAsync(this IFile file, Encoding encoding = null) 
+        public static Task<string> ReadAllTextAsync(this IFile file, Encoding encoding = null)
             => ReadAllTextInternal(file, encoding, true);
 
         private static async Task<string> ReadAllTextInternal(IFile file, Encoding encoding, bool async)
@@ -50,7 +50,7 @@ namespace Smartstore
             return ReadAllBytesInternal(fs.GetFile(subpath), false).Await();
         }
 
-        public static byte[] ReadAllBytes(this IFile file) 
+        public static byte[] ReadAllBytes(this IFile file)
             => ReadAllBytesInternal(file, false).Await();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -61,7 +61,7 @@ namespace Smartstore
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Task<byte[]> ReadAllBytesAsync(this IFile file) 
+        public static Task<byte[]> ReadAllBytesAsync(this IFile file)
             => ReadAllBytesInternal(file, true);
 
         private static async Task<byte[]> ReadAllBytesInternal(IFile file, bool async)

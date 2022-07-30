@@ -3,7 +3,7 @@
     public static class IDistributedLockExtensions
     {
         static readonly TimeSpan NoTimeout = TimeSpan.FromMilliseconds(0);
-        
+
         /// <inheritdoc cref="IDistributedLock.Acquire(TimeSpan, CancellationToken)"/>
         /// <summary>
         /// Acquires the lock synchronously with infinite timeout. Usage: 

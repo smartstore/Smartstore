@@ -50,7 +50,7 @@ namespace Smartstore.Data.Hooks
             if (other == null)
             {
                 return false;
-            }     
+            }
 
             return ImplType == other.ImplType && HookedType == other.HookedType;
         }

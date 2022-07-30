@@ -5,7 +5,7 @@
         Module,
         Theme
     }
-    
+
     public interface IExtensionDescriptor
     {
         /// <summary>

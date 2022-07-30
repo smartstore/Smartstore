@@ -6,7 +6,7 @@
     public interface IPdfOptions
     {
     }
-    
+
     public class PdfConversionSettings
     {
         /// <summary>

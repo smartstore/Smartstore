@@ -36,14 +36,14 @@ namespace Smartstore.IO
         /// Creates a stream for reading from the file.
         /// </summary>
         /// <exception cref="FileNotFoundException">Thrown if the file does not exist.</exception>
-        Stream OpenRead() 
+        Stream OpenRead()
             => throw new NotImplementedException();
 
         /// <summary>
         /// Creates a stream for reading from the file.
         /// </summary>
         /// <exception cref="FileNotFoundException">Thrown if the file does not exist.</exception>
-        Task<Stream> OpenReadAsync(CancellationToken cancelToken = default) 
+        Task<Stream> OpenReadAsync(CancellationToken cancelToken = default)
             => Task.FromResult(OpenRead());
 
         /// <summary>
@@ -53,7 +53,7 @@ namespace Smartstore.IO
         /// The content/mime type of the file that is about to be written to the stream. 
         /// </param>
         /// <exception cref="FileSystemException">Thrown if the file does not exist and the directory could not be created.</exception>
-        Stream OpenWrite(string contentType = null) 
+        Stream OpenWrite(string contentType = null)
             => throw new NotImplementedException();
 
         /// <summary>
@@ -63,7 +63,7 @@ namespace Smartstore.IO
         /// The content/mime type of the file that is about to be written to the stream. 
         /// </param>
         /// <exception cref="FileSystemException">Thrown if the file does not exist and the directory could not be created.</exception>
-        Task<Stream> OpenWriteAsync(string contentType = null, CancellationToken cancelToken = default) 
+        Task<Stream> OpenWriteAsync(string contentType = null, CancellationToken cancelToken = default)
             => Task.FromResult(OpenWrite());
 
         /// <summary>
@@ -71,7 +71,7 @@ namespace Smartstore.IO
         /// If <paramref name="overwrite"/> is false, an exception will be
         /// raised if the destination exists. Otherwise it will be overwritten.
         /// </summary>
-        IFile CopyTo(string newPath, bool overwrite) 
+        IFile CopyTo(string newPath, bool overwrite)
             => throw new NotImplementedException();
 
         /// <summary>
@@ -93,7 +93,7 @@ namespace Smartstore.IO
         /// <remarks>
         /// If the specified path contains one or more directories, then those directories are created if they do not already exist.
         /// </remarks>
-        void Create(Stream inStream, bool overwrite) 
+        void Create(Stream inStream, bool overwrite)
             => throw new NotImplementedException();
 
         /// <summary>
@@ -107,7 +107,7 @@ namespace Smartstore.IO
         /// <remarks>
         /// If the specified path contains one or more directories, then those directories are created if they do not already exist.
         /// </remarks>
-        Task CreateAsync(Stream inStream, bool overwrite, CancellationToken cancelToken = default) 
+        Task CreateAsync(Stream inStream, bool overwrite, CancellationToken cancelToken = default)
             => throw new NotImplementedException();
     }
 }

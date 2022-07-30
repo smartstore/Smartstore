@@ -10,7 +10,7 @@ namespace Smartstore.Utilities
     internal static class NumberRangeRegexGenerator
     {
         private static readonly ConcurrentDictionary<string, string> _patternCache = new();
-        
+
         /// <summary>
         /// Generates a regular expression that matches the numbers
         /// that fall within the range of the given numbers, inclusive.
@@ -34,7 +34,7 @@ namespace Smartstore.Utilities
         {
             var cacheKey = $"nr:{min}-{max}-{minWidth}";
 
-            return _patternCache.GetOrAdd(cacheKey, key => 
+            return _patternCache.GetOrAdd(cacheKey, key =>
             {
                 var pairs = GetRegexPairs(min, max);
                 var regexes = ToRegex(pairs, minWidth ?? min.NumDigits());

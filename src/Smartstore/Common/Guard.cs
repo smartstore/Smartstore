@@ -47,11 +47,11 @@ namespace Smartstore
             {
                 e = new ArgumentException(string.Format(NotEmptyStringMessage, argName), argName);
             }
-            
+
             if (e != null)
             {
                 throw e;
-            }   
+            }
         }
 
         [DebuggerStepThrough]

@@ -66,7 +66,7 @@
                             if (ignoreFiles.Any(x => x.EqualsNoCase(file.Name)))
                             {
                                 continue;
-                            } 
+                            }
 
                             if (file.IsReadOnly)
                             {

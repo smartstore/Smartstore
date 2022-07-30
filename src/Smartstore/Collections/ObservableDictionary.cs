@@ -15,7 +15,7 @@ namespace Smartstore.Collections
     /// and also raise <see cref="INotifyPropertyChanged.PropertyChanged"/> subsequently.
     /// </para>
     /// </summary>
-    public class ObservableDictionary<TKey, TValue> 
+    public class ObservableDictionary<TKey, TValue>
         : IDictionary<TKey, TValue>, IReadOnlyDictionary<TKey, TValue>, INotifyCollectionChanged, INotifyPropertyChanged
     {
         enum AppendMode
@@ -27,17 +27,17 @@ namespace Smartstore.Collections
         private readonly IDictionary<TKey, TValue> _dict;
         private readonly Dictionary<INotifyPropertyChanged, string> _observerKeyMap = new();
 
-        public ObservableDictionary() 
+        public ObservableDictionary()
             : this(0, null)
         {
         }
 
-        public ObservableDictionary(IDictionary<TKey, TValue> dictionary) 
+        public ObservableDictionary(IDictionary<TKey, TValue> dictionary)
             : this(dictionary, null)
         {
         }
 
-        public ObservableDictionary(IEqualityComparer<TKey> comparer) 
+        public ObservableDictionary(IEqualityComparer<TKey> comparer)
             : this(0, comparer)
         {
         }
@@ -188,15 +188,15 @@ namespace Smartstore.Collections
         }
 
         /// <inheritdoc/>
-        public ICollection<TKey> Keys 
+        public ICollection<TKey> Keys
             => _dict.Keys;
 
         /// <inheritdoc/>
-        public ICollection<TValue> Values 
+        public ICollection<TValue> Values
             => _dict.Values;
 
         /// <inheritdoc/>
-        public int Count 
+        public int Count
             => _dict.Count;
 
         /// <inheritdoc/>
@@ -314,10 +314,10 @@ namespace Smartstore.Collections
 
         #region IReadOnlyDictionary
 
-        IEnumerable<TKey> IReadOnlyDictionary<TKey, TValue>.Keys 
+        IEnumerable<TKey> IReadOnlyDictionary<TKey, TValue>.Keys
             => _dict.Keys;
 
-        IEnumerable<TValue> IReadOnlyDictionary<TKey, TValue>.Values 
+        IEnumerable<TValue> IReadOnlyDictionary<TKey, TValue>.Values
             => _dict.Values;
 
         #endregion
@@ -353,7 +353,7 @@ namespace Smartstore.Collections
                 if (!Equals(oldValue, value))
                 {
                     StopObserve(key, oldValue);
-                    
+
                     _dict[key] = value;
 
                     OnPropertyChanged(EventArgsCache.ValuesPropertyChanged);

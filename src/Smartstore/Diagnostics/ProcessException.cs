@@ -40,7 +40,7 @@ namespace Smartstore.Diagnostics
                         : $"An unknown error occured while running process '{processName}'.";
                 }
             }
-            
+
             if (data != null && data.Count > 0 && !freezeMessage)
             {
                 message += Environment.NewLine + string.Join(Environment.NewLine, data);

@@ -255,7 +255,7 @@ namespace Smartstore.Data
             {
                 return default;
             }
-            
+
             var fs = _appContext.AppDataRoot;
             var tenantsBaseDir = "Tenants";
             var curTenantFile = fs.PathCombine(tenantsBaseDir, "current.txt");

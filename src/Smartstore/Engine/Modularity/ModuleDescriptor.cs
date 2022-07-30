@@ -133,7 +133,7 @@ namespace Smartstore.Engine.Modularity
             if (group.IsEmpty())
             {
                 return false;
-            }  
+            }
 
             return KnownGroups.Contains(group, StringComparer.OrdinalIgnoreCase);
         }
@@ -147,7 +147,7 @@ namespace Smartstore.Engine.Modularity
             => ExtensionType.Module;
 
         /// <inheritdoc/>
-        string IExtensionDescriptor.Name 
+        string IExtensionDescriptor.Name
             => SystemName;
 
         /// <inheritdoc/>
@@ -334,7 +334,7 @@ namespace Smartstore.Engine.Modularity
             if (Order != other.Order)
             {
                 return Order.CompareTo(other.Order);
-            }  
+            }
             else if (FriendlyName != null)
             {
                 return FriendlyName.CompareTo(other.FriendlyName);

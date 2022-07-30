@@ -18,8 +18,8 @@
             }
             catch (IOException)
             {
-                var succeeded = async 
-                    ? await WaitForUnlockInternal(file, 250, true) 
+                var succeeded = async
+                    ? await WaitForUnlockInternal(file, 250, true)
                     : WaitForUnlockInternal(file, 250, false).Await();
 
                 if (!succeeded)

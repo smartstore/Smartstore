@@ -10,7 +10,7 @@ namespace Smartstore.Net.Http
 
             return headers.NonValidated
                 .ToDictionary(
-                    kvp => kvp.Key, 
+                    kvp => kvp.Key,
                     kvp => kvp.Value.ToString());
         }
     }

@@ -95,7 +95,7 @@ namespace Smartstore.Data.Hooks
                         Logger.Debug($"{messagePrefix}: {hook.GetType().Name}, State: {e.InitialState}, Entity: {e.Entity.GetType().Name}");
 
                         var instance = _activator.Activate(hook);
-                        var result = pre 
+                        var result = pre
                             ? await instance.OnBeforeSaveAsync(e, cancelToken)
                             : await instance.OnAfterSaveAsync(e, cancelToken);
 
@@ -138,7 +138,7 @@ namespace Smartstore.Data.Hooks
                 }
             }
 
-            return pre 
+            return pre
                 ? new DbSavingChangesResult(processedHooks.Keys, anyStateChanged) { Entries = entries }
                 : new DbSaveChangesResult(processedHooks.Keys);
         }
@@ -148,7 +148,7 @@ namespace Smartstore.Data.Hooks
         /// in the <paramref name="entries"/> batch are all identical.
         /// </summary>
         private bool TryGetSharedHooks(
-            IHookedEntity[] entries, 
+            IHookedEntity[] entries,
             HookStage stage,
             HookImportance minHookImportance,
             out HookMetadata[] sharedHooks)

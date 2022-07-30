@@ -19,7 +19,7 @@ namespace Smartstore.Pdf.WkHtml
             _html = html;
             _options = options;
             // Can be null
-            _httpContext = httpContext; 
+            _httpContext = httpContext;
         }
 
         public PdfInputKind Kind { get; private set; } = PdfInputKind.Html;
@@ -37,8 +37,8 @@ namespace Smartstore.Pdf.WkHtml
                 {
                     File.Delete(_tempFilePath);
                 }
-                catch 
-                { 
+                catch
+                {
                 }
             }
 

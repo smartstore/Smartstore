@@ -18,12 +18,12 @@ namespace Smartstore.Engine
             _resolver = resolver;
         }
 
-        public T Value 
+        public T Value
         {
             get
             {
-                return _resolver != null 
-                    ? _resolver() 
+                return _resolver != null
+                    ? _resolver()
                     : _scopeAccessor.LifetimeScope.Resolve<T>();
             }
         }

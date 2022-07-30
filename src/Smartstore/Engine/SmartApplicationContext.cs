@@ -91,17 +91,17 @@ namespace Smartstore.Engine
 
         IServiceProvider IServiceProviderContainer.ApplicationServices { get; set; }
 
-        public IModuleCatalog ModuleCatalog 
+        public IModuleCatalog ModuleCatalog
         {
             get => _moduleCatalog;
             set
             {
                 CheckFreezed();
                 _moduleCatalog = Guard.NotNull(value, nameof(value));
-            } 
+            }
         }
 
-        public ITypeScanner TypeScanner 
+        public ITypeScanner TypeScanner
         {
             get => _typeScanner;
             set

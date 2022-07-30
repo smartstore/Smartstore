@@ -39,7 +39,7 @@ namespace Smartstore
             => WriteAllBytesInternal(fs, subpath, contents, false).Await();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Task WriteAllBytesAsync(this IFileSystem fs, string subpath, byte[] contents) 
+        public static Task WriteAllBytesAsync(this IFileSystem fs, string subpath, byte[] contents)
             => WriteAllBytesInternal(fs, subpath, contents, true);
 
         private static async Task WriteAllBytesInternal(IFileSystem fs, string subpath, byte[] contents, bool async)
@@ -70,7 +70,7 @@ namespace Smartstore
         /// <param name="inStream">The stream to be saved.</param>
         /// <exception cref="FileSystemException">If the stream can't be saved due to access permissions.</exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void SaveStream(this IFileSystem fs, string subpath, Stream inStream, bool leaveOpen = true) 
+        public static void SaveStream(this IFileSystem fs, string subpath, Stream inStream, bool leaveOpen = true)
             => SaveStreamInternal(fs, subpath, inStream, leaveOpen, false).Await();
 
         /// <summary>
@@ -80,7 +80,7 @@ namespace Smartstore
         /// <param name="inStream">The stream to be saved.</param>
         /// <exception cref="FileSystemException">If the stream can't be saved due to access permissions.</exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Task SaveStreamAsync(this IFileSystem fs, string subpath, Stream inStream, bool leaveOpen = true) 
+        public static Task SaveStreamAsync(this IFileSystem fs, string subpath, Stream inStream, bool leaveOpen = true)
             => SaveStreamInternal(fs, subpath, inStream, leaveOpen, true);
 
         public static async Task SaveStreamInternal(IFileSystem fs, string subpath, Stream inStream, bool leaveOpen, bool async)

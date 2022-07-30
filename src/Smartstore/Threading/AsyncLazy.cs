@@ -17,9 +17,9 @@ namespace Smartstore.Threading
         /// Initializes the lazy, using <see cref="Task.Run(Func{T})"/> to asynchronously 
         /// schedule the value factory execution.
         /// </summary>
-        public AsyncLazy(Func<T> valueFactory) 
+        public AsyncLazy(Func<T> valueFactory)
             : base(() => Task.Run(valueFactory))
-        { 
+        {
         }
 
         /// <summary>
@@ -28,7 +28,7 @@ namespace Smartstore.Threading
         /// </summary>
         public AsyncLazy(Func<Task<T>> taskFactory)
             : base(() => Task.Factory.StartNew(() => taskFactory()).Unwrap())
-        { 
+        {
         }
 
         public TaskAwaiter<T> GetAwaiter()

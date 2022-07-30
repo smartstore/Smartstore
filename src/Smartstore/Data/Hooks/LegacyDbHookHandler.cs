@@ -252,7 +252,7 @@ namespace Smartstore.Data.Hooks
             {
             }
         }
-        
+
         class RequestHookKey : Tuple<Type, Type, EntityState, HookStage, HookImportance>
         {
             public RequestHookKey(IHookedEntity entry, HookStage stage, HookImportance minHookImportance)

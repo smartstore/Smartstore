@@ -135,7 +135,7 @@ namespace Smartstore.ComponentModel
 
             using var psb = StringBuilderPool.Instance.Get(out var sb);
             using var writer = new StringWriter(sb);
-            
+
             _jsonSerializer.Serialize(writer, item);
             var buffer = sb.ToString().GetBytes();
 

@@ -13,12 +13,12 @@ namespace Smartstore.Data.Hooks
             _allMetadata = hooks.Select(x => x.Metadata).OrderBy(x => x.Order).ToArray();
         }
 
-        public HookMetadata[] GetAllMetadata() 
+        public HookMetadata[] GetAllMetadata()
             => _allMetadata;
 
         public virtual HookMetadata[] SelectHooks(
-            IHookedEntity entry, 
-            HookStage stage, 
+            IHookedEntity entry,
+            HookStage stage,
             HookImportance minHookImportance = HookImportance.Normal)
         {
             if (entry == null)

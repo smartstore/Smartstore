@@ -99,7 +99,7 @@ namespace Smartstore.IO
             return entry;
         }
 
-        public bool DirectoryExists(string subpath) 
+        public bool DirectoryExists(string subpath)
             => Check(subpath, (fs, path) => fs.DirectoryExists(path));
         public Task<bool> DirectoryExistsAsync(string subpath)
             => CheckAsync(subpath, (fs, path) => fs.DirectoryExistsAsync(path));
@@ -124,7 +124,7 @@ namespace Smartstore.IO
         public IChangeToken Watch(string filter)
             => _compositeFileProvider.Watch(filter);
 
-        public string PathCombine(params string[] paths) 
+        public string PathCombine(params string[] paths)
             => PathUtility.Combine(paths);
 
         public string MapPath(string subpath)

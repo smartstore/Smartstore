@@ -14,7 +14,7 @@ namespace Smartstore.Engine.Modularity.NuGet
     internal class NuGetExplorer : Disposable
     {
         private readonly static object _lock = new();
-        
+
         private readonly IApplicationContext _appContext;
         private readonly SourceCacheContext _sourceCacheContext;
         private readonly HttpSourceCacheContext _cacheContext;
@@ -39,7 +39,7 @@ namespace Smartstore.Engine.Modularity.NuGet
             _nuLogger = new NuGetLogger(_logger);
             _sourceCacheContext = sourceCacheContext ?? new SourceCacheContext();
             _cacheContext = HttpSourceCacheContext.Create(_sourceCacheContext, 5);
-            
+
             if (OfflinePackageFolder == null)
             {
                 lock (_lock)
@@ -48,7 +48,7 @@ namespace Smartstore.Engine.Modularity.NuGet
                     {
                         OfflinePackageFolder = GetOfflinePackageFolder();
                     }
-                } 
+                }
             }
         }
 

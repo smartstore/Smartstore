@@ -17,7 +17,7 @@ namespace Smartstore.Engine.Modularity
             {
                 return;
             }
-            
+
             var assemblyPath = Path.Combine(descriptor.PhysicalPath, descriptor.AssemblyName);
             var assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(assemblyPath);
 

@@ -164,7 +164,7 @@ namespace Smartstore.Scheduling
             {
                 using var response = await client.PostAsync(action, null);
                 // Throw if not a success code.
-                response.EnsureSuccessStatusCode();    
+                response.EnsureSuccessStatusCode();
                 Interlocked.Exchange(ref _errCount, 0);
             }
             catch (Exception ex)

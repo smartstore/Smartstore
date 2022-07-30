@@ -17,7 +17,7 @@ namespace Smartstore.Engine.Modularity
             {
                 return Enumerable.Empty<ModuleDescriptor>();
             }
-            
+
             var allDirectories = _appContext.ModulesRoot.EnumerateDirectories()
                 .Where(d => d.Name != "bin" && d.Name != "_Backup")
                 //.OrderBy(d => d.Name)

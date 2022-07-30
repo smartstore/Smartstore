@@ -21,10 +21,10 @@ namespace Smartstore.Engine.Modularity.NuGet
             return Repository.CreateSource(providers, source);
         }
 
-        public static Task<JObject> GetJObjectAsync(this HttpSource source, 
-            Uri uri, 
-            HttpSourceCacheContext cacheContext, 
-            ILogger log, 
+        public static Task<JObject> GetJObjectAsync(this HttpSource source,
+            Uri uri,
+            HttpSourceCacheContext cacheContext,
+            ILogger log,
             CancellationToken token)
         {
             var cacheKey = GetHashKey(uri);
@@ -38,10 +38,10 @@ namespace Smartstore.Engine.Modularity.NuGet
             return source.GetAsync(request, ProcessJson, log, token);
         }
 
-        public static Task<HttpSourceResult> GetNupkgAsync(this HttpSource source, 
-            Uri uri, 
-            HttpSourceCacheContext cacheContext, 
-            ILogger log, 
+        public static Task<HttpSourceResult> GetNupkgAsync(this HttpSource source,
+            Uri uri,
+            HttpSourceCacheContext cacheContext,
+            ILogger log,
             CancellationToken cancelToken)
         {
             var cacheKey = GetHashKey(uri);

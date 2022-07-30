@@ -54,7 +54,7 @@ namespace Smartstore.Data
             {
                 try
                 {
-                    return async 
+                    return async
                         ? await _ctx.SaveChangesCoreAsync(acceptAllChangesOnSuccess, cancelToken)
                         : _ctx.SaveChangesCore(acceptAllChangesOnSuccess);
                 }

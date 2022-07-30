@@ -59,10 +59,10 @@
         public override long Length => _length;
 
         /// <inheritdoc/>
-        public override long Position 
-        { 
-            get => _position; 
-            set => _position = value; 
+        public override long Position
+        {
+            get => _position;
+            set => _position = value;
         }
 
         /// <inheritdoc/>

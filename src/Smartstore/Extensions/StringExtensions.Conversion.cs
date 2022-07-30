@@ -133,7 +133,7 @@ namespace Smartstore
         {
             return (encoding ?? Encoding.UTF8).GetBytes(value);
         }
-        
+
         [DebuggerStepThrough]
         public static T ToEnum<T>(this string value, T defaultValue)
             where T : struct
@@ -171,7 +171,7 @@ namespace Smartstore
             if (value.IsEmpty())
             {
                 return value;
-            }   
+            }
 
             using var md5 = MD5.Create();
             byte[] data = encoding.GetBytes(value);
@@ -217,8 +217,8 @@ namespace Smartstore
 
         public static string EncodeJsString(this string value, char delimiter, bool appendDelimiters)
         {
-            var result = value.HasValue() 
-                ? JavaScriptEncoder.Default.Encode(value) 
+            var result = value.HasValue()
+                ? JavaScriptEncoder.Default.Encode(value)
                 : value.EmptyNull();
 
             if (appendDelimiters)

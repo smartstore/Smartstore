@@ -28,7 +28,7 @@ namespace Smartstore
             if (encoding == null)
             {
                 throw new ArgumentNullException(nameof(encoding));
-            }   
+            }
 
             if (stream.CanSeek)
             {
@@ -86,7 +86,7 @@ namespace Smartstore
                     {
                         stream.Read(buffer, 0, (int)len);
                     }
-                    
+
                     return buffer;
                 }
                 catch
@@ -106,7 +106,7 @@ namespace Smartstore
                 {
                     stream.CopyTo(memStream);
                 }
-                
+
                 return memStream.ToArray();
             }
         }
@@ -156,7 +156,7 @@ namespace Smartstore
                 {
                     await stream.CopyToAsync(outStream);
                 }
- 
+
                 return File.Exists(destinationPath);
             }
             catch (Exception ex)

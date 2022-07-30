@@ -12,7 +12,7 @@ namespace Smartstore.IO
     public class ExpandedFileSystem : IFileSystem
     {
         private readonly PathString _pathPrefix;
-        
+
         public ExpandedFileSystem(string pathPrefix, IFileSystem inner)
         {
             Guard.NotEmpty(pathPrefix, nameof(pathPrefix));
@@ -61,33 +61,33 @@ namespace Smartstore.IO
             return path;
         }
 
-        public bool DirectoryExists(string subpath) 
+        public bool DirectoryExists(string subpath)
             => InnerProvider.DirectoryExists(Expand(subpath));
-        public Task<bool> DirectoryExistsAsync(string subpath) 
+        public Task<bool> DirectoryExistsAsync(string subpath)
             => InnerProvider.DirectoryExistsAsync(Expand(subpath));
-        public bool FileExists(string subpath) 
+        public bool FileExists(string subpath)
             => InnerProvider.FileExists(Expand(subpath));
-        public Task<bool> FileExistsAsync(string subpath) 
+        public Task<bool> FileExistsAsync(string subpath)
             => InnerProvider.FileExistsAsync(Expand(subpath));
 
-        public IDirectory GetDirectory(string subpath) 
+        public IDirectory GetDirectory(string subpath)
             => InnerProvider.GetDirectory(Expand(subpath));
-        public Task<IDirectory> GetDirectoryAsync(string subpath) 
+        public Task<IDirectory> GetDirectoryAsync(string subpath)
             => InnerProvider.GetDirectoryAsync(Expand(subpath));
-        public IDirectoryContents GetDirectoryContents(string subpath) 
+        public IDirectoryContents GetDirectoryContents(string subpath)
             => InnerProvider.GetDirectoryContents(Expand(subpath));
-        public IFile GetFile(string subpath) 
+        public IFile GetFile(string subpath)
             => InnerProvider.GetFile(Expand(subpath));
-        public Task<IFile> GetFileAsync(string subpath) 
+        public Task<IFile> GetFileAsync(string subpath)
             => InnerProvider.GetFileAsync(Expand(subpath));
-        public IFileInfo GetFileInfo(string subpath) 
+        public IFileInfo GetFileInfo(string subpath)
             => InnerProvider.GetFileInfo(Expand(subpath));
-        public IChangeToken Watch(string filter) 
+        public IChangeToken Watch(string filter)
             => InnerProvider.Watch(Expand(filter));
 
-        public string MapPath(string subpath) 
+        public string MapPath(string subpath)
             => InnerProvider.MapPath(Expand(subpath));
-        public string PathCombine(params string[] paths) 
+        public string PathCombine(params string[] paths)
             => InnerProvider.PathCombine(paths);
 
         public bool CheckUniqueFileName(string subpath, out string newPath)

@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 
 namespace Smartstore.Data.Providers
 {
@@ -76,11 +75,11 @@ namespace Smartstore.Data.Providers
                         //w.Throw(RelationalEventId.MultipleCollectionIncludeWarning);
                         //w.Ignore(RelationalEventId.MultipleCollectionIncludeWarning);
                         #endregion
-                });
+                    });
             }
 
             ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension);
-            
+
             if (optionsAction != null)
             {
                 optionsAction?.Invoke(new DbFactoryDbContextOptionsBuilder(optionsBuilder));
@@ -90,13 +89,13 @@ namespace Smartstore.Data.Providers
             {
                 // Run this only once
                 factory.ConfigureDbContext(optionsBuilder, connectionString);
-            } 
+            }
 
             return optionsBuilder;
         }
 
         private static DbFactoryOptionsExtension GetOrCreateExtension(DbContextOptionsBuilder optionsBuilder)
-            => optionsBuilder.Options.FindExtension<DbFactoryOptionsExtension>() 
+            => optionsBuilder.Options.FindExtension<DbFactoryOptionsExtension>()
                 ?? new DbFactoryOptionsExtension(optionsBuilder.Options);
     }
 }

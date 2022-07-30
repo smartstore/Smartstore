@@ -19,7 +19,7 @@ namespace Smartstore.Engine.Runtimes
         /// <returns>A <see cref="FileInfo"/> instance representing the target native file in the application's runtime folder.</returns>
         Task<FileInfo> InstallFromPackageAsync(InstallNativePackageRequest request, CancellationToken cancelToken = default);
     }
-    
+
     internal class NativeLibraryInstaller : Disposable, INativeLibraryInstaller
     {
         private readonly IApplicationContext _appContext;
@@ -28,8 +28,8 @@ namespace Smartstore.Engine.Runtimes
         private readonly ILogger _logger;
 
         public NativeLibraryInstaller(
-            IApplicationContext appContext, 
-            NativeLibraryManager manager, 
+            IApplicationContext appContext,
+            NativeLibraryManager manager,
             ILogger logger)
         {
             Guard.NotNull(appContext, nameof(appContext));
@@ -99,7 +99,7 @@ namespace Smartstore.Engine.Runtimes
             {
                 // Native libary files (.exe, .dll, .so, .dylib) belong to the root.
                 var fileName = Path.GetFileName(entry);
-                
+
                 var source = Path.Combine(packageDir, entry);
                 var target = Path.Combine(destination, fileName);
                 var targetDir = Path.GetDirectoryName(target);

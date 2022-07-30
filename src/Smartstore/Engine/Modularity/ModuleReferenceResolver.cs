@@ -31,7 +31,7 @@ namespace Smartstore.Engine.Modularity
             {
                 return null;
             }
-            
+
             Assembly assembly = null;
 
             if (!_assemblyModuleMap.TryGetValue(requestingAssembly, out module))

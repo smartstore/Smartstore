@@ -33,7 +33,7 @@ namespace Smartstore
     {
         private static readonly Version _infoVersion = new("1.0.0.0");
         private static readonly List<Version> _breakingChangesHistory = new List<Version>
-        { 
+        {
             // IMPORTANT: Add app versions from low to high
             // NOTE: do not specify build & revision unless you have good reasons for it.
             //       A release with breaking changes should definitely have at least
@@ -57,16 +57,16 @@ namespace Smartstore
         /// <summary>
         /// Gets the app version
         /// </summary>
-        public static string CurrentVersion 
+        public static string CurrentVersion
             => "{0}.{1}".FormatInvariant(_infoVersion.Major, _infoVersion.Minor);
 
         /// <summary>
         /// Gets the app full version
         /// </summary>
-        public static string CurrentFullVersion 
+        public static string CurrentFullVersion
             => _infoVersion.ToString();
 
-        public static Version Version 
+        public static Version Version
             => _infoVersion;
 
         /// <summary>
@@ -148,7 +148,7 @@ namespace Smartstore
         /// A module's <c>MinAppVersion</c> is checked against this list to assume
         /// its compatibility with the current app version.
         /// </remarks>
-        internal static IEnumerable<Version> BreakingChangesHistory 
+        internal static IEnumerable<Version> BreakingChangesHistory
             => _breakingChangesHistory.AsEnumerable();
     }
 }

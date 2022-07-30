@@ -38,9 +38,9 @@ namespace Smartstore
         /// Results are grouped by entry type, where directories are followed by files.
         /// </remarks>
         public static async IAsyncEnumerable<IFileEntry> EnumerateEntriesAsync(
-            this IFileSystem fs, 
-            string subpath = null, 
-            string pattern = "*", 
+            this IFileSystem fs,
+            string subpath = null,
+            string pattern = "*",
             bool deep = false,
             [EnumeratorCancellation] CancellationToken cancelToken = default)
         {
@@ -75,9 +75,9 @@ namespace Smartstore
         /// <returns>The list of files in the given directory.</returns>
         /// <exception cref="DirectoryNotFoundException">Thrown if the specified directory does not exist.</exception>
         public static async IAsyncEnumerable<IFile> EnumerateFilesAsync(
-            this IFileSystem fs, 
-            string subpath = null, 
-            string pattern = "*", 
+            this IFileSystem fs,
+            string subpath = null,
+            string pattern = "*",
             bool deep = false,
             [EnumeratorCancellation] CancellationToken cancelToken = default)
         {
@@ -112,9 +112,9 @@ namespace Smartstore
         /// <returns>The list of directories in the given directory.</returns>
         /// <exception cref="DirectoryNotFoundException">Thrown if the specified directory does not exist.</exception>
         public static async IAsyncEnumerable<IDirectory> EnumerateDirectoriesAsync(
-            this IFileSystem fs, 
-            string subpath = null, 
-            string pattern = "*", 
+            this IFileSystem fs,
+            string subpath = null,
+            string pattern = "*",
             bool deep = false,
             [EnumeratorCancellation] CancellationToken cancelToken = default)
         {
@@ -176,7 +176,7 @@ namespace Smartstore
                 {
                     dir.Create();
                 }
-                
+
                 return true;
             }
             catch
@@ -282,12 +282,12 @@ namespace Smartstore
             TimeSpan olderThan,
             params string[] ignoreFiles)
             => ClearDirectoryInternal(
-                fs, 
-                directory, 
-                deleteIfEmpfy, 
-                olderThan, 
-                ignoreFiles, 
-                default, 
+                fs,
+                directory,
+                deleteIfEmpfy,
+                olderThan,
+                ignoreFiles,
+                default,
                 false).Await();
 
         /// <summary>
@@ -505,10 +505,10 @@ namespace Smartstore
         /// <returns>The destination directory.</returns>
         /// <exception cref="DirectoryNotFoundException">Thrown if source directory does not exist.</exception>
         public static async Task CopyDirectoryAsync(
-            this IFileSystem fs, 
-            IDirectory source, 
-            IDirectory destination, 
-            bool overwrite = true, 
+            this IFileSystem fs,
+            IDirectory source,
+            IDirectory destination,
+            bool overwrite = true,
             string[] ignorePatterns = null)
         {
             Guard.NotNull(fs, nameof(fs));
@@ -546,10 +546,10 @@ namespace Smartstore
         /// <param name="deep">Whether to sum up length in all subdirectories also.</param>
         /// <returns>Total length of all files.</returns>
         public static long GetDirectorySize(
-            this IFileSystem fs, 
-            string subpath, 
-            string pattern = "*", 
-            Func<string, bool> predicate = null, 
+            this IFileSystem fs,
+            string subpath,
+            string pattern = "*",
+            Func<string, bool> predicate = null,
             bool deep = true)
         {
             Guard.NotNull(fs, nameof(fs));
@@ -578,10 +578,10 @@ namespace Smartstore
         /// <param name="deep">Whether to sum up length in all subdirectories also.</param>
         /// <returns>Total length of all files.</returns>
         public static async Task<long> GetDirectorySizeAsync(
-            this IFileSystem fs, 
-            string subpath, 
-            string pattern = "*", 
-            Func<string, bool> predicate = null, 
+            this IFileSystem fs,
+            string subpath,
+            string pattern = "*",
+            Func<string, bool> predicate = null,
             bool deep = true)
         {
             Guard.NotNull(fs, nameof(fs));
@@ -609,10 +609,10 @@ namespace Smartstore
         /// <param name="deep">Whether to count files in all subdirectories also</param>
         /// <returns>Total count of files.</returns>
         public static long CountFiles(
-            this IFileSystem fs, 
-            string subpath, 
-            string pattern = "*", 
-            Func<string, bool> predicate = null, 
+            this IFileSystem fs,
+            string subpath,
+            string pattern = "*",
+            Func<string, bool> predicate = null,
             bool deep = true)
         {
             Guard.NotNull(fs, nameof(fs));
@@ -641,10 +641,10 @@ namespace Smartstore
         /// <param name="deep">Whether to count files in all subdirectories also</param>
         /// <returns>Total count of files.</returns>
         public static async Task<long> CountFilesAsync(
-            this IFileSystem fs, 
-            string subpath, 
-            string pattern = "*", 
-            Func<string, bool> predicate = null, 
+            this IFileSystem fs,
+            string subpath,
+            string pattern = "*",
+            Func<string, bool> predicate = null,
             bool deep = true)
         {
             Guard.NotNull(fs, nameof(fs));

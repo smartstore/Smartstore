@@ -62,7 +62,7 @@ namespace Smartstore
             var queryContextFactory = _queryContextFactoryField.GetValue(queryCompiler);
 
             // In unit tests we have to deal with "InMemoryQueryContextFactory"
-            var dependencies = queryContextFactory is RelationalQueryContextFactory relationalFactory 
+            var dependencies = queryContextFactory is RelationalQueryContextFactory relationalFactory
                 ? _dependenciesProperty.GetValue(queryContextFactory)
                 : queryContextFactory.GetType()
                     .GetProperty("Dependencies", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)

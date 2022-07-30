@@ -82,7 +82,7 @@ namespace Smartstore.ComponentModel.TypeConverters
             {
                 return Enum.ToObject(_type, value);
             }
-            
+
             if (SystemConverter != null)
             {
                 return SystemConverter.ConvertFrom(null, culture, value);

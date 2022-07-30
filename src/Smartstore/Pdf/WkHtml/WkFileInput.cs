@@ -1,5 +1,4 @@
-﻿using System.Net.Http;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 using Microsoft.AspNetCore.Http;
 using Smartstore.Http;
 using Smartstore.IO;
@@ -9,7 +8,7 @@ namespace Smartstore.Pdf.WkHtml
     internal class WkFileInput : IPdfInput
     {
         private string _normalizedUrlOrPath;
-        
+
         private readonly string _urlOrPath;
         private readonly bool _isLocalUrl;
         private readonly WkHtmlToPdfOptions _options;
@@ -35,7 +34,7 @@ namespace Smartstore.Pdf.WkHtml
                 {
                     return _normalizedUrlOrPath;
                 }
-                
+
                 if (IsPathRooted(_urlOrPath) || _urlOrPath.Contains(Uri.SchemeDelimiter))
                 {
                     _normalizedUrlOrPath = _urlOrPath;

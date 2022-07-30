@@ -40,8 +40,8 @@
         /// </param>
         /// <returns>The list of actually processed hook instances and a value indicating whether the state of at least one entity has changed.</returns>
         Task<DbSavingChangesResult> SavingChangesAsync(
-            IHookedEntity[] entries, 
-            HookImportance minHookImportance = HookImportance.Normal, 
+            IHookedEntity[] entries,
+            HookImportance minHookImportance = HookImportance.Normal,
             CancellationToken cancelToken = default);
 
         /// <summary>

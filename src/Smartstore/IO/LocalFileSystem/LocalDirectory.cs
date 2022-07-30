@@ -24,7 +24,7 @@ namespace Smartstore.IO
         public DirectoryInfo AsDirectoryInfo() => _di;
 
         /// <inheritdoc/>
-        public IFileSystem FileSystem 
+        public IFileSystem FileSystem
         {
             get => _fs;
             protected internal set => _fs = Guard.NotNull(value as LocalFileSystem, nameof(value));
@@ -100,7 +100,7 @@ namespace Smartstore.IO
             }
         }
 
-        Stream IFileInfo.CreateReadStream() 
+        Stream IFileInfo.CreateReadStream()
             => throw new NotSupportedException();
 
         public void Delete()

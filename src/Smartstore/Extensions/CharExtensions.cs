@@ -88,7 +88,7 @@ namespace Smartstore
             {
                 return table[ch];
             }
-            
+
             return ch.ToString();
         }
     }

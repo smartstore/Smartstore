@@ -45,8 +45,8 @@ namespace Smartstore.ComponentModel.TypeConverters
             {
                 return (TimeSpan)System.Convert.ChangeType(value, typeof(TimeSpan), culture);
             }
-            catch 
-            { 
+            catch
+            {
             }
 
             return base.ConvertFrom(culture, value);

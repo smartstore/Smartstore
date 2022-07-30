@@ -15,7 +15,7 @@ namespace Smartstore.Data.Providers
     public abstract class DbFactory
     {
         private readonly static ConcurrentDictionary<string, DbFactory> _loadedFactories = new(StringComparer.OrdinalIgnoreCase);
-        
+
         /// <summary>
         /// Gets the database system type.
         /// </summary>
@@ -31,7 +31,7 @@ namespace Smartstore.Data.Providers
         /// Creates a <see cref="DbConnectionStringBuilder"/> instance with the given parameters.
         /// </summary>
         public abstract DbConnectionStringBuilder CreateConnectionStringBuilder(
-            string server, 
+            string server,
             string database,
             string userName,
             string password);
@@ -66,7 +66,7 @@ namespace Smartstore.Data.Providers
             Guard.NotEmpty(provider, nameof(provider));
             Guard.NotNull(typeScanner, nameof(typeScanner));
 
-            return _loadedFactories.GetOrAdd(provider, key => 
+            return _loadedFactories.GetOrAdd(provider, key =>
             {
                 var assemblyName = string.Empty;
 
@@ -78,9 +78,9 @@ namespace Smartstore.Data.Providers
                     case "mysql":
                         assemblyName = "Smartstore.Data.MySql.dll";
                         break;
-                    //case "sqlite":
-                    //    assemblyName = "Smartstore.Data.Sqlite.dll";
-                    //    break;
+                        //case "sqlite":
+                        //    assemblyName = "Smartstore.Data.Sqlite.dll";
+                        //    break;
                 }
 
                 if (assemblyName.IsEmpty())

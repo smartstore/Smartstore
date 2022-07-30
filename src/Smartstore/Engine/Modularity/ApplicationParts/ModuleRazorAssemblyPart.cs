@@ -19,7 +19,7 @@ namespace Smartstore.Engine.Modularity.ApplicationParts
 
         public Assembly Assembly { get; }
 
-        public override string Name 
+        public override string Name
             => Assembly.GetName().Name;
 
         IEnumerable<RazorCompiledItem> IRazorCompiledItemProvider.CompiledItems

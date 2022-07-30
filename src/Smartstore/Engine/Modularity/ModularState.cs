@@ -9,7 +9,7 @@ namespace Smartstore.Engine.Modularity
 
         class ModulesHasher : DirectoryHasher
         {
-            private readonly IApplicationContext _appContext; 
+            private readonly IApplicationContext _appContext;
 
             public ModulesHasher(IApplicationContext appContext)
                 : base(appContext.ModulesRoot.GetDirectory(""), appContext.TenantRoot.GetDirectory(""))
@@ -29,7 +29,7 @@ namespace Smartstore.Engine.Modularity
                 foreach (var m in arrModules)
                 {
                     var manifestFile = new FileInfo(Path.Combine(m.PhysicalPath, "module.json"));
-                    
+
                     hashCombiner.Add(manifestFile);
 
                     var dir = new DirectoryInfo(m.PhysicalPath);

@@ -53,7 +53,7 @@ namespace Smartstore
             if (buffer == null)
             {
                 throw new ArgumentNullException(nameof(buffer));
-            }     
+            }
 
             using (var compressedStream = new MemoryStream())
             using (var zipStream = new GZipStream(compressedStream, CompressionMode.Compress))
@@ -95,7 +95,7 @@ namespace Smartstore
             if (buffer == null)
             {
                 throw new ArgumentNullException(nameof(buffer));
-            } 
+            }
 
             using (var compressedStream = new MemoryStream(buffer))
             using (var zipStream = new GZipStream(compressedStream, CompressionMode.Decompress))

@@ -25,7 +25,7 @@ namespace Smartstore.Engine.Modularity.ApplicationParts
         class CompiledItem : RazorCompiledItem
         {
             private readonly string _pathPrefix;
-            
+
             public CompiledItem(string pathPrefix, RazorCompiledItem other)
             {
                 _pathPrefix = pathPrefix;

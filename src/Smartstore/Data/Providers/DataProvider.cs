@@ -29,7 +29,7 @@ namespace Smartstore.Data.Providers
 
     public abstract class DataProvider : Disposable
     {
-        private static readonly Regex _dbNameRegex = new(@"^(?<DbName>.+)-(?<Version>\d+(\s*\.\s*\d+){0,3})-(?<Timestamp>[0-9]{14})(?<Suffix>.+?)?", 
+        private static readonly Regex _dbNameRegex = new(@"^(?<DbName>.+)-(?<Version>\d+(\s*\.\s*\d+){0,3})-(?<Timestamp>[0-9]{14})(?<Suffix>.+?)?",
             RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.Singleline | RegexOptions.IgnoreCase);
 
         protected DataProvider(DatabaseFacade database)

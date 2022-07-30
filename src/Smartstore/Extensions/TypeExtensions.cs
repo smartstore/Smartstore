@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -14,8 +13,8 @@ namespace Smartstore
 
         public static string AssemblyQualifiedNameWithoutVersion(this Type type)
         {
-            return type.AssemblyQualifiedName != null 
-                ? type.FullName + ", " + type.Assembly.GetName().Name 
+            return type.AssemblyQualifiedName != null
+                ? type.FullName + ", " + type.Assembly.GetName().Name
                 : null;
         }
 
@@ -265,7 +264,7 @@ namespace Smartstore
             {
                 return true;
             }
-            
+
             switch (Type.GetTypeCode(type))
             {
                 case TypeCode.Decimal:
@@ -385,8 +384,8 @@ namespace Smartstore
                 return false;
             }
 
-            return 
-                type.IsArray || 
+            return
+                type.IsArray ||
                 typeof(IEnumerable).IsAssignableFrom(type) ||
                 // i.e., a direct ref to System.Array
                 type == typeof(Array);

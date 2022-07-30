@@ -102,7 +102,7 @@ namespace Smartstore
                 {
                     file.Delete();
                 }
-                
+
                 return true;
             }
             catch

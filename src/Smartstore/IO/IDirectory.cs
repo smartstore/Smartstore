@@ -18,7 +18,7 @@ namespace Smartstore.IO
         /// <summary>
         /// Creates all directories and subdirectories in the target unless they already exist.
         /// </summary>
-        void Create() 
+        void Create()
             => throw new NotImplementedException();
 
         /// <summary>
@@ -36,7 +36,7 @@ namespace Smartstore.IO
         /// </summary>
         /// <param name="path">The specified path</param>
         /// <returns>The last directory specified in <paramref name="path"/>.</returns>
-        IDirectory CreateSubdirectory(string path) 
+        IDirectory CreateSubdirectory(string path)
             => throw new NotImplementedException();
 
         /// <summary>
@@ -45,7 +45,7 @@ namespace Smartstore.IO
         /// </summary>
         /// <param name="path">The specified path</param>
         /// <returns>The last directory specified in <paramref name="path"/>.</returns>
-        Task<IDirectory> CreateSubdirectoryAsync(string path, CancellationToken cancelToken = default) 
+        Task<IDirectory> CreateSubdirectoryAsync(string path, CancellationToken cancelToken = default)
             => Task.FromResult(CreateSubdirectory(path));
 
         /// <summary>
@@ -58,7 +58,7 @@ namespace Smartstore.IO
         /// <remarks>
         /// Results are grouped by entry type, where directories are followed by files.
         /// </remarks>
-        IEnumerable<IFileEntry> EnumerateEntries(string pattern = "*", bool deep = false) 
+        IEnumerable<IFileEntry> EnumerateEntries(string pattern = "*", bool deep = false)
             => throw new NotImplementedException();
 
         /// <summary>
@@ -71,7 +71,7 @@ namespace Smartstore.IO
         /// <remarks>
         /// Results are grouped by entry type, where directories are followed by files.
         /// </remarks>
-        IAsyncEnumerable<IFileEntry> EnumerateEntriesAsync(string pattern = "*", bool deep = false, CancellationToken cancelToken = default) 
+        IAsyncEnumerable<IFileEntry> EnumerateEntriesAsync(string pattern = "*", bool deep = false, CancellationToken cancelToken = default)
             => EnumerateEntries(pattern, deep).ToAsyncEnumerable();
 
         /// <summary>
@@ -81,7 +81,7 @@ namespace Smartstore.IO
         /// <param name="deep">A flag to indicate whether to get the directories from just the top directory or from all sub-directories as well.</param>
         /// <returns>The list of directories in the given directory.</returns>
         /// <exception cref="DirectoryNotFoundException">Thrown if the directory does not exist.</exception>
-        IEnumerable<IDirectory> EnumerateDirectories(string pattern = "*", bool deep = false) 
+        IEnumerable<IDirectory> EnumerateDirectories(string pattern = "*", bool deep = false)
             => throw new NotImplementedException();
 
         /// <summary>
@@ -91,7 +91,7 @@ namespace Smartstore.IO
         /// <param name="deep">A flag to indicate whether to get the directories from just the top directory or from all sub-directories as well.</param>
         /// <returns>The list of directories in the given directory.</returns>
         /// <exception cref="DirectoryNotFoundException">Thrown if the directory does not exist.</exception>
-        IAsyncEnumerable<IDirectory> EnumerateDirectoriesAsync(string pattern = "*", bool deep = false, CancellationToken cancelToken = default) 
+        IAsyncEnumerable<IDirectory> EnumerateDirectoriesAsync(string pattern = "*", bool deep = false, CancellationToken cancelToken = default)
             => EnumerateDirectories(pattern, deep).ToAsyncEnumerable();
 
         /// <summary>
@@ -101,7 +101,7 @@ namespace Smartstore.IO
         /// <param name="deep">A flag to indicate whether to get the files from just the top directory or from all sub-directories as well.</param>
         /// <returns>The list of files in the given directory.</returns>
         /// <exception cref="DirectoryNotFoundException">Thrown if the directory does not exist.</exception>
-        IEnumerable<IFile> EnumerateFiles(string pattern = "*", bool deep = false) 
+        IEnumerable<IFile> EnumerateFiles(string pattern = "*", bool deep = false)
             => throw new NotImplementedException();
 
         /// <summary>
@@ -111,7 +111,7 @@ namespace Smartstore.IO
         /// <param name="deep">A flag to indicate whether to get the files from just the top directory or from all sub-directories as well.</param>
         /// <returns>The list of files in the given directory.</returns>
         /// <exception cref="DirectoryNotFoundException">Thrown if the directory does not exist.</exception>
-        IAsyncEnumerable<IFile> EnumerateFilesAsync(string pattern = "*", bool deep = false, CancellationToken cancelToken = default) 
+        IAsyncEnumerable<IFile> EnumerateFilesAsync(string pattern = "*", bool deep = false, CancellationToken cancelToken = default)
             => EnumerateFiles(pattern, deep).ToAsyncEnumerable();
 
         /// <summary>

@@ -6,10 +6,10 @@ namespace Smartstore.Utilities.Html
     {
         public static HtmlSanitizerOptions Default { get; } = new();
 
-        public static HtmlSanitizerOptions UserCommentSuitable { get; } = new HtmlSanitizerOptions 
+        public static HtmlSanitizerOptions UserCommentSuitable { get; } = new HtmlSanitizerOptions
         {
-            AllowedTags = new[] 
-            { 
+            AllowedTags = new[]
+            {
                 "abbr", "acronym", "address", "b", "big", "blockquote", "br", "cite", "dd", "del", "dfn", "dir", "dl", "dt", "em", "hr", "i", "ins",
                 "kbd", "ul", "ol", "li", "pre", "samp", "small", "span", "strike", "strong", "sub", "sup", "tt", "u", "var",
                 // Text-level semantics

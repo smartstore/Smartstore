@@ -28,7 +28,7 @@ namespace Smartstore.IO
         public FileInfo AsFileInfo() => _fi;
 
         /// <inheritdoc/>
-        public IFileSystem FileSystem 
+        public IFileSystem FileSystem
         {
             get => _fs;
             protected internal set => _fs = Guard.NotNull(value as LocalFileSystem, nameof(value));
@@ -216,9 +216,9 @@ namespace Smartstore.IO
             }
 
             FileInfo copy = null;
-            _fi.WaitForUnlockAndExecute(x => 
-            { 
-                copy = x.CopyTo(fullDstPath, overwrite); 
+            _fi.WaitForUnlockAndExecute(x =>
+            {
+                copy = x.CopyTo(fullDstPath, overwrite);
             });
 
             return new LocalFile(newPath, copy, _fs);

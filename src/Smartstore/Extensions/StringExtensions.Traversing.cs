@@ -53,7 +53,7 @@ namespace Smartstore
             {
                 return value;
             }
-            
+
             var sb = new StringBuilder(value.Length + 5);
             char[] ca = value.ToCharArray();
 
@@ -89,7 +89,7 @@ namespace Smartstore
             if (string.IsNullOrEmpty(input))
             {
                 return Enumerable.Empty<string>();
-            }  
+            }
 
             // Do not use separator.IsEmpty() here because whitespace like " " is a valid separator.
             // an empty separator "" returns array with value.
@@ -138,8 +138,8 @@ namespace Smartstore
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IEnumerable<string> SplitSafe(this string input, char separator, StringSplitOptions options = StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
         {
-            return string.IsNullOrEmpty(input) 
-                ? Enumerable.Empty<string>() 
+            return string.IsNullOrEmpty(input)
+                ? Enumerable.Empty<string>()
                 : Tokenize(input, separator, options);
         }
 

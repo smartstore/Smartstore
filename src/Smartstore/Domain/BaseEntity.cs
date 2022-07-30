@@ -13,7 +13,7 @@ namespace Smartstore.Domain
     public abstract partial class BaseEntity : INamedEntity, IEquatable<BaseEntity>
     {
         private ILazyLoader _lazyLoader;
-        
+
         protected BaseEntity()
         {
         }
@@ -25,7 +25,7 @@ namespace Smartstore.Domain
 
         //[NotMapped] // TODO: (core) Remove [NotMappedAttribute] once the EF bug (https://github.com/dotnet/efcore/issues/23968) is fixed.
         [JsonIgnore]
-        protected internal virtual ILazyLoader LazyLoader 
+        protected internal virtual ILazyLoader LazyLoader
         {
             get => _lazyLoader ?? NullLazyLoader.Instance;
             set => _lazyLoader = value;

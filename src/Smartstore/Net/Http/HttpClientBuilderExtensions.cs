@@ -21,7 +21,7 @@ namespace Smartstore.Net.Http
 
         public static IHttpClientBuilder SkipCertificateValidation(this IHttpClientBuilder builder)
         {
-            return builder.ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler 
+            return builder.ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
             {
                 ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true
             });
@@ -71,13 +71,13 @@ namespace Smartstore.Net.Http
                             if (httpRequest.Cookies.TryGetValue(cookieName, out var cookieValue))
                             {
                                 cookieContainer.Add(new Cookie(
-                                    cookieName, 
-                                    cookieValue, 
-                                    httpRequest.PathBase.Value.NullEmpty(), 
+                                    cookieName,
+                                    cookieValue,
+                                    httpRequest.PathBase.Value.NullEmpty(),
                                     httpRequest.Host.Host));
                             }
                         }
-                        
+
                         if (cookieContainer.Count > 0)
                         {
                             var cookieHeader = cookieContainer.GetCookieHeader(new Uri(httpRequest.GetDisplayUrl()));
@@ -85,7 +85,7 @@ namespace Smartstore.Net.Http
                         }
                     }
                 }
-                
+
                 return base.SendAsync(request, cancellationToken);
             }
         }

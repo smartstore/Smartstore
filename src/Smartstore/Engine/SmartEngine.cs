@@ -18,13 +18,13 @@ namespace Smartstore.Engine
 
         private bool _isStarted;
         private ModuleReferenceResolver _moduleReferenceResolver;
-        
+
         public IApplicationContext Application { get; private set; }
         public ScopedServiceContainer Scope { get; set; }
         public bool IsInitialized { get; private set; }
 
-        public bool IsStarted 
-        { 
+        public bool IsStarted
+        {
             get => _isStarted;
             set
             {
@@ -56,12 +56,12 @@ namespace Smartstore.Engine
         private Assembly OnAssemblyResolve(object sender, ResolveEventArgs args)
         {
             var assembly = _moduleReferenceResolver.ResolveAssembly(args.RequestingAssembly, args.Name, out var module);
-            
+
             if (assembly == null)
             {
                 // Check for assembly already loaded
                 assembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(a => a.FullName == args.Name);
-                
+
                 if (assembly == null)
                 {
                     // Get assembly from TypeScanner
@@ -147,7 +147,7 @@ namespace Smartstore.Engine
             public override void ConfigureApplication(IApplicationBuilder app)
             {
                 base.ConfigureApplication(app);
-                
+
                 // Configure all modular pipelines
                 var pipelineBuilder = new RequestPipelineBuilder { ApplicationBuilder = app, ApplicationContext = Engine.Application };
                 foreach (var starter in Starters)
@@ -172,7 +172,7 @@ namespace Smartstore.Engine
             {
                 public string Name { get; init; }
                 public Assembly Assembly { get; init; }
-                string ITopologicSortable<string>.Key 
+                string ITopologicSortable<string>.Key
                 {
                     get => Name;
                 }

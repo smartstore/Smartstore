@@ -2,7 +2,6 @@
 using System.Runtime.InteropServices;
 using System.Security;
 using System.Text;
-using Smartstore.Utilities;
 
 namespace Smartstore
 {
@@ -33,7 +32,7 @@ namespace Smartstore
                 ex.StackTrace.Dump();
                 ex.Message.Dump();
             }
-            catch 
+            catch
             {
             }
         }
@@ -60,7 +59,7 @@ namespace Smartstore
             {
                 return string.Empty;
             }
-            
+
             var sb = new StringBuilder(includeStackTrace ? exception.Message.Length * 3 : exception.Message.Length);
 
             while (exception != null)

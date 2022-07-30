@@ -33,7 +33,7 @@ namespace Smartstore.IO
         /// Deletes the file entry. Directories will be deleted recursively.
         /// An exception will be raised if the entry does not exists.
         /// </summary>
-        void Delete() 
+        void Delete()
             => throw new NotImplementedException();
 
         /// <summary>

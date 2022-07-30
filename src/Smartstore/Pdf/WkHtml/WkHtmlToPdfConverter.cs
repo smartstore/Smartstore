@@ -39,7 +39,7 @@ namespace Smartstore.Pdf.WkHtml
         private readonly AsyncRunner _asyncRunner;
 
         public WkHtmlToPdfConverter(
-            IWkHtmlCommandBuilder commandBuilder, 
+            IWkHtmlCommandBuilder commandBuilder,
             IHttpContextAccessor httpContextAccessor,
             IHttpClientFactory httpClientFactory,
             IOptions<WkHtmlToPdfOptions> options,
@@ -153,7 +153,7 @@ namespace Smartstore.Pdf.WkHtml
         {
             // Check that process is not already running
             CheckProcess();
-            
+
             try
             {
                 // Build command / arguments
@@ -185,7 +185,7 @@ namespace Smartstore.Pdf.WkHtml
             catch (Exception ex) when (ex is (ProcessException or FileNotFoundException))
             {
                 throw;
-            } 
+            }
             catch (Exception ex)
             {
                 throw new ProcessException($"wkhtmltopdf error: {ex.Message}.", ex, null);
@@ -297,7 +297,7 @@ namespace Smartstore.Pdf.WkHtml
                 var cts = new CancellationTokenSource(_options.ExecutionTimeout.Value);
                 result = CancellationTokenSource.CreateLinkedTokenSource(cts.Token, result).Token;
             }
-            
+
             return result;
         }
 

@@ -2,7 +2,6 @@
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -19,14 +18,14 @@ namespace Smartstore.Data
         private DataProvider _dataProvider;
         private IDbHookHandler _hookHandler;
 
-        private static readonly ValueConverter _dateTimeConverter = 
+        private static readonly ValueConverter _dateTimeConverter =
             new ValueConverter<DateTime, DateTime>(
-                v => v, 
+                v => v,
                 v => DateTime.SpecifyKind(v, DateTimeKind.Utc));
 
-        private static readonly ValueConverter _nullableDateTimeConverter = 
+        private static readonly ValueConverter _nullableDateTimeConverter =
             new ValueConverter<DateTime?, DateTime?>(
-                v => v, 
+                v => v,
                 v => v.HasValue ? DateTime.SpecifyKind(v.Value, DateTimeKind.Utc) : v);
 
         public HookingDbContext(DbContextOptions options)
@@ -102,8 +101,8 @@ namespace Smartstore.Data
 
         protected internal IDbHookHandler DbHookHandler
         {
-            get => _hookHandler 
-                ?? EngineContext.Current?.Scope?.ResolveOptional<IDbHookHandler>() 
+            get => _hookHandler
+                ?? EngineContext.Current?.Scope?.ResolveOptional<IDbHookHandler>()
                 ?? NullDbHookHandler.Instance;
             set => _hookHandler = value;
         }

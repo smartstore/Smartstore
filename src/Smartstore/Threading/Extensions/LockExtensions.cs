@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics;
-using System.Runtime.CompilerServices;
 using Smartstore.Utilities;
 
 namespace Smartstore.Threading
@@ -23,7 +22,7 @@ namespace Smartstore.Threading
                     return new ActionDisposable(() => rwLock.ExitReadLock());
                 }
             }
-            
+
             return ActionDisposable.Empty;
         }
 

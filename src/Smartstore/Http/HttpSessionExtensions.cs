@@ -12,7 +12,7 @@ namespace Smartstore
         {
             return session?.Get(key) != null;
         }
-        
+
         public static T GetObject<T>(this ISession session, string key) where T : class
         {
             TryGetObject<T>(session, key, out var result);

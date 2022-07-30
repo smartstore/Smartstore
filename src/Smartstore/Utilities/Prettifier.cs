@@ -28,7 +28,7 @@ namespace Smartstore.Utilities
             if (xml.IsEmpty() || xml.IsWhiteSpace())
             {
                 return xml;
-            }  
+            }
 
             // first read the xml ignoring whitespace
             using (var xmlReader = XmlReader.Create(new StringReader(xml), new XmlReaderSettings { IgnoreWhitespace = true, CheckCharacters = false }))

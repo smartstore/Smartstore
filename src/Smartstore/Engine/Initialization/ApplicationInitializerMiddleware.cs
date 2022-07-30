@@ -1,7 +1,7 @@
 ﻿using Autofac;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using Microsoft.AspNetCore.Diagnostics;
 using Smartstore.Events;
 using Smartstore.Threading;
 

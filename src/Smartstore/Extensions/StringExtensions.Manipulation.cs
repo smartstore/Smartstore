@@ -3,7 +3,6 @@ using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
-using Smartstore.Utilities;
 using Smartstore.Utilities.Html;
 
 namespace Smartstore
@@ -61,7 +60,7 @@ namespace Smartstore
             if (value.HasValue())
             {
                 return string.Concat(value.AsSpan(0, length), new string('*', value.Length - length));
-            }   
+            }
 
             return value;
         }
@@ -77,7 +76,7 @@ namespace Smartstore
             if (string.IsNullOrEmpty(str))
             {
                 return string.Empty;
-            } 
+            }
 
             return new string(str.Where(c => char.IsDigit(c)).ToArray());
         }
@@ -93,7 +92,7 @@ namespace Smartstore
             if (lenSubStr <= 0)
             {
                 throw new ArgumentException("Length of suffix string is greater than or equal to maxLength", nameof(maxLength));
-            }    
+            }
 
             if (value != null && value.Length > maxLength)
             {
@@ -200,12 +199,12 @@ namespace Smartstore
             if (value == null)
             {
                 throw new ArgumentNullException(nameof(value));
-            }  
+            }
 
             if (prefix == null)
             {
                 throw new ArgumentNullException(nameof(prefix));
-            }     
+            }
 
             if (value.Length == 0)
             {
@@ -399,12 +398,12 @@ namespace Smartstore
             {
                 return string.Empty;
             }
-                
+
 
             if (count < 1)
             {
                 return value;
-            }   
+            }
 
             var left = new string(pad, count);
             var right = value;

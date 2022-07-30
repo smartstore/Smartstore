@@ -36,7 +36,7 @@ namespace Smartstore
         public static IEnumerable<object> EnumerateKeys(this IMemoryCache cache, string pattern = "*")
         {
             Guard.NotNull(cache, nameof(cache));
-            
+
             var allKeys = (_entriesFieldInfo.GetValue(cache) as IDictionary).Keys
                 .Cast<object>()
                 .AsParallel();
@@ -66,7 +66,7 @@ namespace Smartstore
         public static int RemoveByPattern(this IMemoryCache cache, string pattern = "*")
         {
             Guard.NotNull(cache, nameof(cache));
-            
+
             var keysToRemove = EnumerateKeys(cache, pattern).ToArray();
             int numRemoved = 0;
 

@@ -60,7 +60,7 @@ namespace Smartstore.Data.Caching.Internal
             if (node.Method.IsGenericMethod)
             {
                 var methodDef = node.Method.GetGenericMethodDefinition();
-                
+
                 // Find cachable query extension calls
                 if (methodDef == CachingQueryExtensions.AsCachingMethodInfo)
                 {

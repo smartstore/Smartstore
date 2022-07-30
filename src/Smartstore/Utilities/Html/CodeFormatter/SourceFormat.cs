@@ -182,10 +182,10 @@ namespace Smartstore.Utilities.Html.CodeFormatter
 
         //does the formatting job
         private string FormatCode(
-            string source, 
+            string source,
             bool lineNumbers,
-            bool alternate, 
-            bool embedStyleSheet, 
+            bool alternate,
+            bool embedStyleSheet,
             bool subCode)
         {
             // Replace special characters

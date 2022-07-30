@@ -6,7 +6,7 @@ namespace Smartstore.Data.Hooks
     public class DefaultDbHookActivator : IDbHookActivator
     {
         private readonly ILifetimeScope _scope;
-        
+
         public DefaultDbHookActivator(ILifetimeScope scope)
         {
             _scope = scope;
@@ -22,7 +22,7 @@ namespace Smartstore.Data.Hooks
             try
             {
                 IDbSaveHook instance = null;
-                
+
                 for (var i = 0; i < hook.ServiceTypes.Length; i++)
                 {
                     if (_scope.TryResolve(hook.ServiceTypes[i], out var obj))

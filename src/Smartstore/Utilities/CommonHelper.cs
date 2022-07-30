@@ -175,7 +175,7 @@ namespace Smartstore.Utilities
             if (value == null)
             {
                 return false;
-            } 
+            }
 
             switch (value)
             {
@@ -216,7 +216,7 @@ namespace Smartstore.Utilities
             if (obj == null)
             {
                 return sizeof(int);
-            }   
+            }
 
             var type = obj.GetType();
             long size = 0;
@@ -331,7 +331,7 @@ namespace Smartstore.Utilities
                 {
                     return _pointerSize;
                 }
-                
+
                 if (typeof(BaseEntity).IsAssignableFrom(type) || type.IsNotPublic)
                 {
                     return _pointerSize;
