@@ -28,7 +28,7 @@ namespace Smartstore.Web.TagHelpers.Shared
         /// </summary>
         ReplaceWith
     }
-    
+
     [HtmlTargetElement("form", Attributes = AjaxAttributeName)]
     public class AjaxFormTagHelper : TagHelper
     {

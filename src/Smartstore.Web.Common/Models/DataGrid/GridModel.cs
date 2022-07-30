@@ -25,7 +25,7 @@ namespace Smartstore.Web.Models.DataGrid
         public IEnumerable<T> Rows { get; set; }
 
         [JsonIgnore]
-        IEnumerable IGridModel.Rows 
+        IEnumerable IGridModel.Rows
             => this.Rows;
 
         [JsonProperty("total")]

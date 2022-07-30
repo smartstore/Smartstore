@@ -71,7 +71,7 @@ namespace Smartstore.Web.Modelling
 
                     valueMetadata = _modelMetadataProvider.GetMetadataForType(valueType);
                     valueBindingContext = DefaultModelBindingContext.CreateBindingContext(
-                        bindingContext.ActionContext, 
+                        bindingContext.ActionContext,
                         bindingContext.ValueProvider,
                         valueMetadata,
                         bindingInfo: null,

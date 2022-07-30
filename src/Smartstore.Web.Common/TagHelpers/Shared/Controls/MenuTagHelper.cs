@@ -1,10 +1,9 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Razor.TagHelpers;
+﻿using Microsoft.AspNetCore.Razor.TagHelpers;
 
 namespace Smartstore.Web.TagHelpers.Shared
 {
     [HtmlTargetElement("menu", Attributes = NameAttributeName, TagStructure = TagStructure.WithoutEndTag)]
-    public class MenuTagHelper : SmartTagHelper 
+    public class MenuTagHelper : SmartTagHelper
     {
         const string NameAttributeName = "name";
         const string TemplateAttributeName = "template";

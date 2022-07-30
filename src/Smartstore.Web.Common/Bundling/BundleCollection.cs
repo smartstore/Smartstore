@@ -52,8 +52,8 @@ namespace Smartstore.Web.Bundling
         private readonly IOptionsMonitor<BundlingOptions> _options;
 
         public BundleCollection(
-            IHttpContextAccessor httpContextAccessor, 
-            IApplicationContext appContext, 
+            IHttpContextAccessor httpContextAccessor,
+            IApplicationContext appContext,
             IThemeRegistry themeRegistry,
             IOptionsMonitor<BundlingOptions> options)
         {

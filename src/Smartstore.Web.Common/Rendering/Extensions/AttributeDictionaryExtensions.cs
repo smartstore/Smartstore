@@ -50,7 +50,7 @@ namespace Smartstore.Web.Rendering
                 target.SetAttribute(attr.Key, attr.Value);
             }
         }
-        
+
         public static AttributeDictionary AppendCssClass(this AttributeDictionary attributes, Func<string> cssClass)
         {
             attributes.AddInValue("class", ' ', cssClass(), false);

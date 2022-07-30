@@ -104,7 +104,7 @@ namespace Smartstore.Web
                         });
                     }
                 })
-                .AddRazorOptions(o => 
+                .AddRazorOptions(o =>
                 {
                     if (appContext.IsInstalled)
                     {
@@ -278,7 +278,7 @@ namespace Smartstore.Web
             }
 
             urlHelper = new SmartUrlHelper(
-                new ActionContext(httpContext, routeData, new ActionDescriptor()), 
+                new ActionContext(httpContext, routeData, new ActionDescriptor()),
                 c.Resolve<LinkGenerator>());
 
             // Better not to interfere with UrlHelperFactory, so don't save in Items.

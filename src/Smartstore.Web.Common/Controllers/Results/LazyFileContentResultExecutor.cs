@@ -32,7 +32,7 @@ namespace Smartstore.Web.Controllers
                     FileDownloadName = result.FileDownloadName,
                     LastModified = result.LastModified
                 };
-                
+
                 var innerExecutor = context.HttpContext.RequestServices.GetRequiredService<IActionResultExecutor<FileContentResult>>();
 
                 await innerExecutor.ExecuteAsync(context, innerResult);

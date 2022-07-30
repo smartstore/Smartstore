@@ -10,7 +10,7 @@ namespace Smartstore.Web.TagHelpers.Shared
     public class ScriptBundleTagHelper : BundleTagHelper
     {
         const string SrcAttribute = "src";
-        protected override string SourceAttributeName  => SrcAttribute;
+        protected override string SourceAttributeName => SrcAttribute;
 
         public ScriptBundleTagHelper(IAssetTagGenerator tagGenerator)
             : base(tagGenerator)

@@ -80,7 +80,7 @@ namespace Smartstore.Web.TagHelpers
         public static void MergeAttribute(this TagHelperOutput output, string name, object value, bool replace = false)
         {
             Guard.NotEmpty(name, nameof(name));
-            
+
             if (output.Attributes.ContainsName(name) && replace)
             {
                 output.Attributes.SetAttribute(name, value);
@@ -166,7 +166,7 @@ namespace Smartstore.Web.TagHelpers
             {
                 return;
             }
-            
+
             switch (output.TagMode)
             {
                 case TagMode.StartTagOnly:

@@ -321,7 +321,7 @@ namespace Smartstore.Web.Razor
             if (result.ViewComponentType != null)
             {
                 // Select component by type
-                descriptor = _componentByTypeCache.GetOrAdd(result.ViewComponentType, componentType => 
+                descriptor = _componentByTypeCache.GetOrAdd(result.ViewComponentType, componentType =>
                 {
                     var descriptors = _componentDescriptorProvider.ViewComponents;
                     for (var i = 0; i < descriptors.Items.Count; i++)
@@ -335,7 +335,7 @@ namespace Smartstore.Web.Razor
 
                     return null;
                 });
-                
+
                 if (descriptor == null)
                 {
                     throw new InvalidOperationException($"A view component named '{result.ViewComponentType.FullName}' could not be found");

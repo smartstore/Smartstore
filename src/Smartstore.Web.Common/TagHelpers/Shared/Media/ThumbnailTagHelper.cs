@@ -42,7 +42,7 @@ namespace Smartstore.Web.TagHelpers.Shared
 
             // Append <i/> to root <figure/>
             output.Content.AppendHtml(ic);
-            
+
             // Build <picture/>
             var picture = new TagBuilder("picture");
             picture.Attributes["class"] = "file-thumb";

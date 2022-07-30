@@ -1,4 +1,3 @@
-using System.Linq;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Common;
@@ -11,7 +10,7 @@ namespace Smartstore.Web.Rendering
 {
     public static class SelectListExtensions
     {
-        public static SelectList ToSelectList<TEnum>(this TEnum enumObj, bool markCurrentAsSelected = true) 
+        public static SelectList ToSelectList<TEnum>(this TEnum enumObj, bool markCurrentAsSelected = true)
             where TEnum : struct
         {
             if (!typeof(TEnum).IsEnum)
@@ -27,7 +26,7 @@ namespace Smartstore.Web.Rendering
             {
                 selectedValue = Convert.ToInt32(enumObj);
             }
-            
+
             return new SelectList(values, "ID", "Name", selectedValue);
         }
 
@@ -37,8 +36,8 @@ namespace Smartstore.Web.Rendering
         public static IList<SelectListItem> ToSelectListItems(this IEnumerable<Store> stores, params int[] selectedStoreIds)
         {
             Guard.NotNull(stores, nameof(stores));
-            
-            return stores.Select(x => new SelectListItem 
+
+            return stores.Select(x => new SelectListItem
             {
                 Text = x.Name,
                 Value = x.Id.ToString(),

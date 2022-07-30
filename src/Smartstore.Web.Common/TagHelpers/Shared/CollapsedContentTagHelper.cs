@@ -8,7 +8,7 @@ namespace Smartstore.Web.TagHelpers.Shared
     public class CollapsedContentTagHelper : TagHelper
     {
         const string MaxHeightAttributeName = "sm-max-height";
-        
+
         private readonly CatalogSettings _catalogSettings;
 
         public CollapsedContentTagHelper(CatalogSettings catalogSettings)

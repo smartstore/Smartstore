@@ -15,8 +15,8 @@ namespace Smartstore.Web.Components
 
         public ViewComponentContext ViewComponentContext { get; }
 
-        public HttpContext HttpContext 
-        { 
+        public HttpContext HttpContext
+        {
             get => ViewComponentContext.ViewContext.HttpContext;
         }
 

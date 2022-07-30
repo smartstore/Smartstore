@@ -27,7 +27,7 @@ namespace Smartstore.Web.Razor
 
                 return themeViewLocations.Union(viewLocations);
             }
-            
+
             return viewLocations;
         }
 

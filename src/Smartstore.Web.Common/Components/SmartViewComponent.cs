@@ -110,7 +110,7 @@ namespace Smartstore.Web.Components
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected IViewComponentResult Empty() => _emptyResult;
 
-        private void PublishResultExecutingEvent(ViewViewComponentResult result) 
+        private void PublishResultExecutingEvent(ViewViewComponentResult result)
         {
             // Give integrators the chance to react to component rendering.
             if (PublishEvents)

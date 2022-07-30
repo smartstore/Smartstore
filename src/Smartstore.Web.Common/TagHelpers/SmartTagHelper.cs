@@ -10,7 +10,7 @@ using Smartstore.Utilities;
 namespace Smartstore.Web.TagHelpers
 {
     public abstract class SmartTagHelper : TagHelper
-	{
+    {
         private IActionContextAccessor _actionContextAccessor;
         private IHtmlHelper _htmlHelper;
         private IUrlHelper _urlHelper;
@@ -18,13 +18,13 @@ namespace Smartstore.Web.TagHelpers
         private Localizer _localizer;
 
         [HtmlAttributeNotBound]
-		[ViewContext]
-		public ViewContext ViewContext { get; set; }
+        [ViewContext]
+        public ViewContext ViewContext { get; set; }
 
         [HtmlAttributeNotBound]
-        protected internal IActionContextAccessor ActionContextAccessor 
+        protected internal IActionContextAccessor ActionContextAccessor
         {
-            get => _actionContextAccessor ??= ViewContext.HttpContext.GetServiceScope().Resolve<IActionContextAccessor>();      
+            get => _actionContextAccessor ??= ViewContext.HttpContext.GetServiceScope().Resolve<IActionContextAccessor>();
         }
 
 
@@ -47,7 +47,7 @@ namespace Smartstore.Web.TagHelpers
                         contextAware.Contextualize(ViewContext);
                     }
                 }
-                
+
                 return _htmlHelper;
             }
         }
@@ -95,7 +95,7 @@ namespace Smartstore.Web.TagHelpers
         private void ProcessCommon(TagHelperContext context, TagHelperOutput output)
         {
             Id = Id.NullEmpty() ?? GenerateTagId(context);
-            
+
             if (Id.HasValue())
             {
                 output.Attributes.SetAttribute("id", Id);

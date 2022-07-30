@@ -102,7 +102,7 @@ namespace Smartstore.Web.Theming
             Guard.NotNull(rawVariables, nameof(rawVariables));
 
             var result = new Dictionary<string, string>();
-            
+
             foreach (var v in rawVariables)
             {
                 string key = v.Key;
@@ -129,7 +129,7 @@ namespace Smartstore.Web.Theming
             var cacheKey = BuildCacheKey(themeName, storeId);
             var tokenKey = BuildTokenKey(themeName, storeId);
 
-            return await _memCache.GetOrCreateAsync(cacheKey, async (entry) => 
+            return await _memCache.GetOrCreateAsync(cacheKey, async (entry) =>
             {
                 // Ensure that when this item is expired, any bundle depending on the token is also expired
                 entry.RegisterPostEvictionCallback((key, value, reason, state) =>
@@ -150,7 +150,7 @@ namespace Smartstore.Web.Theming
         public void RemoveFromCache(string themeName, int storeId = 0)
         {
             Guard.NotEmpty(themeName, nameof(themeName));
-            
+
             var cacheKey = BuildCacheKey(themeName, storeId);
 
             if (storeId > 0)

@@ -32,7 +32,7 @@ namespace Smartstore.Web.TagHelpers.Shared
 
         private readonly IWidgetProvider _widgetProvider;
         private readonly IUrlHelper _urlHelper;
-        
+
         public ConfirmTagHelper(IWidgetProvider widgetProvider, IUrlHelper urlHelper)
         {
             _widgetProvider = widgetProvider;
@@ -178,7 +178,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             var partial = await HtmlHelper.PartialAsync("Confirm", model, null);
             _widgetProvider.RegisterHtml("end", partial);
         }
-    
+
         private static string GetIconClass(ConfirmActionType confirmType)
         {
             return confirmType switch

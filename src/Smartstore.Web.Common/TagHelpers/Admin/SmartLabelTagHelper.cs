@@ -35,7 +35,7 @@ namespace Smartstore.Web.TagHelpers.Admin
         {
             base.ProcessCore(context, output);
 
-            string labelText = Text 
+            string labelText = Text
                 ?? For.Metadata.DisplayName
                 ?? For.Metadata.PropertyName.SplitPascalCase();
 

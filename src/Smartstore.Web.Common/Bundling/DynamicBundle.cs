@@ -68,15 +68,15 @@ namespace Smartstore.Web.Bundling
     public class DynamicBundle : Bundle
     {
         private static readonly ConcurrentDictionary<string, string[]> _sourceFilesCache = new();
-        
+
         private readonly List<Func<DynamicBundleContext, bool>> _constraints = new();
         private readonly List<Func<DynamicBundleContext, IEnumerable<string>>> _resolvers = new();
 
         public DynamicBundle(
             string routeTemplate,
             object defaults,
-            string contentType, 
-            IFileProvider fileProvider, 
+            string contentType,
+            IFileProvider fileProvider,
             params IBundleProcessor[] processors)
             : base(routeTemplate, contentType, fileProvider, processors)
         {
@@ -141,7 +141,7 @@ namespace Smartstore.Web.Bundling
             }
 
             var cacheKey = BuildSourceFilesCacheKey(context.RouteValues);
-            return _sourceFilesCache.GetOrAdd(cacheKey, key 
+            return _sourceFilesCache.GetOrAdd(cacheKey, key
                 => _resolvers.SelectMany(resolver => resolver(context)).ToArray());
         }
 

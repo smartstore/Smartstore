@@ -14,7 +14,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             await output.LoadAndSetChildContentAsync();
         }
 
-        protected override string GenerateTagId(TagHelperContext context) 
+        protected override string GenerateTagId(TagHelperContext context)
             => null;
     }
 }

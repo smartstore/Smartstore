@@ -18,7 +18,7 @@ namespace Smartstore.Web.TagHelpers.Shared
         /// </summary>
         Centered
     }
-    
+
     [HtmlTargetElement("input", Attributes = "[type=number]")]
     public class NumberInputTagHelper : TagHelper
     {
@@ -84,7 +84,7 @@ namespace Smartstore.Web.TagHelpers.Shared
                     output.MergeAttribute("value", value.ToStringInvariant(), true);
                 }
             }
-            
+
             // Display label
             output.PostElement.AppendHtml("<span class='numberinput-formatted'></span>");
 

@@ -24,7 +24,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             }
         }
     }
-    
+
     [HtmlTargetElement("input", Attributes = ForAttributeName, TagStructure = TagStructure.WithoutEndTag)]
     [HtmlTargetElement("select", Attributes = ForAttributeName)]
     [HtmlTargetElement("select", Attributes = SelectItemsAttributeName)]
@@ -109,7 +109,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             {
                 return;
             }
-            
+
             output.AppendCssClass("form-check-input");
 
             var id = output.Attributes["id"]?.ValueAsString();
@@ -146,7 +146,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             {
                 isPlainText = output.Attributes.TryGetAttribute("class", out var classAttr) && classAttr.ValueAsString().Contains("form-control-plaintext");
             }
-            
+
             if (isPlainText)
             {
                 // Remove .form-control class added by SmartHtmlGenerator
@@ -169,7 +169,7 @@ namespace Smartstore.Web.TagHelpers.Shared
                     output.Attributes.Add(new TagHelperAttribute("required", null, HtmlAttributeValueStyle.Minimized));
                 }
             }
-            
+
 
             if (ControlSize != ControlSize.Medium && !context.Items.ContainsKey("IsNumberInput"))
             {

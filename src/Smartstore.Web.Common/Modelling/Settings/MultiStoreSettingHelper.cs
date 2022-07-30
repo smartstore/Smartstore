@@ -20,7 +20,7 @@ namespace Smartstore.Web.Modelling.Settings
             IHttpContextAccessor httpContextAccessor,
             IViewDataAccessor viewDataAccessor,
             SmartDbContext db,
-            ISettingService settingService, 
+            ISettingService settingService,
             ILocalizedEntityService leService)
         {
             _httpContextAccessor = httpContextAccessor;

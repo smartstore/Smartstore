@@ -19,10 +19,10 @@ namespace Smartstore.Web.Bundling
         /// <param name="options"><see cref="BundlingOptions"/> instance or <c>null</c> to auto-resolve.</param>
         /// <returns>A <see cref="BundleResponse"/> instance.</returns>
         Task<BundleResponse> BuildBundleAsync(
-            Bundle bundle, 
+            Bundle bundle,
             BundleCacheKey cacheKey,
             IDictionary<string, object> dataTokens = null,
-            HttpContext httpContext = null, 
+            HttpContext httpContext = null,
             BundlingOptions options = null);
     }
 
@@ -48,10 +48,10 @@ namespace Smartstore.Web.Bundling
         public ILogger Logger { get; set; } = NullLogger.Instance;
 
         public async Task<BundleResponse> BuildBundleAsync(
-            Bundle bundle, 
+            Bundle bundle,
             BundleCacheKey cacheKey,
             IDictionary<string, object> dataTokens = null,
-            HttpContext httpContext = null, 
+            HttpContext httpContext = null,
             BundlingOptions options = null)
         {
             options ??= _bundlingOptions.CurrentValue;
@@ -63,7 +63,7 @@ namespace Smartstore.Web.Bundling
             Logger.Debug("Building bundle '{0}'.", bundle.Route);
 
             using var chronometer = _chronometer.Step($"Bundle '{bundle.Route}'");
-            
+
             var bundleFiles = bundle.EnumerateFiles(httpContext, options)
                 .Where(x => x.File.Exists)
                 .ToArray();

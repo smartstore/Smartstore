@@ -11,7 +11,7 @@ namespace Smartstore.Web.Rendering
         {
             Guard.NotNull(urlHelper, nameof(urlHelper));
             Guard.NotNull(model, nameof(model));
-            
+
             var urlGenerator = urlHelper.ActionContext.HttpContext.RequestServices.GetRequiredService<IMediaUrlGenerator>();
 
             ProcessImageQuery query = model.ThumbSize > 0

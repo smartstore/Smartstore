@@ -141,12 +141,12 @@ namespace Smartstore.Web.TagHelpers.Shared
             {
                 TargetInputSelector = "#" + HtmlHelper.Id(For.Name);
             }
-            
+
             var options = new
             {
                 entityType = EntityType,
                 url = UrlHelper.Action("Picker", "Entity", new { area = string.Empty }),
-                caption =  (DialogTitle.NullEmpty() ?? Caption).HtmlEncode(),
+                caption = (DialogTitle.NullEmpty() ?? Caption).HtmlEncode(),
                 disableIf = DisableGroupedProducts ? "groupedproduct" : (DisableBundleProducts ? "notsimpleproduct" : null),
                 disableIds = DisabledEntityIds == null ? null : string.Join(',', DisabledEntityIds),
                 thumbZoomer = EnableThumbZoomer,
@@ -172,7 +172,7 @@ namespace Smartstore.Web.TagHelpers.Shared
 
             if (IconCssClass.HasValue())
             {
-                output.Content.AppendHtml($"<i class='{ IconCssClass }'></i>");
+                output.Content.AppendHtml($"<i class='{IconCssClass}'></i>");
 
                 if (Caption.IsEmpty())
                 {
@@ -182,7 +182,7 @@ namespace Smartstore.Web.TagHelpers.Shared
 
             if (Caption.HasValue())
             {
-                output.Content.AppendHtml($"<span>{ Caption }</span>");
+                output.Content.AppendHtml($"<span>{Caption}</span>");
             }
 
             var json = JsonConvert.SerializeObject(options, Formatting.None);

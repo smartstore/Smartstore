@@ -70,7 +70,7 @@ namespace Smartstore.Web.TagHelpers.Shared
                 Host ??= Model.Host;
                 NoFallback = Model.NoFallback;
             }
-            
+
             return base.PrepareModelAsync();
         }
 

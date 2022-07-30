@@ -26,7 +26,7 @@ namespace Smartstore.Licensing
 
         public static Task<LicenseCheckerResult> ActivateAsync(string licenseKey, string systemName, string url)
         {
-            return Task.FromResult(new LicenseCheckerResult 
+            return Task.FromResult(new LicenseCheckerResult
             {
                 State = LicensingState.Licensed,
                 Success = true,

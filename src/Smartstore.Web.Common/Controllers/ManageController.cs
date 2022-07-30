@@ -17,7 +17,7 @@ namespace Smartstore.Web.Controllers
         /// <typeparam name="TLocalizedModelLocal">Localizable model</typeparam>
         /// <param name="languageService">Language service</param>
         /// <param name="locales">Locales</param>
-        protected virtual void AddLocales<TLocalizedModelLocal>(IList<TLocalizedModelLocal> locales) 
+        protected virtual void AddLocales<TLocalizedModelLocal>(IList<TLocalizedModelLocal> locales)
             where TLocalizedModelLocal : ILocalizedLocaleModel, new()
         {
             AddLocales(locales, null);
@@ -30,11 +30,11 @@ namespace Smartstore.Web.Controllers
         /// <param name="languageService">Language service</param>
         /// <param name="locales">Locales</param>
         /// <param name="configure">Configure action</param>
-        protected virtual void AddLocales<TLocalizedModelLocal>(IList<TLocalizedModelLocal> locales, Action<TLocalizedModelLocal, int> configure) 
+        protected virtual void AddLocales<TLocalizedModelLocal>(IList<TLocalizedModelLocal> locales, Action<TLocalizedModelLocal, int> configure)
             where TLocalizedModelLocal : ILocalizedLocaleModel, new()
         {
             Guard.NotNull(locales, nameof(locales));
-            
+
             foreach (var language in Services.Resolve<ILanguageService>().GetAllLanguages(true))
             {
                 var locale = Activator.CreateInstance<TLocalizedModelLocal>();

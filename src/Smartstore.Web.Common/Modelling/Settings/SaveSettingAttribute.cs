@@ -23,7 +23,7 @@ namespace Smartstore.Web.Modelling.Settings
         private IFormCollection _form;
 
         public SaveSettingFilter(SaveSettingAttribute attribute, ICommonServices services, MultiStoreSettingHelper settingHelper)
-            : base (attribute, services, settingHelper)
+            : base(attribute, services, settingHelper)
         {
         }
 

@@ -24,8 +24,8 @@ namespace FluentValidation
         /// <param name="applyConditionTo">Whether the condition should be applied to the current rule or all rules in the chain.</param>
         /// <exception cref="ArgumentException">Raised when validator class does not derive from <see cref="SettingModelValidator{TModel, TSetting}"/></exception>
         public static IRuleBuilderOptions<T, TProperty> WhenSettingOverriden<T, TProperty>(
-            this IRuleBuilderOptions<T, TProperty> rule, 
-            Func<T, TProperty, bool> predicate, 
+            this IRuleBuilderOptions<T, TProperty> rule,
+            Func<T, TProperty, bool> predicate,
             ApplyConditionTo applyConditionTo = ApplyConditionTo.AllValidators)
             => WhenSettingOverridenInternal(rule, predicate, applyConditionTo, false);
 
@@ -61,7 +61,7 @@ namespace FluentValidation
                     ctx =>
                     {
                         var builder = rule as RuleBuilder<T, TProperty>;
-                        var validator = builder.ParentValidator as ISettingModelValidator 
+                        var validator = builder.ParentValidator as ISettingModelValidator
                             ?? throw new ArgumentException($"The validator must derive from {nameof(SettingModelValidator<T, ISettings>)} when using {nameof(WhenSettingOverriden)}.", nameof(rule));
 
                         var condition =

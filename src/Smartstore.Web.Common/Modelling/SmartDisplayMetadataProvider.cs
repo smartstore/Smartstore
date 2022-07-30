@@ -17,7 +17,7 @@ namespace Smartstore.Web.Modelling
             {
                 return;
             }
-            
+
             var displayAttribute = context.Attributes.OfType<LocalizedDisplayAttribute>().FirstOrDefault();
             if (displayAttribute == null)
             {
@@ -55,7 +55,7 @@ namespace Smartstore.Web.Modelling
                 var parentDescriptionKey = parentDisplayAttribute?.Description;
                 var descriptionKey = displayAttribute.Description;
                 var descriptionResKey = CombineResourceKeys(
-                    parentDescriptionKey ?? parentNameKey, 
+                    parentDescriptionKey ?? parentNameKey,
                     descriptionKey ?? (string.IsNullOrEmpty(nameKey) ? null : nameKey + ".Hint"));
 
                 if (descriptionResKey.HasValue())

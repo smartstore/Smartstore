@@ -1,7 +1,6 @@
 ﻿using System.Linq.Dynamic.Core;
 using FluentValidation.Internal;
 using FluentValidation.Validators;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Smartstore;
 using Smartstore.ComponentModel;
 
@@ -33,7 +32,7 @@ namespace FluentValidation
                 AddRule(rule);
             }
         }
-        
+
         /// <summary>
         /// Copies common validation rules from <typeparamref name="TEntity"/> type over to corresponding <typeparamref name="TModel"/> type.
         /// Common rules are: Required and MaxLength rules on string properties (either fluently mapped or annotated).

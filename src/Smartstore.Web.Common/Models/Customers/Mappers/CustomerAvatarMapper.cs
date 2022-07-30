@@ -31,7 +31,7 @@ namespace Smartstore.Web.Models.Customers
         /// <param name="model"><see cref="CustomerAvatarModel"/>.</param>
         /// <param name="userName">The user name which should be displayed for this avatar.</param>
         /// <param name="largeAvatar">A value indicating whether to display a large avatar.</param>
-        public static async Task MapAsync(this Customer entity, 
+        public static async Task MapAsync(this Customer entity,
             CustomerAvatarModel model,
             string userName = null,
             bool largeAvatar = false)

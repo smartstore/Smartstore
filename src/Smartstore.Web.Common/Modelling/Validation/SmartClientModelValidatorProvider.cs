@@ -28,7 +28,7 @@ namespace Smartstore.Web.Modelling.Validation
                 // We gonna provide our own localized Requried rule, then remove the MVC one.
 
                 context.Results.Remove(requiredAdapter);
-                context.Results.Add(new ClientValidatorItem 
+                context.Results.Add(new ClientValidatorItem
                 {
                     IsReusable = false,
                     Validator = new RequiredValidator(_languageManager)

@@ -14,13 +14,13 @@ namespace Smartstore.Web.Bundling
         public string Content { get; set; }
 
         private bool? _isMinified;
-        public bool IsMinified 
-        { 
+        public bool IsMinified
+        {
             get => _isMinified ??= RegularExpressions.IsMinFile.IsMatch(Path);
             set => _isMinified = value;
-        } 
+        }
     }
-    
+
     public class BundleContext
     {
         public Bundle Bundle { get; init; }

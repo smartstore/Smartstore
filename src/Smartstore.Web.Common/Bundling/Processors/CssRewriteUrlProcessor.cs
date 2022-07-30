@@ -60,7 +60,7 @@ namespace Smartstore.Web.Bundling.Processors
             }
 
             // Replace all urls with absolute urls
-            return _rgUrl.Replace(content, ((match) => 
+            return _rgUrl.Replace(content, ((match) =>
             {
                 var url = match.Groups["url"].Value;
                 if (url.StartsWith("data:image"))
@@ -77,8 +77,8 @@ namespace Smartstore.Web.Bundling.Processors
         internal string RebaseUrlToAbsolute(AssetContent asset, string webBasePath, string baseUrl, string url)
         {
             // Don't do anything to invalid urls, absolute urls or embedded images
-            if (string.IsNullOrWhiteSpace(url) || 
-                string.IsNullOrWhiteSpace(baseUrl) || 
+            if (string.IsNullOrWhiteSpace(url) ||
+                string.IsNullOrWhiteSpace(baseUrl) ||
                 url.StartsWith('/') ||
                 url.StartsWith("http"))
             {

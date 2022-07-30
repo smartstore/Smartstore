@@ -63,7 +63,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             }
         }
 
-        protected override string GenerateTagId(TagHelperContext context) 
+        protected override string GenerateTagId(TagHelperContext context)
             => null;
     }
 }

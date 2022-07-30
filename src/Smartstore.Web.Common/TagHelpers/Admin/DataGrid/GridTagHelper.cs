@@ -18,7 +18,7 @@ namespace Smartstore.Web.TagHelpers.Admin
         HorizontalBorders = 1 << 1,
         Grid = VerticalBorders | HorizontalBorders
     }
-    
+
     [HtmlTargetElement("datagrid")]
     [RestrictChildren("columns", "datasource", "paging", "toolbar", "sorting", "search-panel", "row-commands", "detail-view")]
     public class GridTagHelper : SmartTagHelper
@@ -226,7 +226,7 @@ namespace Smartstore.Web.TagHelpers.Admin
         internal GridSearchPanelTagHelper SearchPanel { get; set; }
 
         [HtmlAttributeNotBound]
-        internal string KeyMemberName 
+        internal string KeyMemberName
         {
             get => KeyMember?.Metadata?.Name ?? "Id";
         }
@@ -290,7 +290,7 @@ namespace Smartstore.Web.TagHelpers.Admin
                         editorSlot.InnerHtml.AppendHtml(HtmlHelper.EditorFor(column.For));
                         //editorSlot.InnerHtml.AppendHtml(HtmlHelper.ValidationMessageFor(column.For));
                     }
-                    
+
                     output.Content.AppendHtml(editorSlot);
                 }
 
@@ -345,8 +345,8 @@ namespace Smartstore.Web.TagHelpers.Admin
         private string GenerateVueJson(GridCommand command)
         {
             var modelType = Columns.FirstOrDefault()?.For?.Metadata?.ContainerType;
-            var defaultDataRow = modelType != null && modelType.HasDefaultConstructor() 
-                ? Activator.CreateInstance(modelType) 
+            var defaultDataRow = modelType != null && modelType.HasDefaultConstructor()
+                ? Activator.CreateInstance(modelType)
                 : null;
 
             var pathChanged = command == null || !ViewContext.HttpContext.Request.RawUrl().EqualsNoCase(command.Path.EmptyNull());

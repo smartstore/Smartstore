@@ -70,7 +70,7 @@ namespace Smartstore.Web.TagHelpers.Admin
             {
                 output.MergeAttribute("href", "#");
             }
-            
+
             output.AppendCssClass("dropdown-item");
 
             if (Action == DataRowAction.InlineEdit)

@@ -22,7 +22,7 @@ namespace Smartstore.Web.Bundling
         {
             get => string.Empty;
         }
-        
+
         public virtual void PopulateCacheKey(Bundle bundle, HttpContext httpContext, IDictionary<string, string> values)
         {
         }

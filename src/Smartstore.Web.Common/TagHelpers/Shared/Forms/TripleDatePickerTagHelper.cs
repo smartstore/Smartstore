@@ -3,7 +3,6 @@ using System.Text;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Smartstore.Core.Localization;
-using Smartstore.Utilities;
 using Smartstore.Web.Rendering;
 
 namespace Smartstore.Web.TagHelpers.Shared
@@ -66,7 +65,7 @@ namespace Smartstore.Web.TagHelpers.Shared
                 output.SuppressOutput();
                 return;
             }
-            
+
             output.TagName = "div";
             output.TagMode = TagMode.StartTagAndEndTag;
             output.AppendCssClass("row xs-gutters");

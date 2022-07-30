@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.Filters;
+﻿using Microsoft.AspNetCore.Mvc.Filters;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Logging;
 
@@ -23,8 +22,8 @@ namespace Smartstore.Web.Filters
             private readonly INotifier _notifier;
 
             public GdprConsentFilter(
-                ICommonServices services, 
-                IWidgetProvider widgetProvider, 
+                ICommonServices services,
+                IWidgetProvider widgetProvider,
                 PrivacySettings privacySettings,
                 INotifier notifier)
             {

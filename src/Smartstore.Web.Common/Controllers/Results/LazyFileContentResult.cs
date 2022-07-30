@@ -53,7 +53,7 @@ namespace Smartstore.Web.Controllers
         /// <summary>
         /// Gets or sets the file contents.
         /// </summary>
-        public Func<Task<byte[]>>BufferAccessor
+        public Func<Task<byte[]>> BufferAccessor
         {
             get => _bufferAccessor;
             set => _bufferAccessor = Guard.NotNull(value, nameof(value));

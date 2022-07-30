@@ -195,7 +195,7 @@ namespace Smartstore.Web.TagHelpers.Shared
                 OnFileRemoved = OnFileRemoved,
                 OnAborted = OnAborted,
                 OnCompleted = OnCompleted,
-                OnMediaSelected = OnMediaSelected            
+                OnMediaSelected = OnMediaSelected
             };
 
             var extensions = _mediaTypeResolver.ParseTypeFilter(TypeFilter.HasValue() ? TypeFilter : "*");
@@ -205,7 +205,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             var partial = await widget.InvokeAsync(ViewContext);
 
             output.TagMode = TagMode.StartTagAndEndTag;
-            output.TagName = null;            
+            output.TagName = null;
             output.Content.SetHtmlContent(partial);
         }
     }

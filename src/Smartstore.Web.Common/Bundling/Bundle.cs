@@ -52,7 +52,7 @@ namespace Smartstore.Web.Bundling
     public class Bundle
     {
         private readonly HashSet<string> _sourceFiles = new();
-        
+
         protected Bundle()
         {
         }
@@ -139,7 +139,7 @@ namespace Smartstore.Web.Bundling
         /// Source files that represent the contents of the bundle. 
         /// Globbing patterns are allowed.
         /// </summary>
-        public virtual IEnumerable<string> SourceFiles 
+        public virtual IEnumerable<string> SourceFiles
         {
             get => _sourceFiles.AsReadOnly();
         }
@@ -274,8 +274,8 @@ namespace Smartstore.Web.Bundling
             Guard.NotNull(httpContext, nameof(httpContext));
             Guard.NotNull(options, nameof(options));
 
-            var fileProvider = 
-                FileProvider ?? 
+            var fileProvider =
+                FileProvider ??
                 options.FileProvider ??
                 httpContext.RequestServices.GetRequiredService<IWebHostEnvironment>().WebRootFileProvider;
 
@@ -348,7 +348,7 @@ namespace Smartstore.Web.Bundling
         protected virtual IEnumerable<BundleFile> ExpandFile(string path, IFileProvider fileProvider, HttpContext httpContext, BundlingOptions options)
         {
             var isPattern = path.IndexOf('*') > -1;
-            
+
             if (!isPattern)
             {
                 if (options.EnableMinification == true)
@@ -359,7 +359,7 @@ namespace Smartstore.Web.Bundling
                         path = assetBuilder.TryFindMinFile(path, fileProvider);
                     }
                 }
-                
+
                 yield return new BundleFile
                 {
                     Path = path,

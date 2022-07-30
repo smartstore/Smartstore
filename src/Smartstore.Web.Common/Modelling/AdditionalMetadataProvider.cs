@@ -4,8 +4,8 @@ namespace Smartstore.Web.Modelling
 {
     public class AdditionalMetadataProvider : IDisplayMetadataProvider
     {
-        public AdditionalMetadataProvider() 
-        { 
+        public AdditionalMetadataProvider()
+        {
         }
 
         public void CreateDisplayMetadata(DisplayMetadataProviderContext context)

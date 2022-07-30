@@ -13,7 +13,7 @@ namespace Smartstore.Web.Modelling
         public IModelBinder GetBinder(ModelBinderProviderContext context)
         {
             Guard.NotNull(context, nameof(context));
-            
+
             var modelType = context.Metadata.UnderlyingOrModelType;
 
             if (modelType == typeof(decimal))
@@ -57,7 +57,7 @@ namespace Smartstore.Web.Modelling
 
             var metadata = bindingContext.ModelMetadata;
             var type = metadata.UnderlyingOrModelType;
-            
+
             try
             {
                 var value = valueProviderResult.FirstValue;

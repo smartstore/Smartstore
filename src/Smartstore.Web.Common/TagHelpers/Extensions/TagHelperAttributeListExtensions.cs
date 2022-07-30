@@ -33,7 +33,7 @@ namespace Smartstore.Web.TagHelpers
         public static void SetAttributeNoReplace(this TagHelperAttributeList attributes, string name, object value, bool ignoreNull = true)
         {
             Guard.NotEmpty(name, nameof(name));
-            
+
             if (!attributes.ContainsName(name) && (value != null || !ignoreNull))
             {
                 attributes.SetAttribute(name, value);

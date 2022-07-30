@@ -52,8 +52,8 @@ namespace Smartstore.Web.TagHelpers.Admin
                 enabled = Enabled,
                 allowUnsort = AllowUnsort,
                 allowMultiSort = MultiSort,
-                descriptors = command == null 
-                    ? Descriptors.Select(x => x.ToPlainObject()).ToArray() 
+                descriptors = command == null
+                    ? Descriptors.Select(x => x.ToPlainObject()).ToArray()
                     : command.Sorting.Select(x => new { member = x.Member, descending = x.Descending }).ToArray()
             };
         }

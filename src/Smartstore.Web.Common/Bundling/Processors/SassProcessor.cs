@@ -61,7 +61,7 @@ namespace Smartstore.Web.Bundling.Processors
             var services = httpContext.RequestServices;
             var themeContext = services.GetRequiredService<IThemeContext>();
             var storeContext = services.GetRequiredService<IStoreContext>();
-            
+
             if (isThemeableRequest)
             {
                 themeContext.SetRequestTheme(theme);

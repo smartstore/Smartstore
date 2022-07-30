@@ -21,29 +21,29 @@ namespace Smartstore.Web.Rendering
             HtmlEncoder htmlEncoder,
             ValidationHtmlAttributeProvider validationAttributeProvider)
             : base(
-                  antiforgery, 
-                  optionsAccessor, 
-                  metadataProvider, 
-                  urlHelperFactory, 
-                  htmlEncoder, 
+                  antiforgery,
+                  optionsAccessor,
+                  metadataProvider,
+                  urlHelperFactory,
+                  htmlEncoder,
                   validationAttributeProvider)
         {
         }
 
         public override TagBuilder GenerateTextArea(
-            ViewContext viewContext, 
-            ModelExplorer modelExplorer, 
-            string expression, 
-            int rows, 
-            int columns, 
+            ViewContext viewContext,
+            ModelExplorer modelExplorer,
+            string expression,
+            int rows,
+            int columns,
             object htmlAttributes)
         {
             var tag = base.GenerateTextArea(
-                viewContext, 
-                modelExplorer, 
-                expression, 
-                rows, 
-                columns, 
+                viewContext,
+                modelExplorer,
+                expression,
+                rows,
+                columns,
                 htmlAttributes);
 
             tag.Attributes.AddInValue("class", ' ', "form-control");
@@ -52,23 +52,23 @@ namespace Smartstore.Web.Rendering
         }
 
         public override TagBuilder GenerateSelect(
-            ViewContext viewContext, 
-            ModelExplorer modelExplorer, 
-            string optionLabel, 
-            string expression, 
-            IEnumerable<SelectListItem> selectList, 
-            ICollection<string> currentValues, 
-            bool allowMultiple, 
+            ViewContext viewContext,
+            ModelExplorer modelExplorer,
+            string optionLabel,
+            string expression,
+            IEnumerable<SelectListItem> selectList,
+            ICollection<string> currentValues,
+            bool allowMultiple,
             object htmlAttributes)
         {
             var tag = base.GenerateSelect(
-                viewContext, 
-                modelExplorer, 
-                optionLabel, 
-                expression, 
-                selectList, 
-                currentValues, 
-                allowMultiple, 
+                viewContext,
+                modelExplorer,
+                optionLabel,
+                expression,
+                selectList,
+                currentValues,
+                allowMultiple,
                 htmlAttributes);
 
             tag.Attributes.AddInValue("class", ' ', "form-control");
@@ -77,29 +77,29 @@ namespace Smartstore.Web.Rendering
         }
 
         protected override TagBuilder GenerateInput(
-            ViewContext viewContext, 
-            InputType inputType, 
-            ModelExplorer modelExplorer, 
-            string expression, 
-            object value, 
-            bool useViewData, 
-            bool isChecked, 
-            bool setId, 
-            bool isExplicitValue, 
-            string format, 
+            ViewContext viewContext,
+            InputType inputType,
+            ModelExplorer modelExplorer,
+            string expression,
+            object value,
+            bool useViewData,
+            bool isChecked,
+            bool setId,
+            bool isExplicitValue,
+            string format,
             IDictionary<string, object> htmlAttributes)
         {
             var tag = base.GenerateInput(
-                viewContext, 
-                inputType, 
-                modelExplorer, 
-                expression, 
-                value, 
-                useViewData, 
-                isChecked, 
-                setId, 
-                isExplicitValue, 
-                format, 
+                viewContext,
+                inputType,
+                modelExplorer,
+                expression,
+                value,
+                useViewData,
+                isChecked,
+                setId,
+                isExplicitValue,
+                format,
                 htmlAttributes);
 
             if (inputType is (InputType.Text or InputType.Password))

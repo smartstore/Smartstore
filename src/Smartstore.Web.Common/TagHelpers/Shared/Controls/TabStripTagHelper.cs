@@ -34,7 +34,7 @@ namespace Smartstore.Web.TagHelpers.Shared
     [HtmlTargetElement("tabstrip", Attributes = "id")]
     [RestrictChildren("tab", "tab-content-header")]
     public class TabStripTagHelper : SmartTagHelper
-    {   
+    {
         const string HideSingleItemAttributeName = "sm-hide-single-item";
         const string ResponsiveAttributeName = "sm-responsive";
         const string BreakpointAttributeName = "sm-breakpoint";
@@ -140,7 +140,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             {
                 var eventPublisher = ViewContext.HttpContext.RequestServices.GetRequiredService<IEventPublisher>();
                 var e = new TabStripCreated(this, context);
-                await  eventPublisher.PublishAsync(e);
+                await eventPublisher.PublishAsync(e);
 
                 if (e.Widgets != null && e.Widgets.Count > 0)
                 {
@@ -151,7 +151,7 @@ namespace Smartstore.Web.TagHelpers.Shared
                         widgetContent.AppendHtml(await widget.InvokeAsync(ViewContext, e.Model));
                         widgetContent.AppendLine();
                     }
-                    
+
                     // Combine all custom widgets into one special tab named MODULE_WIDGETS
                     await e.TabFactory.AddAsync(builder => builder
                         .Text(EngineContext.Current.ResolveService<IText>().Get("Admin.Plugins"))
@@ -220,7 +220,7 @@ namespace Smartstore.Web.TagHelpers.Shared
                 {
                     output.Attributes.Add("data-breakpoint", Breakpoint);
                 }
-                
+
             }
 
             // Flush classes
@@ -303,7 +303,7 @@ namespace Smartstore.Web.TagHelpers.Shared
 
             if (isStacked)
             {
-                classList.Add("nav-stacked", "flex-row",  "flex-lg-column");
+                classList.Add("nav-stacked", "flex-row", "flex-lg-column");
             }
 
             if (Position != TabsPosition.Top)
@@ -493,7 +493,7 @@ namespace Smartstore.Web.TagHelpers.Shared
                 {
                     a.AppendCssClass("clearfix");
                 }
-                
+
                 // Icon/Image
                 if (hasIcons)
                 {

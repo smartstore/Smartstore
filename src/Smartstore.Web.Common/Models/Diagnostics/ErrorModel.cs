@@ -29,7 +29,7 @@ namespace Smartstore.Web.Models.Diagnostics
         public string ErrorMessage => Exception?.Message;
 
         [JsonProperty("controller")]
-        public string ControllerName  => ActionDescriptor?.ControllerName;
+        public string ControllerName => ActionDescriptor?.ControllerName;
 
         [JsonProperty("action")]
         public string ActionName => ActionDescriptor?.ActionName;

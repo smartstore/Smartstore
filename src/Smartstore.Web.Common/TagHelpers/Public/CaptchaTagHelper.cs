@@ -9,7 +9,7 @@ namespace Smartstore.Web.TagHelpers.Public
     public class CaptchaTagHelper : TagHelper
     {
         const string EnabledAttributeName = "sm-enabled";
-        
+
         private readonly CaptchaSettings _captchaSettings;
         private readonly IWorkContext _workContext;
         private readonly SmartConfiguration _appConfig;

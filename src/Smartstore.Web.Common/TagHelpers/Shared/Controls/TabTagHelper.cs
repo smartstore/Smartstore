@@ -168,7 +168,7 @@ namespace Smartstore.Web.TagHelpers.Shared
         }
 
         // Suppress Id auto-generation
-        protected override string GenerateTagId(TagHelperContext context) 
+        protected override string GenerateTagId(TagHelperContext context)
             => "{0}-{1}".FormatInvariant(Parent.Id, Index);
     }
 }

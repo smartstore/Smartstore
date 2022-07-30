@@ -110,7 +110,7 @@ namespace Smartstore.Web.Theming
             // Validate before save and ensure that Sass compiler does not throw with updated variables
             var mergedVariables = MergeThemeVariables(descriptor, variables);
             var validationResult = await ValidateThemeAsync(descriptor, storeId, mergedVariables);
-            
+
             if (!validationResult.IsValid)
             {
                 throw new ThemeValidationException(validationResult.Exception.ToAllMessages(), variables);

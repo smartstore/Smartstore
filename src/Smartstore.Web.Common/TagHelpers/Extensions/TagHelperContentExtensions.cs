@@ -31,7 +31,7 @@ namespace Smartstore.Web.TagHelpers
             {
                 content.SetHtmlContent(encoded);
                 content.AppendLine();
-            } 
+            }
             else
             {
                 content.SetHtmlContent(encoded + content.GetContent());

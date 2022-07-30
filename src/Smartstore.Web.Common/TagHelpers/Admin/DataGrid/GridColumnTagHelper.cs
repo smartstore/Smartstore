@@ -60,7 +60,7 @@ namespace Smartstore.Web.TagHelpers.Admin
         /// </summary>
         [HtmlAttributeName(HintAttributeName)]
         public string Hint { get; set; }
-        
+
         /// <summary>
         /// Columns width. Any CSS grid width specification is valid.
         /// </summary>
@@ -205,7 +205,7 @@ namespace Smartstore.Web.TagHelpers.Admin
         public TagHelperContent FooterTemplate { get; set; }
 
         [HtmlAttributeNotBound]
-        public string MemberName 
+        public string MemberName
         {
             get => For.Name;
         }

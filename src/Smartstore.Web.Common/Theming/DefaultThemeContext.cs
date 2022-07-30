@@ -174,8 +174,8 @@ namespace Smartstore.Web.Theming
 
                 _currentTheme = null;
             }
-            catch 
-            { 
+            catch
+            {
             }
         }
 

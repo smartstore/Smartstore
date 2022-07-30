@@ -30,7 +30,7 @@ namespace Smartstore.Web.TagHelpers.Shared
 
     [OutputElementHint("nav")]
     [HtmlTargetElement("pagination", Attributes = ListItemsAttributeName, TagStructure = TagStructure.WithoutEndTag)]
-    public class PaginationTagHelper : SmartTagHelper 
+    public class PaginationTagHelper : SmartTagHelper
     {
         const string ListItemsAttributeName = "sm-list-items";
         const string AlignmentAttributeName = "sm-alignment";
@@ -45,7 +45,7 @@ namespace Smartstore.Web.TagHelpers.Shared
         const string SkipActiveStateAttributeName = "sm-skip-active-state";
         const string ItemTitleFormatStringAttributeName = "sm-item-title-format-string";
         const string QueryParamNameAttributeName = "sm-query-param";
-        
+
         [HtmlAttributeName(ListItemsAttributeName)]
         public IPageable ListItems { get; set; }
 
@@ -307,7 +307,7 @@ namespace Smartstore.Web.TagHelpers.Shared
                     }
                 }
             }
-            
+
             innerAOrSpan.AddCssClass("page-link");
             itemLi.InnerHtml.AppendHtml(GetItemInnerContent(item, innerAOrSpan));
             itemsUl.InnerHtml.AppendHtml(itemLi);
@@ -316,7 +316,7 @@ namespace Smartstore.Web.TagHelpers.Shared
         /// <summary>
         /// Sets inner content for for pager item.
         /// </summary>
-        protected virtual TagBuilder GetItemInnerContent(PagerItem item, TagBuilder innerAOrSpan) 
+        protected virtual TagBuilder GetItemInnerContent(PagerItem item, TagBuilder innerAOrSpan)
         {
             var iconI = new TagBuilder("i");
 

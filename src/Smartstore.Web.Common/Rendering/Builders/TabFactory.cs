@@ -52,7 +52,7 @@ namespace Smartstore.Web.Rendering.Builders
                 ImageUrl = item.ImageUrl,
                 Summary = item.Summary
             };
-            
+
             if (item.IconLibrary == "bi" && tagHelper.Icon.HasValue())
             {
                 tagHelper.Icon = tagHelper.Icon.EnsureStartsWith("bi:");
@@ -76,8 +76,8 @@ namespace Smartstore.Web.Rendering.Builders
 
             var output = new TagHelperOutput("tab", outputAttrList, async (_, _) =>
             {
-                var content = item.HasContent 
-                    ? await item.GetContentAsync(tagHelper.ViewContext) 
+                var content = item.HasContent
+                    ? await item.GetContentAsync(tagHelper.ViewContext)
                     : HtmlString.Empty;
 
                 var contentTag = new TagBuilder("div");

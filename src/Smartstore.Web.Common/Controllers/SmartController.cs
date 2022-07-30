@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Options;
 using Smartstore.Core.Content.Menus;
@@ -173,7 +172,7 @@ namespace Smartstore.Web.Controllers
         protected virtual void NotifyAccessDenied(bool durable = true, bool log = true)
         {
             var message = T("Admin.AccessDenied.Description");
-            
+
             if (log)
             {
                 Logger.Error(message);

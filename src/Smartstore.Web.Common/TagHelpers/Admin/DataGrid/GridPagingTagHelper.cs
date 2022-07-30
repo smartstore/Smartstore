@@ -10,7 +10,7 @@ namespace Smartstore.Web.TagHelpers.Admin
         Top,
         Both
     }
-    
+
     [HtmlTargetElement("paging", ParentTag = "datagrid", TagStructure = TagStructure.WithoutEndTag)]
     public class GridPagingTagHelper : TagHelper
     {
@@ -52,7 +52,7 @@ namespace Smartstore.Web.TagHelpers.Admin
         /// Page size. Default: <see cref="AdminAreaSettings.GridPageSize"/>, initially 25.
         /// </summary>
         [HtmlAttributeName(PageSizeAttributeName)]
-        public int PageSize 
+        public int PageSize
         {
             get => _pageSize < 1 ? 25 : _pageSize;
             set => _pageSize = value;
@@ -86,10 +86,10 @@ namespace Smartstore.Web.TagHelpers.Admin
         /// Available page sizes to choose from.
         /// </summary>
         [HtmlAttributeName(SizesAttributeName)]
-        public int[] AvailableSizes 
-        { 
+        public int[] AvailableSizes
+        {
             get => _availableSizes ??= new int[] { PageSize, PageSize * 2, PageSize * 4, PageSize * 6, PageSize * 8 };
-            set => _availableSizes = value; 
+            set => _availableSizes = value;
         }
 
         [HtmlAttributeName(TotalAttributeName)]
@@ -101,7 +101,7 @@ namespace Smartstore.Web.TagHelpers.Admin
         }
 
         internal object ToPlainObject(GridCommand command = null)
-        {   
+        {
             return new
             {
                 enabled = Enabled,

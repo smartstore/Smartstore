@@ -10,7 +10,7 @@ namespace Smartstore.Web.Bundling
         public static implicit operator string(BundleCacheKey key) => key.Key;
         public static implicit operator BundleCacheKey(string key) => new() { Key = key, Fragments = new Dictionary<string, string>() };
     }
-    
+
     public interface IBundleCache
     {
         Task<BundleResponse> GetResponseAsync(BundleCacheKey cacheKey, Bundle bundle);
@@ -39,7 +39,7 @@ namespace Smartstore.Web.Bundling
         {
             Guard.NotNull(cacheKey.Key, nameof(cacheKey.Key));
             Guard.NotNull(bundle, nameof(bundle));
-            
+
             // Memory cache
             var memCacheKey = BuildScopedCacheKey(cacheKey);
             if (_memCache.TryGetValue(memCacheKey, out BundleResponse response))

@@ -10,12 +10,12 @@ namespace Smartstore.Web.Modelling.Settings
     [AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = false)]
     public class LoadSettingAttribute : TypeFilterAttribute
     {
-        public LoadSettingAttribute() 
+        public LoadSettingAttribute()
             : this(true)
         {
         }
 
-        public LoadSettingAttribute(bool bindParameterFromStore) 
+        public LoadSettingAttribute(bool bindParameterFromStore)
             : this(typeof(LoadSettingFilter), bindParameterFromStore)
         {
         }

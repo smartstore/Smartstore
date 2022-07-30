@@ -7,7 +7,7 @@ namespace Smartstore.Web.Rendering
     {
         private readonly HashSet<string> _list;
         private readonly object _source;
-        
+
         internal CssClassList(object source)
         {
             Guard.NotNull(source, nameof(source));
@@ -30,14 +30,14 @@ namespace Smartstore.Web.Rendering
                 throw new ArgumentException($"source must be {nameof(TagHelperAttributeList)} or {nameof(IDictionary<string, string>)}", nameof(source));
             }
 
-            _list = new HashSet<string>(currentValue.HasValue() 
-                ? currentValue.Trim().Tokenize(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries) : 
+            _list = new HashSet<string>(currentValue.HasValue()
+                ? currentValue.Trim().Tokenize(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries) :
                 Enumerable.Empty<string>());
 
             _source = source;
         }
 
-        public int Count 
+        public int Count
             => _list.Count;
 
         public void Clear()
@@ -55,7 +55,7 @@ namespace Smartstore.Web.Rendering
         public bool Add(params string[] classValues)
         {
             int len = _list.Count;
-            
+
             foreach (var classValue in classValues)
             {
                 ValidateClass(classValue, nameof(classValues));

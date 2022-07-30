@@ -9,7 +9,7 @@ namespace Smartstore.Web.Theming
         {
             if (context == null)
                 return null;
-            
+
             return context.Request.Cookies[CookieNames.UserThemeChoice].NullEmpty();
         }
 

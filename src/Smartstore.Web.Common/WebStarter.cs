@@ -92,7 +92,7 @@ namespace Smartstore.Web
             });
 
             // Add response compression
-            services.AddResponseCompression(o => 
+            services.AddResponseCompression(o =>
             {
                 o.EnableForHttps = true;
                 o.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
@@ -187,7 +187,7 @@ namespace Smartstore.Web
                 return;
             }
 
-            builder.MapRoutes(StarterOrdering.EarlyRoute, routes => 
+            builder.MapRoutes(StarterOrdering.EarlyRoute, routes =>
             {
                 routes.MapDynamicControllerRoute<SlugRouteTransformer>("{**slug:minlength(2)}");
             });
@@ -196,7 +196,7 @@ namespace Smartstore.Web
 
     internal class LastRoutes : StarterBase
     {
-        public override bool Matches(IApplicationContext appContext) 
+        public override bool Matches(IApplicationContext appContext)
             => appContext.IsInstalled;
 
         public override void MapRoutes(EndpointRoutingBuilder builder)

@@ -91,7 +91,7 @@ namespace Smartstore.Web.TagHelpers.Admin
         protected override void ProcessCore(TagHelperContext context, TagHelperOutput output)
         {
             context.Items["IconStack"] = true;
-            
+
             output.TagName = "svg";
             output.TagMode = TagMode.StartTagAndEndTag;
 
@@ -242,8 +242,8 @@ namespace Smartstore.Web.TagHelpers.Admin
             var svg = (TagBuilder)HtmlHelper.BootstrapIcon(
                 Name,
                 isStackItem,
-                Fill, 
-                FontScale, 
+                Fill,
+                FontScale,
                 Animation,
                 GenerateTransforms(),
                 GenerateHtmlAttributes());

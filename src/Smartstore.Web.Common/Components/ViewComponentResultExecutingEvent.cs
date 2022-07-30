@@ -18,7 +18,7 @@ namespace Smartstore.Web.Components
 
         public ViewViewComponentResult Result { get; set; }
 
-        public string ViewName 
+        public string ViewName
         {
             get => Result.ViewName;
             set => Result.ViewName = value;

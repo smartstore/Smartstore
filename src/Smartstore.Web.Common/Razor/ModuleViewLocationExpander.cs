@@ -32,7 +32,7 @@ namespace Smartstore.Web.Razor
                         $"{module.Path}Views/{{1}}/{{0}}" + RazorViewEngine.ViewExtension,
                         $"{module.Path}Views/Shared/{{0}}" + RazorViewEngine.ViewExtension,
                     };
-                    
+
                     return moduleViewLocations.Union(viewLocations);
                 }
             }

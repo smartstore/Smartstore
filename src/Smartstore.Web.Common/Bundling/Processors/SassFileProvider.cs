@@ -39,7 +39,7 @@ namespace Smartstore.Web.Bundling.Processors
                 {
                     var theme = services.Resolve<IThemeContext>().CurrentTheme.Name;
                     var storeId = services.Resolve<IStoreContext>().CurrentStore.Id;
-                    return new ThemeVarsFileInfo(subpath, theme, storeId,repo);
+                    return new ThemeVarsFileInfo(subpath, theme, storeId, repo);
                 }
             }
             else if (subpath.StartsWith(ModuleImportsFileInfo.FileName))

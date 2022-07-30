@@ -56,7 +56,7 @@ namespace Smartstore.Web.Rendering
         /// <summary>
         /// Returns HTML markup for the model explorer, using an editor template.
         /// </summary>
-        public static IHtmlContent EditorFor(this IHtmlHelper helper, 
+        public static IHtmlContent EditorFor(this IHtmlHelper helper,
             ModelExpression expression,
             string templateName,
             string htmlFieldName,
@@ -67,8 +67,8 @@ namespace Smartstore.Web.Rendering
 
             if (helper is HtmlHelper htmlHelper)
             {
-                return (IHtmlContent)GenerateEditorMethod.Invoke(htmlHelper, new object[] 
-                { 
+                return (IHtmlContent)GenerateEditorMethod.Invoke(htmlHelper, new object[]
+                {
                     expression.ModelExplorer,
                     htmlFieldName ?? expression.Name,
                     templateName,
@@ -134,8 +134,8 @@ namespace Smartstore.Web.Rendering
 
             return helper.DropDownListFor(
                 expression,
-                helper.GetLocalizedEnumSelectList(typeof(TEnum)), 
-                optionLabel, 
+                helper.GetLocalizedEnumSelectList(typeof(TEnum)),
+                optionLabel,
                 htmlAttributes);
         }
 
@@ -268,7 +268,7 @@ namespace Smartstore.Web.Rendering
 
         public static IHtmlContent ColorBoxFor(
             this IHtmlHelper helper,
-            ModelExpression expression, 
+            ModelExpression expression,
             string defaultColor = null)
         {
             Guard.NotNull(expression, nameof(expression));
@@ -277,8 +277,8 @@ namespace Smartstore.Web.Rendering
         }
 
         public static IHtmlContent ColorBoxFor<TModel>(
-            this IHtmlHelper<TModel> helper, 
-            Expression<Func<TModel, string>> expression, 
+            this IHtmlHelper<TModel> helper,
+            Expression<Func<TModel, string>> expression,
             string defaultColor = null)
         {
             Guard.NotNull(expression, nameof(expression));
@@ -287,9 +287,9 @@ namespace Smartstore.Web.Rendering
         }
 
         public static IHtmlContent ColorBox(
-            this IHtmlHelper helper, 
-            string name, 
-            string color, 
+            this IHtmlHelper helper,
+            string name,
+            string color,
             string defaultColor = null)
         {
             defaultColor = defaultColor.EmptyNull();
@@ -318,8 +318,8 @@ namespace Smartstore.Web.Rendering
             return SmartLabelFor(helper, expression, true, htmlAttributes);
         }
 
-        public static IHtmlContent SmartLabelFor<TModel, TResult>(this IHtmlHelper<TModel> helper, 
-            Expression<Func<TModel, TResult>> expression, 
+        public static IHtmlContent SmartLabelFor<TModel, TResult>(this IHtmlHelper<TModel> helper,
+            Expression<Func<TModel, TResult>> expression,
             bool displayHint,
             object htmlAttributes = null)
         {
@@ -333,10 +333,10 @@ namespace Smartstore.Web.Rendering
             return SmartLabel(helper, modelExpression.Name, labelText, hintText, htmlAttributes);
         }
 
-        public static IHtmlContent SmartLabel(this IHtmlHelper helper, 
-            string expression, 
-            string labelText, 
-            string hint = null, 
+        public static IHtmlContent SmartLabel(this IHtmlHelper helper,
+            string expression,
+            string labelText,
+            string hint = null,
             object htmlAttributes = null)
         {
             var div = new TagBuilder("div");
@@ -451,7 +451,7 @@ namespace Smartstore.Web.Rendering
             {
                 throw new ArgumentException($"The type '{enumType.FullName}' is not supported. Type must be an {nameof(Enum).ToLowerInvariant()}.");
             }
-            
+
             var localizationService = requestServices.GetService<ILocalizationService>();
             var selectList = new List<SelectListItem>();
             var groupList = new Dictionary<string, SelectListGroup>();
@@ -506,7 +506,7 @@ namespace Smartstore.Web.Rendering
         {
             // INFO: We cannot rely on HelperResult's deferred rendering strategy here, because then client validation rules
             // are missing in the output. Instead we immediately render the content to an HtmlString instance.
-            
+
             var locales = helper.ViewData.Model.Locales;
             var hasMasterTemplate = masterTemplate != null;
 
@@ -518,9 +518,9 @@ namespace Smartstore.Web.Rendering
                 var localizationService = services.GetRequiredService<ILocalizationService>();
                 var tabs = new List<TabItem>(locales.Count + 1);
                 var languages = new List<Language>(locales.Count + 1);
-                
+
                 // Create the parent tabstrip
-                var strip = new TabStripTagHelper 
+                var strip = new TabStripTagHelper
                 {
                     ViewContext = helper.ViewContext,
                     Id = name,
@@ -572,7 +572,7 @@ namespace Smartstore.Web.Rendering
                 var stripOutputAttrList = new TagHelperAttributeList { new TagHelperAttribute("class", "nav-locales") };
 
                 // Emulate tabstrip output
-                var stripOutput = new TagHelperOutput("tabstrip", stripOutputAttrList, (_, _) => 
+                var stripOutput = new TagHelperOutput("tabstrip", stripOutputAttrList, (_, _) =>
                 {
                     // getChildContentAsync for tabstrip
                     for (var i = 0; i < tabs.Count; i++)
@@ -580,7 +580,7 @@ namespace Smartstore.Web.Rendering
                         var isMaster = hasMasterTemplate && i == 0;
                         var language = languages[i];
 
-                        tabFactory.AddAsync(builder => 
+                        tabFactory.AddAsync(builder =>
                         {
                             builder.Item = tabs[i];
                             builder
@@ -662,14 +662,14 @@ namespace Smartstore.Web.Rendering
             return helper.BootstrapIcon(
                 name,
                 false,
-                fill, 
-                fontScale, 
-                animation, 
-                transforms, 
+                fill,
+                fontScale,
+                animation,
+                transforms,
                 htmlAttributes);
         }
 
-        internal static IHtmlContent BootstrapIcon(this IHtmlHelper helper, 
+        internal static IHtmlContent BootstrapIcon(this IHtmlHelper helper,
             string name,
             bool isStackItem = false,
             string fill = null,

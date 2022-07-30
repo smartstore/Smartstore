@@ -66,9 +66,9 @@ namespace Smartstore.Web
             _geoCountryLookup = geoCountryLookup;
         }
 
-        public Customer CurrentCustomer 
+        public Customer CurrentCustomer
         {
-            get 
+            get
             {
                 if (_customer != null)
                 {
@@ -117,7 +117,7 @@ namespace Smartstore.Web
 
                 return _customer;
             }
-            set => _customer = value; 
+            set => _customer = value;
         }
 
         protected bool TryGetSystemAccount(HttpContext context, out Customer customer)
@@ -222,7 +222,7 @@ namespace Smartstore.Web
 
         public Customer CurrentImpersonator => _impersonator;
 
-        public Language WorkingLanguage 
+        public Language WorkingLanguage
         {
             get
             {
@@ -282,7 +282,7 @@ namespace Smartstore.Web
                 {
                     currency = _currencyService.Value.PrimaryCurrency;
                 }
-                
+
                 if (currency == null)
                 {
                     // Find current customer currency
@@ -382,7 +382,7 @@ namespace Smartstore.Web
                 _currency = currency;
                 return _currency;
             }
-            set 
+            set
             {
                 if (value?.Id != _currency?.Id)
                 {
@@ -409,10 +409,10 @@ namespace Smartstore.Web
             customer.GenericAttributes.SaveChanges();
         }
 
-        public TaxDisplayType TaxDisplayType 
+        public TaxDisplayType TaxDisplayType
         {
             get => GetTaxDisplayTypeFor(CurrentCustomer, _storeContext.CurrentStore.Id);
-            set 
+            set
             {
                 if (_taxSettings.AllowCustomersToSelectTaxDisplayType)
                 {
@@ -421,7 +421,7 @@ namespace Smartstore.Web
                 }
 
                 _taxDisplayTypes[(CurrentCustomer.Id, _storeContext.CurrentStore.Id)] = value;
-            } 
+            }
         }
 
         public TaxDisplayType GetTaxDisplayTypeFor(Customer customer, int storeId)
@@ -474,9 +474,9 @@ namespace Smartstore.Web
             return result;
         }
 
-        public bool IsAdminArea 
-        { 
-            get 
+        public bool IsAdminArea
+        {
+            get
             {
                 if (_isAdminArea.HasValue)
                 {
@@ -498,8 +498,8 @@ namespace Smartstore.Web
 
                 _isAdminArea ??= false;
                 return _isAdminArea.Value;
-            } 
-            set => _isAdminArea = value; 
+            }
+            set => _isAdminArea = value;
         }
     }
 }

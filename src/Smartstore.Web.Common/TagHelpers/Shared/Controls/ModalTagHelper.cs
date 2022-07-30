@@ -177,7 +177,7 @@ namespace Smartstore.Web.TagHelpers.Shared
                 // Move output Html to new builder
                 var builder = new HtmlContentBuilder();
                 ((IHtmlContentContainer)output).MoveTo(builder);
-                
+
                 _widgetProvider.RegisterHtml("end", builder);
                 output.SuppressOutput();
             }

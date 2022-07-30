@@ -12,13 +12,13 @@ namespace Smartstore.Web.Bundling
     public class BundleDiskCache : IBundleDiskCache
     {
         const string DirName = "BundleCache";
-        
+
         private readonly IApplicationContext _appContext;
         private readonly IFileSystem _fs;
         private readonly IOptionsMonitor<BundlingOptions> _options;
 
         public BundleDiskCache(
-            IApplicationContext appContext, 
+            IApplicationContext appContext,
             IOptionsMonitor<BundlingOptions> options)
         {
             _appContext = appContext;
@@ -36,12 +36,12 @@ namespace Smartstore.Web.Bundling
             {
                 return null;
             }
-            
+
             Guard.NotNull(cacheKey.Key, nameof(cacheKey.Key));
             Guard.NotNull(bundle, nameof(bundle));
 
             var dir = GetCacheDirectory(cacheKey);
-            
+
             if (dir.Exists)
             {
                 try
@@ -211,7 +211,7 @@ namespace Smartstore.Web.Bundling
                     combiner.Add(fileInfo);
                 }
             }
-            
+
             return combiner.CombinedHashString;
         }
 

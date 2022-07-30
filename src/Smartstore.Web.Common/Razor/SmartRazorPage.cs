@@ -32,44 +32,44 @@ namespace Smartstore.Web.Razor
             get => Context.Request;
         }
 
-        protected IDisplayHelper Display 
-        { 
-            get => _display ??= base.Context.RequestServices.GetRequiredService<IDisplayHelper>(); 
+        protected IDisplayHelper Display
+        {
+            get => _display ??= base.Context.RequestServices.GetRequiredService<IDisplayHelper>();
         }
 
-        protected Localizer T 
-        { 
+        protected Localizer T
+        {
             get => _localizer ??= base.Context.RequestServices.GetRequiredService<Localizer>();
         }
 
-        protected IWorkContext WorkContext 
-        { 
-            get => _workContext ??= base.Context.RequestServices.GetRequiredService<IWorkContext>(); 
+        protected IWorkContext WorkContext
+        {
+            get => _workContext ??= base.Context.RequestServices.GetRequiredService<IWorkContext>();
         }
 
-        protected IEventPublisher EventPublisher 
-        { 
-            get => _eventPublisher ??= base.Context.RequestServices.GetRequiredService<IEventPublisher>(); 
+        protected IEventPublisher EventPublisher
+        {
+            get => _eventPublisher ??= base.Context.RequestServices.GetRequiredService<IEventPublisher>();
         }
 
-        protected IApplicationContext ApplicationContext 
-        { 
-            get => _appContext ??= base.Context.RequestServices.GetRequiredService<IApplicationContext>(); 
+        protected IApplicationContext ApplicationContext
+        {
+            get => _appContext ??= base.Context.RequestServices.GetRequiredService<IApplicationContext>();
         }
 
-        protected IPageAssetBuilder Assets 
-        { 
-            get => _assets ??= base.Context.RequestServices.GetRequiredService<IPageAssetBuilder>(); 
+        protected IPageAssetBuilder Assets
+        {
+            get => _assets ??= base.Context.RequestServices.GetRequiredService<IPageAssetBuilder>();
         }
 
-        protected IUserAgent UserAgent 
-        { 
-            get => _userAgent ??= base.Context.RequestServices.GetRequiredService<IUserAgent>(); 
+        protected IUserAgent UserAgent
+        {
+            get => _userAgent ??= base.Context.RequestServices.GetRequiredService<IUserAgent>();
         }
 
-        protected ILinkResolver LinkResolver 
-        { 
-            get => _linkResolver ??= base.Context.RequestServices.GetRequiredService<ILinkResolver>(); 
+        protected ILinkResolver LinkResolver
+        {
+            get => _linkResolver ??= base.Context.RequestServices.GetRequiredService<ILinkResolver>();
         }
 
         protected ICommonServices CommonServices
