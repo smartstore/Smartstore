@@ -1,6 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Text;
-using Dasync.Collections;
+
 using Smartstore.Caching;
 using Smartstore.Collections;
 using Smartstore.Core.Catalog.Products;
@@ -615,7 +615,7 @@ namespace Smartstore.Core.Catalog.Categories
             {
                 var categories = await Query.Select(x => new { x.Id, x.UpdatedOnUtc }).ToListAsync(cancelToken);
 
-                await foreach (var x in categories)
+                foreach (var x in categories)
                 {
                     yield return new NamedEntity { EntityName = nameof(Category), Id = x.Id, LastMod = x.UpdatedOnUtc };
                 }

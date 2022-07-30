@@ -4,8 +4,8 @@ namespace Smartstore.Web.Models.Customers
 {
     public partial class CustomerOrderListModel : ModelBase
     {
-        public PagedList<OrderDetailsModel> Orders { get; set; }
-        public PagedList<RecurringPaymentModel> RecurringPayments { get; set; }
+        public IPagedList<OrderDetailsModel> Orders { get; set; }
+        public IPagedList<RecurringPaymentModel> RecurringPayments { get; set; }
         public List<string> CancelRecurringPaymentErrors { get; set; } = new();
 
         public int? OrdersPage { get; set; }

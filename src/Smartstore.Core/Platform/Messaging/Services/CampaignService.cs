@@ -64,7 +64,7 @@ namespace Smartstore.Core.Messaging
                     .ApplyStandardFilter(null, false, storeIds, roleIds)
                     .ToPagedList(++pageIndex, 500);
 
-                await foreach (var subscriber in subscribers)
+                await foreach (var subscriber in subscribers.AsAsyncEnumerable())
                 {
                     // Create only one message per subscription email.
                     if (alreadyProcessedEmails.Contains(subscriber.Subscription.Email))

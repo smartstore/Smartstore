@@ -335,7 +335,7 @@ namespace Smartstore.Core.Content.Media
                 else if (allTracks != null)
                 {
                     // Must be this way to prevent namespace collision with EF.
-                    allTracks = Dasync.Collections.IAsyncEnumerableExtensions.Concat(allTracks, tracks);
+                    allTracks = allTracks.Concat(tracks);
                 }
             }
 

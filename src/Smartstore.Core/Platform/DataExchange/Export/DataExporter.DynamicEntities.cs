@@ -1,5 +1,5 @@
 ﻿using System.Reflection;
-using Dasync.Collections;
+
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Brands;

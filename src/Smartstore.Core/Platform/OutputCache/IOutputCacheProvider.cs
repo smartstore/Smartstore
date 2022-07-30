@@ -19,7 +19,7 @@ namespace Smartstore.Core.OutputCache
         Task RemoveAsync(params string[] keys);
         Task RemoveAllAsync();
 
-        Task<PagedList<OutputCacheItem>> AllAsync(int pageIndex, int pageSize, bool withContent = false);
+        Task<IPagedList<OutputCacheItem>> AllAsync(int pageIndex, int pageSize, bool withContent = false);
         Task<int> CountAsync();
 
         Task<int> InvalidateByRouteAsync(params string[] routes);

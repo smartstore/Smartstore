@@ -11,7 +11,7 @@ namespace Smartstore.Web.Models.Catalog
 {
     public partial class ProductSummaryModel : ModelBase, IListActions, IDisposable
     {
-        public readonly static ProductSummaryModel Empty = new(new PagedList<Product>(new List<Product>(), 0, int.MaxValue));
+        public readonly static ProductSummaryModel Empty = new(Array.Empty<Product>().ToPagedList(0, int.MaxValue));
 
         public ProductSummaryModel(IPagedList<Product> products, CatalogSearchResult sourceResult = null)
         {

@@ -6,6 +6,13 @@
     public interface IPagedList<T> : IList<T>, IPageable<T>
     {
         /// <summary>
+        /// Returns this object typed as <see cref="IAsyncEnumerable{T}" />.
+        /// </summary>
+        /// <returns>This object.</returns>
+        IAsyncEnumerable<T> AsAsyncEnumerable()
+            => (IAsyncEnumerable<T>)this;
+
+        /// <summary>
         /// Allows modification of the underlying query before it is executed.
         /// </summary>
         /// <param name="modifier">The modifier function. The underlying query is passed, the modified query should be returned.</param>

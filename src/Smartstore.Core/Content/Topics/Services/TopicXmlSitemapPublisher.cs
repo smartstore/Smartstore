@@ -1,5 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
-using Dasync.Collections;
+
 using Smartstore.Core.Data;
 using Smartstore.Core.Seo;
 
@@ -47,7 +47,7 @@ namespace Smartstore.Core.Content.Topics
             {
                 var topics = await Query.Select(x => new { x.Id }).ToListAsync(cancelToken);
 
-                await foreach (var x in topics)
+                foreach (var x in topics)
                 {
                     yield return new NamedEntity { EntityName = nameof(Topic), Id = x.Id, LastMod = DateTime.UtcNow };
                 }

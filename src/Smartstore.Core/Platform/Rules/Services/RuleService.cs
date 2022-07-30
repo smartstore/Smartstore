@@ -1,5 +1,5 @@
 ﻿using Autofac;
-using Dasync.Collections;
+
 using Smartstore.Core.Data;
 
 namespace Smartstore.Core.Rules

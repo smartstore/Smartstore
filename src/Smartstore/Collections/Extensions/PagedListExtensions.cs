@@ -10,9 +10,9 @@ namespace Smartstore
         /// <param name="pageIndex">The 0-based page index</param>
         /// <param name="pageSize">Page size</param>
         /// <returns>Paged list</returns>
-        public static PagedList<T> ToPagedList<T>(this IEnumerable<T> source, int pageIndex, int pageSize)
+        public static IPagedList<T> ToPagedList<T>(this IEnumerable<T> source, int pageIndex, int pageSize)
         {
-            return new PagedList<T>(source, pageIndex, pageSize);
+            return new PagedListImpl<T>(source, pageIndex, pageSize);
         }
 
         /// <summary>
@@ -22,9 +22,9 @@ namespace Smartstore
         /// <param name="pageSize">Page size</param>
         /// <param name="totalCount">Total count</param>
         /// <returns>Paged list</returns>
-        public static PagedList<T> ToPagedList<T>(this IEnumerable<T> source, int pageIndex, int pageSize, int totalCount)
+        public static IPagedList<T> ToPagedList<T>(this IEnumerable<T> source, int pageIndex, int pageSize, int totalCount)
         {
-            return new PagedList<T>(source, pageIndex, pageSize, totalCount);
+            return new PagedListImpl<T>(source, pageIndex, pageSize, totalCount);
         }
 
         /// <summary>

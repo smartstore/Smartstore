@@ -1,17 +1,15 @@
-﻿using System.Collections.ObjectModel;
-
-namespace Smartstore.Collections
+﻿namespace Smartstore.Collections
 {
-    public class PagedList<T> : Pageable<T>, IPagedList<T>
+    internal class PagedListImpl<T> : Pageable<T>, IPagedList<T>, IAsyncEnumerable<T>
     {
         /// <param name="pageIndex">The 0-based page index</param>
-        public PagedList(IEnumerable<T> source, int pageIndex, int pageSize)
+        public PagedListImpl(IEnumerable<T> source, int pageIndex, int pageSize)
             : base(source, pageIndex, pageSize)
         {
         }
 
         /// <param name="pageIndex">The 0-based page index</param>
-        public PagedList(IEnumerable<T> source, int pageIndex, int pageSize, int totalCount)
+        public PagedListImpl(IEnumerable<T> source, int pageIndex, int pageSize, int totalCount)
             : base(source, pageIndex, pageSize, totalCount)
         {
         }
@@ -50,6 +48,18 @@ namespace Smartstore.Collections
             await EnsureIsLoadedAsync(cancelToken);
 
             return this;
+        }
+
+        async IAsyncEnumerator<T> IAsyncEnumerable<T>.GetAsyncEnumerator(CancellationToken cancelToken)
+        {
+            await EnsureIsLoadedAsync(cancelToken);
+
+            var e = List.ToAsyncEnumerable().GetAsyncEnumerator(cancelToken);
+            try
+            {
+                while (await e.MoveNextAsync()) yield return e.Current;
+            }
+            finally { if (e != null) await e.DisposeAsync(); }
         }
 
         #region IList<T> Members
@@ -137,22 +147,6 @@ namespace Smartstore.Collections
                 EnsureIsLoaded();
                 List[index] = value;
             }
-        }
-
-        #endregion
-
-        #region Utils
-
-        public void AddRange(IEnumerable<T> collection)
-        {
-            EnsureIsLoaded();
-            List.AddRange(collection);
-        }
-
-        public ReadOnlyCollection<T> AsReadOnly()
-        {
-            EnsureIsLoaded();
-            return List.AsReadOnly();
         }
 
         #endregion

@@ -1,6 +1,6 @@
 ﻿using System.Globalization;
 using System.Runtime.CompilerServices;
-using Dasync.Collections;
+
 using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Catalog.Search;

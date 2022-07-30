@@ -1,5 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
-using Dasync.Collections;
+
 using Microsoft.Extensions.FileProviders;
 using Newtonsoft.Json;
 using Smartstore.Collections;
@@ -239,7 +239,7 @@ namespace Smartstore.Core.Content.Media
 
             var result = await _mediaService.SearchFilesAsync(CreateSearchQuery(pattern, deep));
 
-            await foreach (var file in result.OfType<IFile>())
+            foreach (var file in result.OfType<IFile>())
             {
                 yield return file;
             }

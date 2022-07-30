@@ -1,7 +1,7 @@
 ﻿using System.Data.Common;
 using System.Globalization;
 using System.Text.RegularExpressions;
-using Dasync.Collections;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -110,12 +110,12 @@ namespace Smartstore.Data.Providers
                 $"SELECT database_id FROM sys.databases WHERE Name = {databaseName}").Any();
         }
 
-        public virtual Task<bool> HasDatabaseAsync(string databaseName)
+        public virtual ValueTask<bool> HasDatabaseAsync(string databaseName)
         {
             Guard.NotEmpty(databaseName, nameof(databaseName));
 
             return Database.ExecuteQueryInterpolatedAsync<string>(
-                $"SELECT database_id FROM sys.databases WHERE Name = {databaseName}").AnyAsync(x => true);
+                $"SELECT database_id FROM sys.databases WHERE Name = {databaseName}").AnyAsync();
         }
 
         public virtual bool HasTable(string tableName)
@@ -126,12 +126,12 @@ namespace Smartstore.Data.Providers
                 $"SELECT table_name From INFORMATION_SCHEMA.TABLES WHERE table_name = {tableName}").Any();
         }
 
-        public virtual Task<bool> HasTableAsync(string tableName)
+        public virtual ValueTask<bool> HasTableAsync(string tableName)
         {
             Guard.NotEmpty(tableName, nameof(tableName));
 
             return Database.ExecuteQueryInterpolatedAsync<string>(
-                $"SELECT table_name From INFORMATION_SCHEMA.TABLES WHERE table_name = {tableName}").AnyAsync(x => true);
+                $"SELECT table_name From INFORMATION_SCHEMA.TABLES WHERE table_name = {tableName}").AnyAsync();
         }
 
         public virtual bool HasColumn(string tableName, string columnName)
@@ -143,13 +143,13 @@ namespace Smartstore.Data.Providers
                 $"SELECT column_name From INFORMATION_SCHEMA.COLUMNS WHERE table_name = {tableName} And column_name = {columnName}").Any();
         }
 
-        public virtual Task<bool> HasColumnAsync(string tableName, string columnName)
+        public virtual ValueTask<bool> HasColumnAsync(string tableName, string columnName)
         {
             Guard.NotEmpty(tableName, nameof(tableName));
             Guard.NotEmpty(columnName, nameof(columnName));
 
             return Database.ExecuteQueryInterpolatedAsync<string>(
-                $"SELECT column_name From INFORMATION_SCHEMA.COLUMNS WHERE table_name = {tableName} And column_name = {columnName}").AnyAsync(x => true);
+                $"SELECT column_name From INFORMATION_SCHEMA.COLUMNS WHERE table_name = {tableName} And column_name = {columnName}").AnyAsync();
         }
 
         public abstract string[] GetTableNames();

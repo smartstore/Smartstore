@@ -3,7 +3,7 @@
     /// <summary>
     /// A sequence of objects that has been split into pages.
     /// </summary>
-    public interface IPageable<out T> : IPageable, IEnumerable<T>, IAsyncEnumerable<T>
+    public interface IPageable<out T> : IPageable, IEnumerable<T>
     {
         /// <summary>
         /// Gets underlying query without any paging applied

@@ -4,8 +4,8 @@ namespace Smartstore.Core.Content.Media
 {
     public partial class MediaSearchResult : Pageable<MediaFileInfo>
     {
-        public MediaSearchResult(IPagedList<MediaFile> pageable, Func<MediaFile, MediaFileInfo> converter)
-            : base(ConvertPageable(pageable, converter))
+        public MediaSearchResult(IPagedList<MediaFile> pagedList, Func<MediaFile, MediaFileInfo> converter)
+            : base(ConvertPageable(pagedList, converter))
         {
         }
 

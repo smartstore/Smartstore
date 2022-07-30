@@ -1,5 +1,5 @@
 ﻿using System.Collections;
-using Dasync.Collections;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace Smartstore.Collections
@@ -214,18 +214,6 @@ namespace Smartstore.Collections
         {
             EnsureIsLoaded();
             return _list.GetEnumerator();
-        }
-
-        public async IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken = default)
-        {
-            await EnsureIsLoadedAsync(cancellationToken);
-
-            var e = _list.GetAsyncEnumerator<T>();
-            try
-            {
-                while (await e.MoveNextAsync()) yield return e.Current;
-            }
-            finally { if (e != null) await e.DisposeAsync(); }
         }
 
         #endregion

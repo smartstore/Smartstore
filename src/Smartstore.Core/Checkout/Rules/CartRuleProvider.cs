@@ -1,6 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 using Autofac;
-using Dasync.Collections;
+
 using Smartstore.Core.Checkout.Rules.Impl;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Localization;

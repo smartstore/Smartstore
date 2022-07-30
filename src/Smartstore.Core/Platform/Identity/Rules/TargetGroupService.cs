@@ -1,5 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
-using Dasync.Collections;
+
 using Smartstore.Collections;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
@@ -100,7 +100,7 @@ namespace Smartstore.Core.Identity.Rules
 
             if (filters.Length == 0)
             {
-                return new PagedList<Customer>(Enumerable.Empty<Customer>(), 0, int.MaxValue);
+                return Array.Empty<Customer>().ToPagedList(0, int.MaxValue);
             }
 
             var query = _db.Customers.AsNoTracking().Where(x => !x.IsSystemAccount);
@@ -126,7 +126,7 @@ namespace Smartstore.Core.Identity.Rules
                 .Cast<Customer>()
                 .OrderByDescending(c => c.CreatedOnUtc);
 
-            return new PagedList<Customer>(query, pageIndex, pageSize);
+            return query.ToPagedList(pageIndex, pageSize);
         }
 
         protected override Task<IEnumerable<RuleDescriptor>> LoadDescriptorsAsync()

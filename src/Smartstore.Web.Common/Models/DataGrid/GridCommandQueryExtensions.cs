@@ -10,9 +10,9 @@ namespace Smartstore.Web.Models.DataGrid
         /// </summary>
         /// <param name="GridCommand">The grid command to apply paging from.</param>
         /// <returns>Paged list</returns>
-        public static PagedList<T> ToPagedList<T>(this IEnumerable<T> source, GridCommand command)
+        public static IPagedList<T> ToPagedList<T>(this IEnumerable<T> source, GridCommand command)
         {
-            return new PagedList<T>(source, command.Page - 1, command.PageSize);
+            return source.ToPagedList(command.Page - 1, command.PageSize);
         }
 
         /// <summary>

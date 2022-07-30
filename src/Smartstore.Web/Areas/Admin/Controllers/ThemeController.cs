@@ -453,7 +453,7 @@ namespace Smartstore.Admin.Controllers
                 icons = iconExplorer.FindIcons(term, true);
             }
 
-            var result = new PagedList<IconDescription>(icons, page - 1, pageSize);
+            var result = icons.ToPagedList(page - 1, pageSize);
 
             if (selected.HasValue() && term.IsEmpty())
             {
@@ -466,7 +466,7 @@ namespace Smartstore.Admin.Controllers
 
             return Json(new
             {
-                results = result.Select(x => new
+                results = result.AsEnumerable().Select(x => new
                 {
                     id = x.Name,
                     text = x.Name,
