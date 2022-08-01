@@ -38,7 +38,7 @@ namespace Smartstore.Utilities
 
         public static bool IsHosted
         {
-            get => _isHosted ??= EngineContext.Current.Application.IsWebHost;
+            get => _isHosted ??= EngineContext.Current?.Application?.IsWebHost == true;
             set => _isHosted = value;
         }
 

@@ -294,15 +294,9 @@ namespace Smartstore
         /// <param name="source">A sequence to filter.</param>
         /// <param name="predicate">An async task function to test each element for a condition.</param>
         /// <returns>An <see cref="IAsyncEnumerable{T}"/> that contains elements from the input sequence that satisfy the condition.</returns>
-        public static async IAsyncEnumerable<T> WhereAsync<T>(this IEnumerable<T> source, Func<T, Task<bool>> predicate)
+        public static IAsyncEnumerable<T> WhereAsync<T>(this IEnumerable<T> source, Func<T, Task<bool>> predicate)
         {
-            await foreach (var item in source.ToAsyncEnumerable())
-            {
-                if (await predicate(item))
-                {
-                    yield return item;
-                }
-            }
+            return source.ToAsyncEnumerable().WhereAwait(x => new ValueTask<bool>(predicate(x)));
         }
 
         /// <summary>
@@ -320,12 +314,9 @@ namespace Smartstore
         /// </summary>
         /// <param name="source">A sequence of values to invoke a transform function on.</param>
         /// <param name="selector">A transform function to apply to each source element.</param>
-        public static async IAsyncEnumerable<TResult> SelectAsync<TSource, TResult>(this IEnumerable<TSource> source, Func<TSource, Task<TResult>> selector)
+        public static IAsyncEnumerable<TResult> SelectAsync<TSource, TResult>(this IEnumerable<TSource> source, Func<TSource, Task<TResult>> selector)
         {
-            await foreach (var item in source.ToAsyncEnumerable())
-            {
-                yield return await selector(item);
-            }
+            return source.ToAsyncEnumerable().SelectAwait(x => new ValueTask<TResult>(selector(x)));
         }
 
         /// <summary>
