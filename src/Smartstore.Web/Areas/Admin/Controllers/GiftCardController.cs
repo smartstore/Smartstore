@@ -80,7 +80,7 @@ namespace Smartstore.Admin.Controllers
                 .LoadAsync();
 
             var rows = await giftCards
-                .SelectAsync(async x =>
+                .SelectAwait(async x =>
                 {
                     var model = await mapper.MapAsync(x);
                     await PrepareGiftCardModel(model, x);

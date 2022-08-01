@@ -66,7 +66,7 @@
             Guard.NotNull(from, nameof(from));
 
             return await from
-                .SelectAsync<TFrom, TTo>(async x => await MapAsync(mapper, x, parameters))
+                .SelectAwait<TFrom, TTo>(async x => await MapAsync(mapper, x, parameters))
                 .AsyncToArray();
         }
 
@@ -87,7 +87,7 @@
             Guard.NotNull(from, nameof(from));
 
             return await from
-                .SelectAsync<TFrom, TTo>(async x => await MapAsync<TFrom, TTo>(mapper, x, parameters))
+                .SelectAwait<TFrom, TTo>(async x => await MapAsync<TFrom, TTo>(mapper, x, parameters))
                 .AsyncToList();
         }
 

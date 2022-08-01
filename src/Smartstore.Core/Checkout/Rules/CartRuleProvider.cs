@@ -101,7 +101,7 @@ namespace Smartstore.Core.Checkout.Rules
             }
 
             var expressions = await ruleSetIds
-                .SelectAsync(id => _ruleService.CreateExpressionGroupAsync(id, this))
+                .SelectAwait(id => _ruleService.CreateExpressionGroupAsync(id, this))
                 .Where(x => x != null)
                 .Cast<RuleExpression>()
                 .ToArrayAsync();
@@ -120,7 +120,7 @@ namespace Smartstore.Core.Checkout.Rules
             }
 
             var expressions = await ruleSets
-                .SelectAsync(x => _ruleService.CreateExpressionGroupAsync(x, this))
+                .SelectAwait(x => _ruleService.CreateExpressionGroupAsync(x, this))
                 .Where(x => x != null)
                 .Cast<RuleExpression>()
                 .ToArrayAsync();

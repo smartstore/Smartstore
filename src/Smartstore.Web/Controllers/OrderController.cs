@@ -145,7 +145,7 @@ namespace Smartstore.Web.Controllers
             }
 
             var listModel = await orders
-                .SelectAsync(async x => await _orderHelper.PrepareOrderDetailsModelAsync(x))
+                .SelectAwait(async x => await _orderHelper.PrepareOrderDetailsModelAsync(x))
                 .AsyncToList();
 
             return await PrintCore(listModel, pdf, "orders.pdf");

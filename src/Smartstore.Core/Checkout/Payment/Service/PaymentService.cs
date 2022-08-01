@@ -95,7 +95,7 @@ namespace Smartstore.Core.Checkout.Payment
             var paymentMethods = await GetAllPaymentMethodsAsync(storeId);
 
             var activeProviders = await allProviders
-                .WhereAsync(async p =>
+                .WhereAwait(async p =>
                 {
                     try
                     {
@@ -187,7 +187,7 @@ namespace Smartstore.Core.Checkout.Payment
                     .ToListAsync();
 
                 var unauthorizedMethodNames = await unauthorizedMethods
-                    .WhereAsync(async x => !await _storeMappingService.AuthorizeAsync(x, storeId))
+                    .WhereAwait(async x => !await _storeMappingService.AuthorizeAsync(x, storeId))
                     .Select(x => x.PaymentMethodSystemName)
                     .ToListAsync();
 

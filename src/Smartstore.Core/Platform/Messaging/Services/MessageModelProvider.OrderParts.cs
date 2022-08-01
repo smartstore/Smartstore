@@ -85,7 +85,7 @@ namespace Smartstore.Core.Messaging
             // Items, Totals & Co.
             d.Items = await part.OrderItems
                 .Where(x => x.Product != null)
-                .SelectAsync(async x => await CreateModelPartAsync(x, messageContext))
+                .SelectAwait(async x => await CreateModelPartAsync(x, messageContext))
                 .AsyncToList();
 
             d.Totals = await CreateOrderTotalsPartAsync(part, messageContext);
@@ -196,7 +196,7 @@ namespace Smartstore.Core.Messaging
             }).ToArray();
 
             // Gift Cards
-            m.GiftCardUsage = order.GiftCardUsageHistory.Count == 0 ? null : await order.GiftCardUsageHistory.SelectAsync(async x =>
+            m.GiftCardUsage = order.GiftCardUsageHistory.Count == 0 ? null : await order.GiftCardUsageHistory.SelectAwait(async x =>
             {
                 var remainingAmount = await giftCardService.GetRemainingAmountAsync(x.GiftCard);
 
@@ -295,7 +295,7 @@ namespace Smartstore.Core.Messaging
 
                     bundleItems = await bundleData
                         .OrderBy(x => x.DisplayOrder)
-                        .SelectAsync(async x => await CreateModelPartAsync(x, part, productsDic.Get(x.ProductId), messageContext))
+                        .SelectAwait(async x => await CreateModelPartAsync(x, part, productsDic.Get(x.ProductId), messageContext))
                         .AsyncToList();
                 }
             }

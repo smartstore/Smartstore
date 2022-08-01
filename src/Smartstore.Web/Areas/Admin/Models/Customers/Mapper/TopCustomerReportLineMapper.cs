@@ -30,7 +30,7 @@ namespace Smartstore.Admin.Models.Customers
 
             var mapper = MapperFactory.GetMapper<TopCustomerReportLine, TopCustomerReportLineModel>();
             var models = await lines
-                .SelectAsync(async x =>
+                .SelectAwait(async x =>
                 {
                     var model = new TopCustomerReportLineModel();
                     await mapper.MapAsync(x, model, parameters);

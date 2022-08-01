@@ -368,7 +368,7 @@ namespace Smartstore.Web.Controllers
             var files = (await _mediaService.GetFilesByIdsAsync(fileIds)).ToDictionarySafe(x => x.Id);
 
             return await categories
-                .SelectAsync(async c =>
+                .SelectAwait(async c =>
                 {
                     var name = c.GetLocalized(y => y.Name);
                     var model = new CategorySummaryModel
@@ -1863,7 +1863,7 @@ namespace Smartstore.Web.Controllers
             calculationContext.AddSelectedAttributes(modelContext.SelectedAttributes, product.Id, modelContext.ProductBundleItem?.Id);
 
             var model = await tierPrices
-                .SelectAsync(async (tierPrice) =>
+                .SelectAwait(async (tierPrice) =>
                 {
                     calculationContext.Quantity = tierPrice.Quantity;
 

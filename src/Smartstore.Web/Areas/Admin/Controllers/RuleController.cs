@@ -118,7 +118,7 @@ namespace Smartstore.Admin.Controllers
                 .ToPagedList(command)
                 .LoadAsync();
 
-            var rows = await ruleSets.SelectAsync(async x =>
+            var rows = await ruleSets.SelectAwait(async x =>
             {
                 var model = MiniMapper.Map<RuleSetEntity, RuleSetModel>(x);
                 model.ScopeName = await Services.Localization.GetLocalizedEnumAsync(x.Scope);
@@ -677,7 +677,7 @@ namespace Smartstore.Admin.Controllers
             var scopes = (entity?.Scope ?? scope ?? RuleScope.Cart).ToSelectList();
 
             ViewBag.Scopes = await scopes
-                .SelectAsync(async x =>
+                .SelectAwait(async x =>
                 {
                     var item = new ExtendedSelectListItem
                     {

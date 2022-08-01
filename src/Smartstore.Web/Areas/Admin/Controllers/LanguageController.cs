@@ -67,7 +67,7 @@ namespace Smartstore.Admin.Controllers
             var masterLanguageId = _languageService.GetMasterLanguageId();
             var mapper = MapperFactory.GetMapper<Language, LanguageModel>();
 
-            var models = await languages.SelectAsync(async x =>
+            var models = await languages.SelectAwait(async x =>
             {
                 var m = await mapper.MapAsync(x);
                 m.Name = GetCultureDisplayName(x.LanguageCulture) ?? x.Name;

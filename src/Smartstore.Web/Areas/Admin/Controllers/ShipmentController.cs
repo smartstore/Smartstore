@@ -106,7 +106,7 @@ namespace Smartstore.Admin.Controllers
                 .ToPagedList(command)
                 .LoadAsync();
 
-            var rows = await shipments.SelectAsync(async x =>
+            var rows = await shipments.SelectAwait(async x =>
             {
                 var m = new ShipmentModel();
                 await PrepareShipmentModel(m, x, false);
@@ -403,7 +403,7 @@ namespace Smartstore.Admin.Controllers
                 : "PackagingSlips.pdf";
 
             var models = await shipments
-                .SelectAsync(async x =>
+                .SelectAwait(async x =>
                 {
                     var m = new ShipmentModel();
                     await PrepareShipmentModel(m, x, true);
@@ -499,7 +499,7 @@ namespace Smartstore.Admin.Controllers
                         .ToDictionaryAsync(x => x.Id);
 
                     model.Items = await shipment.ShipmentItems
-                        .SelectAsync(async x => await CreateShipmentItemModel(x, orderItems.Get(x.OrderItemId), baseDimension, baseWeight))
+                        .SelectAwait(async x => await CreateShipmentItemModel(x, orderItems.Get(x.OrderItemId), baseDimension, baseWeight))
                         .Where(x => x != null)
                         .AsyncToList();
                 }

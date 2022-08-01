@@ -37,7 +37,7 @@ namespace Smartstore.Admin.Controllers
         public async Task<IActionResult> Providers()
         {
             var taxProviderModels = await _taxService.LoadAllTaxProviders()
-                .SelectAsync(async x =>
+                .SelectAwait(async x =>
                 {
                     var model = _moduleManager.ToProviderModel<ITaxProvider, TaxProviderModel>(x);
                     if (x.Metadata.SystemName.Equals(_taxSettings.ActiveTaxProviderSystemName, StringComparison.InvariantCultureIgnoreCase))
@@ -96,7 +96,7 @@ namespace Smartstore.Admin.Controllers
                 .LoadAsync();
 
             var categoriesModels = await categories
-                .SelectAsync(x => MapperFactory.MapAsync<TaxCategory, TaxCategoryModel>(x))
+                .SelectAwait(x => MapperFactory.MapAsync<TaxCategory, TaxCategoryModel>(x))
                 .AsyncToList();
 
             var gridModel = new GridModel<TaxCategoryModel>

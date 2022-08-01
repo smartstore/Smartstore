@@ -45,7 +45,7 @@ namespace Smartstore.Polls.Controllers
                 .ToPagedList(command)
                 .LoadAsync();
 
-            var taxRateModels = await taxRates.SelectAsync(async x => new FixedTaxRateModel
+            var taxRateModels = await taxRates.SelectAwait(async x => new FixedTaxRateModel
                 {
                     TaxCategoryId = x.Id,
                     TaxCategoryName = x.Name,

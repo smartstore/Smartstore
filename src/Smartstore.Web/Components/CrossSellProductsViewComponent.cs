@@ -48,7 +48,7 @@ namespace Smartstore.Web.Components
 
             // ACL and store mapping
             products = await products
-                .WhereAsync(async c => (await _aclService.AuthorizeAsync(c)) && (await _storeMappingService.AuthorizeAsync(c)))
+                .WhereAwait(async c => (await _aclService.AuthorizeAsync(c)) && (await _storeMappingService.AuthorizeAsync(c)))
                 .Take(_shoppingCartSettings.CrossSellsNumber)
                 .AsyncToList();
 

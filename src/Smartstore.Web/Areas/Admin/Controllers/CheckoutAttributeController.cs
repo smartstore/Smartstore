@@ -134,7 +134,7 @@ namespace Smartstore.Admin.Controllers
 
             var mapper = MapperFactory.GetMapper<CheckoutAttribute, CheckoutAttributeModel>();
             var checkoutAttributesModels = await checkoutAttributes
-                .SelectAsync(async x =>
+                .SelectAwait(async x =>
                 {
                     var model = await mapper.MapAsync(x);
                     model.AttributeControlTypeName = x.AttributeControlType.GetLocalizedEnum(Services.WorkContext.WorkingLanguage.Id);
@@ -314,7 +314,7 @@ namespace Smartstore.Admin.Controllers
 
             var mapper = MapperFactory.GetMapper<CheckoutAttributeValue, CheckoutAttributeValueModel>();
             var valuesModel = await values
-                .SelectAsync(async x =>
+                .SelectAwait(async x =>
                 {
                     var model = await mapper.MapAsync(x);
                     model.NameString = (x.Color.IsEmpty() ? x.Name : $"{x.Name} - {x.Color}").HtmlEncode();

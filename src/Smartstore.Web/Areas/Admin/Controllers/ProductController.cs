@@ -585,7 +585,7 @@ namespace Smartstore.Admin.Controllers
             var productCategories = await _categoryService.Value.GetProductCategoriesByProductIdsAsync(new[] { productId }, true);
 
             var rows = await productCategories
-                .SelectAsync(async x =>
+                .SelectAwait(async x =>
                 {
                     var node = await _categoryService.Value.GetCategoryTreeAsync(x.CategoryId, true);
                     var categoryPath = node != null ? _categoryService.Value.GetCategoryPath(node, null, "<span class='badge badge-secondary'>{0}</span>") : string.Empty;
@@ -1306,7 +1306,7 @@ namespace Smartstore.Admin.Controllers
                 .LoadAsync();
 
             var rows = await tags
-                .SelectAsync(async x => new ProductTagModel
+                .SelectAwait(async x => new ProductTagModel
                 {
                     Id = x.Id,
                     Name = x.Name,

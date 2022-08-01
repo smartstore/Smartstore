@@ -74,7 +74,7 @@ namespace Smartstore.Admin.Controllers
                 .ToPagedList(command)
                 .LoadAsync();
 
-            var rows = await recurringPayments.SelectAsync(async x =>
+            var rows = await recurringPayments.SelectAwait(async x =>
             {
                 var m = new RecurringPaymentModel();
                 await PrepareRecurringPaymentModel(m, x, true);
@@ -171,7 +171,7 @@ namespace Smartstore.Admin.Controllers
                 .Where(x => orderIds.Contains(x.Id))
                 .ToDictionaryAsync(x => x.Id, x => x);
 
-            var rows = await recurringPayment.RecurringPaymentHistory.SelectAsync(async x =>
+            var rows = await recurringPayment.RecurringPaymentHistory.SelectAwait(async x =>
             {
                 var m = new RecurringPaymentModel.RecurringPaymentHistoryModel();
                 await PrepareRecurringPaymentHistoryModel(m, x, orders.Get(x.OrderId));
@@ -307,7 +307,7 @@ namespace Smartstore.Admin.Controllers
 
                 model.History = await recurringPayment.RecurringPaymentHistory
                     .OrderBy(x => x.CreatedOnUtc)
-                    .SelectAsync(async x =>
+                    .SelectAwait(async x =>
                     {
                         var m = new RecurringPaymentModel.RecurringPaymentHistoryModel();
                         await PrepareRecurringPaymentHistoryModel(m, x, orders.Get(x.OrderId));

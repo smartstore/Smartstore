@@ -83,7 +83,7 @@ namespace Smartstore.Core.Seo
             _urlService._extraSlugLookup.Each(x => unvalidatedSlugsMap[x.Key] = x.Value);
 
             var validatedBatch = batch2
-                .SelectAsync(async (slug) =>
+                .SelectAwait(async (slug) =>
                 {
                     if (slug.WasValidated)
                     {

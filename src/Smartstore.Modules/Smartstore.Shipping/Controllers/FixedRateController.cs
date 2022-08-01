@@ -45,7 +45,7 @@ namespace Smartstore.Shipping.Controllers
                 .ToPagedList(command)
                 .LoadAsync();
 
-            var ShippingRateModels = await shippingMethods.SelectAsync(async x => new FixedRateModel
+            var ShippingRateModels = await shippingMethods.SelectAwait(async x => new FixedRateModel
             {
                 ShippingMethodId = x.Id,
                 ShippingMethodName = x.Name,

@@ -65,7 +65,7 @@ namespace Smartstore.Admin.Controllers
 
             var mapper = MapperFactory.GetMapper<Campaign, CampaignModel>();
             var campaignModels = await campaigns
-                .SelectAsync(async x =>
+                .SelectAwait(async x =>
                 {
                     var model = await mapper.MapAsync(x);
                     model.EditUrl = Url.Action(nameof(Edit), "Campaign", new { id = x.Id });

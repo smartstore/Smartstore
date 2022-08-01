@@ -50,7 +50,7 @@ namespace Smartstore.Admin.Controllers
             var mapper = MapperFactory.GetMapper<NewsletterSubscription, NewsletterSubscriptionModel>();
 
             var newsletterSubscriptionModels = await newsletterSubscriptions
-                .SelectAsync(async x =>
+                .SelectAwait(async x =>
                 {
                     var model = await mapper.MapAsync(x);
                     model.CreatedOn = _dateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc);

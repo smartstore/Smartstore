@@ -262,7 +262,7 @@ namespace Smartstore.Admin.Controllers
             var infos = await query.ToPagedList(command).LoadAsync();
             var infoMapper = MapperFactory.GetMapper<TaskExecutionInfo, TaskExecutionInfoModel>();
 
-            var rows = await infos.SelectAsync(async x =>
+            var rows = await infos.SelectAwait(async x =>
             {
                 var infoModel = new TaskExecutionInfoModel();
                 await infoMapper.MapAsync(x, infoModel);

@@ -82,7 +82,7 @@ namespace Smartstore.Admin.Controllers
 
             var addressMapper = MapperFactory.GetMapper<Address, AddressModel>();
             var rows = await affiliates
-                .SelectAsync(async x => new AffiliateModel
+                .SelectAwait(async x => new AffiliateModel
                 {
                     Id = x.Id,
                     Active = x.Active,
@@ -235,7 +235,7 @@ namespace Smartstore.Admin.Controllers
                 .LoadAsync();
 
             var orderModels = await orders
-                .SelectAsync(async x => new AffiliateModel.AffiliatedOrderModel
+                .SelectAwait(async x => new AffiliateModel.AffiliatedOrderModel
                 {
                     Id = x.Id,
                     OrderStatus = await Services.Localization.GetLocalizedEnumAsync(x.OrderStatus),

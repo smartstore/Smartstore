@@ -99,7 +99,7 @@ namespace Smartstore.Admin.Controllers
 
             var mapper = MapperFactory.GetMapper<Topic, TopicModel>();
             var rows = await topics
-                .SelectAsync(async x =>
+                .SelectAwait(async x =>
                 {
                     var model = await mapper.MapAsync(x);
                     await PrepareTopicModelAsync(x, model);

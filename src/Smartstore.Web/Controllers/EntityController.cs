@@ -261,7 +261,7 @@ namespace Smartstore.Web.Controllers
                     var files = (await _mediaService.GetFilesByIdsAsync(fileIds)).ToDictionarySafe(x => x.Id);
 
                     model.SearchResult = await categories
-                        .SelectAsync(async x =>
+                        .SelectAwait(async x =>
                         {
                             var path = await _categoryService.GetCategoryPathAsync(x, Services.WorkContext.WorkingLanguage.Id, "({0})");
                             var item = new EntityPickerModel.SearchResultModel

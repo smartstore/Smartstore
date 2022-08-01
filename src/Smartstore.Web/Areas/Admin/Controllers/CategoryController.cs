@@ -81,7 +81,7 @@ namespace Smartstore.Admin.Controllers
                 categories = (new[] { new Category { Name = label, Id = 0 } }).Concat(categories);
             }
 
-            var query = categories.SelectAsync(async c => new
+            var query = categories.SelectAwait(async c => new
             {
                 id = c.Id.ToString(),
                 text = await _categoryService.GetCategoryPathAsync(c, aliasPattern: "<span class='badge badge-secondary'>{0}</span>"),
@@ -183,7 +183,7 @@ namespace Smartstore.Admin.Controllers
                 .ToPagedList(command)
                 .LoadAsync();
 
-            var rows = await categories.SelectAsync(async x => new CategoryModel
+            var rows = await categories.SelectAwait(async x => new CategoryModel
             {
                 Id = x.Id,
                 Name = x.Name,
@@ -227,7 +227,7 @@ namespace Smartstore.Admin.Controllers
                 }
 
                 children = await tree.Children
-                    .WhereAsync(async x =>
+                    .WhereAwait(async x =>
                     {
                         if (x.Value.LimitedToStores)
                         {

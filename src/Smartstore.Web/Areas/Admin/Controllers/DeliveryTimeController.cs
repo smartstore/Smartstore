@@ -74,7 +74,7 @@ namespace Smartstore.Admin.Controllers
 
             var mapper = MapperFactory.GetMapper<DeliveryTime, DeliveryTimeModel>();
             var deliveryTimeModels = await deliveryTimes
-                .SelectAsync(async x =>
+                .SelectAwait(async x =>
                 {
                     var model = await mapper.MapAsync(x);
                     model.DeliveryInfo = _deliveryTimeService.GetFormattedDeliveryDate(x);

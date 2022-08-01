@@ -146,7 +146,7 @@ namespace Smartstore.Google.MerchantCenter.Controllers
 
             var mapper = MapperFactory.GetMapper<GoogleProduct, GoogleProductModel>();
             var googleProductModels = await googleProducts
-                .SelectAsync(async x =>
+                .SelectAwait(async x =>
                 {
                     var model = x.GoogleProduct != null
                         ? await mapper.MapAsync(x.GoogleProduct)

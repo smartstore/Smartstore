@@ -237,7 +237,7 @@ namespace Smartstore.Admin.Controllers
                 .Where(x => x.PaymentMethodSystemName.HasValue())
                 .Select(x => x.PaymentMethodSystemName)
                 .Distinct()
-                .SelectAsync(async x => await _paymentService.LoadPaymentMethodBySystemNameAsync(x))
+                .SelectAwait(async x => await _paymentService.LoadPaymentMethodBySystemNameAsync(x))
                 .AsyncToList();
 
             var paymentMethodsDic = paymentMethods
@@ -247,7 +247,7 @@ namespace Smartstore.Admin.Controllers
                     x => _moduleManager.GetLocalizedFriendlyName(x.Metadata), 
                     StringComparer.OrdinalIgnoreCase);
 
-            var rows = await orders.SelectAsync(async x =>
+            var rows = await orders.SelectAwait(async x =>
             {
                 paymentMethodsDic.TryGetValue(x.PaymentMethodSystemName, out var paymentMethod);
 
@@ -2142,7 +2142,7 @@ namespace Smartstore.Admin.Controllers
                 if (returnRequestsMap.ContainsKey(item.Id))
                 {
                     model.ReturnRequests = await returnRequestsMap[item.Id]
-                        .SelectAsync(async x => new OrderModel.ReturnRequestModel
+                        .SelectAwait(async x => new OrderModel.ReturnRequestModel
                         {
                             Id = x.Id,
                             Quantity = x.Quantity,

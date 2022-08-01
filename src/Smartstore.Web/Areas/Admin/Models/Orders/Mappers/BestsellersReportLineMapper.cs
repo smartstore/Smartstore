@@ -41,7 +41,7 @@ namespace Smartstore.Admin.Models.Orders
 
             var mapper = MapperFactory.GetMapper<BestsellersReportLine, BestsellersReportLineModel>();
             var models = await lines
-                .SelectAsync(async x =>
+                .SelectAwait(async x =>
                 {
                     var model = new BestsellersReportLineModel();
                     await mapper.MapAsync(x, model, parameters);

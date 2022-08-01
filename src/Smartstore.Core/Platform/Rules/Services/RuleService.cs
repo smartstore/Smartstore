@@ -92,7 +92,7 @@ namespace Smartstore.Core.Rules
             var group = visitor.VisitRuleSet(ruleSet);
 
             var expressions = await ruleSet.Rules
-                .SelectAsync(x => CreateExpression(x, visitor))
+                .SelectAwait(x => CreateExpression(x, visitor))
                 .Where(x => x != null)
                 .AsyncToArray();
 
@@ -118,7 +118,7 @@ namespace Smartstore.Core.Rules
             }
 
             var expressions = await ruleSet.Rules
-                .SelectAsync(x => CreateExpression(x, visitor))
+                .SelectAwait(x => CreateExpression(x, visitor))
                 .Where(x => x != null)
                 .AsyncToArray();
 

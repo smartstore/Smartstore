@@ -93,7 +93,7 @@ namespace Smartstore.Admin.Controllers
 
             var mapper = MapperFactory.GetMapper<Currency, CurrencyModel>();
             var currencyModels = await currencies
-                .SelectAsync(async x =>
+                .SelectAwait(async x =>
                 {
                     var model = await mapper.MapAsync(x);
                     model.IsPrimaryCurrency = model.Id == _currencySettings.PrimaryCurrencyId;

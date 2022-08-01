@@ -81,7 +81,7 @@ namespace Smartstore.Admin.Controllers
             var rows = await stores
                 .AsQueryable()
                 .ApplyGridCommand(command)
-                .SelectAsync(async x =>
+                .SelectAwait(async x =>
                 {
                     var model = await mapper.MapAsync(x);
                     model.HostList = model.Hosts.Convert<string[]>();

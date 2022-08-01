@@ -32,7 +32,7 @@ namespace Smartstore.Core.Checkout.Shipping.Rules
             {
                 var options = await _providerManager.GetAllProviders<IShippingRateComputationMethod>()
                     .Select(x => x.Metadata)
-                    .SelectAsync(async x => new RuleValueSelectListOption
+                    .SelectAwait(async x => new RuleValueSelectListOption
                     {
                         Value = x.SystemName,
                         Text = await GetLocalized(context, x, "FriendlyName") ?? x.FriendlyName.NullEmpty() ?? x.SystemName,

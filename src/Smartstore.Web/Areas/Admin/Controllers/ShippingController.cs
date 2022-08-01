@@ -253,7 +253,7 @@ namespace Smartstore.Admin.Controllers
 
             var mapper = MapperFactory.GetMapper<ShippingMethod, ShippingMethodModel>();
             var shippingMethodModels = await shippingMethods
-                .SelectAsync(async x => 
+                .SelectAwait(async x => 
                 {
                     var model = await mapper.MapAsync(x);
                     model.NumberOfRules = x.RuleSets.Count;

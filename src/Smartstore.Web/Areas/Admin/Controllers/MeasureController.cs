@@ -42,7 +42,7 @@ namespace Smartstore.Admin.Controllers
 
             var mapper = MapperFactory.GetMapper<MeasureWeight, MeasureWeightModel>();
             var measureWeightModels = await measureWeights
-                .SelectAsync(async x =>
+                .SelectAwait(async x =>
                 {
                     var model = await mapper.MapAsync(x);
                     model.IsPrimaryWeight = x.Id == _measureSettings.BaseWeightId;
@@ -269,7 +269,7 @@ namespace Smartstore.Admin.Controllers
                 .LoadAsync();
 
             var mapper = MapperFactory.GetMapper<MeasureDimension, MeasureDimensionModel>();
-            var measureDimensionModels = await measureDimensions.SelectAsync(async x =>
+            var measureDimensionModels = await measureDimensions.SelectAwait(async x =>
             {
                 var model = await mapper.MapAsync(x);
                 model.IsPrimaryDimension = x.Id == _measureSettings.BaseDimensionId;

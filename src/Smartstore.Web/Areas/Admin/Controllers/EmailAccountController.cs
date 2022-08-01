@@ -44,7 +44,7 @@ namespace Smartstore.Admin.Controllers
                 .LoadAsync();
 
             var mapper = MapperFactory.GetMapper<EmailAccount, EmailAccountModel>();
-            var emailAccountModels = await emailAccounts.SelectAsync(async x =>
+            var emailAccountModels = await emailAccounts.SelectAwait(async x =>
             {
                 var model = await mapper.MapAsync(x);
                 model.IsDefaultEmailAccount = x.Id == _emailAccountSettings.DefaultEmailAccountId;

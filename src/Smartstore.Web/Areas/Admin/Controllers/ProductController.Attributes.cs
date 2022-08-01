@@ -747,7 +747,7 @@ namespace Smartstore.Admin.Controllers
             await _productAttributeMaterializer.Value.PrefetchProductVariantAttributesAsync(allCombinations.Select(x => x.AttributeSelection));
 
             var mapper = MapperFactory.GetMapper<ProductVariantAttributeCombination, ProductVariantAttributeCombinationModel>();
-            var rows = await allCombinations.SelectAsync(async x =>
+            var rows = await allCombinations.SelectAwait(async x =>
             {
                 var pvacModel = await mapper.MapAsync(x);
                 pvacModel.ProductId = product.Id;

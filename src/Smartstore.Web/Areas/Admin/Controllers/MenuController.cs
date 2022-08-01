@@ -194,7 +194,7 @@ namespace Smartstore.Admin.Controllers
 
             var mapper = MapperFactory.GetMapper<MenuEntity, MenuEntityModel>();
             var menuModels = await menuRecords
-                .SelectAsync(async x =>
+                .SelectAwait(async x =>
                 {
                     var model = await mapper.MapAsync(x);
                     model.EditUrl = Url.Action(nameof(Edit), "Menu", new { id = x.Id });

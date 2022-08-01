@@ -116,7 +116,7 @@
 
                             @{
                                 var paymentButtons = (await Model.ButtonPaymentMethods.Items
-                                    .SelectAsync(async x => await x.InvokeAsync(ViewContext))
+                                    .SelectAwait(async x => await x.InvokeAsync(ViewContext))
                                     .AsyncToList())
                                     .Where(x => x.ToString().HasValue());
                             }

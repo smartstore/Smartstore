@@ -91,7 +91,7 @@ namespace Smartstore.Admin.Controllers
 
             var mapper = MapperFactory.GetMapper<Country, CountryModel>();
             var countryModels = await countries
-                .SelectAsync(async x =>
+                .SelectAwait(async x =>
                 {
                     var model = await mapper.MapAsync(x);
                     model.EditUrl = Url.Action(nameof(Edit), "Country", new { id = x.Id });
@@ -304,7 +304,7 @@ namespace Smartstore.Admin.Controllers
 
             var mapper = MapperFactory.GetMapper<StateProvince, StateProvinceModel>();
             var stateProvinceModels = await stateProvinces
-                .SelectAsync(async x => await mapper.MapAsync(x))
+                .SelectAwait(async x => await mapper.MapAsync(x))
                 .AsyncToList();
 
             var gridModel = new GridModel<StateProvinceModel>

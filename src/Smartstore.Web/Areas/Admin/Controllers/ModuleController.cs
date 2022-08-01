@@ -269,14 +269,14 @@ namespace Smartstore.Admin.Controllers
             var modules = await _moduleCatalog.Modules
                 .OrderBy(p => p.Group, ModuleDescriptor.KnownGroupComparer)
                 .ThenBy(p => p.Order)
-                .SelectAsync(x => PrepareModuleModelAsync(x))
+                .SelectAwait(x => PrepareModuleModelAsync(x))
                 .AsyncToList();
 
             var model = new LocalModulesModel
             {
                 AvailableStores = await Services.StoreContext
                     .GetAllStores()
-                    .SelectAsync(s => MapperFactory.MapAsync<Store, StoreModel>(s, parameters: null))
+                    .SelectAwait(s => MapperFactory.MapAsync<Store, StoreModel>(s, parameters: null))
                     .AsyncToList()
             };
 

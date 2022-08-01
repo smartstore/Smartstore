@@ -126,7 +126,7 @@ namespace Smartstore.Admin.Controllers
             var mapper = MapperFactory.GetMapper<EmailAccount, EmailAccountModel>();
             ViewBag.EmailAccounts = await _db.EmailAccounts
                 .AsNoTracking()
-                .SelectAsync(async x => await mapper.MapAsync(x))
+                .SelectAwait(async x => await mapper.MapAsync(x))
                 .AsyncToList();
         }
 
@@ -169,7 +169,7 @@ namespace Smartstore.Admin.Controllers
 
             var mapper = MapperFactory.GetMapper<MessageTemplate, MessageTemplateModel>();
             var messageTemplateModels = await messageTemplates
-                .SelectAsync(async x =>
+                .SelectAwait(async x =>
                 {
                     var model = await mapper.MapAsync(x);
                     model.EditUrl = Url.Action(nameof(Edit), "MessageTemplate", new { id = x.Id });

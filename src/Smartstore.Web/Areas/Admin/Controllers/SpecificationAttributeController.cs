@@ -160,7 +160,7 @@ namespace Smartstore.Admin.Controllers
                 .LoadAsync();
 
             var rows = await attributes
-                .SelectAsync(async x =>
+                .SelectAwait(async x =>
                 {
                     var model = await mapper.MapAsync(x);
                     model.EditUrl = Url.Action("Edit", "SpecificationAttribute", new { id = x.Id, area = "Admin" });
@@ -323,7 +323,7 @@ namespace Smartstore.Admin.Controllers
                 .LoadAsync();
 
             var rows = await options
-                .SelectAsync(async x => await mapper.MapAsync(x))
+                .SelectAwait(async x => await mapper.MapAsync(x))
                 .AsyncToList();
 
             return Json(new GridModel<SpecificationAttributeOptionModel>

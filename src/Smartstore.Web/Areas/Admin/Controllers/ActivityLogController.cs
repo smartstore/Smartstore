@@ -37,7 +37,7 @@ namespace Smartstore.Admin.Controllers
                 .AsNoTracking()
                 .OrderBy(x => x.Name)
                 .ApplyGridCommand(command)
-                .SelectAsync(async x => await mapper.MapAsync(x))
+                .SelectAwait(async x => await mapper.MapAsync(x))
                 .AsyncToList();
 
             var gridModel = new GridModel<ActivityLogTypeModel>
@@ -123,7 +123,7 @@ namespace Smartstore.Admin.Controllers
                 .ToDictionaryAsync(x => x.Id);
 
             var mapper = MapperFactory.GetMapper<ActivityLog, ActivityLogModel>();
-            var activityLogModels = await activityLogs.SelectAsync(async x =>
+            var activityLogModels = await activityLogs.SelectAwait(async x =>
             {
                 var model = await mapper.MapAsync(x);
                 var systemCustomer = systemAccountCustomers.Get(x.CustomerId);

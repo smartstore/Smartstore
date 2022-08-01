@@ -81,7 +81,7 @@ namespace Smartstore.Core.Security
         {
             Guard.NotNull(entities, nameof(entities));
 
-            return entities.WhereAsync(async x => await service.AuthorizeAsync(x));
+            return entities.WhereAwait(async x => await service.AuthorizeAsync(x));
         }
     }
 }

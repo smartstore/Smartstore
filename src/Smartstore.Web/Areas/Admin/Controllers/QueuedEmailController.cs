@@ -69,7 +69,7 @@ namespace Smartstore.Admin.Controllers
                 .LoadAsync();
 
             var mapper = MapperFactory.GetMapper<QueuedEmail, QueuedEmailModel>();
-            var rows = await queuedEmails.SelectAsync(async x =>
+            var rows = await queuedEmails.SelectAwait(async x =>
             {
                 var model = await mapper.MapAsync(x);
                 model.ViewUrl = Url.Action(nameof(Edit), "QueuedEmail", new { id = x.Id });

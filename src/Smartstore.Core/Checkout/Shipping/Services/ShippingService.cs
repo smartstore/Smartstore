@@ -98,7 +98,7 @@ namespace Smartstore.Core.Checkout.Shipping
             if (matchRules)
             {
                 return await shippingMethods
-                    .WhereAsync(async x => await _cartRuleProvider.RuleMatchesAsync(x))
+                    .WhereAwait(async x => await _cartRuleProvider.RuleMatchesAsync(x))
                     .AsyncToList();
             }
 

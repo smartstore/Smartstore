@@ -114,7 +114,7 @@ namespace Smartstore.Admin.Controllers
 
             var allStores = Services.StoreContext.GetAllStores().ToDictionary(x => x.Id);
 
-            var rows = await returnRequests.SelectAsync(async x =>
+            var rows = await returnRequests.SelectAwait(async x =>
             {
                 var m = new ReturnRequestModel();
                 await PrepareReturnRequestModel(m, x, orderItems.Get(x.OrderItemId), allStores, false, true);

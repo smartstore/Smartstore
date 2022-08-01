@@ -33,7 +33,7 @@ namespace Smartstore.Core.Catalog.Categories.Rules
                 {
                     var categories = await _db.Categories.GetManyAsync(context.Value.ToIntArray());
                     var options = await categories
-                        .SelectAsync(async x => new RuleValueSelectListOption
+                        .SelectAwait(async x => new RuleValueSelectListOption
                         {
                             Value = x.Id.ToString(),
                             Text = (await _categoryService.GetCategoryPathAsync(x, context.Language.Id)).NullEmpty() ?? x.Name
@@ -47,7 +47,7 @@ namespace Smartstore.Core.Catalog.Categories.Rules
                     var categories = await _categoryService.GetCategoryTreeAsync(0, true);
                     var options = await categories
                         .Flatten(false)
-                        .SelectAsync(async x => new RuleValueSelectListOption
+                        .SelectAwait(async x => new RuleValueSelectListOption
                         {
                             Value = x.Id.ToString(),
                             Text = (await _categoryService.GetCategoryPathAsync(x, context.Language.Id)).NullEmpty() ?? x.Name

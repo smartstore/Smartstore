@@ -32,7 +32,7 @@ namespace Smartstore.Admin.Models.Catalog
 
             var mapper = MapperFactory.GetMapper<Product, ProductOverviewModel>();
             var models = await entities
-                .SelectAsync(async x =>
+                .SelectAwait(async x =>
                 {
                     var model = new ProductOverviewModel();
                     await mapper.MapAsync(x, model, parameters);

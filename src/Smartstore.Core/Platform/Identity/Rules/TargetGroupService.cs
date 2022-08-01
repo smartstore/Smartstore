@@ -82,7 +82,7 @@ namespace Smartstore.Core.Identity.Rules
             Guard.NotNull(ruleSetIds, nameof(ruleSetIds));
 
             var filters = await ruleSetIds
-                .SelectAsync(id => _ruleService.CreateExpressionGroupAsync(id, this))
+                .SelectAwait(id => _ruleService.CreateExpressionGroupAsync(id, this))
                 .Where(x => x != null)
                 .Cast<FilterExpression>()
                 .ToArrayAsync();

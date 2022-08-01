@@ -348,7 +348,7 @@ namespace Smartstore.Web.Controllers
             }
 
             var models = await customer.Addresses
-                .SelectAsync(async x => await x.MapAsync())
+                .SelectAwait(async x => await x.MapAsync())
                 .AsyncToList();
 
             return View(models);
@@ -1107,7 +1107,7 @@ namespace Smartstore.Web.Controllers
                 .ToDictionarySafe(x => x.CurrencyCode, x => x, StringComparer.OrdinalIgnoreCase);
 
             var orderModels = await orders
-                .SelectAsync(async x =>
+                .SelectAwait(async x =>
                 {
                     customerCurrencies.TryGetValue(x.CustomerCurrencyCode, out var customerCurrency);
 
@@ -1141,7 +1141,7 @@ namespace Smartstore.Web.Controllers
                 .LoadAsync();
 
             var rpModels = await recurringPayments
-                .SelectAsync(async x =>
+                .SelectAwait(async x =>
                 {
                     var nextPaymentDate = await _paymentService.GetNextRecurringPaymentDateAsync(x);
 

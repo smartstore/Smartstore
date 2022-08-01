@@ -116,11 +116,11 @@ namespace Smartstore.Core.Catalog.Rules
                 .ToArray();
 
             var visibilities = await ((ProductVisibility[])Enum.GetValues(typeof(ProductVisibility)))
-                .SelectAsync(async x => new RuleValueSelectListOption { Value = ((int)x).ToString(), Text = await _localizationService.GetLocalizedEnumAsync(x) })
+                .SelectAwait(async x => new RuleValueSelectListOption { Value = ((int)x).ToString(), Text = await _localizationService.GetLocalizedEnumAsync(x) })
                 .ToArrayAsync();
 
             var productTypes = await ((ProductType[])Enum.GetValues(typeof(ProductType)))
-                .SelectAsync(async x => new RuleValueSelectListOption { Value = ((int)x).ToString(), Text = await _localizationService.GetLocalizedEnumAsync(x) })
+                .SelectAwait(async x => new RuleValueSelectListOption { Value = ((int)x).ToString(), Text = await _localizationService.GetLocalizedEnumAsync(x) })
                 .ToArrayAsync();
 
             var ratings = FacetUtility.GetRatings()

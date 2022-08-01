@@ -576,7 +576,7 @@ namespace Smartstore.Admin.Controllers
             else if (provider.Value.EntityType == ExportEntityType.Category)
             {
                 var rows = await previewResult.Data
-                    .SelectAsync(async x =>
+                    .SelectAwait(async x =>
                     {
                         var category = x.Entity as Category;
                         return new ExportPreviewCategoryModel
@@ -924,7 +924,7 @@ namespace Smartstore.Admin.Controllers
             model.Filter = MiniMapper.Map<ExportFilter, ExportFilterModel>(filter);
 
             // Deployment.
-            model.Deployments = await profile.Deployments.SelectAsync(async x =>
+            model.Deployments = await profile.Deployments.SelectAwait(async x =>
             {
                 var deploymentModel = await CreateDeploymentModel(profile, x, null, false);
 

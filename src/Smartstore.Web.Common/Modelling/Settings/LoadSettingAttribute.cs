@@ -73,7 +73,7 @@ namespace Smartstore.Web.Modelling.Settings
 
             // Find the required ISettings concrete types in ActionDescriptor.GetParameters()
             _settingParams = await FindActionParameters<ISettings>(context.ActionDescriptor)
-                .SelectAsync(async x =>
+                .SelectAwait(async x =>
                 {
                     // Load settings for the settings type obtained with FindActionParameters<ISettings>()
                     var settingType = x.ParameterType;
