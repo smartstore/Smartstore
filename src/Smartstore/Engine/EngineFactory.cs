@@ -10,22 +10,12 @@ namespace Smartstore.Engine
         [MethodImpl(MethodImplOptions.Synchronized)]
         public static IEngine Create(SmartConfiguration configuration)
         {
-            if (Singleton<IEngine>.Instance == null)
+            if (EngineContext.Current == null)
             {
-                Singleton<IEngine>.Instance = CreateEngineInstance(configuration);
+                EngineContext.Replace(CreateEngineInstance(configuration));
             }
 
-            return Singleton<IEngine>.Instance;
-        }
-
-        /// <summary>
-        /// Sets the static engine instance to the supplied engine. Use this method to supply your own engine implementation.
-        /// </summary>
-        /// <param name="engine">The engine to use.</param>
-        /// <remarks>Only use this method if you know what you're doing.</remarks>
-        public static void Replace(IEngine engine)
-        {
-            Singleton<IEngine>.Instance = engine;
+            return EngineContext.Current;
         }
 
         private static IEngine CreateEngineInstance(SmartConfiguration configuration)

@@ -26,8 +26,13 @@ namespace Smartstore.Utilities
         /// </summary>
         public static IFileSystem ContentRoot
         {
-            get => _contentRoot ??= EngineContext.Current.Application.ContentRoot;
+            get => LazyInitializer.EnsureInitialized(ref _contentRoot, GetContentRoot);
             set => _contentRoot = value;
+        }
+
+        private static IFileSystem GetContentRoot()
+        {
+            return EngineContext.Current?.Application?.ContentRoot ?? new LocalFileSystem(AppContext.BaseDirectory);
         }
 
         public static bool IsDevEnvironment
@@ -55,7 +60,9 @@ namespace Smartstore.Utilities
         public static string MapPath(string path, bool findAppRoot = true)
         {
             if (path == null)
+            {
                 throw new ArgumentNullException(nameof(path));
+            } 
 
             if (IsHosted)
             {
@@ -91,6 +98,9 @@ namespace Smartstore.Utilities
         private static bool IsDevEnvironmentInternal()
         {
             if (!IsHosted)
+                return true;
+
+            if (EngineContext.Current?.Application == null)
                 return true;
 
             if (EngineContext.Current.Application.HostEnvironment.IsDevelopment())
