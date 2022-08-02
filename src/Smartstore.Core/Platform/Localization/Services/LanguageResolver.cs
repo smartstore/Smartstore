@@ -27,35 +27,41 @@ namespace Smartstore.Core.Localization
             _localizationSettings = localizationSettings;
         }
 
-        public virtual async Task<Language> ResolveLanguageAsync(Customer currentCustomer, HttpContext httpContext)
+        public Language ResolveLanguage(Customer currentCustomer, HttpContext httpContext)
+            => ResolveLanguageCore(currentCustomer, httpContext, false).Await();
+
+        public Task<Language> ResolveLanguageAsync(Customer currentCustomer, HttpContext httpContext)
+            => ResolveLanguageCore(currentCustomer, httpContext, true);
+
+        protected virtual async Task<Language> ResolveLanguageCore(Customer currentCustomer, HttpContext httpContext, bool async)
         {
             Guard.NotNull(currentCustomer, nameof(currentCustomer));
 
             int storeId = _storeContext.CurrentStore.Id;
-            
+
             int customerLangId = currentCustomer.IsSystemAccount
                 ? (httpContext != null ? httpContext.Request.Query["lid"].FirstOrDefault().ToInt() : 0)
                 : currentCustomer.GenericAttributes.LanguageId ?? 0;
 
             if (httpContext == null)
             {
-                return await GetDefaultLanguage(customerLangId, storeId);
+                return await GetDefaultLanguage(customerLangId, storeId, async);
             }
 
             return
                 // 1: Try resolve from route values or from request path
-                await ResolveFromRouteAsync(httpContext, storeId) ??
+                await ResolveFromRoute(httpContext, storeId, async) ??
                 // 2: Try resolve from determined customer lang id
-                await ResolveFromCustomerAsync(customerLangId, storeId) ??
+                await ResolveFromCustomer(customerLangId, storeId, async) ??
                 // 3: Try resolve from accept header
-                await ResolveFromAcceptHeaderAsync(httpContext, storeId, customerLangId, currentCustomer) ??
+                await ResolveFromAcceptHeader(httpContext, storeId, customerLangId, currentCustomer, async) ??
                 // 3: Get default fallback language
-                await GetDefaultLanguage(customerLangId, storeId) ??
+                await GetDefaultLanguage(customerLangId, storeId, async) ??
                 // Should never happen
                 throw new SmartException("At least one language must be active!");
         }
 
-        private async Task<Language> ResolveFromRouteAsync(HttpContext httpContext, int storeId)
+        protected virtual async Task<Language> ResolveFromRoute(HttpContext httpContext, int storeId, bool async)
         {
             if (!_localizationSettings.SeoFriendlyUrlsForLanguagesEnabled)
             {
@@ -68,20 +74,24 @@ namespace Smartstore.Core.Localization
                 return null;
             }
 
-            return await _db.Languages.FirstOrDefaultAsync(x => x.UniqueSeoCode == cultureCode);
+            return async 
+                ? await _db.Languages.FirstOrDefaultAsync(x => x.UniqueSeoCode == cultureCode)
+                : _db.Languages.FirstOrDefault(x => x.UniqueSeoCode == cultureCode);
         }
 
-        private async Task<Language> ResolveFromCustomerAsync(int customerLangId, int storeId)
+        protected virtual async Task<Language> ResolveFromCustomer(int customerLangId, int storeId, bool async)
         {
             if (customerLangId > 0 && _languageService.IsPublishedLanguage(customerLangId, storeId))
             {
-                return await _db.Languages.FindByIdAsync(customerLangId);
+                return async 
+                    ? await _db.Languages.FindByIdAsync(customerLangId) 
+                    : _db.Languages.FindById(customerLangId);
             }
 
             return null;
         }
 
-        private async Task<Language> ResolveFromAcceptHeaderAsync(HttpContext httpContext, int storeId, int customerLangId, Customer customer)
+        protected virtual async Task<Language> ResolveFromAcceptHeader(HttpContext httpContext, int storeId, int customerLangId, Customer customer, bool async)
         {
             if (!_localizationSettings.DetectBrowserUserLanguage || customer.IsSystemAccount)
             {
@@ -93,8 +103,9 @@ namespace Smartstore.Core.Localization
             {
                 foreach (var culture in providerResult.Cultures)
                 {
-                    var language =
-                        await _db.Languages.FirstOrDefaultAsync(x => x.LanguageCulture == culture.Value || x.UniqueSeoCode == culture.Value);
+                    var language = async ?
+                        await _db.Languages.FirstOrDefaultAsync(x => x.LanguageCulture == culture.Value || x.UniqueSeoCode == culture.Value)
+                        : _db.Languages.FirstOrDefault(x => x.LanguageCulture == culture.Value || x.UniqueSeoCode == culture.Value);
 
                     if (language != null && _languageService.IsPublishedLanguage(language.Id, storeId))
                     {
@@ -106,14 +117,14 @@ namespace Smartstore.Core.Localization
             return null;
         }
 
-        private async Task<Language> GetDefaultLanguage(int customerLangId, int storeId)
+        protected virtual async Task<Language> GetDefaultLanguage(int customerLangId, int storeId, bool async)
         {
             if (customerLangId == 0 || !_languageService.IsPublishedLanguage(customerLangId, storeId))
             {
                 customerLangId = _languageService.GetMasterLanguageId(storeId);
             }
 
-            return await _db.Languages.FindByIdAsync(customerLangId);
+            return async ? await _db.Languages.FindByIdAsync(customerLangId) : _db.Languages.FindById(customerLangId);
         }
     }
 }

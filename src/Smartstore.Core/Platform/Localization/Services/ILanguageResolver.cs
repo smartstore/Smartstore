@@ -8,6 +8,7 @@ namespace Smartstore.Core.Localization
     /// </summary>
     public interface ILanguageResolver
     {
+        Language ResolveLanguage(Customer currentCustomer, HttpContext httpContext);
         Task<Language> ResolveLanguageAsync(Customer currentCustomer, HttpContext httpContext);
     }
 }

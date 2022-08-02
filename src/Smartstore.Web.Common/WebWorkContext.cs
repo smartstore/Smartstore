@@ -231,7 +231,7 @@ namespace Smartstore.Web
                     var customer = CurrentCustomer;
 
                     // Resolve the current working language
-                    _language = _languageResolver.ResolveLanguageAsync(customer, _httpContextAccessor.HttpContext).Await();
+                    _language = _languageResolver.ResolveLanguage(customer, _httpContextAccessor.HttpContext);
 
                     // Set language if current customer langid does not match resolved language id
                     var customerAttributes = customer.GenericAttributes;
