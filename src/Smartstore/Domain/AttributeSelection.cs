@@ -1,4 +1,5 @@
-﻿using System.Xml;
+﻿using System.Linq;
+using System.Xml;
 using System.Xml.Linq;
 using Newtonsoft.Json;
 using Smartstore.Collections;
@@ -271,7 +272,7 @@ namespace Smartstore.Domain
                 {
                     var attributes = JsonConvert.DeserializeObject<AllAttributes>(_rawAttributes);
 
-                    if (attributes.CustomAttributes.Any())
+                    if (attributes.CustomAttributes.Count > 0)
                     {
                         // Convert custom attributes from JObject to specific type.
                         var newAttributes = new Multimap<string, object>();
@@ -478,7 +479,7 @@ namespace Smartstore.Domain
             // prevents CustomAttributes from being serialized if empty.
             // Deserialized to an empty map if missing in raw JSON string.
             public bool ShouldSerializeCustomAttributes()
-                => CustomAttributes?.Any() ?? false;
+                => CustomAttributes?.Count > 0;
         }
     }
 }

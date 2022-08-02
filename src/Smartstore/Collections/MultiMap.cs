@@ -98,10 +98,7 @@ namespace Smartstore.Collections
         /// </summary>
         public int Count
         {
-            get
-            {
-                return this._dict.Keys.Count;
-            }
+            get => _dict.Keys.Count;
         }
 
         /// <summary>
@@ -109,10 +106,7 @@ namespace Smartstore.Collections
         /// </summary>
         public int TotalValueCount
         {
-            get
-            {
-                return this._dict.Values.Sum(x => x.Count);
-            }
+            get => _dict.Values.Sum(x => x.Count);
         }
 
         /// <summary>
@@ -126,9 +120,13 @@ namespace Smartstore.Collections
                 if (!_dict.ContainsKey(key))
                 {
                     if (!_isReadonly)
+                    {
                         _dict[key] = CreateCollection(null);
+                    }  
                     else
+                    {
                         return null;
+                    } 
                 }
 
                 return _dict[key];
@@ -140,7 +138,7 @@ namespace Smartstore.Collections
         /// </summary>
         public virtual ICollection<TKey> Keys
         {
-            get { return _dict.Keys; }
+            get => _dict.Keys;
         }
 
         /// <summary>
@@ -148,7 +146,7 @@ namespace Smartstore.Collections
         /// </summary>
         public virtual ICollection<ICollection<TValue>> Values
         {
-            get { return _dict.Values; }
+            get => _dict.Values;
         }
 
         public IEnumerable<TValue> Find(TKey key, Func<TValue, bool> predicate)
@@ -156,9 +154,9 @@ namespace Smartstore.Collections
             Guard.NotNull(key, nameof(key));
             Guard.NotNull(predicate, nameof(predicate));
 
-            if (_dict.ContainsKey(key))
+            if (_dict.TryGetValue(key, out var values))
             {
-                return _dict[key].Where(predicate);
+                return values.Where(predicate);
             }
 
             return Enumerable.Empty<TValue>();
@@ -184,7 +182,9 @@ namespace Smartstore.Collections
         public virtual void AddRange(TKey key, IEnumerable<TValue> values)
         {
             if (values == null || !values.Any())
+            {
                 return;
+            }
 
             CheckNotReadonly();
 
@@ -196,19 +196,23 @@ namespace Smartstore.Collections
         /// </summary>
         /// <param name="key">The key.</param>
         /// <param name="value">The value.</param>
-        /// <returns><c>True</c> if such a value existed and was removed; otherwise <c>false</c>.</returns>
+        /// <returns><c>true</c> if such a value existed and was removed; otherwise <c>false</c>.</returns>
         public virtual bool Remove(TKey key, TValue value)
         {
             CheckNotReadonly();
 
-            if (!_dict.ContainsKey(key))
-                return false;
+            if (_dict.TryGetValue(key, out var values))
+            {
+                var removed = values.Remove(value);
+                if (removed && values.Count == 0)
+                {
+                    _dict.Remove(key);
+                }
 
-            bool result = _dict[key].Remove(value);
-            if (_dict[key].Count == 0)
-                _dict.Remove(key);
+                return removed;
+            }
 
-            return result;
+            return false;
         }
 
         /// <summary>
@@ -259,8 +263,11 @@ namespace Smartstore.Collections
         /// <returns><c>True</c> if the multimap contains such a value; otherwise, <c>false</c>.</returns>
         public virtual bool ContainsValue(TKey key, TValue value)
         {
-            return _dict.ContainsKey(key) && _dict[key].Contains(value);
+            return _dict.TryGetValue(key, out var values) && values.Contains(value);
         }
+
+        public IDictionary<TKey, ICollection<TValue>> AsDictionary()
+            => _dict;
 
         /// <summary>
         /// Returns an enumerator that iterates through the multimap.
@@ -277,8 +284,7 @@ namespace Smartstore.Collections
         /// <returns>An <see cref="IEnumerator"/> object that can be used to iterate through the multimap.</returns>
 		public virtual IEnumerator<KeyValuePair<TKey, ICollection<TValue>>> GetEnumerator()
         {
-            foreach (KeyValuePair<TKey, ICollection<TValue>> pair in _dict)
-                yield return pair;
+            return _dict.GetEnumerator();
         }
 
         private void CheckNotReadonly()
@@ -286,8 +292,6 @@ namespace Smartstore.Collections
             if (_isReadonly)
                 throw new NotSupportedException("Multimap is read-only.");
         }
-
-        #region Static members
 
         public static Multimap<TKey, TValue> CreateFromLookup(ILookup<TKey, TValue> source)
         {
@@ -302,6 +306,39 @@ namespace Smartstore.Collections
 
             return map;
         }
+
+        #region Backlog
+
+        //class GroupingIterator : IEnumerator<IGrouping<TKey, TValue>>
+        //{
+        //    private readonly IEnumerator<KeyValuePair<TKey, ICollection<TValue>>> _inner;
+
+        //    public GroupingIterator(IEnumerator<KeyValuePair<TKey, ICollection<TValue>>> inner)
+        //    {
+        //        _inner = inner;
+        //    }
+
+        //    public IGrouping<TKey, TValue> Current => new GroupingWrapper(_inner.Current);
+        //    object IEnumerator.Current => new GroupingWrapper(_inner.Current);
+
+        //    public bool MoveNext() => _inner.MoveNext();
+        //    public void Reset() => _inner.Reset();
+        //    public void Dispose() => _inner.Dispose();
+        //}
+
+        //class GroupingWrapper : IGrouping<TKey, TValue>
+        //{
+        //    private readonly KeyValuePair<TKey, ICollection<TValue>> _inner;
+
+        //    public GroupingWrapper(KeyValuePair<TKey, ICollection<TValue>> inner)
+        //    {
+        //        _inner = inner;
+        //    }
+
+        //    public TKey Key => _inner.Key;
+        //    public IEnumerator<TValue> GetEnumerator() => _inner.Value.GetEnumerator();
+        //    IEnumerator IEnumerable.GetEnumerator() => _inner.Value.GetEnumerator();
+        //}
 
         #endregion
     }

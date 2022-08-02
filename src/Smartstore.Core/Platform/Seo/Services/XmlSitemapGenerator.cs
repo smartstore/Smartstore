@@ -398,7 +398,7 @@ namespace Smartstore.Core.Seo
                     foreach (var data in languageData.Values)
                     {
                         // Create index documents (if any)
-                        if (hasIndex && indexNodes.Any())
+                        if (hasIndex && indexNodes.Count > 0)
                         {
                             var indexDocument = CreateSitemapIndexDocument(indexNodes[data.Language.Id]);
                             await SaveTempAsync(new List<string> { indexDocument }, data, 0);
