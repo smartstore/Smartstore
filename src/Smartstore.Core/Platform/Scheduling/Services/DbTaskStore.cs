@@ -261,9 +261,9 @@ namespace Smartstore.Scheduling
 
             var type = typeof(T);
 
-            if (type.IsAbstract || type.IsInterface || type.IsNotPublic)
+            if (type.IsAbstract || type.IsInterface)
             {
-                throw new InvalidOperationException("Only concrete public task types can be registered.");
+                throw new InvalidOperationException("Only concrete task types can be registered.");
             }
 
             var task = await this.GetTaskByTypeAsync<T>();

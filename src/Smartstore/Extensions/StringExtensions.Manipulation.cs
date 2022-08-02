@@ -383,7 +383,7 @@ namespace Smartstore
                 {
                     sb.Append(delimiter);
                 }
-
+                
                 sb.Append(append);
             }
         }
