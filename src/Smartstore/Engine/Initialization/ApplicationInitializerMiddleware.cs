@@ -112,14 +112,15 @@ namespace Smartstore.Engine.Initialization
                 catch (Exception ex)
                 {
                     fail = true;
+
+                    if (info.Attempts <= maxAttempts)
+                    {
+                        // Don't pollute event log 
+                        _logger.Error(ex, "Error while executing application initializer '{0}': {1}", info.ModuleType, ex.Message);
+                    }
+
                     if (instance.ThrowOnError)
                     {
-                        if (info.Attempts <= maxAttempts)
-                        {
-                            // Don't pollute event log 
-                            _logger.Error(ex, "Error while executing application initializer '{0}': {1}", info.ModuleType, ex.Message);
-                        }
-
                         throw;
                     }
                     else

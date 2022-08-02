@@ -69,7 +69,6 @@ namespace Smartstore.Engine.Modularity
                     }
                     catch (Exception ex)
                     {
-                        Logger.Error(ex, "Installation of module '{0}' failed.", pendingModule);
                         exceptions.Add((pendingModule, ex));
                     }
                 }
@@ -85,7 +84,7 @@ namespace Smartstore.Engine.Modularity
 
             if (exceptions.Count > 0)
             {
-                var msg = $"Installation of {exceptions.Count} module(s) failed\n===================================================\n";
+                var msg = $"Installation of {exceptions.Count} module(s) failed\n=============================================================\n";
                 foreach (var item in exceptions)
                 {
                     msg += "\n\n" + item.Item1 + "\n-----------------------------------------------------------------\n";
