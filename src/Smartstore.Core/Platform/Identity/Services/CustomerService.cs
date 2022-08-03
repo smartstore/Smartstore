@@ -61,73 +61,73 @@ ORDER BY c.Id";
 
         private static string GetSqlDeleteGenericAttributes(string sqlGuestCustomerIds)
         {
-			return $@"DELETE g FROM GenericAttribute g
+            return $@"DELETE g FROM GenericAttribute g
 INNER JOIN (
 {sqlGuestCustomerIds}
 ) sub_c on g.EntityId = sub_c.Id
 WHERE KeyGroup = 'Customer'";
-		}
+        }
 
-		private static string GetSqlDeleteGuestCustomers(string sqlGuestCustomerIds)
-		{
-			return $@"DELETE c FROM Customer c
+        private static string GetSqlDeleteGuestCustomers(string sqlGuestCustomerIds)
+        {
+            return $@"DELETE c FROM Customer c
 INNER JOIN (
 {sqlGuestCustomerIds}
 ) sub_c on c.Id = sub_c.Id";
-		}
-
-		#endregion
-
-		private readonly SmartDbContext _db;
-		private readonly UserManager<Customer> _userManager;
-		private readonly IWebHelper _webHelper;
-		private readonly IHttpContextAccessor _httpContextAccessor;
-		private readonly IUserAgent _userAgent;
-		private readonly IChronometer _chronometer;
-		private readonly RewardPointsSettings _rewardPointsSettings;
-
-		private Customer _authCustomer;
-		private bool _authCustomerResolved;
-
-		public CustomerService(
-			SmartDbContext db,
-			UserManager<Customer> userManager,
-			IWebHelper webHelper,
-			IHttpContextAccessor httpContextAccessor,
-			IUserAgent userAgent,
-			IChronometer chronometer,
-			RewardPointsSettings rewardPointsSettings)
-        {
-            _db = db;
-			_userManager = userManager;
-			_webHelper = webHelper;
-			_httpContextAccessor = httpContextAccessor;
-			_userAgent = userAgent;
-			_chronometer = chronometer;
-			_rewardPointsSettings = rewardPointsSettings;
         }
 
-		public Localizer T { get; set; } = NullLocalizer.Instance;
-		public ILogger Logger { get; set; } = NullLogger.Instance;
+        #endregion
 
-		#region Guest customers
+        private readonly SmartDbContext _db;
+        private readonly UserManager<Customer> _userManager;
+        private readonly IWebHelper _webHelper;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IUserAgent _userAgent;
+        private readonly IChronometer _chronometer;
+        private readonly RewardPointsSettings _rewardPointsSettings;
 
-		public virtual async Task<Customer> CreateGuestCustomerAsync(Guid? customerGuid = null)
-		{
+        private Customer _authCustomer;
+        private bool _authCustomerResolved;
+
+        public CustomerService(
+            SmartDbContext db,
+            UserManager<Customer> userManager,
+            IWebHelper webHelper,
+            IHttpContextAccessor httpContextAccessor,
+            IUserAgent userAgent,
+            IChronometer chronometer,
+            RewardPointsSettings rewardPointsSettings)
+        {
+            _db = db;
+            _userManager = userManager;
+            _webHelper = webHelper;
+            _httpContextAccessor = httpContextAccessor;
+            _userAgent = userAgent;
+            _chronometer = chronometer;
+            _rewardPointsSettings = rewardPointsSettings;
+        }
+
+        public Localizer T { get; set; } = NullLocalizer.Instance;
+        public ILogger Logger { get; set; } = NullLogger.Instance;
+
+        #region Guest customers
+
+        public virtual async Task<Customer> CreateGuestCustomerAsync(Guid? customerGuid = null)
+        {
             var customer = new Customer
-			{
-				CustomerGuid = customerGuid ?? Guid.NewGuid(),
-				Active = true,
-				CreatedOnUtc = DateTime.UtcNow,
-				LastActivityDateUtc = DateTime.UtcNow,
-			};
+            {
+                CustomerGuid = customerGuid ?? Guid.NewGuid(),
+                Active = true,
+                CreatedOnUtc = DateTime.UtcNow,
+                LastActivityDateUtc = DateTime.UtcNow,
+            };
 
-			// Add to 'Guests' role
-			var guestRole = await GetRoleBySystemNameAsync(SystemCustomerRoleNames.Guests);
-			if (guestRole == null)
-			{
-				throw new SmartException("'Guests' role could not be loaded");
-			}
+            // Add to 'Guests' role
+            var guestRole = await GetRoleBySystemNameAsync(SystemCustomerRoleNames.Guests);
+            if (guestRole == null)
+            {
+                throw new SmartException("'Guests' role could not be loaded");
+            }
 
             using (new DbContextScope(_db, minHookImportance: HookImportance.Essential))
             {
@@ -136,7 +136,7 @@ INNER JOIN (
                 // actions which - in rare cases, e.g. in a singleton scope - may result in a new guest customer
                 // entity inserted to the database, which would now result in calling the source hook again
                 // (if it handled the Customer entity).
-                
+
                 // Ensure that entities are saved to db in any case
                 customer.CustomerRoleMappings.Add(new CustomerRoleMapping { CustomerId = customer.Id, CustomerRoleId = guestRole.Id });
                 _db.Customers.Add(customer);
@@ -151,238 +151,238 @@ INNER JOIN (
                 }
             }
 
-			//Logger.DebugFormat("Guest account created for anonymous visitor. Id: {0}, ClientIdent: {1}", customer.CustomerGuid, clientIdent ?? "n/a");
+            //Logger.DebugFormat("Guest account created for anonymous visitor. Id: {0}, ClientIdent: {1}", customer.CustomerGuid, clientIdent ?? "n/a");
 
-			return customer;
-		}
+            return customer;
+        }
 
-		public virtual Task<Customer> FindGuestCustomerByClientIdentAsync(string clientIdent = null, int maxAgeSeconds = 60)
-		{
-			if (_httpContextAccessor.HttpContext == null || _userAgent.IsBot || _userAgent.IsPdfConverter)
-			{
-				return Task.FromResult<Customer>(null);
-			}
-
-			using (_chronometer.Step("FindGuestCustomerByClientIdent"))
-			{
-				clientIdent = clientIdent.NullEmpty() ?? _webHelper.GetClientIdent();
-				if (clientIdent.IsEmpty())
-				{
-					return Task.FromResult<Customer>(null);
-				}
-
-				var dateFrom = DateTime.UtcNow.AddSeconds(-maxAgeSeconds);
-
-				var query = from a in _db.GenericAttributes.AsNoTracking()
-						join c in _db.Customers on a.EntityId equals c.Id into Customers
-						from c in Customers.DefaultIfEmpty()
-						where c.LastActivityDateUtc >= dateFrom
-							&& c.Username == null
-							&& c.Email == null
-							&& a.KeyGroup == "Customer"
-							&& a.Key == "ClientIdent"
-							&& a.Value == clientIdent
-						select c;
-
-				return query
-					.IncludeCustomerRoles()
-					.IncludeShoppingCart()
-					.FirstOrDefaultAsync();
-			}
-		}
-
-		public virtual async Task<int> DeleteGuestCustomersAsync(
-			DateTime? registrationFrom,
-			DateTime? registrationTo,
-			bool onlyWithoutShoppingCart,
-			CancellationToken cancelToken = default)
-		{
-			var paramClauses = new StringBuilder(200);
-			var parameters = new List<object>();
-			var numberOfDeletedCustomers = 0;
-			var numberOfDeletedAttributes = 0;
-			var pIndex = 0;
-
-			if (registrationFrom.HasValue)
-			{
-				paramClauses.AppendFormat(" AND @p{0} <= c.CreatedOnUtc", pIndex++);
-				parameters.Add(registrationFrom.Value);
-			}
-			if (registrationTo.HasValue)
-			{
-				paramClauses.AppendFormat(" AND @p{0} >= c.CreatedOnUtc", pIndex++);
-				parameters.Add(registrationTo.Value);
-			}
-			if (onlyWithoutShoppingCart)
-			{
-				paramClauses.Append(" AND (NOT EXISTS (SELECT 1 AS C1 FROM ShoppingCartItem AS sci WHERE c.Id = sci.CustomerId))");
-			}
-
-			var sqlGuestCustomerIds = await GetSqlGuestCustomerIds(paramClauses.ToString());
-			var sqlGenericAttributes = GetSqlDeleteGenericAttributes(sqlGuestCustomerIds);
-			var sqlGuestCustomers = GetSqlDeleteGuestCustomers(sqlGuestCustomerIds);
-
-			// Delete generic attributes.
-			while (true)
-			{
-				var numDeleted = await _db.Database.ExecuteSqlRawAsync(sqlGenericAttributes, parameters.ToArray(), cancelToken);
-				if (numDeleted <= 0)
-				{
-					break;
-				}
-
-				numberOfDeletedAttributes += numDeleted;
-			}
-
-			// Delete guest customers.
-			while (true)
-			{
-				var numDeleted = await _db.Database.ExecuteSqlRawAsync(sqlGuestCustomers, parameters.ToArray(), cancelToken);
-				if (numDeleted <= 0)
-				{
-					break;
-				}
-
-				numberOfDeletedCustomers += numDeleted;
-			}
-
-			Logger.Debug("Deleted {0} guest customers including {1} generic attributes.", numberOfDeletedCustomers, numberOfDeletedAttributes);
-
-			return numberOfDeletedCustomers;
-		}
-
-		#endregion
-
-		#region Customers
-
-		public virtual Customer GetCustomerBySystemName(string systemName, bool tracked = true)
-		{
-			if (string.IsNullOrWhiteSpace(systemName))
-				return null;
-
-			var query = _db.Customers
-				.IncludeCustomerRoles()
-				.ApplyTracking(tracked)
-				.AsCaching()
-				.Where(x => x.SystemName == systemName)
-				.OrderBy(x => x.Id);
-
-			return query.FirstOrDefault();
-		}
-
-		public virtual Task<Customer> GetCustomerBySystemNameAsync(string systemName, bool tracked = true)
-		{
-			if (string.IsNullOrWhiteSpace(systemName))
-				return Task.FromResult((Customer)null);
-
-			var query = _db.Customers
-				.IncludeCustomerRoles()
-				.ApplyTracking(tracked)
-				.AsCaching()
-				.Where(x => x.SystemName == systemName)
-				.OrderBy(x => x.Id);
-
-			return query.FirstOrDefaultAsync();
-		}
-
-		public virtual async Task<Customer> GetAuthenticatedCustomerAsync()
+        public virtual Task<Customer> FindGuestCustomerByClientIdentAsync(string clientIdent = null, int maxAgeSeconds = 60)
         {
-			if (!_authCustomerResolved)
+            if (_httpContextAccessor.HttpContext == null || _userAgent.IsBot || _userAgent.IsPdfConverter)
             {
-				var httpContext = _httpContextAccessor.HttpContext;
-				if (httpContext == null)
-				{
-					return null;
-				}
+                return Task.FromResult<Customer>(null);
+            }
 
-				var principal = await EnsureAuthentication(httpContext);
-
-				if (principal?.Identity.IsAuthenticated == true)
-				{
-					_authCustomer = await _userManager.GetUserAsync(principal);
-				}
-
-				_authCustomerResolved = true;
-			}
-
-			if (_authCustomer == null || !_authCustomer.Active || _authCustomer.Deleted || !_authCustomer.IsRegistered())
-			{
-				return null;
-			}
-
-			return _authCustomer;
-		}
-
-		/// <summary>
-		/// Ensures that the authentication handler runs (even before the authentication middleware)
-		/// </summary>
-		/// <param name="context"></param>
-		/// <returns></returns>
-		private static async Task<ClaimsPrincipal> EnsureAuthentication(HttpContext context)
-        {
-			var authenticationFeature = context.Features.Get<IAuthenticationFeature>();
-			if (authenticationFeature == null)
+            using (_chronometer.Step("FindGuestCustomerByClientIdent"))
             {
-				// The middleware did not run yet
-				var result = await context.AuthenticateAsync();
-				if (result.Succeeded)
+                clientIdent = clientIdent.NullEmpty() ?? _webHelper.GetClientIdent();
+                if (clientIdent.IsEmpty())
                 {
-					return result.Principal;
+                    return Task.FromResult<Customer>(null);
+                }
+
+                var dateFrom = DateTime.UtcNow.AddSeconds(-maxAgeSeconds);
+
+                var query = from a in _db.GenericAttributes.AsNoTracking()
+                            join c in _db.Customers on a.EntityId equals c.Id into Customers
+                            from c in Customers.DefaultIfEmpty()
+                            where c.LastActivityDateUtc >= dateFrom
+                                && c.Username == null
+                                && c.Email == null
+                                && a.KeyGroup == "Customer"
+                                && a.Key == "ClientIdent"
+                                && a.Value == clientIdent
+                            select c;
+
+                return query
+                    .IncludeCustomerRoles()
+                    .IncludeShoppingCart()
+                    .FirstOrDefaultAsync();
+            }
+        }
+
+        public virtual async Task<int> DeleteGuestCustomersAsync(
+            DateTime? registrationFrom,
+            DateTime? registrationTo,
+            bool onlyWithoutShoppingCart,
+            CancellationToken cancelToken = default)
+        {
+            var paramClauses = new StringBuilder(200);
+            var parameters = new List<object>();
+            var numberOfDeletedCustomers = 0;
+            var numberOfDeletedAttributes = 0;
+            var pIndex = 0;
+
+            if (registrationFrom.HasValue)
+            {
+                paramClauses.AppendFormat(" AND @p{0} <= c.CreatedOnUtc", pIndex++);
+                parameters.Add(registrationFrom.Value);
+            }
+            if (registrationTo.HasValue)
+            {
+                paramClauses.AppendFormat(" AND @p{0} >= c.CreatedOnUtc", pIndex++);
+                parameters.Add(registrationTo.Value);
+            }
+            if (onlyWithoutShoppingCart)
+            {
+                paramClauses.Append(" AND (NOT EXISTS (SELECT 1 AS C1 FROM ShoppingCartItem AS sci WHERE c.Id = sci.CustomerId))");
+            }
+
+            var sqlGuestCustomerIds = await GetSqlGuestCustomerIds(paramClauses.ToString());
+            var sqlGenericAttributes = GetSqlDeleteGenericAttributes(sqlGuestCustomerIds);
+            var sqlGuestCustomers = GetSqlDeleteGuestCustomers(sqlGuestCustomerIds);
+
+            // Delete generic attributes.
+            while (true)
+            {
+                var numDeleted = await _db.Database.ExecuteSqlRawAsync(sqlGenericAttributes, parameters.ToArray(), cancelToken);
+                if (numDeleted <= 0)
+                {
+                    break;
+                }
+
+                numberOfDeletedAttributes += numDeleted;
+            }
+
+            // Delete guest customers.
+            while (true)
+            {
+                var numDeleted = await _db.Database.ExecuteSqlRawAsync(sqlGuestCustomers, parameters.ToArray(), cancelToken);
+                if (numDeleted <= 0)
+                {
+                    break;
+                }
+
+                numberOfDeletedCustomers += numDeleted;
+            }
+
+            Logger.Debug("Deleted {0} guest customers including {1} generic attributes.", numberOfDeletedCustomers, numberOfDeletedAttributes);
+
+            return numberOfDeletedCustomers;
+        }
+
+        #endregion
+
+        #region Customers
+
+        public virtual Customer GetCustomerBySystemName(string systemName, bool tracked = true)
+        {
+            if (string.IsNullOrWhiteSpace(systemName))
+                return null;
+
+            var query = _db.Customers
+                .IncludeCustomerRoles()
+                .ApplyTracking(tracked)
+                .AsCaching()
+                .Where(x => x.SystemName == systemName)
+                .OrderBy(x => x.Id);
+
+            return query.FirstOrDefault();
+        }
+
+        public virtual Task<Customer> GetCustomerBySystemNameAsync(string systemName, bool tracked = true)
+        {
+            if (string.IsNullOrWhiteSpace(systemName))
+                return Task.FromResult((Customer)null);
+
+            var query = _db.Customers
+                .IncludeCustomerRoles()
+                .ApplyTracking(tracked)
+                .AsCaching()
+                .Where(x => x.SystemName == systemName)
+                .OrderBy(x => x.Id);
+
+            return query.FirstOrDefaultAsync();
+        }
+
+        public virtual async Task<Customer> GetAuthenticatedCustomerAsync()
+        {
+            if (!_authCustomerResolved)
+            {
+                var httpContext = _httpContextAccessor.HttpContext;
+                if (httpContext == null)
+                {
+                    return null;
+                }
+
+                var principal = await EnsureAuthentication(httpContext);
+
+                if (principal?.Identity.IsAuthenticated == true)
+                {
+                    _authCustomer = await _userManager.GetUserAsync(principal);
+                }
+
+                _authCustomerResolved = true;
+            }
+
+            if (_authCustomer == null || !_authCustomer.Active || _authCustomer.Deleted || !_authCustomer.IsRegistered())
+            {
+                return null;
+            }
+
+            return _authCustomer;
+        }
+
+        /// <summary>
+        /// Ensures that the authentication handler runs (even before the authentication middleware)
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        private static async Task<ClaimsPrincipal> EnsureAuthentication(HttpContext context)
+        {
+            var authenticationFeature = context.Features.Get<IAuthenticationFeature>();
+            if (authenticationFeature == null)
+            {
+                // The middleware did not run yet
+                var result = await context.AuthenticateAsync();
+                if (result.Succeeded)
+                {
+                    return result.Principal;
                 }
             }
 
-			return context.User;
-		}
+            return context.User;
+        }
 
-		#endregion
+        #endregion
 
-		#region Roles
+        #region Roles
 
-		public virtual CustomerRole GetRoleBySystemName(string systemName, bool tracked = true)
-		{
-			if (string.IsNullOrWhiteSpace(systemName))
-				return null;
+        public virtual CustomerRole GetRoleBySystemName(string systemName, bool tracked = true)
+        {
+            if (string.IsNullOrWhiteSpace(systemName))
+                return null;
 
-			var query = _db.CustomerRoles
-				.ApplyTracking(tracked)
-				.AsCaching()
-				.Where(x => x.SystemName == systemName)
-				.OrderBy(x => x.Id);
+            var query = _db.CustomerRoles
+                .ApplyTracking(tracked)
+                .AsCaching()
+                .Where(x => x.SystemName == systemName)
+                .OrderBy(x => x.Id);
 
-			return query.FirstOrDefault();
-		}
+            return query.FirstOrDefault();
+        }
 
-		public virtual Task<CustomerRole> GetRoleBySystemNameAsync(string systemName, bool tracked = true)
-		{
-			if (string.IsNullOrWhiteSpace(systemName))
-				return Task.FromResult((CustomerRole)null);
+        public virtual Task<CustomerRole> GetRoleBySystemNameAsync(string systemName, bool tracked = true)
+        {
+            if (string.IsNullOrWhiteSpace(systemName))
+                return Task.FromResult((CustomerRole)null);
 
-			var query = _db.CustomerRoles
-				.ApplyTracking(tracked)
-				.AsCaching()
-				.Where(x => x.SystemName == systemName)
-				.OrderBy(x => x.Id);
+            var query = _db.CustomerRoles
+                .ApplyTracking(tracked)
+                .AsCaching()
+                .Where(x => x.SystemName == systemName)
+                .OrderBy(x => x.Id);
 
-			return query.FirstOrDefaultAsync();
-		}
+            return query.FirstOrDefaultAsync();
+        }
 
-		#endregion
+        #endregion
 
-		#region Reward points
+        #region Reward points
 
-		public virtual void ApplyRewardPointsForProductReview(Customer customer, Product product, bool add)
-		{
-			Guard.NotNull(customer, nameof(customer));
+        public virtual void ApplyRewardPointsForProductReview(Customer customer, Product product, bool add)
+        {
+            Guard.NotNull(customer, nameof(customer));
 
-			if (_rewardPointsSettings.Enabled && _rewardPointsSettings.PointsForProductReview > 0)
-			{
-				var productName = product?.GetLocalized(x => x.Name) ?? StringExtensions.NotAvailable;
-				var message = T(add ? "RewardPoints.Message.EarnedForProductReview" : "RewardPoints.Message.ReducedForProductReview", productName).ToString();
+            if (_rewardPointsSettings.Enabled && _rewardPointsSettings.PointsForProductReview > 0)
+            {
+                var productName = product?.GetLocalized(x => x.Name) ?? StringExtensions.NotAvailable;
+                var message = T(add ? "RewardPoints.Message.EarnedForProductReview" : "RewardPoints.Message.ReducedForProductReview", productName).ToString();
 
-				customer.AddRewardPointsHistoryEntry(_rewardPointsSettings.PointsForProductReview * (add ? 1 : -1), message);
-			}
-		}
+                customer.AddRewardPointsHistoryEntry(_rewardPointsSettings.PointsForProductReview * (add ? 1 : -1), message);
+            }
+        }
 
-		#endregion
-	}
+        #endregion
+    }
 }

@@ -11,8 +11,8 @@ namespace Smartstore.Admin
 
         public static ProviderModel ToProviderModel(
             this ModuleManager manager,
-            Provider<IProvider> provider, 
-            bool forEdit = false, 
+            Provider<IProvider> provider,
+            bool forEdit = false,
             Action<Provider<IProvider>, ProviderModel> setup = null)
         {
             return ToProviderModel<IProvider, ProviderModel>(manager, provider, forEdit, setup);
@@ -20,8 +20,8 @@ namespace Smartstore.Admin
 
         public static TModel ToProviderModel<TProvider, TModel>(
             this ModuleManager manager,
-            Provider<TProvider> provider, 
-            bool forEdit = false, 
+            Provider<TProvider> provider,
+            bool forEdit = false,
             Action<Provider<TProvider>, TModel> setup = null)
             where TModel : ProviderModel, new()
             where TProvider : IProvider

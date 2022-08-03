@@ -8,14 +8,14 @@ namespace Smartstore.Core.Packaging
 {
     public partial class PackageBuilder : IPackageBuilder
     {
-        private static readonly Wildcard[] _ignoredPaths = new[] 
+        private static readonly Wildcard[] _ignoredPaths = new[]
         {
             "/obj/*", "/ref/*", "/refs/*",
             "*.obj", "*.pdb", "*.exclude", "*.cs", "*.deps.json"
         }.Select(x => new Wildcard(x)).ToArray();
 
         private readonly IFileSystem _contentRoot;
-        
+
         public PackageBuilder(IApplicationContext appContext)
         {
             _contentRoot = appContext.ContentRoot;
@@ -29,7 +29,7 @@ namespace Smartstore.Core.Packaging
         public async Task<ExtensionPackage> BuildPackageAsync(IExtensionDescriptor extension)
         {
             Guard.NotNull(extension, nameof(extension));
-            
+
             if (extension is not IExtensionLocation)
             {
                 throw new InvalidExtensionException($"Extension '{extension.Name}' cannot be packaged because it cannot be located on local file system.");

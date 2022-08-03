@@ -42,7 +42,7 @@ namespace Smartstore.Admin.Models
 
         [LocalizedDisplay("*GiftCards_Activated")]
         public int? GiftCardsActivatedOrderStatusId { get; set; }
-        
+
         [LocalizedDisplay("*GiftCards_Deactivated")]
         public int? GiftCardsDeactivatedOrderStatusId { get; set; }
 

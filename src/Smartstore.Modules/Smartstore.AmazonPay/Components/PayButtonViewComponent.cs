@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Smartstore.AmazonPay.Services;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;

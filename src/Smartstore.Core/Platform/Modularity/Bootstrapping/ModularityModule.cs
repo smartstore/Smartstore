@@ -41,7 +41,7 @@ namespace Smartstore.Core.Bootstrapping
                 builder.RegisterType(descriptor.Module.ModuleType)
                     .As<IModule>()
                     .As(descriptor.Module.ModuleType)
-                    .OnActivated(x => 
+                    .OnActivated(x =>
                     {
                         if (x.Instance is ModuleBase moduleBase)
                         {
@@ -155,8 +155,8 @@ namespace Smartstore.Core.Bootstrapping
                         m.For(em => em.ProviderType, typeof(T));
                     });
                 }
-                catch 
-                { 
+                catch
+                {
                 }
             }
         }

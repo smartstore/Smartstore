@@ -30,7 +30,7 @@ namespace Smartstore.Admin.Controllers
             if (download == null)
             {
                 return Content(T("Common.Download.NoDataAvailable"));
-            }   
+            }
 
             if (download.UseDownloadUrl)
             {
@@ -44,7 +44,7 @@ namespace Smartstore.Admin.Controllers
                 if (data == null || data.Length == 0)
                 {
                     return Content(T("Common.Download.NoDataAvailable"));
-                }      
+                }
 
                 var fileName = download.MediaFile.Name;
                 var contentType = download.MediaFile.MimeType;

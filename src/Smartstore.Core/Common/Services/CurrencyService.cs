@@ -1,4 +1,3 @@
-using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Configuration;
@@ -120,7 +119,7 @@ namespace Smartstore.Core.Common.Services
             if (currency == null)
             {
                 var allCurrencies = _db.Currencies.AsNoTracking().ToList();
-                currency = 
+                currency =
                     allCurrencies.FirstOrDefault(x => x.Published) ??
                     allCurrencies.FirstOrDefault() ??
                     throw new InvalidOperationException("Unable to load primary currency.");
@@ -149,7 +148,7 @@ namespace Smartstore.Core.Common.Services
                 // Perf
                 return amount;
             }
-            
+
             Guard.NotNull(amount.Currency, nameof(amount.Currency));
             return amount.ExchangeTo(_workContext.WorkingCurrency, PrimaryExchangeCurrency);
         }
@@ -207,7 +206,7 @@ namespace Smartstore.Core.Common.Services
                 currency =
                     (currencyCode == PrimaryCurrency.CurrencyCode ? PrimaryCurrency : null) ??
                     (currencyCode == PrimaryExchangeCurrency.CurrencyCode ? PrimaryExchangeCurrency : null) ??
-                    _db.Currencies.FirstOrDefault(x => x.CurrencyCode == currencyCode) ?? 
+                    _db.Currencies.FirstOrDefault(x => x.CurrencyCode == currencyCode) ??
                     new Currency { CurrencyCode = currencyCode };
             }
             else if (currencyCodeOrObj is Currency)

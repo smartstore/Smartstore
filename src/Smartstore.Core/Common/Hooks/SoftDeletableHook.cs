@@ -36,7 +36,7 @@ namespace Smartstore.Core.Common.Hooks
             {
                 _softDeletedEntries.Add(entry);
             }
-            
+
             return Task.FromResult(HookResult.Ok);
         }
 
@@ -45,7 +45,7 @@ namespace Smartstore.Core.Common.Hooks
             // Sort of "freeze" the soft deletion state, because POST save hooks cannot reflect over prop changes anymore.
             _softDeletedEntries.Each(x => x.IsSoftDeleted = true);
             _softDeletedEntries.Clear();
-            
+
             return Task.CompletedTask;
         }
     }

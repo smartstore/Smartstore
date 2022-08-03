@@ -67,7 +67,7 @@ namespace Smartstore.Core.Catalog.Attributes
         /// <param name="combination">The attribute combination to be merged. Loaded by <see cref="FindAttributeCombinationAsync"/> if <c>null</c>.</param>
         /// <returns>Found attribute combination or <c>null</c> if none was found.</returns>
         Task<ProductVariantAttributeCombination> MergeWithCombinationAsync(
-            Product product, 
+            Product product,
             ProductVariantAttributeSelection selection,
             ProductVariantAttributeCombination combination = null);
 

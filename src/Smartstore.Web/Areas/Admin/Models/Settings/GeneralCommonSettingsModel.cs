@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using FluentValidation;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;

@@ -36,7 +36,7 @@ namespace Smartstore.Core.Localization.Rules
                 {
                     Value = x.Id.ToString(),
                     Text = GetCultureDisplayName(x) ?? x.Name
-                }));                    
+                }));
             }
             else
             {

@@ -12,8 +12,8 @@ namespace Smartstore.Web.Components
         {
             var store = Services.StoreContext.CurrentStore;
 
-            var cacheKey = string.Format(ModelCacheInvalidator.TOPIC_BY_SYSTEMNAME_KEY, 
-                systemName.ToLower(), 
+            var cacheKey = string.Format(ModelCacheInvalidator.TOPIC_BY_SYSTEMNAME_KEY,
+                systemName.ToLower(),
                 Services.WorkContext.WorkingLanguage.Id,
                 store.Id,
                 Services.WorkContext.CurrentCustomer.GetRolesIdent());
@@ -36,7 +36,7 @@ namespace Smartstore.Web.Components
             if (cacheModel == null)
             {
                 return Content(string.Empty);
-            }    
+            }
 
             ViewBag.BodyOnly = bodyOnly;
             ViewBag.IsLead = isLead;

@@ -44,8 +44,8 @@ namespace Smartstore.Core.Catalog.Products
         }
 
         public virtual async Task<(bool Success, string Message)> SubscribeAsync(
-            Product product, 
-            Customer customer = null, 
+            Product product,
+            Customer customer = null,
             int? storeId = null,
             bool unsubscribe = false)
         {

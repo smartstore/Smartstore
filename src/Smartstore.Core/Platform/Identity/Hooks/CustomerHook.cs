@@ -8,41 +8,41 @@ namespace Smartstore.Core.Identity
     [Important]
     internal class CustomerHook : AsyncDbSaveHook<Customer>
     {
-		private static readonly string[] _candidateProps = new[]
-		{
-			nameof(Customer.Title),
-			nameof(Customer.Salutation),
-			nameof(Customer.FirstName),
-			nameof(Customer.LastName)
-		};
+        private static readonly string[] _candidateProps = new[]
+        {
+            nameof(Customer.Title),
+            nameof(Customer.Salutation),
+            nameof(Customer.FirstName),
+            nameof(Customer.LastName)
+        };
 
-		private readonly SmartDbContext _db;
-		private readonly CustomerSettings _customerSettings;
-		private string _hookErrorMessage;
-        
+        private readonly SmartDbContext _db;
+        private readonly CustomerSettings _customerSettings;
+        private string _hookErrorMessage;
+
         // Key: old email. Value: new email.
         private readonly Dictionary<string, string> _modifiedEmails = new(StringComparer.OrdinalIgnoreCase);
 
         public CustomerHook(SmartDbContext db, CustomerSettings customerSettings)
         {
-			_db = db;
-			_customerSettings = customerSettings;
+            _db = db;
+            _customerSettings = customerSettings;
         }
 
-		public Localizer T { get; set; } = NullLocalizer.Instance;
+        public Localizer T { get; set; } = NullLocalizer.Instance;
 
-		public override async Task<HookResult> OnBeforeSaveAsync(IHookedEntity entry, CancellationToken cancelToken)
-		{
-			if (entry.Entity is Customer customer)
-			{
+        public override async Task<HookResult> OnBeforeSaveAsync(IHookedEntity entry, CancellationToken cancelToken)
+        {
+            if (entry.Entity is Customer customer)
+            {
                 if (await ValidateCustomer(customer, cancelToken))
                 {
                     if (entry.InitialState == EState.Added || entry.InitialState == EState.Modified)
                     {
                         UpdateFullName(customer);
 
-                        if (entry.Entry.TryGetModifiedProperty(nameof(customer.Email), out var originalValue) 
-                            && originalValue != null 
+                        if (entry.Entry.TryGetModifiedProperty(nameof(customer.Email), out var originalValue)
+                            && originalValue != null
                             && customer.Email != null)
                         {
                             var oldEmail = originalValue.ToString();
@@ -59,23 +59,23 @@ namespace Smartstore.Core.Identity
                 {
                     entry.ResetState();
                 }
-			}
+            }
 
-			return HookResult.Ok;
-		}
+            return HookResult.Ok;
+        }
 
-		public override Task OnBeforeSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
-		{
-			if (_hookErrorMessage.HasValue())
-			{
-				var message = new string(_hookErrorMessage);
-				_hookErrorMessage = null;
+        public override Task OnBeforeSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
+        {
+            if (_hookErrorMessage.HasValue())
+            {
+                var message = new string(_hookErrorMessage);
+                _hookErrorMessage = null;
 
-				throw new SmartException(message);
-			}
+                throw new SmartException(message);
+            }
 
-			return Task.CompletedTask;
-		}
+            return Task.CompletedTask;
+        }
 
         protected override Task<HookResult> OnUpdatedAsync(Customer entity, IHookedEntity entry, CancellationToken cancelToken)
             => Task.FromResult(HookResult.Ok);

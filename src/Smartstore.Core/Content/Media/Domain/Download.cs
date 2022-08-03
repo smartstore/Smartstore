@@ -31,7 +31,7 @@ namespace Smartstore.Core.Content.Media
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
         private Download(ILazyLoader lazyLoader)
             : base(lazyLoader)
-        {            
+        {
         }
 
         /// <summary>

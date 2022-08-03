@@ -79,8 +79,8 @@ namespace Smartstore.Core.Catalog.Pricing
         /// </param>
         /// <returns>The base price info.</returns>
         string GetBasePriceInfo(
-            Product product, 
-            Money price, 
+            Product product,
+            Money price,
             Currency targetCurrency = null,
             Language language = null,
             bool includePackageContentPerUnit = true);

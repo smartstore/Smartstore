@@ -49,8 +49,8 @@ namespace Smartstore.Core.Widgets
 
             var viewInvoker = viewContext.HttpContext.RequestServices.GetRequiredService<IViewInvoker>();
             return await viewInvoker.InvokePartialViewAsync(
-                PartialName, 
-                module: Module, 
+                PartialName,
+                module: Module,
                 viewData: viewData);
         }
     }

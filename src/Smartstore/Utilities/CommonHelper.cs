@@ -62,7 +62,7 @@ namespace Smartstore.Utilities
             if (path == null)
             {
                 throw new ArgumentNullException(nameof(path));
-            } 
+            }
 
             if (IsHosted)
             {

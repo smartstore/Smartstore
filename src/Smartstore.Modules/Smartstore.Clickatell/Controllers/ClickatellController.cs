@@ -11,7 +11,7 @@ namespace Smartstore.Clickatell.Controllers
     public class ClickatellController : AdminController
     {
         private readonly ClickatellHttpClient _client;
-        
+
         public ClickatellController(ClickatellHttpClient client)
         {
             _client = client;

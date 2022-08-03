@@ -16,7 +16,7 @@ namespace Smartstore.Web.Models.Search
         public Task BindModelAsync(ModelBindingContext bindingContext)
         {
             var rootModel = bindingContext.HttpContext.RequestServices.GetService<IViewDataAccessor>().ViewData?.Model;
-            
+
             if (rootModel is ISearchResultModel searchResultModel)
             {
                 bindingContext.Result = ModelBindingResult.Success(searchResultModel);

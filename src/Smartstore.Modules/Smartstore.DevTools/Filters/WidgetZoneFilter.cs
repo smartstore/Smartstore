@@ -11,9 +11,9 @@ namespace Smartstore.DevTools.Filters
 {
     public class WidgetZoneFilter : IActionFilter, IResultFilter
     {
-        private static readonly Regex _widgetZonePattern 
+        private static readonly Regex _widgetZonePattern
             = new(@"^(?!header)(?!footer)(?!stylesheets)(?!head_scripts)(?!head_canonical)(?!head_links)(?!head).*$", RegexOptions.Compiled);
-        
+
         private readonly ICommonServices _services;
         private readonly IWidgetProvider _widgetProvider;
         private readonly ProfilerSettings _profilerSettings;

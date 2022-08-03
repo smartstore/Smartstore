@@ -43,7 +43,7 @@ namespace Smartstore.Core.Packaging
 
         public UpdateChecker(
             IApplicationContext appContext,
-            ICacheManager cache, 
+            ICacheManager cache,
             IWorkContext workContext,
             IStoreContext storeContext,
             IPermissionService permissionService,
@@ -75,7 +75,7 @@ namespace Smartstore.Core.Packaging
             var result = await _cache.GetAsync(cacheKey, async (ctx) =>
             {
                 ctx.ExpiresIn(TimeSpan.FromHours(12));
-                
+
                 var noUpdateResult = new CheckUpdateResult { UpdateAvailable = false, LanguageCode = lang, CurrentVersion = curVersion };
 
                 try
@@ -122,7 +122,7 @@ namespace Smartstore.Core.Packaging
                     {
                         return noUpdateResult;
                     }
-                    
+
                     return model;
                 }
                 catch (Exception ex)

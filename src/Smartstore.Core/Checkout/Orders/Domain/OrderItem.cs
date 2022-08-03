@@ -41,7 +41,7 @@ namespace Smartstore.Core.Checkout.Orders
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
         private OrderItem(ILazyLoader lazyLoader)
             : base(lazyLoader)
-        {            
+        {
         }
 
         /// <summary>
@@ -179,7 +179,7 @@ namespace Smartstore.Core.Checkout.Orders
         /// Gets or sets the product
         /// </summary>
         public Product Product
-        { 
+        {
             get => _product ?? LazyLoader.Load(this, ref _product);
             set => _product = value;
         }

@@ -64,10 +64,10 @@
         }
 
         public ImportMessage AddMessage(
-            string message, 
+            string message,
             ImportMessageType severity,
-            ImportRowInfo affectedRow = null, 
-            string affectedField = null, 
+            ImportRowInfo affectedRow = null,
+            string affectedField = null,
             string fullMessage = null)
         {
             var msg = new ImportMessage(message, severity)
@@ -81,19 +81,19 @@
             return msg;
         }
 
-        public bool HasWarnings => 
+        public bool HasWarnings =>
             Messages.Any(x => x.MessageType == ImportMessageType.Warning);
 
-        public int Warnings => 
+        public int Warnings =>
             Messages.Count(x => x.MessageType == ImportMessageType.Warning);
 
-        public bool HasErrors 
+        public bool HasErrors
             => Messages.Any(x => x.MessageType == ImportMessageType.Error);
 
-        public int Errors 
+        public int Errors
             => Messages.Count(x => x.MessageType == ImportMessageType.Error);
 
-        public string LastError 
+        public string LastError
             => Messages.LastOrDefault(x => x.MessageType == ImportMessageType.Error)?.Message;
 
         object ICloneable.Clone()

@@ -27,7 +27,7 @@ namespace Smartstore.Controllers
                 message = T("Admin.Common.UploadFile").Value;
                 return Json(new { fileName = file.FileName, message, returnUrl });
             }
-            
+
             try
             {
                 file = Request.Form.Files[0];

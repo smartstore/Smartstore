@@ -30,7 +30,7 @@ namespace Smartstore.Admin.Controllers
         private readonly EmailAccountSettings _emailAccountSettings;
         private readonly IMediaTracker _mediaTracker;
         private readonly IMessageModelProvider _messageModelProvider;
-        
+
         public MessageTemplateController(
             SmartDbContext db,
             IApplicationContext appContext,
@@ -240,8 +240,8 @@ namespace Smartstore.Admin.Controllers
                 await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, messageTemplate, form));
                 NotifySuccess(T("Admin.ContentManagement.MessageTemplates.Updated"));
 
-                return continueEditing 
-                    ? RedirectToAction(nameof(Edit), messageTemplate.Id) 
+                return continueEditing
+                    ? RedirectToAction(nameof(Edit), messageTemplate.Id)
                     : RedirectToAction(nameof(List));
             }
 
@@ -264,7 +264,7 @@ namespace Smartstore.Admin.Controllers
             _db.MessageTemplates.Remove(messageTemplate);
 
             await _db.SaveChangesAsync();
-            
+
             NotifySuccess(T("Admin.ContentManagement.MessageTemplates.Deleted"));
             return RedirectToAction(nameof(List));
         }
@@ -431,7 +431,7 @@ namespace Smartstore.Admin.Controllers
             {
                 return NotFound();
             }
-            
+
             try
             {
                 _messageTemplateService.SaveTemplate(template, Services.WorkContext.WorkingLanguage.LanguageCulture);

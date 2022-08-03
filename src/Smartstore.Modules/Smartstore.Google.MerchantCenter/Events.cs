@@ -73,7 +73,7 @@ namespace Smartstore.Google.MerchantCenter
             {
                 _db.GoogleProducts().Add(entity);
             }
-            
+
             await _db.SaveChangesAsync();
         }
     }

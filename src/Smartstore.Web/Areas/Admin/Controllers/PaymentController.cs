@@ -56,7 +56,7 @@ namespace Smartstore.Admin.Controllers
             {
                 var model = _moduleManager.ToProviderModel<IPaymentMethod, PaymentMethodModel>(provider);
                 var instance = provider.Value;
-                
+
                 model.IsActive = provider.IsPaymentMethodActive(_paymentSettings);
                 model.SupportCapture = instance.SupportCapture;
                 model.SupportPartiallyRefund = instance.SupportPartiallyRefund;
@@ -103,7 +103,7 @@ namespace Smartstore.Admin.Controllers
         {
             var provider = _providerManager.GetProvider<IPaymentMethod>(systemName);
             var paymentMethod = await _db.PaymentMethods.FirstOrDefaultAsync(x => x.PaymentMethodSystemName == systemName);
-            
+
             var model = new PaymentMethodEditModel();
             var providerModel = _moduleManager.ToProviderModel<IPaymentMethod, ProviderModel>(provider, true);
             var pageTitle = providerModel.FriendlyName;
@@ -192,8 +192,8 @@ namespace Smartstore.Admin.Controllers
             await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, paymentMethod, form));
             NotifySuccess(T("Admin.Common.DataEditSuccess"));
 
-            return continueEditing 
-                ? RedirectToAction(nameof(Edit), new { systemName }) 
+            return continueEditing
+                ? RedirectToAction(nameof(Edit), new { systemName })
                 : RedirectToAction(nameof(Providers));
         }
     }

@@ -53,8 +53,8 @@ namespace Smartstore.Core.Content.Media
         }
 
         public async Task Invoke(
-            HttpContext context, 
-            Lazy<IMediaService> mediaService, 
+            HttpContext context,
+            Lazy<IMediaService> mediaService,
             Lazy<IMediaUrlGenerator> mediaUrlGenerator)
         {
             if (!TryMatchRoute(context.Request.Path, out var routeValues))
@@ -72,7 +72,7 @@ namespace Smartstore.Core.Content.Media
                 await context.Response.WriteAsync("404: Not Found");
                 return;
             }
-            
+
             var mediaFileId = routeValues["id"].Convert<int?>();
 
             MediaFileInfo mediaFile;
@@ -86,7 +86,7 @@ namespace Smartstore.Core.Content.Media
             {
                 // Redirect legacy URL "/{tenant?}/uploaded/some/file.png" to "/file/1234/some/file.png"
                 mediaFile = await mediaService.Value.GetFileByPathAsync(
-                    SystemAlbumProvider.Files + "/" + path, 
+                    SystemAlbumProvider.Files + "/" + path,
                     MediaLoadFlags.AsNoTracking);
             }
 
@@ -98,13 +98,13 @@ namespace Smartstore.Core.Content.Media
                 context.Response.ContentType = mediaFile?.MimeType ?? "text/html";
                 context.Response.StatusCode = 404;
                 await context.Response.WriteAsync("404: Not Found");
-            } 
+            }
             else
             {
                 // Redirect to new location
                 context.Response.StatusCode = context.Connection.IsLocal() ? 302 : 301;
                 context.Response.Headers[HeaderNames.Location] = path;
-            } 
+            }
         }
     }
 }

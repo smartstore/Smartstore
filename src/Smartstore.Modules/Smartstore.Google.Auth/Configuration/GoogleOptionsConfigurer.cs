@@ -37,7 +37,7 @@ namespace Smartstore.Google
             var settings = _appContext.Services.Resolve<GoogleExternalAuthSettings>();
             options.ClientId = settings.ConsumerKey;
             options.ClientSecret = settings.ConsumerSecret;
-        
+
             options.Events = new OAuthEvents
             {
                 OnRemoteFailure = context =>
@@ -50,7 +50,7 @@ namespace Smartstore.Google
             };
         }
 
-        public void Configure(GoogleOptions options) 
+        public void Configure(GoogleOptions options)
             => Debug.Fail("This infrastructure method shouldn't be called.");
     }
 }

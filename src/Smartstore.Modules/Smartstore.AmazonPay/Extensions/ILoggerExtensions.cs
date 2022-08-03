@@ -11,9 +11,9 @@ namespace Smartstore.AmazonPay
             LogLevel logLevel = LogLevel.Warning)
         {
             logger.Log(
-                logLevel, 
-                new Exception(response.GetFullMessage()), 
-                message ?? response.GetShortMessage(), 
+                logLevel,
+                new Exception(response.GetFullMessage()),
+                message ?? response.GetShortMessage(),
                 null);
         }
     }

@@ -38,7 +38,7 @@ namespace Smartstore.Core.Content.Menus
                 using (Services.Chronometer.Step($"Build menu '{Name}'"))
                 {
                     var root = await BuildAsync(o);
-                    
+
                     MenuPublisher.RegisterMenus(root, Name);
 
                     if (ApplyPermissions)

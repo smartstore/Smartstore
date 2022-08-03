@@ -21,7 +21,7 @@ namespace Smartstore.Admin.Models.Cart
     {
         [LocalizedDisplay("*Customer")]
         public int CustomerId { get; set; }
-        
+
         [LocalizedDisplay("*Customer")]
         public string CustomerEmail { get; set; }
 

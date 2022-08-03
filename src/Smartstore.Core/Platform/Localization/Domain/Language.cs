@@ -34,7 +34,7 @@ namespace Smartstore.Core.Localization
         }
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
-        private Language(ILazyLoader lazyLoader) 
+        private Language(ILazyLoader lazyLoader)
             : base(lazyLoader)
         {
         }
@@ -105,7 +105,7 @@ namespace Smartstore.Core.Localization
             {
                 return new CultureInfo(LanguageCulture).TwoLetterISOLanguageName;
             }
-            catch 
+            catch
             {
                 return null;
             }

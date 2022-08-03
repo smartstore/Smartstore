@@ -264,7 +264,7 @@ namespace Smartstore.Core.Messaging
 
             product.MergeWithCombination(attributeCombination);
 
-            var downloadUrl = downloadService.IsDownloadAllowed(part) 
+            var downloadUrl = downloadService.IsDownloadAllowed(part)
                 ? _helper.BuildActionUrl("GetDownload", "Download", new { id = part.OrderItemGuid, area = string.Empty }, messageContext)
                 : null;
 

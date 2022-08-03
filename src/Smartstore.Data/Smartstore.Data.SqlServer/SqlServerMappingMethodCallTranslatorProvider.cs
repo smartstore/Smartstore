@@ -18,7 +18,7 @@ namespace Smartstore.Data.SqlServer
         private static readonly FieldInfo _translatorsField = typeof(RelationalMethodCallTranslatorProvider)
             .GetField("_translators", BindingFlags.NonPublic | BindingFlags.Instance);
 
-        public SqlServerMappingMethodCallTranslatorProvider(RelationalMethodCallTranslatorProviderDependencies dependencies) 
+        public SqlServerMappingMethodCallTranslatorProvider(RelationalMethodCallTranslatorProviderDependencies dependencies)
             : base(dependencies)
         {
         }
@@ -38,7 +38,7 @@ namespace Smartstore.Data.SqlServer
                     method = mappedFunction.Method;
                 }
             }
-            
+
             return base.Translate(model, instance, method, arguments, logger);
         }
 

@@ -24,7 +24,7 @@ namespace Smartstore.Core.Common.Tasks
             _currencySettings = currencySettings;
         }
 
-		public async Task Run(TaskExecutionContext ctx, CancellationToken cancelToken = default)
+        public async Task Run(TaskExecutionContext ctx, CancellationToken cancelToken = default)
         {
             if (!_currencySettings.AutoUpdateEnabled)
             {

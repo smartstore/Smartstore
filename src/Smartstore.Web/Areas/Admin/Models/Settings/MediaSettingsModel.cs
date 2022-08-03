@@ -26,7 +26,7 @@ namespace Smartstore.Admin.Models
 
         [LocalizedDisplay("*StorageProvider")]
         public string StorageProvider { get; set; }
-        
+
         #region Thumbnail sizes
 
         [LocalizedDisplay("*AvatarPictureSize")]

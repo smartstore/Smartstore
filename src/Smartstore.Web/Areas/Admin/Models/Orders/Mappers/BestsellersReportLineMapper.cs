@@ -9,7 +9,7 @@ namespace Smartstore.Admin.Models.Orders
 {
     internal static partial class BestsellersReportLineMappingExtensions
     {
-        public static async Task<IList<BestsellersReportLineModel>> MapAsync(this IEnumerable<BestsellersReportLine> lines, 
+        public static async Task<IList<BestsellersReportLineModel>> MapAsync(this IEnumerable<BestsellersReportLine> lines,
             ICommonServices services,
             bool includeFiles = false)
         {
@@ -84,7 +84,7 @@ namespace Smartstore.Admin.Models.Orders
         private readonly MediaSettings _mediaSettings;
 
         public BestsellersReportLineMapper(
-            SmartDbContext db, 
+            SmartDbContext db,
             ICommonServices services,
             MediaSettings mediaSettings)
         {

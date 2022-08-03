@@ -15,7 +15,7 @@ namespace Smartstore.Web.Tests.Common.Controllers
         [OneTimeSetUp]
         public void SetUp()
         {
-            _form = new FormCollection(new Dictionary<string, StringValues>(StringComparer.OrdinalIgnoreCase) 
+            _form = new FormCollection(new Dictionary<string, StringValues>(StringComparer.OrdinalIgnoreCase)
             {
                 ["Submit.First"] = "val",
                 ["Submit.Second"] = "val",

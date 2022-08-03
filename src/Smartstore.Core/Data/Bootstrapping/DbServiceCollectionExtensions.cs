@@ -9,7 +9,7 @@ namespace Smartstore.Core.Bootstrapping
     internal class DataSettingsConnectionStringReader : IConnectionStringReader
     {
         public int Priority => 0;
-        public string GetConnectionString(string connectionStringOrName) 
+        public string GetConnectionString(string connectionStringOrName)
             => DataSettings.Instance.ConnectionString;
     }
 
@@ -27,7 +27,7 @@ namespace Smartstore.Core.Bootstrapping
                 .AddTransient<IDatabaseInitializer, DatabaseInitializer>()
                 .AddTransient(typeof(IMigrationTable<>), typeof(MigrationTable<>))
                 .AddTransient(typeof(DbMigrator<>))
-                .ConfigureRunner(builder => 
+                .ConfigureRunner(builder =>
                 {
                     builder
                         .AddSqlServer()

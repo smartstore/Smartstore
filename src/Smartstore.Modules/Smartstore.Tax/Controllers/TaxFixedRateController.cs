@@ -46,11 +46,11 @@ namespace Smartstore.Polls.Controllers
                 .LoadAsync();
 
             var taxRateModels = await taxRates.SelectAwait(async x => new FixedTaxRateModel
-                {
-                    TaxCategoryId = x.Id,
-                    TaxCategoryName = x.Name,
-                    Rate = await Services.Settings.GetSettingByKeyAsync<decimal>($"Tax.TaxProvider.FixedRate.TaxCategoryId{x.Id}")
-                })
+            {
+                TaxCategoryId = x.Id,
+                TaxCategoryName = x.Name,
+                Rate = await Services.Settings.GetSettingByKeyAsync<decimal>($"Tax.TaxProvider.FixedRate.TaxCategoryId{x.Id}")
+            })
                 .AsyncToList();
 
             var gridModel = new GridModel<FixedTaxRateModel>

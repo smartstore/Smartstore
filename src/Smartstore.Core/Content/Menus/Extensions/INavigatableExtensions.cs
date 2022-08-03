@@ -105,7 +105,7 @@ namespace Smartstore.Core.Content.Menus
         public static void ApplyTo(this RouteValueDictionary routeValues, INavigatable target, Action<INavigatable, string, string, RouteValueDictionary> callBack)
         {
             Guard.NotNull(target, nameof(target));
-            
+
             RouteValueDictionary values = new();
             GetActionParams(routeValues, out object actionName, out object controllerName, values);
             callBack(target, (string)actionName, (string)controllerName, values);
@@ -234,8 +234,8 @@ namespace Smartstore.Core.Content.Menus
                 //    }
                 //    else
                 //    {
-                        //str = urlHelper.GenerateUrl(null, null, null, routeValues, RouteTable.Routes, urlHelper.ActionContext, true);
-                        str = urlHelper.RouteUrl(null, routeValues);
+                //str = urlHelper.GenerateUrl(null, null, null, routeValues, RouteTable.Routes, urlHelper.ActionContext, true);
+                str = urlHelper.RouteUrl(null, routeValues);
                 //    }
                 //}
 

@@ -60,7 +60,7 @@ namespace Smartstore.Admin.Controllers
                 ? null
                 : dtHelper.ConvertToUtcTime(model.CreatedOnFrom.Value, dtHelper.CurrentTimeZone);
 
-            DateTime? createdTo = model.CreatedOnTo == null 
+            DateTime? createdTo = model.CreatedOnTo == null
                 ? null
                 : dtHelper.ConvertToUtcTime(model.CreatedOnTo.Value, dtHelper.CurrentTimeZone).AddDays(1);
 
@@ -202,17 +202,17 @@ namespace Smartstore.Admin.Controllers
                 await _db.SaveChangesAsync();
 
                 if (approvedChanged)
-                {                   
+                {
                     _productService.ApplyProductReviewTotals(productReview.Product);
                     _customerService.ApplyRewardPointsForProductReview(productReview.Customer, productReview.Product, productReview.IsApproved);
 
                     await _db.SaveChangesAsync();
-                }                
+                }
 
                 NotifySuccess(T("Admin.Catalog.ProductReviews.Updated"));
 
-                return continueEditing 
-                    ? RedirectToAction(nameof(Edit), productReview.Id) 
+                return continueEditing
+                    ? RedirectToAction(nameof(Edit), productReview.Id)
                     : RedirectToAction(nameof(List));
             }
 
@@ -236,7 +236,7 @@ namespace Smartstore.Admin.Controllers
         public async Task<IActionResult> DisapproveSelected(string selectedIds)
         {
             var numDisapproved = await UpdateApproved(selectedIds, false);
-            
+
             NotifySuccess(T("Admin.Catalog.ProductReviews.NumberDisapprovedReviews", numDisapproved));
 
             return RedirectToAction(nameof(List));

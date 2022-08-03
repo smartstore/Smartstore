@@ -11,7 +11,7 @@ namespace Smartstore.Admin.Models.Messages
         [LocalizedDisplay("Admin.ContentManagement.MessageTemplates.Fields.Name")]
         public string SearchName { get; set; }
 
-        [LocalizedDisplay("Admin.ContentManagement.MessageTemplates.Fields.Subject")] 
+        [LocalizedDisplay("Admin.ContentManagement.MessageTemplates.Fields.Subject")]
         public string SearchSubject { get; set; }
     }
 }

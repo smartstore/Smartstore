@@ -300,7 +300,7 @@ namespace Smartstore.Core.DataExchange.Export
             // Do not export combinations if a combination is exported as a product.
             if (productContext.Combinations != null && productContext.Combination == null)
             {
-                var pictureSize = ctx.Projection.PictureSize > 0 
+                var pictureSize = ctx.Projection.PictureSize > 0
                     ? _mediaSettings.GetNextValidThumbnailSize(ctx.Projection.PictureSize)
                     : _mediaSettings.ProductDetailsPictureSize;
 
@@ -409,7 +409,7 @@ namespace Smartstore.Core.DataExchange.Export
         private async Task<IEnumerable<ProductMediaFile>> ApplyMediaFiles(dynamic dynObject, Product product, DataExporterContext ctx, DynamicProductContext productContext)
         {
             IEnumerable<ProductMediaFile> mediaFiles = await ctx.ProductBatchContext.ProductMediaFiles.GetOrLoadAsync(product.Id);
-            var productPictureSize = ctx.Projection.PictureSize > 0 
+            var productPictureSize = ctx.Projection.PictureSize > 0
                 ? _mediaSettings.GetNextValidThumbnailSize(ctx.Projection.PictureSize)
                 : _mediaSettings.ProductDetailsPictureSize;
 
@@ -443,10 +443,10 @@ namespace Smartstore.Core.DataExchange.Export
         /// </summary>
         private async Task ApplyExportFeatures(
             dynamic dynObject,
-            Product product, 
+            Product product,
             CalculatedPrice price,
-            IEnumerable<ProductMediaFile> mediaFiles, 
-            DataExporterContext ctx, 
+            IEnumerable<ProductMediaFile> mediaFiles,
+            DataExporterContext ctx,
             DynamicProductContext productContext)
         {
             if (ctx.Supports(ExportFeatures.CanProjectDescription))
@@ -474,14 +474,14 @@ namespace Smartstore.Core.DataExchange.Export
 
             if (ctx.Supports(ExportFeatures.CanIncludeMainPicture))
             {
-                var imageQuery = ctx.Projection.PictureSize > 0 
-                    ? new ProcessImageQuery { MaxWidth = _mediaSettings.GetNextValidThumbnailSize(ctx.Projection.PictureSize) } 
+                var imageQuery = ctx.Projection.PictureSize > 0
+                    ? new ProcessImageQuery { MaxWidth = _mediaSettings.GetNextValidThumbnailSize(ctx.Projection.PictureSize) }
                     : null;
 
                 if (mediaFiles?.Any() ?? false)
                 {
                     var file = _mediaService.ConvertMediaFile(mediaFiles.Select(x => x.MediaFile).First());
-                    
+
                     dynObject._MainPictureUrl = _mediaService.GetUrl(file, imageQuery, ctx.Store.GetHost());
                     dynObject._MainPictureRelativeUrl = _mediaService.GetUrl(file, imageQuery);
                 }
@@ -662,8 +662,8 @@ namespace Smartstore.Core.DataExchange.Export
 
                 dynObject.FullDescription = description.TrimSafe();
             }
-            catch 
-            { 
+            catch
+            {
             }
         }
     }

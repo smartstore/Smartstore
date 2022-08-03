@@ -36,7 +36,7 @@ namespace Smartstore.Core.Common.Services
             entity.CreatedOnUtc = DateTime.UtcNow;
             return Task.FromResult(FixAddress(entity));
         }
-    
+
         protected override Task<HookResult> OnUpdatingAsync(Address entity, IHookedEntity entry, CancellationToken cancelToken)
         {
             return Task.FromResult(FixAddress(entity));
@@ -68,23 +68,23 @@ namespace Smartstore.Core.Common.Services
             if (!address.Email.HasValue())
                 return false;
 
-            if (_addressSettings.CompanyEnabled && 
-                _addressSettings.CompanyRequired && 
+            if (_addressSettings.CompanyEnabled &&
+                _addressSettings.CompanyRequired &&
                 !address.Company.HasValue())
                 return false;
 
-            if (_addressSettings.StreetAddressEnabled && 
-                _addressSettings.StreetAddressRequired && 
+            if (_addressSettings.StreetAddressEnabled &&
+                _addressSettings.StreetAddressRequired &&
                 !address.Address1.HasValue())
                 return false;
 
-            if (_addressSettings.StreetAddress2Enabled && 
-                _addressSettings.StreetAddress2Required && 
+            if (_addressSettings.StreetAddress2Enabled &&
+                _addressSettings.StreetAddress2Required &&
                 !address.Address2.HasValue())
                 return false;
 
-            if (_addressSettings.ZipPostalCodeEnabled && 
-                _addressSettings.ZipPostalCodeRequired && 
+            if (_addressSettings.ZipPostalCodeEnabled &&
+                _addressSettings.ZipPostalCodeRequired &&
                 !address.ZipPostalCode.HasValue())
                 return false;
 
@@ -103,7 +103,7 @@ namespace Smartstore.Core.Common.Services
                 if (_addressSettings.StateProvinceEnabled)
                 {
                     var hasStates = country.StateProvinces.Any();
-                        
+
                     if (hasStates)
                     {
                         if (address.StateProvinceId == null || address.StateProvinceId.Value == 0)
@@ -116,18 +116,18 @@ namespace Smartstore.Core.Common.Services
                 }
             }
 
-            if (_addressSettings.CityEnabled && 
-                _addressSettings.CityRequired && 
+            if (_addressSettings.CityEnabled &&
+                _addressSettings.CityRequired &&
                 !address.City.HasValue())
                 return false;
 
-            if (_addressSettings.PhoneEnabled && 
-                _addressSettings.PhoneRequired && 
+            if (_addressSettings.PhoneEnabled &&
+                _addressSettings.PhoneRequired &&
                 !address.PhoneNumber.HasValue())
                 return false;
 
-            if (_addressSettings.FaxEnabled && 
-                _addressSettings.FaxRequired && 
+            if (_addressSettings.FaxEnabled &&
+                _addressSettings.FaxRequired &&
                 address.FaxNumber.HasValue())
                 return false;
 

@@ -10,7 +10,7 @@ namespace Smartstore.Facebook
     internal sealed class FacebookOptionsConfigurer : IConfigureOptions<AuthenticationOptions>, IConfigureNamedOptions<FacebookOptions>
     {
         private readonly IApplicationContext _appContext;
-        
+
         public FacebookOptionsConfigurer(IApplicationContext appContext)
         {
             _appContext = appContext;
@@ -50,7 +50,7 @@ namespace Smartstore.Facebook
             };
         }
 
-        public void Configure(FacebookOptions options) 
+        public void Configure(FacebookOptions options)
             => Debug.Fail("This infrastructure method shouldn't be called.");
     }
 }

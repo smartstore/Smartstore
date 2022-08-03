@@ -59,10 +59,10 @@ namespace Smartstore.Web.Models.Cart
 
         public partial class CheckoutAttributeModel : ChoiceModel
         {
-            public override string BuildControlId() 
+            public override string BuildControlId()
                 => CheckoutAttributeQueryItem.CreateKey(Id);
 
-            public override string GetFileUploadUrl(IUrlHelper url) 
+            public override string GetFileUploadUrl(IUrlHelper url)
                 => url.Action("UploadFileCheckoutAttribute", "ShoppingCart", new { controlId = BuildControlId() });
         }
 

@@ -31,7 +31,7 @@ namespace Smartstore.Admin.Controllers
         private readonly Lazy<ITaskStore> _taskStore;
         private readonly Lazy<ITaskScheduler> _taskScheduler;
         private readonly CustomerSettings _customerSettings;
-        
+
         public CustomerRoleController(
             SmartDbContext db,
             RoleManager<CustomerRole> roleManager,
@@ -60,7 +60,7 @@ namespace Smartstore.Admin.Controllers
         public async Task<IActionResult> AllCustomerRoles(string label, string selectedIds, bool? includeSystemRoles)
         {
             var query = _roleManager.Roles.AsNoTracking();
-            
+
             if (!(includeSystemRoles ?? true))
             {
                 query = query.Where(x => !x.IsSystemRole);
@@ -155,7 +155,7 @@ namespace Smartstore.Admin.Controllers
         {
             if (ModelState.IsValid)
             {
-                var role = MiniMapper.Map<CustomerRoleModel, CustomerRole>(model);   
+                var role = MiniMapper.Map<CustomerRoleModel, CustomerRole>(model);
                 var result = await _roleManager.CreateAsync(role);
 
                 if (result.Succeeded)

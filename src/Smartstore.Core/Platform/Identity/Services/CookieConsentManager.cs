@@ -22,7 +22,7 @@ namespace Smartstore.Core.Identity
         public CookieConsentManager(
             IHttpContextAccessor httpContextAccessor,
             IWebHelper webHelper,
-            ITypeScanner typeScanner, 
+            ITypeScanner typeScanner,
             PrivacySettings privacySettings,
             IComponentContext componentContext)
         {
@@ -76,8 +76,8 @@ namespace Smartstore.Core.Identity
                 {
                     var cookieData = JsonConvert.DeserializeObject<ConsentCookie>(value);
 
-                    if ((cookieData.AllowAnalytics && cookieType == CookieType.Analytics) || 
-                        (cookieData.AllowThirdParty && cookieType == CookieType.ThirdParty) || 
+                    if ((cookieData.AllowAnalytics && cookieType == CookieType.Analytics) ||
+                        (cookieData.AllowThirdParty && cookieType == CookieType.ThirdParty) ||
                         cookieType == CookieType.Required)
                     {
                         return true;
@@ -115,8 +115,8 @@ namespace Smartstore.Core.Identity
 
                         return cookieData;
                     }
-                    catch 
-                    { 
+                    catch
+                    {
                     }
                 }
             }
@@ -165,14 +165,14 @@ namespace Smartstore.Core.Identity
             }
 
             var cookiePublishers = _cookiePublisherTypes
-                .Select(type => 
+                .Select(type =>
                 {
                     if (typeof(ModuleBase).IsAssignableFrom(type) && _componentContext.TryResolve(type, out var module))
                     {
                         return (ICookiePublisher)module;
                     }
 
-                    return _componentContext.ResolveUnregistered(type) as ICookiePublisher; 
+                    return _componentContext.ResolveUnregistered(type) as ICookiePublisher;
                 })
                 .ToArray();
 

@@ -13,7 +13,7 @@
         /// </summary>
         /// <param name="attributeId">Checkout attribute identifier.</param>
         /// <returns>Key.</returns>
-        public static string CreateKey(int attributeId) 
+        public static string CreateKey(int attributeId)
             => $"cattr{attributeId}";
 
         /// <summary>

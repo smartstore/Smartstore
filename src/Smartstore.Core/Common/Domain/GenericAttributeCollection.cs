@@ -27,10 +27,10 @@ namespace Smartstore.Core.Common
         protected internal override IQueryable<GenericAttribute> Query => _innerCollection.Query;
         protected internal override Multimap<string, GenericAttribute> Map => _innerCollection.Map;
         protected internal override SmartDbContext DbContext => _innerCollection.DbContext;
-        protected internal override List<GenericAttribute> Entities 
-        { 
-            get => _innerCollection.Entities; 
-            set => _innerCollection.Entities = value; 
+        protected internal override List<GenericAttribute> Entities
+        {
+            get => _innerCollection.Entities;
+            set => _innerCollection.Entities = value;
         }
     }
 
@@ -41,9 +41,9 @@ namespace Smartstore.Core.Common
         }
 
         internal GenericAttributeCollection(
-            IQueryable<GenericAttribute> query, 
-            string entityName, 
-            int entityId, 
+            IQueryable<GenericAttribute> query,
+            string entityName,
+            int entityId,
             int currentStoreId,
             List<GenericAttribute> entities = null)
         {

@@ -13,7 +13,7 @@ namespace Smartstore.Core.Messaging
         private readonly IMailService _mailService;
         private readonly IMediaService _mediaService;
         internal readonly EmailAccountSettings _emailAccountSettings;
-        
+
         private bool? _shouldSaveToDisk = false;
 
         public QueuedEmailService(
@@ -46,7 +46,7 @@ namespace Smartstore.Core.Messaging
             foreach (var group in groupedQueuedEmails)
             {
                 var account = group.FirstOrDefault().EmailAccount;
-                
+
                 if (cancelToken.IsCancellationRequested)
                     break;
 

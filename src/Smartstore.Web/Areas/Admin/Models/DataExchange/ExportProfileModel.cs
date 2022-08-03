@@ -53,7 +53,7 @@ namespace Smartstore.Admin.Models.Export
         public bool PerStore { get; set; }
 
         [LocalizedDisplay("*EmailAccountId")]
-        public int? EmailAccountId { get; set; }        
+        public int? EmailAccountId { get; set; }
 
         [LocalizedDisplay("*CompletedEmailAddresses")]
         public string[] CompletedEmailAddresses { get; set; }

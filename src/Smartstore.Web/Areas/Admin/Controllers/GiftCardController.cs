@@ -22,7 +22,7 @@ namespace Smartstore.Admin.Controllers
         private readonly Currency _primaryCurrency;
 
         public GiftCardController(
-            SmartDbContext db, 
+            SmartDbContext db,
             IGiftCardService giftCardService,
             ILanguageService languageService,
             ICurrencyService currencyService,
@@ -149,8 +149,8 @@ namespace Smartstore.Admin.Controllers
                 Services.ActivityLogger.LogActivity(KnownActivityLogTypes.AddNewGiftCard, T("ActivityLog.AddNewGiftCard"), giftCard.GiftCardCouponCode);
                 NotifySuccess(T("Admin.GiftCards.Added"));
 
-                return continueEditing 
-                    ? RedirectToAction(nameof(Edit), new { id = giftCard.Id }) 
+                return continueEditing
+                    ? RedirectToAction(nameof(Edit), new { id = giftCard.Id })
                     : RedirectToAction(nameof(List));
             }
 
@@ -205,8 +205,8 @@ namespace Smartstore.Admin.Controllers
                 Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditGiftCard, T("ActivityLog.EditGiftCard"), giftCard.GiftCardCouponCode);
                 NotifySuccess(T("Admin.GiftCards.Updated"));
 
-                return continueEditing 
-                    ? RedirectToAction(nameof(Edit), giftCard.Id) 
+                return continueEditing
+                    ? RedirectToAction(nameof(Edit), giftCard.Id)
                     : RedirectToAction(nameof(List));
             }
 

@@ -17,7 +17,7 @@ namespace Smartstore.Core.Catalog.Attributes
         protected override Task<HookResult> OnDeletingAsync(ProductVariantAttribute entity, IHookedEntity entry, CancellationToken cancelToken)
         {
             _deletedAttributeValueIds.AddRange(entity.ProductVariantAttributeValues.Select(x => x.Id));
-            
+
             return Task.FromResult(HookResult.Ok);
         }
 

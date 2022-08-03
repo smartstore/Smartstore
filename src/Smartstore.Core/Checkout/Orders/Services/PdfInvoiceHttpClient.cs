@@ -11,7 +11,7 @@ namespace Smartstore.Core.Checkout.Orders
         public string MimeType { get; init; }
         public string FileName { get; init; }
     }
-    
+
     public class PdfInvoiceHttpClient
     {
         private readonly HttpClient _httpClient;
@@ -40,7 +40,7 @@ namespace Smartstore.Core.Checkout.Orders
             if (response.IsSuccessStatusCode)
             {
                 string fileName = null;
-                
+
                 var contentDisposition = response.Content.Headers.ContentDisposition;
                 if (contentDisposition != null)
                 {

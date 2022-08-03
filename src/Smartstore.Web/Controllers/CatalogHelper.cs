@@ -66,7 +66,7 @@ namespace Smartstore.Web.Controllers
         private readonly IUrlService _urlService;
         private readonly ILinkResolver _linkResolver;
         private readonly ContactDataSettings _contactDataSettings;
-        private readonly IProductTagService _productTagService;        
+        private readonly IProductTagService _productTagService;
 
         public CatalogHelper(
             SmartDbContext db,
@@ -159,7 +159,7 @@ namespace Smartstore.Web.Controllers
             };
 
             model.MetaProperties = await model.MapMetaPropertiesAsync();
-            
+
             return model;
         }
 
@@ -227,7 +227,7 @@ namespace Smartstore.Web.Controllers
                 else if (brand.MediaFileId.HasValue)
                 {
                     file = await _mediaService.GetFileByIdAsync(brand.MediaFileId.Value, MediaLoadFlags.AsNoTracking);
-                }          
+                }
             }
 
             var model = new ImageModel
@@ -647,7 +647,7 @@ namespace Smartstore.Web.Controllers
                         {
                             bundledProductModel.Name = bundleItemName;
                         }
-                                
+
                         var bundleItemShortDescription = bundleItem.GetLocalized(x => x.ShortDescription);
                         if (bundleItemShortDescription.Value.HasValue())
                         {
@@ -681,7 +681,7 @@ namespace Smartstore.Web.Controllers
                     var brands = _db.IsCollectionLoaded(product, x => x.ProductManufacturers)
                         ? product.ProductManufacturers
                         : await batchContext.ProductManufacturers.GetOrLoadAsync(product.Id);
-                    
+
                     model.Brands = await PrepareBrandOverviewModelAsync(brands, null, true);
                 }
 
@@ -1067,7 +1067,7 @@ namespace Smartstore.Web.Controllers
                     {
                         var file = linkedMediaFiles.ContainsKey(value.LinkedProductId)
                             ? linkedMediaFiles[value.LinkedProductId].FirstOrDefault()?.MediaFile
-                            : null;                        
+                            : null;
                         if (file != null)
                         {
                             valueModel.ImageUrl = _mediaService.GetUrl(file, _mediaSettings.VariantValueThumbPictureSize, null, false);
@@ -1131,13 +1131,13 @@ namespace Smartstore.Web.Controllers
             if (query.Variants.Any() || query.VariantCombinationId != 0)
             {
                 // Apply attribute combination if any.
-                await PrepareProductAttributeCombinationsModelAsync(model, modelContext);               
+                await PrepareProductAttributeCombinationsModelAsync(model, modelContext);
             }
             else
             {
                 // Apply weight adjustment of preselected attributes.
                 model.WeightValue += preselectedWeightAdjustment;
-            }            
+            }
         }
 
         protected async Task PrepareProductAttributeCombinationsModelAsync(ProductDetailsModel model, ProductDetailsModelContext modelContext)
@@ -1807,7 +1807,7 @@ namespace Smartstore.Web.Controllers
             return await _services.CacheFactory.GetMemoryCache().GetAsync(cacheKey, async () =>
             {
                 List<ProductSpecificationAttribute> attrs;
-                
+
                 if (_db.IsCollectionLoaded(product, x => x.ProductSpecificationAttributes))
                 {
                     attrs = product.ProductSpecificationAttributes
@@ -1859,7 +1859,7 @@ namespace Smartstore.Web.Controllers
                 AssociatedProducts = modelContext.AssociatedProducts,
                 BundleItem = modelContext.ProductBundleItem
             };
-            
+
             calculationContext.AddSelectedAttributes(modelContext.SelectedAttributes, product.Id, modelContext.ProductBundleItem?.Id);
 
             var model = await tierPrices
@@ -1916,9 +1916,9 @@ namespace Smartstore.Web.Controllers
                 {
                     query = query.Take(take.Value);
                 }
-                
-                var reviews = collectionLoaded 
-                    ? product.ProductReviews.Take(take ?? int.MaxValue).ToList() 
+
+                var reviews = collectionLoaded
+                    ? product.ProductReviews.Take(take ?? int.MaxValue).ToList()
                     : await query.Include(x => x.Customer).ToListAsync();
 
                 foreach (var review in reviews)

@@ -343,7 +343,7 @@ namespace Smartstore.Core.DataExchange.Export
                 ctx.ProductTemplates = await _db.ProductTemplates.AsNoTracking().ToDictionaryAsync(x => x.Id, x => x.ViewPath, ct);
                 ctx.CategoryTemplates = await _db.CategoryTemplates.AsNoTracking().ToDictionaryAsync(x => x.Id, x => x.ViewPath, ct);
 
-                if (provider.EntityType == ExportEntityType.Product || 
+                if (provider.EntityType == ExportEntityType.Product ||
                     provider.EntityType == ExportEntityType.Order ||
                     provider.EntityType == ExportEntityType.Customer)
                 {
@@ -451,7 +451,7 @@ namespace Smartstore.Core.DataExchange.Export
                 {
                     context.FileIndex += 1;
                     context.FileName = profile.ResolveFileNamePattern(ctx.Store, context.FileIndex, context.MaxFileNameLength) + fileExtension;
-                    file = await dir.GetFileAsync(context.FileName); 
+                    file = await dir.GetFileAsync(context.FileName);
 
                     if (profile.ExportRelatedData && ctx.Supports(ExportFeatures.UsesRelatedDataUnits))
                     {
@@ -583,7 +583,7 @@ namespace Smartstore.Core.DataExchange.Export
             DetachAllEntitiesAndClear(ctx);
 
             List<Product> productEntities = null;
-            var entityType = ctx.Request.Provider.Value.EntityType;           
+            var entityType = ctx.Request.Provider.Value.EntityType;
 
             if (ctx.LastId >= ctx.ShopMetadata[ctx.Store.Id].MaxId)
             {
@@ -662,7 +662,7 @@ namespace Smartstore.Core.DataExchange.Export
             }
 
             ctx.LastId = entities.Last().Id;
-            await SetProgress (entities.Count, ctx);
+            await SetProgress(entities.Count, ctx);
 
             return productEntities?.Cast<TEntity>() ?? entities.Cast<TEntity>();
         }
@@ -1013,8 +1013,8 @@ namespace Smartstore.Core.DataExchange.Export
 
                 if (ctx.ProductBatchContext != null)
                 {
-                    Detach(x => x is Product || x is Discount || x is ProductVariantAttributeCombination || x is ProductVariantAttribute || x is ProductVariantAttributeValue || 
-                        x is ProductAttribute || x is ProductBundleItem || x is ProductBundleItemAttributeFilter || x is ProductCategory || x is ProductManufacturer || 
+                    Detach(x => x is Product || x is Discount || x is ProductVariantAttributeCombination || x is ProductVariantAttribute || x is ProductVariantAttributeValue ||
+                        x is ProductAttribute || x is ProductBundleItem || x is ProductBundleItemAttributeFilter || x is ProductCategory || x is ProductManufacturer ||
                         x is Category || x is Manufacturer || x is ProductMediaFile || x is ProductTag || x is ProductSpecificationAttribute || x is SpecificationAttributeOption ||
                         x is SpecificationAttribute || x is TierPrice || x is ProductReview || x is ProductReviewHelpfulness || x is DeliveryTime || x is QuantityUnit || x is Download ||
                         x is MediaFile || x is MediaStorage || x is GenericAttribute || x is UrlRecord);
@@ -1371,13 +1371,13 @@ namespace Smartstore.Core.DataExchange.Export
                 {
                     LastExecutionUtc = DateTime.UtcNow
                 };
-                
+
                 try
                 {
                     switch (deployment.DeploymentType)
                     {
                         case ExportDeploymentType.Email:
-                            publisher = new EmailFilePublisher(_db, 
+                            publisher = new EmailFilePublisher(_db,
                                 (DatabaseMediaStorageProvider)_providerManager.GetProvider<IMediaStorageProvider>(DatabaseMediaStorageProvider.SystemName).Value);
                             break;
                         case ExportDeploymentType.FileSystem:
@@ -1648,8 +1648,8 @@ namespace Smartstore.Core.DataExchange.Export
                 var uri = new Uri(ctx.Store.Url);
                 sb.AppendLine($"Store: {uri.DnsSafeHost.NaIfEmpty()} (ID {ctx.Store.Id})");
             }
-            catch 
-            { 
+            catch
+            {
             }
 
             sb.Append("Executed by: " + (executingCustomer.Email.HasValue() ? executingCustomer.Email : executingCustomer.SystemName));

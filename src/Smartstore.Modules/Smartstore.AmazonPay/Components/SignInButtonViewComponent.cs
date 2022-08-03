@@ -31,7 +31,7 @@ namespace Smartstore.AmazonPay.Components
             }
 
             var model = new AmazonPayButtonModel(
-                _settings, 
+                _settings,
                 "SignIn",
                 currencyCode,
                 Services.WorkContext.WorkingLanguage.UniqueSeoCode);

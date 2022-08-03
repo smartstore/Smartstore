@@ -6,20 +6,20 @@
     /// </summary>
     public class OrdersAuthorizeRequest : PayPalRequest<object>
     {
-        public OrdersAuthorizeRequest(string captureId) 
+        public OrdersAuthorizeRequest(string captureId)
             : base("/v2/checkout/orders/{0}/authorize?", HttpMethod.Post)
         {
             try
             {
                 Path = Path.FormatInvariant(Uri.EscapeDataString(captureId));
             }
-            catch (IOException) 
-            { 
+            catch (IOException)
+            {
             }
 
             ContentType = "application/json";
         }
-        
+
         public OrdersAuthorizeRequest WithClientMetadataId(string payPalClientMetadataId)
         {
             Headers.Add("PayPal-Client-Metadata-Id", payPalClientMetadataId);

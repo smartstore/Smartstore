@@ -1,8 +1,6 @@
 using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Xml.Linq;
-
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Smartstore.Collections;
 using Smartstore.Core.Configuration;
@@ -194,7 +192,7 @@ namespace Smartstore.Core.Seo
         private bool TryGetSitemapFile(int storeId, int languageId, int index, out IFile file)
         {
             var path = BuildSitemapFilePath(storeId, languageId, index);
-            
+
             file = _tenantRoot.GetFile(path);
 
             return file.Exists;

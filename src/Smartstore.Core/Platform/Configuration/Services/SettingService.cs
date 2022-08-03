@@ -141,7 +141,7 @@ namespace Smartstore.Core.Configuration
             {
                 o.ExpiresIn(DefaultExpiry);
 
-                var setting = async 
+                var setting = async
                     ? await _setSettings.AsNoTracking().FirstOrDefaultAsync(x => x.Name == key && x.StoreId == storeId)
                     : _setSettings.AsNoTracking().FirstOrDefault(x => x.Name == key && x.StoreId == storeId);
 

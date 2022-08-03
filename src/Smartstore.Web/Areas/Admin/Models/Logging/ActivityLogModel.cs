@@ -12,7 +12,7 @@ namespace Smartstore.Admin.Models.Logging
         [LocalizedDisplay("*Customer")]
         public string CustomerEmail { get; set; }
         public string CustomerEditUrl { get; set; }
-        
+
         [LocalizedDisplay("*Comment")]
         public string Comment { get; set; }
 

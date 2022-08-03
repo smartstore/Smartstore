@@ -265,7 +265,7 @@ namespace Smartstore.Core.OutputCache
                 _isUncacheableRequest = true;
         }
 
-        public bool IsUncacheableRequest 
+        public bool IsUncacheableRequest
             => _isUncacheableRequest.GetValueOrDefault() == true;
 
         public virtual Task<IEnumerable<string>> GetCacheControlTagsForAsync(BaseEntity entity)

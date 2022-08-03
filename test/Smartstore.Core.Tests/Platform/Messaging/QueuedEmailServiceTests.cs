@@ -38,13 +38,13 @@ namespace Smartstore.Core.Tests.Platform.Messaging
             var mediaStorageProvider = ProviderManager.GetProvider<IMediaStorageProvider>(DatabaseMediaStorageProvider.SystemName);
 
             _mediaServiceMock.Setup(x => x.StorageProvider).Returns(mediaStorageProvider.Value);
-            
+
             var mediaUrlGeneratorMock = new Mock<IMediaUrlGenerator>();
             _mediaUrlGenerator = mediaUrlGeneratorMock.Object;
 
             var mailServiceMock = new Mock<IMailService>();
             _mailService = mailServiceMock.Object;
-            
+
             _queuedEmailService = new QueuedEmailService(DbContext, _mailService, _mediaService, _emailAccountSettings);
         }
 
@@ -69,11 +69,11 @@ namespace Smartstore.Core.Tests.Platform.Messaging
             var pdfStream = asm.GetManifestResourceStream($"{asm.GetName().Name}.Platform.Messaging.Attachment.pdf");
             var pdfBinary = pdfStream.ToByteArray();
             pdfStream.Seek(0, SeekOrigin.Begin);
-            
+
             var path1 = "~/Attachment.pdf";
             var path2 = CommonHelper.MapPath(path1, false);
             Assert.IsTrue(await pdfStream.CopyToFileAsync(path2));
-            
+
             var attachBlob = new QueuedEmailAttachment
             {
                 StorageLocation = EmailAttachmentStorageLocation.Blob,
@@ -123,7 +123,7 @@ namespace Smartstore.Core.Tests.Platform.Messaging
             _mediaServiceMock.Setup(x => x.ConvertMediaFile(fileReferenceFile)).Returns(
                 new MediaFileInfo(fileReferenceFile, _mediaService, _mediaUrlGenerator, string.Empty));
 
-            using (var msg = _queuedEmailService.ConvertMail(qe)) 
+            using (var msg = _queuedEmailService.ConvertMail(qe))
             {
                 Assert.IsNotNull(msg);
                 Assert.IsNotNull(msg.To);

@@ -62,7 +62,7 @@ namespace Smartstore.Core.Data.Migrations
         public override TContext Context => _db;
 
         /// <inheritdoc/>
-        public override IMigrationTable<TContext> MigrationTable 
+        public override IMigrationTable<TContext> MigrationTable
             => (IMigrationTable<TContext>)base.MigrationTable;
 
         /// <inheritdoc/>
@@ -129,7 +129,7 @@ namespace Smartstore.Core.Data.Migrations
                 return 0;
             }
 
-            var migrations = 
+            var migrations =
                 from v in versions
                 let descriptor = MigrationTable.GetMigrationByVersion(v)
                 let instance = CreateMigration(descriptor.Type)
@@ -149,7 +149,7 @@ namespace Smartstore.Core.Data.Migrations
             _logger.Info($"Database migration successful: {_initialMigration?.Version.ToString() ?? "[Initial]"} >> {migrations.Last().Version}");
             return result;
         }
-        
+
         protected virtual async Task<int> MigrateUpAsync(IMigrationInfo[] migrations, CancellationToken cancelToken)
         {
             var isCoreMigration = _db is SmartDbContext;

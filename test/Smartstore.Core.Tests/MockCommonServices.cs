@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Reflection;
 using Autofac;
 using Microsoft.Extensions.Logging;
@@ -45,7 +44,7 @@ namespace Smartstore.Core.Tests
         private SmartDbContext _db;
         private IComponentContext _container;
 
-        public MockCommonServices(SmartDbContext db) 
+        public MockCommonServices(SmartDbContext db)
             : this(db, new Mock<IComponentContext>().Object)
         {
         }

@@ -128,8 +128,8 @@ namespace Smartstore.Admin.Controllers
 
             NotifySuccess(T("Admin.RecurringPayments.Updated"));
 
-            return continueEditing 
-                ? RedirectToAction(nameof(Edit), recurringPayment.Id) 
+            return continueEditing
+                ? RedirectToAction(nameof(Edit), recurringPayment.Id)
                 : RedirectToAction(nameof(List));
         }
 
@@ -318,7 +318,7 @@ namespace Smartstore.Admin.Controllers
         }
 
         private async Task PrepareRecurringPaymentHistoryModel(
-            RecurringPaymentModel.RecurringPaymentHistoryModel model, 
+            RecurringPaymentModel.RecurringPaymentHistoryModel model,
             RecurringPaymentHistory history,
             Order order)
         {

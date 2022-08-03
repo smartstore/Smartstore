@@ -38,7 +38,7 @@ namespace Smartstore
         /// <param name="keySelector">Key selector</param>
         /// <param name="storeId">Store ID</param>
         public static async Task<ApplySettingResult> ApplySettingAsync<T, TPropType>(this ISettingService service,
-            T settings, 
+            T settings,
             Expression<Func<T, TPropType>> keySelector,
             int storeId = 0)
             where T : ISettings, new()

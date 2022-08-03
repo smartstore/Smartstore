@@ -16,7 +16,7 @@ namespace Smartstore.Web.Models.Checkout
             int? selectedCountryId)
         {
             dynamic parameters = new ExpandoObject();
-            parameters.SelectedCountryId = selectedCountryId;            
+            parameters.SelectedCountryId = selectedCountryId;
             parameters.Shipping = shipping;
 
             await MapperFactory.MapAsync(entity, model, parameters);

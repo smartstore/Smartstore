@@ -20,7 +20,7 @@ namespace Smartstore.Admin.Controllers
         private readonly ICurrencyService _currencyService;
 
         public DiscountController(
-            SmartDbContext db, 
+            SmartDbContext db,
             IRuleService ruleService,
             ICurrencyService currencyService)
         {
@@ -42,7 +42,7 @@ namespace Smartstore.Admin.Controllers
                 .AsNoTracking()
                 .Where(x => x.DiscountTypeId == (int)type)
                 .ToListAsync();
-                
+
             var selectedArr = selectedIds.ToIntArray();
 
             if (label.HasValue())

@@ -142,7 +142,7 @@ namespace Smartstore.Core.Checkout.Tax
                 {
                     Exception = ex
                 };
-            }                
+            }
         }
 
         public virtual async Task<bool> IsTaxExemptAsync(Product product, Customer customer)

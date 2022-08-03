@@ -89,14 +89,14 @@ namespace Smartstore.Web.Models.Identity
 
         [LocalizedDisplay("*Country")]
         public int CountryId { get; set; }
-        
+
         public bool StateProvinceEnabled { get; set; }
 
         public bool StateProvinceRequired { get; set; }
 
         [LocalizedDisplay("*StateProvince")]
         public int? StateProvinceId { get; set; }
-        
+
         public bool PhoneEnabled { get; set; }
         public bool PhoneRequired { get; set; }
 
@@ -121,7 +121,7 @@ namespace Smartstore.Web.Models.Identity
         [LocalizedDisplay("*TimeZone")]
         public string TimeZoneId { get; set; }
         public bool AllowCustomersToSetTimeZone { get; set; }
-        
+
         // EU VAT.
         [LocalizedDisplay("*VatNumber")]
         public string VatNumber { get; set; }

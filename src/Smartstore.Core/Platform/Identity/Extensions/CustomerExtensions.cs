@@ -222,35 +222,35 @@ namespace Smartstore
                     result = customer.FirstName;
                     break;
                 case CustomerNameFormat.ShowNameAndCity:
+                {
+                    var firstName = customer.FirstName;
+                    var lastName = customer.LastName;
+                    var city = customer.GenericAttributes.City;
+
+                    if (firstName.IsEmpty())
                     {
-                        var firstName = customer.FirstName;
-                        var lastName = customer.LastName;
-                        var city = customer.GenericAttributes.City;
-
-                        if (firstName.IsEmpty())
+                        var address = customer.Addresses.FirstOrDefault();
+                        if (address != null)
                         {
-                            var address = customer.Addresses.FirstOrDefault();
-                            if (address != null)
-                            {
-                                firstName = address.FirstName;
-                                lastName = address.LastName;
-                                city = address.City;
-                            }
-                        }
-
-                        result = firstName;
-                        if (lastName.HasValue())
-                        {
-                            result = $"{ result } { lastName.First() }";
-                        }
-
-                        if (city.HasValue())
-                        {
-                            var from = T("Common.ComingFrom");
-                            result = $"{ result } { from } { city }";
+                            firstName = address.FirstName;
+                            lastName = address.LastName;
+                            city = address.City;
                         }
                     }
-                    break;
+
+                    result = firstName;
+                    if (lastName.HasValue())
+                    {
+                        result = $"{result} {lastName.First()}";
+                    }
+
+                    if (city.HasValue())
+                    {
+                        var from = T("Common.ComingFrom");
+                        result = $"{result} {from} {city}";
+                    }
+                }
+                break;
                 default:
                     break;
             }

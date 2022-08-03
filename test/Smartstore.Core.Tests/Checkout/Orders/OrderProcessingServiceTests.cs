@@ -67,7 +67,7 @@ namespace Smartstore.Core.Tests.Checkout.Orders
             var messageFactoryMock = new Mock<IMessageFactory>();
             var newsletterSubscriptionServiceMock = new Mock<INewsletterSubscriptionService>();
             var checkoutAttributeFormatterMock = new Mock<ICheckoutAttributeFormatter>();
-            
+
             _currency = new Currency { Id = 1, RoundNumDecimals = 3 };
             _language = new Language { Id = 1 };
 
@@ -100,7 +100,7 @@ namespace Smartstore.Core.Tests.Checkout.Orders
             _taxCalculator = new TaxCalculator(DbContext, _workContext, _taxService, _taxSettings);
 
             _orderProcessingService = new OrderProcessingService(
-                DbContext, 
+                DbContext,
                 _workContext,
                 webHelperMock.Object,
                 localizationServiceMock.Object,
@@ -129,7 +129,7 @@ namespace Smartstore.Core.Tests.Checkout.Orders
                 _localizationSettings,
                 _taxSettings);
         }
-        
+
         [Test]
         public void Ensure_order_can_only_be_cancelled_when_orderStatus_is_not_cancelled_yet()
         {
@@ -221,7 +221,7 @@ namespace Smartstore.Core.Tests.Checkout.Orders
                     }
                 }
             }
-            
+
             order.PaymentMethodSystemName = "paymentMethodSystemName_that_doesn't_support_capture";
             foreach (OrderStatus os in Enum.GetValues(typeof(OrderStatus)))
             {
@@ -303,7 +303,7 @@ namespace Smartstore.Core.Tests.Checkout.Orders
                     }
                 }
             }
-            
+
             order.PaymentMethodSystemName = "paymentMethodSystemName_that_doesn't_support_refund";
             foreach (OrderStatus os in Enum.GetValues(typeof(OrderStatus)))
             {
@@ -435,7 +435,7 @@ namespace Smartstore.Core.Tests.Checkout.Orders
                     }
                 }
             }
-            
+
             order.PaymentMethodSystemName = "paymentMethodSystemName_that_doesn't_support_void";
             foreach (OrderStatus os in Enum.GetValues(typeof(OrderStatus)))
             {
@@ -596,7 +596,7 @@ namespace Smartstore.Core.Tests.Checkout.Orders
             _paymentServiceMock
                 .Setup(x => x.LoadPaymentMethodBySystemNameAsync("paymentMethodSystemName_that_supports_partialrefund", true, 0))
                 .ReturnsAsync(testMethod1);
-            
+
             var order = new Order()
             {
                 OrderTotal = 100,

@@ -21,7 +21,7 @@ namespace Smartstore.Core.Security
     /// </summary>
     public sealed class ValidateCaptchaAttribute : TypeFilterAttribute
     {
-        public ValidateCaptchaAttribute() 
+        public ValidateCaptchaAttribute()
             : base(typeof(ValidateCaptchaFilter))
         {
             Arguments = new object[] { this };

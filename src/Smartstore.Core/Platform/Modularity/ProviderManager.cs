@@ -10,8 +10,8 @@ namespace Smartstore.Engine.Modularity
         private readonly IModuleConstraint _moduleConstraint;
 
         public ProviderManager(
-            IComponentContext ctx, 
-            ISettingService settingService, 
+            IComponentContext ctx,
+            ISettingService settingService,
             IModuleConstraint moduleConstraint)
         {
             _ctx = ctx;

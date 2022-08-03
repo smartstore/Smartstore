@@ -13,7 +13,7 @@ namespace Smartstore.Core.Rules
             _db = db;
         }
 
-        public virtual async Task<bool> ApplyRuleSetMappingsAsync<T>(T entity, int[] selectedRuleSetIds) 
+        public virtual async Task<bool> ApplyRuleSetMappingsAsync<T>(T entity, int[] selectedRuleSetIds)
             where T : BaseEntity, IRulesContainer
         {
             Guard.NotNull(entity, nameof(entity));

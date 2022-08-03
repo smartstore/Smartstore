@@ -12,9 +12,8 @@ global using Microsoft.Extensions.Logging.Abstractions;
 global using Smartstore.Domain;
 global using Smartstore.Engine;
 global using EfState = Microsoft.EntityFrameworkCore.EntityState;
-global using EntityState = Smartstore.Data.EntityState;
 global using LogLevel = Smartstore.Core.Logging.LogLevel;
-
+global using EntityState = Smartstore.Data.EntityState;
 using System.Text;
 using Autofac;
 using Newtonsoft.Json;
@@ -46,7 +45,7 @@ namespace Smartstore.Core.Bootstrapping
             RegisterTypeConverters();
 
             // Default Json serializer settings
-            JsonConvert.DefaultSettings = () =>  
+            JsonConvert.DefaultSettings = () =>
             {
                 var settings = new JsonSerializerSettings
                 {
@@ -77,9 +76,9 @@ namespace Smartstore.Core.Bootstrapping
                 {
                     builder.UseSecondLevelCache();
                 }
-                    
+
                 builder
-                    .UseDbFactory(factoryBuilder => 
+                    .UseDbFactory(factoryBuilder =>
                     {
                         factoryBuilder
                             //.QuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)
@@ -118,7 +117,7 @@ namespace Smartstore.Core.Bootstrapping
         public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext)
         {
             builder.RegisterType<LiquidTemplateEngine>().As<ITemplateEngine>().SingleInstance();
-            
+
             builder.RegisterModule(new LoggingModule());
             builder.RegisterModule(new PackagingModule());
             builder.RegisterModule(new LocalizationModule());

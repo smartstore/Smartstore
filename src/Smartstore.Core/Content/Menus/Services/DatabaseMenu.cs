@@ -15,7 +15,7 @@ namespace Smartstore.Core.Content.Menus
     /// <summary>
     /// A generic implementation of <see cref="IMenu" /> which represents a <see cref="MenuEntity"/> entity.
     /// </summary>
-    internal class DatabaseMenu : MenuBase 
+    internal class DatabaseMenu : MenuBase
     {
         private readonly static AsyncLock _asyncLock = new();
 
@@ -58,7 +58,7 @@ namespace Smartstore.Core.Content.Menus
 
         public override async Task ResolveElementCountAsync(TreeNode<MenuItem> curNode, bool deep = false)
         {
-            if (curNode == null || !_catalogSettings.ShowCategoryProductNumber ||!await ContainsProviderAsync("catalog"))
+            if (curNode == null || !_catalogSettings.ShowCategoryProductNumber || !await ContainsProviderAsync("catalog"))
             {
                 return;
             }
@@ -86,7 +86,7 @@ namespace Smartstore.Core.Content.Menus
                                             item.ElementsCountResolved = true;
                                             continue;
                                         }
-                                        
+
                                         var isCategory = item.EntityName.EqualsNoCase(nameof(Category));
                                         var isManufacturer = item.EntityName.EqualsNoCase(nameof(Manufacturer));
 
@@ -149,7 +149,7 @@ namespace Smartstore.Core.Content.Menus
         public override async Task<TreeNode<MenuItem>> ResolveCurrentNodeAsync(ActionContext actionContext)
         {
             Guard.NotNull(actionContext, nameof(actionContext));
-            
+
             if (actionContext == null || !await ContainsProviderAsync("catalog"))
             {
                 return await base.ResolveCurrentNodeAsync(actionContext);

@@ -89,8 +89,8 @@ namespace Smartstore.Web.Controllers
             {
                 Name = "offcanvas",
                 Root = root,
-                SelectedNode = IsNullNode(nodeId) 
-                    ? root 
+                SelectedNode = IsNullNode(nodeId)
+                    ? root
                     : root.SelectNodeById(nodeId)
             };
 

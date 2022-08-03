@@ -67,10 +67,10 @@ namespace Smartstore.Web.Models.Checkout
                 to.SkippedSelectShipping = true;
             }
 
-            var paymentTypes = new PaymentMethodType[] 
-            { 
-                PaymentMethodType.Standard, 
-                PaymentMethodType.Redirection, 
+            var paymentTypes = new PaymentMethodType[]
+            {
+                PaymentMethodType.Standard,
+                PaymentMethodType.Redirection,
                 PaymentMethodType.StandardAndRedirection,
                 PaymentMethodType.StandardAndButton
             };

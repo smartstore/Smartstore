@@ -50,7 +50,7 @@ namespace Smartstore.AmazonPay.Controllers
 
             var model = MiniMapper.Map<AmazonPaySettings, ConfigurationModel>(settings);
 
-            model.IpnUrl = Url.Action(nameof(AmazonPayController.IPNHandler), "AmazonPay", new { area = string.Empty}, "https");
+            model.IpnUrl = Url.Action(nameof(AmazonPayController.IPNHandler), "AmazonPay", new { area = string.Empty }, "https");
             model.KeyShareUrl = Url.Action(nameof(AmazonPayController.ShareKey), "AmazonPay", new { area = string.Empty }, currentScheme);
             model.ModuleVersion = module.Version.ToString();
             model.LeadCode = AmazonPayProvider.LeadCode;
@@ -94,7 +94,7 @@ namespace Smartstore.AmazonPay.Controllers
         {
             var storeScope = GetActiveStoreScopeConfiguration();
             var settings = await Services.SettingFactory.LoadSettingsAsync<AmazonPaySettings>(storeScope);
-            
+
             if (!ModelState.IsValid)
             {
                 return await Configure(settings);
@@ -105,7 +105,7 @@ namespace Smartstore.AmazonPay.Controllers
             model.PublicKey = model.PublicKey.TrimSafe();
             model.ClientId = model.ClientId.TrimSafe();
             model.SellerId = model.SellerId.TrimSafe();
-            
+
             settings = ((ISettings)settings).Clone() as AmazonPaySettings;
             MiniMapper.Map(model, settings);
 

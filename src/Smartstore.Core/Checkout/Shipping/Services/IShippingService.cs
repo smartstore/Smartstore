@@ -28,7 +28,7 @@ namespace Smartstore.Core.Checkout.Shipping
         /// </summary>
         /// <param name="storeId">Filters methods by store identifier. 0 to load all methods.</param>
         /// <param name="matchRules">A value indicating whether shipping methods must match cart rules.</param>
-       /// <returns>Shipping methods.</returns>
+        /// <returns>Shipping methods.</returns>
         Task<List<ShippingMethod>> GetAllShippingMethodsAsync(int storeId = 0, bool matchRules = false);
 
         /// <summary>

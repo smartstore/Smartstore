@@ -26,12 +26,12 @@ namespace Smartstore.AmazonPay.Services
         public AmazonPaySignInHandler(
             IOptionsMonitor<AmazonPaySignInOptions> options,
             ILoggerFactory logger,
-            UrlEncoder encoder, 
+            UrlEncoder encoder,
             ISystemClock clock,
             IStoreContext storeContext,
             SignInManager<Customer> signInManager,
             IProviderManager providerManager,
-            ExternalAuthenticationSettings externalAuthenticationSettings) 
+            ExternalAuthenticationSettings externalAuthenticationSettings)
             : base(options, logger, encoder, clock)
         {
             _storeContext = storeContext;
@@ -68,7 +68,7 @@ namespace Smartstore.AmazonPay.Services
             var response = client.GetBuyer(buyerToken);
 
             if (response.Success)
-            {               
+            {
                 var properties = _signInManager.ConfigureExternalAuthenticationProperties(Scheme.Name, null);
 
                 // INFO: IsPersistent must be false. SignInManager.GetExternalLoginInfoAsync -> AuthenticationHttpContextExtensions.AuthenticateAsync

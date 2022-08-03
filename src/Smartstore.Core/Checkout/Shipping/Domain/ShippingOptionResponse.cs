@@ -18,7 +18,7 @@
         /// <summary>
         /// Gets a value indicating whether the response is successful
         /// </summary>
-        public bool Success 
+        public bool Success
             => Errors.Count == 0;
     }
 }

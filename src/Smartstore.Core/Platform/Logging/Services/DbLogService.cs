@@ -5,7 +5,7 @@ namespace Smartstore.Core.Logging
     public partial class DbLogService : IDbLogService
     {
         private readonly SmartDbContext _db;
-        
+
         public DbLogService(SmartDbContext db)
         {
             _db = db;
@@ -14,7 +14,7 @@ namespace Smartstore.Core.Logging
         public virtual async Task<int> ClearLogsAsync(CancellationToken cancelToken = default)
         {
             var numDeleted = await _db.Logs.CountAsync(cancelToken);
-            
+
             using var tx = await _db.Database.BeginTransactionAsync(cancelToken);
 
             await _db.DataProvider.TruncateTableAsync<Log>();

@@ -168,7 +168,7 @@ namespace Smartstore.Web.Models.Common
                     return true;
                 }).WithMessage(T("Admin.Address.Fields.Country.MustBePublished"));
             }
-            
+
             if (addressSettings.StateProvinceRequired && addressSettings.StateProvinceEnabled)
             {
                 RuleFor(x => x.StateProvinceId).NotNull().NotEqual(0);

@@ -17,8 +17,8 @@ namespace Smartstore.Core.Data.Migrations
         private readonly ITypeScanner _typeScanner;
 
         public DatabaseInitializer(
-            ILifetimeScope scope, 
-            ITypeScanner typeScanner, 
+            ILifetimeScope scope,
+            ITypeScanner typeScanner,
             SmartConfiguration appConfig)
         {
             _scope = scope;
@@ -77,7 +77,7 @@ namespace Smartstore.Core.Data.Migrations
                 {
                     context.Database.SetCommandTimeout(_appConfig.DbMigrationCommandTimeout.Value);
                 }
-                
+
                 // Run all pending migrations
                 await migrator.RunPendingMigrationsAsync(null, cancelToken);
 
@@ -95,7 +95,7 @@ namespace Smartstore.Core.Data.Migrations
         private static async Task RunGlobalSeeders(HookingDbContext dbContext, CancellationToken cancelToken = default)
         {
             var seederTypes = dbContext.Options.FindExtension<DbFactoryOptionsExtension>()?.DataSeederTypes;
-            
+
             if (seederTypes != null)
             {
                 foreach (var seederType in seederTypes)

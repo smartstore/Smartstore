@@ -32,7 +32,7 @@ namespace Smartstore.Core.Checkout.Payment
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
         private RecurringPaymentHistory(ILazyLoader lazyLoader)
             : base(lazyLoader)
-        {            
+        {
         }
 
         /// <summary>

@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Smartstore.Core;
 using Smartstore.Core.Checkout.Orders.Events;
-using Smartstore.Engine.Modularity;
 using Smartstore.Events;
 
 namespace Smartstore.AmazonPay
@@ -20,7 +19,7 @@ namespace Smartstore.AmazonPay
             var order = message.Order;
             var httpContext = httpContextAccessor?.HttpContext;
 
-            if (order != null 
+            if (order != null
                 && httpContext != null
                 && order.PaymentMethodSystemName.EqualsNoCase(AmazonPayProvider.SystemName)
                 && order.AuthorizationTransactionCode.HasValue())

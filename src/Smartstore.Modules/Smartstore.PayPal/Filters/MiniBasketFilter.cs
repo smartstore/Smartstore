@@ -9,7 +9,7 @@ namespace Smartstore.PayPal.Filters
     {
         private readonly PayPalSettings _settings;
         private readonly IWidgetProvider _widgetProvider;
-        
+
         public MiniBasketFilter(PayPalSettings settings, IWidgetProvider widgetProvider)
         {
             _settings = settings;

@@ -17,7 +17,7 @@ namespace Smartstore.Core.Checkout.GiftCards
             {
                 return Default;
             }
-            
+
             return null;
         }
     }

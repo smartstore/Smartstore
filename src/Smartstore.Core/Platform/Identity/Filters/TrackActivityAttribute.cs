@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Smartstore.Core.Data;
 using Smartstore.Core.Web;
@@ -54,8 +53,8 @@ namespace Smartstore.Core.Identity
         private readonly PrivacySettings _privacySettings;
 
         public TrackActivityFilter(
-            TrackActivityAttribute attribute, 
-            SmartDbContext db, 
+            TrackActivityAttribute attribute,
+            SmartDbContext db,
             IWorkContext workContext,
             IWebHelper webHelper,
             IUserAgent userAgent,
@@ -86,7 +85,7 @@ namespace Smartstore.Core.Identity
             if (!context.HttpContext.Request.IsGet())
             {
                 return;
-            } 
+            }
 
             var now = DateTime.UtcNow;
             var customer = _workContext.CurrentCustomer;

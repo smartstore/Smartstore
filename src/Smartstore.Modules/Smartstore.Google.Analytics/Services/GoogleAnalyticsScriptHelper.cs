@@ -71,7 +71,7 @@ namespace Smartstore.Google.Analytics.Services
                 ["STORAGETYPE"] = () => cookiesAllowed ? "granted" : "denied",
                 ["USERID"] = () => _workContext.CurrentCustomer.CustomerGuid.ToString()
             };
-            
+
             ParseScript(_settings.TrackingScript, writer, globalTokens);
 
             return writer.ToString();
@@ -228,7 +228,7 @@ namespace Smartstore.Google.Analytics.Services
             var i = 0;
             var catScript = string.Empty;
             var catNode = await _categoryService.GetCategoryTreeAsync(catId, true);
-            
+
             foreach (var node in catNode.Trail)
             {
                 if (!node.IsRoot && ++i != 5)
@@ -360,11 +360,11 @@ namespace Smartstore.Google.Analytics.Services
                 var ecDetailScript = string.Empty;
 
                 if (_settings.EcommerceDetailScript.HasValue())
-                {    
+                {
                     var productIds = order.OrderItems.Select(x => x.ProductId).ToArray();
                     var categories = (await _categoryService.GetProductCategoriesByProductIdsAsync(productIds))
                         .ToDictionarySafe(x => x.ProductId);
-                    
+
                     foreach (var item in order.OrderItems)
                     {
                         var defaultProductCategory = categories[item.ProductId];

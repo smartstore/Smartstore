@@ -2,10 +2,10 @@
 {
     public static partial class LocalizedPropertyQueryExtensions
     {
-        public static IQueryable<LocalizedProperty> ApplyStandardFilter(this IQueryable<LocalizedProperty> query, 
-            int languageId, 
-            int entityId, 
-            string localeKeyGroup, 
+        public static IQueryable<LocalizedProperty> ApplyStandardFilter(this IQueryable<LocalizedProperty> query,
+            int languageId,
+            int entityId,
+            string localeKeyGroup,
             string localeKey)
         {
             Guard.NotNull(query, nameof(query));

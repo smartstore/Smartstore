@@ -33,7 +33,7 @@ namespace Smartstore.Core.Content.Media
         public async Task<MediaFile> CreateMediaFileAsync(string subpath, string seoFileName = null)
         {
             Guard.NotNull(subpath, nameof(subpath));
-            
+
             var file = _contentRoot.GetFile(_contentRoot.PathCombine(_rootPath, subpath));
 
             if (!file.Exists)
@@ -84,7 +84,7 @@ namespace Smartstore.Core.Content.Media
                 if (mediaFile.MediaType == MediaType.Image)
                 {
                     mediaFile.Size = (int)stream.Length;
-                    
+
                     var pixelSize = ImageHeader.GetPixelSize(stream);
                     if (!pixelSize.IsEmpty)
                     {

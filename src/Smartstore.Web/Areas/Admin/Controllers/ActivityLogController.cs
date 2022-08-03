@@ -13,7 +13,7 @@ namespace Smartstore.Admin.Controllers
     {
         private readonly SmartDbContext _db;
         private readonly IDateTimeHelper _dateTimeHelper;
-        
+
         public ActivityLogController(SmartDbContext db, IDateTimeHelper dateTimeHelper)
         {
             _db = db;
@@ -137,15 +137,15 @@ namespace Smartstore.Admin.Controllers
                     if (systemCustomer.IsSearchEngineAccount())
                     {
                         model.SystemAccountName = T("Admin.System.SystemCustomerNames.SearchEngine");
-                    }   
+                    }
                     else if (systemCustomer.IsBackgroundTaskAccount())
                     {
                         model.SystemAccountName = T("Admin.System.SystemCustomerNames.BackgroundTask");
-                    }   
+                    }
                     else if (systemCustomer.IsPdfConverter())
                     {
                         model.SystemAccountName = T("Admin.System.SystemCustomerNames.PdfConverter");
-                    }   
+                    }
                     else
                     {
                         model.SystemAccountName = string.Empty;
@@ -191,7 +191,7 @@ namespace Smartstore.Admin.Controllers
         public async Task<IActionResult> DeleteAll()
         {
             await Services.ActivityLogger.ClearAllActivitiesAsync();
-        
+
             return RedirectToAction(nameof(ActivityLogs));
         }
 

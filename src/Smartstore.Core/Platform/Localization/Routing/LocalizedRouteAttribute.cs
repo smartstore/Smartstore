@@ -5,7 +5,7 @@ namespace Smartstore.Core.Localization.Routing
     public interface ILocalizedRoute
     {
     }
-    
+
     /// <summary>
     /// Specifies a localized attribute route on a controller action method.
     /// </summary>

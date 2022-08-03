@@ -137,7 +137,7 @@ namespace Smartstore.Web.Controllers
         }
 
         private async Task<OrderDetailsModel.OrderItemModel> PrepareOrderItemModelAsync(
-            Order order, 
+            Order order,
             OrderItem orderItem,
             CatalogSettings catalogSettings,
             ShoppingCartSettings shoppingCartSettings,
@@ -151,7 +151,7 @@ namespace Smartstore.Web.Controllers
             {
                 orderItem.Product.MergeWithCombination(attributeCombination);
             }
-            
+
             var model = new OrderDetailsModel.OrderItemModel
             {
                 Id = orderItem.Id,
@@ -227,20 +227,20 @@ namespace Smartstore.Web.Controllers
             switch (order.CustomerTaxDisplayType)
             {
                 case TaxDisplayType.ExcludingTax:
-                    {
-                        var unitPriceExclTaxInCustomerCurrency = _currencyService.ConvertToExchangeRate(orderItem.UnitPriceExclTax, order.CurrencyRate, customerCurrency);
-                        model.UnitPrice = unitPriceExclTaxInCustomerCurrency;
-                        model.SubTotal = _currencyService.ConvertToExchangeRate(orderItem.PriceExclTax, order.CurrencyRate, customerCurrency);
-                    }
-                    break;
+                {
+                    var unitPriceExclTaxInCustomerCurrency = _currencyService.ConvertToExchangeRate(orderItem.UnitPriceExclTax, order.CurrencyRate, customerCurrency);
+                    model.UnitPrice = unitPriceExclTaxInCustomerCurrency;
+                    model.SubTotal = _currencyService.ConvertToExchangeRate(orderItem.PriceExclTax, order.CurrencyRate, customerCurrency);
+                }
+                break;
 
                 case TaxDisplayType.IncludingTax:
-                    {
-                        var unitPriceInclTaxInCustomerCurrency = _currencyService.ConvertToExchangeRate(orderItem.UnitPriceInclTax, order.CurrencyRate, customerCurrency);
-                        model.UnitPrice = unitPriceInclTaxInCustomerCurrency;
-                        model.SubTotal = _currencyService.ConvertToExchangeRate(orderItem.PriceInclTax, order.CurrencyRate, customerCurrency);
-                    }
-                    break;
+                {
+                    var unitPriceInclTaxInCustomerCurrency = _currencyService.ConvertToExchangeRate(orderItem.UnitPriceInclTax, order.CurrencyRate, customerCurrency);
+                    model.UnitPrice = unitPriceInclTaxInCustomerCurrency;
+                    model.SubTotal = _currencyService.ConvertToExchangeRate(orderItem.PriceInclTax, order.CurrencyRate, customerCurrency);
+                }
+                break;
             }
 
             model.ProductUrl = await _productUrlHelper.GetProductUrlAsync(orderItem.ProductId, model.ProductSeName, orderItem.AttributeSelection);
@@ -372,52 +372,52 @@ namespace Smartstore.Web.Controllers
             switch (order.CustomerTaxDisplayType)
             {
                 case TaxDisplayType.ExcludingTax:
+                {
+                    // Order subtotal.
+                    model.OrderSubtotal = _currencyService.ConvertToExchangeRate(order.OrderSubtotalExclTax, order.CurrencyRate, customerCurrency);
+
+                    // Discount (applied to order subtotal).
+                    var orderSubTotalDiscountExclTax = _currencyService.ConvertToExchangeRate(order.OrderSubTotalDiscountExclTax, order.CurrencyRate, customerCurrency);
+                    if (orderSubTotalDiscountExclTax > 0)
                     {
-                        // Order subtotal.
-                        model.OrderSubtotal = _currencyService.ConvertToExchangeRate(order.OrderSubtotalExclTax, order.CurrencyRate, customerCurrency);
-
-                        // Discount (applied to order subtotal).
-                        var orderSubTotalDiscountExclTax = _currencyService.ConvertToExchangeRate(order.OrderSubTotalDiscountExclTax, order.CurrencyRate, customerCurrency);
-                        if (orderSubTotalDiscountExclTax > 0)
-                        {
-                            model.OrderSubTotalDiscount = orderSubTotalDiscountExclTax * -1;
-                        }
-
-                        // Order shipping.
-                        model.OrderShipping = _currencyService.ConvertToExchangeRate(order.OrderShippingExclTax, order.CurrencyRate, customerCurrency);
-
-                        // Payment method additional fee.
-                        var paymentMethodAdditionalFeeExclTax = _currencyService.ConvertToExchangeRate(order.PaymentMethodAdditionalFeeExclTax, order.CurrencyRate, customerCurrency);
-                        if (paymentMethodAdditionalFeeExclTax != 0)
-                        {
-                            model.PaymentMethodAdditionalFee = paymentMethodAdditionalFeeExclTax;
-                        }
+                        model.OrderSubTotalDiscount = orderSubTotalDiscountExclTax * -1;
                     }
-                    break;
+
+                    // Order shipping.
+                    model.OrderShipping = _currencyService.ConvertToExchangeRate(order.OrderShippingExclTax, order.CurrencyRate, customerCurrency);
+
+                    // Payment method additional fee.
+                    var paymentMethodAdditionalFeeExclTax = _currencyService.ConvertToExchangeRate(order.PaymentMethodAdditionalFeeExclTax, order.CurrencyRate, customerCurrency);
+                    if (paymentMethodAdditionalFeeExclTax != 0)
+                    {
+                        model.PaymentMethodAdditionalFee = paymentMethodAdditionalFeeExclTax;
+                    }
+                }
+                break;
 
                 case TaxDisplayType.IncludingTax:
+                {
+                    // Order subtotal.
+                    model.OrderSubtotal = _currencyService.ConvertToExchangeRate(order.OrderSubtotalInclTax, order.CurrencyRate, customerCurrency);
+
+                    // Discount (applied to order subtotal).
+                    var orderSubTotalDiscountInclTax = _currencyService.ConvertToExchangeRate(order.OrderSubTotalDiscountInclTax, order.CurrencyRate, customerCurrency);
+                    if (orderSubTotalDiscountInclTax > 0)
                     {
-                        // Order subtotal.
-                        model.OrderSubtotal = _currencyService.ConvertToExchangeRate(order.OrderSubtotalInclTax, order.CurrencyRate, customerCurrency);
-
-                        // Discount (applied to order subtotal).
-                        var orderSubTotalDiscountInclTax = _currencyService.ConvertToExchangeRate(order.OrderSubTotalDiscountInclTax, order.CurrencyRate, customerCurrency);
-                        if (orderSubTotalDiscountInclTax > 0)
-                        {
-                            model.OrderSubTotalDiscount = orderSubTotalDiscountInclTax * -1;
-                        }
-
-                        // Order shipping.
-                        model.OrderShipping = _currencyService.ConvertToExchangeRate(order.OrderShippingInclTax, order.CurrencyRate, customerCurrency);
-
-                        // Payment method additional fee.
-                        var paymentMethodAdditionalFeeInclTax = _currencyService.ConvertToExchangeRate(order.PaymentMethodAdditionalFeeInclTax, order.CurrencyRate, customerCurrency);
-                        if (paymentMethodAdditionalFeeInclTax != 0)
-                        {
-                            model.PaymentMethodAdditionalFee = paymentMethodAdditionalFeeInclTax;
-                        }
+                        model.OrderSubTotalDiscount = orderSubTotalDiscountInclTax * -1;
                     }
-                    break;
+
+                    // Order shipping.
+                    model.OrderShipping = _currencyService.ConvertToExchangeRate(order.OrderShippingInclTax, order.CurrencyRate, customerCurrency);
+
+                    // Payment method additional fee.
+                    var paymentMethodAdditionalFeeInclTax = _currencyService.ConvertToExchangeRate(order.PaymentMethodAdditionalFeeInclTax, order.CurrencyRate, customerCurrency);
+                    if (paymentMethodAdditionalFeeInclTax != 0)
+                    {
+                        model.PaymentMethodAdditionalFee = paymentMethodAdditionalFeeInclTax;
+                    }
+                }
+                break;
             }
 
             // Tax.
@@ -555,4 +555,3 @@ namespace Smartstore.Web.Controllers
         }
     }
 }
- 

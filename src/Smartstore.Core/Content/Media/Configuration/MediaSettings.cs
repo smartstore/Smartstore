@@ -111,7 +111,7 @@ namespace Smartstore.Core.Content.Media
 
             var numExtraSizes = AllowedExtraThumbnailSizes?.Count ?? 0;
 
-            var sizes = new int[] 
+            var sizes = new int[]
             {
                 48, ThumbnailSizeXxs, ThumbnailSizeXs, ThumbnailSizeSm, ThumbnailSizeMd, ThumbnailSizeLg, ThumbnailSizeXl, ThumbnailSizeXxl,
                 AvatarPictureSize,

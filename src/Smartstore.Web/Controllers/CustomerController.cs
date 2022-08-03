@@ -107,7 +107,7 @@ namespace Smartstore.Web.Controllers
             {
                 return new UnauthorizedResult();
             }
-            
+
             var model = new CustomerInfoModel();
             await PrepareCustomerInfoModelAsync(model, customer, false);
 
@@ -217,8 +217,8 @@ namespace Smartstore.Web.Controllers
                                 ? new DateTime(model.DateOfBirthYear.Value, model.DateOfBirthMonth.Value, model.DateOfBirthDay.Value)
                                 : null;
                         }
-                        catch 
-                        { 
+                        catch
+                        {
                         }
                     }
 
@@ -329,9 +329,9 @@ namespace Smartstore.Web.Controllers
                 }
             }
 
-            return Json(new 
+            return Json(new
             {
-                Available = usernameAvailable, 
+                Available = usernameAvailable,
                 Text = statusText.NullEmpty() ?? T("Account.CheckUsernameAvailability.NotAvailable")
             });
         }
@@ -428,7 +428,7 @@ namespace Smartstore.Web.Controllers
             {
                 return NotFound();
             }
-            
+
             var customer = Services.WorkContext.CurrentCustomer;
             if (!customer.IsRegistered())
             {
@@ -441,7 +441,7 @@ namespace Smartstore.Web.Controllers
             {
                 return RedirectToAction(nameof(Addresses));
             }
-            
+
             var model = new AddressModel();
             await PrepareAddressModel(address, model);
 
@@ -582,7 +582,7 @@ namespace Smartstore.Web.Controllers
                 .AsNoTracking()
                 .ApplyStandardFilter(storeId: Services.StoreContext.CurrentStore.Id, customerId: customer.Id)
                 .ToListAsync();
-            
+
             foreach (var returnRequest in returnRequests)
             {
                 var orderItem = await _db.OrderItems
@@ -617,7 +617,7 @@ namespace Smartstore.Web.Controllers
         #endregion
 
         #region Downloadable products
-        
+
         [RequireSsl]
         public async Task<IActionResult> DownloadableProducts()
         {
@@ -637,7 +637,7 @@ namespace Smartstore.Web.Controllers
                 .Include(x => x.Order)
                 .Where(x => x.Product.IsDownload)
                 .ToListAsync();
-            
+
             foreach (var item in items)
             {
                 var itemModel = new CustomerDownloadableProductsModel.DownloadableProductsModel
@@ -705,7 +705,7 @@ namespace Smartstore.Web.Controllers
                 .Include(x => x.Product)
                 .Where(x => x.OrderItemGuid == id)
                 .FirstOrDefaultAsync();
-                
+
             if (orderItem == null)
             {
                 NotifyError(T("Customer.UserAgreement.OrderItemNotFound"));
@@ -780,7 +780,7 @@ namespace Smartstore.Web.Controllers
                         if (oldAvatar != null)
                         {
                             await _mediaService.DeleteFileAsync(oldAvatar, true);
-                        }                        
+                        }
 
                         var path = _mediaService.CombinePaths(SystemAlbumProvider.Customers, PathUtility.SanitizeFileName(uploadedFile.FileName));
 
@@ -846,7 +846,7 @@ namespace Smartstore.Web.Controllers
             {
                 return RedirectToAction("Info");
             }
-            
+
             var model = new CustomerRewardPointsModel();
             foreach (var rph in customer.RewardPointsHistory.OrderByDescending(rph => rph.CreatedOnUtc).ThenByDescending(rph => rph.Id))
             {
@@ -919,7 +919,7 @@ namespace Smartstore.Web.Controllers
         {
             var form = HttpContext.Request.Form;
             var customerId = Services.WorkContext.CurrentCustomer.Id;
-            
+
             foreach (var key in form.Keys)
             {
                 var value = form[key];
@@ -1068,13 +1068,13 @@ namespace Smartstore.Web.Controllers
 
             // External authentication.
             var authProviders = await _signInManager.GetExternalAuthenticationSchemesAsync();
-            
+
             foreach (var ear in customer.ExternalAuthenticationRecords)
             {
                 var provider = authProviders.Where(x => ear.ProviderSystemName.Contains(x.Name)).FirstOrDefault();
-                
+
                 if (provider == null)
-                  continue;
+                    continue;
 
                 model.AssociatedExternalAuthRecords.Add(new CustomerInfoModel.AssociatedExternalAuthModel
                 {

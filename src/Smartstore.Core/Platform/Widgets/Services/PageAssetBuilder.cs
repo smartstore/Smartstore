@@ -189,7 +189,7 @@ namespace Smartstore.Core.Widgets
         public virtual string TryFindMinFile(string path, IFileProvider fileProvider = null)
         {
             Guard.NotEmpty(path, nameof(path));
-            
+
             path = _minFiles.GetOrAdd(path, key =>
             {
                 try

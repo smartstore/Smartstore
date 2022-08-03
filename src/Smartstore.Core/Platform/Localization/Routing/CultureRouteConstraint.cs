@@ -6,7 +6,7 @@ namespace Smartstore.Core.Localization.Routing
     public class CultureRouteConstraint : IRouteConstraint
     {
         const string GlobalMatchKey = "CultureRoutesEnabled";
-        
+
         public bool Match(
             HttpContext httpContext,
             IRouter route,
@@ -26,7 +26,7 @@ namespace Smartstore.Core.Localization.Routing
                 // Don't validate. SmartLinkGenerator will handle url generation.
                 return true;
             }
-            
+
             if (!GlobalMatch(httpContext))
             {
                 return false;
@@ -39,7 +39,7 @@ namespace Smartstore.Core.Localization.Routing
 
         private static bool GlobalMatch(HttpContext httpContext)
         {
-            return httpContext.GetItem(GlobalMatchKey, () => 
+            return httpContext.GetItem(GlobalMatchKey, () =>
             {
                 var localizationSettings = httpContext.RequestServices.GetRequiredService<LocalizationSettings>();
                 if (!localizationSettings.SeoFriendlyUrlsForLanguagesEnabled)

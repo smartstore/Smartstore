@@ -134,9 +134,9 @@ namespace Smartstore.Admin.Controllers
                 }
 
                 NotifySuccess(T("Admin.Configuration.EmailAccounts.Added"));
-                
-                return continueEditing 
-                    ? RedirectToAction(nameof(Edit), new { id = emailAccount.Id }) 
+
+                return continueEditing
+                    ? RedirectToAction(nameof(Edit), new { id = emailAccount.Id })
                     : RedirectToAction(nameof(List));
             }
 
@@ -184,8 +184,8 @@ namespace Smartstore.Admin.Controllers
 
                 NotifySuccess(T("Admin.Configuration.EmailAccounts.Updated"));
 
-                return continueEditing 
-                    ? RedirectToAction(nameof(Edit), new { id = emailAccount.Id }) 
+                return continueEditing
+                    ? RedirectToAction(nameof(Edit), new { id = emailAccount.Id })
                     : RedirectToAction(nameof(List));
             }
 

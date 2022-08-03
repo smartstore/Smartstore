@@ -14,7 +14,7 @@ namespace Smartstore.Core.Catalog.Brands
         /// <param name="storeId">Store identifier to apply filter by store restriction.</param>
         /// <returns>Manufacturer query.</returns>
         public static IOrderedQueryable<Manufacturer> ApplyStandardFilter(
-            this IQueryable<Manufacturer> query, 
+            this IQueryable<Manufacturer> query,
             bool includeHidden = false,
             int[] customerRoleIds = null,
             int storeId = 0)

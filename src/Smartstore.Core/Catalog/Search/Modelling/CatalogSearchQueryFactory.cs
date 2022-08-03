@@ -29,30 +29,30 @@ namespace Smartstore.Core.Catalog.Search.Modelling
 
     public partial class CatalogSearchQueryFactory : SearchQueryFactoryBase, ICatalogSearchQueryFactory
     {
-		protected static readonly string[] _instantSearchFields = new[] { "manufacturer", "sku", "gtin", "mpn", "attrname", "variantname" };
+        protected static readonly string[] _instantSearchFields = new[] { "manufacturer", "sku", "gtin", "mpn", "attrname", "variantname" };
 
-		protected readonly ICommonServices _services;
-		protected readonly ICatalogSearchQueryAliasMapper _catalogSearchQueryAliasMapper;
-		protected readonly CatalogSettings _catalogSettings;
-		protected readonly SearchSettings _searchSettings;
+        protected readonly ICommonServices _services;
+        protected readonly ICatalogSearchQueryAliasMapper _catalogSearchQueryAliasMapper;
+        protected readonly CatalogSettings _catalogSettings;
+        protected readonly SearchSettings _searchSettings;
 
-		public CatalogSearchQueryFactory(
-			IHttpContextAccessor httpContextAccessor,
-			ICommonServices services,
-			ICatalogSearchQueryAliasMapper catalogSearchQueryAliasMapper,
-			CatalogSettings catalogSettings,
-			SearchSettings searchSettings)
-			: base(httpContextAccessor)
-		{
-			_services = services;
-			_catalogSearchQueryAliasMapper = catalogSearchQueryAliasMapper;
-			_catalogSettings = catalogSettings;
-			_searchSettings = searchSettings;
-		}
+        public CatalogSearchQueryFactory(
+            IHttpContextAccessor httpContextAccessor,
+            ICommonServices services,
+            ICatalogSearchQueryAliasMapper catalogSearchQueryAliasMapper,
+            CatalogSettings catalogSettings,
+            SearchSettings searchSettings)
+            : base(httpContextAccessor)
+        {
+            _services = services;
+            _catalogSearchQueryAliasMapper = catalogSearchQueryAliasMapper;
+            _catalogSettings = catalogSettings;
+            _searchSettings = searchSettings;
+        }
 
-		protected override string[] Tokens => new[] { "q", "i", "s", "o", "p", "c", "m", "r", "a", "n", "d", "v" };
+        protected override string[] Tokens => new[] { "q", "i", "s", "o", "p", "c", "m", "r", "a", "n", "d", "v" };
 
-		public CatalogSearchQuery Current { get; private set; }
+        public CatalogSearchQuery Current { get; private set; }
 
         public async Task<CatalogSearchQuery> CreateFromQueryAsync()
         {
@@ -134,22 +134,22 @@ namespace Smartstore.Core.Catalog.Search.Modelling
         }
 
         protected virtual async Task ConvertPagingSortingAsync(CatalogSearchQuery query, string origin)
-		{
-			var index = Math.Max(1, GetValueFor<int?>("i") ?? 1);
-			var size = await GetPageSize(query, origin);
+        {
+            var index = Math.Max(1, GetValueFor<int?>("i") ?? 1);
+            var size = await GetPageSize(query, origin);
 
-			query.Slice((index - 1) * size, size);
+            query.Slice((index - 1) * size, size);
 
-			var orderBy = GetValueFor<ProductSortingEnum?>("o");
-			if (orderBy == null || orderBy == ProductSortingEnum.Initial)
-			{
-				orderBy = query.IsSearchPage() ? _searchSettings.DefaultSortOrder : _catalogSettings.DefaultSortOrder;
-			}
+            var orderBy = GetValueFor<ProductSortingEnum?>("o");
+            if (orderBy == null || orderBy == ProductSortingEnum.Initial)
+            {
+                orderBy = query.IsSearchPage() ? _searchSettings.DefaultSortOrder : _catalogSettings.DefaultSortOrder;
+            }
 
-			query.CustomData["CurrentSortOrder"] = orderBy.Value;
+            query.CustomData["CurrentSortOrder"] = orderBy.Value;
 
-			query.SortBy(orderBy.Value);
-		}
+            query.SortBy(orderBy.Value);
+        }
 
         private async Task<int> GetPageSize(CatalogSearchQuery query, string origin)
         {
@@ -368,7 +368,7 @@ namespace Smartstore.Core.Catalog.Search.Modelling
             }
 
             var alias = _catalogSearchQueryAliasMapper.GetCommonFacetAliasByGroupKind(FacetGroupKind.Category, query.LanguageId ?? 0);
-            
+
             if (TryGetValueFor(alias ?? "c", out List<int> ids) && ids != null && ids.Any())
             {
                 // TODO; (mc) Get deep ids (???) Make a low-level version of CatalogHelper.GetChildCategoryIds()

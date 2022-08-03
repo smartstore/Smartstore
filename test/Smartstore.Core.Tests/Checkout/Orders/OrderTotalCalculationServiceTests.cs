@@ -113,7 +113,7 @@ namespace Smartstore.Core.Tests.Checkout.Orders
 
             var checkoutAttributeMaterializerMock = new Mock<ICheckoutAttributeMaterializer>();
             _checkoutAttributeMaterializer = checkoutAttributeMaterializerMock.Object;
-            
+
             _discountServiceMock = new Mock<IDiscountService>();
             _discountService = _discountServiceMock.Object;
 
@@ -222,7 +222,7 @@ namespace Smartstore.Core.Tests.Checkout.Orders
 
             items.ForEach(sci => sci.Item.Customer = _customer);
             items.ForEach(sci => sci.Item.CustomerId = _customer.Id);
-            
+
             var cart = new ShoppingCart(_customer, 0, items);
 
             _productBatchContext = new ProductBatchContext(new List<Product> { product1, product2 }, _services, _store, _customer, false);
@@ -889,7 +889,7 @@ namespace Smartstore.Core.Tests.Checkout.Orders
             _discountServiceMock
                 .Setup(x => x.IsDiscountValidAsync(discount1, _customer, It.IsAny<string>(), It.IsAny<Store>()))
                 .ReturnsAsync(true);
-            
+
             _discountServiceMock
                 .Setup(x => x.GetAllDiscountsAsync(DiscountType.AssignedToShipping, It.IsAny<string>(), It.IsAny<bool>()))
                 .ReturnsAsync(new List<Discount>() { discount1 });
@@ -1078,7 +1078,7 @@ namespace Smartstore.Core.Tests.Checkout.Orders
             _taxSettings.PaymentMethodAdditionalFeeIsTaxable = false;
 
             taxTotal = await _orderCalcService.GetShoppingCartTaxTotalAsync(cart);
-            taxTotal.Price.Amount.ShouldEqual(6.6m);   
+            taxTotal.Price.Amount.ShouldEqual(6.6m);
             taxTotal.TaxRates.ShouldNotBeNull();
             taxTotal.TaxRates.Count.ShouldEqual(1);
             taxTotal.TaxRates.ContainsKey(10).ShouldBeTrue();

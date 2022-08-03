@@ -3456,7 +3456,7 @@ namespace Smartstore.Core.Installation
                     Published = true
                 },
             };
-            
+
             Alter(entities);
             return entities;
         }

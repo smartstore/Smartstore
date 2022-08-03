@@ -8,7 +8,7 @@ namespace Smartstore
     {
         public static bool HoneypotProtectionEnabled(this IDisplayHelper displayHelper)
         {
-            return displayHelper.HttpContext.GetItem(nameof(HoneypotProtectionEnabled), () => 
+            return displayHelper.HttpContext.GetItem(nameof(HoneypotProtectionEnabled), () =>
             {
                 return displayHelper.Resolve<SecuritySettings>().EnableHoneypotProtection;
             });
@@ -21,8 +21,8 @@ namespace Smartstore
                 var settings = displayHelper.Resolve<StoreInformationSettings>();
                 var customer = displayHelper.Resolve<IWorkContext>().CurrentCustomer;
 
-                return settings.StoreClosedAllowForAdmins && customer.IsAdmin() 
-                    ? false 
+                return settings.StoreClosedAllowForAdmins && customer.IsAdmin()
+                    ? false
                     : settings.StoreClosed;
             });
         }

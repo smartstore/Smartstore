@@ -7,7 +7,7 @@
         public List<Func<dynamic, object>> ExtraColumns { get; set; } = new();
     }
 
-    public class ProviderModelCollection<TModel> : ProviderModelCollection 
+    public class ProviderModelCollection<TModel> : ProviderModelCollection
         where TModel : ProviderModel
     {
         public void SetData(IEnumerable<TModel> data)
@@ -18,7 +18,7 @@
         public void SetColumns(IEnumerable<Func<TModel, object>> columns)
         {
             Guard.NotNull(columns, nameof(columns));
-            
+
             foreach (var col in columns)
             {
                 object fn(dynamic x) => col(x);

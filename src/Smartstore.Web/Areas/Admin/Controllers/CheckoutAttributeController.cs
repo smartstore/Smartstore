@@ -50,7 +50,7 @@ namespace Smartstore.Admin.Controllers
         {
             foreach (var localized in model.Locales)
             {
-                await _localizedEntityService.ApplyLocalizedValueAsync(checkoutAttribute, x => x.Name, localized.Name,localized.LanguageId);
+                await _localizedEntityService.ApplyLocalizedValueAsync(checkoutAttribute, x => x.Name, localized.Name, localized.LanguageId);
                 await _localizedEntityService.ApplyLocalizedValueAsync(checkoutAttribute, x => x.TextPrompt, localized.TextPrompt, localized.LanguageId);
             }
         }
@@ -73,7 +73,7 @@ namespace Smartstore.Admin.Controllers
                 .AsNoTracking()
                 .OrderBy(x => x.DisplayOrder)
                 .ToListAsync();
-            
+
             ViewBag.AvailableTaxCategories = new List<SelectListItem>();
             foreach (var tc in taxCategories)
             {

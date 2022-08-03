@@ -157,7 +157,7 @@ namespace Smartstore.Web.Controllers
                 model.CanonicalUrl = Url.RouteUrl("Product", new { model.SeName }, Request.Scheme);
             }
 
-            model.MetaProperties =  await model.MapMetaPropertiesAsync();
+            model.MetaProperties = await model.MapMetaPropertiesAsync();
 
             // Save as recently viewed
             _recentlyViewedProductsService.AddProductToRecentlyViewedList(product.Id);
@@ -657,7 +657,7 @@ namespace Smartstore.Web.Controllers
                 }
             }
 
-            return new JsonResult(new { redirect = Url.Action("AskQuestion", new { id })});
+            return new JsonResult(new { redirect = Url.Action("AskQuestion", new { id }) });
         }
 
         [HttpPost, ActionName("AskQuestion")]
@@ -721,12 +721,12 @@ namespace Smartstore.Web.Controllers
             if (selection.AttributesMap.Any())
             {
                 formattedAttributes = await _productAttributeFormatter.Value.FormatAttributesAsync(
-                    selection, 
+                    selection,
                     product,
-                    customer: null, 
-                    separator: ", ", 
-                    includePrices: false, 
-                    includeGiftCardAttributes: false, 
+                    customer: null,
+                    separator: ", ",
+                    includePrices: false,
+                    includeGiftCardAttributes: false,
                     includeHyperlinks: false);
             }
 

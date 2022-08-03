@@ -41,7 +41,7 @@ namespace Smartstore.ShippingByWeight.Controllers
                 .AsNoTracking()
                 .ApplyStandardFilter(true)
                 .ToListAsync();
-            
+
             var baseWeighMeasure = await _db.MeasureWeights.Where(x => x.Id == _measureSettings.BaseWeightId).FirstOrDefaultAsync();
 
             ViewBag.AvailableCountries = countries.ToSelectListItems();
@@ -107,7 +107,7 @@ namespace Smartstore.ShippingByWeight.Controllers
                 var store = stores.Get(x.StoreId);
                 var shippingMethod = shippingMethods.Get(x.ShippingMethodId);
                 var country = countries.Get(x.CountryId);
-                
+
                 var m = new ByWeightModel
                 {
                     Id = x.Id,

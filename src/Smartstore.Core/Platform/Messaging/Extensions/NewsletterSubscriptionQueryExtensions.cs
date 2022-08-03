@@ -37,7 +37,7 @@ namespace Smartstore
         /// <returns>NewsletterSubscriber query.</returns>
         public static IOrderedQueryable<NewsletterSubscriber> ApplyStandardFilter(this IQueryable<NewsletterSubscription> query,
             string email,
-            bool includeHidden = false, 
+            bool includeHidden = false,
             int[] storeIds = null,
             int[] customerRoleIds = null)
         {

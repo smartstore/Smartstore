@@ -49,7 +49,7 @@ namespace Smartstore.Core.Tests.Catalog.Discounts
                 LimitationTimes = 3,
             };
 
-            DbContext.Discounts.AddRange(new[] { discount1 , discount2 });
+            DbContext.Discounts.AddRange(new[] { discount1, discount2 });
 
             DbContext.GenericAttributes.AddRange(
                 new GenericAttribute { Key = "", KeyGroup = nameof(Customer), Value = "" },

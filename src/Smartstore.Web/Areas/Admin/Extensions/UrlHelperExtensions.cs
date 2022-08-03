@@ -11,7 +11,7 @@ namespace Smartstore.Admin
         public static string BackToProviderList(this IUrlHelper url, ProviderMetadata metadata)
         {
             Guard.NotNull(metadata, nameof(metadata));
-            
+
             if (metadata.ProviderType == typeof(IPaymentMethod))
             {
                 return url.Action("Providers", "Payment");

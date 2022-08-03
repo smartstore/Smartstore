@@ -174,12 +174,12 @@ namespace Smartstore.Core.Catalog.Attributes
             }
 
             if (includeGiftCardAttributes && product.IsGiftCard)
-            {                
+            {
                 var gci = selection.GetGiftCardInfo();
                 if (gci != null)
                 {
                     // Sender.
-                    var giftCardFrom = product.GiftCardType == GiftCardType.Virtual 
+                    var giftCardFrom = product.GiftCardType == GiftCardType.Virtual
                         ? (await _localizationService.GetResourceAsync("GiftCardAttribute.From.Virtual")).FormatInvariant(gci.SenderName, gci.SenderEmail)
                         : (await _localizationService.GetResourceAsync("GiftCardAttribute.From.Physical")).FormatInvariant(gci.SenderName);
 

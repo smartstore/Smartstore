@@ -240,58 +240,58 @@ namespace Smartstore.Core.Catalog.Products
             switch (product.ManageInventoryMethod)
             {
                 case ManageInventoryMethod.ManageStock:
+                {
+                    result.StockQuantityOld = product.StockQuantity;
+
+                    result.StockQuantityNew = decrease
+                        ? product.StockQuantity - quantity
+                        : product.StockQuantity + quantity;
+
+                    var newPublished = product.Published;
+                    var newDisableBuyButton = product.DisableBuyButton;
+                    var newDisableWishlistButton = product.DisableWishlistButton;
+
+                    // Check if the minimum quantity is reached.
+                    switch (product.LowStockActivity)
                     {
-                        result.StockQuantityOld = product.StockQuantity;
+                        case LowStockActivity.DisableBuyButton:
+                            newDisableBuyButton = product.MinStockQuantity >= result.StockQuantityNew;
+                            newDisableWishlistButton = product.MinStockQuantity >= result.StockQuantityNew;
+                            break;
+                        case LowStockActivity.Unpublish:
+                            newPublished = product.MinStockQuantity <= result.StockQuantityNew;
+                            break;
+                    }
+
+                    product.StockQuantity = result.StockQuantityNew;
+                    product.DisableBuyButton = newDisableBuyButton;
+                    product.DisableWishlistButton = newDisableWishlistButton;
+                    product.Published = newPublished;
+
+                    // SaveChanges is not necessary because SendQuantityBelowStoreOwnerNotificationAsync
+                    // does not reload anything that has been changed in the meantime.
+
+                    if (decrease && product.NotifyAdminForQuantityBelow > result.StockQuantityNew)
+                    {
+                        await _messageFactory.SendQuantityBelowStoreOwnerNotificationAsync(product, _localizationSettings.DefaultAdminLanguageId);
+                    }
+                }
+                break;
+                case ManageInventoryMethod.ManageStockByAttributes:
+                {
+                    var combination = await _productAttributeMaterializer.FindAttributeCombinationAsync(product.Id, selection);
+                    if (combination != null)
+                    {
+                        result.StockQuantityOld = combination.StockQuantity;
 
                         result.StockQuantityNew = decrease
-                            ? product.StockQuantity - quantity
-                            : product.StockQuantity + quantity;
+                            ? combination.StockQuantity - quantity
+                            : combination.StockQuantity + quantity;
 
-                        var newPublished = product.Published;
-                        var newDisableBuyButton = product.DisableBuyButton;
-                        var newDisableWishlistButton = product.DisableWishlistButton;
-
-                        // Check if the minimum quantity is reached.
-                        switch (product.LowStockActivity)
-                        {
-                            case LowStockActivity.DisableBuyButton:
-                                newDisableBuyButton = product.MinStockQuantity >= result.StockQuantityNew;
-                                newDisableWishlistButton = product.MinStockQuantity >= result.StockQuantityNew;
-                                break;
-                            case LowStockActivity.Unpublish:
-                                newPublished = product.MinStockQuantity <= result.StockQuantityNew;
-                                break;
-                        }
-
-                        product.StockQuantity = result.StockQuantityNew;
-                        product.DisableBuyButton = newDisableBuyButton;
-                        product.DisableWishlistButton = newDisableWishlistButton;
-                        product.Published = newPublished;
-
-                        // SaveChanges is not necessary because SendQuantityBelowStoreOwnerNotificationAsync
-                        // does not reload anything that has been changed in the meantime.
-
-                        if (decrease && product.NotifyAdminForQuantityBelow > result.StockQuantityNew)
-                        {
-                            await _messageFactory.SendQuantityBelowStoreOwnerNotificationAsync(product, _localizationSettings.DefaultAdminLanguageId);
-                        }
+                        combination.StockQuantity = result.StockQuantityNew;
                     }
-                    break;
-                case ManageInventoryMethod.ManageStockByAttributes:
-                    {
-                        var combination = await _productAttributeMaterializer.FindAttributeCombinationAsync(product.Id, selection);
-                        if (combination != null)
-                        {
-                            result.StockQuantityOld = combination.StockQuantity;
-
-                            result.StockQuantityNew = decrease
-                                ? combination.StockQuantity - quantity
-                                : combination.StockQuantity + quantity;
-
-                            combination.StockQuantity = result.StockQuantityNew;
-                        }
-                    }
-                    break;
+                }
+                break;
                 case ManageInventoryMethod.DontManageStock:
                 default:
                     // Do nothing.
@@ -394,7 +394,7 @@ namespace Smartstore.Core.Catalog.Products
         {
             var productQuery = _db.Products.ApplyStandardFilter(true);
 
-            var crossSellProductIdsQuery = 
+            var crossSellProductIdsQuery =
                 from csp in _db.CrossSellProducts
                 join p in productQuery on csp.ProductId2 equals p.Id
                 where csp.ProductId1 == productId1

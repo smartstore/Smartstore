@@ -507,33 +507,33 @@ namespace Smartstore.Admin.Controllers
                 switch (ruleSet.Scope)
                 {
                     case RuleScope.Cart:
-                        {
-                            var customer = Services.WorkContext.CurrentCustomer;
-                            var provider = _ruleProvider(ruleSet.Scope) as ICartRuleProvider;
-                            var expression = await _ruleService.CreateExpressionGroupAsync(ruleSet, provider, true) as RuleExpression;
-                            var match = await provider.RuleMatchesAsync(new[] { expression }, LogicalRuleOperator.And);
+                    {
+                        var customer = Services.WorkContext.CurrentCustomer;
+                        var provider = _ruleProvider(ruleSet.Scope) as ICartRuleProvider;
+                        var expression = await _ruleService.CreateExpressionGroupAsync(ruleSet, provider, true) as RuleExpression;
+                        var match = await provider.RuleMatchesAsync(new[] { expression }, LogicalRuleOperator.And);
 
-                            message = T(match ? "Admin.Rules.Execute.MatchCart" : "Admin.Rules.Execute.DoesNotMatchCart", customer.Username.NullEmpty() ?? customer.Email);
-                        }
-                        break;
+                        message = T(match ? "Admin.Rules.Execute.MatchCart" : "Admin.Rules.Execute.DoesNotMatchCart", customer.Username.NullEmpty() ?? customer.Email);
+                    }
+                    break;
                     case RuleScope.Customer:
-                        {
-                            var provider = _ruleProvider(ruleSet.Scope) as ITargetGroupService;
-                            var expression = await _ruleService.CreateExpressionGroupAsync(ruleSet, provider, true) as FilterExpression;
-                            var result = provider.ProcessFilter(new[] { expression }, LogicalRuleOperator.And, 0, 1);
+                    {
+                        var provider = _ruleProvider(ruleSet.Scope) as ITargetGroupService;
+                        var expression = await _ruleService.CreateExpressionGroupAsync(ruleSet, provider, true) as FilterExpression;
+                        var result = provider.ProcessFilter(new[] { expression }, LogicalRuleOperator.And, 0, 1);
 
-                            message = T("Admin.Rules.Execute.MatchCustomers", result.TotalCount.ToString("N0"));
-                        }
-                        break;
+                        message = T("Admin.Rules.Execute.MatchCustomers", result.TotalCount.ToString("N0"));
+                    }
+                    break;
                     case RuleScope.Product:
-                        {
-                            var provider = _ruleProvider(ruleSet.Scope) as IProductRuleProvider;
-                            var expression = await _ruleService.CreateExpressionGroupAsync(ruleSet, provider, true) as SearchFilterExpression;
-                            var result = await provider.SearchAsync(new[] { expression }, 0, 1);
+                    {
+                        var provider = _ruleProvider(ruleSet.Scope) as IProductRuleProvider;
+                        var expression = await _ruleService.CreateExpressionGroupAsync(ruleSet, provider, true) as SearchFilterExpression;
+                        var result = await provider.SearchAsync(new[] { expression }, 0, 1);
 
-                            message = T("Admin.Rules.Execute.MatchProducts", result.TotalHitsCount.ToString("N0"));
-                        }
-                        break;
+                        message = T("Admin.Rules.Execute.MatchProducts", result.TotalHitsCount.ToString("N0"));
+                    }
+                    break;
                 }
             }
             catch (Exception ex)

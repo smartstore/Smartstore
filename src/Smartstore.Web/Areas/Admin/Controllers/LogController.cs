@@ -7,7 +7,6 @@ using Smartstore.Core.Rules.Filters;
 using Smartstore.Core.Security;
 using Smartstore.Web.Models.DataGrid;
 using LogLevel = Smartstore.Core.Logging.LogLevel;
-using System;
 
 namespace Smartstore.Admin.Controllers
 {

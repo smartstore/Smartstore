@@ -55,7 +55,7 @@ namespace Smartstore.Core.Messaging
         private readonly ModuleManager _moduleManager;
         private readonly MessageModelHelper _helper;
         private readonly Lazy<IUrlHelper> _urlHelper;
-        
+
         public MessageModelProvider(
             SmartDbContext db,
             ICommonServices services,
@@ -335,8 +335,8 @@ namespace Smartstore.Core.Messaging
                     name = type.Name;
                 }
             }
-            catch 
-            { 
+            catch
+            {
             }
 
             return name;
@@ -446,7 +446,7 @@ namespace Smartstore.Core.Messaging
 
             var host = messageContext.BaseUri.ToString();
             var logoFile = await _services.MediaService.GetFileByIdAsync(messageContext.Store.LogoMediaFileId, MediaLoadFlags.AsNoTracking);
-            
+
             var m = new Dictionary<string, object>
             {
                 { "Email", messageContext.EmailAccount.Email },
@@ -608,10 +608,10 @@ namespace Smartstore.Core.Messaging
                 ["WishlistUrl"] = _helper.BuildRouteUrl("Wishlist", new { customerGuid = part.CustomerGuid }, messageContext),
                 ["EditUrl"] = _helper.BuildActionUrl("Edit", "Customer", new { id = part.Id, area = "Admin" }, messageContext),
                 ["PasswordRecoveryURL"] = pwdRecoveryToken == null ? null : _helper.BuildActionUrl("passwordrecoveryconfirm", "identity",
-                    new { token = pwdRecoveryToken, email, area = "" }, 
+                    new { token = pwdRecoveryToken, email, area = "" },
                     messageContext),
-                ["AccountActivationURL"] = accountActivationToken == null ? null : _helper.BuildActionUrl("activation", "customer", 
-                    new { token = accountActivationToken, email, area = "" }, 
+                ["AccountActivationURL"] = accountActivationToken == null ? null : _helper.BuildActionUrl("activation", "customer",
+                    new { token = accountActivationToken, email, area = "" },
                     messageContext),
 
                 // Addresses

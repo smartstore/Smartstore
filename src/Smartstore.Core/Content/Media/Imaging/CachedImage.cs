@@ -39,10 +39,10 @@ namespace Smartstore.Core.Content.Media.Imaging
         /// <summary>
         /// The name of the file (without path)
         /// </summary>
-        public string FileName 
+        public string FileName
             => System.IO.Path.GetFileName(this.Path);
 
-        public long FileSize 
+        public long FileSize
             => !Exists ? 0 : File.Length;
 
         /// <summary>
@@ -53,7 +53,7 @@ namespace Smartstore.Core.Content.Media.Imaging
         /// <summary>
         /// The filemime type
         /// </summary>
-        public string MimeType 
+        public string MimeType
             => _mimeType ??= MimeTypes.MapNameToMimeType(FileName);
 
         /// <summary>
@@ -73,7 +73,7 @@ namespace Smartstore.Core.Content.Media.Imaging
         /// <summary>
         /// The last modified date or <c>null</c> if the file does not exist
         /// </summary>
-        public DateTimeOffset? LastModifiedUtc 
+        public DateTimeOffset? LastModifiedUtc
             => Exists ? File.LastModified : null;
 
         /// <summary>

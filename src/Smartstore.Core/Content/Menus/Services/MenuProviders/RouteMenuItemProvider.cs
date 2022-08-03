@@ -19,8 +19,8 @@ namespace Smartstore.Core.Content.Menus
             {
                 node.ApplyRouteData(request.Entity.Model);
             }
-            catch 
-            { 
+            catch
+            {
             }
 
             if (request.IsEditMode)

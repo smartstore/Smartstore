@@ -49,7 +49,7 @@ namespace Smartstore.Core.Logging
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
 
-        private Log(ILazyLoader lazyLoader) 
+        private Log(ILazyLoader lazyLoader)
             : base(lazyLoader)
         {
         }

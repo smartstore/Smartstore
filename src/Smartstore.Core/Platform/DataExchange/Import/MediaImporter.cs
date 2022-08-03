@@ -187,7 +187,7 @@ namespace Smartstore.Core.DataExchange.Import
                             downloadItems.Where(x => x.Url.HasValue() && !x.Success),
                             cancelToken);
                     }
-                    
+
                     foreach (var item in downloadItems.OrderBy(x => x.DisplayOrder))
                     {
                         var product = item.Entity as Product;

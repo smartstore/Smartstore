@@ -135,7 +135,7 @@ namespace Smartstore.Core.Catalog.Pricing
             {
                 await _productAttributeMaterializer.MergeWithCombinationAsync(product, cartItem.Item.AttributeSelection);
             }
-        
+
             return context;
         }
 
@@ -338,9 +338,9 @@ namespace Smartstore.Core.Catalog.Pricing
             // Calculate price saving.
             // TODO: (mg) (core) find a way to avoid differing percentage discount in product lists and detail page.
             var priceWithoutDiscount = result.FinalPrice + result.DiscountAmount;
-            
-            var savingPrice = result.FinalPrice < priceWithoutDiscount 
-                ? priceWithoutDiscount 
+
+            var savingPrice = result.FinalPrice < priceWithoutDiscount
+                ? priceWithoutDiscount
                 : ConvertAmount(product.OldPrice, context, taxRate, false, out _).Value;
 
             var hasSaving = savingPrice > 0 && result.FinalPrice < savingPrice;

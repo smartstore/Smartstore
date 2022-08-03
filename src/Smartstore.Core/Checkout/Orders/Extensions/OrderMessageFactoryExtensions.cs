@@ -26,8 +26,8 @@ namespace Smartstore.Core.Checkout.Orders
             Guard.NotNull(order, nameof(order));
 
             return factory.CreateMessageAsync(
-                MessageContext.Create(MessageTemplateNames.OrderPlacedCustomer, languageId, order.StoreId, order.Customer), 
-                true, 
+                MessageContext.Create(MessageTemplateNames.OrderPlacedCustomer, languageId, order.StoreId, order.Customer),
+                true,
                 order);
         }
 
@@ -39,8 +39,8 @@ namespace Smartstore.Core.Checkout.Orders
             Guard.NotNull(order, nameof(order));
 
             return factory.CreateMessageAsync(
-                MessageContext.Create(MessageTemplateNames.OrderCompletedCustomer, languageId, order.StoreId, order.Customer), 
-                true, 
+                MessageContext.Create(MessageTemplateNames.OrderCompletedCustomer, languageId, order.StoreId, order.Customer),
+                true,
                 order);
         }
 
@@ -52,8 +52,8 @@ namespace Smartstore.Core.Checkout.Orders
             Guard.NotNull(order, nameof(order));
 
             return factory.CreateMessageAsync(
-                MessageContext.Create(MessageTemplateNames.OrderCancelledCustomer, languageId, order.StoreId, order.Customer), 
-                true, 
+                MessageContext.Create(MessageTemplateNames.OrderCancelledCustomer, languageId, order.StoreId, order.Customer),
+                true,
                 order);
         }
 
@@ -64,9 +64,9 @@ namespace Smartstore.Core.Checkout.Orders
         {
             Guard.NotNull(orderNote, nameof(orderNote));
             return factory.CreateMessageAsync(
-                MessageContext.Create(MessageTemplateNames.OrderNoteAddedCustomer, languageId, orderNote.Order?.StoreId, orderNote.Order?.Customer), 
-                true, 
-                orderNote, 
+                MessageContext.Create(MessageTemplateNames.OrderNoteAddedCustomer, languageId, orderNote.Order?.StoreId, orderNote.Order?.Customer),
+                true,
+                orderNote,
                 orderNote.Order);
         }
 
@@ -80,10 +80,10 @@ namespace Smartstore.Core.Checkout.Orders
 
             return factory.CreateMessageAsync(
                 MessageContext.Create(MessageTemplateNames.NewReturnRequestStoreOwner, languageId, orderItem.Order?.StoreId, returnRequest.Customer),
-                true, 
-                returnRequest, 
-                orderItem, 
-                orderItem.Order, 
+                true,
+                returnRequest,
+                orderItem,
+                orderItem.Order,
                 orderItem.Product);
         }
 
@@ -96,8 +96,8 @@ namespace Smartstore.Core.Checkout.Orders
             Guard.NotNull(orderItem, nameof(orderItem));
 
             return factory.CreateMessageAsync(
-                MessageContext.Create(MessageTemplateNames.ReturnRequestStatusChangedCustomer, languageId, orderItem.Order?.StoreId, returnRequest.Customer), 
-                true, 
+                MessageContext.Create(MessageTemplateNames.ReturnRequestStatusChangedCustomer, languageId, orderItem.Order?.StoreId, returnRequest.Customer),
+                true,
                 returnRequest);
         }
     }

@@ -6,15 +6,15 @@
     /// </summary>
     public class CapturesRefundRequest : PayPalRequest<RefundMessage>
     {
-        public CapturesRefundRequest(string captureId) 
+        public CapturesRefundRequest(string captureId)
             : base("/v2/payments/captures/{0}/refund?", HttpMethod.Post)
         {
             try
             {
                 Path = Path.FormatInvariant(Uri.EscapeDataString(captureId));
             }
-            catch (IOException) 
-            { 
+            catch (IOException)
+            {
             }
 
             ContentType = "application/json";

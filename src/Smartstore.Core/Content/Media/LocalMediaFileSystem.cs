@@ -25,7 +25,7 @@ namespace Smartstore.Core.Content.Media
             {
                 appContext.ContentRoot.TryCreateDirectory(storageConfiguration.StoragePath);
             }
-            
+
             return storageConfiguration.RootPath;
         }
     }

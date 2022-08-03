@@ -1,5 +1,4 @@
-﻿using System.Text;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json;
@@ -80,7 +79,7 @@ namespace Smartstore.Admin.Controllers
         private async Task<List<CustomerModel.AssociatedExternalAuthModel>> GetAssociatedExternalAuthRecordsAsync(Customer customer)
         {
             Guard.NotNull(customer, nameof(customer));
-            
+
             var result = new List<CustomerModel.AssociatedExternalAuthModel>();
             var authProviders = await _signInManager.GetExternalAuthenticationSchemesAsync();
             foreach (var ear in customer.ExternalAuthenticationRecords)
@@ -312,7 +311,7 @@ namespace Smartstore.Admin.Controllers
             if (_dateTimeSettings.AllowCustomersToSetTimeZone)
             {
                 to.TimeZoneId = from.TimeZoneId;
-            }    
+            }
             if (_customerSettings.GenderEnabled)
             {
                 to.Gender = from.Gender;
@@ -332,7 +331,7 @@ namespace Smartstore.Admin.Controllers
             if (_customerSettings.CityEnabled)
             {
                 to.GenericAttributes.City = from.City;
-            }   
+            }
             if (_customerSettings.CountryEnabled)
             {
                 to.GenericAttributes.CountryId = from.CountryId;
@@ -402,7 +401,7 @@ namespace Smartstore.Admin.Controllers
                 .IncludeCustomerRoles()
                 .ApplyIdentFilter(model.SearchEmail, model.SearchUsername, model.SearchCustomerNumber)
                 .ApplyBirthDateFilter(model.SearchYearOfBirth.ToInt(), model.SearchMonthOfBirth.ToInt(), model.SearchDayOfBirth.ToInt());
-                
+
             if (model.SearchCustomerRoleIds != null)
             {
                 searchQuery = searchQuery.ApplyRolesFilter(model.SearchCustomerRoleIds);
@@ -808,7 +807,7 @@ namespace Smartstore.Admin.Controllers
             try
             {
                 _db.Customers.Remove(customer);
-                
+
                 if (customer.Email.HasValue())
                 {
                     var subscriptions = await _db.NewsletterSubscriptions.Where(x => x.Email == customer.Email).ToListAsync();
@@ -905,7 +904,7 @@ namespace Smartstore.Admin.Controllers
                 {
                     throw new SmartException(T("Admin.Customers.Customers.SendEmail.EmailNotValid"));
                 }
-                
+
                 var emailAccount = _emailAccountService.Value.GetDefaultEmailAccount() ?? throw new SmartException(T("Common.Error.NoEmailAccount"));
                 var messageContext = MessageContext.Create("System.Generic", Convert.ToInt32(customer.GenericAttributes.LanguageId));
 
@@ -1158,7 +1157,7 @@ namespace Smartstore.Admin.Controllers
                 await _db.SaveChangesAsync();
                 success = true;
             }
-            
+
             return new JsonResult(success);
         }
 
@@ -1231,7 +1230,7 @@ namespace Smartstore.Admin.Controllers
 
             var orderQuery = _db.Orders
                 .Where(x => !x.Customer.Deleted)
-                .ApplyStatusFilter(orderStatusIds, paymentStatusIds , shippingStatusIds)
+                .ApplyStatusFilter(orderStatusIds, paymentStatusIds, shippingStatusIds)
                 .ApplyAuditDateFilter(startDate, endDate);
 
             var reportLines = await orderQuery

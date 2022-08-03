@@ -45,7 +45,7 @@ namespace Smartstore.Core.Logging.Serilog
             {
                 return null;
             }
-            
+
             var index = sourceContext.IndexOf('/');
 
             if (index == -1)

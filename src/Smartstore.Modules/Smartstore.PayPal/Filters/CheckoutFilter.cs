@@ -23,8 +23,8 @@ namespace Smartstore.PayPal.Filters
 
         public CheckoutFilter(
             SmartDbContext db,
-            ICommonServices services, 
-            PayPalSettings settings, 
+            ICommonServices services,
+            PayPalSettings settings,
             ICheckoutStateAccessor checkoutStateAccessor,
             IHttpContextAccessor httpContextAccessor,
             Lazy<IWidgetProvider> widgetProvider)

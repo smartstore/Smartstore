@@ -99,7 +99,7 @@ namespace Smartstore.Core.Common
             if (a.Currency != b.Currency)
             {
                 throw new InvalidOperationException("Cannot operate on money values with different currencies.");
-            }   
+            }
         }
 
         #region Change & Assign
@@ -172,7 +172,7 @@ namespace Smartstore.Core.Common
         {
             if (Currency == null)
                 return 0m.CompareTo(other.Amount);
-            
+
             if (other.Currency == null)
                 return Amount.CompareTo(0m);
 
@@ -273,7 +273,7 @@ namespace Smartstore.Core.Common
             }
 
             postFormat ??= PostFormat;
-            
+
             var nf = Currency.NumberFormat;
             string formatted = null;
 

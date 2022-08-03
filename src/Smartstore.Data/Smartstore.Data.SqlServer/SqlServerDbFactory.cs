@@ -16,14 +16,14 @@ namespace Smartstore.Data.SqlServer
             => new SqlConnectionStringBuilder(connectionString);
 
         public override DbConnectionStringBuilder CreateConnectionStringBuilder(
-            string server, 
+            string server,
             string database,
             string userId,
             string password)
         {
             Guard.NotEmpty(server, nameof(server));
 
-            var builder = new SqlConnectionStringBuilder 
+            var builder = new SqlConnectionStringBuilder
             {
                 IntegratedSecurity = userId.IsEmpty(),
                 DataSource = server,
@@ -34,7 +34,7 @@ namespace Smartstore.Data.SqlServer
                 MaxPoolSize = 1024,
                 Enlist = false
             };
-            
+
             if (!builder.IntegratedSecurity)
             {
                 builder.UserID = userId;

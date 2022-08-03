@@ -32,8 +32,8 @@ namespace Smartstore.Google.Analytics.Components
             _orderSettings = orderSettings;
         }
 
-        public async Task<IViewComponentResult> InvokeAsync(object model) 
-        { 
+        public async Task<IViewComponentResult> InvokeAsync(object model)
+        {
             // If GoogleId is empty or is default don't render anything.
             if (!_settings.GoogleId.HasValue() || _settings.GoogleId == "UA-0000000-0")
             {
@@ -161,7 +161,7 @@ namespace Smartstore.Google.Analytics.Components
 
             var path = Url.Content("~/Modules/Smartstore.Google.Analytics/js/google-analytics.utils.js");
             rootScript = $"<script src='{path}'></script>\n{rootScript}";
-        
+
             return HtmlContent(rootScript);
         }
     }

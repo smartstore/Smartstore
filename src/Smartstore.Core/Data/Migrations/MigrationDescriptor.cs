@@ -17,7 +17,7 @@
         }
 
         public long Version { get; }
-        
+
         /// <summary>
         /// The class name of the migration.
         /// </summary>

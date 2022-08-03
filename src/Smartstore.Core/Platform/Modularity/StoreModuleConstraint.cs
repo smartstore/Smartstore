@@ -17,7 +17,7 @@ namespace Smartstore.Engine.Modularity
         public bool Matches(IModuleDescriptor descriptor, int? storeId)
         {
             Guard.NotNull(descriptor, nameof(descriptor));
-            
+
             if (storeId == null)
             {
                 storeId = _storeContext.CurrentStore.Id;

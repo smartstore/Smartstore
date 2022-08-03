@@ -121,13 +121,13 @@ namespace Smartstore.Core.Content.Media
 
             // Determine file count for each folder
             var byFoldersQuery = from f in q
-                            where f.FolderId > 0 && !f.Deleted
-                            group f by f.FolderId.Value into grp
-                            select new
-                            {
-                                FolderId = grp.Key,
-                                Count = grp.Count()
-                            };
+                                 where f.FolderId > 0 && !f.Deleted
+                                 group f by f.FolderId.Value into grp
+                                 select new
+                                 {
+                                     FolderId = grp.Key,
+                                     Count = grp.Count()
+                                 };
 
             result.Folders = await byFoldersQuery.ToDictionaryAsync(k => k.FolderId, v => v.Count);
             result.Filter = filter;
@@ -265,7 +265,7 @@ namespace Smartstore.Core.Content.Media
         protected internal virtual async Task<bool> CheckUniqueFileNameAsync(MediaPathData pathData)
         {
             Guard.NotNull(pathData, nameof(pathData));
-            
+
             // (perf) First make fast check
             var exists = await _db.MediaFiles.AnyAsync(x => x.Name == pathData.FileName && x.FolderId == pathData.Folder.Id);
             if (!exists)
@@ -389,11 +389,11 @@ namespace Smartstore.Core.Content.Media
             pathData.FileName = newFileName;
 
             var result = await ProcessFileAsync(
-                file, 
-                pathData, 
-                inStream, 
-                isTransient: false, 
-                dupeFileHandling: DuplicateFileHandling.Overwrite, 
+                file,
+                pathData,
+                inStream,
+                isTransient: false,
+                dupeFileHandling: DuplicateFileHandling.Overwrite,
                 mediaValidationType: MimeValidationType.MediaTypeMustMatch);
 
             try
@@ -410,9 +410,9 @@ namespace Smartstore.Core.Content.Media
         }
 
         public async Task<MediaFileInfo> SaveFileAsync(
-            string path, 
-            Stream stream, 
-            bool isTransient = true, 
+            string path,
+            Stream stream,
+            bool isTransient = true,
             DuplicateFileHandling dupeFileHandling = DuplicateFileHandling.ThrowError)
         {
             var pathData = CreatePathData(path);
@@ -420,8 +420,8 @@ namespace Smartstore.Core.Content.Media
             var file = await _db.MediaFiles.FirstOrDefaultAsync(x => x.Name == pathData.FileName && x.FolderId == pathData.Folder.Id);
             var isDupe = file != null;
             var result = await ProcessFileAsync(
-                file, 
-                pathData, 
+                file,
+                pathData,
                 stream ?? new MemoryStream(),
                 isTransient: false,
                 dupeFileHandling: dupeFileHandling);
@@ -489,8 +489,8 @@ namespace Smartstore.Core.Content.Media
                     var file = destFiles.Get(pathData.FileName);
                     var isDupe = file != null;
                     var processFileResult = await ProcessFileAsync(
-                        file, 
-                        pathData, 
+                        file,
+                        pathData,
                         inStream: File.OpenRead(source.PhysicalPath),
                         destFileNames: destNames,
                         isTransient: isTransient,
@@ -499,7 +499,7 @@ namespace Smartstore.Core.Content.Media
 
                     file = processFileResult.File;
 
-                    batchResults.Add(new FileBatchResult 
+                    batchResults.Add(new FileBatchResult
                     {
                         Source = source,
                         File = ConvertMediaFile(file, pathData.Folder),
@@ -526,7 +526,7 @@ namespace Smartstore.Core.Content.Media
             // 2nd pass: Commit all new MediaFile entities in one go
             foreach (var result in batchResults)
             {
-                if (result.Exception == null && result.File != null && result.File.Id == 0) 
+                if (result.Exception == null && result.File != null && result.File.Id == 0)
                 {
                     _db.MediaFiles.Add(result.File.File);
                 }
@@ -662,12 +662,12 @@ namespace Smartstore.Core.Content.Media
         {
             if (file != null)
             {
-                var madeUniqueFileName = dupeFileHandling == DuplicateFileHandling.Overwrite 
-                    ? false 
-                    : (destFileNames != null 
-                        ? CheckUniqueFileName(pathData, destFileNames) 
+                var madeUniqueFileName = dupeFileHandling == DuplicateFileHandling.Overwrite
+                    ? false
+                    : (destFileNames != null
+                        ? CheckUniqueFileName(pathData, destFileNames)
                         : await CheckUniqueFileNameAsync(pathData));
-                
+
                 if (dupeFileHandling == DuplicateFileHandling.ThrowError)
                 {
                     var fullPath = pathData.FullPath;
@@ -755,8 +755,8 @@ namespace Smartstore.Core.Content.Media
             {
                 originalSize = ImageHeader.GetPixelSize(inStream, file.MimeType);
             }
-            catch 
-            { 
+            catch
+            {
             }
 
             IImage outImage;
@@ -788,7 +788,7 @@ namespace Smartstore.Core.Content.Media
             }
 
             query.MaxSize = maxSize;
-            
+
             using var result = await _imageProcessor.ProcessImageAsync(query, false);
             outImage = result.Image;
 
@@ -857,7 +857,7 @@ namespace Smartstore.Core.Content.Media
                         await uniqueFileNameChecker(destPathData);
                         throw _exceptionFactory.DuplicateFile(fullPath, ConvertMediaFile(dupe), destPathData.FullPath);
                     case DuplicateEntryHandling.Rename:
-                        await uniqueFileNameChecker (destPathData);
+                        await uniqueFileNameChecker(destPathData);
                         dupe = null;
                         break;
                     case DuplicateEntryHandling.Overwrite:

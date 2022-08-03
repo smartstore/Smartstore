@@ -32,8 +32,8 @@ namespace Smartstore.Web.Controllers
             var errorFeature = HttpContext.Features.Get<IExceptionHandlerPathFeature>();
             var reExecuteFeature = HttpContext.Features.Get<IStatusCodeReExecuteFeature>();
 
-            var model = new ErrorModel 
-            { 
+            var model = new ErrorModel
+            {
                 RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier,
                 StatusCode = httpStatusCode,
                 Exception = errorFeature?.Error,

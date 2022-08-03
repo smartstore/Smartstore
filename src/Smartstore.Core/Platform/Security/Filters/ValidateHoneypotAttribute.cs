@@ -9,7 +9,7 @@ namespace Smartstore.Core.Security
     /// </summary>
     public class ValidateHoneypotAttribute : TypeFilterAttribute
     {
-        public ValidateHoneypotAttribute() 
+        public ValidateHoneypotAttribute()
             : base(typeof(ValidateHoneypotFilter))
         {
         }
@@ -39,7 +39,7 @@ namespace Smartstore.Core.Security
                 {
                     await next();
                     return;
-                }                 
+                }
 
                 var isBot = _honeypotProtector.IsBot();
                 if (!isBot)

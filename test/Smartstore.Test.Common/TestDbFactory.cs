@@ -16,9 +16,9 @@ namespace Smartstore.Test.Common
             => throw new NotImplementedException();
 
         public override DbConnectionStringBuilder CreateConnectionStringBuilder(
-            string server, 
-            string database, 
-            string userName, 
+            string server,
+            string database,
+            string userName,
             string password)
             => throw new NotImplementedException();
 
@@ -36,7 +36,7 @@ namespace Smartstore.Test.Common
 
         public override DbContextOptionsBuilder ConfigureDbContext(DbContextOptionsBuilder builder, string connectionString)
         {
-            return builder               
+            return builder
                 .UseInMemoryDatabase("Test")
                 .ConfigureWarnings(b => b.Ignore(InMemoryEventId.TransactionIgnoredWarning));
         }

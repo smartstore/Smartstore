@@ -27,8 +27,8 @@ namespace Smartstore.Core.Seo
         /// <inheritdoc cref="Slugify(string, bool, bool, bool, IReadOnlyDictionary{char, string})"/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string Slugify(
-            string input, 
-            bool removeDiacritic, 
+            string input,
+            bool removeDiacritic,
             bool allowUnicodeChars,
             IReadOnlyDictionary<char, string> charConversionMap = null)
         {
@@ -54,7 +54,7 @@ namespace Smartstore.Core.Seo
             bool allowForwardSlash,
             IReadOnlyDictionary<char, string> charConversionMap = null)
         {
-            return Slugify(input, new SlugifyOptions 
+            return Slugify(input, new SlugifyOptions
             {
                 RemoveDiacritic = removeDiacritic,
                 AllowUnicodeChars = allowUnicodeChars,
@@ -77,7 +77,7 @@ namespace Smartstore.Core.Seo
         public static string Slugify(string input, SlugifyOptions options = null)
         {
             // Return empty value if text is null or empty
-            if (string.IsNullOrEmpty(input)) 
+            if (string.IsNullOrEmpty(input))
             {
                 return string.Empty;
             }
@@ -95,10 +95,10 @@ namespace Smartstore.Core.Seo
 
             for (int i = 0; i < len; i++)
             {
-                if (i > SlugMaxLength) 
+                if (i > SlugMaxLength)
                 {
                     break;
-                } 
+                }
 
                 c = input[i];
 
@@ -149,7 +149,7 @@ namespace Smartstore.Core.Seo
 
                     continue;
                 }
-                
+
                 if (c == ' ')
                 {
                     if (options.AllowSpace)

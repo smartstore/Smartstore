@@ -308,12 +308,12 @@ namespace Smartstore.Core.Catalog.Discounts
             switch (discount.DiscountLimitation)
             {
                 case DiscountLimitationType.NTimesOnly:
-                    {
-                        var count = await _db.DiscountUsageHistory
-                            .ApplyStandardFilter(discount.Id)
-                            .CountAsync();
-                        return count < discount.LimitationTimes;
-                    }
+                {
+                    var count = await _db.DiscountUsageHistory
+                        .ApplyStandardFilter(discount.Id)
+                        .CountAsync();
+                    return count < discount.LimitationTimes;
+                }
 
                 case DiscountLimitationType.NTimesPerCustomer:
                     if (customer != null && !customer.IsGuest())

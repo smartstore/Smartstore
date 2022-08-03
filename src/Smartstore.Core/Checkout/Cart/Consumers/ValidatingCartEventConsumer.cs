@@ -7,10 +7,10 @@ using Smartstore.Events;
 namespace Smartstore.Core.Checkout.Cart
 {
     internal class ValidatingCartEventConsumer : IConsumer
-    {        
+    {
         private readonly IOrderProcessingService _orderProcessingService;
         private readonly ILocalizationService _localizationService;
-        private readonly ICurrencyService _currencyService;        
+        private readonly ICurrencyService _currencyService;
         private readonly IWorkContext _workContext;
 
         public ValidatingCartEventConsumer(

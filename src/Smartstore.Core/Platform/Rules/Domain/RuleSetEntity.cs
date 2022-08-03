@@ -26,7 +26,7 @@ namespace Smartstore.Core.Rules
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
         private RuleSetEntity(ILazyLoader lazyLoader) : base(lazyLoader)
-        {            
+        {
         }
 
         /// <summary>

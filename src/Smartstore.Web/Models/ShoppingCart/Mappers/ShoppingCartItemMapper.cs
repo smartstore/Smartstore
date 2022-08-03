@@ -51,7 +51,7 @@ namespace Smartstore.Web.Models.Cart
             to.IsDownload = product.IsDownload;
             to.HasUserAgreement = product.HasUserAgreement;
             to.IsEsd = product.IsEsd;
-            to.DisableWishlistButton = product.DisableWishlistButton;            
+            to.DisableWishlistButton = product.DisableWishlistButton;
 
             if (product.DisplayDeliveryTimeAccordingToStock(_catalogSettings))
             {

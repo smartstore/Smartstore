@@ -41,7 +41,7 @@ namespace Smartstore.Core.Content.Media
             var root = _cache.Get(FolderTreeKey, o =>
             {
                 o.ExpiresIn(FolderTreeCacheDuration);
-                
+
                 var query = from x in _db.MediaFolders
                             orderby x.ParentId, x.Name
                             select x;

@@ -160,8 +160,8 @@ namespace Smartstore.Core.Common
                     {
                         _numberFormat = CultureInfo.CreateSpecificCulture(DisplayLocale).NumberFormat;
                     }
-                    catch 
-                    { 
+                    catch
+                    {
                     }
                 }
 

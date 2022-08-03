@@ -52,7 +52,7 @@ namespace Smartstore.Admin.Models.Messages
         [LocalizedDisplay("*Attachments")]
         public int AttachmentsCount { get; set; }
 
-        public string ViewUrl { get; set; } 
+        public string ViewUrl { get; set; }
 
         [LocalizedDisplay("*Attachments")]
         public ICollection<QueuedEmailAttachmentModel> Attachments { get; set; } = new List<QueuedEmailAttachmentModel>();
@@ -98,7 +98,7 @@ namespace Smartstore.Admin.Models.Messages
 
             await _db.LoadReferenceAsync(from, x => x.EmailAccount);
             await _db.LoadCollectionAsync(from, x => x.Attachments);
-                        
+
             to.EmailAccountName = from.EmailAccount?.FriendlyName ?? string.Empty;
             to.AttachmentsCount = from.Attachments?.Count ?? 0;
             to.Attachments = from.Attachments

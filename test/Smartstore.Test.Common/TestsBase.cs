@@ -1,6 +1,6 @@
 ﻿using System.Security.Principal;
-using NUnit.Framework;
 using Moq;
+using NUnit.Framework;
 
 namespace Smartstore.Test.Common
 {

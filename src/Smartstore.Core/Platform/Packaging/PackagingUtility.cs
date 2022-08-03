@@ -5,7 +5,7 @@ namespace Smartstore.Core.Packaging
     internal static class PackagingUtility
     {
         public const string ManifestFileName = "manifest.json";
-        
+
         public static string BuildExtensionPrefix(ExtensionType extensionType)
             => string.Format("Smartstore.{0}.", extensionType.ToString());
 

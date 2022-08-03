@@ -38,8 +38,8 @@ namespace Smartstore.Core.Content.Menus
                             var provider = EngineContext.Current.Scope.ResolveUnregistered(type) as IMenuProvider;
                             instances.Add(provider);
                         }
-                        catch 
-                        { 
+                        catch
+                        {
                         }
                     }
 

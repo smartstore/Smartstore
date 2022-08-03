@@ -16,7 +16,7 @@ namespace Smartstore.Web.Components
         private readonly CatalogSettings _catalogSettings;
 
         public HomeProductsViewComponent(
-            SmartDbContext db, 
+            SmartDbContext db,
             CatalogHelper catalogHelper,
             IAclService aclService,
             IStoreMappingService storeMappingService,

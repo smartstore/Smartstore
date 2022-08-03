@@ -1,6 +1,5 @@
 ﻿using Smartstore.ComponentModel;
 using Smartstore.Core.Data;
-using Smartstore.Data;
 using Smartstore.Data.Hooks;
 
 namespace Smartstore.Core.Content.Media

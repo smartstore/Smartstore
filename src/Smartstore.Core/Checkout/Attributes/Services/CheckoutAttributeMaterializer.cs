@@ -109,62 +109,62 @@ namespace Smartstore.Core.Checkout.Attributes
                     case AttributeControlType.DropdownList:
                     case AttributeControlType.RadioList:
                     case AttributeControlType.Boxes:
+                    {
+                        var selectedValue = selectedItems.FirstOrDefault()?.Value;
+                        if (selectedValue.HasValue())
                         {
-                            var selectedValue = selectedItems.FirstOrDefault()?.Value;
-                            if (selectedValue.HasValue())
+                            var selectedAttributeValueId = selectedValue.SplitSafe(',').FirstOrDefault()?.ToInt();
+                            if (selectedAttributeValueId.GetValueOrDefault() > 0)
                             {
-                                var selectedAttributeValueId = selectedValue.SplitSafe(',').FirstOrDefault()?.ToInt();
-                                if (selectedAttributeValueId.GetValueOrDefault() > 0)
-                                {
-                                    selection.AddAttributeValue(attribute.Id, selectedAttributeValueId.Value);
-                                }
+                                selection.AddAttributeValue(attribute.Id, selectedAttributeValueId.Value);
                             }
                         }
-                        break;
+                    }
+                    break;
 
                     case AttributeControlType.Checkboxes:
+                    {
+                        foreach (var item in selectedItems)
                         {
-                            foreach (var item in selectedItems)
+                            var selectedValue = item.Value.SplitSafe(',').FirstOrDefault()?.ToInt();
+                            if (selectedValue.GetValueOrDefault() > 0)
                             {
-                                var selectedValue = item.Value.SplitSafe(',').FirstOrDefault()?.ToInt();
-                                if (selectedValue.GetValueOrDefault() > 0)
-                                {
-                                    selection.AddAttributeValue(attribute.Id, selectedValue);
-                                }
+                                selection.AddAttributeValue(attribute.Id, selectedValue);
                             }
                         }
-                        break;
+                    }
+                    break;
 
                     case AttributeControlType.TextBox:
                     case AttributeControlType.MultilineTextbox:
+                    {
+                        var selectedValue = string.Join(",", selectedItems.Select(x => x.Value));
+                        if (selectedValue.HasValue())
                         {
-                            var selectedValue = string.Join(",", selectedItems.Select(x => x.Value));
-                            if (selectedValue.HasValue())
-                            {
-                                selection.AddAttributeValue(attribute.Id, selectedValue);
-                            }
+                            selection.AddAttributeValue(attribute.Id, selectedValue);
                         }
-                        break;
+                    }
+                    break;
 
                     case AttributeControlType.Datepicker:
+                    {
+                        var selectedValue = selectedItems.FirstOrDefault()?.Date;
+                        if (selectedValue.HasValue)
                         {
-                            var selectedValue = selectedItems.FirstOrDefault()?.Date;
-                            if (selectedValue.HasValue)
-                            {
-                                selection.AddAttributeValue(attribute.Id, selectedValue.Value);
-                            }
+                            selection.AddAttributeValue(attribute.Id, selectedValue.Value);
                         }
-                        break;
+                    }
+                    break;
 
                     case AttributeControlType.FileUpload:
+                    {
+                        var selectedValue = string.Join(",", selectedItems.Select(x => x.Value));
+                        if (selectedValue.HasValue())
                         {
-                            var selectedValue = string.Join(",", selectedItems.Select(x => x.Value));
-                            if (selectedValue.HasValue())
-                            {
-                                selection.AddAttributeValue(attribute.Id, selectedValue);
-                            }
+                            selection.AddAttributeValue(attribute.Id, selectedValue);
                         }
-                        break;
+                    }
+                    break;
                 }
             }
 

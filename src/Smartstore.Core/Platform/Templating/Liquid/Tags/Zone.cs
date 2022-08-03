@@ -45,7 +45,7 @@ namespace Smartstore.Templating.Liquid
 
                 base.Initialize(tagName, markup, tokens);
             }
-            
+
             public override void Render(Context context, TextWriter result)
             {
                 var zoneName = (string)context[_zoneName] ?? _zoneName;

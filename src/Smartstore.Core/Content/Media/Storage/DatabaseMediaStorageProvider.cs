@@ -179,7 +179,7 @@ namespace Smartstore.Core.Content.Media.Storage
         public virtual async Task RemoveAsync(params MediaFile[] mediaFiles)
         {
             int numRemoved = 0;
-            
+
             foreach (var media in mediaFiles)
             {
                 numRemoved += await RemoveInternalAsync(media);
@@ -250,7 +250,7 @@ namespace Smartstore.Core.Content.Media.Storage
                 // Shrink database after sending/removing at least one blob.
                 return _db.DataProvider.ShrinkDatabaseAsync(cancelToken);
             }
-            
+
             return Task.CompletedTask;
         }
 

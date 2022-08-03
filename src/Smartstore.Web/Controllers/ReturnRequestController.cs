@@ -22,7 +22,7 @@ namespace Smartstore.Web.Controllers
         private readonly LocalizationSettings _localizationSettings;
 
         public ReturnRequestController(
-            SmartDbContext db, 
+            SmartDbContext db,
             IOrderProcessingService orderProcessingService,
             ICurrencyService currencyService,
             ProductUrlHelper productUrlHelper,
@@ -51,12 +51,12 @@ namespace Smartstore.Web.Controllers
             {
                 return new UnauthorizedResult();
             }
-            
+
             if (!_orderProcessingService.IsReturnRequestAllowed(order))
             {
                 return RedirectToRoute("Homepage");
             }
-            
+
             var model = new SubmitReturnRequestModel();
             model = await PrepareReturnRequestModelAsync(model, order);
             return View(model);
@@ -67,7 +67,7 @@ namespace Smartstore.Web.Controllers
         {
             var order = await _db.Orders.FindByIdAsync(id);
             var customer = Services.WorkContext.CurrentCustomer;
-            
+
             if (order == null || customer.Id != order.CustomerId)
             {
                 return new UnauthorizedResult();
@@ -183,17 +183,17 @@ namespace Smartstore.Web.Controllers
                 switch (order.CustomerTaxDisplayType)
                 {
                     case TaxDisplayType.ExcludingTax:
-                        {
-                            var unitPriceExclTaxInCustomerCurrency = _currencyService.ConvertToExchangeRate(orderItem.UnitPriceExclTax, order.CurrencyRate, customerCurrency, true);
-                            orderItemModel.UnitPrice = new Money(orderItem.UnitPriceExclTax, customerCurrency);
-                        }
-                        break;
+                    {
+                        var unitPriceExclTaxInCustomerCurrency = _currencyService.ConvertToExchangeRate(orderItem.UnitPriceExclTax, order.CurrencyRate, customerCurrency, true);
+                        orderItemModel.UnitPrice = new Money(orderItem.UnitPriceExclTax, customerCurrency);
+                    }
+                    break;
                     case TaxDisplayType.IncludingTax:
-                        {
-                            var unitPriceInclTaxInCustomerCurrency = _currencyService.ConvertToExchangeRate(orderItem.UnitPriceInclTax, order.CurrencyRate, customerCurrency, true);
-                            orderItemModel.UnitPrice = new Money(orderItem.UnitPriceInclTax, customerCurrency);
-                        }
-                        break;
+                    {
+                        var unitPriceInclTaxInCustomerCurrency = _currencyService.ConvertToExchangeRate(orderItem.UnitPriceInclTax, order.CurrencyRate, customerCurrency, true);
+                        orderItemModel.UnitPrice = new Money(orderItem.UnitPriceInclTax, customerCurrency);
+                    }
+                    break;
                 }
 
                 model.Items.Add(orderItemModel);

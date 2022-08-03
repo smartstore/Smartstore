@@ -103,7 +103,7 @@ namespace Smartstore.Admin.Controllers
         }
 
         [Permission(Permissions.Configuration.Module.Read)]
-        public async Task <IActionResult> ConfigureModule(string systemName)
+        public async Task<IActionResult> ConfigureModule(string systemName)
         {
             var descriptor = _moduleCatalog.GetModuleByName(systemName);
             if (descriptor == null || !descriptor.Module.IsConfigurable)
@@ -381,7 +381,7 @@ namespace Smartstore.Admin.Controllers
             {
                 throw new AccessDeniedException();
             }
-            
+
             await _moduleManager.ApplySettingAsync(provider.Metadata, nameof(model.FriendlyName), model.FriendlyName);
             await _moduleManager.ApplySettingAsync(provider.Metadata, nameof(model.Description), model.Description);
 
@@ -427,7 +427,7 @@ namespace Smartstore.Admin.Controllers
         {
             string readPermission = null;
             string updatePermission = null;
-            
+
             var metadata = provider.Metadata;
 
             if (metadata.ProviderType == typeof(IPaymentMethod))

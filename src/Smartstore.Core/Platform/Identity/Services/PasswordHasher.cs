@@ -7,7 +7,7 @@ namespace Smartstore.Core.Identity
     {
         private readonly IEncryptor _encryptor;
         private readonly CustomerSettings _customerSettings;
-        
+
         public PasswordHasher(IEncryptor encryptor, CustomerSettings customerSettings)
         {
             _encryptor = encryptor;

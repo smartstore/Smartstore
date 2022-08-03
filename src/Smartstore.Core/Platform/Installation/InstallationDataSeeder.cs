@@ -162,7 +162,7 @@ namespace Smartstore.Core.Installation
                 }
                 i++;
 
-                Context.Settings.Add(new Setting 
+                Context.Settings.Add(new Setting
                 {
                     Name = string.Format("Tax.TaxProvider.FixedRate.TaxCategoryId{0}", id).ToLowerInvariant(),
                     Value = rate.Convert<string>(),
@@ -297,7 +297,7 @@ namespace Smartstore.Core.Installation
 
             // Set default customer name
             var firstAddress = adminUser.Addresses.FirstOrDefault();
-            Context.GenericAttributes.AddRange(new[] 
+            Context.GenericAttributes.AddRange(new[]
             {
                 new GenericAttribute
                 {

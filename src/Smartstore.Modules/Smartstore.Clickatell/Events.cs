@@ -27,8 +27,8 @@ namespace Smartstore.Clickatell
             var module = services.ApplicationContext.ModuleCatalog.GetModuleByAssembly(typeof(Events).Assembly);
 
             await client.SendSmsAsync(
-                T("Plugins.Sms.Clickatell.OrderPlacedMessage", message.Order.GetOrderNumber()), 
-                clickatellSettings, 
+                T("Plugins.Sms.Clickatell.OrderPlacedMessage", message.Order.GetOrderNumber()),
+                clickatellSettings,
                 cancelToken);
 
             message.Order.AddOrderNote(T("Plugins.Sms.Clickatell.SmsSentNote"));

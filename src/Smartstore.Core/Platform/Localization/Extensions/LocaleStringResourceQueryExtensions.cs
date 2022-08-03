@@ -16,7 +16,7 @@
         {
             Guard.NotNull(query, nameof(query));
             Guard.NotEmpty(pattern, nameof(pattern));
-  
+
             query = query.Where(x => x.ResourceName.StartsWith(pattern));
 
             return query;

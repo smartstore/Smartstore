@@ -16,15 +16,15 @@ namespace Smartstore.Core.Checkout.Payment
         #region Properties
 
         /// <inheritdoc/>
-        public virtual bool IsActive 
+        public virtual bool IsActive
             => true;
 
         /// <inheritdoc/>
-        public virtual bool RequiresInteraction 
+        public virtual bool RequiresInteraction
             => false;
 
         /// <inheritdoc/>
-        public virtual bool SupportCapture 
+        public virtual bool SupportCapture
             => false;
 
         /// <inheritdoc/>
@@ -32,19 +32,19 @@ namespace Smartstore.Core.Checkout.Payment
             => false;
 
         /// <inheritdoc/>
-        public virtual bool SupportRefund 
+        public virtual bool SupportRefund
             => false;
 
         /// <inheritdoc/>
-        public virtual bool SupportVoid 
+        public virtual bool SupportVoid
             => false;
 
         /// <inheritdoc/>
-        public virtual RecurringPaymentType RecurringPaymentType 
+        public virtual RecurringPaymentType RecurringPaymentType
             => RecurringPaymentType.NotSupported;
 
         /// <inheritdoc/>
-        public virtual PaymentMethodType PaymentMethodType 
+        public virtual PaymentMethodType PaymentMethodType
             => PaymentMethodType.Unknown;
 
         #endregion
@@ -99,7 +99,7 @@ namespace Smartstore.Core.Checkout.Payment
             => throw new NotSupportedException();
 
         /// <inheritdoc/>
-        public virtual Task<bool> CanRePostProcessPaymentAsync(Order order) 
+        public virtual Task<bool> CanRePostProcessPaymentAsync(Order order)
             => Task.FromResult(false);
 
         /// <inheritdoc/>

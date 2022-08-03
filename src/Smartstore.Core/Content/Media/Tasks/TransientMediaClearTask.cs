@@ -49,8 +49,8 @@ namespace Smartstore.Core.Content.Media.Tasks
                     {
                         await _db.DataProvider.ShrinkDatabaseAsync(cancelToken);
                     }
-                    catch 
-                    { 
+                    catch
+                    {
                     }
                 }
             }

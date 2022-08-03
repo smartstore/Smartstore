@@ -80,8 +80,8 @@ namespace Smartstore.Web.Controllers
             }
 
             var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
-            var dataProviders = new List<SelectListItem> 
-            { 
+            var dataProviders = new List<SelectListItem>
+            {
                 new SelectListItem { Value = "mysql", Text = T("UseMySql"), Selected = !isWindows },
                 new SelectListItem { Value = "sqlserver", Text = T("UseSqlServer"), Selected = isWindows }
             };
@@ -90,7 +90,7 @@ namespace Smartstore.Web.Controllers
             ViewBag.AvailableAppLanguages = appLanguages;
             ViewBag.AvailableDataProviders = dataProviders;
 
-            ViewBag.AvailableMediaStorages = new[] 
+            ViewBag.AvailableMediaStorages = new[]
             {
                 new SelectListItem { Value = "fs", Text = T("MediaStorage.FS") + " " + T("Recommended"), Selected = true },
                 new SelectListItem { Value = "db", Text = T("MediaStorage.DB") }

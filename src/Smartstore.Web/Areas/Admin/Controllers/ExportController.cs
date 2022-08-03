@@ -1,5 +1,4 @@
 ﻿using System.Net.Mime;
-using System.Text;
 using Humanizer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -308,8 +307,8 @@ namespace Smartstore.Admin.Controllers
 
             NotifySuccess(T("Admin.Common.DataSuccessfullySaved"));
 
-            return continueEditing 
-                ? RedirectToAction(nameof(Edit), new { id = profile.Id }) 
+            return continueEditing
+                ? RedirectToAction(nameof(Edit), new { id = profile.Id })
                 : RedirectToAction(nameof(List));
         }
 
@@ -825,8 +824,8 @@ namespace Smartstore.Admin.Controllers
         #region Utilities
 
         private async Task PrepareProfileModel(
-            ExportProfileModel model, 
-            ExportProfile profile, 
+            ExportProfileModel model,
+            ExportProfile profile,
             Provider<IExportProvider> provider,
             TaskExecutionInfo lastExecutionInfo,
             bool createForEdit)
@@ -1149,7 +1148,7 @@ namespace Smartstore.Admin.Controllers
                         // INFO: public folder is not cleaned up during export. We only have to show files that has been created during last export.
                         // Otherwise the merchant might publish URLs of old export files.
                         if (profile.CreateZipArchive)
-                        {                          
+                        {
                             var url = await _exportProfileService.GetDeploymentDirectoryUrlAsync(publicDeployment, currentStore);
                             await AddFileInfo(model.PublicFiles, await deploymentDir.GetFileAsync(zipFile.Name), rootPath, url);
                         }
@@ -1159,7 +1158,7 @@ namespace Smartstore.Admin.Controllers
                             foreach (var fi in resultInfo.Files)
                             {
                                 stores.TryGetValue(fi.StoreId, out var store);
-                                
+
                                 var url = await _exportProfileService.GetDeploymentDirectoryUrlAsync(publicDeployment, store ?? currentStore);
                                 await AddFileInfo(model.PublicFiles, await deploymentDir.GetFileAsync(fi.FileName), rootPath, url, fi, store);
                             }
@@ -1247,7 +1246,7 @@ namespace Smartstore.Admin.Controllers
                         return (profile, provider);
                     }
                 }
-            }         
+            }
 
             return (null, null);
         }

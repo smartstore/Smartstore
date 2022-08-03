@@ -674,7 +674,7 @@ namespace Smartstore.Core.Tests.Catalog.Search
                 ProductCategories.AddRange(categories ?? new HashSet<ProductCategory>());
                 ProductManufacturers.AddRange(manufacturers ?? new HashSet<ProductManufacturer>());
                 ProductTags.AddRange(tags ?? new HashSet<ProductTag>());
-                
+
 
                 Name = "Holisticly implement optimal web services";
                 ShortDescription = "Continually synthesize fully researched benefits with granular benefits.";

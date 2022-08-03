@@ -77,16 +77,16 @@ namespace Smartstore.Web.Controllers
         {
             await _helper.GetBreadcrumbAsync(_breadcrumb, ControllerContext);
 
-            var cacheKey = string.Format(ModelCacheInvalidator.TOPIC_BY_ID_KEY, 
-                topicId, 
-                Services.WorkContext.WorkingLanguage.Id, 
+            var cacheKey = string.Format(ModelCacheInvalidator.TOPIC_BY_ID_KEY,
+                topicId,
+                Services.WorkContext.WorkingLanguage.Id,
                 Services.StoreContext.CurrentStore.Id,
                 Services.WorkContext.CurrentCustomer.GetRolesIdent());
-            
+
             var cacheModel = await Services.CacheFactory.GetMemoryCache().GetAsync(cacheKey, async (o) =>
             {
                 o.ExpiresIn(TimeSpan.FromDays(1));
-                
+
                 var topic = await Services.DbContext.Topics.FindByIdAsync(topicId, false);
                 if (topic == null || !topic.IsPublished)
                     return null;
@@ -124,7 +124,7 @@ namespace Smartstore.Web.Controllers
 
             var topic = await db.Topics.FindByIdAsync(id, false);
 
-            if (topic != null && 
+            if (topic != null &&
                 topic.IsPublished &&
                 topic.IsPasswordProtected &&
                 await _storeMappingService.AuthorizeAsync(topic) &&

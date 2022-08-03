@@ -52,7 +52,7 @@ namespace Smartstore.Admin.Models.Orders
         public DateTime? CreatedOn { get; set; }
 
         public List<ShipmentItemModel> Items { get; set; } = new();
-        
+
         public string EditUrl { get; set; }
         public string OrderEditUrl { get; set; }
 

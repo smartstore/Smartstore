@@ -51,7 +51,7 @@ namespace Smartstore.Core.Stores
 
         #endregion
 
-        public virtual async Task ApplyStoreMappingsAsync<T>(T entity, int[] selectedStoreIds) 
+        public virtual async Task ApplyStoreMappingsAsync<T>(T entity, int[] selectedStoreIds)
             where T : BaseEntity, IStoreRestricted
         {
             selectedStoreIds ??= Array.Empty<int>();
@@ -69,7 +69,7 @@ namespace Smartstore.Core.Stores
                     if (await FindMapping(entity, store.Id, lookup) == null)
                     {
                         AddStoreMapping(entity, store.Id);
-                    }  
+                    }
                 }
                 else
                 {
@@ -78,7 +78,7 @@ namespace Smartstore.Core.Stores
                     if (storeMappingToDelete != null)
                     {
                         _db.StoreMappings.Remove(storeMappingToDelete);
-                    }  
+                    }
                 }
             }
         }
@@ -249,7 +249,7 @@ namespace Smartstore.Core.Stores
                 var segmentKey = GetSegmentKeyPart(entityName, entityId);
                 return _cache.RemoveAsync(BuildCacheSegmentKey(segmentKey));
             }
-            catch 
+            catch
             {
                 return Task.CompletedTask;
             }

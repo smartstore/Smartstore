@@ -266,7 +266,7 @@ namespace Smartstore.Core.Catalog.Search
             return false;
         }
 
-        private async Task<bool> HasAliasDuplicate<T1, T2>(IHookedEntity entry, BaseEntity baseEntity, CancellationToken cancelToken) 
+        private async Task<bool> HasAliasDuplicate<T1, T2>(IHookedEntity entry, BaseEntity baseEntity, CancellationToken cancelToken)
             where T1 : BaseEntity where T2 : BaseEntity
         {
             if (entry.InitialState == EState.Added || entry.InitialState == EState.Modified)

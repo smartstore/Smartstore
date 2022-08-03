@@ -197,7 +197,7 @@ namespace Smartstore.Core.Stores
 
         private IDisposable GetOrCreateDbContext(out SmartDbContext db)
         {
-            db = _scope?.ResolveOptional<SmartDbContext>() ?? 
+            db = _scope?.ResolveOptional<SmartDbContext>() ??
                  _httpContextAccessor.HttpContext?.RequestServices?.GetService<SmartDbContext>();
 
             if (db != null)

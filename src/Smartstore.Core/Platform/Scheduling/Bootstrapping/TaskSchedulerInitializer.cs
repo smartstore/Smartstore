@@ -34,8 +34,8 @@ namespace Smartstore.Core.Bootstrapping
             await taskStore.CalculateFutureSchedulesAsync(tasks, true /* isAppStart */);
 
             scheduler.Activate(
-                _appConfig.TaskSchedulerBaseUrl, 
-                _appConfig.TaskSchedulerPollInterval, 
+                _appConfig.TaskSchedulerBaseUrl,
+                _appConfig.TaskSchedulerPollInterval,
                 httpContext);
 
             Logger.Info($"Initialized TaskScheduler with base url '{scheduler.BaseUrl}'");

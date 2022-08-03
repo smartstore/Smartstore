@@ -6,7 +6,7 @@
     public readonly struct TaxRate
     {
         public readonly static TaxRate Zero;
-        
+
         public TaxRate(decimal rate, int taxCategoryId)
         {
             Rate = rate;

@@ -13,7 +13,7 @@ namespace Smartstore.Admin.Models.Topics
     {
         public TopicModel()
         {
-            AvailableTitleTags.AddRange(new[] 
+            AvailableTitleTags.AddRange(new[]
             {
                 new SelectListItem { Text = "h1", Value = "h1" },
                 new SelectListItem { Text = "h2", Value = "h2" },

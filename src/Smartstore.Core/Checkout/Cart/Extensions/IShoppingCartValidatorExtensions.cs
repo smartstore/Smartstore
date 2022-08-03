@@ -11,7 +11,7 @@
         /// <returns><c>True</c> if selected attributes are valid, otherwise <c>false</c>.</returns>
         public static Task<bool> ValidateProductAttributesAsync(
             this IShoppingCartValidator validator,
-            ShoppingCartItem cartItem, 
+            ShoppingCartItem cartItem,
             IEnumerable<OrganizedShoppingCartItem> cartItems,
             IList<string> warnings)
         {

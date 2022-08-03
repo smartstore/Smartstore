@@ -1,5 +1,4 @@
-﻿using Autofac;
-using Smartstore.Core.Configuration;
+﻿using Smartstore.Core.Configuration;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Widgets;
@@ -23,7 +22,7 @@ namespace Smartstore.Engine.Modularity
         public ModuleManager(
             IApplicationContext appContext,
             SmartDbContext db,
-            ILocalizationService locService, 
+            ILocalizationService locService,
             ISettingService settingService,
             IWidgetService widgetService,
             Func<string, IModule> moduleByNameFactory,

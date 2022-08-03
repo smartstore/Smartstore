@@ -171,7 +171,7 @@ namespace Smartstore.Admin.Controllers
                     {
                         pvaModel.OptionSets.Add(new { Id = string.Empty, Name = copyOptionsStr });
 
-                        x.ProductAttribute.ProductAttributeOptionsSets.Each(set => 
+                        x.ProductAttribute.ProductAttributeOptionsSets.Each(set =>
                         {
                             pvaModel.OptionSets.Add(new { set.Id, set.Name });
                         });
@@ -275,9 +275,9 @@ namespace Smartstore.Admin.Controllers
                 try
                 {
                     var numberOfCopiedOptions = await _productAttributeService.Value.CopyAttributeOptionsAsync(pva, optionsSetId, deleteExistingValues);
-                   
-                    NotifySuccess(T("Admin.Common.TaskSuccessfullyProcessed") 
-                        + " " 
+
+                    NotifySuccess(T("Admin.Common.TaskSuccessfullyProcessed")
+                        + " "
                         + T("Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values.NumberOfCopiedOptions", numberOfCopiedOptions));
                 }
                 catch (Exception ex)
@@ -616,7 +616,7 @@ namespace Smartstore.Admin.Controllers
         private async Task PrepareProductAttributeCombinationModelAsync(
             ProductVariantAttributeCombinationModel model,
             ProductVariantAttributeCombination entity,
-            Product product, 
+            Product product,
             bool formatAttributes = false)
         {
             Guard.NotNull(model, nameof(model));
@@ -718,7 +718,7 @@ namespace Smartstore.Admin.Controllers
                 });
             }
         }
-        
+
         private void PrepareViewBag(string btnId, string formId, bool refreshPage = false, bool isEdit = true)
         {
             ViewBag.btnId = btnId;

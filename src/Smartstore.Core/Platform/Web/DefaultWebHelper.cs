@@ -48,7 +48,7 @@ namespace Smartstore.Core.Web
             _storeContext = storeContext;
         }
 
-        public HttpContext HttpContext 
+        public HttpContext HttpContext
         {
             get => _httpContextAccessor.HttpContext;
         }
@@ -79,7 +79,7 @@ namespace Smartstore.Core.Web
                     {
                         break;
                     }
-                    
+
                     if (headers.TryGetValue(key, out var ipString))
                     {
                         // Iterate list from end to start (IPv6 addresses usually have precedence)
@@ -223,7 +223,7 @@ namespace Smartstore.Core.Web
             {
                 return _urlReferrer;
             }
-            
+
             var referrer = HttpContext?.Request?.UrlReferrer();
             if (referrer.HasValue())
             {
@@ -305,7 +305,7 @@ namespace Smartstore.Core.Web
             {
                 url += httpRequest.QueryString;
             }
-            
+
             if (lowercaseUrl)
             {
                 url = url.ToLowerInvariant();

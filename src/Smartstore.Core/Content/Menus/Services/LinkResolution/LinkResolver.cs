@@ -35,7 +35,7 @@ namespace Smartstore.Core.Content.Menus
         private readonly Lazy<IUrlHelper> _urlHelper;
         private readonly IUrlService _urlService;
 
-        private static readonly object _lock = new(); 
+        private static readonly object _lock = new();
         private static LinkBuilderMetadata[] _metadata;
 
         public LinkResolver(
@@ -135,7 +135,7 @@ namespace Smartstore.Core.Content.Menus
                 storeId,
                 string.Join(",", roles.Where(x => x.Active).Select(x => x.Id)));
 
-            var cachedResult = await _cacheFactory.GetMemoryCache().GetAsync(cacheKey, async () => 
+            var cachedResult = await _cacheFactory.GetMemoryCache().GetAsync(cacheKey, async () =>
             {
                 LinkTranslationResult result = null;
 
@@ -154,7 +154,7 @@ namespace Smartstore.Core.Content.Menus
                 if (result.Link == null && result.EntitySummary != null)
                 {
                     var summary = result.EntitySummary;
-                    var slug = 
+                    var slug =
                         (await _urlService.GetActiveSlugAsync(summary.Id, result.EntityName, languageId)).NullEmpty() ??
                         await _urlService.GetActiveSlugAsync(summary.Id, result.EntityName, 0);
 
@@ -175,13 +175,13 @@ namespace Smartstore.Core.Content.Menus
             // Check final status by authorizing store & ACL
             if (entitySummary != null && status == LinkStatus.Ok)
             {
-                if (entitySummary.LimitedToStores && 
+                if (entitySummary.LimitedToStores &&
                     !await _storeMappingService.AuthorizeAsync(cachedResult.EntityName, entitySummary.Id, storeId))
                 {
                     status = LinkStatus.NotFound;
                 }
 
-                if (status == LinkStatus.Ok && entitySummary.SubjectToAcl && 
+                if (status == LinkStatus.Ok && entitySummary.SubjectToAcl &&
                     !await _aclService.AuthorizeAsync(cachedResult.EntityName, entitySummary.Id, roles))
                 {
                     status = LinkStatus.Forbidden;

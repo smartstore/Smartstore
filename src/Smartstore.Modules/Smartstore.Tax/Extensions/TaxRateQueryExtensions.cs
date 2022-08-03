@@ -12,10 +12,10 @@
         /// <param name="stateProvinceId">State province identifier.</param>
         /// <param name="zip">Zip code to filter by.</param>
         /// <returns>TaxRateEntity query.</returns>
-        public static IQueryable<TaxRateEntity> ApplyRegionFilter(this IQueryable<TaxRateEntity> query, 
-            int? taxCategoryId, 
-            int? countryId, 
-            int? stateProvinceId, 
+        public static IQueryable<TaxRateEntity> ApplyRegionFilter(this IQueryable<TaxRateEntity> query,
+            int? taxCategoryId,
+            int? countryId,
+            int? stateProvinceId,
             string zip)
         {
             Guard.NotNull(query, nameof(query));
@@ -24,7 +24,7 @@
             {
                 zip = string.Empty;
             }
-                
+
             zip = zip.Trim();
 
             if (taxCategoryId > 0)

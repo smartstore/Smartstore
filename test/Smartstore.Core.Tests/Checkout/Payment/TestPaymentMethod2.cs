@@ -19,16 +19,16 @@ namespace Smartstore.Core.Tests.Checkout.Payment
             return Task.FromResult(result);
         }
 
-        public override bool SupportCapture 
+        public override bool SupportCapture
             => false;
 
-        public override bool SupportPartiallyRefund 
+        public override bool SupportPartiallyRefund
             => false;
 
-        public override bool SupportRefund 
+        public override bool SupportRefund
             => false;
 
-        public override bool SupportVoid 
+        public override bool SupportVoid
             => false;
 
         public decimal GetAdditionalHandlingFee(IList<OrganizedShoppingCartItem> cart)
@@ -37,7 +37,7 @@ namespace Smartstore.Core.Tests.Checkout.Payment
         public override WidgetInvoker GetPaymentInfoWidget()
             => throw new NotImplementedException();
 
-        public override PaymentMethodType PaymentMethodType 
+        public override PaymentMethodType PaymentMethodType
             => PaymentMethodType.Standard;
     }
 }

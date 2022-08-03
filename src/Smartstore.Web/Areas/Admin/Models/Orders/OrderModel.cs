@@ -96,19 +96,19 @@ namespace Smartstore.Admin.Models.Orders
 
         [LocalizedDisplay("*CardType")]
         public string CardType { get; set; }
-        
+
         [LocalizedDisplay("*CardName")]
         public string CardName { get; set; }
-        
+
         [LocalizedDisplay("*CardNumber")]
         public string CardNumber { get; set; }
-        
+
         [LocalizedDisplay("*CardCVV2")]
         public string CardCvv2 { get; set; }
-        
+
         [LocalizedDisplay("*CardExpirationMonth")]
         public string CardExpirationMonth { get; set; }
-        
+
         [LocalizedDisplay("*CardExpirationYear")]
         public string CardExpirationYear { get; set; }
 
@@ -138,19 +138,19 @@ namespace Smartstore.Admin.Models.Orders
 
         [LocalizedDisplay("*PurchaseOrderNumber")]
         public string PurchaseOrderNumber { get; set; }
-        
+
         [LocalizedDisplay("*AuthorizationTransactionID")]
         public string AuthorizationTransactionId { get; set; }
-        
+
         [LocalizedDisplay("*CaptureTransactionID")]
         public string CaptureTransactionId { get; set; }
-        
+
         [LocalizedDisplay("*SubscriptionTransactionID")]
         public string SubscriptionTransactionId { get; set; }
 
         [LocalizedDisplay("*AuthorizationTransactionResult")]
         public string AuthorizationTransactionResult { get; set; }
-        
+
         [LocalizedDisplay("*CaptureTransactionResult")]
         public string CaptureTransactionResult { get; set; }
 

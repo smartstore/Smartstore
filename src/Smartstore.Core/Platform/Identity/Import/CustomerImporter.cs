@@ -51,9 +51,9 @@ namespace Smartstore.Core.DataExchange.Import
             nameof(Customer.Email),
             nameof(Customer.Username)
         };
-        
-        public static string[] DefaultKeyFields => new[] 
-        { 
+
+        public static string[] DefaultKeyFields => new[]
+        {
             nameof(Customer.Email),
             nameof(Customer.CustomerGuid)
         };
@@ -159,7 +159,7 @@ namespace Smartstore.Core.DataExchange.Import
         protected virtual async Task<int> ProcessCustomersAsync(
             ImportExecuteContext context,
             ImporterCargoData cargo,
-            DbContextScope scope, 
+            DbContextScope scope,
             IEnumerable<ImportRow<Customer>>
             batch)
         {
@@ -319,7 +319,7 @@ namespace Smartstore.Core.DataExchange.Import
         protected virtual async Task<int> ProcessCustomerRolesAsync(
             ImportExecuteContext context,
             ImporterCargoData cargo,
-            DbContextScope scope, 
+            DbContextScope scope,
             IEnumerable<ImportRow<Customer>> batch)
         {
             if (!cargo.AllowManagingCustomerRoles)
@@ -381,7 +381,7 @@ namespace Smartstore.Core.DataExchange.Import
         protected virtual async Task<int> ProcessGenericAttributesAsync(
             ImportExecuteContext context,
             ImporterCargoData cargo,
-            DbContextScope scope, 
+            DbContextScope scope,
             IEnumerable<ImportRow<Customer>> batch)
         {
             // TODO: (mg) (core) (perf) (low) Prefetch all generic attributes for whole batch and work against batch (to be implemented after initial release).
@@ -456,7 +456,7 @@ namespace Smartstore.Core.DataExchange.Import
         protected virtual async Task<int> ProcessAddressesAsync(
             ImportExecuteContext context,
             ImporterCargoData cargo,
-            DbContextScope scope, 
+            DbContextScope scope,
             IEnumerable<ImportRow<Customer>> batch)
         {
             foreach (var row in batch)
@@ -569,9 +569,9 @@ namespace Smartstore.Core.DataExchange.Import
 
         private static int? StateAbbreviationToId(int? countryId, string abbreviation, ImporterCargoData cargo)
         {
-            if (countryId.HasValue && 
+            if (countryId.HasValue &&
                 abbreviation.HasValue() &&
-                cargo.StateProvinces.TryGetValue(Tuple.Create(countryId.Value, abbreviation), out var stateId) && 
+                cargo.StateProvinces.TryGetValue(Tuple.Create(countryId.Value, abbreviation), out var stateId) &&
                 stateId != 0)
             {
                 return stateId;

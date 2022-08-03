@@ -160,7 +160,7 @@ namespace Smartstore.Core.Catalog.Attributes
             Guard.NotNull(selection, nameof(selection));
 
             var cacheKey = ATTRIBUTEVALUES_BY_JSON_KEY.FormatInvariant(selection.AsJson());
-            
+
             var result = await _requestCache.GetAsync(cacheKey, async () =>
             {
                 var attributeIds = selection.AttributesMap.Select(x => x.Key).ToArray();
@@ -198,19 +198,19 @@ namespace Smartstore.Core.Catalog.Attributes
                     case AttributeControlType.DropdownList:
                     case AttributeControlType.RadioList:
                     case AttributeControlType.Boxes:
-                        {
-                            var valueId = selectedItems.FirstOrDefault()
-                                ?.Value
-                                ?.SplitSafe(',')
-                                ?.FirstOrDefault()
-                                ?.ToInt() ?? 0;
+                    {
+                        var valueId = selectedItems.FirstOrDefault()
+                            ?.Value
+                            ?.SplitSafe(',')
+                            ?.FirstOrDefault()
+                            ?.ToInt() ?? 0;
 
-                            if (valueId > 0)
-                            {
-                                selection.AddAttributeValue(pva.Id, valueId);
-                            }
+                        if (valueId > 0)
+                        {
+                            selection.AddAttributeValue(pva.Id, valueId);
                         }
-                        break;
+                    }
+                    break;
 
                     case AttributeControlType.Checkboxes:
                         foreach (var item in selectedItems)
@@ -225,14 +225,14 @@ namespace Smartstore.Core.Catalog.Attributes
 
                     case AttributeControlType.TextBox:
                     case AttributeControlType.MultilineTextbox:
+                    {
+                        var value = string.Join(",", selectedItems.Select(x => x.Value));
+                        if (value.HasValue())
                         {
-                            var value = string.Join(",", selectedItems.Select(x => x.Value));
-                            if (value.HasValue())
-                            {
-                                selection.AddAttributeValue(pva.Id, value);
-                            }
+                            selection.AddAttributeValue(pva.Id, value);
                         }
-                        break;
+                    }
+                    break;
 
                     case AttributeControlType.Datepicker:
                         var firstItemDate = selectedItems.FirstOrDefault()?.Date;
@@ -320,8 +320,8 @@ namespace Smartstore.Core.Catalog.Attributes
                 var combinations = await _db.ProductVariantAttributeCombinations
                     .AsNoTracking()
                     .Where(x => x.ProductId == productId)
-                    .Select(x => new ProductVariantAttributeCombination 
-                    { 
+                    .Select(x => new ProductVariantAttributeCombination
+                    {
                         Id = x.Id,
                         RawAttributes = x.RawAttributes
                     })
@@ -373,8 +373,8 @@ namespace Smartstore.Core.Catalog.Attributes
                 .Where(x => productIds.Contains(x.ProductId))
                 .Select(x => new ProductVariantAttributeCombination
                 {
-                    Id = x.Id, 
-                    ProductId = x.ProductId, 
+                    Id = x.Id,
+                    ProductId = x.ProductId,
                     RawAttributes = x.RawAttributes
                 })
                 .ToListAsync();
@@ -566,7 +566,7 @@ namespace Smartstore.Core.Catalog.Attributes
         }
 
         private async Task<ProductVariantAttributeCombination> FindCombinationByAttributeSelection(
-            ProductVariantAttributeSelection selection,     
+            ProductVariantAttributeSelection selection,
             ICollection<ProductVariantAttributeCombination> attributeCombinationsLookup)
         {
             if (!attributeCombinationsLookup.Any())

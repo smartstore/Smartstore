@@ -22,7 +22,7 @@ namespace Smartstore.AmazonPay
 
         public Module(
             ITaskStore taskStore,
-            IPaymentService paymentService, 
+            IPaymentService paymentService,
             IProviderManager providerManager,
             ExternalAuthenticationSettings externalAuthenticationSettings)
         {

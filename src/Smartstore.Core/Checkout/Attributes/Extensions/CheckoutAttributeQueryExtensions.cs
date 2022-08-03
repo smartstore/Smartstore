@@ -13,7 +13,7 @@ namespace Smartstore.Core.Checkout.Attributes
         /// and sorts by <see cref="CheckoutAttribute.DisplayOrder"/>.
         /// </summary>
         public static IOrderedQueryable<CheckoutAttribute> ApplyStandardFilter(
-            this IQueryable<CheckoutAttribute> query, 
+            this IQueryable<CheckoutAttribute> query,
             bool includeHidden = false,
             int storeId = 0)
         {

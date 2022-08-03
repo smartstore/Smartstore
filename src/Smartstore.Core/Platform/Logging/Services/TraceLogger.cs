@@ -93,7 +93,7 @@ namespace Smartstore.Core.Logging
             }
 
             var message = formatter?.Invoke(state, exception) ?? string.Empty;
-            
+
             if (exception != null && !exception.IsFatal())
             {
                 if (message.IsEmpty() || message.EqualsNoCase(NULL_MESSAGE))

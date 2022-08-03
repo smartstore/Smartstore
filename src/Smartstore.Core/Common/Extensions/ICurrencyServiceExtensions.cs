@@ -64,7 +64,7 @@ namespace Smartstore
         /// <param name="displayCurrency">A value indicating whether to display the currency symbol/code.</param>
         /// <returns>The exchanged amount.</returns>
         public static Money ConvertToExchangeRate(this ICurrencyService service,
-            decimal amount, 
+            decimal amount,
             decimal exchangeRate,
             object currencyCodeOrObj = null,
             bool displayCurrency = true)

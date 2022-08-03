@@ -50,7 +50,7 @@ namespace Smartstore.PayPal.Controllers
             {
                 await _cacheFactory.GetMemoryCache().RemoveByPatternAsync(PayPalHttpClient.PAYPAL_ACCESS_TOKEN_PATTERN_KEY);
             }
-            
+
             ModelState.Clear();
             MiniMapper.Map(model, settings);
 

@@ -5,7 +5,7 @@ namespace Smartstore.Admin.Controllers
     public class HomeController : AdminController
     {
         private readonly IUserAgent _userAgent;
-        
+
         public HomeController(IUserAgent userAgent)
         {
             _userAgent = userAgent;

@@ -170,10 +170,10 @@ namespace Smartstore.Core.Checkout.Orders
             var redeemedRewardPoints = 0;
             var redeemedRewardPointsAmount = decimal.Zero;
 
-            if (_rewardPointsSettings.Enabled && 
-                includeRewardPoints && 
+            if (_rewardPointsSettings.Enabled &&
+                includeRewardPoints &&
                 resultTemp > decimal.Zero &&
-                customer != null && 
+                customer != null &&
                 customer.GenericAttributes.UseRewardPointsDuringCheckout)
             {
                 var rewardPointsBalance = customer.GetRewardPointsBalance();
@@ -333,7 +333,7 @@ namespace Smartstore.Core.Checkout.Orders
             if (_shippingSettings.FreeShippingOverXEnabled)
             {
                 var subtotal = await GetCartSubtotalAsync(cart, _shippingSettings.FreeShippingOverXIncludingTax);
-                
+
                 if (subtotal.SubtotalWithDiscount > _shippingSettings.FreeShippingOverXValue)
                 {
                     return true;
@@ -513,7 +513,7 @@ namespace Smartstore.Core.Checkout.Orders
 
             // We calculate discount amount on order subtotal excl tax (discount first).
             var (discountAmountExclTax, appliedDiscount) = await GetDiscountAmountAsync(subtotalExclTaxWithoutDiscount, DiscountType.AssignedToOrderSubTotal, customer);
-            
+
             if (subtotalExclTaxWithoutDiscount < discountAmountExclTax)
             {
                 discountAmountExclTax = subtotalExclTaxWithoutDiscount;

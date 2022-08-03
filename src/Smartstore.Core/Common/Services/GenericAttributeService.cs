@@ -37,7 +37,7 @@ namespace Smartstore.Core.Common.Services
                 .Select(x => x.EntityId)
                 .Distinct()
                 .ToArray();
-            
+
             if (orderIds.Any())
             {
                 var orders = await _db.Orders.GetManyAsync(orderIds, true);
@@ -108,9 +108,9 @@ namespace Smartstore.Core.Common.Services
             {
                 var entityId = group.Key;
                 var collection = new GenericAttributeCollection(
-                    _db.GenericAttributes.Where(x => x.EntityId == entityId && x.KeyGroup == entityName), 
+                    _db.GenericAttributes.Where(x => x.EntityId == entityId && x.KeyGroup == entityName),
                     entityName,
-                    entityId, 
+                    entityId,
                     storeId,
                     group.ToList());
 

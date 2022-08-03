@@ -35,7 +35,7 @@ namespace Smartstore.Google.Analytics
                 return;
 
             var componentType = message.Descriptor.TypeInfo.AsType();
-            
+
             if (!_interceptableViewComponents.TryGetValue(componentType, out var zone))
             {
                 return;

@@ -126,7 +126,7 @@ namespace Smartstore.Admin.Components
                 year.Quantity++;
                 year.Amount += dataPoint.OrderTotal;
             }
-            
+
             // Today
             if (dataPoint.CreatedOn >= userTime.Date)
             {

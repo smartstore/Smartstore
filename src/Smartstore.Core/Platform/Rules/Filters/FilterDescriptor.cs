@@ -19,7 +19,7 @@
 
     public class FilterDescriptor<T, TValue> : FilterDescriptor where T : class
     {
-        public FilterDescriptor(Expression<Func<T, TValue>> expression) 
+        public FilterDescriptor(Expression<Func<T, TValue>> expression)
             : base(expression) // TODO
         {
             Guard.NotNull(expression, nameof(expression));

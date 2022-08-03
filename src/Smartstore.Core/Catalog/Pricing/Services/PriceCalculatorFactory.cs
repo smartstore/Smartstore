@@ -26,7 +26,7 @@ namespace Smartstore.Core.Catalog.Pricing
 
             var cacheKey = "PriceCalculators:" + GenerateHashCode(context).ToString();
 
-            var calculators = _requestCache.Get(cacheKey, () => 
+            var calculators = _requestCache.Get(cacheKey, () =>
             {
                 return _lazyCalculators
                     .Where(x => MatchCalculator(context, x.Metadata))

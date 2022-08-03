@@ -34,7 +34,7 @@ namespace Smartstore.Core.Security
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
         private AclRecord(ILazyLoader lazyLoader)
             : base(lazyLoader)
-        {     
+        {
         }
 
         /// <summary>

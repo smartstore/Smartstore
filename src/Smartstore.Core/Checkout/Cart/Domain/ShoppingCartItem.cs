@@ -24,7 +24,7 @@ namespace Smartstore.Core.Checkout.Cart
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
         private ShoppingCartItem(ILazyLoader lazyLoader)
             : base(lazyLoader)
-        {            
+        {
         }
 
         /// <summary>
@@ -56,9 +56,9 @@ namespace Smartstore.Core.Checkout.Cart
         /// Gets or sets the product variant attributes in XML or JSON format
         /// </summary>
         [Column("AttributesXml"), MaxLength]
-        public string RawAttributes 
+        public string RawAttributes
         {
-            get => _rawAttributes; 
+            get => _rawAttributes;
             set
             {
                 _rawAttributes = value;
@@ -139,21 +139,21 @@ namespace Smartstore.Core.Checkout.Cart
         /// Gets a value indicating whether the shopping cart item is free shipping
         /// </summary>
         [NotMapped]
-        public bool IsFreeShipping 
+        public bool IsFreeShipping
             => Product is null || Product.IsFreeShipping;
 
         /// <summary>
         /// Gets a value indicating whether the shopping cart item is ship enabled
         /// </summary>
         [NotMapped]
-        public bool IsShippingEnabled 
+        public bool IsShippingEnabled
             => Product != null && Product.IsShippingEnabled;
 
         /// <summary>
         /// Gets a value indicating whether the shopping cart item is tax exempt
         /// </summary>
         [NotMapped]
-        public bool IsTaxExempt 
+        public bool IsTaxExempt
             => Product != null && Product.IsTaxExempt;
 
     }

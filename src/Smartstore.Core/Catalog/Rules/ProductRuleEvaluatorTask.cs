@@ -127,8 +127,8 @@ namespace Smartstore.Core.Catalog.Rules
                         {
                             scope.DbContext.DetachEntities<ProductCategory>();
                         }
-                        catch 
-                        { 
+                        catch
+                        {
                         }
                     }
                 }

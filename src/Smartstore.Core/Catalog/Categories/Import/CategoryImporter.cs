@@ -169,7 +169,7 @@ namespace Smartstore.Core.DataExchange.Import
         protected virtual async Task<int> ProcessCategoriesAsync(
             ImportExecuteContext context,
             ImporterCargoData cargo,
-            DbContextScope scope, 
+            DbContextScope scope,
             IEnumerable<ImportRow<Category>> batch)
         {
             var defaultTemplateId = cargo.TemplateViewPaths["CategoryTemplate.ProductsInGridOrLines"];
@@ -248,8 +248,8 @@ namespace Smartstore.Core.DataExchange.Import
 
                 if (row.TryGetDataValue("CategoryTemplateViewPath", out string tvp, row.IsTransient))
                 {
-                    category.CategoryTemplateId = tvp.HasValue() && cargo.TemplateViewPaths.ContainsKey(tvp) 
-                        ? cargo.TemplateViewPaths[tvp] 
+                    category.CategoryTemplateId = tvp.HasValue() && cargo.TemplateViewPaths.ContainsKey(tvp)
+                        ? cargo.TemplateViewPaths[tvp]
                         : defaultTemplateId;
                 }
 

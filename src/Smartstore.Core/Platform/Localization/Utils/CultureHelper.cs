@@ -135,7 +135,7 @@ namespace Smartstore.Core.Localization
                         return info.CurrencySymbol;
                 }
             }
-            catch 
+            catch
             {
             }
 

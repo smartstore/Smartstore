@@ -9,7 +9,7 @@ namespace Smartstore.Core.Messaging
     /// Represents a message template.
     /// </summary>
     [CacheableEntity]
-	public partial class MessageTemplate : EntityWithAttributes, ILocalizedEntity, IStoreRestricted
+    public partial class MessageTemplate : EntityWithAttributes, ILocalizedEntity, IStoreRestricted
     {
         /// <summary>
         /// Gets or sets the name.

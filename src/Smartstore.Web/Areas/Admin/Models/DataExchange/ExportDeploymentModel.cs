@@ -106,7 +106,7 @@ namespace Smartstore.Admin.Models.Export
                     return isValidPath;
                 })
                 .When(x => x.DeploymentType == ExportDeploymentType.FileSystem)
-                .WithMessage(x => T("Admin.Validation.InvalidPath").Value.FormatInvariant(x.FileSystemPath.EmptyNull()));           
+                .WithMessage(x => T("Admin.Validation.InvalidPath").Value.FormatInvariant(x.FileSystemPath.EmptyNull()));
         }
     }
 }

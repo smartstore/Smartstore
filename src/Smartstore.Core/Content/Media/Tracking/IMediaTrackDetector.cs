@@ -10,7 +10,7 @@
         /// track detection for given <paramref name="albumName"/>.
         /// </summary>
         bool MatchAlbum(string albumName);
-        
+
         /// <summary>
         /// Used to announce foreign key properties for media files in any entity type.
         /// This method is called only once on app startup to feed the media tracker database hook

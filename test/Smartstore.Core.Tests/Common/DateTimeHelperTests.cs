@@ -13,7 +13,7 @@ namespace Smartstore.Core.Tests.Common
     public class DateTimeHelperTests : ServiceTestBase
     {
         IWorkContext _workContext;
-        ISettingService _settingService;   
+        ISettingService _settingService;
         DateTimeSettings _dateTimeSettings;
         IDateTimeHelper _dateTimeHelper;
 

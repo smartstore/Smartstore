@@ -92,12 +92,12 @@ namespace Smartstore.Web.Components
                 await Services.DbContext.SaveChangesAsync();
             }
 
-            if(_displayHelper.DisplaySmartstoreHint())
+            if (_displayHelper.DisplaySmartstoreHint())
             {
                 model.SmartStoreHint = $"<a href='https://www.smartstore.com/' class='sm-hint' target='_blank'><strong>{hint}</strong></a> by SmartStore AG &copy; {DateTime.Now.Year}";
             }
-            
-            if (ShouldRenderGDPR()) 
+
+            if (ShouldRenderGDPR())
             {
                 _widgetProvider.RegisterViewComponent<GdprConsentViewComponent>("gdpr_consent_small", new { isSmall = true });
                 HttpContext.Items["GdprConsentRendered"] = true;

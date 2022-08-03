@@ -51,7 +51,7 @@ namespace Smartstore.Core.Checkout.Attributes
 
             customer ??= _workContext.CurrentCustomer;
 
-            using var psb = StringBuilderPool.Instance.Get(out var sb);            
+            using var psb = StringBuilderPool.Instance.Get(out var sb);
             var attributesList = await _checkoutAttributeMaterializer.MaterializeCheckoutAttributesAsync(selection);
             if (attributesList.IsNullOrEmpty())
                 return null;
@@ -126,7 +126,7 @@ namespace Smartstore.Core.Checkout.Attributes
                         {
                             // Other attributes (textbox, datepicker...)
                             attributeStr = $"{currentAttribute.GetLocalized(a => a.Name, language)}: {currentValue}";
-            
+
                             if (htmlEncode)
                             {
                                 attributeStr = HttpUtility.HtmlEncode(attributeStr);
@@ -141,7 +141,7 @@ namespace Smartstore.Core.Checkout.Attributes
                             if (attributeValue != null)
                             {
                                 attributeStr = $"{currentAttribute.GetLocalized(x => x.Name, language)}: {attributeValue.GetLocalized(x => x.Name, language)}";
-                                
+
                                 if (renderPrices)
                                 {
                                     var adjustment = await _taxCalculator.CalculateCheckoutAttributeTaxAsync(attributeValue, customer: customer);

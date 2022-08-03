@@ -41,10 +41,10 @@ namespace Smartstore.Core.Content.Menus
         /// either be the topic id or system name. Custom providers may provide more schemas.
         /// </param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Task<LinkResolutionResult> ResolveAsync(this ILinkResolver resolver, 
-            string expression, 
-            IEnumerable<CustomerRole> roles = null, 
-            int languageId = 0, 
+        public static Task<LinkResolutionResult> ResolveAsync(this ILinkResolver resolver,
+            string expression,
+            IEnumerable<CustomerRole> roles = null,
+            int languageId = 0,
             int storeId = 0)
         {
             return resolver.ResolveAsync(LinkExpression.Parse(expression), roles, languageId, storeId);

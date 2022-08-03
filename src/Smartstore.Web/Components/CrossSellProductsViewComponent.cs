@@ -18,9 +18,9 @@ namespace Smartstore.Web.Components
         private readonly IStoreMappingService _storeMappingService;
         private readonly CatalogHelper _helper;
         private readonly ShoppingCartSettings _shoppingCartSettings;
-        
+
         public CrossSellProductsViewComponent(
-            IShoppingCartService cartService, 
+            IShoppingCartService cartService,
             IProductService productService,
             IAclService aclService,
             IStoreMappingService storeMappingService,

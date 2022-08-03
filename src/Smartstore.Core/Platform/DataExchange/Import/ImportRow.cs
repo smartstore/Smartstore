@@ -187,9 +187,9 @@ namespace Smartstore.Core.DataExchange.Import
                 {
                     // explicitly ignore this property
                 }
-                else if (_row.TryGetValue(mapping.MappedName, out object value) && 
-                    value != null && 
-                    value != DBNull.Value && 
+                else if (_row.TryGetValue(mapping.MappedName, out object value) &&
+                    value != null &&
+                    value != DBNull.Value &&
                     !value.ToString().EqualsNoCase(EXPLICIT_IGNORE))
                 {
                     // source contains field value. Set it.

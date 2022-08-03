@@ -9,7 +9,7 @@ namespace Smartstore.Core.Localization
     public class LocalizationFileResolver : ILocalizationFileResolver
     {
         const string LangToken = "{lang}";
-        
+
         private readonly ICacheManager _cache;
         private readonly IApplicationContext _appContext;
 
@@ -135,7 +135,7 @@ namespace Smartstore.Core.Localization
             // 1: Exact match
             // -----------------------------------------------------
             var fileName = pattern.Replace(LangToken, ci.Name);
-            if (fs.FileExists(dirPath + fileName)) 
+            if (fs.FileExists(dirPath + fileName))
             {
                 result = ci.Name;
             }

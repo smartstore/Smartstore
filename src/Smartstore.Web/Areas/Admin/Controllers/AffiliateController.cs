@@ -19,7 +19,7 @@ namespace Smartstore.Admin.Controllers
             _db = db;
             _customerSettings = customerSettings;
         }
-        
+
         private async Task PrepareAffiliateModelAsync(AffiliateModel model, Affiliate affiliate, bool excludeProperties)
         {
             if (affiliate != null)
@@ -125,9 +125,9 @@ namespace Smartstore.Admin.Controllers
                 await _db.SaveChangesAsync();
 
                 NotifySuccess(T("Admin.Affiliates.Added"));
-                
-                return continueEditing 
-                    ? RedirectToAction(nameof(Edit), new { id = affiliate.Id }) 
+
+                return continueEditing
+                    ? RedirectToAction(nameof(Edit), new { id = affiliate.Id })
                     : RedirectToAction(nameof(List));
             }
 
@@ -171,9 +171,9 @@ namespace Smartstore.Admin.Controllers
                 await _db.SaveChangesAsync();
 
                 NotifySuccess(T("Admin.Affiliates.Updated"));
-                
-                return continueEditing 
-                    ? RedirectToAction(nameof(Edit), affiliate.Id) 
+
+                return continueEditing
+                    ? RedirectToAction(nameof(Edit), affiliate.Id)
                     : RedirectToAction(nameof(List));
             }
 
@@ -205,7 +205,7 @@ namespace Smartstore.Admin.Controllers
             var success = false;
             var numDeleted = 0;
             var ids = selection.GetEntityIds().ToList();
-            
+
             if (ids.Any())
             {
                 var affiliates = await _db.Affiliates.GetManyAsync(ids, true);

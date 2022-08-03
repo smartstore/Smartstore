@@ -17,7 +17,7 @@ namespace Smartstore.Core.Catalog.Attributes
             _requestCache = requestCache;
         }
 
-        public override Task<HookResult> OnAfterSaveAsync(IHookedEntity entry, CancellationToken cancelToken) 
+        public override Task<HookResult> OnAfterSaveAsync(IHookedEntity entry, CancellationToken cancelToken)
             => Task.FromResult(HookResult.Ok);
 
         public override async Task OnAfterSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)

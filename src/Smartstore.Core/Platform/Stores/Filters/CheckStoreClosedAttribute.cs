@@ -29,8 +29,8 @@ namespace Smartstore.Core.Stores
             private readonly bool _check;
 
             public CheckStoreClosedFilter(
-                IWorkContext workContext, 
-                INotifier notifier, 
+                IWorkContext workContext,
+                INotifier notifier,
                 Localizer localizer,
                 StoreInformationSettings storeInfoSettings, bool check)
             {
@@ -49,7 +49,7 @@ namespace Smartstore.Core.Stores
                 if (!_storeInfoSettings.StoreClosed)
                 {
                     return;
-                } 
+                }
 
                 if (!_check)
                 {

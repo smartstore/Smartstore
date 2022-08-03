@@ -76,7 +76,7 @@ namespace Smartstore.Core.Catalog.Products
             {
                 var maxProducts = 4;
                 var productIds = GetComparedProductsIds();
-                var newProductIds = new List<int>{ productId };
+                var newProductIds = new List<int> { productId };
 
                 newProductIds.AddRange(productIds
                     .Where(x => x != productId)

@@ -65,13 +65,13 @@ namespace Smartstore.Core.Messaging
         /// <summary>
         /// Sends the "ContactUs" message to the store owner.
         /// </summary>
-        public static Task<CreateMessageResult> SendContactUsMessageAsync(this IMessageFactory factory, 
+        public static Task<CreateMessageResult> SendContactUsMessageAsync(this IMessageFactory factory,
             Customer customer,
-            string senderMail, 
-            string senderName, 
-            string subject, 
-            string message, 
-            MailAddress senderMailAddress, 
+            string senderMail,
+            string senderName,
+            string subject,
+            string message,
+            MailAddress senderMailAddress,
             int languageId = 0)
         {
             var model = new NamedModelPart("Message")

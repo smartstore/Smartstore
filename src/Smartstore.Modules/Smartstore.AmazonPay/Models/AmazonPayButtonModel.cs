@@ -19,7 +19,7 @@
             PrivateKey = settings.PrivateKey;
             SellerId = settings.SellerId;
             StoreId = settings.ClientId;
-            
+
             LedgerCurrency = ledgerCurrency;
             ButtonType = buttonType;
             ButtonColor = signIn ? settings.AuthButtonColor : settings.PayButtonColor;

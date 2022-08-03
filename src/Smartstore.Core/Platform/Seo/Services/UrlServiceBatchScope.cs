@@ -42,7 +42,7 @@ namespace Smartstore.Core.Seo
         {
             if (_batch.Count == 0)
                 return 0;
-            
+
             var batch = await ValidateBatchAsync(_batch, cancelToken);
 
             var batchByEntityName = batch.ToMultimap(x => x.EntityName, x => x);
@@ -140,7 +140,7 @@ namespace Smartstore.Core.Seo
             {
                 _urlService = null;
                 _dbSet = null;
-            }    
+            }
         }
     }
 }

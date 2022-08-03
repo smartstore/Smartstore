@@ -59,7 +59,7 @@
         /// <param name="entities">Entities to check.</param>
         /// <param name="storeId">Store identifier.</param>
         /// <returns>Authorized entities.</returns>
-        public static IAsyncEnumerable<T> SelectAuthorizedAsync<T>(this IStoreMappingService service, IEnumerable<T> entities, int storeId) 
+        public static IAsyncEnumerable<T> SelectAuthorizedAsync<T>(this IStoreMappingService service, IEnumerable<T> entities, int storeId)
             where T : BaseEntity, IStoreRestricted
         {
             Guard.NotNull(entities, nameof(entities));

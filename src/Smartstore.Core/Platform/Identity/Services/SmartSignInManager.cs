@@ -25,7 +25,7 @@ namespace Smartstore.Core.Identity
             _db = db;
             _customerSettings = customerSettings;
         }
-        
+
         /// <inheritdoc />
         public override async Task<SignInResult> PasswordSignInAsync(string userNameOrEmail, string password, bool isPersistent, bool lockoutOnFailure)
         {

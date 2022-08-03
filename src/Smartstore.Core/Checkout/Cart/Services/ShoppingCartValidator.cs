@@ -376,30 +376,30 @@ namespace Smartstore.Core.Checkout.Cart
                 switch (product.ManageInventoryMethod)
                 {
                     case ManageInventoryMethod.ManageStock:
-                        {
-                            if (product.BackorderMode != BackorderMode.NoBackorders || product.StockQuantity >= quanitityToValidate)
-                                break;
+                    {
+                        if (product.BackorderMode != BackorderMode.NoBackorders || product.StockQuantity >= quanitityToValidate)
+                            break;
 
-                            var warning = product.StockQuantity > 0
-                                ? T("ShoppingCart.QuantityExceedsStock", product.StockQuantity)
-                                : T("ShoppingCart.OutOfStock");
+                        var warning = product.StockQuantity > 0
+                            ? T("ShoppingCart.QuantityExceedsStock", product.StockQuantity)
+                            : T("ShoppingCart.OutOfStock");
 
-                            currentWarnings.Add(warning);
-                        }
-                        break;
+                        currentWarnings.Add(warning);
+                    }
+                    break;
                     case ManageInventoryMethod.ManageStockByAttributes:
-                        {
-                            var combination = await _productAttributeMaterializer.FindAttributeCombinationAsync(product.Id, cartItem.AttributeSelection);
-                            if (combination == null || combination.AllowOutOfStockOrders || combination.StockQuantity >= quanitityToValidate)
-                                break;
+                    {
+                        var combination = await _productAttributeMaterializer.FindAttributeCombinationAsync(product.Id, cartItem.AttributeSelection);
+                        if (combination == null || combination.AllowOutOfStockOrders || combination.StockQuantity >= quanitityToValidate)
+                            break;
 
-                            var warning = combination.StockQuantity > 0
-                                ? T("ShoppingCart.QuantityExceedsStock", combination.StockQuantity)
-                                : T("ShoppingCart.OutOfStock");
+                        var warning = combination.StockQuantity > 0
+                            ? T("ShoppingCart.QuantityExceedsStock", combination.StockQuantity)
+                            : T("ShoppingCart.OutOfStock");
 
-                            currentWarnings.Add(warning);
-                        }
-                        break;
+                        currentWarnings.Add(warning);
+                    }
+                    break;
                     case ManageInventoryMethod.DontManageStock:
                     default:
                         break;

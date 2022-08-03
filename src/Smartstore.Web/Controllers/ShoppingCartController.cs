@@ -111,7 +111,7 @@ namespace Smartstore.Web.Controllers
 
             if (cartEnabled)
             {
-                var shoppingCart = await _shoppingCartService.GetCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id); 
+                var shoppingCart = await _shoppingCartService.GetCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
 
                 cartItemsCount = shoppingCart.Items
                     .Where(x => x.Item.ParentItemId == null)
@@ -604,22 +604,22 @@ namespace Smartstore.Web.Controllers
             switch (cartType)
             {
                 case ShoppingCartType.Wishlist:
-                    {
-                        redirect = _shoppingCartSettings.DisplayWishlistAfterAddingProduct;
-                        routeUrl = "Wishlist";
-                        activity = KnownActivityLogTypes.PublicStoreAddToWishlist;
-                        resourceName = "ActivityLog.PublicStore.AddToWishlist";
-                        break;
-                    }
+                {
+                    redirect = _shoppingCartSettings.DisplayWishlistAfterAddingProduct;
+                    routeUrl = "Wishlist";
+                    activity = KnownActivityLogTypes.PublicStoreAddToWishlist;
+                    resourceName = "ActivityLog.PublicStore.AddToWishlist";
+                    break;
+                }
                 case ShoppingCartType.ShoppingCart:
                 default:
-                    {
-                        redirect = _shoppingCartSettings.DisplayCartAfterAddingProduct;
-                        routeUrl = "ShoppingCart";
-                        activity = KnownActivityLogTypes.PublicStoreAddToShoppingCart;
-                        resourceName = "ActivityLog.PublicStore.AddToShoppingCart";
-                        break;
-                    }
+                {
+                    redirect = _shoppingCartSettings.DisplayCartAfterAddingProduct;
+                    routeUrl = "ShoppingCart";
+                    activity = KnownActivityLogTypes.PublicStoreAddToShoppingCart;
+                    resourceName = "ActivityLog.PublicStore.AddToShoppingCart";
+                    break;
+                }
             }
 
             _activityLogger.LogActivity(activity, T(resourceName), product.Name);
@@ -801,7 +801,7 @@ namespace Smartstore.Web.Controllers
                     await _shoppingCartService.DeleteCartItemAsync(cartItem.Item);
                 }
 
-                allWarnings.AddRange(addToCartContext.Warnings);                
+                allWarnings.AddRange(addToCartContext.Warnings);
             }
 
             if (numberOfAddedItems > 0)
@@ -1075,7 +1075,7 @@ namespace Smartstore.Web.Controllers
                 downloadGuid = download.DownloadGuid,
             });
         }
-        
+
         #endregion
 
         #region Discount/GiftCard coupon codes & Reward points

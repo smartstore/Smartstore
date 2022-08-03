@@ -202,7 +202,7 @@ namespace Smartstore.Admin.Controllers
             {
                 return View(model);
             }
-            
+
             var task = await _taskStore.GetTaskByIdAsync(model.Id);
             if (task == null)
             {

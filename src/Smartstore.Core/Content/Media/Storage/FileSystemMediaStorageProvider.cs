@@ -51,7 +51,7 @@ namespace Smartstore.Core.Content.Media.Storage
 
         #region IMediaStorageProvider
 
-        public bool IsCloudStorage 
+        public bool IsCloudStorage
             => _fileSystem.IsCloudStorage;
 
         public virtual async Task<long> GetLengthAsync(MediaFile mediaFile)
@@ -220,11 +220,11 @@ namespace Smartstore.Core.Content.Media.Storage
                     // FS > DB sucessful OR DB > FS failed/aborted: delete all physical files.
                     // Run a background task for the deletion of files (fire & forget)
 
-                    return _asyncRunner.Run(async (scope, ct, state) => 
+                    return _asyncRunner.Run(async (scope, ct, state) =>
                     {
                         // Run this fire & forget code in a new scope, because we want
                         // this provider to be disposed as soon as possible.
-                        
+
                         var fileSystem = scope.Resolve<IMediaFileSystem>();
                         var files = state as string[];
 

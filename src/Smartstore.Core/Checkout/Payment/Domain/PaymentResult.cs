@@ -15,7 +15,7 @@
         /// <summary>
         /// Gets a value indicating whether errors list is empty.
         /// </summary>
-        public bool Success 
+        public bool Success
             => Errors.Count == 0;
     }
 

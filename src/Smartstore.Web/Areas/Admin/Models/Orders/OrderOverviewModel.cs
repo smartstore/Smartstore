@@ -80,7 +80,7 @@ namespace Smartstore.Admin.Models.Orders
         public string PaymentMethodSystemName { get; set; }
         public string WithPaymentMethod { get; set; }
 
-        public bool HasPaymentMethod 
+        public bool HasPaymentMethod
             => PaymentMethod.HasValue();
         public bool HasNewPaymentNotification { get; set; }
 
@@ -89,7 +89,7 @@ namespace Smartstore.Admin.Models.Orders
         public string ShippingStatusString { get; set; }
         public string ShippingAddressString { get; set; }
 
-        public bool IsShippable 
+        public bool IsShippable
             => ShippingStatus != ShippingStatus.ShippingNotRequired;
 
         public string ShippingStatusLabelClass

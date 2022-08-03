@@ -75,7 +75,7 @@ namespace Smartstore.Core.Catalog.Pricing
             Guard.NotNull(source, nameof(source));
 
             // Find duplicates.
-            var items = 
+            var items =
                 from tierPrice in source
                 group tierPrice by tierPrice.Quantity into g
                 where g.Count() > 1

@@ -18,7 +18,7 @@ namespace Smartstore.Core.Messaging
         private readonly EmailAccount _defaultEmailAccount;
 
         public MessageTemplateService(
-            SmartDbContext db, 
+            SmartDbContext db,
             IApplicationContext appContext,
             ILanguageService languageService,
             ILocalizedEntityService locEntityService,

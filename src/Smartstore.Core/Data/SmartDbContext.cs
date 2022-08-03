@@ -44,7 +44,7 @@ namespace Smartstore.Core.Data
         {
             var options = this.Options.FindExtension<DbFactoryOptionsExtension>();
 
-            CreateModel(modelBuilder, options.ModelAssemblies); 
+            CreateModel(modelBuilder, options.ModelAssemblies);
 
             base.OnModelCreating(modelBuilder);
         }

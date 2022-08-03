@@ -120,7 +120,7 @@ namespace Smartstore.PayPal.Client
             return response;
         }
 
-        public Task<PayPalResponse> UpdateOrderAsync(OrdersPatchRequest<object> request, CancellationToken cancelToken = default) 
+        public Task<PayPalResponse> UpdateOrderAsync(OrdersPatchRequest<object> request, CancellationToken cancelToken = default)
             => ExecuteRequestAsync(request, cancelToken);
 
         /// <summary>
@@ -143,7 +143,7 @@ namespace Smartstore.PayPal.Client
             return response;
         }
 
-        public Task<PayPalResponse> AuthorizeOrderAsync(OrdersAuthorizeRequest request, CancellationToken cancelToken = default) 
+        public Task<PayPalResponse> AuthorizeOrderAsync(OrdersAuthorizeRequest request, CancellationToken cancelToken = default)
             => ExecuteRequestAsync(request, cancelToken);
 
         /// <summary>
@@ -167,7 +167,7 @@ namespace Smartstore.PayPal.Client
             return response;
         }
 
-        public Task<PayPalResponse> CaptureOrderAsync(OrdersCaptureRequest request, CancellationToken cancelToken = default) 
+        public Task<PayPalResponse> CaptureOrderAsync(OrdersCaptureRequest request, CancellationToken cancelToken = default)
             => ExecuteRequestAsync(request, cancelToken);
 
         /// <summary>
@@ -192,7 +192,7 @@ namespace Smartstore.PayPal.Client
             return response;
         }
 
-        public Task<PayPalResponse> CapturePaymentAsync(AuthorizationsCaptureRequest request, CancellationToken cancelToken = default) 
+        public Task<PayPalResponse> CapturePaymentAsync(AuthorizationsCaptureRequest request, CancellationToken cancelToken = default)
             => ExecuteRequestAsync(request, cancelToken);
 
         /// <summary>
@@ -212,7 +212,7 @@ namespace Smartstore.PayPal.Client
             return response;
         }
 
-        public Task<PayPalResponse> VoidPaymentAsync(AuthorizationsVoidRequest request, CancellationToken cancelToken = default) 
+        public Task<PayPalResponse> VoidPaymentAsync(AuthorizationsVoidRequest request, CancellationToken cancelToken = default)
             => ExecuteRequestAsync(request, cancelToken);
 
         /// <summary>
@@ -243,7 +243,7 @@ namespace Smartstore.PayPal.Client
             return response;
         }
 
-        public Task<PayPalResponse> RefundPaymentAsync(CapturesRefundRequest request, CancellationToken cancelToken = default) 
+        public Task<PayPalResponse> RefundPaymentAsync(CapturesRefundRequest request, CancellationToken cancelToken = default)
             => ExecuteRequestAsync(request, cancelToken);
 
         #endregion
@@ -251,7 +251,7 @@ namespace Smartstore.PayPal.Client
         #region Infrastructure
 
         public Task<PayPalResponse> ExecuteRequestAsync<TRequest>(
-            TRequest request, 
+            TRequest request,
             CancellationToken cancelToken = default)
             where TRequest : PayPalRequest
         {
@@ -259,8 +259,8 @@ namespace Smartstore.PayPal.Client
         }
 
         public Task<PayPalResponse> ExecuteRequestAsync<TRequest>(
-            TRequest request, 
-            int storeId, 
+            TRequest request,
+            int storeId,
             CancellationToken cancelToken = default)
             where TRequest : PayPalRequest
         {
@@ -268,8 +268,8 @@ namespace Smartstore.PayPal.Client
         }
 
         public virtual async Task<PayPalResponse> ExecuteRequestAsync<TRequest>(
-            TRequest request, 
-            PayPalSettings settings, 
+            TRequest request,
+            PayPalSettings settings,
             CancellationToken cancelToken = default)
             where TRequest : PayPalRequest
         {
@@ -310,7 +310,7 @@ namespace Smartstore.PayPal.Client
             {
                 var responseBody = await response.Content.ReadAsStringAsync(cancelToken);
                 throw new PayPalException(responseBody, new PayPalResponse(
-                    response.StatusCode, 
+                    response.StatusCode,
                     response.Headers,
                     responseBody));
             }
@@ -381,7 +381,7 @@ namespace Smartstore.PayPal.Client
             {
                 content = new FormUrlEncodedContent((IEnumerable<KeyValuePair<string, string>>)request.Body);
             }
-            
+
             if (content == null)
             {
                 throw new IOException($"Unable to serialize request with Content-Type {request.ContentType} because it is not supported.");

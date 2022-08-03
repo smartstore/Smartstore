@@ -11,7 +11,7 @@ namespace Smartstore.OfflinePayment
         where TSetting : PaymentSettingsBase, ISettings, new()
     {
         public ICommonServices CommonServices { get; set; }
-        
+
         public override PaymentMethodType PaymentMethodType => PaymentMethodType.Standard;
 
         protected abstract string GetProviderName();
@@ -35,7 +35,7 @@ namespace Smartstore.OfflinePayment
                 NewPaymentStatus = PaymentStatus.Pending
             };
 
-            return  Task.FromResult(result);
+            return Task.FromResult(result);
         }
     }
 }

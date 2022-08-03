@@ -48,7 +48,7 @@ namespace Smartstore.Core.Content.Menus
         public Task<IHtmlContent> GetContentAsync(ViewContext viewContext)
         {
             Guard.NotNull(viewContext, nameof(viewContext));
-            
+
             if (_content != null)
             {
                 return Task.FromResult(_content);

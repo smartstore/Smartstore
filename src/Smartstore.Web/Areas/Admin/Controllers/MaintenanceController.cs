@@ -91,7 +91,7 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.System.Maintenance.Read)]
         public async Task<IActionResult> Index()
         {
-            var model = new MaintenanceModel 
+            var model = new MaintenanceModel
             {
                 CanExecuteSql = _db.DataProvider.CanExecuteSqlScript,
                 CanCreateBackup = _db.DataProvider.CanBackup
@@ -133,8 +133,8 @@ namespace Smartstore.Admin.Controllers
                 : dtHelper.ConvertToUtcTime(model.DeleteGuests.EndDate.Value, dtHelper.CurrentTimeZone).AddDays(1);
 
             var numDeletedCustomers = await _customerService.DeleteGuestCustomersAsync(
-                startDateValue, 
-                endDateValue, 
+                startDateValue,
+                endDateValue,
                 model.DeleteGuests.OnlyWithoutShoppingCart);
 
             NotifyInfo(T("Admin.System.Maintenance.DeleteGuests.TotalDeleted", numDeletedCustomers));
@@ -896,7 +896,7 @@ namespace Smartstore.Admin.Controllers
                 {
                     return 0;
                 }
-                
+
                 try
                 {
                     return CommonHelper.GetObjectSizeInBytes(obj, instanceLookups);

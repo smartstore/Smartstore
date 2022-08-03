@@ -70,7 +70,7 @@ namespace Smartstore.Admin.Models.Catalog
         private readonly MediaSettings _mediaSettings;
 
         public ProductOverviewMapper(
-            ICommonServices services, 
+            ICommonServices services,
             IUrlHelper urlHelper,
             MediaSettings mediaSettings)
         {

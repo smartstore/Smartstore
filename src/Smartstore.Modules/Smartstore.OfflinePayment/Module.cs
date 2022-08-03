@@ -22,7 +22,7 @@ namespace Smartstore.Payment
             await SaveSettingsAsync<ManualPaymentSettings>();
             await SaveSettingsAsync<DirectDebitPaymentSettings>();
             await SaveSettingsAsync<PurchaseOrderNumberPaymentSettings>();
-            
+
             await ImportLanguageResourcesAsync();
             await base.InstallAsync(context);
         }

@@ -52,7 +52,7 @@ namespace Smartstore.Admin.Controllers
                 model.SelectedStoreIds = await _storeMappingService.GetAuthorizedStoreIdsAsync(country);
                 model.NumberOfStates = country.StateProvinces.Count;
             }
-            
+
             var currencies = await _db.Currencies
                 .AsNoTracking()
                 .ApplyStandardFilter(false)
@@ -120,7 +120,7 @@ namespace Smartstore.Admin.Controllers
             {
                 await MapperFactory.MapAsync(model, country);
                 await _db.SaveChangesAsync();
-                success = true;   
+                success = true;
             }
 
             return Json(new { success });
@@ -221,8 +221,8 @@ namespace Smartstore.Admin.Controllers
                 await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, country, form));
                 NotifySuccess(T("Admin.Configuration.Countries.Added"));
 
-                return continueEditing 
-                    ? RedirectToAction(nameof(Edit), new { id = country.Id }) 
+                return continueEditing
+                    ? RedirectToAction(nameof(Edit), new { id = country.Id })
                     : RedirectToAction(nameof(List));
             }
 
@@ -278,8 +278,8 @@ namespace Smartstore.Admin.Controllers
                 await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, country, form));
                 NotifySuccess(T("Admin.Configuration.Countries.Updated"));
 
-                return continueEditing 
-                    ? RedirectToAction(nameof(Edit), new { id = country.Id }) 
+                return continueEditing
+                    ? RedirectToAction(nameof(Edit), new { id = country.Id })
                     : RedirectToAction(nameof(List));
             }
 
@@ -463,12 +463,12 @@ namespace Smartstore.Admin.Controllers
             {
                 result.Insert(0, new { id = 0, name = T("Admin.Address.OtherNonUS").Value });
             }
-            
+
             if (addAsterisk.HasValue && addAsterisk.Value)
             {
                 result.Insert(0, new { id = 0, name = "*" });
             }
-            
+
             return new JsonResult(result);
         }
 

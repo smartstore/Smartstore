@@ -37,7 +37,7 @@ namespace Smartstore.Core.Checkout.Shipping.Rules
                 {
                     Value = context.OptionById ? x.Id.ToString() : x.Name,
                     Text = context.OptionById ? x.GetLocalized(y => y.Name, context.Language, true, false) : x.Name
-                }));                    
+                }));
             }
             else
             {

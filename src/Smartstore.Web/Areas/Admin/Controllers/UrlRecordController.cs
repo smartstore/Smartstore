@@ -143,10 +143,10 @@ namespace Smartstore.Admin.Controllers
                 urlRecord.LanguageId = model.LanguageId;
 
                 await _db.SaveChangesAsync();
-                
+
                 NotifySuccess(T("Admin.Common.DataEditSuccess"));
 
-                return continueEditing 
+                return continueEditing
                     ? RedirectToAction(nameof(Edit), new { id = urlRecord.Id })
                     : RedirectToAction(nameof(List));
             }

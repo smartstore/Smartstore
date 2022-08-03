@@ -26,12 +26,12 @@ namespace Smartstore.Web.Controllers
         [SaveChanges(typeof(SmartDbContext), false)]
         public async Task<IActionResult> Sample(int productId)
         {
-            var product = await _db.Products.FindByIdAsync(productId, false);                
+            var product = await _db.Products.FindByIdAsync(productId, false);
             if (product == null)
             {
                 return NotFound();
             }
-            
+
             if (!product.HasSampleDownload)
             {
                 NotifyError(T("Common.Download.HasNoSample"));
@@ -70,7 +70,7 @@ namespace Smartstore.Web.Controllers
             {
                 return NotFound();
             }
-            
+
             var order = orderItem.Order;
             var product = orderItem.Product;
             var errors = new List<string>();
@@ -88,7 +88,7 @@ namespace Smartstore.Web.Controllers
                 {
                     return new UnauthorizedResult();
                 }
-                
+
                 if (order.CustomerId != customer.Id)
                 {
                     errors.Add(T("Account.CustomerOrders.NotYourOrder"));
@@ -139,7 +139,7 @@ namespace Smartstore.Web.Controllers
             {
                 orderItem.DownloadCount++;
                 await _db.SaveChangesAsync();
-                
+
                 return new RedirectResult(download.DownloadUrl);
             }
             else
@@ -238,17 +238,17 @@ namespace Smartstore.Web.Controllers
         public async Task<IActionResult> GetUserAgreement(int productId, bool? asPlainText)
         {
             var product = await _db.Products.FindByIdAsync(productId, false);
-                
+
             if (product == null)
             {
                 return Content(T("Products.NotFound", productId));
             }
-            
+
             if (!product.IsDownload || !product.HasUserAgreement || product.UserAgreementText.IsEmpty())
             {
                 return Content(T("DownloadableProducts.HasNoUserAgreement"));
             }
-            
+
             if (asPlainText ?? false)
             {
                 var agreement = HtmlUtility.ConvertHtmlToPlainText(product.UserAgreementText);

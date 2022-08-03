@@ -25,7 +25,7 @@ namespace Smartstore.Admin.Models.UrlRecord
 
         [LocalizedDisplay("*Language")]
         public int LanguageId { get; set; }
-        
+
         [LocalizedDisplay("*Language")]
         public string Language { get; set; }
         public string FlagImageUrl { get; set; }

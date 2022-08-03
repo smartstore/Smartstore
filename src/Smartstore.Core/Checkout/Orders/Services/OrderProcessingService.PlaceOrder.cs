@@ -106,7 +106,7 @@ namespace Smartstore.Core.Checkout.Orders
             Guard.NotNull(paymentRequest, nameof(paymentRequest));
 
             initialOrder ??= await _db.Orders.FindByIdAsync(paymentRequest.InitialOrderId);
-            
+
             customer ??= await _db.Customers
                 .IncludeCustomerRoles()
                 .FindByIdAsync(paymentRequest.CustomerId);
@@ -764,8 +764,8 @@ namespace Smartstore.Core.Checkout.Orders
                             var (_, childSubtotal) = await _priceCalculationService.CalculateSubtotalAsync(childCalculationContext);
 
                             var attributesInfo = await _productAttributeFormatter.FormatAttributesAsync(
-                                childItem.Item.AttributeSelection, 
-                                childItem.Item.Product, 
+                                childItem.Item.AttributeSelection,
+                                childItem.Item.Product,
                                 ctx.Customer,
                                 includePrices: false,
                                 includeHyperlinks: true);

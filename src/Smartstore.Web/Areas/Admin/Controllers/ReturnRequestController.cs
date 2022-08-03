@@ -80,8 +80,8 @@ namespace Smartstore.Admin.Controllers
 
             if (model.CustomerName.HasValue())
             {
-                query = query.Where(x => 
-                    x.Customer.BillingAddress.LastName.Contains(model.CustomerName) || 
+                query = query.Where(x =>
+                    x.Customer.BillingAddress.LastName.Contains(model.CustomerName) ||
                     x.Customer.BillingAddress.FirstName.Contains(model.CustomerName));
             }
 
@@ -135,7 +135,7 @@ namespace Smartstore.Admin.Controllers
             var returnRequest = await _db.ReturnRequests
                 .IncludeCustomer()
                 .FindByIdAsync(id);
-                
+
             if (returnRequest == null)
             {
                 return NotFound();
@@ -184,8 +184,8 @@ namespace Smartstore.Admin.Controllers
                 Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditReturnRequest, T("ActivityLog.EditReturnRequest"), returnRequest.Id);
                 NotifySuccess(T("Admin.ReturnRequests.Updated"));
 
-                return continueEditing 
-                    ? RedirectToAction(nameof(Edit), returnRequest.Id) 
+                return continueEditing
+                    ? RedirectToAction(nameof(Edit), returnRequest.Id)
                     : RedirectToAction(nameof(List));
             }
 
@@ -202,7 +202,7 @@ namespace Smartstore.Admin.Controllers
             var returnRequest = await _db.ReturnRequests
                 .IncludeCustomer()
                 .FindByIdAsync(model.Id);
-            
+
             var orderItem = await _db.OrderItems
                 .Include(x => x.Product)
                 .Include(x => x.Order)
@@ -281,7 +281,7 @@ namespace Smartstore.Admin.Controllers
         }
 
         private async Task<ReturnRequestModel> PrepareReturnRequestModel(
-            ReturnRequestModel model, 
+            ReturnRequestModel model,
             ReturnRequest returnRequest,
             bool excludeProperties = false)
         {
@@ -399,8 +399,8 @@ namespace Smartstore.Admin.Controllers
                     if (maxRefundAmount > decimal.Zero)
                     {
                         model.MaxRefundAmount = new Money(
-                            maxRefundAmount, 
-                            _currencyService.PrimaryCurrency, 
+                            maxRefundAmount,
+                            _currencyService.PrimaryCurrency,
                             false,
                             _taxService.GetTaxFormat(true, true));
                     }

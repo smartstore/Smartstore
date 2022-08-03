@@ -35,8 +35,8 @@ namespace Smartstore.Web.Controllers
             IOrderProcessingService orderProcessingService,
             IPaymentService paymentService,
             IProductAttributeMaterializer productAttributeMaterializer,
-            OrderHelper orderHelper, 
-            IDateTimeHelper dateTimeHelper, 
+            OrderHelper orderHelper,
+            IDateTimeHelper dateTimeHelper,
             IProviderManager providerManager,
             ProductUrlHelper productUrlHelper,
             IPdfConverter pdfConverter,
@@ -85,10 +85,10 @@ namespace Smartstore.Web.Controllers
 
             if (await IsNonExistentOrderAsync(order))
                 return NotFound();
-            
+
             if (await IsUnauthorizedOrderAsync(order))
                 return new UnauthorizedResult();
-            
+
             var model = await _orderHelper.PrepareOrderDetailsModelAsync(order);
             var fileName = T("Order.PdfInvoiceFileName", order.Id);
 
@@ -117,7 +117,7 @@ namespace Smartstore.Web.Controllers
                 totalCount = orders.Count;
             }
             else
-            {                   
+            {
                 totalCount = await orderQuery
                     .ApplyStandardFilter()
                     .ToPagedList(0, 1)
@@ -244,24 +244,24 @@ namespace Smartstore.Web.Controllers
         public async Task<IActionResult> ShipmentDetails(int id /* shipmentId */)
         {
             var shipment = await _db.Shipments.FindByIdAsync(id);
-                
+
             if (shipment == null)
             {
                 return NotFound();
             }
-            
+
             var order = shipment.Order;
 
             if (await IsNonExistentOrderAsync(order))
             {
                 return NotFound();
             }
-            
+
             if (await IsUnauthorizedOrderAsync(order))
             {
                 return new UnauthorizedResult();
             }
-            
+
             var model = await PrepareShipmentDetailsModelAsync(shipment);
 
             return View(model);
@@ -278,7 +278,7 @@ namespace Smartstore.Web.Controllers
             }
 
             var currentStore = Services.StoreContext.CurrentStore;
-            var store = currentStore.Id != order.StoreId 
+            var store = currentStore.Id != order.StoreId
                 ? (await _db.Stores.FindByIdAsync(order.StoreId, false) ?? currentStore)
                 : currentStore;
             var settingFactory = Services.SettingFactory;
@@ -326,7 +326,7 @@ namespace Smartstore.Web.Controllers
                                     .AsNoTracking()
                                     .ApplyIsoCodeFilter(shipmentEvent.CountryCode)
                                     .FirstOrDefaultAsync();
-                                
+
                                 var shipmentStatusEventModel = new ShipmentDetailsModel.ShipmentStatusEventModel
                                 {
                                     Country = shipmentEventCountry != null ? shipmentEventCountry.GetLocalized(x => x.Name) : shipmentEvent.CountryCode,
@@ -350,7 +350,7 @@ namespace Smartstore.Web.Controllers
                 var orderItem = await _db.OrderItems
                     .Include(x => x.Product)
                     .FindByIdAsync(shipmentItem.OrderItemId, false);
-                    
+
                 if (orderItem == null || orderItem.Product == null)
                     continue;
 

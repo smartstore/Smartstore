@@ -250,7 +250,7 @@ namespace Smartstore.Core.Catalog.Categories
             var productEntityName = nameof(Product);
             var affectedCategories = 0;
             var affectedProducts = 0;
-            
+
             var allStoreIds = await _db.Stores
                 .AsQueryable()
                 .Select(x => x.Id)
@@ -375,7 +375,7 @@ namespace Smartstore.Core.Catalog.Categories
             {
                 return new List<Category>();
             }
-            
+
             var storeId = _storeContext.CurrentStore.Id;
             var cacheKey = CATEGORIES_BY_PARENT_CATEGORY_ID_KEY.FormatInvariant(includeHidden, _workContext.CurrentCustomer.Id, storeId, parentCategoryId);
 

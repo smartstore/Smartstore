@@ -123,8 +123,8 @@ namespace Smartstore.Core.Content.Media
         /// The handler implementation. <see cref="inputStream"/> should be closed by implementor.
         /// </summary>
         protected abstract Task ProcessImageAsync(
-            MediaHandlerContext context, 
-            CachedImage cachedImage, 
+            MediaHandlerContext context,
+            CachedImage cachedImage,
             Stream inputStream);
     }
 }

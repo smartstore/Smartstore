@@ -11,7 +11,7 @@ namespace Smartstore.Core.Widgets
         private readonly IHttpContextAccessor _accessor;
         private readonly IApplicationContext _appContext;
         private readonly IMemoryCache _memoryCache;
-        
+
         private Multimap<string, WidgetInvoker> _zoneWidgetsMap;
         private Multimap<Regex, WidgetInvoker> _zoneExpressionWidgetsMap;
 
@@ -93,7 +93,7 @@ namespace Smartstore.Core.Widgets
             if (zone.IsEmpty())
             {
                 return Enumerable.Empty<WidgetInvoker>();
-            } 
+            }
 
             var result = new List<WidgetInvoker>();
 
@@ -143,7 +143,7 @@ namespace Smartstore.Core.Widgets
             var fs = _appContext.AppDataRoot;
             var cacheKey = _memoryCache.BuildScopedKey(fileName);
 
-            var rawJson = await _memoryCache.GetOrCreateAsync(cacheKey, async entry => 
+            var rawJson = await _memoryCache.GetOrCreateAsync(cacheKey, async entry =>
             {
                 if (fs.FileExists(fileName))
                 {

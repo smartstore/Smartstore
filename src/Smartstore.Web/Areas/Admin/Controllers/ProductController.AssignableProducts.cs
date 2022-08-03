@@ -37,7 +37,7 @@ namespace Smartstore.Admin.Controllers
                 .Select(x =>
                 {
                     var product2 = products2[x.ProductId2];
-                    
+
                     return new ProductModel.RelatedProductModel()
                     {
                         Id = x.Id,

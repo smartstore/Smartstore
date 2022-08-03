@@ -15,7 +15,7 @@ namespace Smartstore.Web.Controllers
         private readonly PrivacySettings _privacySettings;
 
         public NewsletterController(
-            SmartDbContext db, 
+            SmartDbContext db,
             IWorkContext workContext,
             IMessageFactory messageFactory,
             IStoreContext storeContext,

@@ -29,7 +29,7 @@ namespace Smartstore.Core.Logging
         {
             _next = Guard.NotNull(next, nameof(next));
             _diagnosticContext = Guard.NotNull(diagnosticContext, nameof(diagnosticContext));
-            
+
             _messageTemplate = new MessageTemplateParser()
                 .Parse("HTTP {HttpMethod} {RequestPath} responded {StatusCode} in {Elapsed:0.0000} ms");
         }
@@ -38,10 +38,10 @@ namespace Smartstore.Core.Logging
         {
             Guard.NotNull(httpContext, nameof(httpContext));
 
-            var customerIdEnricher = new DelegatingPropertyEnricher("CustomerId", 
+            var customerIdEnricher = new DelegatingPropertyEnricher("CustomerId",
                 () => httpContext.Response.HasStarted ? null : workContext.CurrentCustomer?.Id);
 
-            var userNameEnricher = new DelegatingPropertyEnricher("UserName", 
+            var userNameEnricher = new DelegatingPropertyEnricher("UserName",
                 () => httpContext.User?.Identity?.Name);
 
             using (LogContext.PushProperty("Url", webHelper.GetCurrentPageUrl(true)))
@@ -180,7 +180,7 @@ namespace Smartstore.Core.Logging
                     }
                 }
             }
-            
+
             return ex.Message ?? "An unhandled exception has occurred while executing the request.";
         }
     }

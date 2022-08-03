@@ -164,7 +164,7 @@ namespace Smartstore.Admin.Controllers
 
                 NotifySuccess(T("Admin.Configuration.Shipping.Methods.Added"));
 
-                return continueEditing 
+                return continueEditing
                     ? RedirectToAction(nameof(Edit), new { id = shippingMethod.Id })
                     : RedirectToAction(nameof(List));
             }
@@ -216,8 +216,8 @@ namespace Smartstore.Admin.Controllers
                 await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, shippingMethod, form));
                 NotifySuccess(T("Admin.Configuration.Shipping.Methods.Updated"));
 
-                return continueEditing 
-                    ? RedirectToAction(nameof(Edit), new { id = shippingMethod.Id }) 
+                return continueEditing
+                    ? RedirectToAction(nameof(Edit), new { id = shippingMethod.Id })
                     : RedirectToAction(nameof(List));
             }
 
@@ -253,7 +253,7 @@ namespace Smartstore.Admin.Controllers
 
             var mapper = MapperFactory.GetMapper<ShippingMethod, ShippingMethodModel>();
             var shippingMethodModels = await shippingMethods
-                .SelectAwait(async x => 
+                .SelectAwait(async x =>
                 {
                     var model = await mapper.MapAsync(x);
                     model.NumberOfRules = x.RuleSets.Count;

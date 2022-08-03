@@ -20,7 +20,7 @@
         /// </summary>
         PaymentFee
     }
-    
+
     /// <summary>
     /// Represents types of product prices to display.
     /// </summary>

@@ -165,8 +165,8 @@ namespace Smartstore.Admin.Controllers
 
                 NotifySuccess(T("Admin.Configuration.Languages.Added"));
 
-                return continueEditing 
-                    ? RedirectToAction(nameof(Edit), new { id = language.Id }) 
+                return continueEditing
+                    ? RedirectToAction(nameof(Edit), new { id = language.Id })
                     : RedirectToAction(nameof(List));
             }
 
@@ -208,7 +208,7 @@ namespace Smartstore.Admin.Controllers
                 if (allLanguages.Count == 1 && allLanguages[0].Id == language.Id && !model.Published)
                 {
                     NotifyError(T("Admin.Configuration.Languages.OnePublishedLanguageRequired"));
-                    
+
                     return RedirectToAction(nameof(Edit), new { id = language.Id });
                 }
 
@@ -218,8 +218,8 @@ namespace Smartstore.Admin.Controllers
 
                 NotifySuccess(T("Admin.Configuration.Languages.Updated"));
 
-                return continueEditing 
-                    ? RedirectToAction(nameof(Edit), new { id = language.Id }) 
+                return continueEditing
+                    ? RedirectToAction(nameof(Edit), new { id = language.Id })
                     : RedirectToAction(nameof(List));
             }
 
@@ -534,7 +534,7 @@ namespace Smartstore.Admin.Controllers
             {
                 _ = _asyncRunner.Run((scope, ct, state) => DownloadCore(scope, state as LanguageDownloadContext, ct), ctx);
             }
-            
+
             return RedirectToAction(nameof(List));
         }
 
@@ -660,7 +660,7 @@ namespace Smartstore.Admin.Controllers
                 try
                 {
                     var client = _httpClientFactory.CreateClient();
-                    
+
                     client.Timeout = TimeSpan.FromMilliseconds(10000);
                     client.DefaultRequestHeaders.Accept.Clear();
                     client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(MediaTypeNames.Application.Json));
@@ -691,8 +691,8 @@ namespace Smartstore.Admin.Controllers
         }
 
         private static async Task<XmlDocument> DownloadAvailableResources(
-            HttpClient client, 
-            string downloadUrl, 
+            HttpClient client,
+            string downloadUrl,
             string storeUrl,
             CancellationToken cancelToken = default)
         {
@@ -829,8 +829,8 @@ namespace Smartstore.Admin.Controllers
                         cultureParentName = ci.Parent.Name;
                     }
                 }
-                catch 
-                { 
+                catch
+                {
                 }
 
                 ViewBag.DownloadableLanguages = checkResult.Resources

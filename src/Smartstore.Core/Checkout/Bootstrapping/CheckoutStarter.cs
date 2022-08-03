@@ -24,7 +24,7 @@ namespace Smartstore.Core.Bootstrapping
             services.AddHttpClient<PdfInvoiceHttpClient>()
                 .AddSmartstoreUserAgent()
                 .PropagateCookies(CookieNames.Identity, CookieNames.Visitor)
-                .ConfigureHttpClient(client => 
+                .ConfigureHttpClient(client =>
                 {
                     client.Timeout = TimeSpan.FromSeconds(5);
                 });

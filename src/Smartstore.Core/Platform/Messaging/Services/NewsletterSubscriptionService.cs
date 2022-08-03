@@ -143,7 +143,7 @@ namespace Smartstore.Core.Messaging
 
             return false;
         }
-        
+
         public virtual bool Unsubscribe(NewsletterSubscription subscription)
         {
             Guard.NotNull(subscription, nameof(subscription));
@@ -211,7 +211,7 @@ namespace Smartstore.Core.Messaging
                     result = true;
                 }
             }
-        
+
             return result;
         }
     }

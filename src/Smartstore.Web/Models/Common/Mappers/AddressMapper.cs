@@ -40,7 +40,7 @@ namespace Smartstore.Web.Models.Common
 
         public AddressMapper(
             SmartDbContext db,
-            IAddressService addressService, 
+            IAddressService addressService,
             AddressSettings addressSettings)
         {
             _db = db;

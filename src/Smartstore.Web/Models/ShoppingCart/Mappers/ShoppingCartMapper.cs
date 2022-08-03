@@ -329,23 +329,23 @@ namespace Smartstore.Web.Models.Cart
                         break;
 
                     case AttributeControlType.Datepicker:
-                        {
-                            // Keep in mind my that the code below works only in the current culture.
-                            var enteredDate = selectedCheckoutAttributes.AttributesMap
-                                .Where(x => x.Key == attribute.Id)
-                                .SelectMany(x => x.Value)
-                                .FirstOrDefault()?
-                                .ToString();
+                    {
+                        // Keep in mind my that the code below works only in the current culture.
+                        var enteredDate = selectedCheckoutAttributes.AttributesMap
+                            .Where(x => x.Key == attribute.Id)
+                            .SelectMany(x => x.Value)
+                            .FirstOrDefault()?
+                            .ToString();
 
-                            if (enteredDate.HasValue()
-                                && DateTime.TryParseExact(enteredDate, "D", CultureInfo.CurrentCulture, DateTimeStyles.None, out var selectedDate))
-                            {
-                                caModel.SelectedDay = selectedDate.Day;
-                                caModel.SelectedMonth = selectedDate.Month;
-                                caModel.SelectedYear = selectedDate.Year;
-                            }
+                        if (enteredDate.HasValue()
+                            && DateTime.TryParseExact(enteredDate, "D", CultureInfo.CurrentCulture, DateTimeStyles.None, out var selectedDate))
+                        {
+                            caModel.SelectedDay = selectedDate.Day;
+                            caModel.SelectedMonth = selectedDate.Month;
+                            caModel.SelectedYear = selectedDate.Year;
                         }
-                        break;
+                    }
+                    break;
 
                     case AttributeControlType.FileUpload:
                         if (selectedCheckoutAttributes.AttributesMap.Any())
@@ -383,7 +383,7 @@ namespace Smartstore.Web.Models.Cart
             if (prepareEstimateShippingIfEnabled)
             {
                 to.EstimateShipping.Enabled = _shippingSettings.EstimateShippingEnabled &&
-                    from.Items.Any() && 
+                    from.Items.Any() &&
                     from.IncludesMatchingItems(x => x.IsShippingEnabled);
 
                 if (to.EstimateShipping.Enabled)

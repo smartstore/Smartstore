@@ -21,7 +21,7 @@ namespace Smartstore.Core.Security
                     return;
                 }
             }
-            
+
             // Only redirect for GET requests, otherwise the browser might not propagate
             // the verb and request body correctly.
             if (!httpContext.Request.IsGet())

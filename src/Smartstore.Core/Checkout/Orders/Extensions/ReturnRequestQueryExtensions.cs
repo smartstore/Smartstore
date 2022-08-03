@@ -36,9 +36,9 @@ namespace Smartstore
         /// <param name="customerId">Customer identifier.</param>
         /// <param name="storeId">Store identifier.</param>
         /// <returns>Return request query.</returns>
-        public static IOrderedQueryable<ReturnRequest> ApplyStandardFilter(this IQueryable<ReturnRequest> query, 
+        public static IOrderedQueryable<ReturnRequest> ApplyStandardFilter(this IQueryable<ReturnRequest> query,
             int[] orderItemIds = null,
-            int? customerId = null, 
+            int? customerId = null,
             int? storeId = null)
         {
             Guard.NotNull(query, nameof(query));

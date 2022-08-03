@@ -24,7 +24,7 @@ namespace Smartstore.Core.Security
             private readonly IWebHelper _webHelper;
             private readonly SecuritySettings _securitySettings;
             private readonly bool _validate;
-            
+
             public ValidateAdminIpAddressFilter(IWebHelper webHelper, SecuritySettings securitySettings, bool validate)
             {
                 _webHelper = webHelper;

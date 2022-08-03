@@ -22,7 +22,7 @@ namespace Smartstore.Admin.Models.Messages
         public string ReplyTo { get; set; }
 
         [LocalizedDisplay("*AllowedTokens")]
-        
+
         [JsonIgnore]
         public string LastModelTree { get; set; }
 

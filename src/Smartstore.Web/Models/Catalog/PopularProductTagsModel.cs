@@ -58,7 +58,7 @@
             foreach (var tag in Tags)
             {
                 itemWeights.Add(tag.ProductCount);
-            }   
+            }
 
             var stdDev = StdDev(itemWeights, out var mean);
 

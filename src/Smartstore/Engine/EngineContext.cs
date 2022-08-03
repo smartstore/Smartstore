@@ -8,7 +8,7 @@ namespace Smartstore.Engine
     public class EngineContext
     {
         private static IEngine _instance;
-        
+
         /// <summary>
         /// Gets the singleton Smartstore engine used to access Smartstore services.
         /// </summary>

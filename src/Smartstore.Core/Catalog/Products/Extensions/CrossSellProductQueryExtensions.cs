@@ -23,7 +23,7 @@ namespace Smartstore.Core.Catalog.Products
             var db = query.GetDbContext<SmartDbContext>();
 
             // Always join products to ignore deleted products.
-            query = 
+            query =
                 from csp in query
                 join p in db.Products.AsNoTracking() on csp.ProductId2 equals p.Id
                 where csp.ProductId1 == productId1 && (includeHidden || p.Published)

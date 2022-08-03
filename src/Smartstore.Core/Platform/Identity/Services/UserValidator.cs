@@ -78,7 +78,7 @@ namespace Smartstore.Core.Identity
                 {
                     return Failed(Describer.InvalidUserName(userName));
                 }
-                else if (manager.Options.User.AllowedUserNameCharacters.HasValue() && 
+                else if (manager.Options.User.AllowedUserNameCharacters.HasValue() &&
                     userName.Any(c => !manager.Options.User.AllowedUserNameCharacters.Contains(c)))
                 {
                     return Failed(Describer.InvalidUserName(userName));
@@ -101,7 +101,7 @@ namespace Smartstore.Core.Identity
             return message.IsEmpty() ? IdentityResult.Failed() : IdentityResult.Failed(new IdentityError { Description = message });
         }
 
-        private static IdentityResult Failed(params IdentityError[] errors) 
+        private static IdentityResult Failed(params IdentityError[] errors)
             => IdentityResult.Failed(errors);
     }
 }

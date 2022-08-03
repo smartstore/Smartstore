@@ -134,9 +134,9 @@ namespace Smartstore.Core.Content.Media
         }
 
         public async Task<FolderOperationResult> CopyFolderAsync(
-            string path, 
-            string destinationPath, 
-            DuplicateEntryHandling dupeEntryHandling = DuplicateEntryHandling.Skip, 
+            string path,
+            string destinationPath,
+            DuplicateEntryHandling dupeEntryHandling = DuplicateEntryHandling.Skip,
             CancellationToken cancelToken = default)
         {
             Guard.NotEmpty(path, nameof(path));
@@ -183,11 +183,11 @@ namespace Smartstore.Core.Content.Media
         }
 
         private async Task<MediaFolderInfo> InternalCopyFolder(
-            DbContextScope scope, 
-            TreeNode<MediaFolderNode> sourceNode, 
-            string destPath, 
-            DuplicateEntryHandling dupeEntryHandling, 
-            IList<DuplicateFileInfo> dupeFiles, 
+            DbContextScope scope,
+            TreeNode<MediaFolderNode> sourceNode,
+            string destPath,
+            DuplicateEntryHandling dupeEntryHandling,
+            IList<DuplicateFileInfo> dupeFiles,
             CancellationToken cancelToken = default)
         {
             // Get dest node
@@ -198,7 +198,7 @@ namespace Smartstore.Core.Content.Media
             {
                 throw _exceptionFactory.DuplicateFolder(sourceNode.Value.Path, destNode.Value);
             }
-            
+
             var doDupeCheck = destNode != null;
 
             // Create dest folder
@@ -212,7 +212,7 @@ namespace Smartstore.Core.Content.Media
 
             // Get all source files in one go
             var files = await _searcher.SearchFiles(
-                new MediaSearchQuery { FolderId = sourceNode.Value.Id }, 
+                new MediaSearchQuery { FolderId = sourceNode.Value.Id },
                 MediaLoadFlags.AsNoTracking | MediaLoadFlags.WithTags).LoadAsync();
 
             IDictionary<string, MediaFile> destFiles = null;
@@ -235,7 +235,7 @@ namespace Smartstore.Core.Content.Media
             {
                 if (cancelToken.IsCancellationRequested)
                     break;
-                
+
                 foreach (var file in batch)
                 {
                     if (cancelToken.IsCancellationRequested)
@@ -315,8 +315,8 @@ namespace Smartstore.Core.Content.Media
         }
 
         public async Task<FolderDeleteResult> DeleteFolderAsync(
-            string path, 
-            FileHandling fileHandling = FileHandling.SoftDelete, 
+            string path,
+            FileHandling fileHandling = FileHandling.SoftDelete,
             CancellationToken cancelToken = default)
         {
             Guard.NotEmpty(path, nameof(path));
@@ -341,7 +341,7 @@ namespace Smartstore.Core.Content.Media
                 {
                     if (cancelToken.IsCancellationRequested)
                         break;
-                    
+
                     var folder = await _db.MediaFolders.FindByIdAsync(node.Value.Id);
                     if (folder != null)
                     {

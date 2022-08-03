@@ -55,7 +55,7 @@ namespace Smartstore.Core.Packaging
                 Logger.Error(msg);
                 throw new SmartException(msg);
             }
-            
+
             IExtensionDescriptor installedExtension;
             IDirectory backupDirectory;
 
@@ -151,8 +151,8 @@ namespace Smartstore.Core.Packaging
         private async Task ExtractArchive(ZipArchive archive)
         {
             var fs = _appContext.ContentRoot;
-  
-            foreach (var entry in archive.Entries) 
+
+            foreach (var entry in archive.Entries)
             {
                 if (entry.FullName.EqualsNoCase(PackagingUtility.ManifestFileName))
                     continue;
@@ -176,7 +176,7 @@ namespace Smartstore.Core.Packaging
 
         #region Backup/Restore
 
-        private bool TryBackupExtension(IExtensionDescriptor extension,  out IExtensionDescriptor installedExtension, out IDirectory backupDirectory)
+        private bool TryBackupExtension(IExtensionDescriptor extension, out IExtensionDescriptor installedExtension, out IDirectory backupDirectory)
         {
             installedExtension = null;
             backupDirectory = null;

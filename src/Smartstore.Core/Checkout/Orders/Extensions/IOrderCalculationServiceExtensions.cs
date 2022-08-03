@@ -35,8 +35,8 @@ namespace Smartstore
         /// <returns>The discount amount and applied discount.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Task<(Money Amount, Discount AppliedDiscount)> GetOrderSubtotalDiscountAsync(
-            this IOrderCalculationService orderCalculationService, 
-            Money orderSubTotal, 
+            this IOrderCalculationService orderCalculationService,
+            Money orderSubTotal,
             Customer customer)
         {
             Guard.NotNull(orderCalculationService, nameof(orderCalculationService));
@@ -54,7 +54,7 @@ namespace Smartstore
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Task<(Money Amount, Discount AppliedDiscount)> GetOrderTotalDiscountAsync(
             this IOrderCalculationService orderCalculationService,
-            Money orderTotal, 
+            Money orderTotal,
             Customer customer)
         {
             Guard.NotNull(orderCalculationService, nameof(orderCalculationService));

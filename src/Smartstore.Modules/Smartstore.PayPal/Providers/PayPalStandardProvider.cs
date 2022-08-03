@@ -42,7 +42,7 @@ namespace Smartstore.PayPal.Providers
 
         public override PaymentMethodType PaymentMethodType => PaymentMethodType.StandardAndButton;
 
-        public override Task<(decimal FixedFeeOrPercentage, bool UsePercentage)> GetPaymentFeeInfoAsync(ShoppingCart cart) 
+        public override Task<(decimal FixedFeeOrPercentage, bool UsePercentage)> GetPaymentFeeInfoAsync(ShoppingCart cart)
             => Task.FromResult<(decimal FixedFeeOrPercentage, bool UsePercentage)>(new(_settings.AdditionalFee, _settings.AdditionalFeePercentage));
 
         public override WidgetInvoker GetPaymentInfoWidget()
@@ -110,7 +110,7 @@ namespace Smartstore.PayPal.Providers
                 {
                     refundIds.Add(refund.Id);
                 }
-                
+
                 request.Order.GenericAttributes.Set("Payments.PayPalStandard.RefundId", refundIds);
                 await _db.SaveChangesAsync();
             }

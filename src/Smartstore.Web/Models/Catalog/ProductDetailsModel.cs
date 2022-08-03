@@ -48,7 +48,7 @@ namespace Smartstore.Web.Models.Catalog
         /// </summary>
         public ProductVariantAttributeSelection SelectedAttributes { get; set; }
     }
-    
+
     public partial class ProductDetailsModel : EntityModelBase
     {
         public MediaGalleryModel MediaGalleryModel { get; set; } = new();
@@ -68,7 +68,7 @@ namespace Smartstore.Web.Models.Catalog
         public bool VisibleIndividually { get; set; }
 
         public int PictureSize { get; set; }
-        
+
         public ProductCondition Condition { get; set; }
         public bool ShowCondition { get; set; }
         public string LocalizedCondition { get; set; }
@@ -96,7 +96,7 @@ namespace Smartstore.Web.Models.Catalog
 
         public ProductPriceModel ProductPrice { get; set; } = new();
         public List<TierPriceModel> TierPrices { get; set; } = new();
-        
+
         public AddToCartModel AddToCart { get; set; } = new();
         public List<ProductVariantAttributeModel> ProductVariantAttributes { get; set; } = new();
         public string AttributeInfo { get; set; }
@@ -135,7 +135,7 @@ namespace Smartstore.Web.Models.Catalog
         public List<BrandOverviewModel> Brands { get; set; } = new();
         public int ReviewCount { get; set; }
         public ProductReviewOverviewModel ReviewOverview { get; set; } = new();
-        
+
 
         // A list of associated products. For example, "Grouped" products could have several child "simple" products
         public List<ProductDetailsModel> AssociatedProducts { get; set; } = new();
@@ -148,7 +148,7 @@ namespace Smartstore.Web.Models.Catalog
         public List<ProductSpecificationModel> SpecificationAttributes { get; set; } = new();
 
         public List<ProductTagModel> ProductTags { get; set; } = new();
-        
+
         public ProductReviewsModel ProductReviews { get; set; } = new();
 
         public ProductSummaryModel AlsoPurchased { get; set; }

@@ -18,7 +18,7 @@ namespace Smartstore.Core.Identity
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
         private RewardPointsHistory(ILazyLoader lazyLoader)
             : base(lazyLoader)
-        {            
+        {
         }
 
         /// <summary>

@@ -42,12 +42,12 @@ namespace Smartstore.Core.Widgets
         private readonly IWorkContext _workContext;
         private readonly IStoreContext _storeContext;
         private readonly IDisplayControl _displayControl;
-        
+
         public DefaultWidgetSelector(
             SmartDbContext db,
             ICacheManager cache,
             IRequestCache requestCache,
-            IWidgetService widgetService, 
+            IWidgetService widgetService,
             IWidgetProvider widgetProvider,
             IWorkContext workContext,
             IStoreContext storeContext,
@@ -99,7 +99,7 @@ namespace Smartstore.Core.Widgets
             {
                 zone = _legacyWidgetNameMap[zone];
             }
-            
+
             var storeId = _storeContext.CurrentStore.Id;
             var isPublicArea = viewContext.HttpContext.GetRouteData().Values.GetAreaName().IsEmpty();
             var widgets = Enumerable.Empty<WidgetInvoker>();

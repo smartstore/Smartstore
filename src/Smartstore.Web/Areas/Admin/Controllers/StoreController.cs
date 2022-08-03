@@ -23,7 +23,7 @@ namespace Smartstore.Admin.Controllers
         private readonly CurrencySettings _currencySettings;
 
         public StoreController(
-            SmartDbContext db, 
+            SmartDbContext db,
             ICatalogSearchService catalogSearchService,
             CurrencySettings currencySettings)
         {
@@ -130,8 +130,8 @@ namespace Smartstore.Admin.Controllers
 
                 NotifySuccess(T("Admin.Configuration.Stores.Added"));
 
-                return continueEditing 
-                    ? RedirectToAction(nameof(Edit), new { id = store.Id }) 
+                return continueEditing
+                    ? RedirectToAction(nameof(Edit), new { id = store.Id })
                     : RedirectToAction(nameof(List));
             }
 
@@ -173,16 +173,16 @@ namespace Smartstore.Admin.Controllers
 
                 // Ensure we have "/" at the end.
                 store.Url = store.Url.EnsureEndsWith("/");
-                
+
                 // INFO: we have to do this because we have a foreign key constraint on these fields.
                 store.PrimaryExchangeRateCurrencyId = _currencySettings.PrimaryExchangeCurrencyId;
 
                 await _db.SaveChangesAsync();
-                
+
                 NotifySuccess(T("Admin.Configuration.Stores.Updated"));
 
-                return continueEditing 
-                    ? RedirectToAction(nameof(Edit), new { id = store.Id }) 
+                return continueEditing
+                    ? RedirectToAction(nameof(Edit), new { id = store.Id })
                     : RedirectToAction(nameof(List));
             }
 
@@ -205,7 +205,7 @@ namespace Smartstore.Admin.Controllers
             {
                 _db.Stores.Remove(store);
                 await _db.SaveChangesAsync();
-                
+
                 NotifySuccess(T("Admin.Configuration.Stores.Deleted"));
                 return RedirectToAction(nameof(List));
             }

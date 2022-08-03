@@ -26,7 +26,7 @@ namespace Smartstore.Core.Configuration
         internal SettingFactory(
             IComponentContext scope,
             IHttpContextAccessor httpContextAccessor,
-            ICacheManager cache, 
+            ICacheManager cache,
             IDbContextFactory<SmartDbContext> dbContextFactory)
         {
             _scope = scope;
@@ -180,7 +180,7 @@ namespace Smartstore.Core.Configuration
 
         private IDisposable GetOrCreateDbContext(out SmartDbContext db)
         {
-            db = _scope?.ResolveOptional<SmartDbContext>() ?? 
+            db = _scope?.ResolveOptional<SmartDbContext>() ??
                  _httpContextAccessor.HttpContext?.RequestServices?.GetService<SmartDbContext>();
 
             if (db != null)

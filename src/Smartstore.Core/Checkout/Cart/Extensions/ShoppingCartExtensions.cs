@@ -37,7 +37,7 @@ namespace Smartstore.Core.Checkout.Cart
 
             // Filter items of matching cart type, product ID and product type.
             var filteredCart = cart.Items.Where(x => x.Item.ShoppingCartType == shoppingCartType &&
-                x.Item.ParentItemId == null && 
+                x.Item.ParentItemId == null &&
                 x.Item.Product.ProductTypeId == product.ProductTypeId &&
                 x.Item.ProductId == product.Id);
 

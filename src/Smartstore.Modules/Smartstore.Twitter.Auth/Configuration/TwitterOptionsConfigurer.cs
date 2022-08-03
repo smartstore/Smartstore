@@ -56,7 +56,7 @@ namespace Smartstore.Twitter
             // TODO: (mh) (core) This must also be called when setting is changing via all settings grid.
         }
 
-        public void Configure(TwitterOptions options) 
+        public void Configure(TwitterOptions options)
             => Debug.Fail("This infrastructure method shouldn't be called.");
     }
 }

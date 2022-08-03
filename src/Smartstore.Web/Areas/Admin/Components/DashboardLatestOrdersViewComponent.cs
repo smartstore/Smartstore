@@ -33,7 +33,7 @@ namespace Smartstore.Admin.Components
                 .OrderByDescending(x => x.CreatedOnUtc)
                 .Take(7)
                 .ToListAsync();
-            
+
             foreach (var order in latestOrders)
             {
                 model.LatestOrders.Add(

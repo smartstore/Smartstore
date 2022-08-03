@@ -50,7 +50,7 @@ namespace Smartstore.Web.Components
             var report = bestsellersEvent.Model ?? await Services.Cache.GetAsync(ModelCacheInvalidator.HOMEPAGE_BESTSELLERS_REPORT_KEY.FormatInvariant(storeId), async (o) =>
             {
                 o.ExpiresIn(TimeSpan.FromHours(1));
-                                
+
                 var query = _db.OrderItems
                     .AsNoTracking()
                     .ApplyOrderFilter(storeId)

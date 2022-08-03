@@ -25,7 +25,7 @@ namespace Smartstore.Core.Tests.Checkout.Payment
             {
                 ActivePaymentMethodSystemNames = new List<string>()
             };
-            
+
             _paymentSettings.ActivePaymentMethodSystemNames.Add("Payments.TestMethod1");
 
             var typeScannerMock = new Mock<ITypeScanner>();

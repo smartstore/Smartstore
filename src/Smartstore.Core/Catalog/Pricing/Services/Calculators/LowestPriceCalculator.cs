@@ -36,7 +36,7 @@
                 forceApply = true;
                 lowestPrice = product.LowestAttributeCombinationPrice ?? decimal.Zero;
             }
-            
+
             // Apply lowest price.
             if (lowestPrice < context.FinalPrice || forceApply)
             {

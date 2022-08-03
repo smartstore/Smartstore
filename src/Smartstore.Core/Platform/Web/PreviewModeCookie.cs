@@ -85,7 +85,7 @@ namespace Smartstore.Core.Web
                     });
                 }
             }
-            
+
             return Task.CompletedTask;
         }
     }

@@ -11,7 +11,7 @@
         /// The model/entity name to resolve a preview model for.
         /// </summary>
         public string ModelName { get; init; }
-        
+
         /// <summary>
         /// The resulting message preview model.
         /// </summary>

@@ -181,6 +181,6 @@ namespace Smartstore.Core.Content.Menus
                     }
                 }
             }
-        }    
+        }
     }
 }

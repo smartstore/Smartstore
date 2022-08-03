@@ -43,8 +43,8 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
                 {
                     // Get the final unit price of bundle item part product.
                     // No need to pass bundleItem.Item.Quantity. The pipline always calculates a unit price.
-                    var childCalculation = await CalculateChildPriceAsync(bundleItem.Product, context, c => 
-                    { 
+                    var childCalculation = await CalculateChildPriceAsync(bundleItem.Product, context, c =>
+                    {
                         c.Quantity = 1;
                         c.AssociatedProducts = null;
                         c.BundleItems = null;

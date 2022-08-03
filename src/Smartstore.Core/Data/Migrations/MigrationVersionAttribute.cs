@@ -9,7 +9,7 @@ namespace Smartstore.Core.Data.Migrations
     public sealed class MigrationVersionAttribute : MigrationAttribute
     {
         private static readonly string[] _timestampFormats = new[]
-        { 
+        {
             "yyyy-MM-dd HH:mm:ss", "yyyy/MM/dd HH:mm:ss", "yyyy.MM.dd HH:mm:ss"
         };
 

@@ -369,7 +369,7 @@ namespace Smartstore.Core.Checkout.Orders
                             Quantity = itemData.Quantity,
                         };
 
-                        if(!await _shoppingCartService.AddToCartAsync(itemContext))
+                        if (!await _shoppingCartService.AddToCartAsync(itemContext))
                         {
                             valid = false;
                             break;
@@ -427,7 +427,7 @@ namespace Smartstore.Core.Checkout.Orders
 
             shipment.DeliveryDateUtc = DateTime.UtcNow;
 
-            if (!await CanAddItemsToShipmentAsync(order) && 
+            if (!await CanAddItemsToShipmentAsync(order) &&
                 !await HasItemsToDispatchAsync(order) &&
                 !await HasItemsToDeliverAsync(order))
             {
@@ -878,7 +878,7 @@ namespace Smartstore.Core.Checkout.Orders
             // Reward points.
             var rewardPointsAwarded = order.OrderStatus == _rewardPointsSettings.PointsForPurchases_Awarded;
             var rewardPointsCanceled = order.OrderStatus == _rewardPointsSettings.PointsForPurchases_Canceled;
-            
+
             if (rewardPointsAwarded || rewardPointsCanceled)
             {
                 await LoadNavigationProperties(order, true, false);

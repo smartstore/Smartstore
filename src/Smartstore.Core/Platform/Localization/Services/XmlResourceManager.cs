@@ -161,8 +161,8 @@ namespace Smartstore.Core.Localization
             }
 
             var unprocessedLanguages = new List<Language>();
-            
-            var defaultLanguageId = _languageService != null 
+
+            var defaultLanguageId = _languageService != null
                 ? await _languageService.GetMasterLanguageIdAsync()
                 : (await _db.Languages.FirstOrDefaultAsync()).Id;
             var languages = filterLanguages ?? await _requestCache.GetAsync("db.lang.all.tracked", () => _db.Languages.ToListAsync());
@@ -215,8 +215,8 @@ namespace Smartstore.Core.Localization
                 var hasher = CreateModuleResourcesHasher(moduleDescriptor);
                 hasher?.Persist();
             }
-            catch 
-            { 
+            catch
+            {
             }
         }
 

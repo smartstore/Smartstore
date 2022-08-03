@@ -5,7 +5,7 @@
     /// </summary>
     public class WebhookVerifySignatureRequest<T> : PayPalRequest<object>
     {
-        public WebhookVerifySignatureRequest() 
+        public WebhookVerifySignatureRequest()
             : base("/v1/notifications/verify-webhook-signature?", HttpMethod.Post)
         {
             ContentType = "application/json";

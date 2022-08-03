@@ -24,7 +24,7 @@ namespace Smartstore.Core.Localization
             Path = path.TrimStart('/');
         }
 
-        public string PathBase 
+        public string PathBase
         {
             get => _pathBase;
             private set

@@ -22,7 +22,7 @@ namespace Smartstore.DevTools
 {
     internal class Startup : StarterBase
     {
-        public override bool Matches(IApplicationContext appContext) 
+        public override bool Matches(IApplicationContext appContext)
             => appContext.IsInstalled;
 
         public override void ConfigureServices(IServiceCollection services, IApplicationContext appContext)

@@ -78,7 +78,7 @@ namespace Smartstore.Core.Catalog.Products
 
             cookies.Delete(cookieName, options);
 
-            cookies.Append(cookieName, 
+            cookies.Append(cookieName,
                 string.Join(",", newProductIds.Take(maxProducts)),
                 options);
         }
@@ -86,7 +86,7 @@ namespace Smartstore.Core.Catalog.Products
         protected virtual IEnumerable<int> GetRecentlyViewedProductsIds(int number)
         {
             var request = _httpContextAccessor?.HttpContext?.Request;
-            
+
             if (request != null && request.Cookies.TryGetValue(CookieNames.RecentlyViewedProducts, out var values) && values.HasValue())
             {
                 var ids = values.ToIntArray();

@@ -13,7 +13,7 @@ namespace Smartstore
         /// <param name="tracked">A value indicating whether to put prefetched entities to EF change tracker.</param>
         /// <returns>Found quantity unit or <c>null</c> if none was found.</returns>
         public static async Task<QuantityUnit> GetQuantityUnitByIdAsync(
-            this DbSet<QuantityUnit> quantityUnits, 
+            this DbSet<QuantityUnit> quantityUnits,
             int quantityUnitId,
             bool fallbackToDefault,
             bool tracked = false)

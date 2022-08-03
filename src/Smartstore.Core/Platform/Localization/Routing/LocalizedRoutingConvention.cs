@@ -52,8 +52,8 @@ namespace Smartstore.Core.Localization.Routing
         }
 
         private static IEnumerable<SelectorModel> MakeLocalizedSelectors(
-            ControllerModel controllerModel, 
-            SelectorModel actionSelector, 
+            ControllerModel controllerModel,
+            SelectorModel actionSelector,
             bool withCultureToken)
         {
             if (!actionSelector.AttributeRouteModel.IsAbsoluteTemplate && controllerModel.Selectors.Any())
@@ -67,7 +67,7 @@ namespace Smartstore.Core.Localization.Routing
 
         private static SelectorModel MakeLocalizedSelector(
             SelectorModel controllerSelector,
-            SelectorModel actionSelector, 
+            SelectorModel actionSelector,
             bool withCultureToken)
         {
             var routeModel = controllerSelector != null

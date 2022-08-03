@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using NUnit.Framework;
 using Smartstore.IO;
 
@@ -17,7 +16,7 @@ namespace Smartstore.Tests
             new[] { "/some/path/left/", "../../right/../path", "/some/path" },
             new[] { "/some/path/left/", "right/../path", "/some/path/left/path" },
         };
-        
+
         [Test]
         public void CanCombinePaths()
         {

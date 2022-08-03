@@ -14,7 +14,7 @@ namespace Smartstore.Web.Components
         private readonly MediaSettings _mediaSettings;
 
         public HomeCategoriesViewComponent(
-            SmartDbContext db, 
+            SmartDbContext db,
             CatalogHelper catalogHelper,
             IAclService aclService,
             IStoreMappingService storeMappingService,

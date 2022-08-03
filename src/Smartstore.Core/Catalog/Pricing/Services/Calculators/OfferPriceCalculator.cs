@@ -33,7 +33,7 @@
                     context.FinalPrice = product.SpecialPrice.Value;
                 }
             }
-            
+
             await next(context);
         }
     }

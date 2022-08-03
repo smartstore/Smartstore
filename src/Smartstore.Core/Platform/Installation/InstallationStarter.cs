@@ -41,7 +41,7 @@ namespace Smartstore.Core.Installation
 
         public override void BuildPipeline(RequestPipelineBuilder builder)
         {
-            builder.Configure(StarterOrdering.EarlyMiddleware, app => 
+            builder.Configure(StarterOrdering.EarlyMiddleware, app =>
             {
                 app.Use(async (context, next) =>
                 {

@@ -26,7 +26,7 @@ namespace Smartstore.Core.Catalog.Pricing
         /// <param name="store">The current store. Required.</param>
         /// <param name="language">The working language. Required.</param>
         /// <param name="targetCurrency">The target currency for money exchange. Required.</param>
-        public PriceCalculationOptions(ProductBatchContext batchContext, Customer customer, Store store, Language language, Currency targetCurrency) 
+        public PriceCalculationOptions(ProductBatchContext batchContext, Customer customer, Store store, Language language, Currency targetCurrency)
         {
             Guard.NotNull(batchContext, nameof(batchContext));
             Guard.NotNull(customer, nameof(customer));
@@ -45,9 +45,9 @@ namespace Smartstore.Core.Catalog.Pricing
         /// <summary>
         /// Gets or sets the product batch context.
         /// </summary>
-        public ProductBatchContext BatchContext 
+        public ProductBatchContext BatchContext
         {
-            get => _batchContext; 
+            get => _batchContext;
             set => _batchContext = value ?? throw new ArgumentNullException(nameof(BatchContext));
         }
 

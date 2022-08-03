@@ -25,7 +25,7 @@ namespace Smartstore.PayPal.Controllers
 
         public PayPalController(
             SmartDbContext db,
-            ICheckoutStateAccessor checkoutStateAccessor, 
+            ICheckoutStateAccessor checkoutStateAccessor,
             IShoppingCartService shoppingCartService,
             IOrderProcessingService orderProcessingService,
             PayPalHttpClient client,
@@ -103,14 +103,14 @@ namespace Smartstore.PayPal.Controllers
                     {
                         return NotFound();
                     }
-                    
+
                     var order = await _db.Orders.FirstOrDefaultAsync(x => x.OrderGuid == orderGuid);
 
                     if (order == null)
                     {
                         return NotFound();
                     }
-                        
+
                     // Add order note.
                     order.AddOrderNote($"Webhook: {Environment.NewLine}{rawRequest}", false);
 
@@ -148,7 +148,7 @@ namespace Smartstore.PayPal.Controllers
             switch (status)
             {
                 case "created":
-                    if (decimal.TryParse(resource.Amount?.Value, out var authorizedAmount) 
+                    if (decimal.TryParse(resource.Amount?.Value, out var authorizedAmount)
                         && authorizedAmount == Math.Round(order.OrderTotal, 2)
                         && order.CanMarkOrderAsAuthorized())
                     {
@@ -214,7 +214,7 @@ namespace Smartstore.PayPal.Controllers
                 case "completed":
                     var refundIds = order.GenericAttributes.Get<List<string>>("Payments.PayPalStandard.RefundId") ?? new List<string>();
                     if (!refundIds.Contains(resource.Id)
-                        && decimal.TryParse(resource.Amount?.Value, out var refundedAmount) 
+                        && decimal.TryParse(resource.Amount?.Value, out var refundedAmount)
                         && order.CanPartiallyRefundOffline(refundedAmount))
                     {
                         await _orderProcessingService.PartiallyRefundOfflineAsync(order, refundedAmount);
@@ -251,7 +251,7 @@ namespace Smartstore.PayPal.Controllers
             else
             {
                 throw new IOException("Could not verify request.");
-            } 
+            }
         }
     }
 }

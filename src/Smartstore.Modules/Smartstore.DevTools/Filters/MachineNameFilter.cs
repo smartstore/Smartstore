@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Html;
-using Microsoft.AspNetCore.Mvc.Filters;
+﻿using Microsoft.AspNetCore.Mvc.Filters;
 using Smartstore.Core;
 using Smartstore.Core.Widgets;
 using Smartstore.DevTools.Components;
@@ -43,7 +42,7 @@ namespace Smartstore.DevTools.Filters
             {
                 return;
             }
-            
+
             _widgetProvider.RegisterViewComponent<MachineNameViewComponent>("end");
         }
 

@@ -34,10 +34,10 @@ namespace Smartstore.Admin.Controllers
         [ValidateAntiForgeryToken]
         [MaxMediaFileSize]
         public async Task<IActionResult> Upload(
-            string path, 
-            string[] typeFilter = null, 
+            string path,
+            string[] typeFilter = null,
             bool isTransient = false,
-            DuplicateFileHandling duplicateFileHandling = DuplicateFileHandling.ThrowError, 
+            DuplicateFileHandling duplicateFileHandling = DuplicateFileHandling.ThrowError,
             string directory = "")
         {
             var numFiles = Request.Form.Files.Count;
@@ -81,9 +81,9 @@ namespace Smartstore.Admin.Controllers
                     }
 
                     var mediaFile = await _mediaService.SaveFileAsync(
-                        filePath, 
-                        uploadedFile.OpenReadStream(), 
-                        isTransient, 
+                        filePath,
+                        uploadedFile.OpenReadStream(),
+                        isTransient,
                         duplicateFileHandling);
 
                     dynamic o = JObject.FromObject(mediaFile);

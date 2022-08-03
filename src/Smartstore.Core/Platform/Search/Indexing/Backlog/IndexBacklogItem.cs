@@ -6,7 +6,7 @@
         {
             Guard.NotEmpty(scope, nameof(scope));
             Guard.NotZero(entityId, nameof(entityId));
-    
+
             Scope = scope;
             EntityId = entityId;
             OperationType = operationType;

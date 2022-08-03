@@ -43,7 +43,7 @@ namespace Smartstore.Core.Content.Media
             {
                 return _sourceFile;
             }
-            
+
             if (MediaFileId == 0)
             {
                 // This is most likely a request for a default placeholder image
@@ -53,7 +53,7 @@ namespace Smartstore.Core.Content.Media
                 if (fallbackFile.Exists)
                 {
                     _sourceFile = fallbackFile;
-                }    
+                }
             }
             else
             {

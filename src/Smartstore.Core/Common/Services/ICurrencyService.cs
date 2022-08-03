@@ -1,5 +1,3 @@
-using Smartstore.Core.Catalog.Pricing;
-using Smartstore.Core.Localization;
 using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Core.Common.Services

@@ -89,7 +89,7 @@ namespace Smartstore.Shipping
         /// <summary>
         /// Gets a shipping rate computation method type
         /// </summary>
-        public ShippingRateComputationMethodType ShippingRateComputationMethodType 
+        public ShippingRateComputationMethodType ShippingRateComputationMethodType
             => ShippingRateComputationMethodType.Offline;
 
         /// <summary>

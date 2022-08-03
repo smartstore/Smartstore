@@ -53,11 +53,11 @@ namespace Smartstore.Admin.Controllers
             _album = albumRegistry.GetAlbumByName(SystemAlbumProvider.Files);
             _fileRoot = _album.Name;
             _fileSystem = new MediaServiceFileSystemAdapter(
-                mediaService, 
-                mediaSearcher, 
-                folderService, 
-                mediaStorageConfiguration, 
-                mediaHelper, 
+                mediaService,
+                mediaSearcher,
+                folderService,
+                mediaStorageConfiguration,
+                mediaHelper,
                 exceptionFactory);
         }
 
@@ -139,7 +139,7 @@ namespace Smartstore.Admin.Controllers
                     var sessionPathKey = GetSetting("SESSION_PATH_KEY");
                     if (sessionPathKey.HasValue())
                         _fileRoot = HttpContext.Session.GetString(sessionPathKey);
-                        
+
                     if (_fileRoot.IsEmpty())
                         _fileRoot = _album.Name;
                 }
@@ -155,7 +155,7 @@ namespace Smartstore.Admin.Controllers
                 var uri = new Uri(path);
                 path = uri.PathAndQuery;
             }
-            
+
             return (_fileSystem.MapUrlToStoragePath(path) ?? path).TrimStart('/', '\\');
         }
 
@@ -295,7 +295,7 @@ namespace Smartstore.Admin.Controllers
             var files = (await GetFilesAsync(path, null).ToListAsync())
                 .DistinctBy(x => x.Name)
                 .ToList();
-            
+
             // Create temp zip file
             var tempZipFilePath = Path.Combine(_appContext.GetTenantTempDirectory().PhysicalPath, Path.GetRandomFileName() + "-media.zip");
 
@@ -420,7 +420,7 @@ namespace Smartstore.Admin.Controllers
         {
             path = GetRelativePath(path);
             path = PathUtility.Combine(path, name);
-            
+
             var dir = await _fileSystem.GetDirectoryAsync(path);
             if (dir.Exists)
             {
@@ -553,7 +553,7 @@ namespace Smartstore.Admin.Controllers
                 {
                     return name;
                 }
-                
+
                 _lang = ParseJson(locFile.VirtualPath);
             }
 
@@ -601,7 +601,7 @@ namespace Smartstore.Admin.Controllers
         private bool IsAjaxUpload(string method = null)
         {
             return method == "ajax" || Request.IsAjax();
-            
+
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

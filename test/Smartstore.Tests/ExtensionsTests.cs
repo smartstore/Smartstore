@@ -1,6 +1,5 @@
 ﻿using System.IO;
 using NUnit.Framework;
-using Smartstore.Utilities.Html;
 
 namespace Smartstore.Tests
 {

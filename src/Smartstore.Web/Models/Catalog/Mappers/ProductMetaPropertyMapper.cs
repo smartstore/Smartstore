@@ -37,7 +37,7 @@ namespace Smartstore.Web.Models.Catalog.Mappers
             model.Url = _urlHelper.RouteUrl("Product", new { SeName = source.SeName }, HttpContext.Request.Scheme);
             model.Title = source.Name.Value;
             model.Type = "product";
-        
+
             var shortDescription = source.ShortDescription.Value.HasValue() ? source.ShortDescription : source.MetaDescription;
             if (shortDescription.Value.HasValue())
             {

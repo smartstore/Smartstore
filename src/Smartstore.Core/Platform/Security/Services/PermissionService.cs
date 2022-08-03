@@ -570,7 +570,7 @@ namespace Smartstore.Core.Security
             CustomerRole role)
         {
             foreach (var entity in toAdd)
-            {                
+            {
                 var mapping = entity.PermissionRoleMappings.FirstOrDefault(x => x.CustomerRoleId == role.Id);
 
                 var newNode = parent.Append(new PermissionNode
@@ -604,7 +604,7 @@ namespace Smartstore.Core.Security
                 else
                 {
                     allow = await AuthorizeAsync(entity.SystemName, customer);
-                }                
+                }
 
                 var newNode = parent.Append(new PermissionNode
                 {
@@ -677,8 +677,8 @@ namespace Smartstore.Core.Security
 
                 var resources = await _db.LocaleStringResources
                     .AsNoTracking()
-                    .Where(x => x.LanguageId == languageId && 
-                        (x.ResourceName.StartsWith("Permissions.DisplayName.") 
+                    .Where(x => x.LanguageId == languageId &&
+                        (x.ResourceName.StartsWith("Permissions.DisplayName.")
                         || x.ResourceName.StartsWith("Plugins.Permissions.DisplayName.")
                         || x.ResourceName.StartsWith("Modules.Permissions.DisplayName.")
                         || allKeys.Contains(x.ResourceName)) &&

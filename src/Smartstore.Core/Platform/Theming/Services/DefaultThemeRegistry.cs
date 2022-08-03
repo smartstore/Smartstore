@@ -282,7 +282,7 @@ namespace Smartstore.Core.Theming
 
         private void CreateFileSystemWatchers()
         {
-            _monitorFiles = new FileSystemWatcher 
+            _monitorFiles = new FileSystemWatcher
             {
                 Path = _root.Root,
                 InternalBufferSize = 32768, // // 32 instead of the default 8 KB,
@@ -300,7 +300,7 @@ namespace Smartstore.Core.Theming
                 OnThemeFileChanged(e.Name, e.FullPath, ThemeFileChangeType.Created);
             };
 
-            _monitorFolders = new FileSystemWatcher 
+            _monitorFolders = new FileSystemWatcher
             {
                 Path = _root.Root,
                 Filter = "*",
@@ -365,7 +365,7 @@ namespace Smartstore.Core.Theming
             if (!_fileFilterPattern.IsMatch(ext))
             {
                 return;
-            }   
+            }
 
             var idx = name.IndexOf('\\');
             if (idx < 0)
@@ -410,7 +410,7 @@ namespace Smartstore.Core.Theming
                 var dir = new LocalDirectory(themeName, new DirectoryInfo(Path.GetDirectoryName(fullPath)), _root as LocalFileSystem);
 
                 string oldBaseThemeName = null;
-                
+
                 if (currentDescriptor != null)
                 {
                     oldBaseThemeName = currentDescriptor.BaseThemeName;

@@ -121,7 +121,7 @@ namespace Smartstore.Web.Controllers
             if (ModelState.IsValid)
             {
                 Customer customer;
-                
+
                 if (model.CustomerLoginType == CustomerLoginType.Username)
                 {
                     customer = await _userManager.FindByNameAsync(model.Username.TrimSafe());
@@ -136,7 +136,7 @@ namespace Smartstore.Web.Controllers
                 }
 
                 var result = await _signInManager.PasswordSignInAsync(customer, model.Password, model.RememberMe, lockoutOnFailure: false);
-                
+
                 if (result.Succeeded)
                 {
                     await _shoppingCartService.MigrateCartAsync(Services.WorkContext.CurrentCustomer, customer);
@@ -145,10 +145,10 @@ namespace Smartstore.Web.Controllers
 
                     await Services.EventPublisher.PublishAsync(new CustomerSignedInEvent { Customer = customer });
 
-                    if (returnUrl.IsEmpty() 
-                        || returnUrl.Contains("/login?", StringComparison.OrdinalIgnoreCase) 
-                        || returnUrl.Contains("/passwordrecoveryconfirm", StringComparison.OrdinalIgnoreCase) 
-                        || returnUrl.Contains("/activation", StringComparison.OrdinalIgnoreCase) 
+                    if (returnUrl.IsEmpty()
+                        || returnUrl.Contains("/login?", StringComparison.OrdinalIgnoreCase)
+                        || returnUrl.Contains("/passwordrecoveryconfirm", StringComparison.OrdinalIgnoreCase)
+                        || returnUrl.Contains("/activation", StringComparison.OrdinalIgnoreCase)
                         || !Url.IsLocalUrl(returnUrl))
                     {
                         return RedirectToRoute("Homepage");
@@ -276,7 +276,7 @@ namespace Smartstore.Web.Controllers
                     {
                         passwordResult.Errors.Select(x => x.Description).Distinct()
                             .Each(x => ModelState.AddModelError(string.Empty, x));
-                    }   
+                    }
                 }
 
                 identityResult.Errors.Select(x => x.Description).Distinct()
@@ -323,7 +323,7 @@ namespace Smartstore.Web.Controllers
         public async Task<IActionResult> AccountActivation(string token, string email)
         {
             var customer = await _userManager.FindByEmailAsync(email);
-                
+
             if (customer == null)
             {
                 NotifyError(T("Account.AccountActivation.InvalidEmailOrToken"));
@@ -437,7 +437,7 @@ namespace Smartstore.Web.Controllers
 
             if (ModelState.IsValid)
             {
-                var passwordResult = await _userManager.ChangePasswordAsync(customer, model.OldPassword, model.NewPassword);                
+                var passwordResult = await _userManager.ChangePasswordAsync(customer, model.OldPassword, model.NewPassword);
                 if (passwordResult.Succeeded)
                 {
                     model.Result = T("Account.ChangePassword.Success");
@@ -516,7 +516,7 @@ namespace Smartstore.Web.Controllers
 
             if (ModelState.IsValid)
             {
-                var identityResult = await _userManager.ResetPasswordAsync(customer, model.Token, model.NewPassword);                
+                var identityResult = await _userManager.ResetPasswordAsync(customer, model.Token, model.NewPassword);
                 if (identityResult.Succeeded)
                 {
                     customer.GenericAttributes.PasswordRecoveryToken = string.Empty;
@@ -564,7 +564,7 @@ namespace Smartstore.Web.Controllers
                 NotifyError(remoteError);
                 return RedirectToAction(nameof(Login));
             }
-            
+
             var info = await _signInManager.GetExternalLoginInfoAsync();
             if (info == null)
             {
@@ -632,7 +632,7 @@ namespace Smartstore.Web.Controllers
         {
             if (provider.HasValue() || errorMessage.HasValue())
             {
-                Logger.Error($"Error from external provider {provider}: { errorMessage }");
+                Logger.Error($"Error from external provider {provider}: {errorMessage}");
             }
 
             NotifyError(T("ExternalAuthentication.ConfigError"));
@@ -660,7 +660,7 @@ namespace Smartstore.Web.Controllers
             model.AllowCustomersToSetTimeZone = _dateTimeSettings.AllowCustomersToSetTimeZone;
             model.DisplayVatNumber = _taxSettings.EuVatEnabled;
             model.VatRequired = _taxSettings.VatRequired;
-        
+
             MiniMapper.Map(_customerSettings, model);
 
             model.UsernamesEnabled = _customerSettings.CustomerLoginType != CustomerLoginType.Email;
@@ -741,7 +741,7 @@ namespace Smartstore.Web.Controllers
                     {
                         redirectUrl = _webHelper.ModifyQueryString(redirectUrl, "returnUrl=" + returnUrl.UrlEncode(), null);
                     }
-                            
+
                     return Redirect(redirectUrl);
                 }
                 default:
@@ -782,15 +782,15 @@ namespace Smartstore.Web.Controllers
             {
                 customer.Company = model.Company;
             }
-            
+
             if (_customerSettings.DateOfBirthEnabled)
             {
                 try
                 {
                     customer.BirthDate = new DateTime(model.DateOfBirthYear.Value, model.DateOfBirthMonth.Value, model.DateOfBirthDay.Value);
                 }
-                catch 
-                { 
+                catch
+                {
                 }
             }
 
@@ -834,7 +834,7 @@ namespace Smartstore.Web.Controllers
             {
                 customer.GenericAttributes.Fax = model.Fax;
             }
-            
+
             // Newsletter subscription
             if (_customerSettings.NewsletterEnabled && model.Newsletter)
             {
@@ -844,7 +844,7 @@ namespace Smartstore.Web.Controllers
 
                 if (subscription != null)
                 {
-                    subscription.Active = true;   
+                    subscription.Active = true;
                 }
                 else
                 {
@@ -863,7 +863,7 @@ namespace Smartstore.Web.Controllers
 
                 await _db.SaveChangesAsync();
             }
-            
+
             // Insert default address (if possible).
             var defaultAddress = new Address
             {

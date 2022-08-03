@@ -8,11 +8,11 @@
         public GiftCardQueryItem(string name, string value)
         {
             Guard.NotEmpty(name, nameof(name));
-                        
+
             Name = name.StartsWith('.') ? name[1..].ToLower() : name.ToLower();
             Value = value ?? string.Empty;
         }
-        
+
         /// <summary>
         /// Gets the name
         /// </summary>

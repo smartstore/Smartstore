@@ -94,7 +94,7 @@ namespace Smartstore.Core.Bootstrapping
                     .As<IPriceCalculator>()
                     .Keyed<IPriceCalculator>(calculatorType)
                     .InstancePerAttributedLifetime()
-                    .WithMetadata<PriceCalculatorMetadata>(m => 
+                    .WithMetadata<PriceCalculatorMetadata>(m =>
                     {
                         m.For(em => em.CalculatorType, calculatorType);
                         m.For(em => em.ValidTargets, usageAttribute?.ValidTargets ?? CalculatorTargets.All);

@@ -72,7 +72,7 @@ namespace Smartstore.Core.Seo
             {
                 return this;
             }
-            
+
             return new UrlService(db,
                 _cache,
                 _httpContextAccessor,
@@ -255,7 +255,7 @@ namespace Smartstore.Core.Seo
         public virtual async Task<string> GetActiveSlugAsync(int entityId, string entityName, int languageId)
         {
             Guard.NotEmpty(entityName, nameof(entityName));
-            
+
             if (TryGetPrefetchedActiveSlug(entityId, entityName, languageId, out var slug))
             {
                 return slug;
@@ -266,7 +266,7 @@ namespace Smartstore.Core.Seo
                 var allActiveSlugs = await _cache.GetAsync(URLRECORD_ALL_ACTIVESLUGS_KEY, async (o) =>
                 {
                     o.ExpiresIn(TimeSpan.FromHours(8));
-                    
+
                     var query = from x in _db.UrlRecords.AsNoTracking()
                                 where x.IsActive
                                 orderby x.Id descending

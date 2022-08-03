@@ -130,7 +130,7 @@ namespace Smartstore.Google.MerchantCenter.Controllers
             {
                 query = query.ApplySearchFilterFor(x => x.Sku, model.SearchProductSku);
             }
-            
+
             if (model.SearchIsTouched.HasValue)
             {
                 query = model.SearchIsTouched.Value
@@ -216,11 +216,11 @@ namespace Smartstore.Google.MerchantCenter.Controllers
             {
                 _db.GoogleProducts().Add(googleProduct);
             }
-            else if(!googleProduct.IsTouched) 
+            else if (!googleProduct.IsTouched)
             {
                 _db.GoogleProducts().Remove(googleProduct);
             }
-            
+
             await _db.SaveChangesAsync();
             success = true;
 
@@ -232,12 +232,12 @@ namespace Smartstore.Google.MerchantCenter.Controllers
             const int take = 100;
 
             page ??= 1;
-            
+
             var skip = (page.Value - 1) * take;
             var (categories, hasMoreItems) = await GetTaxonomyListAsync(search, skip, take);
             var items = categories.Select(x => new { id = x, text = x }).ToList();
 
-            return Json(new 
+            return Json(new
             {
                 hasMoreItems,
                 results = items

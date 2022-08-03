@@ -11,7 +11,7 @@ namespace Smartstore.Web.Components
         private readonly CatalogSettings _catalogSettings;
 
         public RecentlyViewedProductsViewComponent(
-            IRecentlyViewedProductsService recentlyViewedProductsService, 
+            IRecentlyViewedProductsService recentlyViewedProductsService,
             CatalogHelper catalogHelper,
             CatalogSettings catalogSettings)
         {

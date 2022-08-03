@@ -73,7 +73,7 @@ namespace Smartstore.Web.Controllers
 
             var paymentInfo = await paymentMethod.GetPaymentInfoAsync(form);
             HttpContext.Session.TrySetObject("OrderPaymentInfo", paymentInfo);
-            
+
             var state = _checkoutStateAccessor.CheckoutState;
             state.PaymentSummary = await paymentMethod.GetPaymentSummaryAsync();
 
@@ -263,7 +263,7 @@ namespace Smartstore.Web.Controllers
                 {
                     customer.ShippingAddress = address;
                 }
-                
+
                 await _db.SaveChangesAsync();
 
                 return RedirectToAction(isBillingAddress ? nameof(ShippingAddress) : nameof(ShippingMethod));
@@ -490,7 +490,7 @@ namespace Smartstore.Web.Controllers
         [HttpPost, ActionName("PaymentMethod")]
         [FormValueRequired("nextstep")]
         public async Task<IActionResult> SelectPaymentMethod(string paymentMethod, CheckoutPaymentMethodModel model, IFormCollection form)
-        {            
+        {
             var storeId = Services.StoreContext.CurrentStore.Id;
             var customer = Services.WorkContext.CurrentCustomer;
 
@@ -628,7 +628,7 @@ namespace Smartstore.Web.Controllers
                     // Check whether payment workflow is required.
                     var cartTotalBase = await _orderCalculationService.GetShoppingCartTotalAsync(cart, false);
 
-                    if (!cartTotalBase.Total.HasValue && cartTotalBase.Total.Value != decimal.Zero 
+                    if (!cartTotalBase.Total.HasValue && cartTotalBase.Total.Value != decimal.Zero
                         || !_checkoutStateAccessor.CheckoutState.IsPaymentSelectionSkipped)
                     {
                         return RedirectToAction(nameof(PaymentMethod));
@@ -716,7 +716,7 @@ namespace Smartstore.Web.Controllers
         public async Task<IActionResult> Completed()
         {
             var customer = Services.WorkContext.CurrentCustomer;
-            
+
             if (customer.IsGuest() && !_orderSettings.AnonymousCheckoutAllowed)
             {
                 return new UnauthorizedResult();
@@ -725,7 +725,7 @@ namespace Smartstore.Web.Controllers
             var store = Services.StoreContext.CurrentStore;
 
             var order = await _db.Orders
-                .AsNoTracking()                
+                .AsNoTracking()
                 .ApplyStandardFilter(customer.Id, store.Id)
                 .FirstOrDefaultAsync();
 

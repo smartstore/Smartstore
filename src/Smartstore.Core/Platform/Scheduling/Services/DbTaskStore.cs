@@ -52,8 +52,8 @@ namespace Smartstore.Scheduling
         private AsyncRetryPolicy _retryPolicy;
 
         public DbTaskStore(
-            IDbContextFactory<SmartDbContext> dbFactory, 
-            IApplicationContext appContext, 
+            IDbContextFactory<SmartDbContext> dbFactory,
+            IApplicationContext appContext,
             IDateTimeHelper dtHelper,
             Lazy<CommonSettings> commonSettings)
         {
@@ -86,7 +86,7 @@ namespace Smartstore.Scheduling
             if (disposing && _db != null)
             {
                 return _db.DisposeAsync();
-            }      
+            }
 
             return ValueTask.CompletedTask;
         }
@@ -135,7 +135,7 @@ namespace Smartstore.Scheduling
             {
                 return Task.FromResult<TaskDescriptor>(null);
             }
-            
+
             return ExecuteWithRetry(() => Db.TaskDescriptors.FindByIdAsync(taskId).AsTask());
         }
 
@@ -270,8 +270,8 @@ namespace Smartstore.Scheduling
 
             if (task == null)
             {
-                task = new TaskDescriptor 
-                { 
+                task = new TaskDescriptor
+                {
                     Type = type.GetAttribute<TaskNameAttribute>(false)?.Name ?? type.Name
                 };
 
@@ -416,7 +416,7 @@ namespace Smartstore.Scheduling
         {
             Guard.NotNull(task, nameof(task));
 
-            var query = Db.IsCollectionLoaded(task, x => x.ExecutionHistory) 
+            var query = Db.IsCollectionLoaded(task, x => x.ExecutionHistory)
                 ? task.ExecutionHistory.AsQueryable()
                 : GetExecutionInfoQuery().Include(x => x.Task).ApplyTaskFilter(task.Id);
 

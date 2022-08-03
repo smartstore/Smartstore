@@ -2,7 +2,7 @@
 {
     [LocalizedDisplay("Plugins.Widgets.GoogleAnalytics.")]
     public class ConfigurationModel : ModelBase
-    {   
+    {
         [LocalizedDisplay("*GoogleId")]
         public string GoogleId { get; set; }
 

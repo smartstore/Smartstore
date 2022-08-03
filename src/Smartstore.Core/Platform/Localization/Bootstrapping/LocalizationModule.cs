@@ -42,7 +42,7 @@ namespace Smartstore.Core.Bootstrapping
             {
                 return;
             }
-            
+
             var userProperty = FindUserProperty(registration.Activator.LimitType);
 
             if (userProperty == null)
@@ -53,7 +53,7 @@ namespace Smartstore.Core.Bootstrapping
             registration.PipelineBuilding += (sender, pipeline) =>
             {
                 // Add our Localizer middleware to the pipeline.
-                pipeline.Use(PipelinePhase.ParameterSelection, (context, next) => 
+                pipeline.Use(PipelinePhase.ParameterSelection, (context, next) =>
                 {
                     next(context);
 
@@ -76,7 +76,7 @@ namespace Smartstore.Core.Bootstrapping
                             prop.SetValue(context.Instance, localizerEx);
                         }
                     }
-                    catch 
+                    catch
                     {
                     }
                 });

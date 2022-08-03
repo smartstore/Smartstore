@@ -17,10 +17,10 @@ namespace Smartstore.Core.Seo.Routing
         private readonly ILanguageService _languageService;
 
         public SlugRouteTransformer(
-            SmartDbContext db, 
-            IUrlService urlService, 
-            IWebHelper webHelper, 
-            LocalizationSettings localizationSettings, 
+            SmartDbContext db,
+            IUrlService urlService,
+            IWebHelper webHelper,
+            LocalizationSettings localizationSettings,
             ILanguageService languageService)
         {
             _db = db;
@@ -194,7 +194,7 @@ namespace Smartstore.Core.Seo.Routing
                     var ambientLanguage = await _db.Languages.FirstOrDefaultAsync(x => x.UniqueSeoCode == ambientCulture);
                     // ...then determine the active slug for the request language.
                     var ambientSlug = await _urlService.GetActiveSlugAsync(urlRecord.EntityId, urlRecord.EntityName, ambientLanguage.Id);
-                    
+
                     if (ambientSlug.HasValue() && ambientSlug != slug)
                     {
                         // ...now check if request language is default

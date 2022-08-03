@@ -29,7 +29,7 @@ namespace Smartstore.DevTools.Filters
             if (!context.Result.IsHtmlViewResult())
             {
                 _chronometer.StepStop("ActionFilter");
-            }    
+            }
         }
 
         public void OnResultExecuting(ResultExecutingContext context)

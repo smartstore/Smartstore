@@ -26,7 +26,7 @@ namespace Smartstore.Core.Seo.Routing
 
         public bool IsModified
             => Modified == string.Empty
-                ? Original != null 
+                ? Original != null
                 : Modified != null && Modified != Original;
 
         /// <summary>
@@ -46,7 +46,7 @@ namespace Smartstore.Core.Seo.Routing
         public static implicit operator string(UrlSegment segment)
             => segment.Value;
     }
-    
+
     public sealed class UrlPolicy
     {
         public UrlPolicy(HttpRequest request)
@@ -143,7 +143,7 @@ namespace Smartstore.Core.Seo.Routing
             if (leftMod)
             {
                 return UriHelper.BuildAbsolute(
-                    Scheme, 
+                    Scheme,
                     new HostString(Host),
                     PathBase,
                     combinedPath,
@@ -151,7 +151,7 @@ namespace Smartstore.Core.Seo.Routing
             }
 
             return UriHelper.BuildRelative(
-                PathBase, 
+                PathBase,
                 combinedPath,
                 new QueryString(QueryString));
         }

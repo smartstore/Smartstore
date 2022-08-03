@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data.Common;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Smartstore.Data;
@@ -17,7 +14,7 @@ namespace Smartstore.Test.Common
         {
         }
 
-        public override DbSystemType ProviderType 
+        public override DbSystemType ProviderType
             => DbSystemType.Unknown;
 
         public override DbParameter CreateParameter()

@@ -28,7 +28,7 @@
             License = license;
             Copyright = copyright;
         }
-        
+
         public string Name { get; set; }
         public string Url { get; set; }
         public LibraryLicense License { get; set; }

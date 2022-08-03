@@ -9,7 +9,7 @@ namespace Smartstore.Core.Content.Topics
     {
         private readonly SmartDbContext _db;
         private readonly IWorkContext _workContext;
-        
+
         public TopicXmlSitemapPublisher(
             SmartDbContext db,
             IWorkContext workContext)

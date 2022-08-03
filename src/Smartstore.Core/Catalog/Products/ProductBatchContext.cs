@@ -78,11 +78,11 @@ namespace Smartstore.Core.Catalog.Products
             }
         }
 
-        internal IProductService ProductService 
-        { 
-            get => _productService ??= _services.Resolve<IProductService>(); 
+        internal IProductService ProductService
+        {
+            get => _productService ??= _services.Resolve<IProductService>();
             // For testing purposes
-            set => _productService = value; 
+            set => _productService = value;
         }
 
         internal ICategoryService CategoryService
@@ -106,49 +106,49 @@ namespace Smartstore.Core.Catalog.Products
 
         public LazyMultimap<ProductVariantAttribute> Attributes
         {
-            get => _attributes ??= 
+            get => _attributes ??=
                 new LazyMultimap<ProductVariantAttribute>(keys => LoadAttributes(keys), _productIds);
         }
 
         public LazyMultimap<ProductVariantAttributeCombination> AttributeCombinations
         {
-            get => _attributeCombinations ??= 
+            get => _attributeCombinations ??=
                 new LazyMultimap<ProductVariantAttributeCombination>(keys => LoadAttributeCombinations(keys), _productIds);
         }
 
         public LazyMultimap<TierPrice> TierPrices
         {
-            get => _tierPrices ??= 
+            get => _tierPrices ??=
                 new LazyMultimap<TierPrice>(keys => LoadTierPrices(keys), _productIdsTierPrices);
         }
 
         public LazyMultimap<ProductCategory> ProductCategories
         {
-            get => _productCategories ??= 
+            get => _productCategories ??=
                 new LazyMultimap<ProductCategory>(keys => LoadProductCategories(keys), _productIds);
         }
 
         public LazyMultimap<ProductManufacturer> ProductManufacturers
         {
-            get => _productManufacturers ??= 
+            get => _productManufacturers ??=
                 new LazyMultimap<ProductManufacturer>(keys => LoadProductManufacturers(keys), _productIds);
         }
 
         public LazyMultimap<Discount> AppliedDiscounts
         {
-            get => _appliedDiscounts ??= 
+            get => _appliedDiscounts ??=
                 new LazyMultimap<Discount>(keys => LoadAppliedDiscounts(keys), _productIdsAppliedDiscounts);
-        }     
+        }
 
         public LazyMultimap<ProductBundleItem> ProductBundleItems
         {
-            get => _productBundleItems ??= 
+            get => _productBundleItems ??=
                 new LazyMultimap<ProductBundleItem>(keys => LoadProductBundleItems(keys), _bundledProductIds);
         }
 
         public LazyMultimap<Product> AssociatedProducts
         {
-            get => _associatedProducts ??= 
+            get => _associatedProducts ??=
                 new LazyMultimap<Product>(keys => LoadAssociatedProducts(keys), _groupedProductIds);
         }
 

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Http;
@@ -164,9 +163,9 @@ namespace Smartstore.Core.Tests
 
             DataSettings.Instance = dataSettings;
             DataSettings.SetTestMode(true);
-            
+
             var builder = new DbContextOptionsBuilder<SmartDbContext>()
-                .UseDbFactory(factoryBuilder => 
+                .UseDbFactory(factoryBuilder =>
                 {
                     factoryBuilder
                         .AddModelAssemblies(new[]
@@ -212,7 +211,7 @@ namespace Smartstore.Core.Tests
 
             var attributePriceCalculator = new Lazy<IPriceCalculator, PriceCalculatorMetadata>(() =>
                 new AttributePriceCalculator(priceCalculatorFactory, DbContext), productMetadata);
-            
+
             var bundlePriceCalculator =
                 new Lazy<IPriceCalculator, PriceCalculatorMetadata>(() =>
                     new BundlePriceCalculator(priceCalculatorFactory, null),
@@ -222,7 +221,7 @@ namespace Smartstore.Core.Tests
                 new Lazy<IPriceCalculator, PriceCalculatorMetadata>(() =>
                     new DiscountPriceCalculator(DbContext, discountService, catalogSettings),
                     new() { ValidTargets = CalculatorTargets.All, Order = CalculatorOrdering.Late });
-            
+
             var groupedProductPriceCalculator =
                 new Lazy<IPriceCalculator, PriceCalculatorMetadata>(() =>
                     new GroupedProductPriceCalculator(null, priceCalculatorFactory, null),
@@ -235,7 +234,7 @@ namespace Smartstore.Core.Tests
                 new Lazy<IPriceCalculator, PriceCalculatorMetadata>(() =>
                     new OfferPriceCalculator(),
                     new() { ValidTargets = CalculatorTargets.Product | CalculatorTargets.Bundle, Order = CalculatorOrdering.Default });
-            
+
             var preselectedPriceCalculator =
                 new Lazy<IPriceCalculator, PriceCalculatorMetadata>(() =>
                     new PreselectedPriceCalculator(null),
@@ -249,10 +248,10 @@ namespace Smartstore.Core.Tests
             // Custom calculator for additional charge.
             var customCalculator = new Lazy<IPriceCalculator, PriceCalculatorMetadata>(() =>
                 new CustomAdditionalChargeCalculator(), new PriceCalculatorMetadata { ValidTargets = CalculatorTargets.Product, Order = CalculatorOrdering.Default });
-            
-            calculators.AddRange(new[] { 
-                attributePriceCalculator, 
-                bundlePriceCalculator, 
+
+            calculators.AddRange(new[] {
+                attributePriceCalculator,
+                bundlePriceCalculator,
                 discountPriceCalculator,
                 groupedProductPriceCalculator,
                 lowestPriceCalculator,

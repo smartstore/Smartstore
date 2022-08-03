@@ -201,8 +201,8 @@ namespace Smartstore.Admin.Controllers
                 Services.ActivityLogger.LogActivity(KnownActivityLogTypes.AddNewManufacturer, T("ActivityLog.AddNewManufacturer"), manufacturer.Name);
                 NotifySuccess(T("Admin.Catalog.Manufacturers.Added"));
 
-                return continueEditing 
-                    ? RedirectToAction(nameof(Edit), new { id = manufacturer.Id }) 
+                return continueEditing
+                    ? RedirectToAction(nameof(Edit), new { id = manufacturer.Id })
                     : RedirectToAction(nameof(List));
             }
 
@@ -276,8 +276,8 @@ namespace Smartstore.Admin.Controllers
                 Services.ActivityLogger.LogActivity(KnownActivityLogTypes.EditManufacturer, T("ActivityLog.EditManufacturer"), manufacturer.Name);
                 NotifySuccess(T("Admin.Catalog.Manufacturers.Updated"));
 
-                return continueEditing 
-                    ? RedirectToAction(nameof(Edit), manufacturer.Id) 
+                return continueEditing
+                    ? RedirectToAction(nameof(Edit), manufacturer.Id)
                     : RedirectToAction(nameof(List));
             }
 

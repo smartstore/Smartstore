@@ -18,7 +18,7 @@ namespace Smartstore.Core.Widgets
         private readonly IRequestCache _requestCache;
 
         public WidgetService(
-            WidgetSettings widgetSettings, 
+            WidgetSettings widgetSettings,
             IProviderManager providerManager,
             ICacheFactory cacheFactory,
             ISettingFactory settingFactory,

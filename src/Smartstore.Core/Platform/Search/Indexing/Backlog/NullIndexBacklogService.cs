@@ -13,10 +13,10 @@
             => Task.FromResult<IDictionary<int, IndexBacklogItem>>(new Dictionary<int, IndexBacklogItem>());
 
         public Task<int> GetBacklogCountAsync(string scope, DateTime? lastIndexedUtc)
-            => Task.FromResult(0);            
+            => Task.FromResult(0);
 
         public Task<int> PurgeAsync(string scope, CancellationToken cancelToken = default)
-            => Task.FromResult(0);           
+            => Task.FromResult(0);
 
         public Task<int> RemoveAsync(IndexBacklogItem[] items, CancellationToken cancelToken = default)
             => Task.FromResult(0);

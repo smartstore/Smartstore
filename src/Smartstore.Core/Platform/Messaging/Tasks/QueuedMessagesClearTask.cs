@@ -21,7 +21,7 @@ namespace Smartstore.Core.Messaging.Tasks
         public async Task Run(TaskExecutionContext ctx, CancellationToken cancelToken = default)
         {
             var olderThan = DateTime.UtcNow.AddDays(-Math.Abs(_commonSettings.MaxQueuedMessagesAgeInDays));
-            
+
             await _db.QueuedEmails
                 .Where(x => x.SentOnUtc.HasValue && x.CreatedOnUtc < olderThan)
                 .BatchDeleteAsync(cancellationToken: cancelToken);

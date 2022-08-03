@@ -13,7 +13,7 @@ namespace Smartstore.Core.Content.Media
             PublicPath = GetPublicPath(appContext);
             StoragePath = GetStoragePath(appContext, out var pathIsAbsolute);
             StoragePathIsAbsolute = pathIsAbsolute;
-            RootPath = pathIsAbsolute 
+            RootPath = pathIsAbsolute
                 ? Path.GetFullPath(StoragePath)
                 : Path.GetFullPath(Path.Combine(appContext.ContentRoot.Root, StoragePath));
         }

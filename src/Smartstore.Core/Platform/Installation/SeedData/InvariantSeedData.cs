@@ -1251,10 +1251,10 @@ namespace Smartstore.Core.Installation
 
         #region Helpers
 
-        protected SmartDbContext DbContext 
+        protected SmartDbContext DbContext
             => _db;
 
-        protected SampleMediaUtility MediaUtility 
+        protected SampleMediaUtility MediaUtility
             => _mediaUtility;
 
         public virtual UrlRecord CreateUrlRecordFor<T>(T entity) where T : BaseEntity, ISlugSupported, new()

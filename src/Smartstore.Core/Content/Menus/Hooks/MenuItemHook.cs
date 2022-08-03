@@ -8,7 +8,7 @@ namespace Smartstore.Core.Content.Menus.Hooks
     internal class MenuItemHook : AsyncDbSaveHook<MenuItemEntity>
     {
         private readonly ICacheManager _cache;
-        
+
         public MenuItemHook(ICacheManager cache)
         {
             _cache = cache;

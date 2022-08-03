@@ -9,7 +9,7 @@ namespace Smartstore.Core.Search.Facets
     {
         private readonly static Dictionary<FacetGroupKind, string> _queryNames = new()
         {
-			{ FacetGroupKind.Brand, "m" },
+            { FacetGroupKind.Brand, "m" },
             { FacetGroupKind.Category, "c" },
             { FacetGroupKind.Price, "p" },
             { FacetGroupKind.Rating, "r" },

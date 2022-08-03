@@ -62,7 +62,7 @@ namespace Smartstore.Core.Seo
             "ß;ss"
         };
 
-        public static string[] DefaultReservedUrlRecordSlugs { get; } = new []
+        public static string[] DefaultReservedUrlRecordSlugs { get; } = new[]
         {
             "admin",
             "install",
@@ -122,8 +122,8 @@ namespace Smartstore.Core.Seo
         public bool AllowUnicodeCharsInUrls { get; set; }
 
         private string _seoNameCharConversion;
-        public string SeoNameCharConversion 
-        { 
+        public string SeoNameCharConversion
+        {
             get
             {
                 return _seoNameCharConversion;
@@ -188,7 +188,7 @@ namespace Smartstore.Core.Seo
                     }
                 }
             }
-            
+
             return _charConversionMap;
         }
 

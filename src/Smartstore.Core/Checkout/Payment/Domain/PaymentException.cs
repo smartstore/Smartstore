@@ -62,7 +62,7 @@ namespace Smartstore.Core.Checkout.Payment
             : base(message, innerException)
         {
             Guard.NotNull(response, nameof(response));
-            
+
             Provider = provider;
             Response = response;
         }

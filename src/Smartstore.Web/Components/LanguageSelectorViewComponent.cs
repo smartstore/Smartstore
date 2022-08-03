@@ -11,9 +11,9 @@ namespace Smartstore.Web.Components
         private readonly Lazy<ILanguageService> _languageService;
         private readonly IUrlService _urlService;
         private readonly LocalizationSettings _localizationSettings;
-        
+
         public LanguageSelectorViewComponent(
-            SmartDbContext db, 
+            SmartDbContext db,
             Lazy<ILanguageService> languageService,
             IUrlService urlService,
             LocalizationSettings localizationSettings)
@@ -37,7 +37,7 @@ namespace Smartstore.Web.Components
                     .ToListAsync();
 
                 var result = languages
-                    .Select(x => 
+                    .Select(x =>
                     {
                         CultureHelper.TryGetCultureInfoForLocale(x.LanguageCulture, out var culture);
                         CultureHelper.TryGetCultureInfoForLocale(x.GetTwoLetterISOLanguageName(), out var neutralCulture);

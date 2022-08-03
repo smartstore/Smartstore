@@ -66,7 +66,7 @@ namespace Smartstore.Core.DataExchange.Import
             nameof(Product.Name)
         };
 
-        public static string[] DefaultKeyFields => new[] 
+        public static string[] DefaultKeyFields => new[]
         {
             nameof(Product.Sku),
             nameof(Product.Gtin),
@@ -266,7 +266,7 @@ namespace Smartstore.Core.DataExchange.Import
         protected virtual async Task<int> InternalProcessProductsAsync(
             ImportExecuteContext context,
             ImporterCargoData cargo,
-            DbContextScope scope, 
+            DbContextScope scope,
             IEnumerable<ImportRow<Product>> batch)
         {
             var defaultTemplateId = cargo.TemplateViewPaths["Product"];
@@ -465,8 +465,8 @@ namespace Smartstore.Core.DataExchange.Import
 
                 if (row.TryGetDataValue("ProductTemplateViewPath", out string tvp, row.IsTransient))
                 {
-                    product.ProductTemplateId = tvp.HasValue() && cargo.TemplateViewPaths.ContainsKey(tvp) 
-                        ? cargo.TemplateViewPaths[tvp] 
+                    product.ProductTemplateId = tvp.HasValue() && cargo.TemplateViewPaths.ContainsKey(tvp)
+                        ? cargo.TemplateViewPaths[tvp]
                         : defaultTemplateId;
                 }
 
@@ -507,7 +507,7 @@ namespace Smartstore.Core.DataExchange.Import
         protected virtual async Task<int> ProcessProductCategoriesAsync(
             ImportExecuteContext context,
             ImporterCargoData cargo,
-            DbContextScope scope, 
+            DbContextScope scope,
             IEnumerable<ImportRow<Product>> batch)
         {
             foreach (var row in batch)
@@ -553,7 +553,7 @@ namespace Smartstore.Core.DataExchange.Import
         protected virtual async Task<int> ProcessProductManufacturersAsync(
             ImportExecuteContext context,
             ImporterCargoData cargo,
-            DbContextScope scope, 
+            DbContextScope scope,
             IEnumerable<ImportRow<Product>> batch)
         {
             foreach (var row in batch)
@@ -624,9 +624,9 @@ namespace Smartstore.Core.DataExchange.Import
                     ? row.Urls.Take(context.ExtraData.NumberOfPictures.Value)
                     : row.Urls;
 
-                var itemsPerProduct = urls.Select(url => 
+                var itemsPerProduct = urls.Select(url =>
                     _mediaImporter.CreateDownloadItem(context.ImageDirectory, context.ImageDownloadDirectory, row.Row.Entity, url, row.Row, 0, fileNameLookup));
-                
+
                 items.AddRange(itemsPerProduct);
             }
 
@@ -818,10 +818,10 @@ namespace Smartstore.Core.DataExchange.Import
 
                             // Product-ID is required for new tier prices.
                             var productId = row.GetDataValue<int>(nameof(TierPrice.ProductId));
-                            
+
                             if (productId == 0 &&
-                                context.KeyFieldNames.Contains("Sku") && 
-                                row.TryGetDataValue<string>("ProductSku", out var sku) && 
+                                context.KeyFieldNames.Contains("Sku") &&
+                                row.TryGetDataValue<string>("ProductSku", out var sku) &&
                                 sku.HasValue())
                             {
                                 productId = await _db.Products

@@ -38,7 +38,7 @@ namespace Smartstore.Core.Data
         public PooledApplicationDbContextFactory(Type contextImplType)
         {
             Guard.NotNull(contextImplType, nameof(contextImplType));
-            
+
             var poolType = typeof(IDbContextPool<>).MakeGenericType(contextImplType);
             _pool = (IDbContextPool)EngineContext.Current.Application.Services.Resolve(poolType);
         }

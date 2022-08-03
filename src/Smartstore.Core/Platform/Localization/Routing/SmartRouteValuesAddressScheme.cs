@@ -69,7 +69,7 @@ namespace Smartstore.Core.Localization.Routing
                                 // routes do not contain the {culture} prefix.
                                 address.ExplicitValues.Remove("culture");
                             }
-                            
+
                             return true;
                         }
                     }

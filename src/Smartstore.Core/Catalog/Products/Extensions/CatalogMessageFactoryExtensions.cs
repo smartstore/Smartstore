@@ -17,12 +17,12 @@ namespace Smartstore.Core.Catalog.Products
         /// <param name="languageId">Language identifier.</param>
         /// <returns>Create message result.</returns>
         public static Task<CreateMessageResult> SendShareProductMessageAsync(
-            this IMessageFactory factory, 
+            this IMessageFactory factory,
             Customer customer,
             Product product,
-            string fromEmail, 
-            string toEmail, 
-            string personalMessage, 
+            string fromEmail,
+            string toEmail,
+            string personalMessage,
             int languageId = 0)
         {
             Guard.NotNull(customer, nameof(customer));
@@ -36,9 +36,9 @@ namespace Smartstore.Core.Catalog.Products
             };
 
             return factory.CreateMessageAsync(
-                MessageContext.Create(MessageTemplateNames.ShareProduct, languageId, customer: customer), 
-                true, 
-                product, 
+                MessageContext.Create(MessageTemplateNames.ShareProduct, languageId, customer: customer),
+                true,
+                product,
                 model);
         }
 
@@ -59,15 +59,15 @@ namespace Smartstore.Core.Catalog.Products
         /// <returns>Create message result.</returns>
         public static Task<CreateMessageResult> SendProductQuestionMessageAsync(
             this IMessageFactory factory,
-            Customer customer, 
+            Customer customer,
             Product product,
             string senderEmail,
             string senderName,
-            string senderPhone, 
+            string senderPhone,
             string question,
-            string attributeInfo, 
-            string productUrl, 
-            bool isQuoteRequest, 
+            string attributeInfo,
+            string productUrl,
+            bool isQuoteRequest,
             int languageId = 0)
         {
             Guard.NotNull(customer, nameof(customer));
@@ -85,9 +85,9 @@ namespace Smartstore.Core.Catalog.Products
             };
 
             return factory.CreateMessageAsync(
-                MessageContext.Create(MessageTemplateNames.ProductQuestion, languageId, customer: customer), 
-                true, 
-                product, 
+                MessageContext.Create(MessageTemplateNames.ProductQuestion, languageId, customer: customer),
+                true,
+                product,
                 model);
         }
 
@@ -121,8 +121,8 @@ namespace Smartstore.Core.Catalog.Products
             Guard.NotNull(product, nameof(product));
 
             return factory.CreateMessageAsync(
-                MessageContext.Create(MessageTemplateNames.QuantityBelowStoreOwner, languageId), 
-                true, 
+                MessageContext.Create(MessageTemplateNames.QuantityBelowStoreOwner, languageId),
+                true,
                 product);
         }
 

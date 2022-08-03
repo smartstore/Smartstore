@@ -27,7 +27,7 @@ namespace Smartstore.Engine.Modularity
         {
             ModularState.Instance.InstalledModules.Remove(Descriptor.SystemName);
             ModularState.Instance.Save();
-            
+
             return Task.CompletedTask;
         }
 
@@ -48,7 +48,7 @@ namespace Smartstore.Engine.Modularity
             {
                 return Task.CompletedTask;
             }
-            
+
             return Services.Localization.DeleteLocaleStringResourcesAsync(Descriptor.ResourceRootKey);
         }
 

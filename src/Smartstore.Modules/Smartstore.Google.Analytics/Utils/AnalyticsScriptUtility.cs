@@ -8,12 +8,12 @@
     /// Else whitespace would be copied into the setting properties and effect the configuration page in a negative way.
     /// </remarks>
     internal static class AnalyticsScriptUtility
-	{
+    {
         /// Current information about cookie consent
         /// https://support.google.com/analytics/answer/9976101?hl=de
         internal static string GetTrackingScript()
-		{
-			return @"<!-- Google code for Analytics tracking -->
+        {
+            return @"<!-- Google code for Analytics tracking -->
 <script async src='https://www.googletagmanager.com/gtag/js?id={GOOGLEID}'></script>
 <script>
 	{OPTOUTCOOKIE}
@@ -34,11 +34,11 @@
 
 	{ECOMMERCE}
 </script>";
-		}
+        }
 
-		internal static string GetEcommerceScript()
-		{
-			return @"gtag('event', 'purchase', {
+        internal static string GetEcommerceScript()
+        {
+            return @"gtag('event', 'purchase', {
   'transaction_id': '{ORDERID}',
   'value': {TOTAL},
   'currency': '{CURRENCY}',
@@ -46,17 +46,17 @@
   'shipping': {SHIP},
   'items': [{DETAILS}]
 });";
-		}
+        }
 
-		internal static string GetEcommerceDetailScript()
-		{
-			return @"{
+        internal static string GetEcommerceDetailScript()
+        {
+            return @"{
 	'id': '{PRODUCTSKU}',
 	'name': '{PRODUCTNAME}',
 	'category': '{CATEGORYNAME}',
 	'quantity': {QUANTITY},
 	'price': '{UNITPRICE}'
 },";
-		}
-	}
+        }
+    }
 }

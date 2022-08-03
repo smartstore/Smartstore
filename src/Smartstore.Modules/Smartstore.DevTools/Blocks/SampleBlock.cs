@@ -1,5 +1,4 @@
-﻿using System.IO;
-using FluentValidation;
+﻿using FluentValidation;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json;
 using Smartstore.Core.Content.Blocks;

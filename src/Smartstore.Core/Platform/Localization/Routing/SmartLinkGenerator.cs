@@ -14,7 +14,7 @@ namespace Smartstore.Core.Localization.Routing
         }
 
         private readonly static ConcurrentDictionary<string, EndpointInfo> _endpointInfoCache = new();
-        
+
         const string AreaParam = "area";
 
         private readonly LinkGenerator _inner;
@@ -112,7 +112,7 @@ namespace Smartstore.Core.Localization.Routing
             // Both current address and candidate endpoint must contain or NOT contain area.
             foreach (var endpoint in endpoints)
             {
-                var endpointInfo = _endpointInfoCache.GetOrAdd(endpoint.RoutePattern.RawText, key => 
+                var endpointInfo = _endpointInfoCache.GetOrAdd(endpoint.RoutePattern.RawText, key =>
                 {
                     var pattern = endpoint.RoutePattern;
                     var endpointContainsArea = pattern.Defaults.ContainsKey(AreaParam);
@@ -129,9 +129,9 @@ namespace Smartstore.Core.Localization.Routing
                         }
                     }
 
-                    return new EndpointInfo 
-                    { 
-                        HasArea = endpointContainsArea, 
+                    return new EndpointInfo
+                    {
+                        HasArea = endpointContainsArea,
                         IsLocalized = endpoint.Metadata.OfType<LocalizedRouteMetadata>().Any()
                     };
                 });

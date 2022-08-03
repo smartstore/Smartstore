@@ -35,7 +35,6 @@ using Serilog.Events;
 using Serilog.Extensions.Logging;
 using Serilog.Filters;
 using Smartstore;
-using Smartstore.Core.Data.Migrations;
 using Smartstore.Core.Logging.Serilog;
 using Smartstore.Utilities;
 
@@ -112,7 +111,7 @@ engine.Scope = new ScopedServiceContainer(
     app.Services.AsLifetimeScope());
 
 // Build request pipeline
-app.Lifetime.ApplicationStarted.Register(() => 
+app.Lifetime.ApplicationStarted.Register(() =>
 {
     appContext.Freeze();
     engineStarter.Dispose();

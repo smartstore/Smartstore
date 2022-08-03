@@ -309,7 +309,7 @@ namespace Smartstore.Admin.Controllers
                 else
                 {
                     string profileName = form["exportprofilename"];
-                    string fileName = "themevars-{0}{1}-{2}.xml".FormatCurrent(theme, 
+                    string fileName = "themevars-{0}{1}-{2}.xml".FormatCurrent(theme,
                         profileName.HasValue() ? '-' + PathUtility.SanitizeFileName(profileName) : string.Empty, DateTime.Now.ToString("yyyyMMdd"));
 
                     Services.ActivityLogger.LogActivity(KnownActivityLogTypes.ExportThemeVars, T("ActivityLog.ExportThemeVars"), theme);

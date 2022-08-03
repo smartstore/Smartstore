@@ -11,8 +11,8 @@
         private int _lastId;
 
         public SeekingIndexDataSegmenter(
-            int totalRecords, 
-            int maxId, 
+            int totalRecords,
+            int maxId,
             Func<int, int, Task<List<IIndexOperation>>> segmentFactory)
         {
             Guard.NotNull(segmentFactory, nameof(segmentFactory));

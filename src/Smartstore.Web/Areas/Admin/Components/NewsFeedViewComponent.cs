@@ -20,10 +20,10 @@ namespace Smartstore.Admin.Components
         public async Task<IViewComponentResult> InvokeAsync()
         {
             var lang = Services.WorkContext.WorkingLanguage;
-            var result = await Services.Cache.GetAsync($"admin:newsfeed{ lang.UniqueSeoCode }", async ctx =>
+            var result = await Services.Cache.GetAsync($"admin:newsfeed{lang.UniqueSeoCode}", async ctx =>
             {
                 ctx.ExpiresIn(TimeSpan.FromHours(4));
-                
+
                 try
                 {
                     var url = "https://smartstore.com/Plugins/NewsFeed/JsonFeed";
@@ -55,10 +55,10 @@ namespace Smartstore.Admin.Components
                 }
                 catch (Exception ex)
                 {
-                    return  new FeedModel { IsError = true, ErrorMessage = ex.Message };
+                    return new FeedModel { IsError = true, ErrorMessage = ex.Message };
                 }
             });
-            
+
             if (!result.NewsFeedCannels.Any() && result.IsError)
             {
                 ModelState.AddModelError(string.Empty, result.ErrorMessage);

@@ -16,7 +16,7 @@ namespace Smartstore.Core.Security
         /// </summary>
         /// <param name="systemName">The system name of the permission.</param>
         /// <param name="showUnauthorizedMessage">A value indicating whether to show an unauthorization message.</param>
-        public PermissionAttribute(string systemName, bool showUnauthorizedMessage = true) 
+        public PermissionAttribute(string systemName, bool showUnauthorizedMessage = true)
             : base(typeof(PermissionFilter))
         {
             Guard.NotEmpty(systemName, nameof(systemName));
@@ -32,7 +32,7 @@ namespace Smartstore.Core.Security
 
             public PermissionFilter(
                 IWorkContext workContext,
-                IPermissionService permissionService, 
+                IPermissionService permissionService,
                 PermissionRequirement requirement)
             {
                 _workContext = workContext;

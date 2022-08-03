@@ -196,7 +196,7 @@ namespace Smartstore.Web.Controllers
             var templateCacheKey = string.Format(ModelCacheInvalidator.CATEGORY_TEMPLATE_MODEL_KEY, category.CategoryTemplateId);
             var templateViewPath = await Services.Cache.GetAsync(templateCacheKey, async () =>
             {
-                var template = await _db.CategoryTemplates.FindByIdAsync(category.CategoryTemplateId, false) 
+                var template = await _db.CategoryTemplates.FindByIdAsync(category.CategoryTemplateId, false)
                     ?? await _db.CategoryTemplates.FirstOrDefaultAsync();
 
                 return template.ViewPath;
@@ -516,8 +516,8 @@ namespace Smartstore.Web.Controllers
                             feed.AddEnclosure(item, file, url);
                         }
                     }
-                    catch 
-                    { 
+                    catch
+                    {
                     }
 
                     items.Add(item);

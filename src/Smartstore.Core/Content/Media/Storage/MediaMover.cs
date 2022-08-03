@@ -1,5 +1,4 @@
-﻿using MailKit.Search;
-using Smartstore.Core.Configuration;
+﻿using Smartstore.Core.Configuration;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Logging;
@@ -27,8 +26,8 @@ namespace Smartstore.Core.Content.Media.Storage
         public ILogger Logger { get; set; } = NullLogger.Instance;
 
         public virtual async Task<bool> MoveAsync(
-            Provider<IMediaStorageProvider> sourceProvider, 
-            Provider<IMediaStorageProvider> targetProvider, 
+            Provider<IMediaStorageProvider> sourceProvider,
+            Provider<IMediaStorageProvider> targetProvider,
             CancellationToken cancelToken = default)
         {
             Guard.NotNull(sourceProvider, nameof(sourceProvider));
@@ -55,7 +54,7 @@ namespace Smartstore.Core.Content.Media.Storage
             var success = false;
             var utcNow = DateTime.UtcNow;
             var context = new MediaMoverContext(sender, receiver);
-            
+
             // We are about to process data in chunks but want to commit ALL at once after ALL chunks have been processed successfully.
             // AutoDetectChanges true required for newly inserted binary data.
             using (var scope = new DbContextScope(ctx: _db, autoDetectChanges: _db.DataProvider.CanStreamBlob ? false : null/*, retainConnection: true*/))
@@ -78,7 +77,7 @@ namespace Smartstore.Core.Content.Media.Storage
                             {
                                 break;
                             }
-                            
+
                             foreach (var file in files)
                             {
                                 // Move item from source to target

@@ -17,7 +17,7 @@ namespace Smartstore.Core.Checkout.Orders
         private readonly HashSet<Order> _toCapture = new();
 
         public OrderService(
-            SmartDbContext db, 
+            SmartDbContext db,
             IWorkContext workContext,
             Lazy<IOrderProcessingService> orderProcessingService,
             IEventPublisher eventPublisher,
@@ -56,7 +56,7 @@ namespace Smartstore.Core.Checkout.Orders
             return Task.FromResult(HookResult.Ok);
         }
 
-        protected override Task<HookResult> OnUpdatedAsync(Order entity, IHookedEntity entry, CancellationToken cancelToken) 
+        protected override Task<HookResult> OnUpdatedAsync(Order entity, IHookedEntity entry, CancellationToken cancelToken)
             => Task.FromResult(HookResult.Ok);
 
         public override async Task OnAfterSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)

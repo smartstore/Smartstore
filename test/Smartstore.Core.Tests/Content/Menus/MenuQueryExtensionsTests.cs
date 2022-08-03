@@ -146,8 +146,8 @@ namespace Smartstore.Core.Tests.Content.Menus
             Assert.AreEqual(string.Join(",", items2.Select(x => x.Id)), "6,7");
 
             var items3 = await DbContext.Menus
-                .ApplyStandardFilter("Menu4", null, 0, new[] { 3,4 })
-                .ApplyMenuItemFilter(0, new[] { 3,4 })
+                .ApplyStandardFilter("Menu4", null, 0, new[] { 3, 4 })
+                .ApplyMenuItemFilter(0, new[] { 3, 4 })
                 .ToListAsync();
 
             Assert.AreEqual(items3.Count, 0);

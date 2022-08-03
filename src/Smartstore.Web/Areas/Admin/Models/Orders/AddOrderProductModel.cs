@@ -38,7 +38,7 @@ namespace Smartstore.Admin.Models.Orders
         public bool UpdateTotals { get; set; }
         public bool ShowUpdateTotals { get; set; }
 
-        public string GiftCardFieldPrefix 
+        public string GiftCardFieldPrefix
             => GiftCardQueryItem.CreateKey(ProductId, 0, null);
 
         public GiftCardModel GiftCard { get; set; } = new();
@@ -83,13 +83,13 @@ namespace Smartstore.Admin.Models.Orders
 
             [LocalizedDisplay("*RecipientName")]
             public string RecipientName { get; set; }
-            
+
             [LocalizedDisplay("*RecipientEmail")]
             public string RecipientEmail { get; set; }
-            
+
             [LocalizedDisplay("*SenderName")]
             public string SenderName { get; set; }
-            
+
             [LocalizedDisplay("*SenderEmail")]
             public string SenderEmail { get; set; }
 

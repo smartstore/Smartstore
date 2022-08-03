@@ -34,9 +34,9 @@ namespace Smartstore.Core.Identity
         /// <param name="onlyWithoutShoppingCart">A value indicating whether to delete only customers without shopping cart.</param>
         /// <returns>Number of deleted guest customers.</returns>
         Task<int> DeleteGuestCustomersAsync(
-            DateTime? registrationFrom, 
-            DateTime? registrationTo, 
-            bool onlyWithoutShoppingCart, 
+            DateTime? registrationFrom,
+            DateTime? registrationTo,
+            bool onlyWithoutShoppingCart,
             CancellationToken cancelToken = default);
 
         /// <summary>

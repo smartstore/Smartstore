@@ -25,7 +25,7 @@ namespace Smartstore.Core.Content.Media.Imaging
         {
             var path = BuildPath(cachedImage.Path);
             using var stream = await (await _fileSystem.GetFileAsync(path)).OpenWriteAsync();
-            
+
             if (await PreparePut(cachedImage, stream))
             {
                 await image.SaveAsync(stream);

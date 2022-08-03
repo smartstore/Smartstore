@@ -13,7 +13,7 @@ namespace Smartstore.Core.Bootstrapping
         {
             Guard.NotNull(app, nameof(app));
 
-            app.UseWhen(IsGetOrHead, x => 
+            app.UseWhen(IsGetOrHead, x =>
             {
                 x.UseMiddleware<MediaMiddleware>();
                 x.UseMiddleware<MediaLegacyMiddleware>();

@@ -95,7 +95,7 @@ namespace Smartstore.Core.Content.Media.Icons
             var mapFileMin = fs.GetFile(fs.PathCombine(_appContext.GetTempDirectory().SubPath, "icons.{0}.json".FormatInvariant(hashCode)));
             //var path = mapFileMin.Exists ? mapFileMin.SubPath : mapFile.SubPath;
             var file = mapFileMin.Exists ? mapFileMin : mapFile;
-            
+
             var json = file.ReadAllText(Encoding.GetEncoding(1252));
             var icons = JsonConvert.DeserializeObject<Dictionary<string, IconDescription>>(json);
 

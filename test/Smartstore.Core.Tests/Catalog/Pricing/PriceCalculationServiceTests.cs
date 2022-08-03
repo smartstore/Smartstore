@@ -119,7 +119,7 @@ namespace Smartstore.Core.Tests.Catalog.Pricing
 
             _priceCalcService = new PriceCalculationService(
                 DbContext,
-                _workContext, 
+                _workContext,
                 _storeContext,
                 _priceCalculatorFactory,
                 _taxCalculator,
@@ -277,7 +277,7 @@ namespace Smartstore.Core.Tests.Catalog.Pricing
                 CustomerId = _customer.Id,
                 CustomerRoleId = customerRole1.Id,
                 CustomerRole = customerRole1
-            });    
+            });
         }
 
         [Test]
@@ -398,7 +398,7 @@ namespace Smartstore.Core.Tests.Catalog.Pricing
         public async Task Can_get_final_product_price_with_custom_additionalCharge()
         {
             _priceCalculationContext.Metadata[CustomAdditionalChargeCalculator.AdditionalChargeKey] = 5m;
-            
+
             var price = await _priceCalcService.CalculatePriceAsync(_priceCalculationContext);
 
             price.FinalPrice.Amount.ShouldEqual(17.34M);

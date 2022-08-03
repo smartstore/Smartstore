@@ -198,7 +198,7 @@ namespace Smartstore.Core.Catalog.Attributes
                 return Array.Empty<int>();
             }
 
-            var query = 
+            var query =
                 from id in AssignedMediaFileIds.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
                 let idx = id.ToInt()
                 where idx > 0

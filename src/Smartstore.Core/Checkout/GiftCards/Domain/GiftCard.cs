@@ -10,7 +10,7 @@ namespace Smartstore.Core.Checkout.GiftCards
     internal class GiftCardMap : IEntityTypeConfiguration<GiftCard>
     {
         public void Configure(EntityTypeBuilder<GiftCard> builder)
-        {   
+        {
             builder.HasOne(x => x.PurchasedWithOrderItem)
                 .WithMany(x => x.AssociatedGiftCards)
                 .HasForeignKey(x => x.PurchasedWithOrderItemId)
@@ -118,7 +118,7 @@ namespace Smartstore.Core.Checkout.GiftCards
             get => _giftCardUsageHistory ?? LazyLoader.Load(this, ref _giftCardUsageHistory) ?? (_giftCardUsageHistory ??= new HashSet<GiftCardUsageHistory>());
             protected set => _giftCardUsageHistory = value;
         }
-                
+
         private OrderItem _purchasedWithOrderItem;
         /// <summary>
         /// Gets or sets the associated order item

@@ -19,7 +19,7 @@ namespace Microsoft.AspNetCore.Builder
         {
             Guard.NotNull(endpoints, nameof(endpoints));
 
-            return new CompositeEndpointConventionBuilder(new[] 
+            return new CompositeEndpointConventionBuilder(new[]
             {
                 endpoints.Map("{culture:culture}/" + pattern, requestDelegate)
                     .WithMetadata(new LocalizedRouteMetadata(null, false)),
@@ -49,11 +49,11 @@ namespace Microsoft.AspNetCore.Builder
         /// An object that contains data tokens for the route. The object's properties represent
         /// the names and values of the data tokens.
         /// </param>
-        public static IEndpointConventionBuilder MapLocalizedControllerRoute(this IEndpointRouteBuilder endpoints, 
-            string name, 
-            string pattern, 
-            object defaults = null, 
-            object constraints = null, 
+        public static IEndpointConventionBuilder MapLocalizedControllerRoute(this IEndpointRouteBuilder endpoints,
+            string name,
+            string pattern,
+            object defaults = null,
+            object constraints = null,
             object dataTokens = null)
         {
             Guard.NotNull(endpoints, nameof(endpoints));

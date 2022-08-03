@@ -4,7 +4,7 @@ namespace Smartstore.PayPal.Client.Messages
 {
     public class AccessTokenRequest : PayPalRequest
     {
-        public AccessTokenRequest(string clientId, string secret, string refreshToken = null) 
+        public AccessTokenRequest(string clientId, string secret, string refreshToken = null)
             : base("/v1/oauth2/token", HttpMethod.Post, typeof(AccessToken))
         {
             var authorizationString = Convert.ToBase64String($"{clientId}:{secret}".GetBytes());

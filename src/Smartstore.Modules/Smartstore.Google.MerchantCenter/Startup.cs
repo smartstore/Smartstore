@@ -19,7 +19,7 @@ namespace Smartstore.Google.MerchantCenter
         {
             public void Configure(IServiceProvider services, DbContextOptionsBuilder builder)
             {
-                builder.UseDbFactory(b => 
+                builder.UseDbFactory(b =>
                 {
                     b.AddModelAssembly(GetType().Assembly);
                 });

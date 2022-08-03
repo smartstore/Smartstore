@@ -342,7 +342,7 @@ namespace Smartstore.IO
             (((path.Length > 2) && IsDirectorySeparatorChar(path[0])) && IsDirectorySeparatorChar(path[1]));
 
 
-        private static bool IsDirectorySeparatorChar(char ch)
-            => ch == Path.DirectorySeparatorChar || ch == Path.AltDirectorySeparatorChar;
+        private static bool IsDirectorySeparatorChar(char c)
+            => c == Path.DirectorySeparatorChar || c == Path.AltDirectorySeparatorChar;
     }
 }

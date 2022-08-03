@@ -16,9 +16,9 @@ namespace Smartstore.Core.Localization
         private readonly AcceptLanguageHeaderRequestCultureProvider _acceptHeaderProvider = new();
 
         public LanguageResolver(
-            SmartDbContext db, 
-            IStoreContext storeContext, 
-            ILanguageService languageService, 
+            SmartDbContext db,
+            IStoreContext storeContext,
+            ILanguageService languageService,
             LocalizationSettings localizationSettings)
         {
             _db = db;
@@ -67,14 +67,14 @@ namespace Smartstore.Core.Localization
             {
                 return null;
             }
-            
+
             var cultureCode = httpContext.GetCultureCode();
             if (cultureCode.IsEmpty() || !_languageService.IsPublishedLanguage(cultureCode, storeId))
             {
                 return null;
             }
 
-            return async 
+            return async
                 ? await _db.Languages.FirstOrDefaultAsync(x => x.UniqueSeoCode == cultureCode)
                 : _db.Languages.FirstOrDefault(x => x.UniqueSeoCode == cultureCode);
         }
@@ -83,8 +83,8 @@ namespace Smartstore.Core.Localization
         {
             if (customerLangId > 0 && _languageService.IsPublishedLanguage(customerLangId, storeId))
             {
-                return async 
-                    ? await _db.Languages.FindByIdAsync(customerLangId) 
+                return async
+                    ? await _db.Languages.FindByIdAsync(customerLangId)
                     : _db.Languages.FindById(customerLangId);
             }
 

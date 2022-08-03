@@ -258,7 +258,7 @@ namespace Smartstore.Core.Content.Media
             var hasSingleCharToken = term.IndexOf('?') > -1;
             var hasAnyWildcard = hasAnyCharToken || hasSingleCharToken;
 
-            List<Expression<Func<MediaFile, string>>> expressions = new(2) 
+            List<Expression<Func<MediaFile, string>>> expressions = new(2)
             {
                 x => x.Name
             };

@@ -281,7 +281,7 @@ namespace Smartstore.AmazonPay.Controllers
                 _checkoutStateAccessor.CheckoutState.PaymentSummary = string.Join(", ", session.PaymentPreferences.Select(x => x.PaymentDescriptor));
             }
 
-            if (!HttpContext.Session.TryGetObject<ProcessPaymentRequest>("OrderPaymentInfo", out var paymentRequest) 
+            if (!HttpContext.Session.TryGetObject<ProcessPaymentRequest>("OrderPaymentInfo", out var paymentRequest)
                 || paymentRequest == null
                 || paymentRequest.OrderGuid == Guid.Empty)
             {
@@ -505,7 +505,7 @@ namespace Smartstore.AmazonPay.Controllers
             var client = HttpContext.GetAmazonPayApiClient(Services.StoreContext.CurrentStore.Id);
 
             if (message.ObjectType.EqualsNoCase("CHARGE_PERMISSION"))
-            {                
+            {
                 var response = client.GetChargePermission(message.ObjectId);
                 if (response.Success)
                 {
@@ -593,7 +593,7 @@ namespace Smartstore.AmazonPay.Controllers
             {
                 return;
             }
-            
+
             //Console.WriteLine($"AmazonPay {Request.Method} IPN. OrderId:{order.Id} {message.ObjectType} {newState} authorize:{authorize} paid:{paid} void:{voidOffline} refund:{refund} id:{message.ObjectId}");
 
             var oldState = order.CaptureTransactionResult.NullEmpty() ?? order.AuthorizationTransactionResult.NullEmpty() ?? "-";
@@ -765,11 +765,11 @@ namespace Smartstore.AmazonPay.Controllers
                 messageType = "error";
             }
 
-            return Json(new 
+            return Json(new
             {
-                success = signature.HasValue(), 
-                signature, 
-                payload, 
+                success = signature.HasValue(),
+                signature,
+                payload,
                 message,
                 messageType
             });
@@ -783,7 +783,7 @@ namespace Smartstore.AmazonPay.Controllers
         {
             var returnUrl = HttpContext.Session.GetString("AmazonPayReturnUrl");
 
-            return RedirectToAction(nameof(IdentityController.ExternalLoginCallback), "Identity", 
+            return RedirectToAction(nameof(IdentityController.ExternalLoginCallback), "Identity",
                 new { provider = AmazonPaySignInProvider.SystemName, returnUrl });
         }
 

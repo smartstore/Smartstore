@@ -58,7 +58,7 @@ namespace Smartstore.Core.Checkout.Orders
                     _state.PaymentData.StartObserveValues();
                     _state.CustomProperties.StartObserveValues();
                 }
-                
+
                 return _state;
             }
         }

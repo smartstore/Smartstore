@@ -22,7 +22,7 @@ namespace Smartstore.Templating.Liquid
             _modelPrefix ??= string.Empty;
         }
 
-        public string ModelName 
+        public string ModelName
             => _type.Name;
 
         public object GetWrappedObject()

@@ -2,7 +2,7 @@
 {
     public enum DisableFundingOptions
     {
-        card,    
+        card,
         credit,
         bancontact,
         blik,

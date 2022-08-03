@@ -244,7 +244,7 @@ namespace Smartstore.Admin.Controllers
                 .Where(x => x != null)
                 .ToDictionarySafe(
                     x => x.Metadata.SystemName,
-                    x => _moduleManager.GetLocalizedFriendlyName(x.Metadata), 
+                    x => _moduleManager.GetLocalizedFriendlyName(x.Metadata),
                     StringComparer.OrdinalIgnoreCase);
 
             var rows = await orders.SelectAwait(async x =>
@@ -1738,7 +1738,7 @@ namespace Smartstore.Admin.Controllers
                     (!endDate.HasValue || endDate.Value >= o.CreatedOnUtc)
                 select oi.ProductId;
 
-            var productQuery = 
+            var productQuery =
                 from p in _db.Products.AsNoTracking()
                 where !subQuery.Distinct().Contains(p.Id) && p.ProductTypeId != groupedProductId && !p.IsSystemProduct
                 orderby p.Name
@@ -1765,7 +1765,7 @@ namespace Smartstore.Admin.Controllers
         private async Task PrepareOrderOverviewModel(OrderOverviewModel model, Order order)
         {
             MiniMapper.Map(order, model);
-            
+
             model.OrderNumber = order.GetOrderNumber();
             model.StoreName = Services.StoreContext.GetStoreById(order.StoreId)?.Name ?? StringExtensions.NotAvailable;
             model.CustomerName = order.Customer.GetFullName().NullEmpty() ?? order.BillingAddress.GetFullName().NaIfEmpty();
@@ -2196,7 +2196,7 @@ namespace Smartstore.Admin.Controllers
                 if (value.StartsWith(prefix, StringComparison.InvariantCultureIgnoreCase))
                 {
                     var orderItemId = value[prefixLength..].ToInt();
-                    
+
                     return order.OrderItems.FirstOrDefault(x => x.Id == orderItemId);
                 }
             }
@@ -2207,7 +2207,7 @@ namespace Smartstore.Admin.Controllers
         private string Format(decimal value, bool priceIncludesTax, bool? displayTaxSuffix = null, PricingTarget target = PricingTarget.Product)
         {
             var format = _taxService.GetTaxFormat(displayTaxSuffix, priceIncludesTax, target, Services.WorkContext.WorkingLanguage);
-            
+
             return new Money(value, _primaryCurrency, false, format).ToString(true);
         }
 

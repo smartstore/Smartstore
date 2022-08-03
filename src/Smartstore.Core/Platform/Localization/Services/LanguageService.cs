@@ -46,7 +46,7 @@ namespace Smartstore.Core.Localization
             {
                 return HookResult.Void;
             }
-            
+
             // Update default admin area language (if required)
             var localizationSettings = _localizationSettings.Value;
             if (localizationSettings.DefaultAdminLanguageId == language.Id)
@@ -151,7 +151,7 @@ namespace Smartstore.Core.Localization
         {
             if (seoCode.IsEmpty())
                 return false;
-            
+
             if (storeId <= 0)
                 storeId = _storeContext.CurrentStore.Id;
 
@@ -234,7 +234,7 @@ namespace Smartstore.Core.Localization
             var result = await _cache.GetAsync(STORE_LANGUAGE_MAP_KEY, async (o) =>
             {
                 o.ExpiresIn(TimeSpan.FromDays(1));
-                
+
                 var map = new Multimap<int, LanguageStub>();
 
                 var allStores = _storeContext.GetAllStores();

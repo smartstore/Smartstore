@@ -22,7 +22,7 @@ namespace Smartstore.Admin.Components
                  .GetAllLanguages(false, Services.StoreContext.CurrentStore.Id)
                  .SelectAwait(async x => await mapper.MapAsync(x))
                  .AsyncToList();
-            
+
             return View();
         }
     }

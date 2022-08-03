@@ -31,14 +31,14 @@ namespace Smartstore.Web.Controllers
         private readonly ThemeSettings _themeSettings;
         private readonly SeoSettings _seoSettings;
         private readonly LocalizationSettings _localizationSettings;
-        
+
         public CommonController(
             SmartDbContext db,
             ICookieConsentManager cookieConsentManager,
             Lazy<IMediaService> mediaService,
             ILanguageService languageService,
             UrlPolicy urlPolicy,
-            IThemeContext themeContext, 
+            IThemeContext themeContext,
             IThemeRegistry themeRegistry,
             ICacheManager cache,
             ThemeSettings themeSettings,
@@ -72,7 +72,7 @@ namespace Smartstore.Web.Controllers
             if (msTileImage == null)
                 return new EmptyResult();
 
-            XElement root = new (
+            XElement root = new(
                 "browserconfig",
                 new XElement
                 (
@@ -107,7 +107,7 @@ namespace Smartstore.Web.Controllers
             var localizableDisallowPaths = SeoSettings.DefaultRobotLocalizableDisallows;
 
             #endregion
-            
+
             var sitemapUrl = WebHelper.GetAbsoluteUrl(Url.Content("sitemap.xml"), Request, true, Services.StoreContext.CurrentStore.ForceSslForAllPages ? "https" : "http");
             const string newLine = "\r\n"; // Environment.NewLine
             using var psb = StringBuilderPool.Instance.Get(out var sb);
@@ -115,7 +115,7 @@ namespace Smartstore.Web.Controllers
             sb.Append(newLine);
             sb.AppendFormat("Sitemap: {0}", sitemapUrl);
             sb.AppendLine();
-            
+
             var disallows = disallowPaths.Concat(localizableDisallowPaths);
 
             if (_localizationSettings.SeoFriendlyUrlsForLanguagesEnabled)
@@ -204,7 +204,7 @@ namespace Smartstore.Web.Controllers
             }
 
             var helper = new LocalizedUrlHelper(Request.PathBase, returnUrl ?? string.Empty);
-            
+
             if (_urlPolicy.LocalizationSettings.SeoFriendlyUrlsForLanguagesEnabled)
             {
                 // Don't prepend culture code if it is master language and master is prefixless by configuration.

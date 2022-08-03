@@ -37,8 +37,8 @@ namespace Smartstore.Admin.Controllers
     public partial class ProductController : AdminController
     {
         private readonly SmartDbContext _db;
-        private readonly IProductService _productService;           
-        private readonly IUrlService _urlService;                   
+        private readonly IProductService _productService;
+        private readonly IUrlService _urlService;
         private readonly IWorkContext _workContext;
         private readonly ILocalizedEntityService _localizedEntityService;
         private readonly IMediaService _mediaService;
@@ -669,7 +669,7 @@ namespace Smartstore.Admin.Controllers
                     return Json(new { success = false });
                 }
             }
-            
+
             productCategory.CategoryId = model.CategoryId;
             productCategory.IsFeaturedProduct = model.IsFeaturedProduct;
             productCategory.DisplayOrder = model.DisplayOrder;
@@ -1164,13 +1164,13 @@ namespace Smartstore.Admin.Controllers
 
             _db.Downloads.Remove(download);
             await _db.SaveChangesAsync();
-            
-            return Json( new { success = true, Message = T("Admin.Common.TaskSuccessfullyProcessed").Value } );
+
+            return Json(new { success = true, Message = T("Admin.Common.TaskSuccessfullyProcessed").Value });
         }
 
         private async Task UpdateDataOfProductDownloadsAsync(ProductModel model)
         {
-            var testVersions = (new [] { model.DownloadFileVersion, model.NewVersion }).Where(x => x.HasValue());
+            var testVersions = (new[] { model.DownloadFileVersion, model.NewVersion }).Where(x => x.HasValue());
             var saved = false;
             foreach (var testVersion in testVersions)
             {
@@ -1364,7 +1364,7 @@ namespace Smartstore.Admin.Controllers
             var productTag = await _db.ProductTags
                 .Include(x => x.Products)
                 .FindByIdAsync(id, false);
-                
+
             if (productTag == null)
             {
                 return NotFound();
@@ -1712,7 +1712,7 @@ namespace Smartstore.Admin.Controllers
                 .ToListAsync();
 
             ViewBag.AvailableCountries = countries.ToSelectListItems(product?.CountryOfOriginId ?? 0);
-                
+
             if (setPredefinedValues)
             {
                 // TODO: These should be hidden settings.

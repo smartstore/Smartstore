@@ -22,7 +22,7 @@ namespace Smartstore.Admin.Components
             var numRecords = await _db.UrlRecords
                 .Where(x => x.EntityName == entityName && x.EntityId == entityId)
                 .CountAsync();
-            
+
             ViewBag.CountSlugsPerEntity = numRecords;
             ViewBag.UrlRecordListUrl = Url.Action("List", "UrlRecord", new { entityName, entityId, area = "Admin" });
 

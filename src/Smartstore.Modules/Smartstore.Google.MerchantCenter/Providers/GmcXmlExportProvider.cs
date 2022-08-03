@@ -66,16 +66,16 @@ namespace Smartstore.Google.MerchantCenter.Providers
             // TODO: Product.BasePriceMeasureUnit should be localized
             return value.ToLowerInvariant() switch
             {
-                "mg" or "milligramm" or "milligram"             => "mg",
-                "g" or "gramm" or "gram"                        => "g",
-                "kg" or "kilogramm" or "kilogram"               => "kg",
-                "ml" or "milliliter" or "millilitre"            => "ml",
-                "cl" or "zentiliter" or "centilitre"            => "cl",
-                "l" or "liter" or "litre"                       => "l",
-                "cbm" or "kubikmeter" or "cubic metre"          => "cbm",
-                "cm" or "zentimeter" or "centimetre"            => "cm",
-                "m" or "meter"                                  => "m",
-                "qm²" or "quadratmeter" or "square metre"       => "sqm",
+                "mg" or "milligramm" or "milligram" => "mg",
+                "g" or "gramm" or "gram" => "g",
+                "kg" or "kilogramm" or "kilogram" => "kg",
+                "ml" or "milliliter" or "millilitre" => "ml",
+                "cl" or "zentiliter" or "centilitre" => "cl",
+                "l" or "liter" or "litre" => "l",
+                "cbm" or "kubikmeter" or "cubic metre" => "cbm",
+                "cm" or "zentimeter" or "centimetre" => "cm",
+                "m" or "meter" => "m",
+                "qm²" or "quadratmeter" or "square metre" => "sqm",
                 _ => defaultValue,
             };
         }
@@ -149,11 +149,11 @@ namespace Smartstore.Google.MerchantCenter.Providers
 
             return measureWeight switch
             {
-                "gram" or "gramme"                      => "g",
-                "mg" or "milligramme" or "milligram"    => "mg",
-                "lb"                                    => "lb",
-                "ounce" or "oz"                         => "oz",
-                _                                       => "kg",
+                "gram" or "gramme" => "g",
+                "mg" or "milligramme" or "milligram" => "mg",
+                "lb" => "lb",
+                "ounce" or "oz" => "oz",
+                _ => "kg",
             };
         }
 
@@ -250,7 +250,7 @@ namespace Smartstore.Google.MerchantCenter.Providers
                         {
                             context.Log.Error(T("Plugins.Feed.Froogle.MissingDefaultCategory"));
                         }
-                        
+
                         if (entity.ManageInventoryMethod == ManageInventoryMethod.ManageStock && entity.StockQuantity <= 0)
                         {
                             if (entity.BackorderMode == BackorderMode.NoBackorders)
@@ -333,7 +333,7 @@ namespace Smartstore.Google.MerchantCenter.Providers
                             if (entity.SpecialPriceStartDateTimeUtc.HasValue && entity.SpecialPriceEndDateTimeUtc.HasValue)
                             {
                                 var specialPriceDate = "{0}/{1}".FormatInvariant(
-                                    entity.SpecialPriceStartDateTimeUtc.Value.ToString(dateFormat), 
+                                    entity.SpecialPriceStartDateTimeUtc.Value.ToString(dateFormat),
                                     entity.SpecialPriceEndDateTimeUtc.Value.ToString(dateFormat));
 
                                 WriteString(writer, "sale_price_effective_date", specialPriceDate);

@@ -10,7 +10,7 @@ namespace Smartstore.Microsoft
     internal sealed class MicrosoftAccountOptionsConfigurer : IConfigureOptions<AuthenticationOptions>, IConfigureNamedOptions<MicrosoftAccountOptions>
     {
         private readonly IApplicationContext _appContext;
-        
+
         public MicrosoftAccountOptionsConfigurer(IApplicationContext appContext)
         {
             _appContext = appContext;
@@ -50,7 +50,7 @@ namespace Smartstore.Microsoft
             };
         }
 
-        public void Configure(MicrosoftAccountOptions options) 
+        public void Configure(MicrosoftAccountOptions options)
             => Debug.Fail("This infrastructure method shouldn't be called.");
     }
 }

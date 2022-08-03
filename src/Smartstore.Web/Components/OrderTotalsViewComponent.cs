@@ -227,7 +227,7 @@ namespace Smartstore.Web.Components
                 model.RedeemedRewardPoints = cartTotal.RedeemedRewardPoints;
                 model.RedeemedRewardPointsAmount = (redeemedRewardPointsAmountInCustomerCurrency * -1).ToString(true);
             }
-            
+
             // Credit balance.
             if (cartTotal.CreditBalance > decimal.Zero)
             {

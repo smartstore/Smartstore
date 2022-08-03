@@ -1,16 +1,4 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using Castle.DynamicProxy;
-using Microsoft.AspNetCore.Html;
-using NUnit.Framework;
-using SixLabors.ImageSharp.ColorSpaces;
-using Smartstore.Core.Widgets;
-using Smartstore.Http;
-using Smartstore.IO;
-using Smartstore.Test.Common;
+﻿using NUnit.Framework;
 
 namespace Smartstore.Tests
 {

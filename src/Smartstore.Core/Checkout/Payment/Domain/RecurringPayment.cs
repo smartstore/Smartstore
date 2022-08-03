@@ -31,7 +31,7 @@ namespace Smartstore.Core.Checkout.Payment
 
         public RecurringPayment(ILazyLoader lazyLoader)
             : base(lazyLoader)
-        {            
+        {
         }
 
         /// <summary>

@@ -18,7 +18,7 @@ namespace Smartstore.Tax
         {
             public void Configure(IServiceProvider services, DbContextOptionsBuilder builder)
             {
-                builder.UseDbFactory(b => 
+                builder.UseDbFactory(b =>
                 {
                     b.AddModelAssembly(this.GetType().Assembly);
                 });

@@ -7,7 +7,7 @@
         {
         }
     }
-    
+
     public class PayPalRequest : HttpRequestMessage
     {
         public PayPalRequest(string path, HttpMethod method)

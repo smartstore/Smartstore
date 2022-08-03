@@ -179,7 +179,7 @@ namespace Smartstore.Core.Installation
 
                 // Create Language domain object from lazyLanguage
                 var languages = db.Languages;
-                var primaryLanguage = new Language 
+                var primaryLanguage = new Language
                 {
                     Name = lazyLanguage.Metadata.Name,
                     LanguageCulture = lazyLanguage.Metadata.Culture,
@@ -277,8 +277,8 @@ namespace Smartstore.Core.Installation
                         Logger.Debug("Deleting database");
                         await db.Database.EnsureDeletedAsync(cancelToken);
                     }
-                    catch 
-                    { 
+                    catch
+                    {
                     }
                 }
 
@@ -311,7 +311,7 @@ namespace Smartstore.Core.Installation
         {
             var idx = 0;
             var modularState = ModularState.Instance;
-            var modules = modularState.IgnoredModules.Length == 0 
+            var modules = modularState.IgnoredModules.Length == 0
                 ? _appContext.ModuleCatalog.Modules.ToArray()
                 : _appContext.ModuleCatalog.Modules.Where(x => !modularState.IgnoredModules.Contains(x.SystemName, StringComparer.OrdinalIgnoreCase)).ToArray();
 
@@ -400,7 +400,7 @@ namespace Smartstore.Core.Installation
         public virtual string GetResource(string resourceName)
         {
             Guard.NotEmpty(resourceName, nameof(resourceName));
-            
+
             var language = GetCurrentLanguage();
             if (language == null)
                 return resourceName;
@@ -461,7 +461,7 @@ namespace Smartstore.Core.Installation
         public virtual void SaveCurrentLanguage(string languageCode)
         {
             Guard.NotEmpty(languageCode, nameof(languageCode));
-            
+
             var cookies = _httpContextAccessor.HttpContext?.Response?.Cookies;
             if (cookies == null)
             {
@@ -515,7 +515,7 @@ namespace Smartstore.Core.Installation
                     foreach (Match match in matches)
                     {
                         languageCode = match.Groups[1].Value;
-                    } 
+                    }
 
                     // Get language friendly name
                     var languageName = xmlDocument.SelectSingleNode(@"//Language").Attributes["Name"].InnerText.Trim();

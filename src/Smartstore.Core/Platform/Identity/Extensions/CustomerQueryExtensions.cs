@@ -42,8 +42,8 @@ namespace Smartstore.Core.Identity
         /// </summary>
         /// <param name="exactMatch">Whether to perform an exact or partial field match.</param>
         public static IQueryable<Customer> ApplyIdentFilter(this IQueryable<Customer> query,
-            string email = null, 
-            string userName = null, 
+            string email = null,
+            string userName = null,
             string customerNumber = null,
             bool exactMatch = false)
         {
@@ -76,7 +76,7 @@ namespace Smartstore.Core.Identity
             Guard.NotNull(query, nameof(query));
             Guard.NotEmpty(term, nameof(term));
 
-            query = exactMatch 
+            query = exactMatch
                 ? query.Where(c => c.FullName == term || c.Company == term)
                 : query.Where(c => c.FullName.Contains(term) || c.Company.Contains(term));
 

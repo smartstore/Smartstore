@@ -117,7 +117,7 @@ namespace Smartstore
 
         private static PageIdentity IdentifyPage(IDisplayHelper displayHelper)
         {
-            return displayHelper.HttpContext.GetItem("PageIdentity", () => 
+            return displayHelper.HttpContext.GetItem("PageIdentity", () =>
             {
                 var context = displayHelper.HttpContext;
                 var routeValues = context.GetRouteData().Values;

@@ -39,7 +39,7 @@ namespace Smartstore.Core.Catalog.Brands
         }
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
-        private Manufacturer(ILazyLoader lazyLoader) 
+        private Manufacturer(ILazyLoader lazyLoader)
             : base(lazyLoader)
         {
         }

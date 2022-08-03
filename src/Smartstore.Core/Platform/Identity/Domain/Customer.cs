@@ -80,7 +80,7 @@ namespace Smartstore.Core.Identity
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
         private Customer(ILazyLoader lazyLoader)
             : base(lazyLoader)
-        {     
+        {
         }
 
         /// <summary>
@@ -253,7 +253,7 @@ namespace Smartstore.Core.Identity
         /// <summary>
         /// Default billing address
         /// </summary>
-        public Address BillingAddress 
+        public Address BillingAddress
         {
             get => _billingAddress ?? LazyLoader.Load(this, ref _billingAddress);
             set => _billingAddress = value;

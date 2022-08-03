@@ -31,7 +31,7 @@ namespace Smartstore.Web.Components
             var store = Services.StoreContext.CurrentStore;
             var cacheKey = string.Format(ModelCacheInvalidator.PRODUCTTAG_POPULAR_MODEL_KEY, Services.WorkContext.WorkingLanguage.Id, store.Id);
 
-            var cacheModel = await Services.CacheFactory.GetMemoryCache().GetAsync(cacheKey, async (o) => 
+            var cacheModel = await Services.CacheFactory.GetMemoryCache().GetAsync(cacheKey, async (o) =>
             {
                 o.ExpiresIn(TimeSpan.FromHours(1));
 

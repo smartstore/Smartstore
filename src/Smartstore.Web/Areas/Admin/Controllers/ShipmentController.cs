@@ -414,11 +414,11 @@ namespace Smartstore.Admin.Controllers
             // TODO: (mc) this is bad for multi-document processing, where orders can originate from different stores.
             var storeId = models[0].StoreId;
             var pdfSettings = await Services.SettingFactory.LoadSettingsAsync<PdfSettings>(storeId);
-            var routeValues = new RouteValueDictionary(new 
-            { 
-                storeId, 
-                lid = Services.WorkContext.WorkingLanguage.Id, 
-                area = string.Empty 
+            var routeValues = new RouteValueDictionary(new
+            {
+                storeId,
+                lid = Services.WorkContext.WorkingLanguage.Id,
+                area = string.Empty
             });
 
             PrepareViewBag();
@@ -453,18 +453,18 @@ namespace Smartstore.Admin.Controllers
             model.OrderNumber = order.GetOrderNumber();
             model.PurchaseOrderNumber = order.PurchaseOrderNumber;
             model.ShippingMethod = order.ShippingMethod;
-            model.TotalWeightString = shipment.TotalWeight.HasValue 
-                ? "{0:F2} [{1}]".FormatInvariant(shipment.TotalWeight, baseWeight?.GetLocalized(x => x.Name) ?? string.Empty) 
+            model.TotalWeightString = shipment.TotalWeight.HasValue
+                ? "{0:F2} [{1}]".FormatInvariant(shipment.TotalWeight, baseWeight?.GetLocalized(x => x.Name) ?? string.Empty)
                 : string.Empty;
             model.CreatedOn = Services.DateTimeHelper.ConvertToUserTime(shipment.CreatedOnUtc, DateTimeKind.Utc);
 
             model.CanShip = !shipment.ShippedDateUtc.HasValue;
             model.CanDeliver = shipment.ShippedDateUtc.HasValue && !shipment.DeliveryDateUtc.HasValue;
-            model.ShippedDate = shipment.ShippedDateUtc.HasValue 
-                ? Services.DateTimeHelper.ConvertToUserTime(shipment.ShippedDateUtc.Value, DateTimeKind.Utc) 
+            model.ShippedDate = shipment.ShippedDateUtc.HasValue
+                ? Services.DateTimeHelper.ConvertToUserTime(shipment.ShippedDateUtc.Value, DateTimeKind.Utc)
                 : null;
-            model.DeliveryDate = shipment.DeliveryDateUtc.HasValue 
-                ? Services.DateTimeHelper.ConvertToUserTime(shipment.DeliveryDateUtc.Value, DateTimeKind.Utc) 
+            model.DeliveryDate = shipment.DeliveryDateUtc.HasValue
+                ? Services.DateTimeHelper.ConvertToUserTime(shipment.DeliveryDateUtc.Value, DateTimeKind.Utc)
                 : null;
 
             model.EditUrl = Url.Action(nameof(Edit), "Shipment", new { id = shipment.Id, area = "Admin" });

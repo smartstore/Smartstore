@@ -16,7 +16,7 @@ namespace Smartstore.Web.Components
         public CookieManagerViewComponent(
             SmartDbContext db,
             IGeoCountryLookup countryLookup,
-            ICookieConsentManager cookieConsentManager, 
+            ICookieConsentManager cookieConsentManager,
             PrivacySettings privacySettings,
             IWebHelper webHelper)
         {

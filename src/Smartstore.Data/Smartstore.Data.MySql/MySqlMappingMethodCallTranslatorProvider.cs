@@ -19,7 +19,7 @@ namespace Smartstore.Data.MySql
         private static readonly FieldInfo _translatorsField = typeof(RelationalMethodCallTranslatorProvider)
             .GetField("_translators", BindingFlags.NonPublic | BindingFlags.Instance);
 
-        public MySqlMappingMethodCallTranslatorProvider(RelationalMethodCallTranslatorProviderDependencies dependencies, IMySqlOptions options) 
+        public MySqlMappingMethodCallTranslatorProvider(RelationalMethodCallTranslatorProviderDependencies dependencies, IMySqlOptions options)
             : base(dependencies, options)
         {
         }
@@ -39,7 +39,7 @@ namespace Smartstore.Data.MySql
                     method = mappedFunction.Method;
                 }
             }
-            
+
             return base.Translate(model, instance, method, arguments, logger);
         }
 

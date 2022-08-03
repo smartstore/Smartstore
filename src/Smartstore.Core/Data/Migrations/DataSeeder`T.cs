@@ -66,7 +66,7 @@ namespace Smartstore.Core.Data.Migrations
                     {
                         db = httpContextAccessor.HttpContext.RequestServices.GetService<SmartDbContext>();
                     }
-                    
+
                     _urlService ??= new UrlService(
                         db,
                         NullCache.Instance,
@@ -165,7 +165,7 @@ namespace Smartstore.Core.Data.Migrations
                         });
                     }
                 }
-                
+
                 await scope.CommitAsync();
             }
         }

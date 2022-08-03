@@ -24,7 +24,7 @@ namespace Smartstore.Web.Controllers
         public void MapListActions(ProductSummaryModel model, IPagingOptions entity, string defaultPageSizeOptions)
         {
             var searchQuery = _catalogSearchQueryFactory.Current;
-            
+
             // View mode
             model.AllowViewModeChanging = _catalogSettings.AllowProductViewModeChanging;
 
@@ -43,7 +43,7 @@ namespace Smartstore.Web.Controllers
                             continue;
 
                         dict[(int)enumValue] = _localizationService.GetLocalizedEnum(enumValue, _workContext.WorkingLanguage.Id);
-                        
+
                     }
 
                     return dict;
@@ -606,7 +606,7 @@ namespace Smartstore.Web.Controllers
         {
             var options = ctx.CalculationOptions;
             var batchContext = ctx.BatchContext;
-            var contextProduct = product;            
+            var contextProduct = product;
             ICollection<Product> associatedProducts = null;
 
             var priceModel = new ProductSummaryModel.PriceModel();

@@ -33,10 +33,10 @@ namespace Smartstore.Core.Catalog.Search
         {
         }
 
-        public CatalogSearchQuery Clone() 
+        public CatalogSearchQuery Clone()
             => (CatalogSearchQuery)MemberwiseClone();
 
-        object ICloneable.Clone() 
+        object ICloneable.Clone()
             => MemberwiseClone();
 
         public bool IsSubPage

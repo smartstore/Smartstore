@@ -213,7 +213,7 @@ namespace Smartstore.Core.Catalog.Products
         public static int[] ParseRequiredProductIds(this Product product)
         {
             Guard.NotNull(product, nameof(product));
-            
+
             return product.RequiredProductIds
                 .SplitSafe(',', StringSplitOptions.TrimEntries)
                 .Select(x => int.TryParse(x, out var id) ? id : int.MaxValue)

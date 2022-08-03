@@ -22,7 +22,7 @@ namespace Smartstore.Core.Content.Media
             Guard.NotEmpty(fileName, nameof(fileName));
 
             var path = _mediaService.CombinePaths(SystemAlbumProvider.Downloads, fileName);
-            
+
             var file = await _mediaService.SaveFileAsync(path, stream, dupeFileHandling: DuplicateFileHandling.Rename);
             file.File.Hidden = true;
             download.MediaFile = file.File;

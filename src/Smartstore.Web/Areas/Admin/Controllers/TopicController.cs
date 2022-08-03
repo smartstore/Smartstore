@@ -69,13 +69,13 @@ namespace Smartstore.Admin.Controllers
         {
             var query = _db.Topics
                 .AsNoTracking()
-                .ApplyStoreFilter(model.SearchStoreId);                
+                .ApplyStoreFilter(model.SearchStoreId);
 
             if (model.SystemName.HasValue())
             {
                 query = query.Where(x => x.SystemName.Contains(model.SystemName));
             }
-            
+
             if (model.Title.HasValue())
             {
                 query = query.ApplySearchFilter(model.Title, Core.Rules.LogicalRuleOperator.Or, x => x.Title, x => x.ShortTitle);
@@ -172,8 +172,8 @@ namespace Smartstore.Admin.Controllers
                 await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, topic, Request.Form));
                 NotifySuccess(T("Admin.ContentManagement.Topics.Updated"));
 
-                return continueEditing 
-                    ? RedirectToAction(nameof(Edit), new { id = topic.Id }) 
+                return continueEditing
+                    ? RedirectToAction(nameof(Edit), new { id = topic.Id })
                     : RedirectToAction(nameof(List));
             }
 
@@ -287,8 +287,8 @@ namespace Smartstore.Admin.Controllers
                 await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, topic, Request.Form));
                 NotifySuccess(T("Admin.ContentManagement.Topics.Updated"));
 
-                return continueEditing 
-                    ? RedirectToAction(nameof(Edit), new { id = topic.Id }) 
+                return continueEditing
+                    ? RedirectToAction(nameof(Edit), new { id = topic.Id })
                     : RedirectToAction(nameof(List));
             }
 
@@ -336,7 +336,7 @@ namespace Smartstore.Admin.Controllers
                 .ApplyStandardFilter(true)
                 .Where(x => includeWidgets || !x.RenderAsWidget)
                 .ToListAsync();
-            
+
             var list = topics
                 .Select(x =>
                 {
@@ -434,7 +434,7 @@ namespace Smartstore.Admin.Controllers
 
         private static void AddCookieTypes(TopicModel model, int? selectedType = 0)
         {
-            model.AvailableCookieTypes.AddRange(new[] 
+            model.AvailableCookieTypes.AddRange(new[]
             {
                 new SelectListItem
                 {

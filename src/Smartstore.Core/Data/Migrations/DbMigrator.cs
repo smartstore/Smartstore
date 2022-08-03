@@ -180,13 +180,13 @@ namespace Smartstore.Core.Data.Migrations
         private void PostPopulateSchema()
         {
             var appliedMigrations = MigrationTable.GetAppliedMigrations().ToArray();
-            
+
             foreach (var migration in MigrationTable.GetMigrations())
             {
                 if (!appliedMigrations.Contains(migration.Version))
                 {
                     MigrationTable.UpdateVersionInfo(migration.Version, migration.Description ?? migration.Type.Name);
-                } 
+                }
             }
 
             MigrationTable.Reload();

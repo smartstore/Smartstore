@@ -14,7 +14,7 @@ namespace Smartstore.Core.Content.Media
     {
         private string _alt;
         private string _title;
-        private Size _size;    
+        private Size _size;
 
         private readonly IMediaService _mediaService;
         private readonly IMediaStorageProvider _storageProvider;
@@ -136,7 +136,7 @@ namespace Smartstore.Core.Content.Media
                 var query = maxSize > 0
                     ? QueryString.Create("size", maxSize.ToString(CultureInfo.InvariantCulture))
                     : QueryString.Empty;
-                
+
                 url = _urlGenerator.GenerateUrl(this, query, host, false);
 
                 _cachedUrls[cacheKey] = url;
@@ -180,7 +180,7 @@ namespace Smartstore.Core.Content.Media
 
         /// <inheritdoc/>
         [JsonIgnore]
-        IFileSystem IFileEntry.FileSystem 
+        IFileSystem IFileEntry.FileSystem
             => throw new NotSupportedException();
 
         /// <inheritdoc/>
@@ -200,11 +200,11 @@ namespace Smartstore.Core.Content.Media
         public string Directory { get; private set; }
 
         [JsonProperty("title")]
-        public string NameWithoutExtension 
+        public string NameWithoutExtension
             => System.IO.Path.GetFileNameWithoutExtension(Name);
 
         [JsonProperty("ext")]
-        public string Extension 
+        public string Extension
             => File.Extension != null ? "." + File.Extension : null;
 
         [JsonProperty("dimensions")]

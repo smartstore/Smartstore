@@ -28,7 +28,7 @@ namespace Smartstore.Core.Content.Media
             IHttpContextAccessor httpContextAccessor)
         {
             _mediaSettings = mediaSettings;
-            
+
             _storageConfig = storageConfig;
             _processedImagesRootPath = storageConfig.PublicPath;
 

@@ -77,7 +77,7 @@ namespace Smartstore.Core.DataExchange.Export
                 if (_cancelToken.IsCancellationRequested || IsMaxFailures)
                 {
                     return DataExchangeAbortion.Hard;
-                }  
+                }
 
                 return _providerAbort;
             }
@@ -204,8 +204,8 @@ namespace Smartstore.Core.DataExchange.Export
                 {
                     await ProgressCallback.Invoke(0, 0, message);
                 }
-                catch 
-                { 
+                catch
+                {
                 }
             }
         }

@@ -158,10 +158,10 @@ namespace Smartstore.Core.Localization
         }
 
         protected virtual async Task<LocalizedPropertyCollection> GetLocalizedPropertyCollectionInternal(
-            string localeKeyGroup, 
-            int languageId, 
-            int[] entityIds, 
-            bool isRange = false, 
+            string localeKeyGroup,
+            int languageId,
+            int[] entityIds,
+            bool isRange = false,
             bool isSorted = false)
         {
             Guard.NotEmpty(localeKeyGroup, nameof(localeKeyGroup));
@@ -287,7 +287,7 @@ namespace Smartstore.Core.Localization
             var valueStr = value.Convert<string>();
             var entity = await setProps
                 .ApplyStandardFilter(languageId, id, keyGroup, key)
-                .FirstOrDefaultAsync();  
+                .FirstOrDefaultAsync();
 
             if (entity != null)
             {

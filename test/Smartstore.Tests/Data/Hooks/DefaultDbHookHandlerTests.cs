@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
-using Smartstore.Core.Bootstrapping;
 using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Common;
@@ -13,7 +12,6 @@ using Smartstore.Core.Security;
 using Smartstore.Data;
 using Smartstore.Data.Hooks;
 using Smartstore.Domain;
-using Smartstore.Engine;
 
 namespace Smartstore.Tests.Data.Hooks
 {

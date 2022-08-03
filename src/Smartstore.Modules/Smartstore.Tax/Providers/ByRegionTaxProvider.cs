@@ -26,7 +26,7 @@ namespace Smartstore.Tax
         public async Task<TaxRate> GetTaxRateAsync(TaxRateRequest request)
         {
             var address = request.Address;
-            
+
             if (_taxSettings.EuVatEnabled)
             {
                 if (!(address?.Country?.SubjectToVat ?? false))

@@ -44,14 +44,14 @@ namespace Smartstore.Engine.Modularity
 
             foreach (var pendingModule in modularState.PendingModules)
             {
-                
+
                 if (modularState.InstalledModules.Contains(pendingModule))
                 {
                     processedModules.Add(pendingModule);
                     Logger.Warn("Module '{0}' was marked as pending but is installed already.", pendingModule);
                     continue;
                 }
-                
+
                 var descriptor = appContext.ModuleCatalog.GetModuleByName(pendingModule);
 
                 if (descriptor == null)

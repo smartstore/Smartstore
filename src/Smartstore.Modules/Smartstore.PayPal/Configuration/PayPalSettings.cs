@@ -14,7 +14,7 @@ namespace Smartstore.PayPal.Settings
         /// Specifies whether to use sandbox mode.
         /// </summary>
         public bool UseSandbox { get; set; } = false;
-        
+
         /// <summary>
         /// Specifies whether to display the checkout button in mini shopping cart.
         /// </summary>

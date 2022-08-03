@@ -22,7 +22,7 @@ namespace Smartstore.Core.Localization
         private int? _defaultLanguageId;
 
         public LocalizationService(
-            SmartDbContext db, 
+            SmartDbContext db,
             ICacheManager cache,
             Lazy<IWorkContext> workContext,
             ILanguageService languageService)
@@ -88,7 +88,7 @@ namespace Smartstore.Core.Localization
             return await _cache.GetAsync(cacheKey, async (o) =>
             {
                 o.ExpiresIn(TimeSpan.FromDays(1));
-                
+
                 var resources = await _db.LocaleStringResources
                     .Where(x => x.LanguageId == languageId)
                     .Select(x => new { x.ResourceName, x.ResourceValue })
@@ -194,7 +194,7 @@ namespace Smartstore.Core.Localization
             if (languageId == 0)
             {
                 return defaultValue;
-            }   
+            }
 
             resourceKey = resourceKey.EmptyNull().Trim().ToLowerInvariant();
 
@@ -322,7 +322,7 @@ namespace Smartstore.Core.Localization
             if (logIfNotFound && entity == null)
             {
                 Logger.Warn("Resource string ({0}) not found. Language ID = {1}", resourceName, languageId);
-            } 
+            }
 
             return entity;
         }
@@ -333,7 +333,7 @@ namespace Smartstore.Core.Localization
             {
                 return 0;
             }
-            
+
             int result = 0;
 
             try

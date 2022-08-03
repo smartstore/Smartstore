@@ -14,7 +14,7 @@ namespace Smartstore.Core.Localization
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string GetCultureCode(this HttpContext httpContext)
         {
-            return httpContext.GetItem("RequestCultureCode", () => 
+            return httpContext.GetItem("RequestCultureCode", () =>
             {
                 var helper = new LocalizedUrlHelper(httpContext.Request);
                 helper.IsLocalizedUrl(out var cultureCode);

@@ -43,7 +43,7 @@
         /// <param name="languageId">Language identifier. Auto-resolves to working language id if <c>0</c>.</param>
         /// <param name="hint">A value indicating whether to load the hint.</param>
         /// <returns>Localized value of an enum.</returns>
-        string GetLocalizedEnum<T>(T enumValue, int languageId = 0, bool hint = false) 
+        string GetLocalizedEnum<T>(T enumValue, int languageId = 0, bool hint = false)
             where T : struct;
 
         /// <summary>

@@ -128,8 +128,8 @@ namespace Smartstore.Core.Messaging
 
             // Model tree
             var modelTree = _modelProvider.BuildModelTree(model);
-            var modelTreeJson = JsonConvert.SerializeObject(modelTree, new JsonSerializerSettings 
-            { 
+            var modelTreeJson = JsonConvert.SerializeObject(modelTree, new JsonSerializerSettings
+            {
                 Formatting = Formatting.None,
                 TypeNameHandling = TypeNameHandling.Objects
             });

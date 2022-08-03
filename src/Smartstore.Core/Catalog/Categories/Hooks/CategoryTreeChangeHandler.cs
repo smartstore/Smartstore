@@ -37,29 +37,29 @@ namespace Smartstore.Core.Catalog.Categories
         #region static
 
         // Hierarchy affecting category prop names.
-        private static readonly string[] _h = new string[] 
+        private static readonly string[] _h = new string[]
         {
             nameof(Category.ParentCategoryId),
-            nameof(Category.Published), 
-            nameof(Category.Deleted), 
+            nameof(Category.Published),
+            nameof(Category.Deleted),
             nameof(Category.DisplayOrder)
         };
 
         // Visibility affecting category prop names.
-        private static readonly string[] _a = new string[] 
+        private static readonly string[] _a = new string[]
         {
-            nameof(Category.LimitedToStores), 
-            nameof(Category.SubjectToAcl) 
+            nameof(Category.LimitedToStores),
+            nameof(Category.SubjectToAcl)
         };
 
         // Data affecting category prop names.
-        private static readonly string[] _d = new string[] 
-        { 
-            nameof(Category.Name), 
-            nameof(Category.Alias), 
-            nameof(Category.ExternalLink), 
-            nameof(Category.MediaFileId), 
-            nameof(Category.BadgeText), 
+        private static readonly string[] _d = new string[]
+        {
+            nameof(Category.Name),
+            nameof(Category.Alias),
+            nameof(Category.ExternalLink),
+            nameof(Category.MediaFileId),
+            nameof(Category.BadgeText),
             nameof(Category.BadgeStyle)
         };
 

@@ -20,7 +20,7 @@ namespace Smartstore.Core.Catalog.Attributes
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
         private SpecificationAttribute(ILazyLoader lazyLoader)
-            : base (lazyLoader)
+            : base(lazyLoader)
         {
         }
 

@@ -5,15 +5,15 @@
     /// </summary>
     public class OrdersPatchRequest<T> : PayPalRequest
     {
-        public OrdersPatchRequest(string orderId) 
+        public OrdersPatchRequest(string orderId)
             : base("/v2/checkout/orders/{0}?", HttpMethod.Patch)
         {
             try
             {
                 Path = Path.FormatInvariant(Uri.EscapeDataString(orderId));
             }
-            catch (IOException) 
-            { 
+            catch (IOException)
+            {
             }
 
             ContentType = "application/json";

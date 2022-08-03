@@ -16,9 +16,9 @@ namespace Smartstore.Core.Messaging
         }
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
-        private QueuedEmail(ILazyLoader lazyLoader) 
+        private QueuedEmail(ILazyLoader lazyLoader)
             : base(lazyLoader)
-        {            
+        {
         }
 
         /// <summary>

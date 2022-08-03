@@ -17,7 +17,7 @@ namespace Smartstore.Core.Content.Media
         public TemplateMatcher Matcher { get; init; }
         public bool IsLegacy { get; init; }
     }
-    
+
     public class MediaMiddleware
     {
         private readonly RequestDelegate _next;
@@ -26,8 +26,8 @@ namespace Smartstore.Core.Content.Media
         private readonly TemplateMatcher _matcher;
 
         public MediaMiddleware(
-            RequestDelegate next, 
-            IApplicationContext appContext, 
+            RequestDelegate next,
+            IApplicationContext appContext,
             IEventPublisher eventPublisher,
             IMediaStorageConfiguration mediaStorageConfiguration)
         {
@@ -230,9 +230,9 @@ namespace Smartstore.Core.Content.Media
 
             if (stream == null)
             {
-                throw new MediaFileNotFoundException($"The data stream for media file '{file.SubPath}' could not be opened for reading. Blob missing?");  
+                throw new MediaFileNotFoundException($"The data stream for media file '{file.SubPath}' could not be opened for reading. Blob missing?");
             }
-            
+
             return new FileStreamResult(stream, pathData.MimeType)
             {
                 EnableRangeProcessing = true,

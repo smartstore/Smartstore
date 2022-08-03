@@ -45,12 +45,12 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Configuration.Currency.Read)]
         public IActionResult List(bool liveRates = false)
         {
-            var model = new CurrencyListModel 
-            { 
+            var model = new CurrencyListModel
+            {
                 DisplayLiveRates = liveRates,
                 AutoUpdateEnabled = _currencySettings.AutoUpdateEnabled
             };
-            
+
             ViewBag.ExchangeRateProviders = new List<SelectListItem>();
 
             foreach (var erp in Services.CurrencyService.LoadAllExchangeRateProviders())
@@ -197,8 +197,8 @@ namespace Smartstore.Admin.Controllers
                             currencyNames.Add(region.ISOCurrencySymbol, region.CurrencyEnglishName);
                         }
                     }
-                    catch 
-                    { 
+                    catch
+                    {
                     }
                 }
 
@@ -305,8 +305,8 @@ namespace Smartstore.Admin.Controllers
 
                 NotifySuccess(T("Admin.Configuration.Currencies.Added"));
 
-                return continueEditing 
-                    ? RedirectToAction(nameof(Edit), new { id = currency.Id }) 
+                return continueEditing
+                    ? RedirectToAction(nameof(Edit), new { id = currency.Id })
                     : RedirectToAction(nameof(List));
             }
 

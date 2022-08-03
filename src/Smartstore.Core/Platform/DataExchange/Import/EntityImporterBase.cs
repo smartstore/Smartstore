@@ -83,7 +83,7 @@ namespace Smartstore.Core.DataExchange.Import
 
             var shouldSave = false;
             var collection = await _localizedEntityService.GetLocalizedPropertyCollectionAsync(keyGroup, entityIds);
-            
+
             foreach (var row in batch)
             {
                 foreach (var prop in localizedProps)

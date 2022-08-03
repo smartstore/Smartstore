@@ -49,7 +49,7 @@ namespace Smartstore.Shipping
             _taxService = taxService;
             _storeContext = storeContext;
             _shippingByWeightSettings = shippingByWeightSettings;
-            
+
             T = NullLocalizer.Instance;
         }
 
@@ -136,7 +136,7 @@ namespace Smartstore.Shipping
         public RouteInfo GetConfigurationRoute()
             => new("Configure", "ShippingByWeight", new { area = "Admin" });
 
-        public Task<decimal?> GetFixedRateAsync(ShippingOptionRequest request) 
+        public Task<decimal?> GetFixedRateAsync(ShippingOptionRequest request)
             => Task.FromResult<decimal?>(null);
 
         public async Task<ShippingOptionResponse> GetShippingOptionsAsync(ShippingOptionRequest request)
@@ -194,8 +194,8 @@ namespace Smartstore.Shipping
             var workingCurreny = _services.WorkContext.WorkingCurrency;
             var shippingMethods = await _shippingService.GetAllShippingMethodsAsync(request.StoreId);
 
-            currentSubTotal = _services.WorkContext.TaxDisplayType == TaxDisplayType.ExcludingTax 
-                ? subTotalExclTax 
+            currentSubTotal = _services.WorkContext.TaxDisplayType == TaxDisplayType.ExcludingTax
+                ? subTotalExclTax
                 : subTotalInclTax;
 
             var shippingByWeightRecords = await _db.ShippingRatesByWeight()

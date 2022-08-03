@@ -1,5 +1,4 @@
-﻿using System;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using Smartstore.Core.Security;
 using Smartstore.Test.Common;
 

@@ -97,17 +97,17 @@ namespace Smartstore.Core.Content.Menus
             }
 
             return new LinkTranslationResult
-            { 
+            {
                 EntitySummary = summary,
                 EntityName = entityName,
                 EntityType = entityType,
-                Status = summary == null || summary.Deleted 
-                    ? LinkStatus.NotFound 
+                Status = summary == null || summary.Deleted
+                    ? LinkStatus.NotFound
                     : summary.Published ? LinkStatus.Ok : LinkStatus.Hidden
             };
         }
 
-        private async Task<LinkTranslatorEntitySummary> GetEntityDataAsync<T>(LinkExpression expression, int storeId, Expression<Func<T, LinkTranslatorEntitySummary>> selector) 
+        private async Task<LinkTranslatorEntitySummary> GetEntityDataAsync<T>(LinkExpression expression, int storeId, Expression<Func<T, LinkTranslatorEntitySummary>> selector)
             where T : BaseEntity
         {
             LinkTranslatorEntitySummary summary = null;

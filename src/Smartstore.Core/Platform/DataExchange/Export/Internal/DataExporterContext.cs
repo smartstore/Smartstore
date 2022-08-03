@@ -13,7 +13,7 @@ namespace Smartstore.Core.DataExchange.Export.Internal
 {
     internal class DataExporterContext
     {
-        private readonly static string[] _globalTranslationEntities = new[] 
+        private readonly static string[] _globalTranslationEntities = new[]
         {
             nameof(Currency),
             nameof(Country),
@@ -131,7 +131,7 @@ namespace Smartstore.Core.DataExchange.Export.Internal
             return TranslationsPerPage.GetValueOrDefault(entityName);
         }
 
-        public string GetTranslation<TEntity>(TEntity entity, string localeKey, string defaultValue = default) 
+        public string GetTranslation<TEntity>(TEntity entity, string localeKey, string defaultValue = default)
             where TEntity : BaseEntity
         {
             return GetTranslations<TEntity>()?.GetValue(LanguageId, entity.Id, localeKey) ?? defaultValue;

@@ -10,7 +10,7 @@ namespace Smartstore.Core.Content.Media
     public sealed class MaxMediaFileSizeAttribute : TypeFilterAttribute
     {
         private readonly long? _maxSize;
-        
+
         public MaxMediaFileSizeAttribute()
             : base(typeof(MaxMediaFileSizeFilter))
         {
@@ -38,7 +38,7 @@ namespace Smartstore.Core.Content.Media
             private readonly MediaSettings _mediaSettings;
 
             public MaxMediaFileSizeFilter(
-                MaxMediaFileSizeAttribute attribute, 
+                MaxMediaFileSizeAttribute attribute,
                 MediaSettings mediaSettings)
             {
                 _attribute = attribute;

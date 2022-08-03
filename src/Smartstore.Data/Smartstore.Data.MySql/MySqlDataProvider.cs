@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using MySqlConnector;
-using Pomelo.EntityFrameworkCore.MySql.Storage.Internal;
 using Smartstore.Data.Providers;
 
 namespace Smartstore.Data.MySql
@@ -37,9 +36,9 @@ namespace Smartstore.Data.MySql
         public override DbSystemType ProviderType => DbSystemType.MySql;
 
         public override DataProviderFeatures Features
-            => DataProviderFeatures.AccessIncrement 
-            | DataProviderFeatures.ReIndex 
-            | DataProviderFeatures.Shrink 
+            => DataProviderFeatures.AccessIncrement
+            | DataProviderFeatures.ReIndex
+            | DataProviderFeatures.Shrink
             | DataProviderFeatures.ComputeSize
             | DataProviderFeatures.ExecuteSqlScript
             | DataProviderFeatures.ReadSequential

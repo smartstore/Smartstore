@@ -364,8 +364,8 @@ namespace Smartstore.Admin.Controllers
                 Services.ActivityLogger.LogActivity(KnownActivityLogTypes.AddNewCategory, T("ActivityLog.AddNewCategory"), category.Name);
                 NotifySuccess(T("Admin.Catalog.Categories.Added"));
 
-                return continueEditing 
-                    ? RedirectToAction(nameof(Edit), new { id = category.Id }) 
+                return continueEditing
+                    ? RedirectToAction(nameof(Edit), new { id = category.Id })
                     : RedirectToAction(nameof(Index));
             }
 

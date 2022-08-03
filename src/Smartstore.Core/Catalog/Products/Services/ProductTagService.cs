@@ -121,8 +121,8 @@ namespace Smartstore.Core.Catalog.Products
         }
 
         public virtual async Task<IDictionary<int, int>> GetProductCountsMapAsync(
-            Customer customer = null, 
-            int storeId = 0, 
+            Customer customer = null,
+            int storeId = 0,
             bool includeHidden = false)
         {
             customer ??= _workContext.CurrentCustomer;

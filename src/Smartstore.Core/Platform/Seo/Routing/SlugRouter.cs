@@ -17,7 +17,7 @@ namespace Smartstore.Core.Seo.Routing
         /// </summary>
         Edit
     }
-    
+
     /// <summary>
     /// Builds a <see cref="RouteValueDictionary"/> instance for a given <see cref="UrlRecord"/> entity.
     /// </summary>

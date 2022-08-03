@@ -5,7 +5,7 @@ using Smartstore.Data.Hooks;
 
 namespace Smartstore.Core.Identity
 {
-    public interface IUserStore : 
+    public interface IUserStore :
         IQueryableUserStore<Customer>,
         IUserEmailStore<Customer>,
         IUserRoleStore<Customer>,
@@ -27,14 +27,14 @@ namespace Smartstore.Core.Identity
         private readonly Lazy<IGdprTool> _gdprTool;
 
         public UserStore(
-            Lazy<SmartDbContext> db, 
-            Lazy<IGdprTool> gdprTool, 
-            CustomerSettings customerSettings, 
+            Lazy<SmartDbContext> db,
+            Lazy<IGdprTool> gdprTool,
+            CustomerSettings customerSettings,
             IdentityErrorDescriber errorDescriber)
         {
             _db = db;
             _gdprTool = gdprTool;
-            
+
             ErrorDescriber = errorDescriber;
         }
 
@@ -275,9 +275,9 @@ namespace Smartstore.Core.Identity
         Task IUserEmailStore<Customer>.SetEmailConfirmedAsync(Customer user, bool confirmed, CancellationToken cancellationToken)
         {
             Guard.NotNull(user, nameof(user));
-            
+
             user.Active = confirmed;
-            
+
             if (confirmed)
             {
                 user.GenericAttributes.AccountActivationToken = null;
@@ -413,8 +413,8 @@ namespace Smartstore.Core.Identity
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            _db.Value.ExternalAuthenticationRecords.Add(new ExternalAuthenticationRecord 
-            { 
+            _db.Value.ExternalAuthenticationRecords.Add(new ExternalAuthenticationRecord
+            {
                 CustomerId = user.Id,
                 Email = user.Email,
                 ExternalIdentifier = login.ProviderKey,
@@ -430,11 +430,11 @@ namespace Smartstore.Core.Identity
 
             var providerSystemName = TranslateProviderToSystemName(loginProvider);
             var record = await _db.Value.ExternalAuthenticationRecords
-                .Where(x => x.ExternalIdentifier == providerKey 
-                    && x.CustomerId == user.Id 
+                .Where(x => x.ExternalIdentifier == providerKey
+                    && x.CustomerId == user.Id
                     && x.ProviderSystemName == providerSystemName)
                 .FirstOrDefaultAsync(cancellationToken);
-            
+
             if (record != null)
             {
                 _db.Value.ExternalAuthenticationRecords.Remove(record);
@@ -450,7 +450,7 @@ namespace Smartstore.Core.Identity
                 .Where(x => x.CustomerId == user.Id)
                 .ToListAsync(cancellationToken);
 
-            var infos = records.Select(x => 
+            var infos = records.Select(x =>
             {
                 return new UserLoginInfo
                 (
@@ -469,14 +469,14 @@ namespace Smartstore.Core.Identity
 
             var providerSystemName = TranslateProviderToSystemName(loginProvider);
             var record = await _db.Value.ExternalAuthenticationRecords
-                .FirstOrDefaultAsync(x => x.ExternalIdentifier == providerKey 
+                .FirstOrDefaultAsync(x => x.ExternalIdentifier == providerKey
                     && x.ProviderSystemName == providerSystemName, cancellationToken);
-            
+
             if (record != null)
             {
                 return await _db.Value.Customers.FirstOrDefaultAsync(x => x.Id == record.CustomerId, cancellationToken);
             }
-            
+
             return null;
         }
 

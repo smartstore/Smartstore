@@ -9,7 +9,7 @@ namespace Smartstore.ModuleBuilder
     class Program
     {
         static void Main(string[] args)
-        {   
+        {
             var modulePaths = string.Empty;
             var options = args[0].Trim().Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
@@ -74,13 +74,13 @@ namespace Smartstore.ModuleBuilder
             foreach (var privateLib in privateLibs)
             {
                 var lib = moduleContext.CompileLibraries.FirstOrDefault(x => x.Name == privateLib);
-                if (lib == null) 
+                if (lib == null)
                 {
                     Console.WriteLine($"---- Private reference {privateLib} does not exist.");
                 }
                 else
                 {
-                    var paths = lib.ResolveReferencePaths(); 
+                    var paths = lib.ResolveReferencePaths();
                     if (paths != null)
                     {
                         foreach (var path in paths)
@@ -119,7 +119,7 @@ namespace Smartstore.ModuleBuilder
             {
                 return null;
             }
-            
+
             var reader = new DependencyContextJsonReader();
             using (var file = File.OpenRead(depsFilePath))
             {
@@ -144,7 +144,7 @@ namespace Smartstore.ModuleBuilder
 
                 if (entry is FileInfo fi)
                 {
-                    if (entry.Name.StartsWith("Smartstore.Data.") 
+                    if (entry.Name.StartsWith("Smartstore.Data.")
                         || entry.Name.EndsWith(".StaticWebAssets.xml", StringComparison.OrdinalIgnoreCase)
                         || entry.Name.EndsWith(".staticwebassets.runtime.json", StringComparison.OrdinalIgnoreCase))
                     {

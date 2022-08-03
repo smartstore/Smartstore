@@ -13,11 +13,11 @@ namespace Smartstore.PayPal.Components
         private readonly IShoppingCartService _shoppingCartService;
         private readonly IOrderCalculationService _orderCalculationService;
         private readonly PayPalSettings _settings;
-        
+
         public PayPalViewComponent(
             ICommonServices services,
             IShoppingCartService shoppingCartService,
-            IOrderCalculationService orderCalculationService, 
+            IOrderCalculationService orderCalculationService,
             PayPalSettings settings)
         {
             _services = services;
@@ -38,7 +38,7 @@ namespace Smartstore.PayPal.Components
             {
                 return Empty();
             }
-            
+
             var controller = HttpContext.Request.RouteValues.GetControllerName().EmptyNull();
             var action = HttpContext.Request.RouteValues.GetActionName().EmptyNull();
             var isPaymentSelectionPage = controller == "Checkout" && action == "PaymentMethod";

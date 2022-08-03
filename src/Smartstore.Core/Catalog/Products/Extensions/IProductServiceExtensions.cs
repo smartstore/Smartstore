@@ -37,7 +37,7 @@ namespace Smartstore.Core.Catalog.Products
                 return await productService.AdjustInventoryAsync(
                     item.Item.Product,
                     item.Item.AttributeSelection,
-                    decrease, 
+                    decrease,
                     item.Item.Quantity);
             }
         }

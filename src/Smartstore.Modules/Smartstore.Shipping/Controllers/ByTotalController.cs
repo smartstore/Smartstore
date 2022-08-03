@@ -24,9 +24,9 @@ namespace Smartstore.Shipping.Controllers
         private readonly ShippingByTotalSettings _shippingByTotalSettings;
 
         public ByTotalController(
-            SmartDbContext db, 
+            SmartDbContext db,
             ICurrencyService currencyService,
-            IProviderManager providerManager, 
+            IProviderManager providerManager,
             ShippingByTotalSettings shippingByTotalSettings)
         {
             _db = db;
@@ -55,7 +55,7 @@ namespace Smartstore.Shipping.Controllers
                 Value = x.Id.ToString()
             })
             .ToList();
-                
+
             ViewBag.Provider = _providerManager.GetProvider("Shipping.ByTotal").Metadata;
         }
 
@@ -72,7 +72,7 @@ namespace Smartstore.Shipping.Controllers
             }
 
             var model = MiniMapper.Map<ShippingByTotalSettings, ByTotalListModel>(_shippingByTotalSettings);
-            
+
             await PrepareViewBagAsync();
 
             return View(model);
@@ -163,7 +163,7 @@ namespace Smartstore.Shipping.Controllers
         {
             var success = false;
             var shippingRate = await _db.ShippingRatesByTotal().FindByIdAsync(model.Id);
-            
+
             if (shippingRate != null)
             {
                 await MapperFactory.MapAsync(model, shippingRate);

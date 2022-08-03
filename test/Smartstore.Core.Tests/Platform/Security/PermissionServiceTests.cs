@@ -169,7 +169,7 @@ namespace Smartstore.Core.Tests.Platform.Security
         private async Task CheckTreeNodeAsync(CustomerRole role, string permissionSystemName, bool allow)
         {
             var tree = await _permissionService.GetPermissionTreeAsync(role);
-            var node = tree.Permissions.SelectNode(x =>  x.Value.SystemName == permissionSystemName);
+            var node = tree.Permissions.SelectNode(x => x.Value.SystemName == permissionSystemName);
 
             Assert.NotNull(node, $"Cannot select node by id '{permissionSystemName}'.");
             Assert.NotNull(node.Value.Allow, "The selected node must not be 'null'.");

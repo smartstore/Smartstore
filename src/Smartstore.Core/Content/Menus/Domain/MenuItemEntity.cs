@@ -29,7 +29,7 @@ namespace Smartstore.Core.Content.Menus
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
         private MenuItemEntity(ILazyLoader lazyLoader)
             : base(lazyLoader)
-        {     
+        {
         }
 
         public override string GetEntityName()
@@ -46,7 +46,7 @@ namespace Smartstore.Core.Content.Menus
         /// Gets the menu.
         /// </summary>
         [JsonIgnore]
-        public MenuEntity Menu 
+        public MenuEntity Menu
         {
             get => _menu ?? LazyLoader.Load(this, ref _menu);
             set => _menu = value;

@@ -57,7 +57,7 @@ namespace Smartstore.Core.Checkout.Orders
         /// Gets the order
         /// </summary>
         [JsonIgnore]
-        public Order Order 
+        public Order Order
         {
             get => _order ?? LazyLoader.Load(this, ref _order);
             set => _order = value;

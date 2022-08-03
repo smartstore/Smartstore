@@ -198,12 +198,12 @@ namespace Smartstore.Web.Models.Cart
             {
                 if (_shoppingCartSettings.ShowProductImagesOnShoppingCart)
                 {
-                    await from.MapAsync(to.Image, MediaSettings.CartThumbPictureSize, to.ProductName);                    
+                    await from.MapAsync(to.Image, MediaSettings.CartThumbPictureSize, to.ProductName);
                 }
             }
 
             var itemWarnings = new List<string>();
-            
+
             if (!await ShoppingCartValidator.ValidateProductAsync(from.Item, itemWarnings))
             {
                 to.Warnings.AddRange(itemWarnings);

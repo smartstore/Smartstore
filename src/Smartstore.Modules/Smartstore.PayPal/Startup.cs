@@ -27,7 +27,7 @@ namespace Smartstore.PayPal
 
             services.AddHttpClient<PayPalHttpClient>()
                 .AddSmartstoreUserAgent()
-                .ConfigurePrimaryHttpMessageHandler(c => new HttpClientHandler 
+                .ConfigurePrimaryHttpMessageHandler(c => new HttpClientHandler
                 {
                     AutomaticDecompression = DecompressionMethods.GZip
                 })

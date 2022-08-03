@@ -11,8 +11,8 @@ namespace Smartstore.Core.Content.Media.Storage
         /// <param name="targetProvider">The target media storage provider</param>
         /// <returns><c>true</c> success, <c>failure</c></returns>
         Task<bool> MoveAsync(
-            Provider<IMediaStorageProvider> sourceProvider, 
-            Provider<IMediaStorageProvider> targetProvider, 
+            Provider<IMediaStorageProvider> sourceProvider,
+            Provider<IMediaStorageProvider> targetProvider,
             CancellationToken cancelToken = default);
     }
 }

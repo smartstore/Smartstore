@@ -35,7 +35,7 @@
 
         public string[] DefaultExtensions { get; private set; }
 
-        public static IEnumerable<string> AllExtensions 
+        public static IEnumerable<string> AllExtensions
             => _defaultExtensionsMap.SelectMany(x => x.Value);
 
         public override string ToString()

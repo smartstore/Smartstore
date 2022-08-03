@@ -167,8 +167,8 @@ namespace Smartstore.Admin.Controllers
 
                 NotifySuccess(T("Admin.System.QueuedEmails.Updated"));
 
-                return continueEditing 
-                    ? RedirectToAction(nameof(Edit), new { id = queuedEmail.Id }) 
+                return continueEditing
+                    ? RedirectToAction(nameof(Edit), new { id = queuedEmail.Id })
                     : RedirectToAction(nameof(List));
             }
 

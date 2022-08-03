@@ -405,7 +405,7 @@ namespace Smartstore.Core.Catalog.Search.Modelling
             var mappings = _cache.Get(ALL_COMMONFACET_ALIAS_BY_KIND_KEY, o =>
             {
                 o.ExpiresIn(TimeSpan.FromHours(8));
-                
+
                 var result = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
                 var groupKinds = new FacetGroupKind[]

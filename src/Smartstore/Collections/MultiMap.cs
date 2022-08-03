@@ -122,11 +122,11 @@ namespace Smartstore.Collections
                     if (!_isReadonly)
                     {
                         _dict[key] = CreateCollection(null);
-                    }  
+                    }
                     else
                     {
                         return null;
-                    } 
+                    }
                 }
 
                 return _dict[key];

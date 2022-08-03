@@ -527,7 +527,7 @@ namespace Smartstore.Core.Checkout.Cart
         public virtual async Task<bool> SaveCartDataAsync(
             ShoppingCart cart,
             IList<string> warnings,
-            ProductVariantQuery query, 
+            ProductVariantQuery query,
             bool? useRewardPoints = null,
             bool resetCheckoutData = true,
             bool validateCheckoutAttributes = true)

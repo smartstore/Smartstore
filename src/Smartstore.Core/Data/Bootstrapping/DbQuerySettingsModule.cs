@@ -14,7 +14,7 @@ namespace Smartstore.Core.Bootstrapping
     internal sealed class DbQuerySettingsModule : Autofac.Module
     {
         const string PropName = "Property.DbQuerySettings";
-        
+
         protected override void Load(ContainerBuilder builder)
         {
             builder.Register(c =>
@@ -54,7 +54,7 @@ namespace Smartstore.Core.Bootstrapping
                     {
                         return;
                     }
-                    
+
                     var querySettings = context.Resolve<DbQuerySettings>();
                     prop.SetValue(context.Instance, querySettings);
                 });

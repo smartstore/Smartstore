@@ -11,8 +11,8 @@
         /// <param name="zip">Zip code. Only excludes empty entities if param is empty itself. 
         /// Real filtering for specific zipcode must be done outside this filter.</param>
         /// <returns>ShippingByTotalEntity query</returns>
-        public static IQueryable<ShippingRateByTotal> ApplyRegionFilter(this IQueryable<ShippingRateByTotal> query, 
-            int? countryId, 
+        public static IQueryable<ShippingRateByTotal> ApplyRegionFilter(this IQueryable<ShippingRateByTotal> query,
+            int? countryId,
             int? stateProvinceId)
         {
             Guard.NotNull(query, nameof(query));

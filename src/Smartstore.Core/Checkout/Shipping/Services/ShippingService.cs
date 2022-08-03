@@ -184,7 +184,7 @@ namespace Smartstore.Core.Checkout.Shipping
                     foreach (var error in response.Errors)
                     {
                         result.Errors.Add(error);
-                        
+
                         if (request?.Items?.Any() ?? false)
                         {
                             Logger.Warn(error);
@@ -308,7 +308,7 @@ namespace Smartstore.Core.Checkout.Shipping
 
                 cartWeight += itemWeight;
             }
-            
+
             return cartWeight;
 
             bool IgnoreCartItem(OrganizedShoppingCartItem cartItem)

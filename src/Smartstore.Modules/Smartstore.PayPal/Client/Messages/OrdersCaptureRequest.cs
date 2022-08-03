@@ -5,20 +5,20 @@
     /// </summary>
     public class OrdersCaptureRequest : PayPalRequest<object>
     {
-        public OrdersCaptureRequest(string orderId) 
+        public OrdersCaptureRequest(string orderId)
             : base("/v2/checkout/orders/{0}/capture?", HttpMethod.Post)
         {
             try
             {
                 Path = Path.FormatInvariant(Uri.EscapeDataString(orderId));
             }
-            catch (IOException) 
-            { 
+            catch (IOException)
+            {
             }
 
             ContentType = "application/json";
         }
-        
+
         public OrdersCaptureRequest WithClientMetadataId(string payPalClientMetadataId)
         {
             Headers.Add("PayPal-Client-Metadata-Id", payPalClientMetadataId);

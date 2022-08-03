@@ -85,7 +85,7 @@
         {
             return ApplySearchFilter(
                 query,
-                filter, 
+                filter,
                 LogicalRuleOperator.And, // Doesn't matter
                 Guard.NotNull(memberExpression, nameof(memberExpression)));
         }
@@ -115,7 +115,7 @@
             }
 
             var filterExpressions = memberExpressions
-                .Select(expression => 
+                .Select(expression =>
                 {
                     // TODO: (core) ErrorHandling and ModelState for ApplySearchTermFilter
                     if (FilterExpressionParser.TryParse(expression, filter, out var filterExpression))
@@ -138,9 +138,9 @@
             }
             else
             {
-                var compositeFilter = new FilterExpressionGroup(typeof(T), filterExpressions) 
-                { 
-                    LogicalOperator = logicalOperator 
+                var compositeFilter = new FilterExpressionGroup(typeof(T), filterExpressions)
+                {
+                    LogicalOperator = logicalOperator
                 };
 
                 return query.Where(compositeFilter).Cast<T>();

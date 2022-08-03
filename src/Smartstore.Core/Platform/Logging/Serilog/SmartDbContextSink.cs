@@ -43,7 +43,7 @@ namespace Smartstore.Core.Logging.Serilog
                 // App not initialized yet
                 return null;
             }
-            
+
             if (!DataSettings.DatabaseIsInstalled())
             {
                 // Cannot log to non-existent database

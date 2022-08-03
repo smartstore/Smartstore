@@ -76,7 +76,7 @@ namespace Smartstore.Core.Security
             where T : BaseEntity, IAclRestricted
         {
             Guard.NotNull(entity, nameof(entity));
-            
+
             selectedCustomerRoleIds ??= Array.Empty<int>();
 
             var existingAclRecords = await _db.AclRecords
@@ -161,7 +161,7 @@ namespace Smartstore.Core.Security
             foreach (var role in roles.Where(x => x.Active))
             {
                 var authorizedRoleIds = await GetAuthorizedCustomerRoleIdsAsync(entityName, entityId);
-                
+
                 foreach (var roleId in authorizedRoleIds)
                 {
                     if (role.Id == roleId)
@@ -185,7 +185,7 @@ namespace Smartstore.Core.Security
 
             var result = _cache.GetAsync(cacheKey, async () =>
             {
-                var query = 
+                var query =
                     from x in _db.AclRecords.AsNoTracking()
                     where
                         x.EntityId >= minEntityId &&

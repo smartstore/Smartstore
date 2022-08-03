@@ -20,9 +20,9 @@ namespace Smartstore.Core.Common.Services
         private readonly IDateTimeHelper _dateTimeHelper;
         private readonly ShippingSettings _shippingSettings;
         private readonly CatalogSettings _catalogSettings;
-        
+
         public DeliveryTimeService(
-            SmartDbContext db, 
+            SmartDbContext db,
             IDateTimeHelper dateTimeHelper,
             ShippingSettings shippingSettings,
             CatalogSettings catalogSettings)

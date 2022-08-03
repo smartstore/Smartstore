@@ -32,7 +32,7 @@
 
         [LocalizedDisplay("*DisabledFundings")]
         public string[] DisabledFundings { get; set; }
-        
+
         [LocalizedDisplay("*EnabledFundings")]
         public string[] EnabledFundings { get; set; }
 
@@ -41,7 +41,7 @@
 
         [LocalizedDisplay("*ButtonShape")]
         public string ButtonShape { get; set; } = "pill";
- 
+
         [LocalizedDisplay("*ButtonColor")]
         public string ButtonColor { get; set; } = "gold";
     }

@@ -18,7 +18,7 @@ namespace Smartstore.Core.Seo
             WasValidated = copyFrom.WasValidated;
         }
 
-        public ISlugSupported Source 
+        public ISlugSupported Source
         {
             get => _source;
             init
@@ -35,7 +35,7 @@ namespace Smartstore.Core.Seo
         public int? LanguageId { get; init; }
         public bool WasValidated { get; init; }
     }
-    
+
     /// <summary>
     /// Seo slugs service interface
     /// </summary>

@@ -17,7 +17,7 @@ namespace Smartstore.Core.Bootstrapping
         public void Configure(IdentityOptions options)
         {
             var customerSettings = _appContext.Services.Resolve<CustomerSettings>();
-            
+
             var usr = options.User;
             usr.RequireUniqueEmail = true;
             // INFO: Add space to default list of allowed chars.

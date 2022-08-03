@@ -47,7 +47,7 @@
 
                 return clone;
             }
-            
+
             return expression;
         }
 
@@ -68,7 +68,7 @@
                 node = Expression.Parameter(EntityType, "it");
             }
 
-            return IsSubGroup 
+            return IsSubGroup
                 ? bodyExpression
                 : ExpressionHelper.CreateLambdaExpression(node, bodyExpression);
         }

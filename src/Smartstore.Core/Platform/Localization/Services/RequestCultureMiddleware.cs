@@ -48,7 +48,7 @@ namespace Smartstore.Core.Localization
 
                 if (widgetProvider != null && culture.Name != "en-US")
                 {
-                    var script = _cache.Get($"globalizationscript:{culture.Name}", o => 
+                    var script = _cache.Get($"globalizationscript:{culture.Name}", o =>
                     {
                         // Write globalization script
                         var json = CreateCultureJson(culture, language);

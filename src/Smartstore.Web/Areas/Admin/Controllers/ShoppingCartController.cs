@@ -17,7 +17,7 @@ namespace Smartstore.Admin.Controllers
         private readonly IShoppingCartService _shoppingCartService;
 
         public ShoppingCartController(
-            SmartDbContext db, 
+            SmartDbContext db,
             ICustomerService customerService,
             IShoppingCartService shoppingCartService)
         {
@@ -77,7 +77,7 @@ namespace Smartstore.Admin.Controllers
             // INFO: the first where-clause is important for performance (avoid aggregating across all customers).
             var query =
                 from c in _db.Customers
-                let cartItems = c.ShoppingCartItems.Where(x => 
+                let cartItems = c.ShoppingCartItems.Where(x =>
                     x.ShoppingCartTypeId == cartTypeId && x.ParentItemId == null
                     && (startDateUtc == null || startDateUtc.Value <= x.CreatedOnUtc)
                     && (endDateUtc == null || endDateUtc.Value >= x.CreatedOnUtc)

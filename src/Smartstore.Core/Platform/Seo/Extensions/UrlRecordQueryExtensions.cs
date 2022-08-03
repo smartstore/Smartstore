@@ -16,7 +16,7 @@
             if (string.IsNullOrEmpty(slug))
                 return query;
 
-            return exactMatch 
+            return exactMatch
                 ? query.Where(x => x.Slug == slug)
                 : query.Where(x => x.Slug.Contains(slug));
         }
@@ -46,10 +46,10 @@
         /// <param name="languageId">Applies a filter by <see cref="UrlRecord.LanguageId"/>.</param>
         /// <param name="active">Applies a filter by <see cref="UrlRecord.IsActive"/>.</param>
         /// <returns><see cref="UrlRecord"/> query.</returns>
-        public static IOrderedQueryable<UrlRecord> ApplyEntityFilter(this IQueryable<UrlRecord> query, 
-            string entityName, 
-            int entityId, 
-            int? languageId, 
+        public static IOrderedQueryable<UrlRecord> ApplyEntityFilter(this IQueryable<UrlRecord> query,
+            string entityName,
+            int entityId,
+            int? languageId,
             bool? active = null)
         {
             Guard.NotNull(query, nameof(query));

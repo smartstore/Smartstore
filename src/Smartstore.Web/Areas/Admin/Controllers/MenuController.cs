@@ -184,7 +184,7 @@ namespace Smartstore.Admin.Controllers
             {
                 query = query.Where(x => x.SystemName == model.SystemName);
             }
-            
+
             var menuRecords = await query
                 .ApplyStoreFilter(model.StoreId)
                 .OrderBy(x => x.SystemName)
@@ -269,8 +269,8 @@ namespace Smartstore.Admin.Controllers
                 await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, menu, form));
                 NotifySuccess(T("Admin.Common.DataSuccessfullySaved"));
 
-                return continueEditing 
-                    ? RedirectToAction(nameof(Edit), new { id = menu.Id }) 
+                return continueEditing
+                    ? RedirectToAction(nameof(Edit), new { id = menu.Id })
                     : RedirectToAction(nameof(List));
             }
 
@@ -323,7 +323,7 @@ namespace Smartstore.Admin.Controllers
                 await Services.EventPublisher.PublishAsync(new ModelBoundEvent(model, menu, form));
                 NotifySuccess(T("Admin.Common.DataSuccessfullySaved"));
 
-                return continueEditing 
+                return continueEditing
                     ? RedirectToAction(nameof(Edit), menu.Id)
                     : RedirectToAction(nameof(List));
             }

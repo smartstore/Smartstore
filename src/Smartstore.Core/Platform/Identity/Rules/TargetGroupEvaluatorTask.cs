@@ -18,7 +18,7 @@ namespace Smartstore.Core.Identity.Rules
         protected readonly ICacheManager _cache;
 
         public TargetGroupEvaluatorTask(
-            SmartDbContext db, 
+            SmartDbContext db,
             IRuleService ruleService,
             ITargetGroupService targetGroupService,
             ICacheManager cache)
@@ -110,8 +110,8 @@ namespace Smartstore.Core.Identity.Rules
                         {
                             scope.DbContext.DetachEntities<CustomerRoleMapping>();
                         }
-                        catch 
-                        { 
+                        catch
+                        {
                         }
                     }
                 }

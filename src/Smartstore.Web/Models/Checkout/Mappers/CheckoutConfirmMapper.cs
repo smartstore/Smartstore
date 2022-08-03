@@ -45,14 +45,14 @@ namespace Smartstore.Web.Models.Checkout
             to.BypassPaymentMethodInfo = _paymentSettings.BypassPaymentMethodInfo;
             to.NewsletterSubscription = _shoppingCartSettings.NewsletterSubscription;
             to.ThirdPartyEmailHandOver = _shoppingCartSettings.ThirdPartyEmailHandOver;
-            
+
             if (_shoppingCartSettings.ThirdPartyEmailHandOver != CheckoutThirdPartyEmailHandOver.None)
             {
                 to.ThirdPartyEmailHandOverLabel = _shoppingCartSettings.GetLocalizedSetting(
-                    x => x.ThirdPartyEmailHandOverLabel, 
-                    _services.WorkContext.WorkingLanguage, 
-                    _services.StoreContext.CurrentStore.Id, 
-                    true, 
+                    x => x.ThirdPartyEmailHandOverLabel,
+                    _services.WorkContext.WorkingLanguage,
+                    _services.StoreContext.CurrentStore.Id,
+                    true,
                     false);
 
                 if (to.ThirdPartyEmailHandOverLabel.IsEmpty())

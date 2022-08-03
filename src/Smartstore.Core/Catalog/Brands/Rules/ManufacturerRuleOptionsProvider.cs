@@ -36,7 +36,7 @@ namespace Smartstore.Core.Catalog.Brands.Rules
                 {
                     Value = x.Id.ToString(),
                     Text = x.GetLocalized(y => y.Name, context.Language, true, false)
-                }));                    
+                }));
             }
             else
             {

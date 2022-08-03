@@ -15,7 +15,7 @@ namespace Smartstore
         {
             Guard.NotNull(source, nameof(source));
             Guard.NotNull(address, nameof(address));
-            
+
             var found = source.FirstOrDefault(x => Equals(x, address));
 
             if (found != null && email.HasValue() && email != found.Email)
@@ -47,7 +47,7 @@ namespace Smartstore
             {
                 target.FaxNumber = source.FaxNumber;
             }
-            
+
             return target;
         }
 

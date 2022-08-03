@@ -25,10 +25,10 @@
 
         public override int GetHashCode()
             => HashCode.Combine(
-                RecipientName?.ToLower(), 
-                RecipientEmail?.ToLower(), 
-                SenderName?.ToLower(), 
-                SenderEmail?.ToLower(), 
+                RecipientName?.ToLower(),
+                RecipientEmail?.ToLower(),
+                SenderName?.ToLower(),
+                SenderEmail?.ToLower(),
                 Message?.ToLower());
 
         public override bool Equals(object obj)
@@ -48,7 +48,7 @@
                 return true;
             }
 
-            if (RecipientName.EqualsNoCase(other.RecipientName) && 
+            if (RecipientName.EqualsNoCase(other.RecipientName) &&
                 RecipientEmail.EqualsNoCase(other.RecipientEmail) &&
                 SenderName.EqualsNoCase(other.SenderName) &&
                 SenderEmail.EqualsNoCase(other.SenderEmail) &&

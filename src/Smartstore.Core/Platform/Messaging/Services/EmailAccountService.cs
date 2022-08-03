@@ -64,7 +64,7 @@ namespace Smartstore.Core.Messaging
                     .AsNoTracking()
                     .FirstOrDefault();
             }
-        
+
             return defaultEmailAccount;
         }
     }

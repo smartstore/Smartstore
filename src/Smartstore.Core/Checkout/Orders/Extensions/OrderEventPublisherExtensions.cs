@@ -13,8 +13,8 @@ namespace Smartstore
         /// <param name="order">The order instance.</param>
         public static Task PublishOrderPaidAsync(this IEventPublisher eventPublisher, Order order)
         {
-            return order != null 
-                ? eventPublisher.PublishAsync(new OrderPaidEvent(order)) 
+            return order != null
+                ? eventPublisher.PublishAsync(new OrderPaidEvent(order))
                 : Task.CompletedTask;
         }
 

@@ -30,7 +30,7 @@ namespace Smartstore.Admin.Models.Catalog
 
         [LocalizedDisplay("*ProductTemplate")]
         public int ProductTemplateId { get; set; }
-        
+
         [LocalizedDisplay("*ShortDescription")]
         public string ShortDescription { get; set; }
 
@@ -61,7 +61,7 @@ namespace Smartstore.Admin.Models.Catalog
 
         [LocalizedDisplay("*CountryOfOriginId")]
         public int? CountryOfOriginId { get; set; }
-        
+
         [LocalizedDisplay("*IsGiftCard")]
         public bool IsGiftCard { get; set; }
 
@@ -157,7 +157,7 @@ namespace Smartstore.Admin.Models.Catalog
 
         [LocalizedDisplay("*TaxCategory")]
         public int? TaxCategoryId { get; set; }
-        
+
         [LocalizedDisplay("*ManageInventoryMethod")]
         public int ManageInventoryMethodId { get; set; }
         public int OriginalStockQuantity { get; set; }
@@ -504,7 +504,7 @@ namespace Smartstore.Admin.Models.Catalog
         public class ProductVariantAttributeModel : EntityModelBase
         {
             public int ProductId { get; set; }
-            
+
             [LocalizedDisplay("*Attribute")]
             [UIHint("ProductAttribute")]
             public int ProductAttributeId { get; set; }
@@ -686,7 +686,7 @@ namespace Smartstore.Admin.Models.Catalog
             When(x => x.BasePriceEnabled && x.IsTabLoaded("Price"), () =>
             {
                 RuleFor(x => x.Price).NotEmpty();
-                
+
                 RuleFor(x => x.BasePriceMeasureUnit).NotEmpty().WithMessage(T("Admin.Catalog.Products.Fields.BasePriceMeasureUnit.Required"));
                 RuleFor(x => x.BasePriceBaseAmount)
                     .NotEmpty().WithMessage(T("Admin.Catalog.Products.Fields.BasePriceBaseAmount.Required"))

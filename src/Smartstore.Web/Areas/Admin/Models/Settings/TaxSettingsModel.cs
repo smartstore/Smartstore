@@ -82,5 +82,5 @@ namespace Smartstore.Admin.Models
 
         [LocalizedDisplay("*VatRequired")]
         public bool VatRequired { get; set; } = false;
-    } 
+    }
 }

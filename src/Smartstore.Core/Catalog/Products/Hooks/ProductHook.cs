@@ -17,7 +17,7 @@ namespace Smartstore.Core.Catalog.Products
             => Task.FromResult(HookResult.Ok);
 
         // We are overriding OnUpdatedAsync because SoftDeletableHook is pre-processing the entity and updating its entity state.
-        protected override Task<HookResult> OnUpdatedAsync(Product entity, IHookedEntity entry, CancellationToken cancelToken) 
+        protected override Task<HookResult> OnUpdatedAsync(Product entity, IHookedEntity entry, CancellationToken cancelToken)
             => Task.FromResult(HookResult.Ok);
 
         public override async Task OnAfterSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)

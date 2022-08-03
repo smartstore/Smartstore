@@ -26,7 +26,7 @@ namespace Smartstore.Core.Common.Services
 
             if (round)
                 result = Math.Round(result, 2);
-            
+
             return result;
         }
 
@@ -34,7 +34,7 @@ namespace Smartstore.Core.Common.Services
         {
             decimal result = quantity;
             var baseDimensionIn = await _db.MeasureDimensions.FindByIdAsync(_measureSettings.BaseDimensionId);
-            
+
             if (result != decimal.Zero && source.Id != baseDimensionIn.Id)
             {
                 decimal exchangeRatio = source.Ratio;

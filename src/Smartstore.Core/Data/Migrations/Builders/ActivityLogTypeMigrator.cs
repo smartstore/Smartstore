@@ -37,7 +37,7 @@ namespace Smartstore.Core.Data.Migrations
         {
             const string settingKey = "LocalizationSettings.DefaultAdminLanguageId";
 
-            var defaultAdminLanguageSetting = 
+            var defaultAdminLanguageSetting =
                 await _db.Settings.FirstOrDefaultAsync(x => x.Name == settingKey && x.StoreId == 0) ??
                 await _db.Settings.FirstOrDefaultAsync(x => x.Name == settingKey);
 

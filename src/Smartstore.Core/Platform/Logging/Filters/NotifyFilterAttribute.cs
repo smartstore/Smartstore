@@ -1,5 +1,4 @@
-﻿using System.Text;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
@@ -33,7 +32,7 @@ namespace Smartstore.Core.Logging
                     HandleAjaxRequest(_notifier.Entries.FirstOrDefault(), context.HttpContext.Response);
                     return;
                 }
-                
+
                 if (context.Controller is Controller controller)
                 {
                     Persist(controller.ViewData, _notifier.Entries.Where(x => x.Durable == false));
@@ -59,7 +58,7 @@ namespace Smartstore.Core.Logging
                     .ToArray();
 
                 bag[NotificationsAccessKey] = TrimSet(existingHolder);
-                
+
             }
 
             private static void HandleAjaxRequest(NotifyEntry entry, HttpResponse response)
@@ -77,7 +76,7 @@ namespace Smartstore.Core.Logging
                 {
                     return holder;
                 }
-                
+
                 return new NotifyEntriesHolder { Entries = holder.Entries.Skip(holder.Entries.Length - 20).ToArray() };
             }
         }

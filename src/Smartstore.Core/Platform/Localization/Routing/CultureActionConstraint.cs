@@ -10,23 +10,23 @@ namespace Smartstore.Core.Localization.Routing
 
         public bool Accept(ActionConstraintContext context)
         {
-			var requestCulture = context.RouteContext.RouteData.Values.GetCultureCode() ?? EnsureNeutral(CultureInfo.CurrentUICulture).Name;
+            var requestCulture = context.RouteContext.RouteData.Values.GetCultureCode() ?? EnsureNeutral(CultureInfo.CurrentUICulture).Name;
 
-			if (requestCulture != null)
-			{
-				return CultureHelper.IsValidCultureCode(requestCulture);
-			}
+            if (requestCulture != null)
+            {
+                return CultureHelper.IsValidCultureCode(requestCulture);
+            }
 
-			return false;
-		}
+            return false;
+        }
 
-		public static CultureInfo EnsureNeutral(CultureInfo culture)
-		{
-			Guard.NotNull(culture, nameof(culture));
+        public static CultureInfo EnsureNeutral(CultureInfo culture)
+        {
+            Guard.NotNull(culture, nameof(culture));
 
-			return culture.IsNeutralCulture
-				? culture
-				: culture.Parent;
-		}
-	}
+            return culture.IsNeutralCulture
+                ? culture
+                : culture.Parent;
+        }
+    }
 }

@@ -18,7 +18,7 @@ namespace Smartstore.Core.Localization
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private member.", Justification = "Required for EF lazy loading")]
         private LocalizedProperty(ILazyLoader lazyLoader)
             : base(lazyLoader)
-        {            
+        {
         }
 
         /// <summary>
@@ -53,7 +53,7 @@ namespace Smartstore.Core.Localization
         /// <summary>
         /// Gets the language
         /// </summary>
-        public Language Language 
+        public Language Language
         {
             get => _language ?? LazyLoader.Load(this, ref _language);
             set => _language = value;
