@@ -206,6 +206,7 @@ namespace Smartstore.Core.Data.Migrations
                     foreach (var migration in migrations)
                     {
                         current = migration;
+                        var name = migration.Description.NullEmpty() ?? migration.GetName();
 
                         if (cancelToken.IsCancellationRequested)
                         {
@@ -215,10 +216,12 @@ namespace Smartstore.Core.Data.Migrations
                         if (up)
                         {
                             runner.ApplyMigrationUp(migration, migration.TransactionBehavior == TransactionBehavior.Default);
+                            _logger.Info("Database up migration '{0}' successfully applied.", name);
                         }
                         else
                         {
                             runner.ApplyMigrationDown(migration, migration.TransactionBehavior == TransactionBehavior.Default);
+                            _logger.Info("Database down migration '{0}' successfully applied.", name);
                         }
 
                         migrationApplied?.Invoke(migration);

@@ -74,35 +74,6 @@ namespace Smartstore
 
             return (HookingDbContext)stateManager.Context;
         }
-
-        //public static TContext GetDbContext<TEntity, TContext>(this IQueryable<TEntity> query)
-        //    where TContext : DbContext
-        //    where TEntity : BaseEntity
-        //{
-        //    var context = GetDbContext(query);
-
-        //    if (context is not TContext)
-        //    {
-        //        throw new InvalidCastException($"The type of DbContext obtained from query does not match '${typeof(TContext).Name}'. Actual: ${context.GetType().Name}");
-        //    }
-
-        //    return context as TContext;
-        //}
-
-        //public static DbContext GetDbContext<TEntity>(this IQueryable<TEntity> query) 
-        //    where TEntity : BaseEntity
-        //{
-        //    Guard.NotNull(query, nameof(query));
-
-        //    var queryCompiler = (QueryCompiler)_queryCompilerField.GetValue(query.Provider);
-        //    var queryContextFactory = (RelationalQueryContextFactory)_queryContextFactoryField.GetValue(queryCompiler);
-        //    var dependencies = _dependenciesField.GetValue(queryContextFactory);
-        //    var stateManagerObj = _stateManagerProperty.GetValue(dependencies);
-
-        //    IStateManager stateManager = stateManagerObj as IStateManager ?? ((dynamic)stateManagerObj).Value;
-
-        //    return stateManager.Context;
-        //}
     }
 #pragma warning restore EF1001 // Internal EF Core API usage.
 }
