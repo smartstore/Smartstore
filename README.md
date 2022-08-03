@@ -1,9 +1,3 @@
-| <div align="left">:information_source: **Early Access: Smartstore 5 Beta was released**</div> |
-| --- |
-| The hard work on porting Smartstore from classic ASP.NET MVC to ASP.NET Core 6 is nearly finished and it was worth it because we created one of the fastest full-featured cross-platform e-commerce solutions of the world. Detailed information about upgrading or installing your shop can be found below in the section **ASP.NET Core 6**. |
-
-<br/>
-
 <p align="center">
 	<a href="https://www.smartstore.com" target="_blank" rel="noopener noreferrer">
 		<img src="assets/smartstore-icon.png" alt="Smartstore" width="200">
