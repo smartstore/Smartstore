@@ -271,14 +271,86 @@ namespace Smartstore.Http
         }
 
         /// <summary>
-        /// Checks whether the specified <paramref name="url"/> points to the local computer.
+        /// Returns a value that indicates whether the URL is local. A URL is considered local if it does not have a
+        /// host / authority part and it has an absolute path. URLs using virtual paths ('~/') are also local.
         /// </summary>
-        /// <param name="url">URL to check.</param>
-        public static bool IsUrlLocalToHost(string url)
+        /// <param name="url">The URL to check.</param>
+        /// <returns><c>true</c> if the URL is local; otherwise, <c>false</c>.</returns>
+        /// <example>
+        /// <para>
+        /// For example, the following URLs are considered local:
+        /// <code>
+        /// /Views/Default/Index.html
+        /// ~/Index.html
+        /// </code>
+        /// </para>
+        /// <para>
+        /// The following URLs are non-local:
+        /// <code>
+        /// ../Index.html
+        /// http://www.contoso.com/
+        /// http://localhost/Index.html
+        /// </code>
+        /// </para>
+        /// </example>
+        public static bool IsLocalUrl(string url)
         {
-            return !url.IsEmpty() &&
-                   ((url[0] == '/' && (url.Length == 1 || (url[1] != '/' && url[1] != '\\'))) || // "/" or "/foo" but not "//" or "/\"
-                    (url.Length > 1 && url[0] == '~' && url[1] == '/')); // "~/" or "~/foo"
+            if (string.IsNullOrEmpty(url))
+            {
+                return false;
+            }
+
+            // Allows "/" or "/foo" but not "//" or "/\".
+            if (url[0] == '/')
+            {
+                // url is exactly "/"
+                if (url.Length == 1)
+                {
+                    return true;
+                }
+
+                // url doesn't start with "//" or "/\"
+                if (url[1] != '/' && url[1] != '\\')
+                {
+                    return !HasControlCharacter(url.AsSpan(1));
+                }
+
+                return false;
+            }
+
+            // Allows "~/" or "~/foo" but not "~//" or "~/\".
+            if (url[0] == '~' && url.Length > 1 && url[1] == '/')
+            {
+                // url is exactly "~/"
+                if (url.Length == 2)
+                {
+                    return true;
+                }
+
+                // url doesn't start with "~//" or "~/\"
+                if (url[2] != '/' && url[2] != '\\')
+                {
+                    return !HasControlCharacter(url.AsSpan(2));
+                }
+
+                return false;
+            }
+
+            return false;
+
+            static bool HasControlCharacter(ReadOnlySpan<char> readOnlySpan)
+            {
+                // URLs may not contain ASCII control characters.
+                for (var i = 0; i < readOnlySpan.Length; i++)
+                {
+                    if (char.IsControl(readOnlySpan[i]))
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
         }
 
         /// <summary>

@@ -194,7 +194,7 @@ namespace Smartstore.Core.Widgets
             {
                 try
                 {
-                    if (!WebHelper.IsUrlLocalToHost(key))
+                    if (!WebHelper.IsLocalUrl(key))
                     {
                         // No need to look for external files
                         return key;

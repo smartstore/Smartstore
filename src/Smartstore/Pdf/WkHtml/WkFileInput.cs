@@ -18,7 +18,7 @@ namespace Smartstore.Pdf.WkHtml
         {
             _urlOrPath = urlOrPath;
             _options = options;
-            _isLocalUrl = WebHelper.IsUrlLocalToHost(urlOrPath);
+            _isLocalUrl = WebHelper.IsLocalUrl(urlOrPath);
             // Can be null
             _httpContext = httpContext;
         }

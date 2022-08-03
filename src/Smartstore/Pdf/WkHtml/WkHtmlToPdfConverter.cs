@@ -109,7 +109,7 @@ namespace Smartstore.Pdf.WkHtml
         {
             Guard.NotEmpty(urlOrPath, nameof(urlOrPath));
 
-            if (prefetch && (urlOrPath.IsWebUrl() || WebHelper.IsUrlLocalToHost(urlOrPath)))
+            if (prefetch && (urlOrPath.IsWebUrl() || WebHelper.IsLocalUrl(urlOrPath)))
             {
                 var content = PrefetchFileInput(urlOrPath);
                 return CreateHtmlInput(content);

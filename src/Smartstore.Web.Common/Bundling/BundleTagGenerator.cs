@@ -88,7 +88,7 @@ namespace Smartstore.Web.Bundling
                 return false;
             }
 
-            if (!WebHelper.IsUrlLocalToHost(url))
+            if (!WebHelper.IsLocalUrl(url))
             {
                 return false;
             }
