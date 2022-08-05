@@ -77,7 +77,7 @@ namespace Smartstore
             {
                 return string.Empty;
             }
-
+            
             return new string(str.Where(c => char.IsDigit(c)).ToArray());
         }
 

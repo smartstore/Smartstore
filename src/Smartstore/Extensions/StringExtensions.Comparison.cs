@@ -12,7 +12,7 @@ namespace Smartstore
         /// Determines whether this instance and given <paramref name="other"/> have the same value (ignoring case)
         /// </summary>
         /// <param name="value">The string to check equality.</param>
-        /// <param name="other">The comparing with string.</param>
+        /// <param name="other">The second string to compare.</param>
         /// <returns>
         /// <c>true</c> if the value of the comparing parameter is the same as this string; otherwise, <c>false</c>.
         /// </returns>
@@ -21,6 +21,21 @@ namespace Smartstore
         public static bool EqualsNoCase(this string value, string other)
         {
             return string.Compare(value, other, StringComparison.OrdinalIgnoreCase) == 0;
+        }
+
+        /// <summary>
+        /// Determines whether this instance and given <paramref name="other"/> have the same value (ignoring case)
+        /// </summary>
+        /// <param name="value">The span to check equality.</param>
+        /// <param name="other">The second span to compare.</param>
+        /// <returns>
+        /// <c>true</c> if the value of the comparing parameter is the same as this span; otherwise, <c>false</c>.
+        /// </returns>
+        [DebuggerStepThrough]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool EqualsNoCase(this ReadOnlySpan<char> value, ReadOnlySpan<char> other)
+        {
+            return value.CompareTo(other, StringComparison.OrdinalIgnoreCase) == 0;
         }
 
         /// <summary>
@@ -72,16 +87,19 @@ namespace Smartstore
             return !string.IsNullOrWhiteSpace(value);
         }
 
+        /// <summary>
+        /// Determines whether the span contains at least one non-whitespace char.
+        /// </summary>
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool IsWebUrl(this string value)
+        public static bool HasValue(this ReadOnlySpan<char> value)
         {
-            return IsWebUrlInternal(value, false);
+            return !value.IsWhiteSpace();
         }
 
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool IsWebUrl(this string value, bool schemeIsOptional)
+        public static bool IsWebUrl(this string value, bool schemeIsOptional = false)
         {
             return IsWebUrlInternal(value, schemeIsOptional);
         }
@@ -92,7 +110,7 @@ namespace Smartstore
             {
                 return false;
             }
-
+            
             value = value.Trim().ToLowerInvariant();
 
             if (schemeIsOptional && value.StartsWith("//"))
@@ -107,7 +125,13 @@ namespace Smartstore
         [DebuggerStepThrough]
         public static bool IsEmail(this string value)
         {
-            if (string.IsNullOrEmpty(value))
+            return IsEmail(value.AsSpan());
+        }
+
+        [DebuggerStepThrough]
+        public static bool IsEmail(this ReadOnlySpan<char> value)
+        {
+            if (value.IsWhiteSpace())
             {
                 return false;
             }
@@ -146,9 +170,16 @@ namespace Smartstore
         }
 
         [DebuggerStepThrough]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsEnclosedIn(this string value, string enclosedIn, StringComparison comparison = StringComparison.OrdinalIgnoreCase)
         {
-            if (string.IsNullOrEmpty(enclosedIn))
+            return IsEnclosedIn(value.AsSpan(), enclosedIn.AsSpan(), comparison);
+        }
+
+        [DebuggerStepThrough]
+        public static bool IsEnclosedIn(this ReadOnlySpan<char> value, ReadOnlySpan<char> enclosedIn, StringComparison comparison = StringComparison.OrdinalIgnoreCase)
+        {
+            if (enclosedIn.IsWhiteSpace())
             {
                 return false;
             }
@@ -164,7 +195,7 @@ namespace Smartstore
                 return IsEnclosedIn(
                     value,
                     enclosedIn[..len],
-                    enclosedIn.Substring(len, len),
+                    enclosedIn.Slice(len, len),
                     comparison);
 
             }
@@ -175,6 +206,13 @@ namespace Smartstore
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsEnclosedIn(this string value, string start, string end, StringComparison comparison = StringComparison.OrdinalIgnoreCase)
+        {
+            return value.StartsWith(start, comparison) && value.EndsWith(end, comparison);
+        }
+
+        [DebuggerStepThrough]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsEnclosedIn(this ReadOnlySpan<char> value, ReadOnlySpan<char> start, ReadOnlySpan<char> end, StringComparison comparison = StringComparison.OrdinalIgnoreCase)
         {
             return value.StartsWith(start, comparison) && value.EndsWith(end, comparison);
         }

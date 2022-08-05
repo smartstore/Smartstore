@@ -60,16 +60,34 @@ namespace Smartstore
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static DateTime? ToDateTime(this string value, DateTime? defaultValue)
         {
-            return value.ToDateTime(null, defaultValue);
+            return ToDateTime(value.AsSpan(), null, DateTimeFormatInfo.InvariantInfo, DateTimeStyles.AllowWhiteSpaces, defaultValue);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static DateTime? ToDateTime(this ReadOnlySpan<char> value, DateTime? defaultValue)
+        {
+            return ToDateTime(value, null, DateTimeFormatInfo.InvariantInfo, DateTimeStyles.AllowWhiteSpaces, defaultValue);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static DateTime? ToDateTime(this string value, string[] formats, DateTime? defaultValue)
         {
-            return value.ToDateTime(formats, DateTimeFormatInfo.InvariantInfo, DateTimeStyles.AllowWhiteSpaces, defaultValue);
+            return ToDateTime(value.AsSpan(), formats, DateTimeFormatInfo.InvariantInfo, DateTimeStyles.AllowWhiteSpaces, defaultValue);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static DateTime? ToDateTime(this ReadOnlySpan<char> value, string[] formats, DateTime? defaultValue)
+        {
+            return ToDateTime(value, formats, DateTimeFormatInfo.InvariantInfo, DateTimeStyles.AllowWhiteSpaces, defaultValue);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static DateTime? ToDateTime(this string value, string[] formats, IFormatProvider provider, DateTimeStyles styles, DateTime? defaultValue)
+        {
+            return ToDateTime(value.AsSpan(), formats, provider, styles, defaultValue);
+        }
+
+        public static DateTime? ToDateTime(this ReadOnlySpan<char> value, string[] formats, IFormatProvider provider, DateTimeStyles styles, DateTime? defaultValue)
         {
             DateTime result;
 
@@ -92,12 +110,17 @@ namespace Smartstore
         /// <summary>
         /// Parse ISO-8601 UTC timestamp including milliseconds.
         /// </summary>
-        /// <remarks>
-        /// Dublicate can be found in HmacAuthentication class.
-        /// </remarks>
         public static DateTime? ToDateTimeIso8601(this string value)
         {
-            if (!string.IsNullOrEmpty(value))
+            return ToDateTimeIso8601(value.AsSpan());
+        }
+
+        /// <summary>
+        /// Parse ISO-8601 UTC timestamp including milliseconds.
+        /// </summary>
+        public static DateTime? ToDateTimeIso8601(this ReadOnlySpan<char> value)
+        {
+            if (!value.IsWhiteSpace())
             {
                 if (DateTime.TryParseExact(value, "o", CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal, out DateTime dt))
                     return dt;
@@ -112,14 +135,18 @@ namespace Smartstore
         [DebuggerStepThrough]
         public static Version ToVersion(this string value, Version defaultVersion = null)
         {
-            try
+            return ToVersion(value.AsSpan(), defaultVersion);
+        }
+
+        [DebuggerStepThrough]
+        public static Version ToVersion(this ReadOnlySpan<char> value, Version defaultVersion = null)
+        {
+            if (Version.TryParse(value, out var version))
             {
-                return new Version(value);
+                return version;
             }
-            catch
-            {
-                return defaultVersion ?? new Version("1.0");
-            }
+            
+            return defaultVersion ?? new Version("1.0");
         }
 
         /// <summary>
@@ -138,12 +165,14 @@ namespace Smartstore
         public static T ToEnum<T>(this string value, T defaultValue)
             where T : struct
         {
-            if (Enum.TryParse<T>(value, out var enumValue))
-            {
-                return enumValue;
-            }
+            return Enum.TryParse<T>(value, out var enumValue) ? enumValue : defaultValue;
+        }
 
-            return defaultValue;
+        [DebuggerStepThrough]
+        public static T ToEnum<T>(this ReadOnlySpan<char> value, T defaultValue)
+            where T : struct
+        {
+            return Enum.TryParse<T>(value, out var enumValue) ? enumValue : defaultValue;
         }
 
         /// <summary>
