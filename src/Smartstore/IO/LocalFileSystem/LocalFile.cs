@@ -203,7 +203,7 @@ namespace Smartstore.IO
                 throw new FileNotFoundException($"The file '{SubPath}' does not exist.");
             }
 
-            var fullDstPath = _fs.MapPathInternal(ref newPath, true);
+            var fullDstPath = _fs.MapPathInternal(ref newPath, true, true);
 
             if (System.IO.Directory.Exists(fullDstPath))
             {
@@ -233,7 +233,7 @@ namespace Smartstore.IO
                 throw new FileNotFoundException($"Cannot move file '{SubPath}' because it does not exist.");
             }
 
-            var fullDstPath = _fs.MapPathInternal(ref newPath, true);
+            var fullDstPath = _fs.MapPathInternal(ref newPath, true, true);
             _fi.WaitForUnlockAndExecute(x => _fi.MoveTo(fullDstPath, false));
 
             SubPath = newPath;

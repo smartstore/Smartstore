@@ -67,15 +67,12 @@ namespace Smartstore.IO
 
         public override string MapPath(string subpath)
         {
-            var fullPath = MapPathInternal(ref subpath, false);
-            return fullPath == null
-                ? null
-                : Path.GetFullPath(fullPath);
+            return MapPathInternal(ref subpath, false, false);
         }
 
         public override bool FileExists(string subpath)
         {
-            var fullPath = MapPathInternal(ref subpath, false);
+            var fullPath = MapPathInternal(ref subpath, false, false);
             if (string.IsNullOrEmpty(fullPath))
             {
                 return false;
@@ -86,7 +83,7 @@ namespace Smartstore.IO
 
         public override bool DirectoryExists(string subpath)
         {
-            var fullPath = MapPathInternal(ref subpath, false);
+            var fullPath = MapPathInternal(ref subpath, false, false);
             if (string.IsNullOrEmpty(fullPath))
             {
                 return false;
@@ -97,7 +94,7 @@ namespace Smartstore.IO
 
         public override IFile GetFile(string subpath)
         {
-            var fullPath = MapPathInternal(ref subpath, false);
+            var fullPath = MapPathInternal(ref subpath, true, false);
             return fullPath.HasValue()
                 ? new LocalFile(subpath, new FileInfo(fullPath), this)
                 : new NotFoundFile(subpath, this);
@@ -105,7 +102,7 @@ namespace Smartstore.IO
 
         public override IDirectory GetDirectory(string subpath)
         {
-            var fullPath = MapPathInternal(ref subpath, false);
+            var fullPath = MapPathInternal(ref subpath, true, false);
             return fullPath.HasValue()
                 ? new LocalDirectory(subpath, new DirectoryInfo(fullPath), this)
                 : new NotFoundDirectory(subpath, this);
@@ -122,38 +119,69 @@ namespace Smartstore.IO
 
         #region Utils
 
-        internal string MapPathInternal(ref string subpath, bool throwOnFailure)
+        internal string MapPathInternal(ref string subpath, bool transformSeparators, bool throwOnFailure)
         {
             if (string.IsNullOrEmpty(subpath))
-                return Root;
-
-            subpath = PathUtility.NormalizeRelativePath(subpath);
-
-            var mappedPath = Path.Combine(Root, subpath);
-
-            // Verify that the resulting path is inside the root file system path.
-            if (!IsUnderneathRoot(mappedPath))
             {
-                if (throwOnFailure)
-                {
-                    throw new FileSystemException($"The path '{subpath}' resolves to a physical path outside the file system store root.");
-                }
-                else
-                {
-                    return null;
-                }
+                return Root;
             }
 
+            var len = subpath.Length;
+            var span = subpath.AsSpan()
+                .Trim()
+                .TrimStart('~')
+                .TrimStart(PathUtility.PathSeparators);
+
+            transformSeparators = transformSeparators && span.IndexOf('\\') != -1;
+
+            if (transformSeparators)
+            {
+                span = ApplySeparatorTransform(span);
+            }
+
+            if (transformSeparators || span.Length != len)
+            {
+                subpath = span.ToString();
+            }
+
+            var mappedPath = Path.Join(Root, subpath);
+
+            //// TODO: (core) Do we really really need this check?
+            //// Verify that the resulting path is inside the root file system path.
+            //if (!IsUnderneathRoot(mappedPath))
+            //{
+            //    if (throwOnFailure)
+            //    {
+            //        throw new FileSystemException($"The path '{subpath}' resolves to a physical path outside the file system store root.");
+            //    }
+            //    else
+            //    {
+            //        return null;
+            //    }
+            //}
+
             return Path.GetFullPath(mappedPath);
+
+            static ReadOnlySpan<char> ApplySeparatorTransform(ReadOnlySpan<char> value)
+            {
+                var destination = new char[value.Length];
+
+                for (var i = 0; i < value.Length; i++)
+                {
+                    destination[i] = value[i] == '\\' ? '/' : value[i];
+                }
+
+                return destination;
+            }
         }
 
-        private static bool IsExcluded(FileSystemInfo fileSystemInfo, ExclusionFilters filters)
-            => filters != ExclusionFilters.None && (fileSystemInfo.Name.StartsWith(".", StringComparison.Ordinal) && (filters & ExclusionFilters.DotPrefixed) != ExclusionFilters.None || fileSystemInfo.Exists && ((fileSystemInfo.Attributes & FileAttributes.Hidden) != (FileAttributes)0 && (filters & ExclusionFilters.Hidden) != ExclusionFilters.None || (fileSystemInfo.Attributes & FileAttributes.System) != (FileAttributes)0 && (filters & ExclusionFilters.System) != ExclusionFilters.None));
+        //private static bool IsExcluded(FileSystemInfo fileSystemInfo, ExclusionFilters filters)
+        //    => filters != ExclusionFilters.None && (fileSystemInfo.Name.StartsWith(".", StringComparison.Ordinal) && (filters & ExclusionFilters.DotPrefixed) != ExclusionFilters.None || fileSystemInfo.Exists && ((fileSystemInfo.Attributes & FileAttributes.Hidden) != (FileAttributes)0 && (filters & ExclusionFilters.Hidden) != ExclusionFilters.None || (fileSystemInfo.Attributes & FileAttributes.System) != (FileAttributes)0 && (filters & ExclusionFilters.System) != ExclusionFilters.None));
 
-        private bool IsUnderneathRoot(string fullPath)
-        {
-            return fullPath.StartsWith(Root, StringComparison.OrdinalIgnoreCase);
-        }
+        //private bool IsUnderneathRoot(string fullPath)
+        //{
+        //    return fullPath.StartsWith(Root, StringComparison.OrdinalIgnoreCase);
+        //}
 
         #endregion
     }
