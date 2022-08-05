@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Smartstore.Collections;
+using Smartstore.Core.Seo.Routing;
 
 namespace Smartstore.Core.Search.Facets
 {
@@ -9,7 +10,7 @@ namespace Smartstore.Core.Search.Facets
         {
             Guard.NotNull(request, nameof(request));
 
-            Url = request.Path;
+            Url = UrlPolicy.CombineSegments(request.PathBase, request.Path);
             InitialQuery = request.QueryString;
         }
 
