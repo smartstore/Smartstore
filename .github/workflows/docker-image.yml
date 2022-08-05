@@ -12,4 +12,4 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag Smartstore:$(date +%s)
+      run: docker build . --file Dockerfile --tag smartstore:$(date +%s)
