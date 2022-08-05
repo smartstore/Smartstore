@@ -94,7 +94,7 @@ namespace Smartstore.Core.Messaging
 
             var root = _appContext.ContentRoot;
             var dir = ResolveTemplateDirectory(culture, rootPath);
-            var file = root.GetFile(root.PathCombine(dir.SubPath, templateName + ".xml"));
+            var file = root.GetFile(PathUtility.Join(dir.SubPath, templateName + ".xml"));
 
             if (!file.Exists)
             {
@@ -146,11 +146,11 @@ namespace Smartstore.Core.Messaging
             docRoot.AppendChild(doc.CreateElement("Body")).AppendChild(doc.CreateCDataSection(template.Body));
 
             var root = _appContext.ContentRoot;
-            var dir = root.GetDirectory(root.PathCombine("/App_Data/EmailTemplates", culture));
+            var dir = root.GetDirectory(PathUtility.Join("/App_Data/EmailTemplates", culture));
             dir.Create();
 
             // File path
-            var filePath = root.PathCombine(dir.SubPath, template.Name + ".xml");
+            var filePath = PathUtility.Join(dir.SubPath, template.Name + ".xml");
 
             var xml = Prettifier.PrettifyXML(doc.OuterXml);
             root.WriteAllText(filePath, xml);

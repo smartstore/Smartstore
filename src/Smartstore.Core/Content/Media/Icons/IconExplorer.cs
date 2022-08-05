@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using Newtonsoft.Json;
 using Smartstore.Collections;
+using Smartstore.IO;
 using Smartstore.Utilities;
 
 namespace Smartstore.Core.Content.Media.Icons
@@ -92,7 +93,7 @@ namespace Smartstore.Core.Content.Media.Icons
 
             // (Perf) look up minified version of metadata file
             var hashCode = HashCodeCombiner.Start().Add(mapFile, false).CombinedHashString;
-            var mapFileMin = fs.GetFile(fs.PathCombine(_appContext.GetTempDirectory().SubPath, "icons.{0}.json".FormatInvariant(hashCode)));
+            var mapFileMin = fs.GetFile(PathUtility.Join(_appContext.GetTempDirectory().SubPath, $"icons.{hashCode}.json"));
             //var path = mapFileMin.Exists ? mapFileMin.SubPath : mapFile.SubPath;
             var file = mapFileMin.Exists ? mapFileMin : mapFile;
 

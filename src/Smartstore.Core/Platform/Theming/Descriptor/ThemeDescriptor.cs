@@ -56,7 +56,7 @@ namespace Smartstore.Core.Theming
                 themeDirectory = new LocalDirectory(themeDirectory.SubPath, new DirectoryInfo(linkedPath), root as LocalFileSystem);
             }
 
-            var themeConfigFile = root.GetFile(root.PathCombine(themeDirectory.Name, "theme.config"));
+            var themeConfigFile = root.GetFile(PathUtility.Join(themeDirectory.Name, "theme.config"));
 
             if (themeConfigFile.Exists)
             {

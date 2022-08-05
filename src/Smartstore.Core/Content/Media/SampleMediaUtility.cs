@@ -34,7 +34,7 @@ namespace Smartstore.Core.Content.Media
         {
             Guard.NotNull(subpath, nameof(subpath));
 
-            var file = _contentRoot.GetFile(_contentRoot.PathCombine(_rootPath, subpath));
+            var file = _contentRoot.GetFile(PathUtility.Join(_rootPath, subpath));
 
             if (!file.Exists)
             {

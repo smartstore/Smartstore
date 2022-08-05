@@ -309,7 +309,7 @@ namespace Smartstore.Core.Localization
 
             foreach (var candidate in codeCandidates)
             {
-                var pathCandidate = fs.PathCombine(directory.SubPath, fileNamePattern.FormatInvariant(candidate));
+                var pathCandidate = PathUtility.Join(directory.SubPath, fileNamePattern.FormatInvariant(candidate));
                 if (fs.FileExists(pathCandidate))
                 {
                     code = candidate;

@@ -87,8 +87,6 @@ namespace Smartstore.IO
 
         public string MapPath(string subpath)
             => InnerProvider.MapPath(Expand(subpath));
-        public string PathCombine(params string[] paths)
-            => InnerProvider.PathCombine(paths);
 
         public bool CheckUniqueFileName(string subpath, out string newPath)
         {

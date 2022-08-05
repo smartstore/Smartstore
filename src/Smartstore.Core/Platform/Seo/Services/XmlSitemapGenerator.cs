@@ -76,7 +76,7 @@ namespace Smartstore.Core.Seo
             _asyncRunner = asyncRunner;
 
             _tenantRoot = _services.ApplicationContext.TenantRoot;
-            _baseDir = _tenantRoot.PathCombine("Sitemaps");
+            _baseDir = "Sitemaps";
         }
 
         public ILogger Logger { get; set; } = NullLogger.Instance;
@@ -201,7 +201,7 @@ namespace Smartstore.Core.Seo
         private string BuildSitemapFilePath(int storeId, int languageId, int index)
         {
             var fileName = SitemapFileNamePattern.FormatInvariant(index);
-            return _tenantRoot.PathCombine(BuildSitemapDirPath(storeId, languageId), fileName);
+            return PathUtility.Join(BuildSitemapDirPath(storeId, languageId), fileName);
         }
 
         private string BuildSitemapDirPath(int? storeId, int? languageId)
@@ -213,18 +213,18 @@ namespace Smartstore.Core.Seo
 
             if (languageId == null)
             {
-                return _tenantRoot.PathCombine(_baseDir, storeId.ToStringInvariant());
+                return PathUtility.Join(_baseDir, storeId.ToStringInvariant());
             }
             else
             {
-                return _tenantRoot.PathCombine(_baseDir, storeId.ToStringInvariant(), languageId.ToStringInvariant());
+                return PathUtility.Join(_baseDir, storeId.ToStringInvariant(), languageId.ToStringInvariant());
             }
         }
 
         private string GetLockFilePath(int storeId, int languageId)
         {
             var fileName = LockFileNamePattern.FormatInvariant(storeId, languageId);
-            return _tenantRoot.PathCombine(_baseDir, fileName);
+            return PathUtility.Join(_baseDir, fileName);
         }
 
         public virtual async Task RebuildAsync(XmlSitemapBuildContext ctx)
@@ -446,7 +446,7 @@ namespace Smartstore.Core.Seo
             {
                 // Save segment to disk
                 var fileName = SitemapFileNamePattern.FormatInvariant(i + start);
-                var filePath = _tenantRoot.PathCombine(data.TempDir, fileName);
+                var filePath = PathUtility.Join(data.TempDir, fileName);
 
                 await _tenantRoot.WriteAllTextAsync(filePath, documents[i]);
             }

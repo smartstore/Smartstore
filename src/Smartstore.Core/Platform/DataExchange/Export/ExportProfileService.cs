@@ -100,7 +100,7 @@ namespace Smartstore.Core.DataExchange.Export
             // ~/App_Data/ExportProfiles/smartstorecategorycsv
             // ~/App_Data/Tenants/Default/ExportProfiles/smartstoreshoppingcartitemcsv
             var root = _appContext.TenantRoot;
-            var path = root.PathCombine(EXPORT_FILE_ROOT, _regexFolderName.Replace(profile.FolderName, string.Empty), subpath.EmptyNull());
+            var path = PathUtility.Join(EXPORT_FILE_ROOT, _regexFolderName.Replace(profile.FolderName, string.Empty), subpath.EmptyNull());
             var dir = await root.GetDirectoryAsync(path);
 
             if (createIfNotExists)
@@ -118,7 +118,7 @@ namespace Smartstore.Core.DataExchange.Export
                 if (deployment.DeploymentType == ExportDeploymentType.PublicFolder)
                 {
                     var webRoot = _appContext.WebRoot;
-                    var path = webRoot.PathCombine(DataExporter.PublicDirectoryName, deployment.SubFolder);
+                    var path = PathUtility.Join(DataExporter.PublicDirectoryName, deployment.SubFolder);
                     var dir = await webRoot.GetDirectoryAsync(path);
 
                     if (createIfNotExists)
@@ -187,7 +187,7 @@ namespace Smartstore.Core.DataExchange.Export
 
                 // Always use IUrlHelper.Content("~/subpath") or WebHelper.ToAbsolutePath("~/subpath") for public URLs,
                 // so that IIS application path can be prepended if applicable. 
-                var path = WebHelper.ToAppRelativePath(_appContext.WebRoot.PathCombine(DataExporter.PublicDirectoryName, deployment.SubFolder));
+                var path = WebHelper.ToAppRelativePath(PathUtility.Join(DataExporter.PublicDirectoryName, deployment.SubFolder));
 
                 return store.Url.TrimEnd('/') + _urlHelper.Value.Content(path).EnsureEndsWith("/");
             }
@@ -346,7 +346,7 @@ namespace Smartstore.Core.DataExchange.Export
                     {
                         var webRoot = _appContext.WebRoot;
                         var subfolder = webRoot.CreateUniqueDirectoryName(DataExporter.PublicDirectoryName, folderName);
-                        _ = await webRoot.TryCreateDirectoryAsync(webRoot.PathCombine(DataExporter.PublicDirectoryName, subfolder));
+                        _ = await webRoot.TryCreateDirectoryAsync(PathUtility.Join(DataExporter.PublicDirectoryName, subfolder));
 
                         profile.Deployments.Add(new ExportDeployment
                         {
@@ -426,8 +426,8 @@ namespace Smartstore.Core.DataExchange.Export
             var tenantRoot = _appContext.TenantRoot;
             var directories = new List<IDirectory>
             {
-                await webRoot.GetDirectoryAsync(webRoot.PathCombine(DataExporter.PublicDirectoryName)),
-                await tenantRoot.GetDirectoryAsync(tenantRoot.PathCombine(EXPORT_FILE_ROOT))
+                await webRoot.GetDirectoryAsync(DataExporter.PublicDirectoryName),
+                await tenantRoot.GetDirectoryAsync(EXPORT_FILE_ROOT)
             };
 
             foreach (var dir in directories.Where(x => x.Exists))

@@ -219,10 +219,10 @@ namespace Smartstore.Web.Bundling
             => _fs.TryDeleteDirectory(dir.SubPath);
 
         private IDirectory GetCacheDirectory(BundleCacheKey cacheKey)
-            => _fs.GetDirectory(_fs.PathCombine(DirName, ResolveBundleDirectoryName(cacheKey)));
+            => _fs.GetDirectory(PathUtility.Join(DirName.AsSpan(), ResolveBundleDirectoryName(cacheKey).AsSpan()));
 
         private static string ResolveBundleDirectoryName(BundleCacheKey cacheKey)
-            => PathUtility.SanitizeFileName(cacheKey.Key.Trim('/', '\\'));
+            => PathUtility.SanitizeFileName(cacheKey.Key.Trim(PathUtility.PathSeparators));
 
         private static string ResolveBundleContentFileName(Bundle bundle)
             => $"bundle.{MimeTypes.MapMimeTypeToExtension(bundle.ContentType)}";
@@ -231,7 +231,7 @@ namespace Smartstore.Web.Bundling
             => "BundleCache.Dir." + dirName;
 
         private Task<string> ReadFile(IDirectory dir, string fileName)
-            => _fs.ReadAllTextAsync(_fs.PathCombine(dir.SubPath, fileName));
+            => _fs.ReadAllTextAsync(PathUtility.Join(dir.SubPath, fileName));
 
         private static async Task<IEnumerable<string>> ParseFileContent(string content)
         {
@@ -269,7 +269,7 @@ namespace Smartstore.Web.Bundling
             var content = sb.ToString().TrimEnd();
             if (content.HasValue())
             {
-                await _fs.WriteAllTextAsync(_fs.PathCombine(dir.SubPath, fileName), content);
+                await _fs.WriteAllTextAsync(PathUtility.Join(dir.SubPath, fileName), content);
             }
         }
 

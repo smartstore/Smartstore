@@ -117,7 +117,7 @@ namespace Smartstore
             }
 
             var subRoot = PathUtility.NormalizeRelativePath(source.FileSystem.Root[fs.Root.Length..]);
-            var expandedPath = fs.PathCombine(subRoot, source.SubPath);
+            var expandedPath = PathUtility.Join(subRoot, source.SubPath);
 
             if (source.IsDirectory)
             {

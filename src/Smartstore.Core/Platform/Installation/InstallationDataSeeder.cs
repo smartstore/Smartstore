@@ -182,11 +182,11 @@ namespace Smartstore.Core.Installation
         {
             var appDataRoot = EngineContext.Current.Application.AppDataRoot;
 
-            var locDir = appDataRoot.GetDirectory(appDataRoot.PathCombine("Localization/App/" + language.LanguageCulture));
+            var locDir = appDataRoot.GetDirectory("Localization/App/" + language.LanguageCulture);
             if (!locDir.Exists)
             {
                 // Fallback to neutral language folder (de, en etc.)
-                locDir = appDataRoot.GetDirectory(appDataRoot.PathCombine("Localization/App/" + language.UniqueSeoCode));
+                locDir = appDataRoot.GetDirectory("Localization/App/" + language.UniqueSeoCode);
             }
 
             if (!locDir.Exists)
@@ -224,7 +224,7 @@ namespace Smartstore.Core.Installation
         private async Task SeedPendingLocaleResources(IDirectory locDir)
         {
             var fs = locDir.FileSystem;
-            var headFile = fs.GetFile(fs.PathCombine(locDir.SubPath, "head.txt"));
+            var headFile = fs.GetFile(PathUtility.Join(locDir.SubPath, "head.txt"));
 
             if (!headFile.Exists)
             {

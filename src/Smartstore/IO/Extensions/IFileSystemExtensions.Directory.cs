@@ -693,7 +693,7 @@ namespace Smartstore
 
             for (int i = 1; i < maxAttempts; ++i)
             {
-                if (!fs.DirectoryExists(fs.PathCombine(subpath, newName)))
+                if (!fs.DirectoryExists(PathUtility.Join(subpath, newName)))
                 {
                     return newName;
                 }
@@ -755,6 +755,8 @@ namespace Smartstore
                 destination.Create();
             }
 
+            var destinationSpan = destination.SubPath.AsSpan();
+
             foreach (var entry in fs.EnumerateEntries(source.SubPath))
             {
                 if (ignores.Any(w => w.IsMatch(entry.SubPath)))
@@ -762,7 +764,7 @@ namespace Smartstore
                     continue;
                 }
 
-                var newPath = fs.PathCombine(destination.SubPath, entry.Name);
+                var newPath = PathUtility.Join(destinationSpan, entry.Name.AsSpan());
 
                 if (entry is IDirectory dir)
                 {
@@ -794,7 +796,7 @@ namespace Smartstore
                     continue;
                 }
 
-                var newPath = fs.PathCombine(destination.SubPath, entry.Name);
+                var newPath = PathUtility.Join(destination.SubPath, entry.Name);
 
                 if (entry is IDirectory dir)
                 {

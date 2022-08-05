@@ -41,8 +41,7 @@ namespace Smartstore.Core.Content.Media.Storage
             var fileName = mediaFile.Id.ToString(ImageCache.IdFormatString).Grow(ext, ".");
             var subfolder = fileName[..ImageCache.MaxDirLength];
 
-            path = _fileSystem.PathCombine(subfolder, fileName);
-            path = _fileSystem.PathCombine(MediaRootPath, path);
+            path = PathUtility.Join(MediaRootPath, subfolder, fileName);
 
             _pathCache[mediaFile.Id] = path;
 

@@ -78,7 +78,7 @@ namespace Smartstore.IO
                 return;
 
             var fs = _storageDir.FileSystem;
-            var path = fs.PathCombine(_storageDir.SubPath, LookupKey + ".hash");
+            var path = PathUtility.Join(_storageDir.SubPath, LookupKey + ".hash");
             fs.WriteAllText(path, CurrentHash.ToStringInvariant(), Encoding.UTF8);
             _lastHash = CurrentHash;
         }
@@ -96,7 +96,7 @@ namespace Smartstore.IO
         protected virtual int ReadLastHash()
         {
             var fs = _storageDir.FileSystem;
-            var path = fs.PathCombine(_storageDir.SubPath, LookupKey + ".hash");
+            var path = PathUtility.Join(_storageDir.SubPath, LookupKey + ".hash");
             var hash = fs.FileExists(path)
                 ? ConvertHash(fs.ReadAllText(path, Encoding.UTF8))
                 : -1;

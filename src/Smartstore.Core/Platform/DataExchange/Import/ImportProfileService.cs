@@ -43,7 +43,7 @@ namespace Smartstore.Core.DataExchange.Import
             Guard.NotNull(profile, nameof(profile));
 
             var root = _appContext.TenantRoot;
-            var path = root.PathCombine(IMPORT_FILE_ROOT, profile.FolderName, subpath.EmptyNull());
+            var path = PathUtility.Join(IMPORT_FILE_ROOT, profile.FolderName, subpath.EmptyNull());
             var dir = await root.GetDirectoryAsync(path);
 
             if (createIfNotExists)
@@ -197,7 +197,7 @@ namespace Smartstore.Core.DataExchange.Import
                 .Select(x => x.FolderName)
                 .ToListAsync();
 
-            var dir = await tenantRoot.GetDirectoryAsync(tenantRoot.PathCombine(IMPORT_FILE_ROOT));
+            var dir = await tenantRoot.GetDirectoryAsync(IMPORT_FILE_ROOT);
             if (dir.Exists)
             {
                 foreach (var subdir in dir.EnumerateDirectories())

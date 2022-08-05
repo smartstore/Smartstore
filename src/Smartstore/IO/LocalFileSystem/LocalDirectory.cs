@@ -117,7 +117,7 @@ namespace Smartstore.IO
         {
             path = PathUtility.NormalizeRelativePath(path);
             var di = _di.CreateSubdirectory(path);
-            return new LocalDirectory(_fs.PathCombine(SubPath, path), di, _fs);
+            return new LocalDirectory(PathUtility.Join(SubPath, path), di, _fs);
         }
 
         public void MoveTo(string newPath)

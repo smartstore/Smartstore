@@ -144,58 +144,61 @@ namespace Smartstore.IO
         /// <c>null</c>: leave it as it is.
         /// </param>
         /// <returns>The concatenated path</returns>
-        public static string Join(string path1, string path2, bool? ensureLeadingSeparator = false)
+        /// <remarks>
+        /// Other than Path.Join() this method detects double separators and collapses them.
+        /// </remarks>
+        public static string Join(string path1, string path2, bool? ensureLeadingSeparator = null)
         {
             return Join(path1.AsSpan(), path2.AsSpan(), ensureLeadingSeparator);
         }
 
         /// <inheritdoc cref="Join(string, string)"/>
-        public static string Join(string path1, string path2, string path3, bool? ensureLeadingSeparator = false)
+        public static string Join(string path1, string path2, string path3, bool? ensureLeadingSeparator = null)
         {
             return Join(path1.AsSpan(), path2.AsSpan(), path3.AsSpan(), ensureLeadingSeparator);
         }
 
         /// <inheritdoc cref="Join(string, string)"/>
-        public static string Join(string path1, string path2, string path3, string path4, bool? ensureLeadingSeparator = false)
+        public static string Join(string path1, string path2, string path3, string path4, bool? ensureLeadingSeparator = null)
         {
             return Join(path1.AsSpan(), path2.AsSpan(), path3.AsSpan(), path4.AsSpan(), ensureLeadingSeparator);
         }
 
         /// <inheritdoc cref="Join(string, string)"/>
-        public static string Join(ReadOnlySpan<char> path1, ReadOnlySpan<char> path2, bool? ensureLeadingSeparator = false)
+        public static string Join(ReadOnlySpan<char> path1, ReadOnlySpan<char> path2, bool? ensureLeadingSeparator = null)
         {
             ReadOnlySpan<char> trimChars = PathSeparators;
 
             var joined = NormalizeRelativePath(Path.Join(
-                path1.TrimEnd(trimChars),
-                path2), ensureLeadingSeparator);
+                path1,
+                path2.TrimStart(trimChars)), ensureLeadingSeparator);
 
             return joined[0] == '\\' ? '/' + joined[1..] : joined;
         }
 
         /// <inheritdoc cref="Join(string, string)"/>
-        public static string Join(ReadOnlySpan<char> path1, ReadOnlySpan<char> path2, ReadOnlySpan<char> path3, bool? ensureLeadingSeparator = false)
+        public static string Join(ReadOnlySpan<char> path1, ReadOnlySpan<char> path2, ReadOnlySpan<char> path3, bool? ensureLeadingSeparator = null)
         {
             ReadOnlySpan<char> trimChars = PathSeparators;
 
             var joined = NormalizeRelativePath(Path.Join(
-                path1.TrimEnd(trimChars),
-                path2.TrimEnd(trimChars),
-                path3), ensureLeadingSeparator);
+                path1,
+                path2.TrimStart(trimChars),
+                path3.TrimStart(trimChars)), ensureLeadingSeparator);
 
             return joined[0] == '\\' ? '/' + joined[1..] : joined;
         }
 
         /// <inheritdoc cref="Join(string, string)"/>
-        public static string Join(ReadOnlySpan<char> path1, ReadOnlySpan<char> path2, ReadOnlySpan<char> path3, ReadOnlySpan<char> path4, bool? ensureLeadingSeparator = false)
+        public static string Join(ReadOnlySpan<char> path1, ReadOnlySpan<char> path2, ReadOnlySpan<char> path3, ReadOnlySpan<char> path4, bool? ensureLeadingSeparator = null)
         {
             ReadOnlySpan<char> trimChars = PathSeparators;
 
             var joined = NormalizeRelativePath(Path.Join(
-                path1.TrimEnd(trimChars), 
-                path2.TrimEnd(trimChars),
-                path3.TrimEnd(trimChars),
-                path4), ensureLeadingSeparator);
+                path1, 
+                path2.TrimStart(trimChars),
+                path3.TrimStart(trimChars),
+                path4.TrimStart(trimChars)), ensureLeadingSeparator);
 
             return joined[0] == '\\' ? '/' + joined[1..] : joined;
         }

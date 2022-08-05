@@ -124,9 +124,6 @@ namespace Smartstore.IO
         public IChangeToken Watch(string filter)
             => _compositeFileProvider.Watch(filter);
 
-        public string PathCombine(params string[] paths)
-            => PathUtility.Combine(paths);
-
         public string MapPath(string subpath)
         {
             IFileEntry entry = null;

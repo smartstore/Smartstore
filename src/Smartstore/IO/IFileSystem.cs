@@ -20,14 +20,6 @@ namespace Smartstore.IO
         string Root { get; }
 
         /// <summary>
-        /// Combines multiple path parts using '/' as directory separator char.
-        /// </summary>
-        /// <param name="paths">Path parts.</param>
-        /// <returns>Combined path</returns>
-        /// <remarks>I don't like this name either :-) But changing Path.Combine to PathCombine is really neat.</remarks>
-        string PathCombine(params string[] paths);
-
-        /// <summary>
         /// Maps a given subpath to a physical full storage specific path. 
         /// </summary>
         /// <param name="subpath">The relative path to the entry within the storage.</param>

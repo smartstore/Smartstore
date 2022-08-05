@@ -1,4 +1,6 @@
-﻿namespace Smartstore.Core.DataExchange.Export.Deployment
+﻿using Smartstore.IO;
+
+namespace Smartstore.Core.DataExchange.Export.Deployment
 {
     public class PublicFolderPublisher : IFilePublisher
     {
@@ -27,7 +29,7 @@
 
                     using var stream = await zipFile.OpenReadAsync(cancelToken);
 
-                    var newPath = deploymentDir.FileSystem.PathCombine(deploymentDir.SubPath, zipFile.Name);
+                    var newPath = PathUtility.Join(deploymentDir.SubPath, zipFile.Name);
                     var newFile = await deploymentDir.FileSystem.CreateFileAsync(newPath, stream, true);
 
                     if (newFile?.Exists ?? false)
@@ -44,7 +46,7 @@
             {
                 // Ugly, but the only way I got it to work with CopyDirectoryAsync.
                 var webRootDir = await _appContext.WebRoot.GetDirectoryAsync(null);
-                var newPath = deploymentDir.FileSystem.PathCombine(webRootDir.Name, deploymentDir.SubPath);
+                var newPath = PathUtility.Join(webRootDir.Name, deploymentDir.SubPath);
 
                 await source.FileSystem.CopyDirectoryAsync(source.SubPath, newPath);
 

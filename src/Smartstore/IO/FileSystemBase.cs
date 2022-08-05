@@ -19,10 +19,6 @@ namespace Smartstore.IO
         public abstract string Root { get; }
 
         /// <inheritdoc/>
-        public virtual string PathCombine(params string[] paths)
-            => PathUtility.Combine(paths);
-
-        /// <inheritdoc/>
         public abstract string MapPath(string subpath);
 
         /// <inheritdoc/>
@@ -97,7 +93,7 @@ namespace Smartstore.IO
                 if (!files.Contains(fileName))
                 {
                     // Found our gap
-                    return new AsyncOut<string>(true, PathCombine(dir.SubPath, fileName));
+                    return new AsyncOut<string>(true, PathUtility.Join(dir.SubPath, fileName));
                 }
 
                 i++;

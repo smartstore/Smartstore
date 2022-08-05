@@ -704,7 +704,7 @@ namespace Smartstore.Admin.Controllers
                     var fs = dir.FileSystem;
 
                     var backupName = _db.DataProvider.CreateBackupFileName();
-                    var path = fs.PathCombine(dir.SubPath, backupName);
+                    var path = PathUtility.Join(dir.SubPath, backupName);
 
                     var fullPath = fs.CheckUniqueFileName(path, out var newPath)
                         ? fs.MapPath(newPath)
@@ -741,7 +741,7 @@ namespace Smartstore.Admin.Controllers
                 {
                     var dir = await Services.ApplicationContext.TenantRoot.GetDirectoryAsync(BACKUP_DIR);
                     var fs = dir.FileSystem;
-                    var path = fs.PathCombine(dir.SubPath, backupName);
+                    var path = PathUtility.Join(dir.SubPath, backupName);
 
                     var targetFile = fs.CheckUniqueFileName(path, out var newPath)
                         ? await fs.GetFileAsync(newPath)
@@ -781,7 +781,7 @@ namespace Smartstore.Admin.Controllers
                 {
                     var dir = await Services.ApplicationContext.TenantRoot.GetDirectoryAsync(BACKUP_DIR);
                     var fs = dir.FileSystem;
-                    var fullPath = fs.MapPath(fs.PathCombine(dir.SubPath, name));
+                    var fullPath = fs.MapPath(PathUtility.Join(dir.SubPath, name));
 
                     await _db.DataProvider.RestoreDatabaseAsync(fullPath);
 

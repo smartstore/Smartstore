@@ -130,7 +130,7 @@ namespace Smartstore.Core.DataExchange.Import
 
             static string GetAbsolutePath(IDirectory directory, string fileNameOrRelativePath)
             {
-                return directory.FileSystem.PathCombine(directory.PhysicalPath, fileNameOrRelativePath).Replace('/', '\\');
+                return Path.Combine(directory.PhysicalPath, fileNameOrRelativePath.TrimStart(PathUtility.PathSeparators).Replace('/', '\\'));
             }
         }
 

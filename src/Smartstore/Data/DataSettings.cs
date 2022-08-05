@@ -258,7 +258,7 @@ namespace Smartstore.Data
 
             var fs = _appContext.AppDataRoot;
             var tenantsBaseDir = "Tenants";
-            var curTenantFile = fs.PathCombine(tenantsBaseDir, "current.txt");
+            var curTenantFile = PathUtility.Join(tenantsBaseDir, "current.txt");
 
             string curTenant = null;
 
@@ -271,7 +271,7 @@ namespace Smartstore.Data
                     curTenant = null;
                 }
 
-                if (curTenant != null && !fs.DirectoryExists(fs.PathCombine(tenantsBaseDir, curTenant)))
+                if (curTenant != null && !fs.DirectoryExists(PathUtility.Join(tenantsBaseDir, curTenant)))
                 {
                     // Specified Tenant directory does not exist
                     curTenant = null;
@@ -280,7 +280,7 @@ namespace Smartstore.Data
 
             curTenant ??= "Default";
 
-            var tenantPath = fs.PathCombine(tenantsBaseDir, curTenant);
+            var tenantPath = PathUtility.Join(tenantsBaseDir, curTenant);
 
             if (curTenant.EqualsNoCase("Default") && !fs.DirectoryExists(tenantPath))
             {

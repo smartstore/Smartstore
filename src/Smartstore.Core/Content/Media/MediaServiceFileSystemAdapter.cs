@@ -140,11 +140,6 @@ namespace Smartstore.Core.Content.Media
         public override string MapPath(string subpath)
             => throw new NotSupportedException();
 
-        public override string PathCombine(params string[] paths)
-        {
-            return _mediaService.CombinePaths(paths);
-        }
-
         #endregion
     }
 }

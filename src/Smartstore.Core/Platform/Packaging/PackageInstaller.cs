@@ -196,10 +196,10 @@ namespace Smartstore.Core.Packaging
 
                 if (uniqueDirName == null)
                 {
-                    throw new SmartException(T("Admin.Packaging.TooManyBackups", fs.PathCombine(backupRoot, path)));
+                    throw new SmartException(T("Admin.Packaging.TooManyBackups", PathUtility.Join(backupRoot, path)));
                 }
 
-                uniqueDirName = fs.PathCombine(backupRoot, uniqueDirName);
+                uniqueDirName = PathUtility.Join(backupRoot, uniqueDirName);
                 fs.TryCreateDirectory(uniqueDirName);
 
                 backupDirectory = fs.GetDirectory(uniqueDirName);
