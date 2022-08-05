@@ -54,6 +54,10 @@ namespace Smartstore.Admin.Models.Localization
         public LanguageValidator(Localizer T)
         {
             RuleFor(x => x.Name).NotEmpty();
+            RuleFor(x => x.FlagImageFileName).NotEmpty();
+            RuleFor(x => x.UniqueSeoCode).NotEmpty();
+            // Annoying, never validating rule.
+            //RuleFor(x => x.UniqueSeoCode).Length(2);
 
             RuleFor(x => x.LanguageCulture)
                 .Must(x =>
@@ -69,10 +73,6 @@ namespace Smartstore.Admin.Models.Localization
                     }
                 })
                 .WithMessage(T("Admin.Configuration.Languages.Fields.LanguageCulture.Validation"));
-
-            RuleFor(x => x.UniqueSeoCode).NotEmpty();
-            // Annoying, never validating rule.
-            //RuleFor(x => x.UniqueSeoCode).Length(2);
         }
     }
 }

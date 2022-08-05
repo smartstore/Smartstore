@@ -781,6 +781,8 @@ namespace Smartstore.Admin.Controllers
                 x.TwoLetterIsoCode.EmptyNull().ToLower(),
                 x => x.GetLocalized(y => y.Name, Services.WorkContext.WorkingLanguage, true, false));
 
+            var allCulturesMap = allCultures.ToDictionarySafe(x => x.TwoLetterISOLanguageName);
+
             var flagsDir = await Services.ApplicationContext.WebRoot.GetDirectoryAsync("images/flags");
             var flags = flagsDir.EnumerateFilesAsync();
 
@@ -794,12 +796,12 @@ namespace Smartstore.Admin.Controllers
                     countryDescription = $"{allCountryNames[name]} [{name}]";
                 }
 
-                if (countryDescription.IsEmpty())
+                if (countryDescription.IsEmpty() && allCulturesMap.TryGetValue(name, out var ci))
                 {
-                    countryDescription = name;
+                    countryDescription = $"{ci.DisplayName} [{name}]";
                 }
 
-                countryFlags.Add(new SelectListItem { Text = countryDescription, Value = flag.Name });
+                countryFlags.Add(new SelectListItem { Text = countryDescription.NullEmpty() ?? name, Value = flag.Name });
             }
 
             ViewBag.CountryFlags = countryFlags.OrderBy(x => x.Text).ToList();
