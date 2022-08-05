@@ -328,7 +328,7 @@ namespace Smartstore.Admin.Controllers
         private async Task<JsonResult> RenameDirAsync(string path, string name)
         {
             path = GetRelativePath(path);
-            var newPath = PathUtility.Combine(Path.GetDirectoryName(path), name);
+            var newPath = PathUtility.Join(Path.GetDirectoryName(path), name);
             await _fileSystem.MoveEntryAsync(path, newPath);
             return Json(GetResultMessage());
         }
@@ -350,7 +350,7 @@ namespace Smartstore.Admin.Controllers
             }
 
             var dir = await _fileSystem.GetDirectoryForFileAsync(path);
-            var newPath = PathUtility.Combine(dir.SubPath, newName);
+            var newPath = PathUtility.Join(dir.SubPath, newName);
 
             await _fileSystem.MoveEntryAsync(path, newPath);
             return Json(GetResultMessage());
@@ -358,7 +358,7 @@ namespace Smartstore.Admin.Controllers
 
         private async Task<JsonResult> MoveDirAsync(string path, string newPath)
         {
-            newPath = PathUtility.Combine(GetRelativePath(newPath), Path.GetFileName(path));
+            newPath = PathUtility.Join(GetRelativePath(newPath), Path.GetFileName(path));
             await _fileSystem.MoveEntryAsync(GetRelativePath(path), newPath);
             return Json(GetResultMessage());
         }
@@ -373,7 +373,7 @@ namespace Smartstore.Admin.Controllers
                 throw new FileNotFoundException($"File {path} does not exist.", path);
             }
 
-            newPath = PathUtility.Combine(GetRelativePath(newPath), file.Name);
+            newPath = PathUtility.Join(GetRelativePath(newPath), file.Name);
 
             if ((await _fileSystem.CheckUniqueFileNameAsync(newPath)).Out(out var uniquePath))
             {
@@ -419,7 +419,7 @@ namespace Smartstore.Admin.Controllers
         private async Task<JsonResult> CreateDirAsync(string path, string name)
         {
             path = GetRelativePath(path);
-            path = PathUtility.Combine(path, name);
+            path = PathUtility.Join(path, name);
 
             var dir = await _fileSystem.GetDirectoryAsync(path);
             if (dir.Exists)
@@ -456,7 +456,7 @@ namespace Smartstore.Admin.Controllers
 
                     if (IsAllowedFileType(extension))
                     {
-                        var path = PathUtility.Combine(destinationPath, uploadedFile.FileName);
+                        var path = PathUtility.Join(destinationPath, uploadedFile.FileName);
                         if ((await _fileSystem.CheckUniqueFileNameAsync(path)).Out(out var uniquePath))
                         {
                             path = uniquePath;

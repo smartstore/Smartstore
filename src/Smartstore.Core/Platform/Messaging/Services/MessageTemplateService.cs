@@ -208,10 +208,10 @@ namespace Smartstore.Core.Messaging
             var testPaths = new List<string>(3) { culture, "en" };
             if (culture.IndexOf('-') > -1)
             {
-                testPaths.Insert(1, culture.Substring(0, 2));
+                testPaths.Insert(1, culture[..2]);
             }
 
-            foreach (var path in testPaths.Select(x => PathUtility.Combine(dir.SubPath, x)))
+            foreach (var path in testPaths.Select(x => PathUtility.Join(dir.SubPath, x)))
             {
                 var subDir = root.GetDirectory(path);
                 if (subDir.Exists)

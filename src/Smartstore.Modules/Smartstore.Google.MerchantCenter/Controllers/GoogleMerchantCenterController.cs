@@ -258,10 +258,10 @@ namespace Smartstore.Google.MerchantCenter.Controllers
                 var filter = searchTerm.HasValue();
                 string line;
 
-                var file = module.ContentRoot.GetFile(PathUtility.Combine(fileDir, fileName));
+                var file = module.ContentRoot.GetFile(PathUtility.Join(fileDir, fileName));
                 if (!file.Exists)
                 {
-                    file = module.ContentRoot.GetFile(PathUtility.Combine(fileDir, "taxonomy.en-US.txt"));
+                    file = module.ContentRoot.GetFile(PathUtility.Join(fileDir, "taxonomy.en-US.txt"));
                 }
 
                 int numSkipped = 0;

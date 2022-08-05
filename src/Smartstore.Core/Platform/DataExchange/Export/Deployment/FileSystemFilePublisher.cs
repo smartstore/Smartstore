@@ -19,7 +19,7 @@ namespace Smartstore.Core.DataExchange.Export.Deployment
                 return;
             }
 
-            var root = PathUtility.IsAbsolutePhysicalPath(deployment.FileSystemPath)
+            var root = PathUtility.IsAbsolutePhysicalPath(deployment.FileSystemPath.AsSpan())
                 ? new LocalFileSystem(Directory.GetDirectoryRoot(deployment.FileSystemPath))
                 : _appContext.ContentRoot;
 

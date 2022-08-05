@@ -147,7 +147,7 @@ namespace Smartstore.Templating.Liquid
 
             if (!path.StartsWith("~/"))
             {
-                path = PathUtility.Combine(
+                path = PathUtility.Join(
                     "Views/Shared/EmailTemplates",
                     PathUtility.NormalizeRelativePath(path).EnsureEndsWith(".liquid"));
 

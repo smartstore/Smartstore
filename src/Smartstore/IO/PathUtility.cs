@@ -8,6 +8,9 @@ namespace Smartstore.IO
         public static readonly char[] PathSeparators = (new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar }).Distinct().ToArray();
         public const string CurrentDirectoryToken = ".";
         public const string ParentDirectoryToken = "..";
+        public const string ParentDirectorySegment = "../";
+
+        internal const string SeparatorString = "/";
 
         private static readonly char[] _invalidPathChars;
         private static readonly char[] _invalidFileNameChars;
@@ -24,13 +27,180 @@ namespace Smartstore.IO
             _invalidCharsPattern = new Regex(string.Format(@"[{0}]+", invalidChars));
         }
 
+        #region Combine
+
         /// <summary>
-        /// Checks whether path is empty or starts with '/' or '\'
+        /// Combines multiple path parts into a single path using '/' as directory separator char.
+        /// This method considers rooting and path navigation, means: [ "hello", "/world" ] results in "/world", not "hello/world".
+        /// [ "hello/world", "../anotherworld" ] results in "hello/anotherworld".
         /// </summary>
-        public static bool IsRootedPath(string basepath)
+        /// <param name="paths">An array of parts of the path.</param>
+        /// <returns>Combined path</returns>
+        public static string Combine(params string[] paths)
         {
-            return (string.IsNullOrEmpty(basepath) || PathSeparators.Any(x => x == basepath[0]));
+            if (paths == null)
+            {
+                throw new ArgumentNullException(nameof(paths));
+            }
+
+            if (paths.Length == 0)
+            {
+                return null;
+            } 
+
+            var result = paths[0];
+
+            if (paths.Length == 1 || (paths.Length == 2 && string.IsNullOrEmpty(paths[1])))
+            {
+                return result;
+            }
+
+            for (var i = 1; i < paths.Length; i++)
+            {
+                result = CombineInternal(result, paths[i]);
+            }
+
+            return result;
         }
+
+        private static string CombineInternal(string first, string second)
+        {
+            Guard.NotNull(first, nameof(first));
+
+            if (string.IsNullOrWhiteSpace(second))
+            {
+                return first;
+            }
+
+            if (Path.IsPathRooted(second))
+            {
+                // "second" is already an app-rooted path. Return it as-is.
+                return second;
+            }
+
+            if (second.Length > 2 && second.Contains(ParentDirectorySegment, StringComparison.OrdinalIgnoreCase))
+            {
+                return CombineSlow(first, second);
+            }
+
+            var firstNeedsSeparator = first.Length > 0 && !IsDirectorySeparatorChar(first[^1]);
+
+            return firstNeedsSeparator
+                ? first + '/' + second
+                : first + second;
+        }
+
+        /// <summary>
+        /// Can handle ../ tokens
+        /// </summary>
+        private static string CombineSlow(string left, string right)
+        {
+            var segments = left.Split(PathSeparators, StringSplitOptions.RemoveEmptyEntries).ToList();
+            var rightSegments = right.Split(PathSeparators, StringSplitOptions.RemoveEmptyEntries);
+
+            foreach (var segment in rightSegments)
+            {
+                if (segment == "..")
+                {
+                    if (segments.Count == 0)
+                    {
+                        throw new InvalidOperationException($"Path '{right}' navigates above root '{left}'.");
+                    }
+                    segments.RemoveAt(segments.Count - 1);
+                }
+                else
+                {
+                    segments.Add(segment);
+                }
+            }
+
+            var result = string.Join('/', segments);
+
+            if (IsDirectorySeparatorChar(left[0]))
+            {
+                result = left[0] + result;
+            }
+
+            if (IsDirectorySeparatorChar(right[^1]))
+            {
+                result += right[^1];
+            }
+
+            return result;
+        }
+
+        #endregion
+
+        #region Join
+
+        /// <summary>
+        /// Concatenates path components into a single path using '/' as directory separator char.
+        /// Unlike Combine(), Join() does not consider rooting or path navigation. 
+        /// It simply combines paths, ensuring that there is a directory separator between them.
+        /// </summary>
+        /// <param name="ensureLeadingSeparator">
+        /// <c>true</c>: ensures that normalized path starts with '/', 
+        /// <c>false</c>: removes leading '/',
+        /// <c>null</c>: leave it as it is.
+        /// </param>
+        /// <returns>The concatenated path</returns>
+        public static string Join(string path1, string path2, bool? ensureLeadingSeparator = false)
+        {
+            return Join(path1.AsSpan(), path2.AsSpan(), ensureLeadingSeparator);
+        }
+
+        /// <inheritdoc cref="Join(string, string)"/>
+        public static string Join(string path1, string path2, string path3, bool? ensureLeadingSeparator = false)
+        {
+            return Join(path1.AsSpan(), path2.AsSpan(), path3.AsSpan(), ensureLeadingSeparator);
+        }
+
+        /// <inheritdoc cref="Join(string, string)"/>
+        public static string Join(string path1, string path2, string path3, string path4, bool? ensureLeadingSeparator = false)
+        {
+            return Join(path1.AsSpan(), path2.AsSpan(), path3.AsSpan(), path4.AsSpan(), ensureLeadingSeparator);
+        }
+
+        /// <inheritdoc cref="Join(string, string)"/>
+        public static string Join(ReadOnlySpan<char> path1, ReadOnlySpan<char> path2, bool? ensureLeadingSeparator = false)
+        {
+            ReadOnlySpan<char> trimChars = PathSeparators;
+
+            var joined = NormalizeRelativePath(Path.Join(
+                path1.TrimEnd(trimChars),
+                path2), ensureLeadingSeparator);
+
+            return joined[0] == '\\' ? '/' + joined[1..] : joined;
+        }
+
+        /// <inheritdoc cref="Join(string, string)"/>
+        public static string Join(ReadOnlySpan<char> path1, ReadOnlySpan<char> path2, ReadOnlySpan<char> path3, bool? ensureLeadingSeparator = false)
+        {
+            ReadOnlySpan<char> trimChars = PathSeparators;
+
+            var joined = NormalizeRelativePath(Path.Join(
+                path1.TrimEnd(trimChars),
+                path2.TrimEnd(trimChars),
+                path3), ensureLeadingSeparator);
+
+            return joined[0] == '\\' ? '/' + joined[1..] : joined;
+        }
+
+        /// <inheritdoc cref="Join(string, string)"/>
+        public static string Join(ReadOnlySpan<char> path1, ReadOnlySpan<char> path2, ReadOnlySpan<char> path3, ReadOnlySpan<char> path4, bool? ensureLeadingSeparator = false)
+        {
+            ReadOnlySpan<char> trimChars = PathSeparators;
+
+            var joined = NormalizeRelativePath(Path.Join(
+                path1.TrimEnd(trimChars), 
+                path2.TrimEnd(trimChars),
+                path3.TrimEnd(trimChars),
+                path4), ensureLeadingSeparator);
+
+            return joined[0] == '\\' ? '/' + joined[1..] : joined;
+        }
+
+        #endregion
 
         /// <summary>
         /// Determines the relative path from <paramref name="fromPath"/> to <paramref name="toPath"/>
@@ -58,11 +228,21 @@ namespace Smartstore.IO
         /// backslashes to forward slashes and optionally removing the leading slash.
         /// </summary>
         /// <param name="path">Relative path to normalize</param>
-        /// <param name="ensureLeadingSlash"><c>true</c>: ensures that normalized path starts with '/', <c>false</c>: removes leading '/'.</param>
+        /// <param name="ensureLeadingSeparator">
+        /// <c>true</c>: ensures that normalized path starts with '/', 
+        /// <c>false</c>: removes leading '/',
+        /// <c>null</c>: leave it as it is.
+        /// </param>
         /// <returns>Normalized relative path</returns>
-        public static string NormalizeRelativePath(string path, bool ensureLeadingSlash = false)
+        public static string NormalizeRelativePath(string path, bool? ensureLeadingSeparator = false)
         {
-            if (string.IsNullOrEmpty(path))
+            return NormalizeRelativePath(path.AsSpan(), ensureLeadingSeparator).ToString();
+        }
+
+        /// <inheritdoc cref="NormalizeRelativePath(string, bool?)"/>
+        public static ReadOnlySpan<char> NormalizeRelativePath(ReadOnlySpan<char> path, bool? ensureLeadingSeparator = false)
+        {
+            if (path.Length == 0)
             {
                 return path;
             }
@@ -80,133 +260,34 @@ namespace Smartstore.IO
                 path = path[1..];
             }
 
-            var length = path.Length;
-            var hasLeadingSlash = path[0] == '/' || path[0] == '\\';
-            var addLeadingSlash = ensureLeadingSlash && !hasLeadingSlash;
-            var removeLeadingSlash = !ensureLeadingSlash && hasLeadingSlash;
-            var transformSlashes = path.IndexOf('\\') != -1;
+            var hasLeadingSeparator = IsDirectorySeparatorChar(path[0]);
+            var addLeadingSeparator = ensureLeadingSeparator == true && !hasLeadingSeparator;
+            var removeLeadingSeparator = ensureLeadingSeparator == false && hasLeadingSeparator;
+            var transformSeparators = path.IndexOf('\\') != -1;
 
-            if (!addLeadingSlash && !removeLeadingSlash && !transformSlashes)
+            if (addLeadingSeparator)
             {
-                return path;
+                return transformSeparators ? string.Concat("/", ApplySeparatorTransform(ref path)) : string.Concat("/", path);
             }
 
-            if (addLeadingSlash)
+            if (removeLeadingSeparator)
             {
-                length++;
-            }
-            else if (removeLeadingSlash)
-            {
-                length--;
+                path = path[1..];
             }
 
-            return string.Create(length, (path, addLeadingSlash, removeLeadingSlash), (span, tuple) =>
-            {
-                var (pathValue, addLeadingSlashValue, removeLeadingSlashValue) = tuple;
-                var spanIndex = 0;
+            return transformSeparators ? ApplySeparatorTransform(ref path) : path;
 
-                if (addLeadingSlashValue)
+            static ReadOnlySpan<char> ApplySeparatorTransform(ref ReadOnlySpan<char> value)
+            {
+                var destination = new char[value.Length];
+
+                for (var i = 0; i < value.Length; i++)
                 {
-                    span[spanIndex++] = '/';
+                    destination[i] = value[i] == '\\' ? '/' : value[i];
                 }
 
-                int start = removeLeadingSlashValue ? 1 : 0;
-                int end = pathValue.Length - 1;
-
-                for (var i = start; i <= end; i++)
-                {
-                    span[spanIndex++] = pathValue[i] == '\\' ? '/' : pathValue[i];
-                }
-            });
-        }
-
-        /// <summary>
-        /// Combines multiple path parts using '/' as directory separator char.
-        /// </summary>
-        /// <param name="paths">Path parts.</param>
-        /// <returns>Combined path</returns>
-        public static string Combine(params string[] paths)
-        {
-            if (paths.Length == 0)
-                return null;
-
-            var result = paths[0];
-
-            if (paths.Length == 1 || (paths.Length == 2 && string.IsNullOrEmpty(paths[1])))
-            {
-                return result;
+                return destination;
             }
-
-            for (var i = 1; i < paths.Length; i++)
-            {
-                result = InternalCombine(result, paths[i]);
-            }
-
-            return result;
-        }
-
-        private static string InternalCombine(string path, string other)
-        {
-            Guard.NotNull(path, nameof(path));
-
-            if (string.IsNullOrWhiteSpace(other))
-            {
-                return path;
-            }
-
-            if (other.StartsWith('/') || other.StartsWith('\\'))
-            {
-                // "other" is already an app-rooted path. Return it as-is.
-                return other;
-            }
-
-            if (other.Length > 2 && other.Contains("../"))
-            {
-                return JoinPaths(path, other);
-            }
-
-            var index = path.LastIndexOfAny(PathSeparators);
-            var result = index != path.Length - 1
-                ? path + '/' + other
-                : path + other;
-
-            return result;
-        }
-
-        private static string JoinPaths(string left, string right)
-        {
-            var segments = left.Split(PathSeparators, StringSplitOptions.RemoveEmptyEntries).ToList();
-            var rightSegments = right.Split(PathSeparators, StringSplitOptions.RemoveEmptyEntries);
-
-            foreach (var segment in rightSegments)
-            {
-                if (segment == "..")
-                {
-                    if (segments.Count == 0)
-                    {
-                        throw new InvalidOperationException($"Path '{right}' navigates above root '{left}'.");
-                    }
-                    segments.RemoveAt(segments.Count - 1);
-                }
-                else
-                {
-                    segments.Add(segment);
-                }
-            }
-
-            var result = string.Join('/', segments);
-
-            if (PathSeparators.Contains(left[0]))
-            {
-                result = left[0] + result;
-            }
-
-            if (PathSeparators.Contains(right[^1]))
-            {
-                result += right[^1];
-            }
-
-            return result;
         }
 
         /// <summary>
@@ -243,7 +324,12 @@ namespace Smartstore.IO
 
         public static bool HasInvalidPathChars(string path, bool checkWildcardChars = false)
         {
-            if (path == null)
+            return path != null && HasInvalidPathChars(path.AsSpan(), checkWildcardChars);
+        }
+
+        public static bool HasInvalidPathChars(ReadOnlySpan<char> path, bool checkWildcardChars = false)
+        {
+            if (path.Length == 0)
             {
                 return false;
             }
@@ -254,8 +340,15 @@ namespace Smartstore.IO
 
         public static bool HasInvalidFileNameChars(string fileName, bool checkWildcardChars = false)
         {
-            if (fileName == null)
+            return fileName != null && HasInvalidFileNameChars(fileName.AsSpan(), checkWildcardChars);
+        }
+
+        public static bool HasInvalidFileNameChars(ReadOnlySpan<char> fileName, bool checkWildcardChars = false)
+        {
+            if (fileName.Length == 0)
+            {
                 return false;
+            }
 
             return fileName.IndexOfAny(_invalidFileNameChars) >= 0
                 || (checkWildcardChars && ContainsWildcardChars(fileName, 0));
@@ -263,13 +356,15 @@ namespace Smartstore.IO
 
         public static bool HasInvalidFilterChars(string path)
         {
-            if (path == null)
-                return false;
-
-            return path.IndexOfAny(_invalidFilterChars) >= 0;
+            return path != null && path.IndexOfAny(_invalidFilterChars) >= 0;
         }
 
-        private static bool ContainsWildcardChars(string path, int startIndex = 0)
+        public static bool HasInvalidFilterChars(ReadOnlySpan<char> path)
+        {
+            return path.Length > 0 && path.IndexOfAny(_invalidFilterChars) >= 0;
+        }
+
+        private static bool ContainsWildcardChars(ReadOnlySpan<char> path, int startIndex = 0)
         {
             for (int i = startIndex; i < path.Length; i++)
             {
@@ -289,6 +384,17 @@ namespace Smartstore.IO
             if (!string.IsNullOrEmpty(path) && path[^1] != Path.DirectorySeparatorChar)
             {
                 return path.TrimEnd(' ', Path.AltDirectorySeparatorChar) + Path.DirectorySeparatorChar;
+            }
+
+            return path;
+        }
+
+        public static ReadOnlySpan<char> EnsureTrailingSlash(ReadOnlySpan<char> path)
+        {
+            if (path.Length > 0 && path[^1] != Path.DirectorySeparatorChar)
+            {
+                var trimChars = " " + Path.AltDirectorySeparatorChar;
+                return string.Concat(path.TrimEnd(trimChars.AsSpan()), Path.DirectorySeparatorChar.ToString());
             }
 
             return path;
@@ -330,19 +436,27 @@ namespace Smartstore.IO
         /// <returns><c>true</c> if path is fully qualified</returns>
         public static bool IsAbsolutePhysicalPath(string path)
         {
-            if (path == null)
-            {
-                return false;
-            }
+            return path != null && Path.IsPathFullyQualified(path);
+        }
 
+        /// <summary>
+        /// Checks whether the given path is a fully qualified absolute path (either UNC or rooted with drive letter)
+        /// </summary>
+        /// <param name="path">Path to check</param>
+        /// <returns><c>true</c> if path is fully qualified</returns>
+        public static bool IsAbsolutePhysicalPath(ReadOnlySpan<char> path)
+        {
             return Path.IsPathFullyQualified(path);
         }
 
         internal static bool IsUncSharePath(string path) =>
-            (((path.Length > 2) && IsDirectorySeparatorChar(path[0])) && IsDirectorySeparatorChar(path[1]));
+            (((path.Length > 2) && IsDirectorySeparatorChar(path[0])) && path[1] == path[0]);
 
+        internal static bool IsUncSharePath(ReadOnlySpan<char> path) =>
+            (((path.Length > 2) && IsDirectorySeparatorChar(path[0])) && path[1] == path[0]);
 
         private static bool IsDirectorySeparatorChar(char c)
-            => c == Path.DirectorySeparatorChar || c == Path.AltDirectorySeparatorChar;
+            // Swap check order because we mostly deal with forward slashes
+            => c == Path.AltDirectorySeparatorChar || c == Path.DirectorySeparatorChar;
     }
 }

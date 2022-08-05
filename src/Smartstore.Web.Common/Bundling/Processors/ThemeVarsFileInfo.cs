@@ -20,7 +20,7 @@ namespace Smartstore.Web.Bundling.Processors
         private ThemeVarsFileInfo(string name)
         {
             Name = name;
-            PhysicalPath = PathUtility.Combine("/.app/", name);
+            PhysicalPath = PathUtility.Join("/.app/", name);
             LastModified = DateTimeOffset.UtcNow;
         }
 
