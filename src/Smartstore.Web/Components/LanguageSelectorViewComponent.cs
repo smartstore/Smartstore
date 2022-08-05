@@ -144,7 +144,7 @@ namespace Smartstore.Web.Components
                 }
             }
 
-            return new LocalizedUrlHelper(Request);
+            return new LocalizedUrlHelper(Request.PathBase, Request.Path + Request.QueryString);
         }
     }
 }
