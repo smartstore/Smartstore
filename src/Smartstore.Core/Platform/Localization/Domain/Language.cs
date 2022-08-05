@@ -54,13 +54,13 @@ namespace Smartstore.Core.Localization
         /// <summary>
         /// Gets or sets the unique SEO code (e.g. "en")
         /// </summary>
-        [Required, StringLength(2)]
+        [StringLength(2)]
         public string UniqueSeoCode { get; set; }
 
         /// <summary>
         /// Gets or sets the flag image file name
         /// </summary>
-        [Required, StringLength(50)]
+        [StringLength(50)]
         public string FlagImageFileName { get; set; }
 
         /// <summary>
