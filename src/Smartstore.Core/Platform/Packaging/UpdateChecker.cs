@@ -80,7 +80,6 @@ namespace Smartstore.Core.Packaging
 
                 try
                 {
-                    // TODO: (mg) (core) DLM must know about "Smartstore"
                     string url = $"https://dlm.smartstore.com/api/v1/apprelease/CheckUpdate?app=Smartstore&version={curVersion}&language={lang}";
                     var client = _httpClientFactory.CreateClient();
 
