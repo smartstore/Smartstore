@@ -120,14 +120,11 @@
         <div class="adminData">
             <select asp-for="Filter.CategoryIds" 
                 asp-items="@selectedCategories" 
-                asp-placeholder="@T("Common.Unspecified")"
                 multiple="multiple"
                 data-select="True" 
                 data-select-lazy="True" 
                 data-select-url="@Url.Action("AllCategories", "Category", new { selectedIds = string.Join(",", selectedCategories.Select(x => x.Value)) })">
             </select>
-            @*TODO: (mg) (core) Super stupid validation issue. Right clearing "x" sends empty string to server (which is absolutely ok) but is validated to "The value '' is invalid".*@
-            @*Solution: requires a nullable model property like int?[] (probably lots of refactoring) or a custom 'NotRequired' attribute.*@
             <span asp-validation-for="Filter.CategoryIds"></span>
         </div>
     </div>
