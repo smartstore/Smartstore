@@ -10,15 +10,13 @@
             Scope = scope;
             EntityId = entityId;
             OperationType = operationType;
-            CreatedOnUtc = DateTime.UtcNow;
         }
 
         public string Scope { get; }
         public int EntityId { get; }
         public IndexOperationType OperationType { get; }
-        public DateTime CreatedOnUtc { get; init; }
 
         public override string ToString()
-            => $"IndexBacklogItem (Scope: {Scope}, EntityId: {EntityId}, Operation: {OperationType}, CreatedOnUtc: {CreatedOnUtc})";
+            => $"IndexBacklogItem (Scope: {Scope}, EntityId: {EntityId}, Operation: {OperationType})";
     }
 }

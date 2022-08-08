@@ -108,9 +108,7 @@ namespace Smartstore.Core.Search
         {
             if (services.WorkContext.CurrentCustomer.IsAdmin() && services.Container.TryResolve<IUrlHelper>(out var urlHelper))
             {
-                var indexingUrl = urlHelper.Action("Indexing", "MegaSearch", new { area = "Smartstore.MegaSearch" });
-                // TODO: (mg) (core) Verify MegaSearch system name everywhere.
-                // TODO: (mg) (core) Be careful with such URLs! They will change most probably (ChildAction <> ViewComponent etc.). Don't leave such code behind without any comment.
+                var indexingUrl = urlHelper.Action("Indexing", "MegaSearch", new { area = "Admin", scope = "Catalog" });
                 var configureUrl = urlHelper.Action("ConfigureModule", "Module", new { area = "Admin", systemName = "Smartstore.MegaSearch" });
                 var notification = services.Localization.GetResource("Search.IndexingRequiredNotification").FormatInvariant(indexingUrl, configureUrl);
 
