@@ -13,7 +13,6 @@ using Smartstore.Web.Controllers;
 
 namespace Smartstore.PayPal.Controllers
 {
-    // TODO: (mh) (core) Consolidate both controllers into one? TBD with MC.
     public class PayPalController : PublicController
     {
         private readonly SmartDbContext _db;
@@ -56,7 +55,7 @@ namespace Smartstore.PayPal.Controllers
             var warnings = new List<string>();
             var cart = await _shoppingCartService.GetCartAsync(customer, ShoppingCartType.ShoppingCart, store.Id);
 
-            var isCartValid = await _shoppingCartService.SaveCartDataAsync(cart, warnings, query, useRewardPoints);
+            var isCartValid = await _shoppingCartService.SaveCartDataAsync(cart, warnings, query, useRewardPoints, false);
             if (isCartValid)
             {
                 var checkoutState = _checkoutStateAccessor.CheckoutState;
