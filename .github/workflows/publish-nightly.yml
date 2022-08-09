@@ -4,8 +4,8 @@ on:
   # Manual trigger
   workflow_dispatch:
   # At 06:00 AM, on Tuesday, Thursday, and Saturday
-  schedule:
-  - cron: "0 6 * * TUE,THU,SAT"
+  #schedule:
+  #- cron: "0 6 * * TUE,THU,SAT"
   
 env:
   REGISTRY: ghcr.io
