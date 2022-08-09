@@ -1,8 +1,10 @@
 name: Create and publish nightly dev Docker image
 
 on:
-  schedule:
+  # Manual trigger
+  workflow_dispatch:
   # At 06:00 AM, on Tuesday, Thursday, and Saturday
+  schedule:
   - cron: "0 6 * * TUE,THU,SAT"
   
 env:
@@ -26,6 +28,11 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
+      
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: 6.0.x
     
     - name: Log in to the GitHub Container registry
       uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
