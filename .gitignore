@@ -9,6 +9,9 @@
 .vs/
 #.vscode/
 
+# Secrets
+*.secrets
+
 # Build results
 [Dd]ebug/
 [Dd]ebugNoRazorCompile/

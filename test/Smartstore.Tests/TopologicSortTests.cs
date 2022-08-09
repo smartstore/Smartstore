@@ -46,7 +46,7 @@ namespace Smartstore.Tests
             var items = new SortableItem[] { c, e, b, d, a, i, g, f, h };
 
             var sortedItems = items.SortTopological(StringComparer.OrdinalIgnoreCase);
-            Console.WriteLine(String.Join(", ", sortedItems.Select(x => x.Key).ToArray()));
+            //Console.WriteLine(String.Join(", ", sortedItems.Select(x => x.Key).ToArray()));
 
             Assert.AreEqual(items.Length, sortedItems.Length);
             Assert.Less(Array.IndexOf(sortedItems, a), Array.IndexOf(sortedItems, b));

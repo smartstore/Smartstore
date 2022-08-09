@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Text;
 using NUnit.Framework;
 using Smartstore.Core.DataExchange.Csv;
@@ -37,7 +38,7 @@ namespace Smartstore.Core.Tests.DataExchange
                 writer.NextRow();
             }
 
-            string expected = "1234;abc;def;ghi;\"j;klmn\"\"o\";pqrs" + "\r\n";
+            string expected = "1234;abc;def;ghi;\"j;klmn\"\"o\";pqrs" + Environment.NewLine;
 
             Assert.AreEqual(expected, sb.ToString());
         }
@@ -71,7 +72,7 @@ namespace Smartstore.Core.Tests.DataExchange
                 writer.NextRow();
             }
 
-            string expected = "1234;abc;def;ghi;\"jk\rl\nmno\";pqrs" + "\r\n";
+            string expected = "1234;abc;def;ghi;\"jk\rl\nmno\";pqrs" + Environment.NewLine;
 
             Assert.AreEqual(expected, sb.ToString());
         }
@@ -105,7 +106,7 @@ namespace Smartstore.Core.Tests.DataExchange
                 writer.NextRow();
             }
 
-            string expected = "'1234';'abc';'def';'ghi';'jk\rl\nmno';'pqrs'" + "\r\n";
+            string expected = "'1234';'abc';'def';'ghi';'jk\rl\nmno';'pqrs'" + Environment.NewLine;
 
             Assert.AreEqual(expected, sb.ToString());
         }
@@ -139,7 +140,7 @@ namespace Smartstore.Core.Tests.DataExchange
                 writer.NextRow();
             }
 
-            string expected = "'1234';'abc';'def';'ghi';'jk\\'lmo';'pqrs'" + "\r\n";
+            string expected = "'1234';'abc';'def';'ghi';'jk\\'lmo';'pqrs'" + Environment.NewLine;
 
             Assert.AreEqual(expected, sb.ToString());
         }
