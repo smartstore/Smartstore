@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 using System.Runtime.CompilerServices;
+using Smartstore.Utilities;
 
 namespace Smartstore.Core.Localization
 {
@@ -107,7 +108,7 @@ namespace Smartstore.Core.Localization
 
                 if (stripRegion)
                 {
-                    languageName = languageName.Substring(0, bracketIndex).TrimEnd();
+                    languageName = languageName[..bracketIndex].TrimEnd();
                 }
             }
 
@@ -140,6 +141,50 @@ namespace Smartstore.Core.Localization
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether the current culture's TextInfo object
+        //  represents a writing system where text flows from right to left.
+        /// </summary>
+        public static bool IsRtl 
+            => CultureInfo.CurrentUICulture.TextInfo.IsRightToLeft;
+
+        public static string GetBaseCultureName(string cultureName)
+        {
+            var idx = cultureName.IndexOf('-', StringComparison.Ordinal);
+            return idx > -1
+                ? cultureName[..idx]
+                : cultureName;
+        }
+
+        public static IDisposable Use(string culture, string uiCulture = null)
+        {
+            Guard.NotEmpty(culture, nameof(culture));
+
+            return Use(
+                new CultureInfo(culture),
+                uiCulture == null
+                    ? null
+                    : new CultureInfo(uiCulture)
+            );
+        }
+
+        public static IDisposable Use(CultureInfo culture, CultureInfo uiCulture = null)
+        {
+            Guard.NotNull(culture, nameof(culture));
+
+            var currentCulture = CultureInfo.CurrentCulture;
+            var currentUiCulture = CultureInfo.CurrentUICulture;
+
+            CultureInfo.CurrentCulture = culture;
+            CultureInfo.CurrentUICulture = uiCulture ?? culture;
+
+            return new ActionDisposable(() =>
+            {
+                CultureInfo.CurrentCulture = currentCulture;
+                CultureInfo.CurrentUICulture = currentUiCulture;
+            });
         }
     }
 }
