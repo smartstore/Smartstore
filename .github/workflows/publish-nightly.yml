@@ -13,12 +13,14 @@ jobs:
 
   publish:
     name: Build, Publish
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     permissions:
       contents: read
       packages: write
     strategy:
       fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
 
     steps:
     - name: Checkout repository
@@ -32,6 +34,7 @@ jobs:
         password: ${{ secrets.GITHUB_TOKEN }}
     
     - name: Build and push nightly Docker image for linux
+      if: matrix.os == 'ubuntu-latest'
       run: | 
         docker build . --file Dockerfile --tag smartstore/smartstore-linux:nightly
         docker push smartstore/smartstore-linux:nightly
