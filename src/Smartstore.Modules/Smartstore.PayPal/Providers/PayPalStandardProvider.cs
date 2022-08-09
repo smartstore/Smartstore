@@ -50,6 +50,11 @@ namespace Smartstore.PayPal.Providers
 
         public override async Task<ProcessPaymentResult> ProcessPaymentAsync(ProcessPaymentRequest request)
         {
+            if (!request.PaypalOrderId.HasValue())
+            {
+                throw new PayPalException(T("Payment.MissingCheckoutState", "PayPalCheckoutState." + nameof(request.PaypalOrderId)));
+            }
+
             var result = new ProcessPaymentResult
             {
                 NewPaymentStatus = PaymentStatus.Pending,

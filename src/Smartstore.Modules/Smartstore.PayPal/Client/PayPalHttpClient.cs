@@ -86,9 +86,6 @@ namespace Smartstore.PayPal.Client
         {
             Guard.NotNull(request, nameof(request));
 
-            // TODO: (mh) (core) this can lead to exception "Value cannot be null. Parameter 'stringToEscape'" (see Wolfgang's mail 28.07.).
-            // Sessions can expire, so mandatory data in them must be validated when they are used. If PaypalOrderId is missing, then an info like
-            // Payment.MissingCheckoutState should be displayed, including redirection to payment method list or shopping cart page.
             var ordersPatchRequest = new OrdersPatchRequest<object>(request.PaypalOrderId);
 
             var amount = new AmountWithBreakdown
