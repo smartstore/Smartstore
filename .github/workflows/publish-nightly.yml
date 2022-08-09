@@ -12,10 +12,24 @@ env:
 jobs:
 
   publish:
-
+    name: Build, Publish
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      fail-fast: false
 
     steps:
+    - name: Checkout repository
     - uses: actions/checkout@v3
-    - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag smartstore:nightly
+    
+    - name: Log in to the GitHub Container registry
+      uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Build and push Docker image
+      run: docker build . --file Dockerfile --tag smartstore-linux:nightly
