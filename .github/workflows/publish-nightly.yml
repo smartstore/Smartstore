@@ -13,14 +13,13 @@ jobs:
 
   publish:
     name: Build, Publish
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, windows-latest]
+      # This is used to complete the identity challenge
+      # with sigstore/fulcio when running outside of PRs.
+      id-token: write
         
     steps:
     - name: Checkout repository
@@ -34,7 +33,6 @@ jobs:
         password: ${{ secrets.GITHUB_TOKEN }}
         
     - name: Build and push nightly Docker image for linux
-      if: matrix.os == 'ubuntu-latest'
       run: | 
-        docker build . -f Dockerfile -t smartstore/smartstore-linux:nightly
-        docker push smartstore/smartstore-linux:nightly
+        docker build . -f Dockerfile -t ghcr.io/smartstore/smartstore-linux:nightly
+        docker push ghcr.io/smartstore/smartstore-linux:nightly
