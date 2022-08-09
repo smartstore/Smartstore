@@ -71,22 +71,24 @@ namespace Smartstore.Core.Tests.Catalog.Pricing
         [Test]
         public void Can_formatPrice_with_custom_currencyFormatting()
         {
-            Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
-
-            new Money(1234.5M, _currencyEUR).ToString().ShouldEqual("€1234.50");
-
-            _currencyEUR.CustomFormatting = "€ 0.00";
-
-            new Money(1234.5M, _currencyEUR).ToString().ShouldEqual("€ 1234.50");
+            using (CultureHelper.Use("en-US"))
+            {
+                new Money(1234.5M, _currencyEUR).ToString().ShouldEqual("€1234.50");
+                _currencyEUR.CustomFormatting = "€ 0.00";
+                new Money(1234.5M, _currencyEUR).ToString().ShouldEqual("€ 1234.50");
+            }
         }
 
         [Test]
         public void Can_formatPrice_with_distinct_currencyDisplayLocale()
         {
-            _currencyEUR.CustomFormatting = string.Empty;
-
             new Money(1234.5M, _currencyUSD).ToString().ShouldEqual("$1,234.50");
-            new Money(1234.5M, _currencyEUR).ToString().ShouldEqual("1.234,50 €");
+
+            using (CultureHelper.Use("de-DE"))
+            {
+                _currencyEUR.CustomFormatting = string.Empty;
+                new Money(1234.5M, _currencyEUR).ToString().ShouldEqual("1.234,50 €");
+            }
         }
 
         [Test]
