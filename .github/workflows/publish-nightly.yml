@@ -1,7 +1,9 @@
 name: Create and publish nightly dev Docker image
 
 on:
-  workflow_dispatch:
+  schedule:
+  # At 06:00 AM, on Tuesday, Thursday, and Saturday
+  - cron: "0 6 * * TUE,THU,SAT"
   
 env:
   REGISTRY: ghcr.io
