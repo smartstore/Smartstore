@@ -1,4 +1,8 @@
-on: [workflow_dispatch]
+name: Deletes old and failed workflow runs
+
+on:
+  # Manual trigger
+  workflow_dispatch:
 
 jobs:
   delete-workflow-runs:
