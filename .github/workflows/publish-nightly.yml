@@ -17,7 +17,7 @@ jobs:
     name: Build, Test, Publish and Deploy nightly Docker image
     runs-on: ${{ matrix.os }}
     strategy:
-      fail-fast: false
+      #fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
     permissions:
@@ -59,8 +59,8 @@ jobs:
     - name: Publish and Push for Linux
       if: matrix.os == 'ubuntu-latest'
       run: | 
-        dotnet publish src/Smartstore.Web/Smartstore.Web.csproj -c Release -o ./build/artifacts/Community.nightly.linux-x64 --no-restore --no-build --no-self-contained
-        docker build --build-arg VERSION=nightly -f NoBuild.Dockerfile -t ghcr.io/smartstore/smartstore-linux:nightly .
+        dotnet publish src/Smartstore.Web/Smartstore.Web.csproj -c Release -o ./build/release --no-restore --no-build --no-self-contained
+        docker build --build-arg SOURCE=build/release -f NoBuild.Dockerfile -t ghcr.io/smartstore/smartstore-linux:nightly .
         docker push ghcr.io/smartstore/smartstore-linux:nightly
         #docker build --build-arg VERSION=nightly -f NoBuild.Dockerfile -t smartstore/smartstore-linux:nightly .
         #docker push smartstore/smartstore-linux:nightly
@@ -68,8 +68,8 @@ jobs:
     - name: Publish and Push for Windows
       if: matrix.os == 'windows-latest'
       run: | 
-        dotnet publish src/Smartstore.Web/Smartstore.Web.csproj -c Release -o ./build/artifacts/Community.nightly.win-x64 --no-restore --no-build --no-self-contained
-        docker build --build-arg VERSION=nightly -f Nano.Dockerfile -t ghcr.io/smartstore/smartstore-windows:nightly .
+        dotnet publish src/Smartstore.Web/Smartstore.Web.csproj -c Release -o ./build/release --no-restore --no-build --no-self-contained
+        docker build --build-arg SOURCE=build/release -f Nano.Dockerfile -t ghcr.io/smartstore/smartstore-windows:nightly .
         docker push ghcr.io/smartstore/smartstore-windows:nightly
         #docker build --build-arg VERSION=nightly -f NoBuild.Dockerfile -t smartstore/smartstore-windows:nightly .
         #docker push smartstore/smartstore-windows:nightly
