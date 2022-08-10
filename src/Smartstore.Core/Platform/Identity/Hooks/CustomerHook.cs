@@ -17,25 +17,23 @@ namespace Smartstore.Core.Identity
         };
 
         private readonly SmartDbContext _db;
-        private readonly CustomerSettings _customerSettings;
         private string _hookErrorMessage;
 
         // Key: old email. Value: new email.
         private readonly Dictionary<string, string> _modifiedEmails = new(StringComparer.OrdinalIgnoreCase);
 
-        public CustomerHook(SmartDbContext db, CustomerSettings customerSettings)
+        public CustomerHook(SmartDbContext db)
         {
             _db = db;
-            _customerSettings = customerSettings;
         }
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
 
-        public override async Task<HookResult> OnBeforeSaveAsync(IHookedEntity entry, CancellationToken cancelToken)
+        public override Task<HookResult> OnBeforeSaveAsync(IHookedEntity entry, CancellationToken cancelToken)
         {
             if (entry.Entity is Customer customer)
             {
-                if (await ValidateCustomer(customer, cancelToken))
+                if (ValidateCustomer(customer))
                 {
                     if (entry.InitialState == EState.Added || entry.InitialState == EState.Modified)
                     {
@@ -61,7 +59,7 @@ namespace Smartstore.Core.Identity
                 }
             }
 
-            return HookResult.Ok;
+            return Task.FromResult(HookResult.Ok);
         }
 
         public override Task OnBeforeSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
@@ -103,7 +101,7 @@ namespace Smartstore.Core.Identity
             }
         }
 
-        private async Task<bool> ValidateCustomer(Customer customer, CancellationToken cancelToken)
+        private bool ValidateCustomer(Customer customer)
         {
             // INFO: do not validate email and username here. UserValidator is responsible for this.
 
@@ -111,30 +109,6 @@ namespace Smartstore.Core.Identity
             {
                 _hookErrorMessage = $"System customer account '{customer.SystemName}' cannot be deleted.";
                 return false;
-            }
-
-            if (!await ValidateCustomerNumber(customer, cancelToken))
-            {
-                return false;
-            }
-
-            return true;
-        }
-
-        // TODO: (mg) (core) Throws on app start if there are identical customer numbers already.
-        private async Task<bool> ValidateCustomerNumber(Customer customer, CancellationToken cancelToken)
-        {
-            if (customer.CustomerNumber.HasValue() && _customerSettings.CustomerNumberMethod != CustomerNumberMethod.Disabled)
-            {
-                var customerNumberExists = await _db.Customers
-                    .IgnoreQueryFilters()
-                    .AnyAsync(x => x.CustomerNumber == customer.CustomerNumber && (customer.Id == 0 || customer.Id != x.Id), cancelToken);
-
-                if (customerNumberExists)
-                {
-                    _hookErrorMessage = T("Common.CustomerNumberAlreadyExists");
-                    return false;
-                }
             }
 
             return true;

@@ -484,7 +484,14 @@ namespace Smartstore.Admin.Controllers
             }
             else if (_customerSettings.CustomerNumberMethod == CustomerNumberMethod.Enabled && model.CustomerNumber.HasValue())
             {
-                customer.CustomerNumber = model.CustomerNumber;
+                if (await _db.Customers.IgnoreQueryFilters().AnyAsync(x => x.CustomerNumber == model.CustomerNumber))
+                {
+                    NotifyError(T("Common.CustomerNumberAlreadyExists"));
+                }
+                else
+                {
+                    customer.CustomerNumber = model.CustomerNumber;
+                }
             }
 
             if (ModelState.IsValid)
@@ -613,7 +620,16 @@ namespace Smartstore.Admin.Controllers
                     // Customer number.
                     if (_customerSettings.CustomerNumberMethod != CustomerNumberMethod.Disabled)
                     {
-                        customer.CustomerNumber = model.CustomerNumber;
+                        if (model.CustomerNumber.HasValue()
+                            && model.CustomerNumber != customer.CustomerNumber
+                            && await _db.Customers.IgnoreQueryFilters().AnyAsync(x => x.CustomerNumber == model.CustomerNumber))
+                        {
+                            NotifyError(T("Common.CustomerNumberAlreadyExists"));
+                        }
+                        else
+                        {
+                            customer.CustomerNumber = model.CustomerNumber;
+                        }
                     }
 
                     // VAT number.
