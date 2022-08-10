@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using NUnit.Framework;
 using Smartstore.IO;
 
@@ -17,18 +18,18 @@ namespace Smartstore.Tests
         [OneTimeSetUp]
         public void Init()
         {
-            _folderPath = Path.Combine(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Media"), "Default");
-            _filePath = _folderPath + "\\testfile.txt";
+            _folderPath = Path.Join(Path.Join(AppDomain.CurrentDomain.BaseDirectory, "Media"), "Default");
+            _filePath = Path.Join(_folderPath, "testfile.txt");
 
             Directory.CreateDirectory(_folderPath);
             File.WriteAllText(_filePath, "testfile contents");
 
-            var subfolder1 = Path.Combine(_folderPath, "Subfolder1");
+            var subfolder1 = Path.Join(_folderPath, "SubFolder1");
             Directory.CreateDirectory(subfolder1);
-            File.WriteAllText(Path.Combine(subfolder1, "one.txt"), "one contents");
-            File.WriteAllText(Path.Combine(subfolder1, "two.txt"), "two contents");
+            File.WriteAllText(Path.Join(subfolder1, "one.txt"), "one contents");
+            File.WriteAllText(Path.Join(subfolder1, "two.txt"), "two contents");
 
-            var subsubfolder1 = Path.Combine(subfolder1, "SubSubfolder1");
+            var subsubfolder1 = Path.Join(subfolder1, "SubSubFolder1");
             Directory.CreateDirectory(subsubfolder1);
 
             _fileSystem = new LocalFileSystem(_folderPath);
@@ -67,59 +68,59 @@ namespace Smartstore.Tests
         [Test]
         public void ListFilesReturnsItemsWithShortPathAndEnvironmentSlashes()
         {
-            var files = _fileSystem.EnumerateFiles("Subfolder1");
+            var files = _fileSystem.EnumerateFiles("SubFolder1");
             Assert.That(files, Is.Not.Null);
             Assert.That(files.Count(), Is.EqualTo(2));
             var one = files.Single(x => x.Name == "one.txt");
             var two = files.Single(x => x.Name == "two.txt");
 
-            Assert.That(one.SubPath, Is.EqualTo($"Subfolder1{PathUtility.PathSeparators[0]}one.txt"));
-            Assert.That(two.SubPath, Is.EqualTo($"Subfolder1{PathUtility.PathSeparators[0]}two.txt"));
+            Assert.That(one.SubPath, Is.EqualTo($"SubFolder1{PathUtility.PathSeparators[0]}one.txt"));
+            Assert.That(two.SubPath, Is.EqualTo($"SubFolder1{PathUtility.PathSeparators[0]}two.txt"));
         }
 
 
         [Test]
         public void AnySlashInGetFileBecomesEnvironmentAppropriate()
         {
-            var file1 = _fileSystem.GetFile(@"Subfolder1/one.txt");
-            var file2 = _fileSystem.GetFile(@"Subfolder1\one.txt");
-            Assert.That(file1.SubPath, Is.EqualTo("Subfolder1/one.txt"));
-            Assert.That(file2.SubPath, Is.EqualTo("Subfolder1/one.txt"));
+            var file1 = _fileSystem.GetFile(@"SubFolder1/one.txt");
+            var file2 = _fileSystem.GetFile(@"SubFolder1\one.txt");
+            Assert.That(file1.SubPath, Is.EqualTo("SubFolder1/one.txt"));
+            Assert.That(file2.SubPath, Is.EqualTo("SubFolder1/one.txt"));
         }
 
         [Test]
         public void ListFoldersReturnsItemsWithShortPathAndEnvironmentSlashes()
         {
-            var folders = _fileSystem.EnumerateDirectories(@"Subfolder1").ToArray();
+            var folders = _fileSystem.EnumerateDirectories(@"SubFolder1").ToArray();
             Assert.That(folders, Is.Not.Null);
             Assert.That(folders.Length, Is.EqualTo(1));
-            Assert.That(folders.Single().Name, Is.EqualTo("SubSubfolder1"));
-            Assert.That(folders.Single().SubPath, Is.EqualTo("Subfolder1/SubSubfolder1"));
+            Assert.That(folders.Single().Name, Is.EqualTo("SubSubFolder1"));
+            Assert.That(folders.Single().SubPath, Is.EqualTo("SubFolder1/SubSubFolder1"));
         }
 
         [Test]
         public void ParentFolderPathIsStillShort()
         {
-            var subsubfolder = _fileSystem.EnumerateDirectories(@"Subfolder1").Single();
+            var subsubfolder = _fileSystem.EnumerateDirectories(@"SubFolder1").Single();
             var subfolder = subsubfolder.Parent;
-            Assert.That(subsubfolder.Name, Is.EqualTo("SubSubfolder1"));
-            Assert.That(subsubfolder.SubPath, Is.EqualTo("Subfolder1/SubSubfolder1"));
-            Assert.That(subfolder.Name, Is.EqualTo("Subfolder1"));
-            Assert.That(subfolder.SubPath, Is.EqualTo("Subfolder1"));
+            Assert.That(subsubfolder.Name, Is.EqualTo("SubSubFolder1"));
+            Assert.That(subsubfolder.SubPath, Is.EqualTo("SubFolder1/SubSubFolder1"));
+            Assert.That(subfolder.Name, Is.EqualTo("SubFolder1"));
+            Assert.That(subfolder.SubPath, Is.EqualTo("SubFolder1"));
         }
 
         [Test]
         public void CreateFolderAndDeleteFolderTakesAnySlash()
         {
-            Assert.That(_fileSystem.EnumerateDirectories(@"Subfolder1").Count(), Is.EqualTo(1));
+            Assert.That(_fileSystem.EnumerateDirectories(@"SubFolder1").Count(), Is.EqualTo(1));
 
             _fileSystem.TryCreateDirectory(@"SubFolder1/SubSubFolder2");
             _fileSystem.TryCreateDirectory(@"SubFolder1\SubSubFolder3");
-            Assert.That(_fileSystem.EnumerateDirectories(@"Subfolder1").Count(), Is.EqualTo(3));
+            Assert.That(_fileSystem.EnumerateDirectories(@"SubFolder1").Count(), Is.EqualTo(3));
 
             _fileSystem.TryDeleteDirectory(@"SubFolder1/SubSubFolder2");
             _fileSystem.TryDeleteDirectory(@"SubFolder1\SubSubFolder3");
-            Assert.That(_fileSystem.EnumerateDirectories(@"Subfolder1").Count(), Is.EqualTo(1));
+            Assert.That(_fileSystem.EnumerateDirectories(@"SubFolder1").Count(), Is.EqualTo(1));
         }
 
         private IDirectory GetDirectory(string path)
@@ -158,23 +159,33 @@ namespace Smartstore.Tests
         [Test]
         public void CreateFileAndDeleteFileTakesAnySlash()
         {
-            Assert.That(_fileSystem.EnumerateFiles(@"Subfolder1").Count(), Is.EqualTo(2));
+            Assert.That(_fileSystem.EnumerateFiles(@"SubFolder1").Count(), Is.EqualTo(2));
 
             var alpha = _fileSystem.CreateFile(@"SubFolder1/alpha.txt");
             var beta = _fileSystem.CreateFile(@"SubFolder1\beta.txt");
-            Assert.That(_fileSystem.EnumerateFiles(@"Subfolder1").Count(), Is.EqualTo(4));
+
+            _fileSystem.WriteAllText(@"SubFolder1/alpha.txt", "fskldjfdklsfdkls");
+            _fileSystem.WriteAllText(@"SubFolder1\beta.txt", "fskldjfdklsfdkls");
+
+            var files = _fileSystem.EnumerateFiles(@"SubFolder1");
+            foreach (var file in files)
+            {
+                Console.WriteLine($"EnumerateFiles: {file.Name}");
+            }
+
+            Assert.That(_fileSystem.EnumerateFiles(@"SubFolder1").Count(), Is.EqualTo(4));
             Assert.That(alpha.SubPath, Is.EqualTo("SubFolder1/alpha.txt"));
             Assert.That(beta.SubPath, Is.EqualTo("SubFolder1/beta.txt"));
 
             _fileSystem.TryDeleteFile(@"SubFolder1\alpha.txt");
             _fileSystem.TryDeleteFile(@"SubFolder1/beta.txt");
-            Assert.That(_fileSystem.EnumerateFiles(@"Subfolder1").Count(), Is.EqualTo(2));
+            Assert.That(_fileSystem.EnumerateFiles(@"SubFolder1").Count(), Is.EqualTo(2));
         }
 
         [Test]
         public void RenameFileTakesShortPathWithAnyKindOfSlash()
         {
-            Assert.That(GetFile(@"Subfolder1/one.txt"), Is.Not.Null);
+            Assert.That(GetFile(@"SubFolder1/one.txt"), Is.Not.Null);
 
             _fileSystem.MoveEntry(@"SubFolder1\one.txt", @"SubFolder1/testfile2.txt");
             _fileSystem.MoveEntry(@"SubFolder1\testfile2.txt", @"SubFolder1\testfile3.txt");

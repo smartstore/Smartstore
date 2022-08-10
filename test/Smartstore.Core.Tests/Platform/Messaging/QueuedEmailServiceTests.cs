@@ -145,7 +145,7 @@ namespace Smartstore.Core.Tests.Platform.Messaging
                 Assert.AreEqual(qe.Subject, msg.Subject);
                 Assert.AreEqual(qe.Body, msg.Body);
 
-                Assert.AreEqual(msg.Attachments.Count, 4);
+                Assert.AreEqual(4, msg.Attachments.Count);
 
                 var attach1 = msg.Attachments.First();
                 var attach2 = msg.Attachments.ElementAt(1);

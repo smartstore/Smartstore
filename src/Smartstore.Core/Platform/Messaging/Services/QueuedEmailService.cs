@@ -2,6 +2,7 @@
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Http;
+using Smartstore.IO;
 using Smartstore.Net.Mail;
 using Smartstore.Utilities;
 
@@ -197,7 +198,7 @@ namespace Smartstore.Core.Messaging
                         var path = qea.Path;
                         if (path.HasValue())
                         {
-                            if (path[0] == '~' || path[0] == '/')
+                            if (!PathUtility.IsAbsolutePhysicalPath(path) && (path[0] == '~' || path[0] == '/'))
                             {
                                 path = CommonHelper.MapPath(WebHelper.ToAppRelativePath(path), false);
                             }
