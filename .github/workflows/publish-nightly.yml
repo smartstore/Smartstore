@@ -16,12 +16,12 @@ jobs:
   publish-nightly:
     name: Build, Test, Publish and Deploy nightly Docker image
     runs-on: ubuntu-latest
-    #permissions:
-    #  contents: read
-    #  packages: write
-    #  # This is used to complete the identity challenge
-    #  # with sigstore/fulcio when running outside of PRs.
-    #  id-token: write
+    permissions:
+      contents: read
+      packages: write
+      # This is used to complete the identity challenge
+      # with sigstore/fulcio when running outside of PRs.
+      id-token: write
         
     steps:
     - name: Checkout repository
@@ -52,16 +52,16 @@ jobs:
     #    username: ${{ secrets.DOCKER_USERNAME }}
     #    password: ${{ secrets.DOCKER_PASSWORD }}
         
-    - name: Publish and Push for Linux
-      run: | 
-        dotnet publish src/Smartstore.Web/Smartstore.Web.csproj -c Release -o ./build/artifacts/Community.nightly.linux-x64 --no-restore --no-build --no-self-contained
-        docker build --build-arg VERSION=nightly -f NoBuild.Dockerfile -t ghcr.io/smartstore/smartstore-linux:nightly .
-        docker push ghcr.io/smartstore/smartstore-linux:nightly
+    #- name: Publish and Push for Linux
+    #  run: | 
+    #    dotnet publish src/Smartstore.Web/Smartstore.Web.csproj -c Release -o ./build/artifacts/Community.nightly.linux-x64 --no-restore --no-build --no-self-contained
+    #    docker build --build-arg VERSION=nightly -f NoBuild.Dockerfile -t ghcr.io/smartstore/smartstore-linux:nightly .
+    #    docker push ghcr.io/smartstore/smartstore-linux:nightly
         #docker build --build-arg VERSION=nightly -f NoBuild.Dockerfile -t smartstore/smartstore-linux:nightly .
         #docker push smartstore/smartstore-linux:nightly
 
-    #- name: Publish and Push for Windows
-    #  run: | 
-    #    dotnet publish src/Smartstore.Web/Smartstore.Web.csproj -c Release -o ./build/artifacts/Community.nightly.win-x64 --no-restore --no-build --no-self-contained
-    #    docker build --build-arg VERSION=nightly -f Nano.Dockerfile -t ghcr.io/smartstore/smartstore-windows:nightly .
-    #    docker push ghcr.io/smartstore/smartstore-windows:nightly
+    - name: Publish and Push for Windows
+      run: | 
+        dotnet publish src/Smartstore.Web/Smartstore.Web.csproj -c Release -o ./build/artifacts/Community.nightly.win-x64 --no-restore --no-build --no-self-contained
+        docker build --build-arg VERSION=nightly -f Nano.Dockerfile -t ghcr.io/smartstore/smartstore-windows:nightly .
+        docker push ghcr.io/smartstore/smartstore-windows:nightly
