@@ -20,12 +20,12 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
-    permissions:
-      contents: read
-      packages: write
-      # This is used to complete the identity challenge
-      # with sigstore/fulcio when running outside of PRs.
-      id-token: write
+    #permissions:
+    #  contents: read
+    #  packages: write
+    #  # This is used to complete the identity challenge
+    #  # with sigstore/fulcio when running outside of PRs.
+    #  id-token: write
         
     steps:
     - name: Checkout repository
@@ -69,7 +69,7 @@ jobs:
       if: matrix.os == 'windows-latest'
       run: | 
         dotnet publish src/Smartstore.Web/Smartstore.Web.csproj -c Release -o ./build/artifacts/Community.nightly.win-x64 --no-restore --no-build --no-self-contained
-        docker build --build-arg VERSION=nightly -f Nano.Dockerfile -t ghcr.io/smartstore/smartstore-linux:nightly .
+        docker build --build-arg VERSION=nightly -f Nano.Dockerfile -t ghcr.io/smartstore/smartstore-windows:nightly .
         docker push ghcr.io/smartstore/smartstore-windows:nightly
         #docker build --build-arg VERSION=nightly -f NoBuild.Dockerfile -t smartstore/smartstore-windows:nightly .
         #docker push smartstore/smartstore-windows:nightly
