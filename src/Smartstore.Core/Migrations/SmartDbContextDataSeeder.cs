@@ -112,6 +112,11 @@ namespace Smartstore.Core.Data.Migrations
                 .Value("en", "Tax Number:");
             builder.AddOrUpdate("PDFInvoice.VatId")
                 .Value("en", "Vat-ID:");
+
+            builder.AddOrUpdate("Admin.Catalog.Products.List.SearchProductType", "Product type", "Produkttyp");
+            builder.AddOrUpdate("Admin.Catalog.Products.List.SearchCategory", "Category", "Warengruppe");
+            builder.AddOrUpdate("Admin.Catalog.Products.List.SearchManufacturer", "Manufacturer", "Hersteller");
+            builder.AddOrUpdate("Admin.Catalog.Products.List.SearchProductName", "Product name", "Produktname");
         }
     }
 }
