@@ -24,7 +24,7 @@ jobs:
           # actor: test@test.com
           # branch: main
           # event: push
-          status: failure
+          # status: completed
           # maximum-workflow-runs-to-keep: 0
           # what-if: true
         env:
