@@ -121,6 +121,7 @@ namespace Smartstore.Core.Identity
             return true;
         }
 
+        // TODO: (mg) (core) Throws on app start if there are identical customer numbers already.
         private async Task<bool> ValidateCustomerNumber(Customer customer, CancellationToken cancelToken)
         {
             if (customer.CustomerNumber.HasValue() && _customerSettings.CustomerNumberMethod != CustomerNumberMethod.Disabled)
