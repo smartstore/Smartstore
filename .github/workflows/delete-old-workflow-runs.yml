@@ -1,4 +1,4 @@
-name: Deletes old and failed workflow runs
+name: Delete old and failed workflow runs
 
 on:
   # Manual trigger
