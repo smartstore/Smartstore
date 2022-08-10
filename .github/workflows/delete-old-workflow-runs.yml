@@ -26,6 +26,6 @@ jobs:
           # event: push
           status: failure
           # maximum-workflow-runs-to-keep: 0
-          what-if: true
+          # what-if: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
