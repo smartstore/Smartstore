@@ -17,6 +17,6 @@ ARG RUNTIME=win-x64
 ARG SOURCE=build/artifacts/${EDITION}.${VERSION}.${RUNTIME}
 
 WORKDIR /app
-COPY $SOURCE ./
+COPY ${SOURCE} ./
 
 ENTRYPOINT ["dotnet", "./Smartstore.Web.dll"]
