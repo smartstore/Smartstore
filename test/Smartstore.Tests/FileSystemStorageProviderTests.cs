@@ -167,12 +167,6 @@ namespace Smartstore.Tests
             _fileSystem.WriteAllText(@"SubFolder1/alpha.txt", "fskldjfdklsfdkls");
             _fileSystem.WriteAllText(@"SubFolder1\beta.txt", "fskldjfdklsfdkls");
 
-            var files = _fileSystem.EnumerateFiles(@"SubFolder1");
-            foreach (var file in files)
-            {
-                Console.WriteLine($"EnumerateFiles: {file.Name}");
-            }
-
             Assert.That(_fileSystem.EnumerateFiles(@"SubFolder1").Count(), Is.EqualTo(4));
             Assert.That(alpha.SubPath, Is.EqualTo("SubFolder1/alpha.txt"));
             Assert.That(beta.SubPath, Is.EqualTo("SubFolder1/beta.txt"));

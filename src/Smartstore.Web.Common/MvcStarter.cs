@@ -66,9 +66,6 @@ namespace Smartstore.Web
 
             // ActionResult executor for LazyFileContentResult
             services.AddSingleton<IActionResultExecutor<LazyFileContentResult>, LazyFileContentResultExecutor>();
-
-            // Provide custom database related exceptions to DeveloperExceptionPageMiddleware
-            services.AddDatabaseDeveloperPageExceptionFilter();
         }
 
         public override void ConfigureMvc(IMvcBuilder mvcBuilder, IServiceCollection services, IApplicationContext appContext)
