@@ -1,0 +1,27 @@
+on: [workflow_dispatch]
+
+jobs:
+  delete-workflow-runs:
+    runs-on: ubuntu-latest
+    name: Deletes old and failed workflow runs
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Delete workflow runs
+        uses: ./ # Uses an action in the root directory
+        id: delete-workflow-runs
+        with:
+          repository: smartstore/Smartstore
+          # workflow: ".github/workflows/delete-old-workflow-runs.yml"
+          # Remove all workflow runs older than 7 days
+          older-than-seconds: 604800
+          # created-before: "2021-12-08T16:34:00Z"
+          # actor: test@test.com
+          # branch: main
+          # event: push
+          status: failed
+          # maximum-workflow-runs-to-keep: 0
+          what-if: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
