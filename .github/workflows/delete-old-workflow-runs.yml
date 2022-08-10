@@ -13,7 +13,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Delete workflow runs
-        uses: ./ # Uses an action in the root directory
+        uses: MajorScruffy/delete-old-workflow-runs@v0.1.0
         id: delete-workflow-runs
         with:
           repository: smartstore/Smartstore
@@ -24,7 +24,7 @@ jobs:
           # actor: test@test.com
           # branch: main
           # event: push
-          status: failed
+          status: failure
           # maximum-workflow-runs-to-keep: 0
           what-if: true
         env:
