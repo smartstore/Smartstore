@@ -7,7 +7,7 @@ using Smartstore.Web.Models.Common;
 namespace Smartstore.Admin.Models.Orders
 {
     [LocalizedDisplay("Admin.Orders.Fields.")]
-    public partial class OrderModel : OrderOverviewModel
+    public partial class OrderModel : EditOrderModel
     {
         [LocalizedDisplay("*CustomerIP")]
         public string CustomerIp { get; set; }
@@ -16,57 +16,35 @@ namespace Smartstore.Admin.Models.Orders
         public int AffiliateId { get; set; }
         public string AffiliateFullName { get; set; }
 
-        [LocalizedDisplay("*Edit.OrderSubtotal")]
-        public decimal OrderSubtotalInclTax { get; set; }
         [LocalizedDisplay("*OrderSubtotalInclTax")]
         public string OrderSubtotalInclTaxString { get; set; }
 
-        [LocalizedDisplay("*Edit.OrderSubtotal")]
-        public decimal OrderSubtotalExclTax { get; set; }
         [LocalizedDisplay("*OrderSubtotalExclTax")]
         public string OrderSubtotalExclTaxString { get; set; }
 
-        [LocalizedDisplay("*Edit.OrderSubTotalDiscount")]
-        public decimal OrderSubTotalDiscountInclTax { get; set; }
         [LocalizedDisplay("*OrderSubTotalDiscountInclTax")]
         public string OrderSubTotalDiscountInclTaxString { get; set; }
 
-        [LocalizedDisplay("*Edit.OrderSubTotalDiscount")]
-        public decimal OrderSubTotalDiscountExclTax { get; set; }
         [LocalizedDisplay("*OrderSubTotalDiscountExclTax")]
         public string OrderSubTotalDiscountExclTaxString { get; set; }
 
-        [LocalizedDisplay("*Edit.OrderShipping")]
-        public decimal OrderShippingInclTax { get; set; }
         [LocalizedDisplay("*OrderShippingInclTax")]
         public string OrderShippingInclTaxString { get; set; }
 
-        [LocalizedDisplay("*Edit.OrderShipping")]
-        public decimal OrderShippingExclTax { get; set; }
         [LocalizedDisplay("*OrderShippingExclTax")]
         public string OrderShippingExclTaxString { get; set; }
 
-        [LocalizedDisplay("*Edit.PaymentMethodAdditionalFee")]
-        public decimal PaymentMethodAdditionalFeeInclTax { get; set; }
         [LocalizedDisplay("*PaymentMethodAdditionalFeeInclTax")]
         public string PaymentMethodAdditionalFeeInclTaxString { get; set; }
 
-        [LocalizedDisplay("*Edit.PaymentMethodAdditionalFee")]
-        public decimal PaymentMethodAdditionalFeeExclTax { get; set; }
         [LocalizedDisplay("*PaymentMethodAdditionalFeeExclTax")]
         public string PaymentMethodAdditionalFeeExclTaxString { get; set; }
 
-        [LocalizedDisplay("*Edit.Tax")]
-        public decimal OrderTax { get; set; }
         [LocalizedDisplay("*Tax")]
         public string OrderTaxString { get; set; }
 
-        [LocalizedDisplay("*Edit.TaxRates")]
-        public string TaxRates { get; set; }
         public List<TaxRate> TaxRatesList { get; set; }
 
-        [LocalizedDisplay("*Edit.OrderTotalDiscount")]
-        public decimal OrderDiscount { get; set; }
         [LocalizedDisplay("*OrderTotalDiscount")]
         public string OrderDiscountString { get; set; }
 
@@ -76,62 +54,16 @@ namespace Smartstore.Admin.Models.Orders
         [LocalizedDisplay("*RedeemedRewardPoints")]
         public string RedeemedRewardPointsAmountString { get; set; }
 
-        [LocalizedDisplay("*CreditBalance")]
-        public decimal CreditBalance { get; set; }
         public string CreditBalanceString { get; set; }
 
         [LocalizedDisplay("*OrderTotalRounding")]
-        public decimal OrderTotalRounding { get; set; }
-        [LocalizedDisplay("*OrderTotalRounding")]
         public string OrderTotalRoundingString { get; set; }
-
-        [LocalizedDisplay("*Edit.OrderTotal")]
-        public decimal OrderTotal { get; set; }
 
         [LocalizedDisplay("*RefundedAmount")]
         public string RefundedAmountString { get; set; }
 
         public bool AllowStoringCreditCardNumber { get; set; }
         public bool AllowStoringDirectDebit { get; set; }
-
-        [LocalizedDisplay("*CardType")]
-        public string CardType { get; set; }
-
-        [LocalizedDisplay("*CardName")]
-        public string CardName { get; set; }
-
-        [LocalizedDisplay("*CardNumber")]
-        public string CardNumber { get; set; }
-
-        [LocalizedDisplay("*CardCVV2")]
-        public string CardCvv2 { get; set; }
-
-        [LocalizedDisplay("*CardExpirationMonth")]
-        public string CardExpirationMonth { get; set; }
-
-        [LocalizedDisplay("*CardExpirationYear")]
-        public string CardExpirationYear { get; set; }
-
-        [LocalizedDisplay("*DirectDebitAccountHolder")]
-        public string DirectDebitAccountHolder { get; set; }
-
-        [LocalizedDisplay("*DirectDebitAccountNumber")]
-        public string DirectDebitAccountNumber { get; set; }
-
-        [LocalizedDisplay("*DirectDebitBankCode")]
-        public string DirectDebitBankCode { get; set; }
-
-        [LocalizedDisplay("*DirectDebitBankName")]
-        public string DirectDebitBankName { get; set; }
-
-        [LocalizedDisplay("*DirectDebitBIC")]
-        public string DirectDebitBIC { get; set; }
-
-        [LocalizedDisplay("*DirectDebitCountry")]
-        public string DirectDebitCountry { get; set; }
-
-        [LocalizedDisplay("*DirectDebitIban")]
-        public string DirectDebitIban { get; set; }
 
         public bool DisplayCompletePaymentNote { get; set; }
         public bool DisplayPurchaseOrderNumber { get; set; }

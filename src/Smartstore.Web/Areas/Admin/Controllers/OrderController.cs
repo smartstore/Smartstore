@@ -878,7 +878,7 @@ namespace Smartstore.Admin.Controllers
         [HttpPost, ActionName("Edit")]
         [FormValueRequired("btnSaveCC")]
         [Permission(Permissions.Order.Update)]
-        public async Task<IActionResult> EditCreditCardInfo(int id, OrderModel model)
+        public async Task<IActionResult> EditCreditCardInfo(int id, EditOrderModel model)
         {
             var order = await _db.Orders.FindByIdAsync(id);
             if (order == null)
@@ -906,7 +906,7 @@ namespace Smartstore.Admin.Controllers
         [HttpPost, ActionName("Edit")]
         [FormValueRequired("btnSaveDD")]
         [Permission(Permissions.Order.Update)]
-        public async Task<IActionResult> EditDirectDebitInfo(int id, OrderModel model)
+        public async Task<IActionResult> EditDirectDebitInfo(int id, EditOrderModel model)
         {
             var order = await _db.Orders.FindByIdAsync(id);
             if (order == null)
@@ -934,7 +934,7 @@ namespace Smartstore.Admin.Controllers
         [HttpPost, ActionName("Edit")]
         [FormValueRequired("btnSaveOrderTotals")]
         [Permission(Permissions.Order.Update)]
-        public async Task<IActionResult> EditOrderTotals(int id, OrderModel model)
+        public async Task<IActionResult> EditOrderTotals(int id, EditOrderModel model)
         {
             var order = await _db.Orders.FindByIdAsync(id);
             if (order == null)
