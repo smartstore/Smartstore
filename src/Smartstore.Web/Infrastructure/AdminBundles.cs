@@ -77,7 +77,7 @@ namespace Smartstore.Web.Infrastructure
                 js + "smartstore.selectwrapper.js",
                 js + "smartstore.throbber.js",
                 js + "smartstore.thumbzoomer.js",
-                js + "smartstore.entityPicker.js",
+                js + "smartstore.entitypicker.js",
                 js + "smartstore.rangeslider.js",
                 js + "smartstore.numberinput.js",
                 js + "smartstore.tree.js",
