@@ -242,6 +242,7 @@ namespace Smartstore.Web.Models.Cart
                 {
                     var taxFormat = _taxService.GetTaxFormat(null, null, PricingTarget.Product);
                     var caValues = await _db.CheckoutAttributeValues
+                        .Include(x => x.MediaFile)
                         .AsNoTracking()
                         .Where(x => x.CheckoutAttributeId == attribute.Id)
                         .ToListAsync();
