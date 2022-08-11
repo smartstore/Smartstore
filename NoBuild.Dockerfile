@@ -4,7 +4,7 @@
 
 ARG ASPNET_TAG=6.0
 
-FROM mcr.microsoft.com/dotnet/runtime-deps:${ASPNET_TAG}
+FROM mcr.microsoft.com/dotnet/aspnet:${ASPNET_TAG}
 EXPOSE 80
 EXPOSE 443
 ENV ASPNETCORE_URLS "http://+:80;https://+:443"
