@@ -133,7 +133,7 @@ namespace Smartstore.Core.Configuration
             var prefix = settingsType.Name;
             var hasChanges = false;
 
-            var rawSettings = await GetRawSettingsAsync(db, settingsType, storeId, false, true);
+            var rawSettings = await GetRawSettingsAsync(db, settingsType, storeId, doFallback: false, tracked: true);
 
             foreach (var prop in FastProperty.GetProperties(settingsType).Values)
             {
@@ -145,12 +145,12 @@ namespace Smartstore.Core.Configuration
                 if (converter == null || !converter.CanConvertFrom(typeof(string)))
                     continue;
 
-                string key = prefix + "." + prop.Name;
-                string currentValue = prop.GetValue(settings).Convert<string>();
+                var key = prefix + '.' + prop.Name;
+                var currentValue = prop.GetValue(settings).Convert<string>();
 
                 if (rawSettings.TryGetValue(key, out var setting))
                 {
-                    if (overwriteExisting && setting.Value != currentValue)
+                    if ((overwriteExisting || setting.Value == null) && setting.Value != currentValue)
                     {
                         // Update
                         setting.Value = currentValue;
