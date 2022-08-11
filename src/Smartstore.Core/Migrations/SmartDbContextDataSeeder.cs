@@ -117,6 +117,10 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.Catalog.Products.List.SearchCategory", "Category", "Warengruppe");
             builder.AddOrUpdate("Admin.Catalog.Products.List.SearchManufacturer", "Manufacturer", "Hersteller");
             builder.AddOrUpdate("Admin.Catalog.Products.List.SearchProductName", "Product name", "Produktname");
+
+            builder.AddOrUpdate("Admin.AccessDenied.DetailedDescription",
+                "You do not have authorization to perform this operation. Permission: {0}, Systemname: {1}.",
+                "Sie haben keine Berechtigung, diesen Vorgang durchzuführen. Zugriffsrecht: {0}, Systemname: {1}.");
         }
     }
 }
