@@ -810,7 +810,8 @@ namespace Smartstore.Web.Controllers
             }
 
             var wishlist = await _shoppingCartService.GetCartAsync(pageCustomer, ShoppingCartType.Wishlist, storeId);
-            var model = await wishlist.MapAsync(!customerGuid.HasValue);
+            var model = new WishlistModel();
+            await wishlist.MapAsync(model, !customerGuid.HasValue);
 
             NotifyInfo(T("Products.SelectProducts"), true);
 
