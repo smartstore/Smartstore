@@ -757,7 +757,7 @@
 		<Value>Sie haben keine Berechtigung, diesen Vorgang durchzuführen.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.AccessDenied.DetailedDescription">
-		<Value>&lt;div&gt;Sie haben keine Berechtigung, diesen Vorgang durchzuführen.&lt;/div&gt;&lt;div&gt;Zugriffsrecht: {0}&lt;/div&gt;&lt;div&gt;Systemname: {1}&lt;/div&gt;</Value>
+		<Value>Sie haben keine Berechtigung, diesen Vorgang durchzuführen. Zugriffsrecht: {0}, Systemname: {1}.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.AccessDenied.Title">
 		<Value>Zugriff verweigert</Value>
@@ -791,6 +791,9 @@
 	</LocaleResource>
 	<LocaleResource Name="Admin.Address.Fields.Country.Hint">
 		<Value>Land wählen</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Address.Fields.Country.MustBePublished">
+		<Value>Ungültiges Land</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Address.Fields.Country.Required">
 		<Value>Land wird benötigt</Value>
@@ -2587,6 +2590,9 @@
 	<LocaleResource Name="Admin.Catalog.Products.List.GoDirectlyToSku.Hint">
 		<Value>Öffnet direkt Detailinfos zum Produkt mit angegebener ID/SKU.</Value>
 	</LocaleResource>
+	<LocaleResource Name="Admin.Catalog.Products.List.SearchCategory">
+		<Value>Warengruppe</Value>
+	</LocaleResource>
 	<LocaleResource Name="Admin.Catalog.Products.List.SearchCategory.Hint">
 		<Value>Warengruppe eingrenzen</Value>
 	</LocaleResource>
@@ -2608,11 +2614,20 @@
 	<LocaleResource Name="Admin.Catalog.Products.List.SearchIsPublished.Hint">
 		<Value>Filtert nach veröffentlichten bzw. unveröffentlichten Produkten.</Value>
 	</LocaleResource>
+	<LocaleResource Name="Admin.Catalog.Products.List.SearchManufacturer">
+		<Value>Hersteller</Value>
+	</LocaleResource>
 	<LocaleResource Name="Admin.Catalog.Products.List.SearchManufacturer.Hint">
 		<Value>Hersteller eingrenzen</Value>
 	</LocaleResource>
+	<LocaleResource Name="Admin.Catalog.Products.List.SearchProductName">
+		<Value>Produktname</Value>
+	</LocaleResource>
 	<LocaleResource Name="Admin.Catalog.Products.List.SearchProductName.Hint">
 		<Value>Ein Ausdruck, nach dem gefiltert werden soll.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Catalog.Products.List.SearchProductType">
+		<Value>Produkttyp</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Catalog.Products.List.SearchProductType.Hint">
 		<Value>Nach einem Produkttyp suchen.</Value>
@@ -3149,7 +3164,7 @@
 		<Value>Datenaustausch</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Common.DataSuccessfullySaved">
-		<Value>Die Daten wurden erfolgreich gespeichert.</Value>
+		<Value>Die Daten wurden erfolgreich gespeichert</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Common.Deactivate">
 		<Value>Deaktivieren</Value>
@@ -4339,6 +4354,12 @@
 	<LocaleResource Name="Admin.Configuration.Payment.Methods.AdditionalFeePercentage.Hint">
 		<Value>Legt fest, ob die zusätzliche Gebühr prozentual berechnet werden soll. Es wird ein fester Wert verwendet, falls diese Option deaktiviert ist.</Value>
 	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Payment.Methods.AddOrderNotes">
+		<Value>Auftragsnotizen anlegen</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Payment.Methods.AddOrderNotes.Hint">
+		<Value>Legt fest, ob beim Datenaustausch mit dem Zahlungsanbieter Auftragsnotizen angelegt werden sollen.</Value>
+	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Payment.Methods.BackToList">
 		<Value>Zurück zur Auflistung</Value>
 	</LocaleResource>
@@ -5236,6 +5257,12 @@
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.Catalog.UserSettings">
 		<Value>Kunden</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Catalog.UseSmallProductBoxOnHomePage">
+		<Value>Kleine Produktbox auf der Homepage verwenden</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Catalog.UseSmallProductBoxOnHomePage.Hint">
+		<Value>Bestimmt die Größe der Produktboxen auf der Startseite Ihres Shops.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.CustomerUser">
 		<Value>Kunden-Einstellungen</Value>
@@ -6239,6 +6266,12 @@
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.GeneralCommon.DisplayDisallows">
 		<Value>Einträge für 'Disallow' anzeigen</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.GeneralCommon.DisplayRegionInLanguageSelector">
+		<Value>Region in der Sprachauswahl anzeigen</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.GeneralCommon.DisplayRegionInLanguageSelector.Hint">
+		<Value>Zeigt den Namen der Region/des Landes in der Sprachauswahl an (z. B. 'Deutsch (Deutschland)' statt 'Deutsch')</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.GeneralCommon.EnableHoneypotProtection">
 		<Value>Honeypot aktivieren</Value>
@@ -7714,13 +7747,13 @@
 		<Value>Asset Caching aktivieren</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Themes.Option.AssetCachingEnabled.Hint">
-		<Value>Legt fest, ob kompilierte JS- und CSS-Dateien wie bspw. 'Sass' im Dateisystem zwischengespeichert werden sollen, um den Programmstart zu beschleunigen. Wählen Sie 'Automatisch', wenn das Caching von der Debug-Einstellung in der web.config abhängig sein soll.</Value>
+		<Value>Legt fest, ob kompilierte JS- und CSS-Dateien wie bspw. 'Sass' im Dateisystem zwischengespeichert werden sollen, um den Programmstart zu beschleunigen. Wählen Sie 'Automatisch', wenn das Caching von der aktuellen Umgebung abhängig sein soll (Debug = deaktiviert, Produktiv = aktiviert).</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Themes.Option.BundleOptimizationEnabled">
 		<Value>Asset Bundling aktivieren</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Themes.Option.BundleOptimizationEnabled.Hint">
-		<Value>Legt fest, ob JS- und CSS-Dateien in Gruppen zusammengefasst werden sollen, um den Seitenaufbau zu beschleunigen. Wählen Sie "Automatisch", wenn das Bundling von der Debug-Einstellung in der web.config abhängig sein soll.</Value>
+		<Value>Legt fest, ob JS- und CSS-Dateien in Gruppen zusammengefasst werden sollen, um den Seitenaufbau zu beschleunigen. Wählen Sie 'Automatisch', wenn das Bundling von der aktuellen Umgebung abhängig sein soll (Debug = deaktiviert, Produktiv = aktiviert).</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Themes.Option.DefaultDesktopTheme">
 		<Value>Standard Shop-Theme für Desktop-PC</Value>
@@ -11043,6 +11076,12 @@
 	<LocaleResource Name="Admin.Orders.List.OrderStatus.Hint">
 		<Value>Suche über den Auftragsstatus.</Value>
 	</LocaleResource>
+	<LocaleResource Name="Admin.Orders.List.PaymentId">
+		<Value>Zahlungs-ID</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Orders.List.PaymentId.Hint">
+		<Value>Suche über die Zahlungstransaktions-ID (Autorisierung oder Buchung)</Value>
+	</LocaleResource>
 	<LocaleResource Name="Admin.Orders.List.PaymentStatus">
 		<Value>Zahlungsstatus</Value>
 	</LocaleResource>
@@ -11504,6 +11543,9 @@
 	</LocaleResource>
 	<LocaleResource Name="Admin.Plugins.KnownGroup.Globalization">
 		<Value>Globalisierung</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Plugins.KnownGroup.Law">
+		<Value>Gesetz</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Plugins.KnownGroup.Marketing">
 		<Value>Marketing</Value>
@@ -12153,6 +12195,9 @@
 	<LocaleResource Name="Admin.Rules.FilterDescriptor.CancelledOrderCount">
 		<Value>Anzahl stornierter Bestellungen</Value>
 	</LocaleResource>
+	<LocaleResource Name="Admin.Rules.FilterDescriptor.CartItemFromCategoryQuantity">
+		<Value>Produktmenge aus Warengruppe liegt in folgendem Bereich</Value>
+	</LocaleResource>
 	<LocaleResource Name="Admin.Rules.FilterDescriptor.CartItemQuantity">
 		<Value>Produktmenge liegt in folgendem Bereich</Value>
 	</LocaleResource>
@@ -12206,6 +12251,9 @@
 	</LocaleResource>
 	<LocaleResource Name="Admin.Rules.FilterDescriptor.LastActivityDays">
 		<Value>Tage seit letztem Besuch</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Rules.FilterDescriptor.LastDeviceFamily">
+		<Value>Zuletzt genutzte Endgerätefamilie</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Rules.FilterDescriptor.LastForumVisit">
 		<Value>Tage seit letztem Forenbesuch</Value>
@@ -12393,6 +12441,9 @@
 	<LocaleResource Name="Admin.Rules.RuleOperator.LessThanOrEqualOperator">
 		<Value>Kleiner oder gleich</Value>
 	</LocaleResource>
+	<LocaleResource Name="Admin.Rules.RuleOperator.LikeOperator">
+		<Value>Like</Value>
+	</LocaleResource>
 	<LocaleResource Name="Admin.Rules.RuleOperator.NotAllInOperator">
 		<Value>Sind nicht alle von</Value>
 	</LocaleResource>
@@ -12404,6 +12455,9 @@
 	</LocaleResource>
 	<LocaleResource Name="Admin.Rules.RuleOperator.NotInOperator">
 		<Value>Ist KEINE von</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Rules.RuleOperator.NotLikeOperator">
+		<Value>Not like</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Rules.RuleOperator.Sequence.AllInOperator">
 		<Value>Rechts enthält ALLE Werte von links</Value>
@@ -13399,7 +13453,7 @@
 		<Value>Die Sitemap für den Shop ist nicht erreichbar.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.System.Warnings.TaskScheduler.Fail">
-		<Value>Der Task-Scheduler kann keine Hintergrund-Aufgaben planen und ausführen. Basis-URL: {0}, Status: {1}. Bitte legen Sie eine vom Webserver erreichbare Basis-URL in der appsettings.json Datei fest, Einstellung: 'Smartstore.TaskSchedulerBaseUrl'.</Value>
+		<Value>Der Task-Scheduler kann keine Hintergrund-Aufgaben planen und ausführen. Basis-URL: {0}, Status: {1}. Bitte legen Sie eine vom Webserver erreichbare Basis-URL in der Datei appsettings.json Datei fest, Einstellung: 'Smartstore.TaskSchedulerBaseUrl'.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.System.Warnings.TaskScheduler.OK">
 		<Value>Der Task-Scheduler kann Hintergrund-Aufgaben planen und ausführen.</Value>
@@ -15208,6 +15262,18 @@
 	<LocaleResource Name="Enums.ImportFileType.XLSX">
 		<Value>Excel  (.xlsx)</Value>
 	</LocaleResource>
+	<LocaleResource Name="Enums.IndexAnalyzerType.Classic">
+		<Value>Classic (klassische Trennung und Filterung)</Value>
+	</LocaleResource>
+	<LocaleResource Name="Enums.IndexAnalyzerType.Keyword">
+		<Value>Keyword (keine Trennung, keine Filterung)</Value>
+	</LocaleResource>
+	<LocaleResource Name="Enums.IndexAnalyzerType.Standard">
+		<Value>Standard (Standardtrennung und -Filterung)</Value>
+	</LocaleResource>
+	<LocaleResource Name="Enums.IndexAnalyzerType.Whitespace">
+		<Value>Whitespace (nur bei Leerzeichen trennen, keine Filterung)</Value>
+	</LocaleResource>
 	<LocaleResource Name="Enums.IndexingStatus.Idle">
 		<Value>Bereit</Value>
 	</LocaleResource>
@@ -16748,6 +16814,9 @@
 	<LocaleResource Name="HtmlEditor.ClickToEdit">
 		<Value>Hier klicken, um HTML zu editieren...</Value>
 	</LocaleResource>
+	<LocaleResource Name="Identity.AuthenticationCredentials">
+		<Value>Zugangsdaten</Value>
+	</LocaleResource>
 	<LocaleResource Name="Identity.Error.ConcurrencyFailure">
 		<Value>Beim Speichern Ihrer Daten ist ein Fehler durch gleichzeitigen Zugriff aufgetreten.</Value>
 	</LocaleResource>
@@ -17501,14 +17570,23 @@
 	<LocaleResource Name="Payment.ExpireYear.Required">
 		<Value>Ablaufjahr ist erforderlich</Value>
 	</LocaleResource>
+	<LocaleResource Name="Payment.InvalidCredentials">
+		<Value>Die Zugangsdaten zum Zahlungsanbieter sind unvollständig. Bitte geben Sie die erforderlichen Zugangsdaten im Konfigurationsbereich der Zahlungsart ein.</Value>
+	</LocaleResource>
 	<LocaleResource Name="Payment.MethodNotAvailable">
 		<Value>Die Zahlungsart steht nicht zur Verfügung.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Payment.MissingCheckoutState">
+		<Value>Fehlender Checkout-Sitzungsstatus ({0}). Ihre Zahlung kann leider nicht bearbeitet werden. Bitte gehen Sie zurück zum Warenkorb und Durchlaufen Sie den Checkout erneut.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Payment.OneActiveMethodProviderRequired">
 		<Value>Mindestens ein Zahlungsart-Provider muss aktiviert sein.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Payment.PayingFailed">
 		<Value>Leider können wir diesen Einkauf nicht über die gewünschte Zahlungsart abwickeln. Bitte wählen Sie eine alternative Zahlungsoption aus, um Ihre Bestellung abzuschließen.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Payment.PaymentFailure">
+		<Value>Mit dieser Zahlungsart ist ein Problem aufgetreten. Bitte versuchen Sie es erneut oder wählen Sie eine andere Zahlungsart aus.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Payment.RecurringPaymentNotActive">
 		<Value>Wiederkehrende Zahlung ist inaktiv.</Value>

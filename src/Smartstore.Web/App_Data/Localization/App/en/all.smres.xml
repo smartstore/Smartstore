@@ -760,7 +760,7 @@
 		<Value>You do not have permission to perform the selected operation.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.AccessDenied.DetailedDescription">
-		<Value>&lt;div&gt;You do not have permission to perform the selected operation.&lt;/div&gt;&lt;div&gt;Access right: {0}&lt;/div&gt;&lt;div&gt;System name: {1}&lt;/div&gt;</Value>
+		<Value>You do not have authorization to perform this operation. Permission: {0}, Systemname: {1}.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.AccessDenied.Title">
 		<Value>Access denied.</Value>
@@ -797,6 +797,9 @@
 	</LocaleResource>
 	<LocaleResource Name="Admin.Address.Fields.Country.Hint">
 		<Value>Select country</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Address.Fields.Country.MustBePublished">
+		<Value>Invalid country</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Address.Fields.Country.Required">
 		<Value>Country is required.</Value>
@@ -2659,6 +2662,9 @@
 	<LocaleResource Name="Admin.Catalog.Products.List.GoDirectlyToSku.Hint">
 		<Value>Enter product SKU and click Go.</Value>
 	</LocaleResource>
+	<LocaleResource Name="Admin.Catalog.Products.List.SearchCategory">
+		<Value>Category</Value>
+	</LocaleResource>
 	<LocaleResource Name="Admin.Catalog.Products.List.SearchCategory.Hint">
 		<Value>Search by a specific category.</Value>
 	</LocaleResource>
@@ -2680,11 +2686,20 @@
 	<LocaleResource Name="Admin.Catalog.Products.List.SearchIsPublished.Hint">
 		<Value>Filters for published or unpublished products.</Value>
 	</LocaleResource>
+	<LocaleResource Name="Admin.Catalog.Products.List.SearchManufacturer">
+		<Value>Manufacturer</Value>
+	</LocaleResource>
 	<LocaleResource Name="Admin.Catalog.Products.List.SearchManufacturer.Hint">
 		<Value>Search by a specific manufacturer.</Value>
 	</LocaleResource>
+	<LocaleResource Name="Admin.Catalog.Products.List.SearchProductName">
+		<Value>Product name</Value>
+	</LocaleResource>
 	<LocaleResource Name="Admin.Catalog.Products.List.SearchProductName.Hint">
 		<Value>A product name.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Catalog.Products.List.SearchProductType">
+		<Value>Product type</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Catalog.Products.List.SearchProductType.Hint">
 		<Value>Search by a product type.</Value>
@@ -3245,7 +3260,7 @@
 		<Value>Data exchange</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Common.DataSuccessfullySaved">
-		<Value>The data were saved successfully.</Value>
+		<Value>The data was saved successfully</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Common.Deactivate">
 		<Value>Deactivate</Value>
@@ -4471,6 +4486,12 @@
 	<LocaleResource Name="Admin.Configuration.Payment.Methods.AdditionalFeePercentage.Hint">
 		<Value>Specifies whether the additional fee should be calculated as a percentage. A fixed value is used if this option is disabled.</Value>
 	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Payment.Methods.AddOrderNotes">
+		<Value>Create order notes</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Payment.Methods.AddOrderNotes.Hint">
+		<Value>Specifies whether to create order notes when exchanging data with the payment provider.</Value>
+	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Payment.Methods.BackToList">
 		<Value>back to payment method list</Value>
 	</LocaleResource>
@@ -5383,6 +5404,12 @@
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.Catalog.UserSettings">
 		<Value>Customers</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Catalog.UseSmallProductBoxOnHomePage">
+		<Value>Use small product box on homepage</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.Catalog.UseSmallProductBoxOnHomePage.Hint">
+		<Value>Defines the size of the product boxes on the homepage of your store.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.CustomerUser">
 		<Value>Customer settings</Value>
@@ -6404,6 +6431,12 @@
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.GeneralCommon.DisplayDisallows">
 		<Value>Show items for 'Disallow'</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.GeneralCommon.DisplayRegionInLanguageSelector">
+		<Value>Display region in language selector</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Configuration.Settings.GeneralCommon.DisplayRegionInLanguageSelector.Hint">
+		<Value>Whether to display region/country name in language selector (e.g. 'Deutsch (Deutschland)' instead of 'Deutsch')</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Settings.GeneralCommon.EnableHoneypotProtection">
 		<Value>Enable Honeypot protection</Value>
@@ -7897,13 +7930,13 @@
 		<Value>Enable asset caching</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Themes.Option.AssetCachingEnabled.Hint">
-		<Value>Determines whether compiled asset files should be cached in file system in order to speed up application restarts. Select 'Auto', if caching should depend on the debug setting in web.config.</Value>
+		<Value>Determines whether compiled asset files should be cached in file system in order to speed up application restarts. Select 'Auto' if caching should depend on the current environment (Debug = disabled, Production = enabled).</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Themes.Option.BundleOptimizationEnabled">
 		<Value>Enable asset bundling</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Themes.Option.BundleOptimizationEnabled.Hint">
-		<Value>Determines if asset files (JS and CSS) should be grouped together in order to speed up page rendering. Select "Auto", if bundling should depend on the debug setting in web.config.</Value>
+		<Value>Determines whether asset files (JS and CSS) should be grouped together in order to speed up page rendering. Select 'Auto' if bundling should depend on the current environment (Debug = disabled, Production = enabled).</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Configuration.Themes.Option.DefaultDesktopTheme">
 		<Value>Desktop store theme</Value>
@@ -11310,6 +11343,12 @@
 	<LocaleResource Name="Admin.Orders.List.OrderStatus.Hint">
 		<Value>Search by a specific order status e.g. Complete.</Value>
 	</LocaleResource>
+	<LocaleResource Name="Admin.Orders.List.PaymentId">
+		<Value>Payment ID</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Orders.List.PaymentId.Hint">
+		<Value>Search by the payment transaction ID (authorization or capturing)</Value>
+	</LocaleResource>
 	<LocaleResource Name="Admin.Orders.List.PaymentStatus">
 		<Value>Payment status</Value>
 	</LocaleResource>
@@ -11783,6 +11822,9 @@
 	</LocaleResource>
 	<LocaleResource Name="Admin.Plugins.KnownGroup.Globalization">
 		<Value>Globalization</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Plugins.KnownGroup.Law">
+		<Value>Law</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Plugins.KnownGroup.Marketing">
 		<Value>Marketing</Value>
@@ -12447,6 +12489,9 @@
 	<LocaleResource Name="Admin.Rules.FilterDescriptor.CancelledOrderCount">
 		<Value>Cancelled order count</Value>
 	</LocaleResource>
+	<LocaleResource Name="Admin.Rules.FilterDescriptor.CartItemFromCategoryQuantity">
+		<Value>Product quantity from category is in range</Value>
+	</LocaleResource>
 	<LocaleResource Name="Admin.Rules.FilterDescriptor.CartItemQuantity">
 		<Value>Product quantity is in range</Value>
 	</LocaleResource>
@@ -12500,6 +12545,9 @@
 	</LocaleResource>
 	<LocaleResource Name="Admin.Rules.FilterDescriptor.LastActivityDays">
 		<Value>Days since last activity</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Rules.FilterDescriptor.LastDeviceFamily">
+		<Value>Last device family</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Rules.FilterDescriptor.LastForumVisit">
 		<Value>Days since last forum visit</Value>
@@ -12687,6 +12735,9 @@
 	<LocaleResource Name="Admin.Rules.RuleOperator.LessThanOrEqualOperator">
 		<Value>Less than or equal to</Value>
 	</LocaleResource>
+	<LocaleResource Name="Admin.Rules.RuleOperator.LikeOperator">
+		<Value>Like</Value>
+	</LocaleResource>
 	<LocaleResource Name="Admin.Rules.RuleOperator.NotAllInOperator">
 		<Value>Not all in</Value>
 	</LocaleResource>
@@ -12698,6 +12749,9 @@
 	</LocaleResource>
 	<LocaleResource Name="Admin.Rules.RuleOperator.NotInOperator">
 		<Value>Not in</Value>
+	</LocaleResource>
+	<LocaleResource Name="Admin.Rules.RuleOperator.NotLikeOperator">
+		<Value>Not like</Value>
 	</LocaleResource>
 	<LocaleResource Name="Admin.Rules.RuleOperator.Sequence.AllInOperator">
 		<Value>Right contains ALL values of left</Value>
@@ -15556,6 +15610,18 @@
 	<LocaleResource Name="Enums.ImportFileType.XLSX">
 		<Value>Excel (.xlsx)</Value>
 	</LocaleResource>
+	<LocaleResource Name="Enums.IndexAnalyzerType.Classic">
+		<Value>Classic (classic splitting and filtering)</Value>
+	</LocaleResource>
+	<LocaleResource Name="Enums.IndexAnalyzerType.Keyword">
+		<Value>Keyword (no splitting, no filtering)</Value>
+	</LocaleResource>
+	<LocaleResource Name="Enums.IndexAnalyzerType.Standard">
+		<Value>Standard (standard splitting and filtering)</Value>
+	</LocaleResource>
+	<LocaleResource Name="Enums.IndexAnalyzerType.Whitespace">
+		<Value>Whitespace (split only for blanks, no filtering)</Value>
+	</LocaleResource>
 	<LocaleResource Name="Enums.IndexingStatus.Idle">
 		<Value>Idle</Value>
 	</LocaleResource>
@@ -17073,6 +17139,9 @@
 	<LocaleResource Name="HtmlEditor.ClickToEdit">
 		<Value>Click to edit HTML...</Value>
 	</LocaleResource>
+	<LocaleResource Name="Identity.AuthenticationCredentials">
+		<Value>Authentication credentials</Value>
+	</LocaleResource>
 	<LocaleResource Name="Identity.Error.ConcurrencyFailure">
 		<Value>A concurrency failure has occured while trying to save your data.</Value>
 	</LocaleResource>
@@ -17826,14 +17895,23 @@
 	<LocaleResource Name="Payment.ExpireYear.Required">
 		<Value>Expire year is required</Value>
 	</LocaleResource>
+	<LocaleResource Name="Payment.InvalidCredentials">
+		<Value>The credentials for the payment provider are incomplete. Please enter the required credentials in the configuration area of the payment method.</Value>
+	</LocaleResource>
 	<LocaleResource Name="Payment.MethodNotAvailable">
 		<Value>The payment method is not available.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Payment.MissingCheckoutState">
+		<Value>Missing checkout session state ({0}). Your payment cannot be processed. Please go to your shopping cart and checkout again.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Payment.OneActiveMethodProviderRequired">
 		<Value>At least one payment method provider is required to be active.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Payment.PayingFailed">
 		<Value>Unfortunately we can not handle this purchasing via your preferred payment method. Please select an alternate payment option to complete your order.</Value>
+	</LocaleResource>
+	<LocaleResource Name="Payment.PaymentFailure">
+		<Value>A problem has occurred with this payment method. Please try again or select another payment method.</Value>
 	</LocaleResource>
 	<LocaleResource Name="Payment.RecurringPaymentNotActive">
 		<Value>Recurring payment is not active.</Value>
@@ -17911,10 +17989,10 @@
 		<Value>SKU</Value>
 	</LocaleResource>
 	<LocaleResource Name="PDFInvoice.TaxNumber">
-		<Value>Tax Number: {0}</Value>
+		<Value>Tax Number:</Value>
 	</LocaleResource>
 	<LocaleResource Name="PDFInvoice.VatId">
-		<Value>Vat-ID: {0}</Value>
+		<Value>Vat-ID:</Value>
 	</LocaleResource>
 	<LocaleResource Name="PDFPackagingSlip.Address">
 		<Value>Address: {0}</Value>
