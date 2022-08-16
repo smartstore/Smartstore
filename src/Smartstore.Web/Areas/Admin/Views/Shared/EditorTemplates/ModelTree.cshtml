@@ -4,6 +4,8 @@
 @using Smartstore.Core.Messaging
 
 @{
+    var editorId = GetMetadata<string>("editor-id");
+
     async Task AddItemsToModelTree(TreeNode<ModelTreeMember> root)
     {
         if (root != null)
@@ -61,7 +63,6 @@ else
         <i class="fa fa-plus"></i>
         <span>@T("Admin.Common.ChooseToken")</span>
     </a>
-
     <script>
         $(function() {
             // Init model tree.
@@ -79,7 +80,9 @@ else
 
         $(document).on("mousedown", "#btn-choosetoken", function () {
             var editor = getEditor();
-            editor.summernote('editor.saveRange');
+            if (editor.hasClass("summernote-editor")) {
+                editor.summernote('editor.saveRange');
+            }
 		});
 
 		$(document).on("click", "#btn-addtoken", function () {
@@ -92,12 +95,16 @@ else
         });
 
         function getEditor() {
-            var editor = $("#messagetemplate-localized .tab-pane.active .summernote-editor");
-            if (editor.length) {
-                return editor;
+            var summernote = $('.summernote-editor').first();
+            if (summernote.length) {
+                return summernote;
             }
-            else {
-                return $('.summernote-editor').first();
+            @if (editorId.HasValue()) { 
+                <text>
+                else if ($("#@editorId").length) {
+                    return $("#@editorId");
+                }
+                </text>
             }
         }
 
@@ -108,9 +115,18 @@ else
 			if (!token || !isLeaf)
 				return false;
 
-			var editor = getEditor();
-			editor.summernote('editor.restoreRange');
-			editor.summernote('editor.insertText', '{{ ' + token + ' }}');
+            var editor = getEditor();
+            if (editor.hasClass("summernote-editor")) {
+                editor.summernote('editor.restoreRange');
+                editor.summernote('editor.insertText', '{{' + token + '}}');
+            }
+            else {
+                var cursorPos = editor.prop('selectionStart');
+                var v = editor.val();
+                var textBefore = v.substring(0, cursorPos);
+                var textAfter = v.substring(cursorPos, v.length);
+                editor.val(textBefore + "{" + token + "}" + textAfter);
+            }
 
 			$("#addtoken-window").modal("hide");
 
