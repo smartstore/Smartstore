@@ -48,7 +48,7 @@ This repository is a port of [Smartstore 4](https://github.com/smartstore/SmartS
 
 Smartstore instances based on classic `ASP.NET MVC` can be upgraded seamlessly. To perform the upgrade, only the app files need to be replaced on your server - except for the `App_Data` directory - and **all data will be automatically transferred to the new system**. [Detailed information about installing or upgrading](https://github.com/zihniartar/Smartstore-Core-Installation-Linux-Windows) your shop can be found [here](https://github.com/zihniartar/Smartstore-Core-Installation-Linux-Windows).
 
-**Give our new repository a star** to stay up-to-date, get involved or just watch how we're doing. Learn all about the latest development, participate actively and last but not least, don't miss the day of release.    
+**Give our new repository a star** to stay up-to-date, get involved or just watch how we're doing. Learn all about the latest development, participate actively and last but not least, don't miss new releases.    
 
 ## Highlights
 
