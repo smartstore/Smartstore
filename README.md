@@ -39,14 +39,14 @@ The state-of-the-art architecture of Smartstore - with `ASP.NET Core 6`, `Entity
 * **Forum:** [http://community.smartstore.com](http://community.smartstore.com)
 * **Marketplace:** [http://community.smartstore.com/marketplace](http://community.smartstore.com/marketplace)
 * **Translations:** [http://translate.smartstore.com/](http://translate.smartstore.com/)
-* **Documentation:** [Smartstore Documentation in English](http://docs.smartstore.com/display/SMNET)
+* **Documentation:** [Smartstore Documentation in English](https://smartstore.atlassian.net/wiki/spaces/SMNET50/pages/1956118583/Getting+Started)
 
 <p>&nbsp;</p>
 
 ## ASP.NET Core 6
 This repository is a port of [Smartstore 4](https://github.com/smartstore/SmartStoreNET) - which is based on the classic .NET Framework 4.7.2 – to the new `ASP.NET Core 6` platform. 
 
-Smartstore instances based on classic `ASP.NET MVC` can be upgraded seamlessly. To perform the upgrade, only the app files need to be replaced on your server - except for the `App_Data` directory - and **all data will be automatically transferred to the new system**. [Detailed information about installing or upgrading](https://github.com/zihniartar/Smartstore-Core-Installation-Linux-Windows) your shop can be found [here](https://github.com/zihniartar/Smartstore-Core-Installation-Linux-Windows).
+Smartstore instances based on classic `ASP.NET MVC` can be upgraded seamlessly. To [perform the upgrade](https://smartstore.atlassian.net/wiki/spaces/SMNET50/pages/1956118609/Updating+from+Previous+Versions), only the app files need to be replaced on your server - except for the `App_Data` directory - and **all data will be automatically transferred to the new system**. [Detailed information about installing or upgrading](https://smartstore.atlassian.net/wiki/spaces/SMNET50/pages/1956118822/Installing+Smartstore) your shop can be found [here](https://smartstore.atlassian.net/wiki/spaces/SMNET50/pages/1956118822/Installing+Smartstore).
 
 **Give our new repository a star** to stay up-to-date, get involved or just watch how we're doing. Learn all about the latest development, participate actively and last but not least, don't miss new releases.    
 
