@@ -30,7 +30,7 @@ Smartstore 5 is a port of Smartstore 4 - which is based on the classic .NET Fram
 - No support for Microsoft SQL Server Compact Edition (SQLCE) anymore
 - Payment providers need to be reconfigured (API Key etc.)
 
-### Development Status
+### Project Status
 
 - Except for the **WebApi** plugin, the open source Community Edition has been fully ported (WebApi will follow soon)
 - Already ported commercial plugins: 
@@ -54,7 +54,7 @@ Smartstore 5 is a port of Smartstore 4 - which is based on the classic .NET Fram
   - Redis
   - SearchLog
   - Skrill
-  - SofortÃ¼berweisung
+  - Sofortueberweisung
   - TinyImage
   - TrustedShops
   - UrlRewriter
@@ -65,3 +65,15 @@ Smartstore 5 is a port of Smartstore 4 - which is based on the classic .NET Fram
   - EasyCredit
   - NewsImporter
   - LeGuide Shopwahl
+
+### Development
+
+- No proprietary Unit of Work & Repository Pattern anymore: gave up `IDbContext` and `IRepository<T>` in favor of `DbContext` and `DbSet<T>`
+- Less and more lightweight service classes by removing all generic CRUD stuff
+- Much easier plugin development
+- Async function calls all the way through
+- Database schema did not change and therefore remains backward compatible. Still we STRONGLY recommend to create a backup before upgrading
+- Extremely powerful widget system
+- Large TagHelper library with 50+ custom helpers
+- On-demand deployment of native libraries via NuGet
+- Custom entities in plugin projects can now define navigation properties to entities in the application core
