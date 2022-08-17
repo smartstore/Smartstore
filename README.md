@@ -25,7 +25,7 @@ A comprehensive set of tools for CRM & CMS, sales, marketing, payment & shipping
 
 <br/>
 <p align="center">
-  <img src="assets/sm4-devices.png" alt="Smartstore Demoshop" />
+  <img src="assets/sm5-devices.png" alt="Smartstore Demoshop" />
 </p>
 
 **Smartstore delivers a beautiful and configurable shop front-end out-of-the-box**, built with a design approach on the highest level, including components like `Vue.js`, `Sass`, `Bootstrap` and others. The supplied theme _Flex_ is modern, clean and fully responsive, giving buyers the best possible shopping experience on any device. 
