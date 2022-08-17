@@ -1,11 +1,8 @@
 <p align="center">
 	<a href="https://www.smartstore.com" target="_blank" rel="noopener noreferrer">
-		<img src="assets/smartstore-icon.png" alt="Smartstore" width="200">
+		<img src="assets/sm5-screens.png" alt="Smartstore">
 	</a>
-</h1>
-
-<br/>
-<br/>
+</p>
 
 <h1 align="center">
 	<img src="assets/smartstore-text.png" alt="Smartstore" width="300">
