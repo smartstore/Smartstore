@@ -49,7 +49,7 @@ namespace Smartstore.Google.Analytics
                 CookieType = CookieType.Analytics
             };
 
-            return Task.FromResult<IEnumerable<CookieInfo>>(new CookieInfo[] { cookieInfo });
+            return Task.FromResult(new CookieInfo[] { cookieInfo }.AsEnumerable());
         }
 
         public WidgetInvoker GetDisplayWidget(string widgetZone, object model, int storeId)
