@@ -52,7 +52,7 @@ namespace Smartstore.Core.Content.Menus
             if (colonIndex > -1)
             {
                 expression.Schema = expression.RawExpression[..colonIndex].ToLower();
-                if (expression.Schema.StartsWith("http"))
+                if (expression.Schema.StartsWith("http") || expression.Schema.EqualsNoCase("mailto"))
                 {
                     expression.Schema = null;
                     colonIndex = -1;
