@@ -933,7 +933,6 @@ namespace Smartstore.Admin.Controllers
                         ProductId = entityId
                     };
 
-
                     _db.ProductMediaFiles.Add(productPicture);
                     await _db.SaveChangesAsync();
 
