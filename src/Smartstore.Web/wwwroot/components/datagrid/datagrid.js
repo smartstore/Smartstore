@@ -318,6 +318,7 @@ Vue.component("sm-datagrid", {
                 }
             },
             editing: {
+                grid: null,
                 active: false,
                 insertMode: false,
                 row: {},
@@ -326,11 +327,17 @@ Vue.component("sm-datagrid", {
                     if (!this.tr) return [];
                     return this.tr.querySelectorAll('.dg-cell-edit input, .dg-cell-edit textarea, .dg-cell-edit select')
                 },
+                getColumn(el) {
+                    let index = $(el).closest('td').data('index');
+                    let column = this.grid?.columns[index];
+                    return column;
+                },
                 updateEditors(editors) {
                     const r = this.row;
                     (editors || this.getEditors()).forEach(el => {
                         if (el.name) {
-                            const v = r[el.name];
+                            const c = this.getColumn(el);
+                            const v = r[c?.member || el.name];
                             if (el.tagName.toLowerCase() === "input") {
                                 if (el.type !== "hidden") {
                                     switch (el.type) {
@@ -360,6 +367,14 @@ Vue.component("sm-datagrid", {
                     let r = this.row;
                     let form = $(this.tr).closest("form");
                     let model = form.serializeToJSON();
+
+                    // TODO: We are restricted to CustomProperties dictionary here. Find a better, more generic solution.
+                    if (model.CustomProperties) {
+                        let ownPropName = Object.getOwnPropertyNames(model.CustomProperties)[0];
+                        if (ownPropName) {
+                            model = model.CustomProperties[ownPropName];
+                        }
+                    }
 
                     $.extend(r, model);
                 }
@@ -1183,6 +1198,7 @@ Vue.component("sm-datagrid", {
             let row = this.options.defaultDataRow || {};
             this.rows.splice(0, 0, row);
 
+            this.editing.grid = this;
             this.editing.active = true;
             this.editing.insertMode = true;
             this.editing.row = row;
@@ -1202,6 +1218,7 @@ Vue.component("sm-datagrid", {
 
             this.cancelEdit();
 
+            this.editing.grid = this;
             this.editing.active = true;
             this.editing.insertMode = false;
             this.editing.row = row;
@@ -1227,6 +1244,7 @@ Vue.component("sm-datagrid", {
             // AJAXified select2 tend to irritate Vue
             $(this.editing.tr).find(".select2").remove();
 
+            this.editing.grid = null;
             this.editing.active = false;
             this.editing.row = {};
             this.editing.tr = null;
