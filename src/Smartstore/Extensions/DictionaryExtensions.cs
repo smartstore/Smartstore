@@ -112,20 +112,20 @@ namespace Smartstore
             }
         }
 
-        public static IDictionary<string, object> Merge(this IDictionary<string, object> instance, string key, object value, bool replaceExisting = true)
+        public static IDictionary<string, object> Merge(this IDictionary<string, object> source, string key, object value, bool replaceExisting = true)
         {
-            if (replaceExisting || !instance.ContainsKey(key))
+            if (replaceExisting || !source.ContainsKey(key))
             {
-                instance[key] = value;
+                source[key] = value;
             }
 
-            return instance;
+            return source;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IDictionary<string, object> Merge(this IDictionary<string, object> instance, object values, bool replaceExisting = true)
+        public static IDictionary<string, object> Merge(this IDictionary<string, object> source, object values, bool replaceExisting = true)
         {
-            return instance.Merge(ConvertUtility.ObjectToDictionary(values), replaceExisting);
+            return source.Merge(ConvertUtility.ObjectToDictionary(values), replaceExisting);
         }
 
         public static IDictionary<TKey, TValue> Merge<TKey, TValue>(this IDictionary<TKey, TValue> instance, IDictionary<TKey, TValue> from, bool replaceExisting = true)
@@ -178,11 +178,26 @@ namespace Smartstore
             return val;
         }
 
-        public static bool TryGetValue<TValue>(this IReadOnlyDictionary<string, object> instance, string key, out TValue value)
+        public static bool TryGetValueAs<TValue>(this IReadOnlyDictionary<string, object> source, string key, out TValue value)
         {
-            if (instance.TryGetValue(key, out var obj) && obj is TValue tvalue)
+            Guard.NotNull(source, nameof(source));
+
+            if (source.TryGetValue(key, out var obj) && obj is TValue typedValue)
             {
-                value = tvalue;
+                value = typedValue;
+                return true;
+            }
+
+            value = default;
+            return false;
+        }
+
+        public static bool TryGetAndConvertValue<TValue>(this IReadOnlyDictionary<string, object> source, string key, out TValue value)
+        {
+            Guard.NotNull(source, nameof(source));
+
+            if (source.TryGetValue(key, out var obj) && ConvertUtility.TryConvert(obj, out value))
+            {
                 return true;
             }
 

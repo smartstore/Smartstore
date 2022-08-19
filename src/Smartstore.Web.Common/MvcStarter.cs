@@ -223,7 +223,6 @@ namespace Smartstore.Web
             builder.Configure(StarterOrdering.AfterRoutingMiddleware, app =>
             {
                 // TODO: (core) Use Swagger
-                // TODO: (core) Use Response compression
             });
         }
 

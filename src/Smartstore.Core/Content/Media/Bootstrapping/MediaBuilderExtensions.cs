@@ -22,6 +22,7 @@ namespace Smartstore.Core.Bootstrapping
             return app;
         }
 
-        static bool IsGetOrHead(HttpContext ctx) => ctx.Request.Method == HttpMethods.Get || ctx.Request.Method == HttpMethods.Head;
+        static bool IsGetOrHead(HttpContext ctx) 
+            => ctx.Request.Method == HttpMethods.Get || ctx.Request.Method == HttpMethods.Head;
     }
 }

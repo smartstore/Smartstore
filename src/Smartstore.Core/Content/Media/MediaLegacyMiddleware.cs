@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Routing.Template;
 using Microsoft.Net.Http.Headers;
+using Smartstore.Data;
 
 namespace Smartstore.Core.Content.Media
 {
@@ -10,6 +11,11 @@ namespace Smartstore.Core.Content.Media
     /// </summary>
     public class MediaLegacyMiddleware
     {
+        const string IdToken = "id";
+        const string TenantToken = "tenant";
+        const string PathToken = "path";
+        const string DefaultTenantName = "default";
+
         private readonly RequestDelegate _next;
         private readonly List<TemplateMatcher> _matchers = new(3);
 
@@ -21,6 +27,7 @@ namespace Smartstore.Core.Content.Media
 
         private static IEnumerable<TemplateMatcher> BuildTemplateMatchers(string publicPath)
         {
+            // INFO: TemplateMatcher cannot handle inline constraints at this stage. We gonna check ourselves.
             var endpoints = new[]
             {
                 // Match legacy URL pattern /{pub}/uploaded/{path}[?{query}], e.g. '/media/uploaded/subfolder/image.png' 
@@ -36,19 +43,42 @@ namespace Smartstore.Core.Content.Media
             return endpoints.Select(x => new TemplateMatcher(TemplateParser.Parse(x), new RouteValueDictionary()));
         }
 
-        private bool TryMatchRoute(PathString path, out RouteValueDictionary values)
+        private bool TryMatchRoute(PathString path, out int? id, out string remainingPath)
         {
-            values = new RouteValueDictionary();
+            remainingPath = null;
+            id = null;
 
-            foreach (var matcher in _matchers)
+            var values = new RouteValueDictionary();
+
+            // media/uploaded/*
+            if (_matchers[0].TryMatch(path, values))
             {
-                if (matcher.TryMatch(path, values))
+                remainingPath = (string)values[PathToken];
+                return true;
+            }
+            
+            // media/{tenant}/uploaded/*
+            if (_matchers[1].TryMatch(path, values))
+            {
+                if (values.TryGetValueAs<string>(TenantToken, out var tenant) && 
+                    (tenant.EqualsNoCase(DefaultTenantName) || tenant.EqualsNoCase(DataSettings.Instance.TenantName)))
                 {
+                    remainingPath = (string)values[PathToken];
                     return true;
                 }
             }
 
-            values = null;
+            // media/image/{id}/*
+            if (_matchers[2].TryMatch(path, values))
+            {
+                if (values.TryGetAndConvertValue<int>(IdToken, out var value))
+                {
+                    id = value;
+                    remainingPath = (string)values[PathToken];
+                    return true;
+                }
+            }
+
             return false;
         }
 
@@ -57,13 +87,12 @@ namespace Smartstore.Core.Content.Media
             Lazy<IMediaService> mediaService,
             Lazy<IMediaUrlGenerator> mediaUrlGenerator)
         {
-            if (!TryMatchRoute(context.Request.Path, out var routeValues))
+            if (!TryMatchRoute(context.Request.Path, out var mediaFileId, out var path))
             {
                 await _next(context);
                 return;
             }
 
-            var path = (string)routeValues["path"];
             if (path.IsEmpty())
             {
                 // Cannot operate without path
@@ -73,13 +102,12 @@ namespace Smartstore.Core.Content.Media
                 return;
             }
 
-            var mediaFileId = routeValues["id"].Convert<int?>();
 
             MediaFileInfo mediaFile;
 
             if (mediaFileId.HasValue)
             {
-                /// Redirect legacy URL "/{pub}/image/234/file.png" to "/{pub}/234/catalog/path/to/file.png"
+                // Redirect legacy URL "/{pub}/image/234/file.png" to "/{pub}/234/catalog/path/to/file.png"
                 mediaFile = await mediaService.Value.GetFileByIdAsync(mediaFileId.Value, MediaLoadFlags.AsNoTracking);
             }
             else
@@ -103,7 +131,7 @@ namespace Smartstore.Core.Content.Media
             {
                 // Redirect to new location
                 context.Response.StatusCode = context.Connection.IsLocal() ? 302 : 301;
-                context.Response.Headers[HeaderNames.Location] = path;
+                context.Response.Headers[HeaderNames.Location] = url;
             }
         }
     }

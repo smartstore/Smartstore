@@ -20,6 +20,9 @@ namespace Smartstore.Core.Content.Media
 
     public class MediaMiddleware
     {
+        const string IdToken = "id";
+        const string PathToken = "path";
+
         private readonly RequestDelegate _next;
         private readonly IApplicationContext _appContext;
         private readonly IEventPublisher _eventPublisher;
@@ -36,21 +39,27 @@ namespace Smartstore.Core.Content.Media
             _eventPublisher = eventPublisher;
 
             // Match main URL pattern /{pub}/{id}/{path}[?{query}], e.g. '/media/234/{album}/myproduct.png?size=250'
+            // INFO: TemplateMatcher cannot handle inline constraints at this stage. We gonna check ourselves.
             var mediaPublicPath = mediaStorageConfiguration.PublicPath;
-            var template = TemplateParser.Parse(mediaPublicPath + "{id:int}/{**path}");
+            var template = TemplateParser.Parse(mediaPublicPath + "{id}/{**path}");
             _matcher = new TemplateMatcher(template, new RouteValueDictionary());
         }
 
-        private bool TryMatchRoute(PathString path, out RouteValueDictionary values)
+        private bool TryMatchRoute(PathString path, out int id, out string remainingPath)
         {
-            values = new RouteValueDictionary();
+            remainingPath = null;
+            id = 0;
 
+            var values = new RouteValueDictionary();
             if (_matcher.TryMatch(path, values))
             {
-                return true;
+                if (values.TryGetAndConvertValue<int>(IdToken, out id))
+                {
+                    remainingPath = (string)values[PathToken];
+                    return true;
+                }
             }
 
-            values = null;
             return false;
         }
 
@@ -65,14 +74,11 @@ namespace Smartstore.Core.Content.Media
             Lazy<IEnumerable<IMediaHandler>> mediaHandlers,
             ILogger<MediaMiddleware> logger)
         {
-            if (!TryMatchRoute(context.Request.Path, out var routeValues))
+            if (!TryMatchRoute(context.Request.Path, out var mediaFileId, out var path))
             {
                 await _next(context);
                 return;
             }
-
-            var mediaFileId = routeValues["id"].Convert<int>();
-            var path = (string)routeValues["path"];
 
             MediaFileInfo mediaFile = null;
             MediaPathData pathData = null;
