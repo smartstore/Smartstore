@@ -23,8 +23,7 @@ Smartstore uses Nuke (https://nuke.build/) as build automation solution, which m
 
 ### Info about "src/Smartstore.Web/Modules" directory
 
-While building the solution, all modules in `src/Smartstore.Modules/` are discovered, compiled and placed in the `src/Smartstore.Web/Modules/` directory. The application runtime uses this directory as a source from which modules are dynamically
-loaded from. However, during development, the "Modules" directory is irrelevant. You can safely delete it at any time.
+While building the solution, all modules in `src/Smartstore.Modules/` are discovered, compiled and placed in the `src/Smartstore.Web/Modules/` directory. The application runtime uses this directory as a source from which modules are dynamically loaded from. However, during development, the "Modules" directory is irrelevant. You can safely delete it at any time.
 
 
 
