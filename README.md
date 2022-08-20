@@ -27,6 +27,7 @@ A comprehensive set of tools for CRM & CMS, sales, marketing, payment & shipping
 <p align="center">
   <img src="assets/sm5-devices.png" alt="Smartstore Demoshop" />
 </p>
+
 **Smartstore delivers a beautiful and configurable shop frontend out-of-the-box**, built with a design approach on the highest level, including components like `Sass`, `Bootstrap` and others. The supplied theme _Flex_ is modern, clean and fully responsive, giving buyers the best possible shopping experience on any device. The 
 
 The state-of-the-art architecture of Smartstore - with `ASP.NET Core 6`, `Entity Framework Core 6` and Domain Driven Design approach - makes it easy to extend, extremely flexible and essentially fun to work with ;-)
@@ -37,6 +38,7 @@ The state-of-the-art architecture of Smartstore - with `ASP.NET Core 6`, `Entity
 * :earth_americas: **Translations:** [http://translate.smartstore.com/](http://translate.smartstore.com/)
 * :blue_book: **Documentation:** [Smartstore Documentation in English](https://smartstore.atlassian.net/wiki/spaces/SMNET50/pages/1956118583/Getting+Started)
 <p>&nbsp;</p>
+
 ## Highlights
 
 ### Technology & Design
@@ -87,12 +89,14 @@ The state-of-the-art architecture of Smartstore - with `ASP.NET Core 6`, `Entity
 * Mac OS X 10.11+
 * MS SQL Server 2008 Express (or higher), MySQL
 <p>&nbsp;</p>
+
 ## Upgrade from Smartstore.NET 4.2
 
 This repository is a port of [Smartstore.NET 4](https://github.com/smartstore/SmartStoreNET) - which is based on the classic .NET Framework 4.7.2 – to the new `ASP.NET Core 6` platform. 
 
 Smartstore instances based on classic `ASP.NET MVC` can be upgraded seamlessly. To [perform the upgrade](https://smartstore.atlassian.net/wiki/spaces/SMNET50/pages/1956118609/Updating+from+Previous+Versions), only the app files need to be replaced on your server - except for the `App_Data` directory - and **all data will be automatically transferred to the new system**. [Checks the docs for detailed information about installing or upgrading your shop](https://smartstore.atlassian.net/wiki/spaces/SMNET50/pages/1956118822/Installing+Smartstore).
 <p>&nbsp;</p>
+
 ## Build Smartstore
 
 ### Option 1 - by publishing the entry host project
@@ -143,6 +147,7 @@ Creates a composite Docker container containing the **smartstore** application i
 
 Creates a composite Docker container containing the **smartstore** application image and the latest **MS SQL Server** image.
 <p>&nbsp;</p>
+
 ## Try it online
 
 We have set up a live online demo for you so you are able to test Smartstore without local installation. Get a first impression and test all available features in the front- and in the backend. Please keep in mind that the backend demo is shared and other testers can modify data at the same time.
@@ -150,6 +155,7 @@ We have set up a live online demo for you so you are able to test Smartstore wit
 * [**Frontend**](https://core.smartstore.com/frontend/en) (User: demo, PWD: 1234)
 * [**Backend**](https://core.smartstore.com/backend/en/login) (User: demo, PWD: 1234)
 <p>&nbsp;</p>
+
 ## License
 
 Smartstore Community Edition is released under the [AGPL license](https://www.gnu.org/licenses/agpl-3.0.de.html).
