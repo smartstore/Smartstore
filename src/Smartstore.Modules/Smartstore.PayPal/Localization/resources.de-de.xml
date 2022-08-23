@@ -87,19 +87,6 @@
 			<LocaleResource Name="WebhookUrl.Hint">
 				<Value>Hinterlegen Sie diese URL in Ihrer PayPal App als Webhook URL.</Value>
 			</LocaleResource>
-			
-			<LocaleResource Name="AdditionalFee">
-        <Value>Zusätzliche Gebühren</Value>
-      </LocaleResource>
-      <LocaleResource Name="AdditionalFee.Hint">
-        <Value>Zusätzliche Gebühren, die dem Kunden für die Inanspruchnahme dieser Zahlart berechnet werden sollen.</Value>
-      </LocaleResource>
-      <LocaleResource Name="AdditionalFeePercentage">
-        <Value>Zusätzliche Gebühren prozentual berechnen</Value>
-      </LocaleResource>
-      <LocaleResource Name="AdditionalFeePercentage.Hint">
-        <Value>Berechnet die zusätzliche Gebühr prozentual vom Bestellwert. Die konfigurierte Gebühr wird als fester Wert verwendet, falls diese Option nicht aktiviert ist.</Value>
-      </LocaleResource>
 			<LocaleResource Name="ShowButtonInMiniShoppingCart">
 				<Value>Button im Miniwarenkorb anzeigen</Value>
 			</LocaleResource>

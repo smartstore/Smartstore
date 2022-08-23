@@ -75,9 +75,6 @@
       <LocaleResource Name="Secret.Hint">
         <Value>Enter the password that was sent to you by the payment provider.</Value>
       </LocaleResource>
-      <LocaleResource Name="AdditionalFee">
-        <Value>Additional fee</Value>
-      </LocaleResource>
 			<LocaleResource Name="WebhookId">
 				<Value>Webhook ID</Value>
 			</LocaleResource>
@@ -90,16 +87,6 @@
 			<LocaleResource Name="WebhookUrl.Hint">
 				<Value>Save this URL in your PayPal app as a webhook URL.</Value>
 			</LocaleResource>
-			
-      <LocaleResource Name="AdditionalFee.Hint">
-        <Value>Enter additional fee to charge your customers.</Value>
-      </LocaleResource>
-      <LocaleResource Name="AdditionalFeePercentage">
-        <Value>Additional fee. Use percentage</Value>
-      </LocaleResource>
-      <LocaleResource Name="AdditionalFeePercentage.Hint">
-        <Value>Specifies whether to apply a percentage additional fee to the order total. If not enabled, a fixed value is used.</Value>
-      </LocaleResource>
 			<LocaleResource Name="ShowButtonInMiniShoppingCart">
 				<Value>Show button in mini shopping cart</Value>
 			</LocaleResource>

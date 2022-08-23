@@ -1,5 +1,4 @@
-﻿using Smartstore.Core.Checkout.Cart;
-using Smartstore.Core.Checkout.Orders;
+﻿using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Data;
 using Smartstore.Core.Widgets;
@@ -41,9 +40,6 @@ namespace Smartstore.PayPal.Providers
         public override RecurringPaymentType RecurringPaymentType => RecurringPaymentType.Automatic;
 
         public override PaymentMethodType PaymentMethodType => PaymentMethodType.StandardAndButton;
-
-        public override Task<(decimal FixedFeeOrPercentage, bool UsePercentage)> GetPaymentFeeInfoAsync(ShoppingCart cart)
-            => Task.FromResult<(decimal FixedFeeOrPercentage, bool UsePercentage)>(new(_settings.AdditionalFee, _settings.AdditionalFeePercentage));
 
         public override WidgetInvoker GetPaymentInfoWidget()
             => new ComponentWidgetInvoker(typeof(PayPalViewComponent), true);

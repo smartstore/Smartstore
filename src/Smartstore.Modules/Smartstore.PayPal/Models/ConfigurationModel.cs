@@ -21,12 +21,6 @@
         [LocalizedDisplay("*WebhookUrl")]
         public string WebhookUrl { get; set; }
 
-        [LocalizedDisplay("*AdditionalFee")]
-        public decimal AdditionalFee { get; set; }
-
-        [LocalizedDisplay("*AdditionalFeePercentage")]
-        public bool AdditionalFeePercentage { get; set; }
-
         [LocalizedDisplay("*ShowButtonInMiniShoppingCart")]
         public bool ShowButtonInMiniShoppingCart { get; set; }
 
