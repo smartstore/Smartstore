@@ -283,7 +283,6 @@ namespace Smartstore.Caching
 
             var wildcard = new Wildcard(pattern, RegexOptions.IgnoreCase);
             return _keys
-                .AsParallel()
                 .Where(x => wildcard.IsMatch(x))
                 .ToArray();
         }
