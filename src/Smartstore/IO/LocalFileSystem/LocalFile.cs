@@ -242,10 +242,10 @@ namespace Smartstore.IO
         public void Create(Stream inStream, bool overwrite)
             => CreateInternal(inStream, overwrite, false).Await();
 
-        public Task CreateAsync(Stream inStream, bool overwrite)
-            => CreateInternal(inStream, overwrite, true);
+        public Task CreateAsync(Stream inStream, bool overwrite, CancellationToken cancelToken = default)
+            => CreateInternal(inStream, overwrite, true, cancelToken);
 
-        private async Task CreateInternal(Stream inStream, bool overwrite, bool async)
+        private async Task CreateInternal(Stream inStream, bool overwrite, bool async, CancellationToken cancelToken = default)
         {
             if (!overwrite && _fi.Exists)
             {
@@ -264,7 +264,7 @@ namespace Smartstore.IO
 
             if (async)
             {
-                await inStream.CopyToAsync(outputStream);
+                await inStream.CopyToAsync(outputStream, cancelToken);
             }
             else
             {

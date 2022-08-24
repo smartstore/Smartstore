@@ -108,6 +108,9 @@ namespace Smartstore.IO
         /// If the specified path contains one or more directories, then those directories are created if they do not already exist.
         /// </remarks>
         Task CreateAsync(Stream inStream, bool overwrite, CancellationToken cancelToken = default)
-            => throw new NotImplementedException();
+        {
+            Create(inStream, overwrite);
+            return Task.CompletedTask;
+        }
     }
 }

@@ -141,10 +141,10 @@ namespace Smartstore
         /// If the specified path contains one or more directories, then those directories are created if they do not already exist.
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Task<IFile> CreateFileAsync(this IFileSystem fs, string subpath, Stream inStream, bool overwrite = false)
-            => CreateFileInternal(fs, subpath, inStream, overwrite, true);
+        public static Task<IFile> CreateFileAsync(this IFileSystem fs, string subpath, Stream inStream, bool overwrite = false, CancellationToken cancelToken = default)
+            => CreateFileInternal(fs, subpath, inStream, overwrite, true, cancelToken);
 
-        private static async Task<IFile> CreateFileInternal(IFileSystem fs, string subpath, Stream inStream, bool overwrite, bool async)
+        private static async Task<IFile> CreateFileInternal(IFileSystem fs, string subpath, Stream inStream, bool overwrite, bool async, CancellationToken cancelToken = default)
         {
             Guard.NotNull(fs, nameof(fs));
 
@@ -164,7 +164,7 @@ namespace Smartstore
             if (async)
             {
                 await fs.TryCreateDirectoryAsync(file.Directory);
-                await file.CreateAsync(inStream, overwrite);
+                await file.CreateAsync(inStream, overwrite, cancelToken);
             }
             else
             {
