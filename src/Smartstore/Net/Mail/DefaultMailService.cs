@@ -3,7 +3,6 @@ using System.Security.Cryptography.X509Certificates;
 using MailKit.Net.Smtp;
 using MimeKit;
 using MimeKit.IO;
-using MimeKit.Text;
 
 namespace Smartstore.Net.Mail
 {
@@ -15,7 +14,7 @@ namespace Smartstore.Net.Mail
 
             var mClient = new SmtpClient
             {
-                ServerCertificateValidationCallback = ValidateServerCertificate,
+                ServerCertificateValidationCallback = OnValidateServerCertificate,
                 Timeout = timeout
             };
 
@@ -31,7 +30,7 @@ namespace Smartstore.Net.Mail
 
             var mClient = new SmtpClient
             {
-                ServerCertificateValidationCallback = ValidateServerCertificate,
+                ServerCertificateValidationCallback = OnValidateServerCertificate,
                 Timeout = timeout
             };
 
@@ -107,9 +106,8 @@ namespace Smartstore.Net.Mail
             } while (true);
         }
 
-        private static bool ValidateServerCertificate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
+        protected virtual bool OnValidateServerCertificate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
         {
-            // TODO: (core) Make ValidateServerCertificate overridable later. 
             return true;
         }
 
@@ -148,26 +146,40 @@ namespace Smartstore.Net.Mail
             msg.ReplyTo.AddRange(original.ReplyTo.Where(x => x.Address.HasValue()).Select(x => x.AsMailBoxAddress()));
 
             // Body
-            var multipart = new Multipart();
+            var builder = new BodyBuilder();
 
             if (original.AltText.HasValue())
             {
-                multipart.Add(new TextPart(TextFormat.Html) { Text = original.Body });
-                multipart.Add(new TextPart(TextFormat.Text) { Text = original.AltText });
+                builder.HtmlBody = original.Body;
+                builder.TextBody = original.AltText;
             }
             else
             {
-                var textFormat = original.BodyFormat == MailBodyFormat.Html ? TextFormat.Html : TextFormat.Text;
-                multipart.Add(new TextPart(textFormat) { Text = original.Body });
+                if (original.BodyFormat == MailBodyFormat.Html)
+                {
+                    builder.HtmlBody = original.Body;
+                }
+                else
+                {
+                    builder.TextBody = original.Body;
+                }
             }
 
             // Attachments
             foreach (var attachment in original.Attachments)
             {
-                multipart.Add(BuildMimePart(attachment));
+                var mimePart = BuildMimePart(attachment);
+                if (attachment.IsEmbedded)
+                {
+                    builder.LinkedResources.Add(mimePart);
+                }
+                else
+                {
+                    builder.Attachments.Add(mimePart);
+                }
             }
 
-            msg.Body = multipart;
+            msg.Body = builder.ToMessageBody();
 
             // Headers
             foreach (var kvp in original.Headers)

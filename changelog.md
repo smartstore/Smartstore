@@ -5,6 +5,7 @@
 ### New Features
 
 - New plugin: *Google Remarketing*
+- (DEV) Embedded mail attachments
 
 ### Improvements
 
