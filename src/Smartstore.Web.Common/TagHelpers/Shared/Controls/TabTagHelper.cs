@@ -39,7 +39,15 @@ namespace Smartstore.Web.TagHelpers.Shared
             {
                 Parent = parent;
                 Index = parent.Tabs.Count;
-                parent.Tabs.Add(this);
+
+                if (DisplayOrder < 0)
+                {
+                    parent.Tabs.Add(this);
+                }
+                else
+                {
+                    parent.Tabs.Insert(DisplayOrder, this);
+                }
             }
         }
 
@@ -129,6 +137,9 @@ namespace Smartstore.Web.TagHelpers.Shared
 
         [HtmlAttributeNotBound]
         internal int Index { get; set; }
+
+        [HtmlAttributeNotBound]
+        internal int DisplayOrder { get; set; } = -1;
 
         [HtmlAttributeNotBound]
         internal TagHelperContent TabInnerContent { get; set; }
