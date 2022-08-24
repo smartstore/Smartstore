@@ -1,5 +1,29 @@
 # Release Notes
 
+## Smartstore 5.0.1
+
+### New Features
+
+- New plugin: *Google Remarketing*
+
+### Improvements
+
+- (DEV) New methods: TabFactory `InsertBeforeAsync()` and `InsertAfterAsync()`
+- (DEV) DataGrid row editing: handle prefixed controls correctly (e.g. "CustomProperties")
+- Additional fees are not allowed by PayPal, therefore removed the feature
+- Added cacheable routes for *Google Analytics* widgets
+
+### Bugfixes
+
+- `LocalFile` did not implement `CreateFileAsync()` correctly, which led to PackageInstaller, PageBuilder thumbnail cache and PublicFolderPublisher throwing NotImplementedException
+- Media legacy url redirection did not work: `TemplateMatcher` does not evaluate inline constraints anymore
+- *MediaManager* always displayed current date instead of file's last updated date
+- *MegaMenu*: fixed badge styling issues
+- Fixed "Unknown schema or invalid link expression 'mailto:...'
+- Memory cache: parallel key enumeration sometimes failed
+- Fixed *Google Analytics* number formatting issues
+
+
 ## Smartstore 5.0.0
 
 Smartstore 5 is a port of Smartstore 4 - which is based on the classic .NET Framework 4.7.2 - to the new ASP.NET Core 6 platform.
