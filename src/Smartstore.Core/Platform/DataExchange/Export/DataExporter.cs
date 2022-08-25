@@ -1324,7 +1324,8 @@ namespace Smartstore.Core.DataExchange.Export
                         }
                         else
                         {
-                            unitFileInfos.Append($"\r\nProvider reports {unit.RecordsSucceeded:N0} successfully exported record(s) of type {unit.RelatedType.Value} to {unitFile?.PhysicalPath?.NaIfEmpty()}.");
+                            unitFileInfos.AppendLine();
+                            unitFileInfos.Append($"Provider reports {unit.RecordsSucceeded:N0} successfully exported record(s) of type {unit.RelatedType.Value} to {unitFile?.PhysicalPath?.NaIfEmpty()}.");
                         }
                     }
 

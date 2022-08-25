@@ -80,16 +80,16 @@ namespace Smartstore.Utilities.Html.CodeFormatter
                     htmlf.Alternate = options.AlternateLineNumbers;
                     text = StripHtml(text).Trim();
                     string code = htmlf.FormatCode(HttpUtility.HtmlDecode(text)).Trim();
-                    return code.Replace("\r\n", "<br />").Replace("\n", "<br />");
+                    return code.Replace(Environment.NewLine, "<br />").Replace("\n", "<br />");
 
                 case "xml":
                     var xmlf = new HtmlFormat();
                     xmlf.LineNumbers = options.DisplayLineNumbers;
                     xmlf.Alternate = options.AlternateLineNumbers;
-                    text = text.Replace("<br />", "\r\n");
+                    text = text.Replace("<br />", Environment.NewLine);
                     text = StripHtml(text).Trim();
                     string xml = xmlf.FormatCode(HttpUtility.HtmlDecode(text)).Trim();
-                    return xml.Replace("\r\n", "<br />").Replace("\n", "<br />");
+                    return xml.Replace(Environment.NewLine, "<br />").Replace("\n", "<br />");
 
                 case "tsql":
                     var tsqlf = new TsqlFormat();

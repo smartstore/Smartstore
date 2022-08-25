@@ -68,7 +68,7 @@ namespace Smartstore.Web.TagHelpers.Admin
                 overrideColDiv.InnerHtml.AppendHtml(SettingOverrideCheckboxInternal(data));
 
                 // Controls are not floating, so line-break prevents different distances between them.
-                overrideColDiv.InnerHtml.Append("\r\n");
+                overrideColDiv.InnerHtml.AppendLine();
 
                 var settingColDiv = new TagBuilder("div");
                 settingColDiv.Attributes["class"] = "col multi-store-setting-control";

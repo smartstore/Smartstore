@@ -8,10 +8,6 @@ namespace Smartstore
         private const string DumpStr = "------------------------------------------------";
 
         public const string NotAvailable = "n/a";
-        public const string CarriageReturnLineFeed = "\r\n";
-        public const char CarriageReturn = '\r';
-        public const char LineFeed = '\n';
-        public const char Tab = '\t';
 
         private delegate void ActionLine(TextWriter textWriter, string line);
 

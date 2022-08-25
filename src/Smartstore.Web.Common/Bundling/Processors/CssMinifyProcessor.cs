@@ -43,7 +43,8 @@ namespace Smartstore.Web.Bundling.Processors
 
             if (result.HasErrors)
             {
-                minResult = "/* \r\n" + string.Join("\r\n\r\n", result.Errors.Select(x => x.ToString())) + " */\r\n" + asset.Content;
+                var nl = Environment.NewLine;
+                minResult = "/* " + nl + string.Join(nl + nl, result.Errors.Select(x => x.ToString())) + " */" + nl + asset.Content;
             }
             else
             {

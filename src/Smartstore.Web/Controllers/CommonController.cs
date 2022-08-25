@@ -109,10 +109,9 @@ namespace Smartstore.Web.Controllers
             #endregion
 
             var sitemapUrl = WebHelper.GetAbsoluteUrl(Url.Content("sitemap.xml"), Request, true, Services.StoreContext.CurrentStore.ForceSslForAllPages ? "https" : "http");
-            const string newLine = "\r\n"; // Environment.NewLine
             using var psb = StringBuilderPool.Instance.Get(out var sb);
             sb.Append("User-agent: *");
-            sb.Append(newLine);
+            sb.AppendLine();
             sb.AppendFormat("Sitemap: {0}", sitemapUrl);
             sb.AppendLine();
 
@@ -159,7 +158,7 @@ namespace Smartstore.Web.Controllers
             foreach (var line in lines)
             {
                 sb.AppendFormat($"{(allow ? "Allow" : "Disallow")}: {line}");
-                sb.Append("\r\n");
+                sb.AppendLine();
             }
         }
 

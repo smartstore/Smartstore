@@ -63,12 +63,13 @@ namespace Smartstore.Web.Bundling.Processors
 
         private void HandleError(AssetContent asset, string message)
         {
+            var nl = Environment.NewLine;
             var errorHeader = string.Concat(
-                "// Autoprefixer error ======================================================================\r\n",
-                "/*\r\n",
-                message + "\r\n",
-                "*/\r\n",
-                "// =========================================================================================\r\n\r\n");
+                "// Autoprefixer error ======================================================================", nl,
+                "/*", nl,
+                message, nl,
+                "*/", nl,
+                "// =========================================================================================", nl, nl);
 
             asset.Content = errorHeader + asset.Content;
         }

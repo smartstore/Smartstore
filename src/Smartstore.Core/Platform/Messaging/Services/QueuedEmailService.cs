@@ -166,7 +166,7 @@ namespace Smartstore.Core.Messaging
 
             var msg = new MailMessage(
                 qe.To,
-                qe.Subject.Replace("\r\n", string.Empty),
+                qe.Subject.Replace(Environment.NewLine, string.Empty),
                 qe.Body,
                 qe.From);
 

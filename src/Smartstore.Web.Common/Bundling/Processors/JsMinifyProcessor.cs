@@ -32,7 +32,8 @@ namespace Smartstore.Web.Bundling.Processors
                 }
                 catch (Exception ex)
                 {
-                    asset.Content = "/* \r\n" + ex.ToAllMessages() + " */\r\n" + asset.Content;
+                    var nl = Environment.NewLine;
+                    asset.Content = "/* " + nl + ex.ToAllMessages() + " */" + nl + asset.Content;
                 }
             }
 
