@@ -27,6 +27,7 @@ A comprehensive set of tools for CRM & CMS, sales, marketing, payment & shipping
 <p align="center">
   <img src="assets/sm5-devices.png" alt="Smartstore Demoshop" />
 </p>
+
 **Smartstore delivers a beautiful and configurable shop frontend out-of-the-box**, built with a design approach on the highest level, including components like `Sass`, `Bootstrap` and others. The supplied theme _Flex_ is modern, clean and fully responsive, giving buyers the best possible shopping experience on any device.
 
 The state-of-the-art architecture of Smartstore - with `ASP.NET Core 6`, `Entity Framework Core 6` and Domain Driven Design approach - makes it easy to extend, extremely flexible and essentially fun to work with ;-)
