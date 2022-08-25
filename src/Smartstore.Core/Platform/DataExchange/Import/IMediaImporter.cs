@@ -1,4 +1,6 @@
-﻿using Smartstore.Core.Content.Media;
+﻿using Smartstore.Collections;
+using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Content.Media;
 using Smartstore.Data;
 using Smartstore.IO;
 using Smartstore.Net.Http;
@@ -39,6 +41,48 @@ namespace Smartstore.Core.DataExchange.Import
             object state = null,
             int displayOrder = 0,
             HashSet<string> fileNameLookup = null);
+
+        /// <summary>
+        /// Imports a batch of images assigned directly to one entity.
+        /// </summary>
+        /// <typeparam name="T">The type of entity for which the file are imported.</typeparam>
+        /// <param name="downloadManagerItems">Collection of product images to be imported. Images are downloaded if <see cref="DownloadManagerItem.Url"/> is specified.</param>
+        /// <param name="album">Media album to be assigned to the imported images.</param>
+        /// <param name="addMediaFile">Callback function to assign the imported file to the designated entity.</param>
+        /// <param name="checkAssignedFile">Callback function to check if the file to be imported is already assigned to the designated entity.</param>
+        /// <param name="checkExistingFile">Defines whether to check for existing files in the same media folder.</param>
+        /// <param name="duplicateFileHandling">A value indicating how to handle duplicate images.</param>
+        /// <returns>Number of new images.</returns>
+        Task<int> ImportMediaFileAsync<T>(
+            DbContextScope scope,
+            ICollection<DownloadManagerItem> downloadManagerItems,
+            TreeNode<MediaFolderNode> album,
+            Action<T, int> addMediaFile,
+            Func<T, FileStream, Task<bool>> checkAssignedFile,
+            bool checkExistingFile,
+            DuplicateFileHandling duplicateFileHandling = DuplicateFileHandling.Rename,
+            CancellationToken cancelToken = default) where T : BaseEntity;
+
+        /// <summary>
+        /// Imports a batch of images assigned to parent entities via IMediaFile (e.g. <see cref="ProductMediaFile"/>).
+        /// </summary>
+        /// <param name="items">Collection of product images to be imported. Images are downloaded if <see cref="DownloadManagerItem.Url"/> is specified.</param>
+        /// <param name="existingFiles">Multimap of already assigned media files.</param>
+        /// <param name="album">Media album to be assigned to the imported images.</param>
+        /// <param name="addMediaFile">
+        ///     Callback function to assign imported files to designated entities which derive from IMediaFile (e.g. <see cref="ProductMediaFile"/>).
+        ///     Returns the assigned mediafile so it can be added to existing files and won't be imported again.
+        /// </param>
+        /// <param name="duplicateFileHandling">A value indicating how to handle duplicate images.</param>
+        /// <returns>Number of new images.</returns>
+        Task<int> ImportMediaFilesAsync(
+            DbContextScope scope,
+            ICollection<DownloadManagerItem> items,
+            Multimap<int, IMediaFile> existingFiles,
+            TreeNode<MediaFolderNode> album,
+            Func<MediaFile, DownloadManagerItem, IMediaFile> addMediaFile,
+            DuplicateFileHandling duplicateFileHandling = DuplicateFileHandling.Rename,
+            CancellationToken cancelToken = default);
 
         /// <summary>
         /// Imports a batch of product images.
