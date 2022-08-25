@@ -6,7 +6,6 @@ namespace Smartstore.Net.Mail
 {
     public partial class MailKitSmtpClient : Disposable, ISmtpClient
     {
-        // TODO: (core) ErrHandling & Logging in MailKitSmtpClient (?)
         private readonly SmtpClient _client;
 
         public MailKitSmtpClient(SmtpClient client, IMailAccount account)

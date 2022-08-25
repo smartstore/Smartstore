@@ -27,8 +27,7 @@ A comprehensive set of tools for CRM & CMS, sales, marketing, payment & shipping
 <p align="center">
   <img src="assets/sm5-devices.png" alt="Smartstore Demoshop" />
 </p>
-
-**Smartstore delivers a beautiful and configurable shop frontend out-of-the-box**, built with a design approach on the highest level, including components like `Sass`, `Bootstrap` and others. The supplied theme _Flex_ is modern, clean and fully responsive, giving buyers the best possible shopping experience on any device. The 
+**Smartstore delivers a beautiful and configurable shop frontend out-of-the-box**, built with a design approach on the highest level, including components like `Sass`, `Bootstrap` and others. The supplied theme _Flex_ is modern, clean and fully responsive, giving buyers the best possible shopping experience on any device.
 
 The state-of-the-art architecture of Smartstore - with `ASP.NET Core 6`, `Entity Framework Core 6` and Domain Driven Design approach - makes it easy to extend, extremely flexible and essentially fun to work with ;-)
 
@@ -44,41 +43,46 @@ The state-of-the-art architecture of Smartstore - with `ASP.NET Core 6`, `Entity
 ### Technology & Design
 
 * State of the art architecture thanks to `ASP.NET Core 6`, `Entity Framework Core 6` and Domain Driven Design
-* Easy to extend and extremely flexible thanks to modular design
+* Cross-platform: run it on Windows, Linux, or Mac
+* Supports `Docker` out of the box for easy deployment
+* Composable, easy to extend and extremely flexible thanks to modular design
 * Highly scalable thanks to full page caching and web farm support 
-* A powerful theming engine lets you create themes & skins with minimum effort thanks to theme inheritance
+* A powerful theming engine lets you create or customize themes & skins with minimum effort thanks to theme inheritance
 * Point&Click theme configuration
-* Highly professional search framework based on Lucene.NET, delivering ultra fast faceted search results
-* Powerful and lightning-fast media manager
-* Powerful rule system for visual business rule creation
+* Liquid template engine: very flexible templating for e-mails and campaigns with autocompletion and syntax highlighting
+* Html to PDF converter: PDF documents are created from regular HTML templates, therefore radically simplifying PDF output customization
 * Consistent and sophisticated use of modern components such as `Vue.js`, `Sass`, `Bootstrap` & more in the front and back end.
 * Easy shop management thanks to modern and clean UI
 
 ### Features
 
-* Unlimited number of products and categories
 * Multi-Store support
-* Multi-language and RTL support
-* Media Manager
-* Rule Builder
-* Product Bundles
-* RESTful WebApi
-* CMS Page Builder
-* CMS Menu Builder
-* Modern, clean, SEO-optimized and fully responsive theme based on `Bootstrap`
-* Ultra fast search framework with faceted search support
+* Multi-language and comprehensive RTL (Right-to-left) and bidi(rectional) support
+* Multi-currency support
+* Product Bundles, Variants, Attributes, ESD, Tier Prices, Cross Selling and many more
+* Sophisticated Marketing & Promotion capabilities (Gift Cards, Reward Points, Discounts of any type and more)
+* Reviews & Ratings
+* Media Manager: powerful and lightning-fast explorer for media files
+* Rule Builder: powerful rule system for visual business rule creation with dozens of predefined rules out-of-the-box
+* Search framework with faceted search support. Ultra fast search results, even with millions of items!
 * Extremely scalable thanks to output caching, REDIS & Microsoft Azure support
 * Tree-based permission management (ACL) with inheritance support
-* *Trusted Shops* precertification
+* Sophisticated import/export framework (profiles, filters, mapping, projections, scheduling, deployment... just everything!)
+* CMS Page Builder: create fascinating content that will boost your sales. No coding is required thanks to a powerful WYSIWYG editor which utilizes the revolutionary CSS Grid system
+* Blog, Forum, Polls, custom pages & HTML content etc.
+* CMS Menu Builder: visual manager for all sorts of menus. Change existing menus or create your own and place them anywhere you want
+* Modern, clean, SEO-optimized and fully responsive theme based on `Bootstrap`
+* Support for hierarchical SEO slugs, e.g.: *samsung/galaxy/s22/32gb/white*
+* *Trusted Shops* precertification and full compliance with EU-GDPR requirements
 * 100% compliant with German jurisdiction
 * Sales-, Customer- & Inventory-management
 * Comprehensive CRM features
-* Powerful Discount System
 * Powerful layered navigation in the shop
-* Numerous Payment and Shipping Providers and options
-* Sophisticated Marketing & Promotion capabilities (Gift cards, Reward Points, discounts of any type and more)
-* Reviews & Ratings
-* CMS (Blog, Forum, custom pages & HTML content etc.)
+* Numerous Payment and Shipping providers and options
+* Wallet: enables full or partial order payment via credit account
+* TinyImage: scores ultra-high image compression rates (up to 80 %!) and enables WebP support
+* Preview Mode: virtually test themes and stores more easily
+* RESTful WebApi (coming soon)
 * and many more...
 
 ### System requirements
