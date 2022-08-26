@@ -31,6 +31,28 @@
         IEnumerable<string> MimeTypes { get; }
     }
 
+    public interface IBmpFormat : IImageFormat
+    {
+        /// <summary>
+        /// Gets or sets the number of bits per pixel.
+        /// </summary>
+        BmpBitsPerPixel? BitsPerPixel { get; set; }
+
+        /// <summary>
+        /// Gets or sets the quantizer for reducing the color count for 8-Bit images.
+        /// Defaults to <see cref="QuantizationMethod.Octree"/>.
+        /// </summary>
+        QuantizationMethod? QuantizationMethod { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the encoder should support transparency.
+        /// Note: Transparency support only works together with 32 bits per pixel. This option will
+        /// change the default behavior of the encoder of writing a bitmap version 3 info header with no compression.
+        /// Instead a bitmap version 4 info header will be written with the BITFIELDS compression.
+        /// </summary>
+        bool? SupportTransparency { get; set; }
+    }
+
     public interface IJpegFormat : IImageFormat
     {
         /// <summary>

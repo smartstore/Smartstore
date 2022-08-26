@@ -1,9 +1,11 @@
 ﻿using SixLabors.ImageSharp.Formats;
+using SixLabors.ImageSharp.Formats.Bmp;
 using SixLabors.ImageSharp.Formats.Gif;
 using SixLabors.ImageSharp.Formats.Jpeg;
 using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.Formats.Webp;
 using SharpFormat = SixLabors.ImageSharp.Formats.IImageFormat;
+using SharpBmpBitsPerPixel = SixLabors.ImageSharp.Formats.Bmp.BmpBitsPerPixel;
 using SharpGifColorTableMode = SixLabors.ImageSharp.Formats.Gif.GifColorTableMode;
 using SharpJpgColorType = SixLabors.ImageSharp.Formats.Jpeg.JpegColorType;
 using SharpPngBitDepth = SixLabors.ImageSharp.Formats.Png.PngBitDepth;
@@ -49,6 +51,40 @@ namespace Smartstore.Imaging.Adapters.ImageSharp
             => SixLabors.ImageSharp.Configuration.Default.ImageFormatsManager.FindEncoder(_sharpFormat);
     }
 
+    internal class BmpFormat : SharpImageFormat, IBmpFormat
+    {
+        public BmpFormat(SharpFormat sharpFormat)
+            : base(sharpFormat)
+        {
+        }
+
+        /// <inheritdoc/>
+        public BmpBitsPerPixel? BitsPerPixel { get; set; }
+
+        /// <inheritdoc/>
+        public QuantizationMethod? QuantizationMethod { get; set; }
+
+        /// <inheritdoc/>
+        public bool? SupportTransparency { get; set; }
+
+        public override IImageEncoder CreateEncoder()
+        {
+            if (BitsPerPixel != null
+                || (SupportTransparency != null && SupportTransparency == true)
+                || (QuantizationMethod != null && QuantizationMethod != Imaging.QuantizationMethod.Octree))
+            {
+                return new BmpEncoder
+                {
+                    BitsPerPixel = (SharpBmpBitsPerPixel?)BitsPerPixel,
+                    Quantizer = ImageSharpUtility.CreateQuantizer(QuantizationMethod),
+                    SupportTransparency = SupportTransparency.GetValueOrDefault()
+                };
+            }
+
+            return base.CreateEncoder();
+        }
+    }
+
     internal class JpegFormat : SharpImageFormat, IJpegFormat
     {
         public JpegFormat(SharpFormat sharpFormat)
@@ -56,7 +92,10 @@ namespace Smartstore.Imaging.Adapters.ImageSharp
         {
         }
 
+        /// <inheritdoc/>
         public int? Quality { get; set; }
+
+        /// <inheritdoc/>
         public JpegColorType? ColorType { get; set; }
 
         public override IImageEncoder CreateEncoder()
@@ -81,15 +120,34 @@ namespace Smartstore.Imaging.Adapters.ImageSharp
         {
         }
 
+        /// <inheritdoc/>
         public PngBitDepth? BitDepth { get; set; }
+
+        /// <inheritdoc/>
         public PngColorType? ColorType { get; set; }
+
+        /// <inheritdoc/>
         public PngCompressionLevel? CompressionLevel { get; set; }
+
+        /// <inheritdoc/>
         public float? Gamma { get; set; }
+
+        /// <inheritdoc/>
         public byte? Threshold { get; set; }
+
+        /// <inheritdoc/>
         public QuantizationMethod? QuantizationMethod { get; set; }
+
+        /// <inheritdoc/>
         public PngInterlaceMode? InterlaceMode { get; set; }
+
+        /// <inheritdoc/>
         public PngChunkFilter? ChunkFilter { get; set; }
+
+        /// <inheritdoc/>
         public PngTransparentColorMode? TransparentColorMode { get; set; }
+
+        /// <inheritdoc/>
         public bool IgnoreMetadata { get; set; }
 
         public override IImageEncoder CreateEncoder()
@@ -137,14 +195,31 @@ namespace Smartstore.Imaging.Adapters.ImageSharp
         {
         }
 
+        /// <inheritdoc/>
         public WebpFileFormatType? FileFormat { get; set; }
+
+        /// <inheritdoc/>
         public int? Quality { get; set; }
+
+        /// <inheritdoc/>
         public WebpEncodingMethod? Method { get; set; }
+
+        /// <inheritdoc/>
         public bool? UseAlphaCompression { get; set; }
+
+        /// <inheritdoc/>
         public int? EntropyPasses { get; set; }
+
+        /// <inheritdoc/>
         public int? SpatialNoiseShaping { get; set; }
+
+        /// <inheritdoc/>
         public int? FilterStrength { get; set; }
+
+        /// <inheritdoc/>
         public bool? NearLossless { get; set; }
+
+        /// <inheritdoc/>
         public int? NearLosslessQuality { get; set; }
 
         public override IImageEncoder CreateEncoder()
@@ -195,7 +270,10 @@ namespace Smartstore.Imaging.Adapters.ImageSharp
         {
         }
 
+        /// <inheritdoc/>
         public QuantizationMethod? QuantizationMethod { get; set; }
+
+        /// <inheritdoc/>
         public GifColorTableMode? ColorTableMode { get; set; }
 
         public override IImageEncoder CreateEncoder()
