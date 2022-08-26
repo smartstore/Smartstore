@@ -43,44 +43,44 @@ namespace Smartstore.Core.DataExchange.Import
             HashSet<string> fileNameLookup = null);
 
         /// <summary>
-        /// Imports a batch of images assigned directly to one entity.
+        /// Generic method that imports a batch of media files assigned to entities with a 1:1 relationship to media files.
         /// </summary>
         /// <typeparam name="T">The type of entity for which the file are imported.</typeparam>
-        /// <param name="downloadManagerItems">Collection of product images to be imported. Images are downloaded if <see cref="DownloadManagerItem.Url"/> is specified.</param>
-        /// <param name="album">Media album to be assigned to the imported images.</param>
-        /// <param name="addMediaFile">Callback function to assign the imported file to the designated entity.</param>
-        /// <param name="checkAssignedFile">Callback function to check if the file to be imported is already assigned to the designated entity.</param>
+        /// <param name="items">Collection of files to be imported. Files are downloaded if <see cref="DownloadManagerItem.Url"/> is specified.</param>
+        /// <param name="album">Media album to be assigned to the imported files.</param>
+        /// <param name="assignMediaFileHandler">Callback function to assign the imported media file to the designated entity.</param>
+        /// <param name="checkAssignedMediaFileHandler">Callback function to check if the file to be imported is already assigned to the designated entity.</param>
         /// <param name="checkExistingFile">Defines whether to check for existing files in the same media folder.</param>
         /// <param name="duplicateFileHandling">A value indicating how to handle duplicate images.</param>
-        /// <returns>Number of new images.</returns>
-        Task<int> ImportMediaFileAsync<T>(
+        /// <returns>Number of actually imported files</returns>
+        Task<int> ImportMediaFilesAsync<T>(
             DbContextScope scope,
-            ICollection<DownloadManagerItem> downloadManagerItems,
-            TreeNode<MediaFolderNode> album,
-            Action<T, int> addMediaFile,
-            Func<T, FileStream, Task<bool>> checkAssignedFile,
+            ICollection<DownloadManagerItem> items,
+            MediaFolderNode album,
+            Action<T, int> assignMediaFileHandler,
+            Func<T, Stream, Task<bool>> checkAssignedMediaFileHandler,
             bool checkExistingFile,
             DuplicateFileHandling duplicateFileHandling = DuplicateFileHandling.Rename,
             CancellationToken cancelToken = default) where T : BaseEntity;
 
         /// <summary>
-        /// Imports a batch of images assigned to parent entities via IMediaFile (e.g. <see cref="ProductMediaFile"/>).
+        /// Generic method that imports a batch of media files assigned to entities with a 1:n relationship to media files (e.g. <see cref="Product"/> --&gt; <see cref="ProductMediaFile"/>).
         /// </summary>
-        /// <param name="items">Collection of product images to be imported. Images are downloaded if <see cref="DownloadManagerItem.Url"/> is specified.</param>
-        /// <param name="existingFiles">Multimap of already assigned media files.</param>
-        /// <param name="album">Media album to be assigned to the imported images.</param>
-        /// <param name="addMediaFile">
+        /// <param name="items">Collection of files to be imported. Files are downloaded if <see cref="DownloadManagerItem.Url"/> is specified.</param>
+        /// <param name="album">Media album to be assigned to the imported files.</param>
+        /// <param name="existingFiles">Map of already assigned media files.</param>
+        /// <param name="assignMediaFileHandler">
         ///     Callback function to assign imported files to designated entities which derive from IMediaFile (e.g. <see cref="ProductMediaFile"/>).
-        ///     Returns the assigned mediafile so it can be added to existing files and won't be imported again.
+        ///     Returns the assigned media file so it can be added to the existing files dictionary (so that it won't be imported again).
         /// </param>
         /// <param name="duplicateFileHandling">A value indicating how to handle duplicate images.</param>
-        /// <returns>Number of new images.</returns>
-        Task<int> ImportMediaFilesAsync(
+        /// <returns>Number of actually imported files</returns>
+        Task<int> ImportMediaFilesManyAsync(
             DbContextScope scope,
             ICollection<DownloadManagerItem> items,
+            MediaFolderNode album,
             Multimap<int, IMediaFile> existingFiles,
-            TreeNode<MediaFolderNode> album,
-            Func<MediaFile, DownloadManagerItem, IMediaFile> addMediaFile,
+            Func<MediaFile, DownloadManagerItem, IMediaFile> assignMediaFileHandler,
             DuplicateFileHandling duplicateFileHandling = DuplicateFileHandling.Rename,
             CancellationToken cancelToken = default);
 

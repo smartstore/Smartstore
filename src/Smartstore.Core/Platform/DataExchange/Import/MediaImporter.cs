@@ -135,17 +135,20 @@ namespace Smartstore.Core.DataExchange.Import
             }
         }
 
-        public virtual async Task<int> ImportMediaFilesAsync(
+        public virtual async Task<int> ImportMediaFilesManyAsync(
             DbContextScope scope,
             ICollection<DownloadManagerItem> items,
+            MediaFolderNode album,
             Multimap<int, IMediaFile> existingFiles,
-            TreeNode<MediaFolderNode> album, 
-            Func<MediaFile, DownloadManagerItem, IMediaFile> addMediaFile,
+            Func<MediaFile, DownloadManagerItem, IMediaFile> assignMediaFileHandler,
             DuplicateFileHandling duplicateFileHandling = DuplicateFileHandling.Rename,
             CancellationToken cancelToken = default)
         {
             Guard.NotNull(scope, nameof(scope));
             Guard.NotNull(items, nameof(items));
+            Guard.NotNull(album, nameof(album));
+            Guard.NotNull(existingFiles, nameof(existingFiles));
+            Guard.NotNull(assignMediaFileHandler, nameof(assignMediaFileHandler));
 
             var itemsMap = items
                 .Where(x => x?.Entity != null)
@@ -215,13 +218,14 @@ namespace Smartstore.Core.DataExchange.Import
                                         item.DisplayOrder = ++maxDisplayOrder;
                                     }
 
-                                    equalityCheck = await _mediaService.FindEqualFileAsync(stream, item.FileName, album.Value.Id, true);
+                                    equalityCheck = await _mediaService.FindEqualFileAsync(stream, item.FileName, album.Id, true);
                                     if (equalityCheck.Success)
                                     {
                                         // INFO: may occur during a subsequent import when products have the same SKU and
                                         // the images of the second product are additionally assigned to the first one.
-                                        existingFiles.Add(item.Entity.Id, addMediaFile(equalityCheck.Value, item));
-                                        AddMessage($"Found equal file in {album.Value.Name} album for '{item.FileName}'. Assigning existing file instead.");
+                                        var assignedFile = assignMediaFileHandler(equalityCheck.Value, item);
+                                        existingFiles.Add(item.Entity.Id, assignedFile);
+                                        AddMessage($"Found equal file in {album.Name} album for '{item.FileName}'. Assigning existing file instead.");
                                     }
                                     else
                                     {
@@ -264,7 +268,7 @@ namespace Smartstore.Core.DataExchange.Import
 
                     var batchFileResult = await _mediaService.BatchSaveFilesAsync(
                         newFiles.ToArray(),
-                        album.Value,
+                        album,
                         false,
                         duplicateFileHandling,
                         cancelToken);
@@ -273,8 +277,9 @@ namespace Smartstore.Core.DataExchange.Import
                     {
                         if (fileResult.Exception == null && fileResult.File?.Id > 0)
                         {
-                            var dmi = fileResult.Source.State as DownloadManagerItem;
-                            existingFiles.Add(dmi.Entity.Id, addMediaFile(fileResult.File.File, dmi));
+                            var item = fileResult.Source.State as DownloadManagerItem;
+                            var assignedFile = assignMediaFileHandler(fileResult.File.File, item);
+                            existingFiles.Add(item.Entity.Id, assignedFile);
                         }
                     }
                 }
@@ -289,21 +294,23 @@ namespace Smartstore.Core.DataExchange.Import
             return newFiles.Count;
         }
 
-        public virtual async Task<int> ImportMediaFileAsync<T>(
+        public virtual async Task<int> ImportMediaFilesAsync<T>(
             DbContextScope scope,
-            ICollection<DownloadManagerItem> downloadManagerItems,
-            TreeNode<MediaFolderNode> album,
-            Action<T, int> addMediaFile,
-            Func<T, FileStream, Task<bool>> checkAssignedFile,
+            ICollection<DownloadManagerItem> items,
+            MediaFolderNode album,
+            Action<T, int> assignMediaFileHandler,
+            Func<T, Stream, Task<bool>> checkAssignedMediaFileHandler,
             bool checkExistingFile,
             DuplicateFileHandling duplicateFileHandling = DuplicateFileHandling.Rename,
             CancellationToken cancelToken = default) where T : BaseEntity
         {
             Guard.NotNull(scope, nameof(scope));
-            Guard.NotNull(downloadManagerItems, nameof(downloadManagerItems));
+            Guard.NotNull(items, nameof(items));
+            Guard.NotNull(album, nameof(album));
+            Guard.NotNull(assignMediaFileHandler, nameof(assignMediaFileHandler));
 
-            var items = downloadManagerItems.Where(x => x != null).ToArray();
-            if (items.Length == 0)
+            items = items.Where(x => x != null).ToArray();
+            if (items.Count == 0)
             {
                 return 0;
             }
@@ -334,7 +341,7 @@ namespace Smartstore.Core.DataExchange.Import
                         if (stream?.Length > 0)
                         {
                             // Check for already assigned files.
-                            if (await checkAssignedFile(entity, stream))
+                            if (await checkAssignedMediaFileHandler(entity, stream))
                             {
                                 AddMessage($"Found equal file for {nameof(entity)} '{item.FileName}'. Skipping file.");
                                 continue;
@@ -343,11 +350,11 @@ namespace Smartstore.Core.DataExchange.Import
                             bool addFileBatchSource = true;
                             if (checkExistingFile)
                             {
-                                var equalityCheck = await _mediaService.FindEqualFileAsync(stream, item.FileName, album.Value.Id, true);
+                                var equalityCheck = await _mediaService.FindEqualFileAsync(stream, item.FileName, album.Id, true);
                                 if (equalityCheck.Success)
                                 {
-                                    addMediaFile(entity, equalityCheck.Value.Id);
-                                    AddMessage($"Found equal file in {album.Value.Name} album for '{item.FileName}'. Assigning existing file instead.");
+                                    assignMediaFileHandler(entity, equalityCheck.Value.Id);
+                                    AddMessage($"Found equal file in {album.Name} album for '{item.FileName}'. Assigning existing file instead.");
                                     addFileBatchSource = false;
                                 }
                             }
@@ -391,7 +398,7 @@ namespace Smartstore.Core.DataExchange.Import
 
                     var batchFileResult = await _mediaService.BatchSaveFilesAsync(
                         newFiles.ToArray(),
-                        album.Value,
+                        album,
                         false,
                         duplicateFileHandling,
                         cancelToken);
@@ -401,7 +408,7 @@ namespace Smartstore.Core.DataExchange.Import
                         if (fileResult.Exception == null && fileResult.File?.Id > 0)
                         {
                             // Assign MediaFile to corresponding entity via callback.
-                            addMediaFile((T)fileResult.Source.State, fileResult.File.Id);
+                            assignMediaFileHandler((T)fileResult.Source.State, fileResult.File.Id);
                         }
                     }
                 }
@@ -422,27 +429,30 @@ namespace Smartstore.Core.DataExchange.Import
             DuplicateFileHandling duplicateFileHandling = DuplicateFileHandling.Rename,
             CancellationToken cancelToken = default)
         {
-            var itemsMap = items
+            var itemIds = items
                 .Where(x => x?.Entity != null)
-                .ToMultimap(x => x.Entity.Id, x => x);
+                .Select(x => x.Entity.Id)
+                .Distinct()
+                .ToArray();
 
             var files = await _db.ProductMediaFiles
                 .AsNoTracking()
                 .Include(x => x.MediaFile)
-                .Where(x => itemsMap.Keys.Contains(x.ProductId))
+                .Where(x => itemIds.Contains(x.ProductId))
                 .ToListAsync(cancelToken);
 
             var existingFiles = files.ToMultimap(x => x.ProductId, x => x as IMediaFile);
+            var album = _folderService.GetNodeByPath(SystemAlbumProvider.Catalog).Value;
 
-            return await ImportMediaFilesAsync(
+            return await ImportMediaFilesManyAsync(
                 scope, 
-                items, 
+                items,
+                album,
                 existingFiles,
-                _folderService.GetNodeByPath(SystemAlbumProvider.Catalog),
-                AddProductMediaFile,
+                AssignProductMediaFile,
                 cancelToken: cancelToken);
 
-            IMediaFile AddProductMediaFile(MediaFile file, DownloadManagerItem item)
+            IMediaFile AssignProductMediaFile(MediaFile file, DownloadManagerItem item)
             {
                 var productMediaFile = new ProductMediaFile
                 {
@@ -788,16 +798,16 @@ namespace Smartstore.Core.DataExchange.Import
             var files = await _mediaService.GetFilesByIdsAsync(existingFileIds);
             var existingFiles = files.ToDictionary(x => x.Id, x => x.File);
 
-            return await ImportMediaFileAsync<Category>(
+            return await ImportMediaFilesAsync<Category>(
                 scope,
                 items,
-                _folderService.GetNodeByPath(SystemAlbumProvider.Catalog),
-                AddCategoryMediaFile,
+                _folderService.GetNodeByPath(SystemAlbumProvider.Catalog).Value,
+                AssignMediaFile,
                 CheckAssignedFileAsync,
                 true,
                 cancelToken: cancelToken);
 
-            async Task<bool> CheckAssignedFileAsync(Category category, FileStream stream)
+            async Task<bool> CheckAssignedFileAsync(Category category, Stream stream)
             {
                 if (category.MediaFileId.HasValue && existingFiles.TryGetValue(category.MediaFileId.Value, out var assignedFile))
                 {
@@ -811,7 +821,7 @@ namespace Smartstore.Core.DataExchange.Import
                 return false;
             }
 
-            static void AddCategoryMediaFile(Category category, int fileId)
+            static void AssignMediaFile(Category category, int fileId)
             {
                 category.MediaFileId = fileId;
             }
@@ -823,16 +833,16 @@ namespace Smartstore.Core.DataExchange.Import
             DuplicateFileHandling duplicateFileHandling = DuplicateFileHandling.Rename,
             CancellationToken cancelToken = default)
         {
-            return await ImportMediaFileAsync<Customer>(
+            return await ImportMediaFilesAsync<Customer>(
                 scope, 
                 items,
-                _folderService.GetNodeByPath(SystemAlbumProvider.Customers),
+                _folderService.GetNodeByPath(SystemAlbumProvider.Customers).Value,
                 AddCustomerAvatarMediaFile,
                 CheckAssignedFileAsync,
                 false,
                 cancelToken: cancelToken);
 
-            async Task<bool> CheckAssignedFileAsync(Customer customer, FileStream stream)
+            async Task<bool> CheckAssignedFileAsync(Customer customer, Stream stream)
             {
                 var file = await _mediaService.GetFileByIdAsync(customer.GenericAttributes.AvatarPictureId ?? 0, MediaLoadFlags.AsNoTracking);
                 if (file != null)
