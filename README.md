@@ -1,11 +1,11 @@
 <p align="center">
 	<a href="https://www.smartstore.com" target="_blank" rel="noopener noreferrer">
-		<img src="assets/sm5-screens.png" alt="Smartstore">
+		<img src="assets/smartstore-icon-whitebg.png" alt="Smartstore" width="120">
 	</a>
 </p>
 
 <h1 align="center">
-	<img src="assets/smartstore-text.png" alt="Smartstore" width="300">
+	<img src="assets/smartstore-text.png" alt="Smartstore" width="200">
 </h1>
 <p align="center"><strong>Ready. Sell. Grow.</strong></p>
 
@@ -39,9 +39,7 @@ The state-of-the-art architecture of Smartstore - with `ASP.NET Core 6`, `Entity
 * :blue_book: **Documentation:** [Smartstore Documentation in English](https://smartstore.atlassian.net/wiki/spaces/SMNET50/pages/1956118583/Getting+Started)
 <p>&nbsp;</p>
 
-## Highlights
-
-### Technology & Design
+## Technology & Design
 
 * State of the art architecture thanks to `ASP.NET Core 6`, `Entity Framework Core 6` and Domain Driven Design
 * Cross-platform: run it on Windows, Linux, or Mac
@@ -54,8 +52,16 @@ The state-of-the-art architecture of Smartstore - with `ASP.NET Core 6`, `Entity
 * Html to PDF converter: PDF documents are created from regular HTML templates, therefore radically simplifying PDF output customization
 * Consistent and sophisticated use of modern components such as `Vue.js`, `Sass`, `Bootstrap` & more in the front and back end.
 * Easy shop management thanks to modern and clean UI
+<p>&nbsp;</p>
 
-### Features
+## Key Features
+
+
+
+<p>
+  <img src="assets/sm5-screens.png" alt="Smartstore Screenshots" />
+</p>
+
 
 * Multi-Store support
 * Multi-language and comprehensive RTL (Right-to-left) and bidi(rectional) support
@@ -85,6 +91,9 @@ The state-of-the-art architecture of Smartstore - with `ASP.NET Core 6`, `Entity
 * Preview Mode: virtually test themes and stores more easily
 * RESTful WebApi (coming soon)
 * and many more...
+<p>&nbsp;</p>
+
+## Getting Started
 
 ### System requirements
 
@@ -93,13 +102,20 @@ The state-of-the-art architecture of Smartstore - with `ASP.NET Core 6`, `Entity
 * Debian 11+
 * Mac OS X 10.11+
 * MS SQL Server 2008 Express (or higher), MySQL
-<p>&nbsp;</p>
 
-## Upgrade from Smartstore.NET 4.2
+### Upgrade from Smartstore.NET 4.2
 
-This repository is a port of [Smartstore.NET 4](https://github.com/smartstore/SmartStoreNET) - which is based on the classic .NET Framework 4.7.2 – to the new `ASP.NET Core 6` platform. 
+Smartstore 5 is a port of [Smartstore.NET 4](https://github.com/smartstore/SmartStoreNET) - which is built on classic .NET Framework 4.7.2 – to the new `ASP.NET Core 6` platform. Smartstore instances based on classic `ASP.NET MVC` can be upgraded seamlessly. To [perform the upgrade](https://smartstore.atlassian.net/wiki/spaces/SMNET50/pages/1956118609/Updating+from+Previous+Versions), only the app files need to be replaced on your server - except for the `App_Data` directory - and **all data will be automatically transferred to the new system**. [Check the docs for detailed information about installing or upgrading your shop](https://smartstore.atlassian.net/wiki/spaces/SMNET50/pages/1956118822/Installing+Smartstore).
 
-Smartstore instances based on classic `ASP.NET MVC` can be upgraded seamlessly. To [perform the upgrade](https://smartstore.atlassian.net/wiki/spaces/SMNET50/pages/1956118609/Updating+from+Previous+Versions), only the app files need to be replaced on your server - except for the `App_Data` directory - and **all data will be automatically transferred to the new system**. [Checks the docs for detailed information about installing or upgrading your shop](https://smartstore.atlassian.net/wiki/spaces/SMNET50/pages/1956118822/Installing+Smartstore).
+ :information_source: Upgrading from versions older than 4.2 is not possible. Therefore, you should first migrate Smartstore.NET to version 4.2 and then upgrade to Smartstore 5.
+
+### Visual Studio
+
+- Clone the repository using the command `git clone https://github.com/smartstore/Smartstore.git` and checkout the `main` branch.
+- Download Visual Studio 2022 (any edition) from https://www.visualstudio.com/downloads/
+- Open `Smartstore.sln` and wait for Visual Studio to restore all NuGet packages
+- Ensure `Smartstore.Web` is the startup project and run it
+
 <p>&nbsp;</p>
 
 ## Build Smartstore
