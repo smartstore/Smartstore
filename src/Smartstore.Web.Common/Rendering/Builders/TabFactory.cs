@@ -31,6 +31,7 @@ namespace Smartstore.Web.Rendering.Builders
         }
 
         // TODO: (core) The tab should be prepended in this case.
+        // RE: No, does not make any sense ;-)
         /// <summary>
         /// Inserts a new tab before tab with given <paramref name="tabName"/>.
         /// If the adjacent tab does not exist, the new tab will be appended 
