@@ -116,6 +116,15 @@ Smartstore 5 is a port of [Smartstore.NET 4](https://github.com/smartstore/Smart
 - Open `Smartstore.sln` and wait for Visual Studio to restore all NuGet packages
 - Ensure `Smartstore.Web` is the startup project and run it
 
+### Repository Structure
+
+- [`Smartstore`](https://github.com/smartstore/Smartstore/tree/main/src/Smartstore) contains common low-level application-agnostic stuff like bootstrapper, modularity engine, caching, pub/sub, imaging, type conversion, IO, templating, scheduling, various utilities, common extension methods etc.
+- [`Smartstore.Data`](https://github.com/smartstore/Smartstore/tree/main/src/Smartstore.Data) contains database providers
+- [`Smartstore.Core`](https://github.com/smartstore/Smartstore/tree/main/src/Smartstore.Core) contains application specific modules like catalog, checkout, identity, security, localization, logging, messaging, rules engine, search engine, theme engine, migrations etc.
+- [`Smartstore.Web.Common`](https://github.com/smartstore/Smartstore/tree/main/src/Smartstore.Web.Common) contains common web features like custom MVC infrastructure, bundling, TagHelpers, HtmlHelpers etc.
+- [`Smartstore.Modules`](https://github.com/smartstore/Smartstore/tree/main/src/Smartstore.Modules) contains all module/plugin projects
+- [`Smartstore.Web`](https://github.com/smartstore/Smartstore/tree/main/src/Smartstore.Web) is the entry host project that contains controllers, model classes, themes, static assets etc.
+
 <p>&nbsp;</p>
 
 ## Build Smartstore
