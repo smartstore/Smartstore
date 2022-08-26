@@ -16,7 +16,7 @@
     @if (Model.FullDescription.Value.HasValue())
     {
         var summary = Model.FullDescription.Value.RemoveHtml().Truncate(300, "...");
-        <tab sm-title="@T("Products.Details")" sm-name="full-desc" sm-summary="@summary" sm-selected="true">
+        <tab sm-title="@T("Products.Details")" sm-name="pd-full-desc" sm-summary="@summary" sm-selected="true">
             <div sm-language-attributes-for="Model.FullDescription" itemprop="description" class="long-text html-editor-content">
                 <collapsed-content>
                     @Html.Raw(Model.FullDescription)
@@ -27,7 +27,7 @@
 
     @if (hasSpecificationAttributes)
     {
-        <tab sm-title="@T("Products.Specs")" sm-name="spec-attrs" sm-selected="!Model.FullDescription.HasValue()">
+        <tab sm-title="@T("Products.Specs")" sm-name="pd-spec-attrs" sm-selected="!Model.FullDescription.HasValue()">
             <partial name="Product.Specs" model="Model.SpecificationAttributes" />
         </tab>
     }
@@ -35,7 +35,7 @@
     @if (Model.DisplayProductReviews)
     {
         <tab sm-title="@T("Reviews")" 
-             sm-name="reviews"
+             sm-name="pd-reviews"
              sm-selected="!Model.FullDescription.HasValue() && !hasSpecificationAttributes" 
              sm-badge-text="@Model.ReviewCount.ToString()" 
              sm-badge-style="@Model.ReviewCount > 0 ? BadgeStyle.Warning : BadgeStyle.Secondary">
