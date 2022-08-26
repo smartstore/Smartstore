@@ -30,6 +30,7 @@ namespace Smartstore.Web.Rendering.Builders
             return CreateTagHelper(buildAction, -1);
         }
 
+        // TODO: (core) The tab should be prepended in this case.
         /// <summary>
         /// Inserts a new tab before tab with given <paramref name="tabName"/>.
         /// If the adjacent tab does not exist, the new tab will be appended 
