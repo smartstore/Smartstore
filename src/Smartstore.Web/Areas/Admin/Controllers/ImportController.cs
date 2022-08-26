@@ -740,7 +740,7 @@ namespace Smartstore.Admin.Controllers
             }
             catch (Exception ex)
             {
-                NotifyError(ex, true, false);
+                ModelState.AddModelError(string.Empty, ex.Message);
             }
         }
 

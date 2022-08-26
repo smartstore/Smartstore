@@ -7,7 +7,7 @@
     var hasIdKeyField = Model?.KeyFieldNames?.Contains("Id", StringComparer.OrdinalIgnoreCase) ?? false;
 }
 
-<div asp-validation-summary="ModelOnly" />
+<div asp-validation-summary="ModelOnly"></div>
 <input type="hidden" asp-for="Id" />
 <input type="hidden" asp-for="TempFileName" />
 <input type="hidden" asp-for="EntityType" />

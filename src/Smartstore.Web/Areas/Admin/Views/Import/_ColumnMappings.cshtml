@@ -1,13 +1,13 @@
 ﻿@model ImportProfileModel
 
 @{
-	const int maxMappingLabelTextLength = 42;
-	string delete = T("Common.Delete");
-	string ignore = T("Admin.Common.Ignore");
-	string selectTargetProperty = T("Admin.DataExchange.Import.SelectTargetProperty");
-	var entityProperties = (List<ColumnMappingItemModel>)ViewBag.EntityProperties;
-	var sourceColumns = (List<ColumnMappingItemModel>)ViewBag.SourceColumns;
-	var columnMappings = (List<ColumnMappingItemModel>)ViewBag.ColumnMappings;
+    const int maxMappingLabelTextLength = 42;
+    string delete = T("Common.Delete");
+    string ignore = T("Admin.Common.Ignore");
+    string selectTargetProperty = T("Admin.DataExchange.Import.SelectTargetProperty");
+    var entityProperties = (ViewBag.EntityProperties as List<ColumnMappingItemModel>) ?? new List<ColumnMappingItemModel>();
+    var sourceColumns = (ViewBag.SourceColumns as List<ColumnMappingItemModel>) ?? new List<ColumnMappingItemModel>();
+    var columnMappings = (ViewBag.ColumnMappings as List<ColumnMappingItemModel>) ?? new List<ColumnMappingItemModel>();
 }
 
 <div>
@@ -22,7 +22,7 @@
 				@Html.Raw(T("Admin.DataExchange.ColumnMapping.Note"))
 			</div>
 		</div>
-		<div sm-if="columnMappings.Any()" class="adminRow">
+		<div sm-if="columnMappings.Count > 0" class="adminRow">
 			<button id="ResetColumnMappings" type="button" class="btn btn-secondary btn-to-danger" data-url="@Url.Action("ResetColumnMappings", new { id = Model.Id })">
 				<i class="fa fa-sync"></i>
 				<span>@T("Admin.Common.Clear")</span>

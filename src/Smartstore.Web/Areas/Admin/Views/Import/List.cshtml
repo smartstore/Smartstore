@@ -122,7 +122,7 @@
 					<smart-label asp-for="EntityType" />
 					<select asp-for="EntityType" asp-items="Html.GetLocalizedEnumSelectList(typeof(ImportEntityType))"></select>
 				</div>
-				<div id="ImportFileUploadContainer">
+				<div id="ImportFileUploadContainer" class="form-group">
 					<input type="hidden" name="TempFileName" />
 					<file-uploader 
 						file-uploader-name="ImportFileUploader"
