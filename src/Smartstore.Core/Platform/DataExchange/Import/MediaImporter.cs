@@ -41,9 +41,11 @@ namespace Smartstore.Core.DataExchange.Import
             _downloadManager.HttpClient.Timeout = TimeSpan.FromMinutes(dataExchangeSettings.ImageDownloadTimeout);
         }
 
+        #region Common
+
         public Action<ImportMessage, DownloadManagerItem> MessageHandler { get; set; }
 
-        public DownloadManagerItem CreateDownloadItem(
+        public virtual DownloadManagerItem CreateDownloadItem(
             IDirectory imageDirectory,
             IDirectory downloadDirectory,
             BaseEntity entity,
@@ -134,6 +136,47 @@ namespace Smartstore.Core.DataExchange.Import
                 return Path.Combine(directory.PhysicalPath, fileNameOrRelativePath.TrimStart(PathUtility.PathSeparators).Replace('/', '\\'));
             }
         }
+
+        /// <summary>
+        /// Gets a value indicating whether the download succeeded.
+        /// </summary>
+        /// <param name="item">Download manager item.</param>
+        /// <param name="maxCachedUrls">
+        /// The maximum number of internally cached download URLs.
+        /// Internal caching avoids multiple downloads of identical images.
+        /// </param>
+        /// <returns>A value indicating whether the download succeeded.</returns>
+        protected bool DownloadSucceeded(DownloadManagerItem item, int maxCachedUrls = 1000)
+        {
+            if (item.Success && File.Exists(item.Path))
+            {
+                // "Cache" URL to not download it again.
+                if (item.Url.HasValue() && !_downloadUrls.ContainsKey(item.Url))
+                {
+                    if (_downloadUrls.Count >= maxCachedUrls)
+                    {
+                        _downloadUrls.Clear();
+                    }
+
+                    _downloadUrls[item.Url] = Path.GetFileName(item.Path);
+                }
+
+                return true;
+            }
+            else
+            {
+                if (item.ErrorMessage.HasValue())
+                {
+                    MessageHandler?.Invoke(new ImportMessage(item.ToString(), ImportMessageType.Error), item);
+                }
+
+                return false;
+            }
+        }
+
+        #endregion
+
+        #region Generic importers
 
         public virtual async Task<int> ImportMediaFilesManyAsync(
             DbContextScope scope,
@@ -423,7 +466,11 @@ namespace Smartstore.Core.DataExchange.Import
             return newFiles.Count;
         }
 
-        public virtual async Task<int> ImportProductImagesAsync(
+        #endregion
+
+        #region Specific importers
+
+        public async Task<int> ImportProductImagesAsync(
             DbContextScope scope,
             ICollection<DownloadManagerItem> items,
             DuplicateFileHandling duplicateFileHandling = DuplicateFileHandling.Rename,
@@ -471,6 +518,95 @@ namespace Smartstore.Core.DataExchange.Import
                 return productMediaFile;
             }
         }
+
+        public async Task<int> ImportCategoryImagesAsync(
+            DbContextScope scope,
+            ICollection<DownloadManagerItem> items,
+            DuplicateFileHandling duplicateFileHandling = DuplicateFileHandling.Rename,
+            CancellationToken cancelToken = default)
+        {
+            var itemsArr = items.Where(x => x != null).ToArray();
+            if (itemsArr.Length == 0)
+            {
+                return 0;
+            }
+
+            var existingFileIds = itemsArr
+                .Select(x => x.Entity as Category)
+                .Where(x => x != null && x.MediaFileId > 0)
+                .ToDistinctArray(x => x.MediaFileId.Value);
+
+            var files = await _mediaService.GetFilesByIdsAsync(existingFileIds);
+            var existingFiles = files.ToDictionary(x => x.Id, x => x.File);
+
+            return await ImportMediaFilesAsync<Category>(
+                scope,
+                items,
+                _folderService.GetNodeByPath(SystemAlbumProvider.Catalog).Value,
+                AssignMediaFile,
+                CheckAssignedFileAsync,
+                true,
+                cancelToken: cancelToken);
+
+            async Task<bool> CheckAssignedFileAsync(Category category, Stream stream)
+            {
+                if (category.MediaFileId.HasValue && existingFiles.TryGetValue(category.MediaFileId.Value, out var assignedFile))
+                {
+                    var isEqualData = await _mediaService.FindEqualFileAsync(stream, new[] { assignedFile }, true);
+                    if (isEqualData.Success)
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+
+            static void AssignMediaFile(Category category, int fileId)
+            {
+                category.MediaFileId = fileId;
+            }
+        }
+
+        public async Task<int> ImportCustomerAvatarsAsync(
+            DbContextScope scope,
+            ICollection<DownloadManagerItem> items,
+            DuplicateFileHandling duplicateFileHandling = DuplicateFileHandling.Rename,
+            CancellationToken cancelToken = default)
+        {
+            return await ImportMediaFilesAsync<Customer>(
+                scope, 
+                items,
+                _folderService.GetNodeByPath(SystemAlbumProvider.Customers).Value,
+                AddCustomerAvatarMediaFile,
+                CheckAssignedFileAsync,
+                false,
+                cancelToken: cancelToken);
+
+            async Task<bool> CheckAssignedFileAsync(Customer customer, Stream stream)
+            {
+                var file = await _mediaService.GetFileByIdAsync(customer.GenericAttributes.AvatarPictureId ?? 0, MediaLoadFlags.AsNoTracking);
+                if (file != null)
+                {
+                    var isEqualData = await _mediaService.FindEqualFileAsync(stream, new[] { file.File }, true);
+                    if (isEqualData.Success)
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+
+            static void AddCustomerAvatarMediaFile(Customer customer, int fileId)
+            {
+                customer.GenericAttributes.Set(SystemCustomerAttributeNames.AvatarPictureId, fileId);
+            }
+        }
+
+        #endregion
+
+        #region Legacy (remove later)
 
         public virtual async Task<int> ImportProductImagesAsync_OLD(
             DbContextScope scope,
@@ -778,91 +914,6 @@ namespace Smartstore.Core.DataExchange.Import
             return newFiles.Count;
         }
 
-        public virtual async Task<int> ImportCategoryImagesAsync(
-            DbContextScope scope,
-            ICollection<DownloadManagerItem> items,
-            DuplicateFileHandling duplicateFileHandling = DuplicateFileHandling.Rename,
-            CancellationToken cancelToken = default)
-        {
-            var itemsArr = items.Where(x => x != null).ToArray();
-            if (itemsArr.Length == 0)
-            {
-                return 0;
-            }
-
-            var existingFileIds = itemsArr
-                .Select(x => x.Entity as Category)
-                .Where(x => x != null && x.MediaFileId > 0)
-                .ToDistinctArray(x => x.MediaFileId.Value);
-
-            var files = await _mediaService.GetFilesByIdsAsync(existingFileIds);
-            var existingFiles = files.ToDictionary(x => x.Id, x => x.File);
-
-            return await ImportMediaFilesAsync<Category>(
-                scope,
-                items,
-                _folderService.GetNodeByPath(SystemAlbumProvider.Catalog).Value,
-                AssignMediaFile,
-                CheckAssignedFileAsync,
-                true,
-                cancelToken: cancelToken);
-
-            async Task<bool> CheckAssignedFileAsync(Category category, Stream stream)
-            {
-                if (category.MediaFileId.HasValue && existingFiles.TryGetValue(category.MediaFileId.Value, out var assignedFile))
-                {
-                    var isEqualData = await _mediaService.FindEqualFileAsync(stream, new[] { assignedFile }, true);
-                    if (isEqualData.Success)
-                    {
-                        return true;
-                    }
-                }
-
-                return false;
-            }
-
-            static void AssignMediaFile(Category category, int fileId)
-            {
-                category.MediaFileId = fileId;
-            }
-        }
-
-        public virtual async Task<int> ImportCustomerAvatarsAsync(
-            DbContextScope scope,
-            ICollection<DownloadManagerItem> items,
-            DuplicateFileHandling duplicateFileHandling = DuplicateFileHandling.Rename,
-            CancellationToken cancelToken = default)
-        {
-            return await ImportMediaFilesAsync<Customer>(
-                scope, 
-                items,
-                _folderService.GetNodeByPath(SystemAlbumProvider.Customers).Value,
-                AddCustomerAvatarMediaFile,
-                CheckAssignedFileAsync,
-                false,
-                cancelToken: cancelToken);
-
-            async Task<bool> CheckAssignedFileAsync(Customer customer, Stream stream)
-            {
-                var file = await _mediaService.GetFileByIdAsync(customer.GenericAttributes.AvatarPictureId ?? 0, MediaLoadFlags.AsNoTracking);
-                if (file != null)
-                {
-                    var isEqualData = await _mediaService.FindEqualFileAsync(stream, new[] { file.File }, true);
-                    if (isEqualData.Success)
-                    {
-                        return true;
-                    }
-                }
-
-                return false;
-            }
-
-            static void AddCustomerAvatarMediaFile(Customer customer, int fileId)
-            {
-                customer.GenericAttributes.Set(SystemCustomerAttributeNames.AvatarPictureId, fileId);
-            }
-        }
-
         public virtual async Task<int> ImportCustomerAvatarsAsync_OLD(
             DbContextScope scope,
             ICollection<DownloadManagerItem> items,
@@ -978,41 +1029,6 @@ namespace Smartstore.Core.DataExchange.Import
             return newFiles.Count;
         }
 
-        /// <summary>
-        /// Gets a value indicating whether the download succeeded.
-        /// </summary>
-        /// <param name="item">Download manager item.</param>
-        /// <param name="maxCachedUrls">
-        /// The maximum number of internally cached download URLs.
-        /// Internal caching avoids multiple downloads of identical images.
-        /// </param>
-        /// <returns>A value indicating whether the download succeeded.</returns>
-        protected bool DownloadSucceeded(DownloadManagerItem item, int maxCachedUrls = 1000)
-        {
-            if (item.Success && File.Exists(item.Path))
-            {
-                // "Cache" URL to not download it again.
-                if (item.Url.HasValue() && !_downloadUrls.ContainsKey(item.Url))
-                {
-                    if (_downloadUrls.Count >= maxCachedUrls)
-                    {
-                        _downloadUrls.Clear();
-                    }
-
-                    _downloadUrls[item.Url] = Path.GetFileName(item.Path);
-                }
-
-                return true;
-            }
-            else
-            {
-                if (item.ErrorMessage.HasValue())
-                {
-                    MessageHandler?.Invoke(new ImportMessage(item.ToString(), ImportMessageType.Error), item);
-                }
-
-                return false;
-            }
-        }
+        #endregion
     }
 }
