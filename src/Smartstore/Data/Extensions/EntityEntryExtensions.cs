@@ -56,7 +56,7 @@ namespace Smartstore
                 if (entry.State == EfState.Detached)
                 {
                     entry.State = EfState.Unchanged;
-                    entry.Reload();
+                    ReloadEntity(entry);
                 }
             }
         }
@@ -73,7 +73,7 @@ namespace Smartstore
                 if (entry.State == EfState.Detached)
                 {
                     entry.State = EfState.Unchanged;
-                    await entry.ReloadAsync(cancelToken);
+                    await ReloadEntityAsync(entry, cancelToken);
                 }
             }
         }

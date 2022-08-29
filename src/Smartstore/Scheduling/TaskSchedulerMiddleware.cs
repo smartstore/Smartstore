@@ -52,7 +52,7 @@ namespace Smartstore.Scheduling
             }
         }
 
-        private async Task Poll(HttpContext context, ITaskStore taskStore, ITaskExecutor executor, IDictionary<string, string> taskParameters)
+        private static async Task Poll(HttpContext context, ITaskStore taskStore, ITaskExecutor executor, IDictionary<string, string> taskParameters)
         {
             var pendingTasks = await taskStore.GetPendingTasksAsync();
             var numTasks = pendingTasks.Count;
