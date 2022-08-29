@@ -32,6 +32,9 @@ namespace Smartstore.Web.Rendering.Builders
 
         // TODO: (core) The tab should be prepended in this case.
         // RE: No, does not make any sense ;-)
+        // RE: Assume you want your tab to be always the first to be shown. 
+        //     So you specify it to be displayed before pd-full-desc. If full-desc isn't there your tab will be thrown in after all the other tabs. 
+        //     This way you not able to organize your tabs cleanly.
         /// <summary>
         /// Inserts a new tab before tab with given <paramref name="tabName"/>.
         /// If the adjacent tab does not exist, the new tab will be appended 
