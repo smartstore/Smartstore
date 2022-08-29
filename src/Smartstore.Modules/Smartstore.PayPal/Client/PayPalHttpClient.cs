@@ -176,7 +176,6 @@ namespace Smartstore.PayPal.Client
 
             // TODO: (mh) (core) If ERPs are used this ain't the real Invoice-Id > Make optional or remove (TBD with MC)
             var message = new CaptureMessage { InvoiceId = request.Order.OrderNumber };
-            // TODO: (mh) (core) Produces exception "Value cannot be null. Parameter 'stringToEscape'".
             // CaptureTransactionId is null here. Payment is not captured yet. Maybe you want to use AuthorizationTransactionId?
             var voidRequest = new AuthorizationsCaptureRequest(request.Order.CaptureTransactionId).WithBody(message);
             var response = await ExecuteRequestAsync(voidRequest, request.Order.StoreId, cancelToken);
@@ -241,6 +240,18 @@ namespace Smartstore.PayPal.Client
         }
 
         public Task<PayPalResponse> RefundPaymentAsync(CapturesRefundRequest request, CancellationToken cancelToken = default)
+            => ExecuteRequestAsync(request, cancelToken);
+
+        /// <summary>
+        /// Gets a list of webhooks.
+        /// </summary>
+        public Task<PayPalResponse> ListWebhooksAsync(ListWebhooksRequest request, CancellationToken cancelToken = default)
+            => ExecuteRequestAsync(request, cancelToken);
+
+        /// <summary>
+        /// Creates a webhook.
+        /// </summary>  
+        public Task<PayPalResponse> CreateWebhookAsync(CreateWebhookRequest request, CancellationToken cancelToken = default)
             => ExecuteRequestAsync(request, cancelToken);
 
         #endregion

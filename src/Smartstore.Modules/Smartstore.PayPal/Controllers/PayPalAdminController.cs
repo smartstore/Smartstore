@@ -3,8 +3,10 @@ using Microsoft.AspNetCore.Mvc;
 using Smartstore.Caching;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Security;
+using Smartstore.Core.Stores;
 using Smartstore.Engine.Modularity;
 using Smartstore.PayPal.Client;
+using Smartstore.PayPal.Client.Messages;
 using Smartstore.Web.Controllers;
 using Smartstore.Web.Modelling.Settings;
 
@@ -16,11 +18,13 @@ namespace Smartstore.PayPal.Controllers
     {
         private readonly ICacheFactory _cacheFactory;
         private readonly IProviderManager _providerManager;
+        private readonly PayPalHttpClient _client;
 
-        public PayPalAdminController(ICacheFactory cacheFactory, IProviderManager providerManager)
+        public PayPalAdminController(ICacheFactory cacheFactory, IProviderManager providerManager, PayPalHttpClient client)
         {
             _cacheFactory = cacheFactory;
             _providerManager = providerManager;
+            _client = client;
         }
 
         [LoadSetting, AuthorizeAdmin]
@@ -57,7 +61,55 @@ namespace Smartstore.PayPal.Controllers
             string.Join(',', model.EnabledFundings ?? Array.Empty<string>());
             string.Join(',', model.DisabledFundings ?? Array.Empty<string>());
 
+            if (settings.ClientId.HasValue() && settings.Secret.HasValue() && !settings.WebhookId.HasValue())
+            {
+                // Get Webhook ID vie API.
+                settings.WebhookId = await GetWebHookIdAsync();
+            }
+
             return RedirectToAction(nameof(Configure));
+        }
+
+        private async Task<string> GetWebHookIdAsync()
+        {
+            var listWebhooksResponse = await _client.ListWebhooksAsync(new ListWebhooksRequest());
+            var webhooks = listWebhooksResponse.Body<Webhooks>();
+
+            if (webhooks.Hooks.Length < 1)
+            {
+                // Get store URL
+                var storeScope = GetActiveStoreScopeConfiguration();
+                Store store;
+                if (storeScope == 0)
+                {
+                    store = Services.StoreContext.CurrentStore;
+                }
+                else
+                {
+                    store = Services.StoreContext.GetStoreById(storeScope);
+                }
+
+                // Create webhook
+                var webhook = new Webhook
+                {
+                    EventTypes = new EventType[]
+                    {
+                            new EventType { Name = "*" }
+                    },
+                    Url = store.GetHost(true)
+                };
+
+                var request = new CreateWebhookRequest().WithBody(webhook);
+                var response = await _client.CreateWebhookAsync(request);
+                webhook = response.Body<Webhook>();
+
+                return webhook.Id;
+            }
+            else
+            {
+                // TODO: (mh) (core) Why can there be several webhooks?
+                return webhooks.Hooks[0].Id;
+            }
         }
     }
 }
