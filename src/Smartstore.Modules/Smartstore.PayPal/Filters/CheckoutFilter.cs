@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System.Linq;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Smartstore.Core;
@@ -7,6 +8,7 @@ using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Data;
 using Smartstore.Core.Widgets;
 using Smartstore.PayPal.Components;
+using Smartstore.Web.Models.Checkout;
 
 namespace Smartstore.PayPal.Filters
 {
@@ -44,11 +46,18 @@ namespace Smartstore.PayPal.Filters
                 return;
             }
 
+            if (filterContext.Result is not ViewResult viewResult || viewResult.Model is not CheckoutPaymentMethodModel model)
+            {
+                await next();
+                return;
+            }
+
             var checkoutState = _checkoutStateAccessor.CheckoutState;
 
             if (!checkoutState.CustomProperties.ContainsKey("PayPalButtonUsed"))
             {
-                _widgetProvider.Value.RegisterViewComponent<PayPalViewComponent>("checkout_payment_method_buttons", false);
+                var isSelected = model.PaymentMethods.First().PaymentMethodSystemName == "Payments.PayPalStandard"; 
+                _widgetProvider.Value.RegisterViewComponent<PayPalViewComponent>("checkout_payment_method_buttons", new { isPaymentInfoInvoker = false, isSelected });
 
                 await next();
                 return;

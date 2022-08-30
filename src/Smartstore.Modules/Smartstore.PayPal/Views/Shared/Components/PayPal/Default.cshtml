@@ -1,10 +1,9 @@
 ﻿@model PublicPaymentMethodModel
-
 <!-- Set up a container element for the paypal button -->
-<div id="paypal-button-container" 
+<div id="paypal-button-container"
      data-init-transaction-url="@Url.Action("InitTransaction", "PayPal")"
      data-forward-url="@(Model.IsPaymentSelection ? Url.Action("Confirm", "Checkout") : Url.Action("BillingAddress", "Checkout"))"
-     attr-style='(Model.IsPaymentSelection, "display:none")'></div>
+     attr-style='(Model.IsPaymentSelection && !Model.IsSelectedMethod, "display:none")'></div>
 
 @*INFO: No target zone here as can also be rendered via AJAX*@
 <script data-origin="paypal-button">
@@ -15,7 +14,7 @@
         paypal.Buttons({
             style: {
                 layout: 'horizontal',
-                label: 'pay',
+                label: 'checkout',
                 shape: '@Model.ButtonShape',
                 color: '@Model.ButtonColor'
             },
@@ -62,7 +61,7 @@
             var btnNext = $(".payment-method-next-step-button");
 
             // Listen for changes to the radio fields
-            $(document, "input[name='paymentmethod']").on("change", function(e) {
+            $(document, "input[name='paymentmethod']").on("change", function (e) {
                 if (e.target.value == "Payments.PayPalStandard")
                 {
                     btnNext[0].style.display = 'none';
@@ -89,3 +88,9 @@
         s.parentNode.insertBefore(elem, s);
     }
 </script>
+
+<style sm-if="Model.IsPaymentSelection && Model.IsSelectedMethod">
+    .payment-method-next-step-button {
+        display: none;
+    }
+</style>

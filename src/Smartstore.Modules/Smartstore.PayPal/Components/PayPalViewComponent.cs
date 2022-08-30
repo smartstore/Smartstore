@@ -30,8 +30,8 @@ namespace Smartstore.PayPal.Components
         /// Renders PayPal button widget.
         /// </summary>
         /// <param name="isPaymentInfoInvoker">Defines whether the widget is invoked from payment method's GetPaymentInfoWidget.</param>
-        /// <returns></returns>
-        public async Task<IViewComponentResult> InvokeAsync(bool isPaymentInfoInvoker)
+        /// /// <param name="isSelected">Defines whether the payment method is selected on page load.</param>
+        public async Task<IViewComponentResult> InvokeAsync(bool isPaymentInfoInvoker, bool isSelected)
         {
             // If client id or secret haven't been configured yet, don't render button.
             if (!_settings.ClientId.HasValue() || !_settings.Secret.HasValue())
@@ -56,7 +56,8 @@ namespace Smartstore.PayPal.Components
                 Amount = cartSubTotal.SubtotalWithDiscount.Amount,
                 IsPaymentSelection = isPaymentSelectionPage,
                 ButtonColor = _settings.ButtonColor,
-                ButtonShape = _settings.ButtonShape
+                ButtonShape = _settings.ButtonShape,
+                IsSelectedMethod = isSelected
             };
 
             var currency = _services.WorkContext.WorkingCurrency.CurrencyCode;
