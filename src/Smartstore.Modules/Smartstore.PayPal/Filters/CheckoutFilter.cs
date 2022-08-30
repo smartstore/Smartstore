@@ -46,16 +46,16 @@ namespace Smartstore.PayPal.Filters
                 return;
             }
 
-            if (filterContext.Result is not ViewResult viewResult || viewResult.Model is not CheckoutPaymentMethodModel model)
-            {
-                await next();
-                return;
-            }
-
             var checkoutState = _checkoutStateAccessor.CheckoutState;
 
             if (!checkoutState.CustomProperties.ContainsKey("PayPalButtonUsed"))
             {
+                if (filterContext.Result is not ViewResult viewResult || viewResult.Model is not CheckoutPaymentMethodModel model)
+                {
+                    await next();
+                    return;
+                }
+
                 var isSelected = model.PaymentMethods.First().PaymentMethodSystemName == "Payments.PayPalStandard"; 
                 _widgetProvider.Value.RegisterViewComponent<PayPalViewComponent>("checkout_payment_method_buttons", new { isPaymentInfoInvoker = false, isSelected });
 
