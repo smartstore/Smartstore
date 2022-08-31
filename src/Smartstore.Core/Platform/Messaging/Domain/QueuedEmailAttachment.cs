@@ -102,6 +102,17 @@ namespace Smartstore.Core.Messaging
         /// </summary>
         public int? MediaStorageId { get; set; }
 
+        /// <summary>
+        /// Whether attachment is embedded in mail body.
+        /// </summary>
+        public bool IsEmbedded { get; set; }
+
+        /// <summary>
+        /// Unique content id of attachment used to reference embedded attachment from HTML body.
+        /// </summary>
+        [StringLength(64)]
+        public string ContentId { get; set; }
+
         private MediaStorage _mediaStorage;
         /// <summary>
         /// Gets or sets the media storage (when location is BLOB).

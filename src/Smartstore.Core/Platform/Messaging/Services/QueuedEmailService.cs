@@ -43,7 +43,7 @@ namespace Smartstore.Core.Messaging
             var result = false;
             var saveToDisk = ShouldSaveToDisk();
             var groupedQueuedEmails = queuedEmails.GroupBy(x => x.EmailAccountId);
-
+            
             foreach (var group in groupedQueuedEmails)
             {
                 var account = group.FirstOrDefault().EmailAccount;
@@ -225,6 +225,12 @@ namespace Smartstore.Core.Messaging
 
                     if (attachment != null)
                     {
+                        if (qea.IsEmbedded && qea.ContentId.HasValue())
+                        {
+                            attachment.IsEmbedded = true;
+                            attachment.ContentId = qea.ContentId;
+                        }
+                        
                         msg.Attachments.Add(attachment);
                     }
                 }

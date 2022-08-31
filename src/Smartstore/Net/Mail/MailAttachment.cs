@@ -16,7 +16,6 @@ namespace Smartstore.Net.Mail
 
     public class MailAttachment : Disposable
     {
-        private bool _isEmbedded;
         private string _contentId;
         
         public MailAttachment(IFile file)
@@ -67,34 +66,16 @@ namespace Smartstore.Net.Mail
         /// <summary>
         /// If true, embeds the attachment to the message body.
         /// </summary>
-        public bool IsEmbedded
-        {
-            get => _isEmbedded;
-            set 
-            {
-                if (!value)
-                {
-                    _contentId = null;
-                }
-
-                _isEmbedded = value;
-            }
-        }
+        public bool IsEmbedded { get; set; }
 
         /// <summary>
-        /// Gets the unique content id of the embedded attachment.
+        /// Gets or sets the unique content id of the embedded attachment.
         /// Use this id as reference in HTML body, e.g. $"&lt;img src='cid:{contentId}' /&gt;"
         /// </summary>
-        /// <exception cref="InvalidOperationException">Thrown if attachment is not embedded.</exception>
-        /// <returns>Content id</returns>
-        public string GetContentId()
+        public string ContentId 
         {
-            if (!_isEmbedded)
-            {
-                throw new InvalidOperationException("Content id can only be generated for embedded attachments.");
-            }
-
-            return _contentId ??= MimeUtils.GenerateMessageId();
+            get => _contentId ??= MimeUtils.GenerateMessageId();
+            set => _contentId = value;
         }
 
         protected override void OnDispose(bool disposing)

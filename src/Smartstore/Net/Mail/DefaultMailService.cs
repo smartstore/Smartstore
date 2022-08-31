@@ -208,6 +208,7 @@ namespace Smartstore.Net.Mail
             {
                 FileName = original.Name,
                 Content = new MimeContent(original.ContentStream, (ContentEncoding)original.TransferEncoding),
+                ContentId = original.ContentId,
                 ContentDisposition = new ContentDisposition
                 {
                     CreationDate = original.CreationDate,
