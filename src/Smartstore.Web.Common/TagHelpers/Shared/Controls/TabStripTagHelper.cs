@@ -153,7 +153,7 @@ namespace Smartstore.Web.TagHelpers.Shared
                     }
 
                     // Combine all custom widgets into one special tab named MODULE_WIDGETS
-                    await e.TabFactory.AddAsync(builder => builder
+                    await e.TabFactory.AppendAsync(builder => builder
                         .Text(EngineContext.Current.ResolveService<IText>().Get("Admin.Plugins"))
                         .Name("tab-special-module-widgets")
                         .Icon("puzzle", "bi")

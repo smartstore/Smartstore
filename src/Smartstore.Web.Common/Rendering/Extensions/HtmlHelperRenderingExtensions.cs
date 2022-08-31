@@ -580,7 +580,7 @@ namespace Smartstore.Web.Rendering
                         var isMaster = hasMasterTemplate && i == 0;
                         var language = languages[i];
 
-                        tabFactory.AddAsync(builder =>
+                        tabFactory.AppendAsync(builder =>
                         {
                             builder.Item = tabs[i];
                             builder

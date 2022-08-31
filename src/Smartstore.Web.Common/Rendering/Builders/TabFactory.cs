@@ -22,63 +22,125 @@ namespace Smartstore.Web.Rendering.Builders
         internal TagHelperContext Context { get; }
 
         /// <summary>
-        /// Adds a new tab item to the end of the current tabs collection.
+        /// Appends a new tab item to the end of the current tabs collection.
         /// </summary>
         /// <param name="buildAction">Build action.</param>
-        public Task AddAsync(Action<TabItemBuilder> buildAction)
+        public Task AppendAsync(Action<TabItemBuilder> buildAction)
         {
-            return CreateTagHelper(buildAction, -1);
+            return CreateTagHelper(buildAction, null);
         }
 
-        // TODO: (core) The tab should be prepended in this case.
-        // RE: No, does not make any sense ;-)
-        // RE: Assume you want your tab to be always the first to be shown. 
-        //     So you specify it to be displayed before pd-full-desc. If full-desc isn't there your tab will be thrown in after all the other tabs. 
-        //     This way you not able to organize your tabs cleanly.
+        /// <summary>
+        /// Prepends a new tab item to the current tabs collection.
+        /// </summary>
+        /// <param name="buildAction">Build action.</param>
+        public Task PrependAsync(Action<TabItemBuilder> buildAction)
+        {
+            return CreateTagHelper(buildAction, 0);
+        }
+
+        /// <summary>
+        /// Inserts a new tab at a given position.
+        /// </summary>
+        /// <param name="position">
+        /// The position to insert the tab at. If value is negative, the new tab will be prepended.
+        /// If value is larger than items count, tab will be appended.
+        /// </param>
+        /// <param name="buildAction">Build action.</param>
+        private Task<TabTagHelper> InsertAtAsync(int position, Action<TabItemBuilder> buildAction)
+        {
+            return CreateTagHelper(buildAction, position);
+        }
+
+        /// <summary>
+        /// Inserts a new tab after tab with given <paramref name="tabName"/>.
+        /// If the adjacent tab does not exist, the new tab will be appended
+        /// to the current tabs collection.
+        /// </summary>
+        /// <param name="tabName">Tab name to insert new tab after</param>
+        /// <param name="buildAction">Build action.</param>
+        public Task InsertAfterAsync(string tabName, Action<TabItemBuilder> buildAction)
+        {
+            Guard.NotEmpty(tabName, nameof(tabName));
+            return InsertAfterAnyAsync(new[] { tabName }, buildAction);
+        }
+
+        /// <summary>
+        /// Inserts a new tab after any tab which is contained in <paramref name="tabNames"/>.
+        /// If adjacent tab does not exist, the new tab will be appended 
+        /// to the current tabs collection.
+        /// </summary>
+        /// <param name="tabNames">Tab names to insert new tab after. Last existing tab - from end to start - will be adjacent.</param>
+        /// <param name="buildAction">Build action.</param>
+        public Task InsertAfterAnyAsync(string[] tabNames, Action<TabItemBuilder> buildAction)
+        {
+            Guard.NotEmpty(tabNames, nameof(tabNames));
+
+            int? position = -1;
+            for (var i = TabStrip.Tabs.Count - 1; i > 0; i--)
+            {
+                if (tabNames.Contains(TabStrip.Tabs[i].TabName, StringComparer.OrdinalIgnoreCase))
+                {
+                    position = i + 1;
+                    break;
+                }
+            }
+
+            if (position == -1)
+            {
+                position = null;
+            }
+
+            return CreateTagHelper(buildAction, position);
+        }
+
         /// <summary>
         /// Inserts a new tab before tab with given <paramref name="tabName"/>.
         /// If the adjacent tab does not exist, the new tab will be appended 
         /// to the current tabs collection.
         /// </summary>
+        /// <param name="tabName">Tab name to insert new tab before</param>
         /// <param name="buildAction">Build action.</param>
         public Task InsertBeforeAsync(string tabName, Action<TabItemBuilder> buildAction)
         {
             Guard.NotEmpty(tabName, nameof(tabName));
-
-            return CreateTagHelper(
-                buildAction, 
-                TabStrip.Tabs.FindIndex(x => x.TabName.EqualsNoCase(tabName)));
+            return InsertBeforeAnyAsync(new[] { tabName }, buildAction);
         }
 
         /// <summary>
-        /// Inserts a new tab after tab with given <paramref name="tabName"/>.
-        /// If the adjacent tab does not exist, the new tab will be appended 
+        /// Inserts a new tab before any tab which is contained in <paramref name="tabNames"/>.
+        /// If adjacent tab does not exist, the new tab will be prepended 
         /// to the current tabs collection.
         /// </summary>
+        /// <param name="tabNames">Tab names to insert new tab before. First existing tab - from start to end - will be adjacent.</param>
         /// <param name="buildAction">Build action.</param>
-        public Task InsertAfterAsync(string tabName, Action<TabItemBuilder> buildAction)
+        public Task InsertBeforeAnyAsync(string[] tabNames, Action<TabItemBuilder> buildAction)
         {
-            Guard.NotEmpty(tabName, nameof(tabName));
+            Guard.NotEmpty(tabNames, nameof(tabNames));
 
-            var index = TabStrip.Tabs.FindIndex(x => x.TabName.EqualsNoCase(tabName));
-            if (index > -1)
+            int position = -1;
+            for (var i = 0; i < TabStrip.Tabs.Count; i++)
             {
-                index = index == TabStrip.Tabs.Count - 1 ? -1 : index + 1;
+                if (tabNames.Contains(TabStrip.Tabs[i].TabName, StringComparer.OrdinalIgnoreCase))
+                {
+                    position = i;
+                    break;
+                }
             }
 
-            return CreateTagHelper(buildAction, index);
+            return CreateTagHelper(buildAction, position);
         }
 
-        private Task<TabTagHelper> CreateTagHelper(Action<TabItemBuilder> buildAction, int order)
+        private Task<TabTagHelper> CreateTagHelper(Action<TabItemBuilder> buildAction, int? position)
         {
             Guard.NotNull(buildAction, nameof(buildAction));
 
             var builder = new TabItemBuilder(new TabItem(), TabStrip.HtmlHelper);
             buildAction(builder);
-            return ConvertToTagHelper(builder.AsItem(), order);
+            return ConvertToTagHelper(builder.AsItem(), position);
         }
 
-        private async Task<TabTagHelper> ConvertToTagHelper(TabItem item, int order)
+        private async Task<TabTagHelper> ConvertToTagHelper(TabItem item, int? position)
         {
             var tagHelper = new TabTagHelper
             {
@@ -94,7 +156,7 @@ namespace Smartstore.Web.Rendering.Builders
                 Icon = item.Icon,
                 ImageUrl = item.ImageUrl,
                 Summary = item.Summary,
-                DisplayOrder = order
+                Position = position
             };
 
             if (item.IconLibrary == "bi" && tagHelper.Icon.HasValue())
