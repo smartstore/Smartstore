@@ -54,6 +54,14 @@ namespace Smartstore.Net.Mail
             }
         }
 
+        /// <summary>
+        /// Generates a new Content-Id (or Message-Id) using the local machine's domain.
+        /// </summary>
+        public static string GenerateContentId()
+        {
+            return MimeUtils.GenerateMessageId();
+        }
+
         public Stream ContentStream { get; init; }
         public string Name { get; init; }
         public string ContentType { get; init; }
@@ -74,7 +82,7 @@ namespace Smartstore.Net.Mail
         /// </summary>
         public string ContentId 
         {
-            get => _contentId ??= MimeUtils.GenerateMessageId();
+            get => _contentId ??= GenerateContentId();
             set => _contentId = value;
         }
 
