@@ -45,23 +45,11 @@ namespace Smartstore.Templating
         }
 
         /// <summary>
-        /// Specifies the custom content which the template engine should parse and inject.
-        /// </summary>
-        /// <param name="content">The content</param>
-        public void InjectContent(string content)
-        {
-            if (content.HasValue())
-            {
-                AddSnippet(new Snippet { Content = content, Parse = true });
-            }
-        }
-
-        /// <summary>
         /// Specifies the custom content to inject.
         /// </summary>
         /// <param name="content">The content</param>
         /// <param name="parse">This should be <c>true</c> if the content contains template syntax.</param>
-        public void InjectContent(string content, bool parse)
+        public void InjectContent(string content, bool parse = true)
         {
             if (content.HasValue())
             {
@@ -71,9 +59,7 @@ namespace Smartstore.Templating
 
         private void AddSnippet(Snippet snippet)
         {
-            if (_snippets == null)
-                _snippets = new List<Snippet>();
-
+            _snippets ??= new List<Snippet>();
             _snippets.Add(snippet);
         }
 

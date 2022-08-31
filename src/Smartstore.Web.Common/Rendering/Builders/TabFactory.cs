@@ -70,14 +70,14 @@ namespace Smartstore.Web.Rendering.Builders
         /// If adjacent tab does not exist, the new tab will be appended 
         /// to the current tabs collection.
         /// </summary>
-        /// <param name="tabNames">Tab names to insert new tab after. Last existing tab - from end to start - will be adjacent.</param>
+        /// <param name="tabNames">Tab names to insert new tab after. First existing tab - from start to end - will be adjacent.</param>
         /// <param name="buildAction">Build action.</param>
         public Task InsertAfterAnyAsync(string[] tabNames, Action<TabItemBuilder> buildAction)
         {
             Guard.NotEmpty(tabNames, nameof(tabNames));
 
             int? position = -1;
-            for (var i = TabStrip.Tabs.Count - 1; i > 0; i--)
+            for (var i = 0; i < TabStrip.Tabs.Count; i++)
             {
                 if (tabNames.Contains(TabStrip.Tabs[i].TabName, StringComparer.OrdinalIgnoreCase))
                 {
