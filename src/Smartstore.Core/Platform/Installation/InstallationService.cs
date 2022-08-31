@@ -426,17 +426,23 @@ namespace Smartstore.Core.Installation
                 .FirstOrDefault();
 
             if (language != null)
+            {
                 return language;
+            }  
 
             // Try to resolve install language from CurrentCulture
             language = installLanguages.Where(MatchLanguageByCurrentCulture).FirstOrDefault();
             if (language != null)
+            {
                 return language;
+            }
 
             // If we got here, the language code is not found. Let's return the default one
             language = installLanguages.Where(x => x.IsDefault).FirstOrDefault();
             if (language != null)
+            {
                 return language;
+            }
 
             // Return any available language
             return installLanguages.FirstOrDefault();
@@ -447,7 +453,9 @@ namespace Smartstore.Core.Installation
             var curCulture = Thread.CurrentThread.CurrentUICulture;
 
             if (language.Code.EqualsNoCase(curCulture.IetfLanguageTag))
+            {
                 return true;
+            } 
 
             curCulture = curCulture.Parent;
             if (curCulture != null)

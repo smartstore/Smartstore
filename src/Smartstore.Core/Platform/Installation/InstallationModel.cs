@@ -38,6 +38,22 @@ namespace Smartstore.Core.Installation
         public string DbAuthType { get; set; } = "sqlserver"; // sqlserver | windows
 
         public bool InstallSampleData { get; set; }
+
+        #region AutoInstall
+
+        public bool IsAutoInstall { get; set; }
+
+        /// <summary>
+        /// For auto-install
+        /// </summary>
+        public string CallbackUrl { get; set; }
+
+        /// <summary>
+        /// For auto-install. Passed to <see cref="CallbackUrl"/> to identify client.
+        /// </summary>
+        public string TenantId { get; set; }
+
+        #endregion
     }
 
     public class InstallationModelValidator : AbstractValidator<InstallationModel>

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Hosting;
+using Newtonsoft.Json;
 using Smartstore.Core.Installation;
 using Smartstore.Threading;
 
@@ -41,9 +42,16 @@ namespace Smartstore.Web.Controllers
             await next();
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index(bool noAutoInstall = false)
         {
-            var model = new InstallationModel
+            // TODO: (core) Check for running installation
+            // TODO: (core) Call CallbackUrl
+            if (!noAutoInstall && TryGetAutoInstallModel(out var model))
+            {
+                return await Install(model);
+            }
+            
+            model = new InstallationModel
             {
                 AdminEmail = T("AdminEmailValue")
             };
@@ -147,6 +155,21 @@ namespace Smartstore.Web.Controllers
         {
             // Redirect to home page
             return RedirectToAction("Index");
+        }
+
+        private bool TryGetAutoInstallModel(out InstallationModel model)
+        {
+            model = null;
+
+            var file = _appContext.AppDataRoot.GetFile("autoinstall.json");
+            if (file.Exists)
+            {
+                var json = file.ReadAllText();
+                model = JsonConvert.DeserializeObject<InstallationModel>(json);
+                model.IsAutoInstall = true;
+            }
+
+            return model != null;
         }
     }
 }
