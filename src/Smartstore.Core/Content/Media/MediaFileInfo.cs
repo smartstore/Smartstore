@@ -111,6 +111,9 @@ namespace Smartstore.Core.Content.Media
         [JsonProperty("path", NullValueHandling = NullValueHandling.Ignore)]
         public string Path { get; private set; }
 
+        [JsonProperty("comment", NullValueHandling = NullValueHandling.Ignore)]
+        public string AdminComment => File.AdminComment;
+
         #region Url
 
         private readonly Dictionary<(int size, string host), string> _cachedUrls = new();

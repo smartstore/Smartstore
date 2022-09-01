@@ -156,6 +156,12 @@ namespace Smartstore.Core.Content.Media
         public string Metadata { get; set; }
 
         /// <summary>
+        /// Gets or sets an internal admin comment.
+        /// </summary>
+        [StringLength(400)]
+        public string AdminComment { get; set; }
+
+        /// <summary>
         /// Gets or sets the image width (if file is an image).
         /// </summary>
         public int? Width { get; set; }

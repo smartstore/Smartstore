@@ -5,6 +5,7 @@
 ### New Features
 
 - New plugin: *Google Remarketing*
+- MediaManager: added internal admin comment field
 - (DEV) Embedded mail attachments
 
 ### Improvements
