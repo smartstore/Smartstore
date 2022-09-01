@@ -25,5 +25,10 @@
         /// Gets the format of the image.
         /// </summary>
         IImageFormat Format { get; }
+
+        /// <summary>
+        /// Enumerates IPTC and EXIF metadata
+        /// </summary>
+        IEnumerable<ImageMetadataEntry> GetMetadata();
     }
 }

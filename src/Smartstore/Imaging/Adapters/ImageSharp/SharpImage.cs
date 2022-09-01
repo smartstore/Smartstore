@@ -49,6 +49,10 @@ namespace Smartstore.Imaging.Adapters.ImageSharp
             }
         }
 
+        /// <inheritdoc/>
+        public IEnumerable<ImageMetadataEntry> GetMetadata()
+            => SharpImageInfo.ConvertMetadata(_image.Metadata);
+
         #endregion
 
         public Image WrappedImage => _image;

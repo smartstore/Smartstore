@@ -34,6 +34,10 @@ namespace Smartstore.Imaging
         /// <inheritdoc/>
         public IImageFormat Format { get; set; }
 
+        /// <inheritdoc/>
+        public IEnumerable<ImageMetadataEntry> GetMetadata()
+            => Enumerable.Empty<ImageMetadataEntry>();
+
         #endregion
 
         public Stream InStream { get; }
