@@ -748,22 +748,57 @@ namespace Smartstore.Core.Content.Media
 
         protected async Task<AsyncOut<IImage>> ProcessImage(MediaFile file, Stream inStream)
         {
-            var originalSize = Size.Empty;
-            var format = _imageProcessor.Factory.FindFormatByExtension(file.Extension) ?? new UnsupportedImageFormat(file.MimeType, file.Extension);
+            IImageInfo info = null;
 
-            try
+            if (inStream.CanSeek)
             {
-                originalSize = ImageHeader.GetPixelSize(inStream, file.MimeType);
+                try
+                {
+                    info = await _imageProcessor.Factory.DetectInfoAsync(inStream);
+                }
+                catch
+                {
+                }
+                finally
+                {
+                    inStream.Position = 0;
+                }
             }
-            catch
+
+            if (info == null)
             {
+                // Info detection somehow failed. Fetch the bits manually.
+                (Size Size, IImageFormat Format) header = default;
+
+                try
+                {
+                    header = ImageHeader.GetPixelSizeWithFormat(inStream, file.MimeType);
+                }
+                catch
+                {
+                }
+
+                info = new GenericImageInfo
+                {
+                    Width = header.Size.Width,
+                    Height = header.Size.Height,
+                    Format = header.Format
+                };
+            }
+
+            var originalSize = new Size(info.Width, info.Height);
+
+            if (info.Format == null && info is GenericImageInfo genericInfo)
+            {
+                genericInfo.Format = 
+                    _imageProcessor.Factory.FindFormatByExtension(file.Extension) ?? new UnsupportedImageFormat(file.MimeType, file.Extension);
             }
 
             IImage outImage;
 
-            if (format is UnsupportedImageFormat)
+            if (info.Format is UnsupportedImageFormat)
             {
-                outImage = new ImageWrapper(inStream, originalSize, format);
+                outImage = new ImageWrapper(inStream, info);
                 return new AsyncOut<IImage>(true, outImage);
             }
 
@@ -780,9 +815,9 @@ namespace Smartstore.Core.Content.Media
             if (originalSize.IsEmpty || (originalSize.Height <= maxSize && originalSize.Width <= maxSize))
             {
                 // Give subscribers the chance to (pre)-process
-                var evt = new ImageUploadedEvent(query, originalSize);
+                var evt = new ImageUploadedEvent(query, info);
                 await _eventPublisher.PublishAsync(evt);
-                outImage = evt.ResultImage ?? new ImageWrapper(inStream, originalSize, format);
+                outImage = evt.ResultImage ?? new ImageWrapper(inStream, info);
 
                 return new AsyncOut<IImage>(true, outImage);
             }

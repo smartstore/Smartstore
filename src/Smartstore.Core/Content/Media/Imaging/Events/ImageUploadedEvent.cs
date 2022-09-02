@@ -10,25 +10,25 @@ namespace Smartstore.Core.Content.Media.Imaging
     /// This event does NOT get published when the uploaded image is about to be processed anyway.
     /// </summary>
     /// <remarks>
-    /// A subscriber should NOT resize the image. But if you do - and you shouldn't :-) - , don't forget to set <see cref="ResultSize"/>.
+    /// A subscriber should NOT resize the image. But if you do - and you shouldn't :-) - , don't forget to set <see cref="ResultImage"/>.
     /// </remarks>
     public class ImageUploadedEvent
     {
-        public ImageUploadedEvent(ProcessImageQuery query, Size size)
+        public ImageUploadedEvent(ProcessImageQuery query, IImageInfo info)
         {
-            Query = query;
-            Size = size;
+            Query = Guard.NotNull(query, nameof(query));
+            Info = Guard.NotNull(info, nameof(info));
         }
 
         /// <summary>
-        /// Contains the source (as byte[], STream or path string), max size, format and default image quality instructions.
+        /// Contains the source (as byte[], Stream or path string), max size, format and default image quality instructions.
         /// </summary>
-        public ProcessImageQuery Query { get; private set; }
+        public ProcessImageQuery Query { get; }
 
         /// <summary>
-        /// The original size of the uploaded image. May be empty.
+        /// Info/metadata of uploaded image.
         /// </summary>
-        public Size Size { get; private set; }
+        public IImageInfo Info { get; }
 
         /// <summary>
         /// The processing result. If null, the original data

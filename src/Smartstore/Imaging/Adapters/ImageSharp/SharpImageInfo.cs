@@ -1,4 +1,6 @@
-﻿using SixLabors.ImageSharp.Metadata;
+﻿using System.Collections;
+using SixLabors.ImageSharp.Metadata;
+using SixLabors.ImageSharp.Metadata.Profiles.Exif;
 using SixLabors.ImageSharp.Metadata.Profiles.Iptc;
 
 namespace Smartstore.Imaging.Adapters.ImageSharp
@@ -27,9 +29,7 @@ namespace Smartstore.Imaging.Adapters.ImageSharp
             => _format;
 
         public IEnumerable<ImageMetadataEntry> GetMetadata()
-        {
-            return ConvertMetadata(_info.Metadata);
-        }
+            => ConvertMetadata(_info.Metadata);
 
         public static IEnumerable<ImageMetadataEntry> ConvertMetadata(ImageMetadata metadata)
         {
@@ -55,7 +55,19 @@ namespace Smartstore.Imaging.Adapters.ImageSharp
             {
                 foreach (var entry in exifValues)
                 {
-                    yield return new ImageMetadataEntry(entry.Tag.ToString(), entry.ToString(), ImageMetadataProfile.Exif);
+                    if (entry.DataType > ExifDataType.Unknown)
+                    {
+                        var value = entry.GetValue();
+
+                        if (value != null)
+                        {
+                            var valueString = value.GetType().IsArray
+                                ? string.Join(", ", (value as IEnumerable).Cast<object>().ToArray())
+                                : value.ToString();
+
+                            yield return new ImageMetadataEntry(entry.Tag.ToString(), valueString, ImageMetadataProfile.Exif);
+                        }
+                    }
                 }
             }
         }

@@ -4,39 +4,39 @@ namespace Smartstore.Imaging
 {
     public class ImageWrapper : Disposable, IImage
     {
+        private readonly IImageInfo _info;
         private readonly bool _disposeStream;
 
-        public ImageWrapper(Stream stream, Size size, IImageFormat format, byte bitDepth = 24, bool disposeStream = true)
+        public ImageWrapper(Stream stream, IImageInfo info, bool disposeStream = true)
         {
             Guard.NotNull(stream, nameof(stream));
-            Guard.NotNull(format, nameof(format));
+            Guard.NotNull(info, nameof(info));
 
             InStream = stream;
-            Format = format;
-            Width = size.Width;
-            Height = size.Height;
-            SourceSize = size;
-            BitDepth = bitDepth;
+            Format = info.Format;
+            SourceSize = new Size(info.Width, info.Height);
+
+            _info = info;
             _disposeStream = disposeStream;
         }
 
         #region IImageInfo
 
         /// <inheritdoc/>
-        public int Width { get; }
+        public int Width => _info.Width;
 
         /// <inheritdoc/>
-        public int Height { get; }
+        public int Height => _info.Height;
 
         /// <inheritdoc/>
-        public byte BitDepth { get; set; } = 24;
+        public byte BitDepth => _info.BitDepth;
 
         /// <inheritdoc/>
         public IImageFormat Format { get; set; }
 
         /// <inheritdoc/>
         public IEnumerable<ImageMetadataEntry> GetMetadata()
-            => Enumerable.Empty<ImageMetadataEntry>();
+            => _info.GetMetadata();
 
         #endregion
 
