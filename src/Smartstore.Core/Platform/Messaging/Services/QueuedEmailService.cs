@@ -52,17 +52,16 @@ namespace Smartstore.Core.Messaging
                     break;
 
                 // Create a new connection for each account in current batch.
-                await using (var client = await _mailService.ConnectAsync(account))
-                {
-                    // Limit email chunks to 100.
-                    foreach (var batch in group.Chunk(100))
-                    {
-                        if (cancelToken.IsCancellationRequested)
-                            break;
+                await using var client = await _mailService.ConnectAsync(account);
 
-                        result = await ProcessMailBatchAsync(batch, client, saveToDisk, cancelToken);
-                        await _db.SaveChangesAsync(cancelToken);
-                    }
+                // Limit email chunks to 100.
+                foreach (var batch in group.Chunk(100))
+                {
+                    if (cancelToken.IsCancellationRequested)
+                        break;
+
+                    result = await ProcessMailBatchAsync(batch, client, saveToDisk, cancelToken);
+                    await _db.SaveChangesAsync(cancelToken);
                 }
             }
 

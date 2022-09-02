@@ -1,6 +1,7 @@
 ﻿using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using MailKit.Net.Smtp;
+using Microsoft.Extensions.Logging;
 using MimeKit;
 using MimeKit.IO;
 
@@ -28,16 +29,21 @@ namespace Smartstore.Net.Mail
         {
             Guard.NotNull(account, nameof(account));
 
-            var mClient = new SmtpClient
+            try
             {
-                ServerCertificateValidationCallback = OnValidateServerCertificate,
-                Timeout = timeout
-            };
+                var mClient = new SmtpClient
+                {
+                    ServerCertificateValidationCallback = OnValidateServerCertificate,
+                    Timeout = timeout
+                };
 
-            var client = new MailKitSmtpClient(mClient, account);
-            await client.ConnectAsync();
+                var client = new MailKitSmtpClient(mClient, account);
+                await client.ConnectAsync();
 
-            return client;
+                return client;
+            }
+            catch { }
+            return null;
         }
 
         public virtual async Task SaveAsync(string pickupDirectory, MailMessage message)
