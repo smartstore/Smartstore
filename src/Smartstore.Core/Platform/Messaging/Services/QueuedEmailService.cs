@@ -52,16 +52,26 @@ namespace Smartstore.Core.Messaging
                     break;
 
                 // Create a new connection for each account in current batch.
-                await using var client = await _mailService.ConnectAsync(account);
+                ISmtpClient client = saveToDisk ? null : await _mailService.ConnectAsync(account);
 
-                // Limit email chunks to 100.
-                foreach (var batch in group.Chunk(100))
+                try
                 {
-                    if (cancelToken.IsCancellationRequested)
-                        break;
+                    // Limit email chunks to 100.
+                    foreach (var batch in group.Chunk(100))
+                    {
+                        if (cancelToken.IsCancellationRequested)
+                            break;
 
-                    result = await ProcessMailBatchAsync(batch, client, saveToDisk, cancelToken);
-                    await _db.SaveChangesAsync(cancelToken);
+                        result = await ProcessMailBatchAsync(batch, client, saveToDisk, cancelToken);
+                        await _db.SaveChangesAsync(cancelToken);
+                    }
+                }
+                finally
+                {
+                    if (client != null)
+                    {
+                        await client.DisposeAsync();
+                    }
                 }
             }
 
@@ -130,7 +140,8 @@ namespace Smartstore.Core.Messaging
                 {
                     if (!Directory.Exists(_emailAccountSettings.PickupDirectoryLocation))
                     {
-                        throw new DirectoryNotFoundException($"The specified pickup directory does not exist. Please check '{nameof(EmailAccountSettings.PickupDirectoryLocation)}'.");
+                        throw new DirectoryNotFoundException(
+                            $"The specified pickup directory does not exist. Please check '{nameof(EmailAccountSettings)}.{nameof(EmailAccountSettings.PickupDirectoryLocation)}'.");
                     }
 
                     _shouldSaveToDisk = true;

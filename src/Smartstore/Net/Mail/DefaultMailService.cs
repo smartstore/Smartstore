@@ -1,7 +1,6 @@
 ﻿using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using MailKit.Net.Smtp;
-using Microsoft.Extensions.Logging;
 using MimeKit;
 using MimeKit.IO;
 
@@ -11,8 +10,16 @@ namespace Smartstore.Net.Mail
     {
         public virtual ISmtpClient Connect(IMailAccount account, int timeout = 1000)
         {
-            Guard.NotNull(account, nameof(account));
+            return ConnectCore(account, timeout, false).Await();
+        }
 
+        public virtual Task<ISmtpClient> ConnectAsync(IMailAccount account, int timeout = 1000)
+        {
+            return ConnectCore(account, timeout, true);
+        }
+
+        protected virtual async Task<ISmtpClient> ConnectCore(IMailAccount account, int timeout, bool async)
+        {
             var mClient = new SmtpClient
             {
                 ServerCertificateValidationCallback = OnValidateServerCertificate,
@@ -20,30 +27,17 @@ namespace Smartstore.Net.Mail
             };
 
             var client = new MailKitSmtpClient(mClient, account);
-            client.Connect();
+
+            if (async)
+            {
+                await client.ConnectAsync();
+            }
+            else
+            {
+                client.Connect();
+            }
 
             return client;
-        }
-
-        public virtual async Task<ISmtpClient> ConnectAsync(IMailAccount account, int timeout = 1000)
-        {
-            Guard.NotNull(account, nameof(account));
-
-            try
-            {
-                var mClient = new SmtpClient
-                {
-                    ServerCertificateValidationCallback = OnValidateServerCertificate,
-                    Timeout = timeout
-                };
-
-                var client = new MailKitSmtpClient(mClient, account);
-                await client.ConnectAsync();
-
-                return client;
-            }
-            catch { }
-            return null;
         }
 
         public virtual async Task SaveAsync(string pickupDirectory, MailMessage message)
