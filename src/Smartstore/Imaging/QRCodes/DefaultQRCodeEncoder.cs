@@ -2,24 +2,14 @@
 
 namespace Smartstore.Imaging.QRCodes
 {
-    public class DefaultQRCodeEncoder : IQRCodeEncoder
+    internal class DefaultQRCodeEncoder : IQRCodeEncoder
     {
         public IQRCode EncodeQRCode(QRPayload payload, EccLevel eccLevel)
         {
-            if (payload == null)
-            {
-                return null;
-            }
-            
-            var serializedPayload = payload.Serialize();
+            Guard.NotNull(payload, nameof(payload));
 
-            if (!serializedPayload.HasValue())
-            {
-                return null;
-            }
-
-            var qrCodeEncoded = QrCode.EncodeText(serializedPayload, TranslateErrorCorrectionLevel(eccLevel));
-            var qrCode = new DefaultQRcode(qrCodeEncoded, serializedPayload);
+            var qrCodeEncoded = QrCode.EncodeText(payload.Serialize(), TranslateErrorCorrectionLevel(eccLevel));
+            var qrCode = new DefaultQRcode(qrCodeEncoded, payload);
 
             return qrCode;
         }
@@ -44,6 +34,12 @@ namespace Smartstore.Imaging.QRCodes
 
     public static class QRCodeEncoderExtensions
     {
+        /// <summary>
+        /// Encodes a raw QR code payload.
+        /// </summary>
+        /// <param name="payload">The payload to encode.</param>
+        /// <param name="eccLevel">The error correction level to apply while encoding <see cref="EccLevel"/>.</param>
+        /// <returns>The encoded QR code</returns>
         public static IQRCode EncodeQRCode(this DefaultQRCodeEncoder encoder, string payload, EccLevel eccLevel)
         {
             return encoder.EncodeQRCode(new RawQRPayload(payload), eccLevel);

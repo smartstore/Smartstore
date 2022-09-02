@@ -6,27 +6,38 @@ using SixLabors.ImageSharp.Processing;
 using Smartstore.Imaging.Adapters.ImageSharp;
 using SharpColor = SixLabors.ImageSharp.Color;
 using SharpRectangle = SixLabors.ImageSharp.Rectangle;
+using SharpImageFormat = SixLabors.ImageSharp.Formats.IImageFormat;
 
 namespace Smartstore.Imaging.QRCodes
 {
-    public class DefaultQRcode : IQRCode
+    internal class DefaultQRcode : IQRCode
     {
-        private readonly QrCode _qrCode;
+        private readonly static SharpImageFormat PngFormat = SharpImageFactory.FindInternalImageFormat("png");
+        private readonly QrCode _code;
         
-        public DefaultQRcode(QrCode qrCode, string payload)
+        public DefaultQRcode(QrCode code, QRPayload payload)
         {
-            _qrCode = qrCode;
+            _code = code;
             Payload = payload;
         }
 
-        public string Payload { get; set; }
+        public QRPayload Payload { get; }
 
-        public IImage GenerateImage(Color foreColor, Color backColor, int scale, int border)
+        public string GenerateSvg(string foreColor = "#000", string backColor = "#fff", int border = 3)
+        {
+            Guard.NotEmpty(foreColor, nameof(foreColor));
+            Guard.NotEmpty(backColor, nameof(backColor));
+            Guard.NotNegative(border, nameof(border));
+
+            return _code.ToSvgString(border, foreColor, backColor);
+        }
+
+        public IImage GenerateImage(Color foreColor, Color backColor, int scale = 3, int border = 3)
         {
             Guard.NotNegative(scale, nameof(scale));
             Guard.NotNegative(border, nameof(border));
 
-            int size = _qrCode.Size;
+            int size = _code.Size;
             int dim = (size + border * 2) * scale;
 
             if (dim > short.MaxValue)
@@ -50,7 +61,7 @@ namespace Smartstore.Imaging.QRCodes
                 {
                     for (int x = 0; x < size; x++)
                     {
-                        if (_qrCode.GetModule(x, y))
+                        if (_code.GetModule(x, y))
                         {
                             img.Fill(foreground, new SharpRectangle((x + border) * scale, (y + border) * scale, scale, scale));
                         }
@@ -58,12 +69,7 @@ namespace Smartstore.Imaging.QRCodes
                 }
             });
 
-            return new SharpImage(image, SharpImageFactory.FindInternalImageFormat("png"));
-        }
-
-        public string GenerateSvg(int border = 3, string foreColor = "#000", string backColor = "#fff")
-        {
-            return _qrCode.ToSvgString(border, foreColor, backColor);
+            return new SharpImage(image, PngFormat);
         }
     }
 }

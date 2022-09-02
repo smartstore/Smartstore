@@ -1,7 +1,7 @@
 ﻿namespace Smartstore.Imaging.QRCodes
 {
     /// <summary>
-    /// Interface for payload implementation for QR code generation.
+    /// Abstract base class for QR code payloads.
     /// </summary>
     public abstract class QRPayload : IEquatable<QRPayload>
     {
@@ -16,9 +16,7 @@
         /// </summary>
         /// <returns>Payload as string.</returns>
         public override string ToString()
-        {
-            return Serialize();
-        }
+            => Serialize();
 
         public bool Equals(QRPayload other)
         {
@@ -28,13 +26,13 @@
             if (ReferenceEquals(this, other))
                 return true;
 
-            return false;
+            // TODO: (core) Perf?!
+            return this.GetType() == other.GetType() && 
+                this.Serialize() == other.Serialize();
         }
 
         public override bool Equals(object obj)
-        {
-            return Equals(obj as QRPayload);
-        }
+            => Equals(obj as QRPayload);
 
         public override int GetHashCode()
             => Serialize().GetHashCode();

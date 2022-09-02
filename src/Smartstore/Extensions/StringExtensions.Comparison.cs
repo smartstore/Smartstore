@@ -8,6 +8,8 @@ namespace Smartstore
 {
     public static partial class StringExtensions
     {
+        #region ...NoCase
+
         /// <summary>
         /// Determines whether this instance and given <paramref name="other"/> have the same value (ignoring case)
         /// </summary>
@@ -37,6 +39,90 @@ namespace Smartstore
         {
             return value.CompareTo(other, StringComparison.OrdinalIgnoreCase) == 0;
         }
+
+        /// <summary>
+        /// Determines whether the beginning of this string instance matches the specified
+        //  string when compared ignoring case.
+        /// </summary>
+        /// <param name="value">The string to compare.</param>
+        /// <param name="other">The second string to compare.</param>
+        /// <returns>true if this instance begins with value; otherwise false.</returns>
+        [DebuggerStepThrough]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool StartsWithNoCase(this string value, string other)
+        {
+            return value.StartsWith(other, StringComparison.OrdinalIgnoreCase);
+        }
+
+        /// <summary>
+        /// Determines whether the beginning of this string instance matches the specified
+        //  string when compared ignoring case.
+        /// </summary>
+        /// <param name="value">The string to compare.</param>
+        /// <param name="other">The second string to compare.</param>
+        /// <returns>true if this instance begins with value; otherwise false.</returns>
+        [DebuggerStepThrough]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool StartsWithNoCase(this ReadOnlySpan<char> value, ReadOnlySpan<char> other)
+        {
+            return value.StartsWith(other, StringComparison.OrdinalIgnoreCase);
+        }
+
+        /// <summary>
+        /// Determines whether the end of this string instance matches the specified
+        //  string when compared ignoring case.
+        /// </summary>
+        /// <param name="value">The string to compare.</param>
+        /// <param name="other">The second string to compare.</param>
+        /// <returns>true if this instance ends with value; otherwise false.</returns>
+        [DebuggerStepThrough]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool EndsWithNoCase(this string value, string other)
+        {
+            return value.StartsWith(other, StringComparison.OrdinalIgnoreCase);
+        }
+
+        /// <summary>
+        /// Determines whether the ends of this string instance matches the specified
+        //  string when compared ignoring case.
+        /// </summary>
+        /// <param name="value">The string to compare.</param>
+        /// <param name="other">The second string to compare.</param>
+        /// <returns>true if this instance ends with value; otherwise false.</returns>
+        [DebuggerStepThrough]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool EndsWithNoCase(this ReadOnlySpan<char> value, ReadOnlySpan<char> other)
+        {
+            return value.StartsWith(other, StringComparison.OrdinalIgnoreCase);
+        }
+
+        /// <summary>
+        /// Returns a value indicating whether the <paramref name="other"/> 
+        /// string occurs within this string (ignoring case).
+        /// </summary>
+        /// <param name="other">The string to seek.</param>
+        /// <returns>true if <paramref name="other"/> occurs within this string; otherwise false.</returns>
+        [DebuggerStepThrough]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool ContainsNoCase(this string value, string other)
+        {
+            return value.Contains(other, StringComparison.OrdinalIgnoreCase);
+        }
+
+        /// <summary>
+        /// Returns a value indicating whether the <paramref name="other"/> 
+        /// string occurs within this string (ignoring case).
+        /// </summary>
+        /// <param name="other">The string to seek.</param>
+        /// <returns>true if <paramref name="other"/> occurs within this string; otherwise false.</returns>
+        [DebuggerStepThrough]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool ContainsNoCase(this ReadOnlySpan<char> value, ReadOnlySpan<char> other)
+        {
+            return value.Contains(other, StringComparison.OrdinalIgnoreCase);
+        }
+
+        #endregion
 
         /// <summary>
         /// Determines whether the string is null, empty or all whitespace.
