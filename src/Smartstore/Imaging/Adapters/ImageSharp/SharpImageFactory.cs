@@ -105,7 +105,7 @@ namespace Smartstore.Imaging.Adapters.ImageSharp
             return new SharpImage(result.Image, result.Format);
         }
 
-        private static SixLabors.ImageSharp.Formats.IImageFormat FindInternalImageFormat(string extension)
+        internal static SixLabors.ImageSharp.Formats.IImageFormat FindInternalImageFormat(string extension)
         {
             if (extension.IsEmpty())
             {
