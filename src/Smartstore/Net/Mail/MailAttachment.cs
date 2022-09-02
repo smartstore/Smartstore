@@ -44,21 +44,11 @@ namespace Smartstore.Net.Mail
         public MailAttachment(Stream contentStream, string name, string contentType = null)
         {
             Guard.NotNull(contentStream, nameof(contentStream));
+            Guard.NotEmpty(name, nameof(name));
 
             ContentStream = contentStream;
             Name = name;
-
-            if (contentType is null)
-            {
-                if (name.HasValue())
-                {
-                    ContentType = MimeTypes.MapNameToMimeType(name);
-                }
-            }
-            else
-            {
-                ContentType = contentType;
-            }
+            ContentType = contentType ?? MimeTypes.MapNameToMimeType(name);
         }
 
         /// <summary>

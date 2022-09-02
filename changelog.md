@@ -14,7 +14,7 @@
 - (DEV) DataGrid row editing: handle prefixed controls correctly (e.g. "CustomProperties")
 - Additional fees are not allowed by PayPal, therefore removed the feature
 - Added cacheable routes for *Google Analytics* widgets
-- Made MediaImporter generic
+- (DEV) Made MediaImporter more generic
 
 ### Bugfixes
 
