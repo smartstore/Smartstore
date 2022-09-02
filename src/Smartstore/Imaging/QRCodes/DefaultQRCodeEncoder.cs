@@ -31,18 +31,4 @@ namespace Smartstore.Imaging.QRCodes
             }
         }
     }
-
-    public static class QRCodeEncoderExtensions
-    {
-        /// <summary>
-        /// Encodes a raw QR code payload.
-        /// </summary>
-        /// <param name="payload">The payload to encode.</param>
-        /// <param name="eccLevel">The error correction level to apply while encoding <see cref="EccLevel"/>.</param>
-        /// <returns>The encoded QR code</returns>
-        public static IQRCode EncodeQRCode(this DefaultQRCodeEncoder encoder, string payload, EccLevel eccLevel)
-        {
-            return encoder.EncodeQRCode(new RawQRPayload(payload), eccLevel);
-        }
-    }
 }
