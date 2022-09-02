@@ -48,9 +48,16 @@ namespace Smartstore.Net.Mail
             ContentStream = contentStream;
             Name = name;
 
-            if (contentType is null && name.HasValue())
+            if (contentType is null)
             {
-                ContentType = MimeTypes.MapNameToMimeType(name);
+                if (name.HasValue())
+                {
+                    ContentType = MimeTypes.MapNameToMimeType(name);
+                }
+            }
+            else
+            {
+                ContentType = contentType;
             }
         }
 
