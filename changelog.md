@@ -14,6 +14,7 @@
 - (DEV) DataGrid row editing: handle prefixed controls correctly (e.g. "CustomProperties")
 - Additional fees are not allowed by PayPal, therefore removed the feature
 - Added cacheable routes for *Google Analytics* widgets
+- Made MediaImporter generic
 
 ### Bugfixes
 
@@ -24,6 +25,8 @@
 - Fixed "Unknown schema or invalid link expression 'mailto:...'
 - Memory cache: parallel key enumeration sometimes failed
 - Fixed *Google Analytics* number formatting issues
+- Several fixes for laying Emails on a local directory
+- Removed payment fee configuration from PayPal plugin
 
 
 ## Smartstore 5.0.0
