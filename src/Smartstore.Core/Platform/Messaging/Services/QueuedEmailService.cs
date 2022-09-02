@@ -15,7 +15,7 @@ namespace Smartstore.Core.Messaging
         private readonly IMediaService _mediaService;
         internal readonly EmailAccountSettings _emailAccountSettings;
 
-        private bool? _shouldSaveToDisk = false;
+        private bool? _shouldSaveToDisk;
 
         public QueuedEmailService(
             SmartDbContext db,
@@ -136,8 +136,10 @@ namespace Smartstore.Core.Messaging
 
                     _shouldSaveToDisk = true;
                 }
-
-                _shouldSaveToDisk = false;
+                else
+                {
+                    _shouldSaveToDisk = false;
+                }
             }
 
             return _shouldSaveToDisk.Value;
