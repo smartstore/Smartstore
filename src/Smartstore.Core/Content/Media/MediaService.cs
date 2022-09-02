@@ -1,6 +1,7 @@
 ﻿using System.Drawing;
 using System.Linq.Dynamic.Core;
 using System.Runtime.CompilerServices;
+using Microsoft.AspNetCore.WebUtilities;
 using Smartstore.Core.Content.Media.Imaging;
 using Smartstore.Core.Content.Media.Storage;
 using Smartstore.Core.Data;
@@ -312,14 +313,16 @@ namespace Smartstore.Core.Content.Media
 
             equalFile = null;
 
+            var bufferedSource = new BufferedReadStream(source, 8096);
+
             try
             {
                 foreach (var file in files)
                 {
-                    source.Seek(0, SeekOrigin.Begin);
+                    bufferedSource.Seek(0, SeekOrigin.Begin);
 
                     using var other = _storageProvider.OpenRead(file);
-                    if (source.ContentsEqual(other, true))
+                    if (bufferedSource.ContentsEqual(other, true))
                     {
                         equalFile = file;
                         return true;
@@ -336,7 +339,7 @@ namespace Smartstore.Core.Content.Media
             {
                 if (!leaveOpen)
                 {
-                    source.Dispose();
+                    bufferedSource.Dispose();
                 }
             }
         }
@@ -346,14 +349,16 @@ namespace Smartstore.Core.Content.Media
             Guard.NotNull(source, nameof(source));
             Guard.NotNull(files, nameof(files));
 
+            var bufferedSource = new BufferedReadStream(source, 8096);
+
             try
             {
                 foreach (var file in files)
                 {
-                    source.Seek(0, SeekOrigin.Begin);
+                    bufferedSource.Seek(0, SeekOrigin.Begin);
 
                     await using var other = await _storageProvider.OpenReadAsync(file);
-                    if (await source.ContentsEqualAsync(other, true))
+                    if (await bufferedSource.ContentsEqualAsync(other, true))
                     {
                         return new AsyncOut<MediaFile>(true, file);
                     }
@@ -369,7 +374,7 @@ namespace Smartstore.Core.Content.Media
             {
                 if (!leaveOpen)
                 {
-                    await source.DisposeAsync();
+                    await bufferedSource.DisposeAsync();
                 }
             }
         }
