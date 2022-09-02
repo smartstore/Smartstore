@@ -205,7 +205,7 @@ namespace Smartstore.Net.Mail
         {
             Guard.NotNull(original, nameof(original));
 
-            if (!ContentType.TryParse(original.ContentType, out var mimeContentType))
+            if (original.ContentType == null || !ContentType.TryParse(original.ContentType, out var mimeContentType))
             {
                 mimeContentType = new ContentType("application", "octet-stream");
             }
