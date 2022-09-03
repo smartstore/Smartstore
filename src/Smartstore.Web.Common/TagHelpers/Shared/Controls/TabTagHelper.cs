@@ -4,7 +4,7 @@ using Smartstore.Web.Rendering;
 namespace Smartstore.Web.TagHelpers.Shared
 {
     [OutputElementHint("a")]
-    [HtmlTargetElement("tab", Attributes = TitleAttributeName, ParentTag = "tabstrip")]
+    [HtmlTargetElement("tab", ParentTag = "tabstrip")]
     public class TabTagHelper : SmartTagHelper
     {
         const string NameAttributeName = "sm-name";

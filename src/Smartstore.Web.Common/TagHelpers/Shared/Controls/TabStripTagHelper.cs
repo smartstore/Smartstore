@@ -549,10 +549,13 @@ namespace Smartstore.Web.TagHelpers.Shared
 
         private static void BuildTabCaption(TabTagHelper tab, TagBuilder a)
         {
-            TagBuilder caption = new("span");
-            caption.AppendCssClass("tab-caption");
-            caption.InnerHtml.Append(tab.Title);
-            a.InnerHtml.AppendHtml(caption);
+            if (tab.Title.HasValue())
+            {
+                TagBuilder caption = new("span");
+                caption.AppendCssClass("tab-caption");
+                caption.InnerHtml.Append(tab.Title);
+                a.InnerHtml.AppendHtml(caption);
+            }
         }
 
         private void BuildTabBadge(TabTagHelper tab, TagBuilder a)

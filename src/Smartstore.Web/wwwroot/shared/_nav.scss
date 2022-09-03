@@ -31,12 +31,10 @@
 	.nav-link > i,
     .nav-link > .bi {
 		font-size: inherit;
-		margin-right: 0.5rem;
 		color: $gray-700;
 
 		+ span {
-			// Reset left space
-			padding-left: 0 !important;
+			padding-left: 0.5rem !important;
 		}
 	}
 
@@ -267,7 +265,7 @@
 					> img, 
                     > i, 
                     > .bi {
-						margin-right: 0.75rem;
+						margin-right: 0.25rem;
 						margin-left: 0.25rem;
 					}
 				}
@@ -295,7 +293,7 @@
 					> img, 
                     > i,
                     > .bi {
-						margin-right: 0.75rem;
+						margin-right: 0.25rem;
 						margin-left: 0.25rem;
 					}
 				}
