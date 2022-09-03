@@ -59,9 +59,19 @@
             return _stream.Read(buffer, offset, count);
         }
 
+        public override int Read(Span<byte> buffer)
+        {
+            return _stream.Read(buffer);
+        }
+
         public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancelToken)
         {
             return _stream.ReadAsync(buffer, offset, count, cancelToken);
+        }
+
+        public override ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
+        {
+            return _stream.ReadAsync(buffer, cancellationToken);
         }
 
         public override long Seek(long offset, SeekOrigin origin)

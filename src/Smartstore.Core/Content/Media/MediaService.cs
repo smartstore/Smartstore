@@ -753,51 +753,18 @@ namespace Smartstore.Core.Content.Media
 
         protected async Task<AsyncOut<IImage>> ProcessImage(MediaFile file, Stream inStream)
         {
-            IImageInfo info = null;
+            var originalSize = Size.Empty;
+            var format = _imageProcessor.Factory.FindFormatByExtension(file.Extension) ?? new UnsupportedImageFormat(file.MimeType, file.Extension);
 
-            if (inStream.CanSeek)
+            try
             {
-                try
-                {
-                    info = await _imageProcessor.Factory.DetectInfoAsync(inStream);
-                }
-                catch
-                {
-                }
-                finally
-                {
-                    inStream.Position = 0;
-                }
+                originalSize = ImageHeader.GetPixelSize(inStream, file.MimeType);
+            }
+            catch
+            {
             }
 
-            if (info == null)
-            {
-                // Info detection somehow failed. Fetch the bits manually.
-                (Size Size, IImageFormat Format) header = default;
-
-                try
-                {
-                    header = ImageHeader.GetPixelSizeWithFormat(inStream, file.MimeType);
-                }
-                catch
-                {
-                }
-
-                info = new GenericImageInfo
-                {
-                    Width = header.Size.Width,
-                    Height = header.Size.Height,
-                    Format = header.Format
-                };
-            }
-
-            var originalSize = new Size(info.Width, info.Height);
-
-            if (info.Format == null && info is GenericImageInfo genericInfo)
-            {
-                genericInfo.Format = 
-                    _imageProcessor.Factory.FindFormatByExtension(file.Extension) ?? new UnsupportedImageFormat(file.MimeType, file.Extension);
-            }
+            var info = new GenericImageInfo(originalSize, format);
 
             IImage outImage;
 

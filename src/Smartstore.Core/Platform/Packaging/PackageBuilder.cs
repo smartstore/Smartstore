@@ -53,7 +53,7 @@ namespace Smartstore.Core.Packaging
             return package;
         }
 
-        private async Task EmbedManifest(ZipArchive archive, MinimalExtensionDescriptor manifest)
+        private static async Task EmbedManifest(ZipArchive archive, MinimalExtensionDescriptor manifest)
         {
             var json = JsonConvert.SerializeObject(manifest, Formatting.Indented);
 
