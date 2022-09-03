@@ -42,7 +42,7 @@ namespace Smartstore
 
         /// <summary>
         /// Determines whether the beginning of this string instance matches the specified
-        //  string when compared ignoring case.
+        /// string when compared ignoring case.
         /// </summary>
         /// <param name="value">The string to compare.</param>
         /// <param name="other">The second string to compare.</param>
@@ -56,7 +56,7 @@ namespace Smartstore
 
         /// <summary>
         /// Determines whether the beginning of this string instance matches the specified
-        //  string when compared ignoring case.
+        /// string when compared ignoring case.
         /// </summary>
         /// <param name="value">The string to compare.</param>
         /// <param name="other">The second string to compare.</param>
@@ -70,7 +70,7 @@ namespace Smartstore
 
         /// <summary>
         /// Determines whether the end of this string instance matches the specified
-        //  string when compared ignoring case.
+        /// string when compared ignoring case.
         /// </summary>
         /// <param name="value">The string to compare.</param>
         /// <param name="other">The second string to compare.</param>
@@ -79,12 +79,12 @@ namespace Smartstore
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool EndsWithNoCase(this string value, string other)
         {
-            return value.StartsWith(other, StringComparison.OrdinalIgnoreCase);
+            return value.EndsWith(other, StringComparison.OrdinalIgnoreCase);
         }
 
         /// <summary>
         /// Determines whether the ends of this string instance matches the specified
-        //  string when compared ignoring case.
+        /// string when compared ignoring case.
         /// </summary>
         /// <param name="value">The string to compare.</param>
         /// <param name="other">The second string to compare.</param>
@@ -93,7 +93,7 @@ namespace Smartstore
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool EndsWithNoCase(this ReadOnlySpan<char> value, ReadOnlySpan<char> other)
         {
-            return value.StartsWith(other, StringComparison.OrdinalIgnoreCase);
+            return value.EndsWith(other, StringComparison.OrdinalIgnoreCase);
         }
 
         /// <summary>
