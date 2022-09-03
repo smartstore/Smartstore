@@ -148,6 +148,12 @@ namespace Smartstore.Net.Mail
             // Body
             var builder = new BodyBuilder();
 
+            // Attachments
+            foreach (var attachment in original.Attachments)
+            {
+                ProcessAttachment(attachment, builder);
+            }
+
             if (original.AltText.HasValue())
             {
                 builder.HtmlBody = original.Body;
@@ -165,20 +171,6 @@ namespace Smartstore.Net.Mail
                 }
             }
 
-            // Attachments
-            foreach (var attachment in original.Attachments)
-            {
-                var mimePart = BuildMimePart(attachment);
-                if (attachment.IsEmbedded)
-                {
-                    builder.LinkedResources.Add(mimePart);
-                }
-                else
-                {
-                    builder.Attachments.Add(mimePart);
-                }
-            }
-
             msg.Body = builder.ToMessageBody();
 
             // Headers
@@ -191,31 +183,40 @@ namespace Smartstore.Net.Mail
         }
 
         /// <summary>
-        /// Builds <see cref="MimePart"/> from <see cref="MailAttachment"/>
+        /// Builds <see cref="MimePart"/> from <paramref name="attachment"/> attachments
+        /// and adds it to underlying attachments collection.
         /// </summary>
         /// <param name="original">The generic mail attachment</param>
-        /// <returns><see cref="MimePart"/> instance</returns>  
-        private static MimePart BuildMimePart(MailAttachment original)
+        private static MimeEntity ProcessAttachment(MailAttachment attachment, BodyBuilder builder)
         {
-            Guard.NotNull(original, nameof(original));
+            Guard.NotNull(attachment, nameof(attachment));
 
-            if (original.ContentType == null || !ContentType.TryParse(original.ContentType, out var mimeContentType))
+            ContentType contentType = null;
+            if (attachment.ContentType.HasValue())
             {
-                mimeContentType = new ContentType("application", "octet-stream");
+                _ = ContentType.TryParse(attachment.ContentType, out contentType);
             }
 
-            return new MimePart(mimeContentType)
+            var collection = attachment.IsEmbedded ? builder.LinkedResources : builder.Attachments;
+
+            var mimeEntity = contentType == null 
+                ? collection.Add(attachment.Name, attachment.ContentStream)
+                : collection.Add(attachment.Name, attachment.ContentStream, contentType);
+
+            if (attachment.IsEmbedded)
             {
-                FileName = original.Name,
-                Content = new MimeContent(original.ContentStream, (ContentEncoding)original.TransferEncoding),
-                ContentId = original.ContentId,
-                ContentDisposition = new ContentDisposition
-                {
-                    CreationDate = original.CreationDate,
-                    ModificationDate = original.ModificationDate,
-                    ReadDate = original.ReadDate
-                }
-            };
+                mimeEntity.ContentId = attachment.ContentId;
+            }
+
+            var disposition = mimeEntity.ContentDisposition;
+            if (disposition != null)
+            {
+                disposition.CreationDate = attachment.CreationDate;
+                disposition.ModificationDate = attachment.ModificationDate;
+                disposition.ReadDate = attachment.ReadDate;
+            }
+
+            return mimeEntity;
         }
 
         #endregion
