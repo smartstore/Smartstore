@@ -9,22 +9,13 @@ using Smartstore.Core.Data;
 
 namespace Smartstore.WebApi.Controllers.OData
 {
-    // TODO: (mg) (core) add an OData controller base.
-    [Produces("application/json")]
-    [ODataRouteComponent("odata/v1")]
-    public class CategoriesController : ODataController
+    public class CategoriesController : ODataControllerBase<Category>
     {
-        private readonly SmartDbContext _db;
-
-        public CategoriesController(SmartDbContext db)
-        {
-            _db = db;
-        }
-
+        // TODO: (mg) (core) use custom query attribute inherited from EnableQueryAttribute.
         [HttpGet, EnableQuery]
         public ActionResult<IQueryable<Category>> Get()
         {
-            var query = _db.Categories.AsNoTracking();
+            var query = Entities.AsNoTracking();
 
             return Ok(query);
         }
