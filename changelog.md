@@ -5,8 +5,9 @@
 ### New Features
 
 - New plugin: *Google Remarketing*
+- MediaManager: display image IPTC and EXIF metadata
 - MediaManager: added internal admin comment field
-- (DEV) Embedded mail attachments
+- (DEV) Embedded/Inline mail attachments
 
 ### Improvements
 
