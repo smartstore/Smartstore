@@ -1,0 +1,21 @@
+{
+  "$schema": "../module.schema.json",
+  "Author": "SmartStore AG",
+  "Group": "Api",
+  "SystemName": "Smartstore.WebApi",
+  "FriendlyName": "Smartstore Web API",
+  "Description": "Provides data exchange with Smartstore",
+  "Version": "5.0",
+  "MinAppVersion": "5.0",
+  "Order": 1,
+  "ResourceRootKey": "Plugins.Api.WebApi",
+  "ProjectUrl": "http://community.smartstore.com/marketplace/file/27-smartstorenet-web-api/",
+  "PrivateReferences": [
+    "Microsoft.AspNetCore.OData",
+    "Microsoft.OData.ModelBuilder",
+    "Microsoft.OData.Core",
+    "Microsoft.OData.Edm",
+    "Microsoft.Spatial",
+    "Microsoft.AspNetCore.OData.NewtonsoftJson"
+  ]
+}
