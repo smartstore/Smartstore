@@ -1,4 +1,5 @@
-﻿using Smartstore.Core.Catalog.Products;
+﻿using Newtonsoft.Json;
+using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Localization;
@@ -9,7 +10,6 @@ namespace Smartstore.Web.Models.Orders
 {
     public partial class OrderDetailsModel : EntityModelBase
     {
-        public Order Order { get; set; }
         public int StoreId { get; set; }
         public CompanyInformationSettings MerchantCompanyInfo { get; set; } = new();
         public string MerchantCompanyCountryName { get; set; }
@@ -29,6 +29,9 @@ namespace Smartstore.Web.Models.Orders
         public string VatNumber { get; set; }
         public string PaymentMethod { get; set; }
         public string PaymentMethodSystemName { get; set; }
+
+        [JsonIgnore]
+        public Order Order { get; set; }
 
         #region Offline payment data 
 
