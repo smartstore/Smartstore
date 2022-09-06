@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.OData.Routing.Controllers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Smartstore.ComponentModel;
+using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Data;
 using Smartstore.Domain;
 
@@ -35,7 +36,7 @@ namespace Smartstore.WebApi.Controllers.OData
             set => _dbSet = value;
         }
 
-        protected virtual async Task<IActionResult> GetPropertyValueAsync(int key, string propertyName)
+        protected virtual async Task<IActionResult> GetPropertyValueAsync(int key, string property)
         {
             // TODO: (mg) (core) Use DynamicLinq or a dynamically generated Select lambda expression
             // to only fetch the given prop from database (instead of materializing the whole entity for just one property).
@@ -45,10 +46,10 @@ namespace Smartstore.WebApi.Controllers.OData
                 return NotFound();
             }
 
-            var prop = FastProperty.GetProperty(entity.GetType(), propertyName);
+            var prop = FastProperty.GetProperty(entity.GetType(), property);
             if (prop == null)
             {
-                return BadRequest(PropertyNotFound.FormatInvariant(propertyName.EmptyNull()));
+                return BadRequest(PropertyNotFound.FormatInvariant(property.EmptyNull()));
             }
 
             var propertyValue = prop.GetValue(entity);

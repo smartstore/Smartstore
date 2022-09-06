@@ -20,10 +20,11 @@ namespace Smartstore.WebApi.Controllers.OData
             return Ok(entity);
         }
 
-        [HttpGet]
-        public Task<IActionResult> GetProperty(int key, string propertyName)
+        // TODO: (mg) (core) get this shitty OData 8 IODataControllerActionConvention working.
+        [HttpGet("odata/v1/Categories({key})/{property}")]
+        public Task<IActionResult> GetProperty(int key, string property)
         {
-            return GetPropertyValueAsync(key, propertyName);
+            return GetPropertyValueAsync(key, property);
         }
     }
 }
