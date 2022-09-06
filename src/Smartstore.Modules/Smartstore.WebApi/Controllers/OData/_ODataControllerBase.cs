@@ -37,6 +37,8 @@ namespace Smartstore.WebApi.Controllers.OData
 
         protected virtual async Task<IActionResult> GetPropertyValueAsync(int key, string propertyName)
         {
+            // TODO: (mg) (core) Use DynamicLinq or a dynamically generated Select lambda expression
+            // to only fetch the given prop from database (instead of materializing the whole entity for just one property).
             var entity = await Entities.FindByIdAsync(key, false);
             if (entity == null)
             {

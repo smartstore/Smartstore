@@ -4,7 +4,7 @@
   "Group": "Api",
   "SystemName": "Smartstore.WebApi",
   "FriendlyName": "Smartstore Web API",
-  "Description": "Provides data exchange with Smartstore",
+  "Description": "Provides RESTful data exchange with Smartstore based on OData",
   "Version": "5.0",
   "MinAppVersion": "5.0",
   "Order": 1,

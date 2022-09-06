@@ -6,6 +6,7 @@ namespace Smartstore.WebApi.Services
     {
         WebApiState GetState();
 
+        // TODO: (mg) (core) I am sure this one is not necessary.
         Task<WebApiState> GetStateAsync();
     }
 }
