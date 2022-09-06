@@ -1,10 +1,10 @@
-﻿using Microsoft.AspNetCore.OData;
+﻿using Autofac;
+using Microsoft.AspNetCore.OData;
 using Microsoft.AspNetCore.OData.NewtonsoftJson;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;
-using Smartstore.WebApi.Services;
 
 namespace Smartstore.WebApi
 {
@@ -17,7 +17,7 @@ namespace Smartstore.WebApi
                 .AddOData(options =>
                 {
                     options
-                        .EnableQueryFeatures(120)
+                        .EnableQueryFeatures(WebApiSettings.DefaultMaxTop)
                         .AddRouteComponents("odata/v1", EdmBuilder.BuildV1Model());
                 });
         }
@@ -28,6 +28,11 @@ namespace Smartstore.WebApi
             {
                 builder.ApplicationBuilder.UseODataRouteDebug();
             }
+        }
+
+        public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext)
+        {
+            builder.RegisterType<WebApiService>().As<IWebApiService>().SingleInstance();
         }
     }
 }
