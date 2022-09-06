@@ -178,7 +178,7 @@ namespace Smartstore
             return val;
         }
 
-        public static bool TryGetValueAs<TValue>(this IReadOnlyDictionary<string, object> source, string key, out TValue value)
+        public static bool TryGetValueAs<TValue>(this IDictionary<string, object> source, string key, out TValue value)
         {
             Guard.NotNull(source, nameof(source));
 
@@ -192,7 +192,7 @@ namespace Smartstore
             return false;
         }
 
-        public static bool TryGetAndConvertValue<TValue>(this IReadOnlyDictionary<string, object> source, string key, out TValue value)
+        public static bool TryGetAndConvertValue<TValue>(this IDictionary<string, object> source, string key, out TValue value)
         {
             Guard.NotNull(source, nameof(source));
 
