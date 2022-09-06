@@ -1,4 +1,5 @@
 ﻿using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Localization;
 using Smartstore.Web.Models.Common;
@@ -8,6 +9,7 @@ namespace Smartstore.Web.Models.Orders
 {
     public partial class OrderDetailsModel : EntityModelBase
     {
+        public Order Order { get; set; }
         public int StoreId { get; set; }
         public CompanyInformationSettings MerchantCompanyInfo { get; set; } = new();
         public string MerchantCompanyCountryName { get; set; }

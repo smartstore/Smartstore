@@ -726,6 +726,7 @@ namespace Smartstore.Web.Controllers
 
             var order = await _db.Orders
                 .AsNoTracking()
+                .Include(x => x.Customer)
                 .ApplyStandardFilter(customer.Id, store.Id)
                 .FirstOrDefaultAsync();
 
@@ -743,7 +744,8 @@ namespace Smartstore.Web.Controllers
             var model = new CheckoutCompletedModel
             {
                 OrderId = order.Id,
-                OrderNumber = order.GetOrderNumber()
+                OrderNumber = order.GetOrderNumber(),
+                Order = order
             };
 
             return View(model);

@@ -66,6 +66,7 @@ namespace Smartstore.Core.Messaging
             d.Status = await part.OrderStatus.GetLocalizedEnumAsync(messageContext.Language.Id);
             d.CreatedOn = _helper.ToUserDate(part.CreatedOnUtc, messageContext);
             d.PaidOn = _helper.ToUserDate(part.PaidDateUtc, messageContext);
+            d.CurrencyCode = part.CustomerCurrencyCode;
 
             // Payment method
             var paymentMethod = _services.Resolve<IProviderManager>().GetProvider<IPaymentMethod>(part.PaymentMethodSystemName);

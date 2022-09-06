@@ -276,6 +276,7 @@ namespace Smartstore.Web.Controllers
 
             var model = new OrderDetailsModel
             {
+                Order = order,
                 Id = order.Id,
                 StoreId = order.StoreId,
                 CustomerLanguageId = order.CustomerLanguageId,
