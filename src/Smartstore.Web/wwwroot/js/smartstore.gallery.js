@@ -354,6 +354,10 @@
 
                         // Fix Drift issue: boundingBox parent must be body, NOT image's parent link/viewport
                         drift.trigger.boundingBox.settings.containerEl = document.body;
+
+                        // We must clear title attribute when displaying zoom else a tooltip will appear 
+                        // which will result in flickering of the zoom panel when hovering over the tooltip.
+                        img.attr("title", "");
                     }
                 });
 
