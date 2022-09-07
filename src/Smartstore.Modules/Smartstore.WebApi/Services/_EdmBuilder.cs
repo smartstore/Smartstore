@@ -1,6 +1,7 @@
 ﻿using Microsoft.OData.Edm;
 using Microsoft.OData.ModelBuilder;
 using Smartstore.Core.Catalog.Categories;
+using Smartstore.Core.Catalog.Discounts;
 
 namespace Smartstore.WebApi.Services
 {
@@ -17,6 +18,7 @@ namespace Smartstore.WebApi.Services
             var b = new ODataConventionModelBuilder();
 
             b.EntitySet<Category>("Categories");
+            b.EntitySet<Discount>("Discounts");
 
             return b.GetEdmModel();
         }

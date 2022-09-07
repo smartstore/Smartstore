@@ -1,4 +1,5 @@
-﻿using Autofac;
+﻿using System;
+using Autofac;
 using Microsoft.AspNetCore.OData;
 using Microsoft.AspNetCore.OData.NewtonsoftJson;
 using Microsoft.AspNetCore.OData.Routing.Conventions;
@@ -24,8 +25,11 @@ namespace Smartstore.WebApi
                         .EnableQueryFeatures(WebApiSettings.DefaultMaxTop)
                         .AddRouteComponents("odata/v1", EdmBuilder.BuildV1Model());
 
+                    options.TimeZone = TimeZoneInfo.Utc;
+                    options.RouteOptions.EnableUnqualifiedOperationCall = true;
+
                     //options.EnableAttributeRouting = true;
-                    //options.Conventions.Insert(0, new CustomRoutingConvention());
+                    //options.Conventions.Add(new CustomRoutingConvention());
                 });
         }
 

@@ -40,8 +40,5 @@ namespace Smartstore.WebApi.Services
                 return state;
             });
         }
-
-        public Task<WebApiState> GetStateAsync()
-            => Task.FromResult(GetState());
     }
 }

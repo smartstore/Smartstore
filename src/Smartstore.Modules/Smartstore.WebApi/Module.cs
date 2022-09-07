@@ -1,6 +1,7 @@
 ﻿global using System.Linq;
 global using System.Threading.Tasks;
 global using Microsoft.AspNetCore.Mvc;
+global using Microsoft.AspNetCore.OData.Deltas;
 global using Microsoft.EntityFrameworkCore;
 global using Smartstore.WebApi.Services;
 using Smartstore.Engine.Modularity;
