@@ -14,7 +14,7 @@ namespace Smartstore.WebApi.Controllers.OData
     [ODataRouteComponent("odata/v1")]
     [Route("odata/v1")]
     //[Produces("application/json")]
-    public abstract class ODataControllerBase<TEntity> : ODataController
+    public abstract class SmartODataController<TEntity> : ODataController
         where TEntity : BaseEntity, new()
     {
         internal const string PropertyNotFound = "Entity does not own property '{0}'.";

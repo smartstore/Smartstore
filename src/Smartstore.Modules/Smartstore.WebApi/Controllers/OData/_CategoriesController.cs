@@ -6,7 +6,7 @@ namespace Smartstore.WebApi.Controllers.OData
     // Not required anymore (works by convention now):
     // Get<NavigationProperty>: GET /EntitySet(key)/NavigationProperty
 
-    public class CategoriesController : ODataControllerBase<Category>
+    public class CategoriesController : SmartODataController<Category>
     {
         private readonly IUrlService _urlService;
 
