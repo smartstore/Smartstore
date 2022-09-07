@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Newtonsoft.Json;
 using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Content.Media;
+using Smartstore.Core.Localization;
 using Smartstore.Core.Rules;
 
 namespace Smartstore.Core.Catalog.Categories
@@ -55,7 +56,16 @@ namespace Smartstore.Core.Catalog.Categories
     [Index(nameof(LimitedToStores), Name = "IX_Category_LimitedToStores")]
     [Index(nameof(ParentCategoryId), Name = "IX_Category_ParentCategoryId")]
     [Index(nameof(SubjectToAcl), Name = "IX_Category_SubjectToAcl")]
-    public partial class Category : EntityWithDiscounts, ICategoryNode, IAuditable, ISoftDeletable, IPagingOptions, IDisplayOrder, IRulesContainer
+    [LocalizedEntity(nameof(Name),
+        nameof(FullName),
+        nameof(Description),
+        nameof(BottomDescription),
+        nameof(BadgeText),
+        nameof(MetaDescription),
+        nameof(MetaKeywords),
+        nameof(MetaTitle),
+        FilterPredicate = "Published and !Deleted")]
+    public partial class Category : EntityWithDiscounts, ICategoryNode, IAuditable, ISoftDeletable, ILocalizedEntity, IPagingOptions, IDisplayOrder, IRulesContainer
     {
         public Category()
         {

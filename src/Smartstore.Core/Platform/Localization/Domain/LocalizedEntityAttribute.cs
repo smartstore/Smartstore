@@ -8,16 +8,9 @@
     public sealed class LocalizedEntityAttribute : Attribute
     {
         public LocalizedEntityAttribute(params string[] propertyNames)
-            : this(null, propertyNames)
-        {
-        }
-
-        public LocalizedEntityAttribute(string filterPredicate, params string[] propertyNames)
         {
             Guard.NotEmpty(propertyNames, nameof(propertyNames));
-
             PropertyNames = propertyNames;
-            FilterPredicate = filterPredicate;
         }
 
         /// <summary>
