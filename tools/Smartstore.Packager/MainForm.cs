@@ -202,11 +202,11 @@ namespace Smartstore.Packager
                 bool isTheme = false;
 
                 // is it a module?
-                var filePath = root.PathCombine(dir.SubPath, "module.json");
+                var filePath = PathUtility.Join(dir.SubPath, "module.json");
                 if (!root.FileExists(filePath))
                 {
                     // ...no! is it a theme?
-                    filePath = root.PathCombine(dir.SubPath, "theme.config");
+                    filePath = PathUtility.Join(dir.SubPath, "theme.config");
                     if (!root.FileExists(filePath))
                         continue;
 
