@@ -34,6 +34,9 @@ namespace Smartstore.Core.Bootstrapping
 
             // Rule options provider.
             builder.RegisterType<LanguageRuleOptionsProvider>().As<IRuleOptionsProvider>().InstancePerLifetimeScope();
+
+            builder.RegisterType<LocalizedEntityDescriptorProvider>().As<ILocalizedEntityDescriptorProvider>().SingleInstance();
+            builder.RegisterType<LocalizedEntityLoader>().As<ILocalizedEntityLoader>().InstancePerLifetimeScope();
         }
 
         protected override void AttachToComponentRegistration(IComponentRegistryBuilder componentRegistry, IComponentRegistration registration)

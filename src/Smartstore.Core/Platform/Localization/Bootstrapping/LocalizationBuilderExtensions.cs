@@ -27,12 +27,6 @@ namespace Smartstore.Core.Bootstrapping
                 //};
             });
 
-            //builder.Services.AddScoped<IStringLocalizerScope, StringLocalizerScope>();
-            //builder.Services.AddScoped<ITranslationService, TranslationService>();
-            //builder.Services.AddTransient<IViewLocalizer, SmartViewLocalizer>();
-            //builder.Services.AddSingleton<IStringLocalizerFactory, EfStringLocalizerFactory>();
-            //builder.Services.AddSingleton<IUrlHelper, SmartUrlHelper>();
-
             builder.Services.TryAddEnumerable(
                     ServiceDescriptor.Transient<IConfigureOptions<MvcOptions>, AppLocalizationMvcOptionsSetup>());
 
