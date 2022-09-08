@@ -4,7 +4,11 @@
 
 ### New Features
 
-- New plugin: *Google Remarketing*
+- New plugin: *Google Remarketing* (commercial plugin)
+- New plugin: *File Manager* (commercial plugin)
+- New plugin: *GiroCode* (commercial plugin)
+- New plugin: *BizUrlMapper* (commercial plugin)
+- Added QR code infrastructure
 - MediaManager: display image IPTC and EXIF metadata
 - MediaManager: added internal admin comment field
 - (DEV) Embedded/Inline mail attachments
@@ -16,6 +20,7 @@
 - Additional fees are not allowed by PayPal, therefore removed the feature
 - Added cacheable routes for *Google Analytics* widgets
 - (DEV) Made MediaImporter more generic
+- Removed preconfigured Google Fonts retrieval from Google servers from themes AlphaBlack & AlphaBlue  
 
 ### Bugfixes
 
@@ -28,6 +33,9 @@
 - Fixed *Google Analytics* number formatting issues
 - Several fixes for laying Emails on a local directory
 - Removed payment fee configuration from PayPal plugin
+- Fixed Drag&Drop of images for HTML-Editor
+- Fixed saving of emails on disk
+- #539 Fixed flickering on hovering over product image on product detail page
 
 
 ## Smartstore 5.0.0
