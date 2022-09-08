@@ -121,6 +121,7 @@ namespace Smartstore.WebApi.Controllers.OData
             if (entity != null)
             {
                 var entityType = entity.GetType();
+                // TODO: (mg) (core) RawUrl() does NOT contain scheme and host part. This will fail.
                 var uri = new Uri(Request.RawUrl());
                 var queries = HttpUtility.ParseQueryString(uri.Query);
 
