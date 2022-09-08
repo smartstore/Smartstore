@@ -18,39 +18,40 @@ namespace Smartstore.WebApi.Controllers.OData
         [Queryable]
         public IActionResult Get(/*ODataQueryOptions<Category> options*/)
         {
-            var query = Entities.AsNoTracking();
-
-            return Ok(query);
+            return Ok(Entities.AsNoTracking());
         }
 
         [Queryable]
-        public async Task<IActionResult> Get(int key)
+        [ProducesResponseType(typeof(Category), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public Task<IActionResult> Get(int key)
         {
-            var entity = await Entities.FindByIdAsync(key, false);
-
-            return Ok(entity);
+            return GetByKeyAsync(key);
         }
 
         [HttpGet("Categories({key})/{property}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public Task<IActionResult> GetProperty(int key, string property)
         {
             return GetPropertyValueAsync(key, property);
         }
 
         [Queryable]
+        [ProducesResponseType(typeof(Category), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         public async Task<IActionResult> Patch(int key, Delta<Category> model)
         {
-            var result = await PatchAsync(key, model, async (entity) =>
+            return await PatchAsync(key, model, async (entity) =>
             {
                 await Db.SaveChangesAsync();
 
-                // TODO: "ProcessEntity". Only process slug if "Name" changed.
-                var activeSlug = await _urlService.GetActiveSlugAsync(entity.Id, entity.GetEntityName(), 0);
-                var validateSlugResult = await _urlService.ValidateSlugAsync(entity, activeSlug, entity.Name, true);
-                await _urlService.ApplySlugAsync(validateSlugResult, true);
+                var slugResult = await _urlService.ValidateSlugAsync(entity, string.Empty, entity.Name, true);
+                await _urlService.ApplySlugAsync(slugResult, true);
             });
-
-            return result;
         }
     }
 }

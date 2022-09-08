@@ -1,5 +1,6 @@
 ﻿global using System.Linq;
 global using System.Threading.Tasks;
+global using Microsoft.AspNetCore.Http;
 global using Microsoft.AspNetCore.Mvc;
 global using Microsoft.AspNetCore.OData.Deltas;
 global using Microsoft.EntityFrameworkCore;
