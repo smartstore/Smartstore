@@ -12,6 +12,7 @@ namespace Smartstore.Core.Content.Topics
     /// Represents a topic.
     /// </summary>
     [CacheableEntity]
+    [LocalizedEntity("IsPublished and !IsSystemTopic")]
     public partial class Topic : EntityWithAttributes, ILocalizedEntity, ISlugSupported, IStoreRestricted, IAclRestricted
     {
         /// <summary>
@@ -52,39 +53,46 @@ namespace Smartstore.Core.Content.Topics
         /// <summary>
         /// Gets or sets the title.
         /// </summary>
+        [LocalizedProperty]
         public string Title { get; set; }
 
         /// <summary>
         /// Gets or sets the short title (for links).
         /// </summary>
         [StringLength(50)]
+        [LocalizedProperty]
         public string ShortTitle { get; set; }
 
         /// <summary>
         /// Gets or sets the intro.
         /// </summary>
         [StringLength(255)]
+        [LocalizedProperty]
         public string Intro { get; set; }
 
         /// <summary>
         /// Gets or sets the body.
         /// </summary>
         [MaxLength]
+        [LocalizedProperty]
         public string Body { get; set; }
 
         /// <summary>
         /// Gets or sets the meta keywords.
         /// </summary>
+        [LocalizedProperty]
         public string MetaKeywords { get; set; }
 
         /// <summary>
         /// Gets or sets the meta description.
         /// </summary>
+        [LocalizedProperty]
         public string MetaDescription { get; set; }
 
         /// <summary>
         /// Gets or sets the meta title.
         /// </summary>
+        [LocalizedProperty]
         public string MetaTitle { get; set; }
 
         /// <summary>

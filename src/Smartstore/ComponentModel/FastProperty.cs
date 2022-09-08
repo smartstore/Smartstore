@@ -2,10 +2,12 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using Humanizer;
 
 namespace Smartstore.ComponentModel
 {
@@ -436,12 +438,10 @@ namespace Smartstore.ComponentModel
 
             return (IReadOnlyDictionary<string, FastProperty>)props;
 
-            IDictionary<string, FastProperty> Get(Type t)
+            static IDictionary<string, FastProperty> Get(Type t)
             {
                 var candidates = GetCandidateProperties(t);
                 var fastProperties = candidates
-                    // Polymorphic base properties come last, exclude them to avoid duplicate prop names.
-                    .DistinctBy(p => p.Name)
                     .Select(p => Create(p))
                     .ToDictionarySafe(x => x.Name, StringComparer.OrdinalIgnoreCase);
 
@@ -459,7 +459,12 @@ namespace Smartstore.ComponentModel
             }
         }
 
-        internal static IEnumerable<PropertyInfo> GetCandidateProperties(Type type)
+        /// <summary>
+        /// Extracts all candidate properties that expose getters for every
+        /// public get property on the specified type and all its subtypes.
+        /// </summary>
+        /// <param name="type">The type to extract property accessors for.</param>
+        public static IEnumerable<PropertyInfo> GetCandidateProperties(Type type)
         {
             // We avoid loading indexed properties using the Where statement.
             var properties = type.GetRuntimeProperties().Where(IsCandidateProperty);
@@ -472,7 +477,8 @@ namespace Smartstore.ComponentModel
                     interfaceType => interfaceType.GetRuntimeProperties().Where(IsCandidateProperty)));
             }
 
-            return properties;
+            // Polymorphic base properties come last, exclude them to avoid duplicate prop names
+            return properties.DistinctBy(p => p.Name);
         }
 
         private static bool IsCandidateProperty(PropertyInfo property)

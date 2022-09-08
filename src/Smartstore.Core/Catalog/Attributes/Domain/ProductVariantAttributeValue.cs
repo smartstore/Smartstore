@@ -55,10 +55,12 @@ namespace Smartstore.Core.Catalog.Attributes
         /// Gets or sets the product variant attribute name.
         /// </summary>
         [StringLength(450)]
+        [LocalizedProperty]
         public string Name { get; set; }
 
         /// <inheritdoc/>
         [StringLength(100)]
+        [LocalizedProperty]
         public string Alias { get; set; }
 
         /// <summary>

@@ -30,6 +30,7 @@ namespace Smartstore.Core.Catalog.Products
     /// <summary>
     /// Represents a product bundle item.
     /// </summary>
+    [LocalizedEntity("Published and Visible")]
     public partial class ProductBundleItem : BaseEntity, IAuditable, ILocalizedEntity, IDisplayOrder, ICloneable<ProductBundleItem>
     {
         public ProductBundleItem()
@@ -91,12 +92,14 @@ namespace Smartstore.Core.Catalog.Products
         /// Gets or sets the name.
         /// </summary>
         [StringLength(400)]
+        [LocalizedProperty]
         public string Name { get; set; }
 
         /// <summary>
         /// Gets or sets the short description.
         /// </summary>
         [MaxLength]
+        [LocalizedProperty]
         public string ShortDescription { get; set; }
 
         /// <summary>

@@ -32,6 +32,7 @@ namespace Smartstore.Core.Catalog.Brands
     [Index(nameof(DisplayOrder), Name = "IX_Manufacturer_DisplayOrder")]
     [Index(nameof(LimitedToStores), Name = "IX_Manufacturer_LimitedToStores")]
     [Index(nameof(SubjectToAcl), Name = "IX_SubjectToAcl")]
+    [LocalizedEntity("Published and !Deleted")]
     public partial class Manufacturer : EntityWithDiscounts, IAuditable, ISoftDeletable, ILocalizedEntity, ISlugSupported, IAclRestricted, IStoreRestricted, IPagingOptions, IDisplayOrder
     {
         public Manufacturer()
@@ -48,18 +49,21 @@ namespace Smartstore.Core.Catalog.Brands
         /// Gets or sets the brand name.
         /// </summary>
         [Required, StringLength(400)]
+        [LocalizedProperty]
         public string Name { get; set; }
 
         /// <summary>
         /// Gets or sets the description.
         /// </summary>
         [MaxLength]
+        [LocalizedProperty]
         public string Description { get; set; }
 
         /// <summary>
         /// Gets or sets a description displayed at the bottom of the manufacturer page.
         /// </summary>
         [MaxLength]
+        [LocalizedProperty]
         public string BottomDescription { get; set; }
 
         /// <summary>
@@ -71,18 +75,21 @@ namespace Smartstore.Core.Catalog.Brands
         /// Gets or sets the meta keywords.
         /// </summary>
         [StringLength(400)]
+        [LocalizedProperty]
         public string MetaKeywords { get; set; }
 
         /// <summary>
         /// Gets or sets the meta description.
         /// </summary>
         [StringLength(4000)]
+        [LocalizedProperty]
         public string MetaDescription { get; set; }
 
         /// <summary>
         /// Gets or sets the meta title.
         /// </summary>
         [StringLength(400)]
+        [LocalizedProperty]
         public string MetaTitle { get; set; }
 
         /// <summary>

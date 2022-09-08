@@ -56,16 +56,8 @@ namespace Smartstore.Core.Catalog.Categories
     [Index(nameof(LimitedToStores), Name = "IX_Category_LimitedToStores")]
     [Index(nameof(ParentCategoryId), Name = "IX_Category_ParentCategoryId")]
     [Index(nameof(SubjectToAcl), Name = "IX_Category_SubjectToAcl")]
-    [LocalizedEntity(nameof(Name),
-        nameof(FullName),
-        nameof(Description),
-        nameof(BottomDescription),
-        nameof(BadgeText),
-        nameof(MetaDescription),
-        nameof(MetaKeywords),
-        nameof(MetaTitle),
-        FilterPredicate = "Published and !Deleted")]
-    public partial class Category : EntityWithDiscounts, ICategoryNode, IAuditable, ISoftDeletable, ILocalizedEntity, IPagingOptions, IDisplayOrder, IRulesContainer
+    [LocalizedEntity("Published and !Deleted")]
+    public partial class Category : EntityWithDiscounts, ICategoryNode, IAuditable, ISoftDeletable, IPagingOptions, IDisplayOrder, IRulesContainer
     {
         public Category()
         {
@@ -81,24 +73,28 @@ namespace Smartstore.Core.Catalog.Categories
         /// Gets or sets the category name.
         /// </summary>
         [Required, StringLength(400)]
+        [LocalizedProperty]
         public string Name { get; set; }
 
         /// <summary>
         /// Gets or sets the full name (category page title).
         /// </summary>
         [StringLength(400)]
+        [LocalizedProperty]
         public string FullName { get; set; }
 
         /// <summary>
         /// Gets or sets the description.
         /// </summary>
         [MaxLength]
+        [LocalizedProperty]
         public string Description { get; set; }
 
         /// <summary>
         /// Gets or sets a description displayed at the bottom of the category page.
         /// </summary>
         [MaxLength]
+        [LocalizedProperty]
         public string BottomDescription { get; set; }
 
         /// <summary>
@@ -111,6 +107,7 @@ namespace Smartstore.Core.Catalog.Categories
 		/// Gets or sets a text displayed in a badge next to the category within menus.
 		/// </summary>
         [StringLength(400)]
+        [LocalizedProperty]
         public string BadgeText { get; set; }
 
         /// <summary>
@@ -134,18 +131,21 @@ namespace Smartstore.Core.Catalog.Categories
         /// Gets or sets the meta keywords.
         /// </summary>
         [StringLength(400)]
+        [LocalizedProperty]
         public string MetaKeywords { get; set; }
 
         /// <summary>
         /// Gets or sets the meta description.
         /// </summary>
         [StringLength(4000)]
+        [LocalizedProperty]
         public string MetaDescription { get; set; }
 
         /// <summary>
         /// Gets or sets the meta title.
         /// </summary>
         [StringLength(400)]
+        [LocalizedProperty]
         public string MetaTitle { get; set; }
 
         /// <summary>

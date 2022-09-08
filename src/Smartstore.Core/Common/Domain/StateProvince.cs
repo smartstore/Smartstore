@@ -23,6 +23,7 @@ namespace Smartstore.Core.Common
     /// Represents a state/province
     /// </summary>
     [CacheableEntity]
+    [LocalizedEntity("Published")]
     public partial class StateProvince : BaseEntity, ILocalizedEntity, IDisplayOrder
     {
         public StateProvince()
@@ -44,6 +45,7 @@ namespace Smartstore.Core.Common
         /// Gets or sets the name
         /// </summary>
         [Required, StringLength(100)]
+        [LocalizedProperty]
         public string Name { get; set; }
 
         /// <summary>

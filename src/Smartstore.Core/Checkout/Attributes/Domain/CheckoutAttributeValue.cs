@@ -41,6 +41,7 @@ namespace Smartstore.Core.Checkout.Attributes
         /// </summary>
         [Required]
         [MaxLength(400)]
+        [LocalizedProperty]
         public string Name { get; set; }
 
         /// <summary>

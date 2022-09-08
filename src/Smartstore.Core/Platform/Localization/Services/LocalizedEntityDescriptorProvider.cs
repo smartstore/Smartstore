@@ -1,4 +1,7 @@
-﻿namespace Smartstore.Core.Localization
+﻿using FluentMigrator.Infrastructure.Extensions;
+using Smartstore.ComponentModel;
+
+namespace Smartstore.Core.Localization
 {
     public class LocalizedEntityDescriptorProvider : ILocalizedEntityDescriptorProvider
     {
@@ -8,9 +11,17 @@
         {
             foreach (var type in typeScanner.FindTypes<ILocalizedEntity>())
             {
-                if (type.TryGetAttribute<LocalizedEntityAttribute>(true, out var attr))
+                var candidateProperties = FastProperty.GetCandidateProperties(type)
+                    .Where(x => x.HasAttribute<LocalizedPropertyAttribute>());
+
+                if (candidateProperties.Any())
                 {
-                    _descriptors.Add(attr.ToDescriptor(type));
+                    _descriptors.Add(new LocalizedEntityDescriptor 
+                    {
+                        EntityType = type,
+                        FilterPredicate = type.GetAttribute<LocalizedEntityAttribute>(true)?.FilterPredicate,
+                        PropertyNames = candidateProperties.Select(p => p.Name).Distinct().ToArray()
+                    });
                 }
             }
         }

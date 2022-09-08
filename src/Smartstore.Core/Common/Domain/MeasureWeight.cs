@@ -21,6 +21,7 @@ namespace Smartstore.Core.Common
         /// <summary>
         /// Gets or sets the name
         /// </summary>
+        [LocalizedProperty]
         public string Name { get; set; }
 
         /// <summary>

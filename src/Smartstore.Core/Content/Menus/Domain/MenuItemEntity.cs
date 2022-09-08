@@ -18,6 +18,7 @@ namespace Smartstore.Core.Content.Menus
     [Index(nameof(DisplayOrder), Name = "IX_MenuItem_DisplayOrder")]
     [Index(nameof(LimitedToStores), Name = "IX_MenuItem_LimitedToStores")]
     [Index(nameof(SubjectToAcl), Name = "IX_MenuItem_SubjectToAcl")]
+    [LocalizedEntity("Published")]
     public class MenuItemEntity : EntityWithAttributes, ILocalizedEntity, IStoreRestricted, IAclRestricted
     {
         const string EntityName = "MenuItemRecord";
@@ -73,12 +74,14 @@ namespace Smartstore.Core.Content.Menus
         /// Gets or sets the title.
         /// </summary>
         [StringLength(400)]
+        [LocalizedProperty]
         public string Title { get; set; }
 
         /// <summary>
         /// Gets or sets the short description. It is used for the link title attribute.
         /// </summary>
         [StringLength(400)]
+        [LocalizedProperty]
         public string ShortDescription { get; set; }
 
         /// <summary>

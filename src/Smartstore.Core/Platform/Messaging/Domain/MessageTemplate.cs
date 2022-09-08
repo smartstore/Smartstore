@@ -9,12 +9,14 @@ namespace Smartstore.Core.Messaging
     /// Represents a message template.
     /// </summary>
     [CacheableEntity]
+    [LocalizedEntity("IsActive")]
     public partial class MessageTemplate : EntityWithAttributes, ILocalizedEntity, IStoreRestricted
     {
         /// <summary>
         /// Gets or sets the name.
         /// </summary>
         [Required, StringLength(200)]
+        [LocalizedProperty]
         public string Name { get; set; }
 
         [StringLength(500), Required]
@@ -42,12 +44,14 @@ namespace Smartstore.Core.Messaging
         /// Gets or sets the subject.
         /// </summary>
         [StringLength(1000)]
+        [LocalizedProperty]
         public string Subject { get; set; }
 
         /// <summary>
         /// Gets or sets the body.
         /// </summary>
         [MaxLength]
+        [LocalizedProperty]
         public string Body { get; set; }
 
         /// <summary>

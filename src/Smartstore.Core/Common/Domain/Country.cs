@@ -31,6 +31,7 @@ namespace Smartstore.Core.Common
     /// </summary>
     [Index(nameof(DisplayOrder), Name = "IX_Country_DisplayOrder")]
     [CacheableEntity]
+    [LocalizedEntity("Published")]
     public partial class Country : EntityWithAttributes, ILocalizedEntity, IStoreRestricted, IDisplayOrder
     {
         public Country()
@@ -47,6 +48,7 @@ namespace Smartstore.Core.Common
         /// Gets or sets the name
         /// </summary>
         [MaxLength(4000)]
+        [LocalizedProperty]
         public string Name { get; set; }
 
         /// <summary>

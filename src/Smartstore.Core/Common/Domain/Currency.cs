@@ -22,12 +22,14 @@ namespace Smartstore.Core.Common
     /// </summary>
     [Index(nameof(DisplayOrder), Name = "IX_Currency_DisplayOrder")]
     [CacheableEntity]
+    [LocalizedEntity("Published")]
     public partial class Currency : EntityWithAttributes, IAuditable, ILocalizedEntity, IStoreRestricted, IDisplayOrder, ICloneable<Currency>
     {
         /// <summary>
         /// Gets or sets the name
         /// </summary>
         [Required, StringLength(50)]
+        [LocalizedProperty]
         public string Name { get; set; }
 
         /// <summary>

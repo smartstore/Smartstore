@@ -52,10 +52,12 @@ namespace Smartstore.Core.Catalog.Attributes
         /// Gets or sets the name.
         /// </summary>
         [Required, StringLength(4000)]
+        [LocalizedProperty]
         public string Name { get; set; }
 
         /// <inheritdoc/>
         [StringLength(30)]
+        [LocalizedProperty]
         public string Alias { get; set; }
 
         /// <summary>

@@ -92,14 +92,7 @@ namespace Smartstore.Core.Catalog.Products
     [Index(nameof(SystemName), nameof(IsSystemProduct), Name = "IX_Product_SystemName_IsSystemProduct")]
     [Index(nameof(Published), nameof(Id), nameof(Visibility), nameof(Deleted), nameof(IsSystemProduct), nameof(AvailableStartDateTimeUtc), nameof(AvailableEndDateTimeUtc), Name = "IX_SeekExport1")]
     [Index(nameof(Visibility), Name = "IX_Visibility")]
-    [LocalizedEntity(nameof(Name), 
-        nameof(ShortDescription), 
-        nameof(FullDescription),
-        nameof(MetaDescription), 
-        nameof(MetaKeywords), 
-        nameof(MetaTitle),
-        nameof(BundleTitleText),
-        FilterPredicate = "Published and !Deleted")]
+    [LocalizedEntity("Published and !Deleted")]
     public partial class Product : EntityWithDiscounts, IAuditable, ISoftDeletable, ILocalizedEntity, ISlugSupported, IAclRestricted, IStoreRestricted, IMergedData
     {
         #region Static
@@ -198,18 +191,21 @@ namespace Smartstore.Core.Catalog.Products
         /// Gets or sets the product name.
         /// </summary>
         [Required, StringLength(400)]
+        [LocalizedProperty]
         public string Name { get; set; }
 
         /// <summary>
         /// Gets or sets the short description.
         /// </summary>
         [StringLength(4000)]
+        [LocalizedProperty]
         public string ShortDescription { get; set; }
 
         /// <summary>
         /// Gets or sets the full description.
         /// </summary>
         [MaxLength]
+        [LocalizedProperty]
         public string FullDescription { get; set; }
 
         /// <summary>
@@ -236,18 +232,21 @@ namespace Smartstore.Core.Catalog.Products
         /// Gets or sets the meta keywords.
         /// </summary>
         [StringLength(400)]
+        [LocalizedProperty]
         public string MetaKeywords { get; set; }
 
         /// <summary>
         /// Gets or sets the meta description.
         /// </summary>
         [StringLength(4000)]
+        [LocalizedProperty]
         public string MetaDescription { get; set; }
 
         /// <summary>
         /// Gets or sets the meta title.
         /// </summary>
         [StringLength(400)]
+        [LocalizedProperty]
         public string MetaTitle { get; set; }
 
         /// <summary>
@@ -884,6 +883,7 @@ namespace Smartstore.Core.Catalog.Products
         /// Gets or sets an optional title text of a product bundle.
         /// </summary>
         [StringLength(400)]
+        [LocalizedProperty]
         public string BundleTitleText { get; set; }
 
         /// <summary>

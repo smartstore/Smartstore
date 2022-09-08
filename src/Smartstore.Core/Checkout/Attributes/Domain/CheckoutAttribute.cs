@@ -13,6 +13,7 @@ namespace Smartstore.Core.Checkout.Attributes
     /// Represents a checkout attribute
     /// </summary>
     [CacheableEntity]
+    [LocalizedEntity("IsActive")]
     public partial class CheckoutAttribute : EntityWithAttributes, ILocalizedEntity, IStoreRestricted
     {
         public CheckoutAttribute()
@@ -34,11 +35,13 @@ namespace Smartstore.Core.Checkout.Attributes
         /// Gets or sets the name
         /// </summary>
         [Required, MaxLength(400)]
+        [LocalizedProperty]
         public string Name { get; set; }
 
         /// <summary>
         /// Gets or sets the text prompt
         /// </summary>
+        [LocalizedProperty]
         public string TextPrompt { get; set; }
 
         /// <summary>

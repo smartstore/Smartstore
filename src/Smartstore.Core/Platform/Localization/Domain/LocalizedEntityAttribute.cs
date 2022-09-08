@@ -1,36 +1,38 @@
 ﻿namespace Smartstore.Core.Localization
 {
     /// <summary>
-    /// Defines metadata for localizable entities. Use this attribute
+    /// Defines extra metadata for localizable entities. Use this attribute
     /// on types that implement <see cref="ILocalizedEntity"/> only.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Class, Inherited = true)]
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface, Inherited = true)]
     public sealed class LocalizedEntityAttribute : Attribute
     {
-        public LocalizedEntityAttribute(params string[] propertyNames)
+        public LocalizedEntityAttribute()
         {
-            Guard.NotEmpty(propertyNames, nameof(propertyNames));
-            PropertyNames = propertyNames;
         }
 
-        /// <summary>
-        /// The properties which provide localizable content.
-        /// </summary>
-        public string[] PropertyNames { get; }
+        /// <param name="filterPredicate">
+        /// An optional filter predicate as a dynamic LINQ expression
+        /// </param>
+        public LocalizedEntityAttribute(string filterPredicate)
+        {
+            Guard.NotEmpty(filterPredicate, nameof(filterPredicate));
+            FilterPredicate = filterPredicate;
+        }
 
         /// <summary>
         /// An optional filter predicate as a dynamic LINQ expression.
         /// </summary>
         public string FilterPredicate { get; set; }
+    }
 
-        internal LocalizedEntityDescriptor ToDescriptor(Type entityType)
-        {
-            return new LocalizedEntityDescriptor
-            {
-                EntityType = entityType,
-                PropertyNames = PropertyNames,
-                FilterPredicate = FilterPredicate
-            };
-        }
+    /// <summary>
+    /// Marks a public property of a localizable entity as localizable. 
+    /// Use this attribute on types that implement <see cref="ILocalizedEntity"/> only.
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Property, Inherited = true)]
+    public sealed class LocalizedPropertyAttribute : Attribute
+    {
+        public bool Translatable { get; set; } = true;
     }
 }

@@ -59,12 +59,14 @@ namespace Smartstore.Core.Checkout.Shipping
         /// Gets or sets the name.
         /// </summary>
         [Required, StringLength(400)]
+        [LocalizedProperty]
         public string Name { get; set; }
 
         /// <summary>
         /// Gets or sets the description.
         /// </summary>
         [StringLength(4000)]
+        [LocalizedProperty]
         public string Description { get; set; }
 
         /// <summary>

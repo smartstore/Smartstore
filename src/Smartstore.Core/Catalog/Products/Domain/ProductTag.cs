@@ -11,6 +11,7 @@ namespace Smartstore.Core.Catalog.Products
     /// </summary>
     [Index(nameof(Name), Name = "IX_ProductTag_Name")]
     [Index(nameof(Published), Name = "IX_ProductTag_Published")]
+    [LocalizedEntity("Published")]
     public partial class ProductTag : BaseEntity, ILocalizedEntity, IDisplayedEntity
     {
         public ProductTag()
@@ -30,6 +31,7 @@ namespace Smartstore.Core.Catalog.Products
         /// Gets or sets the name.
         /// </summary>
         [Required, StringLength(400)]
+        [LocalizedProperty]
         public string Name { get; set; }
 
         /// <summary>

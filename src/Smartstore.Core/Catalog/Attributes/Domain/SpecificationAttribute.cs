@@ -12,6 +12,7 @@ namespace Smartstore.Core.Catalog.Attributes
     /// Represents a specification attribute.
     /// </summary>
     [Index(nameof(AllowFiltering), Name = "IX_AllowFiltering")]
+    [LocalizedEntity("ShowOnProductPage or AllowFiltering")]
     public partial class SpecificationAttribute : EntityWithAttributes, ILocalizedEntity, IDisplayOrder, ISearchAlias
     {
         public SpecificationAttribute()
@@ -28,10 +29,12 @@ namespace Smartstore.Core.Catalog.Attributes
         /// Gets or sets the name.
         /// </summary>
         [Required, StringLength(4000)]
+        [LocalizedProperty]
         public string Name { get; set; }
 
         /// <inheritdoc/>
         [StringLength(30)]
+        [LocalizedProperty]
         public string Alias { get; set; }
 
         /// <summary>

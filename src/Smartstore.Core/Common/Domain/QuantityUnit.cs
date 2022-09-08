@@ -14,18 +14,21 @@ namespace Smartstore.Core.Common
         /// Gets or sets the name
         /// </summary>
         [Required, StringLength(50)]
+        [LocalizedProperty]
         public string Name { get; set; }
 
         /// <summary>
         /// Gets or sets the name plural.
         /// </summary>
         [Required, StringLength(50)]
+        [LocalizedProperty]
         public string NamePlural { get; set; }
 
         /// <summary>
         /// Gets or sets the description
         /// </summary>
         [StringLength(50)]
+        [LocalizedProperty]
         public string Description { get; set; }
 
         /// <summary>
