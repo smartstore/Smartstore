@@ -445,6 +445,7 @@ namespace Smartstore.Admin.Controllers
 
             string message = null;
             var hasError = false;
+            MediaFileInfo uploadedFileInfo = null;
 
             try
             {
@@ -462,7 +463,7 @@ namespace Smartstore.Admin.Controllers
                             path = uniquePath;
                         }
 
-                        await _mediaService.SaveFileAsync(path, uploadedFile.OpenReadStream(), false, DuplicateFileHandling.Overwrite);
+                        uploadedFileInfo = await _mediaService.SaveFileAsync(path, uploadedFile.OpenReadStream(), false, DuplicateFileHandling.Overwrite);
                     }
                     else
                     {
@@ -480,7 +481,11 @@ namespace Smartstore.Admin.Controllers
             {
                 if (external)
                 {
-                    return Json(new { Success = !hasError, Message = message });
+                    return Json(new { 
+                        Success = !hasError, 
+                        Message = message,
+                        Url = uploadedFileInfo != null ? uploadedFileInfo.GetUrl() : string.Empty
+                    });
                 }
                 else
                 {

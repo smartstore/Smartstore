@@ -207,7 +207,7 @@ var summernote_image_upload_url;
 		data = new FormData();
 		data.append("file", file);
 		data.append("a", "UPLOAD");
-		data.append("d", "Uploaded");
+        data.append("d", "file");
 		data.append("ext", true);
 		$.ajax({
 			data: data,
@@ -216,9 +216,9 @@ var summernote_image_upload_url;
 			cache: false,
 			contentType: false,
             processData: false,
-			success: function (result) {
+            success: function (result) {
 				if (result.Success) {
-					$(editor).summernote('insertImage', result.Url);
+                    $(editor).summernote('insertImage', result.Url);
 				}
 				else {
 					EventBroker.publish("message", {
