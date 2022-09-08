@@ -35,6 +35,7 @@
 - Removed payment fee configuration from PayPal plugin
 - Fixed Drag&Drop of images for HTML-Editor
 - Fixed saving of emails on disk
+- After installation of modules with custom Sass imports: bundle disk cache was not invalidated
 - #539 Fixed flickering on hovering over product image on product detail page
 
 

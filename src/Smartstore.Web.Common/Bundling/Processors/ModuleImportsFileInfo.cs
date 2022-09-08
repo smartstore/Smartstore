@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.FileProviders;
+﻿using System.Text;
+using Microsoft.Extensions.FileProviders;
 using Smartstore.Data;
 using Smartstore.Engine.Modularity;
 using Smartstore.IO;
@@ -10,6 +11,8 @@ namespace Smartstore.Web.Bundling.Processors
     {
         public const string FileName = "moduleimports.scss";
         public const string Path = "/.app/moduleimports.scss";
+
+        private string _content;
 
         #region Static
 
@@ -68,7 +71,7 @@ namespace Smartstore.Web.Bundling.Processors
 
         public DateTimeOffset LastModified { get; }
 
-        public long Length => CreateReadStream().Length;
+        public long Length => GetContent().Length;
 
         public string Name { get; }
 
@@ -76,25 +79,45 @@ namespace Smartstore.Web.Bundling.Processors
 
         public Stream CreateReadStream()
         {
-            var imports = IsAdmin ? _adminImports : _publicImports;
-            if (imports.Count == 0)
+            var content = GetContent();
+
+            if (content.HasValue())
+            {
+                return new MemoryStream().WriteString(content);
+            }
+            else
             {
                 return new MemoryStream();
             }
+        }
 
-            using var psb = StringBuilderPool.Instance.Get(out var sb);
-            foreach (var imp in imports)
+        private string GetContent()
+        {
+            if (_content == null)
             {
-                sb.AppendLine($"@import '{imp.Path}';");
+                var imports = IsAdmin ? _adminImports : _publicImports;
+                if (imports.Count == 0)
+                {
+                    _content = string.Empty;
+                }
+                else
+                {
+                    var sb = new StringBuilder();
+                    foreach (var imp in imports)
+                    {
+                        sb.AppendLine($"@import '{imp.Path}';");
+                    }
+
+                    _content = sb.ToString();
+                }
             }
 
-            return new MemoryStream().WriteString(sb.ToString());
+            return _content;
         }
 
         public Task<int> GetFileHashAsync()
         {
-            // Rely on the hashes of the included files (if any)
-            return Task.FromResult(0);
+            return Task.FromResult((int)XxHashUnsafe.ComputeHash(GetContent()));
         }
 
         class ModuleImport
