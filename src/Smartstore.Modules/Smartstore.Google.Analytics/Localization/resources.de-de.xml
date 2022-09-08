@@ -12,10 +12,10 @@
                     <li>Kopieren Sie die Google-Analytics-ID in das entspechende Feld in folgendem Formular.</li>
                     <li>Aktivieren Sie das Google Analytics Widget unter <b>CMS > Widgets</b> und Google Analytics wird in Ihre Webseite integriert.</li>
                 </ul>
-		        <p>
-			        Um das Opt-Out-Cookie in Ihrer Datenschutzerklärung einzubinden verwenden Sie folgenden Code:
-		        </p>
-		        <pre>&lt;a href=&quot;javascript:gaOptout()&quot;&gt;Google Analytics deaktivieren&lt;/a&gt;</pre>
+		            <p>
+			            Um das Opt-Out-Cookie in Ihrer Datenschutzerklärung einzubinden verwenden Sie folgenden Code:
+		            </p>
+		            <pre>&lt;a href=&quot;javascript:gaOptout()&quot;&gt;Google Analytics deaktivieren&lt;/a&gt;</pre>
               ]]>
         </Value>
     </LocaleResource>

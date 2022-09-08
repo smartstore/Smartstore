@@ -44,7 +44,7 @@ namespace Smartstore.Google.Analytics
 
             var cookieInfo = new CookieInfo
             {
-                Name = T("Plugins.FriendlyName.SmartStore.GoogleAnalytics"),
+                Name = T("Plugins.FriendlyName.SmartStore.Google.Analytics"),
                 Description = T("Plugins.Widgets.GoogleAnalytics.CookieInfo"),
                 CookieType = CookieType.Analytics
             };
