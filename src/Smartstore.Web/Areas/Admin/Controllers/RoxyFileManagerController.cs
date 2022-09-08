@@ -481,10 +481,11 @@ namespace Smartstore.Admin.Controllers
             {
                 if (external)
                 {
-                    return Json(new { 
+                    return Json(new 
+                    { 
                         Success = !hasError, 
                         Message = message,
-                        Url = uploadedFileInfo != null ? uploadedFileInfo.GetUrl() : string.Empty
+                        Url = uploadedFileInfo?.GetUrl()
                     });
                 }
                 else
