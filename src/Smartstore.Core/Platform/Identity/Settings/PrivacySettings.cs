@@ -43,6 +43,6 @@ namespace Smartstore.Core.Identity
         /// <summary>
         /// Gets or sets cookie infos (JSON serialized).
         /// </summary>
-        public string CookieInfos { get; set; }
+        public string CookieInfos { get; set; } = string.Empty;
     }
 }
