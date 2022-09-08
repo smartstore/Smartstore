@@ -4,10 +4,10 @@
 
 ### New Features
 
-- New plugin: *Google Remarketing* (commercial plugin)
-- New plugin: *File Manager* (commercial plugin)
-- New plugin: *GiroCode* (commercial plugin)
-- New plugin: *BizUrlMapper* (commercial plugin)
+- (NEW) *Google Remarketing* (commercial plugin)
+- (NEW) *File Manager* (commercial plugin)
+- (NEW) *GiroCode* (commercial plugin)
+- (NEW) *BizUrlMapper* (commercial plugin)
 - Added QR code infrastructure
 - MediaManager: display image IPTC and EXIF metadata
 - MediaManager: added internal admin comment field
