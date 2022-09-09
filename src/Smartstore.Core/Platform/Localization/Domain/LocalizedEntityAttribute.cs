@@ -24,6 +24,11 @@
         /// An optional filter predicate as a dynamic LINQ expression.
         /// </summary>
         public string FilterPredicate { get; set; }
+
+        /// <summary>
+        /// Key group name of entity.
+        /// </summary>
+        public string KeyGroup { get; set; }
     }
 
     /// <summary>

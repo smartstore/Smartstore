@@ -1,4 +1,5 @@
 ﻿using Smartstore.Core.Configuration;
+using Smartstore.Core.Localization;
 
 namespace Smartstore.Core.Checkout.Orders
 {
@@ -48,11 +49,13 @@ namespace Smartstore.Core.Checkout.Orders
         /// <summary>
         /// Gets or sets a list of return request reasons.
         /// </summary>
+        [LocalizedProperty]
         public string ReturnRequestReasons { get; set; } = "Received Wrong Product,Wrong Product Ordered,There Was A Problem With The Product";
 
         /// <summary>
         /// Gets or sets a list of return request actions.
         /// </summary>
+        [LocalizedProperty]
         public string ReturnRequestActions { get; set; } = "Repair,Replacement,Store Credit";
 
         /// <summary>

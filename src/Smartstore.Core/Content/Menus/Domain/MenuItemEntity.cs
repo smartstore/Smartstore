@@ -18,7 +18,7 @@ namespace Smartstore.Core.Content.Menus
     [Index(nameof(DisplayOrder), Name = "IX_MenuItem_DisplayOrder")]
     [Index(nameof(LimitedToStores), Name = "IX_MenuItem_LimitedToStores")]
     [Index(nameof(SubjectToAcl), Name = "IX_MenuItem_SubjectToAcl")]
-    [LocalizedEntity("Published")]
+    [LocalizedEntity("Published", KeyGroup = EntityName)]
     public class MenuItemEntity : EntityWithAttributes, ILocalizedEntity, IStoreRestricted, IAclRestricted
     {
         const string EntityName = "MenuItemRecord";

@@ -1,4 +1,5 @@
 ﻿using Smartstore.Core.Configuration;
+using Smartstore.Core.Localization;
 
 namespace Smartstore.Core.Seo
 {
@@ -112,8 +113,13 @@ namespace Smartstore.Core.Seo
         /// <summary>
         /// Gets or sets the default meta title for the shop.
         /// </summary>
+        [LocalizedProperty]
         public string MetaTitle { get; set; } = "Shop";
+
+        [LocalizedProperty]
         public string MetaDescription { get; set; } = string.Empty;
+
+        [LocalizedProperty]
         public string MetaKeywords { get; set; } = string.Empty;
 
         public string MetaRobotsContent { get; set; }

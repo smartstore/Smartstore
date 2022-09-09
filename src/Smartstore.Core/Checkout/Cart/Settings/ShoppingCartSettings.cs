@@ -1,5 +1,6 @@
 ﻿using Smartstore.Core.Common;
 using Smartstore.Core.Configuration;
+using Smartstore.Core.Localization;
 
 namespace Smartstore.Core.Checkout.Cart
 {
@@ -93,6 +94,7 @@ namespace Smartstore.Core.Checkout.Cart
         /// <summary>
         /// Gets or sets the label to accept to hand over the email to third party
         /// </summary>
+        [LocalizedProperty]
         public string ThirdPartyEmailHandOverLabel { get; set; }
 
         /// <summary>

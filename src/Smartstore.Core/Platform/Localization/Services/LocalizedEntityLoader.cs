@@ -1,4 +1,5 @@
 ﻿using System.Linq.Dynamic.Core;
+using Autofac;
 using Smartstore.Core.Data;
 using Smartstore.Data;
 
@@ -6,19 +7,21 @@ namespace Smartstore.Core.Localization
 {
     public class LocalizedEntityLoader : ILocalizedEntityLoader
     {
+        private readonly ILifetimeScope _scope;
         private readonly SmartDbContext _db;
 
-        public LocalizedEntityLoader(SmartDbContext db)
+        public LocalizedEntityLoader(ILifetimeScope scope, SmartDbContext db)
         {
+            _scope = scope;
             _db = db;
         }
 
-        public List<dynamic> Load(LocalizedEntityDescriptor descriptor)
+        public IList<dynamic> Load(LocalizedEntityDescriptor descriptor)
         {
             return LoadInternal(descriptor, false).Await();
         }
 
-        public Task<List<dynamic>> LoadAsync(LocalizedEntityDescriptor descriptor)
+        public Task<IList<dynamic>> LoadAsync(LocalizedEntityDescriptor descriptor)
         {
             return LoadInternal(descriptor, true);
         }
@@ -28,20 +31,30 @@ namespace Smartstore.Core.Localization
             Guard.NotNull(descriptor, nameof(descriptor));
 
             var query = CreateQuery(descriptor);
-            var pager = new DynamicFastPager(query, pageSize);
+            var pager = new DynamicFastPager(query, pageSize)
+            {
+                ResultExtender = list => ExtendResult(list, descriptor)
+            };
 
             return pager;
         }
 
-        private async Task<List<dynamic>> LoadInternal(LocalizedEntityDescriptor descriptor, bool async)
+        public async Task<IList<dynamic>> LoadByDelegateAsync(LoadLocalizedEntityDelegate @delegate)
+        {
+            Guard.NotNull(@delegate, nameof(@delegate));
+
+            return await @delegate(_scope, _db);
+        }
+
+        private async Task<IList<dynamic>> LoadInternal(LocalizedEntityDescriptor descriptor, bool async)
         {
             Guard.NotNull(descriptor, nameof(descriptor));
 
             var query = CreateQuery(descriptor);
-
+            
             var list = async ? await query.ToDynamicListAsync() : query.ToDynamicList();
 
-            return list;
+            return ExtendResult(list, descriptor);
         }
 
         protected virtual IQueryable CreateQuery(LocalizedEntityDescriptor descriptor)
@@ -61,9 +74,22 @@ namespace Smartstore.Core.Localization
 
             query = query
                 // --> new { Id, Name, ShortDescription, FullDescription }
-                .Select($"new {{ Id,  {string.Join(", ", descriptor.PropertyNames)} }}");
+                .Select($"new {{ Id, {string.Join(", ", descriptor.PropertyNames)} }}");
 
             return query;
+        }
+
+        /// <summary>
+        /// Adds "KeyGroup" property to all dynamic objects, reading the value from <paramref name="descriptor"/>.KeyGroup.
+        /// </summary>
+        private static IList<dynamic> ExtendResult(IList<dynamic> result, LocalizedEntityDescriptor descriptor)
+        {
+            foreach (var obj in result.OfType<DynamicClass>())
+            {
+                obj["KeyGroup"] = descriptor.KeyGroup;
+            }
+
+            return result;
         }
     }
 }

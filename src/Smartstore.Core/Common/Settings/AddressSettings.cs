@@ -1,4 +1,5 @@
 ﻿using Smartstore.Core.Configuration;
+using Smartstore.Core.Localization;
 
 namespace Smartstore.Core.Common.Settings
 {
@@ -17,6 +18,7 @@ namespace Smartstore.Core.Common.Settings
         /// <summary>
         /// Gets or sets values with available salutations
         /// </summary>
+        [LocalizedProperty]
         public string Salutations { get; set; }
 
         /// <summary>
