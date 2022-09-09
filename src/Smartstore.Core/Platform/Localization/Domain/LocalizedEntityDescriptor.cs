@@ -1,4 +1,6 @@
-﻿namespace Smartstore.Core.Localization
+﻿using System.Reflection;
+
+namespace Smartstore.Core.Localization
 {
     /// <summary>
     /// Contains metadata for localized entities.
@@ -19,9 +21,10 @@
         }
 
         /// <summary>
-        /// Name of all localizable properties that are defined in <see cref="EntityType"/> class.
+        /// All localizable properties that are defined in <see cref="EntityType"/> class,
+        /// that is, all properties decorated with the <see cref="LocalizedEntityAttribute"/> attribute.
         /// </summary>
-        public string[] PropertyNames { get; init; }
+        public PropertyInfo[] Properties { get; init; }
 
         /// <summary>
         /// An optional filter predicate as a dynamic LINQ expression.

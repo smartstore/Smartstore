@@ -160,7 +160,6 @@ namespace Smartstore.Web
                     settings.Converters.Add(new UTCDateTimeConverter(new IsoDateTimeConverter()));
                 })
                 .AddControllersAsServices()
-                .AddAppLocalization()
                 .AddViewOptions(o =>
                 {
                     o.HtmlHelperOptions.CheckBoxHiddenInputRenderMode = CheckBoxHiddenInputRenderMode.Inline;

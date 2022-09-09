@@ -120,7 +120,6 @@ namespace Smartstore.Core.Bootstrapping
 
             builder.RegisterModule(new LoggingModule());
             builder.RegisterModule(new PackagingModule());
-            builder.RegisterModule(new LocalizationModule());
             builder.RegisterModule(new CommonServicesModule());
             builder.RegisterModule(new DbHooksModule(appContext));
             builder.RegisterModule(new DbQuerySettingsModule());

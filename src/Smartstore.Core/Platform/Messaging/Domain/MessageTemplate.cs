@@ -16,7 +16,6 @@ namespace Smartstore.Core.Messaging
         /// Gets or sets the name.
         /// </summary>
         [Required, StringLength(200)]
-        [LocalizedProperty]
         public string Name { get; set; }
 
         [StringLength(500), Required]

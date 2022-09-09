@@ -9,7 +9,7 @@ namespace Smartstore.Core.Localization
     {
         /// <summary>
         /// Loads dynamically shaped entities for given <paramref name="descriptor"/>.
-        /// The dynamic instances only contain properties as defined by <see cref="LocalizedEntityDescriptor.PropertyNames"/>,
+        /// The dynamic instances only contain properties as defined by <see cref="LocalizedEntityDescriptor.Properties"/>,
         /// plus the <see cref="BaseEntity.Id"/> property.
         /// </summary>
         /// <param name="descriptor">The descriptor that contains metadata about the data to load.</param>
@@ -21,7 +21,7 @@ namespace Smartstore.Core.Localization
 
         /// <summary>
         /// Loads dynamically shaped entities for given <paramref name="descriptor"/> as a paged list.
-        /// The dynamic instances only contain properties as defined by <see cref="LocalizedEntityDescriptor.PropertyNames"/>,
+        /// The dynamic instances only contain properties as defined by <see cref="LocalizedEntityDescriptor.Properties"/>,
         /// plus the <see cref="BaseEntity.Id"/> property.
         /// </summary>
         /// <param name="descriptor">The descriptor that contains metadata about the data to load.</param>

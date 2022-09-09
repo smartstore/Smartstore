@@ -32,7 +32,7 @@ namespace Smartstore.Core.Localization
                         EntityType = type,
                         KeyGroup = attr?.KeyGroup,
                         FilterPredicate = attr?.FilterPredicate,
-                        PropertyNames = candidateProperties.Select(p => p.Name).Distinct().ToArray()
+                        Properties = candidateProperties.ToArray()
                     });
                 }
             }

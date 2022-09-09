@@ -31,10 +31,7 @@ namespace Smartstore.Core.Localization
             Guard.NotNull(descriptor, nameof(descriptor));
 
             var query = CreateQuery(descriptor);
-            var pager = new DynamicFastPager(query, pageSize)
-            {
-                ResultExtender = list => ExtendResult(list, descriptor)
-            };
+            var pager = new DynamicFastPager(query, pageSize);
 
             return pager;
         }
@@ -54,7 +51,7 @@ namespace Smartstore.Core.Localization
             
             var list = async ? await query.ToDynamicListAsync() : query.ToDynamicList();
 
-            return ExtendResult(list, descriptor);
+            return list;
         }
 
         protected virtual IQueryable CreateQuery(LocalizedEntityDescriptor descriptor)
@@ -72,24 +69,13 @@ namespace Smartstore.Core.Localization
                 query = query.Where(descriptor.FilterPredicate);
             }
 
+            var propertyNames = descriptor.Properties.Select(p => p.Name);
+
             query = query
-                // --> new { Id, Name, ShortDescription, FullDescription }
-                .Select($"new {{ Id, {string.Join(", ", descriptor.PropertyNames)} }}");
+                // --> new { Id, KeyGroup, Name, ShortDescription, FullDescription }
+                .Select($"new {{ Id, \"{descriptor.KeyGroup}\" as KeyGroup, {string.Join(", ", propertyNames)} }}");
 
             return query;
-        }
-
-        /// <summary>
-        /// Adds "KeyGroup" property to all dynamic objects, reading the value from <paramref name="descriptor"/>.KeyGroup.
-        /// </summary>
-        private static IList<dynamic> ExtendResult(IList<dynamic> result, LocalizedEntityDescriptor descriptor)
-        {
-            foreach (var obj in result.OfType<DynamicClass>())
-            {
-                obj["KeyGroup"] = descriptor.KeyGroup;
-            }
-
-            return result;
         }
     }
 }

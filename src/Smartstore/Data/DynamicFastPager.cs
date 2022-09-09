@@ -33,8 +33,6 @@ namespace Smartstore.Data
 
         public int? CurrentPage => _currentPage;
 
-        public Action<IList<dynamic>> ResultExtender { get; set; }
-
         public bool ReadNextPage(out IList<dynamic> page)
         {
             return ReadNextPage(null, out page);
@@ -64,7 +62,7 @@ namespace Smartstore.Data
                 query = query.Select(selector);
             }
 
-            page = ExtendResult(query.ToDynamicList());
+            page = query.ToDynamicList();
 
             if (page.Count == 0)
             {
@@ -105,7 +103,7 @@ namespace Smartstore.Data
                 query = query.Select(selector);
             }
 
-            var page = ExtendResult(await query.ToDynamicListAsync());
+            var page = await query.ToDynamicListAsync();
 
             if (page.Count == 0)
             {
@@ -116,12 +114,6 @@ namespace Smartstore.Data
             _currentPage++;
             _maxId = page.Last().Id;
             return new AsyncOut<IList<dynamic>>(true, page);
-        }
-
-        private IList<dynamic> ExtendResult(IList<dynamic> result)
-        {
-            ResultExtender?.Invoke(result);
-            return result;
         }
     }
 }
