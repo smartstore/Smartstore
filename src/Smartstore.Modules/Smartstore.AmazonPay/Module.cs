@@ -34,7 +34,7 @@ namespace Smartstore.AmazonPay
 
         public Localizer T { get; set; } = NullLocalizer.Instance;
 
-        public async Task<IEnumerable<CookieInfo>> GetCookieInfoAsync()
+        public async Task<IEnumerable<CookieInfo>> GetCookieInfosAsync()
         {
             var store = Services.StoreContext.CurrentStore;
             var cookieInfoRequired = await _paymentService.IsPaymentMethodActiveAsync(AmazonPayProvider.SystemName, null, store.Id);

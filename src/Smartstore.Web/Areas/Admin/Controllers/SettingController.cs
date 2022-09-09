@@ -620,7 +620,6 @@ namespace Smartstore.Admin.Controllers
         {
             var ciList = JsonConvert.DeserializeObject<List<CookieInfo>>(_privacySettings.CookieInfos);
             var cookieInfo = ciList
-                .Select(x => x)
                 .Where(x => x.Name.EqualsNoCase(name))
                 .FirstOrDefault();
 
@@ -656,7 +655,6 @@ namespace Smartstore.Admin.Controllers
 
             var ciList = JsonConvert.DeserializeObject<List<CookieInfo>>(_privacySettings.CookieInfos);
             var cookieInfo = ciList
-                .Select(x => x)
                 .Where(x => x.Name.EqualsNoCase(model.Name))
                 .FirstOrDefault();
 

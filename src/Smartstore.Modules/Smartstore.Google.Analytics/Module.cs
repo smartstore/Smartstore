@@ -36,7 +36,7 @@ namespace Smartstore.Google.Analytics
         public RouteInfo GetConfigurationRoute()
             => new("Configure", "GoogleAnalytics", new { area = "Admin" });
 
-        public Task<IEnumerable<CookieInfo>> GetCookieInfoAsync()
+        public Task<IEnumerable<CookieInfo>> GetCookieInfosAsync()
         {
             var widget = _providerManager.GetProvider<IWidget>("Smartstore.Google.Analytics");
             if (!widget.IsWidgetActive(_widgetSettings))

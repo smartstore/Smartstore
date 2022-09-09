@@ -40,7 +40,7 @@ namespace Smartstore.Core.Identity
 
             foreach (var publisher in publishers)
             {
-                var cookieInfo = await publisher.GetCookieInfoAsync();
+                var cookieInfo = await publisher.GetCookieInfosAsync();
                 if (cookieInfo != null)
                 {
                     result.AddRange(cookieInfo);

@@ -11,7 +11,7 @@ namespace Smartstore.Core.Identity
         /// <summary>
         /// Gets the cookie info of the cookie publisher (e.g. a module).
         /// </summary>
-        Task<IEnumerable<CookieInfo>> GetCookieInfoAsync();
+        Task<IEnumerable<CookieInfo>> GetCookieInfosAsync();
     }
 
     /// <summary>
