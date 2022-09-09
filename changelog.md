@@ -12,6 +12,7 @@
 - MediaManager: display image IPTC and EXIF metadata
 - MediaManager: added internal admin comment field
 - (DEV) Embedded/Inline mail attachments
+- Added PayPal onboarding to module configuration (handles simple configuration via direct email login without the need to create an app on the PayPal developer page). 
 
 ### Improvements
 
