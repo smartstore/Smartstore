@@ -1,4 +1,5 @@
 ﻿using Smartstore.Core.Localization;
+using Smartstore.Utilities;
 
 namespace Smartstore.Core.Identity
 {
@@ -16,10 +17,19 @@ namespace Smartstore.Core.Identity
     /// <summary>
     /// Module cookie infos.
     /// </summary>
-    public class CookieInfo : ILocalizedEntity
+    public class CookieInfo : ILocalizedEntity, IDisplayedEntity
     {
-        int ILocalizedEntity.Id => 0;
-        string INamedEntity.GetEntityName() => Name;
+        int ILocalizedEntity.Id
+            => Name.IsEmpty() ? 0 : (int)XxHashUnsafe.ComputeHash(Name);
+
+        string INamedEntity.GetEntityName() 
+            => nameof(CookieInfo);
+
+        string IDisplayedEntity.GetDisplayNameMemberName()
+            => nameof(Name);
+
+        string IDisplayedEntity.GetDisplayName()
+            => Name;
 
         /// <summary>
         /// Name of the module.

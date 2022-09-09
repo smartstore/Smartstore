@@ -587,7 +587,6 @@ namespace Smartstore.Admin.Controllers
 
             cookieInfo = new CookieInfo
             {
-                // TODO: Use MiniMapper
                 CookieType = model.CookieType,
                 Name = model.Name,
                 Description = model.Description,
