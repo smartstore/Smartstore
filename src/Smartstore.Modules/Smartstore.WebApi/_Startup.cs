@@ -11,6 +11,8 @@ using Smartstore.Engine.Builders;
 
 namespace Smartstore.WebApi
 {
+    // TODO: (mg) (core) Enable OData batching via app.UseODataBatching(). See: https://devblogs.microsoft.com/odata/tutorial-creating-a-service-with-odata-8-0/
+
     internal class Startup : StarterBase
     {
         public override void ConfigureMvc(IMvcBuilder mvcBuilder, IServiceCollection services, IApplicationContext appContext)
