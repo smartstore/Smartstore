@@ -36,6 +36,11 @@ namespace Smartstore.PayPal.Settings
         public string Secret { get; set; }
 
         /// <summary>
+        /// PayPal payer id
+        /// </summary>
+        public string PayerId { get; set; }
+
+        /// <summary>
         /// PayPal webhook id
         /// </summary>
         public string WebhookId { get; set; }

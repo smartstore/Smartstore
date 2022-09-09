@@ -53,14 +53,15 @@
             onError: function (err) {
                 displayNotification(err, 'error');
             }
-        }).render('#paypal-button-container');
+        })
+        .render('#paypal-button-container');
 
         @if (Model.IsPaymentSelection)
         {
             <text>
             var btnNext = $(".payment-method-next-step-button");
-
-            // Listen for changes to the radio fields
+            
+            // Listen for changes to the radio fields.
             $(document, "input[name='paymentmethod']").on("change", function (e) {
                 if (e.target.value == "Payments.PayPalStandard")
                 {

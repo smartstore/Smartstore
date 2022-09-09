@@ -1,28 +1,33 @@
-﻿@model ConfigurationModel
+﻿@using static Smartstore.PayPal.Module;
+
+@model ConfigurationModel
 
 @{
     Layout = "_ConfigureProvider";
 
     var trasactModes = new List<SelectListItem>
-    {
+{
         new SelectListItem { Text = T("Plugins.Smartstore.PayPal.Capture"), Value = "capture", Selected = Model.Intent == "capture" },
         new SelectListItem { Text = T("Plugins.Smartstore.PayPal.Auth"), Value = "authorize", Selected = Model.Intent == "authorize" }
     };
 
     var buttonShapes = new List<SelectListItem>
-    {
+{
         new SelectListItem { Text = T("Plugins.Smartstore.PayPal.ButtonShape.Pill"), Value = "pill", Selected = Model.ButtonShape == "pill" },
         new SelectListItem { Text = T("Plugins.Smartstore.PayPal.ButtonShape.Rect"), Value = "rect", Selected = Model.ButtonShape == "rect" }
     };
 
     var buttonColors = new List<SelectListItem>
-    {
+{
         new SelectListItem { Text = T("Plugins.Smartstore.PayPal.ButtonColor.Gold"), Value = "gold", Selected = Model.ButtonColor == "gold" },
         new SelectListItem { Text = T("Plugins.Smartstore.PayPal.ButtonColor.Blue"), Value = "blue", Selected = Model.ButtonColor == "blue" },
         new SelectListItem { Text = T("Plugins.Smartstore.PayPal.ButtonColor.Silver"), Value = "silver", Selected = Model.ButtonColor == "silver" },
         new SelectListItem { Text = T("Plugins.Smartstore.PayPal.ButtonColor.White"), Value = "white", Selected = Model.ButtonColor == "white" },
         new SelectListItem { Text = T("Plugins.Smartstore.PayPal.ButtonColor.Black"), Value = "black", Selected = Model.ButtonColor == "black" }
     };
+
+    var successCssClasses = "fa-check text-success";
+    var errorCssClasses = "fa-exclamation-triangle text-danger";
 }
 
 @await Component.InvokeAsync("StoreScope")
@@ -51,12 +56,6 @@
 <form asp-action="Configure">
     <div asp-validation-summary="All"></div>
 
-    <div class="adminRow">
-        <div class="admin-config-group">
-            <div class="head">@T("Plugins.Smartstore.PayPal.Credentials")</div>
-        </div>
-    </div>
-
     <div class="adminContent">
         <div class="adminRow">
             <div class="adminTitle">
@@ -67,12 +66,129 @@
                 <span asp-validation-for="UseSandbox"></span>
             </div>
         </div>
+    </div>
+
+    <div class="adminContent">
+        <div class="adminRow">
+            <div class="admin-config-group">
+                <div class="head">@T("Plugins.Smartstore.PayPal.Credentials")</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="adminContent">
+        <div class="adminRow">
+            @{
+                var lang = CommonServices.WorkContext.WorkingLanguage;
+                var guid = Guid.NewGuid();
+                var sellerNonce = "jddknvknvgdJODAighiurhighiorGO" + guid.ToString();
+                var scriptUrl = "https://www.paypal.com/";
+                if (Model.UseSandbox)
+                {
+                    scriptUrl = "https://www.sandbox.paypal.com/";
+                }
+
+                var url = $"{scriptUrl}bizsignup/partner/entry?partnerClientId={Module.PartnerClientId}&partnerId={Module.PartnerId}&sellerNonce={sellerNonce}" +
+                          $"&country.x={lang.UniqueSeoCode.ToUpper()}&locale.x={lang.LanguageCulture}" +
+                          $"&displayMode=minibrowser&integrationType=FO" +
+                          $"&features=PAYMENT&product=payment_methods&capabilities=PAY_UPON_INVOICE";
+            }
+
+            <script>
+                function onboardedCallback(authCode, sharedId) {
+                    $.ajax({
+                        type: 'POST',
+                        url: '@Url.Action("GetCredentials")',
+                        data: { authCode: authCode, sharedId: sharedId, sellerNonce: "@sellerNonce" },
+                        cache: false,
+                        success: function (response) {
+                            if (response.success) {
+                                $("#@Html.NameFor(x => x.ClientId)").val(response.clientId);
+                                $("#@Html.NameFor(x => x.Secret)").val(response.clientSecret);
+
+                                $("#hint-credentials > i")
+                                    .removeClass("@errorCssClasses")
+                                    .addClass("@successCssClasses");
+
+                                $("#hint-credentials > span").text(@T("Plugins.Smartstore.PayPal.HasCredentials.True").JsValue);
+
+                                $("#createwebhook").removeAttr("disabled");
+
+                                getStatus();
+                            }
+
+                            displayNotification(response.message, response.success ? 'success' : 'error');
+                        }
+                    });
+                }
+
+                function getStatus() {
+                    $.ajax({
+                        type: 'POST',
+                        url: '@Url.Action("GetStatus")',
+                        cache: false,
+                        success: function (response) {
+                            if (response.success) {
+                                if (response.primaryEmailConfirmed) {
+                                    $("#hint-email-confirmed > i")
+                                        .removeClass("@errorCssClasses")
+                                        .addClass("@successCssClasses");
+
+                                    $("#hint-email-confirmed > span").text(@T("Plugins.Smartstore.PayPal.PrimaryEmailConfirmed.True").JsValue);
+                                }
+
+                                if (response.paymentsReceivable) {
+                                    $("#hint-payments-receivable > i")
+                                        .removeClass("@errorCssClasses")
+                                        .addClass("@successCssClasses");
+
+                                    $("#hint-payments-receivable > span").text(@T("Plugins.Smartstore.PayPal.PaymentsReceivable.True").JsValue);
+                                }
+                            }
+
+                            displayNotification(response.message, response.success ? 'success' : 'error');
+                        }
+                    });
+                }
+            </script>
+
+            <div class="adminTitle">
+                <a target="_blank" data-paypal-onboard-complete="onboardedCallback" href="@url" data-paypal-button="PPLtBlue" class="btn-primary">
+                    @T("Plugins.Smartstore.PayPal.Onboarding")
+                </a>
+            </div>
+            <div class="adminData wide">
+                <ul class="fa-ul">
+                    <li id="hint-credentials" class="pb-2">
+                        <i class="fa-li fa @(Model.HasCredentials ? successCssClasses : errorCssClasses)"></i>
+                        <span>@T("Plugins.Smartstore.PayPal.HasCredentials." + Model.HasCredentials.ToString())</span>
+                    </li>
+                    <li id="hint-email-confirmed" class="pb-2">
+                        <i class="fa-li fa @(Model.PrimaryEmailConfirmed ? successCssClasses : errorCssClasses)"></i>
+                        <span>@T("Plugins.Smartstore.PayPal.PrimaryEmailConfirmed." + Model.PrimaryEmailConfirmed.ToString())</span>
+                    </li>
+                    <li id="hint-payments-receivable" class="pb-2">
+                        <i class="fa-li fa @(Model.PaymentsReceivable ? successCssClasses : errorCssClasses)"></i>
+                        <span>@T("Plugins.Smartstore.PayPal.PaymentsReceivable." + Model.PaymentsReceivable.ToString())</span>
+                    </li>
+                    <li id="hint-webhook-created" class="pb-2">
+                        <i class="fa-li fa @(Model.WebHookCreated ? successCssClasses : errorCssClasses)"></i>
+                        <span>@T("Plugins.Smartstore.PayPal.WebHookCreated." + Model.WebHookCreated.ToString())</span>
+                    </li>
+                </ul>
+            </div>
+
+            <script id="paypal-js" src="@(scriptUrl)/webapps/merchantboarding/js/lib/lightbox/partner.js"></script>
+        </div>
+    </div>
+
+    <div class="adminContent">
         <div class="adminRow">
             <div class="adminTitle">
                 <smart-label asp-for="Account" />
             </div>
             <div class="adminData">
-                <setting-editor asp-for="Account" />
+                <setting-editor asp-for="Account"></setting-editor>
                 <span asp-validation-for="Account"></span>
             </div>
         </div>
@@ -81,7 +197,7 @@
                 <smart-label asp-for="ClientId" />
             </div>
             <div class="adminData wide">
-                <setting-editor asp-for="ClientId" />
+                <setting-editor asp-for="ClientId"></setting-editor>
                 <span asp-validation-for="ClientId"></span>
             </div>
         </div>
@@ -90,7 +206,7 @@
                 <smart-label asp-for="Secret" />
             </div>
             <div class="adminData wide">
-                <setting-editor asp-for="Secret" />
+                <setting-editor asp-for="Secret"></setting-editor>
                 <span asp-validation-for="Secret"></span>
             </div>
         </div>
@@ -99,7 +215,16 @@
                 <smart-label asp-for="WebhookId" />
             </div>
             <div class="adminData">
-                <setting-editor asp-for="WebhookId" />
+                <div class="input-group">
+                    <setting-editor asp-for="WebhookId"></setting-editor>
+                    <span class="input-group-append">
+                        <button type="submit" id="createwebhook" name="createwebhook" value="createwebhook" class="btn btn-outline-secondary" 
+                                attr-disabled='(!Model.ClientId.HasValue() || !Model.Secret.HasValue(), "disabled")'>
+                            <i class="fa fa-cog"></i>
+                            <span>@T("Plugins.Smartstore.PayPal.CreateWebhook")</span>
+                        </button>
+                    </span>
+                </div>
                 <span asp-validation-for="WebhookId"></span>
             </div>
         </div>
@@ -111,6 +236,7 @@
                 <input asp-for="WebhookUrl" class="form-control-plaintext" readonly />
             </div>
         </div>
+
         <div class="adminRow">
             <div class="admin-config-group">
                 <div class="head">@T("Plugins.Smartstore.PayPal.PaymentSettings")</div>
@@ -121,7 +247,9 @@
                 <smart-label asp-for="EnabledFundings" />
             </div>
             <div class="adminData">
-                <select asp-for="EnabledFundings" asp-items="Html.GetLocalizedEnumSelectList(typeof(EnableFundingOptions))" multiple="multiple" data-tags="true"></select>
+                <setting-editor asp-for="ButtonColor">
+                    <select asp-for="EnabledFundings" asp-items="Html.GetLocalizedEnumSelectList(typeof(EnableFundingOptions))" multiple="multiple" data-tags="true"></select>
+                </setting-editor>
                 <span asp-validation-for="EnabledFundings"></span>
             </div>
         </div>
@@ -130,7 +258,9 @@
                 <smart-label asp-for="DisabledFundings" />
             </div>
             <div class="adminData">
-                <select asp-for="DisabledFundings" asp-items="Html.GetLocalizedEnumSelectList(typeof(DisableFundingOptions))" multiple="multiple" data-tags="true"></select>
+                <setting-editor asp-for="ButtonColor">
+                    <select asp-for="DisabledFundings" asp-items="Html.GetLocalizedEnumSelectList(typeof(DisableFundingOptions))" multiple="multiple" data-tags="true"></select>
+                </setting-editor>
                 <span asp-validation-for="DisabledFundings"></span>
             </div>
         </div>
@@ -183,7 +313,7 @@
                 <smart-label asp-for="ShowButtonInMiniShoppingCart" />
             </div>
             <div class="adminData">
-                <setting-editor asp-for="ShowButtonInMiniShoppingCart" />
+                <setting-editor asp-for="ShowButtonInMiniShoppingCart"></setting-editor>
                 <span asp-validation-for="ShowButtonInMiniShoppingCart"></span>
             </div>
         </div>

@@ -299,8 +299,11 @@ namespace Smartstore.PayPal.Client
                 request.Content = new StringContent(string.Empty, Encoding.UTF8, "application/json");
             }
 
-            await HandleAuthorizationAsync(request, settings);
-
+            if (request.Headers.Authorization == null || !request.Headers.Authorization.Parameter.HasValue())
+            {
+                await HandleAuthorizationAsync(request, settings);
+            }
+            
             var response = await _client.SendAsync(request, cancelToken);
 
             if (response.IsSuccessStatusCode)

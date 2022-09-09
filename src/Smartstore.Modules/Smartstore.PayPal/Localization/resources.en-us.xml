@@ -17,8 +17,8 @@
     <LocaleResource Name="Plugins.Description.Payments.PayPalStandard" AppendRootKey="false">
         <Value>
             <![CDATA[
-				Opens a secure payment window where the payment is made directly at PayPal.
-      ]]>
+				        Opens a secure payment window where the payment is made directly at PayPal.
+              ]]>
         </Value>
     </LocaleResource>
 
@@ -26,9 +26,9 @@
     <LocaleResource Name="Plugins.PaymentInfo.Payments.PayPalStandard" AppendRootKey="false">
         <Value>
             <![CDATA[
-				Do the payment in a secure browser window directly at PayPal. 
-				After redirection back to the store, you can complete the order with a few clicks.
-      ]]>
+				        Do the payment in a secure browser window directly at PayPal. 
+				        After redirection back to the store, you can complete the order with a few clicks.
+              ]]>
         </Value>
     </LocaleResource>
 
@@ -37,17 +37,17 @@
             <LocaleResource Name="AdminInstruction">
                 <Value>
                     <![CDATA[
-            <p>
-							To set up PayPal in your store follow the steps in the following guide.
-						</p>
-						<ul>
-							<li>Sign in with your PayPal account details <a href="https://developer.paypal.com/developer/applications" target="_blank">in the developer dashboard</a>.</li>
-							<li>Create a new app by clicking on the <b>Create App</b> button.</li>
-							<li>Now enter the account, client ID and secret in the fields provided further down this page.</li>
-							<li>Create a webhook and store the URL below as the webhook URL in your PayPal app.</li>
-							<li>Enable notifications for all events.</li>
-						</ul>
-          ]]>
+                        <p>
+							            To set up PayPal in your store use the button <b>Connect account</b> or alternatively follow the steps in the following guide.
+						            </p>
+						            <ul>
+							            <li>Sign in with your PayPal account details <a href="https://developer.paypal.com/developer/applications" target="_blank">in the developer dashboard</a>.</li>
+							            <li>Create a new app by clicking on the <b>Create App</b> button.</li>
+							            <li>Now enter the account, client ID and secret in the fields provided further down this page.</li>
+							            <li>Create a webhook and store the URL below as the webhook URL in your PayPal app.</li>
+							            <li>Enable notifications for all events.</li>
+						            </ul>
+                      ]]>
                 </Value>
             </LocaleResource>
 
@@ -171,6 +171,43 @@
             </LocaleResource>
             <LocaleResource Name="Misc">
                 <Value>Miscellaneous</Value>
+            </LocaleResource>
+            <LocaleResource Name="Onboarding">
+                <Value>Connect account</Value>
+            </LocaleResource>
+
+            <LocaleResource Name="Error.PaymentsReceivable">
+                <Value>Payments cannot be received with this account. Please contact PayPal.</Value>
+            </LocaleResource>
+            <LocaleResource Name="Error.PrimaryEmailConfirmed">
+                <Value>The email address of this account has not been confirmed yet. Please contact PayPal or check your email inbox.</Value>
+            </LocaleResource>
+            <LocaleResource Name="HasCredentials.True">
+                <Value>Credentials have been stored.</Value>
+            </LocaleResource>
+            <LocaleResource Name="HasCredentials.False">
+                <Value>Credentials havn't been stored.</Value>
+            </LocaleResource>
+            <LocaleResource Name="PrimaryEmailConfirmed.True">
+                <Value>The primary email address with PayPal is confirmed.</Value>
+            </LocaleResource>
+            <LocaleResource Name="PrimaryEmailConfirmed.False">
+                <Value>The primary email address with PayPal is not confirmed.</Value>
+            </LocaleResource>
+            <LocaleResource Name="PaymentsReceivable.True">
+                <Value>Payments can be received with this account.</Value>
+            </LocaleResource>
+            <LocaleResource Name="PaymentsReceivable.False">
+                <Value>No payments can be received with this account. Please contact PayPal.</Value>
+            </LocaleResource>
+            <LocaleResource Name="WebHookCreated.True">
+                <Value>A webhook has been created.</Value>
+            </LocaleResource>
+            <LocaleResource Name="WebHookCreated.False">
+                <Value>A webhook hasn't been created.</Value>
+            </LocaleResource>
+            <LocaleResource Name="CreateWebhook">
+                <Value>Create webhook.</Value>
             </LocaleResource>
         </Children>
     </LocaleResource>

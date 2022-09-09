@@ -37,17 +37,17 @@
             <LocaleResource Name="AdminInstruction">
                 <Value>
                     <![CDATA[
-            <p>
-							Um PayPal in Ihrem Shop einzurichten befolgen Sie die Schritte der folgenden Anleitung.
-						</p>
-						<ul>
-							<li>Melden Sie sich mit Ihren PayPal-Kontodaten <a href="https://developer.paypal.com/developer/applications" target="_blank">im Entwickler-Dashboard</a> an.</li>
-							<li>Erstellen Sie eine neue App, indem Sie auf denn Button <b>Create App</b> klicken.</li>
-							<li>Tragen Sie nun den Account, die Client ID und den Secret in die dafür vorgesehenen Felder weiter unten auf dieser Seite ein.</li>
-							<li>Erstellen Sie einen Webhook und hinterlegen die unten aufgeführte URL in Ihrer PayPal App als Webhook URL.</li>
-							<li>Aktivieren Sie Benachrichtigungen für alle Events.</li>
-						</ul>
-          ]]>
+                        <p>
+							            Um PayPal in Ihrem Shop einzurichten nutzen Sie den Button <b>Account verknüpfen</b> oder befolgen Sie alternativ die Schritte der folgenden Anleitung.
+						            </p>
+						            <ul>
+							            <li>Melden Sie sich mit Ihren PayPal-Kontodaten <a href="https://developer.paypal.com/developer/applications" target="_blank">im Entwickler-Dashboard</a> an.</li>
+							            <li>Erstellen Sie eine neue App, indem Sie auf denn Button <b>Create App</b> klicken.</li>
+							            <li>Tragen Sie nun den Account, die Client ID und den Secret in die dafür vorgesehenen Felder weiter unten auf dieser Seite ein.</li>
+							            <li>Erstellen Sie einen Webhook und hinterlegen die unten aufgeführte URL in Ihrer PayPal App als Webhook URL.</li>
+							            <li>Aktivieren Sie Benachrichtigungen für alle Events.</li>
+						            </ul>
+                      ]]>
                 </Value>
             </LocaleResource>
 
@@ -171,6 +171,42 @@
             </LocaleResource>
             <LocaleResource Name="Misc">
                 <Value>Verschiedenes</Value>
+            </LocaleResource>
+            <LocaleResource Name="Onboarding">
+                <Value>Account verknüpfen</Value>
+            </LocaleResource>
+            <LocaleResource Name="Error.PaymentsReceivable">
+                <Value>Mit diesem Account können keine Zahlungen empfangen werden. Bitte kontaktieren Sie PayPal.</Value>
+            </LocaleResource>
+            <LocaleResource Name="Error.PrimaryEmailConfirmed">
+                <Value>Die Email Adresse dieses Accounts wurde noch nicht bestätigt. Bitte kontaktieren Sie PayPal oder prüfen Sie Ihre Email-Postfach.</Value>
+            </LocaleResource>
+            <LocaleResource Name="HasCredentials.True">
+                <Value>Die Zugangsdaten wurden hinterlegt.</Value>
+            </LocaleResource>
+            <LocaleResource Name="HasCredentials.False">
+                <Value>Die Zugangsdaten wurden nicht hinterlegt.</Value>
+            </LocaleResource>
+            <LocaleResource Name="PrimaryEmailConfirmed.True">
+                <Value>Die bei PayPal hinterlegte primäre Emailadresse ist bestätigt.</Value>
+            </LocaleResource>
+            <LocaleResource Name="PrimaryEmailConfirmed.False">
+                <Value>Die bei PayPal hinterlegte primäre Emailadresse wurde noch nicht bestätigt.</Value>
+            </LocaleResource>
+            <LocaleResource Name="PaymentsReceivable.True">
+                <Value>Mit dem hinterlegten Account können Zahlungen empfangen werden.</Value>
+            </LocaleResource>
+            <LocaleResource Name="PaymentsReceivable.False">
+                <Value>Mit dem hinterlegten Account können keine Zahlungen empfangen werden. Bitten wenden Sie sich an PayPal.</Value>
+            </LocaleResource>
+            <LocaleResource Name="WebHookCreated.True">
+                <Value>Es wurde ein Webhook angelegt.</Value>
+            </LocaleResource>
+            <LocaleResource Name="WebHookCreated.False">
+                <Value>Es wurde noch kein Webhook angelegt.</Value>
+            </LocaleResource>
+            <LocaleResource Name="CreateWebhook">
+                <Value>Webhook erstellen.</Value>
             </LocaleResource>
         </Children>
     </LocaleResource>

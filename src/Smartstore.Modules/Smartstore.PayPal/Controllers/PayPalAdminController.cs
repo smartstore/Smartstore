@@ -1,5 +1,7 @@
 ﻿using System.Linq;
+using System.Net;
 using Microsoft.AspNetCore.Mvc;
+using NuGet.Configuration;
 using Smartstore.Caching;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Security;
@@ -9,6 +11,7 @@ using Smartstore.PayPal.Client;
 using Smartstore.PayPal.Client.Messages;
 using Smartstore.Web.Controllers;
 using Smartstore.Web.Modelling.Settings;
+using static Smartstore.PayPal.Module;
 
 namespace Smartstore.PayPal.Controllers
 {
@@ -19,7 +22,7 @@ namespace Smartstore.PayPal.Controllers
         private readonly ICacheFactory _cacheFactory;
         private readonly IProviderManager _providerManager;
         private readonly PayPalHttpClient _client;
-
+        
         public PayPalAdminController(ICacheFactory cacheFactory, IProviderManager providerManager, PayPalHttpClient client)
         {
             _cacheFactory = cacheFactory;
@@ -28,7 +31,7 @@ namespace Smartstore.PayPal.Controllers
         }
 
         [LoadSetting, AuthorizeAdmin]
-        public IActionResult Configure(PayPalSettings settings)
+        public async Task<IActionResult> Configure(PayPalSettings settings)
         {
             var model = MiniMapper.Map<PayPalSettings, ConfigurationModel>(settings);
 
@@ -38,6 +41,48 @@ namespace Smartstore.PayPal.Controllers
 
             ViewBag.Provider = _providerManager.GetProvider("Payments.PayPalStandard").Metadata;
 
+            if (settings.ClientId.HasValue() && settings.Secret.HasValue())
+            {
+                model.HasCredentials = true;
+            }
+
+            if (settings.WebhookId.HasValue())
+            {
+                model.WebHookCreated = true;
+            }
+
+            if (settings.PayerId.HasValue() && settings.ClientId.HasValue() && settings.Secret.HasValue())
+            {
+                try
+                {
+                    var getMerchantStatusRequest = new GetMerchantStatusRequest(PartnerId, settings.PayerId);
+                    var getMerchantStatusResponse = await _client.ExecuteRequestAsync(getMerchantStatusRequest);
+                    var merchantStatus = getMerchantStatusResponse.Body<MerchantStatus>();
+
+                    if (!merchantStatus.PaymentsReceivable)
+                    {
+                        NotifyError(T("Plugins.Smartstore.PayPal.Error.PaymentsReceivable"));
+                    }
+                    else
+                    {
+                        model.PaymentsReceivable = true;
+                    }
+
+                    if (!merchantStatus.PrimaryEmailConfirmed)
+                    {
+                        NotifyError(T("Plugins.Smartstore.PayPal.Error.PrimaryEmailConfirmed"));
+                    }
+                    else
+                    {
+                        model.PrimaryEmailConfirmed = true;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    NotifyError(ex.Message);
+                }
+            }
+
             return View(model);
         }
 
@@ -46,7 +91,7 @@ namespace Smartstore.PayPal.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return Configure(settings);
+                return await Configure(settings);
             }
 
             // Clear token from cache if ClientId or Secret have changed.
@@ -61,13 +106,128 @@ namespace Smartstore.PayPal.Controllers
             string.Join(',', model.EnabledFundings ?? Array.Empty<string>());
             string.Join(',', model.DisabledFundings ?? Array.Empty<string>());
 
+            return RedirectToAction(nameof(Configure));
+        }
+
+        [HttpPost]
+        [FormValueRequired("createwebhook"), ActionName("Configure")]
+        public async Task<IActionResult> CreateWebhook(ConfigurationModel model)
+        {
+            var storeScope = GetActiveStoreScopeConfiguration();
+            var settings = await Services.SettingFactory.LoadSettingsAsync<PayPalSettings>(storeScope);
+
             if (settings.ClientId.HasValue() && settings.Secret.HasValue() && !settings.WebhookId.HasValue())
             {
                 // Get Webhook ID vie API.
-                settings.WebhookId = await GetWebHookIdAsync();
+                try
+                {
+                    settings.WebhookId = await GetWebHookIdAsync();
+                    await Services.SettingFactory.SaveSettingsAsync(settings, storeScope);
+                }
+                catch (Exception ex)
+                {
+                    NotifyError(ex.Message);
+                }
             }
 
             return RedirectToAction(nameof(Configure));
+        }
+
+        /// <summary>
+        /// Called by Ajax request after onboarding to get ClientId & Secret.
+        /// </summary>
+        [HttpPost]
+        public async Task<IActionResult> GetCredentials(string authCode, string sharedId, string sellerNonce)
+        {
+            var success = false;
+            var message = string.Empty;
+            
+            try
+            {
+                var accessTokenRequest = new AccessTokenRequest(authCode: authCode, sharedId: sharedId, sellerNonce: sellerNonce);
+                var accessTokenResponse = await _client.ExecuteRequestAsync(accessTokenRequest);
+
+                if (accessTokenResponse.Status == HttpStatusCode.OK)
+                {
+                    var accesstoken = accessTokenResponse.Body<AccessToken>();
+                    var credentialsRequest = new GetSellerCredentialsRequest(PartnerId, accesstoken.Token);
+                    var credentialsResponse = await _client.ExecuteRequestAsync(credentialsRequest);
+
+                    if (credentialsResponse.Status == HttpStatusCode.OK)
+                    {
+                        var credentials = credentialsResponse.Body<SellerCredentials>();
+
+                        var storeScope = GetActiveStoreScopeConfiguration();
+                        var settings = await Services.SettingFactory.LoadSettingsAsync<PayPalSettings>(storeScope);
+
+                        // Save settings
+                        settings.ClientId = credentials.ClientId;
+                        settings.Secret = credentials.ClientSecret;
+                        settings.PayerId = credentials.PayerId;
+
+                        await Services.SettingFactory.SaveSettingsAsync(settings, storeScope);
+
+                        success = true;
+                        message = T("Plugins.Smartstore.PayPal.Onboarding.Success").Value;
+
+                        object data = new
+                        {
+                            clientId = credentials.ClientId,
+                            clientSecret = credentials.ClientSecret,
+                            payerId = credentials.PayerId,
+                            success,
+                            message
+                        };
+
+                        return new JsonResult(data);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                message = ex.Message;
+            }
+
+            return new JsonResult(new { success, message });
+        }
+
+        /// <summary>
+        /// Called by Ajax request after onboarding to get status about confirmed email & if payments are receivable.
+        /// </summary>
+        [HttpPost]
+        public async Task<IActionResult> GetStatus()
+        {
+            var success = false;
+            var paymentsReceivable = false;
+            var primaryEmailConfirmed = false;
+
+            try
+            {
+                var storeScope = GetActiveStoreScopeConfiguration();
+                var settings = await Services.SettingFactory.LoadSettingsAsync<PayPalSettings>(storeScope);
+
+                var getMerchantStatusRequest = new GetMerchantStatusRequest(PartnerId, settings.PayerId);
+                var getMerchantStatusResponse = await _client.ExecuteRequestAsync(getMerchantStatusRequest);
+                var merchantStatus = getMerchantStatusResponse.Body<MerchantStatus>();
+
+                if (merchantStatus.PaymentsReceivable)
+                {
+                    paymentsReceivable = true;
+                }
+
+                if (merchantStatus.PrimaryEmailConfirmed)
+                {
+                    primaryEmailConfirmed = true;
+                }
+
+                success = true;
+            }
+            catch (Exception ex)
+            {
+                NotifyError(ex.Message);
+            }
+
+            return new JsonResult(new { success, paymentsReceivable, primaryEmailConfirmed });
         }
 
         private async Task<string> GetWebHookIdAsync()

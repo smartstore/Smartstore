@@ -56,7 +56,13 @@ namespace Smartstore.PayPal.Filters
                     return;
                 }
 
-                var isSelected = model.PaymentMethods.First().PaymentMethodSystemName == "Payments.PayPalStandard"; 
+                var isSelected = false;
+                var firstPaymentMethod = model.PaymentMethods.First(); 
+                if (firstPaymentMethod != null)
+                {
+                    isSelected = firstPaymentMethod.PaymentMethodSystemName == "Payments.PayPalStandard";
+                }
+
                 _widgetProvider.Value.RegisterViewComponent<PayPalViewComponent>("checkout_payment_method_buttons", new { isPaymentInfoInvoker = false, isSelected });
 
                 await next();

@@ -14,6 +14,10 @@ namespace Smartstore.PayPal
 {
     internal class Module : ModuleBase
     {
+        public static string PartnerId => "D9X8D9DSNFZBU";
+        public static string PartnerClientId => "AbTCZEJtQBJTYwXMK5W4p0-WDfKx9wEoT0xdMAF7OldhDF36aK5k1tD-9eW3LKBE7CKpyilyBh-VDlMF";
+
+        // TODO: (mh) (core) What about cookies?
         public override async Task InstallAsync(ModuleInstallationContext context)
         {
             await ImportLanguageResourcesAsync();

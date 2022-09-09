@@ -3,6 +3,11 @@
     [LocalizedDisplay("Plugins.Smartstore.PayPal.")]
     public class ConfigurationModel : ModelBase
     {
+        public bool HasCredentials { get; set; } = false;
+        public bool PaymentsReceivable { get; set; } = false;
+        public bool PrimaryEmailConfirmed { get; set; } = false;
+        public bool WebHookCreated { get; set; } = false;
+
         [LocalizedDisplay("*UseSandbox")]
         public bool UseSandbox { get; set; }
 
