@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Caching;
 using Smartstore.Engine.Modularity;
 using Smartstore.WebApi.Models;
