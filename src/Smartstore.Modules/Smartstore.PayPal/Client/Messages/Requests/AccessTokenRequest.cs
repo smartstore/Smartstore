@@ -5,9 +5,9 @@ namespace Smartstore.PayPal.Client.Messages
     public class AccessTokenRequest : PayPalRequest
     {
         public AccessTokenRequest(
-            string clientId = null, 
-            string secret = null, 
-            string refreshToken = null, 
+            string clientId = null,
+            string secret = null,
+            string refreshToken = null,
             string authCode = null,
             string sharedId = null,
             string sellerNonce = null)
