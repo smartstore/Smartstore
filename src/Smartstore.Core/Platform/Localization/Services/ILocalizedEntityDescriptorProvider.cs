@@ -3,7 +3,7 @@ using Smartstore.Core.Data;
 
 namespace Smartstore.Core.Localization
 {
-    public delegate Task<List<dynamic>> LoadLocalizedEntityDelegate(ILifetimeScope scope, SmartDbContext db);
+    public delegate Task<IList<dynamic>> LoadLocalizedEntityDelegate(ILifetimeScope scope, SmartDbContext db);
 
     /// <summary>
     /// Options for the <see cref="LocalizedEntityDescriptorProvider"/>

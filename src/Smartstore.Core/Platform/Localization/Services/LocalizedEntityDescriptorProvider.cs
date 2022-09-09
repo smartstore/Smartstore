@@ -1,5 +1,4 @@
 ﻿using Autofac;
-using FluentMigrator.Infrastructure.Extensions;
 using Microsoft.Extensions.Options;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Configuration;
@@ -21,7 +20,7 @@ namespace Smartstore.Core.Localization
                 }
                 
                 var candidateProperties = FastProperty.GetCandidateProperties(type)
-                    .Where(x => x.HasAttribute<LocalizedPropertyAttribute>());
+                    .Where(x => x.HasAttribute<LocalizedPropertyAttribute>(true));
 
                 if (candidateProperties.Any())
                 {
