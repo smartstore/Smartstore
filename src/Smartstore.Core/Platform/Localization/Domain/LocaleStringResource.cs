@@ -61,6 +61,38 @@ namespace Smartstore.Core.Localization
         /// </summary>
         public bool? IsTouched { get; set; }
 
+        /// <summary>
+        /// Gets or sets the date and time of entity creation
+        /// </summary>
+        public DateTime CreatedOnUtc { get; set; }
+
+        /// <summary>
+        /// Gets or sets the date and time of entity update
+        /// </summary>
+        public DateTime? UpdatedOnUtc { get; set; }
+
+        /// <summary>
+        /// Gets or sets the name of the user who created the entity.
+        /// Usually the login name, but may also be any external callee name
+        /// (like a translation service for example).
+        /// </summary>
+        [StringLength(100)]
+        public string CreatedBy { get; set; }
+
+        /// <summary>
+        /// Gets or sets the name of the user who updated the entity.
+        /// Usually the login name, but may also be any external callee name
+        /// (like a translation service for example).
+        /// </summary>
+        [StringLength(100)]
+        public string UpdatedBy { get; set; }
+
+        /// <summary>
+        /// For future use
+        /// </summary>
+        [StringLength(50)]
+        public string MasterChecksum { get; set; }
+
         private Language _language;
         /// <summary>
         /// Gets or sets the language

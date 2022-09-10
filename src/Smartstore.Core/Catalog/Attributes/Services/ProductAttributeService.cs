@@ -142,15 +142,20 @@ namespace Smartstore.Core.Catalog.Attributes
                 {
                     if (newValues.TryGetValue(option.Id, out var value) && localizedPropertiesMap.ContainsKey(option.Id))
                     {
-                        foreach (var property in localizedPropertiesMap[option.Id])
+                        foreach (var prop in localizedPropertiesMap[option.Id])
                         {
                             _db.LocalizedProperties.Add(new LocalizedProperty
                             {
                                 EntityId = value.Id,
                                 LocaleKeyGroup = pvavName,
-                                LocaleKey = property.LocaleKey,
-                                LocaleValue = property.LocaleValue,
-                                LanguageId = property.LanguageId
+                                LocaleKey = prop.LocaleKey,
+                                LocaleValue = prop.LocaleValue,
+                                LanguageId = prop.LanguageId,
+                                IsHidden = prop.IsHidden,
+                                CreatedOnUtc = DateTime.UtcNow,
+                                UpdatedOnUtc = prop.UpdatedOnUtc,
+                                CreatedBy = prop.CreatedBy,
+                                UpdatedBy = prop.UpdatedBy
                             });
                         }
                     }

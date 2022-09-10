@@ -67,7 +67,8 @@ namespace Smartstore.Core.Localization
                     LocaleKeyGroup = _keyGroup,
                     EntityId = entityId,
                     LanguageId = languageId,
-                    LocaleKey = localeKey
+                    LocaleKey = localeKey,
+                    CreatedOnUtc = DateTime.UtcNow
                 };
             }
 
