@@ -16,6 +16,14 @@ namespace Smartstore.Core.Localization
             _db = db;
         }
 
+        public int GetCount(LocalizedEntityDescriptor descriptor)
+        {
+            Guard.NotNull(descriptor, nameof(descriptor));
+
+            var query = CreateQuery(descriptor, false);
+            return query.Count();
+        }
+
         public IList<dynamic> Load(LocalizedEntityDescriptor descriptor)
         {
             return LoadInternal(descriptor, false).Await();
@@ -30,7 +38,7 @@ namespace Smartstore.Core.Localization
         {
             Guard.NotNull(descriptor, nameof(descriptor));
 
-            var query = CreateQuery(descriptor);
+            var query = CreateQuery(descriptor, true);
             var pager = new DynamicFastPager(query, pageSize);
 
             return pager;
@@ -47,14 +55,14 @@ namespace Smartstore.Core.Localization
         {
             Guard.NotNull(descriptor, nameof(descriptor));
 
-            var query = CreateQuery(descriptor);
+            var query = CreateQuery(descriptor, true);
             
             var list = async ? await query.ToDynamicListAsync() : query.ToDynamicList();
 
             return list;
         }
 
-        protected virtual IQueryable CreateQuery(LocalizedEntityDescriptor descriptor)
+        protected virtual IQueryable CreateQuery(LocalizedEntityDescriptor descriptor, bool withSelector)
         {
             // --> _db.Set<EntityType>()
             var methodInfo = _db.GetType()
@@ -69,11 +77,13 @@ namespace Smartstore.Core.Localization
                 query = query.Where(descriptor.FilterPredicate);
             }
 
-            var propertyNames = descriptor.Properties.Select(p => p.Name);
-
-            query = query
-                // --> new { Id, KeyGroup, Name, ShortDescription, FullDescription }
-                .Select($"new {{ Id, \"{descriptor.KeyGroup}\" as KeyGroup, {string.Join(", ", propertyNames)} }}");
+            if (withSelector)
+            {
+                var propertyNames = descriptor.Properties.Select(p => p.Name);
+                query = query
+                    // --> new { Id, KeyGroup, Name, ShortDescription, FullDescription }
+                    .Select($"new {{ Id, \"{descriptor.KeyGroup}\" as KeyGroup, {string.Join(", ", propertyNames)} }}");
+            }
 
             return query;
         }

@@ -30,6 +30,7 @@ namespace Smartstore.Core.Catalog.Attributes
     [Table("Product_ProductAttribute_Mapping")]
     [Index(nameof(AttributeControlTypeId), Name = "IX_AttributeControlTypeId")]
     [Index(nameof(ProductId), nameof(DisplayOrder), Name = "IX_Product_ProductAttribute_Mapping_ProductId_DisplayOrder")]
+    [LocalizedEntity("!Product.Deleted and Product.Published")]
     public partial class ProductVariantAttribute : BaseEntity, ILocalizedEntity, IDisplayOrder
     {
         public ProductVariantAttribute()

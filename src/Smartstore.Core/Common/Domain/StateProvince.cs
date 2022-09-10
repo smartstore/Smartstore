@@ -23,7 +23,7 @@ namespace Smartstore.Core.Common
     /// Represents a state/province
     /// </summary>
     [CacheableEntity]
-    [LocalizedEntity("Published")]
+    [LocalizedEntity("Published and Country.Published")]
     public partial class StateProvince : BaseEntity, ILocalizedEntity, IDisplayOrder
     {
         public StateProvince()

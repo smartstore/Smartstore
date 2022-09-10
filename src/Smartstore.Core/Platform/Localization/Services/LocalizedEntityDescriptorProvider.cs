@@ -7,7 +7,7 @@ namespace Smartstore.Core.Localization
 {
     public class LocalizedEntityDescriptorProvider : ILocalizedEntityDescriptorProvider
     {
-        private readonly List<LocalizedEntityDescriptor> _descriptors = new();
+        private readonly Dictionary<Type, LocalizedEntityDescriptor> _descriptors = new();
         private readonly List<LoadLocalizedEntityDelegate> _delegates = new();
 
         public LocalizedEntityDescriptorProvider(ITypeScanner typeScanner, IOptions<LocalizedEntityOptions> options)
@@ -26,7 +26,7 @@ namespace Smartstore.Core.Localization
                 {
                     var attr = type.GetAttribute<LocalizedEntityAttribute>(true);
 
-                    _descriptors.Add(new LocalizedEntityDescriptor 
+                    _descriptors.Add(type, new LocalizedEntityDescriptor 
                     {
                         EntityType = type,
                         KeyGroup = attr?.KeyGroup,
@@ -36,15 +36,13 @@ namespace Smartstore.Core.Localization
                 }
             }
 
-            // ... continue with ISettings
-
             foreach (var @delegate in options.Value.Delegates)
             {
                 _delegates.Add(@delegate);
             }
         }
 
-        public IReadOnlyList<LocalizedEntityDescriptor> GetDescriptors()
+        public IReadOnlyDictionary<Type, LocalizedEntityDescriptor> GetDescriptors()
         {
             return _descriptors;
         }

@@ -1,4 +1,5 @@
-﻿using Autofac;
+﻿using System.Runtime.CompilerServices;
+using Autofac;
 using Smartstore.Core.Data;
 
 namespace Smartstore.Core.Localization
@@ -26,15 +27,35 @@ namespace Smartstore.Core.Localization
     public interface ILocalizedEntityDescriptorProvider
     {
         /// <summary>
-        /// Gets a list of all localized entities that implement <see cref="ILocalizedEntity"/>
-        /// and define the <see cref="LocalizedEntityAttribute"/> attribute.
+        /// Gets a descriptor list of all localized entities that implement <see cref="ILocalizedEntity"/>
+        /// and decorate at least one property with the <see cref="LocalizedEntityAttribute"/> attribute.
+        /// Key is the entity type.
         /// </summary>
-        IReadOnlyList<LocalizedEntityDescriptor> GetDescriptors();
+        IReadOnlyDictionary<Type, LocalizedEntityDescriptor> GetDescriptors();
 
         /// <summary>
         /// Gets a list of all delegates that can load localized entity data from any custom source.
         /// Delegates can be registered by adding them to <see cref="LocalizedEntityOptions.Delegates"/>.
         /// </summary>
         IReadOnlyList<LoadLocalizedEntityDelegate> GetDelegates();
+    }
+
+    public static class ILocalizedEntityDescriptorProviderExtensions 
+    {
+        /// <summary>
+        /// Gets a descriptor by given <paramref name="entityType"/>.
+        /// </summary>
+        /// <returns>The descriptor instance or <c>null</c> if not found.</returns>
+        public static LocalizedEntityDescriptor GetDescriptorByEntityType(this ILocalizedEntityDescriptorProvider provider, Type entityType)
+        {
+            Guard.NotNull(entityType, nameof(entityType));
+
+            if (provider.GetDescriptors().TryGetValue(entityType, out var descriptor))
+            {
+                return descriptor;
+            }
+
+            return null;
+        }
     }
 }

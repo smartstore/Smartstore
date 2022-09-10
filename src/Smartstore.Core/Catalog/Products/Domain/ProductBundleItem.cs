@@ -30,7 +30,7 @@ namespace Smartstore.Core.Catalog.Products
     /// <summary>
     /// Represents a product bundle item.
     /// </summary>
-    [LocalizedEntity("Published and Visible")]
+    [LocalizedEntity("Published and Visible and Product.Published and !Product.Deleted")]
     public partial class ProductBundleItem : BaseEntity, IAuditable, ILocalizedEntity, IDisplayOrder, ICloneable<ProductBundleItem>
     {
         public ProductBundleItem()

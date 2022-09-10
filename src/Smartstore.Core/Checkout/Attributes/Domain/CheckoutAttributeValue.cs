@@ -24,6 +24,7 @@ namespace Smartstore.Core.Checkout.Attributes
     /// Represents a checkout attribute value
     /// </summary>
     [CacheableEntity]
+    [LocalizedEntity("CheckoutAttribute.IsActive")]
     public partial class CheckoutAttributeValue : BaseEntity, ILocalizedEntity
     {
         public CheckoutAttributeValue()
