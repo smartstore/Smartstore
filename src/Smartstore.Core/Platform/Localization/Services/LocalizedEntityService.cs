@@ -88,7 +88,9 @@ namespace Smartstore.Core.Localization
             }
 
             if (languageId <= 0)
+            {
                 return string.Empty;
+            } 
 
             var props = GetCacheSegment(localeKeyGroup, localeKey, entityId, languageId);
             if (!props.TryGetValue(entityId, out var val))
@@ -107,7 +109,9 @@ namespace Smartstore.Core.Localization
             }
 
             if (languageId <= 0)
+            {
                 return string.Empty;
+            }
 
             var props = await GetCacheSegmentAsync(localeKeyGroup, localeKey, entityId, languageId);
             if (!props.TryGetValue(entityId, out var val))
@@ -215,6 +219,9 @@ namespace Smartstore.Core.Localization
                     query = query.Where(x => x.LanguageId == languageId);
                 }
 
+                // (perf) Should come last, because "IsHidden" has no index
+                query = query.Where(x => !x.IsHidden);
+
                 if (splitEntityIds)
                 {
                     var items = new List<LocalizedProperty>();
@@ -302,6 +309,9 @@ namespace Smartstore.Core.Localization
                     if (entity.LocaleValue != valueStr)
                     {
                         entity.LocaleValue = valueStr;
+
+                        // User modified entry, so this cannot be hidden anymore.
+                        entity.IsHidden = false;
                     }
                 }
             }
@@ -347,7 +357,12 @@ namespace Smartstore.Core.Localization
             {
                 var properties = _db.LocalizedProperties
                     .AsNoTracking()
-                    .Where(x => x.EntityId >= minEntityId && x.EntityId <= maxEntityId && x.LocaleKey == localeKey && x.LocaleKeyGroup == localeKeyGroup && x.LanguageId == languageId)
+                    .Where(x => x.EntityId >= minEntityId 
+                        && x.EntityId <= maxEntityId 
+                        && x.LocaleKey == localeKey 
+                        && x.LocaleKeyGroup == localeKeyGroup 
+                        && x.LanguageId == languageId
+                        && !x.IsHidden)
                     .ToList();
 
                 var dict = new Dictionary<int, string>(properties.Count);
@@ -376,7 +391,12 @@ namespace Smartstore.Core.Localization
             {
                 var properties = await _db.LocalizedProperties
                     .AsNoTracking()
-                    .Where(x => x.EntityId >= minEntityId && x.EntityId <= maxEntityId && x.LocaleKey == localeKey && x.LocaleKeyGroup == localeKeyGroup && x.LanguageId == languageId)
+                    .Where(x => x.EntityId >= minEntityId 
+                        && x.EntityId <= maxEntityId 
+                        && x.LocaleKey == localeKey 
+                        && x.LocaleKeyGroup == localeKeyGroup 
+                        && x.LanguageId == languageId
+                        && !x.IsHidden)
                     .ToListAsync();
 
                 var dict = new Dictionary<int, string>(properties.Count);
