@@ -33,7 +33,7 @@ namespace Smartstore.Core.Identity
             _componentContext = componentContext;
         }
 
-        public virtual async Task<IList<CookieInfo>> GetAllCookieInfosAsync(bool getCookiesFromSetting = false)
+        public virtual async Task<IList<CookieInfo>> GetCookieInfosAsync(bool withUserCookies = false)
         {
             var result = new List<CookieInfo>();
             var publishers = GetAllCookiePublishers();
@@ -48,21 +48,36 @@ namespace Smartstore.Core.Identity
             }
 
             // Add user defined cookies from privacy settings.
-            if (getCookiesFromSetting && _privacySettings.CookieInfos.HasValue())
+            if (withUserCookies)
             {
-                var cookieInfos = JsonConvert.DeserializeObject<List<CookieInfo>>(_privacySettings.CookieInfos);
-                if (cookieInfos?.Any() ?? false)
-                {
-                    foreach (var info in cookieInfos)
-                    {
-                        info.Name = info.GetLocalized(x => x.Name);
-                        info.Description = info.GetLocalized(x => x.Description);
-                        result.Add(info);
-                    }
-                }
+                result.AddRange(GetUserCookieInfos(true));
             }
 
             return result;
+        }
+
+        public virtual IReadOnlyList<CookieInfo> GetUserCookieInfos(bool translated = true)
+        {
+            if (_privacySettings.CookieInfos.HasValue())
+            {
+                var cookieInfos = JsonConvert.DeserializeObject<List<CookieInfo>>(_privacySettings.CookieInfos);
+
+                if (cookieInfos?.Any() ?? false)
+                {
+                    if (translated)
+                    {
+                        foreach (var info in cookieInfos)
+                        {
+                            info.Name = info.GetLocalized(x => x.Name);
+                            info.Description = info.GetLocalized(x => x.Description);
+                        }
+                    }
+
+                    return cookieInfos;
+                }
+            }
+
+            return new List<CookieInfo>();
         }
 
         public virtual bool IsCookieAllowed(CookieType cookieType)

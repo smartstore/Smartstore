@@ -3,11 +3,18 @@
     public partial interface ICookieConsentManager
     {
         /// <summary>
-        /// Gets cookie infos of all modules that are publishing cookies to be displayed in the cookie manager dialog.
+        /// Gets cookie infos from all modules that are publishing cookies to be displayed in the cookie manager dialog.
         /// </summary>
-        /// <param name="getCookiesFromSetting">A value indicating whether to also return cookie infos from <see cref="PrivacySettings.CookieInfos"/>.</param>
+        /// <param name="withUserCookies"><c>true</c> to append user-defined cookie infos from <see cref="GetUserCookieInfos(bool)"/> call to the result list.</param>
         /// <returns>Cookie infos.</returns>
-        Task<IList<CookieInfo>> GetAllCookieInfosAsync(bool getCookiesFromSetting = false);
+        Task<IList<CookieInfo>> GetCookieInfosAsync(bool withUserCookies = false);
+
+        /// <summary>
+        /// Loads and deserializes user-defined cookie infos from <see cref="PrivacySettings.CookieInfos"/> setting.
+        /// </summary>
+        /// <param name="translated">A value indicating whether to translate cookie display names and descriptions.</param>
+        /// <returns>List of user-defined cookie infos.</returns>
+        IReadOnlyList<CookieInfo> GetUserCookieInfos(bool translated = true);
 
         /// <summary>
         /// Gets a value indicating whether it is allowed to set a cookie of a certain type.

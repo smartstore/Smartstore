@@ -7,6 +7,7 @@ using Smartstore.Core.DataExchange;
 using Smartstore.Core.DataExchange.Import;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Identity.Rules;
+using Smartstore.Core.Localization;
 using Smartstore.Core.Rules;
 using Smartstore.Core.Rules.Rendering;
 using Smartstore.Engine.Builders;
@@ -50,6 +51,11 @@ namespace Smartstore.Core.Bootstrapping
                 });
 
                 services.AddAuthentication().AddCookie(CookieNames.ExternalAuthentication);
+
+                services.Configure<LocalizedEntityOptions>(o =>
+                {
+                    o.Delegates.Add(LocalizedCookieInfoLoader.LoadLocalizedCookieInfos);
+                });
             }
 
             // TODO: (mh) (core) // Add Identity IEmailSender and ISmsSender to service collection.

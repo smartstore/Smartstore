@@ -500,7 +500,7 @@ namespace Smartstore.Admin.Controllers
 
         public async Task<IActionResult> CookieInfoList(GridCommand command)
         {
-            var data = await _cookieManager.GetAllCookieInfosAsync();
+            var data = await _cookieManager.GetCookieInfosAsync();
             var systemCookies = string.Join(",", data.Select(x => x.Name).ToArray());
 
             if (_privacySettings.CookieInfos.HasValue())

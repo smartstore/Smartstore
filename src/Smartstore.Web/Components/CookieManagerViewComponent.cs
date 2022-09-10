@@ -82,7 +82,7 @@ namespace Smartstore.Web.Components
         private async Task PrepareCookieManagerModelAsync(CookieManagerModel model)
         {
             // Get cookie infos from plugins.
-            model.CookiesInfos = (await _cookieConsentManager.GetAllCookieInfosAsync(true)).ToList();
+            model.CookiesInfos = (await _cookieConsentManager.GetCookieInfosAsync(true)).ToList();
 
             var cookie = _cookieConsentManager.GetCookieData();
 
