@@ -352,6 +352,8 @@
 
                 if (dupeFiles.length === 0) {
                     assignFilesToEntity(assignableFiles, assignableFileIds, true);
+                    assignableFileIds = "";
+                    assignableFiles.length = 0;
                 }
                 else {
                     // Duplicate resolution may not be done yet.
