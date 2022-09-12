@@ -1,6 +1,6 @@
 ﻿namespace Smartstore.WebApi.Models
 {
-    public partial class WebApiState
+    public class WebApiState
     {
         public bool IsActive { get; init; }
         public string ModuleVersion { get; init; }

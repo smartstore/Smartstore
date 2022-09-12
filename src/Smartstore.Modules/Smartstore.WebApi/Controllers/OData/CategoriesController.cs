@@ -4,6 +4,7 @@ using Smartstore.Core.Seo;
 namespace Smartstore.WebApi.Controllers.OData
 {
     // TODO: (mg) (core) add permission check and authentication.
+    // TODO: (mg) (core) try to avoid this insane amount of metadata attributes. Introduce something like a "SmartMetadataCollectorAttribute" or a collection method in SmartODataController.
     public class CategoriesController : SmartODataController<Category>
     {
         private readonly Lazy<IUrlService> _urlService;
@@ -17,6 +18,7 @@ namespace Smartstore.WebApi.Controllers.OData
             _categoryService = categoryService;
         }
 
+        [WebApiAuthorize(Permissions.Catalog.Category.Read)]
         [HttpGet, Queryable]
         [ProducesResponseType(typeof(IEnumerable<Category>), StatusCodes.Status200OK, MediaTypeNames.Application.Json)]
         public IActionResult Get()
