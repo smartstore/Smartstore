@@ -68,6 +68,7 @@ namespace Smartstore.Core.Localization
             var tasks = entries
                 .Select(x => x.Entity)
                 .OfType<LocalizedProperty>()
+                .Where(x => !x.IsHidden)
                 .Select(x => GetSegmentKeyPart(x.LocaleKeyGroup, x.LocaleKey, x.EntityId))
                 .Distinct()
                 .Select(x => _cache.RemoveByPatternAsync(LOCALIZEDPROPERTY_SEGMENT_PATTERN.FormatInvariant(x)))

@@ -1,8 +1,6 @@
 ﻿using FluentMigrator;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Smartstore.Core.Data.Migrations;
 using Smartstore.Core.Localization;
-using Smartstore.Core.Messaging;
 
 namespace Smartstore.OutputCache.Migrations
 {
@@ -17,14 +15,22 @@ namespace Smartstore.OutputCache.Migrations
             Create.Column(nameof(LocalizedProperty.UpdatedOnUtc)).OnTable(propTableName).AsDateTime2().Nullable();
             Create.Column(nameof(LocalizedProperty.CreatedBy)).OnTable(propTableName).AsString(100).Nullable();
             Create.Column(nameof(LocalizedProperty.UpdatedBy)).OnTable(propTableName).AsString(100).Nullable();
-            Create.Column(nameof(LocalizedProperty.MasterChecksum)).OnTable(propTableName).AsString(50).Nullable();
+            Create.Column(nameof(LocalizedProperty.TranslatedOnUtc)).OnTable(propTableName).AsDateTime2().Nullable();
+            Create.Column(nameof(LocalizedProperty.MasterChecksum)).OnTable(propTableName).AsString(64).Nullable();
+
+            //Create.Index("IX_TranslatedOn_UpdatedOn")
+            //    .OnTable(propTableName)
+            //    .OnColumn(nameof(LocalizedProperty.TranslatedOnUtc)).Ascending()
+            //    .OnColumn(nameof(LocalizedProperty.UpdatedOnUtc)).Ascending()
+            //    .WithOptions()
+            //    .NonClustered();
 
             var resTableName = nameof(LocaleStringResource);
             Create.Column(nameof(LocaleStringResource.CreatedOnUtc)).OnTable(resTableName).AsDateTime2().NotNullable().WithDefaultValue(SystemMethods.CurrentUTCDateTime);
             Create.Column(nameof(LocaleStringResource.UpdatedOnUtc)).OnTable(resTableName).AsDateTime2().Nullable();
             Create.Column(nameof(LocaleStringResource.CreatedBy)).OnTable(resTableName).AsString(100).Nullable();
             Create.Column(nameof(LocaleStringResource.UpdatedBy)).OnTable(resTableName).AsString(100).Nullable();
-            Create.Column(nameof(LocaleStringResource.MasterChecksum)).OnTable(resTableName).AsString(50).Nullable();
+            Create.Column(nameof(LocaleStringResource.MasterChecksum)).OnTable(resTableName).AsString(64).Nullable();
         }
     }
 }

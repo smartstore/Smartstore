@@ -84,9 +84,15 @@ namespace Smartstore.Core.Localization
         public string UpdatedBy { get; set; }
 
         /// <summary>
-        /// For future use
+        /// Can be used by external translation services to
+        /// save the date of last translation.
         /// </summary>
-        [StringLength(50)]
+        public DateTime? TranslatedOnUtc { get; set; }
+
+        /// <summary>
+        /// For future use.
+        /// </summary>
+        [StringLength(64)]
         public string MasterChecksum { get; set; }
 
         private Language _language;

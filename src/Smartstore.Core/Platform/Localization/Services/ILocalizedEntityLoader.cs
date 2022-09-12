@@ -1,4 +1,5 @@
-﻿using Smartstore.Data;
+﻿using System.Runtime.CompilerServices;
+using Smartstore.Data;
 
 namespace Smartstore.Core.Localization
 {
@@ -8,10 +9,10 @@ namespace Smartstore.Core.Localization
     public interface ILocalizedEntityLoader
     {
         /// <summary>
-        /// Determines the count of all entities for the given <paramref name="descriptor"/>.
+        /// Determines the count of all entities for the given group represented by <paramref name="descriptor"/>.
         /// Also applies <see cref="LocalizedEntityDescriptor.FilterPredicate"/> if set.
         /// </summary>
-        int GetCount(LocalizedEntityDescriptor descriptor);
+        int GetGroupCount(LocalizedEntityDescriptor descriptor);
 
         /// <summary>
         /// Loads dynamically shaped entities for given <paramref name="descriptor"/>.
@@ -20,10 +21,10 @@ namespace Smartstore.Core.Localization
         /// </summary>
         /// <param name="descriptor">The descriptor that contains metadata about the data to load.</param>
         /// <returns>A list of dynamic entities.</returns>
-        IList<dynamic> Load(LocalizedEntityDescriptor descriptor);
+        IList<dynamic> LoadGroup(LocalizedEntityDescriptor descriptor);
 
-        /// <inheritdoc cref="Load(LocalizedEntityDescriptor)"/>
-        Task<IList<dynamic>> LoadAsync(LocalizedEntityDescriptor descriptor);
+        /// <inheritdoc cref="LoadGroup(LocalizedEntityDescriptor)"/>
+        Task<IList<dynamic>> LoadGroupAsync(LocalizedEntityDescriptor descriptor);
 
         /// <summary>
         /// Loads dynamically shaped entities for given <paramref name="descriptor"/> as a paged list.
@@ -33,11 +34,18 @@ namespace Smartstore.Core.Localization
         /// <param name="descriptor">The descriptor that contains metadata about the data to load.</param>
         /// <param name="pageSize">Size of paged data</param>
         /// <returns>The <see cref="DynamicFastPager"/> instead used to iterate through all data pages.</returns>
-        DynamicFastPager LoadPaged(LocalizedEntityDescriptor descriptor, int pageSize = 1000);
+        DynamicFastPager LoadGroupPaged(LocalizedEntityDescriptor descriptor, int pageSize = 1000);
 
         /// <summary>
         /// Loads localized entities by calling the given <paramref name="delegate"/>.
         /// </summary>
         Task<IList<dynamic>> LoadByDelegateAsync(LoadLocalizedEntityDelegate @delegate);
+
+        /// <summary>
+        /// Loads just everything from every known group and every registered delegate.
+        /// Call this method to conveniently enumerate all data, but DON'T convert the result
+        /// - which is just a deferred iterator - to list, array or dictionary.
+        /// </summary>
+        IAsyncEnumerable<dynamic> LoadAllAsync(CancellationToken cancelToken = default);
     }
 }

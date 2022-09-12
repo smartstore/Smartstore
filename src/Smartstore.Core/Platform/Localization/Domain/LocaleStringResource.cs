@@ -90,7 +90,7 @@ namespace Smartstore.Core.Localization
         /// <summary>
         /// For future use
         /// </summary>
-        [StringLength(50)]
+        [StringLength(64)]
         public string MasterChecksum { get; set; }
 
         private Language _language;
