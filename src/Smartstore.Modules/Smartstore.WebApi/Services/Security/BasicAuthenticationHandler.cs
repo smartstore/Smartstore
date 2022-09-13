@@ -5,28 +5,32 @@ using System.Text.Encodings.Web;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
+using Smartstore.Core.Seo;
+using Smartstore.Utilities;
 using Smartstore.WebApi.Models;
 
 namespace Smartstore.WebApi.Services
 {
     /// <summary>
     /// Verifies the identity of a user using basic authentication.
+    /// Also ensures that requests are sent via HTTPS.
     /// </summary>
     public sealed class BasicAuthenticationHandler : AuthenticationHandler<AuthenticationSchemeOptions>
     {
         private readonly SmartDbContext _db;
         private readonly IWebApiService _apiService;
         private readonly SignInManager<Customer> _signInManager;
+        private readonly Lazy<IUrlService> _urlService;
 
         public BasicAuthenticationHandler(
             SmartDbContext db,
             IWebApiService apiService,
             SignInManager<Customer> signInManager,
+            Lazy<IUrlService> urlService,
             IOptionsMonitor<AuthenticationSchemeOptions> options,
             ILoggerFactory logger,
             UrlEncoder encoder,
@@ -36,6 +40,7 @@ namespace Smartstore.WebApi.Services
             _db = db;
             _apiService = apiService;
             _signInManager = signInManager;
+            _urlService = urlService;
         }
 
         protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
@@ -47,6 +52,11 @@ namespace Smartstore.WebApi.Services
                 if (!state.IsActive)
                 {
                     throw new AuthenticationException(AccessDeniedReason.ApiDisabled);
+                }
+
+                if (!Request.Scheme.EqualsNoCase(Uri.UriSchemeHttps) && !CommonHelper.IsDevEnvironment)
+                {
+                    throw new AuthenticationException(AccessDeniedReason.SslRequired);
                 }
 
                 var (customer, user) = await GetCustomer();
@@ -70,10 +80,12 @@ namespace Smartstore.WebApi.Services
             catch (Exception ex)
             {
                 Response.StatusCode = StatusCodes.Status401Unauthorized;
-                
-                if (ex is AuthenticationException authEx)
+                Response.HttpContext.Features.Set<IExceptionHandlerPathFeature>(new AuthenticationExceptionPathFeature(ex, Request));
+
+                var policy = _urlService.Value.GetUrlPolicy();
+                if (policy?.Endpoint == null)
                 {
-                    Response.HttpContext.Features.Set<IExceptionHandlerPathFeature>(authEx);
+                    policy.Endpoint = Request.HttpContext.GetEndpoint();
                 }
 
                 SetResponseHeaders(ex, null, state);
@@ -156,6 +168,19 @@ namespace Smartstore.WebApi.Services
                 }
             }
         }
+    }
+
+
+    internal class AuthenticationExceptionPathFeature : IExceptionHandlerPathFeature
+    {
+        public AuthenticationExceptionPathFeature(Exception ex, HttpRequest request)
+        {
+            Error = ex;
+            Path = request?.Path;
+        }
+
+        public Exception Error { get; }
+        public string Path { get; }
     }
 
 

@@ -1,8 +1,6 @@
-﻿using Microsoft.AspNetCore.Diagnostics;
-
-namespace Smartstore.WebApi.Services
+﻿namespace Smartstore.WebApi.Services
 {
-    internal class AuthenticationException : UnauthorizedAccessException, IExceptionHandlerPathFeature
+    internal class AuthenticationException : UnauthorizedAccessException
     {
         public AuthenticationException(AccessDeniedReason deniedReason, string publicKey = null)
             : this(CreateMessage(deniedReason, publicKey), deniedReason)
@@ -15,13 +13,6 @@ namespace Smartstore.WebApi.Services
             DeniedReason = deniedReason;
         }
 
-        #region IExceptionHandlerPathFeature
-
-        public Exception Error => this;
-        public string Path => null;
-
-        #endregion
-
         public AccessDeniedReason DeniedReason { get; }
 
         private static string CreateMessage(AccessDeniedReason deniedReason, string publicKey)
@@ -32,6 +23,9 @@ namespace Smartstore.WebApi.Services
             {
                 case AccessDeniedReason.ApiDisabled:
                     reason = "Web API is disabled.";
+                    break;
+                case AccessDeniedReason.SslRequired:
+                    reason = "Web API requests require HTTPS.";
                     break;
                 case AccessDeniedReason.InvalidAuthorizationHeader:
                     reason = "Missing or invalid authorization header. Must have the format 'PublicKey:SecretKey'.";
@@ -50,7 +44,7 @@ namespace Smartstore.WebApi.Services
                     break;
             }
 
-            return $"Access to the API was denied. Reason: {deniedReason}. {reason.NaIfEmpty()}";
+            return $"Access to the Web API was denied. Reason: {deniedReason}. {reason.NaIfEmpty()}";
         }
     }
 }

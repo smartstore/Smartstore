@@ -11,6 +11,11 @@
         ApiDisabled,
 
         /// <summary>
+        /// HTTPS is required in any case unless the request takes place in a development environment.
+        /// </summary>
+        SslRequired,
+
+        /// <summary>
         /// The HTTP authorization header is missing or invalid.
         /// Must have the format 'PublicKey:SecretKey'.
         /// </summary>
