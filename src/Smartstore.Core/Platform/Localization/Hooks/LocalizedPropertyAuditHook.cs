@@ -44,6 +44,11 @@ namespace Smartstore.Core.Localization
                 entity.UpdatedBy = GetAuthorName();
             }
 
+            if (entry.IsPropertyModified(nameof(LocalizedProperty.LocaleValue))) 
+            {
+                entity.TranslatedOnUtc = null;
+            }
+
             return HookResult.Ok;
         }
 
