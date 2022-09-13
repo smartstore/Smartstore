@@ -60,6 +60,8 @@ namespace Smartstore.Core.Security
                     ? await _permissionService.GetUnauthorizedMessageAsync(_requirement.SystemName)
                     : string.Empty;
 
+                context.HttpContext.Response.StatusCode = StatusCodes.Status401Unauthorized;
+
                 if (request.IsAjax())
                 {
                     if (message.HasValue())

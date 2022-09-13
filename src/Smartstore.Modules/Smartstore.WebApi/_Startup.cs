@@ -1,11 +1,8 @@
-﻿using System;
-using Autofac;
+﻿using Autofac;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.OData;
 using Microsoft.AspNetCore.OData.NewtonsoftJson;
-using Microsoft.AspNetCore.OData.Routing.Conventions;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Hosting;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;
 
@@ -46,6 +43,12 @@ namespace Smartstore.WebApi
         public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext)
         {
             builder.RegisterType<WebApiService>().As<IWebApiService>().SingleInstance();
+        }
+
+        public override void ConfigureServices(IServiceCollection services, IApplicationContext appContext)
+        {
+            services.AddAuthentication("Smartstore.WebApi.Basic")
+                .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("Smartstore.WebApi.Basic", null);
         }
     }
 }

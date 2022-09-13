@@ -23,10 +23,5 @@ namespace Smartstore.WebApi
         /// Gets or sets the max expansion depth for the $expand query option.
         /// </summary>
         public int MaxExpansionDepth { get; set; } = DefaultMaxExpansionDepth;
-
-        /// <summary>
-        /// Gets or sets a value indicating whether to log unauthorized API calls.
-        /// </summary>
-        public bool LogUnauthorized { get; set; }
     }
 }

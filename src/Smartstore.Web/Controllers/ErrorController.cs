@@ -43,7 +43,7 @@ namespace Smartstore.Web.Controllers
 
             if (model.Endpoint != null)
             {
-                // Set the original action descriptor
+                // Set the original action descriptor.
                 model.ActionDescriptor = model.Endpoint.Metadata.OfType<ControllerActionDescriptor>().FirstOrDefault();
             }
 
@@ -54,12 +54,15 @@ namespace Smartstore.Web.Controllers
 
             if (model.Exception is AccessDeniedException)
             {
+                HttpContext.Response.StatusCode = StatusCodes.Status401Unauthorized;
+
                 return View("AccessDenied", model);
             }
 
             if (httpStatusCode == HttpStatusCode.NotFound && model.Path.HasValue() && MimeTypes.TryMapNameToMimeType(model.Path, out var mime))
             {
-                HttpContext.Response.StatusCode = 404;
+                HttpContext.Response.StatusCode = StatusCodes.Status404NotFound;
+
                 return Content("Resource not found", mime);
             }
 

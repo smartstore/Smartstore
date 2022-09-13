@@ -8,7 +8,6 @@ global using Microsoft.AspNetCore.Mvc;
 global using Microsoft.AspNetCore.OData.Deltas;
 global using Microsoft.EntityFrameworkCore;
 global using Smartstore.Core.Security;
-global using Smartstore.WebApi.Filters;
 global using Smartstore.WebApi.Services;
 using Smartstore.Engine.Modularity;
 using Smartstore.Http;
@@ -19,6 +18,7 @@ namespace Smartstore.WebApi
     // https://docs.microsoft.com/en-us/odata/webapi/basic-auth
     // TODO: (mg) (core) move methods of generic API controllers (Payments, Uploads) to OData controllers\functions?
     // TODO: (mg) (core) cleanup string resources.
+    // TODO: (mg) (core) update API docu https://smartstore.atlassian.net/wiki/spaces/SMNET50/pages/1956121714/Web+API
     internal class Module : ModuleBase, IConfigurable
     {
         public static string SystemName => "Smartstore.WebApi";

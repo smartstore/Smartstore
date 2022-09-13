@@ -34,7 +34,6 @@ namespace Smartstore.WebApi.Services
                 {
                     IsActive = descriptor?.IsInstalled() ?? false,
                     ModuleVersion = descriptor?.Version?.ToString()?.NullEmpty() ?? "1.0",
-                    LogUnauthorized = settings.LogUnauthorized,
                     MaxTop = settings.MaxTop,
                     MaxExpansionDepth = settings.MaxExpansionDepth
                 };
@@ -47,7 +46,7 @@ namespace Smartstore.WebApi.Services
         {
             // TODO: (mg) (core) is CacheItemRemovedCallback gone forever? Find replacement for the CacheItemRemovedCallback logic
             // for non-removable cache entries? We have to store\update data as GenericAttribute.
-            var result = await _cache.GetAsync(StateKey, async () =>
+            var result = await _cache.GetAsync(AuthorizedCustomersKey, async () =>
             {
                 var db = _serviceProvider.GetService<SmartDbContext>();
 
