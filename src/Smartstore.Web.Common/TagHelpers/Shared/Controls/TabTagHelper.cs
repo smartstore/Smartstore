@@ -12,6 +12,7 @@ namespace Smartstore.Web.TagHelpers.Shared
         const string SelectedAttributeName = "sm-selected";
         const string DisabledAttributeName = "sm-disabled";
         const string VisibleAttributeName = "sm-visible";
+        const string HideIfEmptyAttributeName = "sm-hide-if-empty";
         const string AjaxAttributeName = "sm-ajax";
         const string IconAttributeName = "sm-icon";
         const string IconClassAttributeName = "sm-icon-class";
@@ -85,6 +86,13 @@ namespace Smartstore.Web.TagHelpers.Shared
         public bool Visible { get; set; } = true;
 
         /// <summary>
+        /// Whether item output should be suppressed if result content is empty. 
+        /// Has no effect if "sm-ajax" attribute is true. Default = false.
+        /// </summary>
+        [HtmlAttributeName(HideIfEmptyAttributeName)]
+        public bool HideIfEmpty { get; set; }
+
+        /// <summary>
         /// Whether to load content deferred per AJAX.
         /// </summary>
         [HtmlAttributeName(AjaxAttributeName)]
@@ -152,6 +160,12 @@ namespace Smartstore.Web.TagHelpers.Shared
         internal bool HasContent
         {
             get => TabInnerContent != null && !TabInnerContent.IsEmptyOrWhiteSpace;
+        }
+
+        [HtmlAttributeNotBound]
+        internal bool MustRender
+        {
+            get => Ajax || HasContent || !HideIfEmpty;
         }
 
         [HtmlAttributeNotBound]

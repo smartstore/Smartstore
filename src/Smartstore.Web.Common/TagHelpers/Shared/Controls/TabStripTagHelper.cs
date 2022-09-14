@@ -168,7 +168,7 @@ namespace Smartstore.Web.TagHelpers.Shared
                 output.SuppressOutput();
             }
 
-            var hasContent = Tabs.Any(x => x.HasContent || x.Ajax);
+            var hasContent = Tabs.Any(x => x.MustRender);
             var isTabbable = Position != TabsPosition.Top;
             var isStacked = Position == TabsPosition.Left || Position == TabsPosition.Right;
             var classList = output.GetClassList();
@@ -325,7 +325,10 @@ namespace Smartstore.Web.TagHelpers.Shared
 
             foreach (var tab in Tabs)
             {
-                content.AppendHtml(BuildTabItem(tab, isStacked, hasIcons));
+                if (tab.MustRender)
+                {
+                    content.AppendHtml(BuildTabItem(tab, isStacked, hasIcons));
+                }
             }
 
             content.AppendHtml(ul.RenderEndTag());
@@ -355,7 +358,10 @@ namespace Smartstore.Web.TagHelpers.Shared
 
             foreach (var tab in Tabs)
             {
-                content.AppendHtml(BuildTabPane(tab));
+                if (tab.MustRender)
+                {
+                    content.AppendHtml(BuildTabPane(tab));
+                }
             }
 
             content.AppendHtmlLine("</div>");
