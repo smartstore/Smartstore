@@ -1,8 +1,10 @@
 ﻿using System.Globalization;
+using System.Security.Cryptography;
 using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Caching;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Data;
+using Smartstore.Core.Identity;
 using Smartstore.Core.Stores;
 using Smartstore.Engine.Modularity;
 using Smartstore.WebApi.Models;
@@ -15,7 +17,8 @@ namespace Smartstore.WebApi.Services
         internal const string StateKey = "smartstore.webapi:state-{0}";
         internal const string StatePatternKey = "smartstore.webapi:state-*";
 
-        internal const string AuthorizedCustomersKey = "smartstore.webapi:authorizedcustomers";
+        internal const string UsersKey = "smartstore.webapi:users";
+        internal const string AttributeUserDataKey = "WebApiUserData";
 
         private readonly IStoreContext _storeContext;
         private readonly ICacheManager _cache;
@@ -29,6 +32,33 @@ namespace Smartstore.WebApi.Services
             _storeContext = storeContext;
             _cache = cache;
             _serviceProvider = serviceProvider;
+        }
+
+        public static bool CreateKeys(out string key1, out string key2, int length = 32)
+        {
+            key1 = key2 = null;
+
+            using (var rng = RandomNumberGenerator.Create())
+            {
+                for (var i = 0; i < 9999; i++)
+                {
+                    var data1 = new byte[length];
+                    var data2 = new byte[length];
+
+                    rng.GetNonZeroBytes(data1);
+                    rng.GetNonZeroBytes(data2);
+
+                    key1 = data1.ToHexString(false, length);
+                    key2 = data2.ToHexString(false, length);
+
+                    if (key1 != key2)
+                    {
+                        break;
+                    }
+                }
+            }
+
+            return key1.HasValue() && key2.HasValue() && key1 != key2;
         }
 
         public WebApiState GetState(int? storeId = null)
@@ -58,14 +88,14 @@ namespace Smartstore.WebApi.Services
         {
             // TODO: (mg) (core) is CacheItemRemovedCallback gone forever? Find replacement for the CacheItemRemovedCallback logic
             // for non-removable cache entries? We have to store\update data as GenericAttribute.
-            var result = await _cache.GetAsync(AuthorizedCustomersKey, async () =>
+            var result = await _cache.GetAsync(UsersKey, async () =>
             {
                 var db = _serviceProvider.GetService<SmartDbContext>();
 
                 var attributesQuery =
                     from a in db.GenericAttributes
                     join c in db.Customers on a.EntityId equals c.Id
-                    where !c.Deleted && c.Active && a.KeyGroup == "Customer" && a.Key == "WebApiUserData"
+                    where !c.Deleted && c.Active && a.KeyGroup == nameof(Customer) && a.Key == AttributeUserDataKey
                     select new
                     {
                         a.Id,
