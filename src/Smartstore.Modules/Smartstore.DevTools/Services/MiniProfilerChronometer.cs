@@ -5,11 +5,7 @@ namespace Smartstore.DevTools.Services
 {
     public class MiniProfilerChronometer : IChronometer
     {
-        private readonly Dictionary<string, Stack<IDisposable>> _steps = new Dictionary<string, Stack<IDisposable>>();
-
-        public MiniProfilerChronometer()
-        {
-        }
+        private readonly Dictionary<string, Stack<IDisposable>> _steps = new();
 
         protected MiniProfiler Profiler => MiniProfiler.Current;
 

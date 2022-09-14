@@ -18,12 +18,11 @@ namespace Smartstore.OutputCache.Migrations
             Create.Column(nameof(LocalizedProperty.TranslatedOnUtc)).OnTable(propTableName).AsDateTime2().Nullable();
             Create.Column(nameof(LocalizedProperty.MasterChecksum)).OnTable(propTableName).AsString(64).Nullable();
 
-            //Create.Index("IX_TranslatedOn_UpdatedOn")
-            //    .OnTable(propTableName)
-            //    .OnColumn(nameof(LocalizedProperty.TranslatedOnUtc)).Ascending()
-            //    .OnColumn(nameof(LocalizedProperty.UpdatedOnUtc)).Ascending()
-            //    .WithOptions()
-            //    .NonClustered();
+            Create.Index("IX_TranslatedOn")
+                .OnTable(propTableName)
+                .OnColumn(nameof(LocalizedProperty.TranslatedOnUtc)).Ascending()
+                .WithOptions()
+                .NonClustered();
 
             var resTableName = nameof(LocaleStringResource);
             Create.Column(nameof(LocaleStringResource.CreatedOnUtc)).OnTable(resTableName).AsDateTime2().NotNullable().WithDefaultValue(SystemMethods.CurrentUTCDateTime);
