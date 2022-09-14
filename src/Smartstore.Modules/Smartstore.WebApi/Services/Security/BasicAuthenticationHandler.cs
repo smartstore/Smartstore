@@ -187,7 +187,6 @@ namespace Smartstore.WebApi.Services
 
 
 
-    // TODO: (mg) (core) SSL mandatory but not for developers!
     /// <summary>
     /// Verifies the identity of a user using basic authentication.
     /// Also checks whether the user has a certain permission to a Web API resource.

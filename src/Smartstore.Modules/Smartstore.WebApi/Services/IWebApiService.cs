@@ -4,7 +4,7 @@ namespace Smartstore.WebApi.Services
 {
     public partial interface IWebApiService
     {
-        WebApiState GetState();
+        WebApiState GetState(int? storeId = null);
         Task<Dictionary<string, WebApiUser>> GetApiUsersAsync();
     }
 }

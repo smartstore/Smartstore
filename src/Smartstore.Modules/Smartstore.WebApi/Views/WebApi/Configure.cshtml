@@ -1,0 +1,87 @@
+﻿@model ConfigurationModel
+
+@{
+    Layout = "_ConfigureModule";
+}
+
+<widget target-zone="admin_button_toolbar_before">
+    <button id="SaveConfigButton" type="submit" name="save" class="btn btn-warning" value="save">
+        <i class="fa fa-check"></i>
+        <span>@T("Admin.Common.Save")</span>
+    </button>
+</widget>
+
+<div class="alert alert-info">
+    @Html.Raw(T("Plugins.Api.WebApi.AdminInstruction"))
+</div>
+
+@await Component.InvokeAsync("StoreScope")
+
+<form asp-action="Configure">
+    <div asp-validation-summary="All"></div>
+
+    <div class="adminContent">
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="IsActive" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="IsActive" data-toggler-for=".api-settings"></setting-editor>
+                <span asp-validation-for="IsActive"></span>
+            </div>
+        </div>
+        <div class="api-settings">
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="MaxTop" />
+                </div>
+                <div class="adminData">
+                    <setting-editor asp-for="MaxTop"></setting-editor>
+                    <span asp-validation-for="MaxTop"></span>
+                </div>
+            </div>
+            <div class="adminRow">
+                <div class="adminTitle">
+                    <smart-label asp-for="MaxExpansionDepth" />
+                </div>
+                <div class="adminData">
+                    <setting-editor asp-for="MaxExpansionDepth"></setting-editor>
+                    <span asp-validation-for="MaxExpansionDepth"></span>
+                </div>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="ApiOdataUrl" />
+            </div>
+            <div class="adminData form-control-plaintext">
+                <a href="@Model.ApiOdataUrl" target="_blank">@Model.ApiOdataUrl</a>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="ApiOdataMetadataUrl" />
+            </div>
+            <div class="adminData form-control-plaintext">
+                <a href="@Model.ApiOdataMetadataUrl" target="_blank">@Model.ApiOdataMetadataUrl</a>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="SwaggerUrl" />
+            </div>
+            <div class="adminData form-control-plaintext">
+                <a href="@Model.SwaggerUrl" target="_blank">@Model.SwaggerUrl</a>
+            </div>
+        </div>
+    </div>
+
+    @T("Plugins.Api.WebApi.UserGridTabTitle")
+
+</form>
+
+<script sm-target-zone="scripts" data-origin="configure-web-api">
+    $(function () {
+
+    });
+</script>

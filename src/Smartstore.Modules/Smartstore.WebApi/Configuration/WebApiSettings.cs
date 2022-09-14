@@ -15,6 +15,11 @@ namespace Smartstore.WebApi
         public const int DefaultMaxExpansionDepth = 8;
 
         /// <summary>
+        /// Gets or sets a value indicating whether the Web API is active.
+        /// </summary>
+        public bool IsActive { get; set; } = true;
+
+        /// <summary>
         /// Gets or sets the max value of $top that a client can request.
         /// </summary>
         public int MaxTop { get; set; } = DefaultMaxTop;

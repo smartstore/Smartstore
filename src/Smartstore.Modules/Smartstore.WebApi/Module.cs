@@ -14,8 +14,6 @@ using Smartstore.Http;
 
 namespace Smartstore.WebApi
 {
-    // TODO: (mg) (core) use basic authentication over HTTPS, as it is recommended by OData Protocol Version 4.0.
-    // https://docs.microsoft.com/en-us/odata/webapi/basic-auth
     // TODO: (mg) (core) move methods of generic API controllers (Payments, Uploads) to OData controllers\functions?
     // TODO: (mg) (core) cleanup string resources.
     // TODO: (mg) (core) update API docu https://smartstore.atlassian.net/wiki/spaces/SMNET50/pages/1956121714/Web+API

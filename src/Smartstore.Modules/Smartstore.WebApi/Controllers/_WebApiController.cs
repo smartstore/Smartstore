@@ -1,5 +1,5 @@
 ﻿using Smartstore.ComponentModel;
-using Smartstore.Core.Security;
+using Smartstore.Http;
 using Smartstore.Web.Controllers;
 using Smartstore.Web.Modelling.Settings;
 using Smartstore.WebApi.Models;
@@ -14,6 +14,11 @@ namespace Smartstore.WebApi.Controllers
         {
             var model = MiniMapper.Map<WebApiSettings, ConfigurationModel>(settings);
 
+            // TODO: (mg) (core) check URLs. Probably changes.
+            model.ApiOdataUrl = WebHelper.GetAbsoluteUrl(Url.Content("~/odata/v1"), Request, true).EnsureEndsWith("/");
+            model.ApiOdataMetadataUrl = model.ApiOdataUrl + "$metadata";
+            model.SwaggerUrl = WebHelper.GetAbsoluteUrl(Url.Content("~/swagger/ui/index"), Request, true);
+
             return View(model);
         }
 
@@ -27,8 +32,8 @@ namespace Smartstore.WebApi.Controllers
             }
 
             MiniMapper.Map(model, settings);
-            await Services.Cache.RemoveAsync(WebApiService.StateKey);
 
+            await Services.Cache.RemoveByPatternAsync(WebApiService.StatePatternKey);
             NotifySuccess(T("Admin.Common.DataSuccessfullySaved"));
 
             return RedirectToAction(nameof(Configure));

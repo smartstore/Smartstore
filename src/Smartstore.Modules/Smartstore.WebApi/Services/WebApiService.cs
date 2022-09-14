@@ -1,7 +1,9 @@
 ﻿using System.Globalization;
 using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Caching;
+using Smartstore.Core.Configuration;
 using Smartstore.Core.Data;
+using Smartstore.Core.Stores;
 using Smartstore.Engine.Modularity;
 using Smartstore.WebApi.Models;
 
@@ -9,30 +11,40 @@ namespace Smartstore.WebApi.Services
 {
     public partial class WebApiService : IWebApiService
     {
-        internal const string StateKey = "smartstore.webapi:state";
+        // {0} = StoreId
+        internal const string StateKey = "smartstore.webapi:state-{0}";
+        internal const string StatePatternKey = "smartstore.webapi:state-*";
+
         internal const string AuthorizedCustomersKey = "smartstore.webapi:authorizedcustomers";
 
+        private readonly IStoreContext _storeContext;
         private readonly ICacheManager _cache;
         private readonly IServiceProvider _serviceProvider;
 
-        public WebApiService(ICacheManager cache, IServiceProvider serviceProvider)
+        public WebApiService(
+            IStoreContext storeContext,
+            ICacheManager cache, 
+            IServiceProvider serviceProvider)
         {
+            _storeContext = storeContext;
             _cache = cache;
             _serviceProvider = serviceProvider;
         }
 
-        public WebApiState GetState()
+        public WebApiState GetState(int? storeId = null)
         {
-            return _cache.Get(StateKey, (o) =>
+            storeId ??= _storeContext.CurrentStore.Id;
+
+            return _cache.Get(StateKey.FormatInvariant(storeId.Value), (o) =>
             {
                 o.ExpiresIn(TimeSpan.FromDays(30));
 
+                var settings = _serviceProvider.GetService<ISettingFactory>().LoadSettings<WebApiSettings>(storeId.Value);
                 var descriptor = _serviceProvider.GetService<IModuleCatalog>().GetModuleByName(Module.SystemName);
-                var settings = _serviceProvider.GetService<WebApiSettings>();
 
                 var state = new WebApiState
                 {
-                    IsActive = descriptor?.IsInstalled() ?? false,
+                    IsActive = (descriptor?.IsInstalled() ?? false) && settings.IsActive,
                     ModuleVersion = descriptor?.Version?.ToString()?.NullEmpty() ?? "1.0",
                     MaxTop = settings.MaxTop,
                     MaxExpansionDepth = settings.MaxExpansionDepth

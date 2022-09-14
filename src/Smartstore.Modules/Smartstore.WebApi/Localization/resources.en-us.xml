@@ -66,6 +66,12 @@
     <LocaleResource Name="AllowEmptyMd5Hash.Hint">
         <Value>Specifies whether to allow authentifications without MD5 content hash.</Value>
     </LocaleResource>
+    <LocaleResource Name="IsActive">
+        <Value>Is active</Value>
+    </LocaleResource>
+    <LocaleResource Name="IsActive.Hint">
+        <Value>Specifies whether the Web API is active and accepting requests.</Value>
+    </LocaleResource>
     <LocaleResource Name="MaxTop">
         <Value>Maximum pagesize</Value>
     </LocaleResource>

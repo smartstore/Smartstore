@@ -2,7 +2,6 @@
 {
     public class WebApiState
     {
-        // TODO: (mg) (core) add new setting for WebApiState.IsActive.
         public bool IsActive { get; init; }
         public string ModuleVersion { get; init; }
         public int MaxTop { get; init; }
