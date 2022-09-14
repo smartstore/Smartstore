@@ -11,12 +11,16 @@
 - Added QR code infrastructure
 - MediaManager: display image IPTC and EXIF metadata
 - MediaManager: added internal admin comment field
-- (DEV) Embedded/Inline mail attachments
 - Added PayPal onboarding to module configuration (handles simple configuration via direct email login without the need to create an app on the PayPal developer page). 
+- (DEV) Embedded/Inline mail attachments
+- (DEV) Localized entity metadata: `ILocalizedEntityDescriptorProvider`, `ILocalizedEntityLoader`
 
 ### Improvements
 
 - (DEV) New methods: TabFactory `InsertBefore()`,`InsertAfter()`, `InsertBeforeAny()`, `InsertAfterAny()`, `InsertAt()`
+- (DEV) New attribute for `tab` TagHelper: `sm-hide-if-empty`
+- (DEV) New rendering extension method: `IHtmlContent.HasValue()`
+- (DEV) New rendering extension method: `IHtmlHelper.RenderZoneAsync()`
 - (DEV) DataGrid row editing: handle prefixed controls correctly (e.g. "CustomProperties")
 - Additional fees are not allowed by PayPal, therefore removed the feature
 - Added cacheable routes for *Google Analytics* widgets
