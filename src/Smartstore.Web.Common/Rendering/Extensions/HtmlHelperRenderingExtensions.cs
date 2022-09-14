@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Smartstore.Core.Localization;
+using Smartstore.Core.Widgets;
 using Smartstore.Utilities;
 using Smartstore.Web.Modelling;
 using Smartstore.Web.Rendering.Builders;
@@ -741,6 +742,55 @@ namespace Smartstore.Web.Rendering
             svg.InnerHtml.AppendHtml(el);
 
             return svg;
+        }
+
+        #endregion
+
+        #region Zone
+
+        /// <summary>
+        /// Renders the content of a given <paramref name="zoneName"/>.
+        /// </summary>
+        /// <remarks>
+        /// Use only if you need the real content of a zone, e.g. to check for emptyness
+        /// and to render other content if not.
+        /// This call replaces the <c>zone</c> TagHelper, therefore you
+        /// should remove the TagHelper with the same name.
+        /// </remarks>
+        /// <param name="helper">The <see cref="IHtmlHelper"/>.</param>
+        /// <param name="zoneName">Name of zone to render content for.</param>
+        /// <returns>The HTML produced by all widgets registered for given given zone.</returns>
+        public static async Task<IHtmlContent> RenderZoneAsync(this IHtmlHelper helper, string zoneName)
+        {
+            Guard.NotEmpty(zoneName, nameof(zoneName));
+
+            var viewContext = helper.ViewContext;
+            var widgetSelector = viewContext.HttpContext.RequestServices.GetRequiredService<IWidgetSelector>();
+            var widgets = await widgetSelector.GetWidgetsAsync(zoneName, viewContext, viewContext.ViewData.Model);
+
+            if (widgets.Any())
+            {
+                var builder = new HtmlContentBuilder();
+
+                foreach (var widget in widgets)
+                {
+                    var model = widget is PartialViewWidgetInvoker partialInvoker
+                        ? partialInvoker.Model
+                        : viewContext.ViewData.Model;
+
+                    var localViewContext = model == null ? viewContext : viewContext.Clone(model);
+                    var result = await widget.InvokeAsync(localViewContext);
+
+                    builder.AppendHtml(result);
+                    builder.AppendLine();
+                }
+
+                return builder;
+            }
+            else
+            {
+                return HtmlString.Empty;
+            }
         }
 
         #endregion

@@ -17,8 +17,6 @@ namespace Smartstore.Twitter
 
         public void Configure(AuthenticationOptions options)
         {
-            var settings = _appContext.Services.Resolve<TwitterExternalAuthSettings>();
-
             // Register the OpenID Connect client handler in the authentication handlers collection.
             options.AddScheme(TwitterDefaults.AuthenticationScheme, builder =>
             {
