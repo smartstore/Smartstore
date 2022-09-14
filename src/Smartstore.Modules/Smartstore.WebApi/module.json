@@ -11,11 +11,6 @@
   "ResourceRootKey": "Plugins.Api.WebApi",
   "ProjectUrl": "http://community.smartstore.com/marketplace/file/27-smartstorenet-web-api/",
   "PrivateReferences": [
-    "Microsoft.AspNetCore.OData",
-    "Microsoft.OData.ModelBuilder",
-    "Microsoft.OData.Core",
-    "Microsoft.OData.Edm",
-    "Microsoft.Spatial",
     "Microsoft.AspNetCore.OData.NewtonsoftJson"
   ]
 }
