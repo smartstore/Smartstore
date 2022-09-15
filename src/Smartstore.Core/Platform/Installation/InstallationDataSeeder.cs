@@ -152,7 +152,7 @@ namespace Smartstore.Core.Installation
 
             // Add tax rates to fixed rate provider
             int i = 0;
-            var taxIds = taxCategories.OrderBy(x => x.Id).Select(x => x.Id).ToList();
+            var taxIds = taxCategories.OrderBy(x => x.DisplayOrder).Select(x => x.Id).ToList();
             foreach (var id in taxIds)
             {
                 decimal rate = 0;
