@@ -548,14 +548,14 @@ namespace Smartstore.Core.Messaging
             int dotIndex = 0;
             int len = expression.Length;
             bool bof = true;
-            string token = null;
 
             for (var i = 0; i < len; i++)
             {
+                string token;
                 if (expression[i] == '.')
                 {
                     bof = false;
-                    token = expression.Substring(0, i);
+                    token = expression[..i];
                 }
                 else if (i == len - 1)
                 {
@@ -581,7 +581,7 @@ namespace Smartstore.Core.Messaging
                         // Get "Customer" part, this is our property name, NOT the model name
                         var propName = token[(dotIndex + 1)..];
                         // Get parent model "Order"
-                        var parentModel = models.Get(token.Substring(0, dotIndex));
+                        var parentModel = models.Get(token[..dotIndex]);
                         if (parentModel == null)
                             break;
 
