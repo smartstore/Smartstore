@@ -1,5 +1,7 @@
 ﻿namespace Smartstore.WebApi.Services
 {
+    // TODO: (mg) (core) Move this and other classes here to Smartstore.Web.Api.Security namespace
+    
     /// <summary>
     /// Represents the reason for denying an API request.
     /// </summary>

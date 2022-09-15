@@ -90,6 +90,7 @@ namespace Smartstore.WebApi.Services
             // for non-removable cache entries? We have to store\update data as GenericAttribute.
             var result = await _cache.GetAsync(UsersKey, async () =>
             {
+                // TODO: (mg) (core) Really bad pattern. There's no need for this class to be singleton. All state is cached statically anyway.
                 var db = _serviceProvider.GetService<SmartDbContext>();
 
                 var attributesQuery =

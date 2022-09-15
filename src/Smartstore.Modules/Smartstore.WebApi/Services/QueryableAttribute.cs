@@ -4,12 +4,12 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Smartstore.WebApi.Services
 {
+    // TODO: (mg) (core) Attribute without AttributeUsage?
     public class QueryableAttribute : EnableQueryAttribute
     {
         public override void OnActionExecuted(ActionExecutedContext actionExecutedContext)
         {
             SetDefaultQueryOptions(actionExecutedContext);
-
             base.OnActionExecuted(actionExecutedContext);
         }
 
