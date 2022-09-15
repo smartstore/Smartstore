@@ -1,6 +1,6 @@
-﻿using Smartstore.WebApi.Models;
+﻿using Smartstore.Web.Api.Models;
 
-namespace Smartstore.WebApi.Services
+namespace Smartstore.Web.Api.Services
 {
     public partial interface IWebApiService
     {

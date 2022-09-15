@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.AspNetCore.Mvc.ApplicationModels;
-using Microsoft.AspNetCore.OData.Extensions;
+﻿using Microsoft.AspNetCore.OData.Extensions;
 using Microsoft.AspNetCore.OData.Routing.Conventions;
 using Microsoft.AspNetCore.OData.Routing.Template;
 using Microsoft.OData.Edm;
 
-namespace Smartstore.WebApi.Services
+namespace Smartstore.Web.Api.Services
 {
     public class CustomRoutingConvention : IODataControllerActionConvention
     {

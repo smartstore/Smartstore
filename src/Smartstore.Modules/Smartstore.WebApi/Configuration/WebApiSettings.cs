@@ -1,6 +1,6 @@
 ﻿using Smartstore.Core.Configuration;
 
-namespace Smartstore.WebApi
+namespace Smartstore.Web.Api
 {
     public class WebApiSettings : ISettings
     {

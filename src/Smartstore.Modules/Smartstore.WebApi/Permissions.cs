@@ -1,7 +1,6 @@
 ﻿using Smartstore.Core.Identity;
-using Smartstore.Core.Security;
 
-namespace Smartstore.WebApi
+namespace Smartstore.Web.Api
 {
     internal static class WebApiPermissions
     {

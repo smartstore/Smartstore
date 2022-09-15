@@ -8,11 +8,11 @@ global using Microsoft.AspNetCore.Mvc;
 global using Microsoft.AspNetCore.OData.Deltas;
 global using Microsoft.EntityFrameworkCore;
 global using Smartstore.Core.Security;
-global using Smartstore.WebApi.Services;
+global using Smartstore.Web.Api.Services;
 using Smartstore.Engine.Modularity;
 using Smartstore.Http;
 
-namespace Smartstore.WebApi
+namespace Smartstore.Web.Api
 {
     // TODO: (mg) (core) move methods of generic API controllers (Payments, Uploads) to OData controllers\functions?
     // TODO: (mg) (core) cleanup string resources.

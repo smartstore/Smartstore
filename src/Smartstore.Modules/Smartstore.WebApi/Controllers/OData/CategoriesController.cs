@@ -1,7 +1,7 @@
 ﻿using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Seo;
 
-namespace Smartstore.WebApi.Controllers.OData
+namespace Smartstore.Web.Api.Controllers.OData
 {
     // TODO: (mg) (core) try to avoid this insane amount of metadata attributes.
     // Introduce something like a "SmartMetadataCollectorAttribute" or a collecting method in SmartODataController.

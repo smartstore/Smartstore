@@ -3,13 +3,14 @@
 namespace Smartstore.Web.Api
 {
     /// <summary>
-    /// TODO: Describe
+    /// Represents a provider to build data models for the OData API service.
     /// </summary>
     public interface IODataModelProvider
     {
         /// <summary>
-        /// TODO: Describe
+        /// Builds the Entity Data Model (EDM) for the OData API service.
+        /// Allows to add and configure entity sets to the model.
         /// </summary>
-        void Build(ODataModelBuilder builder);
+        void Build(ODataModelBuilder builder, int version);
     }
 }

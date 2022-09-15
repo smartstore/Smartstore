@@ -19,7 +19,7 @@
         </Value>
     </LocaleResource>
     <LocaleResource Name="UserGridTabTitle">
-        <Value>Benutzer</Value>
+        <Value>API Benutzer</Value>
     </LocaleResource>
     <LocaleResource Name="OptionsGridTabTitle">
         <Value>Optionen</Value>
@@ -99,14 +99,26 @@
     <LocaleResource Name="Activate">
         <Value>Erlauben</Value>
     </LocaleResource>
+    <LocaleResource Name="Activate.Hint">
+        <Value>Aktiviert den API-Zugriff für diesen Kunden.</Value>
+    </LocaleResource>
     <LocaleResource Name="Deactivate">
         <Value>Nicht erlauben</Value>
+    </LocaleResource>
+    <LocaleResource Name="Deactivate.Hint">
+        <Value>Deaktiviert den API-Zugriff für diesen Kunden.</Value>
     </LocaleResource>
     <LocaleResource Name="RemoveKeys">
         <Value>Schlüssel löschen</Value>
     </LocaleResource>
+    <LocaleResource Name="RemoveKeys.Hint">
+        <Value>Löscht die API-Zugangsschlüssel dieses Kunden.</Value>
+    </LocaleResource>
     <LocaleResource Name="CreateKeys">
         <Value>Schlüssel erstellen</Value>
+    </LocaleResource>
+    <LocaleResource Name="CreateKeys.Hint">
+        <Value>Erstellt API-Zugangsschlüssel für diesen Kunden.</Value>
     </LocaleResource>
     <LocaleResource Name="ApiAccess">
         <Value>Zugang zur API</Value>

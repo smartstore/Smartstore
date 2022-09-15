@@ -2,9 +2,9 @@
 using Microsoft.AspNetCore.OData.Query;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Smartstore.WebApi.Services
+namespace Smartstore.Web.Api.Services
 {
-    // TODO: (mg) (core) Attribute without AttributeUsage?
+    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
     public class QueryableAttribute : EnableQueryAttribute
     {
         public override void OnActionExecuted(ActionExecutedContext actionExecutedContext)

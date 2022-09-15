@@ -2,6 +2,9 @@
 
 @{
     Layout = "_ConfigureModule";
+
+    var gridViewData = new ViewDataDictionary(this.ViewData);
+    gridViewData["Parent"] = Model;
 }
 
 <widget target-zone="admin_button_toolbar_before">
@@ -75,13 +78,14 @@
             </div>
         </div>
     </div>
-
-    @T("Plugins.Api.WebApi.UserGridTabTitle")
-
 </form>
 
-<script sm-target-zone="scripts" data-origin="configure-web-api">
-    $(function () {
+<div class="adminContent">
+    <div class="adminRow adminSeparator">
+        <div class="admin-config-group">
+            <div class="h4 text-muted mt-3 mb-0">@T("Plugins.Api.WebApi.UserGridTabTitle")</div>
+        </div>
+    </div>
+</div>
 
-    });
-</script>
+<partial name="_Grid.Users" model="null" view-data="gridViewData" />

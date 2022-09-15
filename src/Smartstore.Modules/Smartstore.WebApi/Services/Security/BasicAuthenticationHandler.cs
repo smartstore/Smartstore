@@ -11,9 +11,9 @@ using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Seo;
 using Smartstore.Utilities;
-using Smartstore.WebApi.Models;
+using Smartstore.Web.Api.Models;
 
-namespace Smartstore.WebApi.Services
+namespace Smartstore.Web.Api.Security
 {
     /// <summary>
     /// Verifies the identity of a user using basic authentication.

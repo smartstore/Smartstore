@@ -1,6 +1,6 @@
 ﻿using Smartstore.Web.Modelling;
 
-namespace Smartstore.WebApi.Models
+namespace Smartstore.Web.Api.Models
 {
     [LocalizedDisplay("Plugins.Api.WebApi.")]
     public class ConfigurationModel : ModelBase
@@ -22,5 +22,18 @@ namespace Smartstore.WebApi.Models
 
         [LocalizedDisplay("*MaxExpansionDepth")]
         public int MaxExpansionDepth { get; set; }
+
+        [LocalizedDisplay("Admin.Customers.Customers.List.SearchTerm")]
+        public string SearchTerm { get; set; }
+
+        [LocalizedDisplay("Admin.Customers.Customers.List.SearchEmail")]
+        public string SearchEmail { get; set; }
+
+        [LocalizedDisplay("Admin.Customers.Customers.List.SearchUsername")]
+        public string SearchUsername { get; set; }
+        public bool UsernamesEnabled { get; set; }
+
+        [LocalizedDisplay("Admin.Customers.Customers.List.SearchActiveOnly")]
+        public bool? SearchActiveOnly { get; set; }
     }
 }

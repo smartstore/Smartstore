@@ -1,15 +1,14 @@
 ﻿using System.Globalization;
 using System.Security.Cryptography;
-using Microsoft.Extensions.DependencyInjection;
 using Smartstore.Caching;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Stores;
 using Smartstore.Engine.Modularity;
-using Smartstore.WebApi.Models;
+using Smartstore.Web.Api.Models;
 
-namespace Smartstore.WebApi.Services
+namespace Smartstore.Web.Api.Services
 {
     public partial class WebApiService : IWebApiService
     {
@@ -20,18 +19,24 @@ namespace Smartstore.WebApi.Services
         internal const string UsersKey = "smartstore.webapi:users";
         internal const string AttributeUserDataKey = "WebApiUserData";
 
+        private readonly SmartDbContext _db;
         private readonly IStoreContext _storeContext;
         private readonly ICacheManager _cache;
-        private readonly IServiceProvider _serviceProvider;
+        private readonly ISettingFactory _settingFactory;
+        private readonly IModuleCatalog _moduleCatalog;
 
         public WebApiService(
+            SmartDbContext db,
             IStoreContext storeContext,
             ICacheManager cache, 
-            IServiceProvider serviceProvider)
+            ISettingFactory settingFactory,
+            IModuleCatalog moduleCatalog)
         {
+            _db = db;
             _storeContext = storeContext;
             _cache = cache;
-            _serviceProvider = serviceProvider;
+            _settingFactory = settingFactory;
+            _moduleCatalog = moduleCatalog;
         }
 
         public static bool CreateKeys(out string key1, out string key2, int length = 32)
@@ -69,8 +74,8 @@ namespace Smartstore.WebApi.Services
             {
                 o.ExpiresIn(TimeSpan.FromDays(30));
 
-                var settings = _serviceProvider.GetService<ISettingFactory>().LoadSettings<WebApiSettings>(storeId.Value);
-                var descriptor = _serviceProvider.GetService<IModuleCatalog>().GetModuleByName(Module.SystemName);
+                var settings = _settingFactory.LoadSettings<WebApiSettings>(storeId.Value);
+                var descriptor = _moduleCatalog.GetModuleByName(Module.SystemName);
 
                 var state = new WebApiState
                 {
@@ -90,12 +95,9 @@ namespace Smartstore.WebApi.Services
             // for non-removable cache entries? We have to store\update data as GenericAttribute.
             var result = await _cache.GetAsync(UsersKey, async () =>
             {
-                // TODO: (mg) (core) Really bad pattern. There's no need for this class to be singleton. All state is cached statically anyway.
-                var db = _serviceProvider.GetService<SmartDbContext>();
-
                 var attributesQuery =
-                    from a in db.GenericAttributes
-                    join c in db.Customers on a.EntityId equals c.Id
+                    from a in _db.GenericAttributes
+                    join c in _db.Customers on a.EntityId equals c.Id
                     where !c.Deleted && c.Active && a.KeyGroup == nameof(Customer) && a.Key == AttributeUserDataKey
                     select new
                     {

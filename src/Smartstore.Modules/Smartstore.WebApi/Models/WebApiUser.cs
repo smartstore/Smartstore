@@ -1,4 +1,4 @@
-﻿namespace Smartstore.WebApi.Models
+﻿namespace Smartstore.Web.Api.Models
 {
     public class WebApiUser
     {

@@ -6,13 +6,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OData.ModelBuilder;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;
-using Smartstore.Web.Api;
+using Smartstore.Web.Api.Security;
 
-namespace Smartstore.WebApi
+namespace Smartstore.Web.Api
 {
-    // TODO: (mg) (core) I suggest to set this assemblies default namespace to Smartstore.Web.Api,
-    // so it is sync with the common infrastructure's namespace in Smartstore.Web.Common.
-    
     // TODO: (mg) (core) Enable OData batching via app.UseODataBatching(). See: https://devblogs.microsoft.com/odata/tutorial-creating-a-service-with-odata-8-0/
     // PS: that document looks outdated. MapODataRoute and ODataOptions.AddModel does not exist anymore.
 
@@ -33,7 +30,7 @@ namespace Smartstore.WebApi
 
                     foreach (var provider in modelProviders)
                     {
-                        provider.Build(modelBuilder);
+                        provider.Build(modelBuilder, 1);
                     }
 
                     var edmModel = modelBuilder.GetEdmModel();
@@ -60,7 +57,7 @@ namespace Smartstore.WebApi
 
         public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext)
         {
-            builder.RegisterType<WebApiService>().As<IWebApiService>().SingleInstance();
+            builder.RegisterType<WebApiService>().As<IWebApiService>().InstancePerLifetimeScope();
         }
 
         public override void ConfigureServices(IServiceCollection services, IApplicationContext appContext)

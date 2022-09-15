@@ -7,19 +7,24 @@ using Smartstore.Http;
 using Smartstore.Web.Controllers;
 using Smartstore.Web.Modelling.Settings;
 using Smartstore.Web.Models.DataGrid;
-using Smartstore.WebApi.Models;
+using Smartstore.Web.Api.Models;
 
-namespace Smartstore.WebApi.Controllers
+namespace Smartstore.Web.Api.Controllers
 {
     public class WebApiController : AdminController
     {
         private readonly SmartDbContext _db;
         private readonly IWebApiService _apiService;
+        private readonly CustomerSettings _customerSettings;
 
-        public WebApiController(SmartDbContext db, IWebApiService apiService)
+        public WebApiController(
+            SmartDbContext db, 
+            IWebApiService apiService,
+            CustomerSettings customerSettings)
         {
             _db = db;
             _apiService = apiService;
+            _customerSettings = customerSettings;
         }
 
         [Permission(WebApiPermissions.Read)]
@@ -27,6 +32,8 @@ namespace Smartstore.WebApi.Controllers
         public IActionResult Configure(WebApiSettings settings)
         {
             var model = MiniMapper.Map<WebApiSettings, ConfigurationModel>(settings);
+
+            model.UsernamesEnabled = _customerSettings.CustomerLoginType != CustomerLoginType.Email;
 
             // TODO: (mg) (core) check URLs. Probably changes.
             model.ApiOdataUrl = WebHelper.GetAbsoluteUrl(Url.Content("~/odata/v1"), Request, true).EnsureEndsWith("/");
@@ -55,7 +62,7 @@ namespace Smartstore.WebApi.Controllers
 
         [HttpPost]
         [Permission(WebApiPermissions.Read)]
-        public async Task<IActionResult> UserList(GridCommand command)
+        public async Task<IActionResult> UserList(GridCommand command, ConfigurationModel model)
         {
             var registeredRoleId = await _db.CustomerRoles
                 .Where(x => x.SystemName == SystemCustomerRoleNames.Registered)
@@ -81,43 +88,63 @@ namespace Smartstore.WebApi.Controllers
                 orderby a.Value descending
                 select c;
 
-            var apiUsers = await query
+            query = query.ApplyIdentFilter(model.SearchEmail, model.SearchUsername, null);
+
+            if (model.SearchTerm.HasValue())
+            {
+                query = query.ApplySearchTermFilter(model.SearchTerm);
+            }
+
+            if (model.SearchActiveOnly.HasValue)
+            {
+                query = query.Where(x => x.Active == model.SearchActiveOnly.Value);
+            }
+
+            var customers = await query
                 .ApplyGridCommand(command)
-                .Select(x => new WebApiUserModel
-                {
-                    Id = x.Id,
-                    Username = x.Username,
-                    Email = x.Email,
-                    AdminComment = x.AdminComment
-                })
                 .ToPagedList(command)
                 .LoadAsync();
 
-            foreach (var user in apiUsers)
-            {
-                if (usersDic.TryGetValue(user.Id, out var cachedUser))
+            var rows = customers
+                .Select(x =>
                 {
-                    user.PublicKey = cachedUser.PublicKey;
-                    user.SecretKey = cachedUser.SecretKey;
-                    user.Enabled = cachedUser.Enabled;
-                    user.EnabledFriendly = cachedUser.Enabled ? yes : no;
+                    var user = new WebApiUserModel
+                    {
+                        Id = x.Id,
+                        Active = x.Active,
+                        Username = x.Username,
+                        FullName = x.GetFullName(),
+                        Email = x.Email,
+                        AdminComment = x.AdminComment,
+                        EditUrl = Url.Action("Edit", "Customer", new { id = x.Id, area = "Admin" })
+                    };
 
-                    if (cachedUser.LastRequest.HasValue)
+                    if (usersDic.TryGetValue(user.Id, out var cachedUser))
                     {
-                        user.LastRequestDate = Services.DateTimeHelper.ConvertToUserTime(cachedUser.LastRequest.Value, DateTimeKind.Utc);
-                        user.LastRequestDateString = user.LastRequestDate.Humanize(false);
+                        user.PublicKey = cachedUser.PublicKey;
+                        user.SecretKey = cachedUser.SecretKey;
+                        user.Enabled = cachedUser.Enabled;
+                        user.EnabledString = cachedUser.Enabled ? yes : no;
+
+                        if (cachedUser.LastRequest.HasValue)
+                        {
+                            user.LastRequestDate = Services.DateTimeHelper.ConvertToUserTime(cachedUser.LastRequest.Value, DateTimeKind.Utc);
+                            user.LastRequestDateString = user.LastRequestDate.Humanize(false);
+                        }
+                        else
+                        {
+                            user.LastRequestDateString = "-";
+                        }
                     }
-                    else
-                    {
-                        user.LastRequestDateString = "-";
-                    }
-                }
-            }
+
+                    return user;
+                })
+                .ToList();
 
             return Json(new GridModel<WebApiUserModel>
             {
-                Rows = apiUsers,
-                Total = await apiUsers.GetTotalCountAsync()
+                Rows = rows,
+                Total = await customers.GetTotalCountAsync()
             });
         }
 

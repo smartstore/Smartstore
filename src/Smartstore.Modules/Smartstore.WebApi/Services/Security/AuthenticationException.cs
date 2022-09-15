@@ -1,4 +1,4 @@
-﻿namespace Smartstore.WebApi.Services
+﻿namespace Smartstore.Web.Api.Security
 {
     internal class AuthenticationException : UnauthorizedAccessException
     {

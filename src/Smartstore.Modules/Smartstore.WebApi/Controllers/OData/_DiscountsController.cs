@@ -1,6 +1,6 @@
 ﻿using Smartstore.Core.Catalog.Discounts;
 
-namespace Smartstore.WebApi.Controllers.OData
+namespace Smartstore.Web.Api.Controllers.OData
 {
     // TODO: (mg) (core) IEEE754Compatible=true is not supported\working.
     // https://github.com/OData/odata.net/commit/e0e628a495942fb3b6b8acfa62ddbf75d24a1ece

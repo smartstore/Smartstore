@@ -73,7 +73,7 @@
     $(function () {
         $("#check-update-suppress").on('click', function (e) {
             e.preventDefault();
-            console.log($(this).data("url"));
+
             $({}).ajax({
                 type: 'POST',
                 url: $(this).data("url"),
