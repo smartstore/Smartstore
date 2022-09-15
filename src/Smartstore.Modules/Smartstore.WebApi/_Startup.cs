@@ -1,5 +1,4 @@
-﻿using Autofac;
-using Microsoft.AspNetCore.Authentication;
+﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.OData;
 using Microsoft.AspNetCore.OData.NewtonsoftJson;
 using Microsoft.Extensions.DependencyInjection;
@@ -54,11 +53,6 @@ namespace Smartstore.Web.Api
         //        builder.ApplicationBuilder.UseODataRouteDebug();
         //    }
         //}
-
-        public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext)
-        {
-            builder.RegisterType<WebApiService>().As<IWebApiService>().InstancePerLifetimeScope();
-        }
 
         public override void ConfigureServices(IServiceCollection services, IApplicationContext appContext)
         {

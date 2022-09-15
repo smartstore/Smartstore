@@ -3,8 +3,9 @@ using Microsoft.AspNetCore.OData.Routing.Conventions;
 using Microsoft.AspNetCore.OData.Routing.Template;
 using Microsoft.OData.Edm;
 
-namespace Smartstore.Web.Api.Services
+namespace Smartstore.Web.Api
 {
+    // TODO: (mg) (core) remove later. Probably not required.
     public class CustomRoutingConvention : IODataControllerActionConvention
     {
         public int Order => 401;

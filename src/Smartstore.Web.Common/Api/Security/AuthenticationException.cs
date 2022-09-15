@@ -1,5 +1,8 @@
 ﻿namespace Smartstore.Web.Api.Security
 {
+    /// <summary>
+    /// The exception that is thrown when the access to the Web API is denied.
+    /// </summary>
     internal class AuthenticationException : UnauthorizedAccessException
     {
         public AuthenticationException(AccessDeniedReason deniedReason, string publicKey = null)

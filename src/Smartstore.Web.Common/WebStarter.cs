@@ -35,6 +35,7 @@ using Smartstore.Engine.Builders;
 using Smartstore.Net;
 using Smartstore.Net.Http;
 using Smartstore.Utilities;
+using Smartstore.Web.Api;
 using Smartstore.Web.Bootstrapping;
 using Smartstore.Web.Razor;
 
@@ -105,6 +106,9 @@ namespace Smartstore.Web
             builder.RegisterType<DefaultViewInvoker>().As<IViewInvoker>().InstancePerLifetimeScope();
             builder.RegisterType<WebWorkContext>().As<IWorkContext>().InstancePerLifetimeScope();
             builder.RegisterType<SlugRouteTransformer>().InstancePerLifetimeScope();
+
+            // API.
+            builder.RegisterType<WebApiService>().As<IWebApiService>().InstancePerLifetimeScope();
         }
 
         public override void BuildPipeline(RequestPipelineBuilder builder)

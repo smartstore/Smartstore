@@ -4,14 +4,12 @@ using System.Text;
 using System.Text.Encodings.Web;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Seo;
 using Smartstore.Utilities;
-using Smartstore.Web.Api.Models;
 
 namespace Smartstore.Web.Api.Security
 {
@@ -159,7 +157,7 @@ namespace Smartstore.Web.Api.Security
             }
             else
             {
-                headers.WWWAuthenticate = $"Basic realm=\"{Module.SystemName}\", charset=\"UTF-8\"";
+                headers.WWWAuthenticate = "Basic realm=\"Smartstore.WebApi\", charset=\"UTF-8\"";
 
                 if (ex is AuthenticationException authEx)
                 {
@@ -169,7 +167,6 @@ namespace Smartstore.Web.Api.Security
             }
         }
     }
-
 
     internal class AuthenticationExceptionPathFeature : IExceptionHandlerPathFeature
     {
@@ -182,153 +179,4 @@ namespace Smartstore.Web.Api.Security
         public Exception Error { get; }
         public string Path { get; }
     }
-
-
-
-
-
-    /// <summary>
-    /// Verifies the identity of a user using basic authentication.
-    /// Also checks whether the user has a certain permission to a Web API resource.
-    /// </summary>
-    //[AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
-    //public sealed class WebApiAuthorizeAttribute : TypeFilterAttribute
-    //{
-    //    public WebApiAuthorizeAttribute()
-    //        : this(null)
-    //    {
-    //    }
-
-    //    public WebApiAuthorizeAttribute(string permission)
-    //        : base(typeof(WebApiAuthorizeFilter))
-    //    {
-    //        Permission = permission;
-    //        Arguments = new object[] { this };
-    //    }
-
-    //    /// <summary>
-    //    /// The system name of the permission.
-    //    /// </summary>
-    //    public string Permission { get; }
-
-    //    class WebApiAuthorizeFilter : IAsyncAuthorizationFilter
-    //    {
-    //        private readonly WebApiAuthorizeAttribute _attribute;
-    //        private readonly SmartDbContext _db;
-    //        private readonly IPermissionService _permissionService;
-    //        private readonly IWebApiService _apiService;
-    //        private readonly SignInManager<Customer> _signInManager;
-
-    //        public WebApiAuthorizeFilter(
-    //            WebApiAuthorizeAttribute attribute,
-    //            SmartDbContext db,
-    //            IPermissionService permissionService,
-    //            IWebApiService apiService,
-    //            SignInManager<Customer> signInManager)
-    //        {
-    //            _attribute = attribute;
-    //            _db = db;
-    //            _permissionService = permissionService;
-    //            _apiService = apiService;
-    //            _signInManager = signInManager;
-    //        }
-
-    //        public async Task OnAuthorizationAsync(AuthorizationFilterContext context)
-    //        {
-    //            //var user = (User)context.HttpContext.Items["User"];.....
-    //            //if (credentials.SplitToPair(out var userName, out var password, ":"))
-    //            //{
-    //            //    context.Items["User"] = await userService.Authenticate(username, password);
-    //            //}
-
-    //            try
-    //            {
-    //                var (customer, user) = await GetAuthorizedCustomer(context);
-
-    //                var claims = new[]
-    //                {
-    //                    new Claim(ClaimTypes.NameIdentifier, customer.Id.ToString()),
-    //                    new Claim(ClaimTypes.Name, customer.Username)
-    //                };
-
-    //                var principal = new ClaimsPrincipal(new ClaimsIdentity(claims, "Basic"));
-
-    //                //context.HttpContext.User = principal;
-    //                //var authResult = await context.HttpContext.AuthenticateAsync(); // no luck here
-    //                //$"authResult {authResult.Succeeded}".Dump();
-
-    //                //var authResult2 = await context.HttpContext.AuthenticateAsync("Basic"); // had to register.... wrong way?
-    //                //$"authResult2 {authResult2.Succeeded}".Dump();
-
-    //                //var ticket = new AuthenticationTicket(principal, "Basic");
-    //                //await context.HttpContext.SignInAsync(principal);
-
-    //                await _signInManager.SignInAsync(customer, true);
-    //            }
-    //            catch (WebApiAuthorizationException)
-    //            {
-    //                // TODO
-    //                //context.HttpContext.Response.Headers["WWW-Authenticate"] = "Basic realm=\"\", charset=\"UTF-8\"";
-    //            }
-    //            catch (Exception ex)
-    //            {
-    //                // TODO
-    //                ex.Dump();
-    //            }
-    //        }
-
-    //        private async Task<(Customer Customer, WebApiUser User)> GetAuthorizedCustomer(AuthorizationFilterContext ctx)
-    //        {
-    //            var rawAuthValue = ctx?.HttpContext?.Request?.Headers["Authorization"];
-    //            if (!AuthenticationHeaderValue.TryParse(rawAuthValue, out var authHeader) || authHeader?.Parameter == null)
-    //            {
-    //                throw new WebApiAuthorizationException(AccessDeniedReason.InvalidAuthorizationHeader);
-    //            }
-
-    //            var credentialsStr = Encoding.UTF8.GetString(Convert.FromBase64String(authHeader.Parameter));
-    //            if (!credentialsStr.SplitToPair(out var publicKey, out _, ":") || publicKey.IsEmpty())
-    //            {
-    //                throw new WebApiAuthorizationException(AccessDeniedReason.InvalidAuthorizationHeader);
-    //            }
-
-    //            var apiUsers = await _apiService.GetApiUsersAsync();
-    //            if (!apiUsers.TryGetValue(publicKey, out var user) || user == null)
-    //            {
-    //                throw new WebApiAuthorizationException(AccessDeniedReason.UserUnknown, publicKey);
-    //            }
-
-    //            if (!user.Enabled)
-    //            {
-    //                throw new WebApiAuthorizationException(AccessDeniedReason.UserDisabled, publicKey);
-    //            }
-
-    //            if (credentialsStr != $"{user.PublicKey}:{user.SecretKey}")
-    //            {
-    //                throw new WebApiAuthorizationException(AccessDeniedReason.InvalidCredentials, publicKey);
-    //            }
-
-    //            var customer = await _db.Customers
-    //                .IncludeCustomerRoles()
-    //                .FindByIdAsync(user.CustomerId, false);
-
-    //            if (customer == null)
-    //            {
-    //                throw new WebApiAuthorizationException(AccessDeniedReason.UserUnknown, publicKey);
-    //            }
-
-    //            if (!customer.Active)
-    //            {
-    //                throw new WebApiAuthorizationException(AccessDeniedReason.UserInactive, publicKey);
-    //            }
-
-    //            if (_attribute.Permission.HasValue() && !await _permissionService.AuthorizeAsync(_attribute.Permission, customer))
-    //            {
-    //                throw new WebApiAuthorizationException(AccessDeniedReason.UserHasNoPermission, publicKey, _attribute.Permission);
-    //            }
-
-    //            user.LastRequest = DateTime.UtcNow;
-    //            return (customer, user);
-    //        }
-    //    }
-    //}
 }

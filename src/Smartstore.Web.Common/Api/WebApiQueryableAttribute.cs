@@ -1,19 +1,20 @@
 ﻿using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.OData.Query;
-using Microsoft.Extensions.DependencyInjection;
 
-namespace Smartstore.Web.Api.Services
+namespace Smartstore.Web.Api
 {
+    /// <inheritdoc/>
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
-    public class QueryableAttribute : EnableQueryAttribute
+    public class WebApiQueryableAttribute : EnableQueryAttribute
     {
+        /// <inheritdoc/>
         public override void OnActionExecuted(ActionExecutedContext actionExecutedContext)
         {
-            SetDefaultQueryOptions(actionExecutedContext);
+            ApplyDefaultQueryOptions(actionExecutedContext);
             base.OnActionExecuted(actionExecutedContext);
         }
 
-        protected virtual void SetDefaultQueryOptions(ActionExecutedContext actionExecutedContext)
+        protected virtual void ApplyDefaultQueryOptions(ActionExecutedContext actionExecutedContext)
         {
             try
             {

@@ -2,22 +2,20 @@
 using System.Security.Cryptography;
 using Smartstore.Caching;
 using Smartstore.Core.Configuration;
-using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Stores;
 using Smartstore.Engine.Modularity;
-using Smartstore.Web.Api.Models;
 
-namespace Smartstore.Web.Api.Services
+namespace Smartstore.Web.Api
 {
     public partial class WebApiService : IWebApiService
     {
         // {0} = StoreId
-        internal const string StateKey = "smartstore.webapi:state-{0}";
-        internal const string StatePatternKey = "smartstore.webapi:state-*";
+        public const string StateKey = "smartstore.webapi:state-{0}";
+        public const string StatePatternKey = "smartstore.webapi:state-*";
 
-        internal const string UsersKey = "smartstore.webapi:users";
-        internal const string AttributeUserDataKey = "WebApiUserData";
+        public const string UsersKey = "smartstore.webapi:users";
+        public const string AttributeUserDataKey = "WebApiUserData";
 
         private readonly SmartDbContext _db;
         private readonly IStoreContext _storeContext;
@@ -39,6 +37,13 @@ namespace Smartstore.Web.Api.Services
             _moduleCatalog = moduleCatalog;
         }
 
+        /// <summary>
+        /// Creates a pair of of cryptographic random numbers as a hex string.
+        /// </summary>
+        /// <param name="key1">First created key.</param>
+        /// <param name="key2">Second created key.</param>
+        /// <param name="length">The length of the keys to be generated.</param>
+        /// <returns><c>true</c> succeeded otherwise <c>false</c>.</returns>
         public static bool CreateKeys(out string key1, out string key2, int length = 32)
         {
             key1 = key2 = null;
@@ -75,7 +80,7 @@ namespace Smartstore.Web.Api.Services
                 o.ExpiresIn(TimeSpan.FromDays(30));
 
                 var settings = _settingFactory.LoadSettings<WebApiSettings>(storeId.Value);
-                var descriptor = _moduleCatalog.GetModuleByName(Module.SystemName);
+                var descriptor = _moduleCatalog.GetModuleByName("Smartstore.WebApi");
 
                 var state = new WebApiState
                 {

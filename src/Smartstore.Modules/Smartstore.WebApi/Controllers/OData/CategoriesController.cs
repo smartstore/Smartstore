@@ -18,7 +18,7 @@ namespace Smartstore.Web.Api.Controllers.OData
             _categoryService = categoryService;
         }
 
-        [HttpGet, Queryable]
+        [HttpGet, WebApiQueryable]
         [Permission(Permissions.Catalog.Category.Read)]
         [ProducesResponseType(typeof(IEnumerable<Category>), StatusCodes.Status200OK, MediaTypeNames.Application.Json)]
         public IActionResult Get()
@@ -26,7 +26,7 @@ namespace Smartstore.Web.Api.Controllers.OData
             return Ok(Entities);
         }
 
-        [HttpGet, Queryable]
+        [HttpGet, WebApiQueryable]
         [Permission(Permissions.Catalog.Category.Read)]
         [ProducesResponseType(typeof(Category), StatusCodes.Status200OK, MediaTypeNames.Application.Json)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
