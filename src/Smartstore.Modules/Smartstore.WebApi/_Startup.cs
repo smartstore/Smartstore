@@ -84,25 +84,19 @@ namespace Smartstore.Web.Api
         {
             if (builder.ApplicationContext.IsInstalled)
             {
+                // INFO: (mg) (core) You should always THOROUGHLY (!!!) think about the correct ordering of every single middleware!
+                // It can have HEAVY impact on performance, security and functionality.
+                // See https://github.com/OData/AspNetCoreOData/blob/master/docs/odatamiddelware.md
+
                 builder.Configure(StarterOrdering.BeforeStaticFilesMiddleware, app =>
                 {
-                    if (builder.ApplicationContext.HostEnvironment.IsDevelopment())
-                    {
-                        app.UseDeveloperExceptionPage();
-                    }
+                    // INFO: (mg) (core) We had this issue already. You just can't register a middleware twice. It will be executed twice!
+                    //if (builder.ApplicationContext.HostEnvironment.IsDevelopment())
+                    //{
+                    //    app.UseDeveloperExceptionPage();
+                    //}
 
-                    // Use odata route debug, /$odata
-                    app.UseODataRouteDebug();
-
-                    // If you want to use /$openapi, enable the middleware.
-                    //app.UseODataOpenApi();
-
-                    // Add OData /$query middleware.
-                    app.UseODataQueryRequest();
-
-                    // Add the OData Batch middleware to support OData $Batch.
-                    //app.UseODataBatching();
-
+                    // TODO: (mg) (core) Not sure whether this is the correct ordering for Swagger?! Investigate please.
                     app.UseSwagger(options =>
                     {
                     });
@@ -116,6 +110,22 @@ namespace Smartstore.Web.Api
                         options.EnableTryItOutByDefault();
                         //options.OAuthUseBasicAuthenticationWithAccessCodeGrant();
                     });
+                });
+
+                builder.Configure(StarterOrdering.BeforeRoutingMiddleware, app => 
+                {
+                    // Use odata route debug, /$odata
+                    // TODO: (mg) (core) Use only in dev mode?
+                    app.UseODataRouteDebug();
+
+                    // Add OData /$query middleware.
+                    app.UseODataQueryRequest();
+
+                    // Add the OData Batch middleware to support OData $Batch.
+                    //app.UseODataBatching();
+
+                    // If you want to use /$openapi, enable the middleware.
+                    //app.UseODataOpenApi();
                 });
             }
         }

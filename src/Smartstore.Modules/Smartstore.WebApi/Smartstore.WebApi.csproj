@@ -4,6 +4,7 @@
 		<OutputPath>..\..\Smartstore.Web\Modules\Smartstore.WebApi</OutputPath>
 		<OutDir>$(OutputPath)</OutDir>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
+		<RootNamespace>Smartstore.Web.Api</RootNamespace>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <NoWarn>1701;1702;1591</NoWarn>
