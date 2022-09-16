@@ -1,29 +1,27 @@
 ﻿using FluentMigrator;
 using Smartstore.Core.Common;
-using Smartstore.Core.Localization;
 using Smartstore.Data.Migrations;
 
 namespace Smartstore.Core.Data.Migrations
 {
-    [MigrationVersion("2022-09-15 15:00:00", "Core: InternationalDaillingCodes")]
-    internal class InternationalDaillingCodes : Migration, IDataSeeder<SmartDbContext>
+    [MigrationVersion("2022-09-15 15:00:00", "Core: InternationalDiallingCodes")]
+    internal class InternationalDiallingCodes : Migration, IDataSeeder<SmartDbContext>
     {
         public override void Up()
         {
             var propTableName = nameof(Country);
-            Create.Column(nameof(Country.InternationalDiallingCode)).OnTable(propTableName).AsInt32().Nullable();
+            Create.Column(nameof(Country.DiallingCode)).OnTable(propTableName).AsInt32().Nullable();
         }
 
         public override void Down()
         {
-
         }
 
         public bool RollbackOnFailure => false;
 
         public async Task SeedAsync(SmartDbContext context, CancellationToken cancelToken = default)
         {
-            var daillingCodes = new Dictionary<string, int>
+            var diallingCodes = new Dictionary<string, int>
             {
                 { "AUT", 43 },
                 { "LBN", 961 },
@@ -264,12 +262,15 @@ namespace Smartstore.Core.Data.Migrations
                 { "ZWE", 263 }
             };
 
-            var countries = await context.Countries.ToListAsync();
+            var countries = (await context.Countries.Where(x => !string.IsNullOrEmpty(x.ThreeLetterIsoCode)).ToListAsync())
+                .ToDictionarySafe(x => x.ThreeLetterIsoCode);
 
-            foreach (var code in daillingCodes)
+            foreach (var code in diallingCodes)
             {
-                var country = countries.Where(x => x.ThreeLetterIsoCode == code.Key).FirstOrDefault();
-                country.InternationalDiallingCode = code.Value;
+                if (countries.TryGetValue(code.Key, out var country))
+                {
+                    country.DiallingCode = code.Value;
+                }
             }
 
             await context.SaveChangesAsync();

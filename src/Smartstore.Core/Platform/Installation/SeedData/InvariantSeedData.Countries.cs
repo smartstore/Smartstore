@@ -17,7 +17,7 @@ namespace Smartstore.Core.Installation
                 SubjectToVat = false,
                 DisplayOrder = 1,
                 Published = true,
-                InternationalDiallingCode = 1,
+                DiallingCode = 1,
                 AddressFormat = @"{{ Salutation }} {{ FirstName }} {{ LastName }}
 {{ Company }}
 {{ Street1 }}
@@ -476,7 +476,7 @@ namespace Smartstore.Core.Installation
                 SubjectToVat = false,
                 DisplayOrder = 2,
                 Published = true,
-                InternationalDiallingCode = 1,
+                DiallingCode = 1,
                 AddressFormat = @"{{ Salutation }} {{ FirstName }} {{ LastName }}
 {{ Company }}
 {{ City }}, {{ State }} {{ ZipCode }}
@@ -591,7 +591,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = true,
                     DisplayOrder = -10,
                     Published = true,
-                    InternationalDiallingCode = 49,
+                    DiallingCode = 49,
                     AddressFormat = @"{{ Company }}
 {{ Salutation }} {{ Title }} {{ FirstName }} {{ LastName }}
 {{ Street1 }}
@@ -611,7 +611,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = true,
                     DisplayOrder = -5,
                     Published = true,
-                    InternationalDiallingCode = 43,
+                    DiallingCode = 43,
                     AddressFormat = @"{{ Salutation }} {{ FirstName }} {{ LastName }}
 {{ Company }}
 {{ Street1 }}
@@ -630,7 +630,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = -1,
                     Published = true,
-                    InternationalDiallingCode = 41,
+                    DiallingCode = 41,
                     AddressFormat = @"{{ Company }}
 {{ Salutation }} {{ Title }} {{ FirstName }} {{ LastName }}
 {{ Street1 }}
@@ -653,7 +653,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 54,
+                    DiallingCode = 54,
                 },
                 new Country
                 {
@@ -666,7 +666,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 374,
+                    DiallingCode = 374,
                 },
                 new Country
                 {
@@ -679,7 +679,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 294,
+                    DiallingCode = 294,
                 },
                 new Country
                 {
@@ -692,7 +692,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 61,
+                    DiallingCode = 61,
                 },
                 new Country
                 {
@@ -705,7 +705,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 994,
+                    DiallingCode = 994,
                     
                 },
                 new Country
@@ -719,7 +719,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 1,
+                    DiallingCode = 1,
                 },
                 new Country
                 {
@@ -732,7 +732,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 880,
+                    DiallingCode = 880,
                 },
                 new Country
                 {
@@ -745,7 +745,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 375,
+                    DiallingCode = 375,
                 },
                 new Country
                 {
@@ -758,7 +758,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = true,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 32,
+                    DiallingCode = 32,
                 },
                 new Country
                 {
@@ -771,7 +771,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 501,
+                    DiallingCode = 501,
                 },
                 new Country
                 {
@@ -784,7 +784,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = +1,
+                    DiallingCode = +1,
                 },
                 new Country
                 {
@@ -797,7 +797,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 591,
+                    DiallingCode = 591,
                 },
                 new Country
                 {
@@ -810,7 +810,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 387,
+                    DiallingCode = 387,
                 },
                 new Country
                 {
@@ -823,7 +823,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 55,
+                    DiallingCode = 55,
                     AddressFormat = @"{{ Company }}
 {{ Salutation }} {{ FirstName }} {{ LastName }}
 {{ Street1 }}
@@ -841,7 +841,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = true,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 359,
+                    DiallingCode = 359,
                 },
                 new Country
                 {
@@ -854,7 +854,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 1,
+                    DiallingCode = 1,
                 },
                 new Country
                 {
@@ -867,7 +867,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 56,
+                    DiallingCode = 56,
                 },
                 new Country
                 {
@@ -880,7 +880,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 86,
+                    DiallingCode = 86,
                     AddressFormat = @"{{ Country }}
 {{ State }} {{ City }}
 {{ Street1 }}
@@ -897,7 +897,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 57,
+                    DiallingCode = 57,
                 },
                 new Country
                 {
@@ -910,7 +910,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 506,
+                    DiallingCode = 506,
                 },
                 new Country
                 {
@@ -923,7 +923,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = true,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 385,
+                    DiallingCode = 385,
                 },
                 new Country
                 {
@@ -936,7 +936,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 56,
+                    DiallingCode = 56,
                 },
                 new Country
                 {
@@ -949,7 +949,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = true,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 357,
+                    DiallingCode = 357,
                 },
                 new Country
                 {
@@ -962,7 +962,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = true,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 420,
+                    DiallingCode = 420,
                 },
                 new Country
                 {
@@ -975,7 +975,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = true,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 45,
+                    DiallingCode = 45,
                 },
                 new Country
                 {
@@ -988,7 +988,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 1,
+                    DiallingCode = 1,
                 },
                 new Country
                 {
@@ -1001,7 +1001,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 593,
+                    DiallingCode = 593,
                 },
                 new Country
                 {
@@ -1014,7 +1014,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 20,
+                    DiallingCode = 20,
                 },
                 new Country
                 {
@@ -1027,7 +1027,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = true,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 358,
+                    DiallingCode = 358,
                 },
                 new Country
                 {
@@ -1040,7 +1040,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = true,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 33,
+                    DiallingCode = 33,
                     AddressFormat = @"{{ Salutation }} {{ FirstName }} {{ LastName }}
 {{ Company }}
 {{ Street1 }}
@@ -1059,7 +1059,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 995,
+                    DiallingCode = 995,
                 },
                 new Country
                 {
@@ -1072,7 +1072,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 350,
+                    DiallingCode = 350,
                 },
                 new Country
                 {
@@ -1085,7 +1085,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = true,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 30,
+                    DiallingCode = 30,
                 },
                 new Country
                 {
@@ -1098,7 +1098,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 502,
+                    DiallingCode = 502,
                 },
                 new Country
                 {
@@ -1111,7 +1111,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 852,
+                    DiallingCode = 852,
                 },
                 new Country
                 {
@@ -1124,7 +1124,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = true,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 36,
+                    DiallingCode = 36,
                 },
                 new Country
                 {
@@ -1137,7 +1137,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 91,
+                    DiallingCode = 91,
                 },
                 new Country
                 {
@@ -1150,7 +1150,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 62,
+                    DiallingCode = 62,
                 },
                 new Country
                 {
@@ -1163,7 +1163,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = true,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 353,
+                    DiallingCode = 353,
                 },
                 new Country
                 {
@@ -1176,7 +1176,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 972,
+                    DiallingCode = 972,
                 },
                 new Country
                 {
@@ -1189,7 +1189,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = true,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 39,
+                    DiallingCode = 39,
                     AddressFormat = @"{{ Title }} {{ FirstName }} {{ LastName }}
 {{ Company }}
 {{ Street1 }}
@@ -1209,7 +1209,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 1,
+                    DiallingCode = 1,
                 },
                 new Country
                 {
@@ -1222,7 +1222,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 81,
+                    DiallingCode = 81,
                     AddressFormat = @"{{ Country | Upcase }}
 {{ ZipCode }} {{ State }} {{ City }}
 {{ Street1 }}
@@ -1240,7 +1240,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 962,
+                    DiallingCode = 962,
                 },
                 new Country
                 {
@@ -1253,7 +1253,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 7,
+                    DiallingCode = 7,
                 },
                 new Country
                 {
@@ -1266,7 +1266,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 850
+                    DiallingCode = 850
                 },
                 new Country
                 {
@@ -1279,7 +1279,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 965,
+                    DiallingCode = 965,
                 },
                 new Country
                 {
@@ -1292,7 +1292,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 60,
+                    DiallingCode = 60,
                 },
                 new Country
                 {
@@ -1305,7 +1305,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 52,
+                    DiallingCode = 52,
                 },
                 new Country
                 {
@@ -1318,7 +1318,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = true,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 31,
+                    DiallingCode = 31,
                 },
                 new Country
                 {
@@ -1331,7 +1331,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 64,
+                    DiallingCode = 64,
                 },
                 new Country
                 {
@@ -1344,7 +1344,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 47,
+                    DiallingCode = 47,
                 },
                 new Country
                 {
@@ -1357,7 +1357,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 92,
+                    DiallingCode = 92,
                 },
                 new Country
                 {
@@ -1370,7 +1370,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 595,
+                    DiallingCode = 595,
                 },
                 new Country
                 {
@@ -1383,7 +1383,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 51,
+                    DiallingCode = 51,
                 },
                 new Country
                 {
@@ -1396,7 +1396,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 63,
+                    DiallingCode = 63,
                 },
                 new Country
                 {
@@ -1409,7 +1409,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = true,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 48,
+                    DiallingCode = 48,
                 },
                 new Country
                 {
@@ -1422,7 +1422,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = true,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 351,
+                    DiallingCode = 351,
                 },
                 new Country
                 {
@@ -1435,7 +1435,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 1,
+                    DiallingCode = 1,
                 },
                 new Country
                 {
@@ -1448,7 +1448,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 974,
+                    DiallingCode = 974,
                 },
                 new Country
                 {
@@ -1461,7 +1461,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = true,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 40,
+                    DiallingCode = 40,
                 },
                 new Country
                 {
@@ -1474,7 +1474,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 7,
+                    DiallingCode = 7,
                     AddressFormat = @"{{ Country }}
 {{ ZipCode }}
 {{ State }} {{ City }}
@@ -1494,7 +1494,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 966,
+                    DiallingCode = 966,
                 },
                 new Country
                 {
@@ -1507,7 +1507,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 65,
+                    DiallingCode = 65,
                 },
                 new Country
                 {
@@ -1520,7 +1520,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = true,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 421,
+                    DiallingCode = 421,
                 },
                 new Country
                 {
@@ -1533,7 +1533,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = true,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 386,
+                    DiallingCode = 386,
                 },
                 new Country
                 {
@@ -1546,7 +1546,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 27,
+                    DiallingCode = 27,
                 },
                 new Country
                 {
@@ -1559,7 +1559,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = true,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 34,
+                    DiallingCode = 34,
                 },
                 new Country
                 {
@@ -1572,7 +1572,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = true,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 46,
+                    DiallingCode = 46,
                 },
                 new Country
                 {
@@ -1585,7 +1585,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 886,
+                    DiallingCode = 886,
                 },
                 new Country
                 {
@@ -1598,7 +1598,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 66,
+                    DiallingCode = 66,
                 },
                 new Country
                 {
@@ -1611,7 +1611,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 90,
+                    DiallingCode = 90,
                 },
                 new Country
                 {
@@ -1624,7 +1624,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 380,
+                    DiallingCode = 380,
                 },
                 new Country
                 {
@@ -1637,7 +1637,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 971,
+                    DiallingCode = 971,
                 },
                 new Country
                 {
@@ -1650,7 +1650,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = true,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 44,
+                    DiallingCode = 44,
                 },
                 new Country
                 {
@@ -1663,7 +1663,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 1
+                    DiallingCode = 1
                 },
                 new Country
                 {
@@ -1676,7 +1676,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 598,
+                    DiallingCode = 598,
                 },
                 new Country
                 {
@@ -1689,7 +1689,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 998,
+                    DiallingCode = 998,
                 },
                 new Country
                 {
@@ -1702,7 +1702,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 58,
+                    DiallingCode = 58,
                 },
                 new Country
                 {
@@ -1715,7 +1715,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 381,
+                    DiallingCode = 381,
                 },
                 new Country
                 {
@@ -1728,7 +1728,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 93,
+                    DiallingCode = 93,
                 },
                 new Country
                 {
@@ -1741,7 +1741,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 355,
+                    DiallingCode = 355,
                 },
                 new Country
                 {
@@ -1754,7 +1754,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 213,
+                    DiallingCode = 213,
                 },
                 new Country
                 {
@@ -1767,7 +1767,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 1,
+                    DiallingCode = 1,
                 },
                 new Country
                 {
@@ -1780,7 +1780,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 376,
+                    DiallingCode = 376,
                 },
                 new Country
                 {
@@ -1793,7 +1793,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 244,
+                    DiallingCode = 244,
                 },
                 new Country
                 {
@@ -1806,7 +1806,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 1
+                    DiallingCode = 1
                 },
                 new Country
                 {
@@ -1819,7 +1819,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 672,
+                    DiallingCode = 672,
                 },
                 new Country
                 {
@@ -1832,7 +1832,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 1,
+                    DiallingCode = 1,
                 },
                 new Country
                 {
@@ -1845,7 +1845,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 973,
+                    DiallingCode = 973,
                 },
                 new Country
                 {
@@ -1858,7 +1858,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 1,
+                    DiallingCode = 1,
                 },
                 new Country
                 {
@@ -1871,7 +1871,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 229,
+                    DiallingCode = 229,
                 },
                 new Country
                 {
@@ -1884,7 +1884,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 975,
+                    DiallingCode = 975,
                 },
                 new Country
                 {
@@ -1897,7 +1897,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 267,
+                    DiallingCode = 267,
                 },
                 new Country
                 {
@@ -1910,7 +1910,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 55
+                    DiallingCode = 55
                 },
                 new Country
                 {
@@ -1923,7 +1923,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 246,
+                    DiallingCode = 246,
                 },
                 new Country
                 {
@@ -1936,7 +1936,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 673,
+                    DiallingCode = 673,
                 },
                 new Country
                 {
@@ -1949,7 +1949,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 226,
+                    DiallingCode = 226,
                 },
                 new Country
                 {
@@ -1962,7 +1962,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 257,
+                    DiallingCode = 257,
                 },
                 new Country
                 {
@@ -1975,7 +1975,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 855,
+                    DiallingCode = 855,
                 },
                 new Country
                 {
@@ -1988,7 +1988,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 237,
+                    DiallingCode = 237,
                 },
                 new Country
                 {
@@ -2001,7 +2001,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 238,
+                    DiallingCode = 238,
                 },
                 new Country
                 {
@@ -2014,7 +2014,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 236,
+                    DiallingCode = 236,
                 },
                 new Country
                 {
@@ -2027,7 +2027,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 235,
+                    DiallingCode = 235,
                 },
                 new Country
                 {
@@ -2040,7 +2040,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 61,
+                    DiallingCode = 61,
                 },
                 new Country
                 {
@@ -2053,7 +2053,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 61,
+                    DiallingCode = 61,
                 },
                 new Country
                 {
@@ -2066,7 +2066,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 269,
+                    DiallingCode = 269,
                 },
                 new Country
                 {
@@ -2079,7 +2079,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 243,
+                    DiallingCode = 243,
                 },
                 new Country
                 {
@@ -2092,7 +2092,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 682,
+                    DiallingCode = 682,
                 },
                 new Country
                 {
@@ -2105,7 +2105,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 225,
+                    DiallingCode = 225,
                 },
                 new Country
                 {
@@ -2118,7 +2118,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 253,
+                    DiallingCode = 253,
                 },
                 new Country
                 {
@@ -2131,7 +2131,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 1
+                    DiallingCode = 1
                 },
                 new Country
                 {
@@ -2144,7 +2144,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 503,
+                    DiallingCode = 503,
                 },
                 new Country
                 {
@@ -2157,7 +2157,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 240,
+                    DiallingCode = 240,
                 },
                 new Country
                 {
@@ -2170,7 +2170,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 291,
+                    DiallingCode = 291,
                 },
                 new Country
                 {
@@ -2183,7 +2183,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = true,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 372,
+                    DiallingCode = 372,
                 },
                 new Country
                 {
@@ -2196,7 +2196,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 251,
+                    DiallingCode = 251,
                 },
                 new Country
                 {
@@ -2209,7 +2209,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 500,
+                    DiallingCode = 500,
                 },
                 new Country
                 {
@@ -2222,7 +2222,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 298,
+                    DiallingCode = 298,
                 },
                 new Country
                 {
@@ -2235,7 +2235,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 679,
+                    DiallingCode = 679,
                 },
                 new Country
                 {
@@ -2248,7 +2248,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 594
+                    DiallingCode = 594
                 },
                 new Country
                 {
@@ -2261,7 +2261,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 689,
+                    DiallingCode = 689,
                 },
                 new Country
                 {
@@ -2274,7 +2274,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 262,
+                    DiallingCode = 262,
                 },
                 new Country
                 {
@@ -2287,7 +2287,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 241,
+                    DiallingCode = 241,
                 },
                 new Country
                 {
@@ -2300,7 +2300,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 220,
+                    DiallingCode = 220,
                 },
                 new Country
                 {
@@ -2313,7 +2313,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 233,
+                    DiallingCode = 233,
                 },
                 new Country
                 {
@@ -2326,7 +2326,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 299,
+                    DiallingCode = 299,
                 },
                 new Country
                 {
@@ -2339,7 +2339,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 1,
+                    DiallingCode = 1,
                 },
                 new Country
                 {
@@ -2352,7 +2352,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 590,
+                    DiallingCode = 590,
                 },
                 new Country
                 {
@@ -2365,7 +2365,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 1,
+                    DiallingCode = 1,
                 },
                 new Country
                 {
@@ -2378,7 +2378,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 224,
+                    DiallingCode = 224,
                 },
                 new Country
                 {
@@ -2391,7 +2391,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 245,
+                    DiallingCode = 245,
                 },
                 new Country
                 {
@@ -2404,7 +2404,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 592,
+                    DiallingCode = 592,
                 },
                 new Country
                 {
@@ -2417,7 +2417,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 509,
+                    DiallingCode = 509,
                 },
                 new Country
                 {
@@ -2430,7 +2430,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 672,
+                    DiallingCode = 672,
                 },
                 new Country
                 {
@@ -2443,7 +2443,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 504,
+                    DiallingCode = 504,
                 },
                 new Country
                 {
@@ -2456,7 +2456,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 354,
+                    DiallingCode = 354,
                 },
                 new Country
                 {
@@ -2469,7 +2469,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 98,
+                    DiallingCode = 98,
                 },
                 new Country
                 {
@@ -2482,7 +2482,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 964,
+                    DiallingCode = 964,
                 },
                 new Country
                 {
@@ -2495,7 +2495,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 254,
+                    DiallingCode = 254,
                 },
                 new Country
                 {
@@ -2508,7 +2508,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 686,
+                    DiallingCode = 686,
                 },
                 new Country
                 {
@@ -2521,7 +2521,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 82,
+                    DiallingCode = 82,
                 },
                 new Country
                 {
@@ -2534,7 +2534,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 996,
+                    DiallingCode = 996,
                 },
                 new Country
                 {
@@ -2547,7 +2547,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 856,
+                    DiallingCode = 856,
                 },
                 new Country
                 {
@@ -2560,7 +2560,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = true,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 371,
+                    DiallingCode = 371,
                 },
                 new Country
                 {
@@ -2573,7 +2573,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 961,
+                    DiallingCode = 961,
                 },
                 new Country
                 {
@@ -2586,7 +2586,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 266,
+                    DiallingCode = 266,
                 },
                 new Country
                 {
@@ -2599,7 +2599,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 231,
+                    DiallingCode = 231,
                 },
                 new Country
                 {
@@ -2612,7 +2612,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 218,
+                    DiallingCode = 218,
                 },
                 new Country
                 {
@@ -2625,7 +2625,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 423,
+                    DiallingCode = 423,
                 },
                 new Country
                 {
@@ -2638,7 +2638,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = true,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 370,
+                    DiallingCode = 370,
                 },
                 new Country
                 {
@@ -2651,7 +2651,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = true,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 352,
+                    DiallingCode = 352,
                 },
                 new Country
                 {
@@ -2664,7 +2664,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 853,
+                    DiallingCode = 853,
                 },
                 new Country
                 {
@@ -2677,7 +2677,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 389,
+                    DiallingCode = 389,
                 },
                 new Country
                 {
@@ -2690,7 +2690,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 261,
+                    DiallingCode = 261,
                 },
                 new Country
                 {
@@ -2703,7 +2703,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 265,
+                    DiallingCode = 265,
                 },
                 new Country
                 {
@@ -2716,7 +2716,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 960,
+                    DiallingCode = 960,
                 },
                 new Country
                 {
@@ -2729,7 +2729,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 223,
+                    DiallingCode = 223,
                 },
                 new Country
                 {
@@ -2742,7 +2742,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = true,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 356,
+                    DiallingCode = 356,
                 },
                 new Country
                 {
@@ -2755,7 +2755,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 692,
+                    DiallingCode = 692,
                 },
                 new Country
                 {
@@ -2768,7 +2768,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 596,
+                    DiallingCode = 596,
                 },
                 new Country
                 {
@@ -2781,7 +2781,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 222,
+                    DiallingCode = 222,
                 },
                 new Country
                 {
@@ -2794,7 +2794,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 230,
+                    DiallingCode = 230,
                 },
                 new Country
                 {
@@ -2807,7 +2807,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 262,
+                    DiallingCode = 262,
                 },
                 new Country
                 {
@@ -2820,7 +2820,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 691,
+                    DiallingCode = 691,
                 },
                 new Country
                 {
@@ -2833,7 +2833,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 373,
+                    DiallingCode = 373,
                 },
                 new Country
                 {
@@ -2846,7 +2846,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 377,
+                    DiallingCode = 377,
                 },
                 new Country
                 {
@@ -2859,7 +2859,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 976,
+                    DiallingCode = 976,
                 },
                 new Country
                 {
@@ -2872,7 +2872,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 382,
+                    DiallingCode = 382,
                 },
                 new Country
                 {
@@ -2885,7 +2885,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 1
+                    DiallingCode = 1
                 },
                 new Country
                 {
@@ -2898,7 +2898,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 212,
+                    DiallingCode = 212,
                 },
                 new Country
                 {
@@ -2911,7 +2911,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 258,
+                    DiallingCode = 258,
                 },
                 new Country
                 {
@@ -2924,7 +2924,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 95,
+                    DiallingCode = 95,
                 },
                 new Country
                 {
@@ -2937,7 +2937,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 264,
+                    DiallingCode = 264,
                 },
                 new Country
                 {
@@ -2950,7 +2950,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 674,
+                    DiallingCode = 674,
                 },
                 new Country
                 {
@@ -2963,7 +2963,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 977,
+                    DiallingCode = 977,
                 },
                 new Country
                 {
@@ -2976,7 +2976,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 599,
+                    DiallingCode = 599,
                 },
                 new Country
                 {
@@ -2989,7 +2989,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 687,
+                    DiallingCode = 687,
                 },
                 new Country
                 {
@@ -3002,7 +3002,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 505,
+                    DiallingCode = 505,
                 },
                 new Country
                 {
@@ -3015,7 +3015,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 227,
+                    DiallingCode = 227,
                 },
                 new Country
                 {
@@ -3028,7 +3028,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 234,
+                    DiallingCode = 234,
                 },
                 new Country
                 {
@@ -3041,7 +3041,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 683,
+                    DiallingCode = 683,
                 },
                 new Country
                 {
@@ -3054,7 +3054,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 672,
+                    DiallingCode = 672,
                 },
                 new Country
                 {
@@ -3067,7 +3067,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 1,
+                    DiallingCode = 1,
                 },
                 new Country
                 {
@@ -3080,7 +3080,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 968,
+                    DiallingCode = 968,
                 },
                 new Country
                 {
@@ -3093,7 +3093,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 680,
+                    DiallingCode = 680,
                 },
                 new Country
                 {
@@ -3106,7 +3106,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 507,
+                    DiallingCode = 507,
                 },
                 new Country
                 {
@@ -3119,7 +3119,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 675,
+                    DiallingCode = 675,
                 },
                 new Country
                 {
@@ -3132,7 +3132,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 64,
+                    DiallingCode = 64,
                 },
                 new Country
                 {
@@ -3145,7 +3145,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 262,
+                    DiallingCode = 262,
                 },
                 new Country
                 {
@@ -3158,7 +3158,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 250,
+                    DiallingCode = 250,
                 },
                 new Country
                 {
@@ -3171,7 +3171,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 1,
+                    DiallingCode = 1,
                 },
                 new Country
                 {
@@ -3184,7 +3184,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 1,
+                    DiallingCode = 1,
                 },
                 new Country
                 {
@@ -3197,7 +3197,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 1,
+                    DiallingCode = 1,
                 },
                 new Country
                 {
@@ -3210,7 +3210,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 685,
+                    DiallingCode = 685,
                 },
                 new Country
                 {
@@ -3223,7 +3223,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 378,
+                    DiallingCode = 378,
                 },
                 new Country
                 {
@@ -3236,7 +3236,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 239,
+                    DiallingCode = 239,
                 },
                 new Country
                 {
@@ -3249,7 +3249,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 221,
+                    DiallingCode = 221,
                 },
                 new Country
                 {
@@ -3262,7 +3262,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 248,
+                    DiallingCode = 248,
                 },
                 new Country
                 {
@@ -3275,7 +3275,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 232,
+                    DiallingCode = 232,
                 },
                 new Country
                 {
@@ -3288,7 +3288,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 677,
+                    DiallingCode = 677,
                 },
                 new Country
                 {
@@ -3301,7 +3301,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 252,
+                    DiallingCode = 252,
                 },
                 new Country
                 {
@@ -3314,7 +3314,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 500,
+                    DiallingCode = 500,
                 },
                 new Country
                 {
@@ -3327,7 +3327,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 94,
+                    DiallingCode = 94,
                 },
                 new Country
                 {
@@ -3340,7 +3340,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 290,
+                    DiallingCode = 290,
                 },
                 new Country
                 {
@@ -3353,7 +3353,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 508,
+                    DiallingCode = 508,
                 },
                 new Country
                 {
@@ -3366,7 +3366,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 249,
+                    DiallingCode = 249,
                 },
                 new Country
                 {
@@ -3379,7 +3379,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 597,
+                    DiallingCode = 597,
                 },
                 new Country
                 {
@@ -3392,7 +3392,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 47,
+                    DiallingCode = 47,
                 },
                 new Country
                 {
@@ -3405,7 +3405,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 268,
+                    DiallingCode = 268,
                 },
                 new Country
                 {
@@ -3418,7 +3418,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 963,
+                    DiallingCode = 963,
                 },
                 new Country
                 {
@@ -3431,7 +3431,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 992,
+                    DiallingCode = 992,
                 },
                 new Country
                 {
@@ -3444,7 +3444,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 255,
+                    DiallingCode = 255,
                 },
                 new Country
                 {
@@ -3457,7 +3457,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 228,
+                    DiallingCode = 228,
                 },
                 new Country
                 {
@@ -3470,7 +3470,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 690,
+                    DiallingCode = 690,
                 },
                 new Country
                 {
@@ -3483,7 +3483,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 676,
+                    DiallingCode = 676,
                 },
                 new Country
                 {
@@ -3496,7 +3496,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 1
+                    DiallingCode = 1
                 },
                 new Country
                 {
@@ -3509,7 +3509,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 216,
+                    DiallingCode = 216,
                 },
                 new Country
                 {
@@ -3522,7 +3522,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 993,
+                    DiallingCode = 993,
                 },
                 new Country
                 {
@@ -3535,7 +3535,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 1,
+                    DiallingCode = 1,
                 },
                 new Country
                 {
@@ -3548,7 +3548,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 688,
+                    DiallingCode = 688,
                 },
                 new Country
                 {
@@ -3561,7 +3561,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 256,
+                    DiallingCode = 256,
                 },
                 new Country
                 {
@@ -3574,7 +3574,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 678,
+                    DiallingCode = 678,
                 },
                 new Country
                 {
@@ -3587,7 +3587,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 379,
+                    DiallingCode = 379,
                 },
                 new Country
                 {
@@ -3600,7 +3600,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 84,
+                    DiallingCode = 84,
                 },
                 new Country
                 {
@@ -3613,7 +3613,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 1,
+                    DiallingCode = 1,
                 },
                 new Country
                 {
@@ -3626,7 +3626,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 1
+                    DiallingCode = 1
                 },
                 new Country
                 {
@@ -3639,7 +3639,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 681,
+                    DiallingCode = 681,
                 },
                 new Country
                 {
@@ -3652,7 +3652,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 212,
+                    DiallingCode = 212,
                 },
                 new Country
                 {
@@ -3665,7 +3665,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 967,
+                    DiallingCode = 967,
                 },
                 new Country
                 {
@@ -3678,7 +3678,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 260,
+                    DiallingCode = 260,
                 },
                 new Country
                 {
@@ -3691,7 +3691,7 @@ namespace Smartstore.Core.Installation
                     SubjectToVat = false,
                     DisplayOrder = 100,
                     Published = true,
-                    InternationalDiallingCode = 263,
+                    DiallingCode = 263,
                 },
             };
 

@@ -111,7 +111,7 @@ namespace Smartstore.Core.Common
         /// Gets or sets the international dailling code
         /// </summary>
         [MaxLength]
-        public int? InternationalDiallingCode { get; set; }
+        public int? DiallingCode { get; set; }
         
         /// <summary>
         /// Gets or sets the identfier of the default currency.
