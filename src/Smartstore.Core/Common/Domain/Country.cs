@@ -108,6 +108,12 @@ namespace Smartstore.Core.Common
         public string AddressFormat { get; set; }
 
         /// <summary>
+        /// Gets or sets the international dailling code
+        /// </summary>
+        [MaxLength]
+        public int? InternationalDiallingCode { get; set; }
+        
+        /// <summary>
         /// Gets or sets the identfier of the default currency.
         /// </summary>
         public int? DefaultCurrencyId { get; set; }
