@@ -118,7 +118,7 @@
                                 var paymentButtons = (await Model.ButtonPaymentMethods.Items
                                     .SelectAwait(x => x.InvokeAsync(ViewContext))
                                     .AsyncToList())
-                                    .Where(x => x.HasValue());
+                                    .Where(x => x.HasContent());
                             }
 
                             <div sm-if="paymentButtons.Any()" class="addon-buttons">

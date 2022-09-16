@@ -30,9 +30,9 @@ namespace Smartstore.Web.Rendering
         }
 
         /// <summary>
-        /// Gets a value indicating whether the HTML content has value (that it is not empty or not all whitespace).
+        /// Gets a value indicating whether the current <see cref="IHtmlContent"/> has actual content (that it is not empty or not all whitespace).
         /// </summary>
-        public static bool HasValue(this IHtmlContent content)
+        public static bool HasContent(this IHtmlContent content)
         {
             Guard.NotNull(content, nameof(content));
 
