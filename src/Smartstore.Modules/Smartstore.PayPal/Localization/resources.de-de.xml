@@ -28,8 +28,8 @@
     <LocaleResource Name="Plugins.Description.Payments.PayPalPayUponInvoice" AppendRootKey="false">
         <Value>
             <![CDATA[
-				        Diese Zahlungsmethode ermöglicht es dem Käufer eine Bestellung aufzugeben, 
-                die Ware in Empfang zu nehmen, sie auszuprobieren, zu überprüfen ob sie in Ordnung ist, 
+				Diese Zahlungsmethode ermöglicht es dem Käufer eine Bestellung aufzugeben, 
+                die Ware in Empfang zu nehmen, sie auszuprobieren, zu prüfen, ob sie in Ordnung ist, 
                 und dann die Rechnung innerhalb von 30 Tagen zu bezahlen.
               ]]>
         </Value>
@@ -96,7 +96,7 @@
                 <Value>Händlername</Value>
             </LocaleResource>
             <LocaleResource Name="MerchantName.Hint">
-                <Value>Wird für die Zahlart Kauf auf Rechnung benötigt um einen eindeutigen Identifikationsschlüßel zu erzeugen. Darf keine Leerzeichen enthalten.</Value>
+                <Value>Wird für die Zahlart Kauf auf Rechnung benötigt, um einen eindeutigen Identifikationsschlüßel zu erzeugen. Darf keine Leerzeichen enthalten.</Value>
             </LocaleResource>
             <LocaleResource Name="Secret">
                 <Value>Passwort</Value>

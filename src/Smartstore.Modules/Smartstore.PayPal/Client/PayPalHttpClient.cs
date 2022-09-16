@@ -132,6 +132,7 @@ namespace Smartstore.PayPal.Client
             var settings = _settingFactory.LoadSettings<PayPalSettings>(request.StoreId);
             var language = _workContext.WorkingLanguage;
             var currency = _workContext.WorkingCurrency;
+            var paymentData = _checkoutStateAccessor.CheckoutState.PaymentData;
 
             var cart = await _shoppingCartService.GetCartAsync(customer, ShoppingCartType.ShoppingCart, request.StoreId);
             var model = await cart.MapAsync(
@@ -140,11 +141,11 @@ namespace Smartstore.PayPal.Client
                 prepareAndDisplayOrderReviewData: false);
 
             var logoUrl = store.LogoMediaFileId != 0 ? await _mediaService.GetUrlAsync(store.LogoMediaFileId, 0, store.GetHost(true), false) : string.Empty;
-            _checkoutStateAccessor.CheckoutState.PaymentData.TryGetValue("PayPalInvoiceBirthdate", out var birthdate);
-            _checkoutStateAccessor.CheckoutState.PaymentData.TryGetValue("PayPalInvoicePhoneNumber", out var phoneNumber);
 
-            _checkoutStateAccessor.CheckoutState.PaymentData.TryGetValue("ClientMetaId", out var clientMetaId);
-            if (clientMetaId == null || !clientMetaId.ToString().HasValue())
+            paymentData.TryGetValueAs<string>("PayPalInvoiceBirthdate", out var birthDate);
+            paymentData.TryGetValueAs<string>("PayPalInvoicePhoneNumber", out var phoneNumber);
+
+            if (!paymentData.TryGetValueAs<string>("ClientMetaId", out var clientMetaId))
             {
                 return null;
             }
@@ -275,10 +276,10 @@ namespace Smartstore.PayPal.Client
                             SurName = customer.BillingAddress.LastName
                         },
                         Email = customer.BillingAddress.Email,
-                        BirthDate = birthdate.ToString(),
+                        BirthDate = birthDate,
                         Phone = new PhoneMessage
                         {
-                            NationalNumber = phoneNumber.ToString(),
+                            NationalNumber = phoneNumber,
                             CountryCode = "49"  // TODO: (mh) (core) ...
                         },
                         BillingAddress = new BillingAddressMessage

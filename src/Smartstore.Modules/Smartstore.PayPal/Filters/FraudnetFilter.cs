@@ -51,10 +51,9 @@ namespace Smartstore.PayPal.Filters
 
             // Risk Session Correlation ID / Client Metadata ID has to be uniqueand invariant to the current checkout.
             // Will be used for create order API call.
-            _checkoutStateAccessor.CheckoutState.PaymentData.TryGetValue("ClientMetaId", out var clientMetaId);
-            if (clientMetaId == null || !clientMetaId.ToString().HasValue())
+            if (!_checkoutStateAccessor.CheckoutState.PaymentData.TryGetValueAs<string>("ClientMetaId", out var clientMetaId))
             {
-                clientMetaId = Guid.NewGuid();
+                clientMetaId = Guid.NewGuid().ToString();
                 _checkoutStateAccessor.CheckoutState.PaymentData["ClientMetaId"] = clientMetaId;
             }
             
@@ -78,8 +77,7 @@ namespace Smartstore.PayPal.Filters
 
         private static string GetSourceIdentifier(string merchantName, string payerId, string routeId)
         {
-            var pageType = string.Empty;
-
+            string pageType;
             switch (routeId.ToLower())
             {
                 case "home.index":
