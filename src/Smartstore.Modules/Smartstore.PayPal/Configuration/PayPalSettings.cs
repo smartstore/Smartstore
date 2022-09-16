@@ -41,12 +41,17 @@ namespace Smartstore.PayPal.Settings
         public string PayerId { get; set; }
 
         /// <summary>
+        /// PayPal merchant name
+        /// </summary>
+        public string MerchantName { get; set; }
+
+        /// <summary>
         /// PayPal webhook id
         /// </summary>
         public string WebhookId { get; set; }
 
         /// <summary>
-        /// Specifies which payment options should be disabled
+        /// Specifies which payment options should be disabled.
         /// </summary>
         public string DisabledFundings { get; set; }
 

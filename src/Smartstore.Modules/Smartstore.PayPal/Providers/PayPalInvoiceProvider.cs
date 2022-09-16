@@ -1,4 +1,5 @@
-﻿using Smartstore.Core.Checkout.Orders;
+﻿using Microsoft.AspNetCore.Http;
+using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Data;
 using Smartstore.Core.Widgets;
@@ -10,26 +11,29 @@ using Smartstore.PayPal.Components;
 
 namespace Smartstore.PayPal.Providers
 {
-    [SystemName("Payments.PayPalStandard")]
-    [FriendlyName("PayPal Standard")]
+    [SystemName("Payments.PayPalPayUponInvoice")]
+    [FriendlyName("PayPal Pay Upon Invoice")]
     [Order(1)]
-    public class PayPalStandardProvider : PaymentMethodBase, IConfigurable
+    public class PayPalInvoiceProvider : PaymentMethodBase, IConfigurable
     {
         private readonly SmartDbContext _db;
+        private readonly ICheckoutStateAccessor _checkoutStateAccessor;
         private readonly PayPalHttpClient _client;
-        private readonly PayPalSettings _settings;
 
-        public PayPalStandardProvider(SmartDbContext db, PayPalHttpClient client, PayPalSettings settings)
+        public PayPalInvoiceProvider(SmartDbContext db, ICheckoutStateAccessor checkoutStateAccessor, PayPalHttpClient client)
         {
             _db = db;
             _client = client;
-            _settings = settings;
+            _checkoutStateAccessor = checkoutStateAccessor;
         }
 
         public RouteInfo GetConfigurationRoute()
             => new("Configure", "PayPal", new { area = "Admin" });
 
-        public override bool SupportCapture => true;
+        /// <summary>
+        /// Payments via invoice must be captured at once.
+        /// </summary>
+        public override bool SupportCapture => false;
 
         public override bool SupportPartiallyRefund => true;
 
@@ -37,53 +41,48 @@ namespace Smartstore.PayPal.Providers
 
         public override bool SupportVoid => true;
 
+        public override bool RequiresInteraction => true;
+
         public override RecurringPaymentType RecurringPaymentType => RecurringPaymentType.Automatic;
 
-        public override PaymentMethodType PaymentMethodType => PaymentMethodType.StandardAndButton;
+        public override PaymentMethodType PaymentMethodType => PaymentMethodType.Standard;
 
         public override WidgetInvoker GetPaymentInfoWidget()
-            => new ComponentWidgetInvoker(typeof(PayPalViewComponent), true);
+            => new ComponentWidgetInvoker(typeof(PayPalInvoiceViewComponent));
+
+        public override Task<ProcessPaymentRequest> GetPaymentInfoAsync(IFormCollection form)
+        {
+            var birthdate = new DateTime(
+                Convert.ToInt32(form["DateOfBirthYear"]),
+                Convert.ToInt32(form["DateOfBirthMonth"]),
+                Convert.ToInt32(form["DateOfBirthDay"]));
+
+            _checkoutStateAccessor.CheckoutState.PaymentData["PayPalInvoiceBirthdate"] = birthdate.ToString("yyyy-MM-dd");
+            _checkoutStateAccessor.CheckoutState.PaymentData["PayPalInvoicePhoneNumber"] = form["PhoneNumber"].ToString();
+
+            var request = new ProcessPaymentRequest
+            {
+                OrderGuid = Guid.NewGuid()
+            };
+
+            return Task.FromResult(request);
+        }
 
         public override async Task<ProcessPaymentResult> ProcessPaymentAsync(ProcessPaymentRequest request)
         {
-            if (!request.PayPalOrderId.HasValue())
-            {
-                throw new PayPalException(T("Payment.MissingCheckoutState", "PayPalCheckoutState." + nameof(request.PayPalOrderId)));
-            }
-
             var result = new ProcessPaymentResult
             {
                 NewPaymentStatus = PaymentStatus.Pending,
             };
 
-            _ = await _client.UpdateOrderAsync(request, result);
-
-            if (_settings.Intent == PayPalTransactionType.Authorize)
-            {
-                var response = await _client.AuthorizeOrderAsync(request, result);
-            }
-            else
-            {
-                var response = await _client.CaptureOrderAsync(request, result);
-            }
-
-            return result;
-        }
-
-        public override async Task<CapturePaymentResult> CaptureAsync(CapturePaymentRequest request)
-        {
-            var result = new CapturePaymentResult
-            {
-                NewPaymentStatus = request.Order.PaymentStatus
-            };
-
-            var response = await _client.CapturePaymentAsync(request, result);
+            var response = await _client.CreateOrderAsync(request);
 
             return result;
         }
 
         public override async Task<VoidPaymentResult> VoidAsync(VoidPaymentRequest request)
         {
+            // TODO: (mh) (core)
             var result = new VoidPaymentResult
             {
                 NewPaymentStatus = request.Order.PaymentStatus
@@ -96,6 +95,7 @@ namespace Smartstore.PayPal.Providers
 
         public override async Task<RefundPaymentResult> RefundAsync(RefundPaymentRequest request)
         {
+            // TODO: (mh) (core)
             var result = new RefundPaymentResult
             {
                 NewPaymentStatus = request.Order.PaymentStatus

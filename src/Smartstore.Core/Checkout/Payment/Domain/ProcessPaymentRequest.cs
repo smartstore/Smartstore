@@ -83,12 +83,12 @@ namespace Smartstore.Core.Checkout.Payment
         /// <summary>
         /// Gets or sets a PayPal order id.
         /// </summary>
-        public string PaypalOrderId { get; set; }
+        public string PayPalOrderId { get; set; }
 
         /// <summary>
-        /// Gets or sets a paypal payer identifier (required for Paypal payment methods).
+        /// Gets or sets a paypal payer identifier (required for PayPal payment methods).
         /// </summary>
-        public string PaypalPayerId { get; set; }
+        public string PayPalPayerId { get; set; }
 
         /// <summary>
         /// Gets or sets a google order number (required for Google Checkout).

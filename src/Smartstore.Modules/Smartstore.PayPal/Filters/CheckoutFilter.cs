@@ -60,7 +60,7 @@ namespace Smartstore.PayPal.Filters
                 var firstPaymentMethod = model.PaymentMethods.First(); 
                 if (firstPaymentMethod != null)
                 {
-                    isSelected = firstPaymentMethod.PaymentMethodSystemName == "Payments.PayPalStandard";
+                    isSelected = firstPaymentMethod.PaymentMethodSystemName == "Payments.PayPalStandard" && firstPaymentMethod.Selected;
                 }
 
                 _widgetProvider.Value.RegisterViewComponent<PayPalViewComponent>("checkout_payment_method_buttons", new { isPaymentInfoInvoker = false, isSelected });
@@ -83,7 +83,7 @@ namespace Smartstore.PayPal.Filters
                 {
                     session.TrySetObject("OrderPaymentInfo", new ProcessPaymentRequest
                     {
-                        PaypalOrderId = (string)checkoutState.CustomProperties.Get("PayPalOrderId")
+                        PayPalOrderId = (string)checkoutState.CustomProperties.Get("PayPalOrderId")
                     });
                 };
 

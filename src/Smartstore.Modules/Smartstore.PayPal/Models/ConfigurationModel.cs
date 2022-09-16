@@ -1,4 +1,7 @@
-﻿namespace Smartstore.PayPal.Models
+﻿using System.Linq;
+using FluentValidation;
+
+namespace Smartstore.PayPal.Models
 {
     [LocalizedDisplay("Plugins.Smartstore.PayPal.")]
     public class ConfigurationModel : ModelBase
@@ -16,6 +19,12 @@
 
         [LocalizedDisplay("*ClientId")]
         public string ClientId { get; set; }
+
+        [LocalizedDisplay("*PayerId")]
+        public string PayerId { get; set; }
+
+        [LocalizedDisplay("*MerchantName")]
+        public string MerchantName { get; set; }
 
         [LocalizedDisplay("*Secret")]
         public string Secret { get; set; }
@@ -43,5 +52,15 @@
 
         [LocalizedDisplay("*ButtonColor")]
         public string ButtonColor { get; set; } = "gold";
+    }
+
+    public partial class ConfigurationModelValidator : SettingModelValidator<ConfigurationModel, PayPalSettings>
+    {
+        public ConfigurationModelValidator(Localizer T)
+        {
+            RuleFor(x => x.MerchantName)
+                .Must(y => !y.Any(x => char.IsWhiteSpace(x)))
+                .WithMessage(T("Plugins.Smartstore.PayPal.NoWhitespace"));
+        }
     }
 }

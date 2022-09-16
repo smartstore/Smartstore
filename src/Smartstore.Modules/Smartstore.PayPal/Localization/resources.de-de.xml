@@ -5,20 +5,33 @@
         <Value>PayPal</Value>
     </LocaleResource>
     <LocaleResource Name="Plugins.Description.Smartstore.PayPal" AppendRootKey="false">
-        <Value>Erweitert den Shop um die Zahlungsfunktion von PayPal</Value>
+        <Value>Erweitert den Shop um die Zahlungsfunktionen von PayPal</Value>
     </LocaleResource>
 
     <!-- Friendly provider name & description -->
     <!-- Frontend payment option & backend -->
     <LocaleResource Name="Plugins.FriendlyName.Payments.PayPalStandard" AppendRootKey="false">
-        <Value>PayPal</Value>
+        <Value>PayPal Checkout</Value>
     </LocaleResource>
+    <LocaleResource Name="Plugins.FriendlyName.Payments.PayPalPayUponInvoice" AppendRootKey="false">
+        <Value>Kauf auf Rechnung</Value>
+    </LocaleResource>
+
     <!-- Backend provider description -->
     <LocaleResource Name="Plugins.Description.Payments.PayPalStandard" AppendRootKey="false">
         <Value>
             <![CDATA[
-				Öffnet ein sicheres Zahlungsfenster, in dem die Zahlung direkt bei PayPal durchgeführt wird.
-      ]]>
+				        Öffnet ein sicheres Zahlungsfenster, in dem die Zahlung direkt bei PayPal durchgeführt wird.
+              ]]>
+        </Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.Description.Payments.PayPalPayUponInvoice" AppendRootKey="false">
+        <Value>
+            <![CDATA[
+				        Diese Zahlungsmethode ermöglicht es dem Käufer eine Bestellung aufzugeben, 
+                die Ware in Empfang zu nehmen, sie auszuprobieren, zu überprüfen ob sie in Ordnung ist, 
+                und dann die Rechnung innerhalb von 30 Tagen zu bezahlen.
+              ]]>
         </Value>
     </LocaleResource>
 
@@ -26,9 +39,16 @@
     <LocaleResource Name="Plugins.PaymentInfo.Payments.PayPalStandard" AppendRootKey="false">
         <Value>
             <![CDATA[
-				Führen Sie die Zahlung in einem sicheren Browserfenster direkt bei PayPal durch. 
-				Nach der Rückleitung in den Shop können Sie die Bestellung mit wenigen Klicks abschließen.
-      ]]>
+				        Führen Sie die Zahlung in einem sicheren Browserfenster direkt bei PayPal durch. 
+				        Nach der Rückleitung in den Shop können Sie die Bestellung mit wenigen Klicks abschließen.
+              ]]>
+        </Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.PaymentInfo.Payments.PayPalPayUponInvoice" AppendRootKey="false">
+        <Value>
+            <![CDATA[
+                Bezahlen Sie per Rechnung mit PayPal (TODO: (mh) (core) Better description) 
+              ]]>
         </Value>
     </LocaleResource>
 
@@ -68,6 +88,15 @@
             </LocaleResource>
             <LocaleResource Name="ClientId.Hint">
                 <Value>Geben Sie hier die Client ID an, die Ihnen vom Zahlungsanbieter übermittelt wurde.</Value>
+            </LocaleResource>
+            <LocaleResource Name="PayerId">
+                <Value>Payer ID</Value>
+            </LocaleResource>
+            <LocaleResource Name="MerchantName">
+                <Value>Händlername</Value>
+            </LocaleResource>
+            <LocaleResource Name="MerchantName.Hint">
+                <Value>Wird für die Zahlart Kauf auf Rechnung benötigt um einen eindeutigen Identifikationsschlüßel zu erzeugen. Darf keine Leerzeichen enthalten.</Value>
             </LocaleResource>
             <LocaleResource Name="Secret">
                 <Value>Passwort</Value>
@@ -207,6 +236,32 @@
             </LocaleResource>
             <LocaleResource Name="CreateWebhook">
                 <Value>Webhook erstellen.</Value>
+            </LocaleResource>
+            <LocaleResource Name="RatePayLegalHint">
+                <Value>
+                    <![CDATA[
+                        Mit der Nutzung dieser Zahlart akzeptieren Sie die <a href="https://www.ratepay.com/legal-payment-terms" target="_blank">Ratepay Zahlungsbedingungen</a> 
+                        und erklären sich mit der Durchführung einer <a href="https://www.ratepay.com/legal-payment-dataprivacy" target="_blank">Risikoprüfung durch Ratepay</a>, 
+                        unseren Partner,  einverstanden. Sie akzeptieren auch PayPals <a href="https://www.paypal.com/de/webapps/mpp/ua/privacy-full?locale.x=de_DE" target="_blank">Datenschutzerklärung</a>. 
+                        Falls Ihre Transaktion per Kauf auf Rechnung erfolgreich abgewickelt werden kann, wird der Kaufpreis an Ratepay abgetreten 
+                        und Sie dürfen nur an Ratepay überweisen, nicht an den Händler.
+                      ]]>
+                </Value>
+            </LocaleResource>
+            <LocaleResource Name="NoWhitespace">
+                <Value>Leerzeichen sind nicht erlaubt.</Value>
+            </LocaleResource>
+            <LocaleResource Name="DateOfBirthDay.NotNull">
+                <Value>Bitte geben Sie den Tag Ihres Geburtsdatums an.</Value>
+            </LocaleResource>
+            <LocaleResource Name="DateOfBirthMonth.NotNull">
+                <Value>Bitte geben Sie den Monat Ihres Geburtsdatums an.</Value>
+            </LocaleResource>
+            <LocaleResource Name="DateOfBirthYear.NotNull">
+                <Value>Bitte geben Sie das Jahr Ihres Geburtsdatums an.</Value>
+            </LocaleResource>
+            <LocaleResource Name="PhoneNumber.Invalid">
+                <Value>Bitte geben Sie eine gültige Telefonnummer an.</Value>
             </LocaleResource>
         </Children>
     </LocaleResource>

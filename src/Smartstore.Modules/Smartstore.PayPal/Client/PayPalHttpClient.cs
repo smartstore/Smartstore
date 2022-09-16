@@ -1,17 +1,30 @@
 ﻿using System.Globalization;
+using System.Linq;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading;
+using Autofac.Core;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using Smartstore.Caching;
+using Smartstore.Core;
+using Smartstore.Core.Catalog.Pricing;
+using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Checkout.Payment;
+using Smartstore.Core.Checkout.Tax;
+using Smartstore.Core.Common;
 using Smartstore.Core.Common.Services;
 using Smartstore.Core.Configuration;
+using Smartstore.Core.Content.Media;
+using Smartstore.Core.Data;
+using Smartstore.Core.Identity;
 using Smartstore.Core.Stores;
 using Smartstore.PayPal.Client.Messages;
+using Smartstore.Web.Models.Cart;
+using static Smartstore.Core.Security.Permissions;
 
 namespace Smartstore.PayPal.Client
 {
@@ -30,35 +43,59 @@ namespace Smartstore.PayPal.Client
         public const string PAYPAL_ACCESS_TOKEN_PATTERN_KEY = "paypal:accesstoken-*";
 
         private readonly HttpClient _client;
+        private readonly SmartDbContext _db;
         private readonly ILogger _logger;
         private readonly ICheckoutStateAccessor _checkoutStateAccessor;
         private readonly IStoreContext _storeContext;
+        private readonly IWorkContext _workContext;
         private readonly ILocalizationService _locService;
         private readonly ICurrencyService _currencyService;
+        private readonly IMediaService _mediaService;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ICacheFactory _cacheFactory;
         private readonly ISettingFactory _settingFactory;
+        private readonly IShoppingCartService _shoppingCartService;
+        private readonly ITaxService _taxService;
+        private readonly IPriceCalculationService _priceCalculationService;
+        private readonly IProductService _productService;
+        private readonly IOrderCalculationService _orderCalculationService;
 
         public PayPalHttpClient(
             HttpClient client,
+            SmartDbContext db,
             ILogger logger,
             ICheckoutStateAccessor checkoutStateAccessor,
             IStoreContext storeContext,
+            IWorkContext workContext,
             ILocalizationService locService,
             ICurrencyService currencyService,
+            IMediaService mediaService,
             IHttpContextAccessor httpContextAccessor,
             ICacheFactory cacheFactory,
-            ISettingFactory settingFactory)
+            ISettingFactory settingFactory,
+            IShoppingCartService shoppingCartService,
+            ITaxService taxService,
+            IPriceCalculationService priceCalculationService,
+            IProductService productService,
+            IOrderCalculationService orderCalculationService)
         {
             _client = client;
+            _db = db;
             _logger = logger;
             _checkoutStateAccessor = checkoutStateAccessor;
             _storeContext = storeContext;
+            _workContext = workContext;
             _locService = locService;
             _currencyService = currencyService;
+            _mediaService = mediaService;
             _httpContextAccessor = httpContextAccessor;
             _cacheFactory = cacheFactory;
             _settingFactory = settingFactory;
+            _shoppingCartService = shoppingCartService;
+            _taxService = taxService;
+            _priceCalculationService = priceCalculationService;
+            _productService = productService;
+            _orderCalculationService = orderCalculationService;
         }
 
         #region Payment processing
@@ -70,7 +107,206 @@ namespace Smartstore.PayPal.Client
         {
             Guard.NotNull(request, nameof(request));
 
-            var ordersGetRequest = new OrdersGetRequest(request.PaypalOrderId);
+            var ordersGetRequest = new OrdersGetRequest(request.PayPalOrderId);
+            var response = await ExecuteRequestAsync(ordersGetRequest, cancelToken);
+            var rawResponse = response.Body<object>().ToString();
+
+            dynamic jResponse = JObject.Parse(rawResponse);
+
+            return response;
+        }
+
+        /// <summary>
+        /// Creates a PayPal order.
+        /// </summary>
+        public async Task<PayPalResponse> CreateOrderAsync(
+            ProcessPaymentRequest request, 
+            CancellationToken cancelToken = default)
+        {
+            Guard.NotNull(request, nameof(request));
+
+            // TODO: (mh) (core) Some things mustn't be null.
+
+            var customer = _workContext.CurrentCustomer;
+            var store = _storeContext.GetStoreById(request.StoreId);
+            var settings = _settingFactory.LoadSettings<PayPalSettings>(request.StoreId);
+            var language = _workContext.WorkingLanguage;
+            var currency = _workContext.WorkingCurrency;
+
+            var cart = await _shoppingCartService.GetCartAsync(customer, ShoppingCartType.ShoppingCart, request.StoreId);
+            var model = await cart.MapAsync(
+                isEditable: false,
+                prepareEstimateShippingIfEnabled: false,
+                prepareAndDisplayOrderReviewData: false);
+
+            var logoUrl = store.LogoMediaFileId != 0 ? await _mediaService.GetUrlAsync(store.LogoMediaFileId, 0, store.GetHost(true), false) : string.Empty;
+            _checkoutStateAccessor.CheckoutState.PaymentData.TryGetValue("PayPalInvoiceBirthdate", out var birthdate);
+            _checkoutStateAccessor.CheckoutState.PaymentData.TryGetValue("PayPalInvoicePhoneNumber", out var phoneNumber);
+
+            _checkoutStateAccessor.CheckoutState.PaymentData.TryGetValue("ClientMetaId", out var clientMetaId);
+            if (clientMetaId == null || !clientMetaId.ToString().HasValue())
+            {
+                return null;
+            }
+
+            var purchaseUnitItems = new List<PurchaseUnitItem>();
+
+            var cartProducts = cart.Items.Select(x => x.Item.Product).ToArray();
+            var batchContext = _productService.CreateProductBatchContext(cartProducts, null, customer, false);
+            var calculationOptions = _priceCalculationService.CreateDefaultOptions(false, customer, currency, batchContext);
+
+            foreach (var item in model.Items)
+            {
+                var cartItem = cart.Items.Where(x => x.Item.ProductId == item.ProductId).FirstOrDefault();
+                var taxRate = await _taxService.GetTaxRateAsync(cartItem.Item.Product);
+                var calculationContext = await _priceCalculationService.CreateCalculationContextAsync(cartItem, calculationOptions);
+                var (unitPrice, subtotal) = await _priceCalculationService.CalculateSubtotalAsync(calculationContext);
+
+                var productName = item.ProductName.Value.Length > 126 ? item.ProductName.Value[..126] : item.ProductName.Value;
+                var productDescription = item.ShortDesc.Value.Length > 126 ? item.ShortDesc.Value[..126] : item.ShortDesc.Value;
+
+                purchaseUnitItems.Add(new PurchaseUnitItem
+                {
+                    UnitAmount = new MoneyMessage
+                    {
+                        Value = unitPrice.Tax.Value.PriceNet.ToStringInvariant("n2"),
+                        CurrencyCode = currency.CurrencyCode
+                    },
+                    Name = productName,
+                    Description = productDescription,
+                    Category = item.IsEsd ? "DIGITAL_GOODS" : "PHYSICAL_GOODS",
+                    Quantity = item.EnteredQuantity.ToString(),
+                    Sku = item.Sku,
+                    Tax = new MoneyMessage
+                    {
+                        Value = unitPrice.Tax.Value.Amount.ToStringInvariant("n2"),
+                        CurrencyCode = currency.CurrencyCode
+                    },
+                    TaxRate = taxRate.Rate.ToStringInvariant("n2")
+                });
+            }
+
+            // Get subtotal
+            var cartSubTotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(cart, false);
+            var subTotalConverted = _currencyService.ConvertFromPrimaryCurrency(cartSubTotal.SubtotalWithoutDiscount.Amount, currency);
+
+            // Get tax
+            (Money price, TaxRatesDictionary taxRates) = await _orderCalculationService.GetShoppingCartTaxTotalAsync(cart);
+            var cartTax = _currencyService.ConvertFromPrimaryCurrency(price.Amount, currency);
+
+            // Get shipping cost
+            var shippingTotal = await _orderCalculationService.GetShoppingCartShippingTotalAsync(cart);
+
+            // Discount
+            var cartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(cart);
+            var orderTotalDiscountAmount = new Money();
+            if (cartTotal.DiscountAmount > decimal.Zero)
+            {
+                orderTotalDiscountAmount = _currencyService.ConvertFromPrimaryCurrency(cartTotal.DiscountAmount.Amount, currency);
+            }
+
+            var purchaseUnits = new List<PurchaseUnit>
+            {
+                new PurchaseUnit
+                {
+                    Amount = new AmountWithBreakdown
+                    {
+                        Value = request.OrderTotal.ToStringInvariant("n2"),
+                        CurrencyCode = currency.CurrencyCode,
+                        AmountBreakdown = new AmountBreakdown
+                        {
+                            ItemTotal = new MoneyMessage
+                            {
+                                Value = subTotalConverted.Amount.ToStringInvariant("n2"),
+                                CurrencyCode = currency.CurrencyCode
+                            },
+                            Shipping = new MoneyMessage
+                            {
+                                Value = shippingTotal.ShippingTotal.Value.Amount.ToStringInvariant("n2"),
+                                CurrencyCode = currency.CurrencyCode
+                            },
+                            Discount = new MoneyMessage
+                            {
+                                Value = orderTotalDiscountAmount.Amount.ToStringInvariant("n2"),
+                                CurrencyCode = currency.CurrencyCode
+                            },
+                            TaxTotal = new MoneyMessage
+                            {
+                                Value = cartTax.Amount.ToStringInvariant("n2"),
+                                CurrencyCode = currency.CurrencyCode
+                            }
+                        }
+                    },
+                    //InvoiceId = request.OrderNumber,
+                    CustomId = request.OrderGuid.ToString(),
+                    Description = string.Empty,
+                    Items = purchaseUnitItems.ToArray(),
+                    Shipping = new ShippingDetail
+                    {
+                        ShippingName = new ShippingName
+                        {
+                            FullName = customer.ShippingAddress.GetFullName()
+                        },
+                        ShippingAddress = new ShippingAddress
+                        {
+                            AddressLine1 = customer.ShippingAddress.Address1,
+                            AddressLine2 = customer.ShippingAddress.Address2,
+                            AdminArea1 = customer.ShippingAddress.StateProvince.Name,
+                            AdminArea2 = customer.ShippingAddress.City,
+                            PostalCode = customer.ShippingAddress.ZipPostalCode,
+                            CountryCode = customer.ShippingAddress.Country.TwoLetterIsoCode
+                        }
+                    }
+                }
+            };
+
+            var orderMessage = new OrderMessage
+            {
+                Intent = "CAPTURE",
+                ProcessingInstruction = "ORDER_COMPLETE_ON_PAYMENT_APPROVAL",
+                PurchaseUnits = purchaseUnits.ToArray(),
+                PaymentSource = new PaymentSource
+                {
+                    PaymentSourceInvoice = new PaymentSourceInvoice
+                    {
+                        Name = new NameMessage
+                        {
+                            GivenName = customer.BillingAddress.FirstName,
+                            SurName = customer.BillingAddress.LastName
+                        },
+                        Email = customer.BillingAddress.Email,
+                        BirthDate = birthdate.ToString(),
+                        Phone = new PhoneMessage
+                        {
+                            NationalNumber = phoneNumber.ToString(),
+                            CountryCode = "49"  // TODO: (mh) (core) ...
+                        },
+                        BillingAddress = new BillingAddressMessage
+                        {
+                            AddressLine1 = customer.BillingAddress.Address1,
+                            AdminArea2 = customer.BillingAddress.City,
+                            PostalCode = customer.BillingAddress.ZipPostalCode,
+                            CountryCode = customer.BillingAddress.Country.TwoLetterIsoCode
+                        },
+                        ExperienceContext = new ExperienceContext
+                        {
+                            BrandName = store.Name,
+                            Locale = language.LanguageCulture,
+                            LogoUrl = logoUrl,
+                            CustomerServiceInstructions = new string[]
+                            {
+                                "TODO: SERVice number"
+                            }
+                        }
+                    }
+                }
+            };
+
+            var ordersGetRequest = new OrderCreateRequest()
+                .WithRequestId(Guid.NewGuid().ToString())
+                .WithClientMetadataId(clientMetaId.ToString())
+                .WithBody(orderMessage);
+
             var response = await ExecuteRequestAsync(ordersGetRequest, cancelToken);
             var rawResponse = response.Body<object>().ToString();
 
@@ -86,7 +322,7 @@ namespace Smartstore.PayPal.Client
         {
             Guard.NotNull(request, nameof(request));
 
-            var ordersPatchRequest = new OrdersPatchRequest<object>(request.PaypalOrderId);
+            var ordersPatchRequest = new OrdersPatchRequest<object>(request.PayPalOrderId);
 
             var amount = new AmountWithBreakdown
             {
@@ -127,7 +363,7 @@ namespace Smartstore.PayPal.Client
         {
             Guard.NotNull(request, nameof(request));
 
-            var ordersAuthorizeRequest = new OrdersAuthorizeRequest(request.PaypalOrderId);
+            var ordersAuthorizeRequest = new OrdersAuthorizeRequest(request.PayPalOrderId);
             var response = await ExecuteRequestAsync(ordersAuthorizeRequest, request.StoreId, cancelToken);
             var rawResponse = response.Body<object>().ToString();
             dynamic jResponse = JObject.Parse(rawResponse);
@@ -150,7 +386,7 @@ namespace Smartstore.PayPal.Client
         {
             Guard.NotNull(request, nameof(request));
 
-            var ordersCaptureRequest = new OrdersCaptureRequest(request.PaypalOrderId);
+            var ordersCaptureRequest = new OrdersCaptureRequest(request.PayPalOrderId);
             var response = await ExecuteRequestAsync(ordersCaptureRequest, request.StoreId, cancelToken);
             var rawResponse = response.Body<object>().ToString();
 

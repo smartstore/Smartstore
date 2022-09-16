@@ -105,6 +105,7 @@
                             if (response.success) {
                                 $("#@Html.NameFor(x => x.ClientId)").val(response.clientId);
                                 $("#@Html.NameFor(x => x.Secret)").val(response.clientSecret);
+                                $("#@Html.NameFor(x => x.PayerId)").val(response.payerId);
 
                                 $("#hint-credentials > i")
                                     .removeClass("@errorCssClasses")
@@ -212,13 +213,31 @@
         </div>
         <div class="adminRow">
             <div class="adminTitle">
+                <smart-label asp-for="PayerId" />
+            </div>
+            <div class="adminData wide">
+                <setting-editor asp-for="PayerId"></setting-editor>
+                <span asp-validation-for="PayerId"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="MerchantName" />
+            </div>
+            <div class="adminData wide">
+                <setting-editor asp-for="MerchantName"></setting-editor>
+                <span asp-validation-for="MerchantName"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
                 <smart-label asp-for="WebhookId" />
             </div>
             <div class="adminData">
                 <div class="input-group">
                     <setting-editor asp-for="WebhookId"></setting-editor>
                     <span class="input-group-append">
-                        <button type="submit" id="createwebhook" name="createwebhook" value="createwebhook" class="btn btn-outline-secondary" 
+                        <button type="submit" id="createwebhook" name="createwebhook" value="createwebhook" class="btn btn-outline-secondary"
                                 attr-disabled='(!Model.ClientId.HasValue() || !Model.Secret.HasValue(), "disabled")'>
                             <i class="fa fa-cog"></i>
                             <span>@T("Plugins.Smartstore.PayPal.CreateWebhook")</span>

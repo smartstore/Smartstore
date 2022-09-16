@@ -24,6 +24,8 @@ namespace Smartstore.PayPal
                 o.Filters.AddConditional<CheckoutFilter>(
                     context => context.ControllerIs<CheckoutController>(x => x.PaymentMethod()) && !context.HttpContext.Request.IsAjax() ||
                                context.ControllerIs<CheckoutController>(x => x.Confirm()) && !context.HttpContext.Request.IsAjax(), 200);
+
+                o.Filters.AddConditional<FraudnetFilter>(context => context.ControllerIs<PublicController>() && !context.HttpContext.Request.IsAjax());
             });
 
             services.AddHttpClient<PayPalHttpClient>()

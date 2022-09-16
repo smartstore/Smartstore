@@ -11,13 +11,25 @@
     <!-- Friendly provider name & description -->
     <!-- Frontend payment option & backend -->
     <LocaleResource Name="Plugins.FriendlyName.Payments.PayPalStandard" AppendRootKey="false">
-        <Value>PayPal</Value>
+        <Value>PayPal Checkout</Value>
     </LocaleResource>
+    <LocaleResource Name="Plugins.FriendlyName.Payments.PayPalPayUponInvoice" AppendRootKey="false">
+        <Value>Pay upon invoice</Value>
+    </LocaleResource>
+
     <!-- Backend provider description -->
     <LocaleResource Name="Plugins.Description.Payments.PayPalStandard" AppendRootKey="false">
         <Value>
             <![CDATA[
 				        Opens a secure payment window where the payment is made directly at PayPal.
+              ]]>
+        </Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.Description.Payments.PayPalPayUponInvoice" AppendRootKey="false">
+        <Value>
+            <![CDATA[
+				        A buy now, pay later payment method that allows the buyer to place an order, 
+                receive the goods, try them, verify they are in good order, and then pay the invoice within 30 days.
               ]]>
         </Value>
     </LocaleResource>
@@ -28,6 +40,13 @@
             <![CDATA[
 				        Do the payment in a secure browser window directly at PayPal. 
 				        After redirection back to the store, you can complete the order with a few clicks.
+              ]]>
+        </Value>
+    </LocaleResource>
+    <LocaleResource Name="Plugins.PaymentInfo.Payments.PayPalPayUponInvoice" AppendRootKey="false">
+        <Value>
+            <![CDATA[
+                Place an order, receive the goods, try them, verify they are in good order, and then pay the invoice within 30 days.
               ]]>
         </Value>
     </LocaleResource>
@@ -68,6 +87,15 @@
             </LocaleResource>
             <LocaleResource Name="ClientId.Hint">
                 <Value>Enter the client ID that was sent to you by the payment provider.</Value>
+            </LocaleResource>
+            <LocaleResource Name="PayerId">
+                <Value>Payer ID</Value>
+            </LocaleResource>
+            <LocaleResource Name="MerchantName">
+                <Value>Merchant name</Value>
+            </LocaleResource>
+            <LocaleResource Name="MerchantName.Hint">
+                <Value>Is needed for the payment method purchase on invoice to create a unique identification key. Must not contain spaces.</Value>
             </LocaleResource>
             <LocaleResource Name="Secret">
                 <Value>Password</Value>
@@ -208,6 +236,32 @@
             </LocaleResource>
             <LocaleResource Name="CreateWebhook">
                 <Value>Create webhook.</Value>
+            </LocaleResource>
+            <LocaleResource Name="RatePayLegalHint">
+                <Value>
+                    <![CDATA[
+                        By clicking on the button, you agree to the <a href="https://www.ratepay.com/legal-payment-terms" target="_blank">terms of payment</a> 
+                        and <a href="https://www.ratepay.com/legal-payment-dataprivacy" target="_blank">performance of a risk check</a> from the payment partner, Ratepay. 
+                        You also agree to PayPal’s <a href="https://www.paypal.com/us/webapps/mpp/ua/privacy-full" target="_blank">privacy statement</a>. 
+                        If your request to purchase upon invoice is accepted, the purchase price claim will be assigned to Ratepay, and you may only pay Ratepay, 
+                        not the merchant.
+                      ]]>
+                </Value>
+            </LocaleResource>
+            <LocaleResource Name="NoWhitespace">
+                <Value>Whitespace isn't allowed.</Value>
+            </LocaleResource>
+            <LocaleResource Name="DateOfBirthDay.NotNull">
+                <Value>Please enter the day of your date of birth.</Value>
+            </LocaleResource>
+            <LocaleResource Name="DateOfBirthMonth.NotNull">
+                <Value>Please enter the month of your date of birth.</Value>
+            </LocaleResource>
+            <LocaleResource Name="DateOfBirthYear.NotNull">
+                <Value>Please enter the year of your date of birth.</Value>
+            </LocaleResource>
+            <LocaleResource Name="PhoneNumber.Invalid">
+                <Value>Please provide a valid phone number.</Value>
             </LocaleResource>
         </Children>
     </LocaleResource>
