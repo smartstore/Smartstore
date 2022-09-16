@@ -8,6 +8,9 @@ namespace Smartstore.Web.Api.Models
         [LocalizedDisplay("*ApiOdataUrl")]
         public string ApiOdataUrl { get; set; }
 
+        [LocalizedDisplay("*ApiOdataEndpointsUrl")]
+        public string ApiOdataEndpointsUrl { get; set; }
+
         [LocalizedDisplay("*ApiOdataMetadataUrl")]
         public string ApiOdataMetadataUrl { get; set; }
 

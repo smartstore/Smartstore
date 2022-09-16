@@ -98,8 +98,10 @@ namespace Smartstore.Web.Api
         {
             // TODO: (mg) (core) is CacheItemRemovedCallback gone forever? Find replacement for the CacheItemRemovedCallback logic
             // for non-removable cache entries? We have to store\update data as GenericAttribute.
-            var result = await _cache.GetAsync(UsersKey, async () =>
+            var result = await _cache.GetAsync(UsersKey, async (o) =>
             {
+                o.NoExpiration();
+
                 var attributesQuery =
                     from a in _db.GenericAttributes
                     join c in _db.Customers on a.EntityId equals c.Id

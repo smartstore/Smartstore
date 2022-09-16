@@ -11,6 +11,10 @@
   "ResourceRootKey": "Plugins.Api.WebApi",
   "ProjectUrl": "http://community.smartstore.com/marketplace/file/27-smartstorenet-web-api/",
   "PrivateReferences": [
-    "Microsoft.AspNetCore.OData.NewtonsoftJson"
+    "Microsoft.AspNetCore.OData.NewtonsoftJson",
+    "Microsoft.OpenApi",
+    "Swashbuckle.AspNetCore.Swagger",
+    "Swashbuckle.AspNetCore.SwaggerGen",
+    "Swashbuckle.AspNetCore.SwaggerUI"
   ]
 }

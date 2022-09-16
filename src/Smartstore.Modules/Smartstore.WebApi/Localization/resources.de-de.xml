@@ -30,6 +30,12 @@
     <LocaleResource Name="ApiOdataUrl.Hint">
         <Value>Die URL der OData Web-API.</Value>
     </LocaleResource>
+    <LocaleResource Name="ApiOdataEndpointsUrl">
+        <Value>OData Endpunkte</Value>
+    </LocaleResource>
+    <LocaleResource Name="ApiOdataEndpointsUrl.Hint">
+        <Value>Die URL aller OData Endpunkte.</Value>
+    </LocaleResource>
     <LocaleResource Name="ApiOdataMetadataUrl">
         <Value>OData Metadaten URL</Value>
     </LocaleResource>

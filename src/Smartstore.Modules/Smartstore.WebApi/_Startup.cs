@@ -1,8 +1,12 @@
-﻿using Microsoft.AspNetCore.Authentication;
+﻿using System.Reflection;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.OData;
 using Microsoft.AspNetCore.OData.NewtonsoftJson;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.OData.ModelBuilder;
+using Microsoft.OpenApi.Models;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;
 using Smartstore.Web.Api.Security;
@@ -44,15 +48,77 @@ namespace Smartstore.Web.Api
                     //options.EnableAttributeRouting = true;
                     //options.Conventions.Add(new CustomRoutingConvention());
                 });
+
+            mvcBuilder.Services
+                .AddEndpointsApiExplorer()
+                .AddSwaggerGen(options =>
+                {
+                    options.SwaggerDoc("v1", new OpenApiInfo
+                    {
+                        Version = "v1",
+                        Title = "Smartstore Web API"
+                    });
+
+                    options.CustomSchemaIds(type => type.FullName);
+                    // TODO: (mg) (core) add ODataOperationFilter.
+                    //options.OperationFilter<ODataOperationFilter>();
+
+                    try
+                    {
+                        // INFO: enable "Documentation file" in project properties. Leave file path empty.
+                        // Optionally append 1591 to "Suppress specific warnings" to suppress warning about missing XML comments.
+                        var fileName = Assembly.GetExecutingAssembly().GetName().Name;
+                        var xmlFile = appContext.ModulesRoot.GetFile($"{Module.SystemName}/{fileName}.xml");
+
+                        // TODO: (mg) (core) we probably need an XML doc factory because code comments are spread over several projects.
+                        options.IncludeXmlComments(xmlFile.PhysicalPath, true);
+                    }
+                    catch (Exception ex)
+                    {
+                        ex.Dump();
+                    }
+                });
         }
 
-        //public override void BuildPipeline(RequestPipelineBuilder builder)
-        //{
-        //    if (builder.ApplicationContext.HostEnvironment.IsDevelopment())
-        //    {
-        //        builder.ApplicationBuilder.UseODataRouteDebug();
-        //    }
-        //}
+        public override void BuildPipeline(RequestPipelineBuilder builder)
+        {
+            if (builder.ApplicationContext.IsInstalled)
+            {
+                builder.Configure(StarterOrdering.BeforeStaticFilesMiddleware, app =>
+                {
+                    if (builder.ApplicationContext.HostEnvironment.IsDevelopment())
+                    {
+                        app.UseDeveloperExceptionPage();
+                    }
+
+                    // Use odata route debug, /$odata
+                    app.UseODataRouteDebug();
+
+                    // If you want to use /$openapi, enable the middleware.
+                    //app.UseODataOpenApi();
+
+                    // Add OData /$query middleware.
+                    app.UseODataQueryRequest();
+
+                    // Add the OData Batch middleware to support OData $Batch.
+                    //app.UseODataBatching();
+
+                    app.UseSwagger(options =>
+                    {
+                    });
+
+                    app.UseSwaggerUI(options =>
+                    {
+                        options.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
+
+                        // Hide schemas dropdown.
+                        options.DefaultModelsExpandDepth(-1);
+                        options.EnableTryItOutByDefault();
+                        //options.OAuthUseBasicAuthenticationWithAccessCodeGrant();
+                    });
+                });
+            }
+        }
 
         public override void ConfigureServices(IServiceCollection services, IApplicationContext appContext)
         {

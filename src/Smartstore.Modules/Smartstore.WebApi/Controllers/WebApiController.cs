@@ -37,8 +37,9 @@ namespace Smartstore.Web.Api.Controllers
 
             // TODO: (mg) (core) check URLs. Probably changes.
             model.ApiOdataUrl = WebHelper.GetAbsoluteUrl(Url.Content("~/odata/v1"), Request, true).EnsureEndsWith("/");
+            model.ApiOdataEndpointsUrl = WebHelper.GetAbsoluteUrl(Url.Content("~/$odata"), Request, true);
             model.ApiOdataMetadataUrl = model.ApiOdataUrl + "$metadata";
-            model.SwaggerUrl = WebHelper.GetAbsoluteUrl(Url.Content("~/swagger/ui/index"), Request, true);
+            model.SwaggerUrl = WebHelper.GetAbsoluteUrl(Url.Content("~/swagger"), Request, true);
 
             return View(model);
         }
