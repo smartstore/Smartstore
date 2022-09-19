@@ -1,7 +1,7 @@
 ﻿using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Seo;
 
-namespace Smartstore.Web.Api.Controllers.OData
+namespace Smartstore.Web.Api.Controllers.V1
 {
     // TODO: (mg) (core) try to avoid this insane amount of metadata attributes.
     // Introduce something like a "SmartMetadataCollectorAttribute" or a collecting method in SmartODataController.
@@ -26,13 +26,19 @@ namespace Smartstore.Web.Api.Controllers.OData
             return Ok(Entities);
         }
 
+        /// <summary>
+        /// Gets a category by identifier.
+        /// </summary>
+        /// <param name="key" example="12345">The category identifier.</param>
+        /// <response code="200">Category retrieved.</response>
+        /// <response code="404">Category not found.</response>
         [HttpGet, WebApiQueryable]
         [Permission(Permissions.Catalog.Category.Read)]
         [ProducesResponseType(typeof(Category), StatusCodes.Status200OK, MediaTypeNames.Application.Json)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public Task<IActionResult> Get(int key)
         {
-            return GetByKeyAsync(key);
+            return GetByIdAsync(key);
         }
 
         [HttpGet("Categories({key})/{property}")]

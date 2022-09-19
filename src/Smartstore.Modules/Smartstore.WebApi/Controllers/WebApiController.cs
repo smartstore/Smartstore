@@ -8,6 +8,7 @@ using Smartstore.Web.Controllers;
 using Smartstore.Web.Modelling.Settings;
 using Smartstore.Web.Models.DataGrid;
 using Smartstore.Web.Api.Models;
+using Microsoft.Extensions.Hosting;
 
 namespace Smartstore.Web.Api.Controllers
 {
@@ -37,9 +38,13 @@ namespace Smartstore.Web.Api.Controllers
 
             // TODO: (mg) (core) check URLs. Probably changes.
             model.ApiOdataUrl = WebHelper.GetAbsoluteUrl(Url.Content("~/odata/v1"), Request, true).EnsureEndsWith("/");
-            model.ApiOdataEndpointsUrl = WebHelper.GetAbsoluteUrl(Url.Content("~/$odata"), Request, true);
             model.ApiOdataMetadataUrl = model.ApiOdataUrl + "$metadata";
             model.SwaggerUrl = WebHelper.GetAbsoluteUrl(Url.Content("~/swagger"), Request, true);
+
+            if (Services.ApplicationContext.HostEnvironment.IsDevelopment())
+            {
+                model.ApiOdataEndpointsUrl = WebHelper.GetAbsoluteUrl(Url.Content("~/$odata"), Request, true);
+            }
 
             return View(model);
         }

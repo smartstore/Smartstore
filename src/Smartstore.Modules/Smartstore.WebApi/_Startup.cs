@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.OData;
-using Microsoft.AspNetCore.OData.NewtonsoftJson;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OData.ModelBuilder;
@@ -16,6 +15,9 @@ namespace Smartstore.Web.Api
     // TODO: (mg) (core) Enable OData batching via app.UseODataBatching(). See: https://devblogs.microsoft.com/odata/tutorial-creating-a-service-with-odata-8-0/
     // PS: that document looks outdated. MapODataRoute and ODataOptions.AddModel does not exist anymore.
 
+    /// <summary>
+    /// For proper configuration see https://github.com/domaindrivendev/Swashbuckle.AspNetCore
+    /// </summary>
     internal class Startup : StarterBase
     {
         public override void ConfigureMvc(IMvcBuilder mvcBuilder, IServiceCollection services, IApplicationContext appContext)
@@ -23,8 +25,7 @@ namespace Smartstore.Web.Api
             //services.TryAddEnumerable(ServiceDescriptor.Transient<IODataControllerActionConvention, CustomRoutingConvention>());
 
             mvcBuilder
-                .AddODataNewtonsoftJson()
-                .AddOData(options =>
+                .AddOData(o =>
                 {
                     var modelBuilder = new ODataConventionModelBuilder();
                     var modelProviders = appContext.TypeScanner
@@ -37,31 +38,44 @@ namespace Smartstore.Web.Api
                     }
 
                     var edmModel = modelBuilder.GetEdmModel();
-                    
-                    options
-                        .EnableQueryFeatures(WebApiSettings.DefaultMaxTop)
-                        .AddRouteComponents("odata/v1", edmModel);
 
-                    options.TimeZone = TimeZoneInfo.Utc;
-                    options.RouteOptions.EnableUnqualifiedOperationCall = true;
+                    o.EnableQueryFeatures(WebApiSettings.DefaultMaxTop)
+                    .AddRouteComponents("odata/v1", edmModel);
 
-                    //options.EnableAttributeRouting = true;
-                    //options.Conventions.Add(new CustomRoutingConvention());
+                    o.TimeZone = TimeZoneInfo.Utc;
+                    o.RouteOptions.EnableUnqualifiedOperationCall = true;
+
+                    //o.EnableAttributeRouting = true;
+                    //o.Conventions.Add(new CustomRoutingConvention());
                 });
 
             mvcBuilder.Services
-                .AddEndpointsApiExplorer()
-                .AddSwaggerGen(options =>
+                //.AddTransient<IConfigureOptions<SwaggerGenOptions>, SwaggerGenOptionsConfiguration>()
+                .AddSwaggerGen(o =>
                 {
-                    options.SwaggerDoc("v1", new OpenApiInfo
+                    // INFO: "name" equals ApiExplorer.GroupName. Must be globally unique, URI-friendly and should be in lower case.
+                    // Smartstore sets the ApiExplorer.GroupName dynamically based on the namespace of the API controller, see SmartApiExplorerConvention.
+                    o.SwaggerDoc("v1", new OpenApiInfo
                     {
                         Version = "v1",
                         Title = "Smartstore Web API"
                     });
 
-                    options.CustomSchemaIds(type => type.FullName);
-                    // TODO: (mg) (core) add ODataOperationFilter.
-                    //options.OperationFilter<ODataOperationFilter>();
+                    // INFO: required workaround to avoid conflict errors for identical action names such as "Get" when opening swagger UI.
+                    // Alternative: set-up a path template for each (!) OData action method.
+                    o.ResolveConflictingActions(apiDescriptions => apiDescriptions.First());
+
+                    //o.IgnoreObsoleteActions();
+                    //o.IgnoreObsoleteProperties();
+
+                    // Avoids "Conflicting schemaIds" (multiple types with the same name but different namespaces).
+                    o.CustomSchemaIds(type => type.FullName);
+
+                    // Filters.
+                    o.OperationFilter<ResponsesOperationFilter>();
+
+                    // TODO: (mg) (core) add SwaggerOperationFilter.
+                    //o.OperationFilter<SwaggerOperationFilter>();
 
                     try
                     {
@@ -71,31 +85,24 @@ namespace Smartstore.Web.Api
                         var xmlFile = appContext.ModulesRoot.GetFile($"{Module.SystemName}/{fileName}.xml");
 
                         // TODO: (mg) (core) we probably need an XML doc factory because code comments are spread over several projects.
-                        options.IncludeXmlComments(xmlFile.PhysicalPath, true);
+                        o.IncludeXmlComments(xmlFile.PhysicalPath, true);
                     }
                     catch (Exception ex)
                     {
                         ex.Dump();
                     }
                 });
+
+            // We are using Newtonsoft so we have to explicit opt-in. Needs to be placed after AddSwaggerGen().
+            mvcBuilder.Services.AddSwaggerGenNewtonsoftSupport();
         }
 
         public override void BuildPipeline(RequestPipelineBuilder builder)
         {
             if (builder.ApplicationContext.IsInstalled)
             {
-                // INFO: (mg) (core) You should always THOROUGHLY (!!!) think about the correct ordering of every single middleware!
-                // It can have HEAVY impact on performance, security and functionality.
-                // See https://github.com/OData/AspNetCoreOData/blob/master/docs/odatamiddelware.md
-
                 builder.Configure(StarterOrdering.BeforeStaticFilesMiddleware, app =>
                 {
-                    // INFO: (mg) (core) We had this issue already. You just can't register a middleware twice. It will be executed twice!
-                    //if (builder.ApplicationContext.HostEnvironment.IsDevelopment())
-                    //{
-                    //    app.UseDeveloperExceptionPage();
-                    //}
-
                     // TODO: (mg) (core) Not sure whether this is the correct ordering for Swagger?! Investigate please.
                     app.UseSwagger(options =>
                     {
@@ -103,20 +110,21 @@ namespace Smartstore.Web.Api
 
                     app.UseSwaggerUI(options =>
                     {
-                        options.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
+                        options.SwaggerEndpoint("v1/swagger.json", "v1");
 
                         // Hide schemas dropdown.
                         options.DefaultModelsExpandDepth(-1);
                         options.EnableTryItOutByDefault();
-                        //options.OAuthUseBasicAuthenticationWithAccessCodeGrant();
                     });
                 });
 
                 builder.Configure(StarterOrdering.BeforeRoutingMiddleware, app => 
                 {
-                    // Use odata route debug, /$odata
-                    // TODO: (mg) (core) Use only in dev mode?
-                    app.UseODataRouteDebug();
+                    // Navigate to ~/$odata to determine whether any endpoints did not match an odata route template.
+                    if (builder.ApplicationContext.HostEnvironment.IsDevelopment())
+                    {
+                        app.UseODataRouteDebug();
+                    }
 
                     // Add OData /$query middleware.
                     app.UseODataQueryRequest();
@@ -134,6 +142,8 @@ namespace Smartstore.Web.Api
         {
             services.AddAuthentication("Smartstore.WebApi.Basic")
                 .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("Smartstore.WebApi.Basic", null);
+
+            services.Configure<MvcOptions>(o => o.Conventions.Add(new ApiExplorerConvention()));
         }
     }
 }

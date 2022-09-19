@@ -19,6 +19,14 @@ namespace Smartstore.Web.Api.Security
     /// </summary>
     public sealed class BasicAuthenticationHandler : AuthenticationHandler<AuthenticationSchemeOptions>
     {
+        internal const string AppVersionHeader = "Smartstore-Api-AppVersion";
+        internal const string VersionHeader = "Smartstore-Api-Version";
+        internal const string MaxTopHeader = "Smartstore-Api-MaxTop";
+        internal const string DateHeader = "Smartstore-Api-Date";
+        internal const string CustomerIdHeader = "Smartstore-Api-CustomerId";
+        internal const string ResultIdHeader = "Smartstore-Api-AuthResultId";
+        internal const string ResultDescriptionHeader = "Smartstore-Api-AuthResultDesc";
+
         private readonly SmartDbContext _db;
         private readonly IWebApiService _apiService;
         private readonly SignInManager<Customer> _signInManager;
@@ -141,14 +149,14 @@ namespace Smartstore.Web.Api.Security
         {
             var headers = Response.Headers;
 
-            headers.Add("Smartstore-Api-AppVersion", SmartstoreVersion.CurrentFullVersion);
-            headers.Add("Smartstore-Api-Version", state.Version);
-            headers.Add("Smartstore-Api-MaxTop", state.MaxTop.ToString());
-            headers.Add("Smartstore-Api-Date", DateTime.UtcNow.ToString("o"));
+            headers.Add(AppVersionHeader, SmartstoreVersion.CurrentFullVersion);
+            headers.Add(VersionHeader, state.Version);
+            headers.Add(MaxTopHeader, state.MaxTop.ToString());
+            headers.Add(DateHeader, DateTime.UtcNow.ToString("o"));
 
             if (customer != null)
             {
-                headers.Add("Smartstore-Api-CustomerId", customer.Id.ToString());
+                headers.Add(CustomerIdHeader, customer.Id.ToString());
             }
 
             if (ex == null)
@@ -161,8 +169,8 @@ namespace Smartstore.Web.Api.Security
 
                 if (ex is AuthenticationException authEx)
                 {
-                    headers.Add("Smartstore-Api-AuthResultId", ((int)authEx.DeniedReason).ToString());
-                    headers.Add("Smartstore-Api-AuthResultDesc", authEx.DeniedReason.ToString());
+                    headers.Add(ResultIdHeader, ((int)authEx.DeniedReason).ToString());
+                    headers.Add(ResultDescriptionHeader, authEx.DeniedReason.ToString());
                 }
             }
         }

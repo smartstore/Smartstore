@@ -1,6 +1,6 @@
 ﻿using Smartstore.Core.Catalog.Discounts;
 
-namespace Smartstore.Web.Api.Controllers.OData
+namespace Smartstore.Web.Api.Controllers.V1
 {
     // TODO: (mg) (core) IEEE754Compatible=true is not supported\working.
     // https://github.com/OData/odata.net/commit/e0e628a495942fb3b6b8acfa62ddbf75d24a1ece
@@ -18,7 +18,7 @@ namespace Smartstore.Web.Api.Controllers.OData
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public Task<IActionResult> Get(int key)
         {
-            return GetByKeyAsync(key);
+            return GetByIdAsync(key);
         }
 
         //....

@@ -5,75 +5,74 @@ using Microsoft.OData.Edm;
 
 namespace Smartstore.Web.Api
 {
-    // TODO: (mg) (core) remove later. Probably not required.
-    public class CustomRoutingConvention : IODataControllerActionConvention
-    {
-        public int Order => 401;
+    //public class CustomRoutingConvention : IODataControllerActionConvention
+    //{
+    //    public int Order => 401;
 
-        public bool AppliesToController(ODataControllerActionContext context)
-        {
-            if (context.Controller.ControllerName == "Categories")
-            {
-                return true;
-            }
+    //    public bool AppliesToController(ODataControllerActionContext context)
+    //    {
+    //        if (context.Controller.ControllerName == "Categories")
+    //        {
+    //            return true;
+    //        }
 
-            return false;
-        }
+    //        return false;
+    //    }
 
-        public bool AppliesToAction(ODataControllerActionContext context)
-        {
-            var navigationSource = context.NavigationSource;
-            if (navigationSource == null)
-            {
-                return false;
-            }
+    //    public bool AppliesToAction(ODataControllerActionContext context)
+    //    {
+    //        var navigationSource = context.NavigationSource;
+    //        if (navigationSource == null)
+    //        {
+    //            return false;
+    //        }
 
-            if (context.Action.ActionName == "GetProperty")
-            {
-                var entitySet = navigationSource as IEdmEntitySet;
-                var entityType = navigationSource.EntityType();
+    //        if (context.Action.ActionName == "GetProperty")
+    //        {
+    //            var entitySet = navigationSource as IEdmEntitySet;
+    //            var entityType = navigationSource.EntityType();
 
-                var segments = new List<ODataSegmentTemplate>();
-                if (entitySet != null)
-                {
-                    segments.Add(new EntitySetSegmentTemplate(entitySet));
-                    segments.Add(CreateKeySegment(entityType, entitySet));
+    //            var segments = new List<ODataSegmentTemplate>();
+    //            if (entitySet != null)
+    //            {
+    //                segments.Add(new EntitySetSegmentTemplate(entitySet));
+    //                segments.Add(CreateKeySegment(entityType, entitySet));
 
-                    //var ps = new PropertySegmentTemplate(
-                }
+    //                //var ps = new PropertySegmentTemplate(
+    //            }
 
-                var path = new ODataPathTemplate(segments);
+    //            var path = new ODataPathTemplate(segments);
 
-                context.Action.AddSelector("Get", context.Prefix, context.Model, path);
-                return true;
-            }
+    //            context.Action.AddSelector("Get", context.Prefix, context.Model, path);
+    //            return true;
+    //        }
 
-            return false;
-        }
+    //        return false;
+    //    }
 
-        private static KeySegmentTemplate CreateKeySegment(IEdmEntityType entityType, IEdmNavigationSource navigationSource, string keyPrefix = "key")
-        {
-            Guard.NotNull(entityType, nameof(entityType));
+    //    private static KeySegmentTemplate CreateKeySegment(IEdmEntityType entityType, IEdmNavigationSource navigationSource, string keyPrefix = "key")
+    //    {
+    //        Guard.NotNull(entityType, nameof(entityType));
 
-            var keyTemplates = new Dictionary<string, string>();
-            var keys = entityType.Key().ToArray();
-            if (keys.Length == 1)
-            {
-                // Id={key}
-                keyTemplates[keys[0].Name] = $"{{{keyPrefix}}}";
-            }
-            else
-            {
-                // Id1={keyId1},Id2={keyId2}
-                foreach (var key in keys)
-                {
-                    keyTemplates[key.Name] = $"{{{keyPrefix}{key.Name}}}";
-                }
-            }
+    //        var keyTemplates = new Dictionary<string, string>();
+    //        var keys = entityType.Key().ToArray();
+    //        if (keys.Length == 1)
+    //        {
+    //            // Id={key}
+    //            keyTemplates[keys[0].Name] = $"{{{keyPrefix}}}";
+    //        }
+    //        else
+    //        {
+    //            // Id1={keyId1},Id2={keyId2}
+    //            foreach (var key in keys)
+    //            {
+    //                keyTemplates[key.Name] = $"{{{keyPrefix}{key.Name}}}";
+    //            }
+    //        }
 
-            return new KeySegmentTemplate(keyTemplates, entityType, navigationSource);
-        }
-    }
+    //        return new KeySegmentTemplate(keyTemplates, entityType, navigationSource);
+    //    }
+    //}
 
 
     //public class CustomRoutingConvention : EntitySetRoutingConvention
