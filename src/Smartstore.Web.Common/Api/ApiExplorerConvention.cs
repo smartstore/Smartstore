@@ -24,13 +24,13 @@ namespace Smartstore.Web.Api
     {
         public void Apply(ActionModel action)
         {
-            var attribute = action.Controller.ControllerType.GetCustomAttributes(typeof(ApiDocumentAttribute), true).FirstOrDefault();
+            var attribute = action.Controller.ControllerType.GetAttribute<ApiDocumentAttribute>(true);
 
-            if (attribute == null && !action.ActionMethod.GetCustomAttributes(typeof(ApiDocumentAttribute), true).Any())
+            if (attribute == null && !action.ActionMethod.HasAttribute<ApiDocumentAttribute>(true))
             {
                 action.ApiExplorer.IsVisible = false;
             }
-            else if (attribute != null && ((ApiDocumentAttribute)attribute).SetGroupNameByNamespace)
+            else if (attribute != null && attribute.SetGroupNameByNamespace)
             {
                 var idx = action.Controller.ControllerType.Namespace.IndexOf(".Controllers.");
                 if (idx == -1)
