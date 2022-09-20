@@ -9,13 +9,9 @@
     {
         public ConsumeContext(TMessage message)
         {
-            Message = message;
+            Message = Guard.NotNull(message, nameof(message));
         }
 
-        public TMessage Message
-        {
-            get;
-            private set;
-        }
+        public TMessage Message { get; }
     }
 }

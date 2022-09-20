@@ -31,7 +31,7 @@
         }
 
         /// <summary>
-        /// Gets the importance of a hook class. Defauls to <see cref="HookImportance.Important"/>.
+        /// Gets the importance of a hook class. Defaults to <see cref="HookImportance.Important"/>.
         /// </summary>
         public HookImportance Importance { get; } = HookImportance.Important;
     }

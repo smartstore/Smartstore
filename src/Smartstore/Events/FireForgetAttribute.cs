@@ -2,7 +2,7 @@
 {
     /// <summary>
     /// Specifies whether an event consumer method should be invoked asynchronously without awaiting.
-    /// This can be advantegous in long running processes, because the current request thread will not 'block'
+    /// This can be advantageous in long running processes, because the current request thread will not 'block'
     /// until method completion.
     /// </summary>
     /// <remarks>
