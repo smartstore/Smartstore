@@ -3,8 +3,9 @@ using Smartstore.Core.Seo;
 
 namespace Smartstore.Web.Api.Controllers.V1
 {
-    // TODO: (mg) (core) try to avoid this insane amount of metadata attributes.
-    // Introduce something like a "SmartMetadataCollectorAttribute" or a collecting method in SmartODataController.
+    /// <summary>
+    /// The endpoint for operations on category entity.
+    /// </summary>
     public class CategoriesController : SmartODataController<Category>
     {
         private readonly Lazy<IUrlService> _urlService;
@@ -18,33 +19,37 @@ namespace Smartstore.Web.Api.Controllers.V1
             _categoryService = categoryService;
         }
 
+        /// <summary>
+        /// Gets a list of all categories.
+        /// </summary>
         [HttpGet, WebApiQueryable]
         [Permission(Permissions.Catalog.Category.Read)]
-        [ProducesResponseType(typeof(IEnumerable<Category>), StatusCodes.Status200OK, MediaTypeNames.Application.Json)]
-        public IActionResult Get()
+        public IQueryable<Category> Get()
         {
-            return Ok(Entities);
+            return Entities.AsNoTracking();
         }
 
         /// <summary>
         /// Gets a category by identifier.
         /// </summary>
         /// <param name="key" example="12345">The category identifier.</param>
-        /// <response code="200">Category retrieved.</response>
-        /// <response code="404">Category not found.</response>
         [HttpGet, WebApiQueryable]
         [Permission(Permissions.Catalog.Category.Read)]
-        [ProducesResponseType(typeof(Category), StatusCodes.Status200OK, MediaTypeNames.Application.Json)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public Task<IActionResult> Get(int key)
         {
             return GetByIdAsync(key);
         }
 
-        [HttpGet("Categories({key})/{property}")]
+        /// <summary>
+        /// Gets the value of a category property.
+        /// </summary>
+        /// <remarks>
+        /// A property value can alternatively be obtained using the $select query string parameter.
+        /// </remarks>
+        /// <param name="key" example="12345">The category identifier.</param>
+        /// <param name="property" example="Description">The property name.</param>
+        [HttpGet("/odata/v1/categories({key})/{property}")]
         [Permission(Permissions.Catalog.Category.Read)]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public Task<IActionResult> GetProperty(int key, string property)
         {
             return GetPropertyValueAsync(key, property);

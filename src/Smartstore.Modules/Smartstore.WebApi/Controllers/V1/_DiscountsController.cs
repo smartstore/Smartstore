@@ -8,9 +8,9 @@ namespace Smartstore.Web.Api.Controllers.V1
     {
         [HttpGet, WebApiQueryable]
         [ProducesResponseType(typeof(IEnumerable<Discount>), StatusCodes.Status200OK, MediaTypeNames.Application.Json)]
-        public IActionResult Get()
+        public IQueryable<Discount> Get()
         {
-            return Ok(Entities);
+            return Entities.AsNoTracking();
         }
 
         [HttpGet, WebApiQueryable]

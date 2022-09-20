@@ -8,6 +8,10 @@ using Smartstore.ComponentModel;
 
 namespace Smartstore.Web.Api
 {
+    // TODO: (mg) (core) PermissionAttribute is not suitable. Never executed on OData paths that are served by convention
+    // (thus no action method). We need a more generic approach like a mapping based on entity type and HTTP method.
+    // TODO: (mg) (core) what about swagger documentation of OData paths served by convention (no action method)?
+
     /// <summary>
     /// Smart base controller class for OData endpoints.
     /// </summary>
@@ -21,7 +25,6 @@ namespace Smartstore.Web.Api
     /// Get<NavigationProperty>: GET /EntitySet(key)/NavigationProperty
     /// </remarks>
     [ODataRouteComponent("odata/v1")]
-    [Route("odata/v1")]
     [ApiDocument]
     [Authorize(AuthenticationSchemes = "Smartstore.WebApi.Basic")]
     public abstract class SmartODataController<TEntity> : ODataController

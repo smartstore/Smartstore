@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
+using Microsoft.Net.Http.Headers;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Seo;
 using Smartstore.Utilities;
@@ -102,7 +103,7 @@ namespace Smartstore.Web.Api.Security
 
         private async Task<(Customer Customer, WebApiUser User)> GetCustomer()
         {
-            var rawAuthValue = Request?.Headers["Authorization"];
+            var rawAuthValue = Request?.Headers[HeaderNames.Authorization];
             if (!AuthenticationHeaderValue.TryParse(rawAuthValue, out var authHeader) || authHeader?.Parameter == null)
             {
                 throw new AuthenticationException(AccessDeniedReason.InvalidAuthorizationHeader);

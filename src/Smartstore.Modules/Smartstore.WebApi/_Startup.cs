@@ -2,13 +2,17 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.OData;
+using Microsoft.AspNetCore.OData.Routing.Conventions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Net.Http.Headers;
 using Microsoft.OData.ModelBuilder;
 using Microsoft.OpenApi.Models;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;
 using Smartstore.Web.Api.Security;
+using Smartstore.Web.Api.Swagger;
+using Swashbuckle.AspNetCore.SwaggerUI;
 
 namespace Smartstore.Web.Api
 {
@@ -39,8 +43,8 @@ namespace Smartstore.Web.Api
 
                     var edmModel = modelBuilder.GetEdmModel();
 
-                    o.EnableQueryFeatures(WebApiSettings.DefaultMaxTop)
-                    .AddRouteComponents("odata/v1", edmModel);
+                    o.EnableQueryFeatures(WebApiSettings.DefaultMaxTop);
+                    o.AddRouteComponents("odata/v1", edmModel);
 
                     o.TimeZone = TimeZoneInfo.Utc;
                     o.RouteOptions.EnableUnqualifiedOperationCall = true;
@@ -68,11 +72,38 @@ namespace Smartstore.Web.Api
                     //o.IgnoreObsoleteActions();
                     //o.IgnoreObsoleteProperties();
 
+                    //o.UseAllOfForInheritance();
+
                     // Avoids "Conflicting schemaIds" (multiple types with the same name but different namespaces).
                     o.CustomSchemaIds(type => type.FullName);
 
+                    o.AddSecurityDefinition("Basic", new OpenApiSecurityScheme
+                    {
+                        Name = HeaderNames.Authorization,
+                        Type = SecuritySchemeType.Http,
+                        Scheme = "Basic",
+                        In = ParameterLocation.Header,
+                        Description = "Please enter your public and private API key."
+                    });
+
+                    o.AddSecurityRequirement(new OpenApiSecurityRequirement  
+                    {
+                        {
+                            new OpenApiSecurityScheme
+                            {
+                                Reference = new OpenApiReference
+                                {
+                                    Id = "Basic",
+                                    Type = ReferenceType.SecurityScheme
+                                }
+                            },
+                            Array.Empty<string>()
+                        }
+                    });
+
                     // Filters.
-                    o.OperationFilter<ResponsesOperationFilter>();
+                    o.DocumentFilter<SwaggerDocumentFilter>();
+                    o.OperationFilter<SwaggerResponseFilter>();
 
                     // TODO: (mg) (core) add SwaggerOperationFilter.
                     //o.OperationFilter<SwaggerOperationFilter>();
@@ -108,13 +139,19 @@ namespace Smartstore.Web.Api
                     {
                     });
 
-                    app.UseSwaggerUI(options =>
+                    app.UseSwaggerUI(o =>
                     {
-                        options.SwaggerEndpoint("v1/swagger.json", "v1");
+                        o.SwaggerEndpoint("v1/swagger.json", "v1");
 
                         // Hide schemas dropdown.
-                        options.DefaultModelsExpandDepth(-1);
-                        options.EnableTryItOutByDefault();
+                        o.DefaultModelsExpandDepth(-1);
+                        //o.EnableTryItOutByDefault();
+                        //o.DisplayOperationId();
+                        o.DisplayRequestDuration();
+                        o.DocExpansion(DocExpansion.List);
+                        //o.EnableFilter();
+                        //o.ShowCommonExtensions();
+                        //o.InjectStylesheet("/swagger-ui/custom.css");
                     });
                 });
 
