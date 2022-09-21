@@ -1,7 +1,7 @@
 ﻿namespace Smartstore.Core.Messaging.Events
 {
     /// <summary>
-    /// Published when a system mapper is missing for a particular model type (e.g. a custom entity in a plugin).
+    /// Published when a system mapper is missing for a particular model type (e.g. a custom entity in a module).
     /// Implementors should subscribe to this event in order to provide a corresponding dynamic model part.
     /// The result model should be assigned to the <see cref="Result"/> property. If this property
     /// is still <c>null</c>, the source is used as model part instead.

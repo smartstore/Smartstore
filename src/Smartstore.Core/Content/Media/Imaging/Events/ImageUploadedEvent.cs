@@ -6,7 +6,7 @@ namespace Smartstore.Core.Content.Media.Imaging
     /// <summary>
     /// Published for every uploaded image which does NOT exceed maximum
     /// allowed size. This gives subscribers the chance to still process the image,
-    /// e.g. to achive better compression before saving image data to storage. 
+    /// e.g. to achieve better compression before saving image data to storage. 
     /// This event does NOT get published when the uploaded image is about to be processed anyway.
     /// </summary>
     /// <remarks>

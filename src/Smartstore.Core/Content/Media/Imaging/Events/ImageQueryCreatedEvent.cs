@@ -4,7 +4,7 @@ namespace Smartstore.Core.Content.Media.Imaging
 {
     /// <summary>
     /// Published after image query has been created and initialized
-    /// by the media middleware controller with data from HttpContent.Request.QueryString.
+    /// by the media middleware with data from HttpContent.Request.QueryString.
     /// This event implies that a thumbnail is about to be created.
     /// </summary>
     public class ImageQueryCreatedEvent

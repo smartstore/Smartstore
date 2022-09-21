@@ -456,7 +456,7 @@ namespace Smartstore.Core.Checkout.Cart
 
             if (fromCustomer != null && toCustomer != null)
             {
-                _eventPublisher.Publish(new MigrateShoppingCartEvent(fromCustomer, toCustomer, firstItem.StoreId));
+                await _eventPublisher.PublishAsync(new MigrateShoppingCartEvent(fromCustomer, toCustomer, firstItem.StoreId));
             }
 
             var cart = new ShoppingCart(fromCustomer, firstItem.StoreId, cartItems)
