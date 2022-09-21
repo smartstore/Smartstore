@@ -73,7 +73,7 @@ namespace Smartstore.Core.Localization
 
         /// <summary>
         /// Gets or sets the name of the user who created the entity.
-        /// Usually the login name, but may also be any external callee name
+        /// Usually the login name, but may also be any external caller name
         /// (like a translation service for example).
         /// </summary>
         [StringLength(100)]
@@ -81,7 +81,7 @@ namespace Smartstore.Core.Localization
 
         /// <summary>
         /// Gets or sets the name of the user who updated the entity.
-        /// Usually the login name, but may also be any external callee name
+        /// Usually the login name, but may also be any external caller name
         /// (like a translation service for example).
         /// </summary>
         [StringLength(100)]

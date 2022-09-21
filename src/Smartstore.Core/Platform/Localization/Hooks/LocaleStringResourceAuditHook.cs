@@ -37,7 +37,7 @@ namespace Smartstore.Core.Localization
 
             if (entity.UpdatedBy == null || !isDateModified)
             {
-                // We assume that the callee who modified the date also modified
+                // We assume that the caller who modified the date also modified
                 // the author. In this case, we don't want to
                 // update the "UpdatedBy" property, because custom author
                 // should have precedence.

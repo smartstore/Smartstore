@@ -8,13 +8,9 @@
     {
         public HookableAttribute(bool isHookable)
         {
-            IsHookable = IsHookable;
+            IsHookable = isHookable;
         }
 
-        public bool IsHookable
-        {
-            get;
-            private set;
-        }
+        public bool IsHookable { get; }
     }
 }
