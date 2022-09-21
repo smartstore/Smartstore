@@ -13,11 +13,11 @@ namespace Smartstore.Web.Api.Swagger
         {
             foreach (var path in swaggerDoc.Paths)
             {
-                foreach (var op in path.Value.Operations.Keys)
+                foreach (var op in path.Value.Operations)
                 {
-                    //$"{op} {path.Key}".Dump();
+                    //$"{op.Key} {path.Key}".Dump();
 
-                    switch (op)
+                    switch (op.Key)
                     {
                         case OpenApiOpType.Get:
                             // Remove duplicate documents. No need to have both, GET "entityset({key})" and GET "entityset/{key}".

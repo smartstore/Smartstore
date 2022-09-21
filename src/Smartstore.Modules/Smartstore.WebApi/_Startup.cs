@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.OData;
-using Microsoft.AspNetCore.OData.Routing.Conventions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Net.Http.Headers;
@@ -101,9 +100,13 @@ namespace Smartstore.Web.Api
                         }
                     });
 
+                    // INFO: provide unique OperationId. By default ApiDescription.RelativePath is used but that is not unique.
+                    // Prevents multiple descriptions from opening at the same time when clicking a method.
+                    o.CustomOperationIds(x => x.HttpMethod.ToLower().Grow(x.RelativePath, "/"));
+
                     // Filters.
                     o.DocumentFilter<SwaggerDocumentFilter>();
-                    o.OperationFilter<SwaggerResponseFilter>();
+                    o.OperationFilter<SwaggerOperationFilter>();
 
                     // TODO: (mg) (core) add SwaggerOperationFilter.
                     //o.OperationFilter<SwaggerOperationFilter>();
