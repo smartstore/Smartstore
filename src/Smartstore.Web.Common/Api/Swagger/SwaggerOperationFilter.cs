@@ -26,24 +26,33 @@ namespace Smartstore.Web.Api.Swagger
                 var isCandidate = _candidateMethodNames.Contains(mi.Name);
 
                 // Skip what is not inherited from our SmartODataController.
-                if (mi.DeclaringType.BaseType.GetGenericTypeDefinition() != typeof(SmartODataController<>))
+                // INFO: (mg) (core) GetGenericTypeDefinition() throws if arg is not a generic type
+                if (!mi.DeclaringType.BaseType.IsClosedGenericTypeOf(typeof(SmartODataController<>)))
+                {
                     return;
+                }     
 
                 if (isCandidate)
+                {
                     operation.Responses.Clear();
+                }   
 
-                if (mi.DeclaringType.GetAttributes<AuthorizeAttribute>(true).Any() || mi.GetAttributes<AuthorizeAttribute>(true).Any())
+                if (mi.DeclaringType.HasAttribute<AuthorizeAttribute>(true) || mi.HasAttribute<AuthorizeAttribute>(true)) 
+                {
                     operation.Responses[StatusCodes.Status401Unauthorized.ToString()] = CreateUnauthorizedResponse();
+                }  
 
                 if (!isCandidate)
+                {
                     return;
+                }   
 
                 var ctx = new OperationContext { Op = operation, Context = context };
 
                 switch (ctx.ActionName)
                 {
                     case "Get":
-                        if (mi.ReturnType.IsGenericType && mi.ReturnType.GetGenericTypeDefinition() == typeof(IQueryable<>))
+                        if (mi.ReturnType.IsGenericType && mi.ReturnType.IsClosedGenericTypeOf(typeof(IQueryable<>)))
                         {
                             operation.Responses[StatusCodes.Status200OK.ToString()] = CreateSucccessResponse(ctx, false);
 
