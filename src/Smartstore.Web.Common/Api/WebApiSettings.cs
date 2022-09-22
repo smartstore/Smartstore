@@ -5,6 +5,11 @@ namespace Smartstore.Web.Api
     public class WebApiSettings : ISettings
     {
         /// <summary>
+        /// The URL path prefix used to provide all Swagger documents.
+        /// </summary>
+        public const string SwaggerRoutePrefix = "docs/api";
+
+        /// <summary>
         /// Gets the max value of $top that a client can request.
         /// </summary>
         public const int DefaultMaxTop = 120;

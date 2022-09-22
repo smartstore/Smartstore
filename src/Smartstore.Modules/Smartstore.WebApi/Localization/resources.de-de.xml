@@ -37,16 +37,16 @@
         <Value>Die URL aller OData Endpunkte.</Value>
     </LocaleResource>
     <LocaleResource Name="ApiOdataMetadataUrl">
-        <Value>OData Metadaten URL</Value>
+        <Value>OData Metadaten</Value>
     </LocaleResource>
     <LocaleResource Name="ApiOdataMetadataUrl.Hint">
         <Value>Die URL der OData Metadaten. Sie beschreiben das gesamte Entitäten-Daten-Modell (EDM), auf dem die Web-API basiert.</Value>
     </LocaleResource>
     <LocaleResource Name="SwaggerUrl">
-        <Value>Swagger URL</Value>
+        <Value>API Dokumentation</Value>
     </LocaleResource>
     <LocaleResource Name="SwaggerUrl.Hint">
-        <Value>URL zur Swagger Dokumentation der Web-API.</Value>
+        <Value>Die URL zur Swagger Dokumentation der Web-API.</Value>
     </LocaleResource>
     <LocaleResource Name="ValidMinutePeriod">
         <Value>Anfragezeitfenster</Value>

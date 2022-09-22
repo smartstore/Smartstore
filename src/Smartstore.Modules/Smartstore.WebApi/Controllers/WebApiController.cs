@@ -35,11 +35,9 @@ namespace Smartstore.Web.Api.Controllers
             var model = MiniMapper.Map<WebApiSettings, ConfigurationModel>(settings);
 
             model.UsernamesEnabled = _customerSettings.CustomerLoginType != CustomerLoginType.Email;
-
-            // TODO: (mg) (core) check URLs. Probably changes.
             model.ApiOdataUrl = WebHelper.GetAbsoluteUrl(Url.Content("~/odata/v1"), Request, true).EnsureEndsWith("/");
             model.ApiOdataMetadataUrl = model.ApiOdataUrl + "$metadata";
-            model.SwaggerUrl = WebHelper.GetAbsoluteUrl(Url.Content("~/swagger"), Request, true);
+            model.ApiDocsUrl = WebHelper.GetAbsoluteUrl(Url.Content("~/" + WebApiSettings.SwaggerRoutePrefix), Request, true);
 
             if (Services.ApplicationContext.HostEnvironment.IsDevelopment())
             {

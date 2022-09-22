@@ -28,7 +28,7 @@
         <Value>OData API URL</Value>
     </LocaleResource>
     <LocaleResource Name="ApiOdataUrl.Hint">
-        <Value>URL of the OData Web-API.</Value>
+        <Value>URL of the OData Web API.</Value>
     </LocaleResource>
     <LocaleResource Name="ApiOdataEndpointsUrl">
         <Value>OData endpoints</Value>
@@ -37,16 +37,16 @@
         <Value>URL of all OData endpoints.</Value>
     </LocaleResource>
     <LocaleResource Name="ApiOdataMetadataUrl">
-        <Value>OData metadata URL</Value>
+        <Value>OData metadata</Value>
     </LocaleResource>
     <LocaleResource Name="ApiOdataMetadataUrl.Hint">
-        <Value>URL of the OData metadata. It describes the complete entity data model (EDM) the Web-API is based on.</Value>
+        <Value>URL of the OData metadata. It describes the complete entity data model (EDM) the Web API is based on.</Value>
     </LocaleResource>
     <LocaleResource Name="SwaggerUrl">
-        <Value>Swagger URL</Value>
+        <Value>API documentation</Value>
     </LocaleResource>
     <LocaleResource Name="SwaggerUrl.Hint">
-        <Value>URL of the Swagger documentation of the Web-API.</Value>
+        <Value>URL of the Swagger documentation of the Web API.</Value>
     </LocaleResource>
     <LocaleResource Name="ValidMinutePeriod">
         <Value>Request time window</Value>

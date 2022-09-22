@@ -57,16 +57,15 @@ namespace Smartstore.Web.Api
                 .AddSwaggerGen(o =>
                 {
                     // INFO: "name" equals ApiExplorer.GroupName. Must be globally unique, URI-friendly and should be in lower case.
-                    // Smartstore sets the ApiExplorer.GroupName dynamically based on the namespace of the API controller, see SmartApiExplorerConvention.
-                    o.SwaggerDoc("v1", new OpenApiInfo
+                    o.SwaggerDoc("webapi1", new OpenApiInfo
                     {
-                        Version = "v1",
+                        Version = "1",
                         Title = "Smartstore Web API"
                     });
 
                     // INFO: required workaround to avoid conflict errors for identical action names such as "Get" when opening swagger UI.
                     // Alternative: set-up a path template for each (!) OData action method.
-                    o.ResolveConflictingActions(apiDescriptions => apiDescriptions.First());
+                    o.ResolveConflictingActions(descriptions => descriptions.First());
 
                     //o.IgnoreObsoleteActions();
                     //o.IgnoreObsoleteProperties();
@@ -104,12 +103,12 @@ namespace Smartstore.Web.Api
                     // Prevents multiple descriptions from opening at the same time when clicking a method.
                     o.CustomOperationIds(x => x.HttpMethod.ToLower().Grow(x.RelativePath, "/"));
 
+                    // Ordering within a group does not work. See https://github.com/domaindrivendev/Swashbuckle.AspNetCore/issues/401
+                    //o.OrderActionsBy(x => ...);
+
                     // Filters.
                     o.DocumentFilter<SwaggerDocumentFilter>();
                     o.OperationFilter<SwaggerOperationFilter>();
-
-                    // TODO: (mg) (core) add SwaggerOperationFilter.
-                    //o.OperationFilter<SwaggerOperationFilter>();
 
                     try
                     {
@@ -137,17 +136,21 @@ namespace Smartstore.Web.Api
             {
                 builder.Configure(StarterOrdering.BeforeStaticFilesMiddleware, app =>
                 {
-                    // TODO: (mg) (core) Not sure whether this is the correct ordering for Swagger?! Investigate please.
-                    app.UseSwagger(options =>
+                    var routePrefix = WebApiSettings.SwaggerRoutePrefix;
+
+                    app.UseSwagger(o =>
                     {
+                        o.RouteTemplate = routePrefix + "/{documentName}/swagger.{json|yaml}";
                     });
 
                     app.UseSwaggerUI(o =>
                     {
-                        o.SwaggerEndpoint("v1/swagger.json", "v1");
+                        o.SwaggerEndpoint($"/{routePrefix}/webapi1/swagger.json", "Web API");
+                        o.RoutePrefix = routePrefix;
 
                         // Hide schemas dropdown.
                         o.DefaultModelsExpandDepth(-1);
+                        o.EnablePersistAuthorization();
                         //o.EnableTryItOutByDefault();
                         //o.DisplayOperationId();
                         o.DisplayRequestDuration();
@@ -183,7 +186,7 @@ namespace Smartstore.Web.Api
             services.AddAuthentication("Smartstore.WebApi.Basic")
                 .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("Smartstore.WebApi.Basic", null);
 
-            services.Configure<MvcOptions>(o => o.Conventions.Add(new ApiExplorerConvention()));
+            services.Configure<MvcOptions>(o => o.Conventions.Add(new ApiControllerModelConvention()));
         }
     }
 }

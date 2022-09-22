@@ -4,9 +4,9 @@ using Smartstore.Core.Seo;
 namespace Smartstore.Web.Api.Controllers.V1
 {
     /// <summary>
-    /// The endpoint for operations on category entity.
+    /// The endpoint for operations on Category entity.
     /// </summary>
-    public class CategoriesController : SmartODataController<Category>
+    public class CategoriesController : WebApi1Controller<Category>
     {
         private readonly Lazy<IUrlService> _urlService;
         private readonly Lazy<ICategoryService> _categoryService;
@@ -33,7 +33,7 @@ namespace Smartstore.Web.Api.Controllers.V1
             return GetByIdAsync(key);
         }
 
-        [HttpGet("/odata/v1/categories({key})/{property}")]
+        [HttpGet("odata/v1/categories({key})/{property}")]
         [Permission(Permissions.Catalog.Category.Read)]
         public Task<IActionResult> GetProperty(int key, string property)
         {

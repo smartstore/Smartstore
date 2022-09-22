@@ -15,7 +15,7 @@ namespace Smartstore.Web.Api.Models
         public string ApiOdataMetadataUrl { get; set; }
 
         [LocalizedDisplay("*SwaggerUrl")]
-        public string SwaggerUrl { get; set; }
+        public string ApiDocsUrl { get; set; }
 
         [LocalizedDisplay("*IsActive")]
         public bool IsActive { get; set; }

@@ -11,23 +11,22 @@ namespace Smartstore.Web.Api.Swagger
     {
         public void Apply(OpenApiDocument swaggerDoc, DocumentFilterContext context)
         {
+            // INFO: it would be nice if we could strip off the OData route here: /odata/v1/categories({key}) -> /categories({key})
+            // but that would let Swagger execute against /categories({key}) always resulting in 404 NotFound.
+            // To achieve this a custom Swagger template would be required. Perhaps there is an extension somewhere.
+
             foreach (var path in swaggerDoc.Paths)
             {
-                foreach (var op in path.Value.Operations)
-                {
-                    //$"{op.Key} {path.Key}".Dump();
+                //$"{path.Key} {string.Join(",", path.Value.Operations.Select(x => x.Key))}".Dump();
 
-                    switch (op.Key)
-                    {
-                        case OpenApiOpType.Get:
-                            // Remove duplicate documents. No need to have both, GET "entityset({key})" and GET "entityset/{key}".
-                            // Remove unusual, unexpected documents like $count.
-                            if (path.Key.EndsWithNoCase("/{key}") || path.Key.EndsWithNoCase("/$count"))
-                            {
-                                swaggerDoc.Paths.Remove(path.Key);
-                            }
-                            break;
-                    }
+                // Skip duplicate documents. No need to have both, GET "entityset({key})" and GET "entityset/{key}".
+                // Skip unusual, unexpected documents like $count.
+                var removePath = (path.Key.EndsWithNoCase("/{key}") || path.Key.EndsWithNoCase("/$count"))
+                    && path.Value.Operations.Any(x => x.Key == OpenApiOpType.Get);
+
+                if (removePath)
+                {
+                    swaggerDoc.Paths.Remove(path.Key);
                 }
             }
         }
