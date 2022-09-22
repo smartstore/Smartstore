@@ -64,7 +64,7 @@ namespace Smartstore.Web.Api.Swagger
             switch (ctx.ActionName)
             {
                 case "Get":
-                    if (mi.ReturnType.IsGenericType && mi.ReturnType.IsClosedGenericTypeOf(typeof(IQueryable<>)))
+                    if (mi.ReturnType.IsClosedGenericTypeOf(typeof(IQueryable<>)))
                     {
                         operation.Responses[StatusCodes.Status200OK.ToString()] = CreateSucccessResponse(ctx, false);
 
