@@ -23,36 +23,14 @@ namespace Smartstore.Web.Api
     /// </summary>
     internal class Startup : StarterBase
     {
-        public override void ConfigureMvc(IMvcBuilder mvcBuilder, IServiceCollection services, IApplicationContext appContext)
+        public override void ConfigureServices(IServiceCollection services, IApplicationContext appContext)
         {
-            //services.TryAddEnumerable(ServiceDescriptor.Transient<IODataControllerActionConvention, CustomRoutingConvention>());
+            services.AddAuthentication("Smartstore.WebApi.Basic")
+                .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("Smartstore.WebApi.Basic", null);
+            
+            services.Configure<MvcOptions>(o => o.Conventions.Add(new ApiControllerModelConvention()));
 
-            mvcBuilder
-                .AddOData(o =>
-                {
-                    var modelBuilder = new ODataConventionModelBuilder();
-                    var modelProviders = appContext.TypeScanner
-                        .FindTypes<IODataModelProvider>()
-                        .Select(x => (IODataModelProvider)Activator.CreateInstance(x));
-
-                    foreach (var provider in modelProviders)
-                    {
-                        provider.Build(modelBuilder, 1);
-                    }
-
-                    var edmModel = modelBuilder.GetEdmModel();
-
-                    o.EnableQueryFeatures(WebApiSettings.DefaultMaxTop);
-                    o.AddRouteComponents("odata/v1", edmModel);
-
-                    o.TimeZone = TimeZoneInfo.Utc;
-                    o.RouteOptions.EnableUnqualifiedOperationCall = true;
-
-                    //o.EnableAttributeRouting = true;
-                    //o.Conventions.Add(new CustomRoutingConvention());
-                });
-
-            mvcBuilder.Services
+            services
                 //.AddTransient<IConfigureOptions<SwaggerGenOptions>, SwaggerGenOptionsConfiguration>()
                 .AddSwaggerGen(o =>
                 {
@@ -84,7 +62,7 @@ namespace Smartstore.Web.Api
                         Description = "Please enter your public and private API key."
                     });
 
-                    o.AddSecurityRequirement(new OpenApiSecurityRequirement  
+                    o.AddSecurityRequirement(new OpenApiSecurityRequirement
                     {
                         {
                             new OpenApiSecurityScheme
@@ -127,7 +105,37 @@ namespace Smartstore.Web.Api
                 });
 
             // We are using Newtonsoft so we have to explicit opt-in. Needs to be placed after AddSwaggerGen().
-            mvcBuilder.Services.AddSwaggerGenNewtonsoftSupport();
+            services.AddSwaggerGenNewtonsoftSupport();
+        }
+
+        public override void ConfigureMvc(IMvcBuilder mvcBuilder, IServiceCollection services, IApplicationContext appContext)
+        {
+            //services.TryAddEnumerable(ServiceDescriptor.Transient<IODataControllerActionConvention, CustomRoutingConvention>());
+
+            mvcBuilder
+                .AddOData(o =>
+                {
+                    var modelBuilder = new ODataConventionModelBuilder();
+                    var modelProviders = appContext.TypeScanner
+                        .FindTypes<IODataModelProvider>()
+                        .Select(x => (IODataModelProvider)Activator.CreateInstance(x));
+
+                    foreach (var provider in modelProviders)
+                    {
+                        provider.Build(modelBuilder, 1);
+                    }
+
+                    var edmModel = modelBuilder.GetEdmModel();
+
+                    o.EnableQueryFeatures(WebApiSettings.DefaultMaxTop);
+                    o.AddRouteComponents("odata/v1", edmModel);
+
+                    o.TimeZone = TimeZoneInfo.Utc;
+                    o.RouteOptions.EnableUnqualifiedOperationCall = true;
+
+                    //o.EnableAttributeRouting = true;
+                    //o.Conventions.Add(new CustomRoutingConvention());
+                });
         }
 
         public override void BuildPipeline(RequestPipelineBuilder builder)
@@ -179,14 +187,6 @@ namespace Smartstore.Web.Api
                     //app.UseODataOpenApi();
                 });
             }
-        }
-
-        public override void ConfigureServices(IServiceCollection services, IApplicationContext appContext)
-        {
-            services.AddAuthentication("Smartstore.WebApi.Basic")
-                .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("Smartstore.WebApi.Basic", null);
-
-            services.Configure<MvcOptions>(o => o.Conventions.Add(new ApiControllerModelConvention()));
         }
     }
 }

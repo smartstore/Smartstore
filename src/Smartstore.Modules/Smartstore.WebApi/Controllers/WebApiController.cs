@@ -12,6 +12,7 @@ using Microsoft.Extensions.Hosting;
 
 namespace Smartstore.Web.Api.Controllers
 {
+    // TODO: (mg) (core) Confusing name. Should be called WebApiAdminController.
     public class WebApiController : AdminController
     {
         private readonly SmartDbContext _db;
