@@ -15,6 +15,10 @@ using Swashbuckle.AspNetCore.SwaggerUI;
 
 namespace Smartstore.Web.Api
 {
+    // TODO: (mg) (core) Please check whether we can move following files to module (doesn't feel right there):
+    // All Swagger files, ApiControllerModelConvention, (I)WebApiService, WebApiSettings, WebApiState, WebApiUser.
+    // We should only keep files in core that module developers MUST depend on to expose API stuff.
+
     /// <summary>
     /// For proper configuration see https://github.com/domaindrivendev/Swashbuckle.AspNetCore
     /// </summary>
