@@ -1,8 +1,23 @@
 ﻿using Microsoft.AspNetCore.Html;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Smartstore.Core.Widgets
 {
+    public class ComponentWidgetInvoker<T> : ComponentWidgetInvoker
+        where T : ViewComponent
+    {
+        public ComponentWidgetInvoker()
+            : base(typeof(T), null)
+        {
+        }
+
+        public ComponentWidgetInvoker(object arguments)
+            : base(typeof(T), arguments)
+        {
+        }
+    }
+
     public class ComponentWidgetInvoker : WidgetInvoker
     {
         public ComponentWidgetInvoker(string componentName, object arguments)

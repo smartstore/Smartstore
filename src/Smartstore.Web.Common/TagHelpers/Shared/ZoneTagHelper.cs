@@ -35,7 +35,7 @@ namespace Smartstore.Web.TagHelpers.Shared
         /// <summary>
         /// Whether to remove the root zone tag when it has no content. 
         /// Only applies to HTML tags like div, span, section etc..
-        /// <c>zone</c> tags are always removed.
+        /// <c>zone</c> tags are always removed. Default: false.
         /// </summary>
         [HtmlAttributeName(RemoveIfEmptyAttributeName)]
         public bool RemoveIfEmpty { get; set; }

@@ -27,8 +27,8 @@ namespace Smartstore.Engine.Initialization
         Task OnFailAsync(Exception exception, bool willRetry);
 
         /// <summary>
-        /// Whether to throw any error and stop execution of subsequent tasks.
-        /// If this is <c>false</c>, the task will be executed and <see cref="OnFailAsync(Exception, bool)"/> 
+        /// Whether to throw any error and stop execution of subsequent initializers.
+        /// If this is <c>false</c>, the initializer will be executed and <see cref="OnFailAsync(Exception, bool)"/> 
         /// will be invoked to give you the chance to do some logging or fix things.
         /// </summary>
         bool ThrowOnError { get; }

@@ -1,7 +1,7 @@
 ﻿namespace Smartstore.Core.Catalog.Discounts
 {
     /// <summary>
-    /// Represents an entity with appliable discounts.
+    /// Represents an entity with applicable discounts.
     /// </summary>
     public interface IDiscountable
     {

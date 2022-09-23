@@ -23,7 +23,6 @@ namespace Smartstore.Domain
             _lazyLoader = lazyLoader;
         }
 
-        //[NotMapped] // TODO: (core) Remove [NotMappedAttribute] once the EF bug (https://github.com/dotnet/efcore/issues/23968) is fixed.
         [JsonIgnore]
         protected internal virtual ILazyLoader LazyLoader
         {
