@@ -15,9 +15,6 @@ using Swashbuckle.AspNetCore.SwaggerUI;
 
 namespace Smartstore.Web.Api
 {
-    // TODO: (mg) (core) Enable OData batching via app.UseODataBatching(). See: https://devblogs.microsoft.com/odata/tutorial-creating-a-service-with-odata-8-0/
-    // PS: that document looks outdated. MapODataRoute and ODataOptions.AddModel does not exist anymore.
-
     /// <summary>
     /// For proper configuration see https://github.com/domaindrivendev/Swashbuckle.AspNetCore
     /// </summary>
@@ -142,10 +139,11 @@ namespace Smartstore.Web.Api
         {
             if (builder.ApplicationContext.IsInstalled)
             {
+                var routePrefix = WebApiSettings.SwaggerRoutePrefix;
+                var isDev = builder.ApplicationContext.HostEnvironment.IsDevelopment();
+
                 builder.Configure(StarterOrdering.BeforeStaticFilesMiddleware, app =>
                 {
-                    var routePrefix = WebApiSettings.SwaggerRoutePrefix;
-
                     app.UseSwagger(o =>
                     {
                         o.RouteTemplate = routePrefix + "/{documentName}/swagger.{json|yaml}";
@@ -156,14 +154,23 @@ namespace Smartstore.Web.Api
                         o.SwaggerEndpoint($"/{routePrefix}/webapi1/swagger.json", "Web API");
                         o.RoutePrefix = routePrefix;
 
-                        // Hide schemas dropdown.
-                        o.DefaultModelsExpandDepth(-1);
+                        // TODO: (mg) (core) a) remove masses (!) of unwanted entities in OData metadata. Missing DataContractAttribute issue?
+                        // See /odata/v1/$metadata. Everything except decorated with JsonIgnore is serialized.
+                        // b) also remove masses (!) of unwanted schemas (entities) in Swagger. ISchemaFilter required?
+                        // Example: RuleSetEntity is not part of the EDM but serialized via Category > AppliedDiscounts > RuleSets.
+
+                        // Only show schemas dropdown for developers.
+                        o.DefaultModelsExpandDepth(isDev ? 0 : -1);
+
+                        //o.DefaultModelRendering(ModelRendering.Example);
+                        //o.DefaultModelExpandDepth(1);
+
                         o.EnablePersistAuthorization();
                         //o.EnableTryItOutByDefault();
                         //o.DisplayOperationId();
                         o.DisplayRequestDuration();
                         o.DocExpansion(DocExpansion.List);
-                        //o.EnableFilter();
+                        o.EnableFilter();
                         //o.ShowCommonExtensions();
                         //o.InjectStylesheet("/swagger-ui/custom.css");
                     });
@@ -171,15 +178,17 @@ namespace Smartstore.Web.Api
 
                 builder.Configure(StarterOrdering.BeforeRoutingMiddleware, app => 
                 {
-                    // Navigate to ~/$odata to determine whether any endpoints did not match an odata route template.
-                    if (builder.ApplicationContext.HostEnvironment.IsDevelopment())
+                    if (isDev)
                     {
+                        // Navigate to ~/$odata to determine whether any endpoints did not match an odata route template.
                         app.UseODataRouteDebug();
                     }
 
                     // Add OData /$query middleware.
                     app.UseODataQueryRequest();
 
+                    // TODO: (mg) (core) Enable OData batching via app.UseODataBatching(). See: https://devblogs.microsoft.com/odata/tutorial-creating-a-service-with-odata-8-0/
+                    // PS: that document looks outdated. MapODataRoute and ODataOptions.AddModel does not exist anymore.
                     // Add the OData Batch middleware to support OData $Batch.
                     //app.UseODataBatching();
 

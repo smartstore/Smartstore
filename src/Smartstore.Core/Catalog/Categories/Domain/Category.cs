@@ -228,6 +228,7 @@ namespace Smartstore.Core.Catalog.Categories
         /// <summary>
         /// Gets or sets assigned rule sets.
         /// </summary>
+        [JsonIgnore]
         public ICollection<RuleSetEntity> RuleSets
         {
             get => LazyLoader?.Load(this, ref _ruleSets) ?? (_ruleSets ??= new HashSet<RuleSetEntity>());
