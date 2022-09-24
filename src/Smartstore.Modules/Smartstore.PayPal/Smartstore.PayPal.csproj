@@ -1,14 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk.Razor">
-	<PropertyGroup>
-		<Product>Smartstore Smartstore.PayPal</Product>
-		<OutputPath>..\..\Smartstore.Web\Modules\Smartstore.PayPal</OutputPath>
-		<OutDir>$(OutputPath)</OutDir>
-	</PropertyGroup>
-	<ItemGroup>
-		<ProjectReference Include="..\..\Smartstore.Web\Smartstore.Web.csproj">
-			<Private>False</Private>
-			<CopyLocal>False</CopyLocal>
-			<CopyLocalSatelliteAssemblies>False</CopyLocalSatelliteAssemblies>
-		</ProjectReference>
-	</ItemGroup>
+    <PropertyGroup>
+        <Product>Smartstore Smartstore.PayPal</Product>
+        <OutputPath>..\..\Smartstore.Web\Modules\Smartstore.PayPal</OutputPath>
+        <OutDir>$(OutputPath)</OutDir>
+    </PropertyGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\..\Smartstore.Web\Smartstore.Web.csproj">
+            <Private>False</Private>
+            <CopyLocal>False</CopyLocal>
+            <CopyLocalSatelliteAssemblies>False</CopyLocalSatelliteAssemblies>
+        </ProjectReference>
+    </ItemGroup>
 </Project>

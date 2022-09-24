@@ -13,16 +13,16 @@
     </LocaleResource>
 
     <LocaleResource Name="EnableMiniProfilerInPublicStore">
-        <Value>Mini-Profiler aktivieren</Value>
+        <Value>MiniProfiler aktivieren</Value>
     </LocaleResource>
     <LocaleResource Name="EnableMiniProfilerInPublicStore.Hint">
-        <Value>Aktiviert den Mini-Profiler. Mit dem Profiler können Sie die Requests einer Seite, inklusive Datenbankzugriffen analysieren. Die Anzeige ist auf angemeldete Administratoren beschränkt.</Value>
+        <Value>Aktiviert den MiniProfiler. Mit dem Profiler können Sie die Request-Geschwindigkeit, inklusive Datenbankzugriffen, analysieren. Nur Administratoren können das Profiler-Widget sehen.</Value>
     </LocaleResource>
     <LocaleResource Name="MiniProfilerIgnorePaths">
-        <Value>Mini-Profiler Pfad-Ausnahmen</Value>
+        <Value>MiniProfiler Pfad-Ausnahmen</Value>
     </LocaleResource>
     <LocaleResource Name="MiniProfilerIgnorePaths.Hint">
-        <Value>Eine Komma-getrennte Liste von Pfaden, die der Mini-Profiler ignorieren soll.</Value>
+        <Value>Eine Komma-getrennte Liste von Pfaden, die der MiniProfiler ignorieren soll.</Value>
     </LocaleResource>
     <LocaleResource Name="DisplayWidgetZones">
         <Value>Widget-Zonen darstellen</Value>

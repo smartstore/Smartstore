@@ -1,12 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
-  <PropertyGroup>
-		<Product>Smartstore Tax</Product>
-		<OutputPath>..\..\Smartstore.Web\Modules\Smartstore.Tax</OutputPath>
-		<OutDir>$(OutputPath)</OutDir>
-  </PropertyGroup>
-	<ItemGroup>
-		<Content Include="App_Data\**">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</Content>
-	</ItemGroup>
+    <PropertyGroup>
+        <Product>Smartstore Tax</Product>
+        <OutputPath>..\..\Smartstore.Web\Modules\Smartstore.Tax</OutputPath>
+        <OutDir>$(OutputPath)</OutDir>
+    </PropertyGroup>
+    <ItemGroup>
+        <Content Include="App_Data\**">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    </ItemGroup>
 </Project>

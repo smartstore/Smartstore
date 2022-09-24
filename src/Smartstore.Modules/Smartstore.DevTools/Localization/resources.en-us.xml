@@ -13,16 +13,16 @@
     </LocaleResource>
 
     <LocaleResource Name="EnableMiniProfilerInPublicStore">
-        <Value>Enable Mini-Profiler</Value>
+        <Value>Enable MiniProfiler</Value>
     </LocaleResource>
     <LocaleResource Name="EnableMiniProfilerInPublicStore.Hint">
-        <Value>Activates the Mini-Profiler. With its help you can analyse requests of a page, including database requests. The display of the profiler is limited to administrators.</Value>
+        <Value>Activates the MiniProfiler. With its help you can measure the time from the initial request to the first byte sent to the browser. Only admins can see the profiler widget.</Value>
     </LocaleResource>
     <LocaleResource Name="MiniProfilerIgnorePaths">
-        <Value>Mini-Profiler ignored paths</Value>
+        <Value>MiniProfiler ignored paths</Value>
     </LocaleResource>
     <LocaleResource Name="MiniProfilerIgnorePaths.Hint">
-        <Value>A comma-separated list of paths to be ignored by the Mini-Profiler.</Value>
+        <Value>A comma-separated list of paths to be ignored by the MiniProfiler.</Value>
     </LocaleResource>
     <LocaleResource Name="DisplayWidgetZones">
         <Value>Display widget zones</Value>
