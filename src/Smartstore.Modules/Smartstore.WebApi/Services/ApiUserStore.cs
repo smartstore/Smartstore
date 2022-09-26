@@ -1,6 +1,4 @@
 ﻿using Autofac;
-using Microsoft.Extensions.DependencyInjection;
-using Smartstore.Utilities;
 using Smartstore.Web.Api.Models;
 
 namespace Smartstore.Web.Api
@@ -8,6 +6,7 @@ namespace Smartstore.Web.Api
     public interface IApiUserStore
     {
         int SaveApiUsers(Dictionary<string, WebApiUser> users);
+        Task<int> SaveApiUsersAsync(Dictionary<string, WebApiUser> users);
     }
 
     public class ApiUserStore : IApiUserStore
@@ -39,8 +38,15 @@ namespace Smartstore.Web.Api
         //    _dbContextFactory = dbContextFactory;
         //}
 
+        public Task<int> SaveApiUsersAsync(Dictionary<string, WebApiUser> users)
+            => SaveApiUsersInternal(users, true);
+
         public int SaveApiUsers(Dictionary<string, WebApiUser> users)
+            => SaveApiUsersInternal(users, false).Await();
+
+        internal async Task<int> SaveApiUsersInternal(Dictionary<string, WebApiUser> users, bool async)
         {
+            // INFO: (mg) (core) Follow this "*Internal(..., bool async)" pattern where possible.
             var num = 0;
 
             if (users != null)
@@ -66,7 +72,9 @@ namespace Smartstore.Web.Api
                         }
 
                         // TODO: (mg) (core) System.ObjectDisposedException: "Instances cannot be resolved and nested lifetimes cannot be created from this LifetimeScope... already been disposed."
-                        num += db.SaveChanges();
+                        // RE: Hmmm?... what about "EngineContext.Current.Application.Services.Resolve<IDbContextFactory<SmartDbContext>>().CreateDbContext()"?
+                        //      Does that work? If yes, I'm gonna have a look at how the factory is resolved in ctor. This shouldn't happen (because the factory is singleton).
+                        num += async ? await db.SaveChangesAsync() : db.SaveChanges();
                     }
                 }
             }
