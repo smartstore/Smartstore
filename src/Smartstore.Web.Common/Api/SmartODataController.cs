@@ -7,9 +7,6 @@ using Smartstore.ComponentModel;
 
 namespace Smartstore.Web.Api
 {
-    // TODO: (mg) (core) check if PermissionAttribute is suitable for all API requests by testing endpoints served by convention.
-    // Do we need a more generic approach like a mapping based on entity type and HTTP method?
-
     /// <summary>
     /// Smart base controller class for OData endpoints.
     /// </summary>
@@ -17,9 +14,6 @@ namespace Smartstore.Web.Api
     /// - ActionResult<T> vs. IActionResult: IActionResult is used when multiple return types are possible.
     /// For ActionResult<T> ProducesResponseTypeAttribute's type property can be excluded.
     /// - Explicit "From" parameter bindings are required otherwise Swagger will describe them as "query" params by default.
-    /// 
-    /// - Not required anymore (works out of the box now):
-    /// Get<NavigationProperty>: GET /EntitySet(key)/NavigationProperty
     /// </remarks>
     [Authorize(AuthenticationSchemes = "Smartstore.WebApi.Basic")]
     public abstract class SmartODataController<TEntity> : ODataController

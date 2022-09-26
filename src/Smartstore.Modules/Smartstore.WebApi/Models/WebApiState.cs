@@ -1,4 +1,4 @@
-﻿namespace Smartstore.Web.Api
+﻿namespace Smartstore.Web.Api.Models
 {
     public class WebApiState
     {

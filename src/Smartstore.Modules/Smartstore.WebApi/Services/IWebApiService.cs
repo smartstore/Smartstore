@@ -1,4 +1,7 @@
-﻿namespace Smartstore.Web.Api
+﻿using Smartstore.Core.Stores;
+using Smartstore.Web.Api.Models;
+
+namespace Smartstore.Web.Api
 {
     public partial interface IWebApiService
     {
@@ -18,5 +21,7 @@
         /// </summary>
         /// <returns>Map of public access key to API user.</returns>
         Task<Dictionary<string, WebApiUser>> GetApiUsersAsync();
+
+        void ClearApiUserCache();
     }
 }

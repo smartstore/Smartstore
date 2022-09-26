@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.OData.Query;
 using Microsoft.OpenApi.Models;
@@ -11,7 +10,7 @@ namespace Smartstore.Web.Api.Swagger
     /// <summary>
     /// Adds information to <see cref="OpenApiOperation"/> like describing <see cref="OpenApiResponse"/> objects
     /// for repeating methods in OData controllers (like GetProperty, Get, Post etc.).
-    /// Only takes into account OData controllers that inherit from <see cref="SmartODataController<>"/>.
+    /// Only takes into account OData controllers that inherit from SmartODataController.
     /// </summary>
     public class SwaggerOperationFilter : IOperationFilter
     {
@@ -70,6 +69,8 @@ namespace Smartstore.Web.Api.Swagger
                 return;
             }
 
+            helper.Op.Responses[StatusCodes.Status400BadRequest.ToString()] = CreateBadRequestResponse();
+
             switch (helper.ActionName)
             {
                 case "Get":
@@ -102,7 +103,6 @@ namespace Smartstore.Web.Api.Swagger
                     helper.Op.Summary ??= $"Creates a new {helper.EntityType.Name}.";
                     helper.Op.RequestBody = helper.CreateRequestBody();
                     helper.Op.Responses[StatusCodes.Status201Created.ToString()] = helper.CreateSucccessResponse(true);
-                    helper.Op.Responses[StatusCodes.Status400BadRequest.ToString()] = CreateBadRequestResponse();
                     break;
 
                 case "Put":
@@ -114,7 +114,6 @@ namespace Smartstore.Web.Api.Swagger
                     helper.Op.RequestBody = helper.CreateRequestBody();
                     helper.Op.Responses[StatusCodes.Status200OK.ToString()] = helper.CreateSucccessResponse(true);
                     helper.Op.Responses[StatusCodes.Status204NoContent.ToString()] = CreateNoContentResponse();
-                    helper.Op.Responses[StatusCodes.Status400BadRequest.ToString()] = CreateBadRequestResponse();
                     helper.Op.Responses[StatusCodes.Status404NotFound.ToString()] = CreateNotFoundResponse();
                     helper.Op.Responses[StatusCodes.Status409Conflict.ToString()] = CreateConflictResponse();
                     helper.Op.Responses[StatusCodes.Status422UnprocessableEntity.ToString()] = CreateUnprocessableEntityResponse();
@@ -224,7 +223,7 @@ namespace Smartstore.Web.Api.Swagger
             => new() { Description = "The requested resource was not found." };
 
         private static OpenApiResponse CreateBadRequestResponse()
-            => new() { Description = "Bad request, e.g. because something is wrong with the sent data." };
+            => new() { Description = "Bad request. Occurs, for example, when the data sent is incorrect." };
 
         private static OpenApiResponse CreateNoContentResponse()
             => new() { Description = "The request has succeeded. There is no content provided." };

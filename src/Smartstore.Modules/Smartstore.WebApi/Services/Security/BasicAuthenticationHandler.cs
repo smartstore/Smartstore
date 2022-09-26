@@ -4,13 +4,14 @@ using System.Text;
 using System.Text.Encodings.Web;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Diagnostics;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Seo;
 using Smartstore.Utilities;
+using Smartstore.Web.Api.Models;
 
 namespace Smartstore.Web.Api.Security
 {
@@ -70,6 +71,9 @@ namespace Smartstore.Web.Api.Security
 
                 await _signInManager.SignInAsync(customer, true);
                 //$"Signed in using '{Scheme.Name}'.".Dump();
+
+                Request.HttpContext.Items["Smartstore.WebApi.MaxTop"] = state.MaxTop;
+                Request.HttpContext.Items["Smartstore.WebApi.MaxExpansionDepth"] = state.MaxExpansionDepth;
 
                 var claims = new[]
                 {

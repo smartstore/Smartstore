@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using Autofac;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.OData;
@@ -7,18 +8,16 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Net.Http.Headers;
 using Microsoft.OData.ModelBuilder;
 using Microsoft.OpenApi.Models;
+using Smartstore.Core.Theming;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;
+using Smartstore.Events;
 using Smartstore.Web.Api.Security;
 using Smartstore.Web.Api.Swagger;
 using Swashbuckle.AspNetCore.SwaggerUI;
 
 namespace Smartstore.Web.Api
 {
-    // TODO: (mg) (core) Please check whether we can move following files to module (doesn't feel right there):
-    // All Swagger files, ApiControllerModelConvention, (I)WebApiService, WebApiSettings, WebApiState, WebApiUser.
-    // We should only keep files in core that module developers MUST depend on to expose API stuff.
-
     /// <summary>
     /// For proper configuration see https://github.com/domaindrivendev/Swashbuckle.AspNetCore
     /// </summary>
@@ -131,12 +130,22 @@ namespace Smartstore.Web.Api
                     o.EnableQueryFeatures(WebApiSettings.DefaultMaxTop);
                     o.AddRouteComponents("odata/v1", edmModel);
 
+                    // TODO: (mg) (core) a) remove masses (!) of unwanted entities in OData metadata.
+                    // See /odata/v1/$metadata. Everything except decorated with JsonIgnore is serialized.
+                    // b) also remove masses (!) of unwanted schemas (entities) in Swagger. ISchemaFilter required?
+                    // Example: RuleSetEntity is not part of the EDM but serialized via Category > AppliedDiscounts > RuleSets.
+
                     o.TimeZone = TimeZoneInfo.Utc;
                     o.RouteOptions.EnableUnqualifiedOperationCall = true;
 
-                    //o.EnableAttributeRouting = true;
                     //o.Conventions.Add(new CustomRoutingConvention());
                 });
+        }
+
+        public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext)
+        {
+            builder.RegisterType<WebApiService>().As<IWebApiService>().InstancePerLifetimeScope();
+            builder.RegisterType<ApiUserStore>().As<IApiUserStore>().SingleInstance();
         }
 
         public override void BuildPipeline(RequestPipelineBuilder builder)
@@ -157,11 +166,6 @@ namespace Smartstore.Web.Api
                     {
                         o.SwaggerEndpoint($"/{routePrefix}/webapi1/swagger.json", "Web API");
                         o.RoutePrefix = routePrefix;
-
-                        // TODO: (mg) (core) a) remove masses (!) of unwanted entities in OData metadata. Missing DataContractAttribute issue?
-                        // See /odata/v1/$metadata. Everything except decorated with JsonIgnore is serialized.
-                        // b) also remove masses (!) of unwanted schemas (entities) in Swagger. ISchemaFilter required?
-                        // Example: RuleSetEntity is not part of the EDM but serialized via Category > AppliedDiscounts > RuleSets.
 
                         // Only show schemas dropdown for developers.
                         o.DefaultModelsExpandDepth(isDev ? 0 : -1);

@@ -2,6 +2,9 @@
 
 namespace Smartstore.Web.Api
 {
+    /// <summary>
+    /// Convention to omit controllers and actions from API explorer that are not decorated with <see cref="ApiExplorerSettingsAttribute"/>.
+    /// </summary>
     public class ApiControllerModelConvention : IControllerModelConvention
     {
         public void Apply(ControllerModel controller)
@@ -12,9 +15,6 @@ namespace Smartstore.Web.Api
 
     // TODO: (mg) (core) cleanup old API stuff later.
 
-    /// <summary>
-    /// Specifies a class or method to be included in API explorer and thus Swagger documentation.
-    /// </summary>
     //[AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
     //public class ApiDocumentAttribute : Attribute
     //{
@@ -27,9 +27,6 @@ namespace Smartstore.Web.Api
     //    public bool SetGroupNameByNamespace { get; set; } = true;
     //}
 
-    /// <summary>
-    /// Convention to omit controllers and actions that are not decorated with <see cref="ApiDocumentAttribute"/>.
-    /// </summary>
     //public class ApiExplorerConvention1 : IActionModelConvention
     //{
     //    public void Apply(ActionModel action)

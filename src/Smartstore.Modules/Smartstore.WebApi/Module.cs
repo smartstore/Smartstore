@@ -7,6 +7,7 @@ global using Microsoft.AspNetCore.Http;
 global using Microsoft.AspNetCore.Mvc;
 global using Microsoft.AspNetCore.OData.Deltas;
 global using Microsoft.EntityFrameworkCore;
+global using Smartstore.Core.Data;
 global using Smartstore.Core.Security;
 using Smartstore.Engine.Modularity;
 using Smartstore.Http;

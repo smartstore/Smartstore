@@ -1,7 +1,9 @@
-﻿namespace Smartstore.Web.Api
+﻿namespace Smartstore.Web.Api.Models
 {
     public class WebApiUser
     {
+        private DateTime? _lastRequest;
+
         /// <summary>
         /// The identifier of the generic attribute where the user's access data is stored.
         /// </summary>
@@ -30,13 +32,23 @@
         /// <summary>
         /// The date on which the last API request took place (in UTC).
         /// </summary>
-        public DateTime? LastRequest { get; set; }
+        public DateTime? LastRequest
+        {
+            get => _lastRequest;
+            set => _lastRequest = value;
+        }
 
         /// <summary>
         /// A value indicating whether the user data is valid.
         /// </summary>
         public bool IsValid
             => GenericAttributeId != 0 && CustomerId != 0 && !string.IsNullOrWhiteSpace(PublicKey) && !string.IsNullOrWhiteSpace(SecretKey);
+
+        /// <summary>
+        /// A value indicating whether the user data needs to be stored.
+        /// </summary>
+        public bool IsStoringRequired
+            => _lastRequest.HasValue && _lastRequest > WebApiService.UsersLoadedDate;
 
         public override string ToString()
         {

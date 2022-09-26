@@ -186,7 +186,7 @@ namespace Smartstore.Web.Api.Controllers
                     });
 
                     await _db.SaveChangesAsync();
-                    await Services.Cache.RemoveAsync(WebApiService.UsersKey);
+                    _apiService.ClearApiUserCache();
 
                     break;
                 }
@@ -200,7 +200,7 @@ namespace Smartstore.Web.Api.Controllers
         public async Task<IActionResult> DeleteUserKeys(int customerId)
         {
             await RemoveKeys(customerId);
-            await Services.Cache.RemoveAsync(WebApiService.UsersKey);
+            _apiService.ClearApiUserCache();
 
             return Ok();
         }

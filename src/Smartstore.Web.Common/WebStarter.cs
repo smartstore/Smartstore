@@ -106,9 +106,6 @@ namespace Smartstore.Web
             builder.RegisterType<DefaultViewInvoker>().As<IViewInvoker>().InstancePerLifetimeScope();
             builder.RegisterType<WebWorkContext>().As<IWorkContext>().InstancePerLifetimeScope();
             builder.RegisterType<SlugRouteTransformer>().InstancePerLifetimeScope();
-
-            // API.
-            builder.RegisterType<WebApiService>().As<IWebApiService>().InstancePerLifetimeScope();
         }
 
         public override void BuildPipeline(RequestPipelineBuilder builder)

@@ -33,7 +33,8 @@ namespace Smartstore.Web.Api.Controllers.V1
             return GetByIdAsync(key);
         }
 
-        [HttpGet("odata/v1/categories({key})/{property}")]
+        [HttpGet("categories({key})/{property}")]
+        [HttpGet("categories/{key}/{property}")]
         [Permission(Permissions.Catalog.Category.Read)]
         public Task<IActionResult> GetProperty(int key, string property)
         {
