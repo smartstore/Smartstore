@@ -33,12 +33,14 @@ namespace Smartstore.Web.Api.Security
         private readonly IWebApiService _apiService;
         private readonly SignInManager<Customer> _signInManager;
         private readonly Lazy<IUrlService> _urlService;
+        private readonly IApiUserStore2 _apiUserStore;
 
         public BasicAuthenticationHandler(
             SmartDbContext db,
             IWebApiService apiService,
             SignInManager<Customer> signInManager,
             Lazy<IUrlService> urlService,
+            IApiUserStore2 apiUserStore,
             IOptionsMonitor<AuthenticationSchemeOptions> options,
             ILoggerFactory logger,
             UrlEncoder encoder,
@@ -49,6 +51,7 @@ namespace Smartstore.Web.Api.Security
             _apiService = apiService;
             _signInManager = signInManager;
             _urlService = urlService;
+            _apiUserStore = apiUserStore;
         }
 
         protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
@@ -66,6 +69,8 @@ namespace Smartstore.Web.Api.Security
                 {
                     throw new AuthenticationException(AccessDeniedReason.SslRequired);
                 }
+
+                _apiUserStore.Activate(TimeSpan.FromMinutes(15));
 
                 var (customer, user) = await GetCustomer();
 
@@ -147,6 +152,7 @@ namespace Smartstore.Web.Api.Security
             }
 
             user.LastRequest = DateTime.UtcNow;
+
             return (customer, user);
         }
 

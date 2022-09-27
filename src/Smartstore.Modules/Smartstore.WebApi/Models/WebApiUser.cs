@@ -44,12 +44,6 @@
         public bool IsValid
             => GenericAttributeId != 0 && CustomerId != 0 && !string.IsNullOrWhiteSpace(PublicKey) && !string.IsNullOrWhiteSpace(SecretKey);
 
-        /// <summary>
-        /// A value indicating whether the user data needs to be stored.
-        /// </summary>
-        public bool IsStoringRequired
-            => _lastRequest.HasValue && _lastRequest > WebApiService.UsersLoadedDate;
-
         public override string ToString()
         {
             // INFO: the data that is stored as generic attribute.

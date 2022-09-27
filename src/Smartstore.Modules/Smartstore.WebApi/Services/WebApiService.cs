@@ -21,10 +21,8 @@ namespace Smartstore.Web.Api
         internal const string StateKey = "smartstore.webapi:state-{0}";
         internal const string StatePatternKey = "smartstore.webapi:state-*";
 
-        const string UsersKey = "smartstore.webapi:users";
+        internal const string UsersKey = "smartstore.webapi:users";
         internal const string AttributeUserDataKey = "WebApiUserData";
-
-        internal static DateTime? UsersLoadedDate;
 
         private readonly SmartDbContext _db;
         private readonly IStoreContext _storeContext;
@@ -167,18 +165,13 @@ namespace Smartstore.Web.Api
 
             var users = entries.ToDictionarySafe(x => x.PublicKey, StringComparer.OrdinalIgnoreCase);
 
-            UsersLoadedDate = DateTime.UtcNow;
-
             var cacheEntryOptions = new MemoryCacheEntryOptions()
                 .SetPriority(CacheItemPriority.NeverRemove)
                 .AddExpirationToken(new CancellationChangeToken(_appShutdownCancellationToken))
                 .RegisterPostEvictionCallback((key, value, reason, state) =>
                 {
-                    var num = 0;
-                    //var apiUserStore = EngineContext.Current.Application.Services.Resolve<IApiUserStore>();
-                    //num = apiUserStore.SaveApiUsers(value as Dictionary<string, WebApiUser>);
-
-                    $"EvictionCallback: saved {num} API user.".Dump();
+                    var apiUserStore = EngineContext.Current.Application.Services.Resolve<IApiUserStore2>();
+                    apiUserStore.SaveApiUsers(value as Dictionary<string, WebApiUser>, false);
                 });
 
             return _memCache.Set(UsersKey, users, cacheEntryOptions);

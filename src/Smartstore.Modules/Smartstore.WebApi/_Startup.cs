@@ -145,7 +145,8 @@ namespace Smartstore.Web.Api
         public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext)
         {
             builder.RegisterType<WebApiService>().As<IWebApiService>().InstancePerLifetimeScope();
-            builder.RegisterType<ApiUserStore>().As<IApiUserStore>().SingleInstance();
+            //builder.RegisterType<ApiUserStore>().As<IApiUserStore>().SingleInstance();
+            builder.RegisterType<ApiUserStore2>().As<IApiUserStore2>().SingleInstance();
         }
 
         public override void BuildPipeline(RequestPipelineBuilder builder)
