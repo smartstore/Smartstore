@@ -69,6 +69,12 @@ namespace Smartstore.Web.Theming
             return cts;
         }
 
+        private static void OnPostEviction(object key, object value, EvictionReason reason, object state)
+        {
+            // Signal cancellation so that cached bundles can be busted from cache
+            CancelToken(state);
+        }
+
         internal static void CancelToken(string theme, int storeId)
         {
             CancelToken(BuildTokenKey(theme, storeId));
@@ -132,11 +138,7 @@ namespace Smartstore.Web.Theming
             return await _memCache.GetOrCreateAsync(cacheKey, async (entry) =>
             {
                 // Ensure that when this item is expired, any bundle depending on the token is also expired
-                entry.RegisterPostEvictionCallback((key, value, reason, state) =>
-                {
-                    // Signal cancellation so that cached bundles can be busted from cache
-                    CancelToken(state);
-                }, tokenKey);
+                entry.RegisterPostEvictionCallback(OnPostEviction, tokenKey);
 
                 return await GetRawVariablesCoreAsync(themeName, storeId);
             });
