@@ -5,7 +5,7 @@ One of the easiest ways to contribute is to participate in discussions on GitHub
 To stay informed about the latest news and receive updates from Smartstore, just click on the _Watch_ button at the top of this page.
 
 ## Reporting a security issue
-Please report any _sensitive_, _critical_, or _urgent_ vulnerablities by using our [contact form](https://smartstore.com/en/contact) saying 
+Please report any _sensitive_, _critical_, or _urgent_ vulnerabilities by using our [contact form](https://smartstore.com/en/contact) saying 
 you need to communicate an important security issue.
 
 After assessing the issue, we will work out how we will handle the matter and let you know how to proceed. 
