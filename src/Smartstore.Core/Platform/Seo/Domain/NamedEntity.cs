@@ -16,5 +16,23 @@
 
         public override string GetEntityName()
             => EntityName;
+
+        public static string GetEntityName<T>() 
+            where T : INamedEntity, new()
+        {
+            return new T().GetEntityName();
+        }
+
+        public static string GetEntityName(Type entityType)
+        {
+            Guard.NotNull(entityType, nameof(entityType));
+
+            if (entityType.HasDefaultConstructor() && typeof(INamedEntity).IsAssignableFrom(entityType))
+            {
+                return (Activator.CreateInstance(entityType) as INamedEntity).GetEntityName();
+            }
+
+            return entityType.Name;
+        }
     }
 }

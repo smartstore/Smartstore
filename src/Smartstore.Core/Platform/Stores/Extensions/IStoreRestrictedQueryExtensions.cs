@@ -1,4 +1,5 @@
 ﻿using Smartstore.Core.Data;
+using Smartstore.Core.Seo;
 
 namespace Smartstore.Core.Stores
 {
@@ -24,7 +25,7 @@ namespace Smartstore.Core.Stores
                 return query;
             }
 
-            var entityName = new T().GetEntityName();
+            var entityName = NamedEntity.GetEntityName<T>();
 
             var subQuery = db.StoreMappings
                 .Where(x => x.EntityName == entityName && x.StoreId == storeId)

@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using Smartstore.Core.Seo;
 
 namespace Smartstore.Core.Localization
 {
@@ -16,7 +17,7 @@ namespace Smartstore.Core.Localization
 
         public string KeyGroup 
         {
-            get => _keyGroup ?? EntityType.Name;
+            get => _keyGroup ?? NamedEntity.GetEntityName(EntityType);
             init => _keyGroup = value;
         }
 

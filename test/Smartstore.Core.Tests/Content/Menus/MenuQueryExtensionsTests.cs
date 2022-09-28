@@ -6,6 +6,7 @@ using NUnit.Framework;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Content.Menus;
 using Smartstore.Core.Security;
+using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
 
 namespace Smartstore.Core.Tests.Content.Menus
@@ -15,8 +16,8 @@ namespace Smartstore.Core.Tests.Content.Menus
     {
         #region Test data
 
-        private readonly static string _menuEntityName = new MenuEntity().GetEntityName();
-        private readonly static string _menuItemEntityName = new MenuItemEntity().GetEntityName();
+        private readonly static string _menuEntityName = NamedEntity.GetEntityName<MenuEntity>();
+        private readonly static string _menuItemEntityName = NamedEntity.GetEntityName<MenuItemEntity>();
 
         private readonly List<MenuEntity> _menus = new()
         {

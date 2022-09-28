@@ -6,6 +6,7 @@ using NUnit.Framework;
 using Smartstore.Core.Catalog.Brands;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Security;
+using Smartstore.Core.Seo;
 using Smartstore.Core.Stores;
 
 namespace Smartstore.Core.Tests.Catalog.Brands
@@ -15,8 +16,8 @@ namespace Smartstore.Core.Tests.Catalog.Brands
     {
         #region Test data
 
-        private readonly static string _manufacturerEntityName = new Manufacturer().GetEntityName();
-        private readonly static string _productEntityName = new Product().GetEntityName();
+        private readonly static string _manufacturerEntityName = NamedEntity.GetEntityName<Manufacturer>();
+        private readonly static string _productEntityName = NamedEntity.GetEntityName<Product>();
 
         private readonly List<Manufacturer> _manufacturers = new()
         {

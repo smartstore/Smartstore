@@ -1,6 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
+using Smartstore.Core.Seo;
 
 namespace Smartstore.Core.Security
 {
@@ -38,7 +39,7 @@ namespace Smartstore.Core.Security
                 return query;
             }
 
-            var entityName = new T().GetEntityName();
+            var entityName = NamedEntity.GetEntityName<T>();
 
             var subQuery = db.AclRecords
                 .Where(x => x.EntityName == entityName && customerRoleIds.Contains(x.CustomerRoleId))
