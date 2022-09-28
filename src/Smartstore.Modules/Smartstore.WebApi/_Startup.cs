@@ -1,17 +1,15 @@
-﻿using System.Reflection;
-using Autofac;
+﻿using Autofac;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.OData;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Net.Http.Headers;
+using Microsoft.OData;
 using Microsoft.OData.ModelBuilder;
 using Microsoft.OpenApi.Models;
-using Smartstore.Core.Theming;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;
-using Smartstore.Events;
 using Smartstore.Web.Api.Security;
 using Smartstore.Web.Api.Swagger;
 using Swashbuckle.AspNetCore.SwaggerUI;
@@ -23,6 +21,18 @@ namespace Smartstore.Web.Api
     /// </summary>
     internal class Startup : StarterBase
     {
+        private List<IODataModelProvider> _modelProviders;
+
+        private List<IODataModelProvider> GetModelProviders(IApplicationContext appContext)
+        {
+            _modelProviders ??= appContext.TypeScanner
+                    .FindTypes<IODataModelProvider>()
+                    .Select(x => (IODataModelProvider)Activator.CreateInstance(x))
+                    .ToList();
+
+            return _modelProviders;
+        }
+
         public override void ConfigureServices(IServiceCollection services, IApplicationContext appContext)
         {
             services.AddAuthentication("Smartstore.WebApi.Basic")
@@ -31,7 +41,6 @@ namespace Smartstore.Web.Api
             services.Configure<MvcOptions>(o => o.Conventions.Add(new ApiControllerModelConvention()));
 
             services
-                //.AddTransient<IConfigureOptions<SwaggerGenOptions>, SwaggerGenOptionsConfiguration>()
                 .AddSwaggerGen(o =>
                 {
                     // INFO: "name" equals ApiExplorer.GroupName. Must be globally unique, URI-friendly and should be in lower case.
@@ -90,13 +99,16 @@ namespace Smartstore.Web.Api
 
                     try
                     {
-                        // INFO: enable "Documentation file" in project properties. Leave file path empty.
-                        // Optionally append 1591 to "Suppress specific warnings" to suppress warning about missing XML comments.
-                        var fileName = Assembly.GetExecutingAssembly().GetName().Name;
-                        var xmlFile = appContext.ModulesRoot.GetFile($"{Module.SystemName}/{fileName}.xml");
-
-                        // TODO: (mg) (core) we probably need an XML doc factory because code comments are spread over several projects.
-                        o.IncludeXmlComments(xmlFile.PhysicalPath, true);
+                        // XML comments.
+                        var modelProviders = GetModelProviders(appContext);
+                        foreach (var provider in modelProviders)
+                        {
+                            var xmlPath = provider.GetXmlCommentsFilePath(appContext, 1);
+                            if (xmlPath != null)
+                            {
+                                o.IncludeXmlComments(xmlPath, true);
+                            }
+                        }
                     }
                     catch (Exception ex)
                     {
@@ -116,9 +128,7 @@ namespace Smartstore.Web.Api
                 .AddOData(o =>
                 {
                     var modelBuilder = new ODataConventionModelBuilder();
-                    var modelProviders = appContext.TypeScanner
-                        .FindTypes<IODataModelProvider>()
-                        .Select(x => (IODataModelProvider)Activator.CreateInstance(x));
+                    var modelProviders = GetModelProviders(appContext);
 
                     foreach (var provider in modelProviders)
                     {
@@ -145,8 +155,8 @@ namespace Smartstore.Web.Api
         public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext)
         {
             builder.RegisterType<WebApiService>().As<IWebApiService>().InstancePerLifetimeScope();
-            //builder.RegisterType<ApiUserStore>().As<IApiUserStore>().SingleInstance();
-            builder.RegisterType<ApiUserStore2>().As<IApiUserStore2>().SingleInstance();
+            builder.RegisterType<ApiUserStore>().As<IApiUserStore>().SingleInstance();
+            //builder.RegisterType<ApiUserStore2>().As<IApiUserStore2>().SingleInstance();
         }
 
         public override void BuildPipeline(RequestPipelineBuilder builder)

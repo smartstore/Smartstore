@@ -234,8 +234,11 @@ namespace Smartstore.Engine.Modularity
         public string SourcePhysicalPath { get; internal set; }
 
         /// <inheritdoc/>
-        public ModuleAssemblyInfo Module { get; internal set; }
+        public string XmlCommentsPath
+            => IOPath.Combine(PhysicalPath, IOPath.ChangeExtension(AssemblyName, "xml"));
 
+        /// <inheritdoc/>
+        public ModuleAssemblyInfo Module { get; internal set; }
 
         /// <inheritdoc/>
         [JsonProperty]

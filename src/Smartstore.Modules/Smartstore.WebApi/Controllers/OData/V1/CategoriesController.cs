@@ -1,7 +1,7 @@
 ﻿using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Seo;
 
-namespace Smartstore.Web.Api.Controllers.V1
+namespace Smartstore.Web.Api.Controllers.OData.V1
 {
     /// <summary>
     /// The endpoint for operations on Category entity.

@@ -33,14 +33,14 @@ namespace Smartstore.Web.Api.Security
         private readonly IWebApiService _apiService;
         private readonly SignInManager<Customer> _signInManager;
         private readonly Lazy<IUrlService> _urlService;
-        private readonly IApiUserStore2 _apiUserStore;
+        private readonly IApiUserStore _apiUserStore;
 
         public BasicAuthenticationHandler(
             SmartDbContext db,
             IWebApiService apiService,
             SignInManager<Customer> signInManager,
             Lazy<IUrlService> urlService,
-            IApiUserStore2 apiUserStore,
+            IApiUserStore apiUserStore,
             IOptionsMonitor<AuthenticationSchemeOptions> options,
             ILoggerFactory logger,
             UrlEncoder encoder,

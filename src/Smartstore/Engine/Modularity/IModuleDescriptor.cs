@@ -59,6 +59,11 @@
         string SourcePhysicalPath { get; }
 
         /// <summary>
+        /// The full physical path of the XML file containing source code comments.
+        /// </summary>
+        public string XmlCommentsPath { get; }
+
+        /// <summary>
         /// Gets the module's runtime assembly info.
         /// </summary>
         ModuleAssemblyInfo Module { get; }

@@ -168,11 +168,7 @@ namespace Smartstore.Web.Api
             var cacheEntryOptions = new MemoryCacheEntryOptions()
                 .SetPriority(CacheItemPriority.NeverRemove)
                 .AddExpirationToken(new CancellationChangeToken(_appShutdownCancellationToken))
-                .RegisterPostEvictionCallback((key, value, reason, state) =>
-                {
-                    var apiUserStore = EngineContext.Current.Application.Services.Resolve<IApiUserStore2>();
-                    apiUserStore.SaveApiUsers(value as Dictionary<string, WebApiUser>, false);
-                });
+                .RegisterPostEvictionCallback(OnPostEvictionCallback);
 
             return _memCache.Set(UsersKey, users, cacheEntryOptions);
 
@@ -241,6 +237,12 @@ namespace Smartstore.Web.Api
         public void ClearApiUserCache()
         {
             _memCache.Remove(UsersKey);
+        }
+
+        private static void OnPostEvictionCallback(object key, object value, EvictionReason reason, object state)
+        {
+            var apiUserStore = EngineContext.Current.Application.Services.Resolve<IApiUserStore>();
+            apiUserStore.SaveApiUsers(value as Dictionary<string, WebApiUser>);
         }
     }
 }

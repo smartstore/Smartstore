@@ -1,6 +1,10 @@
-﻿using Microsoft.OData.ModelBuilder;
+﻿using System.IO;
+using System.Reflection;
+using Autofac.Core;
+using Microsoft.OData.ModelBuilder;
 using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Discounts;
+using Smartstore.Engine;
 
 namespace Smartstore.Web.Api
 {
@@ -10,6 +14,11 @@ namespace Smartstore.Web.Api
         {
             builder.EntitySet<Category>("Categories");
             builder.EntitySet<Discount>("Discounts");
+        }
+
+        public string GetXmlCommentsFilePath(IApplicationContext appContext, int version)
+        {
+            return appContext.ModuleCatalog.GetModuleByName(Module.SystemName)?.XmlCommentsPath;
         }
     }
 }
