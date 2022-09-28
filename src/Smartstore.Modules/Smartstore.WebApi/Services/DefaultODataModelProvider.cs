@@ -18,6 +18,7 @@ namespace Smartstore.Web.Api
 
         public string GetXmlCommentsFilePath(IApplicationContext appContext, int version)
         {
+            // // TODO: (mg) (core) Why PHYSICAL path?
             return appContext.ModuleCatalog.GetModuleByName(Module.SystemName)?.XmlCommentsPath;
         }
     }

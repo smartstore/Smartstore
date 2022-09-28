@@ -61,7 +61,7 @@
         /// <summary>
         /// The full physical path of the XML file containing source code comments.
         /// </summary>
-        public string XmlCommentsPath { get; }
+        public string XmlCommentsPath { get; } // TODO: (mg) (core) Remove please!
 
         /// <summary>
         /// Gets the module's runtime assembly info.
