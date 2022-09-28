@@ -21,7 +21,7 @@ namespace Smartstore.Caching
         /// </summary>
         /// <typeparam name="T">The type of the item to get</typeparam>
         /// <param name="key">The cache item key</param>
-        /// <param name="independent">When <c>true</c>, no attemp will be made to invalidate depending/parent cache entries.</param>
+        /// <param name="independent">When <c>true</c>, no attempt will be made to invalidate depending/parent cache entries.</param>
         /// <returns>Cached item value or <c>null</c> if item with specified key does not exist in the cache</returns>
         T Get<T>(string key, bool independent = false);
 
@@ -30,7 +30,7 @@ namespace Smartstore.Caching
         /// </summary>
         /// <typeparam name="T">The type of the item to get</typeparam>
         /// <param name="key">The cache item key</param>
-        /// <param name="independent">When <c>true</c>, no attemp will be made to invalidate depending/parent cache entries.</param>
+        /// <param name="independent">When <c>true</c>, no attempt will be made to invalidate depending/parent cache entries.</param>
         /// <returns>Cached item value or <c>null</c> if item with specified key does not exist in the cache</returns>
         Task<T> GetAsync<T>(string key, bool independent = false);
 
@@ -57,7 +57,7 @@ namespace Smartstore.Caching
         /// <typeparam name="T">The type of the item to get or add</typeparam>
         /// <param name="key">The cache item key</param>
         /// <param name="acquirer">Func which returns the value to be added to the cache</param>
-        /// <param name="independent">When <c>true</c>, no attemp will be made to invalidate depending/parent cache entries.</param>
+        /// <param name="independent">When <c>true</c>, no attempt will be made to invalidate depending/parent cache entries.</param>
         /// <param name="allowRecursion">When <c>false</c>, an exception will be thrown when the acquirer tries to acces the same cache item.</param>
         /// <returns>Cached item value</returns>
         T Get<T>(string key, Func<CacheEntryOptions, T> acquirer, bool independent = false, bool allowRecursion = false);
@@ -69,7 +69,7 @@ namespace Smartstore.Caching
         /// <typeparam name="T">The type of the item to get or add</typeparam>
         /// <param name="key">The cache item key</param>
         /// <param name="acquirer">Func which returns the value to be added to the cache</param>
-        /// <param name="independent">When <c>true</c>, no attemp will be made to invalidate depending/parent cache entries.</param>
+        /// <param name="independent">When <c>true</c>, no attempt will be made to invalidate depending/parent cache entries.</param>
         /// <param name="allowRecursion">When <c>false</c>, an exception will be thrown when the acquirer tries to acces the same cache item.</param>
         /// <returns>Cached item value</returns>
         Task<T> GetAsync<T>(string key, Func<CacheEntryOptions, Task<T>> acquirer, bool independent = false, bool allowRecursion = false);
