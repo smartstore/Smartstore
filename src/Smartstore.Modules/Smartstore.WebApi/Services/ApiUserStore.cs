@@ -1,9 +1,6 @@
-﻿using System.Threading;
-using Autofac;
+﻿using Autofac;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.DependencyInjection;
-using Smartstore.Data;
-using Smartstore.Utilities;
+using Smartstore.Threading;
 using Smartstore.Web.Api.Models;
 
 namespace Smartstore.Web.Api
@@ -20,7 +17,7 @@ namespace Smartstore.Web.Api
         private readonly IDbContextFactory<SmartDbContext> _dbContextFactory;
         private readonly IMemoryCache _memCache;
 
-        private Timer _timer;
+        private PortableTimer _timer;
         private DateTime _lastSavingDate = DateTime.UtcNow;
 
         public ApiUserStore(IDbContextFactory<SmartDbContext> dbContextFactory, IMemoryCache memCache)
@@ -33,14 +30,19 @@ namespace Smartstore.Web.Api
         {
             _lastSavingDate = DateTime.UtcNow;
 
-            _timer ??= new(async state =>
+            if (_timer == null)
             {
-                if (_memCache.TryGetValue(WebApiService.UsersKey, out object cachedUsers))
-                {
-                    await SaveApiUsersInternal(cachedUsers as Dictionary<string, WebApiUser>, true);
-                }
-            },
-            null, storingInterval, storingInterval);
+                _timer ??= new(_ => OnTick());
+                _timer.Start(storingInterval);
+            }
+        }
+
+        private async Task OnTick()
+        {
+            if (_memCache.TryGetValue(WebApiService.UsersKey, out object cachedUsers))
+            {
+                await SaveApiUsersInternal(cachedUsers as Dictionary<string, WebApiUser>, true);
+            }
         }
 
         public Task<int> SaveApiUsersAsync(Dictionary<string, WebApiUser> users)
@@ -93,6 +95,17 @@ namespace Smartstore.Web.Api
             if (disposing)
             {
                 _timer?.Dispose();
+            }
+        }
+
+        protected override async ValueTask OnDisposeAsync(bool disposing)
+        {
+            if (disposing)
+            {
+                _timer?.Dispose();
+
+                // Persist remaining data on dispose.
+                await OnTick();
             }
         }
     }
