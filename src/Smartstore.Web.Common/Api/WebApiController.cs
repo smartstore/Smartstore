@@ -5,7 +5,7 @@ namespace Smartstore.Web.Api
     [ODataRouteComponent("odata/v1")]
     [Route("odata/v1")]
     [ApiExplorerSettings(GroupName = "webapi1")]
-    public abstract class WebApi1Controller<TEntity> : SmartODataController<TEntity>
+    public abstract class WebApiController<TEntity> : SmartODataController<TEntity>
         where TEntity : BaseEntity, new()
     {
     }

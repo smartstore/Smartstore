@@ -1,12 +1,12 @@
 ﻿using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Seo;
 
-namespace Smartstore.Web.Api.Controllers.OData.V1
+namespace Smartstore.Web.Api.Controllers.OData
 {
     /// <summary>
     /// The endpoint for operations on Category entity.
     /// </summary>
-    public class CategoriesController : WebApi1Controller<Category>
+    public class CategoriesController : WebApiController<Category>
     {
         private readonly Lazy<IUrlService> _urlService;
         private readonly Lazy<ICategoryService> _categoryService;

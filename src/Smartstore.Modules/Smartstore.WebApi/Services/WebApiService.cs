@@ -11,6 +11,7 @@ using Smartstore.Core.Identity;
 using Smartstore.Core.Stores;
 using Smartstore.Engine;
 using Smartstore.Engine.Modularity;
+using Smartstore.Threading;
 using Smartstore.Web.Api.Models;
 
 namespace Smartstore.Web.Api
@@ -171,67 +172,6 @@ namespace Smartstore.Web.Api
                 .RegisterPostEvictionCallback(OnPostEvictionCallback);
 
             return _memCache.Set(UsersKey, users, cacheEntryOptions);
-
-
-            //var result = await _cache.GetAsync(UsersKey, async (o) =>
-            //{
-            //    o.NoExpiration();
-
-            //    var attributesQuery =
-            //        from a in _db.GenericAttributes
-            //        join c in _db.Customers on a.EntityId equals c.Id
-            //        where !c.Deleted && c.Active && a.KeyGroup == nameof(Customer) && a.Key == AttributeUserDataKey
-            //        select new
-            //        {
-            //            a.Id,
-            //            a.EntityId,
-            //            a.Value
-            //        };
-
-            //    var attributes = await attributesQuery.ToListAsync();
-            //    var processedCustomerIds = new HashSet<int>();
-
-            //    var entries = attributes
-            //        .Where(x => x.Value.HasValue())
-            //        .Select(x =>
-            //        {
-            //            if (!processedCustomerIds.Contains(x.EntityId))
-            //            {
-            //                string[] arr = x.Value.SplitSafe('¶').ToArray();
-
-            //                if (arr.Length > 2)
-            //                {
-            //                    var entry = new WebApiUser
-            //                    {
-            //                        GenericAttributeId = x.Id,
-            //                        CustomerId = x.EntityId,
-            //                        Enabled = bool.Parse(arr[0]),
-            //                        PublicKey = arr[1],
-            //                        SecretKey = arr[2],
-            //                        LastRequest = arr.Length > 3
-            //                            ? DateTime.ParseExact(arr[3], "o", CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal)
-            //                            : null
-            //                    };
-
-            //                    if (entry.IsValid)
-            //                    {
-            //                        processedCustomerIds.Add(x.EntityId);
-            //                        return entry;
-            //                    }
-            //                }
-            //            }
-
-            //            return null;
-            //        })
-            //        .Where(x => x != null)
-            //        .ToList();
-
-            //    UsersLoadedDate = DateTime.UtcNow;
-
-            //    return entries.ToDictionarySafe(x => x.PublicKey, StringComparer.OrdinalIgnoreCase);
-            //});
-
-            //return result;
         }
 
         public void ClearApiUserCache()
@@ -241,6 +181,8 @@ namespace Smartstore.Web.Api
 
         private static void OnPostEvictionCallback(object key, object value, EvictionReason reason, object state)
         {
+            ContextState.StartAsyncFlow();
+
             var apiUserStore = EngineContext.Current.Application.Services.Resolve<IApiUserStore>();
             apiUserStore.SaveApiUsers(value as Dictionary<string, WebApiUser>);
         }

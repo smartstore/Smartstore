@@ -1,11 +1,16 @@
-﻿using Autofac;
+﻿using System.Xml.XPath;
+using Autofac;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.OData;
+using Microsoft.AspNetCore.OData.Formatter;
+using Microsoft.AspNetCore.OData.Formatter.Deserialization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
 using Microsoft.OData;
+using Microsoft.OData.Json;
 using Microsoft.OData.ModelBuilder;
 using Microsoft.OpenApi.Models;
 using Smartstore.Engine;
@@ -16,6 +21,9 @@ using Swashbuckle.AspNetCore.SwaggerUI;
 
 namespace Smartstore.Web.Api
 {
+    // TODO: (mg) (core) IEEE754Compatible=true is not supported\working:
+    // https://github.com/OData/WebApi/issues/1460
+
     /// <summary>
     /// For proper configuration see https://github.com/domaindrivendev/Swashbuckle.AspNetCore
     /// </summary>
@@ -38,7 +46,11 @@ namespace Smartstore.Web.Api
             services.AddAuthentication("Smartstore.WebApi.Basic")
                 .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("Smartstore.WebApi.Basic", null);
             
-            services.Configure<MvcOptions>(o => o.Conventions.Add(new ApiControllerModelConvention()));
+            services.Configure<MvcOptions>(o =>
+            {
+                o.RespectBrowserAcceptHeader = true;
+                o.Conventions.Add(new ApiControllerModelConvention());
+            });
 
             services
                 .AddSwaggerGen(o =>
@@ -101,18 +113,19 @@ namespace Smartstore.Web.Api
                     {
                         // XML comments.
                         var modelProviders = GetModelProviders(appContext);
+
                         foreach (var provider in modelProviders)
                         {
-                            var xmlPath = provider.GetXmlCommentsFilePath(appContext, 1);
-                            if (xmlPath != null)
+                            using var stream = provider.GetXmlCommentsStream(appContext);
+                            if (stream != null)
                             {
-                                o.IncludeXmlComments(xmlPath, true);
+                                o.IncludeXmlComments(() => new XPathDocument(stream), true);
                             }
                         }
                     }
                     catch (Exception ex)
                     {
-                        ex.Dump();
+                        appContext.Logger.Error(ex);
                     }
                 });
 
@@ -125,6 +138,7 @@ namespace Smartstore.Web.Api
             //services.TryAddEnumerable(ServiceDescriptor.Transient<IODataControllerActionConvention, CustomRoutingConvention>());
 
             mvcBuilder
+                .AddNewtonsoftJson()
                 .AddOData(o =>
                 {
                     var modelBuilder = new ODataConventionModelBuilder();
@@ -138,7 +152,11 @@ namespace Smartstore.Web.Api
                     var edmModel = modelBuilder.GetEdmModel();
 
                     o.EnableQueryFeatures(WebApiSettings.DefaultMaxTop);
-                    o.AddRouteComponents("odata/v1", edmModel);
+                    o.AddRouteComponents("odata/v1", edmModel, services =>
+                    {
+                        // Perf: https://devblogs.microsoft.com/odata/using-the-new-json-writer-in-odata/
+                        services.AddSingleton<IStreamBasedJsonWriterFactory>(_ => DefaultStreamBasedJsonWriterFactory.Default);
+                    });
 
                     // TODO: (mg) (core) a) remove masses (!) of unwanted entities in OData metadata.
                     // See /odata/v1/$metadata. Everything except decorated with JsonIgnore is serialized.
@@ -147,7 +165,6 @@ namespace Smartstore.Web.Api
 
                     o.TimeZone = TimeZoneInfo.Utc;
                     o.RouteOptions.EnableUnqualifiedOperationCall = true;
-
                     //o.Conventions.Add(new CustomRoutingConvention());
                 });
         }
@@ -156,7 +173,6 @@ namespace Smartstore.Web.Api
         {
             builder.RegisterType<WebApiService>().As<IWebApiService>().InstancePerLifetimeScope();
             builder.RegisterType<ApiUserStore>().As<IApiUserStore>().SingleInstance();
-            //builder.RegisterType<ApiUserStore2>().As<IApiUserStore2>().SingleInstance();
         }
 
         public override void BuildPipeline(RequestPipelineBuilder builder)
