@@ -116,9 +116,10 @@ namespace Smartstore.Web.Api
 
                         foreach (var provider in modelProviders)
                         {
-                            using var stream = provider.GetXmlCommentsStream(appContext);
+                            var stream = provider.GetXmlCommentsStream(appContext);
                             if (stream != null)
                             {
+                                // INFO: XPathDocument closes the input stream
                                 o.IncludeXmlComments(() => new XPathDocument(stream), true);
                             }
                         }
@@ -138,7 +139,6 @@ namespace Smartstore.Web.Api
             //services.TryAddEnumerable(ServiceDescriptor.Transient<IODataControllerActionConvention, CustomRoutingConvention>());
 
             mvcBuilder
-                .AddNewtonsoftJson()
                 .AddOData(o =>
                 {
                     var modelBuilder = new ODataConventionModelBuilder();
@@ -155,6 +155,8 @@ namespace Smartstore.Web.Api
                     o.AddRouteComponents("odata/v1", edmModel, services =>
                     {
                         // Perf: https://devblogs.microsoft.com/odata/using-the-new-json-writer-in-odata/
+                        // TODO: (mg) (core) You should investigate the side effects of this decision: the UTF8 writer
+                        // produces slightly different output than Newtonsoft writer and does ignore our beloved attributes (JsonIgnore etc.)
                         services.AddSingleton<IStreamBasedJsonWriterFactory>(_ => DefaultStreamBasedJsonWriterFactory.Default);
                     });
 

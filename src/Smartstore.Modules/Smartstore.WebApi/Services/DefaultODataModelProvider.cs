@@ -15,6 +15,6 @@ namespace Smartstore.Web.Api
         }
 
         public override Stream GetXmlCommentsStream(IApplicationContext appContext)
-            => GetDefaultXmlCommentsStream(appContext, Module.SystemName);
+            => GetModuleXmlCommentsStream(appContext, Module.SystemName);
     }
 }
