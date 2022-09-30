@@ -181,7 +181,7 @@ namespace Smartstore.Web.Api
 
         private static void OnPostEvictionCallback(object key, object value, EvictionReason reason, object state)
         {
-            if (reason == EvictionReason.Removed)
+            if (reason == EvictionReason.Removed || reason == EvictionReason.TokenExpired)
             {
                 ContextState.StartAsyncFlow();
 

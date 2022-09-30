@@ -76,12 +76,11 @@ namespace Smartstore.Web.Api
                     }
                 }
 
-                $"Try to save {attributes.Count} API user.".Dump();
                 num += async ? await db.SaveChangesAsync() : db.SaveChanges();
             }
 
             _lastSavingDate = DateTime.UtcNow;
-            $"Saved {num} API user.".Dump();
+            //$"Saved {num} API users.".Dump();
 
             return num;
         }
@@ -103,7 +102,7 @@ namespace Smartstore.Web.Api
             {
                 _timer?.Dispose();
 
-                // INFO: (mg) (core) This disposer is called when the root container
+                // INFO: this disposer is called when the root container
                 // is being disposed. So: no scopes from here on. That's why
                 // OnTick() failed.
 
