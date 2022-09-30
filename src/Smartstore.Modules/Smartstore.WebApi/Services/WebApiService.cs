@@ -181,10 +181,13 @@ namespace Smartstore.Web.Api
 
         private static void OnPostEvictionCallback(object key, object value, EvictionReason reason, object state)
         {
-            ContextState.StartAsyncFlow();
+            if (reason == EvictionReason.Removed)
+            {
+                ContextState.StartAsyncFlow();
 
-            var apiUserStore = EngineContext.Current.Application.Services.Resolve<IApiUserStore>();
-            apiUserStore.SaveApiUsers(value as Dictionary<string, WebApiUser>);
+                var apiUserStore = EngineContext.Current.Application.Services.Resolve<IApiUserStore>();
+                apiUserStore.SaveApiUsers(value as Dictionary<string, WebApiUser>);
+            }
         }
     }
 }

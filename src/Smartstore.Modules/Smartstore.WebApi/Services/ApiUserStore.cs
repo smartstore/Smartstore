@@ -32,16 +32,16 @@ namespace Smartstore.Web.Api
 
             if (_timer == null)
             {
-                _timer ??= new(_ => OnTick());
+                _timer ??= new(_ => OnTick(true));
                 _timer.Start(storingInterval);
             }
         }
 
-        private async Task OnTick()
+        private async Task OnTick(bool async)
         {
             if (_memCache.TryGetValue(WebApiService.UsersKey, out object cachedUsers))
             {
-                await SaveApiUsersInternal(cachedUsers as Dictionary<string, WebApiUser>, true);
+                await SaveApiUsersInternal(cachedUsers as Dictionary<string, WebApiUser>, async);
             }
         }
 
@@ -91,6 +91,9 @@ namespace Smartstore.Web.Api
             if (disposing)
             {
                 _timer?.Dispose();
+
+                // Persist remaining data on dispose.
+                OnTick(false).Await();
             }
         }
 
@@ -100,8 +103,12 @@ namespace Smartstore.Web.Api
             {
                 _timer?.Dispose();
 
+                // INFO: (mg) (core) This disposer is called when the root container
+                // is being disposed. So: no scopes from here on. That's why
+                // OnTick() failed.
+
                 // Persist remaining data on dispose.
-                await OnTick();
+                await OnTick(true);
             }
         }
     }
