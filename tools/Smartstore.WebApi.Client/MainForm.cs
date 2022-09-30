@@ -152,10 +152,11 @@ namespace Smartstore.WebApi.Client
                 }
             }
 
-            var webRequest = await apiClient.StartRequestAsync(context, cboContent.Text, multiPartData, out StringBuilder requestContent);
-            txtRequest.Text = requestContent.ToString();
+            //var webRequest = await apiClient.StartRequestAsync(context, cboContent.Text, multiPartData, out StringBuilder requestContent);
+            //txtRequest.Text = requestContent.ToString();
 
-            var success = await apiClient.ProcessResponseAsync(webRequest, response, folderBrowserDialog1);
+            //var success = await apiClient.ProcessResponseAsync(webRequest, response, folderBrowserDialog1);
+            var success = false;
 
             lblResponse.Text = "Response: " + response.Status;
             sb.Append(response.Headers);

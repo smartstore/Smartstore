@@ -1,13 +1,35 @@
-﻿using System.Net;
+﻿using System.Data;
+using System.IO;
+using System.Net;
+using System.Net.Http.Headers;
+using System.Net.Mime;
 using System.Text;
+using System.Windows.Forms;
 using Microsoft.AspNetCore.StaticFiles;
+using Newtonsoft.Json.Linq;
 using Smartstore.WebApi.Client.Models;
 
 namespace Smartstore.WebApi.Client
 {
     public class WebApiClient
     {
-        public static string JsonAcceptType => "application/json";
+        private static readonly HttpClient Client;
+
+        static WebApiClient()
+        {
+            Client = new HttpClient();
+            Client.DefaultRequestHeaders.Add("User-Agent", Program.ConsumerName);
+            Client.DefaultRequestHeaders.Add("Pragma", "no-cache");
+            Client.DefaultRequestHeaders.Add("Cache-Control", "no-cache, no-store");
+            Client.DefaultRequestHeaders.Add("Accept-Charset", "UTF-8");
+
+#if DEBUG
+            // Just for debugging.
+            Client.Timeout = TimeSpan.FromMinutes(5);
+#endif
+        }
+
+        public static string JsonAcceptType => MediaTypeNames.Application.Json;
 
         public static bool BodySupported(string method)
             => !string.IsNullOrWhiteSpace(method) && string.Compare(method, "GET", true) != 0 && string.Compare(method, "DELETE", true) != 0;
@@ -16,23 +38,115 @@ namespace Smartstore.WebApi.Client
         public static bool MultipartSupported(string method)
             => string.Compare(method, "POST", true) == 0;
 
-        public Task<HttpWebRequest> StartRequestAsync(
+        public async Task<WebApiResponse> StartRequestAsync(
             WebApiRequestContext context, 
-            string content, 
-            Dictionary<string, object> multipartData,
-            out StringBuilder requestContent)
+            string content,
+            FileUploadModel uploadModel = null)
         {
-            throw new NotImplementedException();
+            if (context == null || !context.IsValid)
+            {
+                return null;
+            }
+
+            if (context.ProxyPort > 0)
+            {
+                // API behind a reverse proxy.
+                context.Url = new UriBuilder(context.Url) { Port = context.ProxyPort }.Uri.ToString();
+            }
+
+            string contentType = null;
+            HttpContent body = null;
+            var requestContent = new StringBuilder();
+            var credentialsStr = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{context.PublicKey}:{context.SecretKey}"));
+
+            var request = new HttpRequestMessage(new HttpMethod(context.HttpMethod), context.Url);
+            request.Headers.Add("Accept", context.HttpAcceptType);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", credentialsStr);
+
+            if (context.AdditionalHeaders.HasValue())
+            {
+                var jsonHeaders = JObject.Parse(context.AdditionalHeaders);
+                foreach (var item in jsonHeaders)
+                {
+                    var value = item.Value?.ToString();
+                    if (item.Key.HasValue() && value.HasValue())
+                    {
+                        request.Headers.Add(item.Key, value);
+                    }
+                }
+            }
+
+            if (BodySupported(context.HttpMethod))
+            {
+                if (MultipartSupported(context.HttpMethod) && uploadModel != null)
+                {
+                    //var formDataBoundary = "----------{0:N}".FormatInvariant(Guid.NewGuid());
+                    //var data = await GetMultipartFormData(multipartData, formDataBoundary, requestContent);
+                    //contentType = "multipart/form-data; boundary=" + formDataBoundary;
+
+                    //body = new ByteArrayContent(data);
+                }
+                else if (!string.IsNullOrWhiteSpace(content))
+                {
+                    requestContent.Append(content);
+                    body = new ByteArrayContent(Encoding.UTF8.GetBytes(content));
+                    body.Headers.ContentType = new MediaTypeHeaderValue(MediaTypeNames.Application.Json) { CharSet = "UTF-8" };
+                }
+            }
+
+            if (body != null)
+            {
+                
+            }
+
+
+            var result = new WebApiResponse();
+
+            return result;
         }
 
-        public Task<bool> ProcessResponseAsync(
+        public async Task<bool> ProcessResponseAsync(
             HttpWebRequest webRequest,
             WebApiResponse response,
             FolderBrowserDialog folderBrowserDialog)
         {
-            throw new NotImplementedException();
+            if (webRequest == null)
+            {
+                return false;
+            }
+
+            var result = true;
+            HttpWebResponse webResponse = null;
+
+            try
+            {
+                webResponse = webRequest.GetResponse() as HttpWebResponse;
+                await GetResponse(webResponse, response, folderBrowserDialog);
+            }
+            catch (WebException wex)
+            {
+                result = false;
+                webResponse = wex.Response as HttpWebResponse;
+                await GetResponse(webResponse, response, folderBrowserDialog);
+            }
+            catch (Exception ex)
+            {
+                result = false;
+                response.Content = $"{ex.Message}\r\n{ex.StackTrace}";
+            }
+            finally
+            {
+                if (webResponse != null)
+                {
+                    webResponse.Close();
+                    webResponse.Dispose();
+                }
+            }
+
+            return result;
         }
 
+        // TODO: (mg) (core) obsolete
         public Dictionary<string, object> CreateMultipartData(FileUploadModel model)
         {
             if (!(model?.Files?.Any() ?? false))
@@ -41,7 +155,6 @@ namespace Smartstore.WebApi.Client
             }
 
             var result = new Dictionary<string, object>();
-            var isValid = false;
             var count = 0;
 
             // Identify entity by its identifier.
@@ -64,16 +177,7 @@ namespace Smartstore.WebApi.Client
             {
                 if (File.Exists(file.LocalPath))
                 {
-                    using var fstream = new FileStream(file.LocalPath, FileMode.Open, FileAccess.Read);
-
-                    byte[] data = new byte[fstream.Length];
-                    fstream.Read(data, 0, data.Length);
-
-                    var name = Path.GetFileName(file.LocalPath);
-                    var id = $"my-file-{++count}";
-
-                    new FileExtensionContentTypeProvider().TryGetContentType(name, out string contentType);
-                    var apiFile = new ApiFileParameter(data, name, contentType);
+                    var apiFile = new ApiFileParameter(file.LocalPath);
 
                     // Add file parameters. Omit default values (let the server apply them).
                     if (file.Id != 0)
@@ -97,15 +201,8 @@ namespace Smartstore.WebApi.Client
                     //apiFile.Parameters.Add("CustomValue1", string.Format("{0:N}", Guid.NewGuid()));
                     //apiFile.Parameters.Add("CustomValue2", string.Format("say hello to {0}", id));
 
-                    result.Add(id, apiFile);
-                    isValid = true;
-                    fstream.Close();
+                    result.Add($"my-file-{++count}", apiFile);
                 }
-            }
-
-            if (!isValid)
-            {
-                return null;
             }
 
             return result;
@@ -160,72 +257,70 @@ namespace Smartstore.WebApi.Client
             }
         }
 
-        /// <see cref="http://stackoverflow.com/questions/219827/multipart-forms-from-c-sharp-client" />
-        private static async Task<byte[]> GetMultipartFormData(Dictionary<string, object> postParameters, string boundary, StringBuilder requestContent)
+        private static MultipartFormDataContent CreateMultipartFormData(FileUploadModel model, StringBuilder requestContent)
         {
-            var needsCLRF = false;
-            var sb = new StringBuilder();
-            using var stream = new MemoryStream();
+            // TODO: (mg) (core) add to requestContent
+            var result = new MultipartFormDataContent();
+
+            // Identify entity by its identifier.
+            if (model.Id != 0)
+            {
+                var content = new StringContent(model.Id.ToString(), Encoding.UTF8);
+                content.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data") { Name = "Id" };
+                result.Add(content);
+            }
+
+            // Custom properties like SKU etc.
+            foreach (var pair in model.CustomProperties.Where(x => x.Key.HasValue() && x.Value != null))
+            {
+                var content = new StringContent(pair.Value.ToString(), Encoding.UTF8);
+                content.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data") { Name = pair.Key };
+                result.Add(content);
+            }
+
+            // TODO: (mg) (core) go on with work here
+
+            return result;
+        }
+
+        // TODO: (mg) (core) obsolete
+        private static MultipartFormDataContent CreateMultipartFormData(Dictionary<string, object> postParameters, StringBuilder requestContent)
+        {
+            var result = new MultipartFormDataContent();
 
             foreach (var param in postParameters)
             {
-                if (needsCLRF)
-                {
-                    await WriteToStream(stream, requestContent, "\r\n");
-                }
-
-                needsCLRF = true;
-
                 if (param.Value is ApiFileParameter file)
                 {
-                    sb.Clear();
-                    sb.AppendFormat("--{0}\r\n", boundary);
-                    sb.AppendFormat("Content-Disposition: form-data; name=\"{0}\"; filename=\"{1}\"", param.Key, file.FileName ?? param.Key);
+                    var content = new StreamContent(new FileStream(file.FilePath, FileMode.Open));
+                    content.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType);
+                    content.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data")
+                    {
+                        Name = param.Key,
+                        FileName = file.FileName ?? param.Key
+                    };
 
                     foreach (var key in file.Parameters.AllKeys)
                     {
-                        sb.AppendFormat("; {0}=\"{1}\"", key, file.Parameters[key].Replace('"', '\''));
+                        content.Headers.ContentDisposition.Parameters.Add(new NameValueHeaderValue(key, file.Parameters[key]));
                     }
 
-                    sb.AppendFormat("\r\nContent-Type: {0}\r\n\r\n", file.ContentType ?? "application/octet-stream");
-
-                    await WriteToStream(stream, requestContent, sb.ToString());
-
-                    await stream.WriteAsync(file.Data.AsMemory(0, file.Data.Length));
-                    requestContent.AppendFormat("<Binary file data here (length {0} bytes)...>", file.Data.Length);
+                    result.Add(content);
                 }
-                else
+                else if (param.Value != null)
                 {
-                    var postData = string.Format("--{0}\r\nContent-Disposition: form-data; name=\"{1}\"\r\n\r\n{2}",
-                        boundary,
-                        param.Key,
-                        param.Value);
+                    // Custom properties like SKU etc.
+                    var content = new StringContent(param.Value.ToString(), Encoding.UTF8);
+                    content.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data")
+                    {
+                        Name = param.Key
+                    };
 
-                    await WriteToStream(stream, requestContent, postData);
+                    result.Add(content);
                 }
             }
 
-            await WriteToStream(stream, requestContent, "\r\n--" + boundary + "--\r\n");
-
-            stream.Position = 0;
-            byte[] formData = new byte[stream.Length];
-            await stream.ReadAsync(formData);
-
-            return formData;
-        }
-
-        private static async Task WriteToStream(MemoryStream stream, StringBuilder requestContent, string data)
-        {
-            await stream.WriteAsync(Encoding.UTF8.GetBytes(data).AsMemory(0, Encoding.UTF8.GetByteCount(data)));
-            requestContent.Append(data);
-        }
-
-        private static void SetTimeout(HttpWebRequest webRequest)
-        {
-#if DEBUG
-            // Just for debugging.
-            webRequest.Timeout = 1000 * 60 * 5;
-#endif
+            return result;
         }
     }
 }

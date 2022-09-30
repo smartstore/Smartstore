@@ -5,6 +5,8 @@ namespace Smartstore.WebApi.Client
 {
     public class WebApiResponse
     {
+        public string RequestContent { get; set; }
+
         public string Status { get; set; }
         public string Headers { get; set; }
         public string Content { get; set; }
