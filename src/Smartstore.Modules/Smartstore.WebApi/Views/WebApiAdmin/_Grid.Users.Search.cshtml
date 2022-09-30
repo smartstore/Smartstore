@@ -2,17 +2,17 @@
 
 <div class="form-group">
     <smart-label asp-for="SearchEmail" />
-    <input asp-for="SearchEmail" class="form-control-sm" />
+    <input asp-for="SearchEmail" />
 </div>
 <div sm-if="Model.UsernamesEnabled" class="form-group">
     <smart-label asp-for="SearchUsername" />
-    <input asp-for="SearchUsername" class="form-control-sm" />
+    <input asp-for="SearchUsername" />
 </div>
 <div class="form-group">
     <smart-label asp-for="SearchTerm" />
-    <editor asp-for="SearchTerm" asp-template="SearchExpression" placeholder="@T("Admin.Customers.Customers.List.SearchTerm.Hint")" class="form-control-sm" />
+    <editor asp-for="SearchTerm" asp-template="SearchExpression" placeholder="@T("Admin.Customers.Customers.List.SearchTerm.Hint")" />
 </div>
 <div class="form-group">
     <smart-label asp-for="SearchActiveOnly" />
-    <editor asp-for="SearchActiveOnly" class="form-control-sm" />
+    <editor asp-for="SearchActiveOnly" />
 </div>

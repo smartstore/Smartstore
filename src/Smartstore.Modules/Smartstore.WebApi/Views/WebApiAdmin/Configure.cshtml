@@ -14,86 +14,90 @@
     </button>
 </widget>
 
-<div class="alert alert-info">
-    @Html.Raw(T("Plugins.Api.WebApi.AdminInstruction"))
-</div>
+<div asp-validation-summary="All"></div>
 
-@await Component.InvokeAsync("StoreScope")
+<tabstrip id="webapi-config" sm-nav-style="Material" sm-nav-position="Top">
+    <tab sm-title="@T("Common.General")" sm-selected="true">
+        @await Component.InvokeAsync("StoreScope")
+        <form asp-action="Configure">
+            <div asp-validation-summary="All"></div>
 
-<form asp-action="Configure">
-    <div asp-validation-summary="All"></div>
-
-    <div class="adminContent">
-        <div class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="IsActive" />
-            </div>
-            <div class="adminData">
-                <setting-editor asp-for="IsActive" data-toggler-for=".api-settings"></setting-editor>
-                <span asp-validation-for="IsActive"></span>
-            </div>
-        </div>
-        <div class="api-settings">
-            <div class="adminRow">
-                <div class="adminTitle">
-                    <smart-label asp-for="MaxTop" />
+            <div class="adminContent">
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="IsActive" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="IsActive" data-toggler-for=".api-settings"></setting-editor>
+                        <span asp-validation-for="IsActive"></span>
+                    </div>
                 </div>
-                <div class="adminData">
-                    <setting-editor asp-for="MaxTop"></setting-editor>
-                    <span asp-validation-for="MaxTop"></span>
+                <div class="api-settings">
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="MaxTop" />
+                        </div>
+                        <div class="adminData">
+                            <setting-editor asp-for="MaxTop"></setting-editor>
+                            <span asp-validation-for="MaxTop"></span>
+                        </div>
+                    </div>
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="MaxExpansionDepth" />
+                        </div>
+                        <div class="adminData">
+                            <setting-editor asp-for="MaxExpansionDepth"></setting-editor>
+                            <span asp-validation-for="MaxExpansionDepth"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ApiOdataUrl" />
+                    </div>
+                    <div class="adminData form-control-plaintext">
+                        <a href="@Model.ApiOdataUrl" target="_blank">@Model.ApiOdataUrl</a>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ApiOdataMetadataUrl" />
+                    </div>
+                    <div class="adminData form-control-plaintext">
+                        <a href="@Model.ApiOdataMetadataUrl" target="_blank">@Model.ApiOdataMetadataUrl</a>
+                    </div>
+                </div>
+                <div sm-if="Model.ApiOdataEndpointsUrl.HasValue()" class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ApiOdataEndpointsUrl" />
+                    </div>
+                    <div class="adminData form-control-plaintext">
+                        <a href="@Model.ApiOdataEndpointsUrl" target="_blank">@Model.ApiOdataEndpointsUrl</a>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="ApiDocsUrl" />
+                    </div>
+                    <div class="adminData form-control-plaintext">
+                        <a href="@Model.ApiDocsUrl" target="_blank">@Model.ApiDocsUrl</a>
+                    </div>
                 </div>
             </div>
-            <div class="adminRow">
-                <div class="adminTitle">
-                    <smart-label asp-for="MaxExpansionDepth" />
+        </form>
+    </tab>
+    <tab sm-title="@T("Plugins.Api.WebApi.UserGridTabTitle")" sm-adaptive-height="true">
+        <div class="d-flex flex-column h-100">
+            <div class="flex-grow-0">
+                <div class="alert alert-info alert-dismissible">
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    @Html.Raw(T("Plugins.Api.WebApi.AdminInstruction"))
                 </div>
-                <div class="adminData">
-                    <setting-editor asp-for="MaxExpansionDepth"></setting-editor>
-                    <span asp-validation-for="MaxExpansionDepth"></span>
-                </div>
+            </div>
+            <div class="flex-grow-1 position-relative" style="overflow: hidden;">
+                <partial name="_Grid.Users" model="null" view-data="gridViewData" />
             </div>
         </div>
-        <div class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="ApiOdataUrl" />
-            </div>
-            <div class="adminData form-control-plaintext">
-                <a href="@Model.ApiOdataUrl" target="_blank">@Model.ApiOdataUrl</a>
-            </div>
-        </div>
-        <div class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="ApiOdataMetadataUrl" />
-            </div>
-            <div class="adminData form-control-plaintext">
-                <a href="@Model.ApiOdataMetadataUrl" target="_blank">@Model.ApiOdataMetadataUrl</a>
-            </div>
-        </div>
-        <div sm-if="Model.ApiOdataEndpointsUrl.HasValue()" class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="ApiOdataEndpointsUrl" />
-            </div>
-            <div class="adminData form-control-plaintext">
-                <a href="@Model.ApiOdataEndpointsUrl" target="_blank">@Model.ApiOdataEndpointsUrl</a>
-            </div>
-        </div>
-        <div class="adminRow">
-            <div class="adminTitle">
-                <smart-label asp-for="ApiDocsUrl" />
-            </div>
-            <div class="adminData form-control-plaintext">
-                <a href="@Model.ApiDocsUrl" target="_blank">@Model.ApiDocsUrl</a>
-            </div>
-        </div>
-    </div>
-</form>
-
-<div class="adminContent">
-    <div class="adminRow adminSeparator">
-        <div class="admin-config-group">
-            <div class="h4 text-muted mt-3 mb-0">@T("Plugins.Api.WebApi.UserGridTabTitle")</div>
-        </div>
-    </div>
-</div>
-
-<partial name="_Grid.Users" model="null" view-data="gridViewData" />
+    </tab>
+</tabstrip>
