@@ -101,9 +101,24 @@ namespace Smartstore.Data
 
         protected internal IDbHookHandler DbHookHandler
         {
-            get => _hookHandler
-                ?? EngineContext.Current?.Scope?.ResolveOptional<IDbHookHandler>()
-                ?? NullDbHookHandler.Instance;
+            get 
+            {
+                if (_hookHandler != null)
+                {
+                    return _hookHandler;
+                }
+
+                IDbHookHandler handler = null;
+                try
+                {
+                    handler = EngineContext.Current?.Scope?.ResolveOptional<IDbHookHandler>();
+                }
+                catch
+                {
+                }
+
+                return handler ?? NullDbHookHandler.Instance;
+            }
             set => _hookHandler = value;
         }
 
@@ -144,7 +159,7 @@ namespace Smartstore.Data
                 }
             }
 
-            _currentSaveOperation = new DbSaveChangesOperation(this, this.DbHookHandler);
+            _currentSaveOperation = new DbSaveChangesOperation(this);
 
             try
             {
@@ -192,7 +207,7 @@ namespace Smartstore.Data
                 }
             }
 
-            _currentSaveOperation = new DbSaveChangesOperation(this, this.DbHookHandler);
+            _currentSaveOperation = new DbSaveChangesOperation(this);
 
             try
             {

@@ -41,7 +41,7 @@ namespace Smartstore.Engine
                         scope = CreateLifetimeScope();
                     }
 
-                    scope = _contextState.Push(scope);
+                    _contextState.Push(scope);
                 }
 
                 return scope;

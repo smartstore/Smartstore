@@ -22,13 +22,11 @@ namespace Smartstore.Data
 
         private IEnumerable<EntityEntry> _changedEntries;
         private HookingDbContext _ctx;
-        private IDbHookHandler _hookHandler;
         private readonly IDbCache _dbCache;
 
-        public DbSaveChangesOperation(HookingDbContext ctx, IDbHookHandler hookHandler)
+        public DbSaveChangesOperation(HookingDbContext ctx)
         {
             _ctx = ctx;
-            _hookHandler = hookHandler;
             _dbCache = ((IInfrastructure<IServiceProvider>)ctx).Instance.GetService<IDbCache>();
         }
 
@@ -133,7 +131,7 @@ namespace Smartstore.Data
                     .ToArray();
 
                 // Regardless of validation (possible fixing validation errors too)
-                result = await _hookHandler.SavingChangesAsync(entries, _ctx.MinHookImportance, cancelToken);
+                result = await _ctx.DbHookHandler.SavingChangesAsync(entries, _ctx.MinHookImportance, cancelToken);
 
                 if (result.ProcessedHooks.Any() && entries.Any(x => x.State == EntityState.Modified))
                 {
@@ -171,7 +169,7 @@ namespace Smartstore.Data
                 _dbCache.Invalidate(changedHookEntries.Select(x => x.EntityType).ToArray());
             }
 
-            return await _hookHandler.SavedChangesAsync(changedHookEntries, _ctx.MinHookImportance, cancelToken);
+            return await _ctx.DbHookHandler.SavedChangesAsync(changedHookEntries, _ctx.MinHookImportance, cancelToken);
         }
 
         private IEnumerable<EntityEntry> GetChangedEntries()
@@ -213,7 +211,6 @@ namespace Smartstore.Data
         public void Dispose()
         {
             _ctx = null;
-            _hookHandler = null;
             _changedEntries = null;
         }
     }
