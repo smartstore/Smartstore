@@ -42,20 +42,8 @@ namespace Smartstore.Web.Controllers
             await next();
         }
 
-        public async Task<IActionResult> Index(bool noAutoInstall = false)
+        private void PrepareInstallForm()
         {
-            // TODO: (core) Check for running installation
-            // TODO: (core) Call CallbackUrl
-            if (!noAutoInstall && TryGetAutoInstallModel(out var model))
-            {
-                return await Install(model);
-            }
-            
-            model = new InstallationModel
-            {
-                AdminEmail = T("AdminEmailValue")
-            };
-
             var curLanguage = _installService.GetCurrentLanguage();
 
             var installLanguages = _installService.GetInstallationLanguages()
@@ -103,6 +91,53 @@ namespace Smartstore.Web.Controllers
                 new SelectListItem { Value = "fs", Text = T("MediaStorage.FS") + " " + T("Recommended"), Selected = true },
                 new SelectListItem { Value = "db", Text = T("MediaStorage.DB") }
             };
+        }
+
+        public async Task<IActionResult> Index(bool noAutoInstall = false)
+        {
+            // TODO: (core) Check for running installation
+            // TODO: (core) Form: display info about running installation and disable button
+            // TODO: (core) Call CallbackUrl
+
+            var result = _installService.GetCurrentInstallationResult();
+            if (result != null)
+            {
+                // Install already running, we gonna need the result in UI
+                ViewBag.InstallResult = result;
+
+                if (!result.Model.IsAutoInstall)
+                {
+                    // Prepare form stuff only if NOT autoinstall
+                    PrepareInstallForm();
+                }
+
+                return View(result.Model);
+            }
+
+            if (!noAutoInstall && TryGetAutoInstallModel(out var model))
+            {
+                result = await _installService.InstallAsync(model, HttpContext.RequestServices.AsLifetimeScope());
+
+                if (!result.Completed || result.HasErrors)
+                {
+                    await _asyncState.RemoveAsync<InstallationResult>();
+                }
+                //if (result.Completed && result.Success)
+                //{
+                //    // TODO: (core) Let autoinstall view call Finalize() via AJAX like form
+                //    _hostApplicationLifetime.StopApplication();
+                //}
+                return Json(result);
+            }
+            
+            // Here we know it is NOT autoinstall...
+
+            model = result?.Model ?? new InstallationModel
+            {
+                AdminEmail = T("AdminEmailValue")
+            };
+
+            PrepareInstallForm();
 
             return View(model);
         }
@@ -113,7 +148,7 @@ namespace Smartstore.Web.Controllers
         {
             if (!ModelState.IsValid)
             {
-                var result = new InstallationResult();
+                var result = new InstallationResult(model);
                 ModelState.SelectMany(x => x.Value.Errors).Each(x => result.Errors.Add(x.ErrorMessage));
                 return Json(result);
             }

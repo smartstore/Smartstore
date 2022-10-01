@@ -1,30 +1,33 @@
-﻿@using Smartstore.Core.Installation;
+﻿@model InstallationModel
 
-@model InstallationModel
-@inherits RazorPage<InstallationModel>
-@removeTagHelper Smartstore.Web.TagHelpers.*, Smartstore.Web.Common
-@addTagHelper Smartstore.Web.TagHelpers.Shared.AjaxFormTagHelper, Smartstore.Web.Common
 @inject IInstallationService InstallService
 
 @{
     // TODO: (core) Install: Apply language attributes to <html> tag
 
     Layout = null;
-    var availableLanguages = ViewBag.AvailableInstallationLanguages as IList<SelectListItem>;
-    var checkAliveUrl = Url.Content("~/taskscheduler/noop");
+
+    var installResult = ViewBag.InstallResult as InstallationResult;
+}
+
+@functions {
+    private string T(string key)
+    {
+        return InstallService.GetResource(key);
+    }
 }
 
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8">
-    <title>@InstallService.GetResource("Title")</title>
+    <title>@T("Title")</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover, shrink-to-fit=no">
     <meta property="sm:root" content="@Url.Content("~/")" />
 
     <script>
         window.Res = {
-            "Common.Notification": "@InstallService.GetResource("Common.Notification").EncodeJsString()",
+            "Common.Notification": "@T("Common.Notification").EncodeJsString()",
         }
     </script>
 
@@ -50,465 +53,30 @@
     </style>
 </head>
 <body>
+
     <div id="page">
         <div class="page-main">
+            @if (Model.IsAutoInstall)
+            {
+                <partial name="_AutoInstall" model="installResult" />
+            }
+            else
+            {
+                <partial name="_InstallForm" model="Model" />
+            }
 
-            <header id="header">
-                <nav id="navbar" class="navbar navbar-dark navbar-expand-sm content p-0">
-                    <a class="navbar-brand mx-0 mr-3" href="https://www.smartstore.com">
-                        <img class="navbar-img" src="~/images/smartstore.svg" alt="Smartstore" />
-                    </a>
-                    <div class="navbar-text h5 p-0 m-0 pl-1" style="height: 20px; vertical-align: bottom">
-                        @InstallService.GetResource("Title")
-                    </div>
-
-                    <div class="collapse navbar-collapse ml-auto">
-                        <ul class="navbar-nav ml-auto">
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle navbar-tool" href="javascript:void(0)" title="Deutsch" data-toggle="dropdown" style="max-width: none">
-                                    <i class="icm icm-earth navbar-icon pr-1"></i>
-                                    <span style="text-transform: uppercase">@availableLanguages.First(x => x.Selected).Text</span>
-                                </a>
-                                <div class="dropdown-menu dropdown-menu-right">
-                                    @foreach (var lang in availableLanguages)
-                                    {
-                                        <a class="dropdown-item" href="@lang.Value">
-                                            <i class="icm icm-check@(!lang.Selected ? " invisible" : "")"></i>
-                                            <span>@lang.Text</span>
-                                        </a>
-                                    }
-                                </div>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link navbar-tool" asp-action="RestartInstall" title="@InstallService.GetResource("RestartInstallation")" rel="nofollow">
-                                    <i class="icm icm-refresh navbar-icon"></i>
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                </nav>
-            </header>
-
-            <div id="content" class="content" style="padding: 3rem !important">
-                <div class="cph">
-                    <form asp-action="Install" method="post" class="form-horizontal" autocomplete="on" id="install-form" sm-ajax
-                          sm-confirm="@InstallService.GetResource("ConfirmInstall")"
-                          sm-onbegin="Installation.onStart"
-                          sm-oncomplete="Installation.onComplete"
-                          sm-onfailure="Installation.onFailure"
-                          sm-onsuccess="Installation.onSuccess">
-
-                        <div class="install-panel">
-                            <div class="install-content">
-                                <p class="fs-h6 text-muted">
-                                    @InstallService.GetResource("Tooltip1").
-                                </p>
-                                <p class="fs-h6 text-muted mb-5">
-                                    @InstallService.GetResource("Tooltip2").
-                                </p>
-
-                                <!-- GENERAL -->
-                                <fieldset class="mb-5">
-                                    <div class="heading mb-3">
-                                        <h2 class="heading-title text-muted">@InstallService.GetResource("StoreInformation")</h2>
-                                    </div>
-                                    <div class="form-group row">
-                                        <label class="col-md-3 col-form-label" asp-for="AdminEmail">@InstallService.GetResource("AdminEmail")</label>
-                                        <div class="col-md-9">
-                                            <input asp-for="AdminEmail" class="form-control remember" />
-                                            <span asp-validation-for="AdminEmail"></span>
-                                        </div>
-                                    </div>
-                                    <div class="form-group row">
-                                        <label class="col-md-3 col-form-label" asp-for="AdminPassword">@InstallService.GetResource("AdminPassword")</label>
-                                        <div class="col-md-9">
-                                            <input asp-for="AdminPassword" class="form-control" />
-                                            <span asp-validation-for="AdminPassword"></span>
-                                        </div>
-                                    </div>
-                                    <div class="form-group row">
-                                        <label class="col-md-3 col-form-label" asp-for="ConfirmPassword">@InstallService.GetResource("ConfirmPassword")</label>
-                                        <div class="col-md-9">
-                                            <input asp-for="ConfirmPassword" class="form-control" />
-                                            <span asp-validation-for="ConfirmPassword"></span>
-                                        </div>
-                                    </div>
-                                </fieldset>
-
-                                <!-- DATABASE -->
-                                <fieldset class="mb-5">
-                                    <div class="heading mb-3">
-                                        <h2 class="heading-title text-muted">@InstallService.GetResource("DatabaseInformation")</h2>
-                                    </div>
-                                    <div class="form-group row">
-                                        <label class="col-md-3 col-form-label" asp-for="DataProvider">@InstallService.GetResource("DbSystem")</label>
-                                        <div class="col-md-9">
-                                            <select asp-for="DataProvider" asp-items="ViewBag.AvailableDataProviders" class="form-control remember"></select>
-                                            <span asp-validation-for="DataProvider"></span>
-                                        </div>
-                                    </div>
-
-                                    <!-- Connection root -->
-                                    <div id="ConnectionPanel">
-                                        <div class="form-group row">
-                                            <label class="col-md-3 col-form-label" asp-for="UseRawConnectionString">@InstallService.GetResource("Connection")</label>
-                                            <div class="col-md-9">
-                                                <select asp-for="UseRawConnectionString" class="form-control remember">
-                                                    <option value="False">@InstallService.GetResource("ConnectionStringValues")</option>
-                                                    <option value="True">@InstallService.GetResource("RawConnectionString")</option>
-                                                </select>
-                                            </div>
-                                        </div>
-
-                                        <!-- Structural connection info -->
-                                        <div id="ConnectionInfoPanel">
-                                            <div class="form-group row">
-                                                <label class="col-md-3 col-form-label" asp-for="DbServer">@InstallService.GetResource("Server")</label>
-                                                <div class="col-md-9">
-                                                    <div class="form-row">
-                                                        <div class="col-6">
-                                                            <div class="has-icon">
-                                                                <input asp-for="DbServer" class="form-control remember" placeholder="@InstallService.GetResource("DbServer")" />
-                                                                <span class="input-group-icon text-muted"><i class="icm icm-server" style="line-height: inherit"></i></span>
-                                                            </div>
-                                                            <span asp-validation-for="DbServer"></span>
-                                                        </div>
-                                                        <div class="col-6">
-                                                            <div class="has-icon">
-                                                                <input asp-for="DbName" class="form-control remember" placeholder="@InstallService.GetResource("DbName")" />
-                                                                <span class="input-group-icon text-muted"><i class="icm icm-database" style="line-height: inherit"></i></span>
-                                                            </div>
-                                                            <span asp-validation-for="DbName"></span>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="form-group row">
-                                                <label class="col-md-3 col-form-label">@InstallService.GetResource("Authentication")</label>
-                                                <div class="col-md-9">
-                                                    <select asp-for="DbAuthType" class="form-control remember">
-                                                        <option value="sqlserver">@InstallService.GetResource("SqlAuthentication")</option>
-                                                        <option value="windows">@InstallService.GetResource("WindowsAuthentication")</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-
-                                            <div class="form-group row">
-                                                <div class="col-md-9 offset-md-3">
-                                                    <div class="form-row">
-                                                        <div class="col-6">
-                                                            <div class="has-icon">
-                                                                <input asp-for="DbUserId" class="form-control remember" placeholder="@InstallService.GetResource("DbUserId")" />
-                                                                <span class="input-group-icon text-muted"><i class="icm icm-user" style="line-height: inherit"></i></span>
-                                                            </div>
-                                                            <span asp-validation-for="DbUserId"></span>
-                                                        </div>
-                                                        <div class="col-6">
-                                                            <div class="has-icon">
-                                                                <input asp-for="DbPassword" class="form-control remember" placeholder="@InstallService.GetResource("DbPassword")" />
-                                                                <span class="input-group-icon text-muted"><i class="icm icm-shield" style="line-height: inherit"></i></span>
-                                                            </div>
-                                                            <span asp-validation-for="DbPassword"></span>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                        </div>
-
-                                        <!-- Raw connection string -->
-                                        <div id="RawConnectionStringPanel" style="display: none">
-                                            <div class="form-group row">
-                                                <label class="col-md-3 col-form-label" asp-for="DbRawConnectionString">@InstallService.GetResource("DbRawConnectionString")</label>
-                                                <div class="col-md-9">
-                                                    <textarea asp-for="DbRawConnectionString" rows="3" class="form-control remember"></textarea>
-                                                    <small id="RawConnectionStringHelp" class="form-text text-muted mt-2">
-                                                        @InstallService.GetResource("Example"):
-                                                        <span data-for-provider="sqlserver">
-                                                            Data Source=MyServerName; Initial Catalog=MyDatabaseName; Persist Security Info=True; User Id=MyUserName; Password=MyPassword
-                                                        </span>
-                                                        <span data-for-provider="mysql" style="display: none">
-                                                            Server=MyServerName; Database=MyDatabaseName; Uid=root; Pwd=MyPassword
-                                                        </span>
-                                                        <br />
-                                                        Find more info <a href="http://www.connectionstrings.com/" rel="nofollow" target="_blank">here</a>
-                                                    </small>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </fieldset>
-
-                                <!-- OPTIONS -->
-                                <fieldset class="mb-5">
-                                    <div class="heading mb-3">
-                                        <h2 class="heading-title text-muted">@InstallService.GetResource("InstallOptions")</h2>
-                                    </div>
-                                    <div class="form-group row">
-                                        <label class="col-md-3 col-form-label" asp-for="PrimaryLanguage">@InstallService.GetResource("PrimaryLanguage")</label>
-                                        <div class="col-md-9">
-                                            <select asp-for="PrimaryLanguage" asp-items="ViewBag.AvailableAppLanguages" class="form-control remember"></select>
-                                            <span asp-validation-for="PrimaryLanguage"></span>
-                                        </div>
-                                    </div>
-                                    <div class="form-group row">
-                                        <label class="col-md-3 col-form-label" asp-for="MediaStorage">@InstallService.GetResource("MediaStorage.Label")</label>
-                                        <div class="col-md-9">
-                                            <select asp-for="MediaStorage" asp-items="ViewBag.AvailableMediaStorages" class="form-control remember"></select>
-                                            <span asp-validation-for="MediaStorage"></span>
-                                            <small class="form-text text-muted mt-2">
-                                                @InstallService.GetResource("MediaStorage.Hint")
-                                            </small>
-                                        </div>
-                                    </div>
-                                    <div class="form-group row">
-                                        <div class="col-md-9 offset-md-3">
-                                            <div class="form-check">
-                                                <input type="checkbox" asp-for="InstallSampleData" class="form-check-input remember" />
-                                                <label class="form-check-label" asp-for="InstallSampleData">@InstallService.GetResource("CreateSampleData")</label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </fieldset>
-
-                                <div class="form-group row">
-                                    <div class="col-md-9 offset-md-3">
-                                        <div id="messages" class="alert alert-danger hide">
-                                            <ul>
-                                                <!-- AJAX -->
-                                            </ul>
-                                        </div>
-                                        <button type="submit" id="install-button" class="btn btn-primary btn-lg btn-block btn-install fs-h4 font-weight-normal">
-                                            <i class="icm icm-download2"></i>
-                                            <span>@InstallService.GetResource("Install")</span>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                    </form>
-                </div>
-            </div>
         </div>
     </div>
 
-    <script src="~/lib/jquery/jquery.unobtrusive-ajax.min.js"></script>
-    <script src="~/lib/jquery/jquery.validate.min.js"></script>
-    <script src="~/lib/jquery/jquery.validate.unobtrusive.min.js"></script>
+    <zone name="scripts">
+        <script src="~/js/smartstore.system.js"></script>
+        <script src="~/js/smartstore.viewport.js"></script>
+        <script src="~/js/smartstore.common.js"></script>
+        <script src="~/lib/underscore/underscore.min.js"></script>
+        <script src="~/js/underscore.mixins.js"></script>
+        <script src="~/js/smartstore.throbber.js"></script>
+        <script src="~/js/public.common.js"></script>
+    </zone>
 
-    <script src="~/js/smartstore.system.js"></script>
-    <script src="~/js/smartstore.viewport.js"></script>
-    <script src="~/js/smartstore.common.js"></script>
-    <script src="~/js/smartstore.dialogs.js"></script>
-
-    <script src="~/lib/underscore/underscore.min.js"></script>
-    <script src="~/js/underscore.mixins.js"></script>
-
-    <script src="~/lib/jquery/jquery.addeasing.js"></script>
-    <script src="~/js/smartstore.throbber.js"></script>
-    <script src="~/lib/jquery/jquery.scrollTo.js"></script>
-    <script src="~/js/public.common.js"></script>
-    <script src="~/js/jquery.validate.unobtrusive.custom.js"></script>
-
-    <script>
-        var dataProvider = $('#DataProvider');
-        var useRawConString = $('#UseRawConnectionString');
-        var connection = $('#UseRawConnectionString');
-        var connectionInfo = $('#ConnectionInfoPanel');
-        var rawConString = $('#RawConnectionStringPanel');
-        var rawConStringHelp = $('#RawConnectionStringHelp');
-        var authType = $('#DbAuthType');
-        var userId = $('#DbUserId');
-        var password = $('#DbPassword');
-        var checkAliveInterval;
-
-        $(function () {
-            dataProvider.on('change', toggleDataProvider).trigger('change');
-            useRawConString.on('change', toggleConnectionInfo).trigger('change');
-            authType.on('change', toggleAuthType).trigger('change');
-
-            setRememberedFormFields("installPrefs");
-        });
-
-        function hide(el, thenShow, callback) {
-			$(el).slideUp(300, "ease-in-out", function () {
-                if (thenShow) {
-                    show($(thenShow), callback);
-                }
-                else if (callback) {
-                    callback();
-                }
-			});
-		}
-
-		function show(el, callback) {
-			$(el).slideDown(300, "ease-in-out", callback);
-		}
-
-		function toggleDataProvider() {
-            var selectedProvider = dataProvider.val();
-			if (selectedProvider === 'mysql') {
-                authType.attr("disabled", "disabled");
-                userId.removeAttr("disabled");
-                password.removeAttr("disabled");
-                rawConStringHelp.find('> [data-for-provider=sqlserver]').hide();
-                rawConStringHelp.find('> [data-for-provider=mysql]').show();
-			}
-			else if (selectedProvider === 'sqlserver') {
-                authType.removeAttr("disabled");
-                toggleAuthType.apply(authType.get(0), arguments);
-                rawConStringHelp.find('> [data-for-provider=sqlserver]').show();
-                rawConStringHelp.find('> [data-for-provider=mysql]').hide();
-			}
-		}
-
-		function toggleConnectionInfo() {
-			var useRaw = $(this).val() === 'True';
-            if (useRaw) {
-                hide(connectionInfo, rawConString);
-			}
-			else {
-                hide(rawConString, connectionInfo);
-			}
-		}
-
-		function toggleAuthType() {
-			var selectedType = $(this).val();
-            if (selectedType == 'sqlserver') {
-                userId.removeAttr("disabled");
-                password.removeAttr("disabled");
-			}
-            else if (selectedType == 'windows') {
-                userId.attr("disabled", "disabled");
-                password.attr("disabled", "disabled");
-			}
-		}
-
-        function checkAlive(redirectUrl) {
-            $.ajax({
-                type: "GET",
-                cache: false,
-                url: "@checkAliveUrl",
-                global: false,
-                success: function() {
-                    clearInterval(checkAliveInterval);
-
-                    // Redirection sometimes fails in Chrome. Therefore we we delay and repeat the call until it succeeds.
-                    setTimeout(() => {
-                        setInterval(() => {
-                            location.replace(redirectUrl);
-                        }, 1000);
-                    }, 1000);
-                }
-            });
-        }
-
-        var Installation = (function () {
-            var progressIntervall;
-
-            function checkProgress() {
-                $.ajax({
-                    url: '@Url.Action("Progress", "Install")',
-                    dataType: "json",
-                    async: true,
-                    type: "POST",
-                    cache: false,
-                    success: function (data, status) {
-                        console.log(data);
-
-                        if (!data.Completed) {
-							if (data.ProgressMessage !== undefined && _.isString(data.ProgressMessage) && data.ProgressMessage) {
-								console.log(data.ProgressMessage);
-                        		$("#install-progress").html(data.ProgressMessage);
-                        	}
-                        }
-                        else {
-                        	$("#install-progress").html("");
-                        }
-                    },
-                    error: function () {
-                        console.log("ERROR");
-                        handleError(arguments[0].responseText);
-                    }
-                });
-            }
-
-            function finalizeInstallation(success) {
-                $.ajax({
-                    url: '@Url.Action("Finalize", "Install")',
-                    data: { restart: success },
-                    dataType: "json",
-                    async: false,
-                    global: false,
-                    type: "POST"
-                });
-            }
-
-			function handleError(errors) {
-                var validationSummary = $("#messages");
-                var ul = validationSummary.find("ul");
-                ul.html("");
-
-                if ($.isArray(errors)) {
-                    for (i = 0; i < errors.length; i++) {
-                        ul.append("<li class='last-mb-0'>" + errors[i] + "</li>");
-                    }
-                }
-                else {
-					ul.append("<li class='last-mb-0'>" + errors + "</li>");
-                }
-                validationSummary.removeClass("hide");
-                $.scrollTo(validationSummary, 400, { offset: -10 });
-                $("#install-button").removeAttr("disabled");
-
-                $("#install-progress").html("");
-            }
-
-            return {
-
-                onStart: function (context) {
-                    rememberFormFields("install-form", "installPrefs");
-
-                    $.throbber.show({
-                        message: '<div id="install-message">@InstallService.GetResource("Installing")</div><div id="install-progress" style="font-size: 16px; font-weight: 400; margin: 10px 0 30px 0"></div>',
-                    });
-
-                    // start the checkprogress interval
-                    progressIntervall = window.setInterval(checkProgress, 1500);
-
-                    $("#install-button").attr("disabled", "disabled");
-                },
-
-                onSuccess: function (data) {
-                    finalizeInstallation(data.Success);
-
-                    if (data.Success) {
-                        $("#install-message").html("@InstallService.GetResource("Common.StartShop")");
-                        $("#install-progress").html('<span class="redirect-info">@Html.Raw(InstallService.GetResource("Progress.Redirect").FormatInvariant(Url.Action("Index", "Home")))</span>');
-
-                        checkAliveInterval = setInterval(function () {
-                            checkAlive(data.RedirectUrl);
-                        }, 1000);
-                    }
-                    else {
-                        $.throbber.hide();
-                        if (data.HasErrors) {
-                            handleError(data.Errors);
-                        }
-                    }
-                },
-
-                onFailure: function (context) {
-                    handleError(context);
-                },
-
-                onComplete: function () {
-                	window.clearInterval(progressIntervall);
-                    $("#install-button").removeAttr("disabled");
-                }
-            };
-        })();
-    </script>
 </body>
 </html>

@@ -1,24 +1,17 @@
-﻿@inherits Smartstore.Web.Razor.SmartRazorPage<TModel>
+﻿@inherits RazorPage<TModel>
 
 @using System
 @using System.Globalization
 @using Microsoft.AspNetCore.Html
 @using Microsoft.AspNetCore.Mvc.Razor;
+@using Humanizer
 @using Smartstore
 @using Smartstore.Web
-@using Smartstore.Web.Models
-@using Smartstore.Imaging
-@using Smartstore.Core.Localization
-@using Smartstore.Core.Widgets
-@using Smartstore.Core.Content.Media
-@using Smartstore.Core.Content.Menus
-@using Smartstore.Web.Models.Diagnostics
-@using Smartstore.Web.Models.Common
-@using Smartstore.Web.Rendering
-@using Smartstore.Web.Rendering.Choices
-@using Humanizer
+@using Smartstore.Core.Installation
 
-@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
-@addTagHelper Smartstore.Web.TagHelpers.Shared.*, Smartstore.Web.Common
-@addTagHelper Smartstore.Web.TagHelpers.Public.*, Smartstore.Web.Common
-@addTagHelper Smartstore.Web.TagHelpers.Admin.*, Smartstore.Web.Common
+@removeTagHelper Smartstore.Web.TagHelpers.*, Smartstore.Web.Common
+@addTagHelper Smartstore.Web.TagHelpers.Shared.AjaxFormTagHelper, Smartstore.Web.Common
+@addTagHelper Smartstore.Web.TagHelpers.Shared.ZoneTagHelper, Smartstore.Web.Common
+@addTagHelper Smartstore.Web.TagHelpers.Shared.HtmlZoneTagHelper, Smartstore.Web.Common
+@addTagHelper Smartstore.Web.TagHelpers.Shared.WidgetTagHelper, Smartstore.Web.Common
+@addTagHelper Smartstore.Web.TagHelpers.Shared.HtmlWidgetTagHelper, Smartstore.Web.Common

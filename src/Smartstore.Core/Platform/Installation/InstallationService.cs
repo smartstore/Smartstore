@@ -54,26 +54,69 @@ namespace Smartstore.Core.Installation
 
         #region Installation
 
+        public InstallationResult GetCurrentInstallationResult()
+        {
+            return _asyncState.Get<InstallationResult>();
+        }
+
+        private bool TryBeginInstallation(InstallationModel model, out InstallationResult result)
+        {
+            if (DataSettings.DatabaseIsInstalled())
+            {
+                result = new InstallationResult(model)
+                {
+                    Success = true,
+                    ProgressMessage = "Application already installed",
+                    RedirectUrl = _urlHelper.Action("Index", "Home")
+                };
+
+                Logger.Info(result.ProgressMessage);
+
+                return false;
+            }
+
+            result = GetCurrentInstallationResult();
+
+            if (result != null)
+            {
+                // Installation has started already...
+                if (result.Completed)
+                {
+                    // ...but has completed: remove from state and return result 
+                    _asyncState.Remove<InstallationResult>();
+                    return false;
+                }
+                else
+                {
+                    // ...is running: throw
+                    var ex = new InstallationException("The installation is running already.", result);
+                    Logger.Error(ex);
+                    throw ex;
+                }
+            }
+
+            // Create and put initial result
+            result = new InstallationResult(model);
+            _asyncState.Create(result);
+
+            return true;
+        }
+
         public virtual async Task<InstallationResult> InstallAsync(InstallationModel model, ILifetimeScope scope, CancellationToken cancelToken = default)
         {
             Guard.NotNull(model, nameof(model));
 
-            UpdateResult(x =>
+            if (!TryBeginInstallation(model, out var result))
+            {
+                return result;
+            }
+
+            Progress(x =>
             {
                 x.ProgressMessage = GetResource("Progress.CheckingRequirements");
                 x.Completed = false;
                 Logger.Info(x.ProgressMessage);
             });
-
-            if (DataSettings.DatabaseIsInstalled())
-            {
-                return UpdateResult(x =>
-                {
-                    x.Success = true;
-                    x.RedirectUrl = _urlHelper.Action("Index", "Home");
-                    Logger.Info("Application already installed");
-                });
-            }
 
             DbFactory dbFactory = null;
 
@@ -83,7 +126,7 @@ namespace Smartstore.Core.Installation
             }
             catch (Exception ex)
             {
-                return UpdateResult(x =>
+                return Progress(x =>
                 {
                     x.Errors.Add(ex.Message);
                     Logger.Error(ex);
@@ -116,19 +159,19 @@ namespace Smartstore.Core.Installation
             }
             catch (Exception ex)
             {
-                return UpdateResult(x =>
+                return Progress(x =>
                 {
                     x.Errors.Add(GetResource("ConnectionStringWrongFormat"));
                     Logger.Error(ex, x.Errors.Last());
                 });
             }
 
-            //// Check FS access rights
-            CheckFileSystemAccessRights(GetInstallResult().Errors);
+            // Check FS access rights
+            CheckFileSystemAccessRights(result.Errors);
 
-            if (GetInstallResult().HasErrors)
+            if (result.HasErrors)
             {
-                return UpdateResult(x =>
+                return Progress(x =>
                 {
                     x.Completed = true;
                     x.Success = false;
@@ -158,7 +201,7 @@ namespace Smartstore.Core.Installation
                 var lazyLanguage = GetAppLanguage(model.PrimaryLanguage);
                 if (lazyLanguage == null)
                 {
-                    return UpdateResult(x =>
+                    return Progress(x =>
                     {
                         x.Errors.Add(GetResource("Install.LanguageNotRegistered").FormatInvariant(model.PrimaryLanguage));
                         x.Completed = true;
@@ -196,23 +239,26 @@ namespace Smartstore.Core.Installation
                     Data = lazyLanguage.Value,
                     Language = primaryLanguage,
                     StoreMediaInDB = model.MediaStorage == "db",
-                    ProgressMessageCallback = msg => UpdateResult(x => x.ProgressMessage = GetResource(msg))
+                    ProgressMessageCallback = msg => Progress(x => x.ProgressMessage = GetResource(msg))
                 };
 
-                UpdateResult(x =>
+                Progress(x =>
                 {
                     x.ProgressMessage = GetResource("Progress.BuildingDatabase");
                     Logger.Info(x.ProgressMessage);
                 });
 
-                //// TEST
-                //return UpdateResult(x =>
+                //for (var i = 1; i <= 15; i++)
                 //{
-                //    x.Completed = true;
-                //    x.Success = true;
-                //    //x.RedirectUrl = _urlHelper.Action("Index", "Home");
-                //    Logger.Info("Installation completed successfully");
-                //});
+                //    cancelToken.ThrowIfCancellationRequested();
+
+                //    Progress(x =>
+                //    {
+                //        x.ProgressMessage = $"Executing step {i} of 5";
+                //    });
+
+                //    await Task.Delay(2000, cancelToken);
+                //}
 
                 // ===>>> Creates database
                 await db.Database.EnsureCreatedSchemalessAsync(cancelToken);
@@ -230,10 +276,10 @@ namespace Smartstore.Core.Installation
                 cancelToken.ThrowIfCancellationRequested();
 
                 // ===>>> Install modules
-                await InstallModules(model, db, scope, cancelToken);
+                await InstallModules(result, db, scope, cancelToken);
 
                 // Move media and detect media file tracks (must come after module installation)
-                UpdateResult(x =>
+                Progress(x =>
                 {
                     x.ProgressMessage = GetResource("Progress.ProcessingMedia");
                     Logger.Info(x.ProgressMessage);
@@ -247,7 +293,7 @@ namespace Smartstore.Core.Installation
 
                 cancelToken.ThrowIfCancellationRequested();
 
-                UpdateResult(x =>
+                Progress(x =>
                 {
                     x.ProgressMessage = GetResource("Progress.Finalizing");
                     Logger.Info(x.ProgressMessage);
@@ -257,7 +303,7 @@ namespace Smartstore.Core.Installation
                 settings.Save();
 
                 // SUCCESS: Redirect to home page
-                return UpdateResult(x =>
+                return Progress(x =>
                 {
                     x.Completed = true;
                     x.Success = true;
@@ -297,7 +343,7 @@ namespace Smartstore.Core.Installation
                     msg += " (" + realException.Message + ")";
                 }
 
-                return UpdateResult(x =>
+                return Progress(x =>
                 {
                     x.Errors.Add(string.Format(GetResource("SetupFailed"), msg));
                     x.Success = false;
@@ -305,11 +351,28 @@ namespace Smartstore.Core.Installation
                     x.RedirectUrl = null;
                 });
             }
+
+            InstallationResult Progress(Action<InstallationResult> fn)
+            {
+                return UpdateResult(result, fn);
+            }
         }
 
-        private async Task InstallModules(InstallationModel model, SmartDbContext db, ILifetimeScope scope, CancellationToken cancelToken = default)
+        private InstallationResult UpdateResult(InstallationResult result, Action<InstallationResult> fn)
+        {
+            fn(result);
+            _asyncState.Create(result);
+            return result;
+        }
+
+        private async Task InstallModules(
+            InstallationResult result, 
+            SmartDbContext db, 
+            ILifetimeScope scope, 
+            CancellationToken cancelToken = default)
         {
             var idx = 0;
+            var model = result.Model;
             var modularState = ModularState.Instance;
             var modules = modularState.IgnoredModules.Length == 0
                 ? _appContext.ModuleCatalog.Modules.ToArray()
@@ -333,7 +396,7 @@ namespace Smartstore.Core.Installation
                 try
                 {
                     idx++;
-                    UpdateResult(x =>
+                    UpdateResult(result, x =>
                     {
                         x.ProgressMessage = GetResource("Progress.InstallingModules").FormatInvariant(idx, modules.Length);
                         Logger.Info(x.ProgressMessage);
@@ -371,26 +434,6 @@ namespace Smartstore.Core.Installation
                     errors.Add(string.Format(GetResource("ConfigureFilePermissions"), _appContext.OSIdentity.Name, entry.PhysicalPath));
                 }
             }
-        }
-
-        private InstallationResult GetInstallResult()
-        {
-            var result = _asyncState.Get<InstallationResult>();
-            if (result == null)
-            {
-                result = new InstallationResult();
-                _asyncState.Create<InstallationResult>(result);
-            }
-            return result;
-        }
-
-        private InstallationResult UpdateResult(Action<InstallationResult> fn)
-        {
-            var result = GetInstallResult();
-            fn(result);
-            _asyncState.Create<InstallationResult>(result);
-
-            return result;
         }
 
         #endregion

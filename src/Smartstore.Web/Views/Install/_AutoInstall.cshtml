@@ -1,0 +1,13 @@
+﻿@model InstallationResult
+
+@inject IInstallationService InstallService
+
+@{
+    Layout = null;
+}
+
+<h2 id="install-message">@InstallService.GetResource("Installing")</h2>
+
+<p id="install-progress" style="font-size: 16px; font-weight: 400; margin: 10px 0 30px 0">
+    @Model.ProgressMessage
+</p>

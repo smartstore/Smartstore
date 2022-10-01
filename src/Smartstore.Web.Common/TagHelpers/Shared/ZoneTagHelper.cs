@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Autofac.Core;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Razor.TagHelpers;
+using Smartstore.Data;
 using Smartstore.Web.Rendering;
 
 namespace Smartstore.Web.TagHelpers.Shared
@@ -12,11 +14,8 @@ namespace Smartstore.Web.TagHelpers.Shared
         const string ReplaceContentAttributeName = "replace-content";
         const string RemoveIfEmptyAttributeName = "remove-if-empty";
 
-        private readonly IWidgetSelector _widgetSelector;
-
-        public ZoneTagHelper(IWidgetSelector widgetSelector)
+        public ZoneTagHelper()
         {
-            _widgetSelector = widgetSelector;
         }
 
         [HtmlAttributeName(NameAttributeName)]
@@ -42,11 +41,30 @@ namespace Smartstore.Web.TagHelpers.Shared
 
         protected override string GenerateTagId(TagHelperContext context) => null;
 
+        private async Task<IEnumerable<WidgetInvoker>> GetWidgetsAsync()
+        {
+            var services = ViewContext.HttpContext.RequestServices;
+
+            if (DataSettings.DatabaseIsInstalled())
+            {
+                return await services.GetRequiredService<IWidgetSelector>()
+                    .GetWidgetsAsync(ZoneName, ViewContext, Model ?? ViewContext.ViewData.Model);
+            }
+            else
+            {
+                return services.GetRequiredService<IWidgetProvider>()
+                    .GetWidgets(ZoneName)
+                    .Distinct()
+                    .OrderBy(x => x.Prepend)
+                    .ThenBy(x => x.Order);
+            }
+        }
+
         protected override async Task ProcessCoreAsync(TagHelperContext context, TagHelperOutput output)
         {
             var isHtmlTag = output.TagName != "zone";
 
-            var widgets = await _widgetSelector.GetWidgetsAsync(ZoneName, ViewContext, Model ?? ViewContext.ViewData.Model);
+            var widgets = await GetWidgetsAsync();
 
             if (!isHtmlTag)
             {
@@ -103,8 +121,7 @@ namespace Smartstore.Web.TagHelpers.Shared
     {
         const string ZoneNameAttributeName = "zone-name";
 
-        public HtmlZoneTagHelper(IWidgetSelector widgetSelector)
-            : base(widgetSelector)
+        public HtmlZoneTagHelper()
         {
         }
 
