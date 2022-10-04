@@ -21,16 +21,16 @@
     <LocaleResource Name="Plugins.Description.Payments.PayPalStandard" AppendRootKey="false">
         <Value>
             <![CDATA[
-				        Opens a secure payment window where the payment is made directly at PayPal.
-              ]]>
+			    Opens a secure payment window where the payment is made directly at PayPal.
+            ]]>
         </Value>
     </LocaleResource>
     <LocaleResource Name="Plugins.Description.Payments.PayPalPayUponInvoice" AppendRootKey="false">
         <Value>
             <![CDATA[
-				        A buy now, pay later payment method that allows the buyer to place an order, 
+				A buy now, pay later payment method that allows the buyer to place an order, 
                 receive the goods, try them, verify they are in good order, and then pay the invoice within 30 days.
-              ]]>
+            ]]>
         </Value>
     </LocaleResource>
 
@@ -38,9 +38,9 @@
     <LocaleResource Name="Plugins.PaymentInfo.Payments.PayPalStandard" AppendRootKey="false">
         <Value>
             <![CDATA[
-				        Do the payment in a secure browser window directly at PayPal. 
-				        After redirection back to the store, you can complete the order with a few clicks.
-              ]]>
+				Do the payment in a secure browser window directly at PayPal. 
+				After redirection back to the store, you can complete the order with a few clicks.
+            ]]>
         </Value>
     </LocaleResource>
     <LocaleResource Name="Plugins.PaymentInfo.Payments.PayPalPayUponInvoice" AppendRootKey="false">
@@ -57,15 +57,15 @@
                 <Value>
                     <![CDATA[
                         <p>
-							            To set up PayPal in your store use the button <b>Connect account</b> or alternatively follow the steps in the following guide.
-						            </p>
-						            <ul>
-							            <li>Sign in with your PayPal account details <a href="https://developer.paypal.com/developer/applications" target="_blank">in the developer dashboard</a>.</li>
-							            <li>Create a new app by clicking on the <b>Create App</b> button.</li>
-							            <li>Now enter the account, client ID and secret in the fields provided further down this page.</li>
-							            <li>Create a webhook and store the URL below as the webhook URL in your PayPal app.</li>
-							            <li>Enable notifications for all events.</li>
-						            </ul>
+							To set up PayPal in your store use the button <b>Connect account</b> or alternatively follow the steps in the following guide.
+						</p>
+						<ul>
+							<li>Sign in with your PayPal account details <a href="https://developer.paypal.com/developer/applications" target="_blank">in the developer dashboard</a>.</li>
+							<li>Create a new app by clicking on the <b>Create App</b> button.</li>
+							<li>Now enter the account, client ID and secret in the fields provided further down this page.</li>
+							<li>Create a webhook and store the URL below as the webhook URL in your PayPal app.</li>
+							<li>Enable notifications for all events.</li>
+						</ul>
                       ]]>
                 </Value>
             </LocaleResource>
@@ -203,7 +203,9 @@
             <LocaleResource Name="Onboarding">
                 <Value>Connect account</Value>
             </LocaleResource>
-
+            <LocaleResource Name="Onboarding.Success">
+                <Value>Your store has been successfully linked to your PayPal account.</Value>
+            </LocaleResource>
             <LocaleResource Name="Error.PaymentsReceivable">
                 <Value>Payments cannot be received with this account. Please contact PayPal.</Value>
             </LocaleResource>
@@ -245,7 +247,7 @@
                         You also agree to PayPal’s <a href="https://www.paypal.com/us/webapps/mpp/ua/privacy-full" target="_blank">privacy statement</a>. 
                         If your request to purchase upon invoice is accepted, the purchase price claim will be assigned to Ratepay, and you may only pay Ratepay, 
                         not the merchant.
-                      ]]>
+                    ]]>
                 </Value>
             </LocaleResource>
             <LocaleResource Name="NoWhitespace">

@@ -39,8 +39,8 @@
     <LocaleResource Name="Plugins.PaymentInfo.Payments.PayPalStandard" AppendRootKey="false">
         <Value>
             <![CDATA[
-				        Führen Sie die Zahlung in einem sicheren Browserfenster direkt bei PayPal durch. 
-				        Nach der Rückleitung in den Shop können Sie die Bestellung mit wenigen Klicks abschließen.
+				Führen Sie die Zahlung in einem sicheren Browserfenster direkt bei PayPal durch. 
+				Nach der Rückleitung in den Shop können Sie die Bestellung mit wenigen Klicks abschließen.
               ]]>
         </Value>
     </LocaleResource>
@@ -58,15 +58,15 @@
                 <Value>
                     <![CDATA[
                         <p>
-							            Um PayPal in Ihrem Shop einzurichten, nutzen Sie den Button <b>Account verknüpfen</b> oder befolgen Sie alternativ die Schritte der folgenden Anleitung.
-						            </p>
-						            <ul>
-							            <li>Melden Sie sich mit Ihren PayPal-Kontodaten <a href="https://developer.paypal.com/developer/applications" target="_blank">im Entwickler-Dashboard</a> an.</li>
-							            <li>Erstellen Sie eine neue App, indem Sie auf denn Button <b>Create App</b> klicken.</li>
-							            <li>Tragen Sie nun den Account, die Client ID und den Secret in die dafür vorgesehenen Felder weiter unten auf dieser Seite ein.</li>
-							            <li>Erstellen Sie einen Webhook und hinterlegen die unten aufgeführte URL in Ihrer PayPal App als Webhook URL.</li>
-							            <li>Aktivieren Sie Benachrichtigungen für alle Events.</li>
-						            </ul>
+							Um PayPal in Ihrem Shop einzurichten, nutzen Sie den Button <b>Account verknüpfen</b> oder befolgen Sie alternativ die Schritte der folgenden Anleitung.
+						</p>
+						<ul>
+							<li>Melden Sie sich mit Ihren PayPal-Kontodaten <a href="https://developer.paypal.com/developer/applications" target="_blank">im Entwickler-Dashboard</a> an.</li>
+							<li>Erstellen Sie eine neue App, indem Sie auf denn Button <b>Create App</b> klicken.</li>
+							<li>Tragen Sie nun den Account, die Client ID und den Secret in die dafür vorgesehenen Felder weiter unten auf dieser Seite ein.</li>
+							<li>Erstellen Sie einen Webhook und hinterlegen die unten aufgeführte URL in Ihrer PayPal App als Webhook URL.</li>
+							<li>Aktivieren Sie Benachrichtigungen für alle Events.</li>
+						</ul>
                       ]]>
                 </Value>
             </LocaleResource>
@@ -203,6 +203,9 @@
             </LocaleResource>
             <LocaleResource Name="Onboarding">
                 <Value>Account verknüpfen</Value>
+            </LocaleResource>
+            <LocaleResource Name="Onboarding.Success">
+                <Value>Ihr Shop wurde erfolgreich mit Ihrem PayPal-Konto verknüpft.</Value>
             </LocaleResource>
             <LocaleResource Name="Error.PaymentsReceivable">
                 <Value>Mit diesem Account können keine Zahlungen empfangen werden. Bitte kontaktieren Sie PayPal.</Value>
