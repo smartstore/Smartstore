@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Data;
+using System.Runtime.CompilerServices;
 using Autofac;
 using Microsoft.AspNetCore.Http;
 using Smartstore.Caching;
@@ -70,6 +71,7 @@ namespace Smartstore.Core.Configuration
 
                 using (GetOrCreateDbContext(out var db))
                 {
+                    
                     var rawSettings = GetRawSettings(db, settingsType, storeId, true, false);
                     return MaterializeSettings(settingsType, rawSettings);
                 }
@@ -185,10 +187,15 @@ namespace Smartstore.Core.Configuration
 
             if (db != null)
             {
-                // Don't dispose request scoped main db instance.
-                return ActionDisposable.Empty;
+                var conState = db.Database.GetDbConnection().State;
+                if (conState == ConnectionState.Closed)
+                {
+                    // Don't dispose request scoped main db instance.
+                    return ActionDisposable.Empty;
+                }
             }
 
+            // Fetch a fresh DbContext if no scope is given or current connection is not in "Closed" state.
             db = _dbContextFactory.CreateDbContext();
 
             return db;

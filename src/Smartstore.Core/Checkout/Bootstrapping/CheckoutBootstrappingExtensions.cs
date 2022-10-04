@@ -15,13 +15,14 @@ namespace Smartstore.Core.Bootstrapping
         {
             return app.Use(async (context, next) =>
             {
+                var accessor = context.RequestServices.GetService<ICheckoutStateAccessor>();
+
                 try
                 {
                     await next();
                 }
                 finally
                 {
-                    var accessor = context.RequestServices.GetService<ICheckoutStateAccessor>();
                     if (accessor != null && accessor.IsStateLoaded && accessor.HasStateChanged)
                     {
                         accessor.Save();
