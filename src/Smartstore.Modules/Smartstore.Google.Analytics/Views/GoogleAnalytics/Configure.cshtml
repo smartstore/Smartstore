@@ -16,11 +16,11 @@
 </widget>
 
 <div sm-if="Model.ScriptUpdateRecommended" class="alert alert-warning">
-    @Html.Raw(@T("Plugins.Widgets.GoogleAnalytics.ScriptUpdateInfo"))
+    @Html.Raw(T("Plugins.Widgets.GoogleAnalytics.ScriptUpdateInfo"))
 </div>
 
 <div class="alert alert-info">
-    @Html.Raw(@T("Plugins.Widgets.GoogleAnalytics.AdminInstruction"))
+    @Html.Raw(T("Plugins.Widgets.GoogleAnalytics.AdminInstruction"))
 </div>
 
 <form asp-action="Configure">
