@@ -19,7 +19,7 @@
     var toolOpen = (bool)ViewBag.ToolOpen;
 }
 
-<style type="text/css" sm-target-zone="stylesheets" data-origin="preview-tool">
+<style type="text/css">
     .previewmode-wrapper {
         position: fixed;
         right: -250px;
@@ -124,7 +124,7 @@
     </a>
 </div>
 
-<script sm-target-zone="scripts" data-origin="preview-tool">
+<script>
     $(function () {
         $('.toggle-preview').on('click', function (e) {
             e.preventDefault();
