@@ -21,9 +21,6 @@
     <LocaleResource Name="UserGridTabTitle">
         <Value>API User</Value>
     </LocaleResource>
-    <LocaleResource Name="OptionsGridTabTitle">
-        <Value>Options</Value>
-    </LocaleResource>
     <LocaleResource Name="ApiOdataUrl">
         <Value>OData API URL</Value>
     </LocaleResource>
@@ -47,30 +44,6 @@
     </LocaleResource>
     <LocaleResource Name="SwaggerUrl.Hint">
         <Value>URL of the Swagger documentation of the Web API.</Value>
-    </LocaleResource>
-    <LocaleResource Name="ValidMinutePeriod">
-        <Value>Request time window</Value>
-    </LocaleResource>
-    <LocaleResource Name="ValidMinutePeriod.Hint">
-        <Value>For security reasons should the time at which the request was sent to the API differ not too far from the current server time. With this setting, you set this time window in minutes.</Value>
-    </LocaleResource>
-    <LocaleResource Name="LogUnauthorized">
-        <Value>Log unauthorized accesses</Value>
-    </LocaleResource>
-    <LocaleResource Name="LogUnauthorized.Hint">
-        <Value>Each unauthorized access will be saved in the log list.</Value>
-    </LocaleResource>
-    <LocaleResource Name="NoRequestTimestampValidation">
-        <Value>No timestamp validation</Value>
-    </LocaleResource>
-    <LocaleResource Name="NoRequestTimestampValidation.Hint">
-        <Value>Specifies whether to validate that the timestamp of the previous request is less or equal than the one of the current. Prevents the occurrence of HmacResult.TimestampOlderThanLastRequest.</Value>
-    </LocaleResource>
-    <LocaleResource Name="AllowEmptyMd5Hash">
-        <Value>Allow authentification without MD5 hash</Value>
-    </LocaleResource>
-    <LocaleResource Name="AllowEmptyMd5Hash.Hint">
-        <Value>Specifies whether to allow authentifications without MD5 content hash.</Value>
     </LocaleResource>
     <LocaleResource Name="IsActive">
         <Value>Is active</Value>

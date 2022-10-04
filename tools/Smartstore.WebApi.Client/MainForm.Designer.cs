@@ -50,12 +50,8 @@
             this.btnDeleteQuery = new System.Windows.Forms.Button();
             this.cboQuery = new System.Windows.Forms.ComboBox();
             this.label8 = new System.Windows.Forms.Label();
-            this.radioOdata = new System.Windows.Forms.RadioButton();
-            this.radioApi = new System.Windows.Forms.RadioButton();
-            this.panel1 = new System.Windows.Forms.Panel();
             this.label4 = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
-            this.label9 = new System.Windows.Forms.Label();
             this.lblRequest = new System.Windows.Forms.TextBox();
             this.lblResponse = new System.Windows.Forms.TextBox();
             this.lblFile = new System.Windows.Forms.Label();
@@ -71,13 +67,12 @@
             this.btnDeleteFileUpload = new System.Windows.Forms.Button();
             this.txtProxyPort = new System.Windows.Forms.TextBox();
             this.label11 = new System.Windows.Forms.Label();
-            this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // chkIEEE754Compatible
             // 
             this.chkIEEE754Compatible.AutoSize = true;
-            this.chkIEEE754Compatible.Location = new System.Drawing.Point(1023, 405);
+            this.chkIEEE754Compatible.Location = new System.Drawing.Point(153, 91);
             this.chkIEEE754Compatible.Name = "chkIEEE754Compatible";
             this.chkIEEE754Compatible.Size = new System.Drawing.Size(119, 17);
             this.chkIEEE754Compatible.TabIndex = 50;
@@ -121,7 +116,7 @@
             this.callApi.TabIndex = 8;
             this.callApi.Text = "Call API";
             this.callApi.UseVisualStyleBackColor = true;
-            this.callApi.Click += new System.EventHandler(this.callApi_Click);
+            this.callApi.Click += new System.EventHandler(this.CallApi_Click);
             // 
             // cboPath
             // 
@@ -164,7 +159,7 @@
             this.cboMethod.Name = "cboMethod";
             this.cboMethod.Size = new System.Drawing.Size(89, 21);
             this.cboMethod.TabIndex = 3;
-            this.cboMethod.SelectionChangeCommitted += new System.EventHandler(this.cboMethod_changeCommitted);
+            this.cboMethod.SelectionChangeCommitted += new System.EventHandler(this.CboMethod_changeCommitted);
             // 
             // txtResponse
             // 
@@ -189,7 +184,7 @@
             this.clear.TabIndex = 9;
             this.clear.Text = "Clear";
             this.clear.UseVisualStyleBackColor = true;
-            this.clear.Click += new System.EventHandler(this.clear_Click);
+            this.clear.Click += new System.EventHandler(this.Clear_Click);
             // 
             // txtSecretKey
             // 
@@ -225,7 +220,7 @@
             this.btnDeletePath.TabIndex = 8;
             this.btnDeletePath.Text = "x";
             this.btnDeletePath.UseVisualStyleBackColor = true;
-            this.btnDeletePath.Click += new System.EventHandler(this.btnDeletePath_Click);
+            this.btnDeletePath.Click += new System.EventHandler(this.BtnDeletePath_Click);
             // 
             // btnDeleteContent
             // 
@@ -237,7 +232,7 @@
             this.btnDeleteContent.TabIndex = 9;
             this.btnDeleteContent.Text = "x";
             this.btnDeleteContent.UseVisualStyleBackColor = true;
-            this.btnDeleteContent.Click += new System.EventHandler(this.btnDeleteContent_Click);
+            this.btnDeleteContent.Click += new System.EventHandler(this.BtnDeleteContent_Click);
             // 
             // txtRequest
             // 
@@ -263,7 +258,7 @@
             this.btnDeleteQuery.TabIndex = 9;
             this.btnDeleteQuery.Text = "x";
             this.btnDeleteQuery.UseVisualStyleBackColor = true;
-            this.btnDeleteQuery.Click += new System.EventHandler(this.btnDeleteQuery_Click);
+            this.btnDeleteQuery.Click += new System.EventHandler(this.BtnDeleteQuery_Click);
             // 
             // cboQuery
             // 
@@ -282,42 +277,6 @@
             this.label8.TabIndex = 24;
             this.label8.Text = "Query";
             // 
-            // radioOdata
-            // 
-            this.radioOdata.AutoSize = true;
-            this.radioOdata.Location = new System.Drawing.Point(3, 3);
-            this.radioOdata.Margin = new System.Windows.Forms.Padding(0);
-            this.radioOdata.Name = "radioOdata";
-            this.radioOdata.Size = new System.Drawing.Size(53, 17);
-            this.radioOdata.TabIndex = 0;
-            this.radioOdata.TabStop = true;
-            this.radioOdata.Text = "odata";
-            this.radioOdata.UseVisualStyleBackColor = true;
-            this.radioOdata.Click += new System.EventHandler(this.odata_Click);
-            // 
-            // radioApi
-            // 
-            this.radioApi.AutoSize = true;
-            this.radioApi.Location = new System.Drawing.Point(58, 3);
-            this.radioApi.Margin = new System.Windows.Forms.Padding(0);
-            this.radioApi.Name = "radioApi";
-            this.radioApi.Size = new System.Drawing.Size(39, 17);
-            this.radioApi.TabIndex = 1;
-            this.radioApi.TabStop = true;
-            this.radioApi.Text = "api";
-            this.radioApi.UseVisualStyleBackColor = true;
-            this.radioApi.CheckedChanged += new System.EventHandler(this.radioApi_CheckedChanged);
-            this.radioApi.Click += new System.EventHandler(this.api_Click);
-            // 
-            // panel1
-            // 
-            this.panel1.Controls.Add(this.radioApi);
-            this.panel1.Controls.Add(this.radioOdata);
-            this.panel1.Location = new System.Drawing.Point(367, 62);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(103, 23);
-            this.panel1.TabIndex = 25;
-            // 
             // label4
             // 
             this.label4.AutoSize = true;
@@ -335,15 +294,6 @@
             this.label7.Size = new System.Drawing.Size(42, 13);
             this.label7.TabIndex = 29;
             this.label7.Text = "Version";
-            // 
-            // label9
-            // 
-            this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(324, 67);
-            this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(42, 13);
-            this.label9.TabIndex = 30;
-            this.label9.Text = "Service";
             // 
             // lblRequest
             // 
@@ -383,7 +333,7 @@
             this.btnFileOpen.TabIndex = 35;
             this.btnFileOpen.Text = "Open file";
             this.btnFileOpen.UseVisualStyleBackColor = true;
-            this.btnFileOpen.Click += new System.EventHandler(this.btnFileOpen_Click);
+            this.btnFileOpen.Click += new System.EventHandler(this.BtnFileOpen_Click);
             // 
             // openFileDialog1
             // 
@@ -399,7 +349,7 @@
             this.btnDeleteHeaders.TabIndex = 9;
             this.btnDeleteHeaders.Text = "x";
             this.btnDeleteHeaders.UseVisualStyleBackColor = true;
-            this.btnDeleteHeaders.Click += new System.EventHandler(this.btnDeleteHeaders_Click);
+            this.btnDeleteHeaders.Click += new System.EventHandler(this.BtnDeleteHeaders_Click);
             // 
             // cboHeaders
             // 
@@ -431,7 +381,6 @@
             settings1.ApiContent = "";
             settings1.ApiHeaders = "";
             settings1.ApiPaths = "";
-            settings1.ApiPaths2 = "";
             settings1.ApiProxyPort = "";
             settings1.ApiPublicKey = "";
             settings1.ApiQuery = "";
@@ -464,7 +413,7 @@
             this.btnDeleteFileUpload.TabIndex = 49;
             this.btnDeleteFileUpload.Text = "x";
             this.btnDeleteFileUpload.UseVisualStyleBackColor = true;
-            this.btnDeleteFileUpload.Click += new System.EventHandler(this.btnDeleteFileUpload_Click);
+            this.btnDeleteFileUpload.Click += new System.EventHandler(this.BtnDeleteFileUpload_Click);
             // 
             // txtProxyPort
             // 
@@ -500,11 +449,9 @@
             this.Controls.Add(this.lblFile);
             this.Controls.Add(this.lblResponse);
             this.Controls.Add(this.lblRequest);
-            this.Controls.Add(this.label9);
             this.Controls.Add(this.txtVersion);
             this.Controls.Add(this.label7);
             this.Controls.Add(this.label4);
-            this.Controls.Add(this.panel1);
             this.Controls.Add(this.btnDeleteQuery);
             this.Controls.Add(this.cboQuery);
             this.Controls.Add(this.label8);
@@ -533,8 +480,7 @@
             this.Name = "MainForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "MainForm";
-            this.panel1.ResumeLayout(false);
-            this.panel1.PerformLayout();
+            this.Shown += new System.EventHandler(this.MainForm_Shown);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -562,13 +508,9 @@
         private System.Windows.Forms.Button btnDeleteQuery;
         private System.Windows.Forms.ComboBox cboQuery;
         private System.Windows.Forms.Label label8;
-        private System.Windows.Forms.RadioButton radioOdata;
-        private System.Windows.Forms.RadioButton radioApi;
-        private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.TextBox txtVersion;
         private System.Windows.Forms.Label label7;
-        private System.Windows.Forms.Label label9;
         private System.Windows.Forms.TextBox lblRequest;
         private System.Windows.Forms.TextBox lblResponse;
         private System.Windows.Forms.Label lblFile;

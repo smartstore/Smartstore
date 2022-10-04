@@ -15,7 +15,6 @@ using Smartstore.Http;
 namespace Smartstore.Web.Api
 {
     // TODO: (mg) (core) move methods of generic API controllers (Payments, Uploads) to OData controllers\functions.
-    // TODO: (mg) (core) cleanup string resources.
     // TODO: (mg) (core) update API docu https://smartstore.gitbook.io/smartstore-developer-documentation/j1V5oNQn0xHeh8VLBP1Z/framework/web-api
     internal class Module : ModuleBase, IConfigurable
     {

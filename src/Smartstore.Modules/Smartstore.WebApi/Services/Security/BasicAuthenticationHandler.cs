@@ -1,13 +1,16 @@
 ﻿using System.Net.Http.Headers;
 using System.Security.Claims;
+using System.Security.Principal;
 using System.Text;
 using System.Text.Encodings.Web;
+using System.Threading;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
+using Smartstore.Core;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Seo;
 using Smartstore.Utilities;
@@ -34,6 +37,8 @@ namespace Smartstore.Web.Api.Security
         private readonly SignInManager<Customer> _signInManager;
         private readonly Lazy<IUrlService> _urlService;
         private readonly IApiUserStore _apiUserStore;
+        private readonly IWorkContext _workContext;
+        //private readonly IHttpContextAccessor _httpContextAccessor;
 
         public BasicAuthenticationHandler(
             SmartDbContext db,
@@ -41,6 +46,7 @@ namespace Smartstore.Web.Api.Security
             SignInManager<Customer> signInManager,
             Lazy<IUrlService> urlService,
             IApiUserStore apiUserStore,
+            IWorkContext workContext,
             IOptionsMonitor<AuthenticationSchemeOptions> options,
             ILoggerFactory logger,
             UrlEncoder encoder,
@@ -52,6 +58,7 @@ namespace Smartstore.Web.Api.Security
             _signInManager = signInManager;
             _urlService = urlService;
             _apiUserStore = apiUserStore;
+            _workContext = workContext;
         }
 
         protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
@@ -70,15 +77,10 @@ namespace Smartstore.Web.Api.Security
                     throw new AuthenticationException(AccessDeniedReason.SslRequired);
                 }
 
+                // INFO: must be executed before setting LastRequest.
                 _apiUserStore.Activate(TimeSpan.FromMinutes(15));
 
                 var (customer, user) = await GetCustomer();
-
-                await _signInManager.SignInAsync(customer, true);
-                //$"Signed in using '{Scheme.Name}'.".Dump();
-
-                Request.HttpContext.Items["Smartstore.WebApi.MaxTop"] = state.MaxTop;
-                Request.HttpContext.Items["Smartstore.WebApi.MaxExpansionDepth"] = state.MaxExpansionDepth;
 
                 var claims = new[]
                 {
@@ -88,6 +90,24 @@ namespace Smartstore.Web.Api.Security
 
                 var principal = new ClaimsPrincipal(new ClaimsIdentity(claims, Scheme.Name));
                 var ticket = new AuthenticationTicket(principal, Scheme.Name);
+
+                await _signInManager.SignInAsync(customer, true, Scheme.Name);
+                //$"Signed in using '{Scheme.Name}': customer {customer.Id}, {customer.Email}.".Dump();
+
+                // HttpContext comes too late for GetAuthenticatedCustomerAsync().
+                // We must set CurrentCustomer explicitly otherwise he will always remain guest and permission checks will fail.
+                //if (_httpContextAccessor.HttpContext != null)
+                //{
+                //    _httpContextAccessor.HttpContext.User = principal;
+                //}
+                //Thread.CurrentPrincipal = principal;
+
+                _workContext.CurrentCustomer = customer;
+
+                user.LastRequest = DateTime.UtcNow;
+
+                Request.HttpContext.Items["Smartstore.WebApi.MaxTop"] = state.MaxTop;
+                Request.HttpContext.Items["Smartstore.WebApi.MaxExpansionDepth"] = state.MaxExpansionDepth;
 
                 SetResponseHeaders(null, customer, state);
 
@@ -150,8 +170,6 @@ namespace Smartstore.Web.Api.Security
             {
                 throw new AuthenticationException(AccessDeniedReason.UserInactive, publicKey);
             }
-
-            user.LastRequest = DateTime.UtcNow;
 
             return (customer, user);
         }

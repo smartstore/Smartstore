@@ -26,16 +26,11 @@ namespace Smartstore.Core.Security
 
         class PermissionFilter : IAsyncAuthorizationFilter
         {
-            private readonly IWorkContext _workContext;
             private readonly IPermissionService _permissionService;
             private readonly PermissionRequirement _requirement;
 
-            public PermissionFilter(
-                IWorkContext workContext,
-                IPermissionService permissionService,
-                PermissionRequirement requirement)
+            public PermissionFilter(IPermissionService permissionService, PermissionRequirement requirement)
             {
-                _workContext = workContext;
                 _permissionService = permissionService;
                 _requirement = requirement;
             }
@@ -44,7 +39,7 @@ namespace Smartstore.Core.Security
             {
                 Guard.NotNull(context, nameof(context));
 
-                if (await _permissionService.AuthorizeAsync(_requirement.SystemName, _workContext.CurrentCustomer))
+                if (await _permissionService.AuthorizeAsync(_requirement.SystemName))
                 {
                     return;
                 }

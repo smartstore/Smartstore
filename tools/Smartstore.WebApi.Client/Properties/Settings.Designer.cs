@@ -98,18 +98,6 @@ namespace Smartstore.WebApi.Client.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string ApiPaths2 {
-            get {
-                return ((string)(this["ApiPaths2"]));
-            }
-            set {
-                this["ApiPaths2"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
         public string ApiVersion {
             get {
                 return ((string)(this["ApiVersion"]));

@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Net.Mime;
 using System.Text;
 using Newtonsoft.Json;
 using Smartstore.WebApi.Client.Models;
@@ -21,7 +22,6 @@ namespace Smartstore.WebApi.Client
                 s.Reload();
 
                 cboMethod.SelectedIndex = 0;
-                radioOdata.Checked = true;
                 txtPublicKey.Text = s.ApiPublicKey;
                 txtSecretKey.Text = s.ApiSecretKey;
                 txtUrl.Text = s.ApiUrl;
@@ -56,8 +56,7 @@ namespace Smartstore.WebApi.Client
                     cboFileUpload.Items.Add(serializedModel);
                 }
 
-                cboMethod_changeCommitted(null, null);
-                radioApi_CheckedChanged(null, null);
+                CboMethod_changeCommitted(null, null);
 
                 openFileDialog1.Filter = "Supported files (*.jpg, *.jpeg, *.jpe, *.jfif, *.png, *.csv, *.xlsx, *.txt, *.tab, *.zip) | *.jpg; *.jpeg; *.jpe; *.jfif; *.png; *.csv; *.xlsx; *.txt; *.tab; *.zip";
                 openFileDialog1.DefaultExt = ".jpg";
@@ -75,11 +74,12 @@ namespace Smartstore.WebApi.Client
                 s.ApiUrl = txtUrl.Text;
                 s.ApiProxyPort = txtProxyPort.Text;
                 s.ApiVersion = txtVersion.Text;
-                Settings.Default[radioOdata.Checked ? "ApiPaths" : "ApiPaths2"] = cboPath.Items.IntoString();
                 s.ApiQuery = cboQuery.Items.IntoString();
                 s.ApiContent = cboContent.Items.IntoString();
                 s.ApiHeaders = cboHeaders.Items.IntoString();
                 s.FileUpload = cboFileUpload.Items.IntoString();
+
+                Settings.Default["ApiPaths"] = cboPath.Items.IntoString();
 
                 s.Save();
             };
@@ -97,81 +97,83 @@ namespace Smartstore.WebApi.Client
                 cboPath.Text = "/" + cboPath.Text;
             }
 
+            var url = txtUrl.Text.EndsWith("odata/") ? txtUrl.Text : (txtUrl.Text + "odata/");
+            url += txtVersion.Text + cboPath.Text;
+
             _ = int.TryParse(txtProxyPort.Text, out var proxyPort);
 
-            var context = new WebApiRequestContext
+            var request = new WebApiRequest
             {
                 PublicKey = txtPublicKey.Text,
                 SecretKey = txtSecretKey.Text,
-                Url = txtUrl.Text + (radioOdata.Checked ? "odata/" : "api/") + txtVersion.Text + cboPath.Text,
+                Url = url,
                 ProxyPort = proxyPort,
                 HttpMethod = cboMethod.Text,
-                HttpAcceptType = WebApiClient.JsonAcceptType,
-                AdditionalHeaders = cboHeaders.Text
+                HttpAcceptType = MediaTypeNames.Application.Json,
+                AdditionalHeaders = cboHeaders.Text,
+                FileDialog = folderBrowserDialog1
             };
 
             if (chkIEEE754Compatible.Checked)
             {
-                context.HttpAcceptType += ";IEEE754Compatible=true";
+                request.HttpAcceptType += ";IEEE754Compatible=true";
             }
 
             if (cboQuery.Text.HasValue())
             {
-                context.Url = string.Format("{0}?{1}", context.Url, cboQuery.Text);
+                request.Url = $"{request.Url}?{cboQuery.Text}";
+            }
+            if (request.ProxyPort > 0)
+            {
+                // API behind a reverse proxy.
+                request.Url = new UriBuilder(request.Url) { Port = request.ProxyPort }.Uri.ToString();
             }
 
-            if (!context.IsValid)
+            if (!request.IsValid)
             {
-                "Please enter Public-Key, Secret-Key, URL and method.".Box(MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                Debug.WriteLine(context.ToString());
+                MessageBox.Show("Please enter Public-Key, Secret-Key, URL and method.", Program.AppName, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                Debug.WriteLine(request.ToString());
                 return;
             }
 
-            var apiClient = new WebApiClient();
-            var response = new WebApiResponse();
-            var sb = new StringBuilder();
-            Dictionary<string, object> multiPartData = null;
-
-            lblRequest.Text = "Request: " + context.HttpMethod + " " + context.Url;
+            lblRequest.Text = "Request: " + request.HttpMethod + " " + request.Url;
             lblRequest.Refresh();
 
-            // Create multipart form data.
+            FileUploadModel uploadModel = null;
             if (cboFileUpload.Text.HasValue())
             {
                 try
                 {
-                    var fileUploadModel = JsonConvert.DeserializeObject(cboFileUpload.Text, typeof(FileUploadModel)) as FileUploadModel;
-                    multiPartData = apiClient.CreateMultipartData(fileUploadModel);
+                    uploadModel = JsonConvert.DeserializeObject(cboFileUpload.Text, typeof(FileUploadModel)) as FileUploadModel;
                 }
                 catch
                 {
                     cboFileUpload.RemoveCurrent();
                     cboFileUpload.Text = string.Empty;
-                    "File upload data is invalid.".Box(MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    MessageBox.Show("File upload data is invalid.", Program.AppName, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                     return;
                 }
             }
 
-            //var webRequest = await apiClient.StartRequestAsync(context, cboContent.Text, multiPartData, out StringBuilder requestContent);
-            //txtRequest.Text = requestContent.ToString();
-
-            //var success = await apiClient.ProcessResponseAsync(webRequest, response, folderBrowserDialog1);
-            var success = false;
-
+            var response = await WebApiClient.StartRequestAsync(request, cboContent.Text, uploadModel);
+            txtRequest.Text = response.RequestContent.ToString();
             lblResponse.Text = "Response: " + response.Status;
+
+            var sb = new StringBuilder();
             sb.Append(response.Headers);
 
-            if (success && response.Content.HasValue() && radioOdata.Checked)
+            if (response.Succeeded)
             {
                 var customers = response.ParseCustomers();
                 if (customers != null)
                 {
                     sb.AppendLine($"Parsed {customers.Count} customer(s):");
                     customers.ForEach(x => sb.AppendLine(x.ToString()));
-                    sb.Append("\r\n");
+                    sb.AppendLine();
                 }
             }
 
+            sb.AppendLine();
             sb.Append(response.Content);
             txtResponse.Text = sb.ToString();
 
@@ -180,16 +182,6 @@ namespace Smartstore.WebApi.Client
             cboContent.InsertRolled(cboContent.Text, 64);
             cboHeaders.InsertRolled(cboHeaders.Text, 64);
             cboFileUpload.InsertRolled(cboFileUpload.Text, 64);
-        }
-
-        private void SavePathItems(bool odata)
-        {
-            Settings.Default[odata ? "ApiPaths2" : "ApiPaths"] = cboPath.Items.IntoString();
-            Settings.Default.Save();
-
-            cboPath.Text = "";
-            cboPath.Items.Clear();
-            cboPath.Items.FromString(odata ? Settings.Default.ApiPaths : Settings.Default.ApiPaths2);
         }
 
         private void MainForm_Shown(object sender, EventArgs e)
@@ -203,17 +195,18 @@ namespace Smartstore.WebApi.Client
             cboPath.Focus();
         }
 
-        private void callApi_Click(object sender, EventArgs e)
+        private async void CallApi_Click(object sender, EventArgs e)
         {
-            clear_Click(null, null);
+            Clear_Click(null, null);
 
             using (new HourGlass())
             {
-                Execute().GetAwaiter().GetResult();
+                var task = Execute();
+                await task;
             }
         }
 
-        private void cboMethod_changeCommitted(object sender, EventArgs e)
+        private void CboMethod_changeCommitted(object sender, EventArgs e)
         {
             var isBodySupported = WebApiClient.BodySupported(cboMethod.Text);
             var isMultipartSupported = WebApiClient.MultipartSupported(cboMethod.Text);
@@ -226,32 +219,32 @@ namespace Smartstore.WebApi.Client
             btnFileOpen.Enabled = isMultipartSupported;
         }
 
-        private void btnDeletePath_Click(object sender, EventArgs e)
+        private void BtnDeletePath_Click(object sender, EventArgs e)
         {
             cboPath.RemoveCurrent();
         }
 
-        private void btnDeleteQuery_Click(object sender, EventArgs e)
+        private void BtnDeleteQuery_Click(object sender, EventArgs e)
         {
             cboQuery.RemoveCurrent();
         }
 
-        private void btnDeleteContent_Click(object sender, EventArgs e)
+        private void BtnDeleteContent_Click(object sender, EventArgs e)
         {
             cboContent.RemoveCurrent();
         }
 
-        private void btnDeleteHeaders_Click(object sender, EventArgs e)
+        private void BtnDeleteHeaders_Click(object sender, EventArgs e)
         {
             cboHeaders.RemoveCurrent();
         }
 
-        private void btnDeleteFileUpload_Click(object sender, EventArgs e)
+        private void BtnDeleteFileUpload_Click(object sender, EventArgs e)
         {
             cboFileUpload.RemoveCurrent();
         }
 
-        private void clear_Click(object sender, EventArgs e)
+        private void Clear_Click(object sender, EventArgs e)
         {
             txtRequest.Clear();
             lblRequest.Text = "Request";
@@ -264,22 +257,7 @@ namespace Smartstore.WebApi.Client
             lblResponse.Refresh();
         }
 
-        private void odata_Click(object sender, EventArgs e)
-        {
-            SavePathItems(true);
-        }
-
-        private void api_Click(object sender, EventArgs e)
-        {
-            SavePathItems(false);
-        }
-
-        private void radioApi_CheckedChanged(object sender, EventArgs e)
-        {
-            //var show = radioApi.Checked;
-        }
-
-        private void btnFileOpen_Click(object sender, EventArgs e)
+        private void BtnFileOpen_Click(object sender, EventArgs e)
         {
             var result = openFileDialog1.ShowDialog();
             if (result == DialogResult.OK && openFileDialog1.FileNames.Any())

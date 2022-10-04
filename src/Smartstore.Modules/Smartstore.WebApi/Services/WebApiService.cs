@@ -94,7 +94,7 @@ namespace Smartstore.Web.Api
                 o.ExpiresIn(TimeSpan.FromDays(30));
 
                 var settings = _settingFactory.LoadSettings<WebApiSettings>(storeId.Value);
-                var descriptor = _moduleCatalog.GetModuleByName("Smartstore.WebApi");
+                var descriptor = _moduleCatalog.GetModuleByName(Module.SystemName);
 
                 var state = new WebApiState
                 {

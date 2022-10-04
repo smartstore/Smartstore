@@ -20,9 +20,6 @@
     <Setting Name="ApiQuery" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
-    <Setting Name="ApiPaths2" Type="System.String" Scope="User">
-      <Value Profile="(Default)" />
-    </Setting>
     <Setting Name="ApiVersion" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>

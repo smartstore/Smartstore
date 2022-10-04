@@ -2,7 +2,7 @@
 
 namespace Smartstore.WebApi.Client
 {
-    public class WebApiRequestContext
+    public class WebApiRequest
     {
         public string PublicKey { get; set; }
         public string SecretKey { get; set; }
@@ -13,6 +13,8 @@ namespace Smartstore.WebApi.Client
 
         public string HttpAcceptType { get; set; }
         public string AdditionalHeaders { get; set; }
+
+        public FolderBrowserDialog FileDialog { get; set; }
 
         public bool IsValid => !string.IsNullOrWhiteSpace(PublicKey) && !string.IsNullOrWhiteSpace(SecretKey) &&
                     !string.IsNullOrWhiteSpace(Url) &&
