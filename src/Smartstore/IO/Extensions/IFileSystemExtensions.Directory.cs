@@ -154,13 +154,13 @@ namespace Smartstore
         {
             Guard.NotNull(fs, nameof(fs));
 
-            var fileExists = async ? await fs.FileExistsAsync(subpath) : fs.FileExists(subpath);
+            var fileExists = async ? await fs.FileExistsAsync(subpath) : await fs.FileExistsAsync(subpath);
             if (fileExists)
             {
                 throw new FileSystemException($"Cannot create directory because the path '{subpath}' already exists and is a file.");
             }
 
-            var dir = async ? await fs.GetDirectoryAsync(subpath) : fs.GetDirectory(subpath);
+            var dir = async ? await fs.GetDirectoryAsync(subpath) : await fs.GetDirectoryAsync(subpath);
             if (dir.Exists)
             {
                 return false;
@@ -174,7 +174,7 @@ namespace Smartstore
                 }
                 else
                 {
-                    dir.Create();
+                    await dir.CreateAsync();
                 }
 
                 return true;
@@ -240,7 +240,7 @@ namespace Smartstore
                 }
                 else
                 {
-                    directory.Delete();
+                    await directory.DeleteAsync();
                 }
 
                 // Wait for deletion to complete
@@ -490,8 +490,8 @@ namespace Smartstore
             Guard.NotEmpty(sourcePath, nameof(sourcePath));
             Guard.NotEmpty(destinationPath, nameof(destinationPath));
 
-            var destination = fs.GetDirectory(destinationPath);
-            await CopyDirectoryAsync(fs, fs.GetDirectory(sourcePath), destination, overwrite, ignorePatterns);
+            var destination = await fs.GetDirectoryAsync(destinationPath);
+            await CopyDirectoryAsync(fs, await fs.GetDirectoryAsync(sourcePath), destination, overwrite, ignorePatterns);
             return destination;
         }
 

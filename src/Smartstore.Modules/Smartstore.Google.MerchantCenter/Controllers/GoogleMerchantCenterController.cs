@@ -258,16 +258,16 @@ namespace Smartstore.Google.MerchantCenter.Controllers
                 var filter = searchTerm.HasValue();
                 string line;
 
-                var file = module.ContentRoot.GetFile(PathUtility.Join(fileDir, fileName));
+                var file = await module.ContentRoot.GetFileAsync(PathUtility.Join(fileDir, fileName));
                 if (!file.Exists)
                 {
-                    file = module.ContentRoot.GetFile(PathUtility.Join(fileDir, "taxonomy.en-US.txt"));
+                    file = await module.ContentRoot.GetFileAsync(PathUtility.Join(fileDir, "taxonomy.en-US.txt"));
                 }
 
                 int numSkipped = 0;
                 int numTook = 0;
 
-                using var reader = new StreamReader(file.OpenRead(), Encoding.UTF8);
+                using var reader = new StreamReader(await file.OpenReadAsync(), Encoding.UTF8);
                 while ((line = await reader.ReadLineAsync()) != null)
                 {
                     if (string.IsNullOrWhiteSpace(line))

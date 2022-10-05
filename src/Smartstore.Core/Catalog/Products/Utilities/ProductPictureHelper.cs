@@ -105,7 +105,7 @@ namespace Smartstore.Core.Catalog.Products.Utilities
 
                 foreach (var kvp in chunk)
                 {
-                    db.Database.ExecuteSqlRaw("Update Product Set MainPictureId = {0} WHERE Id = {1}", kvp.Value, kvp.Key);
+                    await db.Database.ExecuteSqlRawAsync("Update Product Set MainPictureId = {0} WHERE Id = {1}", kvp.Value, kvp.Key);
                 }
 
                 await db.SaveChangesAsync();

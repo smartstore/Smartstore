@@ -150,7 +150,7 @@ namespace Smartstore.Core.Localization
             bool updateTouchedResources = true,
             List<Language> filterLanguages = null)
         {
-            var directory = moduleDescriptor.ContentRoot.GetDirectory("Localization");
+            var directory = await moduleDescriptor.ContentRoot.GetDirectoryAsync("Localization");
 
             if (!directory.Exists)
                 return;
@@ -310,7 +310,7 @@ namespace Smartstore.Core.Localization
             foreach (var candidate in codeCandidates)
             {
                 var pathCandidate = PathUtility.Join(directory.SubPath, fileNamePattern.FormatInvariant(candidate));
-                if (fs.FileExists(pathCandidate))
+                if (await fs.FileExistsAsync(pathCandidate))
                 {
                     code = candidate;
                     path = pathCandidate;

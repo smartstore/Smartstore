@@ -137,7 +137,7 @@ namespace Smartstore.Admin.Controllers
                 .SelectAwait(async x =>
                 {
                     var model = await mapper.MapAsync(x);
-                    model.AttributeControlTypeName = x.AttributeControlType.GetLocalizedEnum(Services.WorkContext.WorkingLanguage.Id);
+                    model.AttributeControlTypeName = await x.AttributeControlType.GetLocalizedEnumAsync(Services.WorkContext.WorkingLanguage.Id);
                     model.EditUrl = Url.Action(nameof(Edit), "CheckoutAttribute", new { id = x.Id });
 
                     return model;

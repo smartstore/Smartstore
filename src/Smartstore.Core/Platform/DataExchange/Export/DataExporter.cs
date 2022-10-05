@@ -1288,7 +1288,7 @@ namespace Smartstore.Core.DataExchange.Export
             }
             finally
             {
-                context.DataStream?.Dispose();
+                await context.DataStream?.DisposeAsync();
                 context.DataStream = null;
 
                 if (context.Abort == DataExchangeAbortion.Hard && ctx.IsFileBasedExport && file.Exists)
@@ -1308,7 +1308,7 @@ namespace Smartstore.Core.DataExchange.Export
                     {
                         // Set unit.DataStream to null so that providers know that this unit should no longer be written to.
                         // We need these units later for ExportProfile.ResultInfo.
-                        unit.DataStream?.Dispose();
+                        await unit.DataStream?.DisposeAsync();
                         unit.DataStream = null;
 
                         var unitFile = unit.FileName.HasValue()
@@ -1437,7 +1437,7 @@ namespace Smartstore.Core.DataExchange.Export
             var languageId = ctx.Projection.LanguageId ?? 0;
             var protocol = ctx.Store.SslEnabled ? "https" : "http";
             var storeInfo = $"{ctx.Store.Name} ({ctx.Store.Url})";
-            var intro = _services.Localization.GetResource("Admin.DataExchange.Export.CompletedEmail.Body", languageId).FormatInvariant(storeInfo);
+            var intro = (await _services.Localization.GetResourceAsync("Admin.DataExchange.Export.CompletedEmail.Body", languageId)).FormatInvariant(storeInfo);
 
             using var psb = StringBuilderPool.Instance.Get(out var body);
             body.Append(intro);
@@ -1467,7 +1467,7 @@ namespace Smartstore.Core.DataExchange.Export
             using var message = new MailMessage
             {
                 From = new(emailAccount.Email, emailAccount.DisplayName),
-                Subject = _services.Localization.GetResource("Admin.DataExchange.Export.CompletedEmail.Subject", languageId).FormatInvariant(ctx.Request.Profile.Name),
+                Subject = (await _services.Localization.GetResourceAsync("Admin.DataExchange.Export.CompletedEmail.Subject", languageId)).FormatInvariant(ctx.Request.Profile.Name),
                 Body = body.ToString()
             };
 

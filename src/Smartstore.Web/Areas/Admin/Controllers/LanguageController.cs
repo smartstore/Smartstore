@@ -63,8 +63,8 @@ namespace Smartstore.Admin.Controllers
         public async Task<IActionResult> List()
         {
             var lastImportInfos = await GetLastResourcesImportInfos();
-            var languages = _languageService.GetAllLanguages(true);
-            var masterLanguageId = _languageService.GetMasterLanguageId();
+            var languages = await _languageService.GetAllLanguagesAsync(true);
+            var masterLanguageId = await _languageService.GetMasterLanguageIdAsync();
             var mapper = MapperFactory.GetMapper<Language, LanguageModel>();
 
             var models = await languages.SelectAwait(async x =>
@@ -104,7 +104,7 @@ namespace Smartstore.Admin.Controllers
         [Permission(Permissions.Configuration.Language.Read)]
         public async Task<IActionResult> AvailableLanguages(bool enforce = false)
         {
-            var languages = _languageService.GetAllLanguages(true);
+            var languages = await _languageService.GetAllLanguagesAsync(true);
             var languageDic = languages.ToDictionarySafe(x => x.LanguageCulture, StringComparer.OrdinalIgnoreCase);
 
             var downloadState = await _asyncState.GetAsync<LanguageDownloadState>();
@@ -204,7 +204,7 @@ namespace Smartstore.Admin.Controllers
             if (ModelState.IsValid)
             {
                 // Ensure we have at least one published language.
-                var allLanguages = _languageService.GetAllLanguages();
+                var allLanguages = await _languageService.GetAllLanguagesAsync();
                 if (allLanguages.Count == 1 && allLanguages[0].Id == language.Id && !model.Published)
                 {
                     NotifyError(T("Admin.Configuration.Languages.OnePublishedLanguageRequired"));
@@ -239,7 +239,7 @@ namespace Smartstore.Admin.Controllers
             }
 
             // Ensure we have at least one published language
-            var allLanguages = _languageService.GetAllLanguages();
+            var allLanguages = await _languageService.GetAllLanguagesAsync();
             if (allLanguages.Count == 1 && allLanguages[0].Id == language.Id)
             {
                 NotifyError(T("Admin.Configuration.Languages.OnePublishedLanguageRequired"));
@@ -266,7 +266,7 @@ namespace Smartstore.Admin.Controllers
                 return NotFound();
             }
 
-            ViewBag.AllLanguages = _languageService.GetAllLanguages(true)
+            ViewBag.AllLanguages = (await _languageService.GetAllLanguagesAsync(true))
                 .Select(x => new SelectListItem
                 {
                     Selected = x.Id.Equals(languageId),

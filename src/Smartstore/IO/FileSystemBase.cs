@@ -70,7 +70,7 @@ namespace Smartstore.IO
         {
             Guard.NotEmpty(subpath, nameof(subpath));
 
-            var file = async ? await GetFileAsync(subpath) : GetFile(subpath);
+            var file = async ? await GetFileAsync(subpath) : await GetFileAsync(subpath);
             if (!file.Exists)
             {
                 return AsyncOut<string>.Empty;
@@ -79,7 +79,7 @@ namespace Smartstore.IO
             var pattern = file.NameWithoutExtension + "-*" + file.Extension;
             var dir = async
                 ? await GetDirectoryAsync(file.Directory)
-                : GetDirectory(file.Directory);
+                : await GetDirectoryAsync(file.Directory);
             var names = async
                 ? await dir.EnumerateFilesAsync(pattern, false).Select(x => x.Name).AsyncToArray()
                 : dir.EnumerateFiles(pattern, false).Select(x => x.Name);

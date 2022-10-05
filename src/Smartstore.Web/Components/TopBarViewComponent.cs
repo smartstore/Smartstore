@@ -28,7 +28,7 @@ namespace Smartstore.Web.Components
                 CustomerEmailUsername = isRegistered ? (_customerSettings.CustomerLoginType != CustomerLoginType.Email ? customer.Username : customer.Email) : string.Empty,
                 IsCustomerImpersonated = Services.WorkContext.CurrentImpersonator != null,
                 IsAuthenticated = isRegistered,
-                DisplayAdminLink = Services.Permissions.Authorize(Permissions.System.AccessBackend),
+                DisplayAdminLink = await Services.Permissions.AuthorizeAsync(Permissions.System.AccessBackend),
                 HasContactUsPage = (await Url.TopicAsync("ContactUs")).ToString().HasValue(),
                 DisplayLoginLink = _customerSettings.UserRegistrationType != UserRegistrationType.Disabled
             };

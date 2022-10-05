@@ -37,7 +37,7 @@ namespace Smartstore
             var fs = directory.FileSystem;
             var path = PathUtility.Join(directory.SubPath.AsSpan(), fileName.AsSpan());
 
-            return async ? await fs.GetFileAsync(path) : fs.GetFile(path);
+            return async ? await fs.GetFileAsync(path) : await fs.GetFileAsync(path);
         }
     }
 }

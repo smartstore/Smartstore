@@ -479,7 +479,7 @@ namespace Smartstore.Http
 
                 // Try local IP addresses
                 hosts.Clear();
-                var ipAddresses = Dns.GetHostAddresses(hostName).Where(x => x.AddressFamily == AddressFamily.InterNetwork).Select(x => x.ToString());
+                var ipAddresses = (await Dns.GetHostAddressesAsync(hostName)).Where(x => x.AddressFamily == AddressFamily.InterNetwork).Select(x => x.ToString());
                 hosts.AddRange(ipAddresses);
 
                 foreach (var host in hosts)

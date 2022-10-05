@@ -193,7 +193,7 @@ namespace Smartstore.Web.Controllers
                         Id = manufacturer.Id,
                         Name = manufacturer.GetLocalized(x => x.Name),
                         Description = manufacturer.GetLocalized(x => x.Description, true),
-                        SeName = manufacturer.GetActiveSlug()
+                        SeName = await manufacturer.GetActiveSlugAsync()
                     };
 
                     if (withPicture)
@@ -309,7 +309,7 @@ namespace Smartstore.Web.Controllers
                     {
                         Id = manufacturer.Id,
                         Name = name,
-                        SeName = manufacturer.GetActiveSlug(),
+                        SeName = await manufacturer.GetActiveSlugAsync(),
                         DisplayOrder = manufacturer.DisplayOrder,
                         Image = new ImageModel
                         {
@@ -391,7 +391,7 @@ namespace Smartstore.Web.Controllers
 
                     if (model.Url.IsEmpty())
                     {
-                        model.Url = _urlHelper.RouteUrl(nameof(Category), new { SeName = c.GetActiveSlug() });
+                        model.Url = _urlHelper.RouteUrl(nameof(Category), new { SeName = await c.GetActiveSlugAsync() });
                     }
 
                     files.TryGetValue(c.MediaFileId ?? 0, out var file);

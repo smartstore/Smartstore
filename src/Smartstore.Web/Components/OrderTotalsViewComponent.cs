@@ -160,7 +160,7 @@ namespace Smartstore.Web.Components
                         {
                             Rate = rate,
                             Value = _currencyService.ConvertFromPrimaryCurrency(taxRate.Value, currency),
-                            Label = _localizationService.GetResource(labelKey).FormatCurrent(rate)
+                            Label = (await _localizationService.GetResourceAsync(labelKey)).FormatCurrent(rate)
                         });
                     }
                 }

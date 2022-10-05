@@ -30,7 +30,7 @@ namespace Smartstore.Core.Seo
 
             foreach (var store in stores)
             {
-                var languages = _languageService.GetAllLanguages(false, store.Id);
+                var languages = await _languageService.GetAllLanguagesAsync(false, store.Id);
                 var buildContext = new XmlSitemapBuildContext(store, languages.ToArray(), _settingFactory, _storeContext.IsSingleStoreMode())
                 {
                     CancellationToken = cancelToken,

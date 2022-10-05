@@ -91,7 +91,7 @@ namespace Smartstore.Imaging.Adapters.ImageSharp
             }
             else
             {
-                _image.Save(stream, encoder);
+                await _image.SaveAsync(stream, encoder);
             }
 
             // Remember format for next save

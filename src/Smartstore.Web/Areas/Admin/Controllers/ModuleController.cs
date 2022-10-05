@@ -219,7 +219,7 @@ namespace Smartstore.Admin.Controllers
             var model = await MapperFactory.MapAsync<IModuleDescriptor, ModuleModel>(descriptor, parameters: null);
 
             // Using GetResource because T could fallback to NullLocalizer here.
-            model.Group = Services.Localization.GetResource("Admin.Plugins.KnownGroup." + descriptor.Group);
+            model.Group = await Services.Localization.GetResourceAsync("Admin.Plugins.KnownGroup." + descriptor.Group);
 
             model.Installed = descriptor.IsInstalled();
             model.IsConfigurable = descriptor.Module?.IsConfigurable == true;

@@ -221,7 +221,7 @@ namespace Smartstore.Core.DataExchange.Import
 
             try
             {
-                ctx.ExecuteContext.DownloadManager.Dispose();
+                await ctx.ExecuteContext.DownloadManager.DisposeAsync();
                 ctx.Request.CustomData.Clear();
                 ctx.Results.Clear();
             }

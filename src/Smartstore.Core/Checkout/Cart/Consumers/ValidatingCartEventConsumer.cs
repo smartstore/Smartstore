@@ -35,14 +35,14 @@ namespace Smartstore.Core.Checkout.Cart
             {
                 var convertedMin = _currencyService.ConvertFromPrimaryCurrency(result.OrderTotalMinimum, _workContext.WorkingCurrency);
 
-                message.Warnings.Add(_localizationService.GetResource("Checkout.MinOrderSubtotalAmount").FormatInvariant(convertedMin.ToString(true)));
+                message.Warnings.Add((await _localizationService.GetResourceAsync("Checkout.MinOrderSubtotalAmount")).FormatInvariant(convertedMin.ToString(true)));
             }
 
             if (!result.IsBelowMaximum)
             {
                 var convertedMax = _currencyService.ConvertFromPrimaryCurrency(result.OrderTotalMaximum, _workContext.WorkingCurrency);
 
-                message.Warnings.Add(_localizationService.GetResource("Checkout.MaxOrderSubtotalAmount").FormatInvariant(convertedMax.ToString(true)));
+                message.Warnings.Add((await _localizationService.GetResourceAsync("Checkout.MaxOrderSubtotalAmount")).FormatInvariant(convertedMax.ToString(true)));
             }
         }
     }

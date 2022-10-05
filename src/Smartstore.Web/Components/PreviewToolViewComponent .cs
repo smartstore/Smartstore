@@ -23,7 +23,7 @@ namespace Smartstore.Web.Components
 
         public async Task<IViewComponentResult> InvokeAsync()
         {
-            if (!Services.Permissions.Authorize(Permissions.Configuration.Theme.Read))
+            if (!await Services.Permissions.AuthorizeAsync(Permissions.Configuration.Theme.Read))
             {
                 return Empty();
             }

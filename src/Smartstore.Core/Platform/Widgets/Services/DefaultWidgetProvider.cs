@@ -145,7 +145,7 @@ namespace Smartstore.Core.Widgets
 
             var rawJson = await _memoryCache.GetOrCreateAsync(cacheKey, async entry =>
             {
-                if (fs.FileExists(fileName))
+                if (await fs.FileExistsAsync(fileName))
                 {
                     entry.ExpirationTokens.Add(fs.Watch(fileName));
                     return await fs.ReadAllTextAsync(fileName);

@@ -37,7 +37,7 @@ namespace Smartstore.Engine.Modularity
             var installContext = new ModuleInstallationContext
             {
                 ApplicationContext = appContext,
-                Culture = languageService.GetMasterLanguageSeoCode(),
+                Culture = await languageService.GetMasterLanguageSeoCodeAsync(),
                 Stage = ModuleInstallationStage.ModuleInstallation,
                 Logger = Logger
             };

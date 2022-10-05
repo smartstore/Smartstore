@@ -68,7 +68,7 @@ namespace Smartstore.Imaging
             }
             else
             {
-                InStream.CopyTo(stream);
+                await InStream.CopyToAsync(stream);
             }
 
             if (stream.CanSeek)

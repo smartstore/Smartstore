@@ -600,7 +600,7 @@ namespace Smartstore.Core.Messaging
                 ["LastActivityOn"] = _helper.ToUserDate(part.LastActivityDateUtc, messageContext),
                 ["FullName"] = MessageModelHelper.GetDisplayNameForCustomer(part).NullEmpty(),
                 ["VatNumber"] = part.GenericAttributes.VatNumber,
-                ["VatNumberStatus"] = customerVatStatus.GetLocalizedEnum(messageContext.Language.Id).NullEmpty(),
+                ["VatNumberStatus"] = (await customerVatStatus.GetLocalizedEnumAsync(messageContext.Language.Id)).NullEmpty(),
                 ["CustomerNumber"] = part.CustomerNumber.NullEmpty(),
                 ["IsRegistered"] = part.IsRegistered(),
 

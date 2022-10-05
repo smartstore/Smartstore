@@ -142,7 +142,7 @@ namespace Smartstore.Web.Models.Cart
 
             if (product.IsRecurring)
             {
-                to.RecurringInfo = T("ShoppingCart.RecurringPeriod", product.RecurringCycleLength, product.RecurringCyclePeriod.GetLocalizedEnum());
+                to.RecurringInfo = T("ShoppingCart.RecurringPeriod", product.RecurringCycleLength, await product.RecurringCyclePeriod.GetLocalizedEnumAsync());
             }
 
             if (product.CallForPrice)

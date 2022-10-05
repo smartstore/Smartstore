@@ -576,7 +576,7 @@ namespace Smartstore.Admin.Controllers
             }
 
             // Validate customer roles.
-            var allowManagingCustomerRoles = Services.Permissions.Authorize(Permissions.Customer.EditRole);
+            var allowManagingCustomerRoles = await Services.Permissions.AuthorizeAsync(Permissions.Customer.EditRole);
 
             var allCustomerRoleIds = allowManagingCustomerRoles
                 ? await _db.CustomerRoles.AsNoTracking().Select(x => x.Id).ToListAsync()

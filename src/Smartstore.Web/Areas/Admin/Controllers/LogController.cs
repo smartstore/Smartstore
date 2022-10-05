@@ -106,7 +106,7 @@ namespace Smartstore.Admin.Controllers
         public async Task<IActionResult> LogClear()
         {
             await _dbLogService.ClearLogsAsync();
-            NotifySuccess(_localizationService.GetResource("Admin.System.Log.Cleared"));
+            NotifySuccess(await _localizationService.GetResourceAsync("Admin.System.Log.Cleared"));
             return RedirectToAction(nameof(List));
         }
 
@@ -137,7 +137,7 @@ namespace Smartstore.Admin.Controllers
             _db.Logs.Remove(log);
             await _db.SaveChangesAsync();
 
-            NotifySuccess(_localizationService.GetResource("Admin.System.Log.Deleted"));
+            NotifySuccess(await _localizationService.GetResourceAsync("Admin.System.Log.Deleted"));
             return RedirectToAction(nameof(List));
         }
 

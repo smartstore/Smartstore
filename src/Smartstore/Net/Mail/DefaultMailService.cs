@@ -34,7 +34,7 @@ namespace Smartstore.Net.Mail
             }
             else
             {
-                client.Connect();
+                await client.ConnectAsync();
             }
 
             return client;

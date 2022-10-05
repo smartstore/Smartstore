@@ -49,7 +49,7 @@ namespace Smartstore.Core.Content.Media
                 // This is most likely a request for a default placeholder image
                 var fallbackImagePath = Path.Combine(MediaUrlGenerator.FallbackImagesRootPath, RawPath).Replace('\\', '/');
                 //var fi = new FileInfo(CommonHelper.MapPath("~/" + fallbackImagePath, false));
-                var fallbackFile = ApplicationContext.WebRoot.GetFile(fallbackImagePath);
+                var fallbackFile = await ApplicationContext.WebRoot.GetFileAsync(fallbackImagePath);
                 if (fallbackFile.Exists)
                 {
                     _sourceFile = fallbackFile;
@@ -64,7 +64,7 @@ namespace Smartstore.Core.Content.Media
                 if (mediaFile != null)
                 {
                     // Serve deleted or hidden files only with sufficient permission
-                    if ((mediaFile.Deleted || mediaFile.Hidden) && !PermissionService.Authorize(Permissions.Media.Update, CurrentCustomer))
+                    if ((mediaFile.Deleted || mediaFile.Hidden) && !await PermissionService.AuthorizeAsync(Permissions.Media.Update, CurrentCustomer))
                         return null;
 
                     //// File's mime must match requested mime

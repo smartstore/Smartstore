@@ -162,7 +162,7 @@ namespace Smartstore.Core.Packaging
                     // Entry is a directory
                     if (entry.Length == 0)
                     {
-                        fs.TryCreateDirectory(entry.FullName);
+                        await fs.TryCreateDirectoryAsync(entry.FullName);
                     }
                 }
                 else

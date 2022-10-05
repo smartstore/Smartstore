@@ -224,7 +224,7 @@ namespace Smartstore.Web.TagHelpers.Shared
             }
 
             // Flush classes
-            classList.Dispose();
+            await classList.DisposeAsync();
 
             // tab-content above nav
             if (Position == TabsPosition.Below && hasContent)

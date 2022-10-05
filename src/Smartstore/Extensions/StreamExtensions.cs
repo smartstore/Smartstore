@@ -37,7 +37,7 @@ namespace Smartstore
 
             using (var sr = new StreamReader(stream, encoding))
             {
-                var result = async ? await sr.ReadToEndAsync() : sr.ReadToEnd();
+                var result = async ? await sr.ReadToEndAsync() : await sr.ReadToEndAsync();
                 return result;
             }
         }
@@ -84,7 +84,7 @@ namespace Smartstore
                     }
                     else
                     {
-                        stream.Read(buffer, 0, (int)len);
+                        await stream.ReadAsync(buffer, 0, (int)len);
                     }
 
                     return buffer;
@@ -104,7 +104,7 @@ namespace Smartstore
                 }
                 else
                 {
-                    stream.CopyTo(memStream);
+                    await stream.CopyToAsync(memStream);
                 }
 
                 return memStream.ToArray();
@@ -257,8 +257,8 @@ namespace Smartstore
 
             while (true)
             {
-                int len1 = async ? await src.ReadAsync(buffer1.AsMemory(0, bufferSize)) : src.Read(buffer1, 0, bufferSize);
-                int len2 = async ? await other.ReadAsync(buffer2.AsMemory(0, bufferSize)) : other.Read(buffer2, 0, bufferSize);
+                int len1 = async ? await src.ReadAsync(buffer1.AsMemory(0, bufferSize)) : await src.ReadAsync(buffer1, 0, bufferSize);
+                int len2 = async ? await other.ReadAsync(buffer2.AsMemory(0, bufferSize)) : await other.ReadAsync(buffer2, 0, bufferSize);
 
                 if (len1 != len2)
                     return false;

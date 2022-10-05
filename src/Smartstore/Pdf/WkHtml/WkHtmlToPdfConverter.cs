@@ -243,7 +243,7 @@ namespace Smartstore.Pdf.WkHtml
                 if (input.Kind == PdfInputKind.Html)
                 {
                     using var sIn = _process.StandardInput;
-                    sIn.WriteLine(input.Content);
+                    await sIn.WriteLineAsync(input.Content);
                 }
 
                 await _process.WaitForExitAsync(cancelToken);

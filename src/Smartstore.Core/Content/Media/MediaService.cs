@@ -937,7 +937,7 @@ namespace Smartstore.Core.Content.Media
             }
 
             // Localized values.
-            var languages = _languageService.GetAllLanguages(true);
+            var languages = await _languageService.GetAllLanguagesAsync(true);
 
             foreach (var language in languages)
             {
@@ -1164,7 +1164,7 @@ namespace Smartstore.Core.Content.Media
                 }
                 finally
                 {
-                    stream.Dispose();
+                    await stream.DisposeAsync();
                 }
             }
         }

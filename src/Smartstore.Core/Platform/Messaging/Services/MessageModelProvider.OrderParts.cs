@@ -462,7 +462,7 @@ namespace Smartstore.Core.Messaging
                 { "StartedOn", _helper.ToUserDate(part.StartDateUtc, messageContext) },
                 { "NextOn", _helper.ToUserDate(nextPaymentDate, messageContext) },
                 { "CycleLength", part.CycleLength },
-                { "CyclePeriod", part.CyclePeriod.GetLocalizedEnum(messageContext.Language.Id) },
+                { "CyclePeriod", await part.CyclePeriod.GetLocalizedEnumAsync(messageContext.Language.Id) },
                 { "CyclesRemaining", remaingCycles },
                 { "TotalCycles", part.TotalCycles },
                 { "Url", _helper.BuildActionUrl("Edit", "RecurringPayment", new { id = part.Id, area = "Admin" }, messageContext) }

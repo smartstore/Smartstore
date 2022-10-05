@@ -257,8 +257,8 @@ namespace Smartstore.Core.Seo
                             BaseUrl = await BuildBaseUrlAsync(ctx.Store, language)
                         };
 
-                        _tenantRoot.TryDeleteDirectory(data.TempDir);
-                        _tenantRoot.TryCreateDirectory(data.TempDir);
+                        await _tenantRoot.TryDeleteDirectoryAsync(data.TempDir);
+                        await _tenantRoot.TryCreateDirectoryAsync(data.TempDir);
 
                         languageData[language.Id] = data;
                     }
@@ -414,9 +414,9 @@ namespace Smartstore.Core.Seo
 
                     foreach (var data in languageData.Values)
                     {
-                        if (_tenantRoot.DirectoryExists(data.TempDir))
+                        if (await _tenantRoot.DirectoryExistsAsync(data.TempDir))
                         {
-                            _tenantRoot.TryDeleteDirectory(data.TempDir);
+                            await _tenantRoot.TryDeleteDirectoryAsync(data.TempDir);
                         }
                     }
                 }
@@ -455,10 +455,10 @@ namespace Smartstore.Core.Seo
         private async Task SaveFinalAsync(LanguageData data)
         {
             // Delete current sitemap dir
-            _tenantRoot.TryDeleteDirectory(data.FinalDir);
+            await _tenantRoot.TryDeleteDirectoryAsync(data.FinalDir);
 
             // Move/Rename new (temp) dir to current
-            _tenantRoot.MoveEntry(data.TempDir, data.FinalDir);
+            await _tenantRoot.MoveEntryAsync(data.TempDir, data.FinalDir);
 
             int retries = 0;
             while (!TryGetSitemapFile(data.Store.Id, data.Language.Id, 0, out _))

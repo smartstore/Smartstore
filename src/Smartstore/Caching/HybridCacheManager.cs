@@ -462,7 +462,7 @@ namespace Smartstore.Caching
 
             foreach (var store in _stores)
             {
-                var entry = async ? await store.GetAsync(key) : store.Get(key);
+                var entry = async ? await store.GetAsync(key) : await store.GetAsync(key);
                 if (entry != null)
                 {
                     // Make the parent scope's entry depend on this
@@ -485,7 +485,7 @@ namespace Smartstore.Caching
                         }
                         else
                         {
-                            _stores[i].Put(key, entryClone);
+                            await _stores[i].PutAsync(key, entryClone);
                         }
 
                         i--;
@@ -503,7 +503,7 @@ namespace Smartstore.Caching
                         }
                         else
                         {
-                            distributedStore.Refresh(entry);
+                            await distributedStore.RefreshAsync(entry);
                         }
 
                     }

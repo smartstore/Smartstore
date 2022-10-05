@@ -186,10 +186,10 @@ namespace Smartstore.Google.MerchantCenter.Providers
             }
 
             using var writer = XmlWriter.Create(context.DataStream, ExportXmlHelper.DefaultSettings);
-            writer.WriteStartDocument();
+            await writer.WriteStartDocumentAsync();
             writer.WriteStartElement("rss");
             writer.WriteAttributeString("version", "2.0");
-            writer.WriteAttributeString("xmlns", "g", null, _googleNamespace);
+            await writer.WriteAttributeStringAsync("xmlns", "g", null, _googleNamespace);
             writer.WriteStartElement("channel");
             writer.WriteElementString("title", $"{(string)context.Store.Name} - Feed for Google Merchant Center");
             writer.WriteElementString("link", "http://base.google.com/base/");
@@ -266,22 +266,22 @@ namespace Smartstore.Google.MerchantCenter.Providers
                         WriteString(writer, "id", uniqueId);
 
                         writer.WriteStartElement("title");
-                        writer.WriteCData(((string)product.Name).Truncate(70).RemoveInvalidXmlChars());
-                        writer.WriteEndElement();
+                        await writer.WriteCDataAsync(((string)product.Name).Truncate(70).RemoveInvalidXmlChars());
+                        await writer.WriteEndElementAsync();
 
                         writer.WriteStartElement("description");
-                        writer.WriteCData(((string)product.FullDescription).RemoveInvalidXmlChars());
-                        writer.WriteEndElement();
+                        await writer.WriteCDataAsync(((string)product.FullDescription).RemoveInvalidXmlChars());
+                        await writer.WriteEndElementAsync();
 
-                        writer.WriteStartElement("g", "google_product_category", _googleNamespace);
-                        writer.WriteCData(category.RemoveInvalidXmlChars());
-                        writer.WriteFullEndElement();
+                        await writer.WriteStartElementAsync("g", "google_product_category", _googleNamespace);
+                        await writer.WriteCDataAsync(category.RemoveInvalidXmlChars());
+                        await writer.WriteFullEndElementAsync();
 
                         if (productType.HasValue())
                         {
-                            writer.WriteStartElement("g", "product_type", _googleNamespace);
-                            writer.WriteCData(productType.RemoveInvalidXmlChars());
-                            writer.WriteFullEndElement();
+                            await writer.WriteStartElementAsync("g", "product_type", _googleNamespace);
+                            await writer.WriteCDataAsync(productType.RemoveInvalidXmlChars());
+                            await writer.WriteFullEndElementAsync();
                         }
 
                         writer.WriteElementString("link", (string)product._DetailUrl);
@@ -444,13 +444,13 @@ namespace Smartstore.Google.MerchantCenter.Providers
                         context.RecordException(ex, entity.Id);
                     }
 
-                    writer.WriteEndElement(); // item
+                    await writer.WriteEndElementAsync(); // item
                 }
             }
 
-            writer.WriteEndElement(); // channel
-            writer.WriteEndElement(); // rss
-            writer.WriteEndDocument();
+            await writer.WriteEndElementAsync(); // channel
+            await writer.WriteEndElementAsync(); // rss
+            await writer.WriteEndDocumentAsync();
         }
     }
 }

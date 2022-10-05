@@ -85,7 +85,7 @@ namespace Smartstore.Core.Content.Menus
                 return false;
             }
 
-            return (await GetMenuSystemNamesAsync(true)).Contains(systemName);
+            return await (await GetMenuSystemNamesAsync(true)).ContainsAsync(systemName);
         }
 
         public virtual async Task<ISet> GetMenuSystemNamesAsync(bool ensureCreated)

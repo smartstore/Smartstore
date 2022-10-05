@@ -173,7 +173,7 @@ namespace Smartstore.Core.Web
                         var url = "http://checkip.dyndns.org";
                         using var sr = new StreamReader(await client.GetStreamAsync(url));
 
-                        var response = sr.ReadToEnd().Trim();
+                        var response = (await sr.ReadToEndAsync()).Trim();
                         var a = response.Split(':');
                         var a2 = a[1][1..];
                         var a3 = a2.Split('<');

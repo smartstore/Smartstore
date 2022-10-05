@@ -60,7 +60,7 @@ namespace Smartstore.Web.Api
             }
 
             var num = 0;
-            using var db = _dbContextFactory.CreateDbContext();
+            using var db = await _dbContextFactory.CreateDbContextAsync();
 
             foreach (var chunk in usersToStore.Chunk(100))
             {
@@ -76,7 +76,7 @@ namespace Smartstore.Web.Api
                     }
                 }
 
-                num += async ? await db.SaveChangesAsync() : db.SaveChanges();
+                num += async ? await db.SaveChangesAsync() : await db.SaveChangesAsync();
             }
 
             _lastSavingDate = DateTime.UtcNow;

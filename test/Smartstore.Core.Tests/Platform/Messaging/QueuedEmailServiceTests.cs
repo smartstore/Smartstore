@@ -67,7 +67,7 @@ namespace Smartstore.Core.Tests.Platform.Messaging
             // load attachment file resource and save as file
             var asm = typeof(QueuedEmailServiceTests).Assembly;
             var pdfStream = asm.GetManifestResourceStream($"{asm.GetName().Name}.Platform.Messaging.Attachment.pdf");
-            var pdfBinary = pdfStream.ToByteArray();
+            var pdfBinary = await pdfStream.ToByteArrayAsync();
             pdfStream.Seek(0, SeekOrigin.Begin);
 
             var path1 = "~/Attachment.pdf";

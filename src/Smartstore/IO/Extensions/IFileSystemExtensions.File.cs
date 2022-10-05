@@ -30,13 +30,13 @@ namespace Smartstore
             Guard.NotNull(fs, nameof(fs));
             Guard.NotNull(subpath, nameof(subpath));
 
-            var file = async ? await fs.GetFileAsync(subpath) : fs.GetFile(subpath);
+            var file = async ? await fs.GetFileAsync(subpath) : await fs.GetFileAsync(subpath);
             if (!file.Exists)
             {
                 throw new FileNotFoundException("File " + subpath + " does not exist.");
             }
 
-            var dir = async ? await fs.GetDirectoryAsync(file.Directory) : fs.GetDirectory(file.Directory);
+            var dir = async ? await fs.GetDirectoryAsync(file.Directory) : await fs.GetDirectoryAsync(file.Directory);
             if (!dir.Exists)
             {
                 throw new DirectoryNotFoundException("Directory " + subpath + " does not exist.");
@@ -100,7 +100,7 @@ namespace Smartstore
                 }
                 else
                 {
-                    file.Delete();
+                    await file.DeleteAsync();
                 }
 
                 return true;
@@ -148,13 +148,13 @@ namespace Smartstore
         {
             Guard.NotNull(fs, nameof(fs));
 
-            var dirExists = async ? await fs.DirectoryExistsAsync(subpath) : fs.DirectoryExists(subpath);
+            var dirExists = async ? await fs.DirectoryExistsAsync(subpath) : await fs.DirectoryExistsAsync(subpath);
             if (dirExists)
             {
                 throw new FileSystemException($"Cannot create file '{subpath}' because it already exists as a directory.");
             }
 
-            var file = async ? await fs.GetFileAsync(subpath) : fs.GetFile(subpath);
+            var file = async ? await fs.GetFileAsync(subpath) : await fs.GetFileAsync(subpath);
             if (!overwrite && file.Exists)
             {
                 throw new FileSystemException($"Cannot create file '{subpath}' because it already exists.");
@@ -168,7 +168,7 @@ namespace Smartstore
             }
             else
             {
-                fs.TryCreateDirectory(file.Directory);
+                await fs.TryCreateDirectoryAsync(file.Directory);
                 file.Create(inStream, overwrite);
             }
 

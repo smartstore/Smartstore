@@ -187,7 +187,7 @@ namespace Smartstore.Core.Seo.Routing
                     policy.Path.Modify(UrlPolicy.CombineSegments(urlPrefix, slug));
                     return null;
                 }
-                else if (ambientCulture != slugCulture && _languageService.IsPublishedLanguage(ambientCulture))
+                else if (ambientCulture != slugCulture && await _languageService.IsPublishedLanguageAsync(ambientCulture))
                 {
                     // Current slug language differs from requested languages. This can happen if a language switch was performed.
                     // We have to determine the request language...

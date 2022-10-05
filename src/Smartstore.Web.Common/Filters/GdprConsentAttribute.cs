@@ -64,12 +64,12 @@ namespace Smartstore.Web.Filters
                             if (!httpContext.Request.IsAjax())
                             {
                                 // Add a validation message
-                                context.ModelState.AddModelError(string.Empty, _services.Localization.GetResource("Gdpr.Consent.ValidationMessage"));
+                                context.ModelState.AddModelError(string.Empty, await _services.Localization.GetResourceAsync("Gdpr.Consent.ValidationMessage"));
                             }
                             else
                             {
                                 // Notify
-                                _notifier.Error(_services.Localization.GetResource("Gdpr.Consent.ValidationMessage"));
+                                _notifier.Error(await _services.Localization.GetResourceAsync("Gdpr.Consent.ValidationMessage"));
                             }
                         }
                     }

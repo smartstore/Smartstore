@@ -50,10 +50,10 @@ namespace Smartstore.Core.Tests.Platform.Security
         {
             await CheckTreeNodeAsync(_rModerator, "catalog.manufacturer.read", true);
 
-            var result = _permissionService.Authorize("catalog.manufacturer", _cModerator);
+            var result = await _permissionService.AuthorizeAsync("catalog.manufacturer", _cModerator);
             Assert.IsFalse(result);
 
-            result = _permissionService.Authorize("catalog.manufacturer.read", _cModerator);
+            result = await _permissionService.AuthorizeAsync("catalog.manufacturer.read", _cModerator);
             Assert.IsTrue(result);
         }
 
@@ -62,7 +62,7 @@ namespace Smartstore.Core.Tests.Platform.Security
         {
             await CheckTreeNodeAsync(_rModerator, "catalog.manufacturer.write", false);
 
-            var result = _permissionService.Authorize("catalog.manufacturer.write", _cModerator);
+            var result = await _permissionService.AuthorizeAsync("catalog.manufacturer.write", _cModerator);
             Assert.IsFalse(result);
         }
 
@@ -71,7 +71,7 @@ namespace Smartstore.Core.Tests.Platform.Security
         {
             await CheckTreeNodeAsync(_rAdmin, "catalog.category", true);
 
-            var result = _permissionService.Authorize("catalog.category.write", _cAdmin);
+            var result = await _permissionService.AuthorizeAsync("catalog.category.write", _cAdmin);
             Assert.IsTrue(result);
         }
 
@@ -80,10 +80,10 @@ namespace Smartstore.Core.Tests.Platform.Security
         {
             await CheckTreeNodeAsync(_rGuest, "catalog.category", false);
 
-            var result = _permissionService.Authorize("catalog.category.read", _cGuest);
+            var result = await _permissionService.AuthorizeAsync("catalog.category.read", _cGuest);
             Assert.IsFalse(result);
 
-            result = _permissionService.Authorize("catalog.manufacturer.write", _cGuest);
+            result = await _permissionService.AuthorizeAsync("catalog.manufacturer.write", _cGuest);
             Assert.IsFalse(result);
         }
 
@@ -92,10 +92,10 @@ namespace Smartstore.Core.Tests.Platform.Security
         {
             await CheckTreeNodeAsync(_rModerator, "catalog.manufacturer", false);
 
-            var result = _permissionService.Authorize("catalog.manufacturer", _cModerator, true);
+            var result = await _permissionService.AuthorizeAsync("catalog.manufacturer", _cModerator, true);
             Assert.IsTrue(result);
 
-            result = _permissionService.Authorize("catalog.product", _cModerator);
+            result = await _permissionService.AuthorizeAsync("catalog.product", _cModerator);
             Assert.IsFalse(result);
         }
 

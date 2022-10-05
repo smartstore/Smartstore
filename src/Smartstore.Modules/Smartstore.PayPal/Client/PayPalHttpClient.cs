@@ -602,7 +602,7 @@ namespace Smartstore.PayPal.Client
             if (token.IsExpired())
             {
                 // Should never happen, but just to be save...
-                memCache.Remove(cacheKey);
+                await memCache.RemoveAsync(cacheKey);
                 return await GetAccessTokenFromCacheAsync(settings);
             }
 

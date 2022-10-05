@@ -34,7 +34,7 @@ namespace Smartstore.Core.Content.Media
         {
             Guard.NotNull(subpath, nameof(subpath));
 
-            var file = _contentRoot.GetFile(PathUtility.Join(_rootPath, subpath));
+            var file = await _contentRoot.GetFileAsync(PathUtility.Join(_rootPath, subpath));
 
             if (!file.Exists)
             {
@@ -79,7 +79,7 @@ namespace Smartstore.Core.Content.Media
         {
             // Is post-app module installation
 
-            using (var stream = source.OpenRead())
+            using (var stream = await source.OpenReadAsync())
             {
                 if (mediaFile.MediaType == MediaType.Image)
                 {

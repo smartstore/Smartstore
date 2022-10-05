@@ -306,7 +306,7 @@ namespace Smartstore.Admin.Controllers
                 if (DataSettings.Instance.IsValid())
                 {
                     model.DataProviderFriendlyName = DataSettings.Instance.DbFactory.DbSystem.ToString();
-                    model.ShrinkDatabaseEnabled = dataProvider.CanShrink && Services.Permissions.Authorize(Permissions.System.Maintenance.Read);
+                    model.ShrinkDatabaseEnabled = dataProvider.CanShrink && await Services.Permissions.AuthorizeAsync(Permissions.System.Maintenance.Read);
                 }
             }
             catch
@@ -609,7 +609,7 @@ namespace Smartstore.Admin.Controllers
             var dirPermissionsOk = true;
             foreach (var subpath in FilePermissionChecker.WrittenDirectories)
             {
-                var entry = appContext.ContentRoot.GetDirectory(subpath);
+                var entry = await appContext.ContentRoot.GetDirectoryAsync(subpath);
                 if (entry.Exists && !_filePermissionChecker.Value.CanAccess(entry, FileEntryRights.Write | FileEntryRights.Modify))
                 {
                     AddEntry(SystemWarningLevel.Warning, T("Admin.System.Warnings.DirectoryPermission.Wrong", appContext.OSIdentity.Name, subpath));
@@ -624,7 +624,7 @@ namespace Smartstore.Admin.Controllers
             var filePermissionsOk = true;
             foreach (var subpath in FilePermissionChecker.WrittenFiles)
             {
-                var entry = appContext.ContentRoot.GetFile(subpath);
+                var entry = await appContext.ContentRoot.GetFileAsync(subpath);
                 if (entry.Exists && !_filePermissionChecker.Value.CanAccess(entry, FileEntryRights.Write | FileEntryRights.Modify | FileEntryRights.Delete))
                 {
                     AddEntry(SystemWarningLevel.Warning, T("Admin.System.Warnings.FilePermission.Wrong", appContext.OSIdentity.Name, subpath));
@@ -835,7 +835,7 @@ namespace Smartstore.Admin.Controllers
 
             try
             {
-                return new FileStreamResult(backup.OpenRead(), contentType)
+                return new FileStreamResult(await backup.OpenReadAsync(), contentType)
                 {
                     FileDownloadName = name
                 };

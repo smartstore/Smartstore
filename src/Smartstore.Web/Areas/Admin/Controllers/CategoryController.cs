@@ -157,7 +157,7 @@ namespace Smartstore.Admin.Controllers
             var model = new CategoryListModel();
 
             ViewBag.IsSingleStoreMode = Services.StoreContext.IsSingleStoreMode();
-            ViewBag.CanEdit = Services.Permissions.Authorize(Permissions.Catalog.Category.Update);
+            ViewBag.CanEdit = await Services.Permissions.AuthorizeAsync(Permissions.Catalog.Category.Update);
 
             return View(model);
         }

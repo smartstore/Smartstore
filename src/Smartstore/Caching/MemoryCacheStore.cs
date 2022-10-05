@@ -134,7 +134,7 @@ namespace Smartstore.Caching
                     var items = await acquirer.Invoke();
                     if (items != null)
                     {
-                        memSet.AddRange(items);
+                        await memSet.AddRangeAsync(items);
                     }
                 }
 

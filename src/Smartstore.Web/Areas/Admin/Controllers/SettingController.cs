@@ -723,7 +723,7 @@ namespace Smartstore.Admin.Controllers
 
             // Localized facet settings (CommonFacetSettingsLocalizedModel).
             var i = 0;
-            foreach (var language in _languageService.GetAllLanguages(true))
+            foreach (var language in await _languageService.GetAllLanguagesAsync(true))
             {
                 var categoryFacetAliasSettingsKey = FacetUtility.GetFacetAliasSettingKey(FacetGroupKind.Category, language.Id);
                 var brandFacetAliasSettingsKey = FacetUtility.GetFacetAliasSettingKey(FacetGroupKind.Brand, language.Id);
@@ -1290,7 +1290,7 @@ namespace Smartstore.Admin.Controllers
                 locale.ReturnRequestReasons = settings.GetLocalizedSetting(x => x.ReturnRequestReasons, languageId, storeScope, false, false);
             });
 
-            model.OrderIdent = _db.DataProvider.GetTableIdent<Order>();
+            model.OrderIdent = await _db.DataProvider.GetTableIdentAsync<Order>();
 
             return View(model);
         }

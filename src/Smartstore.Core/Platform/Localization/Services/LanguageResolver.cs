@@ -69,7 +69,7 @@ namespace Smartstore.Core.Localization
             }
 
             var cultureCode = httpContext.GetCultureCode();
-            if (cultureCode.IsEmpty() || !_languageService.IsPublishedLanguage(cultureCode, storeId))
+            if (cultureCode.IsEmpty() || !await _languageService.IsPublishedLanguageAsync(cultureCode, storeId))
             {
                 return null;
             }
@@ -81,7 +81,7 @@ namespace Smartstore.Core.Localization
 
         protected virtual async Task<Language> ResolveFromCustomer(int customerLangId, int storeId, bool async)
         {
-            if (customerLangId > 0 && _languageService.IsPublishedLanguage(customerLangId, storeId))
+            if (customerLangId > 0 && await _languageService.IsPublishedLanguageAsync(customerLangId, storeId))
             {
                 return async
                     ? await _db.Languages.FindByIdAsync(customerLangId)
@@ -107,7 +107,7 @@ namespace Smartstore.Core.Localization
                         await _db.Languages.FirstOrDefaultAsync(x => x.LanguageCulture == culture.Value || x.UniqueSeoCode == culture.Value)
                         : _db.Languages.FirstOrDefault(x => x.LanguageCulture == culture.Value || x.UniqueSeoCode == culture.Value);
 
-                    if (language != null && _languageService.IsPublishedLanguage(language.Id, storeId))
+                    if (language != null && await _languageService.IsPublishedLanguageAsync(language.Id, storeId))
                     {
                         return language;
                     }
@@ -119,9 +119,9 @@ namespace Smartstore.Core.Localization
 
         protected virtual async Task<Language> GetDefaultLanguage(int customerLangId, int storeId, bool async)
         {
-            if (customerLangId == 0 || !_languageService.IsPublishedLanguage(customerLangId, storeId))
+            if (customerLangId == 0 || !await _languageService.IsPublishedLanguageAsync(customerLangId, storeId))
             {
-                customerLangId = _languageService.GetMasterLanguageId(storeId);
+                customerLangId = await _languageService.GetMasterLanguageIdAsync(storeId);
             }
 
             return async ? await _db.Languages.FindByIdAsync(customerLangId) : _db.Languages.FindById(customerLangId);

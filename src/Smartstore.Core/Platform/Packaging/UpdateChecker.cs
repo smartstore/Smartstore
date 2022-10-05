@@ -102,7 +102,7 @@ namespace Smartstore.Core.Packaging
                     model.CurrentVersion = curVersion;
                     model.LanguageCode = lang;
 
-                    if (CommonHelper.IsDevEnvironment || !_commonSettings.AutoUpdateEnabled || !_permissionService.Authorize(Permissions.System.Maintenance.Execute))
+                    if (CommonHelper.IsDevEnvironment || !_commonSettings.AutoUpdateEnabled || !await _permissionService.AuthorizeAsync(Permissions.System.Maintenance.Execute))
                     {
                         model.AutoUpdatePossible = false;
                     }

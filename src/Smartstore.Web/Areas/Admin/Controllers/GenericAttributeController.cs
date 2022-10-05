@@ -74,7 +74,7 @@ namespace Smartstore.Admin.Controllers
             {
                 var storeId = Services.StoreContext.CurrentStore.Id;
                 var (readPermission, updatePermission) = GetGenericAttributesInfos(entityName);
-                if (updatePermission.HasValue() && !Services.Permissions.Authorize(updatePermission))
+                if (updatePermission.HasValue() && !await Services.Permissions.AuthorizeAsync(updatePermission))
                 {
                     NotifyError(await Services.Permissions.GetUnauthorizedMessageAsync(updatePermission));
                     return Json(new { success = false });
