@@ -42,7 +42,7 @@ namespace Smartstore.Core.Content.Media.Storage
 
             if (_db.DataProvider.CanReadSequential)
             {
-                using var stream = OpenBlobStream(id);
+                await using var stream = OpenBlobStream(id);
                 return stream.Length;
             }
             else
@@ -103,7 +103,7 @@ namespace Smartstore.Core.Content.Media.Storage
 
             if (_db.DataProvider.CanReadSequential)
             {
-                using (var stream = OpenBlobStream(mediaFile.MediaStorageId.Value))
+                await using (var stream = OpenBlobStream(mediaFile.MediaStorageId.Value))
                 {
                     return await stream.ToByteArrayAsync();
                 }
@@ -136,7 +136,7 @@ namespace Smartstore.Core.Content.Media.Storage
             }
             else
             {
-                using (item)
+                await using (item)
                 {
                     await SaveFast(media, item);
                 }

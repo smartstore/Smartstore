@@ -33,7 +33,7 @@ namespace Smartstore.Core.Checkout.Orders
             var url = WebHelper.GetAbsoluteUrl(path, request);
 
             using var response = await _httpClient.GetAsync(url, cancelToken);
-            using var stream = await response.Content.ReadAsStreamAsync(cancelToken);
+            await using var stream = await response.Content.ReadAsStreamAsync(cancelToken);
 
             PdfInvoiceResult result = null;
 

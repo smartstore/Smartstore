@@ -71,7 +71,7 @@ namespace Smartstore.Net.Mail
 
                 try
                 {
-                    using (stream)
+                    await using (stream)
                     {
                         // IIS pickup directories expect the message to be "byte-stuffed"
                         // which means that lines beginning with "." need to be escaped
@@ -80,7 +80,7 @@ namespace Smartstore.Net.Mail
                         // Use an SmtpDataFilter "byte-stuff" the message as it is written
                         // to the file stream. This is the same process that an SmtpClient
                         // would use when sending the message in a `DATA` command.
-                        using (var filtered = new FilteredStream(stream))
+                        await using (var filtered = new FilteredStream(stream))
                         {
                             filtered.Add(new SmtpDataFilter());
 

@@ -92,7 +92,7 @@ namespace Smartstore.Web.Controllers
                 var selected = model.Selected.SplitSafe(',');
                 var returnSku = model.ReturnField.EqualsNoCase("sku");
 
-                using var scope = new DbContextScope(Services.DbContext, autoDetectChanges: false, forceNoTracking: true);
+                await using var scope = new DbContextScope(Services.DbContext, autoDetectChanges: false, forceNoTracking: true);
                 if (model.EntityType.EqualsNoCase("product"))
                 {
                     model.SearchTerm = model.SearchTerm.TrimSafe();

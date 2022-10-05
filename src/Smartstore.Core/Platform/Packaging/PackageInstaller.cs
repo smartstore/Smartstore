@@ -168,7 +168,7 @@ namespace Smartstore.Core.Packaging
                 else
                 {
                     // Entry is a file
-                    using var entryStream = entry.Open();
+                    await using var entryStream = entry.Open();
                     await fs.CreateFileAsync(entry.FullName, entryStream, true);
                 }
             }

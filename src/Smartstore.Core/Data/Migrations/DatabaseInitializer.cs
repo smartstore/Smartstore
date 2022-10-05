@@ -69,7 +69,7 @@ namespace Smartstore.Core.Data.Migrations
                 throw new InvalidOperationException($"Database migration failed because the target database does not exist. Ensure the database was initialized and properly seeded with data.");
             }
 
-            using (new DbContextScope(context, minHookImportance: HookImportance.Essential))
+            await using (new DbContextScope(context, minHookImportance: HookImportance.Essential))
             {
                 // Set (usually longer) command timeout for migrations
                 var prevCommandTimeout = context.Database.GetCommandTimeout();

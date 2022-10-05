@@ -77,7 +77,7 @@ namespace Smartstore
             }
 
             using (var compressedStream = new MemoryStream())
-            using (var zipStream = new GZipStream(compressedStream, CompressionMode.Compress))
+            await using (var zipStream = new GZipStream(compressedStream, CompressionMode.Compress))
             {
                 await zipStream.WriteAsync(buffer);
                 zipStream.Close();
@@ -119,7 +119,7 @@ namespace Smartstore
             }
 
             using (var compressedStream = new MemoryStream(buffer))
-            using (var zipStream = new GZipStream(compressedStream, CompressionMode.Decompress))
+            await using (var zipStream = new GZipStream(compressedStream, CompressionMode.Decompress))
             using (var resultStream = new MemoryStream())
             {
                 await zipStream.CopyToAsync(resultStream);

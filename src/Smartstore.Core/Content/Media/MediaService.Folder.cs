@@ -57,7 +57,7 @@ namespace Smartstore.Core.Content.Media
 
                 if (flag)
                 {
-                    using (new DbContextScope(_db, deferCommit: false))
+                    await using (new DbContextScope(_db, deferCommit: false))
                     {
                         var mediaFolder = new MediaFolder { Name = folderName, ParentId = folderId };
                         _db.MediaFolders.Add(mediaFolder);
@@ -162,7 +162,7 @@ namespace Smartstore.Core.Content.Media
                 throw new NotSupportedException(T("Admin.Media.Exception.CopyRootAlbum", node.Value.Name));
             }
 
-            using (var scope = new DbContextScope(_db, autoDetectChanges: false, deferCommit: true))
+            await using (var scope = new DbContextScope(_db, autoDetectChanges: false, deferCommit: true))
             {
                 destinationPath += "/" + node.Value.Name;
                 var dupeFiles = new List<DuplicateFileInfo>();
@@ -334,7 +334,7 @@ namespace Smartstore.Core.Content.Media
             var allNodes = root.FlattenNodes(true).Reverse().ToArray();
             var result = new FolderDeleteResult();
 
-            using (var scope = new DbContextScope(_db, autoDetectChanges: false, deferCommit: true))
+            await using (var scope = new DbContextScope(_db, autoDetectChanges: false, deferCommit: true))
             {
                 // Delete all from DB
                 foreach (var node in allNodes)

@@ -276,7 +276,7 @@ namespace Smartstore
                 Guard.HasDefaultConstructor<T>();
             }
 
-            using var reader = await ExecuteReaderRawAsync(databaseFacade, sql, parameters, cancelToken);
+            await using var reader = await ExecuteReaderRawAsync(databaseFacade, sql, parameters, cancelToken);
             while (await reader.ReadAsync(cancelToken))
             {
                 if (reader.DbDataReader.FieldCount > 0)

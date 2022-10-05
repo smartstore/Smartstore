@@ -102,8 +102,8 @@ namespace Smartstore.Admin.Controllers
                             var dir = await _importProfileService.GetImportDirectoryAsync(profile, "Content", true);
                             var targetFile = await dir.GetFileAsync(importFile.Name);
 
-                            using (var sourceStream = await importFile.OpenReadAsync())
-                            using (var targetStream = await targetFile.OpenWriteAsync())
+                            await using (var sourceStream = await importFile.OpenReadAsync())
+                            await using (var targetStream = await targetFile.OpenWriteAsync())
                             {
                                 await sourceStream.CopyToAsync(targetStream);
                             }
@@ -450,8 +450,8 @@ namespace Smartstore.Admin.Controllers
 
                 var targetFile = await tempDir.GetFileAsync(fileName);
 
-                using (var sourceStream = sourceFile.OpenReadStream())
-                using (var targetStream = await targetFile.OpenWriteAsync())
+                await using (var sourceStream = sourceFile.OpenReadStream())
+                await using (var targetStream = await targetFile.OpenWriteAsync())
                 {
                     await sourceStream.CopyToAsync(targetStream);
                 }
@@ -486,8 +486,8 @@ namespace Smartstore.Admin.Controllers
                         var dir = await _importProfileService.GetImportDirectoryAsync(profile, "Content", true);
                         var targetFile = await dir.GetFileAsync(fileName);
 
-                        using (var sourceStream = sourceFile.OpenReadStream())
-                        using (var targetStream = await targetFile.OpenWriteAsync())
+                        await using (var sourceStream = sourceFile.OpenReadStream())
+                        await using (var targetStream = await targetFile.OpenWriteAsync())
                         {
                             await sourceStream.CopyToAsync(targetStream);
                         }
@@ -690,7 +690,7 @@ namespace Smartstore.Admin.Controllers
                 var file = model.ExistingFiles.FirstOrDefault(x => !x.RelatedType.HasValue);
                 if (file != null)
                 {
-                    using var stream = await file.File.OpenReadAsync();
+                    await using var stream = await file.File.OpenReadAsync();
                     var dataTable = LightweightDataTable.FromFile(file.File.Name, stream, stream.Length, csvConfiguration, 0, 1);
 
                     foreach (var column in dataTable.Columns.Where(x => x.Name.HasValue()))

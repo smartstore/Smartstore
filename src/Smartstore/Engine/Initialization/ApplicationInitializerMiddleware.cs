@@ -63,7 +63,7 @@ namespace Smartstore.Engine.Initialization
                 if (errorFeature == null)
                 {
                     // Don't run initializers when re-execution after an exception is in progress.
-                    using (await _asyncLock.LockAsync(cancelToken: _asyncRunner.AppShutdownCancellationToken))
+                    await using (await _asyncLock.LockAsync(cancelToken: _asyncRunner.AppShutdownCancellationToken))
                     {
                         if (!_initialized)
                         {

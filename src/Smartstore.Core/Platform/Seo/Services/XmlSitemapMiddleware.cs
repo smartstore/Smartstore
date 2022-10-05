@@ -28,7 +28,7 @@ namespace Smartstore.Core.Seo
                 var index = context.GetRouteValueAs<int>("index");
                 var partition = await sitemapGenerator.GetSitemapPartAsync(index);
 
-                using (partition.Stream)
+                await using (partition.Stream)
                 {
                     response.StatusCode = 200;
                     response.ContentType = "application/xml";

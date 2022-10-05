@@ -57,7 +57,7 @@ namespace Smartstore.Core.Content.Media.Imaging
                 }
                 else if (source is IFile file)
                 {
-                    using var fs = await file.OpenReadAsync();
+                    await using var fs = await file.OpenReadAsync();
                     image = await Factory.LoadAsync(fs);
                 }
                 else

@@ -24,7 +24,7 @@ namespace Smartstore.Core.Data.Migrations
             if (!entries.Any() || !_languages.Any())
                 return;
 
-            using (var scope = new DbContextScope(_db, autoDetectChanges: false, minHookImportance: HookImportance.Essential))
+            await using (var scope = new DbContextScope(_db, autoDetectChanges: false, minHookImportance: HookImportance.Essential))
             {
                 var langMap = (await _languages
                     .ToListAsync())

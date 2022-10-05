@@ -784,7 +784,7 @@ namespace Smartstore.Web.Controllers
 
                         var path = _mediaService.CombinePaths(SystemAlbumProvider.Customers, PathUtility.SanitizeFileName(uploadedFile.FileName));
 
-                        using var stream = uploadedFile.OpenReadStream();
+                        await using var stream = uploadedFile.OpenReadStream();
                         var newAvatar = await _mediaService.SaveFileAsync(path, stream, false, DuplicateFileHandling.Rename);
 
                         if (newAvatar != null)

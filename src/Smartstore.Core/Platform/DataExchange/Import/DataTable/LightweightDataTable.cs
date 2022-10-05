@@ -81,7 +81,7 @@ namespace Smartstore.Core.DataExchange.Import
         {
             try
             {
-                using var stream = await file.OpenReadAsync();
+                await using var stream = await file.OpenReadAsync();
 
                 var table = FromFile(file.Name, stream, stream.Length, CsvConfiguration.ExcelFriendlyConfiguration, 0, 1);
 

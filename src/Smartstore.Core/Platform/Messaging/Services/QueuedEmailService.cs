@@ -96,7 +96,7 @@ namespace Smartstore.Core.Messaging
 
                 try
                 {
-                    using var msg = ConvertMail(queuedEmail);
+                    await using var msg = ConvertMail(queuedEmail);
 
                     if (saveToDisk)
                     {

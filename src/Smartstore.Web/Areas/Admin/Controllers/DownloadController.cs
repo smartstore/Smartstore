@@ -121,7 +121,7 @@ namespace Smartstore.Admin.Controllers
             }
 
             var path = _mediaService.CombinePaths(SystemAlbumProvider.Downloads, postedFile.FileName);
-            using var stream = postedFile.OpenReadStream();
+            await using var stream = postedFile.OpenReadStream();
             Response.RegisterForDispose(stream);
 
             var file = await _mediaService.SaveFileAsync(path, stream, dupeFileHandling: DuplicateFileHandling.Rename);

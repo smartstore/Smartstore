@@ -123,7 +123,7 @@ namespace Smartstore.Core.Tests.Platform.Messaging
             _mediaServiceMock.Setup(x => x.ConvertMediaFile(fileReferenceFile)).Returns(
                 new MediaFileInfo(fileReferenceFile, _mediaService, _mediaUrlGenerator, string.Empty));
 
-            using (var msg = _queuedEmailService.ConvertMail(qe))
+            await using (var msg = _queuedEmailService.ConvertMail(qe))
             {
                 Assert.IsNotNull(msg);
                 Assert.IsNotNull(msg.To);

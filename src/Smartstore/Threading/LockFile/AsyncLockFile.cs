@@ -66,7 +66,7 @@ namespace Smartstore.Threading
                 return;
             }
 
-            using (await AsyncLock.KeyedAsync($"AsyncLockFile.{_path}"))
+            await using (await AsyncLock.KeyedAsync($"AsyncLockFile.{_path}"))
             {
                 var lockFile = await _fs.GetFileAsync(_path);
 

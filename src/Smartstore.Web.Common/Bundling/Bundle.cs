@@ -302,7 +302,7 @@ namespace Smartstore.Web.Bundling
         {
             Guard.NotNull(bundleFile, nameof(bundleFile));
 
-            using var stream = bundleFile.File.CreateReadStream();
+            await using var stream = bundleFile.File.CreateReadStream();
             var content = await stream.AsStringAsync();
 
             return new AssetContent

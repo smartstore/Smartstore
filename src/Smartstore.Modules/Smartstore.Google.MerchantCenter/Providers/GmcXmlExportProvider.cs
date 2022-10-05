@@ -185,7 +185,7 @@ namespace Smartstore.Google.MerchantCenter.Providers
                 defaultAvailability = config.Availability;
             }
 
-            using var writer = XmlWriter.Create(context.DataStream, ExportXmlHelper.DefaultSettings);
+            await using var writer = XmlWriter.Create(context.DataStream, ExportXmlHelper.DefaultSettings);
             await writer.WriteStartDocumentAsync();
             writer.WriteStartElement("rss");
             writer.WriteAttributeString("version", "2.0");

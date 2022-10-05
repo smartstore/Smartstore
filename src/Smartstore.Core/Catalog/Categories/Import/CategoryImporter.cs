@@ -50,7 +50,7 @@ namespace Smartstore.Core.DataExchange.Import
             var segmenter = context.DataSegmenter;
             var batch = segmenter.GetCurrentBatch<Category>();
 
-            using (var scope = new DbContextScope(_services.DbContext, autoDetectChanges: false, minHookImportance: HookImportance.Important, deferCommit: true))
+            await using (var scope = new DbContextScope(_services.DbContext, autoDetectChanges: false, minHookImportance: HookImportance.Important, deferCommit: true))
             {
                 await context.SetProgressAsync(segmenter.CurrentSegmentFirstRowIndex - 1, segmenter.TotalRows);
 

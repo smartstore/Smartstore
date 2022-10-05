@@ -130,7 +130,7 @@ namespace Smartstore.Core.Catalog.Categories
             var referenceCategory = await _db.Categories.FindByIdAsync(categoryId);
             var referenceRoleIds = await _aclService.GetAuthorizedCustomerRoleIdsAsync(referenceCategory);
 
-            using (var scope = new DbContextScope(_db, autoDetectChanges: false))
+            await using (var scope = new DbContextScope(_db, autoDetectChanges: false))
             {
                 await ProcessCategory(scope, referenceCategory);
             }
@@ -259,7 +259,7 @@ namespace Smartstore.Core.Catalog.Categories
             var referenceCategory = await _db.Categories.FindByIdAsync(categoryId);
             var referenceStoreMappingIds = await _storeMappingService.GetAuthorizedStoreIdsAsync(referenceCategory);
 
-            using (var scope = new DbContextScope(_db, autoDetectChanges: false))
+            await using (var scope = new DbContextScope(_db, autoDetectChanges: false))
             {
                 await ProcessCategory(scope, referenceCategory);
             }

@@ -72,7 +72,7 @@ namespace Smartstore.Core.Content.Menus
                     {
                         if (curNode.Children.Any(x => !x.Value.ElementsCountResolved))
                         {
-                            using (await _asyncLock.LockAsync())
+                            await using (await _asyncLock.LockAsync())
                             {
                                 if (curNode.Children.Any(x => !x.Value.ElementsCountResolved))
                                 {

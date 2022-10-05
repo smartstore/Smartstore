@@ -897,7 +897,7 @@ namespace Smartstore.Core.Checkout.Orders
         {
             Guard.NotNull(order, nameof(order));
 
-            using var scope = new DbContextScope(_db, deferCommit: true);
+            await using var scope = new DbContextScope(_db, deferCommit: true);
 
             if (order.PaymentStatus == PaymentStatus.Paid && !order.PaidDateUtc.HasValue)
             {

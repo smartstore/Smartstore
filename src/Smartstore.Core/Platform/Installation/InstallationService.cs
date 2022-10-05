@@ -383,7 +383,7 @@ namespace Smartstore.Core.Installation
 
             modularState.InstalledModules.Clear();
 
-            using var dbScope = new DbContextScope(db, minHookImportance: HookImportance.Essential, retainConnection: true);
+            await using var dbScope = new DbContextScope(db, minHookImportance: HookImportance.Essential, retainConnection: true);
 
             var installContext = new ModuleInstallationContext
             {

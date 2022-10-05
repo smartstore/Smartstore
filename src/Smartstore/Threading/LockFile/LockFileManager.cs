@@ -85,7 +85,7 @@ namespace Smartstore.Threading
 
         public async Task<bool> IsLockedAsync(string subpath)
         {
-            using (await _asyncLock.LockAsync())
+            await using (await _asyncLock.LockAsync())
             {
                 try
                 {

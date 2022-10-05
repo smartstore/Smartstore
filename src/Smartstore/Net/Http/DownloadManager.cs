@@ -71,8 +71,8 @@ namespace Smartstore.Net.Http
                         item.Path = Path.ChangeExtension(item.Path, extension.EnsureStartsWith('.'));
                     }
 
-                    using var source = await response.Content.ReadAsStreamAsync(cancelToken);
-                    using var target = File.Open(item.Path, FileMode.Create);
+                    await using var source = await response.Content.ReadAsStreamAsync(cancelToken);
+                    await using var target = File.Open(item.Path, FileMode.Create);
 
                     await source.CopyToAsync(target, cancelToken);
 

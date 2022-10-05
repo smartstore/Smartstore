@@ -38,7 +38,7 @@ namespace Smartstore.Controllers
                     return Json(new { fileName = file.FileName, message, returnUrl });
                 }
 
-                using var package = new ExtensionPackage(file.OpenReadStream(), false) { FileName = file.Name };
+                await using var package = new ExtensionPackage(file.OpenReadStream(), false) { FileName = file.Name };
 
                 var isTheme = package.Descriptor.ExtensionType == ExtensionType.Theme;
                 if (isTheme != expectTheme)

@@ -260,7 +260,7 @@ namespace Smartstore.IO
             }
 
             inStream ??= new MemoryStream();
-            using var outputStream = _fi.Create();
+            await using var outputStream = _fi.Create();
 
             if (async)
             {

@@ -265,7 +265,7 @@ namespace Smartstore.Core.Catalog.Attributes
 
             var addedCombinations = 0;
 
-            using (var scope = new DbContextScope(_db, autoDetectChanges: false, minHookImportance: HookImportance.Important))
+            await using (var scope = new DbContextScope(_db, autoDetectChanges: false, minHookImportance: HookImportance.Important))
             {
                 foreach (var values in resultMatrix)
                 {

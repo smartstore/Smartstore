@@ -434,7 +434,7 @@ namespace Smartstore.Core.Content.Media
             file = result.File;
 
             // We can't defer commit in this operation, MediaFile MUST be committed before saving stream.
-            using var scope = new DbContextScope(_db, deferCommit: false);
+            await using var scope = new DbContextScope(_db, deferCommit: false);
 
             if (file.Id == 0)
             {
@@ -538,7 +538,7 @@ namespace Smartstore.Core.Content.Media
             }
 
             // ...now commit
-            using (var scope = new DbContextScope(_db, deferCommit: false))
+            await using (var scope = new DbContextScope(_db, deferCommit: false))
             {
                 // We can't defer commit in this operation, MediaFile MUST be committed before saving to storage.
                 await _db.SaveChangesAsync(cancelToken);
@@ -796,7 +796,7 @@ namespace Smartstore.Core.Content.Media
 
             query.MaxSize = maxSize;
 
-            using var result = await _imageProcessor.ProcessImageAsync(query, false);
+            await using var result = await _imageProcessor.ProcessImageAsync(query, false);
             outImage = result.Image;
 
             return new AsyncOut<IImage>(true, outImage);

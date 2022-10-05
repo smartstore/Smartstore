@@ -58,7 +58,7 @@ namespace Smartstore.Core.Packaging
             var json = JsonConvert.SerializeObject(manifest, Formatting.Indented);
 
             var memStream = new MemoryStream();
-            using (var streamWriter = new StreamWriter(memStream, leaveOpen: true))
+            await using (var streamWriter = new StreamWriter(memStream, leaveOpen: true))
             {
                 await streamWriter.WriteAsync(json);
             }
@@ -86,9 +86,9 @@ namespace Smartstore.Core.Packaging
         private static async Task CreateArchiveEntry(ZipArchive archive, string name, Stream source)
         {
             var entry = archive.CreateEntry(name, CompressionLevel.Optimal);
-            using var entryStream = entry.Open();
+            await using var entryStream = entry.Open();
 
-            using (source)
+            await using (source)
             {
                 await source.CopyToAsync(entryStream);
             }

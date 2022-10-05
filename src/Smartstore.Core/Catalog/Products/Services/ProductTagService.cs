@@ -42,7 +42,7 @@ namespace Smartstore.Core.Catalog.Products
             await _db.LoadCollectionAsync(product, x => x.ProductTags);
 
             // Clear cache only once at the end of this operation.
-            using var scope = new DbContextScope(_db, minHookImportance: HookImportance.Important);
+            await using var scope = new DbContextScope(_db, minHookImportance: HookImportance.Important);
 
             if (!(tagNames?.Any() ?? false))
             {

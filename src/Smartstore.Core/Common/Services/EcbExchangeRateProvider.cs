@@ -34,7 +34,7 @@ namespace Smartstore.Core.Common.Services
             var client = _httpClientFactory.CreateClient();
 
             // Old url still works too: http://www.ecb.int/stats/eurofxref/eurofxref-daily.xml
-            using (var stream = await client.GetStreamAsync("http://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml"))
+            await using (var stream = await client.GetStreamAsync("http://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml"))
             {
                 var document = new XmlDocument();
                 document.Load(stream);

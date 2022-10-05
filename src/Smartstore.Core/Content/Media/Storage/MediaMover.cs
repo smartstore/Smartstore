@@ -57,7 +57,7 @@ namespace Smartstore.Core.Content.Media.Storage
 
             // We are about to process data in chunks but want to commit ALL at once after ALL chunks have been processed successfully.
             // AutoDetectChanges true required for newly inserted binary data.
-            using (var scope = new DbContextScope(ctx: _db, autoDetectChanges: _db.DataProvider.CanStreamBlob ? false : null/*, retainConnection: true*/))
+            await using (var scope = new DbContextScope(ctx: _db, autoDetectChanges: _db.DataProvider.CanStreamBlob ? false : null/*, retainConnection: true*/))
             {
                 var query = _db.MediaFiles.AsQueryable();
 
@@ -66,7 +66,7 @@ namespace Smartstore.Core.Content.Media.Storage
                     query = query.Include(x => x.MediaStorage);
                 }
 
-                using (var transaction = await _db.Database.BeginTransactionAsync(cancelToken))
+                await using (var transaction = await _db.Database.BeginTransactionAsync(cancelToken))
                 {
                     try
                     {

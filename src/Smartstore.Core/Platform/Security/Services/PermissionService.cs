@@ -377,7 +377,7 @@ namespace Smartstore.Core.Security
 
             try
             {
-                using (var scope = new DbContextScope(_db, minHookImportance: HookImportance.Important))
+                await using (var scope = new DbContextScope(_db, minHookImportance: HookImportance.Important))
                 {
                     // Add new permissions.
                     foreach (var provider in permissionProviders)

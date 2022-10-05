@@ -270,7 +270,7 @@ namespace Smartstore.Admin.Controllers
                 if (file != null && file.Length > 0)
                 {
                     int importedCount = 0;
-                    using var stream = file.OpenReadStream();
+                    await using var stream = file.OpenReadStream();
                     importedCount = await _themeVarService.ImportVariablesAsync(theme, storeId, await stream.AsStringAsync());
 
                     Services.ActivityLogger.LogActivity(KnownActivityLogTypes.ImportThemeVars, T("ActivityLog.ResetThemeVars"), importedCount, theme);

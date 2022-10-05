@@ -36,7 +36,7 @@ namespace Smartstore
                 return null;
             }
 
-            using var stream = async ? await file.OpenReadAsync() : await file.OpenReadAsync();
+            await using var stream = async ? await file.OpenReadAsync() : await file.OpenReadAsync();
             using var streamReader = new StreamReader(stream, encoding ?? Encoding.UTF8);
 
             return async ? await streamReader.ReadToEndAsync() : await streamReader.ReadToEndAsync();
@@ -73,7 +73,7 @@ namespace Smartstore
                 return null;
             }
 
-            using var stream = async ? await file.OpenReadAsync() : await file.OpenReadAsync();
+            await using var stream = async ? await file.OpenReadAsync() : await file.OpenReadAsync();
             return async ? await stream.ToByteArrayAsync() : await stream.ToByteArrayAsync();
         }
     }

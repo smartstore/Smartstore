@@ -254,7 +254,7 @@ namespace Smartstore.Engine.Modularity.NuGet
                 var nupkgStream = sourceResult.Stream ?? File.OpenRead(sourceResult.CacheFile);
 
                 // Copy remote stream to local file.
-                using (var outStream = new FileStream(packageFilePath, FileMode.Create))
+                await using (var outStream = new FileStream(packageFilePath, FileMode.Create))
                 {
                     await nupkgStream.CopyToAsync(outStream, 8192, cancelToken);
                 }

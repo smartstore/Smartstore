@@ -60,7 +60,7 @@ namespace Smartstore.Web.Bundling
                 return;
             }
 
-            using (await AsyncLock.KeyedAsync("bm_" + cacheKey))
+            await using (await AsyncLock.KeyedAsync("bm_" + cacheKey))
             {
                 // Double paranoia check
                 bundleResponse = await _bundleCache.GetResponseAsync(cacheKey, bundle);

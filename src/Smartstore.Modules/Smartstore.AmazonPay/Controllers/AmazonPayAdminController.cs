@@ -146,7 +146,7 @@ namespace Smartstore.AmazonPay.Controllers
             var storeScope = GetActiveStoreScopeConfiguration();
             var settings = await Services.SettingFactory.LoadSettingsAsync<AmazonPaySettings>(storeScope);
 
-            using var sourceStream = Request.Form.Files[0].OpenReadStream();
+            await using var sourceStream = Request.Form.Files[0].OpenReadStream();
             var privateKey = await sourceStream.AsStringAsync();
 
             settings.PrivateKey = privateKey.TrimSafe();

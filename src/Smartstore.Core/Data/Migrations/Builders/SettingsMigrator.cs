@@ -27,7 +27,7 @@ namespace Smartstore.Core.Data.Migrations
             var toDelete = new List<Setting>();
             var toAdd = new List<Setting>();
 
-            using var scope = new DbContextScope(_db, autoDetectChanges: false, minHookImportance: HookImportance.Essential);
+            await using var scope = new DbContextScope(_db, autoDetectChanges: false, minHookImportance: HookImportance.Essential);
 
             // First perform DELETE actions
             foreach (var entry in entries.Where(x => x.Value == null))

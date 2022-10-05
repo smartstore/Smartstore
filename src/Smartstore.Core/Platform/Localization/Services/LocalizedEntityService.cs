@@ -171,7 +171,7 @@ namespace Smartstore.Core.Localization
         {
             Guard.NotEmpty(localeKeyGroup, nameof(localeKeyGroup));
 
-            using (new DbContextScope(_db, lazyLoading: false))
+            await using (new DbContextScope(_db, lazyLoading: false))
             {
                 var query = from x in _db.LocalizedProperties.AsNoTracking()
                             where x.LocaleKeyGroup == localeKeyGroup

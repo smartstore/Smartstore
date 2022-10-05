@@ -15,7 +15,7 @@ namespace Smartstore.Core.Logging
         {
             var numDeleted = await _db.Logs.CountAsync(cancelToken);
 
-            using var tx = await _db.Database.BeginTransactionAsync(cancelToken);
+            await using var tx = await _db.Database.BeginTransactionAsync(cancelToken);
 
             await _db.DataProvider.TruncateTableAsync<Log>();
             await _db.DataProvider.SetTableIncrementAsync<Log>(1);

@@ -479,7 +479,7 @@ namespace Smartstore.Admin.Controllers
 
                 if (file != null && file.Length > 0)
                 {
-                    using var stream = file.OpenReadStream();
+                    await using var stream = file.OpenReadStream();
                     var xml = await stream.AsStringAsync();
 
                     await _xmlResourceManager.ImportResourcesFromXmlAsync(language, xml, null, false, mode, updateTouched);
@@ -702,7 +702,7 @@ namespace Smartstore.Admin.Controllers
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(MediaTypeNames.Text.Xml));
             client.DefaultRequestHeaders.Add("Authorization-Key", storeUrl.EmptyNull().TrimEnd('/'));
 
-            using var inStream = await client.GetStreamAsync(downloadUrl, cancelToken);
+            await using var inStream = await client.GetStreamAsync(downloadUrl, cancelToken);
             var document = new XmlDocument();
             document.Load(inStream);
 

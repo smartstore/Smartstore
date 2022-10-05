@@ -42,7 +42,7 @@ namespace Smartstore.Core.Localization
 
             using var psb = StringBuilderPool.Instance.Get(out var sb);
             var stringWriter = new StringWriter(sb);
-            using var xmlWriter = new XmlTextWriter(stringWriter);
+            await using var xmlWriter = new XmlTextWriter(stringWriter);
 
             xmlWriter.WriteStartDocument();
             xmlWriter.WriteStartElement("Language");

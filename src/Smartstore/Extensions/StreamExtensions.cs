@@ -146,13 +146,13 @@ namespace Smartstore
 
             try
             {
-                using (var outStream = new FileStream(
-                    destinationPath,
-                    FileMode.Create,
-                    FileAccess.Write,
-                    FileShare.None,
-                    bufferSize: 4096,
-                    useAsync: true))
+                await using (var outStream = new FileStream(
+                                 destinationPath,
+                                 FileMode.Create,
+                                 FileAccess.Write,
+                                 FileShare.None,
+                                 bufferSize: 4096,
+                                 useAsync: true))
                 {
                     await stream.CopyToAsync(outStream);
                 }
@@ -188,7 +188,7 @@ namespace Smartstore
 
             try
             {
-                using (var outStream = await destinationFile.OpenWriteAsync())
+                await using (var outStream = await destinationFile.OpenWriteAsync())
                 {
                     await stream.CopyToAsync(outStream);
                 }

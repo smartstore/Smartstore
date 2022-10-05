@@ -322,9 +322,9 @@ namespace Smartstore.Web.Theming
 
             var sb = new StringBuilder(1000);
 
-            using (var xmlWriter = XmlWriter.Create(sb))
+            await using (var xmlWriter = XmlWriter.Create(sb))
             {
-                xmlWriter.WriteStartDocument();
+                await xmlWriter.WriteStartDocumentAsync();
                 xmlWriter.WriteStartElement("ThemeVars");
                 xmlWriter.WriteAttributeString("for", themeName);
 
@@ -342,12 +342,12 @@ namespace Smartstore.Web.Theming
                     xmlWriter.WriteStartElement("Var");
                     xmlWriter.WriteAttributeString("name", name);
                     xmlWriter.WriteAttributeString("type", info.TypeAsString);
-                    xmlWriter.WriteString(value);
-                    xmlWriter.WriteEndElement();
+                    await xmlWriter.WriteStringAsync(value);
+                    await xmlWriter.WriteEndElementAsync();
                 }
 
-                xmlWriter.WriteEndElement();
-                xmlWriter.WriteEndDocument();
+                await xmlWriter.WriteEndElementAsync();
+                await xmlWriter.WriteEndDocumentAsync();
             }
 
             return sb.ToString();

@@ -303,7 +303,7 @@ namespace Smartstore.Admin.Controllers
             {
                 foreach (var file in files)
                 {
-                    using var fileStream = await file.OpenReadAsync();
+                    await using var fileStream = await file.OpenReadAsync();
                     var entry = zipArchive.CreateEntry(file.Name, CompressionLevel.Fastest);
 
                     var lastWriteTime = file.LastModified;
@@ -313,7 +313,7 @@ namespace Smartstore.Admin.Controllers
                     }
                     entry.LastWriteTime = lastWriteTime;
 
-                    using var entryStream = entry.Open();
+                    await using var entryStream = entry.Open();
                     await fileStream.CopyToAsync(entryStream);
                 }
             }

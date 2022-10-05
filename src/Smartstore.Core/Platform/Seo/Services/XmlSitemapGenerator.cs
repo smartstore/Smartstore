@@ -311,7 +311,7 @@ namespace Smartstore.Core.Seo
 
                     CheckSitemapCount(totalSegments);
 
-                    using (new DbContextScope(_db, autoDetectChanges: false, forceNoTracking: true, lazyLoading: false))
+                    await using (new DbContextScope(_db, autoDetectChanges: false, forceNoTracking: true, lazyLoading: false))
                     {
                         var entities = EnlistEntitiesAsync(providers);
 

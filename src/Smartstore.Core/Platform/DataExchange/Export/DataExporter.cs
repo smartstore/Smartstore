@@ -165,8 +165,8 @@ namespace Smartstore.Core.DataExchange.Export
             await dir.FileSystem.TryDeleteFileAsync(zipFile);
             dir.FileSystem.ClearDirectory(dir, false, TimeSpan.Zero);
 
-            using (await AsyncLock.KeyedAsync(lockKey, null, cancelToken))
-            using (var logger = new TraceLogger(logFile, false))
+            await using (await AsyncLock.KeyedAsync(lockKey, null, cancelToken))
+            await using (var logger = new TraceLogger(logFile, false))
             {
                 try
                 {
@@ -184,7 +184,7 @@ namespace Smartstore.Core.DataExchange.Export
                         throw new SmartException("You do not have permission to perform the selected export.");
                     }
 
-                    using (var scope = new DbContextScope(_db, autoDetectChanges: false, forceNoTracking: true))
+                    await using (var scope = new DbContextScope(_db, autoDetectChanges: false, forceNoTracking: true))
                     {
                         var stores = await Init(ctx);
 
@@ -1464,7 +1464,7 @@ namespace Smartstore.Core.DataExchange.Export
                 body.Append("</p>");
             }
 
-            using var message = new MailMessage
+            await using var message = new MailMessage
             {
                 From = new(emailAccount.Email, emailAccount.DisplayName),
                 Subject = (await _services.Localization.GetResourceAsync("Admin.DataExchange.Export.CompletedEmail.Subject", languageId)).FormatInvariant(ctx.Request.Profile.Name),

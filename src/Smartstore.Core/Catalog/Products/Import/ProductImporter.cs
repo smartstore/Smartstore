@@ -103,7 +103,7 @@ namespace Smartstore.Core.DataExchange.Import
             var segmenter = context.DataSegmenter;
             var batch = segmenter.GetCurrentBatch<Product>();
 
-            using (var scope = new DbContextScope(_db, autoDetectChanges: false, minHookImportance: HookImportance.Important, deferCommit: true))
+            await using (var scope = new DbContextScope(_db, autoDetectChanges: false, minHookImportance: HookImportance.Important, deferCommit: true))
             {
                 await context.SetProgressAsync(segmenter.CurrentSegmentFirstRowIndex - 1, segmenter.TotalRows);
 
@@ -797,7 +797,7 @@ namespace Smartstore.Core.DataExchange.Import
             var entityName = await _services.Localization.GetLocalizedEnumAsync(RelatedEntityType.TierPrice, _services.WorkContext.WorkingLanguage.Id);
             var savedEntities = 0;
 
-            using (var scope = new DbContextScope(_db, autoDetectChanges: false, minHookImportance: HookImportance.Important, deferCommit: true))
+            await using (var scope = new DbContextScope(_db, autoDetectChanges: false, minHookImportance: HookImportance.Important, deferCommit: true))
             {
                 await context.SetProgressAsync(T("Admin.Common.ProcessingInfo", entityName, segmenter.CurrentSegmentFirstRowIndex - 1, segmenter.TotalRows));
 
@@ -887,7 +887,7 @@ namespace Smartstore.Core.DataExchange.Import
             var entityName = await _services.Localization.GetLocalizedEnumAsync(RelatedEntityType.ProductVariantAttributeValue, _services.WorkContext.WorkingLanguage.Id);
             var savedEntities = 0;
 
-            using (var scope = new DbContextScope(_db, autoDetectChanges: false, minHookImportance: HookImportance.Important, deferCommit: true))
+            await using (var scope = new DbContextScope(_db, autoDetectChanges: false, minHookImportance: HookImportance.Important, deferCommit: true))
             {
                 await context.SetProgressAsync(T("Admin.Common.ProcessingInfo", entityName, segmenter.CurrentSegmentFirstRowIndex - 1, segmenter.TotalRows));
 
@@ -972,7 +972,7 @@ namespace Smartstore.Core.DataExchange.Import
             var attributesColumnName = nameof(ProductVariantAttributeCombination.RawAttributes);
             var savedEntities = 0;
 
-            using (var scope = new DbContextScope(_db, autoDetectChanges: false, minHookImportance: HookImportance.Important, deferCommit: true))
+            await using (var scope = new DbContextScope(_db, autoDetectChanges: false, minHookImportance: HookImportance.Important, deferCommit: true))
             {
                 await context.SetProgressAsync(T("Admin.Common.ProcessingInfo", entityName, segmenter.CurrentSegmentFirstRowIndex - 1, segmenter.TotalRows));
 

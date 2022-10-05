@@ -662,7 +662,7 @@ namespace Smartstore.Admin.Controllers
                         // Customer roles.
                         if (allowManagingCustomerRoles)
                         {
-                            using var scope = new DbContextScope(ctx: Services.DbContext, autoDetectChanges: false);
+                            await using var scope = new DbContextScope(ctx: Services.DbContext, autoDetectChanges: false);
                             var existingMappings = customer.CustomerRoleMappings
                                 .Where(x => !x.IsSystemMapping)
                                 .ToMultimap(x => x.CustomerRoleId, x => x);

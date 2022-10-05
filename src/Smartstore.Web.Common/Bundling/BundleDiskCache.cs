@@ -62,7 +62,7 @@ namespace Smartstore.Web.Bundling
                     var content = await ReadFile(dir, ResolveBundleContentFileName(bundle));
                     if (content == null)
                     {
-                        using (await AsyncLock.KeyedAsync(BuildLockKey(dir.Name)))
+                        await using (await AsyncLock.KeyedAsync(BuildLockKey(dir.Name)))
                         {
                             InvalidateAssetInternal(dir);
                             return null;
@@ -105,7 +105,7 @@ namespace Smartstore.Web.Bundling
 
             var dir = GetCacheDirectory(cacheKey);
 
-            using (await AsyncLock.KeyedAsync(BuildLockKey(dir.Name)))
+            await using (await AsyncLock.KeyedAsync(BuildLockKey(dir.Name)))
             {
                 await dir.CreateAsync();
 

@@ -188,7 +188,7 @@ namespace Smartstore.Core.Content.Media
             if (!tracks.Any())
                 return;
 
-            using (var scope = new DbContextScope(_db, minHookImportance: HookImportance.Important, autoDetectChanges: false))
+            await using (var scope = new DbContextScope(_db, minHookImportance: HookImportance.Important, autoDetectChanges: false))
             {
                 // Get the album (necessary later to set FolderId)...
                 MediaFolderNode albumNode = albumName.HasValue()

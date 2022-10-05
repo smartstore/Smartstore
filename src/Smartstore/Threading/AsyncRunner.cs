@@ -140,7 +140,7 @@ namespace Smartstore.Threading
 
             var t = Task.Factory.StartNew(async () =>
             {
-                using var scope = CreateScope();
+                await using var scope = CreateScope();
                 await function(scope, cancelToken);
             }, cancelToken, TaskCreationOptions.LongRunning, TaskScheduler.Default).Unwrap();
 
@@ -159,7 +159,7 @@ namespace Smartstore.Threading
 
             var t = Task.Factory.StartNew(async () =>
             {
-                using var scope = CreateScope();
+                await using var scope = CreateScope();
                 return await function(scope, cancelToken);
             }, cancelToken, TaskCreationOptions.LongRunning, TaskScheduler.Default).Unwrap();
 

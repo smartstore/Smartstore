@@ -79,7 +79,7 @@ namespace Smartstore.Core.Content.Media
         {
             // Is post-app module installation
 
-            using (var stream = await source.OpenReadAsync())
+            await using (var stream = await source.OpenReadAsync())
             {
                 if (mediaFile.MediaType == MediaType.Image)
                 {

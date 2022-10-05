@@ -29,7 +29,7 @@ namespace Smartstore.Web.Controllers
             ctx.Response.ContentType = "application/rss+xml";
 
             using var stream = new MemoryStream();
-            using var writer = XmlWriter.Create(stream, settings);
+            await using var writer = XmlWriter.Create(stream, settings);
 
             rssFormatter.WriteTo(writer);
             await writer.FlushAsync();

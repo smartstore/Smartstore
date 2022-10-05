@@ -194,7 +194,7 @@ namespace Smartstore.Web.Controllers
                     return model;
                 }
 
-                using var scope = new DbContextScope(_db, retainConnection: true, deferCommit: true);
+                await using var scope = new DbContextScope(_db, retainConnection: true, deferCommit: true);
 
                 // PERF!!
                 var calculationOptions = _priceCalculationService.CreateDefaultOptions(true);

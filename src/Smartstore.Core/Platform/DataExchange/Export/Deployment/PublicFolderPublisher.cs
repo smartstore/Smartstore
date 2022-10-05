@@ -27,7 +27,7 @@ namespace Smartstore.Core.DataExchange.Export.Deployment
                 {
                     var zipFile = await source.Parent.GetFileAsync(context.ZipFile.Name);
 
-                    using var stream = await zipFile.OpenReadAsync(cancelToken);
+                    await using var stream = await zipFile.OpenReadAsync(cancelToken);
 
                     var newPath = PathUtility.Join(deploymentDir.SubPath, zipFile.Name);
                     var newFile = await deploymentDir.FileSystem.CreateFileAsync(newPath, stream, true);

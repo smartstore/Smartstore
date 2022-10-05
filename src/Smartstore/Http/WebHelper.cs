@@ -445,7 +445,7 @@ namespace Smartstore.Http
                 return host;
             }
 
-            using (await _asyncLock.LockAsync())
+            await using (await _asyncLock.LockAsync())
             {
                 if (_safeLocalHostNames.TryGetValue(requestUri.Port, out host))
                 {

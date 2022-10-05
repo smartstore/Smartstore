@@ -36,7 +36,7 @@ namespace Smartstore.Core.Identity.Rules
             var numAdded = 0;
             var rolesCount = 0;
 
-            using (var scope = new DbContextScope(_db, autoDetectChanges: false, minHookImportance: HookImportance.Important, deferCommit: true))
+            await using (var scope = new DbContextScope(_db, autoDetectChanges: false, minHookImportance: HookImportance.Important, deferCommit: true))
             {
                 // Delete existing system mappings.
                 var deleteQuery = _db.CustomerRoleMappings.Where(x => x.IsSystemMapping);

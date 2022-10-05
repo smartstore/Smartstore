@@ -53,7 +53,7 @@ namespace Smartstore.Core.Content.Media
             if (!exists)
             {
                 // Lock concurrent requests to same resource
-                using (await AsyncLock.KeyedAsync("ImageHandlerBase.Execute." + cachedImage.Path))
+                await using (await AsyncLock.KeyedAsync("ImageHandlerBase.Execute." + cachedImage.Path))
                 {
                     await ImageCache.RefreshInfoAsync(cachedImage);
 

@@ -56,7 +56,7 @@ namespace Smartstore.Core.DataExchange.Export.Deployment
                         MimeType = MimeTypes.MapNameToMimeType(name)
                     };
 
-                    using var item = MediaStorageItem.FromFile(file);
+                    await using var item = MediaStorageItem.FromFile(file);
                     await _dbMediaStorageProvider.ApplyBlobAsync(attachment, item, false);
 
                     queuedEmail.Attachments.Add(attachment);

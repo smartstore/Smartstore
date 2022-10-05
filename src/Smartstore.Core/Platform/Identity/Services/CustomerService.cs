@@ -129,7 +129,7 @@ INNER JOIN (
                 throw new SmartException("'Guests' role could not be loaded");
             }
 
-            using (new DbContextScope(_db, minHookImportance: HookImportance.Essential))
+            await using (new DbContextScope(_db, minHookImportance: HookImportance.Essential))
             {
                 // Non-essential hooks should NOT react to the insertion of a guest customer record.
                 // We want to prevent cache key lock recursion flaws this way: because a hook can trigger

@@ -403,8 +403,8 @@ namespace Smartstore.Admin.Controllers
             {
                 var account = (await _db.EmailAccounts.FindByIdAsync(model.EmailAccountId, false)) ?? _emailAccountService.GetDefaultEmailAccount();
 
-                using var msg = new MailMessage(to, model.Subject, model.Body, model.From);
-                using var client = await _mailService.Value.ConnectAsync(account);
+                await using var msg = new MailMessage(to, model.Subject, model.Body, model.From);
+                await using var client = await _mailService.Value.ConnectAsync(account);
 
                 await client.SendAsync(msg);
 

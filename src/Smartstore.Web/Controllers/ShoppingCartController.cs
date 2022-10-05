@@ -1022,7 +1022,7 @@ namespace Smartstore.Web.Controllers
                 IsTransient = true
             };
 
-            using var stream = postedFile.OpenReadStream();
+            await using var stream = postedFile.OpenReadStream();
             var mediaFile = await _downloadService.InsertDownloadAsync(download, stream, postedFile.FileName);
 
             return Json(new
@@ -1062,7 +1062,7 @@ namespace Smartstore.Web.Controllers
                 IsTransient = true
             };
 
-            using var stream = fileResult.OpenReadStream();
+            await using var stream = fileResult.OpenReadStream();
             var mediaFile = await _downloadService.InsertDownloadAsync(download, stream, fileResult.FileName);
 
             return Json(new

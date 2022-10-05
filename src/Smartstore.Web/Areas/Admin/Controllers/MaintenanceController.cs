@@ -747,8 +747,8 @@ namespace Smartstore.Admin.Controllers
                         ? await fs.GetFileAsync(newPath)
                         : await fs.GetFileAsync(path);
 
-                    using var sourceStream = uploadFile.OpenReadStream();
-                    using var targetStream = await targetFile.OpenWriteAsync();
+                    await using var sourceStream = uploadFile.OpenReadStream();
+                    await using var targetStream = await targetFile.OpenWriteAsync();
                     await sourceStream.CopyToAsync(targetStream);
 
                     NotifyInfo(T("Admin.System.Maintenance.DbBackup.BackupUploaded"));

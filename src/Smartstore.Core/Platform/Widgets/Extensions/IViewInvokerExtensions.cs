@@ -209,7 +209,7 @@ namespace Smartstore
         private static async Task<HtmlString> ExecuteCapturedAsync(Func<TextWriter, Task> executor)
         {
             using var psb = StringBuilderPool.Instance.Get(out var sb);
-            using (var writer = new StringWriter(sb))
+            await using (var writer = new StringWriter(sb))
             {
                 await executor(writer);
             }

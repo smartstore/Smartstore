@@ -529,7 +529,7 @@ namespace Smartstore.Scheduling
 
             try
             {
-                using (var scope = new DbContextScope(Db, retainConnection: true))
+                await using (var scope = new DbContextScope(Db, retainConnection: true))
                 {
                     foreach (var batch in idsToDelete.Chunk(128))
                     {

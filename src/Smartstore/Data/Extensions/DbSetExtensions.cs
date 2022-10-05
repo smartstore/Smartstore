@@ -345,7 +345,7 @@ namespace Smartstore
             var numDeleted = 0;
             var ctx = dbSet.GetDbContext();
 
-            using (var scope = new DbContextScope(ctx: ctx, autoDetectChanges: false, minHookImportance: HookImportance.Important))
+            await using (var scope = new DbContextScope(ctx: ctx, autoDetectChanges: false, minHookImportance: HookImportance.Important))
             {
                 var query = dbSet.AsQueryable();
                 if (predicate != null)

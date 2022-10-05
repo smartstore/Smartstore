@@ -239,7 +239,7 @@ namespace Smartstore.Core.DataExchange.Import
 
                         if (DownloadSucceeded(item))
                         {
-                            using var stream = File.OpenRead(item.Path);
+                            await using var stream = File.OpenRead(item.Path);
 
                             if (stream?.Length > 0)
                             {
@@ -379,7 +379,7 @@ namespace Smartstore.Core.DataExchange.Import
 
                     if (DownloadSucceeded(item))
                     {
-                        using var stream = File.OpenRead(item.Path);
+                        await using var stream = File.OpenRead(item.Path);
 
                         if (stream?.Length > 0)
                         {
@@ -673,7 +673,7 @@ namespace Smartstore.Core.DataExchange.Import
 
                         if (DownloadSucceeded(item))
                         {
-                            using var stream = File.OpenRead(item.Path);
+                            await using var stream = File.OpenRead(item.Path);
 
                             if (stream?.Length > 0)
                             {
@@ -831,7 +831,7 @@ namespace Smartstore.Core.DataExchange.Import
 
                     if (DownloadSucceeded(item))
                     {
-                        using var stream = File.OpenRead(item.Path);
+                        await using var stream = File.OpenRead(item.Path);
 
                         if (stream?.Length > 0)
                         {
@@ -951,7 +951,7 @@ namespace Smartstore.Core.DataExchange.Import
 
                     if (DownloadSucceeded(item))
                     {
-                        using var stream = File.OpenRead(item.Path);
+                        await using var stream = File.OpenRead(item.Path);
 
                         if (stream?.Length > 0)
                         {

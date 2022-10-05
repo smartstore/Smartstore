@@ -274,7 +274,7 @@ namespace Smartstore.Data.Providers
             var sqlCommands = TokenizeSqlScript(sqlScript);
             var rowsAffected = 0;
 
-            using var tx = await Database.BeginTransactionAsync(cancelToken);
+            await using var tx = await Database.BeginTransactionAsync(cancelToken);
             try
             {
                 foreach (var command in sqlCommands)

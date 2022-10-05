@@ -42,7 +42,7 @@
             Guard.NotNull(converter, nameof(converter));
             Guard.NotNull(output, nameof(output));
 
-            using (var outStream = await converter.GeneratePdfAsync(settings, cancelToken))
+            await using (var outStream = await converter.GeneratePdfAsync(settings, cancelToken))
             {
                 await outStream.CopyToAsync(output, cancelToken);
             }

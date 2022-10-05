@@ -84,7 +84,7 @@ namespace Smartstore.Core.Logging
 
         public virtual async Task ClearAllActivitiesAsync(CancellationToken cancelToken = default)
         {
-            using var tx = await _db.Database.BeginTransactionAsync(cancelToken);
+            await using var tx = await _db.Database.BeginTransactionAsync(cancelToken);
 
             await _db.DataProvider.TruncateTableAsync<ActivityLog>();
             await _db.DataProvider.SetTableIncrementAsync<ActivityLog>(1);

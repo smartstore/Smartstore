@@ -105,9 +105,9 @@ namespace Smartstore.Core.Content.Media.Storage
                 var dir = Path.GetDirectoryName(filePath);
                 await _fileSystem.TryCreateDirectoryAsync(dir);
 
-                using (item)
+                await using (item)
                 {
-                    using var outStream = await (await _fileSystem.GetFileAsync(filePath)).OpenWriteAsync();
+                    await using var outStream = await (await _fileSystem.GetFileAsync(filePath)).OpenWriteAsync();
                     await item.SaveToAsync(outStream, mediaFile);
                     //mediaFile.Size = (int)outStream.Length;
                 }
@@ -172,7 +172,7 @@ namespace Smartstore.Core.Content.Media.Storage
             // store data into file
             if (stream != null)
             {
-                using (stream)
+                await using (stream)
                 {
                     if (stream.Length > 0)
                     {

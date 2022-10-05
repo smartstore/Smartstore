@@ -21,8 +21,8 @@ namespace Smartstore
 
             var file = async ? await fs.GetFileAsync(subpath) : await fs.GetFileAsync(subpath);
 
-            using var stream = async ? await file.OpenWriteAsync() : await file.OpenWriteAsync();
-            using var streamWriter = new StreamWriter(stream, encoding ?? new UTF8Encoding(false, true));
+            await using var stream = async ? await file.OpenWriteAsync() : await file.OpenWriteAsync();
+            await using var streamWriter = new StreamWriter(stream, encoding ?? new UTF8Encoding(false, true));
             if (async)
             {
                 await streamWriter.WriteAsync(contents);
@@ -49,7 +49,7 @@ namespace Smartstore
 
             var file = async ? await fs.GetFileAsync(subpath) : await fs.GetFileAsync(subpath);
 
-            using var stream = async ? await file.OpenWriteAsync() : await file.OpenWriteAsync();
+            await using var stream = async ? await file.OpenWriteAsync() : await file.OpenWriteAsync();
             await stream.WriteAsync(contents.AsMemory(0, contents.Length));
 
             if (async)
@@ -90,7 +90,7 @@ namespace Smartstore
 
             var file = async ? await fs.GetFileAsync(subpath) : await fs.GetFileAsync(subpath);
 
-            using (var stream = (async ? await file.OpenWriteAsync() : await file.OpenWriteAsync()))
+            await using (var stream = (async ? await file.OpenWriteAsync() : await file.OpenWriteAsync()))
             {
                 if (async)
                 {

@@ -60,7 +60,7 @@ namespace Smartstore.Web.Api
             }
 
             var num = 0;
-            using var db = await _dbContextFactory.CreateDbContextAsync();
+            await using var db = await _dbContextFactory.CreateDbContextAsync();
 
             foreach (var chunk in usersToStore.Chunk(100))
             {

@@ -62,7 +62,7 @@ namespace Smartstore.Core.DataExchange.Import
                 return;
 
             var (ctx, logFile) = await CreateImporterContext(request, profile, cancelToken);
-            using var logger = new TraceLogger(logFile, false);
+            await using var logger = new TraceLogger(logFile, false);
             ctx.Log = ctx.ExecuteContext.Log = logger;
 
             try
@@ -97,7 +97,7 @@ namespace Smartstore.Core.DataExchange.Import
                                 ? (new CsvConfigurationConverter().ConvertFrom<CsvConfiguration>(profile.FileTypeConfiguration) ?? CsvConfiguration.ExcelFriendlyConfiguration)
                                 : CsvConfiguration.ExcelFriendlyConfiguration;
 
-                            using var stream = await file.File.OpenReadAsync(cancelToken);
+                            await using var stream = await file.File.OpenReadAsync(cancelToken);
 
                             context.File = file;
                             context.ColumnMap = file.RelatedType.HasValue ? new ColumnMap() : ctx.ColumnMap;
@@ -116,7 +116,7 @@ namespace Smartstore.Core.DataExchange.Import
 
                             while (context.Abort == DataExchangeAbortion.None && segmenter.ReadNextBatch())
                             {
-                                using var batchScope = _scopeAccessor.LifetimeScope.BeginLifetimeScope();
+                                await using var batchScope = _scopeAccessor.LifetimeScope.BeginLifetimeScope();
 
                                 // Apply changes made by TaskContextVirtualizer.VirtualizeAsync (e.g. required for checking permissions).
                                 batchScope.Resolve<IWorkContext>().CurrentCustomer = _services.WorkContext.CurrentCustomer;
@@ -270,7 +270,7 @@ namespace Smartstore.Core.DataExchange.Import
 
             body.Append("</p>");
 
-            using var message = new MailMessage
+            await using var message = new MailMessage
             {
                 From = new(emailAccount.Email, emailAccount.DisplayName),
                 Subject = T("Admin.DataExchange.Import.CompletedEmail.Subject").Value.FormatInvariant(profile.Name),
