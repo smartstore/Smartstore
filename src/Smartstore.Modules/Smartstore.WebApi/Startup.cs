@@ -3,14 +3,14 @@ using Autofac;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.OData;
-using Microsoft.AspNetCore.OData.Formatter;
+using Microsoft.AspNetCore.OData.Batch;
 using Microsoft.AspNetCore.OData.Formatter.Deserialization;
+using Microsoft.AspNetCore.OData.Formatter.Serialization;
+using Microsoft.AspNetCore.OData.NewtonsoftJson;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
-using Microsoft.OData;
-using Microsoft.OData.Json;
 using Microsoft.OData.ModelBuilder;
 using Microsoft.OpenApi.Models;
 using Smartstore.Engine;
@@ -154,10 +154,14 @@ namespace Smartstore.Web.Api
                     o.EnableQueryFeatures(WebApiSettings.DefaultMaxTop);
                     o.AddRouteComponents("odata/v1", edmModel, services =>
                     {
-                        // Perf: https://devblogs.microsoft.com/odata/using-the-new-json-writer-in-odata/
-                        // TODO: (mg) (core) You should investigate the side effects of this decision: the UTF8 writer
-                        // produces slightly different output than Newtonsoft writer and does ignore our beloved attributes (JsonIgnore etc.)
-                        services.AddSingleton<IStreamBasedJsonWriterFactory>(_ => DefaultStreamBasedJsonWriterFactory.Default);
+                        //services.AddSingleton<ODataSerializerProvider>(sp => new MySerializerProvider(sp));
+
+                        var bh = new DefaultODataBatchHandler();
+                        bh.MessageQuotas.MaxNestingDepth = 2;
+                        bh.MessageQuotas.MaxOperationsPerChangeset = 10;
+                        bh.MessageQuotas.MaxReceivedMessageSize = 100;
+
+                        services.AddSingleton<ODataBatchHandler>(_ => bh);
                     });
 
                     // TODO: (mg) (core) a) remove masses (!) of unwanted entities in OData metadata.
@@ -168,7 +172,10 @@ namespace Smartstore.Web.Api
                     o.TimeZone = TimeZoneInfo.Utc;
                     o.RouteOptions.EnableUnqualifiedOperationCall = true;
                     //o.Conventions.Add(new CustomRoutingConvention());
-                });
+                })
+                // TODO: (mg) (core) no progress, just calls IMvcBuilder.AddNewtonsoftJson again and adds some converters.
+                // OData never uses Newtonsoft to serialize API response.
+                .AddODataNewtonsoftJson();
         }
 
         public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext)
@@ -224,10 +231,9 @@ namespace Smartstore.Web.Api
                     // Add OData /$query middleware.
                     app.UseODataQueryRequest();
 
-                    // TODO: (mg) (core) Enable OData batching via app.UseODataBatching(). See: https://devblogs.microsoft.com/odata/tutorial-creating-a-service-with-odata-8-0/
-                    // PS: that document looks outdated. MapODataRoute and ODataOptions.AddModel does not exist anymore.
+                    // TODO: (mg) (core) batching does not work. 500 on all nested requests. CORS issue? What about CORS anyway?
                     // Add the OData Batch middleware to support OData $Batch.
-                    //app.UseODataBatching();
+                    app.UseODataBatching();
 
                     // If you want to use /$openapi, enable the middleware.
                     //app.UseODataOpenApi();
