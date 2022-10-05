@@ -20,9 +20,9 @@ namespace Smartstore.Core.Theming
         /// asset caching is enabled
         /// </summary>
         /// <value>
-        /// 0: Auto (decide based on debug mode)
-        /// 1: Disabled
-        /// 2: Enabled > default
+        /// 0 = Auto (decide based on debug mode)
+        /// 1 = Disabled
+        /// 2 = Enabled > default
         /// </value>
         public int AssetCachingEnabled { get; set; } = 2;
 

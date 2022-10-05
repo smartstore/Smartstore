@@ -4,10 +4,73 @@
 
 @{
     Layout = null;
+
+    var progressUrl = Url.Action("Progress", "Install");
+    var finalizeUrl = Url.Action("Finalize", "Install");
+    var checkAliveUrl = Url.Content("~/taskscheduler/noop");
 }
 
-<h2 id="install-message">@InstallService.GetResource("Installing")</h2>
+@functions {
+    private string T(string key)
+    {
+        return InstallService.GetResource(key);
+    }
+}
+
+@*<h2 id="install-message">@T("Installing")</h2>
 
 <p id="install-progress" style="font-size: 16px; font-weight: 400; margin: 10px 0 30px 0">
     @Model.ProgressMessage
-</p>
+</p>*@
+
+<script sm-target-zone="scripts" data-origin="auto-install">
+    var progressIntervall;
+
+    function checkProgress() {
+        $.ajax({
+            url: '@progressUrl',
+            dataType: "json",
+            async: true,
+            type: "POST",
+            cache: false,
+            success: function (data, status) {
+                console.log(data);
+
+                if (!data.Completed) {
+					if (data.ProgressMessage !== undefined && _.isString(data.ProgressMessage) && data.ProgressMessage) {
+						console.log(data.ProgressMessage);
+                        $("#install-progress").html(data.ProgressMessage);
+                    }
+                }
+                else {
+                    $("#install-progress").html("");
+                    finalizeInstallation(data.Success);
+                }
+            },
+            error: function () {
+                console.log("ERROR");
+                //handleError(arguments[0].responseText);
+            }
+        });
+    }
+
+    function finalizeInstallation(success) {
+        $.ajax({
+            url: '@finalizeUrl',
+            data: { restart: success },
+            dataType: "json",
+            async: false,
+            global: false,
+            type: "POST"
+        });
+    }
+
+    $(function () {
+        $.throbber.show({
+            message: '<div id="install-message">@T("Installing")</div><div id="install-progress" style="font-size: 16px; font-weight: 400; margin: 10px 0 30px 0"></div>',
+        });
+
+        // start the checkprogress interval
+        progressIntervall = window.setInterval(checkProgress, 1500);
+    });
+</script>

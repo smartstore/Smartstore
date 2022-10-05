@@ -5,6 +5,8 @@
 @{
     Layout = null;
     var availableLanguages = ViewBag.AvailableInstallationLanguages as IList<SelectListItem>;
+    var progressUrl = Url.Action("Progress", "Install");
+    var finalizeUrl = Url.Action("Finalize", "Install");
     var checkAliveUrl = Url.Content("~/taskscheduler/noop");
 }
 
@@ -364,7 +366,7 @@
 
         function checkProgress() {
             $.ajax({
-                url: '@Url.Action("Progress", "Install")',
+                url: '@progressUrl',
                 dataType: "json",
                 async: true,
                 type: "POST",
@@ -391,7 +393,7 @@
 
         function finalizeInstallation(success) {
             $.ajax({
-                url: '@Url.Action("Finalize", "Install")',
+                url: '@finalizeUrl',
                 data: { restart: success },
                 dataType: "json",
                 async: false,

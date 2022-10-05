@@ -26,8 +26,8 @@ namespace Smartstore.Data
         private static bool? _installed;
         private static bool _testMode;
 
-        protected const char SEPARATOR = ':';
-        protected const string SETTINGS_FILENAME = "Settings.txt";
+        protected const char SettingSeparator = ':';
+        protected const string SettingsFileName = "Settings.txt";
 
         #region Static members
 
@@ -83,12 +83,11 @@ namespace Smartstore.Data
         public static bool DatabaseIsInstalled()
         {
             if (_testMode)
-                return false;
-
-            if (_installed == null)
             {
-                _installed = Instance.IsValid();
+                return false;
             }
+
+            _installed ??= Instance.IsValid();
 
             return _installed.Value;
         }
@@ -113,7 +112,11 @@ namespace Smartstore.Data
             {
                 using (_rwLock.GetWriteLock())
                 {
-                    if (_instance.TenantRoot.TryDeleteFile(SETTINGS_FILENAME))
+                    try
+                    {
+                        _instance.TenantRoot.ClearDirectory(_instance.TenantRoot.GetDirectory(""), false, TimeSpan.Zero);
+                    }
+                    finally
                     {
                         _installed = null;
                         _instance = null;
@@ -159,9 +162,9 @@ namespace Smartstore.Data
                     return false;
                 }
 
-                if (TenantRoot.FileExists(SETTINGS_FILENAME) && !_testMode)
+                if (TenantRoot.FileExists(SettingsFileName) && !_testMode)
                 {
-                    string text = TenantRoot.ReadAllText(SETTINGS_FILENAME);
+                    string text = TenantRoot.ReadAllText(SettingsFileName);
                     var settings = ParseSettings(text);
                     if (settings.Any())
                     {
@@ -218,7 +221,7 @@ namespace Smartstore.Data
             return (DbFactory)Activator.CreateInstance(dbFactoryType);
         }
 
-        protected void Reset()
+        public void Reset()
         {
             using (_rwLock.GetWriteLock())
             {
@@ -236,11 +239,13 @@ namespace Smartstore.Data
         public virtual bool Save()
         {
             if (!IsValid())
+            {
                 return false;
+            } 
 
             using (_rwLock.GetWriteLock())
             {
-                TenantRoot.WriteAllText(SETTINGS_FILENAME, SerializeSettings());
+                TenantRoot.WriteAllText(SettingsFileName, SerializeSettings());
                 return true;
             }
         }
@@ -310,7 +315,7 @@ namespace Smartstore.Data
 
             foreach (var setting in settings)
             {
-                var separatorIndex = setting.IndexOf(SEPARATOR);
+                var separatorIndex = setting.IndexOf(SettingSeparator);
                 if (separatorIndex == -1)
                 {
                     continue;

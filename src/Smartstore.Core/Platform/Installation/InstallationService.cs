@@ -248,17 +248,20 @@ namespace Smartstore.Core.Installation
                     Logger.Info(x.ProgressMessage);
                 });
 
-                //for (var i = 1; i <= 15; i++)
+                #region Test
+                //var num = 15;
+                //for (var i = 1; i <= num; i++)
                 //{
                 //    cancelToken.ThrowIfCancellationRequested();
 
                 //    Progress(x =>
                 //    {
-                //        x.ProgressMessage = $"Executing step {i} of 5";
+                //        x.ProgressMessage = $"Executing step {i} of {num}";
                 //    });
 
                 //    await Task.Delay(2000, cancelToken);
                 //}
+                #endregion
 
                 // ===>>> Creates database
                 await db.Database.EnsureCreatedSchemalessAsync(cancelToken);
@@ -338,7 +341,7 @@ namespace Smartstore.Core.Installation
                     realException = realException.InnerException;
                 }
 
-                if (!object.Equals(ex, realException))
+                if (!Equals(ex, realException))
                 {
                     msg += " (" + realException.Message + ")";
                 }
