@@ -95,8 +95,6 @@ namespace Smartstore.Web.Controllers
 
         public async Task<IActionResult> Index(bool noAutoInstall = false)
         {
-            // TODO: (core) Check for running installation
-            // TODO: (core) Form: display info about running installation and disable button
             // TODO: (core) Call CallbackUrl
 
             var result = _installService.GetCurrentInstallationResult();
@@ -105,32 +103,36 @@ namespace Smartstore.Web.Controllers
                 // Install already running, we gonna need the result in UI
                 ViewBag.InstallResult = result;
 
-                if (!result.Model.IsAutoInstall)
-                {
-                    // Prepare form stuff only if NOT autoinstall
-                    PrepareInstallForm();
-                }
-
+                PrepareInstallForm();
                 return View(result.Model);
             }
 
             if (!noAutoInstall && TryGetAutoInstallModel(out var model))
             {
+                if (!TryValidateModel(model))
+                {
+                    // Must validate model explicitly, no model binding here.
+                    PrepareInstallForm();
+                    return View(model);
+                }
+                
+                // Do AutoInstall!
                 result = await _installService.InstallAsync(model, HttpContext.RequestServices.AsLifetimeScope());
 
                 if (!result.Completed || result.HasErrors)
                 {
                     await _asyncState.RemoveAsync<InstallationResult>();
                 }
-                //if (result.Completed && result.Success)
-                //{
-                //    // TODO: (core) Let autoinstall view call Finalize() via AJAX like form
-                //    _hostApplicationLifetime.StopApplication();
-                //}
+
+                if (result.Completed && result.Success)
+                {
+                    _hostApplicationLifetime.StopApplication();
+                }
+
                 return Json(result);
             }
             
-            // Here we know it is NOT autoinstall...
+            // From here on we know it is NOT autoinstall...
 
             model = result?.Model ?? new InstallationModel
             {
@@ -138,7 +140,6 @@ namespace Smartstore.Web.Controllers
             };
 
             PrepareInstallForm();
-
             return View(model);
         }
 
@@ -149,7 +150,9 @@ namespace Smartstore.Web.Controllers
             if (!ModelState.IsValid)
             {
                 var result = new InstallationResult(model);
-                ModelState.SelectMany(x => x.Value.Errors).Each(x => result.Errors.Add(x.ErrorMessage));
+
+                CopyModelErrors(result);
+
                 return Json(result);
             }
             else
@@ -196,15 +199,33 @@ namespace Smartstore.Web.Controllers
         {
             model = null;
 
-            var file = _appContext.AppDataRoot.GetFile("autoinstall.json");
-            if (file.Exists)
+            try
             {
-                var json = file.ReadAllText();
-                model = JsonConvert.DeserializeObject<InstallationModel>(json);
-                model.IsAutoInstall = true;
+                var file = _appContext.AppDataRoot.GetFile("installmodel.json");
+                if (file.Exists)
+                {
+                    var json = file.ReadAllText();
+                    model = JsonConvert.DeserializeObject<InstallationModel>(json);
+
+                    // Otherwise validation fails
+                    model.ConfirmPassword = model.AdminPassword;
+
+                    model.IsAutoInstall = true;
+                }
+            }
+            catch
+            {
             }
 
             return model != null;
+        }
+
+        private void CopyModelErrors(InstallationResult result)
+        {
+            foreach (var modelError in ModelState.SelectMany(x => x.Value.Errors))
+            {
+                result.Errors.Add(modelError.ErrorMessage);
+            }
         }
     }
 }

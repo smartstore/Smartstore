@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Drawing.Text;
 using FluentValidation;
 
 namespace Smartstore.Core.Installation
@@ -60,20 +61,25 @@ namespace Smartstore.Core.Installation
     {
         public InstallationModelValidator(IInstallationService installService)
         {
-            RuleFor(x => x.AdminEmail).NotEmpty().WithMessage(installService.GetResource("AdminEmailRequired")).EmailAddress();
-            RuleFor(x => x.AdminPassword).NotEmpty().WithMessage(installService.GetResource("AdminPasswordRequired"));
-            RuleFor(x => x.ConfirmPassword).NotEmpty().WithMessage(installService.GetResource("ConfirmPasswordRequired"));
-            RuleFor(x => x.AdminPassword).Equal(x => x.ConfirmPassword).WithMessage(installService.GetResource("PasswordsDoNotMatch"));
+            RuleFor(x => x.AdminEmail).NotEmpty().WithMessage(Res("AdminEmailRequired")).EmailAddress();
+            RuleFor(x => x.AdminPassword).NotEmpty().WithMessage(Res("AdminPasswordRequired"));
+            RuleFor(x => x.ConfirmPassword).NotEmpty().WithMessage(Res("ConfirmPasswordRequired"));
+            RuleFor(x => x.AdminPassword).Equal(x => x.ConfirmPassword).WithMessage(Res("PasswordsDoNotMatch"));
             RuleFor(x => x.DataProvider).NotEmpty();
             RuleFor(x => x.PrimaryLanguage).NotEmpty();
 
-            RuleFor(x => x.DbRawConnectionString).NotEmpty().When(x => x.UseRawConnectionString).WithMessage(installService.GetResource("DbRawConnectionStringRequired"));
-            RuleFor(x => x.DbServer).NotEmpty().When(x => !x.UseRawConnectionString).WithMessage(installService.GetResource("DbServerRequired"));
-            RuleFor(x => x.DbName).NotEmpty().When(x => !x.UseRawConnectionString).WithMessage(installService.GetResource("DbNameRequired"));
+            RuleFor(x => x.DbRawConnectionString).NotEmpty().When(x => x.UseRawConnectionString).WithMessage(Res("DbRawConnectionStringRequired"));
+            RuleFor(x => x.DbServer).NotEmpty().When(x => !x.UseRawConnectionString).WithMessage(Res("DbServerRequired"));
+            RuleFor(x => x.DbName).NotEmpty().When(x => !x.UseRawConnectionString).WithMessage(Res("DbNameRequired"));
 
             RuleFor(x => x.DbUserId).NotEmpty()
                 .When(x => !x.UseRawConnectionString && x.DbAuthType != "windows")
-                .WithMessage(installService.GetResource("DbUserIdRequired"));
+                .WithMessage(Res("DbUserIdRequired"));
+
+            string Res(string key)
+            {
+                return installService.GetResource(key);
+            }
         }
     }
 }

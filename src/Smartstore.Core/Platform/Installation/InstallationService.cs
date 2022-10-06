@@ -29,23 +29,22 @@ namespace Smartstore.Core.Installation
         private readonly IApplicationContext _appContext;
         private readonly IFilePermissionChecker _filePermissionChecker;
         private readonly IAsyncState _asyncState;
-        private readonly IUrlHelper _urlHelper;
         private readonly IEnumerable<Lazy<InvariantSeedData, InstallationAppLanguageMetadata>> _seedDatas;
+        private readonly string _urlHome;
 
         public InstallationService(
             IHttpContextAccessor httpContextAccessor,
             IApplicationContext appContext,
             IFilePermissionChecker filePermissionChecker,
             IAsyncState asyncState,
-            IUrlHelper urlHelper,
             IEnumerable<Lazy<InvariantSeedData, InstallationAppLanguageMetadata>> seedDatas)
         {
             _httpContextAccessor = httpContextAccessor;
             _appContext = appContext;
             _filePermissionChecker = filePermissionChecker;
             _asyncState = asyncState;
-            _urlHelper = urlHelper;
             _seedDatas = seedDatas;
+            _urlHome = (_httpContextAccessor?.HttpContext?.Request?.PathBase.Value ?? string.Empty) + "/";
 
             Logger = _appContext.Logger;
         }
@@ -67,7 +66,7 @@ namespace Smartstore.Core.Installation
                 {
                     Success = true,
                     ProgressMessage = "Application already installed",
-                    RedirectUrl = _urlHelper.Action("Index", "Home")
+                    RedirectUrl = _urlHome
                 };
 
                 Logger.Info(result.ProgressMessage);
@@ -310,7 +309,7 @@ namespace Smartstore.Core.Installation
                 {
                     x.Completed = true;
                     x.Success = true;
-                    x.RedirectUrl = _urlHelper.Action("Index", "Home");
+                    x.RedirectUrl = _urlHome;
                     Logger.Info("Installation completed successfully");
                 });
             }

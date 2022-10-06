@@ -64,6 +64,11 @@
 
             <div class="install-panel">
                 <div class="install-content">
+                    @if (Model.IsAutoInstall && !ViewData.ModelState.IsValid)
+                    {
+                        <div asp-validation-summary="All"></div>
+                    }
+
                     <p class="fs-h6 text-muted">
                         @T("Tooltip1").
                     </p>
@@ -278,7 +283,6 @@
     var authType = $('#DbAuthType');
     var userId = $('#DbUserId');
     var password = $('#DbPassword');
-    var checkAliveInterval;
 
     $(function () {
         dataProvider.on('change', toggleDataProvider).trigger('change');
@@ -341,129 +345,4 @@
             password.attr("disabled", "disabled");
         }
     }
-
-    function checkAlive(redirectUrl) {
-        $.ajax({
-            type: "GET",
-            cache: false,
-            url: "@checkAliveUrl",
-            global: false,
-            success: function() {
-                clearInterval(checkAliveInterval);
-
-                // Redirection sometimes fails in Chrome. Therefore we we delay and repeat the call until it succeeds.
-                setTimeout(() => {
-                    setInterval(() => {
-                        location.replace(redirectUrl);
-                    }, 1000);
-                }, 1000);
-            }
-        });
-    }
-
-    var Installation = (function () {
-        var progressIntervall;
-
-        function checkProgress() {
-            $.ajax({
-                url: '@progressUrl',
-                dataType: "json",
-                async: true,
-                type: "POST",
-                cache: false,
-                success: function (data, status) {
-                    console.log(data);
-
-                    if (!data.Completed) {
-						if (data.ProgressMessage !== undefined && _.isString(data.ProgressMessage) && data.ProgressMessage) {
-							console.log(data.ProgressMessage);
-                        	$("#install-progress").html(data.ProgressMessage);
-                        }
-                    }
-                    else {
-                        $("#install-progress").html("");
-                    }
-                },
-                error: function () {
-                    console.log("ERROR");
-                    handleError(arguments[0].responseText);
-                }
-            });
-        }
-
-        function finalizeInstallation(success) {
-            $.ajax({
-                url: '@finalizeUrl',
-                data: { restart: success },
-                dataType: "json",
-                async: false,
-                global: false,
-                type: "POST"
-            });
-        }
-
-		function handleError(errors) {
-            var validationSummary = $("#messages");
-            var ul = validationSummary.find("ul");
-            ul.html("");
-
-            if ($.isArray(errors)) {
-                for (i = 0; i < errors.length; i++) {
-                    ul.append("<li class='last-mb-0'>" + errors[i] + "</li>");
-                }
-            }
-            else {
-				ul.append("<li class='last-mb-0'>" + errors + "</li>");
-            }
-            validationSummary.removeClass("hide");
-            $.scrollTo(validationSummary, 400, { offset: -10 });
-            $("#install-button").removeAttr("disabled");
-
-            $("#install-progress").html("");
-        }
-
-        return {
-
-            onStart: function (context) {
-                rememberFormFields("install-form", "installPrefs");
-
-                $.throbber.show({
-                    message: '<div id="install-message">@T("Installing")</div><div id="install-progress" style="font-size: 16px; font-weight: 400; margin: 10px 0 30px 0"></div>',
-                });
-
-                // start the checkprogress interval
-                progressIntervall = window.setInterval(checkProgress, 1500);
-
-                $("#install-button").attr("disabled", "disabled");
-            },
-
-            onSuccess: function (data) {
-                finalizeInstallation(data.Success);
-
-                if (data.Success) {
-                    $("#install-message").html("@T("Common.StartShop")");
-                    $("#install-progress").html('<span class="redirect-info">@Html.Raw(T("Progress.Redirect").FormatInvariant(Url.Action("Index", "Home")))</span>');
-
-                    checkAliveInterval = setInterval(function () {
-                        checkAlive(data.RedirectUrl);
-                    }, 1000);
-                }
-                else {
-                    $.throbber.hide();
-                    if (data.HasErrors) {
-                        handleError(data.Errors);
-                    }
-                }
-            },
-
-            onFailure: function (context) {
-                handleError(context);
-            },
-
-            onComplete: function () {
-                window.clearInterval(progressIntervall);
-                $("#install-button").removeAttr("disabled");
-            }
-        };
-    })();
 </script>
