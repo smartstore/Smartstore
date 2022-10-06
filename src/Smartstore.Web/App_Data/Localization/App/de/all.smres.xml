@@ -15547,9 +15547,6 @@
 	<LocaleResource Name="Enums.ShoppingCartType.Wishlist">
 		<Value>Wunschliste</Value>
 	</LocaleResource>
-	<LocaleResource Name="Enums.Smartstore.__Migrated__">
-		<Value />
-	</LocaleResource>
 	<LocaleResource Name="Enums.SmartStore.Core.Domain.Blogs.PreviewDisplayType.Bare">
 		<Value>Minimal (kein Bild, kein Hintergrund)</Value>
 	</LocaleResource>
