@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.Serialization;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Newtonsoft.Json;
 
 namespace Smartstore.Core.Checkout.Orders
 {
@@ -56,7 +56,7 @@ namespace Smartstore.Core.Checkout.Orders
         /// <summary>
         /// Gets the order
         /// </summary>
-        [JsonIgnore]
+        [IgnoreDataMember]
         public Order Order
         {
             get => _order ?? LazyLoader.Load(this, ref _order);

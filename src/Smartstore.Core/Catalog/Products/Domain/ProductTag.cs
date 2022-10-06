@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.Serialization;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Newtonsoft.Json;
 using Smartstore.Core.Localization;
 
 namespace Smartstore.Core.Catalog.Products
@@ -43,7 +43,7 @@ namespace Smartstore.Core.Catalog.Products
         /// <summary>
         /// Gets or sets the products.
         /// </summary>
-        [JsonIgnore]
+        [IgnoreDataMember]
         public ICollection<Product> Products
         {
             get => _products ?? LazyLoader.Load(this, ref _products) ?? (_products ??= new HashSet<Product>());

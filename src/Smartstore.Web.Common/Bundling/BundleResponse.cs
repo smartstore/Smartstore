@@ -1,7 +1,7 @@
-﻿using System.Security.Cryptography;
+﻿using System.Runtime.Serialization;
+using System.Security.Cryptography;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.FileProviders;
-using Newtonsoft.Json;
 
 namespace Smartstore.Web.Bundling
 {
@@ -68,7 +68,7 @@ namespace Smartstore.Web.Bundling
             }
         }
 
-        [JsonIgnore]
+        [IgnoreDataMember]
         public string ContentHash
         {
             get => _contentHash ??= (_content != null && _content.Length > 0 ? ComputeHash(_content) : string.Empty);
@@ -85,7 +85,7 @@ namespace Smartstore.Web.Bundling
         /// </summary>
         public string[] ProcessorCodes { get; set; } = Array.Empty<string>();
 
-        [JsonIgnore]
+        [IgnoreDataMember]
         public IFileProvider FileProvider { get; set; }
 
         internal static string ComputeHash(string content)

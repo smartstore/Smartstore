@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.Serialization;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Newtonsoft.Json;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Stores;
 using Smartstore.Data.Caching;
@@ -122,7 +122,7 @@ namespace Smartstore.Core.Common
         /// <summary>
         /// Gets or sets the default currency.
         /// </summary>
-        [JsonIgnore]
+        [IgnoreDataMember]
         public Currency DefaultCurrency
         {
             get => _defaultCurrency ?? LazyLoader.Load(this, ref _defaultCurrency);

@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.Serialization;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Newtonsoft.Json;
 using Smartstore.Core.Rules;
 using Smartstore.Core.Security;
 
@@ -119,7 +119,7 @@ namespace Smartstore.Core.Identity
         /// <summary>
         /// Gets or sets assigned rule sets.
         /// </summary>
-        [JsonIgnore]
+        [IgnoreDataMember]
         public ICollection<RuleSetEntity> RuleSets
         {
             get => _ruleSets ?? LazyLoader.Load(this, ref _ruleSets) ?? (_ruleSets ??= new HashSet<RuleSetEntity>());

@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Runtime.Serialization;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
-using Newtonsoft.Json;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Discounts;
@@ -92,7 +92,7 @@ namespace Smartstore.Admin.Models.Catalog
         [LocalizedDisplay("*Download")]
         public int? DownloadId { get; set; }
 
-        [JsonIgnore]
+        [IgnoreDataMember]
         public string DownloadThumbUrl { get; set; }
         public Download CurrentDownload { get; set; }
         public MediaFileInfo CurrentFile { get; set; }
@@ -234,7 +234,7 @@ namespace Smartstore.Admin.Models.Catalog
         [LocalizedDisplay("*BundlePerItemShoppingCart")]
         public bool BundlePerItemShoppingCart { get; set; }
 
-        [JsonIgnore]
+        [IgnoreDataMember]
         public bool IsBundleWithItemPricing
             => ProductTypeId == (int)ProductType.BundledProduct && BundlePerItemPricing;
 

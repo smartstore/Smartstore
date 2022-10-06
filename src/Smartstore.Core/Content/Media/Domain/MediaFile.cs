@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.Serialization;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Newtonsoft.Json;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Localization;
 
@@ -185,7 +185,7 @@ namespace Smartstore.Core.Content.Media
         /// <summary>
         /// Gets or sets a value indicating whether the file has been soft deleted.
         /// </summary>
-        [JsonIgnore]
+        [IgnoreDataMember]
         public bool Deleted { get; set; }
 
         bool ISoftDeletable.ForceDeletion
@@ -197,14 +197,14 @@ namespace Smartstore.Core.Content.Media
         /// <summary>
         /// Gets or sets a value indicating whether the file is hidden.
         /// </summary>
-        [JsonIgnore]
+        [IgnoreDataMember]
         public bool Hidden { get; set; }
 
         /// <summary>
         /// Internally used for migration stuff only.
         /// 0 = needs migration because existed in previous versions already, 1 = was migrated by migrator, 2 = relations have been detected.
         /// </summary>
-        [JsonIgnore]
+        [IgnoreDataMember]
         public int Version { get; set; } = 2;
 
         /// <inheritdoc/>
@@ -212,7 +212,7 @@ namespace Smartstore.Core.Content.Media
 
         private MediaStorage _mediaStorage;
         /// <inheritdoc/>
-        [JsonIgnore]
+        [IgnoreDataMember]
         public MediaStorage MediaStorage
         {
             get => _mediaStorage ?? LazyLoader.Load(this, ref _mediaStorage);

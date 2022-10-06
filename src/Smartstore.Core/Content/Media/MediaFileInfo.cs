@@ -2,6 +2,7 @@
 using System.Drawing;
 using System.Globalization;
 using System.Runtime.CompilerServices;
+using System.Runtime.Serialization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.FileProviders;
 using Newtonsoft.Json;
@@ -64,7 +65,7 @@ namespace Smartstore.Core.Content.Media
 
         #endregion
 
-        [JsonIgnore]
+        [IgnoreDataMember]
         public MediaFile File { get; private set; }
 
         [JsonProperty("id")]
@@ -124,7 +125,7 @@ namespace Smartstore.Core.Content.Media
         [JsonProperty("thumbUrl", NullValueHandling = NullValueHandling.Ignore)]
         internal string ThumbUrl => GetUrl(ThumbSize, string.Empty);
 
-        [JsonIgnore]
+        [IgnoreDataMember]
         internal int ThumbSize
         {
             // For serialization of "ThumbUrl" in MediaManager
@@ -153,11 +154,11 @@ namespace Smartstore.Core.Content.Media
         #region IFile
 
         /// <inheritdoc/>
-        [JsonIgnore]
+        [IgnoreDataMember]
         public bool Exists => File.Id > 0;
 
         /// <inheritdoc/>
-        [JsonIgnore]
+        [IgnoreDataMember]
         bool IFileInfo.IsDirectory => false;
 
         /// <inheritdoc/>
@@ -173,7 +174,7 @@ namespace Smartstore.Core.Content.Media
         public string Name => File.Name;
 
         /// <inheritdoc/>
-        [JsonIgnore]
+        [IgnoreDataMember]
         string IFileInfo.PhysicalPath => Path;
 
         /// <inheritdoc/>
@@ -182,12 +183,12 @@ namespace Smartstore.Core.Content.Media
 
 
         /// <inheritdoc/>
-        [JsonIgnore]
+        [IgnoreDataMember]
         IFileSystem IFileEntry.FileSystem
             => throw new NotSupportedException();
 
         /// <inheritdoc/>
-        [JsonIgnore]
+        [IgnoreDataMember]
         string IFileEntry.SubPath => Path;
 
         /// <inheritdoc/>

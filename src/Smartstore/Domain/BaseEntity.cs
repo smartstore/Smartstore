@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Runtime.CompilerServices;
+using System.Runtime.Serialization;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Newtonsoft.Json;
 using Smartstore.Data;
 
 namespace Smartstore.Domain
@@ -23,7 +23,7 @@ namespace Smartstore.Domain
             _lazyLoader = lazyLoader;
         }
 
-        [JsonIgnore]
+        [IgnoreDataMember]
         protected internal virtual ILazyLoader LazyLoader
         {
             get => _lazyLoader ?? NullLazyLoader.Instance;

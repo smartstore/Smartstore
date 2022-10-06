@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.Serialization;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Newtonsoft.Json;
@@ -181,7 +182,7 @@ namespace Smartstore.Core.Catalog.Categories
         /// <summary>
         /// Gets or sets the available price ranges.
         /// </summary>
-        [JsonIgnore, Obsolete("Price ranges are calculated automatically since version 3.")]
+        [IgnoreDataMember, Obsolete("Price ranges are calculated automatically since version 3.")]
         [StringLength(400)]
         public string PriceRanges { get; set; }
 
@@ -204,7 +205,7 @@ namespace Smartstore.Core.Catalog.Categories
         /// <summary>
         /// Gets or sets a value indicating whether the entity has been deleted.
         /// </summary>
-        [JsonIgnore]
+        [IgnoreDataMember]
         public bool Deleted { get; set; }
 
         /// <summary>
@@ -228,7 +229,7 @@ namespace Smartstore.Core.Catalog.Categories
         /// <summary>
         /// Gets or sets assigned rule sets.
         /// </summary>
-        [JsonIgnore]
+        [IgnoreDataMember]
         public ICollection<RuleSetEntity> RuleSets
         {
             get => LazyLoader?.Load(this, ref _ruleSets) ?? (_ruleSets ??= new HashSet<RuleSetEntity>());

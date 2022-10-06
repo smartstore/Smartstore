@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.Serialization;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Newtonsoft.Json;
 using Smartstore.Data.Caching;
 
 namespace Smartstore.Core.Content.Media
@@ -33,7 +33,7 @@ namespace Smartstore.Core.Content.Media
         /// <summary>
         /// Gets or sets the associated media files.
         /// </summary>
-        [JsonIgnore]
+        [IgnoreDataMember]
         public ICollection<MediaFile> MediaFiles
         {
             get => _mediaFiles ?? LazyLoader.Load(this, ref _mediaFiles) ?? (_mediaFiles ??= new HashSet<MediaFile>());

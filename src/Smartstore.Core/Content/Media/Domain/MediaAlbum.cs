@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+﻿using System.Runtime.Serialization;
 
 namespace Smartstore.Core.Content.Media
 {
@@ -10,7 +10,7 @@ namespace Smartstore.Core.Content.Media
         /// <summary>
         /// Gets or sets the display name resource key.
         /// </summary>
-        [JsonIgnore]
+        [IgnoreDataMember]
         public string ResKey { get; set; }
 
         /// <summary>

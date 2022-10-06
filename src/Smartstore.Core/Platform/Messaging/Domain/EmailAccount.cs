@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Newtonsoft.Json;
+using System.Runtime.Serialization;
 using Smartstore.Data.Caching;
 using Smartstore.Net.Mail;
 
@@ -62,7 +62,7 @@ namespace Smartstore.Core.Messaging
         /// <summary>
         /// Gets a friendly email account name.
         /// </summary>
-        [NotMapped, JsonIgnore]
+        [NotMapped, IgnoreDataMember]
         public string FriendlyName
         {
             get

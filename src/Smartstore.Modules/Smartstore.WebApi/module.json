@@ -12,7 +12,6 @@
   "ProjectUrl": "http://community.smartstore.com/marketplace/file/27-smartstorenet-web-api/",
   "PrivateReferences": [
     "Microsoft.OpenApi",
-    "Microsoft.AspNetCore.OData.NewtonsoftJson",
     "Swashbuckle.AspNetCore.Swagger",
     "Swashbuckle.AspNetCore.SwaggerGen",
     "Swashbuckle.AspNetCore.SwaggerUI",

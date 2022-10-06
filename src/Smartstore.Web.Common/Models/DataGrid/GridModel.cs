@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Runtime.Serialization;
 using Newtonsoft.Json;
 
 namespace Smartstore.Web.Models.DataGrid
@@ -24,7 +25,7 @@ namespace Smartstore.Web.Models.DataGrid
         [JsonProperty("rows")]
         public IEnumerable<T> Rows { get; set; }
 
-        [JsonIgnore]
+        [IgnoreDataMember]
         IEnumerable IGridModel.Rows
             => this.Rows;
 

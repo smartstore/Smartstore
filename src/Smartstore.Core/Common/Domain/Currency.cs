@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Globalization;
+using System.Runtime.Serialization;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Newtonsoft.Json;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Stores;
 using Smartstore.Data.Caching;
@@ -151,7 +151,7 @@ namespace Smartstore.Core.Common
 
         private NumberFormatInfo _numberFormat;
 
-        [NotMapped, JsonIgnore]
+        [NotMapped, IgnoreDataMember]
         public NumberFormatInfo NumberFormat
         {
             get

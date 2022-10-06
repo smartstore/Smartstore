@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
+﻿using System.Runtime.Serialization;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Newtonsoft.Json;
 using Smartstore.Web.Modelling;
 
@@ -16,10 +17,10 @@ namespace Smartstore.Web.Models.DataGrid
     [ModelBinder(BinderType = typeof(GridCommandModelBinder))]
     public class GridCommand
     {
-        [JsonIgnore]
+        [IgnoreDataMember]
         public string GridId { get; set; }
 
-        [JsonIgnore]
+        [IgnoreDataMember]
         public bool InitialRequest { get; set; }
 
         /// <summary>

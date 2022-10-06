@@ -1,5 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
-
+using System.Runtime.Serialization;
 using Microsoft.Extensions.FileProviders;
 using Newtonsoft.Json;
 using Smartstore.Collections;
@@ -31,7 +31,7 @@ namespace Smartstore.Core.Content.Media
             _now = DateTimeOffset.UtcNow;
         }
 
-        [JsonIgnore]
+        [IgnoreDataMember]
         public TreeNode<MediaFolderNode> Node { get; }
 
         [JsonProperty("filesCount")]
@@ -51,23 +51,23 @@ namespace Smartstore.Core.Content.Media
         #region IDirectory
 
         /// <inheritdoc/>
-        [JsonIgnore]
+        [IgnoreDataMember]
         public bool Exists => Node.Value.Id > 0;
 
         /// <inheritdoc/>
-        [JsonIgnore]
+        [IgnoreDataMember]
         bool IFileInfo.IsDirectory => true;
 
         /// <inheritdoc/>
-        [JsonIgnore]
+        [IgnoreDataMember]
         DateTimeOffset IFileEntry.CreatedOn => _now;
 
         /// <inheritdoc/>
-        [JsonIgnore]
+        [IgnoreDataMember]
         DateTimeOffset IFileInfo.LastModified => _now;
 
         /// <inheritdoc/>
-        [JsonIgnore]
+        [IgnoreDataMember]
         long IFileInfo.Length => -1;
 
         /// <inheritdoc/>
@@ -75,7 +75,7 @@ namespace Smartstore.Core.Content.Media
         public string Name => Node.Value.Name;
 
         /// <inheritdoc/>
-        [JsonIgnore]
+        [IgnoreDataMember]
         string IFileInfo.PhysicalPath => Node.Value.Path;
 
         /// <inheritdoc/>
@@ -83,11 +83,11 @@ namespace Smartstore.Core.Content.Media
 
 
         /// <inheritdoc/>
-        [JsonIgnore]
+        [IgnoreDataMember]
         IFileSystem IFileEntry.FileSystem => throw new NotSupportedException();
 
         /// <inheritdoc/>
-        [JsonIgnore]
+        [IgnoreDataMember]
         string IFileEntry.SubPath => Node.Value.Path;
 
         /// <inheritdoc/>
@@ -99,11 +99,11 @@ namespace Smartstore.Core.Content.Media
 
 
         /// <inheritdoc/>
-        [JsonIgnore]
+        [IgnoreDataMember]
         bool IDirectory.IsRoot => false;
 
         /// <inheritdoc/>
-        [JsonIgnore]
+        [IgnoreDataMember]
         public IDirectory Parent => Node.Parent == null ? null : _mediaService.ConvertMediaFolder(Node.Parent);
 
         /// <inheritdoc/>

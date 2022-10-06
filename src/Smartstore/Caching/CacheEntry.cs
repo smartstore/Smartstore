@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Caching.Memory;
+﻿using System.Runtime.Serialization;
+using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json;
 using Smartstore.ComponentModel;
 using Smartstore.ComponentModel.JsonConverters;
@@ -20,7 +21,7 @@ namespace Smartstore.Caching
     public class CacheEntry : IObjectContainer, ICloneable<CacheEntry>
     {
         // Used for serialization compatibility
-        [JsonIgnore]
+        [IgnoreDataMember]
         public static readonly string Version = "1";
 
         /// <summary>
@@ -72,7 +73,7 @@ namespace Smartstore.Caching
         /// Whether time expiration policy should be applied to the entry
         /// in the underlying cache store. Defaults to <c>true</c>.
         /// </summary>
-        [JsonIgnore]
+        [IgnoreDataMember]
         public bool ApplyTimeExpirationPolicy { get; set; } = true;
 
         /// <summary>
@@ -88,10 +89,10 @@ namespace Smartstore.Caching
         /// </summary>
         public string[] Dependencies { get; set; } = Array.Empty<string>();
 
-        [JsonIgnore]
+        [IgnoreDataMember]
         public bool CancelTokenSourceOnRemove { get; set; } = true;
 
-        [JsonIgnore]
+        [IgnoreDataMember]
         public CancellationTokenSource CancellationTokenSource { get; set; } = new CancellationTokenSource();
 
         /// <summary>
@@ -99,7 +100,7 @@ namespace Smartstore.Caching
         /// Depending on the cache store provider, the item might still live in the cache although
         /// according to the expiration timeout, the item is already expired.
         /// </summary>
-        [JsonIgnore]
+        [IgnoreDataMember]
         public bool HasExpired
         {
             get => GetTimeToLive() <= TimeSpan.Zero;

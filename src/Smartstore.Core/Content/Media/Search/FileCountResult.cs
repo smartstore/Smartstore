@@ -1,10 +1,11 @@
-﻿using Newtonsoft.Json;
+﻿using System.Runtime.Serialization;
+using Newtonsoft.Json;
 
 namespace Smartstore.Core.Content.Media
 {
     public partial class FileCountResult
     {
-        [JsonIgnore]
+        [IgnoreDataMember]
         public MediaFilesFilter Filter { get; set; }
 
         [JsonProperty("total")]

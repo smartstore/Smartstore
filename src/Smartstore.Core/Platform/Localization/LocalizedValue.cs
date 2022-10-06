@@ -1,8 +1,8 @@
 ﻿using System.Globalization;
+using System.Runtime.Serialization;
 using System.Text.Encodings.Web;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Html;
-using Newtonsoft.Json;
 
 namespace Smartstore.Core.Localization
 {
@@ -22,10 +22,10 @@ namespace Smartstore.Core.Localization
             _currentLanguage = currentLanguage;
         }
 
-        [JsonIgnore]
+        [IgnoreDataMember]
         public Language RequestLanguage => _requestLanguage;
 
-        [JsonIgnore]
+        [IgnoreDataMember]
         public Language CurrentLanguage => _currentLanguage;
 
         public bool IsFallback => _requestLanguage != _currentLanguage;

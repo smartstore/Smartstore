@@ -1,9 +1,9 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.Serialization;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Newtonsoft.Json;
 using Smartstore.Core.Checkout.Cart;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Common;
@@ -104,20 +104,20 @@ namespace Smartstore.Core.Identity
         /// Gets or sets the password
         /// </summary>
         [StringLength(500)]
-        [JsonIgnore]
+        [IgnoreDataMember]
         public string Password { get; set; }
 
         /// <summary>
         /// Gets or sets the password format
         /// </summary>
-        [JsonIgnore]
+        [IgnoreDataMember]
         public int PasswordFormatId { get; set; }
 
         /// <summary>
         /// Gets or sets the password format
         /// </summary>
         [NotMapped]
-        [JsonIgnore]
+        [IgnoreDataMember]
         public PasswordFormat PasswordFormat
         {
             get => (PasswordFormat)PasswordFormatId;
@@ -128,7 +128,7 @@ namespace Smartstore.Core.Identity
         /// Gets or sets the password salt
         /// </summary>
         [StringLength(500)]
-        [JsonIgnore]
+        [IgnoreDataMember]
         public string PasswordSalt { get; set; }
 
         /// <summary>
@@ -243,7 +243,7 @@ namespace Smartstore.Core.Identity
         [Column("ShippingAddress_Id")]
         public int? ShippingAddressId { get; set; }
 
-        [NotMapped, JsonIgnore]
+        [NotMapped, IgnoreDataMember]
         public override CustomerAttributeCollection GenericAttributes
             => new(base.GenericAttributes);
 
@@ -283,7 +283,7 @@ namespace Smartstore.Core.Identity
         /// <summary>
         /// Gets or sets external authentication records.
         /// </summary>
-        [JsonIgnore]
+        [IgnoreDataMember]
         public ICollection<ExternalAuthenticationRecord> ExternalAuthenticationRecords
         {
             get => _externalAuthenticationRecords ?? LazyLoader.Load(this, ref _externalAuthenticationRecords) ?? (_externalAuthenticationRecords ??= new HashSet<ExternalAuthenticationRecord>());
@@ -294,7 +294,7 @@ namespace Smartstore.Core.Identity
         /// <summary>
         /// Gets or sets customer generated content.
         /// </summary>
-        [JsonIgnore]
+        [IgnoreDataMember]
         public ICollection<CustomerContent> CustomerContent
         {
             get => _customerContent ?? LazyLoader.Load(this, ref _customerContent) ?? (_customerContent ??= new HashSet<CustomerContent>());
@@ -315,7 +315,7 @@ namespace Smartstore.Core.Identity
         /// <summary>
         /// Gets or sets shopping cart items
         /// </summary>
-        [JsonIgnore]
+        [IgnoreDataMember]
         public ICollection<ShoppingCartItem> ShoppingCartItems
         {
             get => _shoppingCartItems ?? LazyLoader.Load(this, ref _shoppingCartItems) ?? (_shoppingCartItems ??= new HashSet<ShoppingCartItem>());
@@ -346,7 +346,7 @@ namespace Smartstore.Core.Identity
         /// <summary>
         /// Gets or sets the wallet history.
         /// </summary>
-        [JsonIgnore]
+        [IgnoreDataMember]
         public ICollection<WalletHistory> WalletHistory
         {
             get => _walletHistory ?? LazyLoader.Load(this, ref _walletHistory) ?? (_walletHistory ??= new HashSet<WalletHistory>());

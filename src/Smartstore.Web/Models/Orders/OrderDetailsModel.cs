@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+﻿using System.Runtime.Serialization;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Common.Settings;
@@ -30,7 +30,7 @@ namespace Smartstore.Web.Models.Orders
         public string PaymentMethod { get; set; }
         public string PaymentMethodSystemName { get; set; }
 
-        [JsonIgnore]
+        [IgnoreDataMember]
         public Order Order { get; set; }
 
         #region Offline payment data 

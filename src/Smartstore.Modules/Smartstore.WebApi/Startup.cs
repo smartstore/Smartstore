@@ -4,15 +4,14 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.OData;
 using Microsoft.AspNetCore.OData.Batch;
-using Microsoft.AspNetCore.OData.Formatter.Deserialization;
-using Microsoft.AspNetCore.OData.Formatter.Serialization;
-using Microsoft.AspNetCore.OData.NewtonsoftJson;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
+using Microsoft.OData.Json;
 using Microsoft.OData.ModelBuilder;
 using Microsoft.OpenApi.Models;
+using Parlot.Fluent;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;
 using Smartstore.Web.Api.Security;
@@ -119,7 +118,7 @@ namespace Smartstore.Web.Api
                             var stream = provider.GetXmlCommentsStream(appContext);
                             if (stream != null)
                             {
-                                // INFO: XPathDocument closes the input stream
+                                // INFO: XPathDocument closes the input stream.
                                 o.IncludeXmlComments(() => new XPathDocument(stream), true);
                             }
                         }
@@ -130,7 +129,10 @@ namespace Smartstore.Web.Api
                     }
                 });
 
-            // We are using Newtonsoft so we have to explicit opt-in. Needs to be placed after AddSwaggerGen().
+            // TODO: (mg) (core) the serialized examples in the documentation must become smaller (ExpansionDepth 1 or so). In the current form this is unusable.
+
+            // INFO: needs to be placed after AddSwaggerGen(). Without this statement, the examples in the documentation
+            // will contain everything, every tiny bit of any related object will be serialized.
             services.AddSwaggerGenNewtonsoftSupport();
         }
 
@@ -154,28 +156,30 @@ namespace Smartstore.Web.Api
                     o.EnableQueryFeatures(WebApiSettings.DefaultMaxTop);
                     o.AddRouteComponents("odata/v1", edmModel, services =>
                     {
+                        // Perf: https://devblogs.microsoft.com/odata/using-the-new-json-writer-in-odata/
+                        services.AddSingleton<IStreamBasedJsonWriterFactory>(_ => DefaultStreamBasedJsonWriterFactory.Default);
                         //services.AddSingleton<ODataSerializerProvider>(sp => new MySerializerProvider(sp));
 
                         var bh = new DefaultODataBatchHandler();
-                        bh.MessageQuotas.MaxNestingDepth = 2;
+                        bh.MessageQuotas.MaxNestingDepth = WebApiSettings.DefaultMaxExpansionDepth;
                         bh.MessageQuotas.MaxOperationsPerChangeset = 10;
-                        bh.MessageQuotas.MaxReceivedMessageSize = 100;
+                        bh.MessageQuotas.MaxReceivedMessageSize = WebApiSettings.DefaultMaxTop;
 
                         services.AddSingleton<ODataBatchHandler>(_ => bh);
                     });
 
                     // TODO: (mg) (core) a) remove masses (!) of unwanted entities in OData metadata.
-                    // See /odata/v1/$metadata. Everything except decorated with JsonIgnore is serialized.
+                    // See /odata/v1/$metadata. Everything except decorated with IgnoreDataMember is serialized.
                     // b) also remove masses (!) of unwanted schemas (entities) in Swagger. ISchemaFilter required?
                     // Example: RuleSetEntity is not part of the EDM but serialized via Category > AppliedDiscounts > RuleSets.
 
                     o.TimeZone = TimeZoneInfo.Utc;
                     o.RouteOptions.EnableUnqualifiedOperationCall = true;
                     //o.Conventions.Add(new CustomRoutingConvention());
-                })
-                // TODO: (mg) (core) no progress, just calls IMvcBuilder.AddNewtonsoftJson again and adds some converters.
-                // OData never uses Newtonsoft to serialize API response.
-                .AddODataNewtonsoftJson();
+                });
+
+                // INFO: no effect using OData 8.0.11 and OData.NewtonsoftJson 8.0.4. JSON is never written with Newtonsoft.Json.
+                //.AddODataNewtonsoftJson();
         }
 
         public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext)

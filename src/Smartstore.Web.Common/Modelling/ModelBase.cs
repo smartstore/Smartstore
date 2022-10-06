@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
+﻿using System.Runtime.Serialization;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Newtonsoft.Json;
 using Smartstore.Threading;
@@ -50,7 +51,7 @@ namespace Smartstore.Web.Modelling
         /// Use thread properties whenever you need to persist request-scoped data,
         /// but the model is potentially cached statically.
         /// </remarks>
-        [JsonIgnore]
+        [IgnoreDataMember]
         public IDictionary<string, object> CustomContextProperties
         {
             get

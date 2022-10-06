@@ -1,5 +1,5 @@
 ﻿using System.Diagnostics;
-using Newtonsoft.Json;
+using System.Runtime.Serialization;
 
 namespace Smartstore.Core.OutputCache
 {
@@ -27,10 +27,10 @@ namespace Smartstore.Core.OutputCache
         public string ContentType { get; set; }
         public int? ContentLength { get; set; }
 
-        [JsonIgnore]
+        [IgnoreDataMember]
         public string Content { get; set; }
 
-        [JsonIgnore]
+        [IgnoreDataMember]
         public DateTime ExpiresOnUtc => CachedOnUtc.AddSeconds(Duration);
 
         public bool IsValid(DateTime utcNow)

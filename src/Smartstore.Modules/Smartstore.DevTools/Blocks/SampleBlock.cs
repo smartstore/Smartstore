@@ -1,6 +1,6 @@
-﻿using FluentValidation;
+﻿using System.Runtime.Serialization;
+using FluentValidation;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Newtonsoft.Json;
 using Smartstore.Core.Content.Blocks;
 
 namespace Smartstore.DevTools.Blocks
@@ -80,8 +80,8 @@ namespace Smartstore.DevTools.Blocks
         public string Property { get; set; }
 
         // By default a block instance will be converted to JSON and stored in the 'Model' field of the 'PageStoryBlock' table.
-        // If your block type contains some special properties - e.g. volatile data for the edit mode - and you don't want them to be persisted, add the [JsonIgnore] attribute to your property.
-        [JsonIgnore]
+        // If your block type contains some special properties - e.g. volatile data for the edit mode - and you don't want them to be persisted, add the [IgnoreDataMember] attribute to your property.
+        [IgnoreDataMember]
         public List<SelectListItem> MyProperties { get; set; } = new();
     }
 

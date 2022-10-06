@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.Serialization;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Newtonsoft.Json;
 using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Localization;
@@ -120,7 +120,7 @@ namespace Smartstore.Core.Catalog.Brands
         /// <summary>
         /// Gets or sets the available price ranges.
         /// </summary>
-		[JsonIgnore, Obsolete("Price ranges are calculated automatically since version 3.")]
+		[IgnoreDataMember, Obsolete("Price ranges are calculated automatically since version 3.")]
         [StringLength(400)]
         public string PriceRanges { get; set; }
 
@@ -138,7 +138,7 @@ namespace Smartstore.Core.Catalog.Brands
         /// <summary>
         /// Gets or sets a value indicating whether the entity has been deleted.
         /// </summary>
-        [JsonIgnore]
+        [IgnoreDataMember]
         public bool Deleted { get; set; }
 
         /// <summary>

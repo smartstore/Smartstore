@@ -1,9 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.Serialization;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Newtonsoft.Json;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Localization;
 
@@ -52,7 +52,7 @@ namespace Smartstore.Core.Catalog.Attributes
         /// <summary>
         /// Gets or sets the product.
         /// </summary>
-        [JsonIgnore]
+        [IgnoreDataMember]
         public Product Product
         {
             get => _product ?? LazyLoader.Load(this, ref _product);

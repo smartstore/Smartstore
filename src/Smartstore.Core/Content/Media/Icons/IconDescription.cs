@@ -1,11 +1,12 @@
-﻿using Newtonsoft.Json;
+﻿using System.Runtime.Serialization;
+using Newtonsoft.Json;
 using Smartstore.Utilities;
 
 namespace Smartstore.Core.Content.Media.Icons
 {
     public class IconDescription : IEquatable<IconDescription>
     {
-        [JsonIgnore]
+        [IgnoreDataMember]
         public string Name { get; set; }
 
         [JsonProperty("label")]
@@ -20,21 +21,21 @@ namespace Smartstore.Core.Content.Media.Icons
         [JsonProperty("search")]
         public Search SearchInfo { get; set; }
 
-        [JsonIgnore]
+        [IgnoreDataMember]
         public bool IsBrandIcon
         {
             get;
             internal set;
         }
 
-        [JsonIgnore]
+        [IgnoreDataMember]
         public bool HasRegularStyle
         {
             get;
             internal set;
         }
 
-        [JsonIgnore]
+        [IgnoreDataMember]
         public bool IsPro
         {
             get;

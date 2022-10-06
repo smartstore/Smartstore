@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Runtime.Serialization;
 using FluentValidation;
-using Newtonsoft.Json;
 using Smartstore.Collections;
 
 namespace Smartstore.Admin.Models.Messages
@@ -9,7 +9,7 @@ namespace Smartstore.Admin.Models.Messages
     public class MessageTemplateModel : TabbableModel, ILocalizedModel<MessageTemplateLocalizedModel>
     {
         [LocalizedDisplay("*AllowedTokens")]
-        [JsonIgnore]
+        [IgnoreDataMember]
         public TreeNode<string> TokensTree { get; set; }
 
         [LocalizedDisplay("*Name")]
@@ -23,7 +23,7 @@ namespace Smartstore.Admin.Models.Messages
 
         [LocalizedDisplay("*AllowedTokens")]
 
-        [JsonIgnore]
+        [IgnoreDataMember]
         public string LastModelTree { get; set; }
 
         [LocalizedDisplay("*BccEmailAddresses")]

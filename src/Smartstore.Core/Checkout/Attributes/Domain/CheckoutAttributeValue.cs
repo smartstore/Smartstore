@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.Serialization;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Newtonsoft.Json;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Localization;
 using Smartstore.Data.Caching;
@@ -95,7 +95,7 @@ namespace Smartstore.Core.Checkout.Attributes
         /// <summary>
         /// Gets or sets the checkout attribute
         /// </summary>
-        [JsonIgnore]
+        [IgnoreDataMember]
         public CheckoutAttribute CheckoutAttribute
         {
             get => _checkoutAttribute ?? LazyLoader.Load(this, ref _checkoutAttribute);

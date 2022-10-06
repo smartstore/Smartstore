@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.Serialization;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Newtonsoft.Json;
 using Smartstore.Core.Identity;
 using Smartstore.Data.Caching;
 using Smartstore.Data.Hooks;
@@ -80,7 +80,7 @@ namespace Smartstore.Core.Logging
         /// <summary>
         /// Gets the customer
         /// </summary>
-        [JsonIgnore]
+        [IgnoreDataMember]
         public Customer Customer
         {
             get => _customer ?? LazyLoader.Load(this, ref _customer);

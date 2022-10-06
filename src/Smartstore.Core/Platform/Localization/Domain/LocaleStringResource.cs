@@ -1,9 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.Serialization;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Newtonsoft.Json;
 
 namespace Smartstore.Core.Localization
 {
@@ -97,7 +97,7 @@ namespace Smartstore.Core.Localization
         /// <summary>
         /// Gets or sets the language
         /// </summary>
-        [JsonIgnore]
+        [IgnoreDataMember]
         public Language Language
         {
             get => _language ?? LazyLoader.Load(this, ref _language);

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Concurrent;
 using System.Globalization;
 using System.Runtime.CompilerServices;
+using System.Runtime.Serialization;
 using System.Text.Encodings.Web;
 using Microsoft.AspNetCore.Html;
 using Newtonsoft.Json;
@@ -36,14 +37,14 @@ namespace Smartstore.Core.Common
             PostFormat = postFormat;
         }
 
-        [JsonIgnore]
+        [IgnoreDataMember]
         public bool HideCurrency
         {
             get;
             init;
         }
 
-        [JsonIgnore]
+        [IgnoreDataMember]
         public Currency Currency
         {
             get;

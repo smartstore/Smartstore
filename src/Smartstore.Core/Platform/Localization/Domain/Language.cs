@@ -2,9 +2,9 @@
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
+using System.Runtime.Serialization;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Newtonsoft.Json;
 using Smartstore.Core.Stores;
 using Smartstore.Data.Caching;
 
@@ -87,7 +87,7 @@ namespace Smartstore.Core.Localization
         /// <summary>
         /// Gets or sets locale string resources
         /// </summary>
-        [JsonIgnore]
+        [IgnoreDataMember]
         public ICollection<LocaleStringResource> LocaleStringResources
         {
             get => _localeStringResources ?? LazyLoader.Load(this, ref _localeStringResources) ?? (_localeStringResources ??= new HashSet<LocaleStringResource>());

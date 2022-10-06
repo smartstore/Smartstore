@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Runtime.Serialization;
 using Newtonsoft.Json;
 
 namespace Smartstore.Core.DataExchange.Import
@@ -97,7 +98,7 @@ namespace Smartstore.Core.DataExchange.Import
         /// <summary>
         /// The source name.
         /// </summary>
-        [JsonIgnore]
+        [IgnoreDataMember]
         public string SoureName { get; set; }
 
         /// <summary>

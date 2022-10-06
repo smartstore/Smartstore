@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.Serialization;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Newtonsoft.Json;
 using Smartstore.Core.Localization;
 
 namespace Smartstore.Core.Catalog.Products
@@ -137,7 +137,7 @@ namespace Smartstore.Core.Catalog.Products
         /// <summary>
         /// Gets or sets the attribute filters.
         /// </summary>
-        [JsonIgnore]
+        [IgnoreDataMember]
         public ICollection<ProductBundleItemAttributeFilter> AttributeFilters
         {
             get => _attributeFilters ?? LazyLoader.Load(this, ref _attributeFilters) ?? (_attributeFilters ??= new HashSet<ProductBundleItemAttributeFilter>());

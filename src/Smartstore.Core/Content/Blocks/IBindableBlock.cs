@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+﻿using System.Runtime.Serialization;
 
 namespace Smartstore.Core.Content.Blocks
 {
@@ -15,13 +15,13 @@ namespace Smartstore.Core.Content.Blocks
         /// <summary>
         /// The name of the bound entity, e.g. 'product'.
         /// </summary>
-        [JsonIgnore]
+        [IgnoreDataMember]
         string BindEntityName { get; set; }
 
         /// <summary>
         /// The id of the bound entity.
         /// </summary>
-        [JsonIgnore]
+        [IgnoreDataMember]
         int? BindEntityId { get; set; }
 
         /// <summary>
@@ -60,16 +60,16 @@ namespace Smartstore.Core.Content.Blocks
         public virtual string BindEntityName { get; set; }
         public virtual int? BindEntityId { get; set; }
 
-        [JsonIgnore]
+        [IgnoreDataMember]
         public bool CanBind => BindEntityName.HasValue() && BindEntityId.HasValue;
 
-        [JsonIgnore]
+        [IgnoreDataMember]
         public bool IsLoaded => DataItem != null;
 
-        [JsonIgnore]
+        [IgnoreDataMember]
         public IDictionary<string, object> DataItem { get; set; }
 
-        [JsonIgnore]
+        [IgnoreDataMember]
         public bool IsBound { get; set; }
 
         public void Reset()

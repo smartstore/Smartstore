@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.Serialization;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Newtonsoft.Json;
@@ -210,7 +211,7 @@ namespace Smartstore.Core.Catalog.Discounts
         /// <summary>
         /// Gets or sets assigned rule sets.
         /// </summary>
-        [JsonIgnore]
+        [IgnoreDataMember]
         public ICollection<RuleSetEntity> RuleSets
         {
             get => _ruleSets ?? LazyLoader.Load(this, ref _ruleSets) ?? (_ruleSets ??= new HashSet<RuleSetEntity>());
@@ -241,7 +242,7 @@ namespace Smartstore.Core.Catalog.Discounts
         /// <summary>
         /// Gets or sets the products to which the discount is applied.
         /// </summary>
-        [JsonIgnore]
+        [IgnoreDataMember]
         public ICollection<Product> AppliedToProducts
         {
             get => _appliedToProducts ?? LazyLoader.Load(this, ref _appliedToProducts) ?? (_appliedToProducts ??= new HashSet<Product>());

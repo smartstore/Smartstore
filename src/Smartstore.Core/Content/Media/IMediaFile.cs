@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+﻿using System.Runtime.Serialization;
 
 namespace Smartstore.Core.Content.Media
 {
@@ -14,7 +14,7 @@ namespace Smartstore.Core.Content.Media
         /// <summary>
         /// Gets or sets the media file.
         /// </summary>
-        [JsonIgnore]
+        [IgnoreDataMember]
         MediaFile MediaFile { get; set; }
 
         /// <summary>

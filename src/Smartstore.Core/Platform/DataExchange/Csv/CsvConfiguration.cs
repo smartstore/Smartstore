@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel;
-using Newtonsoft.Json;
+using System.Runtime.Serialization;
 
 namespace Smartstore.Core.DataExchange.Csv
 {
@@ -182,7 +182,7 @@ namespace Smartstore.Core.DataExchange.Csv
         /// <summary>
         /// Gets the concatenation of escape and quote char
         /// </summary>
-        [JsonIgnore]
+        [IgnoreDataMember]
         public string QuoteString => _quoteString;
 
         public bool QuoteAllFields { get; set; }

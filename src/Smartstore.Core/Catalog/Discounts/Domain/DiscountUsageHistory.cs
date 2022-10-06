@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Runtime.Serialization;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Newtonsoft.Json;
 using Smartstore.Core.Checkout.Orders;
 
 namespace Smartstore.Core.Catalog.Discounts
@@ -29,7 +29,7 @@ namespace Smartstore.Core.Catalog.Discounts
         /// <summary>
         /// Gets or sets the discount.
         /// </summary>
-        [JsonIgnore]
+        [IgnoreDataMember]
         public Discount Discount
         {
             get => _discount ?? LazyLoader.Load(this, ref _discount);
@@ -45,7 +45,7 @@ namespace Smartstore.Core.Catalog.Discounts
         /// <summary>
         /// Gets or sets the order.
         /// </summary>
-        [JsonIgnore]
+        [IgnoreDataMember]
         public Order Order
         {
             get => _order ?? LazyLoader.Load(this, ref _order);

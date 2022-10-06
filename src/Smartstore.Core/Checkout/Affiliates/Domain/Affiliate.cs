@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Runtime.Serialization;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Newtonsoft.Json;
 using Smartstore.Core.Common;
 
 namespace Smartstore.Core.Checkout.Affiliates
@@ -53,7 +53,7 @@ namespace Smartstore.Core.Checkout.Affiliates
         /// <summary>
         /// Gets or sets the address relating to the affiliate
         /// </summary>
-        [JsonIgnore]
+        [IgnoreDataMember]
         public Address Address
         {
             get => _address ?? LazyLoader.Load(this, ref _address);

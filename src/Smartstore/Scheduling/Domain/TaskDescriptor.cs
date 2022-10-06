@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.Serialization;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Newtonsoft.Json;
 using Smartstore.Data.Caching;
 using Smartstore.Data.Hooks;
 using Smartstore.Domain;
@@ -101,7 +101,7 @@ namespace Smartstore.Scheduling
         /// <summary>
         /// Gets infos about all past executions.
         /// </summary>
-        [JsonIgnore]
+        [IgnoreDataMember]
         public ICollection<TaskExecutionInfo> ExecutionHistory
         {
             get => _executionHistory ?? LazyLoader.Load(this, ref _executionHistory) ?? (_executionHistory ??= new HashSet<TaskExecutionInfo>());

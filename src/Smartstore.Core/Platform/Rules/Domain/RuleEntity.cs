@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.Serialization;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Newtonsoft.Json;
 
 namespace Smartstore.Core.Rules
 {
@@ -26,7 +26,7 @@ namespace Smartstore.Core.Rules
 
         private RuleSetEntity _ruleSet;
         [ForeignKey("RuleSetId")]
-        [JsonIgnore]
+        [IgnoreDataMember]
         public RuleSetEntity RuleSet
         {
             get => _ruleSet = LazyLoader.Load(this, ref _ruleSet);

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc.ViewFeatures;
+﻿using System.Runtime.Serialization;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Routing;
 using Newtonsoft.Json;
 
@@ -24,7 +25,7 @@ namespace Smartstore.Core.Content.Menus
 
         public RouteValueDictionary RouteValues { get; set; } = new();
 
-        [JsonIgnore]
+        [IgnoreDataMember]
         public ModifiedParameter ModifiedParam { get; } = new();
 
         /// <summary>

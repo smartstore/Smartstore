@@ -1,9 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.Serialization;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Newtonsoft.Json;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.GiftCards;
@@ -188,7 +188,7 @@ namespace Smartstore.Core.Checkout.Orders
         /// <summary>
         /// Gets or sets the associated gift card
         /// </summary>
-        [JsonIgnore]
+        [IgnoreDataMember]
         public ICollection<GiftCard> AssociatedGiftCards
         {
             get => _associatedGiftCards ?? LazyLoader.Load(this, ref _associatedGiftCards) ?? (_associatedGiftCards ??= new HashSet<GiftCard>());

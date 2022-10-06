@@ -3,9 +3,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
+using System.Runtime.Serialization;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Newtonsoft.Json;
 using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Checkout.GiftCards;
 using Smartstore.Core.Checkout.Payment;
@@ -250,85 +250,85 @@ namespace Smartstore.Core.Checkout.Orders
         /// <summary>
         /// Gets or sets the card name
         /// </summary>
-        [JsonIgnore]
+        [IgnoreDataMember]
         public string CardName { get; set; }
 
         /// <summary>
         /// Gets or sets the card number
         /// </summary>
-        [JsonIgnore]
+        [IgnoreDataMember]
         public string CardNumber { get; set; }
 
         /// <summary>
         /// Gets or sets the masked credit card number
         /// </summary>
-        [JsonIgnore]
+        [IgnoreDataMember]
         public string MaskedCreditCardNumber { get; set; }
 
         /// <summary>
         /// Gets or sets the card CVV2
         /// </summary>
-        [JsonIgnore]
+        [IgnoreDataMember]
         public string CardCvv2 { get; set; }
 
         /// <summary>
         /// Gets or sets the card expiration month
         /// </summary>
-        [JsonIgnore]
+        [IgnoreDataMember]
         public string CardExpirationMonth { get; set; }
 
         /// <summary>
         /// Gets or sets the card expiration year
         /// </summary>
-        [JsonIgnore]
+        [IgnoreDataMember]
         public string CardExpirationYear { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether storing of credit card number is allowed
         /// </summary>
-        [JsonIgnore]
+        [IgnoreDataMember]
         public bool AllowStoringDirectDebit { get; set; }
 
         /// <summary>
         /// Gets or sets the direct debit account holder
         /// </summary>
-        [JsonIgnore]
+        [IgnoreDataMember]
         public string DirectDebitAccountHolder { get; set; }
 
         /// <summary>
         /// Gets or sets the direct debit account number
         /// </summary>
-        [JsonIgnore]
+        [IgnoreDataMember]
         public string DirectDebitAccountNumber { get; set; }
 
         /// <summary>
         /// Gets or sets the direct debit bank code
         /// </summary>
-        [JsonIgnore]
+        [IgnoreDataMember]
         public string DirectDebitBankCode { get; set; }
 
         /// <summary>
         /// Gets or sets the direct debit bank name
         /// </summary>
-        [JsonIgnore]
+        [IgnoreDataMember]
         public string DirectDebitBankName { get; set; }
 
         /// <summary>
         /// Gets or sets the direct debit bic
         /// </summary>
-        [JsonIgnore]
+        [IgnoreDataMember]
         public string DirectDebitBIC { get; set; }
 
         /// <summary>
         /// Gets or sets the direct debit country
         /// </summary>
-        [JsonIgnore]
+        [IgnoreDataMember]
         public string DirectDebitCountry { get; set; }
 
         /// <summary>
         /// Gets or sets the direct debit iban
         /// </summary>
-        [JsonIgnore]
+        [IgnoreDataMember]
         public string DirectDebitIban { get; set; }
 
         /// <summary>
@@ -533,7 +533,7 @@ namespace Smartstore.Core.Checkout.Orders
         /// <summary>
         /// Gets or sets the wallet history.
         /// </summary>
-        [JsonIgnore]
+        [IgnoreDataMember]
         public ICollection<WalletHistory> WalletHistory
         {
             get => _walletHistory ?? LazyLoader.Load(this, ref _walletHistory) ?? (_walletHistory ??= new HashSet<WalletHistory>());
@@ -544,7 +544,7 @@ namespace Smartstore.Core.Checkout.Orders
         /// <summary>
         /// Gets or sets discount usage history
         /// </summary>
-        [JsonIgnore]
+        [IgnoreDataMember]
         public ICollection<DiscountUsageHistory> DiscountUsageHistory
         {
             get => _discountUsageHistory ?? LazyLoader.Load(this, ref _discountUsageHistory) ?? (_discountUsageHistory ??= new HashSet<DiscountUsageHistory>());
@@ -555,7 +555,7 @@ namespace Smartstore.Core.Checkout.Orders
         /// <summary>
         /// Gets or sets gift card usage history (gift card that were used with this order)
         /// </summary>
-        [JsonIgnore]
+        [IgnoreDataMember]
         public ICollection<GiftCardUsageHistory> GiftCardUsageHistory
         {
             get => _giftCardUsageHistory ?? LazyLoader.Load(this, ref _giftCardUsageHistory) ?? (_giftCardUsageHistory ??= new HashSet<GiftCardUsageHistory>());

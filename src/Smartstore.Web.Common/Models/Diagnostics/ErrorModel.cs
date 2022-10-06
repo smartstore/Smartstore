@@ -1,4 +1,5 @@
 using System.Net;
+using System.Runtime.Serialization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Newtonsoft.Json;
@@ -7,13 +8,13 @@ namespace Smartstore.Web.Models.Diagnostics
 {
     public class ErrorModel
     {
-        [JsonIgnore]
+        [IgnoreDataMember]
         public Exception Exception { get; set; }
 
-        [JsonIgnore]
+        [IgnoreDataMember]
         public Endpoint Endpoint { get; set; }
 
-        [JsonIgnore]
+        [IgnoreDataMember]
         public ControllerActionDescriptor ActionDescriptor { get; set; }
 
         [JsonProperty("requestId")]

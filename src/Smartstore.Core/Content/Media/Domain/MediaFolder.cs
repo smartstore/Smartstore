@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.Serialization;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Newtonsoft.Json;
 using Smartstore.Data.Caching;
 
 namespace Smartstore.Core.Content.Media
@@ -48,7 +48,7 @@ namespace Smartstore.Core.Content.Media
         /// <summary>
         /// Gets or sets the parent folder.
         /// </summary>
-        [JsonIgnore]
+        [IgnoreDataMember]
         public MediaFolder Parent
         {
             get => _parent ?? LazyLoader.Load(this, ref _parent);
@@ -87,7 +87,7 @@ namespace Smartstore.Core.Content.Media
         /// <summary>
         /// Gets or sets the child folders.
         /// </summary>
-        [JsonIgnore]
+        [IgnoreDataMember]
         public ICollection<MediaFolder> Children
         {
             get => _children ?? LazyLoader.Load(this, ref _children) ?? (_children ??= new HashSet<MediaFolder>());
@@ -98,7 +98,7 @@ namespace Smartstore.Core.Content.Media
         /// <summary>
         /// Gets or sets the associated media files.
         /// </summary>
-        [JsonIgnore]
+        [IgnoreDataMember]
         public ICollection<MediaFile> Files
         {
             get => _files ?? LazyLoader.Load(this, ref _files) ?? (_files ??= new HashSet<MediaFile>());

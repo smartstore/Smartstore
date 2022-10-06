@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using Newtonsoft.Json;
+using System.Runtime.Serialization;
 
 namespace Smartstore.ComponentModel
 {
@@ -22,7 +22,7 @@ namespace Smartstore.ComponentModel
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        [JsonIgnore]
+        [IgnoreDataMember]
         protected IReadOnlyDictionary<string, object> Properties
         {
             get => _properties;

@@ -2,9 +2,9 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.Serialization;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Newtonsoft.Json;
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Brands;
 using Smartstore.Core.Catalog.Categories;
@@ -129,11 +129,11 @@ namespace Smartstore.Core.Catalog.Products
         }
 
         /// <inheritdoc/>
-        [NotMapped, JsonIgnore]
+        [NotMapped, IgnoreDataMember]
         public bool MergedDataIgnore { get; set; }
 
         /// <inheritdoc/>
-        [NotMapped, JsonIgnore]
+        [NotMapped, IgnoreDataMember]
         public Dictionary<string, object> MergedDataValues { get; set; }
 
         /// <summary>
@@ -179,7 +179,7 @@ namespace Smartstore.Core.Catalog.Products
         /// </summary>
         public ProductVisibility Visibility { get; set; }
 
-        [JsonIgnore, Obsolete("Use property Visibility instead.")]
+        [IgnoreDataMember, Obsolete("Use property Visibility instead.")]
         public bool VisibleIndividually { get; set; }
 
         /// <summary>
@@ -361,7 +361,7 @@ namespace Smartstore.Core.Catalog.Products
         /// <summary>
         /// Gets or sets the download identifier.
         /// </summary>
-        [JsonIgnore, Obsolete("Since version 3.2 more than one download can be assigned to a product. See property Download.EntityId and Download.EntityName.")]
+        [IgnoreDataMember, Obsolete("Since version 3.2 more than one download can be assigned to a product. See property Download.EntityId and Download.EntityName.")]
         public int DownloadId { get; set; }
 
         /// <summary>
@@ -755,7 +755,7 @@ namespace Smartstore.Core.Catalog.Products
         /// <summary>
         /// Gets or sets a value indicating whether the product has been deleted.
         /// </summary>
-        [JsonIgnore]
+        [IgnoreDataMember]
         public bool Deleted { get; set; }
 
         /// <summary>
@@ -945,7 +945,7 @@ namespace Smartstore.Core.Catalog.Products
         /// <summary>
         /// Gets or sets the product reviews.
         /// </summary>
-        [JsonIgnore]
+        [IgnoreDataMember]
         public ICollection<ProductReview> ProductReviews
         {
             get => LazyLoader?.Load(this, ref _productReviews) ?? (_productReviews ??= new HashSet<ProductReview>());

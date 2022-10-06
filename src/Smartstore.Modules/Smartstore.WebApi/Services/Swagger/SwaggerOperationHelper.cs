@@ -1,11 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
-using System.Net.Mime;
+using System.Runtime.Serialization;
 using Microsoft.AspNetCore.OData.Query;
 using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
-using Newtonsoft.Json;
-using Swashbuckle.AspNetCore.SwaggerGen;
 using Smartstore.ComponentModel;
+using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Smartstore.Web.Api.Swagger
 {
@@ -32,7 +31,7 @@ namespace Smartstore.Web.Api.Swagger
         public IEnumerable<FastProperty> GetEntityProperties(Func<FastProperty, bool> predicate = null)
         {
             var properties = FastProperty.GetProperties(EntityType).Values
-                .Where(x => !x.Property.HasAttribute<NotMappedAttribute>(false) && !x.Property.HasAttribute<JsonIgnoreAttribute>(false));
+                .Where(x => !x.Property.HasAttribute<NotMappedAttribute>(false) && !x.Property.HasAttribute<IgnoreDataMemberAttribute>(false));
 
             return predicate != null ? properties.Where(predicate) : properties;
         }

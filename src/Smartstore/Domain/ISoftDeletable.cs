@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
-using Newtonsoft.Json;
+using System.Runtime.Serialization;
 
 namespace Smartstore.Domain
 {
@@ -12,7 +12,7 @@ namespace Smartstore.Domain
         /// If <c>true</c> the entity will be deleted physically when it is removed from the context.
         /// If <c>false</c> (default) the deletion is suppressed and the <see cref="Deleted"/> property is set to <c>true</c> instead.
         /// </summary>
-        [NotMapped, JsonIgnore]
+        [NotMapped, IgnoreDataMember]
         bool ForceDeletion
         {
             get { return false; }
