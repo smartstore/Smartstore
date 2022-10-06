@@ -12,7 +12,7 @@ namespace Smartstore.Web.Api.Swagger
     /// for repeating methods in OData controllers (like GetProperty, Get, Post etc.).
     /// Only takes into account OData controllers that inherit from SmartODataController.
     /// </summary>
-    public class SwaggerOperationFilter : IOperationFilter
+    internal class SwaggerOperationFilter : IOperationFilter
     {
         private static readonly string[] _candidateMethodNames = new[] { "Get", "GetProperty", "Post", "Put", "Patch", "Delete" };
 

@@ -7,7 +7,7 @@ namespace Smartstore.Web.Api.Swagger
     /// <summary>
     /// Filters OData paths that should not be displayed in the Swagger documentation.
     /// </summary>
-    public class SwaggerDocumentFilter : IDocumentFilter
+    internal class SwaggerDocumentFilter : IDocumentFilter
     {
         private static readonly string[] _pathEndingsToIgnore = new[] { "/{key}", "/{key}/{property}", "/$count" };
 

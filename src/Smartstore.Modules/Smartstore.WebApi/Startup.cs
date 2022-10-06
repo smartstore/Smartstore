@@ -107,6 +107,7 @@ namespace Smartstore.Web.Api
                     // Filters.
                     o.DocumentFilter<SwaggerDocumentFilter>();
                     o.OperationFilter<SwaggerOperationFilter>();
+                    //o.SchemaFilter<SwaggerSchemaFilter>();
 
                     try
                     {
@@ -128,8 +129,6 @@ namespace Smartstore.Web.Api
                         appContext.Logger.Error(ex);
                     }
                 });
-
-            // TODO: (mg) (core) the serialized examples in the documentation must become smaller (ExpansionDepth 1 or so). In the current form this is unusable.
 
             // INFO: needs to be placed after AddSwaggerGen(). Without this statement, the examples in the documentation
             // will contain everything, every tiny bit of any related object will be serialized.
@@ -209,9 +208,7 @@ namespace Smartstore.Web.Api
 
                         // Only show schemas dropdown for developers.
                         o.DefaultModelsExpandDepth(isDev ? 0 : -1);
-
-                        //o.DefaultModelRendering(ModelRendering.Example);
-                        //o.DefaultModelExpandDepth(1);
+                        //o.DefaultModelRendering(ModelRendering.Model);
 
                         o.EnablePersistAuthorization();
                         //o.EnableTryItOutByDefault();

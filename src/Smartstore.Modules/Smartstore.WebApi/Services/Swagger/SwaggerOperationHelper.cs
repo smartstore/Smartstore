@@ -8,7 +8,7 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Smartstore.Web.Api.Swagger
 {
-    public class SwaggerOperationHelper
+    internal class SwaggerOperationHelper
     {
         public SwaggerOperationHelper(OpenApiOperation operation, OperationFilterContext context)
         {
