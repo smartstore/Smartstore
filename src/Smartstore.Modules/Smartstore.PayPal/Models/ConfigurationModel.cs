@@ -1,11 +1,13 @@
-﻿using System.Linq;
+﻿using System.ComponentModel.DataAnnotations;
 using FluentValidation;
 
 namespace Smartstore.PayPal.Models
 {
     [LocalizedDisplay("Plugins.Smartstore.PayPal.")]
-    public class ConfigurationModel : ModelBase
+    public class ConfigurationModel : ModelBase, ILocalizedModel<PayPalLocalizedModel>
     {
+        public List<PayPalLocalizedModel> Locales { get; set; } = new();
+
         public bool HasCredentials { get; set; } = false;
         public bool PaymentsReceivable { get; set; } = false;
         public bool PrimaryEmailConfirmed { get; set; } = false;
@@ -47,6 +49,10 @@ namespace Smartstore.PayPal.Models
         [LocalizedDisplay("*DisplayProductDetailPayLaterWidget")]
         public bool DisplayProductDetailPayLaterWidget { get; set; }
 
+        [LocalizedDisplay("*CustomerServiceInstructions")]
+        [UIHint("Textarea"), AdditionalMetadata("rows", 3)]
+        public string CustomerServiceInstructions { get; set; }
+
         [LocalizedDisplay("*Intent")]
         public string Intent { get; set; } = "authorize";
 
@@ -57,6 +63,16 @@ namespace Smartstore.PayPal.Models
         public string ButtonColor { get; set; } = "gold";
     }
 
+    [LocalizedDisplay("Plugins.Smartstore.PayPal.")]
+    public class PayPalLocalizedModel : ILocalizedLocaleModel
+    {
+        public int LanguageId { get; set; }
+
+        [LocalizedDisplay("*CustomerServiceInstructions")]
+        [UIHint("Textarea"), AdditionalMetadata("rows", 3)]
+        public string CustomerServiceInstructions { get; set; }
+    }
+
     public partial class ConfigurationModelValidator : SettingModelValidator<ConfigurationModel, PayPalSettings>
     {
         public ConfigurationModelValidator(Localizer T)
@@ -64,6 +80,8 @@ namespace Smartstore.PayPal.Models
             RuleFor(x => x.MerchantName)
                 .Must(y => !y.Any(x => char.IsWhiteSpace(x)))
                 .WithMessage(T("Plugins.Smartstore.PayPal.NoWhitespace"));
+
+            RuleFor(x => x.CustomerServiceInstructions).NotEmpty();
         }
     }
 }

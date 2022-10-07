@@ -22,16 +22,18 @@ namespace Smartstore.PayPal.Controllers
         private readonly ICacheFactory _cacheFactory;
         private readonly IProviderManager _providerManager;
         private readonly PayPalHttpClient _client;
-        
-        public PayPalAdminController(ICacheFactory cacheFactory, IProviderManager providerManager, PayPalHttpClient client)
+        private readonly ILocalizedEntityService _localizedEntityService;
+
+        public PayPalAdminController(ICacheFactory cacheFactory, IProviderManager providerManager, PayPalHttpClient client, ILocalizedEntityService localizedEntityService)
         {
             _cacheFactory = cacheFactory;
             _providerManager = providerManager;
             _client = client;
+            _localizedEntityService = localizedEntityService;
         }
 
         [LoadSetting, AuthorizeAdmin]
-        public async Task<IActionResult> Configure(PayPalSettings settings)
+        public async Task<IActionResult> Configure(int storeId, PayPalSettings settings)
         {
             var model = MiniMapper.Map<PayPalSettings, ConfigurationModel>(settings);
 
@@ -83,15 +85,20 @@ namespace Smartstore.PayPal.Controllers
                 }
             }
 
+            AddLocales(model.Locales, (locale, languageId) =>
+            {
+                locale.CustomerServiceInstructions = settings.GetLocalizedSetting(x => x.CustomerServiceInstructions, languageId, storeId, false, false);
+            });
+
             return View(model);
         }
 
         [HttpPost, SaveSetting, AuthorizeAdmin]
-        public async Task<IActionResult> Configure(ConfigurationModel model, PayPalSettings settings)
+        public async Task<IActionResult> Configure(int storeId, ConfigurationModel model, PayPalSettings settings)
         {
             if (!ModelState.IsValid)
             {
-                return await Configure(settings);
+                return await Configure(storeId, settings);
             }
 
             // Clear token from cache if ClientId or Secret have changed.
@@ -105,6 +112,11 @@ namespace Smartstore.PayPal.Controllers
 
             string.Join(',', model.EnabledFundings ?? Array.Empty<string>());
             string.Join(',', model.DisabledFundings ?? Array.Empty<string>());
+
+            foreach (var localized in model.Locales)
+            {
+                await _localizedEntityService.ApplyLocalizedSettingAsync(settings, x => x.CustomerServiceInstructions, localized.CustomerServiceInstructions, localized.LanguageId, storeId);
+            }
 
             return RedirectToAction(nameof(Configure));
         }

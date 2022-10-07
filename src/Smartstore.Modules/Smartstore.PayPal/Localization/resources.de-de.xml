@@ -151,6 +151,15 @@
             <LocaleResource Name="DisplayProductDetailPayLaterWidget.Hint">
                 <Value>Legt fest, ob das Widget zur Zahlung in Raten auf der Produktdetailseite angezeigt werden soll.</Value>
             </LocaleResource>
+            <LocaleResource Name="CustomerServiceInstructions">
+                <Value>Kundendienst-Hinweis</Value>
+            </LocaleResource>
+            <LocaleResource Name="CustomerServiceInstructions.Hint">
+                <Value>Geben Sie hier einen Hinweistext zur Erreichbarkeit des Kundendienstes an.</Value>
+            </LocaleResource>
+            <LocaleResource Name="CustomerServiceInstructions.Placeholder">
+                <Value>Sie erreichen den Kundendienst unter +49 1234567890</Value>
+            </LocaleResource>
             <LocaleResource Name="Intent">
                 <Value>Transaktionsmodus</Value>
             </LocaleResource>
@@ -163,7 +172,6 @@
             <LocaleResource Name="Auth">
                 <Value>Autorisierung sofort, Abbuchung später</Value>
             </LocaleResource>
-
             <LocaleResource Name="ButtonShape">
                 <Value>Button-Form</Value>
             </LocaleResource>

@@ -128,7 +128,6 @@ namespace Smartstore.PayPal.Client
             var customer = _workContext.CurrentCustomer;
             var store = _storeContext.GetStoreById(request.StoreId);
             var settings = _settingFactory.LoadSettings<PayPalSettings>(request.StoreId);
-            var contactDataSettings = _settingFactory.LoadSettings<ContactDataSettings>(request.StoreId);
             var language = _workContext.WorkingLanguage;
             var currency = _workContext.WorkingCurrency;
             var paymentData = _checkoutStateAccessor.CheckoutState.PaymentData;
@@ -295,7 +294,7 @@ namespace Smartstore.PayPal.Client
                             LogoUrl = logoUrl,
                             CustomerServiceInstructions = new string[]
                             {
-                                contactDataSettings.HotlineTelephoneNumber
+                                settings.CustomerServiceInstructions
                             }
                         }
                     }

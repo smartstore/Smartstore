@@ -43,6 +43,5 @@ namespace Smartstore.Core.Common.Settings
         /// Gets or sets the contact email address that will be used.
         /// </summary>
         public string ContactEmailAddress { get; set; }
-
     }
 }

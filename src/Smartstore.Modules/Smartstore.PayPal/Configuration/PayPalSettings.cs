@@ -79,5 +79,10 @@ namespace Smartstore.PayPal.Settings
         /// Specifies the color of the button.
         /// </summary>
         public string ButtonColor { get; set; }
+
+        /// <summary>
+        /// Specifies a text that is displayed by PayPal as service instruction.
+        /// </summary>
+        public string CustomerServiceInstructions { get; set; }
     }
 }

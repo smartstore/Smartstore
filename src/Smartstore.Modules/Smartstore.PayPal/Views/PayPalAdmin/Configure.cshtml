@@ -303,6 +303,31 @@
                 <span asp-validation-for="DisplayProductDetailPayLaterWidget"></span>
             </div>
         </div>
+
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="CustomerServiceInstructions" />
+            </div>
+            <div class="adminData wide">
+                @(Html.LocalizedEditor<ConfigurationModel, PayPalLocalizedModel>("paypal-locales",
+                    @<div class="px-3">
+                        <input type="hidden" asp-for="Locales[item].LanguageId" />
+                        <setting-editor asp-for="Locales[item].CustomerServiceInstructions">
+                            <textarea asp-for="Locales[item].CustomerServiceInstructions" placeholder="@T("Plugins.Smartstore.PayPal.CustomerServiceInstructions.Placeholder")"></textarea>
+                        </setting-editor>
+                        <span asp-validation-for="Locales[item].CustomerServiceInstructions"></span>
+                    </div>
+                    ,
+                    @<div class="px-3">
+                        <setting-editor asp-for="CustomerServiceInstructions">
+                            <textarea asp-for="CustomerServiceInstructions" placeholder="@T("Plugins.Smartstore.PayPal.CustomerServiceInstructions.Placeholder")"></textarea>
+                        </setting-editor>
+                        <span asp-validation-for="CustomerServiceInstructions"></span>
+                    </div>
+                ))
+            </div>
+        </div>
+
         <div class="adminRow">
             <div class="admin-config-group">
                 <div class="head">Style</div>

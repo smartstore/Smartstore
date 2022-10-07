@@ -148,6 +148,15 @@
             <LocaleResource Name="DisplayProductDetailPayLaterWidget.Hint">
                 <Value>Specifies whether to display the pay later widget on the product detail page.</Value>
             </LocaleResource>
+            <LocaleResource Name="CustomerServiceInstructions">
+                <Value>Customer service instructions</Value>
+            </LocaleResource>
+            <LocaleResource Name="CustomerServiceInstructions.Hint">
+                <Value>Enter here a note text about the accessibility of the customer service.</Value>
+            </LocaleResource>
+            <LocaleResource Name="CustomerServiceInstructions.Placeholder">
+                <Value>Customer service phone is +49 1234567890</Value>
+            </LocaleResource>
             <LocaleResource Name="Intent">
                 <Value>Transaction mode</Value>
             </LocaleResource>
