@@ -7,9 +7,9 @@
 <form asp-action="EditDeployment">
     <div class="section-header">
         <div class="title">
+            <a sm-backto asp-action="Edit" asp-route-id="@Model.ProfileId" title="@T("Common.Back")"></a>
             <img src="@Model.ThumbnailUrl" />
             <span>@ViewBag.Title - @Model.Name</span>
-            <a asp-action="Edit" asp-route-id="@Model.ProfileId">(@T("Common.Back"))</a>
         </div>
         <div class="options">
             <button type="submit" name="save" value="save" class="btn btn-warning">

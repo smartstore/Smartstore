@@ -9,8 +9,8 @@
 <form method="post" asp-action="EditItem">
     <div class="section-header">
         <div class="title">
-            @T("Admin.ContentManagement.EditMenuItem") - @Model.Title
-            <a asp-action="Edit" asp-route-id="@Model.MenuId">(@T("Common.Back"))</a>
+            <a sm-backto asp-action="Edit" asp-route-id="@Model.MenuId" title="@T("Common.Back")"></a>
+            <span>@T("Admin.ContentManagement.EditMenuItem") - @Model.Title</span>
         </div>
         <div class="options">
             <button type="submit" name="save-item" value="save-item" class="btn btn-warning">

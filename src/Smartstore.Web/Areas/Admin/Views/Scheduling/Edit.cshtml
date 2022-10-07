@@ -22,11 +22,10 @@
     <input type="hidden" name="returnUrl" value="@returnUrl" />
 
     <div class="section-header">
-		<div class="title">
-			<i class="far fa-clock"></i>
-            <span>@ViewBag.Title</span>
-            <a href="@(returnUrl ?? Url.Action("List"))">(@T("Common.Back"))</a>
-		</div>
+        <div class="title">
+            <a sm-backto href="@(returnUrl ?? Url.Action("List"))" title="@T("Common.Back")"></a>
+            <i class="far fa-clock"></i>
+        </div>
         <div class="options">
 			<button type="submit" name="save" value="save" class="btn btn-warning">
 				<i class="fa fa-check"></i>
