@@ -69,7 +69,9 @@
                       ]]>
                 </Value>
             </LocaleResource>
-
+            <LocaleResource Name="CookieInfo">
+                <Value>PayPay uses cookies to display and process the payment transaction.</Value>
+            </LocaleResource>
             <LocaleResource Name="UseSandbox">
                 <Value>Use sandbox</Value>
             </LocaleResource>

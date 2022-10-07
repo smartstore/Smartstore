@@ -47,7 +47,7 @@
     <LocaleResource Name="Plugins.PaymentInfo.Payments.PayPalPayUponInvoice" AppendRootKey="false">
         <Value>
             <![CDATA[
-                Bezahlen Sie per Rechnung mit PayPal (TODO: (mh) (core) Better description) 
+                Sie geben die Bestellung auf, erhalten die Ware und bezahlen dann die Rechnung innerhalb von 30 Tagen.
               ]]>
         </Value>
     </LocaleResource>
@@ -71,6 +71,10 @@
                 </Value>
             </LocaleResource>
 
+            <LocaleResource Name="CookieInfo">
+                <Value>PayPal nutzt Cookies zur Darstellung und Abwicklung des Zahlungsvorgangs.</Value>
+            </LocaleResource>
+            
             <LocaleResource Name="UseSandbox">
                 <Value>Sandbox nutzen</Value>
             </LocaleResource>
