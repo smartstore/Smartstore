@@ -158,6 +158,7 @@ namespace Smartstore.Web
                     settings.DateFormatHandling = DateFormatHandling.IsoDateFormat;
                     settings.MaxDepth = 32;
                     settings.Converters.Add(new UTCDateTimeConverter(new IsoDateTimeConverter()));
+                    settings.Converters.Add(new StringEnumConverter());
                 })
                 .AddControllersAsServices()
                 .AddViewOptions(o =>

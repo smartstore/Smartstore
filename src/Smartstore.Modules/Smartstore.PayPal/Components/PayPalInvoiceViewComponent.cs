@@ -25,8 +25,8 @@ namespace Smartstore.PayPal.Components
 
             if (customer.BillingAddress != null && customer.BillingAddress.Country != null)
             {
-                var dailingCode = customer.BillingAddress.Country.DiallingCode;
-                model.DailingCode = dailingCode.Value.ToString();
+                var diallingCode = customer.BillingAddress.Country.DiallingCode;
+                model.DiallingCode = diallingCode.Value.ToString();
             }
             else
             {

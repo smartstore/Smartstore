@@ -18,7 +18,7 @@ namespace Smartstore.PayPal.Models
         [LocalizedDisplay("*Phone")]
         [DataType(DataType.PhoneNumber)]
         public string PhoneNumber { get; set; }
-        public string DailingCode { get; set; }
+        public string DiallingCode { get; set; }
     }
 
     public partial class PayPalInvoiceValidator : SmartValidator<PublicInvoiceModel>

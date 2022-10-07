@@ -146,7 +146,7 @@
                 </Value>
             </LocaleResource>
             <LocaleResource Name="DisplayProductDetailPayLaterWidget">
-                <Value>Ratenzahlung-Widget anzeigen</Value>
+                <Value>Ratenzahlungs-Widget anzeigen</Value>
             </LocaleResource>
             <LocaleResource Name="DisplayProductDetailPayLaterWidget.Hint">
                 <Value>Legt fest, ob das Widget zur Zahlung in Raten auf der Produktdetailseite angezeigt werden soll.</Value>

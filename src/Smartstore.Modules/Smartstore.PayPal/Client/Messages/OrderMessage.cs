@@ -15,7 +15,6 @@ namespace Smartstore.PayPal.Client.Messages
         /// </summary>
         [Required]
         [JsonProperty("intent")]
-        [JsonConverter(typeof(StringEnumConverter))]
         public Intent Intent;
 
         /// <summary>
@@ -119,7 +118,6 @@ namespace Smartstore.PayPal.Client.Messages
         /// The item category type (possible values are DIGITAL_GOODS, PHYSICAL_GOODS & DONATION). 
         /// </summary>
         [JsonProperty("category")]
-        [JsonConverter(typeof(StringEnumConverter))]
         public ItemCategoryType Category;
 
         /// <summary>

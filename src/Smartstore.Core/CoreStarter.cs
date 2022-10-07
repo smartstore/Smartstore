@@ -58,6 +58,7 @@ namespace Smartstore.Core.Bootstrapping
                 };
 
                 settings.Converters.Add(new UTCDateTimeConverter(new IsoDateTimeConverter()));
+                settings.Converters.Add(new StringEnumConverter());
 
                 return settings;
             };

@@ -1,8 +1,10 @@
 ﻿using System.Net;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
+using Smartstore.Core.OutputCache;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;
+using Smartstore.Engine.Modularity;
 using Smartstore.Net.Http;
 using Smartstore.PayPal.Client;
 using Smartstore.PayPal.Filters;
@@ -42,6 +44,16 @@ namespace Smartstore.PayPal
                 {
                     client.Timeout = TimeSpan.FromSeconds(30);
                 });
+        }
+
+        public override void BuildPipeline(RequestPipelineBuilder builder)
+        {
+            // OutputCache invalidation configuration
+            var observer = builder.ApplicationBuilder.ApplicationServices.GetRequiredService<IOutputCacheInvalidationObserver>();
+
+            observer.ObserveSettingProperty<PayPalSettings>(
+                x => x.DisplayProductDetailPayLaterWidget, 
+                p => p.InvalidateByRouteAsync("Product/ProductDetails"));
         }
     }
 }
