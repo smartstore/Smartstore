@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk.Razor">
     <PropertyGroup>
-        <Product>Smartstore Smartstore.PayPal</Product>
+        <Product>Smartstore PayPal</Product>
         <OutputPath>..\..\Smartstore.Web\Modules\Smartstore.PayPal</OutputPath>
         <OutDir>$(OutputPath)</OutDir>
     </PropertyGroup>

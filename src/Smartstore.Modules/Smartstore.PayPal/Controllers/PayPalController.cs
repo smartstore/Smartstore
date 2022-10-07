@@ -92,10 +92,9 @@ namespace Smartstore.PayPal.Controllers
 
                 if (rawRequest.HasValue())
                 {
-                    // TODO: (mh) (core) Deserialize rawRequest only once. Cast somehow?
-                    var webhookEvent = JsonConvert.DeserializeObject<Event<object>>(rawRequest);
+                    var webhookEvent = JsonConvert.DeserializeObject<Event<WebhookResource>>(rawRequest);
                     var response = await VerifyWebhookRequest(Request, webhookEvent);
-                    var resource = JsonConvert.DeserializeObject<Event<WebhookResource>>(rawRequest).Resource;
+                    var resource = webhookEvent.Resource;
                     var customId = resource?.CustomId;
                     var webhookResourceType = webhookEvent.ResourceType?.ToLowerInvariant();
 
@@ -230,10 +229,10 @@ namespace Smartstore.PayPal.Controllers
             }
         }
 
-        async Task<PayPalResponse> VerifyWebhookRequest(HttpRequest request, Event<object> webhookEvent)
+        async Task<PayPalResponse> VerifyWebhookRequest(HttpRequest request, Event<WebhookResource> webhookEvent)
         {
-            var verifyRequest = new WebhookVerifySignatureRequest<object>()
-                .WithBody(new VerifyWebhookSignature<object>
+            var verifyRequest = new WebhookVerifySignatureRequest<WebhookResource>()
+                .WithBody(new VerifyWebhookSignature<WebhookResource>
                 {
                     AuthAlgo = request.Headers["PAYPAL-AUTH-ALGO"],
                     CertUrl = request.Headers["PAYPAL-CERT-URL"],
