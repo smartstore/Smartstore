@@ -12,13 +12,7 @@
         <h1 class="h2">@T("Profile.ProfileOf", Model.CustomerName)</h1>
     </div>
     <div class="page-body">
-        <tabstrip id="profile-tabs" class="profile-tabs" sm-nav-style="Material" sm-smart-tab-selection="false" sm-breakpoint="&lt;md">
-            <tab-content-header>
-                <a href="javascript:void()" class="btn btn-secondary btn-no-border btn-flat offcanvas-closer rounded-0" title="@T("Common.Close")">
-                    <i class="fa fa-chevron-left"></i>
-                    <span>@T("Common.Close")</span>
-                </a>
-            </tab-content-header>
+        <tabstrip id="profile-tabs" class="profile-tabs" sm-nav-style="Material" sm-smart-tab-selection="false">
             <tab sm-title="@T("Profile.PersonalInfo")" sm-selected="true">
                 <partial name="Info" model="Model.ProfileInfo" />
             </tab>

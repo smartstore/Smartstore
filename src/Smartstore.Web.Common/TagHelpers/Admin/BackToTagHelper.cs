@@ -15,6 +15,9 @@ namespace Smartstore.Web.TagHelpers.Admin
 
         private Localizer T { get; }
 
+        /// <summary>
+        /// Renders the link as a regular button with a left arrow icon.
+        /// </summary>
         [HtmlAttributeName(BackToAttributeName)]
         public bool IsBackButton { get; set; }
 

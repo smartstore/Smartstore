@@ -18,15 +18,17 @@
             padding: 0.75rem 1rem;
 
             &:after {
-                @include fontawesome("\f106");
+                @include fontawesome("\f054"); // chevron-right
                 position: absolute;
                 right: 1rem;
                 top: 50%;
-                transform: translateY(-50%);
+                font-size: 85%;
+                transform: translateY(-50%) rotate(90deg);
+                transition: transform 0.35s ease;
             }
 
             &.collapsed:after {
-                content: "\f107";
+                transform: translateY(-50%) rotate(0deg);
             }
         }
 

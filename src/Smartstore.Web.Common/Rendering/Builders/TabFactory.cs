@@ -155,7 +155,6 @@ namespace Smartstore.Web.Rendering.Builders
                 BadgeText = item.BadgeText,
                 Icon = item.Icon,
                 ImageUrl = item.ImageUrl,
-                Summary = item.Summary,
                 Position = position
             };
 

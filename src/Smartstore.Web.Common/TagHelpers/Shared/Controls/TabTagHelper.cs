@@ -18,7 +18,6 @@ namespace Smartstore.Web.TagHelpers.Shared
         const string IconClassAttributeName = "sm-icon-class";
         const string BadgeTextAttributeName = "sm-badge-text";
         const string BadgeStyleAttributeName = "sm-badge-style";
-        const string SummaryAttributeName = "sm-summary";
         const string ImageUrlAttributeName = "sm-image-url";
         const string AdaptiveHeightAttributeName = "sm-adaptive-height";
 
@@ -121,12 +120,6 @@ namespace Smartstore.Web.TagHelpers.Shared
         /// </summary>
         [HtmlAttributeName(BadgeStyleAttributeName)]
         public BadgeStyle BadgeStyle { get; set; }
-
-        /// <summary>
-        /// Summary to display when tab collapses on smaller devices.
-        /// </summary>
-        [HtmlAttributeName(SummaryAttributeName)]
-        public string Summary { get; set; }
 
         /// <summary>
         /// Image URL.

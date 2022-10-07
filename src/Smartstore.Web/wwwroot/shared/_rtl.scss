@@ -262,20 +262,6 @@
 		}
 	}
 
-	.nav-responsive.collapsed {
-		.nav-link {
-			text-align: right;
-			padding-left: 2.2rem;
-			padding-right: 1.25rem;
-
-			&:not(.disabled):after {
-				content: "\f104"; // angle-left
-				left: 1rem;
-				right: auto;
-			}
-		}
-	}
-
 	.nav {
 		.nav-link > img,
 		.nav-link > i {

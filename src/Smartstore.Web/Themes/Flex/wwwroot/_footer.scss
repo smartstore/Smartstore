@@ -23,7 +23,7 @@
 
 .footer-main .footer-title {
     margin-bottom: 1.25rem;
-    font-weight: $font-weight-normal;
+    font-weight: $font-weight-medium;
 }
 
 .footer-links {
@@ -80,6 +80,7 @@
 
     .footer-main .footer-title {
         margin-bottom: 0;
+        font-size: $h5-font-size;
     }
 }
 

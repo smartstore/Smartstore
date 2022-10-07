@@ -95,7 +95,6 @@ namespace Smartstore.Web.Infrastructure
                 js + "smartstore.numberinput.js",
                 js + "smartstore.throbber.js",
                 js + "smartstore.thumbzoomer.js",
-                js + "smartstore.responsiveNav.js",
                 js + "smartstore.keynav.js",
                 js + "smartstore.articlelist.js",
                 js + "smartstore.megamenu.js",

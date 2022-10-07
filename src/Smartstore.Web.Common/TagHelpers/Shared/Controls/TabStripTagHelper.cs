@@ -32,12 +32,11 @@ namespace Smartstore.Web.TagHelpers.Shared
 
     [OutputElementHint("div")]
     [HtmlTargetElement("tabstrip", Attributes = "id")]
-    [RestrictChildren("tab", "tab-content-header")]
+    [RestrictChildren("tab")]
     public class TabStripTagHelper : SmartTagHelper
     {
         const string HideSingleItemAttributeName = "sm-hide-single-item";
         const string ResponsiveAttributeName = "sm-responsive";
-        const string BreakpointAttributeName = "sm-breakpoint";
         const string PositionAttributeName = "sm-nav-position";
         const string StyleAttributeName = "sm-nav-style";
         const string FadeAttributeName = "sm-fade";
@@ -59,9 +58,6 @@ namespace Smartstore.Web.TagHelpers.Shared
         [HtmlAttributeNotBound]
         internal List<TabTagHelper> Tabs { get; set; } = new();
 
-        [HtmlAttributeNotBound]
-        internal TabContentHeaderTagHelper TabContentHeader { get; set; }
-
         /// <summary>
         /// Whether to hide tabstrip nav if there's only one tab item. Default = true.
         /// </summary>
@@ -69,18 +65,10 @@ namespace Smartstore.Web.TagHelpers.Shared
         public bool HideSingleItem { get; set; } = true;
 
         /// <summary>
-        /// Whether to hide tabstrip if there's only one tab item. Default = false.
+        /// Whether to collapse nav items on screens smaller than md. Default = false.
         /// </summary>
         [HtmlAttributeName(ResponsiveAttributeName)]
         public bool Responsive { get; set; }
-
-        /// <summary>
-        /// When given device expression matches, the tabstrip switches to responsive/compact mode,
-        /// but only when <see cref="Responsive"/> is True (e.g.: "&gt;md", "&lt;=lg" etc.).
-        /// Default = &lt;=lg
-        /// </summary>
-        [HtmlAttributeName(BreakpointAttributeName)]
-        public string Breakpoint { get; set; }
 
         /// <summary>
         /// Tab nav position. Default = Top.
@@ -216,11 +204,6 @@ namespace Smartstore.Web.TagHelpers.Shared
             if (Responsive)
             {
                 classList.Add("nav-responsive");
-                if (Breakpoint.HasValue())
-                {
-                    output.Attributes.Add("data-breakpoint", Breakpoint);
-                }
-
             }
 
             // Flush classes
@@ -267,11 +250,6 @@ namespace Smartstore.Web.TagHelpers.Shared
                 {
                     output.Content.AppendHtmlLine($"<input type='hidden' class='loaded-tab-name' name='LoadedTabs' value='{tabName}' />");
                 }
-            }
-
-            if (Responsive /* && tab.TabContentHeaderContent != null*/)
-            {
-                output.Content.AppendHtmlLine(@"<script>$(function() {{ $('#{0}').responsiveNav(); }})</script>".FormatInvariant(Id));
             }
         }
 
@@ -350,12 +328,6 @@ namespace Smartstore.Web.TagHelpers.Shared
 
             content.AppendHtmlLine("<div class=\"tab-content\">");
 
-            // Tab content header
-            if (Responsive && TabContentHeader != null)
-            {
-                content.AppendHtml(BuildTabContentHeader(TabContentHeader));
-            }
-
             foreach (var tab in Tabs)
             {
                 if (tab.MustRender)
@@ -373,43 +345,31 @@ namespace Smartstore.Web.TagHelpers.Shared
             }
         }
 
-        private static TagBuilder BuildTabContentHeader(TabContentHeaderTagHelper header)
-        {
-            TagBuilder div = new("div");
-
-            // Copy all attributes from output to div tag
-            foreach (var attr in header.Attributes)
-            {
-                div.MergeAttribute(attr.Name, attr.ValueAsString());
-            }
-
-            div.AppendCssClass("tab-content-header");
-            div.InnerHtml.SetHtmlContent(header.Content);
-
-            return div;
-        }
-
         #endregion
 
         #region Tab Items
 
         private TagBuilder BuildTabPane(TabTagHelper tab)
         {
-            TagBuilder div = new("div");
+            TagBuilder paneDiv = new("div");
 
-            var classList = div.GetClassList();
+            using var classList = paneDiv.GetClassList();
             classList.Add("tab-pane");
 
-            div.MergeAttribute("role", "tabpanel");
+            paneDiv.Attributes.Add("role", "tabpanel");
 
             if (Fade)
             {
                 classList.Add("fade");
-
                 if (tab.Selected)
                 {
                     classList.Add("show");
                 }
+            }
+
+            if (Responsive)
+            {
+                classList.Add("nav-collapsible");
             }
 
             if (tab.Selected)
@@ -422,14 +382,53 @@ namespace Smartstore.Web.TagHelpers.Shared
                 classList.Add("tab-pane-adaptive");
             }
 
-            div.GenerateId(tab.Id, "-");
-            div.MergeAttribute("aria-labelledby", $"{div.Attributes["id"]}-tab");
-            div.MergeAttribute("data-tab-name", tab.Name);
+            paneDiv.GenerateId(tab.Id, "-");
+            var paneId = paneDiv.Attributes["id"];
 
-            classList.Dispose();
-            div.InnerHtml.SetHtmlContent(tab.TabInnerContent);
+            paneDiv.Attributes.Add("aria-labelledby", $"{paneDiv.Attributes["id"]}-tab");
+            paneDiv.Attributes.Add("data-tab-name", tab.Name);
 
-            return div;
+            if (Responsive)
+            {
+                // Create nav-toggler header
+                var collapsePaneId = $"collapse-{paneId}";
+                
+                TagBuilder collapseHeader = new("h5");
+                collapseHeader.Attributes.Add("class", "nav-toggler");
+                collapseHeader.Attributes.Add("data-toggle", "collapse");
+                collapseHeader.Attributes.Add("data-target", $"#{collapsePaneId}");
+                collapseHeader.Attributes.Add("aria-expanded", tab.Selected.ToString().ToLower());
+
+                if (!tab.Selected)
+                {
+                    collapseHeader.AppendCssClass("collapsed");
+                }
+
+                collapseHeader.InnerHtml.SetHtmlContent(tab.Title.EmptyNull());
+
+                // Create toggleable pane
+                TagBuilder collapsePane = new("div");
+                collapsePane.Attributes.Add("id", collapsePaneId);
+                collapsePane.Attributes.Add("class", "nav-collapse collapse");
+
+                if (tab.Selected)
+                {
+                    collapsePane.AppendCssClass("show");
+                }
+
+                // Move actual tab content to collapse pane
+                collapsePane.InnerHtml.SetHtmlContent(tab.TabInnerContent);
+
+                // Add collapse header and pane to parent tab pane
+                paneDiv.InnerHtml.AppendHtml(collapseHeader);
+                paneDiv.InnerHtml.AppendHtml(collapsePane);
+            }
+            else
+            {
+                paneDiv.InnerHtml.SetHtmlContent(tab.TabInnerContent);
+            }
+
+            return paneDiv;
         }
 
         private TagBuilder BuildTabItem(TabTagHelper tab, bool isStacked, bool hasIcons)
@@ -512,9 +511,6 @@ namespace Smartstore.Web.TagHelpers.Shared
                 // Badge
                 BuildTabBadge(tab, a);
 
-                // Nav link short summary for collapsed state
-                BuildTabSummary(tab, a);
-
                 li.InnerHtml.SetHtmlContent(a);
             }
 
@@ -578,17 +574,6 @@ namespace Smartstore.Web.TagHelpers.Shared
                 TagBuilder span = new("span");
                 span.AddCssClass(temp);
                 span.InnerHtml.Append(tab.BadgeText);
-                a.InnerHtml.AppendHtml(span);
-            }
-        }
-
-        private void BuildTabSummary(TabTagHelper tab, TagBuilder a)
-        {
-            if (Responsive && tab.Summary.HasValue())
-            {
-                TagBuilder span = new("span");
-                span.AddCssClass("nav-link-summary");
-                span.InnerHtml.Append(tab.Summary);
                 a.InnerHtml.AppendHtml(span);
             }
         }
