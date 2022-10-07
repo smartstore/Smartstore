@@ -61,6 +61,11 @@ namespace Smartstore.PayPal.Settings
         public string EnabledFundings { get; set; }
 
         /// <summary>
+        /// Specifies whether to display the pay later widget on product detail pages.
+        /// </summary>
+        public bool DisplayProductDetailPayLaterWidget { get; set; } = false;
+
+        /// <summary>
         /// Specifies whether the payment will be captured immediately or just authorized.
         /// </summary>
         public PayPalTransactionType Intent { get; set; } = PayPalTransactionType.Authorize;

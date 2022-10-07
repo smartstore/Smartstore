@@ -44,6 +44,9 @@ namespace Smartstore.PayPal.Models
         [LocalizedDisplay("*EnabledFundings")]
         public string[] EnabledFundings { get; set; }
 
+        [LocalizedDisplay("*DisplayProductDetailPayLaterWidget")]
+        public bool DisplayProductDetailPayLaterWidget { get; set; }
+
         [LocalizedDisplay("*Intent")]
         public string Intent { get; set; } = "authorize";
 

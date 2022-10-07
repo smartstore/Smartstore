@@ -27,6 +27,9 @@ namespace Smartstore.PayPal
 
                 o.Filters.AddConditional<FraudnetFilter>(
                     context => context.ControllerIs<PublicController>() && !context.HttpContext.Request.IsAjax());
+
+                o.Filters.AddConditional<ProductDetailFilter>(
+                    context => context.ControllerIs<ProductController>(x => x.ProductDetails(0, null)));
             });
 
             services.AddHttpClient<PayPalHttpClient>()

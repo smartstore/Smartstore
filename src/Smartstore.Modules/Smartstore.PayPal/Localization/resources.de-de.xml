@@ -141,11 +141,17 @@
                     Bestimmen Sie hier die Zahlungsoptionen, die auf jeden Fall angeboten werden sollen, sofern sie verfügbar sind.
                 </Value>
             </LocaleResource>
+            <LocaleResource Name="DisplayProductDetailPayLaterWidget">
+                <Value>Ratenzahlung-Widget anzeigen</Value>
+            </LocaleResource>
+            <LocaleResource Name="DisplayProductDetailPayLaterWidget.Hint">
+                <Value>Legt fest, ob das Widget zur Zahlung in Raten auf der Produktdetailseite angezeigt werden soll.</Value>
+            </LocaleResource>
             <LocaleResource Name="Intent">
                 <Value>Transaktionsmodus</Value>
             </LocaleResource>
             <LocaleResource Name="Intent.Hint">
-                <Value>Legt fest ob die Zahlung sofort ausgeführt wird oder erst durch Interaktion des Händlers.</Value>
+                <Value>Legt fest, ob die Zahlung sofort ausgeführt wird oder erst durch Interaktion des Händlers.</Value>
             </LocaleResource>
             <LocaleResource Name="Capture">
                 <Value>Sofort abbuchen</Value>

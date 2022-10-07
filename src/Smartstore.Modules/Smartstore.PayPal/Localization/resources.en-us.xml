@@ -140,6 +140,12 @@
                     Enable funding can be used to ensure a funding source is rendered, if eligible.
                 </Value>
             </LocaleResource>
+            <LocaleResource Name="DisplayProductDetailPayLaterWidget">
+                <Value>Display pay later widget</Value>
+            </LocaleResource>
+            <LocaleResource Name="DisplayProductDetailPayLaterWidget.Hint">
+                <Value>Specifies whether to display the pay later widget on the product detail page.</Value>
+            </LocaleResource>
             <LocaleResource Name="Intent">
                 <Value>Transaction mode</Value>
             </LocaleResource>
