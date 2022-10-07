@@ -31,9 +31,9 @@
 
 <div class="section-header">
     <div class="title" title="@ViewBag.Title (@systemName)">
+        <a sm-backto href='@returnUrl'></a>
         <img src="@iconUrl" alt="@friendlyName" />
-        @ViewBag.Title
-        <a href='@returnUrl'>(@T("Admin.Common.BackToList"))</a>
+        <span>@ViewBag.Title</span>
     </div>
     <div class="options">
         <zone name="admin_button_toolbar_before" />

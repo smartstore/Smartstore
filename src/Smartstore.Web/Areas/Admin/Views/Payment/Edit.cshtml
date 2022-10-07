@@ -9,9 +9,9 @@
 <form id="payment-method-form" asp-action="Edit">
     <div class="section-header">
         <div class="title">
+            <a sm-backto asp-action="Providers"></a>
             <img src="@Url.Content(Model.IconUrl)" alt="@Model.FriendlyName" />
-            @ViewBag.Title
-            <a asp-action="Providers">(@T("Admin.Common.BackToList"))</a>
+            <span>@ViewBag.Title</span>
         </div>
         <div class="options">
             <zone name="admin_button_toolbar_before"></zone>

@@ -7,9 +7,9 @@
 <form asp-action="Create">
     <div class="section-header">
         <div class="title">
+            <a sm-backto asp-action="List"></a>
             <i class="fa fa-language"></i>
             <span>@ViewBag.Title</span>
-            <a asp-action="List">(@T("Admin.Common.BackToList"))</a>
         </div>
         <div class="options">
             <button type="submit" name="save" value="save" class="btn btn-primary">

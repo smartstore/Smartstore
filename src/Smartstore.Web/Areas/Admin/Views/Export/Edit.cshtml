@@ -24,9 +24,9 @@
 
     <div class="section-header">
         <div class="title">
+            <a sm-backto asp-action="List"></a>
             <img src="@Model.Provider.ThumbnailUrl" />
             <span>@ViewBag.Title - @Model.Name</span>
-            <a asp-action="List">(@T("Admin.Common.BackToList"))</a>
         </div>
         <div class="options">
             @if (Model.HasActiveProvider)

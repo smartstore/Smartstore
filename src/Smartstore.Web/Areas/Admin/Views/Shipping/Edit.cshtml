@@ -9,9 +9,9 @@
 <form asp-action="Edit">
     <div class="section-header">
         <div class="title">
+            <a sm-backto asp-action="List"></a>
             <span>@ViewBag.Title</span>
             <span> - @Model.Name </span>
-            <a asp-action="List">(@T("Admin.Common.BackToList"))</a>
         </div>
         <div class="options">
             <zone name="admin_button_toolbar_before" />

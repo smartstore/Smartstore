@@ -6,11 +6,11 @@
 
 <form asp-action="Edit">
     <div class="section-header">
-		<div class="title">
-			<i class="fa fa-download"></i>
+        <div class="title">
+            <a sm-backto asp-action="List"></a>
+            <i class="fa fa-download"></i>
             <span>@ViewBag.Title - @Model.Name</span>
-            <a asp-action="List">(@T("Admin.Common.BackToList"))</a>
-		</div>
+        </div>
         <div class="options">
 			@if (Model.Id != 0)
             {

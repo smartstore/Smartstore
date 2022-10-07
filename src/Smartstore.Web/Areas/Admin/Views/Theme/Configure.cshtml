@@ -22,8 +22,9 @@
 
     <div class="section-header">
         <div class="title">
+            <a sm-backto asp-action="List" asp-route-storeId="@Model.StoreId"></a>
             <i class="fa fa-paint-brush"></i>
-            @ViewBag.Title <a asp-action="List" asp-route-storeId="@Model.StoreId">(@T("Admin.Common.BackToList"))</a>
+            <span>@ViewBag.Title</span>
         </div>
         <div class="options">
             <zone name="admin_button_toolbar_before"></zone>

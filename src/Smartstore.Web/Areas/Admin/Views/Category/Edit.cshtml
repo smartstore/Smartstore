@@ -7,9 +7,9 @@
 <form asp-action="Edit" id="category-form">
     <div class="section-header">
         <div class="title">
+            <a sm-backto asp-action="Index"></a>
             <i class="fa fa-sitemap"></i>
             <span>@ViewBag.Title</span>
-            <a asp-action="Index">(@T("Admin.Common.BackToList"))</a>
         </div>
         <div class="options">
             <zone name="admin_button_toolbar_before" />

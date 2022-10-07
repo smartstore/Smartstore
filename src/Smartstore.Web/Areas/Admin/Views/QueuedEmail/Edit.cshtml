@@ -9,9 +9,9 @@
 <form method="post" asp-action="Edit">
     <div class="section-header">
         <div class="title">
+            <a sm-backto asp-action="List"></a>
             <i class="far fa-envelope"></i>
             <span>@ViewBag.Title</span>
-            <a asp-action="List">(@T("Admin.Common.BackToList"))</a>
         </div>
         <div class="options">
             <button type="submit" name="save" value="save" class="btn btn-warning">

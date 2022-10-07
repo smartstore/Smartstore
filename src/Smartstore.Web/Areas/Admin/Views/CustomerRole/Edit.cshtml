@@ -7,9 +7,9 @@
 <form asp-action="Edit">
     <div class="section-header">
         <div class="title">
+            <a sm-backto asp-action="List"></a>
             <i class="fa fa-users"></i>
             <span>@ViewBag.Title</span>
-            <a asp-action="List">(@T("Admin.Common.BackToList"))</a>
         </div>
         <div class="options">
             <zone name="admin_button_toolbar_before" />

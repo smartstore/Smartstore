@@ -9,7 +9,8 @@
 <form method="post" asp-action="Create">
     <div class="section-header">
         <div class="title">
-            @T("Admin.ContentManagement.AddMenu") <a asp-action="List">(@T("Admin.Common.BackToList"))</a>
+            <a sm-backto asp-action="List"></a>
+            <span>@T("Admin.ContentManagement.AddMenu")</span>
         </div>
         <div class="options">
             <button type="submit" name="save" value="save" class="btn btn-primary">

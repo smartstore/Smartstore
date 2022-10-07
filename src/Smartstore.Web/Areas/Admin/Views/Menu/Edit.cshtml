@@ -9,8 +9,8 @@
 <form method="post" asp-action="Edit">
     <div class="section-header">
         <div class="title">
-            @T("Admin.ContentManagement.EditMenu") - @Model.Title
-            <a asp-action="List">(@T("Admin.Common.BackToList"))</a>
+            <a sm-backto asp-action="List"></a>
+            <span>@T("Admin.ContentManagement.EditMenu") - @Model.Title</span>
         </div>
         <div class="options">
             <button type="submit" name="save" value="save" class="btn btn-warning">
