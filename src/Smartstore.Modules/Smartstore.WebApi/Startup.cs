@@ -8,8 +8,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
+using Microsoft.OData.Edm;
 using Microsoft.OData.Json;
 using Microsoft.OData.ModelBuilder;
+using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
 using Parlot.Fluent;
 using Smartstore.Engine;
@@ -104,10 +106,16 @@ namespace Smartstore.Web.Api
                     // Ordering within a group does not work. See https://github.com/domaindrivendev/Swashbuckle.AspNetCore/issues/401
                     //o.OrderActionsBy(x => ...);
 
+                    //o.MapType<decimal>(() => new OpenApiSchema
+                    //{
+                    //    Type = "number($double)",
+                    //    Example = new OpenApiDouble(16.5)
+                    //});
+
                     // Filters.
                     o.DocumentFilter<SwaggerDocumentFilter>();
                     o.OperationFilter<SwaggerOperationFilter>();
-                    //o.SchemaFilter<SwaggerSchemaFilter>();
+                    o.SchemaFilter<SwaggerSchemaFilter>();
 
                     try
                     {
@@ -123,6 +131,8 @@ namespace Smartstore.Web.Api
                                 o.IncludeXmlComments(() => new XPathDocument(stream), true);
                             }
                         }
+
+                        //o.IncludeXmlComments(@"...\Smartstore.Full\Smartstore\src\Smartstore.Web\bin\Debug\Smartstore.Core.xml");
                     }
                     catch (Exception ex)
                     {
@@ -232,7 +242,9 @@ namespace Smartstore.Web.Api
                     // Add OData /$query middleware.
                     app.UseODataQueryRequest();
 
-                    // TODO: (mg) (core) batching does not work. 500 on all nested requests. CORS issue? What about CORS anyway?
+                    // TODO: (mg) (core) batching always fails with HTTP error 500 on all nested requests.
+                    // No details due to CA1031 (catched general exception type), see ODataBatchRequestItem, line 74. Investigate "RequestHandler".
+
                     // Add the OData Batch middleware to support OData $Batch.
                     app.UseODataBatching();
 
