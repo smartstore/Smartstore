@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Globalization;
+using System.Net;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -147,7 +148,7 @@ namespace Smartstore.PayPal.Controllers
             switch (status)
             {
                 case "created":
-                    if (decimal.TryParse(resource.Amount?.Value, out var authorizedAmount)
+                    if (decimal.TryParse(resource.Amount?.Value, NumberStyles.Any, CultureInfo.InvariantCulture, out var authorizedAmount)
                         && authorizedAmount == Math.Round(order.OrderTotal, 2)
                         && order.CanMarkOrderAsAuthorized())
                     {
@@ -181,9 +182,9 @@ namespace Smartstore.PayPal.Controllers
             switch (status)
             {
                 case "completed":
-                    if (decimal.TryParse(resource.Amount?.Value, out var capturedAmount) && capturedAmount == Math.Round(order.OrderTotal, 2))
+                    if (decimal.TryParse(resource.Amount?.Value, NumberStyles.Any, CultureInfo.InvariantCulture, out var capturedAmount))
                     {
-                        if (order.CanMarkOrderAsPaid())
+                        if (order.CanMarkOrderAsPaid() && capturedAmount == Math.Round(order.OrderTotal, 2))
                         {
                             order.CaptureTransactionId = resource.Id;
                             order.CaptureTransactionResult = status;
@@ -193,9 +194,13 @@ namespace Smartstore.PayPal.Controllers
                     break;
 
                 case "pending":
-                case "declined":
                     order.CaptureTransactionResult = status;
                     order.OrderStatus = OrderStatus.Pending;
+                    break;
+
+                case "declined":
+                    order.CaptureTransactionResult = status;
+                    order.OrderStatus = OrderStatus.Cancelled;
                     break;
 
                 case "refunded":
@@ -213,7 +218,7 @@ namespace Smartstore.PayPal.Controllers
                 case "completed":
                     var refundIds = order.GenericAttributes.Get<List<string>>("Payments.PayPalStandard.RefundId") ?? new List<string>();
                     if (!refundIds.Contains(resource.Id)
-                        && decimal.TryParse(resource.Amount?.Value, out var refundedAmount)
+                        && decimal.TryParse(resource.Amount?.Value, NumberStyles.Any, CultureInfo.InvariantCulture, out var refundedAmount)
                         && order.CanPartiallyRefundOffline(refundedAmount))
                     {
                         await _orderProcessingService.PartiallyRefundOfflineAsync(order, refundedAmount);

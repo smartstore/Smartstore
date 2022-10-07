@@ -39,7 +39,10 @@ namespace Smartstore.PayPal.Providers
 
         public override bool SupportRefund => true;
 
-        public override bool SupportVoid => true;
+        /// <summary>
+        /// Payments via invoice must be captured at once. Only order with PaymentStatus.Authorized can be voided.
+        /// </summary>
+        public override bool SupportVoid => false;
 
         public override bool RequiresInteraction => true;
 
@@ -79,23 +82,9 @@ namespace Smartstore.PayPal.Providers
 
             return result;
         }
-
-        public override async Task<VoidPaymentResult> VoidAsync(VoidPaymentRequest request)
-        {
-            // TODO: (mh) (core)
-            var result = new VoidPaymentResult
-            {
-                NewPaymentStatus = request.Order.PaymentStatus
-            };
-
-            var response = await _client.VoidPaymentAsync(request, result);
-
-            return result;
-        }
-
+        
         public override async Task<RefundPaymentResult> RefundAsync(RefundPaymentRequest request)
         {
-            // TODO: (mh) (core)
             var result = new RefundPaymentResult
             {
                 NewPaymentStatus = request.Order.PaymentStatus
