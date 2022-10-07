@@ -20,9 +20,28 @@ namespace Smartstore.PayPal.Components
                 return Empty();
             }
 
-            // TODO: (mh) (core) Prepare model if customer ist loggeds in and has already entered his data of birth
-            // Also prepare Phonenumber if its available somewhere either in CustomerInfo or billing address.
+            var customer = Services.WorkContext.CurrentCustomer;
             var model = new PublicInvoiceModel();
+
+            if (customer.BillingAddress != null && customer.BillingAddress.Country != null)
+            {
+                var dailingCode = customer.BillingAddress.Country.DiallingCode;
+                model.DailingCode = dailingCode.Value.ToString();
+            }
+            else
+            {
+                // If there's no BillingAddress or no country, we can't offer invoice.
+                return Empty();
+            }
+
+            // Prepare model if customer is logged in and has already entered his data of birth
+            if (customer.BirthDate != null)
+            {
+                model.DateOfBirthDay = customer.BirthDate.Value.Day;
+                model.DateOfBirthMonth = customer.BirthDate.Value.Month;
+                model.DateOfBirthYear = customer.BirthDate.Value.Year;
+            }
+
             return View(model);
         }
     }

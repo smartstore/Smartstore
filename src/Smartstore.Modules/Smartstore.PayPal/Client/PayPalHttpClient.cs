@@ -3,7 +3,6 @@ using System.Linq;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading;
-using Autofac.Core;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
@@ -17,14 +16,13 @@ using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common;
 using Smartstore.Core.Common.Services;
+using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Data;
-using Smartstore.Core.Identity;
 using Smartstore.Core.Stores;
 using Smartstore.PayPal.Client.Messages;
 using Smartstore.Web.Models.Cart;
-using static Smartstore.Core.Security.Permissions;
 
 namespace Smartstore.PayPal.Client
 {
@@ -130,6 +128,7 @@ namespace Smartstore.PayPal.Client
             var customer = _workContext.CurrentCustomer;
             var store = _storeContext.GetStoreById(request.StoreId);
             var settings = _settingFactory.LoadSettings<PayPalSettings>(request.StoreId);
+            var contactDataSettings = _settingFactory.LoadSettings<ContactDataSettings>(request.StoreId);
             var language = _workContext.WorkingLanguage;
             var currency = _workContext.WorkingCurrency;
             var paymentData = _checkoutStateAccessor.CheckoutState.PaymentData;
@@ -280,7 +279,7 @@ namespace Smartstore.PayPal.Client
                         Phone = new PhoneMessage
                         {
                             NationalNumber = phoneNumber,
-                            CountryCode = "49"  // TODO: (mh) (core) ...
+                            CountryCode = customer.BillingAddress.Country.DiallingCode.ToString()
                         },
                         BillingAddress = new BillingAddressMessage
                         {
@@ -296,7 +295,7 @@ namespace Smartstore.PayPal.Client
                             LogoUrl = logoUrl,
                             CustomerServiceInstructions = new string[]
                             {
-                                "TODO: SERVice number"
+                                contactDataSettings.HotlineTelephoneNumber
                             }
                         }
                     }

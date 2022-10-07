@@ -18,6 +18,7 @@ namespace Smartstore.PayPal.Models
         [LocalizedDisplay("*Phone")]
         [DataType(DataType.PhoneNumber)]
         public string PhoneNumber { get; set; }
+        public string DailingCode { get; set; }
     }
 
     public partial class PayPalInvoiceValidator : SmartValidator<PublicInvoiceModel>
@@ -34,7 +35,6 @@ namespace Smartstore.PayPal.Models
             RuleFor(x => x.DateOfBirthYear)
                 .NotEmpty()
                 .WithMessage(T("Plugins.Smartstore.PayPal.DateOfBirthYear.NotNull"));
-
 
             RuleFor(x => x.PhoneNumber)
                 .Matches(@"^[0-9]{1,14}?$")

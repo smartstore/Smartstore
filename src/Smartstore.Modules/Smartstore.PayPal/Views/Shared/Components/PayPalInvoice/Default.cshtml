@@ -25,7 +25,12 @@
         <label asp-for="PhoneNumber" class="col-md-3 col-form-label required"></label>
         <div class="col-md-9">
             @*TODO: (mh) (core) Display fixed international dailling number based on BillingAddress country in btn-group *@
-            <input asp-for="PhoneNumber" sm-required="true" />
+
+            <div class="input-group">
+                <div class="input-group-prepend"><span class="input-group-text">+@Model.DailingCode</span></div>
+                <input asp-for="PhoneNumber" sm-required="true" />
+            </div>
+
             <span asp-validation-for="PhoneNumber"></span>
         </div>
     </div>

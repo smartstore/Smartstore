@@ -8,6 +8,10 @@ using Smartstore.Utilities;
 
 namespace Smartstore.PayPal.Filters
 {
+    /// <summary>
+    /// Renders a script to detect buyer fraud early by collecting the buyer's browser information during checkout and passing it to PayPal.
+    /// Must be active for pay per invoice. 
+    /// </summary>
     public class FraudnetFilter : IAsyncActionFilter
     {
         private readonly PayPalSettings _settings;
