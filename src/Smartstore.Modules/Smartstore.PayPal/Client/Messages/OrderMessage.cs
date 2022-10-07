@@ -1,5 +1,6 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Runtime.Serialization;
+using Newtonsoft.Json.Converters;
 
 namespace Smartstore.PayPal.Client.Messages
 {
@@ -8,17 +9,17 @@ namespace Smartstore.PayPal.Client.Messages
     /// </summary>
     public class OrderMessage
     {
-        // TODO: (mh) (core) Make it an enum
         /// <summary>
         /// The intent to either capture payment immediately or authorize a payment for an order after order creation. 
         /// Possible values are CAPTURE & AUTHORIZE
         /// </summary>
         [Required]
-        [JsonProperty("intent", DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public string Intent;
+        [JsonProperty("intent")]
+        [JsonConverter(typeof(StringEnumConverter))]
+        public Intent Intent;
 
         /// <summary>
-        /// TODO: (mh) (core) Docs
+        /// The instruction to process an order.
         /// </summary>
         [JsonProperty("processing_instruction", DefaultValueHandling = DefaultValueHandling.Ignore)]
         public string ProcessingInstruction;
@@ -114,12 +115,12 @@ namespace Smartstore.PayPal.Client.Messages
         [JsonProperty("unit_amount", DefaultValueHandling = DefaultValueHandling.Ignore)]
         public MoneyMessage UnitAmount;
 
-        // TODO: (mh) (core) Make enum
         /// <summary>
         /// The item category type (possible values are DIGITAL_GOODS, PHYSICAL_GOODS & DONATION). 
         /// </summary>
-        [JsonProperty("category", DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public string Category;
+        [JsonProperty("category")]
+        [JsonConverter(typeof(StringEnumConverter))]
+        public ItemCategoryType Category;
 
         /// <summary>
         /// The detailed item description.
@@ -307,5 +308,26 @@ namespace Smartstore.PayPal.Client.Messages
 
         [JsonProperty("customer_service_instructions", DefaultValueHandling = DefaultValueHandling.Ignore)]
         public string[] CustomerServiceInstructions;
+    }
+
+    public enum Intent
+    {
+        [EnumMember(Value = "CAPTURE")]
+        Capture,
+
+        [EnumMember(Value = "AUTHORIZE")]
+        Authorize
+    }
+
+    public enum ItemCategoryType
+    {
+        [EnumMember(Value = "DIGITAL_GOODS")]
+        DigitalGoods,
+
+        [EnumMember(Value = "PHYSICAL_GOODS")]
+        PhysicalGoods,
+
+        [EnumMember(Value = "DONATION")]
+        Donation
     }
 }

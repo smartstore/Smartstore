@@ -174,7 +174,7 @@ namespace Smartstore.PayPal.Client
                     },
                     Name = productName,
                     Description = productDescription,
-                    Category = item.IsEsd ? "DIGITAL_GOODS" : "PHYSICAL_GOODS",
+                    Category = item.IsEsd ? ItemCategoryType.DigitalGoods : ItemCategoryType.PhysicalGoods,
                     Quantity = item.EnteredQuantity.ToString(),
                     Sku = item.Sku,
                     Tax = new MoneyMessage
@@ -262,7 +262,7 @@ namespace Smartstore.PayPal.Client
 
             var orderMessage = new OrderMessage
             {
-                Intent = "CAPTURE",
+                Intent = Intent.Capture,
                 ProcessingInstruction = "ORDER_COMPLETE_ON_PAYMENT_APPROVAL",
                 PurchaseUnits = purchaseUnits.ToArray(),
                 PaymentSource = new PaymentSource
