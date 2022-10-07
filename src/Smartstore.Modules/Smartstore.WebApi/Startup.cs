@@ -243,7 +243,8 @@ namespace Smartstore.Web.Api
                     app.UseODataQueryRequest();
 
                     // TODO: (mg) (core) batching always fails with HTTP error 500 on all nested requests.
-                    // No details due to CA1031 (catched general exception type), see ODataBatchRequestItem, line 74. Investigate "RequestHandler".
+                    // UrlService.GetUrlPolicy() throws InvalidOperationException. Missing HttpContext.
+                    // Same BasicAuthenticationHandler: "Smartstore.WebApi.Basic was not authenticated. Failure message: HttpContext must not be null"
 
                     // Add the OData Batch middleware to support OData $Batch.
                     app.UseODataBatching();
