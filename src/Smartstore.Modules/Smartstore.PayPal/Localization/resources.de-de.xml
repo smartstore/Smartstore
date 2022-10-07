@@ -152,7 +152,7 @@
                 <Value>Legt fest, ob das Widget zur Zahlung in Raten auf der Produktdetailseite angezeigt werden soll.</Value>
             </LocaleResource>
             <LocaleResource Name="CustomerServiceInstructions">
-                <Value>Kundendienst-Hinweis</Value>
+                <Value>Kundendienst Hinweis</Value>
             </LocaleResource>
             <LocaleResource Name="CustomerServiceInstructions.Hint">
                 <Value>Geben Sie hier einen Hinweistext zur Erreichbarkeit des Kundendienstes an.</Value>

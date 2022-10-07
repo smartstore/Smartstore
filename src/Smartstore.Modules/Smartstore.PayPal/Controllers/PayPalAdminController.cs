@@ -24,7 +24,11 @@ namespace Smartstore.PayPal.Controllers
         private readonly PayPalHttpClient _client;
         private readonly ILocalizedEntityService _localizedEntityService;
 
-        public PayPalAdminController(ICacheFactory cacheFactory, IProviderManager providerManager, PayPalHttpClient client, ILocalizedEntityService localizedEntityService)
+        public PayPalAdminController(
+            ICacheFactory cacheFactory, 
+            IProviderManager providerManager, 
+            PayPalHttpClient client, 
+            ILocalizedEntityService localizedEntityService)
         {
             _cacheFactory = cacheFactory;
             _providerManager = providerManager;

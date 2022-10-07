@@ -83,6 +83,7 @@ namespace Smartstore.PayPal.Settings
         /// <summary>
         /// Specifies a text that is displayed by PayPal as service instruction.
         /// </summary>
+        [LocalizedProperty]
         public string CustomerServiceInstructions { get; set; }
     }
 }
