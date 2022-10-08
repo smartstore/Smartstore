@@ -126,7 +126,12 @@ namespace Smartstore.Web.Controllers
 
                 if (result.Completed && result.Success)
                 {
-                    _hostApplicationLifetime.StopApplication();
+                    // Shutdown application with slight delay to not
+                    // interfere with AJAX calls.
+                    _ = Task.Delay(500).ContinueWith((t, state) => 
+                    {
+                        ((IHostApplicationLifetime)state).StopApplication();
+                    }, _hostApplicationLifetime);
                 }
 
                 return Json(result);
@@ -174,7 +179,9 @@ namespace Smartstore.Web.Controllers
         {
             await _asyncState.RemoveAsync<InstallationResult>();
 
-            if (restart)
+            if (restart && 
+                !_hostApplicationLifetime.ApplicationStopping.IsCancellationRequested && 
+                !_hostApplicationLifetime.ApplicationStopped.IsCancellationRequested)
             {
                 _hostApplicationLifetime.StopApplication();
             }

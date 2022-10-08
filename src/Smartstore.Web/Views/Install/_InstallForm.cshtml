@@ -5,9 +5,6 @@
 @{
     Layout = null;
     var availableLanguages = ViewBag.AvailableInstallationLanguages as IList<SelectListItem>;
-    var progressUrl = Url.Action("Progress", "Install");
-    var finalizeUrl = Url.Action("Finalize", "Install");
-    var checkAliveUrl = Url.Content("~/taskscheduler/noop");
 }
 
 @functions {

@@ -6,7 +6,7 @@
     Layout = null;
 
     var installResult = ViewBag.InstallResult as InstallationResult;
-    var isRunning = installResult != null;
+    var wasRunning = installResult != null;
 }
 
 @functions {
@@ -43,57 +43,17 @@
     <script src="~/lib/jquery/jquery-3.6.0.min.js"></script>
     <script src="~/lib/bs4/js/bootstrap.bundle.min.js"></script>
 
-    <style>
-        .content {
-            max-width: 990px !important;
-            margin-left: auto !important;
-            margin-right: auto !important;
-        }
-
-        .redirect-info > a {
-            color: #fff;
-            text-decoration: underline;
-        }
-    </style>
-</head>
-<body data-url-install="@Url.Action("Install", "Install")" 
-      data-url-progress="@Url.Action("Progress", "Install")"
-      data-url-finalize="@Url.Action("Finalize", "Install")"
-      data-url-checkalive="@Url.Content("~/taskscheduler/noop")"
-      data-url-home="@Url.Action("Index", "Home")">
-
-    <div id="page">
-        <div class="page-main">
-            <partial name="_InstallForm" model="Model" />
-        </div>
-    </div>
-
-    <zone name="scripts">
-        <script src="~/js/smartstore.system.js"></script>
-        <script src="~/js/smartstore.viewport.js"></script>
-        <script src="~/js/smartstore.common.js"></script>
-        <script src="~/lib/underscore/underscore.min.js"></script>
-        <script src="~/js/underscore.mixins.js"></script>
-        <script src="~/js/smartstore.throbber.js"></script>
-        <script src="~/js/public.common.js"></script>
-    </zone>
-
     <script>
-        $(function () {
-            let isAutoInstall = @(Model.IsAutoInstall.ToString().ToLower());
-            let isRunning = @(isRunning.ToString().ToLower());
+        let isAutoInstall = @(Model.IsAutoInstall.ToString().ToLower());
+        let wasRunning = @(wasRunning.ToString().ToLower());
 
-            if (isRunning) {
-                Installation.onStart();
-            }
-        });
-
-        const Installation = (function () {
+        let Installation = (function () {
             let urlInstall = "@Url.Action("Install", "Install")";
             let urlProgress = "@Url.Action("Progress", "Install")";
             let urlFinalize = "@Url.Action("Finalize", "Install")";
             let urlCheckAlive = "@Url.Content("~/taskscheduler/noop")";
             let urlHome = "@Url.Action("Index", "Home")";
+            let progressMessage = "@(wasRunning ? Html.Raw(installResult.ProgressMessage) : string.Empty)";
 
             var checkAliveInterval, progressInterval;
 
@@ -101,7 +61,9 @@
 
                 showThrobber: function () {
                     $.throbber.show({
-                        message: '<div id="install-message">' + Res['Installing'] + '</div><div id="install-progress" style="font-size: 16px; font-weight: 400; margin: 10px 0 30px 0"></div>',
+                        message: `
+                            <div id="install-message">${Res['Installing']}</div>
+                            <div id="install-progress" style="font-size: 16px; font-weight: 400; margin: 10px 0 30px 0">${progressMessage}</div>`
                     });
                 },
 
@@ -147,10 +109,20 @@
                                 }
                             }
                             else {
-                                $("#install-progress").html("");
+                                if (!wasRunning) {
+                                    $("#install-progress").html("");
+                                }
+                                else {
+                                    Installation.onComplete();
+                                    Installation.onSuccess(data);
+                                }
                             }
                         },
                         error: function () {
+                            if (wasRunning) {
+                                Installation.onComplete();
+                            }
+
                             console.log("ERROR");
                             Installation.handleError(arguments[0].responseText);
                         }
@@ -205,7 +177,7 @@
                     Installation.finalize(data.Success);
 
                     if (data.Success) {
-                        let message = Res["Progress.Redirect"].format(urlHome);
+                        let message = htmlDecode(Res["Progress.Redirect"]).format(urlHome);
                         $("#install-message").html(Res["Common.StartShop"]);
                         $("#install-progress").html('<span class="redirect-info">' + message + '</span>');
 
@@ -229,7 +201,48 @@
                 }
             };
         })();
+
+        $(function () {
+            if (wasRunning) {
+                Installation.onStart();
+            }
+        });
     </script>
+
+    <style>
+        .content {
+            max-width: 990px !important;
+            margin-left: auto !important;
+            margin-right: auto !important;
+        }
+
+        .redirect-info > a {
+            color: #fff;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body data-url-install="@Url.Action("Install", "Install")"
+      data-url-progress="@Url.Action("Progress", "Install")"
+      data-url-finalize="@Url.Action("Finalize", "Install")"
+      data-url-checkalive="@Url.Content("~/taskscheduler/noop")"
+      data-url-home="@Url.Action("Index", "Home")">
+
+    <div id="page">
+        <div class="page-main">
+            <partial name="_InstallForm" model="Model" />
+        </div>
+    </div>
+
+    <zone name="scripts">
+        <script src="~/js/smartstore.system.js"></script>
+        <script src="~/js/smartstore.viewport.js"></script>
+        <script src="~/js/smartstore.common.js"></script>
+        <script src="~/lib/underscore/underscore.min.js"></script>
+        <script src="~/js/underscore.mixins.js"></script>
+        <script src="~/js/smartstore.throbber.js"></script>
+        <script src="~/js/public.common.js"></script>
+    </zone>
 
 </body>
 </html>
