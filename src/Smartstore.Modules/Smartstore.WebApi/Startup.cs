@@ -160,6 +160,10 @@ namespace Smartstore.Web.Api
                     }
 
                     var edmModel = modelBuilder.GetEdmModel();
+
+                    // TODO: (mg) (core) Can't resolve dependencies here! The earliest stage where
+                    // this is possible is "BuildPipeline()" because the root service container
+                    // is built then.
                     var settings = appContext.Services.ResolveOptional<WebApiSettings>() ?? new();
 
                     o.EnableQueryFeatures(settings.MaxTop);
