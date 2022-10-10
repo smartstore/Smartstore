@@ -14,8 +14,6 @@
     </button>
 </widget>
 
-<div asp-validation-summary="All"></div>
-
 <tabstrip id="webapi-config" sm-nav-style="Material" sm-nav-position="Top">
     <tab sm-title="@T("Common.General")" sm-selected="true">
         @await Component.InvokeAsync("StoreScope")
@@ -23,35 +21,6 @@
             <div asp-validation-summary="All"></div>
 
             <div class="adminContent">
-                <div class="adminRow">
-                    <div class="adminTitle">
-                        <smart-label asp-for="IsActive" />
-                    </div>
-                    <div class="adminData">
-                        <setting-editor asp-for="IsActive" data-toggler-for=".api-settings"></setting-editor>
-                        <span asp-validation-for="IsActive"></span>
-                    </div>
-                </div>
-                <div class="api-settings">
-                    <div class="adminRow">
-                        <div class="adminTitle">
-                            <smart-label asp-for="MaxTop" />
-                        </div>
-                        <div class="adminData">
-                            <setting-editor asp-for="MaxTop"></setting-editor>
-                            <span asp-validation-for="MaxTop"></span>
-                        </div>
-                    </div>
-                    <div class="adminRow">
-                        <div class="adminTitle">
-                            <smart-label asp-for="MaxExpansionDepth" />
-                        </div>
-                        <div class="adminData">
-                            <setting-editor asp-for="MaxExpansionDepth"></setting-editor>
-                            <span asp-validation-for="MaxExpansionDepth"></span>
-                        </div>
-                    </div>
-                </div>
                 <div class="adminRow">
                     <div class="adminTitle">
                         <smart-label asp-for="ApiOdataUrl" />
@@ -84,9 +53,77 @@
                         <a href="@Model.ApiDocsUrl" target="_blank">@Model.ApiDocsUrl</a>
                     </div>
                 </div>
+
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="IsActive" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="IsActive" data-toggler-for=".api-settings"></setting-editor>
+                        <span asp-validation-for="IsActive"></span>
+                    </div>
+                </div>
+                <div class="api-settings">
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="MaxTop" />
+                        </div>
+                        <div class="adminData">
+                            <setting-editor asp-for="MaxTop"></setting-editor>
+                            <span asp-validation-for="MaxTop"></span>
+                        </div>
+                    </div>
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="MaxExpansionDepth" />
+                        </div>
+                        <div class="adminData">
+                            <setting-editor asp-for="MaxExpansionDepth"></setting-editor>
+                            <span asp-validation-for="MaxExpansionDepth"></span>
+                        </div>
+                    </div>
+                    <div class="adminRow">
+                        <div class="admin-config-group">
+                            <div class="title">@T("Plugins.Api.WebApi.Batch")</div>
+                            <p class="text-muted">
+                                @T("Plugins.Api.WebApi.RequiresRestart")
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="MaxBatchNestingDepth" />
+                        </div>
+                        <div class="adminData form-control-plaintext">
+                            <setting-editor asp-for="MaxBatchNestingDepth"></setting-editor>
+                            <span asp-validation-for="MaxBatchNestingDepth"></span>
+                        </div>
+                    </div>
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="MaxBatchOperationsPerChangeset" />
+                        </div>
+                        <div class="adminData form-control-plaintext">
+                            <setting-editor asp-for="MaxBatchOperationsPerChangeset"></setting-editor>
+                            <span asp-validation-for="MaxBatchOperationsPerChangeset"></span>
+                        </div>
+                    </div>
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="MaxBatchReceivedMessageSize" />
+                        </div>
+                        <div class="adminData form-control-plaintext">
+                            <setting-editor asp-for="MaxBatchReceivedMessageSize" sm-postfix="KB"></setting-editor>
+                            <span asp-validation-for="MaxBatchReceivedMessageSize"></span>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </form>
     </tab>
+
     <tab sm-title="@T("Plugins.Api.WebApi.UserGridTabTitle")" sm-adaptive-height="true">
         <div class="d-flex flex-column h-100">
             <div class="flex-grow-0">

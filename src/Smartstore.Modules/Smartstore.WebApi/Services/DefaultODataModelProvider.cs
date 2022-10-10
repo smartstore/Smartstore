@@ -2,6 +2,7 @@
 using Microsoft.OData.ModelBuilder;
 using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Discounts;
+using Smartstore.Core.Common;
 using Smartstore.Engine;
 
 namespace Smartstore.Web.Api
@@ -10,6 +11,7 @@ namespace Smartstore.Web.Api
     {
         public override void Build(ODataModelBuilder builder, int version)
         {
+            builder.EntitySet<Address>("Addresses");
             builder.EntitySet<Category>("Categories");
             builder.EntitySet<Discount>("Discounts");
         }

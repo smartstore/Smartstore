@@ -102,4 +102,28 @@
     <LocaleResource Name="ApiAccess">
         <Value>Zugang zur API</Value>
     </LocaleResource>
+    <LocaleResource Name="Batch">
+        <Value>Batch</Value>
+    </LocaleResource>
+    <LocaleResource Name="RequiresRestart">
+        <Value>Diese Einstellungen werden erst nach einem Neustart der Anwendung wirksam.</Value>
+    </LocaleResource>
+    <LocaleResource Name="MaxBatchNestingDepth">
+        <Value>Maximale Verschachtelungstiefe</Value>
+    </LocaleResource>
+    <LocaleResource Name="MaxBatchNestingDepth.Hint">
+        <Value>Legt die maximale Verschachtelungstiefe fest, die beim Lesen oder Schreiben rekursiver Batch-Payloads zulässig ist.</Value>
+    </LocaleResource>
+    <LocaleResource Name="MaxBatchOperationsPerChangeset">
+        <Value>Maximale Operationen pro Änderungsvorgang</Value>
+    </LocaleResource>
+    <LocaleResource Name="MaxBatchOperationsPerChangeset.Hint">
+        <Value>Legt die maximale Anzahl der in einem einzelnen Batch-Änderungsvorgang zulässigen Operationen fest.</Value>
+    </LocaleResource>
+    <LocaleResource Name="MaxBatchReceivedMessageSize">
+        <Value>Maximale Nachrichtengröße</Value>
+    </LocaleResource>
+    <LocaleResource Name="MaxBatchReceivedMessageSize.Hint">
+        <Value>Legt die maximale Datenmenge (in KB) fest, die aus einer Stapelnachricht gelesen werden soll.</Value>
+    </LocaleResource>
 </Language>

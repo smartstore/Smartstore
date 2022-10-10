@@ -8,12 +8,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
-using Microsoft.OData.Edm;
 using Microsoft.OData.Json;
 using Microsoft.OData.ModelBuilder;
-using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
-using Parlot.Fluent;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;
 using Smartstore.Web.Api.Security;
@@ -22,8 +19,8 @@ using Swashbuckle.AspNetCore.SwaggerUI;
 
 namespace Smartstore.Web.Api
 {
-    // TODO: (mg) (core) IEEE754Compatible=true is not supported\working:
-    // https://github.com/OData/WebApi/issues/1460
+    // TODO: (mg) (core) IEEE754Compatible=true is not supported\working: https://github.com/OData/WebApi/issues/1460
+    // TODO: (mg) (core) check OData metadata and Swagger for unwanted entities when all is ready.
 
     /// <summary>
     /// For proper configuration see https://github.com/domaindrivendev/Swashbuckle.AspNetCore
@@ -70,8 +67,6 @@ namespace Smartstore.Web.Api
                     //o.IgnoreObsoleteActions();
                     //o.IgnoreObsoleteProperties();
 
-                    //o.UseAllOfForInheritance();
-
                     // Avoids "Conflicting schemaIds" (multiple types with the same name but different namespaces).
                     o.CustomSchemaIds(type => type.FullName);
 
@@ -106,16 +101,19 @@ namespace Smartstore.Web.Api
                     // Ordering within a group does not work. See https://github.com/domaindrivendev/Swashbuckle.AspNetCore/issues/401
                     //o.OrderActionsBy(x => ...);
 
+                    // Filters.
+                    o.DocumentFilter<SwaggerDocumentFilter>();
+                    o.OperationFilter<SwaggerOperationFilter>();
+
+                    // Schema filtering does not work as expected if you only want to reduce the depth of the generated examples
+                    // without changing the actual schema definition. See https://github.com/domaindrivendev/Swashbuckle.AspNetCore/issues/615
+                    //o.SchemaFilter<SwaggerSchemaFilter>();
+
                     //o.MapType<decimal>(() => new OpenApiSchema
                     //{
                     //    Type = "number($double)",
                     //    Example = new OpenApiDouble(16.5)
                     //});
-
-                    // Filters.
-                    o.DocumentFilter<SwaggerDocumentFilter>();
-                    o.OperationFilter<SwaggerOperationFilter>();
-                    o.SchemaFilter<SwaggerSchemaFilter>();
 
                     try
                     {
@@ -132,6 +130,7 @@ namespace Smartstore.Web.Api
                             }
                         }
 
+                        // Concrete example values for entity properties could be defined per XML comment at the entities:
                         //o.IncludeXmlComments(@"...\Smartstore.Full\Smartstore\src\Smartstore.Web\bin\Debug\Smartstore.Core.xml");
                     }
                     catch (Exception ex)
@@ -161,8 +160,9 @@ namespace Smartstore.Web.Api
                     }
 
                     var edmModel = modelBuilder.GetEdmModel();
+                    var settings = appContext.Services.ResolveOptional<WebApiSettings>() ?? new();
 
-                    o.EnableQueryFeatures(WebApiSettings.DefaultMaxTop);
+                    o.EnableQueryFeatures(settings.MaxTop);
                     o.AddRouteComponents("odata/v1", edmModel, services =>
                     {
                         // Perf: https://devblogs.microsoft.com/odata/using-the-new-json-writer-in-odata/
@@ -170,17 +170,12 @@ namespace Smartstore.Web.Api
                         //services.AddSingleton<ODataSerializerProvider>(sp => new MySerializerProvider(sp));
 
                         var bh = new DefaultODataBatchHandler();
-                        bh.MessageQuotas.MaxNestingDepth = WebApiSettings.DefaultMaxExpansionDepth;
-                        bh.MessageQuotas.MaxOperationsPerChangeset = 10;
-                        bh.MessageQuotas.MaxReceivedMessageSize = WebApiSettings.DefaultMaxTop;
+                        bh.MessageQuotas.MaxNestingDepth = settings.MaxBatchNestingDepth;
+                        bh.MessageQuotas.MaxOperationsPerChangeset = settings.MaxBatchOperationsPerChangeset;
+                        bh.MessageQuotas.MaxReceivedMessageSize = 1024 * settings.MaxBatchReceivedMessageSize;
 
                         services.AddSingleton<ODataBatchHandler>(_ => bh);
                     });
-
-                    // TODO: (mg) (core) a) remove masses (!) of unwanted entities in OData metadata.
-                    // See /odata/v1/$metadata. Everything except decorated with IgnoreDataMember is serialized.
-                    // b) also remove masses (!) of unwanted schemas (entities) in Swagger. ISchemaFilter required?
-                    // Example: RuleSetEntity is not part of the EDM but serialized via Category > AppliedDiscounts > RuleSets.
 
                     o.TimeZone = TimeZoneInfo.Utc;
                     o.RouteOptions.EnableUnqualifiedOperationCall = true;
@@ -242,12 +237,9 @@ namespace Smartstore.Web.Api
                     // Add OData /$query middleware.
                     app.UseODataQueryRequest();
 
-                    // TODO: (mg) (core) batching always fails with HTTP error 500 on all nested requests.
-                    // UrlService.GetUrlPolicy() throws InvalidOperationException. Missing HttpContext.
-                    // Same BasicAuthenticationHandler: "Smartstore.WebApi.Basic was not authenticated. Failure message: HttpContext must not be null"
-
-                    // Add the OData Batch middleware to support OData $Batch.
+                    // Add the OData Batch middleware to support OData $batch.
                     app.UseODataBatching();
+                    app.UseMiddleware<ODataBatchHttpContextAccessor>();
 
                     // If you want to use /$openapi, enable the middleware.
                     //app.UseODataOpenApi();

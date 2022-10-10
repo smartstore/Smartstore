@@ -102,4 +102,28 @@
     <LocaleResource Name="ApiAccess">
         <Value>Access to API</Value>
     </LocaleResource>
+    <LocaleResource Name="Batch">
+        <Value>Batch</Value>
+    </LocaleResource>
+    <LocaleResource Name="RequiresRestart">
+        <Value>These settings take effect only after restarting the application.</Value>
+    </LocaleResource>
+    <LocaleResource Name="MaxBatchNestingDepth">
+        <Value>Maximum nesting depth</Value>
+    </LocaleResource>
+    <LocaleResource Name="MaxBatchNestingDepth.Hint">
+        <Value>Specifies the maximum depth of nesting allowed when reading or writing recursive batch payloads.</Value>
+    </LocaleResource>
+    <LocaleResource Name="MaxBatchOperationsPerChangeset">
+        <Value>Maximum operations per changeset</Value>
+    </LocaleResource>
+    <LocaleResource Name="MaxBatchOperationsPerChangeset.Hint">
+        <Value>Specifies the maximum number of operations allowed in a single batch changeset.</Value>
+    </LocaleResource>
+    <LocaleResource Name="MaxBatchReceivedMessageSize">
+        <Value>Maximum received message size</Value>
+    </LocaleResource>
+    <LocaleResource Name="MaxBatchReceivedMessageSize.Hint">
+        <Value>Specifies the maximum amount of data (in KB) that should be read from a batch message.</Value>
+    </LocaleResource>
 </Language>

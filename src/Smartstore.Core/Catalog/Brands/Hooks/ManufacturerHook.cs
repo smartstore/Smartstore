@@ -1,5 +1,4 @@
-﻿using Smartstore.Caching;
-using Smartstore.Core.Data;
+﻿using Smartstore.Core.Data;
 using Smartstore.Data.Hooks;
 
 namespace Smartstore.Core.Catalog.Brands
@@ -8,12 +7,10 @@ namespace Smartstore.Core.Catalog.Brands
     internal class ManufacturerHook : AsyncDbSaveHook<Manufacturer>
     {
         private readonly SmartDbContext _db;
-        private readonly IRequestCache _requestCache;
 
-        public ManufacturerHook(SmartDbContext db, IRequestCache requestCache)
+        public ManufacturerHook(SmartDbContext db)
         {
             _db = db;
-            _requestCache = requestCache;
         }
 
         protected override Task<HookResult> OnInsertedAsync(Manufacturer entity, IHookedEntity entry, CancellationToken cancelToken)

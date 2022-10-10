@@ -42,6 +42,29 @@ namespace Smartstore.Core.Common.Services
             return Task.FromResult(FixAddress(entity));
         }
 
+        public override Task<HookResult> OnAfterSaveAsync(IHookedEntity entry, CancellationToken cancelToken)
+            => Task.FromResult(HookResult.Ok);
+
+        public override async Task OnAfterSaveCompletedAsync(IEnumerable<IHookedEntity> entries, CancellationToken cancelToken)
+        {
+            var addressIds = entries
+                .Select(x => x.Entity)
+                .OfType<Address>()
+                .ToDistinctArray(x => x.Id);
+
+            if (addressIds.Length > 0)
+            {
+                var orders = await _db.Orders
+                    .Where(x => addressIds.Contains(x.BillingAddressId) || (x.ShippingAddressId != null && addressIds.Contains(x.ShippingAddressId.Value)))
+                    .ToListAsync(cancelToken);
+
+                foreach (var order in orders)
+                {
+                    await _services.EventPublisher.PublishOrderUpdatedAsync(order);
+                }
+            }
+        }
+
         private static HookResult FixAddress(Address address)
         {
             if (address.CountryId == 0)
