@@ -7,7 +7,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.7" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.10" />
 		<PackageReference Include="XiaoYang.EntityFrameworkCore.Bulk.SqlServer" Version="6.0.29" />
 	</ItemGroup>
 

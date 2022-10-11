@@ -18,9 +18,9 @@
 		<PackageReference Include="MaxMind.Db" Version="4.0.0" />
 		<PackageReference Include="MaxMind.GeoIP2" Version="5.1.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.2.0" />
-		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.7" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.7" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="6.0.7" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.10" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.10" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="6.0.10" />
 		<PackageReference Include="Parlot" Version="0.0.23" />
 		<PackageReference Include="Polly" Version="7.2.3" />
 		<PackageReference Include="PreMailer.Net" Version="2.4.0" />
@@ -31,7 +31,7 @@
 		<PackageReference Include="Serilog.Sinks.PeriodicBatching" Version="2.3.1" />
 		<PackageReference Include="System.Linq.Dynamic.Core" Version="1.2.19" />
 		<PackageReference Include="System.Memory.Data" Version="6.0.0" />
-		<PackageReference Include="System.ServiceModel.Http" Version="4.9.0" />
+		<PackageReference Include="System.ServiceModel.Http" Version="4.10.0" />
 		<PackageReference Include="UAParser" Version="3.1.47" />
 		<PackageReference Include="XiaoYang.EntityFrameworkCore.Bulk" Version="6.0.29" />
 	</ItemGroup>

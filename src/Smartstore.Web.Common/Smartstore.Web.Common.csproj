@@ -16,8 +16,8 @@
 		<PackageReference Include="DouglasCrockford.JsMin" Version="2.1.0" />
 		<PackageReference Include="FluentValidation.AspNetCore" Version="9.5.3" />
 		<PackageReference Include="JavaScriptEngineSwitcher.V8" Version="3.19.0" />
-		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="6.0.7" />
-		<PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="6.0.7" />
+		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="6.0.10" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="6.0.10" />
 		<PackageReference Include="Microsoft.AspNetCore.OData" Version="8.0.11" />
 		<PackageReference Include="NUglify" Version="1.20.2" />
 		<PackageReference Include="SharpScss" Version="2.0.0" />
