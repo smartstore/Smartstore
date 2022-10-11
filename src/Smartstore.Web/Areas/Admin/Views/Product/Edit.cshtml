@@ -9,12 +9,12 @@
 <form asp-action="Edit" method="post" id="product-form">
     <div class="section-header">
         <div class="title">
+            <a sm-backto asp-action="List"></a>
             @if (Model.PictureThumbnailUrl.HasValue())
             {
                 <img src="@Url.Content(Model.PictureThumbnailUrl)" />
             }
             <span>@ViewBag.Title - <span title="@Model.Name">@Model.Name.Truncate(45, "...")</span></span>
-            <a asp-action="List">(@T("Admin.Catalog.Products.BackToList"))</a>
         </div>
         <div class="options">
             <zone name="admin_button_toolbar_before"></zone>

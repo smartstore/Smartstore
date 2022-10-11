@@ -12,11 +12,8 @@
 <form asp-action="EditAttributeValues" id="productvariantattribute-form">
     <div class="section-header">
         <div class="title">
-            @ViewBag.Title
-
-            <a asp-action="Edit" asp-controller="Product" asp-route-Id="@Model.ProductId">
-                (@T("Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values.BackToProduct"))
-            </a>
+            <a sm-backto asp-action="Edit" asp-controller="Product" asp-route-Id="@Model.ProductId" title="@T("Admin.Catalog.Products.ProductVariantAttributes.Attributes.Values.BackToProduct")"></a>
+            <span>@ViewBag.Title</span>
         </div>
         <div class="options">
         </div>

@@ -8,9 +8,9 @@
     <input type="hidden" asp-for="OrderId" />
     <div class="section-header">
         <div class="title">
+            <a sm-backto asp-action="Edit" asp-controller="Order" asp-route-id="@Model.OrderId" title="@T("Admin.Orders.Address.BackToOrder")"></a>
             <i class="far fa-chart-bar"></i>
             <span>@ViewBag.Title</span>
-            <a asp-action="Edit" asp-controller="Order" asp-route-id="@Model.OrderId">(@T("Admin.Orders.Address.BackToOrder"))</a>
         </div>
         <div class="options">
             <zone name="admin_button_toolbar_before" />

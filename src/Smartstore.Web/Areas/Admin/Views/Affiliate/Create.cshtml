@@ -9,7 +9,8 @@
 <form asp-action="Create">
     <div class="section-header">
         <div class="title">
-            @T("Admin.Affiliates.AddNew") <a asp-action="List">(@T("Admin.Affiliates.BackToList"))</a>
+            <a sm-backto asp-action="List"></a>
+            <span>@T("Admin.Affiliates.AddNew")</span>
         </div>
         <div class="options">
             <button type="submit" name="save" value="save" class="btn btn-primary">

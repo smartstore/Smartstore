@@ -9,7 +9,8 @@
 <form asp-action="Edit">
     <div class="section-header">
         <div class="title">
-            @T("Admin.Affiliates.EditAffiliateDetails") - @Model.Address.FirstName @Model.Address.LastName <a asp-action="List">(@T("Admin.Affiliates.BackToList"))</a>
+            <a sm-backto asp-action="List"></a>
+            <span>@T("Admin.Affiliates.EditAffiliateDetails") - @Model.Address.FirstName @Model.Address.LastName</span>
         </div>
         <div class="options">
             <button type="submit" name="save" value="save" class="btn btn-warning">

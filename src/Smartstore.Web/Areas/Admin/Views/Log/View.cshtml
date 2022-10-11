@@ -12,8 +12,9 @@
 
     <div class="section-header">
         <div class="title">
+            <a sm-backto asp-action="List"></a>
             <i class="fa fa-fire"></i>
-            @T("Admin.System.Log.ViewLogDetails") <a asp-action="List">(@T("Admin.System.Log.BackToList"))</a>
+            <span>@T("Admin.System.Log.ViewLogDetails")</span>
         </div>
         <div class="options">
             <button type="submit" id="log-delete" class="btn btn-danger">

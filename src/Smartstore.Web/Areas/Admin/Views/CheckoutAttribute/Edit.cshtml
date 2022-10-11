@@ -9,8 +9,8 @@
 <form asp-action="Edit" id="checkoutattribute-form">
     <div class="section-header">
         <div class="title">
-            @T("Admin.Catalog.Attributes.CheckoutAttributes.EditAttributeDetails") - @Model.Name
-            <a asp-action="List">(@T("Admin.Catalog.Attributes.CheckoutAttributes.BackToList"))</a>
+            <a sm-backto asp-action="List"></a>
+            <span>@T("Admin.Catalog.Attributes.CheckoutAttributes.EditAttributeDetails") - @Model.Name</span>
         </div>
         <div class="options">
             <button type="submit" name="save" value="save" class="btn btn-warning">

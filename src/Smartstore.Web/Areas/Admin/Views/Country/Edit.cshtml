@@ -9,8 +9,8 @@
 <form asp-action="Edit" id="country-form">
     <div class="section-header">
         <div class="title">
-            @T("Admin.Configuration.Countries.EditCountryDetails") - @Model.Name
-            <a asp-action="List">(@T("Admin.Configuration.Countries.BackToList"))</a>
+            <a sm-backto asp-action="List"></a>
+            <span>@T("Admin.Configuration.Countries.EditCountryDetails") - @Model.Name</span>
         </div>
         <div class="options">
             <button type="submit" name="save" value="save" class="btn btn-warning">

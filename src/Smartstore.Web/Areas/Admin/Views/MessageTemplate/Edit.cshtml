@@ -9,8 +9,9 @@
 <form asp-action="Edit">
     <div class="section-header">
         <div class="title">
+            <a sm-backto asp-action="List"></a>
             <i class="far fa-edit"></i>
-            @T("Admin.ContentManagement.MessageTemplates.EditMessageTemplateDetails") - @Model.Name <a asp-action="List">(@T("Admin.ContentManagement.MessageTemplates.BackToList"))</a>
+            <span>@T("Admin.ContentManagement.MessageTemplates.EditMessageTemplateDetails") - @Model.Name</span>
         </div>
         <div class="options">
             <zone name="admin_button_toolbar_before"></zone>

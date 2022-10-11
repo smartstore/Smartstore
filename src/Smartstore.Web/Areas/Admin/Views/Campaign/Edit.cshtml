@@ -9,7 +9,8 @@
 <form asp-action="Edit">
     <div class="section-header">
         <div class="title">
-            @T("Admin.Promotions.Campaigns.EditCampaignDetails") - @Model.Name <a asp-action="List">(@T("Admin.Promotions.Campaigns.BackToList"))</a>
+            <a sm-backto asp-action="List"></a>
+            <span>@T("Admin.Promotions.Campaigns.EditCampaignDetails") - @Model.Name</span>
         </div>
         <div class="options">
             @if (Model.Id > 0)

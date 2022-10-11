@@ -13,9 +13,9 @@
 <form method="post" asp-action="AddProductToOrder" asp-route-orderId="@Model.OrderId" asp-route-productId="@Model.ProductId" enctype="multipart/form-data">
     <div class="section-header">
         <div class="title">
+            <a sm-backto asp-action="Edit" asp-route-id="@Model.OrderId" title="@T("Admin.Orders.Products.AddNew.BackToOrder")"></a>
             <i class="far fa-chart-bar"></i>
             <span>@ViewBag.Title</span>
-            <a asp-action="Edit" asp-route-id="@Model.OrderId">(@T("Admin.Orders.Products.AddNew.BackToOrder"))</a>
         </div>
         <div class="options">
             <zone name="admin_button_toolbar_before" />
