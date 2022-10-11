@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.Drawing.Text;
 using FluentValidation;
 
 namespace Smartstore.Core.Installation

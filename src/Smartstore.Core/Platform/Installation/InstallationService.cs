@@ -1,4 +1,6 @@
 ﻿using System.Data.Common;
+using System.Net.Http;
+using System.Net.Http.Json;
 using System.Text.RegularExpressions;
 using System.Xml;
 using Autofac;
@@ -26,6 +28,7 @@ namespace Smartstore.Core.Installation
         private IList<InstallationLanguage> _installLanguages;
 
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IHttpClientFactory _httpClientFactory;
         private readonly IApplicationContext _appContext;
         private readonly IFilePermissionChecker _filePermissionChecker;
         private readonly IAsyncState _asyncState;
@@ -34,12 +37,14 @@ namespace Smartstore.Core.Installation
 
         public InstallationService(
             IHttpContextAccessor httpContextAccessor,
+            IHttpClientFactory httpClientFactory,
             IApplicationContext appContext,
             IFilePermissionChecker filePermissionChecker,
             IAsyncState asyncState,
             IEnumerable<Lazy<InvariantSeedData, InstallationAppLanguageMetadata>> seedDatas)
         {
             _httpContextAccessor = httpContextAccessor;
+            _httpClientFactory = httpClientFactory;
             _appContext = appContext;
             _filePermissionChecker = filePermissionChecker;
             _asyncState = asyncState;
@@ -258,7 +263,7 @@ namespace Smartstore.Core.Installation
                 //        x.ProgressMessage = $"Executing step {i} of {num}";
                 //    });
 
-                //    await Task.Delay(2000, cancelToken);
+                //    await Task.Delay(1000, cancelToken);
                 //}
                 #endregion
 
@@ -352,6 +357,17 @@ namespace Smartstore.Core.Installation
                     x.Completed = true;
                     x.RedirectUrl = null;
                 });
+            }
+            finally
+            {
+                if (model.CallbackUrl.IsWebUrl() && result.Completed)
+                {
+                    // Call webhook if given
+                    var httpClient = _httpClientFactory.CreateClient();
+
+                    // Fire & foget
+                    _ = httpClient.PostAsJsonAsync(model.CallbackUrl, result, cancellationToken: cancelToken);
+                }
             }
 
             InstallationResult Progress(Action<InstallationResult> fn)

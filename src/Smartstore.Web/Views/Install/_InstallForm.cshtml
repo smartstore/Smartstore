@@ -265,81 +265,80 @@
     <script src="~/js/smartstore.dialogs.js"></script>
 </widget>
 
-<widget target-zone="scripts">
+<widget target-zone="scripts" prepend="false">
     <script src="~/lib/jquery/jquery.addeasing.js"></script>
     <script src="~/lib/jquery/jquery.scrollTo.js"></script>
 </widget>
 
 <script sm-target-zone="scripts" data-origin="install-form">
-    var dataProvider = $('#DataProvider');
-    var useRawConString = $('#UseRawConnectionString');
-    var connection = $('#UseRawConnectionString');
-    var connectionInfo = $('#ConnectionInfoPanel');
-    var rawConString = $('#RawConnectionStringPanel');
-    var rawConStringHelp = $('#RawConnectionStringHelp');
-    var authType = $('#DbAuthType');
-    var userId = $('#DbUserId');
-    var password = $('#DbPassword');
-
     $(function () {
+        var dataProvider = $('#DataProvider');
+        var useRawConString = $('#UseRawConnectionString');
+        var connectionInfo = $('#ConnectionInfoPanel');
+        var rawConString = $('#RawConnectionStringPanel');
+        var rawConStringHelp = $('#RawConnectionStringHelp');
+        var authType = $('#DbAuthType');
+        var userId = $('#DbUserId');
+        var password = $('#DbPassword');
+
+        function hide(el, thenShow, callback) {
+            $(el).slideUp(300, "ease-in-out", function () {
+                if (thenShow) {
+                    show($(thenShow), callback);
+                }
+                else if (callback) {
+                    callback();
+                }
+            });
+        }
+
+        function show(el, callback) {
+            $(el).slideDown(300, "ease-in-out", callback);
+        }
+
+        function toggleDataProvider() {
+            var selectedProvider = dataProvider.val();
+            if (selectedProvider === 'mysql') {
+                authType.attr("disabled", "disabled");
+                userId.removeAttr("disabled");
+                password.removeAttr("disabled");
+                rawConStringHelp.find('> [data-for-provider=sqlserver]').hide();
+                rawConStringHelp.find('> [data-for-provider=mysql]').show();
+            }
+            else if (selectedProvider === 'sqlserver') {
+                authType.removeAttr("disabled");
+                toggleAuthType.apply(authType.get(0), arguments);
+                rawConStringHelp.find('> [data-for-provider=sqlserver]').show();
+                rawConStringHelp.find('> [data-for-provider=mysql]').hide();
+            }
+        }
+
+        function toggleConnectionInfo() {
+            var useRaw = $(this).val() === 'True';
+            if (useRaw) {
+                hide(connectionInfo, rawConString);
+            }
+            else {
+                hide(rawConString, connectionInfo);
+            }
+        }
+
+        function toggleAuthType() {
+            var selectedType = $(this).val();
+            if (selectedType == 'sqlserver') {
+                userId.removeAttr("disabled");
+                password.removeAttr("disabled");
+            }
+            else if (selectedType == 'windows') {
+                userId.attr("disabled", "disabled");
+                password.attr("disabled", "disabled");
+            }
+        }
+
         dataProvider.on('change', toggleDataProvider).trigger('change');
         useRawConString.on('change', toggleConnectionInfo).trigger('change');
         authType.on('change', toggleAuthType).trigger('change');
 
         setRememberedFormFields("installPrefs");
     });
-
-    function hide(el, thenShow, callback) {
-        $(el).slideUp(300, "ease-in-out", function () {
-            if (thenShow) {
-                show($(thenShow), callback);
-            }
-            else if (callback) {
-                callback();
-            }
-        });
-    }
-
-    function show(el, callback) {
-        $(el).slideDown(300, "ease-in-out", callback);
-    }
-
-    function toggleDataProvider() {
-        var selectedProvider = dataProvider.val();
-        if (selectedProvider === 'mysql') {
-            authType.attr("disabled", "disabled");
-            userId.removeAttr("disabled");
-            password.removeAttr("disabled");
-            rawConStringHelp.find('> [data-for-provider=sqlserver]').hide();
-            rawConStringHelp.find('> [data-for-provider=mysql]').show();
-        }
-        else if (selectedProvider === 'sqlserver') {
-            authType.removeAttr("disabled");
-            toggleAuthType.apply(authType.get(0), arguments);
-            rawConStringHelp.find('> [data-for-provider=sqlserver]').show();
-            rawConStringHelp.find('> [data-for-provider=mysql]').hide();
-        }
-    }
-
-    function toggleConnectionInfo() {
-        var useRaw = $(this).val() === 'True';
-        if (useRaw) {
-            hide(connectionInfo, rawConString);
-        }
-        else {
-            hide(rawConString, connectionInfo);
-        }
-    }
-
-    function toggleAuthType() {
-        var selectedType = $(this).val();
-        if (selectedType == 'sqlserver') {
-            userId.removeAttr("disabled");
-            password.removeAttr("disabled");
-        }
-        else if (selectedType == 'windows') {
-            userId.attr("disabled", "disabled");
-            password.attr("disabled", "disabled");
-        }
-    }
 </script>

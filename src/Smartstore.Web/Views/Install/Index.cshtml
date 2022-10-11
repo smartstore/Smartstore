@@ -43,11 +43,46 @@
     <script src="~/lib/jquery/jquery-3.6.0.min.js"></script>
     <script src="~/lib/bs4/js/bootstrap.bundle.min.js"></script>
 
+    <style>
+        .content {
+            max-width: 990px !important;
+            margin-left: auto !important;
+            margin-right: auto !important;
+        }
+
+        .redirect-info > a {
+            color: #fff;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body data-url-install="@Url.Action("Install", "Install")"
+      data-url-progress="@Url.Action("Progress", "Install")"
+      data-url-finalize="@Url.Action("Finalize", "Install")"
+      data-url-checkalive="@Url.Content("~/taskscheduler/noop")"
+      data-url-home="@Url.Action("Index", "Home")">
+
+    <div id="page">
+        <div class="page-main">
+            <partial name="_InstallForm" model="Model" />
+        </div>
+    </div>
+
+    <zone name="scripts">
+        <script src="~/js/smartstore.system.js"></script>
+        <script src="~/js/smartstore.viewport.js"></script>
+        <script src="~/js/smartstore.common.js"></script>
+        <script src="~/lib/underscore/underscore.min.js"></script>
+        <script src="~/js/underscore.mixins.js"></script>
+        <script src="~/js/smartstore.throbber.js"></script>
+        <script src="~/js/public.common.js"></script>
+    </zone>
+
     <script>
         let isAutoInstall = @(Model.IsAutoInstall.ToString().ToLower());
         let wasRunning = @(wasRunning.ToString().ToLower());
 
-        let Installation = (function () {
+        var Installation = (function () {
             let urlInstall = "@Url.Action("Install", "Install")";
             let urlProgress = "@Url.Action("Progress", "Install")";
             let urlFinalize = "@Url.Action("Finalize", "Install")";
@@ -208,41 +243,6 @@
             }
         });
     </script>
-
-    <style>
-        .content {
-            max-width: 990px !important;
-            margin-left: auto !important;
-            margin-right: auto !important;
-        }
-
-        .redirect-info > a {
-            color: #fff;
-            text-decoration: underline;
-        }
-    </style>
-</head>
-<body data-url-install="@Url.Action("Install", "Install")"
-      data-url-progress="@Url.Action("Progress", "Install")"
-      data-url-finalize="@Url.Action("Finalize", "Install")"
-      data-url-checkalive="@Url.Content("~/taskscheduler/noop")"
-      data-url-home="@Url.Action("Index", "Home")">
-
-    <div id="page">
-        <div class="page-main">
-            <partial name="_InstallForm" model="Model" />
-        </div>
-    </div>
-
-    <zone name="scripts">
-        <script src="~/js/smartstore.system.js"></script>
-        <script src="~/js/smartstore.viewport.js"></script>
-        <script src="~/js/smartstore.common.js"></script>
-        <script src="~/lib/underscore/underscore.min.js"></script>
-        <script src="~/js/underscore.mixins.js"></script>
-        <script src="~/js/smartstore.throbber.js"></script>
-        <script src="~/js/public.common.js"></script>
-    </zone>
 
 </body>
 </html>

@@ -4,7 +4,9 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
 using Smartstore.Core.Installation;
+using Smartstore.IO;
 using Smartstore.Threading;
+using Smartstore.Utilities;
 
 namespace Smartstore.Web.Controllers
 {
@@ -107,7 +109,7 @@ namespace Smartstore.Web.Controllers
                 return View(result.Model);
             }
 
-            if (!noAutoInstall && TryGetAutoInstallModel(out var model))
+            if (!noAutoInstall && TryGetAutoInstallModel(out var model, out var file))
             {
                 if (!TryValidateModel(model))
                 {
@@ -126,6 +128,12 @@ namespace Smartstore.Web.Controllers
 
                 if (result.Completed && result.Success)
                 {
+                    if (!HttpContext.Connection.IsLocal() && !CommonHelper.IsDevEnvironment)
+                    {
+                        // Delete auto-install model file after successfull installation
+                        file.Delete();
+                    }  
+
                     // Shutdown application with slight delay to not
                     // interfere with AJAX calls.
                     _ = Task.Delay(500).ContinueWith((t, state) => 
@@ -202,13 +210,14 @@ namespace Smartstore.Web.Controllers
             return RedirectToAction("Index");
         }
 
-        private bool TryGetAutoInstallModel(out InstallationModel model)
+        private bool TryGetAutoInstallModel(out InstallationModel model, out IFile file)
         {
             model = null;
+            file = null;
 
             try
             {
-                var file = _appContext.AppDataRoot.GetFile("installmodel.json");
+                file = _appContext.AppDataRoot.GetFile("installmodel.json");
                 if (file.Exists)
                 {
                     var json = file.ReadAllText();
