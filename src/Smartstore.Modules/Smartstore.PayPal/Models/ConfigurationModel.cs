@@ -77,6 +77,8 @@ namespace Smartstore.PayPal.Models
     {
         public ConfigurationModelValidator(Localizer T)
         {
+            RuleFor(x => x.MerchantName).NotEmpty();
+
             RuleFor(x => x.MerchantName)
                 .Must(y => !y.Any(x => char.IsWhiteSpace(x)))
                 .WithMessage(T("Plugins.Smartstore.PayPal.NoWhitespace"));
