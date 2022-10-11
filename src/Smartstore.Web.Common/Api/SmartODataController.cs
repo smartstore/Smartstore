@@ -1,6 +1,7 @@
 ﻿using System.Linq.Dynamic.Core;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.OData.Deltas;
+using Microsoft.AspNetCore.OData.Results;
 using Microsoft.AspNetCore.OData.Routing.Controllers;
 using Microsoft.OData;
 using Smartstore.ComponentModel;
@@ -14,6 +15,7 @@ namespace Smartstore.Web.Api
     /// - ActionResult<T> vs. IActionResult: IActionResult is used when multiple return types are possible.
     /// For ActionResult<T> ProducesResponseTypeAttribute's type property can be excluded.
     /// - Explicit "From" parameter bindings are required otherwise Swagger will describe them as "query" params by default.
+    /// - Accurate examples: https://github.com/dotnet/aspnet-api-versioning/tree/93bd8dc7582ec14c8ec97997c01cfe297b085e17/examples/AspNetCore/OData
     /// </remarks>
     [Authorize(AuthenticationSchemes = "Smartstore.WebApi.Basic")]
     public abstract class SmartODataController<TEntity> : ODataController
@@ -35,34 +37,77 @@ namespace Smartstore.Web.Api
             set => _dbSet = value;
         }
 
-        protected async Task<IActionResult> GetByIdAsync(int id, bool tracked = false)
+        /// <summary>
+        /// Gets an entity by identifier.
+        /// </summary>
+        /// <param name="id">Entity identifier.</param>
+        /// <param name="tracked">Applies "AsTracking()" or "AsNoTracking()" according to <paramref name="tracked"/> parameter.</param>
+        /// <returns>Returns zero or one entities.</returns>
+        protected SingleResult<TEntity> GetById(int id, bool tracked = false)
         {
-            var entity = await Entities.FindByIdAsync(id, tracked);
+            var query = Entities
+                .ApplyTracking(tracked)
+                .Where(x => x.Id == id);
 
-            // INFO: "NotFound" without object parameter produces unwanted HTML response.
-            return entity != null
-                ? Ok(entity)
-                : NotFound(default(TEntity));
+            return SingleResult.Create(query);
         }
 
-        protected async Task<IActionResult> GetPropertyValueAsync(int key, string property)
+        /// <summary>
+        /// Gets a related entity via navigation property.
+        /// </summary>
+        /// <param name="id">Entity identifier.</param>
+        /// <param name="navigationProperty">Navigation property expression.</param>
+        /// <param name="tracked">Applies "AsTracking()" or "AsNoTracking()" according to <paramref name="tracked"/> parameter.</param>
+        /// <returns>Returns zero or one entities.</returns>
+        protected SingleResult<TProperty> GetRelatedEntity<TProperty>(int id, Expression<Func<TEntity, TProperty>> navigationProperty, bool tracked = false)
         {
-            Guard.NotEmpty(property, nameof(property));
+            Guard.NotNull(navigationProperty, nameof(navigationProperty));
 
-            var values = await Entities
-                .Where(x => x.Id == key)
-                .Select($"new {{ {property} }}")
-                .ToDynamicArrayAsync();
+            var query = Entities
+                .ApplyTracking(tracked)
+                .Where(x => x.Id == id)
+                .Select(navigationProperty);
 
-            if (values.IsNullOrEmpty())
-            {
-                return NotFound(default(TEntity));
-            }
-
-            var propertyValue = (values[0] as DynamicClass).GetDynamicPropertyValue(property);
-
-            return Ok(propertyValue);
+            return SingleResult.Create(query);
         }
+
+        /// <summary>
+        /// Gets a query of related entities via navigation property.
+        /// </summary>
+        /// <param name="id">Entity identifier.</param>
+        /// <param name="navigationProperty">Navigation property expression.</param>
+        /// <param name="tracked">Applies "AsTracking()" or "AsNoTracking()" according to <paramref name="tracked"/> parameter.</param>
+        /// <returns>Related entities query.</returns>
+        protected IQueryable<TProperty> GetRelatedQuery<TProperty>(int id, Expression<Func<TEntity, IEnumerable<TProperty>>> navigationProperty, bool tracked = false)
+        {
+            Guard.NotNull(navigationProperty, nameof(navigationProperty));
+
+            var query = Entities
+                .ApplyTracking(tracked)
+                .Where(x => x.Id == id)
+                .SelectMany(navigationProperty);
+
+            return query;
+        }
+
+        //protected async Task<IActionResult> GetPropertyValueAsync(int id, string property)
+        //{
+        //    Guard.NotEmpty(property, nameof(property));
+
+        //    var values = await Entities
+        //        .Where(x => x.Id == id)
+        //        .Select($"new {{ {property} }}")
+        //        .ToDynamicArrayAsync();
+
+        //    if (values.IsNullOrEmpty())
+        //    {
+        //        return NotFound(default(TEntity));
+        //    }
+
+        //    var propertyValue = (values[0] as DynamicClass).GetDynamicPropertyValue(property);
+
+        //    return Ok(propertyValue);
+        //}
 
         /// <summary>
         /// Adds an entity.
@@ -288,21 +333,6 @@ namespace Smartstore.Web.Api
 
             return 0;
         }
-
-        #endregion
-
-        #region Probably obsolete (not required anymore)
-
-        //protected IQueryable<TCollection> GetRelatedCollection<TCollection>(
-        //    int key,
-        //    Expression<Func<TEntity, IEnumerable<TCollection>>> navigationProperty)
-        //{
-        //    Guard.NotNull(navigationProperty, nameof(navigationProperty));
-
-        //    var query = Entities.Where(x => x.Id.Equals(key));
-
-        //    return query.SelectMany(navigationProperty);
-        //}
 
         #endregion
     }

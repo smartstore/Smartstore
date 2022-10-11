@@ -19,8 +19,9 @@ using Swashbuckle.AspNetCore.SwaggerUI;
 
 namespace Smartstore.Web.Api
 {
-    // TODO: (mg) (core) IEEE754Compatible=true is not supported\working: https://github.com/OData/WebApi/issues/1460
     // TODO: (mg) (core) check OData metadata and Swagger for unwanted entities when all is ready.
+    // TODO: (mg) (core) IEEE754Compatible=true is not supported\working: https://github.com/OData/WebApi/issues/1460
+    // TODO: (mg) (core) implement Rate Limiting when switching to .NET 7: https://devblogs.microsoft.com/dotnet/announcing-rate-limiting-for-dotnet/
 
     /// <summary>
     /// For proper configuration see https://github.com/domaindrivendev/Swashbuckle.AspNetCore
@@ -164,14 +165,18 @@ namespace Smartstore.Web.Api
                     // TODO: (mg) (core) Can't resolve dependencies here! The earliest stage where
                     // this is possible is "BuildPipeline()" because the root service container
                     // is built then.
-                    var settings = appContext.Services.ResolveOptional<WebApiSettings>() ?? new();
+                    // RE: order in debugger is API step 1, API step 2, API step 3 with the desired settings, so I assume that this is the way it works now?
+                    "API step 2".Dump();
 
-                    o.EnableQueryFeatures(settings.MaxTop);
+                    o.EnableQueryFeatures(WebApiSettings.DefaultMaxTop);
                     o.AddRouteComponents("odata/v1", edmModel, services =>
                     {
                         // Perf: https://devblogs.microsoft.com/odata/using-the-new-json-writer-in-odata/
                         services.AddSingleton<IStreamBasedJsonWriterFactory>(_ => DefaultStreamBasedJsonWriterFactory.Default);
                         //services.AddSingleton<ODataSerializerProvider>(sp => new MySerializerProvider(sp));
+
+                        var settings = appContext.Services.ResolveOptional<WebApiSettings>() ?? new();
+                        $"API step 3. MaxBatchNestingDepth:{settings.MaxBatchNestingDepth} MaxBatchOperationsPerChangeset:{settings.MaxBatchOperationsPerChangeset} settings.MaxBatchReceivedMessageSize:{settings.MaxBatchReceivedMessageSize}".Dump();
 
                         var bh = new DefaultODataBatchHandler();
                         bh.MessageQuotas.MaxNestingDepth = settings.MaxBatchNestingDepth;
@@ -198,6 +203,7 @@ namespace Smartstore.Web.Api
 
         public override void BuildPipeline(RequestPipelineBuilder builder)
         {
+            "API step 1".Dump();
             if (builder.ApplicationContext.IsInstalled)
             {
                 var routePrefix = WebApiSettings.SwaggerRoutePrefix;

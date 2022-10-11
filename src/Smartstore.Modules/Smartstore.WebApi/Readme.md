@@ -1,10 +1,13 @@
 ﻿## Breaking changes in Smartstore Web API 5
 
-- For the highest level of interoperability with generic clients, the Web API now uses Basic authentication over HTTPS 
+- HMAC authentication is no longer supported. For the highest level of interoperability with generic clients, the Web API now uses Basic authentication over HTTPS 
 as recommended by OData protocol version 4.0.
 
+- Querying a single, simple property value via path **GET /EntitySet(id)/PropertyName** is no longer supported. Use the more flexible **$select** instead.
+Example old `/Categories(14)/Name`, new `/Categories(14)?$select=Name`.
+
 - For PUT and PATCH requests, the HTTP header **Prefer** with the value **return=representation** must be sent to get a 
-status code 200 with entity content response. This is the default behavior of ASP.NET Core OData 8.0.
+status code 200 with entity content response. This is the default behavior of ASP.NET Core OData 8.0. Otherwise 204 "No Content" is returned.
 
 - The prefix of response headers changed from **SmartStore-Net-Api-** to **Smartstore-Api-**. More changes:
 <table>

@@ -16,17 +16,9 @@ namespace Smartstore.Web.Api.Controllers.OData
 
         [HttpGet, WebApiQueryable]
         [Permission(Permissions.Promotion.Discount.Read)]
-        public Task<IActionResult> Get(int key)
+        public SingleResult<Discount> Get(int key)
         {
-            return GetByIdAsync(key);
-        }
-
-        [HttpGet("discounts({key})/{property}")]
-        [HttpGet("discounts/{key}/{property}")]
-        [Permission(Permissions.Promotion.Discount.Read)]
-        public Task<IActionResult> GetProperty(int key, string property)
-        {
-            return GetPropertyValueAsync(key, property);
+            return GetById(key);
         }
 
         [HttpPost]

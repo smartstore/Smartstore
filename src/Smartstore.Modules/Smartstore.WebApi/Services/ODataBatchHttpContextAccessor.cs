@@ -15,11 +15,11 @@
             _next = next;
         }
 
-        public async Task InvokeAsync(HttpContext httpContext, IHttpContextAccessor contextAccessor)
+        public Task InvokeAsync(HttpContext httpContext, IHttpContextAccessor contextAccessor)
         {
             contextAccessor.HttpContext ??= httpContext;
 
-            await _next(httpContext);
+            return _next(httpContext);
         }
     }
 }

@@ -1,4 +1,6 @@
 ﻿using Smartstore.Core.Catalog.Categories;
+using Smartstore.Core.Catalog.Discounts;
+using Smartstore.Core.Content.Media;
 using Smartstore.Core.Seo;
 
 namespace Smartstore.Web.Api.Controllers.OData
@@ -28,17 +30,23 @@ namespace Smartstore.Web.Api.Controllers.OData
 
         [HttpGet, WebApiQueryable]
         [Permission(Permissions.Catalog.Category.Read)]
-        public Task<IActionResult> Get(int key)
+        public SingleResult<Category> Get(int key)
         {
-            return GetByIdAsync(key);
+            return GetById(key);
         }
 
-        [HttpGet("categories({key})/{property}")]
-        [HttpGet("categories/{key}/{property}")]
+        [HttpGet, WebApiQueryable]
         [Permission(Permissions.Catalog.Category.Read)]
-        public Task<IActionResult> GetProperty(int key, string property)
+        public SingleResult<MediaFile> GetMediaFile(int key)
         {
-            return GetPropertyValueAsync(key, property);
+            return GetRelatedEntity(key, x => x.MediaFile);
+        }
+
+        [HttpGet, WebApiQueryable]
+        [Permission(Permissions.Catalog.Category.Read)]
+        public IQueryable<Discount> GetAppliedDiscounts(int key)
+        {
+            return GetRelatedQuery(key, x => x.AppliedDiscounts);
         }
 
         [HttpPost]

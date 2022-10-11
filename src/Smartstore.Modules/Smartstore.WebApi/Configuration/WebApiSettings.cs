@@ -10,6 +10,12 @@ namespace Smartstore.Web.Api
         public const string SwaggerRoutePrefix = "docs/api";
 
         /// <summary>
+        /// Gets the max value of $top that a client can request.
+        /// Gets or sets a value indicating whether the Web API is active.
+        /// </summary>
+        public const int DefaultMaxTop = 120;
+
+        /// <summary>
         /// Gets or sets a value indicating whether the Web API is active.
         /// </summary>
         public bool IsActive { get; set; } = true;
@@ -17,7 +23,7 @@ namespace Smartstore.Web.Api
         /// <summary>
         /// Gets or sets the max value of $top that a client can request.
         /// </summary>
-        public int MaxTop { get; set; } = 120;
+        public int MaxTop { get; set; } = DefaultMaxTop;
 
         /// <summary>
         /// Gets or sets the max expansion depth for the $expand query option.

@@ -14,7 +14,7 @@ namespace Smartstore.Web.Api.Swagger
     /// </summary>
     internal class SwaggerOperationFilter : IOperationFilter
     {
-        private static readonly string[] _candidateMethodNames = new[] { "Get", "GetProperty", "Post", "Put", "Patch", "Delete" };
+        private static readonly string[] _candidateMethodNames = new[] { "Get", "Post", "Put", "Patch", "Delete" };
 
         private static readonly AllowedQueryOptions[] _supportedQueryOptions = new[]
         {
@@ -89,15 +89,15 @@ namespace Smartstore.Web.Api.Swagger
                     }
                     break;
 
-                case "GetProperty":
-                    helper.Op.Summary ??= $"Gets a property value of a {helper.EntityType.Name}.";
-                    helper.Op.Description ??= "A property value can alternatively be obtained using the **$select** query string parameter.";
-                    helper.Op.Responses[StatusCodes.Status200OK.ToString()] = helper.CreateSucccessResponse(null);
-                    helper.Op.Responses[StatusCodes.Status404NotFound.ToString()] = CreateNotFoundResponse();
+                //case "GetProperty":
+                //    helper.Op.Summary ??= $"Gets a property value of a {helper.EntityType.Name}.";
+                //    helper.Op.Description ??= "A property value can alternatively be obtained using the **$select** query string parameter.";
+                //    helper.Op.Responses[StatusCodes.Status200OK.ToString()] = helper.CreateSucccessResponse(null);
+                //    helper.Op.Responses[StatusCodes.Status404NotFound.ToString()] = CreateNotFoundResponse();
 
-                    helper.AddKeyParameter();
-                    helper.AddPropertyParameter();
-                    break;
+                //    helper.AddKeyParameter();
+                //    helper.AddPropertyParameter();
+                //    break;
 
                 case "Post":
                     helper.Op.Summary ??= $"Creates a new {helper.EntityType.Name}.";

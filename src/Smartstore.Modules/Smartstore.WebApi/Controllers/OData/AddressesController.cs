@@ -16,17 +16,9 @@ namespace Smartstore.Web.Api.Controllers.OData
 
         [HttpGet, WebApiQueryable]
         [Permission(Permissions.Customer.Read)]
-        public Task<IActionResult> Get(int key)
+        public SingleResult<Address> Get(int key)
         {
-            return GetByIdAsync(key);
-        }
-
-        [HttpGet("addresses({key})/{property}")]
-        [HttpGet("addresses/{key}/{property}")]
-        [Permission(Permissions.Customer.Read)]
-        public Task<IActionResult> GetProperty(int key, string property)
-        {
-            return GetPropertyValueAsync(key, property);
+            return GetById(key);
         }
 
         [HttpPost]
