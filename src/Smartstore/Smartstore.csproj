@@ -28,10 +28,10 @@
         <PackageReference Include="AngleSharp" Version="0.17.1" />
         <PackageReference Include="AngleSharp.Css" Version="0.16.4" />
         <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="8.0.0" />
-        <PackageReference Include="CronExpressionDescriptor" Version="2.16.0" />
+        <PackageReference Include="CronExpressionDescriptor" Version="2.17.2" />
         <PackageReference Include="HtmlSanitizer" Version="7.1.542" />
         <PackageReference Include="Humanizer" Version="2.14.1" />
-        <PackageReference Include="MailKit" Version="3.3.0" />
+        <PackageReference Include="MailKit" Version="3.4.1" />
         <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.10" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="6.0.10" />
         <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="6.0.0" />
@@ -43,7 +43,7 @@
         <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0-beta15" />
         <PackageReference Include="System.IO.FileSystem.AccessControl" Version="5.0.0" />
         <PackageReference Include="System.Linq.Async" Version="6.0.1" />
-        <PackageReference Include="System.Linq.Dynamic.Core" Version="1.2.19" />
+        <PackageReference Include="System.Linq.Dynamic.Core" Version="1.2.20" />
         <PackageReference Include="System.ServiceModel.Syndication" Version="6.0.0" />
     </ItemGroup>
 
