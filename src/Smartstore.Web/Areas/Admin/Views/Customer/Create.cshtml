@@ -4,11 +4,12 @@
     ViewBag.Title = T("Admin.Customers.Customers.AddNew").Value;
 }
 
-<form method="post" asp-action="Create" id="customer-form">
+<form method="post" asp-action="Create" id="customer-form"> 
     <div class="section-header">
         <div class="title">
+            <a sm-backto asp-action="List" title="@T("Admin.Customers.Customers.BackToList")"></a>
             <i class="fa fa-user-plus"></i>
-            @T("Admin.Customers.Customers.AddNew") <a asp-action="List">(@T("Admin.Customers.Customers.BackToList"))</a>
+            <span>@T("Admin.Customers.Customers.AddNew")</span>
         </div>
         <div class="options">
             <button type="submit" name="save" value="save" class="btn btn-primary">

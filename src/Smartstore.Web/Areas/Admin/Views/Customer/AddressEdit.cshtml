@@ -9,8 +9,8 @@
 <form method="post" asp-action="AddressEdit">
     <div class="section-header">
         <div class="title">
-            @T("Admin.Customers.Customers.Addresses.EditAddress") - @Model.Username
-            <a asp-action="Edit" asp-route-id="@Model.CustomerId">(@T("Admin.Customers.Customers.Addresses.BackToCustomer"))</a>
+            <a sm-backto asp-action="Edit" asp-route-id="@Model.CustomerId" title="@T("Admin.Customers.Customers.Addresses.BackToCustomer")"></a>
+            <span>@T("Admin.Customers.Customers.Addresses.EditAddress") - @Model.Username</span>
         </div>
         <div class="options">
             <button type="submit" name="save" value="save" class="btn btn-warning">

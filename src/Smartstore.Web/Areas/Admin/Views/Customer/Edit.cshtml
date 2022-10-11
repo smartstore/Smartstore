@@ -7,9 +7,9 @@
 <form method="post" asp-action="Edit" id="customer-form">
     <div class="section-header">
         <div class="title">
+            <a sm-backto asp-action="List" title="@T("Admin.Customers.Customers.BackToList")"></a>
             <i class="far fa-user-edit"></i>
-            @T("Admin.Customers.Customers.EditCustomerDetails") - @Model.Username
-            <a asp-action="List">(@T("Admin.Customers.Customers.BackToList"))</a>
+            <span>@T("Admin.Customers.Customers.EditCustomerDetails") - @Model.Username</span>
         </div>
         <div class="options">
             <zone name="admin_button_toolbar_before" />
