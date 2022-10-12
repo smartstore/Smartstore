@@ -1,4 +1,5 @@
-﻿using Microsoft.OData.ModelBuilder;
+﻿using System.Diagnostics;
+using Microsoft.OData.ModelBuilder;
 using Smartstore.IO;
 
 namespace Smartstore.Web.Api
@@ -29,12 +30,17 @@ namespace Smartstore.Web.Api
             var descriptor = appContext.ModuleCatalog.GetModuleByName(systemName, true);
             if (descriptor != null)
             {
-                var xmlFilePath = Path.ChangeExtension(descriptor.AssemblyName, "xml");
-                var xmlFile = descriptor.ContentRoot.GetFile(xmlFilePath);
+                var fileName = Path.ChangeExtension(descriptor.AssemblyName, "xml");
+                var subpath = PathUtility.Join(descriptor.Path, fileName);
+                var xmlFile = appContext.ContentRoot.GetFile(subpath);
+
                 if (xmlFile.Exists)
                 {
                     return xmlFile.OpenRead();
                 }
+
+                // appContext.Logger throws here.
+                Debug.WriteLine($"XML comment file for module {descriptor.SystemName} does not exist. Expected path: {subpath}.");
             }
 
             return null;

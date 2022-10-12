@@ -35,6 +35,9 @@ namespace Smartstore.Web.Api.Controllers.OData
             return GetById(key);
         }
 
+        /// <remarks>
+        /// Gets the image of a category.
+        /// </remarks>
         [HttpGet, WebApiQueryable]
         [Permission(Permissions.Catalog.Category.Read)]
         public SingleResult<MediaFile> GetMediaFile(int key)
@@ -42,6 +45,9 @@ namespace Smartstore.Web.Api.Controllers.OData
             return GetRelatedEntity(key, x => x.MediaFile);
         }
 
+        /// <remarks>
+        /// Gets the discounts applied to a category.
+        /// </remarks>
         [HttpGet, WebApiQueryable]
         [Permission(Permissions.Catalog.Category.Read)]
         public IQueryable<Discount> GetAppliedDiscounts(int key)

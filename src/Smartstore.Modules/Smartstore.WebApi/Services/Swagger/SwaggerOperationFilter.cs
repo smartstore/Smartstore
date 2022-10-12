@@ -9,26 +9,27 @@ namespace Smartstore.Web.Api.Swagger
 {
     /// <summary>
     /// Adds information to <see cref="OpenApiOperation"/> like describing <see cref="OpenApiResponse"/> objects
-    /// for repeating methods in OData controllers (like GetProperty, Get, Post etc.).
+    /// for repeating methods in OData controllers (like Get, Post, Put, Patch, Delete etc.).
     /// Only takes into account OData controllers that inherit from SmartODataController.
     /// </summary>
     internal class SwaggerOperationFilter : IOperationFilter
     {
-        private static readonly string[] _candidateMethodNames = new[] { "Get", "Post", "Put", "Patch", "Delete" };
+        private static readonly string[] _knownMethodNames = new[] { "Get", "Post", "Put", "Patch", "Delete" };
 
         private static readonly AllowedQueryOptions[] _supportedQueryOptions = new[]
         {
             AllowedQueryOptions.Top,
             AllowedQueryOptions.Skip,
-            AllowedQueryOptions.Count,
-            AllowedQueryOptions.Compute,
             AllowedQueryOptions.OrderBy,
+            AllowedQueryOptions.Count,
             AllowedQueryOptions.Select,
             AllowedQueryOptions.Expand,
             AllowedQueryOptions.Filter,
-            AllowedQueryOptions.Search
+            AllowedQueryOptions.Search,
+            AllowedQueryOptions.Compute
         };
 
+        // Perf: avoids multiple creation of the same query parameters.
         private readonly Dictionary<string, OpenApiParameter> _queryParameters = new();
 
         public void Apply(OpenApiOperation operation, OperationFilterContext context)
@@ -40,7 +41,7 @@ namespace Smartstore.Web.Api.Swagger
                 {
                     var helper = new SwaggerOperationHelper(operation, context);
                     
-                    ProcessMethods(helper);
+                    AddDocumentation(helper);
                     AddQueryParameters(helper);
                 }
             }
@@ -49,12 +50,24 @@ namespace Smartstore.Web.Api.Swagger
             }
         }
 
-        protected virtual void ProcessMethods(SwaggerOperationHelper helper)
+        /// <summary>
+        /// Adds documentation for known OData controller methods.
+        /// </summary>
+        protected virtual void AddDocumentation(SwaggerOperationHelper helper)
         {
             var mi = helper.Context.MethodInfo;
-            var isCandidate = _candidateMethodNames.Contains(mi.Name);
+            var isSingleResult = mi.ReturnType.IsClosedGenericTypeOf(typeof(SingleResult<>));
+            var isQueryResult = mi.ReturnType.IsClosedGenericTypeOf(typeof(IQueryable<>));
+            var isNavigationProperty = false;
+            var canProcess = _knownMethodNames.Contains(mi.Name);
 
-            if (isCandidate)
+            if (!canProcess && helper.ActionName.StartsWith("Get") && helper.HttpMethod.EqualsNoCase("Get"))
+            {
+                isNavigationProperty = isSingleResult || isQueryResult;
+                canProcess = isNavigationProperty;
+            }
+
+            if (canProcess)
             {
                 helper.Op.Responses.Clear();
             }
@@ -64,7 +77,7 @@ namespace Smartstore.Web.Api.Swagger
                 helper.Op.Responses[StatusCodes.Status401Unauthorized.ToString()] = CreateUnauthorizedResponse();
             }
 
-            if (!isCandidate)
+            if (!canProcess)
             {
                 return;
             }
@@ -74,7 +87,7 @@ namespace Smartstore.Web.Api.Swagger
             switch (helper.ActionName)
             {
                 case "Get":
-                    if (mi.ReturnType.IsClosedGenericTypeOf(typeof(IQueryable<>)))
+                    if (isQueryResult)
                     {
                         helper.Op.Summary ??= $"Gets a {helper.EntityType.Name} list.";
                         helper.Op.Responses[StatusCodes.Status200OK.ToString()] = helper.CreateSucccessResponse(false);
@@ -84,7 +97,6 @@ namespace Smartstore.Web.Api.Swagger
                         helper.Op.Summary ??= $"Gets a {helper.EntityType.Name} by identifier.";
                         helper.Op.Responses[StatusCodes.Status200OK.ToString()] = helper.CreateSucccessResponse(true);
                         helper.Op.Responses[StatusCodes.Status404NotFound.ToString()] = CreateNotFoundResponse();
-
                         helper.AddKeyParameter();
                     }
                     break;
@@ -94,7 +106,6 @@ namespace Smartstore.Web.Api.Swagger
                 //    helper.Op.Description ??= "A property value can alternatively be obtained using the **$select** query string parameter.";
                 //    helper.Op.Responses[StatusCodes.Status200OK.ToString()] = helper.CreateSucccessResponse(null);
                 //    helper.Op.Responses[StatusCodes.Status404NotFound.ToString()] = CreateNotFoundResponse();
-
                 //    helper.AddKeyParameter();
                 //    helper.AddPropertyParameter();
                 //    break;
@@ -117,7 +128,6 @@ namespace Smartstore.Web.Api.Swagger
                     helper.Op.Responses[StatusCodes.Status404NotFound.ToString()] = CreateNotFoundResponse();
                     helper.Op.Responses[StatusCodes.Status409Conflict.ToString()] = CreateConflictResponse();
                     helper.Op.Responses[StatusCodes.Status422UnprocessableEntity.ToString()] = CreateUnprocessableEntityResponse();
-
                     helper.AddKeyParameter();
                     break;
 
@@ -125,12 +135,32 @@ namespace Smartstore.Web.Api.Swagger
                     helper.Op.Summary ??= $"Deletes a {helper.EntityType.Name}.";
                     helper.Op.Responses[StatusCodes.Status204NoContent.ToString()] = CreateNoContentResponse();
                     helper.Op.Responses[StatusCodes.Status404NotFound.ToString()] = CreateNotFoundResponse();
-
                     helper.AddKeyParameter();
+                    break;
+
+                default:
+                    if (isNavigationProperty)
+                    {
+                        var navPropType = mi.ReturnType.GenericTypeArguments[0];
+
+                        helper.Op.Summary ??= isQueryResult
+                            ? $"Gets a list of related entities of type {navPropType.Name.NaIfEmpty()}."
+                            : $"Gets a related entity of type {navPropType.Name.NaIfEmpty()}.";
+
+                        helper.Op.Responses[StatusCodes.Status200OK.ToString()] = helper.CreateSucccessResponse(isSingleResult, navPropType);
+
+                        if (isSingleResult)
+                        {
+                            helper.Op.Responses[StatusCodes.Status404NotFound.ToString()] = CreateNotFoundResponse();
+                        }
+                    }
                     break;
             }
         }
 
+        /// <summary>
+        /// Adds input fields for query parameters to Swagger documentation.
+        /// </summary>
         protected virtual void AddQueryParameters(SwaggerOperationHelper helper)
         {
             var descriptor = helper.Context.ApiDescription.ActionDescriptor as ControllerActionDescriptor;
@@ -144,7 +174,13 @@ namespace Smartstore.Web.Api.Swagger
                 return;
             }
 
-            foreach (var option in _supportedQueryOptions.Where(x => attribute.AllowedQueryOptions.HasFlag(x)))
+            var allowedOptions = _supportedQueryOptions.Where(x => attribute.AllowedQueryOptions.HasFlag(x));
+            if (helper.Context.MethodInfo.ReturnType.IsClosedGenericTypeOf(typeof(SingleResult<>)))
+            {
+                allowedOptions = allowedOptions.Where(x => x == AllowedQueryOptions.Select || x == AllowedQueryOptions.Compute);
+            }
+
+            foreach (var option in allowedOptions)
             {
                 var key = helper.EntityType.FullName + option.ToString();
 
@@ -206,12 +242,11 @@ namespace Smartstore.Web.Api.Swagger
                     }
 
                     p.Schema ??= helper.GenerateSchema(typeof(string));
-
                     _queryParameters[key] = p;
                 }
 
                 helper.Op.Parameters.Add(p);
-            }            
+            }
         }
 
         #region Utilities

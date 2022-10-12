@@ -22,6 +22,9 @@ namespace Smartstore.Web.Api.Swagger
         public string ActionName
             => Context.MethodInfo.Name.EmptyNull();
 
+        public string HttpMethod
+            => Context.ApiDescription.HttpMethod;
+
         public Type EntityType
             => Context.MethodInfo.DeclaringType.BaseType.GenericTypeArguments[0];
 
@@ -69,9 +72,9 @@ namespace Smartstore.Web.Api.Swagger
             };
         }
 
-        public OpenApiResponse CreateSucccessResponse(bool isSingleResult)
+        public OpenApiResponse CreateSucccessResponse(bool isSingleResult, Type entityType = null)
         {
-            var entityType = EntityType;
+            entityType ??= EntityType;
             var modelType = isSingleResult ? entityType : typeof(IQueryable<>).MakeGenericType(entityType);
 
             var returnStr = isSingleResult

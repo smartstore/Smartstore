@@ -94,7 +94,7 @@ namespace Smartstore.Web.Api.Security
                 await _signInManager.SignInAsync(customer, true, Scheme.Name);
                 //$"Signed in using '{Scheme.Name}': customer {customer.Id}, {customer.Email}.".Dump();
 
-                // HttpContext comes too late for GetAuthenticatedCustomerAsync().
+                // HttpContext comes too late for GetAuthenticatedCustomerAsync(). get_WorkingLanguage() calls CurrentCustomer before this handler.
                 // We must set CurrentCustomer explicitly otherwise he will always remain guest and permission checks will fail.
                 //if (_httpContextAccessor.HttpContext != null)
                 //{

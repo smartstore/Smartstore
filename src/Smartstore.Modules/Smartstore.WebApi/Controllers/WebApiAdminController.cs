@@ -1,14 +1,16 @@
 ﻿using Humanizer;
+using Microsoft.AspNetCore.OData;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Common;
-using Smartstore.Core.Data;
+using Smartstore.Core.Configuration;
 using Smartstore.Core.Identity;
 using Smartstore.Http;
+using Smartstore.Web.Api.Models;
 using Smartstore.Web.Controllers;
 using Smartstore.Web.Modelling.Settings;
 using Smartstore.Web.Models.DataGrid;
-using Smartstore.Web.Api.Models;
-using Microsoft.Extensions.Hosting;
 
 namespace Smartstore.Web.Api.Controllers
 {
@@ -16,15 +18,27 @@ namespace Smartstore.Web.Api.Controllers
     {
         private readonly SmartDbContext _db;
         private readonly IWebApiService _apiService;
+        //private readonly IOptionsMonitorCache<ODataOptions> _odataOptionsCache;
+        private readonly Lazy<IConfigureOptions<ODataOptions>> _odataOptionsConfigurer;
+        private readonly IOptions<ODataOptions> _odataOptions;
+        private readonly MultiStoreSettingHelper _settingHelper;
         private readonly CustomerSettings _customerSettings;
 
         public WebApiAdminController(
             SmartDbContext db, 
             IWebApiService apiService,
+            //IOptionsMonitorCache<ODataOptions> odataOptionsCache,
+            Lazy<IConfigureOptions<ODataOptions>> odataOptionsConfigurer,
+            IOptions<ODataOptions> odataOptions,
+            MultiStoreSettingHelper settingHelper,
             CustomerSettings customerSettings)
         {
             _db = db;
             _apiService = apiService;
+            //_odataOptionsCache = odataOptionsCache;
+            _odataOptionsConfigurer = odataOptionsConfigurer;
+            _odataOptions = odataOptions;
+            _settingHelper = settingHelper;
             _customerSettings = customerSettings;
         }
 
@@ -48,17 +62,45 @@ namespace Smartstore.Web.Api.Controllers
         }
 
         [Permission(WebApiPermissions.Update)]
-        [HttpPost, SaveSetting]
-        public async Task<IActionResult> Configure(ConfigurationModel model, WebApiSettings settings)
+        [HttpPost]
+        public async Task<IActionResult> Configure(ConfigurationModel model, IFormCollection form)
         {
+            var storeScope = GetActiveStoreScopeConfiguration();
+            var settings = await Services.SettingFactory.LoadSettingsAsync<WebApiSettings>(storeScope);
+
             if (!ModelState.IsValid)
             {
                 return Configure(settings);
             }
 
+            // TODO: (mg) (core) these cannot be multistore settings (ODataBatchHandler a singleton service)!
+            var reconfigureOdataOptions = model.MaxBatchNestingDepth != settings.MaxBatchNestingDepth
+                || model.MaxBatchOperationsPerChangeset != settings.MaxBatchOperationsPerChangeset
+                || model.MaxBatchReceivedMessageSize != settings.MaxBatchReceivedMessageSize;
+
+            //if (model.MaxBatchNestingDepth != settings.MaxBatchNestingDepth
+            //    || model.MaxBatchOperationsPerChangeset != settings.MaxBatchOperationsPerChangeset
+            //    || model.MaxBatchReceivedMessageSize != settings.MaxBatchReceivedMessageSize)
+            //{
+            //    // No effect. Always returns false:
+            //    var res = _odataOptionsCache.TryRemove(Options.DefaultName);
+            //    $"Try reset batch settings {res}".Dump();
+            //}
+
+            settings = ((ISettings)settings).Clone() as WebApiSettings;
             MiniMapper.Map(model, settings);
 
+            await _settingHelper.UpdateSettingsAsync(settings, form, storeScope);
+            await _db.SaveChangesAsync();
+
             await Services.Cache.RemoveByPatternAsync(WebApiService.StatePatternKey);
+
+            if (reconfigureOdataOptions)
+            {
+                _odataOptionsConfigurer.Value.Configure(_odataOptions.Value);
+                "Try reset batch settings".Dump();
+            }
+
             NotifySuccess(T("Admin.Common.DataSuccessfullySaved"));
 
             return RedirectToAction(nameof(Configure));

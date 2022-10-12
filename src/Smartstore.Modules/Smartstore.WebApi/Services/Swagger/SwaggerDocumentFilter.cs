@@ -1,4 +1,5 @@
-﻿using Microsoft.OpenApi.Models;
+﻿using System.Text.RegularExpressions;
+using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using OpenApiOpType = Microsoft.OpenApi.Models.OperationType;
 
@@ -9,7 +10,7 @@ namespace Smartstore.Web.Api.Swagger
     /// </summary>
     internal class SwaggerDocumentFilter : IDocumentFilter
     {
-        private static readonly string[] _pathEndingsToIgnore = new[] { "/{key}", "/{key}/{property}", "/$count" };
+        private static readonly Regex _pathsToIgnore = new(@"[a-z0-9\/](\$count|{key})(/|\z)", RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
         public void Apply(OpenApiDocument swaggerDoc, DocumentFilterContext context)
         {
@@ -20,14 +21,14 @@ namespace Smartstore.Web.Api.Swagger
             var apiDescription = context?.ApiDescriptions?.FirstOrDefault();
             var routeTemplate = apiDescription?.ActionDescriptor?.AttributeRouteInfo?.Template?.EnsureStartsWith('/');
 
+            // Skip duplicate and unusual, unexpected documents.
             foreach (var item in swaggerDoc.Paths)
             {
                 //$"{item.Key} {string.Join(",", item.Value.Operations.Select(x => x.Key))}".Dump();
 
-                // Skip duplicate and unusual, unexpected documents.
                 var path = item.Key;
                 var removePath = path.EqualsNoCase(routeTemplate)
-                    || (item.Value.Operations.Any(x => x.Key == OpenApiOpType.Get) && _pathEndingsToIgnore.Any(x => path.EndsWithNoCase(x)));
+                    || (item.Value.Operations.Any(x => x.Key == OpenApiOpType.Get) && _pathsToIgnore.IsMatch(path));
 
                 if (removePath)
                 {
