@@ -29,6 +29,10 @@ namespace Smartstore.Web.Api
     {
         public override void ConfigureServices(IServiceCollection services, IApplicationContext appContext)
         {
+            services.AddSingleton<IConfigureOptions<ODataOptions>, ODataOptionsConfigurer>();
+            services.AddSingleton<IApiUserStore, ApiUserStore>();
+            services.AddScoped<IWebApiService, WebApiService>();
+
             services.AddAuthentication("Smartstore.WebApi.Basic")
                 .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("Smartstore.WebApi.Basic", null);
             
@@ -141,13 +145,6 @@ namespace Smartstore.Web.Api
 
             // INFO: no effect using OData 8.0.11 and OData.NewtonsoftJson 8.0.4. JSON is never written with Newtonsoft.Json.
             //.AddODataNewtonsoftJson();
-        }
-
-        public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext)
-        {
-            builder.RegisterType<ODataOptionsConfigurer>().As<IConfigureOptions<ODataOptions>>().SingleInstance();
-            builder.RegisterType<ApiUserStore>().As<IApiUserStore>().SingleInstance();
-            builder.RegisterType<WebApiService>().As<IWebApiService>().InstancePerLifetimeScope();
         }
 
         public override void BuildPipeline(RequestPipelineBuilder builder)

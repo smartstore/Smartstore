@@ -74,7 +74,7 @@ namespace Smartstore.Web.Api.Controllers
             }
 
             // TODO: (mg) (core) these cannot be multistore settings (ODataBatchHandler a singleton service)!
-            var reconfigureOdataOptions = model.MaxBatchNestingDepth != settings.MaxBatchNestingDepth
+            var reconfigureODataOptions = model.MaxBatchNestingDepth != settings.MaxBatchNestingDepth
                 || model.MaxBatchOperationsPerChangeset != settings.MaxBatchOperationsPerChangeset
                 || model.MaxBatchReceivedMessageSize != settings.MaxBatchReceivedMessageSize;
 
@@ -95,7 +95,7 @@ namespace Smartstore.Web.Api.Controllers
 
             await Services.Cache.RemoveByPatternAsync(WebApiService.StatePatternKey);
 
-            if (reconfigureOdataOptions)
+            if (reconfigureODataOptions)
             {
                 _odataOptionsConfigurer.Value.Configure(_odataOptions.Value);
                 "Try reset batch settings".Dump();
