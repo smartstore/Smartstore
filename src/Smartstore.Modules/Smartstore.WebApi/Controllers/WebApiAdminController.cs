@@ -18,7 +18,6 @@ namespace Smartstore.Web.Api.Controllers
     {
         private readonly SmartDbContext _db;
         private readonly IWebApiService _apiService;
-        //private readonly IOptionsMonitorCache<ODataOptions> _odataOptionsCache;
         private readonly Lazy<IConfigureOptions<ODataOptions>> _odataOptionsConfigurer;
         private readonly IOptions<ODataOptions> _odataOptions;
         private readonly MultiStoreSettingHelper _settingHelper;
@@ -27,7 +26,6 @@ namespace Smartstore.Web.Api.Controllers
         public WebApiAdminController(
             SmartDbContext db, 
             IWebApiService apiService,
-            //IOptionsMonitorCache<ODataOptions> odataOptionsCache,
             Lazy<IConfigureOptions<ODataOptions>> odataOptionsConfigurer,
             IOptions<ODataOptions> odataOptions,
             MultiStoreSettingHelper settingHelper,
@@ -35,7 +33,6 @@ namespace Smartstore.Web.Api.Controllers
         {
             _db = db;
             _apiService = apiService;
-            //_odataOptionsCache = odataOptionsCache;
             _odataOptionsConfigurer = odataOptionsConfigurer;
             _odataOptions = odataOptions;
             _settingHelper = settingHelper;
@@ -44,7 +41,7 @@ namespace Smartstore.Web.Api.Controllers
 
         [Permission(WebApiPermissions.Read)]
         [LoadSetting]
-        public IActionResult Configure(WebApiSettings settings)
+        public async Task<IActionResult> Configure(WebApiSettings settings, int storeScope)
         {
             var model = MiniMapper.Map<WebApiSettings, ConfigurationModel>(settings);
 
@@ -56,6 +53,12 @@ namespace Smartstore.Web.Api.Controllers
             if (Services.ApplicationContext.HostEnvironment.IsDevelopment())
             {
                 model.ApiOdataEndpointsUrl = WebHelper.GetAbsoluteUrl(Url.Content("~/$odata"), Request, true);
+            }
+
+            if (!ModelState.IsValid)
+            {
+                // We need to detect override checkboxes if "Configure" was called with invalid model state.
+                await _settingHelper.DetectOverrideKeysAsync(settings, model, storeScope);
             }
 
             return View(model);
@@ -70,35 +73,29 @@ namespace Smartstore.Web.Api.Controllers
 
             if (!ModelState.IsValid)
             {
-                return Configure(settings);
+                return await Configure(settings, storeScope);
             }
 
-            // TODO: (mg) (core) these cannot be multistore settings (ODataBatchHandler a singleton service)!
-            var reconfigureODataOptions = model.MaxBatchNestingDepth != settings.MaxBatchNestingDepth
-                || model.MaxBatchOperationsPerChangeset != settings.MaxBatchOperationsPerChangeset
-                || model.MaxBatchReceivedMessageSize != settings.MaxBatchReceivedMessageSize;
+            var tmpSettings = storeScope == 0 ? settings : await Services.SettingFactory.LoadSettingsAsync<WebApiSettings>(0);
 
-            //if (model.MaxBatchNestingDepth != settings.MaxBatchNestingDepth
-            //    || model.MaxBatchOperationsPerChangeset != settings.MaxBatchOperationsPerChangeset
-            //    || model.MaxBatchReceivedMessageSize != settings.MaxBatchReceivedMessageSize)
-            //{
-            //    // No effect. Always returns false:
-            //    var res = _odataOptionsCache.TryRemove(Options.DefaultName);
-            //    $"Try reset batch settings {res}".Dump();
-            //}
+            var reconfigureODataOptions = model.MaxBatchNestingDepth != tmpSettings.MaxBatchNestingDepth
+                || model.MaxBatchOperationsPerChangeset != tmpSettings.MaxBatchOperationsPerChangeset
+                || model.MaxBatchReceivedMessageSize != tmpSettings.MaxBatchReceivedMessageSize;
 
             settings = ((ISettings)settings).Clone() as WebApiSettings;
             MiniMapper.Map(model, settings);
 
             await _settingHelper.UpdateSettingsAsync(settings, form, storeScope);
-            await _db.SaveChangesAsync();
+            await Services.Settings.ApplySettingAsync(settings, x => x.MaxBatchNestingDepth);
+            await Services.Settings.ApplySettingAsync(settings, x => x.MaxBatchOperationsPerChangeset);
+            await Services.Settings.ApplySettingAsync(settings, x => x.MaxBatchReceivedMessageSize);
 
+            await _db.SaveChangesAsync();
             await Services.Cache.RemoveByPatternAsync(WebApiService.StatePatternKey);
 
             if (reconfigureODataOptions)
             {
                 _odataOptionsConfigurer.Value.Configure(_odataOptions.Value);
-                "Try reset batch settings".Dump();
             }
 
             NotifySuccess(T("Admin.Common.DataSuccessfullySaved"));

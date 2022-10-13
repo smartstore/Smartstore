@@ -21,6 +21,13 @@ namespace Smartstore.Web.Api.Controllers.OData
             return GetById(key);
         }
 
+        [HttpGet, WebApiQueryable]
+        [Permission(Permissions.Configuration.Country.Read)]
+        public IQueryable<StateProvince> GetStateProvinces(int key)
+        {
+            return GetRelatedQuery(key, x => x.StateProvinces);
+        }
+
         [HttpPost]
         [Permission(Permissions.Configuration.Country.Create)]
         public async Task<IActionResult> Post([FromBody] Country entity)

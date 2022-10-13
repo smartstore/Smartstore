@@ -85,9 +85,6 @@
                     <div class="adminRow">
                         <div class="admin-config-group">
                             <div class="title">@T("Plugins.Api.WebApi.Batch")</div>
-                            <p class="text-muted">
-                                @T("Plugins.Api.WebApi.RequiresRestart")
-                            </p>
                         </div>
                     </div>
 
@@ -96,7 +93,7 @@
                             <smart-label asp-for="MaxBatchNestingDepth" />
                         </div>
                         <div class="adminData form-control-plaintext">
-                            <setting-editor asp-for="MaxBatchNestingDepth"></setting-editor>
+                            <editor asp-for="MaxBatchNestingDepth" />
                             <span asp-validation-for="MaxBatchNestingDepth"></span>
                         </div>
                     </div>
@@ -105,7 +102,7 @@
                             <smart-label asp-for="MaxBatchOperationsPerChangeset" />
                         </div>
                         <div class="adminData form-control-plaintext">
-                            <setting-editor asp-for="MaxBatchOperationsPerChangeset"></setting-editor>
+                            <editor asp-for="MaxBatchOperationsPerChangeset" />
                             <span asp-validation-for="MaxBatchOperationsPerChangeset"></span>
                         </div>
                     </div>
@@ -114,7 +111,7 @@
                             <smart-label asp-for="MaxBatchReceivedMessageSize" />
                         </div>
                         <div class="adminData form-control-plaintext">
-                            <setting-editor asp-for="MaxBatchReceivedMessageSize" sm-postfix="KB"></setting-editor>
+                            <editor asp-for="MaxBatchReceivedMessageSize" sm-postfix="KB" />
                             <span asp-validation-for="MaxBatchReceivedMessageSize"></span>
                         </div>
                     </div>

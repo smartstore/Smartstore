@@ -29,7 +29,6 @@ namespace Smartstore.Web.Api
     {
         public override void ConfigureServices(IServiceCollection services, IApplicationContext appContext)
         {
-            services.AddSingleton<IConfigureOptions<ODataOptions>, ODataOptionsConfigurer>();
             services.AddSingleton<IApiUserStore, ApiUserStore>();
             services.AddScoped<IWebApiService, WebApiService>();
 
@@ -95,9 +94,6 @@ namespace Smartstore.Web.Api
                 // Filters.
                 o.DocumentFilter<SwaggerDocumentFilter>();
                 o.OperationFilter<SwaggerOperationFilter>();
-
-                // Schema filtering does not work as expected if you only want to reduce the depth of the generated examples
-                // without changing the actual schema definition. See https://github.com/domaindrivendev/Swashbuckle.AspNetCore/issues/615
                 //o.SchemaFilter<SwaggerSchemaFilter>();
 
                 //o.MapType<decimal>(() => new OpenApiSchema
@@ -110,9 +106,9 @@ namespace Smartstore.Web.Api
                 {
                     // XML comments.
                     var modelProviders = appContext.TypeScanner
-                            .FindTypes<IODataModelProvider>()
-                            .Select(x => (IODataModelProvider)Activator.CreateInstance(x))
-                            .ToList();
+                        .FindTypes<IODataModelProvider>()
+                        .Select(x => (IODataModelProvider)Activator.CreateInstance(x))
+                        .ToList();
 
                     foreach (var provider in modelProviders)
                     {
@@ -135,6 +131,11 @@ namespace Smartstore.Web.Api
             // INFO: needs to be placed after AddSwaggerGen(). Without this statement, the examples in the documentation
             // will contain everything, every tiny bit of any related object will be serialized.
             services.AddSwaggerGenNewtonsoftSupport();
+        }
+
+        public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext)
+        {
+            builder.RegisterType<ODataOptionsConfigurer>().As<IConfigureOptions<ODataOptions>>().SingleInstance();
         }
 
         public override void ConfigureMvc(IMvcBuilder mvcBuilder, IServiceCollection services, IApplicationContext appContext)

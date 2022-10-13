@@ -105,9 +105,6 @@
     <LocaleResource Name="Batch">
         <Value>Batch</Value>
     </LocaleResource>
-    <LocaleResource Name="RequiresRestart">
-        <Value>Diese Einstellungen werden erst nach einem Neustart der Anwendung wirksam.</Value>
-    </LocaleResource>
     <LocaleResource Name="MaxBatchNestingDepth">
         <Value>Maximale Verschachtelungstiefe</Value>
     </LocaleResource>

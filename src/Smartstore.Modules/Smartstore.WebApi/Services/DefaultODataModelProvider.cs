@@ -21,6 +21,7 @@ namespace Smartstore.Web.Api
 
 
             builder.EntitySet<MediaFile>("MediaFiles");
+            builder.EntitySet<StateProvince>("StateProvinces");
         }
 
         public override Stream GetXmlCommentsStream(IApplicationContext appContext)

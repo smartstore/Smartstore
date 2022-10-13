@@ -42,6 +42,8 @@ namespace Smartstore.Web.Api.Bootstrapping
 
                 options.TimeZone = TimeZoneInfo.Utc;
                 options.RouteOptions.EnableUnqualifiedOperationCall = true;
+
+                // INFO: does not have to be set here on the basis of the settings. Will be applied later in WebApiQueryableAttribute.
                 options.EnableQueryFeatures(WebApiSettings.DefaultMaxTop);
                 //options.Conventions.Add(new CustomRoutingConvention());
 
@@ -73,7 +75,7 @@ namespace Smartstore.Web.Api.Bootstrapping
             handler.MessageQuotas.MaxNestingDepth = settings.MaxBatchNestingDepth;
             handler.MessageQuotas.MaxOperationsPerChangeset = settings.MaxBatchOperationsPerChangeset;
             handler.MessageQuotas.MaxReceivedMessageSize = 1024 * settings.MaxBatchReceivedMessageSize;
-            $"apply batch settings MaxBatchNestingDepth:{settings.MaxBatchNestingDepth} MaxBatchOperationsPerChangeset:{settings.MaxBatchOperationsPerChangeset} MaxBatchReceivedMessageSize:{settings.MaxBatchReceivedMessageSize}".Dump();
+            //$"apply batch settings MaxNestingDepth:{settings.MaxBatchNestingDepth} MaxOperationsPerChangeset:{settings.MaxBatchOperationsPerChangeset} MaxReceivedMessageSize:{settings.MaxBatchReceivedMessageSize}".Dump();
         }
     }
 }

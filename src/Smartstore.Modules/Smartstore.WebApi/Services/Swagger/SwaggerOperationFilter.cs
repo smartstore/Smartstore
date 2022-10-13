@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.OData.Query;
 using Microsoft.OpenApi.Models;
+using Org.BouncyCastle.Bcpg.OpenPgp;
 using Smartstore.Web.Api.Security;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
@@ -84,17 +85,19 @@ namespace Smartstore.Web.Api.Swagger
 
             helper.Op.Responses[StatusCodes.Status400BadRequest.ToString()] = CreateBadRequestResponse();
 
+            var entityName = PrefixArticle(helper.EntityType.Name);
+
             switch (helper.ActionName)
             {
                 case "Get":
                     if (isQueryResult)
                     {
-                        helper.Op.Summary ??= $"Gets a {helper.EntityType.Name} list.";
+                        helper.Op.Summary ??= $"Gets {entityName} list.";
                         helper.Op.Responses[StatusCodes.Status200OK.ToString()] = helper.CreateSucccessResponse(false);
                     }
                     else
                     {
-                        helper.Op.Summary ??= $"Gets a {helper.EntityType.Name} by identifier.";
+                        helper.Op.Summary ??= $"Gets {entityName} by identifier.";
                         helper.Op.Responses[StatusCodes.Status200OK.ToString()] = helper.CreateSucccessResponse(true);
                         helper.Op.Responses[StatusCodes.Status404NotFound.ToString()] = CreateNotFoundResponse();
                         helper.AddKeyParameter();
@@ -111,7 +114,7 @@ namespace Smartstore.Web.Api.Swagger
                 //    break;
 
                 case "Post":
-                    helper.Op.Summary ??= $"Creates a new {helper.EntityType.Name}.";
+                    helper.Op.Summary ??= $"Creates {entityName}.";
                     helper.Op.RequestBody = helper.CreateRequestBody();
                     helper.Op.Responses[StatusCodes.Status201Created.ToString()] = helper.CreateSucccessResponse(true);
                     break;
@@ -119,8 +122,8 @@ namespace Smartstore.Web.Api.Swagger
                 case "Put":
                 case "Patch":
                     helper.Op.Summary ??= (helper.ActionName == "Patch"
-                        ? $"Partially updates a {helper.EntityType.Name}."
-                        : $"Updates a {helper.EntityType.Name}.");
+                        ? $"Partially updates {entityName}."
+                        : $"Updates {entityName}.");
 
                     helper.Op.RequestBody = helper.CreateRequestBody();
                     helper.Op.Responses[StatusCodes.Status200OK.ToString()] = helper.CreateSucccessResponse(true);
@@ -132,7 +135,7 @@ namespace Smartstore.Web.Api.Swagger
                     break;
 
                 case "Delete":
-                    helper.Op.Summary ??= $"Deletes a {helper.EntityType.Name}.";
+                    helper.Op.Summary ??= $"Deletes {entityName}.";
                     helper.Op.Responses[StatusCodes.Status204NoContent.ToString()] = CreateNoContentResponse();
                     helper.Op.Responses[StatusCodes.Status404NotFound.ToString()] = CreateNotFoundResponse();
                     helper.AddKeyParameter();
@@ -141,11 +144,11 @@ namespace Smartstore.Web.Api.Swagger
                 default:
                     if (isNavigationProperty)
                     {
-                        var navPropType = mi.ReturnType.GenericTypeArguments[0];
+                        var navPropType = mi.ReturnType.GenericTypeArguments[0];                        
 
                         helper.Op.Summary ??= isQueryResult
-                            ? $"Gets a list of related entities of type {navPropType.Name.NaIfEmpty()}."
-                            : $"Gets a related entity of type {navPropType.Name.NaIfEmpty()}.";
+                            ? $"Gets all {navPropType.Name.NaIfEmpty()} entities assigned to {entityName}."
+                            : $"Gets the {navPropType.Name.NaIfEmpty()} assigned to {entityName}.";
 
                         helper.Op.Responses[StatusCodes.Status200OK.ToString()] = helper.CreateSucccessResponse(isSingleResult, navPropType);
 
@@ -163,8 +166,7 @@ namespace Smartstore.Web.Api.Swagger
         /// </summary>
         protected virtual void AddQueryParameters(SwaggerOperationHelper helper)
         {
-            var descriptor = helper.Context.ApiDescription.ActionDescriptor as ControllerActionDescriptor;
-            var attribute = descriptor?.FilterDescriptors
+            var attribute = helper.ActionDescriptor?.FilterDescriptors
                 .Where(x => x.Filter is EnableQueryAttribute)
                 .Select(x => x.Filter as EnableQueryAttribute)
                 .FirstOrDefault();
@@ -268,6 +270,16 @@ namespace Smartstore.Web.Api.Swagger
 
         private static OpenApiResponse CreateUnprocessableEntityResponse()
             => new() { Description = "The processing of the associated entity failed. Details about the reason can be found in the response message." };
+
+        private static string PrefixArticle(string str)
+        {
+            if (str.HasValue())
+            {
+                return ("aeiouAEIOU".Contains(str[0]) ? "an " : "a ") + str;
+            }
+
+            return str;
+        }
 
         #endregion
     }

@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.Runtime.Serialization;
+using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.OData.Query;
 using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
@@ -27,6 +28,9 @@ namespace Smartstore.Web.Api.Swagger
 
         public Type EntityType
             => Context.MethodInfo.DeclaringType.BaseType.GenericTypeArguments[0];
+
+        public ControllerActionDescriptor ActionDescriptor
+            => Context.ApiDescription.ActionDescriptor as ControllerActionDescriptor;
 
         public OpenApiSchema GenerateSchema(Type modelType)
             => Context.SchemaGenerator.GenerateSchema(modelType, Context.SchemaRepository);

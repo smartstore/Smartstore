@@ -1,4 +1,7 @@
-﻿using Smartstore.Core.Catalog.Discounts;
+﻿using Smartstore.Core.Catalog.Brands;
+using Smartstore.Core.Catalog.Categories;
+using Smartstore.Core.Catalog.Discounts;
+using Smartstore.Core.Catalog.Products;
 
 namespace Smartstore.Web.Api.Controllers.OData
 {
@@ -19,6 +22,27 @@ namespace Smartstore.Web.Api.Controllers.OData
         public SingleResult<Discount> Get(int key)
         {
             return GetById(key);
+        }
+
+        [HttpGet, WebApiQueryable]
+        [Permission(Permissions.Promotion.Discount.Read)]
+        public IQueryable<Category> GetAppliedToCategories(int key)
+        {
+            return GetRelatedQuery(key, x => x.AppliedToCategories);
+        }
+
+        [HttpGet, WebApiQueryable]
+        [Permission(Permissions.Promotion.Discount.Read)]
+        public IQueryable<Manufacturer> GetAppliedToManufacturers(int key)
+        {
+            return GetRelatedQuery(key, x => x.AppliedToManufacturers);
+        }
+
+        [HttpGet, WebApiQueryable]
+        [Permission(Permissions.Promotion.Discount.Read)]
+        public IQueryable<Product> GetAppliedToProducts(int key)
+        {
+            return GetRelatedQuery(key, x => x.AppliedToProducts);
         }
 
         [HttpPost]

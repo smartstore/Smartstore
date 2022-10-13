@@ -105,9 +105,6 @@
     <LocaleResource Name="Batch">
         <Value>Batch</Value>
     </LocaleResource>
-    <LocaleResource Name="RequiresRestart">
-        <Value>These settings take effect only after restarting the application.</Value>
-    </LocaleResource>
     <LocaleResource Name="MaxBatchNestingDepth">
         <Value>Maximum nesting depth</Value>
     </LocaleResource>

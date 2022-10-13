@@ -1,13 +1,19 @@
 ﻿using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
 using Smartstore.ComponentModel;
-using Smartstore.Core.Catalog.Categories;
 using Smartstore.Domain;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Smartstore.Web.Api.Swagger
 {
-    // https://swagger.io/docs/specification/data-models/data-types/
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <remarks>
+    /// Schema filtering does not work as expected if you only want to reduce the depth of the generated examples
+    /// without changing the actual schema definition. See https://github.com/domaindrivendev/Swashbuckle.AspNetCore/issues/615
+    /// Data type see: https://swagger.io/docs/specification/data-models/data-types/
+    /// </remarks>
     public class SwaggerSchemaFilter : ISchemaFilter
     {
         //private const int PropertyDepth = 1;
