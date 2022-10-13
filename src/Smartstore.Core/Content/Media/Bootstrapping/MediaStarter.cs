@@ -8,7 +8,7 @@ using Smartstore.Engine.Builders;
 using Smartstore.Engine.Modularity;
 using Smartstore.Imaging;
 using Smartstore.Imaging.Adapters.ImageSharp;
-using Smartstore.Imaging.QRCodes;
+using Smartstore.Imaging.QrCodes;
 
 namespace Smartstore.Core.Bootstrapping
 {
@@ -57,7 +57,7 @@ namespace Smartstore.Core.Bootstrapping
             builder.RegisterType<SharpImageFactory>().As<IImageFactory>().SingleInstance();
             builder.RegisterType<ImageCache>().As<IImageCache>().InstancePerLifetimeScope();
             builder.RegisterType<DefaultImageProcessor>().As<IImageProcessor>().InstancePerLifetimeScope();
-            builder.RegisterType<DefaultQRCodeEncoder>().As<IQRCodeEncoder>().SingleInstance();
+            builder.RegisterType<DefaultQrCodeEncoder>().As<IQrCodeEncoder>().SingleInstance();
 
             // Register factory for currently active media storage provider
             builder.Register(MediaStorageProviderFactory);

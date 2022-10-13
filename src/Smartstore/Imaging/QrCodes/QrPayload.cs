@@ -1,9 +1,9 @@
-﻿namespace Smartstore.Imaging.QRCodes
+﻿namespace Smartstore.Imaging.QrCodes
 {
     /// <summary>
     /// Abstract base class for QR code payloads.
     /// </summary>
-    public abstract class QRPayload : IEquatable<QRPayload>
+    public abstract class QrPayload : IEquatable<QrPayload>
     {
         /// <summary>
         /// Serializes the payload object.
@@ -18,7 +18,7 @@
         public override string ToString()
             => Serialize();
 
-        public bool Equals(QRPayload other)
+        public bool Equals(QrPayload other)
         {
             if (other == null)
                 return false;
@@ -32,7 +32,7 @@
         }
 
         public override bool Equals(object obj)
-            => Equals(obj as QRPayload);
+            => Equals(obj as QrPayload);
 
         public override int GetHashCode()
             => Serialize().GetHashCode();

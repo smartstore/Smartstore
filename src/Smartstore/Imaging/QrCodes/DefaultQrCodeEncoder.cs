@@ -1,15 +1,15 @@
 ﻿using Net.Codecrete.QrCodeGenerator;
 
-namespace Smartstore.Imaging.QRCodes
+namespace Smartstore.Imaging.QrCodes
 {
-    internal class DefaultQRCodeEncoder : IQRCodeEncoder
+    internal class DefaultQrCodeEncoder : IQrCodeEncoder
     {
-        public IQRCode EncodeQRCode(QRPayload payload, EccLevel eccLevel)
+        public IQrCode EncodeQrCode(QrPayload payload, EccLevel eccLevel)
         {
             Guard.NotNull(payload, nameof(payload));
 
             var qrCodeEncoded = QrCode.EncodeText(payload.Serialize(), TranslateErrorCorrectionLevel(eccLevel));
-            var qrCode = new DefaultQRcode(qrCodeEncoded, payload);
+            var qrCode = new DefaultQrCode(qrCodeEncoded, payload);
 
             return qrCode;
         }

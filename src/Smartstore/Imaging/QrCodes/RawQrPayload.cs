@@ -1,11 +1,11 @@
-﻿namespace Smartstore.Imaging.QRCodes
+﻿namespace Smartstore.Imaging.QrCodes
 {
     /// <summary>
-    /// TODO: Describe
+    /// A payload implementation that takes a raw encoded string.
     /// </summary>
-    public class RawQRPayload : QRPayload
+    public class RawQrPayload : QrPayload
     {
-        public RawQRPayload(string payload)
+        public RawQrPayload(string payload)
         {
             Guard.NotEmpty(payload, nameof(payload));
             

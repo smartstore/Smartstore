@@ -1,18 +1,16 @@
 ﻿using System.Drawing;
 
-namespace Smartstore.Imaging.QRCodes
+namespace Smartstore.Imaging.QrCodes
 {
-    // TODO: (mh) (core) Very unprecise dev docs: e.g. how do scale and border behave? What effect do they have on the resulting drawing?
-
     /// <summary>
-    /// Generates svg or images from QR codes.
+    /// Generates SVG or images from QR codes.
     /// </summary>
-    public interface IQRCode
+    public interface IQrCode
     {
         /// <summary>
         /// The source payload that was used to generate this encoder instance.
         /// </summary>
-        QRPayload Payload { get; }
+        QrPayload Payload { get; }
 
         /// <summary>
         /// Generates SVG for a QR code.
@@ -23,8 +21,6 @@ namespace Smartstore.Imaging.QRCodes
         /// <returns>XML of the generated SVG drawing.</returns>
         string GenerateSvg(string foreColor = "#000", string backColor = "#fff", int border = 3);
 
-        // TODO: (mh) (core) Make overloads as extension methods with varying parameters (e.g., without color params)
-        // TODO: (mh) (core) Are you sure that default value 3 makes sense for scale and border?
         /// <summary>
         /// Generates an image for a QR code.
         /// </summary>
@@ -34,5 +30,19 @@ namespace Smartstore.Imaging.QRCodes
         /// <param name="border">The border of the QR code image.</param>
         /// <returns>The generated image instance.</returns>
         IImage GenerateImage(Color foreColor, Color backColor, int scale = 3, int border = 3);
+    }
+
+    public static class IQrCodeExtensions
+    {
+        /// <summary>
+        /// Generates an image for a QR code.
+        /// </summary>
+        /// <param name="scale">Defines the size of the image.</param>
+        /// <param name="border">The border of the QR code image.</param>
+        /// <returns>The generated image instance.</returns>
+        public static IImage GenerateImage(this IQrCode qrCode, int scale = 3, int border = 3)
+        {
+            return qrCode.GenerateImage(Color.Black, Color.White, scale, border);
+        }
     }
 }

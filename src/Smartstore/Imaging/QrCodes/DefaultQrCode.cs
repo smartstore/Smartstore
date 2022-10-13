@@ -8,20 +8,20 @@ using SharpColor = SixLabors.ImageSharp.Color;
 using SharpRectangle = SixLabors.ImageSharp.Rectangle;
 using SharpImageFormat = SixLabors.ImageSharp.Formats.IImageFormat;
 
-namespace Smartstore.Imaging.QRCodes
+namespace Smartstore.Imaging.QrCodes
 {
-    internal class DefaultQRcode : IQRCode
+    internal class DefaultQrCode : IQrCode
     {
         private readonly static SharpImageFormat PngFormat = SharpImageFactory.FindInternalImageFormat("png");
         private readonly QrCode _code;
         
-        public DefaultQRcode(QrCode code, QRPayload payload)
+        public DefaultQrCode(QrCode code, QrPayload payload)
         {
             _code = code;
             Payload = payload;
         }
 
-        public QRPayload Payload { get; }
+        public QrPayload Payload { get; }
 
         public string GenerateSvg(string foreColor = "#000", string backColor = "#fff", int border = 3)
         {
