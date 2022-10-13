@@ -36,8 +36,6 @@ namespace Smartstore.PayPal.Client.Messages
                 var authorizationString = Convert.ToBase64String($"{sharedId}:".GetBytes());
                 Headers.Authorization = new AuthenticationHeaderValue("Basic", authorizationString);
 
-                Headers.Add("PayPal-Partner-Attribution-Id", "Smartstore_Cart_PPCP");
-
                 body["grant_type"] = "authorization_code";
                 body.Add("code", authCode);
                 body.Add("code_verifier", sellerNonce);

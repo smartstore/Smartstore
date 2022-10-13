@@ -17,7 +17,6 @@
             }
 
             ContentType = "application/json";
-            Headers.Add("PayPal-Partner-Attribution-Id", "Smartstore_Cart_PPCP");
         }
 
         public GetMerchantStatusRequest WithRequestId(string payPalRequestId)

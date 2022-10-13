@@ -21,8 +21,6 @@ namespace Smartstore.PayPal.Client.Messages
             ContentType = "application/json";
 
             Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
-
-            Headers.Add("PayPal-Partner-Attribution-Id", "Smartstore_Cart_PPCP");
         }
 
         public GetSellerCredentialsRequest WithRequestId(string payPalRequestId)
