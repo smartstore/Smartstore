@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.OData.Query;
 using Microsoft.OpenApi.Models;
-using Org.BouncyCastle.Bcpg.OpenPgp;
 using Smartstore.Web.Api.Security;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
