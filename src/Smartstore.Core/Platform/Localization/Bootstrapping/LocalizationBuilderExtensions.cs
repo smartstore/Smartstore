@@ -28,7 +28,7 @@ namespace Smartstore.Core.Bootstrapping
             });
 
             builder.Services.TryAddEnumerable(
-                    ServiceDescriptor.Transient<IConfigureOptions<MvcOptions>, AppLocalizationMvcOptionsSetup>());
+                ServiceDescriptor.Transient<IConfigureOptions<MvcOptions>, AppLocalizationMvcOptionsSetup>());
 
             return builder;
         }

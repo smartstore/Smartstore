@@ -1,14 +1,13 @@
-﻿using FluentValidation.Internal;
-using Smartstore;
+﻿using Smartstore;
 using Smartstore.Core.Configuration;
 
 namespace FluentValidation
 {
     public static class FluentValidatorRuleExtensions
     {
-        public static IRuleBuilderOptions<T, string> CreditCardCvvNumber<T>(this IRuleBuilder<T, string> rule)
+        public static IRuleBuilderOptions<T, string> CreditCardCvvNumber<T>(this IRuleBuilder<T, string> ruleBuilder)
         {
-            return rule.Matches(RegularExpressions.IsCvv);
+            return ruleBuilder.Matches(RegularExpressions.IsCvv);
         }
 
         /// <summary>
@@ -24,10 +23,10 @@ namespace FluentValidation
         /// <param name="applyConditionTo">Whether the condition should be applied to the current rule or all rules in the chain.</param>
         /// <exception cref="ArgumentException">Raised when validator class does not derive from <see cref="SettingModelValidator{TModel, TSetting}"/></exception>
         public static IRuleBuilderOptions<T, TProperty> WhenSettingOverriden<T, TProperty>(
-            this IRuleBuilderOptions<T, TProperty> rule,
-            Func<T, TProperty, bool> predicate,
+            this IRuleBuilderOptions<T, TProperty> ruleBuilder,
+            Func<T, ValidationContext<T>, bool> predicate,
             ApplyConditionTo applyConditionTo = ApplyConditionTo.AllValidators)
-            => WhenSettingOverridenInternal(rule, predicate, applyConditionTo, false);
+            => WhenSettingOverridenInternal(ruleBuilder, predicate, applyConditionTo, false);
 
         /// <summary>
         /// Specifies a condition limiting when the validator should NOT run. 
@@ -42,35 +41,34 @@ namespace FluentValidation
         /// <param name="applyConditionTo">Whether the condition should be applied to the current rule or all rules in the chain.</param>
         /// <exception cref="ArgumentException">Raised when validator class does not derive from <see cref="SettingModelValidator{TModel, TSetting}"/></exception>
         public static IRuleBuilderOptions<T, TProperty> UnlessSettingOverriden<T, TProperty>(
-            this IRuleBuilderOptions<T, TProperty> rule,
-            Func<T, TProperty, bool> predicate,
+            this IRuleBuilderOptions<T, TProperty> ruleBuilder,
+            Func<T, ValidationContext<T>, bool> predicate,
             ApplyConditionTo applyConditionTo = ApplyConditionTo.AllValidators)
-            => WhenSettingOverridenInternal(rule, predicate, applyConditionTo, true);
+            => WhenSettingOverridenInternal(ruleBuilder, predicate, applyConditionTo, true);
 
         public static IRuleBuilderOptions<T, TProperty> WhenSettingOverridenInternal<T, TProperty>(
-            this IRuleBuilderOptions<T, TProperty> rule,
-            Func<T, TProperty, bool> predicate,
+            this IRuleBuilderOptions<T, TProperty> ruleBuilder,
+            Func<T, ValidationContext<T>, bool> predicate,
             ApplyConditionTo applyConditionTo,
             bool negate)
         {
             Guard.NotNull(predicate, nameof(predicate));
 
-            return rule.Configure(config =>
+            var validatorProperty = ruleBuilder.GetType().GetProperty("ParentValidator");
+            var validator = validatorProperty?.GetValue(ruleBuilder, null) as ISettingModelValidator
+                ?? throw new ArgumentException($"The validator must derive from {nameof(SettingModelValidator<T, ISettings>)} when using 'WhenSettingOverriden'.", nameof(ruleBuilder));
+
+            return ruleBuilder.Configure(rule =>
             {
-                config.ApplyCondition(
-                    ctx =>
-                    {
-                        var builder = rule as RuleBuilder<T, TProperty>;
-                        var validator = builder.ParentValidator as ISettingModelValidator
-                            ?? throw new ArgumentException($"The validator must derive from {nameof(SettingModelValidator<T, ISettings>)} when using {nameof(WhenSettingOverriden)}.", nameof(rule));
+                rule.ApplyCondition(ctx =>
+                {
+                    var condition =
+                        (validator.StoreScope == 0 && predicate(ctx.InstanceToValidate, ctx)) ||
+                        (validator.StoreScope > 0 && validator.IsOverridenSetting(ctx.PropertyName));
 
-                        var condition =
-                            (validator.StoreScope == 0 && predicate((T)ctx.InstanceToValidate, (TProperty)ctx.PropertyValue)) ||
-                            (validator.StoreScope > 0 && validator.IsOverridenSetting(ctx.PropertyName));
-
-                        return negate ? !condition : condition;
-                    },
-                    applyConditionTo);
+                    return negate ? !condition : condition;
+                },
+                applyConditionTo);
             });
         }
     }

@@ -1,5 +1,7 @@
 ﻿using Autofac;
+using FluentValidation;
 using FluentValidation.AspNetCore;
+using FluentValidation.Resources;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Abstractions;
@@ -115,38 +117,6 @@ namespace Smartstore.Web
                         o.ViewLocationExpanders.Add(new LanguageViewLocationExpander(LanguageViewLocationExpanderFormat.Suffix));
                     }
                 })
-                .AddFluentValidation(c =>
-                {
-                    c.LocalizationEnabled = true;
-                    c.ImplicitlyValidateChildProperties = true;
-
-                    // Scan active assemblies for validators
-                    c.RegisterValidatorsFromAssemblies(appContext.TypeScanner.Assemblies, lifetime: ServiceLifetime.Scoped);
-
-                    var opts = c.ValidatorOptions;
-
-                    // It sais 'not recommended', but who cares: SAVE RAM!
-                    opts.DisableAccessorCache = true;
-
-                    // Language Manager
-                    opts.LanguageManager = validatorLanguageManager;
-
-                    // Display name resolver
-                    var originalDisplayNameResolver = opts.DisplayNameResolver;
-                    opts.DisplayNameResolver = (type, member, expression) =>
-                    {
-                        string name = null;
-
-                        if (expression != null && member != null)
-                        {
-                            var metadataProvider = EngineContext.Current.Application.Services.Resolve<IModelMetadataProvider>();
-                            var metadata = metadataProvider.GetMetadataForProperty(member.DeclaringType, member.Name);
-                            name = metadata.DisplayName;
-                        }
-
-                        return name ?? originalDisplayNameResolver.Invoke(type, member, expression);
-                    };
-                })
                 .AddNewtonsoftJson(o =>
                 {
                     var settings = o.SerializerSettings;
@@ -168,6 +138,9 @@ namespace Smartstore.Web
                     // Client validation (must come last - after "FluentValidationClientModelValidatorProvider")
                     o.ClientModelValidatorProviders.Add(new SmartClientModelValidatorProvider(appContext, validatorLanguageManager));
                 });
+
+            // Add and configure FluentValidator
+            AddFluentValidator(services, appContext, validatorLanguageManager);
 
             // Add Razor runtime compilation if enabled
             if (appContext.AppConfiguration.EnableRazorRuntimeCompilation)
@@ -242,6 +215,38 @@ namespace Smartstore.Web
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
             });
+        }
+
+        private static void AddFluentValidator(IServiceCollection services, IApplicationContext appContext, ILanguageManager languageManager)
+        {
+            services
+                .AddFluentValidationAutoValidation()
+                .AddFluentValidationClientsideAdapters()
+                .AddValidatorsFromAssemblies(appContext.TypeScanner.Assemblies);
+
+            var opts = ValidatorOptions.Global;
+
+            // It sais 'not recommended', but who cares: SAVE RAM!
+            opts.DisableAccessorCache = true;
+
+            // Language Manager
+            opts.LanguageManager = languageManager;
+
+            // Display name resolver
+            var originalDisplayNameResolver = opts.DisplayNameResolver;
+            opts.DisplayNameResolver = (type, member, expression) =>
+            {
+                string name = null;
+
+                if (expression != null && member != null)
+                {
+                    var metadataProvider = EngineContext.Current.Application.Services.Resolve<IModelMetadataProvider>();
+                    var metadata = metadataProvider.GetMetadataForProperty(member.DeclaringType, member.Name);
+                    name = metadata.DisplayName;
+                }
+
+                return name ?? originalDisplayNameResolver.Invoke(type, member, expression);
+            };
         }
 
         private static IUrlHelper ResolveUrlHelper(IComponentContext c)

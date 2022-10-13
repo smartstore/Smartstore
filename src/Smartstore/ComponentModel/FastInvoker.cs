@@ -6,7 +6,7 @@ namespace Smartstore.ComponentModel
 {
     public class FastInvoker
     {
-        private static readonly ConcurrentDictionary<MethodKey, FastInvoker> _invokersCache = new ConcurrentDictionary<MethodKey, FastInvoker>();
+        private static readonly ConcurrentDictionary<MethodKey, FastInvoker> _invokersCache = new();
 
         public FastInvoker(MethodInfo methodInfo)
         {
@@ -182,15 +182,10 @@ namespace Smartstore.ComponentModel
         {
             Guard.NotNull(method, nameof(method));
 
-            var cacheKey = MethodKey.Create(method);
-
-            if (!_invokersCache.TryGetValue(cacheKey, out var invoker))
+            return _invokersCache.GetOrAdd(MethodKey.Create(method), key => 
             {
-                invoker = new FastInvoker(method);
-                _invokersCache.TryAdd(cacheKey, invoker);
-            }
-
-            return invoker;
+                return new FastInvoker(method);
+            });
         }
 
         private static MethodInfo FindMatchingMethod(Type type, string methodName, Type[] argTypes)

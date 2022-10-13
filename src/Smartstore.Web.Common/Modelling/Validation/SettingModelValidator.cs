@@ -26,9 +26,9 @@ namespace FluentValidation
     {
         private MultiStoreSettingValidatorSelector _validatorSelector;
 
-        IValidationContext IValidatorInterceptor.BeforeMvcValidation(ControllerContext controllerContext, IValidationContext commonContext)
+        IValidationContext IValidatorInterceptor.BeforeAspNetValidation(ActionContext actionContext, IValidationContext commonContext)
         {
-            var httpContext = controllerContext.HttpContext;
+            var httpContext = actionContext.HttpContext;
             if (!httpContext.Request.HasFormContentType || httpContext.Request.Form == null)
             {
                 return commonContext;
@@ -58,7 +58,7 @@ namespace FluentValidation
         public bool IsOverridenSetting(string propertyPath)
             => _validatorSelector?.IsOverrideChecked(propertyPath) ?? false;
 
-        ValidationResult IValidatorInterceptor.AfterMvcValidation(ControllerContext controllerContext, IValidationContext commonContext, ValidationResult result)
+        ValidationResult IValidatorInterceptor.AfterAspNetValidation(ActionContext actionContext, IValidationContext commonContext, ValidationResult result)
             => result;
 
         private static int GetActiveStoreScopeConfiguration(HttpContext httpContext)

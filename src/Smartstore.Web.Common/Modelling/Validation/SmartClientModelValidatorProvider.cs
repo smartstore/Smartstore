@@ -38,6 +38,8 @@ namespace Smartstore.Web.Modelling.Validation
 
         class RequiredValidator : IClientModelValidator
         {
+            const string NotEmptyValidatorKey = "NotEmptyValidator";
+
             private readonly ValidatorLanguageManager _languageManager;
 
             public RequiredValidator(ValidatorLanguageManager languageManager)
@@ -48,7 +50,7 @@ namespace Smartstore.Web.Modelling.Validation
             public void AddValidation(ClientModelValidationContext context)
             {
                 var propertyName = context.ModelMetadata.GetDisplayName();
-                var errorMessage = _languageManager.GetErrorMessage(nameof(NotEmptyValidator), propertyName);
+                var errorMessage = _languageManager.GetErrorMessage(NotEmptyValidatorKey, propertyName);
 
                 context.Attributes.Merge("data-val", "true", false);
                 context.Attributes.Merge("data-val-required", errorMessage, false);
