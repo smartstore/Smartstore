@@ -220,16 +220,25 @@ namespace Smartstore.Core.Localization
             return 0;
         }
 
+        /// <summary>
+        /// Gets a map of active/published store languages
+        /// </summary>
+        /// <returns>A map of store languages where key is the store id and values are tuples of language ids and seo codes</returns>
         protected Multimap<int, LanguageStub> GetStoreLanguageMap()
         {
-            return GetStoreLanguageMapAsync().Await();
+            return GetStoreLanguageMapInternal(false).Await();
         }
 
         /// <summary>
         /// Gets a map of active/published store languages
         /// </summary>
         /// <returns>A map of store languages where key is the store id and values are tuples of language ids and seo codes</returns>
-        protected virtual async Task<Multimap<int, LanguageStub>> GetStoreLanguageMapAsync()
+        protected Task<Multimap<int, LanguageStub>> GetStoreLanguageMapAsync()
+        {
+            return GetStoreLanguageMapInternal(true);
+        }
+
+        private async Task<Multimap<int, LanguageStub>> GetStoreLanguageMapInternal(bool async)
         {
             var result = await _cache.GetAsync(STORE_LANGUAGE_MAP_KEY, async (o) =>
             {
@@ -240,15 +249,15 @@ namespace Smartstore.Core.Localization
                 var allStores = _storeContext.GetAllStores();
                 foreach (var store in allStores)
                 {
-                    var languages = await GetAllLanguagesAsync(false, store.Id);
+                    var languages = async ? await GetAllLanguagesAsync(false, store.Id) : GetAllLanguages(false, store.Id);
                     if (!languages.Any())
                     {
                         // language-less stores aren't allowed but could exist accidentally. Correct this.
-                        var firstStoreLang = (await GetAllLanguagesAsync(true, store.Id)).FirstOrDefault();
+                        var firstStoreLang = (async ? await GetAllLanguagesAsync(true, store.Id) : GetAllLanguages(true, store.Id)).FirstOrDefault();
                         if (firstStoreLang == null)
                         {
                             // absolute fallback
-                            firstStoreLang = (await GetAllLanguagesAsync(true)).FirstOrDefault();
+                            firstStoreLang = (async ? await GetAllLanguagesAsync(true) : GetAllLanguages(true)).FirstOrDefault();
                         }
                         map.Add(store.Id, new LanguageStub { Id = firstStoreLang.Id, UniqueSeoCode = firstStoreLang.UniqueSeoCode });
                     }
