@@ -109,6 +109,7 @@ namespace Smartstore.Core.Identity
         /// <summary>
         /// Gets or sets permission role mappings.
         /// </summary>
+        [IgnoreDataMember]
         public ICollection<PermissionRoleMapping> PermissionRoleMappings
         {
             get => _permissionRoleMappings ?? LazyLoader.Load(this, ref _permissionRoleMappings) ?? (_permissionRoleMappings ??= new HashSet<PermissionRoleMapping>());

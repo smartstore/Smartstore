@@ -22,14 +22,14 @@ namespace Smartstore.Web.Api.Controllers.OData
         }
 
         [HttpGet, WebApiQueryable]
-        [Permission(Permissions.Customer.Read)]
+        [Permission(Permissions.Configuration.Country.Read)]
         public SingleResult<Country> GetCountry(int key)
         {
             return GetRelatedEntity(key, x => x.Country);
         }
 
         [HttpGet, WebApiQueryable]
-        [Permission(Permissions.Customer.Read)]
+        [Permission(Permissions.Configuration.Country.Read)]
         public SingleResult<StateProvince> GetStateProvince(int key)
         {
             return GetRelatedEntity(key, x => x.StateProvince);

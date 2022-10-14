@@ -125,16 +125,27 @@ namespace Smartstore.Web.Api
                 return BadRequest(ModelState);
             }
 
-            Entities.Add(entity);
-            entity = await ApplyRelatedEntityIdsAsync(entity);
+            try
+            {
+                Entities.Add(entity);
+                entity = await ApplyRelatedEntityIdsAsync(entity);
 
-            if (add != null)
-            {
-                await add();
+                if (add != null)
+                {
+                    await add();
+                }
+                else
+                {
+                    await Db.SaveChangesAsync();
+                }
             }
-            else
+            catch (UnprocessableRequestException ex)
             {
-                await Db.SaveChangesAsync();
+                return StatusCode((int)ex.StatusCode, ex);
+            }
+            catch (Exception ex)
+            {
+                return UnprocessableEntity(ex);
             }
 
             return Created(entity);
@@ -143,7 +154,7 @@ namespace Smartstore.Web.Api
         /// <summary>
         /// Updates an entity.
         /// </summary>
-        /// <param name="key">Key (ID) of the entity.</param>
+        /// <param name="id">Entity identifier.</param>
         /// <param name="model">Model with the data to overwrite the original entity.</param>
         /// <param name="update">
         /// Function called to save changes. Typically used to call Db.SaveChangesAsync().
@@ -154,13 +165,13 @@ namespace Smartstore.Web.Api
         /// status code 204 "No Content" by default or
         /// status code 200 including entity content if "Prefer" header is specified with value "return=representation".
         /// </returns>
-        protected Task<IActionResult> PutAsync(int key, Delta<TEntity> model, Func<TEntity, Task> update = null)
-            => UpdateInternal(false, key, model, update);
+        protected Task<IActionResult> PutAsync(int id, Delta<TEntity> model, Func<TEntity, Task> update = null)
+            => UpdateInternal(false, id, model, update);
 
         /// <summary>
         /// Partially updates an entity.
         /// </summary>
-        /// <param name="key">Key (ID) of the entity.</param>
+        /// <param name="id">Entity identifier.</param>
         /// <param name="model">Delta model with the data to overwrite the original entity.</param>
         /// <param name="update">
         /// Function called to save changes. Typically used to call Db.SaveChangesAsync().
@@ -171,20 +182,20 @@ namespace Smartstore.Web.Api
         /// status code 204 "No Content" by default or
         /// status code 200 including entity content if "Prefer" header is specified with value "return=representation".
         /// </returns>
-        protected Task<IActionResult> PatchAsync(int key, Delta<TEntity> model, Func<TEntity, Task> update = null)
-            => UpdateInternal(true, key, model, update);
+        protected Task<IActionResult> PatchAsync(int id, Delta<TEntity> model, Func<TEntity, Task> update = null)
+            => UpdateInternal(true, id, model, update);
 
-        private async Task<IActionResult> UpdateInternal(bool patch, int key, Delta<TEntity> model, Func<TEntity, Task> update)
+        private async Task<IActionResult> UpdateInternal(bool patch, int id, Delta<TEntity> model, Func<TEntity, Task> update)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            var entity = await Entities.FindByIdAsync(key);
+            var entity = await Entities.FindByIdAsync(id);
             if (entity == null)
             {
-                return NotFound(default(TEntity));
+                return NotFound($"Cannot find {typeof(TEntity).Name} entity with identifier {id}.");
             }
 
             try
@@ -212,18 +223,22 @@ namespace Smartstore.Web.Api
             }
             catch (DbUpdateConcurrencyException ex)
             {
-                if (!await Entities.AnyAsync(x => x.Id == key))
+                if (!await Entities.AnyAsync(x => x.Id == id))
                 {
-                    return NotFound(default(TEntity));
+                    return NotFound(ex);
                 }
                 else
                 {
-                    return Conflict(ex.Message);
+                    return Conflict(ex);
                 }
+            }
+            catch (UnprocessableRequestException ex)
+            {
+                return StatusCode((int)ex.StatusCode, ex);
             }
             catch (Exception ex)
             {
-                return UnprocessableEntity(ex.Message);
+                return UnprocessableEntity(ex);
             }
 
             return Updated(entity);
@@ -232,28 +247,39 @@ namespace Smartstore.Web.Api
         /// <summary>
         /// Deletes an entity.
         /// </summary>
-        /// <param name="key">Key (ID) of the entity.</param>
+        /// <param name="id">Entity identifier.</param>
         /// <param name="update">
         /// Function called to save changes. Typically used for soft deletable entities.
         /// <c>null</c> removes the entity and executes SaveChangesAsync internally.
         /// </param>
         /// <returns>NoContentResult which leads to status code 204.</returns>
-        protected async Task<IActionResult> DeleteAsync(int key, Func<TEntity, Task> delete = null)
+        protected async Task<IActionResult> DeleteAsync(int id, Func<TEntity, Task> delete = null)
         {
-            var entity = await Entities.FindByIdAsync(key);
+            var entity = await Entities.FindByIdAsync(id);
             if (entity == null)
             {
                 return NotFound(default(TEntity));
             }
 
-            if (delete != null)
+            try
             {
-                await delete(entity);
+                if (delete != null)
+                {
+                    await delete(entity);
+                }
+                else
+                {
+                    Entities.Remove(entity);
+                    await Db.SaveChangesAsync();
+                }
             }
-            else
-            {               
-                Entities.Remove(entity);
-                await Db.SaveChangesAsync();
+            catch (UnprocessableRequestException ex)
+            {
+                return StatusCode((int)ex.StatusCode, ex);
+            }
+            catch (Exception ex)
+            {
+                return UnprocessableEntity(ex);
             }
 
             return NoContent();

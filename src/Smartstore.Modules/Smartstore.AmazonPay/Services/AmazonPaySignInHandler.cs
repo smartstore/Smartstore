@@ -86,7 +86,7 @@ namespace Smartstore.AmazonPay.Services
                     //new Claim(ClaimTypes.HomePhone, response.BillingAddress?.PhoneNumber ?? string.Empty)
                 };
 
-                var identity = new ClaimsIdentity(claims, ClaimsIssuer);
+                var identity = new ClaimsIdentity(claims, Scheme.Name);
                 var principal = new ClaimsPrincipal(identity);
                 var ticket = new AuthenticationTicket(principal, properties, Scheme.Name);
 

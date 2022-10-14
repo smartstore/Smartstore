@@ -1,9 +1,7 @@
 ﻿using System.Net.Http.Headers;
 using System.Security.Claims;
-using System.Security.Principal;
 using System.Text;
 using System.Text.Encodings.Web;
-using System.Threading;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Identity;
@@ -84,8 +82,9 @@ namespace Smartstore.Web.Api.Security
 
                 var claims = new[]
                 {
-                    new Claim(ClaimTypes.NameIdentifier, customer.Id.ToString()),
-                    new Claim(ClaimTypes.Name, customer.Username)
+                    new Claim(ClaimTypes.NameIdentifier, customer.Id.ToString(), ClaimValueTypes.Integer32, ClaimsIssuer),
+                    new Claim(ClaimTypes.Name, customer.Username, ClaimValueTypes.String, ClaimsIssuer),
+                    new Claim(ClaimTypes.Email, customer.Email, ClaimValueTypes.String, ClaimsIssuer)
                 };
 
                 var principal = new ClaimsPrincipal(new ClaimsIdentity(claims, Scheme.Name));

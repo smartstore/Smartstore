@@ -43,7 +43,7 @@ namespace Smartstore.Web.Api.Controllers.OData
         }
 
         [HttpGet, WebApiQueryable]
-        [Permission(Permissions.Catalog.Category.Read)]
+        [Permission(Permissions.Promotion.Discount.Read)]
         public IQueryable<Discount> GetAppliedDiscounts(int key)
         {
             return GetRelatedQuery(key, x => x.AppliedDiscounts);

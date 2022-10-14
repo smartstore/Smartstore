@@ -4,7 +4,9 @@ using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Common;
 using Smartstore.Core.Content.Media;
+using Smartstore.Core.Identity;
 using Smartstore.Engine;
+using Smartstore.Web.Api.Controllers.OData;
 
 namespace Smartstore.Web.Api
 {
@@ -17,8 +19,9 @@ namespace Smartstore.Web.Api
             builder.EntitySet<Discount>("Discounts");
             builder.EntitySet<Country>("Countries");
             builder.EntitySet<Currency>("Currencies");
-
-
+            builder.EntitySet<CustomerRoleMapping>("CustomerRoleMappings");
+            builder.EntitySet<CustomerRole>("CustomerRoles");
+            builder.EntitySet<Customer>("Customers");
 
             builder.EntitySet<MediaFile>("MediaFiles");
             builder.EntitySet<StateProvince>("StateProvinces");
