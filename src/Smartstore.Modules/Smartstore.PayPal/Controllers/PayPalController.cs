@@ -95,7 +95,13 @@ namespace Smartstore.PayPal.Controllers
                     var webhookEvent = JsonConvert.DeserializeObject<Event<WebhookResource>>(rawRequest);
                     var response = await VerifyWebhookRequest(Request, webhookEvent);
                     var resource = webhookEvent.Resource;
+
                     var customId = resource?.CustomId;
+                    if (customId == null)
+                    {
+                        customId = resource?.PurchaseUnits[0]?.CustomId;
+                    }
+                    
                     var webhookResourceType = webhookEvent.ResourceType?.ToLowerInvariant();
 
                     if (!Guid.TryParse(customId, out var orderGuid))

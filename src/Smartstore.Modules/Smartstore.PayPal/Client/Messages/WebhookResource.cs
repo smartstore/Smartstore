@@ -1,4 +1,6 @@
-﻿namespace Smartstore.PayPal.Client.Messages
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Smartstore.PayPal.Client.Messages
 {
     public class WebhookResource
     {
@@ -25,5 +27,12 @@
         /// </summary>
         [JsonProperty("amount", DefaultValueHandling = DefaultValueHandling.Ignore)]
         public MoneyMessage Amount;
+
+        /// <summary>
+        /// An array of purchase units. Each purchase unit establishes a contract between a payer and the payee.
+        /// </summary>
+        [Required]
+        [JsonProperty("purchase_units", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public PurchaseUnit[] PurchaseUnits;
     }
 }

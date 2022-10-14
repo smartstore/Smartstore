@@ -411,10 +411,9 @@ namespace Smartstore.PayPal.Client
 
             // TODO: (mh) (core) If ERPs are used this ain't the real Invoice-Id > Make optional or remove (TBD with MC)
             var message = new CaptureMessage { InvoiceId = request.Order.OrderNumber };
-            // CaptureTransactionId is null here. Payment is not captured yet. Maybe you want to use AuthorizationTransactionId?
-            var voidRequest = new AuthorizationsCaptureRequest(request.Order.CaptureTransactionId).WithBody(message);
+            var voidRequest = new AuthorizationsCaptureRequest(request.Order.AuthorizationTransactionId).WithBody(message);
             var response = await ExecuteRequestAsync(voidRequest, request.Order.StoreId, cancelToken);
-            var capture = response.Body<Capture>();
+            var capture = response.Body<CaptureMessage>();
 
             result.NewPaymentStatus = PaymentStatus.Paid;
             result.CaptureTransactionId = capture.Id;
@@ -433,9 +432,7 @@ namespace Smartstore.PayPal.Client
         {
             Guard.NotNull(request, nameof(request));
 
-            // TODO: (mh) (core) Produces exception "Value cannot be null. Parameter 'stringToEscape'".
-            // CaptureTransactionId is null here. Payment is not captured yet. Maybe you want to use AuthorizationTransactionId?
-            var voidRequest = new AuthorizationsVoidRequest(request.Order.CaptureTransactionId);
+            var voidRequest = new AuthorizationsVoidRequest(request.Order.AuthorizationTransactionId);
             var response = await ExecuteRequestAsync(voidRequest, request.Order.StoreId, cancelToken);
 
             result.NewPaymentStatus = PaymentStatus.Voided;
