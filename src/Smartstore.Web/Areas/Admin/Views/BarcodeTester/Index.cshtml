@@ -1,0 +1,87 @@
+﻿@using Smartstore.Imaging.Barcodes
+
+@{
+    ViewBag.Title = "Barcode Tester";
+    var allTypes = Html.GetEnumSelectList<BarcodeType>();
+    var selectedType = allTypes.Where(x => x.Text == "Ean").First();
+    selectedType.Selected = true;
+}
+
+<style type="text/css" sm-target-zone="stylesheets" data-origin="barcode-tester">
+    img.barcode {
+        border: 1px solid rgba(0,0,0, 0.1);
+    }
+</style>
+
+<div class="section-header">
+    <div class="title">
+        <i class="fa fa-barcode d-inline-block"></i>
+        <span>Barcode Tester</span>
+    </div>
+</div>
+
+<form id="barcode-form" method="get">
+    <div class="row">
+        <div class="col-12 col-md-6">
+            <div class="form-group">
+                <label>Barcode Type</label>
+                <select asp-items="@allTypes" id="type" name="type"></select>
+            </div>
+            <div class="form-group">
+                <textarea name="data" id="data" class="form-control" rows="6" placeholder="Paste data here">4912345678904</textarea>
+            </div>
+
+            <div class="form-group text-right">
+                <button type="submit" class="btn btn-warning">Generate</button>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-6">
+            <div class="row">
+                <div class="col-6">
+                    <h4 class="text-center">SVG</h4>
+                    <div class="text-center" id="svg-output">
+                        <!-- Lazy -->
+                    </div>
+                </div>
+                <div class="col-6">
+                    <h4 class="text-center">PNG</h4>
+                    <div class="text-center" id="png-output">
+                        <!-- Lazy -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<script sm-target-zone="scripts" data-origin="barcode-tester">
+    $(function () {
+        var data = $('#data');
+        var type = $('#type');
+
+        var urlSvg = '@Url.Action("Svg").TrimEnd('/')';
+        var urlPng = '@Url.Action("Image").TrimEnd('/')';
+
+        var svgOutput = $('#svg-output');
+        var pngOutput = $('#png-output');
+
+        $('#barcode-form').on('submit', function (e) {
+            e.preventDefault();
+
+            if (!data.val()) {
+                alert('Data is required');
+                return false;
+            }
+
+            let q = '?type={0}&data={1}'.format(type.val(), encodeURI(data.val()));
+            let svg = '<img class="img-fluid barcode" src="{0}" />'.format(urlSvg + q);
+            let png = '<img class="img-fluid barcode" src="{0}" />'.format(urlPng + q);
+
+            svgOutput.html(svg);
+            pngOutput.html(png);
+
+            return false;
+        });
+    });
+</script>

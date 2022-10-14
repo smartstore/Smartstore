@@ -8,9 +8,22 @@
         /// <summary>
         /// Encodes a barcode payload.
         /// </summary>
-        /// <param name="content">The barcode payload/data to encode.</param>
+        /// <param name="payload">The barcode payload to encode.</param>
+        /// <returns>The encoded barcode</returns>
+        IBarcode EncodeBarcode(BarcodePayload payload);
+    }
+
+    public static class IBarcodeEncoderExtensions
+    {
+        /// <summary>
+        /// Encodes a barcode payload.
+        /// </summary>
+        /// <param name="content">The barcode data to encode.</param>
         /// <param name="type">Type of barcode to encode.</param>
         /// <returns>The encoded barcode</returns>
-        IBarcode EncodeBarcode(string data, BarcodeType type);
+        public static IBarcode EncodeBarcode(this IBarcodeEncoder encoder, string data, BarcodeType type)
+        {
+            return encoder.EncodeBarcode(new BarcodePayload(data, type));
+        }
     }
 }

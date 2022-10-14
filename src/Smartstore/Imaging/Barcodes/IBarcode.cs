@@ -1,4 +1,5 @@
 ﻿using System.Drawing;
+using Smartstore.Imaging.QrCodes;
 
 namespace Smartstore.Imaging.Barcodes
 {
@@ -15,20 +16,15 @@ namespace Smartstore.Imaging.Barcodes
         /// <summary>
         /// Generates SVG for a barcode.
         /// </summary>
-        /// <param name="foreColor">The foreground color of the barcode drawing as a valid web color.</param>
-        /// <param name="backColor">The background color of the barcode drawing as a valid web color.</param>
-        /// <param name="border">The border of the barcode drawing.</param>
+        /// <param name="options">SVG drawing options.</param>
         /// <returns>XML of the generated SVG drawing.</returns>
-        string GenerateSvg(string foreColor = "#000", string backColor = "#fff", int border = 3);
+        string GenerateSvg(BarcodeSvgOptions options = null);
 
         /// <summary>
         /// Generates an image for a barcode.
         /// </summary>
-        /// <param name="foreColor">The foreground color of the barcode image.</param>
-        /// <param name="backColor">The background color of the barcode image.</param>
-        /// <param name="scale">Defines the size of the barcode image.</param>
-        /// <param name="border">The border of the barcode image.</param>
+        /// <param name="options">Image drawing options.</param>
         /// <returns>The generated image instance.</returns>
-        IImage GenerateImage(Color foreColor, Color backColor, int scale = 3, int border = 3);
+        IImage GenerateImage(BarcodeImageOptions options = null);
     }
 }
