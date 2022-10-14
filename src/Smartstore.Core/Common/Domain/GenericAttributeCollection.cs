@@ -46,6 +46,7 @@ namespace Smartstore.Core.Common
             int entityId,
             int currentStoreId,
             List<GenericAttribute> entities = null)
+            : this(entityName)
         {
             Guard.NotNull(query, nameof(query));
             Guard.NotEmpty(entityName, nameof(entityName));
@@ -64,6 +65,20 @@ namespace Smartstore.Core.Common
             }
         }
 
+        /// <summary>
+        /// For transient entities and to avoid that MVC model binder crashes.
+        /// </summary>
+        /// <param name="entityName"></param>
+        internal GenericAttributeCollection(string entityName)
+        {
+            Guard.NotEmpty(entityName, nameof(entityName));
+
+            EntityName = entityName;
+            IsReadOnly = true;
+        }
+
+        public bool IsReadOnly { get; }
+
         public virtual string EntityName { get; }
         public virtual int EntityId { get; }
         public virtual int CurrentStoreId { get; }
@@ -75,6 +90,14 @@ namespace Smartstore.Core.Common
         // Key: GenericAttribute.Key
         protected internal virtual Multimap<string, GenericAttribute> Map { get; }
 
+        private void CheckNotReadonly()
+        {
+            if (IsReadOnly)
+            {
+                throw new NotSupportedException("Collection is read-only.");
+            }
+        }
+
         /// <summary>
         /// Gets all entities that were loaded from the database
         /// </summary>
@@ -82,6 +105,11 @@ namespace Smartstore.Core.Common
         {
             get
             {
+                if (IsReadOnly)
+                {
+                    return Enumerable.Empty<GenericAttribute>();
+                }
+                
                 if (Entities == null)
                 {
                     Reload();
@@ -98,8 +126,11 @@ namespace Smartstore.Core.Common
         /// </summary>
         public void Reload()
         {
-            Entities = Query.ToList();
-            CreateMap();
+            if (!IsReadOnly)
+            {
+                Entities = Query.ToList();
+                CreateMap();
+            }
         }
 
         /// <summary>
@@ -107,8 +138,11 @@ namespace Smartstore.Core.Common
         /// </summary>
         public async Task ReloadAsync()
         {
-            Entities = await Query.ToListAsync();
-            CreateMap();
+            if (!IsReadOnly)
+            {
+                Entities = await Query.ToListAsync();
+                CreateMap();
+            }
         }
 
         /// <summary>
@@ -116,6 +150,7 @@ namespace Smartstore.Core.Common
         /// </summary>
         public void DeleteAll()
         {
+            CheckNotReadonly();
             EnsureLoaded();
             DbContext.GenericAttributes.RemoveRange(Entities);
             Entities.Clear();
@@ -128,6 +163,7 @@ namespace Smartstore.Core.Common
         /// <returns>Number of affected records.</returns>
         public int SaveChanges()
         {
+            CheckNotReadonly();
             return DbContext.SaveChanges();
         }
 
@@ -137,6 +173,7 @@ namespace Smartstore.Core.Common
         /// <returns>Number of affected records.</returns>
         public Task<int> SaveChangesAsync(CancellationToken cancelToken = default)
         {
+            CheckNotReadonly();
             return DbContext.SaveChangesAsync(cancelToken);
         }
 
@@ -182,9 +219,14 @@ namespace Smartstore.Core.Common
         {
             Guard.NotEmpty(key, nameof(key));
 
-            EnsureLoaded();
-
             entity = null;
+
+            if (IsReadOnly)
+            {
+                return false;
+            }
+
+            EnsureLoaded();
 
             if (Map.ContainsKey(key))
             {
@@ -204,6 +246,8 @@ namespace Smartstore.Core.Common
         public bool TrySet<TProp>(string key, TProp value, int storeId, out GenericAttribute entity)
         {
             Guard.NotEmpty(key, nameof(key));
+
+            CheckNotReadonly();
 
             var valueStr = value.Convert<string>();
 

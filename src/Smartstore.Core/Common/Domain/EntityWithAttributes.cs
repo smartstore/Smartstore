@@ -23,7 +23,8 @@ namespace Smartstore.Domain
         /// </summary>
         /// <returns>
         /// Generic attributes collection or <c>null</c> if <see cref="IGenericAttributeService"/> 
-        /// is not registered in service container or entity is transient.
+        /// is not registered in service container. If entity is transient, a readonly collection
+        /// is returned.
         /// </returns>
         [NotMapped, IgnoreDataMember]
         public virtual GenericAttributeCollection GenericAttributes

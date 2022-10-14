@@ -56,7 +56,8 @@ namespace Smartstore.Core.Common.Services
 
             if (entityId <= 0)
             {
-                return null;
+                // Return a read-only collection
+                return new GenericAttributeCollection(entityName);
             }
 
             var key = (entityName.ToLowerInvariant(), entityId);
