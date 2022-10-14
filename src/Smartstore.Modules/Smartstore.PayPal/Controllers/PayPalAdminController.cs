@@ -251,28 +251,30 @@ namespace Smartstore.PayPal.Controllers
             var listWebhooksResponse = await _client.ListWebhooksAsync(new ListWebhooksRequest());
             var webhooks = listWebhooksResponse.Body<Webhooks>();
 
-            if (webhooks.Hooks.Length < 1)
+            // Get store URL
+            var storeScope = GetActiveStoreScopeConfiguration();
+            Store store;
+            if (storeScope == 0)
             {
-                // Get store URL
-                var storeScope = GetActiveStoreScopeConfiguration();
-                Store store;
-                if (storeScope == 0)
-                {
-                    store = Services.StoreContext.CurrentStore;
-                }
-                else
-                {
-                    store = Services.StoreContext.GetStoreById(storeScope);
-                }
+                store = Services.StoreContext.CurrentStore;
+            }
+            else
+            {
+                store = Services.StoreContext.GetStoreById(storeScope);
+            }
 
+            var storUrl = store.GetHost(true).EnsureEndsWith("/");
+
+            if (webhooks.Hooks.Length < 1 || !webhooks.Hooks.Any(x => x.Url.Contains(storUrl)))
+            {
                 // Create webhook
                 var webhook = new Webhook
                 {
                     EventTypes = new EventType[]
                     {
-                            new EventType { Name = "*" }
+                        new EventType { Name = "*" }
                     },
-                    Url = store.GetHost(true)
+                    Url = storUrl + "paypal/webhookhandler"
                 };
 
                 var request = new CreateWebhookRequest().WithBody(webhook);
@@ -283,8 +285,7 @@ namespace Smartstore.PayPal.Controllers
             }
             else
             {
-                // TODO: (mh) (core) Why can there be several webhooks?
-                return webhooks.Hooks[0].Id;
+                return webhooks.Hooks.Where(x => x.Url.Contains(storUrl)).FirstOrDefault().Id;
             }
         }
     }
