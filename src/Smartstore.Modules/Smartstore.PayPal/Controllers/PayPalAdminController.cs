@@ -253,19 +253,11 @@ namespace Smartstore.PayPal.Controllers
 
             // Get store URL
             var storeScope = GetActiveStoreScopeConfiguration();
-            Store store;
-            if (storeScope == 0)
-            {
-                store = Services.StoreContext.CurrentStore;
-            }
-            else
-            {
-                store = Services.StoreContext.GetStoreById(storeScope);
-            }
+            var store = storeScope == 0 ? Services.StoreContext.CurrentStore : Services.StoreContext.GetStoreById(storeScope);
 
-            var storUrl = store.GetHost(true).EnsureEndsWith("/");
+            var storeUrl = store.GetHost(true).EnsureEndsWith("/");
 
-            if (webhooks.Hooks.Length < 1 || !webhooks.Hooks.Any(x => x.Url.Contains(storUrl)))
+            if (webhooks.Hooks.Length < 1 || !webhooks.Hooks.Any(x => x.Url.ContainsNoCase(storeUrl)))
             {
                 // Create webhook
                 var webhook = new Webhook
@@ -274,7 +266,7 @@ namespace Smartstore.PayPal.Controllers
                     {
                         new EventType { Name = "*" }
                     },
-                    Url = storUrl + "paypal/webhookhandler"
+                    Url = storeUrl + "paypal/webhookhandler"
                 };
 
                 var request = new CreateWebhookRequest().WithBody(webhook);
@@ -285,7 +277,7 @@ namespace Smartstore.PayPal.Controllers
             }
             else
             {
-                return webhooks.Hooks.Where(x => x.Url.Contains(storUrl)).FirstOrDefault().Id;
+                return webhooks.Hooks.Where(x => x.Url.ContainsNoCase(storeUrl)).FirstOrDefault()?.Id;
             }
         }
     }
