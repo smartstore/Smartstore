@@ -47,6 +47,11 @@ namespace Smartstore.Imaging.Barcodes
         public Color ForeColor { get; set; } = Color.Black;
 
         /// <summary>
+        /// The (EAN) text color of the barcode drawing (Default = <see cref="Color.Black"/>).
+        /// </summary>
+        public Color TextColor { get; set; } = Color.Black;
+
+        /// <summary>
         /// Drawing scale (Default = 3).
         /// </summary>
         public int PixelSize { get; set; } = 3;
