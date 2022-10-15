@@ -8,46 +8,117 @@
 }
 
 <style type="text/css" sm-target-zone="stylesheets" data-origin="barcode-tester">
-    img.barcode {
-        border: 1px solid rgba(0,0,0, 0.1);
+    #svg-output > img {
+        max-width: 400px;
     }
 </style>
 
-<div class="section-header">
-    <div class="title">
-        <i class="fa fa-barcode d-inline-block"></i>
-        <span>Barcode Tester</span>
-    </div>
-</div>
-
 <form id="barcode-form" method="get">
-    <div class="row">
-        <div class="col-12 col-md-6">
-            <div class="form-group">
-                <label>Barcode Type</label>
-                <select asp-items="@allTypes" id="type" name="type"></select>
-            </div>
-            <div class="form-group">
-                <textarea name="data" id="data" class="form-control" rows="6" placeholder="Paste data here">4912345678904</textarea>
-            </div>
+    <div class="section-header">
+        <div class="title">
+            <i class="fa fa-barcode d-inline-block"></i>
+            <span>Barcode Tester</span>
+        </div>
+    </div>
 
-            <div class="form-group text-right">
-                <button type="submit" class="btn btn-warning">Generate</button>
+    <div class="row">
+        <!-- FORM -->
+        <div class="col-7">
+            <div class="row sm-gutters">
+                <!-- Common -->
+                <div class="col-4">
+                    <div class="form-group">
+                        <label for="type">Barcode Type</label>
+                        <select asp-items="@allTypes" id="type" name="type"></select>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="form-group">
+                        <label for="m">Margin</label>
+                        <input class="form-control" type="number" id="m" name="m" placeholder="Leave empty for Type default" />
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="form-group">
+                        <label for="scale">Scale <span class="text-muted">(image only)</span></label>
+                        <input class="form-control" type="number" id="scale" name="scale" placeholder="3" />
+                    </div>
+                </div>
+
+                <!-- Colors -->
+                <div class="col-4">
+                    <div class="form-group">
+                        <label for="bgc">Background Color</label>
+                        <input class="form-control" type="text" id="bgc" name="bgc" placeholder="#fff" />
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="form-group">
+                        <label for="fc">Barcode Color</label>
+                        <input class="form-control" type="text" id="fc" name="fc" placeholder="#000" />
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="form-group">
+                        <label for="tc">Text Color</label>
+                        <input class="form-control" type="text" id="tc" name="tc" placeholder="#000" />
+                    </div>
+                </div>
+
+                <!-- More -->
+                <div class="col-4">
+                    <div class="form-group">
+                        <label for="h">1D Bar Height <span class="text-muted">(image only)</span></label>
+                        <input class="form-control" type="number" id="h" name="h" placeholder="40" />
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="form-group">
+                        <label for="ean">Include EAN as Text</label>
+                        <div>
+                            <label class="switch">
+                                <input class="form-check-input" type="checkbox" value="" id="ean" name="ean">
+                                <span class="switch-toggle"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="form-group">
+                        <label for="font">EAN Font</label>
+                        <input class="form-control" type="text" id="font" name="font" placeholder="Arial" />
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="form-group">
+                        <label for="data">Data</label>
+                        <textarea name="data" id="data" class="form-control" rows="6" placeholder="Paste data here">4912345678904</textarea>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div class="col-12 col-md-6">
-            <div class="row">
-                <div class="col-6">
-                    <h4 class="text-center">SVG</h4>
-                    <div class="text-center" id="svg-output">
-                        <!-- Lazy -->
+        <!-- PREVIEW -->
+        <div class="col-3 offset-2">
+            <div class="bg-light rounded border p-3">
+                <div class="row">
+                    <div class="col-12 mb-3">
+                        <button type="submit" class="btn btn-warning btn-block">Generate</button>
                     </div>
-                </div>
-                <div class="col-6">
-                    <h4 class="text-center">PNG</h4>
-                    <div class="text-center" id="png-output">
-                        <!-- Lazy -->
+                    <div class="col-12 mb-3">
+                        <h4>PNG</h4>
+                        <div id="png-output">
+                            <!-- Lazy -->
+                            <span class="text-muted">Not generated</span>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <h4>SVG</h4>
+                        <div id="svg-output">
+                            <!-- Lazy -->
+                            <span class="text-muted">Not generated</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -58,7 +129,6 @@
 <script sm-target-zone="scripts" data-origin="barcode-tester">
     $(function () {
         var data = $('#data');
-        var type = $('#type');
 
         var urlSvg = '@Url.Action("Svg").TrimEnd('/')';
         var urlPng = '@Url.Action("Image").TrimEnd('/')';
@@ -74,12 +144,41 @@
                 return false;
             }
 
-            let q = '?type={0}&data={1}'.format(type.val(), encodeURI(data.val()));
-            let svg = '<img class="img-fluid barcode" src="{0}" />'.format(urlSvg + q);
-            let png = '<img class="img-fluid barcode" src="{0}" />'.format(urlPng + q);
+            pngOutput.html('<span class="text-muted">Not generated</span>');
+            svgOutput.html('<span class="text-muted">Not generated</span>');
 
-            svgOutput.html(svg);
+            var params = {
+                type: $('#type').val(),
+                m: $('#m').val(),
+                scale: $('#scale').val(),
+                bgc: $('#bgc').val(),
+                fc: $('#fc').val(),
+                tc: $('#tc').val(),
+                h: $('#h').val(),
+                ean: $('#ean').is(':checked'),
+                font: $('#font').val(),
+                data: data.val()
+            };
+
+            let q = '?' + new URLSearchParams(params).toString();
+
+            let png = $('<img class="img-fluid barcode" src="{0}" />'.format(urlPng + q));
+
+            $(png).on('error', function (e) {
+                pngOutput.html('<span class="text-danger">Error</span>');
+            });
+
             pngOutput.html(png);
+            png.on('load', function (e) {
+                // Now fetch SVG image
+                let svg = $('<img class="img-fluid barcode" src="{0}" style="width: {1}px" />'.format(urlSvg + q, png.width()));
+
+                $(svg).on('error', function (e) {
+                    svgOutput.html('<span class="text-danger">Error</span>');
+                });
+
+                svgOutput.html(svg);
+            });
 
             return false;
         });

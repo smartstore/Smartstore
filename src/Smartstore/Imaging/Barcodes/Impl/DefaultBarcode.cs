@@ -1,8 +1,4 @@
-﻿using System.Drawing;
-using Barcoder.Renderer.Image;
-using Barcoder.Renderer.Svg;
-
-namespace Smartstore.Imaging.Barcodes.Impl
+﻿namespace Smartstore.Imaging.Barcodes.Impl
 {
     internal class DefaultBarcode : IBarcode
     {
@@ -18,18 +14,8 @@ namespace Smartstore.Imaging.Barcodes.Impl
 
         public string GenerateSvg(BarcodeSvgOptions options = null)
         {
-            options ??= new BarcodeSvgOptions();
-            
-            var renderer = new SvgRenderer(includeEanContentAsText: options.IncludeEanAsText);
-
-            using var stream = new MemoryStream();
-            using var reader = new StreamReader(stream);
-
-            renderer.Render(_code, stream);
-            stream.Position = 0;
-
-            string svg = reader.ReadToEnd();
-            return svg;
+            var generator = new SvgGenerator(options ?? new BarcodeSvgOptions());
+            return generator.GenerateSvg(_code);
         }
 
         public IImage GenerateImage(BarcodeImageOptions options = null)
@@ -37,5 +23,11 @@ namespace Smartstore.Imaging.Barcodes.Impl
             var generator = new ImageGenerator(options ?? new BarcodeImageOptions());
             return generator.GenerateImage(_code);
         }
+    }
+
+    internal static class BarcodeExtensions
+    {
+        public static bool IsEanBarcode(this Barcoder.IBarcode barcode)
+            => barcode?.Metadata.CodeKind == Barcoder.BarcodeType.EAN8 || barcode?.Metadata.CodeKind == Barcoder.BarcodeType.EAN13;
     }
 }

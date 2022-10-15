@@ -13,6 +13,11 @@ namespace Smartstore.Imaging.Barcodes
         /// Whether to draw the EAN text below the barcode (Default = false).
         /// </summary>
         public bool IncludeEanAsText { get; set; }
+
+        /// <summary>
+        /// Font to use for EAN text drawing (Default = Arial).
+        /// </summary>
+        public string EanFontFamily { get; set; } = "Arial";
     }
 
     /// <summary>
@@ -29,6 +34,11 @@ namespace Smartstore.Imaging.Barcodes
         /// The foregound color of the barcode drawing as a valid web color (Default = #000).
         /// </summary>
         public string ForeColor { get; set; } = "#000";
+
+        /// <summary>
+        /// The (EAN) text color of the barcode drawing as a valid web color (Default = #000).
+        /// </summary>
+        public string TextColor { get; set; } = "#000";
     }
 
     /// <summary>
@@ -60,10 +70,5 @@ namespace Smartstore.Imaging.Barcodes
         /// Height of barcode for 1D drawings in pixel (Default = 40).
         /// </summary>
         public int BarHeightFor1DCode { get; set; } = 40;
-
-        /// <summary>
-        /// Font to use for EAN text drawing (Default = Arial).
-        /// </summary>
-        public string EanFontFamily { get; set; } = "Arial";
     }
 }

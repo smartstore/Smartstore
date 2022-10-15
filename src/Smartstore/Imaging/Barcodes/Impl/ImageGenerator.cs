@@ -19,6 +19,11 @@ namespace Smartstore.Imaging.Barcodes.Impl
         {
             _options = Guard.NotNull(options, nameof(options));
 
+            if (options.Margin.HasValue)
+            {
+                Guard.NotNegative(options.Margin.Value, nameof(options.Margin));
+            }
+
             Guard.IsPositive(options.PixelSize, nameof(options.PixelSize));
             Guard.IsPositive(options.BarHeightFor1DCode, nameof(options.BarHeightFor1DCode));
         }
@@ -50,7 +55,7 @@ namespace Smartstore.Imaging.Barcodes.Impl
             var height = (o.BarHeightFor1DCode + 2 * o.Margin) * o.Scale;
 
             // Create bitmap.
-            var image = new Image<L8>(width, height);
+            var image = new Image<Rgba32>(width, height);
 
             image.Mutate(ctx =>
             {
@@ -83,7 +88,7 @@ namespace Smartstore.Imaging.Barcodes.Impl
             var height = (barcode.Bounds.Y + 2 * o.Margin) * o.Scale;
 
             // Create bitmap.
-            var image = new Image<L8>(width, height);
+            var image = new Image<Rgba32>(width, height);
 
             image.Mutate(ctx =>
             {
@@ -144,7 +149,7 @@ namespace Smartstore.Imaging.Barcodes.Impl
             private const int ContentMargin = 9;
             private const int ContentVerticalOffset = 0;
 
-            public static void Render(Image<L8> image, Barcoder.IBarcode barcode, ImageOptions o)
+            public static void Render(Image<Rgba32> image, Barcoder.IBarcode barcode, ImageOptions o)
             {
                 var font = SystemFonts.CreateFont(o.EanFontFamily, UnscaledFontSize * o.Scale, FontStyle.Regular);
 
@@ -159,7 +164,7 @@ namespace Smartstore.Imaging.Barcodes.Impl
                 }
             }
 
-            private static void RenderContentForEan8(Image<L8> image, string content, Font font, ImageOptions o)
+            private static void RenderContentForEan8(Image<Rgba32> image, string content, Font font, ImageOptions o)
             {
                 int ApplyScale(int value) => value * o.Scale;
 
@@ -173,7 +178,7 @@ namespace Smartstore.Imaging.Barcodes.Impl
                 RenderText(image, content.Substring(4), textCenter2, textTop, font, o.TextColor);
             }
 
-            private static void RenderContentForEan13(Image<L8> image, string content, Font font, ImageOptions o)
+            private static void RenderContentForEan13(Image<Rgba32> image, string content, Font font, ImageOptions o)
             {
                 int ApplyScale(int value) => value * o.Scale;
                 RenderTextBack(image, ApplyScale(o.Margin + 3), image.Height - ApplyScale(o.Margin + ContentMargin), ApplyScale(43), ApplyScale(ContentMargin), o.BackColor);
@@ -188,7 +193,7 @@ namespace Smartstore.Imaging.Barcodes.Impl
                 RenderText(image, content[7..], textCenter3, textTop, font, o.TextColor);
             }
 
-            private static void RenderTextBack(Image<L8> image, int x, int y, int width, int height, Color color)
+            private static void RenderTextBack(Image<Rgba32> image, int x, int y, int width, int height, Color color)
             {
                 image.Mutate(ctx => ctx.FillPolygon(
                     color,
@@ -198,7 +203,7 @@ namespace Smartstore.Imaging.Barcodes.Impl
                     new Vector2(x, y + height)));
             }
 
-            private static void RenderText(Image<L8> image, string text, float x, float y, Font font, Color color)
+            private static void RenderText(Image<Rgba32> image, string text, float x, float y, Font font, Color color)
             {
                 var options = new TextOptions(font)
                 {

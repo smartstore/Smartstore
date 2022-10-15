@@ -1,4 +1,6 @@
-﻿using Smartstore.Imaging.Barcodes;
+﻿using System.Drawing;
+using Smartstore.Imaging;
+using Smartstore.Imaging.Barcodes;
 
 namespace Smartstore.Admin.Controllers
 {
@@ -16,32 +18,93 @@ namespace Smartstore.Admin.Controllers
             return View();
         }
 
-        public IActionResult Svg(string data, BarcodeType type)
+        public IActionResult Svg(
+            string data,
+            BarcodeType type,
+            int? m,             /* Margin */
+            string bgc = null,  /* BackColor */
+            string fc = null,   /* ForeColor */
+            string tc = null,   /* TextColor */
+            bool? ean = false   /* IncludeEanText */)
         {
-            var code = _encoder.EncodeBarcode(data, type);
-            var svg = code.GenerateSvg(new BarcodeSvgOptions
+            try
             {
-                IncludeEanAsText = true,
-                Margin = 0
-            });
+                var code = _encoder.EncodeBarcode(data, type);
 
-            return Content(svg, "image/svg+xml");
+                var options = new BarcodeSvgOptions
+                {
+                    Margin = m,
+                    BackColor = bgc ?? "#fff",
+                    ForeColor = fc ?? "#000",
+                    TextColor = tc ?? "#000",
+                    IncludeEanAsText = ean ?? false
+                };
+
+                var svg = code.GenerateSvg(options);
+
+                return Content(svg, "image/svg+xml");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
 
-        public async Task<IActionResult> Image(string data, BarcodeType type)
+        public async Task<IActionResult> Image(
+            string data, 
+            BarcodeType type,
+            int? scale,         /* PixelSize */
+            int? m,             /* Margin */
+            string bgc = null,  /* BackColor */
+            string fc = null,   /* ForeColor */
+            string tc = null,   /* TextColor */
+            string font = null, /* EanFont */
+            bool? ean = false,  /* IncludeEanText */
+            int? h = null       /* 1DBarHeight */)
         {
-            var code = _encoder.EncodeBarcode(data, type);
-            using var image = code.GenerateImage(new BarcodeImageOptions 
+            try
             {
-                IncludeEanAsText = true,
-                Margin = 0
-            });
+                var code = _encoder.EncodeBarcode(data, type);
 
-            var stream = new MemoryStream();
-            await image.SaveAsync(stream);
-            stream.Position = 0;
+                if (!ImagingHelper.TryTranslateColor(bgc, out var backColor))
+                {
+                    backColor = Color.White;
+                }
 
-            return File(stream, "image/png");
+                if (!ImagingHelper.TryTranslateColor(fc, out var foreColor))
+                {
+                    foreColor = Color.Black;
+                }
+
+                if (!ImagingHelper.TryTranslateColor(tc, out var textColor))
+                {
+                    textColor = Color.Black;
+                }
+
+                var options = new BarcodeImageOptions
+                {
+                    PixelSize = scale ?? 3,
+                    Margin = m,
+                    BackColor = backColor,
+                    ForeColor = foreColor,
+                    TextColor = textColor,
+                    EanFontFamily = font,
+                    IncludeEanAsText = ean ?? false,
+                    BarHeightFor1DCode = h ?? 40
+                };
+
+                using var image = code.GenerateImage(options);
+
+                var stream = new MemoryStream();
+                await image.SaveAsync(stream);
+                stream.Position = 0;
+
+                return File(stream, "image/png");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
     }
 }
