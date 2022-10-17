@@ -7,7 +7,7 @@
 
 @*INFO: No target zone here as can also be rendered via AJAX*@
 <script data-origin="paypal-button">
-    loadPayPalPayScript(function () {
+    $(function () {
         var btnContainer = $("#paypal-button-container");
 
         // Render the PayPal button into #paypal-button-container
@@ -77,17 +77,6 @@
             </text>
         }
     });
-
-    function loadPayPalPayScript(callback) {
-        var elem = document.createElement('script');
-        elem.type = 'text/javascript';
-        elem.async = true;
-        elem.src = "@Html.Raw(Model.ScriptUrl)";
-        elem.addEventListener('load', callback, false);
-
-        var s = document.getElementsByTagName('script')[0];
-        s.parentNode.insertBefore(elem, s);
-    }
 </script>
 
 <style sm-if="Model.IsPaymentSelection && Model.IsSelectedMethod">

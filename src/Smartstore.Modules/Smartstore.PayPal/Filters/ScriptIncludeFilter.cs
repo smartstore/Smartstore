@@ -12,7 +12,7 @@ namespace Smartstore.PayPal.Filters
     /// Renders a script to detect buyer fraud early by collecting the buyer's browser information during checkout and passing it to PayPal.
     /// Must be active for pay per invoice. 
     /// </summary>
-    public class FraudnetFilter : IAsyncActionFilter
+    public class ScriptIncludeFilter : IAsyncActionFilter
     {
         private readonly PayPalSettings _settings;
         private readonly IWidgetProvider _widgetProvider;
@@ -20,7 +20,7 @@ namespace Smartstore.PayPal.Filters
         private readonly IPaymentService _paymentService;
         private readonly ICheckoutStateAccessor _checkoutStateAccessor;
 
-        public FraudnetFilter(
+        public ScriptIncludeFilter(
             PayPalSettings settings, 
             IWidgetProvider widgetProvider,
             ICommonServices services,
@@ -42,6 +42,31 @@ namespace Smartstore.PayPal.Filters
                 await next();
                 return;
             }
+
+            var currency = _services.WorkContext.WorkingCurrency.CurrencyCode;
+            
+            var scriptUrl = $"https://www.paypal.com/sdk/js" +
+                $"?client-id={_settings.ClientId}" +
+                $"&currency={currency}" +
+                // Ensures no breaking changes will be applied in SDK.
+                $"&integration-date=2021-12-14" +
+                $"&commit=false" + 
+                $"&components=messages,buttons,funding-eligibility";
+
+            if (_settings.DisabledFundings.HasValue())
+            {
+                scriptUrl += $"&disable-funding={GetFundingOptions<DisableFundingOptions>(_settings.DisabledFundings)}";
+            }
+
+            if (_settings.EnabledFundings.HasValue())
+            {
+                scriptUrl += $"&enable-funding={GetFundingOptions<EnableFundingOptions>(_settings.EnabledFundings)}";
+            }
+
+            scriptUrl += $"&intent={_settings.Intent.ToString().ToLower()}";
+            scriptUrl += $"&locale={_services.WorkContext.WorkingLanguage.LanguageCulture.Replace("-", "_")}";
+
+            _widgetProvider.RegisterHtml("end", new HtmlString($"<script src='{scriptUrl}' data-partner-attribution-id='SmartStore_Cart_PPCP'></script>"));
 
             if (!await IsPayUponInvoiceActive())
             {
@@ -126,6 +151,27 @@ namespace Smartstore.PayPal.Filters
             }
 
             return $"{merchantName}_{payerId}_{pageType}";
+        }
+
+        private static string GetFundingOptions<TEnum>(string fundings) where TEnum : struct
+        {
+            var result = string.Empty;
+            TEnum resultInputType = default;
+
+            var arr = fundings.SplitSafe(',')
+                .Select(x =>
+                {
+                    Enum.TryParse(x, true, out resultInputType);
+                    return resultInputType.ToString();
+                })
+                .ToArray();
+
+            if (arr.Length > 0)
+            {
+                result = string.Join(',', arr ?? Array.Empty<string>());
+            }
+
+            return result;
         }
     }
 }
