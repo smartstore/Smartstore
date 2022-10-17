@@ -145,7 +145,7 @@ namespace Smartstore.Web.Api.Swagger
                         var navPropType = mi.ReturnType.GenericTypeArguments[0];                        
 
                         helper.Op.Summary ??= isQueryResult
-                            ? $"Gets all {navPropType.Name.NaIfEmpty()} entities assigned to {entityName}."
+                            ? $"Gets {navPropType.Name.NaIfEmpty()} entities assigned to {entityName}."
                             : $"Gets the {navPropType.Name.NaIfEmpty()} assigned to {entityName}.";
 
                         helper.Op.Responses[StatusCodes.Status200OK.ToString()] = helper.CreateSucccessResponse(isSingleResult, navPropType);

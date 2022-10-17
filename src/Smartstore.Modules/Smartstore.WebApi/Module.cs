@@ -10,6 +10,7 @@ global using Microsoft.AspNetCore.OData.Results;
 global using Microsoft.EntityFrameworkCore;
 global using Smartstore.Core.Data;
 global using Smartstore.Core.Security;
+global using static Microsoft.AspNetCore.Http.StatusCodes;
 using Smartstore.Engine.Modularity;
 using Smartstore.Http;
 

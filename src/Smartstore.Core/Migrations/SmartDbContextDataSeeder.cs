@@ -21,6 +21,9 @@ namespace Smartstore.Core.Data.Migrations
         {
             builder.AddOrUpdate("Admin.Plugins.KnownGroup.StoreFront", "Store Front", "Front-End");
 
+            builder.AddOrUpdate("Admin.Configuration.Settings.Tax.EuVatEnabled.Hint")
+                .Value("de", "Legt die EU-Konforme MwSt.-Berechnung fest.");
+
             builder.Delete(
                 "Admin.System.Log.BackToList",
                 "Admin.Promotions.Campaigns.BackToList",

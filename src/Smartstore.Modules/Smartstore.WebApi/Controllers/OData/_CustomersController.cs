@@ -1,5 +1,5 @@
-﻿using System.Net;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.OData;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Common;
 using Smartstore.Core.Identity;
@@ -40,7 +40,12 @@ namespace Smartstore.Web.Api.Controllers.OData
             return GetById(key);
         }
 
-        // TODO addresses
+        [HttpGet, WebApiQueryable]
+        [Permission(Permissions.Customer.Read)]
+        public IQueryable<Address> GetAddresses(int key)
+        {
+            return GetRelatedQuery(key, x => x.Addresses);
+        }
 
         [HttpGet, WebApiQueryable]
         [Permission(Permissions.Customer.Read)]
@@ -110,7 +115,7 @@ namespace Smartstore.Web.Api.Controllers.OData
             }
             else
             {
-                return UnprocessableEntity(string.Join(" ", result.Errors.Select(x => $"{x.Code} {x.Description}.")));
+                throw new ODataErrorException(CreateError(result));
             }
         }
 
@@ -125,7 +130,7 @@ namespace Smartstore.Web.Api.Controllers.OData
                 var result = await _userManager.Value.UpdateAsync(entity);
                 if (!result.Succeeded)
                 {
-                    throw new UnprocessableRequestException(string.Join(" ", result.Errors.Select(x => $"{x.Code} {x.Description}.")));
+                    throw new ODataErrorException(CreateError(result));
                 }
             });
         }
@@ -141,7 +146,7 @@ namespace Smartstore.Web.Api.Controllers.OData
                 var result = await _userManager.Value.UpdateAsync(entity);
                 if (!result.Succeeded)
                 {
-                    throw new UnprocessableRequestException(string.Join(" ", result.Errors.Select(x => $"{x.Code} {x.Description}.")));
+                    throw new ODataErrorException(CreateError(result));
                 }
             });
         }
@@ -166,12 +171,116 @@ namespace Smartstore.Web.Api.Controllers.OData
             });
         }
 
+        /// <summary>
+        /// Assigns an Address to a Customer.
+        /// </summary>
+        /// <remarks>
+        /// The assignment is created only if it does not already exist.
+        /// </remarks>
+        /// <param name="relatedkey">The address identifier.</param>
+        [HttpPost("Customers({key})/Addresses({relatedkey})")]
+        [HttpPost("Customers/{key}/Addresses/{relatedkey}")]
+        [Permission(Permissions.Customer.EditAddress)]
+        [Produces(MediaTypeNames.Application.Json)]
+        [ProducesResponseType(typeof(Address), Status200OK)]
+        [ProducesResponseType(typeof(Address), Status201Created)]
+        [ProducesResponseType(Status404NotFound)]
+        public async Task<IActionResult> PostAddresses(int key, int relatedkey)
+        {
+            var entity = await Entities
+                .Include(x => x.Addresses)
+                .FindByIdAsync(key);
+
+            var address = entity.Addresses.FirstOrDefault(x => x.Id == relatedkey);
+            if (address == null)
+            {
+                // No assignment yet.
+                address = await Db.Addresses.FindByIdAsync(relatedkey, false);
+                if (address == null)
+                {
+                    return NotFound($"Cannot find Address entity with identifier {relatedkey}.");
+                }
+
+                entity.Addresses.Add(address);
+                await Db.SaveChangesAsync();
+
+                return Created(address);
+            }
+
+            return Ok(address);
+        }
+
+        /// <summary>
+        /// Removes the assignment of an Address to a Customer.
+        /// </summary>
+        /// <param name="relatedkey">The address identifier. 0 to remove all address assignments.</param>
+        [HttpDelete("Customers({key})/Addresses({relatedkey})")]
+        [HttpDelete("Customers/{key}/Addresses/{relatedkey}")]
+        [Permission(Permissions.Customer.EditAddress)]
+        [ProducesResponseType(Status204NoContent)]
+        public async Task<IActionResult> DeleteAddresses(int key, int relatedkey)
+        {
+            var entity = await Entities
+                .Include(x => x.Addresses)
+                .FindByIdAsync(key);
+
+            if (relatedkey == 0)
+            {
+                // Remove assignments of all addresses.
+                entity.BillingAddress = null;
+                entity.ShippingAddress = null;
+                entity.Addresses.Clear();
+                await Db.SaveChangesAsync();
+            }
+            else
+            {
+                // Remove assignment of certain address.
+                var address = await Db.Addresses.FindByIdAsync(relatedkey);
+                if (address != null)
+                {
+                    entity.RemoveAddress(address);
+                    await Db.SaveChangesAsync();
+                }
+            }
+
+            return NoContent();
+        }
+
+        //[HttpPost, HttpPut]
+        //[Permission(Permissions.Customer.EditAddress)]
+        //public IActionResult CreateRef(int key, string navigationProperty, [FromBody] Uri link)
+        //{
+        //    var relatedKey = GetRelatedKey(link);
+        //    $"CreateRef. key:{key} navigationProperty:{navigationProperty}  relatedKey:{relatedKey} link:{link}".Dump();
+
+        //    return NoContent();
+        //}
+
         private static void CheckCustomer(Customer entity)
         {
             if (entity != null && entity.IsSystemAccount)
             {
-                throw new UnprocessableRequestException("Modifying or deleting a system customer account is not allowed.", HttpStatusCode.Forbidden);
+                throw new ODataErrorException(new ODataError
+                {
+                    ErrorCode = StatusCodes.Status403Forbidden.ToString(),
+                    Message = "Modifying or deleting a system customer account is not allowed."
+                });
             }
+        }
+
+        private static ODataError CreateError(IdentityResult result)
+        {
+            return new()
+            {
+                ErrorCode = StatusCodes.Status422UnprocessableEntity.ToString(),
+                Message = result.ToString(),
+                Details = result.Errors.Select(x => new ODataErrorDetail
+                {
+                    ErrorCode = x.Code,
+                    Message = x.Description
+                })
+                .ToList()
+            };
         }
     }
 }
