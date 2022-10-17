@@ -34,7 +34,6 @@ namespace Smartstore.Web.Models.Checkout
             ICommonServices services,
             ModuleManager moduleManager,
             IPaymentService paymentService,
-            ICurrencyService currencyService,
             ITaxService taxService,
             IShippingService shippingService,
             IOrderCalculationService orderCalculationService,

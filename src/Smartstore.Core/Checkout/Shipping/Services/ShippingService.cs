@@ -1,5 +1,4 @@
 ﻿using System.Linq.Dynamic.Core;
-
 using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Attributes;
