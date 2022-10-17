@@ -33,7 +33,7 @@
         /// An array of request-related HATEOAS links.
         /// </summary>
         [JsonProperty("links", DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public List<LinkDescriptionObject> Links;
+        public List<LinkDescription> Links;
     }
 
     public class EventType

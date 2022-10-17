@@ -18,7 +18,7 @@
         public string TransmissionTime;
 
         [JsonProperty("webhook_event", DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public Event<WebhookResource> WebhookEvent;
+        public WebhookEvent<WebhookResource> WebhookEvent;
 
         [JsonProperty("webhook_id", DefaultValueHandling = DefaultValueHandling.Ignore)]
         public string WebhookId;

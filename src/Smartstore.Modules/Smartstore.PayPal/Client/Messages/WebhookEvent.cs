@@ -1,6 +1,6 @@
 ﻿namespace Smartstore.PayPal.Client.Messages
 {
-    public class Event<T>
+    public class WebhookEvent<T>
     {
         [JsonProperty("create_time", DefaultValueHandling = DefaultValueHandling.Ignore)]
         public string CreateTime;
@@ -15,7 +15,7 @@
         public string Id;
 
         [JsonProperty("links", DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public List<LinkDescriptionObject> Links;
+        public List<LinkDescription> Links;
 
         [JsonProperty("resource", DefaultValueHandling = DefaultValueHandling.Ignore)]
         public T Resource;
@@ -27,7 +27,7 @@
         public string Summary;
     }
 
-    public class LinkDescriptionObject
+    public class LinkDescription
     {
         [JsonProperty("href", DefaultValueHandling = DefaultValueHandling.Ignore)]
         public string Href;

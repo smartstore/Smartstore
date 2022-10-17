@@ -92,7 +92,7 @@ namespace Smartstore.PayPal.Controllers
 
                 if (rawRequest.HasValue())
                 {
-                    var webhookEvent = JsonConvert.DeserializeObject<Event<WebhookResource>>(rawRequest);
+                    var webhookEvent = JsonConvert.DeserializeObject<WebhookEvent<WebhookResource>>(rawRequest);
                     var response = await VerifyWebhookRequest(Request, webhookEvent);
                     var resource = webhookEvent.Resource;
 
@@ -235,7 +235,7 @@ namespace Smartstore.PayPal.Controllers
             }
         }
 
-        async Task<PayPalResponse> VerifyWebhookRequest(HttpRequest request, Event<WebhookResource> webhookEvent)
+        async Task<PayPalResponse> VerifyWebhookRequest(HttpRequest request, WebhookEvent<WebhookResource> webhookEvent)
         {
             var verifyRequest = new WebhookVerifySignatureRequest<WebhookResource>()
                 .WithBody(new VerifyWebhookSignature<WebhookResource>
