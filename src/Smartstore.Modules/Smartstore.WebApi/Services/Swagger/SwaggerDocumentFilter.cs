@@ -1,7 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
-using OpenApiOpType = Microsoft.OpenApi.Models.OperationType;
 
 namespace Smartstore.Web.Api.Swagger
 {
@@ -15,7 +14,7 @@ namespace Smartstore.Web.Api.Swagger
     /// </remarks>
     internal class SwaggerDocumentFilter : IDocumentFilter
     {
-        private static readonly Regex _pathsToIgnore = new(@"[a-z0-9\/](\$count|\{key\})(/|\z)", 
+        private static readonly Regex _pathsToIgnore = new(@"[a-z0-9\/](\$count|\{key\})", //(/|\z|\+)
             RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
         private static readonly Regex _schemasToIgnore = new(@"(Microsoft\.AspNetCore\.OData\.|System\.Collections\.Generic\.KeyValuePair).+",
@@ -50,9 +49,7 @@ namespace Smartstore.Web.Api.Swagger
                 //$"{item.Key} {string.Join(",", item.Value.Operations.Select(x => x.Key))}".Dump();
 
                 var path = item.Key;
-                var removePath = path.EqualsNoCase(routeTemplate)
-                    || (item.Value.Operations.Any(x => x.Key == OpenApiOpType.Get) && _pathsToIgnore.IsMatch(path));
-
+                var removePath = path.EqualsNoCase(routeTemplate) || _pathsToIgnore.IsMatch(path);
                 if (removePath)
                 {
                     swaggerDoc.Paths.Remove(path);

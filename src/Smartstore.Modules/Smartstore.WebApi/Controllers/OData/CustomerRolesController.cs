@@ -1,4 +1,4 @@
-﻿using System.Net;
+﻿using Microsoft.OData;
 using Smartstore.Core.Identity;
 
 namespace Smartstore.Web.Api.Controllers.OData
@@ -66,7 +66,11 @@ namespace Smartstore.Web.Api.Controllers.OData
         {
             if (entity != null && entity.IsSystemRole)
             {
-                throw new UnprocessableRequestException("Modifying or deleting a system customer role is not allowed.", HttpStatusCode.Forbidden);
+                throw new ODataErrorException(new ODataError
+                {
+                    ErrorCode = StatusCodes.Status403Forbidden.ToString(),
+                    Message = "Modifying or deleting a system customer role is not allowed."
+                });
             }
         }
     }

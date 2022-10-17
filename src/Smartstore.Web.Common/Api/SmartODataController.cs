@@ -1,5 +1,6 @@
 ﻿using System.Linq.Dynamic.Core;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.OData.Deltas;
 using Microsoft.AspNetCore.OData.Results;
 using Microsoft.AspNetCore.OData.Routing.Controllers;
@@ -16,6 +17,8 @@ namespace Smartstore.Web.Api
     /// For ActionResult<T> ProducesResponseTypeAttribute's type property can be excluded.
     /// - Explicit "From" parameter bindings are required otherwise Swagger will describe them as "query" params by default.
     /// - Accurate examples: https://github.com/dotnet/aspnet-api-versioning/tree/93bd8dc7582ec14c8ec97997c01cfe297b085e17/examples/AspNetCore/OData
+    /// - Routing conventions: https://learn.microsoft.com/en-us/odata/webapi/built-in-routing-conventions
+    /// - $ref: https://learn.microsoft.com/en-us/aspnet/web-api/overview/odata-support-in-aspnet-web-api/odata-v4/entity-relations-in-odata-v4#creating-a-relationship-between-entities
     /// </remarks>
     [Authorize(AuthenticationSchemes = "Smartstore.WebApi.Basic")]
     public abstract class SmartODataController<TEntity> : ODataController
@@ -139,13 +142,18 @@ namespace Smartstore.Web.Api
                     await Db.SaveChangesAsync();
                 }
             }
-            catch (UnprocessableRequestException ex)
+            catch (ODataErrorException ex)
             {
-                return StatusCode((int)ex.StatusCode, ex);
+                return ODataErrorResult(ex.Error);
             }
             catch (Exception ex)
             {
-                return UnprocessableEntity(ex);
+                return ODataErrorResult(new()
+                {
+                    ErrorCode = StatusCodes.Status422UnprocessableEntity.ToString(),
+                    Message = ex.Message,
+                    InnerError = new ODataInnerError(ex)
+                });
             }
 
             return Created(entity);
@@ -223,22 +231,27 @@ namespace Smartstore.Web.Api
             }
             catch (DbUpdateConcurrencyException ex)
             {
-                if (!await Entities.AnyAsync(x => x.Id == id))
+                var code = await Entities.AnyAsync(x => x.Id == id) ? StatusCodes.Status409Conflict : StatusCodes.Status404NotFound;
+
+                return ODataErrorResult(new()
                 {
-                    return NotFound(ex);
-                }
-                else
-                {
-                    return Conflict(ex);
-                }
+                    ErrorCode = code.ToString(),
+                    Message = ex.Message,
+                    InnerError = new ODataInnerError(ex)
+                });
             }
-            catch (UnprocessableRequestException ex)
+            catch (ODataErrorException ex)
             {
-                return StatusCode((int)ex.StatusCode, ex);
+                return ODataErrorResult(ex.Error);
             }
             catch (Exception ex)
             {
-                return UnprocessableEntity(ex);
+                return ODataErrorResult(new()
+                {
+                    ErrorCode = StatusCodes.Status422UnprocessableEntity.ToString(),
+                    Message = ex.Message,
+                    InnerError = new ODataInnerError(ex)
+                });
             }
 
             return Updated(entity);
@@ -273,19 +286,53 @@ namespace Smartstore.Web.Api
                     await Db.SaveChangesAsync();
                 }
             }
-            catch (UnprocessableRequestException ex)
+            catch (ODataErrorException ex)
             {
-                return StatusCode((int)ex.StatusCode, ex);
+                return ODataErrorResult(ex.Error);
             }
             catch (Exception ex)
             {
-                return UnprocessableEntity(ex);
+                return ODataErrorResult(new()
+                {
+                    ErrorCode = StatusCodes.Status422UnprocessableEntity.ToString(),
+                    Message = ex.Message,
+                    InnerError = new ODataInnerError(ex)
+                });
             }
 
             return NoContent();
         }
 
         #region Utilities
+
+        /// <summary>
+        /// From ODataOpenApiExample.
+        /// </summary>
+        //protected IReadOnlyDictionary<string, object> GetRelatedKeys(Uri uri)
+        //{
+        //    Guard.NotNull(uri, nameof(uri));
+
+        //    var feature = HttpContext.ODataFeature();
+        //    //var serviceRoot = new Uri(new Uri(feature.BaseAddress), feature.RoutePrefix);
+        //    var serviceRoot = new Uri(feature.BaseAddress);
+        //    var parser = new ODataUriParser(feature.Model, serviceRoot, uri, feature.Services);
+
+        //    parser.Resolver ??= new UnqualifiedODataUriResolver { EnableCaseInsensitive = true };
+        //    //parser.UrlKeyDelimiter = ODataUrlKeyDelimiter.Slash;
+
+        //    var path = parser.ParsePath();
+        //    var segment = path.OfType<KeySegment>().FirstOrDefault();
+
+        //    if (segment is null)
+        //    {
+        //        return new Dictionary<string, object>(capacity: 0);
+        //    }
+
+        //    return new Dictionary<string, object>(segment.Keys, StringComparer.OrdinalIgnoreCase);
+        //}
+
+        //protected object GetRelatedKey(Uri uri) 
+        //    => GetRelatedKeys(uri).Values.SingleOrDefault();
 
         protected async Task<TEntity> ApplyRelatedEntityIdsAsync(TEntity entity)
         {
