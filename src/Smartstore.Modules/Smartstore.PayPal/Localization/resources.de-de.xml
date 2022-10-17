@@ -166,6 +166,12 @@
             <LocaleResource Name="Intent.Hint">
                 <Value>Legt fest, ob die Zahlung sofort ausgeführt wird oder erst durch Interaktion des Händlers.</Value>
             </LocaleResource>
+            <LocaleResource Name="Intent.Alert">
+                <Value>
+                    Bitte beachten Sie, dass die Reservierung von Zahlungen nur mit den PayPal Zahlarten
+                    PayPal Checkout, Kauf auf Rechnung, Später Zahlen, Kreditkarte und Lastschrifteinzug unterstützt wird.
+                </Value>
+            </LocaleResource>
             <LocaleResource Name="Capture">
                 <Value>Sofort abbuchen</Value>
             </LocaleResource>

@@ -163,6 +163,12 @@
             <LocaleResource Name="Intent.Hint">
                 <Value>Specifies whether the payment is executed immediately or later through interaction of the merchant.</Value>
             </LocaleResource>
+            <LocaleResource Name="Intent.Alert">
+                <Value>
+                    Please note that the reservation of payments is only supported with the PayPal payment methods
+                    PayPal Checkout, Purchase on Invoice, Pay Later, Credit Card and Direct Debit.
+                </Value>
+            </LocaleResource>
             <LocaleResource Name="Capture">
                 <Value>Immediately debit</Value>
             </LocaleResource>

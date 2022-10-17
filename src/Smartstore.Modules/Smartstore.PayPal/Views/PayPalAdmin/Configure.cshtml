@@ -292,6 +292,10 @@
                     <select asp-for="Intent" asp-items="trasactModes"></select>
                 </setting-editor>
                 <span asp-validation-for="Intent"></span>
+
+                <div class="alert alert-info mt-3">
+                    @Html.Raw(T("Plugins.Smartstore.PayPal.Intent.Alert"))
+                </div>
             </div>
         </div>
         <div class="adminRow">
