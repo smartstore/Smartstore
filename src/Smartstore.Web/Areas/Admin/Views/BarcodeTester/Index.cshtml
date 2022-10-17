@@ -23,22 +23,22 @@
 
     <div class="row">
         <!-- FORM -->
-        <div class="col-7">
+        <div class="col-12 col-sm-6 col-lg-8 col-xl-7">
             <div class="row sm-gutters">
                 <!-- Common -->
-                <div class="col-4">
+                <div class="col-12 col-lg-6 col-xl-4">
                     <div class="form-group">
                         <label for="type">Barcode Type</label>
-                        <select asp-items="@allTypes" id="type" name="type"></select>
+                        <select asp-items="@allTypes" id="type" name="type" class="form-control"></select>
                     </div>
                 </div>
-                <div class="col-4">
+                <div class="col-12 col-lg-6 col-xl-4">
                     <div class="form-group">
                         <label for="m">Margin</label>
                         <input class="form-control" type="number" id="m" name="m" placeholder="Leave empty for Type default" />
                     </div>
                 </div>
-                <div class="col-4">
+                <div class="col-12 col-lg-6 col-xl-4">
                     <div class="form-group">
                         <label for="scale">Scale <span class="text-muted">(image only)</span></label>
                         <input class="form-control" type="number" id="scale" name="scale" placeholder="3" />
@@ -46,19 +46,19 @@
                 </div>
 
                 <!-- Colors -->
-                <div class="col-4">
+                <div class="col-12 col-lg-6 col-xl-4">
                     <div class="form-group">
                         <label for="bgc">Background Color</label>
                         <input class="form-control" type="text" id="bgc" name="bgc" placeholder="#fff" />
                     </div>
                 </div>
-                <div class="col-4">
+                <div class="col-12 col-lg-6 col-xl-4">
                     <div class="form-group">
                         <label for="fc">Barcode Color</label>
                         <input class="form-control" type="text" id="fc" name="fc" placeholder="#000" />
                     </div>
                 </div>
-                <div class="col-4">
+                <div class="col-12 col-lg-6 col-xl-4">
                     <div class="form-group">
                         <label for="tc">Text Color</label>
                         <input class="form-control" type="text" id="tc" name="tc" placeholder="#000" />
@@ -66,13 +66,13 @@
                 </div>
 
                 <!-- More -->
-                <div class="col-4">
+                <div class="col-12 col-lg-6 col-xl-4">
                     <div class="form-group">
                         <label for="h">1D Bar Height <span class="text-muted">(image only)</span></label>
                         <input class="form-control" type="number" id="h" name="h" placeholder="40" />
                     </div>
                 </div>
-                <div class="col-4">
+                <div class="col-12 col-lg-6 col-xl-4">
                     <div class="form-group">
                         <label for="ean">Include EAN as Text</label>
                         <div>
@@ -83,10 +83,10 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-4">
+                <div class="col-12 col-lg-6 col-xl-4">
                     <div class="form-group">
-                        <label for="font">EAN Font</label>
-                        <input class="form-control" type="text" id="font" name="font" placeholder="Arial" />
+                        <label for="font">EAN Number Font</label>
+                        <input class="form-control" type="text" id="font" name="font" placeholder="e.g.: Arial" />
                     </div>
                 </div>
 
@@ -100,7 +100,7 @@
         </div>
 
         <!-- PREVIEW -->
-        <div class="col-3 offset-2">
+        <div class="col-12 col-sm-6 xoffset-2 offset-xl-2 col-lg-4 col-xl-3">
             <div class="bg-light rounded border p-3">
                 <div class="row">
                     <div class="col-12 mb-3">
@@ -165,7 +165,7 @@
             let png = $('<img class="img-fluid barcode" src="{0}" />'.format(urlPng + q));
 
             $(png).on('error', function (e) {
-                pngOutput.html('<span class="text-danger">Error</span>');
+                pngOutput.html('<span class="text-danger">Invalid input!</span>');
             });
 
             pngOutput.html(png);
@@ -174,7 +174,7 @@
                 let svg = $('<img class="img-fluid barcode" src="{0}" style="width: {1}px" />'.format(urlSvg + q, png.width()));
 
                 $(svg).on('error', function (e) {
-                    svgOutput.html('<span class="text-danger">Error</span>');
+                    svgOutput.html('<span class="text-danger">Invalid input!</span>');
                 });
 
                 svgOutput.html(svg);

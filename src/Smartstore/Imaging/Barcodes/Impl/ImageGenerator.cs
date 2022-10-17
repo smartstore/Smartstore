@@ -24,7 +24,7 @@ namespace Smartstore.Imaging.Barcodes.Impl
                 Guard.NotNegative(options.Margin.Value, nameof(options.Margin));
             }
 
-            Guard.IsPositive(options.PixelSize, nameof(options.PixelSize));
+            Guard.IsPositive(options.Scale, nameof(options.Scale));
             Guard.IsPositive(options.BarHeightFor1DCode, nameof(options.BarHeightFor1DCode));
         }
 
@@ -121,7 +121,7 @@ namespace Smartstore.Imaging.Barcodes.Impl
             {
                 Margin = options.Margin ?? barcode.Margin;
                 IncludeEanAsText = options.IncludeEanAsText;
-                Scale = options.PixelSize;
+                Scale = options.Scale;
                 BarHeightFor1DCode = options.BarHeightFor1DCode;
                 EanFontFamily = options.EanFontFamily ?? "Arial";
                 BackColor = ImagingHelper.ConvertColor(options.BackColor);

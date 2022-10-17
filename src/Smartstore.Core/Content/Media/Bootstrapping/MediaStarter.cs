@@ -10,7 +10,6 @@ using Smartstore.Imaging;
 using Smartstore.Imaging.Adapters.ImageSharp;
 using Smartstore.Imaging.Barcodes;
 using Smartstore.Imaging.Barcodes.Impl;
-using Smartstore.Imaging.QrCodes;
 
 namespace Smartstore.Core.Bootstrapping
 {
@@ -62,8 +61,6 @@ namespace Smartstore.Core.Bootstrapping
 
             // Barcode & QrCode
             builder.RegisterType<DefaultBarcodeEncoder>().As<IBarcodeEncoder>().SingleInstance();
-            builder.RegisterType<DefaultQrCodeEncoder>().As<IQrCodeEncoder>().SingleInstance();
-            //builder.RegisterType<TestQrCodeEncoder>().As<IQrCodeEncoder>().SingleInstance();
 
             // Register factory for currently active media storage provider
             builder.Register(MediaStorageProviderFactory);

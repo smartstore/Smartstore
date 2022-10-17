@@ -1,4 +1,4 @@
-﻿namespace Smartstore.Imaging.QrCodes
+﻿namespace Smartstore.Imaging.Barcodes
 {
     /// <summary>
     /// QR code error correction level. 

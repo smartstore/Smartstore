@@ -28,8 +28,7 @@
         <PackageReference Include="AngleSharp" Version="0.17.1" />
         <PackageReference Include="AngleSharp.Css" Version="0.16.4" />
         <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="8.0.0" />
-        <PackageReference Include="Barcoder.Renderer.Image" Version="1.1.1" />
-        <PackageReference Include="Barcoder.Renderer.Svg" Version="1.1.1" />
+        <PackageReference Include="Barcoder" Version="1.1.1" />
         <PackageReference Include="CronExpressionDescriptor" Version="2.17.2" />
         <PackageReference Include="HtmlSanitizer" Version="7.1.542" />
         <PackageReference Include="Humanizer" Version="2.14.1" />

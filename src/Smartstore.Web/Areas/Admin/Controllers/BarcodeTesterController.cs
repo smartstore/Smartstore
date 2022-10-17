@@ -25,7 +25,8 @@ namespace Smartstore.Admin.Controllers
             string bgc = null,  /* BackColor */
             string fc = null,   /* ForeColor */
             string tc = null,   /* TextColor */
-            bool? ean = false   /* IncludeEanText */)
+            bool? ean = false,   /* IncludeEanText */
+            string font = null  /* EanFont */)
         {
             try
             {
@@ -37,7 +38,8 @@ namespace Smartstore.Admin.Controllers
                     BackColor = bgc ?? "#fff",
                     ForeColor = fc ?? "#000",
                     TextColor = tc ?? "#000",
-                    IncludeEanAsText = ean ?? false
+                    IncludeEanAsText = ean ?? false,
+                    EanFontFamily = font
                 };
 
                 var svg = code.GenerateSvg(options);
@@ -58,8 +60,8 @@ namespace Smartstore.Admin.Controllers
             string bgc = null,  /* BackColor */
             string fc = null,   /* ForeColor */
             string tc = null,   /* TextColor */
-            string font = null, /* EanFont */
             bool? ean = false,  /* IncludeEanText */
+            string font = null, /* EanFont */
             int? h = null       /* 1DBarHeight */)
         {
             try
@@ -83,13 +85,13 @@ namespace Smartstore.Admin.Controllers
 
                 var options = new BarcodeImageOptions
                 {
-                    PixelSize = scale ?? 3,
+                    Scale = scale ?? 3,
                     Margin = m,
                     BackColor = backColor,
                     ForeColor = foreColor,
                     TextColor = textColor,
-                    EanFontFamily = font,
                     IncludeEanAsText = ean ?? false,
+                    EanFontFamily = font,
                     BarHeightFor1DCode = h ?? 40
                 };
 

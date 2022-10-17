@@ -8,7 +8,9 @@
 - (NEW) *File Manager* (commercial plugin)
 - (NEW) *GiroCode* (commercial plugin)
 - (NEW) *BizUrlMapper* (commercial plugin)
-- Added QR code infrastructure
+- (DEV) Added Barcode encoding and generation infrastructure:
+  - Can encode: EAN, QRCode, UPCA, UPCE, Aztec, Codabar, Code128, Code39, Code93, DataMatric, KixCode, PDF417, RoyalMail, TwoToFive
+  - Can generate: Image (any type), SVG drawing
 - MediaManager: display image IPTC and EXIF metadata
 - MediaManager: added internal admin comment field
 - Added PayPal onboarding to module configuration (handles simple configuration via direct email login without the need to create an app on the PayPal developer page). 

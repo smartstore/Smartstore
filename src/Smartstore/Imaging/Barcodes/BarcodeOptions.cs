@@ -64,7 +64,7 @@ namespace Smartstore.Imaging.Barcodes
         /// <summary>
         /// Drawing scale (Default = 3).
         /// </summary>
-        public int PixelSize { get; set; } = 3;
+        public int Scale { get; set; } = 3;
 
         /// <summary>
         /// Height of barcode for 1D drawings in pixel (Default = 40).

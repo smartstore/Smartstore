@@ -1,7 +1,4 @@
-﻿using System.Drawing;
-using Smartstore.Imaging.QrCodes;
-
-namespace Smartstore.Imaging.Barcodes
+﻿namespace Smartstore.Imaging.Barcodes
 {
     /// <summary>
     /// Generates SVG or images from barcodes.

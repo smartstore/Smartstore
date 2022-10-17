@@ -1,8 +1,5 @@
 ﻿using System.Globalization;
 using System.Text;
-using System.Text.RegularExpressions;
-using Barcoder.Renderers;
-using SvgLib;
 
 namespace Smartstore.Imaging.Barcodes.Impl
 {
@@ -122,6 +119,8 @@ namespace Smartstore.Imaging.Barcodes.Impl
 
             if (IncludeEanContent(barcode))
             {
+                sb.Append($"<g style=\"font-family: {o.EanFontFamily}\" font-size=\"8\" stroke-width=\"0\" fill=\"{o.TextColor}\">\n");
+
                 if (barcode.Metadata.CodeKind == Barcoder.BarcodeType.EAN13)
                 {
                     AddText(sb, 4, 54.5D, barcode.Content[..1], o);
@@ -133,6 +132,8 @@ namespace Smartstore.Imaging.Barcodes.Impl
                     AddText(sb, 18, 54.5D, barcode.Content[..4], o);
                     AddText(sb, 50, 54.5D, barcode.Content[4..], o);
                 }
+
+                sb.Append("</g>\n");
             }
 
             return sb
@@ -142,60 +143,54 @@ namespace Smartstore.Imaging.Barcodes.Impl
 
         private static void AddText(StringBuilder sb, double x, double y, string t, SvgOptions o)
         {
-            sb.Append($"\t<text style=\"font-family: Arial\" font-size=\"8\" x=\"{x + o.Margin - 10}\" y=\"{y + o.Margin}\" stroke-width=\"0\" fill=\"{o.TextColor}\">{t}</text>\n");
+            sb.Append($"\t<text x=\"{x + o.Margin - 10}\" y=\"{y + o.Margin}\">{t}</text>\n");
         }
 
         private static string Render2D(Barcoder.IBarcode barcode, SvgOptions o)
         {
-            var document = SvgDocument.Create();
-            document.ViewBox = new SvgViewBox
-            {
-                Left = 0,
-                Top = 0,
-                Width = barcode.Bounds.X + 2 * o.Margin,
-                Height = barcode.Bounds.Y + 2 * o.Margin
-            };
-            document.Fill = o.BackColor;
-            document.Stroke = o.ForeColor;
-            document.StrokeWidth = .05;
-            document.StrokeLineCap = SvgStrokeLineCap.Butt;
+            var width = barcode.Bounds.X + 2 * o.Margin;
+            var height = barcode.Bounds.Y + 2 * o.Margin;
 
-            SvgGroup group = document.AddGroup();
-            group.Fill = o.ForeColor;
+            var sb = new StringBuilder()
+                .Append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")
+                .Append("<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\n")
+                .Append($"<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\" viewBox=\"0 0 {width} {height}\">\n")
+                .Append($"\t<rect width=\"100%\" height=\"100%\" fill=\"{o.BackColor}\"/>\n")
+                .Append($"\t<g fill=\"{o.ForeColor}\" stroke-width=\"0.05\" stroke-linecap=\"butt\">\n");
+
             for (int y = 0; y < barcode.Bounds.Y; y++)
             {
                 for (int x = 0; x < barcode.Bounds.X; x++)
                 {
                     if (barcode.At(x, y))
                     {
-                        SvgRect rect = group.AddRect();
-                        rect.X = x + o.Margin;
-                        rect.Y = y + o.Margin;
-                        rect.Width = 1;
-                        rect.Height = 1;
+                        sb.Append($"\t<rect x=\"{x + o.Margin}\" y=\"{y + o.Margin}\" width=\"1\" height=\"1\" />\n");
                     }
                 }
             }
 
-            return ToSvg(document);
+            return sb
+                .Append("</g></svg>\n")
+                .ToString();
         }
 
         #region QR code
 
         private static string RenderQR(Barcoder.IBarcode barcode, SvgOptions o)
         {
-            var size = barcode.Bounds.X; // barcode.Metadata.Dimensions;
-            var dim = size + o.Margin * 2;
+            var size = barcode.Bounds.X;
+            var width = barcode.Bounds.X + o.Margin * 2;
+            var height = barcode.Bounds.Y + o.Margin * 2;
 
             var sb = new StringBuilder()
                 .Append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")
                 .Append("<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\n")
-                .Append($"<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\" viewBox=\"0 0 {dim} {dim}\" stroke=\"none\">\n")
+                .Append($"<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\" viewBox=\"0 0 {width} {height}\" stroke=\"none\">\n")
                 .Append($"\t<rect width=\"100%\" height=\"100%\" fill=\"{o.BackColor}\"/>\n")
                 .Append("\t<path d=\"");
 
             // Work on copy as it is destructive
-            var modules = CopyModules(barcode, size);
+            var modules = CopyModules(barcode);
             CreatePath(sb, modules, o.Margin);
 
             return sb
@@ -204,9 +199,11 @@ namespace Smartstore.Imaging.Barcodes.Impl
                 .ToString();
         }
 
-        private static bool[,] CopyModules(Barcoder.IBarcode barcode, int size)
+        private static bool[,] CopyModules(Barcoder.IBarcode barcode)
         {
+            var size = barcode.Bounds.X;
             var modules = new bool[size, size];
+
             for (var y = 0; y < size; y++)
             {
                 for (var x = 0; x < size; x++)
@@ -297,17 +294,6 @@ namespace Smartstore.Imaging.Barcodes.Impl
 
         #endregion
 
-        private static string ToSvg(SvgDocument doc)
-        {
-            using var stream = new MemoryStream();
-            using var reader = new StreamReader(stream);
-
-            doc.Save(stream);
-            stream.Position = 0;
-
-            return reader.ReadToEnd();
-        }
-
         #region ImageOptions
 
         readonly struct SvgOptions
@@ -316,6 +302,7 @@ namespace Smartstore.Imaging.Barcodes.Impl
             {
                 Margin = options.Margin ?? barcode.Margin;
                 IncludeEanAsText = options.IncludeEanAsText;
+                EanFontFamily = options.EanFontFamily.NullEmpty() ?? "inherit";
                 BackColor = options.BackColor.NullEmpty() ?? "#fff";
                 ForeColor = options.ForeColor ?? "#000";
                 TextColor = options.TextColor ?? "#000";
@@ -323,6 +310,7 @@ namespace Smartstore.Imaging.Barcodes.Impl
 
             public int Margin { get; }
             public bool IncludeEanAsText { get; }
+            public string EanFontFamily { get; }
             public string BackColor { get; }
             public string ForeColor { get; }
             public string TextColor { get; }
