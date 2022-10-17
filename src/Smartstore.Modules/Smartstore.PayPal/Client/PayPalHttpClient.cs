@@ -461,7 +461,10 @@ namespace Smartstore.PayPal.Client
                 };
             }
 
-            var refundRequest = new CapturesRefundRequest(request.Order.CaptureTransactionId).WithBody(message);
+            var refundRequest = new CapturesRefundRequest(request.Order.CaptureTransactionId)
+                .WithBody(message)
+                .WithRequestId(request.Order.Id.ToString());
+
             var response = await ExecuteRequestAsync(refundRequest, request.Order.StoreId, cancelToken);
 
             result.NewPaymentStatus = request.IsPartialRefund
