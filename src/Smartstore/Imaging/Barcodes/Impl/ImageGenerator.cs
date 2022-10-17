@@ -168,8 +168,10 @@ namespace Smartstore.Imaging.Barcodes.Impl
             {
                 int ApplyScale(int value) => value * o.Scale;
 
-                RenderTextBack(image, ApplyScale(o.Margin + 3), image.Height - ApplyScale(o.Margin + ContentMargin), ApplyScale(29), ApplyScale(ContentMargin), o.BackColor);
-                RenderTextBack(image, ApplyScale(o.Margin + 35), image.Height - ApplyScale(o.Margin + ContentMargin), ApplyScale(29), ApplyScale(ContentMargin), o.BackColor);
+                var color = o.BackColor.WithAlpha(1);
+
+                RenderTextBack(image, ApplyScale(o.Margin + 3), image.Height - ApplyScale(o.Margin + ContentMargin), ApplyScale(29), ApplyScale(ContentMargin), color);
+                RenderTextBack(image, ApplyScale(o.Margin + 35), image.Height - ApplyScale(o.Margin + ContentMargin), ApplyScale(29), ApplyScale(ContentMargin), color);
 
                 float textTop = image.Height - (o.Margin + ContentMargin / 2.0f - ContentVerticalOffset) * o.Scale;
                 float textCenter1 = (29.0f / 2.0f + o.Margin + 3.0f) * o.Scale;
@@ -180,9 +182,11 @@ namespace Smartstore.Imaging.Barcodes.Impl
 
             private static void RenderContentForEan13(Image<Rgba32> image, string content, Font font, ImageOptions o)
             {
+                var color = o.BackColor.WithAlpha(1);
+
                 int ApplyScale(int value) => value * o.Scale;
-                RenderTextBack(image, ApplyScale(o.Margin + 3), image.Height - ApplyScale(o.Margin + ContentMargin), ApplyScale(43), ApplyScale(ContentMargin), o.BackColor);
-                RenderTextBack(image, ApplyScale(o.Margin + 49), image.Height - ApplyScale(o.Margin + ContentMargin), ApplyScale(43), ApplyScale(ContentMargin), o.BackColor);
+                RenderTextBack(image, ApplyScale(o.Margin + 3), image.Height - ApplyScale(o.Margin + ContentMargin), ApplyScale(43), ApplyScale(ContentMargin), color);
+                RenderTextBack(image, ApplyScale(o.Margin + 49), image.Height - ApplyScale(o.Margin + ContentMargin), ApplyScale(43), ApplyScale(ContentMargin), color);
 
                 float textTop = image.Height - (o.Margin + ContentMargin / 2.0f - ContentVerticalOffset) * o.Scale;
                 float textCenter1 = (o.Margin - 4.0f) * o.Scale;
