@@ -138,7 +138,7 @@ namespace Smartstore.Web.Api.Swagger
                 Schema = GenerateSchema(typeof(int))
             };
 
-            parameter.Description ??= $"The identifier of the {EntityType.Name}.";
+            parameter.Description ??= $"The {EntityType.Name} identifier.";
             parameter.Example ??= new OpenApiInteger(12345);
 
             if (addParameter)

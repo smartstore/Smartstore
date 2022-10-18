@@ -331,7 +331,7 @@ namespace Smartstore.Web.Api
         //    return new Dictionary<string, object>(segment.Keys, StringComparer.OrdinalIgnoreCase);
         //}
 
-        //protected object GetRelatedKey(Uri uri) 
+        //protected object GetRelatedKey(Uri uri)
         //    => GetRelatedKeys(uri).Values.SingleOrDefault();
 
         protected async Task<TEntity> ApplyRelatedEntityIdsAsync(TEntity entity)

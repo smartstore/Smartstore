@@ -6,6 +6,9 @@ using Smartstore.Core.Identity;
 
 namespace Smartstore.Web.Api.Controllers.OData
 {
+    /// <summary>
+    /// The endpoint for operations on Customer entity.
+    /// </summary>
     public class CustomersController : WebApiController<Customer>
     {
         private readonly Lazy<UserManager<Customer>> _userManager;
@@ -15,15 +18,12 @@ namespace Smartstore.Web.Api.Controllers.OData
             _userManager = userManager;
         }
 
-        //[NonAction]
         //public static void Init(ODataModelBuilder builder)
         //{
-        //    builder.EntitySet<Customer>("Customers");
+        //    var set = builder.EntitySet<Customer>("Customers");
 
-        //    var type = builder.EntityType<Customer>();
-
-        //    var action = type.Collection.Action(nameof(Post));
-        //    action.Parameter<string>("Password");//.Required();
+        //    //var action = set.EntityType.Collection.Action(nameof(Post));
+        //    //action.Parameter<string>("Password");//.Required();
         //}
 
         [HttpGet, WebApiQueryable]
@@ -177,9 +177,9 @@ namespace Smartstore.Web.Api.Controllers.OData
         /// <remarks>
         /// The assignment is created only if it does not already exist.
         /// </remarks>
-        /// <param name="relatedkey">The address identifier.</param>
+        /// <param name="relatedkey">The Address identifier.</param>
         [HttpPost("Customers({key})/Addresses({relatedkey})")]
-        [HttpPost("Customers/{key}/Addresses/{relatedkey}")]
+        //[HttpPost("Customers/{key}/Addresses/{relatedkey}")]
         [Permission(Permissions.Customer.EditAddress)]
         [Produces(MediaTypeNames.Application.Json)]
         [ProducesResponseType(typeof(Address), Status200OK)]
@@ -213,9 +213,9 @@ namespace Smartstore.Web.Api.Controllers.OData
         /// <summary>
         /// Removes the assignment of an Address to a Customer.
         /// </summary>
-        /// <param name="relatedkey">The address identifier. 0 to remove all address assignments.</param>
+        /// <param name="relatedkey">The Address identifier. 0 to remove all address assignments.</param>
         [HttpDelete("Customers({key})/Addresses({relatedkey})")]
-        [HttpDelete("Customers/{key}/Addresses/{relatedkey}")]
+        //[HttpDelete("Customers/{key}/Addresses/{relatedkey}")]
         [Permission(Permissions.Customer.EditAddress)]
         [ProducesResponseType(Status204NoContent)]
         public async Task<IActionResult> DeleteAddresses(int key, int relatedkey)
@@ -246,12 +246,13 @@ namespace Smartstore.Web.Api.Controllers.OData
             return NoContent();
         }
 
-        //[HttpPost, HttpPut]
-        //[Permission(Permissions.Customer.EditAddress)]
-        //public IActionResult CreateRef(int key, string navigationProperty, [FromBody] Uri link)
+        // TODO: (mg) (core) prefer conventions. So think about removing above two custom routes and replacing them by below OData reference endpoints (GetRef|CreateRef|DeleteRef).
+
+        //[HttpPost]
+        //public IActionResult CreateRefToAddresses([FromODataUri] int key, [FromBody] Uri link)
         //{
         //    var relatedKey = GetRelatedKey(link);
-        //    $"CreateRef. key:{key} navigationProperty:{navigationProperty}  relatedKey:{relatedKey} link:{link}".Dump();
+        //    $"CreateRefToAddresses. key:{key} relatedKey:{relatedKey} link:{link}".Dump();
 
         //    return NoContent();
         //}
@@ -262,7 +263,7 @@ namespace Smartstore.Web.Api.Controllers.OData
             {
                 throw new ODataErrorException(new ODataError
                 {
-                    ErrorCode = StatusCodes.Status403Forbidden.ToString(),
+                    ErrorCode = Status403Forbidden.ToString(),
                     Message = "Modifying or deleting a system customer account is not allowed."
                 });
             }
@@ -272,7 +273,7 @@ namespace Smartstore.Web.Api.Controllers.OData
         {
             return new()
             {
-                ErrorCode = StatusCodes.Status422UnprocessableEntity.ToString(),
+                ErrorCode = Status422UnprocessableEntity.ToString(),
                 Message = result.ToString(),
                 Details = result.Errors.Select(x => new ODataErrorDetail
                 {

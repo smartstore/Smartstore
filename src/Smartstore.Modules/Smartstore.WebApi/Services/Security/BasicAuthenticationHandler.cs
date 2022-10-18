@@ -114,7 +114,7 @@ namespace Smartstore.Web.Api.Security
             }
             catch (Exception ex)
             {
-                Response.StatusCode = StatusCodes.Status401Unauthorized;
+                Response.StatusCode = Status401Unauthorized;
                 Response.HttpContext.Features.Set<IExceptionHandlerPathFeature>(new AuthenticationExceptionPathFeature(ex, Request));
 
                 var policy = _urlService.Value.GetUrlPolicy();

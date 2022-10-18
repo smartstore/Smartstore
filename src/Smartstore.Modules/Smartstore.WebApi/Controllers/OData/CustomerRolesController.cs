@@ -68,7 +68,7 @@ namespace Smartstore.Web.Api.Controllers.OData
             {
                 throw new ODataErrorException(new ODataError
                 {
-                    ErrorCode = StatusCodes.Status403Forbidden.ToString(),
+                    ErrorCode = Status403Forbidden.ToString(),
                     Message = "Modifying or deleting a system customer role is not allowed."
                 });
             }

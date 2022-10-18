@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.OData.Query;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.OpenApi.Models;
 using Smartstore.Web.Api.Security;
 using Swashbuckle.AspNetCore.SwaggerGen;
@@ -70,10 +71,18 @@ namespace Smartstore.Web.Api.Swagger
             {
                 helper.Op.Responses.Clear();
             }
+            else
+            {
+                // Unknown methods like OData actions and functions.
+                // These must be documented via code comment above the related action method.
+                helper.Op.Parameters
+                    .Where(x => x.Name.EqualsNoCase("key") && x.Description.IsEmpty())
+                    .Each(x => x.Description = $"The {helper.EntityType.Name} identifier.");
+            }
 
             if (mi.DeclaringType.HasAttribute<AuthorizeAttribute>(true) || mi.HasAttribute<AuthorizeAttribute>(true))
             {
-                helper.Op.Responses[StatusCodes.Status401Unauthorized.ToString()] = CreateUnauthorizedResponse();
+                helper.Op.Responses[Status401Unauthorized.ToString()] = CreateUnauthorizedResponse();
             }
 
             if (!canProcess)
@@ -81,7 +90,7 @@ namespace Smartstore.Web.Api.Swagger
                 return;
             }
 
-            helper.Op.Responses[StatusCodes.Status400BadRequest.ToString()] = CreateBadRequestResponse();
+            helper.Op.Responses[Status400BadRequest.ToString()] = CreateBadRequestResponse();
 
             var entityName = PrefixArticle(helper.EntityType.Name);
 
@@ -91,13 +100,13 @@ namespace Smartstore.Web.Api.Swagger
                     if (isQueryResult)
                     {
                         helper.Op.Summary ??= $"Gets {entityName} list.";
-                        helper.Op.Responses[StatusCodes.Status200OK.ToString()] = helper.CreateSucccessResponse(false);
+                        helper.Op.Responses[Status200OK.ToString()] = helper.CreateSucccessResponse(false);
                     }
                     else
                     {
                         helper.Op.Summary ??= $"Gets {entityName} by identifier.";
-                        helper.Op.Responses[StatusCodes.Status200OK.ToString()] = helper.CreateSucccessResponse(true);
-                        helper.Op.Responses[StatusCodes.Status404NotFound.ToString()] = CreateNotFoundResponse();
+                        helper.Op.Responses[Status200OK.ToString()] = helper.CreateSucccessResponse(true);
+                        helper.Op.Responses[Status404NotFound.ToString()] = CreateNotFoundResponse();
                         helper.AddKeyParameter();
                     }
                     break;
@@ -105,8 +114,8 @@ namespace Smartstore.Web.Api.Swagger
                 //case "GetProperty":
                 //    helper.Op.Summary ??= $"Gets a property value of a {helper.EntityType.Name}.";
                 //    helper.Op.Description ??= "A property value can alternatively be obtained using the **$select** query string parameter.";
-                //    helper.Op.Responses[StatusCodes.Status200OK.ToString()] = helper.CreateSucccessResponse(null);
-                //    helper.Op.Responses[StatusCodes.Status404NotFound.ToString()] = CreateNotFoundResponse();
+                //    helper.Op.Responses[Status200OK.ToString()] = helper.CreateSucccessResponse(null);
+                //    helper.Op.Responses[Status404NotFound.ToString()] = CreateNotFoundResponse();
                 //    helper.AddKeyParameter();
                 //    helper.AddPropertyParameter();
                 //    break;
@@ -114,7 +123,7 @@ namespace Smartstore.Web.Api.Swagger
                 case "Post":
                     helper.Op.Summary ??= $"Creates {entityName}.";
                     helper.Op.RequestBody = helper.CreateRequestBody();
-                    helper.Op.Responses[StatusCodes.Status201Created.ToString()] = helper.CreateSucccessResponse(true);
+                    helper.Op.Responses[Status201Created.ToString()] = helper.CreateSucccessResponse(true);
                     break;
 
                 case "Put":
@@ -124,18 +133,18 @@ namespace Smartstore.Web.Api.Swagger
                         : $"Updates {entityName}.");
 
                     helper.Op.RequestBody = helper.CreateRequestBody();
-                    helper.Op.Responses[StatusCodes.Status200OK.ToString()] = helper.CreateSucccessResponse(true);
-                    helper.Op.Responses[StatusCodes.Status204NoContent.ToString()] = CreateNoContentResponse();
-                    helper.Op.Responses[StatusCodes.Status404NotFound.ToString()] = CreateNotFoundResponse();
-                    helper.Op.Responses[StatusCodes.Status409Conflict.ToString()] = CreateConflictResponse();
-                    helper.Op.Responses[StatusCodes.Status422UnprocessableEntity.ToString()] = CreateUnprocessableEntityResponse();
+                    helper.Op.Responses[Status200OK.ToString()] = helper.CreateSucccessResponse(true);
+                    helper.Op.Responses[Status204NoContent.ToString()] = CreateNoContentResponse();
+                    helper.Op.Responses[Status404NotFound.ToString()] = CreateNotFoundResponse();
+                    helper.Op.Responses[Status409Conflict.ToString()] = CreateConflictResponse();
+                    helper.Op.Responses[Status422UnprocessableEntity.ToString()] = CreateUnprocessableEntityResponse();
                     helper.AddKeyParameter();
                     break;
 
                 case "Delete":
                     helper.Op.Summary ??= $"Deletes {entityName}.";
-                    helper.Op.Responses[StatusCodes.Status204NoContent.ToString()] = CreateNoContentResponse();
-                    helper.Op.Responses[StatusCodes.Status404NotFound.ToString()] = CreateNotFoundResponse();
+                    helper.Op.Responses[Status204NoContent.ToString()] = CreateNoContentResponse();
+                    helper.Op.Responses[Status404NotFound.ToString()] = CreateNotFoundResponse();
                     helper.AddKeyParameter();
                     break;
 
@@ -148,11 +157,11 @@ namespace Smartstore.Web.Api.Swagger
                             ? $"Gets {navPropType.Name.NaIfEmpty()} entities assigned to {entityName}."
                             : $"Gets the {navPropType.Name.NaIfEmpty()} assigned to {entityName}.";
 
-                        helper.Op.Responses[StatusCodes.Status200OK.ToString()] = helper.CreateSucccessResponse(isSingleResult, navPropType);
+                        helper.Op.Responses[Status200OK.ToString()] = helper.CreateSucccessResponse(isSingleResult, navPropType);
 
                         if (isSingleResult)
                         {
-                            helper.Op.Responses[StatusCodes.Status404NotFound.ToString()] = CreateNotFoundResponse();
+                            helper.Op.Responses[Status404NotFound.ToString()] = CreateNotFoundResponse();
                         }
                     }
                     break;

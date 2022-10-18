@@ -43,6 +43,10 @@ namespace Smartstore.Web.Api.Bootstrapping
                 options.TimeZone = TimeZoneInfo.Utc;
                 options.RouteOptions.EnableUnqualifiedOperationCall = true;
 
+                // Why enabling EnableKeyAsSegment? We need KeyInParenthesis for OData functions anyway.
+                options.RouteOptions.EnableKeyAsSegment = false;
+                options.RouteOptions.EnableKeyInParenthesis = true;
+
                 // INFO: does not have to be set here on the basis of the settings. Will be applied later in WebApiQueryableAttribute.
                 options.EnableQueryFeatures(WebApiSettings.DefaultMaxTop);
                 //options.Conventions.Add(new CustomRoutingConvention());
