@@ -31,9 +31,8 @@ namespace Smartstore.PayPal.Components
                 return Empty();
             }
 
-            var controller = HttpContext.Request.RouteValues.GetControllerName().EmptyNull();
-            var action = HttpContext.Request.RouteValues.GetActionName().EmptyNull();
-            var isPaymentSelectionPage = controller == "Checkout" && action == "PaymentMethod";
+            var routeIdent = Request.RouteValues.GenerateRouteIdentifier();
+            var isPaymentSelectionPage = routeIdent == "Checkout.PaymentMethod";
 
             if (isPaymentSelectionPage && isPaymentInfoInvoker)
             {
@@ -41,15 +40,15 @@ namespace Smartstore.PayPal.Components
             }
 
             // Get displayable options from settings depending on location (OffCanvasCart or Cart).
-            var isCartPage = controller == "ShoppingCart" && action == "Cart";
+            var isCartPage = routeIdent == "ShoppingCart.Cart";
             var fundingEnumIds = isCartPage ? 
-                _settings.FundingsCart.SplitSafe(',').Select(int.Parse).ToArray() : 
-                _settings.FundingsOffCanvasCart.SplitSafe(',').Select(int.Parse).ToArray();
+                _settings.FundingsCart.ToIntArray() :
+                _settings.FundingsOffCanvasCart.ToIntArray();
 
             var fundings = string.Empty;
             foreach (var fundingId in fundingEnumIds)
             {
-                fundings += ((EnableFundingOptions)fundingId).ToStringInvariant() + ",";
+                fundings += ((EnableFundingOptions)fundingId).ToStringInvariant() + ',';
             }
 
             var cart = await _shoppingCartService.GetCartAsync(Services.WorkContext.CurrentCustomer, ShoppingCartType.ShoppingCart, Services.StoreContext.CurrentStore.Id);
