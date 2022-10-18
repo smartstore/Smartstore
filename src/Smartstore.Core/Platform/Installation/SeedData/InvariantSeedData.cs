@@ -42,6 +42,7 @@ namespace Smartstore.Core.Installation
         private Language _language;
         private IApplicationContext _appContext;
         private SampleMediaUtility _mediaUtility;
+        private SlugifyOptions _slugifyOptions;
 
         protected InvariantSeedData()
         {
@@ -53,6 +54,19 @@ namespace Smartstore.Core.Installation
             _language = configuration.Language;
             _appContext = appContext;
             _mediaUtility = new SampleMediaUtility(db, "/App_Data/Samples");
+            _slugifyOptions = new SlugifyOptions
+            {
+                CharConversionMap = new Dictionary<char, string>()
+                {
+                    {'ä', "ae"},
+                    {'ö', "oe"},
+                    {'ü', "ue"},
+                    {'Ä', "Ae"},
+                    {'Ö', "Oe"},
+                    {'Ü', "Ue"},
+                    {'ß', "ss"}
+                }
+            };
         }
 
         #region Mandatory data creators
@@ -1316,7 +1330,7 @@ namespace Smartstore.Core.Installation
         }
 
         protected string BuildSlug(string name)
-            => SlugUtility.Slugify(name);
+            => SlugUtility.Slugify(name, _slugifyOptions);
 
         protected static Currency CreateCurrency(string locale, decimal rate = 1M, string formatting = "", bool published = false, int order = 1)
         {
