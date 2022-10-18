@@ -121,10 +121,10 @@
                 <Value>Hinterlegen Sie diese URL in Ihrer PayPal App als Webhook URL.</Value>
             </LocaleResource>
             <LocaleResource Name="ShowButtonInMiniShoppingCart">
-                <Value>Button im Miniwarenkorb anzeigen</Value>
+                <Value>Buttons im Miniwarenkorb anzeigen</Value>
             </LocaleResource>
             <LocaleResource Name="ShowButtonInMiniShoppingCart.Hint">
-                <Value>Legt fest, ob der PayPal-Button im Miniwarenkorb angezeigt werden soll.</Value>
+                <Value>Legt fest, ob PayPal-Buttons im Miniwarenkorb angezeigt werden sollen.</Value>
             </LocaleResource>
 
             <LocaleResource Name="DisabledFundings">
@@ -171,6 +171,18 @@
                     Bitte beachten Sie, dass die Reservierung von Zahlungen nur mit den PayPal Zahlarten
                     PayPal Checkout, Kauf auf Rechnung, Später Zahlen, Kreditkarte und Lastschrifteinzug unterstützt wird.
                 </Value>
+            </LocaleResource>
+            <LocaleResource Name="FundingsOffCanvasCart">
+                <Value>Zahlungsoptionen Miniwarenkorb</Value>
+            </LocaleResource>
+            <LocaleResource Name="FundingsOffCanvasCart.Hint">
+                <Value>Legt fest, welche Zahlungsoptionen im Miniwarenkorb angezeigt werden sollen.</Value>
+            </LocaleResource>
+            <LocaleResource Name="FundingsCart">
+                <Value>Zahlungsoptionen Warenkorbseite</Value>
+            </LocaleResource>
+            <LocaleResource Name="FundingsCart.Hint">
+                <Value>Legt fest, welche Zahlungsoptionen auf der Warenkorbseite angezeigt werden sollen.</Value>
             </LocaleResource>
             <LocaleResource Name="Capture">
                 <Value>Sofort abbuchen</Value>

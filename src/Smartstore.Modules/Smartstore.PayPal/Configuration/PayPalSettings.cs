@@ -16,11 +16,6 @@ namespace Smartstore.PayPal.Settings
         public bool UseSandbox { get; set; } = false;
 
         /// <summary>
-        /// Specifies whether to display the checkout button in mini shopping cart.
-        /// </summary>
-        public bool ShowButtonInMiniShoppingCart { get; set; } = true;
-
-        /// <summary>
         /// PayPal account
         /// </summary>
         public string Account { get; set; }
@@ -61,6 +56,16 @@ namespace Smartstore.PayPal.Settings
         public string EnabledFundings { get; set; }
 
         /// <summary>
+        /// Specifies which payment options should be displayed in OffCanvasCart.
+        /// </summary>
+        public string FundingsOffCanvasCart { get; set; } = "paylater";
+
+        /// <summary>
+        /// Specifies which payment options should be displayed on cart page.
+        /// </summary>
+        public string FundingsCart { get; set; } = "paylater,credit,sepa";
+
+        /// <summary>
         /// Specifies whether to display the pay later widget on product detail pages.
         /// </summary>
         public bool DisplayProductDetailPayLaterWidget { get; set; } = false;
@@ -71,12 +76,12 @@ namespace Smartstore.PayPal.Settings
         public PayPalTransactionType Intent { get; set; } = PayPalTransactionType.Authorize;
 
         /// <summary>
-        /// Specifies the form of the button.
+        /// Specifies the form of the buttons.
         /// </summary>
         public string ButtonShape { get; set; }
 
         /// <summary>
-        /// Specifies the color of the button.
+        /// Specifies the color of the buttons.
         /// </summary>
         public string ButtonColor { get; set; }
 
@@ -85,5 +90,10 @@ namespace Smartstore.PayPal.Settings
         /// </summary>
         [LocalizedProperty]
         public string CustomerServiceInstructions { get; set; }
+
+        /// <summary>
+        /// Specifies whether to display the checkout button in mini shopping cart.
+        /// </summary>
+        public bool ShowButtonInMiniShoppingCart { get; set; } = true;
     }
 }

@@ -8,54 +8,68 @@
 @*INFO: No target zone here as can also be rendered via AJAX*@
 <script data-origin="paypal-button">
     $(function () {
-        var btnContainer = $("#paypal-button-container");
+        var fundingSources = @(Model.IsPaymentSelection ? Html.Raw("['paypal']") : "paypal.getFundingSources()");
+        var displayableFundingSources = "@(Model.Fundings)";
 
-        // Render the PayPal button into #paypal-button-container
-        paypal.Buttons({
-            style: {
-                layout: 'horizontal',
-                label: 'checkout',
-                shape: '@Model.ButtonShape',
-                color: '@Model.ButtonColor'
-            },
-            // Create order
-            createOrder: function (data, actions) {
-                return actions.order.create({
-                    purchase_units: [{
-                        amount: {
-                            value: '@(Model.Amount.ToString("F2", CultureInfo.InvariantCulture))'
-                        }
-                    }],
-                    intent: "@Model.Intent"
-                });
-            },
-            // Save obtained order id in checkout state.
-            onApprove: function (data, actions) {
-                $.ajax({
-                    type: 'POST',
-                    url: btnContainer.data("init-transaction-url"),
-                    data: { orderId: data.orderID },
-                    cache: false,
-                    success: function (resp) {
-                        if (resp.success) {
-                            // Lead customer to address selection or to confirm page if PayPal was choosen from payment selection page.
-                            location.href = btnContainer.data("forward-url");
-                        }
-                        else {
-                            displayNotification(resp.message, 'error');
-                        }
-                    }
-                });
-            },
-            onCancel: function (data) {
-                // Do nothing here, just let the user have it's way
-            },
-            onError: function (err) {
-                displayNotification(err, 'error');
+        fundingSources.forEach(function (fundingSource) {
+            // PayPal checkout button should always be displayed.
+            if (!displayableFundingSources.includes(fundingSource) && fundingSource != "paypal") {
+                return;
             }
-        })
-        .render('#paypal-button-container');
 
+            if (!paypal.isFundingEligible(fundingSource)){
+                return;
+            }
+
+            var btnContainer = $("#paypal-button-container");
+
+            // Render PayPal buttons into #paypal-button-container
+            paypal.Buttons({
+                fundingSource: fundingSource,
+                style: {
+                    layout: 'horizontal',
+                    label: 'checkout',
+                    shape: '@Model.ButtonShape',
+                    //color: '@Model.ButtonColor'
+                },
+                // Create order
+                createOrder: function (data, actions) {
+                    return actions.order.create({
+                        purchase_units: [{
+                            amount: {
+                                value: '@(Model.Amount.ToString("F2", CultureInfo.InvariantCulture))'
+                            }
+                        }],
+                        intent: "@Model.Intent"
+                    });
+                },
+                // Save obtained order id in checkout state.
+                onApprove: function (data, actions) {
+                    $.ajax({
+                        type: 'POST',
+                        url: btnContainer.data("init-transaction-url"),
+                        data: { orderId: data.orderID },
+                        cache: false,
+                        success: function (resp) {
+                            if (resp.success) {
+                                // Lead customer to address selection or to confirm page if PayPal was choosen from payment selection page.
+                                location.href = btnContainer.data("forward-url");
+                            }
+                            else {
+                                displayNotification(resp.message, 'error');
+                            }
+                        }
+                    });
+                },
+                onCancel: function (data) {
+                    // Do nothing here, just let the user have it's way
+                },
+                onError: function (err) {
+                    displayNotification(err, 'error');
+                }
+            })
+            .render('#paypal-button-container');
+        });
         @if (Model.IsPaymentSelection)
         {
             <text>

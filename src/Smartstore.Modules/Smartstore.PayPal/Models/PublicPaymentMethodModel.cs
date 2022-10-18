@@ -25,9 +25,9 @@
         public bool IsSelectedMethod { get; set; }
 
         /// <summary>
-        /// Url for PayPal JavaScript URL including all needed parameters e.g. currency, client-id, etc
+        /// Funding sources to display
         /// </summary>
-        public string ScriptUrl { get; set; }
+        public string Fundings { get; set; }
 
         public string ButtonShape { get; set; }
 

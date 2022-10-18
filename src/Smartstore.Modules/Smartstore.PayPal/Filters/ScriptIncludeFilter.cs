@@ -66,7 +66,7 @@ namespace Smartstore.PayPal.Filters
             scriptUrl += $"&intent={_settings.Intent.ToString().ToLower()}";
             scriptUrl += $"&locale={_services.WorkContext.WorkingLanguage.LanguageCulture.Replace("-", "_")}";
 
-            _widgetProvider.RegisterHtml("end", new HtmlString($"<script src='{scriptUrl}' data-partner-attribution-id='SmartStore_Cart_PPCP'></script>"));
+            _widgetProvider.RegisterHtml("end", new HtmlString($"<script src='{scriptUrl}' data-partner-attribution-id='SmartStore_Cart_PPCP' async></script>"));
 
             if (!await IsPayUponInvoiceActive())
             {

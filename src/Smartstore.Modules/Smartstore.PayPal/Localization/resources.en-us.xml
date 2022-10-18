@@ -118,10 +118,10 @@
                 <Value>Save this URL in your PayPal app as a webhook URL.</Value>
             </LocaleResource>
             <LocaleResource Name="ShowButtonInMiniShoppingCart">
-                <Value>Show button in mini shopping cart</Value>
+                <Value>Show buttons in mini shopping cart</Value>
             </LocaleResource>
             <LocaleResource Name="ShowButtonInMiniShoppingCart.Hint">
-                <Value>Specifies whether to show the checkout button in the mini shopping cart.</Value>
+                <Value>Specifies whether to show the checkout buttons in the mini shopping cart.</Value>
             </LocaleResource>
 
             <LocaleResource Name="DisabledFundings">
@@ -168,6 +168,18 @@
                     Please note that the reservation of payments is only supported with the PayPal payment methods
                     PayPal Checkout, Purchase on Invoice, Pay Later, Credit Card and Direct Debit.
                 </Value>
+            </LocaleResource>
+            <LocaleResource Name="FundingsOffCanvasCart">
+                <Value>Funding sources mini shopping cart</Value>
+            </LocaleResource>
+            <LocaleResource Name="FundingsOffCanvasCart.Hint">
+                <Value>Specifies which payment options should be displayed in the mini shopping cart.</Value>
+            </LocaleResource>
+            <LocaleResource Name="FundingsCart">
+                <Value>Funding sources cart page</Value>
+            </LocaleResource>
+            <LocaleResource Name="FundingsCart.Hint">
+                <Value>Specifies which payment options to display on the shopping cart page.</Value>
             </LocaleResource>
             <LocaleResource Name="Capture">
                 <Value>Immediately debit</Value>

@@ -266,7 +266,7 @@
                 <smart-label asp-for="EnabledFundings" />
             </div>
             <div class="adminData">
-                <setting-editor asp-for="ButtonColor">
+                <setting-editor asp-for="EnabledFundings">
                     <select asp-for="EnabledFundings" asp-items="Html.GetLocalizedEnumSelectList(typeof(EnableFundingOptions))" multiple="multiple" data-tags="true"></select>
                 </setting-editor>
                 <span asp-validation-for="EnabledFundings"></span>
@@ -277,7 +277,7 @@
                 <smart-label asp-for="DisabledFundings" />
             </div>
             <div class="adminData">
-                <setting-editor asp-for="ButtonColor">
+                <setting-editor asp-for="DisabledFundings">
                     <select asp-for="DisabledFundings" asp-items="Html.GetLocalizedEnumSelectList(typeof(DisableFundingOptions))" multiple="multiple" data-tags="true"></select>
                 </setting-editor>
                 <span asp-validation-for="DisabledFundings"></span>
@@ -370,8 +370,30 @@
                 <smart-label asp-for="ShowButtonInMiniShoppingCart" />
             </div>
             <div class="adminData">
-                <setting-editor asp-for="ShowButtonInMiniShoppingCart"></setting-editor>
+                <setting-editor asp-for="ShowButtonInMiniShoppingCart" data-toggler-for=".pnlFundingsOffCanvasCart"></setting-editor>
                 <span asp-validation-for="ShowButtonInMiniShoppingCart"></span>
+            </div>
+        </div>
+        <div class="adminRow pnlFundingsOffCanvasCart">
+            <div class="adminTitle">
+                <smart-label asp-for="FundingsOffCanvasCart" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="FundingsOffCanvasCart">
+                    <select asp-for="FundingsOffCanvasCart" asp-items="Html.GetLocalizedEnumSelectList(typeof(EnableFundingOptions))" multiple="multiple" data-tags="true"></select>
+                </setting-editor>
+                <span asp-validation-for="FundingsOffCanvasCart"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
+                <smart-label asp-for="FundingsCart" />
+            </div>
+            <div class="adminData">
+                <setting-editor asp-for="FundingsCart">
+                    <select asp-for="FundingsCart" asp-items="Html.GetLocalizedEnumSelectList(typeof(EnableFundingOptions))" multiple="multiple" data-tags="true"></select>
+                </setting-editor>
+                <span asp-validation-for="FundingsCart"></span>
             </div>
         </div>
     </div>
