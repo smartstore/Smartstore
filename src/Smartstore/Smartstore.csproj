@@ -37,7 +37,6 @@
         <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="6.0.10" />
         <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="6.0.0" />
         <PackageReference Include="ncrontab" Version="3.3.1" />
-        <PackageReference Include="Net.Codecrete.QrCodeGenerator" Version="2.0.3" />
         <PackageReference Include="Newtonsoft.Json.Bson" Version="1.0.2" />
         <PackageReference Include="NuGet.Protocol" Version="6.3.1" />
         <PackageReference Include="SixLabors.ImageSharp" Version="2.1.3" />
