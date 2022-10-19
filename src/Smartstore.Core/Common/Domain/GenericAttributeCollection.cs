@@ -46,7 +46,6 @@ namespace Smartstore.Core.Common
             int entityId,
             int currentStoreId,
             List<GenericAttribute> entities = null)
-            : this(entityName)
         {
             Guard.NotNull(query, nameof(query));
             Guard.NotEmpty(entityName, nameof(entityName));
