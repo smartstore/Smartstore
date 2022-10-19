@@ -8,6 +8,7 @@ using Smartstore.Core.Localization;
 using Smartstore.Core.Stores;
 using Smartstore.Core.Web;
 using Smartstore.Net;
+using Smartstore.Threading;
 
 namespace Smartstore.Web
 {
@@ -30,8 +31,8 @@ namespace Smartstore.Web
         // KeyItem1 = CustomerId, KeyItem2 = StoreId
         private readonly Dictionary<(int, int), TaxDisplayType> _taxDisplayTypes = new();
 
-        private Language _language;
         private Customer _customer;
+        private Language _language;
         private Currency _currency;
         private Customer _impersonator;
         private bool? _isAdminArea;
@@ -66,89 +67,111 @@ namespace Smartstore.Web
             _geoCountryLookup = geoCountryLookup;
         }
 
+        public async Task InitializeAsync()
+        {
+            if (_customer == null)
+            {
+                _customer = await ResolveCurrentCustomerAsync();
+            }
+
+            if (_language == null)
+            {
+                _language = await ResolveWorkingLanguageAsync(_customer);
+            }
+
+            if (_currency == null)
+            {
+                _currency = await ResolveWorkingCurrencyAsync(_customer);
+            }
+        }
+
+        #region Customer
+
         public Customer CurrentCustomer
         {
             get
             {
-                if (_customer != null)
+                if (_customer == null)
                 {
-                    return _customer;
+                    InitializeAsync().Await();
                 }
-
-                var httpContext = _httpContextAccessor.HttpContext;
-
-                // Is system account?
-                if (TryGetSystemAccount(httpContext, out var customer))
-                {
-                    // Get out quickly. Bots tend to overstress the shop.
-                    _customer = customer;
-                    return customer;
-                }
-
-                // Registered/Authenticated customer?
-                customer = _customerService.GetAuthenticatedCustomerAsync().Await();
-
-                // impersonate user if required (currently used for 'phone order' support)
-                if (customer != null)
-                {
-                    var impersonatedCustomerId = customer.GenericAttributes.ImpersonatedCustomerId;
-                    if (impersonatedCustomerId > 0)
-                    {
-                        var impersonatedCustomer = _db.Customers
-                            .IncludeCustomerRoles()
-                            .FindById(impersonatedCustomerId.Value);
-
-                        if (impersonatedCustomer != null && !impersonatedCustomer.Deleted && impersonatedCustomer.Active)
-                        {
-                            // set impersonated customer
-                            _impersonator = customer;
-                            customer = impersonatedCustomer;
-                        }
-                    }
-                }
-
-                // Load guest customer
-                if (customer == null || customer.Deleted || !customer.Active)
-                {
-                    customer = GetGuestCustomerAsync(httpContext).Await();
-                }
-
-                _customer = customer;
 
                 return _customer;
             }
             set => _customer = value;
         }
 
-        protected bool TryGetSystemAccount(HttpContext context, out Customer customer)
+        protected virtual async Task<Customer> ResolveCurrentCustomerAsync()
+        {
+            var httpContext = _httpContextAccessor.HttpContext;
+
+            // Is system account?
+            if ((await TryGetSystemAccountAsync(httpContext)).Out(out var customer))
+            {
+                // Get out quickly. Bots tend to overstress the shop.
+                return customer;
+            }
+
+            // Registered/Authenticated customer?
+            customer = await _customerService.GetAuthenticatedCustomerAsync();
+
+            // impersonate user if required (currently used for 'phone order' support)
+            if (customer != null)
+            {
+                var impersonatedCustomerId = customer.GenericAttributes.ImpersonatedCustomerId;
+                if (impersonatedCustomerId > 0)
+                {
+                    var impersonatedCustomer = await _db.Customers
+                        .IncludeCustomerRoles()
+                        .FindByIdAsync(impersonatedCustomerId.Value);
+
+                    if (impersonatedCustomer != null && !impersonatedCustomer.Deleted && impersonatedCustomer.Active)
+                    {
+                        // set impersonated customer
+                        _impersonator = customer;
+                        customer = impersonatedCustomer;
+                    }
+                }
+            }
+
+            // Load guest customer
+            if (customer == null || customer.Deleted || !customer.Active)
+            {
+                customer = await GetGuestCustomerAsync(httpContext);
+            }
+
+            return customer;
+        }
+
+        protected async Task<AsyncOut<Customer>> TryGetSystemAccountAsync(HttpContext context)
         {
             // Never check whether customer is deleted/inactive in this method.
             // System accounts should neither be deletable nor activatable, they are mandatory.
 
-            customer = null;
+            Customer customer = null;
 
             // check whether request is made by a background task
             // in this case return built-in customer record for background task
             if (context != null && context.Request.IsCalledByTaskScheduler())
             {
-                customer = _customerService.GetCustomerBySystemName(SystemCustomerNames.BackgroundTask);
+                customer = await _customerService.GetCustomerBySystemNameAsync(SystemCustomerNames.BackgroundTask);
             }
 
             // check whether request is made by a search engine
             // in this case return built-in customer record for search engines 
             if (customer == null && _userAgent.IsBot)
             {
-                customer = _customerService.GetCustomerBySystemName(SystemCustomerNames.SearchEngine);
+                customer = await _customerService.GetCustomerBySystemNameAsync(SystemCustomerNames.SearchEngine);
             }
 
             // check whether request is made by the PDF converter
             // in this case return built-in customer record for the converter
             if (customer == null && _userAgent.IsPdfConverter)
             {
-                customer = _customerService.GetCustomerBySystemName(SystemCustomerNames.PdfConverter);
+                customer = await _customerService.GetCustomerBySystemNameAsync(SystemCustomerNames.PdfConverter);
             }
 
-            return customer != null;
+            return new AsyncOut<Customer>(customer != null, customer);
         }
 
         protected virtual async Task<Customer> GetGuestCustomerAsync(HttpContext context)
@@ -222,23 +245,17 @@ namespace Smartstore.Web
 
         public Customer CurrentImpersonator => _impersonator;
 
+        #endregion
+
+        #region Language
+
         public Language WorkingLanguage
         {
             get
             {
                 if (_language == null)
                 {
-                    var customer = CurrentCustomer;
-
-                    // Resolve the current working language
-                    _language = _languageResolver.ResolveLanguage(customer, _httpContextAccessor.HttpContext);
-
-                    // Set language if current customer langid does not match resolved language id
-                    var customerAttributes = customer.GenericAttributes;
-                    if (customerAttributes.LanguageId != _language.Id)
-                    {
-                        SetCustomerLanguage(_language.Id);
-                    }
+                    InitializeAsync().Await();
                 }
 
                 return _language;
@@ -247,149 +264,181 @@ namespace Smartstore.Web
             {
                 if (value?.Id != _language?.Id)
                 {
-                    SetCustomerLanguage(value?.Id);
+                    SetCustomerLanguageAsync(value?.Id, false).Await();
                     _language = value;
                 }
             }
         }
 
-        private void SetCustomerLanguage(int? languageId)
+        protected virtual async Task<Language> ResolveWorkingLanguageAsync(Customer customer)
+        {
+            // Resolve the current working language
+            var language = await _languageResolver.ResolveLanguageAsync(customer, _httpContextAccessor.HttpContext);
+
+            // Set language if current customer langid does not match resolved language id
+            var customerAttributes = customer.GenericAttributes;
+            if (customerAttributes.LanguageId != language.Id)
+            {
+                await SetCustomerLanguageAsync(language.Id, true);
+            }
+
+            return language;
+        }
+
+        private async Task SetCustomerLanguageAsync(int? languageId, bool async)
         {
             var customer = CurrentCustomer;
 
             if (customer == null || customer.IsSystemAccount)
+            {
                 return;
+            }
 
-            customer.GenericAttributes.LanguageId = languageId;
-            customer.GenericAttributes.SaveChanges();
+            var customerAttributes = customer.GenericAttributes;
+            customerAttributes.LanguageId = languageId;
+
+            if (async)
+            {
+                await customerAttributes.SaveChangesAsync();
+            }
+            else
+            {
+                customerAttributes.SaveChanges();
+            }
         }
+
+        #endregion
+
+        #region Currency
 
         public Currency WorkingCurrency
         {
             get
             {
-                if (_currency != null)
+                if (_currency == null)
                 {
-                    return _currency;
+                    InitializeAsync().Await();
                 }
 
-                var query = _db.Currencies.AsNoTracking();
-
-                Currency currency = null;
-
-                // Return primary store currency when we're in admin area/mode
-                if (IsAdminArea)
-                {
-                    currency = _currencyService.Value.PrimaryCurrency;
-                }
-
-                if (currency == null)
-                {
-                    // Find current customer currency
-                    var customer = CurrentCustomer;
-                    var storeCurrenciesMap = query.ApplyStandardFilter(false, _storeContext.CurrentStore.Id).ToDictionary(x => x.Id);
-
-                    if (customer != null && !customer.IsSearchEngineAccount())
-                    {
-                        // Search engines should always crawl by primary store currency
-                        var customerCurrencyId = customer.GenericAttributes.CurrencyId;
-                        if (customerCurrencyId > 0)
-                        {
-                            if (storeCurrenciesMap.TryGetValue(customerCurrencyId.Value, out currency))
-                            {
-                                currency = VerifyCurrency(currency);
-                                if (currency == null)
-                                {
-                                    SetCustomerCurrency(null);
-                                }
-                            }
-                        }
-                    }
-
-                    // if there's only one currency for current store it dominates the primary currency
-                    if (storeCurrenciesMap.Count == 1)
-                    {
-                        currency = storeCurrenciesMap[storeCurrenciesMap.Keys.First()];
-                    }
-
-                    // Default currency of country to which the current IP address belongs.
-                    if (currency == null)
-                    {
-                        var ipAddress = _webHelper.GetClientIpAddress();
-                        var lookupCountry = _geoCountryLookup.LookupCountry(ipAddress);
-                        if (lookupCountry != null)
-                        {
-                            var country = _db.Countries
-                                .AsNoTracking()
-                                .Include(x => x.DefaultCurrency)
-                                .ApplyIsoCodeFilter(lookupCountry.IsoCode)
-                                .FirstOrDefault();
-
-                            if (country?.DefaultCurrency?.Published == true)
-                            {
-                                currency = country.DefaultCurrency;
-                            }
-                        }
-                    }
-
-                    // Find currency by domain ending
-                    if (currency == null)
-                    {
-                        var request = _httpContextAccessor.HttpContext?.Request;
-                        if (request != null)
-                        {
-                            currency = storeCurrenciesMap.Values.GetByDomainEnding(request.Host.Value);
-                        }
-                    }
-
-                    // Get default currency.
-                    if (currency == null)
-                    {
-                        currency = VerifyCurrency(storeCurrenciesMap.Get(_storeContext.CurrentStore.DefaultCurrencyId));
-                    }
-
-                    // Get primary currency.
-                    if (currency == null)
-                    {
-                        currency = VerifyCurrency(_currencyService.Value.PrimaryCurrency);
-                    }
-
-                    // Get the first published currency for current store
-                    if (currency == null)
-                    {
-                        currency = storeCurrenciesMap.Values.FirstOrDefault();
-                    }
-                }
-
-                // If not found in currencies filtered by the current store, then return any currency
-                if (currency == null)
-                {
-                    currency = query.ApplyStandardFilter().FirstOrDefault();
-
-                }
-
-                // No published currency available (fix it)
-                if (currency == null)
-                {
-                    currency = query.AsTracking().ApplyStandardFilter(true).FirstOrDefault();
-                    if (currency != null)
-                    {
-                        currency.Published = true;
-                        _db.SaveChanges();
-                    }
-                }
-
-                _currency = currency;
                 return _currency;
             }
             set
             {
                 if (value?.Id != _currency?.Id)
                 {
-                    SetCustomerCurrency(value?.Id);
+                    SetCustomerCurrencyAsync(value?.Id, false).Await();
                     _currency = value;
                 }
             }
+        }
+
+        protected virtual async Task<Currency> ResolveWorkingCurrencyAsync(Customer customer)
+        {
+            var query = _db.Currencies.AsNoTracking();
+
+            Currency currency = null;
+
+            // Return primary store currency when we're in admin area/mode
+            if (IsAdminArea)
+            {
+                currency = _currencyService.Value.PrimaryCurrency;
+            }
+
+            if (currency == null)
+            {
+                // Find current customer currency
+                var storeCurrenciesMap = query.ApplyStandardFilter(false, _storeContext.CurrentStore.Id).ToDictionary(x => x.Id);
+
+                if (customer != null && !customer.IsSearchEngineAccount())
+                {
+                    // Search engines should always crawl by primary store currency
+                    var customerCurrencyId = customer.GenericAttributes.CurrencyId;
+                    if (customerCurrencyId > 0)
+                    {
+                        if (storeCurrenciesMap.TryGetValue(customerCurrencyId.Value, out currency))
+                        {
+                            currency = VerifyCurrency(currency);
+                            if (currency == null)
+                            {
+                                await SetCustomerCurrencyAsync(null, true);
+                            }
+                        }
+                    }
+                }
+
+                // if there's only one currency for current store it dominates the primary currency
+                if (storeCurrenciesMap.Count == 1)
+                {
+                    currency = storeCurrenciesMap[storeCurrenciesMap.Keys.First()];
+                }
+
+                // Default currency of country to which the current IP address belongs.
+                if (currency == null)
+                {
+                    var ipAddress = _webHelper.GetClientIpAddress();
+                    var lookupCountry = _geoCountryLookup.LookupCountry(ipAddress);
+                    if (lookupCountry != null)
+                    {
+                        var country = await _db.Countries
+                            .AsNoTracking()
+                            .Include(x => x.DefaultCurrency)
+                            .ApplyIsoCodeFilter(lookupCountry.IsoCode)
+                            .FirstOrDefaultAsync();
+
+                        if (country?.DefaultCurrency?.Published == true)
+                        {
+                            currency = country.DefaultCurrency;
+                        }
+                    }
+                }
+
+                // Find currency by domain ending
+                if (currency == null)
+                {
+                    var request = _httpContextAccessor.HttpContext?.Request;
+                    if (request != null)
+                    {
+                        currency = storeCurrenciesMap.Values.GetByDomainEnding(request.Host.Value);
+                    }
+                }
+
+                // Get default currency.
+                if (currency == null)
+                {
+                    currency = VerifyCurrency(storeCurrenciesMap.Get(_storeContext.CurrentStore.DefaultCurrencyId));
+                }
+
+                // Get primary currency.
+                if (currency == null)
+                {
+                    currency = VerifyCurrency(_currencyService.Value.PrimaryCurrency);
+                }
+
+                // Get the first published currency for current store
+                if (currency == null)
+                {
+                    currency = storeCurrenciesMap.Values.FirstOrDefault();
+                }
+            }
+
+            // If not found in currencies filtered by the current store, then return any currency
+            if (currency == null)
+            {
+                currency = await query.ApplyStandardFilter().FirstOrDefaultAsync();
+            }
+
+            // No published currency available (fix it)
+            if (currency == null)
+            {
+                currency = await query.AsTracking().ApplyStandardFilter(true).FirstOrDefaultAsync();
+                if (currency != null)
+                {
+                    currency.Published = true;
+                    await _db.SaveChangesAsync();
+                }
+            }
+
+            return currency;
         }
 
         private static Currency VerifyCurrency(Currency currency)
@@ -402,11 +451,21 @@ namespace Smartstore.Web
             return currency;
         }
 
-        private void SetCustomerCurrency(int? currencyId)
+        private async Task SetCustomerCurrencyAsync(int? currencyId, bool async)
         {
             var customer = CurrentCustomer;
-            customer.GenericAttributes.CurrencyId = currencyId;
-            customer.GenericAttributes.SaveChanges();
+            var customerAttributes = customer.GenericAttributes;
+
+            customerAttributes.CurrencyId = currencyId;
+
+            if (async)
+            {
+                await customerAttributes.SaveChangesAsync();
+            }
+            else
+            {
+                customerAttributes.SaveChanges();
+            }
         }
 
         public TaxDisplayType TaxDisplayType
@@ -473,6 +532,8 @@ namespace Smartstore.Web
 
             return result;
         }
+
+        #endregion
 
         public bool IsAdminArea
         {

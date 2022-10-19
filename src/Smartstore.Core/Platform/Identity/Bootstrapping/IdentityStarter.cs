@@ -1,5 +1,4 @@
 ﻿using Autofac;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
@@ -81,22 +80,6 @@ namespace Smartstore.Core.Bootstrapping
                 .InstancePerLifetimeScope();
 
             builder.RegisterType<CustomerRoleRuleOptionsProvider>().As<IRuleOptionsProvider>().InstancePerLifetimeScope();
-        }
-
-        public override void BuildPipeline(RequestPipelineBuilder builder)
-        {
-            if (builder.ApplicationContext.IsInstalled)
-            {
-                builder.Configure(StarterOrdering.AuthenticationMiddleware, app =>
-                {
-                    app.UseAuthentication();
-                });
-
-                builder.Configure(StarterOrdering.AfterRoutingMiddleware, app =>
-                {
-                    app.UseAuthorization();
-                });
-            }
         }
     }
 }

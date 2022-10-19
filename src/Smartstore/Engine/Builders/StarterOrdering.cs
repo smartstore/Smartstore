@@ -17,18 +17,23 @@
         /// Not used by Smartstore
         /// </summary>
         public const int FirstMiddleware = -1000;
+
         public const int BeforeExceptionHandlerMiddleware = -805;
         public const int ExceptionHandlerMiddleware = -800;
         public const int AfterExceptionHandlerMiddleware = -795;
+
+        public const int BeforeAuthenticationMiddleware = -755;
+        public const int AuthenticationMiddleware = -750;
+        public const int AfterAuthenticationMiddleware = -745;
+
         public const int BeforeStaticFilesMiddleware = -705;
         public const int StaticFilesMiddleware = -700;
         public const int AfterStaticFilesMiddleware = -695;
-        public const int BeforeAuthenticationMiddleware = -655;
-        public const int AuthenticationMiddleware = -650;
-        public const int AfterAuthenticationMiddleware = -645;
+
         public const int BeforeRoutingMiddleware = -605;
         public const int RoutingMiddleware = -600;
         public const int AfterRoutingMiddleware = -595;
+
         public const int EarlyMiddleware = -500;
         public const int DefaultMiddleware = 0;
         public const int LateMiddleware = 500;

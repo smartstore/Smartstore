@@ -35,7 +35,6 @@ using Smartstore.Engine.Builders;
 using Smartstore.Net;
 using Smartstore.Net.Http;
 using Smartstore.Utilities;
-using Smartstore.Web.Api;
 using Smartstore.Web.Bootstrapping;
 using Smartstore.Web.Razor;
 
@@ -45,6 +44,8 @@ namespace Smartstore.Web
     {
         public override void ConfigureServices(IServiceCollection services, IApplicationContext appContext)
         {
+            services.AddWorkContext();
+            
             if (appContext.IsInstalled)
             {
                 // Configure Cookie Policy Options
@@ -104,7 +105,6 @@ namespace Smartstore.Web
         public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext)
         {
             builder.RegisterType<DefaultViewInvoker>().As<IViewInvoker>().InstancePerLifetimeScope();
-            builder.RegisterType<WebWorkContext>().As<IWorkContext>().InstancePerLifetimeScope();
             builder.RegisterType<SlugRouteTransformer>().InstancePerLifetimeScope();
         }
 
@@ -135,7 +135,23 @@ namespace Smartstore.Web
                 app.UseStatusCodePagesWithReExecute("/Error/{0}");
             });
 
-            builder.Configure(StarterOrdering.AfterExceptionHandlerMiddleware, app =>
+            builder.Configure(StarterOrdering.BeforeAuthenticationMiddleware, app =>
+            {
+                app.UseCookiePolicy();
+            });
+
+            builder.Configure(StarterOrdering.AuthenticationMiddleware, app =>
+            {
+                if (appContext.IsInstalled)
+                {
+                    app.UseAuthentication();
+
+                    // Initialize work context right after authentication
+                    app.UseWorkContext();
+                }
+            });
+
+            builder.Configure(StarterOrdering.AfterAuthenticationMiddleware, app =>
             {
                 if (appContext.IsInstalled)
                 {
@@ -144,6 +160,14 @@ namespace Smartstore.Web
                     // level in appsettings.json to "Information".
                     app.UseRequestLogging();
                 }
+            });
+
+            builder.Configure(StarterOrdering.BeforeStaticFilesMiddleware - 5, app =>
+            {
+                if (appContext.Services.Resolve<PerformanceSettings>().UseResponseCompression)
+                {
+                    app.UseResponseCompression();
+                } 
             });
 
             builder.Configure(StarterOrdering.AfterStaticFilesMiddleware, app =>
@@ -155,9 +179,17 @@ namespace Smartstore.Web
                 }
             });
 
-            builder.Configure(StarterOrdering.BeforeAuthenticationMiddleware, app =>
+            builder.Configure(StarterOrdering.RoutingMiddleware, app =>
             {
-                app.UseCookiePolicy();
+                app.UseRouting();
+            });
+
+            builder.Configure(StarterOrdering.AfterRoutingMiddleware, app =>
+            {
+                if (appContext.IsInstalled)
+                {
+                    app.UseAuthorization();
+                }
             });
 
             builder.Configure(StarterOrdering.EarlyMiddleware, app =>
@@ -171,14 +203,6 @@ namespace Smartstore.Web
                     app.UseRequestCulture();
                 }
             });
-
-            if (appContext.Services.Resolve<PerformanceSettings>().UseResponseCompression)
-            {
-                builder.Configure(StarterOrdering.BeforeStaticFilesMiddleware - 5, app =>
-                {
-                    app.UseResponseCompression();
-                });
-            }
         }
 
         public override void MapRoutes(EndpointRoutingBuilder builder)

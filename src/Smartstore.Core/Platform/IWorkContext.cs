@@ -11,6 +11,12 @@ namespace Smartstore.Core
     public interface IWorkContext
     {
         /// <summary>
+        /// Initializes the work context by pre-resolving current customer
+        /// working language and working currency asynchronously.
+        /// </summary>
+        Task InitializeAsync();
+
+        /// <summary>
         /// Gets or sets the current customer
         /// </summary>
         Customer CurrentCustomer { get; set; }

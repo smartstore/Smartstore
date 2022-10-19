@@ -186,19 +186,6 @@ namespace Smartstore.Web
             }
         }
 
-        public override void BuildPipeline(RequestPipelineBuilder builder)
-        {
-            builder.Configure(StarterOrdering.RoutingMiddleware, app =>
-            {
-                app.UseRouting();
-            });
-
-            builder.Configure(StarterOrdering.AfterRoutingMiddleware, app =>
-            {
-                // TODO: (core) Use Swagger
-            });
-        }
-
         public override void MapRoutes(EndpointRoutingBuilder builder)
         {
             builder.MapRoutes(StarterOrdering.EarlyRoute, routes =>

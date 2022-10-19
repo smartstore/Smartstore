@@ -256,24 +256,17 @@ INNER JOIN (
         #region Customers
 
         public virtual Customer GetCustomerBySystemName(string systemName, bool tracked = true)
-        {
-            if (string.IsNullOrWhiteSpace(systemName))
-                return null;
-
-            var query = _db.Customers
-                .IncludeCustomerRoles()
-                .ApplyTracking(tracked)
-                .AsCaching()
-                .Where(x => x.SystemName == systemName)
-                .OrderBy(x => x.Id);
-
-            return query.FirstOrDefault();
-        }
+            => GetCustomerBySystemNameInternal(systemName, tracked, false).Await();
 
         public virtual Task<Customer> GetCustomerBySystemNameAsync(string systemName, bool tracked = true)
+            => GetCustomerBySystemNameInternal(systemName, tracked, true);
+
+        private async Task<Customer> GetCustomerBySystemNameInternal(string systemName, bool tracked, bool async)
         {
             if (string.IsNullOrWhiteSpace(systemName))
-                return Task.FromResult((Customer)null);
+            {
+                return null;
+            }
 
             var query = _db.Customers
                 .IncludeCustomerRoles()
@@ -282,7 +275,9 @@ INNER JOIN (
                 .Where(x => x.SystemName == systemName)
                 .OrderBy(x => x.Id);
 
-            return query.FirstOrDefaultAsync();
+            return async 
+                ? await query.FirstOrDefaultAsync() 
+                : query.FirstOrDefault();
         }
 
         public virtual async Task<Customer> GetAuthenticatedCustomerAsync()
@@ -297,7 +292,7 @@ INNER JOIN (
 
                 var principal = await EnsureAuthentication(httpContext);
 
-                if (principal?.Identity.IsAuthenticated == true)
+                if (principal?.Identity?.IsAuthenticated == true)
                 {
                     _authCustomer = await _userManager.GetUserAsync(principal);
                 }
@@ -320,17 +315,14 @@ INNER JOIN (
         /// <returns></returns>
         private static async Task<ClaimsPrincipal> EnsureAuthentication(HttpContext context)
         {
-            var authenticationFeature = context.Features.Get<IAuthenticationFeature>();
-            if (authenticationFeature == null)
+            var authenticateResult = context.Features.Get<IAuthenticateResultFeature>()?.AuthenticateResult ?? await context.AuthenticateAsync();
+            if (authenticateResult.Succeeded)
             {
-                // The middleware did not run yet
-                var result = await context.AuthenticateAsync();
-                if (result.Succeeded)
-                {
-                    return result.Principal;
-                }
+                // The middleware ran already
+                return authenticateResult.Principal ?? context.User;
             }
 
+            // The middleware did not run yet
             return context.User;
         }
 
