@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
-using Newtonsoft.Json.Converters;
 
 namespace Smartstore.PayPal.Client.Messages
 {
@@ -36,6 +35,13 @@ namespace Smartstore.PayPal.Client.Messages
         /// </summary>
         [JsonProperty("payment_source", DefaultValueHandling = DefaultValueHandling.Ignore)]
         public PaymentSource PaymentSource;
+
+        /// <summary>
+        /// Holds information about the payment method to be used.
+        /// </summary>
+        [JsonProperty("application_context", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public ApplicationContext ApplicationContext;
+
     }
 
     public class PurchaseUnit
@@ -74,13 +80,19 @@ namespace Smartstore.PayPal.Client.Messages
         public PurchaseUnitItem [] Items;
 
         /// <summary>
-        /// The API caller-provided external invoice number for this order. Appears in both the payer's transaction history and the emails that the payer receives.
+        /// The shipping details.
         /// </summary>
         [JsonProperty("shipping", DefaultValueHandling = DefaultValueHandling.Ignore)]
         public ShippingDetail Shipping;
 
+        /// <summary>
+        /// The API caller-provided external ID for the purchase unit. Required for multiple purchase units when you must update the order through `PATCH`. If you omit this value and the order contains only one purchase unit, PayPal sets this value to `default`.
+        /// </summary>
+        [JsonProperty("reference_id", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public string ReferenceId;
+
         // TODO: (mh) (core) Implement on demand
-        // payee, payment_instruction, reference_id, soft_descriptor
+        // payee, payment_instruction, soft_descriptor
     }
 
     public class PurchaseUnitItem
@@ -308,6 +320,12 @@ namespace Smartstore.PayPal.Client.Messages
         public string[] CustomerServiceInstructions;
     }
 
+    public class ApplicationContext
+    {
+        [JsonProperty("shipping_preference", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public ShippingPreference ShippingPreference;
+    }
+
     public enum Intent
     {
         [EnumMember(Value = "CAPTURE")]
@@ -327,5 +345,27 @@ namespace Smartstore.PayPal.Client.Messages
 
         [EnumMember(Value = "DONATION")]
         Donation
+    }
+
+    public enum ShippingPreference
+    {
+        /// <summary>
+        /// Get the merchant-provided address. The customer cannot change this address on the PayPal site. 
+        /// If merchant does not pass an address, customer can choose the address on PayPal pages.
+        /// </summary>
+        [EnumMember(Value = "SET_PROVIDED_ADDRESS")]
+        SetProvidedAddress,
+
+        /// <summary>
+        /// Redacts the shipping address from the PayPal site. Recommended for digital goods.
+        /// </summary>
+        [EnumMember(Value = "NO_SHIPPING")]
+        NoShipping,
+
+        /// <summary>
+        /// Get the customer-provided shipping address on the PayPal site.
+        /// </summary>
+        [EnumMember(Value = "GET_FROM_FILE")]
+        GetFromFile
     }
 }

@@ -10,6 +10,7 @@
     $(function () {
         var fundingSources = @(Model.IsPaymentSelection ? Html.Raw("['paypal']") : "paypal.getFundingSources()");
         var displayableFundingSources = "@(Model.Fundings)";
+        var btnContainer = $("#paypal-button-container");
 
         fundingSources.forEach(function (fundingSource) {
             // PayPal checkout button should always be displayed.
@@ -20,8 +21,6 @@
             if (!paypal.isFundingEligible(fundingSource)){
                 return;
             }
-
-            var btnContainer = $("#paypal-button-container");
 
             // Render PayPal buttons into #paypal-button-container
             paypal.Buttons({

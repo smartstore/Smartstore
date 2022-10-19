@@ -1,5 +1,4 @@
 ﻿using System.Globalization;
-using System.Linq;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading;
@@ -16,10 +15,10 @@ using Smartstore.Core.Checkout.Payment;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common;
 using Smartstore.Core.Common.Services;
-using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Configuration;
 using Smartstore.Core.Content.Media;
 using Smartstore.Core.Data;
+using Smartstore.Core.Identity;
 using Smartstore.Core.Stores;
 using Smartstore.PayPal.Client.Messages;
 using Smartstore.Web.Models.Cart;
@@ -129,14 +128,7 @@ namespace Smartstore.PayPal.Client
             var store = _storeContext.GetStoreById(request.StoreId);
             var settings = _settingFactory.LoadSettings<PayPalSettings>(request.StoreId);
             var language = _workContext.WorkingLanguage;
-            var currency = _workContext.WorkingCurrency;
             var paymentData = _checkoutStateAccessor.CheckoutState.PaymentData;
-
-            var cart = await _shoppingCartService.GetCartAsync(customer, ShoppingCartType.ShoppingCart, request.StoreId);
-            var model = await cart.MapAsync(
-                isEditable: false,
-                prepareEstimateShippingIfEnabled: false,
-                prepareAndDisplayOrderReviewData: false);
 
             var logoUrl = store.LogoMediaFileId != 0 ? await _mediaService.GetUrlAsync(store.LogoMediaFileId, 0, store.GetHost(true), false) : string.Empty;
 
@@ -147,6 +139,75 @@ namespace Smartstore.PayPal.Client
             {
                 return null;
             }
+
+            var cart = await _shoppingCartService.GetCartAsync(customer, ShoppingCartType.ShoppingCart, request.StoreId);
+            var purchaseUnits = await GetPurchaseUnitsAsync(cart, request, customer, _workContext.WorkingCurrency);
+
+            var orderMessage = new OrderMessage
+            {
+                Intent = Intent.Capture,
+                ProcessingInstruction = "ORDER_COMPLETE_ON_PAYMENT_APPROVAL",
+                PurchaseUnits = purchaseUnits.ToArray(),
+                PaymentSource = new PaymentSource
+                {
+                    PaymentSourceInvoice = new PaymentSourceInvoice
+                    {
+                        Name = new NameMessage
+                        {
+                            GivenName = customer.BillingAddress.FirstName,
+                            SurName = customer.BillingAddress.LastName
+                        },
+                        Email = customer.BillingAddress.Email,
+                        BirthDate = birthDate,
+                        Phone = new PhoneMessage
+                        {
+                            NationalNumber = phoneNumber,
+                            CountryCode = customer.BillingAddress.Country.DiallingCode.ToString()
+                        },
+                        BillingAddress = new BillingAddressMessage
+                        {
+                            AddressLine1 = customer.BillingAddress.Address1,
+                            AdminArea2 = customer.BillingAddress.City,
+                            PostalCode = customer.BillingAddress.ZipPostalCode,
+                            CountryCode = customer.BillingAddress.Country.TwoLetterIsoCode
+                        },
+                        ExperienceContext = new ExperienceContext
+                        {
+                            BrandName = store.Name,
+                            Locale = language.LanguageCulture,
+                            LogoUrl = logoUrl,
+                            CustomerServiceInstructions = new string[]
+                            {
+                                settings.CustomerServiceInstructions
+                            }
+                        }
+                    }
+                },
+                ApplicationContext = new ApplicationContext
+                {
+                    ShippingPreference = cart.IsShippingRequired() ? ShippingPreference.SetProvidedAddress : ShippingPreference.NoShipping
+                }
+            };
+
+            var ordersGetRequest = new OrderCreateRequest()
+                .WithRequestId(Guid.NewGuid().ToString())
+                .WithClientMetadataId(clientMetaId.ToString())
+                .WithBody(orderMessage);
+
+            var response = await ExecuteRequestAsync(ordersGetRequest, cancelToken);
+            var rawResponse = response.Body<object>().ToString();
+
+            dynamic jResponse = JObject.Parse(rawResponse);
+
+            return response;
+        }
+
+        private async Task<List<PurchaseUnit>> GetPurchaseUnitsAsync(ShoppingCart cart, ProcessPaymentRequest request, Customer customer, Currency currency)
+        {   
+            var model = await cart.MapAsync(
+                isEditable: false,
+                prepareEstimateShippingIfEnabled: false,
+                prepareAndDisplayOrderReviewData: false);
 
             var purchaseUnitItems = new List<PurchaseUnitItem>();
 
@@ -259,90 +320,36 @@ namespace Smartstore.PayPal.Client
                 }
             };
 
-            var orderMessage = new OrderMessage
-            {
-                Intent = Intent.Capture,
-                ProcessingInstruction = "ORDER_COMPLETE_ON_PAYMENT_APPROVAL",
-                PurchaseUnits = purchaseUnits.ToArray(),
-                PaymentSource = new PaymentSource
-                {
-                    PaymentSourceInvoice = new PaymentSourceInvoice
-                    {
-                        Name = new NameMessage
-                        {
-                            GivenName = customer.BillingAddress.FirstName,
-                            SurName = customer.BillingAddress.LastName
-                        },
-                        Email = customer.BillingAddress.Email,
-                        BirthDate = birthDate,
-                        Phone = new PhoneMessage
-                        {
-                            NationalNumber = phoneNumber,
-                            CountryCode = customer.BillingAddress.Country.DiallingCode.ToString()
-                        },
-                        BillingAddress = new BillingAddressMessage
-                        {
-                            AddressLine1 = customer.BillingAddress.Address1,
-                            AdminArea2 = customer.BillingAddress.City,
-                            PostalCode = customer.BillingAddress.ZipPostalCode,
-                            CountryCode = customer.BillingAddress.Country.TwoLetterIsoCode
-                        },
-                        ExperienceContext = new ExperienceContext
-                        {
-                            BrandName = store.Name,
-                            Locale = language.LanguageCulture,
-                            LogoUrl = logoUrl,
-                            CustomerServiceInstructions = new string[]
-                            {
-                                settings.CustomerServiceInstructions
-                            }
-                        }
-                    }
-                }
-            };
-
-            var ordersGetRequest = new OrderCreateRequest()
-                .WithRequestId(Guid.NewGuid().ToString())
-                .WithClientMetadataId(clientMetaId.ToString())
-                .WithBody(orderMessage);
-
-            var response = await ExecuteRequestAsync(ordersGetRequest, cancelToken);
-            var rawResponse = response.Body<object>().ToString();
-
-            dynamic jResponse = JObject.Parse(rawResponse);
-
-            return response;
+            return purchaseUnits;
         }
 
         /// <summary>
-        /// Authorizes an order.
+        /// Updates an order.
         /// </summary>
         public virtual async Task<PayPalResponse> UpdateOrderAsync(ProcessPaymentRequest request, ProcessPaymentResult result, CancellationToken cancelToken = default)
         {
             Guard.NotNull(request, nameof(request));
 
             var ordersPatchRequest = new OrdersPatchRequest<object>(request.PayPalOrderId);
-
-            var amount = new AmountWithBreakdown
-            {
-                Value = request.OrderTotal.ToString("0.00", CultureInfo.InvariantCulture),
-                CurrencyCode = _currencyService.PrimaryCurrency.CurrencyCode
-            };
+            var cart = await _shoppingCartService.GetCartAsync(_workContext.CurrentCustomer, ShoppingCartType.ShoppingCart, request.StoreId);
+            var purchaseUnits = await GetPurchaseUnitsAsync(cart, request, _workContext.CurrentCustomer, _workContext.WorkingCurrency);
+            purchaseUnits[0].ReferenceId = request.OrderGuid.ToString();
 
             var patches = new List<Patch<object>>
             {
                 new Patch<object>
                 {
                     Op = "replace",
-                    Path = "/purchase_units/@reference_id=='default'/amount",
-                    Value = amount
-                },
-                new Patch<object>
-                {
-                    Op = "add",
-                    Path = "/purchase_units/@reference_id=='default'/custom_id",
-                    Value = request.OrderGuid
+                    Path = "/purchase_units/@reference_id=='default'",
+                    Value = purchaseUnits[0]
                 }
+                //},
+                //new Patch<object>
+                //{
+                //    Op = "replace",
+                //    Path = "/application_context/shipping_preference",
+                //    Value = request.IsShippingMethodSet ? ShippingPreference.SetProvidedAddress : ShippingPreference.NoShipping
+                //}
             };
 
             ordersPatchRequest.WithBody(patches);
