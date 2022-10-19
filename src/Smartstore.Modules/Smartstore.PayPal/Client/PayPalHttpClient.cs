@@ -183,20 +183,21 @@ namespace Smartstore.PayPal.Client
                         }
                     }
                 },
-                ApplicationContext = new ApplicationContext
+                AppContext = new Messages.AppContext
                 {
                     ShippingPreference = cart.IsShippingRequired() ? ShippingPreference.SetProvidedAddress : ShippingPreference.NoShipping
                 }
             };
 
-            var ordersGetRequest = new OrderCreateRequest()
+            var orderCreateRequest = new OrderCreateRequest()
                 .WithRequestId(Guid.NewGuid().ToString())
                 .WithClientMetadataId(clientMetaId.ToString())
                 .WithBody(orderMessage);
 
-            var response = await ExecuteRequestAsync(ordersGetRequest, cancelToken);
+            var response = await ExecuteRequestAsync(orderCreateRequest, cancelToken);
             var rawResponse = response.Body<object>().ToString();
 
+            // TODO: (mh) (core) What is this line for?
             dynamic jResponse = JObject.Parse(rawResponse);
 
             return response;
