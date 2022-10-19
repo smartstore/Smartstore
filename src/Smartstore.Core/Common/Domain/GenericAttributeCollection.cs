@@ -18,6 +18,7 @@ namespace Smartstore.Core.Common
             Guard.NotNull(innerCollection, nameof(innerCollection));
 
             _innerCollection = innerCollection;
+            IsReadOnly = innerCollection.IsReadOnly;
         }
 
         public override string EntityName => _innerCollection.EntityName;
@@ -50,6 +51,7 @@ namespace Smartstore.Core.Common
             Guard.NotNull(query, nameof(query));
             Guard.NotEmpty(entityName, nameof(entityName));
 
+            IsReadOnly = false;
             Query = query;
             DbContext = query.GetDbContext<SmartDbContext>();
             EntityName = entityName;
@@ -72,11 +74,11 @@ namespace Smartstore.Core.Common
         {
             Guard.NotEmpty(entityName, nameof(entityName));
 
-            EntityName = entityName;
             IsReadOnly = true;
+            EntityName = entityName;
         }
 
-        public bool IsReadOnly { get; }
+        public bool IsReadOnly { get; protected set; }
 
         public virtual string EntityName { get; }
         public virtual int EntityId { get; }
