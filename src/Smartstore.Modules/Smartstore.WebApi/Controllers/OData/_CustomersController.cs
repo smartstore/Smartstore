@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.OData;
+using Microsoft.OData.ModelBuilder;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Common;
 using Smartstore.Core.Identity;
@@ -18,13 +19,16 @@ namespace Smartstore.Web.Api.Controllers.OData
             _userManager = userManager;
         }
 
-        //public static void Init(ODataModelBuilder builder)
-        //{
-        //    var set = builder.EntitySet<Customer>("Customers");
+        public static void Init(ODataModelBuilder builder)
+        {
+            var set = builder.EntitySet<Customer>("Customers");
 
-        //    //var action = set.EntityType.Collection.Action(nameof(Post));
-        //    //action.Parameter<string>("Password");//.Required();
-        //}
+            // Does not work either:
+            //set.EntityType.Ignore(x => x.GenericAttributes);
+
+            //var action = set.EntityType.Collection.Action(nameof(Post));
+            //action.Parameter<string>("Password");//.Required();
+        }
 
         [HttpGet, WebApiQueryable]
         [Permission(Permissions.Customer.Read)]
@@ -179,7 +183,6 @@ namespace Smartstore.Web.Api.Controllers.OData
         /// </remarks>
         /// <param name="relatedkey">The Address identifier.</param>
         [HttpPost("Customers({key})/Addresses({relatedkey})")]
-        //[HttpPost("Customers/{key}/Addresses/{relatedkey}")]
         [Permission(Permissions.Customer.EditAddress)]
         [Produces(MediaTypeNames.Application.Json)]
         [ProducesResponseType(typeof(Address), Status200OK)]
@@ -215,7 +218,6 @@ namespace Smartstore.Web.Api.Controllers.OData
         /// </summary>
         /// <param name="relatedkey">The Address identifier. 0 to remove all address assignments.</param>
         [HttpDelete("Customers({key})/Addresses({relatedkey})")]
-        //[HttpDelete("Customers/{key}/Addresses/{relatedkey}")]
         [Permission(Permissions.Customer.EditAddress)]
         [ProducesResponseType(Status204NoContent)]
         public async Task<IActionResult> DeleteAddresses(int key, int relatedkey)
@@ -246,14 +248,41 @@ namespace Smartstore.Web.Api.Controllers.OData
             return NoContent();
         }
 
-        // TODO: (mg) (core) prefer conventions. So think about removing above two custom routes and replacing them by below OData reference endpoints (GetRef|CreateRef|DeleteRef).
-
+        // CreateRef works:
         //[HttpPost]
-        //public IActionResult CreateRefToAddresses([FromODataUri] int key, [FromBody] Uri link)
+        //public async Task<IActionResult> CreateRefToAddresses(int key, [FromBody] Uri link)
         //{
-        //    var relatedKey = GetRelatedKey(link);
-        //    $"CreateRefToAddresses. key:{key} relatedKey:{relatedKey} link:{link}".Dump();
+        //    var relatedKey = GetRelatedKey<int>(link);
 
+        //    var entity = await Entities
+        //        .Include(x => x.Addresses)
+        //        .FindByIdAsync(key);
+
+        //    var address = entity.Addresses.FirstOrDefault(x => x.Id == relatedKey);
+        //    if (address == null)
+        //    {
+        //        // No assignment yet.
+        //        address = await Db.Addresses.FindByIdAsync(relatedKey, false);
+        //        if (address == null)
+        //        {
+        //            return NotFound($"Cannot find Address entity with identifier {relatedKey}.");
+        //        }
+
+        //        entity.Addresses.Add(address);
+        //        await Db.SaveChangesAsync();
+
+        //        return Created(address);
+        //    }
+
+        //    return Ok(address);
+        //}
+
+        // DeleteRef does not work. Method is never found. Looks like a bug in .Net Core 6:
+        // https://stackoverflow.com/questions/73451347/odata-controller-get-and-post-actions-for-many-to-many-entity
+        //[HttpDelete]
+        //public IActionResult DeleteRefToAddresses([FromODataUri] int key, [FromODataUri] string relatedKey)
+        //{
+        //    $"DeleteRefToAddresses. key:{key} relatedKey:{relatedKey}".Dump();
         //    return NoContent();
         //}
 

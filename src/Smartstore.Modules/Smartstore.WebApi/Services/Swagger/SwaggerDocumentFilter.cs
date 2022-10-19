@@ -17,28 +17,41 @@ namespace Smartstore.Web.Api.Swagger
         private static readonly Regex _pathsToIgnore = new(@"[a-z0-9\/](\$count|\{key\})", //(/|\z|\+)
             RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
-        private static readonly Regex _schemasToIgnore = new(@"(Microsoft\.AspNetCore\.OData\.|System\.Collections\.Generic\.KeyValuePair).+",
-            RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        //private static readonly Regex _schemasToIgnore = new(@"(Microsoft\.AspNetCore\.OData\.|System\.Collections\.Generic\.KeyValuePair).+",
+        //    RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
+        private static readonly Type[] _schemaTypesToRemove = new[] { typeof(SingleResult) };
 
         public void Apply(OpenApiDocument swaggerDoc, DocumentFilterContext context)
         {
-            FilterSchemas(context);
-            FilterPaths(swaggerDoc, context);
+            try
+            {
+                FilterSchemas(context);
+                FilterPaths(swaggerDoc, context);
+            }
+            catch (Exception ex)
+            {
+                ex.Dump();
+            }
         }
 
-        // Removes unexpected, unwanted schemas.
+        /// <summary>
+        /// Removes unexpected, unwanted schemas.
+        /// </summary>
         private static void FilterSchemas(DocumentFilterContext context)
         {
-            foreach (var item in context.SchemaRepository.Schemas)
+            foreach (var schema in context.SchemaRepository.Schemas)
             {
-                if (_schemasToIgnore.IsMatch(item.Key))
+                if (_schemaTypesToRemove.Any(type => schema.Key.StartsWithNoCase(type.FullName)))
                 {
-                    context.SchemaRepository.Schemas.Remove(item.Key);
+                    context.SchemaRepository.Schemas.Remove(schema.Key);
                 }
             }
         }
 
-        // Removes duplicate and unusual, unexpected documents.
+        /// <summary>
+        /// Removes duplicate and unusual, unexpected documents.
+        /// </summary>
         private static void FilterPaths(OpenApiDocument swaggerDoc, DocumentFilterContext context)
         {
             var apiDescription = context?.ApiDescriptions?.FirstOrDefault();

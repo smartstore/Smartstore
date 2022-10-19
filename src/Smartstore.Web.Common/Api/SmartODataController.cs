@@ -306,8 +306,9 @@ namespace Smartstore.Web.Api
         #region Utilities
 
         /// <summary>
-        /// From ODataOpenApiExample.
+        /// Gets related keys from an OData Uri.
         /// </summary>
+        /// <returns>Dictionary with key property names and values.</returns>
         //protected IReadOnlyDictionary<string, object> GetRelatedKeys(Uri uri)
         //{
         //    Guard.NotNull(uri, nameof(uri));
@@ -331,8 +332,20 @@ namespace Smartstore.Web.Api
         //    return new Dictionary<string, object>(segment.Keys, StringComparer.OrdinalIgnoreCase);
         //}
 
-        //protected object GetRelatedKey(Uri uri)
-        //    => GetRelatedKeys(uri).Values.SingleOrDefault();
+        /// <summary>
+        /// Gets the related key from an OData Uri.
+        /// </summary>
+        //protected T GetRelatedKey<T>(Uri uri, string key = null)
+        //{
+        //    var keys = GetRelatedKeys(uri);
+
+        //    if (keys.TryGetValue(key ?? "id", out var value))
+        //    {
+        //        return value.Convert<T>();
+        //    }
+
+        //    return default;
+        //}
 
         protected async Task<TEntity> ApplyRelatedEntityIdsAsync(TEntity entity)
         {

@@ -22,7 +22,7 @@ namespace Smartstore.Web.Api
             builder.EntitySet<Currency>("Currencies");
             builder.EntitySet<CustomerRoleMapping>("CustomerRoleMappings");
             builder.EntitySet<CustomerRole>("CustomerRoles");
-            builder.EntitySet<Customer>("Customers");
+            CustomersController.Init(builder);
             DeliveryTimesController.Init(builder);
             builder.EntitySet<Discount>("Discounts");
             builder.EntitySet<Download>("Downloads");
@@ -31,8 +31,10 @@ namespace Smartstore.Web.Api
             builder.EntitySet<LocalizedProperty>("LocalizedProperties");
             builder.EntitySet<Manufacturer>("Manufacturers");
             builder.EntitySet<MeasureDimension>("MeasureDimensions");
+            builder.EntitySet<MeasureWeight>("MeasureWeights");
+            MediaFilesController.Init(builder);
 
-            builder.EntitySet<MediaFile>("MediaFiles");
+
             builder.EntitySet<StateProvince>("StateProvinces");
         }
 

@@ -12,6 +12,8 @@ Example: old `/Categories(14)/Name`, new `/Categories(14)?$select=Name`.
 - For PUT and PATCH requests, the HTTP header **Prefer** with the value **return=representation** must be sent to get a 
 status code 200 with entity content response. This is the default behavior of ASP.NET Core OData 8.0. Otherwise 204 "No Content" is returned.
 
+- **GET /MediaFiles** returns type FileItemInfo instead of MediaFile which wraps and enriches MediaFile.
+
 - The prefix of response headers changed from **SmartStore-Net-Api-** to **Smartstore-Api-**. More changes:
 <table>
     <tr>

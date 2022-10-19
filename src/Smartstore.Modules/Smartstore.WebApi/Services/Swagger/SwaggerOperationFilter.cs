@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.OData.Query;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.OpenApi.Models;
 using Smartstore.Web.Api.Security;
 using Swashbuckle.AspNetCore.SwaggerGen;
@@ -15,6 +14,7 @@ namespace Smartstore.Web.Api.Swagger
     internal class SwaggerOperationFilter : IOperationFilter
     {
         private static readonly string[] _knownMethodNames = new[] { "Get", "Post", "Put", "Patch", "Delete" };
+        private static readonly Type[] _parameterTypesToRemove = new[] { typeof(ODataQueryOptions) };
 
         private static readonly AllowedQueryOptions[] _supportedQueryOptions = new[]
         {
@@ -40,14 +40,26 @@ namespace Smartstore.Web.Api.Swagger
                 if (context.MethodInfo.DeclaringType.BaseType.IsClosedGenericTypeOf(typeof(SmartODataController<>)))
                 {
                     var helper = new SwaggerOperationHelper(operation, context);
-                    
+
                     AddDocumentation(helper);
                     AddQueryParameters(helper);
+                    RemoveParameters(helper);
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                ex.Dump();
             }
+        }
+
+        protected virtual void RemoveParameters(SwaggerOperationHelper helper)
+        {
+            helper.Op.Parameters.Remove(param =>
+            {
+                var refId = param?.Schema?.Reference?.Id;
+
+                return refId != null && _parameterTypesToRemove.Any(type => refId.StartsWithNoCase(type.FullName));
+            });
         }
 
         /// <summary>
@@ -94,20 +106,26 @@ namespace Smartstore.Web.Api.Swagger
 
             var entityName = PrefixArticle(helper.EntityType.Name);
 
+            //if (helper.EntityType.Name == "FileItemInfo")
+            //{
+            //    helper.EntityType.Name.Dump();
+            //    helper.Op.Parameters.Where(x => x.Schema)
+            //}
+
             switch (helper.ActionName)
             {
                 case "Get":
-                    if (isQueryResult)
-                    {
-                        helper.Op.Summary ??= $"Gets {entityName} list.";
-                        helper.Op.Responses[Status200OK.ToString()] = helper.CreateSucccessResponse(false);
-                    }
-                    else
+                    if (helper.ActionDescriptor.Parameters.Any(x => x.Name.EqualsNoCase("key")))
                     {
                         helper.Op.Summary ??= $"Gets {entityName} by identifier.";
                         helper.Op.Responses[Status200OK.ToString()] = helper.CreateSucccessResponse(true);
                         helper.Op.Responses[Status404NotFound.ToString()] = CreateNotFoundResponse();
                         helper.AddKeyParameter();
+                    }
+                    else
+                    {
+                        helper.Op.Summary ??= $"Gets {entityName} list.";
+                        helper.Op.Responses[Status200OK.ToString()] = helper.CreateSucccessResponse(false);
                     }
                     break;
 
