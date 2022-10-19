@@ -61,6 +61,12 @@ namespace Smartstore.Core.Data.Migrations
                 "Admin.Catalog.BulkEdit.List.SearchManufacturer.Hint",
                 "Admin.Catalog.BulkEdit.List.SearchProductName",
                 "Admin.Catalog.BulkEdit.List.SearchProductName.Hint");
+
+            builder.AddOrUpdate("Admin.Catalog.BulkEdit.Fields.OldPrice",
+                "Compare price",
+                "Vergleichspreis",
+                "Sets a comparison price, e.g.: MSRP, list price, regular price before discount, etc. The comparison price serves as the strike price.",
+                "Legt einen Vergleichspreis fest, z.B.: UVP, Listenpreis, regulärer Preis vor einer Ermäßigung etc. Der Vergleichspreis dienst als Streichpreis.");
         }
     }
 }
