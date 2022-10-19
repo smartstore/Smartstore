@@ -44,6 +44,23 @@ namespace Smartstore.Core.Data.Migrations
                 "Admin.Catalog.Products.BackToList",
                 "Admin.Catalog.Attributes.CheckoutAttributes.BackToList",
                 "Admin.Affiliates.BackToList");
+
+            builder.Delete(
+                "Admin.Catalog.BulkEdit",
+                "Admin.Catalog.BulkEdit.Fields.ManageInventoryMethod",
+                "Admin.Catalog.BulkEdit.Fields.Name",
+                "Admin.Catalog.BulkEdit.Fields.OldPrice",
+                "Admin.Catalog.BulkEdit.Fields.Price",
+                "Admin.Catalog.BulkEdit.Fields.Published",
+                "Admin.Catalog.BulkEdit.Fields.SKU",
+                "Admin.Catalog.BulkEdit.Fields.StockQuantity",
+                "Admin.Catalog.BulkEdit.Info",
+                "Admin.Catalog.BulkEdit.List.SearchCategory",
+                "Admin.Catalog.BulkEdit.List.SearchCategory.Hint",
+                "Admin.Catalog.BulkEdit.List.SearchManufacturer",
+                "Admin.Catalog.BulkEdit.List.SearchManufacturer.Hint",
+                "Admin.Catalog.BulkEdit.List.SearchProductName",
+                "Admin.Catalog.BulkEdit.List.SearchProductName.Hint");
         }
     }
 }
