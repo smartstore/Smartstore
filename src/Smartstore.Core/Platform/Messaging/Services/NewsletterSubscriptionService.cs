@@ -111,7 +111,7 @@ namespace Smartstore.Core.Messaging
             if (entity.StoreId == 0)
             {
                 entry.State = Smartstore.Data.EntityState.Detached;
-                throw new SmartException("Newsletter subscription must be assigned to a valid store.");
+                throw new InvalidOperationException("Newsletter subscription must be assigned to a valid store.");
             }
 
             // Format and validate mail address.
@@ -120,7 +120,7 @@ namespace Smartstore.Core.Messaging
             if (!email.IsEmail())
             {
                 entry.State = Smartstore.Data.EntityState.Detached;
-                throw new SmartException("Newsletter subscription must be assigned to a valid email address.");
+                throw new InvalidOperationException("Newsletter subscription must be assigned to a valid email address.");
             }
 
             entity.Email = email;

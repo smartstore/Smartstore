@@ -147,7 +147,7 @@ namespace Smartstore.Core.Identity
 
             if (user.IsSystemAccount)
             {
-                throw new SmartException($"System customer account ({user.SystemName}) cannot be deleted.");
+                throw new InvalidOperationException($"System customer account ({user.SystemName}) cannot be deleted.");
             }
 
             _db.Value.Remove(user);

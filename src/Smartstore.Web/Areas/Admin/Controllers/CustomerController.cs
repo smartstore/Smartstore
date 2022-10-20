@@ -918,10 +918,10 @@ namespace Smartstore.Admin.Controllers
             {
                 if (!customer.Email.HasValue() || !customer.Email.IsEmail())
                 {
-                    throw new SmartException(T("Admin.Customers.Customers.SendEmail.EmailNotValid"));
+                    throw new InvalidOperationException(T("Admin.Customers.Customers.SendEmail.EmailNotValid"));
                 }
 
-                var emailAccount = _emailAccountService.Value.GetDefaultEmailAccount() ?? throw new SmartException(T("Common.Error.NoEmailAccount"));
+                var emailAccount = _emailAccountService.Value.GetDefaultEmailAccount() ?? throw new Exception(T("Common.Error.NoEmailAccount"));
                 var messageContext = MessageContext.Create("System.Generic", Convert.ToInt32(customer.GenericAttributes.LanguageId));
 
                 var customModel = new NamedModelPart("Generic")

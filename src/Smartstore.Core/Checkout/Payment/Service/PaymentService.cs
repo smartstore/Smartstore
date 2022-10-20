@@ -148,7 +148,7 @@ namespace Smartstore.Core.Checkout.Payment
 
                 if (DataSettings.DatabaseIsInstalled())
                 {
-                    throw new SmartException(T("Payment.OneActiveMethodProviderRequired"));
+                    throw new InvalidOperationException(T("Payment.OneActiveMethodProviderRequired"));
                 }
             }
 
@@ -174,6 +174,12 @@ namespace Smartstore.Core.Checkout.Payment
             }
 
             return provider;
+        }
+
+        private async Task<Provider<IPaymentMethod>> LoadMethodOrThrowAsync(string systemName)
+        {
+            var paymentMethod = await LoadPaymentMethodBySystemNameAsync(systemName);
+            return paymentMethod ?? throw new InvalidOperationException(T("Payment.CouldNotLoadMethod"));
         }
 
         public virtual async Task<IEnumerable<Provider<IPaymentMethod>>> LoadAllPaymentMethodsAsync(int storeId = 0)
@@ -214,10 +220,7 @@ namespace Smartstore.Core.Checkout.Payment
             if (processPaymentRequest.OrderTotal == decimal.Zero)
                 return new();
 
-            var paymentMethod = await LoadPaymentMethodBySystemNameAsync(processPaymentRequest.PaymentMethodSystemName);
-            if (paymentMethod == null)
-                throw new SmartException(T("Payment.CouldNotLoadMethod"));
-
+            var paymentMethod = await LoadMethodOrThrowAsync(processPaymentRequest.PaymentMethodSystemName);
             return await paymentMethod.Value.PreProcessPaymentAsync(processPaymentRequest);
         }
 
@@ -238,10 +241,7 @@ namespace Smartstore.Core.Checkout.Payment
                 processPaymentRequest.CreditCardNumber = processPaymentRequest.CreditCardNumber.Replace("-", "");
             }
 
-            var paymentMethod = await LoadPaymentMethodBySystemNameAsync(processPaymentRequest.PaymentMethodSystemName);
-            if (paymentMethod == null)
-                throw new SmartException(T("Payment.CouldNotLoadMethod"));
-
+            var paymentMethod = await LoadMethodOrThrowAsync(processPaymentRequest.PaymentMethodSystemName);
             return await paymentMethod.Value.ProcessPaymentAsync(processPaymentRequest);
         }
 
@@ -252,10 +252,7 @@ namespace Smartstore.Core.Checkout.Payment
             if (order.PaymentMethodSystemName.IsEmpty() || order.OrderTotal == decimal.Zero)
                 return;
 
-            var paymentMethod = await LoadPaymentMethodBySystemNameAsync(order.PaymentMethodSystemName);
-            if (paymentMethod == null)
-                throw new SmartException(T("Payment.CouldNotLoadMethod"));
-
+            var paymentMethod = await LoadMethodOrThrowAsync(order.PaymentMethodSystemName);
             await paymentMethod.Value.PostProcessPaymentAsync(postProcessPaymentRequest);
         }
 
@@ -291,9 +288,7 @@ namespace Smartstore.Core.Checkout.Payment
 
         public virtual async Task<CapturePaymentResult> CaptureAsync(CapturePaymentRequest capturePaymentRequest)
         {
-            var paymentMethod = await LoadPaymentMethodBySystemNameAsync(capturePaymentRequest.Order.PaymentMethodSystemName);
-            if (paymentMethod == null)
-                throw new SmartException(T("Payment.CouldNotLoadMethod"));
+            var paymentMethod = await LoadMethodOrThrowAsync(capturePaymentRequest.Order.PaymentMethodSystemName);
 
             try
             {
@@ -313,9 +308,7 @@ namespace Smartstore.Core.Checkout.Payment
 
         public virtual async Task<RefundPaymentResult> RefundAsync(RefundPaymentRequest refundPaymentRequest)
         {
-            var paymentMethod = await LoadPaymentMethodBySystemNameAsync(refundPaymentRequest.Order.PaymentMethodSystemName);
-            if (paymentMethod == null)
-                throw new SmartException(T("Payment.CouldNotLoadMethod"));
+            var paymentMethod = await LoadMethodOrThrowAsync(refundPaymentRequest.Order.PaymentMethodSystemName);
 
             try
             {
@@ -335,9 +328,7 @@ namespace Smartstore.Core.Checkout.Payment
 
         public virtual async Task<VoidPaymentResult> VoidAsync(VoidPaymentRequest voidPaymentRequest)
         {
-            var paymentMethod = await LoadPaymentMethodBySystemNameAsync(voidPaymentRequest.Order.PaymentMethodSystemName);
-            if (paymentMethod == null)
-                throw new SmartException(T("Payment.CouldNotLoadMethod"));
+            var paymentMethod = await LoadMethodOrThrowAsync(voidPaymentRequest.Order.PaymentMethodSystemName);
 
             try
             {
@@ -365,9 +356,7 @@ namespace Smartstore.Core.Checkout.Payment
                 };
             }
 
-            var paymentMethod = await LoadPaymentMethodBySystemNameAsync(processPaymentRequest.PaymentMethodSystemName);
-            if (paymentMethod == null)
-                throw new SmartException(T("Payment.CouldNotLoadMethod"));
+            var paymentMethod = await LoadMethodOrThrowAsync(processPaymentRequest.PaymentMethodSystemName);
 
             try
             {
@@ -434,7 +423,7 @@ namespace Smartstore.Core.Checkout.Payment
                     RecurringProductCyclePeriod.Weeks => startDate.AddDays((double)(7 * cycleLength) * historyCount),
                     RecurringProductCyclePeriod.Months => startDate.AddMonths(cycleLength * historyCount),
                     RecurringProductCyclePeriod.Years => startDate.AddYears(cycleLength * historyCount),
-                    _ => throw new SmartException("Not supported cycle period"),
+                    _ => throw new Exception("Not supported cycle period"),
                 };
             }
             else if (recurringPayment.TotalCycles > 0)
@@ -459,9 +448,7 @@ namespace Smartstore.Core.Checkout.Payment
             if (cancelPaymentRequest.Order.OrderTotal == decimal.Zero)
                 return new CancelRecurringPaymentResult();
 
-            var paymentMethod = await LoadPaymentMethodBySystemNameAsync(cancelPaymentRequest.Order.PaymentMethodSystemName);
-            if (paymentMethod == null)
-                throw new SmartException(T("Payment.CouldNotLoadMethod"));
+            var paymentMethod = await LoadMethodOrThrowAsync(cancelPaymentRequest.Order.PaymentMethodSystemName);
 
             try
             {

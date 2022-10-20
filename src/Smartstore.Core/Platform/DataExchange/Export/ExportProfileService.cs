@@ -380,7 +380,7 @@ namespace Smartstore.Core.DataExchange.Export
 
             if (!force && profile.IsSystemProfile)
             {
-                throw new SmartException(T("Admin.DataExchange.Export.CannotDeleteSystemProfile"));
+                throw new InvalidOperationException(T("Admin.DataExchange.Export.CannotDeleteSystemProfile"));
             }
 
             await _db.LoadCollectionAsync(profile, x => x.Deployments);

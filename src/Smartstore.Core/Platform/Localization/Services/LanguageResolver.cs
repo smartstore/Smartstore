@@ -58,7 +58,7 @@ namespace Smartstore.Core.Localization
                 // 3: Get default fallback language
                 await GetDefaultLanguage(customerLangId, storeId, async) ??
                 // Should never happen
-                throw new SmartException("At least one language must be active!");
+                throw new InvalidOperationException("At least one language must be active!");
         }
 
         protected virtual async Task<Language> ResolveFromRoute(HttpContext httpContext, int storeId, bool async)

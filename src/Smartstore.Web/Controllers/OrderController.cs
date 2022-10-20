@@ -274,7 +274,7 @@ namespace Smartstore.Web.Controllers
             var order = shipment.Order;
             if (order == null)
             {
-                throw new SmartException(T("Order.NotFound", shipment.OrderId));
+                throw new Exception(T("Order.NotFound", shipment.OrderId));
             }
 
             var currentStore = Services.StoreContext.CurrentStore;

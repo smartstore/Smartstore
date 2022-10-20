@@ -5,7 +5,7 @@ namespace Smartstore.Core.Installation
     /// <summary>
     /// Thrown when application is installed already or is currently running (hast started but not completed yet).
     /// </summary>
-    public class InstallationException : SmartException
+    public class InstallationException : Exception
     {
         public InstallationException(string message, InstallationResult result)
             : base(message)

@@ -248,7 +248,7 @@ namespace Smartstore.Core.DataExchange.Import
                         {
                             if (!allEntityTypes.TryGetValue(importType.ToString(), out var efType) || efType == null)
                             {
-                                throw new SmartException($"There is no entity set for ImportEntityType {importType}. Note, the enum value must equal the entity name.");
+                                throw new InvalidOperationException($"There is no entity set for ImportEntityType {importType}. Note, the enum value must equal the entity name.");
                             }
 
                             var names = efType.GetProperties()

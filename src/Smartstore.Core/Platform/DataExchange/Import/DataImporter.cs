@@ -1,4 +1,5 @@
-﻿using Autofac;
+﻿using System.Security;
+using Autofac;
 using Smartstore.Collections;
 using Smartstore.Core.Common.Settings;
 using Smartstore.Core.DataExchange.Csv;
@@ -69,7 +70,7 @@ namespace Smartstore.Core.DataExchange.Import
             {
                 if (!request.HasPermission && !await HasPermission())
                 {
-                    throw new SmartException("You do not have permission to perform the selected import.");
+                    throw new SecurityException("You do not have permission to perform the selected import.");
                 }
 
                 var context = ctx.ExecuteContext;
@@ -89,7 +90,7 @@ namespace Smartstore.Core.DataExchange.Import
                             break;
 
                         if (!file.File.Exists)
-                            throw new SmartException($"File does not exist {file.File.SubPath}.");
+                            throw new FileNotFoundException($"File does not exist {file.File.SubPath}.");
 
                         try
                         {

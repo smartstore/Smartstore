@@ -31,7 +31,7 @@ namespace Smartstore.Core.Identity
 
             if (registeredRole == null)
             {
-                throw new SmartException(T("Admin.Customers.CustomerRoles.CannotFoundRole", "Registered"));
+                throw new InvalidOperationException(T("Admin.Customers.CustomerRoles.CannotFoundRole", "Registered"));
             }
 
             if (user.IsSearchEngineAccount())

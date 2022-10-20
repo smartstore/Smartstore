@@ -85,7 +85,7 @@ namespace Smartstore.Data.Providers
 
                 if (assemblyName.IsEmpty())
                 {
-                    throw new SmartException($"Unknown database provider type name '${provider}'.");
+                    throw new NotSupportedException($"Unknown database provider type name '${provider}'.");
                 }
 
                 var binPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
@@ -95,7 +95,7 @@ namespace Smartstore.Data.Providers
                 var dbFactoryType = typeScanner.FindTypes<DbFactory>(new[] { assembly }).FirstOrDefault();
                 if (dbFactoryType == null)
                 {
-                    throw new SmartException($"The data provider assembly '${assemblyName}' does not contain any concrete '${typeof(DbFactory)}' implementation.");
+                    throw new SystemException($"The data provider assembly '${assemblyName}' does not contain any concrete '${typeof(DbFactory)}' implementation.");
                 }
 
                 return (DbFactory)Activator.CreateInstance(dbFactoryType);

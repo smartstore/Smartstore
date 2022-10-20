@@ -14,7 +14,7 @@
                     {
                         if (!converterType.HasDefaultConstructor())
                         {
-                            throw new SmartException("A type converter specified by attribute must have a default parameterless constructor.");
+                            throw new InvalidOperationException("A type converter specified by attribute must have a default parameterless constructor.");
                         }
 
                         return (ITypeConverter)Activator.CreateInstance(converterType);

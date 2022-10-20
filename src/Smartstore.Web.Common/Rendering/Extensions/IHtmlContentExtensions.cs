@@ -96,7 +96,7 @@ namespace Smartstore.Web.Rendering
             {
                 if (!char.IsWhiteSpace(value))
                 {
-                    throw new SmartException();
+                    throw new Exception();
                 }
             }
 
@@ -104,7 +104,7 @@ namespace Smartstore.Web.Rendering
             {
                 if (!string.IsNullOrWhiteSpace(value))
                 {
-                    throw new SmartException();
+                    throw new Exception();
                 }
             }
         }

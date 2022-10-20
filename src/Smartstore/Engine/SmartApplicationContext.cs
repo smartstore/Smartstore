@@ -180,7 +180,7 @@ namespace Smartstore.Engine
         private void CheckFreezed()
         {
             if (_freezed)
-                throw new SmartException("Operation invalid after application has been bootstrapped completely.");
+                throw new InvalidOperationException("Operation invalid after application has been bootstrapped completely.");
         }
     }
 }

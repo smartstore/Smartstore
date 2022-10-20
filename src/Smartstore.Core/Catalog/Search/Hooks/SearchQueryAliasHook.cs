@@ -224,7 +224,7 @@ namespace Smartstore.Core.Catalog.Search
                 var message = new string(_errorMessage);
                 _errorMessage = null;
 
-                throw new SmartException(message);
+                throw new HookException(message);
             }
 
             return Task.CompletedTask;

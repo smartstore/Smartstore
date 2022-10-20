@@ -158,7 +158,7 @@ namespace Smartstore.Core.Messaging
 
             if (messageTemplate == null)
             {
-                throw new SmartException(T("Common.Error.NoMessageTemplate", MessageTemplateNames.SystemCampaign));
+                throw new InvalidOperationException(T("Common.Error.NoMessageTemplate", MessageTemplateNames.SystemCampaign));
             }
 
             return messageTemplate;

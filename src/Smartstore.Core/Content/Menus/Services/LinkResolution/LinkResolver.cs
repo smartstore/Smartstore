@@ -148,7 +148,7 @@ namespace Smartstore.Core.Content.Menus
 
                 if (result == null)
                 {
-                    throw new SmartException($"Unknown schema or invalid link expression '{expression.RawExpression}'.");
+                    throw new InvalidOperationException($"Unknown schema or invalid link expression '{expression.RawExpression}'.");
                 }
 
                 if (result.Link == null && result.EntitySummary != null)

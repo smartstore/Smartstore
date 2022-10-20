@@ -91,7 +91,7 @@ namespace Smartstore.Engine.Modularity
                     msg += item.Item2.ToAllMessages();
                 }
 
-                throw new SmartException(msg, exceptions[0].Item2);
+                throw new Exception(msg, exceptions[0].Item2);
             }
         }
 

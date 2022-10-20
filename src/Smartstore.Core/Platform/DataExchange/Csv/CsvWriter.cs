@@ -143,7 +143,7 @@
 
             if (fields.Length == 0)
             {
-                throw new SmartException("Cannot write an empty row to the CSV file.");
+                throw new InvalidOperationException("Cannot write an empty row to the CSV file.");
             }
 
             if (!_fieldCount.HasValue)
@@ -153,7 +153,7 @@
 
             if (_fieldCount.Value != fields.Length)
             {
-                throw new SmartException("The field count of the current row does not match the previous row's field count.");
+                throw new InvalidOperationException("The field count of the current row does not match the previous row's field count.");
             }
 
             var row = string.Join(Configuration.Delimiter.ToString(), fields);

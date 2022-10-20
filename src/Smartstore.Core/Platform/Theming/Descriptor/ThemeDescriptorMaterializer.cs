@@ -53,13 +53,13 @@ namespace Smartstore.Core.Theming
                 string id = xel.GetAttribute("id").ToSafe();
                 if (id.IsEmpty() || selects.ContainsKey(id))
                 {
-                    throw new SmartException("A 'Select' element must contain a unique id. Affected: '{0}' - element: {1}", _descriptor.PhysicalPath, xel.OuterXml);
+                    throw new InvalidOperationException($"A 'Select' element must contain a unique id. Affected: '{_descriptor.PhysicalPath}' - element: {xel.OuterXml}");
                 }
 
                 var xndOptions = xel.SelectNodes(@"Option").Cast<XmlElement>();
                 if (!xndOptions.Any())
                 {
-                    throw new SmartException("A 'Select' element must contain at least one 'Option' child element. Affected: '{0}' - element: {1}", _descriptor.PhysicalPath, xel.OuterXml);
+                    throw new InvalidOperationException($"A 'Select' element must contain at least one 'Option' child element. Affected: '{_descriptor.PhysicalPath}' - element: {xel.OuterXml}");
                 }
 
                 foreach (var xelOption in xndOptions)
@@ -67,7 +67,7 @@ namespace Smartstore.Core.Theming
                     string option = xelOption.InnerText;
                     if (option.IsEmpty())
                     {
-                        throw new SmartException("A select option cannot be empty. Affected: '{0}' - element: {1}", _descriptor.PhysicalPath, xel.OuterXml);
+                        throw new InvalidOperationException($"A select option cannot be empty. Affected: '{_descriptor.PhysicalPath}' - element: {xel.OuterXml}");
                     }
 
                     selects.Add(id, option);
@@ -91,7 +91,7 @@ namespace Smartstore.Core.Theming
                 {
                     if (vars.ContainsKey(info.Name))
                     {
-                        throw new SmartException("Duplicate variable name '{0}' in '{1}'. Variable names must be unique.", info.Name, _descriptor.PhysicalPath);
+                        throw new InvalidOperationException($"Duplicate variable name '{info.Name}' in '{_descriptor.PhysicalPath}'. Variable names must be unique.");
                     }
                     vars.Add(info.Name, info);
                 }
@@ -107,7 +107,7 @@ namespace Smartstore.Core.Theming
 
             if (name.IsEmpty())
             {
-                throw new SmartException("The name attribute is required for the 'Var' element. Affected: '{0}' - element: {1}", _descriptor.PhysicalPath, xel.OuterXml);
+                throw new InvalidOperationException($"The name attribute is required for the 'Var' element. Affected: '{_descriptor.PhysicalPath}' - element: {xel.OuterXml}");
             }
 
             string type = xel.GetAttribute("type").ToSafe("String");
@@ -116,7 +116,7 @@ namespace Smartstore.Core.Theming
 
             if (varType != ThemeVariableType.String && value.IsEmpty())
             {
-                throw new SmartException("A value is required for non-string 'Var' elements. Affected: '{0}' - element: {1}", _descriptor.PhysicalPath, xel.OuterXml);
+                throw new InvalidOperationException($"A value is required for non-string 'Var' elements. Affected: '{_descriptor.PhysicalPath}' - element: {xel.OuterXml}");
             }
 
             var info = new ThemeVariableInfo
@@ -141,7 +141,8 @@ namespace Smartstore.Core.Theming
                 var arr = type.Split(new char[] { '#' });
                 if (arr.Length < 1 || arr[1].IsEmpty())
                 {
-                    throw new SmartException("The 'id' of a select element must be provided (pattern: Select#MySelect). Affected: '{0}' - element: {1}", _descriptor.PhysicalPath, affected.OuterXml);
+                    throw new InvalidOperationException(
+                        $"The 'id' of a select element must be provided (pattern: Select#MySelect). Affected: '{_descriptor.PhysicalPath}' - element: {affected.OuterXml}");
                 }
 
                 selectRef = arr[1];

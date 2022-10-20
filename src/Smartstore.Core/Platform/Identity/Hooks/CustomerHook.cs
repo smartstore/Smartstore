@@ -69,7 +69,7 @@ namespace Smartstore.Core.Identity
                 var message = new string(_hookErrorMessage);
                 _hookErrorMessage = null;
 
-                throw new SmartException(message);
+                throw new HookException(message);
             }
 
             return Task.CompletedTask;

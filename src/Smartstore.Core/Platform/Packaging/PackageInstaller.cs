@@ -37,7 +37,7 @@ namespace Smartstore.Core.Packaging
             {
                 archive?.Dispose();
                 Logger.Error(T("Admin.Packaging.StreamError"), ex);
-                throw new SmartException(T("Admin.Packaging.StreamError"), ex);
+                throw new IOException(T("Admin.Packaging.StreamError"), ex);
             }
 
             using (archive)
@@ -53,7 +53,7 @@ namespace Smartstore.Core.Packaging
             {
                 var msg = T("Admin.Packaging.IsIncompatible", SmartstoreVersion.CurrentFullVersion);
                 Logger.Error(msg);
-                throw new SmartException(msg);
+                throw new InvalidOperationException(msg);
             }
 
             IExtensionDescriptor installedExtension;
@@ -67,7 +67,7 @@ namespace Smartstore.Core.Packaging
             catch (Exception ex)
             {
                 Logger.Error(T("Admin.Packaging.BackupError"), ex);
-                throw new SmartException(T("Admin.Packaging.BackupError"), ex);
+                throw new IOException(T("Admin.Packaging.BackupError"), ex);
             }
 
             if (installedExtension != null && package.Descriptor.Version != installedExtension.Version)
@@ -80,7 +80,7 @@ namespace Smartstore.Core.Packaging
                 catch (Exception ex)
                 {
                     Logger.Error(T("Admin.Packaging.UninstallError"), ex);
-                    throw new SmartException(T("Admin.Packaging.UninstallError"), ex);
+                    throw new Exception(T("Admin.Packaging.UninstallError"), ex);
                 }
             }
 
@@ -141,7 +141,7 @@ namespace Smartstore.Core.Packaging
 
             if (!dir.Exists)
             {
-                throw new SmartException(T("Admin.Packaging.NotFound", path));
+                throw new IOException(T("Admin.Packaging.NotFound", path));
             }
 
             // TODO: (core) The descriptor should also be removed from ThemeRegistry or ModuleCatalog (but how?)
@@ -196,7 +196,7 @@ namespace Smartstore.Core.Packaging
 
                 if (uniqueDirName == null)
                 {
-                    throw new SmartException(T("Admin.Packaging.TooManyBackups", PathUtility.Join(backupRoot, path)));
+                    throw new InvalidOperationException(T("Admin.Packaging.TooManyBackups", PathUtility.Join(backupRoot, path)));
                 }
 
                 uniqueDirName = PathUtility.Join(backupRoot, uniqueDirName);

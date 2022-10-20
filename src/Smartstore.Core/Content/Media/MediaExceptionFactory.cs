@@ -5,17 +5,17 @@ namespace Smartstore.Core.Content.Media
 {
     #region Exception classes
 
-    public sealed class MediaFileNotFoundException : SmartException
+    public sealed class MediaFileNotFoundException : FileNotFoundException
     {
         public MediaFileNotFoundException(string message) : base(message) { }
     }
 
-    public sealed class MediaFolderNotFoundException : SmartException
+    public sealed class MediaFolderNotFoundException : DirectoryNotFoundException
     {
         public MediaFolderNotFoundException(string message) : base(message) { }
     }
 
-    public sealed class DuplicateMediaFileException : SmartException
+    public sealed class DuplicateMediaFileException : Exception
     {
         public DuplicateMediaFileException(string message, MediaFileInfo dupeFile, string uniquePath) : base(message)
         {
@@ -27,7 +27,7 @@ namespace Smartstore.Core.Content.Media
         public string UniquePath { get; }
     }
 
-    public sealed class DuplicateMediaFolderException : SmartException
+    public sealed class DuplicateMediaFolderException : Exception
     {
         public DuplicateMediaFolderException(string message, MediaFolderNode dupeFolder) : base(message)
         {
@@ -37,28 +37,28 @@ namespace Smartstore.Core.Content.Media
         public MediaFolderNode Folder { get; }
     }
 
-    public sealed class NotSameAlbumException : SmartException
+    public sealed class NotSameAlbumException : Exception
     {
         public NotSameAlbumException(string message) : base(message) { }
     }
 
-    public sealed class DeniedMediaTypeException : SmartException
+    public sealed class DeniedMediaTypeException : Exception
     {
         public DeniedMediaTypeException(string message) : base(message) { }
     }
 
-    public sealed class ExtractThumbnailException : SmartException
+    public sealed class ExtractThumbnailException : Exception
     {
         public ExtractThumbnailException(string message) : base(message) { }
         public ExtractThumbnailException(string message, Exception innerException) : base(message, innerException) { }
     }
 
-    public sealed class MaxMediaFileSizeExceededException : SmartException
+    public sealed class MaxMediaFileSizeExceededException : Exception
     {
         public MaxMediaFileSizeExceededException(string message) : base(message) { }
     }
 
-    public sealed class DeleteTrackedFileException : SmartException
+    public sealed class DeleteTrackedFileException : Exception
     {
         public DeleteTrackedFileException(string message, MediaFile file, Exception innerException) : base(message, innerException)
         {

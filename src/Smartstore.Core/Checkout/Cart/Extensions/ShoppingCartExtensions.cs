@@ -144,7 +144,7 @@ namespace Smartstore.Core.Checkout.Cart
                 var product = cartItem.Item.Product;
                 if (product == null)
                 {
-                    throw new SmartException($"Product with Id={cartItem.Item.ProductId} cannot be loaded.");
+                    throw new InvalidOperationException($"Product with Id={cartItem.Item.ProductId} cannot be loaded.");
                 }
 
                 if (product.IsRecurring)

@@ -64,7 +64,7 @@ namespace Smartstore.Core.Theming
                 using var stream = themeConfigFile.OpenRead();
                 doc.Load(stream);
 
-                Guard.Against<SmartException>(doc.DocumentElement == null, "The theme configuration document must have a root element.");
+                Guard.Against<InvalidOperationException>(doc.DocumentElement == null, "The theme configuration document must have a root element.");
 
                 var rootNode = doc.DocumentElement;
 

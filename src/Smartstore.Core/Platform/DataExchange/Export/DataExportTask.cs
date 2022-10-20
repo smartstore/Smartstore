@@ -35,7 +35,7 @@ namespace Smartstore.Core.DataExchange.Export
             var provider = _providerManager.GetProvider<IExportProvider>(profile.ProviderSystemName);
             if (provider == null)
             {
-                throw new SmartException(T("Admin.Common.ProviderNotLoaded", profile.ProviderSystemName.NaIfEmpty()));
+                throw new InvalidOperationException(T("Admin.Common.ProviderNotLoaded", profile.ProviderSystemName.NaIfEmpty()));
             }
 
             // Create export request.

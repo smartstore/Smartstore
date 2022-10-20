@@ -101,7 +101,7 @@ namespace Smartstore.Core.Identity
 
             if (role.IsSystemRole)
             {
-                throw new SmartException("System roles cannot be deleted");
+                throw new InvalidOperationException("System roles cannot be deleted");
             }
 
             _db.Value.CustomerRoles.Remove(role);

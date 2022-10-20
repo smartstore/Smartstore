@@ -232,7 +232,7 @@ namespace Smartstore.Core.Checkout.Orders
 
             if (!order.CanCancelOrder())
             {
-                throw new SmartException(T("Order.CannotCancel"));
+                throw new InvalidOperationException(T("Order.CannotCancel"));
             }
 
             await SetOrderStatusAsync(order, OrderStatus.Cancelled, notifyCustomer);
@@ -265,7 +265,7 @@ namespace Smartstore.Core.Checkout.Orders
 
             if (!order.CanCompleteOrder())
             {
-                throw new SmartException(T("Order.CannotMarkCompleted"));
+                throw new InvalidOperationException(T("Order.CannotMarkCompleted"));
             }
 
             if (order.CanMarkOrderAsPaid())
@@ -393,7 +393,7 @@ namespace Smartstore.Core.Checkout.Orders
 
             if (shipment.ShippedDateUtc.HasValue)
             {
-                throw new SmartException(T("Shipment.AlreadyShipped"));
+                throw new Exception(T("Shipment.AlreadyShipped"));
             }
 
             shipment.ShippedDateUtc = DateTime.UtcNow;

@@ -79,7 +79,7 @@ namespace Smartstore.Core.Rules
         {
             if (ruleSet.Scope != visitor.Scope)
             {
-                throw new SmartException($"Differing rule scope {ruleSet.Scope}. Expected {visitor.Scope}.");
+                throw new InvalidOperationException($"Differing rule scope {ruleSet.Scope}. Expected {visitor.Scope}.");
             }
 
             if (!includeHidden && !ruleSet.IsActive)

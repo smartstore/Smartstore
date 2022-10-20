@@ -24,7 +24,7 @@ namespace Smartstore.Core.Checkout.Orders
 
             if (!order.CanMarkOrderAsPaid())
             {
-                throw new SmartException(T("Order.CannotMarkPaid"));
+                throw new PaymentException(T("Order.CannotMarkPaid"));
             }
 
             order.PaymentStatusId = (int)PaymentStatus.Paid;
@@ -60,7 +60,7 @@ namespace Smartstore.Core.Checkout.Orders
 
             if (!await CanCaptureAsync(order))
             {
-                throw new SmartException(T("Order.CannotCapture"));
+                throw new PaymentException(T("Order.CannotCapture"));
             }
 
             CapturePaymentResult result = null;
@@ -136,7 +136,7 @@ namespace Smartstore.Core.Checkout.Orders
 
             if (!await CanRefundAsync(order))
             {
-                throw new SmartException(T("Order.CannotRefund"));
+                throw new PaymentException(T("Order.CannotRefund"));
             }
 
             RefundPaymentResult result = null;
@@ -185,7 +185,7 @@ namespace Smartstore.Core.Checkout.Orders
 
             if (!order.CanRefundOffline())
             {
-                throw new SmartException(T("Order.CannotRefund"));
+                throw new PaymentException(T("Order.CannotRefund"));
             }
 
             var amountToRefund = new Money(order.OrderTotal, _primaryCurrency);
@@ -231,7 +231,7 @@ namespace Smartstore.Core.Checkout.Orders
 
             if (!await CanPartiallyRefundAsync(order, amountToRefund))
             {
-                throw new SmartException(T("Order.CannotPartialRefund"));
+                throw new PaymentException(T("Order.CannotPartialRefund"));
             }
 
             RefundPaymentResult result = null;
@@ -280,7 +280,7 @@ namespace Smartstore.Core.Checkout.Orders
 
             if (!order.CanPartiallyRefundOffline(amountToRefund))
             {
-                throw new SmartException(T("Order.CannotPartialRefund"));
+                throw new PaymentException(T("Order.CannotPartialRefund"));
             }
 
             var totalAmountRefunded = order.RefundedAmount + amountToRefund;
@@ -317,7 +317,7 @@ namespace Smartstore.Core.Checkout.Orders
 
             if (!await CanVoidAsync(order))
             {
-                throw new SmartException(T("Order.CannotVoid"));
+                throw new PaymentException(T("Order.CannotVoid"));
             }
 
             VoidPaymentResult result = null;
@@ -361,7 +361,7 @@ namespace Smartstore.Core.Checkout.Orders
 
             if (!order.CanVoidOffline())
             {
-                throw new SmartException(T("Order.CannotVoid"));
+                throw new PaymentException(T("Order.CannotVoid"));
             }
 
             order.PaymentStatusId = (int)PaymentStatus.Voided;
@@ -457,21 +457,21 @@ namespace Smartstore.Core.Checkout.Orders
             try
             {
                 if (!recurringPayment.IsActive)
-                    throw new SmartException(T("Payment.RecurringPaymentNotActive"));
+                    throw new PaymentException(T("Payment.RecurringPaymentNotActive"));
 
                 await _db.LoadReferenceAsync(recurringPayment, x => x.InitialOrder, false, q => q.Include(x => x.Customer));
 
                 var initialOrder = recurringPayment.InitialOrder;
                 if (initialOrder == null)
-                    throw new SmartException(T("Order.InitialOrderDoesNotExistForRecurringPayment"));
+                    throw new PaymentException(T("Order.InitialOrderDoesNotExistForRecurringPayment"));
 
                 var customer = initialOrder.Customer;
                 if (customer == null)
-                    throw new SmartException(T("Customer.DoesNotExist"));
+                    throw new PaymentException(T("Customer.DoesNotExist"));
 
                 var nextPaymentDate = await _paymentService.GetNextRecurringPaymentDateAsync(recurringPayment);
                 if (!nextPaymentDate.HasValue)
-                    throw new SmartException(T("Payment.CannotCalculateNextPaymentDate"));
+                    throw new PaymentException(T("Payment.CannotCalculateNextPaymentDate"));
 
                 var paymentInfo = new ProcessPaymentRequest
                 {
@@ -490,7 +490,7 @@ namespace Smartstore.Core.Checkout.Orders
                 if (result.Success)
                 {
                     if (result.PlacedOrder == null)
-                        throw new SmartException(T("Order.NotFound", StringExtensions.NotAvailable));
+                        throw new PaymentException(T("Order.NotFound", StringExtensions.NotAvailable));
 
                     recurringPayment.RecurringPaymentHistory.Add(new RecurringPaymentHistory
                     {
@@ -503,7 +503,7 @@ namespace Smartstore.Core.Checkout.Orders
                 }
                 else if (result.Errors.Count > 0)
                 {
-                    throw new SmartException(string.Join(" ", result.Errors));
+                    throw new PaymentException(string.Join(" ", result.Errors));
                 }
             }
             catch (Exception ex)

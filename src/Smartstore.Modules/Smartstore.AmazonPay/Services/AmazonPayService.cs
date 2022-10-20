@@ -29,7 +29,7 @@ namespace Smartstore.AmazonPay.Services
         {
             if (json.IsEmpty())
             {
-                throw new SmartException(T("Plugins.Payments.AmazonPay.MissingPayloadParameter"));
+                throw new InvalidOperationException(T("Plugins.Payments.AmazonPay.MissingPayloadParameter"));
             }
 
             dynamic jsonData = JObject.Parse(json);
@@ -38,7 +38,7 @@ namespace Smartstore.AmazonPay.Services
             var encryptedPayload = (string)jsonData.encryptedPayload;
             if (encryptedPayload.HasValue())
             {
-                throw new SmartException(T("Plugins.Payments.AmazonPay.EncryptionNotSupported"));
+                throw new InvalidOperationException(T("Plugins.Payments.AmazonPay.EncryptionNotSupported"));
             }
 
             settings.SellerId = (string)jsonData.merchant_id;

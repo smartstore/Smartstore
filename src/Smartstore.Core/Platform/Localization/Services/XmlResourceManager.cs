@@ -450,13 +450,13 @@ namespace Smartstore.Core.Localization
 
                 if (resNameAttribute == null)
                 {
-                    throw new SmartException("All language resources must have an attribute Name=\"Value\".");
+                    throw new Exception("All language resources must have an attribute Name=\"Value\".");
                 }
 
                 var resName = resNameAttribute.Value.Trim();
                 if (string.IsNullOrEmpty(resName))
                 {
-                    throw new SmartException("All languages resource attributes 'Name' must have a value.'");
+                    throw new Exception("All languages resource attributes 'Name' must have a value.'");
                 }
 
                 ResourceName = resName;

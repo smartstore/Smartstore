@@ -86,7 +86,7 @@ namespace Smartstore.Web.Theming
                 var descriptor = info.ThemeDescriptor;
                 if (!descriptor.Selects.ContainsKey(info.SelectRef))
                 {
-                    throw new SmartException("A select list with id '{0}' was not specified. Please specify a 'Select' element with at least one 'Option' child.", info.SelectRef);
+                    throw new InvalidOperationException($"A select list with id '{info.SelectRef}' was not specified. Please specify a 'Select' element with at least one 'Option' child.");
                 }
 
                 var selectList = from x in descriptor.Selects[info.SelectRef]

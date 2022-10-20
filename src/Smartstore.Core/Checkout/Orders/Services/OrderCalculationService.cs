@@ -906,7 +906,7 @@ namespace Smartstore.Core.Checkout.Orders
 
                 if (!shippingRateComputationMethods.Any())
                 {
-                    throw new SmartException(T("Shipping.CouldNotLoadMethod"));
+                    throw new InvalidOperationException(T("Shipping.CouldNotLoadMethod"));
                 }
 
                 if (shippingRateComputationMethods.Count() == 1)

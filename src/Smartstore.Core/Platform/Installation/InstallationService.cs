@@ -613,14 +613,14 @@ namespace Smartstore.Core.Installation
                         var resValueNode = resNode.SelectSingleNode("Value");
 
                         if (resNameAttribute == null)
-                            throw new SmartException("All installation resources must have an attribute Name=\"Value\".");
+                            throw new Exception("All installation resources must have an attribute Name=\"Value\".");
 
                         var resourceName = resNameAttribute.Value.Trim();
                         if (string.IsNullOrEmpty(resourceName))
-                            throw new SmartException("All installation resource attributes 'Name' must have a value.'");
+                            throw new Exception("All installation resource attributes 'Name' must have a value.'");
 
                         if (resValueNode == null)
-                            throw new SmartException("All installation resources must have an element \"Value\".");
+                            throw new Exception("All installation resources must have an element \"Value\".");
 
                         var resourceValue = resValueNode.InnerText.Trim();
                         language.Resources[resourceName] = new InstallationLocaleResource

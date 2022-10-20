@@ -73,7 +73,7 @@ namespace Smartstore.Core.Checkout.Shipping
 
                 if (DataSettings.DatabaseIsInstalled())
                 {
-                    throw new SmartException(T("Shipping.OneActiveMethodProviderRequired"));
+                    throw new Exception(T("Shipping.OneActiveMethodProviderRequired"));
                 }
             }
 
@@ -159,7 +159,7 @@ namespace Smartstore.Core.Checkout.Shipping
 
             if (computationMethods.IsNullOrEmpty())
             {
-                throw new SmartException(T("Shipping.CouldNotLoadMethod"));
+                throw new InvalidOperationException(T("Shipping.CouldNotLoadMethod"));
             }
 
             // Get shipping options.

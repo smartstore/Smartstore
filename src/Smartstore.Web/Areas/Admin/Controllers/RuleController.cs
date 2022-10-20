@@ -565,7 +565,7 @@ namespace Smartstore.Admin.Controllers
             var rule = await _db.Rules.FindByIdAsync(ruleId);
             if (rule == null)
             {
-                throw new SmartException(T("Admin.Rules.NotFound", ruleId));
+                throw new Exception(T("Admin.Rules.NotFound", ruleId));
             }
 
             var provider = _ruleProvider(rule.RuleSet.Scope);

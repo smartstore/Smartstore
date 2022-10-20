@@ -174,7 +174,7 @@ namespace Smartstore.Admin.Controllers
                 var primaryExchangeCurrency = Services.CurrencyService.PrimaryExchangeCurrency;
                 if (primaryExchangeCurrency == null)
                 {
-                    throw new SmartException(T("Admin.System.Warnings.ExchangeCurrency.NotSet"));
+                    throw new InvalidOperationException(T("Admin.System.Warnings.ExchangeCurrency.NotSet"));
                 }
 
                 rates = (await Services.CurrencyService.GetCurrencyLiveRatesAsync(primaryExchangeCurrency.CurrencyCode)).ToList();

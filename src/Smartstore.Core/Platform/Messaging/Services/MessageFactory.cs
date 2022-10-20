@@ -212,7 +212,7 @@ namespace Smartstore.Core.Messaging
                     return new MailAddress("john@doe.com", "John Doe");
                 }
 
-                var ex2 = new SmartException($"Failed to parse email address for variable '{email}'. Value was '{parsed.EmptyNull()}': {ex.Message}", ex);
+                var ex2 = new InvalidOperationException($"Failed to parse email address for variable '{email}'. Value was '{parsed.EmptyNull()}': {ex.Message}", ex);
                 _services.Notifier.Error(ex2.Message);
                 throw ex2;
             }
@@ -414,7 +414,7 @@ namespace Smartstore.Core.Messaging
 
             if (account == null)
             {
-                throw new SmartException(T("Common.Error.NoEmailAccount"));
+                throw new Exception(T("Common.Error.NoEmailAccount"));
             }
 
             return account;
@@ -438,7 +438,7 @@ namespace Smartstore.Core.Messaging
                 language = _languageService.GetAllLanguages().FirstOrDefault();
             }
 
-            ctx.Language = language ?? throw new SmartException(T("Common.Error.NoActiveLanguage"));
+            ctx.Language = language ?? throw new Exception(T("Common.Error.NoActiveLanguage"));
         }
 
         #region TestModels

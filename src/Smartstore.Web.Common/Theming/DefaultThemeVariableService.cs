@@ -289,7 +289,7 @@ namespace Smartstore.Web.Theming
             string forTheme = xmlDoc.DocumentElement.GetAttribute("for");
             if (!forTheme.EqualsNoCase(themeName))
             {
-                throw new SmartException("The theme reference in the import file ('{0}') does not match the current theme '{1}'.".FormatCurrent(forTheme.ToSafe(), themeName));
+                throw new InvalidOperationException("The theme reference in the import file ('{0}') does not match the current theme '{1}'.".FormatCurrent(forTheme.ToSafe(), themeName));
             }
 
             var xndVars = xmlDoc.DocumentElement.SelectNodes("Var").Cast<XmlElement>();

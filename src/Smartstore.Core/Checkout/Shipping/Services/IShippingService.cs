@@ -18,7 +18,7 @@ namespace Smartstore.Core.Checkout.Shipping
 		/// <param name="storeId">Filters methods by store identifier. 0 to load all methods.</param>
         /// <remarks>
         /// Tries to get any fallback computation method when no active method was found.
-        /// Throws a <see cref="SmartException"/> when no computation method was found at all.
+        /// Throws an exception when no computation method was found at all.
         /// </remarks>
         /// <returns>Shipping rate computation methods.</returns>
         IEnumerable<Provider<IShippingRateComputationMethod>> LoadActiveShippingRateComputationMethods(int storeId = 0, string systemName = null);

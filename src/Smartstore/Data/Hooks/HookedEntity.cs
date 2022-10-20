@@ -53,7 +53,7 @@ namespace Smartstore.Data.Hooks
                 var prop = Entry.Property(propertyName);
                 if (prop == null)
                 {
-                    throw new SmartException($"An entity property '{propertyName}' does not exist.");
+                    throw new InvalidOperationException($"An entity property '{propertyName}' does not exist.");
                 }
 
                 return prop.CurrentValue != null && !prop.CurrentValue.Equals(prop.OriginalValue);

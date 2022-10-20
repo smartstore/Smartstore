@@ -55,7 +55,7 @@ namespace Smartstore
                 }
             }
 
-            throw new SmartException("No constructor for {0} was found that had all the dependencies satisfied.".FormatInvariant(type?.Name.NaIfEmpty()));
+            throw new InvalidOperationException("No constructor for {0} was found that had all the dependencies satisfied.".FormatInvariant(type?.Name.NaIfEmpty()));
         }
 
         private static bool TryResolveAll(IComponentContext scope, Type[] types, out object[] instances)

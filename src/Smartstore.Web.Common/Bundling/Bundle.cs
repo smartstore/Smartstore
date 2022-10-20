@@ -255,7 +255,7 @@ namespace Smartstore.Web.Bundling
                 }
                 catch (Exception ex)
                 {
-                    throw new SmartException($"CacheKey generation failed in '{processor.GetType().FullName}' bundle processor.", ex);
+                    throw new Exception($"CacheKey generation failed in '{processor.GetType().FullName}' bundle processor.", ex);
                 }
             }
 

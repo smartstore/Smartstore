@@ -60,7 +60,7 @@ namespace Smartstore.Data
                             {
                                 if (_appContext == null)
                                 {
-                                    throw new SmartException($"Missing '{nameof(IApplicationContext)}' instance. Please call '{nameof(DataSettings.SetApplicationContext)}' and pass a valid context before accessing '{nameof(DataSettings.Instance)}'.");
+                                    throw new SystemException($"Missing '{nameof(IApplicationContext)}' instance. Please call '{nameof(DataSettings.SetApplicationContext)}' and pass a valid context before accessing '{nameof(DataSettings.Instance)}'.");
                                 }
 
                                 _instance = _settingsFactory(_appContext);
@@ -185,40 +185,6 @@ namespace Smartstore.Data
 
                 return false;
             }
-        }
-
-        private static DbFactory CreateDbFactory(string provider)
-        {
-            Guard.NotEmpty(provider, nameof(provider));
-
-            var assemblyName = string.Empty;
-
-            switch (provider.ToLowerInvariant())
-            {
-                case "sqlserver":
-                    assemblyName = "Smartstore.Data.SqlServer.dll";
-                    break;
-                case "mysql":
-                    assemblyName = "Smartstore.Data.MySql.dll";
-                    break;
-            }
-
-            if (assemblyName.IsEmpty())
-            {
-                throw new SmartException($"Unknown database provider type name '${provider}'.");
-            }
-
-            var binPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var assemblyPath = Path.Combine(binPath, assemblyName);
-            var assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(assemblyPath);
-
-            var dbFactoryType = _appContext.TypeScanner.FindTypes<DbFactory>(new[] { assembly }).FirstOrDefault();
-            if (dbFactoryType == null)
-            {
-                throw new SmartException($"The data provider assembly '${assemblyName}' does not contain any concrete '${typeof(DbFactory)}' implementation.");
-            }
-
-            return (DbFactory)Activator.CreateInstance(dbFactoryType);
         }
 
         public void Reset()

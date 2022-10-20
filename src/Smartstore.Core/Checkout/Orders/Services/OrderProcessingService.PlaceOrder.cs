@@ -232,7 +232,7 @@ namespace Smartstore.Core.Checkout.Orders
                     if (customer.ShippingAddress == null)
                     {
                         warnings.Add(T("Order.ShippingAddressMissing"));
-                        throw new SmartException();
+                        throw new Exception();
                     }
                     else if (!customer.ShippingAddress.Email.IsEmail())
                     {

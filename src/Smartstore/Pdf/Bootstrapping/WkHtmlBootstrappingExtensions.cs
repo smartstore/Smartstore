@@ -58,7 +58,7 @@ namespace Smartstore.Bootstrapping
                     }
                     catch (Exception ex)
                     {
-                        throw new SmartException($"Malformed Uri string in '{nameof(SmartConfiguration.PdfEngineBaseUrl)}'.", ex);
+                        throw new FormatException($"Malformed Uri string in '{nameof(SmartConfiguration.PdfEngineBaseUrl)}'.", ex);
                     }
                 }
             }

@@ -141,7 +141,7 @@ namespace Smartstore.Core.Seo
             {
                 var msg = "Could not generate XML sitemap. Index: {0}, Date: {1}".FormatInvariant(index, DateTime.UtcNow);
                 Logger.Error(msg);
-                throw new SmartException(msg);
+                throw new Exception(msg);
             }
 
             if (index > 0)

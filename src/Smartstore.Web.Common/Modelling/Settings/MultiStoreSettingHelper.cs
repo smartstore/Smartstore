@@ -92,7 +92,7 @@ namespace Smartstore.Web.Modelling.Settings
         {
             if (Data == null)
             {
-                throw new SmartException("You must call GetOverrideKeys or CreateViewDataObject before AddOverrideKey.");
+                throw new InvalidOperationException("You must call GetOverrideKeys or CreateViewDataObject before AddOverrideKey.");
             }
 
             var key = settings.GetType().Name + "." + name;

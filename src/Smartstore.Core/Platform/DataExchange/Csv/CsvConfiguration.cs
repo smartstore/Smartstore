@@ -113,11 +113,11 @@ namespace Smartstore.Core.DataExchange.Csv
 
                 if (PresetCharacters.Contains(value))
                 {
-                    throw new SmartException("'{0}' is not a valid escape char.".FormatInvariant(value));
+                    throw new InvalidOperationException("'{0}' is not a valid escape char.".FormatInvariant(value));
                 }
                 if (value == _delimiter)
                 {
-                    throw new SmartException("Escape and delimiter chars cannot be equal in CSV files.");
+                    throw new InvalidOperationException("Escape and delimiter chars cannot be equal in CSV files.");
                 }
 
                 _escape = value;
@@ -139,11 +139,11 @@ namespace Smartstore.Core.DataExchange.Csv
 
                 if (PresetCharacters.Contains(value))
                 {
-                    throw new SmartException("'{0}' is not a valid delimiter char.".FormatInvariant(value));
+                    throw new InvalidOperationException("'{0}' is not a valid delimiter char.".FormatInvariant(value));
                 }
                 if (value == _quote)
                 {
-                    throw new SmartException("Quote and delimiter chars cannot be equal in CSV files.");
+                    throw new InvalidOperationException("Quote and delimiter chars cannot be equal in CSV files.");
                 }
 
                 _delimiter = value;
@@ -166,11 +166,11 @@ namespace Smartstore.Core.DataExchange.Csv
 
                 if (PresetCharacters.Contains(value))
                 {
-                    throw new SmartException("'{0}' is not a valid quote char.".FormatInvariant(value));
+                    throw new InvalidOperationException("'{0}' is not a valid quote char.".FormatInvariant(value));
                 }
                 if (value == _delimiter)
                 {
-                    throw new SmartException("Quote and delimiter chars cannot be equal in CSV files.");
+                    throw new InvalidOperationException("Quote and delimiter chars cannot be equal in CSV files.");
                 }
 
                 _quote = value;

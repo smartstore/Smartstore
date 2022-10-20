@@ -342,7 +342,7 @@ namespace Smartstore.Core.Catalog.Search.Modelling
                     displayOrder = _searchSettings.NewArrivalsDisplayOrder;
                     break;
                 default:
-                    throw new SmartException($"Unknown field name for facet group '{kind}'");
+                    throw new InvalidOperationException($"Unknown field name for facet group '{kind}'");
             }
 
             var descriptor = new FacetDescriptor(fieldName)

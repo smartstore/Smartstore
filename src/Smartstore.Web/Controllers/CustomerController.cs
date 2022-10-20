@@ -773,7 +773,7 @@ namespace Smartstore.Web.Controllers
                     {
                         if (uploadedFile.Length > _customerSettings.AvatarMaximumSizeBytes)
                         {
-                            throw new SmartException(T("Account.Avatar.MaximumUploadedFileSize", Prettifier.HumanizeBytes(_customerSettings.AvatarMaximumSizeBytes)));
+                            throw new MaxMediaFileSizeExceededException(T("Account.Avatar.MaximumUploadedFileSize", Prettifier.HumanizeBytes(_customerSettings.AvatarMaximumSizeBytes)));
                         }
 
                         var oldAvatar = await _db.MediaFiles.FindByIdAsync(customer.GenericAttributes.AvatarPictureId ?? 0);

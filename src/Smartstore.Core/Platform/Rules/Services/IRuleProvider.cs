@@ -45,7 +45,7 @@
             }
             else if (descriptor.Scope != Scope)
             {
-                throw new SmartException($"Differing rule scope {descriptor.Scope}. Expected {Scope}.");
+                throw new InvalidOperationException($"Differing rule scope {descriptor.Scope}. Expected {Scope}.");
             }
 
             expression.Id = entity.Id;

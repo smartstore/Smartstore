@@ -276,7 +276,7 @@ namespace Smartstore.Core.Messaging
             {
                 if (name.IsEmpty())
                 {
-                    throw new SmartException($"Could not resolve a model key for part '{modelPart.GetType().Name}'. Use an instance of 'NamedModelPart' class to pass model with name.");
+                    throw new InvalidOperationException($"Could not resolve a model key for part '{modelPart.GetType().Name}'. Use an instance of 'NamedModelPart' class to pass model with name.");
                 }
 
                 if (model.TryGetValue(name, out var existing))

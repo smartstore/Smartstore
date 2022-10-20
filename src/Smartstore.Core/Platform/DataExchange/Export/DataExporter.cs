@@ -1,5 +1,6 @@
 ﻿using System.IO.Compression;
 using System.Net.Http;
+using System.Security;
 using Microsoft.AspNetCore.Mvc;
 using Smartstore.Collections;
 using Smartstore.Core.Catalog;
@@ -181,7 +182,7 @@ namespace Smartstore.Core.DataExchange.Export
 
                     if (!await HasPermission(ctx))
                     {
-                        throw new SmartException("You do not have permission to perform the selected export.");
+                        throw new SecurityException("You do not have permission to perform the selected export.");
                     }
 
                     using (var scope = new DbContextScope(_db, autoDetectChanges: false, forceNoTracking: true))
@@ -283,7 +284,7 @@ namespace Smartstore.Core.DataExchange.Export
 
             if (!await HasPermission(ctx))
             {
-                throw new SmartException(T("Admin.AccessDenied"));
+                throw new SecurityException(T("Admin.AccessDenied"));
             }
 
             var result = new DataExportPreviewResult
@@ -432,7 +433,7 @@ namespace Smartstore.Core.DataExchange.Export
 
             if (segmenter == null)
             {
-                throw new SmartException($"Unsupported entity type '{provider.EntityType}'.");
+                throw new NotSupportedException($"Unsupported entity type '{provider.EntityType}'.");
             }
 
             if (segmenter.TotalRecords <= 0)
@@ -911,7 +912,7 @@ namespace Smartstore.Core.DataExchange.Export
             }
             else
             {
-                throw new SmartException($"Unsupported entity type '{entityType}'.");
+                throw new NotSupportedException($"Unsupported entity type '{entityType}'.");
             }
 
             if (ctx.Request.EntitiesToExport.Any())
@@ -1260,7 +1261,7 @@ namespace Smartstore.Core.DataExchange.Export
 
             if (method != "Execute" && method != "OnExecuted")
             {
-                throw new SmartException($"Unknown export method {method.NaIfEmpty()}.");
+                throw new NotSupportedException($"Unknown export method {method.NaIfEmpty()}.");
             }
 
             try

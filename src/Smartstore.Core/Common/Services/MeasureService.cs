@@ -39,7 +39,7 @@ namespace Smartstore.Core.Common.Services
             {
                 decimal exchangeRatio = source.Ratio;
                 if (exchangeRatio == decimal.Zero)
-                    throw new SmartException(string.Format("Exchange ratio not set for dimension [{0}]", source.Name));
+                    throw new Exception(string.Format("Exchange ratio not set for dimension [{0}]", source.Name));
                 result /= exchangeRatio;
             }
 
@@ -55,7 +55,7 @@ namespace Smartstore.Core.Common.Services
             {
                 decimal exchangeRatio = target.Ratio;
                 if (exchangeRatio == decimal.Zero)
-                    throw new SmartException(string.Format("Exchange ratio not set for dimension [{0}]", target.Name));
+                    throw new Exception(string.Format("Exchange ratio not set for dimension [{0}]", target.Name));
                 result *= exchangeRatio;
             }
 
@@ -85,7 +85,7 @@ namespace Smartstore.Core.Common.Services
             {
                 decimal exchangeRatio = source.Ratio;
                 if (exchangeRatio == decimal.Zero)
-                    throw new SmartException(string.Format("Exchange ratio not set for weight [{0}]", source.Name));
+                    throw new Exception(string.Format("Exchange ratio not set for weight [{0}]", source.Name));
                 result /= exchangeRatio;
             }
             return result;
@@ -100,7 +100,7 @@ namespace Smartstore.Core.Common.Services
             {
                 decimal exchangeRatio = target.Ratio;
                 if (exchangeRatio == decimal.Zero)
-                    throw new SmartException(string.Format("Exchange ratio not set for weight [{0}]", target.Name));
+                    throw new Exception(string.Format("Exchange ratio not set for weight [{0}]", target.Name));
                 result *= exchangeRatio;
             }
 
