@@ -4,7 +4,6 @@ using System.Text;
 using System.Text.Encodings.Web;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Diagnostics;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
@@ -32,7 +31,6 @@ namespace Smartstore.Web.Api.Security
 
         private readonly SmartDbContext _db;
         private readonly IWebApiService _apiService;
-        private readonly SignInManager<Customer> _signInManager;
         private readonly Lazy<IUrlService> _urlService;
         private readonly IApiUserStore _apiUserStore;
         private readonly IWorkContext _workContext;
@@ -41,7 +39,6 @@ namespace Smartstore.Web.Api.Security
         public BasicAuthenticationHandler(
             SmartDbContext db,
             IWebApiService apiService,
-            SignInManager<Customer> signInManager,
             Lazy<IUrlService> urlService,
             IApiUserStore apiUserStore,
             IWorkContext workContext,
@@ -53,7 +50,6 @@ namespace Smartstore.Web.Api.Security
         {
             _db = db;
             _apiService = apiService;
-            _signInManager = signInManager;
             _urlService = urlService;
             _apiUserStore = apiUserStore;
             _workContext = workContext;
@@ -91,8 +87,6 @@ namespace Smartstore.Web.Api.Security
                 var ticket = new AuthenticationTicket(principal, Scheme.Name);
 
                 // TODO: (mg) (core) I doubt that this is necessary here. TBD with MC. What is the overridable HandleSignIn method for?
-                await _signInManager.SignInAsync(customer, true, Scheme.Name);
-                //$"Signed in using '{Scheme.Name}': customer {customer.Id}, {customer.Email}.".Dump();
 
                 // TODO: (mg) (core) Check whether API authentication conflicts with my last commit 2e2aea50584eac6fc305abdc7c7046b547f784a1.
                 // Beware that work context initialization (customer, language and currency resolution) now happens VERY early in the pipeline.
@@ -120,6 +114,7 @@ namespace Smartstore.Web.Api.Security
 
                 SetResponseHeaders(null, customer, state);
 
+                //$"Authenticated API request using '{Scheme.Name}': customer {customer.Id}, {customer.Email}.".Dump();
                 return AuthenticateResult.Success(ticket);
             }
             catch (Exception ex)
@@ -169,7 +164,10 @@ namespace Smartstore.Web.Api.Security
                 throw new AuthenticationException(AccessDeniedReason.InvalidCredentials, publicKey);
             }
 
-            var customer = await _db.Customers.FindByIdAsync(user.CustomerId, false);
+            var customer = await _db.Customers
+                .IncludeCustomerRoles()
+                .FindByIdAsync(user.CustomerId, false);
+
             if (customer == null)
             {
                 throw new AuthenticationException(AccessDeniedReason.UserUnknown, publicKey);
