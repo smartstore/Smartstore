@@ -90,8 +90,18 @@ namespace Smartstore.Web.Api.Security
                 var principal = new ClaimsPrincipal(new ClaimsIdentity(claims, Scheme.Name));
                 var ticket = new AuthenticationTicket(principal, Scheme.Name);
 
+                // TODO: (mg) (core) I doubt that this is necessary here. TBD with MC. What is the overridable HandleSignIn method for?
                 await _signInManager.SignInAsync(customer, true, Scheme.Name);
                 //$"Signed in using '{Scheme.Name}': customer {customer.Id}, {customer.Email}.".Dump();
+
+                // TODO: (mg) (core) Check whether API authentication conflicts with my last commit 2e2aea50584eac6fc305abdc7c7046b547f784a1.
+                // Beware that work context initialization (customer, language and currency resolution) now happens VERY early in the pipeline.
+                // Because of this, the issue below is probably obsolete now.
+                // Also check whether we could simplify auth code here due to the changes.
+                // I suppose that this handler will run during work context init (by _customerService.GetAuthenticatedCustomerAsync())
+                // and return the correct authenticated customer already (at least that is how the auth system was designed).
+                // PS: my tests with the API client show that this handler is wrongfully run AFTER _customerService.GetAuthenticatedCustomerAsync().
+                // Investigate how GetAuthenticatedCustomerAsync() can opt-in to also run this handler.
 
                 // HttpContext comes too late for GetAuthenticatedCustomerAsync(). get_WorkingLanguage() calls CurrentCustomer before this handler.
                 // We must set CurrentCustomer explicitly otherwise he will always remain guest and permission checks will fail.
