@@ -17,7 +17,7 @@ namespace Smartstore.Web.Api.Controllers.OData
             _deliveryTimeService = deliveryTimeService;
         }
 
-        public static void Init(ODataModelBuilder builder)
+        internal static void Init(ODataModelBuilder builder)
         {
             var set = builder.EntitySet<DeliveryTime>("DeliveryTimes");
 

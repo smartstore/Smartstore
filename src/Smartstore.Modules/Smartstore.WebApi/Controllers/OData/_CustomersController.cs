@@ -19,7 +19,7 @@ namespace Smartstore.Web.Api.Controllers.OData
             _userManager = userManager;
         }
 
-        public static void Init(ODataModelBuilder builder)
+        internal static void Init(ODataModelBuilder builder)
         {
             var set = builder.EntitySet<Customer>("Customers");
 
