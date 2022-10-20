@@ -78,7 +78,7 @@ namespace Smartstore.PayPal.Providers
                 NewPaymentStatus = PaymentStatus.Pending,
             };
 
-            var response = await _client.CreateOrderAsync(request);
+            var response = await _client.CreateOrderForInvoiceAsync(request);
 
             return result;
         }

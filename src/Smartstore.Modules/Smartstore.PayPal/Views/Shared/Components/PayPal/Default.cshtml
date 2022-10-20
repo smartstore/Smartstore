@@ -33,14 +33,7 @@
                 },
                 // Create order
                 createOrder: function (data, actions) {
-                    return actions.order.create({
-                        purchase_units: [{
-                            amount: {
-                                value: '@(Model.Amount.ToString("F2", CultureInfo.InvariantCulture))'
-                            }
-                        }],
-                        intent: "@Model.Intent"
-                    });
+                    return actions.order.create(@(Html.Raw(Model.OrderJson)));
                 },
                 // Save obtained order id in checkout state.
                 onApprove: function (data, actions) {

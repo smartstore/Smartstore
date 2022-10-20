@@ -1,20 +1,17 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Smartstore.Core.Checkout.Cart;
-using Smartstore.Core.Checkout.Orders;
+using Smartstore.PayPal.Client;
 using Smartstore.Web.Components;
 
 namespace Smartstore.PayPal.Components
 {
     public class PayPalViewComponent : SmartViewComponent
     {
-        private readonly IShoppingCartService _shoppingCartService;
-        private readonly IOrderCalculationService _orderCalculationService;
+        private readonly PayPalHttpClient _client;
         private readonly PayPalSettings _settings;
 
-        public PayPalViewComponent(IShoppingCartService shoppingCartService, IOrderCalculationService orderCalculationService, PayPalSettings settings)
+        public PayPalViewComponent(PayPalHttpClient client, PayPalSettings settings)
         {
-            _shoppingCartService = shoppingCartService;
-            _orderCalculationService = orderCalculationService;
+            _client = client;
             _settings = settings;
         }
 
@@ -51,17 +48,14 @@ namespace Smartstore.PayPal.Components
                 fundings += ((EnableFundingOptions)fundingId).ToStringInvariant() + ',';
             }
 
-            var cart = await _shoppingCartService.GetCartAsync(Services.WorkContext.CurrentCustomer, ShoppingCartType.ShoppingCart, Services.StoreContext.CurrentStore.Id);
-            var cartSubTotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(cart);
             var model = new PublicPaymentMethodModel
             {
-                Intent = _settings.Intent.ToString().ToLower(),
-                Amount = cartSubTotal.SubtotalWithDiscount.Amount,
                 IsPaymentSelection = isPaymentSelectionPage,
                 ButtonColor = _settings.ButtonColor,
                 ButtonShape = _settings.ButtonShape,
                 IsSelectedMethod = isSelected,
-                Fundings = fundings
+                Fundings = fundings,
+                OrderJson = JsonConvert.SerializeObject(await _client.GetOrderForStandardProviderAsync(!isPaymentSelectionPage))
             };
 
             return View(model);

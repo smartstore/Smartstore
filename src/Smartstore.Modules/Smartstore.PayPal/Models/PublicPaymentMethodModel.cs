@@ -3,17 +3,6 @@
     public class PublicPaymentMethodModel : ModelBase
     {
         /// <summary>
-        /// Specifies whether the payment will be captured immediately or just authorized.
-        /// </summary>
-        public string Intent { get; set; }
-
-        /// <summary>
-        /// The subtotal with discount. Will be used to create the PayPal order. 
-        /// The final amount will not be passed here but in an API-Call with an OrdersPatchRequest.
-        /// </summary>
-        public decimal Amount { get; set; }
-
-        /// <summary>
         /// Value that indicates whether the PayPal button will be rendered in MiniBasket or on the pasyment selection page.
         /// </summary>
         public bool IsPaymentSelection { get; set; } = false;
@@ -32,5 +21,10 @@
         public string ButtonShape { get; set; }
 
         public string ButtonColor { get; set; }
+
+        /// <summary>
+        /// Will be passed to the createOrder function of PayPal JS SDK
+        /// </summary>
+        public string OrderJson { get; set; }
     }
 }

@@ -116,13 +116,11 @@ namespace Smartstore.PayPal.Client
         /// <summary>
         /// Creates a PayPal order.
         /// </summary>
-        public async Task<PayPalResponse> CreateOrderAsync(
+        public async Task<PayPalResponse> CreateOrderForInvoiceAsync(
             ProcessPaymentRequest request, 
             CancellationToken cancelToken = default)
         {
             Guard.NotNull(request, nameof(request));
-
-            // TODO: (mh) (core) Some things mustn't be null.
 
             var customer = _workContext.CurrentCustomer;
             var store = _storeContext.GetStoreById(request.StoreId);
@@ -141,7 +139,7 @@ namespace Smartstore.PayPal.Client
             }
 
             var cart = await _shoppingCartService.GetCartAsync(customer, ShoppingCartType.ShoppingCart, request.StoreId);
-            var purchaseUnits = await GetPurchaseUnitsAsync(cart, request, customer, _workContext.WorkingCurrency);
+            var purchaseUnits = await GetPurchaseUnitsAsync(cart, request.OrderTotal, request.OrderGuid.ToString());
 
             var orderMessage = new OrderMessage
             {
@@ -194,134 +192,13 @@ namespace Smartstore.PayPal.Client
                 .WithClientMetadataId(clientMetaId.ToString())
                 .WithBody(orderMessage);
 
-            var response = await ExecuteRequestAsync(orderCreateRequest, cancelToken);
-            var rawResponse = response.Body<object>().ToString();
+            var response = await ExecuteRequestAsync(ordersGetRequest, cancelToken);
+            // DEV: uncomment for response viewing 
+            //var rawResponse = response.Body<object>().ToString();
+            //dynamic jResponse = JObject.Parse(rawResponse);
 
-            // TODO: (mh) (core) What is this line for?
-            dynamic jResponse = JObject.Parse(rawResponse);
 
             return response;
-        }
-
-        private async Task<List<PurchaseUnit>> GetPurchaseUnitsAsync(ShoppingCart cart, ProcessPaymentRequest request, Customer customer, Currency currency)
-        {   
-            var model = await cart.MapAsync(
-                isEditable: false,
-                prepareEstimateShippingIfEnabled: false,
-                prepareAndDisplayOrderReviewData: false);
-
-            var purchaseUnitItems = new List<PurchaseUnitItem>();
-
-            var cartProducts = cart.Items.Select(x => x.Item.Product).ToArray();
-            var batchContext = _productService.CreateProductBatchContext(cartProducts, null, customer, false);
-            var calculationOptions = _priceCalculationService.CreateDefaultOptions(false, customer, currency, batchContext);
-
-            foreach (var item in model.Items)
-            {
-                var cartItem = cart.Items.Where(x => x.Item.ProductId == item.ProductId).FirstOrDefault();
-                var taxRate = await _taxService.GetTaxRateAsync(cartItem.Item.Product);
-                var calculationContext = await _priceCalculationService.CreateCalculationContextAsync(cartItem, calculationOptions);
-                var (unitPrice, subtotal) = await _priceCalculationService.CalculateSubtotalAsync(calculationContext);
-
-                var productName = item.ProductName.Value.Length > 126 ? item.ProductName.Value[..126] : item.ProductName.Value;
-                var productDescription = item.ShortDesc.Value.Length > 126 ? item.ShortDesc.Value[..126] : item.ShortDesc.Value;
-
-                purchaseUnitItems.Add(new PurchaseUnitItem
-                {
-                    UnitAmount = new MoneyMessage
-                    {
-                        Value = unitPrice.Tax.Value.PriceNet.ToStringInvariant("n2"),
-                        CurrencyCode = currency.CurrencyCode
-                    },
-                    Name = productName,
-                    Description = productDescription,
-                    Category = item.IsEsd ? ItemCategoryType.DigitalGoods : ItemCategoryType.PhysicalGoods,
-                    Quantity = item.EnteredQuantity.ToString(),
-                    Sku = item.Sku,
-                    Tax = new MoneyMessage
-                    {
-                        Value = unitPrice.Tax.Value.Amount.ToStringInvariant("n2"),
-                        CurrencyCode = currency.CurrencyCode
-                    },
-                    TaxRate = taxRate.Rate.ToStringInvariant("n2")
-                });
-            }
-
-            // Get subtotal
-            var cartSubTotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(cart, false);
-            var subTotalConverted = _currencyService.ConvertFromPrimaryCurrency(cartSubTotal.SubtotalWithoutDiscount.Amount, currency);
-
-            // Get tax
-            (Money price, TaxRatesDictionary taxRates) = await _orderCalculationService.GetShoppingCartTaxTotalAsync(cart);
-            var cartTax = _currencyService.ConvertFromPrimaryCurrency(price.Amount, currency);
-
-            // Get shipping cost
-            var shippingTotal = await _orderCalculationService.GetShoppingCartShippingTotalAsync(cart);
-
-            // Discount
-            var cartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(cart);
-            var orderTotalDiscountAmount = new Money();
-            if (cartTotal.DiscountAmount > decimal.Zero)
-            {
-                orderTotalDiscountAmount = _currencyService.ConvertFromPrimaryCurrency(cartTotal.DiscountAmount.Amount, currency);
-            }
-
-            var purchaseUnits = new List<PurchaseUnit>
-            {
-                new PurchaseUnit
-                {
-                    Amount = new AmountWithBreakdown
-                    {
-                        Value = request.OrderTotal.ToStringInvariant("n2"),
-                        CurrencyCode = currency.CurrencyCode,
-                        AmountBreakdown = new AmountBreakdown
-                        {
-                            ItemTotal = new MoneyMessage
-                            {
-                                Value = subTotalConverted.Amount.ToStringInvariant("n2"),
-                                CurrencyCode = currency.CurrencyCode
-                            },
-                            Shipping = new MoneyMessage
-                            {
-                                Value = shippingTotal.ShippingTotal.Value.Amount.ToStringInvariant("n2"),
-                                CurrencyCode = currency.CurrencyCode
-                            },
-                            Discount = new MoneyMessage
-                            {
-                                Value = orderTotalDiscountAmount.Amount.ToStringInvariant("n2"),
-                                CurrencyCode = currency.CurrencyCode
-                            },
-                            TaxTotal = new MoneyMessage
-                            {
-                                Value = cartTax.Amount.ToStringInvariant("n2"),
-                                CurrencyCode = currency.CurrencyCode
-                            }
-                        }
-                    },
-                    //InvoiceId = request.OrderNumber,
-                    CustomId = request.OrderGuid.ToString(),
-                    Description = string.Empty,
-                    Items = purchaseUnitItems.ToArray(),
-                    Shipping = new ShippingDetail
-                    {
-                        ShippingName = new ShippingName
-                        {
-                            FullName = customer.ShippingAddress.GetFullName()
-                        },
-                        ShippingAddress = new ShippingAddress
-                        {
-                            AddressLine1 = customer.ShippingAddress.Address1,
-                            AddressLine2 = customer.ShippingAddress.Address2,
-                            AdminArea1 = customer.ShippingAddress.StateProvince.Name,
-                            AdminArea2 = customer.ShippingAddress.City,
-                            PostalCode = customer.ShippingAddress.ZipPostalCode,
-                            CountryCode = customer.ShippingAddress.Country.TwoLetterIsoCode
-                        }
-                    }
-                }
-            };
-
-            return purchaseUnits;
         }
 
         /// <summary>
@@ -333,7 +210,7 @@ namespace Smartstore.PayPal.Client
 
             var ordersPatchRequest = new OrdersPatchRequest<object>(request.PayPalOrderId);
             var cart = await _shoppingCartService.GetCartAsync(_workContext.CurrentCustomer, ShoppingCartType.ShoppingCart, request.StoreId);
-            var purchaseUnits = await GetPurchaseUnitsAsync(cart, request, _workContext.CurrentCustomer, _workContext.WorkingCurrency);
+            var purchaseUnits = await GetPurchaseUnitsAsync(cart, request.OrderTotal, request.OrderGuid.ToString(), false);
             purchaseUnits[0].ReferenceId = request.OrderGuid.ToString();
 
             var patches = new List<Patch<object>>
@@ -344,13 +221,6 @@ namespace Smartstore.PayPal.Client
                     Path = "/purchase_units/@reference_id=='default'",
                     Value = purchaseUnits[0]
                 }
-                //},
-                //new Patch<object>
-                //{
-                //    Op = "replace",
-                //    Path = "/application_context/shipping_preference",
-                //    Value = request.IsShippingMethodSet ? ShippingPreference.SetProvidedAddress : ShippingPreference.NoShipping
-                //}
             };
 
             ordersPatchRequest.WithBody(patches);
@@ -496,6 +366,172 @@ namespace Smartstore.PayPal.Client
         /// </summary>  
         public Task<PayPalResponse> CreateWebhookAsync(CreateWebhookRequest request, CancellationToken cancelToken = default)
             => ExecuteRequestAsync(request, cancelToken);
+
+        #endregion
+
+        #region Utilities 
+
+        private async Task<List<PurchaseUnitItem>> GetPurchaseUnitItemsAsync(ShoppingCart cart, Customer customer, Currency currency)
+        {
+            var model = await cart.MapAsync(
+                isEditable: false,
+                prepareEstimateShippingIfEnabled: false,
+                prepareAndDisplayOrderReviewData: false);
+
+            var purchaseUnitItems = new List<PurchaseUnitItem>();
+            var cartProducts = cart.Items.Select(x => x.Item.Product).ToArray();
+            var batchContext = _productService.CreateProductBatchContext(cartProducts, null, customer, false);
+            var calculationOptions = _priceCalculationService.CreateDefaultOptions(false, customer, currency, batchContext);
+
+            foreach (var item in model.Items)
+            {
+                var cartItem = cart.Items.Where(x => x.Item.ProductId == item.ProductId).FirstOrDefault();
+                var taxRate = await _taxService.GetTaxRateAsync(cartItem.Item.Product);
+                var calculationContext = await _priceCalculationService.CreateCalculationContextAsync(cartItem, calculationOptions);
+                var (unitPrice, subtotal) = await _priceCalculationService.CalculateSubtotalAsync(calculationContext);
+
+                var productName = item.ProductName.Value.Length > 126 ? item.ProductName.Value[..126] : item.ProductName.Value;
+                var productDescription = item.ShortDesc.Value.Length > 126 ? item.ShortDesc.Value[..126] : item.ShortDesc.Value;
+
+                purchaseUnitItems.Add(new PurchaseUnitItem
+                {
+                    UnitAmount = new MoneyMessage
+                    {
+                        Value = unitPrice.Tax.Value.PriceNet.ToStringInvariant("n2"),
+                        CurrencyCode = currency.CurrencyCode
+                    },
+                    Name = productName,
+                    Description = productDescription,
+                    Category = item.IsEsd ? ItemCategoryType.DigitalGoods : ItemCategoryType.PhysicalGoods,
+                    Quantity = item.EnteredQuantity.ToString(),
+                    Sku = item.Sku,
+                    Tax = new MoneyMessage
+                    {
+                        Value = unitPrice.Tax.Value.Amount.ToStringInvariant("n2"),
+                        CurrencyCode = currency.CurrencyCode
+                    },
+                    TaxRate = taxRate.Rate.ToStringInvariant("n2")
+                });
+            }
+
+            return purchaseUnitItems;
+        }
+
+        private async Task<List<PurchaseUnit>> GetPurchaseUnitsAsync(
+            ShoppingCart cart,
+            decimal orderTotal = 0,
+            string orderGuid = "",
+            bool isExpressCheckout = true)
+        {
+            var customer = _workContext.CurrentCustomer;
+            var currency = _workContext.WorkingCurrency;
+
+            var purchaseUnitItems = await GetPurchaseUnitItemsAsync(cart, customer, currency);
+
+            // Get subtotal
+            var cartSubTotal = await _orderCalculationService.GetShoppingCartSubtotalAsync(cart, false);
+            var subTotalConverted = _currencyService.ConvertFromPrimaryCurrency(cartSubTotal.SubtotalWithoutDiscount.Amount, currency);
+
+            // Get tax
+            (Money price, _) = await _orderCalculationService.GetShoppingCartTaxTotalAsync(cart);
+            var cartTax = _currencyService.ConvertFromPrimaryCurrency(price.Amount, currency);
+
+            var amountValue = isExpressCheckout || orderTotal == 0
+                ? (subTotalConverted.Amount + cartTax.Amount).ToStringInvariant("n2")
+                : orderTotal.ToStringInvariant("n2");
+
+            var purchaseUnit = new PurchaseUnit
+            {
+                Amount = new AmountWithBreakdown
+                {
+                    Value = amountValue,
+                    CurrencyCode = currency.CurrencyCode,
+                    AmountBreakdown = new AmountBreakdown
+                    {
+                        ItemTotal = new MoneyMessage
+                        {
+                            Value = subTotalConverted.Amount.ToStringInvariant("n2"),
+                            CurrencyCode = currency.CurrencyCode
+                        },
+                        TaxTotal = new MoneyMessage
+                        {
+                            Value = cartTax.Amount.ToStringInvariant("n2"),
+                            CurrencyCode = currency.CurrencyCode
+                        }
+                    }
+                },
+                Description = string.Empty,
+                Items = purchaseUnitItems.ToArray()
+            };
+
+            if (!isExpressCheckout)
+            {
+                // Get shipping cost
+                var shippingTotal = await _orderCalculationService.GetShoppingCartShippingTotalAsync(cart);
+
+                // Discount
+                var cartTotal = await _orderCalculationService.GetShoppingCartTotalAsync(cart);
+                var orderTotalDiscountAmount = new Money();
+                if (cartTotal.DiscountAmount > decimal.Zero)
+                {
+                    orderTotalDiscountAmount = _currencyService.ConvertFromPrimaryCurrency(cartTotal.DiscountAmount.Amount, currency);
+                }
+
+                purchaseUnit.Amount.AmountBreakdown.Discount = new MoneyMessage
+                {
+                    Value = orderTotalDiscountAmount.Amount.ToStringInvariant("n2"),
+                    CurrencyCode = currency.CurrencyCode
+                };
+
+                purchaseUnit.Amount.AmountBreakdown.Shipping = new MoneyMessage
+                {
+                    Value = shippingTotal.ShippingTotal.Value.Amount.ToStringInvariant("n2"),
+                    CurrencyCode = currency.CurrencyCode
+                };
+
+                purchaseUnit.CustomId = orderGuid;
+                purchaseUnit.Shipping = new ShippingDetail
+                {
+                    ShippingName = new ShippingName
+                    {
+                        FullName = customer.ShippingAddress.GetFullName()
+                    },
+                    ShippingAddress = new ShippingAddress
+                    {
+                        AddressLine1 = customer.ShippingAddress.Address1,
+                        AddressLine2 = customer.ShippingAddress.Address2,
+                        AdminArea1 = customer.ShippingAddress.StateProvince.Name,
+                        AdminArea2 = customer.ShippingAddress.City,
+                        PostalCode = customer.ShippingAddress.ZipPostalCode,
+                        CountryCode = customer.ShippingAddress.Country.TwoLetterIsoCode
+                    }
+                };
+            }
+
+            return new List<PurchaseUnit> { purchaseUnit };
+        }
+
+        public async Task<OrderMessage> GetOrderForStandardProviderAsync(bool isExpressCheckout = true)
+        {
+            var cart = await _shoppingCartService.GetCartAsync(_workContext.CurrentCustomer, ShoppingCartType.ShoppingCart, _storeContext.CurrentStore.Id);
+            var settings = _settingFactory.LoadSettings<PayPalSettings>(_storeContext.CurrentStore.Id);
+            var purchaseUnits = await GetPurchaseUnitsAsync(cart, isExpressCheckout: isExpressCheckout);
+
+            var orderMessage = new OrderMessage
+            {
+                Intent = settings.Intent == PayPalTransactionType.Capture ? Intent.Capture : Intent.Authorize,
+                PurchaseUnits = purchaseUnits.ToArray(),
+                ApplicationContext = new ApplicationContext
+                {
+                    ShippingPreference = isExpressCheckout
+                        ? ShippingPreference.GetFromFile
+                        : cart.IsShippingRequired() ? ShippingPreference.SetProvidedAddress : ShippingPreference.NoShipping
+                }
+            };
+
+            return orderMessage;
+        }
+
 
         #endregion
 

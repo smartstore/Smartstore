@@ -322,7 +322,7 @@ namespace Smartstore.PayPal.Client.Messages
 
     public class AppContext
     {
-        [JsonProperty("shipping_preference", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        [JsonProperty("shipping_preference")]
         public ShippingPreference ShippingPreference;
     }
 
