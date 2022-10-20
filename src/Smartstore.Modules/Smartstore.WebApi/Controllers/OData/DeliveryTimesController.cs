@@ -22,7 +22,7 @@ namespace Smartstore.Web.Api.Controllers.OData
             var set = builder.EntitySet<DeliveryTime>("DeliveryTimes");
 
             set.EntityType.Collection
-                .Function("GetDeliveryDate")
+                .Function(nameof(GetDeliveryDate))
                 .Returns<SimpleRange<DateTime?>>()
                 .Parameter<int>("Id");
         }
@@ -84,7 +84,7 @@ namespace Smartstore.Web.Api.Controllers.OData
             var deliveryTime = await Db.DeliveryTimes.FindByIdAsync(key, false);
             if (deliveryTime == null)
             {
-                return NotFound();
+                return NotFound($"Cannot find {nameof(DeliveryTime)} entity with identifier {key}.");
             }
 
             var (min, max) = _deliveryTimeService.Value.GetDeliveryDate(deliveryTime);

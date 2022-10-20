@@ -14,7 +14,7 @@ namespace Smartstore.Web.Api.Swagger
     /// </remarks>
     internal class SwaggerDocumentFilter : IDocumentFilter
     {
-        private static readonly Regex _pathsToIgnore = new(@"[a-z0-9\/](\$count|\{key\})", //(/|\z|\+)
+        private static readonly Regex _pathsToIgnore = new(@"[a-z0-9\/](\$count|\{key\}|default\.)", //(/|\z|\+)
             RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
         //private static readonly Regex _schemasToIgnore = new(@"(Microsoft\.AspNetCore\.OData\.|System\.Collections\.Generic\.KeyValuePair).+",

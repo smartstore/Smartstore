@@ -2,9 +2,11 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.OData.Deltas;
+using Microsoft.AspNetCore.OData.Extensions;
 using Microsoft.AspNetCore.OData.Results;
 using Microsoft.AspNetCore.OData.Routing.Controllers;
 using Microsoft.OData;
+using Microsoft.OData.UriParser;
 using Smartstore.ComponentModel;
 
 namespace Smartstore.Web.Api
@@ -19,6 +21,7 @@ namespace Smartstore.Web.Api
     /// - Accurate examples: https://github.com/dotnet/aspnet-api-versioning/tree/93bd8dc7582ec14c8ec97997c01cfe297b085e17/examples/AspNetCore/OData
     /// - Routing conventions: https://learn.microsoft.com/en-us/odata/webapi/built-in-routing-conventions
     /// - $ref: https://learn.microsoft.com/en-us/aspnet/web-api/overview/odata-support-in-aspnet-web-api/odata-v4/entity-relations-in-odata-v4#creating-a-relationship-between-entities
+    /// - Swashbuckle: https://github.com/domaindrivendev/Swashbuckle.AspNetCore
     /// </remarks>
     [Authorize(AuthenticationSchemes = "Smartstore.WebApi.Basic")]
     public abstract class SmartODataController<TEntity> : ODataController
@@ -142,18 +145,9 @@ namespace Smartstore.Web.Api
                     await Db.SaveChangesAsync();
                 }
             }
-            catch (ODataErrorException ex)
-            {
-                return ODataErrorResult(ex.Error);
-            }
             catch (Exception ex)
             {
-                return ODataErrorResult(new()
-                {
-                    ErrorCode = StatusCodes.Status422UnprocessableEntity.ToString(),
-                    Message = ex.Message,
-                    InnerError = new ODataInnerError(ex)
-                });
+                return ErrorResult(ex);
             }
 
             return Created(entity);
@@ -233,25 +227,11 @@ namespace Smartstore.Web.Api
             {
                 var code = await Entities.AnyAsync(x => x.Id == id) ? StatusCodes.Status409Conflict : StatusCodes.Status404NotFound;
 
-                return ODataErrorResult(new()
-                {
-                    ErrorCode = code.ToString(),
-                    Message = ex.Message,
-                    InnerError = new ODataInnerError(ex)
-                });
-            }
-            catch (ODataErrorException ex)
-            {
-                return ODataErrorResult(ex.Error);
+                return ErrorResult(ex, null, code);
             }
             catch (Exception ex)
             {
-                return ODataErrorResult(new()
-                {
-                    ErrorCode = StatusCodes.Status422UnprocessableEntity.ToString(),
-                    Message = ex.Message,
-                    InnerError = new ODataInnerError(ex)
-                });
+                return ErrorResult(ex);
             }
 
             return Updated(entity);
@@ -286,18 +266,9 @@ namespace Smartstore.Web.Api
                     await Db.SaveChangesAsync();
                 }
             }
-            catch (ODataErrorException ex)
-            {
-                return ODataErrorResult(ex.Error);
-            }
             catch (Exception ex)
             {
-                return ODataErrorResult(new()
-                {
-                    ErrorCode = StatusCodes.Status422UnprocessableEntity.ToString(),
-                    Message = ex.Message,
-                    InnerError = new ODataInnerError(ex)
-                });
+                return ErrorResult(ex);
             }
 
             return NoContent();
@@ -309,43 +280,61 @@ namespace Smartstore.Web.Api
         /// Gets related keys from an OData Uri.
         /// </summary>
         /// <returns>Dictionary with key property names and values.</returns>
-        //protected IReadOnlyDictionary<string, object> GetRelatedKeys(Uri uri)
-        //{
-        //    Guard.NotNull(uri, nameof(uri));
+        protected IReadOnlyDictionary<string, object> GetRelatedKeys(Uri uri)
+        {
+            Guard.NotNull(uri, nameof(uri));
 
-        //    var feature = HttpContext.ODataFeature();
-        //    //var serviceRoot = new Uri(new Uri(feature.BaseAddress), feature.RoutePrefix);
-        //    var serviceRoot = new Uri(feature.BaseAddress);
-        //    var parser = new ODataUriParser(feature.Model, serviceRoot, uri, feature.Services);
+            var feature = HttpContext.ODataFeature();
+            //var serviceRoot = new Uri(new Uri(feature.BaseAddress), feature.RoutePrefix);
+            var serviceRoot = new Uri(feature.BaseAddress);
+            var parser = new ODataUriParser(feature.Model, serviceRoot, uri, feature.Services);
 
-        //    parser.Resolver ??= new UnqualifiedODataUriResolver { EnableCaseInsensitive = true };
-        //    //parser.UrlKeyDelimiter = ODataUrlKeyDelimiter.Slash;
+            parser.Resolver ??= new UnqualifiedODataUriResolver { EnableCaseInsensitive = true };
+            //parser.UrlKeyDelimiter = ODataUrlKeyDelimiter.Slash;
 
-        //    var path = parser.ParsePath();
-        //    var segment = path.OfType<KeySegment>().FirstOrDefault();
+            var path = parser.ParsePath();
+            var segment = path.OfType<KeySegment>().FirstOrDefault();
 
-        //    if (segment is null)
-        //    {
-        //        return new Dictionary<string, object>(capacity: 0);
-        //    }
+            if (segment is null)
+            {
+                return new Dictionary<string, object>(capacity: 0);
+            }
 
-        //    return new Dictionary<string, object>(segment.Keys, StringComparer.OrdinalIgnoreCase);
-        //}
+            return new Dictionary<string, object>(segment.Keys, StringComparer.OrdinalIgnoreCase);
+        }
 
         /// <summary>
         /// Gets the related key from an OData Uri.
         /// </summary>
-        //protected T GetRelatedKey<T>(Uri uri, string key = null)
-        //{
-        //    var keys = GetRelatedKeys(uri);
+        protected T GetRelatedKey<T>(Uri uri, string key = null)
+        {
+            var keys = GetRelatedKeys(uri);
 
-        //    if (keys.TryGetValue(key ?? "id", out var value))
-        //    {
-        //        return value.Convert<T>();
-        //    }
+            if (keys.TryGetValue(key ?? "id", out var value))
+            {
+                return value.Convert<T>();
+            }
 
-        //    return default;
-        //}
+            return default;
+        }
+
+        protected ODataErrorResult ErrorResult(
+            Exception ex = null,
+            string message = null,
+            int statusCode = StatusCodes.Status422UnprocessableEntity)
+        {
+            if (ex != null && ex is ODataErrorException oex)
+            {
+                return ODataErrorResult(oex.Error);
+            }
+
+            return ODataErrorResult(new()
+            {
+                ErrorCode = statusCode.ToString(),
+                Message = message ?? ex.Message,
+                InnerError = ex != null ? new ODataInnerError(ex) : null
+            });
+        }
 
         protected async Task<TEntity> ApplyRelatedEntityIdsAsync(TEntity entity)
         {

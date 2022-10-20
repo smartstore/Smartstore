@@ -16,6 +16,8 @@ namespace Smartstore.Web.Api
     {
         public override void Build(ODataModelBuilder builder, int version)
         {
+            builder.Namespace = string.Empty;
+
             builder.EntitySet<Address>("Addresses");
             builder.EntitySet<Category>("Categories");
             builder.EntitySet<Country>("Countries");
@@ -34,6 +36,7 @@ namespace Smartstore.Web.Api
             builder.EntitySet<MeasureWeight>("MeasureWeights");
             MediaFilesController.Init(builder);
 
+            builder.EntitySet<MediaFolder>("MediaFolderEntities");
 
             builder.EntitySet<StateProvince>("StateProvinces");
         }

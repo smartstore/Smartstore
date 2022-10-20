@@ -22,9 +22,6 @@ namespace Smartstore.Web.Api
     // TODO: (mg) (core) IEEE754Compatible=true is not supported\working: https://github.com/OData/WebApi/issues/1460
     // TODO: (mg) (core) implement Rate Limiting when switching to .NET 7: https://devblogs.microsoft.com/dotnet/announcing-rate-limiting-for-dotnet/
 
-    /// <remarks>
-    /// For proper Swagger configuration see https://github.com/domaindrivendev/Swashbuckle.AspNetCore
-    /// </remarks>
     internal class Startup : StarterBase
     {
         public override void ConfigureServices(IServiceCollection services, IApplicationContext appContext)

@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using Microsoft.AspNetCore.OData.Formatter;
 using Microsoft.AspNetCore.OData.Query;
 using Microsoft.OData.ModelBuilder;
 using Smartstore.ComponentModel;
@@ -8,6 +9,8 @@ using Smartstore.Web.Api.Models.OData.Media;
 namespace Smartstore.Web.Api.Controllers.OData
 {
     // INFO: inheritance from WebApiController<MediaFile> does not work. FileItemInfo.File never gets expanded.
+    // INFO: some endpoints are accessible via POST where you would expect GET.
+    // That's because a function like GET /MediaFiles/FileExists(Path='content/my-file.jpg') would never work (HTTP status 404).
 
     /// <summary>
     /// The endpoint for operations on MediaFile entity. Returns type FileItemInfo which wraps and enriches MediaFile.
@@ -26,10 +29,16 @@ namespace Smartstore.Web.Api.Controllers.OData
             //var fileSet = builder.EntitySet<MediaFile>("MediaFiles");
             //var infoSet = builder.EntitySet<FileItemInfo>("FileItemInfos");
 
+            const string infoSetName = "MediaFiles";
+
             var fileSet = builder.EntitySet<MediaFile>("MediaFileEntities");
             var infoSet = builder.EntitySet<FileItemInfo>("MediaFiles");
 
-            builder.EntitySet<MediaFolder>("MediaFolderEntities");
+            infoSet.EntityType.Collection
+                .Action(nameof(GetFileByPath))
+                .ReturnsFromEntitySet<FileItemInfo>(infoSetName)
+                .Parameter<string>("Path");
+
         }
 
         [HttpGet, WebApiQueryable]
@@ -54,14 +63,85 @@ namespace Smartstore.Web.Api.Controllers.OData
 
             if (file == null)
             {
-                return NotFound();
+                return NotFound($"Cannot find {nameof(MediaFile)} entity with identifier {key}.");
             }
 
             return Ok(Convert(file));
         }
 
+        [HttpPost, ApiExplorerSettings(IgnoreApi = true)]
+        public IActionResult Post()
+        {
+            return ErrorResult(null, "POST MediaFiles is not allowed.", Status403Forbidden);
+        }
+
+        [HttpPut, ApiExplorerSettings(IgnoreApi = true)]
+        public IActionResult Put()
+        {
+            return ErrorResult(null, "PUT MediaFiles is not allowed.", Status403Forbidden);
+        }
+
+        [HttpPatch, ApiExplorerSettings(IgnoreApi = true)]
+        public IActionResult Patch()
+        {
+            return ErrorResult(null, "PATCH MediaFiles is not allowed.", Status403Forbidden);
+        }
+
+        [HttpDelete, ApiExplorerSettings(IgnoreApi = true)]
+        public IActionResult Delete()
+        {
+            // Insufficient endpoint. Parameters required but ODataActionParameters not possible here.
+            // Query string parameters less good because not part of the EDM.
+            return ErrorResult(null, $"DELETE MediaFiles is not allowed. Use action method \"{nameof(DeleteFile)}\" instead.", Status403Forbidden);
+        }
+
+        #region Actions and functions
+
+        /// <summary>
+        /// Gets a file by path.
+        /// </summary>
+        /// <example>
+        /// POST /MediaFiles/GetFileByPath {"Path":"content/my-file.jpg"}
+        /// </example>
+        [Consumes(MediaTypeNames.Application.Json)]
+        [Produces(MediaTypeNames.Application.Json)]
+        [ProducesResponseType(typeof(FileItemInfo), Status200OK)]
+        [ProducesResponseType(Status400BadRequest)]
+        [ProducesResponseType(Status404NotFound)]
+        [HttpPost, WebApiQueryable]
+        public async Task<IActionResult> GetFileByPath(ODataActionParameters parameters, ODataQueryOptions<MediaFile> options)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
+            try
+            {
+                var path = parameters.GetValueSafe<string>("Path");
+                var flags = GetLoadFlags(options);
+                var file = await _mediaService.GetFileByPathAsync(path, flags);
+
+                if (file == null)
+                {
+                    return NotFound($"Cannot find {nameof(MediaFile)} entity with path {path.NaIfEmpty()}.");
+                }
+
+                return Ok(Convert(file));
+            }
+            catch (Exception ex)
+            {
+                return ErrorResult(ex);
+            }
+        }
+
+        private void DeleteFile()
+        {
+            throw new NotImplementedException();
+        }
 
 
+        #endregion
 
         private static FileItemInfo Convert(MediaFileInfo file)
         {

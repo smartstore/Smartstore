@@ -115,7 +115,7 @@ namespace Smartstore.Web.Api.Swagger
             switch (helper.ActionName)
             {
                 case "Get":
-                    if (helper.ActionDescriptor.Parameters.Any(x => x.Name.EqualsNoCase("key")))
+                    if (helper.HasKeyParameter)
                     {
                         helper.Op.Summary ??= $"Gets {entityName} by identifier.";
                         helper.Op.Responses[Status200OK.ToString()] = helper.CreateSucccessResponse(true);
@@ -191,6 +191,11 @@ namespace Smartstore.Web.Api.Swagger
         /// </summary>
         protected virtual void AddQueryParameters(SwaggerOperationHelper helper)
         {
+            if (!helper.HttpMethod.EqualsNoCase("Get"))
+            {
+                return;
+            }
+
             var attribute = helper.ActionDescriptor?.FilterDescriptors
                 .Where(x => x.Filter is EnableQueryAttribute)
                 .Select(x => x.Filter as EnableQueryAttribute)
@@ -202,7 +207,7 @@ namespace Smartstore.Web.Api.Swagger
             }
 
             var allowedOptions = _supportedQueryOptions.Where(x => attribute.AllowedQueryOptions.HasFlag(x));
-            if (helper.Context.MethodInfo.ReturnType.IsClosedGenericTypeOf(typeof(SingleResult<>)))
+            if (helper.HasKeyParameter)
             {
                 allowedOptions = allowedOptions.Where(x => x == AllowedQueryOptions.Select || x == AllowedQueryOptions.Compute);
             }

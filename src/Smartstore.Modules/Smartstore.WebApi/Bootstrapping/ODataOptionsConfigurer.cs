@@ -41,6 +41,10 @@ namespace Smartstore.Web.Api.Bootstrapping
                 var edmModel = modelBuilder.GetEdmModel();
 
                 options.TimeZone = TimeZoneInfo.Utc;
+
+                // Allow OData actions and functions without the need for namespaces (OData V3 backward compatibility).
+                // A namespace URL world be for example: /Products(123)/ProductService.FinalPrice
+                // Note: the dot in this URL will cause IIS to return error 404. See ExtensionlessUrlHandler-Integrated-4.0.
                 options.RouteOptions.EnableUnqualifiedOperationCall = true;
 
                 // Why enabling EnableKeyAsSegment? We need KeyInParenthesis for OData functions anyway.

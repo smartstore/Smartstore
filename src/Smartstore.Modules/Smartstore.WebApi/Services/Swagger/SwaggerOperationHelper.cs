@@ -29,6 +29,9 @@ namespace Smartstore.Web.Api.Swagger
         public Type EntityType
             => Context.MethodInfo.DeclaringType.BaseType.GenericTypeArguments[0];
 
+        public bool HasKeyParameter
+            => Context.ApiDescription.ActionDescriptor.Parameters.Any(x => x.Name.EqualsNoCase("key"));
+
         public ControllerActionDescriptor ActionDescriptor
             => Context.ApiDescription.ActionDescriptor as ControllerActionDescriptor;
 
