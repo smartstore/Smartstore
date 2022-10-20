@@ -21,6 +21,7 @@ namespace Smartstore.Web.Api.Security
     /// </summary>
     public sealed class BasicAuthenticationHandler : AuthenticationHandler<AuthenticationSchemeOptions>
     {
+        const string AuthenticateHeader = "Basic realm=\"Smartstore.WebApi\", charset=\"UTF-8\"";
         internal const string AppVersionHeader = "Smartstore-Api-AppVersion";
         internal const string VersionHeader = "Smartstore-Api-Version";
         internal const string MaxTopHeader = "Smartstore-Api-MaxTop";
@@ -134,6 +135,17 @@ namespace Smartstore.Web.Api.Security
             }
         }
 
+        /// <summary>
+        /// Called when authentication failed. "WWW-Authenticate" header causes the browser to prompt for credentials.
+        /// For the sake of completeness, the header is set again here, although this is already done in <see cref="HandleAuthenticateAsync"/>.
+        /// </summary>
+        protected override Task HandleChallengeAsync(AuthenticationProperties properties)
+        {
+            Response.Headers.WWWAuthenticate = AuthenticateHeader;
+
+            return base.HandleChallengeAsync(properties);
+        }
+
         private async Task<(Customer Customer, WebApiUser User)> GetCustomer()
         {
             var rawAuthValue = Request?.Headers[HeaderNames.Authorization];
@@ -201,7 +213,7 @@ namespace Smartstore.Web.Api.Security
             }
             else
             {
-                headers.WWWAuthenticate = "Basic realm=\"Smartstore.WebApi\", charset=\"UTF-8\"";
+                headers.WWWAuthenticate = AuthenticateHeader;
 
                 if (ex is AuthenticationException authEx)
                 {
