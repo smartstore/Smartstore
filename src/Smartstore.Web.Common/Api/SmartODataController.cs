@@ -23,7 +23,7 @@ namespace Smartstore.Web.Api
     /// - $ref: https://learn.microsoft.com/en-us/aspnet/web-api/overview/odata-support-in-aspnet-web-api/odata-v4/entity-relations-in-odata-v4#creating-a-relationship-between-entities
     /// - Swashbuckle: https://github.com/domaindrivendev/Swashbuckle.AspNetCore
     /// </remarks>
-    [Authorize(AuthenticationSchemes = "Smartstore.WebApi.Basic")]
+    [Authorize(AuthenticationSchemes = "Api")]
     public abstract class SmartODataController<TEntity> : ODataController
         where TEntity : BaseEntity, new()
     {

@@ -29,9 +29,14 @@ namespace Smartstore.Web.Api
             services.AddSingleton<IApiUserStore, ApiUserStore>();
             services.AddScoped<IWebApiService, WebApiService>();
 
-            services.AddAuthentication("Smartstore.WebApi.Basic")
-                .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("Smartstore.WebApi.Basic", null);
-            
+            services.Configure<AuthenticationOptions>((options) =>
+            {
+                if (!options.Schemes.Any(x => x.Name == "Api"))
+                {
+                    options.AddScheme<BasicAuthenticationHandler>("Api", null);
+                }
+            });
+
             services.Configure<MvcOptions>(o =>
             {
                 o.RespectBrowserAcceptHeader = true;

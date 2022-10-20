@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Linq;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Smartstore.AmazonPay.Filters;
 using Smartstore.AmazonPay.Services;
@@ -14,8 +16,13 @@ namespace Smartstore.AmazonPay
         {
             services.AddScoped<IAmazonPayService, AmazonPayService>();
 
-            services.AddAuthentication(AmazonPaySignInProvider.SystemName)
-                .AddScheme<AmazonPaySignInOptions, AmazonPaySignInHandler>(AmazonPaySignInProvider.SystemName, null);
+            services.Configure<AuthenticationOptions>((options) =>
+            {
+                if (!options.Schemes.Any(x => x.Name == AmazonPaySignInProvider.SystemName))
+                {
+                    options.AddScheme<AmazonPaySignInHandler>(AmazonPaySignInProvider.SystemName, null);
+                }
+            });
 
             services.Configure<MvcOptions>(o =>
             {
