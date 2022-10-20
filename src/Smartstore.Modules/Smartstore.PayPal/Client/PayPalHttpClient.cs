@@ -192,11 +192,10 @@ namespace Smartstore.PayPal.Client
                 .WithClientMetadataId(clientMetaId.ToString())
                 .WithBody(orderMessage);
 
-            var response = await ExecuteRequestAsync(ordersGetRequest, cancelToken);
+            var response = await ExecuteRequestAsync(orderCreateRequest, cancelToken);
             // DEV: uncomment for response viewing 
             //var rawResponse = response.Body<object>().ToString();
             //dynamic jResponse = JObject.Parse(rawResponse);
-
 
             return response;
         }
@@ -521,7 +520,8 @@ namespace Smartstore.PayPal.Client
             {
                 Intent = settings.Intent == PayPalTransactionType.Capture ? Intent.Capture : Intent.Authorize,
                 PurchaseUnits = purchaseUnits.ToArray(),
-                ApplicationContext = new ApplicationContext
+                // TODO: (mh) (core) Rename > not AppContext & not ApplicationContext
+                AppContext = new Messages.AppContext
                 {
                     ShippingPreference = isExpressCheckout
                         ? ShippingPreference.GetFromFile
