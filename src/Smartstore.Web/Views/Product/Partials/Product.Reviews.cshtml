@@ -27,7 +27,7 @@
             </div>
 
             <div class="review-meta">
-                <span itemprop="author" itemscope itemtype="https://schema.org/Person">
+                <span sm-if="review.CustomerName.HasValue()" itemprop="author" itemscope itemtype="https://schema.org/Person">
                     <span class="review-meta-label">@T("Reviews.From"):</span>
                     @if (review.AllowViewingProfiles)
                     {
@@ -43,6 +43,10 @@
 
                 <span class="review-meta-label">@T("Common.Date"):</span>
                 <span class="review-meta-value" itemprop="datePublished" content="@review.WrittenOn.ToString("yyyy-MM-DD")">@review.WrittenOnStr</span>
+
+                <span class="badge @(review.IsVerifiedPurchase ? "badge-success" : "badge-secondary")">
+                    @T("Reviews." + (review.IsVerifiedPurchase ? "Verified" : "Unverified"))
+                </span>
             </div>
 
             <p class="review-text" dir="auto" itemprop="reviewBody">

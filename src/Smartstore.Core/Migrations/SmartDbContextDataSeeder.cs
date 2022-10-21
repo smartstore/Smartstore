@@ -67,6 +67,15 @@ namespace Smartstore.Core.Data.Migrations
                 "Vergleichspreis",
                 "Sets a comparison price, e.g.: MSRP, list price, regular price before discount, etc. The comparison price serves as the strike price.",
                 "Legt einen Vergleichspreis fest, z.B.: UVP, Listenpreis, regulärer Preis vor einer Ermäßigung etc. Der Vergleichspreis dienst als Streichpreis.");
+
+            builder.AddOrUpdate("Admin.Catalog.ProductReviews.Fields.IsVerfifiedPurchase",
+                "Is verified purchase",
+                "Ist verifizierter Kauf",
+                "Specifies whether this product review was written by a customer who purchased the product from this store.",
+                "Legt fest, ob diese Produktbewertung von einem Kunden verfasst wurde, der das Produkt in diesem Shop gekauft hat.");
+
+            builder.AddOrUpdate("Reviews.Verified", "Verified purchase", "Verifizierter Kauf");
+            builder.AddOrUpdate("Reviews.Unverified", "Unverified purchase", "Nicht verifizierter Kauf");
         }
     }
 }

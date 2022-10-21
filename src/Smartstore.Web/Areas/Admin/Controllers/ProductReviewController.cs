@@ -198,6 +198,7 @@ namespace Smartstore.Admin.Controllers
                 productReview.Title = model.Title;
                 productReview.ReviewText = model.ReviewText;
                 productReview.IsApproved = model.IsApproved;
+                productReview.IsVerifiedPurchase = model.IsVerifiedPurchase;
 
                 await _db.SaveChangesAsync();
 
@@ -264,6 +265,7 @@ namespace Smartstore.Admin.Controllers
             model.UpdatedOn = Services.DateTimeHelper.ConvertToUserTime(productReview.UpdatedOnUtc, DateTimeKind.Utc);
             model.HelpfulYesTotal = productReview.HelpfulYesTotal;
             model.HelpfulNoTotal = productReview.HelpfulNoTotal;
+            model.IsVerifiedPurchase = productReview.IsVerifiedPurchase;
             model.EditUrl = Url.Action(nameof(Edit), new { productReview.Id });
 
             if (customer != null)

@@ -76,6 +76,11 @@ namespace Smartstore.Core.Catalog.Products
         /// </summary>
         public int HelpfulNoTotal { get; set; }
 
+        /// <summary>
+        /// Gets or sets a flag that defines whether the reviewed product was purchased by the customer.
+        /// </summary>
+        public bool? IsVerifiedPurchase { get; set; }
+
         private ICollection<ProductReviewHelpfulness> _productReviewHelpfulnessEntries;
         /// <summary>
         /// Gets or sets the entries of product review helpfulness.

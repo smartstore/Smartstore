@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.EntityFrameworkCore;
+using Parlot.Fluent;
 using Smartstore.Caching;
 using Smartstore.Collections;
 using Smartstore.Core.Catalog;
@@ -1892,6 +1894,8 @@ namespace Smartstore.Web.Controllers
             model.ProductSeName = await product.GetActiveSlugAsync();
 
             product = _db.FindTracked<Product>(product.Id) ?? product;
+
+            // TODO: (mh) (core) Use LoadCollectionAsync
             var collectionLoaded = _db.IsCollectionLoaded(product, x => x.ProductReviews, out var collectionEntry);
 
             if (!collectionLoaded)
@@ -1917,13 +1921,20 @@ namespace Smartstore.Web.Controllers
                     query = query.Take(take.Value);
                 }
 
+                // TODO: (mh) (core) Inlcude CustomerRoles
                 var reviews = collectionLoaded
                     ? product.ProductReviews.Take(take ?? int.MaxValue).ToList()
                     : await query.Include(x => x.Customer).ToListAsync();
 
+                var customerIds = reviews.ToDistinctArray(x => x.CustomerId);
+                var orderCustomerIds = await _db.Orders
+                    .Where(x => x.OrderItems.Any(y => y.ProductId == product.Id) && customerIds.Contains(x.CustomerId))
+                    .Select(x => x.CustomerId)
+                    .ToListAsync();
+
                 foreach (var review in reviews)
                 {
-                    model.Items.Add(new ProductReviewModel
+                    var reviewModel = new ProductReviewModel
                     {
                         Id = review.Id,
                         CustomerId = review.CustomerId,
@@ -1940,7 +1951,19 @@ namespace Smartstore.Web.Controllers
                         },
                         WrittenOnStr = _services.DateTimeHelper.ConvertToUserTime(review.CreatedOnUtc, DateTimeKind.Utc).ToString("D"),
                         WrittenOn = review.CreatedOnUtc
-                    });
+                    };
+
+                    if (review.IsVerifiedPurchase == null)
+                    {
+                        // Look in order history of customer if he as purchased the product.
+                        reviewModel.IsVerifiedPurchase = orderCustomerIds.Contains(review.CustomerId);
+                    }
+                    else
+                    {
+                        reviewModel.IsVerifiedPurchase = (bool)review.IsVerifiedPurchase;
+                    }
+
+                    model.Items.Add(reviewModel);
                 }
             }
 

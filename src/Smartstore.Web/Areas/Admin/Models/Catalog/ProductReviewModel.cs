@@ -66,6 +66,9 @@ namespace Smartstore.Admin.Models.Catalog
         [LocalizedDisplay("*HelpfulNoTotal")]
         public int HelpfulNoTotal { get; set; }
 
+        [LocalizedDisplay("*IsVerfifiedPurchase")]
+        public bool? IsVerifiedPurchase { get; set; }
+
         public string EditUrl { get; set; }
         public string ProductEditUrl { get; set; }
         public string CustomerEditUrl { get; set; }

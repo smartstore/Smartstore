@@ -53,6 +53,7 @@ namespace Smartstore.Web.Models.Catalog
         public ProductReviewHelpfulnessModel Helpfulness { get; set; }
         public string WrittenOnStr { get; set; }
         public DateTime WrittenOn { get; set; }
+        public bool IsVerifiedPurchase { get; set; }
     }
 
     public partial class ProductReviewHelpfulnessModel : ModelBase

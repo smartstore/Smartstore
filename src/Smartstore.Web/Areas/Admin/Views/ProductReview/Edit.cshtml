@@ -133,6 +133,15 @@
         </div>
         <div class="adminRow">
             <div class="adminTitle">
+                <smart-label asp-for="IsVerifiedPurchase" />
+            </div>
+            <div class="adminData">
+                <editor asp-for="IsVerifiedPurchase" />
+                <span asp-validation-for="IsVerifiedPurchase"></span>
+            </div>
+        </div>
+        <div class="adminRow">
+            <div class="adminTitle">
                 <smart-label asp-for="CreatedOn" />
             </div>
             <div class="adminData">
