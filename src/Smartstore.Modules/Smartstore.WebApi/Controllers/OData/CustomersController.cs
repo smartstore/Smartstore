@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.OData;
-using Microsoft.OData.ModelBuilder;
 using Smartstore.Core.Checkout.Orders;
 using Smartstore.Core.Common;
 using Smartstore.Core.Identity;
@@ -17,17 +16,6 @@ namespace Smartstore.Web.Api.Controllers.OData
         public CustomersController(Lazy<UserManager<Customer>> userManager)
         {
             _userManager = userManager;
-        }
-
-        internal static void Init(ODataModelBuilder builder)
-        {
-            var set = builder.EntitySet<Customer>("Customers");
-
-            // Does not work either:
-            //set.EntityType.Ignore(x => x.GenericAttributes);
-
-            //var action = set.EntityType.Collection.Action(nameof(Post));
-            //action.Parameter<string>("Password");//.Required();
         }
 
         [HttpGet, WebApiQueryable]
@@ -93,7 +81,6 @@ namespace Smartstore.Web.Api.Controllers.OData
             return GetRelatedQuery(key, x => x.RewardPointsHistory);
         }
 
-        // TODO: (mg) (core) test POST Customers. Throws model binding error at the moment.
         [HttpPost]
         [Permission(Permissions.Customer.Create)]
         public async Task<IActionResult> Post([FromBody] Customer entity)
@@ -109,10 +96,7 @@ namespace Smartstore.Web.Api.Controllers.OData
 
             entity = await ApplyRelatedEntityIdsAsync(entity);
 
-            // TODO: (mg) (core) get password from somewhere
-            string password = null;
-
-            var result = await _userManager.Value.CreateAsync(entity, password);
+            var result = await _userManager.Value.CreateAsync(entity);
             if (result.Succeeded)
             {
                 return Created(entity);

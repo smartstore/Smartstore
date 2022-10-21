@@ -1,4 +1,5 @@
 ﻿using System.Linq.Dynamic.Core;
+using AngleSharp.Io;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.OData.Deltas;
@@ -23,12 +24,21 @@ namespace Smartstore.Web.Api
     /// - $ref: https://learn.microsoft.com/en-us/aspnet/web-api/overview/odata-support-in-aspnet-web-api/odata-v4/entity-relations-in-odata-v4#creating-a-relationship-between-entities
     /// - Swashbuckle: https://github.com/domaindrivendev/Swashbuckle.AspNetCore
     /// </remarks>
-    [ApiController]
+    //[ApiController]
     [Authorize(AuthenticationSchemes = "Api"), IgnoreAntiforgeryToken, AllowAnonymous]
     // TODO: (mg) (core) Check the benefits of ApiControllerAttribute for OData:
     // https://www.strathweb.com/2018/02/exploring-the-apicontrollerattribute-and-its-features-for-asp-net-core-mvc-2-1/.
     // Investigate what code parts can be removed/simplified when using the attribute (at least [FromBody] seems to be obsolete now).
     // Furthermore check the impact on API exploration.
+    //
+    // RE: we cannot decorate\combine ODataController with ApiControllerAttribute. This enforces attributes routing requirements:
+    // https://learn.microsoft.com/en-us/aspnet/core/web-api/?view=aspnetcore-6.0#apicontroller-attribute
+    // https://learn.microsoft.com/en-us/aspnet/core/web-api/?view=aspnetcore-6.0#attribute-routing-requirement
+    // mandates that all actions must be attribute-routed and disables all convention-based Odata routes resulting in 404 NotFound.
+    // Only OData endpoints with explicit route template would still be found. Currently, I don't see no great advantages but disadvantages.
+    // For instance it offers automatic model state validation or automatic FromBody attribute injection. Wow, what big benefits ;-)
+    // On the other hand this leads to different JSON error response. To me, this looks like trying to mix HTTP and OData API behaviors
+    // to get best out of both worlds, without being able to decide which party to finally go to.
     public abstract class SmartODataController<TEntity> : ODataController
         where TEntity : BaseEntity, new()
     {

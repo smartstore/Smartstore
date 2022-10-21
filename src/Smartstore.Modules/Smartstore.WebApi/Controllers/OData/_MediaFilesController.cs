@@ -1,7 +1,6 @@
 ﻿using System.Globalization;
 using Microsoft.AspNetCore.OData.Formatter;
 using Microsoft.AspNetCore.OData.Query;
-using Microsoft.OData.ModelBuilder;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Content.Media;
 using Smartstore.Web.Api.Models.OData.Media;
@@ -22,23 +21,6 @@ namespace Smartstore.Web.Api.Controllers.OData
         public MediaFilesController(IMediaService mediaService)
         {
             _mediaService = mediaService;
-        }
-
-        // TODO: (mg) (core) I don't like this static Init pattern and it is not necessary at all.
-        internal static void Init(ODataModelBuilder builder)
-        {
-            //var fileSet = builder.EntitySet<MediaFile>("MediaFiles");
-            //var infoSet = builder.EntitySet<FileItemInfo>("FileItemInfos");
-
-            const string infoSetName = "MediaFiles";
-
-            var fileSet = builder.EntitySet<MediaFile>("MediaFileEntities");
-            var infoSet = builder.EntitySet<FileItemInfo>("MediaFiles");
-
-            infoSet.EntityType.Collection
-                .Action(nameof(GetFileByPath))
-                .ReturnsFromEntitySet<FileItemInfo>(infoSetName)
-                .Parameter<string>("Path");
         }
 
         [HttpGet, WebApiQueryable]

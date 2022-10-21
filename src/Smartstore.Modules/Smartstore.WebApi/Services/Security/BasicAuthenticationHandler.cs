@@ -7,19 +7,16 @@ using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
-using Smartstore.Core;
-using Smartstore.Core.Identity;
 using Smartstore.Core.Seo;
-using Smartstore.Utilities;
 using Smartstore.Web.Api.Models;
 
 namespace Smartstore.Web.Api.Security
 {
     /// <summary>
     /// Verifies the identity of a user using basic authentication.
-    /// Also ensures that requests are sent via HTTPS.
+    /// Also ensures that requests are sent via HTTPS (except in a development environment).
     /// </summary>
-    public sealed class BasicAuthenticationHandler : AuthenticationHandler<AuthenticationSchemeOptions>
+    public sealed class BasicAuthenticationHandler : AuthenticationHandler<BasicAuthenticationOptions>
     {
         const string AuthenticateHeader = "Basic realm=\"Smartstore.WebApi\", charset=\"UTF-8\"";
         internal const string AppVersionHeader = "Smartstore-Api-AppVersion";
@@ -30,30 +27,23 @@ namespace Smartstore.Web.Api.Security
         internal const string ResultIdHeader = "Smartstore-Api-AuthResultId";
         internal const string ResultDescriptionHeader = "Smartstore-Api-AuthResultDesc";
 
-        private readonly SmartDbContext _db;
         private readonly IWebApiService _apiService;
         private readonly Lazy<IUrlService> _urlService;
         private readonly IApiUserStore _apiUserStore;
-        private readonly IWorkContext _workContext;
-        //private readonly IHttpContextAccessor _httpContextAccessor;
 
         public BasicAuthenticationHandler(
-            SmartDbContext db,
             IWebApiService apiService,
             Lazy<IUrlService> urlService,
             IApiUserStore apiUserStore,
-            IWorkContext workContext,
-            IOptionsMonitor<AuthenticationSchemeOptions> options,
+            IOptionsMonitor<BasicAuthenticationOptions> options,
             ILoggerFactory logger,
             UrlEncoder encoder,
             ISystemClock clock)
             : base(options, logger, encoder, clock)
         {
-            _db = db;
             _apiService = apiService;
             _urlService = urlService;
             _apiUserStore = apiUserStore;
-            _workContext = workContext;
         }
 
         protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
@@ -66,8 +56,7 @@ namespace Smartstore.Web.Api.Security
                 {
                     throw new AuthenticationException(AccessDeniedReason.ApiDisabled);
                 }
-
-                if (!Request.Scheme.EqualsNoCase(Uri.UriSchemeHttps) && !CommonHelper.IsDevEnvironment)
+                if (!Request.IsHttps && Options.SslRequired)
                 {
                     throw new AuthenticationException(AccessDeniedReason.SslRequired);
                 }
@@ -75,54 +64,36 @@ namespace Smartstore.Web.Api.Security
                 // INFO: must be executed before setting LastRequest.
                 _apiUserStore.Activate(TimeSpan.FromMinutes(15));
 
-                // TODO: (mg) (core) Due to recent changes all this works now without resolving and assigning the customer.
-                // Please put required claims to WebApiUser instance and remove customer stuff here.
-                var (customer, user) = await GetCustomer();
-
+                var user = await GetUser();
                 var claims = new[]
                 {
-                    new Claim(ClaimTypes.NameIdentifier, customer.Id.ToString(), ClaimValueTypes.Integer32, ClaimsIssuer),
-                    new Claim(ClaimTypes.Name, customer.Username, ClaimValueTypes.String, ClaimsIssuer),
-                    new Claim(ClaimTypes.Email, customer.Email, ClaimValueTypes.String, ClaimsIssuer)
+                    new Claim(ClaimTypes.NameIdentifier, user.CustomerId.ToString(), ClaimValueTypes.Integer32, ClaimsIssuer)
                 };
 
                 var principal = new ClaimsPrincipal(new ClaimsIdentity(claims, Scheme.Name));
                 var ticket = new AuthenticationTicket(principal, Scheme.Name);
-
-                // TODO: (mg) (core) I doubt that this is necessary here. TBD with MC. What is the overridable HandleSignIn method for?
-
-                // TODO: (mg) (core) Check whether API authentication conflicts with my last commit 2e2aea50584eac6fc305abdc7c7046b547f784a1.
-                // Beware that work context initialization (customer, language and currency resolution) now happens VERY early in the pipeline.
-                // Because of this, the issue below is probably obsolete now.
-                // Also check whether we could simplify auth code here due to the changes.
-                // I suppose that this handler will run during work context init (by _customerService.GetAuthenticatedCustomerAsync())
-                // and return the correct authenticated customer already (at least that is how the auth system was designed).
-                // PS: my tests with the API client show that this handler is wrongfully run AFTER _customerService.GetAuthenticatedCustomerAsync().
-                // Investigate how GetAuthenticatedCustomerAsync() can opt-in to also run this handler.
-
-                // HttpContext comes too late for GetAuthenticatedCustomerAsync(). get_WorkingLanguage() calls CurrentCustomer before this handler.
-                // We must set CurrentCustomer explicitly otherwise he will always remain guest and permission checks will fail.
-                //if (_httpContextAccessor.HttpContext != null)
-                //{
-                //    _httpContextAccessor.HttpContext.User = principal;
-                //}
-                //Thread.CurrentPrincipal = principal;
-
-                //_workContext.CurrentCustomer = customer;
 
                 user.LastRequest = DateTime.UtcNow;
 
                 Request.HttpContext.Items["Smartstore.WebApi.MaxTop"] = state.MaxTop;
                 Request.HttpContext.Items["Smartstore.WebApi.MaxExpansionDepth"] = state.MaxExpansionDepth;
 
-                SetResponseHeaders(null, customer, state);
+                SetResponseHeaders(null, user, state);
 
-                //$"Authenticated API request using '{Scheme.Name}': customer {customer.Id}, {customer.Email}.".Dump();
+                //$"Authenticated API request using scheme {Scheme.Name}: customer {user.CustomerId}.".Dump();
                 return AuthenticateResult.Success(ticket);
             }
             catch (Exception ex)
             {
-                Response.StatusCode = Status401Unauthorized;
+                if (ex is AuthenticationException aex)
+                {
+                    Response.StatusCode = aex.StatusCode;
+                }
+                else
+                {
+                    Response.StatusCode = Status401Unauthorized;
+                }
+
                 Response.HttpContext.Features.Set<IExceptionHandlerPathFeature>(new AuthenticationExceptionPathFeature(ex, Request));
 
                 var policy = _urlService.Value.GetUrlPolicy();
@@ -133,22 +104,23 @@ namespace Smartstore.Web.Api.Security
 
                 SetResponseHeaders(ex, null, state);
 
+                // TODO: (mg) (core) Continues with pipeline despite of the 401. Does not lead to a request rejection.
+                // HandleChallengeAsync is never called! Investigate. Redirect required?
                 return AuthenticateResult.Fail(ex);
             }
         }
 
-        /// <summary>
-        /// Called when authentication failed. "WWW-Authenticate" header causes the browser to prompt for credentials.
-        /// For the sake of completeness, the header is set again here, although this is already done in <see cref="HandleAuthenticateAsync"/>.
-        /// </summary>
         protected override Task HandleChallengeAsync(AuthenticationProperties properties)
         {
-            Response.Headers.WWWAuthenticate = AuthenticateHeader;
+            if (!Options.SuppressWWWAuthenticateHeader)
+            {
+                Response.Headers.WWWAuthenticate = AuthenticateHeader;
+            }
 
-            return base.HandleChallengeAsync(properties);
+            return Task.CompletedTask;
         }
 
-        private async Task<(Customer Customer, WebApiUser User)> GetCustomer()
+        private async Task<WebApiUser> GetUser()
         {
             var rawAuthValue = Request?.Headers[HeaderNames.Authorization];
             if (!AuthenticationHeaderValue.TryParse(rawAuthValue, out var authHeader) || authHeader?.Parameter == null)
@@ -178,24 +150,10 @@ namespace Smartstore.Web.Api.Security
                 throw new AuthenticationException(AccessDeniedReason.InvalidCredentials, publicKey);
             }
 
-            var customer = await _db.Customers
-                .IncludeCustomerRoles()
-                .FindByIdAsync(user.CustomerId, false);
-
-            if (customer == null)
-            {
-                throw new AuthenticationException(AccessDeniedReason.UserUnknown, publicKey);
-            }
-
-            if (!customer.Active)
-            {
-                throw new AuthenticationException(AccessDeniedReason.UserInactive, publicKey);
-            }
-
-            return (customer, user);
+            return user;
         }
 
-        private void SetResponseHeaders(Exception ex, Customer customer, WebApiState state)
+        private void SetResponseHeaders(Exception ex, WebApiUser user, WebApiState state)
         {
             var headers = Response.Headers;
 
@@ -204,9 +162,9 @@ namespace Smartstore.Web.Api.Security
             headers.Add(MaxTopHeader, state.MaxTop.ToString());
             headers.Add(DateHeader, DateTime.UtcNow.ToString("o"));
 
-            if (customer != null)
+            if (user != null)
             {
-                headers.Add(CustomerIdHeader, customer.Id.ToString());
+                headers.Add(CustomerIdHeader, user.CustomerId.ToString());
             }
 
             if (ex == null)
@@ -215,12 +173,15 @@ namespace Smartstore.Web.Api.Security
             }
             else
             {
-                headers.WWWAuthenticate = AuthenticateHeader;
-
-                if (ex is AuthenticationException authEx)
+                if (!Options.SuppressWWWAuthenticateHeader)
                 {
-                    headers.Add(ResultIdHeader, ((int)authEx.DeniedReason).ToString());
-                    headers.Add(ResultDescriptionHeader, authEx.DeniedReason.ToString());
+                    headers.WWWAuthenticate = AuthenticateHeader;
+                }
+
+                if (ex is AuthenticationException aex)
+                {
+                    headers.Add(ResultIdHeader, ((int)aex.DeniedReason).ToString());
+                    headers.Add(ResultDescriptionHeader, aex.DeniedReason.ToString());
                 }
             }
         }

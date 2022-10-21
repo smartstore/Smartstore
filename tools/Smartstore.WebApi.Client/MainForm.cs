@@ -167,6 +167,7 @@ namespace Smartstore.WebApi.Client
                 var customers = response.ParseCustomers();
                 if (customers != null)
                 {
+                    sb.AppendLine();
                     sb.AppendLine($"Parsed {customers.Count} customer(s):");
                     customers.ForEach(x => sb.AppendLine(x.ToString()));
                     sb.AppendLine();

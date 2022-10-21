@@ -34,11 +34,6 @@
         /// <summary>
         /// The user is known but his access via the API is disabled.
         /// </summary>
-        UserDisabled,
-
-        /// <summary>
-        /// The user is known but the related customer entity is not active.
-        /// </summary>
-        UserInactive
+        UserDisabled
     }
 }

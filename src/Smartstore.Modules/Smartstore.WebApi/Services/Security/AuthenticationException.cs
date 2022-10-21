@@ -14,9 +14,12 @@
             : base(message)
         {
             DeniedReason = deniedReason;
+            StatusCode = deniedReason == AccessDeniedReason.SslRequired ? Status421MisdirectedRequest : Status401Unauthorized;
         }
 
         public AccessDeniedReason DeniedReason { get; }
+
+        public int StatusCode { get; set; }
 
         private static string CreateMessage(AccessDeniedReason deniedReason, string publicKey)
         {
@@ -38,9 +41,6 @@
                     break;
                 case AccessDeniedReason.UserUnknown:
                     reason = $"Unknown user. The public key {publicKey.NaIfEmpty()} does not exist.";
-                    break;
-                case AccessDeniedReason.UserInactive:
-                    reason = $"The user with public key {publicKey.NaIfEmpty()} is not active.";
                     break;
                 case AccessDeniedReason.UserDisabled:
                     reason = $"Access via Web API is disabled for the user with public key {publicKey.NaIfEmpty()}.";

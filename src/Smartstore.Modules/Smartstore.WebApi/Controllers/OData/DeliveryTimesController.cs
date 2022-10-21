@@ -1,5 +1,4 @@
-﻿using Microsoft.OData.ModelBuilder;
-using Smartstore.Core.Common;
+﻿using Smartstore.Core.Common;
 using Smartstore.Core.Common.Services;
 using Smartstore.Web.Api.Models.OData;
 
@@ -15,16 +14,6 @@ namespace Smartstore.Web.Api.Controllers.OData
         public DeliveryTimesController(Lazy<IDeliveryTimeService> deliveryTimeService)
         {
             _deliveryTimeService = deliveryTimeService;
-        }
-
-        internal static void Init(ODataModelBuilder builder)
-        {
-            var set = builder.EntitySet<DeliveryTime>("DeliveryTimes");
-
-            set.EntityType.Collection
-                .Function(nameof(GetDeliveryDate))
-                .Returns<SimpleRange<DateTime?>>()
-                .Parameter<int>("Id");
         }
 
         [HttpGet, WebApiQueryable]
