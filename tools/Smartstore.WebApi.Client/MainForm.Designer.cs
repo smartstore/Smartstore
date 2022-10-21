@@ -110,11 +110,12 @@
             // callApi
             // 
             this.callApi.AutoSize = true;
-            this.callApi.Location = new System.Drawing.Point(17, 832);
+            this.callApi.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.callApi.Location = new System.Drawing.Point(12, 203);
             this.callApi.Name = "callApi";
-            this.callApi.Size = new System.Drawing.Size(75, 23);
+            this.callApi.Size = new System.Drawing.Size(173, 33);
             this.callApi.TabIndex = 8;
-            this.callApi.Text = "Call API";
+            this.callApi.Text = "Execute";
             this.callApi.UseVisualStyleBackColor = true;
             this.callApi.Click += new System.EventHandler(this.CallApi_Click);
             // 
@@ -163,24 +164,25 @@
             // 
             // txtResponse
             // 
+            this.txtResponse.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.txtResponse.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.txtResponse.DetectUrls = false;
             this.txtResponse.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.txtResponse.HideSelection = false;
-            this.txtResponse.Location = new System.Drawing.Point(18, 424);
+            this.txtResponse.Location = new System.Drawing.Point(465, 262);
             this.txtResponse.Name = "txtResponse";
             this.txtResponse.ReadOnly = true;
-            this.txtResponse.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical;
-            this.txtResponse.Size = new System.Drawing.Size(1126, 402);
+            this.txtResponse.Size = new System.Drawing.Size(676, 587);
             this.txtResponse.TabIndex = 10;
             this.txtResponse.Text = "";
+            this.txtResponse.WordWrap = false;
             // 
             // clear
             // 
             this.clear.AutoSize = true;
-            this.clear.Location = new System.Drawing.Point(1074, 832);
+            this.clear.Location = new System.Drawing.Point(191, 203);
             this.clear.Name = "clear";
-            this.clear.Size = new System.Drawing.Size(70, 23);
+            this.clear.Size = new System.Drawing.Size(99, 33);
             this.clear.TabIndex = 9;
             this.clear.Text = "Clear";
             this.clear.UseVisualStyleBackColor = true;
@@ -236,17 +238,18 @@
             // 
             // txtRequest
             // 
+            this.txtRequest.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.txtRequest.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.txtRequest.DetectUrls = false;
             this.txtRequest.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.txtRequest.HideSelection = false;
-            this.txtRequest.Location = new System.Drawing.Point(18, 213);
+            this.txtRequest.Location = new System.Drawing.Point(12, 262);
             this.txtRequest.Name = "txtRequest";
             this.txtRequest.ReadOnly = true;
-            this.txtRequest.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical;
-            this.txtRequest.Size = new System.Drawing.Size(1126, 187);
+            this.txtRequest.Size = new System.Drawing.Size(447, 587);
             this.txtRequest.TabIndex = 20;
             this.txtRequest.Text = "";
+            this.txtRequest.WordWrap = false;
             // 
             // btnDeleteQuery
             // 
@@ -298,20 +301,20 @@
             // lblRequest
             // 
             this.lblRequest.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.lblRequest.Location = new System.Drawing.Point(19, 197);
+            this.lblRequest.Location = new System.Drawing.Point(12, 242);
             this.lblRequest.Name = "lblRequest";
             this.lblRequest.ReadOnly = true;
-            this.lblRequest.Size = new System.Drawing.Size(1123, 14);
+            this.lblRequest.Size = new System.Drawing.Size(447, 14);
             this.lblRequest.TabIndex = 31;
             this.lblRequest.Text = "Request";
             // 
             // lblResponse
             // 
             this.lblResponse.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.lblResponse.Location = new System.Drawing.Point(19, 409);
+            this.lblResponse.Location = new System.Drawing.Point(465, 242);
             this.lblResponse.Name = "lblResponse";
             this.lblResponse.ReadOnly = true;
-            this.lblResponse.Size = new System.Drawing.Size(813, 14);
+            this.lblResponse.Size = new System.Drawing.Size(676, 14);
             this.lblResponse.TabIndex = 32;
             this.lblResponse.Text = "Response";
             // 
