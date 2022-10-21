@@ -95,19 +95,13 @@ namespace Smartstore.Web.Api.Security
 
                 SetResponseHeaders(ex, null, state);
 
-                // TODO: (mg) (core) Continues with pipeline despite of the 401. Does not lead to a request rejection.
-                // HandleChallengeAsync is never called! Investigate. Redirect required?
                 return AuthenticateResult.Fail(ex);
             }
         }
 
         protected override Task HandleChallengeAsync(AuthenticationProperties properties)
         {
-            if (!Options.SuppressWWWAuthenticateHeader)
-            {
-                Response.Headers.WWWAuthenticate = AuthenticateHeader;
-            }
-
+            // INFO: status code and response headers already set in HandleAuthenticateAsync.
             return Task.CompletedTask;
         }
 

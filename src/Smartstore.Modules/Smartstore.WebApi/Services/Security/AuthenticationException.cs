@@ -31,7 +31,7 @@
                     reason = "Web API is disabled.";
                     break;
                 case AccessDeniedReason.SslRequired:
-                    reason = "Web API requests require HTTPS.";
+                    reason = "Web API requests require SSL.";
                     break;
                 case AccessDeniedReason.InvalidAuthorizationHeader:
                     reason = "Missing or invalid authorization header. Must have the format 'PublicKey:SecretKey'.";
