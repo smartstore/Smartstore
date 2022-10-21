@@ -44,7 +44,7 @@
                     layout: 'horizontal',
                     label: 'checkout',
                     shape: '@Model.ButtonShape',
-                    //color: '@Model.ButtonColor'
+                    color: fundingSource == "paypal" || fundingSource == "paylater" ? '@Model.ButtonColor' : 'white'
                 },
                 // Create order
                 createOrder: function (data, actions) {

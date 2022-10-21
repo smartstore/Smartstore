@@ -63,7 +63,7 @@ namespace Smartstore.PayPal.Settings
         /// <summary>
         /// Specifies which payment options should be displayed on cart page.
         /// </summary>
-        public string FundingsCart { get; set; } = "paylater,credit,sepa";
+        public string FundingsCart { get; set; } = "paylater";
 
         /// <summary>
         /// Specifies whether to display the pay later widget on product detail pages.
@@ -78,7 +78,7 @@ namespace Smartstore.PayPal.Settings
         /// <summary>
         /// Specifies the form of the buttons.
         /// </summary>
-        public string ButtonShape { get; set; }
+        public string ButtonShape { get; set; } = "rect";
 
         /// <summary>
         /// Specifies the color of the buttons.
