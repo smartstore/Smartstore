@@ -74,9 +74,11 @@
 
 .review-meta {
 	display: flex;
-    font-size: 0.8125em;
+    align-items: center;
+    font-size: $font-size-sm;
+
     .review-meta-label {
-        font-weight: bold;
+        font-weight: $font-weight-medium;
     }
     .review-meta-value {
         padding-left: 0.25rem;
@@ -90,10 +92,10 @@
 }
 
 .review-vote {
-    font-size: 0.8125em;
+    font-size: $font-size-sm;
     color: $text-muted;
 
-    .review-vote-count { font-weight: bold; }
+    .review-vote-count { font-weight: $font-weight-medium; }
 
     .review-vote-link {
 	    text-decoration: none;

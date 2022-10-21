@@ -75,7 +75,7 @@ namespace Smartstore.Core.Data.Migrations
                 "Legt fest, ob diese Produktbewertung von einem Kunden verfasst wurde, der das Produkt in diesem Shop gekauft hat.");
 
             builder.AddOrUpdate("Reviews.Verified", "Verified purchase", "Verifizierter Kauf");
-            builder.AddOrUpdate("Reviews.Unverified", "Unverified purchase", "Nicht verifizierter Kauf");
+            builder.AddOrUpdate("Reviews.Unverified", "Unverified purchase", "Nicht verifiziert");
         }
     }
 }

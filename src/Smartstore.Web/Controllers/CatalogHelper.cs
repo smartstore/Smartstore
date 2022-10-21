@@ -1926,14 +1926,19 @@ namespace Smartstore.Web.Controllers
                     ? product.ProductReviews.Take(take ?? int.MaxValue).ToList()
                     : await query.Include(x => x.Customer).ToListAsync();
 
-                var customerIds = reviews.ToDistinctArray(x => x.CustomerId);
+                var unverifiedCustomerIds = reviews
+                    .Where(x => x.IsVerifiedPurchase == null)
+                    .ToDistinctArray(x => x.CustomerId);
+
                 var orderCustomerIds = await _db.Orders
-                    .Where(x => x.OrderItems.Any(y => y.ProductId == product.Id) && customerIds.Contains(x.CustomerId))
+                    // INFO: (perf) In db queries, always start with the most specific predicate
+                    .Where(x => unverifiedCustomerIds.Contains(x.CustomerId) && x.OrderItems.Any(y => y.ProductId == product.Id))
                     .Select(x => x.CustomerId)
-                    .ToListAsync();
+                    .ToArrayAsync();
 
                 foreach (var review in reviews)
                 {
+                    var writtenOn = _services.DateTimeHelper.ConvertToUserTime(review.CreatedOnUtc, DateTimeKind.Utc);
                     var reviewModel = new ProductReviewModel
                     {
                         Id = review.Id,
@@ -1949,19 +1954,12 @@ namespace Smartstore.Web.Controllers
                             HelpfulYesTotal = review.HelpfulYesTotal,
                             HelpfulNoTotal = review.HelpfulNoTotal,
                         },
-                        WrittenOnStr = _services.DateTimeHelper.ConvertToUserTime(review.CreatedOnUtc, DateTimeKind.Utc).ToString("D"),
+                        // Look in order history of customer whether he/she has purchased the product.
+                        // TODO: (mh) (core) Make an option for the badge: not all store owners live in EU and thus should be able to hide the badge. 
+                        IsVerifiedPurchase = review.IsVerifiedPurchase ?? orderCustomerIds.Contains(review.CustomerId),
+                        WrittenOnStr = writtenOn.ToString("M") + ' ' + writtenOn.ToString("yyyy"),
                         WrittenOn = review.CreatedOnUtc
                     };
-
-                    if (review.IsVerifiedPurchase == null)
-                    {
-                        // Look in order history of customer if he as purchased the product.
-                        reviewModel.IsVerifiedPurchase = orderCustomerIds.Contains(review.CustomerId);
-                    }
-                    else
-                    {
-                        reviewModel.IsVerifiedPurchase = (bool)review.IsVerifiedPurchase;
-                    }
 
                     model.Items.Add(reviewModel);
                 }

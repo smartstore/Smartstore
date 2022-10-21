@@ -43,8 +43,10 @@
 
                 <span class="review-meta-label">@T("Common.Date"):</span>
                 <span class="review-meta-value" itemprop="datePublished" content="@review.WrittenOn.ToString("yyyy-MM-DD")">@review.WrittenOnStr</span>
+            </div>
 
-                <span class="badge @(review.IsVerifiedPurchase ? "badge-success" : "badge-secondary")">
+            <div class="review-verify">
+                <span class="small badge badge-@(review.IsVerifiedPurchase ? "success" : "secondary")">
                     @T("Reviews." + (review.IsVerifiedPurchase ? "Verified" : "Unverified"))
                 </span>
             </div>

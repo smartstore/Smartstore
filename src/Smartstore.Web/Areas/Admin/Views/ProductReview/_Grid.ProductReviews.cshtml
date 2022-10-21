@@ -22,6 +22,7 @@
             </button>
         </toolbar-group>
         <toolbar-group>
+            @* TODO: (mh) (core) Implement button for new IsVerified --> "Verify selected" *@
             <button datagrid-action="DataGridToolAction.ReactToSelection"
                     type="button"
                     id="approve-selected"
@@ -68,6 +69,7 @@
                 <a :href="item.row.EditUrl" class="text-truncate">{{ item.value }}</a>
             </display-template>
         </column>
+        @* TODO: (mh) (core) Looks absolutely ugly. Please apply decent column sizing to all columns. *@
         <column for="ReviewText" encoded="true" wrap="true" />
         <column for="CustomerId">
             <display-template>
