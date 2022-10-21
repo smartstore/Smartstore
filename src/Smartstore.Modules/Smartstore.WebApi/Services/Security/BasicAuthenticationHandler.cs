@@ -75,6 +75,8 @@ namespace Smartstore.Web.Api.Security
                 // INFO: must be executed before setting LastRequest.
                 _apiUserStore.Activate(TimeSpan.FromMinutes(15));
 
+                // TODO: (mg) (core) Due to recent changes all this works now without resolving and assigning the customer.
+                // Please put required claims to WebApiUser instance and remove customer stuff here.
                 var (customer, user) = await GetCustomer();
 
                 var claims = new[]
