@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
-using Smartstore.Core.Seo;
 using Smartstore.Web.Api.Models;
 
 namespace Smartstore.Web.Api.Security
@@ -28,12 +27,10 @@ namespace Smartstore.Web.Api.Security
         internal const string ResultDescriptionHeader = "Smartstore-Api-AuthResultDesc";
 
         private readonly IWebApiService _apiService;
-        private readonly Lazy<IUrlService> _urlService;
         private readonly IApiUserStore _apiUserStore;
 
         public BasicAuthenticationHandler(
             IWebApiService apiService,
-            Lazy<IUrlService> urlService,
             IApiUserStore apiUserStore,
             IOptionsMonitor<BasicAuthenticationOptions> options,
             ILoggerFactory logger,
@@ -42,7 +39,6 @@ namespace Smartstore.Web.Api.Security
             : base(options, logger, encoder, clock)
         {
             _apiService = apiService;
-            _urlService = urlService;
             _apiUserStore = apiUserStore;
         }
 
@@ -56,6 +52,7 @@ namespace Smartstore.Web.Api.Security
                 {
                     throw new AuthenticationException(AccessDeniedReason.ApiDisabled);
                 }
+
                 if (!Request.IsHttps && Options.SslRequired)
                 {
                     throw new AuthenticationException(AccessDeniedReason.SslRequired);
@@ -95,12 +92,6 @@ namespace Smartstore.Web.Api.Security
                 }
 
                 Response.HttpContext.Features.Set<IExceptionHandlerPathFeature>(new AuthenticationExceptionPathFeature(ex, Request));
-
-                var policy = _urlService.Value.GetUrlPolicy();
-                if (policy?.Endpoint == null)
-                {
-                    policy.Endpoint = Request.HttpContext.GetEndpoint();
-                }
 
                 SetResponseHeaders(ex, null, state);
 

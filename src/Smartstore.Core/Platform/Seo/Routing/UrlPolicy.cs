@@ -51,8 +51,10 @@ namespace Smartstore.Core.Seo.Routing
     public sealed class UrlPolicy
     {
         private readonly HttpContext _httpContext;
+
         private Language _workingLanguage = null;
-        
+        private Endpoint _endpoint = null;
+
         public UrlPolicy(HttpRequest request)
         {
             Guard.NotNull(request, nameof(request));
@@ -83,7 +85,12 @@ namespace Smartstore.Core.Seo.Routing
 
         public LocalizationSettings LocalizationSettings { get; init; }
         public SeoSettings SeoSettings { get; init; }
-        public Endpoint Endpoint { get; set; }
+
+        public Endpoint Endpoint
+        {
+            get => _endpoint ??= _httpContext.GetEndpoint();
+            set => _endpoint = value;
+        }
 
         public Language WorkingLanguage 
         {
