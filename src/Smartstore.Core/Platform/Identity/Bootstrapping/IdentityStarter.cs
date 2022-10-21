@@ -87,22 +87,14 @@ namespace Smartstore.Core.Bootstrapping
         {
             if (builder.ApplicationContext.IsInstalled)
             {
-                builder.Configure(StarterOrdering.AuthenticationMiddleware, app =>
+                builder.Configure(StarterOrdering.AuthMiddleware, app =>
                 {
                     app.UseAuthentication();
                 });
 
-                builder.Configure(StarterOrdering.AuthenticationMiddleware + 1, app =>
+                builder.Configure(StarterOrdering.AfterAuthMiddleware, app =>
                 {
                     app.UseAuthorization();
-
-                    // Initialize work context right after authentication
-                    app.Use(async (context, next) =>
-                    {
-                        var workContext = context.RequestServices.GetRequiredService<IWorkContext>();
-                        await workContext.InitializeAsync();
-                        await next();
-                    });
                 });
             }
         }

@@ -24,8 +24,9 @@ namespace Smartstore.Core.Bootstrapping
         {
             if (builder.ApplicationContext.IsInstalled)
             {
-                builder.Configure(StarterOrdering.AfterAuthenticationMiddleware, app =>
+                builder.Configure(StarterOrdering.RewriteMiddleware + 2, app =>
                 {
+                    // SHould come directly after any Rewrite middleware
                     app.UseMedia();
                 });
             }

@@ -30,9 +30,17 @@
         public const int RoutingMiddleware = -700;
         public const int AfterRoutingMiddleware = -695;
 
-        public const int BeforeAuthenticationMiddleware = -605;
-        public const int AuthenticationMiddleware = -600;
-        public const int AfterAuthenticationMiddleware = -595;
+        public const int BeforeAuthMiddleware = -655;
+        public const int AuthMiddleware = -650;
+        public const int AfterAuthMiddleware = -645;
+
+        public const int BeforeWorkContextMiddleware = -605;
+        public const int WorkContextMiddleware = -600;
+        public const int AfterWorkContextMiddleware = -595;
+
+        public const int BeforeRewriteMiddleware = -555;
+        public const int RewriteMiddleware = -550;
+        public const int AfterRewriteMiddleware = -545;
 
         public const int EarlyMiddleware = -500;
         public const int DefaultMiddleware = 0;

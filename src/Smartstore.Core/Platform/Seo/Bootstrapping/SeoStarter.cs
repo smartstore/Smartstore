@@ -19,7 +19,7 @@ namespace Smartstore.Core.Bootstrapping
 
         public override void BuildPipeline(RequestPipelineBuilder builder)
         {
-            builder.Configure(StarterOrdering.AfterAuthenticationMiddleware - 2, app =>
+            builder.Configure(StarterOrdering.RewriteMiddleware + 1, app =>
             {
                 if (builder.ApplicationContext.IsInstalled)
                 {

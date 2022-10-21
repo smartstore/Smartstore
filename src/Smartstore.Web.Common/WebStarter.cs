@@ -148,13 +148,21 @@ namespace Smartstore.Web
                 }
             });
 
-            builder.Configure(StarterOrdering.BeforeAuthenticationMiddleware, app =>
+            builder.Configure(StarterOrdering.BeforeAuthMiddleware, app =>
             {
                 app.UseCookiePolicy();
             });
 
-            builder.Configure(StarterOrdering.AfterAuthenticationMiddleware, app =>
+            builder.Configure(StarterOrdering.WorkContextMiddleware, app =>
             {
+                app.Use(async (context, next) =>
+                {
+                    // Initialize work context so that we can safely access context data from here on
+                    var workContext = context.RequestServices.GetRequiredService<IWorkContext>();
+                    await workContext.InitializeAsync();
+                    await next();
+                });
+
                 if (appContext.IsInstalled)
                 {
                     // Write streamlined request completion events, instead of the more verbose ones from the framework.
