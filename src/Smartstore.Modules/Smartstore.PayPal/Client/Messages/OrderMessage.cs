@@ -40,8 +40,7 @@ namespace Smartstore.PayPal.Client.Messages
         /// Holds information about the payment method to be used.
         /// </summary>
         [JsonProperty("application_context", DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public AppContext AppContext;
-
+        public PayPalApplictionContext AppContext;
     }
 
     public class PurchaseUnit
@@ -320,7 +319,7 @@ namespace Smartstore.PayPal.Client.Messages
         public string[] CustomerServiceInstructions;
     }
 
-    public class AppContext
+    public class PayPalApplictionContext
     {
         [JsonProperty("shipping_preference")]
         public ShippingPreference ShippingPreference;

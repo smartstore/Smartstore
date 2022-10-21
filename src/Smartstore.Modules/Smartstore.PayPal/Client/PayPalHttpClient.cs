@@ -181,7 +181,7 @@ namespace Smartstore.PayPal.Client
                         }
                     }
                 },
-                AppContext = new Messages.AppContext
+                AppContext = new PayPalApplictionContext
                 {
                     ShippingPreference = cart.IsShippingRequired() ? ShippingPreference.SetProvidedAddress : ShippingPreference.NoShipping
                 }
@@ -520,8 +520,7 @@ namespace Smartstore.PayPal.Client
             {
                 Intent = settings.Intent == PayPalTransactionType.Capture ? Intent.Capture : Intent.Authorize,
                 PurchaseUnits = purchaseUnits.ToArray(),
-                // TODO: (mh) (core) Rename > not AppContext & not ApplicationContext
-                AppContext = new Messages.AppContext
+                AppContext = new PayPalApplictionContext
                 {
                     ShippingPreference = isExpressCheckout
                         ? ShippingPreference.GetFromFile
