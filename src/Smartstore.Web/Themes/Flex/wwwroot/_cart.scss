@@ -140,13 +140,15 @@
     }
 }
 
+.offcanvas-cart-footer {
+    background-color: $offcanvas-cart-footer;
+}
+
 .offcanvas-cart-footer-row {
     display: flex; 
     justify-content: space-between;
     align-items: center;
     line-height: 1.1;
-
-    background-color: $offcanvas-cart-footer;
     color: #fff;
     padding: 1rem;
 
@@ -161,18 +163,16 @@
 }
 
 .offcanvas-cart-external-checkout {
-    background: $offcanvas-cart-footer;
-
     .heading-center:before {
-        background: rgba(#fff, 0.8) !important;
+        background: rgba(#fff, 0.4) !important;
         width: calc(100% - 2rem);
     }
 
     .heading-title {
         background-color: $offcanvas-cart-footer;
-        font-weight: 600;
         color: rgba(#fff, 0.8);
         margin-bottom: 0;
+        text-transform: uppercase;
     }
 
     > div:not(:empty) {
