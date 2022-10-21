@@ -161,7 +161,19 @@
 }
 
 .offcanvas-cart-external-checkout {
-    background: #fff;
+    background: $offcanvas-cart-footer;
+
+    .heading-center:before {
+        background: rgba(#fff, 0.8) !important;
+        width: calc(100% - 2rem);
+    }
+
+    .heading-title {
+        background-color: $offcanvas-cart-footer;
+        font-weight: 600;
+        color: rgba(#fff, 0.8);
+        margin-bottom: 0;
+    }
 
     > div:not(:empty) {
         padding: 0.5rem 1rem;

@@ -155,7 +155,10 @@
                 <Value>Display pay later widget</Value>
             </LocaleResource>
             <LocaleResource Name="DisplayProductDetailPayLaterWidget.Hint">
-                <Value>Specifies whether to display the pay later widget on the product detail page.</Value>
+                <Value>
+                    Specifies whether to display the pay later widget on the product detail page.
+                    Please note that the widget will not be displayed in the selected language when the customer changes the language.
+                </Value>
             </LocaleResource>
             <LocaleResource Name="CustomerServiceInstructions">
                 <Value>Customer service instructions</Value>

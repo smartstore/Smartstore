@@ -158,7 +158,10 @@
                 <Value>Ratenzahlungs-Widget anzeigen</Value>
             </LocaleResource>
             <LocaleResource Name="DisplayProductDetailPayLaterWidget.Hint">
-                <Value>Legt fest, ob das Widget zur Zahlung in Raten auf der Produktdetailseite angezeigt werden soll.</Value>
+                <Value>
+                    Legt fest, ob das Widget zur Zahlung in Raten auf der Produktdetailseite angezeigt werden soll. 
+                    Bitte beachten Sie, dass das Widget beim Sprachwechsel duch den Kunden nicht in der gewählten Sprache dargestellt wird.
+                </Value>
             </LocaleResource>
             <LocaleResource Name="CustomerServiceInstructions">
                 <Value>Kundendienst Hinweis</Value>
