@@ -157,7 +157,7 @@ namespace Smartstore.Web.Api
                 var routePrefix = WebApiSettings.SwaggerRoutePrefix;
                 var isDev = builder.ApplicationContext.HostEnvironment.IsDevelopment();
 
-                builder.Configure(StarterOrdering.BeforeStaticFilesMiddleware, app =>
+                builder.Configure(StarterOrdering.BeforeRoutingMiddleware, app =>
                 {
                     app.UseSwagger(o =>
                     {

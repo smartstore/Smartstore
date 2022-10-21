@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Routing;
 using Smartstore.Collections;
@@ -130,6 +131,13 @@ namespace Smartstore.Core.Seo.Routing
         {
             if (_webHelper.IsStaticResourceRequested())
             {
+                return null;
+            }
+
+            var features = httpContext.Features;
+            if (features.Get<IExceptionHandlerPathFeature>() != null || features.Get<IStatusCodeReExecuteFeature>() != null)
+            {
+                // Don't attemp to transform during re-execution.
                 return null;
             }
 

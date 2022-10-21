@@ -24,8 +24,7 @@ namespace Smartstore.Core.Bootstrapping
         {
             if (builder.ApplicationContext.IsInstalled)
             {
-                // Run before bundling middleware
-                builder.Configure(StarterOrdering.BeforeStaticFilesMiddleware - 1, app =>
+                builder.Configure(StarterOrdering.AfterAuthenticationMiddleware, app =>
                 {
                     app.UseMedia();
                 });

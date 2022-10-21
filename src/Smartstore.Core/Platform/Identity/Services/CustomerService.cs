@@ -315,7 +315,12 @@ INNER JOIN (
         /// <returns></returns>
         private static async Task<ClaimsPrincipal> EnsureAuthentication(HttpContext context)
         {
-            var authenticateResult = context.Features.Get<IAuthenticateResultFeature>()?.AuthenticateResult ?? await context.AuthenticateAsync();
+            var authenticateResult = context.Features.Get<IAuthenticateResultFeature>()?.AuthenticateResult;
+            if (authenticateResult == null)
+            {
+                authenticateResult = await context.AuthenticateAsync();
+            }
+
             if (authenticateResult.Succeeded)
             {
                 // The middleware ran already

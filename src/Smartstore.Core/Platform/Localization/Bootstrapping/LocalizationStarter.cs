@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using Microsoft.AspNetCore.Builder;
 using Smartstore.Core.Data;
 using Smartstore.Core.Localization;
 using Smartstore.Engine.Builders;
@@ -7,6 +8,11 @@ namespace Smartstore.Core.Bootstrapping
 {
     internal sealed class LocalizationStarter : StarterBase
     {
+        public LocalizationStarter()
+        {
+            RunAfter<SeoStarter>();
+        }
+
         public override void ConfigureServices(IServiceCollection services, IApplicationContext appContext)
         {
             services.Configure<LocalizedEntityOptions>(o => 
@@ -23,6 +29,18 @@ namespace Smartstore.Core.Bootstrapping
         public override void ConfigureMvc(IMvcBuilder mvcBuilder, IServiceCollection services, IApplicationContext appContext)
         {
             mvcBuilder.AddAppLocalization();
+        }
+
+        public override void BuildPipeline(RequestPipelineBuilder builder)
+        {
+            // Must come after UrlPolicy middleware
+            builder.Configure(StarterOrdering.AfterAuthenticationMiddleware - 2, app =>
+            {
+                if (builder.ApplicationContext.IsInstalled)
+                {
+                    app.UseRequestCulture();
+                }
+            });
         }
     }
 }

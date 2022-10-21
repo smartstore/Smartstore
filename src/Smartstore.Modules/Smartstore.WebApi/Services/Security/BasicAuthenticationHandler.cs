@@ -106,7 +106,7 @@ namespace Smartstore.Web.Api.Security
                 //}
                 //Thread.CurrentPrincipal = principal;
 
-                _workContext.CurrentCustomer = customer;
+                //_workContext.CurrentCustomer = customer;
 
                 user.LastRequest = DateTime.UtcNow;
 

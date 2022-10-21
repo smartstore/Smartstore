@@ -18,7 +18,6 @@
         public Task InvokeAsync(HttpContext httpContext, IHttpContextAccessor contextAccessor)
         {
             contextAccessor.HttpContext ??= httpContext;
-
             return _next(httpContext);
         }
     }

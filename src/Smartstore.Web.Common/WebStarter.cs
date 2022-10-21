@@ -44,8 +44,8 @@ namespace Smartstore.Web
     {
         public override void ConfigureServices(IServiceCollection services, IApplicationContext appContext)
         {
-            services.AddWorkContext();
-            
+            services.AddScoped<IWorkContext, WebWorkContext>();
+
             if (appContext.IsInstalled)
             {
                 // Configure Cookie Policy Options
@@ -135,20 +135,22 @@ namespace Smartstore.Web
                 app.UseStatusCodePagesWithReExecute("/Error/{0}");
             });
 
+            builder.Configure(StarterOrdering.RoutingMiddleware, app =>
+            {
+                app.UseRouting();
+            });
+
+            builder.Configure(StarterOrdering.BeforeStaticFilesMiddleware - 5, app =>
+            {
+                if (appContext.Services.Resolve<PerformanceSettings>().UseResponseCompression)
+                {
+                    app.UseResponseCompression();
+                }
+            });
+
             builder.Configure(StarterOrdering.BeforeAuthenticationMiddleware, app =>
             {
                 app.UseCookiePolicy();
-            });
-
-            builder.Configure(StarterOrdering.AuthenticationMiddleware, app =>
-            {
-                if (appContext.IsInstalled)
-                {
-                    app.UseAuthentication();
-
-                    // Initialize work context right after authentication
-                    app.UseWorkContext();
-                }
             });
 
             builder.Configure(StarterOrdering.AfterAuthenticationMiddleware, app =>
@@ -159,36 +161,9 @@ namespace Smartstore.Web
                     // To use the default framework request logging instead, remove this line and set the "Microsoft"
                     // level in appsettings.json to "Information".
                     app.UseRequestLogging();
-                }
-            });
 
-            builder.Configure(StarterOrdering.BeforeStaticFilesMiddleware - 5, app =>
-            {
-                if (appContext.Services.Resolve<PerformanceSettings>().UseResponseCompression)
-                {
-                    app.UseResponseCompression();
-                } 
-            });
-
-            builder.Configure(StarterOrdering.AfterStaticFilesMiddleware, app =>
-            {
-                if (appContext.IsInstalled)
-                {
                     // Executes IApplicationInitializer implementations during the very first request.
                     app.UseApplicationInitializer();
-                }
-            });
-
-            builder.Configure(StarterOrdering.RoutingMiddleware, app =>
-            {
-                app.UseRouting();
-            });
-
-            builder.Configure(StarterOrdering.AfterRoutingMiddleware, app =>
-            {
-                if (appContext.IsInstalled)
-                {
-                    app.UseAuthorization();
                 }
             });
 
@@ -196,12 +171,6 @@ namespace Smartstore.Web
             {
                 app.UseSession();
                 app.UseCheckoutState();
-
-                if (appContext.IsInstalled)
-                {
-                    app.UseUrlPolicy();
-                    app.UseRequestCulture();
-                }
             });
         }
 

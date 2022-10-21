@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System.Net.Http;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Smartstore.Core.Localization;
 
@@ -49,9 +50,14 @@ namespace Smartstore.Core.Seo.Routing
 
     public sealed class UrlPolicy
     {
+        private readonly HttpContext _httpContext;
+        private Language _workingLanguage = null;
+        
         public UrlPolicy(HttpRequest request)
         {
             Guard.NotNull(request, nameof(request));
+
+            _httpContext = request.HttpContext;
 
             var helper = new LocalizedUrlHelper(request);
             var path = helper.StripCultureCode(out var cultureCode);
@@ -77,9 +83,13 @@ namespace Smartstore.Core.Seo.Routing
 
         public LocalizationSettings LocalizationSettings { get; init; }
         public SeoSettings SeoSettings { get; init; }
-        public Language WorkingLanguage { get; set; }
         public Endpoint Endpoint { get; set; }
 
+        public Language WorkingLanguage 
+        {
+            get => _workingLanguage ??= _httpContext.RequestServices.GetRequiredService<IWorkContext>().WorkingLanguage;
+            set => _workingLanguage = value;
+        }
 
         /// <summary>
         /// Checks whether the current request's (ambient) culture is the system's default culture
