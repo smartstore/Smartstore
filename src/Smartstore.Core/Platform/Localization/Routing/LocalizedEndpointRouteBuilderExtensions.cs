@@ -19,7 +19,7 @@ namespace Microsoft.AspNetCore.Builder
         {
             Guard.NotNull(endpoints, nameof(endpoints));
 
-            return new CompositeEndpointConventionBuilder(new[]
+            return endpoints.MapComposite(new[]
             {
                 endpoints.Map("{culture:culture}/" + pattern, requestDelegate)
                     .WithMetadata(new LocalizedRouteMetadata(null, false)),
@@ -60,7 +60,7 @@ namespace Microsoft.AspNetCore.Builder
 
             string name2 = name.IsEmpty() ? null : name + "__noculture";
 
-            return new CompositeEndpointConventionBuilder(new[]
+            return endpoints.MapComposite(new[]
             {
                 endpoints
                     .MapControllerRoute(name, "{culture:culture}/" + pattern, defaults, constraints, dataTokens)

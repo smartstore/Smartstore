@@ -37,6 +37,7 @@ using Smartstore.Net.Http;
 using Smartstore.Utilities;
 using Smartstore.Web.Bootstrapping;
 using Smartstore.Web.Razor;
+using Smartstore.Web.Routing;
 
 namespace Smartstore.Web
 {
@@ -206,10 +207,8 @@ namespace Smartstore.Web
             builder.MapRoutes(StarterOrdering.LastRoute, routes =>
             {
                 // Register routes from SlugRouteTransformer solely needed for URL creation, NOT for route matching.
-                SlugRouteTransformer.Routers.Each(x => x.MapRoutes(routes));
-
-                // TODO: (core) Very last route: PageNotFound?
-                routes.MapControllerRoute("PageNotFound", "{*path}", new { controller = "Error", action = "NotFound" });
+                routes.MapComposite(SlugRouteTransformer.Routers.Select(x => x.MapRoutes(routes)).ToArray())
+                    .WithMetadata(new IgnoreRouteAttribute());
             });
         }
     }

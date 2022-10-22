@@ -68,6 +68,9 @@ namespace Smartstore.Web
 
             // ActionResult executor for LazyFileContentResult
             services.AddSingleton<IActionResultExecutor<LazyFileContentResult>, LazyFileContentResultExecutor>();
+
+            // Policy for outgoing endpoints only
+            services.AddSingleton<MatcherPolicy, IgnoreRouteMatcherPolicy>();
         }
 
         public override void ConfigureMvc(IMvcBuilder mvcBuilder, IServiceCollection services, IApplicationContext appContext)

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Routing;
+﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Routing;
 
 namespace Smartstore.Core.Seo.Routing
 {
@@ -37,7 +38,7 @@ namespace Smartstore.Core.Seo.Routing
         /// Maps routes solely needed for URL creation, NOT for route matching.
         /// This method is called only once per <see cref="SlugRouter"/> instance during application startup.
         /// </summary>
-        public abstract void MapRoutes(IEndpointRouteBuilder routes);
+        public abstract IEndpointConventionBuilder MapRoutes(IEndpointRouteBuilder routes);
 
         public virtual int Order { get; } = 0;
 

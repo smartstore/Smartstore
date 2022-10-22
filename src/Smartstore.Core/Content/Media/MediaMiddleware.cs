@@ -80,6 +80,8 @@ namespace Smartstore.Core.Content.Media
                 return;
             }
 
+            //var endpoint = context.GetEndpoint();
+
             MediaFileInfo mediaFile = null;
             MediaPathData pathData = null;
 
