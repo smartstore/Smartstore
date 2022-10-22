@@ -26,7 +26,7 @@ namespace Smartstore.Core.Bootstrapping
             {
                 builder.Configure(StarterOrdering.RewriteMiddleware + 2, app =>
                 {
-                    // SHould come directly after any Rewrite middleware
+                    // Should come directly after any Rewrite middleware
                     app.UseMedia();
                 });
             }

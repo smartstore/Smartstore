@@ -136,10 +136,44 @@ namespace Smartstore.Web
                 app.UseStatusCodePagesWithReExecute("/Error/{0}");
             });
 
+            //builder.Configure(StarterOrdering.BeforeRoutingMiddleware, app =>
+            //{
+            //    app.Use(async (context, next) =>
+            //    {
+            //        using (new AutoStopwatch($"BEFORE routing"))
+            //        {
+            //            await next(context);
+            //        }
+            //    });
+            //});
+
+            builder.Configure(StarterOrdering.AfterStaticFilesMiddleware, app =>
+            {
+                app.Use(async (context, next) =>
+                {
+                    // Add X-Powered-By header
+                    context.Response.Headers["X-Powered-By"] = $"Smartstore {SmartstoreVersion.CurrentVersion}";
+                    await next(context);
+                });
+            });
+
             builder.Configure(StarterOrdering.RoutingMiddleware, app =>
             {
                 app.UseRouting();
             });
+
+            //builder.Configure(StarterOrdering.AfterRoutingMiddleware, app =>
+            //{
+            //    app.Use(async (context, next) =>
+            //    {
+            //        using (new AutoStopwatch($"AFTER routing"))
+            //        {
+            //            await next(context);
+            //        }
+
+            //        var yo = true;
+            //    });
+            //});
 
             builder.Configure(StarterOrdering.BeforeStaticFilesMiddleware - 5, app =>
             {
@@ -190,20 +224,12 @@ namespace Smartstore.Web
                 return;
             }
 
-            builder.MapRoutes(StarterOrdering.EarlyRoute, routes =>
+            builder.MapRoutes(StarterOrdering.LateRoute, routes =>
             {
+                // Should come late
                 routes.MapDynamicControllerRoute<SlugRouteTransformer>("{**slug:minlength(2)}");
             });
-        }
-    }
 
-    internal class LastRoutes : StarterBase
-    {
-        public override bool Matches(IApplicationContext appContext)
-            => appContext.IsInstalled;
-
-        public override void MapRoutes(EndpointRoutingBuilder builder)
-        {
             builder.MapRoutes(StarterOrdering.LastRoute, routes =>
             {
                 // Register routes from SlugRouteTransformer solely needed for URL creation, NOT for route matching.

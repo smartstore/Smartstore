@@ -74,13 +74,18 @@ namespace Smartstore.Core.Content.Media
             Lazy<IEnumerable<IMediaHandler>> mediaHandlers,
             ILogger<MediaMiddleware> logger)
         {
+            if (context.GetEndpoint() != null)
+            {
+                // Get out if a route has been resolved before
+                await _next(context);
+                return;
+            }
+
             if (!TryMatchRoute(context.Request.Path, out var mediaFileId, out var path))
             {
                 await _next(context);
                 return;
             }
-
-            //var endpoint = context.GetEndpoint();
 
             MediaFileInfo mediaFile = null;
             MediaPathData pathData = null;

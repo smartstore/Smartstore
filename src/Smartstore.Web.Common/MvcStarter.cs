@@ -191,7 +191,7 @@ namespace Smartstore.Web
 
         public override void MapRoutes(EndpointRoutingBuilder builder)
         {
-            builder.MapRoutes(StarterOrdering.EarlyRoute, routes =>
+            builder.MapRoutes(StarterOrdering.DefaultRoute, routes =>
             {
                 routes.MapControllerRoute(
                     name: "areas",

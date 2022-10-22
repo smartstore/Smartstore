@@ -141,6 +141,12 @@ namespace Smartstore.Core.Seo.Routing
                 return null;
             }
 
+            if (httpContext.Request.Path.StartsWithSegments("/taskscheduler"))
+            {
+                // Irrelevant
+                return null;
+            }
+
             var policy = _urlService.GetUrlPolicy();
             var slug = policy.Path.ToString();
 
