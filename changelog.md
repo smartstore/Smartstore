@@ -8,14 +8,18 @@
 - (NEW) *File Manager* (commercial plugin)
 - (NEW) *GiroCode* (commercial plugin)
 - (NEW) *BizUrlMapper* (commercial plugin)
+- *PayPal*
+	- Added *RatePay* widget
+	- Added *Pay per invoice* payment method 
+	- Added PayPal onboarding to module configuration (handles simple configuration via direct email login without the need to create an app on the PayPal developer page). 
 - (DEV) Added Barcode encoding and generation infrastructure:
   - Can encode: EAN, QRCode, UPCA, UPCE, Aztec, Codabar, Code128, Code39, Code93, DataMatric, KixCode, PDF417, RoyalMail, TwoToFive
   - Can generate: Image (any type), SVG drawing
 - MediaManager: display image IPTC and EXIF metadata
 - MediaManager: added internal admin comment field
-- Added PayPal onboarding to module configuration (handles simple configuration via direct email login without the need to create an app on the PayPal developer page). 
 - (DEV) Embedded/Inline mail attachments
 - (DEV) Localized entity metadata: `ILocalizedEntityDescriptorProvider`, `ILocalizedEntityLoader`
+- Added IsVerifiedPurchase flag for reviews
 
 ### Improvements
 
@@ -45,6 +49,9 @@
 - Fixed saving of emails on disk
 - After installation of modules with custom Sass imports: bundle disk cache was not invalidated
 - #539 Fixed flickering on hovering over product image on product detail page
+- #552 <meta itemprop="availability"..> should not be rendered twice
+- Fixed theme preview tool display 
+- Fixed creating of SeoSlugs with special chars for installation 
 
 
 ## Smartstore 5.0.0
