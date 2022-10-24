@@ -184,3 +184,7 @@ img.slick-loading {
     opacity: 1;
 }
 
+.slick-track {
+    // Info: This hack fixes chrome calculation bug when using browser zoom.
+    min-width: calc(100% + 1px);
+}
