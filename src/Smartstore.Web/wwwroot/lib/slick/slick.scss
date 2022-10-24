@@ -36,6 +36,9 @@
     top: 0;
     display: block;
 
+    // Info: This hack fixes chrome calculation bug.
+    min-width: calc(100% + 1px);
+
     &:before,
     &:after {
         content: "";
