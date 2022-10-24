@@ -185,7 +185,7 @@ namespace Smartstore.Web.Api.Controllers.OData
                 address = await Db.Addresses.FindByIdAsync(relatedkey, false);
                 if (address == null)
                 {
-                    return NotFound($"Cannot find Address entity with identifier {relatedkey}.");
+                    return NotFound(relatedkey, nameof(Address));
                 }
 
                 entity.Addresses.Add(address);
@@ -249,7 +249,7 @@ namespace Smartstore.Web.Api.Controllers.OData
         //        address = await Db.Addresses.FindByIdAsync(relatedKey, false);
         //        if (address == null)
         //        {
-        //            return NotFound($"Cannot find Address entity with identifier {relatedKey}.");
+        //            return NotFound(relatedkey, nameof(Address));
         //        }
 
         //        entity.Addresses.Add(address);

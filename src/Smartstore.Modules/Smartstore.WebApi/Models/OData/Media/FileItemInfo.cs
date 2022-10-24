@@ -13,8 +13,6 @@ namespace Smartstore.Web.Api.Models.OData.Media
     /// </summary>
     public partial class FileItemInfo : BaseEntity
     {
-        //public int Id { get; set; }
-
         public string Directory { get; set; }
 
         public string Path { get; set; }

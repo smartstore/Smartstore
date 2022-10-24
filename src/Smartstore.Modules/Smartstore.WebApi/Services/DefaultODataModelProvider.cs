@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Net.Http;
 using Microsoft.OData.ModelBuilder;
 using Smartstore.Core.Catalog.Brands;
 using Smartstore.Core.Catalog.Categories;
@@ -38,8 +39,8 @@ namespace Smartstore.Web.Api
 
             BuildDeliveryTimes(builder);
             BuildMediaFiles(builder);
+            BuildMediaFolders(builder);
 
-            builder.EntitySet<MediaFolder>("MediaFolderEntities");
             builder.EntitySet<StateProvince>("StateProvinces");
         }
 
@@ -58,17 +59,38 @@ namespace Smartstore.Web.Api
 
         private static void BuildMediaFiles(ODataModelBuilder builder)
         {
-            const string infoSetName = "MediaFiles";
+            const string setName = "MediaFiles";
 
             var fileSet = builder.EntitySet<MediaFile>("MediaFileEntities");
-            var infoSet = builder.EntitySet<FileItemInfo>("MediaFiles");
+            var infoSet = builder.EntitySet<FileItemInfo>(setName);
 
             infoSet.EntityType.Collection
                 .Action(nameof(MediaFilesController.GetFileByPath))
-                .ReturnsFromEntitySet<FileItemInfo>(infoSetName)
-                .Parameter<string>("Path");
+                .ReturnsFromEntitySet<FileItemInfo>(setName)
+                .Parameter<string>("Path")
+                .Required();
+
+            infoSet.EntityType.Collection
+                .Function(nameof(MediaFilesController.GetFilesByIds))
+                .ReturnsFromEntitySet<FileItemInfo>(setName)
+                .CollectionParameter<int>("Ids");
+
+            infoSet.EntityType.Collection
+                .Function(nameof(MediaFilesController.Download))
+                .Returns<StreamContent>()
+                .Parameter<int>("Id");
 
             // Coming a lot more here...
+        }
+
+        private static void BuildMediaFolders(ODataModelBuilder builder)
+        {
+            const string setName = "MediaFolders";
+
+            var folderSet = builder.EntitySet<MediaFolder>("MediaFolderEntities");
+            var infoSet = builder.EntitySet<FolderNodeInfo>(setName);
+
+            // ...
         }
     }
 }

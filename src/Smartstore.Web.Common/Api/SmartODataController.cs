@@ -197,7 +197,7 @@ namespace Smartstore.Web.Api
             var entity = await Entities.FindByIdAsync(id);
             if (entity == null)
             {
-                return NotFound($"Cannot find {typeof(TEntity).Name} entity with identifier {id}.");
+                return NotFound(id);
             }
 
             try
@@ -408,6 +408,9 @@ namespace Smartstore.Web.Api
 
             return 0;
         }
+
+        protected NotFoundODataResult NotFound(int id, string entityName = null)
+            => NotFound($"Cannot find {entityName ?? typeof(TEntity).Name} entity with identifier {id}.");
 
         #endregion
     }

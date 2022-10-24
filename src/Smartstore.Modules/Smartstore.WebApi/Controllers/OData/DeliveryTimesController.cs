@@ -63,17 +63,17 @@ namespace Smartstore.Web.Api.Controllers.OData
         /// <summary>
         /// Gets the calculated minimum and maximum delivery date (if any).
         /// </summary>
-        [HttpGet("DeliveryTimes/GetDeliveryDate(Id={key})")]
+        [HttpGet("DeliveryTimes/GetDeliveryDate(Id={id})")]
         [Permission(Permissions.Configuration.DeliveryTime.Read)]
         [Produces(MediaTypeNames.Application.Json)]
         [ProducesResponseType(typeof(SimpleRange<DateTime?>), Status200OK)]
         [ProducesResponseType(Status404NotFound)]
-        public async Task<IActionResult> GetDeliveryDate(int key)
+        public async Task<IActionResult> GetDeliveryDate(int id)
         {
-            var deliveryTime = await Db.DeliveryTimes.FindByIdAsync(key, false);
+            var deliveryTime = await Db.DeliveryTimes.FindByIdAsync(id, false);
             if (deliveryTime == null)
             {
-                return NotFound($"Cannot find {nameof(DeliveryTime)} entity with identifier {key}.");
+                return NotFound(id);
             }
 
             var (min, max) = _deliveryTimeService.Value.GetDeliveryDate(deliveryTime);

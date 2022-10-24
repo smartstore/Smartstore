@@ -1,4 +1,5 @@
 ﻿using System.Data;
+using System.Diagnostics;
 using System.Net.Http.Headers;
 using System.Net.Mime;
 using System.Text;
@@ -190,10 +191,11 @@ namespace Smartstore.WebApi.Client
 
                 using var source = await responseMessage.Content.ReadAsStreamAsync(cancelToken);
                 using var target = IOFile.Open(path, FileMode.Create);
+                {
+                    await source.CopyToAsync(target, cancelToken);
+                }
 
-                await source.CopyToAsync(target, cancelToken);
-
-                System.Diagnostics.Process.Start(path);
+                Process.Start(new ProcessStartInfo("cmd", $"/c start {path}") { CreateNoWindow = true });
             }
         }
 

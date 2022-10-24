@@ -20,25 +20,29 @@ namespace Smartstore.Web.Api
             {
                 var httpContext = actionExecutedContext.HttpContext;
 
-                if (MaxTop == 0)
+                if (MaxTop != int.MaxValue)
                 {
                     if (httpContext.Items.TryGetValue("Smartstore.WebApi.MaxTop", out var rawMaxTop) && rawMaxTop != null)
                     {
                         MaxTop = (int)rawMaxTop;
                     }
 
-                    if (httpContext.Items.TryGetValue("Smartstore.WebApi.MaxExpansionDepth", out var rawMaxExpansionDepth) && rawMaxExpansionDepth != null)
+                    var hasClientPaging = httpContext?.Request?.Query?.Any(x => x.Key == "$top") ?? false;
+                    if (!hasClientPaging)
                     {
-                        MaxExpansionDepth = (int)rawMaxExpansionDepth;
+                        // If paging is required and there is no $top sent by client then force the page size specified by merchant.
+                        PageSize = MaxTop;
                     }
                 }
 
-                var hasClientPaging = httpContext?.Request?.Query?.Any(x => x.Key == "$top") ?? false;
-                if (!hasClientPaging)
+                if (MaxExpansionDepth != int.MaxValue
+                    && httpContext.Items.TryGetValue("Smartstore.WebApi.MaxExpansionDepth", out var rawMaxExpansionDepth) 
+                    && rawMaxExpansionDepth != null)
                 {
-                    // If paging is required and there is no $top sent by client then force the page size specified by merchant.
-                    PageSize = MaxTop;
+                    MaxExpansionDepth = (int)rawMaxExpansionDepth;
                 }
+
+                //$"WebApiQueryable MaxTop:{MaxTop} MaxExpansionDepth:{MaxExpansionDepth}".Dump();
             }
             catch
             {

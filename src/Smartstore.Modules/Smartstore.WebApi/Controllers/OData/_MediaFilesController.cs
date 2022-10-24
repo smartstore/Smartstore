@@ -1,8 +1,14 @@
 ﻿using System.Globalization;
+using System.Net.Http;
+using Autofac.Core;
 using Microsoft.AspNetCore.OData.Formatter;
 using Microsoft.AspNetCore.OData.Query;
+using Microsoft.Extensions.Configuration.UserSecrets;
+using NUglify.JavaScript.Syntax;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Content.Media;
+using Smartstore.IO;
+using Smartstore.Web.Api.Models.OData;
 using Smartstore.Web.Api.Models.OData.Media;
 
 namespace Smartstore.Web.Api.Controllers.OData
@@ -45,7 +51,7 @@ namespace Smartstore.Web.Api.Controllers.OData
 
             if (file == null)
             {
-                return NotFound($"Cannot find {nameof(MediaFile)} entity with identifier {key}.");
+                return NotFound(key, nameof(MediaFile));
             }
 
             return Ok(Convert(file));
@@ -79,25 +85,22 @@ namespace Smartstore.Web.Api.Controllers.OData
 
         #region Actions and functions
 
+        // TODO: (mg) (core) Swagger examples of unbound ODataActionParameters to not work (always missing).
+        // https://stackoverflow.com/questions/41141137/how-can-i-tell-swashbuckle-that-the-body-content-is-required
+        // Swashbuckle.AspNetCore.Annotations?
+
         /// <summary>
         /// Gets a file by path.
         /// </summary>
-        /// <example>
-        /// POST /MediaFiles/GetFileByPath {"Path":"content/my-file.jpg"}
-        /// </example>
+        /// <example>POST /MediaFiles/GetFileByPath {"Path":"content/my-file.jpg"}</example>
+        [HttpPost, WebApiQueryable]
         [Consumes(MediaTypeNames.Application.Json)]
         [Produces(MediaTypeNames.Application.Json)]
         [ProducesResponseType(typeof(FileItemInfo), Status200OK)]
-        [ProducesResponseType(Status400BadRequest)]
         [ProducesResponseType(Status404NotFound)]
-        [HttpPost, WebApiQueryable]
+        [ProducesResponseType(Status422UnprocessableEntity)]
         public async Task<IActionResult> GetFileByPath(ODataActionParameters parameters, ODataQueryOptions<MediaFile> options)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest();
-            }
-
             try
             {
                 var path = parameters.GetValueSafe<string>("Path");
@@ -117,11 +120,69 @@ namespace Smartstore.Web.Api.Controllers.OData
             }
         }
 
+        /// <summary>
+        /// Gets files by identifiers.
+        /// </summary>
+        /// <param name="ids">Comma separated list of file identifiers.</param>
+        /// <example>GET /MediaFiles/GetFilesByIds(Ids=[1,2,3])</example>
+        [HttpGet("MediaFiles/GetFilesByIds(Ids={ids})"), WebApiQueryable]
+        [Produces(MediaTypeNames.Application.Json)]
+        [ProducesResponseType(typeof(IEnumerable<FileItemInfo>), Status200OK)]
+        [ProducesResponseType(Status422UnprocessableEntity)]
+        public async Task<IActionResult> GetFilesByIds([FromODataUri] int[] ids, ODataQueryOptions<MediaFile> options)
+        {
+            if (ids.IsNullOrEmpty())
+            {
+                return Ok(Array.Empty<FileItemInfo>().AsQueryable());
+            }
+
+            try
+            {
+                var flags = GetLoadFlags(options);
+                var mediaFiles = await _mediaService.GetFilesByIdsAsync(ids.ToArray(), flags);
+                var files = mediaFiles.Select(x => Convert(x)).AsQueryable();
+
+                return Ok(files);
+            }
+            catch (Exception ex)
+            {
+                return ErrorResult(ex);
+            }
+        }
+
+        /// <summary>
+        /// Downloads a file.
+        /// </summary>
+        /// <param name="id">The MediaFile identifier.</param>
+        /// <example>GET /MediaFiles/Download(Id=123)</example>
+        [HttpGet("MediaFiles/Download(Id={id})"), WebApiQueryable]
+        [ProducesResponseType(Status200OK)]
+        [ProducesResponseType(Status404NotFound)]
+        [ProducesResponseType(Status422UnprocessableEntity)]
+        public async Task<IActionResult> Download(int id)
+        {
+            var file = await _mediaService.GetFileByIdAsync(id, MediaLoadFlags.WithBlob);
+            if (file == null)
+            {
+                return NotFound(id, nameof(MediaFile));
+            }
+
+            try
+            {
+                var stream = await file.OpenReadAsync();
+
+                return File(stream, file.MimeType, PathUtility.SanitizeFileName(file.Name));
+            }
+            catch (Exception ex)
+            {
+                return ErrorResult(ex);
+            }
+        }
+
         private void DeleteFile()
         {
             throw new NotImplementedException();
         }
-
 
         #endregion
 
