@@ -149,12 +149,7 @@ namespace Smartstore.Web
 
             builder.Configure(StarterOrdering.AfterStaticFilesMiddleware, app =>
             {
-                app.Use(async (context, next) =>
-                {
-                    // Add X-Powered-By header
-                    context.Response.Headers["X-Powered-By"] = $"Smartstore {SmartstoreVersion.CurrentVersion}";
-                    await next(context);
-                });
+                app.UsePoweredBy();
             });
 
             builder.Configure(StarterOrdering.RoutingMiddleware, app =>
@@ -190,13 +185,7 @@ namespace Smartstore.Web
 
             builder.Configure(StarterOrdering.WorkContextMiddleware, app =>
             {
-                app.Use(async (context, next) =>
-                {
-                    // Initialize work context so that we can safely access context data from here on
-                    var workContext = context.RequestServices.GetRequiredService<IWorkContext>();
-                    await workContext.InitializeAsync();
-                    await next();
-                });
+                app.UseWorkContext();
 
                 if (appContext.IsInstalled)
                 {

@@ -134,6 +134,12 @@ namespace Smartstore.Core.Seo.Routing
                 return null;
             }
 
+            if (!httpContext.Request.IsNonAjaxGet())
+            {
+                // Only attemp to transform in non-ajax GET requests.
+                return null;
+            }
+
             var features = httpContext.Features;
             if (features.Get<IExceptionHandlerPathFeature>() != null || features.Get<IStatusCodeReExecuteFeature>() != null)
             {
