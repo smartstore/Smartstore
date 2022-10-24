@@ -164,6 +164,11 @@ namespace Smartstore.Core.Catalog
         public bool ShowProductReviewsInProductDetail { get; set; } = true;
 
         /// <summary>
+        /// Gets or sets a value whether to display the badge for verified purchases.
+        /// </summary>
+        public bool ShowVerfiedPurchaseBadge { get; set; } = true;
+
+        /// <summary>
         /// Gets or sets a value indicating product reviews must be approved
         /// </summary>
         public bool ProductReviewsMustBeApproved { get; set; }

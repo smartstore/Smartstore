@@ -84,7 +84,7 @@
             <div class="adminTitle">
                 <smart-label asp-for="Title" />
             </div>
-            <div class="adminData">
+            <div class="adminData wide">
                 <input asp-for="Title" />
                 <span asp-validation-for="Title"></span>
             </div>
@@ -93,7 +93,7 @@
             <div class="adminTitle">
                 <smart-label asp-for="ReviewText" />
             </div>
-            <div class="adminData">
+            <div class="adminData wide">
                 <editor asp-for="ReviewText" />
                 <span asp-validation-for="ReviewText"></span>
             </div>
@@ -136,8 +136,7 @@
                 <smart-label asp-for="IsVerifiedPurchase" />
             </div>
             <div class="adminData">
-                @* TODO: (mh) (core) Dropdown should have "Automatic" placeholder, not "Unspecified" *@
-                <editor asp-for="IsVerifiedPurchase" />
+                <editor asp-for="IsVerifiedPurchase" data-placeholder="@T("Common.Automatic")" />
                 <span asp-validation-for="IsVerifiedPurchase"></span>
             </div>
         </div>

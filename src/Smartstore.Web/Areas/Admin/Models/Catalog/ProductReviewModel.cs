@@ -17,6 +17,12 @@ namespace Smartstore.Admin.Models.Catalog
 
         [LocalizedDisplay("*Rating")]
         public int[] Ratings { get; set; }
+
+        [LocalizedDisplay("Admin.Catalog.ProductReviews.Fields.IsApproved")]
+        public bool? IsApproved { get; set; }
+
+        [LocalizedDisplay("Admin.Catalog.ProductReviews.Fields.IsVerfifiedPurchase")]
+        public bool? IsVerifiedPurchase { get; set; }
     }
 
     [LocalizedDisplay("Admin.Catalog.ProductReviews.Fields.")]

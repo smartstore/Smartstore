@@ -1,7 +1,5 @@
 ﻿@model ProductReviewListModel
 
-@* TODO: (mh) (core) Implement filter for new IsVerified. *@
-
 <div class="form-group">
     <smart-label asp-for="ProductName" />
     <editor asp-for="ProductName" asp-template="SearchExpression" />
@@ -17,4 +15,12 @@
 <div class="form-group">
     <smart-label asp-for="Ratings" />
     <select asp-for="Ratings" asp-items="ViewBag.Ratings" multiple="multiple"></select>
+</div>
+<div class="form-group">
+    <smart-label asp-for="IsVerifiedPurchase" />
+    <editor asp-for="IsVerifiedPurchase" data-placeholder="@T("Common.Automatic")" />
+</div>
+<div class="form-group">
+    <smart-label asp-for="IsApproved" />
+    <editor asp-for="IsApproved" />
 </div>

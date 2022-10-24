@@ -223,6 +223,9 @@ namespace Smartstore.Admin.Models
         [LocalizedDisplay("*ShowProductReviewsInProductDetail")]
         public bool ShowProductReviewsInProductDetail { get; set; }
 
+        [LocalizedDisplay("*ShowVerfiedPurchaseBadge")]
+        public bool ShowVerfiedPurchaseBadge { get; set; } = true;
+
         [LocalizedDisplay("*ProductReviewsMustBeApproved")]
         public bool ProductReviewsMustBeApproved { get; set; }
 

@@ -22,7 +22,6 @@
             </button>
         </toolbar-group>
         <toolbar-group>
-            @* TODO: (mh) (core) Implement button for new IsVerified --> "Verify selected" *@
             <button datagrid-action="DataGridToolAction.ReactToSelection"
                     type="button"
                     id="approve-selected"
@@ -38,6 +37,14 @@
                     data-url="@Url.Action("DisapproveSelected")">
                 <i class="fa fa-times"></i>
                 <span>@T("Admin.Catalog.ProductReviews.DisapproveSelected")</span>
+            </button>
+            <button datagrid-action="DataGridToolAction.ReactToSelection"
+                    type="button"
+                    id="verify-selected"
+                    class="btn btn-secondary btn-to-danger btn-flat"
+                    data-url="@Url.Action("VerifySelected")">
+                <i class="fa fa-check"></i>
+                <span>@T("Admin.Catalog.ProductReviews.VerifySelected")</span>
             </button>
         </toolbar-group>
         <zone name="datagrid_toolbar_alpha"></zone>
@@ -55,7 +62,7 @@
     </search-panel>
     <columns>
         <column for="Id" halign="center" visible="false" type="string" />
-        <column for="ProductId" entity-member="Product.Name">
+        <column for="ProductId" entity-member="Product.Name" width="1fr">
             <display-template>
                 <div v-if="item.row.ProductEditUrl" class="text-truncate">
                     @Html.LabeledProductName(urlExpression: "item.row.ProductEditUrl", valueExpression: "item.row.ProductName")
@@ -63,15 +70,14 @@
                 <div v-if="!item.row.ProductEditUrl" class="text-truncate" v-html="item.row.ProductName"></div>
             </display-template>
         </column>
-        <column for="Sku" entity-member="Product.Sku" />
+        <column for="Sku" entity-member="Product.Sku" visible="false" width="200px" />
         <column for="Title" hideable="false">
             <display-template>
                 <a :href="item.row.EditUrl" class="text-truncate">{{ item.value }}</a>
             </display-template>
         </column>
-        @* TODO: (mh) (core) Looks absolutely ugly. Please apply decent column sizing to all columns. *@
-        <column for="ReviewText" encoded="true" wrap="true" />
-        <column for="CustomerId">
+        <column for="ReviewText" encoded="true" wrap="true" width="2fr" />
+        <column for="CustomerId" visible="false" >
             <display-template>
                 <a :href="item.row.CustomerEditUrl" class="text-truncate">{{ item.row.CustomerName }}</a>
             </display-template>
@@ -99,7 +105,7 @@
 
     $(function () {
         // Approve\disapprove.
-        $(document).on('click', '#approve-selected, #disapprove-selected', function (e) {
+        $(document).on('click', '#approve-selected, #disapprove-selected, #verify-selected', function (e) {
             e.preventDefault();
 
             const grid = $('#productreviews-grid').parent().data('datagrid');

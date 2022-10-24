@@ -1,4 +1,5 @@
-﻿using System.Linq.Dynamic.Core;
+﻿using System.Linq;
+using System.Linq.Dynamic.Core;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Smartstore.Admin.Models.Catalog;
 using Smartstore.Core.Catalog.Products;
@@ -78,6 +79,16 @@ namespace Smartstore.Admin.Controllers
             if (model.Ratings?.Any() ?? false)
             {
                 query = query.Where(x => model.Ratings.Contains(x.Rating));
+            }
+
+            if (model.IsVerifiedPurchase != null)
+            {
+                query = query.Where(x => x.IsVerifiedPurchase == model.IsVerifiedPurchase);
+            }
+
+            if (model.IsApproved != null)
+            {
+                query = query.Where(x => x.IsApproved == model.IsApproved);
             }
 
             var productReviews = await query
@@ -239,6 +250,34 @@ namespace Smartstore.Admin.Controllers
             var numDisapproved = await UpdateApproved(selectedIds, false);
 
             NotifySuccess(T("Admin.Catalog.ProductReviews.NumberDisapprovedReviews", numDisapproved));
+
+            return RedirectToAction(nameof(List));
+        }
+
+        [HttpPost]
+        [Permission(Permissions.Catalog.ProductReview.Update)]
+        public async Task<IActionResult> VerifySelected(string selectedIds)
+        {
+            var ids = selectedIds.ToIntArray();
+
+            if (ids.Any())
+            {
+                var numUpdated = 0;
+
+                var productReviews = await _db.ProductReviews
+                    .Where(x => ids.Contains(x.Id) && (x.IsVerifiedPurchase == false || x.IsVerifiedPurchase == null))
+                    .ToListAsync();
+
+                if (productReviews.Any())
+                {
+                    productReviews.Each(x => x.IsVerifiedPurchase = true);
+
+                    // TODO: (mh) (core) numUpdated is always doubled. For three reviews numUpdated will be 6 :-/
+                    numUpdated = await _db.SaveChangesAsync();
+
+                    NotifySuccess(T("Admin.Catalog.ProductReviews.NumberVerfifiedReviews", numUpdated));
+                }
+            }
 
             return RedirectToAction(nameof(List));
         }

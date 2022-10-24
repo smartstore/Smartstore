@@ -69,13 +69,39 @@ namespace Smartstore.Core.Data.Migrations
                 "Legt einen Vergleichspreis fest, z.B.: UVP, Listenpreis, regulärer Preis vor einer Ermäßigung etc. Der Vergleichspreis dienst als Streichpreis.");
 
             builder.AddOrUpdate("Admin.Catalog.ProductReviews.Fields.IsVerfifiedPurchase",
-                "Is verified purchase",
-                "Ist verifizierter Kauf",
+                "Is verified",
+                "Ist verifiziert",
                 "Specifies whether this product review was written by a customer who purchased the product from this store.",
                 "Legt fest, ob diese Produktbewertung von einem Kunden verfasst wurde, der das Produkt in diesem Shop gekauft hat.");
 
             builder.AddOrUpdate("Reviews.Verified", "Verified purchase", "Verifizierter Kauf");
             builder.AddOrUpdate("Reviews.Unverified", "Unverified purchase", "Nicht verifiziert");
+
+            builder.AddOrUpdate("Admin.Catalog.ProductReviews.NumberVerfifiedReviews",
+                "There were {0} product reviews verfified.",
+                "Es wurden {0} Produktrezensionen verifiziert.");
+
+            builder.AddOrUpdate("Admin.Catalog.ProductReviews.NumberApprovedReviews",
+                "There were {0} product reviews approved.",
+                "Es wurden {0} Produktrezensionen genehmigt.");
+
+            builder.AddOrUpdate("Admin.Catalog.ProductReviews.NumberDisapprovedReviews",
+                "There were {0} product reviews disapproved.",
+                "Es wurden {0} Produktrezensionen abgelehnt.");
+
+            builder.AddOrUpdate("Admin.Catalog.ProductReviews.VerifySelected",
+                "Verify selected",
+                "Ausgewählte verfizieren");
+
+            builder.AddOrUpdate("Common.Automatic", "Automatic", "Automatisch");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.ShowManufacturerInProductDetail", "Display manufacturer", "Hersteller anzeigen");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.ShowVerfiedPurchaseBadge",
+                "Show verfied purchase badge",
+                "Zeige Badge für verifizierte Käufe",
+                "Specifies whether to display for product reviews whether the author was a verified buyer.",
+                "Legt fest, ob für Produktrezensionen angezeigt werden soll, ob der Verfasser ein verifizierter Käufer war.");
         }
     }
 }

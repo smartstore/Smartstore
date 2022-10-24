@@ -21,6 +21,8 @@ namespace Smartstore.Web.Models.Catalog
         public int TotalReviewsCount { get; set; }
         public List<ProductReviewModel> Items { get; set; } = new();
 
+        public bool ShowVerfiedPurchaseBadge { get; set; }
+
         #region Add
 
         [LocalizedDisplay("*Title")]

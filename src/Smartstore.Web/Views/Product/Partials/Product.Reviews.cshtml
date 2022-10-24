@@ -45,7 +45,7 @@
                 <span class="review-meta-value" itemprop="datePublished" content="@review.WrittenOn.ToString("yyyy-MM-DD")">@review.WrittenOnStr</span>
             </div>
 
-            <div class="review-verify">
+            <div sm-if="Model.ShowVerfiedPurchaseBadge" class="review-verify">
                 <span class="small badge badge-@(review.IsVerifiedPurchase ? "success" : "secondary")">
                     @T("Reviews." + (review.IsVerifiedPurchase ? "Verified" : "Unverified"))
                 </span>

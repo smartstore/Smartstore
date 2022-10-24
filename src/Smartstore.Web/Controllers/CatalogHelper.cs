@@ -1931,7 +1931,6 @@ namespace Smartstore.Web.Controllers
                     .ToDistinctArray(x => x.CustomerId);
 
                 var orderCustomerIds = await _db.Orders
-                    // INFO: (perf) In db queries, always start with the most specific predicate
                     .Where(x => unverifiedCustomerIds.Contains(x.CustomerId) && x.OrderItems.Any(y => y.ProductId == product.Id))
                     .Select(x => x.CustomerId)
                     .ToArrayAsync();
@@ -1955,7 +1954,6 @@ namespace Smartstore.Web.Controllers
                             HelpfulNoTotal = review.HelpfulNoTotal,
                         },
                         // Look in order history of customer whether he/she has purchased the product.
-                        // TODO: (mh) (core) Make an option for the badge: not all store owners live in EU and thus should be able to hide the badge. 
                         IsVerifiedPurchase = review.IsVerifiedPurchase ?? orderCustomerIds.Contains(review.CustomerId),
                         WrittenOnStr = writtenOn.ToString("M") + ' ' + writtenOn.ToString("yyyy"),
                         WrittenOn = review.CreatedOnUtc
@@ -1967,6 +1965,7 @@ namespace Smartstore.Web.Controllers
 
             model.CanCurrentCustomerLeaveReview = _catalogSettings.AllowAnonymousUsersToReviewProduct || !_services.WorkContext.CurrentCustomer.IsGuest();
             model.DisplayCaptcha = _captchaSettings.CanDisplayCaptcha && _captchaSettings.ShowOnProductReviewPage;
+            model.ShowVerfiedPurchaseBadge = _catalogSettings.ShowVerfiedPurchaseBadge;
         }
 
         private MediaFileInfo PrepareMediaFileInfo(MediaFileInfo file, MediaGalleryModel model)

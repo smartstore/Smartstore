@@ -790,6 +790,15 @@
                 </div>
                 <div class="adminRow">
                     <div class="adminTitle">
+                        <smart-label asp-for="ShowVerfiedPurchaseBadge" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="ShowVerfiedPurchaseBadge"></setting-editor>
+                        <span asp-validation-for="ShowVerfiedPurchaseBadge"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
                         <smart-label asp-for="ProductReviewsMustBeApproved" />
                     </div>
                     <div class="adminData">
