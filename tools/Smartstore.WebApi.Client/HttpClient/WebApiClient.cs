@@ -145,31 +145,31 @@ namespace Smartstore.WebApi.Client
                 content.Headers.ContentType = new MediaTypeHeaderValue(contentType);
                 content.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data")
                 {
-                    Name = id,
-                    FileName = fileName ?? id
+                    Name = '"' + id + '"',
+                    FileName = '"' + (fileName ?? id) + '"'
                 };
 
                 // Add file parameters. Omit default values (let the server apply them).
                 if (file.Id != 0)
                 {
-                    content.Headers.ContentDisposition.Parameters.Add(new NameValueHeaderValue("PictureId", file.Id.ToString()));
+                    content.Headers.ContentDisposition.Parameters.Add(CreateParameter("PictureId", file.Id.ToString()));
                 }
                 if (file.Path.HasValue())
                 {
-                    content.Headers.ContentDisposition.Parameters.Add(new NameValueHeaderValue("Path", file.Path));
+                    content.Headers.ContentDisposition.Parameters.Add(CreateParameter("Path", file.Path));
                 }
                 if (!file.IsTransient)
                 {
-                    content.Headers.ContentDisposition.Parameters.Add(new NameValueHeaderValue("IsTransient", file.IsTransient.ToString()));
+                    content.Headers.ContentDisposition.Parameters.Add(CreateParameter("IsTransient", file.IsTransient.ToString()));
                 }
                 if (file.DuplicateFileHandling != DuplicateFileHandling.ThrowError)
                 {
-                    content.Headers.ContentDisposition.Parameters.Add(new NameValueHeaderValue("DuplicateFileHandling", ((int)file.DuplicateFileHandling).ToString()));
+                    content.Headers.ContentDisposition.Parameters.Add(CreateParameter("DuplicateFileHandling", ((int)file.DuplicateFileHandling).ToString()));
                 }
 
                 // Test passing of custom parameters. Smartstore does not use them. The API ignores them anyway.
-                //content.Headers.ContentDisposition.Parameters.Add(new NameValueHeaderValue("CustomValue1", string.Format("{0:N}", Guid.NewGuid())));
-                //content.Headers.ContentDisposition.Parameters.Add(new NameValueHeaderValue("CustomValue2", $"say hello to {id}"));
+                //content.Headers.ContentDisposition.Parameters.Add(CreateParameter("CustomValue1", string.Format("{0:N}", Guid.NewGuid())));
+                //content.Headers.ContentDisposition.Parameters.Add(CreateParameter("CustomValue2", $"say hello to {id}"));
 
                 result.Add(content);
 
@@ -177,6 +177,12 @@ namespace Smartstore.WebApi.Client
             }
 
             return result;
+
+            static NameValueHeaderValue CreateParameter(string key, string value)
+            {
+                // Quote to avoid InvalidDataException "Form section has invalid Content-Disposition value".
+                return new NameValueHeaderValue(key, '"' + value.Replace('\"', '\'') + '"');
+            }
         }
 
         private static async Task SaveFile(WebApiRequest request, HttpResponseMessage responseMessage, CancellationToken cancelToken)

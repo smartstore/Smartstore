@@ -492,12 +492,10 @@ namespace Smartstore.Web.Api.Controllers.OData
                 }
 
                 var cd = ContentDispositionHeaderValue.Parse(file.ContentDisposition);
-                var path = cd.Parameters.FirstOrDefault(x => x.Name.EqualsNoCase("Path"))?.Value;
-                var isTransient = cd.Parameters.FirstOrDefault(x => x.Name == "IsTransient")?.Value?.ToBool(true) ?? true;
+                var path = cd.GetParameterValue<string>("Path");
+                var isTransient = cd.GetParameterValue("IsTransient", true);
 
-                $"path:{path}".Dump();
-                
-                var rawDuplicateFileHandling = cd.Parameters.FirstOrDefault(x => x.Name == "DuplicateFileHandling")?.Value;
+                var rawDuplicateFileHandling = cd.GetParameterValue<string>("DuplicateFileHandling");
                 _ = Enum.TryParse<DuplicateFileHandling>(rawDuplicateFileHandling.EmptyNull(), out var duplicateFileHandling);
 
                 using var stream = file.OpenReadStream();
