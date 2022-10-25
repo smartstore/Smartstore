@@ -6,7 +6,9 @@
             @await Component.InvokeAsync("ShopLogo")
         </div>
         <div class="shopbar-col shopbar-search">
-            @await Component.InvokeAsync("SearchBox")
+            <zone name="searchbox" replace-content="true">
+                @await Component.InvokeAsync("SearchBox")
+            </zone>
         </div>
     </div>
 
