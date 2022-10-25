@@ -9,7 +9,7 @@
 <script data-origin="paypal-button">
     $(function () {
         // TODO: (mh) (core) Remove monitoring console.logs
-        if (paypal){
+        if (typeof paypal !== 'undefined') {
             initPayPal();
             console.log("document ready");
         }

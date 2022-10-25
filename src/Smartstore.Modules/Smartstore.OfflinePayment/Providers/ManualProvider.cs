@@ -14,14 +14,10 @@ namespace Smartstore.OfflinePayment
     public class ManualProvider : OfflinePaymentProviderBase<ManualPaymentSettings>, IConfigurable
     {
         protected override Type GetViewComponentType()
-        {
-            return typeof(ManualPaymentViewComponent);
-        }
+            => typeof(ManualPaymentViewComponent);
 
         protected override string GetProviderName()
-        {
-            return nameof(ManualProvider);
-        }
+            => nameof(ManualProvider);
 
         public RouteInfo GetConfigurationRoute()
             => new("ManualConfigure", "OfflinePayment", new { area = "Admin" });
