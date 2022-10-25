@@ -93,15 +93,13 @@ namespace Smartstore.Core.Data.Migrations
                 "Verify selected",
                 "Ausgewählte verfizieren");
 
-            builder.AddOrUpdate("Common.Automatic", "Automatic", "Automatisch");
-
             builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.ShowManufacturerInProductDetail", "Display manufacturer", "Hersteller anzeigen");
 
             builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.ShowVerfiedPurchaseBadge",
                 "Show verfied purchase badge",
                 "Zeige Badge für verifizierte Käufe",
-                "Specifies whether to display for product reviews whether the author was a verified buyer.",
-                "Legt fest, ob für Produktrezensionen angezeigt werden soll, ob der Verfasser ein verifizierter Käufer war.");
+                "For product reviews, specifies the display whether the author was a verified buyer.",
+                "Bestimmt bei Produktrezensionen die Anzeige, ob der Verfasser ein verifizierter Käufer war.");
         }
     }
 }

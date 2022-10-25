@@ -262,8 +262,6 @@ namespace Smartstore.Admin.Controllers
 
             if (ids.Any())
             {
-                var numUpdated = 0;
-
                 var productReviews = await _db.ProductReviews
                     .Where(x => ids.Contains(x.Id) && (x.IsVerifiedPurchase == false || x.IsVerifiedPurchase == null))
                     .ToListAsync();
@@ -272,10 +270,9 @@ namespace Smartstore.Admin.Controllers
                 {
                     productReviews.Each(x => x.IsVerifiedPurchase = true);
 
-                    // TODO: (mh) (core) numUpdated is always doubled. For three reviews numUpdated will be 6 :-/
-                    numUpdated = await _db.SaveChangesAsync();
+                    await _db.SaveChangesAsync();
 
-                    NotifySuccess(T("Admin.Catalog.ProductReviews.NumberVerfifiedReviews", numUpdated));
+                    NotifySuccess(T("Admin.Catalog.ProductReviews.NumberVerfifiedReviews", productReviews.Count));
                 }
             }
 
@@ -345,7 +342,8 @@ namespace Smartstore.Admin.Controllers
                 {
                     productReviews.Each(x => x.IsApproved = approved);
 
-                    numUpdated = await _db.SaveChangesAsync();
+                    numUpdated = productReviews.Count;
+                    await _db.SaveChangesAsync();
 
                     // Update product review totals.
                     var productIds = productReviews.ToDistinctArray(x => x.ProductId);
