@@ -19,7 +19,7 @@ namespace Smartstore.Web.Api
     /// For ActionResult<T> ProducesResponseTypeAttribute's type property can be excluded.
     /// - Explicit "From" parameter bindings are required otherwise Swagger will describe them as "query" params by default.
     /// - Accurate examples: https://github.com/dotnet/aspnet-api-versioning/tree/93bd8dc7582ec14c8ec97997c01cfe297b085e17/examples/AspNetCore/OData
-    /// - Routing conventions: https://learn.microsoft.com/en-us/odata/webapi/built-in-routing-conventions
+    /// - Routing conventions (only partly applicable for version > 8): https://learn.microsoft.com/en-us/odata/webapi/built-in-routing-conventions
     /// - $ref: https://learn.microsoft.com/en-us/aspnet/web-api/overview/odata-support-in-aspnet-web-api/odata-v4/entity-relations-in-odata-v4#creating-a-relationship-between-entities
     /// - Swashbuckle: https://github.com/domaindrivendev/Swashbuckle.AspNetCore
     /// </remarks>

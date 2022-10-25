@@ -138,7 +138,7 @@ namespace Smartstore.WebApi.Client
             {
                 var id = $"my-file-{++count}";
                 var fileName = Path.GetFileName(file.LocalPath);
-                var fileSize = new FileInfo(fileName).Length;
+                var fileSize = new FileInfo(file.LocalPath).Length;
                 new FileExtensionContentTypeProvider().TryGetContentType(fileName, out string contentType);
 
                 var content = new StreamContent(new FileStream(file.LocalPath, FileMode.Open));
@@ -173,7 +173,7 @@ namespace Smartstore.WebApi.Client
 
                 result.Add(content);
 
-                response.RequestContent.AppendLine($"\r\n{content.Headers.ToString()}\r\n<Binary data for {fileName} here (length {fileSize} bytes)…>");
+                response.RequestContent.AppendLine($"{content.Headers.ToString()}\r\n<Binary data for {fileName} here (length {fileSize} bytes)…>");
             }
 
             return result;

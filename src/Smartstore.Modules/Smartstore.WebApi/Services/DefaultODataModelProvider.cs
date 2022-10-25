@@ -80,7 +80,54 @@ namespace Smartstore.Web.Api
                 .Returns<StreamContent>()
                 .Parameter<int>("Id");
 
-            // Coming a lot more here...
+            infoSet.EntityType.Collection
+                .Action(nameof(MediaFilesController.SearchFiles))
+                .ReturnsFromEntitySet<FileItemInfo>(setName)
+                .Parameter<MediaSearchQuery>("Query");
+
+            infoSet.EntityType.Collection
+                .Action(nameof(MediaFilesController.FileExists))
+                .Returns<bool>()
+                .Parameter<string>("Path");
+
+            infoSet.EntityType.Collection
+                .Action(nameof(MediaFilesController.CheckUniqueFileName))
+                .Returns<CheckUniquenessResult>()
+                .Parameter<string>("Path");
+
+            infoSet.EntityType.Collection
+                .Action(nameof(MediaFilesController.CountFiles))
+                .Returns<int>()
+                .Parameter<MediaSearchQuery>("Query");
+
+            infoSet.EntityType.Collection
+                .Action(nameof(MediaFilesController.CountFilesGrouped))
+                .Returns<MediaCountResult>()
+                .Parameter<MediaFilesFilter>("Filter");
+
+            var moveFile = infoSet.EntityType
+                .Action(nameof(MediaFilesController.MoveFile))
+                .ReturnsFromEntitySet<FileItemInfo>(setName);
+
+            moveFile.Parameter<string>("DestinationFileName");
+            moveFile.Parameter<DuplicateFileHandling>("DuplicateFileHandling").HasDefaultValue(bool.TrueString);
+
+            var copyFile = infoSet.EntityType
+                .Action(nameof(MediaFilesController.CopyFile))
+                .Returns<MediaFileOperationResult>();
+
+            copyFile.Parameter<string>("DestinationFileName");
+            copyFile.Parameter<DuplicateFileHandling>("DuplicateFileHandling").HasDefaultValue(bool.TrueString);
+
+            var deleteFile = infoSet.EntityType
+                .Action(nameof(MediaFilesController.DeleteFile));
+
+            deleteFile.Parameter<bool>("Permanent");
+            deleteFile.Parameter<bool>("Force").HasDefaultValue(bool.FalseString);
+
+            infoSet.EntityType.Collection
+                .Action(nameof(MediaFilesController.SaveFile))
+                .ReturnsFromEntitySet<FileItemInfo>(setName);
         }
 
         private static void BuildMediaFolders(ODataModelBuilder builder)
