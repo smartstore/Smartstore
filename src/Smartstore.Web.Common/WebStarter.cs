@@ -32,7 +32,6 @@ using Smartstore.Bootstrapping;
 using Smartstore.Core.Bootstrapping;
 using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Seo.Routing;
-using Smartstore.Diagnostics;
 using Smartstore.Engine.Builders;
 using Smartstore.Net;
 using Smartstore.Net.Http;
@@ -46,7 +45,7 @@ namespace Smartstore.Web
     {
         public override void ConfigureServices(IServiceCollection services, IApplicationContext appContext)
         {
-            services.AddScoped<IWorkContext, WebWorkContext>();
+            services.AddWorkContext(appContext);
 
             if (appContext.IsInstalled)
             {
@@ -144,7 +143,7 @@ namespace Smartstore.Web
 
             builder.Configure(StarterOrdering.RoutingMiddleware, app =>
             {
-                app.UseLocalizedRouting();
+                app.UseLocalizedRouting(appContext);
             });
 
             builder.Configure(StarterOrdering.AfterRewriteMiddleware, app =>
@@ -162,10 +161,11 @@ namespace Smartstore.Web
 
             builder.Configure(StarterOrdering.WorkContextMiddleware, app =>
             {
-                app.UseWorkContext();
-
                 if (appContext.IsInstalled)
                 {
+                    // Initializes work context data
+                    app.UseWorkContext();
+
                     // Write streamlined request completion events, instead of the more verbose ones from the framework.
                     // To use the default framework request logging instead, remove this line and set the "Microsoft"
                     // level in appsettings.json to "Information".

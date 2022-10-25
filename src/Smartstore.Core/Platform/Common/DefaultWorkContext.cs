@@ -3,17 +3,31 @@ using Smartstore.Caching;
 using Smartstore.Core.Checkout.Tax;
 using Smartstore.Core.Common;
 using Smartstore.Core.Common.Services;
+using Smartstore.Core.Configuration;
+using Smartstore.Core.Data;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Stores;
 using Smartstore.Core.Web;
+using Smartstore.Data.Hooks;
 using Smartstore.Net;
 using Smartstore.Threading;
+using Smartstore.Utilities;
 
-namespace Smartstore.Web
+namespace Smartstore.Core
 {
-    public partial class WebWorkContext : IWorkContext
+    public partial class DefaultWorkContext : AsyncDbSaveHook<BaseEntity>, IWorkContext
     {
+        /// <summary>
+        /// Key for tax display type caching
+        /// </summary>
+        /// <remarks>
+        /// {0} : customer role ids
+        /// {1} : store identifier
+        /// </remarks>
+        const string CUSTOMERROLES_TAX_DISPLAY_TYPES_KEY = "customerroles:taxdisplaytypes-{0}-{1}";
+        const string CUSTOMERROLES_TAX_DISPLAY_TYPES_PATTERN_KEY = "customerroles:taxdisplaytypes*";
+
         private readonly SmartDbContext _db;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ILanguageResolver _languageResolver;
@@ -37,7 +51,7 @@ namespace Smartstore.Web
         private Customer _impersonator;
         private bool? _isAdminArea;
 
-        public WebWorkContext(
+        public DefaultWorkContext(
             SmartDbContext db,
             IHttpContextAccessor httpContextAccessor,
             ILanguageResolver languageResolver,
@@ -67,6 +81,8 @@ namespace Smartstore.Web
             _geoCountryLookup = geoCountryLookup;
         }
 
+        #region Init
+
         public async Task InitializeAsync()
         {
             if (_customer == null)
@@ -89,6 +105,33 @@ namespace Smartstore.Web
         {
             get => _customer != null && _language != null && _currency != null;
         }
+
+        #endregion
+
+        #region Hook
+
+        public override async Task<HookResult> OnAfterSaveAsync(IHookedEntity entry, CancellationToken cancelToken)
+        {
+            if (entry.Entity is CustomerRole)
+            {
+                await _cache.RemoveByPatternAsync(CUSTOMERROLES_TAX_DISPLAY_TYPES_PATTERN_KEY);
+                return HookResult.Ok;
+            }
+            else if (entry.Entity is Setting setting && entry.InitialState == EntityState.Modified)
+            {
+                if (setting.Name.EqualsNoCase(TypeHelper.NameOf<TaxSettings>(x => x.TaxDisplayType, true)))
+                {
+                    await _cache.RemoveByPatternAsync(CUSTOMERROLES_TAX_DISPLAY_TYPES_PATTERN_KEY); // depends on TaxSettings.TaxDisplayType
+                }
+                return HookResult.Ok;
+            }
+            else
+            {
+                return HookResult.Void;
+            }
+        }
+
+        #endregion
 
         #region Customer
 
@@ -512,7 +555,7 @@ namespace Smartstore.Web
                 if (!taxDisplayTypeId.HasValue)
                 {
                     var customerRoles = customer.CustomerRoleMappings.Select(x => x.CustomerRole).ToList();
-                    string cacheKey = string.Format(WebCacheInvalidator.CUSTOMERROLES_TAX_DISPLAY_TYPES_KEY, string.Join(",", customerRoles.Select(x => x.Id)), storeId);
+                    string cacheKey = string.Format(CUSTOMERROLES_TAX_DISPLAY_TYPES_KEY, string.Join(",", customerRoles.Select(x => x.Id)), storeId);
                     var cacheResult = _cache.Get(cacheKey, () =>
                     {
                         var roleTaxDisplayTypes = customerRoles

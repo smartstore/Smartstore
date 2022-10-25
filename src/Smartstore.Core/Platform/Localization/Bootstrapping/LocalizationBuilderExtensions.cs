@@ -45,16 +45,22 @@ namespace Smartstore.Core.Bootstrapping
         /// <see cref="Endpoint"/> associated with the <see cref="HttpContext"/>.
         /// </para>
         /// </remarks>
-        public static IApplicationBuilder UseLocalizedRouting(this IApplicationBuilder app)
+        public static IApplicationBuilder UseLocalizedRouting(this IApplicationBuilder app, IApplicationContext appContext)
         {
             // PRE routing
-            app.Use(OnBeforeRouting);
+            if (appContext.IsInstalled)
+            {
+                app.Use(OnBeforeRouting);
+            }
 
             // Actual routing middleware
             app.UseRouting();
 
             // POST routing
-            app.Use(OnAfterRouting);
+            if (appContext.IsInstalled)
+            {
+                app.Use(OnAfterRouting);
+            }
 
             return app;
         }

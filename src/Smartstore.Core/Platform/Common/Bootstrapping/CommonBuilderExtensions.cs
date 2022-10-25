@@ -4,6 +4,23 @@ namespace Smartstore.Core.Bootstrapping
 {
     public static class CommonBuilderExtensions
     {
+        public static IServiceCollection AddWorkContext(this IServiceCollection services, IApplicationContext appContext)
+        {
+            Guard.NotNull(services, nameof(services));
+            Guard.NotNull(appContext, nameof(appContext));
+
+            if (appContext.IsInstalled)
+            {
+                services.AddScoped<IWorkContext, DefaultWorkContext>();
+            }
+            else
+            {
+                services.AddScoped<IWorkContext, InstallationWorkContext>();
+            }
+
+            return services;
+        }
+        
         /// <summary>
         /// Initializes work context so that context data can be safely access from here on.
         /// </summary>

@@ -282,6 +282,8 @@ namespace Smartstore.Core.Installation
                 await seeder.SeedAsync(db, cancelToken);
                 cancelToken.ThrowIfCancellationRequested();
 
+                await scope.Resolve<IWorkContext>().InitializeAsync();
+
                 // ===>>> Install modules
                 await InstallModules(result, db, scope, cancelToken);
 
