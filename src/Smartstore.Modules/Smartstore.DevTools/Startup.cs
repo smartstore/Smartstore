@@ -92,7 +92,7 @@ namespace Smartstore.DevTools
 
         public override void BuildPipeline(RequestPipelineBuilder builder)
         {
-            builder.Configure(StarterOrdering.AfterRewriteMiddleware, app =>
+            builder.Configure(StarterOrdering.AfterWorkContextMiddleware, app =>
             {
                 app.UseMiniProfiler();
             });

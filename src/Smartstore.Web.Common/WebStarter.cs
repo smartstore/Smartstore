@@ -23,6 +23,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.DataProtection.XmlEncryption;
 using Microsoft.AspNetCore.ResponseCompression;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
@@ -31,13 +32,13 @@ using Smartstore.Bootstrapping;
 using Smartstore.Core.Bootstrapping;
 using Smartstore.Core.Common.Settings;
 using Smartstore.Core.Seo.Routing;
+using Smartstore.Diagnostics;
 using Smartstore.Engine.Builders;
 using Smartstore.Net;
 using Smartstore.Net.Http;
 using Smartstore.Utilities;
 using Smartstore.Web.Bootstrapping;
 using Smartstore.Web.Razor;
-using Smartstore.Web.Routing;
 
 namespace Smartstore.Web
 {
@@ -136,17 +137,6 @@ namespace Smartstore.Web
                 app.UseStatusCodePagesWithReExecute("/Error/{0}");
             });
 
-            //builder.Configure(StarterOrdering.BeforeRoutingMiddleware, app =>
-            //{
-            //    app.Use(async (context, next) =>
-            //    {
-            //        using (new AutoStopwatch($"BEFORE routing"))
-            //        {
-            //            await next(context);
-            //        }
-            //    });
-            //});
-
             builder.Configure(StarterOrdering.AfterStaticFilesMiddleware, app =>
             {
                 app.UsePoweredBy();
@@ -154,23 +144,10 @@ namespace Smartstore.Web
 
             builder.Configure(StarterOrdering.RoutingMiddleware, app =>
             {
-                app.UseRouting();
+                app.UseLocalizedRouting();
             });
 
-            //builder.Configure(StarterOrdering.AfterRoutingMiddleware, app =>
-            //{
-            //    app.Use(async (context, next) =>
-            //    {
-            //        using (new AutoStopwatch($"AFTER routing"))
-            //        {
-            //            await next(context);
-            //        }
-
-            //        var yo = true;
-            //    });
-            //});
-
-            builder.Configure(StarterOrdering.BeforeStaticFilesMiddleware - 5, app =>
+            builder.Configure(StarterOrdering.AfterRewriteMiddleware, app =>
             {
                 if (appContext.Services.Resolve<PerformanceSettings>().UseResponseCompression)
                 {
@@ -215,7 +192,7 @@ namespace Smartstore.Web
 
             builder.MapRoutes(StarterOrdering.LateRoute, routes =>
             {
-                // Should come late
+                // Should come late. But in fact, has no effect :-(
                 routes.MapDynamicControllerRoute<SlugRouteTransformer>("{**slug:minlength(2)}");
             });
 
@@ -223,7 +200,7 @@ namespace Smartstore.Web
             {
                 // Register routes from SlugRouteTransformer solely needed for URL creation, NOT for route matching.
                 routes.MapComposite(SlugRouteTransformer.Routers.Select(x => x.MapRoutes(routes)).ToArray())
-                    .WithMetadata(new IgnoreRouteAttribute());
+                    .WithMetadata(new SuppressMatchingMetadata());
             });
         }
     }

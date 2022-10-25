@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Smartstore.Core.Localization.Routing;
+using Smartstore.Core.Seo.Routing;
 
 namespace Smartstore.Core.Localization
 {
@@ -14,29 +15,32 @@ namespace Smartstore.Core.Localization
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string GetCultureCode(this HttpContext httpContext)
         {
-            return httpContext.GetItem("RequestCultureCode", () =>
+            var policy = httpContext.GetUrlPolicy();
+            if (policy != null)
             {
-                var helper = new LocalizedUrlHelper(httpContext.Request);
-                helper.IsLocalizedUrl(out var cultureCode);
+                return policy.Culture.Value;
+            }
 
-                return cultureCode;
-            });
+            var helper = new LocalizedUrlHelper(httpContext.Request);
+            helper.IsLocalizedUrl(out var cultureCode);
+
+            return cultureCode;
         }
 
         /// <summary>
         /// Gets the unvalidated explicit culture code either from resolved request endpoint or from request path.
         /// </summary>
-        /// <param name="localizedRouteMetadata">
-        /// An instance of <see cref="LocalizedRouteMetadata"/> if resolved endpoint was a localized route, <c>null</c> otherwise.
+        /// <param name="localizedEndpoint">
+        /// An instance of <see cref="Endpoint"/> if resolved endpoint was a localized route, <c>null</c> otherwise.
         /// This parameter being <c>null</c> indicates that routing was not performed yet OR the culture route constraint rejected
         /// the culture code as invalid.
         /// </param>
         /// <returns>The culture / unique SEO code (e.g. 'en', 'de' etc.)</returns>
-        public static string GetCultureCode(this HttpContext httpContext, out LocalizedRouteMetadata localizedRouteMetadata)
+        public static string GetCultureCode(this HttpContext httpContext, out Endpoint localizedEndpoint)
         {
             Guard.NotNull(httpContext, nameof(httpContext));
 
-            localizedRouteMetadata = null;
+            localizedEndpoint = null;
 
             string cultureCode = null;
             var endpoint = httpContext.GetEndpoint();
@@ -45,7 +49,12 @@ namespace Smartstore.Core.Localization
             {
                 // We're running after "UseRouting" middleware. It's safe to resolve from route values.
                 cultureCode = httpContext.GetRouteData().Values.GetCultureCode();
-                localizedRouteMetadata = endpoint.Metadata.OfType<LocalizedRouteMetadata>().FirstOrDefault();
+
+                var metadata = endpoint.Metadata.GetMetadata<ILocalizedRoute>();
+                if (metadata != null)
+                {
+                    localizedEndpoint = endpoint;
+                }
             }
 
             if (cultureCode == null)

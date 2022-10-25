@@ -6,6 +6,10 @@ namespace Smartstore.Core.Localization.Routing
     {
     }
 
+    public sealed class LocalizedRouteMetadata : ILocalizedRoute
+    {
+    }
+
     /// <summary>
     /// Specifies a localized attribute route on a controller action method.
     /// </summary>

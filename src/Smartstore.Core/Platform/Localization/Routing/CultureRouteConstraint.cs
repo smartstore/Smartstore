@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Routing;
 
 namespace Smartstore.Core.Localization.Routing
 {
+    [Obsolete("Changed the way localized route matching works")]
     public class CultureRouteConstraint : IRouteConstraint
     {
         const string GlobalMatchKey = "CultureRoutesEnabled";

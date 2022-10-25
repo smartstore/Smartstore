@@ -17,6 +17,11 @@ namespace Smartstore.Core
         Task InitializeAsync();
 
         /// <summary>
+        /// Gets a value indicating whether the work context was initialized.
+        /// </summary>
+        bool IsInitialized { get; }
+
+        /// <summary>
         /// Gets or sets the current customer
         /// </summary>
         Customer CurrentCustomer { get; set; }

@@ -19,11 +19,11 @@ namespace Smartstore.Core.Seo.Routing
             _urlFilters = urlFilters;
         }
 
-        public Task Invoke(HttpContext context, IUrlService urlService, IWorkContext workContext)
+        public Task Invoke(HttpContext context)
         {
             if (context.Response.StatusCode is (>= 200 and < 300))
             {
-                var policy = urlService.GetUrlPolicy();
+                var policy = context.GetUrlPolicy();
 
                 if (policy.IsInvalidUrl)
                 {
@@ -53,7 +53,7 @@ namespace Smartstore.Core.Seo.Routing
                     }
                 }
 
-                // Check again after policies has been applied
+                // Check again after policies have been applied
                 if (policy.IsInvalidUrl)
                 {
                     context.Response.StatusCode = 404;
@@ -63,8 +63,6 @@ namespace Smartstore.Core.Seo.Routing
                 {
                     return HandleRedirect(policy.GetModifiedUrl());
                 }
-
-                policy.WorkingLanguage = workContext.WorkingLanguage;
             }
 
             // No redirection was requested. Continue.

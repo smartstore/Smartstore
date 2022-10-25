@@ -22,25 +22,25 @@
         public const int ExceptionHandlerMiddleware = -800;
         public const int AfterExceptionHandlerMiddleware = -795;
 
-        public const int BeforeStaticFilesMiddleware = -755;
-        public const int StaticFilesMiddleware = -750;
-        public const int AfterStaticFilesMiddleware = -745;
+        public const int BeforeRewriteMiddleware = -755;
+        public const int RewriteMiddleware = -750;
+        public const int AfterRewriteMiddleware = -745;
 
-        public const int BeforeRoutingMiddleware = -705;
-        public const int RoutingMiddleware = -700;
-        public const int AfterRoutingMiddleware = -695;
+        public const int BeforeStaticFilesMiddleware = -705;
+        public const int StaticFilesMiddleware = -700;
+        public const int AfterStaticFilesMiddleware = -695;
 
-        public const int BeforeAuthMiddleware = -655;
-        public const int AuthMiddleware = -650;
-        public const int AfterAuthMiddleware = -645;
+        public const int BeforeRoutingMiddleware = -655;
+        public const int RoutingMiddleware = -650;
+        public const int AfterRoutingMiddleware = -645;
 
-        public const int BeforeWorkContextMiddleware = -605;
-        public const int WorkContextMiddleware = -600;
-        public const int AfterWorkContextMiddleware = -595;
+        public const int BeforeAuthMiddleware = -605;
+        public const int AuthMiddleware = -600;
+        public const int AfterAuthMiddleware = -595;
 
-        public const int BeforeRewriteMiddleware = -555;
-        public const int RewriteMiddleware = -550;
-        public const int AfterRewriteMiddleware = -545;
+        public const int BeforeWorkContextMiddleware = -555;
+        public const int WorkContextMiddleware = -550;
+        public const int AfterWorkContextMiddleware = -545;
 
         public const int EarlyMiddleware = -500;
         public const int DefaultMiddleware = 0;

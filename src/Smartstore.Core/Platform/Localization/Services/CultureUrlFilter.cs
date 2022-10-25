@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Routing;
 using Smartstore.Core.Localization.Routing;
 using Smartstore.Core.Seo;
 using Smartstore.Core.Seo.Routing;
@@ -24,15 +23,14 @@ namespace Smartstore.Core.Localization
                 return;
             }
 
-            var routeData = httpContext.GetRouteData();
-            var localizedRouteMetadata = policy.Endpoint.Metadata.OfType<LocalizedRouteMetadata>().FirstOrDefault();
-            if (localizedRouteMetadata == null && !routeData.Values.ContainsKey(SlugRouteTransformer.UrlRecordRouteKey))
+            var isLocalizedEndpoint = policy.IsSlugRoute || policy.Endpoint.Metadata.GetMetadata<ILocalizedRoute>() != null;
+            if (!isLocalizedEndpoint)
             {
-                // Handle only localizable routes
+                // Handle only localizable routes here
                 return;
             }
 
-            var workingLanguage = policy.WorkingLanguage;
+            var workContext = httpContext.RequestServices.GetRequiredService<IWorkContext>();
             var invalidBehavior = policy.LocalizationSettings.InvalidLanguageRedirectBehaviour;
             var defaultBehavior = policy.LocalizationSettings.DefaultLanguageRedirectBehaviour;
 
@@ -45,7 +43,7 @@ namespace Smartstore.Core.Localization
                     if (invalidBehavior == InvalidLanguageRedirectBehaviour.ReturnHttp404)
                     {
                         var cultureCodeReplacement = defaultBehavior == DefaultLanguageRedirectBehaviour.PrependSeoCodeAndRedirect
-                            ? workingLanguage.GetTwoLetterISOLanguageName()
+                            ? workContext.WorkingLanguage.GetTwoLetterISOLanguageName()
                             : string.Empty;
 
                         policy.Culture.Modify(cultureCodeReplacement);
@@ -55,7 +53,7 @@ namespace Smartstore.Core.Localization
                     {
                         policy.Culture.Modify(defaultBehavior == DefaultLanguageRedirectBehaviour.StripSeoCode
                             ? string.Empty
-                            : workingLanguage.GetTwoLetterISOLanguageName());
+                            : workContext.WorkingLanguage.GetTwoLetterISOLanguageName());
                     }
                 }
                 else // Published language
@@ -70,10 +68,10 @@ namespace Smartstore.Core.Localization
             else // No culture present
             {
                 // Keep default language prefixless (if desired)
-                if (!(workingLanguage.UniqueSeoCode == policy.DefaultCultureCode && (int)(defaultBehavior) > 0))
+                if (!((int)defaultBehavior > 0 && workContext.WorkingLanguage.UniqueSeoCode == policy.DefaultCultureCode))
                 {
                     // Add language code to URL
-                    policy.Culture.Modify(workingLanguage.UniqueSeoCode);
+                    policy.Culture.Modify(workContext.WorkingLanguage.UniqueSeoCode);
                 }
             }
         }

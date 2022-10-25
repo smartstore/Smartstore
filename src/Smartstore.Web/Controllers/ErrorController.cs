@@ -14,13 +14,6 @@ namespace Smartstore.Web.Controllers
 {
     public class ErrorController : Controller
     {
-        private readonly UrlPolicy _urlPolicy;
-
-        public ErrorController(UrlPolicy urlPolicy)
-        {
-            _urlPolicy = urlPolicy;
-        }
-
         public Localizer T { get; set; } = NullLocalizer.Instance;
 
         [Route("/error/{status?}")]
@@ -31,6 +24,7 @@ namespace Smartstore.Web.Controllers
 
             var errorFeature = HttpContext.Features.Get<IExceptionHandlerPathFeature>();
             var reExecuteFeature = HttpContext.Features.Get<IStatusCodeReExecuteFeature>();
+            var urlPolicy = HttpContext.GetUrlPolicy();
 
             var model = new ErrorModel
             {
@@ -38,7 +32,7 @@ namespace Smartstore.Web.Controllers
                 StatusCode = httpStatusCode,
                 Exception = errorFeature?.Error,
                 Path = errorFeature?.Path ?? (reExecuteFeature?.OriginalPath + reExecuteFeature?.OriginalQueryString).NullEmpty(),
-                Endpoint = _urlPolicy.Endpoint
+                Endpoint = urlPolicy.Endpoint
             };
 
             if (model.Endpoint != null)

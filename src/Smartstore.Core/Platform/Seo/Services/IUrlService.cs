@@ -44,7 +44,7 @@ namespace Smartstore.Core.Seo
         /// <summary>
         /// Gets the <see cref="UrlPolicy"/> instance for the current request. The url policy
         /// can be used to modify specific segments of the current request URL (scheme, host, culture code,
-        /// path and querystring). A middleware then analyzes the changes and performs a HTTP
+        /// path and querystring). A middleware then analyzes the changes and performs an HTTP
         /// redirection to the new location if necessary.
         /// </summary>
         UrlPolicy GetUrlPolicy();

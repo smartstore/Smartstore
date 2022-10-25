@@ -11,21 +11,16 @@ namespace Microsoft.AspNetCore.Builder
         /// Adds a localized endpoint that matches HTTP requests for the specified pattern.
         /// </summary>
         /// <param name="pattern">
-        /// The (language neutral) route pattern. A second endpoint with {culture:culture}/ prefix
-        /// will be craeted and prepended to this endpoint.
+        /// The (language neutral) route pattern without culture prefix.
         /// </param>
         /// <param name="requestDelegate">The delegate executed when the endpoint is matched.</param>
         public static IEndpointConventionBuilder MapLocalized(this IEndpointRouteBuilder endpoints, string pattern, RequestDelegate requestDelegate)
         {
             Guard.NotNull(endpoints, nameof(endpoints));
 
-            return endpoints.MapComposite(new[]
-            {
-                endpoints.Map("{culture:culture}/" + pattern, requestDelegate)
-                    .WithMetadata(new LocalizedRouteMetadata(null, false)),
-                endpoints.Map(pattern, requestDelegate)
-                    .WithMetadata(new LocalizedRouteMetadata(null, true))
-            });
+            return endpoints
+                .Map(pattern, requestDelegate)
+                .WithMetadata(new LocalizedRouteMetadata());
         }
 
         /// <summary>
@@ -34,8 +29,7 @@ namespace Microsoft.AspNetCore.Builder
         /// </summary>
         /// <param name="name">The name of the route.</param>
         /// <param name="pattern">
-        /// The (language neutral) route pattern. A second endpoint with {culture:culture}/ prefix
-        /// will be craeted and prepended to this endpoint.
+        /// The (language neutral) route pattern without culture prefix.
         /// </param>
         /// <param name="defaults">
         /// An object that contains default values for route parameters. The object's properties
@@ -58,17 +52,9 @@ namespace Microsoft.AspNetCore.Builder
         {
             Guard.NotNull(endpoints, nameof(endpoints));
 
-            string name2 = name.IsEmpty() ? null : name + "__noculture";
-
-            return endpoints.MapComposite(new[]
-            {
-                endpoints
-                    .MapControllerRoute(name, "{culture:culture}/" + pattern, defaults, constraints, dataTokens)
-                    .WithMetadata(new LocalizedRouteMetadata(null, false)),
-                endpoints
-                    .MapControllerRoute(name2, pattern, defaults, constraints, dataTokens)
-                    .WithMetadata(new LocalizedRouteMetadata(null, true))
-            });
+            return endpoints
+                .MapControllerRoute(name, pattern, defaults, constraints, dataTokens)
+                .WithMetadata(new LocalizedRouteMetadata());
         }
     }
 }

@@ -24,7 +24,6 @@ namespace Smartstore.Web.Controllers
         private readonly ICookieConsentManager _cookieConsentManager;
         private readonly Lazy<IMediaService> _mediaService;
         private readonly ILanguageService _languageService;
-        private readonly UrlPolicy _urlPolicy;
         private readonly IThemeContext _themeContext;
         private readonly IThemeRegistry _themeRegistry;
         private readonly ICacheManager _cache;
@@ -37,7 +36,6 @@ namespace Smartstore.Web.Controllers
             ICookieConsentManager cookieConsentManager,
             Lazy<IMediaService> mediaService,
             ILanguageService languageService,
-            UrlPolicy urlPolicy,
             IThemeContext themeContext,
             IThemeRegistry themeRegistry,
             ICacheManager cache,
@@ -49,7 +47,6 @@ namespace Smartstore.Web.Controllers
             _cookieConsentManager = cookieConsentManager;
             _mediaService = mediaService;
             _languageService = languageService;
-            _urlPolicy = urlPolicy;
             _themeContext = themeContext;
             _themeRegistry = themeRegistry;
             _cache = cache;
@@ -203,11 +200,12 @@ namespace Smartstore.Web.Controllers
             }
 
             var helper = new LocalizedUrlHelper(Request.PathBase, returnUrl ?? string.Empty);
+            var urlPolicy = HttpContext.GetUrlPolicy();
 
-            if (_urlPolicy.LocalizationSettings.SeoFriendlyUrlsForLanguagesEnabled)
+            if (urlPolicy.LocalizationSettings.SeoFriendlyUrlsForLanguagesEnabled)
             {
                 // Don't prepend culture code if it is master language and master is prefixless by configuration.
-                if (language.UniqueSeoCode != _urlPolicy.DefaultCultureCode || _urlPolicy.LocalizationSettings.DefaultLanguageRedirectBehaviour == DefaultLanguageRedirectBehaviour.PrependSeoCodeAndRedirect)
+                if (language.UniqueSeoCode != urlPolicy.DefaultCultureCode || urlPolicy.LocalizationSettings.DefaultLanguageRedirectBehaviour == DefaultLanguageRedirectBehaviour.PrependSeoCodeAndRedirect)
                 {
                     helper.PrependCultureCode(Services.WorkContext.WorkingLanguage.UniqueSeoCode, true);
                 }

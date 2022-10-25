@@ -23,6 +23,9 @@
 
 ### Improvements
 
+- Increased performance
+  - Faster app startup
+  - ~100 MB less memory usage after app start
 - FLEX theme: pure CSS responsive tabs (tabs transform to accordion on screens smaller than md)
 - (DEV) New methods: TabFactory `InsertBefore()`,`InsertAfter()`, `InsertBeforeAny()`, `InsertAfterAny()`, `InsertAt()`
 - (DEV) New attribute for `tab` TagHelper: `sm-hide-if-empty`

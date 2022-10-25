@@ -31,8 +31,6 @@ namespace Smartstore.Core.Seo
         private readonly PerformanceSettings _performanceSettings;
         private readonly SecuritySettings _securitySettings;
 
-        private UrlPolicy _urlPolicy;
-
         internal IDictionary<string, UrlRecord> _extraSlugLookup;
         private IDictionary<string, UrlRecordCollection> _prefetchedCollections;
         private static int _lastCacheSegmentSize = -1;
@@ -84,7 +82,6 @@ namespace Smartstore.Core.Seo
                 _performanceSettings,
                 _securitySettings)
             {
-                _urlPolicy = _urlPolicy,
                 _extraSlugLookup = _extraSlugLookup,
                 _prefetchedCollections = _prefetchedCollections
             };
@@ -227,23 +224,19 @@ namespace Smartstore.Core.Seo
 
         public virtual UrlPolicy GetUrlPolicy()
         {
-            if (_urlPolicy == null)
+            var httpContext = _httpContextAccessor?.HttpContext;
+            if (httpContext == null)
             {
-                var request = _httpContextAccessor?.HttpContext?.Request;
-                if (request == null)
-                {
-                    throw new InvalidOperationException("A valid HttpContext instance is required for successful URL policy creation.");
-                }
-
-                _urlPolicy = new UrlPolicy(request)
-                {
-                    DefaultCultureCode = _languageService.GetMasterLanguageSeoCode(),
-                    LocalizationSettings = _localizationSettings,
-                    SeoSettings = _seoSettings
-                };
+                throw new InvalidOperationException("A valid HttpContext instance is required for successful URL policy creation.");
             }
 
-            return _urlPolicy;
+            var policy = httpContext.GetUrlPolicy();
+            if (policy == null)
+            {
+                throw new InvalidOperationException("URL policy cannot be resolved. 'UseLocalizedRouting' middleware should have been run before calling this method.");
+            }
+
+            return policy;
         }
 
         public virtual IUrlServiceBatchScope CreateBatchScope(SmartDbContext db = null)

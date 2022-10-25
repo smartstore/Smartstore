@@ -1,8 +1,6 @@
-﻿using System;
-using Autofac;
+﻿using Autofac;
 using Microsoft.AspNetCore.Builder;
 using Smartstore.Core.Seo;
-using Smartstore.Core.Seo.Routing;
 using Smartstore.Engine.Builders;
 
 namespace Smartstore.Core.Bootstrapping
@@ -12,14 +10,13 @@ namespace Smartstore.Core.Bootstrapping
         public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext)
         {
             builder.RegisterType<UrlService>().As<IUrlService>().InstancePerLifetimeScope();
-            builder.Register<UrlPolicy>(x => x.Resolve<IUrlService>().GetUrlPolicy()).InstancePerLifetimeScope();
             builder.RegisterType<XmlSitemapGenerator>().As<IXmlSitemapGenerator>().InstancePerLifetimeScope();
             builder.RegisterType<CanonicalHostUrlFilter>().As<IUrlFilter>().SingleInstance();
         }
 
         public override void BuildPipeline(RequestPipelineBuilder builder)
         {
-            builder.Configure(StarterOrdering.RewriteMiddleware + 1, app =>
+            builder.Configure(StarterOrdering.AfterWorkContextMiddleware -4, app =>
             {
                 if (builder.ApplicationContext.IsInstalled)
                 {

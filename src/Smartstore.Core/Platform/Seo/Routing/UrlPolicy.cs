@@ -1,5 +1,4 @@
-﻿using System.Net.Http;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Smartstore.Core.Localization;
 
@@ -51,19 +50,25 @@ namespace Smartstore.Core.Seo.Routing
     public sealed class UrlPolicy
     {
         private readonly HttpContext _httpContext;
+        private readonly IServiceProvider _services;
 
-        private Language _workingLanguage = null;
+        private LocalizationSettings _localizationSettings;
+        private SeoSettings _seoSettings;
         private Endpoint _endpoint = null;
+        private string _defaultCultureCode = null;
 
-        public UrlPolicy(HttpRequest request)
+        public UrlPolicy(HttpContext httpContext)
         {
-            Guard.NotNull(request, nameof(request));
+            Guard.NotNull(httpContext, nameof(httpContext));
 
-            _httpContext = request.HttpContext;
+            _httpContext = httpContext;
+            _services = httpContext.RequestServices;
 
+            var request = httpContext.Request;
             var helper = new LocalizedUrlHelper(request);
             var path = helper.StripCultureCode(out var cultureCode);
 
+            OriginalPath = request.Path;
             Scheme = new UrlSegment(request.Scheme);
             Host = new UrlSegment(request.Host.Value);
             PathBase = new UrlSegment(request.PathBase.Value);
@@ -71,8 +76,10 @@ namespace Smartstore.Core.Seo.Routing
             Path = new UrlSegment(path.Trim('/'));
             QueryString = new UrlSegment(request.QueryString.Value);
             Method = request.Method;
+            IsLocalizedUrl = cultureCode != null;
         }
 
+        public PathString OriginalPath { get; }
         public UrlSegment Scheme { get; init; }
         public UrlSegment Host { get; init; }
         public string PathBase { get; init; }
@@ -81,10 +88,25 @@ namespace Smartstore.Core.Seo.Routing
         public UrlSegment QueryString { get; init; }
 
         public string Method { get; init; }
-        public string DefaultCultureCode { get; init; }
+        public bool IsLocalizedUrl { get; }
 
-        public LocalizationSettings LocalizationSettings { get; init; }
-        public SeoSettings SeoSettings { get; init; }
+        public string DefaultCultureCode
+        {
+            get => _defaultCultureCode ??= _services.GetRequiredService<ILanguageService>().GetMasterLanguageSeoCode();
+            set => _defaultCultureCode = value;
+        }
+
+        public LocalizationSettings LocalizationSettings 
+        {
+            get => _localizationSettings ??= _services.GetRequiredService<LocalizationSettings>();
+            set => _localizationSettings = value;
+        }
+
+        public SeoSettings SeoSettings
+        {
+            get => _seoSettings ??= _services.GetRequiredService<SeoSettings>();
+            set => _seoSettings = value;
+        }
 
         public Endpoint Endpoint
         {
@@ -92,19 +114,19 @@ namespace Smartstore.Core.Seo.Routing
             set => _endpoint = value;
         }
 
-        public Language WorkingLanguage 
-        {
-            get => _workingLanguage ??= _httpContext.RequestServices.GetRequiredService<IWorkContext>().WorkingLanguage;
-            set => _workingLanguage = value;
-        }
-
         /// <summary>
         /// Checks whether the current request's (ambient) culture is the system's default culture
         /// </summary>
         public bool IsDefaultCulture
         {
-            get => WorkingLanguage.GetTwoLetterISOLanguageName().EqualsNoCase(DefaultCultureCode);
+            get => !Culture.HasValue || Culture.Value.EqualsNoCase(DefaultCultureCode);
         }
+
+        /// <summary>
+        /// Checks whether the current endpoint is the result of a dynamic slug route transformation.
+        /// </summary>
+        /// <remarks>See <see cref="SlugRouteTransformer"/></remarks>
+        public bool IsSlugRoute { get; set; }
 
         /// <summary>
         /// Set this to <c>true</c> to mark the current request URL as invalid

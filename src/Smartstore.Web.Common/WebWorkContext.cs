@@ -85,6 +85,11 @@ namespace Smartstore.Web
             }
         }
 
+        public bool IsInitialized
+        {
+            get => _customer != null && _language != null && _currency != null;
+        }
+
         #region Customer
 
         public Customer CurrentCustomer

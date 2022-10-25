@@ -34,7 +34,7 @@ namespace Smartstore.Core.Bootstrapping
         public override void BuildPipeline(RequestPipelineBuilder builder)
         {
             // Must come after UrlPolicy middleware
-            builder.Configure(StarterOrdering.AfterRewriteMiddleware, app =>
+            builder.Configure(StarterOrdering.AfterWorkContextMiddleware, app =>
             {
                 if (builder.ApplicationContext.IsInstalled)
                 {

@@ -41,7 +41,7 @@ namespace Smartstore.Core.Content.Menus
 
             return actionContext.HttpContext.GetItem(cacheKey, () =>
             {
-                var urlPolicy = actionContext.HttpContext.RequestServices.GetRequiredService<UrlPolicy>();
+                var urlPolicy = actionContext.HttpContext.GetUrlPolicy();
                 var urlHelper = actionContext.HttpContext.RequestServices.GetRequiredService<IUrlHelper>();
 
                 var info = new PathInfo
