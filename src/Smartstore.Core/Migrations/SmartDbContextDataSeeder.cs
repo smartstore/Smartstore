@@ -98,8 +98,8 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.ShowVerfiedPurchaseBadge",
                 "Show verfied purchase badge",
                 "Zeige Badge für verifizierte Käufe",
-                "For product reviews, specifies the display whether the author was a verified buyer.",
-                "Bestimmt bei Produktrezensionen die Anzeige, ob der Verfasser ein verifizierter Käufer war.");
+                "Zeigt bei Produktrezensionen einen Badge an, der anzeigt, ob der Verfasser ein verifizierter Käufer ist.",
+                "Displays a badge on product reviews to indicate whether the writer is a verified buyer.");
         }
     }
 }
