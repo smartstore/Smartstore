@@ -21,28 +21,28 @@ namespace Smartstore.Web.Api.Controllers.OData
             _categoryService = categoryService;
         }
 
-        [HttpGet, WebApiQueryable]
+        [HttpGet, ApiQueryable]
         [Permission(Permissions.Catalog.Category.Read)]
         public IQueryable<Category> Get()
         {
             return Entities.AsNoTracking();
         }
 
-        [HttpGet, WebApiQueryable]
+        [HttpGet, ApiQueryable]
         [Permission(Permissions.Catalog.Category.Read)]
         public SingleResult<Category> Get(int key)
         {
             return GetById(key);
         }
 
-        [HttpGet, WebApiQueryable]
+        [HttpGet, ApiQueryable]
         [Permission(Permissions.Catalog.Category.Read)]
         public SingleResult<MediaFile> GetMediaFile(int key)
         {
             return GetRelatedEntity(key, x => x.MediaFile);
         }
 
-        [HttpGet, WebApiQueryable]
+        [HttpGet, ApiQueryable]
         [Permission(Permissions.Promotion.Discount.Read)]
         public IQueryable<Discount> GetAppliedDiscounts(int key)
         {

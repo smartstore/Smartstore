@@ -10,35 +10,35 @@ namespace Smartstore.Web.Api.Controllers.OData
     /// </summary>
     public class DiscountsController : WebApiController<Discount>
     {
-        [HttpGet, WebApiQueryable]
+        [HttpGet, ApiQueryable]
         [Permission(Permissions.Promotion.Discount.Read)]
         public IQueryable<Discount> Get()
         {
             return Entities.AsNoTracking();
         }
 
-        [HttpGet, WebApiQueryable]
+        [HttpGet, ApiQueryable]
         [Permission(Permissions.Promotion.Discount.Read)]
         public SingleResult<Discount> Get(int key)
         {
             return GetById(key);
         }
 
-        [HttpGet, WebApiQueryable]
+        [HttpGet, ApiQueryable]
         [Permission(Permissions.Promotion.Discount.Read)]
         public IQueryable<Category> GetAppliedToCategories(int key)
         {
             return GetRelatedQuery(key, x => x.AppliedToCategories);
         }
 
-        [HttpGet, WebApiQueryable]
+        [HttpGet, ApiQueryable]
         [Permission(Permissions.Promotion.Discount.Read)]
         public IQueryable<Manufacturer> GetAppliedToManufacturers(int key)
         {
             return GetRelatedQuery(key, x => x.AppliedToManufacturers);
         }
 
-        [HttpGet, WebApiQueryable]
+        [HttpGet, ApiQueryable]
         [Permission(Permissions.Promotion.Discount.Read)]
         public IQueryable<Product> GetAppliedToProducts(int key)
         {

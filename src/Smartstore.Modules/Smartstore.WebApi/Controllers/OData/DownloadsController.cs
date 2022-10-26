@@ -7,21 +7,21 @@ namespace Smartstore.Web.Api.Controllers.OData
     /// </summary>
     public class DownloadsController : WebApiController<Download>
     {
-        [HttpGet, WebApiQueryable]
+        [HttpGet, ApiQueryable]
         [Permission(Permissions.Media.Download.Read)]
         public IQueryable<Download> Get()
         {
             return Entities.AsNoTracking();
         }
 
-        [HttpGet, WebApiQueryable]
+        [HttpGet, ApiQueryable]
         [Permission(Permissions.Media.Download.Read)]
         public SingleResult<Download> Get(int key)
         {
             return GetById(key);
         }
 
-        [HttpGet, WebApiQueryable]
+        [HttpGet, ApiQueryable]
         [Permission(Permissions.Media.Download.Read)]
         public SingleResult<MediaFile> GetMediaFile(int key)
         {

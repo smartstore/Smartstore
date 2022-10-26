@@ -7,14 +7,14 @@ namespace Smartstore.Web.Api.Controllers.OData
     /// </summary>
     public class CurrenciesController : WebApiController<Currency>
     {
-        [HttpGet, WebApiQueryable]
+        [HttpGet, ApiQueryable]
         [Permission(Permissions.Configuration.Currency.Read)]
         public IQueryable<Currency> Get()
         {
             return Entities.AsNoTracking();
         }
 
-        [HttpGet, WebApiQueryable]
+        [HttpGet, ApiQueryable]
         [Permission(Permissions.Configuration.Currency.Read)]
         public SingleResult<Currency> Get(int key)
         {

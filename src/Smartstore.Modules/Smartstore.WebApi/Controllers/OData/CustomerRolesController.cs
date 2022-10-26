@@ -8,14 +8,14 @@ namespace Smartstore.Web.Api.Controllers.OData
     /// </summary>
     public class CustomerRolesController : WebApiController<CustomerRole>
     {
-        [HttpGet, WebApiQueryable]
+        [HttpGet, ApiQueryable]
         [Permission(Permissions.Customer.Role.Read)]
         public IQueryable<CustomerRole> Get()
         {
             return Entities.AsNoTracking();
         }
 
-        [HttpGet, WebApiQueryable]
+        [HttpGet, ApiQueryable]
         [Permission(Permissions.Customer.Role.Read)]
         public SingleResult<CustomerRole> Get(int key)
         {

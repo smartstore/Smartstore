@@ -7,14 +7,14 @@ namespace Smartstore.Web.Api.Controllers.OData
     /// </summary>
     public class MeasureDimensionsController : WebApiController<MeasureDimension>
     {
-        [HttpGet, WebApiQueryable]
+        [HttpGet, ApiQueryable]
         [Permission(Permissions.Configuration.Measure.Read)]
         public IQueryable<MeasureDimension> Get()
         {
             return Entities.AsNoTracking();
         }
 
-        [HttpGet, WebApiQueryable]
+        [HttpGet, ApiQueryable]
         [Permission(Permissions.Configuration.Measure.Read)]
         public SingleResult<MeasureDimension> Get(int key)
         {

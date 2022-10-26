@@ -5,7 +5,7 @@ namespace Smartstore.Web.Api
 {
     /// <inheritdoc/>
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
-    public class WebApiQueryableAttribute : EnableQueryAttribute
+    public class ApiQueryableAttribute : EnableQueryAttribute
     {
         /// <inheritdoc/>
         public override void OnActionExecuted(ActionExecutedContext actionExecutedContext)
@@ -42,7 +42,7 @@ namespace Smartstore.Web.Api
                     MaxExpansionDepth = (int)rawMaxExpansionDepth;
                 }
 
-                //$"WebApiQueryable MaxTop:{MaxTop} MaxExpansionDepth:{MaxExpansionDepth}".Dump();
+                //$"ApiQueryable MaxTop:{MaxTop} MaxExpansionDepth:{MaxExpansionDepth}".Dump();
             }
             catch
             {

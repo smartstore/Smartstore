@@ -7,14 +7,14 @@ namespace Smartstore.Web.Api.Controllers.OData
     /// </summary>
     public class LanguagesController : WebApiController<Language>
     {
-        [HttpGet, WebApiQueryable]
+        [HttpGet, ApiQueryable]
         [Permission(Permissions.Configuration.Language.Read)]
         public IQueryable<Language> Get()
         {
             return Entities.AsNoTracking();
         }
 
-        [HttpGet, WebApiQueryable]
+        [HttpGet, ApiQueryable]
         [Permission(Permissions.Configuration.Language.Read)]
         public SingleResult<Language> Get(int key)
         {

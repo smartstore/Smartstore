@@ -51,7 +51,7 @@ namespace Smartstore.Web.Api.Bootstrapping
                 options.RouteOptions.EnableKeyAsSegment = false;
                 options.RouteOptions.EnableKeyInParenthesis = true;
 
-                // INFO: does not have to be set here on the basis of the settings. Will be applied later in WebApiQueryableAttribute.
+                // INFO: does not have to be set here on the basis of the settings. Will be applied later in ApiQueryableAttribute.
                 options.EnableQueryFeatures(WebApiSettings.DefaultMaxTop);
                 //options.Conventions.Add(new CustomRoutingConvention());
 

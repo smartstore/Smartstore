@@ -32,7 +32,7 @@ namespace Smartstore.Web.Api.Models.OData.Media
         public bool HasChildren { get; set; }
 
         /// <remarks>
-        /// AutoExpand only works with <see cref="WebApiQueryableAttribute" />.
+        /// AutoExpand only works with <see cref="ApiQueryableAttribute" />.
         /// Only exapnds to depth of 2. Bug: https://github.com/OData/WebApi/issues/1065
         /// </remarks>
         [AutoExpand]

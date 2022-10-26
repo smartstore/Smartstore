@@ -78,7 +78,8 @@ namespace Smartstore.Web.Api
             infoSet.EntityType.Collection
                 .Function(nameof(MediaFilesController.Download))
                 .Returns<StreamContent>()
-                .Parameter<int>("Id");
+                .Parameter<int>("Id")
+                .Required();
 
             infoSet.EntityType.Collection
                 .Action(nameof(MediaFilesController.SearchFiles))
@@ -88,12 +89,14 @@ namespace Smartstore.Web.Api
             infoSet.EntityType.Collection
                 .Action(nameof(MediaFilesController.FileExists))
                 .Returns<bool>()
-                .Parameter<string>("Path");
+                .Parameter<string>("Path")
+                .Required();
 
             infoSet.EntityType.Collection
                 .Action(nameof(MediaFilesController.CheckUniqueFileName))
                 .Returns<CheckUniquenessResult>()
-                .Parameter<string>("Path");
+                .Parameter<string>("Path")
+                .Required();
 
             infoSet.EntityType.Collection
                 .Action(nameof(MediaFilesController.CountFiles))
@@ -109,21 +112,27 @@ namespace Smartstore.Web.Api
                 .Action(nameof(MediaFilesController.MoveFile))
                 .ReturnsFromEntitySet<FileItemInfo>(setName);
 
-            moveFile.Parameter<string>("DestinationFileName");
-            moveFile.Parameter<DuplicateFileHandling>("DuplicateFileHandling").HasDefaultValue(bool.TrueString);
+            moveFile.Parameter<string>("DestinationFileName")
+                .Required();
+            moveFile.Parameter<DuplicateFileHandling>("DuplicateFileHandling")
+                .HasDefaultValue(bool.TrueString);
 
             var copyFile = infoSet.EntityType
                 .Action(nameof(MediaFilesController.CopyFile))
                 .Returns<MediaFileOperationResult>();
 
-            copyFile.Parameter<string>("DestinationFileName");
-            copyFile.Parameter<DuplicateFileHandling>("DuplicateFileHandling").HasDefaultValue(bool.TrueString);
+            copyFile.Parameter<string>("DestinationFileName")
+                .Required();
+            copyFile.Parameter<DuplicateFileHandling>("DuplicateFileHandling")
+                .HasDefaultValue(bool.TrueString);
 
             var deleteFile = infoSet.EntityType
                 .Action(nameof(MediaFilesController.DeleteFile));
 
-            deleteFile.Parameter<bool>("Permanent");
-            deleteFile.Parameter<bool>("Force").HasDefaultValue(bool.FalseString);
+            deleteFile.Parameter<bool>("Permanent")
+                .Required();
+            deleteFile.Parameter<bool>("Force")
+                .HasDefaultValue(bool.FalseString);
 
             infoSet.EntityType.Collection
                 .Action(nameof(MediaFilesController.SaveFile))

@@ -7,28 +7,28 @@ namespace Smartstore.Web.Api.Controllers.OData
     /// </summary>
     public class CustomerRoleMappingsController : WebApiController<CustomerRoleMapping>
     {
-        [HttpGet, WebApiQueryable]
+        [HttpGet, ApiQueryable]
         [Permission(Permissions.Customer.Role.Read)]
         public IQueryable<CustomerRoleMapping> Get()
         {
             return Entities.AsNoTracking();
         }
 
-        [HttpGet, WebApiQueryable]
+        [HttpGet, ApiQueryable]
         [Permission(Permissions.Customer.Role.Read)]
         public SingleResult<CustomerRoleMapping> Get(int key)
         {
             return GetById(key);
         }
 
-        [HttpGet, WebApiQueryable]
+        [HttpGet, ApiQueryable]
         [Permission(Permissions.Customer.Read)]
         public SingleResult<Customer> GetCustomer(int key)
         {
             return GetRelatedEntity(key, x => x.Customer);
         }
 
-        [HttpGet, WebApiQueryable]
+        [HttpGet, ApiQueryable]
         [Permission(Permissions.Customer.Role.Read)]
         public SingleResult<CustomerRole> GetCustomerRole(int key)
         {

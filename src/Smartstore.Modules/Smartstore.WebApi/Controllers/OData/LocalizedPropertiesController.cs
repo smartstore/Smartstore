@@ -7,19 +7,19 @@ namespace Smartstore.Web.Api.Controllers.OData
     /// </summary>
     public class LocalizedPropertiesController : WebApiController<LocalizedProperty>
     {
-        [HttpGet, WebApiQueryable]
+        [HttpGet, ApiQueryable]
         public IQueryable<LocalizedProperty> Get()
         {
             return Entities.AsNoTracking();
         }
 
-        [HttpGet, WebApiQueryable]
+        [HttpGet, ApiQueryable]
         public SingleResult<LocalizedProperty> Get(int key)
         {
             return GetById(key);
         }
 
-        [HttpGet, WebApiQueryable]
+        [HttpGet, ApiQueryable]
         public SingleResult<Language> GetLanguage(int key)
         {
             return GetRelatedEntity(key, x => x.Language);

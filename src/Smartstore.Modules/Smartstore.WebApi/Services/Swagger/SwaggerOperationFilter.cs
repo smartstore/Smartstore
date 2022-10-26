@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.OData.Query;
+using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
 using Smartstore.Web.Api.Security;
 using Swashbuckle.AspNetCore.SwaggerGen;
@@ -44,22 +45,13 @@ namespace Smartstore.Web.Api.Swagger
                     AddDocumentation(helper);
                     AddQueryParameters(helper);
                     RemoveParameters(helper);
+                    ApplyConsumesExample(helper);
                 }
             }
             catch (Exception ex)
             {
                 ex.Dump();
             }
-        }
-
-        protected virtual void RemoveParameters(SwaggerOperationHelper helper)
-        {
-            helper.Op.Parameters.Remove(param =>
-            {
-                var refId = param?.Schema?.Reference?.Id;
-
-                return refId != null && _parameterTypesToRemove.Any(type => refId.StartsWithNoCase(type.FullName));
-            });
         }
 
         /// <summary>
@@ -278,6 +270,56 @@ namespace Smartstore.Web.Api.Swagger
                 }
 
                 helper.Op.Parameters.Add(p);
+            }
+        }
+
+        protected virtual void RemoveParameters(SwaggerOperationHelper helper)
+        {
+            helper.Op.Parameters.Remove(param =>
+            {
+                var refId = param?.Schema?.Reference?.Id;
+
+                return refId != null && _parameterTypesToRemove.Any(type => refId.StartsWithNoCase(type.FullName));
+            });
+        }
+
+        /// <summary>
+        /// Applies properties of <see cref="ApiConsumesAttribute"/> to <see cref="OpenApiOperation.RequestBody"/>.
+        /// Could become obsolete once Swashbuckle can do it.
+        /// </summary>
+        protected virtual void ApplyConsumesExample(SwaggerOperationHelper helper)
+        {
+            //if (helper.HttpMethod.EqualsNoCase("POST")
+            //    && helper.ActionDescriptor.Parameters.Any(x => x.ParameterType == typeof(ODataActionParameters)))
+
+            var body = helper.Op.RequestBody;
+            if (body == null)
+            {
+                return;
+            }
+
+            var attribute = (ApiConsumesAttribute)helper.ActionDescriptor.MethodInfo.GetCustomAttributes(typeof(ApiConsumesAttribute), false).FirstOrDefault();
+            if (attribute == null)
+            {
+                return;
+            }
+
+            body.Required = attribute.Required;
+
+            foreach (var contentType in attribute.ContentTypes)
+            {
+                if (body.Content.TryGetValue(contentType, out var mediaType))
+                {
+                    if (attribute.SchemaType != null)
+                    {
+                        mediaType.Schema = helper.GenerateSchema(attribute.SchemaType);
+                    }
+                    
+                    if (mediaType.Example == null && attribute.Example.HasValue())
+                    {
+                        mediaType.Example = new OpenApiString(attribute.Example);
+                    }
+                }
             }
         }
 

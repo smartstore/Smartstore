@@ -16,14 +16,14 @@ namespace Smartstore.Web.Api.Controllers.OData
             _deliveryTimeService = deliveryTimeService;
         }
 
-        [HttpGet, WebApiQueryable]
+        [HttpGet, ApiQueryable]
         [Permission(Permissions.Configuration.DeliveryTime.Read)]
         public IQueryable<DeliveryTime> Get()
         {
             return Entities.AsNoTracking();
         }
 
-        [HttpGet, WebApiQueryable]
+        [HttpGet, ApiQueryable]
         [Permission(Permissions.Configuration.DeliveryTime.Read)]
         public SingleResult<DeliveryTime> Get(int key)
         {

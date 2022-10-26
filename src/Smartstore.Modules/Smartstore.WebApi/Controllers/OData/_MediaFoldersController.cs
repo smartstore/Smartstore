@@ -18,7 +18,7 @@ namespace Smartstore.Web.Api.Controllers.OData
             _folderService = folderService;
         }
 
-        [HttpGet, WebApiQueryable]
+        [HttpGet, ApiQueryable]
         public IActionResult Get()
         {
             var node = _folderService.GetRootNode();
@@ -36,7 +36,7 @@ namespace Smartstore.Web.Api.Controllers.OData
         }
 
         /// <param name="key">The MediaFolder identifier.</param>
-        [HttpGet, WebApiQueryable]
+        [HttpGet, ApiQueryable]
         public IActionResult Get(int key)
         {
             var node = _folderService.GetNodeById(key);

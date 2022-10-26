@@ -7,21 +7,21 @@ namespace Smartstore.Web.Api.Controllers.OData
     /// </summary>
     public class CountriesController : WebApiController<Country>
     {
-        [HttpGet, WebApiQueryable]
+        [HttpGet, ApiQueryable]
         [Permission(Permissions.Configuration.Country.Read)]
         public IQueryable<Country> Get()
         {
             return Entities.AsNoTracking();
         }
 
-        [HttpGet, WebApiQueryable]
+        [HttpGet, ApiQueryable]
         [Permission(Permissions.Configuration.Country.Read)]
         public SingleResult<Country> Get(int key)
         {
             return GetById(key);
         }
 
-        [HttpGet, WebApiQueryable]
+        [HttpGet, ApiQueryable]
         [Permission(Permissions.Configuration.Country.Read)]
         public IQueryable<StateProvince> GetStateProvinces(int key)
         {

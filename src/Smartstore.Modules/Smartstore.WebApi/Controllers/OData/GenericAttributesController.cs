@@ -7,13 +7,13 @@ namespace Smartstore.Web.Api.Controllers.OData
     /// </summary>
     public class GenericAttributesController : WebApiController<GenericAttribute>
     {
-        [HttpGet, WebApiQueryable]
+        [HttpGet, ApiQueryable]
         public IQueryable<GenericAttribute> Get()
         {
             return Entities.AsNoTracking();
         }
 
-        [HttpGet, WebApiQueryable]
+        [HttpGet, ApiQueryable]
         public SingleResult<GenericAttribute> Get(int key)
         {
             return GetById(key);

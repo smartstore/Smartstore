@@ -18,63 +18,63 @@ namespace Smartstore.Web.Api.Controllers.OData
             _userManager = userManager;
         }
 
-        [HttpGet, WebApiQueryable]
+        [HttpGet, ApiQueryable]
         [Permission(Permissions.Customer.Read)]
         public IQueryable<Customer> Get()
         {
             return Entities.AsNoTracking();
         }
 
-        [HttpGet, WebApiQueryable]
+        [HttpGet, ApiQueryable]
         [Permission(Permissions.Customer.Read)]
         public SingleResult<Customer> Get(int key)
         {
             return GetById(key);
         }
 
-        [HttpGet, WebApiQueryable]
+        [HttpGet, ApiQueryable]
         [Permission(Permissions.Customer.Read)]
         public IQueryable<Address> GetAddresses(int key)
         {
             return GetRelatedQuery(key, x => x.Addresses);
         }
 
-        [HttpGet, WebApiQueryable]
+        [HttpGet, ApiQueryable]
         [Permission(Permissions.Customer.Read)]
         public SingleResult<Address> GetBillingAddress(int key)
         {
             return GetRelatedEntity(key, x => x.BillingAddress);
         }
 
-        [HttpGet, WebApiQueryable]
+        [HttpGet, ApiQueryable]
         [Permission(Permissions.Customer.Read)]
         public SingleResult<Address> GetShippingAddress(int key)
         {
             return GetRelatedEntity(key, x => x.ShippingAddress);
         }
 
-        [HttpGet, WebApiQueryable]
+        [HttpGet, ApiQueryable]
         [Permission(Permissions.Order.Read)]
         public IQueryable<Order> GetOrders(int key)
         {
             return GetRelatedQuery(key, x => x.Orders);
         }
 
-        [HttpGet, WebApiQueryable]
+        [HttpGet, ApiQueryable]
         [Permission(Permissions.Order.ReturnRequest.Read)]
         public IQueryable<ReturnRequest> GetReturnRequests(int key)
         {
             return GetRelatedQuery(key, x => x.ReturnRequests);
         }
 
-        [HttpGet, WebApiQueryable]
+        [HttpGet, ApiQueryable]
         [Permission(Permissions.Customer.Role.Read)]
         public IQueryable<CustomerRoleMapping> GetCustomerRoleMappings(int key)
         {
             return GetRelatedQuery(key, x => x.CustomerRoleMappings);
         }
 
-        [HttpGet, WebApiQueryable]
+        [HttpGet, ApiQueryable]
         [Permission(Permissions.Order.Read)]
         public IQueryable<RewardPointsHistory> GetRewardPointsHistory(int key)
         {
