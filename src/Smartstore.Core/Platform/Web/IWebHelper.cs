@@ -64,14 +64,13 @@ namespace Smartstore.Core.Web
         string GetStoreLocation(bool? secured = null);
 
         /// <summary>
-        /// Returns true if the requested resource is one of the typical resources that don't need to be processed by the CMS engine.
+        /// Returns true if the requested resource is one of the typical resources that don't need to be processed by the routing system.
         /// </summary>
-        /// <param name="request">HTTP Request</param>
         /// <returns>True if the request targets a static resource file.</returns>
         /// <remarks>
         /// All known extensions provided by <see cref="FileExtensionContentTypeProvider"/> are considered to be static resources.
         /// </remarks>
-        bool IsStaticResourceRequested();
+        bool IsStaticFileRequested();
 
         /// <summary>
         /// Maps a virtual path to a physical disk path.

@@ -13,20 +13,19 @@ namespace Smartstore.Core.Seo.Routing
     {
         private readonly SmartDbContext _db;
         private readonly IUrlService _urlService;
-        private readonly IWebHelper _webHelper;
         private readonly LocalizationSettings _localizationSettings;
         private readonly ILanguageService _languageService;
+
+        private static readonly string[] _ignorePaths = new[] { "/admin", "/mini-profiler-resources" };
 
         public SlugRouteTransformer(
             SmartDbContext db,
             IUrlService urlService,
-            IWebHelper webHelper,
             LocalizationSettings localizationSettings,
             ILanguageService languageService)
         {
             _db = db;
             _urlService = urlService;
-            _webHelper = webHelper;
             _localizationSettings = localizationSettings;
             _languageService = languageService;
         }
@@ -129,12 +128,9 @@ namespace Smartstore.Core.Seo.Routing
 
         public override async ValueTask<RouteValueDictionary> TransformAsync(HttpContext httpContext, RouteValueDictionary values)
         {
-            if (_webHelper.IsStaticResourceRequested())
-            {
-                return null;
-            }
+            var request = httpContext.Request;
 
-            if (!httpContext.Request.IsNonAjaxGet())
+            if (!request.IsNonAjaxGet())
             {
                 // Only attemp to transform in non-ajax GET requests.
                 return null;
@@ -147,7 +143,7 @@ namespace Smartstore.Core.Seo.Routing
                 return null;
             }
 
-            if (httpContext.Request.Path.StartsWithSegments("/taskscheduler"))
+            if (_ignorePaths.Any(x => request.Path.StartsWithSegments(x)))
             {
                 // Irrelevant
                 return null;

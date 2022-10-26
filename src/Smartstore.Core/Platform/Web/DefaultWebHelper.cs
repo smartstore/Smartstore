@@ -314,16 +314,9 @@ namespace Smartstore.Core.Web
             return url;
         }
 
-        public virtual bool IsStaticResourceRequested()
+        public virtual bool IsStaticFileRequested()
         {
-            var request = HttpContext?.Request;
-            if (request == null)
-            {
-                return false;
-            }
-
-            // Requests to .map files may end with a semicolon
-            return MimeTypes.TryMapNameToMimeType(request.Path.Value.TrimEnd(';'), out _);
+            return HttpContext?.Request.IsStaticFileRequested() == true;
         }
 
         public virtual string MapPath(string path)

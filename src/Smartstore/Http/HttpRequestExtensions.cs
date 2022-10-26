@@ -67,18 +67,16 @@ namespace Smartstore
         {
             Guard.NotNull(request, nameof(request));
 
-            // TODO: Not really reliable. Change this.
+            // Try URL prefix
+            if (request.Path.StartsWithSegments("/admin", StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
 
             // Try route
             if (request.HttpContext.TryGetRouteValueAs<string>("area", out var area) && area.EqualsNoCase("admin"))
             {
                 // INFO: Module area views can also render in backend. So don't return false if area is not "admin".
-                return true;
-            }
-
-            // Try URL prefix
-            if (request.Path.StartsWithSegments("/admin", StringComparison.OrdinalIgnoreCase))
-            {
                 return true;
             }
 
@@ -180,14 +178,20 @@ namespace Smartstore
         }
 
         /// <summary>
-        /// Gets a value which indicates whether the current request requests a static resource, like .txt, .pdf, .js, .css etc.
+        /// Returns true if the requested resource is one of the typical resources that 
+        /// don't need to be processed by the routing system.
         /// </summary>
-        public static bool IsStaticResourceRequested(this HttpRequest request)
+        /// <returns>True if the request targets a static resource file.</returns>
+        /// <remarks>
+        /// All known extensions provided by <see cref="FileExtensionContentTypeProvider"/> are considered to be static resources.
+        /// </remarks>
+        public static bool IsStaticFileRequested(this HttpRequest request)
         {
             if (request is null)
                 return false;
 
-            return MimeTypes.TryMapNameToMimeType(request.Path, out _);
+            // Requests to .map files may end with a semicolon
+            return MimeTypes.TryMapNameToMimeType(request.Path.Value.TrimEnd(';'), out _);
         }
     }
 }
