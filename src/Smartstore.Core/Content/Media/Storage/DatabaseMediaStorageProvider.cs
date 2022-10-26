@@ -1,5 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 using Smartstore.Core.Data;
+using Smartstore.Data;
 using Smartstore.Engine.Modularity;
 
 namespace Smartstore.Core.Content.Media.Storage
@@ -136,10 +137,7 @@ namespace Smartstore.Core.Content.Media.Storage
             }
             else
             {
-                using (item)
-                {
-                    await SaveFast(media, item);
-                }
+                await SaveFast(media, item);
             }
 
             if (save)
@@ -150,30 +148,48 @@ namespace Smartstore.Core.Content.Media.Storage
 
         private async Task<int> SaveFast(IMediaAware media, MediaStorageItem item)
         {
+            var provider = _db.DataProvider;
             var sourceStream = item.SourceStream;
-            media.Size = (int)sourceStream.Length;
 
-            object blobValue = _db.DataProvider.CanStreamBlob
-                ? sourceStream
-                : await sourceStream.ToByteArrayAsync();
-
-            var blobParam = _db.DataProvider.CreateParameter("p0", blobValue);
-
-            if (media.MediaStorageId == null)
+            try
             {
-                // Insert new blob
-                var sql = "INSERT INTO MediaStorage (Data) Values(@p0)";
-                media.MediaStorageId = await _db.DataProvider.InsertIntoAsync(sql, blobParam);
-            }
-            else
-            {
-                // Update existing blob
-                var sql = "UPDATE MediaStorage SET Data = @p0 WHERE Id = @p1";
-                var idParam = _db.DataProvider.CreateParameter("p1", media.MediaStorageId.Value);
-                await _db.Database.ExecuteSqlRawAsync(sql, blobParam, idParam);
-            }
+                media.Size = (int)sourceStream.Length;
 
-            return media.MediaStorageId.Value;
+                object blobValue = provider.CanStreamBlob && (sourceStream is not SqlBlobStream || provider.MARSEnabled)
+                    ? sourceStream
+                    : await sourceStream.ToByteArrayAsync();
+
+                if (blobValue is not Stream)
+                {
+                    // Item was converted to byte array. Don't need source stream anymore.
+                    await item.DisposeAsync();
+                }
+
+                var blobParam = provider.CreateParameter("p0", blobValue);
+
+                if (media.MediaStorageId == null)
+                {
+                    // Insert new blob
+                    var sql = "INSERT INTO MediaStorage (Data) Values(@p0)";
+                    media.MediaStorageId = await provider.InsertIntoAsync(sql, blobParam);
+                }
+                else
+                {
+                    // Update existing blob
+                    var sql = "UPDATE MediaStorage SET Data = @p0 WHERE Id = @p1";
+                    var idParam = provider.CreateParameter("p1", media.MediaStorageId.Value);
+                    await _db.Database.ExecuteSqlRawAsync(sql, blobParam, idParam);
+                }
+
+                return media.MediaStorageId.Value;
+            }
+            finally
+            {
+                if (!item.IsDisposed)
+                {
+                    await item.DisposeAsync();
+                }
+            }
         }
 
         public virtual async Task RemoveAsync(params MediaFile[] mediaFiles)
@@ -195,9 +211,14 @@ namespace Smartstore.Core.Content.Media.Storage
         private async Task<int> RemoveInternalAsync(IMediaAware media)
         {
             // Do BatchDelete, we don't wanna load the Blob into memory.
-            return await _db.MediaStorage
-                .Where(x => x.Id == media.MediaStorageId.Value)
-                .BatchDeleteAsync();
+            if (media.MediaStorageId.HasValue)
+            {
+                return await _db.MediaStorage
+                    .Where(x => x.Id == media.MediaStorageId.Value)
+                    .BatchDeleteAsync();
+            }
+
+            return 0;
         }
 
         public Task ChangeExtensionAsync(MediaFile mediaFile, string extension)
