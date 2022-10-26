@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using Microsoft.AspNetCore.Builder;
 using Smartstore.Bootstrapping;
 using Smartstore.Engine.Builders;
 using Smartstore.Scheduling;
@@ -7,15 +8,21 @@ namespace Smartstore.Core.Bootstrapping
 {
     internal class TaskSchedulerStarter : StarterBase
     {
-        public override void MapRoutes(EndpointRoutingBuilder builder)
+        public override void BuildPipeline(RequestPipelineBuilder builder)
         {
-            if (builder.ApplicationContext.IsInstalled)
+            builder.Configure(StarterOrdering.BeforeRewriteMiddleware, app =>
             {
-                builder.MapRoutes(StarterOrdering.EarlyRoute, endpoints =>
+                if (builder.ApplicationContext.IsInstalled)
                 {
-                    endpoints.MapTaskScheduler();
-                });
-            };
+                    app.MapTaskScheduler(p => 
+                    {
+                        p.UseRequestLogging();
+                        p.UseSession();
+                        p.UseWorkContext();
+                        p.UseApplicationInitializer();
+                    });
+                }
+            });
         }
 
         public override void ConfigureServices(IServiceCollection services, IApplicationContext appContext)

@@ -18,7 +18,8 @@ namespace Smartstore.Scheduling
 
         public async Task Invoke(HttpContext context, ITaskStore taskStore, ITaskExecutor executor)
         {
-            var action = context.GetRouteValueAs<string>("action");
+            var urlSegments = context.Request.Path.Value.Trim('/').SplitSafe('/').ToArray();
+            var action = urlSegments.Length > 0 ? urlSegments[0] : string.Empty;
 
             if (action == PollAction || action == RunAction)
             {
@@ -38,7 +39,7 @@ namespace Smartstore.Scheduling
 
                 if (action == RunAction)
                 {
-                    var taskId = context.GetRouteValueAs<int>("id", 0);
+                    var taskId = urlSegments.Length > 1 ? urlSegments[1].Convert(0) : 0;
                     await Run(taskId, context, taskStore, executor, taskParameters);
                 }
                 else
@@ -58,7 +59,7 @@ namespace Smartstore.Scheduling
             var numTasks = pendingTasks.Count;
             var numExecuted = 0;
 
-            if (pendingTasks.Any())
+            if (numTasks > 0)
             {
                 await Virtualize(context, taskParameters);
             }
