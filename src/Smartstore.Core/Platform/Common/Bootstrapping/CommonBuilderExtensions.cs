@@ -9,13 +9,15 @@ namespace Smartstore.Core.Bootstrapping
             Guard.NotNull(services, nameof(services));
             Guard.NotNull(appContext, nameof(appContext));
 
+            services.AddScoped<IWorkContext, DefaultWorkContext>();
+
             if (appContext.IsInstalled)
             {
-                services.AddScoped<IWorkContext, DefaultWorkContext>();
+                services.AddScoped<IWorkContextSource, DefaultWorkContextSource>();
             }
             else
             {
-                services.AddScoped<IWorkContext, InstallationWorkContext>();
+                services.AddScoped<IWorkContextSource, InstallationWorkContextSource>();
             }
 
             return services;

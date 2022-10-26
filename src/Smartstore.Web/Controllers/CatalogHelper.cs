@@ -1310,7 +1310,7 @@ namespace Smartstore.Web.Controllers
             var basePricePricingOptions = _priceCalculationService.CreateDefaultOptions(false, customer, currency, modelContext.BatchContext);
             model.BasePriceInfo = await _priceCalculationService.GetBasePriceInfoAsync(product, basePricePricingOptions);
 
-            var taxDisplayType = _services.WorkContext.GetTaxDisplayTypeFor(customer, store.Id);
+            var taxDisplayType = await _services.WorkContext.GetTaxDisplayTypeAsync(customer, store.Id);
             string taxInfo = T(taxDisplayType == TaxDisplayType.IncludingTax ? "Tax.InclVAT" : "Tax.ExclVAT");
 
             var defaultTaxRate = string.Empty;

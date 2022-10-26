@@ -391,7 +391,7 @@ namespace Smartstore.Core.Checkout.Orders
                 order.CustomerCurrencyCode = customerCurrency.CurrencyCode;
                 order.CurrencyRate = customerCurrency.Rate / _primaryCurrency.Rate;
                 order.CustomerLanguageId = customer.GenericAttributes.Get<int>(SystemCustomerAttributeNames.LanguageId, storeId);
-                order.CustomerTaxDisplayType = _workContext.GetTaxDisplayTypeFor(customer, storeId);
+                order.CustomerTaxDisplayType = await _workContext.GetTaxDisplayTypeAsync(customer, storeId);
 
                 order.VatNumber = _taxSettings.EuVatEnabled && (VatNumberStatus)customer.VatNumberStatusId == VatNumberStatus.Valid
                     ? customer.GenericAttributes.VatNumber

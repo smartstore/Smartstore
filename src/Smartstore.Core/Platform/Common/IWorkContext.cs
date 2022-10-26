@@ -49,7 +49,7 @@ namespace Smartstore.Core
         /// <summary>
         /// Gets the tax display type for a given customer
         /// </summary>
-        TaxDisplayType GetTaxDisplayTypeFor(Customer customer, int storeId);
+        Task<TaxDisplayType> GetTaxDisplayTypeAsync(Customer customer, int storeId);
 
         /// <summary>
         /// Gets or sets a value indicating whether we're in admin area

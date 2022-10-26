@@ -69,7 +69,7 @@ namespace Smartstore.Core.Catalog.Pricing
             var store = batchContext?.Store ?? _storeContext.CurrentStore;
             var language = _workContext.WorkingLanguage;
             var priceDisplay = _catalogSettings.PriceDisplayType;
-            var taxInclusive = _workContext.GetTaxDisplayTypeFor(customer, store.Id) == TaxDisplayType.IncludingTax;
+            var taxInclusive = _workContext.GetTaxDisplayTypeAsync(customer, store.Id).Await() == TaxDisplayType.IncludingTax;
             var determinePreselectedPrice = forListing && priceDisplay == PriceDisplayType.PreSelectedPrice;
 
             targetCurrency ??= _workContext.WorkingCurrency;
