@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.IO;
@@ -21,6 +22,8 @@ namespace Smartstore.Data.SqlServer
         private const long EXPRESS_ADVANCED_EDITION_ID = -133711905L;
 
         private static long? _editionId = null;
+
+        private readonly static ConcurrentDictionary<string, bool> _marsCache = new();
 
         private readonly static HashSet<int> _transientErrorCodes = new(new[]
         {
@@ -90,6 +93,20 @@ namespace Smartstore.Data.SqlServer
             | DataProviderFeatures.StreamBlob
             | DataProviderFeatures.ReadSequential
             | DataProviderFeatures.StoredProcedures;
+
+        public override bool MARSEnabled
+        {
+            get
+            {
+                var enabled = _marsCache.GetOrAdd(Database.GetConnectionString(), conString => 
+                {
+                    var builder = new SqlConnectionStringBuilder(conString);
+                    return builder.MultipleActiveResultSets;
+                });
+
+                return enabled;
+            }
+        }
 
         public override string EncloseIdentifier(string identifier)
         {

@@ -44,6 +44,8 @@ namespace Smartstore.Data.MySql
             | DataProviderFeatures.ReadSequential
             | DataProviderFeatures.StoredProcedures;
 
+        public override bool MARSEnabled => false;
+
         public override string EncloseIdentifier(string identifier)
         {
             Guard.NotEmpty(identifier, nameof(identifier));

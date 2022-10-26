@@ -98,6 +98,12 @@ namespace Smartstore.Data.Providers
             get => Features.HasFlag(DataProviderFeatures.StoredProcedures);
         }
 
+        /// <summary>
+        /// Gets a value indication whether MARS (Multiple Active Result Sets) 
+        /// is enabled for the current connection.
+        /// </summary>
+        public abstract bool MARSEnabled { get; }
+
         #endregion
 
         #region Database schema

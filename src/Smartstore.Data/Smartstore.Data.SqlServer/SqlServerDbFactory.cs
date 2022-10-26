@@ -32,7 +32,8 @@ namespace Smartstore.Data.SqlServer
                 Pooling = true,
                 MinPoolSize = 1,
                 MaxPoolSize = 1024,
-                Enlist = false
+                Enlist = false,
+                MultipleActiveResultSets = true
             };
 
             if (!builder.IntegratedSecurity)
@@ -52,7 +53,7 @@ namespace Smartstore.Data.SqlServer
             Guard.NotEmpty(connectionString, nameof(connectionString));
 
             var optionsBuilder = new DbContextOptionsBuilder<TContext>()
-                .UseSqlServer(connectionString, sql =>
+                .UseSqlServer(EnsureMARS(connectionString), sql =>
                 {
                     sql.CommandTimeout(commandTimeout).UseBulk();
                 })
@@ -63,7 +64,10 @@ namespace Smartstore.Data.SqlServer
 
         public override DbContextOptionsBuilder ConfigureDbContext(DbContextOptionsBuilder builder, string connectionString)
         {
-            return builder.UseSqlServer(connectionString, sql =>
+            Guard.NotNull(builder, nameof(builder));
+            Guard.NotEmpty(connectionString, nameof(connectionString));
+
+            return builder.UseSqlServer(EnsureMARS(connectionString), sql =>
             {
                 var extension = builder.Options.FindExtension<DbFactoryOptionsExtension>();
 
@@ -88,6 +92,16 @@ namespace Smartstore.Data.SqlServer
                 }
             })
             .ReplaceService<IMethodCallTranslatorProvider, SqlServerMappingMethodCallTranslatorProvider>();
+        }
+
+        private static string EnsureMARS(string conString)
+        {
+            if (conString.ContainsNoCase("MultipleActiveResultSets="))
+            {
+                return conString;
+            }
+            
+            return conString.Trim().EnsureEndsWith(';') + "MultipleActiveResultSets=True";
         }
     }
 }
