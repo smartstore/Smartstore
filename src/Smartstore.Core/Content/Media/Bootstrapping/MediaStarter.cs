@@ -22,19 +22,18 @@ namespace Smartstore.Core.Bootstrapping
 
         public override void BuildPipeline(RequestPipelineBuilder builder)
         {
-            if (builder.ApplicationContext.IsInstalled)
+            builder.Configure(StarterOrdering.BeforeStaticFilesMiddleware, app =>
             {
-                builder.Configure(StarterOrdering.AfterWorkContextMiddleware, app =>
+                if (builder.ApplicationContext.IsInstalled)
                 {
-                    // Should come directly after any Rewrite middleware
-                    app.UseMedia();
-                });
-            }
+                    app.MapMedia();
+                }
+            });
         }
 
         public override void ConfigureContainer(ContainerBuilder builder, IApplicationContext appContext)
         {
-            //// Utils
+            // Utils
             builder.RegisterType<MediaHelper>().InstancePerLifetimeScope();
             builder.RegisterType<MediaExceptionFactory>().InstancePerLifetimeScope();
 

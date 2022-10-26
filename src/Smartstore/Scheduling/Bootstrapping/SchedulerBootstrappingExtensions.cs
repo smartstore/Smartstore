@@ -31,10 +31,10 @@ namespace Smartstore.Bootstrapping
         {
             Guard.NotNull(app, nameof(app));
 
-            return app.Map("/taskscheduler", pipeline =>
+            return app.Map("/taskscheduler", branch =>
             {
-                configure?.Invoke(pipeline);
-                pipeline.UseMiddleware<TaskSchedulerMiddleware>();
+                configure?.Invoke(branch);
+                branch.UseMiddleware<TaskSchedulerMiddleware>();
             });
         }
     }

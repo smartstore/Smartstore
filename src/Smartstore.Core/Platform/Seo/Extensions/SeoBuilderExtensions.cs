@@ -21,7 +21,7 @@ namespace Microsoft.AspNetCore.Builder
         }
 
         /// <summary>
-        /// Maps XML sitemap endpoints ({culture}/sitemap.xml and sitemap.xml)
+        /// Maps XML sitemap endpoint (sitemap.xml)
         /// </summary>
         public static IEndpointConventionBuilder MapXmlSitemap(this IEndpointRouteBuilder endpoints)
         {

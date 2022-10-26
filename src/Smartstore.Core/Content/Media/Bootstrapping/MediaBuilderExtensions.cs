@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Smartstore.Bootstrapping;
 using Smartstore.Core.Content.Media;
 
 namespace Smartstore.Core.Bootstrapping
@@ -7,22 +8,29 @@ namespace Smartstore.Core.Bootstrapping
     public static class MediaBuilderExtensions
     {
         /// <summary>
-        /// Uses media middleware
+        /// Maps media middleware as a new branch
         /// </summary>
-        public static IApplicationBuilder UseMedia(this IApplicationBuilder app)
+        public static IApplicationBuilder MapMedia(this IApplicationBuilder app)
         {
             Guard.NotNull(app, nameof(app));
 
-            app.UseWhen(IsGetOrHead, x =>
+            var publicPath = (app.ApplicationServices.GetService<IMediaStorageConfiguration>()?.PublicPath ?? "media")
+                .EnsureStartsWith('/')
+                .TrimEnd('/');
+
+            app.Map(publicPath, preserveMatchedPathSegment: true, branch =>
             {
-                x.UseMiddleware<MediaMiddleware>();
-                x.UseMiddleware<MediaLegacyMiddleware>();
+                branch.UseCookiePolicy();
+                branch.UseAuthentication();
+                branch.UseWorkContext();
+                branch.UseRequestLogging();
+                branch.UseApplicationInitializer();
+
+                branch.UseMiddleware<MediaMiddleware>();
+                branch.UseMiddleware<MediaLegacyMiddleware>();
             });
 
             return app;
         }
-
-        static bool IsGetOrHead(HttpContext ctx) 
-            => ctx.Request.Method == HttpMethods.Get || ctx.Request.Method == HttpMethods.Head;
     }
 }

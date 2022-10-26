@@ -16,12 +16,10 @@ namespace Smartstore.Core.Content.Media
         const string PathToken = "path";
         const string DefaultTenantName = "default";
 
-        private readonly RequestDelegate _next;
         private readonly List<TemplateMatcher> _matchers = new(3);
 
         public MediaLegacyMiddleware(RequestDelegate next, IMediaStorageConfiguration mediaStorageConfiguration)
         {
-            _next = next;
             _matchers.AddRange(BuildTemplateMatchers(mediaStorageConfiguration.PublicPath));
         }
 
@@ -30,13 +28,13 @@ namespace Smartstore.Core.Content.Media
             // INFO: TemplateMatcher cannot handle inline constraints at this stage. We gonna check ourselves.
             var endpoints = new[]
             {
-                // Match legacy URL pattern /{pub}/uploaded/{path}[?{query}], e.g. '/media/uploaded/subfolder/image.png' 
+                // Match legacy URL pattern /media/uploaded/{path}[?{query}], e.g. '/media/uploaded/subfolder/image.png' 
                 publicPath + "uploaded/{**path}",
 
-                // Match legacy URL pattern /{pub}/{tenant=default}/uploaded/{path}[?{query}], e.g. '/media/default/uploaded/subfolder/image.png' 
+                // Match legacy URL pattern /media/{tenant=default}/uploaded/{path}[?{query}], e.g. '/media/default/uploaded/subfolder/image.png' 
                 publicPath + "{tenant:regex(^default$)}/uploaded/{**path}",
 
-                // Match legacy URL pattern /{pub}/image/{id}/{path}[?{query}], e.g. '/media/image/234/myproduct.png?size=250' 
+                // Match legacy URL pattern /media/image/{id}/{path}[?{query}], e.g. '/media/image/234/myproduct.png?size=250' 
                 publicPath + "image/{id:int}/{**path}"
             };
 
@@ -87,18 +85,22 @@ namespace Smartstore.Core.Content.Media
             Lazy<IMediaService> mediaService,
             Lazy<IMediaUrlGenerator> mediaUrlGenerator)
         {
+            if (context.Request.Method != HttpMethods.Get && context.Request.Method != HttpMethods.Head)
+            {
+                context.Response.StatusCode = StatusCodes.Status405MethodNotAllowed;
+                return;
+            }
+
             if (!TryMatchRoute(context.Request.Path, out var mediaFileId, out var path))
             {
-                await _next(context);
+                await NotFound(null);
                 return;
             }
 
             if (path.IsEmpty())
             {
                 // Cannot operate without path
-                context.Response.ContentType = "text/html";
-                context.Response.StatusCode = 404;
-                await context.Response.WriteAsync("404: Not Found");
+                await NotFound(null);
                 return;
             }
 
@@ -123,15 +125,21 @@ namespace Smartstore.Core.Content.Media
             if (url.IsEmpty())
             {
                 // Cannot redirect, return 404
-                context.Response.ContentType = mediaFile?.MimeType ?? "text/html";
-                context.Response.StatusCode = 404;
-                await context.Response.WriteAsync("404: Not Found");
+                await NotFound(mediaFile?.MimeType);
+                return;
             }
             else
             {
                 // Redirect to new location
                 context.Response.StatusCode = context.Connection.IsLocal() ? 302 : 301;
                 context.Response.Headers[HeaderNames.Location] = url;
+            }
+
+            async Task NotFound(string mime)
+            {
+                context.Response.ContentType = mime.NullEmpty() ?? "text/html";
+                context.Response.StatusCode = 404;
+                await context.Response.WriteAsync("404: Not Found");
             }
         }
     }
