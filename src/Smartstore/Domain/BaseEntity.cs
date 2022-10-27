@@ -13,6 +13,7 @@ namespace Smartstore.Domain
     public abstract partial class BaseEntity : INamedEntity, IEquatable<BaseEntity>
     {
         private ILazyLoader _lazyLoader;
+        private List<object> _hookData;
 
         protected BaseEntity()
         {
@@ -51,14 +52,43 @@ namespace Smartstore.Domain
             return Id == 0;
         }
 
+        /// <summary>
+        /// Adds custom data to the entity that can be accessed in hook implementations.
+        /// </summary>
+        /// <remarks>The hook data bag is cleared after the entity was committed to the database.</remarks>
+        /// <param name="data">Hook data to add.</param>
+        public void AddHookData(object data)
+        {
+            Guard.NotNull(data, nameof(data));
+            
+            _hookData ??= new();
+            _hookData.Add(data);
+        }
+
+        /// <summary>
+        /// Gets hook data of type <typeparamref name="T"/> associated with this entity.
+        /// </summary>
+        public IEnumerable<T> GetHookData<T>()
+        {
+            return _hookData?.OfType<T>() ?? Enumerable.Empty<T>();
+        }
+
+        /// <summary>
+        /// Clears the hook data bag associated with this entity.
+        /// </summary>
+        public void ClearHookData()
+        {
+            _hookData?.Clear();
+        }
+
         public override bool Equals(object obj)
         {
-            return this.Equals(obj as BaseEntity);
+            return Equals(obj as BaseEntity);
         }
 
         bool IEquatable<BaseEntity>.Equals(BaseEntity other)
         {
-            return this.Equals(other);
+            return Equals(other);
         }
 
         protected virtual bool Equals(BaseEntity other)
@@ -110,7 +140,7 @@ namespace Smartstore.Domain
 
         private bool HasSameNonDefaultIds(BaseEntity other)
         {
-            return !this.IsTransientRecord() && !other.IsTransientRecord() && this.Id == other.Id;
+            return !IsTransientRecord() && !other.IsTransientRecord() && Id == other.Id;
         }
     }
 }

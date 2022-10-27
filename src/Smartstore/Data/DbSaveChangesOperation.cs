@@ -109,6 +109,7 @@ namespace Smartstore.Data
                         _ctx.ChangeTracker.AutoDetectChangesEnabled = autoDetectChanges;
 
                         IgnoreMergedData(mergeableEntities, false);
+                        ClearHookData(_changedEntries);
                     }
                 }
             }
@@ -182,6 +183,14 @@ namespace Smartstore.Data
             for (var i = 0; i < entries.Length; i++)
             {
                 entries[i].MergedDataIgnore = ignore;
+            }
+        }
+
+        private static void ClearHookData(IEnumerable<EntityEntry> entries)
+        {
+            foreach (var entity in entries.Select(x => x.Entity).OfType<BaseEntity>())
+            {
+                entity.ClearHookData();
             }
         }
 
