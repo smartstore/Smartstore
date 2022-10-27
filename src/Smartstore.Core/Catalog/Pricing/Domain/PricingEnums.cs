@@ -48,7 +48,7 @@
     }
 
     /// <summary>
-    /// Represents the style in which prices are displayed.
+    /// Represents the style for price display.
     /// </summary>
     [Flags]
     public enum PriceDisplayStyle

@@ -87,7 +87,7 @@ namespace Smartstore.Core.Common.Hooks
                 }
             }
 
-            if (entity.IsDefault == true)
+            if (entity.IsDefault)
             {
                 // Cannot delete the default quantity unit.
                 entry.ResetState();

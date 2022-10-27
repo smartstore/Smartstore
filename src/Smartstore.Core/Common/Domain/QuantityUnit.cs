@@ -43,7 +43,7 @@ namespace Smartstore.Core.Common
         public int DisplayOrder { get; set; }
 
         /// <summary>
-        /// Gets or sets the default quantity unit
+        /// Gets or sets a value indicating whether this is the system global default quantity unit.
         /// </summary>
         public bool IsDefault { get; set; }
     }

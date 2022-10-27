@@ -61,4 +61,8 @@
 		</AssemblyAttribute>
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="Catalog\Search\Settings\" />
+	</ItemGroup>
+
 </Project>

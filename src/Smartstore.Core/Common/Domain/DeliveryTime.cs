@@ -35,7 +35,7 @@ namespace Smartstore.Core.Common
         public int DisplayOrder { get; set; }
 
         /// <summary>
-        /// Gets or sets the display order
+        /// Gets or sets a value indicating whether this is the system global default delivery time.
         /// </summary>
         public bool? IsDefault { get; set; }
 
