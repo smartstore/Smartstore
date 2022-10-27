@@ -159,9 +159,9 @@ namespace Smartstore.Core.Catalog.Brands
         }
 
         /// <inheritdoc/>
-        public string GetDisplayNameMemberName()
+        public string[] GetDisplayNameMemberNames()
         {
-            return nameof(Name);
+            return new[] { nameof(Name) };
         }
     }
 }

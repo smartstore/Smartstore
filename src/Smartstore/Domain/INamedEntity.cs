@@ -11,9 +11,9 @@
     public interface IDisplayedEntity : INamedEntity
     {
         /// <summary>
-        /// Gets the entity member/property name for display name value.
+        /// Gets the entity member/property names for the display name value.
         /// </summary>
-        string GetDisplayNameMemberName();
+        string[] GetDisplayNameMemberNames();
 
         /// <summary>
         /// Gets the entity display name to convert to a seo friendly URL slug.

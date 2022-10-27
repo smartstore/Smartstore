@@ -346,7 +346,7 @@ namespace Smartstore.Admin.Controllers
 
                 await _db.SaveChangesAsync();
 
-                var validateSlugResult = await category.ValidateSlugAsync(model.SeName, category.Name, true);
+                var validateSlugResult = await category.ValidateSlugAsync(model.SeName, true);
                 await _urlService.ApplySlugAsync(validateSlugResult);
                 model.SeName = validateSlugResult.Slug;
 
@@ -430,7 +430,7 @@ namespace Smartstore.Admin.Controllers
                 await mapper.MapAsync(model, category);
                 category.ParentCategoryId = model.ParentCategoryId ?? 0;
 
-                var validateSlugResult = await category.ValidateSlugAsync(model.SeName, category.Name, true);
+                var validateSlugResult = await category.ValidateSlugAsync(model.SeName, true);
                 await _urlService.ApplySlugAsync(validateSlugResult);
                 model.SeName = validateSlugResult.Slug;
 

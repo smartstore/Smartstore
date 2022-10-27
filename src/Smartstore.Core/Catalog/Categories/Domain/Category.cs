@@ -243,9 +243,9 @@ namespace Smartstore.Core.Catalog.Categories
         }
 
         /// <inheritdoc/>
-        public string GetDisplayNameMemberName()
+        public string[] GetDisplayNameMemberNames()
         {
-            return nameof(Name);
+            return new[] { nameof(Name) };
         }
     }
 }

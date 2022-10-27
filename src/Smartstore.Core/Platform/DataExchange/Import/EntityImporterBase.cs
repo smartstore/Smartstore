@@ -234,8 +234,6 @@ namespace Smartstore.Core.DataExchange.Import
         {
             using var scope = _urlService.CreateBatchScope(_db);
 
-            // TODO: (core) (perf) IUrlService.ValidateSlugAsync ignores prefetched data.
-
             foreach (var row in batch)
             {
                 try

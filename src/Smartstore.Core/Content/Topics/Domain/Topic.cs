@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Xml.Linq;
 using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Core.Security;
@@ -167,13 +168,13 @@ namespace Smartstore.Core.Content.Topics
         /// <inheritdoc/>
         public string GetDisplayName()
         {
-            return Title;
+            return Title.NullEmpty() ?? ShortTitle.NullEmpty() ?? SystemName;
         }
 
         /// <inheritdoc/>
-        public string GetDisplayNameMemberName()
+        public string[] GetDisplayNameMemberNames()
         {
-            return nameof(Title);
+            return new[] { nameof(Title), nameof(ShortTitle), nameof(SystemName) };
         }
     }
 }

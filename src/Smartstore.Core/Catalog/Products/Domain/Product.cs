@@ -1019,6 +1019,6 @@ namespace Smartstore.Core.Catalog.Products
         }
 
         /// <inheritdoc/>
-        public string GetDisplayNameMemberName() => nameof(Name);
+        public string[] GetDisplayNameMemberNames() => new[] { nameof(Name) };
     }
 }

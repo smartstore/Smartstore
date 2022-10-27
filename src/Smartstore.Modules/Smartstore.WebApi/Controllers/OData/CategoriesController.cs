@@ -94,7 +94,7 @@ namespace Smartstore.Web.Api.Controllers.OData
 
         private async Task UpdateSlug(Category entity)
         {
-            var slugResult = await _urlService.Value.ValidateSlugAsync(entity, string.Empty, entity.Name, true);
+            var slugResult = await _urlService.Value.ValidateSlugAsync(entity, string.Empty, true);
             await _urlService.Value.ApplySlugAsync(slugResult, true);
         }
     }

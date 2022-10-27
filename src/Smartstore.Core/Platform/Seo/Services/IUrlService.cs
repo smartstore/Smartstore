@@ -3,39 +3,6 @@ using Smartstore.Core.Seo.Routing;
 
 namespace Smartstore.Core.Seo
 {
-    public readonly struct ValidateSlugResult
-    {
-        private readonly ISlugSupported _source;
-
-        public ValidateSlugResult(ValidateSlugResult copyFrom)
-        {
-            _source = copyFrom.Source;
-            EntityName = _source?.GetEntityName();
-            Slug = copyFrom.Slug;
-            Found = copyFrom.Found;
-            FoundIsSelf = copyFrom.FoundIsSelf;
-            LanguageId = copyFrom.LanguageId;
-            WasValidated = copyFrom.WasValidated;
-        }
-
-        public ISlugSupported Source
-        {
-            get => _source;
-            init
-            {
-                _source = value;
-                EntityName = value?.GetEntityName();
-            }
-        }
-
-        public string EntityName { get; private init; }
-        public string Slug { get; init; }
-        public UrlRecord Found { get; init; }
-        public bool FoundIsSelf { get; init; }
-        public int? LanguageId { get; init; }
-        public bool WasValidated { get; init; }
-    }
-
     /// <summary>
     /// Seo slugs service interface
     /// </summary>
@@ -99,7 +66,7 @@ namespace Smartstore.Core.Seo
         /// <typeparam name="T">Type of slug supporting entity</typeparam>
         /// <param name="entity">Entity instance</param>
         /// <param name="seName">Search engine name to validate. If <c>null</c> or empty, the slug will be resolved from <paramref name="displayName"/>.</param>
-        /// <param name="displayName">Display name used to resolve the slug if <paramref name="seName"/> is empty.</param>
+        /// <param name="displayName">Display name used to resolve the slug if <paramref name="slug"/> is empty.</param>
         /// <param name="ensureNotEmpty">Ensure that slug is not empty</param>
         /// <returns>A system unique slug</returns>
         ValueTask<ValidateSlugResult> ValidateSlugAsync<T>(T entity,

@@ -92,7 +92,7 @@ namespace Smartstore.Core.Seo
 
                     ValidateSlugResult result;
                     var found = unvalidatedSlugsMap.Get(slug.Slug);
-                    var foundIsSelf = _urlService.FoundRecordIsSelf(slug.Source, found, slug.LanguageId);
+                    var foundIsSelf = UrlService.FoundRecordIsSelf(slug.Source, found, slug.LanguageId);
                     var isReserved = _urlService._seoSettings.ReservedUrlRecordSlugs.Contains(slug.Slug);
                     var alreadyProcessed = _urlService._extraSlugLookup.ContainsKey(slug.Slug);
 

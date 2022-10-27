@@ -6,6 +6,5 @@
     public interface ISlugSupported : IDisplayedEntity
     {
         int Id { get; }
-        // TODO: (core) Override ISlugSupported.GetDisplayName() where applicable (instead of passing "name" to ValidateSlugAsync()).
     }
 }

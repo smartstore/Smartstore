@@ -607,7 +607,7 @@ namespace Smartstore.Core.Seo
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected internal bool FoundRecordIsSelf(ISlugSupported source, UrlRecord urlRecord, int? languageId)
+        internal protected static bool FoundRecordIsSelf(ISlugSupported source, UrlRecord urlRecord, int? languageId)
         {
             return urlRecord != null
                 && urlRecord.EntityId == source.Id

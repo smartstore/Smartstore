@@ -24,7 +24,7 @@ namespace Smartstore.Core.Catalog.Products
         {
         }
 
-        public string GetDisplayNameMemberName() => nameof(Name);
+        public string[] GetDisplayNameMemberNames() => new[] { nameof(Name) };
         public string GetDisplayName() => Name;
 
         /// <summary>

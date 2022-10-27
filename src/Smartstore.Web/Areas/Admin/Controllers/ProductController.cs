@@ -2151,7 +2151,7 @@ namespace Smartstore.Admin.Controllers
             //var seoTabLoaded = m.LoadedTabs.Contains("SEO", StringComparer.OrdinalIgnoreCase);
 
             // SEO.
-            var validateSlugResult = await p.ValidateSlugAsync(m.SeName, p.Name, true);
+            var validateSlugResult = await p.ValidateSlugAsync(m.SeName, true);
             m.SeName = validateSlugResult.Slug;
             await _urlService.ApplySlugAsync(validateSlugResult);
 

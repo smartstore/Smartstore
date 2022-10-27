@@ -11,8 +11,8 @@
         public string GetDisplayName()
             => DisplayName;
 
-        public string GetDisplayNameMemberName()
-            => nameof(DisplayName);
+        public string[] GetDisplayNameMemberNames()
+            => new[] { nameof(DisplayName) };
 
         public override string GetEntityName()
             => EntityName;

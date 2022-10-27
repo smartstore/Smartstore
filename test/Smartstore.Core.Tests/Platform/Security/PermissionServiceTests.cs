@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
@@ -40,7 +41,7 @@ namespace Smartstore.Core.Tests.Platform.Security
 
             _permissionService = new PermissionService(
                 DbContext,
-                _workContext,
+                new Lazy<IWorkContext>(() => _workContext),
                 _localizationService,
                 _cacheManager);
         }

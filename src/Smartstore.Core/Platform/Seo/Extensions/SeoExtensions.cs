@@ -14,7 +14,7 @@ namespace Smartstore.Core.Seo
             var name = entity.GetDisplayName();
             if (entity is ILocalizedEntity le)
             {
-                name = le.GetLocalized(entity.GetDisplayNameMemberName(), name, languageId);
+                name = le.GetLocalized(entity.GetDisplayNameMemberNames()[0], name, languageId);
             }
 
             return SlugUtility.Slugify(name);
@@ -98,6 +98,17 @@ namespace Smartstore.Core.Seo
             return EngineContext.Current.Scope.ResolveOptional<LocalizedEntityHelper>()?.GetActiveSlugAsync(nameof(Category), node.Id, null);
         }
 
+        /// <inheritdoc cref="ValidateSlug{T}(T, string, string, bool, int?)"/>
+        /// <param name="seName">Search engine name to validate. If <c>null</c> or empty, the slug will be resolved from "<paramref name="entity"/>.GetDisplayName()".</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ValidateSlugResult ValidateSlug<T>(this T entity, string seName, bool ensureNotEmpty, int? languageId = null)
+            where T : ISlugSupported
+        {
+            Guard.NotNull(entity, nameof(entity));
+
+            return EngineContext.Current.Scope.Resolve<IUrlService>().ValidateSlugAsync(entity, seName, entity.GetDisplayName(), ensureNotEmpty, languageId).Await();
+        }
+
         /// <summary>
         /// Slugifies and checks uniqueness of a given search engine name. If not unique, a number will be appended to the result slug.
         /// </summary>
@@ -114,6 +125,17 @@ namespace Smartstore.Core.Seo
             Guard.NotNull(entity, nameof(entity));
 
             return EngineContext.Current.Scope.Resolve<IUrlService>().ValidateSlugAsync(entity, seName, displayName, ensureNotEmpty, languageId).Await();
+        }
+
+        /// <inheritdoc cref="ValidateSlugAsync{T}(T, string, string, bool, int?)"/>
+        /// <param name="seName">Search engine name to validate. If <c>null</c> or empty, the slug will be resolved from "<paramref name="entity"/>.GetDisplayName()".</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ValueTask<ValidateSlugResult> ValidateSlugAsync<T>(this T entity, string seName, bool ensureNotEmpty, int? languageId = null)
+            where T : ISlugSupported
+        {
+            Guard.NotNull(entity, nameof(entity));
+
+            return EngineContext.Current.Scope.Resolve<IUrlService>().ValidateSlugAsync(entity, seName, entity.GetDisplayName(), ensureNotEmpty, languageId);
         }
 
         /// <summary>

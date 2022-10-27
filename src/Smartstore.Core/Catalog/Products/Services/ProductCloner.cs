@@ -213,7 +213,7 @@ namespace Smartstore.Core.Catalog.Products
 
         private async Task ProcessSlugs(Product product, Product clone, IEnumerable<Language> languages)
         {
-            var slugResult = await _urlService.ValidateSlugAsync(clone, string.Empty, clone.Name, true);
+            var slugResult = await _urlService.ValidateSlugAsync(clone, string.Empty, true);
             await _urlService.ApplySlugAsync(slugResult, true);
 
             foreach (var lang in languages)

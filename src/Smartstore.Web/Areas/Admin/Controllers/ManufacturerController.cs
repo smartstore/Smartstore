@@ -184,7 +184,7 @@ namespace Smartstore.Admin.Controllers
 
                 await _db.SaveChangesAsync();
 
-                var validateSlugResult = await manufacturer.ValidateSlugAsync(model.SeName, manufacturer.Name, true);
+                var validateSlugResult = await manufacturer.ValidateSlugAsync(model.SeName, true);
                 await _urlService.ApplySlugAsync(validateSlugResult);
                 model.SeName = validateSlugResult.Slug;
 
@@ -260,7 +260,7 @@ namespace Smartstore.Admin.Controllers
                 var mapper = MapperFactory.GetMapper<ManufacturerModel, Manufacturer>();
                 await mapper.MapAsync(model, manufacturer);
 
-                var validateSlugResult = await manufacturer.ValidateSlugAsync(model.SeName, manufacturer.Name, true);
+                var validateSlugResult = await manufacturer.ValidateSlugAsync(model.SeName, true);
                 await _urlService.ApplySlugAsync(validateSlugResult);
                 model.SeName = validateSlugResult.Slug;
 

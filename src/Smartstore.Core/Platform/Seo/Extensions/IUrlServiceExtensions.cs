@@ -31,5 +31,13 @@
 
             return service.ApplySlugAsync(input, save);
         }
+
+        /// <inheritdoc cref="IUrlService.ValidateSlugAsync{T}(T, string, string, bool, int?)"/>
+        /// <param name="seName">Search engine name to validate. If <c>null</c> or empty, the slug will be resolved from "<paramref name="entity"/>.GetDisplayName()".</param>
+        public static ValueTask<ValidateSlugResult> ValidateSlugAsync<T>(this IUrlService service, T entity, string seName, bool ensureNotEmpty, int? languageId = null)
+            where T : ISlugSupported
+        {
+            return service.ValidateSlugAsync(entity, seName, entity.GetDisplayName(), ensureNotEmpty, languageId);
+        }
     }
 }
