@@ -87,18 +87,35 @@ namespace Smartstore.Core.Catalog.Pricing
         /// <summary>
         /// TODO: Describe
         /// </summary>
-        public int? ShowSpecialPriceCountdownRemainingHours { get; set; }
+        public int? ShowOfferCountdownRemainingHours { get; set; } = 72;
+
+        /// <summary>
+        /// TODO: Describe
+        /// </summary>
+        public bool ShowOfferBadge { get; set; } = true;
 
         /// <summary>
         /// TODO: Describe
         /// </summary>
         [LocalizedProperty]
-        public string SpecialPriceBadgeLabel { get; set; }
+        public string OfferBadgeLabel { get; set; }
 
         /// <summary>
         /// TODO: Describe
         /// </summary>
-        public int SpecialPriceBadgeStyle { get; set; }
+        public int OfferBadgeStyle { get; set; }
+
+        /// <summary>
+        /// TODO: Describe
+        /// </summary>
+        [LocalizedProperty]
+        public string LimitedOfferBadgeLabel { get; set; }
+
+        /// <summary>
+        /// TODO: Describe
+        /// </summary>
+        public int LimitedOfferBadgeStyle { get; set; }
+
 
         // TBD: ShowSaving, SavingDisplayStyle
 
