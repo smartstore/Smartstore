@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Globalization;
 using System.Net.Http.Headers;
 using Microsoft.AspNetCore.OData.Formatter;
 using Microsoft.AspNetCore.OData.Query;
@@ -8,7 +9,6 @@ using Smartstore.ComponentModel;
 using Smartstore.Core.Content.Media;
 using Smartstore.IO;
 using Smartstore.Web.Api.Models.OData.Media;
-using Swashbuckle.AspNetCore.Annotations;
 
 namespace Smartstore.Web.Api.Controllers.OData
 {
@@ -85,27 +85,20 @@ namespace Smartstore.Web.Api.Controllers.OData
 
         #region Actions and functions
 
-        // TODO: (mg) (core) again, to many attribute decorations. This looks like beginner code.
-        // Add new smart attribute "ApiActionMethod" that is combining (most of) these things into one?
-
         /// <summary>
         /// Gets a file by path.
         /// </summary>
-        /// <param name="path" example="content/my-file.jpg">The path of the file to get.</param>
+        /// <param name="path" example="content/my-file.jpg">The path of the file.</param>
         [HttpPost("MediaFiles/GetFileByPath"), ApiQueryable]
-        //[ApiConsumes(Json, "{ \"path\": \"content/my-file.jpg\" }")]
-        [Consumes(Json)]
-        [Produces(Json)]
+        [Consumes(Json), Produces(Json)]
         [ProducesResponseType(typeof(FileItemInfo), Status200OK)]
         [ProducesResponseType(Status400BadRequest)]
         [ProducesResponseType(Status404NotFound)]
         [ProducesResponseType(Status422UnprocessableEntity)]
-        //public async Task<IActionResult> GetFileByPath(ODataActionParameters parameters, ODataQueryOptions<MediaFile> options)
-        public async Task<IActionResult> GetFileByPath([FromODataBody] string path, ODataQueryOptions<MediaFile> options)
+        public async Task<IActionResult> GetFileByPath([FromODataBody, Required] string path, ODataQueryOptions<MediaFile> options)
         {
             try
             {
-                //var path = parameters.GetValueSafe<string>("Path");
                 var flags = GetLoadFlags(options);
                 var file = await _mediaService.GetFileByPathAsync(path, flags);
 
@@ -122,17 +115,16 @@ namespace Smartstore.Web.Api.Controllers.OData
             }
         }
 
-        // TODO: (mg) (core) Array of ids does not work in Swagger. Bug: https://github.com/domaindrivendev/Swashbuckle.AspNetCore/issues/1394
-
         /// <summary>
         /// Gets files by identifiers.
         /// </summary>
+        /// <param name="ids" example="[1,2,3]">Comma separated list of MediaFile identifiers.</param>
         [HttpGet("MediaFiles/GetFilesByIds(Ids={ids})"), ApiQueryable]
         [Produces(Json)]
         [ProducesResponseType(typeof(IEnumerable<FileItemInfo>), Status200OK)]
         [ProducesResponseType(Status400BadRequest)]
         [ProducesResponseType(Status422UnprocessableEntity)]
-        public async Task<IActionResult> GetFilesByIds([FromODataUri] int[] ids, ODataQueryOptions<MediaFile> options)
+        public async Task<IActionResult> GetFilesByIds([FromODataUri, Required] int[] ids, ODataQueryOptions<MediaFile> options)
         {
             if (ids.IsNullOrEmpty())
             {
@@ -186,8 +178,8 @@ namespace Smartstore.Web.Api.Controllers.OData
         /// </summary>
         /// <param name="parameters">Contains the search query parameters.</param>
         [HttpPost, ApiQueryable]
-        [ApiConsumes(MediaTypeNames.Application.Json, "{ \"Query\": { \"FolderId\":7, \"Extensions\": [\"jpg\"] } }", Required = false)]
-        [Produces(MediaTypeNames.Application.Json)]
+        [ApiConsumes(Json, "{ \"Query\": { \"FolderId\":7, \"Extensions\": [\"jpg\"] } }", Required = false)]
+        [Produces(Json)]
         [ProducesResponseType(typeof(IEnumerable<FileItemInfo>), Status200OK)]
         [ProducesResponseType(Status400BadRequest)]
         [ProducesResponseType(Status422UnprocessableEntity)]
@@ -216,8 +208,8 @@ namespace Smartstore.Web.Api.Controllers.OData
         /// </summary>
         /// <param name="parameters">Contains the path of the file.</param>
         [HttpPost]
-        [ApiConsumes(MediaTypeNames.Application.Json, "{ \"Path\":\"content/my-file.jpg\" }")]
-        [Produces(MediaTypeNames.Application.Json)]
+        [ApiConsumes(Json, "{ \"Path\":\"content/my-file.jpg\" }")]
+        [Produces(Json)]
         [ProducesResponseType(typeof(bool), Status200OK)]
         [ProducesResponseType(Status400BadRequest)]
         [ProducesResponseType(Status422UnprocessableEntity)]
@@ -241,8 +233,8 @@ namespace Smartstore.Web.Api.Controllers.OData
         /// </summary>
         /// <param name="parameters">Contains the path of the file.</param>
         [HttpPost]
-        [ApiConsumes(MediaTypeNames.Application.Json, "{ \"Path\": \"content/my-file.jpg\" }")]
-        [Produces(MediaTypeNames.Application.Json)]
+        [ApiConsumes(Json, "{ \"Path\": \"content/my-file.jpg\" }")]
+        [Produces(Json)]
         [ProducesResponseType(typeof(CheckUniquenessResult), Status200OK)]
         [ProducesResponseType(Status400BadRequest)]
         [ProducesResponseType(Status422UnprocessableEntity)]
@@ -270,8 +262,8 @@ namespace Smartstore.Web.Api.Controllers.OData
         /// </summary>
         /// <param name="parameters">Contains the search query parameters.</param>
         [HttpPost]
-        [ApiConsumes(MediaTypeNames.Application.Json, "{ \"Query\": { \"FolderId\":7, \"Extensions\": [\"jpg\"] } }", Required = false)]
-        [Produces(MediaTypeNames.Application.Json)]
+        [ApiConsumes(Json, "{ \"Query\": { \"FolderId\":7, \"Extensions\": [\"jpg\"] } }", Required = false)]
+        [Produces(Json)]
         [ProducesResponseType(typeof(int), Status200OK)]
         [ProducesResponseType(Status400BadRequest)]
         [ProducesResponseType(Status422UnprocessableEntity)]
@@ -295,8 +287,8 @@ namespace Smartstore.Web.Api.Controllers.OData
         /// </summary>
         /// <param name="parameters">Contains the files filter.</param>
         [HttpPost]
-        [ApiConsumes(MediaTypeNames.Application.Json, "{ \"Filter\": { \"Term\": \"my image\", \"Extensions\": [\"jpg\"] } }", Required = false)]
-        [Produces(MediaTypeNames.Application.Json)]
+        [ApiConsumes(Json, "{ \"Filter\": { \"Term\": \"my image\", \"Extensions\": [\"jpg\"] } }", Required = false)]
+        [Produces(Json)]
         [ProducesResponseType(typeof(MediaCountResult), Status200OK)]
         [ProducesResponseType(Status400BadRequest)]
         [ProducesResponseType(Status422UnprocessableEntity)]
@@ -337,8 +329,8 @@ namespace Smartstore.Web.Api.Controllers.OData
         /// <param name="parameters">Contains the new file name and a duplicate file handling flag (optional).</param>
         [HttpPost, ApiQueryable]
         [Permission(Permissions.Media.Update)]
-        [ApiConsumes(MediaTypeNames.Application.Json, "{ \"DestinationFileName\": \"content/updated-file-name.jpg\" }")]
-        [Produces(MediaTypeNames.Application.Json)]
+        [ApiConsumes(Json, "{ \"DestinationFileName\": \"content/updated-file-name.jpg\" }")]
+        [Produces(Json)]
         [ProducesResponseType(typeof(FileItemInfo), Status200OK)]
         [ProducesResponseType(Status400BadRequest)]
         [ProducesResponseType(Status404NotFound)]
@@ -371,8 +363,8 @@ namespace Smartstore.Web.Api.Controllers.OData
         /// <param name="parameters">Contains the new file name and a duplicate file handling flag (optional).</param>
         [HttpPost, ApiQueryable]
         [Permission(Permissions.Media.Update)]
-        [ApiConsumes(MediaTypeNames.Application.Json, "{ \"DestinationFileName\": \"content/new-file.jpg\" }")]
-        [Produces(MediaTypeNames.Application.Json)]
+        [ApiConsumes(Json, "{ \"DestinationFileName\": \"content/new-file.jpg\" }")]
+        [Produces(Json)]
         [ProducesResponseType(typeof(MediaFileOperationResult), Status200OK)]
         [ProducesResponseType(Status400BadRequest)]
         [ProducesResponseType(Status404NotFound)]
@@ -413,8 +405,8 @@ namespace Smartstore.Web.Api.Controllers.OData
         /// <param name="parameters">Contains a value indicating whether the file should be deleted permanently.</param>
         [HttpPost]
         [Permission(Permissions.Media.Delete)]
-        [ApiConsumes(MediaTypeNames.Application.Json, "{ \"Permanent\": false }")]
-        [Produces(MediaTypeNames.Application.Json)]
+        [ApiConsumes(Json, "{ \"Permanent\": false }")]
+        [Produces(Json)]
         [ProducesResponseType(Status204NoContent)]
         [ProducesResponseType(Status400BadRequest)]
         [ProducesResponseType(Status404NotFound)]
@@ -450,7 +442,7 @@ namespace Smartstore.Web.Api.Controllers.OData
         [HttpPost, ApiQueryable]
         [Permission(Permissions.Media.Upload)]
         [ApiConsumes("multipart/form-data")]
-        [Produces(MediaTypeNames.Application.Json)]
+        [Produces(Json)]
         [ProducesResponseType(typeof(FileItemInfo), Status200OK)]
         [ProducesResponseType(Status400BadRequest)]
         [ProducesResponseType(Status415UnsupportedMediaType)]
