@@ -1,4 +1,5 @@
 ﻿using Smartstore.Core.Configuration;
+using Smartstore.Core.Localization;
 
 namespace Smartstore.Core.Catalog.Pricing
 {
@@ -64,19 +65,19 @@ namespace Smartstore.Core.Catalog.Pricing
         #region New
 
         /// <summary>
-        /// TODO: Describe
+        /// TODO: Describe (P)
         /// </summary>
         public int? DefaultComparePriceLabelId { get; set; }
 
         /// <summary>
         /// TODO: Describe
         /// </summary>
-        public bool SalePriceReplacesRegularPrice { get; set; }
+        public int? DefaultRegularPriceLabelId { get; set; }
 
         /// <summary>
-        /// TODO: Describe
+        /// TODO: Describe (P)
         /// </summary>
-        public int? PriceLabelIdOnDiscount { get; set; }
+        public bool SpecialPriceReplacesRegularPrice { get; set; }
 
         /// <summary>
         /// TODO: Describe
@@ -86,17 +87,18 @@ namespace Smartstore.Core.Catalog.Pricing
         /// <summary>
         /// TODO: Describe
         /// </summary>
-        public string OnSaleBadgeLabel { get; set; }
+        public int? ShowSpecialPriceCountdownRemainingHours { get; set; }
 
         /// <summary>
         /// TODO: Describe
         /// </summary>
-        public int OnSaleBadgeStyle { get; set; }
+        [LocalizedProperty]
+        public string SpecialPriceBadgeLabel { get; set; }
 
         /// <summary>
         /// TODO: Describe
         /// </summary>
-        public bool ShowSalePriceTime { get; set; }
+        public int SpecialPriceBadgeStyle { get; set; }
 
         // TBD: ShowSaving, SavingDisplayStyle
 
