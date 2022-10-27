@@ -65,54 +65,60 @@ namespace Smartstore.Core.Catalog.Pricing
         #region New
 
         /// <summary>
-        /// TODO: Describe (P)
+        /// The system default id of PriceLabel entity for product compare prices.
+        /// Takes effect when a product does not override the ComparePrice label.
         /// </summary>
         public int? DefaultComparePriceLabelId { get; set; }
 
         /// <summary>
-        /// TODO: Describe
+        /// The system default id of PriceLabel entity to use for the crossed out regular price.
+        /// Takes effect when there is an offer or a discount has been applied to a product.
         /// </summary>
         public int? DefaultRegularPriceLabelId { get; set; }
 
         /// <summary>
-        /// TODO: Describe (P)
+        /// If TRUE, the special offer price just replaces the regular price
+        /// as if there was no offer. If FALSE, the regular price will be displayed crossed out.
         /// </summary>
-        public bool SpecialPriceReplacesRegularPrice { get; set; }
+        public bool OfferPriceReplacesRegularPrice { get; set; }
 
         /// <summary>
-        /// TODO: Describe
+        /// If TRUE, the MSRP will be displayed in product detail even if there is already an offer or a discount.
+        /// In this case the MSRP will appear as another crossed out price alongside the discounted price.
         /// </summary>
         public bool AlwaysDisplayRetailPrice { get; set; } = true;
 
         /// <summary>
-        /// TODO: Describe
+        /// Sets the offer remaining time (in hours) from which a countdown should be displayed in product detail,
+        /// e.g. "ends in 3 hours, 23 min.". To hide the countdown, set this to NULL.
+        /// Only applies to limited time offers with a non-null end date.
         /// </summary>
         public int? ShowOfferCountdownRemainingHours { get; set; } = 72;
 
         /// <summary>
-        /// TODO: Describe
+        /// If TRUE, displays a badge if an offer price is active.
         /// </summary>
         public bool ShowOfferBadge { get; set; } = true;
 
         /// <summary>
-        /// TODO: Describe
+        /// The label of the offer badge, e.g. "Deal".
         /// </summary>
         [LocalizedProperty]
         public string OfferBadgeLabel { get; set; }
 
         /// <summary>
-        /// TODO: Describe
+        /// The style of the offer badge.
         /// </summary>
         public int OfferBadgeStyle { get; set; }
 
         /// <summary>
-        /// TODO: Describe
+        /// The label of the offer badge if the offer is limited, e.g. "Limited time deal".
         /// </summary>
         [LocalizedProperty]
         public string LimitedOfferBadgeLabel { get; set; }
 
         /// <summary>
-        /// TODO: Describe
+        /// The style of the limited time offer badge.
         /// </summary>
         public int LimitedOfferBadgeStyle { get; set; }
 
