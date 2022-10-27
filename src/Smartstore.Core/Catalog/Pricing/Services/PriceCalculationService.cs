@@ -341,7 +341,7 @@ namespace Smartstore.Core.Catalog.Pricing
 
             var savingPrice = result.FinalPrice < priceWithoutDiscount
                 ? priceWithoutDiscount
-                : ConvertAmount(product.OldPrice, context, taxRate, false, out _).Value;
+                : ConvertAmount(product.ComparePrice, context, taxRate, false, out _).Value;
 
             var hasSaving = savingPrice > 0 && result.FinalPrice < savingPrice;
 

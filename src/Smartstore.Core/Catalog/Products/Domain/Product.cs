@@ -636,9 +636,10 @@ namespace Smartstore.Core.Catalog.Products
         }
 
         /// <summary>
-        /// Gets or sets the former price.
+        /// Gets or sets the compare price, e.g. the retail price.
         /// </summary>
-        public decimal OldPrice { get; set; }
+        [Column("OldPrice")]
+        public decimal ComparePrice { get; set; }
 
         /// <summary>
         /// Gets or sets the product cost.

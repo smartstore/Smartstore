@@ -2086,7 +2086,7 @@ namespace Smartstore.Admin.Controllers
             var m = model;
 
             p.Price = m.Price;
-            p.OldPrice = m.OldPrice ?? 0;
+            p.ComparePrice = m.ComparePrice ?? 0;
             p.ProductCost = m.ProductCost ?? 0;
             p.SpecialPrice = m.SpecialPrice;
 

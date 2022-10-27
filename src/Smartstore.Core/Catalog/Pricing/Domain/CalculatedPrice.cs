@@ -85,7 +85,7 @@ namespace Smartstore.Core.Catalog.Pricing
 
         /// <summary>
         /// Gets or sets a price saving in relation to <see cref="FinalPrice"/>.
-        /// The saving results from the applied discounts, if any, otherwise from the difference to the <see cref="Product.OldPrice"/>.
+        /// The saving results from the applied discounts, if any, otherwise from the difference to the <see cref="Product.ComparePrice"/>.
         /// </summary>
         public PriceSaving PriceSaving { get; set; }
     }

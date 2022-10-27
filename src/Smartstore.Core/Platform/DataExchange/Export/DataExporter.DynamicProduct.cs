@@ -518,23 +518,23 @@ namespace Smartstore.Core.DataExchange.Export
                     : ctx.Projection.ShippingCosts;
             }
 
-            if (ctx.Supports(ExportFeatures.UsesOldPrice))
+            if (ctx.Supports(ExportFeatures.UsesComparePrice))
             {
-                if (product.OldPrice != decimal.Zero && product.OldPrice != (decimal)dynObject.Price && !(product.ProductType == ProductType.BundledProduct && product.BundlePerItemPricing))
+                if (product.ComparePrice != decimal.Zero && product.ComparePrice != (decimal)dynObject.Price && !(product.ProductType == ProductType.BundledProduct && product.BundlePerItemPricing))
                 {
                     if (ctx.Projection.ConvertNetToGrossPrices)
                     {
-                        var tax = await _taxCalculator.CalculateProductTaxAsync(product, product.OldPrice, true, ctx.ContextCustomer, ctx.ContextCurrency);
-                        dynObject._OldPrice = tax.Price;
+                        var tax = await _taxCalculator.CalculateProductTaxAsync(product, product.ComparePrice, true, ctx.ContextCustomer, ctx.ContextCurrency);
+                        dynObject._ComparePrice = tax.Price;
                     }
                     else
                     {
-                        dynObject._OldPrice = product.OldPrice;
+                        dynObject._ComparePrice = product.ComparePrice;
                     }
                 }
                 else
                 {
-                    dynObject._OldPrice = null;
+                    dynObject._ComparePrice = null;
                 }
             }
 

@@ -123,9 +123,9 @@
         OffersShippingCostsFallback = 1 << 9,
 
         /// <summary>
-        /// A value indicating whether to get the calculated old product price.
+        /// A value indicating whether to get the calculated product compare price.
         /// </summary>
-        UsesOldPrice = 1 << 10,
+        UsesComparePrice = 1 << 10,
 
         /// <summary>
         /// A value indicating whether to get the calculated special and regular price (ignoring special offers).

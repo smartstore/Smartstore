@@ -62,7 +62,7 @@ namespace Smartstore.Core.Data.Migrations
                 "Admin.Catalog.BulkEdit.List.SearchProductName",
                 "Admin.Catalog.BulkEdit.List.SearchProductName.Hint");
 
-            builder.AddOrUpdate("Admin.Catalog.BulkEdit.Fields.OldPrice",
+            builder.AddOrUpdate("Admin.Catalog.Products.Fields.ComparePrice",
                 "Compare price",
                 "Vergleichspreis",
                 "Sets a comparison price, e.g.: MSRP, list price, regular price before discount, etc. The comparison price serves as the strike price.",

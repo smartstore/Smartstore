@@ -5,7 +5,7 @@ namespace Smartstore.Core.Catalog.Pricing
 {
     /// <summary>
     /// Represents a price saving in relation to the calculated final price of a product.
-    /// The saving results from the applied discounts, if any, otherwise from the difference to the <see cref="Product.OldPrice"/>.
+    /// The saving results from the applied discounts, if any, otherwise from the difference to the <see cref="Product.ComparePrice"/>.
     /// </summary>
     public readonly struct PriceSaving
     {

@@ -1511,14 +1511,14 @@ namespace Smartstore.Web.Controllers
             calculationContext.Options.IgnoreDiscounts = true;
             var priceWithoutDiscount = await _priceCalculationService.CalculatePriceAsync(calculationContext);
 
-            var oldPriceBase = await _taxCalculator.CalculateProductTaxAsync(product, product.OldPrice, null, customer, currency);
-            var oldPrice = _currencyService.ConvertFromPrimaryCurrency(oldPriceBase.Price, currency);
+            var comparePriceBase = await _taxCalculator.CalculateProductTaxAsync(product, product.ComparePrice, null, customer, currency);
+            var comparePrice = _currencyService.ConvertFromPrimaryCurrency(comparePriceBase.Price, currency);
 
             if (productBundleItem == null || isBundleItemPricing)
             {
-                if (oldPrice > 0 && oldPrice > priceWithoutDiscount.FinalPrice)
+                if (comparePrice > 0 && comparePrice > priceWithoutDiscount.FinalPrice)
                 {
-                    model.ProductPrice.OldPrice = oldPrice.WithPostFormat(taxFormat);
+                    model.ProductPrice.OldPrice = comparePrice.WithPostFormat(taxFormat);
                 }
 
                 applyDiscountNote = priceWithoutDiscount.FinalPrice != priceWithDiscount.FinalPrice;

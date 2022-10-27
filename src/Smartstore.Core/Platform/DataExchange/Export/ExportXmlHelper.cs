@@ -658,7 +658,7 @@ namespace Smartstore.Core.Platform.DataExchange.Export
             _writer.WriteElementString(nameof(Product.AvailableForPreOrder), entity.AvailableForPreOrder.ToString());
             _writer.WriteElementString(nameof(Product.CallForPrice), entity.CallForPrice.ToString());
             _writer.WriteElementString(nameof(Product.Price), entity.Price.ToString(_culture));
-            _writer.WriteElementString(nameof(Product.OldPrice), entity.OldPrice.ToString(_culture));
+            _writer.WriteElementString(nameof(Product.ComparePrice), entity.ComparePrice.ToString(_culture));
             _writer.WriteElementString(nameof(Product.ProductCost), entity.ProductCost.ToString(_culture));
             _writer.WriteElementString(nameof(Product.SpecialPrice), entity.SpecialPrice?.ToString(_culture) ?? string.Empty);
             _writer.WriteElementString(nameof(Product.SpecialPriceStartDateTimeUtc), entity.SpecialPriceStartDateTimeUtc?.ToString(_culture) ?? string.Empty);

@@ -58,8 +58,8 @@ namespace Smartstore.Admin.Models.Catalog
         [LocalizedDisplay("*Price")]
         public decimal Price { get; set; }
 
-        [LocalizedDisplay("*OldPrice")]
-        public decimal? OldPrice { get; set; }
+        [LocalizedDisplay("*ComparePrice")]
+        public decimal? ComparePrice { get; set; }
 
         [LocalizedDisplay("*SpecialPrice")]
         public decimal? SpecialPrice { get; set; }

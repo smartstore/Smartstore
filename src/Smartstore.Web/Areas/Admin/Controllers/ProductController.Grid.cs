@@ -155,7 +155,7 @@ namespace Smartstore.Admin.Controllers
             product.ManufacturerPartNumber = model.ManufacturerPartNumber;
             product.Gtin = model.Gtin;
             product.MinStockQuantity = model.MinStockQuantity;
-            product.OldPrice = model.OldPrice ?? 0;
+            product.ComparePrice = model.ComparePrice ?? 0;
             product.AvailableStartDateTimeUtc = model.AvailableStartDateTimeUtc;
             product.AvailableEndDateTimeUtc = model.AvailableEndDateTimeUtc;
 

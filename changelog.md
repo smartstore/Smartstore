@@ -2,6 +2,10 @@
 
 ## Smartstore 5.0.1
 
+### Breaking Changes
+
+- (DEV) Product.**OldPrice** renamed to **ComparePrice**
+
 ### New Features
 
 - (NEW) *Google Remarketing* (commercial plugin)
@@ -17,9 +21,9 @@
   - Can generate: Image (any type), SVG drawing
 - MediaManager: display image IPTC and EXIF metadata
 - MediaManager: added internal admin comment field
+- Added *IsVerifiedPurchase* flag for product reviews
 - (DEV) Embedded/Inline mail attachments
 - (DEV) Localized entity metadata: `ILocalizedEntityDescriptorProvider`, `ILocalizedEntityLoader`
-- Added IsVerifiedPurchase flag for reviews
 
 ### Improvements
 
