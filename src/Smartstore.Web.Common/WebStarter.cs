@@ -136,6 +136,15 @@ namespace Smartstore.Web
                 app.UseStatusCodePagesWithReExecute("/Error/{0}");
             });
 
+            builder.Configure(StarterOrdering.AfterExceptionHandlerMiddleware, app =>
+            {
+                if (appContext.IsInstalled)
+                {
+                    // Executes IApplicationInitializer implementations during the very first request.
+                    app.UseApplicationInitializer();
+                }
+            });
+
             builder.Configure(StarterOrdering.AfterStaticFilesMiddleware, app =>
             {
                 app.UsePoweredBy();
@@ -170,9 +179,6 @@ namespace Smartstore.Web
                     // To use the default framework request logging instead, remove this line and set the "Microsoft"
                     // level in appsettings.json to "Information".
                     app.UseRequestLogging();
-
-                    // Executes IApplicationInitializer implementations during the very first request.
-                    app.UseApplicationInitializer();
                 }
             });
 

@@ -24,7 +24,6 @@ namespace Smartstore.Core.Bootstrapping
                 branch.UseAuthentication();
                 branch.UseWorkContext();
                 branch.UseRequestLogging();
-                branch.UseApplicationInitializer();
 
                 branch.UseMiddleware<MediaMiddleware>();
                 branch.UseMiddleware<MediaLegacyMiddleware>();

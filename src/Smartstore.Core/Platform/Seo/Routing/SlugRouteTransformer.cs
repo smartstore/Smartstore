@@ -129,6 +129,13 @@ namespace Smartstore.Core.Seo.Routing
         public override async ValueTask<RouteValueDictionary> TransformAsync(HttpContext httpContext, RouteValueDictionary values)
         {
             var request = httpContext.Request;
+            var policy = httpContext.GetUrlPolicy();
+            var slug = policy.Path.ToString();
+
+            if (slug.IsEmpty())
+            {
+                return null;
+            }
 
             if (!request.IsNonAjaxGet())
             {
@@ -146,14 +153,6 @@ namespace Smartstore.Core.Seo.Routing
             if (_ignorePaths.Any(x => request.Path.StartsWithSegments(x)))
             {
                 // Irrelevant
-                return null;
-            }
-
-            var policy = _urlService.GetUrlPolicy();
-            var slug = policy.Path.ToString();
-
-            if (slug.IsEmpty())
-            {
                 return null;
             }
 

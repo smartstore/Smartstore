@@ -91,7 +91,7 @@ namespace Smartstore.Core.Security
         };
 
         private readonly SmartDbContext _db;
-        private readonly IWorkContext _workContext;
+        private readonly Lazy<IWorkContext> _workContext;
         private readonly ILocalizationService _localizationService;
         private readonly ICacheManager _cache;
 
@@ -99,7 +99,7 @@ namespace Smartstore.Core.Security
 
         public PermissionService(
             SmartDbContext db,
-            IWorkContext workContext,
+            Lazy<IWorkContext> workContext,
             ILocalizationService localizationService,
             ICacheManager cache)
         {
@@ -167,7 +167,7 @@ namespace Smartstore.Core.Security
                 return false;
             }
 
-            customer ??= _workContext.CurrentCustomer;
+            customer ??= _workContext.Value.CurrentCustomer;
 
             var cacheKey = $"permission:{customer.Id}.{allowByChildPermission}.{permissionSystemName}";
 
@@ -203,7 +203,7 @@ namespace Smartstore.Core.Security
                 return false;
             }
 
-            customer ??= _workContext.CurrentCustomer;
+            customer ??= _workContext.Value.CurrentCustomer;
 
             var cacheKey = $"permission:{customer.Id}.{allowByChildPermission}.{permissionSystemName}";
 
@@ -273,7 +273,7 @@ namespace Smartstore.Core.Security
 
             if (addDisplayNames)
             {
-                var languageId = _workContext.WorkingLanguage.Id;
+                var languageId = _workContext.Value.WorkingLanguage.Id;
                 var displayNamesLookup = await GetDisplayNameLookup(languageId);
 
                 return new PermissionTree(tree, displayNamesLookup, languageId);
@@ -295,7 +295,7 @@ namespace Smartstore.Core.Security
 
             if (addDisplayNames)
             {
-                var languageId = _workContext.WorkingLanguage.Id;
+                var languageId = _workContext.Value.WorkingLanguage.Id;
                 var displayNamesLookup = await GetDisplayNameLookup(languageId);
 
                 return new PermissionTree(tree, displayNamesLookup, languageId);
@@ -307,7 +307,7 @@ namespace Smartstore.Core.Security
         public virtual async Task<Dictionary<string, string>> GetAllSystemNamesAsync()
         {
             var result = new Dictionary<string, string>();
-            var resourcesLookup = await GetDisplayNameLookup(_workContext.WorkingLanguage.Id);
+            var resourcesLookup = await GetDisplayNameLookup(_workContext.Value.WorkingLanguage.Id);
 
             var systemNames = await _db.PermissionRecords
                 .AsQueryable()
@@ -330,7 +330,7 @@ namespace Smartstore.Core.Security
             var tokens = permissionSystemName.EmptyNull().ToLower().Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
             if (tokens.Any())
             {
-                var resourcesLookup = await GetDisplayNameLookup(_workContext.WorkingLanguage.Id);
+                var resourcesLookup = await GetDisplayNameLookup(_workContext.Value.WorkingLanguage.Id);
 
                 return GetDisplayName(tokens, resourcesLookup);
             }
