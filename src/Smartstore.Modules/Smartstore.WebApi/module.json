@@ -15,6 +15,7 @@
     "Swashbuckle.AspNetCore.Swagger",
     "Swashbuckle.AspNetCore.SwaggerGen",
     "Swashbuckle.AspNetCore.SwaggerUI",
-    "Swashbuckle.AspNetCore.Newtonsoft"
+    "Swashbuckle.AspNetCore.Newtonsoft",
+    "Swashbuckle.AspNetCore.Annotations"
   ]
 }

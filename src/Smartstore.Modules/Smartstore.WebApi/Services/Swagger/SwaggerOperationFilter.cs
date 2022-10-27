@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Controllers;
+using Microsoft.AspNetCore.OData.Formatter;
 using Microsoft.AspNetCore.OData.Query;
 using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
@@ -10,6 +12,7 @@ namespace Smartstore.Web.Api.Swagger
     /// <summary>
     /// Adds information to <see cref="OpenApiOperation"/> like describing <see cref="OpenApiResponse"/> objects
     /// for repeating methods in OData controllers (like Get, Post, Put, Patch, Delete etc.).
+    /// Fixes lots of Swashbuckle bugs.
     /// Only takes into account OData controllers that inherit from SmartODataController.
     /// </summary>
     internal class SwaggerOperationFilter : IOperationFilter
@@ -42,9 +45,11 @@ namespace Smartstore.Web.Api.Swagger
                 {
                     var helper = new SwaggerOperationHelper(operation, context);
 
-                    AddDocumentation(helper);
+                    AddOperationInfo(helper);
+                    AddParameterInfo(helper);
                     AddQueryParameters(helper);
-                    RemoveParameters(helper);
+                    FixParameters(helper);
+                    // Probably getting obsolete:
                     ApplyConsumesExample(helper);
                 }
             }
@@ -55,9 +60,9 @@ namespace Smartstore.Web.Api.Swagger
         }
 
         /// <summary>
-        /// Adds documentation for known OData controller methods.
+        /// Adds info to known OData methods.
         /// </summary>
-        protected virtual void AddDocumentation(SwaggerOperationHelper helper)
+        protected virtual void AddOperationInfo(SwaggerOperationHelper helper)
         {
             var mi = helper.Context.MethodInfo;
             var isSingleResult = mi.ReturnType.IsClosedGenericTypeOf(typeof(SingleResult<>));
@@ -75,14 +80,6 @@ namespace Smartstore.Web.Api.Swagger
             {
                 helper.Op.Responses.Clear();
             }
-            else
-            {
-                // Unknown methods like OData actions and functions.
-                // These must be documented via code comment above the related action method.
-                helper.Op.Parameters
-                    .Where(x => x.Name.EqualsNoCase("key") && x.Description.IsEmpty())
-                    .Each(x => x.Description = $"The {helper.EntityType.Name} identifier.");
-            }
 
             if (mi.DeclaringType.HasAttribute<AuthorizeAttribute>(true) || mi.HasAttribute<AuthorizeAttribute>(true))
             {
@@ -96,13 +93,7 @@ namespace Smartstore.Web.Api.Swagger
 
             helper.Op.Responses[Status400BadRequest.ToString()] = CreateBadRequestResponse();
 
-            var entityName = PrefixArticle(helper.EntityType.Name);
-
-            //if (helper.EntityType.Name == "FileItemInfo")
-            //{
-            //    helper.EntityType.Name.Dump();
-            //    helper.Op.Parameters.Where(x => x.Schema)
-            //}
+            var entityName = PrefixArticle(helper.EntityAliasName);
 
             switch (helper.ActionName)
             {
@@ -179,7 +170,36 @@ namespace Smartstore.Web.Api.Swagger
         }
 
         /// <summary>
-        /// Adds input fields for query parameters to Swagger documentation.
+        /// Adds extra info to parameters.
+        /// </summary>
+        protected virtual void AddParameterInfo(SwaggerOperationHelper helper)
+        {
+            foreach (var parameter in helper.Op.Parameters)
+            {
+                switch (parameter.Name?.ToLower())
+                {
+                    case "key":
+                    case "id":
+                        parameter.Description ??= $"The {helper.EntityAliasName} identifier.";
+                        parameter.Example ??= new OpenApiInteger(12345);
+                        break;
+                    case "ids":
+                        parameter.Description ??= $"Comma separated list of {helper.EntityAliasName} identifiers.";
+
+                        // TODO: (mg) (core) Array of ids does not work in Swagger. Bug: https://github.com/domaindrivendev/Swashbuckle.AspNetCore/issues/1394
+                        //if (parameter.In.HasValue && parameter.In.Value == ParameterLocation.Query && parameter.Schema?.Type == "array")
+                        //{                            
+                        //    parameter.Explode = false;
+                        //    parameter.In = ParameterLocation.Path;
+                        //    //parameter.Schema.Extensions.Add("collectionFormat", new OpenApiString("multi"));
+                        //}
+                        break;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Adds OData query parameters.
         /// </summary>
         protected virtual void AddQueryParameters(SwaggerOperationHelper helper)
         {
@@ -273,12 +293,77 @@ namespace Smartstore.Web.Api.Swagger
             }
         }
 
-        protected virtual void RemoveParameters(SwaggerOperationHelper helper)
+        /// <summary>
+        /// Fixes Swashbuckle bugs. Works very poorly with OData.
+        /// </summary>
+        protected virtual void FixParameters(SwaggerOperationHelper helper)
         {
-            helper.Op.Parameters.Remove(param =>
-            {
-                var refId = param?.Schema?.Reference?.Id;
+            var isPost = helper.HttpMethod.EqualsNoCase("POST");
 
+            // OData actions: missing request body. FromODataBody parameters falsely offered as query parameters.
+            if (isPost && helper.ActionName.EqualsNoCase("GetFileByPath"))
+            {
+                //&& helper.Op.RequestBody == null
+                var odataBodyParams = helper.ActionDescriptor.Parameters
+                    .Select(p => p as ControllerParameterDescriptor)
+                    .Where(p => p?.ParameterInfo?.CustomAttributes?.Any(a => a.AttributeType == typeof(FromODataBodyAttribute)) ?? false)
+                    .ToList();
+
+                //$"GetFileByPath {helper.Op.RequestBody == null} {odataBodyParams.Count}".Dump();
+
+                if (odataBodyParams.Count > 0)
+                {
+                    var swaggerQueryParams = helper.Op.Parameters
+                        .Where(p => p.In == ParameterLocation.Query && odataBodyParams.Any(d => d.Name == p.Name))
+                        .ToDictionarySafe(p => p.Name, p => p);
+
+                    var required = new HashSet<string>();
+                    var properties = new Dictionary<string, OpenApiSchema>();
+                    foreach (var p in odataBodyParams)
+                    {
+                        if (swaggerQueryParams.TryGetValue(p.Name, out var swaggerParam))
+                        {
+                            properties[p.Name] = new OpenApiSchema
+                            {
+                                Type = "string",
+                                Description = swaggerParam.Description,
+                                Example = swaggerParam.Example
+                            };
+
+                            if (swaggerParam.Required)
+                            {
+                                required.Add(p.Name);
+                            }
+                        }
+                    }
+
+                    var bodyType = new OpenApiMediaType
+                    {
+                        Schema = new OpenApiSchema
+                        {
+                            Type = "object",
+                            Required = required,
+                            Properties = properties
+                        }
+                    };
+
+                    helper.Op.RequestBody = new OpenApiRequestBody
+                    {
+                        Content = new Dictionary<string, OpenApiMediaType>
+                        {
+                            { Json, bodyType }
+                        }
+                    };
+
+                    swaggerQueryParams.Each(p => helper.Op.Parameters.Remove(p.Value));
+                    //helper.Op.Parameters.Remove(p => p.In == ParameterLocation.Query && odataBodyParams.Any(d => d.Name == p.Name));
+                }
+            }
+
+            // Remove the ODataQueryOptions parameter. We already added OData query parameters for it (see AddQueryParameters).
+            helper.Op.Parameters.Remove(p =>
+            {
+                var refId = p?.Schema?.Reference?.Id;
                 return refId != null && _parameterTypesToRemove.Any(type => refId.StartsWithNoCase(type.FullName));
             });
         }
@@ -291,6 +376,38 @@ namespace Smartstore.Web.Api.Swagger
         {
             //if (helper.HttpMethod.EqualsNoCase("POST")
             //    && helper.ActionDescriptor.Parameters.Any(x => x.ParameterType == typeof(ODataActionParameters)))
+
+            if (helper.ActionName.EqualsNoCase("SaveFile"))
+            {
+                //var mediaType = new OpenApiMediaType
+                //{
+                //    Schema = new OpenApiSchema
+                //    {
+                //        Type = "object",
+                //        Required = new HashSet<string> { "File" },
+                //        Properties = new Dictionary<string, OpenApiSchema>
+                //        {
+                //            {
+                //                "File", new OpenApiSchema
+                //                {
+                //                    Type = "string",
+                //                    Format = "binary"
+                //                }
+                //            }
+                //        }
+                //    }
+                //};
+
+                //var content = new Dictionary<string, OpenApiMediaType>
+                //{
+                //    { "multipart/form-data", mediaType }
+                //};
+
+                //helper.Op.RequestBody = new OpenApiRequestBody
+                //{
+                //    Content = content
+                //};
+            }
 
             var body = helper.Op.RequestBody;
             if (body == null)

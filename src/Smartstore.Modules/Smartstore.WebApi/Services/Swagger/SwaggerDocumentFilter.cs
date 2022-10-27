@@ -59,14 +59,14 @@ namespace Smartstore.Web.Api.Swagger
 
             foreach (var item in swaggerDoc.Paths)
             {
-                //$"{item.Key} {string.Join(",", item.Value.Operations.Select(x => x.Key))}".Dump();
-
                 var path = item.Key;
                 var removePath = path.EqualsNoCase(routeTemplate) || _pathsToIgnore.IsMatch(path);
                 if (removePath)
                 {
                     swaggerDoc.Paths.Remove(path);
                 }
+
+                //$"{removePath} {item.Key} {string.Join(",", item.Value.Operations.Select(x => x.Key))}".Dump();
             }
         }
     }

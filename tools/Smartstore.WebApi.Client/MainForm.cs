@@ -155,28 +155,35 @@ namespace Smartstore.WebApi.Client
                 }
             }
 
-            var response = await WebApiClient.StartRequestAsync(request, cboContent.Text, uploadModel);
-            txtRequest.Text = response.RequestContent.ToString();
-            lblResponse.Text = "Response: " + response.Status;
-
-            var sb = new StringBuilder();
-            sb.Append(response.Headers);
-
-            if (response.Succeeded)
+            try
             {
-                var customers = response.ParseCustomers();
-                if (customers != null)
-                {
-                    sb.AppendLine();
-                    sb.AppendLine($"Parsed {customers.Count} customer(s):");
-                    customers.ForEach(x => sb.AppendLine(x.ToString()));
-                    sb.AppendLine();
-                }
-            }
+                var response = await WebApiClient.StartRequestAsync(request, cboContent.Text, uploadModel);
+                txtRequest.Text = response.RequestContent.ToString();
+                lblResponse.Text = "Response: " + response.Status;
 
-            sb.AppendLine();
-            sb.Append(response.Content);
-            txtResponse.Text = sb.ToString();
+                var sb = new StringBuilder();
+                sb.Append(response.Headers);
+
+                if (response.Succeeded)
+                {
+                    var customers = response.ParseCustomers();
+                    if (customers != null)
+                    {
+                        sb.AppendLine();
+                        sb.AppendLine($"Parsed {customers.Count} customer(s):");
+                        customers.ForEach(x => sb.AppendLine(x.ToString()));
+                        sb.AppendLine();
+                    }
+                }
+
+                sb.AppendLine();
+                sb.Append(response.Content);
+                txtResponse.Text = sb.ToString();
+            }
+            catch (Exception ex)
+            {
+                txtResponse.Text = ex.ToString();
+            }
 
             cboPath.InsertRolled(cboPath.Text, 64);
             cboQuery.InsertRolled(cboQuery.Text, 64);

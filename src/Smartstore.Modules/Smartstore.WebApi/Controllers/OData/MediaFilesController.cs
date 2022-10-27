@@ -1,16 +1,14 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.Globalization;
-using System.Net;
+﻿using System.Globalization;
 using System.Net.Http.Headers;
-using Autofac.Core;
 using Microsoft.AspNetCore.OData.Formatter;
 using Microsoft.AspNetCore.OData.Query;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.OData.ModelBuilder.Core.V1;
+using Newtonsoft.Json;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Content.Media;
 using Smartstore.IO;
 using Smartstore.Web.Api.Models.OData.Media;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace Smartstore.Web.Api.Controllers.OData
 {
@@ -45,7 +43,6 @@ namespace Smartstore.Web.Api.Controllers.OData
             return Ok(result);
         }
 
-        /// <param name="key">The MediaFile identifier.</param>
         [HttpGet, ApiQueryable]
         public async Task<IActionResult> Get(int key, ODataQueryOptions<MediaFile> options)
         {
@@ -94,19 +91,21 @@ namespace Smartstore.Web.Api.Controllers.OData
         /// <summary>
         /// Gets a file by path.
         /// </summary>
-        /// <param name="parameters">Contains the path of the file to be found.</param>
-        [HttpPost, ApiQueryable]
-        [ApiConsumes(MediaTypeNames.Application.Json, "{ \"Path\": \"content/my-file.jpg\" }")]
-        [Produces(MediaTypeNames.Application.Json)]
+        /// <param name="path" example="content/my-file.jpg">The path of the file to get.</param>
+        [HttpPost("MediaFiles/GetFileByPath"), ApiQueryable]
+        //[ApiConsumes(Json, "{ \"path\": \"content/my-file.jpg\" }")]
+        [Consumes(Json)]
+        [Produces(Json)]
         [ProducesResponseType(typeof(FileItemInfo), Status200OK)]
         [ProducesResponseType(Status400BadRequest)]
         [ProducesResponseType(Status404NotFound)]
         [ProducesResponseType(Status422UnprocessableEntity)]
-        public async Task<IActionResult> GetFileByPath(ODataActionParameters parameters, ODataQueryOptions<MediaFile> options)
+        //public async Task<IActionResult> GetFileByPath(ODataActionParameters parameters, ODataQueryOptions<MediaFile> options)
+        public async Task<IActionResult> GetFileByPath([FromODataBody] string path, ODataQueryOptions<MediaFile> options)
         {
             try
             {
-                var path = parameters.GetValueSafe<string>("Path");
+                //var path = parameters.GetValueSafe<string>("Path");
                 var flags = GetLoadFlags(options);
                 var file = await _mediaService.GetFileByPathAsync(path, flags);
 
@@ -123,12 +122,13 @@ namespace Smartstore.Web.Api.Controllers.OData
             }
         }
 
+        // TODO: (mg) (core) Array of ids does not work in Swagger. Bug: https://github.com/domaindrivendev/Swashbuckle.AspNetCore/issues/1394
+
         /// <summary>
         /// Gets files by identifiers.
         /// </summary>
-        /// <param name="ids">Comma separated list of file identifiers.</param>
         [HttpGet("MediaFiles/GetFilesByIds(Ids={ids})"), ApiQueryable]
-        [Produces(MediaTypeNames.Application.Json)]
+        [Produces(Json)]
         [ProducesResponseType(typeof(IEnumerable<FileItemInfo>), Status200OK)]
         [ProducesResponseType(Status400BadRequest)]
         [ProducesResponseType(Status422UnprocessableEntity)]
@@ -156,7 +156,6 @@ namespace Smartstore.Web.Api.Controllers.OData
         /// <summary>
         /// Downloads a file.
         /// </summary>
-        /// <param name="id">The MediaFile identifier.</param>
         [HttpGet("MediaFiles/Download(Id={id})")]
         [ProducesResponseType(Status200OK)]
         [ProducesResponseType(Status400BadRequest)]
@@ -335,7 +334,6 @@ namespace Smartstore.Web.Api.Controllers.OData
         /// <summary>
         /// Moves a file.
         /// </summary>
-        /// <param name="key">The MediaFile identifier.</param>
         /// <param name="parameters">Contains the new file name and a duplicate file handling flag (optional).</param>
         [HttpPost, ApiQueryable]
         [Permission(Permissions.Media.Update)]
@@ -370,7 +368,6 @@ namespace Smartstore.Web.Api.Controllers.OData
         /// <summary>
         /// Copies a file.
         /// </summary>
-        /// <param name="key">The MediaFile identifier.</param>
         /// <param name="parameters">Contains the new file name and a duplicate file handling flag (optional).</param>
         [HttpPost, ApiQueryable]
         [Permission(Permissions.Media.Update)]
@@ -413,7 +410,6 @@ namespace Smartstore.Web.Api.Controllers.OData
         /// <summary>
         /// Deletes a file.
         /// </summary>
-        /// <param name="key">The MediaFile identifier.</param>
         /// <param name="parameters">Contains a value indicating whether the file should be deleted permanently.</param>
         [HttpPost]
         [Permission(Permissions.Media.Delete)]
@@ -453,7 +449,7 @@ namespace Smartstore.Web.Api.Controllers.OData
         /// </summary>
         [HttpPost, ApiQueryable]
         [Permission(Permissions.Media.Upload)]
-        [Consumes("multipart/form-data")]
+        [ApiConsumes("multipart/form-data")]
         [Produces(MediaTypeNames.Application.Json)]
         [ProducesResponseType(typeof(FileItemInfo), Status200OK)]
         [ProducesResponseType(Status400BadRequest)]
@@ -470,27 +466,28 @@ namespace Smartstore.Web.Api.Controllers.OData
             {
                 if (Request.Form.Files.Count == 0)
                 {
-                    ModelState.AddModelError("File", "Missing multipart file data.");
+                    return BadRequest("Missing multipart file data.");
                 }
                 if (Request.Form.Files.Count > 1)
                 {
-                    ModelState.AddModelError("File", "Send one file per request, not multiple.");
+                    return BadRequest("Send one file per request, not multiple.");
                 }
 
                 var file = Request.Form.Files[0];
 
                 if (file.ContentDisposition.IsEmpty())
                 {
-                    ModelState.AddModelError("File", "Missing file parameters in content-disposition header.");
-                }
-                if (!ModelState.IsValid)
-                {
-                    return BadRequest(ModelState);
+                    return BadRequest("Missing file parameters in content-disposition header.");
                 }
 
                 var cd = ContentDispositionHeaderValue.Parse(file.ContentDisposition);
-                var path = cd.GetParameterValue<string>("Path");
                 var isTransient = cd.GetParameterValue("IsTransient", true);
+                var path = cd.GetParameterValue<string>("Path");
+
+                if (path.IsEmpty() && file.FileName.HasValue())
+                {
+                    path = $"{SystemAlbumProvider.Files}/{file.FileName}";
+                }
 
                 var rawDuplicateFileHandling = cd.GetParameterValue<string>("DuplicateFileHandling");
                 _ = Enum.TryParse<DuplicateFileHandling>(rawDuplicateFileHandling.EmptyNull(), out var duplicateFileHandling);

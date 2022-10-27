@@ -35,7 +35,6 @@ namespace Smartstore.Web.Api.Controllers.OData
             return Ok(folders);
         }
 
-        /// <param name="key">The MediaFolder identifier.</param>
         [HttpGet, ApiQueryable]
         public IActionResult Get(int key)
         {

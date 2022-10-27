@@ -5,12 +5,20 @@ using Microsoft.AspNetCore.OData.Query;
 using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
 using Smartstore.ComponentModel;
+using Smartstore.Core.Content.Media;
+using Smartstore.Web.Api.Models.OData.Media;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Smartstore.Web.Api.Swagger
 {
     internal class SwaggerOperationHelper
     {
+        private static readonly Dictionary<string, string> _entityAliasNames = new(StringComparer.OrdinalIgnoreCase)
+        {
+            { nameof(FileItemInfo), "file" },
+            { nameof(FolderNodeInfo), "folder" }
+        };
+
         public SwaggerOperationHelper(OpenApiOperation operation, OperationFilterContext context)
         {
             Op = operation;
@@ -28,6 +36,12 @@ namespace Smartstore.Web.Api.Swagger
 
         public Type EntityType
             => Context.MethodInfo.DeclaringType.BaseType.GenericTypeArguments[0];
+
+        public string EntityAliasName
+            => _entityAliasNames.TryGetValue(EntityType.Name, out var mappedName) ? mappedName : EntityType.Name;
+
+        public bool HasAliasName
+            => _entityAliasNames.ContainsKey(EntityType.Name);
 
         public bool HasKeyParameter
             => Context.ApiDescription.ActionDescriptor.Parameters.Any(x => x.Name.EqualsNoCase("key"));
@@ -54,10 +68,10 @@ namespace Smartstore.Web.Api.Swagger
             switch (ActionName)
             {
                 case "Post":
-                    description = $"All required fields must be provided in order to successfully create a new {EntityType.Name}.";
+                    description = $"All required fields must be provided in order to successfully create a new {EntityAliasName}.";
                     break;
                 case "Put":
-                    description = $"All required fields must be provided in order to successfully update a {EntityType.Name}.";
+                    description = $"All required fields must be provided in order to successfully update a {EntityAliasName}.";
                     break;
                 case "Patch":
                     required = false;
@@ -84,18 +98,23 @@ namespace Smartstore.Web.Api.Swagger
             entityType ??= EntityType;
             var modelType = isSingleResult ? entityType : typeof(IQueryable<>).MakeGenericType(entityType);
 
-            var returnStr = isSingleResult
-                ? $"Returns details of {entityType.Name}."
-                : $"Returns a list of {entityType.Name}.";
+            var description = "The request has succeeded.";
+
+            if (!HasAliasName)
+            {
+                description += isSingleResult
+                    ? $" Returns details of {entityType.Name}."
+                    : $" Returns a list of {entityType.Name}.";
+            }
 
             if (ActionName == "Put" || ActionName == "Patch")
             {
-                returnStr += " This response is only returned if the HTTP header **Prefer** with the value **return=representation** is sent.";
+                description += " This response is only returned if the HTTP header **Prefer** with the value **return=representation** is sent.";
             }
 
             return new OpenApiResponse
             {
-                Description = $"The request has succeeded. {returnStr}",
+                Description = description,
                 Content = new Dictionary<string, OpenApiMediaType>
                 {
                     [MediaTypeNames.Application.Json] = new OpenApiMediaType
@@ -140,9 +159,6 @@ namespace Smartstore.Web.Api.Swagger
                 In = ParameterLocation.Path,
                 Schema = GenerateSchema(typeof(int))
             };
-
-            parameter.Description ??= $"The {EntityType.Name} identifier.";
-            parameter.Example ??= new OpenApiInteger(12345);
 
             if (addParameter)
             {
