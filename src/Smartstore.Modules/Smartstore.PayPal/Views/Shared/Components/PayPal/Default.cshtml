@@ -8,16 +8,13 @@
 @*INFO: No target zone here as can also be rendered via AJAX*@
 <script data-origin="paypal-button">
     $(function () {
-        // TODO: (mh) (core) Remove monitoring console.logs
         if (typeof paypal !== 'undefined') {
             initPayPal();
-            console.log("document ready");
         }
         else {
             var script = document.getElementById("paypal-js");
             script.onload = function () {
                 initPayPal()
-                console.log("script include ready");
             };
         }    
     });
