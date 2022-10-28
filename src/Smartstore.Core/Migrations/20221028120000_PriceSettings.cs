@@ -28,6 +28,8 @@ namespace Smartstore.Core.Data.Migrations
         /// </summary>
         private static async Task MigrateSettingsAsync(SmartDbContext db, CancellationToken cancelToken = default)
         {
+            // TODO: (mh) (core) localized seeding of OfferBadgeLabel and LimitedOfferBadgeLabel missing.
+
             // Move some settings from CatalogSettings to PriceSettings class
             var moveSettingProps = new[]
             {
