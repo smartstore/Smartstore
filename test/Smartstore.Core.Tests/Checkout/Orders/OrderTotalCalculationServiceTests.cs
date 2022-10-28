@@ -86,6 +86,7 @@ namespace Smartstore.Core.Tests.Checkout.Orders
 
             _rewardPointsSettings = new RewardPointsSettings();
             _catalogSettings = new CatalogSettings();
+            _priceSettings = new PriceSettings();
             _taxSettings = new TaxSettings
             {
                 ShippingPriceIncludesTax = false,

@@ -5,7 +5,7 @@ using Smartstore.Data.Migrations;
 namespace Smartstore.Core.Data.Migrations
 {
     [MigrationVersion("2022-10-28 12:00:00", "Core: PriceSettings")]
-    internal class PriceSettings : Migration, IDataSeeder<SmartDbContext>
+    internal class PriceSettingsMigration : Migration, ILocaleResourcesProvider, IDataSeeder<SmartDbContext>
     {
         public override void Up()
         {
@@ -23,112 +23,118 @@ namespace Smartstore.Core.Data.Migrations
             await MigrateSettingsAsync(context, cancelToken);
         }
 
-        public async Task MigrateSettingsAsync(SmartDbContext context, CancellationToken cancelToken = default)
+        /// <summary>
+        /// Moves some setting properties from CatalogSettings to PriceSettings class.
+        /// </summary>
+        private static async Task MigrateSettingsAsync(SmartDbContext db, CancellationToken cancelToken = default)
         {
-            var settings = context.Set<Setting>();
-
-            await MigrateSettingAsync(settings, "CatalogSettings.ShowBasePriceInProductLists", "PriceSettings.ShowBasePriceInProductLists", cancelToken);
-            await MigrateSettingAsync(settings, "CatalogSettings.ShowVariantCombinationPriceAdjustment", "PriceSettings.ShowVariantCombinationPriceAdjustment", cancelToken);
-            await MigrateSettingAsync(settings, "CatalogSettings.ShowLoginForPriceNote", "PriceSettings.ShowLoginForPriceNote", cancelToken);
-            await MigrateSettingAsync(settings, "CatalogSettings.BundleItemShowBasePrice", "PriceSettings.BundleItemShowBasePrice", cancelToken);
-            await MigrateSettingAsync(settings, "CatalogSettings.ShowDiscountSign", "PriceSettings.ShowDiscountSign", cancelToken);
-            await MigrateSettingAsync(settings, "CatalogSettings.PriceDisplayStyle", "PriceSettings.PriceDisplayStyle", cancelToken);
-            await MigrateSettingAsync(settings, "CatalogSettings.PriceDisplayType", "PriceSettings.PriceDisplayType", cancelToken);
-            await MigrateSettingAsync(settings, "CatalogSettings.DisplayTextForZeroPrices", "PriceSettings.DisplayTextForZeroPrices", cancelToken);
-            await MigrateSettingAsync(settings, "CatalogSettings.IgnoreDiscounts", "PriceSettings.IgnoreDiscounts", cancelToken);
-            await MigrateSettingAsync(settings, "CatalogSettings.ApplyPercentageDiscountOnTierPrice", "PriceSettings.ApplyPercentageDiscountOnTierPrice", cancelToken);
-            await MigrateSettingAsync(settings, "CatalogSettings.ApplyTierPricePercentageToAttributePriceAdjustments", "PriceSettings.ApplyTierPricePercentageToAttributePriceAdjustments", cancelToken);
-
-            await context.SaveChangesAsync(cancelToken);
-        }
-
-        private async Task MigrateSettingAsync(
-            DbSet<Setting> dbSetSettings,
-            string oldSettingName,
-            string newSettingName,
-            CancellationToken cancelToken = default)
-        {
-            var settings = await dbSetSettings.Where(x => x.Name == oldSettingName).ToListAsync(cancelToken);
-
-            foreach (var setting in settings)
+            // Move some settings from CatalogSettings to PriceSettings class
+            var moveSettingProps = new[]
             {
-                dbSetSettings.Add(new Setting { Name = newSettingName, Value = setting.Value, StoreId = setting.StoreId });
+                "ShowBasePriceInProductLists",
+                "ShowVariantCombinationPriceAdjustment",
+                "ShowLoginForPriceNote",
+                "BundleItemShowBasePrice",
+                "ShowDiscountSign",
+                "PriceDisplayStyle",
+                "PriceDisplayType",
+                "DisplayTextForZeroPrices",
+                "IgnoreDiscounts",
+                "ApplyPercentageDiscountOnTierPrice",
+                "ApplyTierPricePercentageToAttributePriceAdjustments"
+            };
+            
+            foreach (var propName in moveSettingProps)
+            {
+                await MoveSettingAsync(db, propName);
             }
 
-            if (settings.Count > 0)
+            await db.SaveChangesAsync(cancelToken);
+        }
+
+        private static async Task MoveSettingAsync(SmartDbContext db, string propName)
+        {
+            var sourceSettings = await db.Settings.Where(x => x.Name == $"CatalogSettings.{propName}").ToListAsync();
+
+            foreach (var setting in sourceSettings)
             {
-                dbSetSettings.RemoveRange(settings);
+                db.Settings.Add(new Setting { Name = $"PriceSettings.{propName}", Value = setting.Value, StoreId = setting.StoreId });
+            }
+
+            if (sourceSettings.Count > 0)
+            {
+                db.Settings.RemoveRange(sourceSettings);
             }
         }
 
         public void MigrateLocaleResources(LocaleResourcesBuilder builder)
         {
-            builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.PriceSettings", "Prices", "Preise");
+            // TODO: (mh) (core) Move resources also (Admin.Configuration.Settings.Catalog.* --> Admin.Configuration.Settings.Price.*)
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.Price", "Prices", "Preise");
             
             // TODO: (mh) (core) Check all of these again.
-            builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.DefaultComparePriceLabelId",
-                "Default compare price label",
-                "Standardpreis-Label für den Vergleichspreis",
-                "The default price label for product compare prices. Takes effect when a product does not define the compare price label.",
-                "Das Standardpreis-Label für Vergleichspreise. Tritt in Kraft, wenn für ein Produkt kein Vergleichspreis-Label definiert ist.");
+            builder.AddOrUpdate("Admin.Configuration.Settings.Price.DefaultComparePriceLabelId",
+                "Default \"Compare Price\" label",
+                "Standard Label für den Vergleichspreis",
+                "Takes effect when a product does not define the \"Compare Price\" label.",
+                "Wird wirksam, wenn für ein Produkt kein Vergleichspreis-Label ausgewählt ist.");
 
-            builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.DefaultRegularPriceLabelId",
-                "Default regular price label",
-                "Standardpreis-Label für den regulären Preis",
-                "The default price label to use for the crossed out regular price. Takes effect when there is an offer or a discount has been applied to a product.",
-                "Das Standardpreis-Label, das für den durchgestrichenen regulären Preis verwendet wird. Tritt in Kraft, wenn es einen Aktionspreis gibt oder ein Rabatt auf ein Produkt angewendet wurde.");
+            builder.AddOrUpdate("Admin.Configuration.Settings.Price.DefaultRegularPriceLabelId",
+                "Default \"Regular Price\" label",
+                "Standard Label für den regulären Preis",
+                "The default price label to use for the crossed out regular price. Takes effect when there is an offer, or a discount has been applied to a product.",
+                "Das Standard Label, das für den durchgestrichenen regulären Preis verwendet werden soll. Wird wirksam, wenn es einen Aktionspreis gibt oder ein Rabatt auf ein Produkt angewendet wurde.");
 
-            builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.OfferPriceReplacesRegularPrice",
-                "Offer price replaces regular price",
+            builder.AddOrUpdate("Admin.Configuration.Settings.Price.OfferPriceReplacesRegularPrice",
+                "Special price replaces regular price",
                 "Aktionspreis ersetzt regulären Preis",
-                "If set to true the special offer price just replaces the regular price as if there was no offer. If set to false, the regular price will be displayed crossed out.",
-                "Bei Ja ersetzt der Preis des Sonderangebots einfach den regulären Preis, als ob es kein Angebot gäbe. Bei Nein wird der reguläre Preis durchgestrichen angezeigt.");
+                "If active the special offer price just replaces the regular price as if there was no offer. If inactive, the regular price will be displayed crossed out.",
+                "Wenn aktiv, ersetzt der Aktionspreis einfach den regulären Preis als ob es kein Angebot gäbe. Wenn inaktiv, wird der reguläre Preis durchgestrichen dargestellt.");
 
-            builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.AlwaysDisplayRetailPrice",
+            builder.AddOrUpdate("Admin.Configuration.Settings.Price.AlwaysDisplayRetailPrice",
                 "Always display retail price",
                 "Immer den UVP anzeigen",
-                "If set to true, the MSRP will be displayed in product detail even if there is already an offer or a discount. " +
+                "If active, the MSRP will be displayed in product detail even if there is already an offer or a discount. " +
                 "In this case the MSRP will appear as another crossed out price alongside the discounted price.",
-                "Wenn diese Option auf Ja gesetzt ist, wird der MSRP in den Produktdetails angezeigt, auch wenn es bereits ein Angebot oder einen Rabatt gibt. " +
-                "In diesem Fall wird der MSRP als weiterer durchgestrichener Preis neben dem rabattierten Preis angezeigt.");
+                "Wenn aktiv, wird der UVP in den Produktdetails angezeigt, auch wenn es bereits eine Preisermäßigung gibt. " +
+                "In diesem Fall wird der UVP als weiterer durchgestrichener Preis angezeigt.");
 
-            builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.ShowOfferCountdownRemainingHours",
-                "Show offer countdown remaining hours",
-                "Verbleibende Stunden des Angebots anzeigen",
-                "Sets remaining time (in hours) of the offer from which a countdown should be displayed in product detail, e.g. ends in 3 hours, 23 min. " +
-                "To hide the countdown, unset this setting. " +
-                "Only applies to limited time offers with a defined end date.",
-                "Legt die verbleibende Zeit (in Stunden) des Angebots fest, ab der ein Countdown im Produktdetail angezeigt werden soll, z.B. endet in 3 Stunden, 23 Minuten. " +
-                "Um den Countdown auszublenden, deaktivieren Sie diese Einstellung. " +
-                "Gilt nur für zeitlich begrenzte Angebote mit einem definierten Enddatum.");
+            builder.AddOrUpdate("Admin.Configuration.Settings.Price.ShowOfferCountdownRemainingHours",
+                "Remaining offer time after which a countdown should be displayed",
+                "Angebots Restzeit, ab der ein Countdown angezeigt werden soll",
+                "Sets remaining time (in hours) of the offer from which a countdown should be displayed in product detail, e.g. \"ends in 3 hours, 23 min.\". " +
+                "To hide the countdown, don't enter anything. " +
+                "Only applies to limited time offers with an end date.",
+                "Legt die verbleibende Zeit (in Stunden) eines Angebotes fest, ab der ein Countdown im Produktdetail angezeigt werden soll, z.B. \"endet in 3 Stunden, 23 Min.\" " +
+                "Um den Countdown auszublenden, lassen Sie das Feld leer. " +
+                "Gilt nur für zeitlich begrenzte Angebote mit einem Enddatum.");
 
-            builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.ShowOfferBadge",
+            builder.AddOrUpdate("Admin.Configuration.Settings.Price.ShowOfferBadge",
                 "Show offer badge",
-                "Zeige Label für Angebot",
-                "Specifies whether to display a badge if an offer price is active.",
-                "Legt fest, ob ein Badge angezeigt werden soll, wenn ein Angebotspreis vorhanden ist.");
+                "Zeige Badge für Angebote",
+                "Displays a badge if a promotional price is active.",
+                "Zeigt ein Promo Badge an, wenn ein Angebotspreis aktiv ist.");
 
-            builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.OfferBadgeLabel",
+            builder.AddOrUpdate("Admin.Configuration.Settings.Price.OfferBadgeLabel",
                 "Offer badge label",
-                "Text für Angebotslabel",
-                "The label of the offer badge, e.g. Deal",
-                "Label für den Angebotspreis z.B. Deal");
+                "Angebots-Badge Text",
+                "The label of the offer badge, e.g. \"Deal\"",
+                "Text für das Angebots-Badge, z.B. \"Deal\"");
 
-            builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.OfferBadgeStyle",
+            builder.AddOrUpdate("Admin.Configuration.Settings.Price.OfferBadgeStyle",
                 "Offer badge style",
-                "Badge-Style für Angebot");
+                "Angebots-Badge Stil");
 
-            builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.LimitedOfferBadgeLabel",
+            builder.AddOrUpdate("Admin.Configuration.Settings.Price.LimitedOfferBadgeLabel",
                 "Limited offer badge label",
-                "Label für zeitlich begrenztes Angebot",
-                "The label of the offer badge if the offer is limited, e.g. Limited time deal",
-                "Das Label der Badge, wenn das Angebot zeitlich begrenzt ist, z. B. Befristetes Angebot");
+                "Angebots-Badge Text für zeitlich begrenztes Angebot",
+                "The label of the offer badge if the offer is limited, e.g. \"Limited time deal\"",
+                "Text für das Angebots-Badge, wenn das Angebot zeitlich befristet ist, z. B. \"Befristetes Angebot\" oder \"Nur noch kurze Zeit\"");
 
-            builder.AddOrUpdate("Admin.Configuration.Settings.Catalog.LimitedOfferBadgeStyle",
+            builder.AddOrUpdate("Admin.Configuration.Settings.Price.LimitedOfferBadgeStyle",
                 "Limited offer badge style",
-                "Badge-Style für zeitlich begrenztes Angebot",
-                "The style of the limited time offer badge.",
-                "Badge-Style des Labels für das zeitlich begrenzte Angebot.");
+                "Angebots-Badge Stil für zeitlich begrenztes Angebot");
         }
     }
 }

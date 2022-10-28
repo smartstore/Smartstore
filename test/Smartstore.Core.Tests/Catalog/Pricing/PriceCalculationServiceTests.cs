@@ -110,6 +110,7 @@ namespace Smartstore.Core.Tests.Catalog.Pricing
             currencyServiceMock.Setup(x => x.PrimaryExchangeCurrency).Returns(_currency);
 
             _catalogSettings = new CatalogSettings();
+            _priceSettings = new PriceSettings();
             _taxSettings = new TaxSettings();
 
             // INFO: no mocking here to use real implementation.

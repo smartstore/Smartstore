@@ -14,14 +14,12 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
     {
         private readonly SmartDbContext _db;
         private readonly IDiscountService _discountService;
-        private readonly CatalogSettings _catalogSettings;
         private readonly PriceSettings _priceSettings;
 
-        public DiscountPriceCalculator(SmartDbContext db, IDiscountService discountService, CatalogSettings catalogSettings, PriceSettings priceSettings)
+        public DiscountPriceCalculator(SmartDbContext db, IDiscountService discountService, PriceSettings priceSettings)
         {
             _db = db;
             _discountService = discountService;
-            _catalogSettings = catalogSettings;
             _priceSettings = priceSettings;
         }
 

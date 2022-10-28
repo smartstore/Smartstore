@@ -1,13 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
-using Smartstore.Core.Catalog.Pricing;
-using Smartstore.Core.Checkout.Payment;
-using Smartstore.Core.Localization;
+﻿using Smartstore.Core.Catalog.Pricing;
 
 namespace Smartstore.Admin.Models
 {
-    [LocalizedDisplay("Admin.Configuration.Settings.Catalog.")]
+    [LocalizedDisplay("Admin.Configuration.Settings.Price.")]
     public class PriceSettingsModel : ModelBase
     {
+        #region Moved from CatalogSettings
+
         [LocalizedDisplay("*ShowBasePriceInProductLists")]
         public bool ShowBasePriceInProductLists { get; set; }
 
@@ -41,7 +40,9 @@ namespace Smartstore.Admin.Models
         [LocalizedDisplay("*ApplyTierPricePercentageToAttributePriceAdjustments")]
         public bool ApplyTierPricePercentageToAttributePriceAdjustments { get; set; }
 
-        // NEW
+        #endregion
+
+        #region New in V5.0.1
 
         [LocalizedDisplay("*DefaultComparePriceLabelId")]
         public int? DefaultComparePriceLabelId { get; set; }
@@ -72,5 +73,7 @@ namespace Smartstore.Admin.Models
 
         [LocalizedDisplay("*LimitedOfferBadgeStyle")]
         public int LimitedOfferBadgeStyle { get; set; }
+
+        #endregion
     }
 }
