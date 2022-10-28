@@ -204,7 +204,6 @@ namespace Smartstore.Core.Tests
         protected List<Lazy<IPriceCalculator, PriceCalculatorMetadata>> GetPriceCalculators(
             IPriceCalculatorFactory priceCalculatorFactory,
             IDiscountService discountService,
-            CatalogSettings catalogSettings,
             PriceSettings priceSettings)
         {
             var calculators = new List<Lazy<IPriceCalculator, PriceCalculatorMetadata>>();
@@ -220,7 +219,7 @@ namespace Smartstore.Core.Tests
 
             var discountPriceCalculator =
                 new Lazy<IPriceCalculator, PriceCalculatorMetadata>(() =>
-                    new DiscountPriceCalculator(DbContext, discountService, catalogSettings, priceSettings),
+                    new DiscountPriceCalculator(DbContext, discountService, priceSettings),
                     new() { ValidTargets = CalculatorTargets.All, Order = CalculatorOrdering.Late });
 
             var groupedProductPriceCalculator =

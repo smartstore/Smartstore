@@ -139,7 +139,7 @@ namespace Smartstore.Core.Tests.Checkout.Orders
             _taxCalculator = new TaxCalculator(DbContext, _workContext, _taxService, _taxSettings);
 
             // INFO: Create real instance of PriceCalculatorFactory with own instances of Calculators
-            _priceCalculatorFactory = new PriceCalculatorFactory(_requestCache, base.GetPriceCalculators(_priceCalculatorFactory, _discountService, _catalogSettings, _priceSettings));
+            _priceCalculatorFactory = new PriceCalculatorFactory(_requestCache, base.GetPriceCalculators(_priceCalculatorFactory, _discountService, _priceSettings));
 
             _shippingService = new ShippingService(
                 _productAttributeMaterializer,
@@ -161,7 +161,6 @@ namespace Smartstore.Core.Tests.Checkout.Orders
                 _productAttributeMaterializer,
                 _taxService,
                 _currencyService,
-                _catalogSettings,
                 _priceSettings,
                 _taxSettings);
 

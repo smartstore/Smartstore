@@ -46,7 +46,6 @@ namespace Smartstore.Core.Tests.Catalog.Pricing
         ITaxService _taxService;
         IRequestCache _requestCache;
 
-        CatalogSettings _catalogSettings;
         PriceSettings _priceSettings;
         TaxSettings _taxSettings;
         Store _store;
@@ -109,7 +108,6 @@ namespace Smartstore.Core.Tests.Catalog.Pricing
             currencyServiceMock.Setup(x => x.PrimaryCurrency).Returns(_currency);
             currencyServiceMock.Setup(x => x.PrimaryExchangeCurrency).Returns(_currency);
 
-            _catalogSettings = new CatalogSettings();
             _priceSettings = new PriceSettings();
             _taxSettings = new TaxSettings();
 
@@ -117,7 +115,7 @@ namespace Smartstore.Core.Tests.Catalog.Pricing
             _taxCalculator = new TaxCalculator(DbContext, _workContext, _taxService, _taxSettings);
 
             // INFO: Create real instance of PriceCalculatorFactory with own instances of Calculators
-            _priceCalculatorFactory = new PriceCalculatorFactory(_requestCache, base.GetPriceCalculators(_priceCalculatorFactory, _discountService, _catalogSettings, _priceSettings));
+            _priceCalculatorFactory = new PriceCalculatorFactory(_requestCache, base.GetPriceCalculators(_priceCalculatorFactory, _discountService, _priceSettings));
 
             _priceCalcService = new PriceCalculationService(
                 DbContext,
@@ -129,7 +127,6 @@ namespace Smartstore.Core.Tests.Catalog.Pricing
                 _productAttributeMaterializer,
                 _taxService,
                 _currencyService,
-                _catalogSettings,
                 _priceSettings,
                 _taxSettings);
         }

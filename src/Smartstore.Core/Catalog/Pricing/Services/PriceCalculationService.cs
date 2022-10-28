@@ -24,7 +24,6 @@ namespace Smartstore.Core.Catalog.Pricing
         private readonly IProductAttributeMaterializer _productAttributeMaterializer;
         private readonly ITaxService _taxService;
         private readonly ICurrencyService _currencyService;
-        private readonly CatalogSettings _catalogSettings;
         private readonly PriceSettings _priceSettings;
         private readonly TaxSettings _taxSettings;
         private readonly Currency _primaryCurrency;
@@ -39,7 +38,6 @@ namespace Smartstore.Core.Catalog.Pricing
             IProductAttributeMaterializer productAttributeMaterializer,
             ITaxService taxService,
             ICurrencyService currencyService,
-            CatalogSettings catalogSettings,
             PriceSettings priceSettings,
             TaxSettings taxSettings)
         {
@@ -52,7 +50,6 @@ namespace Smartstore.Core.Catalog.Pricing
             _productAttributeMaterializer = productAttributeMaterializer;
             _taxService = taxService;
             _currencyService = currencyService;
-            _catalogSettings = catalogSettings;
             _priceSettings = priceSettings;
             _taxSettings = taxSettings;
 
