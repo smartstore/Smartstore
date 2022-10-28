@@ -44,6 +44,11 @@ namespace Smartstore.Core.Seo
         Task PrefetchUrlRecordsAsync(string entityName, int[] languageIds, int[] entityIds, bool isRange = false, bool isSorted = false, bool tracked = false);
 
         /// <summary>
+        /// Clears the prefetch cache that was populated by calls to <see cref="PrefetchUrlRecordsAsync(string, int[], int[], bool, bool, bool)"/>
+        /// </summary>
+        void ClearPrefetchCache();
+
+        /// <summary>
         /// Prefetches a collection of url record properties for a range of entities in one go.
         /// </summary>
         /// <param name="entityName">Entity name</param>

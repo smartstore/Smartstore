@@ -190,7 +190,7 @@ namespace Smartstore.Data
         {
             foreach (var entity in entries.Select(x => x.Entity).OfType<BaseEntity>())
             {
-                entity.ClearHookData();
+                entity.ClearHookState();
             }
         }
 

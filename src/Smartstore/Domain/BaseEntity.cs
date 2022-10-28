@@ -13,7 +13,7 @@ namespace Smartstore.Domain
     public abstract partial class BaseEntity : INamedEntity, IEquatable<BaseEntity>
     {
         private ILazyLoader _lazyLoader;
-        private List<object> _hookData;
+        private Dictionary<string, object> _hookState;
 
         protected BaseEntity()
         {
@@ -53,32 +53,35 @@ namespace Smartstore.Domain
         }
 
         /// <summary>
-        /// Adds custom data to the entity that can be accessed in hook implementations.
+        /// Adds custom state data to the entity that can be accessed in hook implementations.
         /// </summary>
         /// <remarks>The hook data bag is cleared after the entity was committed to the database.</remarks>
-        /// <param name="data">Hook data to add.</param>
-        public void AddHookData(object data)
+        /// <param name="state">Hook state data to add.</param>
+        public void AddHookState(string key, object state)
         {
-            Guard.NotNull(data, nameof(data));
+            Guard.NotEmpty(key, nameof(key));
+            Guard.NotNull(state, nameof(state));
             
-            _hookData ??= new();
-            _hookData.Add(data);
+            _hookState ??= new(StringComparer.OrdinalIgnoreCase);
+            _hookState[key] = state;
         }
 
         /// <summary>
-        /// Gets hook data of type <typeparamref name="T"/> associated with this entity.
+        /// Gets hook state data for the given <paramref name="key"/>.
         /// </summary>
-        public IEnumerable<T> GetHookData<T>()
+        public object GetHookState(string key)
         {
-            return _hookData?.OfType<T>() ?? Enumerable.Empty<T>();
+            Guard.NotEmpty(key, nameof(key));
+
+            return _hookState?.Get(key);
         }
 
         /// <summary>
         /// Clears the hook data bag associated with this entity.
         /// </summary>
-        public void ClearHookData()
+        public void ClearHookState()
         {
-            _hookData?.Clear();
+            _hookState?.Clear();
         }
 
         public override bool Equals(object obj)

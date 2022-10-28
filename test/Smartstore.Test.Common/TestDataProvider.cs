@@ -18,7 +18,7 @@ namespace Smartstore.Test.Common
             => DbSystemType.Unknown;
 
         public override bool MARSEnabled 
-            => throw new NotImplementedException();
+            => true;
 
         public override DbParameter CreateParameter()
             => throw new NotImplementedException();

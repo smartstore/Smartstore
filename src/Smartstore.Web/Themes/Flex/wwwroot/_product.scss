@@ -47,8 +47,13 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
 }
 
 
-// Picture
+// Gallery
 // =====================================================
+
+#pd-gallery-container {
+    position: sticky;
+    top: 4px;
+}
 
 .pd-picture {
     display: block;

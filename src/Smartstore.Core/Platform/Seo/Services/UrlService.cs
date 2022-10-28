@@ -306,6 +306,11 @@ namespace Smartstore.Core.Seo
             }
         }
 
+        public virtual void ClearPrefetchCache()
+        {
+            _prefetchedCollections.Clear();
+        }
+
         public virtual async Task<UrlRecordCollection> GetUrlRecordCollectionAsync(string entityName, int[] languageIds, int[] entityIds, bool isRange = false, bool isSorted = false, bool tracked = false)
         {
             Guard.NotEmpty(entityName, nameof(entityName));
