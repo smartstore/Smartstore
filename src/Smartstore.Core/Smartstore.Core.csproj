@@ -60,9 +60,4 @@
 			<_Parameter1>Smartstore.Web.Common</_Parameter1>
 		</AssemblyAttribute>
 	</ItemGroup>
-
-	<ItemGroup>
-	  <Folder Include="Catalog\Search\Settings\" />
-	</ItemGroup>
-
 </Project>

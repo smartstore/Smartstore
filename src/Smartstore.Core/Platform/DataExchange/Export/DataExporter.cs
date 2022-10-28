@@ -64,6 +64,7 @@ namespace Smartstore.Core.DataExchange.Export
         private readonly IHttpClientFactory _httpClientFactory;
 
         private readonly CatalogSettings _catalogSettings;
+        private readonly PriceSettings _priceSettings;
         private readonly MediaSettings _mediaSettings;
         private readonly SeoSettings _seoSettings;
         private readonly CustomerSettings _customerSettings;
@@ -91,6 +92,7 @@ namespace Smartstore.Core.DataExchange.Export
             IProviderManager providerManager,
             IHttpClientFactory httpClientFactory,
             CatalogSettings catalogSettings,
+            PriceSettings priceSettings,
             MediaSettings mediaSettings,
             SeoSettings seoSettings,
             CustomerSettings customerSettings,
@@ -118,6 +120,7 @@ namespace Smartstore.Core.DataExchange.Export
             _httpClientFactory = httpClientFactory;
 
             _catalogSettings = catalogSettings;
+            _priceSettings = priceSettings;
             _mediaSettings = mediaSettings;
             _seoSettings = seoSettings;
             _customerSettings = customerSettings;
@@ -1539,7 +1542,7 @@ namespace Smartstore.Core.DataExchange.Export
         {
             Guard.NotNull(batchContext, nameof(batchContext));
 
-            var priceDisplay = ctx.Projection.PriceType ?? _catalogSettings.PriceDisplayType;
+            var priceDisplay = ctx.Projection.PriceType ?? _priceSettings.PriceDisplayType;
             var options = _priceCalculationService.CreateDefaultOptions(false, ctx.ContextCustomer, ctx.ContextCurrency, batchContext);
 
             options.CheckDiscountValidity = true;

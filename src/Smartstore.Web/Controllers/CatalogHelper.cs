@@ -53,6 +53,7 @@ namespace Smartstore.Web.Controllers
         private readonly IStockSubscriptionService _stockSubscriptionService;
         private readonly MediaSettings _mediaSettings;
         private readonly CatalogSettings _catalogSettings;
+        private readonly PriceSettings _priceSettings;
         private readonly CustomerSettings _customerSettings;
         private readonly CaptchaSettings _captchaSettings;
         private readonly TaxSettings _taxSettings;
@@ -86,6 +87,7 @@ namespace Smartstore.Web.Controllers
             IStockSubscriptionService stockSubscriptionService,
             MediaSettings mediaSettings,
             CatalogSettings catalogSettings,
+            PriceSettings priceSettings,
             CustomerSettings customerSettings,
             CaptchaSettings captchaSettings,
             MeasureSettings measureSettings,
@@ -124,6 +126,7 @@ namespace Smartstore.Web.Controllers
             _deliveryTimeService = deliveryTimeService;
             _mediaSettings = mediaSettings;
             _catalogSettings = catalogSettings;
+            _priceSettings = priceSettings;
             _customerSettings = customerSettings;
             _captchaSettings = captchaSettings;
             _catalogSearchService = catalogSearchService;
@@ -584,8 +587,8 @@ namespace Smartstore.Web.Controllers
                     CompareEnabled = !isAssociatedProduct && _catalogSettings.CompareProductsEnabled,
                     TellAFriendEnabled = !isAssociatedProduct && _catalogSettings.EmailAFriendEnabled,
                     AskQuestionEnabled = !isAssociatedProduct && _catalogSettings.AskQuestionEnabled,
-                    PriceDisplayStyle = _catalogSettings.PriceDisplayStyle,
-                    DisplayTextForZeroPrices = _catalogSettings.DisplayTextForZeroPrices
+                    PriceDisplayStyle = _priceSettings.PriceDisplayStyle,
+                    DisplayTextForZeroPrices = _priceSettings.DisplayTextForZeroPrices
                 };
 
                 #region Bundles / Grouped products
@@ -858,7 +861,7 @@ namespace Smartstore.Web.Controllers
 
             model.WeightValue = product.Weight;
             model.IsBundlePart = product.ProductType != ProductType.BundledProduct && modelContext.ProductBundleItem != null;
-            model.ProductPrice.BundleItemShowBasePrice = _catalogSettings.BundleItemShowBasePrice;
+            model.ProductPrice.BundleItemShowBasePrice = _priceSettings.BundleItemShowBasePrice;
 
             // Attributes and attribute combination.
             await PrepareProductAttributesModelAsync(model, modelContext, selectedQuantity);
@@ -1041,7 +1044,7 @@ namespace Smartstore.Web.Controllers
                         {
                             valueModel.PriceAdjustmentValue = priceAdjustment.Price.Amount;
 
-                            if (_catalogSettings.ShowVariantCombinationPriceAdjustment && !product.CallForPrice)
+                            if (_priceSettings.ShowVariantCombinationPriceAdjustment && !product.CallForPrice)
                             {
                                 if (priceAdjustment.Price > 0)
                                 {
@@ -1211,7 +1214,7 @@ namespace Smartstore.Web.Controllers
                         value.IsPreSelected = selectedValueIds.Contains(value.Id);
                     }
 
-                    if (!_catalogSettings.ShowVariantCombinationPriceAdjustment)
+                    if (!_priceSettings.ShowVariantCombinationPriceAdjustment)
                     {
                         value.PriceAdjustment = string.Empty;
                     }
@@ -1439,7 +1442,7 @@ namespace Smartstore.Web.Controllers
 
             model.ProductPrice.ProductId = product.Id;
             model.ProductPrice.HidePrices = !modelContext.DisplayPrices;
-            model.ProductPrice.ShowLoginNote = !modelContext.DisplayPrices && productBundleItem == null && _catalogSettings.ShowLoginForPriceNote;
+            model.ProductPrice.ShowLoginNote = !modelContext.DisplayPrices && productBundleItem == null && _priceSettings.ShowLoginForPriceNote;
 
             if (!modelContext.DisplayPrices)
             {

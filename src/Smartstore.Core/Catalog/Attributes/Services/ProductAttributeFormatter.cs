@@ -21,6 +21,7 @@ namespace Smartstore.Core.Catalog.Attributes
         private readonly IPriceCalculationService _priceCalculationService;
         private readonly ShoppingCartSettings _shoppingCartSettings;
         private readonly CatalogSettings _catalogSettings;
+        private readonly PriceSettings _priceSettings;
 
         public ProductAttributeFormatter(
             SmartDbContext db,
@@ -30,7 +31,8 @@ namespace Smartstore.Core.Catalog.Attributes
             ILocalizationService localizationService,
             IPriceCalculationService priceCalculationService,
             ShoppingCartSettings shoppingCartSettings,
-            CatalogSettings catalogSettings)
+            CatalogSettings catalogSettings,
+            PriceSettings priceSettings)
         {
             _db = db;
             _workContext = workContext;
@@ -40,6 +42,7 @@ namespace Smartstore.Core.Catalog.Attributes
             _priceCalculationService = priceCalculationService;
             _shoppingCartSettings = shoppingCartSettings;
             _catalogSettings = catalogSettings;
+            _priceSettings = priceSettings;
         }
 
         public virtual async Task<string> FormatAttributesAsync(
@@ -68,7 +71,7 @@ namespace Smartstore.Core.Catalog.Attributes
                 var attributesDic = attributes.ToDictionary(x => x.Id);
 
                 // Key: ProductVariantAttributeValue.Id, value: calculated attribute price adjustment.
-                var priceAdjustments = includePrices && _catalogSettings.ShowVariantCombinationPriceAdjustment
+                var priceAdjustments = includePrices && _priceSettings.ShowVariantCombinationPriceAdjustment
                     ? await _priceCalculationService.CalculateAttributePriceAdjustmentsAsync(product, selection, 1, _priceCalculationService.CreateDefaultOptions(false, customer, null, batchContext))
                     : new Dictionary<int, CalculatedPriceAdjustment>();
 

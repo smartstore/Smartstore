@@ -39,6 +39,7 @@ namespace Smartstore.Core.Checkout.Orders
         private readonly TaxSettings _taxSettings;
         private readonly RewardPointsSettings _rewardPointsSettings;
         private readonly CatalogSettings _catalogSettings;
+        private readonly PriceSettings _priceSettings;
         private readonly ShippingSettings _shippingSettings;
         private readonly Currency _primaryCurrency;
         private readonly Currency _workingCurrency;
@@ -60,6 +61,7 @@ namespace Smartstore.Core.Checkout.Orders
             TaxSettings taxSettings,
             RewardPointsSettings rewardPointsSettings,
             CatalogSettings catalogSettings,
+            PriceSettings priceSettings,
             ShippingSettings shippingSettings)
         {
             _db = db;
@@ -78,6 +80,7 @@ namespace Smartstore.Core.Checkout.Orders
             _taxSettings = taxSettings;
             _rewardPointsSettings = rewardPointsSettings;
             _catalogSettings = catalogSettings;
+            _priceSettings = priceSettings;
             _shippingSettings = shippingSettings;
 
             _primaryCurrency = currencyService.PrimaryCurrency;
@@ -813,7 +816,7 @@ namespace Smartstore.Core.Checkout.Orders
             var result = decimal.Zero;
             Discount appliedDiscount = null;
 
-            if (!_catalogSettings.IgnoreDiscounts)
+            if (!_priceSettings.IgnoreDiscounts)
             {
                 var allowedDiscounts = new List<Discount>();
                 var allDiscounts = await _discountService.GetAllDiscountsAsync(discountType);

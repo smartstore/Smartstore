@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Smartstore.Core.Catalog;
-using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Products;
 
 namespace Smartstore.Admin.Models
@@ -24,24 +23,6 @@ namespace Smartstore.Admin.Models
 
         [LocalizedDisplay("*ShowDimensions")]
         public bool ShowDimensions { get; set; }
-
-        [LocalizedDisplay("*ShowDiscountSign")]
-        public bool ShowDiscountSign { get; set; }
-
-        [LocalizedDisplay("*PriceDisplayStyle")]
-        public PriceDisplayStyle PriceDisplayStyle { get; set; }
-
-        [LocalizedDisplay("*DisplayTextForZeroPrices")]
-        public bool DisplayTextForZeroPrices { get; set; }
-
-        [LocalizedDisplay("*IgnoreDiscounts")]
-        public bool IgnoreDiscounts { get; set; }
-
-        [LocalizedDisplay("*ApplyPercentageDiscountOnTierPrice")]
-        public bool ApplyPercentageDiscountOnTierPrice { get; set; }
-
-        [LocalizedDisplay("*ApplyTierPricePercentageToAttributePriceAdjustments")]
-        public bool ApplyTierPricePercentageToAttributePriceAdjustments { get; set; }
 
         [LocalizedDisplay("*IgnoreFeaturedProducts")]
         public bool IgnoreFeaturedProducts { get; set; }
@@ -158,9 +139,6 @@ namespace Smartstore.Admin.Models
         [LocalizedDisplay("*DefaultPageSizeOptions")]
         public string DefaultPageSizeOptions { get; set; }
 
-        [LocalizedDisplay("*PriceDisplayType")]
-        public PriceDisplayType PriceDisplayType { get; set; }
-
         [LocalizedDisplay("*GridStyleListColumnSpan")]
         public GridColumnSpan GridStyleListColumnSpan { get; set; }
 
@@ -192,8 +170,7 @@ namespace Smartstore.Admin.Models
         [LocalizedDisplay("*DeliveryTimesInLists")]
         public DeliveryTimesPresentation DeliveryTimesInLists { get; set; }
 
-        [LocalizedDisplay("*ShowBasePriceInProductLists")]
-        public bool ShowBasePriceInProductLists { get; set; }
+
 
         [LocalizedDisplay("*ShowColorSquaresInLists")]
         public bool ShowColorSquaresInLists { get; set; }
@@ -296,14 +273,7 @@ namespace Smartstore.Admin.Models
         [LocalizedDisplay("*EnableDynamicPriceUpdate")]
         public bool EnableDynamicPriceUpdate { get; set; }
 
-        [LocalizedDisplay("*BundleItemShowBasePrice")]
-        public bool BundleItemShowBasePrice { get; set; }
 
-        [LocalizedDisplay("*ShowVariantCombinationPriceAdjustment")]
-        public bool ShowVariantCombinationPriceAdjustment { get; set; }
-
-        [LocalizedDisplay("*ShowLoginForPriceNote")]
-        public bool ShowLoginForPriceNote { get; set; }
 
         [LocalizedDisplay("*ShowLinkedAttributeValueQuantity")]
         public bool ShowLinkedAttributeValueQuantity { get; set; }
@@ -312,5 +282,7 @@ namespace Smartstore.Admin.Models
         public bool ShowLinkedAttributeValueImage { get; set; }
 
         #endregion
+
+        public PriceSettingsModel PriceSettings { get; set; }
     }
 }

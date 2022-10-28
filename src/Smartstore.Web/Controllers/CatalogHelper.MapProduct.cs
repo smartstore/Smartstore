@@ -174,7 +174,7 @@ namespace Smartstore.Web.Controllers
                     ShowFullDescription = settings.MapFullDescription,
                     ShowRatings = settings.MapReviews,
                     ShowPrice = settings.MapPrices,
-                    ShowBasePrice = settings.MapPrices && _catalogSettings.ShowBasePriceInProductLists && settings.ViewMode != ProductSummaryViewMode.Mini,
+                    ShowBasePrice = settings.MapPrices && _priceSettings.ShowBasePriceInProductLists && settings.ViewMode != ProductSummaryViewMode.Mini,
                     ShowShippingSurcharge = settings.MapPrices && settings.ViewMode != ProductSummaryViewMode.Mini,
                     ShowButtons = settings.ViewMode != ProductSummaryViewMode.Mini,
                     ShowBrand = settings.MapManufacturers,
@@ -183,7 +183,7 @@ namespace Smartstore.Web.Controllers
                     WishlistEnabled = _services.Permissions.Authorize(Permissions.Cart.AccessWishlist),
                     BuyEnabled = !_catalogSettings.HideBuyButtonInLists,
                     ThumbSize = settings.ThumbnailSize,
-                    ShowDiscountBadge = _catalogSettings.ShowDiscountSign,
+                    ShowDiscountBadge = _priceSettings.ShowDiscountSign,
                     ShowNewBadge = _catalogSettings.LabelAsNewForMaxDays.HasValue,
                     DeliveryTimesPresentation = settings.DeliveryTimesPresentation,
                 };
@@ -577,8 +577,8 @@ namespace Smartstore.Web.Controllers
                     item.TransportSurcharge = addShippingPrice.WithPostFormat(ctx.Resources["Common.AdditionalShippingSurcharge"]);
                 }
 
-                item.PriceDisplayStyle = _catalogSettings.PriceDisplayStyle;
-                item.DisplayTextForZeroPrices = _catalogSettings.DisplayTextForZeroPrices;
+                item.PriceDisplayStyle = _priceSettings.PriceDisplayStyle;
+                item.DisplayTextForZeroPrices = _priceSettings.DisplayTextForZeroPrices;
             }
 
             if (model.ShowWeight && contextProduct.Weight > 0)
@@ -658,7 +658,7 @@ namespace Smartstore.Web.Controllers
             }
 
             // Return if there's no pricing at all.
-            if (contextProduct == null || contextProduct.CustomerEntersPrice || !ctx.AllowPrices || _catalogSettings.PriceDisplayType == PriceDisplayType.Hide)
+            if (contextProduct == null || contextProduct.CustomerEntersPrice || !ctx.AllowPrices || _priceSettings.PriceDisplayType == PriceDisplayType.Hide)
             {
                 return (new Money(options.TargetCurrency), contextProduct);
             }

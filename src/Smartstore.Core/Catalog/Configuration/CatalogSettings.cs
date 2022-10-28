@@ -59,21 +59,6 @@ namespace Smartstore.Core.Catalog
         public DeliveryTimesPresentation DeliveryTimesInProductDetail { get; set; } = DeliveryTimesPresentation.DateOnly;
 
         /// <summary>
-        /// Gets or sets a value indicating whether to display the base price of a product
-        /// </summary>
-        public bool ShowBasePriceInProductLists { get; set; }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether to display price adjustment of a product variant combination
-        /// </summary>
-        public bool ShowVariantCombinationPriceAdjustment { get; set; } = true;
-
-        /// <summary>
-        /// Indicates whether to show a login note if the user is not authorized to see prices.
-        /// </summary>
-        public bool ShowLoginForPriceNote { get; set; }
-
-        /// <summary>
         /// Gets or sets a value indicating whether to display quantity of linked product at attribute values
         /// </summary>
         public bool ShowLinkedAttributeValueQuantity { get; set; }
@@ -314,17 +299,6 @@ namespace Smartstore.Core.Catalog
         public int ProductsAlsoPurchasedNumber { get; set; } = 12;
 
         /// <summary>
-        /// Obsolete (an old setting that leads to a different price on the product and shopping cart page).
-        /// Gets or sets a value indicating whether dynamic price update is enabled
-        /// </summary>
-        //public bool EnableDynamicPriceUpdate { get; set; } = true;
-
-        /// <summary>
-        /// Gets or sets a value indicating whether base price should be rendered for bundle items
-        /// </summary>
-        public bool BundleItemShowBasePrice { get; set; }
-
-        /// <summary>
         /// Gets or sets a number of product tags that appear in the tag cloud
         /// </summary>
         public int NumberOfProductTags { get; set; } = 15;
@@ -364,27 +338,10 @@ namespace Smartstore.Core.Catalog
 
         public bool ShowPopularProductTagsOnHomepage { get; set; } = false;
 
-        public bool ShowDiscountSign { get; set; } = true;
-
-        /// <summary>
-        /// Gets or sets the price display style for prices
-        /// </summary>
-        public PriceDisplayStyle PriceDisplayStyle { get; set; }
-
-        /// <summary>
-        /// Displays a textual resources instead of the decimal value when prices are 0
-        /// </summary>
-        public bool DisplayTextForZeroPrices { get; set; }
-
         /// <summary>
         /// Gets or sets the available customer selectable default page size options
         /// </summary>
         public string DefaultPageSizeOptions { get; set; } = "12,24,36,48,72,120";
-
-        /// <summary>
-        /// Gets or sets the price display type for prices in product lists
-        /// </summary>
-        public PriceDisplayType PriceDisplayType { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether to include "Short description" in compare products
@@ -410,23 +367,6 @@ namespace Smartstore.Core.Catalog
         /// An option indicating whether products on category and manufacturer pages should include featured products in sub pages as well
         /// </summary>
         public bool IncludeFeaturedProductsInSubPages { get; set; }
-
-        /// <summary>
-        /// Obsolete (an old hidden setting that no longer has any effect).
-        /// Gets or sets a value indicating whether tier prices should be displayed with applied discounts (if available)
-        /// </summary>
-        //public bool DisplayTierPricesWithDiscounts { get; set; } = true;
-
-        /// <summary>
-        /// Gets or sets a value indicating whether to always ignore discounts.
-        /// Discounts explicitly offered for bundle items are excluded from this. They are always applied.
-        /// </summary>
-        public bool IgnoreDiscounts { get; set; }
-
-        /// <summary>
-        /// Gets or sets whether to also apply percentage discounts in tier prices.
-        /// </summary>
-        public bool ApplyPercentageDiscountOnTierPrice { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether to ignore featured products (side-wide)
@@ -477,10 +417,5 @@ namespace Smartstore.Core.Catalog
         /// Gets or sets how many columns per row should be displayed at most in grid style lists on largest screen resolution.
         /// </summary>
         public GridColumnSpan GridStyleListColumnSpan { get; set; } = GridColumnSpan.Max4Cols;
-
-        /// <summary>
-        /// Gets or sets a value indicating whether percental values of tierprices should be applied to price adjustments of attributes
-        /// </summary>
-        public bool ApplyTierPricePercentageToAttributePriceAdjustments { get; set; } = false;
     }
 }

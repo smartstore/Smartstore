@@ -25,6 +25,7 @@ namespace Smartstore.Core.Catalog.Pricing
         private readonly ITaxService _taxService;
         private readonly ICurrencyService _currencyService;
         private readonly CatalogSettings _catalogSettings;
+        private readonly PriceSettings _priceSettings;
         private readonly TaxSettings _taxSettings;
         private readonly Currency _primaryCurrency;
 
@@ -39,6 +40,7 @@ namespace Smartstore.Core.Catalog.Pricing
             ITaxService taxService,
             ICurrencyService currencyService,
             CatalogSettings catalogSettings,
+            PriceSettings priceSettings,
             TaxSettings taxSettings)
         {
             _db = db;
@@ -51,6 +53,7 @@ namespace Smartstore.Core.Catalog.Pricing
             _taxService = taxService;
             _currencyService = currencyService;
             _catalogSettings = catalogSettings;
+            _priceSettings = priceSettings;
             _taxSettings = taxSettings;
 
             _primaryCurrency = currencyService.PrimaryCurrency;
@@ -68,7 +71,7 @@ namespace Smartstore.Core.Catalog.Pricing
 
             var store = batchContext?.Store ?? _storeContext.CurrentStore;
             var language = _workContext.WorkingLanguage;
-            var priceDisplay = _catalogSettings.PriceDisplayType;
+            var priceDisplay = _priceSettings.PriceDisplayType;
             var taxInclusive = _workContext.GetTaxDisplayTypeAsync(customer, store.Id).Await() == TaxDisplayType.IncludingTax;
             var determinePreselectedPrice = forListing && priceDisplay == PriceDisplayType.PreSelectedPrice;
 
@@ -79,8 +82,8 @@ namespace Smartstore.Core.Catalog.Pricing
             {
                 IsGrossPrice = _taxSettings.PricesIncludeTax,
                 TaxInclusive = taxInclusive,
-                IgnorePercentageDiscountOnTierPrices = !_catalogSettings.ApplyPercentageDiscountOnTierPrice,
-                IgnorePercentageTierPricesOnAttributePriceAdjustments = !_catalogSettings.ApplyTierPricePercentageToAttributePriceAdjustments,
+                IgnorePercentageDiscountOnTierPrices = !_priceSettings.ApplyPercentageDiscountOnTierPrice,
+                IgnorePercentageTierPricesOnAttributePriceAdjustments = !_priceSettings.ApplyTierPricePercentageToAttributePriceAdjustments,
                 IgnoreDiscounts = forListing && priceDisplay == PriceDisplayType.PriceWithoutDiscountsAndAttributes,
                 DetermineLowestPrice = forListing && priceDisplay == PriceDisplayType.LowestPrice,
                 DeterminePreselectedPrice = determinePreselectedPrice,
@@ -357,7 +360,7 @@ namespace Smartstore.Core.Catalog.Pricing
             var ac = context.AppliedAttributeCombination;
             if (ac != null
                 && (ac.BasePriceAmount.HasValue || ac.BasePriceBaseAmount.HasValue)
-                && _catalogSettings.ShowBasePriceInProductLists)
+                && _priceSettings.ShowBasePriceInProductLists)
             {
                 product.MergedDataValues ??= new();
 

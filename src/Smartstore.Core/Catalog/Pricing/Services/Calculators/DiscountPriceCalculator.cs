@@ -15,12 +15,14 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
         private readonly SmartDbContext _db;
         private readonly IDiscountService _discountService;
         private readonly CatalogSettings _catalogSettings;
+        private readonly PriceSettings _priceSettings;
 
-        public DiscountPriceCalculator(SmartDbContext db, IDiscountService discountService, CatalogSettings catalogSettings)
+        public DiscountPriceCalculator(SmartDbContext db, IDiscountService discountService, CatalogSettings catalogSettings, PriceSettings priceSettings)
         {
             _db = db;
             _discountService = discountService;
             _catalogSettings = catalogSettings;
+            _priceSettings = priceSettings;
         }
 
         public async Task CalculateAsync(CalculatorContext context, CalculatorDelegate next)
@@ -86,7 +88,7 @@ namespace Smartstore.Core.Catalog.Pricing.Calculators
                     discountAmount = appliedDiscount.GetDiscountAmount(price);
                 }
             }
-            else if (!_catalogSettings.IgnoreDiscounts && !product.CustomerEntersPrice)
+            else if (!_priceSettings.IgnoreDiscounts && !product.CustomerEntersPrice)
             {
                 // Don't calculate when customer entered price or discounts should be ignored in any case (except for bundle items).
                 var applicableDiscounts = await GetApplicableDiscountsAsync(product, context);
