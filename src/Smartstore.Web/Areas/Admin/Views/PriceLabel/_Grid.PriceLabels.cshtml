@@ -1,0 +1,75 @@
+﻿@using Smartstore.Admin.Models.Common
+
+@model PriceLabelModel
+
+<datagrid id="price-label-grid" allow-resize="true" allow-row-selection="true" allow-edit="true" allow-column-reordering="true">
+    <datasource read="@Url.Action("PriceLabelList", "PriceLabel")"
+                delete="@Url.Action("PriceLabelDelete", "PriceLabel")" />
+    <sorting enabled="true">
+        <sort by="DisplayOrder" />
+    </sorting>
+    <paging position="Bottom" show-size-chooser="true" />
+    <toolbar>
+        <toolbar-group>
+            <a href="#" class="add-price-label btn btn-primary btn-flat">
+                <i class="fa fa-plus"></i>
+                <span>@T("Admin.Common.AddNew")...</span>
+            </a>
+        </toolbar-group>
+        <zone name="datagrid_toolbar_alpha"></zone>
+        <toolbar-group class="omega"></toolbar-group>
+        <zone name="datagrid_toolbar_omega"></zone>
+        <toolbar-group>
+            <button datagrid-action="DataGridToolAction.DeleteSelectedRows" type="button" class="btn btn-danger no-anims btn-flat">
+                <i class="far fa-trash-alt"></i>
+                <span>@T("Admin.Common.Delete.Selected")</span>
+            </button>
+        </toolbar-group>
+    </toolbar>
+    <columns>
+        <column for="Id" halign="center" visible="false" type="string" />
+        <column for="ShortName" hideable="false" width="200px">
+            <display-template>
+                <a href="#" class="grid-edit-price-label" :data-key="item.row.Id">
+                    {{ item.value }}
+                </a>
+            </display-template>
+        </column>
+        <column for="Name" width="1fr" />
+        <column for="Description" width="600px" />
+        <column for="IsRetailPrice" halign="center" />
+        <column for="DisplayShortNameInLists" halign="center" />
+        <column for="DisplayOrder" halign="center" />
+    </columns>
+    <row-commands>
+        <a datarow-action="DataRowAction.Custom" class="grid-edit-price-label" :data-key="item.row.Id">@T("Common.Edit")</a>
+        <a datarow-action="DataRowAction.Delete">@T("Common.Delete")</a>
+    </row-commands>
+</datagrid>
+
+<script sm-target-zone="scripts" data-origin="price-label-grid">
+    $(function () {
+        $(document).on('click', '.add-price-label', function (e) {
+            e.preventDefault();
+
+            var href = "@Url.Content("~/Admin/PriceLabel/CreatePriceLabelPopup/")?btnId=btnRefresh&formId=price-labels";
+            openPopup(href);
+            return false;
+        });
+
+        $(document).on('click', '.grid-edit-price-label', function (e) {
+            e.preventDefault();
+
+            var id = $(this).data("key");
+            var href = "@Url.Content("~/Admin/PriceLabel/EditPriceLabelPopup/")" + id + "?btnId=btnRefresh&formId=price-labels";
+            openPopup(href);
+            return false;
+        });
+
+        // Refresh grid after popup edit dialog was closed.
+        $(document).on('click', '#btnRefresh', function () {
+            window["price-label-grid"].$children[0].read();
+            return false;
+        });
+    });
+</script>

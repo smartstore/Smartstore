@@ -1,4 +1,5 @@
-﻿using Smartstore.Core.Common;
+﻿using Smartstore.Core.Catalog.Pricing;
+using Smartstore.Core.Common;
 
 namespace Smartstore.Core.Data
 {
@@ -13,5 +14,6 @@ namespace Smartstore.Core.Data
         public DbSet<MeasureWeight> MeasureWeights { get; set; }
         public DbSet<QuantityUnit> QuantityUnits { get; set; }
         public DbSet<StateProvince> StateProvinces { get; set; }
+        public DbSet<PriceLabel> PriceLabels { get; set; }
     }
 }

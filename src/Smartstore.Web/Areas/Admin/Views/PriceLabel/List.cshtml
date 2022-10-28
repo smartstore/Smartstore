@@ -1,0 +1,16 @@
+﻿@{
+    ViewBag.Title = T("Admin.Configuration.PriceLabels").Value;
+    Assets.BodyAttributes.AppendCssClass("spa-layout");
+}
+
+<form id="delivery-times">
+    <div class="section-header">
+        <div class="title">
+            <i class="far fa-clock"></i>
+            <span>@T("Admin.Configuration.PriceLabels")</span>
+        </div>
+    </div>
+    <input type="submit" id="btnRefresh" name="btnRefresh" class="d-none" />
+</form>
+
+<partial name="_Grid.PriceLabels" model="null" />

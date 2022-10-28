@@ -37,7 +37,7 @@ namespace Smartstore.Core.Catalog.Pricing
         public bool IsRetailPrice { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating the label's short name should be displayed in product listings.
+        /// Gets or sets a value indicating if the label's short name should be displayed in product listings.
         /// </summary>
         public bool DisplayShortNameInLists { get; set; }
 

@@ -106,6 +106,7 @@
                 <siteMapNode id="quantity-units" xicon="gift" title="Quantity Units" resKey="Admin.Configuration.QuantityUnit" permissionNames="configuration.measure" controller="QuantityUnit" action="List" area="Admin" />
                 <siteMapNode id="weights" title="Weights" resKey="Admin.Configuration.Measures.Weights" permissionNames="configuration.measure" controller="Measure" action="Weights" area="Admin" />
                 <siteMapNode id="dimensions" title="Dimensions" resKey="Admin.Configuration.Measures.Dimensions" permissionNames="configuration.measure" controller="Measure" action="Dimensions" area="Admin" />
+                <siteMapNode id="price-labels" title="Price Labels" resKey="Admin.Configuration.PriceLabels" permissionNames="configuration.pricelabel" controller="PriceLabel" action="List" area="Admin" />
             </siteMapNode>
 
             <siteMapNode id="email-accounts" icon="bi:envelope" title="EmailAccounts" resKey="Admin.Configuration.EmailAccounts" permissionNames="configuration.emailaccount" controller="EmailAccount" action="List" area="Admin" />
