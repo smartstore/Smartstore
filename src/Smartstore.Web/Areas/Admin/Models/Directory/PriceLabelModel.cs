@@ -45,9 +45,9 @@ namespace Smartstore.Admin.Models.Common
     {
         public PriceLabelValidator()
         {
-            RuleFor(x => x.ShortName).NotEmpty().Length(0, 16);
-            RuleFor(x => x.Name).Length(1, 50);
-            RuleFor(x => x.Description).Length(0, 400);
+            RuleFor(x => x.ShortName).NotEmpty().MaximumLength(16);
+            RuleFor(x => x.Name).MaximumLength(50);
+            RuleFor(x => x.Description).MaximumLength(400);
         }
     }
 }

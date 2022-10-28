@@ -5,8 +5,9 @@ using Smartstore.Data.Migrations;
 namespace Smartstore.Core.Data.Migrations
 {
     [MigrationVersion("2022-10-28 14:00:00", "Core: PriceLabels")]
-    internal class PriceLabelInitial : Migration, IDataSeeder<SmartDbContext>
+    internal class PriceLabelInitial : Migration, ILocaleResourcesProvider, IDataSeeder<SmartDbContext>
     {
+        // TODO: (mh) (core) Add a hook that fixes FK props (like it's done for delivery times, quantity units etc.) 
         public override void Up()
         {
             var propTableName = nameof(PriceLabel);
@@ -31,6 +32,7 @@ namespace Smartstore.Core.Data.Migrations
 
         public async Task SeedAsync(SmartDbContext context, CancellationToken cancelToken = default)
         {
+            // TODO: (mh) (core) Install DataSeeder
             await context.MigrateLocaleResourcesAsync(MigrateLocaleResources);
 
             var defaultLanguage = await context.Languages.OrderBy(x => x.DisplayOrder).FirstOrDefaultAsync();
@@ -95,41 +97,43 @@ namespace Smartstore.Core.Data.Migrations
 
         public void MigrateLocaleResources(LocaleResourcesBuilder builder)
         {
-            builder.AddOrUpdate("Admin.Configuration.PriceLabels", "Price Labels", "Preis-Labels");
-            builder.AddOrUpdate("Admin.Configuration.PriceLabels.EditPriceLabelDetails", "Edit Price Label", "Preis-Label bearbeiten");
-            builder.AddOrUpdate("Admin.Configuration.PriceLabels.AddNew", "Add Price Label", "Preis-Label zufügen");
-            builder.AddOrUpdate("Admin.Configuration.PriceLabel.Added", "Price label was successfully added.", "Das Preis-Label wurde erfolgreich zugefügt.");
-            builder.AddOrUpdate("Admin.Configuration.PriceLabel.Updated", "Price label was successfully updated.", "Das Preis-Label wurde erfolgreich aktualisiert.");
+            // TODO: (mh) (core) Permission localization missing
+            
+            builder.AddOrUpdate("Admin.Configuration.PriceLabels", "Price Labels", "Preis Labels");
+            builder.AddOrUpdate("Admin.Configuration.PriceLabels.EditPriceLabelDetails", "Edit Price Label", "Preis Label bearbeiten");
+            builder.AddOrUpdate("Admin.Configuration.PriceLabels.AddNew", "Add Price Label", "Preis Label hinzufügen");
+            builder.AddOrUpdate("Admin.Configuration.PriceLabel.Added", "Price label was successfully added.", "Das Preis Label wurde erfolgreich zugefügt.");
+            builder.AddOrUpdate("Admin.Configuration.PriceLabel.Updated", "Price label was successfully updated.", "Das Preis Label wurde erfolgreich aktualisiert.");
             
             // TODO: (mh) (core) Check all of these again.
             builder.AddOrUpdate("Admin.Configuration.PriceLabel.Fields.Name",
                 "Name",
                 "Name",
                 "Specifies the optional name that is displayed on product detail pages, e.g. 'Retail price', 'Lowest recent price'.",
-                "Bestimmt den optionalen Namen, der auf der Produktdetailseite angezeigt wird, z. B. 'Verkaufspreis', 'Niedrigster aktueller Preis'.");
+                "Der optionale Name, der auf der Produktdetailseite angezeigt wird, z. B. 'Unverb. Preisempf.', 'Zuletzt niedrigster Preis'.");
 
             builder.AddOrUpdate("Admin.Configuration.PriceLabel.Fields.ShortName",
-                "Name (abbreviation)",
-                "Name (Abkürzung)",
-                "Specifies the short name that is displayed in product lists, e.g. 'MSRP', 'Lowest'.",
-                "Gibt die Kurzbezeichnung an, die in Produktlisten angezeigt wird, z. B. 'UVP', 'Niedrigster'.");
+                "Name (short)",
+                "Name (kurz)",
+                "The short name that is displayed in product lists, e.g. 'MSRP', 'Lowest'.",
+                "Kurzbezeichnung, die in Produktlisten angezeigt wird, z. B. 'UVP', 'Niedrigster'.");
 
             builder.AddOrUpdate("Admin.Configuration.PriceLabel.Fields.Description",
                 "Description",
                 "Beschreibung",
-                "Specifies the optional description that is displayed on product detail pages in a tooltip.",
-                "Bestimmt die optionale Beschreibung, die auf Produktdetailseiten in einem Tooltip angezeigt wird.");
+                "The optional description that is displayed on product detail pages in a tooltip.",
+                "Optionale Beschreibung, die auf Produktdetailseiten in einem Tooltip angezeigt wird.");
 
             builder.AddOrUpdate("Admin.Configuration.PriceLabel.Fields.IsRetailPrice",
-                "Is retail price",
-                "Ist Hersteller-Preis",
-                "Indicates whether this label represents an MSRP price.",
+                "Is MSRP",
+                "Ist UVP",
+                "Specifies whether this label represents an MSRP price.",
                 "Gibt an, ob dieses Label einen UVP-Preis darstellt.");
 
             builder.AddOrUpdate("Admin.Configuration.PriceLabel.Fields.DisplayShortNameInLists",
                 "Display short name in lists",
                 "Kurznamen in Listen anzeigen",
-                "Indicates if the label's short name should be displayed in product lists.",
+                "Specifies whether the label's short name should be displayed in product lists.",
                 "Gibt an, ob die Kurzbezeichnung des Labels in Produktlisten angezeigt werden soll.");
         }
     }
