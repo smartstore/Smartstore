@@ -1462,7 +1462,6 @@ namespace Smartstore.Web.Controllers
             }
 
             var applyDiscountNote = false;
-            var taxFormat = _taxService.GetTaxFormat();
             var calculationOptions = _priceCalculationService.CreateDefaultOptions(false, customer, currency, modelContext.BatchContext);
             var calculationContext = new PriceCalculationContext(product, selectedQuantity, calculationOptions)
             {
@@ -1518,7 +1517,7 @@ namespace Smartstore.Web.Controllers
             {
                 if (comparePrice > 0 && comparePrice > priceWithoutDiscount.FinalPrice)
                 {
-                    model.ProductPrice.OldPrice = comparePrice.WithPostFormat(taxFormat);
+                    model.ProductPrice.OldPrice = comparePrice;
                 }
 
                 applyDiscountNote = priceWithoutDiscount.FinalPrice != priceWithDiscount.FinalPrice;

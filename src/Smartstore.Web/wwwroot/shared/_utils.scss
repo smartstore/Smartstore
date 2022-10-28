@@ -209,10 +209,6 @@ img[src*="/images/flags/"] {
 	font-size: $font-size-sm;
 }
 
-.badge {
-	border: 1px solid #fff;
-}
-
 .badge:not(.badge-pill) {
 	border-radius: $border-radius-sm;
 }

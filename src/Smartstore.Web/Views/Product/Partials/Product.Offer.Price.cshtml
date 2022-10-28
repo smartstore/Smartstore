@@ -70,11 +70,12 @@
         }
 
         <!-- Current price -->
-        <div class="pd-group clearfix">
+        <div class="pd-group">
             <div class="row sm-gutters pd-price-group">
                 <div class="col-auto pd-price-block">
                     <meta sm-if="!isBundleItem" itemprop="priceCurrency" content="@WorkContext.WorkingCurrency.CurrencyCode" />
                     <div sm-if="blocksHaveLabel" class="pd-price-label">@currentPriceLabel</div>
+                    <span sm-if="oldPrice2 > 0" class="badge badge-dark">Limited time deal</span>
                     <div class="@artPriceClasses">
                         <meta sm-if="!priceModel.CallForPrice && !isBundleItem" itemprop="price" content="@currentPriceValue.ToString()" />
                         <span class="@badgeClasses">
@@ -83,26 +84,37 @@
                     </div>
                 </div>
 
-                <div sm-if="oldPrice2 > 0" class="col-auto pd-price-block">
+                @*<div sm-if="oldPrice2 > 0" class="col-auto pd-price-block">
                     <div sm-if="blocksHaveLabel" class="pd-price-label">@oldPrice2Label</div>
                     <div class="pd-price@(isBundleItem ? " pd-price-sm" : "")">
                         @Html.Raw(oldPrice2)
                     </div>
+                </div>*@
+            </div>
+
+            <div class="pd-oldprice-group">
+                <!-- Regular price -->
+                <div sm-if="oldPrice2 > 0" class="pd-oldprice-line">
+                    @*<span sm-if="oldPrice1Label.HasValue()">@Html.Raw(oldPrice1Label):</span>*@
+                    <span>Lowest recent price:</span>
+                    <span class="pd-oldprice pl-1">@Html.Raw(oldPrice2)</span>
+                    <span class="pl-1"><a href="#"><i class="fa fa-circle-info" style="color: #999"></i></a></span>
+                </div>
+
+                <!-- Retail price -->
+                <div sm-if="oldPrice1 > 0" class="pd-oldprice-line">
+                    @*<span sm-if="oldPrice1Label.HasValue()">@Html.Raw(oldPrice1Label):</span>*@
+                    <span>Suggested retail price:</span>
+                    <span class="pd-oldprice pl-1">@Html.Raw(oldPrice1)</span>
+                    <span class="pl-1"><a href="#"><i class="fa fa-circle-info" style="color: #999"></i></a></span>
+                </div>
+
+                <!-- You save -->
+                <div sm-if="priceModel.SavingAmount > 0" class="pd-oldprice-line">
+                    <span>@T("ShoppingCart.ItemYouSave"):</span>
+                    <span class="pl-1 d-flex">@priceModel.SavingAmount <span class="badge badge-danger pd-saving-percent">- @priceModel.SavingPercent.ToString("N0") %</span></span>
                 </div>
             </div>
-            
-            <!-- Regular price -->
-			@if (oldPrice1 > 0 || priceModel.SavingAmount > 0)
-			{
-				<div sm-if="oldPrice1 > 0" class="pd-oldprice-line d-flex">
-				    <span sm-if="oldPrice1Label.HasValue()">@Html.Raw(oldPrice1Label):</span>
-					<span class="pd-oldprice pl-1">@Html.Raw(oldPrice1)</span>
-				</div>
-				<div sm-if="priceModel.SavingAmount > 0" class="pd-oldprice-line d-flex">
-					<span>@T("ShoppingCart.ItemYouSave"):</span>
-					<span class="pl-1">@priceModel.SavingAmount <span class="pd-saving-percent">(@priceModel.SavingPercent.ToString("N0") %)</span></span>
-				</div>
-			}
 
             <zone name="@("productdetails_add_info{0}".FormatWith(isBundleItem ? "_bundle" : string.Empty))" />
         </div>

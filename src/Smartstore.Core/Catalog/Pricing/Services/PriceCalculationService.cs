@@ -85,7 +85,7 @@ namespace Smartstore.Core.Catalog.Pricing
                 DetermineLowestPrice = forListing && priceDisplay == PriceDisplayType.LowestPrice,
                 DeterminePreselectedPrice = determinePreselectedPrice,
                 ApplyPreselectedAttributes = determinePreselectedPrice,
-                TaxFormat = _taxService.GetTaxFormat(null, taxInclusive, PricingTarget.Product, language),
+                TaxFormat = !forListing ? null : _taxService.GetTaxFormat(null, taxInclusive, PricingTarget.Product, language),
                 PriceRangeFormat = T("Products.PriceRangeFrom").Value,
                 RoundingCurrency = targetCurrency == _primaryCurrency ? _workContext.WorkingCurrency : targetCurrency
             };
