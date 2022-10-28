@@ -5,8 +5,7 @@ using Microsoft.AspNetCore.OData.Query;
 using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
 using Smartstore.ComponentModel;
-using Smartstore.Core.Content.Media;
-using Smartstore.Web.Api.Models.OData.Media;
+using Smartstore.Web.Api.Models.Media;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Smartstore.Web.Api.Swagger

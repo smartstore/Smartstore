@@ -52,8 +52,6 @@ namespace Smartstore.Web.Api.Swagger
                     FixOdataActions(helper);
                     FixOdataFunctions(helper);
                     RemoveParameters(helper);
-                    // Probably getting obsolete:
-                    ApplyConsumesExample(helper);
                 }
             }
             catch (Exception ex)
@@ -325,7 +323,7 @@ namespace Smartstore.Web.Api.Swagger
             }
 
             // Add request body.
-            var bodyType = new OpenApiMediaType
+            var body = new OpenApiMediaType
             {
                 Schema = new OpenApiSchema
                 {
@@ -339,27 +337,31 @@ namespace Smartstore.Web.Api.Swagger
             {
                 if (swaggerParams.TryGetValue(p.Name, out var swaggerParam))
                 {
-                    bodyType.Schema.Properties[p.Name] = new OpenApiSchema
-                    {
-                        Type = swaggerParam.Schema?.Type ?? "string",
-                        Description = swaggerParam.Description,
-                        Example = swaggerParam.Example
-                    };
+                    var type = swaggerParam.Schema?.Type ?? MapType(p.ParameterType);
+
+                    var schema = type.EqualsNoCase("object") && swaggerParam.Example == null
+                        ? helper.GenerateSchema(p.ParameterType)
+                        : new OpenApiSchema { Type = type };
+
+                    schema.Example = swaggerParam.Example;
+                    schema.Description = swaggerParam.Description;
+
+                    body.Schema.Properties[p.Name] = schema;
 
                     if (swaggerParam.Required)
                     {
-                        bodyType.Schema.Required.Add(p.Name);
+                        body.Schema.Required.Add(p.Name);
                     }
                 }
             }
 
             helper.Op.RequestBody = new OpenApiRequestBody
             {
-                Required = bodyType.Schema.Required.Count > 0,
-                Description = string.Join(" ", bodyType.Schema.Properties.Select(p => $"**{p.Key}**: {FirstCharToLower(p.Value.Description)}")),
+                Required = body.Schema.Required.Count > 0,
+                Description = string.Join("<br><br>", body.Schema.Properties.Select(p => $"**{p.Key}**: {FirstCharToLower(p.Value.Description)}")),
                 Content = new Dictionary<string, OpenApiMediaType>
                 {
-                    { Json, bodyType }
+                    { Json, body }
                 }
             };
 
@@ -367,6 +369,9 @@ namespace Smartstore.Web.Api.Swagger
             swaggerParams.Each(p => helper.Op.Parameters.Remove(p.Value));
         }
 
+        /// <summary>
+        /// Fixes wrong identifier arrays in OData URL path.
+        /// </summary>
         protected virtual void FixOdataFunctions(SwaggerOperationHelper helper)
         {
             if (!helper.HttpMethod.EqualsNoCase("Get"))
@@ -403,25 +408,7 @@ namespace Smartstore.Web.Api.Swagger
 
                     if (swaggerParam.Example is OpenApiArray arr && arr.Count > 0)
                     {
-                        var fixedExample = string.Join(",", arr.Select(x =>
-                        {
-                            // TODO: (mg) (core) use\check IOpenApiPrimitive and cast to OpenApiPrimitive<T>?
-                            if (x is OpenApiInteger intVal)
-                                return intVal.Value.ToString();
-                            else if (x is OpenApiString strVal)
-                                return strVal.Value;
-                            else if (x is OpenApiDouble doubleVal)
-                                return doubleVal.Value.ToString();
-                            else if (x is OpenApiFloat floatVal)
-                                return floatVal.Value.ToString();
-                            else if (x is OpenApiBoolean boolVal)
-                                return boolVal.Value.ToString().ToLower();
-                            else if (x is OpenApiByte byteVal)
-                                return byteVal.Value.ToString();
-                            else
-                                return string.Empty;
-                        }));
-
+                        var fixedExample = string.Join(',', arr.Select(x => Convert(x)));
                         swaggerParam.Example = new OpenApiString('[' + fixedExample + ']');
                     }
                 }
@@ -440,77 +427,73 @@ namespace Smartstore.Web.Api.Swagger
             });
         }
 
-        /// <summary>
-        /// Applies properties of <see cref="ApiConsumesAttribute"/> to <see cref="OpenApiOperation.RequestBody"/>.
-        /// Could become obsolete once Swashbuckle can do it.
-        /// </summary>
-        protected virtual void ApplyConsumesExample(SwaggerOperationHelper helper)
-        {
-            //if (helper.HttpMethod.EqualsNoCase("POST")
-            //    && helper.ActionDescriptor.Parameters.Any(x => x.ParameterType == typeof(ODataActionParameters)))
+        //protected virtual void ApplyConsumesExample(SwaggerOperationHelper helper)
+        //{
+        //    //if (helper.HttpMethod.EqualsNoCase("POST")
+        //    //    && helper.ActionDescriptor.Parameters.Any(x => x.ParameterType == typeof(ODataActionParameters)))
 
-            if (helper.ActionName.EqualsNoCase("SaveFile"))
-            {
-                //var mediaType = new OpenApiMediaType
-                //{
-                //    Schema = new OpenApiSchema
-                //    {
-                //        Type = "object",
-                //        Required = new HashSet<string> { "File" },
-                //        Properties = new Dictionary<string, OpenApiSchema>
-                //        {
-                //            {
-                //                "File", new OpenApiSchema
-                //                {
-                //                    Type = "string",
-                //                    Format = "binary"
-                //                }
-                //            }
-                //        }
-                //    }
-                //};
+        //    if (helper.ActionName.EqualsNoCase("SaveFile"))
+        //    {
+        //        var mediaType = new OpenApiMediaType
+        //        {
+        //            Schema = new OpenApiSchema
+        //            {
+        //                Type = "object",
+        //                Required = new HashSet<string> { "File" },
+        //                Properties = new Dictionary<string, OpenApiSchema>
+        //                {
+        //                    {
+        //                        "File", new OpenApiSchema
+        //                        {
+        //                            Type = "string",
+        //                            Format = "binary"
+        //                        }
+        //                    }
+        //                }
+        //            }
+        //        };
 
-                //var content = new Dictionary<string, OpenApiMediaType>
-                //{
-                //    { "multipart/form-data", mediaType }
-                //};
+        //        var content = new Dictionary<string, OpenApiMediaType>
+        //        {
+        //            { "multipart/form-data", mediaType }
+        //        };
 
-                //helper.Op.RequestBody = new OpenApiRequestBody
-                //{
-                //    Content = content
-                //};
-            }
+        //        helper.Op.RequestBody = new OpenApiRequestBody
+        //        {
+        //            Content = content
+        //        };
+        //    }
 
-            var body = helper.Op.RequestBody;
-            if (body == null)
-            {
-                return;
-            }
+        //    var body = helper.Op.RequestBody;
+        //    if (body == null)
+        //    {
+        //        return;
+        //    }
 
-            var attribute = (ApiConsumesAttribute)helper.ActionDescriptor.MethodInfo.GetCustomAttributes(typeof(ApiConsumesAttribute), false).FirstOrDefault();
-            if (attribute == null)
-            {
-                return;
-            }
+        //    var attribute = (ApiConsumesAttribute)helper.ActionDescriptor.MethodInfo.GetCustomAttributes(typeof(ApiConsumesAttribute), false).FirstOrDefault();
+        //    if (attribute == null)
+        //    {
+        //        return;
+        //    }
 
-            body.Required = attribute.Required;
+        //    body.Required = attribute.Required;
 
-            foreach (var contentType in attribute.ContentTypes)
-            {
-                if (body.Content.TryGetValue(contentType, out var mediaType))
-                {
-                    if (attribute.SchemaType != null)
-                    {
-                        mediaType.Schema = helper.GenerateSchema(attribute.SchemaType);
-                    }
+        //    foreach (var contentType in attribute.ContentTypes)
+        //    {
+        //        if (body.Content.TryGetValue(contentType, out var mediaType))
+        //        {
+        //            if (attribute.SchemaType != null)
+        //            {
+        //                mediaType.Schema = helper.GenerateSchema(attribute.SchemaType);
+        //            }
                     
-                    if (mediaType.Example == null && attribute.Example.HasValue())
-                    {
-                        mediaType.Example = new OpenApiString(attribute.Example);
-                    }
-                }
-            }
-        }
+        //            if (mediaType.Example == null && attribute.Example.HasValue())
+        //            {
+        //                mediaType.Example = new OpenApiString(attribute.Example);
+        //            }
+        //        }
+        //    }
+        //}
 
         #region Utilities
 
@@ -544,6 +527,64 @@ namespace Smartstore.Web.Api.Swagger
             return str.HasValue() && char.IsUpper(str[0])
                 ? str.Length == 1 ? char.ToLower(str[0]).ToString() : char.ToLower(str[0]) + str[1..]
                 : str;
+        }
+
+        private static string Convert(IOpenApiAny value)
+        {
+            // Odd. Compare with OpenApiPrimitive.Write.
+            if (value is OpenApiInteger intVal)
+                return intVal.Value.ToString();
+            else if (value is OpenApiString strVal)
+                return strVal.Value;
+            else if (value is OpenApiLong longVal)
+                return longVal.Value.ToString();
+            else if (value is OpenApiFloat floatVal)
+                return floatVal.Value.ToString();
+            else if (value is OpenApiDouble doubleVal)
+                return doubleVal.Value.ToString();
+            else if (value is OpenApiByte byteVal)
+                return byteVal.Value.ToString();
+            else if (value is OpenApiBoolean boolVal)
+                return boolVal.Value.ToString().ToLower();
+            else if (value is OpenApiDate dateVal)
+                return dateVal.Value.ToString();
+            else if (value is OpenApiDateTime dtVal)
+                return dtVal.Value.ToString();
+            else
+                return string.Empty;
+        }
+
+        private static string MapType(Type type)
+        {
+            // See https://swagger.io/docs/specification/data-models/data-types/
+            if (type.IsEnum)
+            {
+                // Avoid ODataException: "Cannot read the value '0' as a quoted JSON string value".
+                return "string";
+            }
+            else if (type.IsArray)
+            {
+                return "array";
+            }
+            else if (type == typeof(int))
+            {
+                return "integer";
+            }
+            else if (type == typeof(bool))
+            {
+                return "boolean";
+            }
+            else if (type == typeof(double) || type == typeof(float) || type == typeof(decimal))
+            {
+                return "number";
+            }
+            else if (!type.IsPrimitive && !typeof(IFormFile).IsAssignableFrom(type))
+            {
+                return "object";
+            }
+
+            // Fallback. Includes dates and files.
+            return "string";
         }
 
         #endregion

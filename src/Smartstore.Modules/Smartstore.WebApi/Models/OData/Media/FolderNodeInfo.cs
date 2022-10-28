@@ -1,7 +1,7 @@
 ﻿using Microsoft.OData.ModelBuilder;
 using Smartstore.Domain;
 
-namespace Smartstore.Web.Api.Models.OData.Media
+namespace Smartstore.Web.Api.Models.Media
 {
     /// <summary>
     /// Represents a folder media files.

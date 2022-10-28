@@ -2,7 +2,7 @@
 using Smartstore.Collections;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Content.Media;
-using Smartstore.Web.Api.Models.OData.Media;
+using Smartstore.Web.Api.Models.Media;
 
 namespace Smartstore.Web.Api.Controllers.OData
 {

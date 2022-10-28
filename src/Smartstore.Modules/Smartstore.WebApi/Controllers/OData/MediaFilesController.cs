@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Content.Media;
 using Smartstore.IO;
-using Smartstore.Web.Api.Models.OData.Media;
+using Smartstore.Web.Api.Models.Media;
 
 namespace Smartstore.Web.Api.Controllers.OData
 {
@@ -173,22 +173,25 @@ namespace Smartstore.Web.Api.Controllers.OData
             }
         }
 
+        // TODO: (mg) (core) produces ODataException: The property 'folderId' does not exist on type 'Smartstore.Core.Content.Media.MediaSearchQuery'.
+        // Validator ignores JsonPropertyAttribute but example shows camel-case.
+        // We must set ODataMessageReaderSettings.EnablePropertyNameCaseInsensitive to true somehow. 
+
         /// <summary>
-        /// Searches files that match the filter criteria in query property.
+        /// Searches for files using filter criteria.
         /// </summary>
-        /// <param name="parameters">Contains the search query parameters.</param>
-        [HttpPost, ApiQueryable]
-        [ApiConsumes(Json, "{ \"Query\": { \"FolderId\":7, \"Extensions\": [\"jpg\"] } }", Required = false)]
-        [Produces(Json)]
+        /// <param name="query">The query that defines the search criteria.</param>
+        [HttpPost("MediaFiles/SearchFiles"), ApiQueryable]
+        [Consumes(Json), Produces(Json)]
         [ProducesResponseType(typeof(IEnumerable<FileItemInfo>), Status200OK)]
         [ProducesResponseType(Status400BadRequest)]
         [ProducesResponseType(Status422UnprocessableEntity)]
-        public async Task<IActionResult> SearchFiles(ODataActionParameters parameters, ODataQueryOptions<MediaFile> options)
+        public async Task<IActionResult> SearchFiles([FromODataBody] MediaSearchQuery query, ODataQueryOptions<MediaFile> options)
         {
             try
             {
                 var state = _webApiService.GetState();
-                var query = parameters.GetValueSafe<MediaSearchQuery>("Query") ?? new() { PageSize = state.MaxTop };
+                query ??= new() { PageSize = state.MaxTop };
                 query.PageSize = Math.Min(query.PageSize, state.MaxTop);
 
                 var flags = GetLoadFlags(options);
@@ -204,74 +207,18 @@ namespace Smartstore.Web.Api.Controllers.OData
         }
 
         /// <summary>
-        /// Gets a value indicating whether a file exists.
-        /// </summary>
-        /// <param name="parameters">Contains the path of the file.</param>
-        [HttpPost]
-        [ApiConsumes(Json, "{ \"Path\":\"content/my-file.jpg\" }")]
-        [Produces(Json)]
-        [ProducesResponseType(typeof(bool), Status200OK)]
-        [ProducesResponseType(Status400BadRequest)]
-        [ProducesResponseType(Status422UnprocessableEntity)]
-        public async Task<IActionResult> FileExists(ODataActionParameters parameters)
-        {
-            try
-            {
-                var path = parameters.GetValueSafe<string>("Path");
-                var fileExists = await _mediaService.FileExistsAsync(path);
-
-                return Ok(fileExists);
-            }
-            catch (Exception ex)
-            {
-                return ErrorResult(ex);
-            }
-        }
-
-        /// <summary>
-        /// Checks the uniqueness of a file name.
-        /// </summary>
-        /// <param name="parameters">Contains the path of the file.</param>
-        [HttpPost]
-        [ApiConsumes(Json, "{ \"Path\": \"content/my-file.jpg\" }")]
-        [Produces(Json)]
-        [ProducesResponseType(typeof(CheckUniquenessResult), Status200OK)]
-        [ProducesResponseType(Status400BadRequest)]
-        [ProducesResponseType(Status422UnprocessableEntity)]
-        public async Task<IActionResult> CheckUniqueFileName(ODataActionParameters parameters)
-        {
-            try
-            {
-                var path = parameters.GetValueSafe<string>("Path");
-                var success = (await _mediaService.CheckUniqueFileNameAsync(path)).Out(out var newPath);
-
-                return Ok(new CheckUniquenessResult
-                {
-                    Result = success,
-                    NewPath = newPath
-                });
-            }
-            catch (Exception ex)
-            {
-                return ErrorResult(ex);
-            }
-        }
-
-        /// <summary>
         /// Ges the number of files that match the filter criteria in query property.
         /// </summary>
-        /// <param name="parameters">Contains the search query parameters.</param>
-        [HttpPost]
-        [ApiConsumes(Json, "{ \"Query\": { \"FolderId\":7, \"Extensions\": [\"jpg\"] } }", Required = false)]
-        [Produces(Json)]
+        /// <param name="query">The query that defines the filter criteria.</param>
+        [HttpPost("MediaFiles/CountFiles")]
+        [Consumes(Json), Produces(Json)]
         [ProducesResponseType(typeof(int), Status200OK)]
         [ProducesResponseType(Status400BadRequest)]
         [ProducesResponseType(Status422UnprocessableEntity)]
-        public async Task<IActionResult> CountFiles(ODataActionParameters parameters)
+        public async Task<IActionResult> CountFiles([FromODataBody] MediaSearchQuery query)
         {
             try
             {
-                var query = parameters.GetValueSafe<MediaSearchQuery>("Query");
                 var count = await _mediaService.CountFilesAsync(query ?? new MediaSearchQuery());
 
                 return Ok(count);
@@ -283,21 +230,19 @@ namespace Smartstore.Web.Api.Controllers.OData
         }
 
         /// <summary>
-        /// Gets the number of files that match the filter criteria in Filter property.
+        /// Gets the number of files that match filter criteria.
         /// </summary>
-        /// <param name="parameters">Contains the files filter.</param>
-        [HttpPost]
-        [ApiConsumes(Json, "{ \"Filter\": { \"Term\": \"my image\", \"Extensions\": [\"jpg\"] } }", Required = false)]
-        [Produces(Json)]
+        /// <param name="filter">Filter criteria.</param>
+        [HttpPost("MediaFiles/CountFilesGrouped")]
+        [Consumes(Json), Produces(Json)]
         [ProducesResponseType(typeof(MediaCountResult), Status200OK)]
         [ProducesResponseType(Status400BadRequest)]
         [ProducesResponseType(Status422UnprocessableEntity)]
-        public async Task<IActionResult> CountFilesGrouped(ODataActionParameters parameters)
+        public async Task<IActionResult> CountFilesGrouped([FromODataBody] MediaFilesFilter filter)
         {
             try
             {
-                var query = parameters.GetValueSafe<MediaFilesFilter>("Filter");
-                var fc = await _mediaService.CountFilesGroupedAsync(query ?? new MediaFilesFilter());
+                var fc = await _mediaService.CountFilesGroupedAsync(filter ?? new MediaFilesFilter());
 
                 var result = new MediaCountResult
                 {
@@ -324,18 +269,70 @@ namespace Smartstore.Web.Api.Controllers.OData
         }
 
         /// <summary>
+        /// Gets a value indicating whether a file exists.
+        /// </summary>
+        /// <param name="path" example="content/my-file.jpg">The path of the file.</param>
+        [HttpPost("MediaFiles/FileExists")]
+        [Consumes(Json), Produces(Json)]
+        [ProducesResponseType(typeof(bool), Status200OK)]
+        [ProducesResponseType(Status400BadRequest)]
+        [ProducesResponseType(Status422UnprocessableEntity)]
+        public async Task<IActionResult> FileExists([FromODataBody, Required] string path)
+        {
+            try
+            {
+                var fileExists = await _mediaService.FileExistsAsync(path);
+
+                return Ok(fileExists);
+            }
+            catch (Exception ex)
+            {
+                return ErrorResult(ex);
+            }
+        }
+
+        /// <summary>
+        /// Checks the uniqueness of a file name.
+        /// </summary>
+        /// <param name="path" example="content/my-file.jpg">The path of the file.</param>
+        [HttpPost("MediaFiles/CheckUniqueFileName")]
+        [Consumes(Json), Produces(Json)]
+        [ProducesResponseType(typeof(CheckUniquenessResult), Status200OK)]
+        [ProducesResponseType(Status400BadRequest)]
+        [ProducesResponseType(Status422UnprocessableEntity)]
+        public async Task<IActionResult> CheckUniqueFileName([FromODataBody, Required] string path)
+        {
+            try
+            {
+                var success = (await _mediaService.CheckUniqueFileNameAsync(path)).Out(out var newPath);
+
+                return Ok(new CheckUniquenessResult
+                {
+                    Result = success,
+                    NewPath = newPath
+                });
+            }
+            catch (Exception ex)
+            {
+                return ErrorResult(ex);
+            }
+        }
+
+        /// <summary>
         /// Moves a file.
         /// </summary>
-        /// <param name="parameters">Contains the new file name and a duplicate file handling flag (optional).</param>
-        [HttpPost, ApiQueryable]
+        /// <param name="destinationFileName" example="content/updated-file-name.jpg">The destination file name.</param>
+        /// <param name="duplicateFileHandling" example="0">A value indicating how to proceed if the destination file already exists.</param>
+        [HttpPost("MediaFiles({key})/MoveFile"), ApiQueryable]
         [Permission(Permissions.Media.Update)]
-        [ApiConsumes(Json, "{ \"DestinationFileName\": \"content/updated-file-name.jpg\" }")]
-        [Produces(Json)]
+        [Consumes(Json), Produces(Json)]
         [ProducesResponseType(typeof(FileItemInfo), Status200OK)]
         [ProducesResponseType(Status400BadRequest)]
         [ProducesResponseType(Status404NotFound)]
         [ProducesResponseType(Status422UnprocessableEntity)]
-        public async Task<IActionResult> MoveFile(int key, ODataActionParameters parameters)
+        public async Task<IActionResult> MoveFile(int key, 
+            [FromODataBody, Required] string destinationFileName, 
+            [FromODataBody] DuplicateFileHandling duplicateFileHandling = DuplicateFileHandling.ThrowError)
         {
             try
             {
@@ -345,8 +342,6 @@ namespace Smartstore.Web.Api.Controllers.OData
                     return NotFound(key, nameof(MediaFile));
                 }
 
-                var destinationFileName = parameters.GetValueSafe<string>("DestinationFileName");
-                var duplicateFileHandling = parameters.GetValueSafe("DuplicateFileHandling", DuplicateFileHandling.ThrowError);
                 var movedFile = await _mediaService.MoveFileAsync(file.File, destinationFileName, duplicateFileHandling);
 
                 return Ok(Convert(movedFile));
@@ -360,16 +355,18 @@ namespace Smartstore.Web.Api.Controllers.OData
         /// <summary>
         /// Copies a file.
         /// </summary>
-        /// <param name="parameters">Contains the new file name and a duplicate file handling flag (optional).</param>
-        [HttpPost, ApiQueryable]
+        /// <param name="destinationFileName" example="content/new-file.jpg">The destination file name.</param>
+        /// <param name="duplicateFileHandling" example="0">A value indicating how to proceed if the destination file already exists.</param>
+        [HttpPost("MediaFiles({key})/CopyFile"), ApiQueryable]
         [Permission(Permissions.Media.Update)]
-        [ApiConsumes(Json, "{ \"DestinationFileName\": \"content/new-file.jpg\" }")]
-        [Produces(Json)]
+        [Consumes(Json), Produces(Json)]
         [ProducesResponseType(typeof(MediaFileOperationResult), Status200OK)]
         [ProducesResponseType(Status400BadRequest)]
         [ProducesResponseType(Status404NotFound)]
         [ProducesResponseType(Status422UnprocessableEntity)]
-        public async Task<IActionResult> CopyFile(int key, ODataActionParameters parameters)
+        public async Task<IActionResult> CopyFile(int key,
+            [FromODataBody, Required] string destinationFileName,
+            [FromODataBody] DuplicateFileHandling duplicateFileHandling = DuplicateFileHandling.ThrowError)
         {
             try
             {
@@ -379,8 +376,6 @@ namespace Smartstore.Web.Api.Controllers.OData
                     return NotFound(key, nameof(MediaFile));
                 }
 
-                var destinationFileName = parameters.GetValueSafe<string>("DestinationFileName");
-                var duplicateFileHandling = parameters.GetValueSafe("DuplicateFileHandling", DuplicateFileHandling.ThrowError);
                 var copiedFile = await _mediaService.CopyFileAsync(file, destinationFileName, duplicateFileHandling);
 
                 var result = new MediaFileOperationResult
@@ -402,16 +397,18 @@ namespace Smartstore.Web.Api.Controllers.OData
         /// <summary>
         /// Deletes a file.
         /// </summary>
-        /// <param name="parameters">Contains a value indicating whether the file should be deleted permanently.</param>
-        [HttpPost]
+        /// <param name="permanent" example="false">A value indicating whether to permanently delete the file.</param>
+        /// <param name="force" example="false">A value indicating whether to delete the file if it is referenced by another entity.</param>
+        [HttpPost("MediaFiles({key})/DeleteFile")]
         [Permission(Permissions.Media.Delete)]
-        [ApiConsumes(Json, "{ \"Permanent\": false }")]
-        [Produces(Json)]
+        [Consumes(Json), Produces(Json)]
         [ProducesResponseType(Status204NoContent)]
         [ProducesResponseType(Status400BadRequest)]
         [ProducesResponseType(Status404NotFound)]
         [ProducesResponseType(Status422UnprocessableEntity)]
-        public async Task<IActionResult> DeleteFile(int key, ODataActionParameters parameters)
+        public async Task<IActionResult> DeleteFile(int key,
+            [FromODataBody, Required] bool permanent,
+            [FromODataBody] bool force = false)
         {
             try
             {
@@ -420,9 +417,6 @@ namespace Smartstore.Web.Api.Controllers.OData
                 {
                     return NotFound(key, nameof(MediaFile));
                 }
-
-                var permanent = parameters.GetValueSafe<bool>("Permanent");
-                var force = parameters.GetValueSafe("Force", false);
 
                 await _mediaService.DeleteFileAsync(file.File, permanent, force);
 
@@ -441,8 +435,7 @@ namespace Smartstore.Web.Api.Controllers.OData
         /// </summary>
         [HttpPost, ApiQueryable]
         [Permission(Permissions.Media.Upload)]
-        [ApiConsumes("multipart/form-data")]
-        [Produces(Json)]
+        [Consumes("multipart/form-data"), Produces(Json)]
         [ProducesResponseType(typeof(FileItemInfo), Status200OK)]
         [ProducesResponseType(Status400BadRequest)]
         [ProducesResponseType(Status415UnsupportedMediaType)]

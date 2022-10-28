@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.OData;
 using Microsoft.AspNetCore.OData.Batch;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Microsoft.OData;
 using Microsoft.OData.Json;
 using Microsoft.OData.ModelBuilder;
 using Smartstore.Engine;
@@ -65,6 +66,14 @@ namespace Smartstore.Web.Api.Bootstrapping
                     ApplySettings(batchHandler, settings);
 
                     services.AddSingleton<ODataBatchHandler>(_ => batchHandler);
+
+                    // TODO: (mg) (core) does not work. Registration is ignored.
+                    // Validator ignores JsonPropertyAttribute but example shows camel-case.
+                    //services.AddSingleton(_ => new ODataMessageReaderSettings
+                    //{
+                    //    // Avoid ODataException: The property 'folderId' does not exist on type 'MediaSearchQuery'.
+                    //    EnablePropertyNameCaseInsensitive = true
+                    //});
                 });
             }
             else

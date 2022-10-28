@@ -1,4 +1,4 @@
-﻿namespace Smartstore.Web.Api.Models.OData
+﻿namespace Smartstore.Web.Api.Models
 {
     /// <summary>
     /// Represents a simple value range.

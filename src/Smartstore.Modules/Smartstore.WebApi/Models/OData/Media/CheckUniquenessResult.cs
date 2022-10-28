@@ -1,4 +1,4 @@
-﻿namespace Smartstore.Web.Api.Models.OData.Media
+﻿namespace Smartstore.Web.Api.Models.Media
 {
     public partial class CheckUniquenessResult
     {

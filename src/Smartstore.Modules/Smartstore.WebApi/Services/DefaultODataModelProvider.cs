@@ -10,8 +10,8 @@ using Smartstore.Core.Identity;
 using Smartstore.Core.Localization;
 using Smartstore.Engine;
 using Smartstore.Web.Api.Controllers.OData;
-using Smartstore.Web.Api.Models.OData;
-using Smartstore.Web.Api.Models.OData.Media;
+using Smartstore.Web.Api.Models;
+using Smartstore.Web.Api.Models.Media;
 
 namespace Smartstore.Web.Api
 {
@@ -85,54 +85,57 @@ namespace Smartstore.Web.Api
             infoSet.EntityType.Collection
                 .Action(nameof(MediaFilesController.SearchFiles))
                 .ReturnsFromEntitySet<FileItemInfo>(setName)
-                .Parameter<MediaSearchQuery>("Query");
+                .Parameter<MediaSearchQuery>("query")
+                .Optional();
+
+            infoSet.EntityType.Collection
+                .Action(nameof(MediaFilesController.CountFiles))
+                .Returns<int>()
+                .Parameter<MediaSearchQuery>("query")
+                .Optional();
+
+            infoSet.EntityType.Collection
+                .Action(nameof(MediaFilesController.CountFilesGrouped))
+                .Returns<MediaCountResult>()
+                .Parameter<MediaFilesFilter>("filter")
+                .Optional();
 
             infoSet.EntityType.Collection
                 .Action(nameof(MediaFilesController.FileExists))
                 .Returns<bool>()
-                .Parameter<string>("Path")
+                .Parameter<string>("path")
                 .Required();
 
             infoSet.EntityType.Collection
                 .Action(nameof(MediaFilesController.CheckUniqueFileName))
                 .Returns<CheckUniquenessResult>()
-                .Parameter<string>("Path")
+                .Parameter<string>("path")
                 .Required();
-
-            infoSet.EntityType.Collection
-                .Action(nameof(MediaFilesController.CountFiles))
-                .Returns<int>()
-                .Parameter<MediaSearchQuery>("Query");
-
-            infoSet.EntityType.Collection
-                .Action(nameof(MediaFilesController.CountFilesGrouped))
-                .Returns<MediaCountResult>()
-                .Parameter<MediaFilesFilter>("Filter");
 
             var moveFile = infoSet.EntityType
                 .Action(nameof(MediaFilesController.MoveFile))
                 .ReturnsFromEntitySet<FileItemInfo>(setName);
 
-            moveFile.Parameter<string>("DestinationFileName")
+            moveFile.Parameter<string>("destinationFileName")
                 .Required();
-            moveFile.Parameter<DuplicateFileHandling>("DuplicateFileHandling")
-                .HasDefaultValue(bool.TrueString);
+            moveFile.Parameter<DuplicateFileHandling>("duplicateFileHandling")
+                .Optional();
 
             var copyFile = infoSet.EntityType
                 .Action(nameof(MediaFilesController.CopyFile))
                 .Returns<MediaFileOperationResult>();
 
-            copyFile.Parameter<string>("DestinationFileName")
+            copyFile.Parameter<string>("destinationFileName")
                 .Required();
-            copyFile.Parameter<DuplicateFileHandling>("DuplicateFileHandling")
-                .HasDefaultValue(bool.TrueString);
+            copyFile.Parameter<DuplicateFileHandling>("duplicateFileHandling")
+                .Optional();
 
             var deleteFile = infoSet.EntityType
                 .Action(nameof(MediaFilesController.DeleteFile));
 
-            deleteFile.Parameter<bool>("Permanent")
+            deleteFile.Parameter<bool>("permanent")
                 .Required();
-            deleteFile.Parameter<bool>("Force")
+            deleteFile.Parameter<bool>("force")
                 .HasDefaultValue(bool.FalseString);
 
             infoSet.EntityType.Collection

@@ -3,7 +3,7 @@ using Microsoft.OData.ModelBuilder;
 using Smartstore.Core.Content.Media;
 using Smartstore.Domain;
 
-namespace Smartstore.Web.Api.Models.OData.Media
+namespace Smartstore.Web.Api.Models.Media
 {
     // INFO: should not be inherited from MediaFile because then navigation properties cannot be expanded using $expand (e.g. $expand=File($expand=Tracks)).
     // Should not use [Contained] because throws "The Path property in ODataMessageWriterSettings.ODataUri must be set when writing contained elements".
