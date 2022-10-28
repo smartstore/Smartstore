@@ -60,7 +60,7 @@
 }
 
 .choice-box-group {
-    $choice-box-padding:        0.2rem;
+    $choice-box-padding:        3px;
     $choice-box-size:           2.8rem;
     $choice-box-size-lg:        4rem;
     $choice-box-size-sm:        2.3rem;
@@ -118,9 +118,9 @@
 
 	.choice-box-element {
         display: inline-block;
-        border: 1px solid rgba(0,0,0, .3);
+        border: 1px solid rgba(0,0,0, .15);
+        border-radius: $border-radius;
         background-color: #fff;
-        transition: border-color 0.1s linear;
 
         height: $choice-box-size;
         line-height: $choice-box-size;
@@ -134,7 +134,7 @@
         background-repeat: no-repeat;
         background-position: 50% 50%;
 
-        &:hover { border-color: rgba(0,0,0, 0.7); }
+        &:hover { border-color: rgba(0,0,0, 0.5); }
 
         .choice-box-text {
             padding: 0 0.4rem;
