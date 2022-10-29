@@ -30,6 +30,7 @@ using Smartstore.Web.Infrastructure.Hooks;
 using Smartstore.Web.Models.Catalog;
 using Smartstore.Web.Models.Catalog.Mappers;
 using Smartstore.Web.Models.Media;
+using Smartstore.Web.Rendering;
 
 namespace Smartstore.Web.Controllers
 {
@@ -50,6 +51,7 @@ namespace Smartstore.Web.Controllers
         private readonly IMediaService _mediaService;
         private readonly ILocalizationService _localizationService;
         private readonly IPriceCalculationService _priceCalculationService;
+        private readonly IPriceLabelService _priceLabelService;
         private readonly IStockSubscriptionService _stockSubscriptionService;
         private readonly MediaSettings _mediaSettings;
         private readonly CatalogSettings _catalogSettings;
@@ -84,6 +86,7 @@ namespace Smartstore.Web.Controllers
             ICurrencyService currencyService,
             IMediaService mediaService,
             IPriceCalculationService priceCalculationService,
+            IPriceLabelService priceLabelService,
             IStockSubscriptionService stockSubscriptionService,
             MediaSettings mediaSettings,
             CatalogSettings catalogSettings,
@@ -119,6 +122,7 @@ namespace Smartstore.Web.Controllers
             _mediaService = mediaService;
             _localizationService = _services.Localization;
             _priceCalculationService = priceCalculationService;
+            _priceLabelService = priceLabelService;
             _stockSubscriptionService = stockSubscriptionService;
             _measureSettings = measureSettings;
             _taxSettings = taxSettings;
@@ -1510,6 +1514,7 @@ namespace Smartstore.Web.Controllers
 
             // INFO: original code difference. Adjustments of priceWithoutDiscount were calculated with quantity of 1. Why? Makes little sense to me.
             // Be careful, options are shallow copied! 'calculationOptions.IgnoreDiscounts = true' would not work.
+            // TODO: (pricing) WTF is this here? Why call pipeline twice?!
             calculationContext.Options.IgnoreDiscounts = true;
             var priceWithoutDiscount = await _priceCalculationService.CalculatePriceAsync(calculationContext);
 
@@ -1521,8 +1526,9 @@ namespace Smartstore.Web.Controllers
                 if (comparePrice > 0 && comparePrice > priceWithoutDiscount.FinalPrice)
                 {
                     model.ProductPrice.OldPrice = comparePrice;
+                    PrepareRetailPriceModel(model.ProductPrice, priceWithDiscount, comparePrice);
                 }
-
+                
                 applyDiscountNote = priceWithoutDiscount.FinalPrice != priceWithDiscount.FinalPrice;
             }
 
@@ -1531,8 +1537,22 @@ namespace Smartstore.Web.Controllers
                 model.ProductPrice.PriceValidUntilUtc = product.SpecialPriceEndDateTimeUtc.Value.ToString("u");
             }
 
+            // Regular price
             model.ProductPrice.Price = priceWithoutDiscount.FinalPrice;
+            if (priceWithDiscount.PriceSaving.HasSaving)
+            {
+                PrepareRegularPriceModel(model.ProductPrice, priceWithDiscount);
+            }
+
+            // Final price
             model.ProductPrice.PriceWithDiscount = priceWithDiscount.FinalPrice;
+
+            model.ProductPrice.FinalPrice = new ProductDetailsModel.PriceModel
+            {
+                Price = priceWithDiscount.FinalPrice,
+            };
+            PreparePromoBadge(model.ProductPrice, priceWithDiscount);
+
             model.BasePriceInfo = _priceCalculationService.GetBasePriceInfo(product, priceWithDiscount.FinalPrice, currency);
 
             if (model.ProductPrice.OldPrice > 0 || applyDiscountNote)
@@ -1554,6 +1574,60 @@ namespace Smartstore.Web.Controllers
             }
 
             model.TierPrices = await CreateTierPriceModelAsync(modelContext, product);
+        }
+
+        private void PreparePromoBadge(ProductDetailsModel.ProductPriceModel model, CalculatedPrice price)
+        {
+            // TODO: (pricing) Add label for bundle (formerly *Notes)
+            var (label, style) = _priceLabelService.GetPricePromoBadge(price);
+            
+            if (label.HasValue())
+            {
+                model.Badges.Add(new ProductDetailsModel.PriceBadgeModel
+                {
+                    Label = label,
+                    Style = style ?? "dark"
+                });
+            }
+        }
+
+        private void PrepareRegularPriceModel(ProductDetailsModel.ProductPriceModel model, CalculatedPrice price)
+        {
+            if (!price.PriceSaving.HasSaving)
+            {
+                return;
+            }
+            
+            // TODO: (price) Should we pass origin product or is CalculatedPrice.Product sufficient? 
+            var priceLabel = _priceLabelService.GetRegularPriceLabel(price.Product);
+
+            // TODO: (price) Apply localization.
+            model.RegularPrice = new ProductDetailsModel.PriceModel
+            {
+                Price = price.RegularPrice,
+                Label = priceLabel.Name.NullEmpty() ?? priceLabel.ShortName,
+                Description = priceLabel.Description
+            };
+        }
+
+        private void PrepareRetailPriceModel(ProductDetailsModel.ProductPriceModel model, CalculatedPrice price, Money comparePrice)
+        {
+            // TODO: (price) Should we pass origin product or is CalculatedPrice.Product sufficient? 
+            var priceLabel = _priceLabelService.GetComparePriceLabel(price.Product);
+
+            if (price.PriceSaving.HasSaving && priceLabel.IsRetailPrice && !_priceSettings.AlwaysDisplayRetailPrice)
+            {
+                // TODO: (pricing) does not feel right and surely it isn't!
+                return;
+            }
+
+            // TODO: (price) Check and apply MSRP flag and label with localization.
+            model.RetailPrice = new ProductDetailsModel.PriceModel
+            {
+                Price = comparePrice,
+                Label = priceLabel.Name.NullEmpty() ?? priceLabel.ShortName,
+                Description = priceLabel.Description
+            };
         }
 
         protected void PrepareProductCartModel(ProductDetailsModel model, ProductDetailsModelContext modelContext, int selectedQuantity)

@@ -244,23 +244,15 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
     font-weight: $font-weight-medium;
 }
 
-.pd-oldprice-group {
-    font-size: $font-size-sm;
-    //color: $gray-700;
-}
-
-.pd-oldprice-line {
-    display: flex;
-}
-
 .pd-oldprice {
     display: inline-block;
-    //color: $text-muted;
+    color: $text-muted;
     text-decoration: line-through;
 }
 
 .pd-saving-percent {
-    margin-left: 6px;
+    font-weight: $font-weight-medium;
+    color: $danger;
 }
 
 .pd-callforprice,
@@ -270,6 +262,29 @@ $pd-offer-spacing:              $grid-gutter-width / 2;
 
 .pd-legalinfo {
     font-size: $font-size-sm;
+}
+
+
+
+.pd-promoprice-group {
+    font-size: $font-size-sm;
+}
+
+.pd-promoprice-line {
+    display: flex;
+}
+
+.pd-promoprice {
+    display: inline-block;
+    text-decoration: line-through;
+}
+
+.pd-promosaving {
+    display: inline-block;
+}
+
+.pd-promosaving-percent {
+    margin-left: 6px;
 }
 
 

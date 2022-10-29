@@ -56,6 +56,11 @@ namespace Smartstore.Core.Catalog.Pricing
         public decimal? OfferPrice { get; set; }
 
         /// <summary>
+        /// The end date of the special offer price, if any (see <see cref="Product.SpecialPrice"/>).
+        /// </summary>
+        public DateTime? OfferEndDateUtc { get; set; }
+
+        /// <summary>
         /// The price that is initially displayed on the product detail page, if any.
         /// Includes price adjustments of preselected attributes and prices of attribute combinations.
         /// </summary>

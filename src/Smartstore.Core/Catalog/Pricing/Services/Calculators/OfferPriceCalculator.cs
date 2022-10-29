@@ -30,6 +30,7 @@
                 if ((from == null || now >= from) && (to == null || now <= to))
                 {
                     context.OfferPrice = product.SpecialPrice;
+                    context.OfferEndDateUtc = to;
                     context.FinalPrice = product.SpecialPrice.Value;
                 }
             }

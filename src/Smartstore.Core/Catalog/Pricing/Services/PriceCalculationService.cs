@@ -311,6 +311,7 @@ namespace Smartstore.Core.Catalog.Pricing
                 Product = product,
                 RegularPrice = ConvertAmount(context.RegularPrice, context, taxRate, false, out _).Value,
                 OfferPrice = ConvertAmount(context.OfferPrice, context, taxRate, false, out _),
+                OfferEndDateUtc = context.OfferEndDateUtc,
                 PreselectedPrice = ConvertAmount(context.PreselectedPrice, context, taxRate, false, out _),
                 LowestPrice = ConvertAmount(context.LowestPrice, context, taxRate, false, out _),
                 DiscountAmount = ConvertAmount(context.DiscountAmount, context, taxRate, false, out _).Value,

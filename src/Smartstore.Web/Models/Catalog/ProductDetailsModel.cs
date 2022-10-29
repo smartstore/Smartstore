@@ -8,6 +8,7 @@ using Smartstore.Core.Localization;
 using Smartstore.Core.Stores;
 using Smartstore.Web.Models.Common;
 using Smartstore.Web.Models.Media;
+using Smartstore.Web.Rendering;
 using Smartstore.Web.Rendering.Choices;
 
 namespace Smartstore.Web.Models.Catalog
@@ -204,10 +205,31 @@ namespace Smartstore.Web.Models.Catalog
             public bool AvailableForPreOrder { get; set; }
         }
 
+        // TODO: (pricing) Move to somewhere global
+        public partial class PriceModel
+        {
+            public string Label { get; set; }
+            public string Description { get; set; }
+            public Money Price { get; set; }
+        }
+
+        // TODO: (pricing) Move to somewhere global (and combine with ProductSummaryModel.BadgeModel)
+        public partial class PriceBadgeModel
+        {
+            public string Label { get; set; }
+            public string Style { get; set; }
+            public int DisplayOrder { get; set; }
+        }
+
         public partial class ProductPriceModel : ModelBase
         {
-            public Money OldPrice { get; set; }
+            public List<PriceBadgeModel> Badges { get; } = new();
+            
+            public PriceModel FinalPrice { get; set; }
+            public PriceModel RegularPrice { get; set; }
+            public PriceModel RetailPrice { get; set; }
 
+            public Money OldPrice { get; set; }
             public Money Price { get; set; }
             public Money PriceWithDiscount { get; set; }
 

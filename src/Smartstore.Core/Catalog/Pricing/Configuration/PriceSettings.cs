@@ -109,7 +109,7 @@ namespace Smartstore.Core.Catalog.Pricing
         /// <summary>
         /// The style of the offer badge.
         /// </summary>
-        public int OfferBadgeStyle { get; set; }
+        public string OfferBadgeStyle { get; set; } = "dark";
 
         /// <summary>
         /// The label of the offer badge if the offer is limited, e.g. "Limited time deal".
@@ -120,7 +120,7 @@ namespace Smartstore.Core.Catalog.Pricing
         /// <summary>
         /// The style of the limited time offer badge.
         /// </summary>
-        public int LimitedOfferBadgeStyle { get; set; }
+        public string LimitedOfferBadgeStyle { get; set; } = "dark";
 
 
         // TBD: ShowSaving, SavingDisplayStyle

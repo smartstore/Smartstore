@@ -51,6 +51,11 @@ namespace Smartstore.Core.Catalog.Pricing
         public Money? OfferPrice { get; set; }
 
         /// <summary>
+        /// The end date of the offer (if any).
+        /// </summary>
+        public DateTime? OfferEndDateUtc { get; set; }
+
+        /// <summary>
         /// The price that is initially displayed on the product detail page, if any.
         /// Includes price adjustments of preselected attributes and prices of attribute combinations.
         /// </summary>

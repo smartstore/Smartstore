@@ -74,9 +74,10 @@ namespace Smartstore.Core.Bootstrapping
             builder.RegisterType<ProductRuleOptionsProvider>().As<IRuleOptionsProvider>().InstancePerLifetimeScope();
             builder.RegisterType<ProductTagRuleOptionsProvider>().As<IRuleOptionsProvider>().InstancePerLifetimeScope();
 
-            // Price calculation.
+            // Pricing
             builder.RegisterType<PriceCalculationService>().As<IPriceCalculationService>().InstancePerLifetimeScope();
             builder.RegisterType<PriceCalculatorFactory>().As<IPriceCalculatorFactory>().InstancePerLifetimeScope();
+            builder.RegisterType<PriceLabelService>().As<IPriceLabelService>().InstancePerLifetimeScope();
 
             DiscoverCalculators(builder, appContext);
         }
