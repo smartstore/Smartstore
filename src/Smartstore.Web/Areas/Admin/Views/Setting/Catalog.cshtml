@@ -828,21 +828,28 @@
 
             <div class="adminContent">
                 <div class="adminRow">
-                    <div class="adminTitle">
-                        <smart-label asp-for="PriceSettings.ShowBasePriceInProductLists" />
-                    </div>
-                    <div class="adminData">
-                        <setting-editor asp-for="PriceSettings.ShowBasePriceInProductLists"></setting-editor>
-                        <span asp-validation-for="PriceSettings.ShowBasePriceInProductLists"></span>
+                    <div class="admin-config-group">
+                        <div class="head">@T("Admin.Configuration.Settings.Price.Display")</div>
                     </div>
                 </div>
                 <div class="adminRow">
                     <div class="adminTitle">
-                        <smart-label asp-for="PriceSettings.BundleItemShowBasePrice" />
+                        <smart-label asp-for="PriceSettings.PriceDisplayStyle" />
                     </div>
                     <div class="adminData">
-                        <setting-editor asp-for="PriceSettings.BundleItemShowBasePrice"></setting-editor>
-                        <span asp-validation-for="PriceSettings.BundleItemShowBasePrice"></span>
+                        <setting-editor asp-for="PriceSettings.PriceDisplayStyle"></setting-editor>
+                        <span asp-validation-for="PriceSettings.PriceDisplayStyle"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="PriceSettings.PriceDisplayType" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="PriceSettings.PriceDisplayType">
+                            <select asp-for="PriceSettings.PriceDisplayType" asp-items="Html.GetLocalizedEnumSelectList(typeof(PriceDisplayType))"></select>
+                        </setting-editor>
+                        <span asp-validation-for="PriceSettings.PriceDisplayType"></span>
                     </div>
                 </div>
                 <div class="adminRow">
@@ -865,15 +872,6 @@
                 </div>
                 <div class="adminRow">
                     <div class="adminTitle">
-                        <smart-label asp-for="PriceSettings.ShowDiscountSign" />
-                    </div>
-                    <div class="adminData">
-                        <setting-editor asp-for="PriceSettings.ShowDiscountSign"></setting-editor>
-                        <span asp-validation-for="PriceSettings.ShowDiscountSign"></span>
-                    </div>
-                </div>
-                <div class="adminRow">
-                    <div class="adminTitle">
                         <smart-label asp-for="PriceSettings.DisplayTextForZeroPrices" />
                     </div>
                     <div class="adminData">
@@ -881,13 +879,34 @@
                         <span asp-validation-for="PriceSettings.DisplayTextForZeroPrices"></span>
                     </div>
                 </div>
+
+                <div class="adminRow">
+                    <div class="admin-config-group">
+                        <div class="head">@T("Admin.Configuration.Settings.Price.Baseprice")</div>
+                    </div>
+                </div>
                 <div class="adminRow">
                     <div class="adminTitle">
-                        <smart-label asp-for="PriceSettings.PriceDisplayStyle" />
+                        <smart-label asp-for="PriceSettings.ShowBasePriceInProductLists" />
                     </div>
                     <div class="adminData">
-                        <setting-editor asp-for="PriceSettings.PriceDisplayStyle"></setting-editor>
-                        <span asp-validation-for="PriceSettings.PriceDisplayStyle"></span>
+                        <setting-editor asp-for="PriceSettings.ShowBasePriceInProductLists"></setting-editor>
+                        <span asp-validation-for="PriceSettings.ShowBasePriceInProductLists"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="PriceSettings.BundleItemShowBasePrice" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="PriceSettings.BundleItemShowBasePrice"></setting-editor>
+                        <span asp-validation-for="PriceSettings.BundleItemShowBasePrice"></span>
+                    </div>
+                </div>
+
+                <div class="adminRow">
+                    <div class="admin-config-group">
+                        <div class="head">@T("Admin.Configuration.Settings.Price.Discounts")</div>
                     </div>
                 </div>
                 <div class="adminRow">
@@ -919,42 +938,25 @@
                 </div>
                 <div class="adminRow">
                     <div class="adminTitle">
-                        <smart-label asp-for="PriceSettings.PriceDisplayType" />
-                    </div>
-                    <div class="adminData">
-                        <setting-editor asp-for="PriceSettings.PriceDisplayType">
-                            <select asp-for="PriceSettings.PriceDisplayType" asp-items="Html.GetLocalizedEnumSelectList(typeof(PriceDisplayType))"></select>
-                        </setting-editor>
-                        <span asp-validation-for="PriceSettings.PriceDisplayType"></span>
-                    </div>
-                </div>
-
-                @*TODO: (mh) (core) NEW*@
-                <div class="adminRow">
-                    <div class="adminTitle">
-                        <smart-label asp-for="PriceSettings.DefaultComparePriceLabelId" />
-                    </div>
-                    <div class="adminData">
-                        <setting-editor asp-for="PriceSettings.DefaultComparePriceLabelId"></setting-editor>
-                        <span asp-validation-for="PriceSettings.DefaultComparePriceLabelId"></span>
-                    </div>
-                </div>
-                <div class="adminRow">
-                    <div class="adminTitle">
-                        <smart-label asp-for="PriceSettings.DefaultRegularPriceLabelId" />
-                    </div>
-                    <div class="adminData">
-                        <setting-editor asp-for="PriceSettings.DefaultRegularPriceLabelId"></setting-editor>
-                        <span asp-validation-for="PriceSettings.DefaultRegularPriceLabelId"></span>
-                    </div>
-                </div>
-                <div class="adminRow">
-                    <div class="adminTitle">
                         <smart-label asp-for="PriceSettings.OfferPriceReplacesRegularPrice" />
                     </div>
                     <div class="adminData">
                         <setting-editor asp-for="PriceSettings.OfferPriceReplacesRegularPrice"></setting-editor>
                         <span asp-validation-for="PriceSettings.OfferPriceReplacesRegularPrice"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="admin-config-group">
+                        <div class="head">@T("Admin.Configuration.Settings.Price.DiscountDisplay")</div>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="PriceSettings.ShowDiscountSign" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="PriceSettings.ShowDiscountSign"></setting-editor>
+                        <span asp-validation-for="PriceSettings.ShowDiscountSign"></span>
                     </div>
                 </div>
                 <div class="adminRow">
@@ -964,6 +966,28 @@
                     <div class="adminData">
                         <setting-editor asp-for="PriceSettings.AlwaysDisplayRetailPrice"></setting-editor>
                         <span asp-validation-for="PriceSettings.AlwaysDisplayRetailPrice"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="PriceSettings.DefaultComparePriceLabelId" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="PriceSettings.DefaultComparePriceLabelId">
+                            <select asp-for="PriceSettings.DefaultComparePriceLabelId" asp-items="ViewBag.AvailableDefaultComparePriceLabels"></select>
+                        </setting-editor>
+                        <span asp-validation-for="PriceSettings.DefaultComparePriceLabelId"></span>
+                    </div>
+                </div>
+                <div class="adminRow">
+                    <div class="adminTitle">
+                        <smart-label asp-for="PriceSettings.DefaultRegularPriceLabelId" />
+                    </div>
+                    <div class="adminData">
+                        <setting-editor asp-for="PriceSettings.DefaultRegularPriceLabelId">
+                            <select asp-for="PriceSettings.DefaultRegularPriceLabelId" asp-items="ViewBag.AvailableDefaultRegularPriceLabels"></select>
+                        </setting-editor>
+                        <span asp-validation-for="PriceSettings.DefaultRegularPriceLabelId"></span>
                     </div>
                 </div>
                 <div class="adminRow">
@@ -980,44 +1004,50 @@
                         <smart-label asp-for="PriceSettings.ShowOfferBadge" />
                     </div>
                     <div class="adminData">
-                        <setting-editor asp-for="PriceSettings.ShowOfferBadge"></setting-editor>
+                        <setting-editor asp-for="PriceSettings.ShowOfferBadge" data-toggler-for=".pnlPriceBadges"></setting-editor>
                         <span asp-validation-for="PriceSettings.ShowOfferBadge"></span>
                     </div>
                 </div>
-                <div class="adminRow">
-                    <div class="adminTitle">
-                        <smart-label asp-for="PriceSettings.OfferBadgeLabel" />
+                <div class="pnlPriceBadges">
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="PriceSettings.OfferBadgeLabel" />
+                        </div>
+                        <div class="adminData">
+                            <setting-editor asp-for="PriceSettings.OfferBadgeLabel"></setting-editor>
+                            <span asp-validation-for="PriceSettings.OfferBadgeLabel"></span>
+                        </div>
                     </div>
-                    <div class="adminData">
-                        <setting-editor asp-for="PriceSettings.OfferBadgeLabel"></setting-editor>
-                        <span asp-validation-for="PriceSettings.OfferBadgeLabel"></span>
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="PriceSettings.OfferBadgeStyle" />
+                        </div>
+                        <div class="adminData">
+                            <setting-editor asp-for="PriceSettings.OfferBadgeStyle">
+                                <select asp-for="PriceSettings.OfferBadgeStyle" asp-items="ViewBag.OfferBadgeStyles"></select>
+                            </setting-editor>
+                            <span asp-validation-for="PriceSettings.OfferBadgeStyle"></span>
+                        </div>
                     </div>
-                </div>
-                <div class="adminRow">
-                    <div class="adminTitle">
-                        <smart-label asp-for="PriceSettings.OfferBadgeStyle" />
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="PriceSettings.LimitedOfferBadgeLabel" />
+                        </div>
+                        <div class="adminData">
+                            <setting-editor asp-for="PriceSettings.LimitedOfferBadgeLabel"></setting-editor>
+                            <span asp-validation-for="PriceSettings.LimitedOfferBadgeLabel"></span>
+                        </div>
                     </div>
-                    <div class="adminData">
-                        <setting-editor asp-for="PriceSettings.OfferBadgeStyle"></setting-editor>
-                        <span asp-validation-for="PriceSettings.OfferBadgeStyle"></span>
-                    </div>
-                </div>
-                <div class="adminRow">
-                    <div class="adminTitle">
-                        <smart-label asp-for="PriceSettings.LimitedOfferBadgeLabel" />
-                    </div>
-                    <div class="adminData">
-                        <setting-editor asp-for="PriceSettings.LimitedOfferBadgeLabel"></setting-editor>
-                        <span asp-validation-for="PriceSettings.LimitedOfferBadgeLabel"></span>
-                    </div>
-                </div>
-                <div class="adminRow">
-                    <div class="adminTitle">
-                        <smart-label asp-for="PriceSettings.LimitedOfferBadgeStyle" />
-                    </div>
-                    <div class="adminData">
-                        <setting-editor asp-for="PriceSettings.LimitedOfferBadgeStyle"></setting-editor>
-                        <span asp-validation-for="PriceSettings.LimitedOfferBadgeStyle"></span>
+                    <div class="adminRow">
+                        <div class="adminTitle">
+                            <smart-label asp-for="PriceSettings.LimitedOfferBadgeStyle" />
+                        </div>
+                        <div class="adminData">
+                            <setting-editor asp-for="PriceSettings.LimitedOfferBadgeStyle">
+                                <select asp-for="PriceSettings.LimitedOfferBadgeStyle" asp-items="ViewBag.LimitedOfferBadgeStyles"></select>
+                            </setting-editor>
+                            <span asp-validation-for="PriceSettings.LimitedOfferBadgeStyle"></span>
+                        </div>
                     </div>
                 </div>
             </div>

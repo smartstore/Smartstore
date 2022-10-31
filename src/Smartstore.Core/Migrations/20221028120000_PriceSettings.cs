@@ -73,7 +73,6 @@ namespace Smartstore.Core.Data.Migrations
         {
             builder.AddOrUpdate("Admin.Configuration.Settings.Price", "Prices", "Preise");
             
-            // TODO: (mh) (core) Check all of these again.
             builder.AddOrUpdate("Admin.Configuration.Settings.Price.DefaultComparePriceLabelId",
                 "Default \"Compare Price\" label",
                 "Standard Label für den Vergleichspreis",
@@ -223,6 +222,11 @@ namespace Smartstore.Core.Data.Migrations
                 "Prozentuale Ermäßigungen von Staffelpreisen auf Auf- & Abpreise von Attributen anwenden",
                 "Specifies whether to apply tierprice percentage to attribute price adjustments.",
                 "Bestimmt, ob prozentuale Ermäßigungen von Staffelpreisen auf Auf- & Abpreise von Attributen angewendet werden sollen");
+
+            builder.AddOrUpdate("Admin.Configuration.Settings.Price.Display", "Display", "Darstellung");
+            builder.AddOrUpdate("Admin.Configuration.Settings.Price.Baseprice", "Base prices", "Grundpreise");
+            builder.AddOrUpdate("Admin.Configuration.Settings.Price.Discounts", "Discounts", "Rabatte");
+            builder.AddOrUpdate("Admin.Configuration.Settings.Price.DiscountDisplay", "Discount display", "Rabattdarstellung");
         }
     }
 }

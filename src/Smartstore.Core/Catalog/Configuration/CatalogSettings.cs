@@ -1,5 +1,4 @@
-﻿using Smartstore.Core.Catalog.Pricing;
-using Smartstore.Core.Catalog.Products;
+﻿using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Common;
 using Smartstore.Core.Configuration;
 

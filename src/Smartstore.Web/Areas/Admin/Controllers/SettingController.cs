@@ -7,6 +7,7 @@ using Smartstore.Admin.Models;
 using Smartstore.ComponentModel;
 using Smartstore.Core.Catalog;
 using Smartstore.Core.Catalog.Categories;
+using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Catalog.Search;
 using Smartstore.Core.Catalog.Search.Modelling;
 using Smartstore.Core.Checkout.Cart;
@@ -383,22 +384,25 @@ namespace Smartstore.Admin.Controllers
 
         [Permission(Permissions.Configuration.Setting.Read)]
         [LoadSetting]
-        public async Task<IActionResult> Catalog(CatalogSettings catalogSettings)
+        public async Task<IActionResult> Catalog(CatalogSettings catalogSettings, PriceSettings priceSettings)
         {
             var model = await MapperFactory.MapAsync<CatalogSettings, CatalogSettingsModel>(catalogSettings);
+            await MapperFactory.MapAsync(priceSettings, model.PriceSettings);
 
-            PrepareCatalogConfigurationModel(model);
+            await PrepareCatalogConfigurationModelAsync(model);
+
+            // TODO: (mh) (core) Add locales
 
             return View(model);
         }
 
         [Permission(Permissions.Configuration.Setting.Update)]
         [HttpPost, SaveSetting]
-        public async Task<IActionResult> Catalog(CatalogSettings catalogSettings, CatalogSettingsModel model)
+        public async Task<IActionResult> Catalog(CatalogSettings catalogSettings, PriceSettings priceSettings, CatalogSettingsModel model)
         {
             if (!ModelState.IsValid)
             {
-                return await Catalog(catalogSettings);
+                return await Catalog(catalogSettings, priceSettings);
             }
 
             ModelState.Clear();
@@ -411,6 +415,14 @@ namespace Smartstore.Admin.Controllers
             }
 
             await MapperFactory.MapAsync(model, catalogSettings);
+
+            await MapperFactory.MapAsync(model.PriceSettings, priceSettings);
+
+            // TODO: (mh) (core) Add locales
+            //foreach (var localized in model.Locales)
+            //{
+            //    await _localizedEntityService.ApplyLocalizedSettingAsync(addressSettings, x => x.Salutations, localized.Salutations, localized.LanguageId, storeScope);
+            //}
 
             return NotifyAndRedirect("Catalog");
         }
@@ -1430,12 +1442,50 @@ namespace Smartstore.Admin.Controllers
             #endregion
         }
 
-        private void PrepareCatalogConfigurationModel(CatalogSettingsModel model)
+        private async Task PrepareCatalogConfigurationModelAsync(CatalogSettingsModel model)
         {
             ViewBag.AvailableDefaultViewModes = new List<SelectListItem>
             {
                 new SelectListItem { Value = "grid", Text = T("Common.Grid"), Selected = model.DefaultViewMode.EqualsNoCase("grid") },
                 new SelectListItem { Value = "list", Text = T("Common.List"), Selected = model.DefaultViewMode.EqualsNoCase("list") }
+            };
+
+            var priceLabels = await _db.PriceLabels
+                .OrderBy(x => x.DisplayOrder)
+                .ToListAsync();
+
+            ViewBag.AvailableDefaultComparePriceLabels = new List<SelectListItem>();
+            ViewBag.AvailableDefaultRegularPriceLabels = new List<SelectListItem>();
+
+            foreach (var label in priceLabels)
+            {
+                ViewBag.AvailableDefaultComparePriceLabels.Add(new SelectListItem { 
+                    Value = label.Id.ToString(), 
+                    Text = label.GetLocalized(x => x.ShortName), 
+                    Selected = model.PriceSettings.DefaultComparePriceLabelId == label.Id
+                });
+
+                ViewBag.AvailableDefaultRegularPriceLabels.Add(new SelectListItem
+                {
+                    Value = label.Id.ToString(),
+                    Text = label.GetLocalized(x => x.ShortName),
+                    Selected = model.PriceSettings.DefaultRegularPriceLabelId == label.Id
+                });
+            }
+
+            ViewBag.LimitedOfferBadgeStyles = AddBadgeStyles(model.PriceSettings.LimitedOfferBadgeStyle);
+            ViewBag.OfferBadgeStyles = AddBadgeStyles(model.PriceSettings.OfferBadgeStyle);
+
+            static List<SelectListItem> AddBadgeStyles(int settingValue) => new()
+            {
+                new SelectListItem { Value = ((int)BadgeStyle.Secondary).ToString(), Text = "Secondary", Selected = settingValue == (int)BadgeStyle.Secondary },
+                new SelectListItem { Value = ((int)BadgeStyle.Primary).ToString(), Text = "Primary", Selected = settingValue == (int)BadgeStyle.Primary },
+                new SelectListItem { Value = ((int)BadgeStyle.Success).ToString(), Text = "Success", Selected = settingValue == (int)BadgeStyle.Success },
+                new SelectListItem { Value = ((int)BadgeStyle.Info).ToString(), Text = "Info", Selected = settingValue == (int)BadgeStyle.Info },
+                new SelectListItem { Value = ((int)BadgeStyle.Warning).ToString(), Text = "Warning", Selected = settingValue == (int)BadgeStyle.Warning },
+                new SelectListItem { Value = ((int)BadgeStyle.Danger).ToString(), Text = "Danger", Selected = settingValue == (int)BadgeStyle.Danger },
+                new SelectListItem { Value = ((int)BadgeStyle.Light).ToString(), Text = "Light", Selected = settingValue == (int)BadgeStyle.Light },
+                new SelectListItem { Value = ((int)BadgeStyle.Dark).ToString(), Text = "Dark", Selected = settingValue == (int)BadgeStyle.Dark }
             };
         }
 

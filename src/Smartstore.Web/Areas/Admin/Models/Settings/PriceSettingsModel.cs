@@ -55,22 +55,26 @@ namespace Smartstore.Admin.Models
 
         [LocalizedDisplay("*AlwaysDisplayRetailPrice")]
         public bool AlwaysDisplayRetailPrice { get; set; } = true;
-
+        
         [LocalizedDisplay("*ShowOfferCountdownRemainingHours")]
         public int? ShowOfferCountdownRemainingHours { get; set; } = 72;
 
         [LocalizedDisplay("*ShowOfferBadge")]
         public bool ShowOfferBadge { get; set; } = true;
 
+        // TODO: (mh) (core) Add localization
         [LocalizedDisplay("*OfferBadgeLabel")]
         public string OfferBadgeLabel { get; set; }
 
+        // TODO: (mh) (core) This must become a string setting
         [LocalizedDisplay("*OfferBadgeStyle")]
         public int OfferBadgeStyle { get; set; }
 
+        // TODO: (mh) (core) Add localization
         [LocalizedDisplay("*LimitedOfferBadgeLabel")]
         public string LimitedOfferBadgeLabel { get; set; }
 
+        // TODO: (mh) (core) This must become a string setting
         [LocalizedDisplay("*LimitedOfferBadgeStyle")]
         public int LimitedOfferBadgeStyle { get; set; }
 

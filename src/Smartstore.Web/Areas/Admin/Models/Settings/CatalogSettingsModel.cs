@@ -283,7 +283,6 @@ namespace Smartstore.Admin.Models
 
         #endregion
 
-        // TODO: (mh) (core) Why nest these and overcomplicate things?
-        public PriceSettingsModel PriceSettings { get; set; }
+        public PriceSettingsModel PriceSettings { get; set; } = new();
     }
 }
