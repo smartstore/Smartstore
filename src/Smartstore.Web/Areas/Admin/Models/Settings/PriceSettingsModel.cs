@@ -66,17 +66,15 @@ namespace Smartstore.Admin.Models
         [LocalizedDisplay("*OfferBadgeLabel")]
         public string OfferBadgeLabel { get; set; }
 
-        // TODO: (mh) (core) This must become a string setting
         [LocalizedDisplay("*OfferBadgeStyle")]
-        public int OfferBadgeStyle { get; set; }
+        public string OfferBadgeStyle { get; set; } = "dark";
 
         // TODO: (mh) (core) Add localization
         [LocalizedDisplay("*LimitedOfferBadgeLabel")]
         public string LimitedOfferBadgeLabel { get; set; }
 
-        // TODO: (mh) (core) This must become a string setting
         [LocalizedDisplay("*LimitedOfferBadgeStyle")]
-        public int LimitedOfferBadgeStyle { get; set; }
+        public string LimitedOfferBadgeStyle { get; set; } = "dark";
 
         #endregion
     }

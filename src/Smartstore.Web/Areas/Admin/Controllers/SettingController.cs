@@ -1476,17 +1476,17 @@ namespace Smartstore.Admin.Controllers
             ViewBag.LimitedOfferBadgeStyles = AddBadgeStyles(model.PriceSettings.LimitedOfferBadgeStyle);
             ViewBag.OfferBadgeStyles = AddBadgeStyles(model.PriceSettings.OfferBadgeStyle);
 
-            static List<SelectListItem> AddBadgeStyles(int settingValue) => new()
+            static List<SelectListItem> AddBadgeStyles(string selectedValue)
             {
-                new SelectListItem { Value = ((int)BadgeStyle.Secondary).ToString(), Text = "Secondary", Selected = settingValue == (int)BadgeStyle.Secondary },
-                new SelectListItem { Value = ((int)BadgeStyle.Primary).ToString(), Text = "Primary", Selected = settingValue == (int)BadgeStyle.Primary },
-                new SelectListItem { Value = ((int)BadgeStyle.Success).ToString(), Text = "Success", Selected = settingValue == (int)BadgeStyle.Success },
-                new SelectListItem { Value = ((int)BadgeStyle.Info).ToString(), Text = "Info", Selected = settingValue == (int)BadgeStyle.Info },
-                new SelectListItem { Value = ((int)BadgeStyle.Warning).ToString(), Text = "Warning", Selected = settingValue == (int)BadgeStyle.Warning },
-                new SelectListItem { Value = ((int)BadgeStyle.Danger).ToString(), Text = "Danger", Selected = settingValue == (int)BadgeStyle.Danger },
-                new SelectListItem { Value = ((int)BadgeStyle.Light).ToString(), Text = "Light", Selected = settingValue == (int)BadgeStyle.Light },
-                new SelectListItem { Value = ((int)BadgeStyle.Dark).ToString(), Text = "Dark", Selected = settingValue == (int)BadgeStyle.Dark }
-            };
+                var items = new List<SelectListItem>();
+
+                foreach (var value in Enum.GetNames(typeof(BadgeStyle)))
+                {
+                    items.Add(new SelectListItem { Value = value.ToLower(), Text = value, Selected = selectedValue.EqualsNoCase(value) });
+                }
+
+                return items;
+            }
         }
 
         private void PrepareSearchConfigModel(SearchSettingsModel model, SearchSettings searchSettings, IModuleDescriptor megaSearchPlusDescriptor)
