@@ -119,7 +119,7 @@ namespace Smartstore.Web.Api.Controllers.OData
         /// Gets files by identifiers.
         /// </summary>
         /// <param name="ids" example="[1,2,3]">Comma separated list of MediaFile identifiers.</param>
-        [HttpGet("MediaFiles/GetFilesByIds(Ids={ids})"), ApiQueryable]
+        [HttpGet("MediaFiles/GetFilesByIds(ids={ids})"), ApiQueryable]
         [Produces(Json)]
         [ProducesResponseType(typeof(IEnumerable<FileItemInfo>), Status200OK)]
         [ProducesResponseType(Status400BadRequest)]
@@ -148,7 +148,7 @@ namespace Smartstore.Web.Api.Controllers.OData
         /// <summary>
         /// Downloads a file.
         /// </summary>
-        [HttpGet("MediaFiles/Download(Id={id})")]
+        [HttpGet("MediaFiles/Download(id={id})")]
         [ProducesResponseType(Status200OK)]
         [ProducesResponseType(Status400BadRequest)]
         [ProducesResponseType(Status404NotFound)]
@@ -174,8 +174,7 @@ namespace Smartstore.Web.Api.Controllers.OData
         }
 
         // TODO: (mg) (core) produces ODataException: The property 'folderId' does not exist on type 'Smartstore.Core.Content.Media.MediaSearchQuery'.
-        // Validator ignores JsonPropertyAttribute but example shows camel-case.
-        // We must set ODataMessageReaderSettings.EnablePropertyNameCaseInsensitive to true somehow. 
+        // Changing ODataMessageReaderSettings without any effect.
 
         /// <summary>
         /// Searches for files using filter criteria.

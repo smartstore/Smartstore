@@ -2,12 +2,15 @@
 using Autofac;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.OData;
+using Microsoft.AspNetCore.OData.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
+using Microsoft.OData;
 using Microsoft.OpenApi.Models;
 using Smartstore.Engine;
 using Smartstore.Engine.Builders;
@@ -197,11 +200,66 @@ namespace Smartstore.Web.Api
 
                     // Add the OData Batch middleware to support OData $batch.
                     app.UseODataBatching();
-                    app.UseMiddleware<ODataBatchHttpContextAccessor>();
+
+                    app.Use((context, next) =>
+                    {
+                        // Fixes null for IHttpContextAccessor.HttpContext when executing odata batch items.
+                        // Needs to be placed after UseODataBatching. See
+                        // https://github.com/dotnet/aspnet-api-versioning/issues/633
+                        // https://github.com/OData/WebApi/issues/2294
+                        var contextAccessor = builder.ApplicationContext.Services.Resolve<IHttpContextAccessor>();
+                        contextAccessor.HttpContext ??= context;
+
+                        return next(context);
+                    });
 
                     // If you want to use /$openapi, enable the middleware.
                     //app.UseODataOpenApi();
                 });
+
+                builder.Configure(StarterOrdering.AfterWorkContextMiddleware, app =>
+                {
+                    // TODO: (mg) (core) does not work. Changing ODataMessageReaderSettings without any effect.
+                    //app.Use((context, next) =>
+                    //{
+                    //    var odataOptions = context.RequestServices.GetRequiredService<IOptions<ODataOptions>>();
+                    //    var routeServices = odataOptions.Value.GetRouteServices("odata/v1");
+                    //    var rs = routeServices.GetRequiredService<ODataMessageReaderSettings>();
+
+                    //    rs.EnablePropertyNameCaseInsensitive = true;
+                    //    rs.Validations = rs.Validations & ~ValidationKinds.ThrowOnUndeclaredPropertyForNonOpenType;
+
+                    //    // V4 True False (before and after).
+                    //    $"2 ODataMessageReaderSettings {rs.Version} {rs.EnablePropertyNameCaseInsensitive} {rs.Validations.HasFlag(ValidationKinds.ThrowOnUndeclaredPropertyForNonOpenType)}".Dump();
+
+                    //    return next(context);
+                    //});
+
+                    app.Use(async (context, next) =>
+                    {
+                        try
+                        {
+                            await next(context);
+                            //if (!context.Response.IsSuccessStatusCode() && context.Request.Path.StartsWithSegments("/odata", StringComparison.OrdinalIgnoreCase))...
+                        }
+                        catch (ODataException ex)
+                        {
+                            // Let the ErrorController handle ODataErrorException and (if accepted)
+                            // return the standard OData error JSON instead of something the client do not expect.
+                            var odataError = new ODataError
+                            {
+                                ErrorCode = Status500InternalServerError.ToString(),
+                                Message = ex.Message,
+                                InnerError = new ODataInnerError(ex)
+                            };
+
+                            var odataEx = new ODataErrorException(ex.Message, ex.InnerException, odataError);
+                            odataEx.Data["JsonContent"] = odataError.ToString();
+                            odataEx.ReThrow();
+                        }
+                    });
+                });
+
             }
         }
     }

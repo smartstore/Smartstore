@@ -85,6 +85,7 @@ namespace Smartstore.Web.Api.Swagger
             if (mi.DeclaringType.HasAttribute<AuthorizeAttribute>(true) || mi.HasAttribute<AuthorizeAttribute>(true))
             {
                 helper.Op.Responses[Status401Unauthorized.ToString()] = CreateUnauthorizedResponse();
+                helper.Op.Responses[Status500InternalServerError.ToString()] = CreateInternalServerResponse();
             }
 
             if (!canProcess)
@@ -504,7 +505,10 @@ namespace Smartstore.Web.Api.Swagger
             => new() { Description = "The requested resource was not found." };
 
         private static OpenApiResponse CreateBadRequestResponse()
-            => new() { Description = "Bad request. Occurs, for example, when the data sent is incorrect." };
+            => new() { Description = "Bad request. The reason is assumed to be a client error, like incorrect data, data formatting or request syntax." };
+
+        private static OpenApiResponse CreateInternalServerResponse()
+            => new() { Description = "Internal server error. Indicates that the server has encountered an unexpected error." };
 
         private static OpenApiResponse CreateNoContentResponse()
             => new() { Description = "The request has succeeded. There is no content provided." };

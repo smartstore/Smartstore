@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Net;
+using System.Net.Mime;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Controllers;
@@ -41,8 +42,15 @@ namespace Smartstore.Web.Controllers
                 model.ActionDescriptor = model.Endpoint.Metadata.OfType<ControllerActionDescriptor>().FirstOrDefault();
             }
 
-            if (Request.IsAjax())
+            if (Request.IsAjax() || Request.Headers.Accept.Any(x => x.StartsWithNoCase(MediaTypeNames.Application.Json)))
             {
+                var json = model.Exception?.Data["JsonContent"]?.ToString();
+                if (json.HasValue())
+                {
+                    // Return JSON content instead of our ErrorModel.
+                    return Content(json, MediaTypeNames.Application.Json);
+                }
+
                 return Json(model);
             }
 

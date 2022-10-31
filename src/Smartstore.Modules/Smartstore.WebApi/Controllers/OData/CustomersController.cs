@@ -178,6 +178,11 @@ namespace Smartstore.Web.Api.Controllers.OData
                 .Include(x => x.Addresses)
                 .FindByIdAsync(key);
 
+            if (entity == null)
+            {
+                return NotFound(key);
+            }
+
             var address = entity.Addresses.FirstOrDefault(x => x.Id == relatedkey);
             if (address == null)
             {
@@ -209,6 +214,11 @@ namespace Smartstore.Web.Api.Controllers.OData
             var entity = await Entities
                 .Include(x => x.Addresses)
                 .FindByIdAsync(key);
+
+            if (entity == null)
+            {
+                return NotFound(key);
+            }
 
             if (relatedkey == 0)
             {

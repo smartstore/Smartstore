@@ -51,6 +51,7 @@ namespace Smartstore.Web.Api.Bootstrapping
                 // Why enabling EnableKeyAsSegment? We need KeyInParenthesis for OData functions anyway.
                 options.RouteOptions.EnableKeyAsSegment = false;
                 options.RouteOptions.EnableKeyInParenthesis = true;
+                options.RouteOptions.EnablePropertyNameCaseInsensitive = true;              
 
                 // INFO: does not have to be set here on the basis of the settings. Will be applied later in ApiQueryableAttribute.
                 options.EnableQueryFeatures(WebApiSettings.DefaultMaxTop);
@@ -67,14 +68,23 @@ namespace Smartstore.Web.Api.Bootstrapping
 
                     services.AddSingleton<ODataBatchHandler>(_ => batchHandler);
 
-                    // TODO: (mg) (core) does not work. Registration is ignored.
-                    // Validator ignores JsonPropertyAttribute but example shows camel-case.
-                    //services.AddSingleton(_ => new ODataMessageReaderSettings
-                    //{
-                    //    // Avoid ODataException: The property 'folderId' does not exist on type 'MediaSearchQuery'.
-                    //    EnablePropertyNameCaseInsensitive = true
-                    //});
+                    // TODO: (mg) (core) does not work. ODataMessageReaderSettings without any effect.
+                    //services.Remove(x => x.ServiceType == typeof(ODataMessageReaderSettings));
+                    //services.Add(new ServiceDescriptor(
+                    //    typeof(ODataMessageReaderSettings), 
+                    //    x => new ODataMessageReaderSettings()
+                    //    {
+                    //        EnablePropertyNameCaseInsensitive = true,
+                    //        Validations = ValidationKinds.All & ~ValidationKinds.ThrowOnUndeclaredPropertyForNonOpenType
+                    //    }, 
+                    //    Microsoft.Extensions.DependencyInjection.ServiceLifetime.Singleton));
                 });
+
+                //var routeServices = options.GetRouteServices("odata/v1");
+                //var rs = routeServices.GetRequiredService<ODataMessageReaderSettings>();
+
+                // V4 True False.
+                //$"1 ODataMessageReaderSettings {rs.Version} {rs.EnablePropertyNameCaseInsensitive} {rs.Validations.HasFlag(ValidationKinds.ThrowOnUndeclaredPropertyForNonOpenType)}".Dump();
             }
             else
             {

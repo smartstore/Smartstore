@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
-using Smartstore.Web.Api.Models;
+using Microsoft.OData;
 
 namespace Smartstore.Web.Api.Security
 {
@@ -48,20 +48,61 @@ namespace Smartstore.Web.Api.Security
 
             try
             {
+                var headers = Response.Headers;
+                headers.Add(AppVersionHeader, SmartstoreVersion.CurrentFullVersion);
+                headers.Add(VersionHeader, state.Version);
+                headers.Add(MaxTopHeader, state.MaxTop.ToString());
+                headers.Add(DateHeader, DateTime.UtcNow.ToString("o"));
+
                 if (!state.IsActive)
                 {
-                    throw new AuthenticationException(AccessDeniedReason.ApiDisabled);
+                    return Failure(AccessDeniedReason.ApiDisabled);
                 }
 
                 if (!Request.IsHttps && Options.SslRequired)
                 {
-                    throw new AuthenticationException(AccessDeniedReason.SslRequired);
+                    return Failure(AccessDeniedReason.SslRequired, null, Status421MisdirectedRequest);
                 }
 
                 // INFO: must be executed before setting LastRequest.
                 _apiUserStore.Activate(TimeSpan.FromMinutes(15));
 
-                var user = await GetUser();
+                var rawAuthValue = Request?.Headers[HeaderNames.Authorization];
+                if (!AuthenticationHeaderValue.TryParse(rawAuthValue, out var authHeader) || authHeader?.Parameter == null)
+                {
+                    return Failure(AccessDeniedReason.InvalidAuthorizationHeader);
+                }
+
+                var credentialsStr = Encoding.UTF8.GetString(Convert.FromBase64String(authHeader.Parameter));
+                if (!credentialsStr.SplitToPair(out var publicKey, out _, ":") || publicKey.IsEmpty())
+                {
+                    return Failure(AccessDeniedReason.InvalidAuthorizationHeader);
+                }
+
+                var apiUsers = await _apiService.GetApiUsersAsync();
+                if (!apiUsers.TryGetValue(publicKey, out var user) || user == null)
+                {
+                    return Failure(AccessDeniedReason.UserUnknown, publicKey);
+                }
+
+                if (!user.Enabled)
+                {
+                    return Failure(AccessDeniedReason.UserDisabled, publicKey);
+                }
+
+                if (credentialsStr != $"{user.PublicKey}:{user.SecretKey}")
+                {
+                    return Failure(AccessDeniedReason.InvalidCredentials, publicKey);
+                }
+
+                user.LastRequest = DateTime.UtcNow;
+
+                Request.HttpContext.Items["Smartstore.WebApi.MaxTop"] = state.MaxTop;
+                Request.HttpContext.Items["Smartstore.WebApi.MaxExpansionDepth"] = state.MaxExpansionDepth;
+
+                headers.Add(CustomerIdHeader, user.CustomerId.ToString());
+                headers.CacheControl = "no-cache";
+
                 var claims = new[]
                 {
                     new Claim(ClaimTypes.NameIdentifier, user.CustomerId.ToString(), ClaimValueTypes.Integer32, ClaimsIssuer)
@@ -70,32 +111,12 @@ namespace Smartstore.Web.Api.Security
                 var principal = new ClaimsPrincipal(new ClaimsIdentity(claims, Scheme.Name));
                 var ticket = new AuthenticationTicket(principal, Scheme.Name);
 
-                user.LastRequest = DateTime.UtcNow;
-
-                Request.HttpContext.Items["Smartstore.WebApi.MaxTop"] = state.MaxTop;
-                Request.HttpContext.Items["Smartstore.WebApi.MaxExpansionDepth"] = state.MaxExpansionDepth;
-
-                SetResponseHeaders(null, user, state);
-
                 //$"Authenticated API request using scheme {Scheme.Name}: customer {user.CustomerId}.".Dump();
                 return AuthenticateResult.Success(ticket);
             }
             catch (Exception ex)
             {
-                if (ex is AuthenticationException aex)
-                {
-                    Response.StatusCode = aex.StatusCode;
-                }
-                else
-                {
-                    Response.StatusCode = Status401Unauthorized;
-                }
-
-                Response.HttpContext.Features.Set<IExceptionHandlerPathFeature>(new AuthenticationExceptionPathFeature(ex, Request));
-
-                SetResponseHeaders(ex, null, state);
-
-                return AuthenticateResult.Fail(ex);
+                return Failure(ex.Message, ex);
             }
         }
 
@@ -105,82 +126,66 @@ namespace Smartstore.Web.Api.Security
             return Task.CompletedTask;
         }
 
-        private async Task<WebApiUser> GetUser()
+        private AuthenticateResult Failure(AccessDeniedReason reason, string publicKey = null, int statusCode = Status401Unauthorized)
         {
-            var rawAuthValue = Request?.Headers[HeaderNames.Authorization];
-            if (!AuthenticationHeaderValue.TryParse(rawAuthValue, out var authHeader) || authHeader?.Parameter == null)
-            {
-                throw new AuthenticationException(AccessDeniedReason.InvalidAuthorizationHeader);
-            }
+            Response.Headers.Add(ResultIdHeader, ((int)reason).ToString());
+            Response.Headers.Add(ResultDescriptionHeader, reason.ToString());
 
-            var credentialsStr = Encoding.UTF8.GetString(Convert.FromBase64String(authHeader.Parameter));
-            if (!credentialsStr.SplitToPair(out var publicKey, out _, ":") || publicKey.IsEmpty())
-            {
-                throw new AuthenticationException(AccessDeniedReason.InvalidAuthorizationHeader);
-            }
-
-            var apiUsers = await _apiService.GetApiUsersAsync();
-            if (!apiUsers.TryGetValue(publicKey, out var user) || user == null)
-            {
-                throw new AuthenticationException(AccessDeniedReason.UserUnknown, publicKey);
-            }
-
-            if (!user.Enabled)
-            {
-                throw new AuthenticationException(AccessDeniedReason.UserDisabled, publicKey);
-            }
-
-            if (credentialsStr != $"{user.PublicKey}:{user.SecretKey}")
-            {
-                throw new AuthenticationException(AccessDeniedReason.InvalidCredentials, publicKey);
-            }
-
-            return user;
+            return Failure(CreateMessage(reason, publicKey), null, statusCode);
         }
 
-        private void SetResponseHeaders(Exception ex, WebApiUser user, WebApiState state)
+        private AuthenticateResult Failure(string message, Exception ex = null, int statusCode = Status401Unauthorized)
         {
-            var headers = Response.Headers;
+            Response.StatusCode = statusCode;
 
-            headers.Add(AppVersionHeader, SmartstoreVersion.CurrentFullVersion);
-            headers.Add(VersionHeader, state.Version);
-            headers.Add(MaxTopHeader, state.MaxTop.ToString());
-            headers.Add(DateHeader, DateTime.UtcNow.ToString("o"));
-
-            if (user != null)
+            if (!Options.SuppressWWWAuthenticateHeader)
             {
-                headers.Add(CustomerIdHeader, user.CustomerId.ToString());
+                Response.Headers.WWWAuthenticate = AuthenticateHeader;
             }
 
-            if (ex == null)
+            var odataError = new ODataError
             {
-                headers.CacheControl = "no-cache";
-            }
-            else
-            {
-                if (!Options.SuppressWWWAuthenticateHeader)
-                {
-                    headers.WWWAuthenticate = AuthenticateHeader;
-                }
+                ErrorCode = statusCode.ToString(),
+                Message = message,
+                InnerError = ex != null ? new ODataInnerError(ex) : null
+            };
 
-                if (ex is AuthenticationException aex)
-                {
-                    headers.Add(ResultIdHeader, ((int)aex.DeniedReason).ToString());
-                    headers.Add(ResultDescriptionHeader, aex.DeniedReason.ToString());
-                }
-            }
-        }
-    }
+            var odataEx = new ODataErrorException(message, ex, odataError);
+            odataEx.Data["JsonContent"] = odataError.ToString();
 
-    internal class AuthenticationExceptionPathFeature : IExceptionHandlerPathFeature
-    {
-        public AuthenticationExceptionPathFeature(Exception ex, HttpRequest request)
-        {
-            Error = ex;
-            Path = request?.Path;
+            // Let the ErrorController handle ODataErrorException.
+            Response.HttpContext.Features.Set<IExceptionHandlerPathFeature>(new ODataExceptionHandlerPathFeature(odataEx, Request));
+
+            return AuthenticateResult.Fail(odataEx);
         }
 
-        public Exception Error { get; }
-        public string Path { get; }
+        private static string CreateMessage(AccessDeniedReason reason, string publicKey)
+        {
+            string msg = null;
+
+            switch (reason)
+            {
+                case AccessDeniedReason.ApiDisabled:
+                    msg = "Web API is disabled.";
+                    break;
+                case AccessDeniedReason.SslRequired:
+                    msg = "Web API requests require SSL.";
+                    break;
+                case AccessDeniedReason.InvalidAuthorizationHeader:
+                    msg = "Missing or invalid authorization header. Must have the format 'PublicKey:SecretKey'.";
+                    break;
+                case AccessDeniedReason.InvalidCredentials:
+                    msg = $"The credentials sent for user with public key {publicKey.NaIfEmpty()} do not match.";
+                    break;
+                case AccessDeniedReason.UserUnknown:
+                    msg = $"Unknown user. The public key {publicKey.NaIfEmpty()} does not exist.";
+                    break;
+                case AccessDeniedReason.UserDisabled:
+                    msg = $"Access via Web API is disabled for the user with public key {publicKey.NaIfEmpty()}.";
+                    break;
+            }
+
+            return $"Access to the Web API was denied. Reason: {reason}. {msg.NaIfEmpty()}";
+        }
     }
 }

@@ -73,13 +73,13 @@ namespace Smartstore.Web.Api
             infoSet.EntityType.Collection
                 .Function(nameof(MediaFilesController.GetFilesByIds))
                 .ReturnsFromEntitySet<FileItemInfo>(setName)
-                .CollectionParameter<int>("Ids")
+                .CollectionParameter<int>("ids")
                 .Required();
 
             infoSet.EntityType.Collection
                 .Function(nameof(MediaFilesController.Download))
                 .Returns<StreamContent>()
-                .Parameter<int>("Id")
+                .Parameter<int>("id")
                 .Required();
 
             infoSet.EntityType.Collection
