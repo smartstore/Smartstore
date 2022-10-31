@@ -15,7 +15,7 @@ status code 200 with entity content response. This is the default behavior of AS
 - **GET /MediaFiles** returns type FileItemInfo instead of MediaFile which wraps and enriches MediaFile entity. 
 **GET /MediaFolders** returns type FolderNodeInfo instead of MediaFolder which wraps and enriches MediaFolder entity.
 
-- Parameters of OData actions are written in camel case.    
+- Request parameters are always written in camel case, for example for OData actions.    
 Example: old `/MediaFiles/GetFileByPath {"Path":"catalog/my-image.jpg"}`, new `/MediaFiles/GetFileByPath {"path":"catalog/my-image.jpg"}`.
 
 - The prefix of response headers changed from **SmartStore-Net-Api-** to **Smartstore-Api-**. More changes:

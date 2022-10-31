@@ -222,10 +222,11 @@ namespace Smartstore.Web.Api
                     // TODO: (mg) (core) does not work. Changing ODataMessageReaderSettings without any effect.
                     //app.Use((context, next) =>
                     //{
-                    //    var odataOptions = context.RequestServices.GetRequiredService<IOptions<ODataOptions>>();
-                    //    var routeServices = odataOptions.Value.GetRouteServices("odata/v1");
-                    //    var rs = routeServices.GetRequiredService<ODataMessageReaderSettings>();
+                    //    //var odataOptions = context.RequestServices.GetRequiredService<IOptions<ODataOptions>>();
+                    //    //var routeServices = odataOptions.Value.GetRouteServices("odata/v1");
+                    //    //var rs = routeServices.GetRequiredService<ODataMessageReaderSettings>();
 
+                    //    var rs = context.Request.GetReaderSettings();
                     //    rs.EnablePropertyNameCaseInsensitive = true;
                     //    rs.Validations = rs.Validations & ~ValidationKinds.ThrowOnUndeclaredPropertyForNonOpenType;
 

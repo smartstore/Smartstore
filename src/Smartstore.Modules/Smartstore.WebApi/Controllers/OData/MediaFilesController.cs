@@ -465,15 +465,10 @@ namespace Smartstore.Web.Api.Controllers.OData
                 }
 
                 var cd = ContentDispositionHeaderValue.Parse(file.ContentDisposition);
-                var isTransient = cd.GetParameterValue("IsTransient", true);
-                var path = cd.GetParameterValue<string>("Path");
+                var isTransient = cd.GetParameterValue("isTransient", true);
+                var path = cd.GetParameterValue("path", $"{SystemAlbumProvider.Files}/{file.FileName}");
 
-                if (path.IsEmpty() && file.FileName.HasValue())
-                {
-                    path = $"{SystemAlbumProvider.Files}/{file.FileName}";
-                }
-
-                var rawDuplicateFileHandling = cd.GetParameterValue<string>("DuplicateFileHandling");
+                var rawDuplicateFileHandling = cd.GetParameterValue<string>("duplicateFileHandling");
                 _ = Enum.TryParse<DuplicateFileHandling>(rawDuplicateFileHandling.EmptyNull(), out var duplicateFileHandling);
 
                 using var stream = file.OpenReadStream();
