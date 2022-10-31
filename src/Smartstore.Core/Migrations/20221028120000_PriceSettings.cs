@@ -71,8 +71,6 @@ namespace Smartstore.Core.Data.Migrations
 
         public void MigrateLocaleResources(LocaleResourcesBuilder builder)
         {
-            // TODO: (mh) (core) Move resources also (Admin.Configuration.Settings.Catalog.* --> Admin.Configuration.Settings.Price.*)
-
             builder.AddOrUpdate("Admin.Configuration.Settings.Price", "Prices", "Preise");
             
             // TODO: (mh) (core) Check all of these again.
@@ -137,6 +135,94 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.Configuration.Settings.Price.LimitedOfferBadgeStyle",
                 "Limited offer badge style",
                 "Angebots-Badge Stil für zeitlich begrenztes Angebot");
+
+            builder.Delete("Admin.Configuration.Settings.Catalog.ShowBasePriceInProductLists");
+            builder.Delete("Admin.Configuration.Settings.Catalog.ShowBasePriceInProductLists.Hint");
+            builder.AddOrUpdate("Admin.Configuration.Settings.Price.ShowBasePriceInProductLists",
+                "Display base price info in product lists",
+                "Zeige den Grundpreis in Produktlisten",
+                "Specifies whether base price info ist displayed in product lists according to Price Indication Regulation [PAngV]",
+                "Bestimmt, ob der Grundpreis gemäß PAngV in Produktlisten angezeigt wird.");
+
+            builder.Delete("Admin.Configuration.Settings.Catalog.ShowVariantCombinationPriceAdjustment");
+            builder.Delete("Admin.Configuration.Settings.Catalog.ShowVariantCombinationPriceAdjustment.Hint");
+            builder.AddOrUpdate("Admin.Configuration.Settings.Price.ShowVariantCombinationPriceAdjustment",
+                "Show variant combination price adjustments",
+                "Mehr- und Minderpreise bei Variant-Kombinationen anzeigen",
+                "Specifies whether variant combination price adjustments should be displayed.",
+                "Bestimmt, ob Mehr- und Minderpreise bei Variant-Kombinationen angezeigt werden.");
+
+            builder.Delete("Admin.Configuration.Settings.Catalog.ShowLoginForPriceNote");
+            builder.Delete("Admin.Configuration.Settings.Catalog.ShowLoginForPriceNote.Hint");
+            builder.AddOrUpdate("Admin.Configuration.Settings.Price.ShowLoginForPriceNote",
+                "Show login for price note",
+                "Hinweis \"Preis nach Anmeldung\" anzeigen",
+                "Specifies whether to display a message stating that prices will not be displayed until login.",
+                "Legt fest, ob ein Hinweis erscheinen soll, dass Preise erst nach Anmeldung angezeigt werden.");
+
+            builder.Delete("Admin.Configuration.Settings.Catalog.BundleItemShowBasePrice");
+            builder.Delete("Admin.Configuration.Settings.Catalog.BundleItemShowBasePrice.Hint");
+            builder.AddOrUpdate("Admin.Configuration.Settings.Price.BundleItemShowBasePrice",
+                "Base price for bundle items",
+                "Grundpreis bei Bundle-Bestandteilen",
+                "Sets whether the base price should be displayed for bundle items.",
+                "Legt fest, ob der Grundpreis bei Bundle-Bestandteilen angezeigt werden soll.");
+
+            builder.Delete("Admin.Configuration.Settings.Catalog.ShowDiscountSign");
+            builder.Delete("Admin.Configuration.Settings.Catalog.ShowDiscountSign.Hint");
+            builder.AddOrUpdate("Admin.Configuration.Settings.Price.ShowDiscountSign",
+                "Show discount sign",
+                "Rabattzeichen anzeigen",
+                "Specifies whether a discount sign should be displayed on product pictures when discounts were applied.",
+                "Legt fest, ob ein Rabattzeichen auf dem Produktbild angezeigt werden soll, wenn Rabatte angewendet wurden.");
+
+            builder.Delete("Admin.Configuration.Settings.Catalog.PriceDisplayStyle");
+            builder.Delete("Admin.Configuration.Settings.Catalog.PriceDisplayStyle.Hint");
+            builder.AddOrUpdate("Admin.Configuration.Settings.Price.PriceDisplayStyle",
+                "Price display style",
+                "Preisdarstellung",
+                "Specifies the form in which prices are displayed in product lists and on the product detail page.",
+                "Bestimmt die Darstellungform von Preisen in Produktlisten und auf der Produktdetailseite.");
+
+            builder.Delete("Admin.Configuration.Settings.Catalog.PriceDisplayType");
+            builder.Delete("Admin.Configuration.Settings.Catalog.PriceDisplayType.Hint");
+            builder.AddOrUpdate("Admin.Configuration.Settings.Price.PriceDisplayType",
+                "Price display",
+                "Preisanzeige",
+                "Specifies whether or what type of price to be displayed in product lists.",
+                "Legt fest, ob bzw. welcher Typ von Preis in Produktlisten angezeigt werden soll.");
+
+            builder.Delete("Admin.Configuration.Settings.Catalog.DisplayTextForZeroPrices");
+            builder.Delete("Admin.Configuration.Settings.Catalog.DisplayTextForZeroPrices.Hint");
+            builder.AddOrUpdate("Admin.Configuration.Settings.Price.DisplayTextForZeroPrices",
+                "Display text when prices are 0.00",
+                "Zeige Text wenn Preise 0,00 sind",
+                "Specifies whether to display a textual resource (free) instead of the value 0.00.",
+                "Bestimmt, ob statt dem Wert 0,00 eine textuelle Resource (kostenlos) angezeigt werden soll.");
+
+            builder.Delete("Admin.Configuration.Settings.Catalog.IgnoreDiscounts");
+            builder.Delete("Admin.Configuration.Settings.Catalog.IgnoreDiscounts.Hint");
+            builder.AddOrUpdate("Admin.Configuration.Settings.Price.IgnoreDiscounts",
+                "Ignore discounts (sitewide)",
+                "Ignoriere Rabatte",
+                "Check the box to ignore discounts (sitewide). It can significantly improve performance.",
+                "Rabatte im ganzen Shop deaktivieren.");
+
+            builder.Delete("Admin.Configuration.Settings.Catalog.ApplyPercentageDiscountOnTierPrice");
+            builder.Delete("Admin.Configuration.Settings.Catalog.ApplyPercentageDiscountOnTierPrice.Hint");
+            builder.AddOrUpdate("Admin.Configuration.Settings.Price.ApplyPercentageDiscountOnTierPrice",
+                "Apply percentage discounts on tier prices",
+                "Prozentuale Rabatte auf Staffelpreise anwenden",
+                "Specifies whether to apply percentage discounts also on tier prices.",
+                "Legt fest, ob prozentuale Rabatte auch auf Staffelpreise angewendet werden sollen.");
+
+            builder.Delete("Admin.Configuration.Settings.Catalog.ApplyTierPricePercentageToAttributePriceAdjustments");
+            builder.Delete("Admin.Configuration.Settings.Catalog.ApplyTierPricePercentageToAttributePriceAdjustments.Hint");
+            builder.AddOrUpdate("Admin.Configuration.Settings.Price.ApplyTierPricePercentageToAttributePriceAdjustments",
+                "Apply tierprice percentage to attribute price adjustments",
+                "Prozentuale Ermäßigungen von Staffelpreisen auf Auf- & Abpreise von Attributen anwenden",
+                "Specifies whether to apply tierprice percentage to attribute price adjustments.",
+                "Bestimmt, ob prozentuale Ermäßigungen von Staffelpreisen auf Auf- & Abpreise von Attributen angewendet werden sollen");
         }
     }
 }
