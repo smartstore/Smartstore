@@ -44,7 +44,7 @@ namespace Smartstore.Core.Catalog.Pricing
         public (LocalizedValue<string>, string) GetPricePromoBadge(CalculatedPrice price)
         {
             // TODO: (pricing) Properly implement
-            if (!_priceSettings.ShowOfferBadge || !price.PriceSaving.HasSaving)
+            if (!_priceSettings.ShowOfferBadge || !price.Saving.HasSaving)
             {
                 return (null, null);
             }

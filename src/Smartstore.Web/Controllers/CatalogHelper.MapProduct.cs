@@ -685,7 +685,7 @@ namespace Smartstore.Web.Controllers
 
             // -----> Perform calculation <-------
             var calculatedPrice = await _priceCalculationService.CalculatePriceAsync(calculationContext);
-            var savings = calculatedPrice.PriceSaving;
+            var savings = calculatedPrice.Saving;
 
             priceModel.Price = calculatedPrice.FinalPrice;
             priceModel.HasDiscount = savings.HasSaving;

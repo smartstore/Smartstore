@@ -346,7 +346,7 @@ namespace Smartstore.Core.Catalog.Pricing
 
             var hasSaving = savingPrice > 0 && result.FinalPrice < savingPrice;
 
-            result.PriceSaving = new PriceSaving
+            result.Saving = new PriceSaving
             {
                 HasSaving = hasSaving,
                 SavingPrice = savingPrice,

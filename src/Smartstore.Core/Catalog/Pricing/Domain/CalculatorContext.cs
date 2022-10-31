@@ -111,6 +111,7 @@ namespace Smartstore.Core.Catalog.Pricing
             target.FinalPrice = FinalPrice;
             target.HasPriceRange = HasPriceRange;
             target.OfferPrice = OfferPrice;
+            target.OfferEndDateUtc = OfferEndDateUtc;
             target.PreselectedPrice = PreselectedPrice;
             target.LowestPrice = LowestPrice;
             target.MinTierPrice = MinTierPrice;

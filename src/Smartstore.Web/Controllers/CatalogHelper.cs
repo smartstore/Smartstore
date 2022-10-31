@@ -1539,7 +1539,7 @@ namespace Smartstore.Web.Controllers
 
             // Regular price
             model.ProductPrice.Price = priceWithoutDiscount.FinalPrice;
-            if (priceWithDiscount.PriceSaving.HasSaving)
+            if (priceWithDiscount.Saving.HasSaving)
             {
                 PrepareRegularPriceModel(model.ProductPrice, priceWithDiscount);
             }
@@ -1566,7 +1566,7 @@ namespace Smartstore.Web.Controllers
             }
 
             // Calculate saving.
-            var savings = priceWithDiscount.PriceSaving;
+            var savings = priceWithDiscount.Saving;
             if (savings.HasSaving)
             {
                 model.ProductPrice.SavingAmount = savings.SavingAmount.Value;
@@ -1593,7 +1593,7 @@ namespace Smartstore.Web.Controllers
 
         private void PrepareRegularPriceModel(ProductDetailsModel.ProductPriceModel model, CalculatedPrice price)
         {
-            if (!price.PriceSaving.HasSaving)
+            if (!price.Saving.HasSaving)
             {
                 return;
             }
@@ -1615,7 +1615,7 @@ namespace Smartstore.Web.Controllers
             // TODO: (price) Should we pass origin product or is CalculatedPrice.Product sufficient? 
             var priceLabel = _priceLabelService.GetComparePriceLabel(price.Product);
 
-            if (price.PriceSaving.HasSaving && priceLabel.IsRetailPrice && !_priceSettings.AlwaysDisplayRetailPrice)
+            if (price.Saving.HasSaving && priceLabel.IsRetailPrice && !_priceSettings.AlwaysDisplayRetailPrice)
             {
                 // TODO: (pricing) does not feel right and surely it isn't!
                 return;
