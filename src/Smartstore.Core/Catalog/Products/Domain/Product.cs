@@ -641,6 +641,13 @@ namespace Smartstore.Core.Catalog.Products
         [Column("OldPrice")]
         public decimal ComparePrice { get; set; }
 
+        ///// <summary>
+        ///// Gets or sets the label id for <see cref="ComparePrice"/>. 
+        ///// A value set here overwrites the system default <see cref="PriceSettings.DefaultComparePriceLabelId"/>.
+        ///// </summary>
+        //// TODO: (mh) (pricing) Navigation property, Migration, UI
+        //public int? ComparePriceLabelId { get; set; }
+
         /// <summary>
         /// Gets or sets the product cost.
         /// </summary>

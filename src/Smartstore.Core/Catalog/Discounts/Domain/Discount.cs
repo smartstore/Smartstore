@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 using Smartstore.Core.Catalog.Brands;
 using Smartstore.Core.Catalog.Categories;
 using Smartstore.Core.Catalog.Products;
+using Smartstore.Core.Localization;
 using Smartstore.Core.Rules;
 using Smartstore.Data.Caching;
 
@@ -117,7 +118,7 @@ namespace Smartstore.Core.Catalog.Discounts
     /// </summary>
     [DebuggerDisplay("{Name} - {DiscountType}")]
     [CacheableEntity]
-    public partial class Discount : EntityWithAttributes, IRulesContainer
+    public partial class Discount : EntityWithAttributes, ILocalizedEntity, IRulesContainer
     {
         public Discount()
         {
@@ -206,6 +207,25 @@ namespace Smartstore.Core.Catalog.Discounts
         /// It is used when the limitation type is set to "N times only" or "N times per customer".
         /// </summary>
         public int LimitationTimes { get; set; }
+
+        ///// <summary>
+        ///// Sets the discount remaining time (in hours) from which a countdown should be displayed in product detail,
+        ///// e.g. "ends in 3 hours, 23 min.". Only applies to limited time discounts with a non-null <see cref="EndDateUtc"/>.
+        ///// A value set here overwrites the system default <see cref="PriceSettings.ShowOfferCountdownRemainingHours"/>.
+        ///// </summary>
+        ///// <summary>
+        //// TODO: (mh) (pricing) Migration, UI
+        //public int? ShowCountdownRemainingHours { get; set; }
+
+        ///// <summary>
+        ///// The label of the discount badge, e.g. "Deal".
+        ///// A value set here overwrites the system default <see cref="PriceSettings.OfferBadgeLabel"/>
+        ///// or <see cref="PriceSettings.LimitedOfferBadgeLabel"/> accordingly.
+        ///// </summary>
+        //// TODO: (mh) (pricing) Migration, UI
+        //[LocalizedProperty]
+        //[StringLength(16)]
+        //public string OfferBadgeLabel { get; set; }
 
         private ICollection<RuleSetEntity> _ruleSets;
         /// <summary>
