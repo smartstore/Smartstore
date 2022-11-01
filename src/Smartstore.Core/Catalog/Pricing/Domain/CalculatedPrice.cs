@@ -1,4 +1,6 @@
-﻿using Smartstore.Core.Catalog.Attributes;
+﻿#nullable enable
+
+using Smartstore.Core.Catalog.Attributes;
 using Smartstore.Core.Catalog.Discounts;
 using Smartstore.Core.Catalog.Products;
 using Smartstore.Core.Checkout.Tax;
@@ -30,14 +32,30 @@ namespace Smartstore.Core.Catalog.Pricing
         public Product Product { get; init; }
 
         /// <summary>
-        /// The regular price of the input <see cref="Product"/>, in the target currency, usually <see cref="Product.Price"/>.
+        /// The final unit price of the input <see cref="Product"/>.
         /// </summary>
+        public Money FinalPrice { get; set; }
+
+        /// <summary>
+        /// The regular unit price of the input <see cref="Product"/> in the target currency, 
+        /// usually <see cref="Product.Price"/>, <see cref="Product.ComparePrice"/> or <see cref="Product.SpecialPrice"/>.
+        /// </summary>
+        //// TODO: (mg) (pricing) Either Price, ComparePrice or SpecialPrice (make Nullable)
         public Money RegularPrice { get; set; }
 
         /// <summary>
-        /// The final price of the product.
+        /// The retail unit price (MSRP) of the input <see cref="Product"/>.
+        /// A retail price is given if <see cref="Product.ComparePrice"/> is not null
+        /// and 'Product.ComparePriceLabelId' referes to an MSRP label.
         /// </summary>
-        public Money FinalPrice { get; set; }
+        //// TODO: (mg) (pricing) Implement
+        public Money? RetailPrice { get; set; }
+
+        //// TODO: (mg) (pricing) Implement
+        public PriceLabel? RegularPriceLabel { get; set; }
+
+        //// TODO: (mg) (pricing) Implement
+        public PriceLabel? RetailPriceLabel { get; set; }
 
         /// <summary>
         /// A value indicating whether the price has a range, which is mostly the case if the lowest price

@@ -16,8 +16,8 @@ namespace Smartstore.Core.Catalog.Pricing
         
         public PriceLabel GetComparePriceLabel(Product product)
         {
-            // TODO: (pricing) Implement
-            // TODO: (pricing) This should NEVER return null, even if there's no record in db.
+            // TODO: (mh) (pricing) Implement
+            // TODO: (mh) (pricing) This should NEVER return null, even if there's no record in db.
             return new PriceLabel
             {
                 ShortName = "MSRP",
@@ -30,8 +30,8 @@ namespace Smartstore.Core.Catalog.Pricing
 
         public PriceLabel GetRegularPriceLabel(Product product)
         {
-            // TODO: (pricing) Implement
-            // TODO: (pricing) This should NEVER return null, even if there's no record in db.
+            // TODO: (mh) (pricing) Implement
+            // TODO: (mh) (pricing) This should NEVER return null, even if there's no record in db.
             return new PriceLabel
             {
                 ShortName = "Lowest",
@@ -43,16 +43,18 @@ namespace Smartstore.Core.Catalog.Pricing
 
         public (LocalizedValue<string>, string) GetPricePromoBadge(CalculatedPrice price)
         {
-            // TODO: (pricing) Properly implement
+            Guard.NotNull(price, nameof(price));
+            
+            // TODO: (mh) (pricing) Properly implement
             if (!_priceSettings.ShowOfferBadge || !price.Saving.HasSaving)
             {
                 return (null, null);
             }
-            
-            // TODO: (pricing) Get data from here on from offer OR applied discount.
+
+            // TODO: (mh) (pricing) Get data from here on from offer OR applied discount.
             var endDate = price.OfferEndDateUtc;
 
-            // TODO: (pricing) Get localized settings.
+            // TODO: (mh) (pricing) Get localized settings.
             if (endDate.HasValue)
             {
                 return (new LocalizedValue<string>("Limited time deal"), _priceSettings.LimitedOfferBadgeStyle);
@@ -61,6 +63,16 @@ namespace Smartstore.Core.Catalog.Pricing
             {
                 return (new LocalizedValue<string>("Deal"), _priceSettings.OfferBadgeStyle);
             }
+        }
+
+        public LocalizedValue<string> GetPromoCountdownText(CalculatedPrice price)
+        {
+            Guard.NotNull(price, nameof(price));
+
+            // TODO: (mh) (pricing) Properly implement:
+            // Get end date of offer OR applied discount, check CountdownRemainingHours,
+            // humanize (EndDate - Now) etc.
+            return null;
         }
     }
 }
