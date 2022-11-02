@@ -29,7 +29,45 @@ namespace Smartstore.Core.Data.Migrations
         /// </summary>
         private static async Task MigrateSettingsAsync(SmartDbContext db, CancellationToken cancelToken = default)
         {
-            // TODO: (mh) (core) localized seeding of OfferBadgeLabel and LimitedOfferBadgeLabel missing.
+            var defaultLanguage = await db.Languages.OrderBy(x => x.DisplayOrder).FirstOrDefaultAsync();
+            var offerBadgeLabelSettings = await db.Settings.Where(x => x.Name == $"PriceSettings.OfferBadgeLabel").ToListAsync();
+            var limitedOfferBadgeLabelSettings = await db.Settings.Where(x => x.Name == $"PriceSettings.LimitedOfferBadgeLabel").ToListAsync();
+
+            if (offerBadgeLabelSettings.Count == 0)
+            {
+                // Setting isn't saved yet. Lets create it.
+                db.Settings.Add(new Setting { 
+                    Name = $"PriceSettings.OfferBadgeLabel", 
+                    Value = "Deal", 
+                    StoreId = 0 
+                });
+            }
+            else
+            {
+                foreach (var setting in offerBadgeLabelSettings)
+                {
+                    setting.Value = "Deal";
+                }
+            }
+
+            var limitedOfferBadgeLabelValue = defaultLanguage.UniqueSeoCode == "de" ? "Befristetes Angebot" : "Limited time deal";
+            if (limitedOfferBadgeLabelSettings.Count == 0)
+            {
+                //Setting isn't saved yet. Lets create it.
+                db.Settings.Add(new Setting
+                {
+                    Name = $"PriceSettings.LimitedOfferBadgeLabel",
+                    Value = limitedOfferBadgeLabelValue,
+                    StoreId = 0
+                });
+            }
+            else
+            {
+                foreach (var setting in offerBadgeLabelSettings)
+                {
+                    setting.Value = limitedOfferBadgeLabelValue;
+                }
+            }
 
             // Move some settings from CatalogSettings to PriceSettings class
             var moveSettingProps = new[]
