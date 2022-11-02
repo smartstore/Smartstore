@@ -315,7 +315,8 @@ namespace Smartstore.Core.Catalog.Pricing
                 RegularPriceLabel = context.RegularPrice.HasValue ? _priceLabelService.GetRegularPriceLabel(product) : null,
                 RetailPrice = ConvertAmount(context.RetailPrice, context, taxRate, false, out _),
                 // TODO: (mg) (pricing) comment out RetailPriceLabel code when Product entity is ready:
-                //RetailPriceLabel = context.RetailPrice.HasValue ? product.ComparePriceLabel : null,
+                // TODO: (mg) (pricing) Hide/show RetailPrice according to settings and "Spickzettel"
+                RetailPriceLabel = context.RetailPrice.HasValue ? _priceLabelService.GetComparePriceLabel(product) : null,
                 OfferPrice = ConvertAmount(context.OfferPrice, context, taxRate, false, out _),
                 OfferEndDateUtc = context.OfferEndDateUtc,
                 PreselectedPrice = ConvertAmount(context.PreselectedPrice, context, taxRate, false, out _),
