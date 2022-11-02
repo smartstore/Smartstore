@@ -81,13 +81,6 @@
             artPriceClasses += " pd-price--offer";
         }
 
-        // TODO: (pricing) Remove price badges
-        var badgeClasses = string.Empty;
-        if (Model.PriceDisplayStyle == PriceDisplayStyle.BadgeAll || (Model.PriceDisplayStyle == PriceDisplayStyle.BadgeFreeProductsOnly && priceModel.Price == 0))
-        {
-            badgeClasses = Model.PriceDisplayStyle == PriceDisplayStyle.BadgeAll && priceModel.SavingAmount > 0 ? "text-danger" : "text-success";
-        }
-
         <!-- Price -->
         <div class="pd-group">
             <!-- NEW price group -->
@@ -102,7 +95,7 @@
                     }
                     <div class="@artPriceClasses">
                         <meta sm-if="!priceModel.CallForPrice && !isBundleItem" itemprop="price" content="@priceModel.FinalPrice.Price" />
-                        <span class="@badgeClasses">
+                        <span>
                             @Html.Raw(priceModel.FinalPrice.Price)
                         </span>
                     </div>
@@ -134,7 +127,7 @@
                     <div sm-if="blocksHaveLabel" class="pd-price-label">@currentPriceLabel</div>
                     <div class="@artPriceClasses">
                         <meta sm-if="!priceModel.CallForPrice && !isBundleItem" itemprop="price" content="@currentPriceValue.ToString()" />
-                        <span class="@badgeClasses">
+                        <span>
                             @Html.Raw(currentPrice)
                         </span>
                     </div>

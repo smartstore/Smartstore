@@ -8,17 +8,6 @@
     var list = Model.Parent;
     var artPriceClasses = "art-price";
     var deliveryPresentation = list.DeliveryTimesPresentation;
-    if (Model.PriceDisplayStyle == PriceDisplayStyle.BadgeAll || (Model.PriceDisplayStyle == PriceDisplayStyle.BadgeFreeProductsOnly && Model.Price.Price == 0))
-    {
-        if (Model.Price.SavingAmount.HasValue)
-        {
-            artPriceClasses += " badge badge-danger";
-        }
-        else
-        {
-            artPriceClasses += " badge badge-success";
-        }
-    }
 
     if (Model.DisplayTextForZeroPrices && Model.Price.Price == 0 && !Model.Price.CallForPrice)
     {
@@ -62,10 +51,7 @@
             if (showDeliveryDate)
             {
                 <span class="delivery-date-block" title="@T("Products.DeliveryDate") @Model.DeliveryTimeDate.RemoveHtml()">
-                    @if (!showStatusLabel)
-                    {
-                        <span>@T("Products.DeliveryDate")</span>
-                    }
+                    <span sm-if="!showStatusLabel">@T("Products.DeliveryDate")</span>
                     <span class="delivery-date" dir="auto">@Html.Raw(Model.DeliveryTimeDate)</span>
                 </span>
             }
@@ -88,13 +74,10 @@
                         <span>@T("Products.Price.OldPrice"):</span>
                         <span class="art-oldprice">@Model.Price.RegularPrice.Value</span>
                     </div>
-                    @if (Model.Price.SavingAmount.HasValue)
-                    {
-                        <div class="d-flex">
-                            <span>@T("ShoppingCart.ItemYouSave"):</span>
-                            <span class="pl-2">@Model.Price.SavingAmount <span class="lrm">(@Model.Price.SavingPercent.ToString("N0") %)</span></span>
-                        </div>
-                    }
+                    <div sm-if="Model.Price.SavingAmount.HasValue" class="d-flex">
+                        <span>@T("ShoppingCart.ItemYouSave"):</span>
+                        <span class="pl-2">@Model.Price.SavingAmount <span class="lrm">(@Model.Price.SavingPercent.ToString("N0") %)</span></span>
+                    </div>
                 </div>
             }
             else
@@ -103,12 +86,9 @@
             }
         }
 
-        @if (list.ShowShippingSurcharge && Model.TransportSurcharge.HasValue)
-        {
-            <div class="art-shipsurcharge">
-                @Model.TransportSurcharge.Value
-            </div>
-        }
+        <div sm-if="list.ShowShippingSurcharge && Model.TransportSurcharge.HasValue" class="art-shipsurcharge">
+            @Model.TransportSurcharge.Value
+        </div>
 
         @if (list.ShowBasePrice && Model.BasePriceInfo.HasValue())
         {

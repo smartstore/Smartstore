@@ -993,7 +993,6 @@ namespace Smartstore.Core.Data.Migrations
                 ["SmartStore.Core.Domain.Orders.ShoppingCartType"] = nameof(ShoppingCartType),
                 ["SmartStore.Core.Domain.Payments.CapturePaymentReason"] = nameof(CapturePaymentReason),
                 ["SmartStore.Core.Domain.Customers.WalletPostingReason"] = nameof(WalletPostingReason),
-                ["SmartStore.Core.Domain.Catalog.PriceDisplayStyle"] = nameof(PriceDisplayStyle),
                 ["SmartStore.Core.Domain.Customers.CustomerLoginType"] = nameof(CustomerLoginType),
                 ["SmartStore.Core.Domain.Catalog.ProductVisibility"] = nameof(ProductVisibility),
                 ["SmartStore.Core.Domain.Catalog.ProductCondition"] = nameof(ProductCondition),

@@ -22,9 +22,6 @@ namespace Smartstore.Admin.Models
         [LocalizedDisplay("*ShowDiscountSign")]
         public bool ShowDiscountSign { get; set; }
 
-        [LocalizedDisplay("*PriceDisplayStyle")]
-        public PriceDisplayStyle PriceDisplayStyle { get; set; }
-
         [LocalizedDisplay("*PriceDisplayType")]
         public PriceDisplayType PriceDisplayType { get; set; }
 

@@ -122,7 +122,6 @@ namespace Smartstore.Web.Models.Catalog
         public bool BundlePerItemPricing { get; set; }
         public bool BundlePerItemShoppingCart { get; set; }
         public bool DisplayTextForZeroPrices { get; set; }
-        public PriceDisplayStyle PriceDisplayStyle { get; set; }
 
         public bool IsShippingEnabled { get; set; }
         public DeliveryTimesPresentation DeliveryTimesPresentation { get; set; }

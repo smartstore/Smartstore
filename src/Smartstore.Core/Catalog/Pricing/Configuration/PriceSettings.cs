@@ -30,11 +30,6 @@ namespace Smartstore.Core.Catalog.Pricing
         public bool ShowDiscountSign { get; set; } = true;
 
         /// <summary>
-        /// Gets or sets the price display style for prices
-        /// </summary>
-        public PriceDisplayStyle PriceDisplayStyle { get; set; }
-
-        /// <summary>
         /// Gets or sets the price display type for prices in product lists
         /// </summary>
         public PriceDisplayType PriceDisplayType { get; set; }

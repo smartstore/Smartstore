@@ -48,28 +48,6 @@
     }
 
     /// <summary>
-    /// Represents the style for price display.
-    /// </summary>
-    [Flags]
-    public enum PriceDisplayStyle
-    {
-        /// <summary>
-        /// Display prices without badges
-        /// </summary>
-        Default = 1,
-
-        /// <summary>
-        /// Display all prices within badges
-        /// </summary>
-        BadgeAll = 2,
-
-        /// <summary>
-        /// Display prices of free products within badges 
-        /// </summary>
-        BadgeFreeProductsOnly = 4
-    }
-
-    /// <summary>
     /// Represents the tier price calculation method.
     /// </summary>
     public enum TierPriceCalculationMethod

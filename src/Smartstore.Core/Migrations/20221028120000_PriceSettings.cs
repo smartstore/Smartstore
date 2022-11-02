@@ -1,4 +1,5 @@
 ﻿using FluentMigrator;
+using Smartstore.Core.Catalog.Pricing;
 using Smartstore.Core.Configuration;
 using Smartstore.Data.Migrations;
 
@@ -38,7 +39,6 @@ namespace Smartstore.Core.Data.Migrations
                 "ShowLoginForPriceNote",
                 "BundleItemShowBasePrice",
                 "ShowDiscountSign",
-                "PriceDisplayStyle",
                 "PriceDisplayType",
                 "DisplayTextForZeroPrices",
                 "IgnoreDiscounts",
@@ -49,6 +49,13 @@ namespace Smartstore.Core.Data.Migrations
             foreach (var propName in moveSettingProps)
             {
                 await MoveSettingAsync(db, propName);
+            }
+
+            // Remove PriceDisplayStyle setting
+            var priceDisplayStyleSettings = await db.Settings.Where(x => x.Name == "CatalogSettings.PriceDisplayStyle").ToListAsync(cancellationToken: cancelToken);
+            if (priceDisplayStyleSettings.Count > 0)
+            {
+                db.Settings.RemoveRange(priceDisplayStyleSettings);
             }
 
             await db.SaveChangesAsync(cancelToken);
@@ -175,14 +182,6 @@ namespace Smartstore.Core.Data.Migrations
                 "Specifies whether a discount sign should be displayed on product pictures when discounts were applied.",
                 "Legt fest, ob ein Rabattzeichen auf dem Produktbild angezeigt werden soll, wenn Rabatte angewendet wurden.");
 
-            builder.Delete("Admin.Configuration.Settings.Catalog.PriceDisplayStyle");
-            builder.Delete("Admin.Configuration.Settings.Catalog.PriceDisplayStyle.Hint");
-            builder.AddOrUpdate("Admin.Configuration.Settings.Price.PriceDisplayStyle",
-                "Price display style",
-                "Preisdarstellung",
-                "Specifies the form in which prices are displayed in product lists and on the product detail page.",
-                "Bestimmt die Darstellungform von Preisen in Produktlisten und auf der Produktdetailseite.");
-
             builder.Delete("Admin.Configuration.Settings.Catalog.PriceDisplayType");
             builder.Delete("Admin.Configuration.Settings.Catalog.PriceDisplayType.Hint");
             builder.AddOrUpdate("Admin.Configuration.Settings.Price.PriceDisplayType",
@@ -227,6 +226,13 @@ namespace Smartstore.Core.Data.Migrations
             builder.AddOrUpdate("Admin.Configuration.Settings.Price.Baseprice", "Base prices", "Grundpreise");
             builder.AddOrUpdate("Admin.Configuration.Settings.Price.Discounts", "Discounts", "Rabatte");
             builder.AddOrUpdate("Admin.Configuration.Settings.Price.DiscountDisplay", "Discount display", "Rabattdarstellung");
+
+            // Removed setting
+            builder.Delete("Admin.Configuration.Settings.Catalog.PriceDisplayStyle");
+            builder.Delete("Admin.Configuration.Settings.Catalog.PriceDisplayStyle.Hint");
+            builder.Delete("Admin.Configuration.Settings.Catalog.PriceDisplayStyle.BadgeAll");
+            builder.Delete("Admin.Configuration.Settings.Catalog.PriceDisplayStyle.BadgeFreeProductsOnly");
+            builder.Delete("Admin.Configuration.Settings.Catalog.PriceDisplayStyle.Default");
         }
     }
 }

@@ -591,7 +591,6 @@ namespace Smartstore.Web.Controllers
                     CompareEnabled = !isAssociatedProduct && _catalogSettings.CompareProductsEnabled,
                     TellAFriendEnabled = !isAssociatedProduct && _catalogSettings.EmailAFriendEnabled,
                     AskQuestionEnabled = !isAssociatedProduct && _catalogSettings.AskQuestionEnabled,
-                    PriceDisplayStyle = _priceSettings.PriceDisplayStyle,
                     DisplayTextForZeroPrices = _priceSettings.DisplayTextForZeroPrices
                 };
 
